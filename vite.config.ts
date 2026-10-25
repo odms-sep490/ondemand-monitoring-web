@@ -1,12 +1,19 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
-      '@noble/hashes/sha2.js': new URL('node_modules/@noble/hashes/sha2.js', import.meta.url).pathname,
-      '@noble/hashes/utils.js': new URL('node_modules/@noble/hashes/utils.js', import.meta.url).pathname,
+      '@noble/hashes/sha2.js': new URL(
+        'node_modules/@noble/hashes/sha2.js',
+        import.meta.url,
+      ).pathname,
+      '@noble/hashes/utils.js': new URL(
+        'node_modules/@noble/hashes/utils.js',
+        import.meta.url,
+      ).pathname,
     },
   },
   test: {
