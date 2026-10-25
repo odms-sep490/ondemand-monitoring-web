@@ -122,7 +122,6 @@ describe('backend authentication contract', () => {
 
   it.each([
     '/api/support-tickets',
-    '/api/customer/consultations',
     '/api/v1/admin/accounts',
   ])('sends bearer without CSRF for %s', async (path) => {
     authSession.save({ accessToken: token, tokenType: 'Bearer', user }, false)

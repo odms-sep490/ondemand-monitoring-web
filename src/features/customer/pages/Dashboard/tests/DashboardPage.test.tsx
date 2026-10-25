@@ -45,6 +45,7 @@ describe('DashboardPage', () => {
     render(<DashboardPage />)
     const recent = (await screen.findByText('Đơn hàng gần đây')).closest('section') as HTMLElement
     expect(within(recent).getAllByRole('listitem')).toHaveLength(5)
+    expect(within(recent).getByText('Cần thanh toán cọc')).toBeInTheDocument()
     const breakdown = screen.getByText('Đơn hàng theo trạng thái').closest('section') as HTMLElement
     expect(within(breakdown).getAllByRole('listitem')).toHaveLength(6)
   })

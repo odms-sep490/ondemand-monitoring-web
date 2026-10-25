@@ -1,6 +1,6 @@
 import { createRoot } from 'react-dom/client'
-import InFlightControl from '../../src/features/drone-operator/omss/screens/InFlightControl'
-import type { Drone, Mission } from '../../src/features/drone-operator/omss/types'
+import InFlightControl from '../../src/features/drone-operator/pages/Flight/components/InFlightControl'
+import type { Drone, Mission } from '../../src/features/drone-operator/types/omss'
 
 const mission = {
   id: 'MS-1', orderRef: 'O', title: 'M', state: 'IN_FLIGHT', priority: 'NORMAL', droneId: 'DRN-1',

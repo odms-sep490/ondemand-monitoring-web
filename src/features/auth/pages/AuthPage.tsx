@@ -23,6 +23,7 @@ import { redirectToRoleHome } from '../routing'
 import type { AuthMode, Notice } from '../types/authMode'
 import { authPageMessages } from './AuthPage.messages'
 import '../auth.css'
+import '../auth-reference.css'
 
 export function AuthPage({
   initialMode = 'login',

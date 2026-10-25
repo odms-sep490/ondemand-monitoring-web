@@ -8,7 +8,12 @@ import {
 } from '../../../../shared/lib/simulationMapProjection'
 import { useI18n } from '../../../../shared/i18n'
 import { missionDetailMessages } from '../i18n/missionDetail'
-import type { Mission, Drone, Screen, MissionRoutePoint } from '../types'
+import type {
+  Mission,
+  Drone,
+  Screen,
+  MissionRoutePoint,
+} from '../../types/omss'
 import {
   MissionBadge,
   DroneBadge,

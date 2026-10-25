@@ -1221,3 +1221,50 @@
 :root[data-theme='dark'] .odm-auth-switch {
   border-top-color: rgba(255, 255, 255, 0.08);
 }
+
+/* ======================================================================
+ * Project-aligned auth composition
+ * A quieter 56/44 split gives the monitoring imagery and the sign-in task
+ * comparable visual weight without turning either side into a billboard.
+ * ==================================================================== */
+@media (min-width: 901px) {
+  .odm-auth-aside {
+    flex-basis: 56%;
+    width: 56%;
+  }
+
+  .odm-auth-main {
+    padding: 32px clamp(40px, 5vw, 88px);
+    background: #f5f7fb;
+  }
+
+  .odm-auth-content {
+    max-width: 560px;
+  }
+
+  .odm-auth-card {
+    max-width: 520px;
+    padding: 40px 42px 32px;
+    border-color: #dfe6f0;
+    border-radius: 16px;
+    box-shadow: 0 12px 32px rgba(15, 40, 90, 0.08);
+  }
+
+  .odm-auth-logo {
+    margin-bottom: 28px;
+  }
+
+  .odm-auth-heading h1 {
+    font-size: 30px;
+  }
+}
+
+@media (min-width: 901px) and (max-height: 820px) {
+  .odm-auth-card {
+    padding: 30px 36px 24px;
+  }
+
+  .odm-auth-logo {
+    margin-bottom: 20px;
+  }
+}

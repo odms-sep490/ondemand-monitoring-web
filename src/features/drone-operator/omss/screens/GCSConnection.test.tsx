@@ -3,9 +3,9 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { setLanguage } from '../../../../shared/i18n'
 import GCSConnection from './GCSConnection'
-import type { Drone, Mission } from '../types'
+import type { Drone, Mission } from '../../types/omss'
 
-vi.mock('../api/flightControlApi', () => ({
+vi.mock('../../api/flightControlApi', () => ({
   flightControlApi: {
     status: vi.fn(),
     bindSession: vi.fn(),

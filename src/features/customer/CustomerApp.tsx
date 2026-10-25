@@ -5,7 +5,6 @@ import { useI18n } from '../../shared/i18n'
 import { customerAppMessages } from './CustomerApp.messages'
 import { CustomerLayout } from './CustomerLayout'
 import { useNewMediaCount } from './hooks/useNewMediaCount'
-import { AnalysisPage } from './pages/Analysis'
 import { CreateOrderPage } from './pages/CreateOrder'
 import { DashboardPage } from './pages/Dashboard'
 import { LivePage } from './pages/Live'
@@ -18,6 +17,7 @@ import { OrderDetailPage } from './pages/OrderDetail'
 import { OrdersPage } from './pages/Orders'
 import { MissionHistoryPage } from './pages/MissionHistory'
 import { MissionHistoryDetailPage } from './pages/MissionHistoryDetail'
+import { CustomerMissionReportPage } from './components/reports/CustomerMissionReportPage'
 import { customerHref, parseCustomerRoute, type CustomerRoute } from './routes'
 
 function useHash(): string {
@@ -29,7 +29,6 @@ function useHash(): string {
   }, [])
   return hash
 }
-
 
 export function CustomerApp() {
   const hash = useHash()
@@ -54,14 +53,20 @@ function renderScreen(
   t: (typeof customerAppMessages)['vi'],
 ) {
   if (route.screen === 'missionHistory') return <MissionHistoryPage />
-  if (route.screen === 'missionHistoryDetail') return <MissionHistoryDetailPage missionId={route.missionId} />
+  if (route.screen === 'missionReport')
+    return (
+      <CustomerMissionReportPage
+        orderId={route.orderId}
+        missionId={route.missionId}
+      />
+    )
+  if (route.screen === 'missionHistoryDetail')
+    return <MissionHistoryDetailPage missionId={route.missionId} />
   if (route.screen === 'dashboard') return <DashboardPage />
   if (route.screen === 'orders') return <OrdersPage />
   if (route.screen === 'createOrder') return <CreateOrderPage />
   if (route.screen === 'orderDetail')
     return <OrderDetailPage orderId={route.orderId} />
-  if (route.screen === 'analysis')
-    return <AnalysisPage orderId={route.orderId} />
   if (route.screen === 'live') return <LivePage orderId={route.orderId} />
   if (route.screen === 'media') return <MediaPage orderId={route.orderId} />
   if (route.screen === 'liveHub') return <LiveHubPage />

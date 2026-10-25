@@ -5,7 +5,7 @@ import {
 } from '../../../media/api/operatorMediaApi'
 import { useI18n } from '../../../../shared/i18n'
 import { mediaUploadMessages } from '../i18n/mediaUpload'
-import type { Mission } from '../types'
+import type { Mission } from '../../types/omss'
 
 interface Props {
   mission: Mission
@@ -13,8 +13,16 @@ interface Props {
   onManual: () => void
 }
 
-const finishedUploadStatuses = new Set(['PENDING_MANAGER_APPROVAL', 'AVAILABLE'])
-const visibleAfterControllerDropStatuses = new Set(['UPLOADING', 'VALIDATING', 'PENDING_MANAGER_APPROVAL', 'AVAILABLE'])
+const finishedUploadStatuses = new Set([
+  'PENDING_MANAGER_APPROVAL',
+  'AVAILABLE',
+])
+const visibleAfterControllerDropStatuses = new Set([
+  'UPLOADING',
+  'VALIDATING',
+  'PENDING_MANAGER_APPROVAL',
+  'AVAILABLE',
+])
 
 export default function MediaUpload({ mission, onDone, onManual }: Props) {
   const { t } = useI18n(mediaUploadMessages)
@@ -31,15 +39,20 @@ export default function MediaUpload({ mission, onDone, onManual }: Props) {
       const local = await operatorMediaApi.list(operationalMissionId)
       setError(null)
       const previous = itemsRef.current
-      const ids = [...new Set([...local, ...previous]
-        .filter((item) => item.backendMediaId)
-        .map((item) => item.backendMediaId!))]
+      const ids = [
+        ...new Set(
+          [...local, ...previous]
+            .filter((item) => item.backendMediaId)
+            .map((item) => item.backendMediaId!),
+        ),
+      ]
       const results = await Promise.allSettled(
         ids.map((id) => operatorMediaApi.status(id)),
       )
       const refreshedStatuses: Record<string, string> = {}
       results.forEach((result, index) => {
-        if (result.status === 'fulfilled') refreshedStatuses[ids[index]] = result.value.status
+        if (result.status === 'fulfilled')
+          refreshedStatuses[ids[index]] = result.value.status
       })
       setStatus((previous) => {
         return { ...previous, ...refreshedStatuses }
@@ -47,9 +60,14 @@ export default function MediaUpload({ mission, onDone, onManual }: Props) {
       const merged = new Map(local.map((item) => [item.localMediaId, item]))
       for (const item of previous) {
         if (merged.has(item.localMediaId) || !item.backendMediaId) continue
-        const backendStatus = refreshedStatuses[item.backendMediaId] ?? item.status
+        const backendStatus =
+          refreshedStatuses[item.backendMediaId] ?? item.status
         if (visibleAfterControllerDropStatuses.has(backendStatus)) {
-          merged.set(item.localMediaId, { ...item, status: backendStatus as LocalMedia['status'], localAvailable: false })
+          merged.set(item.localMediaId, {
+            ...item,
+            status: backendStatus as LocalMedia['status'],
+            localAvailable: false,
+          })
         }
       }
       const nextItems = [...merged.values()]
@@ -88,9 +106,15 @@ export default function MediaUpload({ mission, onDone, onManual }: Props) {
       const mediaId = await operatorMediaApi.upload(item)
       setStatus((previous) => ({ ...previous, [mediaId]: 'VALIDATING' }))
       setItems((previous) => {
-        const next = previous.map((entry) => entry.localMediaId === item.localMediaId
-          ? { ...entry, backendMediaId: mediaId, status: 'VALIDATING' as const }
-          : entry)
+        const next = previous.map((entry) =>
+          entry.localMediaId === item.localMediaId
+            ? {
+                ...entry,
+                backendMediaId: mediaId,
+                status: 'VALIDATING' as const,
+              }
+            : entry,
+        )
         itemsRef.current = next
         return next
       })
@@ -211,12 +235,16 @@ export default function MediaUpload({ mission, onDone, onManual }: Props) {
                         !(
                           ['REVIEW_PENDING', 'UPLOAD_FAILED'].includes(
                             item.status,
-                          ) || (backendStatus ? finishedUploadStatuses.has(backendStatus) : false)
+                          ) ||
+                          (backendStatus
+                            ? finishedUploadStatuses.has(backendStatus)
+                            : false)
                         )
                       }
                       onClick={() => void discard(item)}
                     >
-                      {backendStatus && finishedUploadStatuses.has(backendStatus)
+                      {backendStatus &&
+                      finishedUploadStatuses.has(backendStatus)
                         ? t.removeLocalCopy
                         : t.discard}
                     </button>

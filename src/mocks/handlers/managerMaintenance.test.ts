@@ -27,7 +27,7 @@ describe('GET /api/maintenance-tickets', () => {
   it('returns all tickets', async () => {
     const { status, payload } = await call('GET', '/api/maintenance-tickets')
     expect(status).toBe(200)
-    expect(payload.data.items.length).toBeGreaterThan(0)
+    expect(payload.data.length).toBeGreaterThan(0)
   })
 
   it('filters by status', async () => {
@@ -35,98 +35,68 @@ describe('GET /api/maintenance-tickets', () => {
       'GET',
       '/api/maintenance-tickets?status=OPEN',
     )
-    for (const t of payload.data.items) {
+    for (const t of payload.data) {
       expect(t.status).toBe('OPEN')
     }
   })
 
-  it('filters by droneId', async () => {
+  it('filters by the backend deviceId parameter and returns backend field names', async () => {
     const { payload } = await call(
       'GET',
-      '/api/maintenance-tickets?droneId=drn-07',
+      '/api/maintenance-tickets?deviceId=drn-07',
     )
-    for (const t of payload.data.items) {
-      expect(t.droneId).toBe('drn-07')
-    }
-  })
-
-  it('filters by priority', async () => {
-    const { payload } = await call(
-      'GET',
-      '/api/maintenance-tickets?priority=CRITICAL',
-    )
-    for (const t of payload.data.items) {
-      expect(t.priority).toBe('CRITICAL')
+    for (const t of payload.data) {
+      expect(t.deviceId).toBe('drn-07')
+      expect(t.ticketCode).toBeTruthy()
     }
   })
 })
 
-describe('POST /api/maintenance-tickets', () => {
-  it('400s when title is missing', async () => {
-    const { status } = await call('POST', '/api/maintenance-tickets', {
-      droneId: 'drn-01',
-    })
-    expect(status).toBe(400)
-  })
-
-  it('400s when droneId is missing', async () => {
-    const { status } = await call('POST', '/api/maintenance-tickets', {
-      title: 'Test',
-    })
-    expect(status).toBe(400)
-  })
-
-  it('creates a ticket with OPEN status', async () => {
-    const { status, payload } = await call('POST', '/api/maintenance-tickets', {
-      droneId: 'drn-01',
-      title: 'Test ticket',
-      priority: 'HIGH',
-    })
-    expect(status).toBe(201)
-    expect(payload.data.status).toBe('OPEN')
-    expect(payload.data.title).toBe('Test ticket')
-  })
-})
-
-describe('PATCH /api/maintenance-tickets/:id/status', () => {
+describe('PATCH /api/maintenance-tickets/:id/assign-staff', () => {
   it('404s for unknown ticket', async () => {
     const { status } = await call(
       'PATCH',
-      '/api/maintenance-tickets/nope/status',
-      { status: 'IN_PROGRESS' },
+      '/api/maintenance-tickets/nope/assign-staff',
+      { staffId: 'staff-1' },
     )
     expect(status).toBe(404)
   })
 
-  it('422s on invalid transition (CLOSED → anything)', async () => {
+  it('400s when the required staffId is missing', async () => {
     const { status } = await call(
       'PATCH',
-      '/api/maintenance-tickets/mt-2609-008/status',
-      { status: 'OPEN' },
+      '/api/maintenance-tickets/mt-2609-011/assign-staff',
+      {},
     )
-    expect(status).toBe(422)
+    expect(status).toBe(400)
   })
 
-  it('transitions OPEN → IN_PROGRESS', async () => {
+  it('assigns the staff member and starts work', async () => {
     const { status, payload } = await call(
       'PATCH',
-      '/api/maintenance-tickets/mt-2609-011/status',
-      { status: 'IN_PROGRESS' },
+      '/api/maintenance-tickets/mt-2609-011/assign-staff',
+      { staffId: 'staff-1' },
     )
     expect(status).toBe(200)
     expect(payload.data.status).toBe('IN_PROGRESS')
+    expect(payload.data.assignedStaffId).toBe('staff-1')
+  })
+})
+
+describe('PATCH /api/maintenance-tickets/:id/resolve', () => {
+  it('requires resolution notes', async () => {
+    const { status } = await call('PATCH', '/api/maintenance-tickets/mt-2609-011/resolve', {})
+    expect(status).toBe(400)
   })
 
-  it('sets resolvedAt when moving to RESOLVED', async () => {
-    // First transition to IN_PROGRESS
-    await call('PATCH', '/api/maintenance-tickets/mt-2609-011/status', {
-      status: 'IN_PROGRESS',
-    })
+  it('sets resolved status and timestamps with the backend response shape', async () => {
     const { payload } = await call(
       'PATCH',
-      '/api/maintenance-tickets/mt-2609-011/status',
-      { status: 'RESOLVED' },
+      '/api/maintenance-tickets/mt-2609-011/resolve',
+      { resolutionNotes: 'Repaired', newDeviceStatus: 'AVAILABLE' },
     )
+    expect(payload.data.status).toBe('RESOLVED')
+    expect(payload.data.resolutionNotes).toBe('Repaired')
     expect(payload.data.resolvedAt).toBeTruthy()
   })
 })

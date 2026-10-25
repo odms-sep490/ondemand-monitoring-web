@@ -50,3 +50,21 @@ export function preferredLabel(
     .filter(Boolean)
     .join(' · ')
 }
+
+/** Displays the complete date range selected by the customer. */
+export function preferredRangeLabel(
+  dateFrom: string | null | undefined,
+  dateTo: string | null | undefined,
+  timeName: string | null | undefined,
+  window?: string | null,
+): string {
+  const from = formatDateVi(dateFrom)
+  const to = formatDateVi(dateTo)
+  const dates = from && to && from !== to ? `${from} → ${to}` : from || to
+  const win = window?.trim()
+  const time =
+    win && win !== timeName?.trim()
+      ? localizeTimeslot(win)
+      : localizeTimeslot(timeName)
+  return [dates, time].filter(Boolean).join(' · ')
+}

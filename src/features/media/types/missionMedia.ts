@@ -3,13 +3,22 @@ export interface UploadedMissionMedia {
   missionId: string
   deviceId: string
   mediaType: string
-  status?: 'UPLOAD_PENDING' | 'UPLOADING' | 'VALIDATING' | 'RETRY_REQUIRED' | 'MANUAL_UPLOAD_REQUIRED' | 'PENDING_MANAGER_APPROVAL' | 'AVAILABLE' | 'REJECTED'
+  status?:
+    | 'UPLOAD_PENDING'
+    | 'UPLOADING'
+    | 'VALIDATING'
+    | 'RETRY_REQUIRED'
+    | 'MANUAL_UPLOAD_REQUIRED'
+    | 'PENDING_MANAGER_APPROVAL'
+    | 'AVAILABLE'
+    | 'REJECTED'
   fileName: string
   contentType: string
   fileSize: number
   capturedAt: string | null
   availableAt: string | null
-  downloadUrl: string
+  /** Original URL is withheld until payment and delivery are complete. */
+  downloadUrl: string | null
   urlExpiresAt?: string
   /** Capture provenance; null/undefined means unknown legacy source. */
   sourceType?: string | null
@@ -30,10 +39,7 @@ export interface UploadedMissionMediaPage {
 }
 
 export type MissionMediaReviewStatus =
-  | 'DRAFT'
-  | 'PENDING_MANAGER_APPROVAL'
-  | 'APPROVED'
-  | 'REJECTED'
+  'DRAFT' | 'PENDING_MANAGER_APPROVAL' | 'APPROVED' | 'REJECTED'
 
 export interface MissionMediaReader {
   list(

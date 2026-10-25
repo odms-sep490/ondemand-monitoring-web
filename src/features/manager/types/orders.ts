@@ -7,6 +7,7 @@ import type {
   AiVerdict,
   FindingSeverity,
   OrderStatus,
+  RequiredEvidenceType,
 } from '../../../shared/types/domain'
 
 export type OrderCustomerSummary = {
@@ -35,11 +36,30 @@ export type OrderQueueItem = {
 export type OrderCustomerContact = OrderCustomerSummary & {
   email: string | null
   phone: string | null
+  address?: string | null
+  citizenIdentificationNumber?: string | null
+  companyTaxCode?: string | null
 }
 
 /** `order.media_requirements[]` item [BRIEF] — brief-only field. */
 export type OrderMediaRequirement = {
   label: string
+}
+
+/** A flight-permit file the customer attached; `dataUrl` is the base64 content. */
+export type OrderPermitDocument = {
+  id: string
+  fileName: string
+  contentType: string
+  sizeBytes: number
+  dataUrl: string
+}
+
+export type OrderAuthorizationDocument = OrderPermitDocument & {
+  documentType: string
+  documentName: string
+  notes?: string | null
+  verificationStatus?: string | null
 }
 
 /** `order.attachments[]` item [BRIEF] — brief-only field. */
@@ -58,6 +78,7 @@ export type OrderAttachment = {
  * when its field is `null`.
  */
 export type OrderDetail = {
+  executionPlanRevision?: number
   checklistItems?: OrderChecklistSnapshot[]
   checklistSnapshotAt?: string | null
   id: string
@@ -65,6 +86,8 @@ export type OrderDetail = {
   status: OrderStatus
   customer: OrderCustomerContact
   serviceName: string
+  /** Optional: only present if the order API supplies the service description. */
+  serviceDescription?: string | null
   preferredDate: string
   preferredDateFrom?: string | null
   preferredDateTo?: string | null
@@ -85,14 +108,19 @@ export type OrderDetail = {
   title?: string | null
   description?: string | null
   usagePurpose?: string | null
-  priority?: string | null
+  flightPurpose?: string | null
   altitudeM?: number | null
   estimatedLengthM?: number | null
   siteContactName?: string | null
   siteContactPhone?: string | null
   accessNotes?: string | null
+  monitoringRelationship?: string | null
+  monitoringAuthorizationConfirmed?: boolean | null
+  monitoringAuthorizationDocuments?: OrderAuthorizationDocument[] | null
   permitStatus?: string | null
   permitNumber?: string | null
+  permitExpiresOn?: string | null
+  permitDocuments?: OrderPermitDocument[] | null
   permitRequired?: boolean | null
   permitZoneName?: string | null
   recurrenceType?: string | null
@@ -105,6 +133,28 @@ export type OrderDetail = {
   termsAcceptedAt?: string | null
   termsVersion?: string | null
   deliverables?: OrderDeliverableResponse[] | null
+  legalReviewStatus?: LegalReviewStatus | null
+  flightAreaReviewReason?: string | null
+  flightAreaReviewNote?: string | null
+  requestedScopeFeasible?: boolean | null
+  flightAreaReviewedById?: string | null
+  flightAreaReviewedByName?: string | null
+  flightAreaReviewedAt?: string | null
+  updatedAt?: string | null
+}
+
+export type LegalReviewStatus =
+  | 'NOT_REVIEWED'
+  | 'NOT_REQUIRED'
+  | 'PENDING_PERMIT'
+  | 'APPROVED'
+  | 'REJECTED'
+
+export type FlightAreaReviewRequest = {
+  status: LegalReviewStatus
+  requestedScopeFeasible?: boolean | null
+  reason?: string | null
+  note?: string | null
 }
 
 export type FindingCustomerAction = 'ACCEPTED' | 'IGNORED' | 'AUTO_FIXED' | null
@@ -172,6 +222,8 @@ export type OrderInternalNote = {
  * scoped to APPROVED orders instead.
  */
 export type OrderMissionBrief = {
+  executionPlanRevision?: number
+  checklistItems?: OrderChecklistSnapshot[]
   id: string
   code: string
   serviceName: string
@@ -193,6 +245,7 @@ export type ApprovalDecision = 'REJECTED' | 'NEED_INFO'
 export type ApprovalRequest = {
   decision: ApprovalDecision
   reason: string
+  requestedUpdateScope?: 'LOCATION' | 'ADDITIONAL_INFORMATION'
 }
 
 export type OrderDeliverableResponse = {
@@ -205,6 +258,8 @@ export type OrderDeliverableResponse = {
 
 /** BE actual response for `GET /api/orders/pending` and related order-detail endpoints. */
 export type OrderCreateResponse = {
+  executionPlanRevision?: number
+  executionPlanStatus?: 'DRAFT' | 'FINALIZED'
   checklistItems?: OrderChecklistSnapshot[]
   checklistSnapshotAt?: string | null
   id: string
@@ -212,20 +267,31 @@ export type OrderCreateResponse = {
   customerId: string
   customerName: string
   customerEmail?: string | null
+  customerPhoneNumber?: string | null
+  customerAddress?: string | null
+  customerCompanyName?: string | null
+  customerCitizenIdentificationNumber?: string | null
+  customerCompanyTaxCode?: string | null
   title: string
   serviceId: string
   serviceName: string
   serviceBasePriceSnapshot?: number | string | null
+  serviceDescription?: string | null
   description: string
   usagePurpose?: string | null
-  priority?: string | null
+  flightPurpose?: string | null
   altitudeM?: number | null
   estimatedLengthM?: number | null
   siteContactName?: string | null
   siteContactPhone?: string | null
   accessNotes?: string | null
+  monitoringRelationship?: string | null
+  monitoringAuthorizationConfirmed?: boolean | null
+  monitoringAuthorizationDocuments?: OrderAuthorizationDocument[] | null
   permitStatus?: string | null
   permitNumber?: string | null
+  permitExpiresOn?: string | null
+  permitDocuments?: OrderPermitDocument[] | null
   permitRequired?: boolean | null
   permitZoneName?: string | null
   address: string
@@ -251,6 +317,13 @@ export type OrderCreateResponse = {
   reviewById: string | null
   reviewByName: string | null
   reviewAt: string | null
+  legalReviewStatus?: LegalReviewStatus | null
+  flightAreaReviewReason?: string | null
+  flightAreaReviewNote?: string | null
+  requestedScopeFeasible?: boolean | null
+  flightAreaReviewedById?: string | null
+  flightAreaReviewedByName?: string | null
+  flightAreaReviewedAt?: string | null
   deliverables: OrderDeliverableResponse[]
   createdAt: string
   updatedAt: string
@@ -262,5 +335,15 @@ export type OrderChecklistSnapshot = {
   sourceChecklistId: string | null
   sourceType: 'SERVICE_TEMPLATE' | 'CUSTOMER_CUSTOM'
   content: string
+  description?: string | null
+  executionSteps?: string[] | null
+  inputRequirements?: string[] | null
+  expectedOutputs?: string[] | null
   displayOrder: number
+  /** Optional for historical pre-policy snapshots. */
+  minimumEvidenceCount?: number
+  requiredEvidenceType?: RequiredEvidenceType
+  /** Evidence policy V3: independent minimums when the type is IMAGE_AND_VIDEO. */
+  minimumImageCount?: number
+  minimumVideoCount?: number
 }

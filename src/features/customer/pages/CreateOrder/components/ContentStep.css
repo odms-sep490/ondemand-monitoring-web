@@ -1,0 +1,487 @@
+/*
+ * ContentStep visual system. Kept separate from the shared CreateOrder.css so
+ * the monitoring editor can respond to its actual container width.
+ */
+.co-content-shell {
+  min-width: 0;
+  container: monitoring-step / inline-size;
+}
+
+.co-content-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(304px, 352px);
+  align-items: start;
+  gap: 24px;
+}
+
+.co-content-editor,
+.co-content-aside,
+.co-content-sidegroup {
+  min-width: 0;
+}
+
+/* One sidebar surface: summary and navigation share the same visual rail. */
+.co-content-sidegroup {
+  position: sticky;
+  top: 16px;
+  align-self: start;
+  overflow: hidden;
+  background: var(--ui-surface);
+  border: 1px solid var(--ui-border);
+  border-radius: 12px;
+}
+
+.co-content-sidegroup .co-summary.co-content-aside {
+  position: static;
+  top: auto;
+  border: 0;
+  border-radius: 0;
+  overflow: visible;
+  box-shadow: none;
+}
+
+.co-content-editor {
+  container: monitoring-editor / inline-size;
+}
+
+.co-content-editor > [role='region'],
+.co-content-editor .checklist-card {
+  min-width: 0;
+}
+
+.co-content-aside {
+  align-self: start;
+}
+
+.co-content-navigation {
+  padding: 16px 20px;
+  border-top: 1px solid var(--ui-border);
+  background: var(--ui-surface);
+}
+
+.co-content-navigation .co-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.co-content-navigation .co-footer-spacer {
+  display: none;
+}
+
+.co-content-navigation .co-footer .odm-btn {
+  width: 100%;
+  min-height: 44px;
+  height: auto;
+  padding-block: 11px;
+  justify-content: center;
+  white-space: normal;
+  text-align: center;
+}
+
+.co-content-navigation .co-footer .odm-btn-p {
+  order: -3;
+}
+
+.co-content-navigation .co-footer .odm-btn-gh {
+  order: -2;
+}
+
+.co-content-navigation .co-draft-note,
+.co-content-navigation .co-footer-blocked {
+  order: -1;
+  text-align: center;
+}
+
+.co-content-service {
+  display: grid;
+  gap: 4px;
+  padding-bottom: 16px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--ui-border);
+}
+
+.co-content-service-label {
+  color: var(--ui-text-2);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.co-content-service-name {
+  color: var(--ui-text);
+  font-size: 16px;
+  line-height: 1.4;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.co-content-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.co-summary.co-content-aside .co-content-stats .co-metric {
+  min-width: 0;
+  min-height: 0;
+  padding: 12px;
+  background: var(--ui-surface-2);
+  border: 1px solid var(--ui-border);
+  border-radius: 10px;
+}
+
+.co-summary.co-content-aside .co-content-stats .co-metric:first-child {
+  grid-column: 1 / -1;
+  background: var(--ui-primary-soft);
+  border-color: color-mix(in srgb, var(--ui-primary) 18%, var(--ui-border));
+}
+
+.co-summary.co-content-aside .co-content-stats .co-metric-label {
+  color: var(--ui-text-2);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.co-summary.co-content-aside .co-content-stats .co-metric-value {
+  margin-top: 5px;
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.3;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.co-content-hint {
+  margin: 14px 0 0;
+  color: var(--ui-text-2);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.co-content-hint[role='alert'] {
+  color: var(--ui-danger);
+}
+
+/* The checklist is the primary working surface, not a nested stack of cards. */
+.co-page .co-content-editor .checklist-card .checklist-pricing-notice {
+  margin: 12px 0 14px;
+  padding: 10px 14px;
+  border-radius: 0 8px 8px 0;
+  background: color-mix(in srgb, #fffbeb 84%, var(--ui-surface));
+}
+
+.co-page .co-content-editor .checklist-card .checklist-fields {
+  gap: 0;
+  margin-top: 16px;
+  padding: 0;
+}
+
+.co-page .co-content-editor .checklist-card.is-compact .checklist-row.is-compact {
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.co-page .co-content-editor .checklist-card.is-compact .checklist-row.is-compact.is-selected {
+  background: color-mix(in srgb, var(--ui-primary-soft) 20%, var(--ui-surface));
+  box-shadow: inset 3px 0 0 var(--ui-primary);
+}
+
+.co-content-editor .checklist-card .checklist-row.is-compact .checklist-row-header {
+  grid-template-columns: 20px 30px minmax(0, 1fr) auto auto;
+  grid-template-areas:
+    'check index summary price actions'
+    'check index evidence price actions';
+  column-gap: 12px;
+  row-gap: 7px;
+  align-items: center;
+  min-height: 82px;
+  padding: 15px 16px;
+}
+
+.co-content-editor .checklist-row-header > .checklist-check {
+  grid-area: check;
+}
+
+.co-content-editor .checklist-row-header > .checklist-index {
+  grid-area: index;
+}
+
+.co-page .co-content-editor .checklist-row-header > .checklist-summary {
+  grid-area: summary;
+  display: block;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ui-text);
+  text-align: left;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  cursor: text;
+}
+
+.co-content-editor .checklist-row-header > .checklist-evidence-summary {
+  grid-area: evidence;
+  justify-self: start;
+  margin: 0;
+  background: var(--ui-surface-2);
+  color: var(--ui-text-2);
+}
+
+.co-content-editor .checklist-row-header > .checklist-row-price {
+  grid-area: price;
+  align-self: center;
+  min-width: 104px;
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.co-content-editor .checklist-row-actions {
+  grid-area: actions;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.co-content-editor .checklist-row-actions .checklist-icon-btn {
+  width: 44px;
+  height: 44px;
+}
+
+.co-content-editor .checklist-row-actions .checklist-icon-btn:active:not(:disabled) {
+  background: var(--ui-primary-soft);
+}
+
+.co-content-editor .checklist-row.is-compact > .checklist-guidance {
+  padding: 0 18px 14px 78px;
+}
+
+/* One predictable toolbar instead of controls wrapping at arbitrary widths. */
+.co-page .co-content-editor .checklist-card .checklist-toolbar {
+  display: grid;
+  grid-template-columns: minmax(160px, 1fr) auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 10px;
+}
+
+.co-content-editor .checklist-toolbar-selection {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.co-content-editor .checklist-selectall,
+.co-content-editor .checklist-toolbar .checklist-clear {
+  min-height: 44px;
+}
+
+.co-content-editor .checklist-search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--ui-border-strong);
+  border-radius: 8px;
+  background: var(--ui-surface);
+  color: var(--ui-text-3);
+}
+
+.co-content-editor .checklist-search-wrap:focus-within {
+  border-color: var(--ui-primary);
+  outline: 2px solid color-mix(in srgb, var(--ui-primary) 30%, transparent);
+  outline-offset: 1px;
+}
+
+.co-page .co-content-editor .checklist-search-wrap .checklist-search {
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  outline: none;
+}
+
+.co-content-editor .checklist-toolbar .checklist-view {
+  margin: 0;
+  gap: 4px;
+}
+
+.co-content-editor .checklist-toolbar .checklist-view button {
+  min-height: 44px;
+  padding-inline: 10px;
+}
+
+/* Follow the available content width rather than the outer screen width. */
+@container monitoring-step (max-width: 1100px) {
+  .co-content-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+  }
+
+  .co-content-sidegroup {
+    display: contents;
+  }
+
+  .co-content-layout .co-summary.co-content-aside {
+    grid-column: 1;
+    position: static;
+    border: 1px solid var(--ui-border);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--ui-surface);
+  }
+
+  .co-content-navigation {
+    grid-column: 1;
+    position: sticky;
+    bottom: 0;
+    z-index: 40;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    border: 1px solid var(--ui-border);
+    border-radius: 12px 12px 0 0;
+    box-shadow: 0 -8px 24px rgba(15, 23, 42, 0.09);
+  }
+
+  .co-content-navigation .co-footer {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .co-content-navigation .co-footer .odm-btn {
+    width: auto;
+    order: 0;
+    min-width: 0;
+  }
+
+  .co-content-navigation .co-footer .odm-btn-gh {
+    flex: 0 1 auto;
+  }
+
+  .co-content-navigation .co-footer .odm-btn-p {
+    flex: 1 1 54%;
+  }
+
+  .co-content-navigation .co-draft-note {
+    display: none;
+  }
+
+  .co-content-navigation .co-footer-blocked {
+    display: block;
+    order: -1;
+    flex: 1 1 100%;
+    text-align: left;
+  }
+
+  /* Avoid overlaying the on-screen keyboard while text fields are focused. */
+  .co-content-layout:has(.checklist-search:focus, textarea:focus, input[type='number']:focus, select:focus)
+    .co-content-navigation {
+    position: static;
+    border-radius: 12px;
+    box-shadow: none;
+  }
+}
+
+@media (max-height: 820px) {
+  .co-content-sidegroup {
+    position: static;
+  }
+}
+
+@media (max-height: 480px) {
+  .co-content-navigation {
+    position: static;
+  }
+}
+
+/* Container queries use the editor width: the app also has a permanent side navigation. */
+@container monitoring-editor (max-width: 930px) {
+  .co-page .co-content-editor .checklist-card .checklist-toolbar {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .co-content-editor .checklist-search-wrap {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+
+  .co-content-editor .checklist-toolbar-selection {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .co-content-editor .checklist-toolbar .checklist-view {
+    grid-column: 2;
+    grid-row: 2;
+  }
+}
+
+@container monitoring-editor (max-width: 700px) {
+  .co-content-editor .checklist-card .checklist-row.is-compact .checklist-row-header {
+    grid-template-columns: 20px 30px minmax(0, 1fr) auto;
+    grid-template-areas:
+      'check index summary actions'
+      '. . evidence actions'
+      '. . price price';
+    gap: 8px 10px;
+    padding: 14px;
+  }
+
+  .co-content-editor .checklist-row-header > .checklist-row-price {
+    justify-self: start;
+    text-align: left;
+    min-width: 0;
+  }
+
+  .co-content-editor .checklist-row.is-compact > .checklist-guidance {
+    padding: 0 14px 14px 74px;
+  }
+}
+
+@container monitoring-editor (max-width: 530px) {
+  .co-page .co-content-editor .checklist-card .checklist-toolbar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .co-content-editor .checklist-toolbar-selection,
+  .co-content-editor .checklist-toolbar .checklist-view,
+  .co-content-editor .checklist-search-wrap {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .co-content-editor .checklist-toolbar .checklist-view button {
+    flex: 1 1 0;
+    justify-content: center;
+  }
+
+  .co-content-editor .checklist-row-actions .checklist-icon-btn {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .co-content-editor .checklist-card .checklist-row {
+    transition: none;
+  }
+}

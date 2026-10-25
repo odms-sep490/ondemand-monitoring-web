@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useI18n } from '../../../../shared/i18n'
 import { controlHandoverMessages } from '../i18n/controlHandover'
-import type { Mission, Drone } from '../types'
+import type { Mission, Drone } from '../../types/omss'
 
 interface Props {
   mission: Mission

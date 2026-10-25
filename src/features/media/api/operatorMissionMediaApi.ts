@@ -4,6 +4,7 @@ import type {
   UploadedMissionMedia,
   UploadedMissionMediaPage,
 } from '../types/missionMedia'
+import { apiRequest } from '../../../shared/api/httpClient'
 export type {
   UploadedMissionMedia,
   UploadedMissionMediaPage,
@@ -13,7 +14,8 @@ const PAGE_SIZE = 12
 
 function toUploaded(item: MissionResultMedia): UploadedMissionMedia {
   const isVideo =
-    item.contentType?.startsWith('video/') || item.type?.toUpperCase() === 'VIDEO'
+    item.contentType?.startsWith('video/') ||
+    item.type?.toUpperCase() === 'VIDEO'
   const extension = item.contentType?.split('/')[1] ?? (isVideo ? 'mp4' : 'jpg')
   const deviceId = item.deviceId ?? item.droneId
   return {
@@ -21,6 +23,7 @@ function toUploaded(item: MissionResultMedia): UploadedMissionMedia {
     missionId: item.missionId,
     deviceId: deviceId ?? '—',
     mediaType: isVideo ? 'VIDEO' : 'IMAGE',
+    status: item.status ?? undefined,
     fileName: `${isVideo ? 'video' : 'image'}-${item.id.slice(0, 8)}.${extension}`,
     contentType: item.contentType ?? (isVideo ? 'video/mp4' : 'image/jpeg'),
     fileSize: item.fileSize ?? 0,
@@ -44,6 +47,12 @@ async function listResultMedia(missionId: string, signal?: AbortSignal) {
 }
 
 export const operatorMissionMediaApi = {
+  approve(missionId: string, mediaId: string): Promise<unknown> {
+    return apiRequest(
+      `/api/manager/missions/${encodeURIComponent(missionId)}/media-approvals/${encodeURIComponent(mediaId)}/approve`,
+      { method: 'POST' },
+    )
+  },
   async list(
     missionId: string,
     page: number,

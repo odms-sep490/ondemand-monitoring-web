@@ -2,10 +2,10 @@ import { useEffect, useRef, useState } from 'react'
 import {
   flightControlApi,
   type FlightControlStatus,
-} from '../api/flightControlApi'
+} from '../../api/flightControlApi'
 import { useI18n } from '../../../../shared/i18n'
 import { returnToBaseMessages } from '../i18n/returnToBase'
-import type { Drone } from '../types'
+import type { Drone } from '../../types/omss'
 
 interface Props {
   drone: Drone

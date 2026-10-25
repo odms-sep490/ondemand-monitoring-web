@@ -2,7 +2,7 @@ import { useI18n } from '../../../../shared/i18n'
 import { getMissionStatusLabel } from '../../../../shared/lib/statusTone'
 import type { MissionStatus } from '../../../../shared/types/domain'
 import { operatorOverviewMessages } from '../i18n/operatorOverview'
-import type { Mission } from '../types'
+import type { Mission } from '../../types/omss'
 
 interface Props {
   allMissions: Mission[]

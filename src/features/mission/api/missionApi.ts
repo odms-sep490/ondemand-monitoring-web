@@ -8,7 +8,7 @@ import type {
   DeviceImage,
   DeviceStatus,
 } from '../types/mission'
-import type { FlightControlStatus } from '../../drone-operator/omss/api/flightControlApi'
+import type { FlightControlStatus } from '../../drone-operator/api/flightControlApi'
 
 import { env } from '../../../config/env'
 import { ApiError } from '../../../shared/api/httpClient'
@@ -212,6 +212,13 @@ export const missionApi = {
     return request<Mission>(
       `${API_BASE}/missions/${encodeURIComponent(missionId)}/accept-current`,
       { method: 'PATCH' },
+    )
+  },
+
+  startMissionWorkflow: async (missionId: string): Promise<Mission> => {
+    return request<Mission>(
+      `${API_BASE}/missions/${encodeURIComponent(missionId)}/start-operation`,
+      { method: 'POST' },
     )
   },
 

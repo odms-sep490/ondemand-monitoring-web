@@ -1,0 +1,1897 @@
+.odm-planning {
+  margin: 16px 0;
+  padding: 20px;
+}
+.odm-plan-create {
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+.odm-plan-page .button.odm-or-btn-primary {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--inkfg);
+}
+.odm-plan-page .button.odm-or-btn-primary:hover:not(:disabled) {
+  background: var(--blue-fg);
+}
+.odm-plan-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 20px 0;
+}
+.odm-plan-create > .odm-plan-header {
+  padding: 24px;
+  border-bottom: 1px solid var(--bd);
+}
+.odm-plan-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+  flex: 1 1 320px;
+}
+.odm-plan-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  color: var(--blue-fg);
+  background: var(--blue-bg);
+}
+.odm-plan-heading :is(h1, h2) {
+  margin: 0 0 6px;
+  font-size: 20px;
+  line-height: 1.35;
+}
+.odm-plan-heading p,
+.odm-plan-description {
+  margin: 0;
+  color: var(--tx2);
+  line-height: 1.6;
+  font-size: 14px;
+}
+.odm-plan-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.odm-plan-badges > .odm-or-pill {
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--sf3);
+  font-weight: 600;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.odm-plan-create-body {
+  padding: 24px;
+}
+.odm-plan-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 20px;
+  color: var(--blue-fg);
+  font-weight: 600;
+  font-size: 14px;
+}
+.odm-plan-create-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 24px;
+  padding: 20px;
+  border: 1px solid var(--bd);
+  border-radius: 12px;
+}
+.odm-plan-form {
+  min-width: 0;
+}
+.odm-plan-form h3,
+.odm-plan-geography h3 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  line-height: 1.4;
+}
+.odm-plan-description {
+  margin-bottom: 20px;
+}
+.odm-plan-form .odm-or-field {
+  margin-bottom: 8px;
+}
+.odm-plan-form input {
+  width: 100%;
+  box-sizing: border-box;
+}
+.odm-plan-field-help {
+  color: var(--tx2);
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 8px 0 0;
+}
+.odm-plan-field-error {
+  color: var(--red-fg);
+  margin: 8px 0 0;
+}
+.odm-plan-geography {
+  padding: 16px;
+  border-radius: 10px;
+  background: var(--sf3);
+  min-width: 0;
+}
+.odm-plan-geography h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.odm-plan-geography ul {
+  margin: 12px 0 0;
+  padding-left: 20px;
+  color: var(--tx2);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.odm-plan-geography li + li {
+  margin-top: 10px;
+}
+.odm-plan-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.odm-plan-empty {
+  padding: 20px;
+  margin-top: 16px;
+  border: 1px dashed var(--bd);
+  border-radius: 12px;
+  background: var(--sf3);
+}
+.odm-plan-empty h3 {
+  margin: 0 0 8px;
+  font-size: 16px;
+}
+.odm-plan-empty p {
+  margin: 0;
+  color: var(--tx2);
+  line-height: 1.6;
+}
+.odm-plan-create :is(a, button, input):focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+@media (max-width: 900px) {
+  .odm-plan-create-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 640px) {
+  .odm-plan-create > .odm-plan-header,
+  .odm-plan-create-body {
+    padding: 16px;
+  }
+  .odm-plan-create-grid {
+    padding: 16px;
+    gap: 20px;
+  }
+  .odm-plan-heading {
+    flex-basis: 100%;
+  }
+  .odm-plan-heading :is(h1, h2) {
+    font-size: 18px;
+  }
+  .odm-plan-badges {
+    padding-left: 56px;
+  }
+}
+.odm-planning-heading,
+.odm-planning-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.odm-planning-workspace {
+  display: grid;
+  grid-template-columns: minmax(270px, 0.72fr) minmax(0, 2fr);
+  gap: 20px;
+  margin-top: 16px;
+  align-items: start;
+}
+.odm-workspace-selector {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+.odm-workspace-choice {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid var(--bd);
+  border-radius: 12px;
+  background: var(--sf);
+  color: var(--tx);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.odm-workspace-choice.is-selected {
+  border-color: var(--blue-fg);
+  background: var(--blue-bg);
+  box-shadow: inset 3px 0 0 var(--blue-fg), 0 6px 18px rgba(37, 99, 235, 0.08);
+}
+.odm-workspace-choice:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+.odm-workspace-choice strong {
+  font-size: 16px;
+}
+.odm-workspace-choice-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+}
+.odm-workspace-plan-state {
+  color: var(--tx2);
+  font-size: 12px;
+}
+.odm-workspace-readiness {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
+}
+.odm-workspace-readiness > span {
+  padding: 4px 7px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+.odm-workspace-readiness .is-ready {
+  color: #087443;
+  background: #dcfce7;
+}
+.odm-workspace-readiness .is-missing {
+  color: #9a5b00;
+  background: #fff1c2;
+}
+.odm-workspace-choice small,
+.odm-workspace-scope {
+  color: var(--tx2);
+}
+.odm-workspace-choice-action {
+  color: var(--blue-fg);
+  font-weight: 600;
+  margin-top: 4px;
+  padding-top: 9px;
+  width: 100%;
+  border-top: 1px solid rgba(37, 99, 235, 0.18);
+}
+.odm-workspace-panels {
+  min-width: 0;
+}
+.odm-workspace-panels .odm-planning-mission {
+  margin-top: 0;
+}
+.odm-resource-assignment {
+  margin-top: 16px;
+}
+.odm-resource-assignment h4 {
+  margin: 0 0 12px;
+}
+.odm-resource-assignment fieldset {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.odm-resource-assignment label {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  font-size: 13px;
+}
+.odm-resource-assignment label small {
+  color: var(--tx3);
+}
+.odm-resource-assignment select {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 40px;
+  border: 1px solid var(--bd);
+  border-radius: 6px;
+  background: var(--sf);
+  color: var(--tx);
+  padding: 10px 12px;
+  font: inherit;
+}
+.odm-resource-assignment legend {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.odm-resource-assignment fieldset {
+  margin: 0 0 20px;
+}
+.odm-resource-assignment .odm-resource-device {
+  grid-template-columns: minmax(0, 1fr);
+}
+@media (max-width: 900px) {
+  .odm-planning-workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .odm-workspace-selector {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 540px) {
+  .odm-workspace-selector,
+  .odm-resource-assignment fieldset {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.odm-planning-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 28px;
+  margin: 0 0 16px;
+  padding: 12px 0;
+  border-top: 1px solid var(--bd);
+  border-bottom: 1px solid var(--bd);
+}
+.odm-planning-metrics > div {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.odm-planning-metrics dt {
+  color: var(--tx2);
+  font-size: 13px;
+}
+.odm-planning-metrics dd {
+  margin: 0;
+  font-weight: 700;
+  font-size: 17px;
+}
+.odm-planning-mission {
+  border: 1px solid var(--bd);
+  border-radius: 12px;
+  margin-top: 16px;
+  padding: 20px;
+  overflow-wrap: anywhere;
+  background: var(--sf);
+}
+.odm-planning > .odm-plan-header {
+  padding: 0 0 16px;
+  align-items: center;
+}
+.odm-planning > .odm-plan-header .odm-plan-heading :is(h1, h2) {
+  margin: 0;
+}
+.odm-planning > .odm-plan-header .odm-plan-icon {
+  width: 36px;
+  height: 36px;
+}
+.odm-mission-identity {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+.odm-mission-identity h3 {
+  margin: 0;
+  font-size: 17px;
+}
+.odm-mission-identity h3 a {
+  color: var(--tx);
+  text-decoration: none;
+}
+.odm-mission-identity h3 a:hover {
+  color: var(--blue-fg);
+  text-decoration: underline;
+}
+.odm-mission-meta {
+  color: var(--tx2);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.odm-mission-identity > .odm-mission-meta {
+  margin-left: auto;
+}
+.odm-mission-scope {
+  margin: 12px 0 16px;
+}
+.odm-mission-scope p {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 6px;
+}
+.odm-mission-scope > span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--tx2);
+  font-size: 13px;
+}
+.odm-mission-resources {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: 20px;
+  padding: 16px;
+  border: 1px solid var(--bd);
+  border-radius: 10px;
+  background: var(--sf3);
+}
+.odm-mission-resource {
+  min-width: 0;
+}
+.odm-mission-resource h4 {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 10px;
+  color: var(--tx2);
+  font-size: 12px;
+  font-weight: 600;
+}
+.odm-mission-resource > strong {
+  display: block;
+  font-size: 14px;
+}
+.odm-mission-resource p {
+  margin: 0;
+}
+.odm-mission-crew {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  display: grid;
+  gap: 7px;
+}
+.odm-mission-crew li {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr);
+  gap: 12px;
+  font-size: 13px;
+}
+.odm-mission-crew li > span {
+  color: var(--tx2);
+}
+.odm-mission-crew strong {
+  font-weight: 600;
+}
+.odm-mission-checklist {
+  margin: 0;
+  padding: 0 0 8px;
+  list-style: none;
+  display: grid;
+  gap: 9px;
+  font-size: 13px;
+}
+.odm-mission-checklist li {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  line-height: 1.5;
+}
+.odm-mission-check {
+  color: var(--blue-fg);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.odm-mission-actions {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--bd);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.odm-btn-danger-soft {
+  border-color: #fecaca !important;
+  background: #fff7f7 !important;
+  color: #b42318 !important;
+}
+.odm-btn-danger-soft:hover:not(:disabled) {
+  border-color: #ef4444 !important;
+  background: #fef2f2 !important;
+}
+.odm-btn-secondary-soft {
+  border-color: #bfdbfe !important;
+  background: #eff6ff !important;
+  color: #1d4ed8 !important;
+}
+.odm-planning-editor {
+  margin-top: 16px;
+  padding: 14px 0 0;
+  border-top: 1px solid var(--bd);
+}
+.odm-planning-editor summary {
+  font-weight: 700;
+  color: var(--tx);
+}
+.odm-mission-actions form {
+  flex-basis: 100%;
+}
+.odm-mission-history {
+  padding-top: 10px;
+  margin-top: 8px;
+  color: var(--tx2);
+  font-size: 12px;
+}
+.odm-mission-history p {
+  margin: 4px 0;
+}
+.odm-planning-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.odm-planning-next-resource {
+  margin-left: auto;
+  min-width: 220px;
+  justify-content: center;
+}
+@media (max-width: 640px) {
+  .odm-planning-next-resource {
+    width: 100%;
+    margin-left: 0;
+  }
+}
+.odm-planning-create-panel {
+  margin-top: 16px;
+  overflow: hidden;
+  border: 1px solid var(--bd);
+  border-radius: 16px;
+  background: var(--sf);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+}
+
+/* Modal popup for Mission Creation */
+.odm-planning-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+}
+
+/* The dirty-form confirmation must sit above the Mission popup that opened it. */
+.odm-planning .ui-modal-overlay {
+  z-index: 1100;
+}
+
+.odm-planning-modal-dialog {
+  background: var(--sf, #ffffff);
+  border: 1px solid var(--bd, #e2e8f0);
+  border-radius: 18px;
+  width: 100%;
+  max-width: 1100px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+  overflow: hidden;
+  animation: odmModalIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.odm-planning-modal-body {
+  overflow-y: auto;
+  padding: 0;
+  flex: 1;
+}
+
+@keyframes odmModalIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.odm-planning-create-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--bd);
+  background: linear-gradient(135deg, var(--blue-bg), var(--sf) 58%);
+}
+.odm-planning-create-icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border-radius: 12px;
+  background: var(--blue-fg);
+  color: #fff;
+  font-size: 23px;
+  font-weight: 500;
+}
+.odm-planning-create-head h3 {
+  margin: 0 0 4px;
+  font-size: 19px;
+}
+.odm-planning-create-head p {
+  margin: 0;
+  color: var(--tx2);
+  font-size: 13px;
+}
+.odm-planning-create-close {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  border: 1px solid var(--bd);
+  border-radius: 9px;
+  background: var(--sf);
+  color: var(--tx2);
+  font: 24px/1 inherit;
+  cursor: pointer;
+  margin-left: auto;
+  transition: 160ms ease;
+}
+.odm-planning-create-close:hover {
+  border-color: var(--blue-fg);
+  color: var(--blue-fg);
+  background: var(--blue-bg);
+}
+
+/* Chế độ nhúng trong kế hoạch: chỉ giữ các trường cần để tạo Mission. */
+.odm-plan-page.is-embedded {
+  padding: 0;
+}
+.odm-plan-page.is-embedded > .odm-plan-create {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.odm-plan-page.is-embedded .odm-plan-create-body {
+  padding: 22px;
+}
+.odm-plan-page.is-embedded .odm-plan-create-grid {
+  grid-template-columns: minmax(0, 1fr);
+  padding: 0;
+  border: 0;
+}
+.odm-plan-page.is-embedded .odm-plan-form > h3,
+.odm-plan-page.is-embedded .odm-plan-description {
+  display: none;
+}
+.odm-plan-page.is-embedded .odm-plan-form .odm-or-field-label {
+  font-size: 14px;
+  font-weight: 700;
+}
+.odm-plan-page.is-embedded .odm-plan-form .odm-or-input {
+  height: 50px;
+  border-radius: 11px;
+  background: var(--sf);
+  font-size: 15px;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+.odm-plan-page.is-embedded .odm-plan-form .odm-or-input:focus {
+  border-color: var(--blue-fg);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+.odm-plan-page.is-embedded .odm-plan-geography {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid #bfdbfe;
+  background: #eff6ff;
+}
+.odm-plan-page.is-embedded .odm-plan-geography h3 {
+  margin: 0;
+  font-size: 13px;
+  color: #1d4ed8;
+  white-space: nowrap;
+}
+.odm-plan-page.is-embedded .odm-plan-geography ul {
+  display: block;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--tx2);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.odm-plan-page.is-embedded .odm-plan-geography li:not(:first-child) {
+  display: none;
+}
+.odm-plan-page.is-embedded > .odm-or-grid {
+  display: block;
+  margin: 0;
+  padding: 0 20px;
+}
+.odm-plan-page.is-embedded > .odm-or-grid > .odm-or-col:first-child {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.85fr) minmax(420px, 1.15fr);
+  gap: 16px;
+  align-items: start;
+}
+.odm-plan-page.is-embedded > .odm-or-grid > .odm-or-col:last-child {
+  display: none;
+}
+/* Customer's requested window: full-width highlight above the two columns. */
+.odm-plan-page.is-embedded > .odm-or-grid > .odm-or-col:first-child > section:first-child {
+  grid-column: 1 / -1;
+  order: 0;
+  background: var(--blue-bg, #eff6ff);
+  border-color: var(--blue-bd, #bfdbfe);
+}
+.odm-plan-page.is-embedded > .odm-or-grid > .odm-or-col:first-child > section:first-child .odm-or-card-body {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 16px;
+}
+.odm-plan-page.is-embedded > .odm-or-grid > .odm-or-col:first-child > section:first-child .odm-or-muted {
+  margin: 0;
+}
+.odm-plan-page.is-embedded > .odm-or-grid > .odm-or-col:first-child > section:nth-child(2) {
+  order: 2;
+}
+.odm-plan-page.is-embedded > .odm-or-grid > .odm-or-col:first-child > section:nth-child(3) {
+  order: 1;
+}
+.odm-plan-page.is-embedded > .odm-or-grid > .odm-or-col:first-child > section:nth-child(4) {
+  grid-column: 1 / -1;
+  order: 3;
+}
+.odm-plan-page.is-embedded > .odm-or-grid .odm-or-card {
+  margin: 0;
+  box-shadow: none;
+}
+.odm-weather-check-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(130px, 0.55fr);
+  gap: 12px;
+  margin: 14px 0;
+}
+.odm-weather-check-controls .odm-or-field {
+  margin: 0;
+}
+.odm-plan-page.is-embedded .odm-or-actionbar {
+  position: static;
+  margin: 20px 0 0;
+  padding: 16px 20px;
+  border: 0;
+  border-top: 1px solid var(--bd);
+  border-radius: 0;
+  box-shadow: none;
+}
+.odm-plan-page.is-embedded .odm-or-actionbar-hint,
+.odm-plan-page.is-embedded .odm-or-actionbar-actions > a {
+  display: none;
+}
+.odm-plan-page.is-embedded .odm-or-actionbar-actions {
+  width: 100%;
+  justify-content: flex-end;
+}
+@media (max-width: 640px) {
+  .odm-planning-create-head,
+  .odm-plan-page.is-embedded .odm-plan-create-body,
+  .odm-plan-page.is-embedded .odm-or-actionbar {
+    padding: 16px;
+  }
+  .odm-plan-page.is-embedded > .odm-or-grid {
+    padding: 0 16px;
+  }
+  .odm-plan-page.is-embedded .odm-or-actionbar-actions .odm-or-btn {
+    width: 100%;
+  }
+  .odm-weather-check-controls {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .odm-planning-create-icon {
+    width: 36px;
+    height: 36px;
+  }
+  .odm-plan-page.is-embedded .odm-plan-geography {
+    display: grid;
+  }
+}
+@media (max-width: 1000px) {
+  .odm-plan-page.is-embedded > .odm-or-grid > .odm-or-col:first-child {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.odm-planning-stop {
+  border-top: 1px solid var(--border, #dbe2ea);
+  margin-top: 16px;
+  padding-top: 12px;
+}
+.odm-planning-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 0;
+}
+.odm-planning-item small {
+  display: block;
+  color: var(--tx3, #64748b);
+}
+.odm-planning textarea,
+.odm-planning-stop textarea {
+  display: block;
+  width: 100%;
+  min-height: 80px;
+  box-sizing: border-box;
+  margin: 8px 0;
+}
+.odm-planning-editor summary {
+  cursor: pointer;
+  padding: 12px 0;
+}
+.odm-planning fieldset {
+  border: 0;
+  padding: 0;
+}
+.odm-planning-notice {
+  background: var(--sf3, #f1f5f9);
+  padding: 12px;
+  border-radius: 8px;
+}
+@media (max-width: 640px) {
+  .odm-planning {
+    padding: 12px;
+  }
+  .odm-planning-metrics {
+    gap: 10px 20px;
+  }
+  .odm-planning-mission {
+    padding: 12px;
+  }
+  .odm-mission-resources {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+    padding: 12px;
+  }
+  .odm-mission-identity > .odm-mission-meta {
+    margin-left: 0;
+    flex-basis: 100%;
+  }
+  .odm-planning > .odm-plan-header .odm-plan-badges {
+    padding-left: 0;
+  }
+}
+.odm-manager-stop-flow {
+  background: var(--sf2);
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 16px;
+  overflow-wrap: anywhere;
+}
+.odm-manager-stop-flow h4 {
+  margin: 0;
+}
+.odm-manager-stop-flow p {
+  line-height: 1.5;
+}
+.odm-manager-stop-flow label {
+  display: grid;
+  gap: 8px;
+}
+.odm-manager-stop-flow textarea {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 80px;
+}
+.odm-planning-adjustment {
+  background: var(--sf2);
+  padding: 16px;
+  margin: 12px 0 16px;
+  border-radius: 12px;
+}
+.odm-planning-adjustment h3 {
+  margin: 0 0 8px;
+  font-size: 15px;
+}
+.odm-planning :is(textarea) {
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+  background: var(--sf);
+  color: var(--tx);
+  padding: 10px 12px;
+  font: inherit;
+  resize: vertical;
+}
+.odm-planning :is(button, textarea, .odm-manager-stop-flow):focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+.odm-planning-adjustment > button {
+  margin: 4px 8px 0 0;
+}
+.odm-stop-progress {
+  display: grid;
+  gap: 8px;
+  list-style: none;
+  padding: 0;
+  margin: 16px 0;
+}
+.odm-stop-progress li {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+.odm-stop-progress li > span:first-child {
+  color: var(--tx2);
+}
+.odm-manager-stop-flow > .odm-btn {
+  margin-top: 12px;
+}
+.odm-planning-complete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 16px;
+  margin: 12px 0;
+  background: var(--green-bg);
+  border-radius: 10px;
+  color: var(--tx);
+}
+.odm-mission-execution {
+  display: grid;
+  min-width: 0;
+  gap: 16px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--bd);
+}
+.odm-mission-execution > .monitoring-checklist {
+  margin: 0;
+}
+.odm-mission-execution > .mission-media {
+  margin-top: 0;
+}
+.odm-or-table td > .odm-mission-meta {
+  display: block;
+  margin-top: 4px;
+}
+@media (max-width: 600px) {
+  .odm-planning-complete > :last-child {
+    width: 100%;
+  }
+  .odm-mission-execution {
+    gap: 12px;
+  }
+  .odm-mgr .mission-media__header {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .odm-mgr .mission-media__title-row {
+    flex-wrap: wrap;
+  }
+  .odm-mgr .mission-media__refresh {
+    align-self: flex-end;
+  }
+}
+@media (min-width: 920px) {
+  .odm-workspace-selector {
+    position: sticky;
+    top: 12px;
+    max-height: calc(100vh - 104px);
+    overflow-y: auto;
+  }
+}
+.odm-planning-payment-gate {
+  display: grid;
+  gap: 8px;
+  margin: 16px 0;
+  padding: 16px;
+  border: 1px solid #f0c36a;
+  border-radius: 12px;
+  background: #fff7df;
+  color: #805100;
+}
+
+.odm-planning-payment-gate p {
+  margin: 0;
+}
+
+.odm-planning-payment-gate .odm-btn {
+  justify-self: start;
+  margin-top: 4px;
+}
+
+/* Mission rail: position in the Order ("Mission 2 / 3") and a clear bucket. */
+.odm-workspace-rank {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--or-tx2, #5b6472);
+}
+.odm-workspace-rank.is-finished { color: var(--or-green, #178a4c); }
+.odm-workspace-rank.is-active { color: var(--or-primary-fg, #0b3fa8); }
+.odm-workspace-rank.is-blocked { color: var(--or-red, #d92d20); }
+
+
+/* Order planning page polish */
+.odm-plan-heading :is(h1, h2) {
+  letter-spacing: normal;
+  font-weight: 700;
+}
+.odm-planning-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  padding: 0;
+  border: 0;
+}
+.odm-planning-metrics > div {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 12px 14px;
+  border: 1px solid var(--bd);
+  border-radius: 12px;
+  background: var(--sf);
+}
+.odm-planning-metrics dt {
+  order: 2;
+  font-size: 12.5px;
+}
+.odm-planning-metrics dd {
+  order: 1;
+  font-size: 24px;
+  line-height: 1.1;
+}
+.odm-planning-payment-gate {
+  gap: 10px;
+  margin: 0 0 16px;
+  padding: 14px 16px;
+  border-radius: 12px;
+}
+.odm-planning-payment-gate .odm-gate-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+}
+.odm-planning-payment-gate .odm-gate-head strong {
+  font-size: 15px;
+}
+.odm-planning-payment-gate p,
+.odm-planning-payment-gate span {
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+.odm-planning-payment-gate .odm-btn {
+  margin-top: 0;
+}
+.odm-gate-deposit {
+  display: grid;
+  gap: 6px;
+}
+.odm-gate-bar {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(128, 81, 0, 0.15);
+  overflow: hidden;
+}
+.odm-gate-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: #d97706;
+}
+.odm-plan-empty {
+  padding: 16px 18px;
+  text-align: left;
+}
+.odm-plan-empty h3 {
+  font-size: 15px;
+}
+.odm-plan-empty p {
+  font-size: 13.5px;
+}
+
+
+/* Planning workspace polish: compact Mission cards, calmer detail panel */
+.odm-workspace-choice {
+  display: grid;
+  gap: 6px;
+  text-align: left;
+}
+.odm-workspace-choice .odm-workspace-readiness {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
+}
+.odm-workspace-choice .odm-workspace-readiness > span {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.odm-workspace-choice .odm-workspace-readiness .is-ready {
+  background: #e8f6ee;
+  color: #166534;
+}
+.odm-workspace-choice .odm-workspace-readiness .is-missing {
+  background: #fff4dc;
+  color: #92560a;
+}
+.odm-workspace-choice-action {
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--bd);
+  font-weight: 600;
+}
+.odm-planning-bulk {
+  display: flex;
+  gap: 8px;
+  margin: 4px 0 10px;
+}
+.odm-planning-bulk .odm-btn {
+  padding: 4px 10px;
+  font-size: 12.5px;
+}
+.odm-planning-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  border: 1px solid var(--bd);
+  border-radius: 10px;
+  background: var(--sf);
+  cursor: pointer;
+}
+.odm-planning-item:hover {
+  border-color: #9bb8f0;
+}
+.odm-planning-item > span {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+}
+.odm-planning-tag {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: #eef2f7;
+  color: var(--tx2);
+  font-size: 11.5px;
+}
+.odm-planning-tag.is-customer {
+  background: #fff4dc;
+  color: #92560a;
+}
+.odm-planning-editor summary {
+  font-weight: 700;
+  padding: 10px 0;
+}
+.odm-mission-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--bd);
+}
+.odm-mission-actions .odm-btn {
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+.odm-planning-actions {
+  align-items: center;
+}
+.odm-planning-next-hint {
+  margin-left: auto;
+  color: #92560a;
+  font-size: 13px;
+}
+
+/* =========================================================================
+   New Split-View Planning Layout (30% Master Checklist - 70% Workspace)
+   ========================================================================= */
+.odm-planning-split-layout {
+  display: grid;
+  grid-template-columns: minmax(300px, 30%) minmax(0, 70%);
+  gap: 24px;
+  align-items: start;
+  margin-top: 20px;
+}
+.odm-planning-split-layout.is-collapsed {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (max-width: 1024px) {
+  .odm-planning-split-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Master Checklist Column (Left) */
+.odm-master-checklist-sidebar {
+  background: var(--sf);
+  border: 1px solid var(--bd);
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+  position: sticky;
+  top: 16px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.odm-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--bd);
+  padding-bottom: 12px;
+}
+.odm-sidebar-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.odm-checklist-block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.odm-checklist-block-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tx2);
+}
+.odm-checklist-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.odm-master-item-card {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--bd);
+  background: var(--sf2);
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+.odm-master-item-card.is-unassigned {
+  border-left: 3px solid #f59e0b;
+  background: #fffdf5;
+}
+.odm-master-item-card.is-assigned {
+  border-left: 3px solid #10b981;
+  background: #f0fdf4;
+}
+.odm-master-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: var(--tx3);
+}
+
+/* Workspace Grid (Right) */
+.odm-missions-workspace-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.odm-workspace-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 16px 20px;
+  background: var(--sf);
+  border: 1px solid var(--bd);
+  border-radius: 14px;
+}
+.odm-workspace-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 20px;
+  align-items: start;
+}
+@media (max-width: 640px) {
+  .odm-workspace-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Mission Card Redesign */
+.odm-mission-grid-card {
+  background: var(--sf);
+  border: 1px solid var(--bd);
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 4px 12px rgba(15, 23, 42, 0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.odm-mission-grid-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 10px 24px -3px rgba(15, 23, 42, 0.08);
+}
+.odm-mission-grid-card.is-ready {
+  border-top: 3px solid #10b981;
+}
+.odm-mission-grid-card.is-planning {
+  border-top: 3px solid #3b82f6;
+}
+.odm-mission-grid-card.is-cancelled {
+  border-top: 3px solid #ef4444;
+  background: #fafafa;
+  opacity: 0.9;
+}
+
+.odm-mcard-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid var(--bd-subtle, rgba(0, 0, 0, 0.06));
+  padding-bottom: 12px;
+}
+.odm-mcard-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.odm-mcard-title-group strong {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--tx);
+  letter-spacing: -0.01em;
+}
+.odm-mcard-title-group strong a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+.odm-mcard-title-group strong a:hover {
+  color: var(--blue-fg, #2563eb);
+}
+.odm-mcard-title-group span {
+  font-size: 12px;
+  color: var(--tx3, #64748b);
+}
+
+.odm-mcard-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.odm-mcard-sec-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--tx2, #475569);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.odm-mcard-sec-badge {
+  font-size: 11px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--sf3, #f1f5f9);
+  color: var(--tx3, #64748b);
+  font-weight: 500;
+}
+
+.odm-mcard-schedule {
+  padding: 8px 12px;
+  background: var(--sf2, #f8fafc);
+  border: 1px solid var(--bd-subtle, rgba(0, 0, 0, 0.04));
+  border-radius: 8px;
+  font-size: 12.5px;
+  color: var(--tx, #1e293b);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+/* Checklist in Card */
+.odm-mcard-checklist-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.odm-mcard-ch-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 11px;
+  border-radius: 8px;
+  background: var(--sf2, #f8fafc);
+  border: 1px solid var(--bd-subtle, rgba(0, 0, 0, 0.04));
+  font-size: 12.5px;
+  color: var(--tx, #1e293b);
+  line-height: 1.4;
+  transition: background 0.15s ease;
+}
+.odm-mcard-ch-item:hover {
+  background: #f1f5f9;
+}
+.odm-mcard-ch-remove {
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 2px 6px;
+  font-size: 13px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+.odm-mcard-ch-remove:hover {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+/* Resource Rows (Staff & Device) */
+.odm-mcard-res-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.odm-mcard-res-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 11px;
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid var(--bd-subtle, #e2e8f0);
+  font-size: 12.5px;
+  transition: border-color 0.15s ease;
+}
+.odm-mcard-res-item:hover {
+  border-color: #cbd5e1;
+}
+.odm-mcard-res-role {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--blue-fg, #2563eb);
+  background: #eff6ff;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-right: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.odm-mcard-res-remove {
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+  line-height: 1;
+  transition: all 0.15s ease;
+}
+.odm-mcard-res-remove:hover {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+/* Inline form for adding resources */
+.odm-mcard-inline-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 10px;
+  padding: 14px;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  background: linear-gradient(145deg, #f8fbff, #f1f6ff);
+  box-shadow: 0 5px 16px rgba(37, 99, 235, 0.07);
+  animation: odmInlineFormIn 0.16s ease-out;
+}
+.odm-mcard-inline-form-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.odm-mcard-inline-form-heading strong {
+  color: #172554;
+  font-size: 13px;
+  font-weight: 700;
+}
+.odm-mcard-inline-form-heading span,
+.odm-mcard-inline-form-hint {
+  margin: 0;
+  color: #64748b;
+  font-size: 11.5px;
+  line-height: 1.45;
+}
+.odm-mcard-field {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 5px;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 650;
+}
+.odm-mcard-inline-fields {
+  display: grid;
+  grid-template-columns: minmax(110px, 0.9fr) minmax(0, 1.6fr);
+  gap: 9px;
+}
+.odm-mcard-inline-form select {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 40px;
+  padding: 8px 32px 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background-color: #fff;
+  color: #1e293b;
+  font: inherit;
+  font-size: 12.5px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.odm-mcard-inline-form select:focus-visible {
+  border-color: #3b82f6;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+.odm-mcard-inline-form select:disabled {
+  cursor: not-allowed;
+  background: #f1f5f9;
+  color: #64748b;
+}
+.odm-mcard-inline-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid #dbeafe;
+}
+.odm-mcard-inline-actions .odm-btn {
+  min-height: 36px;
+  padding-inline: 12px;
+}
+.odm-mcard-inline-actions .odm-btn-p {
+  min-width: 118px;
+}
+.odm-mcard-error {
+  padding: 9px 11px;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  background: #fff7f7;
+  color: #b91c1c;
+  font-size: 12px;
+  line-height: 1.45;
+}
+@keyframes odmInlineFormIn {
+  from { opacity: 0; transform: translateY(-3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (max-width: 460px) {
+  .odm-mcard-inline-fields {
+    grid-template-columns: 1fr;
+  }
+  .odm-mcard-inline-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .odm-mcard-inline-actions .odm-btn-p {
+    min-width: 0;
+  }
+}
+
+.odm-mcard-footer {
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--bd-subtle, rgba(0, 0, 0, 0.06));
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* Modal Reason Popup */
+.odm-reason-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+.odm-reason-modal {
+  background: var(--sf);
+  border: 1px solid var(--bd);
+  border-radius: 14px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.16);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.odm-reason-modal h3 {
+  margin: 0;
+  font-size: 17px;
+  color: var(--tx);
+}
+.odm-reason-modal p {
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--tx2);
+  line-height: 1.5;
+}
+.odm-reason-modal textarea {
+  width: 100%;
+  min-height: 88px;
+  box-sizing: border-box;
+  padding: 10px;
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+  font: inherit;
+  font-size: 13.5px;
+}
+.odm-reason-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* Checklist selection card in create mission form */
+.odm-mission-checklist-selection-card {
+  border: 1px solid var(--bd, #e2e8f0);
+  border-radius: 14px;
+  background: var(--sf, #ffffff);
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+  margin-top: 8px;
+}
+
+.odm-checklist-selection-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--bd, #e2e8f0);
+  flex-wrap: wrap;
+}
+
+.odm-checklist-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.odm-checklist-count-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.odm-checklist-quick-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.odm-btn-highlight {
+  background: #eff6ff !important;
+  color: #2563eb !important;
+  border-color: #bfdbfe !important;
+  font-weight: 600;
+}
+
+.odm-btn-highlight:hover {
+  background: #dbeafe !important;
+}
+
+.odm-checklist-selection-body {
+  padding: 16px 20px;
+}
+
+.odm-checklist-empty-note {
+  padding: 24px;
+  text-align: center;
+  color: var(--tx2, #64748b);
+  font-style: italic;
+  background: #f8fafc;
+  border-radius: 8px;
+}
+
+.odm-checklist-items-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.odm-checklist-select-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 12px 16px;
+  border: 1px solid var(--bd, #e2e8f0);
+  border-radius: 10px;
+  background: #ffffff;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  position: relative;
+}
+
+.odm-checklist-select-item:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.odm-checklist-select-item.is-selected {
+  border-color: #93c5fd;
+  background: #f0f7ff;
+}
+
+.odm-checklist-select-item.is-unassigned,
+.odm-checklist-select-item.is-uncovered {
+  border-left: 4px solid #f59e0b;
+}
+
+.odm-checklist-select-item.is-assigned {
+  border-left: 4px solid #10b981;
+}
+
+.odm-checklist-checkbox {
+  margin-top: 3px;
+  width: 18px;
+  height: 18px;
+  accent-color: #2563eb;
+  cursor: pointer;
+  flex: none;
+}
+
+.odm-checklist-item-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.odm-checklist-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.odm-checklist-item-title {
+  font-size: 14px;
+  color: var(--tx, #0f172a);
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.odm-checklist-badges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.odm-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.odm-badge-uncovered {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.odm-badge-assigned {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.odm-badge-source {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.odm-checklist-item-desc {
+  margin: 2px 0 0;
+  font-size: 12.5px;
+  color: var(--tx2, #64748b);
+  line-height: 1.4;
+}
+
+.odm-checklist-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: #64748b;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.odm-checklist-error-msg {
+  color: #dc2626;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  margin: 12px 0 0;
+}
+
+

@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { setLanguage } from '../../../../shared/i18n'
 import DroneReplacement from './DroneReplacement'
-import type { Drone } from '../types'
+import type { Drone } from '../../types/omss'
 
 const current = {
   id: 'DRN-1',

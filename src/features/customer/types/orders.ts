@@ -11,7 +11,8 @@ export type CustomerOrderItem = {
   radiusM: number | null
   status: OrderStatus
   serviceNames: string[]
-  missionCount: number
+  /** Legacy fixture compatibility only; never inferred from Order status. */
+  missionCount?: number
   hasNewMedia: boolean
   submittedAt: string | null
   canCancel: boolean

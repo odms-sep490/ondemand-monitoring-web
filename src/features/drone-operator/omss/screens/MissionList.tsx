@@ -1,6 +1,6 @@
 import { useI18n } from '../../../../shared/i18n'
 import { missionListMessages } from '../i18n/missionList'
-import type { Mission, Screen } from '../types'
+import type { Mission, Screen } from '../../types/omss'
 import { MissionBadge, PriorityBadge } from '../components/StatusBadge'
 
 interface Props {

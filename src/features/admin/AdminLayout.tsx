@@ -19,7 +19,6 @@ const NAV_ITEMS: NavItem[] = [
   { key: 'catalog', icon: 'clipboard', route: { screen: 'catalog' } },
   { key: 'checklists', icon: 'clipboard', route: { screen: 'checklists' } },
   { key: 'operatingConfig', icon: 'cpu', route: { screen: 'operatingConfig' } },
-  { key: 'aiKnowledge', icon: 'sparkle', route: { screen: 'aiKnowledge' } },
   { key: 'auditLog', icon: 'file-text', route: { screen: 'auditLog' } },
 ]
 
@@ -34,7 +33,6 @@ const activeNavKey: Record<AdminScreen, NavItemKey | null> = {
   checklists: 'checklists',
   serviceChecklists: 'catalog',
   operatingConfig: 'operatingConfig',
-  aiKnowledge: 'aiKnowledge',
   auditLog: 'auditLog',
   notFound: null,
 }

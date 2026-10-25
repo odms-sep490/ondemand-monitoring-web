@@ -1,4 +1,10 @@
-import { useEffect, useRef, useState } from 'react'
+import {
+  type ReactNode,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
@@ -9,21 +15,19 @@ import {
   hcmcServicePolygonLatLngs,
   isInsideHcmcServiceArea,
 } from '../../../../../shared/lib/serviceArea'
-import type { FlightAreaNearbyFeature } from '../../../api/customerApi'
-import type { FormErrors, FormState, UpdateField } from '../../../lib/createOrder/types'
-import { useFlightAreaAssessment } from '../hooks/useFlightAreaAssessment'
-import { useRestrictedZoneOverlay, type RestrictedZoneOverlay } from '../hooks/useRestrictedZoneOverlay'
-import { FlightAreaAssessmentCard } from './FlightAreaAssessmentCard'
-import { flightAreaAssessmentCardMessages } from './FlightAreaAssessmentCard.messages'
-import { AirspaceNotice } from './AirspaceNotice'
+import type {
+  FormErrors,
+  FormState,
+  UpdateField,
+} from '../../../lib/createOrder/types'
 import { LocationPanel } from './LocationPanel'
-import { SiteDetailsPanel } from './SiteDetailsPanel'
 import { locationStepMessages } from './LocationStep.messages'
 
 type Props = {
   form: FormState
   errors: FormErrors
   update: UpdateField
+  footer?: ReactNode
 }
 
 type GeocodeResult = {
@@ -38,27 +42,31 @@ type ApiResponse<T> = {
   data?: T
 }
 
-function RealLocationMap({ latitude, longitude, radiusM, label, labels, onPick, zones, features }: {
+export function RealLocationMap({
+  latitude,
+  longitude,
+  radiusM,
+  label,
+  labels,
+  onPick,
+  cameraRequest = 0,
+}: {
   latitude: string
   longitude: string
   radiusM: number
   label: string
   labels: { street: string; satellite: string }
   onPick: (latitude: number, longitude: number) => void
-  /** Restricted zones with real coordinates (from the existing zones list). */
-  zones: RestrictedZoneOverlay[]
-  /** Only the few important OpenStreetMap features from the assessment, never every building. */
-  features: FlightAreaNearbyFeature[]
+  cameraRequest?: number
 }) {
-  const { t: legend } = useI18n(flightAreaAssessmentCardMessages)
-  const zoneLayer = useRef<L.LayerGroup | null>(null)
-  const featureLayer = useRef<L.LayerGroup | null>(null)
   const container = useRef<HTMLDivElement>(null)
   const map = useRef<L.Map | null>(null)
   const circle = useRef<L.Circle | null>(null)
   const marker = useRef<L.Marker | null>(null)
   const serviceArea = useRef<L.Polygon | null>(null)
-  const baseLayers = useRef<{ street: L.Layer; satellite: L.Layer } | null>(null)
+  const baseLayers = useRef<{ street: L.Layer; satellite: L.Layer } | null>(
+    null,
+  )
   const layersControl = useRef<L.Control.Layers | null>(null)
   const [mapReady, setMapReady] = useState(false)
   const onPickRef = useRef(onPick)
@@ -83,13 +91,16 @@ function RealLocationMap({ latitude, longitude, radiusM, label, labels, onPick, 
     }
   }
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!container.current) return
     const instance = L.map(container.current, {
       zoomControl: true,
       attributionControl: false,
       layers: [],
-    }).setView([HCMC_SERVICE_CENTER.latitude, HCMC_SERVICE_CENTER.longitude], 12)
+    }).setView(
+      [HCMC_SERVICE_CENTER.latitude, HCMC_SERVICE_CENTER.longitude],
+      12,
+    )
 
     const streetFallbackLayer = L.tileLayer(
       'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
@@ -100,17 +111,26 @@ function RealLocationMap({ latitude, longitude, radiusM, label, labels, onPick, 
       },
     )
       .on('tileload', markTileLoaded)
-      .on('tileerror', (event: L.TileErrorEvent) => markTileFailed('Street fallback', event))
+      .on('tileerror', (event: L.TileErrorEvent) =>
+        markTileFailed('Street fallback', event),
+      )
 
-    const osmLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; OpenStreetMap contributors',
-      crossOrigin: true,
-    })
+    const osmLayer = L.tileLayer(
+      'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+      {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors',
+        crossOrigin: true,
+      },
+    )
       .on('tileload', markTileLoaded)
-      .on('tileerror', (event: L.TileErrorEvent) => markTileFailed('Map', event))
+      .on('tileerror', (event: L.TileErrorEvent) =>
+        markTileFailed('Map', event),
+      )
 
-    const streetLayer = L.layerGroup([streetFallbackLayer, osmLayer]).addTo(instance)
+    const streetLayer = L.layerGroup([streetFallbackLayer, osmLayer]).addTo(
+      instance,
+    )
 
     const satelliteLayer = L.tileLayer(
       'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
@@ -121,7 +141,9 @@ function RealLocationMap({ latitude, longitude, radiusM, label, labels, onPick, 
       },
     )
       .on('tileload', markTileLoaded)
-      .on('tileerror', (event: L.TileErrorEvent) => markTileFailed('Satellite', event))
+      .on('tileerror', (event: L.TileErrorEvent) =>
+        markTileFailed('Satellite', event),
+      )
 
     baseLayers.current = { street: streetLayer, satellite: satelliteLayer }
     setMapReady(true)
@@ -141,8 +163,42 @@ function RealLocationMap({ latitude, longitude, radiusM, label, labels, onPick, 
       setTilesFailed(false)
     })
     map.current = instance
-    window.setTimeout(() => instance.invalidateSize(), 0)
+    const refreshMapSize = () => {
+      if (!container.current || !map.current) return
+      if (
+        container.current.clientWidth === 0 ||
+        container.current.clientHeight === 0
+      )
+        return
+      instance.invalidateSize({ animate: false, pan: false })
+      instance.eachLayer((layer) => {
+        if (layer instanceof L.TileLayer) layer.redraw()
+      })
+    }
+    const refreshTimers = [0, 100, 300, 800].map((delay) =>
+      window.setTimeout(refreshMapSize, delay),
+    )
+    const readyRefresh = () => {
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(refreshMapSize)
+      })
+    }
+    instance.whenReady(readyRefresh)
+    const resizeObserver =
+      typeof ResizeObserver === 'undefined'
+        ? null
+        : new ResizeObserver(() => {
+            window.requestAnimationFrame(refreshMapSize)
+          })
+    resizeObserver?.observe(container.current)
+    if (container.current.parentElement) {
+      resizeObserver?.observe(container.current.parentElement)
+    }
+    window.addEventListener('resize', refreshMapSize)
     return () => {
+      refreshTimers.forEach((timer) => window.clearTimeout(timer))
+      window.removeEventListener('resize', refreshMapSize)
+      resizeObserver?.disconnect()
       instance.remove()
       map.current = null
       circle.current = null
@@ -173,7 +229,16 @@ function RealLocationMap({ latitude, longitude, radiusM, label, labels, onPick, 
   useEffect(() => {
     const lat = Number(latitude)
     const lng = Number(longitude)
-    if (!map.current || !latitude || !longitude || !Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) return
+    if (
+      !map.current ||
+      !latitude ||
+      !longitude ||
+      !Number.isFinite(lat) ||
+      !Number.isFinite(lng) ||
+      Math.abs(lat) > 90 ||
+      Math.abs(lng) > 180
+    )
+      return
     const center: L.LatLngExpression = [lat, lng]
     if (marker.current) {
       marker.current.setLatLng(center)
@@ -190,46 +255,14 @@ function RealLocationMap({ latitude, longitude, radiusM, label, labels, onPick, 
         fillOpacity: 0.14,
       }).addTo(map.current)
     }
-    map.current.setView(center, 16)
   }, [latitude, longitude, radiusM])
 
   useEffect(() => {
-    if (!map.current) return
-    zoneLayer.current?.remove()
-    zoneLayer.current = L.layerGroup(
-      zones.map((zone) =>
-        L.polygon(zone.latLngs, {
-          color: '#dc2626',
-          fillColor: '#dc2626',
-          fillOpacity: 0.18,
-          weight: 2,
-          dashArray: '6 4',
-        }).bindTooltip(zone.name),
-      ),
-    ).addTo(map.current)
-  }, [zones])
-
-  useEffect(() => {
-    if (!map.current) return
-    featureLayer.current?.remove()
-    featureLayer.current = L.layerGroup(
-      features
-        .filter((item) => item.latitude != null && item.longitude != null)
-        .map((item) =>
-          L.circleMarker([item.latitude as number, item.longitude as number], {
-            radius: 6,
-            color: '#b45309',
-            fillColor: '#f59e0b',
-            fillOpacity: 0.9,
-            weight: 1.5,
-          }).bindTooltip(
-            [item.type, item.name, item.heightMeters != null ? `${item.heightMeters} m` : null]
-              .filter(Boolean)
-              .join(' · '),
-          ),
-        ),
-    ).addTo(map.current)
-  }, [features])
+    const lat = Number(latitude)
+    const lng = Number(longitude)
+    if (!map.current || !Number.isFinite(lat) || !Number.isFinite(lng)) return
+    map.current.setView([lat, lng], 16)
+  }, [cameraRequest])
 
   const lat = Number(latitude)
   const lng = Number(longitude)
@@ -249,44 +282,41 @@ function RealLocationMap({ latitude, longitude, radiusM, label, labels, onPick, 
       <div
         ref={container}
         className={`co-real-map${tilesFailed ? ' has-tile-fallback' : ''}`}
-        role="application"
+        role="region"
         aria-label={label}
+        aria-describedby="co-map-instructions"
       />
-      <div className="co-map-key" aria-label={legend.legendTitle}>
-        <span><i className="co-map-key-area" />{legend.legendArea}</span>
-        <span><i className="co-map-key-zone" />{legend.legendRestricted}</span>
-        <span><i className="co-map-key-point" />{legend.legendPoint}</span>
-      </div>
       {invalidCoordinates ? (
-        <div className="co-real-map-notice">Vĩ độ phải từ -90 đến 90, kinh độ từ -180 đến 180.</div>
+        <div className="co-real-map-notice">
+          Vĩ độ phải từ -90 đến 90, kinh độ từ -180 đến 180.
+        </div>
       ) : null}
       {outsideServiceArea ? (
-        <div className="co-real-map-notice">Hiện chỉ phục vụ trong khu vực TP.HCM. Vui lòng chọn điểm trong vùng xanh.</div>
+        <div className="co-real-map-notice">
+          Hiện chỉ phục vụ trong khu vực TP.HCM. Vui lòng chọn điểm trong vùng
+          xanh.
+        </div>
       ) : null}
     </div>
   )
 }
 
 /** Customer chooses a WGS84 target, not a point on the Gazebo image. */
-export function LocationStep({ form, errors, update }: Props) {
+export function LocationStep({ form, errors, update, footer }: Props) {
   const { t } = useI18n(locationStepMessages)
   const [locatingAddress, setLocatingAddress] = useState(false)
-  const [addressLookupError, setAddressLookupError] = useState<string | null>(null)
+  const [addressLookupError, setAddressLookupError] = useState<string | null>(
+    null,
+  )
+  const [cameraRequest, setCameraRequest] = useState(0)
   const reverseLookupId = useRef(0)
-  const assessment = useFlightAreaAssessment({
-    latitude: form.latitude,
-    longitude: form.longitude,
-    radiusM: form.radiusM,
-    altitudeM: form.altitudeM,
-  })
-  const restrictedZones = useRestrictedZoneOverlay()
-
   async function locateAddress() {
     const query = form.address.trim()
     if (!query || locatingAddress) return
 
     setLocatingAddress(true)
     setAddressLookupError(null)
+    update('locationStatus', 'resolving')
     try {
       const params = new URLSearchParams({ q: query })
       const response = await fetch(
@@ -298,10 +328,13 @@ export function LocationStep({ form, errors, update }: Props) {
           credentials: 'include',
         },
       )
-      const payload = (await response.json().catch(() => null)) as ApiResponse<GeocodeResult> | null
+      const payload = (await response
+        .json()
+        .catch(() => null)) as ApiResponse<GeocodeResult> | null
       if (!response.ok || payload?.success === false) {
         if (response.status === 404) {
           setAddressLookupError('NOT_FOUND')
+          update('locationStatus', 'error')
           return
         }
         throw new Error(payload?.message ?? `HTTP ${response.status}`)
@@ -309,19 +342,31 @@ export function LocationStep({ form, errors, update }: Props) {
       const place = payload?.data
       if (!place) {
         setAddressLookupError('NOT_FOUND')
+        update('locationStatus', 'error')
         return
       }
       const lat = Number(place.latitude)
       const lng = Number(place.longitude)
       if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
         setAddressLookupError('NOT_FOUND')
+        update('locationStatus', 'error')
         return
       }
       update('latitude', lat.toFixed(7))
       update('longitude', lng.toFixed(7))
+      const normalizedAddress = place.displayName?.trim() || query
+      update('address', normalizedAddress)
+      update('normalizedAddress', normalizedAddress)
+      update('locationSource', 'search')
+      update('locationConfirmedAt', new Date().toISOString())
+      update('locationStatus', 'confirmed')
+      setCameraRequest((current) => current + 1)
     } catch (error) {
       console.error('[CreateRequestMap] Address geocoding failed', error)
-      setAddressLookupError(error instanceof Error ? error.message : 'Không thể tìm địa chỉ.')
+      setAddressLookupError(
+        error instanceof Error ? error.message : 'Không thể tìm địa chỉ.',
+      )
+      update('locationStatus', 'error')
     } finally {
       setLocatingAddress(false)
     }
@@ -332,6 +377,11 @@ export function LocationStep({ form, errors, update }: Props) {
     reverseLookupId.current = lookupId
     update('latitude', latitude.toFixed(7))
     update('longitude', longitude.toFixed(7))
+    update('address', '')
+    update('normalizedAddress', '')
+    update('locationSource', 'map')
+    update('locationConfirmedAt', '')
+    update('locationStatus', 'resolving')
     setAddressLookupError(null)
 
     try {
@@ -348,7 +398,9 @@ export function LocationStep({ form, errors, update }: Props) {
           credentials: 'include',
         },
       )
-      const payload = (await response.json().catch(() => null)) as ApiResponse<GeocodeResult> | null
+      const payload = (await response
+        .json()
+        .catch(() => null)) as ApiResponse<GeocodeResult> | null
       if (lookupId !== reverseLookupId.current) return
       if (!response.ok || payload?.success === false) {
         throw new Error(payload?.message ?? `HTTP ${response.status}`)
@@ -356,45 +408,134 @@ export function LocationStep({ form, errors, update }: Props) {
       const address = payload?.data?.displayName?.trim()
       if (address) {
         update('address', address)
+        update('normalizedAddress', address)
+        update('locationConfirmedAt', new Date().toISOString())
+        update('locationStatus', 'confirmed')
       }
     } catch (error) {
       if (lookupId !== reverseLookupId.current) return
       console.error('[CreateRequestMap] Reverse geocoding failed', error)
-      setAddressLookupError(error instanceof Error ? error.message : 'Không thể tìm địa chỉ tại vị trí này.')
+      setAddressLookupError(
+        error instanceof Error
+          ? error.message
+          : 'Không thể tìm địa chỉ tại vị trí này.',
+      )
+      update('locationStatus', 'error')
     }
+  }
+
+  function markLocationStale() {
+    update('normalizedAddress', '')
+    update('locationConfirmedAt', '')
+    update('locationStatus', 'stale')
+  }
+
+  function confirmManualCoordinates() {
+    const latitude = Number(form.latitude)
+    const longitude = Number(form.longitude)
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return
+    const coordinateLabel = `${latitude.toFixed(7)}, ${longitude.toFixed(7)}`
+    update('address', form.address.trim() || coordinateLabel)
+    update('normalizedAddress', form.address.trim() || coordinateLabel)
+    update('locationSource', 'gps')
+    update('locationConfirmedAt', new Date().toISOString())
+    update('locationStatus', 'confirmed')
+    setAddressLookupError(null)
+    setCameraRequest((current) => current + 1)
   }
 
   return (
     <div className="co-stack">
       <div className="co-grid is-location">
         <div className="co-location-left">
-        <RealLocationMap
-          latitude={form.latitude}
-          longitude={form.longitude}
-          radiusM={form.radiusM}
-          label={t.mapLabel}
-          labels={{ street: t.layerStreet, satellite: t.layerSatellite }}
-          onPick={(latitude, longitude) => {
-            void updateAddressFromPoint(latitude, longitude)
-          }}
-          zones={restrictedZones}
-          features={assessment.data?.osmContext.importantFeatures ?? []}
-        />
-        <FlightAreaAssessmentCard state={assessment} requestedAltitudeAglM={form.altitudeM} />
+          <RealLocationMap
+            latitude={form.latitude}
+            longitude={form.longitude}
+            radiusM={form.radiusM}
+            label={t.mapLabel}
+            labels={{ street: t.layerStreet, satellite: t.layerSatellite }}
+            onPick={(latitude, longitude) => {
+              void updateAddressFromPoint(latitude, longitude)
+            }}
+            cameraRequest={cameraRequest}
+          />
+          <div className="co-map-toolbar">
+            <p id="co-map-instructions">{t.mapInstructions}</p>
+            <div>
+              <button
+                type="button"
+                onClick={() => setCameraRequest((current) => current + 1)}
+              >
+                {t.recenter}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  update('address', '')
+                  update('normalizedAddress', '')
+                  update('locationStatus', 'unconfirmed')
+                  update('locationSource', '')
+                  update('locationConfirmedAt', '')
+                  setAddressLookupError(null)
+                }}
+              >
+                {t.resetLocation}
+              </button>
+            </div>
+          </div>
+          <div className="co-map-legend" aria-label={t.legendTitle}>
+            <span>
+              <i className="is-monitoring" />
+              {t.legendMonitoring}
+            </span>
+            <span>
+              <i className="is-service" />
+              {t.legendService}
+            </span>
+            <span>
+              <i className="is-unknown" />
+              {t.legendUnknown}
+            </span>
+          </div>
         </div>
-        <div className="co-stack">
+        <div className="co-stack co-location-settings">
           <LocationPanel
             form={form}
             errors={errors}
-            update={update}
             locatingAddress={locatingAddress}
             addressLookupError={addressLookupError}
             onLocateAddress={locateAddress}
+            onAddressChange={(value) => {
+              update('address', value)
+              markLocationStale()
+            }}
+            onCoordinateChange={(field, value) => {
+              update(field, value)
+              update('locationSource', 'gps')
+              markLocationStale()
+            }}
+            onConfirmCoordinates={confirmManualCoordinates}
+            onRadiusChange={(value) =>
+              update('radiusM', Math.min(1500, Math.max(100, value || 100)))
+            }
           />
-          <AirspaceNotice form={form} errors={errors} update={update} />
-          <SiteDetailsPanel form={form} errors={errors} update={update} />
         </div>
       </div>
+      <section
+        className="co-flight-status"
+        aria-labelledby="co-flight-status-title"
+      >
+        <div>
+          <strong id="co-flight-status-title">{t.flightTitle}</strong>
+          <span className="co-status-neutral">{t.flightNotVerified}</span>
+        </div>
+        <p>{t.flightBody}</p>
+        <a href="https://cambay.mod.gov.vn/" target="_blank" rel="noreferrer">
+          {t.flightLink}
+        </a>
+        <small>{t.flightNote}</small>
+      </section>
+      {footer && <div className="co-flow-actions">{footer}</div>}
     </div>
   )
 }

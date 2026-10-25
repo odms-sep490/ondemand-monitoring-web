@@ -38,7 +38,9 @@ export function OrdersTable({ rows }: { rows: OrderRow[] }) {
                 </a>
                 <div className="ord-code">{row.code}</div>
               </td>
-              <td className="ord-muted ord-col-location">{row.address ?? DASH}</td>
+              <td className="ord-muted ord-col-location">
+                {row.address ?? DASH}
+              </td>
               <td className="ord-nowrap">
                 {formatDateRange(row.dateFrom, row.dateTo, locale) ?? DASH}
                 {row.timeName || row.timeId ? (
@@ -49,16 +51,38 @@ export function OrdersTable({ rows }: { rows: OrderRow[] }) {
               </td>
               <td className="ord-col-service">
                 {row.serviceName
-                  ? localizeServiceName(row.serviceId ?? row.serviceName, lang, row.serviceName)
+                  ? localizeServiceName(
+                      row.serviceId ?? row.serviceName,
+                      lang,
+                      row.serviceName,
+                    )
                   : DASH}
               </td>
               <td>
-                <OrderStatusBadge status={row.status} />
+                <div className="ord-status-stack">
+                  <OrderStatusBadge status={row.status} />
+                  {row.depositState === 'ACTION_REQUIRED' ? (
+                    <span className="ord-payment-required">
+                      <span aria-hidden="true" />
+                      {t.paymentRequired}
+                    </span>
+                  ) : row.depositState === 'PAID' ? (
+                    <span className="ord-deposit-paid">
+                      <span aria-hidden="true" />
+                      {t.depositPaid}
+                    </span>
+                  ) : null}
+                </div>
               </td>
               <td className="ord-col-actions">
                 <a className="ord-view" href={href}>
-                  {t.view}
-                  <Icon name="arrow-right" width={16} height={16} aria-hidden="true" />
+                  {row.status === 'NEEDS_INFO' ? t.addInformation : t.view}
+                  <Icon
+                    name="arrow-right"
+                    width={16}
+                    height={16}
+                    aria-hidden="true"
+                  />
                 </a>
               </td>
             </tr>

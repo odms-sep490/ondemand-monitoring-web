@@ -13,8 +13,10 @@ import type { MissionResponse } from '../types/missions'
 import type { CreateMissionRequest } from '../types/missions'
 
 const validRequest: CreateMissionRequest = {
+  scopeLabel: 'Whole Order scope',
   scheduledStart: '2026-09-26T08:00:00+07:00',
   scheduledEnd: '2026-09-26T09:00:00+07:00',
+  checklistIds: ['checklist-item-1'],
 }
 
 describe('Staff mission response mapping', () => {
@@ -233,6 +235,7 @@ describe('missionsApi.cancelMission', () => {
   it('cancels the mission', async () => {
     setHttpTransport(mockFetch)
     const m = await missionsApi.cancelMission('msn-2609-0142-1', {
+      expectedPlanRevision: 0,
       reason: 'Thời tiết xấu',
     })
     expect(m.status).toBe('CANCELLED')

@@ -261,7 +261,9 @@
   border: 1px solid var(--bd, #e2e8f0);
   border-radius: 10px;
   background: var(--bg, #fff);
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
 }
 .checklist-picker .checklist-candidate:hover {
   border-color: #93c5fd;
@@ -278,7 +280,8 @@
   background: #e2e8f0;
   color: #64748b;
 }
-.checklist-candidate-thumb img {
+.checklist-candidate-thumb img,
+.checklist-candidate-thumb video {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -361,6 +364,23 @@
   font-weight: 500;
   font-variant-numeric: tabular-nums;
   color: #64748b;
+}
+.ce-remaining {
+  color: #92400e;
+  font-weight: 600;
+}
+.ce-unable-note {
+  margin: 0;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 12px;
+  border-left: 3px solid #64748b;
+  font-weight: 500;
+}
+.ce-blocker {
+  color: #92400e;
 }
 .ce-list {
   list-style: none;
@@ -509,7 +529,10 @@
   font-weight: 500;
   color: #475569;
   cursor: pointer;
-  transition: border-color 0.15s, color 0.15s, background-color 0.15s;
+  transition:
+    border-color 0.15s,
+    color 0.15s,
+    background-color 0.15s;
 }
 .ce-add:hover:not(:disabled) {
   border-color: #2563eb;

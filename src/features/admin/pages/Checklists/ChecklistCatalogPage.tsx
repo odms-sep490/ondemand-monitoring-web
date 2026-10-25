@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useState } from 'react'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
 import { LoadingState } from '../../../../shared/components/odm/StateView'
@@ -7,7 +7,6 @@ import {
   PageHeader,
   Card,
   EmptyState,
-  FormField,
   StatusBadge,
 } from '../../../../shared/components/ui'
 import {
@@ -18,7 +17,9 @@ import { adminHref } from '../../routes'
 import { checklistMessages } from './checklists.messages'
 import { checklistError } from './checklistError'
 import { Icon } from '../../../../shared/components/Icon'
+import { formatVnd } from '../../../../shared/lib/formatVnd'
 import { ChecklistPagination, ChecklistLoadError } from './ChecklistUi'
+import { ChecklistConfigModal } from './ChecklistConfigModal'
 
 export function ChecklistCatalogPage() {
   const { t, lang } = useI18n(checklistMessages)
@@ -124,6 +125,7 @@ export function ChecklistCatalogPage() {
                   <tr>
                     <th>{t.content}</th>
                     <th>{t.filter}</th>
+                    <th>{t.priceColumn}</th>
                     <th>{t.usage}</th>
                     <th>{t.updated}</th>
                     <th>{t.actions}</th>
@@ -142,12 +144,22 @@ export function ChecklistCatalogPage() {
                           {row.isActive ? t.active : t.inactive}
                         </StatusBadge>
                       </td>
+                      <td className="adm-cell-mono">
+                        {formatVnd(row.basePrice ?? 0)}
+                        <br />
+                        {row.includedImageCount ?? 0} {t.imagesShort} ·{' '}
+                        {row.includedVideoCount ?? 0} {t.videosShort}
+                        {row.pricingProfile ? ` · ${row.pricingProfile}` : ''}
+                      </td>
                       <td>
                         <button
                           className="odm-btn odm-btn-gh odm-btn-sm"
                           onClick={() => setUsageId(row.id)}
                         >
-                          {t.usage}
+                          {t.usedBy(
+                            row.usedByServiceCount ?? 0,
+                            row.usedByOrderCount ?? 0,
+                          )}
                         </button>
                       </td>
                       <td className="adm-cell-mono">
@@ -200,8 +212,8 @@ export function ChecklistCatalogPage() {
       </Card>
       <p className="checklist-banner">{t.future}</p>
       {editor && (
-        <ChecklistEditor
-          row={editor === 'new' ? undefined : editor}
+        <ChecklistConfigModal
+          checklist={editor === 'new' ? undefined : editor}
           close={() => setEditor(null)}
           saved={() => {
             setEditor(null)
@@ -217,100 +229,6 @@ export function ChecklistCatalogPage() {
         />
       )}
     </div>
-  )
-}
-
-function ChecklistEditor({
-  row,
-  close,
-  saved,
-}: {
-  row?: ChecklistDefinition
-  close: () => void
-  saved: () => void
-}) {
-  const { t } = useI18n(checklistMessages)
-  const [content, setContent] = useState(row?.content ?? '')
-  const [busy, setBusy] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  async function submit(event: FormEvent) {
-    event.preventDefault()
-    const value = content.trim()
-    if (!value || value.length > 500) {
-      setError(t.required)
-      return
-    }
-    if (busy) return
-    setBusy(true)
-    setError(null)
-    try {
-      if (row) await checklistsApi.update(row.id, value)
-      else await checklistsApi.create(value)
-      saved()
-    } catch (cause) {
-      setError(checklistError(cause, t))
-    } finally {
-      setBusy(false)
-    }
-  }
-  return (
-    <Modal
-      width={560}
-      icon="clipboard"
-      title={row ? t.edit : t.add}
-      subtitle={t.future}
-      onClose={() => {
-        if (!busy) close()
-      }}
-      footer={
-        <>
-          <button
-            type="button"
-            className="odm-btn odm-btn-gh"
-            disabled={busy}
-            onClick={close}
-          >
-            {t.cancel}
-          </button>
-          <button
-            type="submit"
-            form="checklist-editor"
-            className="odm-btn odm-btn-p"
-            disabled={busy}
-          >
-            {busy ? t.saving : t.save}
-          </button>
-        </>
-      }
-    >
-      <form
-        id="checklist-editor"
-        className="checklist-dialog"
-        onSubmit={(event) => void submit(event)}
-      >
-        <FormField id="checklist-content" label={t.content} required>
-          <textarea
-            id="checklist-content"
-            className="odm-inp"
-            required
-            maxLength={500}
-            value={content}
-            onChange={(event) => setContent(event.target.value)}
-            aria-describedby="checklist-content-hint"
-            aria-invalid={error !== null}
-          />
-        </FormField>
-        <div id="checklist-content-hint" className="checklist-field-meta">
-          <span>{t.contentHint}</span>
-          <span>{content.length}/500</span>
-        </div>
-        {error && (
-          <p className="checklist-banner is-error" role="alert">
-            {error}
-          </p>
-        )}
-      </form>
-    </Modal>
   )
 }
 

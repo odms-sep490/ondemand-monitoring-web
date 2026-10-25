@@ -1,13 +1,17 @@
-import type { Drone, Mission } from '../omss/types'
+import type { Drone, Mission } from '../types/omss'
 import type { OperatorMission, OperatorMissionStatus } from '../types/mission'
+import type { MissionStopMetadata } from '../../mission/lib/missionOperationalState'
 
-export type BackendMission = {
+export type BackendMission = MissionStopMetadata & {
   id: string
   missionCode?: string | null
   orderId?: string | null
   orderTitle?: string | null
   serviceName?: string | null
   customerName?: string | null
+  managerName?: string | null
+  managerEmail?: string | null
+  managerPhone?: string | null
   status: string
   operatorId?: string | null
   staffId?: string | null
@@ -25,6 +29,11 @@ export type BackendMission = {
   droneName?: string | null
   staffAssignments?: Array<{
     staffId?: string | null
+    staffName?: string | null
+    staffEmail?: string | null
+    staffPhone?: string | null
+    assignedRole?:
+      'PILOT' | 'OPERATOR' | 'MAINTAINER' | 'INSPECTOR' | string | null
     responseStatus?: 'PENDING' | 'ACCEPTED' | 'REJECTED' | string | null
   }>
   latitude?: number | null
@@ -188,6 +197,10 @@ export function toOperatorMission(
     id: source.id,
     missionCode: source.missionCode ?? source.id,
     backendStatus: source.status,
+    safeStopStatus: source.safeStopStatus,
+    safeStopRequestedAt: source.safeStopRequestedAt,
+    safeStopConfirmedAt: source.safeStopConfirmedAt,
+    safeStopCleanedAt: source.safeStopCleanedAt,
     status: operatorStatusForAssignment(source.status, myResponseStatus),
     myResponseStatus:
       myResponseStatus === 'ACCEPTED' || myResponseStatus === 'REJECTED'
@@ -202,6 +215,9 @@ export function toOperatorMission(
     startTime: scheduled.time,
     endTime: end.time,
     serviceLabel: source.serviceName ?? source.mediaType ?? '—',
+    managerName: source.managerName ?? undefined,
+    managerEmail: source.managerEmail ?? undefined,
+    managerPhone: source.managerPhone ?? undefined,
     deviceId: source.deviceId ?? source.droneId ?? null,
     deviceCode: source.deviceCode ?? null,
     deviceSerialNumber: source.deviceSerialNumber ?? null,

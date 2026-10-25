@@ -1,4 +1,9 @@
-import type { Mission, Drone, CheckItem, ChecklistScenario } from './types'
+import type {
+  Mission,
+  Drone,
+  CheckItem,
+  ChecklistScenario,
+} from '../types/omss'
 
 /* ── Drones ─────────────────────────────────────────────────── */
 export const DRONE_PRIMARY: Drone = {

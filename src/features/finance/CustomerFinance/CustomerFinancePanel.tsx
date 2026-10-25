@@ -1,0 +1,157 @@
+import { useCallback, useEffect, useState } from 'react'
+import { useI18n } from '../../../shared/i18n'
+import { financeApi } from '../api'
+import { customerFinancePanelMessages } from './CustomerFinancePanel.messages'
+import type { CustomerQuote, Invoice } from '../types'
+import '../finance.css'
+import { isNotFound, messageOf } from './customerFinanceHelpers'
+import { QuoteSection } from './components/QuoteSection'
+import { InvoiceSection } from './components/InvoiceSection'
+
+export type CustomerFinanceState = {
+  quote: CustomerQuote | null
+  invoice: Invoice | null
+  loading: boolean
+}
+
+export function CustomerFinancePanel({
+  orderId,
+  legalStatus,
+  onStateChange,
+}: {
+  orderId: string
+  legalStatus?:
+    'NOT_REVIEWED' | 'NOT_REQUIRED' | 'PENDING_PERMIT' | 'APPROVED' | 'REJECTED'
+  onStateChange?: (state: CustomerFinanceState) => void
+}) {
+  const legalReady =
+    legalStatus == null ||
+    legalStatus === 'NOT_REQUIRED' ||
+    legalStatus === 'APPROVED' ||
+    legalStatus === 'PENDING_PERMIT'
+  const { t } = useI18n(customerFinancePanelMessages)
+  const [quote, setQuote] = useState<CustomerQuote | null>(null)
+  const [invoice, setInvoice] = useState<Invoice | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    const [quoteResult, invoiceResult] = await Promise.allSettled([
+      financeApi.getQuote(orderId),
+      financeApi.getInvoice(orderId),
+    ])
+    if (quoteResult.status === 'fulfilled') setQuote(quoteResult.value)
+    else if (!isNotFound(quoteResult.reason))
+      setError(messageOf(quoteResult.reason, t))
+    if (invoiceResult.status === 'fulfilled') setInvoice(invoiceResult.value)
+    else if (!isNotFound(invoiceResult.reason))
+      setError(messageOf(invoiceResult.reason, t))
+    setLoading(false)
+  }, [orderId, t])
+
+  useEffect(() => {
+    void load()
+  }, [load])
+
+  useEffect(() => {
+    onStateChange?.({ quote, invoice, loading })
+  }, [invoice, loading, onStateChange, quote])
+
+  async function accept() {
+    if (!quote) return
+    setBusy(true)
+    setError(null)
+    try {
+      setInvoice(await financeApi.acceptQuote(orderId, quote.id))
+      await load()
+    } catch (cause) {
+      setError(messageOf(cause, t))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function pay(type: 'deposit' | 'final') {
+    if (!invoice) return
+    setBusy(true)
+    setError(null)
+    try {
+      const payment =
+        type === 'deposit'
+          ? await financeApi.createDeposit(invoice.id)
+          : await financeApi.createFinalPayment(invoice.id)
+      if (!payment.paymentUrl) throw new Error(t.missingPaymentUrl)
+      window.location.assign(payment.paymentUrl)
+    } catch (cause) {
+      setError(messageOf(cause, t))
+      setBusy(false)
+    }
+  }
+
+  async function completeTestDeposit() {
+    if (!invoice) return
+    setBusy(true)
+    setError(null)
+    try {
+      await financeApi.completeTestDeposit(invoice.id)
+      await load()
+    } catch (cause) {
+      setError(messageOf(cause, t))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  if (loading && !quote && !invoice)
+    return (
+      <section className="ui-card customer-finance-card">{t.loading}</section>
+    )
+  if (!quote && !invoice && !error) return null
+
+  return (
+    <section
+      className="ui-card customer-finance-card"
+      aria-labelledby="customer-quote-title"
+    >
+      <header className="customer-finance-head">
+        <div>
+          <h2 id="customer-quote-title">{t.title}</h2>
+          <p>{t.description}</p>
+        </div>
+        {quote ? (
+          <span className="finance-status">Báo giá v{quote.version}</span>
+        ) : null}
+      </header>
+
+      {quote ? (
+        <QuoteSection
+          quote={quote}
+          legalReady={legalReady}
+          legalStatus={legalStatus}
+          invoice={invoice}
+          busy={busy}
+          accept={accept}
+        />
+      ) : null}
+
+      {invoice ? (
+        <InvoiceSection
+          invoice={invoice}
+          legalReady={legalReady}
+          busy={busy}
+          pay={pay}
+          completeTestDeposit={completeTestDeposit}
+          testPaymentLabel={t.testPayment}
+        />
+      ) : null}
+      {error ? (
+        <p className="finance-alert is-error" role="alert">
+          {error}
+        </p>
+      ) : null}
+    </section>
+  )
+}

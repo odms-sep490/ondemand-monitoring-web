@@ -1,7 +1,9 @@
 import type { MissionStatus } from '../../mission/types/mission'
-export type OperatorMissionStatus = MissionStatus | 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'UNKNOWN'
+import type { MissionStopMetadata } from '../../mission/lib/missionOperationalState'
+export type OperatorMissionStatus =
+  MissionStatus | 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'UNKNOWN'
 
-export type OperatorMission = {
+export type OperatorMission = MissionStopMetadata & {
   id: string
   missionCode?: string
   backendStatus?: string
@@ -24,12 +26,15 @@ export type OperatorMission = {
   droneName: string | null
   flightStartedAt?: string
   completedAt?: string
-  managerSubmissionStatus?: 'NEEDS_SUBMIT' | 'PENDING_MANAGER' | 'SENT_TO_CUSTOMER'
+  managerSubmissionStatus?:
+    'NEEDS_SUBMIT' | 'PENDING_MANAGER' | 'SENT_TO_CUSTOMER'
   permissions?: OperatorMissionPermissions
   rejectReason?: string
   acceptedAt?: string
   managerNote?: string
   managerName?: string
+  managerEmail?: string
+  managerPhone?: string
   respondBy?: string
   radiusMeters?: number
   ceilingMeters?: number
@@ -52,12 +57,14 @@ export type OperatorMission = {
 }
 
 export type OperatorMissionPermissions = {
+  canTerminateFlight?: boolean
   canAttachChecklistEvidence?: boolean
   canDetachChecklistEvidence?: boolean
   canCompleteMission?: boolean
   canSubmitMissionResult?: boolean
   canExecuteMonitoringChecklist?: boolean
   canControlFlight: boolean
+  canStartMission?: boolean
   canOperatePayload: boolean
   canInspectDevice: boolean
   canMaintainDevice: boolean
@@ -112,19 +119,7 @@ export type ControlHandover = {
   confirmedAt: string
 }
 
-export type PreflightItemKey =
-  | 'gazebo'
-  | 'px4'
-  | 'mavsdk'
-  | 'px4Control'
-  | 'localPosition'
-  | 'mavsdkHealth'
-  | 'battery'
-  | 'lidar'
-  | 'camera'
-  | 'backend'
-  | 'media'
-  | 'modules'
+export type PreflightItemKey = string
 
 export type PreflightItemResult = 'ok' | 'fail'
 

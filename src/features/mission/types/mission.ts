@@ -1,6 +1,8 @@
 export type MissionStatus =
+  | 'PLANNING'
   | 'CREATED'
   | 'WAITING_DEPOSIT'
+  | 'READY'
   | 'RESOURCE_ASSIGNING'
   | 'WAITING_CREW_CONFIRMATION'
   | 'WAITING_OPERATOR_ACCEPTANCE'
@@ -69,6 +71,10 @@ export interface MissionPlan {
 }
 
 export interface Mission {
+  safeStopStatus?: string | null
+  safeStopRequestedAt?: string | null
+  safeStopConfirmedAt?: string | null
+  safeStopCleanedAt?: string | null
   id: string
   orderId?: string
   orderCode?: string | null
@@ -126,6 +132,16 @@ export interface MissionResultMedia {
   deviceId?: string | null
   droneId?: string | null
   type?: string | null
+  status?:
+    | 'UPLOAD_PENDING'
+    | 'UPLOADING'
+    | 'VALIDATING'
+    | 'RETRY_REQUIRED'
+    | 'MANUAL_UPLOAD_REQUIRED'
+    | 'PENDING_MANAGER_APPROVAL'
+    | 'AVAILABLE'
+    | 'REJECTED'
+    | null
   url: string
   expiresIn?: number | null
   contentType?: string | null
@@ -168,6 +184,7 @@ export interface MissionStaffAssignment {
   staffId: string
   staffName?: string | null
   staffEmail?: string | null
+  staffPhone?: string | null
   assignedRole: MissionStaffRole
   responseStatus: StaffResponseStatus
   assignedAt?: string | null

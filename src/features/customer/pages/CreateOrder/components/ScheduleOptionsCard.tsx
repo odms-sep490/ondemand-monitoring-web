@@ -19,7 +19,7 @@ type Props = {
 const RECURRENCE: RecurrenceType[] = ['NONE', 'WEEKLY', 'MONTHLY']
 const WEATHER: WeatherFallback[] = ['AUTO_RESCHEDULE', 'CONTACT_CUSTOMER', 'CANCEL_ORDER']
 
-/** Recurrence, bad-weather fallback and result deadline for the flight schedule. */
+/** Recurrence, flight-incident fallback and result deadline for the schedule. */
 export function ScheduleOptionsCard({ form, errors, update }: Props) {
   const { t } = useI18n(scheduleOptionsCardMessages)
   const repeating = form.recurrenceType !== 'NONE'

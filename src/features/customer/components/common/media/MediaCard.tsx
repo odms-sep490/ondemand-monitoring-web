@@ -14,12 +14,17 @@ export function MediaCard({ item, onOpen }: Props) {
   const { t: ui } = useI18n(mediaUiMessages)
   const size = formatBytes(item.fileSize)
   const captured = item.capturedAt ? fmtDate(item.capturedAt, locale) : null
+  const source =
+    item.sourceType && Object.hasOwn(ui.source, item.sourceType)
+      ? ui.source[item.sourceType as keyof typeof ui.source]
+      : null
 
   return (
     <button
       type="button"
       className="md-card"
       aria-label={t.open(item.fileName)}
+      disabled={!item.url}
       onClick={() => onOpen(item)}
     >
       <span className="md-thumb">
@@ -31,11 +36,12 @@ export function MediaCard({ item, onOpen }: Props) {
         <span className={`md-kind md-kind--${item.kind}`}>
           {ui.kind[item.kind]}
         </span>
-        <span className="md-open-label">{t.view}</span>
+        <span className="md-open-label">{item.url ? t.view : t.locked}</span>
       </span>
       <span className="md-card-body">
         <span className="md-name">{item.fileName}</span>
         <span className="md-meta">
+          {source && <span>{source}</span>}
           {size && <span>{size}</span>}
           {captured && <span>{captured}</span>}
         </span>

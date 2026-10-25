@@ -11,10 +11,11 @@ import { CreateOrderPage } from '../CreateOrderPage'
 
 const labels = {
   1: 'Dịch vụ & mục tiêu',
-  2: 'Nội dung giám sát',
-  3: 'Vị trí & vùng giám sát',
-  4: 'Thời gian',
-  5: 'Kết quả bàn giao & xác nhận',
+  2: 'Vị trí & vùng giám sát',
+  3: 'Nội dung giám sát',
+  4: 'Chi tiết & quyền giám sát',
+  5: 'Thời gian',
+  6: 'Kết quả bàn giao & xác nhận',
 } as const
 
 beforeEach(() => resetMockDb())
@@ -24,23 +25,23 @@ afterEach(() => {
 })
 
 describe('StepTabs', () => {
-  it('exposes five steps with their full titles, the current one marked and later ones disabled', () => {
+  it('exposes six steps with their full titles, the current one marked and later ones disabled', () => {
     render(<StepTabs step={3} labels={labels} onSelect={() => {}} />)
     const nav = screen.getByRole('navigation')
     const tabs = within(nav).getAllByRole('button')
-    expect(tabs).toHaveLength(5)
+    expect(tabs).toHaveLength(6)
     // Full text is in the DOM (CSS wraps or hides it, never truncates), so the accessible names are complete.
-    expect(tabs[4].textContent).toContain('Kết quả bàn giao & xác nhận')
+    expect(tabs[5].textContent).toContain('Kết quả bàn giao & xác nhận')
     expect(within(nav).getByRole('button', { name: /Kết quả bàn giao & xác nhận/ })).toBeTruthy()
-    expect(tabs.map((tab) => tab.getAttribute('aria-current'))).toEqual([null, null, 'step', null, null])
-    expect(tabs.map((tab) => (tab as HTMLButtonElement).disabled)).toEqual([false, false, false, true, true])
+    expect(tabs.map((tab) => tab.getAttribute('aria-current'))).toEqual([null, null, 'step', null, null, null])
+    expect(tabs.map((tab) => (tab as HTMLButtonElement).disabled)).toEqual([false, false, false, true, true, true])
   })
 
   it('lets finished steps be reopened but not later ones', () => {
     const onSelect = vi.fn()
     render(<StepTabs step={3} labels={labels} onSelect={onSelect} />)
     const nav = screen.getByRole('navigation')
-    fireEvent.click(within(nav).getByRole('button', { name: /Nội dung giám sát/ }))
+    fireEvent.click(within(nav).getByRole('button', { name: /Vị trí & vùng giám sát/ }))
     fireEvent.click(within(nav).getByRole('button', { name: /Thời gian/ }))
     expect(onSelect).toHaveBeenCalledTimes(1)
     expect(onSelect).toHaveBeenCalledWith(2)
@@ -48,7 +49,7 @@ describe('StepTabs', () => {
 
   it('writes the position out as text for narrow screens', () => {
     render(<StepTabs step={2} labels={labels} onSelect={() => {}} />)
-    expect(screen.getByText(/Bước 2 \/ 5/)).toBeTruthy()
+    expect(screen.getByText(/Bước 2 \/ 6/)).toBeTruthy()
   })
 })
 

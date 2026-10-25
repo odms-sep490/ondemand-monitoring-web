@@ -7,7 +7,7 @@ import { customerHref } from '../../../routes'
 import { missionMediaSectionMessages } from './MissionMediaSection.messages'
 
 type Props = {
-  mission: CustomerMissionHistory
+  mission: Pick<CustomerMissionHistory, 'id' | 'missionCode' | 'orderId'>
   items: MediaItem[]
   onOpen: (item: MediaItem) => void
 }
@@ -18,7 +18,13 @@ export function MissionMediaSection({ mission, items, onOpen }: Props) {
     <Card
       title={mission.missionCode}
       actions={
-        <a href={customerHref({ screen: 'missionHistoryDetail', missionId: mission.id })}>
+        <a
+          href={customerHref({
+            screen: 'missionReport',
+            orderId: mission.orderId,
+            missionId: mission.id,
+          })}
+        >
           {t.missionDetail}
         </a>
       }

@@ -26,17 +26,11 @@ describe('AuthAside', () => {
   it('renders the 3 value props as real, readable text', () => {
     render(<AuthAside />)
     expect(
-      screen.getByText('Chọn vị trí và bán kính giám sát ngay trên bản đồ'),
+      screen.getByText('Chọn vùng giám sát trên bản đồ'),
     ).toBeInTheDocument()
+    expect(screen.getByText('AI kiểm tra điều kiện bay')).toBeInTheDocument()
     expect(
-      screen.getByText(
-        'AI kiểm tra tính khả thi, gợi ý ngày thay thế trước khi gửi duyệt',
-      ),
-    ).toBeInTheDocument()
-    expect(
-      screen.getByText(
-        'Xem trực tiếp khi drone bay và nhận ảnh, video đã xác thực',
-      ),
+      screen.getByText('Theo dõi trực tiếp, nhận ảnh và video'),
     ).toBeInTheDocument()
   })
 
@@ -52,9 +46,7 @@ describe('AuthAside', () => {
       screen.getByText('On-demand drone monitoring service'),
     ).toBeInTheDocument()
     expect(
-      screen.getByText(
-        'Pick a location and monitoring radius right on the map',
-      ),
+      screen.getByText('Choose a monitoring area on the map'),
     ).toBeInTheDocument()
   })
 })

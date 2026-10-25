@@ -20,6 +20,7 @@ export function LanguageToggle({ className }: { className?: string }) {
       <button
         type="button"
         aria-pressed={lang === 'vi'}
+        aria-label="Tiếng Việt"
         onClick={() => setLang('vi')}
       >
         VI
@@ -27,6 +28,7 @@ export function LanguageToggle({ className }: { className?: string }) {
       <button
         type="button"
         aria-pressed={lang === 'en'}
+        aria-label="English"
         onClick={() => setLang('en')}
       >
         EN

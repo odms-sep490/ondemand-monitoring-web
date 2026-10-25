@@ -7,37 +7,51 @@ export const authAsideMessages = defineMessages({
   vi: {
     asideLabel: 'OnDemand Monitor - dịch vụ giám sát bằng drone theo yêu cầu',
     brandSubtitle: 'Dịch vụ giám sát bằng drone theo yêu cầu',
+    heroTitle: 'Giám sát thông minh',
+    heroAccent: 'vươn xa tầm nhìn',
+    heroDescription:
+      'Drone và AI giúp bạn giám sát, phân tích và bảo vệ những gì quan trọng.',
     valueProps: [
       {
         icon: 'map-pin',
-        text: 'Chọn vị trí và bán kính giám sát ngay trên bản đồ',
+        text: 'Chọn vùng giám sát trên bản đồ',
       },
       {
         icon: 'zap',
-        text: 'AI kiểm tra tính khả thi, gợi ý ngày thay thế trước khi gửi duyệt',
+        text: 'AI kiểm tra điều kiện bay',
       },
       {
         icon: 'radio',
-        text: 'Xem trực tiếp khi drone bay và nhận ảnh, video đã xác thực',
+        text: 'Theo dõi trực tiếp, nhận ảnh và video',
       },
-    ] as { icon: 'map-pin' | 'zap' | 'radio'; text: string }[],
+    ] as {
+      icon: 'map-pin' | 'zap' | 'radio'
+      text: string
+    }[],
   },
   en: {
     asideLabel: 'OnDemand Monitor - on-demand drone monitoring service',
     brandSubtitle: 'On-demand drone monitoring service',
+    heroTitle: 'Smarter monitoring',
+    heroAccent: 'a wider perspective',
+    heroDescription:
+      'Use drones and AI to monitor, analyze, and protect what matters.',
     valueProps: [
       {
         icon: 'map-pin',
-        text: 'Pick a location and monitoring radius right on the map',
+        text: 'Choose a monitoring area on the map',
       },
       {
         icon: 'zap',
-        text: 'AI checks feasibility and suggests an alternative date before you submit',
+        text: 'AI checks flight conditions',
       },
       {
         icon: 'radio',
-        text: 'Watch live while the drone flies and get verified photos and video',
+        text: 'Watch live and receive photos and video',
       },
-    ] as { icon: 'map-pin' | 'zap' | 'radio'; text: string }[],
+    ] as {
+      icon: 'map-pin' | 'zap' | 'radio'
+      text: string
+    }[],
   },
 })

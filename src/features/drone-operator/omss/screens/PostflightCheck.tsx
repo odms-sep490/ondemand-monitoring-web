@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useI18n } from '../../../../shared/i18n'
 import { postflightCheckMessages } from '../i18n/postflightCheck'
-import type { Drone } from '../types'
-import type { FlightControlStatus } from '../api/flightControlApi'
+import type { Drone } from '../../types/omss'
+import type { FlightControlStatus } from '../../api/flightControlApi'
 
 interface Props {
   drone: Drone
@@ -165,8 +165,7 @@ export default function PostflightCheck({
               {t.title}
             </h1>
             <p style={{ fontSize: 14, color: 'var(--text-2)', margin: 0 }}>
-              {t.physicalInspectionOf}{' '}
-              <strong>{drone.name || drone.id}</strong>
+              {t.physicalInspectionOf} <strong>{drone.name || drone.id}</strong>
             </p>
             {telemetrySnapshot && (
               <p

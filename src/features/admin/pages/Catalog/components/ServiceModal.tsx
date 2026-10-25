@@ -15,6 +15,12 @@ import { EditLoader } from './EditLoader'
 import { FormField } from '../../../../../shared/components/ui'
 import { FormFooter } from '../../../../../shared/components/ui'
 import { serviceModalMessages } from './ServiceModal.messages'
+import { PriceBreakdownView } from '../../../../../shared/components/odm/PriceBreakdownView'
+import {
+  checklistPricingApi,
+  type ServicePricePreview,
+} from '../../../../../shared/api/checklistPricingApi'
+import { adminHref } from '../../../routes'
 
 type Props = {
   /** Existing service (edit) or undefined (create). */
@@ -34,6 +40,8 @@ function ServiceForm({ service, onClose, onSaved }: Props) {
   const [savedId, setSavedId] = useState(service?.id)
   const [image, setImage] = useState<File | null>(null)
   const [removeImage, setRemoveImage] = useState(false)
+  const [priceCheck, setPriceCheck] = useState<ServicePricePreview | null>(null)
+  const [priceCheckError, setPriceCheckError] = useState<string | null>(null)
   const [preview, setPreview] = useState<string | null>(
     service?.imageUrl ?? null,
   )
@@ -48,9 +56,29 @@ function ServiceForm({ service, onClose, onSaved }: Props) {
     return () => URL.revokeObjectURL(url)
   }, [image, removeImage, service?.imageUrl])
 
+  /** The stored default checklists priced by the active policy; nothing is saved. */
+  async function checkPrice() {
+    if (!service?.id) return
+    setPriceCheckError(null)
+    try {
+      setPriceCheck(
+        await checklistPricingApi.adminPreview({
+          serviceId: service.id,
+        }),
+      )
+    } catch {
+      setPriceCheck(null)
+      setPriceCheckError(t.previewError)
+    }
+  }
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    if (!values.name.trim() || !Number.isSafeInteger(values.basePrice) || values.basePrice <= 0) {
+    if (
+      !values.name.trim() ||
+      !Number.isSafeInteger(values.basePrice) ||
+      values.basePrice <= 0
+    ) {
       setErrors({
         ...(!values.name.trim() ? { name: t.required } : {}),
         ...(!Number.isSafeInteger(values.basePrice) || values.basePrice <= 0
@@ -130,6 +158,39 @@ function ServiceForm({ service, onClose, onSaved }: Props) {
           />
           <small>{t.basePriceHint}</small>
         </FormField>
+        <section
+          aria-label={t.previewTitle}
+          className="adm-service-price-check"
+        >
+          <strong>{t.previewTitle}</strong>
+          {service?.id ? (
+            <>
+              <div>
+                <button
+                  type="button"
+                  className="odm-btn odm-btn-sm"
+                  disabled={busy}
+                  onClick={() => void checkPrice()}
+                >
+                  {t.previewButton}
+                </button>{' '}
+                <a
+                  className="odm-btn odm-btn-gh odm-btn-sm"
+                  href={adminHref({
+                    screen: 'serviceChecklists',
+                    serviceId: service.id,
+                  })}
+                >
+                  {t.manageChecklists}
+                </a>
+              </div>
+              {priceCheckError && <p role="alert">{priceCheckError}</p>}
+              {priceCheck && <PriceBreakdownView preview={priceCheck} />}
+            </>
+          ) : (
+            <small>{t.previewSaveFirst}</small>
+          )}
+        </section>
         <FormField
           id="adm-svc-desc"
           label={t.description}

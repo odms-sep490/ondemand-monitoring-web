@@ -4,6 +4,7 @@ import type {
   CancelMissionRequest,
   CreateIncidentRequest,
   CreateMissionRequest,
+  FlightPermitUpdateRequest,
   LiveTelemetry,
   MediaAssetResponse,
   MediaResponse,
@@ -38,6 +39,15 @@ export function toMissionCalendarItem(
     orderCode: source.orderCode ?? null,
     missionCode: source.missionCode,
     status: source.status,
+    flightPermitStatus: source.flightPermitStatus ?? 'NOT_REQUESTED',
+    flightPermitNote: source.flightPermitNote ?? null,
+    flightPermitFileName: source.flightPermitFileName ?? null,
+    flightPermitContentType: source.flightPermitContentType ?? null,
+    flightPermitDataUrl: source.flightPermitDataUrl ?? null,
+    safeStopStatus: source.safeStopStatus,
+    safeStopRequestedAt: source.safeStopRequestedAt,
+    safeStopConfirmedAt: source.safeStopConfirmedAt,
+    safeStopCleanedAt: source.safeStopCleanedAt,
     attemptNumber: null,
     droneId: source.droneId ?? source.deviceId ?? null,
     operatorId: source.operatorId,
@@ -67,20 +77,34 @@ export function toMissionCalendarItem(
 /** MNG-04 / MNG-05 mission-creation + dispatch APIs. See evd/00-PLAN.md §3-5. */
 export const missionsApi = {
   /**
-   * `POST /api/orders/{id}/missions` [BRIEF C4 = TK]. Attaches a flight
-   * plan + schedule to the order's mission (created by `POST
-   * /orders/{id}/approve` [BE]). See `evd/P5-manager-mission-dispatch.md`
-   * for the conflict-resolution note on how this coexists with the
-   * backend already creating a mission on approve.
+   * Canonical planning-only creation command. Requires an idempotency key
+   * and public plan revision; replay returns the original Mission.
    */
   createMission(
     orderId: string,
     request: CreateMissionRequest,
   ): Promise<Mission> {
-    return apiRequest<Mission>(`/api/orders/${orderId}/missions`, {
+    return apiRequest<Mission>(`/api/missions/${encodeURIComponent(orderId)}`, {
       method: 'POST',
       body: request,
     })
+  },
+
+  replaceMission(
+    missionId: string,
+    request: CreateMissionRequest,
+  ): Promise<Mission> {
+    return apiRequest<Mission>(`/api/missions/${encodeURIComponent(missionId)}/replacement`, {
+      method: 'POST',
+      body: request,
+    })
+  },
+
+  finalizeReplacementMission(missionId: string): Promise<MissionResponse> {
+    return apiRequest<MissionResponse>(
+      `/api/missions/${encodeURIComponent(missionId)}/finalize-replacement`,
+      { method: 'POST' },
+    )
   },
 
   /** `GET /api/missions/{id}` [BE `MissionController.getById`]. */
@@ -94,6 +118,16 @@ export const missionsApi = {
     signal?: AbortSignal,
   ): Promise<MissionResponse> {
     return apiRequest<MissionResponse>(`/api/missions/${id}`, { signal })
+  },
+
+  updateFlightPermit(
+    missionId: string,
+    request: FlightPermitUpdateRequest,
+  ): Promise<MissionResponse> {
+    return apiRequest<MissionResponse>(
+      `/api/missions/${missionId}/flight-permit`,
+      { method: 'PATCH', body: request },
+    )
   },
 
   /**
@@ -116,18 +150,50 @@ export const missionsApi = {
   },
 
   /** `POST /api/missions/{id}/assign-device` [BE]. */
-  assignDrone(missionId: string, droneId: string): Promise<Mission> {
+  assignDrone(missionId: string, droneId: string, deviceRole: string = 'MAIN'): Promise<Mission> {
     return apiRequest<Mission>(`/api/missions/${missionId}/assign-device`, {
       method: 'POST',
-      body: { deviceId: droneId, deviceRole: 'MAIN' },
+      body: { deviceId: droneId, deviceRole },
+    })
+  },
+
+  /** `POST /api/missions/{id}/assign-device` [BE]. */
+  assignDevice(missionId: string, deviceId: string, deviceRole: string = 'MAIN'): Promise<Mission> {
+    return apiRequest<Mission>(`/api/missions/${missionId}/assign-device`, {
+      method: 'POST',
+      body: { deviceId, deviceRole },
+    })
+  },
+
+  /** `POST /api/missions/{id}/remove-device` [BE]. */
+  removeDevice(missionId: string, deviceId: string, reason?: string): Promise<Mission> {
+    return apiRequest<Mission>(`/api/missions/${missionId}/remove-device`, {
+      method: 'POST',
+      body: { deviceId, reason },
     })
   },
 
   /** `POST /api/missions/{id}/assign-staff` [BE]. */
-  assignOperator(missionId: string, operatorId: string): Promise<Mission> {
+  assignOperator(missionId: string, operatorId: string, assignedRole: string = 'PILOT'): Promise<Mission> {
     return apiRequest<Mission>(`/api/missions/${missionId}/assign-staff`, {
       method: 'POST',
-      body: { staffId: operatorId, assignedRole: 'PILOT' },
+      body: { staffId: operatorId, assignedRole },
+    })
+  },
+
+  /** `POST /api/missions/{id}/assign-staff` [BE]. */
+  assignStaff(missionId: string, staffId: string, assignedRole: string = 'PILOT'): Promise<Mission> {
+    return apiRequest<Mission>(`/api/missions/${missionId}/assign-staff`, {
+      method: 'POST',
+      body: { staffId, assignedRole },
+    })
+  },
+
+  /** `POST /api/missions/{id}/remove-staff` [BE]. */
+  removeStaff(missionId: string, staffId: string, assignedRole?: string, reason?: string): Promise<Mission> {
+    return apiRequest<Mission>(`/api/missions/${missionId}/remove-staff`, {
+      method: 'POST',
+      body: { staffId, assignedRole, reason },
     })
   },
 
@@ -178,6 +244,17 @@ export const missionsApi = {
       page += 1
     } while (page < totalPages)
     return { items }
+  },
+
+  /** `PUT /api/missions/{id}` [BE `MissionController.updateMission`]. Planning-phase edit of schedule/checklist. */
+  updateMission(
+    missionId: string,
+    request: { scheduledStartAt?: string; scheduledEndAt?: string; checklistIds?: string[] },
+  ): Promise<MissionResponse> {
+    return apiRequest<MissionResponse>(`/api/missions/${encodeURIComponent(missionId)}`, {
+      method: 'PUT',
+      body: request,
+    })
   },
 
   /**
@@ -421,28 +498,38 @@ export const missionsApi = {
   getMissionResult(
     missionId: string,
     signal?: AbortSignal,
-  ): Promise<MissionResultResponse> {
-    return apiRequest<MissionResultResponse>(
+  ): Promise<MissionResultResponse | null> {
+    return apiRequest<MissionResultResponse | null>(
       `/api/missions/${missionId}/result`,
       { signal },
-    )
+    ).then((result) => result ?? null)
   },
 
   /** `POST /api/manager/mission-results/{resultId}/approve` [BE]. Makes the mission result customer-deliverable. */
-  approveMissionResult(resultId: string): Promise<MissionResultResponse> {
+  approveMissionResult(
+    resultId: string,
+    note?: string,
+  ): Promise<MissionResultResponse> {
     return apiRequest<MissionResultResponse>(
       `/api/manager/mission-results/${resultId}/approve`,
       {
         method: 'POST',
-        body: {},
+        body: note?.trim() ? { note: note.trim() } : {},
       },
     )
   },
 
-  rejectMissionResult(resultId: string, note: string): Promise<MissionResultResponse> {
-    return apiRequest<MissionResultResponse>(`/api/manager/mission-results/${encodeURIComponent(resultId)}/reject`, {
-      method: 'POST', body: { note: note.trim() || null },
-    })
+  rejectMissionResult(
+    resultId: string,
+    note: string,
+  ): Promise<MissionResultResponse> {
+    return apiRequest<MissionResultResponse>(
+      `/api/manager/mission-results/${encodeURIComponent(resultId)}/reject`,
+      {
+        method: 'POST',
+        body: { note: note.trim() || null },
+      },
+    )
   },
 
   /** `POST /api/manager/missions/{missionId}/media-approvals/{mediaId}/approve` [BE]. Makes one media asset visible to the customer. */
@@ -455,7 +542,10 @@ export const missionsApi = {
     )
   },
   rejectMissionMedia(missionId: string, mediaId: string): Promise<unknown> {
-    return apiRequest<unknown>(`/api/manager/missions/${encodeURIComponent(missionId)}/media-approvals/${encodeURIComponent(mediaId)}/reject`, { method: 'POST' })
+    return apiRequest<unknown>(
+      `/api/manager/missions/${encodeURIComponent(missionId)}/media-approvals/${encodeURIComponent(mediaId)}/reject`,
+      { method: 'POST' },
+    )
   },
 
   /** `POST /api/missions/{id}/connect` [BE]. */

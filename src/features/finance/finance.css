@@ -226,6 +226,32 @@
   margin: 0;
   font-size: 13px;
 }
+.finance-item-price {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.finance-item-price small {
+  color: var(--or-tx2, #667085);
+  overflow-wrap: anywhere;
+}
+.finance-item-price .finance-range.is-out {
+  color: #b42318;
+  font-weight: 600;
+}
+.finance-item-price label {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  font-size: 11px;
+}
+.finance-item-price input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  height: 36px;
+  padding: 4px 7px;
+}
 .finance-review-badge {
   display: inline-flex;
   align-items: center;
@@ -247,6 +273,10 @@
 .finance-review-badge:not(.is-pending) {
   background: #eaf8ef;
   color: #168344;
+}
+.finance-review-badge.is-quote-pending {
+  background: #fff7e6;
+  color: #9a6700;
 }
 .finance-requirement.is-additional .finance-index,
 .finance-requirement.is-additional .finance-status-select select {
@@ -422,13 +452,15 @@
 .finance-quote .finance-actions {
   padding: 10px 0 0;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 8px;
 }
 .finance-quote .finance-actions .odm-btn {
   justify-content: center;
-  height: 36px;
-  font-size: 12px;
+  width: 100%;
+  height: 44px;
+  font-size: 14px;
+  font-weight: 700;
 }
 .finance-quote .finance-actions .odm-btn-p {
   border-color: #bfd4ff;
@@ -623,6 +655,60 @@
   gap: 24px;
   padding: 20px;
 }
+
+.finance-system-breakdown {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.9rem;
+  margin-bottom: 0.9rem;
+  border: 1px solid var(--odm-border, #d8e0e8);
+  border-radius: 0.75rem;
+  background: #f7fafc;
+}
+
+.finance-custom-assessment {
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 1px solid #d8e0e8;
+  border-radius: 0.75rem;
+  background: #fbfcfe;
+}
+
+.finance-assessment-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.75rem;
+  margin: 0.75rem 0;
+}
+
+.finance-assessment-grid label {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.finance-assessment-checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.finance-system-breakdown > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.finance-risk {
+  display: inline-block;
+  margin: 0 0.35rem 0.5rem 0;
+  padding: 0.2rem 0.45rem;
+  border-radius: 999px;
+  color: #8a3b00;
+  background: #fff0d9;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
 .finance-inputs {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -798,6 +884,66 @@
 .customer-payment-actions {
   padding: 16px 0 0;
 }
+
+/* The customer finance card lives in the narrow order-detail sidebar. */
+.od-page .customer-invoice {
+  padding: 20px 24px 24px;
+}
+
+.od-page .customer-invoice-title {
+  align-items: center;
+}
+
+.od-page .customer-invoice-title > div {
+  min-width: 0;
+}
+
+.od-page .customer-invoice-title h3 {
+  overflow-wrap: anywhere;
+}
+
+.od-page .customer-payment-stats {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.od-page .customer-payment-stats > div {
+  min-height: 76px;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--ui-surface-2);
+}
+
+.od-page .customer-payment-stats strong {
+  font-size: 16px;
+  white-space: nowrap;
+}
+
+.od-page .customer-deposit-notice {
+  padding: 14px 16px;
+  border-radius: 0 10px 10px 0;
+  line-height: 1.45;
+}
+
+.od-page .customer-payment-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.od-page .customer-payment-actions .odm-btn {
+  min-height: 42px;
+}
+
+@media (max-width: 420px) {
+  .od-page .customer-payment-stats {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .od-page .customer-payment-actions .odm-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
 @media (max-width: 680px) {
   .customer-payment-stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -878,4 +1024,270 @@
   flex-wrap: wrap;
   justify-content: center;
   gap: 10px;
+}
+
+/* Manager pricing lives inside a shell with its own navigation width, so
+   viewport breakpoints alone are not enough to prevent the quote/invoice
+   workspace from overflowing its actual content column. */
+.odm-or-review-section {
+  container-type: inline-size;
+}
+
+.finance-workspace {
+  width: 100%;
+  max-width: 100%;
+  container-type: inline-size;
+}
+
+.finance-panel,
+.finance-sidebar,
+.finance-quote,
+.finance-quote-body,
+.finance-quote-content,
+.finance-system-breakdown,
+.finance-summary {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.finance-workspace .finance-heading {
+  flex-wrap: wrap;
+}
+
+.finance-workspace .finance-heading > :first-child {
+  min-width: 0;
+}
+
+.finance-workspace .finance-status,
+.finance-system-breakdown > strong,
+.finance-system-breakdown > div > span,
+.finance-summary dt {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.finance-system-breakdown > div > b,
+.finance-summary dd {
+  flex: none;
+  white-space: nowrap;
+}
+
+.finance-quote .finance-actions > *,
+.finance-quote .odm-or-actionbar-actions > * {
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.finance-quote .finance-actions .odm-btn,
+.finance-quote .odm-or-actionbar-actions .odm-or-btn {
+  height: auto;
+  min-height: 36px;
+}
+
+@container (max-width: 1100px) {
+  .finance-workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .finance-quote {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+}
+
+@container (max-width: 900px) {
+  .finance-table-head {
+    display: none;
+  }
+
+  .finance-workspace .finance-checklist {
+    padding-inline: 10px;
+  }
+
+  .finance-workspace .finance-requirement {
+    grid-template-columns: 36px minmax(0, 1fr) 34px;
+    align-items: start;
+    gap: 8px;
+    padding: 12px 6px;
+  }
+
+  .finance-workspace .finance-requirement-main {
+    grid-column: 2;
+  }
+
+  .finance-workspace .finance-status-select,
+  .finance-workspace .finance-requirement > .finance-zero,
+  .finance-workspace .finance-item-price,
+  .finance-workspace .finance-review-badge {
+    grid-column: 2 / -1;
+    justify-self: stretch;
+  }
+
+  .finance-workspace .finance-review-badge {
+    width: auto;
+    white-space: normal;
+    text-align: center;
+  }
+
+  .finance-workspace .finance-chevron {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  .finance-workspace .finance-note {
+    grid-column: 2 / -1;
+  }
+
+  .finance-quote .finance-actions,
+  .finance-quote .odm-or-actionbar-actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .finance-quote .odm-or-actionbar-actions .odm-or-btn-primary {
+    grid-column: auto;
+  }
+}
+
+
+/* Quote summary (manager): grouped breakdown, clear totals, stacked actions */
+.finance-quote-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.finance-policy-pill {
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: #eef4ff;
+  color: #1d4ed8;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.finance-breakdown {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.finance-breakdown-group {
+  border: 1px solid var(--or-border, #e3e8ef);
+  border-radius: 10px;
+  background: #fafbfd;
+  overflow: hidden;
+}
+.finance-breakdown-group > header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 12px;
+  background: #f1f5f9;
+  font-size: 13px;
+}
+.finance-breakdown-group > header strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.finance-breakdown-group > header b {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.finance-breakdown-group ul {
+  margin: 0;
+  padding: 4px 12px 8px;
+  list-style: none;
+}
+.finance-breakdown-group li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 3px 0;
+  color: var(--or-tx2, #667085);
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+.finance-breakdown-group li span:last-child {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.finance-summary dd.is-up {
+  color: #b45309;
+}
+.finance-summary dd.is-down {
+  color: #047857;
+}
+.finance-quote .finance-quote-note em {
+  color: var(--or-tx2, #667085);
+  font-style: normal;
+  font-weight: 400;
+}
+.finance-quote .finance-quote-note textarea[aria-invalid='true'] {
+  border-color: #dc2626;
+}
+.finance-quote .finance-alert {
+  margin: 0 0 12px;
+}
+.finance-quote .finance-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  padding: 0;
+  margin-top: 4px;
+}
+.finance-quote .finance-actions .odm-btn {
+  width: 100%;
+  justify-content: center;
+}
+
+
+/* Customer quote: lines grouped per checklist */
+.customer-quote-groups {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.customer-quote-group {
+  border: 1px solid var(--ui-border, #e3e8ef);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.customer-quote-group > header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 12px;
+  background: var(--ui-surface-2, #f1f5f9);
+  font-size: 13px;
+}
+.customer-quote-group > header strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.customer-quote-group ul {
+  margin: 0;
+  padding: 4px 12px 8px;
+  list-style: none;
+}
+.customer-quote-group li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 3px 0;
+  color: var(--ui-text-2, #667085);
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+.customer-quote-group header b,
+.customer-quote-group li span:last-child {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }

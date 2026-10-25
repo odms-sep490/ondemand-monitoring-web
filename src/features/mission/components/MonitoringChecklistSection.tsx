@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { evidenceCountLabel, evidenceShortfall } from '../lib/evidenceProgress'
 import { ApiError } from '../../../shared/api/httpClient'
 import { checklistExecutionApi } from '../api/checklistExecutionApi'
 import type {
@@ -10,13 +11,31 @@ import type {
 } from '../types/checklistExecution'
 import type { MissionResultApprovalStatus } from '../types/mission'
 import './MonitoringChecklistSection.css'
-import { ChecklistEvidencePanel, evidenceReason } from './ChecklistEvidencePanel'
+import { ChecklistGuidance } from '../../../shared/components/ChecklistGuidance'
+import {
+  ChecklistEvidencePanel,
+  evidenceReason,
+} from './ChecklistEvidencePanel'
 
 const statuses: Record<ChecklistExecutionStatus, string> = {
   PENDING: 'Chưa thực hiện',
   IN_PROGRESS: 'Đang thực hiện',
   COMPLETED: 'Đã thực hiện',
   UNABLE_TO_VERIFY: 'Không thể xác minh',
+}
+const evidenceTypeLabel = (
+  type?: MissionChecklistExecution['requiredEvidenceType'],
+) => {
+  switch (type ?? 'IMAGE_OR_VIDEO') {
+    case 'IMAGE':
+      return 'Chỉ ảnh'
+    case 'VIDEO':
+      return 'Chỉ video'
+    case 'IMAGE_AND_VIDEO':
+      return 'Ảnh và video'
+    default:
+      return 'Ảnh hoặc video (cũ)'
+  }
 }
 const assessments: Record<ChecklistAssessmentStatus, string> = {
   NOT_ASSESSED: 'Chưa đánh giá',
@@ -27,7 +46,10 @@ const assessments: Record<ChecklistAssessmentStatus, string> = {
 function formatUpdated(value: string) {
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return ''
-  const time = date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
+  const time = date.toLocaleTimeString('vi-VN', {
+    hour: '2-digit',
+    minute: '2-digit',
+  })
   return date.toDateString() === new Date().toDateString()
     ? time
     : `${date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })} ${time}`
@@ -56,6 +78,8 @@ export function allowedExecutionStatuses(
 
 export function monitoringErrorMessage(error: unknown) {
   if (error instanceof ApiError) {
+    if (error.code === 'MISSION_PERMISSIONS_UNAVAILABLE')
+      return 'Chưa xác minh được quyền thao tác. Vui lòng làm mới hoặc đăng nhập lại.'
     if (error.code === 'CHECKLIST_EXECUTION_PARENT_MISMATCH')
       return 'Mục checklist không thuộc mission này. Vui lòng tải lại đúng mission.'
     if (error.code === 'CONCURRENT_UPDATE')
@@ -73,11 +97,15 @@ export function monitoringErrorMessage(error: unknown) {
     if (error.code === 'MISSION_STATUS_INVALID')
       return 'Trạng thái mission đã thay đổi. Vui lòng tải lại.'
     if (error.code === 'CHECKLIST_NOT_READY')
-      return 'Checklist chưa sẵn sàng gửi kết quả. Vui lòng kiểm tra các mục còn lại.'
+      return error.message.includes('EVIDENCE_TYPE_NOT_ELIGIBLE')
+        ? 'Một hoặc nhiều mục cần loại media khác. Chọn và gắn đúng loại ảnh/video theo yêu cầu từng mục, sau đó thử lại.'
+        : error.message.includes('INSUFFICIENT_EVIDENCE')
+          ? 'Chưa đủ bằng chứng hợp lệ. Kiểm tra số lượng hiện tại và yêu cầu từng mục, sau đó bổ sung phần còn thiếu.'
+          : 'Checklist chưa sẵn sàng gửi kết quả. Vui lòng kiểm tra các mục còn lại.'
+    if (error.status === 409)
+      return 'Dữ liệu đã thay đổi hoặc thao tác chưa đủ điều kiện. Vui lòng tải lại.'
   }
-  return error instanceof Error
-    ? error.message
-    : 'Không thể tải hoặc lưu checklist. Vui lòng thử lại.'
+  return 'Không thể tải hoặc lưu checklist. Vui lòng thử lại.'
 }
 
 export function MonitoringChecklistSection({
@@ -86,6 +114,7 @@ export function MonitoringChecklistSection({
   loading,
   error,
   canExecute = false,
+  canAssess = false,
   resultStatus,
   resultNote,
   resultKnown = true,
@@ -95,12 +124,16 @@ export function MonitoringChecklistSection({
   loadEvidenceCandidates,
   attachEvidenceCandidate,
   compact = false,
+  hideImplementationHints = false,
+  preview = false,
 }: {
   missionId: string
+  hideImplementationHints?: boolean
   data?: MissionChecklistResponse
   loading: boolean
   error?: unknown
   canExecute?: boolean
+  canAssess?: boolean
   resultStatus?: MissionResultApprovalStatus | null
   resultNote?: string | null
   resultKnown?: boolean
@@ -114,20 +147,34 @@ export function MonitoringChecklistSection({
   ) => Promise<unknown>
   /** Dense acceptance panel: one line per item, only the active item expands. */
   compact?: boolean
+  /** Read-only preview shown before the pilot accepts the mission. */
+  preview?: boolean
 }) {
   const [openId, setOpenId] = useState<string | null>(null)
   const locked =
     resultStatus === 'PENDING_MANAGER_APPROVAL' || resultStatus === 'APPROVED'
-  const editable = canExecute && resultKnown && !locked && !loading && !error
+  const canEditExecution =
+    canExecute && resultKnown && !locked && !loading && !error
+  const canEditAssessment =
+    canAssess && resultKnown && !locked && !loading && !error
+  const editable = canEditExecution || canEditAssessment
   const rows = [...(data?.executions ?? [])].sort(
     (a, b) => a.displayOrder - b.displayOrder || a.id.localeCompare(b.id),
   )
   const done = rows.filter((row) => terminal(row.executionStatus)).length
+  const attachedEvidence = new Set(
+    rows.flatMap((row) => (row.evidence ?? []).map((item) => item.evidenceId)),
+  ).size
   if (compact) {
     const firstTodo = rows.find((row) => !terminal(row.executionStatus))
     const activeId =
-      openId === '' ? null : rows.some((row) => row.id === openId) ? openId : (firstTodo ?? rows[0])?.id
-    const canChange = (data?.checklistEvidenceReady ?? data?.readyForSubmission) === true
+      openId === ''
+        ? null
+        : rows.some((row) => row.id === openId)
+          ? openId
+          : (firstTodo ?? rows[0])?.id
+    const canChange =
+      (data?.checklistEvidenceReady ?? data?.readyForSubmission) === true
     return (
       <section
         className="monitoring-checklist odm-card is-compact"
@@ -135,14 +182,23 @@ export function MonitoringChecklistSection({
       >
         <header>
           <h2>Checklist nghiệm thu</h2>
-          <span className="mc-count">
-            {done} / {rows.length}
+          <span className="mc-count" title="Tiến độ hoàn tất checklist">
+            {done} / {rows.length} mục hoàn tất
+            <small>{attachedEvidence} bằng chứng đã gắn</small>
           </span>
         </header>
         <div className="mc-progress" aria-hidden="true">
-          <span style={{ width: rows.length ? `${(done / rows.length) * 100}%` : '0%' }} />
+          <span
+            style={{
+              width: rows.length ? `${(done / rows.length) * 100}%` : '0%',
+            }}
+          />
         </div>
-        {loading && <p role="status" className="mc-note">Đang tải checklist…</p>}
+        {loading && (
+          <p role="status" className="mc-note">
+            Đang tải checklist…
+          </p>
+        )}
         {error ? (
           <div role="alert" className="mc-note is-danger">
             <p>{monitoringErrorMessage(error)}</p>
@@ -160,21 +216,29 @@ export function MonitoringChecklistSection({
               </p>
             )}
             {data.legacySnapshot && (
-              <p className="mc-note">Mission cũ — không có snapshot checklist giám sát lịch sử.</p>
+              <p className="mc-note">
+                Mission cũ — không có snapshot checklist giám sát lịch sử.
+              </p>
             )}
-            {!rows.length && <p className="mc-note">Không có mục checklist giám sát.</p>}
-            {!editable && rows.length > 0 && (
+            {!rows.length && (
+              <p className="mc-note">Không có mục checklist giám sát.</p>
+            )}
+            {!hideImplementationHints && !editable && rows.length > 0 && (
               <p className="mc-note">
                 {locked
                   ? 'Chỉ đọc — kết quả đang chờ duyệt hoặc đã được duyệt.'
                   : 'Chỉ đọc — bạn không có quyền cập nhật hoặc trạng thái chưa được xác minh.'}
               </p>
             )}
-            {!canChange && done === rows.length && rows.length > 0 && !data.readyForSubmission && (
-              <p className="mc-note is-warn" role="alert">
-                Dữ liệu checklist chưa đủ điều kiện theo backend. Hãy làm mới; nếu vẫn chưa sẵn sàng, liên hệ quản trị viên.
-              </p>
-            )}
+            {!canChange &&
+              done === rows.length &&
+              rows.length > 0 &&
+              !data.readyForSubmission && (
+                <p className="mc-note is-warn" role="alert">
+                  Dữ liệu checklist chưa đủ điều kiện theo backend. Hãy làm mới;
+                  nếu vẫn chưa sẵn sàng, liên hệ quản trị viên.
+                </p>
+              )}
           </>
         ) : null}
         {data && (
@@ -185,7 +249,17 @@ export function MonitoringChecklistSection({
               const missing =
                 finished &&
                 item.executionStatus === 'COMPLETED' &&
-                (item.eligibleEvidenceCount ?? 0) < (item.minimumEvidenceCount ?? 0)
+                (evidenceShortfall(item) > 0 ||
+                  Boolean(
+                    item.blockingReasons?.some((reason) =>
+                      [
+                        'EVIDENCE_TYPE_NOT_ELIGIBLE',
+                        'MEDIA_REJECTED',
+                        'MEDIA_NOT_VALIDATED',
+                        'EVIDENCE_SOURCE_NOT_ELIGIBLE',
+                      ].includes(reason),
+                    ),
+                  ))
               const tone =
                 item.executionStatus === 'UNABLE_TO_VERIFY'
                   ? 'is-unable'
@@ -197,7 +271,10 @@ export function MonitoringChecklistSection({
                       ? 'is-current'
                       : ''
               return (
-                <li key={`evidence:${missionId}:${item.id}`} className={`mc-item ${tone}${open ? ' is-open' : ''}`}>
+                <li
+                  key={`evidence:${missionId}:${item.id}`}
+                  className={`mc-item ${tone}${open ? ' is-open' : ''}`}
+                >
                   <button
                     type="button"
                     className="mc-row"
@@ -205,30 +282,51 @@ export function MonitoringChecklistSection({
                     onClick={() => setOpenId(open ? '' : item.id)}
                   >
                     <span className="mc-mark" aria-hidden="true">
-                      {tone === 'is-done' ? '✓' : tone === 'is-unable' ? '!' : index + 1}
+                      {tone === 'is-done'
+                        ? '✓'
+                        : tone === 'is-unable'
+                          ? '!'
+                          : index + 1}
                     </span>
                     <span className="mc-text">
                       <span className="mc-title">{item.content}</span>
                       <span className="mc-sub">
-                        {item.eligibleEvidenceCount ?? 0}/
                         {item.executionStatus === 'UNABLE_TO_VERIFY'
-                          ? 0
-                          : (item.minimumEvidenceCount ?? 0)}{' '}
-                        bằng chứng
+                          ? `${item.eligibleEvidenceCount ?? 0}/0`
+                          : evidenceCountLabel(item)}{' '}
+                        bằng chứng ·{' '}
+                        {evidenceTypeLabel(item.requiredEvidenceType)}
+                        {item.executionStatus !== 'UNABLE_TO_VERIFY' &&
+                          evidenceShortfall(item) > 0 && (
+                            <> · còn thiếu {evidenceShortfall(item)}</>
+                          )}
+                        {item.blockingReasons?.includes(
+                          'EVIDENCE_TYPE_NOT_ELIGIBLE',
+                        ) && ' · cần đúng loại media'}
                       </span>
                     </span>
-                    {tone === 'is-current' && <span className="mc-chip is-todo">Cần làm</span>}
-                    {tone === 'is-missing' && <span className="mc-chip is-pending">Thiếu bằng chứng</span>}
-                    {tone === 'is-unable' && <span className="mc-chip is-danger">Không xác minh</span>}
+                    {tone === 'is-current' && (
+                      <span className="mc-chip is-todo">Cần làm</span>
+                    )}
+                    {tone === 'is-missing' && (
+                      <span className="mc-chip is-pending">
+                        Thiếu bằng chứng
+                      </span>
+                    )}
+                    {tone === 'is-unable' && (
+                      <span className="mc-chip is-danger">Không xác minh</span>
+                    )}
                     <span className="mc-caret" aria-hidden="true" />
                   </button>
                   {open && (
                     <div className="mc-detail">
+                      <ChecklistGuidance guidance={item} defaultOpen />
                       <ChecklistExecutionItem
                         key={`${missionId}:${item.id}`}
                         item={item}
                         missionId={missionId}
-                        editable={editable}
+                        canExecute={canEditExecution}
+                        canAssess={canEditAssessment}
                         rejected={resultStatus === 'REJECTED'}
                         refresh={refresh}
                         compact
@@ -236,8 +334,20 @@ export function MonitoringChecklistSection({
                       <ChecklistEvidencePanel
                         missionId={missionId}
                         item={item}
-                        canAttach={canAttach && resultKnown && !locked && !loading && !error}
-                        canDetach={canDetach && resultKnown && !locked && !loading && !error}
+                        canAttach={
+                          canAttach &&
+                          resultKnown &&
+                          !locked &&
+                          !loading &&
+                          !error
+                        }
+                        canDetach={
+                          canDetach &&
+                          resultKnown &&
+                          !locked &&
+                          !loading &&
+                          !error
+                        }
                         refresh={refresh}
                         loadCandidates={loadEvidenceCandidates}
                         attachCandidate={attachEvidenceCandidate}
@@ -258,25 +368,72 @@ export function MonitoringChecklistSection({
       </section>
     )
   }
+  if (preview) {
+    return (
+      <div
+        className="monitoring-checklist mc-preview"
+        aria-label="Kết quả checklist"
+      >
+        <div className="mc-preview-notice" role="note">
+          <strong>🔒 Checklist chưa thể cập nhật</strong>
+          <span>
+            Bạn đang xem trước nội dung. Sau khi chấp nhận nhiệm vụ, bạn có thể
+            cập nhật tiến độ và bằng chứng.
+          </span>
+        </div>
+        {loading && <p role="status">Đang tải checklist…</p>}
+        {error ? (
+          <div role="alert">
+            <p>{monitoringErrorMessage(error)}</p>
+            <button type="button" className="odm-btn" onClick={refresh}>
+              Thử lại checklist
+            </button>
+          </div>
+        ) : null}
+        {data && !rows.length && !loading && (
+          <p>Không có mục checklist giám sát.</p>
+        )}
+        {data && (
+          <ol className="mc-preview-list">
+            {rows.map((item) => (
+              <li key={`preview:${missionId}:${item.id}`}>
+                <span className="mc-preview-mark" aria-hidden="true">
+                  ○
+                </span>
+                <span className="mc-preview-text">
+                  <strong>{item.content}</strong>
+                  <small>
+                    {statuses[item.executionStatus]} · Bằng chứng tối thiểu:{' '}
+                    {item.minimumEvidenceCount ?? 0}
+                  </small>
+                </span>
+              </li>
+            ))}
+          </ol>
+        )}
+      </div>
+    )
+  }
   return (
     <section
       className="monitoring-checklist odm-card"
-      aria-label="Monitoring Checklist"
+      aria-label="Kết quả checklist"
     >
       <header>
         <div>
-          <h2>Checklist giám sát</h2>
-          <p>
-            Yêu cầu lịch sử của đơn hàng · tách biệt kiểm tra kỹ thuật thiết bị.
-          </p>
+          <h2>Kết quả checklist</h2>
+          {!hideImplementationHints && (
+            <p>Các mục cần thực hiện và bằng chứng cho nhiệm vụ này.</p>
+          )}
         </div>
         <button
           type="button"
           className="odm-btn"
           onClick={refresh}
           disabled={loading}
+          title="Lấy dữ liệu checklist mới nhất"
         >
-          Làm mới checklist
+          <span aria-hidden="true">↻</span> Tải lại
         </button>
       </header>
       {loading && (
@@ -316,44 +473,51 @@ export function MonitoringChecklistSection({
             />
           </div>
           <div className="monitoring-notes">
-          {data.blockingReasons?.map(reason => <p key={reason} role="status" className="is-warn">{evidenceReason[reason]}</p>)}
-          {resultStatus && (
-            <p>
-              Trạng thái kết quả:{' '}
-              {
+            {!rows.length &&
+              data.blockingReasons?.map((reason) => (
+                <p key={reason} role="status" className="is-warn">
+                  {evidenceReason[reason]}
+                </p>
+              ))}
+            {resultStatus && (
+              <p>
+                Trạng thái kết quả:{' '}
                 {
-                  DRAFT: 'Nháp — chưa gửi manager',
-                  PENDING_MANAGER_APPROVAL: 'Đã gửi manager',
-                  APPROVED: 'Đã duyệt',
-                  REJECTED:
-                    'Bị từ chối — có thể chỉnh sửa và gửi lại khi có quyền',
-                }[resultStatus]
-              }
-            </p>
-          )}
-          {resultStatus === 'REJECTED' && resultNote && (
-            <p>Nhận xét của manager: {resultNote}</p>
-          )}
-          {!data.readyForSubmission && done === rows.length && (
-            <p role="alert" className="is-warn">
-              Dữ liệu checklist chưa đủ điều kiện theo backend. Hãy làm mới; nếu
-              vẫn chưa sẵn sàng, liên hệ quản trị viên.
-            </p>
-          )}
-          {data.legacySnapshot && (
-            <p>
-              Mission cũ — không có snapshot checklist giám sát lịch sử. Không
-              suy diễn yêu cầu từ dịch vụ hiện tại.
-            </p>
-          )}
-          {!rows.length && <p>Không có mục checklist giám sát.</p>}
-          <p className="monitoring-hint">
-            {locked
-              ? 'Chỉ đọc — kết quả đang chờ duyệt hoặc đã được duyệt.'
-              : editable
-                ? 'Bạn có thể cập nhật checklist.'
-                : 'Chỉ đọc — bạn không có quyền cập nhật hoặc trạng thái chưa được xác minh.'}
-          </p>
+                  {
+                    DRAFT: 'Nháp — chưa gửi manager',
+                    PENDING_MANAGER_APPROVAL: 'Đã gửi manager',
+                    APPROVED: 'Đã duyệt',
+                    REJECTED:
+                      'Bị từ chối — có thể chỉnh sửa và gửi lại khi có quyền',
+                  }[resultStatus]
+                }
+              </p>
+            )}
+            {resultStatus === 'REJECTED' && resultNote && (
+              <p>Nhận xét của manager: {resultNote}</p>
+            )}
+            {!data.readyForSubmission && done === rows.length && (
+              <p role="alert" className="is-warn">
+                Dữ liệu checklist chưa đủ điều kiện theo backend. Hãy làm mới;
+                nếu vẫn chưa sẵn sàng, liên hệ quản trị viên.
+              </p>
+            )}
+            {data.legacySnapshot && (
+              <p>
+                Mission cũ — không có snapshot checklist giám sát lịch sử. Không
+                suy diễn yêu cầu từ dịch vụ hiện tại.
+              </p>
+            )}
+            {!rows.length && <p>Không có mục checklist giám sát.</p>}
+            {!hideImplementationHints && (
+              <p className="monitoring-hint">
+                {locked
+                  ? 'Chỉ đọc — kết quả đang chờ duyệt hoặc đã được duyệt.'
+                  : editable
+                    ? 'Bạn có thể cập nhật checklist.'
+                    : '🔒 Checklist chưa thể cập nhật. Bạn có thể cập nhật tiến độ và bằng chứng khi nhiệm vụ bước vào giai đoạn thực hiện.'}
+              </p>
+            )}
           </div>
         </>
       ) : null}
@@ -361,15 +525,28 @@ export function MonitoringChecklistSection({
         <ol className="monitoring-list">
           {rows.map((item) => (
             <li key={`evidence:${missionId}:${item.id}`}>
-            <ChecklistExecutionItem
-              key={`${missionId}:${item.id}`}
-              item={item}
-              missionId={missionId}
-              editable={editable}
-              rejected={resultStatus === 'REJECTED'}
-              refresh={refresh}
-            />
-            <ChecklistEvidencePanel missionId={missionId} item={item} canAttach={canAttach && resultKnown && !locked && !loading && !error} canDetach={canDetach && resultKnown && !locked && !loading && !error} refresh={refresh} loadCandidates={loadEvidenceCandidates} attachCandidate={attachEvidenceCandidate} />
+              <ChecklistExecutionItem
+                key={`${missionId}:${item.id}`}
+                item={item}
+                missionId={missionId}
+                canExecute={canEditExecution}
+                canAssess={canEditAssessment}
+                rejected={resultStatus === 'REJECTED'}
+                refresh={refresh}
+              />
+              <ChecklistEvidencePanel
+                missionId={missionId}
+                item={item}
+                canAttach={
+                  canAttach && resultKnown && !locked && !loading && !error
+                }
+                canDetach={
+                  canDetach && resultKnown && !locked && !loading && !error
+                }
+                refresh={refresh}
+                loadCandidates={loadEvidenceCandidates}
+                attachCandidate={attachEvidenceCandidate}
+              />
             </li>
           ))}
         </ol>
@@ -381,18 +558,21 @@ export function MonitoringChecklistSection({
 function ChecklistExecutionItem({
   item,
   missionId,
-  editable,
+  canExecute,
+  canAssess,
   rejected,
   refresh,
   compact = false,
 }: {
   item: MissionChecklistExecution
   missionId: string
-  editable: boolean
+  canExecute: boolean
+  canAssess: boolean
   rejected: boolean
   refresh: () => void
   compact?: boolean
 }) {
+  const editable = canExecute || canAssess
   const [editing, setEditing] = useState(false)
   const [base, setBase] = useState(item)
   const [status, setStatus] = useState(item.executionStatus)
@@ -413,7 +593,7 @@ function ChecklistExecutionItem({
   }
   async function save() {
     if (!editable || busy || conflict) return
-    if (status === 'UNABLE_TO_VERIFY' && !reason.trim()) {
+    if (canExecute && status === 'UNABLE_TO_VERIFY' && !reason.trim()) {
       setError('Vui lòng nhập lý do không thể xác minh.')
       return
     }
@@ -430,11 +610,17 @@ function ChecklistExecutionItem({
           item.id,
           {
             expectedVersion: base.version,
-            executionStatus: status,
-            assessmentStatus: assessment,
-            observation: observation.trim() || null,
+            executionStatus: canExecute ? status : base.executionStatus,
+            assessmentStatus: canAssess ? assessment : base.assessmentStatus,
+            observation: canExecute
+              ? observation.trim() || null
+              : base.observation,
             unableToVerifyReason:
-              status === 'UNABLE_TO_VERIFY' ? reason.trim() : null,
+              canExecute
+                ? status === 'UNABLE_TO_VERIFY'
+                  ? reason.trim()
+                  : null
+                : base.unableToVerifyReason,
           },
         )
       setBase(updated)
@@ -500,8 +686,8 @@ function ChecklistExecutionItem({
             }}
           >
             <fieldset disabled={!editable || busy}>
-              <label>
-                Trạng thái
+              {canExecute && <label>
+                Trạng thái thực hiện
                 <select
                   value={status}
                   onChange={(event) => {
@@ -517,9 +703,9 @@ function ChecklistExecutionItem({
                     ),
                   )}
                 </select>
-              </label>
-              <label>
-                Đánh giá
+              </label>}
+              {canAssess && <label>
+                Đánh giá nghiệm thu
                 <select
                   value={assessment}
                   onChange={(event) =>
@@ -536,21 +722,21 @@ function ChecklistExecutionItem({
                     </option>
                   ))}
                 </select>
-              </label>
-              <p className="mc-help">
+              </label>}
+              {canAssess && <p className="mc-help">
                 ⓘ Đánh giá không đạt không tự động làm mission thất bại.
-              </p>
-              <label>
-                Ghi chú
+              </p>}
+              {canExecute && <label>
+                Ghi nhận thực hiện
                 <textarea
                   maxLength={2000}
                   placeholder="Thêm ghi chú nếu cần..."
                   value={observation}
                   onChange={(event) => setObservation(event.target.value)}
                 />
-              </label>
-              <small className="mc-counter">{observation.length} / 2000</small>
-              {status === 'UNABLE_TO_VERIFY' && (
+              </label>}
+              {canExecute && <small className="mc-counter">{observation.length} / 2000</small>}
+              {canExecute && status === 'UNABLE_TO_VERIFY' && (
                 <label>
                   Lý do không thể xác minh
                   <textarea
@@ -592,22 +778,22 @@ function ChecklistExecutionItem({
   return (
     <div className="monitoring-item">
       {!compact && <h3>{item.content}</h3>}
+      {!compact && <ChecklistGuidance guidance={item} defaultOpen />}
       {(!compact || item.assessmentStatus !== 'NOT_ASSESSED') && (
-      <div className="monitoring-meta">
-        {!compact && (
-          <span className={`is-exec-${item.executionStatus.toLowerCase()}`}>
-            {statuses[item.executionStatus]}
-          </span>
-        )}
-        <span className={`is-assess-${item.assessmentStatus.toLowerCase()}`}>
-          {assessments[item.assessmentStatus]}
-        </span>
-        {!compact && (
-          <span className={terminal(item.executionStatus) ? 'is-done' : 'is-todo'}>
-            {terminal(item.executionStatus) ? 'Đã kết thúc' : 'Cần thực hiện'}
-          </span>
-        )}
-      </div>
+        <div className="monitoring-meta">
+          {!compact && (
+            <span className={`is-exec-${item.executionStatus.toLowerCase()}`}>
+              {statuses[item.executionStatus]}
+            </span>
+          )}
+          {item.assessmentStatus !== 'NOT_ASSESSED' && (
+            <span
+              className={`is-assess-${item.assessmentStatus.toLowerCase()}`}
+            >
+              {assessments[item.assessmentStatus]}
+            </span>
+          )}
+        </div>
       )}
       {item.observation && (
         <p>
@@ -645,7 +831,7 @@ function ChecklistExecutionItem({
           }}
         >
           <fieldset disabled={!editable || busy}>
-            <label>
+            {canExecute && <label>
               Trạng thái thực hiện
               <select
                 value={status}
@@ -662,9 +848,9 @@ function ChecklistExecutionItem({
                   ),
                 )}
               </select>
-            </label>
-            <label>
-              Đánh giá
+            </label>}
+            {canAssess && <label>
+              Đánh giá nghiệm thu
               <select
                 value={assessment}
                 onChange={(event) =>
@@ -679,21 +865,21 @@ function ChecklistExecutionItem({
                   ),
                 )}
               </select>
-            </label>
-            <small>
+            </label>}
+            {canAssess && <small>
               Không đạt yêu cầu không đồng nghĩa mission thất bại. Chưa đánh giá
               là lựa chọn hợp lệ.
-            </small>
-            <label>
-              Ghi nhận
+            </small>}
+            {canExecute && <label>
+              Ghi nhận thực hiện
               <textarea
                 maxLength={2000}
                 value={observation}
                 onChange={(event) => setObservation(event.target.value)}
               />
-            </label>
-            <small>{observation.length} / 2000</small>
-            {status === 'UNABLE_TO_VERIFY' && (
+            </label>}
+            {canExecute && <small>{observation.length} / 2000</small>}
+            {canExecute && status === 'UNABLE_TO_VERIFY' && (
               <label>
                 Lý do không thể xác minh
                 <textarea

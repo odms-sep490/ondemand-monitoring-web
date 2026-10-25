@@ -1,6 +1,11 @@
 import { env } from '../../../config/env'
 import { authenticatedFetch } from '../../auth/api/authApi'
 import { transferPcBackup, verifyPcBackup } from './pcMediaTransfer'
+import {
+  flushPendingFailureEvents,
+  newEventId,
+  recordUploadFailure,
+} from './uploadFailureJournal'
 
 const controllerUrl = import.meta.env.VITE_FLIGHT_CONTROL_API_URL ?? 'http://localhost:8090'
 
@@ -38,6 +43,43 @@ type UploadPlan = {
 }
 
 class RetryableTransferError extends Error {}
+
+/**
+ * Total automatic transfers allowed in one upload operation. The Backend raises a Staff
+ * Manual Upload ticket only after MORE THAN three actual failed transfers, so this must be 4
+ * or the fourth failure can never be reached from a single operation.
+ */
+const MAX_TRANSFER_ATTEMPTS = 4
+
+/**
+ * Sends a journalled failure event and returns the resulting upload plan.
+ * Falls back to the legacy synchronous shape so the existing status-driven flow is unchanged.
+ */
+async function reportJournaledFailure(
+  event: Parameters<typeof recordUploadFailure>[0],
+  attemptPath: string,
+): Promise<UploadPlan | null> {
+  const ack = await backend<{
+    durablyAccepted?: boolean
+    retryLater?: boolean
+    mediaId?: string
+    status?: string
+  }>(`${attemptPath}/failures`, 'POST', {
+    eventId: event.eventId,
+    category: event.category,
+    missionId: event.missionId,
+    mediaId: event.mediaId,
+    attemptId: event.attemptId,
+    localMediaId: event.localMediaId,
+    attemptNumber: event.attemptNumber,
+    checksumSha256: event.checksumSha256 ?? null,
+    occurredAt: event.occurredAt,
+    code: event.code,
+    message: event.message,
+  })
+  if (!ack?.durablyAccepted) return null
+  return { mediaId: ack.mediaId ?? event.mediaId, status: ack.status ?? '' } as UploadPlan
+}
 const activeUploads = new Map<string, Promise<string>>()
 const delay = (milliseconds: number) => new Promise<void>((resolve) => window.setTimeout(resolve, milliseconds))
 const terminalUploadedStatuses = new Set(['AVAILABLE', 'VALIDATING', 'PENDING_MANAGER_APPROVAL'])
@@ -76,6 +118,8 @@ async function controller<T>(path: string, method = 'GET', body?: unknown): Prom
 
 export const operatorMediaApi = {
   controllerUrl,
+  /** Replays journalled upload failures; safe to call on reconnect or on demand. */
+  flushPendingFailureEvents,
   previewUrl(id: string) {
     return `${controllerUrl}/api/media/local/${encodeURIComponent(id)}/preview`
   },
@@ -146,14 +190,20 @@ export const operatorMediaApi = {
     const active = activeUploads.get(key)
     if (active) return active
     const operation = (async () => {
-      for (let retry = 0; retry < 3; retry++) {
+      // MAX_TRANSFER_ATTEMPTS is the number of TOTAL automatic transfers one upload operation
+      // may perform, not a retry count. The Backend escalates a Staff Manual Upload ticket
+      // only after MORE THAN three actual failed transfers, so this must reach the fourth
+      // transfer or the escalation could never be reached from a single operation.
+      for (let attempt = 1; attempt <= MAX_TRANSFER_ATTEMPTS; attempt++) {
         try {
+          // A success returns immediately: retries stop at the first successful transfer.
           return await operatorMediaApi.transfer(item, manual)
         } catch (error) {
-          // Only a backend-confirmed transfer failure permits a new attempt.
-          // Authorization/acknowledgement errors never consume another transfer.
-          if (manual || !(error instanceof RetryableTransferError) || retry === 2) throw error
-          await delay(2000 * 2 ** retry + Math.floor(Math.random() * 500))
+          // Only a backend-confirmed transfer failure permits another transfer.
+          // Authorization/acknowledgement errors never consume a transfer attempt.
+          const isLast = attempt === MAX_TRANSFER_ATTEMPTS
+          if (manual || !(error instanceof RetryableTransferError) || isLast) throw error
+          await delay(2000 * 2 ** (attempt - 1) + Math.floor(Math.random() * 500))
         }
       }
       throw new Error('Automatic upload attempts exhausted')
@@ -181,7 +231,9 @@ export const operatorMediaApi = {
     const mediaPath = `/media/${encodeURIComponent(plan.mediaId)}`
     if (terminalUploadedStatuses.has(plan.status)) return plan.mediaId
     if (plan.status === 'MANUAL_UPLOAD_REQUIRED' && !manual) {
-      throw new Error('Đã hết 3 lần upload tự động. Hãy chọn upload thủ công; bản gốc vẫn được giữ trên Flight Controller.')
+      // The backend is the single source of truth for how many failures were tolerated;
+      // do not restate a hard-coded attempt count here.
+      throw new Error('Số lần tải lên tự động đã hết. Hãy chọn upload thủ công; bản gốc vẫn được giữ trên Flight Controller.')
     }
     if (plan.status === 'RETRY_REQUIRED' || plan.status === 'MANUAL_UPLOAD_REQUIRED') {
       const retryPath = plan.status === 'MANUAL_UPLOAD_REQUIRED'
@@ -205,21 +257,74 @@ export const operatorMediaApi = {
         `/api/media/local/${encodeURIComponent(item.localMediaId)}/transfer`, 'POST', { ...plan, partUrls },
       )
     } catch (error) {
-      const failure = await backend<UploadPlan>(`${attemptPath}/failures`, 'POST', {
-        code: 'TRANSFER_FAILED', message: error instanceof Error ? error.message.slice(0, 400) : 'Transfer failed',
-      })
+      // Journal the genuine failed transfer BEFORE reporting it, so a lost response or a
+      // Backend outage cannot lose failure history. Replay is idempotent on eventId.
+      const event = {
+        eventId: newEventId(),
+        missionId: item.missionId,
+        mediaId: plan.mediaId,
+        attemptId: plan.attemptId,
+        attemptNumber: plan.attemptNumber,
+        localMediaId: item.localMediaId,
+        category: 'TRANSFER_FAILED' as const,
+        occurredAt: new Date().toISOString(),
+        code: 'TRANSFER_FAILED',
+        message: error instanceof Error ? error.message.slice(0, 400) : 'Transfer failed',
+        checksumSha256: item.checksumSha256,
+      }
+      await recordUploadFailure(event)
+      let failure: UploadPlan | null
+      try {
+        failure = await reportJournaledFailure(event, attemptPath)
+      } catch {
+        // Backend unreachable: the event stays queued for replay and must not be discarded.
+        throw new Error(
+          'Không gửi được báo cáo lỗi tải lên; sự kiện đã được lưu và sẽ gửi lại khi có mạng.',
+          { cause: error },
+        )
+      }
+      if (!failure) {
+        throw new RetryableTransferError(
+          error instanceof Error ? error.message : 'Transfer failed',
+        )
+      }
       if (terminalUploadedStatuses.has(failure.status)) return plan.mediaId
       if (failure.status === 'RETRY_REQUIRED') {
         throw new RetryableTransferError(error instanceof Error ? error.message : 'Transfer failed')
       }
-      throw new Error('Upload thất bại. Task upload thủ công đã được tạo; bản gốc vẫn được giữ trên Flight Controller.', { cause: error })
+      // `failure.status` is MANUAL_UPLOAD_REQUIRED here, which is the backend's own
+      // signal that the automatic retry budget is spent and a Staff ticket exists.
+      throw new Error(
+        `Upload thất bại: ${failure.status === 'MANUAL_UPLOAD_REQUIRED' ? 'Task upload thủ công đã được tạo' : 'cần thử lại'}; bản gốc vẫn được giữ trên Flight Controller.`,
+        { cause: error },
+      )
     }
     // An acknowledgement failure is not an S3 transfer failure. The object may
     // already be in S3 (and its ObjectCreated event may already be processing).
-    if (plan.uploadMethod === 'MULTIPART') {
-      await backend(`${attemptPath}/complete-multipart`, 'POST', { parts: transferred.parts })
-    } else {
-      await backend(`${attemptPath}/uploaded`, 'POST')
+    try {
+      if (plan.uploadMethod === 'MULTIPART') {
+        await backend(`${attemptPath}/complete-multipart`, 'POST', { parts: transferred.parts })
+      } else {
+        await backend(`${attemptPath}/uploaded`, 'POST')
+      }
+    } catch (ackError) {
+      // The bytes may already be in storage, so this must NOT be recorded as a failed
+      // transfer. Journal it as TRANSFER_ACK_LOST and let the Backend re-inspect the object.
+      await recordUploadFailure({
+        eventId: newEventId(),
+        missionId: item.missionId,
+        mediaId: plan.mediaId,
+        attemptId: plan.attemptId,
+        attemptNumber: plan.attemptNumber,
+        localMediaId: item.localMediaId,
+        category: 'TRANSFER_ACK_LOST',
+        occurredAt: new Date().toISOString(),
+        code: 'TRANSFER_ACK_LOST',
+        message: ackError instanceof Error ? ackError.message.slice(0, 400) : 'Acknowledgement lost',
+        checksumSha256: item.checksumSha256,
+      })
+      await flushPendingFailureEvents().catch(() => 0)
+      return plan.mediaId
     }
     return plan.mediaId
   },

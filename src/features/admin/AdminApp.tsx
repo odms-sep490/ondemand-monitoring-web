@@ -24,7 +24,6 @@ import { CatalogPage } from './pages/Catalog'
 import { ChecklistCatalogPage } from './pages/Checklists/ChecklistCatalogPage'
 import { ServiceChecklistPage } from './pages/Checklists/ServiceChecklistPage'
 import { OperatingConfigPage } from './pages/OperatingConfig'
-import { AiKnowledgePage } from './pages/AiKnowledge'
 import { AuditLogPage } from './pages/AuditLog'
 import type { AdminRoute } from './routes'
 
@@ -48,8 +47,6 @@ function renderScreen(route: AdminRoute, notFoundText: string) {
       return <ServiceChecklistPage serviceId={route.serviceId} />
     case 'operatingConfig':
       return <OperatingConfigPage />
-    case 'aiKnowledge':
-      return <AiKnowledgePage />
     case 'auditLog':
       return <AuditLogPage />
     default:

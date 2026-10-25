@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useApiQuery } from '../../../shared/hooks/useApiQuery'
 import { missionApi } from '../api/missionApi'
 import { checklistExecutionApi } from '../api/checklistExecutionApi'
+import { ApiError } from '../../../shared/api/httpClient'
 
 type MissionMonitoringOptions = {
   autoRefresh?: boolean
@@ -21,6 +22,23 @@ export function useMissionMonitoring(
         missionApi.getMissionResult(missionId, signal),
         missionApi.getPermissions(missionId),
       ])
+      if (!permissions || typeof permissions !== 'object')
+        throw new ApiError('Mission permissions unavailable', {
+          code: 'MISSION_PERMISSIONS_UNAVAILABLE',
+          status: 503,
+          method: 'GET',
+          path: `/api/missions/${missionId}/permissions`,
+        })
+      if (
+        checklist.missionId !== missionId ||
+        (result && result.missionId !== missionId)
+      )
+        throw new ApiError('Invalid Mission monitoring scope', {
+          code: 'CHECKLIST_EXECUTION_PARENT_MISMATCH',
+          status: 409,
+          method: 'GET',
+          path: `/api/missions/${missionId}`,
+        })
       return { checklist, result, permissions }
     },
     [missionId, revision],

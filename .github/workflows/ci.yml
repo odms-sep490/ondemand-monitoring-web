@@ -9,6 +9,7 @@ on:
     branches:
       - main
       - dev
+      - feature/depot-management-ui
 
 concurrency:
   group: web-ci-${{ github.workflow }}-${{ github.ref }}
@@ -34,8 +35,14 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
-      - name: Test
-        run: npm run test
+      - name: Lint
+        run: npm run lint
+
+      - name: Monitoring UI regression tests
+        run: npm run test -- src/features/customer/pages/CreateOrder/components/ContentStep.test.tsx src/features/customer/lib/checklist/checklist.test.tsx
 
       - name: Build
         run: npm run build
+
+      - name: Test
+        run: npm run test

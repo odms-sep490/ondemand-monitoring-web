@@ -572,3 +572,113 @@
     transform: none !important;
   }
 }
+
+/* ---------- Project-aligned auth aside ---------- */
+@media (min-width: 901px) {
+  .odm-aside-gradient {
+    background: #12376f;
+  }
+
+  .odm-aside-aurora,
+  .odm-aside-grid,
+  .odm-aside-particles,
+  .odm-aside-status-chip,
+  .odm-aside-secondary {
+    display: none;
+  }
+
+  .odm-aside-brand {
+    gap: 12px;
+    padding: 32px 40px 0;
+    transform: none;
+  }
+
+  .odm-aside-brand-title--shimmer {
+    background: none;
+    color: #fff;
+    -webkit-text-fill-color: currentColor;
+    animation: odm-aside-fade-in 0.35s ease both;
+  }
+
+  .odm-aside-stage {
+    inset: 13% 7% 23%;
+    display: grid;
+    place-items: center;
+  }
+
+  .odm-aside-hero {
+    width: min(82%, 720px);
+    margin: 0;
+    animation: none;
+    transform: none;
+  }
+
+  .odm-aside-hero-frame {
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    border-radius: 14px;
+    background: #0b1f44;
+    box-shadow: 0 20px 46px rgba(3, 15, 38, 0.3);
+    transform: none;
+  }
+
+  .odm-aside-hero-shine {
+    display: none;
+  }
+
+  .odm-aside-cards {
+    left: 40px;
+    right: 40px;
+    bottom: 28px;
+    max-width: none;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    padding: 0;
+    transform: none;
+  }
+
+  .odm-aside-card {
+    min-height: 56px;
+    padding: 10px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 8px;
+    background: rgba(5, 27, 63, 0.34);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow: none;
+    animation: odm-aside-fade-in 0.35s ease both;
+  }
+
+  .odm-aside-card:hover {
+    transform: none;
+    background: rgba(5, 27, 63, 0.48);
+    box-shadow: none;
+  }
+
+  .odm-aside-card-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .odm-aside-card-text {
+    font-size: 12px;
+    line-height: 1.35;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1280px) {
+  .odm-aside-stage {
+    inset-inline: 5%;
+  }
+
+  .odm-aside-hero {
+    width: 88%;
+  }
+
+  .odm-aside-cards {
+    left: 24px;
+    right: 24px;
+  }
+}

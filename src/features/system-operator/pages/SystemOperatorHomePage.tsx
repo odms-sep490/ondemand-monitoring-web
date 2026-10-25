@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { useLanguage } from '../../../shared/i18n'
 import { SystemOperatorLayout } from '../SystemOperatorLayout'
 import { SystemOperatorOverview } from '../SystemOperatorOverview'
-import { OperatorMaintenanceScreen } from '../../drone-operator/pages/OperatorMaintenanceScreen'
+import { MaintenancePage } from '../../drone-operator/pages/Maintenance/MaintenancePage'
 import { SystemOperatorDevicesScreen } from './SystemOperatorDevicesScreen'
 
 export function SystemOperatorHomePage() {
@@ -31,7 +31,7 @@ export function SystemOperatorHomePage() {
   if (hash === '#portal/staff/technical/maintenance') {
     return (
       <SystemOperatorLayout>
-        <OperatorMaintenanceScreen />
+        <MaintenancePage />
       </SystemOperatorLayout>
     )
   }

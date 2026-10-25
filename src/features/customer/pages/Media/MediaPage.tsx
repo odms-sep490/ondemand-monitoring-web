@@ -1,4 +1,7 @@
-import { ErrorState, LoadingState } from '../../../../shared/components/odm/StateView'
+import {
+  ErrorState,
+  LoadingState,
+} from '../../../../shared/components/odm/StateView'
 import { EmptyState, PageHeader } from '../../../../shared/components/ui'
 import { useI18n } from '../../../../shared/i18n'
 import { MediaPreviewModal } from '../../components/common/media'
@@ -8,20 +11,30 @@ import { useOrderMedia } from './hooks/useOrderMedia'
 import './Media.css'
 import { mediaPageMessages } from './MediaPage.messages'
 
-/** Results of one order: its finished missions and their validated files. */
+/** Published media of an owned Order, including ongoing Missions. */
 export function MediaPage({ orderId }: { orderId: string }) {
   const { t } = useI18n(mediaPageMessages)
   const media = useOrderMedia(orderId)
 
   if (media.loading && !media.loaded) return <LoadingState />
-  if (!media.loaded) {
-    return <ErrorState title={t.errorTitle} error={media.error} onRetry={media.reload} />
+  if (!media.loaded || media.error) {
+    return (
+      <ErrorState
+        title={t.errorTitle}
+        error={undefined}
+        onRetry={media.reload}
+      />
+    )
   }
 
   return (
     <div className="om-page">
       <PageHeader
-        back={<a href={customerHref({ screen: 'orderDetail', orderId })}>{t.backToOrder}</a>}
+        back={
+          <a href={customerHref({ screen: 'orderDetail', orderId })}>
+            {t.backToOrder}
+          </a>
+        }
         title={t.title}
         subtitle={t.subtitle}
       />
@@ -30,7 +43,10 @@ export function MediaPage({ orderId }: { orderId: string }) {
           title={t.emptyTitle}
           description={t.emptyDescription}
           action={
-            <a className="odm-btn odm-btn-gh" href={customerHref({ screen: 'mediaLibrary' })}>
+            <a
+              className="odm-btn odm-btn-gh"
+              href={customerHref({ screen: 'mediaLibrary' })}
+            >
               {t.openLibrary}
             </a>
           }

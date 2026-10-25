@@ -46,7 +46,7 @@ export function ServicesTable({
                 </div>
               )}
             </td>
-            <td className="adm-cell-mono adm-strong">{formatVnd(s.basePrice)}</td>
+            <td className="adm-cell-mono adm-strong">{s.priceSource === 'UNPRICED' ? t.unpriced : formatVnd(s.defaultPrice ?? s.basePrice)}</td>
             <td>
               <StatusBadge tone={s.isActive ? 'success' : 'neutral'}>
                 {s.isActive ? t.active : t.inactive}

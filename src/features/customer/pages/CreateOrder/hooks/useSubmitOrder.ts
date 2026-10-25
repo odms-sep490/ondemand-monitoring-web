@@ -11,6 +11,8 @@ type Options = {
   buildPayload: () => CreateOrderPayload
   onError: (message: string | null) => void
   onTemplateChanged?: () => void
+  /** Handles field-level API validation errors and routes the wizard to them. */
+  onValidationError?: (error: unknown) => boolean
 }
 
 /** Confirm dialog state + `POST /api/orders`. */
@@ -19,6 +21,7 @@ export function useSubmitOrder({
   buildPayload,
   onError,
   onTemplateChanged,
+  onValidationError,
 }: Options) {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -42,6 +45,10 @@ export function useSubmitOrder({
       setCreatedId(result.id)
       setCreatedCode(displayOrderCode(result.orderCode, result.id))
     } catch (error: unknown) {
+      if (onValidationError?.(error)) {
+        setConfirmOpen(false)
+        return
+      }
       if (isStaleChecklist(error)) {
         onTemplateChanged?.()
         setConfirmOpen(false)

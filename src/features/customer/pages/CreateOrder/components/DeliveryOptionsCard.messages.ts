@@ -3,62 +3,76 @@ import { defineMessages } from '../../../../../shared/i18n'
 export const deliveryOptionsCardMessages = defineMessages({
   vi: {
     cardTitle: 'Nhận kết quả & cam kết',
-    cardSubtitle: 'Chọn định dạng, cách nhận kết quả và xác nhận điều khoản trước khi gửi.',
+    cardSubtitle: 'Chọn cách nhận kết quả và xác nhận trước khi gửi.',
     formatsLabel: 'Định dạng kết quả',
-    formatsHint: 'Chọn một hoặc nhiều định dạng.',
+    formatsHint: 'Ảnh và video lấy từ checklist; Báo cáo PDF là tùy chọn.',
     formats: {
       PHOTO: 'Ảnh',
       VIDEO: 'Video',
       PDF_REPORT: 'Báo cáo PDF',
-      ORTHOMOSAIC: 'Bản đồ ortho',
-      MODEL_3D: 'Mô hình 3D',
     },
     methodsLabel: 'Phương thức nhận',
     methods: {
       DOWNLOAD: 'Tải về',
       EMAIL: 'Email',
-      API: 'API',
     },
     retentionLabel: 'Thời hạn lưu trữ dữ liệu',
-    retentionHint: 'Tính từ khi bàn giao kết quả.',
+    retentionHint: 'Tính từ ngày bàn giao.',
     days: (n: number) => `${n} ngày`,
     termsHeading: 'Điều khoản và cam kết bảo mật',
-    termsLabel: 'Tôi đã đọc và đồng ý với điều khoản sử dụng dịch vụ và cam kết bảo mật dữ liệu.',
-    commitmentsToggle: 'Xem nội dung cam kết',
-    commitmentUse: 'Dữ liệu giám sát chỉ được dùng để thực hiện và bàn giao yêu cầu này.',
-    commitmentRetention: (retentionDays: number) =>
-      `Dữ liệu kết quả được lưu trữ ${retentionDays} ngày kể từ khi bàn giao.`,
+    termsRequired: 'Bắt buộc',
+    termsLabel:
+      'Tôi xác nhận mục đích giám sát và đồng ý với chính sách xử lý dữ liệu.',
+    termsPrivacyNotice:
+      'ODMS xử lý hình ảnh có người để bảo vệ quyền riêng tư.',
+    commitmentsToggle: 'Xem chi tiết điều khoản',
+    commitmentUse:
+      'Dữ liệu giám sát chỉ được sử dụng để thực hiện và bàn giao dịch vụ theo yêu cầu đã thống nhất.',
+    commitmentRetention:
+      'Dữ liệu kết quả được lưu trữ tối đa 90 ngày kể từ khi bàn giao, sau đó được xử lý theo chính sách lưu trữ và xóa dữ liệu của ODMS.',
     commitmentResponsibility:
-      'Bạn chịu trách nhiệm về quyền giám sát khu vực đã chọn, kể cả giấy phép bay khi khu vực yêu cầu.',
+      'Khách hàng cam kết có quyền yêu cầu giám sát tại khu vực đã chọn và cung cấp giấy chấp thuận của chủ sở hữu hoặc đơn vị quản lý khi cần thiết.',
+    commitmentPermit:
+      'ODMS phụ trách thủ tục xin giấy phép bay đối với hoạt động do ODMS tổ chức, khai thác. Nhiệm vụ chỉ được thực hiện khi đáp ứng đầy đủ điều kiện bay theo quy định.',
+    commitmentPrivacy:
+      'Hoạt động giám sát có thể ghi nhận hình ảnh người và công trình lân cận. ODMS sẽ áp dụng biện pháp bảo vệ quyền riêng tư, bao gồm làm mờ hoặc xử lý hình ảnh không cần thiết trước khi bàn giao, khi phù hợp.',
   },
   en: {
     cardTitle: 'Result delivery & commitments',
-    cardSubtitle: 'Choose the formats, how you receive the result, and accept the terms before submitting.',
+    cardSubtitle:
+      'Choose how to receive the result and confirm before submitting.',
     formatsLabel: 'Result formats',
-    formatsHint: 'Select one or more formats.',
+    formatsHint:
+      'Photos and video follow the checklist; the PDF report is optional.',
     formats: {
       PHOTO: 'Photos',
       VIDEO: 'Video',
       PDF_REPORT: 'PDF report',
-      ORTHOMOSAIC: 'Orthomosaic map',
-      MODEL_3D: '3D model',
     },
     methodsLabel: 'Delivery method',
     methods: {
       DOWNLOAD: 'Download',
       EMAIL: 'Email',
-      API: 'API',
     },
     retentionLabel: 'Data retention period',
-    retentionHint: 'Counted from the day the result is handed over.',
+    retentionHint: 'Counted from the delivery date.',
     days: (n: number) => `${n} days`,
     termsHeading: 'Terms and security commitment',
-    termsLabel: 'I have read and accept the service terms and the data-security commitment.',
-    commitmentsToggle: 'View the commitment',
-    commitmentUse: 'Monitoring data is only used to carry out and hand over this request.',
-    commitmentRetention: (retentionDays: number) =>
-      `Result data is retained for ${retentionDays} days after handover.`,
+    termsRequired: 'Required',
+    termsLabel:
+      'I confirm the monitoring purpose and agree to the data processing policy.',
+    termsPrivacyNotice:
+      'ODMS processes images containing people to protect privacy.',
+    commitmentsToggle: 'View detailed terms',
+    commitmentUse:
+      'Monitoring data is used only to perform and deliver the service in accordance with the agreed request.',
+    commitmentRetention:
+      'Result data is retained for up to 90 days after delivery and is then handled in accordance with ODMS data retention and deletion policies.',
     commitmentResponsibility:
-      'You are responsible for the right to monitor the chosen area, including a flight permit where one is required.',
+      'The customer confirms that they have the right to request monitoring in the selected area and will provide consent from the owner or managing entity when required.',
+    commitmentPermit:
+      'ODMS is responsible for flight permit procedures for operations organized and conducted by ODMS. A mission will only proceed when all applicable flight requirements have been met.',
+    commitmentPrivacy:
+      'Monitoring activities may capture images of people and nearby property. Where appropriate, ODMS will protect privacy by blurring or otherwise processing unnecessary imagery before delivery.',
   },
 })

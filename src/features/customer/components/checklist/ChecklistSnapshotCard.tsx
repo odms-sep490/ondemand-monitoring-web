@@ -5,6 +5,8 @@ import { Card } from '../../../../shared/components/ui'
 import { checklistMessages } from '../../lib/checklist/messages'
 import type { ChecklistSnapshot } from '../../lib/checklist/types'
 import './Checklist.css'
+import { ChecklistGuidance } from '../../../../shared/components/ChecklistGuidance'
+import { formatVnd } from '../../../../shared/lib/formatVnd'
 
 export function ChecklistSnapshotCard({
   items = [],
@@ -30,7 +32,54 @@ export function ChecklistSnapshotCard({
                   a.displayOrder - b.displayOrder || a.id.localeCompare(b.id),
               )
               .map((item) => (
-                <li key={item.id}>{item.content}</li>
+                <li key={item.id}>
+                  <span className="checklist-snapshot-content">
+                    {item.content}
+                  </span>
+                  <ChecklistGuidance
+                    guidance={item}
+                    sections={['description', 'outputs']}
+                  />
+                  {item.evidencePolicyVersion === 3 && (
+                    <span className="checklist-snapshot-evidence">
+                      {t.requestedImages}: {item.requestedImageCount ?? 0} ·{' '}
+                      {t.requestedVideos}: {item.requestedVideoCount ?? 0} ·{' '}
+                      {t.includedMedia(
+                        item.includedImageCountSnapshot ?? 0,
+                        item.includedVideoCountSnapshot ?? 0,
+                      )}
+                    </span>
+                  )}
+                  {item.evidencePolicyVersion !== 3 &&
+                    (item.minimumEvidenceCount !== undefined ||
+                      item.requiredEvidenceType !== undefined) && (
+                      <span className="checklist-snapshot-evidence">
+                        {item.minimumEvidenceCount ?? 1} ·{' '}
+                        {item.requiredEvidenceType === 'IMAGE'
+                          ? t.image
+                          : item.requiredEvidenceType === 'VIDEO'
+                            ? t.video
+                            : item.requiredEvidenceType === 'IMAGE_AND_VIDEO'
+                              ? t.imageAndVideo
+                              : t.imageOrVideo}
+                      </span>
+                    )}
+                  {item.sourceType !== 'SERVICE_TEMPLATE' && (
+                    <span className="checklist-snapshot-evidence">
+                      {item.priceAvailable ? (
+                        item.pricingStatus === 'DUPLICATE' ? (
+                          'Không tính phí — yêu cầu đã được bao gồm trong dịch vụ hiện tại.'
+                        ) : item.pricingStatus === 'REJECTED' ? (
+                          'Yêu cầu không được chấp thuận · 0 ₫'
+                        ) : (
+                          <>Dịch vụ bổ sung: {formatVnd(item.approvedPrice ?? 0)}</>
+                        )
+                      ) : (
+                        'Đang chờ Manager xem xét giá.'
+                      )}
+                    </span>
+                  )}
+                </li>
               ))}
           </ol>
         ) : (

@@ -33,9 +33,11 @@ function isAvailableDrone(device: DroneResponse) {
 }
 
 export const droneApi = {
-  async getAvailable(): Promise<AvailableDrone[]> {
+  async getAvailable(missionId?: string): Promise<AvailableDrone[]> {
     const response = await authenticatedFetch(
-      `${env.apiBaseUrl}/api/drones?status=AVAILABLE&size=100`,
+      missionId
+        ? `${env.apiBaseUrl}/api/drones/available?missionId=${encodeURIComponent(missionId)}`
+        : `${env.apiBaseUrl}/api/drones?status=AVAILABLE&size=100`,
     )
 
     const t = droneApiMessages[getLanguage()]
@@ -44,9 +46,13 @@ export const droneApi = {
       throw new Error(error.message || t.loadFailed(response.status))
     }
 
-    const payload: ApiResponse<DronePage> = await response.json()
-    return payload.data.items
-      .filter(isAvailableDrone)
+    const payload: ApiResponse<DronePage | DroneResponse[]> =
+      await response.json()
+    const devices = Array.isArray(payload.data)
+      ? payload.data
+      : payload.data.items
+    return devices
+      .filter((device) => Boolean(missionId) || isAvailableDrone(device))
       .map((device) => {
         const model = device.deviceModel ?? device.droneModel
         return {

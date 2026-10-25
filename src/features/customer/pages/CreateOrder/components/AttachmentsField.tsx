@@ -57,6 +57,7 @@ export function AttachmentsField({ attachments, update }: Props) {
   return (
     <div>
       <FormField id="co-attachments" label={t.label}>
+        <p className="co-hint">{t.hint}</p>
         <div className="co-upload">
           <input
             id="co-attachments"

@@ -27,7 +27,7 @@ export function AsideFloatCards({
           <span className="odm-aside-card-icon" aria-hidden="true">
             <Icon name={item.icon} />
           </span>
-          <span className="odm-aside-card-text">{item.text}</span>
+          <strong className="odm-aside-card-text">{item.text}</strong>
         </li>
       ))}
     </ul>

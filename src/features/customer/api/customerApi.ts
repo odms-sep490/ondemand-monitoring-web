@@ -1,7 +1,6 @@
 import { apiRequest } from '../../../shared/api/httpClient'
 import { displayOrderCode } from '../../../shared/lib/orderCode'
 import type { OrderStatus } from '../../../shared/types/domain'
-import type { RawAnalysis } from '../lib/analysis/types'
 import type { CustomerOrderItem } from '../types/orders'
 import { normalizeStatus } from '../lib/orders/mapOrder'
 import type { OrderCreateResponse } from './orderApi'
@@ -32,14 +31,24 @@ export type CreateOrderPayload = {
   weatherFallback?: string
   resultDeadline?: string
   usagePurpose?: string
-  priority?: string
+  flightPurpose?: string
   altitudeM?: number
   estimatedLengthM?: number
   siteContactName?: string
   siteContactPhone?: string
   accessNotes?: string
-  permitStatus?: string
-  permitNumber?: string
+  monitoringRelationship?: string
+  monitoringAuthorizationConfirmed?: boolean
+  monitoringAuthorizationDocuments?: Array<{
+    id: string
+    documentType: string
+    documentName: string
+    fileName: string
+    contentType: string
+    sizeBytes: number
+    dataUrl: string
+    notes?: string
+  }>
   resultFormats?: string[]
   deliveryMethods?: string[]
   dataRetentionDays?: number
@@ -59,6 +68,9 @@ export type ServicePricingEstimate = {
     additionalPrice: number
   }>
   totalPrice: number
+  quotePending?: boolean
+  /** Visits of a repeating order; the figures already include them. */
+  occurrences?: number
 }
 
 export type GeoJsonPolygon = {
@@ -71,7 +83,10 @@ export type ServiceOption = {
   name: string
   description?: string
   basePrice: number
+  /** Default price from the default checklists; falls back to basePrice while none is priced. */
+  defaultPrice?: number
   imageUrl?: string | null
+  fallbackImageUrl?: string | null
   isActive?: boolean
   createdAt?: string
   updatedAt?: string
@@ -103,7 +118,7 @@ export type WeatherForecast = {
   warnings?: string[]
 }
 
-/** Level wording is fixed: never "safe". The text is advisory; final conditions are confirmed at planning/pre-flight. */
+/** Advisory result only; final flight conditions are confirmed during planning and preflight. */
 export type FlightAreaRiskLevel = 'FAVORABLE' | 'NEEDS_REVIEW' | 'HIGH_RISK'
 export type FlightAreaFindingSeverity = 'INFO' | 'WARNING' | 'HIGH'
 
@@ -111,7 +126,6 @@ export type FlightAreaNearbyFeature = {
   type: string
   name?: string | null
   distanceMeters?: number | null
-  /** Only ever a height OpenStreetMap actually carries. */
   heightMeters?: number | null
   latitude?: number | null
   longitude?: number | null
@@ -122,10 +136,8 @@ export type FlightAreaAssessment = {
   location: { latitude: number; longitude: number; radiusMeters: number }
   elevation: {
     available: boolean
-    /** Metres above mean sea level (AMSL). */
     terrainElevationMeters?: number | null
     reference?: string
-    /** Metres above ground level (AGL). */
     requestedAltitudeAglMeters?: number | null
     estimatedFlightAltitudeAmslMeters?: number | null
     provider?: string
@@ -159,9 +171,22 @@ export type FlightAreaAssessment = {
     helipadNearby: boolean
     importantFeatures: FlightAreaNearbyFeature[]
   }
+  ministryFlightBan?: {
+    available: boolean
+    totalAreaSquareMeters?: number | null
+    violatedAreaSquareMeters?: number | null
+    safeAreaSquareMeters?: number | null
+    violatedZones: string[]
+    sourceUrl: string
+    errorCode?: string | null
+  }
   assessment: {
     level: FlightAreaRiskLevel
-    findings: Array<{ code: string; severity: FlightAreaFindingSeverity; message: string }>
+    findings: Array<{
+      code: string
+      severity: FlightAreaFindingSeverity
+      message: string
+    }>
     disclaimer: string
   }
 }
@@ -170,8 +195,8 @@ export type FlightAreaAssessmentQuery = {
   latitude: number
   longitude: number
   radiusMeters: number
-  /** Desired altitude above ground level, metres. */
   requestedAltitudeAgl?: number
+  includeOsm?: boolean
 }
 
 export type WeatherForecastQuery = {
@@ -199,43 +224,6 @@ export type ServiceDeliverableOption = {
   deliverableTypeName?: string
 }
 
-export type ServiceRequirementSuggestion = {
-  id: string
-  serviceId?: string
-  category: string
-  label: string
-  message: string
-  sortOrder?: number
-  source?: string
-}
-
-export type ConsultationMessage = {
-  id: string
-  senderType: 'CUSTOMER' | 'ASSISTANT'
-  message: string
-  createdAt?: string
-}
-
-export type CustomerConsultation = {
-  id: string
-  customerId?: string
-  orderId?: string
-  recommendedServiceId?: string
-  recommendedServiceName?: string
-  status?: string
-  requirementData?: string
-  requirementSummary?: string
-  requestTitle?: string
-  requestSummary?: string
-  startedAt?: string
-  completedAt?: string
-  messages?: ConsultationMessage[]
-}
-
-type SendConsultationMessageOptions = {
-  signal?: AbortSignal
-  requestContext?: string
-}
 
 const BACKEND_ORDER_STATUSES = new Set<OrderStatus>([
   'PENDING',
@@ -268,12 +256,6 @@ function toCustomerOrderItem(order: OrderCreateResponse): CustomerOrderItem {
     radiusM: order.radiusM ?? null,
     status,
     serviceNames: order.serviceName ? [order.serviceName] : [],
-    missionCount:
-      status === 'APPROVED' ||
-      status === 'IN_PROGRESS' ||
-      status === 'COMPLETED'
-        ? 1
-        : 0,
     hasNewMedia: false,
     submittedAt: order.createdAt ?? null,
     canCancel: status === 'PENDING',
@@ -281,6 +263,11 @@ function toCustomerOrderItem(order: OrderCreateResponse): CustomerOrderItem {
 }
 
 export const customerApi = {
+  getChecklistCatalog: (signal?: AbortSignal) =>
+    apiRequest<import('../lib/checklist/types').CatalogChecklistItem[]>(
+      '/api/checklists/catalog',
+      { signal },
+    ),
   getServiceChecklist: (serviceId: string, signal?: AbortSignal) =>
     apiRequest<ServiceChecklistItem[]>(
       `/api/services/${encodeURIComponent(serviceId)}/checklists`,
@@ -335,7 +322,6 @@ export const customerApi = {
       signal,
     }),
 
-  /** `GET /api/flight-area-assessment` [BE]: advisory aggregate, never approves or rejects an order. */
   getFlightAreaAssessment: (query: FlightAreaAssessmentQuery, signal?: AbortSignal) =>
     apiRequest<FlightAreaAssessment>('/api/flight-area-assessment', {
       query: {
@@ -343,6 +329,7 @@ export const customerApi = {
         longitude: query.longitude.toFixed(7),
         radiusMeters: Math.round(query.radiusMeters),
         requestedAltitudeAgl: query.requestedAltitudeAgl,
+        includeOsm: query.includeOsm,
       },
       signal,
     }),
@@ -352,15 +339,6 @@ export const customerApi = {
       query: { serviceId },
       signal,
     }),
-
-  listRequirementSuggestions: (serviceId?: string, signal?: AbortSignal) =>
-    apiRequest<ServiceRequirementSuggestion[]>(
-      '/api/services/requirement-suggestions',
-      {
-        query: serviceId ? { serviceId } : undefined,
-        signal,
-      },
-    ),
 
   getPricingEstimate: (
     serviceId: string,
@@ -374,34 +352,6 @@ export const customerApi = {
       signal: params.signal,
     }),
 
-  startConsultation: (signal?: AbortSignal) =>
-    apiRequest<CustomerConsultation>('/api/customer/consultations', {
-      method: 'POST',
-      signal,
-    }),
-
-  getConsultation: (consultationId: string, signal?: AbortSignal) =>
-    apiRequest<CustomerConsultation>(
-      `/api/customer/consultations/${encodeURIComponent(consultationId)}`,
-      { signal },
-    ),
-
-  sendConsultationMessage: (
-    consultationId: string,
-    message: string,
-    options: SendConsultationMessageOptions = {},
-  ) =>
-    apiRequest<CustomerConsultation>(
-      `/api/customer/consultations/${encodeURIComponent(consultationId)}/messages`,
-      {
-        method: 'POST',
-        body: {
-          message,
-          requestContext: options.requestContext,
-        },
-        signal: options.signal,
-      },
-    ),
 
   /** `POST /api/orders` [BE] `OrderCreateRequest` -> `OrderCreateResponse`. */
   createOrder: (payload: CreateOrderPayload) =>
@@ -410,19 +360,6 @@ export const customerApi = {
       body: payload,
     }),
 
-  /** Mock only: the BE has no cancel endpoint. Returns the order in BE shape. */
-  cancelOrder: (orderId: string) =>
-    apiRequest<OrderCreateResponse>(
-      `/api/customer/orders/${encodeURIComponent(orderId)}/cancel`,
-      { method: 'POST' },
-    ),
-
-  /** `GET /api/orders/{orderId}/analysis/latest` [BE]: `null` until analysed. */
-  getLatestAnalysis: (orderId: string, signal?: AbortSignal) =>
-    apiRequest<RawAnalysis | null>(
-      `/api/orders/${encodeURIComponent(orderId)}/analysis/latest`,
-      { signal },
-    ),
 
   /** Mock only: the BE has no endpoint to accept a finding suggestion. */
   applyFindingSuggestion: (orderId: string, findingId: string) =>

@@ -12,8 +12,13 @@ import type {
 } from './types'
 
 const KNOWN: readonly OrderStatus[] = [
+  'DRAFT',
+  'AI_ANALYZED',
+  'SUBMITTED',
   'PENDING',
+  'NEEDS_INFO',
   'APPROVED',
+  'SCHEDULED',
   'REJECTED',
   'IN_PROGRESS',
   'COMPLETED',
@@ -48,16 +53,49 @@ export function toOrderRow(order: OrderCreateResponse): OrderRow {
     status: normalizeStatus(order.orderStatus),
     radiusM: orNull(order.radiusM),
     createdAt: orNull(order.createdAt),
+    depositState:
+      statusDepositState(normalizeStatus(order.orderStatus), order.depositSatisfied),
   }
+}
+
+function statusDepositState(
+  status: OrderStatus,
+  depositSatisfied: boolean | null | undefined,
+): OrderRow['depositState'] {
+  if (status !== 'APPROVED') return undefined
+  return depositSatisfied ? 'PAID' : 'ACTION_REQUIRED'
 }
 
 /** Requirement keys that are internal bookkeeping, not customer-facing. */
 const HIDDEN_REQUIREMENT_KEYS = new Set([
-  'consultationId',
   'readinessScore',
   'aiAnalysisRequested',
-  'additionalRequirements',
 ])
+
+function requirementText(value: unknown): string | null {
+  if (typeof value === 'string') return value.trim() || null
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value)
+  if (Array.isArray(value)) {
+    const parts = value.map(requirementText).filter((item): item is string => Boolean(item))
+    return parts.length ? parts.join('; ') : null
+  }
+  if (value && typeof value === 'object') {
+    const record = value as Record<string, unknown>
+    const preferred = [record.description, record.documentName, record.fileName, record.name, record.type]
+      .map(requirementText)
+      .filter((item): item is string => Boolean(item))
+    if (record.additionalPrice != null) preferred.push(`${requirementText(record.additionalPrice)} đ`)
+    if (preferred.length) return preferred.join(' · ')
+    return Object.entries(record)
+      .map(([key, item]) => {
+        const formatted = requirementText(item)
+        return formatted ? `${key}: ${formatted}` : null
+      })
+      .filter((item): item is string => Boolean(item))
+      .join(' · ') || null
+  }
+  return null
+}
 
 export function toDeliverableView(item: OrderDeliverableResponse): DeliverableView {
   const requirement = item.requirement ?? {}
@@ -69,9 +107,9 @@ export function toDeliverableView(item: OrderDeliverableResponse): DeliverableVi
       .filter(
         ([key, value]) =>
           !HIDDEN_REQUIREMENT_KEYS.has(key) &&
-          (typeof value === 'string' || typeof value === 'number'),
+          requirementText(value) != null,
       )
-      .map(([key, value]) => ({ key, value: String(value) })),
+      .map(([key, value]) => ({ key, value: requirementText(value)! })),
     aiAnalysisRequested: requirement.aiAnalysisRequested === true,
   }
 }
@@ -86,7 +124,8 @@ export function buildTimeline(order: OrderCreateResponse): OrderTimelineEvent[] 
   if (order.createdAt) {
     events.push({ kind: 'created', at: order.createdAt, actor: null, note: null })
   }
-  if (order.reviewAt && (status !== 'PENDING')) {
+  const approvedStatuses: OrderStatus[] = ['APPROVED', 'SCHEDULED', 'IN_PROGRESS', 'COMPLETED']
+  if (order.reviewAt && (approvedStatuses.includes(status) || status === 'REJECTED')) {
     const rejected = status === 'REJECTED'
     events.push({
       kind: rejected ? 'rejected' : 'approved',
@@ -107,17 +146,45 @@ export function toOrderDetail(order: OrderCreateResponse): OrderDetailView {
   const row = toOrderRow(order)
   return {
     ...row,
+    legalReviewStatus: order.legalReviewStatus ?? 'NOT_REVIEWED',
     description: orNull(order.description),
+    usagePurpose: orNull(order.usagePurpose),
+    flightPurpose: orNull(order.flightPurpose),
+    altitudeM: orNull(order.altitudeM),
+    estimatedLengthM: orNull(order.estimatedLengthM),
+    siteContactName: orNull(order.siteContactName),
+    siteContactPhone: orNull(order.siteContactPhone),
+    accessNotes: orNull(order.accessNotes),
+    monitoringRelationship: orNull(order.monitoringRelationship),
+    monitoringAuthorizationConfirmed: Boolean(order.monitoringAuthorizationConfirmed),
+    monitoringAuthorizationDocuments: order.monitoringAuthorizationDocuments ?? [],
+    permitStatus: orNull(order.permitStatus),
+    permitNumber: orNull(order.permitNumber),
+    permitExpiresOn: orNull(order.permitExpiresOn),
+    permitDocuments: order.permitDocuments ?? [],
+    permitRequired: order.permitRequired ?? null,
+    permitZoneName: orNull(order.permitZoneName),
+    recurrenceType: orNull(order.recurrenceType),
+    recurrenceOccurrences: orNull(order.recurrenceOccurrences),
+    weatherFallback: orNull(order.weatherFallback),
+    resultDeadline: orNull(order.resultDeadline),
+    resultFormats: order.resultFormats ?? [],
+    deliveryMethods: order.deliveryMethods ?? [],
+    dataRetentionDays: orNull(order.dataRetentionDays),
+    termsAcceptedAt: orNull(order.termsAcceptedAt),
+    termsVersion: orNull(order.termsVersion),
+    executionPlanRevision: orNull(order.executionPlanRevision),
+    executionPlanStatus: orNull(order.executionPlanStatus),
     checklistItems: order.checklistItems ?? [],
     checklistSnapshotAt: orNull(order.checklistSnapshotAt),
     latitude: orNull(order.latitude),
     longitude: orNull(order.longitude),
     rejectReason: orNull(order.rejectReason),
+    requestedUpdateScope: orNull(order.requestedUpdateScope),
     reviewByName: orNull(order.reviewByName),
     reviewAt: orNull(order.reviewAt),
     updatedAt: orNull(order.updatedAt),
     deliverables: (order.deliverables ?? []).map(toDeliverableView),
     timeline: buildTimeline(order),
-    canCancel: row.status === 'PENDING',
   }
 }

@@ -19,6 +19,7 @@ import { SubmitBar } from './components/SubmitBar'
 import { customerCreateRequestPageMessages } from './CustomerCreateRequestPage.messages'
 import { useCreateRequest } from './hooks/useCreateRequest'
 import { ChecklistEditor } from '../../components/checklist/ChecklistEditor'
+import { selectionEstimate } from '../../lib/checklist/selectionEstimate'
 
 /**
  * Quick single-page variant of the create-order wizard, routed outside the
@@ -28,6 +29,15 @@ export function CustomerCreateRequestPage() {
   const { t } = useI18n(customerCreateRequestPageMessages)
   const r = useCreateRequest()
   const { form, errors, update, meta, submit } = r
+  const estimate = selectionEstimate(
+    meta.pricingEstimate,
+    r.checklist.quote.preview,
+  )
+  const additionalChecklists = r.checklist.rows.filter(
+    (row) => row.selected && row.packageItem === false,
+  )
+  const packageChecklists = r.checklist.rows.filter((row) => row.packageItem === true)
+  const packageSelectedCount = packageChecklists.filter((row) => row.selected).length
 
   return (
     <PortalLayout role="CUSTOMER" title={t.pageTitle} subtitle={t.pageSubtitle}>
@@ -59,6 +69,7 @@ export function CustomerCreateRequestPage() {
                 onSelect={(id) => update('serviceId', id)}
               />
               <ChecklistEditor
+                quote
                 checklist={r.checklist}
                 disabled={submit.submitting}
                 onReload={r.clearSubmitError}
@@ -72,31 +83,40 @@ export function CustomerCreateRequestPage() {
                 preferredTimes={meta.preferredTimes}
               />
               <DeliverablesCard
-                form={form}
-                errors={errors}
-                update={update}
                 deliverables={meta.deliverables}
                 loading={meta.deliverablesLoading}
                 error={meta.deliverablesError}
                 onRetry={meta.reloadDeliverables}
+                mediaTotals={r.checklist.mediaTotals}
               />
-              <DeliveryOptionsCard form={form} errors={errors} update={update} />
+              <DeliveryOptionsCard
+                mediaTotals={r.checklist.mediaTotals}
+                form={form}
+                errors={errors}
+                update={update}
+              />
             </div>
           </div>
           <div className="co-grid">
             <RequestSummaryCard
+              mediaTotals={r.checklist.mediaTotals}
               form={form}
               service={r.service}
               time={r.time}
               deliverable={r.deliverable}
-              consultation={null}
-              aiAnalysisRequested={false}
+              checklistCounts={{
+                total: packageSelectedCount + additionalChecklists.length,
+                packageSelected: packageSelectedCount,
+                packageTotal: packageChecklists.length,
+                additional: additionalChecklists.length,
+              }}
             />
             <PricingEstimateCard
-              estimate={meta.pricingEstimate}
-              loading={meta.pricingLoading}
+              estimate={estimate}
+              loading={r.checklist.quote.loading}
               hasService={Boolean(r.service)}
               aiAnalysisRequested={false}
+              additionalChecklists={additionalChecklists}
             />
           </div>
 
@@ -113,7 +133,10 @@ export function CustomerCreateRequestPage() {
             <ConfirmSubmitModal
               form={form}
               service={r.service}
-              pricingEstimate={meta.pricingEstimate}
+              pricingEstimate={estimate}
+              checklistCount={r.checklist.selectedCount}
+              mediaTotals={r.checklist.mediaTotals}
+              time={r.time}
               submitting={submit.submitting}
               error={r.submitError}
               onConfirm={() => void submit.submit()}

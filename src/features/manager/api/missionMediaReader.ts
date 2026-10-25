@@ -10,7 +10,8 @@ const PAGE_SIZE = 12
 
 function toUploaded(item: MediaResponse): UploadedMissionMedia {
   const isVideo =
-    item.contentType?.startsWith('video/') || item.type?.toUpperCase() === 'VIDEO'
+    item.contentType?.startsWith('video/') ||
+    item.type?.toUpperCase() === 'VIDEO'
   const extension = item.contentType?.split('/')[1] ?? (isVideo ? 'mp4' : 'jpg')
   const deviceId = item.deviceId ?? item.droneId
   return {
@@ -40,12 +41,14 @@ function toUploaded(item: MediaResponse): UploadedMissionMedia {
  */
 export const staffMissionMediaReader: MissionMediaReader = {
   async list(missionId, page, signal): Promise<UploadedMissionMediaPage> {
-    let media = (await missionsApi.getMissionResult(missionId, signal))
-      .mediaFiles ?? []
+    const result = await missionsApi.getMissionResult(missionId, signal)
+    let media = result?.missionId === missionId ? (result.mediaFiles ?? []) : []
     if (media.length === 0) {
       media = await missionsApi.getMissionMedia(missionId, signal)
     }
-    const all = media.map(toUploaded)
+    const all = (media ?? [])
+      .filter((item) => item.missionId === missionId)
+      .map(toUploaded)
     const totalPages = Math.max(1, Math.ceil(all.length / PAGE_SIZE))
     const safePage = Math.min(Math.max(0, page), totalPages - 1)
     return {
@@ -58,11 +61,14 @@ export const staffMissionMediaReader: MissionMediaReader = {
     }
   },
   async get(missionId, mediaId, signal) {
-    let all = (await missionsApi.getMissionResult(missionId, signal)).mediaFiles ?? []
+    const result = await missionsApi.getMissionResult(missionId, signal)
+    let all = result?.missionId === missionId ? (result.mediaFiles ?? []) : []
     if (all.length === 0) {
       all = await missionsApi.getMissionMedia(missionId, signal)
     }
-    const found = all.find((item) => item.id === mediaId)
+    const found = all.find(
+      (item) => item.id === mediaId && item.missionId === missionId,
+    )
     if (!found) throw new Error('Không tìm thấy media.')
     return toUploaded(found)
   },

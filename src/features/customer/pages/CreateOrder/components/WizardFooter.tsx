@@ -30,9 +30,9 @@ export function WizardFooter({ step, nextLabel, submitDisabled, nextDisabled = f
           {blockedReason}
         </span>
       )}
-      {step < 5 ? (
+      {step < 6 ? (
         <button type="button" className="odm-btn odm-btn-p" onClick={onNext} disabled={nextDisabled}>
-          {t.continueTo(nextLabel)}
+          {t.continueTo} {nextLabel}
         </button>
       ) : (
         <button type="button" className="odm-btn odm-btn-p" onClick={onSubmit} disabled={submitDisabled}>

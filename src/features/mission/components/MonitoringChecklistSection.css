@@ -40,9 +40,9 @@
 .monitoring-summary {
   position: relative;
   padding: 14px 16px 18px;
-  border: 1px solid #fde68a;
+  border: 1px solid var(--bd, #e2e8f0);
   border-radius: 12px;
-  background: #fffbeb;
+  background: var(--sf2, #f8fafc);
   font-size: 14px;
 }
 .monitoring-summary.is-ready {
@@ -57,9 +57,9 @@
   left: 16px;
   right: 16px;
   bottom: 8px;
-  height: 4px;
+  height: 6px;
   border-radius: 999px;
-  background: rgba(15, 23, 42, 0.08);
+  background: #cbd5e1;
   overflow: hidden;
 }
 .monitoring-progress::after {
@@ -302,6 +302,15 @@
   font-weight: 600;
   color: #475569;
   font-variant-numeric: tabular-nums;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.25;
+}
+.mc-count small {
+  color: #15803d;
+  font-size: 11px;
+  font-weight: 600;
 }
 .mc-progress {
   height: 6px;
@@ -690,4 +699,46 @@
 }
 .mc-cancel:hover {
   color: #0f172a;
+}
+
+/* Read-only preview before the pilot accepts the mission */
+.mc-preview-notice {
+  display: grid;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  background: #eff6ff;
+  color: #1e3a8a;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.mc-preview-list {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.mc-preview-list li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  border: 1px solid var(--bd, #e2e8f0);
+  border-radius: 8px;
+  background: var(--sf2, #f8fafc);
+}
+.mc-preview-mark {
+  color: #475569;
+  line-height: 1.4;
+}
+.mc-preview-text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.mc-preview-text small {
+  color: #475569;
+  font-size: 12.5px;
 }

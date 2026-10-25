@@ -10,6 +10,7 @@ export const ORDER_STATUS_TONE: Record<OrderStatus, StatusTone> = {
   AI_ANALYZED: 'blue',
   SUBMITTED: 'yellow',
   PENDING: 'yellow',
+  NEEDS_INFO: 'orange',
   APPROVED: 'blue',
   SCHEDULED: 'blue',
   IN_PROGRESS: 'green',
@@ -23,6 +24,7 @@ const ORDER_STATUS_LABEL_VI: Record<OrderStatus, string> = {
   AI_ANALYZED: 'Đã phân tích AI',
   SUBMITTED: 'Đã gửi duyệt',
   PENDING: 'Đang duyệt',
+  NEEDS_INFO: 'Cần bổ sung thông tin',
   APPROVED: 'Đã duyệt',
   SCHEDULED: 'Đã lên lịch',
   IN_PROGRESS: 'Đang thực hiện',
@@ -36,6 +38,7 @@ const ORDER_STATUS_LABEL_EN: Record<OrderStatus, string> = {
   AI_ANALYZED: 'AI analyzed',
   SUBMITTED: 'Submitted',
   PENDING: 'Pending review',
+  NEEDS_INFO: 'More information required',
   APPROVED: 'Approved',
   SCHEDULED: 'Scheduled',
   IN_PROGRESS: 'In progress',
@@ -45,8 +48,10 @@ const ORDER_STATUS_LABEL_EN: Record<OrderStatus, string> = {
 }
 
 export const MISSION_STATUS_TONE: Record<MissionStatus, StatusTone> = {
+  PLANNING: 'gray',
   CREATED: 'gray',
   WAITING_DEPOSIT: 'yellow',
+  READY: 'blue',
   RESOURCE_ASSIGNING: 'yellow',
   WAITING_CREW_CONFIRMATION: 'yellow',
   WAITING_OPERATOR_ACCEPTANCE: 'yellow',
@@ -67,8 +72,10 @@ export const MISSION_STATUS_TONE: Record<MissionStatus, StatusTone> = {
 }
 
 const MISSION_STATUS_LABEL_VI: Record<MissionStatus, string> = {
+  PLANNING: 'Đang lập kế hoạch',
   CREATED: 'Mới tạo',
   WAITING_DEPOSIT: 'Chờ thanh toán tiền cọc',
+  READY: 'Sẵn sàng phân công',
   RESOURCE_ASSIGNING: 'Phân công nguồn lực',
   WAITING_CREW_CONFIRMATION: 'Chờ đội bay xác nhận',
   WAITING_OPERATOR_ACCEPTANCE: 'Chờ phi công xác nhận',
@@ -89,8 +96,10 @@ const MISSION_STATUS_LABEL_VI: Record<MissionStatus, string> = {
 }
 
 const MISSION_STATUS_LABEL_EN: Record<MissionStatus, string> = {
+  PLANNING: 'Planning',
   CREATED: 'Created',
   WAITING_DEPOSIT: 'Waiting for deposit',
+  READY: 'Ready for assignment',
   RESOURCE_ASSIGNING: 'Assigning resources',
   WAITING_CREW_CONFIRMATION: 'Waiting for crew confirmation',
   WAITING_OPERATOR_ACCEPTANCE: 'Waiting for operator',
@@ -146,12 +155,14 @@ export function fmtDate(iso: string, locale: 'vi-VN' | 'en-US'): string {
   })
 }
 
+/** Date first, then the time: `17/10/2026 02:44` (vi) / `10/17/2026, 02:44 AM` (en). */
 export function fmtDateTime(iso: string, locale: 'vi-VN' | 'en-US'): string {
-  return new Date(iso).toLocaleString(locale, {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
+  const date = new Date(iso)
+  const time = date.toLocaleTimeString(locale, {
     hour: '2-digit',
     minute: '2-digit',
   })
+  return locale === 'vi-VN'
+    ? `${fmtDate(iso, locale)} ${time}`
+    : `${fmtDate(iso, locale)}, ${time}`
 }

@@ -3,7 +3,7 @@ import { describe, expect, it, vi, afterEach } from 'vitest'
 
 import { setLanguage } from '../../../../shared/i18n'
 import MediaUpload from './MediaUpload'
-import type { Mission } from '../types'
+import type { Mission } from '../../types/omss'
 
 vi.mock('../../../media/api/operatorMediaApi', () => ({
   operatorMediaApi: {

@@ -3,7 +3,7 @@ import { useI18n } from '../../../../shared/i18n'
 import { getDroneStatusLabel } from '../../../../shared/lib/statusTone'
 import type { DroneStatus } from '../../../../shared/types/domain'
 import { droneReplacementMessages } from '../i18n/droneReplacement'
-import type { Drone } from '../types'
+import type { Drone } from '../../types/omss'
 
 interface Props {
   current: Drone

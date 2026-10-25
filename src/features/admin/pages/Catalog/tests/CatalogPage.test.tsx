@@ -19,7 +19,7 @@ describe('CatalogPage', () => {
 
   it('shows the sample-data badge only on the stations tab', async () => {
     render(<CatalogPage />)
-    await screen.findByText('Kiểm tra Tháp viễn thông')
+    await screen.findByText('Giám sát công trình')
     expect(screen.queryByText('Dữ liệu mẫu')).toBeNull()
     fireEvent.click(screen.getByRole('tab', { name: 'Trạm' }))
     expect(await screen.findByText('Dữ liệu mẫu')).toBeTruthy()

@@ -9,10 +9,6 @@ export function useDraftPersistence(draft: StoredCreateOrderDraft, enabled: bool
     step,
     form,
     mapPoint,
-    consultation,
-    chatMessages,
-    autoDraft,
-    aiAnalysisRequested,
   } = draft
   useEffect(() => {
     if (!enabled) return
@@ -20,10 +16,6 @@ export function useDraftPersistence(draft: StoredCreateOrderDraft, enabled: bool
       step,
       form,
       mapPoint,
-      consultation,
-      chatMessages,
-      autoDraft,
-      aiAnalysisRequested,
     })
-  }, [enabled, step, form, mapPoint, consultation, chatMessages, autoDraft, aiAnalysisRequested])
+  }, [enabled, step, form, mapPoint])
 }

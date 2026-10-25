@@ -5,13 +5,11 @@ import { useI18n } from '../../../../../shared/i18n'
 import type {
   PreferredTimeOption,
   ServiceOption,
-  ServicePricingEstimate,
 } from '../../../api/customerApi'
 import { calcArea } from '../../../lib/createOrder/payload'
 import type { FormErrors, FormState, UpdateField } from '../../../lib/createOrder/types'
 import { localizeServiceName } from '../../../lib/i18n/serviceNames'
 import { localizeTimeslot } from '../../../lib/i18n/timeslots'
-import { PricingEstimateCard } from './PricingEstimateCard'
 import { ScheduleCard } from './ScheduleCard'
 import { ScheduleOptionsCard } from './ScheduleOptionsCard'
 import { scheduleStepMessages } from './ScheduleStep.messages'
@@ -23,10 +21,7 @@ type Props = {
   preferredTimes: PreferredTimeOption[]
   service?: ServiceOption
   time?: PreferredTimeOption
-  pricingEstimate: ServicePricingEstimate | null
-  pricingLoading: boolean
-  aiAnalysisRequested: boolean
-  /** Wizard actions, rendered in the sticky bottom bar. */
+  /** Wizard actions, rendered in-flow at the bottom of the summary panel. */
   footer?: ReactNode
 }
 
@@ -44,7 +39,7 @@ function inclusiveDays(from: string, to: string) {
   return Math.round((end - start) / 86_400_000) + 1
 }
 
-/** Step 4: preferred dates and time window, with the request context on the side. */
+/** Step 5: preferred dates and time window, with a compact schedule context on the side. */
 export function ScheduleStep(p: Props) {
   const { t, lang } = useI18n(scheduleStepMessages)
   const { form } = p
@@ -55,7 +50,7 @@ export function ScheduleStep(p: Props) {
 
   return (
     <>
-      <div className="co-grid is-service">
+      <div className="co-grid is-service is-schedule">
         <div className="co-stack">
           <ScheduleCard
             form={form}
@@ -139,15 +134,9 @@ export function ScheduleStep(p: Props) {
               </div>
             </dl>
           </Card>
-          <PricingEstimateCard
-            estimate={p.pricingEstimate}
-            loading={p.pricingLoading}
-            hasService={Boolean(p.service)}
-            aiAnalysisRequested={p.aiAnalysisRequested}
-          />
+          {p.footer && <div className="co-summary-cta">{p.footer}</div>}
         </aside>
       </div>
-      {p.footer && <div className="co-bottom-bar">{p.footer}</div>}
     </>
   )
 }

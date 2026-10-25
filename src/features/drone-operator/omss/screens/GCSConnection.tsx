@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import type { Mission, Drone } from '../types'
-import { flightControlApi } from '../api/flightControlApi'
+import type { Mission, Drone } from '../../types/omss'
+import { flightControlApi } from '../../api/flightControlApi'
 import { useI18n } from '../../../../shared/i18n'
 import { gcsConnectionMessages } from '../i18n/gcsConnection'
 
@@ -76,10 +76,7 @@ export default function GCSConnection({
       addLog(t.log.sessionBound(bound.missionId))
       setPhase('sync')
       const verified = await flightControlApi.status()
-      if (
-        verified.missionId !== missionId ||
-        verified.deviceId !== drone.id
-      ) {
+      if (verified.missionId !== missionId || verified.deviceId !== drone.id) {
         throw new Error(t.errors.sessionVerificationFailed)
       }
       if (

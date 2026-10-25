@@ -72,10 +72,10 @@ export function ManagerDeliveryPanel({
       <header className="delivery-hero">
         <div className="delivery-hero__copy">
           <span className="delivery-eyebrow">Quy trình bàn giao</span>
-          <h2 id="manager-delivery-title">Kiểm duyệt &amp; bàn giao kết quả</h2>
+          <h2 id="manager-delivery-title">Gửi kết quả cho khách hàng</h2>
           <p>
-            Chọn dữ liệu gửi xem trước, theo dõi thanh toán và phát hành bản gốc
-            cho khách hàng.
+            Chọn ảnh/video đã nghiệm thu để gửi cho khách hàng xem và xác nhận.
+            Sau khi thanh toán hoàn tất, bạn có thể bàn giao tệp gốc.
           </p>
         </div>
         <DeliveryStatusPill status={delivery.deliveryStatus} />
@@ -85,21 +85,21 @@ export function ManagerDeliveryPanel({
         {delivery.revisionReason ? (
           <StatusBanner
             tone="warning"
-            title="Customer yêu cầu chỉnh sửa"
+            title="khách hàng yêu cầu chỉnh sửa"
             text={delivery.revisionReason}
           />
         ) : null}
         {delivery.deliveryStatus === 'PROCESSING' ? (
           <StatusBanner
             title="Chưa thể gửi bản xem trước"
-            text="Hãy duyệt kết quả nhiệm vụ và toàn bộ media bắt buộc trước."
+            text="Hãy duyệt toàn bộ kết quả nhiệm vụ trước khi gửi cho khách hàng."
           />
         ) : null}
         {canReleasePreview && delivery.assets.length === 0 ? (
           <StatusBanner
             tone="warning"
-            title="Chưa có media được duyệt"
-            text="Duyệt media cho khách hàng trong thư viện phía trên. Các tệp hợp lệ sẽ xuất hiện tại đây để lựa chọn."
+            title="Chưa có media hợp lệ"
+            text="Media đã được Nghiệm thu kiểm tra và hợp lệ sẽ xuất hiện tại đây."
           />
         ) : null}
 
@@ -110,11 +110,10 @@ export function ManagerDeliveryPanel({
           >
             <div className="delivery-section__head">
               <div>
-                <h3 id="manager-assets-title">Media gửi cho Customer</h3>
+                <h3 id="manager-assets-title">Media gửi cho khách hàng</h3>
                 <p>
                   {selected.length}/{delivery.assets.length} tệp đang được chọn
-                </p>
-              </div>
+                </p>              </div>
               {canReleasePreview ? (
                 <button
                   type="button"
@@ -161,8 +160,7 @@ export function ManagerDeliveryPanel({
                         {asset.type.toUpperCase().includes('VIDEO')
                           ? 'Video'
                           : 'Hình ảnh'}{' '}
-                        · Tệp #{index + 1}
-                      </small>
+                        · Tệp #{index + 1}                      </small>
                     </span>
                   </label>
                 )
@@ -209,7 +207,9 @@ export function ManagerDeliveryPanel({
                   )
                 }
               >
-                {busy ? 'Đang gửi…' : `Gửi preview (${selected.length})`}
+                {busy
+                  ? 'Đang gửi…'
+                  : `Gửi kết quả cho khách hàng (${selected.length})`}
               </button>
             </div>
           </section>
@@ -217,14 +217,14 @@ export function ManagerDeliveryPanel({
 
         {delivery.deliveryStatus === 'CUSTOMER_REVIEW' ? (
           <StatusBanner
-            title="Đã gửi bản xem trước"
-            text="Đang chờ Customer xem và phản hồi kết quả."
+            title="Đã gửi kết quả cho khách hàng"
+            text="Đang chờ khách hàng xem và phản hồi kết quả."
           />
         ) : null}
         {delivery.deliveryStatus === 'FINAL_PAYMENT_PENDING' ? (
           <StatusBanner
             tone="warning"
-            title="Customer đã chấp nhận kết quả"
+            title="khách hàng đã chấp nhận kết quả"
             text="Đang chờ khách hàng hoàn tất khoản thanh toán còn lại."
           />
         ) : null}
@@ -237,7 +237,7 @@ export function ManagerDeliveryPanel({
               </span>
               <div>
                 <b>Thanh toán đã được xác nhận</b>
-                <span>Bản gốc đã sẵn sàng để phát hành cho Customer.</span>
+                <span>Bản gốc đã sẵn sàng để phát hành cho khách hàng.</span>
               </div>
             </div>
             <button
@@ -256,7 +256,7 @@ export function ManagerDeliveryPanel({
           <StatusBanner
             tone="success"
             title="Bàn giao hoàn tất"
-            text={`${delivery.assets.length} tệp gốc đã sẵn sàng cho Customer tải xuống.`}
+            text={`${delivery.assets.length} tệp gốc đã sẵn sàng cho khách hàng tải xuống.`}
           />
         ) : null}
         {error ? (

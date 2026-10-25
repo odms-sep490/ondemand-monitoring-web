@@ -13,7 +13,7 @@ export type CustomerMediaResponse = {
   capturedAt?: string | null
   availableAt?: string | null
   /** Presigned, short-lived viewing URL. */
-  downloadUrl?: string
+  downloadUrl?: string | null
 }
 
 /** `CustomerMediaNotificationResponse`. */
@@ -40,6 +40,7 @@ export type PageResponse<T> = {
 export type MediaKind = 'image' | 'video' | 'other'
 
 export type MediaItem = {
+  sourceType?: string | null
   id: string
   missionId: string
   deviceId: string | null

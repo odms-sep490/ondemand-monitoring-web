@@ -40,7 +40,15 @@ export function RecentOrdersCard({ orders }: { orders: OrderRow[] }) {
                     .join(' · ')}
                 </div>
               </div>
-              <OrderStatusBadge status={order.status} />
+              <div className="dash-order-status">
+                <OrderStatusBadge status={order.status} />
+                {order.depositState === 'ACTION_REQUIRED' ? (
+                  <span className="dash-deposit-required">
+                    <span aria-hidden="true" />
+                    {t.depositRequired}
+                  </span>
+                ) : null}
+              </div>
             </li>
           ))}
         </ul>

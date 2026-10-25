@@ -1,10 +1,17 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react'
 import { ApiError } from '../../../shared/api/httpClient'
 import { checklistExecutionApi } from '../api/checklistExecutionApi'
 import {
   MonitoringChecklistSection,
   allowedExecutionStatuses,
+  monitoringErrorMessage,
 } from './MonitoringChecklistSection'
 import type {
   MissionChecklistExecution,
@@ -45,6 +52,35 @@ const props = {
 afterEach(() => vi.restoreAllMocks())
 
 describe('MonitoringChecklistSection', () => {
+  it.each([401, 403, 404, 409, 500])(
+    'localizes API failure %s without showing diagnostics',
+    (status) => {
+      const error = new ApiError('INTERNAL_DIAGNOSTIC', {
+        status,
+        code: 'INTERNAL_DIAGNOSTIC',
+        method: 'GET',
+        path: '/fixture',
+      })
+      const message = monitoringErrorMessage(error)
+      expect(message).not.toContain('INTERNAL_DIAGNOSTIC')
+      expect(message).toMatch(/quyền|Vui lòng/)
+    },
+  )
+  it('keeps missing-capability and network errors user-facing', () => {
+    expect(
+      monitoringErrorMessage(
+        new ApiError('Mission permissions unavailable', {
+          status: 503,
+          code: 'MISSION_PERMISSIONS_UNAVAILABLE',
+          method: 'GET',
+          path: '/fixture',
+        }),
+      ),
+    ).toContain('Chưa xác minh được quyền')
+    expect(
+      monitoringErrorMessage(new TypeError('Failed to fetch')),
+    ).not.toContain('Failed to fetch')
+  })
   it('uses the refreshed version on the next edit', async () => {
     const updated = {
       ...item,
@@ -114,6 +150,35 @@ describe('MonitoringChecklistSection', () => {
       ),
     )
   })
+  it('shows per-item evidence type, eligible count, remaining count, and wrong-type blockers', async () => {
+    render(
+      <MonitoringChecklistSection
+        {...props}
+        compact
+        data={{
+          ...data,
+          executions: [
+            {
+              ...item,
+              executionStatus: 'COMPLETED',
+              eligibleEvidenceCount: 1,
+              minimumEvidenceCount: 3,
+              requiredEvidenceType: 'VIDEO',
+              blockingReasons: ['EVIDENCE_TYPE_NOT_ELIGIBLE'],
+            },
+          ],
+        }}
+      />,
+    )
+    expect(
+      screen.getByText(/1\/3.*Chỉ video.*còn thiếu 2.*cần đúng loại media/),
+    ).toBeInTheDocument()
+    expect(
+      within(screen.getByLabelText('Bằng chứng: Yêu cầu lịch sử')).getByText(
+        /Chỉ video/,
+      ),
+    ).toBeInTheDocument()
+  })
   it('renders historical content in displayOrder including assessment, notes and reason', () => {
     render(
       <MonitoringChecklistSection
@@ -149,7 +214,7 @@ describe('MonitoringChecklistSection', () => {
     ).toEqual(['Yêu cầu lịch sử', 'Thứ hai', 'Thứ ba'])
     expect(screen.getByText('Không đạt yêu cầu')).toBeInTheDocument()
     expect(screen.getByText(/Vết nứt/)).toBeInTheDocument()
-    expect(screen.getByText(/Bị che khuất/)).toBeInTheDocument()
+    expect(screen.getAllByText(/Bị che khuất/).length).toBeGreaterThan(0)
     expect(screen.getByText('Chưa sẵn sàng gửi kết quả')).toBeInTheDocument()
   })
   it.each(['IN_PROGRESS', 'COMPLETED'] as const)(
@@ -183,6 +248,7 @@ describe('MonitoringChecklistSection', () => {
     render(
       <MonitoringChecklistSection
         {...props}
+        canAssess
         data={{
           ...data,
           executions: [{ ...item, executionStatus: 'IN_PROGRESS' }],
@@ -193,10 +259,10 @@ describe('MonitoringChecklistSection', () => {
     fireEvent.change(screen.getByLabelText('Trạng thái thực hiện'), {
       target: { value: 'COMPLETED' },
     })
-    fireEvent.change(screen.getByLabelText('Đánh giá'), {
+    fireEvent.change(screen.getByLabelText('Đánh giá nghiệm thu'), {
       target: { value: 'NON_COMPLIANT' },
     })
-    fireEvent.change(screen.getByLabelText('Ghi nhận'), {
+    fireEvent.change(screen.getByLabelText('Ghi nhận thực hiện'), {
       target: { value: '  vết nứt  ' },
     })
     fireEvent.click(screen.getByText('Lưu mục'))
@@ -255,7 +321,7 @@ describe('MonitoringChecklistSection', () => {
       <MonitoringChecklistSection {...props} refresh={refresh} />,
     )
     fireEvent.click(screen.getByText('Cập nhật mục'))
-    fireEvent.change(screen.getByLabelText('Ghi nhận'), {
+    fireEvent.change(screen.getByLabelText('Ghi nhận thực hiện'), {
       target: { value: 'Chưa lưu' },
     })
     fireEvent.click(screen.getByText('Lưu mục'))
@@ -270,14 +336,14 @@ describe('MonitoringChecklistSection', () => {
         }}
       />,
     )
-    expect(screen.getByLabelText('Ghi nhận')).toHaveValue('Chưa lưu')
+    expect(screen.getByLabelText('Ghi nhận thực hiện')).toHaveValue('Chưa lưu')
     expect(screen.getByText('Lưu mục')).toBeDisabled()
     expect(save).toHaveBeenCalledTimes(1)
     expect(refresh).toHaveBeenCalledOnce()
     fireEvent.click(
       screen.getByText('Dùng dữ liệu mới (bỏ chỉnh sửa chưa lưu)'),
     )
-    expect(screen.getByLabelText('Ghi nhận')).toHaveValue('Mới từ server')
+    expect(screen.getByLabelText('Ghi nhận thực hiện')).toHaveValue('Mới từ server')
   })
   it.each(['DRAFT', 'REJECTED'] as const)(
     '%s allows capability-driven editing',

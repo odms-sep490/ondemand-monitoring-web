@@ -104,7 +104,10 @@ type ErrorStateProps = {
 function describeError(error: unknown, genericError: string) {
   if (error instanceof ApiError) {
     return {
-      description: error.message || genericError,
+      description:
+        error.code === 'NETWORK_ERROR'
+          ? genericError
+          : error.message || genericError,
       debugLine: `${error.method} ${error.path}${
         error.status ? ` · ${error.status}` : ''
       }`,

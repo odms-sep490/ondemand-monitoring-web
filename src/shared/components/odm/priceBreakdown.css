@@ -1,0 +1,76 @@
+.price-bd {
+  display: grid;
+  gap: 12px;
+}
+.price-bd-policy,
+.price-bd-hint,
+.price-bd-media,
+.price-bd-empty {
+  margin: 0;
+  color: var(--tx3);
+  font-size: 12px;
+}
+.price-bd-warning {
+  border: 1px solid var(--bd);
+  border-left: 3px solid var(--rd, #c0392b);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 13px;
+}
+.price-bd-warning ul {
+  margin: 6px 0 0;
+  padding-left: 18px;
+}
+.price-bd-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: baseline;
+}
+.price-bd-total {
+  border-top: 1px solid var(--bd);
+  padding-top: 10px;
+  font-size: 15px;
+}
+.price-bd-checklist {
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+  padding: 10px 12px;
+  overflow-x: auto;
+}
+.price-bd-checklist header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: baseline;
+}
+.price-bd-profile {
+  color: var(--tx3);
+  font-size: 12px;
+}
+.price-bd-tag {
+  font-size: 11px;
+  border: 1px solid var(--bd);
+  border-radius: 999px;
+  padding: 0 8px;
+}
+.price-bd-checklist table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+  font-size: 13px;
+}
+.price-bd-checklist th,
+.price-bd-checklist td {
+  text-align: right;
+  padding: 4px 6px;
+}
+.price-bd-checklist th:first-child,
+.price-bd-checklist td:first-child {
+  text-align: left;
+}
+.price-bd-checklist tfoot th,
+.price-bd-checklist tfoot td {
+  border-top: 1px solid var(--bd);
+  font-weight: 600;
+}

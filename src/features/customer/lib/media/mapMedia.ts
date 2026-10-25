@@ -24,6 +24,7 @@ export function mediaKind(
 
 export function toMediaItem(dto: CustomerMediaResponse): MediaItem {
   return {
+    ...(dto.sourceType !== undefined ? { sourceType: dto.sourceType } : {}),
     id: dto.mediaId,
     missionId: dto.missionId,
     deviceId: dto.deviceId ?? null,
@@ -54,11 +55,15 @@ const time = (iso: string | null) => (iso ? new Date(iso).getTime() || 0 : 0)
 /** Newest capture first, like a gallery. */
 export function sortNewestFirst(items: MediaItem[]): MediaItem[] {
   return [...items].sort(
-    (a, b) => time(b.capturedAt ?? b.availableAt) - time(a.capturedAt ?? a.availableAt),
+    (a, b) =>
+      time(b.capturedAt ?? b.availableAt) - time(a.capturedAt ?? a.availableAt),
   )
 }
 
-export function filterMedia(items: MediaItem[], filter: MediaFilter): MediaItem[] {
+export function filterMedia(
+  items: MediaItem[],
+  filter: MediaFilter,
+): MediaItem[] {
   const query = filter.query.trim().toLowerCase()
   return items.filter((item) => {
     if (filter.missionId && item.missionId !== filter.missionId) return false
@@ -104,8 +109,13 @@ export function siblings(
   items: MediaItem[],
   current: { id: string; missionId: string },
 ): { prev: MediaItem | null; next: MediaItem | null } {
-  const sameMission = sortNewestFirst(items).filter((i) => i.missionId === current.missionId)
+  const sameMission = sortNewestFirst(items).filter(
+    (i) => i.missionId === current.missionId,
+  )
   const index = sameMission.findIndex((i) => i.id === current.id)
   if (index < 0) return { prev: null, next: null }
-  return { prev: sameMission[index - 1] ?? null, next: sameMission[index + 1] ?? null }
+  return {
+    prev: sameMission[index - 1] ?? null,
+    next: sameMission[index + 1] ?? null,
+  }
 }

@@ -4,10 +4,10 @@ export const scheduleCardMessages = defineMessages({
   vi: {
     cardTitle: 'Lịch bay mong muốn',
     dateRangeHint:
-      'Chọn khoảng ngày bạn muốn drone bay. Ngày sớm nhất phải từ ngày mai trở đi.',
+      'Chọn khoảng ngày bạn muốn drone bay. Ngày bay sớm nhất phải cách ngày tạo yêu cầu ít nhất 7 ngày.',
     advanceNoticeTitle: 'Lưu ý đặt lịch: ',
     advanceNoticeBody:
-      'Ví dụ hôm nay là 03/10 thì ngày sớm nhất bạn có thể chọn là 04/10.',
+      'Vui lòng đặt lịch trước ít nhất 7 ngày để ODMS có thời gian chuẩn bị hồ sơ và thực hiện thủ tục xin phép bay.',
     startDate: 'Ngày sớm nhất',
     endDate: 'Ngày muộn nhất',
     timeWindow: 'Khung giờ ưu tiên',
@@ -17,10 +17,10 @@ export const scheduleCardMessages = defineMessages({
   en: {
     cardTitle: 'Preferred flight schedule',
     dateRangeHint:
-      'Choose the date range when you want the drone to fly. The earliest date must be tomorrow or later.',
+      'Choose the date range when you want the drone to fly. The earliest flight date must be at least 7 days after the request date.',
     advanceNoticeTitle: 'Scheduling note: ',
     advanceNoticeBody:
-      'For example, if today is 03/10, the earliest selectable date is 04/10.',
+      'Please schedule at least 7 days in advance so ODMS has time to prepare the required documents and flight permit procedures.',
     startDate: 'Earliest date',
     endDate: 'Latest date',
     timeWindow: 'Preferred time window',

@@ -1,0 +1,41 @@
+.odm-or-checklist-title {
+  margin: 0;
+}
+.odm-or-checklist-hint {
+  margin: 0 0 14px;
+  line-height: 1.6;
+}
+.odm-or-checklist-list {
+  margin: 0;
+  padding-left: 24px;
+}
+.odm-or-checklist-list li {
+  padding: 10px 0 10px 4px;
+}
+.odm-or-checklist-list li + li {
+  border-top: 1px solid var(--or-border);
+}
+.odm-or-checklist-list li::marker {
+  color: var(--or-tx2);
+  font-weight: 600;
+}
+.odm-or-checklist-content {
+  margin: 0 0 5px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.odm-or-checklist-source,
+.odm-or-checklist-evidence {
+  display: inline-block;
+  margin-right: 8px;
+  color: var(--or-tx2);
+  font-size: 12px;
+}
+.odm-or-checklist-evidence {
+  padding: 2px 8px;
+  border: 1px solid var(--or-border);
+  border-radius: 999px;
+  color: var(--or-tx1);
+  font-weight: 600;
+}

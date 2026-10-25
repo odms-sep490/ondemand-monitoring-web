@@ -1,0 +1,181 @@
+/* Shared order banner. The image is decorative only; all text is real HTML. */
+.odm-osb {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 190px;
+  padding: 26px 28px;
+  align-items: stretch;
+  border-radius: 16px;
+  overflow: hidden;
+  background-color: #eaf3ff;
+  border: 1px solid #d6e6fb;
+  color: #0f2747;
+}
+
+.odm-osb-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(240, 247, 255, 0.55) 0%,
+      rgba(240, 247, 255, 0.25) 45%,
+      rgba(240, 247, 255, 0) 70%
+    ),
+    url('/images/order-banner.png') center / cover no-repeat,
+    linear-gradient(180deg, #bcd9ff 0%, #e3f0ff 100%);
+}
+
+.odm-osb-main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  justify-content: center;
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 720px;
+}
+
+.odm-osb-identity {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.odm-osb-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  background: #1677ff;
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(22, 119, 255, 0.28);
+}
+
+.odm-osb-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.odm-osb-eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #1458c4;
+}
+
+.odm-osb-title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.2;
+  color: #0a1f3d;
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+.odm-osb-desc {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: #3d5575;
+  overflow-wrap: anywhere;
+}
+
+.odm-osb-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.odm-osb-tag {
+  max-width: 100%;
+  padding: 3px 12px;
+  border: 1px solid #b9d4fb;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 1px 3px rgba(20, 88, 196, 0.15);
+  color: #1458c4;
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.odm-osb-status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-start;
+  gap: 8px;
+  flex: none;
+}
+
+.odm-osb-step {
+  padding: 3px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #3d5575;
+  font-size: 12.5px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+@media (max-width: 1023px) {
+  .odm-osb {
+    padding: 18px;
+  }
+  .odm-osb-title {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 639px) {
+  .odm-osb {
+    flex-direction: column-reverse;
+    min-height: 0;
+    gap: 12px;
+  }
+  .odm-osb-bg {
+    background:
+      linear-gradient(
+        180deg,
+        rgba(240, 247, 255, 0.7) 0%,
+        rgba(240, 247, 255, 0.35) 100%
+      ),
+      url('/images/order-banner.png') center / cover no-repeat,
+      linear-gradient(180deg, #bcd9ff 0%, #e3f0ff 100%);
+  }
+  .odm-osb-status {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .odm-osb-icon {
+    width: 44px;
+    height: 44px;
+  }
+  .odm-osb-title {
+    font-size: 21px;
+  }
+}

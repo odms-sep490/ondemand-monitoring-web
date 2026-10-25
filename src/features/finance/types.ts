@@ -6,15 +6,40 @@ export type PricingChecklistItem = {
   sourceChecklistId: string | null
   content: string
   displayOrder: number
-  sourceType: 'SERVICE_TEMPLATE' | 'CUSTOMER_CUSTOM'
+  sourceType: 'SERVICE_TEMPLATE' | 'CUSTOMER_SELECTED' | 'CUSTOMER_CUSTOM'
   reviewStatus: ChecklistReviewStatus
   managerNote: string | null
+  managerQuoteRequired: boolean
+  managerQuotedPrice: number | null
+  systemCalculatedPrice?: number | null
+  managerPriceAdjustmentReason?: string | null
+  managerApprovedAmount?: number | null
+  finalAmount?: number | null
+  priceDifferenceAmount?: number | null
+  priceDifferencePercent?: number | null
+  requestedImageCount?: number
+  requestedVideoCount?: number
+  difficultySnapshot?: 'BASIC' | 'MEDIUM' | 'HARD' | 'VERY_HARD'
 }
+
+export type PricingCategory =
+  | 'PACKAGE'
+  | 'DISTANCE'
+  | 'AREA'
+  | 'ALTITUDE'
+  | 'CHECKLIST'
+  | 'OUTPUT'
+  | 'RESOURCE'
+  | 'TERRAIN'
+  | 'CONDITION'
+  | 'PERMIT'
+  | 'DISCOUNT'
+  | 'MANAGER_ADJUSTMENT'
 
 export type QuoteItem = {
   id: string
   orderChecklistItemId: string | null
-  type: 'PACKAGE' | 'INCLUDED' | 'ADDITIONAL' | 'ADJUSTMENT'
+  type: PricingCategory | 'INCLUDED' | 'ADDITIONAL' | 'ADJUSTMENT'
   description: string
   quantity: number
   unitPrice: number
@@ -44,6 +69,68 @@ export type Quote = {
   approvedAt: string | null
   acceptedAt: string | null
   items: QuoteItem[]
+  pricingPolicyId?: string
+  pricingPolicyVersion?: number
+  systemCalculatedAmount?: number
+  managerAdjustmentAmount?: number
+  adjustmentType?:
+    'DISCOUNT' | 'PROMOTION' | 'COMPENSATION' | 'GOODWILL' | 'CORRECTION' | null
+  adjustmentReason?: string | null
+  adjustmentRequestedById?: string | null
+  adjustmentRequestedByName?: string | null
+  adjustmentRequestedAt?: string | null
+  pricingApprovalStatus?:
+    | 'NOT_REQUIRED'
+    | 'PENDING_SECOND_MANAGER'
+    | 'APPROVED'
+    | 'REJECTED'
+    | 'BLOCKED_BY_POLICY'
+  pricingApprovedByName?: string | null
+  pricingApprovedAt?: string | null
+  pricingApprovalNote?: string | null
+  pricingRevision?: number
+  riskFlags?: Array<
+    | 'ZERO_PRICE'
+    | 'HIGH_DISCOUNT'
+    | 'BELOW_MINIMUM_PRICE'
+    | 'CUSTOM_WORK_OVERRIDE'
+    | 'LARGE_MARKUP'
+    | 'REPEATED_OVERRIDE'
+  >
+}
+
+/** Customer-safe quote: no system amount, manager difference/reason, audit or risk flags. */
+export type CustomerQuote = {
+  id: string
+  orderId: string
+  version: number
+  status: Quote['status']
+  estimatedBaseAmount: number
+  approvedAdditionalServiceAmount: number
+  finalOrderAmount: number
+  pricingFinalized: boolean
+  approvedAt: string | null
+  acceptedAt: string | null
+  items: QuoteItem[]
+}
+
+export type PricingBreakdownItem = {
+  category: PricingCategory
+  description: string
+  quantity: number
+  unitPrice: number
+  amount: number
+  orderChecklistItemId?: string | null
+}
+
+export type PricingBreakdown = {
+  policyId: string
+  policyVersion: number
+  currency: string
+  systemCalculatedAmount: number
+  customWork: boolean
+  assessmentComplete: boolean
+  items: PricingBreakdownItem[]
 }
 
 export type Invoice = {
@@ -86,4 +173,8 @@ export type PricingReview = {
   checklistItems: PricingChecklistItem[]
   currentQuote: Quote | null
   quoteHistory: Quote[]
+  systemCalculation?: PricingBreakdown
+  currentManagerId?: string
+  managerMaxDiscountPercent?: number | null
+  managerMaxMarkupPercent?: number | null
 }

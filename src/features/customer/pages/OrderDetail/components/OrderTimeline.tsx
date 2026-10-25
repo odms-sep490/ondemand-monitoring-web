@@ -1,9 +1,10 @@
 import { Card } from '../../../../../shared/components/ui'
 import { useI18n, useLanguage } from '../../../../../shared/i18n'
 import type { OrderStatus } from '../../../../../shared/types/domain'
-import { OrderIcon, type OrderIconName } from '../../../../manager/components/orderReview/OrderIcon'
+import { OrderIcon, type OrderIconName } from '../../../../manager/components/common/OrderIcon'
 import { fmtDateTime, getOrderStatusMeta } from '../../../lib/orderStatus'
-import { buildOrderSteps } from '../../../lib/orders/orderSteps'
+import { buildOrderSteps, type OrderMissionProgress } from '../../../lib/orders/orderSteps'
+import type { CustomerFinanceState } from '../../../../finance/CustomerFinance'
 import type { OrderStep, OrderStepKey, OrderTimelineEvent } from '../../../lib/orders/types'
 import { CardTitle } from './CardTitle'
 import { orderTimelineMessages } from './OrderTimeline.messages'
@@ -21,15 +22,18 @@ const MARKER_ICON: Partial<Record<OrderStep['state'], OrderIconName>> = {
 }
 
 /** Vertical progress stepper derived from the status and the few dates the BE returns. */
-export function OrderTimeline({ status, events }: { status: OrderStatus; events: OrderTimelineEvent[] }) {
+export function OrderTimeline({ status, events, finance, missions = [] }: { status: OrderStatus; events: OrderTimelineEvent[]; finance?: CustomerFinanceState; missions?: OrderMissionProgress[] }) {
   const { t, locale } = useI18n(orderTimelineMessages)
   const { lang } = useLanguage()
-  const steps = buildOrderSteps(status, events)
+  const steps = buildOrderSteps(status, events, finance, missions)
   if (steps.length === 0) return null
 
   const stageLabel: Record<OrderStepKey, string> = {
     submitted: t.stepSubmitted,
     approved: t.stepReview,
+    quote: t.stepQuote,
+    deposit: t.stepDeposit,
+    planning: t.stepPlanning,
     inProgress: t.stepMonitoring,
     completed: t.stepCompleted,
     rejected: '',
@@ -41,7 +45,10 @@ export function OrderTimeline({ status, events }: { status: OrderStatus; events:
   }
   const hint = (step: OrderStep) => {
     if (step.state !== 'current') return null
-    if (step.key === 'approved') return t.hintReview
+    if (step.key === 'approved') return status === 'NEEDS_INFO' ? t.hintNeedsInfo : t.hintReview
+    if (step.key === 'quote') return t.hintQuote
+    if (step.key === 'deposit') return t.hintDeposit
+    if (step.key === 'planning') return t.hintPlanning
     return status === 'IN_PROGRESS' ? t.hintRunning : t.hintWaiting
   }
 

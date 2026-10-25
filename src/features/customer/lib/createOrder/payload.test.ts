@@ -1,3 +1,4 @@
+import type { ChecklistInput } from '../checklist/types'
 import { describe, expect, it } from 'vitest'
 
 import { createDefaultForm } from './draftStorage'
@@ -7,6 +8,7 @@ import {
   buildOrderPayload,
   calcArea,
   syncAiAddonDescription,
+  withAdditionalRequirementChecklist,
 } from './payload'
 import { truncateText } from './format'
 
@@ -33,6 +35,48 @@ describe('syncAiAddonDescription', () => {
     expect(added).toBe(`Mô tả\n${AI_IMAGE_ANALYSIS_DESCRIPTION}`)
     expect(syncAiAddonDescription(added, true)).toBe(added)
     expect(syncAiAddonDescription(added, false)).toBe('Mô tả')
+  })
+})
+
+describe('withAdditionalRequirementChecklist', () => {
+  it('adds the AI add-on as a customer requirement for manager pricing review', () => {
+    expect(
+      withAdditionalRequirementChecklist(
+        [
+          {
+            sourceChecklistId: 'default',
+            expectedChecklistVersion: 1,
+            minimumEvidenceCount: 1,
+            requiredEvidenceType: 'IMAGE',
+          },
+        ],
+        true,
+      ),
+    ).toEqual([
+      {
+        sourceChecklistId: 'default',
+        expectedChecklistVersion: 1,
+        minimumEvidenceCount: 1,
+        requiredEvidenceType: 'IMAGE',
+      },
+      {
+        contentOverride:
+          'AI phân tích hình ảnh để hỗ trợ phát hiện và đánh dấu các dấu hiệu bất thường.',
+        minimumEvidenceCount: 1,
+        requiredEvidenceType: 'IMAGE',
+      },
+    ])
+  })
+
+  it('does not add the requirement when unselected or already present', () => {
+    const item: ChecklistInput = {
+      contentOverride:
+        'AI phân tích hình ảnh để hỗ trợ phát hiện và đánh dấu các dấu hiệu bất thường.',
+      minimumEvidenceCount: 1,
+      requiredEvidenceType: 'IMAGE',
+    }
+    expect(withAdditionalRequirementChecklist([item], false)).toEqual([item])
+    expect(withAdditionalRequirementChecklist([item], true)).toEqual([item])
   })
 })
 
@@ -69,7 +113,6 @@ describe('buildOrderPayload', () => {
       score,
       aiAnalysisRequested: false,
       pricingEstimate: null,
-      consultationId: 'c-1',
     })
     expect(payload).toMatchObject({
       title: 'Giám sát',
@@ -81,7 +124,6 @@ describe('buildOrderPayload', () => {
     expect(payload.deliverables).toHaveLength(1)
     expect(payload.deliverables[0].deliverableTypeId).toBe('dt-1')
     expect(payload.deliverables[0].requirement).toMatchObject({
-      consultationId: 'c-1',
       readinessScore: 90,
       customerAttachments: [
         {
@@ -96,20 +138,80 @@ describe('buildOrderPayload', () => {
     })
   })
 
+  it('sends the flight purpose, defaulting to surveying and monitoring', () => {
+    const base = { score, aiAnalysisRequested: false, pricingEstimate: null }
+    expect(createDefaultForm().flightPurpose).toBe('SURVEY_MONITORING')
+    expect(buildOrderPayload({ ...base, form }).flightPurpose).toBe(
+      'SURVEY_MONITORING',
+    )
+    expect(
+      buildOrderPayload({
+        ...base,
+        form: { ...form, flightPurpose: 'AGRICULTURE' },
+      }).flightPurpose,
+    ).toBe('AGRICULTURE')
+  })
+
+  it('preserves the details entered for Other options', () => {
+    const payload = buildOrderPayload({
+      form: {
+        ...form,
+        flightPurpose: 'OTHER',
+        otherFlightPurpose: 'Bay kiểm kê mái pin mặt trời',
+        usagePurpose: 'OTHER',
+        otherUsagePurpose: 'Đào tạo nội bộ',
+        monitoringRelationship: 'OTHER',
+        otherMonitoringRelationship: 'Đơn vị bảo trì hệ thống',
+      },
+      score,
+      aiAnalysisRequested: false,
+      pricingEstimate: null,
+    })
+
+    expect(payload).toMatchObject({
+      flightPurpose: 'OTHER',
+      usagePurpose: 'OTHER',
+      monitoringRelationship: 'OTHER',
+    })
+    expect(payload.deliverables[0].requirement).toMatchObject({
+      otherFlightPurpose: 'Bay kiểm kê mái pin mặt trời',
+      otherUsagePurpose: 'Đào tạo nội bộ',
+      otherMonitoringRelationship: 'Đơn vị bảo trì hệ thống',
+    })
+  })
+
   it('sends schedule preferences and drops the count when not repeating', () => {
     const base = { score, aiAnalysisRequested: false, pricingEstimate: null }
     const once = buildOrderPayload({
       ...base,
-      form: { ...form, recurrenceType: 'NONE', recurrenceOccurrences: 9, weatherFallback: 'AUTO_RESCHEDULE', resultDeadline: '' },
+      form: {
+        ...form,
+        recurrenceType: 'NONE',
+        recurrenceOccurrences: 9,
+        weatherFallback: 'AUTO_RESCHEDULE',
+        resultDeadline: '',
+      },
     })
-    expect(once).toMatchObject({ recurrenceType: 'NONE', weatherFallback: 'AUTO_RESCHEDULE' })
+    expect(once).toMatchObject({
+      recurrenceType: 'NONE',
+      weatherFallback: 'AUTO_RESCHEDULE',
+    })
     expect(once.recurrenceOccurrences).toBeUndefined()
     expect(once.resultDeadline).toBeUndefined()
     const weekly = buildOrderPayload({
       ...base,
-      form: { ...form, recurrenceType: 'WEEKLY', recurrenceOccurrences: 4, resultDeadline: '2026-10-20' },
+      form: {
+        ...form,
+        recurrenceType: 'WEEKLY',
+        recurrenceOccurrences: 4,
+        resultDeadline: '2026-10-20',
+      },
     })
-    expect(weekly).toMatchObject({ recurrenceType: 'WEEKLY', recurrenceOccurrences: 4, resultDeadline: '2026-10-20' })
+    expect(weekly).toMatchObject({
+      recurrenceType: 'WEEKLY',
+      recurrenceOccurrences: 4,
+      resultDeadline: '2026-10-20',
+    })
   })
 
   it('includes the AI add-on price when requested', () => {

@@ -14,16 +14,32 @@ import type {
   UpdatePolicyPayload,
   UpdateWeightsPayload,
 } from '../types/operatingConfig'
-import type {
-  AnalysisLog,
-  CreateDocPayload,
-  FeasibilityRule,
-  KnowledgeDoc,
-  UpdateRulePayload,
-} from '../types/aiKnowledge'
 import type { AuditLogFilters, AuditLogPage } from '../types/auditLog'
+import type { PricingPolicy, PricingPolicyPayload } from '../types/pricing'
 
 export const adminApi = {
+  listPricingPolicies: (signal?: AbortSignal) =>
+    apiRequest<PricingPolicy[]>('/api/admin/pricing-policies', { signal }),
+  createPricingPolicy: (body: PricingPolicyPayload) =>
+    apiRequest<PricingPolicy>('/api/admin/pricing-policies', {
+      method: 'POST',
+      body,
+    }),
+  clonePricingPolicy: (id: string) =>
+    apiRequest<PricingPolicy>(
+      `/api/admin/pricing-policies/${encodeURIComponent(id)}/clone`,
+      { method: 'POST' },
+    ),
+  updatePricingPolicy: (id: string, body: PricingPolicyPayload) =>
+    apiRequest<PricingPolicy>(
+      `/api/admin/pricing-policies/${encodeURIComponent(id)}`,
+      { method: 'PUT', body },
+    ),
+  publishPricingPolicy: (id: string) =>
+    apiRequest<PricingPolicy>(
+      `/api/admin/pricing-policies/${encodeURIComponent(id)}/publish`,
+      { method: 'POST' },
+    ),
   // Dashboard
   getDashboard: (signal?: AbortSignal) =>
     apiRequest<AdminDashboard>('/api/admin/dashboard', { signal }),
@@ -95,42 +111,6 @@ export const adminApi = {
       method: 'PATCH',
       body: payload,
     }),
-
-  // AI Knowledge — Docs
-  listDocs: (signal?: AbortSignal) =>
-    apiRequest<{ items: KnowledgeDoc[] }>('/api/admin/ai-knowledge/docs', {
-      signal,
-    }),
-
-  createDoc: (payload: CreateDocPayload) =>
-    apiRequest<KnowledgeDoc>('/api/admin/ai-knowledge/docs', {
-      method: 'POST',
-      body: payload,
-    }),
-
-  reindexDoc: (docId: string) =>
-    apiRequest<KnowledgeDoc>(`/api/admin/ai-knowledge/docs/${docId}/reindex`, {
-      method: 'POST',
-    }),
-
-  // AI Knowledge — Rules
-  listRules: (signal?: AbortSignal) =>
-    apiRequest<{ items: FeasibilityRule[] }>('/api/admin/ai-knowledge/rules', {
-      signal,
-    }),
-
-  updateRule: (ruleId: string, payload: UpdateRulePayload) =>
-    apiRequest<FeasibilityRule>(`/api/admin/ai-knowledge/rules/${ruleId}`, {
-      method: 'PATCH',
-      body: payload,
-    }),
-
-  // AI Knowledge — Analysis logs
-  listAnalysisLogs: (signal?: AbortSignal) =>
-    apiRequest<{ items: AnalysisLog[] }>(
-      '/api/admin/ai-knowledge/analysis-logs',
-      { signal },
-    ),
 
   // Audit Log
   listAuditLog: (filters: AuditLogFilters = {}, signal?: AbortSignal) => {

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { OrderIcon } from '../../../../manager/components/orderReview/OrderIcon'
+import { OrderIcon } from '../../../../manager/components/common/OrderIcon'
 
 /** Small icon button that copies `value` to the clipboard and flashes a check mark. */
 export function CopyButton({ value, label }: { value: string; label: string }) {

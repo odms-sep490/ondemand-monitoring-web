@@ -5,7 +5,7 @@ import { requestBasicsMessages } from './RequestBasicsCard.messages'
 
 type Props = { form: FormState; errors: FormErrors; update: UpdateField }
 
-/** Title and description; CreateOrder shows these inside its AI consultation panel. */
+/** Title and description used by the create-request flow. */
 export function RequestBasicsCard({ form, errors, update }: Props) {
   const { t } = useI18n(requestBasicsMessages)
   return (

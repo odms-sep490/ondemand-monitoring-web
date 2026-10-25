@@ -91,6 +91,22 @@ export type OrderCreateResponse = {
   serviceName?: string
   serviceBasePriceSnapshot?: number
   description?: string
+  usagePurpose?: string
+  flightPurpose?: string
+  altitudeM?: number
+  estimatedLengthM?: number
+  siteContactName?: string
+  siteContactPhone?: string
+  accessNotes?: string
+  monitoringRelationship?: 'OWNER' | 'AUTHORIZED_PERSON' | 'CONTRACTOR' | 'MANAGER_OR_SUPERVISOR' | 'OTHER'
+  monitoringAuthorizationConfirmed?: boolean
+  monitoringAuthorizationDocuments?: Array<{ id: string; documentName: string; fileName: string; notes?: string }>
+  permitStatus?: string
+  permitNumber?: string
+  permitExpiresOn?: string
+  permitDocuments?: Array<{ id: string; fileName: string }>
+  permitRequired?: boolean
+  permitZoneName?: string
   address?: string
   longitude?: number
   latitude?: number
@@ -104,8 +120,18 @@ export type OrderCreateResponse = {
   recurrenceOccurrences?: number
   weatherFallback?: 'AUTO_RESCHEDULE' | 'CONTACT_CUSTOMER' | 'CANCEL_ORDER'
   resultDeadline?: string
+  resultFormats?: string[]
+  deliveryMethods?: string[]
+  dataRetentionDays?: number
+  termsAcceptedAt?: string
+  termsVersion?: string
+  executionPlanRevision?: number
+  executionPlanStatus?: string
   orderStatus?: string
+  legalReviewStatus?: 'NOT_REVIEWED' | 'NOT_REQUIRED' | 'PENDING_PERMIT' | 'APPROVED' | 'REJECTED'
+  depositSatisfied?: boolean | null
   rejectReason?: string
+  requestedUpdateScope?: 'LOCATION' | 'ADDITIONAL_INFORMATION'
   reviewById?: string
   reviewByName?: string
   reviewAt?: string

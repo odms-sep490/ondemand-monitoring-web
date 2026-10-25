@@ -75,7 +75,7 @@ describe('Admin checklist catalog', () => {
     render(<ChecklistCatalogPage />)
     await screen.findByText(definition.content)
     expect(checklistsApi.services).not.toHaveBeenCalled()
-    fireEvent.click(screen.getByRole('button', { name: 'Dịch vụ sử dụng' }))
+    fireEvent.click(screen.getByRole('button', { name: /dịch vụ ·/ }))
     expect(
       await screen.findByRole('link', { name: 'Dịch vụ test' }),
     ).toHaveAttribute('href', '#portal/admin/services/s/checklists')
@@ -98,6 +98,53 @@ describe('Admin checklist catalog', () => {
       ),
     )
   })
+  it('sends the description and one list entry per non-empty line, in order', async () => {
+    render(<ChecklistCatalogPage />)
+    fireEvent.click(screen.getByRole('button', { name: 'Thêm checklist' }))
+    fireEvent.change(screen.getByRole('textbox', { name: /Nội dung/ }), {
+      target: { value: 'Kiểm tra mái' },
+    })
+    fireEvent.change(screen.getByLabelText('Mô tả chi tiết'), {
+      target: { value: '  Phạm vi kiểm tra mái  ' },
+    })
+    fireEvent.change(screen.getByLabelText('Các bước thực hiện'), {
+      target: { value: ' Bay lưới song song \n\n Chụp cận ' },
+    })
+    fireEvent.change(screen.getByLabelText('Đầu vào cần có'), {
+      target: { value: 'Trời quang' },
+    })
+    fireEvent.change(screen.getByLabelText('Đầu ra cần nộp'), {
+      target: { value: 'Ảnh toàn mái\nGhi chú' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Lưu' }))
+    await waitFor(() =>
+      expect(checklistsApi.create).toHaveBeenCalledWith(
+        'Kiểm tra mái',
+        'BASIC',
+        expect.objectContaining({
+          description: 'Phạm vi kiểm tra mái',
+          executionSteps: ['Bay lưới song song', 'Chụp cận'],
+          inputRequirements: ['Trời quang'],
+          expectedOutputs: ['Ảnh toàn mái', 'Ghi chú'],
+        }),
+      ),
+    )
+  })
+  it('refuses more than 30 lines in a list without calling the API', async () => {
+    render(<ChecklistCatalogPage />)
+    fireEvent.click(screen.getByRole('button', { name: 'Thêm checklist' }))
+    fireEvent.change(screen.getByRole('textbox', { name: /Nội dung/ }), {
+      target: { value: 'Kiểm tra mái' },
+    })
+    fireEvent.change(screen.getByLabelText('Các bước thực hiện'), {
+      target: {
+        value: Array.from({ length: 31 }, (_, i) => `Bước ${i}`).join('\n'),
+      },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Lưu' }))
+    expect(await screen.findByText(/tối đa 30 dòng/)).toBeInTheDocument()
+    expect(checklistsApi.create).not.toHaveBeenCalled()
+  })
   it('creates trimmed content without sending normalizedContent', async () => {
     render(<ChecklistCatalogPage />)
     fireEvent.click(screen.getByRole('button', { name: 'Thêm checklist' }))
@@ -106,7 +153,25 @@ describe('Admin checklist catalog', () => {
     })
     fireEvent.click(screen.getByRole('button', { name: 'Lưu' }))
     await waitFor(() =>
-      expect(checklistsApi.create).toHaveBeenCalledWith('New checklist'),
+      expect(checklistsApi.create).toHaveBeenCalledWith(
+        'New checklist',
+        'BASIC',
+        {
+          description: '',
+          executionSteps: [],
+          inputRequirements: [],
+          expectedOutputs: [],
+          altitudePricingEnabled: false,
+          areaPricingEnabled: false,
+          basePrice: 0,
+          includedAltitudeM: 0,
+          includedAreaHa: 0,
+          includedImageCount: 0,
+          includedLengthKm: 0,
+          includedVideoCount: 0,
+          lengthPricingEnabled: false,
+        },
+      ),
     )
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
   })
@@ -121,7 +186,7 @@ describe('Admin checklist catalog', () => {
     )
     render(<ChecklistCatalogPage />)
     fireEvent.click(screen.getByRole('button', { name: 'Thêm checklist' }))
-    fireEvent.change(screen.getByRole('textbox'), {
+    fireEvent.change(screen.getByRole('textbox', { name: /Nội dung/ }), {
       target: { value: definition.content },
     })
     fireEvent.click(screen.getByRole('button', { name: 'Lưu' }))
@@ -133,7 +198,9 @@ describe('Admin checklist catalog', () => {
   it('rejects whitespace content locally', async () => {
     render(<ChecklistCatalogPage />)
     fireEvent.click(screen.getByRole('button', { name: 'Thêm checklist' }))
-    fireEvent.change(screen.getByRole('textbox'), { target: { value: '   ' } })
+    fireEvent.change(screen.getByRole('textbox', { name: /Nội dung/ }), {
+      target: { value: '   ' },
+    })
     fireEvent.click(screen.getByRole('button', { name: 'Lưu' }))
     expect(await screen.findByRole('alert')).toHaveTextContent('1 đến 500')
     expect(checklistsApi.create).not.toHaveBeenCalled()
@@ -143,12 +210,31 @@ describe('Admin checklist catalog', () => {
     fireEvent.click(
       await screen.findByRole('button', { name: 'Sửa checklist' }),
     )
-    fireEvent.change(screen.getByRole('textbox'), {
+    fireEvent.change(screen.getByRole('textbox', { name: /Nội dung/ }), {
       target: { value: 'Edited' },
     })
     fireEvent.click(screen.getByRole('button', { name: 'Lưu' }))
     await waitFor(() =>
-      expect(checklistsApi.update).toHaveBeenCalledWith('a', 'Edited'),
+      expect(checklistsApi.update).toHaveBeenCalledWith(
+        'a',
+        'Edited',
+        'BASIC',
+        {
+          description: '',
+          executionSteps: [],
+          inputRequirements: [],
+          expectedOutputs: [],
+          altitudePricingEnabled: false,
+          areaPricingEnabled: false,
+          basePrice: 0,
+          includedAltitudeM: 0,
+          includedAreaHa: 0,
+          includedImageCount: 0,
+          includedLengthKm: 0,
+          includedVideoCount: 0,
+          lengthPricingEnabled: false,
+        },
+      ),
     )
     await waitFor(() => expect(checklistsApi.list).toHaveBeenCalledTimes(2))
   })
@@ -370,7 +456,7 @@ describe('Admin checklist visual structure and interaction', () => {
   it('groups service summary and template section with styled header navigation', async () => {
     render(<ServiceChecklistPage serviceId="s" />)
     expect(
-      screen.getByRole('heading', { name: 'Checklist dịch vụ' }),
+      screen.getByRole('heading', { name: 'Cấu hình dịch vụ' }),
     ).toBeInTheDocument()
     expect(
       screen.getByRole('link', { name: 'Mở danh mục checklist' }),
@@ -430,8 +516,14 @@ describe('Admin checklist visual structure and interaction', () => {
       )
       .mockResolvedValue(rows)
     render(<ServiceChecklistPage serviceId="s" />)
-    await screen.findByText('Không thể tải checklist dịch vụ.')
-    fireEvent.click(screen.getByRole('button', { name: 'Thử lại' }))
+    const loadError = await screen.findByText(
+      'Không thể tải checklist dịch vụ.',
+    )
+    fireEvent.click(
+      within(loadError.closest('.odm-card')!).getByRole('button', {
+        name: 'Thử lại',
+      }),
+    )
     await screen.findByText(definition.content)
     expect(checklistsApi.template).toHaveBeenCalledTimes(2)
   })

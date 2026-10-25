@@ -19,7 +19,7 @@ describe('ServicesTab', () => {
       .mockRejectedValueOnce(new Error('Upload unavailable'))
     try {
       render(<ServicesTab />)
-      await screen.findByText('Kiểm tra Tháp viễn thông')
+      await screen.findByText('Giám sát công trình')
       fireEvent.click(screen.getByText('+ Thêm dịch vụ'))
       fireEvent.change(screen.getByLabelText(/Tên dịch vụ/), {
         target: { value: 'Image service' },
@@ -47,8 +47,8 @@ describe('ServicesTab', () => {
   })
   it('lists services from the BE-shaped mock', async () => {
     render(<ServicesTab />)
-    expect(await screen.findByText('Kiểm tra Tháp viễn thông')).toBeTruthy()
-    expect(screen.getByText('Giám sát Nông nghiệp / Cây trồng')).toBeTruthy()
+    expect(await screen.findByText('Giám sát công trình')).toBeTruthy()
+    expect(screen.getByText('Kiểm tra nhà xưởng')).toBeTruthy()
   })
 
   it('shows an error state when the request fails', async () => {
@@ -61,12 +61,12 @@ describe('ServicesTab', () => {
 
   it('creates a service through the modal', async () => {
     render(<ServicesTab />)
-    await screen.findByText('Kiểm tra Tháp viễn thông')
+    await screen.findByText('Giám sát công trình')
     fireEvent.click(screen.getByText('+ Thêm dịch vụ'))
     fireEvent.change(screen.getByLabelText(/Tên dịch vụ/), {
       target: { value: 'Dịch vụ thử' },
     })
-    fireEvent.change(screen.getByLabelText(/Đơn giá gói/), {
+    fireEvent.change(screen.getByLabelText(/Giá danh mục cũ/), {
       target: { value: '1800000' },
     })
     fireEvent.click(screen.getByText('Lưu'))
@@ -76,7 +76,7 @@ describe('ServicesTab', () => {
 
   it('validates the required name and shows BE errors inline', async () => {
     render(<ServicesTab />)
-    await screen.findByText('Kiểm tra Tháp viễn thông')
+    await screen.findByText('Giám sát công trình')
     fireEvent.click(screen.getByText('+ Thêm dịch vụ'))
     fireEvent.click(screen.getByText('Lưu'))
     expect(screen.getByText('Bắt buộc')).toBeTruthy()
@@ -84,16 +84,16 @@ describe('ServicesTab', () => {
 
   it('prefills the edit modal from the BE and saves', async () => {
     render(<ServicesTab />)
-    await screen.findByText('Kiểm tra Tháp viễn thông')
-    fireEvent.click(screen.getByLabelText('Sửa Kiểm tra Tháp viễn thông'))
+    await screen.findByText('Giám sát công trình')
+    fireEvent.click(screen.getByLabelText('Sửa Giám sát công trình'))
     const name = (await screen.findByLabelText(
       /Tên dịch vụ/,
     )) as HTMLInputElement
-    expect(name.value).toBe('Kiểm tra Tháp viễn thông')
-    expect(screen.getByLabelText(/Đơn giá gói/)).toHaveValue(4_000_000)
+    expect(name.value).toBe('Giám sát công trình')
+    expect(screen.getByLabelText(/Giá danh mục cũ/)).toHaveValue(3_500_000)
     expect(
       (screen.getByLabelText(/Mô tả/) as HTMLTextAreaElement).value,
-    ).toContain('anten')
+    ).toContain('công trình')
     fireEvent.change(name, { target: { value: 'Tên mới' } })
     fireEvent.click(screen.getByText('Lưu'))
     expect(await screen.findByText('Tên mới')).toBeTruthy()
@@ -101,15 +101,15 @@ describe('ServicesTab', () => {
 
   it('deletes after a danger confirmation', async () => {
     render(<ServicesTab />)
-    await screen.findByText('Giám sát Tiến độ Xây dựng')
+    await screen.findByText('Giám sát công trình')
     fireEvent.click(
-      screen.getByLabelText('Thao tác khác Giám sát Tiến độ Xây dựng'),
+      screen.getByLabelText('Thao tác khác Giám sát công trình'),
     )
-    fireEvent.click(screen.getByLabelText('Xoá Giám sát Tiến độ Xây dựng'))
+    fireEvent.click(screen.getByLabelText('Xoá Giám sát công trình'))
     expect(screen.getByText(/Bạn có chắc muốn xoá/)).toBeTruthy()
     fireEvent.click(screen.getByRole('button', { name: 'Xoá' }))
     await waitFor(() =>
-      expect(screen.queryByText('Giám sát Tiến độ Xây dựng')).toBeNull(),
+      expect(screen.queryByText('Giám sát công trình')).toBeNull(),
     )
   })
 })

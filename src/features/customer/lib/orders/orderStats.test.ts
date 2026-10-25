@@ -34,6 +34,7 @@ describe('computeOrderStats', () => {
     expect(computeOrderStats(rows)).toEqual({
       total: 7,
       pending: 2,
+      needsInfo: 0,
       approved: 1,
       inProgress: 1,
       completed: 1,

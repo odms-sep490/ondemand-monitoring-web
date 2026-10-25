@@ -1274,6 +1274,33 @@
 }
 
 /* ---------- Catalog page helpers ---------- */
+.pricing-policy-form,
+.pricing-rules {
+  display: grid;
+  gap: 1rem;
+}
+
+.pricing-policy-guardrails {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+}
+
+.pricing-policy-form label,
+.pricing-rule-row label {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.pricing-rule-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(115px, 1fr));
+  gap: 0.65rem;
+  align-items: end;
+  padding: 0.75rem;
+  border: 1px solid #dfe6ee;
+  border-radius: 0.65rem;
+}
 
 .adm-toolbar {
   display: flex;
@@ -1482,4 +1509,42 @@
   overflow-wrap: anywhere;
   max-height: 240px;
   overflow: auto;
+}
+
+/* Customer-added requirement price: five plain numbers instead of raw rules. */
+.pricing-customer-added {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0 18px;
+  padding: 14px 16px;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  background: #f8fbff;
+}
+.pricing-customer-added h4,
+.pricing-customer-added p {
+  margin: 0;
+}
+.pricing-customer-added-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 10px 14px;
+}
+.pricing-customer-added-grid label {
+  display: grid;
+  gap: 4px;
+  font-size: 13px;
+}
+.pricing-customer-added-grid input {
+  padding: 8px 10px;
+  border: 1px solid #94a3b8;
+  border-radius: 8px;
+  background: #fff;
+}
+.pricing-customer-added-grid small {
+  color: #b91c1c;
+}
+.pricing-customer-added-note {
+  font-size: 12px;
+  color: #64748b;
 }

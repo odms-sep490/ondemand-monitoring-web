@@ -29,7 +29,7 @@ export const maintenanceTicketApi = {
     const params = new URLSearchParams()
     if (status) params.append('status', status)
     if (deviceId) params.append('deviceId', deviceId)
-    if (technicianId) params.append('technicianId', technicianId)
+    if (technicianId) params.append('staffId', technicianId)
     const query = params.toString() ? `?${params.toString()}` : ''
     return apiRequest<MaintenanceTicketDto[]>(
       `/api/maintenance-tickets${query}`,
@@ -51,14 +51,14 @@ export const maintenanceTicketApi = {
 
   resolveTicket: (
     id: string,
-    body: { resolutionNotes: string; newDroneStatus?: string },
+    body: { resolutionNotes: string; newDeviceStatus?: string },
     signal?: AbortSignal,
   ) =>
     apiRequest<MaintenanceTicketDto>(`/api/maintenance-tickets/${id}/resolve`, {
       method: 'PATCH',
       body: {
         resolutionNotes: body.resolutionNotes,
-        newDroneStatus: body.newDroneStatus || 'AVAILABLE',
+        newDeviceStatus: body.newDeviceStatus || 'AVAILABLE',
       },
       signal,
     }),

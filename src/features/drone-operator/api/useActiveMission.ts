@@ -19,8 +19,7 @@ export function isSelectableMission(status?: string | null) {
     status === 'CONNECTED' ||
     status === 'PREFLIGHT_CHECKING' ||
     status === 'READY_TO_FLY' ||
-    status === 'FAILED_PREFLIGHT' ||
-    status === 'ACCEPTED'
+    status === 'FAILED_PREFLIGHT'
   )
 }
 
@@ -43,6 +42,7 @@ export function mergeMissionSnapshot(
 ): BackendMission | undefined {
   if (!detail) return listItem
   if (!listItem) return detail
+  if (detail.id !== listItem.id) return detail
 
   return {
     ...listItem,
@@ -69,8 +69,8 @@ export function useActiveMission(paramMissionId?: string) {
   const allMissions = myMissionsQuery.data || []
 
   // Candidate missions that can resume or review the postflight handoff.
-  const postflightMissions = allMissions.filter(
-    (m) => isPostflightReviewMission(m.status),
+  const postflightMissions = allMissions.filter((m) =>
+    isPostflightReviewMission(m.status),
   )
   const activeMissions = allMissions.filter((m) =>
     isSelectableMission(m.status),
@@ -134,7 +134,10 @@ export function useActiveMission(paramMissionId?: string) {
 
   // Active data can come from detailQuery or matched item in allMissions
   const listMatch = allMissions.find((m) => m.id === targetId)
-  const activeData = mergeMissionSnapshot(detailQuery.data, listMatch)
+  const activeData = mergeMissionSnapshot(
+    detailQuery.data?.id === targetId ? detailQuery.data : undefined,
+    listMatch,
+  )
 
   return {
     data: activeData,
@@ -145,5 +148,9 @@ export function useActiveMission(paramMissionId?: string) {
     postflightMissions:
       postflightMissions.length > 0 ? postflightMissions : allMissions,
     selectMission: handleSelectMission,
+    reload: () => {
+      detailQuery.reload()
+      myMissionsQuery.reload()
+    },
   }
 }

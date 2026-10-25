@@ -1,6 +1,6 @@
 import { useI18n } from '../../../../shared/i18n'
 import { missionCompletedMessages } from '../i18n/missionCompleted'
-import type { Mission, Drone } from '../types'
+import type { Mission, Drone } from '../../types/omss'
 
 interface Props {
   mission: Mission

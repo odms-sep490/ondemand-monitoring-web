@@ -8,6 +8,7 @@ import { droneApi, type AvailableDrone } from '../api/droneApi'
 import { operatorApi, type AvailableOperator } from '../api/operatorApi'
 import { staffAssignmentPageMessages } from './StaffAssignmentPage.messages'
 import type { MissionStaffRole } from '../../mission/types/mission'
+import { SingleAssignmentSelect } from '../components/SingleAssignmentSelect'
 
 const missionRoles: MissionStaffRole[] = [
   'PILOT',
@@ -212,34 +213,18 @@ export function StaffAssignmentPage() {
                         {m.id} · {m.customerName}
                       </div>
                     </div>
-                    <label style={{ display: 'grid', gap: 8 }}>
-                      <span style={{ fontSize: 13, fontWeight: 700 }}>
-                        {t.selectDrone}
-                      </span>
-                      <select
-                        value={selectedDrone[m.id] || ''}
-                        onChange={(e) =>
-                          setSelectedDrone({
-                            ...selectedDrone,
-                            [m.id]: e.target.value,
-                          })
-                        }
-                        style={{
-                          padding: '10px 12px',
-                          borderRadius: 8,
-                          width: '100%',
-                          border: '1px solid var(--border)',
-                          background: 'var(--surface)',
-                        }}
-                      >
-                        <option value="">{t.chooseDronePlaceholder}</option>
-                        {drones.map((d) => (
-                          <option key={d.id} value={d.id}>
-                            {d.label}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
+                    <SingleAssignmentSelect
+                      label={t.selectDrone}
+                      value={selectedDrone[m.id] || ''}
+                      onChange={(value) =>
+                        setSelectedDrone({
+                          ...selectedDrone,
+                          [m.id]: value,
+                        })
+                      }
+                      placeholder={t.chooseDronePlaceholder}
+                      options={drones}
+                    />
                   </div>
 
                   <div style={{ padding: 18 }}>

@@ -19,7 +19,11 @@ export function FormField({
         {label} {required && <span className="ui-required">*</span>}
       </label>
       {children}
-      {error && <div className="ui-field-error">{error}</div>}
+      {error && (
+        <div id={`${id}-error`} className="ui-field-error" role="alert">
+          {error}
+        </div>
+      )}
     </div>
   )
 }

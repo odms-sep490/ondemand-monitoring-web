@@ -6,7 +6,7 @@
 import { fail, ok, registerMockRoutes } from '../mockServer'
 import type { CustomerMissionHistory } from '../../features/customer/api/customerMissionHistoryApi'
 
-const missions: CustomerMissionHistory[] = [
+export const customerHistoryFixtures: CustomerMissionHistory[] = [
   {
     id: 'msn-006-1',
     missionCode: 'MSN-2609-0131-1',
@@ -44,6 +44,8 @@ const missions: CustomerMissionHistory[] = [
     description: 'Dừng do thời tiết xấu.',
   },
 ]
+
+const missions = customerHistoryFixtures
 
 registerMockRoutes([
   {

@@ -47,19 +47,72 @@ const page = (items: UploadedMissionMedia[]) => ({
 })
 
 describe('uploaded mission media gallery', () => {
+  it('keeps AVAILABLE metadata visible without exposing an unreleased original', async () => {
+    vi.mocked(operatorMissionMediaApi.list).mockResolvedValue(
+      page([{ ...image, status: 'AVAILABLE', downloadUrl: null }]),
+    )
+    render(<MissionUploadedMedia missionId="mission" />)
+    await screen.findByText('capture.jpg')
+    expect(screen.getByText('Bản gốc chưa được bàn giao')).toBeInTheDocument()
+    const preview = screen.getByRole('button', { name: 'Xem capture.jpg' })
+    expect(preview).toBeDisabled()
+    fireEvent.click(preview)
+    expect(operatorMissionMediaApi.get).not.toHaveBeenCalled()
+    expect(document.querySelector('img')).toBeNull()
+  })
+  it('refreshes media from a workspace revision without losing Mission identity', async () => {
+    vi.mocked(operatorMissionMediaApi.list).mockResolvedValue(page([image]))
+    const view = render(
+      <MissionUploadedMedia missionId="mission" refreshKey={0} />,
+    )
+    await screen.findByText('capture.jpg')
+    vi.mocked(operatorMissionMediaApi.list).mockResolvedValue(
+      page([image, video]),
+    )
+    view.rerender(<MissionUploadedMedia missionId="mission" refreshKey={1} />)
+    await screen.findByText('clip.mp4')
+    expect(operatorMissionMediaApi.list).toHaveBeenLastCalledWith(
+      'mission',
+      0,
+      expect.any(AbortSignal),
+    )
+  })
+  it('notifies its Mission workspace after explicit media refresh', async () => {
+    vi.mocked(operatorMissionMediaApi.list).mockResolvedValue(page([image]))
+    const onChanged = vi.fn()
+    render(<MissionUploadedMedia missionId="mission" onChanged={onChanged} />)
+    await screen.findByText('capture.jpg')
+    fireEvent.click(screen.getByRole('button', { name: 'Làm mới' }))
+    expect(onChanged).toHaveBeenCalledOnce()
+    await waitFor(() =>
+      expect(operatorMissionMediaApi.list).toHaveBeenCalledTimes(2),
+    )
+  })
   it('approves media only through its explicit separate action', async () => {
     vi.mocked(operatorMissionMediaApi.list).mockResolvedValue(page([image]))
     const approveMedia = vi.fn().mockResolvedValue({})
-    render(<MissionUploadedMedia missionId="mission" approveMedia={approveMedia} />)
+    render(
+      <MissionUploadedMedia missionId="mission" approveMedia={approveMedia} />,
+    )
     fireEvent.click(await screen.findByText('Duyệt media cho khách hàng'))
-    await waitFor(() => expect(approveMedia).toHaveBeenCalledWith(image.mediaId))
-    expect(await screen.findByText('Đã duyệt media trong phiên này')).toBeDisabled()
+    await waitFor(() =>
+      expect(approveMedia).toHaveBeenCalledWith(image.mediaId),
+    )
+    expect(
+      await screen.findByText('Đã duyệt media trong phiên này'),
+    ).toBeDisabled()
   })
   it('distinguishes satellite media and draft result without claiming camera capture or manager submission', async () => {
-    vi.mocked(operatorMissionMediaApi.list).mockResolvedValue(page([{ ...image, sourceType: 'SATELLITE_SNAPSHOT' }]))
+    vi.mocked(operatorMissionMediaApi.list).mockResolvedValue(
+      page([{ ...image, sourceType: 'SATELLITE_SNAPSHOT' }]),
+    )
     render(<MissionUploadedMedia missionId="mission" reviewStatus="DRAFT" />)
-    expect(await screen.findByText('Ảnh vệ tinh · Browser snapshot')).toBeTruthy()
-    expect(screen.getAllByText('Kết quả nháp — chưa gửi manager').length).toBeGreaterThan(0)
+    expect(
+      await screen.findByText('Ảnh vệ tinh · Browser snapshot'),
+    ).toBeTruthy()
+    expect(
+      screen.getAllByText('Kết quả nháp — chưa gửi manager').length,
+    ).toBeGreaterThan(0)
     expect(screen.queryByText('Camera drone')).toBeNull()
   })
   beforeEach(() => {
@@ -100,7 +153,7 @@ describe('uploaded mission media gallery', () => {
   it('shows an empty state rather than local files', async () => {
     vi.mocked(operatorMissionMediaApi.list).mockResolvedValue(page([]))
     render(<MissionUploadedMedia missionId="mission" />)
-    await screen.findByText('Mission chưa có ảnh/video upload thành công.')
+    await screen.findByText('Chưa có ảnh/video được tải lên cho Mission này.')
   })
 
   it('shows errors and supports retry', async () => {
@@ -108,9 +161,10 @@ describe('uploaded mission media gallery', () => {
       .mockRejectedValueOnce(new Error('Access denied'))
       .mockResolvedValue(page([]))
     render(<MissionUploadedMedia missionId="mission" />)
-    await screen.findByText('Access denied')
+    await screen.findByText('Không thể tải ảnh/video của Mission này.')
+    expect(screen.queryByText('Access denied')).toBeNull()
     fireEvent.click(screen.getByText('Thử lại'))
-    await screen.findByText('Mission chưa có ảnh/video upload thành công.')
+    await screen.findByText('Chưa có ảnh/video được tải lên cho Mission này.')
   })
 
   it('resets gallery when switching missions', async () => {
@@ -120,7 +174,7 @@ describe('uploaded mission media gallery', () => {
     const view = render(<MissionUploadedMedia missionId="mission" />)
     await screen.findByText('capture.jpg')
     view.rerender(<MissionUploadedMedia missionId="other" />)
-    await screen.findByText('Mission chưa có ảnh/video upload thành công.')
+    await screen.findByText('Chưa có ảnh/video được tải lên cho Mission này.')
     expect(screen.queryByText('capture.jpg')).toBeNull()
   })
 })

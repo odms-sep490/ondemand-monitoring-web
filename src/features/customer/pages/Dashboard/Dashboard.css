@@ -78,6 +78,32 @@
   overflow-wrap: anywhere;
 }
 
+.dash-order-status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+}
+
+.dash-deposit-required {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #b45309;
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.dash-deposit-required > span {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 6px;
+  border-radius: 999px;
+  background: #f59e0b;
+}
+
 .dash-hint {
   margin: 0;
   font-size: 13px;

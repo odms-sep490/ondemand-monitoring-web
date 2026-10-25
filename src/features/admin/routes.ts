@@ -13,7 +13,6 @@ export type AdminRoute =
   | { screen: 'checklists' }
   | { screen: 'serviceChecklists'; serviceId?: string }
   | { screen: 'operatingConfig' }
-  | { screen: 'aiKnowledge' }
   | { screen: 'auditLog' }
   | { screen: 'notFound' }
 
@@ -54,8 +53,6 @@ export function parseAdminRoute(hash: string): AdminRoute {
       return { screen: 'notFound' }
     case 'operating-config':
       return { screen: 'operatingConfig' }
-    case 'ai-knowledge':
-      return { screen: 'aiKnowledge' }
     case 'audit-log':
       return { screen: 'auditLog' }
     default:
@@ -85,8 +82,6 @@ export function adminHref(route: AdminRoute): string {
         : `${ADMIN_ROOT}/services`
     case 'operatingConfig':
       return `${ADMIN_ROOT}/operating-config`
-    case 'aiKnowledge':
-      return `${ADMIN_ROOT}/ai-knowledge`
     case 'auditLog':
       return `${ADMIN_ROOT}/audit-log`
     case 'notFound':

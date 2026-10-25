@@ -26,6 +26,8 @@ export function mapService(dto: ServiceResponse): AdminService {
     name: dto.name,
     description: dto.description ?? '',
     basePrice: dto.basePrice,
+    defaultPrice: dto.defaultPrice,
+    priceSource: dto.priceSource,
     imageUrl: dto.imageUrl ?? null,
     isActive: dto.isActive,
     createdAt: dto.createdAt ?? null,

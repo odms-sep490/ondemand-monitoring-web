@@ -12,13 +12,13 @@ export type MockEnvelope<T = unknown> = {
 
 export type MockResult<T = unknown> =
   | {
-      status: number
-      envelope: MockEnvelope<T>
-      passThrough?: false
-    }
+    status: number
+    envelope: MockEnvelope<T>
+    passThrough?: false
+  }
   | {
-      passThrough: true
-    }
+    passThrough: true
+  }
 
 export type MockContext = {
   params: Record<string, string>

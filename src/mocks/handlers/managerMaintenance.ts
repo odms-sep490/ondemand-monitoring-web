@@ -1,12 +1,8 @@
-// Mock handlers for MNG-10. Endpoints:
-//   GET    /api/maintenance-tickets?status=&droneId=&priority=   [TK]
-//   POST   /api/maintenance-tickets                              [ĐỀ XUẤT]
-//   PATCH  /api/maintenance-tickets/:id/status                  [ĐỀ XUẤT]
-//   PATCH  /api/maintenance-tickets/:id/assign                  [BE]
-//   PATCH  /api/maintenance-tickets/:id/resolve                 [BE]
+// Mock only the maintenance endpoints that currently exist in the backend.
+// Manual ticket creation and generic status updates have no backend contract.
 import type { TicketSeverity, TicketStatus } from '../../shared/types/domain'
 import { createCollection } from '../db'
-import { created, fail, ok, registerMockRoutes } from '../mockServer'
+import { fail, ok, registerMockRoutes } from '../mockServer'
 import ticketsSeed from '../data/maintenance-tickets.json'
 
 type StoredTicket = {
@@ -32,149 +28,64 @@ type StoredTicket = {
 
 const tickets = createCollection(ticketsSeed.tickets) as StoredTicket[]
 
-// Valid status transitions [ĐỀ XUẤT per MNG-10 design context]
-const VALID_TICKET_TRANSITIONS: Record<TicketStatus, TicketStatus[]> = {
-  OPEN: ['IN_PROGRESS', 'RESOLVED'],
-  IN_PROGRESS: ['RESOLVED', 'OPEN'],
-  RESOLVED: ['CLOSED', 'IN_PROGRESS'],
-  CLOSED: [],
+function toBackendTicket(ticket: StoredTicket) {
+  return {
+    id: ticket.id,
+    ticketCode: ticket.code,
+    deviceId: ticket.droneId,
+    deviceCode: ticket.droneCode,
+    assignedStaffId: ticket.assignedTo,
+    reportedBy: ticket.reportedBy,
+    issueType: ticket.issueType,
+    severity: ticket.priority,
+    description: ticket.description ?? ticket.title,
+    status: ticket.status,
+    resolutionNotes: ticket.resolutionNotes,
+    openedAt: ticket.openedAt,
+    resolvedAt: ticket.resolvedAt,
+    closedAt: ticket.closedAt,
+  }
 }
 
 registerMockRoutes([
-  // ── MNG-10: list maintenance tickets [TK] ─────────────────────────────
+  // GET /api/maintenance-tickets?status=&deviceId=&staffId=
   {
     method: 'GET',
     path: '/api/maintenance-tickets',
     handler: ({ query }) => {
       const statusFilter = query.get('status') as TicketStatus | null
-      const droneIdFilter = query.get('droneId')
-      const priorityFilter = query.get('priority') as TicketSeverity | null
+      const deviceIdFilter = query.get('deviceId')
+      const staffIdFilter = query.get('staffId')
 
       const items = tickets.filter((t) => {
         if (statusFilter && t.status !== statusFilter) return false
-        if (droneIdFilter && t.droneId !== droneIdFilter) return false
-        if (priorityFilter && t.priority !== priorityFilter) return false
+        if (deviceIdFilter && t.droneId !== deviceIdFilter) return false
+        if (staffIdFilter && t.assignedTo !== staffIdFilter) return false
         return true
       })
 
-      return ok({ items, total: items.length })
+      return ok(items.map(toBackendTicket))
     },
   },
-
-  // ── MNG-10: create maintenance ticket [ĐỀ XUẤT] ──────────────────────
-  {
-    method: 'POST',
-    path: '/api/maintenance-tickets',
-    handler: ({ body }) => {
-      const req = (body ?? {}) as {
-        droneId?: string
-        title?: string
-        issueType?: string
-        description?: string
-        priority?: TicketSeverity
-      }
-
-      if (!req.title?.trim()) {
-        return fail(400, 'VALIDATION_ERROR', 'Tiêu đề là bắt buộc', {
-          title: 'Bắt buộc',
-        })
-      }
-      if (!req.droneId?.trim()) {
-        return fail(400, 'VALIDATION_ERROR', 'Drone là bắt buộc', {
-          droneId: 'Bắt buộc',
-        })
-      }
-
-      const now = new Date().toISOString()
-      const newId = `mt-${Date.now()}`
-      const ticket: StoredTicket = {
-        id: newId,
-        code: newId.toUpperCase(),
-        title: req.title,
-        status: 'OPEN',
-        priority: req.priority ?? 'MEDIUM',
-        droneId: req.droneId,
-        droneCode: req.droneId.toUpperCase(),
-        droneName: null,
-        issueType: req.issueType ?? null,
-        description: req.description ?? null,
-        missionId: null,
-        reportedBy: null,
-        assignedTo: null,
-        downtime_hours: null,
-        resolutionNotes: null,
-        openedAt: now,
-        resolvedAt: null,
-        closedAt: null,
-      }
-      tickets.push(ticket)
-      return created(ticket, 'Đã tạo ticket bảo trì')
-    },
-  },
-
-  // ── MNG-10: patch ticket status [ĐỀ XUẤT] ────────────────────────────
+  // PATCH /api/maintenance-tickets/:id/assign-staff { staffId }
   {
     method: 'PATCH',
-    path: '/api/maintenance-tickets/:id/status',
+    path: '/api/maintenance-tickets/:id/assign-staff',
     handler: ({ params, body }) => {
       const ticket = tickets.find(
         (t) => t.id === params.id || t.code === params.id,
       )
       if (!ticket) return fail(404, 'NOT_FOUND', 'Không tìm thấy ticket')
 
-      const req = (body ?? {}) as { status?: TicketStatus }
-      const validNext = VALID_TICKET_TRANSITIONS[ticket.status] ?? []
-
-      if (!req.status || !validNext.includes(req.status)) {
-        return fail(
-          422,
-          'INVALID_TRANSITION',
-          `Không thể chuyển từ ${ticket.status} sang ${req.status ?? '(trống)'}`,
-        )
-      }
-
-      ticket.status = req.status
-      if (req.status === 'RESOLVED' && !ticket.resolvedAt) {
-        ticket.resolvedAt = new Date().toISOString()
-      }
-      if (req.status === 'CLOSED' && !ticket.closedAt) {
-        ticket.closedAt = new Date().toISOString()
-      }
-
-      return ok(ticket, 'Đã cập nhật trạng thái ticket')
-    },
-  },
-  // ── BE: assign technician (also carries legacy `{ status }` patches) ──
-  {
-    method: 'PATCH',
-    path: '/api/maintenance-tickets/:id/assign',
-    handler: ({ params, body }) => {
-      const ticket = tickets.find(
-        (t) => t.id === params.id || t.code === params.id,
-      )
-      if (!ticket) return fail(404, 'NOT_FOUND', 'Không tìm thấy ticket')
-
-      const req = (body ?? {}) as { technicianId?: string; status?: TicketStatus }
-      if (req.status) {
-        const validNext = VALID_TICKET_TRANSITIONS[ticket.status] ?? []
-        if (!validNext.includes(req.status)) {
-          return fail(
-            422,
-            'INVALID_TRANSITION',
-            `Không thể chuyển từ ${ticket.status} sang ${req.status}`,
-          )
-        }
-        ticket.status = req.status
-      }
-      if (req.technicianId) {
-        ticket.assignedTo = req.technicianId
-        if (ticket.status === 'OPEN') ticket.status = 'IN_PROGRESS'
-      }
-      return ok(ticket, 'Đã cập nhật ticket')
+      const req = (body ?? {}) as { staffId?: string }
+      if (!req.staffId?.trim()) return fail(400, 'VALIDATION_ERROR', 'staffId is required')
+      ticket.assignedTo = req.staffId
+      ticket.status = 'IN_PROGRESS'
+      return ok(toBackendTicket(ticket), 'Staff assigned successfully')
     },
   },
 
-  // ── BE: resolve ticket ────────────────────────────────────────────────
+  // PATCH /api/maintenance-tickets/:id/resolve { resolutionNotes, newDeviceStatus? }
   {
     method: 'PATCH',
     path: '/api/maintenance-tickets/:id/resolve',
@@ -183,11 +94,14 @@ registerMockRoutes([
         (t) => t.id === params.id || t.code === params.id,
       )
       if (!ticket) return fail(404, 'NOT_FOUND', 'Không tìm thấy ticket')
-      const req = (body ?? {}) as { resolutionNotes?: string }
+      const req = (body ?? {}) as { resolutionNotes?: string; newDeviceStatus?: string }
+      if (!req.resolutionNotes?.trim()) {
+        return fail(400, 'VALIDATION_ERROR', 'resolutionNotes is required')
+      }
       ticket.status = 'RESOLVED'
-      ticket.resolutionNotes = req.resolutionNotes ?? ticket.resolutionNotes
+      ticket.resolutionNotes = req.resolutionNotes
       ticket.resolvedAt = ticket.resolvedAt ?? new Date().toISOString()
-      return ok(ticket, 'Đã xử lý ticket')
+      return ok(toBackendTicket(ticket), 'Maintenance ticket resolved')
     },
   },
 ])

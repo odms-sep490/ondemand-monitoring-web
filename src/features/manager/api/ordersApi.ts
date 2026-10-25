@@ -8,6 +8,7 @@ import type {
   OrderInternalNote,
   OrderMissionBrief,
   OrderResourcePreview,
+  FlightAreaReviewRequest,
 } from '../types/orders'
 
 function formatRequirementValue(value: unknown, suffix = '') {
@@ -47,18 +48,55 @@ function radiusFromDeliverables(order: OrderCreateResponse) {
   return null
 }
 
+function attachmentsFromDeliverables(order: OrderCreateResponse) {
+  const files = new Map<string, NonNullable<OrderDetail['attachments']>[number]>()
+  for (const deliverable of order.deliverables ?? []) {
+    const requirement = deliverable.requirement
+    if (!requirement) continue
+    for (const key of ['areaFiles', 'customerAttachments'] as const) {
+      const candidates = requirement[key]
+      if (!Array.isArray(candidates)) continue
+      for (const candidate of candidates) {
+        if (!candidate || typeof candidate !== 'object') continue
+        const file = candidate as Record<string, unknown>
+        const name = typeof file.fileName === 'string' ? file.fileName : null
+        const url = typeof file.dataUrl === 'string' ? file.dataUrl : null
+        if (!name || !url) continue
+        const sizeBytes = numberValue(file.sizeBytes)
+        files.set(`${name}:${url}`, {
+          name,
+          sizeLabel:
+            sizeBytes == null ? 'Không rõ dung lượng' : `${(sizeBytes / 1_000_000).toFixed(2)} MB`,
+          mimeType:
+            typeof file.contentType === 'string'
+              ? file.contentType
+              : 'application/octet-stream',
+          url,
+        })
+      }
+    }
+  }
+  return [...files.values()]
+}
+
 function toOrderDetail(order: OrderCreateResponse): OrderDetail {
   return {
+    executionPlanRevision: order.executionPlanRevision,
     id: order.id,
     code: order.id,
     status: order.orderStatus,
     customer: {
       fullName: order.customerName || order.customerId,
-      companyName: '',
+      companyName: order.customerCompanyName ?? '',
       email: order.customerEmail ?? null,
-      phone: null,
+      phone: order.customerPhoneNumber ?? null,
+      address: order.customerAddress ?? null,
+      citizenIdentificationNumber:
+        order.customerCitizenIdentificationNumber ?? null,
+      companyTaxCode: order.customerCompanyTaxCode ?? null,
     },
     serviceName: order.serviceName,
+    serviceDescription: order.serviceDescription ?? null,
     preferredDate: order.preferredDateFrom,
     preferredDateFrom: order.preferredDateFrom,
     preferredDateTo: order.preferredDateTo,
@@ -77,18 +115,25 @@ function toOrderDetail(order: OrderCreateResponse): OrderDetail {
         label: `${item.deliverableTypeName}${formatRequirement(item.requirement)}`,
       })) ?? null,
     purpose: order.description || null,
-    attachments: null,
+    attachments: attachmentsFromDeliverables(order),
     title: order.title,
     description: order.description,
     usagePurpose: order.usagePurpose ?? null,
-    priority: order.priority ?? null,
+    flightPurpose: order.flightPurpose ?? null,
     altitudeM: order.altitudeM ?? null,
     estimatedLengthM: order.estimatedLengthM ?? null,
     siteContactName: order.siteContactName ?? null,
     siteContactPhone: order.siteContactPhone ?? null,
     accessNotes: order.accessNotes ?? null,
+    monitoringRelationship: order.monitoringRelationship ?? null,
+    monitoringAuthorizationConfirmed:
+      order.monitoringAuthorizationConfirmed ?? null,
+    monitoringAuthorizationDocuments:
+      order.monitoringAuthorizationDocuments ?? null,
     permitStatus: order.permitStatus ?? null,
     permitNumber: order.permitNumber ?? null,
+    permitExpiresOn: order.permitExpiresOn ?? null,
+    permitDocuments: order.permitDocuments ?? null,
     permitRequired: order.permitRequired ?? null,
     permitZoneName: order.permitZoneName ?? null,
     recurrenceType: order.recurrenceType ?? null,
@@ -101,11 +146,21 @@ function toOrderDetail(order: OrderCreateResponse): OrderDetail {
     termsAcceptedAt: order.termsAcceptedAt ?? null,
     termsVersion: order.termsVersion ?? null,
     deliverables: order.deliverables ?? null,
+    legalReviewStatus: order.legalReviewStatus ?? 'NOT_REVIEWED',
+    flightAreaReviewReason: order.flightAreaReviewReason ?? null,
+    flightAreaReviewNote: order.flightAreaReviewNote ?? null,
+    requestedScopeFeasible: order.requestedScopeFeasible ?? null,
+    flightAreaReviewedById: order.flightAreaReviewedById ?? null,
+    flightAreaReviewedByName: order.flightAreaReviewedByName ?? null,
+    flightAreaReviewedAt: order.flightAreaReviewedAt ?? null,
+    updatedAt: order.updatedAt ?? null,
   }
 }
 
 function toOrderMissionBrief(order: OrderDetail): OrderMissionBrief {
   return {
+    executionPlanRevision: order.executionPlanRevision,
+    checklistItems: order.checklistItems,
     id: order.id,
     code: order.code,
     serviceName: order.serviceName,
@@ -127,6 +182,14 @@ export const ordersApi = {
   /** `GET /api/orders/pending` [BE]. */
   getQueue(signal?: AbortSignal): Promise<OrderCreateResponse[]> {
     return apiRequest<OrderCreateResponse[]>('/api/orders/pending', {
+      signal,
+    })
+  },
+
+  /** `GET /api/orders/managed?status=` [BE]: every order, newest first. */
+  getManaged(status?: string, signal?: AbortSignal): Promise<OrderCreateResponse[]> {
+    return apiRequest<OrderCreateResponse[]>('/api/orders/managed', {
+      query: status ? { status } : undefined,
       signal,
     })
   },
@@ -177,6 +240,27 @@ export const ordersApi = {
     })
   },
 
+  saveFlightAreaReview(
+    id: string,
+    request: FlightAreaReviewRequest,
+  ): Promise<OrderCreateResponse> {
+    return apiRequest<OrderCreateResponse>(
+      `/api/orders/${encodeURIComponent(id)}/flight-area-review`,
+      { method: 'POST', body: request },
+    )
+  },
+
+  resolveLegalReview(
+    id: string,
+    status: 'APPROVED' | 'REJECTED',
+    note?: string,
+  ): Promise<OrderCreateResponse> {
+    return apiRequest<OrderCreateResponse>(
+      `/api/orders/${encodeURIComponent(id)}/legal-review/resolve`,
+      { method: 'POST', body: { status, note } },
+    )
+  },
+
   /** `POST /api/orders/{id}/approve` [BE] — approves only; staff schedules the mission later. */
   approve(id: string): Promise<OrderCreateResponse | void> {
     return apiRequest<OrderCreateResponse | void>(`/api/orders/${id}/approve`, {
@@ -199,7 +283,7 @@ export const ordersApi = {
   ): Promise<OrderMissionBrief> {
     return this.getOrder(id, signal)
       .then((order) => {
-        if (order.status !== 'APPROVED') {
+        if (order.status !== 'APPROVED' && order.status !== 'IN_PROGRESS') {
           throw new ApiError('Đơn không còn ở trạng thái đã duyệt.', {
             status: 409,
             method: 'GET',

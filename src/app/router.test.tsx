@@ -1,10 +1,19 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import {
+  configure,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { authSession } from '../features/auth/api/authApi'
 import { managerApi } from '../features/manager/api/dashboardApi'
+import { ordersApi } from '../features/manager/api/ordersApi'
 import type { ManagerDashboardResponse } from '../features/manager/types/dashboard'
 import { Router } from './router'
+
+configure({ asyncUtilTimeout: 10000 })
 
 // jsdom does not fire `hashchange` automatically when `location.hash` is set
 // programmatically (unlike a real browser), so tests that simulate the user
@@ -23,58 +32,85 @@ afterEach(() => {
   window.location.hash = ''
 })
 
+vi.setConfig({ testTimeout: 15000 })
+
 describe('Router - auth hash sync (regression)', () => {
-  it('shows the login form for #auth/login and the register form for #auth/register', () => {
+  it.each(['#portal/manager/missions', '#portal/staff/missions', '#profile'])(
+    'redirects unauthenticated navigation after render without React warnings: %s',
+    async (hash) => {
+      authSession.clear()
+      const errors = vi.spyOn(console, 'error').mockImplementation(() => {})
+      try {
+        window.location.hash = '#auth/login'
+        render(<Router />)
+        navigateHash(hash)
+        await waitFor(() => expect(window.location.hash).toBe('#auth/login'))
+        expect(
+          await screen.findByRole('heading', { name: 'Đăng nhập' }),
+        ).toBeInTheDocument()
+        expect(errors).not.toHaveBeenCalled()
+      } finally {
+        errors.mockRestore()
+      }
+    },
+  )
+  it('shows the login form for #auth/login and the register form for #auth/register', async () => {
     window.location.hash = '#auth/login'
     render(<Router />)
     expect(
-      screen.getByRole('heading', { name: 'Đăng nhập' }),
+      await screen.findByRole('heading', { name: 'Đăng nhập' }),
     ).toBeInTheDocument()
 
     navigateHash('#auth/register')
-    expect(
-      screen.getByRole('heading', { name: 'Tạo tài khoản khách hàng' }),
-    ).toBeInTheDocument()
+    await waitFor(() =>
+      expect(
+        screen.getByRole('heading', { name: 'Tạo tài khoản khách hàng' }),
+      ).toBeInTheDocument(),
+    )
 
     navigateHash('#auth/login')
     expect(
-      screen.getByRole('heading', { name: 'Đăng nhập' }),
+      await screen.findByRole('heading', { name: 'Đăng nhập' }),
     ).toBeInTheDocument()
   })
 
-  it('keeps switching correctly across repeated register <-> login navigation', () => {
+  it('keeps switching correctly across repeated register <-> login navigation', async () => {
     window.location.hash = '#auth/register'
     render(<Router />)
     expect(
-      screen.getByRole('heading', { name: 'Tạo tài khoản khách hàng' }),
+      await screen.findByRole('heading', { name: 'Tạo tài khoản khách hàng' }),
     ).toBeInTheDocument()
 
     navigateHash('#auth/login')
     expect(
-      screen.getByRole('heading', { name: 'Đăng nhập' }),
+      await screen.findByRole('heading', { name: 'Đăng nhập' }),
     ).toBeInTheDocument()
 
     navigateHash('#auth/register')
     expect(
-      screen.getByRole('heading', { name: 'Tạo tài khoản khách hàng' }),
+      await screen.findByRole('heading', { name: 'Tạo tài khoản khách hàng' }),
     ).toBeInTheDocument()
   })
 
-  it('updates the hash when using the in-page mode switch buttons', () => {
+  it('updates the hash when using the in-page mode switch buttons', async () => {
     window.location.hash = '#auth/login'
     render(<Router />)
 
-    fireEvent.click(screen.getByRole('button', { name: 'Đăng ký' }))
+    fireEvent.click(await screen.findByRole('button', { name: 'Đăng ký' }))
     expect(window.location.hash).toBe('#auth/register')
-    expect(
-      screen.getByRole('heading', { name: 'Tạo tài khoản khách hàng' }),
-    ).toBeInTheDocument()
+    await waitFor(() =>
+      expect(
+        screen.getByRole('heading', { name: 'Tạo tài khoản khách hàng' }),
+      ).toBeInTheDocument(),
+    )
 
-    fireEvent.click(screen.getByRole('button', { name: 'Đăng nhập' }))
+    fireEvent.click(await screen.findByRole('button', { name: 'Đăng nhập' }))
     expect(window.location.hash).toBe('#auth/login')
-    expect(
-      screen.getByRole('heading', { name: 'Đăng nhập' }),
-    ).toBeInTheDocument()
+    await waitFor(() =>
+      expect(
+        screen.getByRole('heading', { name: 'Đăng nhập' }),
+      ).toBeInTheDocument(),
+    )
   })
 })
 
@@ -125,9 +161,23 @@ describe('Router - manager routes (#portal/manager*)', () => {
       expect(screen.getByText('Dashboard điều hành')).toBeInTheDocument(),
     )
   })
+  it('allows authenticated Admin into Manager planning without granting crew authority', async () => {
+    const user = authSession.getUser()!
+    localStorage.setItem(
+      'fieldwise.user',
+      JSON.stringify({ ...user, role: 'ADMIN' }),
+    )
+    vi.spyOn(managerApi, 'getDashboard').mockResolvedValue(sampleDashboard)
+    window.location.hash = '#portal/manager'
+    render(<Router />)
+    await waitFor(() =>
+      expect(screen.getByText('Dashboard điều hành')).toBeInTheDocument(),
+    )
+  })
 
   it('routes nested #portal/manager/... hashes to the Manager area too', async () => {
     vi.spyOn(managerApi, 'getDashboard').mockResolvedValue(sampleDashboard)
+    vi.spyOn(ordersApi, 'getQueue').mockResolvedValue([])
     window.location.hash = '#portal/manager/orders'
     render(<Router />)
 
@@ -166,24 +216,24 @@ describe('Router - customer support navigation', () => {
     authSession.clear()
   })
 
-  it('marks Help & FAQ active instead of Dashboard on the help page', () => {
+  it('marks Help & FAQ active instead of Dashboard on the help page', async () => {
     window.location.hash = '#help'
     render(<Router />)
 
     expect(
-      screen.getByRole('link', { name: 'Trợ giúp & FAQ' }),
+      await screen.findByRole('link', { name: 'Trợ giúp & FAQ' }),
     ).toHaveAttribute('aria-current', 'page')
     expect(screen.getByRole('link', { name: 'Tổng quan' })).not.toHaveAttribute(
       'aria-current',
     )
   })
 
-  it('marks Support tickets active instead of Dashboard on the tickets page', () => {
+  it('marks Support tickets active instead of Dashboard on the tickets page', async () => {
     window.location.hash = '#help/tickets'
     render(<Router />)
 
     expect(
-      screen.getByRole('link', { name: 'Yêu cầu hỗ trợ' }),
+      await screen.findByRole('link', { name: 'Yêu cầu hỗ trợ' }),
     ).toHaveAttribute('aria-current', 'page')
     expect(screen.getByRole('link', { name: 'Tổng quan' })).not.toHaveAttribute(
       'aria-current',

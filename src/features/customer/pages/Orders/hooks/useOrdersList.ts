@@ -31,11 +31,19 @@ export function useOrdersList() {
   )
 
   // Unfiltered list for the stats row and chip counts; declared after the filtered query so that one stays the last call.
-  const all = useApiQuery((signal) => customerApi.listMyOrders({ signal }).then((rows) => rows.map(toOrderRow)), [])
-  const stats = useMemo(() => (all.data ? computeOrderStats(all.data) : undefined), [all.data])
+  const all = useApiQuery(
+    (signal) =>
+      customerApi.listMyOrders({ signal }).then((rows) => rows.map(toOrderRow)),
+    [],
+  )
+  const stats = useMemo(
+    () => (all.data ? computeOrderStats(all.data) : undefined),
+    [all.data],
+  )
 
   const view = useMemo(
-    () => paginate(searchOrders(orders.data ?? [], query), page, ORDERS_PAGE_SIZE),
+    () =>
+      paginate(searchOrders(orders.data ?? [], query), page, ORDERS_PAGE_SIZE),
     [orders.data, query, page],
   )
 

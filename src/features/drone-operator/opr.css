@@ -4,10 +4,210 @@
  */
 
 .odm-opr {
+  position: fixed;
+  inset: 0;
+  width: 100%;
   height: 100vh;
   height: 100dvh;
   overflow: hidden;
   background: var(--bg);
+}
+
+/* ---------- Preflight safety workspace ---------- */
+
+.odm-flight-step-title {
+  text-wrap: balance;
+}
+
+.odm-preflight-scroll {
+  container-type: inline-size;
+}
+
+.odm-preflight-summary {
+  min-width: 0;
+  box-shadow: none;
+}
+
+.odm-preflight-progress-number {
+  min-width: 6ch;
+  font-variant-numeric: tabular-nums;
+}
+
+.odm-preflight-weather {
+  container-type: inline-size;
+  box-shadow: none;
+}
+
+.odm-preflight-weather-title,
+.odm-preflight-group-heading h2 {
+  margin: 0;
+  color: var(--tx);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.35;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.odm-preflight-weather-message {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  line-height: 1.5;
+}
+
+.odm-preflight-weather-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.odm-preflight-weather-field {
+  min-width: 0;
+  font-size: 12.5px;
+  line-height: 1.35;
+}
+
+.odm-preflight-weather-field.is-span-2 {
+  grid-column: span 2;
+}
+
+.odm-preflight-weather-field.is-span-4 {
+  grid-column: span 4;
+}
+
+.odm-preflight-weather-input,
+.odm-preflight-weather-field select {
+  min-width: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.odm-preflight-weather-input:focus-visible,
+.odm-preflight-weather-field select:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.odm-preflight-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.odm-preflight-group-heading {
+  min-width: 0;
+}
+
+.odm-preflight-checklist-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+
+.odm-preflight-item {
+  min-width: 0;
+  box-shadow: none;
+}
+
+.odm-preflight-item-main {
+  grid-template-columns: 44px minmax(0, 1fr) 210px;
+  min-width: 0;
+}
+
+.odm-preflight-item-detail,
+.odm-preflight-item-meta,
+.odm-preflight-item-status {
+  color: var(--tx2);
+  font-size: 12px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.odm-preflight-item-meta {
+  margin-top: 3px;
+  font-variant-numeric: tabular-nums;
+}
+
+.odm-preflight-item-status {
+  white-space: normal;
+}
+
+.odm-preflight-item-action {
+  justify-self: end;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.odm-preflight-readonly-result {
+  display: inline-flex;
+  min-width: 112px;
+  min-height: 32px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 12px;
+  border-radius: 6px;
+  background: var(--sf3);
+  color: var(--tx2);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.odm-preflight-readonly-result.is-passed {
+  background: var(--green-bg);
+  color: var(--green-fg);
+}
+
+.odm-preflight-readonly-result.is-failed {
+  background: var(--red-bg);
+  color: var(--red-fg);
+}
+
+.odm-preflight-item-action .odm-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.52;
+}
+
+@container (max-width: 1050px) {
+  .odm-preflight-weather-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .odm-preflight-weather-field.is-span-4 {
+    grid-column: span 2;
+  }
+
+  .odm-preflight-checklist-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@container (max-width: 640px) {
+  .odm-preflight-weather-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .odm-preflight-weather-field.is-span-2,
+  .odm-preflight-weather-field.is-span-4 {
+    grid-column: span 1;
+  }
+
+  .odm-preflight-item-main {
+    grid-template-columns: 40px minmax(0, 1fr);
+  }
+
+  .odm-preflight-item-action {
+    grid-column: 1 / -1;
+    justify-self: stretch;
+  }
+
+  .odm-preflight-item-action > * {
+    flex: 1;
+  }
 }
 
 .odm-opr-shell {
@@ -323,8 +523,9 @@
 /* ---------- Mission work table ---------- */
 
 .odm-opr-mission-table {
-  min-width: 1340px;
-  table-layout: fixed;
+  min-width: 0;
+  width: 100%;
+  table-layout: auto;
 }
 
 .odm-opr-mission-code {
@@ -332,8 +533,11 @@
 }
 
 .odm-opr-mission-job {
-  width: 230px;
-  min-width: 230px;
+  min-width: 220px;
+}
+.odm-opr-mission-job .odm-opr-chip {
+  display: inline-block;
+  margin-top: 6px;
 }
 
 .odm-opr-mission-time {
@@ -355,11 +559,16 @@
 
 .odm-opr-mission-deadline {
   width: 130px;
+  white-space: nowrap;
 }
 
 .odm-opr-mission-action {
-  width: 110px;
+  width: 130px;
   text-align: right;
+}
+.odm-opr-mission-table td.odm-opr-mission-action,
+.odm-opr-mission-table td:last-child {
+  white-space: nowrap;
 }
 
 .odm-opr-mission-title {
@@ -585,3 +794,100 @@
 .odm-opr-mission-manager{width:170px}
 .odm-opr-mission-table td,.odm-opr-mission-table th{overflow:hidden;text-overflow:ellipsis}
 .odm-opr-mission-table .odm-opr-mission-job,.odm-opr-mission-table td.odm-opr-mission-job{overflow:visible}
+
+/* ── Mission detail: waiting for pilot response ── */
+.mds-pending {
+  padding-bottom: 16px;
+}
+.mds-meta-line {
+  margin: 0 0 12px 2px;
+  color: var(--tx2, #334155);
+  font-size: 13.5px;
+}
+.mds-decision {
+  margin-bottom: 16px;
+}
+.mds-decision-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 14px 20px;
+  padding: 14px 16px;
+}
+.mds-decision-item dt {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--tx2, #475569);
+}
+.mds-decision-item dd {
+  margin: 2px 0 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--tx, #0f172a);
+  overflow-wrap: anywhere;
+}
+.mds-pending-checklist {
+  margin-top: 16px;
+}
+.mds-pending-checklist summary {
+  cursor: pointer;
+  padding: 12px 16px;
+  font-weight: 600;
+  list-style: none;
+}
+.mds-pending-checklist summary:focus-visible {
+  outline: 2px solid #1767ff;
+  outline-offset: -2px;
+}
+.mds-pending-checklist summary small {
+  display: block;
+  margin-top: 2px;
+  font-weight: 400;
+  color: var(--tx2, #475569);
+}
+.mds-pending-checklist-body {
+  padding: 0 16px 16px;
+}
+.mds-action-bar {
+  position: static;
+  margin-bottom: 16px;
+  border-color: #b9ccf5 !important;
+  background: #f3f7ff !important;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 12px 16px;
+  border: 1px solid var(--bd, #e2e8f0);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 -4px 16px rgba(15, 23, 42, 0.08);
+}
+.mds-action-bar-text {
+  font-weight: 600;
+  color: var(--tx, #0f172a);
+}
+.mds-action-bar-text small {
+  display: block;
+  font-weight: 400;
+  color: var(--tx2, #475569);
+}
+.mds-action-bar-buttons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.mds-action-bar .odm-btn-p {
+  min-height: 42px;
+  padding: 0 24px;
+  font-weight: 700;
+}
+.mds-action-bar .odm-btn:focus-visible {
+  outline: 2px solid #1767ff;
+  outline-offset: 2px;
+}
+.mds-action-bar .odm-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}

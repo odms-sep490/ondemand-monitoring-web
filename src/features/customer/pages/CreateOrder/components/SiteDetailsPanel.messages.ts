@@ -4,8 +4,9 @@ export const siteDetailsPanelMessages = defineMessages({
   vi: {
     cardTitle: 'Chi tiết khu vực & hiện trường',
     flightSection: 'Thông số bay',
-    altitudeLabel: 'Độ cao bay (m)',
-    altitudeHint: 'Bắt buộc, từ 10 đến 120 m.',
+    altitudeLabel: 'Độ cao giám sát mong muốn (m)',
+    altitudeHint:
+      'Bắt buộc, từ 10 đến 120 m. Đây là độ cao bạn mong muốn, độ cao thực tế còn tùy thẩm định và cấp phép.',
     lengthLabel: 'Chiều dài (m)',
     lengthPlaceholder: 'VD: 1200',
     lengthHint: 'Tùy chọn. Dùng cho đường băng, đường bộ, đường ống.',
@@ -22,8 +23,9 @@ export const siteDetailsPanelMessages = defineMessages({
   en: {
     cardTitle: 'Area & site details',
     flightSection: 'Flight settings',
-    altitudeLabel: 'Altitude (m)',
-    altitudeHint: 'Required, between 10 and 120 m.',
+    altitudeLabel: 'Desired monitoring altitude (m)',
+    altitudeHint:
+      'Required, between 10 and 120 m. This is your preferred altitude; the actual altitude depends on review and approval.',
     lengthLabel: 'Length (m)',
     lengthPlaceholder: 'E.g. 1200',
     lengthHint: 'Optional. For runways, roads, pipelines.',

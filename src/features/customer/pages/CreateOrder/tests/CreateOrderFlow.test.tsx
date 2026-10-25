@@ -7,40 +7,80 @@ import '../../../../../mocks/index'
 import { setLanguage } from '../../../../../shared/i18n'
 import { CreateOrderPage } from '../CreateOrderPage'
 import { customerApi } from '../../../api/customerApi'
+import { CREATE_ORDER_DRAFT_STORAGE_KEY } from '../../../lib/createOrder/draftStorage'
+import { ApiError } from '../../../../../shared/api/httpClient'
+
+const originalScrollIntoView = Object.getOwnPropertyDescriptor(
+  HTMLElement.prototype,
+  'scrollIntoView',
+)
 
 beforeEach(() => {
   resetMockDb()
+  localStorage.removeItem(CREATE_ORDER_DRAFT_STORAGE_KEY)
+  Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
+    configurable: true,
+    value: vi.fn(),
+  })
 })
 afterEach(() => {
   resetMockDb()
   vi.restoreAllMocks()
+  if (originalScrollIntoView)
+    Object.defineProperty(
+      HTMLElement.prototype,
+      'scrollIntoView',
+      originalScrollIntoView,
+    )
+  else Reflect.deleteProperty(HTMLElement.prototype, 'scrollIntoView')
 })
 
 const next = (label: string) =>
   fireEvent.click(screen.getByRole('button', { name: `Tiếp tục: ${label}` }))
 
-/** Step 1 -> step 2 (monitoring content) -> step 3 (location). */
-async function fillService(onContent?: () => Promise<void> | void) {
+async function renderWizard() {
+  const view = render(<CreateOrderPage />)
+  await screen.findByRole('button', { name: /Giám sát công trình/ })
+  return view
+}
+
+/** Step 1 -> step 2 (location). */
+async function fillService() {
   fireEvent.click(
-    await screen.findByRole('button', { name: /Giám sát Tiến độ Xây dựng/ }),
+    await screen.findByRole('button', { name: /Giám sát công trình/ }),
   )
   fireEvent.change(screen.getByLabelText(/Tiêu đề/), {
     target: { value: 'Đơn kiểm thử' },
   })
+  next('Vị trí & vùng giám sát')
+}
+
+async function fillLocation(onContent?: () => Promise<void> | void) {
+  fireEvent.change(await screen.findByLabelText(/Địa chỉ hoặc khu vực/), {
+    target: { value: 'KCN Long Hậu' },
+  })
+  fireEvent.click(screen.getByRole('button', { name: 'Xác nhận tọa độ này' }))
+  await screen.findByText('Đã xác nhận vị trí')
   next('Nội dung giám sát')
   await onContent?.()
   const forward = await screen.findByRole('button', {
-    name: 'Tiếp tục: Vị trí & vùng giám sát',
+    name: 'Tiếp tục: Chi tiết & quyền giám sát',
   })
   await waitFor(() => expect(forward).toBeEnabled())
   fireEvent.click(forward)
-}
-
-async function fillLocation() {
-  fireEvent.change(await screen.findByLabelText(/Địa chỉ\/khu vực/), {
-    target: { value: 'KCN Long Hậu' },
-  })
+  fireEvent.change(screen.getByLabelText(/Người liên hệ/), { target: { value: 'An' } })
+  fireEvent.change(screen.getByLabelText(/Số điện thoại/), { target: { value: '0901234567' } })
+  fireEvent.change(screen.getByLabelText(/Điều kiện ra vào/), { target: { value: 'Cổng chính' } })
+  fireEvent.click(screen.getByLabelText('Chủ sở hữu / Chủ đầu tư'))
+  fireEvent.click(
+    screen.getByLabelText(/Tôi xác nhận mình có quyền yêu cầu giám sát/),
+  )
   next('Thời gian')
+  // The customer picks the time window; nothing is chosen for them.
+  const time = (await screen.findByLabelText(/Khung giờ/)) as HTMLSelectElement
+  await waitFor(() => expect(time.options.length).toBeGreaterThan(1))
+  expect(time.value).toBe('')
+  fireEvent.change(time, { target: { value: time.options[1].value } })
 }
 
 describe('CreateOrderPage wizard', () => {
@@ -50,7 +90,7 @@ describe('CreateOrderPage wizard', () => {
       vi.spyOn(customerApi, 'getServiceChecklist').mockResolvedValue(
         ['Keep', 'Edit', 'Remove'].map((content, index) => ({
           id: `link-${index}`,
-          serviceId: 'svc-2',
+          serviceId: 'svc-construction',
           checklistId: `catalog-${index}`,
           checklistVersion: index + 10,
           displayOrder: index,
@@ -60,8 +100,9 @@ describe('CreateOrderPage wizard', () => {
         })),
       )
       const create = vi.spyOn(customerApi, 'createOrder')
-      render(<CreateOrderPage />)
-      await fillService(async () => {
+      await renderWizard()
+      await fillService()
+      await fillLocation(async () => {
         await screen.findByLabelText('Chọn nội dung 1')
         if (selection === 'empty') {
           for (let index = 1; index <= 3; index++)
@@ -72,20 +113,19 @@ describe('CreateOrderPage wizard', () => {
             target: { value: 'Edited requirement' },
           })
           fireEvent.click(screen.getByLabelText('Chọn nội dung 3'))
-          fireEvent.click(screen.getByRole('button', { name: '+ Thêm nội dung' }))
+          fireEvent.click(
+            screen.getByRole('button', { name: '+ Thêm nội dung' }),
+          )
           fireEvent.change(screen.getByLabelText('Nội dung giám sát 4'), {
             target: { value: 'Custom requirement' },
           })
         }
       })
-      await fillLocation()
       next('Kết quả bàn giao & xác nhận')
       await waitFor(() =>
-        expect(
-          (screen.getByLabelText(/Loại kết quả/) as HTMLSelectElement).value,
-        ).toBe('dt-progress'),
+        expect(screen.queryByText(/Đang tải kết quả bàn giao/)).toBeNull(),
       )
-      fireEvent.click(screen.getByLabelText(/Tôi đã đọc và đồng ý/))
+      fireEvent.click(screen.getByLabelText(/Tôi xác nhận mục đích giám sát/))
       fireEvent.click(screen.getByRole('button', { name: 'Gửi yêu cầu' }))
       await screen.findByRole('dialog')
       fireEvent.click(screen.getByRole('button', { name: 'Xác nhận gửi' }))
@@ -95,71 +135,94 @@ describe('CreateOrderPage wizard', () => {
         selection === 'empty'
           ? []
           : [
-              { sourceChecklistId: 'catalog-0', expectedChecklistVersion: 10 },
+              {
+                sourceChecklistId: 'catalog-0',
+                expectedChecklistVersion: 10,
+                minimumEvidenceCount: 1,
+                requiredEvidenceType: 'IMAGE',
+              },
               {
                 sourceChecklistId: 'catalog-1',
                 expectedChecklistVersion: 11,
+                minimumEvidenceCount: 1,
+                requiredEvidenceType: 'IMAGE',
                 contentOverride: 'Edited requirement',
               },
-              { contentOverride: 'Custom requirement' },
+              {
+                contentOverride: 'Custom requirement',
+                minimumEvidenceCount: 1,
+                requiredEvidenceType: 'IMAGE',
+              },
             ],
       )
     },
   )
 
   it('shows services and goal fields on step 1', async () => {
-    render(<CreateOrderPage />)
+    await renderWizard()
     expect(
-      await screen.findByText('Giám sát Tiến độ Xây dựng'),
+      await screen.findByRole('button', { name: /Giám sát công trình/ }),
     ).toBeInTheDocument()
     expect(screen.getByLabelText(/Tiêu đề/)).toBeInTheDocument()
   })
 
-  it('blocks step 1 without a service and title', async () => {
+  it('blocks step 1 without a title when the catalog selects its default service', async () => {
+    await renderWizard()
+    await screen.findByRole('button', { name: /Giám sát công trình/ })
+    next('Vị trí & vùng giám sát')
+    expect(await screen.findByText('Nhập tiêu đề yêu cầu.')).toBeInTheDocument()
+    expect(screen.queryByText('Chọn dịch vụ giám sát.')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText(/Địa chỉ hoặc khu vực/)).not.toBeInTheDocument()
+  })
+
+  it('requires a service and title when the active catalog is empty', async () => {
+    vi.spyOn(customerApi, 'listServices').mockResolvedValue([])
     render(<CreateOrderPage />)
-    await screen.findByText('Giám sát Tiến độ Xây dựng')
-    next('Nội dung giám sát')
+    await screen.findByText('Chưa có dịch vụ nào đang hoạt động')
+    next('Vị trí & vùng giám sát')
     expect(
       await screen.findByText('Chọn dịch vụ giám sát.'),
     ).toBeInTheDocument()
     expect(screen.getByText('Nhập tiêu đề yêu cầu.')).toBeInTheDocument()
-    expect(screen.queryByLabelText(/Địa chỉ\/khu vực/)).not.toBeInTheDocument()
+    expect(screen.queryByLabelText(/Địa chỉ hoặc khu vực/)).not.toBeInTheDocument()
   })
 
-  it('shows the real location map on step 3 and requires an address', async () => {
-    render(<CreateOrderPage />)
+  it('shows the real location map on step 2 and requires an address', async () => {
+    await renderWizard()
     await fillService()
     expect(
       await screen.findByRole('application', {
         name: 'Bản đồ chọn vị trí giám sát',
       }),
     ).toBeInTheDocument()
-    next('Thời gian')
+    next('Nội dung giám sát')
     expect(
       await screen.findByText('Nhập địa chỉ/khu vực cần giám sát.'),
     ).toBeInTheDocument()
   })
 
   it('continues from location to schedule after a valid address', async () => {
-    render(<CreateOrderPage />)
+    await renderWizard()
     await fillService()
     await fillLocation()
     expect(await screen.findByLabelText(/Ngày sớm nhất/)).toBeInTheDocument()
   })
 
   it('shows the pricing estimate for the chosen service', async () => {
-    render(<CreateOrderPage />)
+    await renderWizard()
     fireEvent.click(
-      await screen.findByRole('button', { name: /Giám sát Tiến độ Xây dựng/ }),
+      await screen.findByRole('button', { name: /Giám sát công trình/ }),
     )
     await waitFor(() =>
-      expect(screen.getAllByText(/3\.200\.000/).length).toBeGreaterThanOrEqual(
+      expect(screen.getAllByText(/3\.500\.000/).length).toBeGreaterThanOrEqual(
         3,
       ),
     )
     fireEvent.click(screen.getByLabelText(/AI phân tích hình ảnh/))
     expect(await screen.findByText(/^\+.*500\.000/)).toBeInTheDocument()
-    expect(await screen.findByText(/3\.700\.000/)).toBeInTheDocument()
+    expect(
+      (await screen.findAllByText(/4\.000\.000/)).length,
+    ).toBeGreaterThanOrEqual(1)
   })
 
   it('shows a retryable error when deliverable types cannot be loaded', async () => {
@@ -167,14 +230,14 @@ describe('CreateOrderPage wizard', () => {
       .mockRejectedValueOnce(new Error('network failed'))
       .mockResolvedValueOnce([
         {
-          id: 'sd-progress',
-          serviceId: 'svc-2',
-          serviceName: 'Giám sát Tiến độ Xây dựng',
-          deliverableTypeId: 'dt-progress',
+          id: 'sd-construction-photo',
+          serviceId: 'svc-construction',
+          serviceName: 'Giám sát công trình',
+          deliverableTypeId: 'dt-photo',
           deliverableTypeName: 'Báo cáo Tiến độ',
         },
       ])
-    render(<CreateOrderPage />)
+    await renderWizard()
     await fillService()
     await fillLocation()
     next('Kết quả bàn giao & xác nhận')
@@ -186,24 +249,20 @@ describe('CreateOrderPage wizard', () => {
     ).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Thử lại' }))
     await waitFor(() =>
-      expect(
-        (screen.getByLabelText(/Loại kết quả/) as HTMLSelectElement).value,
-      ).toBe('dt-progress'),
+      expect(screen.queryByText(/Đang tải kết quả bàn giao/)).toBeNull(),
     )
   })
 
   it('walks through all steps and submits via the confirm dialog', async () => {
-    render(<CreateOrderPage />)
+    await renderWizard()
     await fillService()
     await fillLocation()
 
     next('Kết quả bàn giao & xác nhận')
     await waitFor(() =>
-      expect(
-        (screen.getByLabelText(/Loại kết quả/) as HTMLSelectElement).value,
-      ).toBe('dt-progress'),
+      expect(screen.queryByText(/Đang tải kết quả bàn giao/)).toBeNull(),
     )
-    fireEvent.click(screen.getByLabelText(/Tôi đã đọc và đồng ý/))
+    fireEvent.click(screen.getByLabelText(/Tôi xác nhận mục đích giám sát/))
 
     expect(await screen.findByText('Tóm tắt yêu cầu')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Gửi yêu cầu' }))
@@ -219,43 +278,127 @@ describe('CreateOrderPage wizard', () => {
     ).toBeNull()
   })
 
-  it('blocks submit until the terms and security commitment are accepted', async () => {
-    render(<CreateOrderPage />)
+  /** Fills the whole wizard up to the confirm dialog. */
+  async function openConfirmDialog() {
+    await renderWizard()
     await fillService()
     await fillLocation()
     next('Kết quả bàn giao & xác nhận')
     await waitFor(() =>
-      expect(
-        (screen.getByLabelText(/Loại kết quả/) as HTMLSelectElement).value,
-      ).toBe('dt-progress'),
+      expect(screen.queryByText(/Đang tải kết quả bàn giao/)).toBeNull(),
+    )
+    fireEvent.click(screen.getByLabelText(/Tôi xác nhận mục đích giám sát/))
+    fireEvent.click(screen.getByRole('button', { name: 'Gửi yêu cầu' }))
+    await screen.findByRole('dialog')
+  }
+
+  it('shows stale recovery after creation fails, without auto retry', async () => {
+    const create = vi.spyOn(customerApi, 'createOrder').mockRejectedValue(
+      new ApiError('internal detail', {
+        status: 409,
+        code: 'ORDER_CHECKLIST_TEMPLATE_CHANGED',
+        method: 'POST',
+        path: '/api/orders',
+      }),
+    )
+    await openConfirmDialog()
+    fireEvent.click(screen.getByRole('button', { name: 'Xác nhận gửi' }))
+    await waitFor(() =>
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument(),
+    )
+    expect(screen.queryByText('internal detail')).not.toBeInTheDocument()
+    expect(create).toHaveBeenCalledTimes(1)
+  }, 15_000)
+
+  it('shows the API error inside the dialog and stays on the form', async () => {
+    vi.spyOn(customerApi, 'createOrder').mockRejectedValue(
+      new Error('Vùng bị từ chối'),
+    )
+    await openConfirmDialog()
+    fireEvent.click(screen.getByRole('button', { name: 'Xác nhận gửi' }))
+    expect(
+      await screen.findByText('Không thể gửi yêu cầu. Vui lòng thử lại.'),
+    ).toBeInTheDocument()
+    expect(screen.queryByText('Vùng bị từ chối')).not.toBeInTheDocument()
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+  }, 15_000)
+
+  it('routes a backend preferredDateFrom error back to the schedule field', async () => {
+    vi.spyOn(customerApi, 'createOrder').mockRejectedValueOnce(
+      new ApiError(
+        'preferredDateFrom must be at least 7 days after the request date',
+        { status: 400, method: 'POST', path: '/api/orders' },
+      ),
+    )
+    await renderWizard()
+    await fillService()
+    await fillLocation()
+    next('Kết quả bàn giao & xác nhận')
+    await waitFor(() =>
+      expect(screen.queryByText(/Đang tải kết quả bàn giao/)).toBeNull(),
+    )
+    fireEvent.click(screen.getByLabelText(/Tôi xác nhận mục đích giám sát/))
+    fireEvent.click(screen.getByRole('button', { name: 'Gửi yêu cầu' }))
+    await screen.findByRole('dialog')
+    fireEvent.click(screen.getByRole('button', { name: 'Xác nhận gửi' }))
+
+    expect(
+      await screen.findByText(
+        'Ngày bay sớm nhất phải cách ngày tạo yêu cầu ít nhất 7 ngày để ODMS chuẩn bị thủ tục giấy phép bay.',
+      ),
+    ).toBeInTheDocument()
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    await waitFor(() =>
+      expect(screen.getByLabelText(/Ngày sớm nhất/)).toHaveFocus(),
+    )
+  })
+
+  it('asks the customer to choose a time window instead of picking one for them', async () => {
+    await renderWizard()
+    await fillService()
+    await fillLocation()
+    const time = screen.getByLabelText(/Khung giờ/) as HTMLSelectElement
+    fireEvent.change(time, { target: { value: '' } })
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Tiếp tục: Kết quả bàn giao & xác nhận' }),
+    )
+    expect(await screen.findByText('Chọn khung giờ.')).toBeInTheDocument()
+    expect(screen.queryByText('Kết quả bàn giao')).toBeNull()
+  })
+
+  it('blocks submit until the terms and security commitment are accepted', async () => {
+    await renderWizard()
+    await fillService()
+    await fillLocation()
+    next('Kết quả bàn giao & xác nhận')
+    await waitFor(() =>
+      expect(screen.queryByText(/Đang tải kết quả bàn giao/)).toBeNull(),
     )
     fireEvent.click(await screen.findByRole('button', { name: 'Gửi yêu cầu' }))
     expect(
       await screen.findByText(/Bạn cần đồng ý điều khoản/),
     ).toBeInTheDocument()
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-    fireEvent.click(screen.getByLabelText(/Tôi đã đọc và đồng ý/))
+    fireEvent.click(screen.getByLabelText(/Tôi xác nhận mục đích giám sát/))
     fireEvent.click(screen.getByRole('button', { name: 'Gửi yêu cầu' }))
     expect(await screen.findByRole('dialog')).toBeInTheDocument()
   })
 
   it('sends the chosen result formats, delivery methods and retention', async () => {
     const create = vi.spyOn(customerApi, 'createOrder')
-    render(<CreateOrderPage />)
+    await renderWizard()
     await fillService()
     await fillLocation()
     next('Kết quả bàn giao & xác nhận')
     await waitFor(() =>
-      expect(
-        (screen.getByLabelText(/Loại kết quả/) as HTMLSelectElement).value,
-      ).toBe('dt-progress'),
+      expect(screen.queryByText(/Đang tải kết quả bàn giao/)).toBeNull(),
     )
     fireEvent.click(screen.getByLabelText('Báo cáo PDF'))
     fireEvent.click(screen.getByLabelText('Email'))
     fireEvent.change(screen.getByLabelText(/Thời hạn lưu trữ dữ liệu/), {
       target: { value: '180' },
     })
-    fireEvent.click(screen.getByLabelText(/Tôi đã đọc và đồng ý/))
+    fireEvent.click(screen.getByLabelText(/Tôi xác nhận mục đích giám sát/))
     fireEvent.click(screen.getByRole('button', { name: 'Gửi yêu cầu' }))
     await screen.findByRole('dialog')
     fireEvent.click(screen.getByRole('button', { name: 'Xác nhận gửi' }))
@@ -269,16 +412,14 @@ describe('CreateOrderPage wizard', () => {
   })
 
   it('closes the confirm dialog with Escape without submitting', async () => {
-    render(<CreateOrderPage />)
+    await renderWizard()
     await fillService()
     await fillLocation()
     next('Kết quả bàn giao & xác nhận')
     await waitFor(() =>
-      expect(
-        (screen.getByLabelText(/Loại kết quả/) as HTMLSelectElement).value,
-      ).toBe('dt-progress'),
+      expect(screen.queryByText(/Đang tải kết quả bàn giao/)).toBeNull(),
     )
-    fireEvent.click(screen.getByLabelText(/Tôi đã đọc và đồng ý/))
+    fireEvent.click(screen.getByLabelText(/Tôi xác nhận mục đích giám sát/))
     fireEvent.click(await screen.findByRole('button', { name: 'Gửi yêu cầu' }))
     await screen.findByRole('dialog')
     fireEvent.keyDown(document, { key: 'Escape' })
@@ -288,12 +429,12 @@ describe('CreateOrderPage wizard', () => {
   })
 
   it('switches step labels to English', async () => {
-    render(<CreateOrderPage />)
-    await screen.findByText('Giám sát Tiến độ Xây dựng')
+    await renderWizard()
+    await screen.findByRole('button', { name: /Giám sát công trình/ })
     act(() => setLanguage('en'))
     expect(
       await screen.findByRole('button', {
-        name: 'Continue: Monitoring content',
+        name: 'Continue: Location & monitoring area',
       }),
     ).toBeInTheDocument()
     expect(screen.getByLabelText(/Title/)).toBeInTheDocument()

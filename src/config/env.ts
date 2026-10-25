@@ -32,4 +32,6 @@ export const env = {
   useMockApi,
   mockLatencyMs,
   realApiRoutes,
+  testPaymentsEnabled:
+    import.meta.env.DEV && import.meta.env.VITE_ENABLE_TEST_PAYMENT !== 'false',
 } as const

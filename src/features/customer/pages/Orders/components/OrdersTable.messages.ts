@@ -11,6 +11,9 @@ export const ordersTableMessages = defineMessages({
       actions: 'Thao tác',
     },
     view: 'Xem chi tiết',
+    addInformation: 'Bổ sung ngay',
+    paymentRequired: 'Cần xác nhận & thanh toán',
+    depositPaid: 'Đã thanh toán cọc',
   },
   en: {
     columns: {
@@ -22,5 +25,8 @@ export const ordersTableMessages = defineMessages({
       actions: 'Actions',
     },
     view: 'View details',
+    addInformation: 'Add information',
+    paymentRequired: 'Confirmation & payment required',
+    depositPaid: 'Deposit paid',
   },
 })

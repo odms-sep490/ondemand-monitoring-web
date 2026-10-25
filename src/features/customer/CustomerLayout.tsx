@@ -38,11 +38,11 @@ const NAV_ITEMS: NavItem[] = [
 const activeNavKey: Record<CustomerScreen, CustomerNavItemKey | null> = {
   missionHistory: 'missionHistory',
   missionHistoryDetail: 'missionHistory',
+  missionReport: 'orders',
   dashboard: 'dashboard',
   orders: 'orders',
   createOrder: 'createOrder',
   orderDetail: 'orders',
-  analysis: 'orders',
   live: null,
   liveHub: null,
   media: 'mediaLibrary',

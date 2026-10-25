@@ -10,7 +10,7 @@ export const customerChatbotMessages = defineMessages({
     },
     replies: {
       createRequest:
-        'Bạn chọn vị trí trên bản đồ, nhập bán kính giám sát, dùng AI tư vấn mục tiêu rồi gửi yêu cầu để quản lý duyệt.',
+        'Bạn chọn dịch vụ, vị trí, phạm vi giám sát rồi gửi yêu cầu để quản lý duyệt.',
       flightZone:
         'Khi bạn kéo vị trí hoặc đổi bán kính, hệ thống sẽ kiểm tra vùng cấm bay và báo hợp lệ ngay trên bản đồ.',
       cost: 'Chi phí phụ thuộc diện tích, thời lượng, loại payload và độ phức tạp mission. Báo giá sẽ hiện trước khi bạn gửi duyệt.',
@@ -41,7 +41,7 @@ export const customerChatbotMessages = defineMessages({
     },
     replies: {
       createRequest:
-        'Pick a location on the map, enter the monitoring radius, use AI to suggest a target, then submit the request for manager approval.',
+        'Choose a service, location and monitoring scope, then submit the request for manager approval.',
       flightZone:
         'When you drag the location or change the radius, the system checks for no-fly zones and shows validity right on the map.',
       cost: 'Cost depends on the area, duration, payload type, and mission complexity. A quote is shown before you submit for approval.',

@@ -1,4 +1,6 @@
 import { useParallax } from '../../hooks/useParallax'
+import { useI18n } from '../../../../shared/i18n'
+import { authAsideMessages } from '../AuthAside.messages'
 import { AsideBackground } from './AsideBackground'
 import { AsideBrandBlock } from './AsideBrandBlock'
 import { AsideFloatCards, type AsideValueProp } from './AsideFloatCards'
@@ -25,6 +27,7 @@ export function AsideScene({
   valueProps: readonly AsideValueProp[]
 }) {
   const parallaxRef = useParallax<HTMLDivElement>()
+  const { t } = useI18n(authAsideMessages)
 
   return (
     <div className="odm-aside-scene" ref={parallaxRef}>
@@ -34,6 +37,11 @@ export function AsideScene({
         <AsideHeroCard />
         <AsideStatusChip />
         <AsideSecondaryCard />
+      </div>
+      <div className="odm-aside-story">
+        <h2>{t.heroTitle}<span>{t.heroAccent}</span></h2>
+        <p>{t.heroDescription}</p>
+        <span className="odm-aside-story-rule" aria-hidden="true" />
       </div>
       <AsideFloatCards items={valueProps} />
     </div>

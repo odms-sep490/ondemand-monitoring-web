@@ -7,6 +7,7 @@ export const recentOrdersMessages = defineMessages({
     emptyTitle: 'Chưa có đơn hàng nào',
     emptyDescription: 'Tạo yêu cầu giám sát đầu tiên của bạn.',
     emptyAction: 'Tạo yêu cầu đầu tiên',
+    depositRequired: 'Cần thanh toán cọc',
   },
   en: {
     title: 'Recent orders',
@@ -14,5 +15,6 @@ export const recentOrdersMessages = defineMessages({
     emptyTitle: 'No orders yet',
     emptyDescription: 'Create your first monitoring request.',
     emptyAction: 'Create your first request',
+    depositRequired: 'Deposit required',
   },
 })

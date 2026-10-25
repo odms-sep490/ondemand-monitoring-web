@@ -1,0 +1,39 @@
+.odm-cg {
+  margin-top: 6px;
+  font-size: 13px;
+  color: inherit;
+}
+.odm-cg > summary {
+  cursor: pointer;
+  color: #1d4ed8;
+  font-weight: 600;
+  width: fit-content;
+}
+.odm-cg-body {
+  display: grid;
+  gap: 10px;
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-left: 3px solid #bfdbfe;
+  background: rgba(59, 130, 246, 0.05);
+  border-radius: 0 8px 8px 0;
+}
+.odm-cg-body h4 {
+  margin: 0 0 2px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.7;
+}
+.odm-cg-body p,
+.odm-cg-body ol,
+.odm-cg-body ul {
+  margin: 0;
+}
+.odm-cg-body ol,
+.odm-cg-body ul {
+  padding-left: 20px;
+}
+.odm-cg-body li + li {
+  margin-top: 2px;
+}

@@ -34,7 +34,6 @@ const be: OrderCreateResponse = {
       requirement: {
         mediaType: 'IMAGE',
         quantity: 10,
-        consultationId: 'x',
         aiAnalysisRequested: true,
         additionalRequirements: [{ type: 'AI_IMAGE_ANALYSIS' }],
       },
@@ -43,8 +42,10 @@ const be: OrderCreateResponse = {
 }
 
 describe('normalizeStatus', () => {
-  it('keeps BE statuses and falls back to PENDING', () => {
-    expect(normalizeStatus('COMPLETED')).toBe('COMPLETED')
+  it('keeps every supported status and falls back to PENDING', () => {
+    for (const status of ['PENDING', 'NEEDS_INFO', 'APPROVED', 'REJECTED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED']) {
+      expect(normalizeStatus(status)).toBe(status)
+    }
     expect(normalizeStatus(undefined)).toBe('PENDING')
     expect(normalizeStatus('WHATEVER')).toBe('PENDING')
   })
@@ -61,7 +62,7 @@ describe('toOrderRow', () => {
   it('flattens the BE order and nulls missing values', () => {
     expect(toOrderRow(be)).toMatchObject({
       id: be.id,
-      code: '3F2B9C1E',
+      code: 'ORD-3F2B9C1E',
       title: 'Kiểm tra mái',
       address: 'KCN Long Hậu',
       dateFrom: '2026-10-01',
@@ -72,7 +73,7 @@ describe('toOrderRow', () => {
       radiusM: 300,
     })
     const bare = toOrderRow({ id: 'x', customerId: 'c' })
-    expect(bare).toMatchObject({ title: 'x', address: null, dateFrom: null, serviceName: null })
+    expect(bare).toMatchObject({ title: 'ORD-X', address: null, dateFrom: null, serviceName: null })
   })
 })
 
@@ -84,6 +85,7 @@ describe('toDeliverableView', () => {
     expect(view.requirements).toEqual([
       { key: 'mediaType', value: 'IMAGE' },
       { key: 'quantity', value: '10' },
+      { key: 'additionalRequirements', value: 'AI_IMAGE_ANALYSIS' },
     ])
     expect(view.aiAnalysisRequested).toBe(true)
   })
@@ -112,8 +114,12 @@ describe('buildTimeline', () => {
 })
 
 describe('toOrderDetail', () => {
-  it('allows cancel only while PENDING', () => {
-    expect(toOrderDetail(be).canCancel).toBe(true)
-    expect(toOrderDetail({ ...be, orderStatus: 'APPROVED' }).canCancel).toBe(false)
+  it('maps fields from the backend without inventing action flags', () => {
+    expect(toOrderDetail(be)).toMatchObject({
+      status: 'PENDING',
+      altitudeM: null,
+      resultFormats: [],
+      deliveryMethods: [],
+    })
   })
 })

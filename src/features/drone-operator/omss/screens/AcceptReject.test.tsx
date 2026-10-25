@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { setLanguage } from '../../../../shared/i18n'
 import AcceptReject from './AcceptReject'
-import type { Drone, Mission } from '../types'
+import type { Drone, Mission } from '../../types/omss'
 
 const mission = {
   id: 'MS-1',
