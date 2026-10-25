@@ -44,11 +44,11 @@ afterEach(() => {
   resetMockDb()
 })
 
-describe('POST /api/orders/{id}/missions', () => {
+describe('POST /api/missions/{orderId}', () => {
   it('404s for an unknown order', async () => {
     const { status } = await call(
       'POST',
-      '/api/orders/nope/missions',
+      '/api/missions/nope',
       validRequest,
     )
     expect(status).toBe(404)
@@ -57,7 +57,7 @@ describe('POST /api/orders/{id}/missions', () => {
   it('409s ORDER_NOT_APPROVED for a PENDING order', async () => {
     const { status, payload } = await call(
       'POST',
-      '/api/orders/ord-2609-0157/missions',
+      '/api/missions/ord-2609-0157',
       validRequest,
     )
     expect(status).toBe(409)
@@ -67,7 +67,7 @@ describe('POST /api/orders/{id}/missions', () => {
   it('400s when altitude exceeds the no-fly ceiling', async () => {
     const { status, payload } = await call(
       'POST',
-      '/api/orders/ord-2609-0153/missions',
+      '/api/missions/ord-2609-0153',
       {
         ...validRequest,
         flightPlan: { ...validRequest.flightPlan, altitudeM: 200 },
@@ -80,7 +80,7 @@ describe('POST /api/orders/{id}/missions', () => {
   it('422s FLIGHT_PLAN_GENERATION_FAILED when radiusM exceeds the failure limit', async () => {
     const { status, payload } = await call(
       'POST',
-      '/api/orders/ord-2609-0153/missions',
+      '/api/missions/ord-2609-0153',
       {
         ...validRequest,
         flightPlan: { ...validRequest.flightPlan, radiusM: 900 },
@@ -94,7 +94,7 @@ describe('POST /api/orders/{id}/missions', () => {
     await call('POST', '/api/orders/ord-2609-0157/approve')
     const { status, payload } = await call(
       'POST',
-      '/api/orders/ord-2609-0157/missions',
+      '/api/missions/ord-2609-0157',
       validRequest,
     )
     expect(status).toBe(201)
@@ -105,7 +105,7 @@ describe('POST /api/orders/{id}/missions', () => {
   it('starts a new attempt (…-2) when the order mission already has a plan', async () => {
     const { status, payload } = await call(
       'POST',
-      '/api/orders/ord-2609-0153/missions',
+      '/api/missions/ord-2609-0153',
       validRequest,
     )
     expect(status).toBe(201)
@@ -162,7 +162,7 @@ describe('GET /api/missions/{id}/resource-suggestions', () => {
 
   it('falls back to default suggestions for a mission with no seeded data', async () => {
     await call('POST', '/api/orders/ord-2609-0157/approve')
-    await call('POST', '/api/orders/ord-2609-0157/missions', validRequest)
+    await call('POST', '/api/missions/ord-2609-0157', validRequest)
     const { status, payload } = await call(
       'GET',
       '/api/missions/msn-2609-0157-1/resource-suggestions',

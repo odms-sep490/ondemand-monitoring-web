@@ -48,12 +48,12 @@ describe('CustomerAddedPricingForm', () => {
         ]}
       />,
     )
-    expect(screen.getByLabelText('Giá nền (VND)')).toHaveValue(200_000)
+    expect(screen.getByLabelText('Giá cơ bản')).toHaveValue('200.000')
     expect(screen.getByLabelText('Số ảnh đã bao gồm')).toHaveValue(5)
-    expect(screen.getByLabelText('Diện tích đã bao gồm (ha)')).toHaveValue(5)
+    expect(screen.getByLabelText('Diện tích đã bao gồm')).toHaveValue(5)
     expect(
-      screen.getByLabelText('Phụ thu mỗi ha vượt định mức (VND)'),
-    ).toHaveValue(50_000)
+      screen.getByLabelText('Phụ thu diện tích vượt định mức'),
+    ).toHaveValue('50.000')
     // Not configured yet: empty, not zero.
     expect(screen.getByLabelText('Số video đã bao gồm')).toHaveValue(null)
   })
@@ -69,7 +69,7 @@ describe('CustomerAddedPricingForm', () => {
         ]}
       />,
     )
-    fireEvent.change(screen.getByLabelText('Giá nền (VND)'), {
+    fireEvent.change(screen.getByLabelText('Giá cơ bản'), {
       target: { value: '250000' },
     })
     expect(latest).toHaveLength(2)
@@ -84,11 +84,11 @@ describe('CustomerAddedPricingForm', () => {
   it('creates the missing rule for the customer-added profile when a number is typed', () => {
     let latest: PricingRule[] = []
     render(<Harness onRules={(next) => (latest = next)} initial={[]} />)
-    fireEvent.change(screen.getByLabelText('Diện tích đã bao gồm (ha)'), {
+    fireEvent.change(screen.getByLabelText('Diện tích đã bao gồm'), {
       target: { value: '5' },
     })
     fireEvent.change(
-      screen.getByLabelText('Phụ thu mỗi ha vượt định mức (VND)'),
+      screen.getByLabelText('Phụ thu diện tích vượt định mức'),
       { target: { value: '50000' } },
     )
     const area = latest.find((r) => r.mediaComponent === 'INCLUDED_AREA')!
@@ -104,22 +104,25 @@ describe('CustomerAddedPricingForm', () => {
   it('does not invent a rule for an empty field', () => {
     let latest: PricingRule[] | null = null
     render(<Harness onRules={(next) => (latest = next)} initial={[]} />)
-    fireEvent.change(screen.getByLabelText('Giá nền (VND)'), {
+    fireEvent.change(screen.getByLabelText('Giá cơ bản'), {
       target: { value: '' },
     })
     expect(latest).toBeNull()
   })
 
-  it('flags a number that is not a whole non-negative value', () => {
+  it('formats money for reading and exposes plain digits while editing', () => {
     render(
       <Harness
         onRules={() => undefined}
         initial={[rule('CHECKLIST_BASE', { fixedAmount: 200_000 })]}
       />,
     )
-    fireEvent.change(screen.getByLabelText('Giá nền (VND)'), {
-      target: { value: '-5' },
-    })
-    expect(screen.getByRole('alert')).toHaveTextContent('số nguyên không âm')
+    const input = screen.getByLabelText('Giá cơ bản')
+    expect(input).toHaveValue('200.000')
+    fireEvent.focus(input)
+    expect(input).toHaveValue('200000')
+    fireEvent.change(input, { target: { value: '250000' } })
+    fireEvent.blur(input)
+    expect(input).toHaveValue('250.000')
   })
 })

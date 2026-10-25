@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from 'react'
 
 import { useI18n } from '../../../../../shared/i18n'
 import { createDefaultForm } from '../../../lib/createOrder/draftStorage'
-import { buildOrderPayload, calcArea } from '../../../lib/createOrder/payload'
+import { buildOrderPayload, pricingAreaHa } from '../../../lib/createOrder/payload'
 import { scoreRequest } from '../../../lib/createOrder/scoring'
 import type { FormErrors, FormState } from '../../../lib/createOrder/types'
 import { validateStep } from '../../../lib/createOrder/validators'
@@ -18,9 +18,11 @@ export function useCreateRequest() {
   const [errors, setErrors] = useState<FormErrors>({})
   const [submitError, setSubmitError] = useState<string | null>(null)
   const checklist = useOrderChecklist(form.serviceId, {
-    areaHa: Number(calcArea(form.radiusM)),
+    areaHa: pricingAreaHa(form),
     lengthKm: Number(form.estimatedLengthM || 0) / 1000,
     altitudeM: Number.isFinite(form.altitudeM) ? form.altitudeM : 0,
+    resultFormats: form.resultFormats,
+    permitStatus: form.permitStatus,
   })
 
   const meta = useCreateOrderMeta(form.serviceId, false, setForm)

@@ -224,16 +224,6 @@ export type ServiceDeliverableOption = {
   deliverableTypeName?: string
 }
 
-export type ServiceRequirementSuggestion = {
-  id: string
-  serviceId?: string
-  category: string
-  label: string
-  message: string
-  sortOrder?: number
-  source?: string
-}
-
 
 const BACKEND_ORDER_STATUSES = new Set<OrderStatus>([
   'PENDING',
@@ -349,15 +339,6 @@ export const customerApi = {
       query: { serviceId },
       signal,
     }),
-
-  listRequirementSuggestions: (serviceId?: string, signal?: AbortSignal) =>
-    apiRequest<ServiceRequirementSuggestion[]>(
-      '/api/services/requirement-suggestions',
-      {
-        query: serviceId ? { serviceId } : undefined,
-        signal,
-      },
-    ),
 
   getPricingEstimate: (
     serviceId: string,

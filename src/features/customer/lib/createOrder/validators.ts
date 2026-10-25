@@ -53,8 +53,8 @@ export type LocationCheck = {
 
 /**
  * Cumulative validation: step N also checks every earlier step.
- * Steps: 1 service + title, 2 monitoring content (validated by the checklist hook),
- * 3 location, 4 site details and authorization, 5 schedule, 6 deliverables.
+ * Steps: 1 service + title, 2 location, 3 monitoring content (validated by the
+ * checklist hook), 4 site details and authorization, 5 schedule, 6 deliverables.
  */
 export function validateStep(
   targetStep: Step,
@@ -84,7 +84,7 @@ export function validateStep(
       errors.otherUsagePurpose = msg.otherUsagePurpose
     }
   }
-  if (targetStep >= 3) {
+  if (targetStep >= 2) {
     if (!form.address.trim()) errors.address = msg.address
     else if (form.locationStatus !== 'confirmed')
       errors.address = msg.locationUnconfirmed

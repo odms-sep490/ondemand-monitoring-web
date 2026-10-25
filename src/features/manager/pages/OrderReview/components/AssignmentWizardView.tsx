@@ -47,7 +47,7 @@ export function AssignmentWizardView({
               ? null
               : assigningMissionId,
             lang,
-            assignStep >= 8 ? 'review' : 'resources',
+            assignStep >= 8 ? 'review' : 'permit',
           )}
         />
         <div className="odm-assign-context" aria-label={t.serviceEyebrow}>

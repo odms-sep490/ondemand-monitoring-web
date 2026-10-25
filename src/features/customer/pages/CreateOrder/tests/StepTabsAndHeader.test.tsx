@@ -11,8 +11,8 @@ import { CreateOrderPage } from '../CreateOrderPage'
 
 const labels = {
   1: 'Dịch vụ & mục tiêu',
-  2: 'Nội dung giám sát',
-  3: 'Vị trí & vùng giám sát',
+  2: 'Vị trí & vùng giám sát',
+  3: 'Nội dung giám sát',
   4: 'Chi tiết & quyền giám sát',
   5: 'Thời gian',
   6: 'Kết quả bàn giao & xác nhận',
@@ -41,7 +41,7 @@ describe('StepTabs', () => {
     const onSelect = vi.fn()
     render(<StepTabs step={3} labels={labels} onSelect={onSelect} />)
     const nav = screen.getByRole('navigation')
-    fireEvent.click(within(nav).getByRole('button', { name: /Nội dung giám sát/ }))
+    fireEvent.click(within(nav).getByRole('button', { name: /Vị trí & vùng giám sát/ }))
     fireEvent.click(within(nav).getByRole('button', { name: /Thời gian/ }))
     expect(onSelect).toHaveBeenCalledTimes(1)
     expect(onSelect).toHaveBeenCalledWith(2)

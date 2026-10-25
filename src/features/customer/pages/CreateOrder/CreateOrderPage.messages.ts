@@ -5,7 +5,7 @@ export const createOrderPageMessages = defineMessages({
   vi: {
     pageTitle: 'Tạo yêu cầu giám sát',
     pageSubtitle:
-      'Chọn dịch vụ, chốt nội dung giám sát, xác định vùng giám sát, chọn thời gian rồi xác nhận kết quả bàn giao.',
+      'Chọn dịch vụ, xác định vùng giám sát, chốt nội dung giám sát, chọn thời gian rồi xác nhận kết quả bàn giao.',
     cancel: 'Hủy',
     cancelConfirm:
       'Thoát khỏi trang tạo yêu cầu? Bản nháp của bạn được lưu tự động.',
@@ -13,8 +13,8 @@ export const createOrderPageMessages = defineMessages({
     blockedLoading: 'Đang tải dữ liệu…',
     stepLabels: {
       1: 'Dịch vụ & mục tiêu',
-      2: 'Nội dung giám sát',
-      3: 'Vị trí & vùng giám sát',
+      2: 'Vị trí & vùng giám sát',
+      3: 'Nội dung giám sát',
       4: 'Chi tiết & quyền giám sát',
       5: 'Thời gian',
       6: 'Kết quả bàn giao & xác nhận',
@@ -81,15 +81,15 @@ export const createOrderPageMessages = defineMessages({
   en: {
     pageTitle: 'Create Monitoring Request',
     pageSubtitle:
-      'Choose a service, confirm the monitoring content, define the monitoring area, pick a schedule, then confirm deliverables.',
+      'Choose a service, define the monitoring area, confirm the monitoring content, pick a schedule, then confirm deliverables.',
     cancel: 'Cancel',
     cancelConfirm: 'Leave the request page? Your draft is saved automatically.',
     blockedChecklist: 'Fix the invalid monitoring content to continue.',
     blockedLoading: 'Loading data…',
     stepLabels: {
       1: 'Service & target',
-      2: 'Monitoring content',
-      3: 'Location & monitoring area',
+      2: 'Location & monitoring area',
+      3: 'Monitoring content',
       4: 'Site details & authorization',
       5: 'Schedule',
       6: 'Deliverables & confirmation',

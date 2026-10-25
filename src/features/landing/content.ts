@@ -1,382 +1,249 @@
-// Static marketing copy for the landing page, copied verbatim from
-// evd/design/Landing.dc.html. This is page copy, not API data: it is not
-// fetched, so it is not modeled as a mock endpoint per evd/AGENT-RULES.md
-// rule 3/5 (mock data is only for resources the app actually fetches).
 import { defineMessages } from '../../shared/i18n'
-import { enText, overlay } from './content.en'
-import type {
-  FaqItem,
-  FeasibilityCheck,
-  FeatureHighlight,
-  FooterLinkGroup,
-  HeroStat,
-  IndustryCard,
-  ResultFile,
-  WorkflowStep,
-} from './types'
 
-export const brandName = 'OnDemand Monitor'
-
-export const heroChip = '🚁 Dịch vụ giám sát bằng drone theo yêu cầu'
-
-export const heroTitleLines = [
-  'Giám sát hiện trường bằng drone,',
-  'đặt lịch trong vài phút',
-]
-
-export const heroLede =
-  'Chọn vị trí trên bản đồ, AI kiểm tra tính khả thi, phi công được cấp phép thực hiện. Bạn theo dõi trực tiếp và nhận ảnh, video đã xác thực ngay trên hệ thống.'
-
-export const heroChecklist = [
-  'Phi công có giấy phép',
-  'Tự động kiểm tra vùng cấm bay',
-  'Ảnh và video được xác thực',
-]
-
-export const heroAiCard = {
-  score: 92,
-  label: 'AI kiểm tra khả thi',
-  status: 'Có thể bay hôm nay',
-}
-
-export const heroMissionCard = {
-  code: 'MSN-2609-0142-1',
-  status: 'IN_FLIGHT',
-  title: 'Khảo sát công trình · Thủ Thiêm, TP.HCM',
-  drone: 'DRN-02',
-  battery: '78%',
-  altitude: 'Độ cao 60 m',
-}
-
-export const heroStats: HeroStat[] = [
-  { value: '96', label: 'chuyến bay trong tháng 9/2026' },
-  { value: '87/96', label: 'mission hoàn thành, 9 mission cần bay lại' },
-  { value: '9', label: 'drone trong đội bay' },
-  { value: '24/7', label: 'theo dõi trạng thái mission' },
-]
-
-export const workflowSection = {
-  eyebrow: 'Cách hoạt động',
-  title: 'Từ yêu cầu đến kết quả trong bốn bước',
-}
-
-export const workflowSteps: WorkflowStep[] = [
-  {
-    no: '01',
-    title: 'Chọn vị trí và thời gian',
-    detail:
-      'Đánh dấu khu vực trên bản đồ, chọn bán kính, dịch vụ và khung giờ mong muốn.',
-    icon: 'map-pin',
-    emoji: '📍',
-  },
-  {
-    no: '02',
-    title: 'AI kiểm tra khả thi',
-    detail:
-      'Hệ thống rà vùng cấm bay, thời tiết, giấy phép và gợi ý ngày thay thế nếu cần.',
-    icon: 'cpu',
-    emoji: '✨',
-  },
-  {
-    no: '03',
-    title: 'Duyệt và phân công',
-    detail:
-      'Nhân viên điều phối duyệt đơn, chọn drone, phi công và trạm phù hợp nhất.',
-    icon: 'users',
-    emoji: '🛡️',
-  },
-  {
-    no: '04',
-    title: 'Bay, xem trực tiếp, nhận kết quả',
-    detail:
-      'Xem livestream khi drone bay, sau đó tải ảnh và video đã qua kiểm tra.',
-    icon: 'radio',
-    emoji: '🎥',
-  },
-]
-
-export const aiFeatureSection = {
-  eyebrow: 'Tính năng · AI phân tích',
-  title: 'Biết trước bay được hay không, trước khi gửi duyệt',
-  copy: 'Mỗi yêu cầu được kiểm tra tự động và chấm điểm, để đơn gửi đi ít bị trả lại và không mất thời gian chờ đợi.',
-}
-
-export const aiFeatureHighlights: FeatureHighlight[] = [
-  {
-    title: 'Kiểm tra vùng cấm bay và bán kính',
-    detail: 'Đối chiếu vị trí với danh sách vùng cấm bay đang hiệu lực.',
-    icon: 'map-pin',
-    emoji: '🗺️',
-  },
-  {
-    title: 'Điểm khả thi rõ ràng',
-    detail:
-      'Mỗi tiêu chí có kết quả PASS, WARNING hoặc BLOCKER để bạn xử lý ngay.',
-    icon: 'clipboard',
-    emoji: '📊',
-  },
-  {
-    title: 'Gợi ý ngày và giờ thay thế',
-    detail: 'Đề xuất khung giờ phù hợp khi ngày bạn chọn có rủi ro.',
-    icon: 'clock',
-    emoji: '📅',
-  },
-]
-
-export const aiResultPanel = {
-  title: 'Kết quả phân tích AI',
-  verdictLabel: 'RISKY',
-  score: 74,
-  verdictTitle: 'Khả thi có điều kiện',
-  verdictDetail: 'Nên chọn khung giờ sáng để an toàn hơn.',
-  altSuggestion: 'Chủ nhật 20/09/2026 · 08:00 – 10:00',
-}
-
-export const aiFeasibilityChecks: FeasibilityCheck[] = [
-  { label: 'Vùng cấm bay quanh khu vực', result: 'PASS' },
-  { label: 'Giấy phép phi công còn hiệu lực', result: 'PASS' },
-  { label: 'Gió giật 26 km/h lúc 15:00', result: 'WARNING' },
-  { label: 'Drone và pin sẵn sàng', result: 'PASS' },
-]
-
-export const liveFeatureSection = {
-  eyebrow: 'Tính năng · Giám sát và kết quả',
-  title: 'Xem drone bay trực tiếp, nhận media đã xác thực',
-  copy: 'Theo dõi vị trí, pin và độ cao theo thời gian thực. Sau chuyến bay, ảnh và video được kiểm tra trước khi giao cho bạn.',
-}
-
-export const liveFeatureHighlights: FeatureHighlight[] = [
-  {
-    title: 'Livestream và bản đồ realtime',
-    detail: 'Xem hình ảnh trực tiếp cùng lộ trình và các điểm bay của mission.',
-    icon: 'radio',
-    emoji: '📡',
-  },
-  {
-    title: 'Kiểm tra media trước khi giao',
-    detail:
-      'Tệp lỗi được xử lý lại, chỉ tệp đạt mới xuất hiện trong thư viện của bạn.',
-    icon: 'camera',
-    emoji: '✅',
-  },
-  {
-    title: 'Thư viện kết quả luôn sẵn sàng',
-    detail: 'Tải từng tệp hoặc cả mission, xem lại lịch sử đơn bất cứ lúc nào.',
-    icon: 'file-text',
-    emoji: '⬇️',
-  },
-]
-
-export const livePanel = {
-  title: 'Theo dõi trực tiếp · MSN-2609-0142-1',
-  status: 'LIVE',
-  battery: '78%',
-  altitude: '60 m',
-  resultsTitle: 'Kết quả nhận được',
-  fileCount: '20 tệp',
-}
-
-export const liveResultFiles: ResultFile[] = [
-  { name: 'IMG_0417', status: 'PASS' },
-  { name: 'VID_0009', status: 'PASS' },
-  { name: 'IMG_0418', status: 'UPLOADING' },
-]
-
-export const industriesSection = {
-  eyebrow: 'Ứng dụng',
-  title: 'Dành cho mọi nhu cầu quan sát từ trên cao',
-  copy: 'Một quy trình chung, nhiều loại dịch vụ. Chọn đúng dịch vụ khi tạo yêu cầu.',
-}
-
-export const industries: IndustryCard[] = [
-  {
-    title: 'Công trình xây dựng',
-    detail:
-      'Theo dõi tiến độ, đo đạc khối lượng và chụp toàn cảnh công trường.',
-    location: 'Thủ Thiêm, TP.HCM',
-    icon: 'building',
-    emoji: '🏗️',
-  },
-  {
-    title: 'Nông nghiệp',
-    detail: 'Đánh giá cây trồng và tình trạng đất trên diện tích lớn.',
-    location: 'Đắk Lắk',
-    icon: 'leaf',
-    emoji: '🌾',
-  },
-  {
-    title: 'Điện và viễn thông',
-    detail: 'Kiểm tra trụ, đường dây và trạm ở nơi khó tiếp cận.',
-    location: 'Bình Dương',
-    icon: 'zap',
-    emoji: '📶',
-  },
-  {
-    title: 'Giao thông và đô thị',
-    detail: 'Quan sát lưu lượng, nút giao và hiện trạng hạ tầng.',
-    location: 'Đà Nẵng',
-    icon: 'route',
-    emoji: '🚦',
-  },
-  {
-    title: 'Bất động sản',
-    detail: 'Ghi hình dự án, mặt bằng và quy hoạch khu đất.',
-    location: 'Nhà Bè, TP.HCM',
-    icon: 'home',
-    emoji: '🏘️',
-  },
-  {
-    title: 'Sự kiện và an ninh',
-    detail: 'Giám sát khu vực đông người trong thời gian diễn ra sự kiện.',
-    location: 'Hà Nội',
-    icon: 'shield',
-    emoji: '🎪',
-  },
-]
-
-export const faqSection = {
-  eyebrow: 'Câu hỏi thường gặp',
-  title: 'Giải đáp nhanh',
-  copy: 'Cần hỗ trợ thêm? Liên hệ support@odms.vn hoặc hỏi trợ lý AI ở góc phải màn hình.',
-}
-
-export const faqItems: FaqItem[] = [
-  {
-    question: 'Tôi cần chuẩn bị gì để tạo một yêu cầu giám sát?',
-    answer:
-      'Bạn chỉ cần tài khoản khách hàng, vị trí và bán kính trên bản đồ, loại dịch vụ và khung giờ mong muốn. Hệ thống sẽ kiểm tra khả thi ngay khi bạn hoàn tất bước cuối.',
-  },
-  {
-    question: 'Bao lâu thì đơn được duyệt?',
-    answer:
-      'Thông thường trong vòng 2 giờ làm việc. Đơn có điểm khả thi cao thường được duyệt nhanh hơn.',
-  },
-  {
-    question: 'Nếu thời tiết xấu thì sao?',
-    answer:
-      'Hệ thống sẽ thông báo và gợi ý khung giờ thay thế. Bạn không bị tính phí khi mission bị hoãn vì thời tiết.',
-  },
-  {
-    question: 'Tôi có xem được drone bay trực tiếp không?',
-    answer:
-      'Có. Khi mission ở trạng thái IN_FLIGHT, bạn xem được livestream, vị trí, pin và độ cao theo thời gian thực.',
-  },
-  {
-    question: 'Ảnh và video được giao ở đâu?',
-    answer: 'Trong thư viện kết quả của tài khoản, sau khi tệp đã được kiểm tra chất lượng.',
-  },
-]
-
-export const ctaSection = {
-  eyebrow: 'Sẵn sàng giám sát khu vực của bạn?',
-  title: 'Tạo tài khoản và gửi yêu cầu đầu tiên trong vài phút.',
-}
-
-export const footerTagline =
-  'Dịch vụ giám sát bằng drone theo yêu cầu. Thành phố Hồ Chí Minh, Việt Nam.'
-
-export const footerLinkGroups: FooterLinkGroup[] = [
-  {
-    title: 'Sản phẩm',
-    links: ['Tạo yêu cầu', 'Theo dõi trực tiếp', 'Thư viện kết quả'],
-  },
-  {
-    title: 'Dịch vụ',
-    links: ['Công trình xây dựng', 'Nông nghiệp', 'Hạ tầng và đô thị'],
-  },
-  {
-    title: 'Hỗ trợ',
-    links: ['Câu hỏi thường gặp', 'support@odms.vn', 'Chính sách bay an toàn'],
-  },
-]
-
-export const footerCopyright = '© 2026 OnDemand Monitor. Đồ án FA26SE039.'
-export const footerLegal = 'Điều khoản sử dụng · Quyền riêng tư'
-
-export const footerBrandDescription =
-  'Dịch vụ giám sát bằng drone theo yêu cầu.\nThành phố Hồ Chí Minh, Việt Nam.'
-
-export const navLinks = [
-  { label: 'Cách hoạt động', href: '#how-it-works' },
-  { label: 'Tính năng', href: '#features' },
-  { label: 'Ứng dụng', href: '#industries' },
-  { label: 'Câu hỏi thường gặp', href: '#faq' },
-  { label: 'Trung tâm Trợ giúp', href: '#help' },
-]
-
-// Compatibility export: LandingPage.tsx uses useI18n(landingMessages) to consume this data.
-const _viContent = {
-  brandName,
-  heroChip,
-  heroTitleLines,
-  heroLede,
-  heroChecklist,
-  heroAiCard,
-  heroMissionCard,
-  heroStats,
-  workflowSection,
-  workflowSteps,
-  aiFeatureSection,
-  aiFeatureHighlights,
-  aiResultPanel,
-  aiFeasibilityChecks,
-  liveFeatureSection,
-  liveFeatureHighlights,
-  livePanel,
-  liveResultFiles,
-  industriesSection,
-  industries,
-  faqSection,
-  faqItems,
-  ctaSection,
-  footerTagline,
-  footerLinkGroups,
-  footerCopyright,
-  footerLegal,
-  footerBrandDescription,
-  navLinks,
-}
-
-const merge = <T extends object>(base: T, text: Partial<T>): T => ({
-  ...base,
-  ...text,
-})
-
-const _enContent: typeof _viContent = {
-  ..._viContent,
-  heroChip: enText.heroChip,
-  heroTitleLines: enText.heroTitleLines,
-  heroLede: enText.heroLede,
-  heroChecklist: enText.heroChecklist,
-  heroAiCard: merge(heroAiCard, enText.heroAiCard),
-  heroMissionCard: merge(heroMissionCard, enText.heroMissionCard),
-  heroStats: overlay(heroStats, enText.heroStats),
-  workflowSection: enText.workflowSection,
-  workflowSteps: overlay(workflowSteps, enText.workflowSteps),
-  aiFeatureSection: enText.aiFeatureSection,
-  aiFeatureHighlights: overlay(aiFeatureHighlights, enText.aiFeatureHighlights),
-  aiResultPanel: merge(aiResultPanel, enText.aiResultPanel),
-  aiFeasibilityChecks: overlay(aiFeasibilityChecks, enText.aiFeasibilityChecks),
-  liveFeatureSection: enText.liveFeatureSection,
-  liveFeatureHighlights: overlay(
-    liveFeatureHighlights,
-    enText.liveFeatureHighlights,
-  ),
-  livePanel: merge(livePanel, enText.livePanel),
-  industriesSection: enText.industriesSection,
-  industries: overlay(industries, enText.industries),
-  faqSection: enText.faqSection,
-  faqItems: enText.faqItems,
-  ctaSection: enText.ctaSection,
-  footerTagline: enText.footerTagline,
-  footerLinkGroups: overlay(footerLinkGroups, enText.footerLinkGroups),
-  footerCopyright: enText.footerCopyright,
-  footerLegal: enText.footerLegal,
-  footerBrandDescription: enText.footerBrandDescription,
-  navLinks: overlay(navLinks, enText.navLinks),
-}
-
+// Every customer-facing string is paired here. Keep IDs and visual data out of
+// localized copy so changing languages never changes request/ticket identity.
 export const landingMessages = defineMessages({
-  vi: _viContent,
-  en: _enContent,
+  vi: {
+    brandName: 'OnDemand Monitor',
+    navLinks: [
+      { label: 'Quy trình', href: '#how-it-works' },
+      { label: 'Kết quả', href: '#results' },
+      { label: 'Ứng dụng', href: '#industries' },
+      { label: 'Câu hỏi thường gặp', href: '#faq' },
+    ],
+    heroChip: 'GIÁM SÁT HIỆN TRƯỜNG THEO YÊU CẦU',
+    heroTitleLines: ['Kiểm tra an toàn hơn.', 'Nắm rõ mọi kết quả.'],
+    heroLede:
+      'Gửi yêu cầu giám sát hiện trường, theo dõi tiến độ và nhận báo cáo kiểm tra trên cùng một hệ thống. Giảm nhu cầu tiếp cận trực tiếp những khu vực khó hoặc nguy hiểm.',
+    workflowSection: {
+      eyebrow: 'Quy trình rõ ràng',
+      title: 'Từ yêu cầu đến báo cáo, trên cùng một hệ thống',
+      copy: 'Bạn luôn biết yêu cầu đang ở bước nào và kết quả được lưu ở đâu.',
+    },
+    workflowSteps: [
+      {
+        no: '01',
+        title: 'Tạo yêu cầu',
+        detail:
+          'Mô tả khu vực, mục tiêu, thời gian mong muốn và nội dung cần kiểm tra.',
+      },
+      {
+        no: '02',
+        title: 'Xác nhận phạm vi',
+        detail:
+          'Đội ngũ tiếp nhận rà soát thông tin và thống nhất kế hoạch phù hợp.',
+      },
+      {
+        no: '03',
+        title: 'Theo dõi ticket',
+        detail:
+          'Cập nhật tiến độ, trao đổi và thông tin cần bổ sung ngay trong ticket.',
+      },
+      {
+        no: '04',
+        title: 'Xem báo cáo',
+        detail:
+          'Nhận kết quả, hình ảnh và các phát hiện trong dashboard của bạn.',
+      },
+    ],
+    featureSection: {
+      eyebrow: 'Theo dõi minh bạch',
+      title: 'Mỗi yêu cầu có một ticket xuyên suốt',
+      copy: 'Không phải gọi hỏi từng bước. Trạng thái, trao đổi và cập nhật tiến độ được tập trung để khách hàng và đội xử lý cùng nắm thông tin.',
+    },
+    industriesSection: {
+      eyebrow: 'Ứng dụng',
+      title: 'Hỗ trợ kiểm tra nhiều loại hiện trường',
+      mediaNotice: 'Ảnh minh họa bối cảnh sử dụng dịch vụ.',
+      copy: 'Từ hạ tầng đến công trình, quy trình được tổ chức theo nhu cầu thực tế của từng khu vực.',
+    },
+    industries: [
+      {
+        title: 'Công trình xây dựng',
+        detail: 'Theo dõi hiện trạng, tiến độ và các khu vực cần kiểm tra.',
+        location: 'Kiểm tra công trình',
+      },
+      {
+        title: 'Hạ tầng và tiện ích',
+        detail:
+          'Hỗ trợ đánh giá các vị trí khó tiếp cận hoặc cần hạn chế rủi ro.',
+        location: 'Kiểm tra hạ tầng',
+      },
+      {
+        title: 'Khu vực rộng và từ xa',
+        detail:
+          'Thu thập thông tin hiện trường mà không cần bắt đầu bằng việc tiếp cận trực tiếp.',
+        location: 'Giám sát từ xa',
+      },
+    ],
+    faqSection: {
+      eyebrow: 'Câu hỏi thường gặp',
+      title: 'Thông tin bạn cần biết',
+      copy: 'Cần hỗ trợ thêm? Liên hệ support@odms.vn.',
+    },
+    faqItems: [
+      {
+        question: 'Tôi cần cung cấp gì khi tạo yêu cầu?',
+        answer:
+          'Hãy cung cấp vị trí hoặc khu vực, mục tiêu kiểm tra, thời gian mong muốn và các lưu ý an toàn nếu có. Đội ngũ sẽ trao đổi để làm rõ phạm vi.',
+      },
+      {
+        question: 'Tôi theo dõi tiến độ ở đâu?',
+        answer:
+          'Mỗi yêu cầu có ticket riêng để xem trạng thái và trao đổi. Các yêu cầu và báo cáo đã hoàn tất cũng được tập trung trên dashboard.',
+      },
+      {
+        question: 'Kết quả kiểm tra gồm những gì?',
+        answer:
+          'Tùy phạm vi đã thống nhất, báo cáo có thể gồm tóm tắt, hình ảnh, các phát hiện và ghi chú liên quan.',
+      },
+      {
+        question: 'Có phải mọi lần kiểm tra đều dùng drone?',
+        answer:
+          'Không. Drone là một phương tiện hỗ trợ khi phù hợp với điều kiện và kế hoạch. Phương thức kiểm tra được xác định theo yêu cầu và đánh giá của đội ngũ.',
+      },
+    ],
+    ctaSection: {
+      eyebrow: 'Bắt đầu từ khu vực bạn cần kiểm tra',
+      title: 'Tạo yêu cầu và theo dõi toàn bộ tiến độ tại một nơi.',
+    },
+    footerDescription:
+      'Giám sát và kiểm tra hiện trường theo yêu cầu. Thành phố Hồ Chí Minh, Việt Nam.',
+    footerGroups: [
+      {
+        title: 'Dịch vụ',
+        links: ['Tạo yêu cầu', 'Theo dõi ticket', 'Báo cáo kết quả'],
+      },
+      { title: 'Ứng dụng', links: ['Công trình', 'Hạ tầng', 'Khu vực từ xa'] },
+      {
+        title: 'Hỗ trợ',
+        links: ['Câu hỏi thường gặp', 'support@odms.vn', 'An toàn kiểm tra'],
+      },
+    ],
+    footerCopyright: '© 2026 OnDemand Monitor. Đồ án FA26SE039.',
+    footerLegal: 'Điều khoản sử dụng · Quyền riêng tư',
+  },
+  en: {
+    brandName: 'OnDemand Monitor',
+    navLinks: [
+      { label: 'How it works', href: '#how-it-works' },
+      { label: 'Results', href: '#results' },
+      { label: 'Use cases', href: '#industries' },
+      { label: 'FAQ', href: '#faq' },
+    ],
+    heroChip: 'ON-DEMAND SITE MONITORING',
+    heroTitleLines: ['Inspect more safely.', 'Know every outcome.'],
+    heroLede:
+      'Request site monitoring, track progress, and review inspection reports in one system. Reduce the need to enter hard-to-reach or hazardous areas in person.',
+    workflowSection: {
+      eyebrow: 'A clear process',
+      title: 'From request to report, in one system',
+      copy: 'Always know where your request stands and where to find its results.',
+    },
+    workflowSteps: [
+      {
+        no: '01',
+        title: 'Create a request',
+        detail:
+          'Describe the site, inspection goal, preferred timing, and what needs to be checked.',
+      },
+      {
+        no: '02',
+        title: 'Confirm the scope',
+        detail:
+          'Our team reviews the details and agrees on a suitable inspection plan.',
+      },
+      {
+        no: '03',
+        title: 'Track the ticket',
+        detail:
+          'Follow updates, discuss details, and share requested information in the ticket.',
+      },
+      {
+        no: '04',
+        title: 'Review the report',
+        detail: 'Find results, images, and observations in your dashboard.',
+      },
+    ],
+    featureSection: {
+      eyebrow: 'Transparent tracking',
+      title: 'One ticket follows every request',
+      copy: 'No need to call for every update. Status, discussion, and progress stay together so customers and the operations team share the same context.',
+    },
+    industriesSection: {
+      eyebrow: 'Use cases',
+      title: 'Support for a range of inspection sites',
+      mediaNotice: 'Stock imagery illustrating service use cases.',
+      copy: 'From infrastructure to construction, the process is organized around the needs of each site.',
+    },
+    industries: [
+      {
+        title: 'Construction sites',
+        detail:
+          'Monitor site conditions, progress, and areas that need inspection.',
+        location: 'Site inspection',
+      },
+      {
+        title: 'Infrastructure and utilities',
+        detail:
+          'Assess hard-to-reach locations or areas where exposure should be limited.',
+        location: 'Infrastructure inspection',
+      },
+      {
+        title: 'Large and remote areas',
+        detail:
+          'Gather site information without making direct access the first step.',
+        location: 'Remote monitoring',
+      },
+    ],
+    faqSection: {
+      eyebrow: 'Frequently asked questions',
+      title: 'What you need to know',
+      copy: 'Need more help? Contact support@odms.vn.',
+    },
+    faqItems: [
+      {
+        question: 'What should I include in a request?',
+        answer:
+          'Share the location or area, inspection objective, preferred timing, and any safety considerations. Our team will follow up to clarify the scope.',
+      },
+      {
+        question: 'Where can I track progress?',
+        answer:
+          'Each request has its own ticket for status updates and discussion. Completed requests and reports are also collected in your dashboard.',
+      },
+      {
+        question: 'What is included in an inspection result?',
+        answer:
+          'Depending on the agreed scope, a report may include a summary, images, findings, and relevant notes.',
+      },
+      {
+        question: 'Does every inspection use a drone?',
+        answer:
+          'No. A drone is one supporting tool when it suits the conditions and plan. The inspection method is determined based on the request and the operations team’s assessment.',
+      },
+    ],
+    ctaSection: {
+      eyebrow: 'Start with the site you need inspected',
+      title: 'Create a request and follow its progress in one place.',
+    },
+    footerDescription:
+      'On-demand site monitoring and inspection. Ho Chi Minh City, Vietnam.',
+    footerGroups: [
+      {
+        title: 'Service',
+        links: ['Create a request', 'Track a ticket', 'Inspection reports'],
+      },
+      {
+        title: 'Use cases',
+        links: ['Construction', 'Infrastructure', 'Remote sites'],
+      },
+      {
+        title: 'Support',
+        links: ['FAQ', 'support@odms.vn', 'Inspection safety'],
+      },
+    ],
+    footerCopyright: '© 2026 OnDemand Monitor. Capstone project FA26SE039.',
+    footerLegal: 'Terms of use · Privacy',
+  },
 })

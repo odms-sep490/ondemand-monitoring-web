@@ -1,7 +1,4 @@
-import type {
-  ServiceDeliverableOption,
-  ServiceRequirementSuggestion,
-} from '../../features/customer/api/customerApi'
+import type { ServiceDeliverableOption } from '../../features/customer/api/customerApi'
 
 type CategoryService = { id: string; name: string; description?: string }
 
@@ -20,13 +17,6 @@ export const mockServiceDeliverables: ServiceDeliverableOption[] = [
   { id: 'sd-forest-photo', serviceId: 'svc-forest', serviceName: 'Giám sát rừng', deliverableTypeId: 'dt-photo', deliverableTypeName: 'Ảnh chụp' },
   { id: 'sd-forest-video', serviceId: 'svc-forest', serviceName: 'Giám sát rừng', deliverableTypeId: 'dt-video', deliverableTypeName: 'Video' },
   { id: 'sd-forest-report', serviceId: 'svc-forest', serviceName: 'Giám sát rừng', deliverableTypeId: 'dt-report', deliverableTypeName: 'Báo cáo kết quả' },
-]
-
-export const mockRequirementSuggestions: ServiceRequirementSuggestion[] = [
-  { id: 'rs-construction-1', serviceId: 'svc-construction', category: 'Yêu cầu mặc định', label: 'Kiểm tra tình trạng tổng thể công trình', message: 'Ghi nhận hình ảnh tổng quan hiện trạng công trình.', sortOrder: 10, source: 'SEED' },
-  { id: 'rs-factory-1', serviceId: 'svc-factory', category: 'Yêu cầu mặc định', label: 'Kiểm tra tình trạng tổng thể nhà xưởng', message: 'Ghi nhận toàn cảnh khu vực nhà xưởng.', sortOrder: 10, source: 'SEED' },
-  { id: 'rs-area-1', serviceId: 'svc-area', category: 'Yêu cầu mặc định', label: 'Ghi nhận toàn cảnh khu vực', message: 'Chụp ảnh tổng quan phạm vi giám sát.', sortOrder: 10, source: 'SEED' },
-  { id: 'rs-forest-1', serviceId: 'svc-forest', category: 'Yêu cầu mặc định', label: 'Ghi nhận toàn cảnh khu vực rừng', message: 'Chụp ảnh/video tổng quan phạm vi rừng cần giám sát.', sortOrder: 10, source: 'SEED' },
 ]
 
 export const mockCategoryServices: CategoryService[] = [

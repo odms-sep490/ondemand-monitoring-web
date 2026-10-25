@@ -4,6 +4,7 @@ import { useI18n } from '../../../../../shared/i18n'
 import { readStoredDraft } from '../../../lib/createOrder/draftStorage'
 import {
   buildOrderPayload,
+  pricingAreaHa,
   withAdditionalRequirementChecklist,
 } from '../../../lib/createOrder/payload'
 import { scoreRequest } from '../../../lib/createOrder/scoring'
@@ -16,7 +17,6 @@ import { useWizard } from './useWizard'
 import { useOrderChecklist } from '../../../lib/checklist/useOrderChecklist'
 import { ApiError } from '../../../../../shared/api/httpClient'
 import type { FormErrors, FormState } from '../../../lib/createOrder/types'
-import { calcArea } from '../../../lib/createOrder/payload'
 
 const formFields = new Set<keyof FormState>([
   'serviceId',
@@ -51,8 +51,9 @@ export function useCreateOrderWizard() {
   const stored = useMemo(readStoredDraft, [])
   const f = useCreateOrderForm(stored)
   const { form, step } = f
+  const checklistPricingReady = step >= 3
   const checklist = useOrderChecklist(form.serviceId, {
-    areaHa: Number(calcArea(form.radiusM)),
+    areaHa: checklistPricingReady ? pricingAreaHa(form) : undefined,
     lengthKm: Number(form.estimatedLengthM || 0) / 1000,
     altitudeM: Number.isFinite(form.altitudeM) ? form.altitudeM : 0,
     aiAnalysisRequested: false,
@@ -60,6 +61,8 @@ export function useCreateOrderWizard() {
       form.recurrenceType !== 'NONE' && form.recurrenceOccurrences > 1
         ? form.recurrenceOccurrences
         : 1,
+    resultFormats: form.resultFormats,
+    permitStatus: form.permitStatus,
   })
   const meta = useCreateOrderMeta(form.serviceId, false, f.setForm)
   const service = meta.services.find((s) => s.id === form.serviceId)
@@ -74,7 +77,7 @@ export function useCreateOrderWizard() {
       blockedZoneNames: [],
     },
     messages: t.validation,
-    canAdvance: (current) => current !== 2 || checklist.valid,
+    canAdvance: (current) => current !== 3 || checklist.valid,
   })
 
   const score = useMemo(

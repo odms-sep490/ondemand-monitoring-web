@@ -1,7 +1,6 @@
 // Mock handlers in the BE DTO shape (ApiResponse envelope) for the customer
 // "create order" wizard, so it runs offline. Verified against /v3/api-docs:
 //   GET  /api/services/pricing-estimate        ?serviceId&aiImageAnalysis
-//   GET  /api/services/requirement-suggestions ?serviceId
 //   GET  /api/service-deliverables             ?serviceId&deliverableTypeId
 //   GET  /api/category-services
 //   GET  /api/zones                            ZoneResponse[] (simulation map zones)
@@ -19,7 +18,6 @@ import {
 } from '../mockServer'
 import {
   mockCategoryServices,
-  mockRequirementSuggestions,
   mockServiceDeliverables,
 } from '../data/customerCreateOrderSeeds'
 import { createdOrders } from './customerOrdersStore'
@@ -169,18 +167,6 @@ registerMockRoutes([
         additionalRequirements,
         totalPrice: servicePrice + (withAi ? AI_ANALYSIS_PRICE : 0),
       })
-    },
-  },
-  {
-    method: 'GET',
-    path: '/api/services/requirement-suggestions',
-    handler: ({ query }) => {
-      const serviceId = query.get('serviceId')
-      return ok(
-        serviceId
-          ? mockRequirementSuggestions.filter((s) => s.serviceId === serviceId)
-          : mockRequirementSuggestions,
-      )
     },
   },
   {

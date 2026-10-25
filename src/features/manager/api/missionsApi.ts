@@ -70,10 +70,27 @@ export const missionsApi = {
     orderId: string,
     request: CreateMissionRequest,
   ): Promise<Mission> {
-    return apiRequest<Mission>(`/api/orders/${orderId}/missions`, {
+    return apiRequest<Mission>(`/api/missions/${encodeURIComponent(orderId)}`, {
       method: 'POST',
       body: request,
     })
+  },
+
+  replaceMission(
+    missionId: string,
+    request: CreateMissionRequest,
+  ): Promise<Mission> {
+    return apiRequest<Mission>(`/api/missions/${encodeURIComponent(missionId)}/replacement`, {
+      method: 'POST',
+      body: request,
+    })
+  },
+
+  finalizeReplacementMission(missionId: string): Promise<MissionResponse> {
+    return apiRequest<MissionResponse>(
+      `/api/missions/${encodeURIComponent(missionId)}/finalize-replacement`,
+      { method: 'POST' },
+    )
   },
 
   /** `GET /api/missions/{id}` [BE `MissionController.getById`]. */
@@ -100,18 +117,50 @@ export const missionsApi = {
   },
 
   /** `POST /api/missions/{id}/assign-device` [BE]. */
-  assignDrone(missionId: string, droneId: string): Promise<Mission> {
+  assignDrone(missionId: string, droneId: string, deviceRole: string = 'MAIN'): Promise<Mission> {
     return apiRequest<Mission>(`/api/missions/${missionId}/assign-device`, {
       method: 'POST',
-      body: { deviceId: droneId, deviceRole: 'MAIN' },
+      body: { deviceId: droneId, deviceRole },
+    })
+  },
+
+  /** `POST /api/missions/{id}/assign-device` [BE]. */
+  assignDevice(missionId: string, deviceId: string, deviceRole: string = 'MAIN'): Promise<Mission> {
+    return apiRequest<Mission>(`/api/missions/${missionId}/assign-device`, {
+      method: 'POST',
+      body: { deviceId, deviceRole },
+    })
+  },
+
+  /** `POST /api/missions/{id}/remove-device` [BE]. */
+  removeDevice(missionId: string, deviceId: string, reason?: string): Promise<Mission> {
+    return apiRequest<Mission>(`/api/missions/${missionId}/remove-device`, {
+      method: 'POST',
+      body: { deviceId, reason },
     })
   },
 
   /** `POST /api/missions/{id}/assign-staff` [BE]. */
-  assignOperator(missionId: string, operatorId: string): Promise<Mission> {
+  assignOperator(missionId: string, operatorId: string, assignedRole: string = 'PILOT'): Promise<Mission> {
     return apiRequest<Mission>(`/api/missions/${missionId}/assign-staff`, {
       method: 'POST',
-      body: { staffId: operatorId, assignedRole: 'PILOT' },
+      body: { staffId: operatorId, assignedRole },
+    })
+  },
+
+  /** `POST /api/missions/{id}/assign-staff` [BE]. */
+  assignStaff(missionId: string, staffId: string, assignedRole: string = 'PILOT'): Promise<Mission> {
+    return apiRequest<Mission>(`/api/missions/${missionId}/assign-staff`, {
+      method: 'POST',
+      body: { staffId, assignedRole },
+    })
+  },
+
+  /** `POST /api/missions/{id}/remove-staff` [BE]. */
+  removeStaff(missionId: string, staffId: string, assignedRole?: string, reason?: string): Promise<Mission> {
+    return apiRequest<Mission>(`/api/missions/${missionId}/remove-staff`, {
+      method: 'POST',
+      body: { staffId, assignedRole, reason },
     })
   },
 
@@ -154,6 +203,17 @@ export const missionsApi = {
         return true
       })
     return { items }
+  },
+
+  /** `PUT /api/missions/{id}` [BE `MissionController.updateMission`]. Planning-phase edit of schedule/checklist. */
+  updateMission(
+    missionId: string,
+    request: { scheduledStartAt?: string; scheduledEndAt?: string; checklistIds?: string[] },
+  ): Promise<MissionResponse> {
+    return apiRequest<MissionResponse>(`/api/missions/${encodeURIComponent(missionId)}`, {
+      method: 'PUT',
+      body: request,
+    })
   },
 
   /**

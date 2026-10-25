@@ -7,19 +7,17 @@ import {
 } from './workflowModel'
 
 describe('Mission workflow', () => {
-  it('shows flight permit as step 3 before execution and completion', () => {
+  it('shows flight permit as step 2 before execution and completion', () => {
     expect(MISSION_STAGES).toEqual([
-      'resources',
-      'prepare',
       'permit',
       'execute',
       'done',
     ])
     expect(MISSION_PLANNING_STAGES).toEqual([
-      'resources',
-      'prepare',
       'permit',
+      'execute',
     ])
+    expect(missionProgress('READY').current).toBe('permit')
     expect(missionProgress('PENDING_APPROVAL').current).toBe('permit')
   })
 

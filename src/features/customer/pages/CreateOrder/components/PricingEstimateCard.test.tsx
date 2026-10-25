@@ -135,4 +135,135 @@ describe('PricingEstimateCard', () => {
       ],
     })
   })
+
+  it('shows an order-level video as a customer-visible deliverable fee', () => {
+    render(
+      <PricingEstimateCard
+        estimate={{
+          serviceId: 'service-1',
+          servicePrice: 4_050_000,
+          additionalRequirements: [
+            {
+              type: 'OUTPUT_VIDEO',
+              description: 'Video bàn giao',
+              additionalPrice: 300_000,
+            },
+          ],
+          totalPrice: 4_350_000,
+        }}
+        loading={false}
+        hasService
+        aiAnalysisRequested={false}
+      />,
+    )
+
+    expect(screen.getByRole('heading', { name: 'Sản phẩm bàn giao' })).toBeInTheDocument()
+    expect(screen.getByText('Video bàn giao')).toBeInTheDocument()
+    expect(screen.getByText(/\+300\.000/)).toBeInTheDocument()
+    expect(screen.getByText(/4\.350\.000/)).toBeInTheDocument()
+  })
+
+  it('separates a contextual area charge from the default checklist content', () => {
+    const estimate = selectionEstimate(null, {
+      serviceId: 'area-monitoring',
+      serviceName: 'Giám sát khu vực',
+      currency: 'VND',
+      policyId: 'policy-1',
+      policyVersion: 1,
+      draftPolicy: false,
+      priceSource: 'CHECKLISTS',
+      packageFee: 0,
+      checklists: [
+        {
+          checklistId: 'area-checklist',
+          content: 'Ghi nhận toàn cảnh khu vực',
+          pricingProfile: 'DEFAULT',
+          custom: false,
+          includedImageCount: 10,
+          includedVideoCount: 1,
+          requestedImageCount: 10,
+          requestedVideoCount: 1,
+          extraImageCount: 0,
+          extraVideoCount: 0,
+          standardVideoDurationSeconds: 60,
+          lines: [
+            {
+              component: 'BASE',
+              category: 'CHECKLIST',
+              description: 'Giá cơ bản checklist',
+              quantity: 1,
+              unitPrice: 600_000,
+              amount: 600_000,
+              tierFrom: null,
+              tierTo: null,
+              blockSize: null,
+              rounding: null,
+            },
+            {
+              component: 'AREA',
+              category: 'AREA',
+              description: 'Phụ phí theo mỗi 10 ha',
+              quantity: 2,
+              unitPrice: 100_000,
+              amount: 200_000,
+              tierFrom: 10,
+              tierTo: 50,
+              blockSize: 10,
+              rounding: 'CEILING',
+            },
+          ],
+          subtotal: 800_000,
+          quotePending: false,
+        },
+      ],
+      checklistSubtotal: 2_700_000,
+      addOns: [
+        {
+          key: 'OUTPUT_VIDEO',
+          description: 'Video bàn giao',
+          amount: 300_000,
+        },
+      ],
+      total: 3_000_000,
+      complete: true,
+      warnings: [],
+      quotePending: false,
+      occurrences: 1,
+    })
+
+    expect(estimate).toMatchObject({
+      servicePrice: 2_500_000,
+      totalPrice: 3_000_000,
+      additionalRequirements: [
+        {
+          type: 'CONTEXT_AREA',
+          description: 'AREA',
+          additionalPrice: 200_000,
+        },
+        { type: 'OUTPUT_VIDEO', additionalPrice: 300_000 },
+      ],
+    })
+
+    render(
+      <PricingEstimateCard
+        estimate={estimate}
+        loading={false}
+        hasService
+        aiAnalysisRequested={false}
+      />,
+    )
+
+    expect(screen.getByText('Nội dung giám sát').nextSibling).toHaveTextContent(
+      /2\.500\.000/,
+    )
+    expect(screen.getByText('Phụ phí diện tích').nextSibling).toHaveTextContent(
+      /\+200\.000/,
+    )
+    expect(screen.getByText('Video bàn giao').nextSibling).toHaveTextContent(
+      /\+300\.000/,
+    )
+    expect(screen.getByText('Tổng dự kiến').nextSibling).toHaveTextContent(
+      /3\.000\.000/,
+    )
+  })
 })

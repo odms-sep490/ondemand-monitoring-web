@@ -1,37 +1,38 @@
-import { useState, type ReactNode } from 'react'
+import { useEffect, useState } from 'react'
+import { LazyMotion } from 'motion/react'
 
 import { authSession } from '../../auth/api/authApi'
-import { Icon, type IconName } from '../../../shared/components/Icon'
+import { Icon } from '../../../shared/components/Icon'
 import { LanguageToggle } from '../../../shared/components/LanguageToggle'
-import { StatusBadge } from '../../../shared/components/odm/StatusBadge'
 import { useI18n } from '../../../shared/i18n'
-import {
-  aiVerdictTone,
-  findingSeverityTone,
-} from '../../../shared/lib/statusTone'
-import type { StatusTone } from '../../../shared/types/domain'
 import { landingMessages } from '../content'
-import { HeroMap, LiveMap } from '../components/LeafletMap'
 import { resolveCreateRequestTarget } from '../resolveCreateRequestTarget'
 import { ChatbotWidget } from '../components/ChatbotWidget'
 import { landingPageMessages } from './LandingPage.messages'
-import type { FeasibilityCheck } from '../types'
+import { MonitoringJourney } from '../showcase/MonitoringJourney'
+import { ProductShowcase } from '../components/ProductShowcase'
+import { industryIcons } from '../presentation'
+import { benefitIds, benefitMessages } from '../components/benefitMessages'
+import { ScrollReveal } from '../components/ScrollReveal'
+import { mediaSource } from '../media'
+import { WorkflowShowcase } from '../components/WorkflowShowcase'
+
+const loadMotionFeatures = () =>
+  import('framer-motion').then((module) => module.domAnimation)
 import '../landing.css'
 
 function Logo() {
-  const { t: content } = useI18n(landingMessages)
-  const { t } = useI18n(landingPageMessages)
+  const { t } = useI18n(landingMessages)
+  const { lang } = useI18n(landingPageMessages)
   return (
     <a
       className="lp-logo"
       href="#top"
-      aria-label={t.logoHomeAriaLabel(content.brandName)}
+      aria-label={
+        lang === 'en' ? `${t.brandName} home` : `${t.brandName} - trang chủ`
+      }
     >
-      <img
-        src="/images/logo-new.png"
-        alt={content.brandName}
-        className="lp-logo-img"
-      />
+      <img src="/images/logo-new.png" alt="" className="lp-logo-img" />
       <span className="lp-logo-text">
         <span className="lp-logo-primary">OnDemand</span>
         <span className="lp-logo-accent">Monitor</span>
@@ -40,39 +41,33 @@ function Logo() {
   )
 }
 
-function SectionIntro({
-  eyebrow,
-  title,
-  copy,
-  align = 'left',
-}: {
-  eyebrow: string
-  title: string
-  copy?: string
-  align?: 'left' | 'center'
-}) {
-  return (
-    <div className={`lp-section-intro lp-section-intro--${align}`}>
-      <p className="lp-eyebrow">{eyebrow}</p>
-      <h2>{title}</h2>
-      {copy ? <p className="lp-section-copy">{copy}</p> : null}
-    </div>
-  )
-}
-
 function Header({ createRequestTarget }: { createRequestTarget: string }) {
   const [menuOpen, setMenuOpen] = useState(false)
-  const { t: content } = useI18n(landingMessages)
+  const [scrolled, setScrolled] = useState(() => window.scrollY > 24)
+  const { t: copy } = useI18n(landingMessages)
   const { t } = useI18n(landingPageMessages)
+  useEffect(() => {
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setMenuOpen(false)
+    }
+    window.addEventListener('keydown', closeOnEscape)
+    return () => window.removeEventListener('keydown', closeOnEscape)
+  }, [])
+  useEffect(() => {
+    const updateScrolled = () => setScrolled(window.scrollY > 24)
+    window.addEventListener('scroll', updateScrolled, { passive: true })
+    return () => window.removeEventListener('scroll', updateScrolled)
+  }, [])
   return (
-    <header className="lp-header">
+    <header className={`lp-header${scrolled ? ' lp-header--scrolled' : ''}`}>
       <div className="lp-container lp-header-inner">
         <Logo />
         <nav
           className={`lp-nav ${menuOpen ? 'lp-nav--open' : ''}`}
+          id="lp-main-nav"
           aria-label={t.mainNavAriaLabel}
         >
-          {content.navLinks.map((link) => (
+          {copy.navLinks.map((link) => (
             <a
               key={link.href}
               href={link.href}
@@ -93,13 +88,10 @@ function Header({ createRequestTarget }: { createRequestTarget: string }) {
         <span className="lp-spacer" />
         <LanguageToggle className="lp-lang-toggle" />
         <div className="lp-header-actions">
-          <a className="lp-btn-o lp-header-actions-login" href="#auth/login">
+          <a className="lp-btn-o" href="#auth/login">
             {t.login}
           </a>
-          <a
-            className="lp-btn-p lp-header-actions-cta"
-            href={createRequestTarget}
-          >
+          <a className="lp-btn-p" href={createRequestTarget}>
             {t.createRequest}
           </a>
         </div>
@@ -108,7 +100,8 @@ function Header({ createRequestTarget }: { createRequestTarget: string }) {
           type="button"
           aria-label={menuOpen ? t.closeMenu : t.openMenu}
           aria-expanded={menuOpen}
-          onClick={() => setMenuOpen((value) => !value)}
+          aria-controls="lp-main-nav"
+          onClick={() => setMenuOpen((open) => !open)}
         >
           <Icon name={menuOpen ? 'x' : 'menu'} />
         </button>
@@ -117,218 +110,61 @@ function Header({ createRequestTarget }: { createRequestTarget: string }) {
   )
 }
 
-function HeroIllustration() {
-  const { t: content } = useI18n(landingMessages)
-  const { heroAiCard, heroMissionCard } = content
-  return (
-    <div className="lp-mapcard">
-      <HeroMap id="lp-hero-map" />
-      <div className="lp-float" style={{ left: 14, top: 14 }}>
-        <div className="lp-score-wrap">
-          <div
-            className="lp-score-ring"
-            style={{
-              background: `conic-gradient(var(--lp-green, #1FA971) 92%, #DDEBE4 0)`,
-            }}
-          >
-            <span className="lp-score-ring-inner">{heroAiCard.score}</span>
-          </div>
-          <div>
-            <small style={{ color: 'var(--lp-mute)' }}>
-              {heroAiCard.label}
-            </small>
-            <br />
-            <b>{heroAiCard.status}</b>{' '}
-            <span className="lp-pill lp-pill-g">PASS</span>
-          </div>
-        </div>
-      </div>
-      <div className="lp-float" style={{ left: 14, right: 14, bottom: 14 }}>
-        <span className="lp-pill lp-pill-b">IN_FLIGHT</span>{' '}
-        <b style={{ fontFamily: 'monospace', fontSize: 12 }}>
-          {heroMissionCard.code}
-        </b>
-        <br />
-        {heroMissionCard.title}{' '}
-        <span style={{ float: 'right', color: 'var(--lp-mute)' }}>
-          {heroMissionCard.drone} · Pin {heroMissionCard.battery} ·{' '}
-          {heroMissionCard.altitude}
-        </span>
-      </div>
-    </div>
-  )
-}
-
-function FeatureList({
-  items,
+function SectionIntro({
+  eyebrow,
+  title,
+  copy,
+  align = 'left',
 }: {
-  items: { title: string; detail: string; icon: string; emoji?: string }[]
+  eyebrow: string
+  title: string
+  copy?: string
+  align?: 'left' | 'center'
 }) {
   return (
-    <ul className="lp-feature-list">
-      {items.map((item) => (
-        <li key={item.title}>
-          <span className="lp-feature-list-icon" aria-hidden="true">
-            {item.emoji || <Icon name={item.icon as IconName} />}
-          </span>
-          <span>
-            <strong>{item.title}</strong>
-            <p>{item.detail}</p>
-          </span>
-        </li>
-      ))}
-    </ul>
-  )
-}
-
-const checkTone: Record<FeasibilityCheck['result'], StatusTone> = {
-  PASS: 'green',
-  WARNING: findingSeverityTone.WARNING,
-  BLOCKER: findingSeverityTone.BLOCKER,
-}
-
-function AiResultPanel() {
-  const { t: content } = useI18n(landingMessages)
-  const { t } = useI18n(landingPageMessages)
-  const { aiResultPanel, aiFeasibilityChecks } = content
-  return (
-    <div className="odm-card lp-panel">
-      <div className="odm-card-header">
-        <span>{aiResultPanel.title}</span>
-        <StatusBadge tone={aiVerdictTone.RISKY}>
-          {aiResultPanel.verdictLabel} {aiResultPanel.score}
-        </StatusBadge>
+    <ScrollReveal>
+      <div className={`lp-section-intro lp-section-intro--${align}`}>
+        <p className="lp-eyebrow">{eyebrow}</p>
+        <h2>{title}</h2>
+        {copy && <p className="lp-section-copy">{copy}</p>}
       </div>
-      <div className="odm-card-body lp-panel-body">
-        <div
-          className="lp-score-ring-wrap"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 12,
-            margin: '16px 0',
-          }}
-        >
-          <div
-            className="lp-score-ring"
-            style={{
-              background: `conic-gradient(var(--lp-amber) ${aiResultPanel.score}%, #F4E6C7 0)`,
-            }}
-          >
-            <span className="lp-score-ring-inner">{aiResultPanel.score}</span>
-          </div>
-          <div>
-            <strong>{aiResultPanel.verdictTitle}</strong>
-            <br />
-            <small style={{ color: 'var(--lp-mute)' }}>
-              {aiResultPanel.verdictDetail}
-            </small>
-          </div>
-        </div>
-        <ul className="lp-check-list">
-          {aiFeasibilityChecks.map((check) => (
-            <li key={check.label}>
-              <span>{check.label}</span>
-              <StatusBadge
-                tone={checkTone[check.result as FeasibilityCheck['result']]}
-              >
-                {check.result}
-              </StatusBadge>
-            </li>
-          ))}
-        </ul>
-        <div className="lp-alt-suggestion">
-          <div>
-            <span>{t.altSuggestionLabel}</span>
-            <strong>{aiResultPanel.altSuggestion}</strong>
-          </div>
-          <button className="lp-btn-p" type="button">
-            {t.choose}
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function LivePanel() {
-  const { t: content } = useI18n(landingMessages)
-  const { livePanel, liveResultFiles } = content
-  return (
-    <div className="odm-card lp-panel">
-      <div className="odm-card-header">
-        <span>{livePanel.title}</span>
-        <StatusBadge tone="green">{livePanel.status}</StatusBadge>
-      </div>
-      <div className="odm-card-body lp-panel-body">
-        <LiveMap id="lp-live-map" />
-        <div className="lp-live-meta">
-          <span>
-            <Icon name="activity" /> {livePanel.battery}
-          </span>
-          <span>
-            <Icon name="chart" /> {livePanel.altitude}
-          </span>
-        </div>
-        <div className="lp-live-results-head">
-          <strong>{livePanel.resultsTitle}</strong>
-          <span className="odm-mono">{livePanel.fileCount}</span>
-        </div>
-        <div className="lp-file-cards">
-          {liveResultFiles.map((file) => (
-            <div className="lp-file-card" key={file.name}>
-              <div style={{ fontSize: 22 }}>
-                {file.name.startsWith('VID') ? '🎬' : '🖼️'}
-              </div>
-              <div>{file.name}</div>
-              <span
-                className={`lp-pill lp-pill-${file.status === 'PASS' ? 'g' : 'b'}`}
-              >
-                {file.status}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
+    </ScrollReveal>
   )
 }
 
 function FaqAccordion() {
   const [openIndex, setOpenIndex] = useState<number | null>(0)
-  const { t: content } = useI18n(landingMessages)
-
+  const { t } = useI18n(landingMessages)
   return (
     <div className="lp-faq-list">
-      {content.faqItems.map((item, index) => {
+      {t.faqItems.map((item, index) => {
         const open = openIndex === index
-        const buttonId = `lp-faq-button-${index}`
-        const panelId = `lp-faq-panel-${index}`
+        const id = `lp-faq-${index}`
         return (
-          <div className="lp-faq-item" key={item.question}>
+          <div className="lp-faq-item" key={id}>
             <h3 className="lp-faq-question-wrap">
               <button
-                id={buttonId}
+                id={`${id}-button`}
                 className="lp-faq-question"
                 type="button"
                 aria-expanded={open}
-                aria-controls={panelId}
+                aria-controls={`${id}-panel`}
                 onClick={() => setOpenIndex(open ? null : index)}
               >
                 <span>{item.question}</span>
                 <Icon name={open ? 'minus' : 'plus'} />
               </button>
             </h3>
-            {open ? (
+            {open && (
               <div
-                id={panelId}
+                id={`${id}-panel`}
                 role="region"
-                aria-labelledby={buttonId}
+                aria-labelledby={`${id}-button`}
                 className="lp-faq-answer"
               >
                 {item.answer}
               </div>
-            ) : null}
+            )}
           </div>
         )
       })}
@@ -336,38 +172,60 @@ function FaqAccordion() {
   )
 }
 
-function TwoColumnFeature({
-  copy,
-  panel,
-  reverse,
-}: {
-  copy: ReactNode
-  panel: ReactNode
-  reverse?: boolean
-}) {
+function IndustryIllustration({ variant }: { variant: number }) {
+  const imageId = (['construction', 'infrastructure', 'landscape'] as const)[
+    variant
+  ]
   return (
     <div
-      className={`lp-container lp-feature-grid${reverse ? ' lp-feature-grid--reverse' : ''}`}
+      className={`lp-industry-visual lp-industry-visual--${variant}`}
+      aria-hidden="true"
     >
-      {reverse ? (
-        <>
-          <div className="lp-feature-panel">{panel}</div>
-          <div className="lp-feature-copy">{copy}</div>
-        </>
-      ) : (
-        <>
-          <div className="lp-feature-copy">{copy}</div>
-          <div className="lp-feature-panel">{panel}</div>
-        </>
-      )}
+      <img
+        {...mediaSource(imageId)}
+        sizes={
+          variant === 2
+            ? '(max-width: 620px) 90vw, 1200px'
+            : '(max-width: 620px) 90vw, 700px'
+        }
+        alt=""
+        loading="lazy"
+        decoding="async"
+      />
+      <span className="lp-industry-photo-index">
+        0{variant + 1}
+        <Icon name="arrow-up-right" />
+      </span>
     </div>
   )
 }
 
 export function LandingPage() {
   const createRequestTarget = resolveCreateRequestTarget(authSession.getUser())
-  const { t: content } = useI18n(landingMessages)
-  const { t } = useI18n(landingPageMessages)
+  const { t: copy } = useI18n(landingMessages)
+  const { t: benefits } = useI18n(benefitMessages)
+  const { t, lang } = useI18n(landingPageMessages)
+
+  // Keep browser metadata in sync with the visible language.
+  useEffect(() => {
+    document.title =
+      lang === 'en'
+        ? 'OnDemand Monitor — Safer site monitoring, clear reports'
+        : 'OnDemand Monitor — Giám sát an toàn, báo cáo rõ ràng'
+    const description =
+      lang === 'en'
+        ? 'Request site monitoring, track progress, and review inspection reports in one system.'
+        : 'Gửi yêu cầu giám sát hiện trường, theo dõi tiến độ và xem báo cáo kiểm tra trên cùng một hệ thống.'
+    let meta = document.querySelector<HTMLMetaElement>(
+      'meta[name="description"]',
+    )
+    if (!meta) {
+      meta = document.createElement('meta')
+      meta.name = 'description'
+      document.head.append(meta)
+    }
+    meta.content = description
+  }, [lang])
 
   return (
     <div id="top" className="odm odm-landing">
@@ -376,176 +234,148 @@ export function LandingPage() {
       </a>
       <Header createRequestTarget={createRequestTarget} />
       <main id="main-content">
-        <section className="lp-hero">
-          <div className="lp-container lp-hero-grid">
-            <div className="lp-hero-copy">
-              <span className="lp-chip">{content.heroChip}</span>
-              <h1>
-                {content.heroTitleLines[0]}
-                <br />
-                <span>{content.heroTitleLines[1]}</span>
-              </h1>
-              <p className="lp-hero-lede">{content.heroLede}</p>
-              <div className="lp-hero-actions">
-                <a className="lp-btn-p" href={createRequestTarget}>
+        <LazyMotion features={loadMotionFeatures}>
+          <section className="lp-hero">
+            <div className="lp-container lp-hero-grid">
+              <div className="lp-hero-copy">
+                <span className="lp-chip">
+                  <span className="lp-chip-dot" />
+                  {copy.heroChip}
+                </span>
+                <h1>
+                  <span className="lp-hero-line lp-hero-line--first">
+                    {copy.heroTitleLines[0]}
+                  </span>
+                  <br />
+                  <span className="lp-hero-line lp-hero-line--accent">
+                    {copy.heroTitleLines[1]}
+                  </span>
+                </h1>
+                <p className="lp-hero-lede">{copy.heroLede}</p>
+                <div className="lp-hero-actions">
+                  <a className="lp-btn-p" href={createRequestTarget}>
+                    {t.createRequestCta}
+                    <Icon name="arrow-right" />
+                  </a>
+                  <a className="lp-btn-o" href="#how-it-works">
+                    {t.seeHowItWorks}
+                  </a>
+                </div>
+              </div>
+            </div>
+            <div className="lp-container">
+              <ScrollReveal>
+                <MonitoringJourney />
+              </ScrollReveal>
+            </div>
+          </section>
+
+          <section
+            className="lp-section lp-benefits"
+            aria-label={copy.workflowSection.title}
+          >
+            <div className="lp-container lp-benefit-grid">
+              {benefitIds.map((id, index) => (
+                <ScrollReveal key={id} delay={index * 0.08}>
+                  <article className="lp-benefit">
+                    <span>0{index + 1}</span>
+                    <h2>{benefits[id].title}</h2>
+                    <p>{benefits[id].detail}</p>
+                  </article>
+                </ScrollReveal>
+              ))}
+            </div>
+          </section>
+
+          <section id="how-it-works" className="lp-section">
+            <div className="lp-container">
+              <SectionIntro
+                eyebrow={copy.workflowSection.eyebrow}
+                title={copy.workflowSection.title}
+                copy={copy.workflowSection.copy}
+                align="center"
+              />
+              <WorkflowShowcase />
+            </div>
+          </section>
+
+          <section id="results" className="lp-section">
+            <div className="lp-container">
+              <span id="features" className="lp-anchor-target" />
+              <SectionIntro
+                eyebrow={copy.featureSection.eyebrow}
+                title={copy.featureSection.title}
+                copy={copy.featureSection.copy}
+                align="center"
+              />
+              <ScrollReveal>
+                <ProductShowcase />
+              </ScrollReveal>
+            </div>
+          </section>
+
+          <section id="industries" className="lp-section lp-section-alt">
+            <div className="lp-container">
+              <SectionIntro
+                eyebrow={copy.industriesSection.eyebrow}
+                title={copy.industriesSection.title}
+                copy={copy.industriesSection.copy}
+                align="center"
+              />
+              <div className="lp-industries-grid">
+                {copy.industries.map((card, index) => (
+                  <ScrollReveal key={card.title} delay={index * 0.08}>
+                    <article
+                      className="odm-card lp-industry-card"
+                      key={card.title}
+                    >
+                      <IndustryIllustration variant={index} />
+                      <div className="lp-step-icon">
+                        <Icon name={industryIcons[index]} />
+                      </div>
+                      <h3>{card.title}</h3>
+                      <p>{card.detail}</p>
+                      <span className="lp-industry-location">
+                        <Icon name="arrow-up-right" />
+                        {card.location}
+                      </span>
+                    </article>
+                  </ScrollReveal>
+                ))}
+              </div>
+              <p className="lp-media-notice">
+                {copy.industriesSection.mediaNotice}
+              </p>
+            </div>
+          </section>
+
+          <section id="faq" className="lp-section">
+            <div className="lp-container lp-faq">
+              <SectionIntro
+                eyebrow={copy.faqSection.eyebrow}
+                title={copy.faqSection.title}
+                copy={copy.faqSection.copy}
+              />
+              <FaqAccordion />
+            </div>
+          </section>
+
+          <section className="lp-cta">
+            <div className="lp-container lp-cta-inner">
+              <p className="lp-eyebrow">{copy.ctaSection.eyebrow}</p>
+              <h2>{copy.ctaSection.title}</h2>
+              <div className="lp-cta-actions">
+                <a className="lp-btn-p lp-btn-white" href={createRequestTarget}>
                   {t.createRequestCta}
+                  <Icon name="arrow-right" />
                 </a>
-                <a className="lp-btn-o" href="#auth/login">
+                <a className="lp-btn-o lp-btn-ghost" href="#auth/login">
                   {t.login}
                 </a>
               </div>
-              <ul className="lp-hero-checklist">
-                {content.heroChecklist.map((item) => (
-                  <li key={item}>
-                    <Icon name="check" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
             </div>
-            <HeroIllustration />
-          </div>
-        </section>
-
-        <section className="lp-stats">
-          <div className="lp-container lp-stats-grid">
-            {content.heroStats.map((stat) => (
-              <div className="lp-stat" key={stat.label}>
-                <strong className="odm-mono">{stat.value}</strong>
-                <span>{stat.label}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section id="how-it-works" className="lp-section">
-          <div className="lp-container">
-            <SectionIntro
-              eyebrow={content.workflowSection.eyebrow}
-              title={content.workflowSection.title}
-              align="center"
-            />
-            <div className="lp-workflow-grid">
-              {content.workflowSteps.map((step) => (
-                <div className="odm-card lp-workflow-card" key={step.no}>
-                  <div className="lp-workflow-card-top">
-                    <span className="odm-mono">{step.no}</span>
-                    <div className="lp-step-icon">
-                      {step.emoji || <Icon name={step.icon as IconName} />}
-                    </div>
-                  </div>
-                  <h3>{step.title}</h3>
-                  <p>{step.detail}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section id="features" className="lp-section lp-section-alt">
-          <TwoColumnFeature
-            copy={
-              <>
-                <SectionIntro
-                  eyebrow={content.aiFeatureSection.eyebrow}
-                  title={content.aiFeatureSection.title}
-                  copy={content.aiFeatureSection.copy}
-                />
-                <FeatureList items={content.aiFeatureHighlights} />
-              </>
-            }
-            panel={<AiResultPanel />}
-          />
-        </section>
-
-        <section className="lp-section">
-          <TwoColumnFeature
-            reverse
-            copy={
-              <>
-                <SectionIntro
-                  eyebrow={content.liveFeatureSection.eyebrow}
-                  title={content.liveFeatureSection.title}
-                  copy={content.liveFeatureSection.copy}
-                />
-                <FeatureList items={content.liveFeatureHighlights} />
-              </>
-            }
-            panel={<LivePanel />}
-          />
-        </section>
-
-        <section id="industries" className="lp-section lp-section-alt">
-          <div className="lp-container">
-            <SectionIntro
-              eyebrow={content.industriesSection.eyebrow}
-              title={content.industriesSection.title}
-              copy={content.industriesSection.copy}
-              align="center"
-            />
-            <div className="lp-industries-grid">
-              {content.industries.map((card) => (
-                <div className="odm-card lp-industry-card" key={card.title}>
-                  <div className="lp-step-icon" aria-hidden="true">
-                    {card.emoji || <Icon name={card.icon as IconName} />}
-                  </div>
-                  <h3>{card.title}</h3>
-                  <p>{card.detail}</p>
-                  <span className="lp-industry-location">
-                    <Icon name="map-pin" />
-                    {card.location}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section id="faq" className="lp-section">
-          <div className="lp-container lp-faq">
-            <div>
-              <SectionIntro
-                eyebrow={content.faqSection.eyebrow}
-                title={content.faqSection.title}
-                copy={content.faqSection.copy}
-              />
-            </div>
-            <div>
-              <FaqAccordion />
-            </div>
-          </div>
-        </section>
-
-        <section className="lp-cta">
-          <div className="lp-container lp-cta-inner">
-            <p className="lp-eyebrow">{content.ctaSection.eyebrow}</p>
-            <h2>{content.ctaSection.title}</h2>
-            <div className="lp-cta-actions">
-              <a
-                className="lp-btn-p"
-                style={{
-                  background: '#fff',
-                  color: 'var(--lp-blue)',
-                  borderColor: '#fff',
-                }}
-                href={createRequestTarget}
-              >
-                {t.createRequestCtaShort}
-              </a>
-              <a
-                className="lp-btn-o"
-                style={{
-                  background: 'transparent',
-                  color: '#fff',
-                  borderColor: 'rgba(255,255,255,.6)',
-                }}
-                href="#auth/login"
-              >
-                {t.login}
-              </a>
-            </div>
-          </div>
-        </section>
+          </section>
+        </LazyMotion>
       </main>
       <footer className="lp-footer">
         <div className="lp-container lp-footer-grid">
@@ -553,26 +383,39 @@ export function LandingPage() {
             <div className="lp-footer-logo-wrap">
               <img
                 src="/images/logo-new.png"
-                alt="OnDemand Monitor"
+                alt=""
                 className="lp-footer-logo-img"
               />
+              <strong>{copy.brandName}</strong>
             </div>
-            <p>{content.footerBrandDescription}</p>
+            <p>{copy.footerDescription}</p>
           </div>
-          {content.footerLinkGroups.map((group) => (
+          {copy.footerGroups.map((group, groupIndex) => (
             <div key={group.title}>
               <h4>{group.title}</h4>
               <ul>
-                {group.links.map((link) => (
-                  <li key={link}>{link}</li>
-                ))}
+                {group.links.map((link, linkIndex) => {
+                  const href =
+                    groupIndex === 0
+                      ? [createRequestTarget, '#results', '#results'][linkIndex]
+                      : groupIndex === 1
+                        ? '#industries'
+                        : ['#faq', 'mailto:support@odms.vn', '#how-it-works'][
+                            linkIndex
+                          ]
+                  return (
+                    <li key={link}>
+                      <a href={href}>{link}</a>
+                    </li>
+                  )
+                })}
               </ul>
             </div>
           ))}
         </div>
         <div className="lp-container lp-footer-bottom">
-          <span>{content.footerCopyright}</span>
-          <span>{content.footerLegal}</span>
+          <span>{copy.footerCopyright}</span>
+          <span>{copy.footerLegal}</span>
         </div>
       </footer>
       <ChatbotWidget />

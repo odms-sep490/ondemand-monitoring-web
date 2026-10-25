@@ -16,11 +16,6 @@ export const workflowStepperMessages = defineMessages({
       planning: { label: 'Lập kế hoạch', hint: 'Tạo và chốt Mission' },
     },
     missionStages: {
-      resources: {
-        label: 'Phân bổ nguồn lực',
-        hint: 'Nhân sự, thiết bị, xác nhận',
-      },
-      prepare: { label: 'Chuẩn bị', hint: 'Đội bay xác nhận, kiểm tra' },
       permit: { label: 'Giấy phép bay', hint: 'Xin và xác nhận cấp phép' },
       execute: { label: 'Thực hiện', hint: 'Bay và ghi nhận' },
       done: { label: 'Hoàn tất', hint: 'Nghiệm thu kết quả' },
@@ -57,11 +52,6 @@ export const workflowStepperMessages = defineMessages({
       planning: { label: 'Planning', hint: 'Create and finalize Missions' },
     },
     missionStages: {
-      resources: {
-        label: 'Resource allocation',
-        hint: 'Staff, devices, confirm',
-      },
-      prepare: { label: 'Preparation', hint: 'Crew confirms, checks' },
       permit: { label: 'Flight permit', hint: 'Request and confirm approval' },
       execute: { label: 'Execution', hint: 'Fly and capture' },
       done: { label: 'Completion', hint: 'Inspect results' },

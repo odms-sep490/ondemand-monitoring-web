@@ -47,6 +47,28 @@ export function calcArea(radiusM: number) {
   return ((Math.PI * radiusM * radiusM) / 10000).toFixed(1)
 }
 
+/** A map's initial radius is only a drawing aid until the customer confirms the location. */
+export function pricingAreaHa(form: FormState): number | undefined {
+  const latitude = Number(form.latitude)
+  const longitude = Number(form.longitude)
+  if (
+    form.locationStatus !== 'confirmed' ||
+    !form.locationConfirmedAt ||
+    !form.normalizedAddress.trim() ||
+    !form.latitude.trim() ||
+    !form.longitude.trim() ||
+    !Number.isFinite(latitude) ||
+    !Number.isFinite(longitude) ||
+    Math.abs(latitude) > 90 ||
+    Math.abs(longitude) > 180 ||
+    !Number.isFinite(form.radiusM) ||
+    form.radiusM <= 0
+  )
+    return undefined
+  const areaHa = Number(calcArea(form.radiusM))
+  return areaHa > 0 ? areaHa : undefined
+}
+
 export function buildCoverageArea(
   longitude: number,
   latitude: number,

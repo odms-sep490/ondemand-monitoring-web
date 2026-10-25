@@ -55,7 +55,7 @@ function revealFirstError(errors: FormErrors) {
   }, 50)
 }
 
-const stepThreeErrors: Array<keyof FormErrors> = [
+const stepTwoErrors: Array<keyof FormErrors> = [
   'address',
   'latitude',
   'longitude',
@@ -78,7 +78,7 @@ const stepFourErrors: Array<keyof FormErrors> = [
 
 function firstInvalidStep(errors: FormErrors): Step {
   if (errors.serviceId || errors.title) return 1
-  if (stepThreeErrors.some((key) => Boolean(errors[key]))) return 3
+  if (stepTwoErrors.some((key) => Boolean(errors[key]))) return 2
   if (stepFourErrors.some((key) => Boolean(errors[key]))) return 4
   if (
     errors.preferredDateFrom ||

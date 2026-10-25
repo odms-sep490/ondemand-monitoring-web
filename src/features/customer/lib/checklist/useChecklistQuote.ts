@@ -43,13 +43,16 @@ export function useChecklistQuote(
   context?: ChecklistQuoteContext,
 ): ChecklistQuoteState {
   const { t } = useI18n(checklistMessages)
-  const [state, setState] = useState<ChecklistQuoteState>({
+  const [state, setState] = useState<
+    ChecklistQuoteState & { requestKey?: string }
+  >({
     preview: null,
     error: null,
     loading: false,
   })
   const itemsKey = JSON.stringify(items)
   const contextKey = JSON.stringify(context)
+  const requestKey = JSON.stringify([serviceId, itemsKey, contextKey])
 
   useEffect(() => {
     if (!serviceId || items === null) {
@@ -62,9 +65,10 @@ export function useChecklistQuote(
       ? (JSON.parse(contextKey) as ChecklistQuoteContext)
       : undefined
     const controller = new AbortController()
-    // Keep the previous price (same service) on screen while the new one is calculated.
+    // An old area/selection quote must not survive a cleared or changed context.
     setState((previous) => ({
-      preview: previous.preview?.serviceId === serviceId ? previous.preview : null,
+      requestKey,
+      preview: previous.requestKey === requestKey ? previous.preview : null,
       error: null,
       loading: true,
     }))
@@ -85,6 +89,7 @@ export function useChecklistQuote(
         .then((preview) => {
           if (!controller.signal.aborted) {
             setState({
+              requestKey,
               preview: inSelectionOrder(preview, requestItems),
               error: null,
               loading: false,
@@ -94,6 +99,7 @@ export function useChecklistQuote(
         .catch((cause: unknown) => {
           if (controller.signal.aborted) return
           setState({
+            requestKey,
             preview: null,
             error:
               cause instanceof ApiError
@@ -115,7 +121,10 @@ export function useChecklistQuote(
       controller.abort()
       window.clearTimeout(timer)
     }
-  }, [contextKey, itemsKey, serviceId, t.quoteFailed])
+  }, [contextKey, itemsKey, requestKey, serviceId, t.quoteFailed])
 
+  // Also invalidate synchronously, before the effect/debounce starts the next request.
+  if (state.requestKey !== requestKey)
+    return { preview: null, error: null, loading: Boolean(serviceId && items) }
   return state
 }

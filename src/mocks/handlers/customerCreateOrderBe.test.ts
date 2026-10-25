@@ -42,8 +42,7 @@ describe('reference lists', () => {
     expect(payload.data.map((d: any) => d.deliverableTypeId)).toEqual(['dt-photo', 'dt-video', 'dt-report'])
   })
 
-  it('lists requirement suggestions and category services', async () => {
-    expect((await call('GET', '/api/services/requirement-suggestions?serviceId=svc-construction')).payload.data).toHaveLength(1)
+  it('lists category services', async () => {
     expect((await call('GET', '/api/category-services')).payload.data[0]).toHaveProperty('name')
   })
 })

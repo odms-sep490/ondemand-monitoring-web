@@ -46,7 +46,8 @@ export function MissionCreateActionBar({
             submitting ||
             planQuery.loading ||
             Boolean(planQuery.error) ||
-            planQuery.data?.planStatus !== 'DRAFT' ||
+            (planQuery.data?.planStatus !== 'DRAFT' &&
+              !(replacesMissionId && planQuery.data?.planStatus === 'FINALIZED')) ||
             replacementQuery.loading ||
             Boolean(replacementQuery.error) ||
             Boolean(

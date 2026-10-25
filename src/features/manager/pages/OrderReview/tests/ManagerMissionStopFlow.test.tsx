@@ -19,7 +19,7 @@ const props = {
   revision: 7,
   refreshKey: {},
   writable: true,
-  draft: true,
+  draft: false,
   active: true,
   blocked: false,
   onChanged: vi.fn(),
@@ -71,10 +71,10 @@ afterEach(() => {
   vi.clearAllMocks()
   window.location.hash = ''
 })
-async function open(replace = false) {
+async function open() {
   fireEvent.click(
     await screen.findByRole('button', {
-      name: replace ? 'Thay thế Mission M1' : 'Hủy Mission M1',
+      name: 'Hủy Mission M1',
     }),
   )
   await waitFor(() =>
@@ -134,30 +134,12 @@ it('requests, waits for crew, cleans up, refreshes then cancels without route ch
   expect(props.onChanged).toHaveBeenCalledTimes(4)
   expect(window.location.hash).toBe('#portal/manager/orders/o')
 })
-it('continues replacement only after cancellation succeeds', async () => {
-  render(<ManagerMissionStopFlow {...props} />)
-  await open(true)
-  expect(props.onReplacement).not.toHaveBeenCalled()
+it('keeps immediate cancellation free of safe-stop steps when eligible', async () => {
+  state.canCancelMission = true
   state.status = 'READY_FOR_CANCELLATION'
-  state.cleanedAt = '2026-10-09T01:00:00Z'
-  state.reason = 'Thay thế'
-  state.canCancelMission = true
-  fireEvent.click(screen.getByRole('button', { name: 'Làm mới trạng thái' }))
-  await screen.findByRole('button', { name: 'Hủy Mission' })
-  expect(screen.queryByRole('textbox')).not.toBeInTheDocument()
-  fireEvent.click(screen.getByRole('button', { name: 'Hủy Mission' }))
-  fireEvent.click(
-    within(await screen.findByRole('dialog')).getByRole('button', {
-      name: 'Hủy Mission',
-    }),
-  )
-  await waitFor(() => expect(props.onReplacement).toHaveBeenCalledWith('m1'))
-})
-it('keeps immediate replacement cancellation free of safe-stop steps', async () => {
-  state.canCancelMission = true
+  state.requestedAt = '2026-10-10T00:00:00Z'
   render(<ManagerMissionStopFlow {...props} />)
-  await open(true)
-  expect(screen.queryByText('Dừng Mission an toàn')).not.toBeInTheDocument()
+  await open()
   expect(
     screen.queryByRole('button', { name: 'Yêu cầu dừng an toàn' }),
   ).not.toBeInTheDocument()
@@ -182,12 +164,12 @@ it('fails closed for missing capabilities', async () => {
 })
 it('returns keyboard focus to the initiating action after closing the inline flow', async () => {
   render(<ManagerMissionStopFlow {...props} />)
-  await open(true)
+  await open()
   expect(screen.getByRole('region', { name: 'Dừng Mission M1' })).toHaveFocus()
   fireEvent.click(screen.getByRole('button', { name: 'Đóng bảng thao tác' }))
   await waitFor(() =>
     expect(
-      screen.getByRole('button', { name: 'Thay thế Mission M1' }),
+      screen.getByRole('button', { name: 'Hủy Mission M1' }),
     ).toHaveFocus(),
   )
 })
@@ -305,7 +287,7 @@ it.each([
       canCancelMission: action === 'Hủy Mission',
     }
     render(<ManagerMissionStopFlow {...props} />)
-    await open(action === 'Hủy Mission')
+    await open()
     await screen.findByText(label)
     const region = screen.getByRole('region', { name: 'Dừng Mission M1' })
     const primary = region.querySelectorAll('.mission-stop__actions button')
@@ -382,7 +364,7 @@ it('uses the persisted read-only reason for cancellation after reopening', async
     canCancelMission: true,
   }
   render(<ManagerMissionStopFlow {...props} />)
-  await open(true)
+  await open()
   expect(screen.queryByRole('textbox')).not.toBeInTheDocument()
   fireEvent.click(screen.getByRole('button', { name: 'Hủy Mission' }))
   fireEvent.click(

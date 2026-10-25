@@ -36,6 +36,8 @@ export function ReviewTop({
   openStage,
   goToStep,
   planning,
+  onSelectMissionStage,
+  viewMissionStage,
 }: {
   showExecutionPlan: boolean
   stepperProgress: OrderProgress
@@ -46,6 +48,8 @@ export function ReviewTop({
   ) => void
   goToStep: (step: ReviewStep) => void
   planning: PlanningWorkflowInfo | null
+  onSelectMissionStage?: (stage: import('../../../components/common/workflowModel').MissionStage) => void
+  viewMissionStage?: import('../../../components/common/workflowModel').MissionStage | null
 }) {
   const { t, locale, lang } = useI18n(orderReviewPageMessages)
   return (
@@ -74,12 +78,19 @@ export function ReviewTop({
           // Before approval the three review stages stay freely navigable;
           // afterwards only completed stages reopen (read-only).
           selectable: (stage, state) =>
-            orderStageToReviewStep(stage) !== null &&
-            (showExecutionPlan ? state === 'done' : true),
+            stage === 'planning'
+              ? Boolean(planning?.isFinalized)
+              : orderStageToReviewStep(stage) !== null &&
+                (showExecutionPlan ? state === 'done' : true),
         }}
         mission={
           showExecutionPlan && planning?.depositPaid && planning.missions.length
-            ? missionLayer(planning, planning.selectedMissionId, lang)
+            ? missionLayer(planning, planning.selectedMissionId, lang, undefined, {
+                onSelect: onSelectMissionStage,
+                viewing: viewMissionStage,
+                selectable: (stage, state) =>
+                  stage === 'permit' ? Boolean(onSelectMissionStage) : state === 'done',
+              })
             : undefined
         }
       />

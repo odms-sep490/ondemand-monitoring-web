@@ -4,8 +4,15 @@ export const pricingEstimateMessages = defineMessages({
   vi: {
     title: 'Chi phí dự kiến',
     servicePrice: 'Nội dung giám sát',
+    areaSurcharge: 'Phụ phí diện tích',
+    distanceSurcharge: 'Phụ phí chiều dài',
+    altitudeSurcharge: 'Phụ phí độ cao',
+    extraImages: 'Ảnh bổ sung',
+    extraVideos: 'Video bổ sung',
+    contextSurcharge: 'Phụ phí theo yêu cầu',
     occurrences: (n: number) => `Đã gồm ${n} lần thực hiện theo lịch định kỳ.`,
     aiAnalysis: 'AI phân tích hình ảnh',
+    deliverables: 'Sản phẩm bàn giao',
     total: 'Tổng dự kiến',
     additionalServiceRow: 'Dịch vụ bổ sung',
     additionalPending: (count: number) =>
@@ -27,8 +34,15 @@ export const pricingEstimateMessages = defineMessages({
   en: {
     title: 'Estimated cost',
     servicePrice: 'Monitoring content',
+    areaSurcharge: 'Area surcharge',
+    distanceSurcharge: 'Length surcharge',
+    altitudeSurcharge: 'Altitude surcharge',
+    extraImages: 'Additional images',
+    extraVideos: 'Additional videos',
+    contextSurcharge: 'Request surcharge',
     occurrences: (n: number) => `Includes ${n} scheduled visits.`,
     aiAnalysis: 'AI image analysis',
+    deliverables: 'Deliverables',
     total: 'Estimated total',
     additionalServiceRow: 'Additional services',
     additionalPending: (count: number) =>

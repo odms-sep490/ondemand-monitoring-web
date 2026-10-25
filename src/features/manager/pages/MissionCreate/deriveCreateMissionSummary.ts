@@ -2,6 +2,7 @@ import { missionCreatePageMessages } from './MissionCreatePage.messages'
 import type { OrderIconName } from '../../components/common/OrderIcon'
 import type { ReactNode } from 'react'
 import type { OrderMissionBrief } from '../../types/orders'
+import type { SubmitState } from './createMissionTypes'
 
 export function deriveCreateMissionSummary({
   scheduledStart,
@@ -13,10 +14,7 @@ export function deriveCreateMissionSummary({
   scheduledStart: string
   scheduledEnd: string
   t: (typeof missionCreatePageMessages)['vi']
-  submit:
-    | { kind: 'idle' }
-    | { kind: 'submitting' }
-    | { kind: 'validationFailed'; message: string }
+  submit: SubmitState
   brief: OrderMissionBrief
 }) {
   const durationMinutes =

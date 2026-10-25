@@ -48,8 +48,10 @@ const ORDER_STATUS_LABEL_EN: Record<OrderStatus, string> = {
 }
 
 export const MISSION_STATUS_TONE: Record<MissionStatus, StatusTone> = {
+  PLANNING: 'gray',
   CREATED: 'gray',
   WAITING_DEPOSIT: 'yellow',
+  READY: 'blue',
   RESOURCE_ASSIGNING: 'yellow',
   WAITING_CREW_CONFIRMATION: 'yellow',
   WAITING_OPERATOR_ACCEPTANCE: 'yellow',
@@ -70,8 +72,10 @@ export const MISSION_STATUS_TONE: Record<MissionStatus, StatusTone> = {
 }
 
 const MISSION_STATUS_LABEL_VI: Record<MissionStatus, string> = {
+  PLANNING: 'Đang lập kế hoạch',
   CREATED: 'Mới tạo',
   WAITING_DEPOSIT: 'Chờ thanh toán tiền cọc',
+  READY: 'Sẵn sàng phân công',
   RESOURCE_ASSIGNING: 'Phân công nguồn lực',
   WAITING_CREW_CONFIRMATION: 'Chờ đội bay xác nhận',
   WAITING_OPERATOR_ACCEPTANCE: 'Chờ phi công xác nhận',
@@ -92,8 +96,10 @@ const MISSION_STATUS_LABEL_VI: Record<MissionStatus, string> = {
 }
 
 const MISSION_STATUS_LABEL_EN: Record<MissionStatus, string> = {
+  PLANNING: 'Planning',
   CREATED: 'Created',
   WAITING_DEPOSIT: 'Waiting for deposit',
+  READY: 'Ready for assignment',
   RESOURCE_ASSIGNING: 'Assigning resources',
   WAITING_CREW_CONFIRMATION: 'Waiting for crew confirmation',
   WAITING_OPERATOR_ACCEPTANCE: 'Waiting for operator',

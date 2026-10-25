@@ -1,12 +1,13 @@
 import { ApiError, apiRequest } from '../../../shared/api/httpClient'
-import { getLanguage } from '../../../shared/i18n'
-import { managerLibMessages } from '../lib/lib.messages'
 import { readOrderChecklistSnapshot } from '../lib/orderChecklistSnapshot'
 import type {
   ApprovalRequest,
+  OrderAnalysis,
   OrderCreateResponse,
   OrderDetail,
+  OrderInternalNote,
   OrderMissionBrief,
+  OrderResourcePreview,
   FlightAreaReviewRequest,
 } from '../types/orders'
 
@@ -20,10 +21,7 @@ function formatRequirement(requirement: Record<string, unknown> | null) {
   if (!requirement) return ''
   const parts = [
     formatRequirementValue(requirement.mediaType),
-    formatRequirementValue(
-      requirement.quantity,
-      managerLibMessages[getLanguage()].api.itemsUnit,
-    ),
+    formatRequirementValue(requirement.quantity, ' mục'),
     formatRequirementValue(requirement.resolution),
     formatRequirementValue(requirement.radiusM, ' m'),
     formatRequirementValue(requirement.estimatedAreaHa, ' ha'),
@@ -68,7 +66,7 @@ function attachmentsFromDeliverables(order: OrderCreateResponse) {
         files.set(`${name}:${url}`, {
           name,
           sizeLabel:
-            sizeBytes == null ? managerLibMessages[getLanguage()].api.unknownSize : `${(sizeBytes / 1_000_000).toFixed(2)} MB`,
+            sizeBytes == null ? 'Không rõ dung lượng' : `${(sizeBytes / 1_000_000).toFixed(2)} MB`,
           mimeType:
             typeof file.contentType === 'string'
               ? file.contentType
@@ -85,7 +83,7 @@ function toOrderDetail(order: OrderCreateResponse): OrderDetail {
   return {
     executionPlanRevision: order.executionPlanRevision,
     id: order.id,
-    code: order.orderCode || order.id,
+    code: order.id,
     status: order.orderStatus,
     customer: {
       fullName: order.customerName || order.customerId,
@@ -111,6 +109,7 @@ function toOrderDetail(order: OrderCreateResponse): OrderDetail {
         ? { lat: order.latitude, lon: order.longitude }
         : null,
     radiusM: order.radiusM ?? radiusFromDeliverables(order),
+    nearestBase: null,
     mediaRequirements:
       order.deliverables?.map((item) => ({
         label: `${item.deliverableTypeName}${formatRequirement(item.requirement)}`,
@@ -161,6 +160,7 @@ function toOrderDetail(order: OrderCreateResponse): OrderDetail {
 function toOrderMissionBrief(order: OrderDetail): OrderMissionBrief {
   return {
     executionPlanRevision: order.executionPlanRevision,
+    checklistItems: order.checklistItems,
     id: order.id,
     code: order.code,
     serviceName: order.serviceName,
@@ -172,6 +172,7 @@ function toOrderMissionBrief(order: OrderDetail): OrderMissionBrief {
     addressText: order.addressText,
     center: order.center,
     radiusM: order.radiusM,
+    nearestBase: order.nearestBase,
     mediaRequirements: order.mediaRequirements,
   }
 }
@@ -210,6 +211,35 @@ export const ordersApi = {
     }))
   },
 
+  /** `GET /api/orders/{id}/analysis/latest` [BRIEF C4]. */
+  getLatestAnalysis(id: string, signal?: AbortSignal): Promise<OrderAnalysis> {
+    return apiRequest<OrderAnalysis>(`/api/orders/${id}/analysis/latest`, {
+      signal,
+    })
+  },
+
+  /**
+   * `GET /api/orders/{id}/resource-preview` — PROPOSED, no source endpoint.
+   * `null` for orders without design-sourced preview content.
+   */
+  getResourcePreview(
+    id: string,
+    signal?: AbortSignal,
+  ): Promise<OrderResourcePreview | null> {
+    return apiRequest<OrderResourcePreview | null>(
+      `/api/orders/${id}/resource-preview`,
+      { signal },
+    )
+  },
+
+  /** `PUT /api/orders/{id}/internal-note` — PROPOSED, no source endpoint. */
+  saveInternalNote(id: string, note: string): Promise<OrderInternalNote> {
+    return apiRequest<OrderInternalNote>(`/api/orders/${id}/internal-note`, {
+      method: 'PUT',
+      body: { note },
+    })
+  },
+
   saveFlightAreaReview(
     id: string,
     request: FlightAreaReviewRequest,
@@ -217,6 +247,17 @@ export const ordersApi = {
     return apiRequest<OrderCreateResponse>(
       `/api/orders/${encodeURIComponent(id)}/flight-area-review`,
       { method: 'POST', body: request },
+    )
+  },
+
+  resolveLegalReview(
+    id: string,
+    status: 'APPROVED' | 'REJECTED',
+    note?: string,
+  ): Promise<OrderCreateResponse> {
+    return apiRequest<OrderCreateResponse>(
+      `/api/orders/${encodeURIComponent(id)}/legal-review/resolve`,
+      { method: 'POST', body: { status, note } },
     )
   },
 
@@ -243,13 +284,24 @@ export const ordersApi = {
     return this.getOrder(id, signal)
       .then((order) => {
         if (order.status !== 'APPROVED' && order.status !== 'IN_PROGRESS') {
-          throw new ApiError(managerLibMessages[getLanguage()].api.orderNotApproved, {
+          throw new ApiError('Đơn không còn ở trạng thái đã duyệt.', {
             status: 409,
             method: 'GET',
             path: `/api/orders/${id}`,
           })
         }
         return toOrderMissionBrief(order)
+      })
+      .catch((error) => {
+        if (error instanceof ApiError && error.status === 409) {
+          return apiRequest<OrderMissionBrief>(
+            `/api/orders/${id}/mission-brief`,
+            {
+              signal,
+            },
+          )
+        }
+        throw error
       })
   },
 }

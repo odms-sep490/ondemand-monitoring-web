@@ -32,7 +32,7 @@ export type ChecklistPriceBreakdown = {
   quotePending: boolean
 }
 
-/** `total = checklistSubtotal + sum(addOns)`; order-specific factors are added by the Manager quote. */
+/** `total = checklistSubtotal + sum(addOns)`; deterministic order-level factors are included here. */
 export type PriceAddOn = { key: string; description: string; amount: number }
 
 export type ServicePricePreview = {
@@ -89,6 +89,9 @@ export type ChecklistQuoteContext = {
   aiAnalysisRequested?: boolean
   /** Number of visits of a repeating order; the quote is multiplied by it. */
   occurrences?: number
+  /** Order-level deliverables selected in the current form. */
+  resultFormats?: string[]
+  permitStatus?: 'NONE' | 'HAVE_PERMIT' | 'NEED_SUPPORT'
 }
 
 export const checklistPricingApi = {

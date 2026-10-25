@@ -27,7 +27,7 @@ beforeEach(() => {
         id,
         orderId: 'o',
         missionCode: id.toUpperCase(),
-        status: 'RESOURCE_ASSIGNING',
+        status: 'READY',
         scheduledStartAt: '2026-10-10T03:00:00Z',
         scheduledEndAt: '2026-10-10T04:00:00Z',
         staffAssignments: [],
@@ -178,7 +178,7 @@ it('disables unfinalized and terminal Missions without inferring the first Missi
     id: 'm3',
     orderId: 'o',
     missionCode: 'M3',
-    status: 'RESOURCE_ASSIGNING',
+    status: 'PLANNING',
   } as unknown as MissionResponse)
   render(<OrderResourceAssignmentWizard orderId="o" onClose={vi.fn()} />)
   for (const id of ['M1', 'M2', 'M3'])

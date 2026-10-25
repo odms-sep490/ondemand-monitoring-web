@@ -34,8 +34,11 @@ export type OrderStatus =
   | 'CANCELLED'
 
 export type MissionStatus =
+  | 'PLANNING'
+  // Legacy values are retained while old mocks/history records are migrated.
   | 'CREATED'
   | 'WAITING_DEPOSIT'
+  | 'READY'
   | 'RESOURCE_ASSIGNING'
   | 'WAITING_CREW_CONFIRMATION'
   | 'WAITING_OPERATOR_ACCEPTANCE'

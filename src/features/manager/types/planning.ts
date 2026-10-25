@@ -16,7 +16,8 @@ export type ExecutionPlan = {
     missionId: string
     scopeLabel: string
     assignmentCount: number
-    finalizedPlanRevision: number | null
+    checklistItemIds?: string[]
+    finalizedPlanRevision?: number | null
   }[]
   coverage: ExecutionPlanCoverage
   blockers: string[]

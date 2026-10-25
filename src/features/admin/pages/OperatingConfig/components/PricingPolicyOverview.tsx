@@ -91,10 +91,11 @@ export function PricingPolicyOverview({
   return (
     <div className="ppo">
       <header className="ppo-head">
-        <h2>Chính sách giá</h2>
+        <h2>Chính sách giá mặc định</h2>
         <p>
-          Mỗi lần phát hành sẽ tạo một phiên bản mới; chính sách đã phát hành
-          không thể chỉnh sửa.
+          Chính sách giá được sử dụng để tính giá cho các yêu cầu vận hành.
+          Mỗi lần áp dụng sẽ tạo một phiên bản mới; chính sách đã áp dụng không
+          thể chỉnh sửa.
         </p>
       </header>
 
@@ -125,7 +126,8 @@ export function PricingPolicyOverview({
               <div>
                 <span className="ppo-eyebrow">Đang áp dụng</span>
                 <h3>
-                  Phiên bản {active.version} · {pricingPolicyName(active.name)}
+                  Chính sách giá v{active.version} ·{' '}
+                  {pricingPolicyName(active.name)}
                 </h3>
                 <small>
                   Có hiệu lực từ {date(active.effectiveFrom)} ·{' '}
@@ -137,12 +139,12 @@ export function PricingPolicyOverview({
                 disabled={busy || draft !== null}
                 onClick={onClone}
               >
-                Nhân bản thành DRAFT
+                Tạo bản nháp mới
               </button>
             </div>
             <p role="note" className="ppo-note">
-              Chính sách đang áp dụng không thể chỉnh sửa. Hãy nhân bản để tạo
-              một phiên bản DRAFT rồi chỉnh sửa và phát hành.
+              Chính sách giá đang áp dụng không thể chỉnh sửa trực tiếp. Hãy
+              tạo bản nháp mới để thay đổi và áp dụng.
             </p>
             <dl className="ppo-tiles">
               <Tile
@@ -213,8 +215,11 @@ export function PricingPolicyOverview({
             </dl>
           </section>
 
-          <section className="ppo-card" aria-label="Bảng giá media dùng chung">
-            <h3>Bảng giá media dùng chung</h3>
+          <section
+            className="ppo-card"
+            aria-label="Bảng giá ảnh và video dùng chung"
+          >
+            <h3>Bảng giá ảnh và video dùng chung</h3>
             <p className="ppo-hint">
               Ảnh/video vượt định mức, áp dụng cho mọi checklist kể cả yêu cầu
               bổ sung.
@@ -259,12 +264,16 @@ export function PricingPolicyOverview({
 
       <section className="ppo-card" aria-label="Các phiên bản">
         <h3>Các phiên bản</h3>
-        <ul className="ppo-versions">
-          {sorted.map((policy) => (
+        {sorted.length === 0 ? (
+          <p className="ppo-empty">Chưa có chính sách giá.</p>
+        ) : (
+          <ul className="ppo-versions">
+            {sorted.map((policy) => (
             <li key={policy.id}>
               <span>
                 <b>
-                  Phiên bản {policy.version} · {pricingPolicyName(policy.name)}
+                  Chính sách giá v{policy.version} ·{' '}
+                  {pricingPolicyName(policy.name)}
                 </b>
                 <small>
                   {policy.effectiveFrom
@@ -285,8 +294,9 @@ export function PricingPolicyOverview({
                 {pricingLabel(policy.status)}
               </StatusBadge>
             </li>
-          ))}
-        </ul>
+            ))}
+          </ul>
+        )}
       </section>
     </div>
   )

@@ -29,6 +29,7 @@ import { WeatherForecastCard } from './WeatherForecastCard'
 import { FlightScheduleCard } from './FlightScheduleCard'
 import { OrderSummaryCard } from './OrderSummaryCard'
 import { MissionCreateActionBar } from './MissionCreateActionBar'
+import { MissionChecklistSelectionCard } from './MissionChecklistSelectionCard'
 
 export function CreateMissionForm({
   orderId,
@@ -76,6 +77,91 @@ export function CreateMissionForm({
   useEffect(() => {
     if (planQuery.data) setPlanRevision(planQuery.data.revision)
   }, [planQuery.data])
+
+  // Prefill scope label and schedule from the original cancelled mission
+  useEffect(() => {
+    if (!replacementQuery.data) return
+    if (replacementQuery.data.scopeLabel) {
+      setScopeLabel(replacementQuery.data.scopeLabel)
+    }
+    if (replacementQuery.data.scheduledStartAt) {
+      const d = new Date(replacementQuery.data.scheduledStartAt)
+      if (!Number.isNaN(d.getTime())) {
+        setScheduledStart(toLocalInput(d))
+        const p = (n: number) => String(n).padStart(2, '0')
+        setWeatherCheckDate(`${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`)
+        setWeatherCheckTime(`${p(d.getHours())}:${p(d.getMinutes())}`)
+      }
+    }
+    if (replacementQuery.data.scheduledEndAt) {
+      const d = new Date(replacementQuery.data.scheduledEndAt)
+      if (!Number.isNaN(d.getTime())) {
+        setScheduledEnd(toLocalInput(d))
+      }
+    }
+  }, [replacementQuery.data])
+
+  const checklistItems = useMemo(
+    () => brief.checklistItems ?? [],
+    [brief.checklistItems],
+  )
+  const uncoveredIds = useMemo(() => {
+    if (!planQuery.data) return []
+    return planQuery.data.coverage?.uncoveredItemIds ?? []
+  }, [planQuery.data])
+
+  const [selectedChecklistIds, setSelectedChecklistIds] = useState<string[]>([])
+  const [hasInitializedChecklist, setHasInitializedChecklist] = useState(false)
+
+  // Default selection: automatically select uncovered items (or all items if first mission)
+  useEffect(() => {
+    if (hasInitializedChecklist || checklistItems.length === 0) return
+    if (uncoveredIds.length > 0) {
+      setSelectedChecklistIds(uncoveredIds)
+      setHasInitializedChecklist(true)
+    } else if (planQuery.data) {
+      setSelectedChecklistIds(checklistItems.map((i) => i.id))
+      setHasInitializedChecklist(true)
+    }
+  }, [hasInitializedChecklist, checklistItems, uncoveredIds, planQuery.data])
+
+  const handleToggleChecklist = (id: string) => {
+    setHasInitializedChecklist(true)
+    setSelectedChecklistIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
+    )
+    if (submit.kind === 'validationFailed') {
+      setSubmit({ kind: 'idle' })
+    }
+  }
+
+  const handleSelectAllChecklist = () => {
+    setHasInitializedChecklist(true)
+    setSelectedChecklistIds(checklistItems.map((i) => i.id))
+    if (submit.kind === 'validationFailed') {
+      setSubmit({ kind: 'idle' })
+    }
+  }
+
+  const handleSelectUncoveredChecklist = () => {
+    setHasInitializedChecklist(true)
+    const availableUncovered = checklistItems
+      .filter((i) => uncoveredIds.includes(i.id))
+      .map((i) => i.id)
+    setSelectedChecklistIds(
+      availableUncovered.length > 0
+        ? availableUncovered
+        : checklistItems.map((i) => i.id),
+    )
+    if (submit.kind === 'validationFailed') {
+      setSubmit({ kind: 'idle' })
+    }
+  }
+
+  const handleDeselectAllChecklist = () => {
+    setHasInitializedChecklist(true)
+    setSelectedChecklistIds([])
+  }
   const [submit, setSubmit] = useState<SubmitState>({ kind: 'idle' })
   const [navigateTo, setNavigateTo] = useState<string | null>(null)
   const fillFromCustomer = () => {
@@ -152,6 +238,8 @@ export function CreateMissionForm({
     replacesMissionId,
     orderId,
     scopeLabel,
+    selectedChecklistIds,
+    hasChecklistItems: checklistItems.length > 0,
     setSubmit,
     planningT,
     scheduledStart,
@@ -239,6 +327,22 @@ export function CreateMissionForm({
             setScheduledEnd={setScheduledEnd}
             submit={submit}
             scopeLabel={scopeLabel}
+          />
+
+          <MissionChecklistSelectionCard
+            items={checklistItems}
+            plan={planQuery.data ?? null}
+            selectedIds={selectedChecklistIds}
+            onToggle={handleToggleChecklist}
+            onSelectAll={handleSelectAllChecklist}
+            onSelectUncovered={handleSelectUncoveredChecklist}
+            onDeselectAll={handleDeselectAllChecklist}
+            error={
+              submit.kind === 'validationFailed' &&
+              selectedChecklistIds.length === 0
+                ? submit.message
+                : undefined
+            }
           />
         </div>
 

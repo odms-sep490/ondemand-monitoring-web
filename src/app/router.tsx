@@ -1,31 +1,71 @@
 import '../styles/global.css'
 import '../styles/odm.css'
 
-import { useEffect, useState, type ReactNode } from 'react'
+import { lazy, Suspense, useEffect, useState, type ReactNode } from 'react'
 
-import { UserProfilePage } from '../features/user/pages/UserProfilePage'
-import { AuthPage } from '../features/auth/pages/AuthPage'
 import { LandingPage } from '../features/landing/pages/LandingPage'
-import { SocialCallbackPage } from '../features/auth/pages/SocialCallbackPage'
 import { authSession } from '../features/auth/api/authApi'
 import { getRoleHomePath } from '../features/auth/routing'
 import type { UserRole } from '../features/auth/types'
-import { CustomerApp } from '../features/customer/CustomerApp'
-import {
-  CustomerLayout,
-  type CustomerNavItemKey,
-} from '../features/customer/CustomerLayout'
-import { customerLayoutMessages } from '../features/customer/CustomerLayout.messages'
 import { useI18n } from '../shared/i18n'
-import { CustomerCreateRequestPage } from '../features/customer/pages/CustomerCreateRequest'
-import { ManagerApp } from '../features/manager/ManagerApp'
-import { DroneOperatorHomePage } from '../features/drone-operator/pages/DroneOperatorHomePage'
-import { AdminApp } from '../features/admin/AdminApp'
-import { OperatorDashboardPage } from '../features/mission/pages/OperatorDashboardPage'
-import { HelpCenterHomePage } from '../features/support/pages/HelpCenterHome'
-import { CustomerTicketsListPage } from '../features/support/pages/CustomerTicketsList'
-import { CustomerTicketDetailPage } from '../features/support/pages/CustomerTicketDetail'
-import { PaymentResultPage } from '../features/finance/PaymentResult'
+import { defineMessages } from '../shared/i18n'
+
+const AuthPage = lazy(() =>
+  import('../features/auth/pages/AuthPage').then((m) => ({
+    default: m.AuthPage,
+  })),
+)
+const UserProfilePage = lazy(() =>
+  import('../features/user/pages/UserProfilePage').then((m) => ({
+    default: m.UserProfilePage,
+  })),
+)
+const SocialCallbackPage = lazy(() =>
+  import('../features/auth/pages/SocialCallbackPage').then((m) => ({
+    default: m.SocialCallbackPage,
+  })),
+)
+const CustomerApp = lazy(() =>
+  import('../features/customer/CustomerApp').then((m) => ({
+    default: m.CustomerApp,
+  })),
+)
+const CustomerCreateRequestPage = lazy(() =>
+  import('../features/customer/pages/CustomerCreateRequest').then((m) => ({
+    default: m.CustomerCreateRequestPage,
+  })),
+)
+const ManagerApp = lazy(() =>
+  import('../features/manager/ManagerApp').then((m) => ({
+    default: m.ManagerApp,
+  })),
+)
+const DroneOperatorHomePage = lazy(() =>
+  import('../features/drone-operator/pages/DroneOperatorHomePage').then(
+    (m) => ({ default: m.DroneOperatorHomePage }),
+  ),
+)
+const AdminApp = lazy(() =>
+  import('../features/admin/AdminApp').then((m) => ({ default: m.AdminApp })),
+)
+const OperatorDashboardPage = lazy(() =>
+  import('../features/mission/pages/OperatorDashboardPage').then((m) => ({
+    default: m.OperatorDashboardPage,
+  })),
+)
+const PaymentResultPage = lazy(() =>
+  import('../features/finance/PaymentResult').then((m) => ({
+    default: m.PaymentResultPage,
+  })),
+)
+const SupportRoutes = lazy(() =>
+  import('./SupportRoutes').then((m) => ({ default: m.SupportRoutes })),
+)
+
+const routeMessages = defineMessages({
+  vi: { loading: 'Đang tải trang…' },
+  en: { loading: 'Loading page…' },
+})
 
 function redirectHash(to: string) {
   if (window.location.hash !== to) {
@@ -56,24 +96,18 @@ function RoleRoute({
   return redirectTo ? null : children
 }
 
-function SupportShell({
-  crumb,
-  children,
-}: {
-  crumb: 'help' | 'tickets' | 'ticketDetail'
-  children: ReactNode
-}) {
-  const { t } = useI18n(customerLayoutMessages)
-  const activeNavItem: CustomerNavItemKey =
-    crumb === 'help' ? 'help' : 'support'
+function RouteContent({ children }: { children: ReactNode }) {
+  const { t } = useI18n(routeMessages)
   return (
-    <CustomerLayout
-      route={{ screen: 'dashboard' }}
-      breadcrumb={t.supportCrumbs[crumb]}
-      activeNavItem={activeNavItem}
+    <Suspense
+      fallback={
+        <div className="route-loading" role="status">
+          {t.loading}
+        </div>
+      }
     >
       {children}
-    </CustomerLayout>
+    </Suspense>
   )
 }
 
@@ -106,86 +140,117 @@ export function Router() {
     const ticketId = hash.replace('#help/tickets/', '')
     return (
       <AuthRoute>
-        <SupportShell crumb="ticketDetail">
-          <CustomerTicketDetailPage ticketId={ticketId} />
-        </SupportShell>
+        <RouteContent>
+          <SupportRoutes screen="ticketDetail" ticketId={ticketId} />
+        </RouteContent>
       </AuthRoute>
     )
   }
   if (hash.startsWith('#payment/result'))
     return (
       <RoleRoute role="CUSTOMER">
-        <PaymentResultPage />
+        <RouteContent>
+          <PaymentResultPage />
+        </RouteContent>
       </RoleRoute>
     )
   if (hash.startsWith('#payment/cancel'))
     return (
       <RoleRoute role="CUSTOMER">
-        <PaymentResultPage cancelled />
+        <RouteContent>
+          <PaymentResultPage cancelled />
+        </RouteContent>
       </RoleRoute>
     )
   if (hash === '#help/tickets')
     return (
       <AuthRoute>
-        <SupportShell crumb="tickets">
-          <CustomerTicketsListPage />
-        </SupportShell>
+        <RouteContent>
+          <SupportRoutes screen="tickets" />
+        </RouteContent>
       </AuthRoute>
     )
   if (hash === '#help' || hash.startsWith('#help/'))
     return (
       <AuthRoute>
-        <SupportShell crumb="help">
-          <HelpCenterHomePage />
-        </SupportShell>
+        <RouteContent>
+          <SupportRoutes screen="help" />
+        </RouteContent>
       </AuthRoute>
     )
 
-  if (pathname === '/social/callback') return <SocialCallbackPage />
+  if (pathname === '/social/callback')
+    return (
+      <RouteContent>
+        <SocialCallbackPage />
+      </RouteContent>
+    )
   if (hash === '#profile')
     return (
       <AuthRoute>
-        <UserProfilePage />
+        <RouteContent>
+          <UserProfilePage />
+        </RouteContent>
       </AuthRoute>
     )
   if (hash === '#auth/register')
-    return <AuthPage key="register" initialMode="register" />
+    return (
+      <RouteContent>
+        <AuthPage key="register" initialMode="register" />
+      </RouteContent>
+    )
   if (hash === '#auth/login')
-    return <AuthPage key="login" initialMode="login" />
+    return (
+      <RouteContent>
+        <AuthPage key="login" initialMode="login" />
+      </RouteContent>
+    )
   if (hash === '#portal/customer/request')
     return (
       <RoleRoute role="CUSTOMER">
-        <CustomerCreateRequestPage />
+        <RouteContent>
+          <CustomerCreateRequestPage />
+        </RouteContent>
       </RoleRoute>
     )
   if (hash === '#portal/customer' || hash.startsWith('#portal/customer/'))
     return (
       <RoleRoute role="CUSTOMER">
-        <CustomerApp />
+        <RouteContent>
+          <CustomerApp />
+        </RouteContent>
       </RoleRoute>
     )
   if (hash === '#portal/manager' || hash.startsWith('#portal/manager/'))
     return (
       <RoleRoute role={['MANAGER', 'ADMIN']}>
-        <ManagerApp />
+        <RouteContent>
+          <ManagerApp />
+        </RouteContent>
       </RoleRoute>
     )
   if (hash === '#portal/staff' || hash.startsWith('#portal/staff/'))
     return (
       <RoleRoute role="STAFF">
-        <DroneOperatorHomePage />
+        <RouteContent>
+          <DroneOperatorHomePage />
+        </RouteContent>
       </RoleRoute>
     )
   if (hash === '#portal/admin' || hash.startsWith('#portal/admin/'))
     return (
       <RoleRoute role="ADMIN">
-        <AdminApp />
+        <RouteContent>
+          <AdminApp />
+        </RouteContent>
       </RoleRoute>
     )
   if (hash === '#operator')
     return (
       <RoleRoute role="STAFF">
-        <OperatorDashboardPage />
+        <RouteContent>
+          <OperatorDashboardPage />
+        </RouteContent>
       </RoleRoute>
     )
 

@@ -80,7 +80,7 @@ beforeEach(() => {
           id,
           orderId: 'o',
           missionCode: id.toUpperCase(),
-          status: 'RESOURCE_ASSIGNING',
+          status: 'PLANNING',
           staffAssignments: [],
         }) as unknown as MissionResponse,
     ),
@@ -302,6 +302,10 @@ describe('Manager multi-Mission planning', () => {
     ).toBeGreaterThanOrEqual(2)
   })
   it('does not infer cancellation from READY_FOR_CANCELLATION when the server denies it', async () => {
+    vi.mocked(planningApi.getExecutionPlan).mockResolvedValue({
+      ...plan,
+      planStatus: 'FINALIZED',
+    })
     vi.mocked(planningApi.getSafeStop).mockResolvedValue({
       ...stop,
       status: 'READY_FOR_CANCELLATION',
@@ -319,6 +323,10 @@ describe('Manager multi-Mission planning', () => {
     ).not.toBeInTheDocument()
   })
   it('enables actual cancellation only after refreshing an explicit server capability', async () => {
+    vi.mocked(planningApi.getExecutionPlan).mockResolvedValue({
+      ...plan,
+      planStatus: 'FINALIZED',
+    })
     let permitted = false
     vi.mocked(planningApi.getSafeStop).mockImplementation(
       async (missionId) => ({
@@ -363,7 +371,7 @@ describe('Manager multi-Mission planning', () => {
       '1',
     )
     expect(
-      screen.getByRole('button', { name: 'Tiếp: Gán nguồn lực' }),
+      screen.getByRole('button', { name: 'Chốt kế hoạch' }),
     ).toBeEnabled()
   })
   it('does not repeat uncovered items in the summary and refuses to continue', async () => {
@@ -384,7 +392,7 @@ describe('Manager multi-Mission planning', () => {
       'Còn 1 checklist chưa gán',
     )
     fireEvent.click(
-      await screen.findByRole('button', { name: 'Tiếp: Gán nguồn lực' }),
+      await screen.findByRole('button', { name: 'Chốt kế hoạch' }),
     )
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'Còn checklist chưa được gán',
@@ -482,6 +490,18 @@ describe('Manager multi-Mission planning', () => {
     vi.spyOn(planningApi, 'finalizeExecutionPlan').mockImplementation(
       async () => {
         vi.mocked(planningApi.getExecutionPlan).mockResolvedValue(finalized)
+        vi.mocked(planningApi.getOrderMissions).mockResolvedValue(
+          ['m1', 'm2', 'm3'].map(
+            (id) =>
+              ({
+                id,
+                orderId: 'o',
+                missionCode: id.toUpperCase(),
+                status: 'READY',
+                staffAssignments: [],
+              }) as unknown as MissionResponse,
+          ),
+        )
         return finalized
       },
     )
@@ -503,7 +523,7 @@ describe('Manager multi-Mission planning', () => {
     )
     fireEvent.click(await screen.findByRole('button', { name: /^M1/ }))
     fireEvent.click(
-      await screen.findByRole('button', { name: 'Tiếp: Gán nguồn lực' }),
+      await screen.findByRole('button', { name: 'Chốt kế hoạch' }),
     )
     await waitFor(() => expect(planningApi.finalizeExecutionPlan).toHaveBeenCalled())
     view.unmount()
@@ -542,6 +562,10 @@ describe('Manager multi-Mission planning', () => {
     expect(parseManagerRoute(managerHref(route))).toEqual(route)
   })
   it('cancel safe-stop blocker remains visible and does not remove the Mission locally', async () => {
+    vi.mocked(planningApi.getExecutionPlan).mockResolvedValue({
+      ...plan,
+      planStatus: 'FINALIZED',
+    })
     const safetyCommands = [
       vi.spyOn(planningApi, 'requestSafeStop'),
       vi.spyOn(planningApi, 'confirmSafeStop'),
@@ -604,6 +628,10 @@ describe('Manager multi-Mission planning', () => {
 })
 describe('safe-stop role boundaries', () => {
   it('reopens a cleaned Mission in the workflow card instead of a second editable cancellation form', async () => {
+    vi.mocked(planningApi.getExecutionPlan).mockResolvedValue({
+      ...plan,
+      planStatus: 'FINALIZED',
+    })
     vi.mocked(planningApi.getOrderMissions).mockResolvedValue([
       {
         id: 'm1',

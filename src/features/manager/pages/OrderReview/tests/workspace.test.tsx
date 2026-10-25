@@ -121,7 +121,7 @@ beforeEach(() => {
         id,
         orderId: 'o',
         missionCode: id.toUpperCase(),
-        status: 'RESOURCE_ASSIGNING',
+        status: 'PLANNING',
         scheduledStartAt: '2026-10-10T03:00:00Z',
         scheduledEndAt: '2026-10-10T04:00:00Z',
         staffAssignments: [],
@@ -179,6 +179,10 @@ beforeEach(() => {
     async () => {
       finalized = true
       revision++
+      missions = missions.map((mission) => ({
+        ...mission,
+        status: 'READY',
+      }))
       return plan()
     },
   )
@@ -274,7 +278,7 @@ describe('Order-centric workspace', () => {
       '5',
     )
     // "Next" locks the plan and hands over to resource assignment in one step.
-    fireEvent.click(screen.getByRole('button', { name: 'Tiếp: Gán nguồn lực' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Chốt kế hoạch' }))
     await waitFor(() =>
       expect(planningApi.finalizeExecutionPlan).toHaveBeenCalledTimes(1),
     )
@@ -315,11 +319,12 @@ describe('Order-centric workspace', () => {
     ).toBeChecked()
     expect(planningApi.updateMissionChecklistAssignments).not.toHaveBeenCalled()
     expect(
-      screen.getByRole('button', { name: 'Tiếp: Gán nguồn lực' }),
+      screen.getByRole('button', { name: 'Chốt kế hoạch' }),
     ).toBeInTheDocument()
   })
   it('returns from resource Mission selection to the same Order planning workspace', async () => {
     finalized = true
+    missions = missions.map((mission) => ({ ...mission, status: 'READY' }))
     render(<OrderMissionPlanningSection orderId="o" />)
     fireEvent.click(
       await screen.findByRole('button', { name: 'Phân công nguồn lực cho M1' }),

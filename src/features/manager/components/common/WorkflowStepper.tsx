@@ -8,6 +8,7 @@ import {
   missionStageState,
   orderStageState,
   type MissionProgress,
+  type MissionStage,
   type OrderProgress,
   type OrderStage,
   type StageState,
@@ -36,6 +37,9 @@ export type WorkflowMissionLayer = {
   detail?: ReactNode
   onPrev?: () => void
   onNext?: () => void
+  onSelect?: (stage: MissionStage) => void
+  selectable?: (stage: MissionStage, state: StageState) => boolean
+  viewing?: MissionStage | null
 }
 
 function StateIcon({ state, number }: { state: StageState; number: number }) {
@@ -209,23 +213,50 @@ export function WorkflowStepper({
                 ? missionStageState(stage, mission.progress)
                 : 'upcoming'
               const copy = t.missionStages[stage]
+              const clickable = Boolean(
+                mission.onSelect &&
+                  (mission.selectable
+                    ? mission.selectable(stage, state)
+                    : state === 'current' || state === 'done'),
+              )
+              const body = (
+                <>
+                  <span className="odm-wf-dot">
+                    <StateIcon state={state} number={index + 1} />
+                  </span>
+                  <span className="odm-wf-text">
+                    <strong>{copy.label}</strong>
+                    <small>
+                      {state === 'done' ? t.state.doneStatic : copy.hint}
+                    </small>
+                  </span>
+                </>
+              )
+              const isViewing = mission.viewing === stage
               return (
-                <li key={stage} className={`odm-wf-step is-${state}`}>
-                  <div
-                    className="odm-wf-btn is-static"
-                    title={t.state[state]}
-                    aria-current={state === 'current' ? 'step' : undefined}
-                  >
-                    <span className="odm-wf-dot">
-                      <StateIcon state={state} number={index + 1} />
-                    </span>
-                    <span className="odm-wf-text">
-                      <strong>{copy.label}</strong>
-                      <small>
-                        {state === 'done' ? t.state.doneStatic : copy.hint}
-                      </small>
-                    </span>
-                  </div>
+                <li
+                  key={stage}
+                  className={`odm-wf-step is-${state}${isViewing ? ' is-viewing' : ''}`}
+                >
+                  {clickable ? (
+                    <button
+                      type="button"
+                      className="odm-wf-btn"
+                      title={copy.label}
+                      aria-current={isViewing || state === 'current' ? 'step' : undefined}
+                      onClick={() => mission.onSelect?.(stage)}
+                    >
+                      {body}
+                    </button>
+                  ) : (
+                    <div
+                      className="odm-wf-btn is-static"
+                      title={t.state[state]}
+                      aria-current={state === 'current' ? 'step' : undefined}
+                    >
+                      {body}
+                    </div>
+                  )}
                 </li>
               )
             })}

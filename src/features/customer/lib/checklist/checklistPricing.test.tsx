@@ -294,6 +294,36 @@ describe('ChecklistQuoteCard', () => {
     expect(quote).not.toHaveBeenCalled()
   })
 
+  it('recalculates through the backend when VIDEO is selected or removed', async () => {
+    const quote = vi.spyOn(checklistPricingApi, 'customerQuote').mockResolvedValue(preview)
+    const hook = renderHook(
+      ({ resultFormats }) =>
+        useChecklistQuote('A', [{ sourceChecklistId: 'c-roof' }], {
+          resultFormats,
+        }),
+      { initialProps: { resultFormats: [] as string[] } },
+    )
+    await waitFor(() => expect(quote).toHaveBeenCalledTimes(1))
+
+    hook.rerender({ resultFormats: ['VIDEO'] })
+    await waitFor(() => expect(quote).toHaveBeenCalledTimes(2))
+    expect(quote).toHaveBeenLastCalledWith(
+      'A',
+      [{ sourceChecklistId: 'c-roof' }],
+      expect.any(AbortSignal),
+      { resultFormats: ['VIDEO'] },
+    )
+
+    hook.rerender({ resultFormats: [] })
+    await waitFor(() => expect(quote).toHaveBeenCalledTimes(3))
+    expect(quote).toHaveBeenLastCalledWith(
+      'A',
+      [{ sourceChecklistId: 'c-roof' }],
+      expect.any(AbortSignal),
+      { resultFormats: [] },
+    )
+  })
+
   it('shows the backend message when media pricing is not configured', async () => {
     vi.spyOn(checklistPricingApi, 'customerQuote').mockRejectedValue(
       new ApiError('Media pricing backend message', {

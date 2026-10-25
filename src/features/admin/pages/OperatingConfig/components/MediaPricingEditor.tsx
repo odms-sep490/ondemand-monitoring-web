@@ -27,11 +27,12 @@ import type { MediaPricingComponent, PricingRule } from '../../../types/pricing'
 
 const messages = defineMessages({
   vi: {
-    title: 'Bảng giá media dùng chung',
+    title: 'Bảng giá ảnh và video dùng chung',
     intro:
       'Giá ảnh và video vượt định mức dùng chung cho mọi checklist, kể cả yêu cầu bổ sung. Số lượng vượt = max(0, số yêu cầu − số đã bao gồm), tính theo các bậc bên dưới; phần đã bao gồm và phần vượt là hai khoản riêng, mỗi khoản chỉ tính một lần.',
-    includedSection: 'Media đã bao gồm (giá trọn gói của phần định mức)',
-    extraSection: 'Media bổ sung (theo bậc, tính trên số lượng vượt định mức)',
+    includedSection: 'Ảnh/video đã bao gồm (giá trọn gói của phần định mức)',
+    extraSection:
+      'Ảnh/video bổ sung (theo bậc, tính trên số lượng vượt định mức)',
     profile: 'Hồ sơ giá',
     component: 'Thành phần',
     checklistTarget: 'Checklist áp dụng',
@@ -52,7 +53,7 @@ const messages = defineMessages({
     remove: 'Xóa',
     add: 'Thêm quy tắc',
     newProfile: 'Tên hồ sơ giá mới',
-    empty: 'Chưa có quy tắc media.',
+    empty: 'Chưa có quy tắc giá ảnh/video.',
     CHECKLIST_BASE: 'Giá checklist khách thêm (GENERIC_CUSTOMER_ADDED)',
     INCLUDED_IMAGE: 'Ảnh đã bao gồm',
     INCLUDED_VIDEO: 'Video đã bao gồm',

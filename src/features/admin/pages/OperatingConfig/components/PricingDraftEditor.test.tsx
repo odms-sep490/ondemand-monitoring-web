@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
+import { useState } from 'react'
 import { PricingDraftEditor } from './PricingDraftEditor'
 import { newMediaRule } from '../../../lib/mediaPricingRules'
 import type { PricingPolicy } from '../../../types/pricing'
@@ -48,11 +49,11 @@ function setup(policy = draft, dirty = false) {
 describe('PricingDraftEditor', () => {
   it('opens on the common prices and keeps the long rule list behind another tab', () => {
     setup()
-    expect(screen.getByText('Phiên bản 4')).toBeInTheDocument()
+    expect(screen.getByText('Chính sách giá v4')).toBeInTheDocument()
     expect(screen.getByLabelText('Giảm giá tối đa (%)')).toBeInTheDocument()
-    expect(
-      screen.getByLabelText('Ảnh vượt định mức: giá mỗi khối'),
-    ).toHaveValue(50000)
+    expect(screen.getByText('Ảnh từ 1 trở lên')).toBeInTheDocument()
+    expect(screen.getByText(/50\.000 ₫/)).toBeInTheDocument()
+    expect(screen.queryByLabelText('Ảnh vượt định mức: giá mỗi khối')).not.toBeInTheDocument()
     expect(screen.queryByText('Quy tắc tính giá')).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('tab', { name: /Quy tắc nâng cao/ }))
     expect(screen.getByText('Quy tắc tính giá')).toBeInTheDocument()
@@ -60,10 +61,52 @@ describe('PricingDraftEditor', () => {
 
   it('edits a shared media tier in place', () => {
     const setDraft = setup()
+    const group = screen.getByRole('region', { name: 'Ảnh vượt định mức' })
+    fireEvent.click(within(group).getByRole('button', { name: 'Chỉnh sửa' }))
     fireEvent.change(screen.getByLabelText('Ảnh vượt định mức: giá mỗi khối'), {
       target: { value: '60000' },
     })
     expect(setDraft.mock.calls[0][0].rules[0].fixedAmount).toBe(60000)
+  })
+
+  it('shows only the fields needed by the selected calculation method', () => {
+    const policy: PricingPolicy = {
+      ...draft,
+      rules: [
+        {
+          ...draft.rules[0],
+          category: 'AREA' as const,
+          mediaComponent: null,
+          pricingProfile: null,
+          checklistDefinitionId: null,
+          checklistDefinitionName: null,
+          description: 'Phụ thu diện tích',
+        },
+      ],
+    }
+    function StatefulEditor() {
+      const [value, setValue] = useState(policy)
+      return (
+        <PricingDraftEditor
+          draft={value}
+          setDraft={setValue}
+          busy={false}
+          dirty={false}
+          onSave={vi.fn()}
+          onPublish={vi.fn()}
+          onCancel={vi.fn()}
+        />
+      )
+    }
+    render(<StatefulEditor />)
+    fireEvent.click(screen.getByRole('tab', { name: /Quy tắc nâng cao/ }))
+    fireEvent.click(screen.getByRole('button', { name: 'Chỉnh sửa' }))
+    expect(screen.getByLabelText('Kích thước khối')).toBeInTheDocument()
+    fireEvent.change(screen.getByLabelText('Cách tính'), {
+      target: { value: 'FIXED' },
+    })
+    expect(screen.getByLabelText('Giá cố định')).toBeInTheDocument()
+    expect(screen.queryByLabelText('Kích thước khối')).not.toBeInTheDocument()
   })
 
   it('blocks saving while the tiers overlap and says why', () => {
@@ -83,7 +126,7 @@ describe('PricingDraftEditor', () => {
       screen.getAllByRole('button', { name: 'Lưu bản nháp' })[0],
     ).toBeDisabled()
     expect(
-      screen.getAllByRole('button', { name: 'Phát hành' })[0],
+      screen.getAllByRole('button', { name: 'Áp dụng' })[0],
     ).toBeDisabled()
     expect(screen.getAllByRole('alert').length).toBeGreaterThan(0)
   })

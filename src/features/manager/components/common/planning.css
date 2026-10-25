@@ -503,6 +503,113 @@
     margin-left: 0;
   }
 }
+.odm-planning-create-panel {
+  margin-top: 16px;
+  overflow: hidden;
+  border: 1px solid var(--bd);
+  border-radius: 16px;
+  background: var(--sf);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+}
+
+/* Modal popup for Mission Creation */
+.odm-planning-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+}
+
+/* The dirty-form confirmation must sit above the Mission popup that opened it. */
+.odm-planning .ui-modal-overlay {
+  z-index: 1100;
+}
+
+.odm-planning-modal-dialog {
+  background: var(--sf, #ffffff);
+  border: 1px solid var(--bd, #e2e8f0);
+  border-radius: 18px;
+  width: 100%;
+  max-width: 1100px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+  overflow: hidden;
+  animation: odmModalIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.odm-planning-modal-body {
+  overflow-y: auto;
+  padding: 0;
+  flex: 1;
+}
+
+@keyframes odmModalIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.odm-planning-create-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--bd);
+  background: linear-gradient(135deg, var(--blue-bg), var(--sf) 58%);
+}
+.odm-planning-create-icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border-radius: 12px;
+  background: var(--blue-fg);
+  color: #fff;
+  font-size: 23px;
+  font-weight: 500;
+}
+.odm-planning-create-head h3 {
+  margin: 0 0 4px;
+  font-size: 19px;
+}
+.odm-planning-create-head p {
+  margin: 0;
+  color: var(--tx2);
+  font-size: 13px;
+}
+.odm-planning-create-close {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  border: 1px solid var(--bd);
+  border-radius: 9px;
+  background: var(--sf);
+  color: var(--tx2);
+  font: 24px/1 inherit;
+  cursor: pointer;
+  margin-left: auto;
+  transition: 160ms ease;
+}
+.odm-planning-create-close:hover {
+  border-color: var(--blue-fg);
+  color: var(--blue-fg);
+  background: var(--blue-bg);
+}
 
 /* Chế độ nhúng trong kế hoạch: chỉ giữ các trường cần để tạo Mission. */
 .odm-plan-page.is-embedded {
@@ -602,6 +709,10 @@
 }
 .odm-plan-page.is-embedded > .odm-or-grid > .odm-or-col:first-child > section:nth-child(3) {
   order: 1;
+}
+.odm-plan-page.is-embedded > .odm-or-grid > .odm-or-col:first-child > section:nth-child(4) {
+  grid-column: 1 / -1;
+  order: 3;
 }
 .odm-plan-page.is-embedded > .odm-or-grid .odm-or-card {
   margin: 0;
@@ -973,3 +1084,680 @@
   color: #92560a;
   font-size: 13px;
 }
+
+/* =========================================================================
+   New Split-View Planning Layout (30% Master Checklist - 70% Workspace)
+   ========================================================================= */
+.odm-planning-split-layout {
+  display: grid;
+  grid-template-columns: minmax(300px, 30%) minmax(0, 70%);
+  gap: 24px;
+  align-items: start;
+  margin-top: 20px;
+}
+.odm-planning-split-layout.is-collapsed {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (max-width: 1024px) {
+  .odm-planning-split-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Master Checklist Column (Left) */
+.odm-master-checklist-sidebar {
+  background: var(--sf);
+  border: 1px solid var(--bd);
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+  position: sticky;
+  top: 16px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.odm-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--bd);
+  padding-bottom: 12px;
+}
+.odm-sidebar-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.odm-checklist-block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.odm-checklist-block-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tx2);
+}
+.odm-checklist-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.odm-master-item-card {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--bd);
+  background: var(--sf2);
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+.odm-master-item-card.is-unassigned {
+  border-left: 3px solid #f59e0b;
+  background: #fffdf5;
+}
+.odm-master-item-card.is-assigned {
+  border-left: 3px solid #10b981;
+  background: #f0fdf4;
+}
+.odm-master-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: var(--tx3);
+}
+
+/* Workspace Grid (Right) */
+.odm-missions-workspace-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.odm-workspace-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 16px 20px;
+  background: var(--sf);
+  border: 1px solid var(--bd);
+  border-radius: 14px;
+}
+.odm-workspace-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 20px;
+  align-items: start;
+}
+@media (max-width: 640px) {
+  .odm-workspace-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Mission Card Redesign */
+.odm-mission-grid-card {
+  background: var(--sf);
+  border: 1px solid var(--bd);
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 4px 12px rgba(15, 23, 42, 0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.odm-mission-grid-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 10px 24px -3px rgba(15, 23, 42, 0.08);
+}
+.odm-mission-grid-card.is-ready {
+  border-top: 3px solid #10b981;
+}
+.odm-mission-grid-card.is-planning {
+  border-top: 3px solid #3b82f6;
+}
+.odm-mission-grid-card.is-cancelled {
+  border-top: 3px solid #ef4444;
+  background: #fafafa;
+  opacity: 0.9;
+}
+
+.odm-mcard-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid var(--bd-subtle, rgba(0, 0, 0, 0.06));
+  padding-bottom: 12px;
+}
+.odm-mcard-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.odm-mcard-title-group strong {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--tx);
+  letter-spacing: -0.01em;
+}
+.odm-mcard-title-group strong a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+.odm-mcard-title-group strong a:hover {
+  color: var(--blue-fg, #2563eb);
+}
+.odm-mcard-title-group span {
+  font-size: 12px;
+  color: var(--tx3, #64748b);
+}
+
+.odm-mcard-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.odm-mcard-sec-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--tx2, #475569);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.odm-mcard-sec-badge {
+  font-size: 11px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--sf3, #f1f5f9);
+  color: var(--tx3, #64748b);
+  font-weight: 500;
+}
+
+.odm-mcard-schedule {
+  padding: 8px 12px;
+  background: var(--sf2, #f8fafc);
+  border: 1px solid var(--bd-subtle, rgba(0, 0, 0, 0.04));
+  border-radius: 8px;
+  font-size: 12.5px;
+  color: var(--tx, #1e293b);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+/* Checklist in Card */
+.odm-mcard-checklist-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.odm-mcard-ch-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 11px;
+  border-radius: 8px;
+  background: var(--sf2, #f8fafc);
+  border: 1px solid var(--bd-subtle, rgba(0, 0, 0, 0.04));
+  font-size: 12.5px;
+  color: var(--tx, #1e293b);
+  line-height: 1.4;
+  transition: background 0.15s ease;
+}
+.odm-mcard-ch-item:hover {
+  background: #f1f5f9;
+}
+.odm-mcard-ch-remove {
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 2px 6px;
+  font-size: 13px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+.odm-mcard-ch-remove:hover {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+/* Resource Rows (Staff & Device) */
+.odm-mcard-res-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.odm-mcard-res-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 11px;
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid var(--bd-subtle, #e2e8f0);
+  font-size: 12.5px;
+  transition: border-color 0.15s ease;
+}
+.odm-mcard-res-item:hover {
+  border-color: #cbd5e1;
+}
+.odm-mcard-res-role {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--blue-fg, #2563eb);
+  background: #eff6ff;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-right: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.odm-mcard-res-remove {
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+  line-height: 1;
+  transition: all 0.15s ease;
+}
+.odm-mcard-res-remove:hover {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+/* Inline form for adding resources */
+.odm-mcard-inline-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 10px;
+  padding: 14px;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  background: linear-gradient(145deg, #f8fbff, #f1f6ff);
+  box-shadow: 0 5px 16px rgba(37, 99, 235, 0.07);
+  animation: odmInlineFormIn 0.16s ease-out;
+}
+.odm-mcard-inline-form-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.odm-mcard-inline-form-heading strong {
+  color: #172554;
+  font-size: 13px;
+  font-weight: 700;
+}
+.odm-mcard-inline-form-heading span,
+.odm-mcard-inline-form-hint {
+  margin: 0;
+  color: #64748b;
+  font-size: 11.5px;
+  line-height: 1.45;
+}
+.odm-mcard-field {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 5px;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 650;
+}
+.odm-mcard-inline-fields {
+  display: grid;
+  grid-template-columns: minmax(110px, 0.9fr) minmax(0, 1.6fr);
+  gap: 9px;
+}
+.odm-mcard-inline-form select {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 40px;
+  padding: 8px 32px 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background-color: #fff;
+  color: #1e293b;
+  font: inherit;
+  font-size: 12.5px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.odm-mcard-inline-form select:focus-visible {
+  border-color: #3b82f6;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+.odm-mcard-inline-form select:disabled {
+  cursor: not-allowed;
+  background: #f1f5f9;
+  color: #64748b;
+}
+.odm-mcard-inline-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid #dbeafe;
+}
+.odm-mcard-inline-actions .odm-btn {
+  min-height: 36px;
+  padding-inline: 12px;
+}
+.odm-mcard-inline-actions .odm-btn-p {
+  min-width: 118px;
+}
+.odm-mcard-error {
+  padding: 9px 11px;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  background: #fff7f7;
+  color: #b91c1c;
+  font-size: 12px;
+  line-height: 1.45;
+}
+@keyframes odmInlineFormIn {
+  from { opacity: 0; transform: translateY(-3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (max-width: 460px) {
+  .odm-mcard-inline-fields {
+    grid-template-columns: 1fr;
+  }
+  .odm-mcard-inline-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .odm-mcard-inline-actions .odm-btn-p {
+    min-width: 0;
+  }
+}
+
+.odm-mcard-footer {
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--bd-subtle, rgba(0, 0, 0, 0.06));
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* Modal Reason Popup */
+.odm-reason-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+.odm-reason-modal {
+  background: var(--sf);
+  border: 1px solid var(--bd);
+  border-radius: 14px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.16);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.odm-reason-modal h3 {
+  margin: 0;
+  font-size: 17px;
+  color: var(--tx);
+}
+.odm-reason-modal p {
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--tx2);
+  line-height: 1.5;
+}
+.odm-reason-modal textarea {
+  width: 100%;
+  min-height: 88px;
+  box-sizing: border-box;
+  padding: 10px;
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+  font: inherit;
+  font-size: 13.5px;
+}
+.odm-reason-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* Checklist selection card in create mission form */
+.odm-mission-checklist-selection-card {
+  border: 1px solid var(--bd, #e2e8f0);
+  border-radius: 14px;
+  background: var(--sf, #ffffff);
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+  margin-top: 8px;
+}
+
+.odm-checklist-selection-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--bd, #e2e8f0);
+  flex-wrap: wrap;
+}
+
+.odm-checklist-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.odm-checklist-count-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.odm-checklist-quick-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.odm-btn-highlight {
+  background: #eff6ff !important;
+  color: #2563eb !important;
+  border-color: #bfdbfe !important;
+  font-weight: 600;
+}
+
+.odm-btn-highlight:hover {
+  background: #dbeafe !important;
+}
+
+.odm-checklist-selection-body {
+  padding: 16px 20px;
+}
+
+.odm-checklist-empty-note {
+  padding: 24px;
+  text-align: center;
+  color: var(--tx2, #64748b);
+  font-style: italic;
+  background: #f8fafc;
+  border-radius: 8px;
+}
+
+.odm-checklist-items-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.odm-checklist-select-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 12px 16px;
+  border: 1px solid var(--bd, #e2e8f0);
+  border-radius: 10px;
+  background: #ffffff;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  position: relative;
+}
+
+.odm-checklist-select-item:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.odm-checklist-select-item.is-selected {
+  border-color: #93c5fd;
+  background: #f0f7ff;
+}
+
+.odm-checklist-select-item.is-unassigned,
+.odm-checklist-select-item.is-uncovered {
+  border-left: 4px solid #f59e0b;
+}
+
+.odm-checklist-select-item.is-assigned {
+  border-left: 4px solid #10b981;
+}
+
+.odm-checklist-checkbox {
+  margin-top: 3px;
+  width: 18px;
+  height: 18px;
+  accent-color: #2563eb;
+  cursor: pointer;
+  flex: none;
+}
+
+.odm-checklist-item-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.odm-checklist-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.odm-checklist-item-title {
+  font-size: 14px;
+  color: var(--tx, #0f172a);
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.odm-checklist-badges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.odm-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.odm-badge-uncovered {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.odm-badge-assigned {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.odm-badge-source {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.odm-checklist-item-desc {
+  margin: 2px 0 0;
+  font-size: 12.5px;
+  color: var(--tx2, #64748b);
+  line-height: 1.4;
+}
+
+.odm-checklist-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: #64748b;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.odm-checklist-error-msg {
+  color: #dc2626;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  margin: 12px 0 0;
+}
+
+

@@ -46,7 +46,12 @@ export function SafeStopSummary({
           : 'warning'
   const steps = [
     { label: 'Đã gửi yêu cầu', done: Boolean(stop?.requestedAt) },
-    { label: 'Xác nhận an toàn', done: Boolean(stop?.confirmedAt) },
+    {
+      label: 'Xác nhận an toàn',
+      done:
+        Boolean(stop?.confirmedAt) ||
+        (stop?.requiresLanding === false && Boolean(stop?.cleanedAt)),
+    },
     { label: 'Giải phóng tài nguyên', done: Boolean(stop?.cleanedAt) },
     ...(actor === 'manager' ? [{ label: 'Hủy Mission', done: false }] : []),
   ]

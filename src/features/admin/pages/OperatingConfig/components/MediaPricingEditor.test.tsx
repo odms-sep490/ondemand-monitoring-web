@@ -89,8 +89,8 @@ describe('MediaPricingEditor', () => {
         ]}
       />,
     )
-    expect(screen.getByText(/Media đã bao gồm/)).toBeInTheDocument()
-    expect(screen.getByText(/Media bổ sung/)).toBeInTheDocument()
+    expect(screen.getByText(/Ảnh\/video đã bao gồm/)).toBeInTheDocument()
+    expect(screen.getByText(/Ảnh\/video bổ sung/)).toBeInTheDocument()
     expect(screen.getAllByTestId('media-rule')).toHaveLength(3)
   })
 
@@ -232,7 +232,7 @@ describe('PricingPolicyTab with MEDIA rules', () => {
     )[0]
     expect(save).toBeDisabled()
     expect(
-      screen.getAllByRole('button', { name: 'Phát hành' })[0],
+      screen.getAllByRole('button', { name: 'Áp dụng' })[0],
     ).toBeDisabled()
     fireEvent.click(save)
     expect(update).not.toHaveBeenCalled()
@@ -280,10 +280,12 @@ describe('PricingPolicyTab with MEDIA rules', () => {
 
     render(<PricingPolicyTab />)
     expect(
-      await screen.findByText(/Chính sách đang áp dụng không thể chỉnh sửa/),
+      await screen.findByText(
+        /Chính sách giá đang áp dụng không thể chỉnh sửa/,
+      ),
     ).toBeInTheDocument()
     fireEvent.click(
-      screen.getByRole('button', { name: 'Nhân bản thành DRAFT' }),
+      screen.getByRole('button', { name: 'Tạo bản nháp mới' }),
     )
 
     await waitFor(() => expect(clone).toHaveBeenCalledWith('active-1'))
@@ -303,17 +305,29 @@ describe('PricingPolicyTab with MEDIA rules', () => {
     fireEvent.click(
       await screen.findByRole('tab', { name: /Quy tắc nâng cao/ }),
     )
-    fireEvent.click(screen.getAllByRole('button', { name: 'Thêm quy tắc' })[0])
-    fireEvent.click(screen.getByRole('button', { name: 'Xóa quy tắc' }))
+    fireEvent.click(screen.getByRole('button', { name: '+ Thêm quy tắc' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Hủy' }))
     expect(screen.queryByLabelText('Mã quy tắc')).not.toBeInTheDocument()
-    fireEvent.click(screen.getAllByRole('button', { name: 'Thêm quy tắc' })[0])
+    fireEvent.click(screen.getByRole('button', { name: '+ Thêm quy tắc' }))
     fireEvent.change(screen.getByLabelText('Mã quy tắc'), {
       target: { value: 'AREA_EXTRA' },
     })
-    fireEvent.change(screen.getByLabelText('Giá trị tối đa'), {
+    fireEvent.change(screen.getByLabelText('Cách tính'), {
+      target: { value: 'FIXED' },
+    })
+    fireEvent.change(screen.getByLabelText('Cách tính'), {
+      target: { value: 'PER_BLOCK' },
+    })
+    fireEvent.change(screen.getByLabelText('Giá trị đến'), {
       target: { value: '100' },
     })
-    fireEvent.click(screen.getByLabelText('Đang bật'))
+    fireEvent.click(screen.getByLabelText('Đang áp dụng'))
+    fireEvent.click(
+      within(screen.getByRole('region', { name: 'Tạo quy tắc giá' })).getByRole(
+        'button',
+        { name: 'Thêm quy tắc' },
+      ),
+    )
     fireEvent.click(screen.getAllByRole('button', { name: 'Lưu bản nháp' })[0])
 
     await waitFor(() => expect(update).toHaveBeenCalled())

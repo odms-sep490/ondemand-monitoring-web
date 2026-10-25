@@ -1,16 +1,17 @@
 import { defineMessages, useI18n } from '../../../../../shared/i18n'
 import { CUSTOM_PROFILE, newMediaRule } from '../../../lib/mediaPricingRules'
 import type { MediaPricingComponent, PricingRule } from '../../../types/pricing'
+import { MoneyInput, UnitInput } from './PricingInputs'
 
 const messages = defineMessages({
   vi: {
     title: 'Giá yêu cầu bổ sung',
-    hint: 'Nội dung khách tự thêm ngoài danh mục. Giá = giá nền + diện tích vượt định mức + ảnh vượt định mức + video vượt định mức. Ảnh/video vượt định mức dùng chung Bảng giá media bên dưới.',
-    basePrice: 'Giá nền (VND)',
+    hint: 'Nội dung khách tự thêm ngoài danh mục. Giá = giá nền + diện tích vượt định mức + ảnh vượt định mức + video vượt định mức. Ảnh/video vượt định mức dùng chung bảng giá ảnh và video bên dưới.',
+    basePrice: 'Giá cơ bản',
     includedImages: 'Số ảnh đã bao gồm',
     includedVideos: 'Số video đã bao gồm',
-    includedArea: 'Diện tích đã bao gồm (ha)',
-    extraArea: 'Phụ thu mỗi ha vượt định mức (VND)',
+    includedArea: 'Diện tích đã bao gồm',
+    extraArea: 'Phụ thu diện tích vượt định mức',
     formula:
       'Ví dụ: đơn 8,5 ha với định mức 5 ha tính phụ thu cho 3,5 ha. Đơn lặp N lần tính giá N lần.',
     invalid: 'Nhập số nguyên không âm.',
@@ -18,11 +19,11 @@ const messages = defineMessages({
   en: {
     title: 'Customer-added requirement price',
     hint: 'Work a customer adds outside the catalog. Price = base price + area above the allowance + images above the allowance + videos above the allowance. Extra images and videos use the shared media price list below.',
-    basePrice: 'Base price (VND)',
+    basePrice: 'Base price',
     includedImages: 'Included images',
     includedVideos: 'Included videos',
-    includedArea: 'Included area (ha)',
-    extraArea: 'Surcharge per extra hectare (VND)',
+    includedArea: 'Included area',
+    extraArea: 'Surcharge per extra hectare',
     formula:
       'Example: an 8.5 ha order with a 5 ha allowance is charged for 3.5 ha. An order repeated N times is priced N times.',
     invalid: 'Enter a non-negative whole number.',
@@ -144,37 +145,57 @@ export function CustomerAddedPricingForm({
     )
   }
 
-  const invalid = (raw: string) =>
-    raw !== '' && (!/^\d+$/.test(raw) || Number(raw) < 0)
-
   return (
-    <section className="pricing-customer-added" aria-label={t.title}>
-      <h4>{t.title}</h4>
-      <p>{t.hint}</p>
-      <div className="pricing-customer-added-grid">
-        {FIELDS.map((field) => {
-          const raw = valueOf(field)
-          const id = `customer-added-${field.key}`
-          return (
-            <label key={field.key} htmlFor={id}>
-              <span>{t[field.label]}</span>
-              <input
-                id={id}
-                type="number"
-                min={0}
-                step={field.step}
-                inputMode="numeric"
-                disabled={disabled}
-                value={raw}
-                aria-invalid={invalid(raw)}
-                onChange={(event) => update(field, event.target.value)}
-              />
-              {invalid(raw) && <small role="alert">{t.invalid}</small>}
-            </label>
-          )
-        })}
+    <section className="pricing-customer-added pricing-section" aria-label={t.title}>
+      <header className="pricing-section-head">
+        <div>
+          <span className="pricing-section-kicker">Cấu hình cơ bản</span>
+          <h3>{t.title}</h3>
+          <p>{t.hint}</p>
+        </div>
+      </header>
+      <div className="pricing-basic-layout">
+        <div className="pricing-subcard pricing-subcard-featured">
+          <h4>Giá cơ bản</h4>
+          {renderField(FIELDS[0])}
+        </div>
+        <div className="pricing-subcard">
+          <h4>Định mức đã bao gồm</h4>
+          <p className="pricing-helper">
+            Khách chỉ bị tính thêm khi yêu cầu vượt các số lượng này.
+          </p>
+          <div className="pricing-field-grid">
+            {FIELDS.slice(1, 4).map(renderField)}
+          </div>
+        </div>
+        <div className="pricing-subcard">
+          <h4>Chi phí vượt định mức</h4>
+          {renderField(FIELDS[4])}
+        </div>
       </div>
       <p className="pricing-customer-added-note">{t.formula}</p>
     </section>
   )
+
+  function renderField(field: Field) {
+    const raw = valueOf(field)
+    const value = raw === '' ? null : Number(raw)
+    const id = `customer-added-${field.key}`
+    const common = {
+      id,
+      label: t[field.label],
+      ariaLabel: t[field.label],
+      value,
+      disabled,
+      onChange: (next: number | null) => update(field, next?.toString() ?? ''),
+    }
+    if (field.target === 'price') return <MoneyInput key={field.key} {...common} />
+    const suffix =
+      field.component === 'INCLUDED_IMAGE'
+        ? 'ảnh'
+        : field.component === 'INCLUDED_VIDEO'
+          ? 'video'
+          : 'ha'
+    return <UnitInput key={field.key} {...common} suffix={suffix} min={0} />
+  }
 }

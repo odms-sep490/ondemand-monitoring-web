@@ -1,5 +1,5 @@
 // Mock handlers for MNG-04 through MNG-07. Endpoints:
-//   POST   /api/orders/{id}/missions                      [BRIEF C4 = TK]
+//   POST   /api/missions                                  [BE]
 //   GET    /api/missions?from=&to=&status=                [TK]
 //   GET    /api/missions/{id}                             [BE]
 //   GET    /api/missions/{id}/resource-suggestions        [BRIEF C4]
@@ -460,18 +460,8 @@ registerMockRoutes([
   // ── MNG-04/05 routes (P5, unchanged) ──────────────────────────────────
   {
     method: 'POST',
-    path: '/api/orders/:id/missions',
+    path: '/api/missions/:id',
     handler: ({ params, body }) => {
-      const order = findOrder(params.id)
-      if (!order) return fail(404, 'NOT_FOUND', 'Không tìm thấy đơn')
-      if (order.status !== 'APPROVED') {
-        return fail(
-          409,
-          'ORDER_NOT_APPROVED',
-          'Đơn chưa được duyệt, chưa thể tạo mission.',
-        )
-      }
-
       const req = (body ?? {}) as {
         scheduledStart?: string
         scheduledEnd?: string
@@ -488,6 +478,15 @@ registerMockRoutes([
           generatedBy: 'SYSTEM' | 'MANUAL'
         }
         waypoints?: StoredMission['waypoints']
+      }
+      const order = findOrder(params.id)
+      if (!order) return fail(404, 'NOT_FOUND', 'Không tìm thấy đơn')
+      if (order.status !== 'APPROVED') {
+        return fail(
+          409,
+          'ORDER_NOT_APPROVED',
+          'Đơn chưa được duyệt, chưa thể tạo mission.',
+        )
       }
 
       const scheduledStart = req.scheduledStartAt ?? req.scheduledStart

@@ -1,8 +1,12 @@
+import { useState } from 'react'
+
 import {
   newMediaRule,
   validateMediaRules,
 } from '../../../lib/mediaPricingRules'
 import type { MediaPricingComponent, PricingRule } from '../../../types/pricing'
+import { formatVnd } from '../../../../../shared/lib/formatVnd'
+import { MoneyInput, UnitInput } from './PricingInputs'
 
 type Kind = {
   component: Extract<MediaPricingComponent, 'EXTRA_IMAGE' | 'EXTRA_VIDEO'>
@@ -48,14 +52,12 @@ export function SharedMediaTiers({
   rules: PricingRule[]
   onChange: (rules: PricingRule[]) => void
 }) {
+  const [editing, setEditing] = useState<number | null>(null)
   const problems = validateMediaRules(rules)
   const patch = (index: number, changes: Partial<PricingRule>) =>
     onChange(
       rules.map((rule, i) => (i === index ? { ...rule, ...changes } : rule)),
     )
-  const num = (value: string): number | null =>
-    value.trim() === '' ? null : Number(value)
-
   return (
     <div className="ppd-media">
       {KINDS.map((kind) => {
@@ -64,8 +66,21 @@ export function SharedMediaTiers({
           .filter((entry) => isShared(entry.rule, kind.component))
           .sort((a, b) => (a.rule.minValue ?? 0) - (b.rule.minValue ?? 0))
         return (
-          <fieldset key={kind.component} className="ppd-tier-group">
-            <legend>{kind.title}</legend>
+          <section
+            key={kind.component}
+            className="ppd-tier-group"
+            aria-label={kind.title}
+          >
+            <header className="pricing-tier-head">
+              <div>
+                <h4>{kind.title}</h4>
+                <p>
+                  Áp dụng khi số {kind.noun} khách yêu cầu vượt định mức đã bao
+                  gồm.
+                </p>
+              </div>
+              <span className="ppd-count">{rows.length} bậc giá</span>
+            </header>
             {rows.length === 0 && (
               <p className="ppo-empty">
                 Chưa có bậc giá. Ảnh/video vượt định mức sẽ không tính được cho
@@ -75,71 +90,99 @@ export function SharedMediaTiers({
             {rows.map(({ rule, index }) => {
               const own = problems.filter((p) => p.index === index)
               return (
-                <div
-                  className="ppd-tier"
+                <article
+                  className={`ppd-tier${editing === index ? ' is-editing' : ''}`}
                   key={rule.ruleKey}
                   data-testid="shared-tier"
                 >
-                  <label>
-                    <span>Từ ({kind.noun})</span>
-                    <input
-                      type="number"
-                      min={0}
-                      value={rule.minValue ?? 0}
-                      aria-label={`${kind.title}: từ`}
-                      onChange={(e) =>
-                        patch(index, { minValue: num(e.target.value) ?? 0 })
-                      }
-                    />
-                  </label>
-                  <label>
-                    <span>Đến ({kind.noun})</span>
-                    <input
-                      type="number"
-                      min={1}
-                      placeholder="Không giới hạn"
-                      value={rule.maxValue ?? ''}
-                      aria-label={`${kind.title}: đến`}
-                      onChange={(e) =>
-                        patch(index, { maxValue: num(e.target.value) })
-                      }
-                    />
-                  </label>
-                  <label>
-                    <span>Mỗi khối ({kind.noun})</span>
-                    <input
-                      type="number"
-                      min={1}
-                      value={rule.unitSize ?? ''}
-                      aria-label={`${kind.title}: kích thước khối`}
-                      onChange={(e) =>
-                        patch(index, { unitSize: num(e.target.value) })
-                      }
-                    />
-                  </label>
-                  <label>
-                    <span>Giá mỗi khối (VND)</span>
-                    <input
-                      type="number"
-                      min={0}
-                      step={1000}
-                      value={rule.fixedAmount ?? ''}
-                      aria-label={`${kind.title}: giá mỗi khối`}
-                      onChange={(e) =>
-                        patch(index, { fixedAmount: num(e.target.value) })
-                      }
-                    />
-                  </label>
-                  <button
-                    type="button"
-                    className="odm-btn odm-btn-sm"
-                    aria-label={`Xóa bậc ${kind.noun} từ ${rule.minValue ?? 0}`}
-                    onClick={() =>
-                      onChange(rules.filter((_, i) => i !== index))
-                    }
-                  >
-                    Xóa
-                  </button>
+                  {editing === index ? (
+                    <div className="pricing-tier-editor">
+                      <div className="pricing-field-grid pricing-field-grid-four">
+                        <UnitInput
+                          label="Giá trị từ"
+                          ariaLabel={`${kind.title}: từ`}
+                          suffix={kind.noun}
+                          min={0}
+                          value={rule.minValue ?? 0}
+                          onChange={(value) =>
+                            patch(index, { minValue: value ?? 0 })
+                          }
+                          helper="Mốc kỹ thuật bắt đầu từ 0 cho phần vượt định mức."
+                        />
+                        <UnitInput
+                          label="Giá trị đến"
+                          ariaLabel={`${kind.title}: đến`}
+                          suffix={kind.noun}
+                          min={1}
+                          value={rule.maxValue ?? null}
+                          onChange={(value) => patch(index, { maxValue: value })}
+                          helper="Để trống nếu đây là bậc cuối không giới hạn."
+                        />
+                        <UnitInput
+                          label="Kích thước khối"
+                          ariaLabel={`${kind.title}: kích thước khối`}
+                          suffix={kind.noun}
+                          min={1}
+                          value={rule.unitSize ?? null}
+                          onChange={(value) => patch(index, { unitSize: value })}
+                          helper="Số lượng được tính thành một đơn vị giá."
+                        />
+                        <MoneyInput
+                          label="Giá mỗi khối"
+                          ariaLabel={`${kind.title}: giá mỗi khối`}
+                          value={rule.fixedAmount ?? null}
+                          onChange={(value) =>
+                            patch(index, { fixedAmount: value })
+                          }
+                        />
+                      </div>
+                      <div className="pricing-card-actions">
+                        <button
+                          type="button"
+                          className="odm-btn odm-btn-sm"
+                          onClick={() => setEditing(null)}
+                        >
+                          Xong
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="pricing-tier-summary">
+                        <strong>{tierRange(rule, kind)}</strong>
+                        <span>
+                          {formatVnd(rule.fixedAmount ?? 0)} / mỗi{' '}
+                          {rule.unitSize ?? 1} {kind.noun}
+                        </span>
+                        <small>{roundingLabel(rule.roundingMode)}</small>
+                      </div>
+                      <div className="pricing-card-actions">
+                        <button
+                          type="button"
+                          className="odm-btn odm-btn-sm"
+                          onClick={() => setEditing(index)}
+                        >
+                          Chỉnh sửa
+                        </button>
+                        <button
+                          type="button"
+                          className="pricing-icon-button is-danger"
+                          aria-label={`Xóa bậc ${kind.noun} ${tierRange(rule, kind)}`}
+                          title="Xóa bậc giá"
+                          onClick={() => {
+                            if (
+                              window.confirm(
+                                `Bạn có chắc muốn xóa bậc giá “${tierRange(rule, kind)}”?`,
+                              )
+                            )
+                              onChange(rules.filter((_, i) => i !== index))
+                          }}
+                        >
+                          ×
+                        </button>
+                      </div>
+                    </>
+                  )}
                   {own.length > 0 && (
                     <ul role="alert" className="ppd-issues">
                       {own.map((p) => (
@@ -147,24 +190,42 @@ export function SharedMediaTiers({
                       ))}
                     </ul>
                   )}
-                </div>
+                </article>
               )
             })}
             <button
               type="button"
               className="odm-btn odm-btn-sm"
-              onClick={() =>
-                onChange([
+              onClick={() => {
+                const next = [
                   ...rules,
                   newMediaRule(SHARED_PROFILE, kind.component, rules),
-                ])
-              }
+                ]
+                onChange(next)
+                setEditing(next.length - 1)
+              }}
             >
-              + Thêm bậc {kind.noun}
+              + Thêm bậc giá
             </button>
-          </fieldset>
+          </section>
         )
       })}
     </div>
   )
+}
+
+function tierRange(rule: PricingRule, kind: Kind) {
+  const from = (rule.minValue ?? 0) + 1
+  const to = rule.maxValue
+  if (kind.component === 'EXTRA_VIDEO' && from === 1 && to === 1)
+    return 'Video đầu tiên'
+  if (to == null)
+    return `${kind.component === 'EXTRA_VIDEO' ? 'Video' : 'Ảnh'} từ ${from} trở lên`
+  return `${kind.component === 'EXTRA_VIDEO' ? 'Video' : 'Ảnh'} ${from}–${to}`
+}
+
+function roundingLabel(rounding: PricingRule['roundingMode']) {
+  if (rounding === 'FLOOR') return 'Làm tròn xuống'
+  if (rounding === 'HALF_UP') return 'Làm tròn gần nhất'
+  return 'Làm tròn lên'
 }

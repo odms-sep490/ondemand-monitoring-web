@@ -14,11 +14,10 @@ import type { MissionResponse } from '../types/missions'
 import type { CreateMissionRequest } from '../types/missions'
 
 const validRequest: CreateMissionRequest = {
-  idempotencyKey: '183e3666-ad90-4085-b1c6-ff6858f769d1',
-  expectedPlanRevision: 0,
   scopeLabel: 'Whole Order scope',
-  scheduledStartAt: '2026-09-26T08:00:00+07:00',
-  scheduledEndAt: '2026-09-26T09:00:00+07:00',
+  scheduledStart: '2026-09-26T08:00:00+07:00',
+  scheduledEnd: '2026-09-26T09:00:00+07:00',
+  checklistIds: ['checklist-item-1'],
 }
 
 describe('Staff mission response mapping', () => {
@@ -61,7 +60,7 @@ describe('missionsApi (mock mode)', () => {
     )
     expect(mission.missionCode).toBe('MSN-2609-0157-1')
     expect(mission.flightPlan).toBeNull()
-    expect(mission.scheduledStartAt).toBe(validRequest.scheduledStartAt)
+    expect(mission.scheduledStartAt).toBe(validRequest.scheduledStart)
   })
 
   it('createMission starts a new attempt when the mission already has a plan', async () => {

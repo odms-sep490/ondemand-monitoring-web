@@ -52,6 +52,8 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
   // A completed Order stage reopened read-only; null = the live (current) screen.
   const [viewStage, setViewStage] = useState<OrderStage | null>(null)
   const [planning, setPlanning] = useState<PlanningWorkflowInfo | null>(null)
+  // Track whether viewing 'planning' or 'permit' stage when plan is finalized
+  const [activeWorkflowTab, setActiveWorkflowTab] = useState<'planning' | 'permit'>('planning')
   const pageRef = useRef<HTMLDivElement>(null)
   const [assigningMissionId, setAssigningMissionId] = useState<string | null>(
     null,
@@ -59,6 +61,13 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
   useEffect(() => {
     setAreaReviewStatus(orderQuery.data?.legalReviewStatus ?? null)
   }, [orderQuery.data])
+
+  // When the plan is finalized, automatically default the active workflow tab to 'permit'
+  useEffect(() => {
+    if (planning?.isFinalized) {
+      setActiveWorkflowTab('permit')
+    }
+  }, [planning?.isFinalized])
   if (navigateHome) {
     window.location.hash = managerHref({ screen: 'orderQueue' })
     return null
@@ -97,11 +106,18 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
     status: order.status,
     depositPaid: planning ? planning.depositPaid : true,
     reviewStep,
+    planFinalized: planning?.isFinalized,
   })
   // Only a PENDING order can still be reviewed; rejected/cancelled/need-info orders are view-only.
   const readOnly = showExecutionPlan || order.status !== 'PENDING'
   const reviewing = !showExecutionPlan || viewStage !== null
   const openStage = (stage: OrderStage) => {
+    if (stage === 'planning') {
+      setViewStage(null)
+      setActiveWorkflowTab('planning')
+      pageRef.current?.scrollIntoView?.({ block: 'start' })
+      return
+    }
     const step = orderStageToReviewStep(stage)
     if (!step) return
     setReviewStep(step)
@@ -138,10 +154,23 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
         showExecutionPlan={showExecutionPlan}
         stepperProgress={stepperProgress}
         order={order}
-        viewStage={viewStage}
+        viewStage={
+          viewStage ??
+          (planning?.isFinalized && activeWorkflowTab === 'planning' ? 'planning' : null)
+        }
         openStage={openStage}
         goToStep={goToStep}
         planning={planning}
+        viewMissionStage={
+          planning?.isFinalized && activeWorkflowTab === 'permit' ? 'permit' : null
+        }
+        onSelectMissionStage={(stage) => {
+          if (stage === 'permit') {
+            setViewStage(null)
+            setActiveWorkflowTab('permit')
+            pageRef.current?.scrollIntoView?.({ block: 'start' })
+          }
+        }}
       />
       {showExecutionPlan && (
         // Stays mounted while history is open so unsaved planning drafts survive.
@@ -151,6 +180,7 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
             initialOrder={order}
             onAssignResources={setAssigningMissionId}
             onWorkflowInfo={setPlanning}
+            activeTab={activeWorkflowTab}
           />
         </div>
       )}

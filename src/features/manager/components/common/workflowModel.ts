@@ -19,8 +19,6 @@ export const ORDER_STAGES = [
 export type OrderStage = (typeof ORDER_STAGES)[number]
 
 export const MISSION_STAGES = [
-  'resources',
-  'prepare',
   'permit',
   'execute',
   'done',
@@ -29,10 +27,9 @@ export type MissionStage = (typeof MISSION_STAGES)[number]
 
 /**
  * The Order planning flow ends after the flight permit. Execution and result
- * review live on the dedicated Mission detail screen, so they must not be
- * rendered as additional planning steps.
+ * review live on the dedicated Mission detail screen.
  */
-export const MISSION_PLANNING_STAGES = MISSION_STAGES.slice(0, 3) as readonly MissionStage[]
+export const MISSION_PLANNING_STAGES = MISSION_STAGES.slice(0, 2) as readonly MissionStage[]
 
 /** done = can be reopened read-only; blocked = cannot continue (e.g. after a rejection). */
 export type StageState = 'done' | 'current' | 'waiting' | 'upcoming' | 'blocked'
@@ -62,10 +59,12 @@ export function orderProgress({
   status,
   depositPaid,
   reviewStep,
+  planFinalized,
 }: {
   status: OrderStatus
   depositPaid: boolean
   reviewStep: 1 | 2 | 3 | 4
+  planFinalized?: boolean
 }): OrderProgress {
   if (status === 'REJECTED' || status === 'CANCELLED')
     return {
@@ -73,12 +72,16 @@ export function orderProgress({
       waiting: false,
       terminal: status === 'REJECTED' ? 'rejected' : 'cancelled',
     }
-  if (status === 'APPROVED')
+  if (status === 'APPROVED') {
+    if (planFinalized) {
+      return { current: 'complete', waiting: false, terminal: null }
+    }
     return {
       current: depositPaid ? 'planning' : 'deposit',
       waiting: !depositPaid,
       terminal: null,
     }
+  }
   if (['SCHEDULED', 'IN_PROGRESS', 'COMPLETED'].includes(status))
     return { current: 'complete', waiting: false, terminal: null }
   return {
@@ -116,19 +119,21 @@ export function missionProgress(
   if (status === 'FAILED')
     return { current: 'execute', finished: false, terminal: 'failed' }
   if (status === 'CANCELLED')
-    return { current: 'resources', finished: false, terminal: 'cancelled' }
+    return { current: 'permit', finished: false, terminal: 'cancelled' }
   let stage: MissionStage = (
     {
-      CREATED: 'resources',
-      WAITING_DEPOSIT: 'resources',
-      RESOURCE_ASSIGNING: 'resources',
-      WAITING_CREW_CONFIRMATION: 'prepare',
-      WAITING_OPERATOR_ACCEPTANCE: 'prepare',
-      SCHEDULED: 'prepare',
-      CONNECTED: 'prepare',
-      PREFLIGHT_CHECKING: 'prepare',
-      READY_TO_FLY: 'prepare',
-      FAILED_PREFLIGHT: 'prepare',
+      PLANNING: 'permit',
+      CREATED: 'permit',
+      WAITING_DEPOSIT: 'permit',
+      READY: 'permit',
+      RESOURCE_ASSIGNING: 'permit',
+      WAITING_CREW_CONFIRMATION: 'permit',
+      WAITING_OPERATOR_ACCEPTANCE: 'permit',
+      SCHEDULED: 'permit',
+      CONNECTED: 'permit',
+      PREFLIGHT_CHECKING: 'permit',
+      READY_TO_FLY: 'permit',
+      FAILED_PREFLIGHT: 'permit',
       PENDING_APPROVAL: 'permit',
       IN_FLIGHT: 'execute',
       IN_PROGRESS: 'execute',
@@ -137,12 +142,9 @@ export function missionProgress(
       PENDING_REVIEW: 'done',
     } as Record<MissionStatus, MissionStage>
   )[status]
-  if (stage === 'prepare' && flightPermitStatus === 'PENDING') stage = 'permit'
-  if (
-    (stage === 'prepare' || stage === 'permit') &&
-    flightPermitStatus === 'APPROVED'
-  )
+  if (flightPermitStatus === 'APPROVED' && stage === 'permit') {
     stage = 'execute'
+  }
   return { current: stage, finished: false, terminal: null }
 }
 
@@ -163,6 +165,6 @@ export type MissionBucket = 'finished' | 'active' | 'queued' | 'blocked'
 export function missionBucket(status: MissionStatus): MissionBucket {
   if (status === 'COMPLETED') return 'finished'
   if (status === 'FAILED' || status === 'CANCELLED') return 'blocked'
-  if (['CREATED', 'WAITING_DEPOSIT'].includes(status)) return 'queued'
+  if (['PLANNING', 'CREATED', 'WAITING_DEPOSIT'].includes(status)) return 'queued'
   return 'active'
 }

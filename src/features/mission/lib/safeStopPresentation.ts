@@ -51,6 +51,8 @@ const errorCopy: Record<string, string> = {
     'Kế hoạch đã thay đổi. Làm mới trạng thái trước khi tiếp tục.',
   EXECUTION_PLAN_NOT_DRAFT:
     'Cần mở điều chỉnh kế hoạch trước khi tiếp tục hủy Mission.',
+  EXECUTION_PLAN_NOT_FINALIZED:
+    'Chỉ có thể hủy Mission khi kế hoạch thực hiện đã được chốt (Finalized).',
   MISSION_SAFE_STOP_NOT_READY:
     'Mission chưa ở trạng thái an toàn để tiếp tục. Làm mới trạng thái hoặc liên hệ đội bay.',
   MISSION_SAFE_STOP_FAILED:

@@ -1,9 +1,10 @@
 import { act } from 'react'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { fireEvent, render, screen } from '@testing-library/react'
 
 import { setLanguage } from '../../../../../shared/i18n'
 import { OperatingConfigPage } from '../OperatingConfigPage'
+import { adminApi } from '../../../api/adminApi'
 import { useMockTransport } from './helpers'
 
 useMockTransport()
@@ -27,5 +28,18 @@ describe('OperatingConfigPage', () => {
     expect(await screen.findByText('Tham số vận hành')).toBeTruthy()
     fireEvent.click(screen.getByRole('tab', { name: /Vùng cấm bay/ }))
     expect((await screen.findAllByLabelText(/^Sửa /)).length).toBeGreaterThan(0)
+  })
+
+  it('keeps pricing inside operational configuration', async () => {
+    vi.spyOn(adminApi, 'listPricingPolicies').mockResolvedValue([])
+    render(<OperatingConfigPage />)
+
+    fireEvent.click(screen.getByRole('tab', { name: /Định giá/ }))
+
+    expect(
+      await screen.findByRole('heading', {
+        name: 'Chính sách giá mặc định',
+      }),
+    ).toBeInTheDocument()
   })
 })

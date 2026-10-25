@@ -56,12 +56,10 @@ export function MissionSelector({
         const count = scope?.assignmentCount ?? 0
         const checklistEditable =
           plan.planStatus === 'DRAFT' &&
-          scope?.finalizedPlanRevision == null &&
-          mission.status === 'RESOURCE_ASSIGNING'
+          mission.status === 'PLANNING'
         const resourcesEditable =
           plan.planStatus === 'FINALIZED' &&
-          (scope?.finalizedPlanRevision ?? 0) > 0 &&
-          ['RESOURCE_ASSIGNING', 'WAITING_CREW_CONFIRMATION'].includes(
+          ['READY', 'WAITING_CREW_CONFIRMATION'].includes(
             mission.status,
           )
         return (

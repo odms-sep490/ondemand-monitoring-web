@@ -26,7 +26,7 @@ export const planningPresentationMessages = defineMessages({
       'Hiện chưa hỗ trợ chọn target point/area riêng cho từng Mission.',
     geographyChecklist: 'Bạn sẽ phân công checklist cho Mission sau khi tạo.',
     retry: 'Tải lại kế hoạch',
-    finalized: 'Cần điều chỉnh kế hoạch trước khi tạo Mission mới.',
+    finalized: 'Kế hoạch đã chốt. Có thể tạo Mission thay thế và chốt riêng Mission đó.',
     replacement: (id: string) =>
       `Mission thay thế cho ${id}. Chỉ sao chép kế hoạch bạn nhập; không kế thừa bằng chứng hoặc kết quả.`,
     empty: 'Chưa có Mission nào trong kế hoạch.',
@@ -60,7 +60,7 @@ export const planningPresentationMessages = defineMessages({
     geographyChecklist:
       'Checklist assignments can be configured after the Mission is created.',
     retry: 'Reload plan',
-    finalized: 'An amendment is required before creating a new Mission.',
+    finalized: 'The plan is finalized. Replacement Missions can be created and finalized individually.',
     replacement: (id: string) =>
       `Replacement for ${id}. Only your entered planning is copied; evidence and results are not inherited.`,
     empty: 'No Missions in this plan yet.',

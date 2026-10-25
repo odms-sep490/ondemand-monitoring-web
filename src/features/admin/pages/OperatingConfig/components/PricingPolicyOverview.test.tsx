@@ -64,7 +64,7 @@ describe('PricingPolicyOverview', () => {
       />,
     )
     expect(
-      screen.getByText(/Phiên bản 3 · /, { selector: 'h3' }),
+      screen.getByText(/Chính sách giá v3 · /, { selector: 'h3' }),
     ).toBeInTheDocument()
     expect(screen.getByText('10%')).toBeInTheDocument()
     expect(screen.getByText('0,75')).toBeInTheDocument()
@@ -73,7 +73,7 @@ describe('PricingPolicyOverview', () => {
     expect(added).toHaveTextContent('5 ha')
     expect(added).toHaveTextContent('50.000')
     const media = screen.getByRole('region', {
-      name: 'Bảng giá media dùng chung',
+      name: 'Bảng giá ảnh và video dùng chung',
     })
     // Tiers are listed in order whatever order they are stored in.
     const lines = Array.from(media.querySelectorAll('li')).map(
@@ -96,7 +96,7 @@ describe('PricingPolicyOverview', () => {
     )
     expect(screen.getByRole('note')).toHaveTextContent('không thể chỉnh sửa')
     fireEvent.click(
-      screen.getByRole('button', { name: 'Nhân bản thành DRAFT' }),
+      screen.getByRole('button', { name: 'Tạo bản nháp mới' }),
     )
     expect(clone).toHaveBeenCalledTimes(1)
   })
@@ -114,7 +114,7 @@ describe('PricingPolicyOverview', () => {
       />,
     )
     expect(
-      screen.getByRole('button', { name: 'Nhân bản thành DRAFT' }),
+      screen.getByRole('button', { name: 'Tạo bản nháp mới' }),
     ).toBeDisabled()
     expect(screen.getByText('Chưa cấu hình')).toBeInTheDocument()
   })
@@ -149,7 +149,7 @@ describe('PricingPolicyOverview', () => {
     const rows = Array.from(versions.querySelectorAll('li')).map(
       (li) => li.textContent,
     )
-    expect(rows[0]).toContain('Phiên bản 3')
-    expect(rows[1]).toContain('Phiên bản 1')
+    expect(rows[0]).toContain('Chính sách giá v3')
+    expect(rows[1]).toContain('Chính sách giá v1')
   })
 })

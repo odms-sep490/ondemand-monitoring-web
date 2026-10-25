@@ -98,36 +98,39 @@ describe('validateStep', () => {
     ).toBe('otherMonitoringRelationship')
   })
 
-  it('step 2 (monitoring content) adds no field rule of its own', () => {
-    expect(validateStep(2, withService, okLocation, msg)).toEqual({})
+  it('step 2 requires an address', () => {
+    expect(validateStep(2, withService, okLocation, msg)).toEqual({
+      address: 'address',
+    })
     expect(validateStep(2, createDefaultForm(), okLocation, msg)).toEqual({
       serviceId: 'service',
       title: 'title',
+      address: 'address',
     })
   })
 
-  it('step 3 requires an address', () => {
+  it('step 3 remains cumulative after the monitoring-content step', () => {
     expect(validateStep(3, withService, okLocation, msg)).toEqual({
       address: 'address',
     })
   })
 
-  it('step 3 rejects an address or GPS edit that has not been reconfirmed', () => {
+  it('step 2 rejects an address or GPS edit that has not been reconfirmed', () => {
     const form = {
       ...withService,
       address: 'A',
       locationStatus: 'stale' as const,
     }
-    expect(validateStep(3, form, okLocation, msg).address).toBe(
+    expect(validateStep(2, form, okLocation, msg).address).toBe(
       'locationUnconfirmed',
     )
   })
 
-  it('step 3 reports an unconfirmed location, with a known blocked zone taking precedence', () => {
+  it('step 2 reports an unconfirmed location, with a known blocked zone taking precedence', () => {
     const form = { ...withService, address: 'A' }
     expect(
       validateStep(
-        3,
+        2,
         form,
         { monitoringValid: false, blockedZoneNames: [] },
         msg,
@@ -135,7 +138,7 @@ describe('validateStep', () => {
     ).toBe('locationUnconfirmed')
     expect(
       validateStep(
-        3,
+        2,
         form,
         { monitoringValid: false, blockedZoneNames: ['X', 'Y'] },
         msg,
@@ -143,14 +146,14 @@ describe('validateStep', () => {
     ).toBe('blocked:X, Y')
   })
 
-  it('step 3 rejects non-numeric coordinates', () => {
+  it('step 2 rejects non-numeric coordinates', () => {
     const form = {
       ...withService,
       address: 'A',
       latitude: 'abc',
       longitude: 'x',
     }
-    const errors = validateStep(3, form, okLocation, msg)
+    const errors = validateStep(2, form, okLocation, msg)
     expect(errors.latitude).toBe('latitude')
     expect(errors.longitude).toBe('longitude')
   })

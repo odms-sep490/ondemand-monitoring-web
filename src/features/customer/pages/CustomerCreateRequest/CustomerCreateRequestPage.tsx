@@ -113,7 +113,7 @@ export function CustomerCreateRequestPage() {
             />
             <PricingEstimateCard
               estimate={estimate}
-              loading={meta.pricingLoading}
+              loading={r.checklist.quote.loading}
               hasService={Boolean(r.service)}
               aiAnalysisRequested={false}
               additionalChecklists={additionalChecklists}

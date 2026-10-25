@@ -30,7 +30,7 @@ describe('LiveDispatchPage', () => {
     const mission = {
       id: 'mission-1',
       missionCode: 'MS-1',
-      status: 'RESOURCE_ASSIGNING',
+      status: 'READY',
       orderTitle: 'Chụp ảnh',
       scheduledStartAt: '2026-10-10T03:00:00Z',
       scheduledEndAt: '2026-10-10T04:00:00Z',
@@ -100,7 +100,7 @@ describe('LiveDispatchPage', () => {
     const mission = {
       id: 'mission-1',
       missionCode: 'MS-1',
-      status: 'RESOURCE_ASSIGNING',
+      status: 'READY',
       orderTitle: 'Chụp ảnh',
       scheduledStartAt: '2026-10-10T03:00:00Z',
       scheduledEndAt: '2026-10-10T04:00:00Z',
@@ -152,7 +152,7 @@ describe('LiveDispatchPage', () => {
     const mission = {
       id: 'mission-1',
       missionCode: 'MS-1',
-      status: 'RESOURCE_ASSIGNING',
+      status: 'READY',
       orderTitle: 'Chụp ảnh',
       scheduledStartAt: '2026-10-10T03:00:00Z',
       scheduledEndAt: '2026-10-10T04:00:00Z',

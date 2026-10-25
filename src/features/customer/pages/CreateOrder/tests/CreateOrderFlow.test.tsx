@@ -44,27 +44,30 @@ async function renderWizard() {
   return view
 }
 
-/** Step 1 -> step 2 (monitoring content) -> step 3 (location). */
-async function fillService(onContent?: () => Promise<void> | void) {
+/** Step 1 -> step 2 (location). */
+async function fillService() {
   fireEvent.click(
     await screen.findByRole('button', { name: /Giám sát công trình/ }),
   )
   fireEvent.change(screen.getByLabelText(/Tiêu đề/), {
     target: { value: 'Đơn kiểm thử' },
   })
+  next('Vị trí & vùng giám sát')
+}
+
+async function fillLocation(onContent?: () => Promise<void> | void) {
+  fireEvent.change(await screen.findByLabelText(/Địa chỉ hoặc khu vực/), {
+    target: { value: 'KCN Long Hậu' },
+  })
+  fireEvent.click(screen.getByRole('button', { name: 'Xác nhận tọa độ này' }))
+  await screen.findByText('Đã xác nhận vị trí')
   next('Nội dung giám sát')
   await onContent?.()
   const forward = await screen.findByRole('button', {
-    name: 'Tiếp tục: Vị trí & vùng giám sát',
+    name: 'Tiếp tục: Chi tiết & quyền giám sát',
   })
   await waitFor(() => expect(forward).toBeEnabled())
   fireEvent.click(forward)
-}
-
-async function fillLocation() {
-  fireEvent.change(await screen.findByLabelText(/Địa chỉ\/khu vực/), {
-    target: { value: 'KCN Long Hậu' },
-  })
   fireEvent.change(screen.getByLabelText(/Người liên hệ/), { target: { value: 'An' } })
   fireEvent.change(screen.getByLabelText(/Số điện thoại/), { target: { value: '0901234567' } })
   fireEvent.change(screen.getByLabelText(/Điều kiện ra vào/), { target: { value: 'Cổng chính' } })
@@ -98,7 +101,8 @@ describe('CreateOrderPage wizard', () => {
       )
       const create = vi.spyOn(customerApi, 'createOrder')
       await renderWizard()
-      await fillService(async () => {
+      await fillService()
+      await fillLocation(async () => {
         await screen.findByLabelText('Chọn nội dung 1')
         if (selection === 'empty') {
           for (let index = 1; index <= 3; index++)
@@ -117,7 +121,6 @@ describe('CreateOrderPage wizard', () => {
           })
         }
       })
-      await fillLocation()
       next('Kết quả bàn giao & xác nhận')
       await waitFor(() =>
         expect(screen.queryByText(/Đang tải kết quả bàn giao/)).toBeNull(),
@@ -166,25 +169,25 @@ describe('CreateOrderPage wizard', () => {
   it('blocks step 1 without a title when the catalog selects its default service', async () => {
     await renderWizard()
     await screen.findByRole('button', { name: /Giám sát công trình/ })
-    next('Nội dung giám sát')
+    next('Vị trí & vùng giám sát')
     expect(await screen.findByText('Nhập tiêu đề yêu cầu.')).toBeInTheDocument()
     expect(screen.queryByText('Chọn dịch vụ giám sát.')).not.toBeInTheDocument()
-    expect(screen.queryByLabelText(/Địa chỉ\/khu vực/)).not.toBeInTheDocument()
+    expect(screen.queryByLabelText(/Địa chỉ hoặc khu vực/)).not.toBeInTheDocument()
   })
 
   it('requires a service and title when the active catalog is empty', async () => {
     vi.spyOn(customerApi, 'listServices').mockResolvedValue([])
     render(<CreateOrderPage />)
     await screen.findByText('Chưa có dịch vụ nào đang hoạt động')
-    next('Nội dung giám sát')
+    next('Vị trí & vùng giám sát')
     expect(
       await screen.findByText('Chọn dịch vụ giám sát.'),
     ).toBeInTheDocument()
     expect(screen.getByText('Nhập tiêu đề yêu cầu.')).toBeInTheDocument()
-    expect(screen.queryByLabelText(/Địa chỉ\/khu vực/)).not.toBeInTheDocument()
+    expect(screen.queryByLabelText(/Địa chỉ hoặc khu vực/)).not.toBeInTheDocument()
   })
 
-  it('shows the real location map on step 3 and requires an address', async () => {
+  it('shows the real location map on step 2 and requires an address', async () => {
     await renderWizard()
     await fillService()
     expect(
@@ -192,7 +195,7 @@ describe('CreateOrderPage wizard', () => {
         name: 'Bản đồ chọn vị trí giám sát',
       }),
     ).toBeInTheDocument()
-    next('Thời gian')
+    next('Nội dung giám sát')
     expect(
       await screen.findByText('Nhập địa chỉ/khu vực cần giám sát.'),
     ).toBeInTheDocument()
@@ -431,7 +434,7 @@ describe('CreateOrderPage wizard', () => {
     act(() => setLanguage('en'))
     expect(
       await screen.findByRole('button', {
-        name: 'Continue: Monitoring content',
+        name: 'Continue: Location & monitoring area',
       }),
     ).toBeInTheDocument()
     expect(screen.getByLabelText(/Title/)).toBeInTheDocument()

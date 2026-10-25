@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 
 import { useApiQuery } from '../../../../../shared/hooks/useApiQuery'
 import { ApiError } from '../../../../../shared/api/httpClient'
+import { LoadingState } from '../../../../../shared/components/odm/StateView'
 import { adminApi } from '../../../api/adminApi'
 import { PricingDraftEditor } from './PricingDraftEditor'
 import { PricingPolicyOverview } from './PricingPolicyOverview'
@@ -65,14 +66,20 @@ export function PricingPolicyTab() {
     await run(async () => {
       await adminApi.updatePricingPolicy(draft.id, payload(draft))
       query.reload()
-    }, 'Đã lưu chính sách giá nháp.')
+    }, 'Đã lưu bản nháp.')
   }
   async function publish() {
     if (!draft || !mediaValid) return
+    if (
+      !window.confirm(
+        `Bạn có chắc muốn áp dụng chính sách giá v${draft.version}? Chính sách đang áp dụng hiện tại sẽ được thay thế.`,
+      )
+    )
+      return
     await run(async () => {
       await adminApi.publishPricingPolicy(draft.id)
       query.reload()
-    }, 'Đã phát hành chính sách giá. Chính sách cũ đã được thay thế.')
+    }, 'Đã áp dụng chính sách giá.')
   }
   async function run(action: () => Promise<void>, success: string) {
     setBusy(true)
@@ -94,7 +101,16 @@ export function PricingPolicyTab() {
 
   return (
     <section className="adm-card pricing-policy-admin">
-      {(!draft || !editing) && (
+      {query.loading && !query.data && <LoadingState />}
+      {query.error !== undefined && !query.data && (
+        <div role="alert">
+          <p>Không thể tải chính sách giá. Vui lòng thử lại.</p>
+          <button type="button" className="odm-btn" onClick={query.reload}>
+            Thử lại
+          </button>
+        </div>
+      )}
+      {!query.loading && query.error === undefined && (!draft || !editing) && (
         <PricingPolicyOverview
           active={active}
           draft={draft}
@@ -104,7 +120,7 @@ export function PricingPolicyTab() {
           onEditDraft={() => setEditing(true)}
         />
       )}
-      {draft && editing && (
+      {!query.loading && query.error === undefined && draft && editing && (
         <PricingDraftEditor
           draft={draft}
           setDraft={setDraft}

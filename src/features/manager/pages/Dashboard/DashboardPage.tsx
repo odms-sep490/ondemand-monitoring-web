@@ -13,7 +13,51 @@ import { ActionListCard } from './components/ActionListCard'
 import { RecentOrdersCard } from './components/RecentOrdersCard'
 import { ActiveMissionsCard, PipelineCard, RecentActivityCard } from './components/SideCards'
 import { AnalyticsCharts } from './components/AnalyticsCharts'
-import { formatDashboardDate, normalizeDashboard } from './dashboardHelpers'
+import { formatDashboardDate } from './dashboardHelpers'
+import type {
+  ManagerDashboardData,
+  ManagerDashboardResponse,
+} from '../../types/dashboard'
+
+function normalizeDashboard(data: ManagerDashboardResponse): ManagerDashboardData {
+  return {
+    summary: data.summary ?? {
+      totalOrders: 0,
+      totalQuoteValue: 0,
+      pendingOrderCount: data.kpis?.pendingOrders.count ?? 0,
+      pendingAdditionalChecklistCount: 0,
+      waitingDepositCount: 0,
+      activeMissionCount: data.kpis?.missionsInFlight.count ?? 0,
+      attentionRequiredCount: data.kpis?.actionItems.count ?? 0,
+    },
+    orderStatusDistribution: Array.isArray(data.orderStatusDistribution) ? data.orderStatusDistribution : [],
+    serviceDistribution: Array.isArray(data.serviceDistribution) ? data.serviceDistribution : [],
+    additionalServiceDistribution: Array.isArray(data.additionalServiceDistribution) ? data.additionalServiceDistribution : [],
+    priceAdjustmentSummary: data.priceAdjustmentSummary ?? { approvedAtSystemPrice: 0, adjustedByManager: 0 },
+    missionStatusDistribution: Array.isArray(data.missionStatusDistribution) ? data.missionStatusDistribution : [],
+    missionTrend: Array.isArray(data.missionTrend) ? data.missionTrend : [],
+    actionItems: Array.isArray(data.actionItems) ? data.actionItems : [],
+    recentOrders: Array.isArray(data.recentOrders) ? data.recentOrders : [],
+    pricingPipeline: data.pricingPipeline ?? {
+      pricingReviewCount: 0,
+      quoteReadyCount: 0,
+      waitingCustomerCount: 0,
+      waitingDepositCount: 0,
+      depositPaidCount: 0,
+    },
+    missionOverview: data.missionOverview ?? {
+      scheduledCount: 0,
+      readyCount: 0,
+      inFlightCount: data.kpis?.missionsInFlight.count ?? 0,
+      returningCount: 0,
+      completedTodayCount: 0,
+      issueCount: 0,
+    },
+    activeMissions: Array.isArray(data.activeMissions) ? data.activeMissions : [],
+    recentActivities: Array.isArray(data.recentActivities) ? data.recentActivities : [],
+    generatedAt: data.generatedAt ?? new Date().toISOString(),
+  }
+}
 
 export function DashboardPage() {
   const { t } = useI18n(dashboardPageMessages)
