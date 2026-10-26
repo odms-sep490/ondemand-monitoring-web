@@ -46,8 +46,8 @@ function readCookie(name: string): string | undefined {
   return match ? decodeURIComponent(match.slice(name.length + 1)) : undefined
 }
 
-function setRefreshCookie(userId: string) {
-  document.cookie = `${REFRESH_COOKIE}=${encodeURIComponent(userId)}; path=/`
+function setRefreshCookie(userId: string, rememberMe = false) {
+  document.cookie = `${REFRESH_COOKIE}=${encodeURIComponent(userId)}; path=/${rememberMe ? '; max-age=2592000' : ''}`
 }
 
 function clearRefreshCookie() {
@@ -82,9 +82,10 @@ const authRoutes: MockRoute[] = [
     method: 'POST',
     path: '/api/v1/auth/login',
     handler: ({ body }) => {
-      const { email, password } = (body ?? {}) as {
+      const { email, password, rememberMe } = (body ?? {}) as {
         email?: string
         password?: string
+        rememberMe?: boolean
       }
       if (!email) return passThrough()
 
@@ -105,7 +106,7 @@ const authRoutes: MockRoute[] = [
         return fail(403, 'ACCOUNT_DISABLED', 'Tài khoản đã bị vô hiệu hóa')
       }
 
-      setRefreshCookie(user.id)
+      setRefreshCookie(user.id, rememberMe)
       return ok(toAuthResponse(user))
     },
   },
@@ -114,8 +115,9 @@ const authRoutes: MockRoute[] = [
     path: '/api/v1/auth/logout',
     handler: ({ headers }) => {
       const token = bearerToken(headers)
-      if (!token) return passThrough()
-      const user = findUserByToken(token)
+      const user = token
+        ? findUserByToken(token)
+        : users.find((entry) => entry.id === readCookie(REFRESH_COOKIE))
       if (!user) return passThrough()
 
       clearRefreshCookie()
@@ -131,7 +133,12 @@ const authRoutes: MockRoute[] = [
       const user = users.find((candidate) => candidate.id === userId)
       if (!user) return passThrough()
 
-      return ok(toAuthResponse(user))
+      // Match BE: refresh provides a token; GET /api/users/me supplies identity.
+      return ok({
+        accessToken: user.accessToken,
+        tokenType: 'Bearer',
+        expiresIn: 3600,
+      })
     },
   },
 ]

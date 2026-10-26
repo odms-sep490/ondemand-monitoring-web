@@ -5,7 +5,6 @@ import { useI18n } from '../../../shared/i18n'
 import {
   AuthApiError,
   authApi,
-  authSession,
   getGoogleAuthorizationUrl,
 } from '../api/authApi'
 import { AuthAside } from '../components/AuthAside'
@@ -133,7 +132,7 @@ export function AuthPage({
   }
 
   const submitLogin = async () => {
-    const response = await authApi.login({ email, password })
+    const response = await authApi.login({ email, password, rememberMe })
     if (response.status === 'PASSWORD_CHANGE_REQUIRED' && response.session) {
       setChallengeSession(response.session)
       setMode('first-login')
@@ -143,7 +142,6 @@ export function AuthPage({
       })
       return
     }
-    authSession.save(response, rememberMe)
     const suffix = response.user?.fullName ? `, ${response.user.fullName}` : ''
     setNotice({ type: 'success', message: t.loginSuccess(suffix) })
     redirectToRoleHome(response.user?.role)
@@ -154,8 +152,8 @@ export function AuthPage({
       email,
       session: challengeSession,
       newPassword,
+      rememberMe,
     })
-    authSession.save(response, rememberMe)
     setNotice({
       type: 'success',
       message: t.firstLoginSuccess,
@@ -205,6 +203,7 @@ export function AuthPage({
     setNotice(undefined)
     setFieldErrors({})
     try {
+      sessionStorage.setItem('fieldwise.google.rememberMe', String(rememberMe))
       window.location.assign(getGoogleAuthorizationUrl())
     } catch (error) {
       handleApiError(error)
