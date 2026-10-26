@@ -9,6 +9,16 @@ export const dashboardPageMessages = defineMessages({
     loading: 'Đang tải dashboard…',
     rangeLabel: 'Khoảng thời gian',
     ranges: { '7D': '7 ngày', '30D': '30 ngày', '90D': '90 ngày' },
+    hero: {
+      morning: 'Chào buổi sáng',
+      afternoon: 'Chào buổi chiều',
+      evening: 'Chào buổi tối',
+      summary: (n: number) =>
+        n > 0 ? `Bạn có ${n} yêu cầu đang chờ duyệt hôm nay.` : 'Mọi yêu cầu đã được xử lý. Làm tốt lắm!',
+      reviewOrders: 'Duyệt đơn hàng',
+      viewMissions: 'Nhiệm vụ',
+      viewSchedule: 'Lịch bay',
+    },
     kpi: {
       pendingReview: 'Chờ duyệt yêu cầu',
       waitingQuote: 'Chờ báo giá',
@@ -104,6 +114,16 @@ export const dashboardPageMessages = defineMessages({
     loading: 'Loading dashboard…',
     rangeLabel: 'Time range',
     ranges: { '7D': '7 days', '30D': '30 days', '90D': '90 days' },
+    hero: {
+      morning: 'Good morning',
+      afternoon: 'Good afternoon',
+      evening: 'Good evening',
+      summary: (n: number) =>
+        n > 0 ? `You have ${n} request${n === 1 ? '' : 's'} awaiting review today.` : 'All requests are handled. Great work!',
+      reviewOrders: 'Review orders',
+      viewMissions: 'Missions',
+      viewSchedule: 'Schedule',
+    },
     kpi: {
       pendingReview: 'Orders to review',
       waitingQuote: 'Awaiting quote',

@@ -1,9 +1,13 @@
-import { Card, EmptyState } from '../../../../../shared/components/ui'
+import { ClusterOutlined, HistoryOutlined, RocketOutlined } from '@ant-design/icons'
+import { Empty, Progress, Timeline } from 'antd'
+
+import { CardComponent } from '../../../../../shared/components/antd'
 import { useI18n } from '../../../../../shared/i18n'
 import { managerHref } from '../../../routes'
 import type { ActiveMission, DashboardActivity, PricingPipeline } from '../../../types/dashboard'
 import { dashboardPageMessages } from '../DashboardPage.messages'
 import { formatDashboardDate, statusLabel } from '../dashboardHelpers'
+import { PIPELINE_STROKES, TIMELINE_COLORS } from '../dashboardTone'
 
 const MAX_MISSIONS = 6
 const MAX_ACTIVITIES = 8
@@ -12,19 +16,34 @@ export function ActiveMissionsCard({ missions }: { missions: ActiveMission[] }) 
   const { t } = useI18n(dashboardPageMessages)
   const m = t.missions
   return (
-    <Card title={m.title} actions={<a href={managerHref({ screen: 'missions' })}>{m.viewAll}</a>}>
+    <CardComponent
+      title={m.title}
+      icon={<RocketOutlined />}
+      tone="green"
+      extra={
+        <a className="mgr-card-link" href={managerHref({ screen: 'missions' })}>
+          {m.viewAll}
+        </a>
+      }
+    >
       {missions.length === 0 ? (
-        <EmptyState title={m.empty} />
+        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={m.empty} />
       ) : (
-        <ul className="odm-dash-list">
+        <ul className="m-0 list-none p-0">
           {missions.slice(0, MAX_MISSIONS).map((mission) => (
             <li key={mission.missionId}>
-              <a className="odm-dash-row is-link" href={managerHref({ screen: 'missionDetail', missionId: mission.missionId })}>
-                <span className={`odm-dash-dot is-${mission.attentionRequired ? 'danger' : 'success'}`}
-                  role="img" aria-label={mission.attentionRequired ? m.attention : statusLabel(mission.status)} />
-                <div className="odm-dash-row-main">
-                  <div className="odm-dash-row-title odm-tn">{mission.missionCode}</div>
-                  <div className="odm-dash-row-meta">
+              <a
+                className="mgr-dash-row mgr-dash-row-link"
+                href={managerHref({ screen: 'missionDetail', missionId: mission.missionId })}
+              >
+                <span
+                  className={`mgr-live ${mission.attentionRequired ? 'is-alert' : ''}`}
+                  role="img"
+                  aria-label={mission.attentionRequired ? m.attention : statusLabel(mission.status)}
+                />
+                <div className="mgr-dash-row-main">
+                  <div className="mgr-dash-row-title">{mission.missionCode}</div>
+                  <div className="mgr-dash-row-meta">
                     {formatDashboardDate(mission.scheduledStartAt)} · {mission.droneName ?? m.unassigned}
                   </div>
                 </div>
@@ -33,7 +52,7 @@ export function ActiveMissionsCard({ missions }: { missions: ActiveMission[] }) 
           ))}
         </ul>
       )}
-    </Card>
+    </CardComponent>
   )
 }
 
@@ -49,40 +68,53 @@ export function PipelineCard({ pipeline }: { pipeline: PricingPipeline }) {
   ]
   const max = Math.max(...stages.map((s) => s.value))
   return (
-    <Card title={p.title}>
+    <CardComponent title={p.title} icon={<ClusterOutlined />} tone="violet">
       {max === 0 ? (
-        <EmptyState title={p.empty} />
+        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={p.empty} />
       ) : (
-        <div className="odm-dash-funnel" role="img" aria-label={p.title}>
-          {stages.map((s) => (
-            <div key={s.label} className="odm-dash-funnel-row">
-              <span>{s.label}</span>
-              <strong className="odm-tn">{s.value}</strong>
-              <div className="odm-dash-track"><span style={{ width: `${(s.value / max) * 100}%` }} /></div>
+        <div className="flex flex-col gap-3" role="img" aria-label={p.title}>
+          {stages.map((s, i) => (
+            <div key={s.label}>
+              <div className="mgr-pipe-row">
+                <span>{s.label}</span>
+                <strong>{s.value}</strong>
+              </div>
+              <Progress
+                percent={(s.value / max) * 100}
+                showInfo={false}
+                size={['100%', 8]}
+                strokeColor={PIPELINE_STROKES[i % PIPELINE_STROKES.length]}
+              />
             </div>
           ))}
         </div>
       )}
-    </Card>
+    </CardComponent>
   )
 }
 
-export function RecentActivityCard({ activities }: { activities: DashboardActivity[] }) {
+export function RecentActivityCard({ activities, className }: { activities: DashboardActivity[]; className?: string }) {
   const { t } = useI18n(dashboardPageMessages)
   return (
-    <Card title={t.activity.title}>
+    <CardComponent className={className} title={t.activity.title} icon={<HistoryOutlined />} tone="amber">
       {activities.length === 0 ? (
-        <EmptyState title={t.activity.empty} />
+        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t.activity.empty} />
       ) : (
-        <ol className="odm-dash-timeline">
-          {activities.slice(0, MAX_ACTIVITIES).map((activity) => (
-            <li key={activity.id}>
-              <time dateTime={activity.occurredAt}>{formatDashboardDate(activity.occurredAt)}</time>
-              <span>{activity.description}</span>
-            </li>
-          ))}
-        </ol>
+        <Timeline
+          items={activities.slice(0, MAX_ACTIVITIES).map((activity, i) => ({
+            key: activity.id,
+            color: TIMELINE_COLORS[i % TIMELINE_COLORS.length],
+            children: (
+              <div>
+                <time className="mgr-time" dateTime={activity.occurredAt}>
+                  {formatDashboardDate(activity.occurredAt)}
+                </time>
+                <span className="mgr-timeline-text">{activity.description}</span>
+              </div>
+            ),
+          }))}
+        />
       )}
-    </Card>
+    </CardComponent>
   )
 }

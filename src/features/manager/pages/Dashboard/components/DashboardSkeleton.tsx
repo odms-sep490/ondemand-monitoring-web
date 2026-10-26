@@ -1,34 +1,26 @@
-import { Card, Skeleton } from '../../../../../shared/components/ui'
-import type { PageMessages } from '../dashboardTypes'
-import '../dashboard.css'
+import { Card, Col, Row, Skeleton } from 'antd'
 
-function ListSkeleton({ rows }: { rows: number }) {
-  return (
-    <div className="odm-dash-sk-list">
-      {Array.from({ length: rows }, (_, i) => <Skeleton key={i} variant="block" height={40} />)}
-    </div>
-  )
-}
+import type { PageMessages } from '../dashboardTypes'
 
 export function DashboardSkeleton({ t }: { t: PageMessages }) {
   return (
-    <div className="odm-dash" aria-busy="true" aria-live="polite">
-      <Skeleton variant="line" width="30%" height={28} />
-      <div className="odm-dash-kpis">
-        {Array.from({ length: 5 }, (_, i) => <Skeleton key={i} variant="block" height={104} />)}
+    <div className="mgr-dash" aria-busy="true" aria-live="polite">
+      <div className="mgr-hero mgr-hero-skeleton">
+        <Skeleton.Input active style={{ width: 260 }} />
       </div>
-      <div className="odm-dash-grid">
-        <div className="odm-dash-col">
-          <Card><ListSkeleton rows={4} /></Card>
-          <Card><ListSkeleton rows={4} /></Card>
-        </div>
-        <div className="odm-dash-col">
-          <Card><ListSkeleton rows={3} /></Card>
-          <Card><ListSkeleton rows={3} /></Card>
-          <Card><ListSkeleton rows={3} /></Card>
-        </div>
+      <div className="mgr-kpi-grid">
+        {Array.from({ length: 5 }, (_, i) => (
+          <Card key={i} className="mgr-card"><Skeleton active paragraph={{ rows: 1 }} /></Card>
+        ))}
       </div>
-      <Card><Skeleton variant="block" height={180} /></Card>
+      <Row gutter={[16, 16]}>
+        <Col xs={24} xl={14}>
+          <Card className="mgr-card"><Skeleton active paragraph={{ rows: 5 }} /></Card>
+        </Col>
+        <Col xs={24} xl={10}>
+          <Card className="mgr-card"><Skeleton active paragraph={{ rows: 5 }} /></Card>
+        </Col>
+      </Row>
       <span className="odm-visually-hidden">{t.loading}</span>
     </div>
   )

@@ -1,0 +1,440 @@
+@use 'sass:list';
+
+/*
+ * Shared Manager building blocks (cards, icon tiles, tone chips, status tags,
+ * table skin, page header, filter bar, empty state). Loaded once from
+ * components/layout/layout.scss; tokens (--mgr-*) are defined there.
+ */
+$tones: (
+  'blue': (#3b82f6, #1565e8),
+  'green': (#34d399, #16a34a),
+  'amber': (#fbbf24, #f59e0b),
+  'violet': (#a78bfa, #7c3aed),
+  'red': (#f87171, #dc2626),
+);
+
+@mixin mgr-surface {
+  border-radius: var(--mgr-radius);
+  border: 1px solid var(--mgr-border);
+  background: var(--mgr-card);
+  box-shadow: var(--mgr-shadow);
+}
+
+.mgr-layout {
+  /* ---------- Cards ---------- */
+  .mgr-card {
+    @include mgr-surface;
+    height: fit-content;
+
+    .ant-card-head {
+      min-height: 56px;
+      padding: 0 20px;
+      border-bottom: 1px solid var(--mgr-border);
+    }
+
+    .ant-card-body {
+      padding: 16px 20px;
+    }
+  }
+
+  .mgr-card-head {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .mgr-card-title {
+    margin: 0;
+    font-size: 15.5px;
+    font-weight: 700;
+    color: var(--mgr-text);
+  }
+
+  .mgr-card-link {
+    font-size: 13px;
+    font-weight: 600;
+
+    &::after {
+      content: ' →';
+    }
+  }
+
+  /* ---------- Icon tiles + tone chips ---------- */
+  .mgr-tile {
+    flex: none;
+    display: inline-grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    font-size: 21px;
+    color: #fff;
+    box-shadow: 0 8px 18px -8px rgb(0 0 0 / 35%);
+
+    &.mgr-tile-sm {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      font-size: 15px;
+    }
+  }
+
+  @each $name, $pair in $tones {
+    .mgr-tone-#{$name} {
+      background: linear-gradient(135deg, list.nth($pair, 1), list.nth($pair, 2));
+    }
+
+    .mgr-chip-#{$name} {
+      color: list.nth($pair, 2);
+      background: rgba(list.nth($pair, 2), 0.11);
+    }
+  }
+
+  .mgr-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11.5px;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  .mgr-spark {
+    width: 84px;
+    flex: none;
+  }
+
+  /* ---------- Tables (antd) ---------- */
+  .mgr-card .ant-table-wrapper {
+    .ant-table {
+      background: transparent;
+    }
+
+    .ant-table-thead > tr > th {
+      background: var(--mgr-card-2);
+    }
+
+    .ant-table-tbody > tr > td {
+      border-bottom: 1px solid var(--mgr-border);
+      transition: background 0.15s ease;
+    }
+
+    .ant-table-tbody > tr:last-child > td {
+      border-bottom: 0;
+    }
+  }
+
+  .mgr-code {
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .mgr-cust {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .mgr-cust-avatar {
+    background: linear-gradient(135deg, #60a5fa, #6366f1);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .mgr-status-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 10px;
+    font-weight: 600;
+    border-radius: 999px;
+    margin-inline-end: 0;
+  }
+
+  .mgr-atable .ant-btn-sm {
+    padding-inline: 12px;
+    font-weight: 600;
+  }
+
+  .mgr-seg-count {
+    opacity: 0.75;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .mgr-cell-stack {
+    display: inline-flex;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.35;
+  }
+
+  .mgr-cell-sub {
+    font-size: 12px;
+    color: var(--mgr-muted);
+  }
+
+  .mgr-nowrap {
+    white-space: nowrap;
+  }
+
+  .mgr-table-foot {
+    padding: 12px 20px;
+    border-top: 1px solid var(--mgr-border);
+    font-size: 12.5px;
+    color: var(--mgr-muted);
+  }
+
+  .mgr-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentcolor;
+  }
+
+  /* ---------- Stat cards ---------- */
+  .mgr-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 18px;
+    height: 100%;
+    transition: box-shadow 0.25s ease;
+
+    .ant-statistic-content {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--mgr-text);
+      line-height: 1.1;
+    }
+  }
+
+  .mgr-stat-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .mgr-stat-label {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--mgr-muted);
+  }
+
+  .mgr-stat-bottom {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 10px;
+    min-height: 26px;
+    margin-top: auto;
+  }
+
+  .mgr-kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+  }
+
+  /* ---------- Page header (white banner card) ---------- */
+  .mgr-page-head {
+    @include mgr-surface;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px 20px;
+    padding: 20px 24px;
+    border-radius: 20px;
+    background: linear-gradient(180deg, var(--mgr-hero-bg), var(--mgr-card));
+  }
+
+  .mgr-page-head-main {
+    flex: 1 1 320px;
+    min-width: 0;
+  }
+
+  .mgr-page-head-crumb {
+    margin: 0 0 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--mgr-muted);
+
+    a {
+      color: var(--mgr-muted);
+
+      &:hover {
+        color: #1565e8;
+      }
+    }
+  }
+
+  .mgr-page-head-title {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+    color: var(--mgr-text);
+    overflow-wrap: anywhere;
+  }
+
+  .mgr-page-head-desc {
+    margin: 4px 0 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--mgr-muted);
+    overflow-wrap: anywhere;
+  }
+
+  .mgr-page-head-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* ---------- Filter bar ---------- */
+  .mgr-filter-bar {
+    @include mgr-surface;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+  }
+
+  .mgr-filter-bar-search {
+    flex: 1 1 240px;
+    max-width: 380px;
+    min-width: 0;
+  }
+
+  .mgr-filter-bar-end {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+  }
+
+  .mgr-filter-bar-seg {
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  /* ---------- Empty state ---------- */
+  .mgr-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 36px 16px;
+    text-align: center;
+
+    .mgr-empty-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--mgr-text);
+    }
+
+    .mgr-empty-desc {
+      max-width: 420px;
+      font-size: 13px;
+      color: var(--mgr-muted);
+    }
+
+    .mgr-empty-action {
+      margin-top: 10px;
+    }
+
+    .mgr-empty-icon {
+      display: block;
+      margin: 0 auto 8px;
+      font-size: 26px;
+      color: var(--mgr-muted);
+
+      &.is-danger {
+        color: #dc2626;
+      }
+    }
+
+    .mgr-empty-debug {
+      display: block;
+      width: fit-content;
+      margin: 8px auto 0;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 11.5px;
+      background: var(--mgr-card-2);
+      color: var(--mgr-muted);
+    }
+  }
+
+  /* ---------- Page stack ---------- */
+  .mgr-view {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+}
+
+:root[data-theme='dark'] .mgr-layout .mgr-status-tag {
+  filter: brightness(1.45) saturate(1.2);
+}
+
+@media (max-width: 640px) {
+  .mgr-layout {
+    .mgr-stat {
+      padding: 14px;
+    }
+
+    .mgr-stat-top {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .mgr-stat .ant-statistic-content {
+      font-size: 26px;
+    }
+
+    .mgr-spark {
+      display: none;
+    }
+
+    .mgr-kpi-strip {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .mgr-page-head {
+      padding: 16px;
+      border-radius: 16px;
+    }
+
+    .mgr-page-head-title {
+      font-size: 20px;
+    }
+
+    .mgr-page-head-actions {
+      width: 100%;
+    }
+
+    .mgr-filter-bar-search {
+      max-width: none;
+    }
+
+    .mgr-filter-bar-end {
+      margin-left: 0;
+      width: 100%;
+    }
+  }
+}

@@ -18,7 +18,9 @@ export const managerLayoutMessages = defineMessages({
     closeNav: 'Đóng điều hướng',
     openNav: 'Mở điều hướng',
     toggleTheme: 'Đổi giao diện sáng / tối',
-    manager: 'Staff',
+    manager: 'Manager',
+    searchPlaceholder: 'Tìm đơn hàng, nhiệm vụ…',
+    notifications: 'Yêu cầu đang chờ duyệt',
     sidebar: {
       groupOperations: 'Điều hành',
       groupSupport: 'Hỗ trợ khách hàng',
@@ -67,7 +69,9 @@ export const managerLayoutMessages = defineMessages({
     closeNav: 'Close navigation',
     openNav: 'Open navigation',
     toggleTheme: 'Switch to light / dark theme',
-    manager: 'Staff',
+    manager: 'Manager',
+    searchPlaceholder: 'Search orders, missions…',
+    notifications: 'Requests awaiting review',
     sidebar: {
       groupOperations: 'Operations',
       groupSupport: 'Customer support',

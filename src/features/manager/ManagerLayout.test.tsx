@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import { authSession } from '../auth/api/authApi'
@@ -80,17 +80,18 @@ describe('ManagerLayout', () => {
     expect(ordersLink).toHaveTextContent('6')
   })
 
-  it('shows the user block with name, email and a logout button', () => {
+  it('shows name, email and a logout button in the avatar dropdown', async () => {
     render(
       <ManagerLayout route={{ screen: 'dashboard' }} breadcrumb="Dashboard">
         <div>content</div>
       </ManagerLayout>,
     )
-    expect(screen.getByText('Lê Thị Thanh Hằng')).toBeInTheDocument()
-    expect(screen.getByText('hang.le@odms.vn')).toBeInTheDocument()
     expect(screen.getByText('LH')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Lê Thị Thanh Hằng' }))
+    expect(await screen.findByText('hang.le@odms.vn')).toBeInTheDocument()
+    expect(screen.getAllByText('Lê Thị Thanh Hằng').length).toBeGreaterThan(0)
     expect(
-      screen.getByRole('button', { name: 'Đăng xuất' }),
+      screen.getByRole('button', { name: /Đăng xuất/ }),
     ).toBeInTheDocument()
   })
 

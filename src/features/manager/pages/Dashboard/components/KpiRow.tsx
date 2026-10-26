@@ -1,13 +1,24 @@
+import {
+  AlertOutlined,
+  CheckCircleOutlined,
+  DollarOutlined,
+  FileSearchOutlined,
+  RocketOutlined,
+} from '@ant-design/icons'
 import type { ReactNode } from 'react'
 
-import { StatCard, type StatTone } from '../../../../../shared/components/ui'
+import { StatisticComponent } from '../../../../../shared/components/antd'
 import { useI18n } from '../../../../../shared/i18n'
 import { managerHref, type ManagerRoute } from '../../../routes'
 import type { ManagerDashboardData } from '../../../types/dashboard'
 import { dashboardPageMessages } from '../DashboardPage.messages'
 
 function KpiLink({ route, children }: { route: ManagerRoute; children: ReactNode }) {
-  return <a className="odm-dash-kpi" href={managerHref(route)}>{children}</a>
+  return (
+    <a className="mgr-dash-kpi" href={managerHref(route)}>
+      {children}
+    </a>
+  )
 }
 
 export function KpiRow({ data }: { data: ManagerDashboardData }) {
@@ -17,28 +28,61 @@ export function KpiRow({ data }: { data: ManagerDashboardData }) {
   const p = data.pricingPipeline
   const completed = data.missionTrend.reduce((sum, point) => sum + point.completed, 0)
   const failed = data.missionTrend.reduce((sum, point) => sum + point.failed, 0)
+  const completedSeries = data.missionTrend.map((point) => point.completed)
   const queue: ManagerRoute = { screen: 'orderQueue' }
   const missions: ManagerRoute = { screen: 'missions' }
-  const attentionTone: StatTone = s.attentionRequiredCount > 0 ? 'warning' : 'default'
+  const attention = s.attentionRequiredCount > 0
   return (
-    <div className="odm-dash-kpis ui-stagger">
+    <div className="mgr-kpi-grid">
       <KpiLink route={queue}>
-        <StatCard label={k.pendingReview} value={s.pendingOrderCount} tone={s.pendingOrderCount > 0 ? 'warning' : 'default'} />
+        <StatisticComponent
+          index={0}
+          tone={s.pendingOrderCount > 0 ? 'amber' : 'blue'}
+          icon={<FileSearchOutlined />}
+          title={k.pendingReview}
+          value={s.pendingOrderCount}
+        />
       </KpiLink>
       <KpiLink route={queue}>
-        <StatCard label={k.waitingQuote} value={p.pricingReviewCount + p.quoteReadyCount} />
+        <StatisticComponent
+          index={1}
+          tone="blue"
+          icon={<DollarOutlined />}
+          title={k.waitingQuote}
+          value={p.pricingReviewCount + p.quoteReadyCount}
+        />
       </KpiLink>
       <KpiLink route={queue}>
-        <StatCard label={k.waitingDeposit} value={s.waitingDepositCount}
-          hint={p.depositPaidCount > 0 ? k.waitingDepositHint(p.depositPaidCount) : undefined} />
+        <StatisticComponent
+          index={2}
+          tone="violet"
+          icon={<AlertOutlined />}
+          title={k.waitingDeposit}
+          value={s.waitingDepositCount}
+          hint={p.depositPaidCount > 0 ? k.waitingDepositHint(p.depositPaidCount) : undefined}
+        />
       </KpiLink>
       <KpiLink route={missions}>
-        <StatCard label={k.activeMissions} value={s.activeMissionCount} tone={attentionTone}
-          hint={s.attentionRequiredCount > 0 ? k.attentionHint(s.attentionRequiredCount) : undefined} />
+        <StatisticComponent
+          index={3}
+          tone={attention ? 'red' : 'green'}
+          icon={<RocketOutlined />}
+          title={k.activeMissions}
+          value={s.activeMissionCount}
+          hint={attention ? k.attentionHint(s.attentionRequiredCount) : undefined}
+        />
       </KpiLink>
       <KpiLink route={missions}>
-        <StatCard label={k.completed} value={completed} tone="success"
-          hint={failed > 0 ? k.completedHint(failed) : undefined} />
+        <StatisticComponent
+          index={4}
+          tone="green"
+          icon={<CheckCircleOutlined />}
+          title={k.completed}
+          value={completed}
+          hint={failed > 0 ? k.completedHint(failed) : undefined}
+          hintTone="red"
+          spark={completedSeries}
+        />
       </KpiLink>
     </div>
   )
