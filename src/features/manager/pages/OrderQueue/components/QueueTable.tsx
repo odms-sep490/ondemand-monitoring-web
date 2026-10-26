@@ -42,7 +42,9 @@ export function QueueTable({ rows, total, mode, isInProgress }: Props) {
             {row.customerName.trim().charAt(0).toUpperCase()}
           </Avatar>
           <span className="mgr-cell-stack">
-            <span className="mgr-code">{displayOrderCode(row.orderCode, row.id)}</span>
+            <span className="mgr-code" title={displayOrderCode(row.orderCode, row.id)}>
+              {displayOrderCode(row.orderCode, row.id)}
+            </span>
             <span className="mgr-cell-sub">{row.customerName}</span>
           </span>
         </span>
