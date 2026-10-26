@@ -1,19 +1,25 @@
-import { PageHeader, Skeleton } from '../../../../../shared/components/ui'
+import { Skeleton } from 'antd'
+
+import { CardComponent } from '../../../../../shared/components/antd'
 import { useI18n } from '../../../../../shared/i18n'
-import '../../../components/layout/mgrLayout.css'
+import { PageHeader } from '../../../components/common/PageHeader'
 import { orderQueuePageMessages } from '../OrderQueuePage.messages'
 
 export function QueueSkeleton() {
   const { t } = useI18n(orderQueuePageMessages)
   return (
-    <div className="mgr-page" aria-busy="true" aria-live="polite">
+    <div className="mgr-view" aria-busy="true" aria-live="polite">
       <PageHeader title={t.title} />
-      <div className="mgr-kpis">
+      <div className="mgr-kpi-strip">
         {Array.from({ length: 4 }, (_, i) => (
-          <Skeleton key={i} variant="block" height={92} />
+          <CardComponent key={i}>
+            <Skeleton active paragraph={{ rows: 1 }} />
+          </CardComponent>
         ))}
       </div>
-      <Skeleton variant="block" height={320} />
+      <CardComponent>
+        <Skeleton active paragraph={{ rows: 5 }} />
+      </CardComponent>
       <span className="odm-visually-hidden">{t.loading}</span>
     </div>
   )

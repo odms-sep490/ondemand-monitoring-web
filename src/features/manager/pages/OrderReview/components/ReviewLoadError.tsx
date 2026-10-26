@@ -1,6 +1,8 @@
-import { Button, EmptyState, PageHeader } from '../../../../../shared/components/ui'
+import { Button } from 'antd'
+
 import { useI18n } from '../../../../../shared/i18n'
-import '../../../components/layout/mgrLayout.css'
+import { ErrorState } from '../../../components/common/ErrorState'
+import { PageHeader } from '../../../components/common/PageHeader'
 import { managerHref } from '../../../routes'
 import { orderReviewPageMessages } from '../OrderReviewPage.messages'
 
@@ -13,23 +15,21 @@ export function ReviewLoadError({
 }) {
   const { t } = useI18n(orderReviewPageMessages)
   return (
-    <div className="mgr-page">
+    <div className="mgr-view">
       <PageHeader
-        back={<a href={managerHref({ screen: 'orderQueue' })}>{t.breadcrumb}</a>}
+        crumb={<a href={managerHref({ screen: 'orderQueue' })}>{t.breadcrumb}</a>}
         title={t.pageTitle}
-        subtitle={orderId}
+        description={orderId}
       />
-      <div className="ui-table-card">
-        <EmptyState
-          title={t.loadError}
-          description={is409 ? t.error409 : t.errorGeneric}
-          action={
-            <Button variant="primary" href={managerHref({ screen: 'orderQueue' })}>
-              {t.backToQueue}
-            </Button>
-          }
-        />
-      </div>
+      <ErrorState
+        title={t.loadError}
+        description={is409 ? t.error409 : t.errorGeneric}
+        action={
+          <Button type="primary" href={managerHref({ screen: 'orderQueue' })}>
+            {t.backToQueue}
+          </Button>
+        }
+      />
     </div>
   )
 }

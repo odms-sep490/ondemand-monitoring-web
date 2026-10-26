@@ -18,6 +18,7 @@ import {
 import { orderReviewPageMessages } from './OrderReviewPage.messages'
 import { orderPlanningMessages } from './orderPlanning.messages'
 import '../../manager.css'
+import './orderReview.scss'
 import type { LegalReviewStatus } from '../../types/orders'
 import { type ReviewStep } from './reviewTypes'
 import { ReviewSkeleton } from './components/ReviewSkeleton'
@@ -149,7 +150,7 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
     ).length ?? 0
 
   return (
-    <div className="odm-or odm-or-review-page mgr-page" ref={pageRef}>
+    <div className="odm-or odm-or-review-page mgr-view mgr-or" ref={pageRef}>
       <ReviewTop
         showExecutionPlan={showExecutionPlan}
         stepperProgress={stepperProgress}

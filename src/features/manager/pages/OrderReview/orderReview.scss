@@ -1,0 +1,113 @@
+@use '../../styles/legacy';
+
+/*
+ * Order review (MNG-03) in the Manager look. The page still renders legacy
+ * markup (odm-or-*, ui-*, odm-wf-*); this sheet re-skins it with --mgr-* tokens.
+ * Specificity is bumped with :root so it also wins over the dark-mode token
+ * block in manager.css.
+ */
+:root .mgr-layout .mgr-or {
+  @include legacy.mgr-legacy-tokens;
+  @include legacy.mgr-legacy-components;
+
+  max-width: 1600px;
+
+  .odm-or-card {
+    overflow-wrap: anywhere;
+  }
+
+  h1,
+  h2,
+  h3,
+  .ui-card-title {
+    letter-spacing: 0;
+  }
+
+  /* Workflow stepper card */
+  .odm-wf {
+    border-radius: var(--mgr-radius);
+  }
+
+  .odm-wf-layer {
+    padding: 14px 10px 12px;
+  }
+
+  .odm-wf-head {
+    padding: 0 12px 10px;
+  }
+
+  .odm-wf-eyebrow {
+    color: var(--mgr-muted);
+  }
+
+  .odm-wf-chip {
+    padding: 2px 10px;
+    font-size: 12px;
+  }
+
+  .odm-wf-btn {
+    border-radius: 12px;
+    padding: 10px 12px;
+  }
+
+  .odm-wf-dot {
+    width: 32px;
+    height: 32px;
+    background: var(--mgr-card-2);
+    border: 1px solid var(--mgr-border);
+    color: var(--mgr-muted);
+  }
+
+  .odm-wf-step.is-done .odm-wf-dot {
+    border-color: transparent;
+    color: #fff;
+    background: linear-gradient(135deg, #34d399, #16a34a);
+  }
+
+  .odm-wf-step.is-current .odm-wf-dot {
+    border-color: transparent;
+    color: #fff;
+    background: linear-gradient(135deg, #3b82f6, #1565e8);
+    box-shadow: 0 6px 14px -6px rgb(21 101 232 / 70%);
+  }
+
+  .odm-wf-step.is-viewing .odm-wf-btn,
+  .odm-wf-step.is-current .odm-wf-btn {
+    box-shadow: none;
+    background: color-mix(in srgb, var(--ui-primary) 9%, var(--mgr-card));
+  }
+
+  .odm-wf-step.is-upcoming .odm-wf-dot {
+    border: 1.5px dashed var(--mgr-border);
+    background: transparent;
+  }
+
+  .odm-wf-text strong {
+    font-size: 13.5px;
+  }
+
+  .odm-or-readonly-banner {
+    border-radius: 12px;
+    border-left-width: 1px;
+    border-color: color-mix(in srgb, var(--ui-primary) 28%, var(--mgr-border));
+  }
+
+  /* Order summary rows + action bar */
+  .odm-or-review-stage-actions {
+    box-shadow: var(--mgr-shadow);
+  }
+}
+
+@media (max-width: 640px) {
+  :root .mgr-layout .mgr-or {
+    .odm-or-card-head,
+    .ui-card-header {
+      padding-inline: 14px;
+    }
+
+    .odm-or-card-body,
+    .ui-card-body {
+      padding: 14px;
+    }
+  }
+}

@@ -7,7 +7,8 @@ import {
   orderDeliverableLabels,
 } from './OrderServiceBanner'
 import { OrderBannerMeta } from './OrderBannerMeta'
-import { PageHeader, StatusBadge, toUiTone } from '../../../../../shared/components/ui'
+import { PageHeader } from '../../../components/common/PageHeader'
+import { StatusTag } from '../../../components/common/StatusTag'
 import { orderStatusTone } from '../../../../../shared/lib/statusTone'
 import { formatOrderCode } from '../../../components/common/format'
 import { managerHref } from '../../../routes'
@@ -20,11 +21,9 @@ import type { PlanningWorkflowInfo } from './OrderMissionPlanningSection'
 
 function OrderStatusBadge({ order, lang }: { order: OrderDetail; lang: 'vi' | 'en' }) {
   return (
-    <StatusBadge
-      tone={toUiTone(order.status === 'PENDING' ? 'yellow' : orderStatusTone[order.status])}
-    >
+    <StatusTag tone={order.status === 'PENDING' ? 'yellow' : orderStatusTone[order.status]}>
       {getOrderStatusLabel(order.status, lang)}
-    </StatusBadge>
+    </StatusTag>
   )
 }
 
@@ -56,9 +55,9 @@ export function ReviewTop({
     <div className="odm-or-review-top">
       {!showExecutionPlan && (
         <PageHeader
-          back={<a href={managerHref({ screen: 'orderQueue' })}>{t.breadcrumb}</a>}
+          crumb={<a href={managerHref({ screen: 'orderQueue' })}>{t.breadcrumb}</a>}
           title={t.pageTitle}
-          subtitle={
+          description={
             <>
               <span>{formatOrderCode(order.code)}</span> · {order.serviceName}
             </>

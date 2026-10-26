@@ -1,18 +1,21 @@
 import { useEffect, useMemo, useState } from 'react'
 
-import { Button, EmptyState, PageHeader, Skeleton } from '../../../../shared/components/ui'
-import { StateView } from '../../../../shared/components/odm/StateView'
+import { Alert, Button, Skeleton } from 'antd'
+import { ReloadOutlined, RocketOutlined } from '@ant-design/icons'
+
+import { CardComponent } from '../../../../shared/components/antd'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
 import { displayOrderCode } from '../../../../shared/lib/orderCode'
 import { financeApi } from '../../../finance/api'
 import { ordersApi } from '../../api/ordersApi'
 import { planningApi } from '../../api/planningApi'
-import { Segmented } from '../../components/layout/Segmented'
+import { EmptyState } from '../../components/common/EmptyState'
+import { ErrorState } from '../../components/common/ErrorState'
+import { FilterBar, FilterSegments } from '../../components/common/FilterBar'
+import { PageHeader } from '../../components/common/PageHeader'
 import { managerHref } from '../../routes'
 import type { OrderCreateResponse } from '../../types/orders'
-import '../../components/layout/mgrLayout.css'
-import '../../manager.css'
 import { QueueKpis } from './components/QueueKpis'
 import { QueueSkeleton } from './components/QueueSkeleton'
 import { QueueTable, type QueueTableMode } from './components/QueueTable'
@@ -118,12 +121,12 @@ export function OrderQueuePage() {
 
   if (query.error) {
     return (
-      <div className="mgr-page">
+      <div className="mgr-view">
         <PageHeader
           title={t.title}
-          actions={<Button type="button" onClick={query.reload}>{t.refresh}</Button>}
+          actions={<Button icon={<ReloadOutlined aria-hidden="true" />} onClick={query.reload}>{t.refresh}</Button>}
         />
-        <StateView state="error" title={t.loadError} error={query.error} onRetry={query.reload} />
+        <ErrorState title={t.loadError} error={query.error} onRetry={query.reload} />
       </div>
     )
   }
@@ -144,16 +147,20 @@ export function OrderQueuePage() {
   const rows = source.filter((order) => matchesSearch(order, search))
 
   const missionsLink = (
-    <Button variant="primary" href={managerHref({ screen: 'missions' })}>
+    <Button type="primary" icon={<RocketOutlined aria-hidden="true" />} href={managerHref({ screen: 'missions' })}>
       {t.viewMissions}
     </Button>
   )
 
   let body
   if (activeTab === 'all' && allQuery.loading) {
-    body = <Skeleton variant="block" height={260} />
+    body = (
+      <CardComponent>
+        <Skeleton active paragraph={{ rows: 5 }} />
+      </CardComponent>
+    )
   } else if (activeTab === 'all' && allQuery.error) {
-    body = <p role="alert">{t.allLoadError}</p>
+    body = <Alert type="error" showIcon role="alert" message={t.allLoadError} />
   } else if (rows.length === 0) {
     const empty =
       search.trim() && source.length > 0
@@ -164,9 +171,9 @@ export function OrderQueuePage() {
             ? { title: t.emptyReady }
             : { title: t.emptyAll }
     body = (
-      <div className="ui-table-card">
+      <CardComponent>
         <EmptyState {...empty} />
-      </div>
+      </CardComponent>
     )
   } else {
     body = (
@@ -180,17 +187,17 @@ export function OrderQueuePage() {
   }
 
   return (
-    <div className="mgr-page">
+    <div className="mgr-view">
       <PageHeader
         title={t.title}
-        subtitle={t.summary(pendingOrders.length, paidOrders.length)}
+        description={t.summary(pendingOrders.length, paidOrders.length)}
         actions={
-          <div className="mgr-header-actions">
+          <>
             {missionsLink}
-            <Button type="button" variant="ghost" onClick={query.reload}>
+            <Button icon={<ReloadOutlined aria-hidden="true" />} onClick={query.reload}>
               {t.refresh}
             </Button>
-          </div>
+          </>
         }
       />
 
@@ -201,34 +208,36 @@ export function OrderQueuePage() {
         waitingDeposit={kpiExtras.waitingDeposit}
       />
 
-      <div className="mgr-toolbar">
-        <Segmented<QueueTableMode>
-          ariaLabel={t.tabs.aria}
-          value={activeTab}
-          onChange={setTab}
-          options={[
-            { value: 'pending', label: t.tabs.pending, count: pendingOrders.length },
-            { value: 'ready', label: t.tabs.ready, count: paidOrders.length },
-            { value: 'all', label: t.tabs.all, count: allOrders?.length },
-          ]}
-        />
-        <input
-          type="search"
-          className="mgr-search"
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          placeholder={t.searchPlaceholder}
-          aria-label={t.searchAria}
-        />
-        {activeTab === 'all' ? (
-          <Segmented
-            ariaLabel={t.filtersAria}
-            value={filter}
-            onChange={setFilter}
-            options={ALL_FILTERS.map((value) => ({ value, label: t.filters[value] }))}
+      <FilterBar
+        start={
+          <FilterSegments<QueueTableMode>
+            ariaLabel={t.tabs.aria}
+            value={activeTab}
+            onChange={setTab}
+            options={[
+              { value: 'pending', label: t.tabs.pending, count: pendingOrders.length },
+              { value: 'ready', label: t.tabs.ready, count: paidOrders.length },
+              { value: 'all', label: t.tabs.all, count: allOrders?.length },
+            ]}
           />
-        ) : null}
-      </div>
+        }
+        search={{
+          value: search,
+          onChange: setSearch,
+          placeholder: t.searchPlaceholder,
+          ariaLabel: t.searchAria,
+        }}
+        end={
+          activeTab === 'all' ? (
+            <FilterSegments
+              ariaLabel={t.filtersAria}
+              value={filter}
+              onChange={setFilter}
+              options={ALL_FILTERS.map((value) => ({ value, label: t.filters[value] }))}
+            />
+          ) : null
+        }
+      />
 
       {body}
     </div>

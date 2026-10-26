@@ -1,4 +1,7 @@
-import { PageHeader, Skeleton } from '../../../../../shared/components/ui'
+import { Skeleton } from 'antd'
+
+import { CardComponent } from '../../../../../shared/components/antd'
+import { PageHeader } from '../../../components/common/PageHeader'
 import { managerHref } from '../../../routes'
 import '../../../components/layout/mgrLayout.css'
 import type { PageMessages } from '../reviewTypes'
@@ -11,22 +14,28 @@ export function ReviewSkeleton({
   t: PageMessages
 }) {
   return (
-    <div className="odm-or mgr-page" aria-busy="true" aria-live="polite">
+    <div className="odm-or mgr-view mgr-or" aria-busy="true" aria-live="polite">
       <PageHeader
-        back={<a href={managerHref({ screen: 'orderQueue' })}>{t.breadcrumb}</a>}
+        crumb={<a href={managerHref({ screen: 'orderQueue' })}>{t.breadcrumb}</a>}
         title={t.pageTitle}
-        subtitle={orderId}
+        description={orderId}
       />
-      <Skeleton variant="block" height={56} />
+      <CardComponent>
+        <Skeleton active paragraph={{ rows: 1 }} />
+      </CardComponent>
       <div className="mgr-detail-grid">
         <div className="mgr-detail-main">
-          <Skeleton variant="block" height={360} />
-          <Skeleton variant="block" height={200} />
+          <CardComponent>
+            <Skeleton active paragraph={{ rows: 6 }} />
+          </CardComponent>
         </div>
         <div className="mgr-detail-side">
-          <Skeleton variant="block" height={160} />
-          <Skeleton variant="block" height={120} />
-          <Skeleton variant="block" height={140} />
+          <CardComponent>
+            <Skeleton active paragraph={{ rows: 3 }} />
+          </CardComponent>
+          <CardComponent>
+            <Skeleton active paragraph={{ rows: 2 }} />
+          </CardComponent>
         </div>
       </div>
       <span className="odm-visually-hidden">{t.loading}</span>
