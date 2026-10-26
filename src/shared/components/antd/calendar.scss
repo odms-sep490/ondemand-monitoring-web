@@ -1,0 +1,172 @@
+/*
+ * FullCalendar skin. Mirrors the reference project's calendar.scss
+ * (white card, bold title, outlined toolbar buttons, tinted slots, filled
+ * events) with the Manager blue primary instead of green, and --mgr-* tokens
+ * so dark mode follows the Manager theme.
+ */
+.calendar {
+  --cal-primary: var(--ui-primary, #1565e8);
+  --cal-card: var(--mgr-card, #fff);
+  --cal-card-2: var(--mgr-card-2, #f6f8fd);
+  --cal-border: var(--mgr-border, #e6ecf5);
+  --cal-text: var(--mgr-text, #0f1b3d);
+  --cal-muted: var(--mgr-muted, #64748b);
+
+  --fc-border-color: var(--cal-border);
+  --fc-page-bg-color: var(--cal-card);
+  --fc-neutral-bg-color: var(--cal-card-2);
+  --fc-today-bg-color: color-mix(in srgb, var(--cal-primary) 10%, transparent);
+  --fc-now-indicator-color: #dc2626;
+
+  width: 100%;
+  min-width: 0;
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--cal-card);
+  color: var(--cal-text);
+
+  .fc-header-toolbar {
+    padding: 10px;
+    border-radius: 8px;
+    color: var(--cal-text);
+  }
+
+  .fc-toolbar-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--cal-text);
+  }
+
+  .fc-button {
+    padding: 5px 10px;
+    border: 1px solid var(--cal-border);
+    border-radius: 4px;
+    background-color: var(--cal-card);
+    color: var(--cal-primary);
+    font-size: 0.9rem;
+    font-weight: bold;
+    text-transform: capitalize;
+  }
+
+  .fc-button:hover {
+    background-color: var(--cal-primary);
+    color: #fff;
+  }
+
+  .fc .fc-button-primary:not(:disabled).fc-button-active,
+  .fc .fc-button-primary:not(:disabled):active {
+    border-color: var(--cal-primary);
+    background-color: var(--cal-primary);
+    color: #fff;
+  }
+
+  .fc-theme-standard td,
+  .fc-theme-standard th,
+  .fc-theme-standard .fc-scrollgrid {
+    border-color: var(--cal-border);
+  }
+
+  .fc .fc-timegrid-slot {
+    background-color: var(--cal-card-2);
+  }
+
+  .fc .fc-timegrid-slot-label-cushion,
+  .fc .fc-col-header-cell-cushion {
+    color: var(--cal-muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .fc .fc-day-today .fc-col-header-cell-cushion {
+    color: var(--cal-primary);
+  }
+
+  .fc .fc-event-main {
+    min-width: 0;
+  }
+
+  /* Events: filled blocks, colour comes from the status tone class. */
+  .fc-event {
+    --ev-bg: #64748b;
+    --ev-fg: #fff;
+
+    padding: 2px 4px;
+    border: none;
+    border-radius: 5px;
+    background-color: var(--ev-bg);
+    color: var(--ev-fg);
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+
+  .fc-event.cal-tone-info {
+    --ev-bg: var(--cal-primary);
+  }
+
+  .fc-event.cal-tone-success {
+    --ev-bg: #16a34a;
+  }
+
+  .fc-event.cal-tone-warning {
+    --ev-bg: #f59e0b;
+    --ev-fg: #1f1300;
+  }
+
+  .fc-event.cal-tone-danger {
+    --ev-bg: #dc2626;
+  }
+
+  .fc-event.cal-tone-neutral {
+    --ev-bg: #64748b;
+  }
+
+  .fc-event.is-selected {
+    box-shadow: 0 0 0 2px var(--cal-card), 0 0 0 4px var(--cal-primary);
+  }
+
+  .fc-event:focus-visible {
+    outline: 2px solid var(--cal-primary);
+    outline-offset: 2px;
+  }
+
+  .cal-ev {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+    line-height: 1.25;
+  }
+
+  .cal-ev-code {
+    overflow: hidden;
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .cal-ev-meta {
+    overflow: hidden;
+    font-size: 0.72rem;
+    opacity: 0.9;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.selected-date {
+  background-color: var(--ui-primary, #1565e8) !important;
+  color: #fff !important;
+}
+
+@media (max-width: 640px) {
+  .calendar {
+    padding: 8px;
+
+    .fc-toolbar-title {
+      font-size: 1.1rem;
+    }
+  }
+}
