@@ -1,37 +1,23 @@
+import { Button } from 'antd'
+
+import { ErrorState } from '../../../components/common/ErrorState'
 import { useI18n } from '../../../../../shared/i18n'
-import { missionCreatePageMessages } from '../MissionCreatePage.messages'
-import { ApiError } from '../../../../../shared/api/httpClient'
 import { managerHref } from '../../../routes'
-import { Button } from '../../../../../shared/components/ui'
+import { missionCreatePageMessages } from '../MissionCreatePage.messages'
 
 export function CreateMissionErrorState({ error }: { error: unknown }) {
   const { t } = useI18n(missionCreatePageMessages)
-  const debugLine =
-    error instanceof ApiError
-      ? `${error.method} ${error.path}${error.status ? ` · ${error.status}` : ''}`
-      : 'GET /api/orders/{id}'
   return (
-    <div className="odm-mgr-dash">
-      <div className="odm-card">
-        <div className="odm-mgr-review-error">
-          <div className="odm-mgr-review-error-icon" aria-hidden="true">
-            !
-          </div>
-          <div style={{ fontSize: 15, fontWeight: 600 }}>{t.loadError}</div>
-          <div
-            className="odm-mono"
-            style={{ fontSize: 11.5, color: 'var(--tx3)' }}
-          >
-            {debugLine}
-          </div>
-          <Button
-            variant="primary"
-            href={managerHref({ screen: 'orderQueue' })}
-          >
+    <div className="mgr-view">
+      <ErrorState
+        title={t.loadError}
+        error={error}
+        action={
+          <Button type="primary" href={managerHref({ screen: 'orderQueue' })}>
             {t.backToQueue}
           </Button>
-        </div>
-      </div>
+        }
+      />
     </div>
   )
 }

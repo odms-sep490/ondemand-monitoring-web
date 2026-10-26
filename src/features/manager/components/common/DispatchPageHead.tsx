@@ -5,7 +5,9 @@ import { commonMiscMessages } from './commonMisc.messages'
 import { missionStatusLabel } from './liveDispatchHelpers'
 import { useI18n } from '../../../../shared/i18n'
 import type { OrderDispatchContext } from './liveDispatchTypes'
-import { Button, PageHeader, StatusBadge } from '../../../../shared/components/ui'
+import { Button } from 'antd'
+import { PageHeader } from './PageHeader'
+import { StatusTag } from './StatusTag'
 
 export function DispatchPageHead({
   orderContext,
@@ -21,13 +23,13 @@ export function DispatchPageHead({
   return (
     <PageHeader
       title={t.createMissionTitle}
-      subtitle={
+      description={
         orderContext ? (
           <span className="mgr-badge-row">
             <span>{current.missionCode}</span>
-            <StatusBadge tone="info">
+            <StatusTag tone="info">
               {missionStatusLabel(current.status, t.missionStatuses)}
-            </StatusBadge>
+            </StatusTag>
           </span>
         ) : (
           t.createMissionSubtitle

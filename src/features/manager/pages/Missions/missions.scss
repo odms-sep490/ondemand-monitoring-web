@@ -1,0 +1,189 @@
+@use '../../styles/legacy';
+
+/* Mission list (MNG-08) in the Manager look: antd table + side panel. */
+:root .mgr-layout .mgr-missions {
+  @include legacy.mgr-legacy-tokens;
+
+  max-width: 1600px;
+
+  .mgr-kpi-strip-5 {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .mgr-list-grid {
+    gap: 16px;
+  }
+
+  .mgr-code {
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 13px;
+  }
+
+  .mgr-order-link {
+    color: var(--ui-primary);
+    font-weight: 600;
+  }
+
+  .mgr-row-click {
+    cursor: pointer;
+
+    &.is-selected > td {
+      background: var(--ui-primary-soft);
+    }
+  }
+
+  .mgr-row-actions {
+    display: inline-flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 6px;
+  }
+
+  .mgr-only-narrow {
+    display: none;
+  }
+
+  .mgr-badge-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .mgr-missions-panel {
+    top: 80px;
+  }
+
+  .mgr-actions .ant-btn {
+    width: 100%;
+  }
+
+  /* Crew list inside the side panel (legacy odm-or-crew markup). */
+  .odm-or-crew-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 12px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .odm-or-crew-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--mgr-border);
+
+    &:last-child {
+      border-bottom: 0;
+    }
+  }
+
+  .odm-or-crew-avatar {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #60a5fa, #6366f1);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+
+    &.is-device {
+      background: linear-gradient(135deg, #34d399, #16a34a);
+    }
+  }
+
+  .odm-or-crew-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    font-size: 13px;
+    overflow-wrap: anywhere;
+
+    small,
+    .odm-or-crew-role {
+      color: var(--mgr-muted);
+      font-size: 12px;
+    }
+  }
+
+  .odm-or-pill {
+    flex: none;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: var(--mgr-card-2);
+    color: var(--mgr-muted);
+    font-size: 11.5px;
+    font-weight: 600;
+  }
+
+  .odm-or-pill-green {
+    background: rgb(22 163 74 / 12%);
+    color: #16a34a;
+  }
+
+  .odm-or-pill-red {
+    background: rgb(220 38 38 / 12%);
+    color: #dc2626;
+  }
+
+  .odm-or-pill-yellow,
+  .odm-or-pill-orange {
+    background: rgb(245 158 11 / 14%);
+    color: #b45309;
+  }
+
+  .odm-or-pill-blue {
+    background: rgb(21 101 232 / 12%);
+    color: var(--ui-primary);
+  }
+
+  .odm-or-crew-count {
+    color: var(--mgr-muted);
+    font-size: 12.5px;
+  }
+}
+
+@media (max-width: 1100px) {
+  :root .mgr-layout .mgr-missions .mgr-kpi-strip-5 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  :root .mgr-layout .mgr-missions {
+    .mgr-kpi-strip-5 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .mgr-only-narrow {
+      display: block;
+    }
+
+    .mgr-row-actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .mgr-filter-bar-seg {
+      max-width: 100%;
+      overflow-x: auto;
+    }
+
+    .ant-table-wrapper {
+      overflow-x: auto;
+    }
+
+    .ant-table-thead > tr > th,
+    .ant-table-tbody > tr > td {
+      padding: 12px 10px;
+    }
+  }
+}

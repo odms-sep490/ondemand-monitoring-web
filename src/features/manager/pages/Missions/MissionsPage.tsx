@@ -1,25 +1,24 @@
 // MNG-08: Mission list + detail panel
 import { useEffect, useMemo, useState } from 'react'
-import { StateView } from '../../../../shared/components/odm/StateView'
-import {
-  Card,
-  EmptyState,
-  PageHeader,
-  Skeleton,
-  StatCard,
-} from '../../../../shared/components/ui'
-import { Segmented } from '../../components/layout/Segmented'
+import { Skeleton } from 'antd'
+import { CardComponent } from '../../../../shared/components/antd'
+import { EmptyState } from '../../components/common/EmptyState'
+import { ErrorState } from '../../components/common/ErrorState'
+import { FilterBar, FilterSegments } from '../../components/common/FilterBar'
+import { PageHeader } from '../../components/common/PageHeader'
 import type { MissionCalendarItem } from '../../types/missions'
-import '../../components/layout/mgrLayout.css'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
 import { missionsApi } from '../../api/missionsApi'
 import type { DeliveryStatus as WorkflowDeliveryStatus } from '../../../delivery/types'
 import { missionsPageMessages } from './MissionsPage.messages'
+import '../../components/layout/mgrLayout.css'
 import '../../manager.css'
+import './missions.scss'
 import { type DeliveryStatus, type StatusChip } from './missionsTypes'
 import { DetailPanel } from './components/DetailPanel'
 import { useMissionDeliveryStatuses } from './useMissionDeliveryStatuses'
+import { MissionsKpis } from './components/MissionsKpis'
 import { MissionsTable } from './components/MissionsTable'
 import { groupCounts, matchesMissionSearch } from './missionsHelpers'
 
@@ -84,77 +83,50 @@ export function MissionsPage({ missionId }: MissionsListPageProps) {
   const ready = !query.loading && !query.error
 
   return (
-    <div className="odm-or mgr-page">
+    <div className="mgr-view mgr-missions">
       <PageHeader
         title={t.title}
-        subtitle={ready ? t.missionCount(missions.length) : undefined}
+        description={ready ? t.missionCount(missions.length) : undefined}
       />
 
-      <div className="mgr-kpis">
-        <StatCard label={t.kpis.preparing} value={snapshotCounts.preparing} />
-        <StatCard
-          label={t.kpis.running}
-          value={snapshotCounts.running}
-          tone={snapshotCounts.running > 0 ? 'success' : 'default'}
-        />
-        <StatCard
-          label={t.kpis.review}
-          value={snapshotCounts.review}
-          tone={snapshotCounts.review > 0 ? 'warning' : 'default'}
-        />
-        <StatCard label={t.kpis.completed} value={snapshotCounts.completed} />
-        <StatCard
-          label={t.kpis.failed}
-          value={snapshotCounts.failed}
-          tone={snapshotCounts.failed > 0 ? 'danger' : 'default'}
-        />
-      </div>
+      <MissionsKpis counts={snapshotCounts} />
 
-      <div className="mgr-toolbar">
-        <input
-          type="search"
-          className="mgr-search"
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          placeholder={t.searchPlaceholder}
-          aria-label={t.searchAria}
-        />
-        <Segmented<StatusChip>
-          ariaLabel={t.statusAria}
-          value={statusFilter}
-          onChange={setStatusFilter}
-          options={statusChips}
-        />
-      </div>
+      <FilterBar
+        start={
+          <FilterSegments<StatusChip>
+            ariaLabel={t.statusAria}
+            value={statusFilter}
+            onChange={setStatusFilter}
+            options={statusChips}
+          />
+        }
+        search={{
+          value: search,
+          onChange: setSearch,
+          placeholder: t.searchPlaceholder,
+          ariaLabel: t.searchAria,
+        }}
+      />
 
       <div className={`mgr-list-grid${selectedMission ? ' has-panel' : ''}`}>
         <div className="mgr-detail-main">
           {query.loading && (
-            <div aria-busy="true">
-              <Skeleton variant="block" height={260} />
-            </div>
+            <CardComponent aria-busy="true">
+              <Skeleton active paragraph={{ rows: 6 }} />
+            </CardComponent>
           )}
 
           {!query.loading && !!query.error && (
-            <Card>
-              <StateView
-                state="error"
-                title={t.loadError}
-                error={t.loadErrorDetail}
-                onRetry={query.reload}
-              />
-            </Card>
+            <ErrorState title={t.loadError} description={t.loadErrorDetail} onRetry={query.reload} />
           )}
 
           {ready && visible.length === 0 && (
-            <div className="ui-table-card">
+            <CardComponent>
               <EmptyState
                 title={missions.length === 0 ? t.emptyTitle : t.emptySearch}
-                description={
-                  missions.length === 0 ? t.emptyDescription : undefined
-                }
+                description={missions.length === 0 ? t.emptyDescription : undefined}
               />
-            </div>
+            </CardComponent>
           )}
 
           {ready && visible.length > 0 && (

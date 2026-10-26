@@ -2,7 +2,11 @@
 import { useRef, useState } from 'react'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { checklistExecutionApi } from '../../../mission/api/checklistExecutionApi'
-import { StateView } from '../../../../shared/components/odm/StateView'
+import { Skeleton } from 'antd'
+import { ArrowLeftOutlined } from '@ant-design/icons'
+import { CardComponent } from '../../../../shared/components/antd'
+import { ErrorState } from '../../components/common/ErrorState'
+import { EmptyState as MgrEmptyState } from '../../components/common/EmptyState'
 import { useI18n } from '../../../../shared/i18n'
 import { OrderAttachmentsCard } from '../../components/common/OrderAttachmentsCard'
 import { OrderChecklistCard } from './components/OrderChecklistCard'
@@ -10,14 +14,13 @@ import { OrderCustomerCard } from '../../components/common/OrderCustomerCard'
 import { OrderCustomerRequestDetails } from '../../components/common/OrderCustomerRequestDetails'
 import { OrderServiceInfo } from '../../components/common/OrderServiceInfo'
 import { type DetailData } from '../../components/common/missionDetailTypes'
-import { OrderIcon } from '../../components/common/OrderIcon'
 import { managerHref } from '../../routes'
-import { Card, EmptyState, Skeleton } from '../../../../shared/components/ui'
 import { ManagerDeliveryPanel } from '../../../delivery/ManagerDeliveryPanel'
 import '../../components/layout/mgrLayout.css'
 import { missionDetailPageMessages } from './MissionDetailPage.messages'
 import { orderReviewPageMessages } from '../OrderReview/OrderReviewPage.messages'
 import '../../manager.css'
+import './missionDetail.scss'
 import { type MissionDetailTab } from './missionDetailTypes'
 import { useMissionDetailLoad } from './useMissionDetailLoad'
 import { deriveMissionDetailView } from './deriveMissionDetailView'
@@ -61,22 +64,21 @@ function MissionDetail({ missionId }: { missionId: string }) {
   })
 
   const backLink = (
-    <a className="odm-or-back" href={managerHref({ screen: 'missions' })}>
-      <OrderIcon name="arrow-right" size={14} />
-      {t.back}
+    <a className="mgr-back-link" href={managerHref({ screen: 'missions' })}>
+      <ArrowLeftOutlined aria-hidden="true" /> {t.back}
     </a>
   )
 
   if (loading && (!detail || detail.mission?.id !== missionId)) {
     return (
-      <div className="odm-or mgr-page" aria-busy="true">
+      <div className="odm-or mgr-view mgr-md" aria-busy="true">
         {backLink}
-        <div className="mgr-kpis">
-          {Array.from({ length: 4 }, (_, index) => (
-            <Skeleton key={index} variant="block" height={88} />
-          ))}
-        </div>
-        <Skeleton variant="block" height={320} />
+        <CardComponent>
+          <Skeleton active paragraph={{ rows: 1 }} />
+        </CardComponent>
+        <CardComponent>
+          <Skeleton active paragraph={{ rows: 6 }} />
+        </CardComponent>
       </div>
     )
   }
@@ -84,15 +86,9 @@ function MissionDetail({ missionId }: { missionId: string }) {
   const mission = detail?.mission
   if (error || !mission || !detail) {
     return (
-      <div className="odm-or mgr-page">
+      <div className="odm-or mgr-view mgr-md">
         {backLink}
-        <Card>
-          <StateView
-            state="error"
-            title={t.loadError}
-            error={error ?? undefined}
-          />
-        </Card>
+        <ErrorState title={t.loadError} description={error ?? undefined} />
       </div>
     )
   }
@@ -129,7 +125,7 @@ function MissionDetail({ missionId }: { missionId: string }) {
   })
 
   return (
-    <div className="odm-or mgr-page">
+    <div className="odm-or mgr-view mgr-md">
       <MissionDetailHeader
         mission={mission}
         headline={headline}
@@ -180,9 +176,9 @@ function MissionDetail({ missionId }: { missionId: string }) {
                 <OrderAttachmentsCard order={detail.order} t={orderT} />
               </div>
             ) : (
-              <div className="ui-table-card">
-                <EmptyState title={t.loadError} />
-              </div>
+              <CardComponent>
+                <MgrEmptyState title={t.loadError} />
+              </CardComponent>
             )
           ) : null}
 

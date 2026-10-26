@@ -14,6 +14,7 @@ import { WizardOverviewStep } from './WizardOverviewStep'
 import { WizardMissionStep } from './WizardMissionStep'
 import { Button, PageHeader } from '../../../../shared/components/ui'
 import '../layout/mgrLayout.css'
+import '../../pages/MissionDispatch/missionDispatch.scss'
 
 const roles: MissionStaffRole[] = [
   'PILOT',
@@ -170,6 +171,7 @@ export function OrderResourceAssignmentWizard({
     )
   if (current && !query.loading && !eligible(current.id))
     return (
+      <div className="odm-or mgr-view mgr-mdp">
       <section className="odm-or-card odm-or-card-body">
         <p role="alert">{t.notEligible}</p>
         <Button href={`#portal/manager/orders/${encodeURIComponent(orderId)}`}>
@@ -178,14 +180,17 @@ export function OrderResourceAssignmentWizard({
         <Button onClick={query.reload}>{t.reloadStatus}</Button>
         <Button onClick={onClose}>{returnLabel}</Button>
       </section>
+      </div>
     )
   if (activeId && !current && !query.loading)
     return (
+      <div className="odm-or mgr-view mgr-mdp">
       <section className="odm-or-card odm-or-card-body">
         <p role="alert">{t.loadFailed}</p>
         <Button onClick={query.reload}>{t.retry}</Button>
         <Button onClick={onClose}>{returnLabel}</Button>
       </section>
+      </div>
     )
   if (current) {
     const initialStaff: Partial<Record<MissionStaffRole, string[]>> = {}
@@ -227,7 +232,7 @@ export function OrderResourceAssignmentWizard({
     )
   }
   return (
-    <div className="odm-or mgr-page">
+    <div className="odm-or mgr-view mgr-mdp">
       {confirmation.dialog}
       <PageHeader
         title={t.title}

@@ -1,0 +1,144 @@
+@use 'legacy';
+
+/*
+ * Shared re-skin for the mission pages (detail, create, dispatch) that still
+ * render legacy markup (odm-or-*, odm-md-*, ui-*). Include inside a page root.
+ */
+@mixin mission-area {
+  @include legacy.mgr-legacy-tokens;
+  @include legacy.mgr-legacy-components;
+
+  max-width: 1600px;
+  min-width: 0;
+
+  .odm-or-card {
+    overflow-wrap: anywhere;
+  }
+
+  h1,
+  h2,
+  h3,
+  .ui-card-title {
+    letter-spacing: 0;
+  }
+
+  .mgr-title-row {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .mgr-title-row .odm-mono {
+    color: var(--mgr-text);
+  }
+
+  .mgr-stat-long .ant-statistic-content {
+    font-size: 20px;
+  }
+
+  .mgr-badge-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .mgr-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--mgr-muted);
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  /* Next-step banner */
+  .odm-md-next {
+    border-radius: var(--mgr-radius);
+    box-shadow: var(--mgr-shadow);
+  }
+
+  /* Tabs rendered as a segmented control */
+  .mgr-seg {
+    max-width: 100%;
+    overflow-x: auto;
+    padding: 4px;
+    display: flex;
+    width: fit-content;
+    border: 1px solid var(--mgr-border);
+    border-radius: 12px;
+    background: var(--mgr-card);
+    box-shadow: var(--mgr-shadow);
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 767px) {
+    .mgr-seg {
+      flex-wrap: nowrap;
+    }
+  }
+
+  .mgr-seg button {
+    flex: none;
+    height: 34px;
+    border-radius: 9px;
+    font-size: 13px;
+  }
+
+  .mgr-seg button.is-active {
+    background: var(--ui-primary);
+    color: var(--ui-on-primary, #fff);
+    box-shadow: none;
+  }
+
+  .mgr-kv-row {
+    border-bottom-color: var(--mgr-border);
+  }
+
+  /* Form controls */
+  .odm-or-input,
+  .odm-or-select,
+  .odm-or-textarea,
+  input[type='datetime-local'],
+  input[type='text'] {
+    min-height: 38px;
+    border: 1px solid var(--mgr-border);
+    border-radius: 10px;
+    background: var(--mgr-card);
+    color: var(--mgr-text);
+
+    &:focus {
+      border-color: var(--ui-primary);
+      outline: none;
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-primary) 18%, transparent);
+    }
+  }
+
+  .odm-or-field-label {
+    color: var(--mgr-text);
+    font-weight: 600;
+  }
+
+  /* Sticky action bar */
+  .odm-or-actionbar {
+    position: sticky;
+    bottom: 12px;
+    z-index: 5;
+    margin-top: 0;
+    border: 1px solid var(--mgr-border);
+    border-radius: var(--mgr-radius);
+    background: var(--mgr-card);
+    box-shadow: 0 10px 30px -12px rgb(15 23 42 / 25%);
+  }
+
+  .odm-or-actionbar-hint {
+    background: var(--ui-primary-soft);
+    border-radius: 10px;
+  }
+
+  .odm-or-grid > *,
+  .mgr-detail-grid > * {
+    min-width: 0;
+  }
+}

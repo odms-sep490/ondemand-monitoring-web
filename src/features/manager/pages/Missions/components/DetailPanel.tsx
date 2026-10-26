@@ -1,20 +1,21 @@
-import type { MissionCalendarItem } from '../../../types/missions'
-import type { PageMessages } from '../missionsTypes'
+import { Alert, Button, Progress } from 'antd'
+import { CloseOutlined, RightOutlined } from '@ant-design/icons'
+
+import { CardComponent } from '../../../../../shared/components/antd'
 import { formatOrderCode } from '../../../components/common/format'
-import { formatScheduled, formatStaffSummary } from '../missionsHelpers'
+import { MissionStatusTag } from '../../../components/common/MissionStatusTag'
 import { OrderIcon } from '../../../components/common/OrderIcon'
-import { missionStopLabel } from '../../../../mission/lib/missionOperationalState'
-import { StatusBadge } from '../../../../../shared/components/odm/StatusBadge'
-import { missionStatusTone } from '../../../../../shared/lib/statusTone'
-import { assignmentReadiness } from '../../../lib/assignmentReadiness'
-import { managerHref } from '../../../routes'
 import {
   initialsOf,
   STAFF_ROLE_LABELS,
   assignmentTone,
   STAFF_RESPONSE_LABELS,
 } from '../../../components/common/missionDetailHelpers'
-import { Button, Card, EmptyState } from '../../../../../shared/components/ui'
+import { assignmentReadiness } from '../../../lib/assignmentReadiness'
+import { managerHref } from '../../../routes'
+import type { MissionCalendarItem } from '../../../types/missions'
+import { formatScheduled, formatStaffSummary } from '../missionsHelpers'
+import type { PageMessages } from '../missionsTypes'
 
 export type DetailPanelProps = {
   mission: MissionCalendarItem
@@ -23,75 +24,50 @@ export type DetailPanelProps = {
   locale: 'vi-VN' | 'en-US'
 }
 
+function droneText(mission: MissionCalendarItem) {
+  return mission.droneCode ? `${mission.droneCode}${mission.droneName ? ` ${mission.droneName}` : ''}` : '—'
+}
+
 export function DetailPanel({ mission, onClose, t, locale }: DetailPanelProps) {
   const rows: Array<{ label: string; value: string }> = []
-  if (mission.orderCode)
-    rows.push({
-      label: t.fields.order,
-      value: formatOrderCode(mission.orderCode),
-    })
-  if (mission.serviceLabel)
-    rows.push({ label: t.fields.service, value: mission.serviceLabel })
+  if (mission.orderCode) rows.push({ label: t.fields.order, value: formatOrderCode(mission.orderCode) })
+  if (mission.serviceLabel) rows.push({ label: t.fields.service, value: mission.serviceLabel })
   rows.push({
     label: t.fields.schedule,
-    value: formatScheduled(
-      mission.scheduledStartAt,
-      mission.scheduledEndAt,
-      locale,
-    ),
+    value: formatScheduled(mission.scheduledStartAt, mission.scheduledEndAt, locale),
   })
-  if (mission.droneCode)
-    rows.push({
-      label: t.fields.drone,
-      value: `${mission.droneCode}${mission.droneName ? ` ${mission.droneName}` : ''}`,
-    })
-  if (mission.operatorName)
-    rows.push({ label: t.fields.operator, value: mission.operatorName })
-  if (mission.addressText)
-    rows.push({ label: t.fields.address, value: mission.addressText })
+  if (mission.droneCode) rows.push({ label: t.fields.drone, value: droneText(mission) })
+  if (mission.operatorName) rows.push({ label: t.fields.operator, value: mission.operatorName })
+  if (mission.addressText) rows.push({ label: t.fields.address, value: mission.addressText })
   const staffAssignments = mission.staffAssignments ?? []
-  const hasAssignedResources =
-    Boolean(mission.droneCode) || staffAssignments.length > 0
-  const accepted = staffAssignments.filter(
-    (item) => item.responseStatus === 'ACCEPTED',
-  ).length
+  const hasAssignedResources = Boolean(mission.droneCode) || staffAssignments.length > 0
+  const accepted = staffAssignments.filter((item) => item.responseStatus === 'ACCEPTED').length
+
   return (
     <aside className="mgr-detail-side mgr-missions-panel">
-      <Card
-        title={<span className="odm-mono">{mission.missionCode}</span>}
-        actions={
-          <button
-            type="button"
-            className="odm-or-icon-btn"
+      <CardComponent
+        title={<span className="mgr-card-title odm-mono">{mission.missionCode}</span>}
+        extra={
+          <Button
+            type="text"
+            size="small"
+            icon={<CloseOutlined aria-hidden="true" />}
             onClick={onClose}
             aria-label={t.close}
-          >
-            <OrderIcon name="x" size={16} />
-          </button>
+          />
         }
       >
         <div className="mgr-badge-row">
-          {missionStopLabel(mission) ? (
-            <StatusBadge tone="yellow">{missionStopLabel(mission)}</StatusBadge>
-          ) : (
-            <StatusBadge
-              kind="mission"
-              status={mission.status}
-              tone={missionStatusTone[mission.status]}
-            />
-          )}
-          {assignmentReadiness(mission).needsSetup && (
+          <MissionStatusTag mission={mission} />
+          {assignmentReadiness(mission).needsSetup ? (
             <Button
-              href={managerHref({
-                screen: 'missionSetup',
-                missionId: mission.id,
-              })}
-              variant="primary"
-              size="sm"
+              type="primary"
+              size="small"
+              href={managerHref({ screen: 'missionSetup', missionId: mission.id })}
             >
               {t.dispatch}
             </Button>
-          )}
+          ) : null}
         </div>
         <dl className="mgr-kv">
           {rows.map((row) => (
@@ -101,23 +77,21 @@ export function DetailPanel({ mission, onClose, t, locale }: DetailPanelProps) {
             </div>
           ))}
         </dl>
-      </Card>
+      </CardComponent>
 
-      <Card
+      <CardComponent
         title={t.assignments.title}
-        actions={
+        extra={
           staffAssignments.length > 0 ? (
-            <span className="odm-or-crew-count">
-              {formatStaffSummary(staffAssignments)}
-            </span>
+            <span className="odm-or-crew-count">{formatStaffSummary(staffAssignments)}</span>
           ) : undefined
         }
       >
         {staffAssignments.length > 0 ? (
-          <progress
-            className="mgr-plan-progress"
-            max={staffAssignments.length}
-            value={accepted}
+          <Progress
+            percent={Math.round((accepted / staffAssignments.length) * 100)}
+            showInfo={false}
+            size="small"
             aria-hidden="true"
           />
         ) : null}
@@ -129,38 +103,22 @@ export function DetailPanel({ mission, onClose, t, locale }: DetailPanelProps) {
               </span>
               <span className="odm-or-crew-main">
                 <span className="odm-or-crew-role">{t.assignments.device}</span>
-                <strong>
-                  {mission.droneCode
-                    ? `${mission.droneCode}${mission.droneName ? ` ${mission.droneName}` : ''}`
-                    : '—'}
-                </strong>
+                <strong>{droneText(mission)}</strong>
               </span>
             </li>
-
             {staffAssignments.map((assignment) => {
-              const name =
-                assignment.staffName ??
-                assignment.staffEmail ??
-                t.assignedStaffFallback
+              const name = assignment.staffName ?? assignment.staffEmail ?? t.assignedStaffFallback
               return (
                 <li key={assignment.id} className="odm-or-crew-item">
                   <span className="odm-or-crew-avatar" aria-hidden="true">
                     {initialsOf(name)}
                   </span>
                   <span className="odm-or-crew-main">
-                    <span className="odm-or-crew-role">
-                      {STAFF_ROLE_LABELS[assignment.assignedRole]}
-                    </span>
+                    <span className="odm-or-crew-role">{STAFF_ROLE_LABELS[assignment.assignedRole]}</span>
                     <strong>{name}</strong>
-                    {assignment.staffEmail && assignment.staffName ? (
-                      <small>{assignment.staffEmail}</small>
-                    ) : null}
+                    {assignment.staffEmail && assignment.staffName ? <small>{assignment.staffEmail}</small> : null}
                   </span>
-                  <span
-                    className={`odm-or-pill odm-or-pill-${assignmentTone(
-                      assignment.responseStatus,
-                    )}`}
-                  >
+                  <span className={`odm-or-pill odm-or-pill-${assignmentTone(assignment.responseStatus)}`}>
                     {STAFF_RESPONSE_LABELS[assignment.responseStatus]}
                   </span>
                 </li>
@@ -168,24 +126,16 @@ export function DetailPanel({ mission, onClose, t, locale }: DetailPanelProps) {
             })}
           </ul>
         ) : (
-          <EmptyState title={t.assignments.empty} />
+          <Alert type="info" showIcon message={t.assignments.empty} />
         )}
-      </Card>
+      </CardComponent>
 
       <div className="mgr-actions">
-        <Button
-          variant="primary"
-          href={managerHref({ screen: 'missionDetail', missionId: mission.id })}
-        >
+        <Button type="primary" href={managerHref({ screen: 'missionDetail', missionId: mission.id })}>
           {t.viewDetail}
-          <OrderIcon name="arrow-right" size={16} />
+          <RightOutlined aria-hidden="true" />
         </Button>
-        <Button
-          href={managerHref({
-            screen: 'orderReview',
-            orderId: mission.orderId,
-          })}
-        >
+        <Button href={managerHref({ screen: 'orderReview', orderId: mission.orderId })}>
           {t.openOrderPlan}
         </Button>
       </div>

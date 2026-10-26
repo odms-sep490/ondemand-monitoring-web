@@ -21,6 +21,7 @@ import { DispatchReviewStep } from './DispatchReviewStep'
 import { DispatchActionBar } from './DispatchActionBar'
 import { DispatchSideSummary } from './DispatchSideSummary'
 import '../layout/mgrLayout.css'
+import '../../pages/MissionDispatch/missionDispatch.scss'
 import { Button, Skeleton } from '../../../../shared/components/ui'
 
 export function LiveDispatchContent({
@@ -166,7 +167,7 @@ export function LiveDispatchContent({
   })
 
   return (
-    <div className="odm-or mgr-page">
+    <div className="odm-or mgr-view mgr-mdp">
       {!orderContext?.embeddedInOrderReview && (
         <DispatchPageHead
           orderContext={orderContext}

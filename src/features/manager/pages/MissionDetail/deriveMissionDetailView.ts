@@ -83,7 +83,7 @@ export function deriveMissionDetailView({
     {
       label: t.fields.coordinates,
       value:
-        mission.latitude !== null && mission.longitude !== null
+        mission.latitude != null && mission.longitude != null
           ? `${mission.latitude}, ${mission.longitude}`
           : '—',
     },

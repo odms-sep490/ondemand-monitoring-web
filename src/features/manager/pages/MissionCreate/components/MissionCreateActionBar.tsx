@@ -5,7 +5,8 @@ import { useI18n } from '../../../../../shared/i18n'
 import type { UseApiQueryState } from '../../../../../shared/hooks/useApiQuery'
 import type { ExecutionPlan } from '../../../types/planning'
 import type { MissionResponse } from '../../../types/missions'
-import { Button } from '../../../../../shared/components/ui'
+import { Button } from 'antd'
+import { RightOutlined } from '@ant-design/icons'
 
 export function MissionCreateActionBar({
   handleSubmit,
@@ -33,14 +34,14 @@ export function MissionCreateActionBar({
       </div>
       <div className="odm-or-actionbar-actions">
         <Button
-          variant="ghost"
+          type="text"
           href={managerHref({ screen: 'orderQueue' })}
         >
           {t.backToOrders}
         </Button>
         <Button
-          type="button"
-          variant="primary"
+          type="primary"
+          htmlType="button"
           onClick={handleSubmit}
           disabled={
             submitting ||
@@ -58,7 +59,7 @@ export function MissionCreateActionBar({
           }
         >
           {submitting ? t.creating : t.createMission}
-          <OrderIcon name="chevron-right" size={16} />
+          <RightOutlined aria-hidden="true" />
         </Button>
       </div>
     </div>
