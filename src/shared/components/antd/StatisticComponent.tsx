@@ -49,10 +49,12 @@ export function StatisticComponent({
         <div className="mgr-stat-label">{title}</div>
       </div>
       <Statistic {...props} />
-      <div className="mgr-stat-bottom">
-        {hint ? <span className={`mgr-chip mgr-chip-${hintTone ?? tone}`}>{hint}</span> : <span />}
-        {spark && spark.length > 1 ? <Sparkline values={spark} tone={tone} /> : null}
-      </div>
+      {hint || (spark && spark.length > 1) ? (
+        <div className="mgr-stat-bottom">
+          {hint ? <span className={`mgr-chip mgr-chip-${hintTone ?? tone}`}>{hint}</span> : <span />}
+          {spark && spark.length > 1 ? <Sparkline values={spark} tone={tone} /> : null}
+        </div>
+      ) : null}
     </motion.div>
   )
 }
