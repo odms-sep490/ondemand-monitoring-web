@@ -1,18 +1,13 @@
-import type { MaintenanceTicket } from '../../../types/maintenance'
+import { Button, Drawer } from 'antd'
+import type { ReactNode } from 'react'
+
+import { CardComponent } from '../../../../../shared/components/antd'
 import { useI18n } from '../../../../../shared/i18n'
+import { mgrPopupContainer } from '../../../components/common/mgrPopupContainer'
+import { formatTicketDescription, formatTicketTitle } from '../../../lib/ticketText'
+import type { MaintenanceTicket } from '../../../types/maintenance'
 import { maintenancePageMessages } from '../MaintenancePage.messages'
-import {
-  formatTicketTitle,
-  formatTicketDescription,
-} from '../../../lib/ticketText'
-import { StatusBadge } from '../../../../../shared/components/odm/StatusBadge'
-import {
-  ticketStatusTone,
-  getTicketStatusLabel,
-  ticketSeverityTone,
-  getTicketSeverityLabel,
-} from '../../../../../shared/lib/statusTone'
-import { Button } from '../../../../../shared/components/ui'
+import { TicketSeverityTag, TicketStatusTag } from './TicketTags'
 
 export type DetailPanelProps = {
   ticket: MaintenanceTicket
@@ -20,220 +15,85 @@ export type DetailPanelProps = {
   onAssignClick: (ticket: MaintenanceTicket) => void
 }
 
-export function DetailPanel({
-  ticket,
-  onClose,
-  onAssignClick,
-}: DetailPanelProps) {
-  const { t, lang, locale } = useI18n(maintenancePageMessages)
+function Fact({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div
-      style={{
-        width: 380,
-        borderLeft: '1px solid #e2e8f0',
-        padding: 20,
-        overflowY: 'auto',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 16,
-        flexShrink: 0,
-        background: '#ffffff',
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}
-      >
-        <span
-          className="odm-mono"
-          style={{ fontWeight: 700, fontSize: 14, color: '#475569' }}
-        >
-          {ticket.code}
-        </span>
-        <Button
-          type="button"
-          onClick={onClose}
-          aria-label={t.detail.close}
-          style={{ padding: '2px 8px', borderRadius: '50%' }}
-        >
-          ✕
-        </Button>
-      </div>
-
-      <div style={{ fontWeight: 800, fontSize: 16, color: '#0f172a' }}>
-        {formatTicketTitle(ticket.title)}
-      </div>
-
-      <div style={{ display: 'flex', gap: 8 }}>
-        <StatusBadge tone={ticketStatusTone[ticket.status]}>
-          {getTicketStatusLabel(ticket.status, lang)}
-        </StatusBadge>
-        <StatusBadge tone={ticketSeverityTone[ticket.priority]}>
-          {getTicketSeverityLabel(ticket.priority, lang)}
-        </StatusBadge>
-      </div>
-
-      <div
-        style={{
-          fontSize: 13.5,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 12,
-        }}
-      >
-        <div>
-          <span style={{ color: '#64748b' }}>{t.detail.device}</span>
-          <span>
-            <b style={{ color: '#0f172a' }}>{ticket.droneCode}</b>
-          </span>
-        </div>
-        {ticket.issueType && (
-          <div>
-            <span style={{ color: '#64748b' }}>{t.detail.issueType}</span>
-            <span style={{ fontWeight: 600 }}>{ticket.issueType}</span>
-          </div>
-        )}
-        {ticket.description && (
-          <div>
-            <span
-              style={{ color: '#64748b', display: 'block', marginBottom: 4 }}
-            >
-              {t.detail.description}
-            </span>
-            <div
-              style={{
-                background: '#f8fafc',
-                padding: 12,
-                borderRadius: 8,
-                whiteSpace: 'pre-wrap',
-                border: '1px solid #e2e8f0',
-                color: '#334155',
-                lineHeight: 1.5,
-              }}
-            >
-              {formatTicketDescription(ticket.description)}
-            </div>
-          </div>
-        )}
-        {ticket.reportedBy && (
-          <div>
-            <span style={{ color: '#64748b' }}>{t.detail.reportedBy}</span>
-            <span>{ticket.reportedBy}</span>
-          </div>
-        )}
-        <div>
-          <span style={{ color: '#64748b' }}>{t.detail.assignedOperator}</span>
-          <span>
-            {ticket.assignedTo ? (
-              <b style={{ color: '#059669' }}>{ticket.assignedTo}</b>
-            ) : (
-              <b style={{ color: '#d97706' }}>{t.detail.unassigned}</b>
-            )}
-          </span>
-        </div>
-        {ticket.resolutionNotes && (
-          <div
-            style={{
-              background: '#f0fdf4',
-              padding: 14,
-              borderRadius: 10,
-              border: '1px solid #bbf7d0',
-              marginTop: 4,
-            }}
-          >
-            <span
-              style={{
-                color: '#166534',
-                fontWeight: 700,
-                display: 'block',
-                marginBottom: 4,
-              }}
-            >
-              {t.detail.resolutionReport}
-            </span>
-            <span
-              style={{ color: '#15803d', whiteSpace: 'pre-wrap', fontSize: 13 }}
-            >
-              {ticket.resolutionNotes}
-            </span>
-          </div>
-        )}
-      </div>
-
-      {/* Actions */}
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 10,
-          marginTop: 8,
-        }}
-      >
-        {(ticket.status === 'OPEN' || ticket.status === 'IN_PROGRESS') && (
-          <Button
-            type="button"
-            variant="primary"
-            onClick={() => onAssignClick(ticket)}
-            style={{
-              width: '100%',
-              height: 42,
-              fontWeight: 600,
-              borderRadius: 10,
-            }}
-          >
-            {ticket.assignedTo
-              ? t.detail.changeOperator
-              : t.detail.assignOperator}
-          </Button>
-        )}
-
-        {ticket.status === 'RESOLVED' && (
-          <div
-            style={{
-              background: '#f0fdf4',
-              padding: 12,
-              borderRadius: 10,
-              border: '1px solid #bbf7d0',
-              textAlign: 'center',
-              color: '#15803d',
-              fontWeight: 600,
-              fontSize: 13,
-            }}
-          >
-            {t.detail.resolvedDone}
-          </div>
-        )}
-      </div>
-
-      {/* Timeline */}
-      <div
-        style={{
-          borderTop: '1px solid #e2e8f0',
-          paddingTop: 14,
-          fontSize: 12.5,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 6,
-          marginTop: 'auto',
-        }}
-      >
-        <div style={{ fontWeight: 700, marginBottom: 2, color: '#475569' }}>
-          {t.detail.history}
-        </div>
-        <div>
-          <span style={{ color: '#94a3b8' }}>{t.detail.createdAt}</span>
-          <span>{new Date(ticket.openedAt).toLocaleString(locale)}</span>
-        </div>
-        {ticket.resolvedAt && (
-          <div>
-            <span style={{ color: '#94a3b8' }}>{t.detail.resolvedAt}</span>
-            <span>{new Date(ticket.resolvedAt).toLocaleString(locale)}</span>
-          </div>
-        )}
-      </div>
+    <div className="mgr-ticket-fact">
+      <dt>{label}</dt>
+      <dd>{children}</dd>
     </div>
+  )
+}
+
+/** Ticket details in a right-hand drawer, with the assign action in the footer. */
+export function DetailPanel({ ticket, onClose, onAssignClick }: DetailPanelProps) {
+  const { t, locale } = useI18n(maintenancePageMessages)
+  const open = ticket.status === 'OPEN' || ticket.status === 'IN_PROGRESS'
+  return (
+    <Drawer
+      open
+      getContainer={mgrPopupContainer}
+      width={440}
+      onClose={onClose}
+      closeIcon={<span aria-label={t.detail.close}>✕</span>}
+      title={<span className="mgr-code">{ticket.code}</span>}
+      className="mgr-ticket-drawer"
+      footer={
+        open ? (
+          <Button type="primary" block onClick={() => onAssignClick(ticket)}>
+            {ticket.assignedTo ? t.detail.changeOperator : t.detail.assignOperator}
+          </Button>
+        ) : ticket.status === 'RESOLVED' ? (
+          <div className="mgr-ticket-done">{t.detail.resolvedDone}</div>
+        ) : null
+      }
+    >
+      <div className="mgr-ticket-stack">
+        <div>
+          <h2 className="mgr-ticket-heading">{formatTicketTitle(ticket.title)}</h2>
+          <div className="mgr-ticket-tags">
+            <TicketStatusTag status={ticket.status} />
+            <TicketSeverityTag severity={ticket.priority} />
+          </div>
+        </div>
+
+        <CardComponent size="small">
+          <dl className="mgr-ticket-facts">
+            <Fact label={t.detail.device}>
+              <b>{ticket.droneCode}</b>
+            </Fact>
+            {ticket.issueType ? <Fact label={t.detail.issueType}>{ticket.issueType}</Fact> : null}
+            {ticket.reportedBy ? <Fact label={t.detail.reportedBy}>{ticket.reportedBy}</Fact> : null}
+            <Fact label={t.detail.assignedOperator}>
+              {ticket.assignedTo ? (
+                <b className="mgr-ticket-ok">{ticket.assignedTo}</b>
+              ) : (
+                <b className="mgr-ticket-warn">{t.detail.unassigned}</b>
+              )}
+            </Fact>
+          </dl>
+        </CardComponent>
+
+        {ticket.description ? (
+          <CardComponent size="small" title={t.detail.description.replace(/:$/, '')}>
+            <div className="mgr-ticket-text">{formatTicketDescription(ticket.description)}</div>
+          </CardComponent>
+        ) : null}
+
+        {ticket.resolutionNotes ? (
+          <CardComponent size="small" title={t.detail.resolutionReport.replace(/:$/, '')}>
+            <div className="mgr-ticket-text">{ticket.resolutionNotes}</div>
+          </CardComponent>
+        ) : null}
+
+        <CardComponent size="small" title={t.detail.history}>
+          <dl className="mgr-ticket-facts">
+            <Fact label={t.detail.createdAt}>{new Date(ticket.openedAt).toLocaleString(locale)}</Fact>
+            {ticket.resolvedAt ? (
+              <Fact label={t.detail.resolvedAt}>{new Date(ticket.resolvedAt).toLocaleString(locale)}</Fact>
+            ) : null}
+          </dl>
+        </CardComponent>
+      </div>
+    </Drawer>
   )
 }

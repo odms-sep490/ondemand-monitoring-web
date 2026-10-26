@@ -1,0 +1,94 @@
+/* Drone fleet (MNG-09) in the Manager look: card grid + table. */
+:root .mgr-layout .mgr-drones {
+  .mgr-drone-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+    gap: 16px;
+  }
+
+  .mgr-drone-card {
+    height: 100%;
+
+    .ant-card-body {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+  }
+
+  .mgr-drone-card-action {
+    margin-top: auto;
+  }
+
+  .mgr-drone-card-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .mgr-drone-card-id {
+    min-width: 0;
+  }
+
+  .mgr-drone-facts {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0;
+    padding-top: 12px;
+    border-top: 1px solid var(--mgr-border);
+    font-size: 13px;
+
+    div {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    dt {
+      flex: none;
+      color: var(--mgr-muted);
+    }
+
+    dd {
+      margin: 0;
+      min-width: 0;
+      text-align: right;
+      overflow-wrap: anywhere;
+    }
+  }
+
+  .mgr-drone-count {
+    font-size: 13px;
+    color: var(--mgr-muted);
+  }
+}
+
+.mgr-modal-sub {
+  margin: 0 0 16px;
+  color: var(--mgr-muted);
+}
+
+.mgr-modal-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mgr-modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+
+  .ant-select {
+    width: 100%;
+  }
+}
+
+.mgr-modal-label {
+  font-size: 13px;
+  font-weight: 600;
+}

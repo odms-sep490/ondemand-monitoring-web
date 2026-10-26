@@ -31,6 +31,8 @@ export const dronesPageMessages = defineMessages({
       updated: 'Cập nhật',
       actions: 'Thao tác',
     },
+    view: { aria: 'Kiểu hiển thị', grid: 'Thẻ', table: 'Bảng' },
+    loading: 'Đang tải đội drone...',
     unnamed: 'Chưa đặt tên',
     changeStatus: 'Đổi trạng thái',
     modal: {
@@ -77,6 +79,8 @@ export const dronesPageMessages = defineMessages({
       updated: 'Updated',
       actions: 'Actions',
     },
+    view: { aria: 'Display mode', grid: 'Cards', table: 'Table' },
+    loading: 'Loading drone fleet...',
     unnamed: 'Unnamed',
     changeStatus: 'Change status',
     modal: {

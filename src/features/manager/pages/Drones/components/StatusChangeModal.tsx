@@ -1,21 +1,17 @@
 import { useState } from 'react'
+import { Alert, Button, Modal, Select } from 'antd'
 
-import {
-  Button,
-  FormField,
-  Modal,
-  useToast,
-} from '../../../../../shared/components/ui'
-import { StatusBadge } from '../../../../../shared/components/odm/StatusBadge'
+import { useToast } from '../../../../../shared/components/ui'
 import { useI18n } from '../../../../../shared/i18n'
-import { droneStatusTone } from '../../../../../shared/lib/statusTone'
+import { getDroneStatusLabel } from '../../../../../shared/lib/statusTone'
 import type { DroneStatus } from '../../../../../shared/types/domain'
+import { mgrPopupContainer } from '../../../components/common/mgrPopupContainer'
 import { dronesApi } from '../../../api/dronesApi'
 import { managerFeedbackMessages } from '../../../feedback.messages'
 import type { DeviceResponse } from '../../../types/drones'
 import { MANUAL_TRANSITIONS } from '../droneHelpers'
 import { dronesPageMessages } from '../DronesPage.messages'
-import { getDroneStatusLabel } from '../../../../../shared/lib/statusTone'
+import { DroneStatusTag } from './DroneStatusTag'
 
 export type StatusChangeModalProps = {
   drone: DeviceResponse
@@ -23,18 +19,12 @@ export type StatusChangeModalProps = {
   onChanged: (updated: DeviceResponse) => void
 }
 
-export function StatusChangeModal({
-  drone,
-  onClose,
-  onChanged,
-}: StatusChangeModalProps) {
+export function StatusChangeModal({ drone, onClose, onChanged }: StatusChangeModalProps) {
   const { t, lang } = useI18n(dronesPageMessages)
   const { t: fb } = useI18n(managerFeedbackMessages)
   const toast = useToast()
   const nextStatuses = MANUAL_TRANSITIONS[drone.status] ?? []
-  const [selectedStatus, setSelectedStatus] = useState<DroneStatus | ''>(
-    nextStatuses[0] ?? '',
-  )
+  const [selectedStatus, setSelectedStatus] = useState<DroneStatus | ''>(nextStatuses[0] ?? '')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -63,72 +53,52 @@ export function StatusChangeModal({
   }
 
   const canSave = nextStatuses.length > 0
+  const model = drone.deviceModel?.modelName ?? ''
   return (
     <Modal
+      open
+      centered
+      getContainer={mgrPopupContainer}
       width={440}
-      icon="cpu"
       title={t.modal.title}
-      subtitle={t.modal.subtitle(
-        drone.serialNumber,
-        drone.deviceModel?.modelName ?? '',
-      )}
-      onClose={onClose}
+      onCancel={onClose}
       footer={
         canSave ? (
           <>
-            <Button variant="ghost" onClick={onClose} disabled={saving}>
+            <Button onClick={onClose} disabled={saving}>
               {t.modal.cancel}
             </Button>
-            <Button
-              variant="primary"
-              onClick={handleSave}
-              disabled={saving || !selectedStatus}
-            >
+            <Button type="primary" onClick={handleSave} disabled={saving || !selectedStatus}>
               {saving ? t.modal.saving : t.modal.confirm}
             </Button>
           </>
         ) : (
-          <Button variant="ghost" onClick={onClose}>
-            {t.modal.close}
-          </Button>
+          <Button onClick={onClose}>{t.modal.close}</Button>
         )
       }
     >
+      <p className="mgr-modal-sub">{t.modal.subtitle(drone.serialNumber, model)}</p>
       {canSave ? (
-        <div className="odm-or-modal-stack">
-          <FormField id="drone-current-status" label={t.modal.current}>
-            <div id="drone-current-status">
-              <StatusBadge
-                kind="drone"
-                status={drone.status}
-                tone={droneStatusTone[drone.status]}
-              />
-            </div>
-          </FormField>
-          <FormField id="drone-new-status" label={t.modal.newStatus} required>
-            <select
+        <div className="mgr-modal-stack">
+          <div className="mgr-modal-field">
+            <span className="mgr-modal-label">{t.modal.current}</span>
+            <DroneStatusTag status={drone.status} />
+          </div>
+          <div className="mgr-modal-field">
+            <label className="mgr-modal-label" htmlFor="drone-new-status">
+              {t.modal.newStatus} <span aria-hidden="true">*</span>
+            </label>
+            <Select
               id="drone-new-status"
-              className="odm-inp"
-              value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value as DroneStatus)}
-            >
-              {nextStatuses.map((s) => (
-                <option key={s} value={s}>
-                  {getDroneStatusLabel(s, lang)}
-                </option>
-              ))}
-            </select>
-          </FormField>
-          {error && (
-            <div role="alert" className="ui-field-error">
-              {error}
-            </div>
-          )}
+              value={selectedStatus || undefined}
+              onChange={(value: DroneStatus) => setSelectedStatus(value)}
+              options={nextStatuses.map((s) => ({ value: s, label: getDroneStatusLabel(s, lang) }))}
+            />
+          </div>
+          {error ? <Alert type="error" showIcon role="alert" message={error} /> : null}
         </div>
       ) : (
-        <p className="odm-or-modal-note">
-          {t.modal.cannotChange(getDroneStatusLabel(drone.status, lang))}
-        </p>
+        <p>{t.modal.cannotChange(getDroneStatusLabel(drone.status, lang))}</p>
       )}
     </Modal>
   )
