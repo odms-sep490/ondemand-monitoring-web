@@ -1,6 +1,7 @@
 import { MissionResultReviewCard } from '../../../components/common/MissionResultReviewCard'
 import { MissionUploadedMedia } from '../../../../media/components/MissionUploadedMedia'
 import { staffMissionMediaReader } from '../../../api/missionMediaReader'
+import { ChecklistEmptyNote } from './ChecklistEmptyNote'
 import { MonitoringChecklistSection } from '../../../../mission/components/MonitoringChecklistSection'
 import { MissionSatelliteMap } from './MissionSatelliteMap'
 import { formatNumber } from '../../../components/common/missionDetailHelpers'
@@ -129,6 +130,13 @@ export function CompletedMissionOverview({
               refreshDetail()
             }}
           />
+          <ChecklistEmptyNote
+            show={
+              !checklist.loading &&
+              !checklist.error &&
+              checklistExecutions.length === 0
+            }
+          />
         </details>
       ) : (
         <div
@@ -155,6 +163,13 @@ export function CompletedMissionOverview({
               checklist.reload()
               refreshDetail()
             }}
+          />
+          <ChecklistEmptyNote
+            show={
+              !checklist.loading &&
+              !checklist.error &&
+              checklistExecutions.length === 0
+            }
           />
         </div>
       )}

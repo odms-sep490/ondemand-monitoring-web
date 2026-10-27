@@ -282,3 +282,19 @@
     min-height: 42px;
   }
 }
+
+/* Reject = outlined danger in both themes (readable contrast, no solid pink in dark). */
+:root .mgr-layout .odm-result-review-actions .ui-btn.is-danger.odm-result-review-reject,
+:root .mgr-layout .odm-result-review-actions .ui-btn.is-danger.odm-result-review-reject:hover:not(.is-disabled) {
+  background: var(--pl-red-bg);
+  border-color: var(--pl-red-bd);
+  color: var(--pl-red-fg);
+  filter: none;
+}
+:root .mgr-layout .odm-result-review-actions .ui-btn.is-danger.odm-result-review-reject:hover:not(.is-disabled) {
+  border-color: var(--pl-red-ac);
+}
+.mgr-layout .odm-result-review-actions .odm-result-review-error {
+  color: var(--pl-red-fg);
+  background: var(--pl-red-bg);
+}

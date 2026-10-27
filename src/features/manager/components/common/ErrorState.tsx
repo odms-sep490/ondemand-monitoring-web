@@ -44,7 +44,7 @@ export function ErrorState({ title, error, description, onRetry, action }: Props
         description={
           <>
             {message}
-            {debugLine ? <code className="mgr-empty-debug">{debugLine}</code> : null}
+            {debugLine && import.meta.env.DEV ? <code className="mgr-empty-debug">{debugLine}</code> : null}
           </>
         }
         action={

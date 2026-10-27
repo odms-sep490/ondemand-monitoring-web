@@ -1,3 +1,4 @@
+import './missionPages.css'
 import { useState } from 'react'
 import type { OrderChecklistSnapshot } from '../../types/orders'
 import type { ExecutionPlan } from '../../types/planning'

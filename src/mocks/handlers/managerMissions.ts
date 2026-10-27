@@ -485,7 +485,7 @@ registerMockRoutes([
         return fail(
           409,
           'ORDER_NOT_APPROVED',
-          'Đơn chưa được duyệt, chưa thể tạo mission.',
+          'Đơn chưa được duyệt, chưa thể tạo nhiệm vụ.',
         )
       }
 

@@ -1,9 +1,11 @@
+import { CloseOutlined } from '@ant-design/icons'
 import { ManagerIcon } from './ManagerIcon'
 import { StaffStatusBadge } from './StaffStatusBadge'
 import { liveDispatchPageMessages } from './LiveDispatchPage.messages'
 import type { RefObject } from 'react'
 import type { AvailableDrone } from '../../../staff/api/droneApi'
 import { Button } from '../../../../shared/components/ui'
+import './pickers.css'
 
 export function DeviceSelectedTrigger({
   triggerRef,
@@ -25,19 +27,8 @@ export function DeviceSelectedTrigger({
       <button
         ref={triggerRef}
         type="button"
+        className="mgr-pk-selected"
         onClick={openPicker}
-        style={{
-          display: 'grid',
-          gap: 8,
-          width: '100%',
-          minHeight: 74,
-          padding: 10,
-          border: '1px solid #bfdbfe',
-          borderRadius: 12,
-          background: '#eff6ff',
-          textAlign: 'left',
-          cursor: 'pointer',
-        }}
       >
         {selectedDevices.map((device) => {
           const [serial, modelPart] = device.label.split(' (')
@@ -45,60 +36,20 @@ export function DeviceSelectedTrigger({
             ? modelPart.replace(/\)$/, '')
             : t.unknownModel
           return (
-            <span
-              key={device.id}
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '36px minmax(0, 1fr) auto',
-                gap: 10,
-                alignItems: 'center',
-              }}
-            >
-              <span
-                aria-hidden="true"
-                style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: 12,
-                  display: 'grid',
-                  placeItems: 'center',
-                  background: '#dbeafe',
-                  color: '#2563eb',
-                }}
-              >
+            <span key={device.id} className="mgr-pk-item">
+              <span aria-hidden="true" className="mgr-pk-avatar is-device">
                 <ManagerIcon name="drones" size={18} />
               </span>
-              <span style={{ minWidth: 0 }}>
-                <span
-                  style={{
-                    display: 'block',
-                    fontSize: 14,
-                    fontWeight: 700,
-                    color: '#0f172a',
-                  }}
-                >
-                  {serial || t.device}
-                </span>
-                <span
-                  style={{
-                    display: 'block',
-                    marginTop: 2,
-                    fontSize: 12,
-                    color: '#64748b',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                  }}
-                >
-                  {model}
-                </span>
-                <span style={{ display: 'block', marginTop: 5 }}>
-                  <StaffStatusBadge />
-                </span>
+              <span className="mgr-pk-text">
+                <span className="mgr-pk-name">{serial || t.device}</span>
+                <span className="mgr-pk-sub">{model}</span>
+                <StaffStatusBadge />
               </span>
               <span
                 role="button"
                 tabIndex={0}
                 aria-label={`${t.clearDevice} ${device.label}`}
+                className="mgr-pk-remove"
                 onClick={(event) => {
                   event.stopPropagation()
                   onRemove(device.id)
@@ -110,40 +61,24 @@ export function DeviceSelectedTrigger({
                     onRemove(device.id)
                   }
                 }}
-                style={{
-                  width: 28,
-                  height: 28,
-                  borderRadius: 999,
-                  display: 'inline-grid',
-                  placeItems: 'center',
-                  color: '#64748b',
-                  background: '#fff',
-                  border: '1px solid #dbeafe',
-                  fontSize: 18,
-                }}
               >
-                ×
+                <CloseOutlined aria-hidden="true" />
               </span>
             </span>
           )
         })}
       </button>
-      <div style={{ display: 'flex', gap: 8 }}>
+      <div className="mgr-pk-actions">
         <Button
           ref={triggerRef}
           type="button"
-          variant="ghost" size="sm"
+          variant="ghost"
+          size="sm"
           onClick={openPicker}
-          style={{ minHeight: 30, borderRadius: 8 }}
         >
           {t.changeDevice}
         </Button>
-        <Button
-          type="button"
-          variant="ghost" size="sm"
-          onClick={onClear}
-          style={{ minHeight: 30, borderRadius: 8 }}
-        >
+        <Button type="button" variant="ghost" size="sm" onClick={onClear}>
           {t.clearDevice}
         </Button>
       </div>

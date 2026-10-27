@@ -5,11 +5,11 @@ export const missionDetailPageMessages = defineMessages({
     tabs: {
       result: 'Kết quả nhiệm vụ',
       media: 'Ảnh & video',
-      checklist: 'Kết quả danh mục kiểm tra',
+      checklist: 'Danh mục kiểm tra',
       route: 'Bản đồ đường bay',
       order: 'Thông tin đơn hàng',
       plan: 'Kế hoạch bay',
-      checks: 'Kết quả check',
+      checks: 'Kiểm tra trước bay',
     },
     tabsAria: 'Các mục chi tiết nhiệm vụ',
     permitCard: 'Giấy phép bay',
@@ -54,6 +54,7 @@ export const missionDetailPageMessages = defineMessages({
     noDescription: 'Chưa có mô tả',
     notRecorded: 'Chưa ghi nhận',
     plannedSuffix: (value: string) => `${value} dự kiến`,
+    checklistEmpty: 'Chưa có kết quả danh mục kiểm tra cho nhiệm vụ này.',
     checklistAcceptance: 'Danh mục kiểm tra nghiệm thu',
     checklistAccepted: 'Đã nghiệm thu',
     checklistLoading: 'Đang tải danh mục kiểm tra',
@@ -89,14 +90,14 @@ export const missionDetailPageMessages = defineMessages({
       mediaType: 'Loại media',
       failure: 'Lý do lỗi',
     },
-    totalChecks: 'Tổng check',
+    totalChecks: 'Tổng số kiểm tra',
     passed: 'Đạt',
     failed: 'Lỗi',
     progress: 'Hoàn tất',
     device: 'Thiết bị',
     batteryLeft: 'Pin còn lại',
     batteryState: 'Trạng thái pin',
-    checkedAt: 'Thời điểm check',
+    checkedAt: 'Thời điểm kiểm tra',
     extra: {
       checklistLoadError:
         'Không thể tải danh mục kiểm tra của nhiệm vụ này. Vui lòng thử lại.',
@@ -127,7 +128,7 @@ export const missionDetailPageMessages = defineMessages({
           'Đội bay sẽ kết nối thiết bị và kiểm tra trước chuyến bay.',
         failedPreflightTitle: 'Không đạt kiểm tra trước bay',
         failedPreflightDetail:
-          'Xem tab Kết quả check, xử lý rồi cho đội bay kiểm tra lại.',
+          'Xem tab Kiểm tra trước bay, xử lý rồi cho đội bay kiểm tra lại.',
         pendingReviewTitle: 'Chờ duyệt kết quả',
         pendingReviewDetail:
           'Xem media và danh mục kiểm tra rồi duyệt hoặc yêu cầu bổ sung.',
@@ -141,11 +142,11 @@ export const missionDetailPageMessages = defineMessages({
     tabs: {
       result: 'Mission result',
       media: 'Photos & videos',
-      checklist: 'Checklist result',
+      checklist: 'Checklist',
       route: 'Flight map',
       order: 'Order information',
       plan: 'Flight plan',
-      checks: 'Check results',
+      checks: 'Preflight checks',
     },
     tabsAria: 'Mission detail sections',
     permitCard: 'Flight permit',
@@ -190,6 +191,7 @@ export const missionDetailPageMessages = defineMessages({
     noDescription: 'No description',
     notRecorded: 'Not recorded',
     plannedSuffix: (value: string) => `${value} planned`,
+    checklistEmpty: 'No checklist results for this mission yet.',
     checklistAcceptance: 'Acceptance checklist',
     checklistAccepted: 'Accepted',
     checklistLoading: 'Loading checklist',
@@ -264,7 +266,7 @@ export const missionDetailPageMessages = defineMessages({
           'The flight crew will connect the device and run the pre-flight check.',
         failedPreflightTitle: 'Pre-flight check failed',
         failedPreflightDetail:
-          'See the Check results tab, fix the issues, then ask the crew to check again.',
+          'See the Preflight checks tab, fix the issues, then ask the crew to check again.',
         pendingReviewTitle: 'Awaiting result review',
         pendingReviewDetail:
           'Review the media and checklist, then approve or request changes.',

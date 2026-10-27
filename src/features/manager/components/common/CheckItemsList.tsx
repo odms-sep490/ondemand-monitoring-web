@@ -13,7 +13,7 @@ export function CheckItemsList({
   items: Array<PreflightCheckItem | PostDeviceCheckItem>
 }) {
   const { t } = useI18n(commonMiscMessages)
-  if (items.length === 0) {
+  if (!items || items.length === 0) {
     return <div className="odm-or-empty">{t.noCheckItems}</div>
   }
   return (

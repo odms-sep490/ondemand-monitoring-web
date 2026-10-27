@@ -114,7 +114,10 @@ export function deriveMissionDetailView({
   const kpis: Array<{ label: string; value: string }> = [
     {
       label: t.kpi.crew,
-      value: staff.length > 0 ? t.crewAccepted(accepted, staff.length) : '—',
+      value:
+        staff.length > 0
+          ? t.crewAccepted(accepted, staff.length)
+          : (deviceCode ?? '—'),
     },
     { label: t.kpi.media, value: String(mediaCount) },
     detail.result?.durationSeconds != null

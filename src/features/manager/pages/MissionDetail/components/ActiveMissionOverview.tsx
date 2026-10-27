@@ -2,6 +2,7 @@ import { MissionSatelliteMap } from './MissionSatelliteMap'
 import { formatNumber } from '../../../components/common/missionDetailHelpers'
 import { waypointReasonLabel } from './MissionRouteMap'
 import { MissionResultReviewCard } from '../../../components/common/MissionResultReviewCard'
+import { ChecklistEmptyNote } from './ChecklistEmptyNote'
 import { MonitoringChecklistSection } from '../../../../mission/components/MonitoringChecklistSection'
 import { MissionUploadedMedia } from '../../../../media/components/MissionUploadedMedia'
 import { staffMissionMediaReader } from '../../../api/missionMediaReader'
@@ -146,6 +147,13 @@ export function ActiveMissionOverview({
             checklist.reload()
             refreshDetail()
           }}
+        />
+        <ChecklistEmptyNote
+          show={
+            !checklist.loading &&
+            !checklist.error &&
+            (checklist.data?.executions?.length ?? 0) === 0
+          }
         />
       </div>
       <section

@@ -33,10 +33,7 @@ export function MissionCreateActionBar({
         <span>{t.actionHint}</span>
       </div>
       <div className="odm-or-actionbar-actions">
-        <Button
-          type="text"
-          href={managerHref({ screen: 'orderQueue' })}
-        >
+        <Button href={managerHref({ screen: 'orderQueue' })}>
           {t.backToOrders}
         </Button>
         <Button

@@ -222,7 +222,7 @@ it('localizes errors and reloads without inventing a local transition or retryin
       name: 'Yêu cầu dừng an toàn',
     }),
   )
-  await screen.findByText(/Mission chưa ở trạng thái an toàn/)
+  await screen.findByText(/Nhiệm vụ chưa ở trạng thái an toàn/)
   expect(
     screen.queryByText('MISSION_SAFE_STOP_NOT_READY'),
   ).not.toBeInTheDocument()
@@ -345,7 +345,7 @@ it('refreshes all parent state and removes stale cleanup eligibility after an er
       name: 'Giải phóng tài nguyên',
     }),
   )
-  await screen.findByText(/Mission chưa ở trạng thái an toàn/)
+  await screen.findByText(/Nhiệm vụ chưa ở trạng thái an toàn/)
   await waitFor(() =>
     expect(
       screen.queryByRole('button', { name: 'Giải phóng tài nguyên' }),

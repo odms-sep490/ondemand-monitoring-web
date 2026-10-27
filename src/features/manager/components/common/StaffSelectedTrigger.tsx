@@ -1,9 +1,12 @@
+import { CloseOutlined } from '@ant-design/icons'
 import { StaffAvatar } from './StaffAvatar'
 import { StaffStatusBadge } from './StaffStatusBadge'
 import { liveDispatchPageMessages } from './LiveDispatchPage.messages'
+import { staffContact } from './liveDispatchHelpers'
 import type { RefObject } from 'react'
 import type { AvailableOperator } from '../../../staff/api/operatorApi'
 import { Button } from '../../../../shared/components/ui'
+import './pickers.css'
 
 export function StaffSelectedTrigger({
   triggerRef,
@@ -23,65 +26,24 @@ export function StaffSelectedTrigger({
       <button
         ref={triggerRef}
         type="button"
+        className="mgr-pk-selected"
         onClick={openPicker}
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '36px minmax(0, 1fr) auto',
-          gap: 10,
-          alignItems: 'center',
-          width: '100%',
-          minHeight: 74,
-          padding: 10,
-          border: '1px solid #bfdbfe',
-          borderRadius: 12,
-          background: '#eff6ff',
-          textAlign: 'left',
-          cursor: 'pointer',
-        }}
       >
-        <span style={{ display: 'grid', gap: 8, gridColumn: '1 / -1' }}>
-          {selectedStaff.map((selected) => (
-            <span
-              key={selected.id}
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '36px minmax(0, 1fr) auto',
-                gap: 10,
-                alignItems: 'center',
-              }}
-            >
+        {selectedStaff.map((selected) => {
+          const contact = staffContact(selected)
+          return (
+            <span key={selected.id} className="mgr-pk-item">
               <StaffAvatar staff={selected} />
-              <span style={{ minWidth: 0 }}>
-                <span
-                  style={{
-                    display: 'block',
-                    fontSize: 14,
-                    fontWeight: 700,
-                    color: '#0f172a',
-                  }}
-                >
-                  {selected.fullName}
-                </span>
-                <span
-                  style={{
-                    display: 'block',
-                    marginTop: 2,
-                    fontSize: 12,
-                    color: '#64748b',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                  }}
-                >
-                  {selected.email}
-                </span>
-                <span style={{ display: 'block', marginTop: 5 }}>
-                  <StaffStatusBadge />
-                </span>
+              <span className="mgr-pk-text">
+                <span className="mgr-pk-name">{selected.fullName}</span>
+                {contact ? <span className="mgr-pk-sub">{contact}</span> : null}
+                <StaffStatusBadge />
               </span>
               <span
                 role="button"
                 tabIndex={0}
                 aria-label={t.clearStaff}
+                className="mgr-pk-remove"
                 onClick={(event) => {
                   event.stopPropagation()
                   onRemove(selected.id)
@@ -93,30 +55,20 @@ export function StaffSelectedTrigger({
                     onRemove(selected.id)
                   }
                 }}
-                style={{
-                  width: 28,
-                  height: 28,
-                  borderRadius: 999,
-                  display: 'inline-grid',
-                  placeItems: 'center',
-                  color: '#64748b',
-                  background: '#fff',
-                  border: '1px solid #dbeafe',
-                  fontSize: 18,
-                }}
               >
-                ×
+                <CloseOutlined aria-hidden="true" />
               </span>
             </span>
-          ))}
-        </span>
+          )
+        })}
       </button>
       <Button
         ref={triggerRef}
         type="button"
-        variant="ghost" size="sm"
+        variant="ghost"
+        size="sm"
         onClick={openPicker}
-        style={{ justifySelf: 'start', minHeight: 30, borderRadius: 8 }}
+        style={{ justifySelf: 'start' }}
       >
         {t.changeStaff}
       </Button>

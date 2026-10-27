@@ -16,7 +16,9 @@ import { missionsApi } from '../../api/missionsApi'
 import { droneApi, type AvailableDrone } from '../../../staff/api/droneApi'
 import { operatorApi, type AvailableOperator } from '../../../staff/api/operatorApi'
 import { MissionUpdatePanel } from './MissionUpdatePanel'
-import { STAFF_ROLE_LABELS } from './missionDetailHelpers'
+import { MissionGridDeviceList, MissionGridStaffList } from './MissionGridResourceLists'
+import { MissionGridAddStaffForm } from './MissionGridAddStaffForm'
+import { MissionGridAddDeviceForm } from './MissionGridAddDeviceForm'
 import type { MissionStaffRole } from '../../../mission/types/mission'
 import { useI18n } from '../../../../shared/i18n'
 import { missionGridCardMessages } from './MissionGridCard.messages'
@@ -428,115 +430,32 @@ export function MissionGridCard({
           )}
         </div>
 
-        {/* Inline Add Staff Form */}
         {showAddStaff && (
-          <div
-            className="odm-mcard-inline-form"
-            role="group"
-            aria-label={t.addStaffAria}
-            aria-busy={loadingStaff || busy}
-          >
-            <div className="odm-mcard-inline-form-heading">
-              <strong>{t.addStaffTitle}</strong>
-              <span>{t.addStaffHint}</span>
-            </div>
-            <div className="odm-mcard-inline-fields">
-              <label className="odm-mcard-field">
-                <span>{t.roleLabel}</span>
-              <select
-                aria-label={t.staffRoleAria}
-                value={selectedStaffRole}
-                onChange={(e) => setSelectedStaffRole(e.target.value as MissionStaffRole)}
-                className="odm-input odm-input-sm odm-mcard-grow-1"
-              >
-                {ROLES.map((r) => (
-                  <option key={r} value={r}>
-                    {STAFF_ROLE_LABELS[r] || r}
-                  </option>
-                ))}
-              </select>
-              </label>
-              <label className="odm-mcard-field">
-                <span>{t.staffLabel}</span>
-              <select
-                aria-label={t.staffAvailableAria}
-                value={selectedStaffId}
-                onChange={(e) => setSelectedStaffId(e.target.value)}
-                className="odm-input odm-input-sm odm-mcard-grow-2"
-                disabled={loadingStaff || busy || availableOperators.length === 0}
-              >
-                {loadingStaff ? (
-                  <option>{t.staffLoadingOption}</option>
-                ) : availableOperators.length === 0 ? (
-                  <option>{t.staffNoneOption}</option>
-                ) : (
-                  availableOperators.map((op) => (
-                    <option key={op.id} value={op.id}>
-                      {op.fullName}
-                    </option>
-                  ))
-                )}
-              </select>
-              </label>
-            </div>
-            <p className="odm-mcard-inline-form-hint" role={loadingStaff ? 'status' : undefined}>
-              {loadingStaff
-                ? t.staffLoadingHint
-                : availableOperators.length > 0
-                  ? t.staffCountHint(availableOperators.length)
-                  : t.staffNoneHint}
-            </p>
-            <div className="odm-mcard-inline-actions">
-              <button
-                type="button"
-                className="odm-btn odm-btn-sm"
-                onClick={() => { setShowAddStaff(false); setErrorMsg('') }}
-                disabled={busy}
-              >
-                {t.cancel}
-              </button>
-              <button
-                type="button"
-                className="odm-btn odm-btn-sm odm-btn-p"
-                onClick={handleConfirmAddStaff}
-                disabled={busy || loadingStaff || !selectedStaffId}
-              >
-                {t.save}
-              </button>
-            </div>
-          </div>
+          <MissionGridAddStaffForm
+            t={t}
+            loading={loadingStaff}
+            busy={busy}
+            roles={ROLES}
+            role={selectedStaffRole}
+            onRoleChange={setSelectedStaffRole}
+            staffId={selectedStaffId}
+            onStaffChange={setSelectedStaffId}
+            operators={availableOperators}
+            onCancel={() => {
+              setShowAddStaff(false)
+              setErrorMsg('')
+            }}
+            onSave={handleConfirmAddStaff}
+          />
         )}
 
-        <div className="odm-mcard-res-list">
-          {currentStaff.length === 0 ? (
-            <p className="odm-mission-meta odm-mcard-note">
-              {t.staffEmpty}
-            </p>
-          ) : (
-            currentStaff.map((staff, idx) => (
-              <div key={staff.id || `${staff.staffId}-${idx}`} className="odm-mcard-res-item">
-                <div>
-                  <span className="odm-mcard-res-role">
-                    {STAFF_ROLE_LABELS[staff.assignedRole] || staff.assignedRole}:
-                  </span>{' '}
-                  <strong>{staff.staffName || t.staffUnnamed}</strong>
-                </div>
-                {!isCancelled && !disabled && (
-                  <button
-                    type="button"
-                    className="odm-mcard-res-remove"
-                    title={t.staffRemoveTitle}
-                    aria-label={t.staffRemoveTitle}
-                    onClick={() => handleRemoveStaff(staff.staffId, staff.assignedRole)}
-                    disabled={busy}
-                  >
-                    <CloseOutlined aria-hidden="true" />
-                  </button>
-                )}
-              </div>
-            ))
-          )}
-        </div>
+        <MissionGridStaffList
+          t={t}
+          staff={currentStaff}
+          canRemove={!isCancelled && !disabled}
+          busy={busy}
+          onRemove={handleRemoveStaff}
+        />
       </div>
 
       {/* Device Section */}
@@ -555,106 +474,31 @@ export function MissionGridCard({
           )}
         </div>
 
-        {/* Inline Add Device Form */}
         {showAddDevice && (
-          <div
-            className="odm-mcard-inline-form"
-            role="group"
-            aria-label={t.addDeviceAria}
-            aria-busy={loadingDevices || busy}
-          >
-            <div className="odm-mcard-inline-form-heading">
-              <strong>{t.addDeviceTitle}</strong>
-              <span>{t.addDeviceHint}</span>
-            </div>
-            <div className="odm-mcard-inline-fields">
-              <select
-                aria-label={t.deviceRoleAria}
-                value={selectedDeviceRole}
-                onChange={(e) => setSelectedDeviceRole(e.target.value)}
-                className="odm-input odm-input-sm odm-mcard-grow-1"
-              >
-                <option value="MAIN">{t.deviceMain}</option>
-                <option value="SUPPORT">{t.deviceSupport}</option>
-              </select>
-              <select
-                aria-label={t.deviceAvailableAria}
-                value={selectedDeviceId}
-                onChange={(e) => setSelectedDeviceId(e.target.value)}
-                className="odm-input odm-input-sm odm-mcard-grow-2"
-                disabled={loadingDevices || busy || availableDrones.length === 0}
-              >
-                {loadingDevices ? (
-                  <option>{t.deviceLoadingOption}</option>
-                ) : availableDrones.length === 0 ? (
-                  <option>{t.deviceNoneOption}</option>
-                ) : (
-                  availableDrones.map((d) => (
-                    <option key={d.id} value={d.id}>
-                      {d.label}
-                    </option>
-                  ))
-                )}
-              </select>
-            </div>
-            <p className="odm-mcard-inline-form-hint" role={loadingDevices ? 'status' : undefined}>
-              {loadingDevices
-                ? t.deviceLoadingHint
-                : availableDrones.length > 0
-                  ? t.deviceCountHint(availableDrones.length)
-                  : t.deviceNoneHint}
-            </p>
-            <div className="odm-mcard-inline-actions">
-              <button
-                type="button"
-                className="odm-btn odm-btn-sm"
-                onClick={() => { setShowAddDevice(false); setErrorMsg('') }}
-                disabled={busy}
-              >
-                {t.cancel}
-              </button>
-              <button
-                type="button"
-                className="odm-btn odm-btn-sm odm-btn-p"
-                onClick={handleConfirmAddDevice}
-                disabled={busy || loadingDevices || !selectedDeviceId}
-              >
-                {t.save}
-              </button>
-            </div>
-          </div>
+          <MissionGridAddDeviceForm
+            t={t}
+            loading={loadingDevices}
+            busy={busy}
+            role={selectedDeviceRole}
+            onRoleChange={setSelectedDeviceRole}
+            deviceId={selectedDeviceId}
+            onDeviceChange={setSelectedDeviceId}
+            drones={availableDrones}
+            onCancel={() => {
+              setShowAddDevice(false)
+              setErrorMsg('')
+            }}
+            onSave={handleConfirmAddDevice}
+          />
         )}
 
-        <div className="odm-mcard-res-list">
-          {currentDevices.length === 0 ? (
-            <p className="odm-mission-meta odm-mcard-note">
-              {t.deviceEmpty}
-            </p>
-          ) : (
-            currentDevices.map((dev, idx) => (
-              <div key={dev.id || `${dev.deviceId}-${idx}`} className="odm-mcard-res-item">
-                <div>
-                  <span className="odm-mcard-res-role">
-                    {dev.deviceRole === 'SUPPORT' ? t.deviceRoleShortSupport : t.deviceRoleShortMain}:
-                  </span>{' '}
-                  <strong>{dev.deviceName || dev.deviceCode || 'Drone'}</strong>
-                </div>
-                {!isCancelled && !disabled && (
-                  <button
-                    type="button"
-                    className="odm-mcard-res-remove"
-                    title={t.deviceRemoveTitle}
-                    aria-label={t.deviceRemoveTitle}
-                    onClick={() => handleRemoveDevice(dev.deviceId)}
-                    disabled={busy}
-                  >
-                    <CloseOutlined aria-hidden="true" />
-                  </button>
-                )}
-              </div>
-            ))
-          )}
-        </div>
+        <MissionGridDeviceList
+          t={t}
+          devices={currentDevices}
+          canRemove={!isCancelled && !disabled}
+          busy={busy}
+          onRemove={handleRemoveDevice}
+        />
       </div>
 
       {/* Footer / Cancel Button for READY Missions */}

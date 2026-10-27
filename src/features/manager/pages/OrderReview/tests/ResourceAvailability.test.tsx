@@ -273,7 +273,7 @@ it('switching Mission clears local selection and cannot publish a late sibling r
   fireEvent.click(screen.getByLabelText('Chọn nhân sự cho Phi công'))
   const picker = screen
     .getByPlaceholderText('Tìm theo tên hoặc email...')
-    .closest('div[style*="position: absolute"]')!
+    .closest('.mgr-pk-panel')!
   expect(
     within(picker as HTMLElement).getByRole('button', {
       name: /Sibling staff/,

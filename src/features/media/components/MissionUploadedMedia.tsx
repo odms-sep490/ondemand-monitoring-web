@@ -122,7 +122,7 @@ function Gallery({
       })
       .catch(() => {
         if (abort.signal.aborted) return
-        setError('Không thể tải ảnh/video của Mission này.')
+        setError('Không thể tải ảnh/video của nhiệm vụ này.')
       })
       .finally(() => {
         if (!abort.signal.aborted) setLoading(false)
@@ -152,7 +152,7 @@ function Gallery({
       }
     } catch {
       if (!abort.signal.aborted)
-        setError('Không thể mở ảnh/video của Mission này. Vui lòng thử lại.')
+        setError('Không thể mở ảnh/video của nhiệm vụ này. Vui lòng thử lại.')
     } finally {
       if (!abort.signal.aborted) setOpening(false)
     }
@@ -184,7 +184,7 @@ function Gallery({
               ) : null}
             </div>
             <p>
-              Ảnh/video của Mission. Mở từng tệp để xem và kiểm tra kết quả.
+              Ảnh/video của nhiệm vụ. Mở từng tệp để xem và kiểm tra kết quả.
             </p>
           </div>
           <button
@@ -244,7 +244,7 @@ function Gallery({
                 'READY_TO_FLY',
               ].includes(missionStatus ?? '')
                 ? 'Media sẽ xuất hiện sau khi Mission được thực hiện và dữ liệu được tải lên.'
-                : 'Chưa có ảnh/video được tải lên cho Mission này.'}
+                : 'Chưa có ảnh/video được tải lên cho nhiệm vụ này.'}
             </span>
           </div>
         ) : null}
@@ -447,7 +447,7 @@ function reviewStatusText(status: MissionMediaReviewStatus) {
   if (status === 'DRAFT') return 'Kết quả nháp — chưa gửi manager'
   if (status === 'APPROVED') return 'Đã nghiệm thu'
   if (status === 'REJECTED') return 'Bị từ chối'
-  return 'Chờ manager nghiệm thu'
+  return 'Chờ quản lý nghiệm thu'
 }
 
 function ReviewStatusBadge({

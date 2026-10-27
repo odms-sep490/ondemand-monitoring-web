@@ -50,11 +50,11 @@ export function DispatchDeviceStep({
             <div className="odm-or-role-head mgr-spaced">
               <span>
                 <b>{t.selectedDevice}</b>
-                <span className="odm-or-muted mgr-block-note">
-                  {selectedDrones.length > 0
-                    ? t.deviceSelectedCount(selectedDrones.length)
-                    : t.chooseDroneOption}
-                </span>
+                {selectedDrones.length > 0 ? (
+                  <span className="odm-or-muted mgr-block-note">
+                    {t.deviceSelectedCount(selectedDrones.length)}
+                  </span>
+                ) : null}
               </span>
               {selectedDrones.length > 0 && (
                 <span className="odm-or-role-check">

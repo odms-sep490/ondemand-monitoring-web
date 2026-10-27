@@ -63,3 +63,9 @@ export function staffInitials(staff: AvailableOperator) {
     return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase()
   return source.slice(0, 2).toUpperCase()
 }
+
+/** Contact line for a staff option; hides placeholder addresses such as "null@odms.vn". */
+export function staffContact(staff: AvailableOperator) {
+  const email = (staff.email ?? '').trim()
+  return /^(null|undefined)?@/i.test(email) ? '' : email
+}

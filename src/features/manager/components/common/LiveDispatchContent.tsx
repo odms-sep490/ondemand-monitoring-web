@@ -21,6 +21,7 @@ import { DispatchReviewStep } from './DispatchReviewStep'
 import { DispatchActionBar } from './DispatchActionBar'
 import { DispatchSideSummary } from './DispatchSideSummary'
 import '../layout/mgrLayout.css'
+import './missionPages.css'
 import '../../pages/MissionDispatch/missionDispatch.scss'
 import { Button, Skeleton } from '../../../../shared/components/ui'
 

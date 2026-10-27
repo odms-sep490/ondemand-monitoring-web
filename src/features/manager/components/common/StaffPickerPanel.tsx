@@ -1,12 +1,14 @@
-import { CheckOutlined } from '@ant-design/icons'
+import { CheckOutlined, SearchOutlined } from '@ant-design/icons'
 import type { KeyboardEvent } from 'react'
-import { ManagerIcon } from './ManagerIcon'
 import { StaffAvatar } from './StaffAvatar'
 import { StaffStatusBadge } from './StaffStatusBadge'
 import { liveDispatchPageMessages } from './LiveDispatchPage.messages'
+import { staffContact } from './liveDispatchHelpers'
+import { usePickerPlacement } from './usePickerPlacement'
 import type { RefObject, Dispatch, SetStateAction } from 'react'
 import type { AvailableOperator } from '../../../staff/api/operatorApi'
 import type { MissionStaffRole } from '../../../mission/types/mission'
+import './pickers.css'
 
 export function StaffPickerPanel({
   inputRef,
@@ -33,36 +35,12 @@ export function StaffPickerPanel({
   activeIndex: number
   choose: (item: AvailableOperator) => void
 }) {
+  const placement = usePickerPlacement()
   return (
-    <div
-      style={{
-        position: 'absolute',
-        zIndex: 80,
-        top: 'calc(100% + 8px)',
-        left: 0,
-        width: 'min(420px, calc(100vw - 48px))',
-        maxHeight: 280,
-        overflow: 'hidden',
-        border: '1px solid #e2e8f0',
-        borderRadius: 12,
-        background: '#fff',
-        boxShadow: '0 10px 30px rgba(15,23,42,0.12)',
-      }}
-    >
-      <div style={{ padding: 10, borderBottom: '1px solid #e2e8f0' }}>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-            minHeight: 38,
-            padding: '0 10px',
-            border: '1px solid #e2e8f0',
-            borderRadius: 9,
-            background: '#f8fafc',
-          }}
-        >
-          <ManagerIcon name="maintenance" size={15} />
+    <div ref={placement.ref} className={`mgr-pk-panel${placement.className}`}>
+      <div className="mgr-pk-panel-head">
+        <div className="mgr-pk-search">
+          <SearchOutlined aria-hidden="true" />
           <input
             ref={inputRef}
             value={query}
@@ -72,126 +50,40 @@ export function StaffPickerPanel({
               setActiveIndex(0)
             }}
             onKeyDown={handleKeyDown}
-            style={{
-              width: '100%',
-              border: 0,
-              outline: 0,
-              background: 'transparent',
-              fontSize: 14,
-              color: '#0f172a',
-            }}
           />
         </div>
-        <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
-          <span
-            style={{
-              borderRadius: 999,
-              padding: '4px 9px',
-              background: '#eff6ff',
-              color: '#2563eb',
-              fontSize: 12,
-              fontWeight: 700,
-            }}
-          >
-            {t.availableFilter}
-          </span>
-        </div>
+        <span className="mgr-pk-chip">{t.availableFilter}</span>
       </div>
-      <div style={{ maxHeight: 200, overflowY: 'auto', padding: 6 }}>
+      <div className="mgr-pk-list">
         {filtered.length === 0 ? (
-          <div style={{ padding: 16, color: '#64748b', fontSize: 14 }}>
-            {t.noStaffFound}
-          </div>
+          <div className="mgr-pk-empty">{t.noStaffFound}</div>
         ) : (
           filtered.map((item, index) => {
             const usedRoles = selectedRoleByStaff.get(item.id) ?? []
             const isSelected = selectedIds.includes(item.id)
-            const isActive = activeIndex === index
+            const contact = staffContact(item)
             return (
               <button
                 key={item.id}
                 type="button"
+                className={`mgr-pk-option${isSelected ? ' is-selected' : ''}${activeIndex === index ? ' is-active' : ''}`}
                 onMouseEnter={() => setActiveIndex(index)}
                 onClick={() => choose(item)}
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: '36px minmax(0, 1fr) auto',
-                  gap: 10,
-                  alignItems: 'center',
-                  width: '100%',
-                  minHeight: 62,
-                  padding: '8px 10px',
-                  border: 0,
-                  borderRadius: 10,
-                  background: isSelected
-                    ? '#eff6ff'
-                    : isActive
-                      ? '#f8fafc'
-                      : '#fff',
-                  textAlign: 'left',
-                  cursor: 'pointer',
-                }}
               >
                 <StaffAvatar staff={item} />
-                <span style={{ minWidth: 0 }}>
-                  <span
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 6,
-                      minWidth: 0,
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontSize: 14,
-                        fontWeight: 700,
-                        color: '#0f172a',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                      }}
-                    >
-                      {item.fullName}
-                    </span>
+                <span className="mgr-pk-text">
+                  <span className="mgr-pk-name-row">
+                    <span className="mgr-pk-name">{item.fullName}</span>
                     {usedRoles.map((usedRole) => (
-                      <span
-                        key={usedRole}
-                        style={{
-                          borderRadius: 999,
-                          padding: '2px 7px',
-                          background: '#e0f2fe',
-                          color: '#0369a1',
-                          fontSize: 11,
-                          fontWeight: 700,
-                          flex: '0 0 auto',
-                        }}
-                      >
+                      <span key={usedRole} className="mgr-pk-roletag">
                         {t.roles[usedRole]}
                       </span>
                     ))}
                   </span>
-                  <span
-                    style={{
-                      display: 'block',
-                      marginTop: 2,
-                      fontSize: 12,
-                      color: '#64748b',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                    }}
-                  >
-                    {item.email}
-                  </span>
-                  <span style={{ display: 'block', marginTop: 5 }}>
-                    <StaffStatusBadge />
-                  </span>
+                  {contact ? <span className="mgr-pk-sub">{contact}</span> : null}
+                  <StaffStatusBadge />
                 </span>
-                <span
-                  style={{
-                    color: isSelected ? '#2563eb' : 'transparent',
-                    fontSize: 18,
-                  }}
-                >
+                <span className="mgr-pk-check">
                   <CheckOutlined aria-hidden="true" />
                 </span>
               </button>

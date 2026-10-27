@@ -114,7 +114,7 @@ async function enter(id: string) {
 function chooseStaff(name: string) {
   const picker = screen
     .getByPlaceholderText('Tìm theo tên hoặc email...')
-    .closest('div[style*="position: absolute"]')!
+    .closest('.mgr-pk-panel')!
   fireEvent.click(
     within(picker as HTMLElement).getByRole('button', {
       name: new RegExp(name),

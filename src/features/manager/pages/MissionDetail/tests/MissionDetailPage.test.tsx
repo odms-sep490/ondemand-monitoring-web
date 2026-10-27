@@ -197,7 +197,7 @@ describe('Manager Mission Detail monitoring review', () => {
     await screen.findByRole('tab', { name: 'Kết quả nhiệm vụ' })
     expect(screen.queryByRole('tab', { name: 'Kế hoạch bay' })).toBeNull()
     expect(
-      screen.getByRole('tab', { name: 'Kết quả check' }),
+      screen.getByRole('tab', { name: 'Kiểm tra trước bay' }),
     ).toBeInTheDocument()
   })
   it('does not show weather on manager mission detail', async () => {
@@ -205,7 +205,7 @@ describe('Manager Mission Detail monitoring review', () => {
 
     await screen.findByRole('heading', { name: 'Kết quả nhiệm vụ' })
     expect(screen.queryByText('Kết quả thời tiết')).not.toBeInTheDocument()
-    fireEvent.click(screen.getByRole('tab', { name: 'Kết quả check' }))
+    fireEvent.click(screen.getByRole('tab', { name: 'Kiểm tra trước bay' }))
     expect(screen.queryByText('Kết quả thời tiết')).not.toBeInTheDocument()
     expect(
       screen.queryByText('Thời tiết phù hợp để cất cánh.'),
