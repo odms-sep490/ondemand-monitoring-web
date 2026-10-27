@@ -1,4 +1,4 @@
-import { CheckCircleOutlined, ThunderboltOutlined, UserDeleteOutlined } from '@ant-design/icons'
+import { CheckOutlined, ClockCircleOutlined, WarningOutlined } from '@ant-design/icons'
 
 import { StatisticComponent } from '../../../../../shared/components/antd'
 import { useI18n } from '../../../../../shared/i18n'
@@ -17,22 +17,22 @@ export function MaintenanceStats({ unassignedCount, urgentCount, resolvedCount }
     <div className="mgr-kpi-strip mgr-maint-kpis">
       <StatisticComponent
         index={0}
-        tone={unassignedCount > 0 ? 'red' : 'blue'}
-        icon={<UserDeleteOutlined />}
+        tone="amber"
+        icon={<WarningOutlined />}
         title={t.page.unassignedStat}
         value={unassignedCount}
       />
       <StatisticComponent
         index={1}
-        tone="amber"
-        icon={<ThunderboltOutlined />}
+        tone="red"
+        icon={<ClockCircleOutlined />}
         title={t.page.urgentStat}
         value={urgentCount}
       />
       <StatisticComponent
         index={2}
         tone="green"
-        icon={<CheckCircleOutlined />}
+        icon={<CheckOutlined />}
         title={t.page.resolvedStat}
         value={resolvedCount}
       />

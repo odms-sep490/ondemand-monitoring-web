@@ -92,6 +92,45 @@
     border-color: color-mix(in srgb, var(--ui-primary) 28%, var(--mgr-border));
   }
 
+  .mgr-or-service-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 16px;
+  }
+
+  .mgr-or-service-text {
+    flex: 1 1 280px;
+    min-width: 0;
+  }
+
+  .mgr-or-service-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--mgr-muted);
+  }
+
+  .mgr-or-service-name {
+    margin: 2px 0 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--mgr-text);
+    overflow-wrap: anywhere;
+  }
+
+  .mgr-or-service-desc {
+    margin: 4px 0 0;
+    font-size: 13px;
+    color: var(--mgr-muted);
+  }
+
+  .odm-or-review-top {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
   /* Order summary rows + action bar */
   .odm-or-review-stage-actions {
     box-shadow: var(--mgr-shadow);

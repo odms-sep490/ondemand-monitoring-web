@@ -67,6 +67,7 @@ export const staffSupportMessages = defineMessages({
       MEDIA: 'Media & livestream',
       SCHEDULING: 'Lịch bay',
       ACCOUNT: 'Tài khoản',
+      TECHNICAL: 'Kỹ thuật',
     },
     table: {
       ticket: 'Phiếu hỗ trợ',
@@ -196,6 +197,7 @@ export const staffSupportMessages = defineMessages({
       MEDIA: 'Media & livestream',
       SCHEDULING: 'Flight schedule',
       ACCOUNT: 'Account',
+      TECHNICAL: 'Technical',
     },
     table: {
       ticket: 'Ticket',

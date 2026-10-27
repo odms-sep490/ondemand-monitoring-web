@@ -1,3 +1,4 @@
+import { CheckOutlined } from '@ant-design/icons'
 import { Button } from 'antd'
 import type { KeyboardEvent } from 'react'
 
@@ -29,7 +30,7 @@ export function TicketCard({ ticket, onSelect, onAssignClick, selected }: Ticket
 
   return (
     <div
-      className={`mgr-ticket-card is-${ticket.priority.toLowerCase()}${selected ? ' is-selected' : ''}`}
+      className={`mgr-ticket-card${selected ? ' is-selected' : ''}`}
       tabIndex={0}
       aria-label={`${ticket.code} · ${getTicketSeverityLabel(ticket.priority, lang)}`}
       onClick={() => onSelect(ticket)}
@@ -60,8 +61,10 @@ export function TicketCard({ ticket, onSelect, onAssignClick, selected }: Ticket
       </div>
 
       {open && (
+        <div className="mgr-ticket-card-foot">
         <Button
-          size="small"
+          type="primary"
+          block
           className="mgr-ticket-card-action"
           onClick={(event) => {
             event.stopPropagation()
@@ -70,9 +73,14 @@ export function TicketCard({ ticket, onSelect, onAssignClick, selected }: Ticket
         >
           {ticket.assignedTo ? t.card.changeOperator : t.card.assignOperator}
         </Button>
+        </div>
       )}
 
-      {ticket.status === 'RESOLVED' && <div className="mgr-ticket-done">{t.card.resolved}</div>}
+      {ticket.status === 'RESOLVED' && (
+        <div className="mgr-ticket-done">
+          <CheckOutlined aria-hidden="true" /> {t.card.resolved}
+        </div>
+      )}
     </div>
   )
 }

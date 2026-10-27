@@ -19,6 +19,7 @@ const CATEGORY_FILTERS = [
   'MEDIA',
   'SCHEDULING',
   'ACCOUNT',
+  'TECHNICAL',
 ] as const
 
 type Props = {

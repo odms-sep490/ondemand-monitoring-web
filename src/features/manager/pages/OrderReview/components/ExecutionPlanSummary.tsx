@@ -1,6 +1,8 @@
 import type { ExecutionPlan } from '../../../types/planning'
 import type { OrderChecklistSnapshot } from '../../../types/orders'
-import { Card } from '../../../../../shared/components/ui'
+import { BarChartOutlined } from '@ant-design/icons'
+
+import { CardComponent } from '../../../../../shared/components/antd'
 import { useI18n } from '../../../../../shared/i18n'
 import { executionPlanSummaryMessages } from './ExecutionPlanSummary.messages'
 
@@ -14,7 +16,7 @@ export function ExecutionPlanSummary({
   const { t } = useI18n(executionPlanSummaryMessages)
   const coverage = plan.coverage
   return (
-    <Card title={t.coverageTitle}>
+    <CardComponent icon={<BarChartOutlined />} title={t.coverageTitle}>
       <section aria-label="Execution plan summary" className="mgr-plan-coverage">
         <progress
           className="mgr-plan-progress"
@@ -41,6 +43,6 @@ export function ExecutionPlanSummary({
           </div>
         </dl>
       </section>
-    </Card>
+    </CardComponent>
   )
 }

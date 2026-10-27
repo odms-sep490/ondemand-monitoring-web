@@ -20,40 +20,53 @@
       white-space: nowrap;
     }
 
-    /* Board: one card, four status columns that always share the full width (like the calendar grid). */
-    .mgr-maint-board-card .ant-card-body {
-      padding: 0;
+    /* Work area: 2x2 status lanes, with the detail panel docked on the right on wide screens. */
+    .mgr-maint-work {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 16px;
+      align-items: start;
+      min-width: 0;
+
+      &.has-dock {
+        grid-template-columns: minmax(0, 1fr) 380px;
+      }
     }
 
     .mgr-maint-board {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      align-items: start;
       min-width: 0;
-      overflow: hidden;
-      border-radius: var(--mgr-radius);
     }
 
     .mgr-maint-col {
       display: flex;
       flex-direction: column;
+      gap: 12px;
       min-width: 0;
-
-      & + .mgr-maint-col {
-        border-inline-start: 1px solid var(--mgr-border);
-      }
+      padding: 12px;
+      border-radius: var(--mgr-radius);
+      background: color-mix(in srgb, var(--mgr-muted) 10%, transparent);
     }
 
     .mgr-maint-col-head {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 10px 14px;
-      border-bottom: 1px solid var(--mgr-border);
-      background: var(--mgr-card-2);
     }
 
     .mgr-maint-col-count {
-      font-size: 0.8rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 24px;
+      height: 24px;
+      padding: 0 6px;
+      border-radius: 999px;
+      background: var(--mgr-card);
+      font-size: 12px;
       font-weight: 600;
       color: var(--mgr-muted);
     }
@@ -62,10 +75,8 @@
       display: flex;
       flex: 1;
       flex-direction: column;
-      gap: 8px;
-      max-height: max(420px, calc(100vh - 380px));
-      padding: 10px;
-      overflow-y: auto;
+      gap: 12px;
+      min-width: 0;
     }
 
     .mgr-maint-col-empty {
@@ -78,29 +89,16 @@
     }
 
     .mgr-ticket-card {
-      --accent: #94a3b8;
       display: flex;
       flex-direction: column;
-      gap: 6px;
-      padding: 8px 10px;
+      gap: 8px;
+      padding: 12px 12px 0;
+      overflow: hidden;
       border: 1px solid var(--mgr-border);
-      border-left: 4px solid var(--accent);
-      border-radius: 8px;
+      border-radius: 10px;
       background: var(--mgr-card);
       cursor: pointer;
       transition: border-color 0.15s ease, box-shadow 0.15s ease;
-
-      &.is-critical {
-        --accent: #ef4444;
-      }
-
-      &.is-high {
-        --accent: #f97316;
-      }
-
-      &.is-medium {
-        --accent: #eab308;
-      }
 
       &:hover {
         box-shadow: var(--mgr-shadow-hover);
@@ -113,8 +111,24 @@
 
       &.is-selected {
         border-color: var(--pl-blue-ac);
-        border-left-color: var(--accent);
-        box-shadow: 0 0 0 2px color-mix(in srgb, var(--pl-blue-ac) 45%, transparent);
+        box-shadow: 0 0 0 1px var(--pl-blue-ac);
+      }
+
+      > :last-child {
+        margin-bottom: 12px;
+      }
+
+      > .mgr-ticket-card-foot,
+      > .mgr-ticket-done {
+        margin: 4px -12px 0;
+        padding: 10px 12px;
+        border-top: 1px solid var(--mgr-border);
+      }
+
+      > .mgr-ticket-done {
+        border-radius: 0;
+        text-align: left;
+        border-top-color: transparent;
       }
     }
 
@@ -165,7 +179,10 @@
     }
 
     .mgr-ticket-card-action {
-      align-self: flex-start;
+      font-weight: 600;
+      white-space: normal;
+      height: auto;
+      min-height: 32px;
     }
 
     .mgr-ticket-drone {
@@ -215,7 +232,8 @@
   }
 
   /* Detail drawer is portalled into .mgr-layout, so it is styled outside .mgr-maintenance. */
-  .mgr-maint-drawer {
+  .mgr-maint-drawer,
+  .mgr-maint-dock {
     .mgr-ticket-panel {
       display: flex;
       flex-direction: column;
@@ -243,12 +261,17 @@
       gap: 6px;
     }
 
-    .mgr-ticket-body {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
+    .mgr-ticket-facts {
+      display: grid;
+      grid-template-columns: minmax(96px, 40%) minmax(0, 1fr);
+      gap: 10px 12px;
+      margin: 0;
       font-size: 13.5px;
       overflow-wrap: anywhere;
+
+      dd {
+        margin: 0;
+      }
     }
 
     .mgr-ticket-key {
@@ -305,11 +328,32 @@
       font-size: 12.5px;
     }
 
+    .mgr-ticket-history-row {
+      display: grid;
+      grid-template-columns: minmax(96px, 40%) minmax(0, 1fr);
+      gap: 12px;
+    }
+
     .mgr-ticket-history-title {
       margin-bottom: 2px;
       font-weight: 700;
       color: var(--mgr-muted);
     }
+  }
+
+  .mgr-maint-dock {
+    position: sticky;
+    top: 16px;
+    min-width: 0;
+  }
+
+  .mgr-maint-dock-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: -4px 0 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--mgr-border);
   }
 
   .mgr-assign-ticket {
@@ -366,43 +410,10 @@
   }
 }
 
-@media (max-width: 1199px) {
-  :root .mgr-layout .mgr-maintenance {
-    .mgr-maint-board {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .mgr-maint-col + .mgr-maint-col {
-      border-inline-start: 0;
-    }
-
-    .mgr-maint-col:nth-child(even) {
-      border-inline-start: 1px solid var(--mgr-border);
-    }
-
-    .mgr-maint-col:nth-child(n + 3) {
-      border-top: 1px solid var(--mgr-border);
-    }
-
-    .mgr-maint-col-list {
-      max-height: none;
-      overflow-y: visible;
-    }
-  }
-}
-
 @media (max-width: 767px) {
   :root .mgr-layout .mgr-maintenance {
     .mgr-maint-board {
       grid-template-columns: minmax(0, 1fr);
-    }
-
-    .mgr-maint-col:nth-child(even) {
-      border-inline-start: 0;
-    }
-
-    .mgr-maint-col + .mgr-maint-col {
-      border-top: 1px solid var(--mgr-border);
     }
   }
 }

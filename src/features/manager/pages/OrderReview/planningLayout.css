@@ -65,3 +65,13 @@
   background: var(--ui-primary-soft); color: var(--ui-primary-text); font-size: 13px;
 }
 .mgr-plan .odm-planning-complete { display: flex; align-items: center; justify-content: space-between; gap: var(--ui-space-3); flex-wrap: wrap; background: var(--ui-success-soft); color: var(--ui-success-text); }
+
+/* Planning workspace: same 16px rhythm and side/main split as the mission detail page. */
+.mgr-plan .odm-planning-split-layout { margin-top: 0; gap: var(--ui-space-4); grid-template-columns: minmax(280px, 340px) minmax(0, 1fr); }
+.mgr-plan .odm-planning-split-layout.is-collapsed { grid-template-columns: minmax(0, 1fr); }
+.mgr-plan .odm-missions-workspace-panel { gap: var(--ui-space-4); min-width: 0; }
+.mgr-plan .odm-workspace-topbar { padding: var(--ui-space-3) var(--ui-space-4); border-radius: var(--mgr-radius); }
+.mgr-plan .odm-master-checklist-sidebar { border-radius: var(--mgr-radius); }
+@media (max-width: 1024px) {
+  .mgr-plan .odm-planning-split-layout { grid-template-columns: minmax(0, 1fr); }
+}

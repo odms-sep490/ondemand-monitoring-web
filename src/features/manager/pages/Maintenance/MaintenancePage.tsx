@@ -15,6 +15,8 @@ import { MaintenanceSkeleton } from './components/MaintenanceSkeleton'
 import { MaintenanceStats } from './components/MaintenanceStats'
 import { TicketBoard } from './components/TicketBoard'
 import { TicketFilterBar } from './components/TicketFilterBar'
+import { DetailPanel } from './components/DetailPanel'
+import { useMinWidth } from './useMinWidth'
 import { maintenancePageMessages } from './MaintenancePage.messages'
 
 export function MaintenancePage() {
@@ -27,6 +29,8 @@ export function MaintenancePage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [priorityFilter, setPriorityFilter] = useState<string>('ALL')
   const [assignedFilter, setAssignedFilter] = useState<string>('ALL')
+
+  const docked = useMinWidth(1280)
 
   const query = useApiQuery((signal) => maintenanceApi.listTickets({ signal }), [])
 
@@ -102,12 +106,23 @@ export function MaintenancePage() {
       )}
 
       {!query.loading && !query.error && (
-        <TicketBoard
-          byColumn={byColumn}
-          selectedTicket={selectedTicket}
-          setSelectedTicket={setSelectedTicket}
-          setAssignTicket={setAssignTicket}
-        />
+        <div className={`mgr-maint-work${selectedTicket && docked ? ' has-dock' : ''}`}>
+          <TicketBoard
+            byColumn={byColumn}
+            selectedTicket={selectedTicket}
+            setSelectedTicket={setSelectedTicket}
+            setAssignTicket={setAssignTicket}
+          />
+          {selectedTicket && (
+            <DetailPanel
+              key={selectedTicket.id}
+              ticket={selectedTicket}
+              docked={docked}
+              onClose={() => setSelectedTicket(null)}
+              onAssignClick={setAssignTicket}
+            />
+          )}
+        </div>
       )}
 
       {assignTicket && (
