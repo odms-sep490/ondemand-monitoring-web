@@ -7,7 +7,7 @@ export const missionUpdatePanelMessages = defineMessages({
     heading: (code: string) => `Chỉnh sửa nhiệm vụ ${code}`,
     subtitle:
       'Kiểm tra thời tiết, chọn lịch bay và phân bổ danh mục kiểm tra cho nhiệm vụ.',
-    closeAria: 'Đóng form chỉnh sửa nhiệm vụ',
+    closeAria: 'Đóng biểu mẫu chỉnh sửa nhiệm vụ',
     closeTitle: 'Đóng form',
     contextAria: 'Bối cảnh lập kế hoạch nhiệm vụ',
     scopeHeading: 'Phạm vi công việc của nhiệm vụ',

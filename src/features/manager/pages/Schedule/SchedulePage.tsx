@@ -110,6 +110,12 @@ export function SchedulePage() {
       ? formatWeekLabel(weekStart, weekEnd)
       : formatDayLabel(anchorDate)
 
+  // "Today" is a primary action only when the view has moved away from today.
+  const atToday =
+    view === 'week'
+      ? toISODate(formatCalendarWeek(new Date()).weekStart) === toISODate(weekStart)
+      : toISODate(new Date()) === toISODate(anchorDate)
+
   const toolbar = (
     <div className="mgr-sched-toolbar">
       <div className="mgr-sched-toolbar-nav">
@@ -122,7 +128,10 @@ export function SchedulePage() {
           }
           aria-label={view === 'week' ? t.prevWeek : t.prevDay}
         />
-        <Button type="primary" onClick={() => setAnchorDate(new Date())}>
+        <Button
+          type={atToday ? 'default' : 'primary'}
+          onClick={() => setAnchorDate(new Date())}
+        >
           {t.today}
         </Button>
         <Button

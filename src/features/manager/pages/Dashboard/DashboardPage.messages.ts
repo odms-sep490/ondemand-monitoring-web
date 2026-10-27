@@ -5,8 +5,8 @@ export const dashboardPageMessages = defineMessages({
     title: 'Bảng điều khiển quản lý',
     generatedAt: 'Cập nhật',
     refresh: 'Làm mới',
-    loadError: 'Không thể tải dữ liệu dashboard.',
-    loading: 'Đang tải dashboard…',
+    loadError: 'Không thể tải dữ liệu bảng điều khiển.',
+    loading: 'Đang tải bảng điều khiển…',
     rangeLabel: 'Khoảng thời gian',
     ranges: { '7D': '7 ngày', '30D': '30 ngày', '90D': '90 ngày' },
     hero: {
@@ -66,7 +66,7 @@ export const dashboardPageMessages = defineMessages({
       attention: 'Cần chú ý',
     },
     pipeline: {
-      title: 'Pipeline báo giá',
+      title: 'Tiến trình báo giá',
       empty: 'Chưa có dữ liệu báo giá.',
       review: 'Chờ duyệt giá',
       quoteReady: 'Sẵn sàng báo giá',
@@ -102,7 +102,7 @@ export const dashboardPageMessages = defineMessages({
         BLOCKED_BY_POLICY: 'Bị chặn bởi chính sách', CREATED: 'Khởi tạo', WAITING_DEPOSIT: 'Chờ cọc',
         RESOURCE_ASSIGNING: 'Phân công nguồn lực', WAITING_CREW_CONFIRMATION: 'Chờ tổ bay',
         WAITING_OPERATOR_ACCEPTANCE: 'Chờ người vận hành', SCHEDULED: 'Đã lên lịch', CONNECTED: 'Đã kết nối',
-        PREFLIGHT_CHECKING: 'Kiểm tra trước bay', READY_TO_FLY: 'Sẵn sàng bay', FAILED_PREFLIGHT: 'Preflight lỗi',
+        PREFLIGHT_CHECKING: 'Kiểm tra trước bay', READY_TO_FLY: 'Sẵn sàng bay', FAILED_PREFLIGHT: 'Kiểm tra trước bay lỗi',
         PENDING_APPROVAL: 'Chờ duyệt', IN_FLIGHT: 'Đang bay', RETURNING: 'Đang trở về',
         POSTFLIGHT_CHECKING: 'Kiểm tra sau bay', PENDING_REVIEW: 'Chờ nghiệm thu', FAILED: 'Thất bại',
         PLANNING: 'Chuẩn bị & phân công', READY: 'Sẵn sàng',

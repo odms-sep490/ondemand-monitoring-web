@@ -1,3 +1,4 @@
+import { CheckOutlined, ExclamationOutlined } from '@ant-design/icons'
 import { pricingLabel } from '../../../../shared/lib/pricingPresentation'
 import type { ChecklistReviewStatus } from '../../types'
 import type { Dispatch, SetStateAction, RefObject } from 'react'
@@ -127,7 +128,7 @@ export function ChecklistReview({
         role="status"
       >
         <span aria-hidden="true" className="finance-review-warning-icon">
-          {reviewComplete ? '✓' : '!'}
+          {reviewComplete ? <CheckOutlined /> : <ExclamationOutlined />}
         </span>
         {reviewComplete
           ? t.checklistComplete

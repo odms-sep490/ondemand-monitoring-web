@@ -67,21 +67,21 @@ export function MissionResultReviewActions({
     }
   }
   return (
-    <div className="odm-result-review-actions" aria-busy={busy}>
+    <div className="mgr-result-review-actions" aria-busy={busy}>
       {status === 'DRAFT' && <p>{t.draftNotice}</p>}
       {status === 'REJECTED' && (
         <p>{t.rejectedNotice}</p>
       )}
       {status === 'APPROVED' && <p>{t.approvedNotice}</p>}
       {error != null && (
-        <p className="odm-result-review-error" role="alert">
+        <p className="mgr-result-review-error" role="alert">
           {missionResultReviewErrorMessage(error)}
         </p>
       )}
       {status === 'PENDING_MANAGER_APPROVAL' && (
         <>
-          <div className="odm-result-review-note">
-            <div className="odm-result-review-note-label">
+          <div className="mgr-result-review-note">
+            <div className="mgr-result-review-note-label">
               <label htmlFor={noteId}>{t.noteLabel}</label>
               <span>{t.noteHint}</span>
             </div>
@@ -97,11 +97,11 @@ export function MissionResultReviewActions({
           {!ready && !disabledReasonId && (
             <p>{t.checklistNotReadyToApprove}</p>
           )}
-          <div className="odm-result-review-buttons">
+          <div className="mgr-result-review-buttons">
             <Button
               type="button"
               variant="danger"
-              className="odm-result-review-reject"
+              className="mgr-result-review-reject"
               disabled={busy || refreshing}
               onClick={() => void review(true)}
             >

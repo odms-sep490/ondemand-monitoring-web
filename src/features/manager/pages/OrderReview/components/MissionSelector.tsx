@@ -1,4 +1,9 @@
-import { CheckOutlined, LockOutlined } from '@ant-design/icons'
+import {
+  CheckOutlined,
+  ClockCircleOutlined,
+  LockOutlined,
+  PlayCircleOutlined,
+} from '@ant-design/icons'
 import { StatusBadge, toUiTone } from '../../../../../shared/components/ui'
 import {
   missionStatusLabel,
@@ -84,11 +89,11 @@ export function MissionSelector({
               {bucket === 'finished' ? (
                 <CheckOutlined aria-hidden="true" />
               ) : bucket === 'active' ? (
-                '●'
+                <PlayCircleOutlined aria-hidden="true" />
               ) : bucket === 'blocked' ? (
                 <LockOutlined aria-hidden="true" />
               ) : (
-                '○'
+                <ClockCircleOutlined aria-hidden="true" />
               )}{' '}
               {wf.missionOf(missionIndex + 1, missions.length)}
               {bucket === 'active' ? ` · ${stage.label}` : ''}

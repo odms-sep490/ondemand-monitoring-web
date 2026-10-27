@@ -73,6 +73,13 @@
   gap: 2px;
   min-width: 0;
   font-size: 14px;
+  line-height: 1.35;
+  letter-spacing: 0;
+}
+.mgr-sched-panel-sub {
+  font-weight: 500;
+  color: var(--mgr-muted);
+  overflow-wrap: anywhere;
 }
 
 .mgr-legend {
@@ -92,13 +99,13 @@
   width: 10px;
   height: 10px;
   border-radius: 3px;
-  background: #64748b;
+  background: var(--pl-border-strong);
 }
-.mgr-legend-dot.is-success { background: #16a34a; }
-.mgr-legend-dot.is-info { background: var(--ui-primary, #1565e8); }
-.mgr-legend-dot.is-warning { background: #f59e0b; }
-.mgr-legend-dot.is-danger { background: #dc2626; }
-.mgr-legend-dot.is-neutral { background: #64748b; }
+.mgr-legend-dot.is-success { background: var(--pl-green-ac); }
+.mgr-legend-dot.is-info { background: var(--pl-blue-ac); }
+.mgr-legend-dot.is-warning { background: var(--pl-amber-ac); }
+.mgr-legend-dot.is-danger { background: var(--pl-red-ac); }
+.mgr-legend-dot.is-neutral { background: var(--mgr-muted); }
 
 /* Reschedule form */
 .mgr-form {
@@ -109,32 +116,15 @@
 .mgr-field {
   display: flex;
   flex-direction: column;
-  gap: var(--ui-space-1);
+  gap: 4px;
   font-size: 12px;
-  color: var(--ui-text-2);
-}
-.mgr-input {
-  width: 100%;
-  height: 36px;
-  padding: 0 var(--ui-space-3);
-  box-sizing: border-box;
-  border: 1px solid var(--ui-border);
-  border-radius: var(--ui-radius-sm);
-  background: var(--ui-surface);
-  color: var(--ui-text);
-  font: inherit;
-  font-size: 13px;
-}
-.mgr-input:focus-visible {
-  outline: none;
-  box-shadow: var(--ui-ring);
-  border-color: var(--ui-primary);
+  color: var(--mgr-muted);
 }
 .mgr-form-error {
   padding: var(--ui-space-2) var(--ui-space-3);
   border-radius: var(--ui-radius-sm);
-  background: var(--ui-danger-soft);
-  color: var(--ui-danger-text);
+  background: var(--pl-red-bg);
+  color: var(--pl-red-fg);
   font-size: 12px;
 }
 

@@ -69,7 +69,7 @@ export const pricingMessages = defineMessages({
     reviewedProgress: (reviewed: number, total: number) =>
       `${reviewed}/${total} nội dung đã xem xét`,
     filterGroupAria: 'Lọc nội dung',
-    checklistComplete: 'Checklist đã hoàn tất và có thể duyệt báo giá.',
+    checklistComplete: 'Danh mục kiểm tra đã hoàn tất và có thể duyệt báo giá.',
     checklistRemaining: (n: number) =>
       `Còn ${n} nội dung cần chọn cách tính giá trước khi duyệt.`,
     colContent: 'Nội dung yêu cầu',

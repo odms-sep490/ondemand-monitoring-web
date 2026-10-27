@@ -53,6 +53,25 @@ export const managerLibMessages = defineMessages({
       THERMAL: 'Ảnh nhiệt',
     } as Record<string, string>,
     ticket: {
+      issueTypes: {
+        MOTOR_VIBRATION: 'Rung động cơ',
+        PROPELLER_REPLACE: 'Thay cánh quạt',
+        BATTERY_SWELL: 'Pin phồng',
+        BATTERY_DEGRADED: 'Pin suy giảm',
+        GIMBAL_CALIBRATION: 'Hiệu chuẩn gimbal',
+        CAMERA_GIMBAL: 'Camera / gimbal',
+        CAMERA_LENS_SCRATCH: 'Xước kính camera',
+        IMU_DRIFT: 'Lệch cảm biến IMU',
+        SIGNAL_LOSS: 'Mất tín hiệu',
+        PHYSICAL_DAMAGE: 'Hư hỏng vật lý',
+        OTHER: 'Khác',
+      } as Record<string, string>,
+      statusWords: {
+        MAINTENANCE: 'bảo trì',
+        OUT_OF_SERVICE: 'ngừng hoạt động',
+        AVAILABLE: 'sẵn sàng',
+        OFFLINE: 'ngoại tuyến',
+      } as Record<string, string>,
       inspection: {
         a1: 'Thân máy',
         a2: 'Càng/khung',
@@ -122,7 +141,7 @@ export const managerLibMessages = defineMessages({
       itemsUnit: ' mục',
       unknownSize: 'Không rõ dung lượng',
       orderNotApproved: 'Đơn không còn ở trạng thái đã duyệt.',
-      mediaNotFound: 'Không tìm thấy media.',
+      mediaNotFound: 'Không tìm thấy ảnh/video.',
     },
   },
   en: {
@@ -177,6 +196,25 @@ export const managerLibMessages = defineMessages({
       THERMAL: 'Thermal image',
     },
     ticket: {
+      issueTypes: {
+        MOTOR_VIBRATION: 'Motor vibration',
+        PROPELLER_REPLACE: 'Propeller replacement',
+        BATTERY_SWELL: 'Swollen battery',
+        BATTERY_DEGRADED: 'Degraded battery',
+        GIMBAL_CALIBRATION: 'Gimbal calibration',
+        CAMERA_GIMBAL: 'Camera / gimbal',
+        CAMERA_LENS_SCRATCH: 'Scratched camera lens',
+        IMU_DRIFT: 'IMU drift',
+        SIGNAL_LOSS: 'Signal loss',
+        PHYSICAL_DAMAGE: 'Physical damage',
+        OTHER: 'Other',
+      } as Record<string, string>,
+      statusWords: {
+        MAINTENANCE: 'maintenance',
+        OUT_OF_SERVICE: 'out of service',
+        AVAILABLE: 'available',
+        OFFLINE: 'offline',
+      } as Record<string, string>,
       inspection: {
         a1: 'Airframe',
         a2: 'Landing gear/frame',

@@ -1,3 +1,4 @@
+import { ArrowLeftOutlined, ArrowRightOutlined } from '@ant-design/icons'
 import type { ReactNode } from 'react'
 
 import { useI18n } from '../../../../shared/i18n'
@@ -195,14 +196,14 @@ export function WorkflowStepper({
                   disabled={!mission.onPrev}
                   onClick={mission.onPrev}
                 >
-                  ← {t.missionPrev}
+                  <ArrowLeftOutlined aria-hidden="true" /> {t.missionPrev}
                 </Button>
                 <Button
                   type="button"
                   disabled={!mission.onNext}
                   onClick={mission.onNext}
                 >
-                  {t.missionNext} →
+                  {t.missionNext} <ArrowRightOutlined aria-hidden="true" />
                 </Button>
               </span>
             ) : null}

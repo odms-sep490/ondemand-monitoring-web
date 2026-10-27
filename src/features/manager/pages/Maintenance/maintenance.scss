@@ -5,12 +5,16 @@
       cursor: pointer;
 
       &.is-selected > td {
-        background: color-mix(in srgb, var(--mgr-card) 90%, #1565e8);
+        background: color-mix(in srgb, var(--mgr-card) 90%, var(--pl-blue-ac));
       }
     }
 
     .mgr-cell-stack {
       min-width: 0;
+    }
+
+    .mgr-op-cell {
+      white-space: nowrap;
     }
 
     .mgr-ticket-title {
@@ -33,6 +37,7 @@
     font-size: 17px;
     font-weight: 700;
     line-height: 1.35;
+    letter-spacing: 0;
     color: var(--mgr-text);
     overflow-wrap: anywhere;
   }
@@ -70,11 +75,11 @@
   }
 
   .mgr-ticket-ok {
-    color: #16a34a;
+    color: var(--pl-green-fg);
   }
 
   .mgr-ticket-warn {
-    color: #d97706;
+    color: var(--pl-amber-fg);
   }
 
   .mgr-ticket-text {
@@ -90,8 +95,8 @@
     text-align: center;
     font-weight: 600;
     font-size: 13px;
-    color: #16a34a;
-    background: color-mix(in srgb, #16a34a 12%, var(--mgr-card));
+    color: var(--pl-green-fg);
+    background: var(--pl-green-bg);
   }
 
   .mgr-assign-ticket {
@@ -135,8 +140,8 @@
     }
 
     &.is-selected {
-      border-color: #1565e8;
-      background: color-mix(in srgb, var(--mgr-card) 92%, #1565e8);
+      border-color: var(--pl-blue-ac);
+      background: color-mix(in srgb, var(--mgr-card) 92%, var(--pl-blue-ac));
     }
   }
 

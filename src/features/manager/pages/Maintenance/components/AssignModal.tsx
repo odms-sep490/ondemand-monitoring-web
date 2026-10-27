@@ -91,7 +91,7 @@ export function AssignModal({
           role="alert"
           message={t.assignModal.staffLoadError}
           action={
-            <Button size="small" onClick={staffQuery.reload}>
+            <Button onClick={staffQuery.reload}>
               {t.assignModal.retry}
             </Button>
           }

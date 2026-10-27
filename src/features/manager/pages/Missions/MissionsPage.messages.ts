@@ -63,7 +63,7 @@ export const missionsPageMessages = defineMessages({
     deliveryStatus: {
       none: '—',
       processing: 'Chờ duyệt kết quả',
-      readyForPreview: 'Chờ gửi preview',
+      readyForPreview: 'Chờ gửi bản xem trước',
       customerReview: 'Khách hàng đang xem',
       revisionRequested: 'Khách hàng yêu cầu sửa',
       finalPaymentPending: 'Chờ thanh toán cuối',

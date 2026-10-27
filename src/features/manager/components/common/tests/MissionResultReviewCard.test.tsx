@@ -77,7 +77,7 @@ describe('Mission result review card', () => {
     expect(
       within(review).getByText('Danh mục kiểm tra đã sẵn sàng'),
     ).toBeInTheDocument()
-    expect(within(review).getByText('Có media')).toBeInTheDocument()
+    expect(within(review).getByText('Có ảnh/video')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Duyệt kết quả' })).toBeEnabled()
     expect(screen.queryByText(/COMPLETED|PENDING_MANAGER_APPROVAL/)).toBeNull()
     expect(
@@ -100,9 +100,9 @@ describe('Mission result review card', () => {
     const button = screen.getByRole('button', { name: 'Duyệt kết quả' })
     expect(button).toBeDisabled()
     expect(button).toHaveAccessibleDescription(
-      'Cần duyệt toàn bộ media trước khi duyệt kết quả.',
+      'Cần duyệt toàn bộ ảnh/video trước khi duyệt kết quả.',
     )
-    expect(screen.getByText('Còn media chưa được duyệt')).toBeInTheDocument()
+    expect(screen.getByText('Còn ảnh/video chưa được duyệt')).toBeInTheDocument()
     expect(screen.getByText('Danh mục kiểm tra đã sẵn sàng')).toBeInTheDocument()
     expect(
       screen.getByRole('button', { name: 'Từ chối kết quả' }),
@@ -116,8 +116,8 @@ describe('Mission result review card', () => {
     ['EXECUTION_NOT_TERMINAL', 'Danh mục kiểm tra chưa hoàn tất.'],
     ['INSUFFICIENT_EVIDENCE', 'Danh mục kiểm tra chưa đủ bằng chứng.'],
     ['UNABLE_REASON_REQUIRED', 'Cần bổ sung lý do'],
-    ['MEDIA_REJECTED', 'Media bị từ chối.'],
-    ['MEDIA_NOT_VALIDATED', 'Media đang được kiểm tra.'],
+    ['MEDIA_REJECTED', 'Ảnh/video bị từ chối.'],
+    ['MEDIA_NOT_VALIDATED', 'Ảnh/video đang được kiểm tra.'],
     ['EVIDENCE_SOURCE_NOT_ELIGIBLE', 'Bằng chứng chưa phù hợp.'],
     ['CHECKLIST_INTEGRITY_INVALID', 'Không thể xác nhận danh mục kiểm tra.'],
   ] as Array<[EvidenceBlockingReason, string]>)(
@@ -166,7 +166,7 @@ describe('Mission result review card', () => {
   })
   it('does not introduce a media-count requirement for an empty ready checklist', () => {
     card({ result: { ...result, mediaCount: 0 } })
-    expect(screen.getByText('Chưa có media')).toBeInTheDocument()
+    expect(screen.getByText('Chưa có ảnh/video')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Duyệt kết quả' })).toBeEnabled()
   })
   it('does not override canonical readiness using optional media blocking hints', () => {
@@ -174,7 +174,7 @@ describe('Mission result review card', () => {
       checklist: { ...checklist, blockingReasons: ['MEDIA_APPROVAL_REQUIRED'] },
     })
     expect(screen.getByRole('button', { name: 'Duyệt kết quả' })).toBeEnabled()
-    expect(screen.queryByText('Còn media chưa được duyệt')).toBeNull()
+    expect(screen.queryByText('Còn ảnh/video chưa được duyệt')).toBeNull()
   })
   it('approves the exact result', async () => {
     const approve = vi
@@ -212,9 +212,9 @@ describe('Mission result review card', () => {
       approve = vi.spyOn(missionsApi, 'approveMissionResult')
     card({ onViewMedia: viewMedia })
     expect(
-      screen.getByText('Duyệt media riêng trước khi duyệt kết quả.'),
+      screen.getByText('Duyệt ảnh/video riêng trước khi duyệt kết quả.'),
     ).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: 'Xem thư viện media' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Xem thư viện ảnh/video' }))
     expect(viewMedia).toHaveBeenCalledOnce()
     expect(approve).not.toHaveBeenCalled()
     expect(screen.queryByText(/Duyệt kết quả không tự động/)).toBeNull()

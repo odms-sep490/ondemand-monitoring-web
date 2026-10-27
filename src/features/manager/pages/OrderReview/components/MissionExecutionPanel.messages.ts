@@ -7,7 +7,7 @@ export const missionExecutionPanelMessages = defineMessages({
       'Không thể tải danh mục kiểm tra của nhiệm vụ này. Vui lòng thử lại.',
     resultLoadFailed: 'Không thể tải kết quả của nhiệm vụ này.',
     retry: 'Thử lại',
-    mediaLibrary: 'Thư viện media',
+    mediaLibrary: 'Thư viện ảnh/video',
   },
   en: {
     execution: (code: string) => `Execution ${code}`,

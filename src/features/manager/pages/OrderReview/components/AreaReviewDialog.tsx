@@ -1,3 +1,4 @@
+import { CloseOutlined } from '@ant-design/icons'
 import type { OrderDetail, LegalReviewStatus } from '../../../types/orders'
 import type { SavedAreaReview, AreaReviewChoice } from '../areaTypes'
 import { useState } from 'react'
@@ -94,7 +95,7 @@ export function AreaReviewDialog({
             <p>{t.subtitle}</p>
           </div>
           <button type="button" aria-label={t.close} onClick={onClose}>
-            ×
+            <CloseOutlined aria-hidden="true" />
           </button>
         </header>
         <div className="odm-or-area-modal-context">

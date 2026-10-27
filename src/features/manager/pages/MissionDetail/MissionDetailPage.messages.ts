@@ -19,7 +19,7 @@ export const missionDetailPageMessages = defineMessages({
       drone: 'Thiết bị',
       crew: 'Đội bay',
       checklist: 'Danh mục kiểm tra',
-      media: 'Media',
+      media: 'Tệp ảnh/video',
       duration: 'Thời lượng',
       actualDuration: 'Thời lượng thực tế',
       plannedDuration: 'Thời lượng dự kiến',
@@ -27,7 +27,7 @@ export const missionDetailPageMessages = defineMessages({
     map: {
       title: 'Bản đồ nhiệm vụ',
       route: 'Đường bay',
-      waypoint: 'Waypoint',
+      waypoint: 'Điểm bay',
       target: 'Điểm giám sát',
       empty: 'Chưa có điểm bay tự động',
       satellite: 'Vệ tinh',
@@ -36,7 +36,7 @@ export const missionDetailPageMessages = defineMessages({
       home: 'Điểm xuất phát (H)',
     },
     waypoints: {
-      title: 'Danh sách waypoint',
+      title: 'Danh sách điểm bay',
       columns: {
         seq: '#',
         type: 'Loại điểm',
@@ -45,7 +45,7 @@ export const missionDetailPageMessages = defineMessages({
         altitude: 'Độ cao',
         speed: 'Tốc độ',
       },
-      empty: 'Chưa có waypoint.',
+      empty: 'Chưa có điểm bay.',
     },
     back: 'Nhiệm vụ',
     loadError: 'Không tải được chi tiết nhiệm vụ',
@@ -60,7 +60,7 @@ export const missionDetailPageMessages = defineMessages({
     checklistLoading: 'Đang tải danh mục kiểm tra',
     checklistCompliant: (ok: number, total: number) =>
       `${ok}/${total} đạt yêu cầu`,
-    resultCard: 'Kết quả nhiệm vụ & media',
+    resultCard: 'Kết quả nhiệm vụ & ảnh/video',
     deliverToCustomer: 'Gửi cho khách hàng',
     deliveringToCustomer: 'Đang gửi...',
     deliveredToCustomer: 'Đã gửi cho khách hàng',
@@ -74,8 +74,8 @@ export const missionDetailPageMessages = defineMessages({
     crewEmpty: 'Nhiệm vụ này chưa có thiết bị hoặc nhân sự được gán.',
     crewAccepted: (accepted: number, total: number) =>
       `${accepted}/${total} đã nhận`,
-    noPrecheck: 'Chưa có kết quả precheck.',
-    noPostcheck: 'Chưa có kết quả postcheck.',
+    noPrecheck: 'Chưa có kết quả kiểm tra trước bay.',
+    noPostcheck: 'Chưa có kết quả kiểm tra sau bay.',
     fields: {
       customer: 'Khách hàng',
       order: 'Đơn hàng',
@@ -87,7 +87,7 @@ export const missionDetailPageMessages = defineMessages({
       completed: 'Kết thúc thực tế',
       address: 'Địa chỉ',
       coordinates: 'Tọa độ',
-      mediaType: 'Loại media',
+      mediaType: 'Loại ảnh/video',
       failure: 'Lý do lỗi',
     },
     totalChecks: 'Tổng số kiểm tra',
@@ -101,14 +101,14 @@ export const missionDetailPageMessages = defineMessages({
     extra: {
       checklistLoadError:
         'Không thể tải danh mục kiểm tra của nhiệm vụ này. Vui lòng thử lại.',
-      mediaLibrary: 'Thư viện media',
-      satelliteAria: 'Bản đồ vệ tinh mission',
+      mediaLibrary: 'Thư viện ảnh/video',
+      satelliteAria: 'Bản đồ vệ tinh nhiệm vụ',
       startPoint: 'Điểm xuất phát',
       targetPoint: 'Điểm giám sát',
       targetChip: 'ĐIỂM GIÁM SÁT',
-      routeChip: 'Đường bay: HOME → điểm giám sát',
+      routeChip: 'Đường bay: Điểm xuất phát → điểm giám sát',
       radiusChip: 'Bán kính giám sát:',
-      noCoordinates: 'Chưa có tọa độ mission',
+      noCoordinates: 'Chưa có tọa độ nhiệm vụ',
       wpDefault: 'Điểm bay',
       wpStart: 'Điểm xuất phát',
       wpTarget: 'Tiếp cận mục tiêu',
@@ -131,7 +131,7 @@ export const missionDetailPageMessages = defineMessages({
           'Xem tab Kiểm tra trước bay, xử lý rồi cho đội bay kiểm tra lại.',
         pendingReviewTitle: 'Chờ duyệt kết quả',
         pendingReviewDetail:
-          'Xem media và danh mục kiểm tra rồi duyệt hoặc yêu cầu bổ sung.',
+          'Xem ảnh/video và danh mục kiểm tra rồi duyệt hoặc yêu cầu bổ sung.',
         failedTitle: 'Nhiệm vụ thất bại',
         cancelledTitle: 'Nhiệm vụ đã hủy',
         endedDetail: 'Có thể tạo nhiệm vụ thay thế trong kế hoạch đơn hàng.',

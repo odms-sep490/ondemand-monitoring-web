@@ -1,3 +1,4 @@
+import { CloseOutlined } from '@ant-design/icons'
 import type { usePlanningConfirmation } from '../../../components/common/usePlanningConfirmation'
 import { MissionCreatePage } from '../../MissionCreate/MissionCreatePage'
 import type { Dispatch, SetStateAction } from 'react'
@@ -55,7 +56,7 @@ export function PlanningCreatePanel({
               setCreating(null)
           }}
         >
-          ×
+          <CloseOutlined aria-hidden="true" />
         </Button>
       }
     >

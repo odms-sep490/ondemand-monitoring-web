@@ -1,16 +1,17 @@
 import { CloseOutlined } from '@ant-design/icons'
+import { Button, Input } from 'antd'
+import { useState } from 'react'
 import type { MissionCalendarItem } from '../../../types/missions'
 import type { PageMessages } from '../scheduleTypes'
-import { missionStatusTone } from '../../../../../shared/lib/statusTone'
-import { useState } from 'react'
 import { missionsApi } from '../../../api/missionsApi'
 import { planningApi } from '../../../api/planningApi'
 import { ApiError } from '../../../../../shared/api/httpClient'
-import { StatusBadge } from '../../../../../shared/components/odm/StatusBadge'
+import { CardComponent } from '../../../../../shared/components/antd'
+import { MissionStatusTag } from '../../../components/common/MissionStatusTag'
 import { managerHref } from '../../../routes'
 import { useI18n } from '../../../../../shared/i18n'
 import { managerFeedbackMessages } from '../../../feedback.messages'
-import { Button, Card, useToast } from '../../../../../shared/components/ui'
+import { useToast } from '../../../../../shared/components/ui'
 
 // ── ReschedulePanel ────────────────────────────────────────────────────────
 
@@ -31,7 +32,11 @@ export function ReschedulePanel({
 }: ReschedulePanelProps) {
   const { t: fb } = useI18n(managerFeedbackMessages)
   const toast = useToast()
-  const tone = missionStatusTone[mission.status] ?? 'gray'
+  const finished =
+    mission.status === 'COMPLETED' ||
+    mission.status === 'FAILED' ||
+    mission.status === 'CANCELLED'
+  const subtitle = mission.serviceLabel ?? mission.addressText
 
   const [reschedule, setReschedule] = useState(false)
   const [newStart, setNewStart] = useState(
@@ -105,36 +110,34 @@ export function ReschedulePanel({
       role="complementary"
       aria-label={t.missionDetail}
     >
-      <Card
+      <CardComponent
         title={
           <span className="mgr-sched-panel-title">
-            <span className="odm-mono mgr-muted">{mission.missionCode}</span>
-            <span>{mission.serviceLabel ?? mission.addressText ?? '—'}</span>
+            <span className="mgr-code">{mission.missionCode}</span>
+            {subtitle ? <span className="mgr-sched-panel-sub">{subtitle}</span> : null}
           </span>
         }
-        actions={
+        extra={
           <Button
-            type="button"
-            variant="ghost"
-            size="sm"
+            type="text"
+            className="mgr-icon-btn"
+            icon={<CloseOutlined aria-hidden="true" />}
             onClick={onClose}
             aria-label={t.closeDetail}
-          >
-            <CloseOutlined aria-hidden="true" />
-          </Button>
+          />
         }
       >
         <div className="mgr-badge-row">
-          <StatusBadge kind="mission" status={mission.status} tone={tone} />
+          <MissionStatusTag mission={mission} />
           {(mission.status === 'CREATED' ||
             mission.status === 'RESOURCE_ASSIGNING') && (
             <Button
+              type="primary"
+              size="small"
               href={managerHref({
                 screen: 'missionDispatch',
                 missionId: mission.id,
               })}
-              variant="primary"
-              size="sm"
             >
               {t.assignResources}
             </Button>
@@ -148,39 +151,37 @@ export function ReschedulePanel({
             </div>
           ))}
         </dl>
-      </Card>
+      </CardComponent>
 
-      {!reschedule ? (
-        <Button type="button" onClick={() => setReschedule(true)}>
+      {finished ? null : !reschedule ? (
+        <Button block onClick={() => setReschedule(true)}>
           {t.reschedule}
         </Button>
       ) : (
-        <Card title={t.rescheduleTitle}>
+        <CardComponent title={t.rescheduleTitle}>
           <div className="mgr-form">
             <label className="mgr-field">
               <span>{t.start}</span>
-              <input
+              <Input
                 type="datetime-local"
-                className="mgr-input"
                 value={newStart}
                 onChange={(e) => setNewStart(e.target.value)}
               />
             </label>
             <label className="mgr-field">
               <span>{t.end}</span>
-              <input
+              <Input
                 type="datetime-local"
-                className="mgr-input"
                 value={newEnd}
                 onChange={(e) => setNewEnd(e.target.value)}
               />
             </label>
             <label className="mgr-field">
               <span>{t.rescheduleReason}</span>
-              <input
+              <Input
                 type="text"
-                className="mgr-input"
                 value={reason}
+                placeholder={t.rescheduleReasonPlaceholder}
                 onChange={(e) => setReason(e.target.value)}
               />
             </label>
@@ -191,15 +192,14 @@ export function ReschedulePanel({
             )}
             <div className="mgr-actions">
               <Button
-                type="button"
-                variant="primary"
+                type="primary"
+                loading={saving}
                 disabled={saving}
                 onClick={handleSave}
               >
                 {saving ? t.saving : t.save}
               </Button>
               <Button
-                type="button"
                 onClick={() => {
                   setReschedule(false)
                   setSaveError(null)
@@ -209,7 +209,7 @@ export function ReschedulePanel({
               </Button>
             </div>
           </div>
-        </Card>
+        </CardComponent>
       )}
     </aside>
   )

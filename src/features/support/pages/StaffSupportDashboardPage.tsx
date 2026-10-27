@@ -744,7 +744,7 @@ export function StaffSupportDashboardPage() {
           background: '#ffffff',
           borderRadius: 12,
           border: '1px solid #e2e8f0',
-          overflow: 'hidden',
+          overflowX: 'auto',
           boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
         }}
       >

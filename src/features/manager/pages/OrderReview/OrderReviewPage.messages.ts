@@ -63,7 +63,7 @@ export const orderReviewPageMessages = defineMessages({
     copy: 'Sao chép',
     stepWord: 'Bước',
     preferredWindow: 'Thời gian dự kiến',
-    mediaRequirements: 'Yêu cầu media',
+    mediaRequirements: 'Yêu cầu ảnh/video',
     noData: 'Chưa có dữ liệu',
     mediaN: (n: number) => `Yêu cầu ${n}`,
     purpose: 'Mục đích',
@@ -73,10 +73,10 @@ export const orderReviewPageMessages = defineMessages({
     aiAnalysis: 'Phân tích AI',
     quickAnalysis: 'phân tích nhanh',
     analysisLoadError:
-      'Chưa tải được bản phân tích lưu từ backend, đang hiển thị phân tích nhanh từ dữ liệu đơn.',
+      'Chưa tải được bản phân tích lưu từ máy chủ, đang hiển thị phân tích nhanh từ dữ liệu đơn.',
     evidence: 'Bằng chứng',
-    customerActionLine: 'Hành động của khách (ai_finding_action):',
-    noFindings: 'Không có finding nào.',
+    customerActionLine: 'Hành động của khách:',
+    noFindings: 'Không có phát hiện nào.',
     saving: 'Đang lưu…',
     saved: 'Đã lưu',
     saveFailed: 'Lưu thất bại',
@@ -86,10 +86,10 @@ export const orderReviewPageMessages = defineMessages({
     rejectModalHint:
       'Khách sẽ nhận thông báo kèm lý do. Đơn chuyển sang REJECTED.',
     infoModalHint:
-      'Đơn quay lại trạng thái cần chỉnh sửa (decision NEED_INFO).',
+      'Đơn quay lại trạng thái cần chỉnh sửa (cần bổ sung thông tin).',
     reasonLabel: 'Lý do (bắt buộc)',
     reasonPlaceholder: 'Khách hàng sẽ nhìn thấy nội dung này',
-    reasonSavedHint: 'Lưu vào order_approval.reason',
+    reasonSavedHint: 'Được lưu cùng quyết định duyệt',
     reasonRequired: 'Lý do là bắt buộc',
     cancel: 'Huỷ',
     confirmReject: 'Xác nhận từ chối',
@@ -129,7 +129,7 @@ export const orderReviewPageMessages = defineMessages({
     locationLabel: 'Địa điểm',
     pickedMapLocation: 'Vị trí khách chọn trên bản đồ',
     centerCoords: 'Tọa độ tâm',
-    mediaPackage: 'Gói media yêu cầu',
+    mediaPackage: 'Gói ảnh/video yêu cầu',
     aiSummary: 'Tóm tắt yêu cầu (Hỗ trợ bởi AI)',
     customerRequestDetails: 'Yêu cầu thực hiện & bàn giao',
     customerEnteredInfo: 'Chi tiết yêu cầu',
@@ -159,7 +159,7 @@ export const orderReviewPageMessages = defineMessages({
       'Sau khi duyệt, hệ thống sẽ chuyển sang bước Lên lịch để thiết lập thời gian, gán nguồn lực và xác nhận thực hiện nhiệm vụ.',
     approveTitle: 'Duyệt đơn hàng?',
     approveHint:
-      'Hệ thống sẽ tạo mission và giữ manager trong luồng thiết lập.',
+      'Hệ thống sẽ tạo nhiệm vụ và giữ bạn trong luồng thiết lập.',
     approveChecklist: [
       'Tạo nhiệm vụ tự động',
       'Sao chép khu vực',

@@ -9,7 +9,7 @@ export const readinessHelpersMessages = defineMessages({
       PENDING: 'Chưa xét',
     },
     recommendation: {
-      COMPLETE_REVIEW: 'Hoàn tất các mục manager cần xác nhận',
+      COMPLETE_REVIEW: 'Hoàn tất các mục quản lý cần xác nhận',
       REQUEST_INFO_OR_REJECT:
         'Có tiêu chí bắt buộc không đạt: yêu cầu bổ sung hoặc từ chối',
       APPROVE_WITH_NOTES: 'Có thể duyệt, nhưng cần liên hệ xác minh',

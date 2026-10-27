@@ -4,10 +4,10 @@ export const missionResultReviewReadinessMessages = defineMessages({
   vi: {
     reasons: {
       MEDIA_APPROVAL_REQUIRED:
-        'Cần duyệt toàn bộ media trước khi duyệt kết quả.',
-      MEDIA_REJECTED: 'Media bị từ chối. Cần bổ sung bằng chứng phù hợp.',
+        'Cần duyệt toàn bộ ảnh/video trước khi duyệt kết quả.',
+      MEDIA_REJECTED: 'Ảnh/video bị từ chối. Cần bổ sung bằng chứng phù hợp.',
       MEDIA_NOT_VALIDATED:
-        'Media đang được kiểm tra. Vui lòng chờ trước khi duyệt kết quả.',
+        'Ảnh/video đang được kiểm tra. Vui lòng chờ trước khi duyệt kết quả.',
       INSUFFICIENT_EVIDENCE:
         'Danh mục kiểm tra chưa đủ bằng chứng. Cần bổ sung trước khi duyệt kết quả.',
       EXECUTION_NOT_TERMINAL:
@@ -21,7 +21,7 @@ export const missionResultReviewReadinessMessages = defineMessages({
       EVIDENCE_SOURCE_NOT_ELIGIBLE:
         'Bằng chứng chưa phù hợp. Cần bổ sung ảnh/video phù hợp.',
       EVIDENCE_TYPE_NOT_ELIGIBLE:
-        'Loại media chưa phù hợp. Cần bổ sung ảnh/video đúng loại yêu cầu.',
+        'Loại ảnh/video chưa phù hợp. Cần bổ sung ảnh/video đúng loại yêu cầu.',
     },
     checking: 'Đang kiểm tra điều kiện duyệt…',
     unknown: 'Chưa xác nhận được điều kiện duyệt. Vui lòng tải lại danh mục kiểm tra.',
@@ -33,7 +33,7 @@ export const missionResultReviewReadinessMessages = defineMessages({
     forbidden: 'Bạn không có quyền duyệt kết quả này.',
     notPending: 'Kết quả không còn chờ duyệt. Vui lòng tải lại.',
     checklistNotReadyError:
-      'Danh mục kiểm tra hoặc media chưa sẵn sàng. Vui lòng kiểm tra lại trước khi duyệt kết quả.',
+      'Danh mục kiểm tra hoặc ảnh/video chưa sẵn sàng. Vui lòng kiểm tra lại trước khi duyệt kết quả.',
     missionStatusChanged:
       'Trạng thái nhiệm vụ đã thay đổi. Vui lòng tải lại kết quả.',
     concurrentUpdate:

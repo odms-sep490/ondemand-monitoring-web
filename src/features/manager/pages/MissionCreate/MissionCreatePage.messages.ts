@@ -9,7 +9,7 @@ export const missionCreatePageMessages = defineMessages({
     customerLabel: 'Khách hàng',
     locationLabel: 'Địa điểm',
     radiusLabel: 'Bán kính giám sát',
-    mediaLabel: 'Yêu cầu media',
+    mediaLabel: 'Yêu cầu ảnh/video',
     durationLabel: (text: string) => `Thời lượng dự kiến: ${text}`,
     durationHours: (h: number, m: number) =>
       h > 0 ? (m > 0 ? `${h} giờ ${m} phút` : `${h} giờ`) : `${m} phút`,

@@ -87,8 +87,9 @@
   }
 
   /* Events: filled blocks, colour comes from the status tone class. */
+  /* Solid, theme-independent fills: white text keeps >= 4.5:1 in light and dark. */
   .fc-event {
-    --ev-bg: #64748b;
+    --ev-bg: #475569;
     --ev-fg: #fff;
 
     padding: 2px 4px;
@@ -101,11 +102,11 @@
   }
 
   .fc-event.cal-tone-info {
-    --ev-bg: var(--cal-primary);
+    --ev-bg: #1565e8;
   }
 
   .fc-event.cal-tone-success {
-    --ev-bg: #16a34a;
+    --ev-bg: #15803d;
   }
 
   .fc-event.cal-tone-warning {
@@ -114,11 +115,11 @@
   }
 
   .fc-event.cal-tone-danger {
-    --ev-bg: #dc2626;
+    --ev-bg: #b91c1c;
   }
 
   .fc-event.cal-tone-neutral {
-    --ev-bg: #64748b;
+    --ev-bg: #475569;
   }
 
   .fc-event.is-selected {

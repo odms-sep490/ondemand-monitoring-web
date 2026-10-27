@@ -147,7 +147,7 @@ describe('Manager Mission Detail monitoring review', () => {
   it('opens the media section without changing the active route', async () => {
     render(<MissionDetailPage missionId="m" />)
     const link = await screen.findByRole('button', {
-      name: 'Xem thư viện media',
+      name: 'Xem thư viện ảnh/video',
     })
     const route = window.location.hash
     fireEvent.click(link)
@@ -155,7 +155,7 @@ describe('Manager Mission Detail monitoring review', () => {
       'aria-selected',
       'true',
     )
-    expect(screen.getByRole('region', { name: 'Thư viện media' })).toBeVisible()
+    expect(screen.getByRole('region', { name: 'Thư viện ảnh/video' })).toBeVisible()
     expect(window.location.hash).toBe(route)
   })
   it('renders per-item historical outcomes read-only', async () => {
@@ -177,7 +177,7 @@ describe('Manager Mission Detail monitoring review', () => {
     )
     expect(
       screen.getByRole('application', {
-        name: 'Bản đồ vệ tinh mission',
+        name: 'Bản đồ vệ tinh nhiệm vụ',
       }),
     ).toBeInTheDocument()
     expect(screen.getByText(/ĐIỂM GIÁM SÁT/)).toBeInTheDocument()

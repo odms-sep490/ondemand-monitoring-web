@@ -27,7 +27,7 @@ export function DroneCard({ drone, onChangeStatus }: Props) {
           <span className="mgr-code" title={drone.serialNumber}>
             {drone.serialNumber}
           </span>
-          <span className="mgr-cell-sub">{drone.name || t.unnamed}</span>
+          {drone.name ? <span className="mgr-cell-sub">{drone.name}</span> : null}
         </div>
       </div>
       <div className="mgr-drone-card-status">

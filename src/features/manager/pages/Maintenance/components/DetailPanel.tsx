@@ -5,7 +5,7 @@ import type { ReactNode } from 'react'
 import { CardComponent } from '../../../../../shared/components/antd'
 import { useI18n } from '../../../../../shared/i18n'
 import { mgrPopupContainer } from '../../../components/common/mgrPopupContainer'
-import { formatTicketDescription, formatTicketTitle } from '../../../lib/ticketText'
+import { formatIssueType, formatTicketDescription, formatTicketTitle } from '../../../lib/ticketText'
 import type { MaintenanceTicket } from '../../../types/maintenance'
 import { maintenancePageMessages } from '../MaintenancePage.messages'
 import { TicketSeverityTag, TicketStatusTag } from './TicketTags'
@@ -29,6 +29,11 @@ function Fact({ label, children }: { label: string; children: ReactNode }) {
 export function DetailPanel({ ticket, onClose, onAssignClick }: DetailPanelProps) {
   const { t, locale } = useI18n(maintenancePageMessages)
   const open = ticket.status === 'OPEN' || ticket.status === 'IN_PROGRESS'
+  // The API reuses the long description as the title; lead with the issue type instead of repeating it.
+  const heading =
+    ticket.issueType && ticket.title === ticket.description
+      ? formatIssueType(ticket.issueType)
+      : formatTicketTitle(ticket.title)
   return (
     <Drawer
       open
@@ -50,7 +55,7 @@ export function DetailPanel({ ticket, onClose, onAssignClick }: DetailPanelProps
     >
       <div className="mgr-ticket-stack">
         <div>
-          <h2 className="mgr-ticket-heading">{formatTicketTitle(ticket.title)}</h2>
+          <h2 className="mgr-ticket-heading">{heading}</h2>
           <div className="mgr-ticket-tags">
             <TicketStatusTag status={ticket.status} />
             <TicketSeverityTag severity={ticket.priority} />
@@ -62,7 +67,7 @@ export function DetailPanel({ ticket, onClose, onAssignClick }: DetailPanelProps
             <Fact label={t.detail.device}>
               <b>{ticket.droneCode}</b>
             </Fact>
-            {ticket.issueType ? <Fact label={t.detail.issueType}>{ticket.issueType}</Fact> : null}
+            {ticket.issueType ? <Fact label={t.detail.issueType}>{formatIssueType(ticket.issueType)}</Fact> : null}
             {ticket.reportedBy ? <Fact label={t.detail.reportedBy}>{ticket.reportedBy}</Fact> : null}
             <Fact label={t.detail.assignedOperator}>
               {ticket.assignedTo ? (

@@ -1,3 +1,4 @@
+import { CloseOutlined } from '@ant-design/icons'
 import { StaffRoleIcon } from './StaffRoleIcon'
 import type { Mission } from '../../../mission/types/mission'
 import { OrderIcon } from './OrderIcon'
@@ -165,7 +166,7 @@ export function DispatchStaffStep({
                       }
                       aria-label={`${t.clearStaff} ${staff.fullName}`}
                     >
-                      ×
+                      <CloseOutlined aria-hidden="true" />
                     </button>
                   </span>
                 )

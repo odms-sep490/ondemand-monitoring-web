@@ -79,11 +79,11 @@ export function MissionResultReviewCard({
   ]
   return (
     <section
-      className="odm-or-card odm-result-review"
+      className="odm-or-card mgr-result-review"
       aria-labelledby={headingId}
     >
-      <div className="odm-result-review-summary">
-        <header className="odm-result-review-heading">
+      <div className="mgr-result-review-summary">
+        <header className="mgr-result-review-heading">
           <h2 id={headingId}>{t.heading}</h2>
           {matchingResult && (
             <div className="odm-or-result-line">
@@ -102,7 +102,7 @@ export function MissionResultReviewCard({
         </header>
         {matchingResult ? (
           <>
-            <dl className="odm-result-review-metrics">
+            <dl className="mgr-result-review-metrics">
               <div>
                 <dt>{t.submittedAt}</dt>
                 <dd>
@@ -125,20 +125,20 @@ export function MissionResultReviewCard({
               </div>
             </dl>
             {(matchingResult.summary || matchingResult.notes) && (
-              <p className="odm-result-review-description">
+              <p className="mgr-result-review-description">
                 {matchingResult.summary || matchingResult.notes}
               </p>
             )}
           </>
         ) : (
-          <p className="odm-result-review-empty">
+          <p className="mgr-result-review-empty">
             {t.noResult}
           </p>
         )}
       </div>
       {pending && (
         <section
-          className="odm-result-review-readiness"
+          className="mgr-result-review-readiness"
           aria-label={t.readinessAria}
         >
           <h3>{t.readinessTitle}</h3>
@@ -146,7 +146,7 @@ export function MissionResultReviewCard({
             {conditions.map((condition) => (
               <li key={condition.label} className={`is-${condition.tone}`}>
                 <span
-                  className="odm-result-review-condition-icon"
+                  className="mgr-result-review-condition-icon"
                   aria-hidden="true"
                 >
                   <OrderIcon
@@ -167,13 +167,13 @@ export function MissionResultReviewCard({
           {readiness.reason && (
             <p
               id={reasonId}
-              className="odm-result-review-warning"
+              className="mgr-result-review-warning"
               role="status"
             >
               {readiness.reason}
             </p>
           )}
-          <div className="odm-result-review-media-helper">
+          <div className="mgr-result-review-media-helper">
             <span>{t.reviewMediaSeparately}</span>
             {onViewMedia && (
               <button type="button" onClick={onViewMedia}>
@@ -186,10 +186,10 @@ export function MissionResultReviewCard({
         </section>
       )}
       {matchingResult && (
-        <div className="odm-result-review-action-section">
+        <div className="mgr-result-review-action-section">
           {matchingResult.approvalStatus === 'REJECTED' &&
             matchingResult.reviewNote && (
-              <div className="odm-result-review-recorded-note">
+              <div className="mgr-result-review-recorded-note">
                 <strong>{t.rejectReason}</strong>
                 <p>{matchingResult.reviewNote}</p>
               </div>

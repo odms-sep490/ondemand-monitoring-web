@@ -10,8 +10,8 @@ export const maintenancePageMessages = defineMessages({
     card: {
       operatorLabel: 'Người vận hành: ',
       unassigned: 'Chưa phân công',
-      changeOperator: 'Đổi người vận hành hệ thống',
-      assignOperator: 'Phân công người vận hành hệ thống',
+      changeOperator: 'Đổi người',
+      assignOperator: 'Phân công',
       resolved: 'Đã được khắc phục xong',
     },
     detail: {
@@ -52,7 +52,7 @@ export const maintenancePageMessages = defineMessages({
       urgentStat: 'Khẩn cấp',
       resolvedStat: 'Đã hoàn tất',
       searchPlaceholder:
-        'Tìm theo Mã phiếu, Mã Drone, Tiêu đề hoặc người vận hành...',
+        'Tìm mã phiếu, drone, tiêu đề…',
       priorityLabel: 'Mức độ:',
       priorityAll: 'Tất cả mức độ',
       assignedLabel: 'Phân công:',

@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react'
 
-import { StateView } from '../../shared/components/odm/StateView'
+import { FileSearchOutlined } from '@ant-design/icons'
+import { Button } from 'antd'
+
+import { CardComponent } from '../../shared/components/antd'
 import { useApiQuery } from '../../shared/hooks/useApiQuery'
 import { managerApi } from './api/dashboardApi'
 import { ManagerLayout } from './ManagerLayout'
@@ -16,9 +19,9 @@ import { OrderQueuePage } from './pages/OrderQueue'
 import { SchedulePage } from './pages/Schedule'
 import { StaffSupportDashboardPage } from '../support/pages/StaffSupportDashboardPage'
 import { managerHref, parseManagerRoute, type ManagerRoute } from './routes'
-import { Button } from '../../shared/components/ui'
 import { useI18n } from '../../shared/i18n'
 import { managerLayoutMessages } from './ManagerLayout.messages'
+import { EmptyState } from './components/common/EmptyState'
 import { ManagerErrorBoundary } from './components/common/ManagerErrorBoundary'
 
 function useHash(): string {
@@ -122,18 +125,19 @@ function renderScreen(
 
   // route.screen === 'notFound'
   return (
-    <StateView
-      state="empty"
-      title={notFound.title}
-      description={notFound.description}
-      action={
-        <Button
-          variant="primary"
-          href={managerHref({ screen: 'dashboard' })}
-        >
-          {notFound.back}
-        </Button>
-      }
-    />
+    <div className="mgr-view">
+      <CardComponent>
+        <EmptyState
+          icon={<FileSearchOutlined />}
+          title={notFound.title}
+          description={notFound.description}
+          action={
+            <Button type="primary" href={managerHref({ screen: 'dashboard' })}>
+              {notFound.back}
+            </Button>
+          }
+        />
+      </CardComponent>
+    </div>
   )
 }

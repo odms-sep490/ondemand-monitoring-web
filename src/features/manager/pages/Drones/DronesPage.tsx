@@ -81,7 +81,21 @@ export function DronesPage({ droneId: _droneId }: DronesPageProps) {
 
   return (
     <div className="mgr-view mgr-drones">
-      <PageHeader title={t.title} description={ready ? t.subtitle(allDrones.length) : undefined} />
+      <PageHeader
+        title={t.title}
+        description={ready ? t.subtitle(allDrones.length) : undefined}
+        actions={
+          <Segmented<ViewMode>
+            aria-label={t.view.aria}
+            value={view}
+            onChange={setView}
+            options={[
+              { value: 'grid', icon: <AppstoreOutlined />, label: t.view.grid },
+              { value: 'table', icon: <TableOutlined />, label: t.view.table },
+            ]}
+          />
+        }
+      />
 
       {ready ? <DronesKpis counts={counts} /> : null}
 
@@ -100,17 +114,6 @@ export function DronesPage({ droneId: _droneId }: DronesPageProps) {
           placeholder: t.searchPlaceholder,
           ariaLabel: t.searchAria,
         }}
-        end={
-          <Segmented<ViewMode>
-            aria-label={t.view.aria}
-            value={view}
-            onChange={setView}
-            options={[
-              { value: 'grid', icon: <AppstoreOutlined />, label: t.view.grid },
-              { value: 'table', icon: <TableOutlined />, label: t.view.table },
-            ]}
-          />
-        }
       />
 
       {query.loading && <DronesSkeleton />}

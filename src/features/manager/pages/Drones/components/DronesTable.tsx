@@ -23,7 +23,7 @@ export function DronesTable({ visible, total, onChangeStatus }: Props) {
       render: (_, drone) => (
         <span className="mgr-cell-stack">
           <span className="mgr-code">{drone.serialNumber}</span>
-          <span className="mgr-cell-sub">{drone.name || t.unnamed}</span>
+          {drone.name ? <span className="mgr-cell-sub">{drone.name}</span> : null}
         </span>
       ),
     },

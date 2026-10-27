@@ -54,9 +54,9 @@ export function TicketTable({ rows, total, selectedId, onSelect, onAssign }: Pro
       responsive: ['lg'],
       render: (_, ticket) =>
         ticket.assignedTo ? (
-          <span>{ticket.assignedTo}</span>
+          <span className="mgr-op-cell">{ticket.assignedTo}</span>
         ) : (
-          <span className="mgr-cell-sub">{t.card.unassigned}</span>
+          <span className="mgr-cell-sub mgr-op-cell">{t.card.unassigned}</span>
         ),
     },
     {

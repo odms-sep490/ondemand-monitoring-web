@@ -5,13 +5,6 @@
 
 /* ---------- Shared page header bits (queue, error states) ---------- */
 
-.odm-mgr-dash {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-
 /* ---------- MNG-02 Queue ---------- */
 
 /* ---------- MNG-03 Order review ---------- */
@@ -1452,94 +1445,6 @@
 
 /* ---------- Mission list (odm-or-*) ---------- */
 
-.odm-or-filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.odm-or-filter {
-  height: 34px;
-  padding: 0 14px;
-  border: 1px solid var(--or-border);
-  border-radius: 999px;
-  background: var(--or-card);
-  color: var(--or-tx2);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.odm-or-filter:hover {
-  border-color: var(--or-primary);
-  color: var(--or-primary);
-}
-
-.odm-or-filter.is-active {
-  background: var(--or-primary);
-  border-color: var(--or-primary);
-  color: #fff;
-}
-
-.odm-or-icon-btn {
-  width: 30px;
-  height: 30px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--or-border);
-  border-radius: 8px;
-  background: var(--or-card);
-  color: var(--or-tx2);
-  cursor: pointer;
-}
-
-.odm-or-icon-btn:hover {
-  color: var(--or-tx);
-  background: var(--or-tile);
-}
-
-.odm-or-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13.5px;
-}
-
-.odm-or-table th {
-  padding: 12px 16px;
-  text-align: left;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--or-tx2);
-  background: var(--or-tile);
-  border-bottom: 1px solid var(--or-border);
-  white-space: nowrap;
-}
-
-.odm-or-table td {
-  padding: 13px 16px;
-  border-bottom: 1px solid var(--or-border);
-  color: var(--or-tx2);
-  vertical-align: middle;
-}
-
-.odm-or-table tbody tr {
-  cursor: pointer;
-}
-
-.odm-or-table tbody tr:last-child td {
-  border-bottom: 0;
-}
-
-.odm-or-table tbody tr:hover {
-  background: var(--or-tile);
-}
-
-.odm-or-table tbody tr.is-selected {
-  background: var(--or-primary-soft);
-}
-
 /* Anchors styled as buttons must keep their own text colour */
 
 /* Mission list — redesigned side panel & table actions */
@@ -1840,15 +1745,6 @@
   font-size: 11px;
 }
 
-.odm-or-table-action {
-  text-align: right;
-  white-space: nowrap;
-}
-
-.odm-or-table td {
-  white-space: nowrap;
-}
-
 /* Mission list — fit within viewport when the detail panel is open */
 .odm-or {
   max-width: 100%;
@@ -1856,30 +1752,7 @@
   overflow-x: clip;
 }
 
-.odm-or-table td.odm-or-table-action {
-  padding-right: 14px;
-}
-
 /* Mission detail page + list "view" actions */
-.odm-or-back {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  width: fit-content;
-  margin-bottom: 4px;
-  color: var(--or-primary);
-  font-size: 13.5px;
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.odm-or-back svg {
-  transform: rotate(180deg);
-}
-
-.odm-or-back:hover {
-  text-decoration: underline;
-}
 
 .odm-or-subtitle.is-muted {
   font-style: italic;
@@ -3907,60 +3780,3 @@ fieldset.odm-or-readonly {
 
 /* ---------- Drones and Maintenance (shared list-page pattern) ---------- */
 
-.odm-or-stats {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
-}
-
-@media (max-width: 900px) {
-  .odm-or-stats {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-.odm-or-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
-}
-
-.odm-or-toolbar-search {
-  flex: 1 1 260px;
-  max-width: 380px;
-  height: 38px;
-}
-
-.odm-or-table-static tbody tr {
-  cursor: default;
-}
-
-.odm-or-cell-main {
-  color: var(--or-tx);
-  font-weight: 600;
-}
-
-.odm-or-cell-sub {
-  margin-top: 2px;
-  color: var(--or-tx2);
-  font-size: 12px;
-}
-
-.odm-or-modal-stack {
-  display: grid;
-  gap: 14px;
-}
-
-.odm-or-modal-note {
-  margin: 0;
-  color: var(--or-tx2);
-  font-size: 13px;
-}
-
-.odm-or-load-error-code {
-  display: block;
-  margin-top: 8px;
-  color: var(--or-tx3);
-  font-size: 11px;
-}

@@ -83,6 +83,8 @@ export function MissionSatelliteMap({
       zoomControl: true,
       attributionControl: true,
     }).setView(initialCenter, target ? 16 : 11)
+    // The route/target chips sit in the top corners; keep the zoom buttons clear of them.
+    instance.zoomControl.setPosition('bottomright')
 
     L.tileLayer(
       'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',

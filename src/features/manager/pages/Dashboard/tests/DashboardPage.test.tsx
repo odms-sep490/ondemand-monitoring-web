@@ -100,7 +100,7 @@ describe('DashboardPage', () => {
   it('shows a skeleton before rendering actionable data', async () => {
     vi.spyOn(managerApi, 'getDashboard').mockResolvedValue(sampleData)
     render(<DashboardPage />)
-    expect(screen.getByText('Đang tải dashboard…')).toBeInTheDocument()
+    expect(screen.getByText('Đang tải bảng điều khiển…')).toBeInTheDocument()
     expect(await screen.findByRole('heading', { name: 'Bảng điều khiển quản lý' })).toBeInTheDocument()
     expect(screen.getByText('Dịch vụ bổ sung chờ duyệt giá')).toBeInTheDocument()
   })
@@ -132,7 +132,7 @@ describe('DashboardPage', () => {
     render(<DashboardPage />)
     await screen.findByRole('heading', { name: 'Bảng điều khiển quản lý' })
     expect(screen.getByText(/Chưa phân công/)).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Pipeline báo giá' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Tiến trình báo giá' })).toBeInTheDocument()
     expect(screen.getByText('Đặt cọc cho ORD-2026-00124 đã thành công')).toBeInTheDocument()
   })
 
@@ -141,7 +141,7 @@ describe('DashboardPage', () => {
       .mockRejectedValueOnce(new ApiError('Lỗi', { status: 500, method: 'GET', path: '/api/manager/dashboard' }))
       .mockResolvedValueOnce(sampleData)
     render(<DashboardPage />)
-    expect(await screen.findByText('Không thể tải dữ liệu dashboard.')).toBeInTheDocument()
+    expect(await screen.findByText('Không thể tải dữ liệu bảng điều khiển.')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Thử lại' }))
     await waitFor(() => expect(getDashboard).toHaveBeenCalledTimes(2))
     expect(await screen.findByRole('heading', { name: 'Bảng điều khiển quản lý' })).toBeInTheDocument()
