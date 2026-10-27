@@ -46,16 +46,20 @@ export function QuoteSummary({
   data: PricingReview
 }) {
   const { t } = useI18n(pricingMessages)
+  const policyVersion =
+    data.systemCalculation?.policyVersion ??
+    data.currentQuote?.pricingPolicyVersion ??
+    null
   return (
     <aside className="odm-or-card finance-quote" aria-label={t.summaryAria}>
       <header className="finance-heading finance-quote-heading">
         <h2>{t.summaryTitle}</h2>
-        <span className="finance-policy-pill">
-          {t.policyVersion}
-          {data.systemCalculation?.policyVersion ??
-            data.currentQuote?.pricingPolicyVersion ??
-            '—'}
-        </span>
+        {policyVersion != null ? (
+          <span className="finance-policy-pill">
+            {t.policyVersion}
+            {policyVersion}
+          </span>
+        ) : null}
       </header>
       <div className="finance-quote-body">
         <div className="finance-quote-content">

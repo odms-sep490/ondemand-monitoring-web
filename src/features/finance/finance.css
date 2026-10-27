@@ -1130,3 +1130,228 @@
 .finance-quote .finance-summary .is-total dd {
   color: var(--ui-primary-text);
 }
+
+/* ---------- Manager skin: theme tokens (light + dark) ----------
+   Scoped to .mgr-layout so the customer finance screens keep their own look. */
+.finance-panel {
+  container-type: inline-size;
+}
+
+.mgr-layout .finance-workspace {
+  --fin-blue-bg: color-mix(in srgb, #1565e8 12%, var(--mgr-card));
+  --fin-blue-fg: #1565e8;
+  --fin-amber-bg: color-mix(in srgb, #f59e0b 16%, var(--mgr-card));
+  --fin-amber-fg: #b45309;
+  --fin-green-bg: color-mix(in srgb, #16a34a 14%, var(--mgr-card));
+  --fin-green-fg: #15803d;
+  --fin-red-fg: #b42318;
+}
+
+:root[data-theme='dark'] .mgr-layout .finance-workspace {
+  --fin-blue-bg: color-mix(in srgb, #3b82f6 20%, var(--mgr-card));
+  --fin-blue-fg: #93c5fd;
+  --fin-amber-bg: color-mix(in srgb, #f59e0b 20%, var(--mgr-card));
+  --fin-amber-fg: #fcd34d;
+  --fin-green-bg: color-mix(in srgb, #22c55e 18%, var(--mgr-card));
+  --fin-green-fg: #86efac;
+  --fin-red-fg: #fca5a5;
+}
+
+.mgr-layout .finance-workspace {
+  --or-tx: var(--mgr-text);
+  --or-tx2: var(--mgr-muted);
+  --or-border: var(--mgr-border);
+  --tx1: var(--mgr-text);
+  --tx2: var(--mgr-muted);
+  --tx3: var(--mgr-muted);
+  --sf1: var(--mgr-card);
+}
+
+.mgr-layout .finance-workspace .finance-panel label,
+.mgr-layout .finance-workspace .finance-quote-note,
+.mgr-layout .finance-workspace .finance-quote-note em {
+  color: var(--mgr-muted);
+}
+
+.mgr-layout .finance-workspace :is(input, select, textarea) {
+  border-color: var(--mgr-border);
+  background: var(--mgr-card-2);
+  color: var(--mgr-text);
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] .mgr-layout .finance-workspace :is(input, select, textarea) {
+  color-scheme: dark;
+}
+
+.mgr-layout .finance-workspace .finance-quote-note textarea {
+  border-color: var(--mgr-border);
+  background: var(--mgr-card-2);
+  color: var(--mgr-text);
+}
+
+.mgr-layout .finance-workspace .finance-quote-note textarea::placeholder,
+.mgr-layout .finance-workspace .finance-quote-note small {
+  color: var(--mgr-muted);
+}
+
+.mgr-layout .finance-workspace .finance-quote-note textarea:focus {
+  border-color: var(--fin-blue-fg);
+  outline: 2px solid color-mix(in srgb, var(--fin-blue-fg) 25%, transparent);
+}
+
+.mgr-layout .finance-workspace .finance-progress-track {
+  background: var(--mgr-border);
+}
+
+.mgr-layout .finance-workspace .finance-progress-track span {
+  background: var(--fin-blue-fg);
+}
+
+/* progress row stays a single wrapping row at every width (was a vertical bar on phones) */
+.mgr-layout .finance-workspace .finance-review-progress {
+  flex-direction: row;
+  align-items: center;
+}
+
+.mgr-layout .finance-workspace .finance-progress-track {
+  flex: 1 1 120px;
+  align-self: center;
+  width: auto;
+  height: 6px;
+}
+
+.mgr-layout .finance-workspace .finance-filter {
+  background: var(--mgr-card-2);
+  color: var(--mgr-muted);
+}
+
+.mgr-layout .finance-workspace .finance-filter.is-on,
+.mgr-layout .finance-workspace .finance-index {
+  background: var(--fin-blue-bg);
+  color: var(--fin-blue-fg);
+}
+
+.mgr-layout .finance-workspace .finance-review-warning.is-pending,
+.mgr-layout .finance-workspace .finance-review-badge.is-quote-pending,
+.mgr-layout .finance-workspace .finance-requirement.is-additional .finance-review-badge {
+  background: var(--fin-amber-bg);
+  color: var(--fin-amber-fg);
+}
+
+.mgr-layout .finance-workspace .finance-review-warning.is-complete,
+.mgr-layout .finance-workspace .finance-review-badge:not(.is-pending):not(.is-quote-pending) {
+  background: var(--fin-green-bg);
+  color: var(--fin-green-fg);
+}
+
+.mgr-layout .finance-workspace .finance-requirement.is-additional .finance-review-badge {
+  background: var(--fin-amber-bg);
+  color: var(--fin-amber-fg);
+}
+
+.mgr-layout .finance-workspace .finance-review-badge.is-pending {
+  background: var(--mgr-card-2);
+  color: var(--mgr-muted);
+}
+
+.mgr-layout .finance-workspace .finance-requirement.is-additional .finance-index,
+.mgr-layout .finance-workspace .finance-requirement.is-additional .finance-status-select select {
+  background: var(--fin-amber-bg);
+  color: var(--fin-amber-fg);
+}
+
+.mgr-layout .finance-workspace .finance-requirement.is-included .finance-status-select select {
+  background: var(--fin-green-bg);
+  color: var(--fin-green-fg);
+}
+
+.mgr-layout .finance-workspace .finance-table-head,
+.mgr-layout .finance-workspace .finance-requirement {
+  border-color: var(--mgr-border);
+}
+
+.mgr-layout .finance-workspace .finance-table-head {
+  color: var(--mgr-muted);
+}
+
+.mgr-layout .finance-workspace .finance-requirement:hover,
+.mgr-layout .finance-workspace .finance-chevron:hover {
+  background: var(--mgr-card-2);
+}
+
+.mgr-layout .finance-workspace .finance-chevron {
+  color: var(--mgr-muted);
+}
+
+.mgr-layout .finance-workspace .finance-item-price .finance-range.is-out {
+  color: var(--fin-red-fg);
+}
+
+.mgr-layout .finance-workspace .finance-status {
+  background: var(--mgr-card-2);
+  color: var(--mgr-muted);
+}
+
+.mgr-layout .finance-workspace .finance-quote .finance-summary .is-total dd {
+  color: var(--fin-blue-fg);
+}
+
+.mgr-layout .finance-workspace .finance-quote .finance-summary .is-total {
+  background: var(--fin-blue-bg);
+}
+
+.mgr-layout .finance-workspace .finance-block-hint {
+  background: var(--fin-blue-bg);
+  color: var(--mgr-text);
+}
+
+.mgr-layout .finance-workspace .finance-policy-pill {
+  background: var(--fin-blue-bg);
+  color: var(--fin-blue-fg);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mgr-layout .finance-workspace .finance-breakdown-group {
+  border-color: var(--mgr-border);
+  background: var(--mgr-card);
+}
+
+.mgr-layout .finance-workspace .finance-breakdown-group > header {
+  background: var(--mgr-card-2);
+}
+
+.mgr-layout .finance-workspace .finance-quote .finance-actions .odm-btn-p {
+  border-color: var(--fin-blue-fg);
+  background: var(--fin-blue-bg);
+  color: var(--fin-blue-fg);
+}
+
+.mgr-layout .finance-workspace .finance-summary dd.is-up {
+  color: var(--fin-amber-fg);
+}
+
+.mgr-layout .finance-workspace .finance-summary dd.is-down {
+  color: var(--fin-green-fg);
+}
+
+.mgr-layout .finance-workspace .finance-alert.is-error {
+  background: color-mix(in srgb, #ef4444 14%, var(--mgr-card));
+  color: var(--fin-red-fg);
+}
+
+.mgr-layout .finance-workspace .finance-alert.is-success {
+  background: var(--fin-green-bg);
+  color: var(--fin-green-fg);
+}
+
+/* quote table: never clip, scroll as a last resort */
+.finance-checklist {
+  overflow-x: auto;
+}
+
+.mgr-layout .finance-workspace .finance-heading > :first-child {
+  min-width: 0;
+}

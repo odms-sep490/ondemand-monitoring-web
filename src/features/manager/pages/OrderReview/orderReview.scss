@@ -111,3 +111,141 @@
     }
   }
 }
+
+/* ---------- Area check + area review dialog: theme-aware (light + dark) ---------- */
+:root .mgr-layout {
+  .odm-or-area-decision {
+    border-color: color-mix(in srgb, #16a34a 35%, var(--mgr-border));
+    background: color-mix(in srgb, #16a34a 12%, var(--mgr-card));
+    color: #166534;
+
+    &.is-needs_review {
+      border-color: color-mix(in srgb, #f59e0b 40%, var(--mgr-border));
+      background: color-mix(in srgb, #f59e0b 14%, var(--mgr-card));
+      color: #92400e;
+    }
+
+    &.is-high_risk {
+      border-color: color-mix(in srgb, #ef4444 38%, var(--mgr-border));
+      background: color-mix(in srgb, #ef4444 12%, var(--mgr-card));
+      color: #991b1b;
+    }
+  }
+
+  .odm-or-area-findings li.is-high,
+  .odm-or-area-error {
+    color: #b91c1c;
+  }
+
+  .odm-or-area-findings li.is-warning {
+    color: #a16207;
+  }
+
+  .odm-or-area-zone-link {
+    border-color: color-mix(in srgb, #ef4444 38%, var(--mgr-border));
+    background: var(--mgr-card);
+    color: #b91c1c;
+
+    &:hover {
+      background: color-mix(in srgb, #ef4444 10%, var(--mgr-card));
+    }
+  }
+
+  .odm-or-area-modal {
+    background: var(--mgr-card);
+    color: var(--mgr-text);
+    border: 1px solid var(--mgr-border);
+  }
+
+  .odm-or-area-modal header > button {
+    display: inline-grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    align-self: flex-start;
+    border: 1px solid var(--mgr-border);
+    border-radius: 8px;
+    color: var(--mgr-muted);
+    font-size: 18px;
+    line-height: 1;
+
+    &:hover {
+      background: var(--mgr-card-2);
+      color: var(--mgr-text);
+    }
+  }
+
+  .odm-or-area-modal-context {
+    background: var(--mgr-card-2);
+  }
+
+  .odm-or-area-review-options label {
+    border-color: var(--mgr-border);
+
+    &.is-selected {
+      border-color: #1565e8;
+      background: color-mix(in srgb, #1565e8 10%, var(--mgr-card));
+    }
+
+    input {
+      accent-color: #1565e8;
+    }
+  }
+
+  .odm-or-area-field select,
+  .odm-or-area-field textarea {
+    border-color: var(--mgr-border);
+    background: var(--mgr-card-2);
+    color: var(--mgr-text);
+    color-scheme: light;
+  }
+
+  .odm-or-map-overlay,
+  .odm-or-map-badge {
+    background: color-mix(in srgb, var(--mgr-card) 92%, transparent);
+    border-color: var(--mgr-border);
+    color: var(--mgr-text);
+  }
+
+  .odm-or-map-badge {
+    color: #b91c1c;
+  }
+
+  .odm-or-gps-badge {
+    color: var(--mgr-text);
+  }
+
+  .odm-or-map-overlay-line.is-muted {
+    color: var(--mgr-muted);
+  }
+}
+
+:root[data-theme='dark'] .mgr-layout {
+  .odm-or-area-decision {
+    color: #86efac;
+
+    &.is-needs_review {
+      color: #fcd34d;
+    }
+
+    &.is-high_risk {
+      color: #fca5a5;
+    }
+  }
+
+  .odm-or-area-findings li.is-high,
+  .odm-or-area-error,
+  .odm-or-area-zone-link,
+  .odm-or-map-badge {
+    color: #fca5a5;
+  }
+
+  .odm-or-area-findings li.is-warning {
+    color: #fcd34d;
+  }
+
+  .odm-or-area-field select,
+  .odm-or-area-field textarea {
+    color-scheme: dark;
+  }
+}

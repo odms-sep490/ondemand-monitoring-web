@@ -67,7 +67,7 @@ export function ActionListCard({ items, generatedAt }: { items: ActionItem[]; ge
                         {[item.orderCode ?? item.code, formatAge(item.createdAt, generatedAt, locale, t.age.now)].filter(Boolean).join(' · ')}
                       </div>
                     </div>
-                    <Button size="small" type="primary" href={managerHref(actionItemRoute(item))}>
+                    <Button size="small" href={managerHref(actionItemRoute(item))}>
                       {item.actionType ? a[item.actionType] : a.view}
                     </Button>
                   </li>

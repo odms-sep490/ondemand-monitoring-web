@@ -323,7 +323,7 @@ export function MissionGridCard({
             <span className="odm-mcard-replacement-tag">{t.replacementTag}</span>
           )}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div className="odm-mcard-inline">
           <StatusBadge tone={toUiTone(missionStatusTone[mission.status] ?? 'gray')}>
             {missionStatusLabel[mission.status] ?? mission.status}
           </StatusBadge>
@@ -387,7 +387,7 @@ export function MissionGridCard({
         </div>
         <div className="odm-mcard-checklist-list">
           {assignedChecklists.length === 0 ? (
-            <p className="odm-mission-meta" style={{ fontStyle: 'italic', margin: 0 }}>
+            <p className="odm-mission-meta odm-mcard-note">
               {t.workEmpty}
             </p>
           ) : (
@@ -447,8 +447,7 @@ export function MissionGridCard({
                 aria-label={t.staffRoleAria}
                 value={selectedStaffRole}
                 onChange={(e) => setSelectedStaffRole(e.target.value as MissionStaffRole)}
-                className="odm-input odm-input-sm"
-                style={{ flex: 1 }}
+                className="odm-input odm-input-sm odm-mcard-grow-1"
               >
                 {ROLES.map((r) => (
                   <option key={r} value={r}>
@@ -463,8 +462,7 @@ export function MissionGridCard({
                 aria-label={t.staffAvailableAria}
                 value={selectedStaffId}
                 onChange={(e) => setSelectedStaffId(e.target.value)}
-                className="odm-input odm-input-sm"
-                style={{ flex: 2 }}
+                className="odm-input odm-input-sm odm-mcard-grow-2"
                 disabled={loadingStaff || busy || availableOperators.length === 0}
               >
                 {loadingStaff ? (
@@ -511,7 +509,7 @@ export function MissionGridCard({
 
         <div className="odm-mcard-res-list">
           {currentStaff.length === 0 ? (
-            <p className="odm-mission-meta" style={{ fontStyle: 'italic', margin: 0 }}>
+            <p className="odm-mission-meta odm-mcard-note">
               {t.staffEmpty}
             </p>
           ) : (
@@ -574,8 +572,7 @@ export function MissionGridCard({
                 aria-label={t.deviceRoleAria}
                 value={selectedDeviceRole}
                 onChange={(e) => setSelectedDeviceRole(e.target.value)}
-                className="odm-input odm-input-sm"
-                style={{ flex: 1 }}
+                className="odm-input odm-input-sm odm-mcard-grow-1"
               >
                 <option value="MAIN">{t.deviceMain}</option>
                 <option value="SUPPORT">{t.deviceSupport}</option>
@@ -584,8 +581,7 @@ export function MissionGridCard({
                 aria-label={t.deviceAvailableAria}
                 value={selectedDeviceId}
                 onChange={(e) => setSelectedDeviceId(e.target.value)}
-                className="odm-input odm-input-sm"
-                style={{ flex: 2 }}
+                className="odm-input odm-input-sm odm-mcard-grow-2"
                 disabled={loadingDevices || busy || availableDrones.length === 0}
               >
                 {loadingDevices ? (
@@ -631,7 +627,7 @@ export function MissionGridCard({
 
         <div className="odm-mcard-res-list">
           {currentDevices.length === 0 ? (
-            <p className="odm-mission-meta" style={{ fontStyle: 'italic', margin: 0 }}>
+            <p className="odm-mission-meta odm-mcard-note">
               {t.deviceEmpty}
             </p>
           ) : (
@@ -666,8 +662,7 @@ export function MissionGridCard({
         <div className="odm-mcard-footer">
           <button
             type="button"
-            className="odm-btn odm-btn-danger-soft"
-            style={{ width: '100%', justifyContent: 'center' }}
+            className="odm-btn odm-btn-danger-soft odm-mcard-block-btn"
             onClick={handleCancelMission}
             disabled={busy}
           >
@@ -680,8 +675,7 @@ export function MissionGridCard({
         <div className="odm-mcard-footer">
           <button
             type="button"
-            className="odm-btn odm-btn-p"
-            style={{ width: '100%', justifyContent: 'center' }}
+            className="odm-btn odm-btn-p odm-mcard-block-btn"
             onClick={() => onFinalizeReplacement(mission)}
             disabled={busy}
           >
@@ -691,15 +685,14 @@ export function MissionGridCard({
       )}
 
       {isCancelled && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div className="odm-mcard-stack">
           <div className="odm-mcard-cancelled-note">
             <strong>{t.cancelledPrefix}</strong> {mission.failureReason || mission.rejectionReason || t.cancelledDefault}
           </div>
           { !disabled && onReplaceMission ? (
             <button
               type="button"
-              className="odm-btn odm-btn-p"
-              style={{ width: '100%', justifyContent: 'center' }}
+              className="odm-btn odm-btn-p odm-mcard-block-btn"
               onClick={() => onReplaceMission(mission)}
               disabled={busy}
             >

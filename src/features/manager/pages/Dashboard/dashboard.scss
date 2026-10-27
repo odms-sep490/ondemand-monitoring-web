@@ -197,6 +197,16 @@
     }
   }
 
+  /* compact empty states so placeholder cards stay short */
+  .ant-empty {
+    margin: 4px 0;
+
+    .ant-empty-image {
+      height: 32px;
+      margin-bottom: 4px;
+    }
+  }
+
   .mgr-filter-row {
     display: flex;
     flex-wrap: wrap;
@@ -379,6 +389,30 @@
 
     .mgr-kpi-grid {
       gap: 10px;
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  .mgr-layout .mgr-dash {
+    .mgr-hero {
+      padding: 18px 16px;
+    }
+
+    .mgr-hero-title {
+      font-size: 22px;
+    }
+
+    .mgr-hero-side {
+      width: 100%;
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px 10px;
+    }
+
+    .mgr-hero-updated {
+      flex-basis: 100%;
     }
   }
 }

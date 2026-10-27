@@ -36,7 +36,7 @@ export function QueueKpis({ pending, ready, needsInfo, waitingDeposit }: Props) 
         icon={<FormOutlined />}
         title={t.kpis.needsInfo}
         value={show(needsInfo)}
-        hint={t.kpis.needsInfoHint}
+        hint={needsInfo === null ? undefined : t.kpis.needsInfoHint}
       />
       <StatisticComponent
         index={2}
@@ -44,7 +44,7 @@ export function QueueKpis({ pending, ready, needsInfo, waitingDeposit }: Props) 
         icon={<ClockCircleOutlined />}
         title={t.kpis.waitingDeposit}
         value={show(waitingDeposit)}
-        hint={t.kpis.waitingDepositHint}
+        hint={waitingDeposit === null ? undefined : t.kpis.waitingDepositHint}
       />
       <StatisticComponent
         index={3}

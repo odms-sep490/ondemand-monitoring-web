@@ -81,32 +81,31 @@ export function MasterChecklistSidebar({
           placeholder={t.searchPlaceholder}
           value={filterQuery}
           onChange={(e) => setFilterQuery(e.target.value)}
-          className="odm-input odm-input-sm"
-          style={{ width: '100%', boxSizing: 'border-box' }}
+          className="odm-input odm-input-sm odm-master-search"
         />
       )}
 
       {/* Row Block 1: Checklist đã được assign */}
       <div className="odm-checklist-block">
         <div className="odm-checklist-block-head">
-          <span style={{ color: '#059669' }}>
+          <span className="odm-master-head is-ok">
             {t.assigned(assignedItems.length, items.length)}
           </span>
         </div>
         <div className="odm-checklist-card-list">
           {filteredAssigned.length === 0 ? (
-            <p className="odm-mission-meta" style={{ fontStyle: 'italic', margin: '4px 0' }}>
+            <p className="odm-mission-meta odm-master-note">
               {t.assignedEmpty}
             </p>
           ) : (
             filteredAssigned.map((item) => (
               <div key={item.id} className="odm-master-item-card is-assigned">
-                <span style={{ fontWeight: 600 }}>{item.content}</span>
+                <span className="odm-master-name">{item.content}</span>
                 {item.description && (
-                  <span style={{ fontSize: 12, color: 'var(--tx3)' }}>{item.description}</span>
+                  <span className="odm-master-desc">{item.description}</span>
                 )}
                 <div className="odm-master-item-meta">
-                  <span className="odm-mcard-sec-badge" style={{ background: '#d1fae5', color: '#065f46' }}>
+                  <span className="odm-mcard-sec-badge is-assigned">
                     {item.missionCode}
                   </span>
                   <span>• {item.sourceType === 'CUSTOMER_CUSTOM' ? t.customer : t.standard}</span>
@@ -120,21 +119,21 @@ export function MasterChecklistSidebar({
       {/* Row Block 2: Checklist chưa được assign */}
       <div className="odm-checklist-block">
         <div className="odm-checklist-block-head">
-          <span style={{ color: unassignedItems.length > 0 ? '#d97706' : '#6b7280' }}>
+          <span className={`odm-master-head ${unassignedItems.length > 0 ? 'is-warn' : 'is-idle'}`}>
             {t.unassigned(unassignedItems.length)}
           </span>
         </div>
         <div className="odm-checklist-card-list">
           {filteredUnassigned.length === 0 ? (
-            <p className="odm-mission-meta" style={{ fontStyle: 'italic', margin: '4px 0', color: '#10b981' }}>
+            <p className="odm-mission-meta odm-master-note is-ok">
               {t.unassignedEmpty}
             </p>
           ) : (
             filteredUnassigned.map((item) => (
               <div key={item.id} className="odm-master-item-card is-unassigned">
-                <span style={{ fontWeight: 600 }}>{item.content}</span>
+                <span className="odm-master-name">{item.content}</span>
                 {item.description && (
-                  <span style={{ fontSize: 12, color: 'var(--tx3)' }}>{item.description}</span>
+                  <span className="odm-master-desc">{item.description}</span>
                 )}
                 <div className="odm-master-item-meta">
                   <span>{t.order(item.displayOrder)}</span>

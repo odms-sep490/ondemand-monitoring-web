@@ -61,20 +61,24 @@
 .mgr-actions > * { width: 100%; justify-content: center; }
 
 /* Compact horizontal stepper */
-.mgr-stepper { display: flex; gap: var(--ui-space-1); list-style: none; margin: 0; padding: 0; overflow-x: auto; }
+/* Compact horizontal stepper: same look as the order workflow stepper (.odm-wf-*) */
+.mgr-stepper { display: flex; gap: 4px; list-style: none; margin: 0; padding: 0; overflow-x: auto; }
 .mgr-stepper li {
-  flex: 1 1 0; min-width: 110px; display: flex; align-items: center; gap: var(--ui-space-2);
-  padding: var(--ui-space-2) var(--ui-space-3); border-radius: var(--ui-radius-sm);
-  background: var(--ui-surface-2); color: var(--ui-text-3); font-size: 12px; font-weight: 600;
+  flex: 1 1 0; min-width: 120px; display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px; border-radius: 8px;
+  background: transparent; color: var(--mgr-muted, var(--ui-text-3)); font-size: 13px; font-weight: 600;
 }
 .mgr-stepper .mgr-step-dot {
-  flex: none; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center;
-  background: var(--ui-surface); border: 1px solid var(--ui-border-strong); font-size: 11px;
+  flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center;
+  background: transparent; border: 1.5px dashed var(--mgr-border, var(--ui-border-strong)); font-size: 12.5px; font-weight: 700;
 }
-.mgr-stepper li.is-done { color: var(--ui-success-text); }
-.mgr-stepper li.is-done .mgr-step-dot { background: var(--ui-success); border-color: var(--ui-success); color: var(--ui-on-primary); }
-.mgr-stepper li.is-current { background: var(--ui-primary-soft); color: var(--ui-primary-text); }
-.mgr-stepper li.is-current .mgr-step-dot { background: var(--ui-primary); border-color: var(--ui-primary); color: var(--ui-on-primary); }
+.mgr-stepper li.is-done { color: var(--mgr-text, var(--ui-text)); }
+.mgr-stepper li.is-done .mgr-step-dot { background: var(--ui-success); border: 0; color: var(--ui-on-primary); }
+.mgr-stepper li.is-current {
+  background: var(--ui-primary-soft); color: var(--mgr-text, var(--ui-primary-text));
+  box-shadow: inset 0 -3px 0 var(--ui-primary);
+}
+.mgr-stepper li.is-current .mgr-step-dot { background: var(--ui-primary); border: 0; color: var(--ui-on-primary); }
 
 .mgr-sk-stack { display: flex; flex-direction: column; gap: var(--ui-space-2); padding: var(--ui-space-4); }
 .mgr-header-actions { display: flex; align-items: center; gap: var(--ui-space-2); flex-wrap: wrap; }

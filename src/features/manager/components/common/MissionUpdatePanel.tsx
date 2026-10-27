@@ -1,4 +1,4 @@
-import { EditOutlined } from '@ant-design/icons'
+import { CloseOutlined, EditOutlined } from '@ant-design/icons'
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { missionsApi } from '../../api/missionsApi'
 import { customerApi } from '../../../customer/api/customerApi'
@@ -338,7 +338,7 @@ export function MissionUpdatePanel({
                 title={tu.closeTitle}
                 onClick={closeForm}
               >
-                ×
+                <CloseOutlined aria-hidden="true" />
               </button>
             </header>
 

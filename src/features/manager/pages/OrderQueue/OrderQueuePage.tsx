@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 
-import { Alert, Button, Skeleton } from 'antd'
+import { Button, Skeleton } from 'antd'
 import { ReloadOutlined, RocketOutlined } from '@ant-design/icons'
 
 import { CardComponent } from '../../../../shared/components/antd'
@@ -147,7 +147,7 @@ export function OrderQueuePage() {
   const rows = source.filter((order) => matchesSearch(order, search))
 
   const missionsLink = (
-    <Button type="primary" icon={<RocketOutlined aria-hidden="true" />} href={managerHref({ screen: 'missions' })}>
+    <Button icon={<RocketOutlined aria-hidden="true" />} href={managerHref({ screen: 'missions' })}>
       {t.viewMissions}
     </Button>
   )
@@ -160,7 +160,7 @@ export function OrderQueuePage() {
       </CardComponent>
     )
   } else if (activeTab === 'all' && allQuery.error) {
-    body = <Alert type="error" showIcon role="alert" message={t.allLoadError} />
+    body = <ErrorState title={t.allLoadError} error={allQuery.error} onRetry={allQuery.reload} />
   } else if (rows.length === 0) {
     const empty =
       search.trim() && source.length > 0

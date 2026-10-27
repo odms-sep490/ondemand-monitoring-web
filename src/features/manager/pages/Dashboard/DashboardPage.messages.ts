@@ -40,6 +40,10 @@ export const dashboardPageMessages = defineMessages({
       VIEW_QUOTE: 'Xem báo giá',
       VIEW_MISSION: 'Xem nhiệm vụ',
       types: {
+        ORDER_PENDING: 'Đơn chờ duyệt',
+        MISSION_UNASSIGNED: 'Nhiệm vụ chưa phân công',
+        MEDIA_ACTION: 'Tư liệu cần xử lý',
+        MISSION_FLYING: 'Nhiệm vụ đang bay',
         ADDITIONAL_CHECKLIST_PRICING: 'Duyệt giá bổ sung',
         MAINTENANCE_TICKET: 'Bảo trì',
       } as Record<string, string>,
@@ -145,6 +149,10 @@ export const dashboardPageMessages = defineMessages({
       VIEW_QUOTE: 'View quote',
       VIEW_MISSION: 'View mission',
       types: {
+        ORDER_PENDING: 'Orders pending review',
+        MISSION_UNASSIGNED: 'Unassigned missions',
+        MEDIA_ACTION: 'Media needing action',
+        MISSION_FLYING: 'Missions in flight',
         ADDITIONAL_CHECKLIST_PRICING: 'Additional pricing',
         MAINTENANCE_TICKET: 'Maintenance',
       } as Record<string, string>,

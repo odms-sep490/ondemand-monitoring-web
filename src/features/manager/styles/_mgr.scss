@@ -400,7 +400,8 @@ $tones: (
   }
 }
 
-:root[data-theme='dark'] .mgr-layout .mgr-status-tag {
+:root[data-theme='dark'] .mgr-layout .mgr-status-tag,
+:root[data-theme='dark'] .mgr-layout .mgr-chip {
   filter: brightness(1.45) saturate(1.2);
 }
 
@@ -444,6 +445,37 @@ $tones: (
 
     .mgr-filter-bar-search {
       max-width: none;
+    }
+
+    .mgr-filter-bar-seg .ant-space-compact {
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .mgr-filter-bar-seg .ant-space-compact > .ant-btn {
+      border-radius: 8px;
+    }
+
+    .mgr-atable .ant-table-thead > tr > th,
+    .mgr-atable .ant-table-tbody > tr > td {
+      padding: 10px 8px;
+    }
+
+    .mgr-atable .ant-table-thead > tr > th {
+      white-space: nowrap;
+    }
+
+    .mgr-atable .mgr-cust {
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .mgr-atable .mgr-cust-avatar {
+      display: none;
+    }
+
+    .mgr-atable .ant-table-container {
+      overflow-x: auto;
     }
 
     .mgr-filter-bar-end {
