@@ -34,7 +34,7 @@ export function MissionChecklistSelectionCard({
         <div className="odm-checklist-title-wrap">
           <span className="odm-or-card-title">
             <OrderIcon name="check" size={18} />
-            Hạng mục kiểm tra của Mission (Checklist) *
+            Hạng mục kiểm tra của nhiệm vụ *
           </span>
           <span className="odm-checklist-count-badge">
             Đã chọn {selectedIds.length}/{items.length} mục
@@ -54,7 +54,7 @@ export function MissionChecklistSelectionCard({
               type="button"
               className="odm-btn odm-btn-sm odm-btn-highlight"
               onClick={onSelectUncovered}
-              title="Chỉ chọn các mục chưa gán cho Mission nào"
+              title="Chỉ chọn các mục chưa gán cho nhiệm vụ nào"
             >
               Chọn các mục chưa gán
             </button>
@@ -75,7 +75,7 @@ export function MissionChecklistSelectionCard({
       <div className="odm-or-card-body odm-checklist-selection-body">
         {items.length === 0 ? (
           <div className="odm-checklist-empty-note">
-            <p>Đơn hàng này chưa có danh mục checklist nào từ hệ thống.</p>
+            <p>Đơn hàng này chưa có danh mục kiểm tra nào từ hệ thống.</p>
           </div>
         ) : (
           <div className="odm-checklist-items-grid">

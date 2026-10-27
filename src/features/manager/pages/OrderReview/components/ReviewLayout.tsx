@@ -29,16 +29,18 @@ export function ReviewLayout({
   return (
     <ReviewActionsSlot.Provider value={slot}>
       <div className={`mgr-detail-grid${wide ? ' is-wide' : ''}`}>
-        <div className="mgr-detail-main">{children}</div>
+        <div className="mgr-detail-main">
+          {children}
+          {wide ? null : (
+            <div className="mgr-detail-extra">
+              <OrderCustomerCard order={order} t={t} />
+              <OrderAttachmentsCard order={order} t={t} />
+            </div>
+          )}
+        </div>
         <aside className="mgr-detail-side">
           <OrderSummaryCard order={order} />
           <div ref={setSlot} className="mgr-actions-slot" />
-          {wide ? null : (
-            <>
-              <OrderCustomerCard order={order} t={t} />
-              <OrderAttachmentsCard order={order} t={t} />
-            </>
-          )}
         </aside>
       </div>
     </ReviewActionsSlot.Provider>

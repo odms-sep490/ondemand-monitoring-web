@@ -1,6 +1,7 @@
 import { Button } from 'antd'
 
 import { useI18n } from '../../../../../shared/i18n'
+import { displayOrderCode } from '../../../../../shared/lib/orderCode'
 import { ErrorState } from '../../../components/common/ErrorState'
 import { PageHeader } from '../../../components/common/PageHeader'
 import { managerHref } from '../../../routes'
@@ -19,7 +20,7 @@ export function ReviewLoadError({
       <PageHeader
         crumb={<a href={managerHref({ screen: 'orderQueue' })}>{t.breadcrumb}</a>}
         title={t.pageTitle}
-        description={orderId}
+        description={displayOrderCode(null, orderId)}
       />
       <ErrorState
         title={t.loadError}

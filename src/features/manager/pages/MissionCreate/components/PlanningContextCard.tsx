@@ -36,7 +36,7 @@ export function PlanningContextCard({
   return (
     <section
       className="odm-or-card odm-plan-create"
-      aria-label="Mission planning context"
+      aria-label={planningT.contextAria}
     >
       {!onCreated && (
         <PlanningHeader

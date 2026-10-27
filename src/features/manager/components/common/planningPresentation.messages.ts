@@ -2,6 +2,7 @@ import { defineMessages } from '../../../../shared/i18n'
 
 export const planningPresentationMessages = defineMessages({
   vi: {
+    contextAria: 'Bối cảnh lập kế hoạch nhiệm vụ',
     title: 'Kế hoạch thực thi',
     draftBadge: 'Đang lập kế hoạch',
     finalizedBadge: 'Đã chốt',
@@ -23,7 +24,7 @@ export const planningPresentationMessages = defineMessages({
     geography: 'Phạm vi địa lý',
     geographyOrder: 'Nhiệm vụ sẽ sử dụng phạm vi địa lý hiện có của đơn hàng.',
     geographyCustom:
-      'Hiện chưa hỗ trợ chọn target point/area riêng cho từng nhiệm vụ.',
+      'Hiện chưa hỗ trợ chọn điểm hoặc vùng mục tiêu riêng cho từng nhiệm vụ.',
     geographyChecklist: 'Bạn sẽ phân công danh mục kiểm tra cho nhiệm vụ sau khi tạo.',
     retry: 'Tải lại kế hoạch',
     finalized: 'Kế hoạch đã chốt. Có thể tạo nhiệm vụ thay thế và chốt riêng nhiệm vụ đó.',
@@ -34,6 +35,7 @@ export const planningPresentationMessages = defineMessages({
       'Bắt đầu bằng một nhiệm vụ, sau đó phân công danh mục kiểm tra và tài nguyên thực thi.',
   },
   en: {
+    contextAria: 'Mission planning context',
     title: 'Order execution plan',
     draftBadge: 'Planning',
     finalizedBadge: 'Finalized',

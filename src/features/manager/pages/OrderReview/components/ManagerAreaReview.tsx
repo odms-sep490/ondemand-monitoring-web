@@ -131,7 +131,7 @@ export function ManagerAreaReview({
           <>
             <p>{t.noReview}</p>
             {decided ? null : (
-              <Button type="button" variant="primary" onClick={onEdit}>
+              <Button type="button" onClick={onEdit}>
                 {t.reviewArea}
               </Button>
             )}

@@ -249,3 +249,92 @@
     color-scheme: dark;
   }
 }
+
+/* ---------- Request details, area heading, copy button, disabled primary ---------- */
+:root .mgr-layout {
+  /* flat sections inside the request card (no card-in-card); odd last one spans the row */
+  .odm-or-req-section {
+    padding: 14px 0 0;
+    border: 0;
+    border-top: 1px solid var(--mgr-border);
+    border-radius: 0;
+    background: transparent;
+
+    h4 {
+      font-size: 15px;
+    }
+
+    &:last-child:nth-child(odd) {
+      grid-column: 1 / -1;
+    }
+  }
+
+  .odm-or-req-section-grid {
+    gap: 4px 28px;
+  }
+
+  .odm-or-svc-tile {
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .odm-or-svc-tile-text {
+    min-width: 0;
+  }
+
+  .odm-or-svc-coords {
+    flex-wrap: wrap;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .odm-or-area-check-head {
+    padding: 16px 20px;
+    border: 1px solid var(--mgr-border);
+    border-radius: var(--mgr-radius);
+    background: var(--mgr-card);
+    box-shadow: var(--mgr-shadow);
+
+    h2 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--mgr-text);
+    }
+
+    p {
+      color: var(--mgr-muted);
+      font-size: 13.5px;
+    }
+  }
+}
+
+:root[data-theme='dark'] .mgr-layout .ui-btn.is-primary.is-disabled,
+:root[data-theme='dark'] .mgr-layout .ui-btn.is-primary:disabled {
+  opacity: 1;
+  background: color-mix(in srgb, #3b82f6 26%, var(--mgr-card));
+  border-color: color-mix(in srgb, #3b82f6 40%, var(--mgr-border));
+  color: #cbd5e1;
+}
+
+/* Themed radios in the area review dialog */
+:root .mgr-layout .odm-or-area-review-options input[type='radio'] {
+  appearance: none;
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin: 2px 0 0;
+  border: 2px solid var(--mgr-border);
+  border-radius: 50%;
+  background: var(--mgr-card-2);
+  cursor: pointer;
+
+  &:checked {
+    border-color: #1565e8;
+    background: radial-gradient(circle, #1565e8 0 42%, transparent 46%), var(--mgr-card-2);
+  }
+
+  &:focus-visible {
+    outline: 2px solid #1565e8;
+    outline-offset: 2px;
+  }
+}
