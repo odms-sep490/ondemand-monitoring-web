@@ -14,6 +14,11 @@ export const STATUS_TONE = {
 } as const
 
 export const STATUS_LABEL: Record<string, string> = {
+  PLANNING: 'Đang lập kế hoạch',
+  CREATED: 'Đã tạo Mission',
+  WAITING_DEPOSIT: 'Chờ xác nhận đặt cọc',
+  READY: 'Sẵn sàng phân công',
+  RESOURCE_ASSIGNING: 'Đang phân công nguồn lực',
   WAITING_CREW_CONFIRMATION: 'Chờ các thành viên xác nhận',
   WAITING_OPERATOR_ACCEPTANCE: 'Chờ người vận hành xác nhận',
   SCHEDULED: 'Đã bắt đầu Mission',

@@ -146,7 +146,11 @@ function operatorStatus(status: string): OperatorMissionStatus {
   if (status === 'FAILED' || status === 'CANCELLED') return 'FAILED'
   if (status === 'RESOURCE_ASSIGNING') return 'REJECTED'
   const remainingStatuses = [
+    'PLANNING',
     'CREATED',
+    'WAITING_DEPOSIT',
+    'READY',
+    'RESOURCE_ASSIGNING',
     'SCHEDULED',
     'CONNECTED',
     'PREFLIGHT_CHECKING',
@@ -169,6 +173,7 @@ function operatorStatusForAssignment(
       : operatorStatus(status)
   }
   if (responseStatus === 'REJECTED') return 'REJECTED'
+  if (responseStatus === 'PENDING' && status === 'READY') return 'PENDING'
   return operatorStatus(status)
 }
 

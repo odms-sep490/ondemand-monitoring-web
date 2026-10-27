@@ -80,6 +80,16 @@ export type Mission = MissionStopMetadata & {
   operatorAssignmentId: string | null
   scheduledStartAt: string | null
   scheduledEndAt: string | null
+  orderPreferredDateFrom?: string | null
+  orderPreferredDateTo?: string | null
+  orderPreferredTimeName?: string | null
+  orderPreferredTimeStart?: string | null
+  orderPreferredTimeEnd?: string | null
+  orderWeatherFallback?: 'AUTO_RESCHEDULE' | 'CONTACT_CUSTOMER' | 'CANCEL_ORDER' | null
+  lastRescheduleReason?: MissionRescheduleReason | null
+  lastRescheduleNote?: string | null
+  lastRescheduledAt?: string | null
+  scheduleRevision?: number
   addressText: string | null
   centerLat: number | null
   centerLon: number | null
@@ -105,10 +115,22 @@ export type MissionCalendarItem = Mission & {
   staffAssignments?: MissionStaffAssignmentResponse[]
 }
 
-/** Body of `PATCH /api/missions/{id}/schedule` [ĐỀ XUẤT]. */
+export type MissionRescheduleReason =
+  | 'WEATHER_UNSAFE'
+  | 'FLIGHT_PERMISSION_DELAY'
+  | 'RESOURCE_UNAVAILABLE'
+  | 'EQUIPMENT_ISSUE'
+  | 'SITE_ACCESS_BLOCKED'
+  | 'CUSTOMER_REQUEST'
+  | 'OTHER'
+
+/** Body of `PATCH /api/missions/{id}/schedule` [BE]. */
 export type PatchScheduleRequest = {
-  scheduledStart: string
-  scheduledEnd: string
+  scheduledStartAt: string
+  scheduledEndAt: string
+  reason: MissionRescheduleReason
+  note?: string
+  customerConfirmed: boolean
 }
 
 /** Active incident, returned inside `GET /api/missions/{id}/live` [ĐỀ XUẤT]. */
@@ -331,9 +353,13 @@ export type MissionResponse = MissionStopMetadata & {
   orderId: string
   orderCode?: string | null
   orderTitle: string
+  scopeLabel?: string | null
   orderPreferredDateFrom?: string | null
   orderPreferredDateTo?: string | null
   orderPreferredTimeName?: string | null
+  orderPreferredTimeStart?: string | null
+  orderPreferredTimeEnd?: string | null
+  orderWeatherFallback?: 'AUTO_RESCHEDULE' | 'CONTACT_CUSTOMER' | 'CANCEL_ORDER' | null
   serviceName?: string | null
   customerName: string
   missionCode: string
@@ -356,6 +382,10 @@ export type MissionResponse = MissionStopMetadata & {
   address: string | null
   scheduledStartAt: string | null
   scheduledEndAt?: string | null
+  lastRescheduleReason?: MissionRescheduleReason | null
+  lastRescheduleNote?: string | null
+  lastRescheduledAt?: string | null
+  scheduleRevision?: number
   startedAt: string | null
   completedAt: string | null
   actualStartAt?: string | null

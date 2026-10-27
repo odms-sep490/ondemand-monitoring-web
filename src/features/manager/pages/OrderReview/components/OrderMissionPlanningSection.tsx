@@ -32,8 +32,6 @@ export type PlanningWorkflowInfo = {
   }>
 }
 
-const PLANNING_RUNTIME_POLL_MS = 5_000
-
 export function OrderMissionPlanningSection({
   orderId,
   initialOrder,

@@ -193,8 +193,10 @@ describe('missionsApi.patchSchedule', () => {
   it('updates the mission schedule', async () => {
     setHttpTransport(mockFetch)
     const updated = await missionsApi.patchSchedule('msn-2609-0153-1', {
-      scheduledStart: '2026-09-26T10:00:00+07:00',
-      scheduledEnd: '2026-09-26T11:30:00+07:00',
+      scheduledStartAt: '2026-09-26T10:00:00+07:00',
+      scheduledEndAt: '2026-09-26T11:30:00+07:00',
+      reason: 'WEATHER_UNSAFE',
+      customerConfirmed: false,
     })
     expect(updated.scheduledStartAt).toBe('2026-09-26T10:00:00+07:00')
   })
@@ -203,8 +205,10 @@ describe('missionsApi.patchSchedule', () => {
     setHttpTransport(mockFetch)
     await expect(
       missionsApi.patchSchedule('msn-2609-0153-1', {
-        scheduledStart: '',
-        scheduledEnd: '',
+        scheduledStartAt: '',
+        scheduledEndAt: '',
+        reason: 'WEATHER_UNSAFE',
+        customerConfirmed: false,
       }),
     ).rejects.toBeInstanceOf(ApiError)
   })

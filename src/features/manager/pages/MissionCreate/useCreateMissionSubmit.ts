@@ -25,7 +25,6 @@ export function useCreateMissionSubmit({
   scheduledStart,
   scheduledEnd,
   t,
-  planRevision,
   onCreated,
   setNavigateTo,
   setPlanRevision,

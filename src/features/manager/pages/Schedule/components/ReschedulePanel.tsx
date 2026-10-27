@@ -1,4 +1,4 @@
-import type { MissionCalendarItem } from '../../../types/missions'
+import type { MissionCalendarItem, MissionRescheduleReason } from '../../../types/missions'
 import type { PageMessages } from '../scheduleTypes'
 import { missionStatusTone } from '../../../../../shared/lib/statusTone'
 import { useState } from 'react'
@@ -6,7 +6,6 @@ import { missionsApi } from '../../../api/missionsApi'
 import { ApiError } from '../../../../../shared/api/httpClient'
 import { StatusBadge } from '../../../../../shared/components/odm/StatusBadge'
 import { managerHref } from '../../../routes'
-import { env } from '../../../../../config/env'
 
 // ── ReschedulePanel ────────────────────────────────────────────────────────
 
@@ -16,6 +15,14 @@ export type ReschedulePanelProps = {
   onRescheduled: (updated: MissionCalendarItem) => void
   t: PageMessages
   locale: 'vi-VN' | 'en-US'
+}
+
+function toLocalDateTimeInput(value: string | null | undefined) {
+  if (!value) return ''
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return ''
+  const offset = date.getTimezoneOffset() * 60_000
+  return new Date(date.getTime() - offset).toISOString().slice(0, 16)
 }
 
 export function ReschedulePanel({
@@ -29,13 +36,24 @@ export function ReschedulePanel({
 
   const [reschedule, setReschedule] = useState(false)
   const [newStart, setNewStart] = useState(
-    mission.scheduledStartAt?.slice(0, 16) ?? '',
+    toLocalDateTimeInput(mission.scheduledStartAt),
   )
   const [newEnd, setNewEnd] = useState(
-    mission.scheduledEndAt?.slice(0, 16) ?? '',
+    toLocalDateTimeInput(mission.scheduledEndAt),
   )
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
+  const [reason, setReason] = useState<MissionRescheduleReason>('WEATHER_UNSAFE')
+  const [note, setNote] = useState('')
+  const [customerConfirmed, setCustomerConfirmed] = useState(false)
+
+  const fallback = mission.orderWeatherFallback ?? 'CONTACT_CUSTOMER'
+  const rescheduleBlocked = fallback === 'CANCEL_ORDER'
+  const needsCustomerConfirmation = fallback === 'CONTACT_CUSTOMER'
+  const runtimeStarted = Boolean(
+    ['CONNECTED', 'PREFLIGHT_CHECKING', 'READY_TO_FLY', 'IN_FLIGHT', 'IN_PROGRESS', 'RETURNING', 'POSTFLIGHT_CHECKING', 'PENDING_REVIEW', 'COMPLETED', 'FAILED', 'CANCELLED']
+      .includes(mission.status),
+  )
 
   const handleSave = async () => {
     if (!newStart || !newEnd) {
@@ -46,12 +64,23 @@ export function ReschedulePanel({
       setSaveError(t.validationOrder)
       return
     }
+    if (needsCustomerConfirmation && !customerConfirmed) {
+      setSaveError(t.customerConfirmationRequired)
+      return
+    }
+    if (rescheduleBlocked) {
+      setSaveError(t.cancelPolicyMessage)
+      return
+    }
     setSaving(true)
     setSaveError(null)
     try {
       const updated = await missionsApi.patchSchedule(mission.id, {
-        scheduledStart: newStart + ':00+07:00',
-        scheduledEnd: newEnd + ':00+07:00',
+        scheduledStartAt: new Date(newStart).toISOString(),
+        scheduledEndAt: new Date(newEnd).toISOString(),
+        reason,
+        note: note.trim() || undefined,
+        customerConfirmed,
       })
       onRescheduled({ ...mission, ...updated })
     } catch (err) {
@@ -154,7 +183,31 @@ export function ReschedulePanel({
             <dd>{mission.addressText}</dd>
           </>
         )}
+        <dt>{t.customerWindow}</dt>
+        <dd>
+          {mission.orderPreferredDateFrom ?? '—'} → {mission.orderPreferredDateTo ?? '—'}
+          {mission.orderPreferredTimeName ? ` · ${mission.orderPreferredTimeName}` : ''}
+        </dd>
+        <dt>{t.customerFallback}</dt>
+        <dd>{t.fallbackLabels[fallback]}</dd>
       </dl>
+
+      {mission.lastRescheduledAt && (
+        <div className="odm-card" style={{ margin: '0 16px 12px', padding: 12, fontSize: 12 }}>
+          <strong>{t.lastReschedule}</strong>
+          <div style={{ marginTop: 4, color: 'var(--tx2)' }}>
+            {new Date(mission.lastRescheduledAt).toLocaleString(locale)}
+            {mission.lastRescheduleReason ? ` · ${t.reasonLabels[mission.lastRescheduleReason]}` : ''}
+          </div>
+          {mission.lastRescheduleNote && <div style={{ marginTop: 4 }}>{mission.lastRescheduleNote}</div>}
+        </div>
+      )}
+
+      {(rescheduleBlocked || runtimeStarted) && (
+        <div role="alert" style={{ margin: '0 16px 12px', padding: 10, borderRadius: 8, background: 'var(--yellow-bg)', color: 'var(--yellow-fg)', fontSize: 12 }}>
+          {runtimeStarted ? t.runtimeStartedMessage : t.cancelPolicyMessage}
+        </div>
+      )}
 
       {/* Reschedule section */}
       {!reschedule ? (
@@ -162,12 +215,7 @@ export function ReschedulePanel({
           <button
             type="button"
             className="odm-btn"
-            disabled={!env.useMockApi && import.meta.env.MODE !== 'test'}
-            title={
-              !env.useMockApi && import.meta.env.MODE !== 'test'
-                ? t.backendNotSupported
-                : undefined
-            }
+            disabled={rescheduleBlocked || runtimeStarted}
             onClick={() => setReschedule(true)}
           >
             {t.reschedule}
@@ -186,6 +234,14 @@ export function ReschedulePanel({
             {t.rescheduleTitle}
           </div>
           <label style={{ fontSize: 12, color: 'var(--tx2)' }}>
+            {t.reason}
+            <select className="odm-inp" value={reason} onChange={(event) => setReason(event.target.value as MissionRescheduleReason)} style={{ display: 'block', marginTop: 4, width: '100%' }}>
+              {Object.entries(t.reasonLabels).map(([value, label]) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
+            </select>
+          </label>
+          <label style={{ fontSize: 12, color: 'var(--tx2)' }}>
             {t.start}
             <input
               type="datetime-local"
@@ -195,6 +251,16 @@ export function ReschedulePanel({
               style={{ display: 'block', marginTop: 4, width: '100%' }}
             />
           </label>
+          <label style={{ fontSize: 12, color: 'var(--tx2)' }}>
+            {t.note}
+            <textarea className="odm-inp" value={note} maxLength={1000} onChange={(event) => setNote(event.target.value)} style={{ display: 'block', marginTop: 4, width: '100%', minHeight: 70 }} />
+          </label>
+          {needsCustomerConfirmation && (
+            <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 12 }}>
+              <input type="checkbox" checked={customerConfirmed} onChange={(event) => setCustomerConfirmed(event.target.checked)} />
+              <span>{t.customerConfirmed}</span>
+            </label>
+          )}
           <label style={{ fontSize: 12, color: 'var(--tx2)' }}>
             {t.end}
             <input

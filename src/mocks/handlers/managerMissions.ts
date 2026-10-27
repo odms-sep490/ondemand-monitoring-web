@@ -113,6 +113,10 @@ function toMissionDto(m: StoredMission): Mission {
     operatorAssignmentId: m.operatorAssignmentId,
     scheduledStartAt: m.scheduledStartAt,
     scheduledEndAt: m.scheduledEndAt,
+    lastRescheduleReason: m.lastRescheduleReason ?? null,
+    lastRescheduleNote: m.lastRescheduleNote ?? null,
+    lastRescheduledAt: m.lastRescheduledAt ?? null,
+    scheduleRevision: m.scheduleRevision ?? 0,
     addressText: m.addressText,
     centerLat: m.centerLat,
     centerLon: m.centerLon,
@@ -241,7 +245,7 @@ registerMockRoutes([
     },
   },
 
-  // ── MNG-06: update mission schedule [ĐỀ XUẤT] ─────────────────────────
+  // ── MNG-06: update mission schedule ───────────────────────────────────
   {
     method: 'PATCH',
     path: '/api/missions/:id/schedule',
@@ -250,17 +254,21 @@ registerMockRoutes([
       if (!mission) return fail(404, 'NOT_FOUND', 'Không tìm thấy mission')
 
       const req = (body ?? {}) as {
-        scheduledStart?: string
-        scheduledEnd?: string
+        scheduledStartAt?: string
+        scheduledEndAt?: string
+        reason?: string
+        note?: string
+        customerConfirmed?: boolean
       }
-      if (!req.scheduledStart || !req.scheduledEnd) {
+      if (!req.scheduledStartAt || !req.scheduledEndAt || !req.reason) {
         return fail(
           400,
           'VALIDATION_ERROR',
-          'Thiếu scheduledStart hoặc scheduledEnd',
+          'Thiếu lịch mới hoặc lý do đổi lịch',
           {
-            scheduledStart: 'Bắt buộc',
-            scheduledEnd: 'Bắt buộc',
+            scheduledStartAt: 'Bắt buộc',
+            scheduledEndAt: 'Bắt buộc',
+            reason: 'Bắt buộc',
           },
         )
       }
@@ -280,7 +288,7 @@ registerMockRoutes([
           missionCode: m.missionCode,
         }))
         const conflict = hasScheduleConflict(
-          { start: req.scheduledStart, end: req.scheduledEnd },
+          { start: req.scheduledStartAt, end: req.scheduledEndAt },
           bookings,
         )
         if (conflict) {
@@ -292,8 +300,12 @@ registerMockRoutes([
         }
       }
 
-      mission.scheduledStartAt = req.scheduledStart
-      mission.scheduledEndAt = req.scheduledEnd
+      mission.scheduledStartAt = req.scheduledStartAt
+      mission.scheduledEndAt = req.scheduledEndAt
+      mission.lastRescheduleReason = req.reason as Mission['lastRescheduleReason']
+      mission.lastRescheduleNote = req.note ?? null
+      mission.lastRescheduledAt = new Date().toISOString()
+      mission.scheduleRevision = (mission.scheduleRevision ?? 0) + 1
       return ok(toMissionDto(mission), 'Đã cập nhật lịch bay')
     },
   },
