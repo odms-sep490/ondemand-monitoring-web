@@ -1,5 +1,6 @@
 import type { Dispatch, SetStateAction } from 'react'
 
+import { CardComponent } from '../../../../../shared/components/antd'
 import { useI18n } from '../../../../../shared/i18n'
 import type { TicketStatus } from '../../../../../shared/types/domain'
 import type { MaintenanceTicket } from '../../../types/maintenance'
@@ -16,11 +17,11 @@ type Props = {
   setAssignTicket: Dispatch<SetStateAction<MaintenanceTicket | null>>
 }
 
-/** Kanban columns (one per status) with the detail panel docked on the right. */
+/** One card holding four status columns (calendar-style); ticket details open in a drawer. */
 export function TicketBoard({ byColumn, selectedTicket, setSelectedTicket, setAssignTicket }: Props) {
   const { t } = useI18n(maintenancePageMessages)
   return (
-    <div className="mgr-maint-body">
+    <CardComponent className="mgr-maint-board-card">
       <div className="mgr-maint-board">
         {COLUMNS.map((col) => (
           <section key={col} className="mgr-maint-col">
@@ -52,6 +53,6 @@ export function TicketBoard({ byColumn, selectedTicket, setSelectedTicket, setAs
           onAssignClick={setAssignTicket}
         />
       )}
-    </div>
+    </CardComponent>
   )
 }

@@ -1,3 +1,4 @@
+import { ArrowLeftOutlined } from '@ant-design/icons'
 import { Button } from 'antd'
 
 import { useI18n } from '../../../../../shared/i18n'
@@ -18,7 +19,11 @@ export function ReviewLoadError({
   return (
     <div className="mgr-view">
       <PageHeader
-        crumb={<a href={managerHref({ screen: 'orderQueue' })}>{t.breadcrumb}</a>}
+        crumb={
+          <a href={managerHref({ screen: 'orderQueue' })}>
+            <ArrowLeftOutlined aria-hidden="true" /> {t.backToOrders}
+          </a>
+        }
         title={t.pageTitle}
         description={displayOrderCode(null, orderId)}
       />

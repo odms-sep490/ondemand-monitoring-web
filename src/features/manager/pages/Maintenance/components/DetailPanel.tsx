@@ -1,10 +1,10 @@
 import { CloseOutlined } from '@ant-design/icons'
-import { Button } from 'antd'
+import { Button, Drawer } from 'antd'
 
-import { CardComponent } from '../../../../../shared/components/antd'
 import { useI18n } from '../../../../../shared/i18n'
 import { formatIssueType, formatTicketDescription, formatTicketTitle } from '../../../lib/ticketText'
 import type { MaintenanceTicket } from '../../../types/maintenance'
+import { mgrPopupContainer } from '../../../components/common/mgrPopupContainer'
 import { maintenancePageMessages } from '../MaintenancePage.messages'
 import { TicketSeverityTag, TicketStatusTag } from './TicketTags'
 
@@ -14,7 +14,7 @@ export type DetailPanelProps = {
   onAssignClick: (ticket: MaintenanceTicket) => void
 }
 
-/** Ticket details docked beside the board, with the assign action and history below the facts. */
+/** Ticket details in a drawer over the board, with the assign action and history below the facts. */
 export function DetailPanel({ ticket, onClose, onAssignClick }: DetailPanelProps) {
   const { t, locale } = useI18n(maintenancePageMessages)
   const open = ticket.status === 'OPEN' || ticket.status === 'IN_PROGRESS'
@@ -24,18 +24,18 @@ export function DetailPanel({ ticket, onClose, onAssignClick }: DetailPanelProps
       ? formatIssueType(ticket.issueType)
       : formatTicketTitle(ticket.title)
   return (
-    <CardComponent className="mgr-ticket-panel" aria-label={ticket.code}>
-      <div className="mgr-ticket-panel-top">
-        <span className="mgr-code mgr-ticket-panel-code">{ticket.code}</span>
-        <Button
-          shape="circle"
-          size="small"
-          icon={<CloseOutlined />}
-          onClick={onClose}
-          aria-label={t.detail.close}
-        />
-      </div>
-
+    <Drawer
+      open
+      getContainer={mgrPopupContainer}
+      placement="right"
+      width="min(420px, 100vw)"
+      onClose={onClose}
+      className="mgr-ticket-drawer mgr-maint-drawer"
+      aria-label={ticket.code}
+      closeIcon={<CloseOutlined aria-label={t.detail.close} />}
+      title={<span className="mgr-code mgr-ticket-panel-code">{ticket.code}</span>}
+    >
+      <div className="mgr-ticket-panel">
       <h2 className="mgr-ticket-heading">{heading}</h2>
 
       <div className="mgr-ticket-tags">
@@ -102,6 +102,7 @@ export function DetailPanel({ ticket, onClose, onAssignClick }: DetailPanelProps
           </div>
         )}
       </div>
-    </CardComponent>
+      </div>
+    </Drawer>
   )
 }

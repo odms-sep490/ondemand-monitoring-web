@@ -78,13 +78,12 @@ export function MaintenancePage() {
       <PageHeader
         title={t.page.title}
         description={t.page.subtitle}
-        actions={
-          <MaintenanceStats
-            unassignedCount={unassignedCount}
-            urgentCount={urgentCount}
-            resolvedCount={resolvedCount}
-          />
-        }
+      />
+
+      <MaintenanceStats
+        unassignedCount={unassignedCount}
+        urgentCount={urgentCount}
+        resolvedCount={resolvedCount}
       />
 
       <TicketFilterBar

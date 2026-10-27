@@ -33,6 +33,7 @@ export const orderReviewPageMessages = defineMessages({
       'Cần rõ khung giờ',
     ],
     breadcrumb: 'Duyệt đơn',
+    backToOrders: 'Đơn hàng',
     loadError: 'Không tải được hồ sơ đơn',
     error409:
       'Đơn không còn ở trạng thái chờ duyệt (đã được xử lý bởi đồng nghiệp) hoặc máy chủ lỗi.',
@@ -208,6 +209,7 @@ export const orderReviewPageMessages = defineMessages({
       'Needs a clearer time window',
     ],
     breadcrumb: 'Order review',
+    backToOrders: 'Orders',
     loadError: 'Could not load the order file',
     error409:
       'The order is no longer pending review (already handled by a colleague) or the server errored.',

@@ -1,3 +1,6 @@
+import { CheckCircleOutlined, ThunderboltOutlined, UserDeleteOutlined } from '@ant-design/icons'
+
+import { StatisticComponent } from '../../../../../shared/components/antd'
 import { useI18n } from '../../../../../shared/i18n'
 import { maintenancePageMessages } from '../MaintenancePage.messages'
 
@@ -7,23 +10,32 @@ type Props = {
   resolvedCount: number
 }
 
-/** Three small counters shown at the right of the page header. */
+/** Three counters shown as a KPI strip under the page header. */
 export function MaintenanceStats({ unassignedCount, urgentCount, resolvedCount }: Props) {
   const { t } = useI18n(maintenancePageMessages)
   return (
-    <div className="mgr-maint-stats">
-      <div className={`mgr-maint-stat${unassignedCount > 0 ? ' is-red' : ''}`}>
-        <div className="mgr-maint-stat-label">{t.page.unassignedStat}</div>
-        <div className="mgr-maint-stat-value">{unassignedCount}</div>
-      </div>
-      <div className="mgr-maint-stat is-amber">
-        <div className="mgr-maint-stat-label">{t.page.urgentStat}</div>
-        <div className="mgr-maint-stat-value">{urgentCount}</div>
-      </div>
-      <div className="mgr-maint-stat is-green">
-        <div className="mgr-maint-stat-label">{t.page.resolvedStat}</div>
-        <div className="mgr-maint-stat-value">{resolvedCount}</div>
-      </div>
+    <div className="mgr-kpi-strip mgr-maint-kpis">
+      <StatisticComponent
+        index={0}
+        tone={unassignedCount > 0 ? 'red' : 'blue'}
+        icon={<UserDeleteOutlined />}
+        title={t.page.unassignedStat}
+        value={unassignedCount}
+      />
+      <StatisticComponent
+        index={1}
+        tone="amber"
+        icon={<ThunderboltOutlined />}
+        title={t.page.urgentStat}
+        value={urgentCount}
+      />
+      <StatisticComponent
+        index={2}
+        tone="green"
+        icon={<CheckCircleOutlined />}
+        title={t.page.resolvedStat}
+        value={resolvedCount}
+      />
     </div>
   )
 }

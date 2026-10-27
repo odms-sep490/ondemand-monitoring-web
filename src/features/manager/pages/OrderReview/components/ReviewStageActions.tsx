@@ -3,7 +3,10 @@ import { createPortal } from 'react-dom'
 
 import type { ReviewStep } from '../reviewTypes'
 import { REVIEW_PAGE_COUNT } from '../reviewHelpers'
-import { Button, Card } from '../../../../../shared/components/ui'
+import { ThunderboltOutlined } from '@ant-design/icons'
+
+import { CardComponent } from '../../../../../shared/components/antd'
+import { Button } from '../../../../../shared/components/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import { orderReviewPageMessages } from '../OrderReviewPage.messages'
 import { reviewStageActionsMessages } from './ReviewStageActions.messages'
@@ -68,9 +71,13 @@ export function ReviewStageActions({
   }
   if (slot === null) return null
   return createPortal(
-    <Card title={page.stageActionsTitle} className="mgr-stage-actions">
+    <CardComponent
+      icon={<ThunderboltOutlined />}
+      title={page.stageActionsTitle}
+      className="mgr-stage-actions"
+    >
       {body}
-    </Card>,
+    </CardComponent>,
     slot,
   )
 }

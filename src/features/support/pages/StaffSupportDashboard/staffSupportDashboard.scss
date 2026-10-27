@@ -152,6 +152,11 @@
     min-width: 170px;
   }
 
+  .mgr-filter-bar-search {
+    flex: 1 1 160px;
+    max-width: none;
+  }
+
   /* ---------- Table ---------- */
   .sd-subject {
     display: -webkit-box;

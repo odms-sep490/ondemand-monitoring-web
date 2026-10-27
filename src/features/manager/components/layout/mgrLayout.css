@@ -83,7 +83,8 @@
 .mgr-detail-grid.is-wide > .mgr-detail-side {
   order: -1; position: static; display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); align-items: start;
 }
-.mgr-stage-actions .ui-card-body { display: flex; flex-direction: column; gap: var(--ui-space-2); }
+.mgr-stage-actions .ui-card-body,
+.mgr-stage-actions .ant-card-body { display: flex; flex-direction: column; gap: var(--ui-space-2); }
 @media (max-width: 1100px) {
   .mgr-detail-grid.is-wide > .mgr-detail-side { grid-template-columns: minmax(0, 1fr); }
 }

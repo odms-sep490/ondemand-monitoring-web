@@ -1,3 +1,4 @@
+import { ArrowLeftOutlined } from '@ant-design/icons'
 import { Skeleton } from 'antd'
 
 import { CardComponent } from '../../../../../shared/components/antd'
@@ -16,7 +17,11 @@ export function ReviewSkeleton({
   return (
     <div className="odm-or mgr-view mgr-or" aria-busy="true" aria-live="polite">
       <PageHeader
-        crumb={<a href={managerHref({ screen: 'orderQueue' })}>{t.breadcrumb}</a>}
+        crumb={
+          <a href={managerHref({ screen: 'orderQueue' })}>
+            <ArrowLeftOutlined aria-hidden="true" /> {t.backToOrders}
+          </a>
+        }
         title={t.pageTitle}
         description={orderId}
       />

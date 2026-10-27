@@ -1,54 +1,6 @@
-/* Maintenance tickets (MNG-10) in the Manager look: kanban board + docked detail panel. */
+/* Maintenance tickets (MNG-10) in the Manager look: status board card + detail drawer. */
 :root .mgr-layout {
   .mgr-maintenance {
-    .mgr-maint-stats {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .mgr-maint-stat {
-      min-width: 96px;
-      padding: 8px 16px;
-      border: 1px solid var(--mgr-border);
-      border-radius: 12px;
-      background: var(--mgr-card-2);
-      text-align: center;
-
-      &.is-red .mgr-maint-stat-value {
-        color: #dc2626;
-      }
-
-      &.is-amber .mgr-maint-stat-value {
-        color: var(--pl-amber-fg);
-      }
-
-      &.is-green .mgr-maint-stat-value {
-        color: var(--pl-green-fg);
-      }
-    }
-
-    .mgr-maint-stat-label {
-      font-size: 11.5px;
-      color: var(--mgr-muted);
-    }
-
-    .mgr-maint-stat-value {
-      font-size: 20px;
-      font-weight: 800;
-      line-height: 1.3;
-      color: var(--mgr-text);
-    }
-
-    /* Filter bar: search grows, labelled selects sit at the right. */
-    .mgr-maint-filter {
-      .mgr-maint-search {
-        flex: 1 1 240px;
-        max-width: none;
-        min-width: 0;
-      }
-    }
-
     .mgr-maint-selects {
       display: flex;
       flex-wrap: wrap;
@@ -68,48 +20,40 @@
       white-space: nowrap;
     }
 
-    /* Board + detail panel */
-    .mgr-maint-body {
-      display: flex;
-      align-items: flex-start;
-      gap: 16px;
-      min-width: 0;
+    /* Board: one card, four status columns that always share the full width (like the calendar grid). */
+    .mgr-maint-board-card .ant-card-body {
+      padding: 0;
     }
 
     .mgr-maint-board {
-      display: flex;
-      flex: 1;
-      gap: 14px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       min-width: 0;
       overflow-x: auto;
-      padding: 2px 2px 8px;
+      border-radius: var(--mgr-radius);
     }
 
     .mgr-maint-col {
       display: flex;
-      flex: 1 1 260px;
       flex-direction: column;
-      gap: 10px;
-      min-width: 260px;
-      padding: 12px;
-      border: 1px solid var(--mgr-border);
-      border-radius: var(--mgr-radius);
-      background: var(--mgr-card-2);
+      min-width: 0;
+
+      & + .mgr-maint-col {
+        border-inline-start: 1px solid var(--mgr-border);
+      }
     }
 
     .mgr-maint-col-head {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 2px 4px;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--mgr-border);
+      background: var(--mgr-card-2);
     }
 
     .mgr-maint-col-count {
-      padding: 2px 10px;
-      border: 1px solid var(--mgr-border);
-      border-radius: 10px;
-      background: var(--mgr-card);
-      font-size: 12px;
+      font-size: 0.8rem;
       font-weight: 600;
       color: var(--mgr-muted);
     }
@@ -118,14 +62,16 @@
       display: flex;
       flex: 1;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
+      max-height: max(420px, calc(100vh - 380px));
+      padding: 10px;
+      overflow-y: auto;
     }
 
     .mgr-maint-col-empty {
       padding: 24px 12px;
       border: 1px dashed var(--mgr-border);
-      border-radius: 12px;
-      background: var(--mgr-card);
+      border-radius: 8px;
       font-size: 12.5px;
       text-align: center;
       color: var(--mgr-muted);
@@ -135,13 +81,12 @@
       --accent: #94a3b8;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      padding: 14px 16px;
+      gap: 6px;
+      padding: 8px 10px;
       border: 1px solid var(--mgr-border);
       border-left: 4px solid var(--accent);
-      border-radius: 14px;
+      border-radius: 8px;
       background: var(--mgr-card);
-      box-shadow: var(--mgr-shadow);
       cursor: pointer;
       transition: border-color 0.15s ease, box-shadow 0.15s ease;
 
@@ -181,21 +126,31 @@
     }
 
     .mgr-ticket-card-code {
-      font-size: 12px;
-      color: var(--mgr-muted);
+      overflow: hidden;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--mgr-text);
     }
 
     .mgr-ticket-card-age {
-      font-size: 11.5px;
+      flex: none;
+      font-size: 0.72rem;
       color: var(--mgr-muted);
     }
 
     .mgr-ticket-card-title {
-      font-size: 14px;
-      font-weight: 700;
+      display: -webkit-box;
+      overflow: hidden;
+      font-size: 13px;
+      font-weight: 600;
       line-height: 1.35;
       color: var(--mgr-text);
       overflow-wrap: anywhere;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
     }
 
     .mgr-ticket-card-tags {
@@ -209,8 +164,12 @@
       }
     }
 
+    .mgr-ticket-card-action {
+      align-self: flex-start;
+    }
+
     .mgr-ticket-drone {
-      padding: 2px 8px;
+      padding: 0 6px;
       border-radius: 6px;
       background: var(--mgr-card-2);
       border: 1px solid var(--mgr-border);
@@ -243,25 +202,24 @@
       border-radius: 50%;
       background: currentcolor;
     }
+  }
 
-    /* Detail panel */
+  .mgr-ticket-done {
+    padding: 6px 10px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 12.5px;
+    color: var(--pl-green-fg);
+    background: var(--pl-green-bg);
+  }
+
+  /* Detail drawer is portalled into .mgr-layout, so it is styled outside .mgr-maintenance. */
+  .mgr-maint-drawer {
     .mgr-ticket-panel {
-      flex: none;
-      width: 380px;
-      max-width: 100%;
-
-      .ant-card-body {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-        padding: 20px;
-      }
-    }
-
-    .mgr-ticket-panel-top {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
+      flex-direction: column;
+      gap: 16px;
     }
 
     .mgr-ticket-panel-code {
@@ -352,16 +310,6 @@
       font-weight: 700;
       color: var(--mgr-muted);
     }
-
-    .mgr-ticket-done {
-      padding: 6px 10px;
-      border-radius: 8px;
-      text-align: center;
-      font-weight: 600;
-      font-size: 12.5px;
-      color: var(--pl-green-fg);
-      background: var(--pl-green-bg);
-    }
   }
 
   .mgr-assign-ticket {
@@ -418,35 +366,16 @@
   }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1023px) {
   :root .mgr-layout .mgr-maintenance {
-    .mgr-maint-body {
-      flex-direction: column;
-      align-items: stretch;
-    }
-
     .mgr-maint-board {
-      flex: none;
-    }
-
-    .mgr-ticket-panel {
-      width: 100%;
+      grid-template-columns: repeat(4, minmax(240px, 1fr));
     }
   }
 }
 
 @media (max-width: 640px) {
   :root .mgr-layout .mgr-maintenance {
-    .mgr-maint-stats {
-      width: 100%;
-    }
-
-    .mgr-maint-stat {
-      flex: 1;
-      min-width: 0;
-      padding: 8px;
-    }
-
     .mgr-maint-selects,
     .mgr-maint-select {
       width: 100%;
@@ -455,11 +384,6 @@
     .mgr-maint-select .ant-select {
       flex: 1;
       min-width: 0;
-    }
-
-    .mgr-maint-col {
-      flex-basis: 240px;
-      min-width: 240px;
     }
   }
 }

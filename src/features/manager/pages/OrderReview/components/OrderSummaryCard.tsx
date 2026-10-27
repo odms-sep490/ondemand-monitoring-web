@@ -1,4 +1,6 @@
-import { Card } from '../../../../../shared/components/ui'
+import { ProfileOutlined } from '@ant-design/icons'
+
+import { CardComponent } from '../../../../../shared/components/antd'
 import { useI18n } from '../../../../../shared/i18n'
 import { preferredRangeLabel } from '../../../lib/viLabels'
 import { formatVn } from '../../../components/common/format'
@@ -26,7 +28,7 @@ export function OrderSummaryCard({ order }: { order: OrderDetail }) {
     [t.createdAt, order.submittedAt ? formatVn(order.submittedAt, locale) : '—'],
   ]
   return (
-    <Card title={t.summaryTitle}>
+    <CardComponent icon={<ProfileOutlined />} title={t.summaryTitle}>
       <dl className="mgr-kv">
         {rows.map(([label, value]) => (
           <div className="mgr-kv-row" key={label}>
@@ -35,6 +37,6 @@ export function OrderSummaryCard({ order }: { order: OrderDetail }) {
           </div>
         ))}
       </dl>
-    </Card>
+    </CardComponent>
   )
 }

@@ -10,7 +10,10 @@ import { ErrorState } from '../../manager/components/common/ErrorState'
 import { PageHeader } from '../../manager/components/common/PageHeader'
 import { buildManagerTheme } from '../../manager/theme/managerTheme'
 import { supportApi, type SupportTicketDto } from '../api/supportApi'
-import { SupportFilters } from './StaffSupportDashboard/SupportFilters'
+import {
+  SUPPORT_STATUS_FILTERS,
+  SupportFilters,
+} from './StaffSupportDashboard/SupportFilters'
 import { SupportInsights } from './StaffSupportDashboard/SupportInsights'
 import { SupportKpis } from './StaffSupportDashboard/SupportKpis'
 import { SupportTicketTable } from './StaffSupportDashboard/SupportTicketTable'
@@ -88,6 +91,16 @@ export function StaffSupportDashboardPage() {
     searchQuery,
   )
 
+  const statusCounts: Record<string, number> = {}
+  for (const status of ['ALL', ...SUPPORT_STATUS_FILTERS]) {
+    statusCounts[status] = filterTickets(
+      allTickets,
+      status,
+      categoryFilter,
+      searchQuery,
+    ).length
+  }
+
   return (
     <ConfigProvider theme={themeConfig}>
       <div className="mgr-layout sd-embed">
@@ -115,7 +128,6 @@ export function StaffSupportDashboardPage() {
                 statusFilter={statusFilter}
                 onFilter={setStatusFilter}
               />
-              <SupportInsights insights={insights} />
               <SupportFilters
                 search={searchQuery}
                 onSearch={setSearchQuery}
@@ -123,6 +135,7 @@ export function StaffSupportDashboardPage() {
                 onStatus={setStatusFilter}
                 category={categoryFilter}
                 onCategory={setCategoryFilter}
+                statusCounts={statusCounts}
               />
               <SupportTicketTable
                 rows={filtered}
@@ -132,6 +145,7 @@ export function StaffSupportDashboardPage() {
                 selectedId={selectedTicket?.id ?? null}
                 onSelect={setSelectedTicket}
               />
+              <SupportInsights insights={insights} />
             </>
           )}
 

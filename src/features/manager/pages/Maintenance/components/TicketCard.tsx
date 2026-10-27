@@ -61,8 +61,8 @@ export function TicketCard({ ticket, onSelect, onAssignClick, selected }: Ticket
 
       {open && (
         <Button
-          type="primary"
-          block
+          size="small"
+          className="mgr-ticket-card-action"
           onClick={(event) => {
             event.stopPropagation()
             onAssignClick(ticket)

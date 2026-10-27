@@ -1,3 +1,5 @@
+import { ArrowLeftOutlined } from '@ant-design/icons'
+
 import { WorkflowStepper } from '../../../components/common/WorkflowStepper'
 import { getOrderStatusLabel } from '../../../../../shared/lib/statusTone'
 import { orderStageToReviewStep } from '../../../components/common/workflowModel'
@@ -55,11 +57,15 @@ export function ReviewTop({
     <div className="odm-or-review-top">
       {!showExecutionPlan && (
         <PageHeader
-          crumb={<a href={managerHref({ screen: 'orderQueue' })}>{t.breadcrumb}</a>}
+          crumb={
+            <a href={managerHref({ screen: 'orderQueue' })}>
+              <ArrowLeftOutlined aria-hidden="true" /> {t.backToOrders}
+            </a>
+          }
           title={t.pageTitle}
           description={
             <>
-              <span>{formatOrderCode(order.code)}</span> · {order.serviceName}
+              <span className="mgr-code">{formatOrderCode(order.code)}</span> · {order.serviceName}
             </>
           }
           actions={<OrderStatusBadge order={order} lang={lang} />}
