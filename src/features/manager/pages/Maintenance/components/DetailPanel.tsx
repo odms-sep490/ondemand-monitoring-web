@@ -1,7 +1,7 @@
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons'
 import { Button, Drawer } from 'antd'
+import type { ReactNode } from 'react'
 
-import { CardComponent } from '../../../../../shared/components/antd'
 import { useI18n } from '../../../../../shared/i18n'
 import { formatIssueType, formatTicketDescription, formatTicketTitle } from '../../../lib/ticketText'
 import type { MaintenanceTicket } from '../../../types/maintenance'
@@ -13,17 +13,23 @@ export type DetailPanelProps = {
   ticket: MaintenanceTicket
   onClose: () => void
   onAssignClick: (ticket: MaintenanceTicket) => void
-  /** true: sticky panel beside the board; false: drawer over the page. */
-  docked: boolean
 }
 
 function CloseIcon({ label }: { label: string }) {
   return <CloseOutlined aria-label={label} />
 }
 
-function PanelBody({ ticket, onAssignClick }: Pick<DetailPanelProps, 'ticket' | 'onAssignClick'>) {
+/** Ticket facts shared by the hover preview (`preview`) and the full drawer body. */
+export function TicketDetailContent({
+  ticket,
+  preview = false,
+  actions,
+}: {
+  ticket: MaintenanceTicket
+  preview?: boolean
+  actions?: ReactNode
+}) {
   const { t, locale } = useI18n(maintenancePageMessages)
-  const open = ticket.status === 'OPEN' || ticket.status === 'IN_PROGRESS'
   // The API reuses the long description as the title; lead with the issue type instead of repeating it.
   const heading =
     ticket.issueType && ticket.title === ticket.description
@@ -72,31 +78,22 @@ function PanelBody({ ticket, onAssignClick }: Pick<DetailPanelProps, 'ticket' | 
         </div>
       )}
 
-      {ticket.resolutionNotes && (
+      {!preview && ticket.resolutionNotes && (
         <div className="mgr-ticket-resolution">
           <span className="mgr-ticket-resolution-title">{t.detail.resolutionReport}</span>
           <span className="mgr-ticket-resolution-text">{ticket.resolutionNotes}</span>
         </div>
       )}
 
-      {open && (
-        <Button type="primary" size="large" block onClick={() => onAssignClick(ticket)}>
-          {ticket.assignedTo ? t.detail.changeOperator : t.detail.assignOperator}
-        </Button>
-      )}
-      {ticket.status === 'RESOLVED' && (
-        <div className="mgr-ticket-done">
-          <CheckOutlined aria-hidden="true" /> {t.detail.resolvedDone}
-        </div>
-      )}
+      {!preview && actions}
 
       <div className="mgr-ticket-history">
-        <div className="mgr-ticket-history-title">{t.detail.history}</div>
+        {!preview && <div className="mgr-ticket-history-title">{t.detail.history}</div>}
         <div className="mgr-ticket-history-row">
           <span className="mgr-ticket-key">{t.detail.createdAt}</span>
           <span>{new Date(ticket.openedAt).toLocaleString(locale)}</span>
         </div>
-        {ticket.resolvedAt && (
+        {!preview && ticket.resolvedAt && (
           <div className="mgr-ticket-history-row">
             <span className="mgr-ticket-key">{t.detail.resolvedAt}</span>
             <span>{new Date(ticket.resolvedAt).toLocaleString(locale)}</span>
@@ -107,24 +104,34 @@ function PanelBody({ ticket, onAssignClick }: Pick<DetailPanelProps, 'ticket' | 
   )
 }
 
-/** Ticket details: docked beside the board on wide screens, a drawer below that. */
-export function DetailPanel({ ticket, onClose, onAssignClick, docked }: DetailPanelProps) {
+function PanelBody({ ticket, onAssignClick }: Pick<DetailPanelProps, 'ticket' | 'onAssignClick'>) {
+  const { t } = useI18n(maintenancePageMessages)
+  const open = ticket.status === 'OPEN' || ticket.status === 'IN_PROGRESS'
+  return (
+    <TicketDetailContent
+      ticket={ticket}
+      actions={
+        <>
+          {open && (
+            <Button type="primary" size="large" block onClick={() => onAssignClick(ticket)}>
+              {ticket.assignedTo ? t.detail.changeOperator : t.detail.assignOperator}
+            </Button>
+          )}
+          {ticket.status === 'RESOLVED' && (
+            <div className="mgr-ticket-done">
+              <CheckOutlined aria-hidden="true" /> {t.detail.resolvedDone}
+            </div>
+          )}
+        </>
+      }
+    />
+  )
+}
+
+/** Ticket details in a drawer over the page. */
+export function DetailPanel({ ticket, onClose, onAssignClick }: DetailPanelProps) {
   const { t } = useI18n(maintenancePageMessages)
   const code = <span className="mgr-code mgr-ticket-panel-code">{ticket.code}</span>
-
-  if (docked) {
-    return (
-      <aside className="mgr-maint-dock" aria-label={ticket.code}>
-        <CardComponent className="mgr-maint-dock-card">
-          <div className="mgr-maint-dock-head">
-            {code}
-            <Button type="text" size="small" onClick={onClose} aria-label={t.detail.close} icon={<CloseOutlined />} />
-          </div>
-          <PanelBody ticket={ticket} onAssignClick={onAssignClick} />
-        </CardComponent>
-      </aside>
-    )
-  }
   return (
     <Drawer
       open

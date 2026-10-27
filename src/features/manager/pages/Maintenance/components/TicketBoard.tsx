@@ -15,7 +15,7 @@ type Props = {
   setAssignTicket: Dispatch<SetStateAction<MaintenanceTicket | null>>
 }
 
-/** Status columns laid out as a 2x2 grid of soft grey lanes. */
+/** Status lanes side by side in one row; each lane scrolls on its own. */
 export function TicketBoard({ byColumn, selectedTicket, setSelectedTicket, setAssignTicket }: Props) {
   const { t } = useI18n(maintenancePageMessages)
   return (

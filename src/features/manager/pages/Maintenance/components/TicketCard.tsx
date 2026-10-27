@@ -1,13 +1,16 @@
 import { CheckOutlined } from '@ant-design/icons'
-import { Button } from 'antd'
+import { Button, Popover } from 'antd'
+import { useState } from 'react'
 import type { KeyboardEvent } from 'react'
 
 import { useI18n } from '../../../../../shared/i18n'
 import { getTicketSeverityLabel } from '../../../../../shared/lib/statusTone'
+import { mgrPopupContainer } from '../../../components/common/mgrPopupContainer'
 import { formatTicketTitle } from '../../../lib/ticketText'
 import type { MaintenanceTicket } from '../../../types/maintenance'
 import { formatAge } from '../maintenanceHelpers'
 import { maintenancePageMessages } from '../MaintenancePage.messages'
+import { TicketDetailContent } from './DetailPanel'
 import { TicketSeverityTag } from './TicketTags'
 
 export type TicketCardProps = {
@@ -19,21 +22,26 @@ export type TicketCardProps = {
 
 export function TicketCard({ ticket, onSelect, onAssignClick, selected }: TicketCardProps) {
   const { t, lang } = useI18n(maintenancePageMessages)
+  const [hoverOpen, setHoverOpen] = useState(false)
   const open = ticket.status === 'OPEN' || ticket.status === 'IN_PROGRESS'
 
   function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
     if (event.target === event.currentTarget && (event.key === 'Enter' || event.key === ' ')) {
       event.preventDefault()
+      setHoverOpen(false)
       onSelect(ticket)
     }
   }
 
-  return (
+  const card = (
     <div
       className={`mgr-ticket-card${selected ? ' is-selected' : ''}`}
       tabIndex={0}
       aria-label={`${ticket.code} · ${getTicketSeverityLabel(ticket.priority, lang)}`}
-      onClick={() => onSelect(ticket)}
+      onClick={() => {
+        setHoverOpen(false)
+        onSelect(ticket)
+      }}
       onKeyDown={handleKeyDown}
     >
       <div className="mgr-ticket-card-top">
@@ -61,11 +69,12 @@ export function TicketCard({ ticket, onSelect, onAssignClick, selected }: Ticket
       </div>
 
       {open && (
-        <div className="mgr-ticket-card-foot">
         <Button
           type="primary"
+          size="small"
           block
           className="mgr-ticket-card-action"
+          aria-label={ticket.assignedTo ? t.card.changeOperatorFull : t.card.assignOperatorFull}
           onClick={(event) => {
             event.stopPropagation()
             onAssignClick(ticket)
@@ -73,7 +82,6 @@ export function TicketCard({ ticket, onSelect, onAssignClick, selected }: Ticket
         >
           {ticket.assignedTo ? t.card.changeOperator : t.card.assignOperator}
         </Button>
-        </div>
       )}
 
       {ticket.status === 'RESOLVED' && (
@@ -82,5 +90,24 @@ export function TicketCard({ ticket, onSelect, onAssignClick, selected }: Ticket
         </div>
       )}
     </div>
+  )
+
+  return (
+    <Popover
+      content={<TicketDetailContent ticket={ticket} preview />}
+      trigger={['hover', 'focus']}
+      placement="rightTop"
+      mouseEnterDelay={0.3}
+      mouseLeaveDelay={0.05}
+      open={hoverOpen}
+      onOpenChange={setHoverOpen}
+      getPopupContainer={mgrPopupContainer}
+      rootClassName="mgr-ticket-pop"
+      destroyOnHidden
+      arrow={false}
+      autoAdjustOverflow
+    >
+      {card}
+    </Popover>
   )
 }

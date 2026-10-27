@@ -10,8 +10,10 @@ export const maintenancePageMessages = defineMessages({
     card: {
       operatorLabel: 'Người vận hành: ',
       unassigned: 'Chưa phân công',
-      changeOperator: 'Đổi người vận hành hệ thống',
-      assignOperator: 'Phân công người vận hành hệ thống',
+      changeOperator: 'Đổi người',
+      assignOperator: 'Phân công',
+      changeOperatorFull: 'Đổi người vận hành hệ thống',
+      assignOperatorFull: 'Phân công người vận hành hệ thống',
       resolved: 'Đã được khắc phục xong',
     },
     detail: {
@@ -76,8 +78,10 @@ export const maintenancePageMessages = defineMessages({
     card: {
       operatorLabel: 'Operator: ',
       unassigned: 'Unassigned',
-      changeOperator: 'Change operator',
-      assignOperator: 'Assign operator',
+      changeOperator: 'Reassign',
+      assignOperator: 'Assign',
+      changeOperatorFull: 'Change operator',
+      assignOperatorFull: 'Assign operator',
       resolved: 'Resolved',
     },
     detail: {
