@@ -1,3 +1,4 @@
+import { StaffRoleIcon } from './StaffRoleIcon'
 import type { Mission } from '../../../mission/types/mission'
 import { OrderIcon } from './OrderIcon'
 import { missionRoles } from './liveDispatchConstants'
@@ -69,7 +70,7 @@ export function DispatchStaffStep({
               >
                 <span className="odm-or-role-head">
                   <span>
-                    {t.roleIcons[role]} {t.roles[role]}
+                    <StaffRoleIcon role={role} /> {t.roles[role]}
                   </span>
                   {selected.length > 0 && (
                     <span className="odm-or-role-check">

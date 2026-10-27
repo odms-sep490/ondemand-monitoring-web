@@ -101,14 +101,14 @@ describe('DashboardPage', () => {
     vi.spyOn(managerApi, 'getDashboard').mockResolvedValue(sampleData)
     render(<DashboardPage />)
     expect(screen.getByText('Đang tải dashboard…')).toBeInTheDocument()
-    expect(await screen.findByRole('heading', { name: 'Manager Dashboard' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Bảng điều khiển quản lý' })).toBeInTheDocument()
     expect(screen.getByText('Dịch vụ bổ sung chờ duyệt giá')).toBeInTheDocument()
   })
 
   it('renders all KPI values and useful navigation', async () => {
     vi.spyOn(managerApi, 'getDashboard').mockResolvedValue(sampleData)
     render(<DashboardPage />)
-    await screen.findByRole('heading', { name: 'Manager Dashboard' })
+    await screen.findByRole('heading', { name: 'Bảng điều khiển quản lý' })
     expect(screen.getByRole('link', { name: /Chờ duyệt yêu cầu/ })).toHaveAttribute('href', '#portal/manager/orders')
     expect(screen.getByRole('link', { name: /Nhiệm vụ đang chạy.*8/ })).toHaveAttribute('href', '#portal/manager/missions')
     expect(screen.getByRole('link', { name: /Hoàn thành trong kỳ/ })).toHaveAttribute('href', '#portal/manager/missions')
@@ -130,7 +130,7 @@ describe('DashboardPage', () => {
   it('renders null assignments safely and all operational sections', async () => {
     vi.spyOn(managerApi, 'getDashboard').mockResolvedValue(sampleData)
     render(<DashboardPage />)
-    await screen.findByRole('heading', { name: 'Manager Dashboard' })
+    await screen.findByRole('heading', { name: 'Bảng điều khiển quản lý' })
     expect(screen.getByText(/Chưa phân công/)).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Pipeline báo giá' })).toBeInTheDocument()
     expect(screen.getByText('Đặt cọc cho ORD-2026-00124 đã thành công')).toBeInTheDocument()
@@ -144,7 +144,7 @@ describe('DashboardPage', () => {
     expect(await screen.findByText('Không thể tải dữ liệu dashboard.')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Thử lại' }))
     await waitFor(() => expect(getDashboard).toHaveBeenCalledTimes(2))
-    expect(await screen.findByRole('heading', { name: 'Manager Dashboard' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Bảng điều khiển quản lý' })).toBeInTheDocument()
   })
 
   it('renders professional empty states', async () => {
@@ -161,7 +161,7 @@ describe('DashboardPage', () => {
       missionTrend: [],
     })
     render(<DashboardPage />)
-    await screen.findByRole('heading', { name: 'Manager Dashboard' })
+    await screen.findByRole('heading', { name: 'Bảng điều khiển quản lý' })
     expect(screen.getByText('Không có việc nào cần xử lý.')).toBeInTheDocument()
     expect(screen.getByText('Không có nhiệm vụ đang chạy.')).toBeInTheDocument()
     expect(screen.getByText('Chưa có đơn gần đây.')).toBeInTheDocument()

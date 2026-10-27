@@ -9,33 +9,33 @@ export const missionResultReviewReadinessMessages = defineMessages({
       MEDIA_NOT_VALIDATED:
         'Media đang được kiểm tra. Vui lòng chờ trước khi duyệt kết quả.',
       INSUFFICIENT_EVIDENCE:
-        'Checklist chưa đủ bằng chứng. Cần bổ sung trước khi duyệt kết quả.',
+        'Danh mục kiểm tra chưa đủ bằng chứng. Cần bổ sung trước khi duyệt kết quả.',
       EXECUTION_NOT_TERMINAL:
-        'Checklist chưa hoàn tất. Cần hoàn tất các mục trước khi duyệt kết quả.',
+        'Danh mục kiểm tra chưa hoàn tất. Cần hoàn tất các mục trước khi duyệt kết quả.',
       EXECUTION_NOT_COMPLETED:
-        'Checklist chưa hoàn tất. Cần hoàn tất các mục trước khi duyệt kết quả.',
+        'Danh mục kiểm tra chưa hoàn tất. Cần hoàn tất các mục trước khi duyệt kết quả.',
       UNABLE_REASON_REQUIRED:
-        'Cần bổ sung lý do cho mục checklist chưa thể xác minh.',
+        'Cần bổ sung lý do cho mục danh mục kiểm tra chưa thể xác minh.',
       CHECKLIST_INTEGRITY_INVALID:
-        'Không thể xác nhận checklist. Vui lòng tải lại.',
+        'Không thể xác nhận danh mục kiểm tra. Vui lòng tải lại.',
       EVIDENCE_SOURCE_NOT_ELIGIBLE:
         'Bằng chứng chưa phù hợp. Cần bổ sung ảnh/video phù hợp.',
       EVIDENCE_TYPE_NOT_ELIGIBLE:
         'Loại media chưa phù hợp. Cần bổ sung ảnh/video đúng loại yêu cầu.',
     },
     checking: 'Đang kiểm tra điều kiện duyệt…',
-    unknown: 'Chưa xác nhận được điều kiện duyệt. Vui lòng tải lại checklist.',
+    unknown: 'Chưa xác nhận được điều kiện duyệt. Vui lòng tải lại danh mục kiểm tra.',
     missionNotComplete:
-      'Mission chưa hoàn thành. Chỉ duyệt kết quả sau khi Mission hoàn thành.',
+      'Nhiệm vụ chưa hoàn thành. Chỉ duyệt kết quả sau khi nhiệm vụ hoàn thành.',
     checklistNotReady:
-      'Checklist chưa sẵn sàng. Kiểm tra các mục và bằng chứng trước khi duyệt kết quả.',
+      'Danh mục kiểm tra chưa sẵn sàng. Kiểm tra các mục và bằng chứng trước khi duyệt kết quả.',
     sessionExpired: 'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.',
     forbidden: 'Bạn không có quyền duyệt kết quả này.',
     notPending: 'Kết quả không còn chờ duyệt. Vui lòng tải lại.',
     checklistNotReadyError:
-      'Checklist hoặc media chưa sẵn sàng. Vui lòng kiểm tra lại trước khi duyệt kết quả.',
+      'Danh mục kiểm tra hoặc media chưa sẵn sàng. Vui lòng kiểm tra lại trước khi duyệt kết quả.',
     missionStatusChanged:
-      'Trạng thái Mission đã thay đổi. Vui lòng tải lại kết quả.',
+      'Trạng thái nhiệm vụ đã thay đổi. Vui lòng tải lại kết quả.',
     concurrentUpdate:
       'Kết quả đã được cập nhật. Vui lòng tải lại trước khi tiếp tục.',
     fallbackError: 'Không thể duyệt hoặc từ chối kết quả. Vui lòng thử lại.',

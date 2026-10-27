@@ -2,11 +2,11 @@ import { defineMessages } from '../../../../../shared/i18n'
 
 export const planningMissionItemMessages = defineMessages({
   vi: {
-    cancelMission: (code: string) => `Hủy Mission ${code}`,
+    cancelMission: (code: string) => `Hủy nhiệm vụ ${code}`,
     cancelReason: (code: string) => `Lý do hủy ${code}`,
-    confirmCancel: 'Xác nhận hủy Mission',
+    confirmCancel: 'Xác nhận hủy nhiệm vụ',
     close: 'Đóng',
-    createReplacement: (code: string) => `Tạo Mission thay thế cho ${code}`,
+    createReplacement: (code: string) => `Tạo nhiệm vụ thay thế cho ${code}`,
   },
   en: {
     cancelMission: (code: string) => `Cancel Mission ${code}`,

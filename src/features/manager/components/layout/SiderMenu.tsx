@@ -13,10 +13,12 @@ import {
 type Props = {
   activeLabel: SidebarKey | ''
   counts?: ManagerNavCounts
+  /** Icon-rail mode: labels collapse into tooltips. */
+  collapsed?: boolean
   onNavigate?: () => void
 }
 
-export function SiderMenu({ activeLabel, counts, onNavigate }: Props) {
+export function SiderMenu({ activeLabel, counts, collapsed, onNavigate }: Props) {
   const { t } = useI18n(managerLayoutMessages)
 
   const items: MenuProps['items'] = NAV_GROUPS.map((group) => ({
@@ -29,6 +31,7 @@ export function SiderMenu({ activeLabel, counts, onNavigate }: Props) {
       return {
         key: item.label,
         icon: <ManagerIcon name={item.icon} />,
+        title: collapsed ? t.sidebar[item.label] : undefined,
         label: (
           <a
             className="mgr-menu-link"
@@ -49,6 +52,7 @@ export function SiderMenu({ activeLabel, counts, onNavigate }: Props) {
   return (
     <Menu
       mode="inline"
+      inlineCollapsed={collapsed}
       theme="light"
       items={items}
       selectedKeys={activeLabel ? [activeLabel] : []}

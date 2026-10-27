@@ -19,6 +19,7 @@ import { managerHref, parseManagerRoute, type ManagerRoute } from './routes'
 import { Button } from '../../shared/components/ui'
 import { useI18n } from '../../shared/i18n'
 import { managerLayoutMessages } from './ManagerLayout.messages'
+import { ManagerErrorBoundary } from './components/common/ManagerErrorBoundary'
 
 function useHash(): string {
   const [hash, setHash] = useState(() => window.location.hash)
@@ -76,7 +77,9 @@ export function ManagerApp() {
       breadcrumb={t.breadcrumbs[breadcrumbKey[route.screen]]}
       counts={counts}
     >
-      {renderScreen(route, t.notFound)}
+      <ManagerErrorBoundary resetKey={hash}>
+        {renderScreen(route, t.notFound)}
+      </ManagerErrorBoundary>
     </ManagerLayout>
   )
 }

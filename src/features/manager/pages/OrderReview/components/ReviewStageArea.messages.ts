@@ -4,7 +4,7 @@ export const reviewStageAreaMessages = defineMessages({
   vi: {
     areaCheck: 'Kiểm tra vùng giám sát',
     nextLabel: 'Tiếp: Điều kiện duyệt',
-    hintNeedReview: 'Manager cần đánh giá khu vực trước khi tiếp tục',
+    hintNeedReview: 'Quản lý cần đánh giá khu vực trước khi tiếp tục',
     hintRejected: 'Hãy yêu cầu khách đổi khu vực hoặc từ chối đơn',
   },
   en: {

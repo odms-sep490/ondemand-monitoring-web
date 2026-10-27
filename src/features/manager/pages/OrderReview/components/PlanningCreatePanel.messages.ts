@@ -2,12 +2,12 @@ import { defineMessages } from '../../../../../shared/i18n'
 
 export const planningCreatePanelMessages = defineMessages({
   vi: {
-    panelLabel: 'Tạo Mission trong Order',
-    title: 'Tạo Mission mới',
+    panelLabel: 'Tạo nhiệm vụ trong đơn hàng',
+    title: 'Tạo nhiệm vụ mới',
     intro: 'Đặt tên dễ nhận biết, sau đó kiểm tra thời tiết và chọn lịch bay.',
-    closeFormLabel: 'Đóng form tạo Mission',
+    closeFormLabel: 'Đóng form tạo nhiệm vụ',
     closeFormTitle: 'Đóng form',
-    confirmTitle: 'Đóng form tạo Mission?',
+    confirmTitle: 'Đóng form tạo nhiệm vụ?',
     confirmBody: 'Dữ liệu chưa gửi sẽ không được lưu.',
     confirmAction: 'Đóng form',
   },

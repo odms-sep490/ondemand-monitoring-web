@@ -330,7 +330,7 @@ describe('Order-centric workspace', () => {
       await screen.findByRole('button', { name: 'Phân công nguồn lực cho M1' }),
     )
     await screen.findByLabelText('Chọn nhân sự cho Phi công')
-    fireEvent.click(screen.getByRole('button', { name: 'Về kế hoạch Order' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Về kế hoạch đơn hàng' }))
     expect(await screen.findByRole('link', { name: 'M1' })).toBeInTheDocument()
     expect(window.location.hash).toBe('#portal/manager/orders/o')
   })
@@ -372,7 +372,7 @@ describe('Order-centric workspace', () => {
     render(<OrderMissionPlanningSection orderId="o" />)
 
     expect(
-      await screen.findByText('✓ Tất cả Mission đã được phân công đầy đủ.'),
+      await screen.findByText('Tất cả nhiệm vụ đã được phân công đầy đủ.'),
     ).toBeInTheDocument()
     expect(
       screen.queryByRole('button', { name: /Phân công nguồn lực cho/ }),
@@ -408,9 +408,9 @@ describe('Order-centric workspace', () => {
     render(<OrderMissionPlanningSection orderId="o" />)
     for (let i = 1; i <= 2; i++) {
       fireEvent.click(
-        await screen.findByRole('button', { name: 'Tạo thêm Mission' }),
+        await screen.findByRole('button', { name: 'Tạo thêm nhiệm vụ' }),
       )
-      await screen.findByRole('heading', { name: 'Tạo Mission mới' })
+      await screen.findByRole('heading', { name: 'Tạo nhiệm vụ mới' })
       fireEvent.change(screen.getByLabelText('Giờ cất cánh'), {
         target: { value: '2026-10-10T08:00' },
       })

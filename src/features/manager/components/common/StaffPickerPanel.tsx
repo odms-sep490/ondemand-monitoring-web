@@ -1,3 +1,4 @@
+import { CheckOutlined } from '@ant-design/icons'
 import type { KeyboardEvent } from 'react'
 import { ManagerIcon } from './ManagerIcon'
 import { StaffAvatar } from './StaffAvatar'
@@ -189,10 +190,9 @@ export function StaffPickerPanel({
                   style={{
                     color: isSelected ? '#2563eb' : 'transparent',
                     fontSize: 18,
-                    fontWeight: 900,
                   }}
                 >
-                  ✓
+                  <CheckOutlined aria-hidden="true" />
                 </span>
               </button>
             )

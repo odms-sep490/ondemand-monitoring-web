@@ -2,12 +2,12 @@ import { defineMessages } from '../../../../shared/i18n'
 
 export const orderMissionsOverviewMessages = defineMessages({
   vi: {
-    title: 'Tổng quan Mission',
+    title: 'Tổng quan nhiệm vụ',
     subtitle:
-      'Kiểm tra lại lịch, nhân sự và thiết bị của toàn bộ Mission trước khi hoàn tất.',
+      'Kiểm tra lại lịch, nhân sự và thiết bị của toàn bộ nhiệm vụ trước khi hoàn tất.',
     reload: 'Làm mới',
     completeCount: (done: number, total: number) =>
-      `${done}/${total} Mission đã phân công đầy đủ`,
+      `${done}/${total} nhiệm vụ đã phân công đầy đủ`,
     ready: 'Sẵn sàng',
     missingAssignment: 'Còn thiếu phân công',
     loading: 'Đang tải nhiệm vụ…',
@@ -17,10 +17,10 @@ export const orderMissionsOverviewMessages = defineMessages({
     schedule: 'Lịch',
     device: 'Thiết bị',
     assignMore: 'Phân công tiếp',
-    hintPermit: 'Cập nhật giấy phép bay cho từng Mission trước khi thực hiện.',
-    hintAllReady: 'Tất cả Mission đã đủ nhân sự và thiết bị.',
+    hintPermit: 'Cập nhật giấy phép bay cho từng nhiệm vụ trước khi thực hiện.',
+    hintAllReady: 'Tất cả nhiệm vụ đã đủ nhân sự và thiết bị.',
     hintMissing:
-      'Hoàn tất phân công các Mission còn thiếu để kết thúc kế hoạch.',
+      'Hoàn tất phân công các nhiệm vụ còn thiếu để kết thúc kế hoạch.',
   },
   en: {
     title: 'Mission overview',

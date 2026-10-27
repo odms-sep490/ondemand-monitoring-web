@@ -1,5 +1,6 @@
 import {
   BellOutlined,
+  CustomerServiceOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   SearchOutlined,
@@ -59,8 +60,10 @@ export function ManagerHeader({
           href="#portal/manager/support"
           type="default"
           className="mgr-support-btn"
+          icon={<CustomerServiceOutlined />}
+          aria-label={t.sidebar.supportButton}
         >
-          {t.sidebar.supportButton}
+          <span className="mgr-support-label">{t.sidebar.supportButton}</span>
         </Button>
         <a
           className="mgr-icon-btn"

@@ -161,7 +161,7 @@ export const orderReviewPageMessages = defineMessages({
     approveHint:
       'Hệ thống sẽ tạo mission và giữ manager trong luồng thiết lập.',
     approveChecklist: [
-      'Tạo Mission tự động',
+      'Tạo nhiệm vụ tự động',
       'Sao chép khu vực',
       'Sao chép yêu cầu',
       'Sao chép thời gian mong muốn',

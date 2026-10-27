@@ -187,12 +187,12 @@ it('shows explanatory loading and empty states without stale options', async () 
   resolve([])
   expect(
     await screen.findByText(
-      'Không có nhân sự phù hợp trong khung giờ Mission này.',
+      'Không có nhân sự phù hợp trong khung giờ nhiệm vụ này.',
     ),
   ).toBeInTheDocument()
   fireEvent.click(screen.getByRole('button', { name: 'Tiếp theo' }))
   expect(
-    screen.getByText('Không có thiết bị khả dụng trong khung giờ Mission này.'),
+    screen.getByText('Không có thiết bị khả dụng trong khung giờ nhiệm vụ này.'),
   ).toBeInTheDocument()
 })
 
@@ -291,7 +291,7 @@ it('does not issue availability queries without a valid persisted interval', asy
   })
   render(<LiveDispatchPage missionId="m1" />)
   expect(
-    await screen.findByText(/Cần có lịch bắt đầu và kết thúc Mission hợp lệ/),
+    await screen.findByText(/Cần có lịch bắt đầu và kết thúc nhiệm vụ hợp lệ/),
   ).toBeInTheDocument()
   expect(droneApi.getAvailable).not.toHaveBeenCalled()
   expect(operatorApi.getAvailable).not.toHaveBeenCalled()

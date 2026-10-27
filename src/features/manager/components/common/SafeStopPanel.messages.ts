@@ -4,12 +4,12 @@ export const safeStopPanelMessages = defineMessages({
   vi: {
     confirmSent: 'Đã gửi xác nhận an toàn.',
     actionRecorded: 'Thao tác đã được ghi nhận.',
-    ariaLabel: (id: string) => `Dừng Mission an toàn ${id}`,
-    title: 'Dừng Mission an toàn',
+    ariaLabel: (id: string) => `Dừng nhiệm vụ an toàn ${id}`,
+    title: 'Dừng nhiệm vụ an toàn',
     loadingStatus: 'Đang tải trạng thái…',
     cannotVerify:
-      'Không thể xác minh trạng thái của Mission này. Vui lòng làm mới.',
-    stopReason: 'Lý do dừng / hủy Mission',
+      'Không thể xác minh trạng thái của nhiệm vụ này. Vui lòng làm mới.',
+    stopReason: 'Lý do dừng / hủy nhiệm vụ',
     safetyRecord: 'Ghi nhận an toàn',
     waitingAssignee:
       'Đang chờ người được phân công xác nhận an toàn. Bạn chưa thể xác nhận lúc này.',

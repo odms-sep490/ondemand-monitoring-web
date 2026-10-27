@@ -3,12 +3,12 @@ import { defineMessages } from '../../../../../shared/i18n'
 export const managerMissionStopFlowMessages = defineMessages({
   vi: {
     releaseTitle: 'Giải phóng tài nguyên?',
-    cancelTitle: 'Hủy Mission?',
+    cancelTitle: 'Hủy nhiệm vụ?',
     releaseBody: (code: string) =>
       `Giải phóng thiết bị và nhân sự của ${code}.`,
     cancelBody: (code: string) => `Hủy ${code} và giữ lại lịch sử.`,
     releaseAction: 'Giải phóng tài nguyên',
-    cancelAction: 'Hủy Mission',
+    cancelAction: 'Hủy nhiệm vụ',
     recorded: 'Thao tác đã được ghi nhận.',
   },
   en: {

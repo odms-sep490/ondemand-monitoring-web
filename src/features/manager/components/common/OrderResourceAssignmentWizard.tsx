@@ -1,3 +1,4 @@
+import { CheckCircleOutlined } from '@ant-design/icons'
 import { useCallback, useEffect, useState } from 'react'
 import { useI18n } from '../../../../shared/i18n'
 import { orderResourceAssignmentWizardMessages } from './OrderResourceAssignmentWizard.messages'
@@ -251,7 +252,9 @@ export function OrderResourceAssignmentWizard({
       {selection}
       {allAssigned && (
         <div className="odm-planning-complete" role="status">
-          <span>{t.allAssigned}</span>
+          <span>
+            <CheckCircleOutlined aria-hidden="true" /> {t.allAssigned}
+          </span>
           <Button variant="primary" onClick={onClose}>
             {t.finishAssigning}
           </Button>

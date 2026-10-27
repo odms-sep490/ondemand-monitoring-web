@@ -6,7 +6,7 @@ export const planningPaymentGateMessages = defineMessages({
     checking: 'Đang kiểm tra…',
     checkPayment: 'Kiểm tra thanh toán',
     unlockNote:
-      'Tạo Mission và chốt kế hoạch sẽ được mở sau khi hệ thống xác nhận khoản đặt cọc.',
+      'Tạo nhiệm vụ và chốt kế hoạch sẽ được mở sau khi hệ thống xác nhận khoản đặt cọc.',
     paid: (paid: string, deposit: string) =>
       `Đã thanh toán ${paid} / ${deposit} ₫ tiền đặt cọc`,
     notAccepted:

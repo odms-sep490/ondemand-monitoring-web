@@ -1,3 +1,4 @@
+import { CloseOutlined } from '@ant-design/icons'
 import { Button, Drawer } from 'antd'
 import type { ReactNode } from 'react'
 
@@ -34,7 +35,7 @@ export function DetailPanel({ ticket, onClose, onAssignClick }: DetailPanelProps
       getContainer={mgrPopupContainer}
       width={440}
       onClose={onClose}
-      closeIcon={<span aria-label={t.detail.close}>✕</span>}
+      closeIcon={<CloseOutlined aria-label={t.detail.close} />}
       title={<span className="mgr-code">{ticket.code}</span>}
       className="mgr-ticket-drawer"
       footer={

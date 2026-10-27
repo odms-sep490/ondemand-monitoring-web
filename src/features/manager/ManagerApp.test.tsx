@@ -73,7 +73,7 @@ describe('ManagerApp', () => {
     render(<ManagerApp />)
 
     await waitFor(() =>
-      expect(screen.getByRole('heading', { name: 'Manager Dashboard' })).toBeInTheDocument(),
+      expect(screen.getByRole('heading', { name: 'Bảng điều khiển quản lý' })).toBeInTheDocument(),
     )
   })
 
@@ -147,7 +147,7 @@ describe('ManagerApp', () => {
     await waitFor(() =>
       expect(screen.getByText('Không tìm thấy màn hình')).toBeInTheDocument(),
     )
-    expect(screen.getByRole('link', { name: 'Về Dashboard' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Về bảng điều khiển' })).toHaveAttribute(
       'href',
       '#portal/manager',
     )

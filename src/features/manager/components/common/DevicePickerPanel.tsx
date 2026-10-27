@@ -1,3 +1,4 @@
+import { CheckOutlined } from '@ant-design/icons'
 import { ManagerIcon } from './ManagerIcon'
 import { StaffStatusBadge } from './StaffStatusBadge'
 import { liveDispatchPageMessages } from './LiveDispatchPage.messages'
@@ -183,10 +184,9 @@ export function DevicePickerPanel({
                   style={{
                     color: isSelected ? '#2563eb' : 'transparent',
                     fontSize: 18,
-                    fontWeight: 900,
                   }}
                 >
-                  ✓
+                  <CheckOutlined aria-hidden="true" />
                 </span>
               </button>
             )

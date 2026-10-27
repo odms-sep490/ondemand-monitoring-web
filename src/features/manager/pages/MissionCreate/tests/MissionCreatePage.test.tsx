@@ -74,10 +74,10 @@ describe('CreateMissionPage', () => {
   it('associates empty scope validation with the field without creating a Mission', async () => {
     const create = vi.spyOn(missionsApi, 'createMission')
     render(<MissionCreatePage orderId={brief.id} initialBrief={brief} />)
-    await waitFor(() => expect(screen.getByRole('button', { name: 'Tạo Mission' })).toBeEnabled())
-    const scope = screen.getByLabelText(/Tên \/ phạm vi công việc của Mission/)
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Tạo nhiệm vụ' })).toBeEnabled())
+    const scope = screen.getByLabelText(/Tên \/ phạm vi công việc của nhiệm vụ/)
     fireEvent.change(scope, { target: { value: ' ' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Tạo Mission' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Tạo nhiệm vụ' }))
     expect(scope).toHaveAttribute('aria-invalid', 'true')
     expect(scope).toHaveAttribute('aria-describedby', 'mission-scope-help mission-scope-error')
     expect(screen.getAllByRole('alert')).toHaveLength(1)
@@ -87,10 +87,10 @@ describe('CreateMissionPage', () => {
     render(<MissionCreatePage orderId={brief.id} initialBrief={brief} />)
     expect(await screen.findByText('Phiên bản 0')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Kế hoạch thực thi' })).toBeInTheDocument()
-    expect(screen.getByLabelText(/Tên \/ phạm vi công việc của Mission/)).toHaveValue('Toàn bộ phạm vi đơn hàng')
-    expect(screen.getByText('Mission sẽ sử dụng phạm vi địa lý hiện có của Order.')).toBeInTheDocument()
+    expect(screen.getByLabelText(/Tên \/ phạm vi công việc của nhiệm vụ/)).toHaveValue('Toàn bộ phạm vi đơn hàng')
+    expect(screen.getByText('Nhiệm vụ sẽ sử dụng phạm vi địa lý hiện có của đơn hàng.')).toBeInTheDocument()
     expect(screen.queryByDisplayValue('Whole Order scope')).not.toBeInTheDocument()
-    expect(screen.getByLabelText(/Tên \/ phạm vi công việc của Mission/)).toHaveAttribute('aria-describedby', 'mission-scope-help')
+    expect(screen.getByLabelText(/Tên \/ phạm vi công việc của nhiệm vụ/)).toHaveAttribute('aria-describedby', 'mission-scope-help')
   })
   it('localizes the planning card and scope display in English', async () => {
     setLanguage('en')
@@ -112,17 +112,17 @@ describe('CreateMissionPage', () => {
     const start = await screen.findByLabelText('Giờ cất cánh')
     fireEvent.change(start, { target: { value: '2026-09-24T09:00' } })
     fireEvent.change(screen.getByLabelText('Giờ kết thúc dự kiến'), { target: { value: '2026-09-24T10:00' } })
-    fireEvent.change(screen.getByLabelText(/Tên \/ phạm vi công việc của Mission/), { target: { value: 'Second scope' } })
-    await waitFor(() => expect(screen.getByRole('button', { name: 'Tạo Mission' })).toBeEnabled())
-    fireEvent.click(screen.getByRole('button', { name: 'Tạo Mission' }))
+    fireEvent.change(screen.getByLabelText(/Tên \/ phạm vi công việc của nhiệm vụ/), { target: { value: 'Second scope' } })
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Tạo nhiệm vụ' })).toBeEnabled())
+    fireEvent.click(screen.getByRole('button', { name: 'Tạo nhiệm vụ' }))
     await waitFor(() => expect(create).toHaveBeenCalledWith(brief.id, expect.objectContaining({ scopeLabel: 'Second scope' })))
   })
   it('locks new creation when the server plan is finalized', async () => {
     vi.spyOn(ordersApi, 'getOrderForMission').mockResolvedValue(brief)
     vi.mocked(planningApi.getExecutionPlan).mockResolvedValue({ orderId: brief.id, planStatus: 'FINALIZED', revision: 4, missions: [], coverage: { total: 0, covered: 0, uncovered: 0, repeated: 0, coverageReady: true, uncoveredItemIds: [] }, blockers: [] })
     render(<MissionCreatePage orderId={brief.id} />)
-    expect(await screen.findByText('Kế hoạch đã chốt. Có thể tạo Mission thay thế và chốt riêng Mission đó.')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Tạo Mission' })).toBeDisabled()
+    expect(await screen.findByText('Kế hoạch đã chốt. Có thể tạo nhiệm vụ thay thế và chốt riêng nhiệm vụ đó.')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Tạo nhiệm vụ' })).toBeDisabled()
   })
   it('shows the customer window but leaves the flight schedule for staff to choose', async () => {
     vi.spyOn(ordersApi, 'getOrderForMission').mockResolvedValue(brief)
@@ -183,7 +183,7 @@ describe('CreateMissionPage', () => {
       ).toBeInTheDocument(),
     )
     await waitFor(() =>
-      expect(screen.getByRole('button', { name: 'Tạo Mission' })).toBeEnabled(),
+      expect(screen.getByRole('button', { name: 'Tạo nhiệm vụ' })).toBeEnabled(),
     )
     fireEvent.change(screen.getByLabelText('Giờ cất cánh'), {
       target: { value: '2026-09-24T08:00' },
@@ -191,7 +191,7 @@ describe('CreateMissionPage', () => {
     fireEvent.change(screen.getByLabelText('Giờ kết thúc dự kiến'), {
       target: { value: '2026-09-24T09:30' },
     })
-    fireEvent.click(screen.getByRole('button', { name: 'Tạo Mission' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Tạo nhiệm vụ' }))
     await waitFor(() =>
       expect(missionsApi.createMission).toHaveBeenCalledWith(
         'ord-2609-0153',
@@ -226,7 +226,7 @@ describe('CreateMissionPage', () => {
     fireEvent.change(screen.getByLabelText('Giờ kết thúc dự kiến'), {
       target: { value: '2026-09-10T15:58' },
     })
-    fireEvent.click(screen.getByRole('button', { name: 'Tạo Mission' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Tạo nhiệm vụ' }))
     expect(
       await screen.findByText('Giờ kết thúc phải sau giờ cất cánh.'),
     ).toBeInTheDocument()
@@ -252,7 +252,7 @@ describe('CreateMissionPage', () => {
       ).toBeInTheDocument(),
     )
     await waitFor(() =>
-      expect(screen.getByRole('button', { name: 'Tạo Mission' })).toBeEnabled(),
+      expect(screen.getByRole('button', { name: 'Tạo nhiệm vụ' })).toBeEnabled(),
     )
     fireEvent.change(screen.getByLabelText('Giờ cất cánh'), {
       target: { value: '2026-09-24T08:00' },
@@ -260,7 +260,7 @@ describe('CreateMissionPage', () => {
     fireEvent.change(screen.getByLabelText('Giờ kết thúc dự kiến'), {
       target: { value: '2026-09-24T09:30' },
     })
-    fireEvent.click(screen.getByRole('button', { name: 'Tạo Mission' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Tạo nhiệm vụ' }))
     await waitFor(() =>
       expect(
         screen.getByText('Không tạo được kế hoạch bay'),

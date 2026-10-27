@@ -13,7 +13,7 @@ export const flightPermitCardMessages = defineMessages({
     ariaLabel: (code: string) => `Giấy phép bay ${code}`,
     title: (code: string) => `Giấy phép bay · ${code}`,
     intro:
-      'Mission chỉ được bắt đầu sau khi giấy phép được xác nhận là đã cấp.',
+      'Nhiệm vụ chỉ được bắt đầu sau khi giấy phép được xác nhận là đã cấp.',
     note: 'Ghi chú',
     notePlaceholder: 'Ví dụ: Đã gửi thông tin xin phép',
     fileOptional: 'File giấy phép (không bắt buộc)',

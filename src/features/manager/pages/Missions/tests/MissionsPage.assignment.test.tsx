@@ -48,7 +48,7 @@ it('Mission menu has exact resume links and Order context but no duplicate plann
   expect(within(row1).getByText('Chưa gán thiết bị')).toBeInTheDocument()
   expect(within(row2).getByText('Đã phân công nguồn lực')).toBeInTheDocument()
   expect(
-    within(row1).getByRole('link', { name: 'Mở kế hoạch Order của M1' }),
+    within(row1).getByRole('link', { name: 'Mở kế hoạch đơn hàng của M1' }),
   ).toHaveAttribute('href', '#portal/manager/orders/o')
   expect(
     screen.queryByText('Đơn đã duyệt — kế hoạch Mission'),

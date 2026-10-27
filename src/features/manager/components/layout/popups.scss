@@ -1,0 +1,48 @@
+/*
+ * Shared skin for antd popups (Dropdown, Select, Popover, DatePicker, Modal,
+ * Drawer). They mount inside `.mgr-layout` (see mgrPopupContainer), so the
+ * --mgr-* variables resolve; surface colours come from the antd theme tokens
+ * in theme/managerTheme.ts, this file only adds border / shadow / spacing.
+ */
+.mgr-layout {
+  .ant-dropdown .ant-dropdown-menu,
+  .ant-select-dropdown,
+  .ant-picker-dropdown .ant-picker-panel-container,
+  .ant-popover .ant-popover-inner {
+    border: 1px solid var(--mgr-border);
+    box-shadow: var(--mgr-shadow);
+  }
+
+  .ant-dropdown .ant-dropdown-menu {
+    padding: 6px;
+  }
+
+  .ant-modal .ant-modal-content,
+  .ant-drawer .ant-drawer-content {
+    border: 1px solid var(--mgr-border);
+    box-shadow: var(--mgr-shadow);
+  }
+
+  .ant-drawer .ant-drawer-header,
+  .ant-modal .ant-modal-header {
+    border-bottom-color: var(--mgr-border);
+  }
+
+  .ant-drawer .ant-drawer-footer {
+    border-top-color: var(--mgr-border);
+  }
+
+  .ant-modal .ant-modal-title,
+  .ant-drawer .ant-drawer-title {
+    color: var(--mgr-text);
+  }
+
+  .ant-modal-mask,
+  .ant-drawer-mask {
+    background: rgb(6 12 30 / 55%);
+  }
+
+  .ant-select-dropdown .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+    font-weight: 600;
+  }
+}

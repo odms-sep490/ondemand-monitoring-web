@@ -3,7 +3,7 @@ import { defineMessages } from '../../../../../shared/i18n'
 export const managerAreaReviewMessages = defineMessages({
   vi: {
     submitFailed: 'Không gửi được quyết định.',
-    managerReview: 'Đánh giá của Manager',
+    managerReview: 'Đánh giá của quản lý',
     reason: 'Lý do',
     note: 'Ghi chú',
     editReview: 'Chỉnh sửa đánh giá',
@@ -11,7 +11,7 @@ export const managerAreaReviewMessages = defineMessages({
     noPhone: 'Chưa có số điện thoại',
     requestAreaChange: 'Yêu cầu khách đổi khu vực',
     rejectOrder: 'Từ chối đơn hàng',
-    noReview: 'Chưa có đánh giá của Manager.',
+    noReview: 'Chưa có đánh giá của quản lý.',
     reviewArea: 'Đánh giá khu vực',
     needHelp: 'Cần trợ giúp? Liên hệ hỗ trợ',
   },

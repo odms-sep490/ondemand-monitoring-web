@@ -11,9 +11,15 @@ import {
   activeNavLabel,
   type ManagerNavCounts,
 } from './components/layout/navConfig'
-import { buildManagerTheme, MANAGER_SIDER_WIDTH } from './theme/managerTheme'
+import { mgrPopupContainer } from './components/common/mgrPopupContainer'
+import {
+  buildManagerTheme,
+  MANAGER_SIDER_RAIL_WIDTH,
+  MANAGER_SIDER_WIDTH,
+} from './theme/managerTheme'
 import './manager.css'
 import './components/layout/layout.scss'
+import './components/layout/popups.scss'
 import { managerLayoutMessages } from './ManagerLayout.messages'
 
 export type { ManagerNavCounts }
@@ -50,14 +56,16 @@ export function ManagerLayout({
   }, [dark])
 
   const overlayOpen = broken && !collapsed
+  // Desktop collapse keeps an icon rail; below the breakpoint the sider hides entirely.
+  const rail = collapsed && !broken
 
   return (
-    <ConfigProvider theme={themeConfig}>
+    <ConfigProvider theme={themeConfig} getPopupContainer={mgrPopupContainer}>
       <div className="odm odm-mgr mgr-layout">
         <Layout hasSider className="mgr-shell">
           <Sider
             width={MANAGER_SIDER_WIDTH}
-            collapsedWidth={0}
+            collapsedWidth={broken ? 0 : MANAGER_SIDER_RAIL_WIDTH}
             breakpoint="lg"
             trigger={null}
             collapsible
@@ -67,7 +75,7 @@ export function ManagerLayout({
               setCollapsed(isBroken)
             }}
             theme={dark ? 'dark' : 'light'}
-            className={`mgr-sider ${overlayOpen ? 'is-overlay' : ''}`}
+            className={`mgr-sider ${overlayOpen ? 'is-overlay' : ''} ${rail ? 'is-rail' : ''}`}
           >
             <a
               className="mgr-brand"
@@ -88,6 +96,7 @@ export function ManagerLayout({
             <SiderMenu
               activeLabel={activeNavLabel[route.screen]}
               counts={counts}
+              collapsed={rail}
               onNavigate={() => broken && setCollapsed(true)}
             />
             <SiderUserCard />

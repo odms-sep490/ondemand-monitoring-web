@@ -1,3 +1,4 @@
+import { CheckOutlined, LockOutlined } from '@ant-design/icons'
 import { StatusBadge, toUiTone } from '../../../../../shared/components/ui'
 import {
   missionStatusLabel,
@@ -80,13 +81,15 @@ export function MissionSelector({
               </StatusBadge>
             </span>
             <span className={`odm-workspace-rank is-${bucket}`}>
-              {bucket === 'finished'
-                ? '✓'
-                : bucket === 'active'
-                  ? '●'
-                  : bucket === 'blocked'
-                    ? '🔒'
-                    : '○'}{' '}
+              {bucket === 'finished' ? (
+                <CheckOutlined aria-hidden="true" />
+              ) : bucket === 'active' ? (
+                '●'
+              ) : bucket === 'blocked' ? (
+                <LockOutlined aria-hidden="true" />
+              ) : (
+                '○'
+              )}{' '}
               {wf.missionOf(missionIndex + 1, missions.length)}
               {bucket === 'active' ? ` · ${stage.label}` : ''}
             </span>
@@ -110,14 +113,15 @@ export function MissionSelector({
                     : t.checklistNeeded
                 }
               >
-                {count > 0 || noChecklist ? '✓' : '!'} Checklist{' '}
+                {count > 0 || noChecklist ? <CheckOutlined aria-hidden="true" /> : '!'}{' '}
+                {t.checklist}{' '}
                 {noChecklist ? '—' : count}
               </span>
               <span
                 className={device ? 'is-ready' : 'is-missing'}
                 title={device ? t.deviceAssigned : t.deviceMissing}
               >
-                {device ? '✓' : '!'} {t.device}
+                {device ? <CheckOutlined aria-hidden="true" /> : '!'} {t.device}
               </span>
               <span
                 className={!missing.length ? 'is-ready' : 'is-missing'}
@@ -131,7 +135,7 @@ export function MissionSelector({
                     : t.staffComplete
                 }
               >
-                {!missing.length ? '✓' : '!'} {t.staff} {4 - missing.length}/4
+                {!missing.length ? <CheckOutlined aria-hidden="true" /> : '!'} {t.staff} {4 - missing.length}/4
               </span>
             </span>
             {historical && (

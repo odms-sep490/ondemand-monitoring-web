@@ -2,7 +2,7 @@ import { defineMessages } from '../../../../../shared/i18n'
 
 export const executionPlanSummaryMessages = defineMessages({
   vi: {
-    coverageTitle: 'Mức bao phủ checklist',
+    coverageTitle: 'Mức bao phủ danh mục kiểm tra',
     required: 'Yêu cầu',
     assigned: 'Đã phân công',
     remaining: 'Còn lại',

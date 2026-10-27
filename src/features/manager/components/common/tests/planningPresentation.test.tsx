@@ -112,7 +112,7 @@ describe('planning product presentation', () => {
       path: '/test',
     })
     expect(planningError(error)).toBe(
-      'Order chưa ở trạng thái cho phép chốt kế hoạch.',
+      'Đơn hàng chưa ở trạng thái cho phép chốt kế hoạch.',
     )
     expect(error.code).toBe('ORDER_NOT_APPROVED')
     expect(

@@ -4,7 +4,7 @@ export const planningAdjustmentFormMessages = defineMessages({
   vi: {
     title: 'Điều chỉnh kế hoạch',
     intro:
-      'Mở lại kế hoạch để thêm hoặc thay thế Mission. Lịch sử thực thi vẫn được giữ nguyên.',
+      'Mở lại kế hoạch để thêm hoặc thay thế nhiệm vụ. Lịch sử thực thi vẫn được giữ nguyên.',
     reasonLabel: 'Lý do điều chỉnh kế hoạch',
     confirm: 'Xác nhận điều chỉnh',
     close: 'Đóng',

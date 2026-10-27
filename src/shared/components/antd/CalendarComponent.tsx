@@ -61,15 +61,30 @@ export function CalendarComponent({
 }: Props) {
   const calendarRef = useRef<FullCalendar>(null)
 
+  // FullCalendar calls flushSync when its API is driven; doing that inside a
+  // React effect trips "flushSync was called from inside a lifecycle method",
+  // so the imperative calls are deferred to a microtask.
   useEffect(() => {
-    const api = calendarRef.current?.getApi()
-    if (api && api.view.type !== view) api.changeView(view)
+    let cancelled = false
+    queueMicrotask(() => {
+      const api = calendarRef.current?.getApi()
+      if (!cancelled && api && api.view.type !== view) api.changeView(view)
+    })
+    return () => {
+      cancelled = true
+    }
   }, [view])
 
   const time = date?.getTime()
   useEffect(() => {
-    const api = calendarRef.current?.getApi()
-    if (api && time !== undefined) api.gotoDate(new Date(time))
+    let cancelled = false
+    queueMicrotask(() => {
+      const api = calendarRef.current?.getApi()
+      if (!cancelled && api && time !== undefined) api.gotoDate(new Date(time))
+    })
+    return () => {
+      cancelled = true
+    }
   }, [time])
 
   return (

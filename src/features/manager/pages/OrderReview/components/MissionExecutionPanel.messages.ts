@@ -4,8 +4,8 @@ export const missionExecutionPanelMessages = defineMessages({
   vi: {
     execution: (code: string) => `Thực thi ${code}`,
     checklistLoadFailed:
-      'Không thể tải checklist của Mission này. Vui lòng thử lại.',
-    resultLoadFailed: 'Không thể tải kết quả của Mission này.',
+      'Không thể tải danh mục kiểm tra của nhiệm vụ này. Vui lòng thử lại.',
+    resultLoadFailed: 'Không thể tải kết quả của nhiệm vụ này.',
     retry: 'Thử lại',
     mediaLibrary: 'Thư viện media',
   },

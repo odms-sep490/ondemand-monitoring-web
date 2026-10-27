@@ -1,3 +1,4 @@
+import { CloseOutlined } from '@ant-design/icons'
 import type { MissionCalendarItem } from '../../../types/missions'
 import type { PageMessages } from '../scheduleTypes'
 import { missionStatusTone } from '../../../../../shared/lib/statusTone'
@@ -119,7 +120,7 @@ export function ReschedulePanel({
             onClick={onClose}
             aria-label={t.closeDetail}
           >
-            ✕
+            <CloseOutlined aria-hidden="true" />
           </Button>
         }
       >

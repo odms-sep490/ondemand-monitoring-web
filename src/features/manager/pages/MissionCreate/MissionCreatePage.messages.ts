@@ -79,7 +79,7 @@ export const missionCreatePageMessages = defineMessages({
     waypoint: (count: number) => `Điểm bay (${count})`,
     addWaypoint: 'Thêm điểm bay',
     removeWaypointAria: (seq: number) => `Xoá điểm bay ${seq}`,
-    createMission: 'Tạo Mission',
+    createMission: 'Tạo nhiệm vụ',
     weatherCheckTitle: 'Kiểm tra thời tiết theo lịch bay',
     weatherCheckHint:
       'Chọn một ngày và giờ bất kỳ để kiểm tra trước khi quyết định lịch bay.',

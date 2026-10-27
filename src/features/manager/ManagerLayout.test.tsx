@@ -42,7 +42,7 @@ describe('ManagerLayout', () => {
     ]) {
       expect(screen.getByText(item)).toBeInTheDocument()
     }
-    expect(screen.getAllByText('Dashboard').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Bảng điều khiển').length).toBeGreaterThan(0)
   })
 
   it('does not render a "Thông báo" nav link (SYS-06 out of scope)', () => {
@@ -62,7 +62,7 @@ describe('ManagerLayout', () => {
     )
     const active = screen.getByRole('link', { name: /Bảo trì/ })
     expect(active).toHaveAttribute('aria-current', 'page')
-    const inactive = screen.getByRole('link', { name: 'Dashboard' })
+    const inactive = screen.getByRole('link', { name: 'Bảng điều khiển' })
     expect(inactive).not.toHaveAttribute('aria-current')
   })
 
@@ -102,6 +102,6 @@ describe('ManagerLayout', () => {
       </ManagerLayout>,
     )
     expect(screen.getByText('page content marker')).toBeInTheDocument()
-    expect(screen.getAllByText('Dashboard').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Bảng điều khiển').length).toBeGreaterThan(0)
   })
 })

@@ -40,9 +40,12 @@ export function UserMenu() {
         <div
           style={{
             background: token.colorBgElevated,
+            color: token.colorText,
+            border: `1px solid ${token.colorBorderSecondary}`,
             borderRadius: token.borderRadiusLG,
             boxShadow: token.boxShadowSecondary,
-            minWidth: 220,
+            overflow: 'hidden',
+            minWidth: 240,
           }}
         >
           <a
@@ -53,7 +56,7 @@ export function UserMenu() {
             <p className="mgr-user-name">{user?.fullName ?? t.manager}</p>
             <p className="mgr-user-email">{user?.email ?? ''}</p>
           </a>
-          <Divider style={{ margin: 0 }} />
+          <Divider style={{ margin: 0, borderColor: token.colorBorderSecondary }} />
           <div style={{ padding: 8 }}>
             <Button
               type="primary"

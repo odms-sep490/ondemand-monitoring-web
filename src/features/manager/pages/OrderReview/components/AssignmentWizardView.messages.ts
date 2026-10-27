@@ -3,7 +3,7 @@ import { defineMessages } from '../../../../../shared/i18n'
 export const assignmentWizardViewMessages = defineMessages({
   vi: {
     title: 'Chi tiết đơn hàng',
-    subtitle: 'Gán nhân sự và thiết bị cho Mission đã lên lịch',
+    subtitle: 'Gán nhân sự và thiết bị cho nhiệm vụ đã lên lịch',
     finishAssignment: 'Hoàn tất phân công',
   },
   en: {

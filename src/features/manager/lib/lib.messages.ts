@@ -74,18 +74,18 @@ export const managerLibMessages = defineMessages({
     },
     planning: {
       blockers: {
-        ORDER_NOT_APPROVED: 'Order chưa ở trạng thái cho phép chốt kế hoạch.',
+        ORDER_NOT_APPROVED: 'Đơn hàng chưa ở trạng thái cho phép chốt kế hoạch.',
         INVOICE_NOT_PAYABLE:
-          'Khách hàng cần chấp nhận báo giá trước khi tạo Mission.',
+          'Khách hàng cần chấp nhận báo giá trước khi tạo nhiệm vụ.',
         FINAL_PAYMENT_REQUIRED:
           'Khách hàng cần thanh toán đủ trước khi nhận bản gốc.',
         DELIVERABLE_NOT_RELEASED: 'Bản gốc chưa được bàn giao cho khách hàng.',
         NO_EFFECTIVE_MISSIONS:
-          'Thêm ít nhất một Mission vào kế hoạch trước khi chốt.',
+          'Thêm ít nhất một nhiệm vụ vào kế hoạch trước khi chốt.',
         CHECKLIST_ASSIGNMENT_NOT_FINALIZED:
-          'Phân công checklist chưa được chốt.',
+          'Phân công danh mục kiểm tra chưa được chốt.',
         CHECKLIST_EXECUTION_INTEGRITY_INVALID:
-          'Phân công checklist cần được kiểm tra lại trước khi chốt.',
+          'Phân công danh mục kiểm tra cần được kiểm tra lại trước khi chốt.',
         MULTI_MISSION_LEGACY_ORDER_NOT_MIGRATED:
           'Kế hoạch cũ cần được kiểm tra trước khi tiếp tục.',
         INVALID_REQUEST:
@@ -95,15 +95,15 @@ export const managerLibMessages = defineMessages({
         EXECUTION_PLAN_REVISION_CONFLICT:
           'Kế hoạch đã được thay đổi ở phiên bản khác. Vui lòng tải lại dữ liệu.',
         CHECKLIST_COVERAGE_INCOMPLETE:
-          'Còn checklist chưa được phân công. Kiểm tra các yêu cầu trước khi chốt kế hoạch.',
+          'Còn danh mục kiểm tra chưa được phân công. Kiểm tra các yêu cầu trước khi chốt kế hoạch.',
         MISSION_CANCELLATION_REQUIRES_SAFE_STOP:
-          'Mission chưa đủ điều kiện hủy. Cần hoàn tất xác nhận an toàn và đóng phiên vận hành trước khi hủy.',
+          'Nhiệm vụ chưa đủ điều kiện hủy. Cần hoàn tất xác nhận an toàn và đóng phiên vận hành trước khi hủy.',
         MISSION_SAFE_STOP_NOT_READY:
-          'Mission chưa ở trạng thái an toàn để tiếp tục. Làm mới trạng thái hoặc chờ nhân sự vận hành.',
+          'Nhiệm vụ chưa ở trạng thái an toàn để tiếp tục. Làm mới trạng thái hoặc chờ nhân sự vận hành.',
         MISSION_SAFE_STOP_FAILED:
           'Dừng an toàn chưa hoàn tất. Làm mới trạng thái và liên hệ nhân sự vận hành.',
         MISSION_RESULT_ALREADY_APPROVED:
-          'Kết quả đã được duyệt; không thể hủy lịch sử Mission này.',
+          'Kết quả đã được duyệt; không thể hủy lịch sử nhiệm vụ này.',
         RESOURCE_TIME_CONFLICT:
           'Tài nguyên bị trùng lịch. Chọn tài nguyên hoặc thời gian khác và tải lại danh sách khả dụng.',
         RESOURCE_ALREADY_RESERVED:
@@ -111,7 +111,7 @@ export const managerLibMessages = defineMessages({
         SCHEDULE_CONFLICT:
           'Lịch tài nguyên xung đột. Tải lại danh sách khả dụng và chọn lịch khác.',
         EXECUTION_PLAN_NOT_DRAFT:
-          'Kế hoạch/Mission đã chốt. Cần điều chỉnh kế hoạch trước khi tiếp tục lập kế hoạch.',
+          'Kế hoạch/nhiệm vụ đã chốt. Cần điều chỉnh kế hoạch trước khi tiếp tục lập kế hoạch.',
       } as Record<string, string>,
       fallback:
         'Chưa thể thực hiện thao tác. Vui lòng tải lại dữ liệu hoặc liên hệ hỗ trợ.',

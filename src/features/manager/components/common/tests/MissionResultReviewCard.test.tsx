@@ -72,10 +72,10 @@ describe('Mission result review card', () => {
     expect(within(review).getByText('2 ảnh/video')).toBeInTheDocument()
     expect(within(review).getByText(result.summary!)).toBeInTheDocument()
     expect(
-      within(review).getByText('Mission đã hoàn thành'),
+      within(review).getByText('Nhiệm vụ đã hoàn thành'),
     ).toBeInTheDocument()
     expect(
-      within(review).getByText('Checklist đã sẵn sàng'),
+      within(review).getByText('Danh mục kiểm tra đã sẵn sàng'),
     ).toBeInTheDocument()
     expect(within(review).getByText('Có media')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Duyệt kết quả' })).toBeEnabled()
@@ -103,7 +103,7 @@ describe('Mission result review card', () => {
       'Cần duyệt toàn bộ media trước khi duyệt kết quả.',
     )
     expect(screen.getByText('Còn media chưa được duyệt')).toBeInTheDocument()
-    expect(screen.getByText('Checklist đã sẵn sàng')).toBeInTheDocument()
+    expect(screen.getByText('Danh mục kiểm tra đã sẵn sàng')).toBeInTheDocument()
     expect(
       screen.getByRole('button', { name: 'Từ chối kết quả' }),
     ).toBeEnabled()
@@ -113,13 +113,13 @@ describe('Mission result review card', () => {
   })
 
   it.each([
-    ['EXECUTION_NOT_TERMINAL', 'Checklist chưa hoàn tất.'],
-    ['INSUFFICIENT_EVIDENCE', 'Checklist chưa đủ bằng chứng.'],
+    ['EXECUTION_NOT_TERMINAL', 'Danh mục kiểm tra chưa hoàn tất.'],
+    ['INSUFFICIENT_EVIDENCE', 'Danh mục kiểm tra chưa đủ bằng chứng.'],
     ['UNABLE_REASON_REQUIRED', 'Cần bổ sung lý do'],
     ['MEDIA_REJECTED', 'Media bị từ chối.'],
     ['MEDIA_NOT_VALIDATED', 'Media đang được kiểm tra.'],
     ['EVIDENCE_SOURCE_NOT_ELIGIBLE', 'Bằng chứng chưa phù hợp.'],
-    ['CHECKLIST_INTEGRITY_INVALID', 'Không thể xác nhận checklist.'],
+    ['CHECKLIST_INTEGRITY_INVALID', 'Không thể xác nhận danh mục kiểm tra.'],
   ] as Array<[EvidenceBlockingReason, string]>)(
     'presents a human-readable reason for %s',
     (reason, copy) => {
@@ -161,7 +161,7 @@ describe('Mission result review card', () => {
     card({ mission: { id: 'm1', status: 'PENDING_REVIEW' } })
     expect(screen.getByRole('button', { name: 'Duyệt kết quả' })).toBeDisabled()
     expect(screen.getByRole('status')).toHaveTextContent(
-      'Mission chưa hoàn thành.',
+      'Nhiệm vụ chưa hoàn thành.',
     )
   })
   it('does not introduce a media-count requirement for an empty ready checklist', () => {

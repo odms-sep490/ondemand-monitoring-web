@@ -50,7 +50,7 @@ it('stays hidden for Staff until a safe-stop request exists', async () => {
   )
   await waitFor(() => expect(planningApi.getSafeStop).toHaveBeenCalled())
   expect(
-    screen.queryByText('Dừng Mission an toàn'),
+    screen.queryByText('Dừng nhiệm vụ an toàn'),
   ).not.toBeInTheDocument()
 
   view.unmount()

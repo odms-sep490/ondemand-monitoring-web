@@ -10,7 +10,11 @@ export function SiderUserCard() {
   const { t } = useI18n(managerLayoutMessages)
   const user = authSession.getUser()
   return (
-    <a className="mgr-side-user" href="#profile">
+    <a
+      className="mgr-side-user"
+      href="#profile"
+      title={user?.fullName ?? t.manager}
+    >
       <Avatar size={38} icon={<UserOutlined />} aria-hidden="true" />
       <span className="mgr-side-user-text">
         <strong>{user?.fullName ?? t.manager}</strong>

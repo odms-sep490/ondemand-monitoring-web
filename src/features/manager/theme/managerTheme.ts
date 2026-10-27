@@ -37,6 +37,8 @@ export const MANAGER_FONT_FAMILY =
   "'Be Vietnam Pro', 'Inter', ui-sans-serif, system-ui, sans-serif"
 
 export const MANAGER_SIDER_WIDTH = 272
+/** Width of the desktop icon rail shown when the sider is collapsed. */
+export const MANAGER_SIDER_RAIL_WIDTH = 80
 
 export function buildManagerTheme(dark: boolean): ThemeConfig {
   const s = dark ? MANAGER_SURFACES.dark : MANAGER_SURFACES.light
@@ -84,7 +86,19 @@ export function buildManagerTheme(dark: boolean): ThemeConfig {
         cellPaddingBlock: 14,
       },
       Select: { optionSelectedBg: 'rgba(21, 101, 232, 0.1)' },
-      Button: { fontWeight: 600, controlHeight: 38 },
+      Button: {
+        fontWeight: 600,
+        controlHeight: 38,
+        controlHeightSM: 30,
+        borderRadiusSM: 8,
+      },
+      Modal: {
+        contentBg: dark ? MANAGER_SURFACES.dark.elevated : '#FFFFFF',
+        headerBg: dark ? MANAGER_SURFACES.dark.elevated : '#FFFFFF',
+        footerBg: dark ? MANAGER_SURFACES.dark.elevated : '#FFFFFF',
+      },
+      Drawer: { colorBgElevated: dark ? MANAGER_SURFACES.dark.elevated : '#FFFFFF' },
+      Dropdown: { paddingBlock: 6 },
       Tag: { borderRadiusSM: 999 },
     },
   }

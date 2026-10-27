@@ -2,10 +2,10 @@ import { defineMessages } from '../../../../../shared/i18n'
 
 export const planningActionsMessages = defineMessages({
   vi: {
-    creating: 'Đang tạo Mission',
-    addMission: 'Tạo thêm Mission',
+    creating: 'Đang tạo nhiệm vụ',
+    addMission: 'Tạo thêm nhiệm vụ',
     uncoveredHint: (n: number) =>
-      `Còn ${n} checklist chưa gán cho Mission nào. Gán đủ rồi mới tiếp tục được.`,
+      `Còn ${n} danh mục kiểm tra chưa gán cho nhiệm vụ nào. Gán đủ rồi mới tiếp tục được.`,
     nextAssignResources: 'Tiếp: Gán nguồn lực',
     adjustPlan: 'Điều chỉnh kế hoạch',
     assignResourcesFor: 'Phân công nguồn lực cho',

@@ -108,7 +108,7 @@ describe('Manager multi-Mission planning', () => {
     ).toBeInTheDocument()
     expect(screen.getByText(/Đã thanh toán\s+0\s*\/\s*500/)).toBeInTheDocument()
     expect(
-      screen.queryByRole('button', { name: 'Tạo thêm Mission' }),
+      screen.queryByRole('button', { name: 'Tạo thêm nhiệm vụ' }),
     ).not.toBeInTheDocument()
     expect(
       screen.queryByRole('button', { name: 'Chốt kế hoạch' }),
@@ -150,7 +150,7 @@ describe('Manager multi-Mission planning', () => {
       ).toBeGreaterThan(0)
       expect(screen.getByText(/Drone 1/)).toBeInTheDocument()
       expect(
-        screen.getByRole('button', { name: 'Tạo thêm Mission' }),
+        screen.getByRole('button', { name: 'Tạo thêm nhiệm vụ' }),
       ).toBeInTheDocument()
       expect(view.container.querySelector('.odm-planning-stop')).toBeNull()
       expect(
@@ -365,7 +365,7 @@ describe('Manager multi-Mission planning', () => {
       '#portal/manager/missions/m3/detail',
     )
     expect(
-      screen.getByRole('button', { name: 'Tạo thêm Mission' }),
+      screen.getByRole('button', { name: 'Tạo thêm nhiệm vụ' }),
     ).toBeInTheDocument()
     expect(screen.getByText('Phân công lặp').parentElement).toHaveTextContent(
       '1',
@@ -532,7 +532,7 @@ describe('Manager multi-Mission planning', () => {
       await screen.findByRole('button', { name: 'Điều chỉnh kế hoạch' }),
     )
     expect(
-      screen.queryByRole('button', { name: 'Tạo thêm Mission' }),
+      screen.queryByRole('button', { name: 'Tạo thêm nhiệm vụ' }),
     ).not.toBeInTheDocument()
     fireEvent.change(screen.getByLabelText('Lý do điều chỉnh kế hoạch'), {
       target: { value: 'Weather' },
@@ -544,7 +544,7 @@ describe('Manager multi-Mission planning', () => {
       }),
     )
     expect(
-      await screen.findByRole('button', { name: 'Tạo thêm Mission' }),
+      await screen.findByRole('button', { name: 'Tạo thêm nhiệm vụ' }),
     ).toBeInTheDocument()
     expect(
       screen.getAllByText('Đã chốt tại phiên bản 7', { exact: false }),
@@ -587,7 +587,7 @@ describe('Manager multi-Mission planning', () => {
       target: { value: 'Weather' },
     })
     fireEvent.click(
-      screen.getByRole('button', { name: 'Xác nhận hủy Mission' }),
+      screen.getByRole('button', { name: 'Xác nhận hủy nhiệm vụ' }),
     )
     fireEvent.click(
       within(await screen.findByRole('dialog')).getByRole('button', {
@@ -618,11 +618,11 @@ describe('Manager multi-Mission planning', () => {
     render(<OrderMissionPlanningSection orderId="o" />)
     expect(
       await screen.findByRole('button', {
-        name: 'Tạo Mission thay thế cho M1',
+        name: 'Tạo Nhiệm vụ thay thế cho M1',
       }),
     ).toBeEnabled()
     expect(
-      screen.queryByRole('button', { name: 'Tạo Mission thay thế cho M2' }),
+      screen.queryByRole('button', { name: 'Tạo Nhiệm vụ thay thế cho M2' }),
     ).not.toBeInTheDocument()
   })
 })
@@ -662,7 +662,7 @@ describe('safe-stop role boundaries', () => {
     expect(screen.getByRole('button', { name: 'Hủy Mission' })).toBeEnabled()
     expect(screen.queryByRole('textbox')).not.toBeInTheDocument()
     expect(
-      screen.queryByRole('button', { name: 'Xác nhận hủy Mission' }),
+      screen.queryByRole('button', { name: 'Xác nhận hủy nhiệm vụ' }),
     ).not.toBeInTheDocument()
     expect(
       screen.queryByRole('button', { name: 'Giải phóng tài nguyên' }),

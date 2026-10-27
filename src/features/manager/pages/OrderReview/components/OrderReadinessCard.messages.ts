@@ -13,7 +13,7 @@ export const orderReadinessCardMessages = defineMessages({
     submitFailed: 'Không gửi được quyết định.',
     requiredFailed: 'Có tiêu chí bắt buộc không đạt',
     pendingManager: (n: number) => `Còn ${n} mục manager cần xác nhận`,
-    managerConfirm: 'Manager xác nhận',
+    managerConfirm: 'Quản lý xác nhận',
     confirmedCount: 'đã xác nhận',
   },
   en: {

@@ -249,6 +249,77 @@ $primary: #1565e8;
     }
   }
 
+  /* ---------- Collapsed icon rail (desktop) ---------- */
+  .mgr-sider.is-rail {
+    .mgr-brand {
+      justify-content: center;
+      padding: 6px;
+    }
+
+    .mgr-brand-name {
+      display: none;
+    }
+
+    .ant-menu-item-group-title {
+      display: none;
+    }
+
+    .ant-menu-item-group + .ant-menu-item-group {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid var(--mgr-border);
+    }
+
+    .mgr-menu .ant-menu-item {
+      justify-content: center;
+      width: 100%;
+      margin-inline: 0;
+      padding-inline: 0 !important;
+    }
+
+    .mgr-menu .ant-menu-title-content {
+      position: absolute;
+      inset: 0;
+      max-width: none;
+      opacity: 1;
+    }
+
+    .mgr-menu-link {
+      position: absolute;
+      inset: 0;
+      justify-content: center;
+    }
+
+    /* label stays in the accessibility tree but is visually hidden */
+    .mgr-menu-link > span:first-child {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+
+    .mgr-menu-count {
+      position: absolute;
+      top: 3px;
+      right: 6px;
+      min-width: 16px;
+      height: 16px;
+      padding: 0 4px;
+      font-size: 10px;
+    }
+
+    .mgr-side-user {
+      justify-content: center;
+      padding: 8px;
+    }
+
+    .mgr-side-user-text {
+      display: none;
+    }
+  }
+
   .mgr-scrim {
     position: fixed;
     inset: 0;
@@ -289,7 +360,13 @@ $primary: #1565e8;
   }
 
   .mgr-header-left .ant-breadcrumb {
+    min-width: 0;
     font-size: 14px;
+    white-space: nowrap;
+
+    ol {
+      flex-wrap: nowrap;
+    }
 
     li:last-child {
       font-weight: 700;
@@ -426,8 +503,27 @@ $primary: #1565e8;
 
 @media (max-width: 640px) {
   .mgr-layout {
-    .mgr-support-btn {
+    .mgr-support-label {
       display: none;
+    }
+
+    .mgr-support-btn {
+      width: 40px;
+      padding-inline: 0;
+    }
+
+    .mgr-header-right {
+      gap: 4px;
+    }
+
+    /* single-line header: drop the "Manager" crumb and its separator */
+    .mgr-header-left .ant-breadcrumb li:nth-child(-n + 2) {
+      display: none;
+    }
+
+    .mgr-header-left .ant-breadcrumb li:last-child {
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .mgr-header {

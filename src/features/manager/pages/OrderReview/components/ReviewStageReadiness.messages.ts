@@ -3,15 +3,15 @@ import { defineMessages } from '../../../../../shared/i18n'
 export const reviewStageReadinessMessages = defineMessages({
   vi: {
     failedBlocked: (n: number) =>
-      `Có ${n} tiêu chí bắt buộc không đạt — không thể tiếp tục sang checklist và báo giá`,
+      `Có ${n} tiêu chí bắt buộc không đạt — không thể tiếp tục sang danh mục kiểm tra và báo giá`,
     draftBlocked:
       'Có tiêu chí bắt buộc đang chọn Không đạt — hãy nhập lý do và lưu quyết định',
     pendingBlocked: (n: number) =>
       `Còn ${n} mục bắt buộc chưa xác nhận — chưa thể duyệt báo giá`,
     notMet:
-      'Điều kiện duyệt chưa đạt — không thể tiếp tục sang checklist và báo giá',
+      'Điều kiện duyệt chưa đạt — không thể tiếp tục sang danh mục kiểm tra và báo giá',
     approvalCriteria: 'Điều kiện duyệt',
-    nextLabel: 'Tiếp: Checklist & báo giá',
+    nextLabel: 'Tiếp: Danh mục kiểm tra & báo giá',
   },
   en: {
     failedBlocked: (n: number) =>

@@ -5,7 +5,7 @@ export const missionDetailPageMessages = defineMessages({
     tabs: {
       result: 'Kết quả nhiệm vụ',
       media: 'Ảnh & video',
-      checklist: 'Kết quả checklist',
+      checklist: 'Kết quả danh mục kiểm tra',
       route: 'Bản đồ đường bay',
       order: 'Thông tin đơn hàng',
       plan: 'Kế hoạch bay',
@@ -18,7 +18,7 @@ export const missionDetailPageMessages = defineMessages({
       schedule: 'Lịch bay',
       drone: 'Thiết bị',
       crew: 'Đội bay',
-      checklist: 'Checklist',
+      checklist: 'Danh mục kiểm tra',
       media: 'Media',
       duration: 'Thời lượng',
       actualDuration: 'Thời lượng thực tế',
@@ -54,9 +54,9 @@ export const missionDetailPageMessages = defineMessages({
     noDescription: 'Chưa có mô tả',
     notRecorded: 'Chưa ghi nhận',
     plannedSuffix: (value: string) => `${value} dự kiến`,
-    checklistAcceptance: 'Checklist nghiệm thu',
+    checklistAcceptance: 'Danh mục kiểm tra nghiệm thu',
     checklistAccepted: 'Đã nghiệm thu',
-    checklistLoading: 'Đang tải checklist',
+    checklistLoading: 'Đang tải danh mục kiểm tra',
     checklistCompliant: (ok: number, total: number) =>
       `${ok}/${total} đạt yêu cầu`,
     resultCard: 'Kết quả nhiệm vụ & media',
@@ -99,7 +99,7 @@ export const missionDetailPageMessages = defineMessages({
     checkedAt: 'Thời điểm check',
     extra: {
       checklistLoadError:
-        'Không thể tải checklist của Mission này. Vui lòng thử lại.',
+        'Không thể tải danh mục kiểm tra của nhiệm vụ này. Vui lòng thử lại.',
       mediaLibrary: 'Thư viện media',
       satelliteAria: 'Bản đồ vệ tinh mission',
       startPoint: 'Điểm xuất phát',
@@ -117,11 +117,11 @@ export const missionDetailPageMessages = defineMessages({
       nextStep: {
         assignTitle: 'Cần phân công nguồn lực',
         assignDetail:
-          'Gán đủ nhân sự và thiết bị để Mission được gửi cho đội bay.',
+          'Gán đủ nhân sự và thiết bị để nhiệm vụ được gửi cho đội bay.',
         waitCrewTitle: 'Đang chờ đội bay xác nhận',
         waitCrewDetail: (accepted: number, crew: number) =>
-          `${accepted}/${crew} nhân sự đã nhận. Mission sẽ được lên lịch khi tất cả xác nhận.`,
-        waitCrewDetailNoCrew: 'Mission sẽ được lên lịch khi nhân sự xác nhận.',
+          `${accepted}/${crew} nhân sự đã nhận. Nhiệm vụ sẽ được lên lịch khi tất cả xác nhận.`,
+        waitCrewDetailNoCrew: 'Nhiệm vụ sẽ được lên lịch khi nhân sự xác nhận.',
         scheduledTitle: 'Đã lên lịch',
         scheduledDetail:
           'Đội bay sẽ kết nối thiết bị và kiểm tra trước chuyến bay.',
@@ -130,10 +130,10 @@ export const missionDetailPageMessages = defineMessages({
           'Xem tab Kết quả check, xử lý rồi cho đội bay kiểm tra lại.',
         pendingReviewTitle: 'Chờ duyệt kết quả',
         pendingReviewDetail:
-          'Xem media và checklist rồi duyệt hoặc yêu cầu bổ sung.',
+          'Xem media và danh mục kiểm tra rồi duyệt hoặc yêu cầu bổ sung.',
         failedTitle: 'Nhiệm vụ thất bại',
         cancelledTitle: 'Nhiệm vụ đã hủy',
-        endedDetail: 'Có thể tạo Mission thay thế trong kế hoạch Order.',
+        endedDetail: 'Có thể tạo nhiệm vụ thay thế trong kế hoạch đơn hàng.',
       },
     },
   },

@@ -2,8 +2,8 @@ import { defineMessages } from '../../../../../shared/i18n'
 
 export const stopFlowActionsMessages = defineMessages({
   vi: {
-    cancelMission: (code: string) => `Hủy Mission ${code}`,
-    replaceMission: (code: string) => `Thay thế Mission ${code}`,
+    cancelMission: (code: string) => `Hủy nhiệm vụ ${code}`,
+    replaceMission: (code: string) => `Thay thế nhiệm vụ ${code}`,
   },
   en: {
     cancelMission: (code: string) => `Cancel Mission ${code}`,

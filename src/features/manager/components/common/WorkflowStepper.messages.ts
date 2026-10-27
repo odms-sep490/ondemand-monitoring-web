@@ -13,7 +13,7 @@ export const workflowStepperMessages = defineMessages({
       },
       decision: { label: 'Quyết định', hint: 'Báo giá, duyệt hoặc từ chối' },
       deposit: { label: 'Đặt cọc', hint: 'Khách thanh toán' },
-      planning: { label: 'Lập kế hoạch', hint: 'Tạo và chốt Mission' },
+      planning: { label: 'Lập kế hoạch', hint: 'Tạo và chốt nhiệm vụ' },
     },
     missionStages: {
       permit: { label: 'Giấy phép bay', hint: 'Xin và xác nhận cấp phép' },
@@ -33,9 +33,9 @@ export const workflowStepperMessages = defineMessages({
     cancelledOrder: 'Đơn đã bị huỷ',
     waitingDeposit: 'Chờ đặt cọc',
     waitingDepositNote: 'Đang chờ khách hoàn tất khoản đặt cọc để tiếp tục.',
-    missionOf: (index: number, total: number) => `Mission ${index} / ${total}`,
-    missionPrev: 'Mission trước',
-    missionNext: 'Mission sau',
+    missionOf: (index: number, total: number) => `Nhiệm vụ ${index} / ${total}`,
+    missionPrev: 'Nhiệm vụ trước',
+    missionNext: 'Nhiệm vụ sau',
   },
   en: {
     ariaLabel: 'Order workflow',

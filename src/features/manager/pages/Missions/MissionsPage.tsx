@@ -10,6 +10,7 @@ import type { MissionCalendarItem } from '../../types/missions'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
 import { missionsApi } from '../../api/missionsApi'
+import { dedupeById } from '../../lib/dedupeById'
 import type { DeliveryStatus as WorkflowDeliveryStatus } from '../../../delivery/types'
 import { missionsPageMessages } from './MissionsPage.messages'
 import '../../components/layout/mgrLayout.css'
@@ -52,11 +53,14 @@ export function MissionsPage({ missionId }: MissionsListPageProps) {
       }),
     [statusFilter],
   )
-  const missions = useMemo(() => query.data?.items ?? [], [query.data?.items])
+  const missions = useMemo(
+    () => dedupeById(query.data?.items ?? []),
+    [query.data?.items],
+  )
   // KPI counts always describe the whole list, even while a status filter is applied.
   const [snapshot, setSnapshot] = useState<MissionCalendarItem[] | null>(null)
   useEffect(() => {
-    if (statusFilter === 'ALL' && query.data) setSnapshot(query.data.items)
+    if (statusFilter === 'ALL' && query.data) setSnapshot(dedupeById(query.data.items))
   }, [statusFilter, query.data])
   const [search, setSearch] = useState('')
   const selected =

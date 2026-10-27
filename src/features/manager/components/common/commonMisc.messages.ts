@@ -12,7 +12,7 @@ export const commonMiscMessages = defineMessages({
     resourcesLoadFailed:
       'Không thể tải nguồn lực của nhiệm vụ này. Vui lòng thử lại.',
     missionNotEligible:
-      'Nhiệm vụ không còn đủ điều kiện phân công trong Order này. Vui lòng chọn lại nhiệm vụ.',
+      'Nhiệm vụ không còn đủ điều kiện phân công trong đơn hàng này. Vui lòng chọn lại nhiệm vụ.',
     cancel: 'Hủy',
     confirm: 'Xác nhận',
     ready: 'Sẵn sàng',

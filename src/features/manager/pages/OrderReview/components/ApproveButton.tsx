@@ -1,3 +1,4 @@
+import { CheckOutlined } from '@ant-design/icons'
 import type { OrderReviewMessages } from '../OrderReviewPage.messages'
 import type { ApproveResult } from '../approvalTypes'
 import { useState, useRef } from 'react'
@@ -82,7 +83,7 @@ export function ApproveButton({
         >
           {t.approveChecklist.map((item) => (
             <div key={item} style={{ fontSize: 13, lineHeight: 1.7 }}>
-              ✓ {item}
+              <CheckOutlined aria-hidden="true" /> {item}
             </div>
           ))}
         </Modal>

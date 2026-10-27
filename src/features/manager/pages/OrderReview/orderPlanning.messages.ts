@@ -4,15 +4,15 @@ export const orderPlanningMessages = defineMessages({
   vi: {
     finalizeTitle: 'Chốt kế hoạch?',
     finalizeBody:
-      'Sau khi chốt, cấu trúc Mission và phân công checklist của phiên bản hiện tại sẽ được cố định.',
+      'Sau khi chốt, cấu trúc nhiệm vụ và phân công danh mục kiểm tra của phiên bản hiện tại sẽ được cố định.',
     finalizeAction: 'Chốt kế hoạch',
     amendTitle: 'Điều chỉnh kế hoạch?',
-    cancelTitle: 'Hủy Mission?',
+    cancelTitle: 'Hủy nhiệm vụ?',
     amendBody:
-      'Mở phiên bản kế hoạch mới để thay đổi cấu trúc Mission. Lịch sử vẫn được giữ nguyên.',
-    cancelBody: 'Mission sẽ được hủy và giữ lại trong lịch sử.',
+      'Mở phiên bản kế hoạch mới để thay đổi cấu trúc nhiệm vụ. Lịch sử vẫn được giữ nguyên.',
+    cancelBody: 'Nhiệm vụ sẽ được hủy và giữ lại trong lịch sử.',
     amendAction: 'Điều chỉnh kế hoạch',
-    cancelAction: 'Hủy Mission',
+    cancelAction: 'Hủy nhiệm vụ',
     finalized: 'Kế hoạch đã được chốt thành công.',
     updated: 'Đã cập nhật kế hoạch.',
     noInvoice:
@@ -20,9 +20,9 @@ export const orderPlanningMessages = defineMessages({
     paymentReconciled:
       'Đã đối soát với VNPAY. Trạng thái đặt cọc đã được cập nhật.',
     checklistDirty:
-      'Bạn vừa thay đổi checklist. Hãy bấm “Lưu phân công” trước khi tiếp tục.',
+      'Bạn vừa thay đổi danh mục kiểm tra. Hãy bấm “Lưu phân công” trước khi tiếp tục.',
     coverageIncomplete:
-      'Còn checklist chưa được gán cho Mission. Hãy chọn các mục còn thiếu và bấm “Lưu phân công”, sau đó tiếp tục gán nguồn lực.',
+      'Còn danh mục kiểm tra chưa được gán cho nhiệm vụ. Hãy chọn các mục còn thiếu và bấm “Lưu phân công”, sau đó tiếp tục gán nguồn lực.',
     approveBlocked: (reasons: string) => `Chưa đủ điều kiện duyệt: ${reasons}`,
   },
   en: {

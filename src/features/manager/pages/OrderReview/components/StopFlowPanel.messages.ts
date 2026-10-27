@@ -2,28 +2,28 @@ import { defineMessages } from '../../../../../shared/i18n'
 
 export const stopFlowPanelMessages = defineMessages({
   vi: {
-    stopMission: (code: string) => `Dừng Mission ${code}`,
-    confirmCancel: 'Xác nhận hủy Mission',
-    safeStop: 'Dừng Mission an toàn',
+    stopMission: (code: string) => `Dừng nhiệm vụ ${code}`,
+    confirmCancel: 'Xác nhận hủy nhiệm vụ',
+    safeStop: 'Dừng nhiệm vụ an toàn',
     closePanel: 'Đóng bảng thao tác',
     checkingStatus: 'Đang kiểm tra trạng thái…',
-    canCancel: 'Mission có thể được hủy. Lịch sử đã ghi nhận sẽ được giữ lại.',
+    canCancel: 'Nhiệm vụ có thể được hủy. Lịch sử đã ghi nhận sẽ được giữ lại.',
     crewResponsible:
-      'Đội bay chịu trách nhiệm đưa Mission về trạng thái an toàn trước khi tiếp tục hủy.',
-    afterCancel: 'Sau khi hủy, bạn có thể tạo Mission thay thế.',
-    stopReason: 'Lý do dừng / hủy Mission',
+      'Đội bay chịu trách nhiệm đưa nhiệm vụ về trạng thái an toàn trước khi tiếp tục hủy.',
+    afterCancel: 'Sau khi hủy, bạn có thể tạo nhiệm vụ thay thế.',
+    stopReason: 'Lý do dừng / hủy nhiệm vụ',
     noReason: 'Chưa có thông tin lý do.',
     reasonNotLoaded:
-      'Chưa tải được lý do dừng. Làm mới trạng thái trước khi hủy Mission.',
+      'Chưa tải được lý do dừng. Làm mới trạng thái trước khi hủy nhiệm vụ.',
     cannotCancelNow:
-      'Chưa thể hủy Mission lúc này. Làm mới trạng thái để kiểm tra lại.',
-    openAdjustPlan: 'Mở điều chỉnh kế hoạch trước khi tiếp tục hủy Mission.',
+      'Chưa thể hủy nhiệm vụ lúc này. Làm mới trạng thái để kiểm tra lại.',
+    openAdjustPlan: 'Mở điều chỉnh kế hoạch trước khi tiếp tục hủy nhiệm vụ.',
     notReadyToRelease:
       'Chưa đủ điều kiện giải phóng tài nguyên. Kiểm tra với đội bay và làm mới trạng thái.',
     processing: 'Đang xử lý…',
     requestStop: 'Yêu cầu dừng an toàn',
     releaseResources: 'Giải phóng tài nguyên',
-    cancelMission: 'Hủy Mission',
+    cancelMission: 'Hủy nhiệm vụ',
   },
   en: {
     stopMission: (code: string) => `Stop Mission ${code}`,
