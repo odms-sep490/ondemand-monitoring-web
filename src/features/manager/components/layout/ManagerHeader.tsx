@@ -7,6 +7,7 @@ import {
 } from '@ant-design/icons'
 import { Badge, Breadcrumb, Button, Input, Layout } from 'antd'
 
+import { LanguageToggle } from '../../../../shared/components/LanguageToggle'
 import { useI18n } from '../../../../shared/i18n'
 import { managerLayoutMessages } from '../../ManagerLayout.messages'
 import { managerHref } from '../../routes'
@@ -74,6 +75,7 @@ export function ManagerHeader({
             <BellOutlined style={{ fontSize: 18, color: 'inherit' }} />
           </Badge>
         </a>
+        <LanguageToggle className="mgr-lang-toggle" />
         <Button
           type="text"
           className="mgr-icon-btn"

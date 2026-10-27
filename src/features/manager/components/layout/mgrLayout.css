@@ -48,10 +48,10 @@
 
 /* Key / value rows */
 .mgr-kv { display: flex; flex-direction: column; margin: 0; }
-.mgr-kv-row { display: flex; justify-content: space-between; gap: var(--ui-space-3); padding: var(--ui-space-2) 0; border-bottom: 1px solid var(--ui-border); font-size: 13px; }
+.mgr-kv-row { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--ui-space-3); padding: var(--ui-space-2) 0; border-bottom: 1px solid var(--ui-border); font-size: 13px; }
 .mgr-kv-row:last-child { border-bottom: 0; }
-.mgr-kv-row dt { color: var(--ui-text-3); flex: none; }
-.mgr-kv-row dd { margin: 0; color: var(--ui-text); font-weight: 600; text-align: right; min-width: 0; overflow-wrap: anywhere; }
+.mgr-kv-row dt { color: var(--ui-text-3); flex: 0 1 40%; min-width: 0; overflow-wrap: break-word; word-break: normal; }
+.mgr-kv-row dd { margin: 0; color: var(--ui-text); font-weight: 600; text-align: right; flex: 1 1 0; min-width: 0; overflow-wrap: break-word; word-break: normal; }
 
 /* Detail layout: main 2fr + sticky sidebar 1fr */
 .mgr-detail-grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: var(--ui-space-4); align-items: start; }

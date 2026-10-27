@@ -34,7 +34,7 @@ export const MANAGER_SURFACES = {
 // Be Vietnam Pro is designed for Vietnamese diacritics (Finlandica crowds
 // stacked marks). Loaded in layout.scss.
 export const MANAGER_FONT_FAMILY =
-  "'Be Vietnam Pro', 'Inter', ui-sans-serif, system-ui, sans-serif"
+  "'Be Vietnam Pro', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
 
 export const MANAGER_SIDER_WIDTH = 272
 /** Width of the desktop icon rail shown when the sider is collapsed. */
