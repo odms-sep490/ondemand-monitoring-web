@@ -93,7 +93,7 @@ export function ActiveMissionOverview({
             </li>
           </ul>
           {waypoints.length > 0 ? (
-            <ul className="odm-rm-wps">
+            <ul className="odm-rm-wps mgr-scroll-list">
               {waypoints.map((point, index) => (
                 <li key={point.id}>
                   <b>

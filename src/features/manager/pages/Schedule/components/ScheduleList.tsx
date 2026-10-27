@@ -1,6 +1,7 @@
 import { Table } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 
+import { useTablePagination } from '../../../../../shared/components/antd'
 import { missionStatusTone } from '../../../../../shared/lib/statusTone'
 import { StatusTag } from '../../../components/common/StatusTag'
 import type { MissionCalendarItem } from '../../../types/missions'
@@ -36,6 +37,8 @@ export function ScheduleList({
   const rows = [...missions]
     .filter((m) => m.scheduledStartAt)
     .sort((a, b) => a.scheduledStartAt!.localeCompare(b.scheduledStartAt!))
+
+  const pagination = useTablePagination(rows, 'id')
 
   const columns: ColumnsType<MissionCalendarItem> = [
     {
@@ -73,7 +76,7 @@ export function ScheduleList({
       size="middle"
       columns={columns}
       dataSource={rows}
-      pagination={false}
+      pagination={pagination}
       rowClassName={(m) =>
         `mgr-row-click${selectedId === m.id ? ' is-selected' : ''}`
       }

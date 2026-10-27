@@ -101,7 +101,7 @@ export function MissionChecklistAssignmentEditor({
       ) : null}
       {!editable && !query.loading && !query.error && (
         <ul
-          className="odm-mission-checklist"
+          className="odm-mission-checklist mgr-scroll-list"
           aria-label={`Checklist ${missionId}`}
         >
           {query.data?.assignments
@@ -149,6 +149,7 @@ export function MissionChecklistAssignmentEditor({
             </div>
           )}
           <fieldset
+            className="mgr-scroll-list"
             disabled={
               !editable || busy || query.loading || Boolean(query.error)
             }

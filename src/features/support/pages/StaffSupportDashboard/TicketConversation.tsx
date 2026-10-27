@@ -11,7 +11,7 @@ export function TicketConversation({ ticket }: { ticket: SupportTicketDto }) {
   const { t: labels } = useI18n(ticketLabelsMessages)
   const messages = ticket.messages ?? []
   return (
-    <div className="sd-thread">
+    <div className="sd-thread mgr-scroll-list mgr-scroll-list--tall">
       {messages.length === 0 ? (
         <div className="sd-thread-empty">
           {ticket.description || t.detail.noMessages}

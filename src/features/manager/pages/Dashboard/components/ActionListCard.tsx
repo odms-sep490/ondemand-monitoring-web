@@ -50,6 +50,7 @@ export function ActionListCard({ items, generatedAt }: { items: ActionItem[]; ge
               ))}
             </div>
           ) : null}
+          <div className="mgr-scroll-list">
           {visible.map((g) => (
             <section key={g.type}>
               {groups.length > 1 && !active ? (
@@ -75,6 +76,7 @@ export function ActionListCard({ items, generatedAt }: { items: ActionItem[]; ge
               </ul>
             </section>
           ))}
+          </div>
         </>
       )}
     </CardComponent>

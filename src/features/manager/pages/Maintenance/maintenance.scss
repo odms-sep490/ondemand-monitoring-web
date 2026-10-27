@@ -72,6 +72,11 @@
       margin: -2px;
     }
 
+    .mgr-maint-more {
+      flex: none;
+      align-self: center;
+    }
+
     .mgr-maint-col-empty {
       padding: 24px 12px;
       border: 1px dashed var(--mgr-border);

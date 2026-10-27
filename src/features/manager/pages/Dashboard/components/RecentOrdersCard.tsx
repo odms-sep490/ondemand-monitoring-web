@@ -69,6 +69,7 @@ export function RecentOrdersCard({ orders, className }: { orders: RecentOrder[];
           rowKey="orderId"
           columns={columns}
           dataSource={orders.slice(0, MAX_ROWS)}
+          pagination={false}
           scroll={{ x: 640 }}
         />
       )}

@@ -81,7 +81,7 @@ export function MissionChecklistSelectionCard({
             <p>{t.empty}</p>
           </div>
         ) : (
-          <div className="odm-checklist-items-grid">
+          <div className="odm-checklist-items-grid mgr-scroll-list">
             {items.map((item) => {
               const isChecked = selectedIds.includes(item.id)
               const isUncovered =

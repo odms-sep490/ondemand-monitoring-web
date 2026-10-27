@@ -3783,3 +3783,21 @@ fieldset.odm-or-readonly {
 
 /* ---------- Drones and Maintenance (shared list-page pattern) ---------- */
 
+
+/* Long lists keep a bounded height and scroll inside their card. */
+.mgr-scroll-list {
+  max-height: 360px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.mgr-scroll-list--tall {
+  max-height: 480px;
+}
+
+.mgr-show-more {
+  grid-column: 1 / -1;
+  justify-self: center;
+  align-self: center;
+}

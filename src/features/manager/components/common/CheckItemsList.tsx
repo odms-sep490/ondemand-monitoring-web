@@ -17,7 +17,7 @@ export function CheckItemsList({
     return <div className="odm-or-empty">{t.noCheckItems}</div>
   }
   return (
-    <ul className="odm-or-check-list">
+    <ul className="odm-or-check-list mgr-scroll-list">
       {items.map((item) => (
         <li
           key={`${item.checkType}-${item.checkName}`}

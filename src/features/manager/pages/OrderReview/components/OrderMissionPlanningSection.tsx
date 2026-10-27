@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { ShowMoreList } from '../../../../../shared/components/antd'
 import type { OrderDetail } from '../../../types/orders'
 import type { MissionResponse } from '../../../types/missions'
 import type { MissionStatus } from '../../../../../shared/types/domain'
@@ -398,13 +399,15 @@ function OrderPlanningWorkspace({
                   <p>{ts.permitEmptyHint}</p>
                 </div>
               ) : (
-                effective.map((mission) => (
-                  <FlightPermitCard
-                    key={mission.id}
-                    mission={mission}
-                    onChanged={query.reload}
-                  />
-                ))
+                <ShowMoreList>
+                  {effective.map((mission) => (
+                    <FlightPermitCard
+                      key={mission.id}
+                      mission={mission}
+                      onChanged={query.reload}
+                    />
+                  ))}
+                </ShowMoreList>
               )}
             </div>
           ) : (
@@ -440,6 +443,7 @@ function OrderPlanningWorkspace({
                 </div>
               ) : (
                 <div className="odm-workspace-grid">
+                  <ShowMoreList>
                   {data.missions.map((mission) => (
                     <MissionGridCard
                       key={mission.id}
@@ -458,6 +462,7 @@ function OrderPlanningWorkspace({
                       )}
                     />
                   ))}
+                  </ShowMoreList>
                 </div>
               )}
             </div>

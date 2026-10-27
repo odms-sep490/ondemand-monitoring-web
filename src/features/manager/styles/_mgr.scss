@@ -193,6 +193,17 @@ $tones: (
     white-space: nowrap;
   }
 
+  .mgr-atable .ant-table-pagination.ant-pagination {
+    margin: 0;
+    padding: 12px 20px;
+    border-top: 1px solid var(--mgr-border);
+  }
+
+  .mgr-grid-pager.ant-pagination {
+    justify-content: flex-end;
+    margin-top: 16px;
+  }
+
   .mgr-table-foot {
     padding: 12px 20px;
     border-top: 1px solid var(--mgr-border);
