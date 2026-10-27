@@ -1,39 +1,30 @@
 // MNG-10: Maintenance ticket list with Manager Search, Filter & System Operator Assignment Workflow
 import { useMemo, useState } from 'react'
-import { Select } from 'antd'
 
-import { CardComponent } from '../../../../shared/components/antd'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
-import { getTicketSeverityLabel, getTicketStatusLabel } from '../../../../shared/lib/statusTone'
 import type { TicketStatus } from '../../../../shared/types/domain'
 import { maintenanceApi } from '../../api/maintenanceApi'
-import { EmptyState } from '../../components/common/EmptyState'
 import { ErrorState } from '../../components/common/ErrorState'
-import { FilterBar, FilterSegments } from '../../components/common/FilterBar'
 import { PageHeader } from '../../components/common/PageHeader'
 import type { MaintenanceTicket } from '../../types/maintenance'
 import '../../manager.css'
 import './maintenance.scss'
 import { AssignModal } from './components/AssignModal'
-import { DetailPanel } from './components/DetailPanel'
-import { MaintenanceKpis } from './components/MaintenanceKpis'
 import { MaintenanceSkeleton } from './components/MaintenanceSkeleton'
-import { TicketTable } from './components/TicketTable'
-import { COLUMNS, SEVERITIES } from './maintenanceHelpers'
+import { MaintenanceStats } from './components/MaintenanceStats'
+import { TicketBoard } from './components/TicketBoard'
+import { TicketFilterBar } from './components/TicketFilterBar'
 import { maintenancePageMessages } from './MaintenancePage.messages'
 
-type StatusFilter = 'ALL' | TicketStatus
-
 export function MaintenancePage() {
-  const { t, lang } = useI18n(maintenancePageMessages)
+  const { t } = useI18n(maintenancePageMessages)
   const [tickets, setTickets] = useState<MaintenanceTicket[] | null>(null)
   const [selectedTicket, setSelectedTicket] = useState<MaintenanceTicket | null>(null)
   const [assignTicket, setAssignTicket] = useState<MaintenanceTicket | null>(null)
 
   // Manager Search & Filter controls state
   const [searchQuery, setSearchQuery] = useState('')
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL')
   const [priorityFilter, setPriorityFilter] = useState<string>('ALL')
   const [assignedFilter, setAssignedFilter] = useState<string>('ALL')
 
@@ -41,8 +32,8 @@ export function MaintenancePage() {
 
   const allTickets = useMemo(() => tickets ?? query.data?.items ?? [], [tickets, query.data?.items])
 
-  // Search, priority and assignment narrow the list; the status segments then split it.
-  const narrowed = useMemo(() => {
+  // Search, priority and assignment narrow the list; the board then splits it by status.
+  const filteredTickets = useMemo(() => {
     const q = searchQuery.toLowerCase().trim()
     return allTickets.filter((ticket) => {
       const matchQuery =
@@ -60,10 +51,11 @@ export function MaintenancePage() {
     })
   }, [allTickets, searchQuery, priorityFilter, assignedFilter])
 
-  const visible = useMemo(
-    () => (statusFilter === 'ALL' ? narrowed : narrowed.filter((ticket) => ticket.status === statusFilter)),
-    [narrowed, statusFilter],
-  )
+  const byColumn = useMemo(() => {
+    const map: Record<TicketStatus, MaintenanceTicket[]> = { OPEN: [], IN_PROGRESS: [], RESOLVED: [], CLOSED: [] }
+    for (const ticket of filteredTickets) map[ticket.status]?.push(ticket)
+    return map
+  }, [filteredTickets])
 
   const isActive = (ticket: MaintenanceTicket) => ticket.status === 'OPEN' || ticket.status === 'IN_PROGRESS'
   const unassignedCount = allTickets.filter((ticket) => isActive(ticket) && !ticket.assignedTo).length
@@ -81,70 +73,27 @@ export function MaintenancePage() {
     setAssignTicket(null)
   }
 
-  const ready = !query.loading && !query.error
-
   return (
     <div className="mgr-view mgr-maintenance">
-      <PageHeader title={t.page.title} description={t.page.subtitle} />
-
-      {ready ? (
-        <MaintenanceKpis
-          unassignedCount={unassignedCount}
-          urgentCount={urgentCount}
-          resolvedCount={resolvedCount}
-        />
-      ) : null}
-
-      <FilterBar
-        start={
-          <FilterSegments<StatusFilter>
-            ariaLabel={t.page.statusAria}
-            value={statusFilter}
-            onChange={setStatusFilter}
-            options={[
-              { value: 'ALL', label: t.page.statusAll, count: narrowed.length },
-              ...COLUMNS.map((status) => ({
-                value: status,
-                label: getTicketStatusLabel(status, lang),
-                count: narrowed.filter((ticket) => ticket.status === status).length,
-              })),
-            ]}
+      <PageHeader
+        title={t.page.title}
+        description={t.page.subtitle}
+        actions={
+          <MaintenanceStats
+            unassignedCount={unassignedCount}
+            urgentCount={urgentCount}
+            resolvedCount={resolvedCount}
           />
         }
-        search={{
-          value: searchQuery,
-          onChange: setSearchQuery,
-          placeholder: t.page.searchPlaceholder,
-          ariaLabel: t.page.searchAria,
-        }}
-        end={
-          <>
-            <Select
-              aria-label={t.page.priorityAria}
-              value={priorityFilter}
-              onChange={setPriorityFilter}
-              popupMatchSelectWidth={false}
-              options={[
-                { value: 'ALL', label: t.page.priorityAll },
-                ...[...SEVERITIES].reverse().map((severity) => ({
-                  value: severity,
-                  label: getTicketSeverityLabel(severity, lang),
-                })),
-              ]}
-            />
-            <Select
-              aria-label={t.page.assignedAria}
-              value={assignedFilter}
-              onChange={setAssignedFilter}
-              popupMatchSelectWidth={false}
-              options={[
-                { value: 'ALL', label: t.page.assignedAll },
-                { value: 'UNASSIGNED', label: t.page.assignedUnassigned },
-                { value: 'ASSIGNED', label: t.page.assignedAssigned },
-              ]}
-            />
-          </>
-        }
+      />
+
+      <TicketFilterBar
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        priorityFilter={priorityFilter}
+        setPriorityFilter={setPriorityFilter}
+        assignedFilter={assignedFilter}
+        setAssignedFilter={setAssignedFilter}
       />
 
       {query.loading && <MaintenanceSkeleton />}
@@ -153,28 +102,12 @@ export function MaintenancePage() {
         <ErrorState title={t.page.loadError} error={query.error} onRetry={query.reload} />
       )}
 
-      {ready && visible.length === 0 && (
-        <CardComponent>
-          <EmptyState title={t.page.emptyTitle} description={t.page.emptyDescription} />
-        </CardComponent>
-      )}
-
-      {ready && visible.length > 0 && (
-        <TicketTable
-          rows={visible}
-          total={allTickets.length}
-          selectedId={selectedTicket?.id ?? null}
-          onSelect={setSelectedTicket}
-          onAssign={setAssignTicket}
-        />
-      )}
-
-      {selectedTicket && (
-        <DetailPanel
-          key={selectedTicket.id}
-          ticket={selectedTicket}
-          onClose={() => setSelectedTicket(null)}
-          onAssignClick={setAssignTicket}
+      {!query.loading && !query.error && (
+        <TicketBoard
+          byColumn={byColumn}
+          selectedTicket={selectedTicket}
+          setSelectedTicket={setSelectedTicket}
+          setAssignTicket={setAssignTicket}
         />
       )}
 

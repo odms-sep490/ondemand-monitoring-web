@@ -1,102 +1,367 @@
-/* Maintenance tickets (MNG-10) in the Manager look: antd table + detail drawer. */
+/* Maintenance tickets (MNG-10) in the Manager look: kanban board + docked detail panel. */
 :root .mgr-layout {
   .mgr-maintenance {
-    .mgr-row-click {
-      cursor: pointer;
+    .mgr-maint-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
 
-      &.is-selected > td {
-        background: color-mix(in srgb, var(--mgr-card) 90%, var(--pl-blue-ac));
+    .mgr-maint-stat {
+      min-width: 96px;
+      padding: 8px 16px;
+      border: 1px solid var(--mgr-border);
+      border-radius: 12px;
+      background: var(--mgr-card-2);
+      text-align: center;
+
+      &.is-red .mgr-maint-stat-value {
+        color: #dc2626;
+      }
+
+      &.is-amber .mgr-maint-stat-value {
+        color: var(--pl-amber-fg);
+      }
+
+      &.is-green .mgr-maint-stat-value {
+        color: var(--pl-green-fg);
       }
     }
 
-    .mgr-cell-stack {
-      min-width: 0;
-    }
-
-    .mgr-op-cell {
-      white-space: nowrap;
-    }
-
-    .mgr-ticket-title {
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      overflow-wrap: anywhere;
-    }
-  }
-
-  .mgr-ticket-stack {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .mgr-ticket-heading {
-    margin: 0 0 10px;
-    font-size: 17px;
-    font-weight: 700;
-    line-height: 1.35;
-    letter-spacing: 0;
-    color: var(--mgr-text);
-    overflow-wrap: anywhere;
-  }
-
-  .mgr-ticket-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-
-  .mgr-ticket-facts {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin: 0;
-    font-size: 13.5px;
-  }
-
-  .mgr-ticket-fact {
-    display: flex;
-    justify-content: space-between;
-    gap: 16px;
-
-    dt {
-      flex: none;
+    .mgr-maint-stat-label {
+      font-size: 11.5px;
       color: var(--mgr-muted);
     }
 
-    dd {
-      margin: 0;
+    .mgr-maint-stat-value {
+      font-size: 20px;
+      font-weight: 800;
+      line-height: 1.3;
+      color: var(--mgr-text);
+    }
+
+    /* Filter bar: search grows, labelled selects sit at the right. */
+    .mgr-maint-filter {
+      .mgr-maint-search {
+        flex: 1 1 240px;
+        max-width: none;
+        min-width: 0;
+      }
+    }
+
+    .mgr-maint-selects {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px 16px;
+    }
+
+    .mgr-maint-select {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .mgr-maint-select-label {
+      font-size: 13px;
+      color: var(--mgr-muted);
+      white-space: nowrap;
+    }
+
+    /* Board + detail panel */
+    .mgr-maint-body {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
       min-width: 0;
-      text-align: right;
+    }
+
+    .mgr-maint-board {
+      display: flex;
+      flex: 1;
+      gap: 14px;
+      min-width: 0;
+      overflow-x: auto;
+      padding: 2px 2px 8px;
+    }
+
+    .mgr-maint-col {
+      display: flex;
+      flex: 1 1 260px;
+      flex-direction: column;
+      gap: 10px;
+      min-width: 260px;
+      padding: 12px;
+      border: 1px solid var(--mgr-border);
+      border-radius: var(--mgr-radius);
+      background: var(--mgr-card-2);
+    }
+
+    .mgr-maint-col-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 2px 4px;
+    }
+
+    .mgr-maint-col-count {
+      padding: 2px 10px;
+      border: 1px solid var(--mgr-border);
+      border-radius: 10px;
+      background: var(--mgr-card);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--mgr-muted);
+    }
+
+    .mgr-maint-col-list {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .mgr-maint-col-empty {
+      padding: 24px 12px;
+      border: 1px dashed var(--mgr-border);
+      border-radius: 12px;
+      background: var(--mgr-card);
+      font-size: 12.5px;
+      text-align: center;
+      color: var(--mgr-muted);
+    }
+
+    .mgr-ticket-card {
+      --accent: #94a3b8;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 14px 16px;
+      border: 1px solid var(--mgr-border);
+      border-left: 4px solid var(--accent);
+      border-radius: 14px;
+      background: var(--mgr-card);
+      box-shadow: var(--mgr-shadow);
+      cursor: pointer;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+      &.is-critical {
+        --accent: #ef4444;
+      }
+
+      &.is-high {
+        --accent: #f97316;
+      }
+
+      &.is-medium {
+        --accent: #eab308;
+      }
+
+      &:hover {
+        box-shadow: var(--mgr-shadow-hover);
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--pl-blue-ac);
+        outline-offset: 2px;
+      }
+
+      &.is-selected {
+        border-color: var(--pl-blue-ac);
+        border-left-color: var(--accent);
+        box-shadow: 0 0 0 2px color-mix(in srgb, var(--pl-blue-ac) 45%, transparent);
+      }
+    }
+
+    .mgr-ticket-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .mgr-ticket-card-code {
+      font-size: 12px;
+      color: var(--mgr-muted);
+    }
+
+    .mgr-ticket-card-age {
+      font-size: 11.5px;
+      color: var(--mgr-muted);
+    }
+
+    .mgr-ticket-card-title {
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.35;
+      color: var(--mgr-text);
       overflow-wrap: anywhere;
     }
-  }
 
-  .mgr-ticket-ok {
-    color: var(--pl-green-fg);
-  }
+    .mgr-ticket-card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
 
-  .mgr-ticket-warn {
-    color: var(--pl-amber-fg);
-  }
+      .ant-tag {
+        margin-inline-end: 0;
+      }
+    }
 
-  .mgr-ticket-text {
-    white-space: pre-wrap;
-    font-size: 13.5px;
-    line-height: 1.55;
-    overflow-wrap: anywhere;
-  }
+    .mgr-ticket-drone {
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: var(--mgr-card-2);
+      border: 1px solid var(--mgr-border);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--mgr-muted);
+    }
 
-  .mgr-ticket-done {
-    padding: 10px 12px;
-    border-radius: 10px;
-    text-align: center;
-    font-weight: 600;
-    font-size: 13px;
-    color: var(--pl-green-fg);
-    background: var(--pl-green-bg);
+    .mgr-ticket-op {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+
+      &.is-ok {
+        color: var(--pl-green-fg);
+      }
+
+      &.is-warn {
+        color: var(--pl-amber-fg);
+      }
+    }
+
+    .mgr-ticket-op-dot {
+      width: 6px;
+      height: 6px;
+      margin-top: 5px;
+      flex: none;
+      border-radius: 50%;
+      background: currentcolor;
+    }
+
+    /* Detail panel */
+    .mgr-ticket-panel {
+      flex: none;
+      width: 380px;
+      max-width: 100%;
+
+      .ant-card-body {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        padding: 20px;
+      }
+    }
+
+    .mgr-ticket-panel-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .mgr-ticket-panel-code {
+      font-size: 14px;
+      color: var(--mgr-muted);
+    }
+
+    .mgr-ticket-heading {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 800;
+      line-height: 1.35;
+      letter-spacing: 0;
+      color: var(--mgr-text);
+      overflow-wrap: anywhere;
+    }
+
+    .mgr-ticket-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .mgr-ticket-body {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      font-size: 13.5px;
+      overflow-wrap: anywhere;
+    }
+
+    .mgr-ticket-key {
+      color: var(--mgr-muted);
+
+      &.is-block {
+        display: block;
+        margin-bottom: 4px;
+      }
+    }
+
+    .mgr-ticket-ok {
+      color: var(--pl-green-fg);
+    }
+
+    .mgr-ticket-warn {
+      color: var(--pl-amber-fg);
+    }
+
+    .mgr-ticket-text {
+      padding: 12px;
+      border: 1px solid var(--mgr-border);
+      border-radius: 10px;
+      background: var(--mgr-card-2);
+      white-space: pre-wrap;
+      line-height: 1.5;
+    }
+
+    .mgr-ticket-resolution {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 14px;
+      border-radius: 12px;
+      background: var(--pl-green-bg);
+      color: var(--pl-green-fg);
+    }
+
+    .mgr-ticket-resolution-title {
+      font-weight: 700;
+    }
+
+    .mgr-ticket-resolution-text {
+      white-space: pre-wrap;
+      font-size: 13px;
+    }
+
+    .mgr-ticket-history {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding-top: 14px;
+      border-top: 1px solid var(--mgr-border);
+      font-size: 12.5px;
+    }
+
+    .mgr-ticket-history-title {
+      margin-bottom: 2px;
+      font-weight: 700;
+      color: var(--mgr-muted);
+    }
+
+    .mgr-ticket-done {
+      padding: 6px 10px;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 12.5px;
+      color: var(--pl-green-fg);
+      background: var(--pl-green-bg);
+    }
   }
 
   .mgr-assign-ticket {
@@ -134,6 +399,9 @@
     border-radius: 10px;
     transition: border-color 0.15s ease, background 0.15s ease;
 
+    flex-direction: row-reverse;
+    justify-content: space-between;
+
     > span:last-child {
       flex: 1;
       min-width: 0;
@@ -147,5 +415,51 @@
 
   .mgr-assign-error {
     margin-top: 12px;
+  }
+}
+
+@media (max-width: 900px) {
+  :root .mgr-layout .mgr-maintenance {
+    .mgr-maint-body {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .mgr-maint-board {
+      flex: none;
+    }
+
+    .mgr-ticket-panel {
+      width: 100%;
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  :root .mgr-layout .mgr-maintenance {
+    .mgr-maint-stats {
+      width: 100%;
+    }
+
+    .mgr-maint-stat {
+      flex: 1;
+      min-width: 0;
+      padding: 8px;
+    }
+
+    .mgr-maint-selects,
+    .mgr-maint-select {
+      width: 100%;
+    }
+
+    .mgr-maint-select .ant-select {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .mgr-maint-col {
+      flex-basis: 240px;
+      min-width: 240px;
+    }
   }
 }
