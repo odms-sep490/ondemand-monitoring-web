@@ -50,6 +50,8 @@ export const managerLibMessages = defineMessages({
       IMAGE: 'Ảnh',
       PHOTO: 'Ảnh',
       VIDEO: 'Video',
+      LIVESTREAM: 'Phát trực tiếp',
+      STREAMING: 'Phát trực tiếp',
       THERMAL: 'Ảnh nhiệt',
     } as Record<string, string>,
     ticket: {
@@ -193,6 +195,8 @@ export const managerLibMessages = defineMessages({
       IMAGE: 'Image',
       PHOTO: 'Image',
       VIDEO: 'Video',
+      LIVESTREAM: 'Live stream',
+      STREAMING: 'Live stream',
       THERMAL: 'Thermal image',
     },
     ticket: {

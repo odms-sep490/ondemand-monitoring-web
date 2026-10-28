@@ -136,7 +136,7 @@ describe('CreateMissionPage', () => {
       ).toBeInTheDocument(),
     )
     expect(screen.getByText('Khoảng thời gian khách yêu cầu')).toBeTruthy()
-    expect(screen.getByText('24/09/2026 → 26/09/2026 · Sáng · 07:00–11:00')).toBeTruthy()
+    expect(screen.getByText('24/09/2026 → 26/09/2026 · Buổi sáng · 07:00–11:00')).toBeTruthy()
     expect(screen.getByText('Dự báo thời tiết theo khoảng khách yêu cầu')).toBeTruthy()
     await waitFor(() => expect(screen.getByText('24/09/2026')).toBeInTheDocument())
     expect(screen.getByText('25/09/2026')).toBeInTheDocument()

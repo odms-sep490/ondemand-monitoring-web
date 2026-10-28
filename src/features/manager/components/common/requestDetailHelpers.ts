@@ -1,6 +1,7 @@
 import type { DetailItem } from './requestDetailTypes'
 import type { OrderDetail } from '../../types/orders'
 import { getLanguage } from '../../../../shared/i18n'
+import { formatVn } from './format'
 import { requestDetailHelpersMessages } from './requestDetailHelpers.messages'
 
 const localeNow = () => (getLanguage() === 'en' ? 'en-US' : 'vi-VN')
@@ -40,14 +41,14 @@ export function dateOnly(value: string | null | undefined): string | null {
   if (!value) return null
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return value
-  return date.toLocaleDateString(localeNow())
+  return formatVn(value, localeNow()).split(' ')[0]
 }
 
 export function dateTime(value: string | null | undefined): string | null {
   if (!value) return null
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return value
-  return date.toLocaleString(localeNow())
+  return formatVn(value, localeNow())
 }
 
 export function visibleItems(items: DetailItem[]) {

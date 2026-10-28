@@ -3046,6 +3046,10 @@
   gap: 2px;
   margin: 2px 0 0;
 }
+.odm-or-svc-date,
+.odm-or-svc-period {
+  font-variant-numeric: tabular-nums;
+}
 .odm-or-svc-date {
   font-size: 17px;
   font-weight: 700;
@@ -3064,7 +3068,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-family: var(--font-mono, ui-monospace, monospace);
+  font-variant-numeric: tabular-nums;
   font-size: 13px;
   white-space: nowrap;
 }
