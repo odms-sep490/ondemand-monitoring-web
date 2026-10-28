@@ -88,20 +88,6 @@ export type DashboardActivity = {
   occurredAt: string
 }
 
-// Kept for the standalone chart components used by the reporting tests.
-export type MissionStatusDayPoint = {
-  date: string
-  completed: number
-  inFlight: number
-  failed: number
-  cancelled: number
-}
-
-export type DroneStatusBreakdown = {
-  status: import('../../../shared/types/domain').DroneStatus
-  count: number
-}
-
 export type ManagerDashboardData = {
   summary: DashboardSummary
   orderStatusDistribution: DistributionPoint[]
@@ -119,24 +105,4 @@ export type ManagerDashboardData = {
   generatedAt: string
 }
 
-/**
- * The optional legacy fields let hybrid mock mode fail soft while environments
- * are migrated. The real endpoint returns every ManagerDashboardData field.
- */
-export type ManagerDashboardResponse = Partial<ManagerDashboardData> & {
-  kpis?: {
-    pendingOrders: { count: number; detail: string }
-    missionsToday: { count: number; detail: string }
-    missionsInFlight: { count: number; detail: string }
-    dronesReady: { ready: number; total: number; detail: string }
-    actionItems: { count: number; detail: string }
-  }
-  missionStatusByDay?: MissionStatusDayPoint[]
-  droneStatusBreakdown?: DroneStatusBreakdown[]
-  flyingMission?: unknown
-  navCounts?: {
-    pendingOrders: number
-    openMaintenanceTickets: number
-    mediaNeedsAction: number
-  }
-}
+export type ManagerDashboardResponse = ManagerDashboardData

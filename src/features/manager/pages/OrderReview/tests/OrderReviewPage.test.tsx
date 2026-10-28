@@ -1,5 +1,11 @@
 import { act } from 'react'
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { ApiError } from '../../../../../shared/api/httpClient'
@@ -12,11 +18,7 @@ import {
 } from '../../../../customer/api/customerApi'
 import { financeApi } from '../../../../finance/api'
 import type { Quote } from '../../../../finance/types'
-import type {
-  OrderAnalysis,
-  OrderDetail,
-  OrderResourcePreview,
-} from '../../../types/orders'
+import type { OrderDetail } from '../../../types/orders'
 import { OrderReviewPage } from '../OrderReviewPage'
 
 const order: OrderDetail = {
@@ -37,50 +39,9 @@ const order: OrderDetail = {
   addressText: 'Cảng Cát Lái, P. Cát Lái, TP. Thủ Đức',
   center: { lat: 10.7686, lon: 106.7952 },
   radiusM: 600,
-  nearestBase: 'Trạm Bình Thạnh · 5,9 km',
   mediaRequirements: [{ label: 'VIDEO × 2 · 300 giây · 1080p' }],
   purpose: 'Tuần tra bãi container ngoài giờ',
   attachments: [],
-}
-
-const feasibleAnalysis: OrderAnalysis = {
-  overallVerdict: 'FEASIBLE',
-  blockerCount: 0,
-  warningCount: 0,
-  ruleEngineMs: 172,
-  createdAt: '2026-09-14T00:00:00+07:00',
-  llmSummary: 'Yêu cầu đáp ứng các luật kiểm tra. Nên duyệt.',
-  findings: [
-    {
-      severity: 'INFO',
-      message: 'Vòng giám sát giao cắt vùng hạn chế Cát Lái.',
-      evidence: { 'Trần cho phép': '60 m' },
-      customerAction: 'AUTO_FIXED',
-    },
-  ],
-}
-
-const riskyAnalysis: OrderAnalysis = {
-  overallVerdict: 'RISKY',
-  blockerCount: 0,
-  warningCount: 2,
-  ruleEngineMs: 172,
-  createdAt: '2026-09-14T00:00:00+07:00',
-  llmSummary: 'Có 2 cảnh báo cần cân nhắc trước khi duyệt.',
-  findings: [
-    {
-      severity: 'WARNING',
-      message: 'Vòng giám sát giao cắt vùng hạn chế Cát Lái, trần bay 60 m.',
-      evidence: { 'Độ cao kế hoạch': '80 m' },
-      customerAction: 'IGNORED',
-    },
-    {
-      severity: 'WARNING',
-      message: 'Chỉ còn 1 phi công đủ điều kiện khung chiều 25/09.',
-      evidence: { 'Phi công đủ điều kiện': '1' },
-      customerAction: null,
-    },
-  ],
 }
 
 // Order without design-sourced detail content (e.g. ORD-2609-0149) — every
@@ -103,29 +64,9 @@ const unsourcedOrder: OrderDetail = {
   addressText: null,
   center: null,
   radiusM: null,
-  nearestBase: null,
   mediaRequirements: null,
   purpose: null,
   attachments: null,
-}
-
-const unsourcedAnalysis: OrderAnalysis = {
-  overallVerdict: 'FEASIBLE',
-  blockerCount: 0,
-  warningCount: 0,
-  ruleEngineMs: null,
-  createdAt: null,
-  llmSummary: null,
-  findings: [],
-}
-
-const preview: OrderResourcePreview = {
-  eligibleDroneCount: 4,
-  eligiblePilotCount: 3,
-  topDrones: [{ name: 'DRN-06 Cú Mèo', score: 88, distanceLabel: '4,1 km' }],
-  topPilots: [
-    { name: 'Bùi Anh Tuấn', score: 84, distanceLabel: '1 mission/tuần' },
-  ],
 }
 
 const quote: Quote = {
@@ -158,11 +99,9 @@ function mockPricing() {
   vi.spyOn(financeApi, 'saveDraft').mockResolvedValue(quote)
 }
 
-function mockHappyPath(analysis: OrderAnalysis) {
+function mockHappyPath() {
   mockPricing()
   vi.spyOn(ordersApi, 'getOrder').mockResolvedValue(order)
-  vi.spyOn(ordersApi, 'getLatestAnalysis').mockResolvedValue(analysis)
-  vi.spyOn(ordersApi, 'getResourcePreview').mockResolvedValue(preview)
 }
 
 function mockApprovedPlanning() {
@@ -199,7 +138,7 @@ afterEach(() => {
 
 describe('OrderReviewPage', () => {
   it('reuses the initial exact Order read when the planning workspace mounts', async () => {
-    mockHappyPath(feasibleAnalysis)
+    mockHappyPath()
     mockApprovedPlanning()
     render(<OrderReviewPage orderId={order.id} />)
     await waitFor(() =>
@@ -211,7 +150,7 @@ describe('OrderReviewPage', () => {
     expect(ordersApi.getOrder).toHaveBeenCalledTimes(1)
   })
   it('approval stays in Order planning even when a legacy response contains a Mission identity', async () => {
-    mockHappyPath(feasibleAnalysis)
+    mockHappyPath()
     vi.spyOn(financeApi, 'approveQuote').mockImplementation(async () => {
       vi.mocked(ordersApi.getOrder).mockResolvedValue({
         ...order,
@@ -250,7 +189,7 @@ describe('OrderReviewPage', () => {
   it.each(['APPROVED', 'IN_PROGRESS', 'COMPLETED'] as const)(
     'uses the execution plan as the sole primary heading for %s Orders',
     async (status) => {
-      mockHappyPath(feasibleAnalysis)
+      mockHappyPath()
       vi.mocked(ordersApi.getOrder).mockResolvedValue({ ...order, status })
       vi.spyOn(planningApi, 'getOrderMissions').mockResolvedValue([])
       vi.spyOn(planningApi, 'getExecutionPlan').mockResolvedValue({
@@ -289,7 +228,7 @@ describe('OrderReviewPage', () => {
     },
   )
   it('renders FEASIBLE order data', async () => {
-    mockHappyPath(feasibleAnalysis)
+    mockHappyPath()
     render(<OrderReviewPage orderId="ord-2609-0157" />)
 
     await waitFor(() => screen.getByText('Lê Quốc Bảo'))
@@ -301,7 +240,7 @@ describe('OrderReviewPage', () => {
   })
 
   it('shows the area address directly below the map', async () => {
-    mockHappyPath(feasibleAnalysis)
+    mockHappyPath()
     render(<OrderReviewPage orderId="ord-2609-0157" />)
 
     expect(screen.queryByText('Địa chỉ khu vực')).not.toBeInTheDocument()
@@ -309,12 +248,14 @@ describe('OrderReviewPage', () => {
 
     expect(screen.getByText('Địa chỉ khu vực')).toBeInTheDocument()
     expect(
-      screen.getByText('Cảng Cát Lái, P. Cát Lái, TP. Thủ Đức'),
+      within(
+        document.querySelector<HTMLElement>('.odm-or-review-stage')!,
+      ).getByText('Cảng Cát Lái, P. Cát Lái, TP. Thủ Đức'),
     ).toBeInTheDocument()
   })
 
   it('keeps the condition step usable when the ministry provider is unavailable', async () => {
-    mockHappyPath(feasibleAnalysis)
+    mockHappyPath()
     vi.mocked(ordersApi.getOrder).mockResolvedValue({
       ...order,
       center: { lat: 10.700001, lon: 106.700001 },
@@ -353,7 +294,7 @@ describe('OrderReviewPage', () => {
   })
 
   it('keeps the area assessment when switching steps instead of requesting it again', async () => {
-    mockHappyPath(feasibleAnalysis)
+    mockHappyPath()
     vi.mocked(ordersApi.getOrder).mockResolvedValue({
       ...order,
       center: { lat: 10.712345, lon: 106.612345 },
@@ -366,38 +307,43 @@ describe('OrderReviewPage', () => {
           longitude: 106.612345,
           radiusMeters: 600,
         },
-        elevation: { available: true, terrainElevationMeters: 4 },
-        restrictedZones: {
-          dataAvailable: true,
-          pointInsideRestrictedZone: false,
-          monitoringAreaIntersectsRestrictedZone: false,
-          affectedZones: [],
-        },
-        osmContext: {
+        ministryFlightBan: {
           available: true,
-          buildingCount: 0,
-          towerCount: 0,
-          mastCount: 0,
-          powerTowerCount: 0,
-          aerodromeNearby: false,
-          helipadNearby: false,
-          importantFeatures: [],
+          violatedZones: [],
+          sourceUrl: 'https://cambay.mod.gov.vn/',
         },
-        assessment: {
-          level: 'FAVORABLE',
-          findings: [],
-          disclaimer: 'Kết quả tham khảo.',
-        },
-      })
+      } as unknown as FlightAreaAssessment)
     render(<OrderReviewPage orderId="ord-2609-0157" />)
 
     fireEvent.click(await screen.findByText('Kiểm tra điều kiện'))
-    await screen.findByText('Thuận lợi')
+    await screen.findByText('Chưa ghi nhận giao vùng cấm bay')
     fireEvent.click(screen.getByText('Tiếp nhận'))
     fireEvent.click(screen.getByText('Kiểm tra điều kiện'))
-    await screen.findByText('Thuận lợi')
+    await screen.findByText('Chưa ghi nhận giao vùng cấm bay')
 
     expect(assessmentSpy).toHaveBeenCalledTimes(1)
+  })
+
+  it('shows only the ministry flight-ban result for the area check', async () => {
+    mockHappyPath()
+    vi.spyOn(customerApi, 'getFlightAreaAssessment').mockResolvedValue({
+      location: { latitude: 10.7686, longitude: 106.7952, radiusMeters: 600 },
+      ministryFlightBan: {
+        available: true,
+        violatedZones: ['VN-P-01'],
+        sourceUrl: 'https://cambay.mod.gov.vn/',
+      },
+    } as unknown as FlightAreaAssessment)
+    render(<OrderReviewPage orderId="ord-2609-0157" />)
+
+    fireEvent.click(await screen.findByText('Kiểm tra điều kiện'))
+    expect(
+      await screen.findByText('Cần đối chiếu với bản đồ cấm bay'),
+    ).toBeInTheDocument()
+    expect(screen.getByText('VN-P-01')).toBeInTheDocument()
+    expect(screen.queryByText('Độ cao mặt đất tại vị trí')).toBeNull()
+    expect(screen.queryByText('Công trình trong khu vực')).toBeNull()
+    expect(screen.queryByText('Rủi ro cao')).toBeNull()
   })
 
   it('cleans legacy raw JSON media labels before rendering', async () => {
@@ -411,8 +357,6 @@ describe('OrderReviewPage', () => {
         },
       ],
     })
-    vi.spyOn(ordersApi, 'getLatestAnalysis').mockResolvedValue(feasibleAnalysis)
-    vi.spyOn(ordersApi, 'getResourcePreview').mockResolvedValue(preview)
     render(<OrderReviewPage orderId="ord-2609-0157" />)
 
     await waitFor(() => screen.getByText('Lê Quốc Bảo'))
@@ -443,8 +387,6 @@ describe('OrderReviewPage', () => {
         },
       ],
     })
-    vi.spyOn(ordersApi, 'getLatestAnalysis').mockResolvedValue(feasibleAnalysis)
-    vi.spyOn(ordersApi, 'getResourcePreview').mockResolvedValue(preview)
     render(<OrderReviewPage orderId="ord-2609-0157" />)
 
     await screen.findByText('Lê Quốc Bảo')
@@ -457,16 +399,11 @@ describe('OrderReviewPage', () => {
   })
 
   it('shows a different order without obsolete analysis copy', async () => {
-    mockHappyPath(riskyAnalysis)
+    mockHappyPath()
     vi.mocked(ordersApi.getOrder).mockResolvedValue({
       ...order,
       id: 'ord-2609-0160',
       code: 'ORD-2609-0160',
-    })
-    vi.mocked(ordersApi.getResourcePreview).mockResolvedValue({
-      ...preview,
-      eligiblePilotCount: 0,
-      topPilots: [],
     })
     render(<OrderReviewPage orderId="ord-2609-0160" />)
 
@@ -476,12 +413,11 @@ describe('OrderReviewPage', () => {
       'ord-2609-0160',
       expect.any(AbortSignal),
     )
-    expect(ordersApi.getLatestAnalysis).not.toHaveBeenCalled()
     expect(screen.queryByText('RỦI RO')).not.toBeInTheDocument()
   })
 
   it('approves the quote before entering inline Order planning', async () => {
-    mockHappyPath(feasibleAnalysis)
+    mockHappyPath()
     const approveSpy = vi
       .spyOn(financeApi, 'approveQuote')
       .mockImplementation(async () => {
@@ -510,7 +446,7 @@ describe('OrderReviewPage', () => {
   })
 
   it('does not automatically dispatch a legacy Mission returned by approval', async () => {
-    mockHappyPath(feasibleAnalysis)
+    mockHappyPath()
     vi.spyOn(financeApi, 'approveQuote').mockImplementation(async () => {
       mockApprovedPlanning()
       return { ...quote, status: 'APPROVED' }
@@ -547,8 +483,6 @@ describe('OrderReviewPage', () => {
         path: '/orders/ord-2609-0157',
       }),
     )
-    vi.spyOn(ordersApi, 'getLatestAnalysis').mockResolvedValue(feasibleAnalysis)
-    vi.spyOn(ordersApi, 'getResourcePreview').mockResolvedValue(preview)
 
     render(<OrderReviewPage orderId="ord-2609-0157" />)
 
@@ -562,13 +496,9 @@ describe('OrderReviewPage', () => {
     )
   })
 
-  it('renders an order without detail/analysis/resource-preview source without crashing, showing empty markers', async () => {
+  it('renders an order without detail source without crashing, showing empty markers', async () => {
     mockPricing()
     vi.spyOn(ordersApi, 'getOrder').mockResolvedValue(unsourcedOrder)
-    vi.spyOn(ordersApi, 'getLatestAnalysis').mockResolvedValue(
-      unsourcedAnalysis,
-    )
-    vi.spyOn(ordersApi, 'getResourcePreview').mockResolvedValue(null)
 
     render(<OrderReviewPage orderId="ord-2609-0149" />)
 
@@ -588,31 +518,8 @@ describe('OrderReviewPage', () => {
     ).toBeInTheDocument()
   })
 
-  it('saves the internal note', async () => {
-    mockHappyPath(feasibleAnalysis)
-    vi.spyOn(ordersApi, 'saveInternalNote').mockResolvedValue({
-      note: 'Ghi chú mới',
-      authorName: 'Lê Thị Thanh Hằng',
-      updatedAt: '2026-09-19T13:50:00+07:00',
-    })
-    render(<OrderReviewPage orderId="ord-2609-0157" />)
-    await waitFor(() =>
-      screen.getByRole('heading', { name: 'Chi tiết đơn hàng' }),
-    )
-
-    fireEvent.change(
-      screen.getByPlaceholderText(
-        'Thêm ghi chú cho đồng nghiệp (khách không thấy)...',
-      ),
-      { target: { value: 'Ghi chú mới' } },
-    )
-    fireEvent.click(screen.getByRole('button', { name: 'Lưu ghi chú' }))
-
-    await waitFor(() => screen.getByText('Đã lưu'))
-  })
-
   it('renders English labels and the uppercase English verdict after switching language', async () => {
-    mockHappyPath(feasibleAnalysis)
+    mockHappyPath()
     render(<OrderReviewPage orderId="ord-2609-0157" />)
     await waitFor(() =>
       screen.getByRole('heading', { name: 'Chi tiết đơn hàng' }),

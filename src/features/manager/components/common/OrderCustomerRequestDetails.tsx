@@ -1,5 +1,7 @@
 import type { OrderReviewMessages } from '../../pages/OrderReview/OrderReviewPage.messages'
 import type { OrderDetail } from '../../types/orders'
+import { useI18n } from '../../../../shared/i18n'
+import { orderCustomerRequestDetailsMessages } from './OrderCustomerRequestDetails.messages'
 import { OrderIcon } from './OrderIcon'
 import { humanizeMediaRequirement } from './format'
 import { type DetailItem } from './requestDetailTypes'
@@ -22,13 +24,14 @@ export function OrderCustomerRequestDetails({
   order: OrderDetail
   t: OrderReviewMessages
 }) {
+  const { t: m } = useI18n(orderCustomerRequestDetailsMessages)
   const contact =
     [order.siteContactName, order.siteContactPhone]
       .filter(Boolean)
       .join(' · ') || null
   const recurrence =
     order.recurrenceType && order.recurrenceOccurrences
-      ? `${text(order.recurrenceType)} · ${order.recurrenceOccurrences} lần`
+      ? `${text(order.recurrenceType)} · ${m.times(order.recurrenceOccurrences)}`
       : text(order.recurrenceType)
   const permit = [
     text(order.permitStatus),
@@ -87,20 +90,20 @@ export function OrderCustomerRequestDetails({
     { label: t.siteContact, value: contact },
     { label: t.accessNotes, value: order.accessNotes },
     {
-      label: 'Quan hệ với hiện trường',
+      label: m.siteRelationship,
       value: text(order.monitoringRelationship),
     },
     {
-      label: 'Xác nhận quyền giám sát',
+      label: m.monitoringAuthorization,
       value:
         order.monitoringAuthorizationConfirmed == null
           ? null
           : order.monitoringAuthorizationConfirmed
-            ? 'Đã xác nhận'
-            : 'Chưa xác nhận',
+            ? m.confirmed
+            : m.notConfirmed,
     },
     {
-      label: 'Tài liệu hiện trường',
+      label: m.siteDocuments,
       value:
         order.monitoringAuthorizationDocuments &&
         order.monitoringAuthorizationDocuments.length > 0 ? (
@@ -132,18 +135,18 @@ export function OrderCustomerRequestDetails({
     )
   const permitFacts: DetailItem[] = hasPermitInformation ? [
     {
-      label: 'Yêu cầu giấy phép',
+      label: m.permitRequired,
       value:
-        order.permitRequired ? 'Có yêu cầu' : null,
+        order.permitRequired ? m.required : null,
     },
     {
-      label: 'Trạng thái giấy phép',
+      label: m.permitStatus,
       value:
         permit || null,
     },
-    { label: 'Hiệu lực đến', value: dateOnly(order.permitExpiresOn) },
+    { label: m.validUntil, value: dateOnly(order.permitExpiresOn) },
     {
-      label: 'Tệp giấy phép',
+      label: m.permitFiles,
       value:
         order.permitDocuments && order.permitDocuments.length > 0 ? (
           <span className="odm-or-req-files">
@@ -159,7 +162,7 @@ export function OrderCustomerRequestDetails({
             ))}
           </span>
         ) : order.permitRequired ? (
-          'Chưa cung cấp'
+          m.notProvided
         ) : null,
     },
   ] : []
@@ -184,21 +187,21 @@ export function OrderCustomerRequestDetails({
       label: t.dataRetention,
       value:
         order.dataRetentionDays != null
-          ? `${order.dataRetentionDays} ngày`
+          ? m.days(order.dataRetentionDays)
           : null,
     },
   ]
 
   const termsFacts: DetailItem[] = [
     {
-      label: 'Khách gửi yêu cầu lúc',
+      label: m.submittedAt,
       value: dateTime(order.submittedAt),
     },
     {
-      label: 'Khách đồng ý điều khoản lúc',
+      label: m.termsAcceptedAt,
       value: dateTime(order.termsAcceptedAt),
     },
-    { label: 'Phiên bản điều khoản', value: order.termsVersion },
+    { label: m.termsVersion, value: order.termsVersion },
   ]
 
   const hasSummary = Boolean(order.title || order.description)
@@ -236,28 +239,28 @@ export function OrderCustomerRequestDetails({
 
         <div className="odm-or-req-section-grid">
           <FactSection
-            title="Mục đích & thông số bay"
+            title={m.scopeSection}
             icon="target"
             items={scopeFacts}
           />
           <FactSection
-            title="Thông tin hiện trường"
+            title={m.siteSection}
             icon="pin"
             items={siteFacts}
           />
           <FactSection
-            title="Quyền & giấy phép"
+            title={m.permitSection}
             icon="shield"
             items={permitFacts}
           />
           <FactSection
-            title="Kết quả & dữ liệu"
+            title={m.resultSection}
             icon="database"
             items={resultFacts}
           >
             {deliverableAddOns.length > 0 ? (
               <div className="odm-or-addon-list">
-                <span>Yêu cầu bổ sung</span>
+                <span>{m.addOns}</span>
                 {deliverableAddOns.map((item) => (
                   <p key={item}>{item}</p>
                 ))}
@@ -265,7 +268,7 @@ export function OrderCustomerRequestDetails({
             ) : null}
           </FactSection>
           <FactSection
-            title="Xác nhận gửi yêu cầu"
+            title={m.termsSection}
             icon="check"
             items={termsFacts}
           />

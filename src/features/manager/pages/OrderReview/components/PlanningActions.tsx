@@ -3,6 +3,9 @@ import type { MissionResponse } from '../../../types/missions'
 import type { OrderDetail } from '../../../types/orders'
 import type { Invoice } from '../../../../finance/types'
 import type { Dispatch, SetStateAction } from 'react'
+import { Button } from '../../../../../shared/components/ui'
+import { useI18n } from '../../../../../shared/i18n'
+import { planningActionsMessages } from './PlanningActions.messages'
 
 export function PlanningActions({
   writable,
@@ -42,51 +45,50 @@ export function PlanningActions({
   onAssignResources: ((missionId: string) => void) | undefined
   setAssigningResources: Dispatch<SetStateAction<{ missionId: string } | null>>
 }) {
+  const { t } = useI18n(planningActionsMessages)
   return (
-    <div className="odm-planning-actions">
+    <div className="odm-planning-actions mgr-actionbar">
       {writable && data.plan.planStatus === 'DRAFT' && (
         <>
-          <button
+          <Button
             type="button"
-            className="odm-btn"
             disabled={busy || saving || Boolean(creating)}
             onClick={() => setCreating({})}
           >
-            {creating ? 'Đang tạo Mission' : 'Tạo thêm Mission'}
-          </button>
+            {creating ? t.creating : t.addMission}
+          </Button>
           {data.missions.length > 0 && !data.plan.coverage.coverageReady && (
             <span className="odm-planning-next-hint" role="note">
-              Còn {data.plan.coverage.uncovered} checklist chưa gán cho Mission
-              nào. Gán đủ rồi mới tiếp tục được.
+              {t.uncoveredHint(data.plan.coverage.uncovered)}
             </span>
           )}
           {data.missions.length > 0 && (
-            <button
+            <Button
               type="button"
-              className="odm-btn odm-btn-p"
+              variant="primary"
               disabled={busy || saving || Boolean(creating)}
               onClick={() => void continueToResourceAssignment()}
             >
-              Tiếp: Gán nguồn lực
-            </button>
+              {t.nextAssignResources}
+            </Button>
           )}
         </>
       )}
       {writable && data.plan.planStatus === 'FINALIZED' && !amending && (
         <>
-          <button
-            className="odm-btn"
+          <Button
             disabled={busy}
             onClick={() => {
               setAmending(true)
               setReason('')
             }}
           >
-            Điều chỉnh kế hoạch
-          </button>
+            {t.adjustPlan}
+          </Button>
           {selected && (
-            <button
-              className="odm-btn odm-btn-p odm-planning-next-resource"
+            <Button
+              variant="primary"
+              className="odm-planning-next-resource"
               disabled={busy || saving || dirty}
               onClick={() =>
                 onAssignResources
@@ -94,10 +96,10 @@ export function PlanningActions({
                   : setAssigningResources({ missionId: selected })
               }
             >
-              Phân công nguồn lực cho{' '}
+              {t.assignResourcesFor}{' '}
               {data.missions.find((mission) => mission.id === selected)
                 ?.missionCode ?? 'Mission'}
-            </button>
+            </Button>
           )}
         </>
       )}

@@ -1,16 +1,28 @@
 // MNG-08: Mission list + detail panel
-import { useMemo, useState } from 'react'
-import { StateView } from '../../../../shared/components/odm/StateView'
+import { useEffect, useMemo, useState } from 'react'
+import { Skeleton } from 'antd'
+import { CardComponent } from '../../../../shared/components/antd'
+import { EmptyState } from '../../components/common/EmptyState'
+import { ErrorState } from '../../components/common/ErrorState'
+import { FilterBar, FilterSegments } from '../../components/common/FilterBar'
+import { PageHeader } from '../../components/common/PageHeader'
+import type { MissionCalendarItem } from '../../types/missions'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
 import { missionsApi } from '../../api/missionsApi'
+import { dedupeById } from '../../lib/dedupeById'
 import type { DeliveryStatus as WorkflowDeliveryStatus } from '../../../delivery/types'
 import { missionsPageMessages } from './MissionsPage.messages'
+import '../../components/layout/mgrLayout.css'
 import '../../manager.css'
+import './missions.scss'
+import '../../components/common/missionPages.css'
 import { type DeliveryStatus, type StatusChip } from './missionsTypes'
 import { DetailPanel } from './components/DetailPanel'
 import { useMissionDeliveryStatuses } from './useMissionDeliveryStatuses'
+import { MissionsKpis } from './components/MissionsKpis'
 import { MissionsTable } from './components/MissionsTable'
+import { groupCounts, matchesMissionSearch } from './missionsHelpers'
 
 type MissionsListPageProps = {
   missionId?: string
@@ -42,7 +54,16 @@ export function MissionsPage({ missionId }: MissionsListPageProps) {
       }),
     [statusFilter],
   )
-  const missions = useMemo(() => query.data?.items ?? [], [query.data?.items])
+  const missions = useMemo(
+    () => dedupeById(query.data?.items ?? []),
+    [query.data?.items],
+  )
+  // KPI counts always describe the whole list, even while a status filter is applied.
+  const [snapshot, setSnapshot] = useState<MissionCalendarItem[] | null>(null)
+  useEffect(() => {
+    if (statusFilter === 'ALL' && query.data) setSnapshot(dedupeById(query.data.items))
+  }, [statusFilter, query.data])
+  const [search, setSearch] = useState('')
   const selected =
     missions.find((mission) => mission.id === selectedMission) ?? null
   const [orderDeliveryStatuses, setOrderDeliveryStatuses] = useState<
@@ -56,80 +77,67 @@ export function MissionsPage({ missionId }: MissionsListPageProps) {
     setSelectedMission,
   })
 
-  const columns = [
-    t.columns.mission,
-    t.columns.order,
-    t.columns.attempt,
-    t.columns.schedule,
-    t.columns.drone,
-    t.columns.operator,
-    t.columns.status,
-    t.columns.delivery,
-    '',
-  ]
+  const snapshotCounts = useMemo(
+    () => groupCounts(snapshot ?? missions),
+    [snapshot, missions],
+  )
+  const visible = useMemo(
+    () => missions.filter((mission) => matchesMissionSearch(mission, search)),
+    [missions, search],
+  )
+  const ready = !query.loading && !query.error
 
   return (
-    <div className="odm-or">
-      <div className="odm-or-pagehead">
-        <h1 className="odm-or-title">{t.title}</h1>
-        <p className="odm-or-subtitle">
-          {!query.loading && !query.error
-            ? t.missionCount(missions.length)
-            : ' '}
-        </p>
-      </div>
+    <div className="mgr-view mgr-missions">
+      <PageHeader
+        title={t.title}
+        description={ready ? t.missionCount(missions.length) : undefined}
+      />
 
-      <div className="odm-or-filters" role="group" aria-label={t.title}>
-        {statusChips.map((chip) => (
-          <button
-            key={chip.value}
-            type="button"
-            className={`odm-or-filter${statusFilter === chip.value ? ' is-active' : ''}`}
-            aria-pressed={statusFilter === chip.value}
-            onClick={() => setStatusFilter(chip.value)}
-          >
-            {chip.label}
-          </button>
-        ))}
-      </div>
+      <MissionsKpis counts={snapshotCounts} />
 
-      <div
-        className={`odm-or-list-layout${selectedMission ? ' has-panel' : ''}`}
-      >
-        <div className="odm-or-col">
+      <FilterBar
+        start={
+          <FilterSegments<StatusChip>
+            ariaLabel={t.statusAria}
+            value={statusFilter}
+            onChange={setStatusFilter}
+            options={statusChips}
+          />
+        }
+        search={{
+          value: search,
+          onChange: setSearch,
+          placeholder: t.searchPlaceholder,
+          ariaLabel: t.searchAria,
+        }}
+      />
+
+      <div className={`mgr-list-grid${selectedMission ? ' has-panel' : ''}`}>
+        <div className="mgr-detail-main">
           {query.loading && (
-            <div aria-busy="true">
-              <span className="odm-sk" style={{ width: '100%', height: 260 }} />
-            </div>
+            <CardComponent aria-busy="true">
+              <Skeleton active paragraph={{ rows: 6 }} />
+            </CardComponent>
           )}
 
           {!query.loading && !!query.error && (
-            <section className="odm-or-card">
-              <div className="odm-or-card-body">
-                <StateView
-                  state="error"
-                  title={t.loadError}
-                  error="Không thể tải danh sách nhiệm vụ. Vui lòng thử lại."
-                  onRetry={query.reload}
-                />
-              </div>
-            </section>
+            <ErrorState title={t.loadError} description={t.loadErrorDetail} onRetry={query.reload} />
           )}
 
-          {!query.loading && !query.error && missions.length === 0 && (
-            <section className="odm-or-card">
-              <StateView
-                state="empty"
-                title={t.emptyTitle}
-                description={t.emptyDescription}
+          {ready && visible.length === 0 && (
+            <CardComponent>
+              <EmptyState
+                title={missions.length === 0 ? t.emptyTitle : t.emptySearch}
+                description={missions.length === 0 ? t.emptyDescription : undefined}
               />
-            </section>
+            </CardComponent>
           )}
 
-          {!query.loading && !query.error && missions.length > 0 && (
+          {ready && visible.length > 0 && (
             <MissionsTable
-              columns={columns}
-              missions={missions}
+              missions={visible}
+              total={missions.length}
               selectedMission={selectedMission}
               setSelectedMission={setSelectedMission}
               deliveryStatuses={deliveryStatuses}

@@ -1,52 +1,34 @@
+import { useI18n } from '../../shared/i18n'
+import { deliveryProgressMessages } from './deliveryProgress.messages'
 import type { DeliveryStatus } from './types'
 
-const STEPS = [
-  { label: 'Kiểm tra kết quả', shortLabel: 'Kiểm tra' },
-  { label: 'Customer duyệt', shortLabel: 'Duyệt' },
-  { label: 'Thanh toán cuối', shortLabel: 'Thanh toán' },
-  { label: 'Bàn giao dữ liệu', shortLabel: 'Bàn giao' },
-] as const
-
-const STATUS_META: Record<
-  DeliveryStatus,
-  { label: string; tone: string; step: number }
-> = {
-  PROCESSING: { label: 'Đang xử lý kết quả', tone: 'neutral', step: 0 },
-  READY_FOR_MANAGER_REVIEW: {
-    label: 'Chờ Manager kiểm tra',
-    tone: 'warning',
-    step: 0,
-  },
-  CUSTOMER_REVIEW: { label: 'Chờ Customer duyệt', tone: 'info', step: 1 },
-  REVISION_REQUESTED: { label: 'Đang chỉnh sửa', tone: 'warning', step: 1 },
-  FINAL_PAYMENT_PENDING: {
-    label: 'Chờ thanh toán cuối',
-    tone: 'warning',
-    step: 2,
-  },
-  PAYMENT_CONFIRMED: {
-    label: 'Đã xác nhận thanh toán',
-    tone: 'success',
-    step: 3,
-  },
-  READY_FOR_DELIVERY: { label: 'Sẵn sàng bàn giao', tone: 'info', step: 3 },
-  DELIVERED: { label: 'Đã bàn giao', tone: 'success', step: 4 },
+const STATUS_META: Record<DeliveryStatus, { tone: string; step: number }> = {
+  PROCESSING: { tone: 'neutral', step: 0 },
+  READY_FOR_MANAGER_REVIEW: { tone: 'warning', step: 0 },
+  CUSTOMER_REVIEW: { tone: 'info', step: 1 },
+  REVISION_REQUESTED: { tone: 'warning', step: 1 },
+  FINAL_PAYMENT_PENDING: { tone: 'warning', step: 2 },
+  PAYMENT_CONFIRMED: { tone: 'success', step: 3 },
+  READY_FOR_DELIVERY: { tone: 'info', step: 3 },
+  DELIVERED: { tone: 'success', step: 4 },
 }
 
 export function DeliveryStatusPill({ status }: { status: DeliveryStatus }) {
+  const { t } = useI18n(deliveryProgressMessages)
   const meta = STATUS_META[status]
   return (
     <span className={`delivery-status delivery-status--${meta.tone}`}>
-      {meta.label}
+      {t.status[status]}
     </span>
   )
 }
 
 export function DeliveryProgress({ status }: { status: DeliveryStatus }) {
+  const { t } = useI18n(deliveryProgressMessages)
   const currentStep = STATUS_META[status].step
   return (
-    <ol className="delivery-progress" aria-label="Tiến trình bàn giao">
-      {STEPS.map((step, index) => {
+    <ol className="delivery-progress" aria-label={t.ariaLabel}>
+      {t.steps.map((step, index) => {
         const completed = currentStep > index
         const current = currentStep === index
         return (

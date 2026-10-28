@@ -1,41 +1,26 @@
 import type { DetailItem } from './requestDetailTypes'
 import type { OrderDetail } from '../../types/orders'
+import { getLanguage } from '../../../../shared/i18n'
+import { formatVn } from './format'
+import { requestDetailHelpersMessages } from './requestDetailHelpers.messages'
 
-export const enumLabels: Record<string, string> = {
-  INTERNAL: 'Nội bộ',
-  LEGAL: 'Pháp lý',
-  PARTNER_REPORT: 'Báo cáo cho đối tác',
-  OTHER: 'Khác',
-  AGRICULTURE: 'Phục vụ nông nghiệp',
-  SURVEY_MONITORING: 'Đo đạc, khảo sát, giám sát từ trên cao',
-  CONSTRUCTION_MONITORING: 'Giám sát tiến độ công trình',
-  INDUSTRIAL_INSPECTION: 'Kiểm tra nhà xưởng và cơ sở sản xuất',
-  AREA_MONITORING: 'Giám sát khu vực',
-  FOREST_MONITORING: 'Giám sát tài nguyên rừng',
-  NORMAL: 'Bình thường',
-  HIGH: 'Cao',
-  URGENT: 'Khẩn cấp',
-  NONE: 'Không có',
-  HAVE_PERMIT: 'Đã có giấy phép',
-  NEED_SUPPORT: 'Cần hỗ trợ xin phép',
-  WEEKLY: 'Hằng tuần',
-  MONTHLY: 'Hằng tháng',
-  AUTO_RESCHEDULE:
-    'Tự động dời sang ngày phù hợp gần nhất trong khoảng thời gian khách đã chọn',
-  CONTACT_CUSTOMER: 'Liên hệ khách hàng trước khi thay đổi lịch bay',
-  CANCEL_ORDER: 'Không sắp xếp bay lại và hủy yêu cầu',
-  PHOTO: 'Ảnh',
-  IMAGE: 'Ảnh',
-  VIDEO: 'Video',
-  PDF_REPORT: 'Báo cáo PDF',
-  ORTHOMOSAIC: 'Bản đồ ghép ảnh',
-  MODEL_3D: 'Mô hình 3D',
-  PDF: 'PDF',
-  DOWNLOAD: 'Tải về',
-  EMAIL: 'Email',
-  API: 'API',
-  AI_IMAGE_ANALYSIS: 'AI phân tích hình ảnh',
-}
+const localeNow = () => (getLanguage() === 'en' ? 'en-US' : 'vi-VN')
+const msgs = () => requestDetailHelpersMessages[getLanguage()]
+
+export const enumLabels: Record<string, string> = new Proxy(
+  {} as Record<string, string>,
+  {
+    get: (_target, key) =>
+      typeof key === 'string' ? msgs().enumLabels[key] : undefined,
+    has: (_target, key) => typeof key === 'string' && key in msgs().enumLabels,
+    ownKeys: () => Reflect.ownKeys(msgs().enumLabels),
+    getOwnPropertyDescriptor: (_target, key) => ({
+      enumerable: true,
+      configurable: true,
+      value: typeof key === 'string' ? msgs().enumLabels[key] : undefined,
+    }),
+  },
+)
 
 export function text(value: unknown): string | null {
   if (typeof value === 'string') {
@@ -43,7 +28,7 @@ export function text(value: unknown): string | null {
     return trimmed ? (enumLabels[trimmed] ?? trimmed) : null
   }
   if (typeof value === 'number' && Number.isFinite(value)) return String(value)
-  if (typeof value === 'boolean') return value ? 'Có' : 'Không'
+  if (typeof value === 'boolean') return value ? msgs().yes : msgs().no
   return null
 }
 
@@ -56,14 +41,14 @@ export function dateOnly(value: string | null | undefined): string | null {
   if (!value) return null
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return value
-  return date.toLocaleDateString('vi-VN')
+  return formatVn(value, localeNow()).split(' ')[0]
 }
 
 export function dateTime(value: string | null | undefined): string | null {
   if (!value) return null
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return value
-  return date.toLocaleString('vi-VN')
+  return formatVn(value, localeNow())
 }
 
 export function visibleItems(items: DetailItem[]) {
@@ -81,7 +66,7 @@ export function requirementValue(value: unknown): string | null {
       text(record.type),
       text(record.description),
       record.additionalPrice != null
-        ? `${text(record.additionalPrice)} đ`
+        ? `${text(record.additionalPrice)} ${msgs().currencySuffix}`
         : null,
       text(record.fileName ?? record.name),
     ].filter(Boolean)
@@ -92,17 +77,17 @@ export function requirementValue(value: unknown): string | null {
 
 export function mediaTypeFromTitle(title: string | null | undefined) {
   const normalized = title?.trim().toLowerCase() ?? ''
-  if (normalized.includes('video')) return 'Video'
+  if (normalized.includes('video')) return msgs().mediaVideo
   if (
     normalized.includes('ảnh') ||
     normalized.includes('hình') ||
     normalized.includes('photo') ||
     normalized.includes('image')
   ) {
-    return 'Ảnh'
+    return msgs().mediaPhoto
   }
   if (normalized.includes('báo cáo') || normalized.includes('report')) {
-    return 'Báo cáo'
+    return msgs().mediaReport
   }
   return null
 }
@@ -115,7 +100,7 @@ export function formatMoney(value: unknown) {
         ? Number(value)
         : null
   return amount != null && Number.isFinite(amount)
-    ? amount.toLocaleString('vi-VN') + ' đ'
+    ? amount.toLocaleString(localeNow()) + ` ${msgs().currencySuffix}`
     : text(value)
 }
 
@@ -137,10 +122,10 @@ export function deliverableSummary(
   return [
     type,
     numberText(requirement.quantity)
-      ? `${numberText(requirement.quantity)} mục`
+      ? msgs().itemsCount(numberText(requirement.quantity) as string)
       : null,
     text(requirement.resolution),
-    text(requirement.aiAnalysisRequested) === 'Có' ? 'Có AI' : null,
+    text(requirement.aiAnalysisRequested) === msgs().yes ? msgs().withAi : null,
   ].filter((item): item is string => Boolean(item))
 }
 
@@ -169,7 +154,7 @@ export function addOnItems(
     .map((item) => {
       if (!item || typeof item !== 'object') return requirementValue(item)
       const record = item as Record<string, unknown>
-      const title = text(record.type) ?? 'Yêu cầu bổ sung'
+      const title = text(record.type) ?? msgs().extraRequirement
       const description = text(record.description)
       const price = formatMoney(record.additionalPrice)
       return [title, description, price].filter(Boolean).join(' · ')

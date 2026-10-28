@@ -9,8 +9,7 @@ export const missionCreatePageMessages = defineMessages({
     customerLabel: 'Khách hàng',
     locationLabel: 'Địa điểm',
     radiusLabel: 'Bán kính giám sát',
-    nearestBaseLabel: 'Trạm gần nhất',
-    mediaLabel: 'Yêu cầu media',
+    mediaLabel: 'Yêu cầu ảnh/video',
     durationLabel: (text: string) => `Thời lượng dự kiến: ${text}`,
     durationHours: (h: number, m: number) =>
       h > 0 ? (m > 0 ? `${h} giờ ${m} phút` : `${h} giờ`) : `${m} phút`,
@@ -80,7 +79,12 @@ export const missionCreatePageMessages = defineMessages({
     waypoint: (count: number) => `Điểm bay (${count})`,
     addWaypoint: 'Thêm điểm bay',
     removeWaypointAria: (seq: number) => `Xoá điểm bay ${seq}`,
-    createMission: 'Tạo Mission',
+    createMission: 'Tạo nhiệm vụ',
+    weatherCheckTitle: 'Kiểm tra thời tiết theo lịch bay',
+    weatherCheckHint:
+      'Chọn một ngày và giờ bất kỳ để kiểm tra trước khi quyết định lịch bay.',
+    weatherCheckDate: 'Ngày muốn kiểm tra',
+    weatherCheckTime: 'Giờ muốn kiểm tra',
   },
   en: {
     pageSubtitle:
@@ -90,7 +94,6 @@ export const missionCreatePageMessages = defineMessages({
     customerLabel: 'Customer',
     locationLabel: 'Location',
     radiusLabel: 'Monitoring radius',
-    nearestBaseLabel: 'Nearest base',
     mediaLabel: 'Media requirements',
     durationLabel: (text: string) => `Estimated duration: ${text}`,
     durationHours: (h: number, m: number) =>
@@ -163,5 +166,10 @@ export const missionCreatePageMessages = defineMessages({
     addWaypoint: 'Add waypoint',
     removeWaypointAria: (seq: number) => `Remove waypoint ${seq}`,
     createMission: 'Create mission',
+    weatherCheckTitle: 'Check weather for the flight schedule',
+    weatherCheckHint:
+      'Pick any date and time to check before deciding the flight schedule.',
+    weatherCheckDate: 'Date to check',
+    weatherCheckTime: 'Time to check',
   },
 })

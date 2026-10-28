@@ -1,5 +1,6 @@
 import type { MissionStaffRole } from '../../../mission/types/mission'
 import type { AvailableOperator } from '../../../staff/api/operatorApi'
+import './pickers.css'
 import { liveDispatchPageMessages } from './LiveDispatchPage.messages'
 import { useState, useRef, useMemo, useEffect, type KeyboardEvent } from 'react'
 import { StaffSelectedTrigger } from './StaffSelectedTrigger'
@@ -112,10 +113,7 @@ export function StaffCombobox({
   }
 
   return (
-    <div
-      ref={rootRef}
-      style={{ position: 'relative', display: 'grid', gap: 8 }}
-    >
+    <div ref={rootRef} className="mgr-pk">
       {selectedStaff.length > 0 ? (
         <StaffSelectedTrigger
           triggerRef={triggerRef}

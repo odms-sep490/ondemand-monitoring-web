@@ -4,26 +4,13 @@ import type {
   MissionResponse,
   MissionResultResponse,
 } from '../../types/missions'
+import { useI18n } from '../../../../shared/i18n'
+import { missionResultReviewMessages } from './MissionResultReview.messages'
 import { OrderIcon } from './OrderIcon'
 import { formatDateTime, formatDuration } from './missionDetailHelpers'
 import { MissionResultReviewActions } from './MissionResultReviewActions'
 import { missionResultReviewReadiness } from './missionResultReviewReadiness'
 import './MissionResultReviewCard.css'
-
-const statusLabels: Record<MissionResultResponse['status'], string> = {
-  COMPLETED: 'Hoàn thành',
-  DRAFT: 'Nháp',
-  IN_PROGRESS: 'Đang thực hiện',
-  FAILED: 'Không hoàn thành',
-  CANCELLED: 'Đã hủy',
-}
-const approvalLabels: Record<MissionResultResponse['approvalStatus'], string> =
-  {
-    DRAFT: 'Nháp',
-    PENDING_MANAGER_APPROVAL: 'Chờ duyệt',
-    APPROVED: 'Đã duyệt',
-    REJECTED: 'Đã từ chối',
-  }
 
 export function MissionResultReviewCard({
   mission,
@@ -33,7 +20,7 @@ export function MissionResultReviewCard({
   checklistFailed = false,
   refreshing = false,
   mediaCount: fallbackMediaCount = 0,
-  locale = 'vi-VN',
+  locale: localeProp,
   onReviewed,
   onViewMedia,
 }: {
@@ -48,6 +35,8 @@ export function MissionResultReviewCard({
   onReviewed: () => void
   onViewMedia?: () => void
 }) {
+  const { t, locale: currentLocale } = useI18n(missionResultReviewMessages)
+  const locale = localeProp ?? currentLocale
   const headingId = useId()
   const reasonId = useId()
   const matchingResult = result?.missionId === mission.id ? result : null
@@ -65,17 +54,15 @@ export function MissionResultReviewCard({
   const pending = matchingResult?.approvalStatus === 'PENDING_MANAGER_APPROVAL'
   const conditions = [
     {
-      label: readiness.missionComplete
-        ? 'Mission đã hoàn thành'
-        : 'Mission chưa hoàn thành',
+      label: readiness.missionComplete ? t.missionDone : t.missionNotDone,
       tone: readiness.missionComplete ? 'success' : 'warning',
     },
     {
       label: readiness.checklistReady
-        ? 'Checklist đã sẵn sàng'
+        ? t.checklistReady
         : readiness.known
-          ? 'Checklist chưa sẵn sàng'
-          : 'Chưa xác nhận checklist',
+          ? t.checklistNotReady
+          : t.checklistUnconfirmed,
       tone: readiness.checklistReady
         ? 'success'
         : readiness.known
@@ -83,84 +70,83 @@ export function MissionResultReviewCard({
           : 'neutral',
     },
     {
-      label: mediaCount > 0 ? 'Có media' : 'Chưa có media',
+      label: mediaCount > 0 ? t.hasMedia : t.noMedia,
       tone: mediaCount > 0 ? 'success' : 'neutral',
     },
     ...(readiness.mediaPending
-      ? [{ label: 'Còn media chưa được duyệt', tone: 'warning' }]
+      ? [{ label: t.mediaPending, tone: 'warning' }]
       : []),
   ]
   return (
     <section
-      className="odm-or-card odm-result-review"
+      className="odm-or-card mgr-result-review"
       aria-labelledby={headingId}
     >
-      <div className="odm-result-review-summary">
-        <header className="odm-result-review-heading">
-          <h2 id={headingId}>Kết quả nhiệm vụ</h2>
+      <div className="mgr-result-review-summary">
+        <header className="mgr-result-review-heading">
+          <h2 id={headingId}>{t.heading}</h2>
           {matchingResult && (
             <div className="odm-or-result-line">
               <span
                 className={`odm-or-pill odm-or-pill-${matchingResult.status === 'COMPLETED' ? 'green' : 'amber'}`}
               >
-                {statusLabels[matchingResult.status] ?? 'Chưa xác định'}
+                {t.statusLabels[matchingResult.status] ?? t.unknown}
               </span>
               <span
                 className={`odm-or-pill odm-or-pill-${matchingResult.approvalStatus === 'APPROVED' ? 'green' : matchingResult.approvalStatus === 'REJECTED' ? 'red' : 'amber'}`}
               >
-                {approvalLabels[matchingResult.approvalStatus] ??
-                  'Chưa xác định'}
+                {t.approvalLabels[matchingResult.approvalStatus] ?? t.unknown}
               </span>
             </div>
           )}
         </header>
         {matchingResult ? (
           <>
-            <dl className="odm-result-review-metrics">
+            <dl className="mgr-result-review-metrics">
               <div>
-                <dt>Gửi lúc</dt>
+                <dt>{t.submittedAt}</dt>
                 <dd>
                   {matchingResult.approvalStatus === 'DRAFT'
-                    ? 'Chưa gửi'
+                    ? t.notSubmitted
                     : formatDateTime(matchingResult.submittedAt, locale)}
                 </dd>
               </div>
               <div>
-                <dt>Thời lượng</dt>
+                <dt>{t.duration}</dt>
                 <dd>
                   {matchingResult.durationSeconds == null
-                    ? 'Chưa ghi nhận'
+                    ? t.notRecorded
                     : formatDuration(matchingResult.durationSeconds)}
                 </dd>
               </div>
               <div>
-                <dt>Media</dt>
-                <dd>{mediaCount} ảnh/video</dd>
+                <dt>{t.media}</dt>
+                <dd>{t.mediaCount(mediaCount)}</dd>
               </div>
             </dl>
             {(matchingResult.summary || matchingResult.notes) && (
-              <p className="odm-result-review-description">
+              <p className="mgr-result-review-description">
                 {matchingResult.summary || matchingResult.notes}
               </p>
             )}
           </>
         ) : (
-          <p className="odm-result-review-empty">
-            Chưa có kết quả nhiệm vụ được gửi.
+          <p className="mgr-result-review-empty">
+            {t.noResult}
           </p>
         )}
       </div>
       {pending && (
         <section
-          className="odm-result-review-readiness"
-          aria-label="Điều kiện duyệt kết quả"
+          className="mgr-result-review-readiness"
+          aria-label={t.readinessAria}
         >
-          <h3>Điều kiện duyệt</h3>
+          <h3>{t.readinessTitle}</h3>
           <ul>
             {conditions.map((condition) => (
               <li key={condition.label} className={`is-${condition.tone}`}>
                 <span
-                  className="odm-result-review-condition-icon"
+                  className="mgr-result-review-condition-icon"
                   aria-hidden="true"
                 >
                   <OrderIcon
@@ -181,18 +167,18 @@ export function MissionResultReviewCard({
           {readiness.reason && (
             <p
               id={reasonId}
-              className="odm-result-review-warning"
+              className="mgr-result-review-warning"
               role="status"
             >
               {readiness.reason}
             </p>
           )}
-          <div className="odm-result-review-media-helper">
-            <span>Duyệt media riêng trước khi duyệt kết quả.</span>
+          <div className="mgr-result-review-media-helper">
+            <span>{t.reviewMediaSeparately}</span>
             {onViewMedia && (
               <button type="button" onClick={onViewMedia}>
                 <OrderIcon name="media" size={15} />
-                Xem thư viện media
+                {t.viewMediaLibrary}
                 <OrderIcon name="arrow-right" size={14} />
               </button>
             )}
@@ -200,11 +186,11 @@ export function MissionResultReviewCard({
         </section>
       )}
       {matchingResult && (
-        <div className="odm-result-review-action-section">
+        <div className="mgr-result-review-action-section">
           {matchingResult.approvalStatus === 'REJECTED' &&
             matchingResult.reviewNote && (
-              <div className="odm-result-review-recorded-note">
-                <strong>Lý do từ chối</strong>
+              <div className="mgr-result-review-recorded-note">
+                <strong>{t.rejectReason}</strong>
                 <p>{matchingResult.reviewNote}</p>
               </div>
             )}

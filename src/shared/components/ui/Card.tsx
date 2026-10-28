@@ -8,12 +8,14 @@ type Props = {
   className?: string
   /** Remove body padding, e.g. when the child is a full-bleed table. */
   flush?: boolean
+  /** Lift slightly on hover (for clickable cards). */
+  hoverable?: boolean
 }
 
-export function Card({ title, actions, children, className, flush }: Props) {
+export function Card({ title, actions, children, className, flush, hoverable }: Props) {
   const hasHeader = Boolean(title || actions)
   return (
-    <section className={`ui-card${className ? ` ${className}` : ''}`}>
+    <section className={`ui-card${hoverable ? ' is-hoverable' : ''}${className ? ` ${className}` : ''}`}>
       {hasHeader ? (
         <div className="ui-card-header">
           {title ? <h2 className="ui-card-title">{title}</h2> : <span />}

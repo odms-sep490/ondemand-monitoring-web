@@ -5,13 +5,10 @@ import type { MaintenanceTicket } from '../types/maintenance'
 export type BackendMaintenanceTicket = {
   id: string
   ticketCode?: string | null
-  title?: string | null
   deviceId?: string | null
   deviceCode?: string | null
   assignedStaffId?: string | null
   assignedStaffName?: string | null
-  assignedTechnicianId?: string | null
-  assignedTechnicianName?: string | null
   reportedBy?: string | null
   issueType?: string | null
   severity?: string | null
@@ -23,27 +20,26 @@ export type BackendMaintenanceTicket = {
   closedAt?: string | null
 }
 
+/** `AvailableOperatorResponse` from `GET /api/operators/available`. */
+export type AssignableStaff = {
+  id: string
+  fullName: string
+  email: string
+}
+
 function mapToTicket(item: BackendMaintenanceTicket): MaintenanceTicket {
   return {
     id: item.id,
     code: item.ticketCode ?? item.id,
-    title: item.title ?? item.description ?? item.issueType ?? item.ticketCode ?? item.id,
+    title: item.description ?? item.issueType ?? item.ticketCode ?? item.id,
     status: (item.status || 'OPEN') as TicketStatus,
     priority: (item.severity || 'MEDIUM') as TicketSeverity,
     droneId: item.deviceId ?? '',
     droneCode: item.deviceCode ?? item.deviceId ?? 'DRONE',
-    droneName: item.deviceCode ?? null,
     issueType: item.issueType ?? null,
     description: item.description ?? null,
-    missionId: null,
     reportedBy: item.reportedBy ?? null,
-    assignedTo:
-      item.assignedStaffName ??
-      item.assignedTechnicianName ??
-      item.assignedStaffId ??
-      item.assignedTechnicianId ??
-      null,
-    downtime_hours: null,
+    assignedTo: item.assignedStaffName ?? item.assignedStaffId ?? null,
     resolutionNotes: item.resolutionNotes ?? null,
     openedAt: item.openedAt,
     resolvedAt: item.resolvedAt ?? null,
@@ -75,20 +71,9 @@ export const maintenanceApi = {
     return { items, total: items.length }
   },
 
-  /** `POST /api/maintenance-tickets` */
-  createTicket: async (data: {
-    droneId: string
-    title: string
-    issueType?: string
-    description?: string
-    priority?: TicketSeverity
-  }): Promise<MaintenanceTicket> => {
-    const raw = await apiRequest<BackendMaintenanceTicket>('/api/maintenance-tickets', {
-      method: 'POST',
-      body: data,
-    })
-    return mapToTicket(raw)
-  },
+  /** `GET /api/operators/available`: staff that can be assigned to a ticket. */
+  listAssignableStaff: (signal?: AbortSignal): Promise<AssignableStaff[]> =>
+    apiRequest<AssignableStaff[]>('/api/operators/available', { signal }),
 
   /** `PATCH /api/maintenance-tickets/{id}/assign-staff` */
   assignTechnician: async (ticketId: string, technicianId: string): Promise<MaintenanceTicket> => {

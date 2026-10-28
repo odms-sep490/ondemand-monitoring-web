@@ -1,121 +1,37 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import '@ant-design/v5-patch-for-react-19'
+import { ConfigProvider, Layout } from 'antd'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 
-import { authSession } from '../auth/api/authApi'
-import { LogoutButton } from '../auth/components/LogoutButton'
-import { managerHref, type ManagerRoute, type ManagerScreen } from './routes'
+import { useI18n } from '../../shared/i18n'
+import { managerHref, type ManagerRoute } from './routes'
+import { ManagerHeader } from './components/layout/ManagerHeader'
+import { SiderMenu } from './components/layout/SiderMenu'
+import { SiderUserCard } from './components/layout/SiderUserCard'
 import {
-  ManagerIcon,
-  type ManagerIconName,
-} from './components/common/ManagerIcon'
+  activeNavLabel,
+  type ManagerNavCounts,
+} from './components/layout/navConfig'
+import { mgrPopupContainer } from './components/common/mgrPopupContainer'
+import {
+  buildManagerTheme,
+  MANAGER_SIDER_RAIL_WIDTH,
+  MANAGER_SIDER_WIDTH,
+} from './theme/managerTheme'
 import './manager.css'
+import './components/layout/layout.scss'
+import './components/layout/popups.scss'
+import { managerLayoutMessages } from './ManagerLayout.messages'
 
-type NavItem = {
-  label: string
-  icon: ManagerIconName
-  route?: ManagerRoute
-  href?: string
-  /** Key into `counts` for the numeric badge, when this item has one. */
-  countKey?: 'pendingOrders' | 'openMaintenance' | 'mediaNeedsAction'
-}
+export type { ManagerNavCounts }
 
-type NavGroup = { label: string; items: NavItem[] }
+const { Sider, Content } = Layout
 
-// Groups + items copied from the sidebar markup shared by every MNG-*.dc.html
-const NAV_GROUPS: NavGroup[] = [
-  {
-    label: 'Điều hành',
-    items: [
-      { label: 'Dashboard', icon: 'dashboard', route: { screen: 'dashboard' } },
-      {
-        label: 'Đơn hàng',
-        icon: 'order-queue',
-        route: { screen: 'orderQueue' },
-        countKey: 'pendingOrders',
-      },
-      {
-        label: 'Nhiệm vụ',
-        icon: 'mission',
-        route: { screen: 'missions' },
-      },
-      {
-        label: 'Lịch nhiệm vụ',
-        icon: 'schedule',
-        route: { screen: 'schedule' },
-      },
-      { label: 'Giám sát realtime', icon: 'live', route: { screen: 'live' } },
-    ],
-  },
-  {
-    label: 'Hỗ trợ khách hàng',
-    items: [
-      {
-        label: 'Trung tâm hỗ trợ',
-        icon: 'reports',
-        href: '#portal/manager/support',
-      },
-    ],
-  },
-  {
-    label: 'Nguồn lực',
-    items: [
-      { label: 'Đội drone', icon: 'drones', route: { screen: 'drones' } },
-      {
-        label: 'Bảo trì',
-        icon: 'maintenance',
-        route: { screen: 'maintenance' },
-        countKey: 'openMaintenance',
-      },
-      {
-        label: 'Media và giao kết quả',
-        icon: 'media',
-        route: { screen: 'media' },
-        countKey: 'mediaNeedsAction',
-      },
-    ],
-  },
-  {
-    label: 'Phân tích',
-    items: [
-      { label: 'Báo cáo', icon: 'reports', route: { screen: 'reports' } },
-    ],
-  },
-]
-
-// Which nav item highlights as active for each parsed screen — screens that
-// aren't reachable directly from the sidebar (order review, mission
-// create/dispatch) highlight the item their flow started from.
-const activeNavLabel: Record<ManagerScreen, string> = {
-  dashboard: 'Dashboard',
-  orderQueue: 'Đơn hàng',
-  orderReview: 'Đơn hàng',
-  missionCreate: 'Đơn hàng',
-  missionDispatch: 'Nhiệm vụ',
-  missionSetup: 'Nhiệm vụ',
-  missionDetail: 'Nhiệm vụ',
-  schedule: 'Lịch nhiệm vụ',
-  live: 'Giám sát realtime',
-  missions: 'Nhiệm vụ',
-  drones: 'Đội drone',
-  maintenance: 'Bảo trì',
-  media: 'Media và giao kết quả',
-  reports: 'Báo cáo',
-  support: 'Trung tâm hỗ trợ',
-  notFound: '',
-}
-
-function initialsOf(fullName: string | undefined): string {
-  if (!fullName) return '?'
-  const words = fullName.trim().split(/\s+/)
-  if (words.length === 1) return words[0].slice(0, 2).toUpperCase()
-  return (words[0][0] + words[words.length - 1][0]).toUpperCase()
-}
-
-export type ManagerNavCounts = {
-  pendingOrders?: number
-  openMaintenance?: number
-  mediaNeedsAction?: number
-}
-
+/**
+ * Manager shell, modelled on the reference project's `AppDashboard`:
+ * antd Layout with a left Sider (brand + Menu), a Header (breadcrumb, support,
+ * theme toggle, avatar dropdown) and a scrolling Content area. The
+ * `.odm` wrapper stays so the legacy token-based page CSS keeps resolving.
+ */
 export function ManagerLayout({
   route,
   breadcrumb,
@@ -130,136 +46,84 @@ export function ManagerLayout({
   const [dark, setDark] = useState(
     () => document.documentElement.dataset.theme === 'dark',
   )
-  const [menuOpen, setMenuOpen] = useState(false)
-  const user = authSession.getUser()
+  const [collapsed, setCollapsed] = useState(false)
+  const [broken, setBroken] = useState(false)
+  const { t } = useI18n(managerLayoutMessages)
+  const themeConfig = useMemo(() => buildManagerTheme(dark), [dark])
 
   useEffect(() => {
     document.documentElement.dataset.theme = dark ? 'dark' : 'light'
   }, [dark])
 
-  const activeLabel = activeNavLabel[route.screen]
+  const overlayOpen = broken && !collapsed
+  // Desktop collapse keeps an icon rail; below the breakpoint the sider hides entirely.
+  const rail = collapsed && !broken
 
   return (
-    <div className="odm odm-mgr">
-      <div className="odm-mgr-shell">
-        <nav
-          aria-label="Điều hướng chính"
-          className={`odm-mgr-side ${menuOpen ? 'is-open' : ''}`}
-        >
-          <a
-            className="odm-mgr-brand"
-            href={managerHref({ screen: 'dashboard' })}
+    <ConfigProvider theme={themeConfig} getPopupContainer={mgrPopupContainer}>
+      <div className="odm odm-mgr mgr-layout">
+        <Layout hasSider className="mgr-shell">
+          <Sider
+            width={MANAGER_SIDER_WIDTH}
+            collapsedWidth={broken ? 0 : MANAGER_SIDER_RAIL_WIDTH}
+            breakpoint="lg"
+            trigger={null}
+            collapsible
+            collapsed={collapsed}
+            onBreakpoint={(isBroken) => {
+              setBroken(isBroken)
+              setCollapsed(isBroken)
+            }}
+            theme={dark ? 'dark' : 'light'}
+            className={`mgr-sider ${overlayOpen ? 'is-overlay' : ''} ${rail ? 'is-rail' : ''}`}
           >
-            <img
-              src="/images/logo-new.png"
-              alt="OnDemand Monitor"
-              className="odm-mgr-brand-mark"
-            />
-            <span className="odm-mgr-brand-name">
-              <span className="odm-mgr-brand-primary">OnDemand</span>
-              <span className="odm-mgr-brand-accent">Monitor</span>
-            </span>
-          </a>
-
-          <div className="odm-mgr-nav-scroll">
-            {NAV_GROUPS.map((group) => (
-              <div key={group.label}>
-                <div className="odm-mgr-navg">{group.label}</div>
-                {group.items.map((item) => {
-                  const active = item.label === activeLabel
-                  const count = item.countKey
-                    ? counts?.[item.countKey]
-                    : undefined
-                  return (
-                    <a
-                      key={item.label}
-                      href={
-                        item.href ||
-                        (item.route ? managerHref(item.route) : '#')
-                      }
-                      className={`odm-mgr-navi ${active ? 'is-active' : ''}`}
-                      aria-current={active ? 'page' : undefined}
-                      onClick={() => setMenuOpen(false)}
-                    >
-                      <ManagerIcon name={item.icon} />
-                      <span>{item.label}</span>
-                      {typeof count === 'number' && count > 0 ? (
-                        <span className="odm-mgr-navc">{count}</span>
-                      ) : null}
-                    </a>
-                  )
-                })}
-              </div>
-            ))}
-          </div>
-
-          <a
-            href="#profile"
-            className="odm-mgr-user"
-            style={{ color: 'inherit', textDecoration: 'none' }}
-          >
-            <span className="odm-mgr-avatar" aria-hidden="true">
-              {initialsOf(user?.fullName)}
-            </span>
-            <span className="odm-mgr-user-text">
-              <span className="odm-mgr-user-name">
-                {user?.fullName ?? 'Staff'}
-              </span>
-              <span className="odm-mgr-user-email">{user?.email ?? ''}</span>
-            </span>
-          </a>
-          <LogoutButton className="odm-mgr-logout" />
-        </nav>
-
-        {menuOpen ? (
-          <button
-            type="button"
-            className="odm-mgr-scrim"
-            aria-label="Đóng điều hướng"
-            onClick={() => setMenuOpen(false)}
-          />
-        ) : null}
-
-        <div className="odm-mgr-main">
-          <header className="odm-mgr-topbar">
-            <button
-              type="button"
-              className="odm-mgr-menu-toggle"
-              aria-label="Mở điều hướng"
-              onClick={() => setMenuOpen(true)}
-            >
-              <ManagerIcon name="menu" />
-            </button>
-            <div className="odm-mgr-breadcrumb">{breadcrumb}</div>
-            <div className="odm-mgr-topbar-spacer" />
             <a
-              href="#portal/manager/support"
-              className="odm-btn odm-btn-gh"
-              style={{
-                fontSize: 13,
-                textDecoration: 'none',
-                padding: '6px 12px',
-                borderRadius: 8,
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                marginRight: 8,
-              }}
+              className="mgr-brand"
+              href={managerHref({ screen: 'dashboard' })}
             >
-              🎧 Trung tâm hỗ trợ
+              <span className="mgr-brand-tile">
+                <img
+                  src="/images/logo-new.png"
+                  alt="OnDemand Monitor"
+                  className="mgr-brand-mark"
+                />
+              </span>
+              <span className="mgr-brand-name">
+                <span className="mgr-brand-primary">OnDemand</span>
+                <span className="mgr-brand-accent">Monitor</span>
+              </span>
             </a>
+            <SiderMenu
+              activeLabel={activeNavLabel[route.screen]}
+              counts={counts}
+              collapsed={rail}
+              onNavigate={() => broken && setCollapsed(true)}
+            />
+            <SiderUserCard />
+          </Sider>
+
+          {overlayOpen ? (
             <button
               type="button"
-              className="odm-btn odm-btn-gh odm-btn-ic1"
-              aria-label="Đổi giao diện sáng / tối"
-              onClick={() => setDark((value) => !value)}
-            >
-              <ManagerIcon name={dark ? 'sun' : 'moon'} />
-            </button>
-          </header>
-          <main className="odm-mgr-content">{children}</main>
-        </div>
+              className="mgr-scrim"
+              aria-label={t.closeNav}
+              onClick={() => setCollapsed(true)}
+            />
+          ) : null}
+
+          <Layout className="mgr-main">
+            <ManagerHeader
+              breadcrumb={breadcrumb}
+              collapsed={collapsed}
+              dark={dark}
+              pendingOrders={counts?.pendingOrders}
+              onToggleSider={() => setCollapsed((v) => !v)}
+              onToggleTheme={() => setDark((v) => !v)}
+            />
+            <Content className="mgr-content odm-mgr-content">{children}</Content>
+          </Layout>
+        </Layout>
       </div>
-    </div>
+    </ConfigProvider>
   )
 }

@@ -1,4 +1,7 @@
+import { CheckCircleOutlined } from '@ant-design/icons'
 import { useCallback, useEffect, useState } from 'react'
+import { useI18n } from '../../../../shared/i18n'
+import { orderResourceAssignmentWizardMessages } from './OrderResourceAssignmentWizard.messages'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { planningApi } from '../../api/planningApi'
 import { ordersApi } from '../../api/ordersApi'
@@ -10,6 +13,9 @@ import { usePlanningConfirmation } from './usePlanningConfirmation'
 import { WizardRoleSelection } from './WizardRoleSelection'
 import { WizardOverviewStep } from './WizardOverviewStep'
 import { WizardMissionStep } from './WizardMissionStep'
+import { Button, PageHeader } from '../../../../shared/components/ui'
+import '../layout/mgrLayout.css'
+import '../../pages/MissionDispatch/missionDispatch.scss'
 
 const roles: MissionStaffRole[] = [
   'PILOT',
@@ -23,7 +29,7 @@ export function OrderResourceAssignmentWizard({
   orderId,
   initialMissionId,
   onClose,
-  returnLabel = 'Về kế hoạch Order',
+  returnLabel: returnLabelProp,
   embedded = false,
   onStepChange,
 }: {
@@ -35,6 +41,8 @@ export function OrderResourceAssignmentWizard({
   /** Current legacy page position for an outer stepper. */
   onStepChange?: (step: 6 | 7 | 8 | 9) => void
 }) {
+  const { t } = useI18n(orderResourceAssignmentWizardMessages)
+  const returnLabel = returnLabelProp ?? t.returnToPlan
   const confirmation = usePlanningConfirmation()
   const query = useApiQuery(
     async (signal) => {
@@ -107,9 +115,9 @@ export function OrderResourceAssignmentWizard({
       busy ||
       (draft &&
         !(await confirmation.confirm({
-          title: 'Bỏ thay đổi chưa lưu?',
-          body: 'Phân công đã lưu vẫn được giữ nguyên. Các lựa chọn chưa lưu của Mission này sẽ bị bỏ.',
-          action: 'Bỏ thay đổi',
+          title: t.discardTitle,
+          body: t.discardBody,
+          action: t.discardAction,
         })))
     )
       return
@@ -164,38 +172,26 @@ export function OrderResourceAssignmentWizard({
     )
   if (current && !query.loading && !eligible(current.id))
     return (
+      <div className="odm-or mgr-view mgr-mdp">
       <section className="odm-or-card odm-or-card-body">
-        <p role="alert">
-          Nhiệm vụ chưa đủ điều kiện phân công nguồn lực. Chốt kế hoạch Order và
-          kiểm tra trạng thái nhiệm vụ trước khi tiếp tục.
-        </p>
-        <a
-          className="odm-btn"
-          href={`#portal/manager/orders/${encodeURIComponent(orderId)}`}
-        >
-          Mở kế hoạch Order
-        </a>
-        <button className="odm-btn" onClick={query.reload}>
-          Tải lại trạng thái
-        </button>
-        <button className="odm-btn" onClick={onClose}>
-          {returnLabel}
-        </button>
+        <p role="alert">{t.notEligible}</p>
+        <Button href={`#portal/manager/orders/${encodeURIComponent(orderId)}`}>
+          {t.openPlan}
+        </Button>
+        <Button onClick={query.reload}>{t.reloadStatus}</Button>
+        <Button onClick={onClose}>{returnLabel}</Button>
       </section>
+      </div>
     )
   if (activeId && !current && !query.loading)
     return (
+      <div className="odm-or mgr-view mgr-mdp">
       <section className="odm-or-card odm-or-card-body">
-        <p role="alert">
-          Không thể tải đúng nhiệm vụ để phân công. Vui lòng tải lại dữ liệu.
-        </p>
-        <button className="odm-btn" onClick={query.reload}>
-          Thử lại
-        </button>
-        <button className="odm-btn" onClick={onClose}>
-          {returnLabel}
-        </button>
+        <p role="alert">{t.loadFailed}</p>
+        <Button onClick={query.reload}>{t.retry}</Button>
+        <Button onClick={onClose}>{returnLabel}</Button>
       </section>
+      </div>
     )
   if (current) {
     const initialStaff: Partial<Record<MissionStaffRole, string[]>> = {}
@@ -237,18 +233,16 @@ export function OrderResourceAssignmentWizard({
     )
   }
   return (
-    <div className="odm-or">
+    <div className="odm-or mgr-view mgr-mdp">
       {confirmation.dialog}
-      <div className="odm-or-pagehead odm-or-pagehead-row">
-        <h1 className="odm-or-title">Phân công nguồn lực</h1>
-        <button
-          className="odm-or-btn-outline"
-          disabled={busy}
-          onClick={() => leave(true)}
-        >
-          {returnLabel}
-        </button>
-      </div>
+      <PageHeader
+        title={t.title}
+        actions={
+          <Button disabled={busy} onClick={() => leave(true)}>
+            {returnLabel}
+          </Button>
+        }
+      />
       <OrderWorkflowStepper currentStep={6} />
       <DispatchWizardTabs
         activeStep="mission"
@@ -258,23 +252,23 @@ export function OrderResourceAssignmentWizard({
       {selection}
       {allAssigned && (
         <div className="odm-planning-complete" role="status">
-          <span>✓ Tất cả Mission đã được phân công đầy đủ.</span>
-          <button className="odm-or-btn odm-or-btn-blue" onClick={onClose}>
-            Hoàn tất phân công
-          </button>
+          <span>
+            <CheckCircleOutlined aria-hidden="true" /> {t.allAssigned}
+          </span>
+          <Button variant="primary" onClick={onClose}>
+            {t.finishAssigning}
+          </Button>
         </div>
       )}
       <div className="odm-or-actionbar">
-        <div className="odm-or-actionbar-hint">
-          Chọn đúng nhiệm vụ trước khi phân công nhân sự và thiết bị.
-        </div>
-        <button
-          className="odm-or-btn odm-or-btn-blue"
+        <div className="odm-or-actionbar-hint">{t.hint}</div>
+        <Button
+          variant="primary"
           disabled={!candidateId || !eligible(candidateId)}
           onClick={next}
         >
-          Tiếp theo
-        </button>
+          {t.next}
+        </Button>
       </div>
     </div>
   )

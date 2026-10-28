@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { ShowMoreList } from '../../../../../shared/components/antd'
 import type { OrderDetail } from '../../../types/orders'
 import type { MissionResponse } from '../../../types/missions'
 import type { MissionStatus } from '../../../../../shared/types/domain'
@@ -19,6 +20,13 @@ import '../../../components/common/planning.css'
 import { usePlanningConfirmation } from '../../../components/common/usePlanningConfirmation'
 import { ApiError } from '../../../../../shared/api/httpClient'
 import { financeApi } from '../../../../finance/api'
+import { PlanningPaymentGate } from './PlanningPaymentGate'
+import { PlanningFormModal } from './PlanningFormModal'
+import { PlanningWorkspaceBar } from './PlanningWorkspaceBar'
+import { Button, Skeleton } from '../../../../../shared/components/ui'
+import '../planningLayout.css'
+import { orderMissionPlanningSectionMessages } from './OrderMissionPlanningSection.messages'
+import { useI18n } from '../../../../../shared/i18n'
 
 export type PlanningWorkflowInfo = {
   depositPaid: boolean
@@ -66,6 +74,7 @@ function OrderPlanningWorkspace({
   onWorkflowInfo?: (info: PlanningWorkflowInfo) => void
   activeTab?: 'planning' | 'permit'
 }) {
+  const { t: ts } = useI18n(orderMissionPlanningSectionMessages)
   const confirmation = usePlanningConfirmation()
   const initialOrderRef = useRef(
     initialOrder?.id === orderId ? initialOrder : undefined,
@@ -87,19 +96,6 @@ function OrderPlanningWorkspace({
     },
     [orderId],
   )
-
-  // Polling for live updates (Disabled to prevent UI stutter/flickering)
-  // useEffect(() => {
-  //   const refreshWhenVisible = () => {
-  //     if (document.visibilityState === 'visible') query.reload()
-  //   }
-  //   const interval = window.setInterval(refreshWhenVisible, PLANNING_RUNTIME_POLL_MS)
-  //   window.addEventListener('focus', refreshWhenVisible)
-  //   return () => {
-  //     window.clearInterval(interval)
-  //     window.removeEventListener('focus', refreshWhenVisible)
-  //   }
-  // }, [query.reload])
 
   const [busy, setBusy] = useState(false)
   const [creating, setCreating] = useState(false)
@@ -149,7 +145,7 @@ function OrderPlanningWorkspace({
       selectedMissionId: null,
       missions: effective.map((mission) => ({
         id: mission.id,
-        code: mission.missionCode || 'Nhiệm vụ',
+        code: mission.missionCode || ts.missionFallback,
         status: mission.status,
         flightPermitStatus: mission.flightPermitStatus,
       })),
@@ -182,13 +178,24 @@ function OrderPlanningWorkspace({
       data.plan.coverage.uncovered === 0,
   )
 
+  async function confirmClose(title: string, close: () => void) {
+    if (
+      await confirmation.confirm({
+        title,
+        body: ts.closeFormBody,
+        action: ts.closeFormAction,
+      })
+    )
+      close()
+  }
+
   async function handleFinalizePlan() {
     if (!data || !writable || busy) return
     if (
       !(await confirmation.confirm({
-        title: 'Chốt kế hoạch ?',
-        body: 'Sau khi chốt, các nhiệm vụ sẽ chuyển sang trạng thái sẵn sàng. Mọi thay đổi tài nguyên sau đó sẽ yêu cầu nhập lý do.',
-        action: 'Chốt kế hoạch',
+        title: ts.finalizeTitle,
+        body: ts.finalizeBody,
+        action: ts.finalizeAction,
       }))
     )
       return
@@ -217,14 +224,14 @@ function OrderPlanningWorkspace({
   async function checkPayment() {
     setMessage('')
     if (!data?.invoice) {
-      setMessage('Khách hàng chưa chấp nhận báo giá nên chưa có khoản đặt cọc để kiểm tra.')
+      setMessage(ts.noDeposit)
       query.reload()
       return
     }
     setCheckingPayment(true)
     try {
       await financeApi.refreshOrderPayments(orderId)
-      setMessage('Đã đối soát với VNPAY. Trạng thái đặt cọc đã được cập nhật.')
+      setMessage(ts.paymentChecked)
     } catch (cause) {
       setMessage(planningError(cause))
     } finally {
@@ -266,7 +273,10 @@ function OrderPlanningWorkspace({
   }
 
   return (
-    <section className="odm-or-card odm-planning" aria-label="Lập kế hoạch nhiệm vụ">
+    <section
+      className="odm-planning mgr-plan"
+      aria-label={ts.sectionAria}
+    >
       {confirmation.dialog}
 
       <ReasonModal
@@ -285,18 +295,23 @@ function OrderPlanningWorkspace({
         revision={data?.plan.revision ?? 0}
         loading={query.loading}
         action={
-          <button
+          <Button
             type="button"
             className="odm-btn"
             disabled={busy || query.loading}
             onClick={query.reload}
           >
-            Tải lại kế hoạch
-          </button>
+            {ts.reloadPlan}
+          </Button>
         }
       />
-
-      {query.loading && !data && <p role="status">Đang tải kế hoạch…</p>}
+      {query.loading && (
+        <div className="mgr-plan-loading">
+          <p role="status">{ts.loadingPlan}</p>
+          <Skeleton variant="block" height={96} />
+          <Skeleton variant="block" height={160} />
+        </div>
+      )}
       {query.error ? <p role="alert">{planningError(query.error)}</p> : null}
       {message && <p role="status" className="odm-planning-notice">{message}</p>}
       {coverageWarning && <p role="alert" className="odm-planning-notice">{coverageWarning}</p>}
@@ -306,116 +321,32 @@ function OrderPlanningWorkspace({
           <ExecutionPlanSummary plan={data.plan} items={data.order.checklistItems ?? []} />
 
           {!depositPaid && data.order.status === 'APPROVED' ? (
-            <div className="odm-planning-payment-gate" role="status">
-              <div className="odm-gate-head">
-                <strong>Đang chờ khách hàng thanh toán đặt cọc</strong>
-                <button
-                  type="button"
-                  className="odm-btn"
-                  disabled={checkingPayment}
-                  onClick={() => void checkPayment()}
-                >
-                  {checkingPayment ? 'Đang kiểm tra…' : 'Kiểm tra thanh toán'}
-                </button>
-              </div>
-              <p>
-                Tạo nhiệm vụ và chốt kế hoạch sẽ được mở sau khi hệ thống xác nhận khoản đặt cọc.
-              </p>
-              {data.invoice ? (
-                <div className="odm-gate-deposit">
-                  <div
-                    className="odm-gate-bar"
-                    role="progressbar"
-                    aria-valuemin={0}
-                    aria-valuemax={data.invoice.depositAmount}
-                    aria-valuenow={data.invoice.paidAmount}
-                  >
-                    <span
-                      style={{
-                        width: `${Math.min(
-                          100,
-                          data.invoice.depositAmount > 0
-                            ? (data.invoice.paidAmount / data.invoice.depositAmount) * 100
-                            : 0,
-                        )}%`,
-                      }}
-                    />
-                  </div>
-                  <span>
-                    Đã thanh toán {data.invoice.paidAmount.toLocaleString('vi-VN')} /{' '}
-                    {data.invoice.depositAmount.toLocaleString('vi-VN')} ₫ tiền đặt cọc
-                  </span>
-                </div>
-              ) : (
-                <span>Khách hàng chưa chấp nhận báo giá hoặc chưa phát hành hóa đơn.</span>
-              )}
-            </div>
+            <PlanningPaymentGate
+              checkingPayment={checkingPayment}
+              checkPayment={checkPayment}
+              data={data}
+            />
           ) : null}
 
           {/* Create Mission Modal Popup */}
           {creating && (
-            <div
-              className="odm-planning-modal-backdrop"
-              onClick={async (e) => {
-                if (e.target === e.currentTarget) {
-                  if (
-                    await confirmation.confirm({
-                      title: 'Đóng form tạo nhiệm vụ?',
-                      body: 'Dữ liệu chưa gửi sẽ không được lưu.',
-                      action: 'Đóng form',
-                    })
-                  )
-                    setCreating(false)
-                }
-              }}
-              role="dialog"
-              aria-modal="true"
-              aria-label="Tạo nhiệm vụ trong đơn hàng"
+            <PlanningFormModal
+              kind="create"
+              ariaLabel={ts.createDialogAria}
+              heading={ts.createHeading}
+              subtitle={ts.createSubtitle}
+              closeAria={ts.closeCreateAria}
+              closeTitle={ts.closeFormLabel}
+              onRequestClose={() => void confirmClose(ts.closeFormTitle, () => setCreating(false))}
             >
-              <div
-                className="odm-planning-modal-dialog"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <header className="odm-planning-create-head">
-                  <span className="odm-planning-create-icon" aria-hidden="true">
-                    ＋
-                  </span>
-                  <div>
-                    <h3>Tạo nhiệm vụ mới</h3>
-                    <p>
-                      Đặt tên dễ nhận biết, sau đó kiểm tra thời tiết và chọn lịch bay.
-                    </p>
-                  </div>
-                  <button
-                    className="odm-planning-create-close"
-                    type="button"
-                    aria-label="Đóng form tạo nhiệm vụ"
-                    title="Đóng form"
-                    onClick={async () => {
-                      if (
-                        await confirmation.confirm({
-                          title: 'Đóng form tạo nhiệm vụ?',
-                          body: 'Dữ liệu chưa gửi sẽ không được lưu.',
-                          action: 'Đóng form',
-                        })
-                      )
-                        setCreating(false)
-                    }}
-                  >
-                    ×
-                  </button>
-                </header>
-                <div className="odm-planning-modal-body">
-                  <MissionCreatePage
-                    orderId={orderId}
-                    onCreated={() => {
-                      setCreating(false)
-                      query.reload()
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
+              <MissionCreatePage
+                orderId={orderId}
+                onCreated={() => {
+                  setCreating(false)
+                  query.reload()
+                }}
+              />
+            </PlanningFormModal>
           )}
 
           {/* Update Mission Modal Popup */}
@@ -437,98 +368,50 @@ function OrderPlanningWorkspace({
 
           {/* Replace Mission Modal Popup */}
           {replacingMission && (
-            <div
-              className="odm-planning-modal-backdrop"
-              onClick={async (e) => {
-                if (e.target === e.currentTarget) {
-                  if (
-                    await confirmation.confirm({
-                      title: 'Đóng form tạo nhiệm vụ thay thế?',
-                      body: 'Dữ liệu chưa gửi sẽ không được lưu.',
-                      action: 'Đóng form',
-                    })
-                  )
-                    setReplacingMission(null)
-                }
-              }}
-              role="dialog"
-              aria-modal="true"
-              aria-label={`Tạo nhiệm vụ thay thế cho ${replacingMission.missionCode ?? ''}`}
+            <PlanningFormModal
+              kind="replace"
+              ariaLabel={ts.replaceDialogAria(replacingMission.missionCode ?? '')}
+              heading={ts.replaceHeading(replacingMission.missionCode ?? '')}
+              subtitle={ts.replaceSubtitle}
+              closeAria={ts.closeReplaceAria}
+              closeTitle={ts.closeFormLabel}
+              onRequestClose={() =>
+                void confirmClose(ts.replaceCloseTitle, () => setReplacingMission(null))
+              }
             >
-              <div
-                className="odm-planning-modal-dialog"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <header className="odm-planning-create-head">
-                  <span className="odm-planning-create-icon" aria-hidden="true">
-                    ⟲
-                  </span>
-                  <div>
-                    <h3>Tạo nhiệm vụ thay thế cho {replacingMission.missionCode}</h3>
-                    <p>
-                      Thiết lập lại lịch bay, phạm vi và danh sách công việc thay thế cho nhiệm vụ đã hủy.
-                    </p>
-                  </div>
-                  <button
-                    className="odm-planning-create-close"
-                    type="button"
-                    aria-label="Đóng form tạo nhiệm vụ thay thế"
-                    title="Đóng form"
-                    onClick={async () => {
-                      if (
-                        await confirmation.confirm({
-                          title: 'Đóng form tạo nhiệm vụ thay thế?',
-                          body: 'Dữ liệu chưa gửi sẽ không được lưu.',
-                          action: 'Đóng form',
-                        })
-                      )
-                        setReplacingMission(null)
-                    }}
-                  >
-                    ×
-                  </button>
-                </header>
-                <div className="odm-planning-modal-body">
-                  <MissionCreatePage
-                    orderId={orderId}
-                    replacesMissionId={replacingMission.id}
-                    onCreated={() => {
-                      setReplacingMission(null)
-                      query.reload()
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
+              <MissionCreatePage
+                orderId={orderId}
+                replacesMissionId={replacingMission.id}
+                onCreated={() => {
+                  setReplacingMission(null)
+                  query.reload()
+                }}
+              />
+            </PlanningFormModal>
           )}
 
           {activeTab === 'permit' ? (
-            /* Stage Giấy phép bay: Chỉ hiển thị các thẻ FlightPermitCard, không chứa component lập kế hoạch */
-            <div
-              className="odm-flight-permits-container"
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 16,
-              }}
-            >
+            /* Permit stage: only the FlightPermitCard list, no planning components */
+            <div className="odm-flight-permits-container">
               {effective.length === 0 ? (
                 <div className="odm-plan-empty">
-                  <h3>Chưa có nhiệm vụ nào</h3>
-                  <p>Cần lập kế hoạch và khởi tạo nhiệm trước khi quản lý giấy phép bay.</p>
+                  <h3>{ts.noMissions}</h3>
+                  <p>{ts.permitEmptyHint}</p>
                 </div>
               ) : (
-                effective.map((mission) => (
-                  <FlightPermitCard
-                    key={mission.id}
-                    mission={mission}
-                    onChanged={query.reload}
-                  />
-                ))
+                <ShowMoreList>
+                  {effective.map((mission) => (
+                    <FlightPermitCard
+                      key={mission.id}
+                      mission={mission}
+                      onChanged={query.reload}
+                    />
+                  ))}
+                </ShowMoreList>
               )}
             </div>
           ) : (
-            /* Stage Lập kế hoạch: Split-View 30% Master Checklist, 70% Missions Workspace */
+            /* Planning stage: master checklist beside the missions workspace */
             <div className={`odm-planning-split-layout ${sidebarCollapsed ? 'is-collapsed' : ''}`}>
             {/* Left 30%: Master Checklist */}
             <MasterChecklistSidebar
@@ -541,61 +424,26 @@ function OrderPlanningWorkspace({
 
             {/* Right 70%: Missions Workspace */}
             <div className="odm-missions-workspace-panel">
-              <div className="odm-workspace-topbar">
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  {sidebarCollapsed && (
-                    <button
-                      type="button"
-                      className="odm-btn odm-btn-sm"
-                      onClick={() => setSidebarCollapsed(false)}
-                      title="Mở danh sách công việc"
-                    >
-                      › Mở danh sách công việc ({data.plan.coverage.uncovered} chưa gán)
-                    </button>
-                  )}
-                  {writable && data.plan.planStatus === 'DRAFT' && (
-                    <button
-                      type="button"
-                      className="odm-btn odm-btn-p"
-                      disabled={busy || creating}
-                      onClick={() => setCreating(true)}
-                    >
-                      + Thêm mới nhiệm vụ
-                    </button>
-                  )}
-                </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  {data.plan.coverage.uncovered > 0 && (
-                    <span style={{ fontSize: 13, color: '#b45309' }}>
-                      Còn <strong>{data.plan.coverage.uncovered}</strong> công việc chưa được phân công
-                    </span>
-                  )}
-                  {writable && data.plan.planStatus === 'DRAFT' && (
-                    <button
-                      type="button"
-                      className="odm-btn odm-btn-p"
-                      disabled={!canConfirmPlan}
-                      onClick={() => void handleFinalizePlan()}
-                      title={
-                        data.plan.coverage.uncovered > 0
-                          ? 'Cần phân công toàn bộ công việc mới có thể chốt kế hoạch'
-                          : ""
-                      }
-                    >
-                      Chốt kế hoạch 
-                    </button>
-                  )}
-                </div>
-              </div>
+              <PlanningWorkspaceBar
+                sidebarCollapsed={sidebarCollapsed}
+                onOpenSidebar={() => setSidebarCollapsed(false)}
+                uncovered={data.plan.coverage.uncovered}
+                canEdit={writable && data.plan.planStatus === 'DRAFT'}
+                creating={creating}
+                busy={busy}
+                canConfirmPlan={canConfirmPlan}
+                onAddMission={() => setCreating(true)}
+                onFinalize={() => void handleFinalizePlan()}
+              />
 
               {data.missions.length === 0 ? (
                 <div className="odm-plan-empty">
-                  <h3>Chưa có nhiệm vụ nào</h3>
-                  <p>Bấm nút “Thêm nhiệm vụ” ở trên để khởi tạo nhiệm vụ đầu tiên cho đơn hàng.</p>
+                  <h3>{ts.noMissions}</h3>
+                  <p>{ts.planEmptyHint}</p>
                 </div>
               ) : (
                 <div className="odm-workspace-grid">
+                  <ShowMoreList>
                   {data.missions.map((mission) => (
                     <MissionGridCard
                       key={mission.id}
@@ -614,6 +462,7 @@ function OrderPlanningWorkspace({
                       )}
                     />
                   ))}
+                  </ShowMoreList>
                 </div>
               )}
             </div>

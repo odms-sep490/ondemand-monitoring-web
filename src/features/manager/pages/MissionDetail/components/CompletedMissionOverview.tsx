@@ -1,7 +1,7 @@
 import { MissionResultReviewCard } from '../../../components/common/MissionResultReviewCard'
-import { ManagerDeliveryPanel } from '../../../../delivery/ManagerDeliveryPanel'
 import { MissionUploadedMedia } from '../../../../media/components/MissionUploadedMedia'
 import { staffMissionMediaReader } from '../../../api/missionMediaReader'
+import { ChecklistEmptyNote } from './ChecklistEmptyNote'
 import { MonitoringChecklistSection } from '../../../../mission/components/MonitoringChecklistSection'
 import { MissionSatelliteMap } from './MissionSatelliteMap'
 import { formatNumber } from '../../../components/common/missionDetailHelpers'
@@ -33,7 +33,6 @@ export function CompletedMissionOverview({
   mediaLibrary,
   isCompleted,
   resultApproved,
-  revision,
   checklistExecutions,
   compliantCount,
   missionId,
@@ -50,7 +49,6 @@ export function CompletedMissionOverview({
   mediaLibrary: RefObject<HTMLElement | null>
   isCompleted: true
   resultApproved: boolean
-  revision: number
   checklistExecutions: MissionChecklistExecution[]
   compliantCount: number
   missionId: string
@@ -73,13 +71,6 @@ export function CompletedMissionOverview({
           onReviewed={refreshDetail}
           onViewMedia={() => onTabChange('media')}
         />
-
-        {isCompleted && resultApproved ? (
-          <ManagerDeliveryPanel
-            orderId={mission.orderId}
-            refreshKey={revision}
-          />
-        ) : null}
       </div>
 
       <section
@@ -87,7 +78,7 @@ export function CompletedMissionOverview({
         tabIndex={-1}
         className="odm-md-panel is-media"
         hidden={activeTab !== 'media'}
-        aria-label="Thư viện media"
+        aria-label={t.extra.mediaLibrary}
       >
         <MissionUploadedMedia
           missionId={mission.id}
@@ -129,9 +120,7 @@ export function CompletedMissionOverview({
             loading={checklist.loading}
             error={
               checklist.error
-                ? new Error(
-                    'Không thể tải checklist của Mission này. Vui lòng thử lại.',
-                  )
+                ? new Error(t.extra.checklistLoadError)
                 : undefined
             }
             resultStatus={detail.result?.approvalStatus}
@@ -140,6 +129,13 @@ export function CompletedMissionOverview({
               checklist.reload()
               refreshDetail()
             }}
+          />
+          <ChecklistEmptyNote
+            show={
+              !checklist.loading &&
+              !checklist.error &&
+              checklistExecutions.length === 0
+            }
           />
         </details>
       ) : (
@@ -158,9 +154,7 @@ export function CompletedMissionOverview({
             loading={checklist.loading}
             error={
               checklist.error
-                ? new Error(
-                    'Không thể tải checklist của Mission này. Vui lòng thử lại.',
-                  )
+                ? new Error(t.extra.checklistLoadError)
                 : undefined
             }
             resultStatus={detail.result?.approvalStatus}
@@ -169,6 +163,13 @@ export function CompletedMissionOverview({
               checklist.reload()
               refreshDetail()
             }}
+          />
+          <ChecklistEmptyNote
+            show={
+              !checklist.loading &&
+              !checklist.error &&
+              checklistExecutions.length === 0
+            }
           />
         </div>
       )}
@@ -218,7 +219,7 @@ export function CompletedMissionOverview({
             </li>
           </ul>
           {waypoints.length > 0 ? (
-            <ul className="odm-rm-wps">
+            <ul className="odm-rm-wps mgr-scroll-list">
               {waypoints.map((point, index) => (
                 <li key={point.id}>
                   <b>

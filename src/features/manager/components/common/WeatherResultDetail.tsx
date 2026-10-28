@@ -1,4 +1,6 @@
 import type { WeatherPreflightCheckResponse } from '../../types/missions'
+import { useI18n } from '../../../../shared/i18n'
+import { detailPanelsMessages } from './detailPanels.messages'
 import {
   checkTone,
   checkLabel,
@@ -13,9 +15,10 @@ export function WeatherResultDetail({
   weather: WeatherPreflightCheckResponse | null
   locale: 'vi-VN' | 'en-US'
 }) {
+  const { t } = useI18n(detailPanelsMessages)
   if (!weather) {
     return (
-      <div className="odm-or-empty">Chưa có kết quả thời tiết trước bay.</div>
+      <div className="odm-or-empty">{t.noWeather}</div>
     )
   }
   return (
@@ -24,7 +27,7 @@ export function WeatherResultDetail({
         <span
           className={`odm-or-pill odm-or-pill-${weather.safeToFly ? 'green' : 'amber'}`}
         >
-          {weather.safeToFly ? 'An toàn để bay' : 'Cần chú ý'}
+          {weather.safeToFly ? t.safeToFly : t.caution}
         </span>
         <span
           className={`odm-or-pill odm-or-pill-${checkTone(weather.status)}`}
@@ -34,31 +37,31 @@ export function WeatherResultDetail({
       </div>
       <dl className="odm-or-kv compact">
         <div>
-          <dt>Ghi nhận lúc</dt>
+          <dt>{t.recordedAt}</dt>
           <dd>{formatDateTime(weather.checkedAt, locale)}</dd>
         </div>
         <div>
-          <dt>Gió</dt>
+          <dt>{t.wind}</dt>
           <dd>{formatNumber(weather.windSpeedMps, ' m/s')}</dd>
         </div>
         <div>
-          <dt>Gió giật</dt>
+          <dt>{t.windGust}</dt>
           <dd>{formatNumber(weather.windGustMps, ' m/s')}</dd>
         </div>
         <div>
-          <dt>Mưa</dt>
+          <dt>{t.rain}</dt>
           <dd>{formatNumber(weather.precipitationMmH, ' mm/h')}</dd>
         </div>
         <div>
-          <dt>Tầm nhìn</dt>
+          <dt>{t.visibility}</dt>
           <dd>{formatNumber(weather.visibilityKm, ' km')}</dd>
         </div>
         <div>
-          <dt>Nhiệt độ</dt>
+          <dt>{t.temperature}</dt>
           <dd>{formatNumber(weather.temperatureC, ' °C')}</dd>
         </div>
         <div>
-          <dt>Độ ẩm</dt>
+          <dt>{t.humidity}</dt>
           <dd>{formatNumber(weather.humidityPercent, '%')}</dd>
         </div>
       </dl>

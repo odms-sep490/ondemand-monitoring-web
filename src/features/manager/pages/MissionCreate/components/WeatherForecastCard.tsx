@@ -32,9 +32,7 @@ export function WeatherForecastCard({
       <header className="odm-or-card-head">
         <span className="odm-or-card-title">
           <OrderIcon name="info" size={18} />
-          {onCreated
-            ? 'Kiểm tra thời tiết theo lịch bay'
-            : t.weatherForecastTitle}
+          {onCreated ? t.weatherCheckTitle : t.weatherForecastTitle}
         </span>
         <span className="odm-or-pill odm-or-pill-blue">
           {t.weatherForecastTime(forecastTime)}
@@ -42,14 +40,12 @@ export function WeatherForecastCard({
       </header>
       <div className="odm-or-card-body">
         <p className="odm-or-muted odm-or-hint">
-          {onCreated
-            ? 'Chọn một ngày và giờ bất kỳ để kiểm tra trước khi quyết định lịch bay.'
-            : t.weatherForecastHint}
+          {onCreated ? t.weatherCheckHint : t.weatherForecastHint}
         </p>
         {onCreated ? (
           <div className="odm-weather-check-controls">
             <label className="odm-or-field">
-              <span className="odm-or-field-label">Ngày muốn kiểm tra</span>
+              <span className="odm-or-field-label">{t.weatherCheckDate}</span>
               <input
                 className="odm-or-input"
                 type="date"
@@ -58,7 +54,7 @@ export function WeatherForecastCard({
               />
             </label>
             <label className="odm-or-field">
-              <span className="odm-or-field-label">Giờ muốn kiểm tra</span>
+              <span className="odm-or-field-label">{t.weatherCheckTime}</span>
               <input
                 className="odm-or-input"
                 type="time"

@@ -4,7 +4,10 @@ import { missionsApi } from '../../../api/missionsApi'
 import { ordersApi } from '../../../api/ordersApi'
 import { checklistExecutionApi } from '../../../../mission/api/checklistExecutionApi'
 import { MissionDetailPage } from '../MissionDetailPage'
-import type { MissionResponse, MissionResultResponse } from '../../../types/missions'
+import type {
+  MissionResponse,
+  MissionResultResponse,
+} from '../../../types/missions'
 import type { OrderDetail } from '../../../types/orders'
 
 vi.mock('../../../../media/components/MissionUploadedMedia', () => ({
@@ -80,7 +83,6 @@ beforeEach(() => {
     addressText: 'Đường Long Hậu',
     center: { lat: 10.63, lon: 106.69 },
     radiusM: 300,
-    nearestBase: null,
     mediaRequirements: null,
     purpose: null,
     attachments: null,
@@ -145,7 +147,7 @@ describe('Manager Mission Detail monitoring review', () => {
   it('opens the media section without changing the active route', async () => {
     render(<MissionDetailPage missionId="m" />)
     const link = await screen.findByRole('button', {
-      name: 'Xem thư viện media',
+      name: 'Xem thư viện ảnh/video',
     })
     const route = window.location.hash
     fireEvent.click(link)
@@ -153,7 +155,7 @@ describe('Manager Mission Detail monitoring review', () => {
       'aria-selected',
       'true',
     )
-    expect(screen.getByRole('region', { name: 'Thư viện media' })).toBeVisible()
+    expect(screen.getByRole('region', { name: 'Thư viện ảnh/video' })).toBeVisible()
     expect(window.location.hash).toBe(route)
   })
   it('renders per-item historical outcomes read-only', async () => {
@@ -175,7 +177,7 @@ describe('Manager Mission Detail monitoring review', () => {
     )
     expect(
       screen.getByRole('application', {
-        name: 'Bản đồ vệ tinh mission',
+        name: 'Bản đồ vệ tinh nhiệm vụ',
       }),
     ).toBeInTheDocument()
     expect(screen.getByText(/ĐIỂM GIÁM SÁT/)).toBeInTheDocument()
@@ -195,7 +197,7 @@ describe('Manager Mission Detail monitoring review', () => {
     await screen.findByRole('tab', { name: 'Kết quả nhiệm vụ' })
     expect(screen.queryByRole('tab', { name: 'Kế hoạch bay' })).toBeNull()
     expect(
-      screen.getByRole('tab', { name: 'Kết quả check' }),
+      screen.getByRole('tab', { name: 'Kiểm tra trước bay' }),
     ).toBeInTheDocument()
   })
   it('does not show weather on manager mission detail', async () => {
@@ -203,7 +205,7 @@ describe('Manager Mission Detail monitoring review', () => {
 
     await screen.findByRole('heading', { name: 'Kết quả nhiệm vụ' })
     expect(screen.queryByText('Kết quả thời tiết')).not.toBeInTheDocument()
-    fireEvent.click(screen.getByRole('tab', { name: 'Kết quả check' }))
+    fireEvent.click(screen.getByRole('tab', { name: 'Kiểm tra trước bay' }))
     expect(screen.queryByText('Kết quả thời tiết')).not.toBeInTheDocument()
     expect(
       screen.queryByText('Thời tiết phù hợp để cất cánh.'),

@@ -1,9 +1,11 @@
 import type { DispatchStep } from './liveDispatchTypes'
 import { useI18n } from '../../../../shared/i18n'
 import { liveDispatchPageMessages } from './LiveDispatchPage.messages'
-import { resourceSteps, stepSubtitles } from './liveDispatchConstants'
+import { resourceSteps } from './liveDispatchConstants'
 import { OrderIcon } from './OrderIcon'
+import '../../manager.css'
 
+/** Assignment wizard steps, drawn like the order/mission workflow stepper (.odm-wf-*). */
 export function DispatchWizardTabs({
   activeStep,
   onStep,
@@ -23,34 +25,39 @@ export function DispatchWizardTabs({
     confirm: t.confirmTab,
   }
   return (
-    <nav className="odm-or-card odm-or-tabs" aria-label={t.tabsAria}>
-      <span className="odm-or-tabs-title">{t.resourceTabsTitle}</span>
-      {resourceSteps.map((step, index) => (
-        <button
-          key={step}
-          type="button"
-          className={`odm-or-tab${activeStep === step ? ' is-active' : ''}${
-            index < activeStepIndex ? ' is-done' : ''
-          }`}
-          aria-current={activeStep === step ? 'step' : undefined}
-          disabled={selectionOnly}
-          onClick={() => onStep(step)}
-        >
-          <span className="odm-or-tab-dot">
-            {index < activeStepIndex ? (
-              <OrderIcon name="check" size={14} />
-            ) : (
-              index + 1
-            )}
-          </span>
-          <span className="odm-or-tab-text">
-            <span className="odm-or-tab-label">{stepLabels[step]}</span>
-            <span className="odm-or-tab-hint">
-              {t[stepSubtitles[step]] as string}
-            </span>
-          </span>
-        </button>
-      ))}
+    <nav aria-label={t.tabsAria} className="odm-or-card odm-wf mgr-wf-tabs">
+      <ol className="odm-wf-steps">
+        {resourceSteps.map((step, index) => {
+          const state =
+            activeStep === step
+              ? 'current'
+              : index < activeStepIndex
+                ? 'done'
+                : 'upcoming'
+          return (
+            <li key={step} className={`odm-wf-step is-${state}`}>
+              <button
+                type="button"
+                className="odm-wf-btn"
+                aria-current={activeStep === step ? 'step' : undefined}
+                disabled={selectionOnly}
+                onClick={() => onStep(step)}
+              >
+                <span className="odm-wf-dot">
+                  {state === 'done' ? (
+                    <OrderIcon name="check" size={15} />
+                  ) : (
+                    index + 1
+                  )}
+                </span>
+                <span className="odm-wf-text">
+                  <strong>{stepLabels[step]}</strong>
+                </span>
+              </button>
+            </li>
+          )
+        })}
+      </ol>
     </nav>
   )
 }

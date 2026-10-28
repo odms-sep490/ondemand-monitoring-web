@@ -1,0 +1,138 @@
+@use '../../styles/legacy';
+
+/* Schedule page (MNG-06) in the Manager look: tabs + toolbar + FullCalendar card. */
+:root .mgr-layout .mgr-schedule {
+  @include legacy.mgr-legacy-tokens;
+
+  max-width: 1600px;
+}
+
+.mgr-sched-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+.mgr-sched-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+}
+.mgr-sched-toolbar-nav {
+  display: inline-flex;
+  gap: 8px;
+}
+.mgr-sched-toolbar-title {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  font-size: 1.15rem;
+  color: var(--mgr-text);
+}
+.mgr-sched-card .ant-card-body {
+  min-width: 0;
+}
+.mgr-sched-card .calendar {
+  padding: 0;
+}
+
+@media (max-width: 640px) {
+  .mgr-sched-views {
+    display: none;
+  }
+  .mgr-sched-toolbar-title {
+    flex-basis: 100%;
+    order: 3;
+  }
+}
+
+/* Schedule page layout. Tokens only (--ui-*). Geometry arrives as custom properties. */
+
+.mgr-sched-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--ui-space-4);
+  align-items: start;
+}
+.mgr-sched-layout.has-panel {
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 340px);
+}
+.mgr-sched-panel {
+  position: sticky;
+  top: var(--ui-space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-3);
+  min-width: 0;
+}
+.mgr-sched-panel-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  font-size: 14px;
+  line-height: 1.35;
+  letter-spacing: 0;
+}
+.mgr-sched-panel-sub {
+  font-weight: 500;
+  color: var(--mgr-muted);
+  overflow-wrap: anywhere;
+}
+
+.mgr-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ui-space-2) var(--ui-space-4);
+  font-size: 12px;
+  color: var(--ui-text-2);
+}
+.mgr-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ui-space-1);
+}
+.mgr-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--pl-border-strong);
+}
+.mgr-legend-dot.is-success { background: var(--pl-green-ac); }
+.mgr-legend-dot.is-info { background: var(--pl-blue-ac); }
+.mgr-legend-dot.is-warning { background: var(--pl-amber-ac); }
+.mgr-legend-dot.is-danger { background: var(--pl-red-ac); }
+.mgr-legend-dot.is-neutral { background: var(--mgr-muted); }
+
+/* Reschedule form */
+.mgr-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-3);
+}
+.mgr-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--mgr-muted);
+}
+.mgr-form-error {
+  padding: var(--ui-space-2) var(--ui-space-3);
+  border-radius: var(--ui-radius-sm);
+  background: var(--pl-red-bg);
+  color: var(--pl-red-fg);
+  font-size: 12px;
+}
+
+@media (max-width: 1100px) {
+  .mgr-sched-layout.has-panel {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .mgr-sched-panel {
+    position: static;
+  }
+}

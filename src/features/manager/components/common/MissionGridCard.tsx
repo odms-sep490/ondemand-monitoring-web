@@ -1,3 +1,4 @@
+import { CloseOutlined } from '@ant-design/icons'
 import { useState } from 'react'
 import type { OrderChecklistSnapshot, OrderDetail } from '../../types/orders'
 import type { MissionResponse } from '../../types/missions'
@@ -15,8 +16,13 @@ import { missionsApi } from '../../api/missionsApi'
 import { droneApi, type AvailableDrone } from '../../../staff/api/droneApi'
 import { operatorApi, type AvailableOperator } from '../../../staff/api/operatorApi'
 import { MissionUpdatePanel } from './MissionUpdatePanel'
-import { STAFF_ROLE_LABELS } from './missionDetailHelpers'
+import { MissionGridDeviceList, MissionGridStaffList } from './MissionGridResourceLists'
+import { MissionGridAddStaffForm } from './MissionGridAddStaffForm'
+import { MissionGridAddDeviceForm } from './MissionGridAddDeviceForm'
 import type { MissionStaffRole } from '../../../mission/types/mission'
+import { useI18n } from '../../../../shared/i18n'
+import { missionGridCardMessages } from './MissionGridCard.messages'
+import './MissionGridCard.css'
 
 interface MissionGridCardProps {
   mission: MissionResponse
@@ -47,6 +53,7 @@ export function MissionGridCard({
   onFinalizeReplacement,
   hasReplacement,
 }: MissionGridCardProps) {
+  const { t } = useI18n(missionGridCardMessages)
   const isPlanning = mission.status === 'PLANNING'
   const isReady = mission.status === 'READY' || mission.status === 'WAITING_CREW_CONFIRMATION'
   const isCancelled = mission.status === 'CANCELLED'
@@ -102,7 +109,7 @@ export function MissionGridCard({
     if (disabled || busy || !isPlanning) return
     const remainingIds = assignedChecklistIds.filter((id: string) => id !== itemId)
     if (remainingIds.length === 0) {
-      setErrorMsg('Mỗi nhiệm vụ phải có ít nhất một công việc. Nếu không cần nhiệm vụ này nữa, hãy hủy hoặc chỉnh sửa nhiệm vụ.')
+      setErrorMsg(t.errMinWork)
       return
     }
     setBusy(true)
@@ -115,7 +122,7 @@ export function MissionGridCard({
       )
       onPlanChanged()
     } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : 'Lỗi khi gỡ công việc')
+      setErrorMsg(err instanceof Error ? err.message : t.errRemoveWork)
     } finally {
       setBusy(false)
     }
@@ -134,7 +141,7 @@ export function MissionGridCard({
       setAvailableOperators(ops)
       if (ops.length > 0) setSelectedStaffId(ops[0].id)
     } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : 'Không tải được danh sách nhân sự')
+      setErrorMsg(err instanceof Error ? err.message : t.errLoadStaff)
     } finally {
       setLoadingStaff(false)
     }
@@ -150,7 +157,7 @@ export function MissionGridCard({
         setShowAddStaff(false)
         onPlanChanged()
       } catch (err: unknown) {
-        setErrorMsg(err instanceof Error ? err.message : 'Lỗi khi gán nhân sự')
+        setErrorMsg(err instanceof Error ? err.message : t.errAssignStaff)
       } finally {
         setBusy(false)
       }
@@ -158,9 +165,9 @@ export function MissionGridCard({
 
     if (isReady) {
       onRequestReason(
-        'Lý do thêm nhân sự',
-        'Kế hoạch đã chốt. Vui lòng nhập lý do bổ sung nhân sự cho nhiệm vụ này:',
-        async (_reason) => {
+        t.reasonAddStaffTitle,
+        t.reasonAddStaffHint,
+        async () => {
           await doAssign()
         },
       )
@@ -179,7 +186,7 @@ export function MissionGridCard({
         await missionsApi.removeStaff(mission.id, staffId, role, reason)
         onPlanChanged()
       } catch (err: unknown) {
-        setErrorMsg(err instanceof Error ? err.message : 'Lỗi khi gỡ nhân sự')
+        setErrorMsg(err instanceof Error ? err.message : t.errRemoveStaff)
       } finally {
         setBusy(false)
       }
@@ -187,8 +194,8 @@ export function MissionGridCard({
 
     if (isReady) {
       onRequestReason(
-        'Lý do thay đổi/gỡ nhân sự',
-        'Kế hoạch đã chốt. Vui lòng nêu rõ lý do gỡ nhân sự này khỏi nhiệm vụ:',
+        t.reasonRemoveStaffTitle,
+        t.reasonRemoveStaffHint,
         async (reason) => {
           await doRemove(reason)
         },
@@ -211,7 +218,7 @@ export function MissionGridCard({
       setAvailableDrones(drones)
       if (drones.length > 0) setSelectedDeviceId(drones[0].id)
     } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : 'Không tải được danh sách thiết bị')
+      setErrorMsg(err instanceof Error ? err.message : t.errLoadDevices)
     } finally {
       setLoadingDevices(false)
     }
@@ -227,7 +234,7 @@ export function MissionGridCard({
         setShowAddDevice(false)
         onPlanChanged()
       } catch (err: unknown) {
-        setErrorMsg(err instanceof Error ? err.message : 'Lỗi khi gán thiết bị')
+        setErrorMsg(err instanceof Error ? err.message : t.errAssignDevice)
       } finally {
         setBusy(false)
       }
@@ -235,9 +242,9 @@ export function MissionGridCard({
 
     if (isReady) {
       onRequestReason(
-        'Lý do thêm thiết bị',
-        'Kế hoạch đã chốt. Vui lòng nhập lý do bổ sung thiết bị cho nhiệm vụ này:',
-        async (_reason) => {
+        t.reasonAddDeviceTitle,
+        t.reasonAddDeviceHint,
+        async () => {
           await doAssign()
         },
       )
@@ -256,7 +263,7 @@ export function MissionGridCard({
         await missionsApi.removeDevice(mission.id, deviceId, reason)
         onPlanChanged()
       } catch (err: unknown) {
-        setErrorMsg(err instanceof Error ? err.message : 'Lỗi khi gỡ thiết bị')
+        setErrorMsg(err instanceof Error ? err.message : t.errRemoveDevice)
       } finally {
         setBusy(false)
       }
@@ -264,8 +271,8 @@ export function MissionGridCard({
 
     if (isReady) {
       onRequestReason(
-        'Lý do gỡ thiết bị',
-        'Kế hoạch đã chốt. Vui lòng nhập lý do gỡ thiết bị khỏi nhiệm vụ:',
+        t.reasonRemoveDeviceTitle,
+        t.reasonRemoveDeviceHint,
         async (reason) => {
           await doRemove(reason)
         },
@@ -278,8 +285,8 @@ export function MissionGridCard({
   // 4. Cancel Mission
   function handleCancelMission() {
     onRequestReason(
-      `Hủy nhiệm vụ ${mission.missionCode}`,
-      'Vui lòng nhập lý do hủy nhiệm vụ này. Các công việc sẽ tự động trở về danh sách Chưa phân công:',
+      t.cancelMission(mission.missionCode ?? ''),
+      t.reasonCancelHint,
       async (reason) => {
         setBusy(true)
         try {
@@ -289,7 +296,7 @@ export function MissionGridCard({
           })
           onPlanChanged()
         } catch (err: unknown) {
-          setErrorMsg(err instanceof Error ? err.message : 'Lỗi khi hủy nhiệm vụ')
+          setErrorMsg(err instanceof Error ? err.message : t.errCancel)
         } finally {
           setBusy(false)
         }
@@ -310,17 +317,15 @@ export function MissionGridCard({
         <div className="odm-mcard-title-group">
           <strong>
             <a href={managerHref({ screen: 'missionDetail', missionId: mission.id })}>
-              {mission.missionCode || 'Nhiệm vụ'}
+              {mission.missionCode || t.mission}
             </a>
           </strong>
-          <span>{mission.orderTitle || 'Phạm vi theo đơn'}</span>
+          <span>{mission.orderTitle || t.orderScope}</span>
           {mission.replacesMissionId && (
-            <span style={{ fontSize: 11, color: '#4f46e5', fontWeight: 600 }}>
-              (Nhiệm vụ thay thế)
-            </span>
+            <span className="odm-mcard-replacement-tag">{t.replacementTag}</span>
           )}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div className="odm-mcard-inline">
           <StatusBadge tone={toUiTone(missionStatusTone[mission.status] ?? 'gray')}>
             {missionStatusLabel[mission.status] ?? mission.status}
           </StatusBadge>
@@ -331,9 +336,9 @@ export function MissionGridCard({
                 className="odm-btn odm-btn-sm"
                 disabled={disabled || busy}
                 onClick={() => onEditMission(mission)}
-                title={`Chỉnh sửa nhiệm vụ ${mission.missionCode ?? ''}`}
+                title={t.editTitle(mission.missionCode ?? '')}
               >
-                Chỉnh sửa
+                {t.edit}
               </button>
             ) : (
               <MissionUpdatePanel
@@ -352,16 +357,16 @@ export function MissionGridCard({
               className="odm-btn odm-btn-sm odm-btn-p"
               disabled={disabled || busy}
               onClick={() => onReplaceMission(mission)}
-              title={`Tạo nhiệm vụ thay thế cho ${mission.missionCode ?? ''}`}
+              title={t.replaceTitle(mission.missionCode ?? '')}
             >
-              Thay thế
+              {t.replace}
             </button>
           )}
         </div>
       </div>
 
       {errorMsg && (
-        <div style={{ fontSize: 12, color: '#dc2626', background: '#fef2f2', padding: '6px 10px', borderRadius: 6 }}>
+        <div className="odm-mcard-error" role="alert">
           {errorMsg}
         </div>
       )}
@@ -369,7 +374,7 @@ export function MissionGridCard({
       {/* Schedule Section */}
       <div className="odm-mcard-section">
         <div className="odm-mcard-sec-head">
-          <span>Thời gian thực hiện</span>
+          <span>{t.schedule}</span>
         </div>
         <div className="odm-mcard-schedule">
           <OrderIcon name="calendar" size={14} />
@@ -380,12 +385,12 @@ export function MissionGridCard({
       {/* Work items Section */}
       <div className="odm-mcard-section">
         <div className="odm-mcard-sec-head">
-          <span>Công việc ({assignedChecklists.length})</span>
+          <span>{t.work(assignedChecklists.length)}</span>
         </div>
         <div className="odm-mcard-checklist-list">
           {assignedChecklists.length === 0 ? (
-            <p className="odm-mission-meta" style={{ fontStyle: 'italic', margin: 0 }}>
-              Chưa có công việc nào được phân công
+            <p className="odm-mission-meta odm-mcard-note">
+              {t.workEmpty}
             </p>
           ) : (
             assignedChecklists.map((item) => (
@@ -395,11 +400,12 @@ export function MissionGridCard({
                   <button
                     type="button"
                     className="odm-mcard-ch-remove"
-                    title="Gỡ khỏi nhiệm vụ (chuyển về Chưa phân công)"
+                    title={t.workRemoveTitle}
+                    aria-label={t.workRemoveTitle}
                     onClick={() => handleRemoveChecklist(item.id)}
                     disabled={disabled || busy}
                   >
-                    ✕
+                    <CloseOutlined aria-hidden="true" />
                   </button>
                 )}
               </div>
@@ -411,7 +417,7 @@ export function MissionGridCard({
       {/* Staff Section */}
       <div className="odm-mcard-section">
         <div className="odm-mcard-sec-head">
-          <span>Nhân sự ({currentStaff.length}/{maxStaff})</span>
+          <span>{t.staffHead(currentStaff.length, maxStaff)}</span>
           {!isCancelled && !disabled && (
             <button
               type="button"
@@ -419,127 +425,43 @@ export function MissionGridCard({
               onClick={handleOpenAddStaff}
               disabled={busy || currentStaff.length >= maxStaff}
             >
-              + Thêm
+              {t.addShort}
             </button>
           )}
         </div>
 
-        {/* Inline Add Staff Form */}
         {showAddStaff && (
-          <div
-            className="odm-mcard-inline-form"
-            role="group"
-            aria-label="Thêm nhân sự cho nhiệm vụ"
-            aria-busy={loadingStaff || busy}
-          >
-            <div className="odm-mcard-inline-form-heading">
-              <strong>Thêm nhân sự</strong>
-              <span>Chọn vai trò và nhân sự phù hợp cho nhiệm vụ.</span>
-            </div>
-            <div className="odm-mcard-inline-fields">
-              <label className="odm-mcard-field">
-                <span>Vai trÃ²</span>
-              <select
-                aria-label="Vai trò nhân sự"
-                value={selectedStaffRole}
-                onChange={(e) => setSelectedStaffRole(e.target.value as MissionStaffRole)}
-                className="odm-input odm-input-sm"
-                style={{ flex: 1 }}
-              >
-                {ROLES.map((r) => (
-                  <option key={r} value={r}>
-                    {STAFF_ROLE_LABELS[r] || r}
-                  </option>
-                ))}
-              </select>
-              </label>
-              <label className="odm-mcard-field">
-                <span>NhÃ¢n sá»±</span>
-              <select
-                aria-label="Nhân sự khả dụng"
-                value={selectedStaffId}
-                onChange={(e) => setSelectedStaffId(e.target.value)}
-                className="odm-input odm-input-sm"
-                style={{ flex: 2 }}
-                disabled={loadingStaff || busy || availableOperators.length === 0}
-              >
-                {loadingStaff ? (
-                  <option>Đang tải nhân sự...</option>
-                ) : availableOperators.length === 0 ? (
-                  <option>Không có nhân sự rảnh</option>
-                ) : (
-                  availableOperators.map((op) => (
-                    <option key={op.id} value={op.id}>
-                      {op.fullName}
-                    </option>
-                  ))
-                )}
-              </select>
-              </label>
-            </div>
-            <p className="odm-mcard-inline-form-hint" role={loadingStaff ? 'status' : undefined}>
-              {loadingStaff
-                ? 'Đang tải nhân sự khả dụng…'
-                : availableOperators.length > 0
-                  ? `${availableOperators.length} nhân sự khả dụng`
-                  : 'Không có nhân sự khả dụng cho nhiệm vụ này.'}
-            </p>
-            <div className="odm-mcard-inline-actions">
-              <button
-                type="button"
-                className="odm-btn odm-btn-sm"
-                onClick={() => { setShowAddStaff(false); setErrorMsg('') }}
-                disabled={busy}
-              >
-                Hủy
-              </button>
-              <button
-                type="button"
-                className="odm-btn odm-btn-sm odm-btn-p"
-                onClick={handleConfirmAddStaff}
-                disabled={busy || loadingStaff || !selectedStaffId}
-              >
-                Lưu
-              </button>
-            </div>
-          </div>
+          <MissionGridAddStaffForm
+            t={t}
+            loading={loadingStaff}
+            busy={busy}
+            roles={ROLES}
+            role={selectedStaffRole}
+            onRoleChange={setSelectedStaffRole}
+            staffId={selectedStaffId}
+            onStaffChange={setSelectedStaffId}
+            operators={availableOperators}
+            onCancel={() => {
+              setShowAddStaff(false)
+              setErrorMsg('')
+            }}
+            onSave={handleConfirmAddStaff}
+          />
         )}
 
-        <div className="odm-mcard-res-list">
-          {currentStaff.length === 0 ? (
-            <p className="odm-mission-meta" style={{ fontStyle: 'italic', margin: 0 }}>
-              Chưa phân công nhân sự
-            </p>
-          ) : (
-            currentStaff.map((staff, idx) => (
-              <div key={staff.id || `${staff.staffId}-${idx}`} className="odm-mcard-res-item">
-                <div>
-                  <span className="odm-mcard-res-role">
-                    {STAFF_ROLE_LABELS[staff.assignedRole] || staff.assignedRole}:
-                  </span>{' '}
-                  <strong>{staff.staffName || 'Chưa rõ tên'}</strong>
-                </div>
-                {!isCancelled && !disabled && (
-                  <button
-                    type="button"
-                    className="odm-mcard-res-remove"
-                    title="Gỡ nhân sự"
-                    onClick={() => handleRemoveStaff(staff.staffId, staff.assignedRole)}
-                    disabled={busy}
-                  >
-                    ✕
-                  </button>
-                )}
-              </div>
-            ))
-          )}
-        </div>
+        <MissionGridStaffList
+          t={t}
+          staff={currentStaff}
+          canRemove={!isCancelled && !disabled}
+          busy={busy}
+          onRemove={handleRemoveStaff}
+        />
       </div>
 
       {/* Device Section */}
       <div className="odm-mcard-section">
         <div className="odm-mcard-sec-head">
-          <span>Thiết bị ({currentDevices.length}/{maxDevices})</span>
+          <span>{t.deviceHead(currentDevices.length, maxDevices)}</span>
           {!isCancelled && !disabled && currentDevices.length < maxDevices && (
             <button
               type="button"
@@ -547,112 +469,36 @@ export function MissionGridCard({
               onClick={handleOpenAddDevice}
               disabled={busy}
             >
-              Thêm
+              {t.add}
             </button>
           )}
         </div>
 
-        {/* Inline Add Device Form */}
         {showAddDevice && (
-          <div
-            className="odm-mcard-inline-form"
-            role="group"
-            aria-label="Thêm thiết bị cho nhiệm vụ"
-            aria-busy={loadingDevices || busy}
-          >
-            <div className="odm-mcard-inline-form-heading">
-              <strong>Thêm thiết bị</strong>
-              <span>Chọn vai trò thiết bị và drone khả dụng.</span>
-            </div>
-            <div className="odm-mcard-inline-fields">
-              <select
-                aria-label="Vai trò thiết bị"
-                value={selectedDeviceRole}
-                onChange={(e) => setSelectedDeviceRole(e.target.value)}
-                className="odm-input odm-input-sm"
-                style={{ flex: 1 }}
-              >
-                <option value="MAIN">Chính (MAIN)</option>
-                <option value="SUPPORT">Dự phòng / Hỗ trợ (SUPPORT)</option>
-              </select>
-              <select
-                aria-label="Thiết bị khả dụng"
-                value={selectedDeviceId}
-                onChange={(e) => setSelectedDeviceId(e.target.value)}
-                className="odm-input odm-input-sm"
-                style={{ flex: 2 }}
-                disabled={loadingDevices || busy || availableDrones.length === 0}
-              >
-                {loadingDevices ? (
-                  <option>Đang tải thiết bị...</option>
-                ) : availableDrones.length === 0 ? (
-                  <option>Không có thiết bị rảnh</option>
-                ) : (
-                  availableDrones.map((d) => (
-                    <option key={d.id} value={d.id}>
-                      {d.label}
-                    </option>
-                  ))
-                )}
-              </select>
-            </div>
-            <p className="odm-mcard-inline-form-hint" role={loadingDevices ? 'status' : undefined}>
-              {loadingDevices
-                ? 'Đang tải thiết bị khả dụng…'
-                : availableDrones.length > 0
-                  ? `${availableDrones.length} thiết bị khả dụng`
-                  : 'Không có thiết bị khả dụng cho nhiệm vụ này.'}
-            </p>
-            <div className="odm-mcard-inline-actions">
-              <button
-                type="button"
-                className="odm-btn odm-btn-sm"
-                onClick={() => { setShowAddDevice(false); setErrorMsg('') }}
-                disabled={busy}
-              >
-                Hủy
-              </button>
-              <button
-                type="button"
-                className="odm-btn odm-btn-sm odm-btn-p"
-                onClick={handleConfirmAddDevice}
-                disabled={busy || loadingDevices || !selectedDeviceId}
-              >
-                Lưu
-              </button>
-            </div>
-          </div>
+          <MissionGridAddDeviceForm
+            t={t}
+            loading={loadingDevices}
+            busy={busy}
+            role={selectedDeviceRole}
+            onRoleChange={setSelectedDeviceRole}
+            deviceId={selectedDeviceId}
+            onDeviceChange={setSelectedDeviceId}
+            drones={availableDrones}
+            onCancel={() => {
+              setShowAddDevice(false)
+              setErrorMsg('')
+            }}
+            onSave={handleConfirmAddDevice}
+          />
         )}
 
-        <div className="odm-mcard-res-list">
-          {currentDevices.length === 0 ? (
-            <p className="odm-mission-meta" style={{ fontStyle: 'italic', margin: 0 }}>
-              Chưa phân công thiết bị
-            </p>
-          ) : (
-            currentDevices.map((dev, idx) => (
-              <div key={dev.id || `${dev.deviceId}-${idx}`} className="odm-mcard-res-item">
-                <div>
-                  <span className="odm-mcard-res-role">
-                    {dev.deviceRole === 'SUPPORT' ? 'Hỗ trợ' : 'Chính'}:
-                  </span>{' '}
-                  <strong>{dev.deviceName || dev.deviceCode || 'Drone'}</strong>
-                </div>
-                {!isCancelled && !disabled && (
-                  <button
-                    type="button"
-                    className="odm-mcard-res-remove"
-                    title="Gỡ thiết bị"
-                    onClick={() => handleRemoveDevice(dev.deviceId)}
-                    disabled={busy}
-                  >
-                    ✕
-                  </button>
-                )}
-              </div>
-            ))
-          )}
-        </div>
+        <MissionGridDeviceList
+          t={t}
+          devices={currentDevices}
+          canRemove={!isCancelled && !disabled}
+          busy={busy}
+          onRemove={handleRemoveDevice}
+        />
       </div>
 
       {/* Footer / Cancel Button for READY Missions */}
@@ -660,12 +506,11 @@ export function MissionGridCard({
         <div className="odm-mcard-footer">
           <button
             type="button"
-            className="odm-btn odm-btn-danger-soft"
-            style={{ width: '100%', justifyContent: 'center' }}
+            className="odm-btn odm-btn-danger-soft odm-mcard-block-btn"
             onClick={handleCancelMission}
             disabled={busy}
           >
-            Hủy nhiệm vụ {mission.missionCode}
+            {t.cancelMission(mission.missionCode ?? '')}
           </button>
         </div>
       )}
@@ -674,30 +519,28 @@ export function MissionGridCard({
         <div className="odm-mcard-footer">
           <button
             type="button"
-            className="odm-btn odm-btn-p"
-            style={{ width: '100%', justifyContent: 'center' }}
+            className="odm-btn odm-btn-p odm-mcard-block-btn"
             onClick={() => onFinalizeReplacement(mission)}
             disabled={busy}
           >
-            Chốt nhiệm vụ
+            {t.finalizeMission}
           </button>
         </div>
       )}
 
       {isCancelled && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <div style={{ background: '#fee2e2', color: '#991b1b', padding: '8px 12px', borderRadius: 6, fontSize: 12 }}>
-            <strong>Đã hủy:</strong> {mission.failureReason || mission.rejectionReason || 'Đã hủy theo quyết định của quản lý.'}
+        <div className="odm-mcard-stack">
+          <div className="odm-mcard-cancelled-note">
+            <strong>{t.cancelledPrefix}</strong> {mission.failureReason || mission.rejectionReason || t.cancelledDefault}
           </div>
           { !disabled && onReplaceMission ? (
             <button
               type="button"
-              className="odm-btn odm-btn-p"
-              style={{ width: '100%', justifyContent: 'center' }}
+              className="odm-btn odm-btn-p odm-mcard-block-btn"
               onClick={() => onReplaceMission(mission)}
               disabled={busy}
             >
-               Thay thế
+              {t.replace}
             </button>
           ) : null}
         </div>

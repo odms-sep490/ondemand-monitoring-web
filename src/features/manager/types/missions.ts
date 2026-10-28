@@ -71,7 +71,6 @@ export type Mission = MissionStopMetadata & {
   flightPermitFileName?: string | null
   flightPermitContentType?: string | null
   flightPermitDataUrl?: string | null
-  attemptNumber: number | null
   droneId: string | null
   operatorId: string | null
   /** PROPOSED — id of the current `mission_drone_assignment` row, needed for release. */
@@ -96,7 +95,6 @@ export type Mission = MissionStopMetadata & {
   radiusM: number | null
   /** PROPOSED — `flight_plan.mission_id` requires a required sensor per media_requirement; brief has no single field, MNG-05 renders one value. */
   requiredSensor: string | null
-  nearestBase: string | null
   mediaRequirements: MissionMediaRequirement[]
   flightPlan: FlightPlan | null
   waypoints: MissionWaypoint[]
@@ -133,66 +131,6 @@ export type PatchScheduleRequest = {
   customerConfirmed: boolean
 }
 
-/** Active incident, returned inside `GET /api/missions/{id}/live` [ĐỀ XUẤT]. */
-export type MissionIncident = {
-  id: string
-  type: string
-  description: string
-  reportedAt: string
-}
-
-/**
- * PROPOSED — livestream session state, nested in `LiveTelemetry`.
- * Fields come from brief's `live_stream_session` mention; WebRTC spike
- * is out-of-scope per evd/00-PLAN.md §8.
- */
-export type LivestreamState = {
-  sessionId: string
-  /** null until a real WebRTC/RTSP URL is available. */
-  playbackUrl: string | null
-  isLive: boolean
-}
-
-/**
- * `GET /api/missions/{id}/live` response [BRIEF C4].
- * Polling endpoint; field names follow the design's data labels from
- * evd/design/MNG-07.dc.html verbatim.
- */
-export type LiveTelemetry = {
-  missionStatus: MissionStatus
-  /** null when drone not assigned or telemetry unavailable. */
-  droneStatus: string | null
-  droneCode: string | null
-  droneName: string | null
-  operatorName: string | null
-  /** Battery percentage 0–100; null when no telemetry. */
-  batteryPct: number | null
-  /** Seconds in flight; null when not in-flight. */
-  flightTimeSec: number | null
-  latitude: number | null
-  longitude: number | null
-  /** Altitude in metres ASL; null when no telemetry. */
-  altitudeM: number | null
-  /** Speed in m/s; null when no telemetry. */
-  speedMs: number | null
-  /** Signal strength in dBm; PROPOSED. */
-  signalDbm: number | null
-  /** GPS satellite count; null when no telemetry. */
-  satelliteCount: number | null
-  connectionStatus: string | null
-  telemetryActive: boolean
-  lastTelemetryAt: string | null
-  activeIncidents: MissionIncident[]
-  /** null when no livestream session exists. PROPOSED — see LivestreamState. */
-  livestream: LivestreamState | null
-}
-
-/** Body of `POST /api/missions/{id}/incidents` [ĐỀ XUẤT]. */
-export type CreateIncidentRequest = {
-  type: string
-  description: string
-}
-
 /** Body of `POST /api/missions/{id}/cancel` [ĐỀ XUẤT]. */
 export type CancelMissionRequest = {
   expectedPlanRevision: number
@@ -207,99 +145,12 @@ export type CreateMissionRequest = {
   checklistIds: string[]
 }
 
-export type ResourceCandidateBase = {
-  score: number
-  /** (AI diễn giải, điểm số do hệ thống tính) [TK MNG-05]. */
-  reason: string
-}
-
-export type DroneCandidate = ResourceCandidateBase & {
-  code: string
-  name: string
-  serialNumber: string
-  droneModelName: string
-  batteryPct: number
-  distanceKm: number
-  enduranceMarginPct: number
-  payload: string
-  hoursSinceMaintenance: number
-}
-
-export type OperatorCandidate = ResourceCandidateBase & {
-  code: string
-  fullName: string
-  licenseClass: string
-  licenseNumber: string
-  licenseExpiry: string
-  missionsWithModel: number
-  successRatePct: number
-  acceptanceRatePct: number
-  missionsThisWeek: number
-}
-
-export type RejectedDrone = { code: string; reason: string }
-export type RejectedOperator = { name: string; reason: string }
-
-export type AlternativeSlot = {
-  priority: number
-  label: string
-  dateLabel: string
-  windowLabel: string
-  eligibleDroneCount: number
-  eligibleOperatorCount: number
-}
-
-export type TimelineBooking = {
-  missionCode: string
-  start: string | null
-  end: string | null
-  conflict: boolean
-}
-
-export type TimelineResource = {
-  code: string
-  name: string
-  kind: 'DRONE' | 'OPERATOR'
-  rejected: boolean
-  rejectedReason: string | null
-  bookings: TimelineBooking[]
-}
-
-/**
- * `GET /api/missions/{id}/resource-suggestions` [BRIEF C4]. `feasible:
- * false` mirrors the MNG-05 "không đủ nguồn lực" state — `topDrones`/
- * `topOperators` are then empty and `alternatives` lists replacement dates.
- */
-export type ResourceSuggestions = {
-  feasible: boolean
-  missionCode: string
-  attemptNumber: number
-  scheduledStart: string
-  scheduledEnd: string
-  addressText: string | null
-  centerLat: number | null
-  centerLon: number | null
-  radiusM: number | null
-  mediaSummary: string | null
-  requiredDurationLabel: string | null
-  requiredSensor: string | null
-  nearestBase: string | null
-  eligibleDroneCount: number
-  eligibleOperatorCount: number
-  topDrones: DroneCandidate[]
-  topOperators: OperatorCandidate[]
-  rejected: {
-    drones: RejectedDrone[]
-    operators: RejectedOperator[]
-  }
-  explanation: string
-  timeline: {
-    date: string
-    windowStart: string
-    windowEnd: string
-    resources: TimelineResource[]
-  }
-  alternatives: AlternativeSlot[]
+/** Body of `PUT /api/missions/{id}` [BE `MissionUpdateRequest`]. */
+export type MissionUpdateRequest = {
+  expectedPlanRevision?: number
+  scheduledStartAt?: string
+  scheduledEndAt?: string
+  rescheduleReason?: string
 }
 
 export type MissionPlanResponse = {
@@ -599,20 +450,6 @@ export type MediaResponse = {
   captureLatitude?: number | null
   captureLongitude?: number | null
   sourceDistanceMeters?: number | null
-}
-
-/** Body of `PATCH /api/missions/{id}/postflight-status` [BE]. */
-export type PostFlightStatusRequest = {
-  newDroneStatus: DroneStatus
-  notes: string
-}
-
-/** Body of `POST /api/weather/preflight-check` [BE]. */
-export type WeatherPreflightCheckRequest = {
-  missionId: string
-  droneCode: string
-  latitude: number
-  longitude: number
 }
 
 /** `POST /api/weather/preflight-check` [BE] response. */

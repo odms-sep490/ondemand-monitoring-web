@@ -1,29 +1,11 @@
+import { getLanguage } from '../../../../shared/i18n'
+import { missionResultReviewReadinessMessages } from './missionResultReviewReadiness.messages'
 import { ApiError } from '../../../../shared/api/httpClient'
 import type {
-  EvidenceBlockingReason,
   MissionChecklistResponse,
 } from '../../../mission/types/checklistExecution'
 
-const reasons: Record<EvidenceBlockingReason, string> = {
-  MEDIA_APPROVAL_REQUIRED: 'Cần duyệt toàn bộ media trước khi duyệt kết quả.',
-  MEDIA_REJECTED: 'Media bị từ chối. Cần bổ sung bằng chứng phù hợp.',
-  MEDIA_NOT_VALIDATED:
-    'Media đang được kiểm tra. Vui lòng chờ trước khi duyệt kết quả.',
-  INSUFFICIENT_EVIDENCE:
-    'Checklist chưa đủ bằng chứng. Cần bổ sung trước khi duyệt kết quả.',
-  EXECUTION_NOT_TERMINAL:
-    'Checklist chưa hoàn tất. Cần hoàn tất các mục trước khi duyệt kết quả.',
-  EXECUTION_NOT_COMPLETED:
-    'Checklist chưa hoàn tất. Cần hoàn tất các mục trước khi duyệt kết quả.',
-  UNABLE_REASON_REQUIRED:
-    'Cần bổ sung lý do cho mục checklist chưa thể xác minh.',
-  CHECKLIST_INTEGRITY_INVALID:
-    'Không thể xác nhận checklist. Vui lòng tải lại.',
-  EVIDENCE_SOURCE_NOT_ELIGIBLE:
-    'Bằng chứng chưa phù hợp. Cần bổ sung ảnh/video phù hợp.',
-  EVIDENCE_TYPE_NOT_ELIGIBLE:
-    'Loại media chưa phù hợp. Cần bổ sung ảnh/video đúng loại yêu cầu.',
-}
+const msgs = () => missionResultReviewReadinessMessages[getLanguage()]
 
 /** Present the canonical backend verdict; never reconstruct evidence eligibility or counts. */
 export function missionResultReviewReadiness({
@@ -57,17 +39,12 @@ export function missionResultReviewReadiness({
     !finalReady && blockers.includes('MEDIA_APPROVAL_REQUIRED')
   const ready = missionComplete && finalReady
   let reason: string | null = null
-  if (loading) reason = 'Đang kiểm tra điều kiện duyệt…'
-  else if (!matching)
-    reason = 'Chưa xác nhận được điều kiện duyệt. Vui lòng tải lại checklist.'
-  else if (!missionComplete)
-    reason =
-      'Mission chưa hoàn thành. Chỉ duyệt kết quả sau khi Mission hoàn thành.'
+  if (loading) reason = msgs().checking
+  else if (!matching) reason = msgs().unknown
+  else if (!missionComplete) reason = msgs().missionNotComplete
   else if (!finalReady) {
     const blocker = mediaPending ? 'MEDIA_APPROVAL_REQUIRED' : blockers[0]
-    reason =
-      (blocker && reasons[blocker]) ||
-      'Checklist chưa sẵn sàng. Kiểm tra các mục và bằng chứng trước khi duyệt kết quả.'
+    reason = (blocker && msgs().reasons[blocker]) || msgs().checklistNotReady
   }
   return {
     ready,
@@ -82,18 +59,16 @@ export function missionResultReviewReadiness({
 /** Keep the original error object in action state; never render its API message/code. */
 export function missionResultReviewErrorMessage(error: unknown): string {
   if (error instanceof ApiError) {
-    if (error.status === 401)
-      return 'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.'
-    if (error.status === 403) return 'Bạn không có quyền duyệt kết quả này.'
+    if (error.status === 401) return msgs().sessionExpired
+    if (error.status === 403) return msgs().forbidden
     if (error.status === 404 || error.code === 'RESOURCE_NOT_FOUND')
-      return 'Kết quả không còn chờ duyệt. Vui lòng tải lại.'
+      return msgs().notPending
     if (error.code === 'CHECKLIST_NOT_READY')
-      return 'Checklist hoặc media chưa sẵn sàng. Vui lòng kiểm tra lại trước khi duyệt kết quả.'
+      return msgs().checklistNotReadyError
     if (error.code === 'ORDER_MEDIA_QUANTITY_NOT_MET') return error.message
     if (error.code === 'MISSION_STATUS_INVALID')
-      return 'Trạng thái Mission đã thay đổi. Vui lòng tải lại kết quả.'
-    if (error.code === 'CONCURRENT_UPDATE')
-      return 'Kết quả đã được cập nhật. Vui lòng tải lại trước khi tiếp tục.'
+      return msgs().missionStatusChanged
+    if (error.code === 'CONCURRENT_UPDATE') return msgs().concurrentUpdate
   }
-  return 'Không thể duyệt hoặc từ chối kết quả. Vui lòng thử lại.'
+  return msgs().fallbackError
 }

@@ -7,8 +7,12 @@ import {
   safeStopError,
 } from '../../../../mission/lib/safeStopPresentation'
 import { usePlanningConfirmation } from '../../../components/common/usePlanningConfirmation'
+import { useToast } from '../../../../../shared/components/ui'
+import { useI18n } from '../../../../../shared/i18n'
+import { managerFeedbackMessages } from '../../../feedback.messages'
 import { StopFlowActions } from './StopFlowActions'
 import { StopFlowPanel } from './StopFlowPanel'
+import { managerMissionStopFlowMessages } from './ManagerMissionStopFlow.messages'
 
 /** Backend capabilities remain the source of truth; no crew attestation here. */
 export function ManagerMissionStopFlow({
@@ -48,6 +52,9 @@ export function ManagerMissionStopFlow({
   )
   const [intent, setIntent] = useState<'cancel' | 'replace' | null>(null)
   const confirmation = usePlanningConfirmation()
+  const { t: fb } = useI18n(managerFeedbackMessages)
+  const { t } = useI18n(managerMissionStopFlowMessages)
+  const toast = useToast()
   const flowRef = useRef<HTMLElement>(null)
   const triggerRef = useRef<HTMLButtonElement | null>(null)
   useEffect(() => {
@@ -107,14 +114,26 @@ export function ManagerMissionStopFlow({
     )
       return
     if (
-      action !== 'request' &&
       !(await confirmation.confirm({
-        title: action === 'cleanup' ? 'Giải phóng tài nguyên?' : 'Hủy Mission?',
+        title:
+          action === 'request'
+            ? fb.requestSafeStopTitle
+            : action === 'cleanup'
+              ? t.releaseTitle
+              : t.cancelTitle,
         body:
-          action === 'cleanup'
-            ? `Giải phóng thiết bị và nhân sự của ${missionCode}.`
-            : `Hủy ${missionCode} và giữ lại lịch sử.`,
-        action: action === 'cleanup' ? 'Giải phóng tài nguyên' : 'Hủy Mission',
+          action === 'request'
+            ? fb.requestSafeStopBody
+            : action === 'cleanup'
+              ? t.releaseBody(missionCode)
+              : t.cancelBody(missionCode),
+        action:
+          action === 'request'
+            ? fb.requestSafeStopAction
+            : action === 'cleanup'
+              ? t.releaseAction
+              : t.cancelAction,
+        tone: 'danger',
       }))
     )
       return
@@ -135,9 +154,17 @@ export function ManagerMissionStopFlow({
         if (intent === 'replace') onReplacement(missionId)
         setIntent(null)
       }
-      setMessage('Thao tác đã được ghi nhận.')
+      setMessage(t.recorded)
+      toast.success(
+        action === 'request'
+          ? fb.safeStopRequested
+          : action === 'cleanup'
+            ? fb.safeStopCleaned
+            : fb.missionCancelled,
+      )
     } catch (error) {
       setMessage(safeStopError(error))
+      toast.error(safeStopError(error))
     } finally {
       setBusy(false)
       refresh()

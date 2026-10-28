@@ -1,48 +1,40 @@
-import type { MissionCalendarItem } from '../../../types/missions'
 import type { Dispatch, SetStateAction } from 'react'
+
+import { CardComponent, TableComponent } from '../../../../../shared/components/antd'
+import { useI18n } from '../../../../../shared/i18n'
+import type { MissionCalendarItem } from '../../../types/missions'
+import { missionsPageMessages } from '../MissionsPage.messages'
 import type { DeliveryStatus } from '../missionsTypes'
-import { MissionRow } from './MissionRow'
+import { missionsColumns } from './missionsColumns'
 
 export function MissionsTable({
-  columns,
   missions,
+  total,
   selectedMission,
   setSelectedMission,
   deliveryStatuses,
   orderDeliveryStatuses,
 }: {
-  columns: string[]
   missions: MissionCalendarItem[]
+  total: number
   selectedMission: string | null
   setSelectedMission: Dispatch<SetStateAction<string | null>>
   deliveryStatuses: Record<string, DeliveryStatus>
   orderDeliveryStatuses: Record<string, DeliveryStatus>
 }) {
+  const { t, locale } = useI18n(missionsPageMessages)
   return (
-    <section className="odm-or-card odm-or-table-card">
-      <div className="odm-or-table-scroll">
-        <table className="odm-or-table">
-          <thead>
-            <tr>
-              {columns.map((label, index) => (
-                <th key={index}>{label}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {missions.map((m) => (
-              <MissionRow
-                key={m.id}
-                selectedMission={selectedMission}
-                m={m}
-                setSelectedMission={setSelectedMission}
-                deliveryStatuses={deliveryStatuses}
-                orderDeliveryStatuses={orderDeliveryStatuses}
-              />
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </section>
+    <CardComponent styles={{ body: { padding: 0 } }}>
+      <TableComponent<MissionCalendarItem>
+        rowKey="id"
+        columns={missionsColumns({ t, locale, deliveryStatuses, orderDeliveryStatuses })}
+        dataSource={missions}
+        rowClassName={(m) => `mgr-row-click${selectedMission === m.id ? ' is-selected' : ''}`}
+        onRow={(m) => ({
+          onClick: () => setSelectedMission(selectedMission === m.id ? null : m.id),
+        })}
+      />
+      <div className="mgr-table-foot">{t.resultCount(missions.length, total)}</div>
+    </CardComponent>
   )
 }

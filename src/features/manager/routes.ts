@@ -7,8 +7,7 @@
 // Screen -> design code:
 //  dashboard        MNG-01   orderQueue      MNG-02   orderReview   MNG-03
 //  missionCreate    MNG-04   missionDispatch MNG-05   schedule      MNG-06
-//  live             MNG-07   missions        MNG-08   drones        MNG-09
-//  maintenance      MNG-10   media           MNG-11   reports       MNG-12
+//  missions         MNG-08   drones          MNG-09   maintenance   MNG-10
 
 export const MANAGER_ROOT = '#portal/manager'
 
@@ -21,12 +20,9 @@ export type ManagerRoute =
   | { screen: 'missionSetup'; missionId: string }
   | { screen: 'missionDetail'; missionId: string }
   | { screen: 'schedule' }
-  | { screen: 'live'; missionId?: string }
   | { screen: 'missions'; missionId?: string }
   | { screen: 'drones'; droneId?: string }
   | { screen: 'maintenance' }
-  | { screen: 'media' }
-  | { screen: 'reports' }
   | { screen: 'support' }
   | { screen: 'notFound' }
 
@@ -42,12 +38,9 @@ export const managerScreenCode: Record<ManagerScreen, string> = {
   missionSetup: 'MNG-05',
   missionDetail: 'MNG-08',
   schedule: 'MNG-06',
-  live: 'MNG-07',
   missions: 'MNG-08',
   drones: 'MNG-09',
   maintenance: 'MNG-10',
-  media: 'MNG-11',
-  reports: 'MNG-12',
   support: 'MNG-SUP',
   notFound: '',
 }
@@ -92,11 +85,6 @@ export function parseManagerRoute(hash: string): ManagerRoute {
     }
     case 'schedule':
       return tail.length === 0 ? { screen: 'schedule' } : { screen: 'notFound' }
-    case 'live': {
-      if (tail.length === 0) return { screen: 'live' }
-      if (tail.length === 1) return { screen: 'live', missionId: tail[0] }
-      return { screen: 'notFound' }
-    }
     case 'drones': {
       if (tail.length === 0) return { screen: 'drones' }
       if (tail.length === 1) return { screen: 'drones', droneId: tail[0] }
@@ -106,10 +94,6 @@ export function parseManagerRoute(hash: string): ManagerRoute {
       return tail.length === 0
         ? { screen: 'maintenance' }
         : { screen: 'notFound' }
-    case 'media':
-      return tail.length === 0 ? { screen: 'media' } : { screen: 'notFound' }
-    case 'reports':
-      return tail.length === 0 ? { screen: 'reports' } : { screen: 'notFound' }
     case 'support':
       return tail.length === 0 ? { screen: 'support' } : { screen: 'notFound' }
     default:
@@ -138,10 +122,6 @@ export function managerHref(route: ManagerRoute): string {
       return `${MANAGER_ROOT}/missions/${route.missionId}/detail`
     case 'schedule':
       return `${MANAGER_ROOT}/schedule`
-    case 'live':
-      return route.missionId
-        ? `${MANAGER_ROOT}/live/${route.missionId}`
-        : `${MANAGER_ROOT}/live`
     case 'missions':
       return route.missionId
         ? `${MANAGER_ROOT}/missions/${route.missionId}`
@@ -152,10 +132,6 @@ export function managerHref(route: ManagerRoute): string {
         : `${MANAGER_ROOT}/drones`
     case 'maintenance':
       return `${MANAGER_ROOT}/maintenance`
-    case 'media':
-      return `${MANAGER_ROOT}/media`
-    case 'reports':
-      return `${MANAGER_ROOT}/reports`
     case 'support':
       return `${MANAGER_ROOT}/support`
     case 'notFound':

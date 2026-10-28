@@ -48,17 +48,6 @@ describe('parseManagerRoute', () => {
     })
   })
 
-  it('parses the live-monitoring routes (MNG-07), with and without missionId', () => {
-    expect(parseManagerRoute('#portal/manager/live')).toEqual({
-      screen: 'live',
-      missionId: undefined,
-    })
-    expect(parseManagerRoute('#portal/manager/live/MSN-1')).toEqual({
-      screen: 'live',
-      missionId: 'MSN-1',
-    })
-  })
-
   it('parses the mission list routes (MNG-08), with and without missionId', () => {
     expect(parseManagerRoute('#portal/manager/missions')).toEqual({
       screen: 'missions',
@@ -87,18 +76,6 @@ describe('parseManagerRoute', () => {
     })
   })
 
-  it('parses the media route (MNG-11)', () => {
-    expect(parseManagerRoute('#portal/manager/media')).toEqual({
-      screen: 'media',
-    })
-  })
-
-  it('parses the reports route (MNG-12)', () => {
-    expect(parseManagerRoute('#portal/manager/reports')).toEqual({
-      screen: 'reports',
-    })
-  })
-
   it('falls back to notFound for hashes outside the manager prefix', () => {
     expect(parseManagerRoute('#portal/customer')).toEqual({
       screen: 'notFound',
@@ -119,9 +96,6 @@ describe('parseManagerRoute', () => {
     expect(parseManagerRoute('#portal/manager/missions/MSN-1/extra')).toEqual({
       screen: 'notFound',
     })
-    expect(parseManagerRoute('#portal/manager/live/MSN-1/extra')).toEqual({
-      screen: 'notFound',
-    })
     expect(parseManagerRoute('#portal/manager/drones/DRN-1/extra')).toEqual({
       screen: 'notFound',
     })
@@ -129,12 +103,6 @@ describe('parseManagerRoute', () => {
       screen: 'notFound',
     })
     expect(parseManagerRoute('#portal/manager/maintenance/extra')).toEqual({
-      screen: 'notFound',
-    })
-    expect(parseManagerRoute('#portal/manager/media/extra')).toEqual({
-      screen: 'notFound',
-    })
-    expect(parseManagerRoute('#portal/manager/reports/extra')).toEqual({
       screen: 'notFound',
     })
   })
@@ -157,8 +125,6 @@ describe('managerHref', () => {
       '#portal/manager/missions/MSN-1/dispatch',
     ],
     [{ screen: 'schedule' }, '#portal/manager/schedule'],
-    [{ screen: 'live' }, '#portal/manager/live'],
-    [{ screen: 'live', missionId: 'MSN-1' }, '#portal/manager/live/MSN-1'],
     [{ screen: 'missions' }, '#portal/manager/missions'],
     [
       { screen: 'missions', missionId: 'MSN-1' },
@@ -167,8 +133,6 @@ describe('managerHref', () => {
     [{ screen: 'drones' }, '#portal/manager/drones'],
     [{ screen: 'drones', droneId: 'DRN-1' }, '#portal/manager/drones/DRN-1'],
     [{ screen: 'maintenance' }, '#portal/manager/maintenance'],
-    [{ screen: 'media' }, '#portal/manager/media'],
-    [{ screen: 'reports' }, '#portal/manager/reports'],
     [{ screen: 'notFound' }, '#portal/manager'],
   ]
 

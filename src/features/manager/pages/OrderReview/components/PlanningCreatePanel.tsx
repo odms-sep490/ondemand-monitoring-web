@@ -1,3 +1,4 @@
+import { CloseOutlined } from '@ant-design/icons'
 import type { usePlanningConfirmation } from '../../../components/common/usePlanningConfirmation'
 import { MissionCreatePage } from '../../MissionCreate/MissionCreatePage'
 import type { Dispatch, SetStateAction } from 'react'
@@ -6,6 +7,9 @@ import type { ExecutionPlan } from '../../../types/planning'
 import type { MissionResponse } from '../../../types/missions'
 import type { OrderDetail } from '../../../types/orders'
 import type { Invoice } from '../../../../finance/types'
+import { Button, Card } from '../../../../../shared/components/ui'
+import { useI18n } from '../../../../../shared/i18n'
+import { planningCreatePanelMessages } from './PlanningCreatePanel.messages'
 
 export function PlanningCreatePanel({
   confirmation,
@@ -29,70 +33,45 @@ export function PlanningCreatePanel({
     invoice: Invoice | null
   }>
 }) {
+  const { t } = useI18n(planningCreatePanelMessages)
   return (
-    <div
-      className="odm-planning-modal-backdrop"
-      onClick={async (e) => {
-        if (e.target === e.currentTarget) {
-          if (
-            await confirmation.confirm({
-              title: 'Đóng form tạo Mission?',
-              body: 'Dữ liệu chưa gửi sẽ không được lưu.',
-              action: 'Đóng form',
-            })
-          )
-            setCreating(null)
-        }
-      }}
-      role="dialog"
-      aria-modal="true"
-      aria-label="Tạo Mission trong Order"
-    >
-      <div
-        className="odm-planning-modal-dialog"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <header className="odm-planning-create-head">
-          <span className="odm-planning-create-icon" aria-hidden="true">
-            ＋
-          </span>
-          <div>
-            <h3>Tạo Mission mới</h3>
-            <p>
-              Đặt tên dễ nhận biết, sau đó kiểm tra thời tiết và chọn lịch bay.
-            </p>
-          </div>
-          <button
-            className="odm-planning-create-close"
-            type="button"
-            aria-label="Đóng form tạo Mission"
-            title="Đóng form"
-            onClick={async () => {
-              if (
-                await confirmation.confirm({
-                  title: 'Đóng form tạo Mission?',
-                  body: 'Dữ liệu chưa gửi sẽ không được lưu.',
-                  action: 'Đóng form',
-                })
-              )
-                setCreating(null)
-            }}
-          >
-            ×
-          </button>
-        </header>
-        <div className="odm-planning-modal-body">
-          <MissionCreatePage
-            orderId={orderId}
-            replacesMissionId={creating.replacesMissionId}
-            onCreated={(id) => {
-              setSelectedId(id)
+    <Card
+      title={t.title}
+      className="mgr-plan-create"
+      actions={
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          aria-label={t.closeFormLabel}
+          title={t.closeFormTitle}
+          onClick={async () => {
+            if (
+              await confirmation.confirm({
+                title: t.confirmTitle,
+                body: t.confirmBody,
+                action: t.confirmAction,
+              })
+            )
               setCreating(null)
-              query.reload()
-            }}
-          />
-        </div>
-      </div>
-    </div>
+          }}
+        >
+          <CloseOutlined aria-hidden="true" />
+        </Button>
+      }
+    >
+      <section aria-label={t.panelLabel}>
+        <p className="mgr-muted">{t.intro}</p>
+        <MissionCreatePage
+          orderId={orderId}
+          replacesMissionId={creating.replacesMissionId}
+          onCreated={(id) => {
+            setSelectedId(id)
+            setCreating(null)
+            query.reload()
+          }}
+        />
+      </section>
+    </Card>
   )
 }

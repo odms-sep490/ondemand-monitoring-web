@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import { authSession } from '../auth/api/authApi'
@@ -29,7 +29,7 @@ describe('ManagerLayout', () => {
       </ManagerLayout>,
     )
 
-    for (const group of ['Điều hành', 'Nguồn lực', 'Phân tích']) {
+    for (const group of ['Điều hành', 'Nguồn lực']) {
       expect(screen.getByText(group)).toBeInTheDocument()
     }
 
@@ -37,15 +37,12 @@ describe('ManagerLayout', () => {
       'Đơn hàng',
       'Nhiệm vụ',
       'Lịch nhiệm vụ',
-      'Giám sát realtime',
       'Đội drone',
       'Bảo trì',
-      'Media và giao kết quả',
-      'Báo cáo',
     ]) {
       expect(screen.getByText(item)).toBeInTheDocument()
     }
-    expect(screen.getAllByText('Dashboard').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Bảng điều khiển').length).toBeGreaterThan(0)
   })
 
   it('does not render a "Thông báo" nav link (SYS-06 out of scope)', () => {
@@ -65,7 +62,7 @@ describe('ManagerLayout', () => {
     )
     const active = screen.getByRole('link', { name: /Bảo trì/ })
     expect(active).toHaveAttribute('aria-current', 'page')
-    const inactive = screen.getByRole('link', { name: 'Dashboard' })
+    const inactive = screen.getByRole('link', { name: 'Bảng điều khiển' })
     expect(inactive).not.toHaveAttribute('aria-current')
   })
 
@@ -74,7 +71,7 @@ describe('ManagerLayout', () => {
       <ManagerLayout
         route={{ screen: 'dashboard' }}
         breadcrumb="Dashboard"
-        counts={{ pendingOrders: 6, openMaintenance: 1, mediaNeedsAction: 2 }}
+        counts={{ pendingOrders: 6 }}
       >
         <div>content</div>
       </ManagerLayout>,
@@ -83,17 +80,18 @@ describe('ManagerLayout', () => {
     expect(ordersLink).toHaveTextContent('6')
   })
 
-  it('shows the user block with name, email and a logout button', () => {
+  it('shows name, email and a logout button in the avatar dropdown', async () => {
     render(
       <ManagerLayout route={{ screen: 'dashboard' }} breadcrumb="Dashboard">
         <div>content</div>
       </ManagerLayout>,
     )
-    expect(screen.getByText('Lê Thị Thanh Hằng')).toBeInTheDocument()
-    expect(screen.getByText('hang.le@odms.vn')).toBeInTheDocument()
     expect(screen.getByText('LH')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Lê Thị Thanh Hằng' }))
+    expect(await screen.findByText('hang.le@odms.vn')).toBeInTheDocument()
+    expect(screen.getAllByText('Lê Thị Thanh Hằng').length).toBeGreaterThan(0)
     expect(
-      screen.getByRole('button', { name: 'Đăng xuất' }),
+      screen.getByRole('button', { name: /Đăng xuất/ }),
     ).toBeInTheDocument()
   })
 
@@ -104,6 +102,6 @@ describe('ManagerLayout', () => {
       </ManagerLayout>,
     )
     expect(screen.getByText('page content marker')).toBeInTheDocument()
-    expect(screen.getAllByText('Dashboard').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Bảng điều khiển').length).toBeGreaterThan(0)
   })
 })

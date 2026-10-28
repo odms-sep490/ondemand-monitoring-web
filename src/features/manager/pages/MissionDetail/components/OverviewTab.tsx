@@ -25,7 +25,6 @@ export function OverviewTab({
   refreshDetail,
   mediaLibrary,
   resultApproved,
-  revision,
   checklistExecutions,
   compliantCount,
   missionId,
@@ -42,7 +41,6 @@ export function OverviewTab({
   refreshDetail: () => void
   mediaLibrary: RefObject<HTMLElement | null>
   resultApproved: boolean
-  revision: number
   checklistExecutions: MissionChecklistExecution[]
   compliantCount: number
   missionId: string
@@ -63,7 +61,6 @@ export function OverviewTab({
           mediaLibrary={mediaLibrary}
           isCompleted={isCompleted}
           resultApproved={resultApproved}
-          revision={revision}
           checklistExecutions={checklistExecutions}
           compliantCount={compliantCount}
           missionId={missionId}
@@ -82,9 +79,6 @@ export function OverviewTab({
           loading={loading}
           refreshDetail={refreshDetail}
           mediaLibrary={mediaLibrary}
-          isCompleted={isCompleted}
-          resultApproved={resultApproved}
-          revision={revision}
           missionId={missionId}
         />
       )}

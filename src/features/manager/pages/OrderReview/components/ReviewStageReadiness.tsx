@@ -6,6 +6,8 @@ import type { UseApiQueryState } from '../../../../../shared/hooks/useApiQuery'
 import type { OrderReadiness } from '../../../types/readiness'
 import { useState, type Dispatch, type SetStateAction } from 'react'
 import type { ReviewStep } from '../reviewTypes'
+import { useI18n } from '../../../../../shared/i18n'
+import { reviewStageReadinessMessages } from './ReviewStageReadiness.messages'
 
 export function ReviewStageReadiness({
   readOnly,
@@ -22,7 +24,9 @@ export function ReviewStageReadiness({
   goToStep: (step: ReviewStep) => void
   pendingRequired: number
 }) {
+  const { t } = useI18n(reviewStageReadinessMessages)
   const [localDraftBlocked, setLocalDraftBlocked] = useState(false)
+  const [decisionHost, setDecisionHost] = useState<HTMLDivElement | null>(null)
   const readiness = readinessQuery.data
   const requiredCriterionBlocked =
     readiness?.criteria.some(
@@ -43,15 +47,15 @@ export function ReviewStageReadiness({
     order.status !== 'PENDING' || !nextBlocked
       ? null
       : failedRequired > 0
-        ? `Có ${failedRequired} tiêu chí bắt buộc không đạt — không thể tiếp tục sang checklist và báo giá`
+        ? t.failedBlocked(failedRequired)
         : localDraftBlocked
-          ? 'Có tiêu chí bắt buộc đang chọn Không đạt — hãy nhập lý do và lưu quyết định'
+          ? t.draftBlocked
           : pendingRequired > 0
-            ? `Còn ${pendingRequired} mục bắt buộc chưa xác nhận — chưa thể duyệt báo giá`
-            : 'Điều kiện duyệt chưa đạt — không thể tiếp tục sang checklist và báo giá'
+            ? t.pendingBlocked(pendingRequired)
+            : t.notMet
 
   return (
-    <div className="odm-or-review-stage" aria-label="Điều kiện duyệt">
+    <div className="odm-or-review-stage" aria-label={t.approvalCriteria}>
       <ReadOnlyScope on={readOnly}>
         <section className="odm-or-review-section">
           <OrderReadinessCard
@@ -60,6 +64,7 @@ export function ReviewStageReadiness({
             editable={order.status === 'PENDING'}
             onDecisionDone={() => setNavigateHome(true)}
             onLocalBlockChange={setLocalDraftBlocked}
+            actionsHost={decisionHost}
           />
         </section>
       </ReadOnlyScope>
@@ -67,9 +72,10 @@ export function ReviewStageReadiness({
         step={3}
         onBack={() => goToStep(2)}
         onNext={() => goToStep(4)}
-        nextLabel="Tiếp: Checklist & báo giá"
+        nextLabel={t.nextLabel}
         hint={nextHint}
         nextDisabled={nextBlocked}
+        decisionHostRef={setDecisionHost}
       />
     </div>
   )

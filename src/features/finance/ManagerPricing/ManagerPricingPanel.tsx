@@ -2,7 +2,11 @@ import { useEffect, useRef, useState } from 'react'
 
 import { ApiError } from '../../../shared/api/httpClient'
 import { useApiQuery } from '../../../shared/hooks/useApiQuery'
+import { useToast } from '../../../shared/components/ui'
+import { useI18n } from '../../../shared/i18n'
 import { financeApi } from '../api'
+import { pricingFeedbackMessages } from './pricingFeedback.messages'
+import { pricingMessages } from './pricing.messages'
 import type { ChecklistReviewStatus, PricingChecklistItem } from '../types'
 import '../finance.css'
 import {
@@ -37,6 +41,9 @@ export function ManagerPricingPanel({
     (signal) => financeApi.getPricingReview(orderId, signal),
     [orderId],
   )
+  const { t: fb } = useI18n(pricingFeedbackMessages)
+  const { t } = useI18n(pricingMessages)
+  const toast = useToast()
   const [draft, setDraft] = useState<Draft>(emptyDraft)
   const [busy, setBusy] = useState(false)
   const [filter, setFilter] = useState<
@@ -155,10 +162,12 @@ export function ManagerPricingPanel({
         status,
         managerNote: managerNote.trim() || null,
       })
+      toast.success(fb.reviewSaved)
       query.reload()
       onChecklistReviewChanged?.()
     } catch (cause) {
       setError(errorMessage(cause))
+      toast.error(errorMessage(cause))
     }
   }
 
@@ -169,8 +178,8 @@ export function ManagerPricingPanel({
     const length = draft.adjustmentReason.trim().length
     if (!adjusted || length >= MIN_REASON_LENGTH) return null
     return length === 0
-      ? 'Vui lòng nhập lý do điều chỉnh giá.'
-      : `Lý do điều chỉnh cần ít nhất ${MIN_REASON_LENGTH} ký tự (hiện có ${length}).`
+      ? t.reasonMissing
+      : t.reasonTooShort(MIN_REASON_LENGTH, length)
   }
 
   async function approve() {
@@ -183,16 +192,12 @@ export function ManagerPricingPanel({
     }
     if (outOfRangeCount > 0) {
       setMessage(null)
-      setError(
-        `Còn ${outOfRangeCount} mục có giá duyệt ngoài khoảng cho phép. Sửa các mục báo đỏ rồi duyệt lại.`,
-      )
+      setError(t.outOfRange(outOfRangeCount))
       return
     }
     if (pendingCustomCount > 0) {
       setMessage(null)
-      setError(
-        `Còn ${pendingCustomCount} yêu cầu bổ sung của khách hàng chưa được phân loại.`,
-      )
+      setError(t.pendingCustom(pendingCustomCount))
       return
     }
     setBusy(true)
@@ -220,12 +225,12 @@ export function ManagerPricingPanel({
       await financeApi.approveQuote(orderId, quote.id)
       setApprovalSucceeded(true)
       onApproved?.()
-      setMessage(
-        'Duyệt báo giá thành công. Báo giá đã sẵn sàng để khách hàng chấp nhận.',
-      )
+      setMessage(t.approveSuccess)
+      toast.success(fb.quoteApproved)
       query.reload()
     } catch (cause) {
       setError(errorMessage(cause))
+      toast.error(errorMessage(cause))
       if (cause instanceof ApiError && cause.code === 'STALE_PRICING_POLICY') {
         // Show the Manager the prices that now apply; typed prices would be judged against the old ones.
         dirtyPriceIds.current.clear()
@@ -245,10 +250,10 @@ export function ManagerPricingPanel({
     (item) => item.reviewStatus === 'ADDITIONAL',
   ).length
   const filterLabels = [
-    { key: 'all', label: 'Tất cả', count: checklistCount },
-    { key: 'pending', label: 'Chưa xem xét', count: pendingReviewCount },
-    { key: 'reviewed', label: 'Đã xem xét', count: reviewedCount },
-    { key: 'additional', label: 'Có phụ phí', count: additionalCount },
+    { key: 'all', label: t.filterAll, count: checklistCount },
+    { key: 'pending', label: t.filterPending, count: pendingReviewCount },
+    { key: 'reviewed', label: t.filterReviewed, count: reviewedCount },
+    { key: 'additional', label: t.filterAdditional, count: additionalCount },
   ] as const
   const visibleItems = query.data.checklistItems.filter((item) =>
     filter === 'pending'

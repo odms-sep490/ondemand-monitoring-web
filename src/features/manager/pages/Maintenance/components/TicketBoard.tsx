@@ -1,128 +1,79 @@
-import { COLUMNS } from '../maintenanceHelpers'
-import { StatusBadge } from '../../../../../shared/components/odm/StatusBadge'
-import {
-  ticketStatusTone,
-  getTicketStatusLabel,
-} from '../../../../../shared/lib/statusTone'
-import { TicketCard } from './TicketCard'
-import { DetailPanel } from './DetailPanel'
-import { maintenancePageMessages } from '../MaintenancePage.messages'
+import { Button } from 'antd'
+import { useState, type Dispatch, type SetStateAction } from 'react'
+
 import { useI18n } from '../../../../../shared/i18n'
 import type { TicketStatus } from '../../../../../shared/types/domain'
 import type { MaintenanceTicket } from '../../../types/maintenance'
-import type { Dispatch, SetStateAction } from 'react'
+import { COLUMNS } from '../maintenanceHelpers'
+import { maintenancePageMessages } from '../MaintenancePage.messages'
+import { TicketCard } from './TicketCard'
+import { TicketStatusTag } from './TicketTags'
 
+type Props = {
+  byColumn: Record<TicketStatus, MaintenanceTicket[]>
+  selectedTicket: MaintenanceTicket | null
+  setSelectedTicket: Dispatch<SetStateAction<MaintenanceTicket | null>>
+  setAssignTicket: Dispatch<SetStateAction<MaintenanceTicket | null>>
+}
+
+const LANE_PREVIEW = 5
+
+/** Status lanes side by side in one row; each lane scrolls on its own. */
 export function TicketBoard({
   byColumn,
   selectedTicket,
   setSelectedTicket,
   setAssignTicket,
-}: {
-  byColumn: Record<TicketStatus, MaintenanceTicket[]>
-  selectedTicket: MaintenanceTicket | null
-  setSelectedTicket: Dispatch<SetStateAction<MaintenanceTicket | null>>
-  setAssignTicket: Dispatch<SetStateAction<MaintenanceTicket | null>>
-}) {
-  const { t, lang } = useI18n(maintenancePageMessages)
+}: Props) {
+  const { t } = useI18n(maintenancePageMessages)
+  const [expanded, setExpanded] = useState<
+    Partial<Record<TicketStatus, boolean>>
+  >({})
   return (
-    <div style={{ display: 'flex', flex: 1, minHeight: 0 }}>
-      {/* Kanban board */}
-      <div
-        style={{
-          flex: 1,
-          display: 'flex',
-          gap: 14,
-          overflowX: 'auto',
-          padding: '4px 0',
-        }}
-      >
-        {COLUMNS.map((col) => (
-          <div
-            key={col}
-            style={{
-              minWidth: 260,
-              flex: '1 1 260px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 10,
-              background: '#f8fafc',
-              padding: 12,
-              borderRadius: 14,
-              border: '1px solid #e2e8f0',
-            }}
-          >
-            <div
-              style={{
-                padding: '2px 4px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-              }}
-            >
-              <StatusBadge tone={ticketStatusTone[col]}>
-                {getTicketStatusLabel(col, lang)}
-              </StatusBadge>
-              <span
-                style={{
-                  fontSize: 12,
-                  fontWeight: 600,
-                  color: '#475569',
-                  background: '#ffffff',
-                  borderRadius: 10,
-                  padding: '2px 8px',
-                  border: '1px solid #e2e8f0',
-                }}
-              >
+    <div className="mgr-maint-board">
+      {COLUMNS.map((col) => {
+        const all = byColumn[col]
+        const open = !!expanded[col]
+        const shown = open ? all : all.slice(0, LANE_PREVIEW)
+        const hidden = all.length - LANE_PREVIEW
+        return (
+          <section key={col} className="mgr-maint-col">
+            <div className="mgr-maint-col-head">
+              <TicketStatusTag status={col} />
+              <span className="mgr-maint-col-count">
                 {byColumn[col].length}
               </span>
             </div>
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 10,
-                overflowY: 'auto',
-                flex: 1,
-              }}
-            >
+            <div className="mgr-maint-col-list">
               {byColumn[col].length === 0 && (
-                <div
-                  style={{
-                    fontSize: 12.5,
-                    color: '#94a3b8',
-                    textAlign: 'center',
-                    padding: '24px 12px',
-                    background: '#ffffff',
-                    borderRadius: 10,
-                    border: '1px dashed #cbd5e1',
-                  }}
-                >
-                  {t.page.noTickets}
-                </div>
+                <div className="mgr-maint-col-empty">{t.page.noTickets}</div>
               )}
-              {byColumn[col].map((ticket) => (
+              {shown.map((ticket) => (
                 <TicketCard
                   key={ticket.id}
                   ticket={ticket}
                   selected={selectedTicket?.id === ticket.id}
                   onSelect={setSelectedTicket}
-                  onAssignClick={(t) => setAssignTicket(t)}
+                  onAssignClick={setAssignTicket}
                 />
               ))}
+              {hidden > 0 && (
+                <Button
+                  size="small"
+                  type="link"
+                  className="mgr-maint-more"
+                  aria-expanded={open}
+                  onClick={() =>
+                    setExpanded((prev) => ({ ...prev, [col]: !open }))
+                  }
+                >
+                  {open ? t.page.showLess : t.page.showMore(hidden)}
+                </Button>
+              )}
             </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Detail panel */}
-      {selectedTicket && (
-        <DetailPanel
-          key={selectedTicket.id}
-          ticket={selectedTicket}
-          onClose={() => setSelectedTicket(null)}
-          onAssignClick={(t) => setAssignTicket(t)}
-        />
-      )}
+          </section>
+        )
+      })}
     </div>
   )
 }

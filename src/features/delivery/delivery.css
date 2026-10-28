@@ -644,7 +644,7 @@
     display: grid;
     grid-template-columns: 1fr;
   }
-  .delivery-actions .odm-btn {
+  .delivery-actions :is(.odm-btn, .ui-btn) {
     width: 100%;
   }
 }

@@ -10,6 +10,9 @@ import type { UseApiQueryState } from '../../../../shared/hooks/useApiQuery'
 import type { ExecutionPlan } from '../../types/planning'
 import type { MissionResponse } from '../../types/missions'
 import type { Dispatch, SetStateAction } from 'react'
+import { useToast } from '../../../../shared/components/ui'
+import { useI18n } from '../../../../shared/i18n'
+import { managerFeedbackMessages } from '../../feedback.messages'
 
 export function useCreateMissionSubmit({
   submit,
@@ -47,6 +50,8 @@ export function useCreateMissionSubmit({
   setNavigateTo: Dispatch<SetStateAction<string | null>>
   setPlanRevision: Dispatch<SetStateAction<number>>
 }) {
+  const { t: fb } = useI18n(managerFeedbackMessages)
+  const toast = useToast()
   async function handleSubmit() {
     if (
       submit.kind === 'submitting' ||
@@ -99,6 +104,7 @@ export function useCreateMissionSubmit({
       const mission = replacesMissionId
         ? await missionsApi.replaceMission(replacesMissionId, intent)
         : await missionsApi.createMission(orderId, intent)
+      toast.success(fb.missionCreated)
       if (onCreated) onCreated(mission.id)
       else setNavigateTo(managerHref({ screen: 'orderReview', orderId }))
     } catch (err) {
@@ -119,12 +125,14 @@ export function useCreateMissionSubmit({
           kind: 'planFailed',
           message: t.planGenerationFailed,
         })
+        toast.error(t.planGenerationFailed)
         return
       }
       setSubmit({
         kind: 'validationFailed',
         message: planningError(err),
       })
+      toast.error(planningError(err))
     }
   }
   return { handleSubmit }
