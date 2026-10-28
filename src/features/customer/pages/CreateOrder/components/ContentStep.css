@@ -168,7 +168,7 @@
   margin: 12px 0 14px;
   padding: 10px 14px;
   border-radius: 0 8px 8px 0;
-  background: color-mix(in srgb, #fffbeb 84%, var(--ui-surface));
+  background: color-mix(in srgb, var(--ui-warning-soft) 84%, var(--ui-surface));
 }
 
 .co-page .co-content-editor .checklist-card .checklist-fields {

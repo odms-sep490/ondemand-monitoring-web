@@ -83,7 +83,7 @@
   gap: 10px;
   padding: 12px 14px;
   border-bottom: 1px solid var(--bd);
-  background: linear-gradient(135deg, #e0f2fe, #dcfce7);
+  background: linear-gradient(135deg, var(--ui-primary-soft), var(--ui-success-soft));
 }
 
 .odm-cus-chatbot-head img {
@@ -147,7 +147,7 @@
 .odm-cus-chatbot-msg.is-user {
   align-self: flex-end;
   background: var(--blue-solid);
-  color: #fff;
+  color: var(--ui-on-primary);
 }
 
 .odm-cus-chatbot-chips {

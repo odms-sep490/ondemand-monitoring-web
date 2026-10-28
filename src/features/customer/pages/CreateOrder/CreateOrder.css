@@ -770,7 +770,7 @@ textarea.co-input {
 }
 
 /* Same card look as the order list and order detail pages. */
-.co-page .ui-card {
+.co-page .ant-card {
   border-radius: 16px;
   box-shadow: 0 1px 2px rgba(15, 40, 90, 0.04);
 }
@@ -1072,14 +1072,14 @@ textarea.co-input {
   }
 }
 
-.co-summary .ui-card {
+.co-summary .ant-card {
   margin: 0;
   border: 0;
   border-radius: 0;
   box-shadow: none;
 }
 
-.co-summary .ui-card + .ui-card,
+.co-summary .ant-card + .ant-card,
 .co-summary > .co-block,
 .co-summary-cta {
   border-top: 1px solid var(--ui-border);
@@ -1227,6 +1227,8 @@ textarea.co-input {
 }
 
 .co-real-map .leaflet-control-layers {
+  background: var(--ui-surface);
+  color: var(--ui-text);
   border: 1px solid rgba(148, 163, 184, 0.45);
   border-radius: 8px;
   box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
@@ -1254,7 +1256,7 @@ textarea.co-input {
   padding: 7px 10px;
   border-radius: 8px;
   background: rgba(15, 23, 42, 0.72);
-  color: #fff;
+  color: var(--ui-on-primary);
   font-size: 12px;
   font-weight: 700;
   pointer-events: none;
@@ -1585,7 +1587,7 @@ textarea.co-input {
   border: 0;
   border-radius: 50%;
   background: rgba(15, 23, 42, 0.7);
-  color: #fff;
+  color: var(--ui-on-primary);
   cursor: pointer;
 }
 
@@ -2042,7 +2044,7 @@ ul.co-help {
 }
 
 /* Step 4 cards: consistent field rhythm and a clearer split between option groups. */
-.co-stack > .ui-card .co-two {
+.co-stack > .ant-card .co-two {
   gap: var(--ui-space-3) var(--ui-space-4);
 }
 
@@ -2335,7 +2337,7 @@ ul.co-help {
   height: 12px;
 }
 .co-map-key-area {
-  border: 2px solid #1565e8;
+  border: 2px solid var(--ui-primary);
   border-radius: 50%;
   background: rgba(21, 101, 232, 0.14);
 }
@@ -2345,7 +2347,7 @@ ul.co-help {
 }
 .co-map-key-point {
   border-radius: 50%;
-  background: #1565e8;
+  background: var(--ui-primary);
   width: 8px !important;
   height: 8px !important;
   margin: 0 2px;
@@ -2411,10 +2413,10 @@ ul.co-help {
 
 .co-authz {
   padding: 18px 20px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--ui-border);
   border-radius: 12px;
-  background: #fff;
-  color: #0f172a;
+  background: var(--ui-surface);
+  color: var(--ui-text);
 }
 .co-authz-head h3 {
   margin: 0;
@@ -2423,7 +2425,7 @@ ul.co-help {
 .co-authz-head p,
 .co-authz-note {
   margin: 6px 0 0;
-  color: #64748b;
+  color: var(--ui-text-3);
   line-height: 1.5;
 }
 .co-authz-fieldset {
@@ -2446,13 +2448,13 @@ ul.co-help {
   align-items: center;
   gap: 8px;
   padding: 9px 12px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--ui-border);
   border-radius: 10px;
   cursor: pointer;
 }
 .co-authz-relationships label:has(input:checked) {
-  border-color: #2563eb;
-  background: #eff6ff;
+  border-color: var(--ui-primary);
+  background: var(--ui-primary-soft);
 }
 .co-authz-other {
   display: grid;
@@ -2484,7 +2486,7 @@ ul.co-help {
 }
 .co-authz-docs-head span,
 .co-authz-document label > span {
-  color: #64748b;
+  color: var(--ui-text-3);
   font-size: 13px;
 }
 .co-authz-documents {
@@ -2496,14 +2498,14 @@ ul.co-help {
   display: grid;
   gap: 10px;
   padding: 14px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--ui-border);
   border-radius: 10px;
 }
 .co-authz-document-title button,
 .co-authz-file button {
   border: 0;
   background: transparent;
-  color: #2563eb;
+  color: var(--ui-primary);
   font-weight: 700;
   cursor: pointer;
 }
@@ -2521,7 +2523,7 @@ ul.co-help {
 }
 .co-authz-file {
   padding: 10px 12px;
-  border: 1px dashed #cbd5e1;
+  border: 1px dashed var(--ui-border);
   border-radius: 9px;
   color: #475569;
 }
@@ -2531,15 +2533,15 @@ ul.co-help {
   gap: 10px;
   margin-top: 18px;
   padding: 13px;
-  border: 1px solid #bfdbfe;
+  border: 1px solid var(--ui-primary-soft);
   border-radius: 10px;
-  background: #eff6ff;
+  background: var(--ui-primary-soft);
   font-weight: 600;
   line-height: 1.45;
 }
 .co-authz-confirm input {
   margin-top: 3px;
-  accent-color: #2563eb;
+  accent-color: var(--ui-primary);
 }
 @media (max-width: 640px) {
   .co-authz {
@@ -2674,15 +2676,15 @@ ul.co-help {
   display: grid;
   gap: 6px;
   padding: 12px 14px;
-  border: 1px solid #bfdbfe;
+  border: 1px solid var(--ui-primary-soft);
   border-radius: 10px;
-  background: #eff6ff;
+  background: var(--ui-primary-soft);
   color: #1e3a5f;
   font-size: 13px;
 }
 .airspace-status.is-warning {
-  border-color: #fdba74;
-  background: #fff7ed;
+  border-color: var(--ui-warning);
+  background: var(--ui-warning-soft);
   color: #7c2d12;
 }
 .airspace-status strong {
@@ -2702,10 +2704,10 @@ ul.co-help {
 .co-terms-important {
   margin-top: var(--ui-space-4);
   padding: 16px 18px;
-  border: 1px solid #f5c26b;
-  border-left: 5px solid #f59e0b;
+  border: 1px solid var(--ui-warning);
+  border-left: 5px solid var(--ui-warning);
   border-radius: 12px;
-  background: #fff8e6;
+  background: var(--ui-warning-soft);
 }
 .co-terms-head {
   display: flex;
@@ -2715,7 +2717,7 @@ ul.co-help {
 }
 .co-terms-icon {
   flex: none;
-  color: #d97706;
+  color: var(--ui-warning);
 }
 .co-terms-title {
   flex: 1 1 auto;
@@ -2728,8 +2730,8 @@ ul.co-help {
   flex: none;
   padding: 2px 10px;
   border-radius: 999px;
-  background: #f59e0b;
-  color: #fff;
+  background: var(--ui-warning);
+  color: var(--ui-on-primary);
   font-size: 12px;
   font-weight: 700;
 }
@@ -2749,9 +2751,9 @@ ul.co-help {
 }
 .co-terms-check {
   padding: 12px 14px;
-  border: 1px solid #f5c26b;
+  border: 1px solid var(--ui-warning);
   border-radius: 10px;
-  background: #fff;
+  background: var(--ui-surface);
   font-size: 14.5px;
   font-weight: 700;
 }
@@ -2776,18 +2778,18 @@ ul.co-help {
 .co-terms-check input {
   width: 18px;
   height: 18px;
-  accent-color: #d97706;
+  accent-color: var(--ui-warning);
 }
 .co-terms-important .co-terms-details {
   margin-top: 12px;
   padding-top: 10px;
-  border-top: 1px solid color-mix(in srgb, #d97706 30%, transparent);
+  border-top: 1px solid color-mix(in srgb, var(--ui-warning) 30%, transparent);
 }
 .co-terms-important .co-terms-details summary {
   width: max-content;
   max-width: 100%;
   padding: 2px 0;
-  color: #92400e;
+  color: var(--ui-warning-text);
   font-weight: 700;
 }
 .co-terms-important .co-terms-details summary:focus-visible {
@@ -2825,7 +2827,7 @@ ul.co-help {
   height: 30px;
   margin-top: 0;
   border-radius: 9px;
-  background: var(--ui-primary-soft, #e8f1ff);
+  background: var(--ui-primary-soft, var(--ui-primary-soft));
   color: var(--ui-primary);
 }
 .co-summary .co-sum-body dt {
@@ -2849,7 +2851,7 @@ ul.co-help {
   font-size: 12.5px;
 }
 .co-summary .co-sum-edit:hover {
-  background: var(--ui-primary-soft, #e8f1ff);
+  background: var(--ui-primary-soft, var(--ui-primary-soft));
   text-decoration: none;
 }
 .co-grid.is-location > .co-location-left,
@@ -2886,9 +2888,9 @@ ul.co-help {
   height: 100%;
   gap: 0;
   padding: 14px;
-  border: 2px solid #e2e8f0;
+  border: 2px solid var(--ui-border);
   border-radius: 14px;
-  background: #fff;
+  background: var(--ui-surface);
   overflow-wrap: break-word;
 }
 .co-service-grid .co-service:hover {
@@ -2899,8 +2901,8 @@ ul.co-help {
 .co-service-grid .co-service.is-active {
   /* Same border width as the idle state so the card never changes size. */
   padding: 14px;
-  border-color: #2563eb;
-  background: #f8faff;
+  border-color: var(--ui-primary);
+  background: var(--ui-surface-2);
   box-shadow: 0 4px 14px rgba(37, 99, 235, 0.14);
 }
 .co-service-grid .co-service-illustration {
@@ -2914,7 +2916,7 @@ ul.co-help {
   margin-top: 12px;
   font-size: 16px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--ui-text);
 }
 .co-service-grid .co-service-desc {
   display: block;
@@ -2924,14 +2926,14 @@ ul.co-help {
   text-overflow: clip;
   font-size: 13px;
   line-height: 1.55;
-  color: #64748b;
+  color: var(--ui-text-3);
 }
 .co-service-grid .co-service > strong {
   margin-top: auto;
   padding-top: 14px;
   font-size: 17px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--ui-text);
 }
 .co-service-card {
   padding-bottom: 8px;
@@ -2954,7 +2956,7 @@ ul.co-help {
   align-self: stretch;
 }
 
-.co-grid.is-service > .co-stack:first-child > .ui-card {
+.co-grid.is-service > .co-stack:first-child > .ant-card {
   height: 100%;
   box-sizing: border-box;
 }
@@ -3040,7 +3042,7 @@ ul.co-help {
     max-height: none;
     overflow: visible;
   }
-  .co-grid.is-service > .co-stack:first-child > .ui-card {
+  .co-grid.is-service > .co-stack:first-child > .ant-card {
     height: auto;
   }
 }
@@ -3105,14 +3107,14 @@ ul.co-help {
   border-radius: 12px;
 }
 
-.co-review-form > .ui-card {
+.co-review-form > .ant-card {
   margin: 0;
   border: 0;
   border-radius: 0;
   box-shadow: none;
 }
 
-.co-review-form > .ui-card + .ui-card {
+.co-review-form > .ant-card + .ant-card {
   flex: 1;
   border-top: 1px solid var(--ui-border);
 }
@@ -3141,7 +3143,7 @@ ul.co-help {
   align-self: start;
 }
 
-.co-page .ui-card,
+.co-page .ant-card,
 .co-authz,
 .co-flow-actions {
   border-color: var(--ui-border);
@@ -3202,7 +3204,7 @@ ul.co-help {
 }
 
 .co-tab-num {
-  box-shadow: 0 0 0 6px var(--ui-bg, #f8fafc);
+  box-shadow: 0 0 0 6px var(--ui-bg, var(--ui-surface-2));
 }
 
 .co-tab.is-active {
@@ -3354,7 +3356,7 @@ ul.co-help {
   gap: 2px;
   margin-bottom: 16px;
   padding: 10px 12px;
-  border-left: 3px solid var(--ui-border-strong, #94a3b8);
+  border-left: 3px solid var(--ui-border-strong, var(--ui-border-strong));
   background: var(--ui-surface-2);
   color: var(--ui-text-2);
 }
@@ -3367,17 +3369,17 @@ ul.co-help {
   line-height: 1.45;
 }
 .co-location-status.is-confirmed {
-  border-left-color: #15803d;
-  background: #f0fdf4;
+  border-left-color: var(--ui-success);
+  background: var(--ui-success-soft);
 }
 .co-location-status.is-resolving {
   border-left-color: var(--ui-primary);
-  background: #eff6ff;
+  background: var(--ui-primary-soft);
 }
 .co-location-status.is-stale,
 .co-location-status.is-error {
-  border-left-color: #b45309;
-  background: #fff7ed;
+  border-left-color: var(--ui-warning);
+  background: var(--ui-warning-soft);
 }
 
 .co-address-search {
@@ -3392,7 +3394,7 @@ ul.co-help {
 }
 .co-address-error {
   margin-top: 6px;
-  color: var(--ui-danger, #b42318);
+  color: var(--ui-danger, var(--ui-danger-text));
   font-size: 12px;
   line-height: 1.45;
 }
@@ -3446,7 +3448,7 @@ ul.co-help {
   width: 72px;
   min-height: 36px;
   padding: 6px 8px;
-  border: 1px solid var(--ui-border-strong, #cbd5e1);
+  border: 1px solid var(--ui-border-strong, var(--ui-border));
   border-radius: 6px;
   background: var(--ui-surface);
   color: var(--ui-text);
@@ -3556,7 +3558,7 @@ ul.co-help {
   border-radius: 50%;
 }
 .co-map-legend .is-monitoring {
-  border-color: #1565e8;
+  border-color: var(--ui-primary);
   background: rgba(21, 101, 232, 0.14);
 }
 .co-map-legend .is-service {
@@ -3564,8 +3566,8 @@ ul.co-help {
   background: rgba(34, 197, 94, 0.08);
 }
 .co-map-legend .is-unknown {
-  border-color: #64748b;
-  background: #e2e8f0;
+  border-color: var(--ui-text-3);
+  background: var(--ui-border);
 }
 
 .co-flight-status {
@@ -3573,7 +3575,7 @@ ul.co-help {
   gap: 8px;
   padding: 18px 20px;
   border: 1px solid var(--ui-border);
-  border-left: 4px solid #64748b;
+  border-left: 4px solid var(--ui-text-3);
   border-radius: 10px;
   background: var(--ui-surface);
 }
@@ -3883,7 +3885,7 @@ ul.co-help {
   min-height: 0;
 }
 
-.co-grid.is-location > .co-location-settings > .ui-card {
+.co-grid.is-location > .co-location-settings > .ant-card {
   height: auto;
   box-sizing: border-box;
 }
@@ -3938,7 +3940,7 @@ ul.co-help {
     margin-top: 0;
   }
 
-  .co-grid.is-location > .co-location-settings > .ui-card {
+  .co-grid.is-location > .co-location-settings > .ant-card {
     height: auto;
   }
 }
@@ -4025,7 +4027,7 @@ ul.co-help {
     margin-top: 0;
   }
 
-  .co-grid.is-location > .co-location-settings > .ui-card {
+  .co-grid.is-location > .co-location-settings > .ant-card {
     height: auto;
   }
 }
@@ -4081,4 +4083,22 @@ ul.co-help {
 .mgr-layout .co-page select,
 .mgr-layout .co-page textarea {
   border-radius: 8px;
+}
+
+.mgr-layout .co-review-form > .ant-card {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.mgr-layout .co-review-form > .ant-card + .ant-card {
+  border-top: 1px solid var(--mgr-border);
+}
+
+.mgr-layout .co-review-form {
+  border-color: var(--mgr-border);
+  background: var(--mgr-card);
+  box-shadow: var(--mgr-shadow);
+  border-radius: var(--mgr-radius);
 }

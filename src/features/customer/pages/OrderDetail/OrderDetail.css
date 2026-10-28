@@ -171,7 +171,7 @@
   color: var(--ui-text-3);
 }
 
-.od-page .ui-card .mgr-card-title,
+.od-page .ant-card .mgr-card-title,
 .od-page .customer-finance-head h2,
 .od-page .hw-title {
   margin: 0;
@@ -641,7 +641,7 @@
   padding: 14px;
   border: 1px dashed #c8a846;
   border-radius: 10px;
-  background: #fffdf5;
+  background: var(--ui-warning-soft);
 }
 
 .od-additional-documents > div {
@@ -684,7 +684,7 @@
 .od-additional-documents li button {
   border: 0;
   background: transparent;
-  color: #b42318;
+  color: var(--ui-danger-text);
   cursor: pointer;
   font: inherit;
   font-weight: 650;
