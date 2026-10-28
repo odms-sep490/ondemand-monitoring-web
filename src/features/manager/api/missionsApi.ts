@@ -100,19 +100,21 @@ export const missionsApi = {
     })
   },
 
-  replaceMission(
-    missionId: string,
+  /** `POST /api/missions/{orderId}/additional`: create a PLANNING Mission on a finalized Order. */
+  createAdditionalMission(
+    orderId: string,
     request: CreateMissionRequest,
   ): Promise<Mission> {
-    return apiRequest<Mission>(`/api/missions/${encodeURIComponent(missionId)}/replacement`, {
+    return apiRequest<Mission>(`/api/missions/${encodeURIComponent(orderId)}/additional`, {
       method: 'POST',
       body: request,
     })
   },
 
-  finalizeReplacementMission(missionId: string): Promise<MissionResponse> {
+  /** `POST /api/missions/{missionId}/confirm-planning`. */
+  confirmMissionPlanning(missionId: string): Promise<MissionResponse> {
     return apiRequest<MissionResponse>(
-      `/api/missions/${encodeURIComponent(missionId)}/finalize-replacement`,
+      `/api/missions/${encodeURIComponent(missionId)}/confirm-planning`,
       { method: 'POST' },
     )
   },

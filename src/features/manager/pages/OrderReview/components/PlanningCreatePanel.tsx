@@ -11,16 +11,12 @@ export function PlanningCreatePanel({
   confirmation,
   setCreating,
   orderId,
-  creating,
   setSelectedId,
   query,
 }: {
   confirmation: ReturnType<typeof usePlanningConfirmation>
-  setCreating: Dispatch<
-    SetStateAction<{ replacesMissionId?: string | undefined } | null>
-  >
+  setCreating: Dispatch<SetStateAction<{} | null>>
   orderId: string
-  creating: { replacesMissionId?: string | undefined }
   setSelectedId: Dispatch<SetStateAction<string | null>>
   query: UseApiQueryState<{
     plan: ExecutionPlan
@@ -84,7 +80,6 @@ export function PlanningCreatePanel({
         <div className="odm-planning-modal-body">
           <MissionCreatePage
             orderId={orderId}
-            replacesMissionId={creating.replacesMissionId}
             onCreated={(id) => {
               setSelectedId(id)
               setCreating(null)

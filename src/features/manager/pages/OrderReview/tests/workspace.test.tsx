@@ -338,7 +338,7 @@ describe('Order-centric workspace', () => {
     finalized = true
     missions = missions.map((mission) => ({
       ...mission,
-      status: 'WAITING_CREW_CONFIRMATION',
+      status: 'READY',
       deviceId: 'd1',
       deviceName: 'Drone 1',
       staffAssignments: [

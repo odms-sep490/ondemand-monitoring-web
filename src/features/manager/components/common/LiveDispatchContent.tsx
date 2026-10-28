@@ -118,7 +118,7 @@ export function LiveDispatchContent({
     orderContext &&
     (current.id !== missionId ||
       current.orderId !== orderContext.orderId ||
-      !['RESOURCE_ASSIGNING', 'WAITING_CREW_CONFIRMATION'].includes(
+      !['RESOURCE_ASSIGNING', 'READY'].includes(
         current.status,
       ))
   )

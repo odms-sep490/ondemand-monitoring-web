@@ -38,9 +38,9 @@ export function StopFlowPanel({
   stop: SafeStop
   requested: boolean
   refresh: () => void
-  setIntent: Dispatch<SetStateAction<'cancel' | 'replace' | null>>
+  setIntent: Dispatch<SetStateAction<'cancel' | null>>
   missionId: string
-  intent: 'cancel' | 'replace'
+  intent: 'cancel'
   triggerRef: RefObject<HTMLButtonElement | null>
   reason: string
   nextAction: 'cancel' | 'request' | 'cleanup' | null
@@ -108,11 +108,7 @@ export function StopFlowPanel({
               )}
             </>
           )}
-          {intent === 'replace' && (
-            <p className="mission-stop__guidance">
-              Sau khi hủy, bạn có thể tạo Mission thay thế.
-            </p>
-          )}
+
           {requested ? (
             <dl className="mission-stop__reason">
               <dt>Lý do dừng / hủy Mission</dt>

@@ -127,7 +127,6 @@ export function missionProgress(
       WAITING_DEPOSIT: 'permit',
       READY: 'permit',
       RESOURCE_ASSIGNING: 'permit',
-      WAITING_CREW_CONFIRMATION: 'permit',
       WAITING_OPERATOR_ACCEPTANCE: 'permit',
       SCHEDULED: 'permit',
       CONNECTED: 'permit',

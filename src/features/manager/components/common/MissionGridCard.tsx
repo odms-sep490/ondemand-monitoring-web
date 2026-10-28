@@ -15,7 +15,15 @@ import { missionsApi } from '../../api/missionsApi'
 import { droneApi, type AvailableDrone } from '../../../staff/api/droneApi'
 import { operatorApi, type AvailableOperator } from '../../../staff/api/operatorApi'
 import { MissionUpdatePanel } from './MissionUpdatePanel'
-import { STAFF_ROLE_LABELS } from './missionDetailHelpers'
+import {
+  checkLabel,
+  deviceAssignmentStatusTone,
+  missionResourcePrepareLabel,
+  missionResourcePrepareTone,
+  STAFF_RESPONSE_LABELS,
+  STAFF_ROLE_LABELS,
+  staffAssignmentStatusTone,
+} from './missionDetailHelpers'
 import type { MissionStaffRole } from '../../../mission/types/mission'
 
 interface MissionGridCardProps {
@@ -27,9 +35,6 @@ interface MissionGridCardProps {
   onPlanChanged: () => void
   onRequestReason: (title: string, hint: string, onConfirm: (reason: string) => Promise<void>) => void
   onEditMission?: (mission: MissionResponse) => void
-  onReplaceMission?: (mission: MissionResponse) => void
-  onFinalizeReplacement?: (mission: MissionResponse) => void
-  hasReplacement?: boolean
 }
 
 const ROLES: MissionStaffRole[] = ['PILOT', 'OPERATOR', 'MAINTAINER', 'INSPECTOR']
@@ -43,12 +48,9 @@ export function MissionGridCard({
   onPlanChanged,
   onRequestReason,
   onEditMission,
-  onReplaceMission,
-  onFinalizeReplacement,
-  hasReplacement,
 }: MissionGridCardProps) {
   const isPlanning = mission.status === 'PLANNING'
-  const isReady = mission.status === 'READY' || mission.status === 'WAITING_CREW_CONFIRMATION'
+  const isReady = mission.status === 'READY'
   const isCancelled = mission.status === 'CANCELLED'
 
   const [busy, setBusy] = useState(false)
@@ -297,6 +299,20 @@ export function MissionGridCard({
     )
   }
 
+  async function handleConfirmPlanning() {
+    if (disabled || busy || !isPlanning || plan.planStatus !== 'FINALIZED') return
+    setBusy(true)
+    setErrorMsg('')
+    try {
+      await missionsApi.confirmMissionPlanning(mission.id)
+      onPlanChanged()
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : 'Không thể xác nhận Mission')
+    } finally {
+      setBusy(false)
+    }
+  }
+
   const cardStatusClass = isCancelled
     ? 'is-cancelled'
     : isReady
@@ -314,16 +330,22 @@ export function MissionGridCard({
             </a>
           </strong>
           <span>{mission.orderTitle || 'Phạm vi theo đơn'}</span>
-          {mission.replacesMissionId && (
-            <span style={{ fontSize: 11, color: '#4f46e5', fontWeight: 600 }}>
-              (Nhiệm vụ thay thế)
-            </span>
-          )}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <StatusBadge tone={toUiTone(missionStatusTone[mission.status] ?? 'gray')}>
             {missionStatusLabel[mission.status] ?? mission.status}
           </StatusBadge>
+          {isPlanning && plan.planStatus === 'FINALIZED' && !disabled && (
+            <button
+              type="button"
+              className="odm-btn odm-btn-sm odm-btn-p"
+              disabled={busy}
+              onClick={() => void handleConfirmPlanning()}
+              title={`Xác nhận Mission ${mission.missionCode ?? ''}`}
+            >
+              {busy ? 'Đang xác nhận…' : 'Xác nhận'}
+            </button>
+          )}
           {isPlanning && !disabled && (
             onEditMission ? (
               <button
@@ -345,17 +367,6 @@ export function MissionGridCard({
                 onUpdated={onPlanChanged}
               />
             )
-          )}
-          {isCancelled && !disabled && !hasReplacement && onReplaceMission && (
-            <button
-              type="button"
-              className="odm-btn odm-btn-sm odm-btn-p"
-              disabled={disabled || busy}
-              onClick={() => onReplaceMission(mission)}
-              title={`Tạo nhiệm vụ thay thế cho ${mission.missionCode ?? ''}`}
-            >
-              Thay thế
-            </button>
           )}
         </div>
       </div>
@@ -410,6 +421,12 @@ export function MissionGridCard({
 
       {/* Staff Section */}
       <div className="odm-mcard-section">
+        <div className="odm-mcard-sec-head">
+          <span>Trạng thái chuẩn bị nguồn lực</span>
+          <StatusBadge tone={toUiTone(missionResourcePrepareTone(mission.resourcePrepareStatus))}>
+            {missionResourcePrepareLabel(mission.resourcePrepareStatus)}
+          </StatusBadge>
+        </div>
         <div className="odm-mcard-sec-head">
           <span>Nhân sự ({currentStaff.length}/{maxStaff})</span>
           {!isCancelled && !disabled && (
@@ -518,6 +535,11 @@ export function MissionGridCard({
                     {STAFF_ROLE_LABELS[staff.assignedRole] || staff.assignedRole}:
                   </span>{' '}
                   <strong>{staff.staffName || 'Chưa rõ tên'}</strong>
+                  <small style={{ display: 'block', marginTop: 4 }}>
+                    <StatusBadge tone={toUiTone(staffAssignmentStatusTone(staff.responseStatus))}>
+                      {STAFF_RESPONSE_LABELS[staff.responseStatus] ?? staff.responseStatus}
+                    </StatusBadge>
+                  </small>
                 </div>
                 {!isCancelled && !disabled && (
                   <button
@@ -637,6 +659,11 @@ export function MissionGridCard({
                     {dev.deviceRole === 'SUPPORT' ? 'Hỗ trợ' : 'Chính'}:
                   </span>{' '}
                   <strong>{dev.deviceName || dev.deviceCode || 'Drone'}</strong>
+                  <small style={{ display: 'block', marginTop: 4 }}>
+                    <StatusBadge tone={toUiTone(deviceAssignmentStatusTone(dev.checkupStatus))}>
+                      {checkLabel(dev.checkupStatus)}
+                    </StatusBadge>
+                  </small>
                 </div>
                 {!isCancelled && !disabled && (
                   <button
@@ -670,36 +697,12 @@ export function MissionGridCard({
         </div>
       )}
 
-      {isPlanning && mission.replacesMissionId && plan.planStatus === 'FINALIZED' && !disabled && onFinalizeReplacement && (
-        <div className="odm-mcard-footer">
-          <button
-            type="button"
-            className="odm-btn odm-btn-p"
-            style={{ width: '100%', justifyContent: 'center' }}
-            onClick={() => onFinalizeReplacement(mission)}
-            disabled={busy}
-          >
-            Chốt nhiệm vụ
-          </button>
-        </div>
-      )}
 
       {isCancelled && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           <div style={{ background: '#fee2e2', color: '#991b1b', padding: '8px 12px', borderRadius: 6, fontSize: 12 }}>
             <strong>Đã hủy:</strong> {mission.failureReason || mission.rejectionReason || 'Đã hủy theo quyết định của quản lý.'}
           </div>
-          { !disabled && onReplaceMission ? (
-            <button
-              type="button"
-              className="odm-btn odm-btn-p"
-              style={{ width: '100%', justifyContent: 'center' }}
-              onClick={() => onReplaceMission(mission)}
-              disabled={busy}
-            >
-               Thay thế
-            </button>
-          ) : null}
         </div>
       )}
     </article>

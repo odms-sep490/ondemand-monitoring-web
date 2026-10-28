@@ -59,7 +59,7 @@ describe('live mission mapping', () => {
     const mapped = toOperatorMission(
       {
         ...mission,
-        status: 'WAITING_CREW_CONFIRMATION',
+        status: 'READY',
         staffAssignments: [
           { staffId: 'staff-1', responseStatus: 'ACCEPTED' },
           { staffId: 'staff-2', responseStatus: 'PENDING' },

@@ -9,12 +9,12 @@ const labels: Record<string, string> = {
   IN_PROGRESS: 'Đang xử lý', COMPLETED: 'Hoàn thành', CANCELLED: 'Đã hủy', AUTO_PRICED: 'Duyệt theo giá hệ thống',
   NEEDS_MANAGER_REVIEW: 'Chờ duyệt giá', ADJUSTED_AND_APPROVED: 'Đã điều chỉnh & duyệt', DUPLICATE: 'Trùng lặp',
   BLOCKED_BY_POLICY: 'Bị chặn bởi chính sách', CREATED: 'Khởi tạo', WAITING_DEPOSIT: 'Chờ cọc',
-  RESOURCE_ASSIGNING: 'Phân công nguồn lực', WAITING_CREW_CONFIRMATION: 'Chờ tổ bay',
+  RESOURCE_ASSIGNING: 'Phân công nguồn lực', READY: 'Chờ tổ bay',
   WAITING_OPERATOR_ACCEPTANCE: 'Chờ operator', SCHEDULED: 'Đã lên lịch', CONNECTED: 'Đã kết nối',
   PREFLIGHT_CHECKING: 'Kiểm tra trước bay', READY_TO_FLY: 'Sẵn sàng bay', FAILED_PREFLIGHT: 'Preflight lỗi',
   PENDING_APPROVAL: 'Chờ duyệt', IN_FLIGHT: 'Đang bay', RETURNING: 'Đang trở về',
   POSTFLIGHT_CHECKING: 'Kiểm tra sau bay', PENDING_REVIEW: 'Chờ nghiệm thu', FAILED: 'Thất bại',
-  PLANNING: 'Chuẩn bị & phân công', READY: 'Sẵn sàng',
+  PLANNING: 'Chuẩn bị & phân công',
 }
 
 function label(key: string) { return labels[key] ?? statusLabel(key) }

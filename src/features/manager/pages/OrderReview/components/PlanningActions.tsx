@@ -29,10 +29,8 @@ export function PlanningActions({
   }
   busy: boolean
   saving: boolean
-  creating: { replacesMissionId?: string | undefined } | null
-  setCreating: Dispatch<
-    SetStateAction<{ replacesMissionId?: string | undefined } | null>
-  >
+  creating: {} | null
+  setCreating: Dispatch<SetStateAction<{} | null>>
   continueToResourceAssignment: () => Promise<void>
   amending: boolean
   setAmending: Dispatch<SetStateAction<boolean>>

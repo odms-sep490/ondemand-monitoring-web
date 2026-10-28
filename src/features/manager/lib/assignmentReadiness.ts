@@ -31,7 +31,7 @@ export function assignmentReadiness(mission: AssignmentSnapshot) {
   const device = Boolean(mission.deviceId || mission.droneId)
   const setupState = [
     'RESOURCE_ASSIGNING',
-    'WAITING_CREW_CONFIRMATION',
+    'READY',
   ].includes(mission.status)
   const submitted =
     mission.status !== 'RESOURCE_ASSIGNING' && mission.status !== 'CREATED'

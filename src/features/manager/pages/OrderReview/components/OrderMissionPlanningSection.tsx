@@ -5,7 +5,6 @@ import type { MissionStatus } from '../../../../../shared/types/domain'
 import { useApiQuery } from '../../../../../shared/hooks/useApiQuery'
 import { ordersApi } from '../../../api/ordersApi'
 import { planningApi } from '../../../api/planningApi'
-import { missionsApi } from '../../../api/missionsApi'
 import { planningError, finalizeError } from '../../../lib/planningErrors'
 import { ExecutionPlanSummary } from './ExecutionPlanSummary'
 import { PlanningHeader } from '../../../components/common/PlanningHeader'
@@ -37,12 +36,14 @@ export function OrderMissionPlanningSection({
   initialOrder,
   onWorkflowInfo,
   activeTab = 'planning',
+  onBackToPlanning,
 }: {
   orderId: string
   initialOrder?: OrderDetail
   onAssignResources?: (missionId: string) => void
   onWorkflowInfo?: (info: PlanningWorkflowInfo) => void
   activeTab?: 'planning' | 'permit'
+  onBackToPlanning?: () => void
 }) {
   return (
     <OrderPlanningWorkspace
@@ -51,6 +52,7 @@ export function OrderMissionPlanningSection({
       initialOrder={initialOrder}
       onWorkflowInfo={onWorkflowInfo}
       activeTab={activeTab}
+      onBackToPlanning={onBackToPlanning}
     />
   )
 }
@@ -60,11 +62,13 @@ function OrderPlanningWorkspace({
   initialOrder,
   onWorkflowInfo,
   activeTab = 'planning',
+  onBackToPlanning,
 }: {
   orderId: string
   initialOrder?: OrderDetail
   onWorkflowInfo?: (info: PlanningWorkflowInfo) => void
   activeTab?: 'planning' | 'permit'
+  onBackToPlanning?: () => void
 }) {
   const confirmation = usePlanningConfirmation()
   const initialOrderRef = useRef(
@@ -104,17 +108,16 @@ function OrderPlanningWorkspace({
   const [busy, setBusy] = useState(false)
   const [creating, setCreating] = useState(false)
   const [editingMission, setEditingMission] = useState<MissionResponse | null>(null)
-  const [replacingMission, setReplacingMission] = useState<MissionResponse | null>(null)
 
   // Lock body scroll while modal is open
   useEffect(() => {
-    if (!creating && !editingMission && !replacingMission) return
+    if (!creating && !editingMission) return
     const prevOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
     return () => {
       document.body.style.overflow = prevOverflow
     }
-  }, [creating, editingMission, replacingMission])
+  }, [creating, editingMission])
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [message, setMessage] = useState('')
@@ -200,14 +203,7 @@ function OrderPlanningWorkspace({
       await planningApi.finalizeExecutionPlan(orderId, data.plan.revision)
       setSidebarCollapsed(true)
     } catch (error) {
-      if (
-        error instanceof ApiError &&
-        error.code === 'CHECKLIST_COVERAGE_INCOMPLETE'
-      ) {
-        setCoverageWarning(finalizeError(error))
-      } else {
-        setMessage(finalizeError(error))
-      }
+      setCoverageWarning(finalizeError(error))
     } finally {
       setBusy(false)
       query.reload()
@@ -244,25 +240,6 @@ function OrderPlanningWorkspace({
       hint,
       onConfirm,
     })
-  }
-
-  function handleReplaceMission(mission: MissionResponse) {
-    if (!data || busy) return
-    setReplacingMission(mission)
-  }
-
-  async function handleFinalizeReplacementMission(mission: MissionResponse) {
-    if (busy) return
-    setBusy(true)
-    setMessage('')
-    try {
-      await missionsApi.finalizeReplacementMission(mission.id)
-    } catch (err: unknown) {
-      setMessage(planningError(err))
-    } finally {
-      setBusy(false)
-      query.reload()
-    }
   }
 
   return (
@@ -434,74 +411,6 @@ function OrderPlanningWorkspace({
               }}
             />
           )}
-
-          {/* Replace Mission Modal Popup */}
-          {replacingMission && (
-            <div
-              className="odm-planning-modal-backdrop"
-              onClick={async (e) => {
-                if (e.target === e.currentTarget) {
-                  if (
-                    await confirmation.confirm({
-                      title: 'Đóng form tạo nhiệm vụ thay thế?',
-                      body: 'Dữ liệu chưa gửi sẽ không được lưu.',
-                      action: 'Đóng form',
-                    })
-                  )
-                    setReplacingMission(null)
-                }
-              }}
-              role="dialog"
-              aria-modal="true"
-              aria-label={`Tạo nhiệm vụ thay thế cho ${replacingMission.missionCode ?? ''}`}
-            >
-              <div
-                className="odm-planning-modal-dialog"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <header className="odm-planning-create-head">
-                  <span className="odm-planning-create-icon" aria-hidden="true">
-                    ⟲
-                  </span>
-                  <div>
-                    <h3>Tạo nhiệm vụ thay thế cho {replacingMission.missionCode}</h3>
-                    <p>
-                      Thiết lập lại lịch bay, phạm vi và danh sách công việc thay thế cho nhiệm vụ đã hủy.
-                    </p>
-                  </div>
-                  <button
-                    className="odm-planning-create-close"
-                    type="button"
-                    aria-label="Đóng form tạo nhiệm vụ thay thế"
-                    title="Đóng form"
-                    onClick={async () => {
-                      if (
-                        await confirmation.confirm({
-                          title: 'Đóng form tạo nhiệm vụ thay thế?',
-                          body: 'Dữ liệu chưa gửi sẽ không được lưu.',
-                          action: 'Đóng form',
-                        })
-                      )
-                        setReplacingMission(null)
-                    }}
-                  >
-                    ×
-                  </button>
-                </header>
-                <div className="odm-planning-modal-body">
-                  <MissionCreatePage
-                    orderId={orderId}
-                    replacesMissionId={replacingMission.id}
-                    onCreated={() => {
-                      setReplacingMission(null)
-                      query.reload()
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
           {activeTab === 'permit' ? (
             /* Stage Giấy phép bay: Chỉ hiển thị các thẻ FlightPermitCard, không chứa component lập kế hoạch */
             <div
@@ -512,6 +421,15 @@ function OrderPlanningWorkspace({
                 gap: 16,
               }}
             >
+              <div>
+                <button
+                  type="button"
+                  className="odm-btn odm-btn-sm"
+                  onClick={onBackToPlanning}
+                >
+                  ← Quay lại lập kế hoạch
+                </button>
+              </div>
               {effective.length === 0 ? (
                 <div className="odm-plan-empty">
                   <h3>Chưa có nhiệm vụ nào</h3>
@@ -553,7 +471,7 @@ function OrderPlanningWorkspace({
                       › Mở danh sách công việc ({data.plan.coverage.uncovered} chưa gán)
                     </button>
                   )}
-                  {writable && data.plan.planStatus === 'DRAFT' && (
+                  {writable && (
                     <button
                       type="button"
                       className="odm-btn odm-btn-p"
@@ -571,11 +489,11 @@ function OrderPlanningWorkspace({
                       Còn <strong>{data.plan.coverage.uncovered}</strong> công việc chưa được phân công
                     </span>
                   )}
-                  {writable && data.plan.planStatus === 'DRAFT' && (
+                  {writable && (
                     <button
                       type="button"
                       className="odm-btn odm-btn-p"
-                      disabled={!canConfirmPlan}
+                      disabled={data.plan.planStatus !== 'DRAFT' || !canConfirmPlan}
                       onClick={() => void handleFinalizePlan()}
                       title={
                         data.plan.coverage.uncovered > 0
@@ -607,11 +525,6 @@ function OrderPlanningWorkspace({
                       onPlanChanged={query.reload}
                       onRequestReason={handleOpenReasonModal}
                       onEditMission={setEditingMission}
-                      onReplaceMission={handleReplaceMission}
-                      onFinalizeReplacement={handleFinalizeReplacementMission}
-                      hasReplacement={data.missions.some(
-                        (m) => m.replacesMissionId === mission.id && m.status !== 'CANCELLED',
-                      )}
                     />
                   ))}
                 </div>

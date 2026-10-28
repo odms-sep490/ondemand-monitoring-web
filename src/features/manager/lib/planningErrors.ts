@@ -143,11 +143,22 @@ export function translateBackendError(error: unknown): string {
 }
 
 export function finalizeError(error: unknown): string {
-  if (error instanceof ApiError && error.code) {
-    return planningBlocker(error.code)
-  }
-  if (error instanceof ApiError && error.message) {
-    return translateBackendError(error)
+  if (error instanceof ApiError) {
+    const raw = error.message?.trim()
+    const genericMessages = new Set([
+      'Invalid request',
+      'Yêu cầu không hợp lệ',
+      'Every Order checklist item must be assigned to an effective Mission',
+      'Execution plan must be DRAFT',
+      'Mission status is invalid for this operation',
+    ])
+
+    // Finalize validation often returns INVALID_REQUEST with a useful detail
+    // (for example, which required staff role or MAIN device is missing).
+    // Keep that detail instead of collapsing every failure into one blocker.
+    if (raw && raw !== error.code && !genericMessages.has(raw)) return raw
+    if (error.code) return planningBlocker(error.code)
+    if (raw) return translateBackendError(error)
   }
   return 'Không thể chốt kế hoạch. Vui lòng thử lại.'
 }

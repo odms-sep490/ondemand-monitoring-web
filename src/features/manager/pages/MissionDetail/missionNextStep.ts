@@ -13,7 +13,7 @@ export function missionNextStep(
         title: 'Cần phân công nguồn lực',
         detail: 'Gán đủ nhân sự và thiết bị để Mission được gửi cho đội bay.',
       }
-    case 'WAITING_CREW_CONFIRMATION':
+    case 'READY':
     case 'WAITING_OPERATOR_ACCEPTANCE':
       return {
         tone: 'wait',

@@ -89,7 +89,7 @@ beforeEach(() => {
             assignedRole,
           })),
       ) as unknown as MissionResponse['staffAssignments']
-      mission.status = 'WAITING_CREW_CONFIRMATION'
+      mission.status = 'READY'
       return mission as unknown as Mission
     },
   )
@@ -369,7 +369,7 @@ it('all assignments submitted provides an explicit navigation-only finish', asyn
   for (const mission of missions) {
     mission.staffAssignments = crew('s1')
     mission.deviceId = 'd1'
-    mission.status = 'WAITING_CREW_CONFIRMATION'
+    mission.status = 'READY'
   }
   const close = vi.fn()
   render(<OrderResourceAssignmentWizard orderId="o" onClose={close} />)

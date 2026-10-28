@@ -16,7 +16,6 @@ import {
 } from '../createMissionHelpers'
 import { useApiQuery } from '../../../../../shared/hooks/useApiQuery'
 import { planningApi } from '../../../api/planningApi'
-import { missionsApi } from '../../../api/missionsApi'
 import type { SubmitState, ForecastRow } from '../createMissionTypes'
 import { customerApi } from '../../../../customer/api/customerApi'
 import { OrderWorkflowStepper } from '../../../components/common/OrderWorkflowStepper'
@@ -35,13 +34,11 @@ export function CreateMissionForm({
   orderId,
   brief,
   now,
-  replacesMissionId,
   onCreated,
 }: {
   orderId: string
   brief: OrderMissionBrief
   now: Date
-  replacesMissionId?: string
   onCreated?: (missionId: string) => void
 }) {
   const { t } = useI18n(missionCreatePageMessages)
@@ -67,39 +64,9 @@ export function CreateMissionForm({
     (signal) => planningApi.getExecutionPlan(orderId, signal),
     [orderId],
   )
-  const replacementQuery = useApiQuery(
-    (signal) =>
-      replacesMissionId
-        ? missionsApi.getMissionResponse(replacesMissionId, signal)
-        : Promise.resolve(null),
-    [replacesMissionId],
-  )
   useEffect(() => {
     if (planQuery.data) setPlanRevision(planQuery.data.revision)
   }, [planQuery.data])
-
-  // Prefill scope label and schedule from the original cancelled mission
-  useEffect(() => {
-    if (!replacementQuery.data) return
-    if (replacementQuery.data.scopeLabel) {
-      setScopeLabel(replacementQuery.data.scopeLabel)
-    }
-    if (replacementQuery.data.scheduledStartAt) {
-      const d = new Date(replacementQuery.data.scheduledStartAt)
-      if (!Number.isNaN(d.getTime())) {
-        setScheduledStart(toLocalInput(d))
-        const p = (n: number) => String(n).padStart(2, '0')
-        setWeatherCheckDate(`${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`)
-        setWeatherCheckTime(`${p(d.getHours())}:${p(d.getMinutes())}`)
-      }
-    }
-    if (replacementQuery.data.scheduledEndAt) {
-      const d = new Date(replacementQuery.data.scheduledEndAt)
-      if (!Number.isNaN(d.getTime())) {
-        setScheduledEnd(toLocalInput(d))
-      }
-    }
-  }, [replacementQuery.data])
 
   const checklistItems = useMemo(
     () => brief.checklistItems ?? [],
@@ -239,8 +206,6 @@ export function CreateMissionForm({
   const { handleSubmit } = useCreateMissionSubmit({
     submit,
     planQuery,
-    replacementQuery,
-    replacesMissionId,
     orderId,
     scopeLabel,
     selectedChecklistIds,
@@ -298,8 +263,6 @@ export function CreateMissionForm({
         scopeLabel={scopeLabel}
         setScopeLabel={setScopeLabel}
         submit={submit}
-        replacesMissionId={replacesMissionId}
-        replacementQuery={replacementQuery}
       />
 
       <div className="odm-or-grid">
@@ -359,9 +322,6 @@ export function CreateMissionForm({
         handleSubmit={handleSubmit}
         submitting={submitting}
         planQuery={planQuery}
-        replacementQuery={replacementQuery}
-        replacesMissionId={replacesMissionId}
-        orderId={orderId}
       />
     </div>
   )

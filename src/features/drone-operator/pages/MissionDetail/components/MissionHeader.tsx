@@ -133,7 +133,7 @@ export function MissionHeader({
             </a>
           ) : null
         ) : hasAccepted &&
-          (backendStatus === 'WAITING_CREW_CONFIRMATION' ||
+          (backendStatus === 'READY' ||
             backendStatus === 'WAITING_OPERATOR_ACCEPTANCE') ? (
           access?.canStartMission ? (
             <button

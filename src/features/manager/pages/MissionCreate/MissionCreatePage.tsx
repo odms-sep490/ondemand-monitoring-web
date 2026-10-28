@@ -19,13 +19,11 @@ export function MissionCreatePage({
   orderId,
   initialBrief,
   now: nowProp,
-  replacesMissionId,
   onCreated,
 }: {
   orderId: string
   initialBrief?: OrderMissionBrief
   now?: Date
-  replacesMissionId?: string
   onCreated?: (missionId: string) => void
 }) {
   const [now] = useState(() => nowProp ?? new Date())
@@ -44,11 +42,10 @@ export function MissionCreatePage({
 
   return (
     <CreateMissionForm
-      key={`${orderId}:${replacesMissionId ?? ''}`}
+      key={orderId}
       orderId={orderId}
       brief={briefQuery.data}
       now={now}
-      replacesMissionId={replacesMissionId}
       onCreated={onCreated}
     />
   )

@@ -25,7 +25,6 @@ export function ManagerMissionStopFlow({
   onCapabilitiesChanged,
   onRuntimeBlocked,
   onBusyChanged,
-  onReplacement,
 }: {
   missionId: string
   missionCode: string
@@ -40,13 +39,12 @@ export function ManagerMissionStopFlow({
   onCapabilitiesChanged: (id: string, allowed: boolean) => void
   onRuntimeBlocked: (id: string, blocked: boolean) => void
   onBusyChanged: (id: string, dirty: boolean, busy: boolean) => void
-  onReplacement: (id: string) => void
 }) {
   const query = useApiQuery(
     (signal) => planningApi.getSafeStop(missionId, signal),
     [missionId, revision, refreshKey],
   )
-  const [intent, setIntent] = useState<'cancel' | 'replace' | null>(null)
+  const [intent, setIntent] = useState<'cancel' | null>(null)
   const confirmation = usePlanningConfirmation()
   const flowRef = useRef<HTMLElement>(null)
   const triggerRef = useRef<HTMLButtonElement | null>(null)
@@ -132,7 +130,6 @@ export function ManagerMissionStopFlow({
           expectedPlanRevision: revision,
           reason: actionReason,
         })
-        if (intent === 'replace') onReplacement(missionId)
         setIntent(null)
       }
       setMessage('Thao tác đã được ghi nhận.')
@@ -158,7 +155,6 @@ export function ManagerMissionStopFlow({
           setIntent={setIntent}
           query={query}
           missionCode={missionCode}
-          draft={draft}
         />
       )}
       {intent && (

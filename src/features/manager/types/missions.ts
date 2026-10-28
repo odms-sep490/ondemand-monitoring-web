@@ -66,6 +66,7 @@ export type Mission = MissionStopMetadata & {
   orderCode: string | null
   missionCode: string
   status: MissionStatus
+  resourcePrepareStatus?: MissionResourcePrepareStatus
   flightPermitStatus?: FlightPermitStatus | null
   flightPermitNote?: string | null
   flightPermitFileName?: string | null
@@ -364,6 +365,7 @@ export type MissionResponse = MissionStopMetadata & {
   customerName: string
   missionCode: string
   status: MissionStatus
+  resourcePrepareStatus?: MissionResourcePrepareStatus
   flightPermitStatus?: FlightPermitStatus | null
   flightPermitNote?: string | null
   flightPermitFileName?: string | null
@@ -410,7 +412,7 @@ export type MissionStaffAssignmentResponse = {
   staffEmail: string | null
   staffPhone: string | null
   assignedRole: 'PILOT' | 'OPERATOR' | 'MAINTAINER' | 'INSPECTOR'
-  responseStatus: 'PENDING' | 'ACCEPTED' | 'REJECTED'
+  responseStatus: 'PLANNING' | 'PENDING' | 'ACCEPTED' | 'REJECTED'
   assignedAt: string | null
   respondedAt: string | null
   declineReason: string | null
@@ -424,9 +426,11 @@ export type MissionDeviceAssignmentResponse = {
   deviceSerialNumber: string | null
   deviceStatus: string | null
   deviceRole: 'MAIN' | 'SUPPORT'
-  checkupStatus: 'PENDING' | 'PASSED' | 'FAILED' | 'SKIPPED'
+  checkupStatus: 'PLANNING' | 'PENDING' | 'CHECKING' | 'PASSED' | 'FAILED'
   assignedAt: string | null
 }
+
+export type MissionResourcePrepareStatus = 'PLANNING' | 'PENDING' | 'READY' | 'CANCELLED'
 
 export type FlightTokenResponse = {
   id: string

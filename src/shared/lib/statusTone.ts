@@ -44,7 +44,6 @@ export const missionStatusTone: Record<MissionStatus, StatusTone> = {
   // act on yet — closer to "waiting" than "in progress".
   READY: 'blue',
   RESOURCE_ASSIGNING: 'yellow',
-  WAITING_CREW_CONFIRMATION: 'yellow',
   WAITING_OPERATOR_ACCEPTANCE: 'yellow', // brief: ASSIGNED-like → yellow
   // mapping by meaning: operator accepted, mission is waiting for its
   // scheduled window — still "waiting", not yet active.
@@ -144,12 +143,11 @@ export const orderStatusLabel: Record<OrderStatus, string> = {
 }
 
 export const missionStatusLabel: Record<MissionStatus, string> = {
+  READY: 'Đã xác nhận; đang chuẩn bị nguồn lực',
   PLANNING: 'Đang lập kế hoạch',
   CREATED: 'Mới tạo',
   WAITING_DEPOSIT: 'Chờ thanh toán tiền cọc',
-  READY: 'Sẵn sàng phân công',
   RESOURCE_ASSIGNING: 'Đang gán nguồn lực',
-  WAITING_CREW_CONFIRMATION: 'Chờ đội bay xác nhận',
   WAITING_OPERATOR_ACCEPTANCE: 'Chờ operator nhận',
   SCHEDULED: 'Đã lên lịch',
   CONNECTED: 'Đã kết nối',
@@ -251,12 +249,11 @@ export const orderStatusLabelEn: Record<OrderStatus, string> = {
 }
 
 export const missionStatusLabelEn: Record<MissionStatus, string> = {
+  READY: 'Confirmed, preparing resources',
   PLANNING: 'Planning',
   CREATED: 'Created',
   WAITING_DEPOSIT: 'Waiting for deposit',
-  READY: 'Ready for assignment',
   RESOURCE_ASSIGNING: 'Assigning resources',
-  WAITING_CREW_CONFIRMATION: 'Waiting for crew confirmation',
   WAITING_OPERATOR_ACCEPTANCE: 'Waiting for operator',
   SCHEDULED: 'Scheduled',
   CONNECTED: 'Connected',
