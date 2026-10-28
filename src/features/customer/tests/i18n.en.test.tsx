@@ -118,6 +118,8 @@ function visibleStrings(): string[] {
 function viLines(): string[] {
   return visibleStrings()
     .map(stripSeed)
+    // The language switch names Vietnamese in Vietnamese on purpose.
+    .filter((text) => text !== '[aria-label] Tiếng Việt')
     .filter((text) => VI_CHARS.test(text))
     .map((text) => text.trim().slice(0, 140))
 }

@@ -12,11 +12,11 @@ export function LibraryToolbar({ filter, onChange }: Props) {
   return (
     <FilterBar
       start={
-        <FilterSegments<(typeof KINDS)[number]>
+        <FilterSegments<string>
           ariaLabel={t.kindLabel}
           options={KINDS.map((kind) => ({ value: kind, label: t.kind[kind] }))}
           value={filter.kind}
-          onChange={(kind) => onChange({ kind })}
+          onChange={(kind) => onChange({ kind: kind as MediaFilter['kind'] })}
         />
       }
       search={{

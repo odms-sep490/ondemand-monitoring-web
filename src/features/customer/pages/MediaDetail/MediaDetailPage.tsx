@@ -1,3 +1,5 @@
+import { FileImageOutlined } from '@ant-design/icons'
+
 import { ErrorState, LoadingState } from '../../components/common/StateView'
 import { Card, PageHeader } from '../../components/common/ui'
 import { useI18n } from '../../../../shared/i18n'
@@ -21,18 +23,18 @@ export function MediaDetailPage({ mediaId }: { mediaId: string }) {
   }
 
   return (
-    <div className="mdp-page">
+    <div className="cus-page mdp-page">
       <PageHeader
-        back={<a href={customerHref({ screen: 'mediaLibrary' })}>{t.backToLibrary}</a>}
+        back={<a className="cus-back" href={customerHref({ screen: 'mediaLibrary' })}>{t.backToLibrary}</a>}
         title={item.fileName}
         subtitle={detail.missionLabel}
       />
-      <div className="mdp-grid">
-        <div className="mdp-stack">
+      <div className="cus-main-grid">
+        <div className="cus-stack">
           <MediaViewer item={item} />
           <SiblingNav prev={detail.nav.prev} next={detail.nav.next} />
         </div>
-        <Card title={t.fileInfo}>
+        <Card title={t.fileInfo} icon={<FileImageOutlined />}>
           <div className="mdp-stack">
             <MediaInfoList item={item} missionLabel={detail.missionLabel} />
             <DownloadButton item={item} />

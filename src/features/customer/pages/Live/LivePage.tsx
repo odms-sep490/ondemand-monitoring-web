@@ -1,5 +1,4 @@
-import { ErrorState, LoadingState } from '../../components/common/StateView'
-import { EmptyState } from '../../components/common/ui'
+import { EmptyState, ErrorState, LoadingState } from '../../components/common/StateView'
 import { useI18n } from '../../../../shared/i18n'
 import { ContextAwareHelpWidget } from '../../../support/components/ContextAwareHelpWidget'
 import { LiveHeader } from './components/LiveHeader'
@@ -17,7 +16,7 @@ export function LivePage({ orderId }: { orderId: string }) {
   }
 
   return (
-    <div className="live-page">
+    <div className="cus-page live-page">
       <LiveHeader order={order.data} />
       <EmptyState title={t.soonTitle} description={t.soonDescription} />
       <ContextAwareHelpWidget

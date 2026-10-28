@@ -1,3 +1,5 @@
+import { Button } from 'antd'
+
 import { Card } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import { OrderStatusBadge } from '../../../components/common/OrderStatusBadge'
@@ -20,12 +22,9 @@ export function LiveOrderCard({ order }: { order: OrderRow }) {
             {[order.code, order.address].filter(Boolean).join(' · ')}
           </div>
         </div>
-        <a
-          className="odm-btn odm-btn-p"
-          href={customerHref({ screen: 'live', orderId: order.id })}
-        >
+        <Button type="primary" href={customerHref({ screen: 'live', orderId: order.id })}>
           {t.enter}
-        </a>
+        </Button>
       </div>
     </Card>
   )

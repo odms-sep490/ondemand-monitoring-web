@@ -1,3 +1,4 @@
+import { Button } from 'antd'
 import { useEffect, useRef } from 'react'
 
 import {
@@ -87,20 +88,19 @@ export function CreateOrderPage() {
   )
 
   return (
-    <div ref={pageRef} className="co-page">
+    <div ref={pageRef} className="cus-page co-page">
       <PageHeader
         title={t.pageTitle}
         subtitle={t.pageSubtitle}
         actions={
-          <a
+          <Button
             href={customerHref({ screen: 'orders' })}
-            className="odm-btn odm-btn-gh"
             onClick={(event) => {
               if (!window.confirm(t.cancelConfirm)) event.preventDefault()
             }}
           >
             {t.cancel}
-          </a>
+          </Button>
         }
       />
       <StepTabs step={step} reached={wizard.reached} labels={t.stepLabels} onSelect={wizard.goTo} />

@@ -1,5 +1,8 @@
-import { ErrorState, LoadingState } from '../../components/common/StateView'
-import { Card, EmptyState, PageHeader } from '../../components/common/ui'
+import { ReloadOutlined } from '@ant-design/icons'
+import { Button } from 'antd'
+
+import { EmptyState, ErrorState, LoadingState } from '../../components/common/StateView'
+import { Card, PageHeader } from '../../components/common/ui'
 import { useI18n } from '../../../../shared/i18n'
 import { Pager } from '../../components/common/Pager'
 import { shortId } from '../../lib/media/mapMedia'
@@ -14,14 +17,14 @@ export function NotificationsPage() {
   const list = useNotifications()
 
   return (
-    <div className="nt-page">
+    <div className="cus-page nt-page">
       <PageHeader
         title={t.title}
         subtitle={t.subtitle}
         actions={
-          <button type="button" className="odm-btn odm-btn-gh" onClick={list.reload}>
+          <Button icon={<ReloadOutlined aria-hidden="true" aria-label={undefined} />} onClick={list.reload}>
             {t.refresh}
-          </button>
+          </Button>
         }
       />
       {list.loading && !list.loaded && <LoadingState />}
@@ -32,7 +35,7 @@ export function NotificationsPage() {
         <EmptyState title={t.emptyTitle} description={t.emptyDescription} />
       )}
       {list.loaded && list.total > 0 && (
-        <Card>
+        <Card flush>
           <ul className="nt-list">
             {list.items.map((item) => (
               <NotificationItem

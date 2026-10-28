@@ -33,7 +33,7 @@ describe('MediaLibraryPage', () => {
     const list = vi.spyOn(customerMediaApi, 'listAvailable')
     render(<MediaLibraryPage />)
     await screen.findByText('Thư viện kết quả')
-    await waitFor(() => expect(cards()).toHaveLength(18))
+    await waitFor(() => expect(cards()).toHaveLength(12))
     expect(list).toHaveBeenCalled()
     const sidebar = screen.getByText('Lần bay', { selector: '.mgr-card-title' }).closest('section, .ant-card') as HTMLElement
     expect(await within(sidebar).findByText('MSN-2609-0131-1')).toBeInTheDocument()
@@ -42,21 +42,21 @@ describe('MediaLibraryPage', () => {
 
   it('filters by mission, type and file name, with an empty state and clear', async () => {
     render(<MediaLibraryPage />)
-    await waitFor(() => expect(cards()).toHaveLength(18))
+    await waitFor(() => expect(cards()).toHaveLength(12))
     fireEvent.click(screen.getByRole('button', { name: /^MSN-2609-0131-1/ }))
-    await waitFor(() => expect(cards()).toHaveLength(15))
+    await waitFor(() => expect(cards()).toHaveLength(12))
     fireEvent.click(screen.getByRole('button', { name: 'Video' }))
     await waitFor(() => expect(screen.queryAllByRole('button', { name: /^Xem .*\.jpg$/ })).toHaveLength(0))
     fireEvent.change(screen.getByLabelText('Tìm theo tên tệp'), { target: { value: 'khong-co-tep' } })
     expect(await screen.findByText('Không có tệp nào khớp bộ lọc hiện tại.')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Xoá bộ lọc' }))
-    await waitFor(() => expect(cards()).toHaveLength(18))
+    await waitFor(() => expect(cards()).toHaveLength(12))
   })
 
   it('opens a prominent preview modal that fetches a fresh URL and can page through files', async () => {
     const fresh = vi.spyOn(customerMediaApi, 'getMissionMedia')
     render(<MediaLibraryPage />)
-    await waitFor(() => expect(cards()).toHaveLength(18))
+    await waitFor(() => expect(cards()).toHaveLength(12))
     fireEvent.click(cards()[0])
     const dialog = await screen.findByRole('dialog')
     await waitFor(() => expect(within(dialog).getByRole('link', { name: 'Tải xuống' })).toBeInTheDocument())
@@ -67,7 +67,7 @@ describe('MediaLibraryPage', () => {
     expect(within(dialog).getByRole('button', { name: '← Trước' })).toBeDisabled()
     fireEvent.click(within(dialog).getByRole('button', { name: 'Sau →' }))
     await waitFor(() => expect(fresh).toHaveBeenCalledTimes(2))
-    fireEvent.keyDown(document, { key: 'Escape' })
+    fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape', keyCode: 27 })
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
   })
 

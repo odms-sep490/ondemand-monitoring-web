@@ -194,3 +194,28 @@
     font-size: 16px;
   }
 }
+
+/* `.odm a { color: inherit }` would otherwise win over antd's zero-specificity link-button colours. */
+.mgr-layout a.ant-btn-color-primary.ant-btn-variant-solid:not(.ant-btn-disabled) {
+  color: var(--ui-primary-contrast, #fff);
+}
+
+/* Global h1/h2 negative letter-spacing glues Vietnamese words together. */
+.mgr-layout h1,
+.mgr-layout h2,
+.mgr-layout h3 {
+  letter-spacing: 0;
+  word-spacing: normal;
+}
+
+.cus-modal-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cus-modal-sub {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--mgr-muted);
+}

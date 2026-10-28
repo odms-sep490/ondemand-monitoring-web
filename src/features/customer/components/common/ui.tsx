@@ -3,6 +3,7 @@
  * signatures, rendered with the Manager antd look (CardComponent, PageHeader).
  * Pages import from here so the data-flow code stays untouched.
  */
+import { Modal as AntModal } from 'antd'
 import type { ReactNode } from 'react'
 
 import {
@@ -12,7 +13,7 @@ import {
   StatisticComponent,
 } from '../../../../shared/components/antd'
 
-export { FormField, MockDataBadge, Modal } from '../../../../shared/components/ui'
+export { FormField, MockDataBadge } from '../../../../shared/components/ui'
 
 type CardProps = {
   title?: ReactNode
@@ -85,5 +86,39 @@ export function StatCard({
       tone={STAT_TONE[tone]}
       icon={icon}
     />
+  )
+}
+
+type ModalProps = {
+  title: ReactNode
+  subtitle?: ReactNode
+  /** Kept for call-site compatibility; the antd modal shows a plain title. */
+  icon?: string
+  tone?: 'primary' | 'danger' | 'warning' | 'success'
+  width?: number
+  onClose: () => void
+  children: ReactNode
+  footer?: ReactNode
+}
+
+/** antd dialog with the shared Modal call signature (Esc/backdrop close, focus trap and aria are antd's). */
+export function Modal({ title, subtitle, width = 480, onClose, children, footer }: ModalProps) {
+  return (
+    <AntModal
+      open
+      centered
+      width={width}
+      onCancel={onClose}
+      footer={footer ?? null}
+      destroyOnHidden
+      title={
+        <span className="cus-modal-title">
+          <span>{title}</span>
+          {subtitle ? <span className="cus-modal-sub">{subtitle}</span> : null}
+        </span>
+      }
+    >
+      {children}
+    </AntModal>
   )
 }

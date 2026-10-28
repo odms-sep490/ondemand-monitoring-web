@@ -171,7 +171,7 @@
   color: var(--ui-text-3);
 }
 
-.od-page .ui-card .ui-card-title,
+.od-page .ui-card .mgr-card-title,
 .od-page .customer-finance-head h2,
 .od-page .hw-title {
   margin: 0;
@@ -557,11 +557,11 @@
     font-size: 21px;
   }
 
-  .od-page .ui-card-header {
+  .od-page .ant-card-head {
     padding: 16px 16px 0;
   }
 
-  .od-page .ui-card-body {
+  .od-page .ant-card-body {
     padding: 16px;
   }
 

@@ -758,8 +758,8 @@ textarea.co-input {
 /* ---------- Services ---------- */
 
 /* The global `h1, h2 { letter-spacing: -0.045em; font-weight: 800 }` glued Vietnamese words together. */
-.co-page .ui-card-title,
-.co-page .ui-card-header h2 {
+.co-page .mgr-card-title,
+.co-page .ant-card-head h2 {
   font-family: inherit;
   letter-spacing: 0;
   word-spacing: normal;
@@ -1085,10 +1085,10 @@ textarea.co-input {
   border-top: 1px solid var(--ui-border);
 }
 
-.co-summary .ui-card-header {
+.co-summary .ant-card-head {
   padding: 16px 20px 0;
 }
-.co-summary .ui-card-body {
+.co-summary .ant-card-body {
   padding: 12px 20px 16px;
 }
 
@@ -1890,7 +1890,7 @@ ul.co-help {
   max-height: 780px;
   border-radius: 14px;
 }
-.co-grid.is-location .ui-card-body {
+.co-grid.is-location .ant-card-body {
   padding-top: 8px;
   padding-bottom: 14px;
 }
@@ -2074,7 +2074,7 @@ ul.co-help {
 }
 
 /* ---------- Flight area assessment card + map key ---------- */
-.co-fa-card .ui-card-body {
+.co-fa-card .ant-card-body {
   display: flex;
   flex-direction: column;
   gap: var(--ui-space-3);
@@ -2605,7 +2605,7 @@ ul.co-help {
 /* Step 2, no default content: the two loose sentences become one dashed empty state. */
 .co-page
   .checklist-card
-  .ui-card-body
+  .ant-card-body
   > p:not([class]):has(+ .checklist-fields:empty) {
   margin: var(--ui-space-4) 0 0;
   padding: 28px var(--ui-space-4) 4px;
@@ -3149,16 +3149,16 @@ ul.co-help {
   box-shadow: none;
 }
 
-.co-page .ui-card-header {
+.co-page .ant-card-head {
   padding: 20px 24px 0;
 }
 
-.co-page .ui-card-body {
+.co-page .ant-card-body {
   padding: 16px 24px 24px;
 }
 
-.co-page .ui-card-title,
-.co-page .ui-card-header h2 {
+.co-page .mgr-card-title,
+.co-page .ant-card-head h2 {
   font-size: 18px;
   line-height: 1.35;
 }
@@ -3234,11 +3234,11 @@ ul.co-help {
   box-shadow: none;
 }
 
-.co-summary .ui-card-header {
+.co-summary .ant-card-head {
   padding: 18px 20px 0;
 }
 
-.co-summary .ui-card-body {
+.co-summary .ant-card-body {
   padding: 12px 20px 18px;
 }
 
@@ -3741,11 +3741,11 @@ ul.co-help {
     padding: 0 12px 28px;
   }
 
-  .co-page .ui-card-header {
+  .co-page .ant-card-head {
     padding: 16px 16px 0;
   }
 
-  .co-page .ui-card-body {
+  .co-page .ant-card-body {
     padding: 12px 16px 18px;
   }
 
@@ -4047,4 +4047,38 @@ ul.co-help {
   .co-grid.is-location .co-real-map-wrap {
     height: clamp(300px, 46vh, 420px);
   }
+}
+
+/* The summary column is one joined card; inner antd cards stay flat. */
+.mgr-layout .co-summary .ant-card {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.mgr-layout .co-summary .ant-card + .ant-card {
+  border-top: 1px solid var(--mgr-border);
+}
+
+.mgr-layout .co-summary {
+  border-color: var(--mgr-border);
+  background: var(--mgr-card);
+  box-shadow: var(--mgr-shadow);
+}
+
+.mgr-layout .co-tab {
+  border-color: var(--mgr-border);
+  background: var(--mgr-card);
+}
+
+.mgr-layout .co-tab.is-active {
+  border-color: var(--ui-primary);
+  background: var(--ui-primary-soft);
+}
+
+.mgr-layout .co-page input:not([type='checkbox']):not([type='radio']):not([type='range']),
+.mgr-layout .co-page select,
+.mgr-layout .co-page textarea {
+  border-radius: 8px;
 }

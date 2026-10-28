@@ -1,4 +1,4 @@
-.checklist-card .ui-card-title {
+.checklist-card .mgr-card-title {
   font-size: 18px;
   font-weight: 700;
   letter-spacing: normal;
@@ -20,7 +20,7 @@
   font-size: 13px;
   line-height: 1.55;
 }
-.checklist-card .ui-card-actions .checklist-hint {
+.checklist-card .ant-card-extra .checklist-hint {
   padding: 4px 10px;
   border-radius: 999px;
   background: var(--ui-primary-soft);
@@ -498,7 +498,7 @@
 }
 
 /* ---------- Compact toolbar, icon actions ---------- */
-.checklist-card.is-compact .ui-card-actions {
+.checklist-card.is-compact .ant-card-extra {
   display: flex;
   align-items: center;
   gap: 10px;

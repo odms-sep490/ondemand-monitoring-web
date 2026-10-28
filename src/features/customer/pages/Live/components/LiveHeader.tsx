@@ -9,7 +9,7 @@ export function LiveHeader({ order }: { order: OrderRow }) {
   const { t } = useI18n(liveHeaderMessages)
   return (
     <PageHeader
-      back={<a href={customerHref({ screen: 'orderDetail', orderId: order.id })}>{t.backToOrder}</a>}
+      back={<a className="cus-back" href={customerHref({ screen: 'orderDetail', orderId: order.id })}>{t.backToOrder}</a>}
       title={t.title}
       subtitle={order.title}
       actions={<OrderStatusBadge status={order.status} />}

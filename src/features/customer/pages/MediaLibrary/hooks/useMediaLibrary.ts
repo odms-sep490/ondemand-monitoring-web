@@ -12,7 +12,7 @@ import {
 } from '../../../lib/media/mapMedia'
 import type { MediaFilter } from '../../../lib/media/types'
 
-export const LIBRARY_PAGE_SIZE = 24
+export const LIBRARY_PAGE_SIZE = 12
 
 const ALL: MediaFilter = { missionId: null, kind: 'all', query: '' }
 

@@ -22,7 +22,7 @@ export function NotificationItem({ item, missionLabel }: Props) {
         </div>
       </div>
       {known && (
-        <a className="nt-link" href={customerHref({ screen: 'mediaDetail', mediaId: item.mediaId })}>
+        <a className="nt-link mgr-card-link" href={customerHref({ screen: 'mediaDetail', mediaId: item.mediaId })}>
           {t.view}
         </a>
       )}
