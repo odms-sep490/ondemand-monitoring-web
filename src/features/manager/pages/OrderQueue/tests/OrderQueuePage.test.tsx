@@ -186,7 +186,7 @@ describe('QueuePage', () => {
     expect(screen.getByText('ORD-DONE')).toBeInTheDocument()
     expect(screen.getAllByRole('link', { name: 'Xem' })[0]).toHaveAttribute(
       'href',
-      '#portal/manager/orders/o-done',
+      '#portal/manager/orders/o-done/results',
     )
   })
 })

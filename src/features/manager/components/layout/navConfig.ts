@@ -61,6 +61,7 @@ export const activeNavLabel: Record<ManagerScreen, SidebarKey | ''> = {
   dashboard: 'dashboard',
   orderQueue: 'orders',
   orderReview: 'orders',
+  orderResults: 'orders',
   missionCreate: 'orders',
   missionDispatch: 'missions',
   missionSetup: 'missions',
