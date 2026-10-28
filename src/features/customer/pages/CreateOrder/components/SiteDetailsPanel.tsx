@@ -1,3 +1,4 @@
+import { ControlOutlined } from '@ant-design/icons'
 import { useState, type ReactNode } from 'react'
 
 import { Card, FormField } from '../../../components/common/ui'
@@ -72,7 +73,7 @@ export function SiteDetailsPanel({ form, errors, update }: Props) {
   }
 
   return (
-    <Card title={t.cardTitle}>
+    <Card icon={<ControlOutlined />} title={t.cardTitle}>
       <div className="co-two">
         <FormField
           id="co-altitude"

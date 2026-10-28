@@ -1,3 +1,4 @@
+import { SendOutlined } from '@ant-design/icons'
 import { useEffect } from 'react'
 import { Card, FormField } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
@@ -60,7 +61,7 @@ export function DeliveryOptionsCard({
   }
 
   return (
-    <Card title={t.cardTitle}>
+    <Card icon={<SendOutlined />} title={t.cardTitle}>
       <p className="co-hint co-card-sub">{t.cardSubtitle}</p>
 
       <FormField

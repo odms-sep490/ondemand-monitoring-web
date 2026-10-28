@@ -1,3 +1,4 @@
+import { FileSearchOutlined } from '@ant-design/icons'
 import { Icon, type IconName } from '../../../../../shared/components/Icon'
 import { Card } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
@@ -258,7 +259,7 @@ export function RequestSummaryCard(p: Props) {
   ]
 
   return (
-    <Card title={t.cardTitle}>
+    <Card icon={<FileSearchOutlined />} title={t.cardTitle}>
       <p className="co-hint">{t.cardSubtitle}</p>
       <div className="co-sum-request-title">
         <span>{t.requestTitle}</span>

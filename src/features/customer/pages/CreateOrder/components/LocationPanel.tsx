@@ -1,3 +1,4 @@
+import { EnvironmentOutlined } from '@ant-design/icons'
 import { Card, FormField } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import { calcArea } from '../../../lib/createOrder/payload'
@@ -51,7 +52,7 @@ export function LocationPanel({
     Math.abs(Number(form.longitude)) <= 180
 
   return (
-    <Card title={t.cardTitle}>
+    <Card icon={<EnvironmentOutlined />} title={t.cardTitle}>
       <div
         className={`co-location-status is-${form.locationStatus}`}
         role="status"

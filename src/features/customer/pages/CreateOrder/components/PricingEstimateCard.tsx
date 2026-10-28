@@ -1,3 +1,4 @@
+import { DollarOutlined } from '@ant-design/icons'
 import { Card } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import type { ServicePricingEstimate } from '../../../api/customerApi'
@@ -136,5 +137,5 @@ export function PricingEstimateCard({
       </div>
     )
   }
-  return <Card title={t.title}>{body}</Card>
+  return <Card icon={<DollarOutlined />} title={t.title}>{body}</Card>
 }

@@ -1,3 +1,4 @@
+import { FileTextOutlined } from '@ant-design/icons'
 import type { ReactNode } from 'react'
 
 import { Card } from '../../../components/common/ui'
@@ -39,7 +40,7 @@ export function ContentStep(p: Props) {
         </section>
         <div className="co-content-sidegroup">
           <aside className="co-summary co-content-aside" aria-label={t.summaryTitle}>
-            <Card title={t.summaryTitle}>
+            <Card icon={<FileTextOutlined />} title={t.summaryTitle}>
               <div className="co-content-service">
                 <span className="co-content-service-label">{t.service}</span>
                 <strong className="co-content-service-name">{serviceName}</strong>

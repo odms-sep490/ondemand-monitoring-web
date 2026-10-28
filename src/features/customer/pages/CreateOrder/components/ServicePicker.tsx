@@ -1,3 +1,4 @@
+import { AppstoreOutlined } from '@ant-design/icons'
 import { useState } from 'react'
 
 import { Card, EmptyState } from '../../../components/common/ui'
@@ -79,6 +80,7 @@ export function ServicePicker({
 
   return (
     <Card
+      icon={<AppstoreOutlined />}
       title={t.cardTitle}
       className="co-service-card"
       actions={

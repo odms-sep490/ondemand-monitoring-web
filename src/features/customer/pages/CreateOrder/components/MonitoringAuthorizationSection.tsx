@@ -1,4 +1,7 @@
+import { SafetyOutlined } from '@ant-design/icons'
 import { useRef, useState } from 'react'
+
+import { Card } from '../../../components/common/ui'
 
 import { useI18n } from '../../../../../shared/i18n'
 import { monitoringAuthorizationMessages } from './MonitoringAuthorizationSection.messages'
@@ -105,13 +108,12 @@ export function MonitoringAuthorizationSection({
   }
 
   return (
-    <section className="co-authz" aria-labelledby="co-authz-title">
-      <div className="co-authz-head">
-        <div>
-          <h3 id="co-authz-title">{t.title}</h3>
-          <p>{t.intro}</p>
-        </div>
-      </div>
+    <Card
+      icon={<SafetyOutlined />}
+      title={t.title}
+      className="co-authz"
+    >
+      <p className="co-authz-intro">{t.intro}</p>
 
       <fieldset className="co-authz-fieldset">
         <legend>{t.relationship}</legend>
@@ -298,6 +300,6 @@ export function MonitoringAuthorizationSection({
         </div>
       ) : null}
       <p className="co-authz-note">{t.note}</p>
-    </section>
+    </Card>
   )
 }

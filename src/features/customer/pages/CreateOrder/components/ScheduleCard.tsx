@@ -1,3 +1,4 @@
+import { CalendarOutlined } from '@ant-design/icons'
 import { Card, FormField } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import type { PreferredTimeOption } from '../../../api/customerApi'
@@ -18,7 +19,7 @@ export function ScheduleCard({ form, errors, update, preferredTimes }: Props) {
   const { t, lang } = useI18n(scheduleCardMessages)
   const earliestFlightDate = todayPlus(7)
   return (
-    <Card title={t.cardTitle}>
+    <Card icon={<CalendarOutlined />} title={t.cardTitle}>
       <p className="co-hint">{t.dateRangeHint}</p>
       <div className="co-notice is-info co-mt" role="note">
         <strong>{t.advanceNoticeTitle}</strong>

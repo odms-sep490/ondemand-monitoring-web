@@ -1,3 +1,4 @@
+import { PictureOutlined } from '@ant-design/icons'
 import { Card } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import type { ServiceDeliverableOption } from '../../../api/customerApi'
@@ -22,7 +23,7 @@ export function DeliverablesCard({
 }: Props) {
   const { t } = useI18n(deliverablesCardMessages)
   return (
-    <Card title={t.cardTitle}>
+    <Card icon={<PictureOutlined />} title={t.cardTitle}>
       <p className="co-hint co-card-sub">{t.cardSubtitle}</p>
       {loading && <p className="co-hint">{t.loading}</p>}
       {!loading && error ? (

@@ -1,3 +1,4 @@
+import { ClockCircleOutlined } from '@ant-design/icons'
 import { Card, FormField } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import type {
@@ -24,7 +25,7 @@ export function ScheduleOptionsCard({ form, errors, update }: Props) {
   const { t } = useI18n(scheduleOptionsCardMessages)
   const repeating = form.recurrenceType !== 'NONE'
   return (
-    <Card title={t.cardTitle}>
+    <Card icon={<ClockCircleOutlined />} title={t.cardTitle}>
       <p className="co-hint co-card-sub">{t.cardHint}</p>
 
       <fieldset className="co-opt-group">

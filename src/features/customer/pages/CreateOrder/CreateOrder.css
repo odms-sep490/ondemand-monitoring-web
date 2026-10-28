@@ -3920,3 +3920,14 @@ ul.co-help {
   white-space: normal;
   line-height: 1.35;
 }
+
+/* Authorization section now lives in a standard portal card. */
+.co-authz.mgr-card {
+  padding: 0;
+  border: 1px solid var(--ui-border);
+}
+.co-authz-intro {
+  margin: 0 0 12px;
+  color: var(--ui-text-3);
+  line-height: 1.5;
+}

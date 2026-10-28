@@ -1,3 +1,4 @@
+import { WarningOutlined } from '@ant-design/icons'
 import { Card, FormField } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import type { FormErrors, FormState, PermitStatus, UpdateField } from '../../../lib/createOrder/types'
@@ -16,7 +17,7 @@ export function AirspaceNotice({ form, errors, update }: Props) {
   const choose = (status: PermitStatus) => update('permitStatus', status)
 
   return (
-    <Card title={t.title}>
+    <Card icon={<WarningOutlined />} title={t.title}>
       <div className="co-notice is-warning" role="alert">
         {t.message}
       </div>

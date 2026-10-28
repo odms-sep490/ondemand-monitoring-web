@@ -1,3 +1,4 @@
+import { FormOutlined } from '@ant-design/icons'
 import { Card, FormField } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import {
@@ -31,7 +32,7 @@ export function RequestInfoPanel({ form, errors, update }: Props) {
   const { t } = useI18n(requestInfoPanelMessages)
 
   return (
-    <Card title={t.cardTitle}>
+    <Card icon={<FormOutlined />} title={t.cardTitle}>
       <FormField
         id="co-title"
         label={t.titleLabel}

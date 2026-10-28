@@ -1,3 +1,4 @@
+import { FileTextOutlined } from '@ant-design/icons'
 import type { ReactNode } from 'react'
 
 import { Card } from '../../../components/common/ui'
@@ -62,7 +63,7 @@ export function ScheduleStep(p: Props) {
           <ScheduleOptionsCard form={form} errors={p.errors} update={p.update} />
         </div>
         <aside className="co-stack co-summary is-tall">
-          <Card title={t.summaryTitle}>
+          <Card icon={<FileTextOutlined />} title={t.summaryTitle}>
             <dl className="co-sum-list">
               <div className="co-sum-item">
                 <span className="co-sum-icon" aria-hidden="true" />
