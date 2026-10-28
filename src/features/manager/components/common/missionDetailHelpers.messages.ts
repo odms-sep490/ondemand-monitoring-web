@@ -8,6 +8,7 @@ export const missionDetailHelpersMessages = defineMessages({
     checkLabels: {
       PLANNING: 'Đang lập kế hoạch',
       PASSED: 'Đạt',
+      STALE: 'Đã quá hạn',
       FAILED: 'Không đạt',
       PENDING: 'Chờ kiểm tra',
       CHECKING: 'Đang kiểm tra',
@@ -39,6 +40,7 @@ export const missionDetailHelpersMessages = defineMessages({
     checkLabels: {
       PLANNING: 'Planning',
       PASSED: 'Passed',
+      STALE: 'Stale · cần kiểm tra lại',
       FAILED: 'Failed',
       PENDING: 'Pending check',
       CHECKING: 'Checking',

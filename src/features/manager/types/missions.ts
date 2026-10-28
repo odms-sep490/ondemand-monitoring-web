@@ -288,7 +288,7 @@ export type FlightTokenResponse = {
 }
 
 export type PreflightCheckItemStatus =
-  'PENDING' | 'CHECKING' | 'PASSED' | 'FAILED'
+  'PENDING' | 'CHECKING' | 'PASSED' | 'FAILED' | 'STALE'
 export type PreflightCheckItemLevel = 'CRITICAL' | 'WARNING' | 'INFO'
 
 export type PreflightCheckItem = {
