@@ -48,23 +48,22 @@ export function MediaPreviewModal({
           </Button>
           <span className="md-footer-spacer" />
           {showDetailLink && (
-            <a
-              className="odm-btn odm-btn-gh"
+            <Button
               href={customerHref({ screen: 'mediaDetail', mediaId: item.id })}
             >
               {t.detail}
-            </a>
+            </Button>
           )}
           {fresh.data?.url ? (
-            <a
-              className="odm-btn odm-btn-p"
+            <Button
+              type="primary"
               href={fresh.data.url}
               download={item.fileName}
               target="_blank"
               rel="noopener noreferrer"
             >
               {t.download}
-            </a>
+            </Button>
           ) : (
             <Button type="primary" disabled>
               {t.download}

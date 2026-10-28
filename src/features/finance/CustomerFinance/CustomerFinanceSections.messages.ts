@@ -22,7 +22,7 @@ export const customerFinanceSectionsMessages = defineMessages({
     remaining: 'Còn lại',
     awaitingDeposit: 'Đang chờ đặt cọc',
     awaitingDepositBody:
-      'Kế hoạch thực hiện và Mission sẽ được mở sau khi khoản đặt cọc được xác nhận.',
+      'Kế hoạch thực hiện và nhiệm vụ sẽ được mở sau khi khoản đặt cọc được xác nhận.',
     depositReceived: 'Đã nhận tiền đặt cọc',
     depositReceivedBody: 'Nhiệm vụ đã được mở khóa cho quy trình vận hành.',
     payDeposit: 'Thanh toán đặt cọc',

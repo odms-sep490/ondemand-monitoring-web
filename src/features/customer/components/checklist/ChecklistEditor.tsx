@@ -1,3 +1,4 @@
+import { Button } from 'antd'
 import { UnorderedListOutlined } from '@ant-design/icons'
 import { Fragment, useEffect, useRef, useState } from 'react'
 import { Icon } from '../../../../shared/components/Icon'
@@ -533,9 +534,7 @@ export function ChecklistEditor({
           <div role="alert" className="co-notice is-danger">
             <p>{status === 'stale' ? t.stale : checklist.error}</p>
             {status === 'stale' && <p>{t.discard}</p>}
-            <button
-              type="button"
-              className="odm-btn odm-btn-gh"
+            <Button
               disabled={disabled}
               onClick={() => {
                 checklist.reload()
@@ -543,7 +542,7 @@ export function ChecklistEditor({
               }}
             >
               {status === 'stale' ? t.reload : t.retry}
-            </button>
+            </Button>
           </div>
         )}
         {ready && !visibleRows.length && <p>{t.empty}</p>}

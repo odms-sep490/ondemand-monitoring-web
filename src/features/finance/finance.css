@@ -717,15 +717,15 @@
   display: grid;
   gap: 3px;
   padding: 12px;
-  border-left: 3px solid #d97706;
-  background: #fffbeb;
-  color: #92400e;
+  border-left: 3px solid var(--ui-warning);
+  background: var(--ui-warning-soft);
+  color: var(--ui-warning-text);
   font-size: 13px;
 }
 .customer-deposit-notice.is-ready {
-  border-color: #059669;
-  background: #ecfdf5;
-  color: #065f46;
+  border-color: var(--ui-success);
+  background: var(--ui-success-soft);
+  color: var(--ui-success-text);
 }
 .customer-payment-actions {
   padding: 16px 0 0;
@@ -805,16 +805,16 @@
   display: grid;
   place-items: center;
   padding: 24px;
-  background: var(--ui-bg, #f6f8fb);
-  color: var(--ui-text, #172033);
+  background: var(--ui-bg);
+  color: var(--ui-text);
 }
 .payment-result-card {
   width: min(520px, 100%);
   box-sizing: border-box;
   padding: 28px;
-  border: 1px solid var(--ui-border, #dfe4ec);
+  border: 1px solid var(--ui-border);
   border-radius: 8px;
-  background: var(--ui-surface, #fff);
+  background: var(--ui-surface);
   box-shadow: 0 10px 30px rgb(15 23 42 / 8%);
   text-align: center;
 }
@@ -825,18 +825,18 @@
   height: 48px;
   margin: 0 auto 16px;
   border-radius: 50%;
-  background: #eff6ff;
-  color: #1d4ed8;
+  background: var(--ui-primary-soft);
+  color: var(--ui-primary);
   font-size: 24px;
   font-weight: 800;
 }
 .payment-result-icon.is-success {
-  background: #ecfdf5;
-  color: #047857;
+  background: var(--ui-success-soft);
+  color: var(--ui-success-text);
 }
 .payment-result-icon.is-cancelled {
-  background: #fff7ed;
-  color: #c2410c;
+  background: var(--ui-warning-soft);
+  color: var(--ui-danger-text);
 }
 .payment-result-card h1 {
   margin: 0;
@@ -844,7 +844,7 @@
   letter-spacing: 0;
 }
 .payment-result-card > p {
-  color: var(--ui-text-3, #64748b);
+  color: var(--ui-text-3);
   line-height: 1.6;
 }
 .payment-result-detail {
@@ -856,7 +856,7 @@
   justify-content: space-between;
   gap: 16px;
   padding: 9px 0;
-  border-bottom: 1px solid var(--ui-border, #dfe4ec);
+  border-bottom: 1px solid var(--ui-border);
 }
 .payment-result-detail dt,
 .payment-result-detail dd {
@@ -1090,7 +1090,7 @@
   margin-bottom: 14px;
 }
 .customer-quote-group {
-  border: 1px solid var(--ui-border, #e3e8ef);
+  border: 1px solid var(--ui-border);
   border-radius: 10px;
   overflow: hidden;
 }
@@ -1100,7 +1100,7 @@
   justify-content: space-between;
   gap: 12px;
   padding: 8px 12px;
-  background: var(--ui-surface-2, #f1f5f9);
+  background: var(--ui-surface-2);
   font-size: 13px;
 }
 .customer-quote-group > header strong {
@@ -1119,7 +1119,7 @@
   justify-content: space-between;
   gap: 12px;
   padding: 3px 0;
-  color: var(--ui-text-2, #667085);
+  color: var(--ui-text-2);
   font-size: 12.5px;
   line-height: 1.4;
 }
@@ -1346,7 +1346,7 @@
 }
 
 .mgr-layout .finance-workspace .finance-alert.is-error {
-  background: color-mix(in srgb, #ef4444 14%, var(--mgr-card));
+  background: color-mix(in srgb, var(--ui-danger) 14%, var(--mgr-card));
   color: var(--fin-red-fg);
 }
 

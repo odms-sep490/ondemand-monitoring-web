@@ -1,3 +1,4 @@
+import { Button } from 'antd'
 import { useI18n } from '../../../../shared/i18n'
 import { customerFinanceSectionsMessages } from '../CustomerFinanceSections.messages'
 import { pricingLabel } from '../../../../shared/lib/pricingPresentation'
@@ -51,37 +52,33 @@ export function InvoiceSection({
       <div className="finance-actions customer-payment-actions">
         {invoice.paidAmount < invoice.depositAmount && legalReady ? (
           <>
-            <button
-              className="odm-btn odm-btn-p"
-              type="button"
+            <Button
+              type="primary"
               disabled={busy}
               onClick={() => void pay('deposit')}
             >
               {t.payDeposit}
-            </button>
+            </Button>
             {import.meta.env.DEV ? (
-              <button
-                className="odm-btn"
-                type="button"
+              <Button
                 disabled={busy}
                 onClick={() => void completeTestDeposit()}
               >
                 {testPaymentLabel}
-              </button>
+              </Button>
             ) : null}
           </>
         ) : null}
         {invoice.finalPaymentAllowed &&
         invoice.paidAmount >= invoice.depositAmount &&
         invoice.remainingAmount > 0 ? (
-          <button
-            className="odm-btn odm-btn-p"
-            type="button"
+          <Button
+            type="primary"
             disabled={busy}
             onClick={() => void pay('final')}
           >
             {t.payRemaining}
-          </button>
+          </Button>
         ) : null}
       </div>
     </div>

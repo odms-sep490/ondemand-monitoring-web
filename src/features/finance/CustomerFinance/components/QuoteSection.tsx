@@ -1,3 +1,4 @@
+import { Button } from 'antd'
 import { useI18n } from '../../../../shared/i18n'
 import { customerFinanceSectionsMessages } from '../CustomerFinanceSections.messages'
 import { QuoteLines } from './QuoteLines'
@@ -60,14 +61,13 @@ export function QuoteSection({
         </div>
       ) : null}
       {quote.status === 'APPROVED' && !invoice && legalReady ? (
-        <button
-          className="odm-btn odm-btn-p"
-          type="button"
+        <Button
+          type="primary"
           disabled={busy}
           onClick={() => void accept()}
         >
           {t.accept}
-        </button>
+        </Button>
       ) : null}
     </div>
   )

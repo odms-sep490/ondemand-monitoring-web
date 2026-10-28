@@ -1,3 +1,4 @@
+import { Button } from 'antd'
 import { SafetyOutlined } from '@ant-design/icons'
 import { useRef, useState } from 'react'
 
@@ -167,9 +168,8 @@ export function MonitoringAuthorizationSection({
           <strong>{t.docsTitle}</strong>
           <span>{t.docsHint}</span>
         </div>
-        <button
-          type="button"
-          className="odm-btn odm-btn-sm"
+        <Button
+          size="small"
           disabled={documents.length >= MAX_DOCUMENTS}
           onClick={() =>
             update('monitoringAuthorizationDocuments', [
@@ -179,7 +179,7 @@ export function MonitoringAuthorizationSection({
           }
         >
           {t.addDocument}
-        </button>
+        </Button>
       </div>
 
       {documents.length > 0 ? (

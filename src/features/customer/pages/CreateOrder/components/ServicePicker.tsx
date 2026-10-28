@@ -1,3 +1,4 @@
+import { Button } from 'antd'
 import { AppstoreOutlined } from '@ant-design/icons'
 import { useState } from 'react'
 
@@ -116,13 +117,12 @@ export function ServicePicker({
               {suggested.description || t.defaultDescription}
             </div>
             <strong>{formatMoney(suggested.defaultPrice ?? suggested.basePrice, locale)}</strong>
-            <button
-              type="button"
-              className="odm-btn odm-btn-sm"
+            <Button
+              size="small"
               onClick={() => onSelect(suggested.id)}
             >
               {selectedId === suggested.id ? t.selectedNow : t.pickSuggestion}
-            </button>
+            </Button>
           </div>
         </div>
       )}

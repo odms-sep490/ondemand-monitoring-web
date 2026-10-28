@@ -1,3 +1,4 @@
+import { Button } from 'antd'
 import { PictureOutlined } from '@ant-design/icons'
 import { Card } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
@@ -29,13 +30,7 @@ export function DeliverablesCard({
       {!loading && error ? (
         <div className="co-notice is-danger" role="alert">
           <p>{t.loadFailed}</p>
-          <button
-            type="button"
-            className="odm-btn odm-btn-gh"
-            onClick={onRetry}
-          >
-            {t.retry}
-          </button>
+          <Button onClick={onRetry}>{t.retry}</Button>
         </div>
       ) : null}
       {!loading && !error && deliverables.length === 0 ? (

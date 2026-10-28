@@ -39,49 +39,32 @@
   color: var(--ui-text-3);
 }
 
-.hw-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
+.hw-list.ant-collapse {
+  background: transparent;
+  border-color: var(--ui-border);
 }
 
-.hw-item {
-  overflow: hidden;
-  border: 1px solid var(--ui-border);
-  border-radius: var(--ui-radius-sm);
-  background: var(--ui-surface-2);
-}
-
-.hw-question {
-  display: flex;
+.hw-list.ant-collapse > .ant-collapse-item > .ant-collapse-header {
   align-items: center;
-  justify-content: space-between;
-  gap: var(--ui-space-2);
-  width: 100%;
-  padding: 9px var(--ui-space-3);
-  border: none;
-  background: none;
-  color: var(--ui-primary-text);
-  font: inherit;
   font-size: 13px;
   font-weight: 600;
-  text-align: left;
-  cursor: pointer;
+  color: var(--ui-primary-text);
 }
 
-.hw-chevron {
-  flex: none;
-  font-size: 11px;
-  color: var(--ui-text-3);
+.hw-list.ant-collapse > .ant-collapse-item {
+  border-bottom-color: var(--ui-border);
+}
+
+.hw-list .ant-collapse-content {
+  background: transparent;
+  border-top-color: var(--ui-border);
+}
+
+.hw-list .ant-collapse-content > .ant-collapse-content-box {
+  padding: 10px 12px;
 }
 
 .hw-answer {
-  padding: var(--ui-space-3) 14px 14px;
-  border-top: 1px solid var(--ui-border);
-  background: var(--ui-surface);
   color: var(--ui-text-2);
   font-size: 12.5px;
   line-height: 1.55;
