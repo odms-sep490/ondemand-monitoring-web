@@ -280,7 +280,6 @@
    like a second full form. */
 .co-optional-details {
   margin-top: 12px;
-  border-top: 1px solid var(--ui-border);
 }
 .co-optional-details > summary {
   padding: 14px 0 2px;
@@ -1341,8 +1340,6 @@
 
 .co-sum-tech {
   margin-top: var(--ui-space-2);
-  padding-top: var(--ui-space-2);
-  border-top: 1px solid var(--ui-border);
   font-size: 12px;
   color: var(--ui-text-3);
 }
@@ -1757,8 +1754,7 @@
   background: var(--ui-primary);
   color: var(--ui-on-primary);
 }
-.co-segmented input,
-.co-choice input {
+.co-segmented input {
   position: absolute;
   opacity: 0;
   width: 1px;
@@ -1787,23 +1783,9 @@
     border-color 0.15s,
     background-color 0.15s;
 }
-.co-choice::before {
-  content: '';
-  flex: none;
-  width: 16px;
-  height: 16px;
-  margin-top: 2px;
-  border: 2px solid var(--ui-border-strong);
-  border-radius: 50%;
-  background: var(--ui-surface);
-}
 .co-choice.is-on {
   border-color: var(--ui-primary);
   background: var(--ui-primary-soft);
-}
-.co-choice.is-on::before {
-  border-color: var(--ui-primary);
-  background: radial-gradient(var(--ui-primary) 45%, transparent 50%);
 }
 .co-choice strong {
   display: block;
@@ -1911,11 +1893,6 @@ ul.co-help {
     background-color 0.15s,
     border-color 0.15s,
     color 0.15s;
-}
-.co-chip-option input {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
 }
 .co-chip-option:hover {
   border-color: var(--ui-primary);
@@ -2419,7 +2396,7 @@ ul.co-help {
   flex-wrap: wrap;
   gap: 8px;
 }
-.co-authz-relationships label {
+.co-authz-relationships .ant-radio-wrapper {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -2428,7 +2405,7 @@ ul.co-help {
   border-radius: 10px;
   cursor: pointer;
 }
-.co-authz-relationships label:has(input:checked) {
+.co-authz-relationships .ant-radio-wrapper:has(input:checked) {
   border-color: var(--ui-primary);
   background: var(--ui-primary-soft);
 }
@@ -2515,9 +2492,8 @@ ul.co-help {
   font-weight: 600;
   line-height: 1.45;
 }
-.co-authz-confirm input {
-  margin-top: 3px;
-  accent-color: var(--ui-primary);
+.co-authz-confirm .ant-checkbox {
+  margin-top: 2px;
 }
 @media (max-width: 640px) {
   .co-authz {
@@ -2758,8 +2734,6 @@ ul.co-help {
 }
 .co-terms-important .co-terms-details {
   margin-top: 12px;
-  padding-top: 10px;
-  border-top: 1px solid color-mix(in srgb, var(--ui-warning) 30%, transparent);
 }
 .co-terms-important .co-terms-details summary {
   width: max-content;
@@ -3294,9 +3268,6 @@ ul.co-help {
 }
 .co-location-advanced {
   margin: 14px 0;
-  padding: 10px 0;
-  border-top: 1px solid var(--ui-border);
-  border-bottom: 1px solid var(--ui-border);
 }
 .co-location-advanced summary {
   min-height: 36px;
@@ -3995,4 +3966,17 @@ ul.co-help {
   border-radius: 12px;
   background: var(--ui-surface);
   box-shadow: var(--ui-shadow-1);
+}
+
+/* antd radio/checkbox wrappers inside option cards keep their own text layout. */
+.mgr-layout .co-choice.ant-radio-wrapper,
+.mgr-layout .co-chip-option.ant-checkbox-wrapper {
+  align-items: flex-start;
+  margin: 0;
+}
+.mgr-layout .co-chip-option.ant-checkbox-wrapper {
+  align-items: center;
+}
+.mgr-layout .co-recurrence {
+  margin-bottom: 4px;
 }

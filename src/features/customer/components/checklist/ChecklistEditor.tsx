@@ -1,4 +1,4 @@
-import { Button } from 'antd'
+import { Button, Checkbox } from 'antd'
 import { UnorderedListOutlined } from '@ant-design/icons'
 import { Fragment, useEffect, useRef, useState } from 'react'
 import { Icon } from '../../../../shared/components/Icon'
@@ -135,8 +135,7 @@ export function ChecklistEditor({
     if (searching && !expanded && !row.content.toLowerCase().includes(needle))
       return null
     const checkbox = (
-      <input
-        type="checkbox"
+      <Checkbox
         className="checklist-check"
         checked={row.selected}
         aria-label={t.select(index + 1)}
@@ -471,21 +470,20 @@ export function ChecklistEditor({
               />
             </label>
             <div className="checklist-toolbar-selection">
-              <label className="checklist-selectall">
-                <input
-                  type="checkbox"
-                  disabled={disabled}
-                  checked={visibleRows.every((row) => row.selected)}
-                  onChange={(event) => {
-                    for (const row of visibleRows)
-                      if (row.selected !== event.target.checked)
-                        checklist.change(row.key, {
-                          selected: event.target.checked,
-                        })
-                  }}
-                />
+              <Checkbox
+                className="checklist-selectall"
+                disabled={disabled}
+                checked={visibleRows.every((row) => row.selected)}
+                onChange={(event) => {
+                  for (const row of visibleRows)
+                    if (row.selected !== event.target.checked)
+                      checklist.change(row.key, {
+                        selected: event.target.checked,
+                      })
+                }}
+              >
                 {t.selectAll(visibleRows.length)}
-              </label>
+              </Checkbox>
               <button
                 type="button"
                 className="checklist-clear"

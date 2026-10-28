@@ -1,3 +1,4 @@
+import { Radio } from 'antd'
 import { WarningOutlined } from '@ant-design/icons'
 import { Card, FormField } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
@@ -23,33 +24,9 @@ export function AirspaceNotice({ form, errors, update }: Props) {
       </div>
       <FormField id="co-permit-status" label={t.question} error={errors.permitStatus}>
         <div className="co-stack" role="radiogroup" aria-label={t.question}>
-          <label>
-            <input
-              type="radio"
-              name="co-permit-status"
-              checked={form.permitStatus === 'NONE'}
-              onChange={() => choose('NONE')}
-            />{' '}
-            {t.noPermitRequired}
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="co-permit-status"
-              checked={form.permitStatus === 'HAVE_PERMIT'}
-              onChange={() => choose('HAVE_PERMIT')}
-            />{' '}
-            {t.havePermit}
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="co-permit-status"
-              checked={form.permitStatus === 'NEED_SUPPORT'}
-              onChange={() => choose('NEED_SUPPORT')}
-            />{' '}
-            {t.needSupport}
-          </label>
+          <Radio name="co-permit-status" checked={form.permitStatus === 'NONE'} onChange={() => choose('NONE')}>{t.noPermitRequired}</Radio>
+          <Radio name="co-permit-status" checked={form.permitStatus === 'HAVE_PERMIT'} onChange={() => choose('HAVE_PERMIT')}>{t.havePermit}</Radio>
+          <Radio name="co-permit-status" checked={form.permitStatus === 'NEED_SUPPORT'} onChange={() => choose('NEED_SUPPORT')}>{t.needSupport}</Radio>
         </div>
       </FormField>
       {form.permitStatus === 'HAVE_PERMIT' && (

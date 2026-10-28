@@ -159,27 +159,7 @@
   object-fit: contain;
 }
 
-.md-info {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--ui-space-3) var(--ui-space-4);
-  margin: 0;
-}
-
-@media (max-width: 520px) {
-  .md-info {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-.md-info dt {
-  font-size: 12px;
-  color: var(--ui-text-3);
-}
-
-.md-info dd {
-  margin: 2px 0 0;
-  font-size: 13.5px;
+.md-info .ant-descriptions-item-content {
   overflow-wrap: anywhere;
 }
 
@@ -201,6 +181,17 @@
 
 .md-footer-spacer {
   flex: 1 1 auto;
+}
+
+.ant-modal-footer:has(.md-footer-spacer) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.ant-modal-footer:has(.md-footer-spacer) .ant-btn + .ant-btn {
+  margin-inline-start: 0;
 }
 
 /* Below tablet width: two compact columns. */

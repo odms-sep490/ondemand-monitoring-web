@@ -1,4 +1,4 @@
-import { Button } from 'antd'
+import { Button, Checkbox } from 'antd'
 import { useRef, useState } from 'react'
 
 import { ApiError, apiRequest } from '../../../../../shared/api/httpClient'
@@ -227,16 +227,13 @@ export function ReviewNotice({
               </select>
             </label>
           </div>
-          <label className="od-additional-info-confirm">
-            <input
-              type="checkbox"
-              checked={authorizationConfirmed}
-              onChange={(event) =>
-                setAuthorizationConfirmed(event.target.checked)
-              }
-            />
-            <span>{t.authorization}</span>
-          </label>
+          <Checkbox
+            className="od-additional-info-confirm"
+            checked={authorizationConfirmed}
+            onChange={(event) => setAuthorizationConfirmed(event.target.checked)}
+          >
+            {t.authorization}
+          </Checkbox>
           {requiresAuthorizationDocument ? (
             <section
               className="od-additional-documents"

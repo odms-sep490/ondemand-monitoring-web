@@ -1,10 +1,20 @@
-import { Button } from 'antd'
+import { Button, Tag } from 'antd'
 
 import { useI18n } from '../../../../shared/i18n'
 import type { CustomerMissionSummary } from '../../api/customerMissionReportApi'
 import { fmtDate, fmtDateTime } from '../../lib/orderStatus'
 import { customerHref } from '../../routes'
 import { customerReportMessages } from './messages'
+
+const CATEGORY_TAG = {
+  completed: 'success',
+  cancelled: 'default',
+  failed: 'error',
+  review: 'warning',
+  active: 'processing',
+  scheduled: 'processing',
+  waiting: 'default',
+} as const
 
 export function CustomerMissionCard({
   mission,
@@ -51,9 +61,9 @@ export function CustomerMissionCard({
     <article className="cr-mission" aria-label={mission.missionCode}>
       <div className="cr-heading">
         <h3>{mission.missionCode}</h3>
-        <span className={`cr-status cr-status--${category}`}>
+        <Tag bordered={false} color={CATEGORY_TAG[category]}>
           {t.statuses[category]}
-        </span>
+        </Tag>
       </div>
       <dl className="cr-mission-facts">
         {mission.scopeLabel && (

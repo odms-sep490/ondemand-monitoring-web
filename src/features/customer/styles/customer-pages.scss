@@ -299,3 +299,33 @@ $cus-native: '.co-input, .od-additional-info-grid input:not([type='range']), .od
   white-space: normal;
   padding-block: 12px;
 }
+
+/* Inline expandable sections (antd Collapse): quiet bordered panel, header at inner-section size. */
+.mgr-layout .cus-inner-collapse.ant-collapse {
+  margin: 12px 0 0;
+  padding: 0;
+  border: 1px solid var(--mgr-border);
+  border-radius: 8px;
+  background: transparent;
+
+  > .ant-collapse-item {
+    border-bottom: 0;
+
+    > .ant-collapse-header {
+      align-items: center;
+      padding: 8px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--mgr-text);
+    }
+  }
+
+  .ant-collapse-content {
+    border-top: 1px solid var(--mgr-border);
+    background: transparent;
+
+    > .ant-collapse-content-box {
+      padding: 12px;
+    }
+  }
+}

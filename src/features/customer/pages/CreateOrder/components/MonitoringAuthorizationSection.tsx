@@ -1,4 +1,4 @@
-import { Button } from 'antd'
+import { Button, Checkbox, Radio } from 'antd'
 import { SafetyOutlined } from '@ant-design/icons'
 import { useRef, useState } from 'react'
 
@@ -120,15 +120,14 @@ export function MonitoringAuthorizationSection({
         <legend>{t.relationship}</legend>
         <div className="co-authz-relationships">
           {MONITORING_RELATIONSHIPS.map((relationship) => (
-            <label key={relationship}>
-              <input
-                type="radio"
-                name="monitoring-relationship"
-                checked={form.monitoringRelationship === relationship}
-                onChange={() => update('monitoringRelationship', relationship)}
-              />
-              <span>{t.relationships[relationship]}</span>
-            </label>
+            <Radio
+              key={relationship}
+              name="monitoring-relationship"
+              checked={form.monitoringRelationship === relationship}
+              onChange={() => update('monitoringRelationship', relationship)}
+            >
+              {t.relationships[relationship]}
+            </Radio>
           ))}
         </div>
         {errors.monitoringRelationship ? (
@@ -284,16 +283,15 @@ export function MonitoringAuthorizationSection({
         </div>
       ) : null}
 
-      <label className="co-authz-confirm">
-        <input
-          type="checkbox"
-          checked={form.monitoringAuthorizationConfirmed}
-          onChange={(event) =>
-            update('monitoringAuthorizationConfirmed', event.target.checked)
-          }
-        />
-        <span>{t.confirm}</span>
-      </label>
+      <Checkbox
+        className="co-authz-confirm"
+        checked={form.monitoringAuthorizationConfirmed}
+        onChange={(event) =>
+          update('monitoringAuthorizationConfirmed', event.target.checked)
+        }
+      >
+        {t.confirm}
+      </Checkbox>
       {errors.monitoringAuthorizationConfirmed ? (
         <div className="ui-field-error">
           {errors.monitoringAuthorizationConfirmed}

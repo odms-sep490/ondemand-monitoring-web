@@ -1,4 +1,5 @@
 import { EnvironmentOutlined } from '@ant-design/icons'
+import { InnerCollapse } from '../../../components/common/InnerCollapse'
 import { Card, FormField } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import { calcArea } from '../../../lib/createOrder/payload'
@@ -112,8 +113,7 @@ export function LocationPanel({
           </div>
         ) : null}
       </FormField>
-      <details className="co-location-advanced">
-        <summary>{t.advancedCoordinates}</summary>
+      <InnerCollapse className="co-location-advanced" title={t.advancedCoordinates}>
         <p className="co-help">{t.coordinatesHint}</p>
         <div className="co-two">
           <FormField
@@ -155,7 +155,7 @@ export function LocationPanel({
         >
           {t.confirmCoordinates}
         </button>
-      </details>
+      </InnerCollapse>
       <section className="co-radius-section" aria-labelledby="co-radius-title">
         <div className="co-radius-heading">
           <div>

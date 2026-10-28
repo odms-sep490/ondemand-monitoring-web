@@ -1,4 +1,5 @@
 import { FileSearchOutlined } from '@ant-design/icons'
+import { InnerCollapse } from '../../../components/common/InnerCollapse'
 import { Icon, type IconName } from '../../../../../shared/components/Icon'
 import { Card } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
@@ -296,8 +297,7 @@ export function RequestSummaryCard(p: Props) {
           </div>
         ))}
       </dl>
-      <details className="co-sum-tech">
-        <summary>{t.technical}</summary>
+      <InnerCollapse className="co-sum-tech" title={t.technical}>
         <div className="co-sum-tech-row">
           <span>{t.coordinates}</span>
           <span className="co-mono">
@@ -306,7 +306,7 @@ export function RequestSummaryCard(p: Props) {
               : '—'}
           </span>
         </div>
-      </details>
+      </InnerCollapse>
     </Card>
   )
 }

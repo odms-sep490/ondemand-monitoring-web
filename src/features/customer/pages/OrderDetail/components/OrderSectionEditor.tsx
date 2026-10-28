@@ -1,4 +1,4 @@
-import { Button } from 'antd'
+import { Button, Checkbox } from 'antd'
 import { useState } from 'react'
 import { useI18n } from '../../../../../shared/i18n'
 import { orderSectionEditorMessages } from './OrderSectionEditor.messages'
@@ -90,7 +90,7 @@ export function OrderSectionEditor({ section, order, onCancel, onSaved }: {
       <Field label={t.fallback}><select value={text('weatherFallback')} onChange={(e) => set('weatherFallback', e.target.value)}><option value="AUTO_RESCHEDULE">{t.optAuto}</option><option value="CONTACT_CUSTOMER">{t.optContact}</option><option value="CANCEL_ORDER">{t.optCancelOrder}</option></select></Field>
     </>}
     {section === 'permit' && <>
-      <label className="od-inline-check"><input type="checkbox" checked={Boolean(draft.monitoringAuthorizationConfirmed)} onChange={(e) => set('monitoringAuthorizationConfirmed', e.target.checked)} /> {t.authz}</label>
+      <Checkbox className="od-inline-check" checked={Boolean(draft.monitoringAuthorizationConfirmed)} onChange={(e) => set('monitoringAuthorizationConfirmed', e.target.checked)}>{t.authz}</Checkbox>
       <Field label={t.permitStatus}><select value={text('permitStatus')} onChange={(e) => set('permitStatus', e.target.value)}><option value="">—</option><option value="HAVE_PERMIT">{t.optHave}</option><option value="NEED_SUPPORT">{t.optNeed}</option></select></Field>
       <Field label={t.permitNumber}><input value={text('permitNumber')} onChange={(e) => set('permitNumber', e.target.value)} /></Field>
       <Field label={t.permitExpiry}><input type="date" value={text('permitExpiresOn')} onChange={(e) => set('permitExpiresOn', e.target.value)} /></Field>
