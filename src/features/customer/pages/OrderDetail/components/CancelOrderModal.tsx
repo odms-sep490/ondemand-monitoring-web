@@ -1,4 +1,4 @@
-import { MockDataBadge, Modal } from '../../../../../shared/components/ui'
+import { MockDataBadge, Modal } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import { cancelOrderModalMessages } from './CancelOrderModal.messages'
 

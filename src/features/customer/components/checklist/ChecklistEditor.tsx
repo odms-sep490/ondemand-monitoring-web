@@ -3,7 +3,7 @@ import { Icon } from '../../../../shared/components/Icon'
 import { formatVnd } from '../../../../shared/lib/formatVnd'
 import { ChecklistGuidance } from '../../../../shared/components/ChecklistGuidance'
 import { useI18n } from '../../../../shared/i18n'
-import { Card } from '../../../../shared/components/ui'
+import { Card } from '../common/ui'
 import { checklistMessages } from '../../lib/checklist/messages'
 import {
   extraMedia,

@@ -1,5 +1,5 @@
 import { ErrorState, LoadingState } from '../../components/common/StateView'
-import { EmptyState, PageHeader } from '../../../../shared/components/ui'
+import { EmptyState, PageHeader } from '../../components/common/ui'
 import { useI18n } from '../../../../shared/i18n'
 import { customerHref } from '../../routes'
 import { LiveOrderCard } from './components/LiveOrderCard'

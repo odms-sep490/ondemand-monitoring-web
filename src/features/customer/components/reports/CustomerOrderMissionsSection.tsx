@@ -1,4 +1,7 @@
+import { Button } from 'antd'
 import { useEffect } from 'react'
+
+import { CardComponent } from '../../../../shared/components/antd'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
 import { customerMissionReportApi } from '../../api/customerMissionReportApi'
@@ -18,21 +21,19 @@ export function CustomerOrderMissionsSection({ orderId, onMissionsChange }: { or
     if (query.data) onMissionsChange?.(query.data)
   }, [onMissionsChange, query.data])
   return (
-    <section className="cr-section" aria-label={t.title}>
-      <div className="cr-heading">
-        <h2>
-          <CardTitle icon="drone">{t.title}</CardTitle>
-        </h2>
-        {Boolean(query.error) && (
-          <button
-            className="odm-btn odm-btn-gh cr-refresh"
-            disabled={query.loading}
-            onClick={query.reload}
-          >
+    <CardComponent
+      className="cr-section"
+      role="region"
+      aria-label={t.title}
+      title={<CardTitle icon="drone">{t.title}</CardTitle>}
+      extra={
+        Boolean(query.error) && (
+          <Button size="small" disabled={query.loading} onClick={query.reload}>
             {t.retry}
-          </button>
-        )}
-      </div>
+          </Button>
+        )
+      }
+    >
       {query.loading && (
         <p role="status" className="cr-note">
           {t.loading}
@@ -85,6 +86,6 @@ export function CustomerOrderMissionsSection({ orderId, onMissionsChange }: { or
           </>
         )
       )}
-    </section>
+    </CardComponent>
   )
 }

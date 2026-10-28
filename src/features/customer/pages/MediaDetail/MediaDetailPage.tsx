@@ -1,5 +1,5 @@
 import { ErrorState, LoadingState } from '../../components/common/StateView'
-import { Card, PageHeader } from '../../../../shared/components/ui'
+import { Card, PageHeader } from '../../components/common/ui'
 import { useI18n } from '../../../../shared/i18n'
 import { MediaInfoList, MediaViewer } from '../../components/common/media'
 import { customerHref } from '../../routes'

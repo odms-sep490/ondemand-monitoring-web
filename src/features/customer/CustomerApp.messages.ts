@@ -4,7 +4,7 @@ export const customerAppMessages = defineMessages({
   vi: {
     breadcrumb: {
       missionHistory: 'Lịch sử nhiệm vụ',
-      missionHistoryDetail: 'Chi tiết mission',
+      missionHistoryDetail: 'Chi tiết nhiệm vụ',
       missionReport: 'Báo cáo phiên giám sát',
       dashboard: 'Tổng quan',
       orders: 'Đơn của tôi',

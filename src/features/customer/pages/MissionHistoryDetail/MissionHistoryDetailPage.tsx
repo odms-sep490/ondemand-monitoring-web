@@ -2,7 +2,7 @@ import {
   ErrorState,
   LoadingState,
 } from '../../components/common/StateView'
-import { PageHeader } from '../../../../shared/components/ui'
+import { PageHeader } from '../../components/common/ui'
 import { useI18n } from '../../../../shared/i18n'
 import { CustomerDeliveryPanel } from '../../../delivery/CustomerDeliveryPanel'
 import { MissionStatusBadge } from '../../components/common/MissionStatusBadge'
@@ -36,10 +36,10 @@ function Detail({ missionId }: { missionId: string }) {
   }
 
   return (
-    <div className="mhd-page">
+    <div className="cus-page mhd-page">
       <PageHeader
         back={
-          <a href={customerHref({ screen: 'missionHistory' })}>
+          <a className="cus-back" href={customerHref({ screen: 'missionHistory' })}>
             {t.backToHistory}
           </a>
         }
@@ -51,15 +51,21 @@ function Detail({ missionId }: { missionId: string }) {
         }
         subtitle={mission.code}
       />
-      <MissionInfoCard mission={mission} />
-      <CustomerMissionReportContent
-        key={mission.id}
-        orderId={mission.orderId}
-        missionId={mission.id}
-        showMedia={false}
-      />
-      <CustomerDeliveryPanel orderId={mission.orderId} />
-      <MissionResults detail={detail} missionCode={mission.code} />
+      <div className="cus-main-grid">
+        <div className="cus-stack">
+          <CustomerMissionReportContent
+            key={mission.id}
+            orderId={mission.orderId}
+            missionId={mission.id}
+            showMedia={false}
+          />
+          <MissionResults detail={detail} missionCode={mission.code} />
+        </div>
+        <div className="cus-side">
+          <MissionInfoCard mission={mission} />
+          <CustomerDeliveryPanel orderId={mission.orderId} />
+        </div>
+      </div>
     </div>
   )
 }

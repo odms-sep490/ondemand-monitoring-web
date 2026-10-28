@@ -1,4 +1,6 @@
-import { Card, EmptyState } from '../../../../../shared/components/ui'
+import { Button } from 'antd'
+
+import { Card, EmptyState } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import type { UseApiQueryState } from '../../../../../shared/hooks/useApiQuery'
 import { MediaGrid, MediaPreviewModal } from '../../../components/common/media'
@@ -19,9 +21,9 @@ function ProgressBody({ progress, onRetry }: { progress: UseApiQueryState<Missio
     return (
       <div className="mhd-error" role="alert">
         <span>{t.progressError}</span>
-        <button type="button" className="odm-btn odm-btn-gh odm-btn-sm" onClick={onRetry}>
+        <Button size="small" onClick={onRetry}>
           {t.retry}
-        </button>
+        </Button>
       </div>
     )
   }
@@ -39,14 +41,13 @@ export function MissionResults({ detail, missionCode }: Props) {
     <Card
       title={t.title}
       actions={
-        <button
-          type="button"
-          className="odm-btn odm-btn-gh odm-btn-sm"
+        <Button
+          size="small"
           disabled={detail.progress.loading || media.loading}
           onClick={detail.refreshResults}
         >
           {t.refresh}
-        </button>
+        </Button>
       }
     >
       <div className="mhd-results">
@@ -55,9 +56,9 @@ export function MissionResults({ detail, missionCode }: Props) {
         {media.error !== undefined && !media.loading && (
           <div className="mhd-error" role="alert">
             <span>{t.error}</span>
-            <button type="button" className="odm-btn odm-btn-gh odm-btn-sm" onClick={media.reload}>
+            <Button size="small" onClick={media.reload}>
               {t.retry}
-            </button>
+            </Button>
           </div>
         )}
         {data && data.items.length === 0 && (

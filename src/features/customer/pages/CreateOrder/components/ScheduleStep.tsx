@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 
-import { Card } from '../../../../../shared/components/ui'
+import { Card } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import type {
   PreferredTimeOption,

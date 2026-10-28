@@ -1,4 +1,4 @@
-import { Modal } from '../../../../../shared/components/ui'
+import { Modal } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import type {
   PreferredTimeOption,

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { Card, EmptyState } from '../../../../../shared/components/ui'
+import { Card, EmptyState } from '../../../components/common/ui'
 import { Icon } from '../../../../../shared/components/Icon'
 import { useI18n } from '../../../../../shared/i18n'
 import type { ServiceOption } from '../../../api/customerApi'

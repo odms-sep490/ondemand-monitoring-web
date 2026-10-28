@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 
 import { useI18n } from '../../../../shared/i18n'
-import { Card } from '../../../../shared/components/ui'
+import { Card } from '../common/ui'
 import { checklistMessages } from '../../lib/checklist/messages'
 import type { ChecklistSnapshot } from '../../lib/checklist/types'
 import './Checklist.css'

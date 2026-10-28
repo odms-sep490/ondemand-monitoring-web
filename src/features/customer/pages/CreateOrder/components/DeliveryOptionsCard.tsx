@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Card, FormField } from '../../../../../shared/components/ui'
+import { Card, FormField } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import {
   DELIVERY_METHODS,

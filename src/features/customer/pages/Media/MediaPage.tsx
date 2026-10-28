@@ -2,7 +2,7 @@ import {
   ErrorState,
   LoadingState,
 } from '../../components/common/StateView'
-import { EmptyState, PageHeader } from '../../../../shared/components/ui'
+import { EmptyState, PageHeader } from '../../components/common/ui'
 import { useI18n } from '../../../../shared/i18n'
 import { MediaPreviewModal } from '../../components/common/media'
 import { customerHref } from '../../routes'

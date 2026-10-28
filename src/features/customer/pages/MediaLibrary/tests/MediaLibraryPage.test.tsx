@@ -35,7 +35,7 @@ describe('MediaLibraryPage', () => {
     await screen.findByText('Thư viện kết quả')
     await waitFor(() => expect(cards()).toHaveLength(18))
     expect(list).toHaveBeenCalled()
-    const sidebar = screen.getByText('Lần bay', { selector: '.ui-card-title' }).closest('section') as HTMLElement
+    const sidebar = screen.getByText('Lần bay', { selector: '.mgr-card-title' }).closest('section, .ant-card') as HTMLElement
     expect(await within(sidebar).findByText('MSN-2609-0131-1')).toBeInTheDocument()
     expect(await screen.findByText(/thông báo kết quả mới sẵn sàng/)).toBeInTheDocument()
   })

@@ -1,3 +1,5 @@
+import { Button } from 'antd'
+
 import { useI18n } from '../../../../shared/i18n'
 import type { CustomerMissionSummary } from '../../api/customerMissionReportApi'
 import { fmtDate, fmtDateTime } from '../../lib/orderStatus'
@@ -80,13 +82,14 @@ export function CustomerMissionCard({
         <p className="cr-mission-unavailable">{t.unavailable}</p>
       )}
       {showLink && (
-        <a
-          className={`odm-btn cr-mission-link${mission.reportAvailable ? ' odm-btn-p' : ' odm-btn-gh'}`}
+        <Button
+          className="cr-mission-link"
+          type={mission.reportAvailable ? 'primary' : 'default'}
           href={link(mission)}
           aria-label={`${mission.reportAvailable ? t.view : t.details} ${mission.missionCode}`}
         >
           {mission.reportAvailable ? t.view : t.details}
-        </a>
+        </Button>
       )}
     </article>
   )

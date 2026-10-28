@@ -4,7 +4,7 @@ import {
   ErrorState,
   LoadingState,
 } from '../../components/common/StateView'
-import { PageHeader } from '../../../../shared/components/ui'
+import { PageHeader } from '../../components/common/ui'
 import { useI18n } from '../../../../shared/i18n'
 import { customerHref } from '../../routes'
 import { ConfirmSubmitModal } from './components/ConfirmSubmitModal'

@@ -1,4 +1,4 @@
-import { Card } from '../../../../../shared/components/ui'
+import { Card } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import { fmtDateTime } from '../../../lib/orderStatus'
 import type { MissionRow } from '../../../lib/missionHistory/types'
@@ -21,7 +21,7 @@ export function MissionInfoCard({ mission }: { mission: MissionRow }) {
     <Card
       title={t.title}
       actions={
-        <a href={customerHref({ screen: 'orderDetail', orderId: mission.orderId })}>
+        <a className="mgr-card-link" href={customerHref({ screen: 'orderDetail', orderId: mission.orderId })}>
           {t.viewOrder}
         </a>
       }

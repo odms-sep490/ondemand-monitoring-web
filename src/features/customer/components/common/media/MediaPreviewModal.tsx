@@ -1,4 +1,4 @@
-import { Modal } from '../../../../../shared/components/ui'
+import { Modal } from '../ui'
 import { useI18n } from '../../../../../shared/i18n'
 import type { MediaItem } from '../../../lib/media/types'
 import { customerHref } from '../../../routes'

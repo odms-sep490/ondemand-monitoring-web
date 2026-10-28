@@ -1,4 +1,4 @@
-import { Card } from '../../../../../shared/components/ui'
+import { Card } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import { OrderStatusBadge } from '../../../components/common/OrderStatusBadge'
 import type { OrderRow } from '../../../lib/orders/types'

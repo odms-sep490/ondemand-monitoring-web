@@ -1,4 +1,6 @@
-import { Card } from '../../../../../shared/components/ui'
+import { FolderOpenOutlined } from '@ant-design/icons'
+
+import { Card } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import type { MediaMissionGroup } from '../../../lib/media/types'
 import { missionSidebarMessages } from './MissionSidebar.messages'
@@ -26,7 +28,7 @@ export function MissionSidebar({ groups, total, selected, onSelect }: Props) {
     </li>
   )
   return (
-    <Card title={t.heading} className="ml-sidebar">
+    <Card title={t.heading} className="ml-sidebar" icon={<FolderOpenOutlined />}>
       <ul className="ml-missions">
         {item(null, t.all, total)}
         {groups.map((g) => item(g.missionId, g.label, g.count))}

@@ -447,3 +447,49 @@
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 12px;
 }
+
+/* Manager-style surfaces (tokens only). */
+.mgr-layout .cr-mission {
+  border: 1px solid var(--mgr-border);
+  border-radius: 12px;
+  background: var(--mgr-card-2);
+  color: var(--mgr-text);
+}
+.mgr-layout .cr-report .cr-heading h3,
+.mgr-layout .cr-mission h3 {
+  font-size: 15px;
+  font-weight: 700;
+}
+.mgr-layout .cr-metric {
+  border-radius: 12px;
+  background: var(--mgr-card-2);
+}
+.mgr-layout .cr-report-identity {
+  color: var(--mgr-muted);
+}
+.mgr-layout .cr-embedded-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+.mgr-layout .cr-embedded-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--mgr-text);
+}
+.mgr-layout .cr-embedded-refresh {
+  margin-left: auto;
+}
+.mgr-layout .cr-report {
+  max-width: none;
+}
+.mgr-layout .cr-publication {
+  border-radius: var(--mgr-radius);
+}
+.mgr-layout .cr-publication h2 {
+  font-family: inherit;
+  letter-spacing: normal;
+  word-spacing: normal;
+}

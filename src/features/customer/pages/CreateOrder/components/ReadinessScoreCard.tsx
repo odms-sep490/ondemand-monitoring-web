@@ -1,4 +1,4 @@
-import { Card } from '../../../../../shared/components/ui'
+import { Card } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import type { AiScore } from '../../../lib/createOrder/types'
 import { readinessScoreCardMessages } from './ReadinessScoreCard.messages'

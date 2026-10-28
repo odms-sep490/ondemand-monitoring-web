@@ -1,3 +1,4 @@
+import { Tabs } from 'antd'
 import { useCallback, useState } from 'react'
 
 import {
@@ -6,7 +7,6 @@ import {
 } from '../../components/common/StateView'
 import { useI18n } from '../../../../shared/i18n'
 import { ContextAwareHelpWidget } from '../../../support/components/ContextAwareHelpWidget'
-import { OrderActions } from './components/OrderActions'
 import { OrderHeader } from './components/OrderHeader'
 import { OrderInfoCard } from './components/OrderInfoCard'
 import { OrderOverviewVisualCard } from './components/OrderOverviewVisualCard'
@@ -59,32 +59,26 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
   const activeTab = hasResults ? tab : 'overview'
 
   return (
-    <div className="od-page">
+    <div className="cus-page od-page">
       <OrderHeader order={order} />
       <ReviewNotice order={order} onInformationSubmitted={detail.reload} />
-      <OrderActions order={order} />
       <OrderOverviewVisualCard order={order} />
       {hasResults ? (
-        <div className="od-tabs" role="tablist">
-          {(['overview', 'results'] as const).map((key) => (
-            <button
-              key={key}
-              type="button"
-              role="tab"
-              aria-selected={activeTab === key}
-              className={`od-tab${activeTab === key ? ' is-active' : ''}`}
-              onClick={() => setTab(key)}
-            >
-              {key === 'overview' ? t.tabOverview : t.tabResults}
-            </button>
-          ))}
-        </div>
+        <Tabs
+          className="od-tabs"
+          activeKey={activeTab}
+          onChange={(key) => setTab(key as 'overview' | 'results')}
+          items={[
+            { key: 'overview', label: t.tabOverview },
+            { key: 'results', label: t.tabResults },
+          ]}
+        />
       ) : null}
       {activeTab === 'results' ? <CustomerDeliveryPanel orderId={order.id} /> : null}
       <div hidden={activeTab !== 'overview'}>
-      <CustomerOrderMissionsSection key={order.id} orderId={order.id} onMissionsChange={setMissions} />
-      <div className="od-grid">
-        <div className="od-stack">
+      <div className="cus-main-grid">
+        <div className="cus-stack">
+          <CustomerOrderMissionsSection key={order.id} orderId={order.id} onMissionsChange={setMissions} />
           <OrderInfoCard
             order={order}
             canEdit={
@@ -100,7 +94,7 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
             snapshotAt={order.checklistSnapshotAt}
           />
         </div>
-        <div className="od-stack">
+        <div className="cus-side">
           <CustomerFinancePanel
             orderId={order.id}
             legalStatus={order.legalReviewStatus}
