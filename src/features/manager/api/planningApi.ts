@@ -12,8 +12,6 @@ import type {
   SimulationZone,
   SimulationZoneRequest,
   ZonePolygonRequest,
-  ThermalSource,
-  ThermalSourceRequest,
   PlanningGridResponse,
   PlanningMetadataResponse,
   PlanningEnvironmentSample,
@@ -116,22 +114,5 @@ export const planningApi = {
   },
   updateZonePolygon(id: string, data: ZonePolygonRequest): Promise<SimulationZone> {
     return apiRequest<SimulationZone>(`/api/zones/${id}/polygon`, { method: 'PUT', body: data })
-  },
-  getZoneThermalSources(zoneCode: string, signal?: AbortSignal): Promise<ThermalSource[]> {
-    return apiRequest<ThermalSource[]>(`/api/zones/${zoneCode}/thermal-sources`, { signal })
-  },
-
-  // ── Thermal Sources CRUD ──
-  listThermalSources(signal?: AbortSignal): Promise<ThermalSource[]> {
-    return apiRequest<ThermalSource[]>('/api/thermal-sources', { signal })
-  },
-  createThermalSource(data: ThermalSourceRequest): Promise<ThermalSource> {
-    return apiRequest<ThermalSource>('/api/thermal-sources', { method: 'POST', body: data })
-  },
-  updateThermalSource(id: string, data: ThermalSourceRequest): Promise<ThermalSource> {
-    return apiRequest<ThermalSource>(`/api/thermal-sources/${id}`, { method: 'PUT', body: data })
-  },
-  deleteThermalSource(id: string): Promise<void> {
-    return apiRequest<void>(`/api/thermal-sources/${id}`, { method: 'DELETE' })
   },
 }

@@ -63,25 +63,6 @@ export type ZonePolygonRequest = {
   polygon: unknown
 }
 
-export type ThermalSource = {
-  id: string
-  name: string
-  latitude: number
-  longitude: number
-  intensity: number
-  zoneId: string | null
-  createdAt: string
-  updatedAt: string
-}
-
-export type ThermalSourceRequest = {
-  name: string
-  latitude: number
-  longitude: number
-  intensity: number
-  zoneId?: string
-}
-
 export type PlanningGridResponse = unknown
 export type PlanningMetadataResponse = unknown
 export type PlanningEnvironmentSample = unknown

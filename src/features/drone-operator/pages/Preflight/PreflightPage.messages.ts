@@ -69,6 +69,9 @@ export const preflightPageMessages = defineMessages({
     itemPass: 'Đạt',
     itemChecking: 'Đang kiểm',
     itemPending: 'Chờ kiểm',
+    fetchCurrentBattery: 'Lấy pin hiện tại',
+    failureReasonPlaceholder: 'Nhập lý do không đạt',
+    confirmFailure: 'Xác nhận',
     triggerFailed:
       'Không gọi được API trigger precheck. Hãy mở Drone Stack rồi bấm Trigger lại.',
     weatherApiFailed:
@@ -152,6 +155,9 @@ export const preflightPageMessages = defineMessages({
     itemPass: 'Passed',
     itemChecking: 'Checking',
     itemPending: 'Pending',
+    fetchCurrentBattery: 'Get current battery',
+    failureReasonPlaceholder: 'Enter the failure reason',
+    confirmFailure: 'Confirm',
     triggerFailed:
       'Could not call the trigger precheck API. Open Drone Stack and trigger again.',
     weatherApiFailed:

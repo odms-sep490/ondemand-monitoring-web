@@ -42,6 +42,7 @@ export type PersistedPreflightCheck = {
 export type PersistedPreflightUpdate = {
   status: PersistedPreflightItemStatus
   message: string
+  measuredValue?: string
 }
 
 export type StoredPreflightStatus = {

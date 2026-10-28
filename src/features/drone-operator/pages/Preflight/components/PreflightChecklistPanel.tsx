@@ -21,6 +21,12 @@ import { usePreflightProgress } from '../usePreflightProgress'
 import { PreflightHeader } from './PreflightHeader'
 import { PreflightSummary } from './PreflightSummary'
 import { PreflightGroupList } from './PreflightGroupList'
+import { controlBaseUrl } from '../preflightConstants'
+import {
+  runtimeStatusFromPersisted,
+  recheckPersistedPreflightItem,
+  updatePersistedPreflightItem,
+} from '../preflightApi'
 
 export function PreflightChecklistPanel({
   missionId,
@@ -79,6 +85,7 @@ export function PreflightChecklistPanel({
   const [persistedPreflightStatus, setPersistedPreflightStatus] =
     useState<PersistedPreflightStatus | null>(null)
   const [persistedWeatherPassed, setPersistedWeatherPassed] = useState(false)
+  const [updatingItem, setUpdatingItem] = useState<string | null>(null)
   const syncedPersistedItemsRef = useRef<Record<string, string>>({})
   const syncingPersistedItemsRef = useRef(false)
 
@@ -126,9 +133,6 @@ export function PreflightChecklistPanel({
     syncingPersistedItemsRef,
     syncedPersistedItemsRef,
     setPersistedPreflightStatus,
-    persistedPreflightId,
-    weatherStatus,
-    setPersistedWeatherPassed,
   })
 
   const { handleTriggerCheck, handleWeatherSuggestion } = usePreflightActions({
@@ -154,6 +158,91 @@ export function PreflightChecklistPanel({
     setWeatherStatus,
     weatherStorageKey,
   })
+
+  async function handleRecheckItem(checkType: string) {
+    if (!persistedPreflightId || checkType !== 'battery_health') {
+      setError('Hãy bắt đầu kiểm tra preflight trước.')
+      return
+    }
+    setUpdatingItem(checkType)
+    setError(null)
+    try {
+      const controllerResponse = await fetch(
+        `${controlBaseUrl}/api/control/status`,
+        { cache: 'no-store' },
+      ).catch(() => null)
+      const controllerStatus = controllerResponse?.ok
+        ? await controllerResponse.json().catch(() => null)
+        : null
+      const batteryPercent = Number(controllerStatus?.batteryPercent)
+      const persisted = Number.isFinite(batteryPercent)
+        ? await updatePersistedPreflightItem(
+            persistedPreflightId,
+            'battery_health',
+            {
+              status: 'CHECKING',
+              message: 'Hệ thống tự động đọc pin từ Gazebo',
+              measuredValue: String(batteryPercent),
+            },
+          )
+        : await recheckPersistedPreflightItem(
+            persistedPreflightId,
+            'battery_health',
+          )
+      setPersistedPreflightStatus(persisted.status)
+      setRuntimeStatus(runtimeStatusFromPersisted(persisted))
+      if (!Number.isFinite(batteryPercent)) {
+        setError('Gazebo chưa trả về dữ liệu pin hiện tại.')
+      }
+    } catch (cause) {
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : 'Không thể lấy pin hiện tại từ Gazebo.',
+      )
+      throw cause
+    } finally {
+      setUpdatingItem(null)
+    }
+  }
+
+  async function handleUpdateItem(
+    checkType: string,
+    status: 'PASSED' | 'FAILED',
+    message: string,
+  ) {
+    if (!persistedPreflightId) {
+      setError('Hãy bắt đầu kiểm tra preflight trước.')
+      return
+    }
+    setUpdatingItem(checkType)
+    setError(null)
+    try {
+      const persisted = await updatePersistedPreflightItem(
+        persistedPreflightId,
+        checkType,
+        { status, message },
+      )
+      setPersistedPreflightStatus(persisted.status)
+      setRuntimeStatus(runtimeStatusFromPersisted(persisted))
+      setPersistedWeatherPassed(
+        persisted.items.some(
+          (item) =>
+            item.checkType === 'weather_conditions' &&
+            item.status === 'PASSED',
+        ),
+      )
+    } catch (cause) {
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : 'Không thể lưu kết quả kiểm tra.',
+      )
+      throw cause
+    } finally {
+      setUpdatingItem(null)
+    }
+  }
 
   usePreflightRuntimeEffects({
     missionId,
@@ -264,6 +353,9 @@ export function PreflightChecklistPanel({
           <PreflightGroupList
             RUNTIME_GROUPS={RUNTIME_GROUPS}
             itemStates={itemStates}
+            onUpdateItem={handleUpdateItem}
+            onRecheckItem={handleRecheckItem}
+            updatingItem={updatingItem}
           />
         </div>
       </div>

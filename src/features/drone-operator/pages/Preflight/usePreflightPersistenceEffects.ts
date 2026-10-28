@@ -104,7 +104,9 @@ export function usePreflightPersistenceEffects({
       setPersistedPreflightStatus(persisted.status)
       setPersistedWeatherPassed(
         persisted.items.some(
-          (item) => item.checkType === 'WEATHER' && item.status === 'PASSED',
+          (item) =>
+            item.checkType === 'weather_conditions' &&
+            item.status === 'PASSED',
         ),
       )
 
