@@ -70,7 +70,7 @@
   display: none;
 }
 
-.co-content-navigation .co-footer .odm-btn {
+.co-content-navigation .co-footer .ant-btn {
   width: 100%;
   min-height: 44px;
   height: auto;
@@ -80,11 +80,11 @@
   text-align: center;
 }
 
-.co-content-navigation .co-footer .odm-btn-p {
+.co-content-navigation .co-footer .ant-btn-primary {
   order: -3;
 }
 
-.co-content-navigation .co-footer .odm-btn-gh {
+.co-content-navigation .co-footer .ant-btn-default {
   order: -2;
 }
 
@@ -363,26 +363,23 @@
   .co-content-navigation .co-footer {
     flex-direction: row;
     flex-wrap: wrap;
-    align-items: stretch;
+    align-items: center;
     gap: 10px;
   }
 
-  .co-content-navigation .co-footer .odm-btn {
+  .co-content-navigation .co-footer-spacer {
+    display: block;
+  }
+
+  .co-content-navigation .co-footer .ant-btn {
     width: auto;
     order: 0;
     min-width: 0;
   }
 
-  .co-content-navigation .co-footer .odm-btn-gh {
-    flex: 0 1 auto;
-  }
-
-  .co-content-navigation .co-footer .odm-btn-p {
-    flex: 1 1 54%;
-  }
-
   .co-content-navigation .co-draft-note {
-    display: none;
+    display: inline;
+    order: 0;
   }
 
   .co-content-navigation .co-footer-blocked {
@@ -483,5 +480,23 @@
 @media (prefers-reduced-motion: reduce) {
   .co-content-editor .checklist-card .checklist-row {
     transition: none;
+  }
+}
+
+/* Phones: Back and Continue share one row, the draft note is dropped. */
+@media (max-width: 640px) {
+  .co-content-navigation .co-footer {
+    flex-wrap: wrap;
+  }
+  .co-content-navigation .co-footer-spacer,
+  .co-content-navigation .co-draft-note {
+    display: none;
+  }
+  .co-content-navigation .co-footer .ant-btn-primary {
+    flex: 1 1 0;
+    min-width: 0;
+    height: auto;
+    min-height: 38px;
+    white-space: normal;
   }
 }

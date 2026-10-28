@@ -219,3 +219,66 @@
   font-weight: 400;
   color: var(--mgr-muted);
 }
+
+/* Native form controls look like antd inputs: 38px, 10px radius, border token, primary focus ring. */
+$cus-native: '.co-input, .od-additional-info-grid input, .od-additional-info-grid select, .od-additional-info-form textarea, .od-inline-edit-field input, .od-inline-edit-field select, .od-inline-edit-field textarea';
+
+.mgr-layout {
+  #{$cus-native} {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    min-height: 38px;
+    padding: 6px 12px;
+    border: 1px solid var(--ui-border-strong);
+    border-radius: 10px;
+    background: var(--ui-surface);
+    color: var(--ui-text);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s;
+
+    &::placeholder {
+      color: var(--ui-text-3);
+    }
+
+    &:hover:not(:disabled) {
+      border-color: var(--ui-primary);
+    }
+
+    &:focus,
+    &:focus-visible {
+      outline: none;
+      border-color: var(--ui-primary);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--ui-primary) 12%, transparent);
+    }
+
+    &:disabled {
+      background: var(--ui-surface-2);
+      color: var(--ui-text-3);
+      cursor: not-allowed;
+    }
+
+    &[aria-invalid='true'] {
+      border-color: var(--ui-danger);
+    }
+  }
+
+  textarea.co-input,
+  .od-additional-info-form textarea,
+  .od-inline-edit-field textarea {
+    min-height: 76px;
+    resize: vertical;
+  }
+}
+
+:root[data-theme='dark'] .mgr-layout {
+  #{$cus-native} {
+    color-scheme: dark;
+  }
+}

@@ -566,17 +566,6 @@
   grid-column: 1 / -1;
 }
 
-.od-additional-info-grid input,
-.od-additional-info-grid select {
-  min-width: 0;
-  padding: 10px 12px;
-  border: 1px solid var(--ui-border);
-  border-radius: 8px;
-  background: var(--ui-surface);
-  color: var(--ui-text);
-  font: inherit;
-}
-
 .od-additional-info-confirm {
   display: flex;
   align-items: flex-start;
@@ -797,27 +786,6 @@
 
 .od-inline-edit-field:has(textarea) {
   grid-column: 1 / -1;
-}
-
-.od-inline-edit-field input,
-.od-inline-edit-field select,
-.od-inline-edit-field textarea {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 9px 11px;
-  border: 1px solid var(--ui-border-strong);
-  border-radius: 9px;
-  background: var(--ui-surface);
-  color: var(--ui-text);
-  font: inherit;
-  font-weight: 500;
-}
-
-.od-inline-edit-field input:focus,
-.od-inline-edit-field select:focus,
-.od-inline-edit-field textarea:focus {
-  border-color: var(--ui-primary);
-  outline: 2px solid var(--ui-primary-soft);
 }
 
 .od-inline-check,
