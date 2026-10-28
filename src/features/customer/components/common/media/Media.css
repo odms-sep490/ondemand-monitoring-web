@@ -159,7 +159,15 @@
   object-fit: contain;
 }
 
+.md-info .ant-descriptions-item {
+  padding-bottom: 12px;
+}
+.md-info .ant-descriptions-item-label {
+  font-size: 12px;
+  color: var(--ui-text-3);
+}
 .md-info .ant-descriptions-item-content {
+  font-size: 13.5px;
   overflow-wrap: anywhere;
 }
 

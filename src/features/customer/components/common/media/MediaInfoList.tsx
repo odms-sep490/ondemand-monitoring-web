@@ -28,6 +28,7 @@ export function MediaInfoList({ item, missionLabel }: Props) {
       size="small"
       column={{ xs: 1, sm: 2 }}
       layout="vertical"
+      colon={false}
       items={rows.map(([label, value]) => ({ key: label, label, children: value }))}
     />
   )
