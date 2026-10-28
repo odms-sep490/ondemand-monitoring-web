@@ -1,3 +1,4 @@
+import { FolderOpenOutlined } from '@ant-design/icons'
 import { usePagedGrid } from '../../../../../shared/components/antd'
 import { Card } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
@@ -18,6 +19,7 @@ export function MissionMediaSection({ mission, items, onOpen }: Props) {
   const { pageItems, pager } = usePagedGrid(items, mission.id)
   return (
     <Card
+      icon={<FolderOpenOutlined />}
       title={mission.missionCode}
       actions={
         <a

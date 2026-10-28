@@ -1,3 +1,4 @@
+import { FileDoneOutlined, ProfileOutlined, UnorderedListOutlined } from '@ant-design/icons'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
 import { ReloadOutlined } from '@ant-design/icons'
@@ -131,7 +132,7 @@ export function CustomerMissionReportContent({
       ) : null}
       {report && (
         <>
-          <CardComponent className="cr-overview" title={t.overview} role="region" aria-label={t.overview}>
+          <CardComponent className="cr-overview" icon={<ProfileOutlined />} title={t.overview} role="region" aria-label={t.overview}>
             <dl className="cr-summary-grid">
               <div>
                 <dt>{t.scope}</dt>
@@ -218,12 +219,12 @@ export function CustomerMissionReportContent({
           </section>
           {published && report.result ? (
             <>
-              <CardComponent title={t.monitoringResult}>
+              <CardComponent icon={<FileDoneOutlined />} title={t.monitoringResult}>
                 <p className="cr-copy">
                   {report.result.summary || t.noSummary}
                 </p>
               </CardComponent>
-              <CardComponent title={t.checklist} role="region" aria-label={t.checklist}>
+              <CardComponent icon={<UnorderedListOutlined />} title={t.checklist} role="region" aria-label={t.checklist}>
                 {report.checklistItems.length === 0 ? (
                   <p>{t.emptyChecklist}</p>
                 ) : (

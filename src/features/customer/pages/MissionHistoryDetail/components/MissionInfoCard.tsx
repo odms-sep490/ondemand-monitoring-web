@@ -1,3 +1,4 @@
+import { InfoCircleOutlined } from '@ant-design/icons'
 import { Card } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import { fmtDateTime } from '../../../lib/orderStatus'
@@ -19,6 +20,7 @@ export function MissionInfoCard({ mission }: { mission: MissionRow }) {
   ]
   return (
     <Card
+      icon={<InfoCircleOutlined />}
       title={t.title}
       actions={
         <a className="mgr-card-link" href={customerHref({ screen: 'orderDetail', orderId: mission.orderId })}>

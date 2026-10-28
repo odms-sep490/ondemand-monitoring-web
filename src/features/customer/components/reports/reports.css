@@ -496,3 +496,12 @@
   letter-spacing: normal;
   word-spacing: normal;
 }
+
+.cr-gallery-card {
+  margin: 14px 0;
+}
+.cr-gallery-extra {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}

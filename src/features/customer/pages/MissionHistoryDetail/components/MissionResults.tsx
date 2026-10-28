@@ -1,3 +1,4 @@
+import { PictureOutlined } from '@ant-design/icons'
 import { Button } from 'antd'
 
 import { Card, EmptyState } from '../../../components/common/ui'
@@ -39,6 +40,7 @@ export function MissionResults({ detail, missionCode }: Props) {
 
   return (
     <Card
+      icon={<PictureOutlined />}
       title={t.title}
       actions={
         <Button

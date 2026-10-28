@@ -3931,3 +3931,68 @@ ul.co-help {
   color: var(--ui-text-3);
   line-height: 1.5;
 }
+
+/* Summary column: every block is its own portal card (no single merged panel). */
+.co-grid .co-summary,
+.co-grid .co-summary.is-tall,
+.co-grid.is-service > .co-summary,
+.co-grid.is-service > .co-summary.is-tall,
+.co-content-sidegroup,
+.co-content-sidegroup .co-summary.co-content-aside {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow: visible;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.co-grid .co-summary .ant-card,
+.co-content-sidegroup .co-summary .ant-card {
+  margin: 0;
+  border: 1px solid var(--ui-border);
+  border-radius: 12px;
+  background: var(--ui-surface);
+  box-shadow: var(--ui-shadow-1);
+  overflow: hidden;
+}
+.co-grid .co-summary .ant-card + .ant-card,
+.co-content-sidegroup .co-summary .ant-card + .ant-card {
+  border-top: 1px solid var(--ui-border);
+}
+.co-grid .co-summary .ant-card-head,
+.co-content-sidegroup .co-summary .ant-card-head {
+  min-height: 56px;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--ui-border);
+}
+.co-grid .co-summary .ant-card-body,
+.co-content-sidegroup .co-summary .ant-card-body {
+  padding: 16px 20px;
+}
+.co-grid .co-summary .co-summary-cta,
+.co-content-navigation {
+  border: 1px solid var(--ui-border);
+  border-radius: 12px;
+  background: var(--ui-surface);
+  box-shadow: var(--ui-shadow-1);
+}
+
+/* Step 6 form column: separate portal cards too. */
+.mgr-layout .co-grid .co-review-form {
+  gap: 16px;
+  height: auto;
+  overflow: visible;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+.mgr-layout .co-grid .co-review-form > .ant-card,
+.mgr-layout .co-grid .co-review-form > .ant-card + .ant-card {
+  flex: none;
+  border: 1px solid var(--ui-border);
+  border-radius: 12px;
+  background: var(--ui-surface);
+  box-shadow: var(--ui-shadow-1);
+}

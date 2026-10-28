@@ -1,3 +1,4 @@
+import { UnorderedListOutlined } from '@ant-design/icons'
 import type { ReactNode } from 'react'
 
 import { useI18n } from '../../../../shared/i18n'
@@ -21,7 +22,7 @@ export function ChecklistSnapshotCard({
   const { t } = useI18n(checklistMessages)
   return (
     <div role="region" aria-label={t.title}>
-      <Card className="checklist-card" title={title ?? t.title}>
+      <Card icon={<UnorderedListOutlined />} className="checklist-card" title={title ?? t.title}>
         <p className="checklist-lock">{t.locked}</p>
         <p className="checklist-hint">{t.history}</p>
         {items.length ? (
