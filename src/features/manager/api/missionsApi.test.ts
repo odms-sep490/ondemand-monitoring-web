@@ -224,36 +224,6 @@ describe('missionsApi.patchSchedule', () => {
   })
 })
 
-describe('missionsApi.rescheduleMission', () => {
-  afterEach(resetHttpTransport)
-
-  it('sends MissionUpdateRequest to PUT /api/missions/{id}', async () => {
-    let call: { url: string; method?: string; body: unknown } | undefined
-    setHttpTransport(async (url, init) => {
-      call = {
-        url: String(url),
-        method: init?.method,
-        body: JSON.parse(String(init?.body)),
-      }
-      return Response.json({ success: true, data: { id: 'mission-1' } })
-    })
-    await missionsApi.rescheduleMission('mission-1', {
-      expectedPlanRevision: 4,
-      scheduledStartAt: '2026-09-26T10:00:00+07:00',
-      scheduledEndAt: '2026-09-26T11:30:00+07:00',
-      rescheduleReason: 'Weather',
-    })
-    expect(call?.url).toContain('/api/missions/mission-1')
-    expect(call?.method).toBe('PUT')
-    expect(call?.body).toEqual({
-      expectedPlanRevision: 4,
-      scheduledStartAt: '2026-09-26T10:00:00+07:00',
-      scheduledEndAt: '2026-09-26T11:30:00+07:00',
-      rescheduleReason: 'Weather',
-    })
-  })
-})
-
 describe('missionsApi.cancelMission', () => {
   it('cancels the mission', async () => {
     setHttpTransport(mockFetch)

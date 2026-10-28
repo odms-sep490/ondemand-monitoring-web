@@ -11,7 +11,6 @@ import type {
   MissionCalendarItem,
   MissionResponse,
   MissionResultResponse,
-  MissionUpdateRequest,
   PatchScheduleRequest,
   PersistedPostDeviceCheckResponse,
   PersistedPreflightCheckResponse,
@@ -222,20 +221,6 @@ export const missionsApi = {
     request: { scheduledStartAt?: string; scheduledEndAt?: string; checklistIds?: string[] },
   ): Promise<MissionResponse> {
     return apiRequest<MissionResponse>(`/api/missions/${encodeURIComponent(missionId)}`, {
-      method: 'PUT',
-      body: request,
-    })
-  },
-
-  /**
-   * `PUT /api/missions/{id}` [BE `MissionUpdateRequest`]. Reschedules the
-   * mission window; conflicts surface as ApiError.
-   */
-  rescheduleMission(
-    missionId: string,
-    request: MissionUpdateRequest,
-  ): Promise<MissionResponse> {
-    return apiRequest<MissionResponse>(`/api/missions/${missionId}`, {
       method: 'PUT',
       body: request,
     })

@@ -145,14 +145,6 @@ export type CreateMissionRequest = {
   checklistIds: string[]
 }
 
-/** Body of `PUT /api/missions/{id}` [BE `MissionUpdateRequest`]. */
-export type MissionUpdateRequest = {
-  expectedPlanRevision?: number
-  scheduledStartAt?: string
-  scheduledEndAt?: string
-  rescheduleReason?: string
-}
-
 export type MissionPlanResponse = {
   id: string
   planningAlgorithm: 'DIRECT' | 'ASTAR_SHORTEST' | 'ASTAR_ENERGY_AWARE'
