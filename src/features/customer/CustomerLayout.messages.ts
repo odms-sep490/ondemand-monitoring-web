@@ -14,6 +14,11 @@ export const customerLayoutMessages = defineMessages({
       mediaLibrary: 'Thư viện kết quả',
       notifications: 'Thông báo',
     },
+    groups: {
+      monitoring: 'Giám sát',
+      support: 'Hỗ trợ',
+    },
+    searchPlaceholder: 'Tìm đơn, nhiệm vụ…',
     closeNav: 'Đóng điều hướng',
     openNav: 'Mở điều hướng',
     toggleTheme: 'Đổi giao diện sáng / tối',
@@ -38,6 +43,11 @@ export const customerLayoutMessages = defineMessages({
       mediaLibrary: 'Media library',
       notifications: 'Notifications',
     },
+    groups: {
+      monitoring: 'Monitoring',
+      support: 'Support',
+    },
+    searchPlaceholder: 'Search orders, missions…',
     closeNav: 'Close navigation',
     openNav: 'Open navigation',
     toggleTheme: 'Switch to light / dark theme',
