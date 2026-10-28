@@ -1,5 +1,8 @@
+import { Button } from 'antd'
 import { useState } from 'react'
 
+import { CardComponent } from '../../../shared/components/antd'
+import { OrderIcon } from '../../manager/components/common/OrderIcon'
 import { useI18n } from '../../../shared/i18n'
 import { getFaqArticles, type ArticleId } from '../data/helpArticles'
 import { contextAwareHelpWidgetMessages } from './ContextAwareHelpWidget.messages'
@@ -51,11 +54,13 @@ export function ContextAwareHelpWidget({
     const subjectLabel = long ? (isOrder ? t.thisOrder : t.thisMission) : `#${id}`
 
     return (
-        <div className="hw-card">
-            <div className="hw-head">
-                <h4 className="hw-title">{t.heading(isOrder)}</h4>
-                <span className="hw-ref odm-mono">{refText}</span>
-            </div>
+        <CardComponent
+            className="hw-card"
+            title={t.heading(isOrder)}
+            icon={<OrderIcon name="help" size={16} />}
+            tone="violet"
+        >
+            <span className="hw-ref">{refText}</span>
 
             {showBanner && <div className="hw-banner">{t.preflightFailedBanner}</div>}
 
@@ -87,13 +92,9 @@ export function ContextAwareHelpWidget({
                 <span className="hw-foot-text">
                     {t.needHelpFor} <b>{displayLabel}</b>? {t.autoAttach}
                 </span>
-                <button
-                    type="button"
-                    className="odm-btn odm-btn-p"
-                    onClick={() => setShowCreateModal(true)}
-                >
+                <Button type="primary" onClick={() => setShowCreateModal(true)}>
                     {t.createTicketFor(displayLabel)}
-                </button>
+                </Button>
             </div>
 
             {showCreateModal && (
@@ -106,6 +107,6 @@ export function ContextAwareHelpWidget({
                     onSuccess={() => undefined}
                 />
             )}
-        </div>
+        </CardComponent>
     )
 }

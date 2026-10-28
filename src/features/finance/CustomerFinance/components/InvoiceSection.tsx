@@ -1,4 +1,5 @@
-import { invoiceStatusLabels } from '../customerFinanceHelpers'
+import { useI18n } from '../../../../shared/i18n'
+import { customerFinanceSectionsMessages } from '../CustomerFinanceSections.messages'
 import { pricingLabel } from '../../../../shared/lib/pricingPresentation'
 import { PaymentStat } from './PaymentStat'
 import type { Invoice } from '../../types'
@@ -18,38 +19,33 @@ export function InvoiceSection({
   completeTestDeposit: () => Promise<void>
   testPaymentLabel: string
 }) {
+  const { t } = useI18n(customerFinanceSectionsMessages)
   return (
     <div className="customer-invoice">
       <div className="customer-invoice-title">
         <div>
-          <h3>Hóa đơn {invoice.invoiceNumber}</h3>
-          <p>
-            Khoản đặt cọc được xác nhận qua IPN VNPAY trước khi nhiệm vụ bắt
-            đầu.
-          </p>
+          <h3>{t.invoice(invoice.invoiceNumber)}</h3>
+          <p>{t.depositIpn}</p>
         </div>
         <span className={`finance-status is-${invoice.status.toLowerCase()}`}>
-          {invoiceStatusLabels[invoice.status] ?? pricingLabel(invoice.status)}
+          {t.invoiceStatus[invoice.status] ?? pricingLabel(invoice.status)}
         </span>
       </div>
       <div className="customer-payment-stats">
-        <PaymentStat label="Tổng" value={invoice.totalAmount} />
-        <PaymentStat label="Tiền đặt cọc (30%)" value={invoice.depositAmount} />
-        <PaymentStat label="Đã thanh toán" value={invoice.paidAmount} />
-        <PaymentStat label="Còn lại" value={invoice.remainingAmount} />
+        <PaymentStat label={t.total} value={invoice.totalAmount} />
+        <PaymentStat label={t.deposit} value={invoice.depositAmount} />
+        <PaymentStat label={t.paid} value={invoice.paidAmount} />
+        <PaymentStat label={t.remaining} value={invoice.remainingAmount} />
       </div>
       {invoice.paidAmount < invoice.depositAmount ? (
         <div className="customer-deposit-notice">
-          <b>Đang chờ đặt cọc</b>
-          <span>
-            Kế hoạch thực hiện và Mission sẽ được mở sau khi khoản đặt cọc được
-            xác nhận.
-          </span>
+          <b>{t.awaitingDeposit}</b>
+          <span>{t.awaitingDepositBody}</span>
         </div>
       ) : invoice.status !== 'PAID' ? (
         <div className="customer-deposit-notice is-ready">
-          <b>Đã nhận tiền đặt cọc</b>
-          <span>Nhiệm vụ đã được mở khóa cho quy trình vận hành.</span>
+          <b>{t.depositReceived}</b>
+          <span>{t.depositReceivedBody}</span>
         </div>
       ) : null}
       <div className="finance-actions customer-payment-actions">
@@ -61,7 +57,7 @@ export function InvoiceSection({
               disabled={busy}
               onClick={() => void pay('deposit')}
             >
-              Thanh toán đặt cọc
+              {t.payDeposit}
             </button>
             {import.meta.env.DEV ? (
               <button
@@ -84,7 +80,7 @@ export function InvoiceSection({
             disabled={busy}
             onClick={() => void pay('final')}
           >
-            Thanh toán phần còn lại
+            {t.payRemaining}
           </button>
         ) : null}
       </div>

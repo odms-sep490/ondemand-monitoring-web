@@ -60,14 +60,14 @@
   border: 1px solid var(--ui-border);
   border-radius: 18px;
   background: var(--ui-surface);
-  box-shadow: 0 8px 28px rgba(15, 40, 90, 0.07);
+  box-shadow: var(--ui-shadow-2);
 }
 
 .od-service-hero {
   position: relative;
   min-height: 280px;
   overflow: hidden;
-  background: linear-gradient(145deg, #0b4fb3, #38a8ec);
+  background: linear-gradient(145deg, var(--ui-primary-grad-to), var(--ui-primary-grad-from));
 }
 .od-service-hero > img {
   width: 100%;
@@ -143,12 +143,12 @@
   bottom: 18px;
   max-width: calc(100% - 36px);
   padding: 10px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.78);
+  border: 1px solid var(--ui-border);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.94);
-  box-shadow: 0 6px 18px rgba(15, 40, 90, 0.15);
+  background: color-mix(in srgb, var(--ui-surface) 94%, transparent);
+  box-shadow: var(--ui-shadow-2);
   backdrop-filter: blur(8px);
-  color: #13233a;
+  color: var(--ui-text);
 }
 .od-map-caption strong,
 .od-map-caption span {
@@ -159,7 +159,7 @@
 }
 .od-map-caption span {
   margin-top: 2px;
-  color: #5f6f85;
+  color: var(--ui-text-3);
   font-size: 12px;
 }
 .od-map-empty {
@@ -171,25 +171,13 @@
   color: var(--ui-text-3);
 }
 
-.od-page .ant-card .mgr-card-title,
-.od-page .customer-finance-head h2,
-.od-page .hw-title {
+.od-page .ant-card .mgr-card-title {
   margin: 0;
   font-family: inherit;
   font-size: 17px;
   font-weight: 700;
   letter-spacing: 0;
   color: var(--ui-text);
-}
-
-.od-page .customer-finance-head {
-  padding: 20px 24px 0;
-  border-bottom: 0;
-}
-
-.od-page .customer-quote-body,
-.od-page .customer-invoice {
-  padding: 16px 24px 24px;
 }
 
 .od-card-icon {
@@ -509,26 +497,6 @@
   overflow-wrap: anywhere;
 }
 
-/* Help widget inside the order page */
-.od-page .hw-card {
-  margin: 0;
-  padding: 20px 24px 24px;
-  border-radius: 16px;
-  box-shadow: 0 1px 2px rgba(15, 40, 90, 0.04);
-}
-
-.od-page .hw-ref {
-  font-family: inherit;
-  font-size: 12.5px;
-  padding: 4px 10px;
-  border-radius: 8px;
-  background: var(--ui-primary-soft);
-}
-
-.od-page .hw-item {
-  border-radius: 10px;
-}
-
 /* Responsive (kept after the base rules they override) */
 @media (max-width: 900px) {
   .od-overview-visual {
@@ -639,7 +607,7 @@
   display: grid;
   gap: 10px;
   padding: 14px;
-  border: 1px dashed #c8a846;
+  border: 1px dashed var(--ui-warning);
   border-radius: 10px;
   background: var(--ui-warning-soft);
 }
@@ -731,24 +699,6 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-}
-
-.od-info-edit {
-  flex: none;
-  padding: 6px 10px;
-  border: 1px solid var(--ui-primary);
-  border-radius: 8px;
-  background: var(--ui-primary-soft);
-  color: var(--ui-primary);
-  font: inherit;
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.od-info-edit:hover,
-.od-info-edit:focus-visible {
-  filter: brightness(0.96);
 }
 
 .od-additional-info-target {
@@ -1029,6 +979,10 @@
 .od-info-edit {
   flex: none;
   white-space: nowrap;
+}
+
+.od-info-empty {
+  padding: 4px 0 2px;
 }
 
 .od-info-list .od-field {

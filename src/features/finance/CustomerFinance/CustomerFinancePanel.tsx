@@ -4,6 +4,8 @@ import { financeApi } from '../api'
 import { customerFinancePanelMessages } from './CustomerFinancePanel.messages'
 import type { CustomerQuote, Invoice } from '../types'
 import '../finance.css'
+import { CardComponent } from '../../../shared/components/antd'
+import { OrderIcon } from '../../manager/components/common/OrderIcon'
 import { isNotFound, messageOf } from './customerFinanceHelpers'
 import { QuoteSection } from './components/QuoteSection'
 import { InvoiceSection } from './components/InvoiceSection'
@@ -107,24 +109,20 @@ export function CustomerFinancePanel({
 
   if (loading && !quote && !invoice)
     return (
-      <section className="ui-card customer-finance-card">{t.loading}</section>
+      <CardComponent className="customer-finance-card" title={t.title} icon={<OrderIcon name="tag" size={16} />}>
+        <p className="customer-finance-desc">{t.loading}</p>
+      </CardComponent>
     )
   if (!quote && !invoice && !error) return null
 
   return (
-    <section
-      className="ui-card customer-finance-card"
-      aria-labelledby="customer-quote-title"
+    <CardComponent
+      className="customer-finance-card"
+      title={t.title}
+      icon={<OrderIcon name="tag" size={16} />}
+      extra={quote ? <span className="finance-status">{t.quoteVersion(quote.version)}</span> : null}
     >
-      <header className="customer-finance-head">
-        <div>
-          <h2 id="customer-quote-title">{t.title}</h2>
-          <p>{t.description}</p>
-        </div>
-        {quote ? (
-          <span className="finance-status">Báo giá v{quote.version}</span>
-        ) : null}
-      </header>
+      <p className="customer-finance-desc">{t.description}</p>
 
       {quote ? (
         <QuoteSection
@@ -152,6 +150,6 @@ export function CustomerFinancePanel({
           {error}
         </p>
       ) : null}
-    </section>
+    </CardComponent>
   )
 }

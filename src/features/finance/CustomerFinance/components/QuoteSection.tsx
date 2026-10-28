@@ -1,3 +1,5 @@
+import { useI18n } from '../../../../shared/i18n'
+import { customerFinanceSectionsMessages } from '../CustomerFinanceSections.messages'
 import { QuoteLines } from './QuoteLines'
 import { Summary } from './Summary'
 import type { CustomerQuote, Invoice } from '../../types'
@@ -23,40 +25,38 @@ export function QuoteSection({
   busy: boolean
   accept: () => Promise<void>
 }) {
+  const { t } = useI18n(customerFinanceSectionsMessages)
   return (
     <div className="customer-quote-body">
       <QuoteLines items={quote.items} />
       <dl className="finance-summary customer-summary">
-        <Summary label="Chi phí dự kiến" value={quote.estimatedBaseAmount} />
+        <Summary label={t.estimated} value={quote.estimatedBaseAmount} />
         <Summary
-          label="Dịch vụ bổ sung"
+          label={t.additional}
           value={quote.approvedAdditionalServiceAmount}
         />
-        <Summary label="Tổng đơn hàng" value={quote.finalOrderAmount} total />
+        <Summary label={t.orderTotal} value={quote.finalOrderAmount} total />
       </dl>
       <p className="co-estimate-notice">
-        Báo giá dự kiến chưa bao gồm dịch vụ theo yêu cầu.
+        {t.estimateNotice}
       </p>
       {!legalReady ? (
         <div className="customer-deposit-notice">
           <b>
             {legalStatus === 'REJECTED'
-              ? 'Đơn hàng không thể thực hiện'
-              : 'Đang xác minh điều kiện khu vực bay'}
+              ? t.legalRejectedTitle
+              : t.legalCheckingTitle}
           </b>
           <span>
             {legalStatus === 'REJECTED'
-              ? 'Đơn hàng không thể thực hiện do điều kiện khu vực bay.'
-              : 'Chúng tôi đang xác minh các điều kiện cần thiết trước khi đơn hàng có thể tiếp tục.'}
+              ? t.legalRejectedBody
+              : t.legalCheckingBody}
           </span>
         </div>
       ) : legalStatus === 'PENDING_PERMIT' ? (
         <div className="customer-deposit-notice">
-          <b>Đang xác minh giấy phép bay</b>
-          <span>
-            Bạn vẫn có thể tiếp tục. Chúng tôi sẽ cập nhật khi giấy phép được
-            xác nhận.
-          </span>
+          <b>{t.permitTitle}</b>
+          <span>{t.permitBody}</span>
         </div>
       ) : null}
       {quote.status === 'APPROVED' && !invoice && legalReady ? (
@@ -66,7 +66,7 @@ export function QuoteSection({
           disabled={busy}
           onClick={() => void accept()}
         >
-          Chấp nhận báo giá
+          {t.accept}
         </button>
       ) : null}
     </div>

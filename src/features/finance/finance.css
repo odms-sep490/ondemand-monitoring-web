@@ -616,12 +616,12 @@
   font-size: 13px;
 }
 .finance-alert.is-error {
-  background: #fef2f2;
-  color: #991b1b;
+  background: var(--ui-danger-soft);
+  color: var(--ui-danger-text);
 }
 .finance-alert.is-success {
-  background: #ecfdf5;
-  color: #065f46;
+  background: var(--ui-success-soft);
+  color: var(--ui-success-text);
 }
 .finance-actions {
   display: flex;
@@ -645,8 +645,16 @@
   }
 }
 .customer-finance-card {
-  padding: 0;
   overflow: hidden;
+}
+.customer-finance-card .ant-card-body {
+  padding: 0;
+}
+.customer-finance-desc {
+  margin: 0;
+  padding: 16px 20px 0;
+  color: var(--ui-text-3);
+  font-size: 13px;
 }
 .customer-finance-head,
 .customer-invoice-title {
