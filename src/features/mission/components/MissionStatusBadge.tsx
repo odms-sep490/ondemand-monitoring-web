@@ -20,13 +20,13 @@ export function MissionStatusBadge({ status }: MissionStatusBadgeProps) {
           icon: 'lock' as const,
         }
       case 'WAITING_OPERATOR_ACCEPTANCE':
-      case 'WAITING_CREW_CONFIRMATION':
+      case 'READY':
         return {
           bg: '#fef3c7',
           color: '#92400e',
           label:
-            status === 'WAITING_CREW_CONFIRMATION'
-              ? t.mission.WAITING_CREW_CONFIRMATION
+            status === 'READY'
+              ? t.mission.READY
               : t.mission.WAITING_OPERATOR_ACCEPTANCE,
           icon: 'clock' as const,
         }

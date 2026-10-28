@@ -16,7 +16,7 @@ export function missionNextStep(
         title: n.assignTitle,
         detail: n.assignDetail,
       }
-    case 'WAITING_CREW_CONFIRMATION':
+    case 'READY':
     case 'WAITING_OPERATOR_ACCEPTANCE':
       return {
         tone: 'wait',

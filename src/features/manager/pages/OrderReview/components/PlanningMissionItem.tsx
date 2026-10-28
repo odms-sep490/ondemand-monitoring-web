@@ -31,7 +31,6 @@ export function PlanningMissionItem({
   setReason,
   mutate,
   reason,
-  setCreating,
   updateCancelCapability,
   updateRuntimeBlocked,
 }: {
@@ -73,9 +72,6 @@ export function PlanningMissionItem({
     missionId?: string | undefined,
   ) => Promise<void>
   reason: string
-  setCreating: Dispatch<
-    SetStateAction<{ replacesMissionId?: string | undefined } | null>
-  >
   updateCancelCapability: (missionId: string, canCancel: boolean) => void
   updateRuntimeBlocked: (id: string, blocked: boolean) => void
 }) {
@@ -158,15 +154,6 @@ export function PlanningMissionItem({
                   </Button>
                 </form>
               )}
-            {writable && draft && mission.status === 'CANCELLED' && (
-              <Button
-                type="button"
-                disabled={busy || saving}
-                onClick={() => setCreating({ replacesMissionId: mission.id })}
-              >
-                {t.createReplacement(mission.missionCode)}
-              </Button>
-            )}
           </div>
         )}
         <ManagerMissionStopFlow
@@ -183,7 +170,6 @@ export function PlanningMissionItem({
           onCapabilitiesChanged={updateCancelCapability}
           onRuntimeBlocked={updateRuntimeBlocked}
           onBusyChanged={updateDraft}
-          onReplacement={(id) => setCreating({ replacesMissionId: id })}
         />
         {mission.id === selected && scope?.finalizedPlanRevision != null && (
           <MissionExecutionPanel key={mission.id} mission={mission} />

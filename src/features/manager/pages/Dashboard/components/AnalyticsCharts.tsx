@@ -79,6 +79,45 @@ export function AnalyticsCharts({ data }: { data: ManagerDashboardData }) {
               )}
             </CardComponent>
           </Col>
+          <Col xs={24} xl={12}>
+            <CardComponent title={c.additionalServicesTitle} icon={<PieChartOutlined />} tone="violet">
+              <DonutChart
+                points={data.additionalServiceDistribution.map((p) => ({
+                  label: c.statusLabels[p.key] ?? statusLabel(p.key),
+                  value: p.count,
+                }))}
+                empty={c.additionalServicesEmpty}
+                ariaLabel={c.totalAria}
+              />
+            </CardComponent>
+          </Col>
+          <Col xs={24} xl={12}>
+            <CardComponent title={c.pricingPipelineTitle} icon={<BarChartOutlined />}>
+              <BarChartCard
+                points={[
+                  { label: c.pricingReview, value: data.pricingPipeline.pricingReviewCount },
+                  { label: c.quoteReady, value: data.pricingPipeline.quoteReadyCount },
+                  { label: c.waitingCustomer, value: data.pricingPipeline.waitingCustomerCount },
+                  { label: c.waitingDeposit, value: data.pricingPipeline.waitingDepositCount },
+                  { label: c.depositPaid, value: data.pricingPipeline.depositPaidCount },
+                ]}
+                empty={c.pricingPipelineEmpty}
+                ariaLabel={c.barAria}
+              />
+            </CardComponent>
+          </Col>
+          <Col xs={24}>
+            <CardComponent title={c.missionStatusTitle} icon={<PieChartOutlined />} tone="green">
+              <DonutChart
+                points={data.missionStatusDistribution.map((p) => ({
+                  label: c.statusLabels[p.key] ?? statusLabel(p.key),
+                  value: p.count,
+                }))}
+                empty={c.missionStatusEmpty}
+                ariaLabel={c.totalAria}
+              />
+            </CardComponent>
+          </Col>
         </Row>
       ) : null}
     </section>

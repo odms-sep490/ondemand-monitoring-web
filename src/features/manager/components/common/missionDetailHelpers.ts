@@ -1,7 +1,9 @@
 import type {
+  MissionResourcePrepareStatus,
   MissionStaffAssignmentResponse,
   PreflightCheckItem,
 } from '../../types/missions'
+import type { StatusTone } from '../../../../shared/types/domain'
 import { getLanguage } from '../../../../shared/i18n'
 import { missionDetailHelpersMessages } from './missionDetailHelpers.messages'
 
@@ -76,6 +78,9 @@ export const STAFF_RESPONSE_LABELS: Record<
   MissionStaffAssignmentResponse['responseStatus'],
   string
 > = {
+  get PLANNING() {
+    return msgs().staffResponses.PLANNING
+  },
   get PENDING() {
     return msgs().staffResponses.PENDING
   },
@@ -93,6 +98,46 @@ export function assignmentTone(
   if (status === 'ACCEPTED') return 'green'
   if (status === 'REJECTED') return 'red'
   return 'amber'
+}
+
+export function missionResourcePrepareLabel(
+  status: MissionResourcePrepareStatus | null | undefined,
+): string {
+  const labels: Record<MissionResourcePrepareStatus, string> = {
+    PLANNING: 'Đang lập kế hoạch',
+    PENDING: 'Đang chờ phản hồi và kiểm tra',
+    READY: 'Đã sẵn sàng',
+    CANCELLED: 'Đã hủy',
+  }
+  return status ? labels[status] : 'Chưa xác định'
+}
+
+export function missionResourcePrepareTone(
+  status: MissionResourcePrepareStatus | null | undefined,
+): StatusTone {
+  if (status === 'READY') return 'green'
+  if (status === 'PENDING') return 'yellow'
+  if (status === 'CANCELLED') return 'red'
+  return 'gray'
+}
+
+export function staffAssignmentStatusTone(
+  status: MissionStaffAssignmentResponse['responseStatus'],
+): StatusTone {
+  if (status === 'ACCEPTED') return 'green'
+  if (status === 'REJECTED') return 'red'
+  if (status === 'PENDING') return 'yellow'
+  return 'gray'
+}
+
+export function deviceAssignmentStatusTone(
+  status: string | null | undefined,
+): StatusTone {
+  if (status === 'PASSED') return 'green'
+  if (status === 'FAILED') return 'red'
+  if (status === 'CHECKING') return 'blue'
+  if (status === 'PENDING') return 'yellow'
+  return 'gray'
 }
 
 export function initialsOf(name: string): string {
