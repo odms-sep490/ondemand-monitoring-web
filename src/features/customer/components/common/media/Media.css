@@ -2,7 +2,7 @@
 
 .md-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
   gap: var(--ui-space-4);
   margin: 0;
   padding: 0;
@@ -203,10 +203,36 @@
   flex: 1 1 auto;
 }
 
-@media (max-width: 560px) {
+/* Below tablet width: two compact columns. */
+@media (max-width: 767px) {
   .md-grid {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--ui-space-3);
   }
+  .md-card-body {
+    padding: 10px 11px 12px;
+    gap: var(--ui-space-1);
+  }
+  .md-name {
+    font-size: 12.5px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .md-open-label {
+    display: none;
+  }
+  .md-meta {
+    font-size: 11px;
+  }
+  .md-kind {
+    top: 6px;
+    left: 6px;
+    padding: 4px 7px;
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 560px) {
   .md-open-label {
     opacity: 1;
     transform: none;
