@@ -151,9 +151,14 @@ export function OrderServiceInfo({
               <dd>
                 {preferred ? (
                   <>
-                    <span className="odm-or-svc-date">
-                      {preferred.split(' · ')[0]}
-                    </span>
+                    {preferred
+                      .split(' · ')[0]
+                      .split(/\s*→\s*/)
+                      .map((part, i) => (
+                        <span className="odm-or-svc-date" key={i}>
+                          {i > 0 ? `→ ${part}` : part}
+                        </span>
+                      ))}
                     {preferred.includes(' · ') ? (
                       <span className="odm-or-svc-period">
                         {preferred.split(' · ').slice(1).join(' · ')}
