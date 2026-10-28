@@ -1,3 +1,4 @@
+import { Button } from 'antd'
 import { EnvironmentOutlined } from '@ant-design/icons'
 import { InnerCollapse } from '../../../components/common/InnerCollapse'
 import { Card, FormField } from '../../../components/common/ui'
@@ -93,14 +94,13 @@ export function LocationPanel({
               }
             }}
           />
-          <button
-            type="button"
-            className="co-secondary-action"
+          <Button
             disabled={!form.address.trim() || locatingAddress}
+            loading={locatingAddress}
             onClick={onLocateAddress}
           >
             {locatingAddress ? t.locatingAddress : t.locateAddress}
-          </button>
+          </Button>
         </div>
         <div id="co-address-help" className="co-help">
           {t.addressHint}
@@ -147,14 +147,9 @@ export function LocationPanel({
             />
           </FormField>
         </div>
-        <button
-          type="button"
-          className="co-secondary-action"
-          disabled={!coordinatesValid}
-          onClick={onConfirmCoordinates}
-        >
+        <Button disabled={!coordinatesValid} onClick={onConfirmCoordinates}>
           {t.confirmCoordinates}
-        </button>
+        </Button>
       </InnerCollapse>
       <section className="co-radius-section" aria-labelledby="co-radius-title">
         <div className="co-radius-heading">
@@ -192,19 +187,19 @@ export function LocationPanel({
         </div>
         <div className="co-radius-presets" aria-label={t.radiusPresets}>
           {RADIUS_PRESETS.map((radius) => (
-            <button
+            <Button
               key={radius}
-              type="button"
-              className={form.radiusM === radius ? 'is-active' : ''}
+              size="small"
+              type={form.radiusM === radius ? 'primary' : 'default'}
               aria-pressed={form.radiusM === radius}
               onClick={() => onRadiusChange(radius)}
             >
               {radius.toLocaleString()} m
-            </button>
+            </Button>
           ))}
-          <button type="button" onClick={() => onRadiusChange(RADIUS_DEFAULT)}>
+          <Button size="small" onClick={() => onRadiusChange(RADIUS_DEFAULT)}>
             {t.resetRadius}
-          </button>
+          </Button>
         </div>
         <dl className="co-area-metrics">
           <div>

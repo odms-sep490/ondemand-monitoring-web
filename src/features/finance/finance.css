@@ -1363,3 +1363,28 @@
 .mgr-layout .finance-workspace .finance-heading > :first-child {
   min-width: 0;
 }
+
+.finance-alert-box.ant-alert {
+  margin: 0 20px 16px;
+}
+
+.customer-quote-body > .ant-btn {
+  margin-top: 12px;
+}
+
+.od-page .customer-invoice-title {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+.od-page .customer-invoice-title h3 {
+  overflow-wrap: normal;
+}
+.od-page .customer-payment-actions {
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 8px;
+}
+.od-page .customer-invoice .customer-payment-stats {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}

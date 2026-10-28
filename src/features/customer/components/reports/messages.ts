@@ -85,9 +85,9 @@ export const customerReportMessages = defineMessages({
     publicationPublished: 'Report has been published',
     publicationPending: 'Report is not available yet.',
     publicationPublishedNote:
-      'You can view the Mission results and published media.',
+      'You can view the mission results and published media.',
     publicationPendingNote:
-      'The Mission result is awaiting completion of the review process.',
+      'The mission result is awaiting completion of the review process.',
     actualPeriod: 'Monitoring period',
     duration: 'Duration',
     minutes: (n: number) => `${n} min`,

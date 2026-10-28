@@ -1,3 +1,4 @@
+import { Button } from 'antd'
 import {
   type ReactNode,
   useEffect,
@@ -462,14 +463,14 @@ export function LocationStep({ form, errors, update, footer }: Props) {
           <div className="co-map-toolbar">
             <p id="co-map-instructions">{t.mapInstructions}</p>
             <div>
-              <button
-                type="button"
+              <Button
+                size="small"
                 onClick={() => setCameraRequest((current) => current + 1)}
               >
                 {t.recenter}
-              </button>
-              <button
-                type="button"
+              </Button>
+              <Button
+                size="small"
                 onClick={() => {
                   update('address', '')
                   update('normalizedAddress', '')
@@ -480,7 +481,7 @@ export function LocationStep({ form, errors, update, footer }: Props) {
                 }}
               >
                 {t.resetLocation}
-              </button>
+              </Button>
             </div>
           </div>
           <div className="co-map-legend" aria-label={t.legendTitle}>

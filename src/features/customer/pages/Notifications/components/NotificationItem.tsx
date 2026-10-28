@@ -1,3 +1,6 @@
+import { PictureOutlined } from '@ant-design/icons'
+import { Button } from 'antd'
+
 import { useI18n } from '../../../../../shared/i18n'
 import { fmtDateTime } from '../../../lib/orderStatus'
 import { MEDIA_AVAILABLE_EVENT } from '../../../lib/media/notifications'
@@ -12,7 +15,9 @@ export function NotificationItem({ item, missionLabel }: Props) {
   const known = item.eventType === MEDIA_AVAILABLE_EVENT
   return (
     <li className="nt-item">
-      <span className="nt-dot" aria-hidden="true" />
+      <span className="nt-icon" aria-hidden="true">
+        <PictureOutlined />
+      </span>
       <div className="nt-main">
         <div className="nt-title">{known ? t.mediaAvailable : t.other(item.eventType)}</div>
         <div className="nt-sub">
@@ -22,9 +27,9 @@ export function NotificationItem({ item, missionLabel }: Props) {
         </div>
       </div>
       {known && (
-        <a className="nt-link mgr-card-link" href={customerHref({ screen: 'mediaDetail', mediaId: item.mediaId })}>
+        <Button type="link" className="nt-link" href={customerHref({ screen: 'mediaDetail', mediaId: item.mediaId })}>
           {t.view}
-        </a>
+        </Button>
       )}
     </li>
   )

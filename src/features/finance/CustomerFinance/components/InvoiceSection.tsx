@@ -2,8 +2,18 @@ import { Button } from 'antd'
 import { useI18n } from '../../../../shared/i18n'
 import { customerFinanceSectionsMessages } from '../CustomerFinanceSections.messages'
 import { pricingLabel } from '../../../../shared/lib/pricingPresentation'
+import { StatusTag } from '../../../../shared/components/antd'
 import { PaymentStat } from './PaymentStat'
 import type { Invoice } from '../../types'
+
+const INVOICE_TONE: Record<string, 'success' | 'warning' | 'danger' | 'info' | 'neutral'> = {
+  ISSUED: 'info',
+  PARTIALLY_PAID: 'warning',
+  PAID: 'success',
+  OVERDUE: 'danger',
+  CANCELLED: 'neutral',
+  REFUNDED: 'neutral',
+}
 
 export function InvoiceSection({
   invoice,
@@ -28,9 +38,9 @@ export function InvoiceSection({
           <h3>{t.invoice(invoice.invoiceNumber)}</h3>
           <p>{t.depositIpn}</p>
         </div>
-        <span className={`finance-status is-${invoice.status.toLowerCase()}`}>
+        <StatusTag tone={INVOICE_TONE[invoice.status] ?? 'neutral'}>
           {t.invoiceStatus[invoice.status] ?? pricingLabel(invoice.status)}
-        </span>
+        </StatusTag>
       </div>
       <div className="customer-payment-stats">
         <PaymentStat label={t.total} value={invoice.totalAmount} />

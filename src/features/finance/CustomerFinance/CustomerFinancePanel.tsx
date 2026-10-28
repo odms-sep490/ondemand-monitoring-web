@@ -1,3 +1,4 @@
+import { Alert } from 'antd'
 import { useCallback, useEffect, useState } from 'react'
 import { useI18n } from '../../../shared/i18n'
 import { financeApi } from '../api'
@@ -146,9 +147,7 @@ export function CustomerFinancePanel({
         />
       ) : null}
       {error ? (
-        <p className="finance-alert is-error" role="alert">
-          {error}
-        </p>
+        <Alert className="finance-alert-box" type="error" showIcon message={error} />
       ) : null}
     </CardComponent>
   )

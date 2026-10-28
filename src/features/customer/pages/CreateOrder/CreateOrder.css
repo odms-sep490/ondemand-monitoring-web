@@ -1618,30 +1618,9 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
-.co-service-more {
-  display: block;
+.co-service-more.ant-btn {
+  display: flex;
   margin: var(--ui-space-3) auto 0;
-  min-height: 40px;
-  padding: 0 18px;
-  border: 1px solid var(--ui-border-strong);
-  border-radius: 999px;
-  background: var(--ui-surface);
-  color: var(--ui-primary);
-  font: inherit;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition:
-    background-color 0.15s,
-    border-color 0.15s;
-}
-.co-service-more:hover {
-  background: var(--ui-primary-soft);
-  border-color: var(--ui-primary);
-}
-.co-service-more:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-primary) 20%, transparent);
 }
 .co-page .ui-page-title {
   max-width: none;
@@ -2929,11 +2908,9 @@ ul.co-help {
   border-width: 1px;
   box-shadow: inset 3px 0 0 var(--ui-primary);
 }
-.co-service-selected {
+.co-service-selected.ant-tag {
   align-self: flex-start;
-  margin-top: 10px;
-  color: var(--ui-primary-text);
-  font-size: 12px;
+  margin: 10px 0 0;
   font-weight: 700;
 }
 

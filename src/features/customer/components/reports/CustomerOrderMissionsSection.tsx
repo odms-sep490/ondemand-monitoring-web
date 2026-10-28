@@ -1,7 +1,7 @@
-import { Button } from 'antd'
+import { Alert, Button, Skeleton } from 'antd'
 import { useEffect } from 'react'
 
-import { CardComponent } from '../../../../shared/components/antd'
+import { CardComponent, EmptyState } from '../../../../shared/components/antd'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
 import { customerMissionReportApi } from '../../api/customerMissionReportApi'
@@ -35,14 +35,13 @@ export function CustomerOrderMissionsSection({ orderId, onMissionsChange }: { or
       }
     >
       {query.loading && (
-        <p role="status" className="cr-note">
-          {t.loading}
-        </p>
+        <div role="status" aria-busy="true">
+          <Skeleton active paragraph={{ rows: 2 }} title={false} />
+          <span className="odm-visually-hidden">{t.loading}</span>
+        </div>
       )}
       {query.error ? (
-        <p role="alert" className="cr-error">
-          {t.error}
-        </p>
+        <Alert type="error" showIcon message={t.error} />
       ) : (
         query.data && (
           <>
@@ -68,10 +67,7 @@ export function CustomerOrderMissionsSection({ orderId, onMissionsChange }: { or
               </>
             )}
             {query.data.length === 0 ? (
-              <div className="cr-empty">
-                <strong>{t.empty}</strong>
-                <p className="cr-note">{t.emptyHint}</p>
-              </div>
+              <EmptyState title={t.empty} description={t.emptyHint} />
             ) : (
               <div className="cr-missions">
                 {query.data.map((m) => (
