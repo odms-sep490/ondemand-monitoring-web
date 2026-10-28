@@ -3910,3 +3910,13 @@ ul.co-help {
   box-shadow: var(--mgr-shadow);
   border-radius: var(--mgr-radius);
 }
+
+/* Long step names must wrap inside the stacked summary buttons instead of overflowing them. */
+.co-summary-cta .co-footer .ant-btn,
+.co-flow-actions .co-footer .ant-btn-primary {
+  height: auto;
+  min-height: 38px;
+  padding-block: 7px;
+  white-space: normal;
+  line-height: 1.35;
+}

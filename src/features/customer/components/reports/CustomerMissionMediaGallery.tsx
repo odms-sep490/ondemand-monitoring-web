@@ -1,3 +1,4 @@
+import { Button } from 'antd'
 import { useState } from 'react'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
@@ -42,8 +43,7 @@ export function CustomerMissionMediaGallery({
             <span className="cr-media-count">{query.data.totalItems}</span>
           ) : null}
         </h2>
-        <button
-          className="odm-btn odm-btn-gh"
+        <Button
           disabled={query.loading}
           onClick={() => {
             setPreview(null)
@@ -51,7 +51,7 @@ export function CustomerMissionMediaGallery({
           }}
         >
           {t.retry}
-        </button>
+        </Button>
       </div>
       {query.loading && <p role="status">{t.loading}</p>}
       {query.error ? (
@@ -75,7 +75,7 @@ export function CustomerMissionMediaGallery({
                 page={query.data.page}
                 totalPages={query.data.totalPages}
                 totalItems={query.data.totalItems}
-                unit={t.media}
+                unit={t.files}
                 onPage={(p) => {
                   setPreview(null)
                   setPage(p)

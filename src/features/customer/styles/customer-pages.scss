@@ -286,3 +286,16 @@ $cus-native: '.co-input, .od-additional-info-grid input:not([type='range']), .od
     color-scheme: dark;
   }
 }
+
+/* Long Vietnamese placeholders need more room than the manager default. */
+.mgr-layout .cus-page .mgr-filter-bar-search {
+  flex: 1 1 320px;
+  max-width: 460px;
+}
+
+/* Long card titles wrap instead of being cut with an ellipsis (phones). */
+.mgr-layout .cus-page .ant-card-head-title,
+.mgr-layout .co-page .ant-card-head-title {
+  white-space: normal;
+  padding-block: 12px;
+}

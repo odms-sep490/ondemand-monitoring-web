@@ -28,7 +28,8 @@ type Props = {
 /** `2026-10-07` → `07/10/2026` for Vietnamese; other values pass through. */
 function formatDate(value: string, lang: string) {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value)
-  return match && lang === 'vi' ? `${match[3]}/${match[2]}/${match[1]}` : value
+  if (!match) return value
+  return lang === 'vi' ? `${match[3]}/${match[2]}/${match[1]}` : `${match[2]}/${match[3]}/${match[1]}`
 }
 
 /** Whole days between two ISO dates, inclusive; null when either is missing/invalid. */

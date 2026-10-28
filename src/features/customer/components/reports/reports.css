@@ -291,9 +291,12 @@
   .cr-report .cr-section {
     padding: 16px;
   }
-  .cr-summary-grid,
-  .cr-gallery .md-grid {
+  .cr-summary-grid {
     grid-template-columns: minmax(0, 1fr);
+  }
+  .cr-gallery .md-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
   }
   .cr-publication {
     padding: 14px 16px;
