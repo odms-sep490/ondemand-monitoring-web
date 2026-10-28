@@ -1,0 +1,135 @@
+/*
+ * Mixins that re-skin the legacy shared UI kit (--ui-*, .ui-*) and the old
+ * order/mission building blocks (--or-*, .odm-or-*) with the Manager design
+ * tokens (--mgr-*). Include inside a page root while it is being migrated;
+ * this file emits no CSS by itself.
+ */
+@mixin mgr-legacy-tokens {
+  --ui-bg: var(--mgr-bg);
+  --ui-surface: var(--mgr-card);
+  --ui-surface-2: var(--mgr-card-2);
+  --ui-border: var(--mgr-border);
+  --ui-border-strong: color-mix(in srgb, var(--mgr-muted) 35%, var(--mgr-border));
+  --ui-text: var(--mgr-text);
+  --ui-text-2: color-mix(in srgb, var(--mgr-text) 78%, var(--mgr-card));
+  --ui-text-3: var(--mgr-muted);
+  --ui-radius-sm: 8px;
+  --ui-radius-md: 10px;
+  --ui-radius-lg: 16px;
+  --ui-shadow-1: var(--mgr-shadow);
+  --ui-shadow-inset-top: none;
+
+  --or-card: var(--mgr-card);
+  --or-bg: var(--mgr-bg);
+  --or-border: var(--mgr-border);
+  --or-tx: var(--mgr-text);
+  --or-tx2: color-mix(in srgb, var(--mgr-text) 78%, var(--mgr-card));
+  --or-tx3: var(--mgr-muted);
+  --or-tile: var(--mgr-card-2);
+  --or-primary: var(--ui-primary);
+  --or-primary-soft: var(--ui-primary-soft);
+  --or-primary-fg: var(--ui-primary-text);
+}
+
+/* Cards, buttons and badges of the legacy kit, in the Manager look. */
+@mixin mgr-legacy-components {
+  .ui-card,
+  .odm-or-card,
+  .odm-or-review-stage-actions {
+    border: 1px solid var(--mgr-border);
+    border-radius: var(--mgr-radius);
+    background: var(--mgr-card);
+    box-shadow: var(--mgr-shadow);
+  }
+
+  .ui-card {
+    margin-bottom: 0;
+  }
+
+  .ui-card-header {
+    min-height: 56px;
+    padding: 0 20px;
+    border-bottom: 1px solid var(--mgr-border);
+  }
+
+  .ui-card-title {
+    font-size: 15.5px;
+    font-weight: 700;
+    color: var(--mgr-text);
+  }
+
+  .ui-card-body {
+    padding: 16px 20px;
+  }
+
+  .ui-card-body.is-flush {
+    padding: 0;
+  }
+
+  .odm-or-card-head {
+    min-height: 56px;
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--mgr-border);
+  }
+
+  .odm-or-card-title {
+    gap: 10px;
+    font-size: 15.5px;
+    font-weight: 700;
+    color: var(--mgr-text);
+  }
+
+  .odm-or-card-title > svg {
+    box-sizing: content-box;
+    width: 16px;
+    height: 16px;
+    padding: 8px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #3b82f6, #1565e8);
+    color: #fff;
+  }
+
+  .odm-or-card-body {
+    padding: 16px 20px;
+  }
+
+  .ui-btn,
+  .odm-btn {
+    min-height: 38px;
+    border-radius: 10px;
+    box-shadow: none;
+    font-weight: 600;
+    transition:
+      background 0.15s ease,
+      border-color 0.15s ease,
+      filter 0.15s ease;
+  }
+
+  .ui-btn:hover:not(.is-disabled),
+  .ui-btn:active:not(.is-disabled) {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .ui-btn.is-sm {
+    min-height: 30px;
+    padding: 0 12px;
+  }
+
+  .ui-btn.is-primary,
+  .ui-btn.is-primary:hover:not(.is-disabled) {
+    background: var(--ui-primary);
+    border-color: var(--ui-primary);
+    color: var(--ui-on-primary);
+  }
+
+  .ui-btn.is-danger,
+  .ui-btn.is-danger:hover:not(.is-disabled) {
+    background: var(--ui-danger);
+    border-color: var(--ui-danger);
+  }
+
+  .ui-badge {
+    box-shadow: none;
+  }
+}

@@ -88,7 +88,6 @@ export type DashboardActivity = {
   occurredAt: string
 }
 
-// Kept for the standalone chart components used by the reporting tests.
 export type MissionStatusDayPoint = {
   date: string
   completed: number
@@ -119,10 +118,6 @@ export type ManagerDashboardData = {
   generatedAt: string
 }
 
-/**
- * The optional legacy fields let hybrid mock mode fail soft while environments
- * are migrated. The real endpoint returns every ManagerDashboardData field.
- */
 export type ManagerDashboardResponse = Partial<ManagerDashboardData> & {
   kpis?: {
     pendingOrders: { count: number; detail: string }

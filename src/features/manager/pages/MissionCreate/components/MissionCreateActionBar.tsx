@@ -1,10 +1,11 @@
 import { OrderIcon } from '../../../components/common/OrderIcon'
 import { managerHref } from '../../../routes'
-import { Button } from '../../../../../shared/components/Button'
 import { missionCreatePageMessages } from '../MissionCreatePage.messages'
 import { useI18n } from '../../../../../shared/i18n'
 import type { UseApiQueryState } from '../../../../../shared/hooks/useApiQuery'
 import type { ExecutionPlan } from '../../../types/planning'
+import { Button } from 'antd'
+import { RightOutlined } from '@ant-design/icons'
 
 export function MissionCreateActionBar({
   handleSubmit,
@@ -25,15 +26,12 @@ export function MissionCreateActionBar({
         <span>{t.actionHint}</span>
       </div>
       <div className="odm-or-actionbar-actions">
-        <a
-          className="odm-or-btn odm-or-btn-ghost"
-          href={managerHref({ screen: 'orderQueue' })}
-        >
+        <Button href={managerHref({ screen: 'orderQueue' })}>
           {t.backToOrders}
-        </a>
+        </Button>
         <Button
-          type="button"
-          className="odm-or-btn odm-or-btn-primary"
+          type="primary"
+          htmlType="button"
           onClick={handleSubmit}
           disabled={
             submitting ||
@@ -43,7 +41,7 @@ export function MissionCreateActionBar({
           }
         >
           {submitting ? t.creating : t.createMission}
-          <OrderIcon name="chevron-right" size={16} />
+          <RightOutlined aria-hidden="true" />
         </Button>
       </div>
     </div>

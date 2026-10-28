@@ -21,6 +21,8 @@ import { customerApi } from '../../../../customer/api/customerApi'
 import { OrderWorkflowStepper } from '../../../components/common/OrderWorkflowStepper'
 import { useCreateMissionSubmit } from '../useCreateMissionSubmit'
 import { deriveCreateMissionSummary } from '../deriveCreateMissionSummary'
+import { PageHeader } from '../../../components/common/PageHeader'
+import '../missionCreate.scss'
 import { PlanFailedState } from './PlanFailedState'
 import { PlanningContextCard } from './PlanningContextCard'
 import { CustomerTimeWindowCard } from './CustomerTimeWindowCard'
@@ -198,11 +200,6 @@ export function CreateMissionForm({
     }
   }, [brief.center, forecastDates, forecastTime])
 
-  if (navigateTo) {
-    window.location.hash = navigateTo
-    return null
-  }
-
   const { handleSubmit } = useCreateMissionSubmit({
     submit,
     planQuery,
@@ -221,9 +218,14 @@ export function CreateMissionForm({
     setPlanRevision,
   })
 
+  if (navigateTo) {
+    window.location.hash = navigateTo
+    return null
+  }
+
   if (submit.kind === 'planFailed') {
     return (
-      <div className="odm-or">
+      <div className="odm-or mgr-view mgr-mc">
         {!onCreated && <OrderWorkflowStepper currentStep={5} />}
         <PlanFailedState submit={submit} setSubmit={setSubmit} />
       </div>
@@ -239,18 +241,16 @@ export function CreateMissionForm({
   })
 
   return (
-    <div className={`odm-or odm-plan-page${onCreated ? ' is-embedded' : ''}`}>
+    <div className={`odm-or odm-plan-page${onCreated ? ' is-embedded' : ' mgr-view mgr-mc'}`}>
       {!onCreated && (
-        <div className="odm-or-pagehead">
-          <h1 className="odm-or-title">{t.title}</h1>
-          <p className="odm-or-subtitle">
-            {t.fromOrder(
-              formatOrderCode(brief.code),
-              brief.serviceName,
-              brief.customerFullName,
-            )}
-          </p>
-        </div>
+        <PageHeader
+          title={t.title}
+          description={t.fromOrder(
+            formatOrderCode(brief.code),
+            brief.serviceName,
+            brief.customerFullName,
+          )}
+        />
       )}
 
       {!onCreated && <OrderWorkflowStepper currentStep={5} />}
@@ -302,7 +302,11 @@ export function CreateMissionForm({
             onDeselectAll={handleDeselectAllChecklist}
             error={
               submit.kind === 'validationFailed' &&
-              selectedChecklistIds.length === 0
+              selectedChecklistIds.length === 0 &&
+              Boolean(scopeLabel.trim()) &&
+              Boolean(scheduledStart) &&
+              Boolean(scheduledEnd) &&
+              new Date(scheduledEnd) > new Date(scheduledStart)
                 ? submit.message
                 : undefined
             }

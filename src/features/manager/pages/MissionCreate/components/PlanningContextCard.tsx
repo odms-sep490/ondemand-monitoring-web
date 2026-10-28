@@ -2,7 +2,7 @@ import { PlanningHeader } from '../../../components/common/PlanningHeader'
 import { managerHref } from '../../../routes'
 import { OrderIcon } from '../../../components/common/OrderIcon'
 import { planningError } from '../../../lib/planningErrors'
-import { Button } from '../../../../../shared/components/Button'
+import { Button } from '../../../../../shared/components/ui'
 import { planningPresentationMessages } from '../../../components/common/planningPresentation.messages'
 import { useI18n } from '../../../../../shared/i18n'
 import type { UseApiQueryState } from '../../../../../shared/hooks/useApiQuery'
@@ -31,7 +31,7 @@ export function PlanningContextCard({
   return (
     <section
       className="odm-or-card odm-plan-create"
-      aria-label="Mission planning context"
+      aria-label={planningT.contextAria}
     >
       {!onCreated && (
         <PlanningHeader
@@ -55,7 +55,6 @@ export function PlanningContextCard({
             {planningError(planQuery.error)}{' '}
             <Button
               type="button"
-              variant="secondary"
               onClick={planQuery.reload}
             >
               {planningT.retry}

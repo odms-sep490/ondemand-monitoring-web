@@ -2,6 +2,7 @@ import { missionCreatePageMessages } from '../MissionCreatePage.messages'
 import { useI18n } from '../../../../../shared/i18n'
 import type { Dispatch, SetStateAction } from 'react'
 import type { SubmitState } from '../createMissionTypes'
+import { Button } from '../../../../../shared/components/ui'
 
 export function PlanFailedState({
   submit,
@@ -33,13 +34,13 @@ export function PlanFailedState({
           {submit.message}
         </div>
         <div style={{ marginTop: 6, display: 'flex', gap: 8 }}>
-          <button
+          <Button
             type="button"
-            className="odm-btn odm-btn-p"
+            variant="primary"
             onClick={() => setSubmit({ kind: 'idle' })}
           >
             {t.retry}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

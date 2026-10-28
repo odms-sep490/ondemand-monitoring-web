@@ -22,11 +22,10 @@ describe('MissionResultReviewActions', () => {
       ).toBeNull()
     },
   )
-  it('approves only the pending result, never media, then refreshes', async () => {
+  it('approves only the pending result then refreshes', async () => {
     const approve = vi
       .spyOn(missionsApi, 'approveMissionResult')
       .mockResolvedValue({} as never)
-    const media = vi.spyOn(missionsApi, 'approveMissionMedia')
     const refresh = vi.fn()
     render(
       <MissionResultReviewActions
@@ -39,7 +38,6 @@ describe('MissionResultReviewActions', () => {
     fireEvent.click(screen.getByText('Duyệt kết quả'))
     await waitFor(() => expect(refresh).toHaveBeenCalledOnce())
     expect(approve).toHaveBeenCalledWith('r', '')
-    expect(media).not.toHaveBeenCalled()
   })
   it('rejects using the optional backend note and refreshes', async () => {
     const reject = vi

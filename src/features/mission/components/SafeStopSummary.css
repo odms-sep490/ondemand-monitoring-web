@@ -155,7 +155,7 @@
     width: 100%;
   }
   .mission-stop__header-actions .odm-btn,
-  .mission-stop__header > .odm-btn {
+  .mission-stop__header > :is(.odm-btn, .ui-btn) {
     flex: 1;
     width: 100%;
     justify-content: center;
@@ -165,7 +165,7 @@
     grid-template-columns: 1fr 1fr;
     gap: 10px;
   }
-  .mission-stop__actions .odm-btn {
+  .mission-stop__actions :is(.odm-btn, .ui-btn) {
     width: 100%;
     justify-content: center;
   }

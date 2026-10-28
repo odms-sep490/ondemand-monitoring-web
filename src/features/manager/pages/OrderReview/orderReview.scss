@@ -1,0 +1,379 @@
+@use '../../styles/legacy';
+
+/*
+ * Order review (MNG-03) in the Manager look. The page still renders legacy
+ * markup (odm-or-*, ui-*, odm-wf-*); this sheet re-skins it with --mgr-* tokens.
+ * Specificity is bumped with :root so it also wins over the dark-mode token
+ * block in manager.css.
+ */
+:root .mgr-layout .mgr-or {
+  @include legacy.mgr-legacy-tokens;
+  @include legacy.mgr-legacy-components;
+
+  max-width: 1600px;
+
+  .odm-or-card {
+    overflow-wrap: anywhere;
+  }
+
+  h1,
+  h2,
+  h3,
+  .ui-card-title {
+    letter-spacing: 0;
+  }
+
+  /* Workflow stepper card */
+  .odm-wf {
+    border-radius: var(--mgr-radius);
+  }
+
+  .odm-wf-layer {
+    padding: 14px 10px 12px;
+  }
+
+  .odm-wf-head {
+    padding: 0 12px 10px;
+  }
+
+  .odm-wf-eyebrow {
+    color: var(--mgr-muted);
+  }
+
+  .odm-wf-chip {
+    padding: 2px 10px;
+    font-size: 12px;
+  }
+
+  .odm-wf-btn {
+    border-radius: 12px;
+    padding: 10px 12px;
+  }
+
+  .odm-wf-dot {
+    width: 32px;
+    height: 32px;
+    background: var(--mgr-card-2);
+    border: 1px solid var(--mgr-border);
+    color: var(--mgr-muted);
+  }
+
+  .odm-wf-step.is-done .odm-wf-dot {
+    border-color: transparent;
+    color: #fff;
+    background: linear-gradient(135deg, #34d399, #16a34a);
+  }
+
+  .odm-wf-step.is-current .odm-wf-dot {
+    border-color: transparent;
+    color: #fff;
+    background: linear-gradient(135deg, #3b82f6, #1565e8);
+    box-shadow: 0 6px 14px -6px rgb(21 101 232 / 70%);
+  }
+
+  .odm-wf-step.is-viewing .odm-wf-btn,
+  .odm-wf-step.is-current .odm-wf-btn {
+    box-shadow: none;
+    background: color-mix(in srgb, var(--ui-primary) 9%, var(--mgr-card));
+  }
+
+  .odm-wf-step.is-upcoming .odm-wf-dot {
+    border: 1.5px dashed var(--mgr-border);
+    background: transparent;
+  }
+
+  .odm-wf-text strong {
+    font-size: 13.5px;
+  }
+
+  .odm-or-readonly-banner {
+    border-radius: 12px;
+    border-left-width: 1px;
+    border-color: color-mix(in srgb, var(--ui-primary) 28%, var(--mgr-border));
+  }
+
+  .mgr-or-service-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 16px;
+  }
+
+  .mgr-or-service-text {
+    flex: 1 1 280px;
+    min-width: 0;
+  }
+
+  .mgr-or-service-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--mgr-muted);
+  }
+
+  .mgr-or-service-name {
+    margin: 2px 0 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--mgr-text);
+    overflow-wrap: anywhere;
+  }
+
+  .mgr-or-service-desc {
+    margin: 4px 0 0;
+    font-size: 13px;
+    color: var(--mgr-muted);
+  }
+
+  .odm-or-review-top {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* Order summary rows + action bar */
+  .odm-or-review-stage-actions {
+    box-shadow: var(--mgr-shadow);
+  }
+}
+
+@media (max-width: 640px) {
+  :root .mgr-layout .mgr-or {
+    .odm-or-card-head,
+    .ui-card-header {
+      padding-inline: 14px;
+    }
+
+    .odm-or-card-body,
+    .ui-card-body {
+      padding: 14px;
+    }
+  }
+}
+
+/* ---------- Area check + area review dialog: theme-aware (light + dark) ---------- */
+:root .mgr-layout {
+  .odm-or-area-decision {
+    border-color: color-mix(in srgb, #16a34a 35%, var(--mgr-border));
+    background: color-mix(in srgb, #16a34a 12%, var(--mgr-card));
+    color: #166534;
+
+    &.is-needs_review {
+      border-color: color-mix(in srgb, #f59e0b 40%, var(--mgr-border));
+      background: color-mix(in srgb, #f59e0b 14%, var(--mgr-card));
+      color: #92400e;
+    }
+
+    &.is-high_risk {
+      border-color: color-mix(in srgb, #ef4444 38%, var(--mgr-border));
+      background: color-mix(in srgb, #ef4444 12%, var(--mgr-card));
+      color: #991b1b;
+    }
+  }
+
+  .odm-or-area-findings li.is-high,
+  .odm-or-area-error {
+    color: #b91c1c;
+  }
+
+  .odm-or-area-findings li.is-warning {
+    color: #a16207;
+  }
+
+  .odm-or-area-zone-link {
+    border-color: color-mix(in srgb, #ef4444 38%, var(--mgr-border));
+    background: var(--mgr-card);
+    color: #b91c1c;
+
+    &:hover {
+      background: color-mix(in srgb, #ef4444 10%, var(--mgr-card));
+    }
+  }
+
+  .odm-or-area-modal {
+    background: var(--mgr-card);
+    color: var(--mgr-text);
+    border: 1px solid var(--mgr-border);
+  }
+
+  .odm-or-area-modal header > button {
+    display: inline-grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    align-self: flex-start;
+    border: 1px solid var(--mgr-border);
+    border-radius: 8px;
+    color: var(--mgr-muted);
+    font-size: 18px;
+    line-height: 1;
+
+    &:hover {
+      background: var(--mgr-card-2);
+      color: var(--mgr-text);
+    }
+  }
+
+  .odm-or-area-modal-context {
+    background: var(--mgr-card-2);
+  }
+
+  .odm-or-area-review-options label {
+    border-color: var(--mgr-border);
+
+    &.is-selected {
+      border-color: #1565e8;
+      background: color-mix(in srgb, #1565e8 10%, var(--mgr-card));
+    }
+
+    input {
+      accent-color: #1565e8;
+    }
+  }
+
+  .odm-or-area-field select,
+  .odm-or-area-field textarea {
+    border-color: var(--mgr-border);
+    background: var(--mgr-card-2);
+    color: var(--mgr-text);
+    color-scheme: light;
+  }
+
+  .odm-or-map-overlay,
+  .odm-or-map-badge {
+    background: color-mix(in srgb, var(--mgr-card) 92%, transparent);
+    border-color: var(--mgr-border);
+    color: var(--mgr-text);
+  }
+
+  .odm-or-map-badge {
+    color: #b91c1c;
+  }
+
+  .odm-or-gps-badge {
+    color: var(--mgr-text);
+  }
+
+  .odm-or-map-overlay-line.is-muted {
+    color: var(--mgr-muted);
+  }
+}
+
+:root[data-theme='dark'] .mgr-layout {
+  .odm-or-area-decision {
+    color: #86efac;
+
+    &.is-needs_review {
+      color: #fcd34d;
+    }
+
+    &.is-high_risk {
+      color: #fca5a5;
+    }
+  }
+
+  .odm-or-area-findings li.is-high,
+  .odm-or-area-error,
+  .odm-or-area-zone-link,
+  .odm-or-map-badge {
+    color: #fca5a5;
+  }
+
+  .odm-or-area-findings li.is-warning {
+    color: #fcd34d;
+  }
+
+  .odm-or-area-field select,
+  .odm-or-area-field textarea {
+    color-scheme: dark;
+  }
+}
+
+/* ---------- Request details, area heading, copy button, disabled primary ---------- */
+:root .mgr-layout {
+  /* flat sections inside the request card (no card-in-card); odd last one spans the row */
+  .odm-or-req-section {
+    padding: 14px 0 0;
+    border: 0;
+    border-top: 1px solid var(--mgr-border);
+    border-radius: 0;
+    background: transparent;
+
+    h4 {
+      font-size: 15px;
+    }
+
+    &:last-child:nth-child(odd) {
+      grid-column: 1 / -1;
+    }
+  }
+
+  .odm-or-req-section-grid {
+    gap: 4px 28px;
+  }
+
+  .odm-or-svc-tile {
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .odm-or-svc-tile-text {
+    min-width: 0;
+  }
+
+  .odm-or-svc-coords {
+    flex-wrap: wrap;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .odm-or-area-check-head {
+    padding: 16px 20px;
+    border: 1px solid var(--mgr-border);
+    border-radius: var(--mgr-radius);
+    background: var(--mgr-card);
+    box-shadow: var(--mgr-shadow);
+
+    h2 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--mgr-text);
+    }
+
+    p {
+      color: var(--mgr-muted);
+      font-size: 13.5px;
+    }
+  }
+}
+
+:root[data-theme='dark'] .mgr-layout .ui-btn.is-primary.is-disabled,
+:root[data-theme='dark'] .mgr-layout .ui-btn.is-primary:disabled {
+  opacity: 1;
+  background: color-mix(in srgb, #3b82f6 26%, var(--mgr-card));
+  border-color: color-mix(in srgb, #3b82f6 40%, var(--mgr-border));
+  color: #cbd5e1;
+}
+
+/* Themed radios in the area review dialog */
+:root .mgr-layout .odm-or-area-review-options input[type='radio'] {
+  appearance: none;
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin: 2px 0 0;
+  border: 2px solid var(--mgr-border);
+  border-radius: 50%;
+  background: var(--mgr-card-2);
+  cursor: pointer;
+
+  &:checked {
+    border-color: #1565e8;
+    background: radial-gradient(circle, #1565e8 0 42%, transparent 46%), var(--mgr-card-2);
+  }
+
+  &:focus-visible {
+    outline: 2px solid #1565e8;
+    outline-offset: 2px;
+  }
+}

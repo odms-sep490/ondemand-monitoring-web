@@ -7,6 +7,9 @@ import { safeStopError } from '../../../../mission/lib/safeStopPresentation'
 import type { RefObject, Dispatch, SetStateAction } from 'react'
 import type { UseApiQueryState } from '../../../../../shared/hooks/useApiQuery'
 import type { SafeStop } from '../../../types/planning'
+import { Button } from '../../../../../shared/components/ui'
+import { useI18n } from '../../../../../shared/i18n'
+import { stopFlowPanelMessages } from './StopFlowPanel.messages'
 
 export function StopFlowPanel({
   flowRef,
@@ -51,25 +54,25 @@ export function StopFlowPanel({
   command: (action: 'cancel' | 'request' | 'cleanup') => Promise<void>
   message: string
 }) {
+  const { t } = useI18n(stopFlowPanelMessages)
   return (
     <section
       className="odm-manager-stop-flow mission-stop"
       ref={flowRef}
       tabIndex={-1}
-      aria-label={`Dừng Mission ${missionCode}`}
+      aria-label={t.stopMission(missionCode)}
       aria-busy={busy || query.loading}
     >
       <div className="mission-stop__header">
         <h4>
           <Icon name="shield" width={18} height={18} />
           {ready && stop?.canCancelMission === true && !requested
-            ? 'Xác nhận hủy Mission'
-            : 'Dừng Mission an toàn'}
+            ? t.confirmCancel
+            : t.safeStop}
         </h4>
         <div className="mission-stop__header-actions">
           <SafeStopRefresh disabled={busy || query.loading} onClick={refresh} />
-          <button
-            className="odm-btn"
+          <Button
             disabled={busy}
             onClick={() => {
               setIntent(null)
@@ -81,11 +84,11 @@ export function StopFlowPanel({
               })
             }}
           >
-            Đóng bảng thao tác
-          </button>
+            {t.closePanel}
+          </Button>
         </div>
       </div>
-      {query.loading && <p role="status">Đang kiểm tra trạng thái…</p>}
+      {query.loading && <p role="status">{t.checkingStatus}</p>}
       {query.error ? (
         <p role="alert" className="mission-stop__warning">
           {safeStopError(query.error)}
@@ -94,31 +97,25 @@ export function StopFlowPanel({
       {ready && (
         <>
           {stop.canCancelMission === true && !requested ? (
-            <p className="mission-stop__description">
-              Mission có thể được hủy. Lịch sử đã ghi nhận sẽ được giữ lại.
-            </p>
+            <p className="mission-stop__description">{t.canCancel}</p>
           ) : (
             <>
               <SafeStopSummary stop={stop} actor="manager" />
               {!requested && (
-                <p className="mission-stop__guidance">
-                  Đội bay chịu trách nhiệm đưa Mission về trạng thái an toàn
-                  trước khi tiếp tục hủy.
-                </p>
+                <p className="mission-stop__guidance">{t.crewResponsible}</p>
               )}
             </>
           )}
-
           {requested ? (
             <dl className="mission-stop__reason">
-              <dt>Lý do dừng / hủy Mission</dt>
-              <dd>{stop.reason || reason || 'Chưa có thông tin lý do.'}</dd>
+              <dt>{t.stopReason}</dt>
+              <dd>{stop.reason || reason || t.noReason}</dd>
             </dl>
           ) : (
             (nextAction === 'request' || nextAction === 'cancel') && (
               <div className="mission-stop__form">
                 <label className="mission-stop__field">
-                  Lý do dừng / hủy Mission
+                  {t.stopReason}
                   <textarea
                     maxLength={1000}
                     value={reason}
@@ -130,41 +127,33 @@ export function StopFlowPanel({
             )
           )}
           {requested && nextAction === 'cancel' && !actionReason && (
-            <p className="mission-stop__warning">
-              Chưa tải được lý do dừng. Làm mới trạng thái trước khi hủy
-              Mission.
-            </p>
+            <p className="mission-stop__warning">{t.reasonNotLoaded}</p>
           )}
           {stop.cleanedAt && stop.canCancelMission !== true && (
             <p className="mission-stop__guidance">
-              {draft
-                ? 'Chưa thể hủy Mission lúc này. Làm mới trạng thái để kiểm tra lại.'
-                : 'Mở điều chỉnh kế hoạch trước khi tiếp tục hủy Mission.'}
+              {draft ? t.cannotCancelNow : t.openAdjustPlan}
             </p>
           )}
           {stop.confirmedAt && !stop.cleanedAt && nextAction === null && (
-            <p className="mission-stop__guidance">
-              Chưa đủ điều kiện giải phóng tài nguyên. Kiểm tra với đội bay và
-              làm mới trạng thái.
-            </p>
+            <p className="mission-stop__guidance">{t.notReadyToRelease}</p>
           )}
           {nextAction && (
             <div className="mission-stop__actions">
-              <button
-                className={`odm-btn ${nextAction === 'cancel' ? 'odm-btn-rd' : 'odm-btn-p'}`}
+              <Button
+                variant={nextAction === 'cancel' ? 'danger' : 'primary'}
                 disabled={
                   !allowed || (nextAction !== 'cleanup' && !actionReason)
                 }
                 onClick={() => void command(nextAction)}
               >
                 {busy
-                  ? 'Đang xử lý…'
+                  ? t.processing
                   : {
-                      request: 'Yêu cầu dừng an toàn',
-                      cleanup: 'Giải phóng tài nguyên',
-                      cancel: 'Hủy Mission',
+                      request: t.requestStop,
+                      cleanup: t.releaseResources,
+                      cancel: t.cancelMission,
                     }[nextAction]}
-              </button>
+              </Button>
             </div>
           )}
         </>

@@ -1,8 +1,13 @@
 import type { Mission } from '../../../mission/types/mission'
 import { managerHref } from '../../routes'
 import { liveDispatchPageMessages } from './LiveDispatchPage.messages'
+import { commonMiscMessages } from './commonMisc.messages'
+import { missionStatusLabel } from './liveDispatchHelpers'
 import { useI18n } from '../../../../shared/i18n'
 import type { OrderDispatchContext } from './liveDispatchTypes'
+import { Button } from 'antd'
+import { PageHeader } from './PageHeader'
+import { StatusTag } from './StatusTag'
 
 export function DispatchPageHead({
   orderContext,
@@ -14,35 +19,35 @@ export function DispatchPageHead({
   busy: boolean
 }) {
   const { t } = useI18n(liveDispatchPageMessages)
+  const { t: m } = useI18n(commonMiscMessages)
   return (
-    <div className="odm-or-pagehead odm-or-pagehead-row">
-      <div>
-        <h1 className="odm-or-title">{t.createMissionTitle}</h1>
-        <p className="odm-or-subtitle">{t.createMissionSubtitle}</p>
-        {orderContext && (
-          <span className="odm-or-pill odm-or-pill-blue">
-            {current.missionCode}
+    <PageHeader
+      title={t.createMissionTitle}
+      description={
+        orderContext ? (
+          <span className="mgr-badge-row">
+            <span>{current.missionCode}</span>
+            <StatusTag tone="info">
+              {missionStatusLabel(current.status, t.missionStatuses)}
+            </StatusTag>
           </span>
-        )}
-      </div>
-      {orderContext ? (
-        <button
-          className="odm-or-btn-outline"
-          disabled={busy}
-          onClick={() => orderContext.onReturn()}
-        >
-          {orderContext.missionScoped
-            ? orderContext.returnLabel
-            : 'Chọn nhiệm vụ khác'}
-        </button>
-      ) : (
-        <a
-          className="odm-or-btn-outline"
-          href={managerHref({ screen: 'orderQueue' })}
-        >
-          {t.backToOrders}
-        </a>
-      )}
-    </div>
+        ) : (
+          t.createMissionSubtitle
+        )
+      }
+      actions={
+        orderContext ? (
+          <Button disabled={busy} onClick={() => orderContext.onReturn()}>
+            {orderContext.missionScoped
+              ? orderContext.returnLabel
+              : m.chooseOtherMission}
+          </Button>
+        ) : (
+          <Button href={managerHref({ screen: 'orderQueue' })}>
+            {t.backToOrders}
+          </Button>
+        )
+      }
+    />
   )
 }

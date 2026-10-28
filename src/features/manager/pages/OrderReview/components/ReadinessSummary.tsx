@@ -1,5 +1,7 @@
 import { resultLabel } from '../readinessHelpers'
 import type { ReadinessCriterion } from '../../../types/readiness'
+import { useI18n } from '../../../../../shared/i18n'
+import { readinessSummaryMessages } from './ReadinessSummary.messages'
 
 export function ReadinessSummary({
   autoPassed,
@@ -8,12 +10,13 @@ export function ReadinessSummary({
   autoPassed: number
   auto: ReadinessCriterion[]
 }) {
+  const { t } = useI18n(readinessSummaryMessages)
   return (
     <div className="odm-or-readiness-col">
       <h3>
-        Hệ thống kiểm tra
+        {t.systemChecks}
         <span className="odm-or-readiness-count">
-          {autoPassed}/{auto.length} đạt
+          {autoPassed}/{auto.length} {t.passed}
         </span>
       </h3>
       <ul className="odm-or-readiness-list">
@@ -25,7 +28,7 @@ export function ReadinessSummary({
                 {c.title}
                 {c.required ? (
                   <>
-                    <span className="odm-or-readiness-tag">Bắt buộc</span>
+                    <span className="odm-or-readiness-tag">{t.required}</span>
                   </>
                 ) : null}
               </strong>

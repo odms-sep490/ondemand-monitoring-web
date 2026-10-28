@@ -117,7 +117,6 @@ describe('orders without design-sourced detail content', () => {
     expect(payload.data.addressText).toBeNull()
     expect(payload.data.center).toBeNull()
     expect(payload.data.radiusM).toBeNull()
-    expect(payload.data.nearestBase).toBeNull()
     expect(payload.data.mediaRequirements).toBeNull()
     expect(payload.data.purpose).toBeNull()
     expect(payload.data.attachments).toBeNull()

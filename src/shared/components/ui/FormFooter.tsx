@@ -1,3 +1,4 @@
+import { Button } from './Button'
 import { useI18n } from '../../i18n'
 import { defineMessages } from '../../i18n'
 
@@ -18,17 +19,12 @@ export function FormFooter({
   const { t } = useI18n(formFooterMessages)
   return (
     <>
-      <button type="button" className="odm-btn odm-btn-gh" onClick={onClose}>
+      <Button variant="ghost" onClick={onClose}>
         {t.cancel}
-      </button>
-      <button
-        type="submit"
-        form={formId}
-        className="odm-btn odm-btn-p"
-        disabled={busy}
-      >
+      </Button>
+      <Button type="submit" form={formId} variant="primary" disabled={busy}>
         {busy ? t.saving : t.save}
-      </button>
+      </Button>
     </>
   )
 }

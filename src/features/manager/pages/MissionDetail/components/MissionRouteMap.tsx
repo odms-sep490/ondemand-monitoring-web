@@ -7,6 +7,8 @@ import {
   worldToViewportPercent,
 } from '../../../../../shared/lib/simulationMapProjection'
 import type { PlanWaypointResponse } from '../../../types/missions'
+import { getLanguage } from '../../../../../shared/i18n'
+import { missionDetailPageMessages } from '../MissionDetailPage.messages'
 
 type SimulationMapMeta = {
   image?: string
@@ -43,13 +45,13 @@ function useSimulationMapMeta() {
 }
 
 export function waypointReasonLabel(value?: string | null): string {
-  if (!value) return 'Điểm bay'
-  if (value === 'START') return 'Điểm xuất phát'
-  if (value === 'TARGET' || value === 'TARGET_APPROACH')
-    return 'Tiếp cận mục tiêu'
-  if (value === 'CRUISE') return 'Điểm trung gian'
-  if (value === 'TERRAIN_CLEARANCE') return 'Tránh địa hình'
-  if (value === 'OBSTACLE_AVOIDANCE') return 'Tránh chướng ngại'
+  const x = missionDetailPageMessages[getLanguage()].extra
+  if (!value) return x.wpDefault
+  if (value === 'START') return x.wpStart
+  if (value === 'TARGET' || value === 'TARGET_APPROACH') return x.wpTarget
+  if (value === 'CRUISE') return x.wpCruise
+  if (value === 'TERRAIN_CLEARANCE') return x.wpTerrain
+  if (value === 'OBSTACLE_AVOIDANCE') return x.wpObstacle
   return value.replaceAll('_', ' ').toLowerCase()
 }
 

@@ -27,7 +27,7 @@ export function OrderChecklistCard({
           {t.requirementsHistory}
         </p>
         {items.length ? (
-          <ol className="odm-or-checklist-list">
+          <ol className="odm-or-checklist-list mgr-scroll-list">
             {items.map((item) => (
               <li key={item.id}>
                 <p className="odm-or-checklist-content">{item.content}</p>

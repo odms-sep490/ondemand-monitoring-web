@@ -1,0 +1,66 @@
+import { defineMessages } from '../../../../shared/i18n'
+
+export const missionDetailHelpersMessages = defineMessages({
+  vi: {
+    seconds: (n: number) => `${n} giây`,
+    minutes: (n: number) => `${n} phút`,
+    minutesSeconds: (m: number, s: number) => `${m} phút ${s} giây`,
+    checkLabels: {
+      PLANNING: 'Đang lập kế hoạch',
+      PASSED: 'Đạt',
+      FAILED: 'Không đạt',
+      PENDING: 'Chờ kiểm tra',
+      CHECKING: 'Đang kiểm tra',
+      CANCELLED: 'Đã hủy',
+      COMPLETED: 'Hoàn thành',
+      IN_PROGRESS: 'Đang xử lý',
+      DRAFT: 'Nháp',
+      PENDING_MANAGER_APPROVAL: 'Chờ duyệt',
+      APPROVED: 'Đã duyệt',
+      REJECTED: 'Từ chối',
+    } as Record<string, string>,
+    staffRoles: {
+      PILOT: 'Phi công',
+      OPERATOR: 'Vận hành',
+      MAINTAINER: 'Bảo trì',
+      INSPECTOR: 'Nghiệm thu',
+    },
+    staffResponses: {
+      PLANNING: 'Đang lập kế hoạch',
+      PENDING: 'Chờ phản hồi',
+      ACCEPTED: 'Đã chấp nhận',
+      REJECTED: 'Đã từ chối',
+    },
+  },
+  en: {
+    seconds: (n: number) => `${n} sec`,
+    minutes: (n: number) => `${n} min`,
+    minutesSeconds: (m: number, s: number) => `${m} min ${s} sec`,
+    checkLabels: {
+      PLANNING: 'Planning',
+      PASSED: 'Passed',
+      FAILED: 'Failed',
+      PENDING: 'Pending check',
+      CHECKING: 'Checking',
+      CANCELLED: 'Cancelled',
+      COMPLETED: 'Completed',
+      IN_PROGRESS: 'In progress',
+      DRAFT: 'Draft',
+      PENDING_MANAGER_APPROVAL: 'Pending approval',
+      APPROVED: 'Approved',
+      REJECTED: 'Rejected',
+    } as Record<string, string>,
+    staffRoles: {
+      PILOT: 'Pilot',
+      OPERATOR: 'Operator',
+      MAINTAINER: 'Maintainer',
+      INSPECTOR: 'Inspector',
+    },
+    staffResponses: {
+      PLANNING: 'Planning',
+      PENDING: 'Awaiting response',
+      ACCEPTED: 'Accepted',
+      REJECTED: 'Declined',
+    },
+  },
+})

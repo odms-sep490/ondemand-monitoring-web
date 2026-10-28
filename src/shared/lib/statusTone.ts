@@ -154,7 +154,7 @@ export const missionStatusLabel: Record<MissionStatus, string> = {
   PREFLIGHT_CHECKING: 'Đang kiểm tra trước bay',
   READY_TO_FLY: 'Sẵn sàng bay',
   FAILED_PREFLIGHT: 'Kiểm tra trước bay thất bại',
-  PENDING_APPROVAL: 'Chờ Manager xử lý',
+  PENDING_APPROVAL: 'Chờ quản lý xử lý',
   IN_FLIGHT: 'Đang bay',
   IN_PROGRESS: 'Đang bay',
   RETURNING: 'Đang trở về',
@@ -333,9 +333,11 @@ export function getMissionStatusLabel(
   status: MissionStatus,
   lang: Language,
 ): string {
-  return lang === 'en'
-    ? missionStatusLabelEn[status]
-    : missionStatusLabel[status]
+  return (
+    (lang === 'en'
+      ? missionStatusLabelEn[status]
+      : missionStatusLabel[status]) ?? status
+  )
 }
 
 export function getDroneStatusLabel(

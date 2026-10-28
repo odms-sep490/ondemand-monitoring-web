@@ -1,0 +1,360 @@
+/* Staff / device pickers (dispatch wizard). Tokens only: --mgr-* and --pl-* (light + dark). */
+.mgr-layout .mgr-pk {
+  position: relative;
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.mgr-layout .mgr-pk-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  min-height: 42px;
+  padding: 0 12px;
+  border: 1px solid var(--pl-border-strong);
+  border-radius: 10px;
+  background: var(--mgr-card);
+  color: var(--mgr-muted);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.2;
+  text-align: left;
+  cursor: pointer;
+}
+
+.mgr-layout .mgr-pk-trigger:hover {
+  border-color: var(--pl-blue-ac);
+  color: var(--mgr-text);
+}
+
+.mgr-layout .mgr-pk-trigger:focus-visible,
+.mgr-layout .mgr-pk-selected:focus-visible,
+.mgr-layout .mgr-pk-option:focus-visible {
+  outline: 2px solid var(--pl-blue-ac);
+  outline-offset: 1px;
+}
+
+.mgr-layout .mgr-pk-trigger-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.mgr-layout .mgr-pk-trigger-label > span:last-child {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.mgr-layout .mgr-pk-trigger-icon,
+.mgr-layout .mgr-pk-caret {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  font-size: 15px;
+}
+
+.mgr-layout .mgr-pk-caret {
+  font-size: 12px;
+  color: var(--mgr-muted);
+}
+
+/* Selected people / devices */
+.mgr-layout .mgr-pk-selected {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  min-height: 74px;
+  padding: 10px;
+  border: 1px solid var(--pl-blue-bd);
+  border-radius: 12px;
+  background: var(--pl-blue-bg);
+  color: var(--mgr-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.mgr-layout .mgr-pk-item {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  min-width: 0;
+}
+
+.mgr-layout .mgr-pk-text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.mgr-layout .mgr-pk-name {
+  min-width: 0;
+  color: var(--mgr-text);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.3;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+.mgr-layout .mgr-pk-name.is-ellipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.mgr-layout .mgr-pk-sub {
+  overflow: hidden;
+  color: var(--mgr-muted);
+  font-size: 12px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.mgr-layout .mgr-pk-remove {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--pl-blue-bd);
+  border-radius: 999px;
+  background: var(--mgr-card);
+  color: var(--mgr-muted);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.mgr-layout .mgr-pk-remove:hover {
+  color: var(--pl-red-fg);
+  border-color: var(--pl-red-bd);
+}
+
+.mgr-layout .mgr-pk-avatar {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: var(--pl-blue-bg);
+  border: 1px solid var(--pl-blue-bd);
+  color: var(--pl-blue-fg);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.mgr-layout .mgr-pk-avatar.is-device {
+  border-radius: 12px;
+  font-size: 18px;
+}
+
+.mgr-layout .mgr-pk-ready {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--pl-green-fg);
+  font-size: 12px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.mgr-layout .mgr-pk-ready > i {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--pl-green-ac);
+}
+
+.mgr-layout .mgr-pk-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Popover: anchored under the trigger, flips up / right-aligns when it would leave the viewport */
+.mgr-layout .mgr-pk-panel {
+  position: absolute;
+  z-index: 80;
+  top: calc(100% + 6px);
+  left: 0;
+  width: min(420px, calc(100vw - 32px));
+  min-width: min(100%, 280px);
+  overflow: hidden;
+  border: 1px solid var(--mgr-border);
+  border-radius: 12px;
+  background: var(--mgr-card);
+  color: var(--mgr-text);
+  box-shadow: var(--mgr-shadow-hover, 0 10px 30px rgb(15 23 42 / 18%));
+}
+
+.mgr-layout .mgr-pk-panel.is-wide {
+  width: min(460px, calc(100vw - 32px));
+}
+
+.mgr-layout .mgr-pk-panel.is-up {
+  top: auto;
+  bottom: calc(100% + 6px);
+}
+
+.mgr-layout .mgr-pk-panel.is-end {
+  left: auto;
+  right: 0;
+}
+
+.mgr-layout .mgr-pk-panel-head {
+  padding: 10px;
+  border-bottom: 1px solid var(--mgr-border);
+}
+
+.mgr-layout .mgr-pk-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 0 10px;
+  border: 1px solid var(--mgr-border);
+  border-radius: 9px;
+  background: var(--mgr-card-2);
+  color: var(--mgr-muted);
+}
+
+.mgr-layout .mgr-pk-search:focus-within {
+  border-color: var(--pl-blue-ac);
+}
+
+.mgr-layout .mgr-pk-search input {
+  width: 100%;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  outline: 0;
+  box-shadow: none;
+  background: transparent;
+  color: var(--mgr-text);
+  font: inherit;
+  font-size: 14px;
+}
+
+.mgr-layout .mgr-pk-search input::placeholder {
+  color: var(--mgr-muted);
+}
+
+.mgr-layout .mgr-pk-chip {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--pl-blue-bg);
+  color: var(--pl-blue-fg);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.mgr-layout .mgr-pk-list {
+  max-height: min(240px, 40vh);
+  padding: 6px;
+  overflow-y: auto;
+}
+
+.mgr-layout .mgr-pk-option {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  min-height: 62px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--mgr-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.mgr-layout .mgr-pk-option.is-active {
+  background: var(--mgr-card-2);
+}
+
+.mgr-layout .mgr-pk-option.is-selected {
+  background: var(--pl-blue-bg);
+}
+
+.mgr-layout .mgr-pk-name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.mgr-layout .mgr-pk-name-row .mgr-pk-name {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.mgr-layout .mgr-pk-roletag {
+  flex: none;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--pl-chip-bg);
+  color: var(--mgr-text);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.mgr-layout .mgr-pk-check {
+  color: transparent;
+  font-size: 16px;
+}
+
+.mgr-layout .mgr-pk-option.is-selected .mgr-pk-check {
+  color: var(--pl-blue-ac);
+}
+
+.mgr-layout .mgr-pk-empty {
+  padding: 16px;
+  color: var(--mgr-muted);
+  font-size: 14px;
+}
+
+/* Role cards in the staff step: never squeeze the person card into a sliver */
+.mgr-layout .odm-or-role-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+}
+
+.mgr-layout .odm-or-role-card {
+  min-width: 0;
+}
+
+.mgr-layout .odm-or-role-head > span:first-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+@media (max-width: 640px) {
+  .mgr-layout .mgr-pk-panel,
+  .mgr-layout .mgr-pk-panel.is-wide {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+.mgr-layout .odm-or-device-box .odm-or-role-head > span:first-child {
+  display: grid;
+  gap: 2px;
+}
+.mgr-layout .odm-or-device-box .mgr-block-note {
+  margin: 0;
+}

@@ -4,6 +4,10 @@ import { planningApi } from '../../../api/planningApi'
 import { planningError } from '../../../lib/planningErrors'
 import type { OrderChecklistSnapshot } from '../../../types/orders'
 import { OrderIcon } from '../../../components/common/OrderIcon'
+import { Button, useToast } from '../../../../../shared/components/ui'
+import { useI18n } from '../../../../../shared/i18n'
+import { managerFeedbackMessages } from '../../../feedback.messages'
+import { missionChecklistAssignmentEditorMessages } from './MissionChecklistAssignmentEditor.messages'
 
 export function MissionChecklistAssignmentEditor({
   missionId,
@@ -24,6 +28,9 @@ export function MissionChecklistAssignmentEditor({
     (signal) => planningApi.getAssignments(missionId, signal),
     [missionId, revision],
   )
+  const { t: fb } = useI18n(managerFeedbackMessages)
+  const { t } = useI18n(missionChecklistAssignmentEditorMessages)
+  const toast = useToast()
   const [selected, setSelected] = useState<string[]>([])
   const [dirty, setDirty] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -59,9 +66,11 @@ export function MissionChecklistAssignmentEditor({
       setDirty(false)
       query.reload()
       onChanged()
-      setMessage('Đã lưu phân công checklist.')
+      setMessage(t.saved)
+      toast.success(fb.checklistAssignmentSaved)
     } catch (error) {
       setMessage(planningError(error))
+      toast.error(planningError(error))
       query.reload()
       onChanged()
     } finally {
@@ -76,21 +85,23 @@ export function MissionChecklistAssignmentEditor({
       <summary>
         Checklist ·{' '}
         {editable
-          ? `${selected.length}/${items.length} mục được chọn`
-          : `${query.data?.assignments.filter((a) => a.active).length ?? '…'} mục`}
+          ? t.selectedCount(selected.length, items.length)
+          : t.itemCount(
+              query.data?.assignments.filter((a) => a.active).length ?? '…',
+            )}
       </summary>
-      {query.loading && <p role="status">Đang tải phân công…</p>}
+      {query.loading && <p role="status">{t.loading}</p>}
       {query.error ? (
         <p role="alert">
           {planningError(query.error)}{' '}
-          <button type="button" onClick={query.reload}>
-            Tải lại
-          </button>
+          <Button type="button" size="sm" onClick={query.reload}>
+            {t.reload}
+          </Button>
         </p>
       ) : null}
       {!editable && !query.loading && !query.error && (
         <ul
-          className="odm-mission-checklist"
+          className="odm-mission-checklist mgr-scroll-list"
           aria-label={`Checklist ${missionId}`}
         >
           {query.data?.assignments
@@ -98,16 +109,14 @@ export function MissionChecklistAssignmentEditor({
             .sort((a, b) => a.displayOrder - b.displayOrder)
             .map((item) => (
               <li key={item.assignmentId}>
-                <span className="odm-mission-check" aria-label="Đã phân công">
+                <span className="odm-mission-check" aria-label={t.assigned}>
                   <OrderIcon name="check" size={15} />
                 </span>
                 {item.content}
               </li>
             ))}
           {!query.data?.assignments.some((a) => a.active) && (
-            <li className="odm-mission-meta">
-              Chưa có checklist được phân công.
-            </li>
+            <li className="odm-mission-meta">{t.noneAssigned}</li>
           )}
         </ul>
       )}
@@ -115,9 +124,8 @@ export function MissionChecklistAssignmentEditor({
         <>
           {items.length > 1 && (
             <div className="odm-planning-bulk">
-              <button
+              <Button
                 type="button"
-                className="odm-btn"
                 disabled={
                   busy || query.loading || selected.length === items.length
                 }
@@ -126,22 +134,22 @@ export function MissionChecklistAssignmentEditor({
                   setSelected(items.map((item) => item.id))
                 }}
               >
-                Chọn tất cả
-              </button>
-              <button
+                {t.selectAll}
+              </Button>
+              <Button
                 type="button"
-                className="odm-btn"
                 disabled={busy || query.loading || selected.length === 0}
                 onClick={() => {
                   setDirty(true)
                   setSelected([])
                 }}
               >
-                Bỏ chọn
-              </button>
+                {t.deselect}
+              </Button>
             </div>
           )}
           <fieldset
+            className="mgr-scroll-list"
             disabled={
               !editable || busy || query.loading || Boolean(query.error)
             }
@@ -173,20 +181,20 @@ export function MissionChecklistAssignmentEditor({
                       }
                     >
                       {item.sourceType === 'SERVICE_TEMPLATE'
-                        ? 'Mẫu dịch vụ'
-                        : 'Khách hàng bổ sung'}
+                        ? t.serviceTemplate
+                        : t.customerAdded}
                     </small>
                   </span>
                 </label>
               ))}
-            {items.length === 0 && <p>Chưa có yêu cầu checklist.</p>}
+            {items.length === 0 && <p>{t.noRequests}</p>}
           </fieldset>
         </>
       )}
       {message && <p role="status">{message}</p>}
       {editable && (
-        <button
-          className="odm-btn odm-btn-p"
+        <Button
+          variant="primary"
           type="button"
           disabled={
             !dirty ||
@@ -197,8 +205,8 @@ export function MissionChecklistAssignmentEditor({
           }
           onClick={() => void save()}
         >
-          {busy ? 'Đang lưu…' : 'Lưu phân công'}
-        </button>
+          {busy ? t.saving : t.save}
+        </Button>
       )}
     </details>
   )

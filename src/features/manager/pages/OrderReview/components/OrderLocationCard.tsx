@@ -11,6 +11,9 @@ import type { OrderReviewMessages } from '../OrderReviewPage.messages'
 import { estimatedAreaHa } from '../../../components/common/format'
 import { OrderIcon } from '../../../components/common/OrderIcon'
 import { resolveOrderGpsCenter } from '../../../components/common/orderGps'
+import { Button } from '../../../../../shared/components/ui'
+import { useI18n } from '../../../../../shared/i18n'
+import { orderLocationCardMessages } from './OrderLocationCard.messages'
 
 function useLeafletOrderMap(order: OrderDetail) {
   const container = useRef<HTMLDivElement>(null)
@@ -103,6 +106,7 @@ export function OrderLocationCard({
   t: OrderReviewMessages
   showAreaAddress?: boolean
 }) {
+  const { t: tl } = useI18n(orderLocationCardMessages)
   const mapRef = useLeafletOrderMap(order)
   const resolved = resolveOrderGpsCenter(order.center)
   const areaAddress = order.addressText?.trim() || null
@@ -141,14 +145,10 @@ export function OrderLocationCard({
 
   const areaHa = estimatedAreaHa(order.radiusM)
   const openButton = (
-    <button
-      type="button"
-      className="odm-or-btn-outline"
-      onClick={toggleFullscreen}
-    >
+    <Button type="button" onClick={toggleFullscreen}>
       {t.openInMap}
       <OrderIcon name="external" size={14} />
-    </button>
+    </Button>
   )
 
   return (
@@ -195,7 +195,7 @@ export function OrderLocationCard({
             <OrderIcon name="pin" size={18} />
           </span>
           <span>
-            <span className="odm-or-area-address-label">Địa chỉ khu vực</span>
+            <span className="odm-or-area-address-label">{tl.areaAddress}</span>
             <strong>{areaAddress}</strong>
           </span>
         </div>

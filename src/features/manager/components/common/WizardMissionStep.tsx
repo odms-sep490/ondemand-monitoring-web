@@ -1,3 +1,5 @@
+import { useI18n } from '../../../../shared/i18n'
+import { commonMiscMessages } from './commonMisc.messages'
 import type { usePlanningConfirmation } from './usePlanningConfirmation'
 import { LiveDispatchPage } from './LiveDispatchPage'
 import { assignmentReadiness } from '../../lib/assignmentReadiness'
@@ -55,6 +57,7 @@ export function WizardMissionStep({
   deviceId: string | null
   initialStaff: Partial<Record<MissionStaffRole, string[]>>
 }) {
+  const { t } = useI18n(commonMiscMessages)
   return (
     <>
       {confirmation.dialog}
@@ -109,7 +112,7 @@ export function WizardMissionStep({
                     current.deviceCode ||
                     current.droneCode ||
                     current.deviceName ||
-                    'Thiết bị đã phân công',
+                    t.assignedDevice,
                 },
               ]
             : [],

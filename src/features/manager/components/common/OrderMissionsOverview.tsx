@@ -1,4 +1,6 @@
 import type { ReactNode } from 'react'
+import { useI18n } from '../../../../shared/i18n'
+import { orderMissionsOverviewMessages } from './OrderMissionsOverview.messages'
 import { assignmentReadiness } from '../../lib/assignmentReadiness'
 import type { MissionStaffRole } from '../../../mission/types/mission'
 import { STAFF_ROLE_LABELS } from './missionDetailHelpers'
@@ -7,6 +9,7 @@ import { OrderWorkflowStepper } from './OrderWorkflowStepper'
 import { planningSchedule } from './planningSchedule'
 import { FlightPermitCard } from './FlightPermitCard'
 import type { MissionResponse } from '../../types/missions'
+import { Button } from '../../../../shared/components/ui'
 
 const ROLES: MissionStaffRole[] = [
   'PILOT',
@@ -40,6 +43,7 @@ export function OrderMissionsOverview({
   embedded?: boolean
   mode?: 'preparation' | 'permit'
 }) {
+  const { t } = useI18n(orderMissionsOverviewMessages)
   const effective = missions.filter((mission) => mission.status !== 'CANCELLED')
   const completeCount = effective.filter(
     (mission) => assignmentReadiness(mission).complete,
@@ -52,39 +56,35 @@ export function OrderMissionsOverview({
         <>
           <div className="odm-or-pagehead odm-or-pagehead-row">
             <div>
-              <h1 className="odm-or-title">Tổng quan Mission</h1>
-              <p className="odm-or-subtitle">
-                Kiểm tra lại lịch, nhân sự và thiết bị của toàn bộ Mission trước
-                khi hoàn tất.
-              </p>
+              <h1 className="odm-or-title">{t.title}</h1>
+              <p className="odm-or-subtitle">{t.subtitle}</p>
             </div>
-            <button
+            <Button
               type="button"
-              className="odm-or-btn-outline"
               disabled={loading}
               onClick={onReload}
             >
-              Làm mới
-            </button>
+              {t.reload}
+            </Button>
           </div>
           <OrderWorkflowStepper currentStep={mode === 'permit' ? 9 : 8} />
         </>
       )}
       {mode === 'preparation' ? (
-        <section className="odm-or-card" aria-label="Tổng quan Mission">
+        <section className="odm-or-card" aria-label={t.title}>
         <header className="odm-or-card-head">
           <span className="odm-or-card-title">
-            {completeCount}/{effective.length} Mission đã phân công đầy đủ
+            {t.completeCount(completeCount, effective.length)}
           </span>
           <span
             className={`odm-or-pill ${allReady ? 'odm-or-pill-green' : 'odm-or-pill-amber'}`}
             role="status"
           >
-            {allReady ? 'Sẵn sàng' : 'Còn thiếu phân công'}
+            {allReady ? t.ready : t.missingAssignment}
           </span>
         </header>
         <div className="odm-or-card-body">
-          {loading && <p role="status">Đang tải nhiệm vụ…</p>}
+          {loading && <p role="status">{t.loading}</p>}
           <div className="odm-or-overview-grid">
             {missions.map((mission) => {
               const readiness = assignmentReadiness(mission)
@@ -94,7 +94,7 @@ export function OrderMissionsOverview({
                 mission.droneCode ||
                 mission.deviceName ||
                 (mission.deviceId || mission.droneId
-                  ? 'Thiết bị đã phân công'
+                  ? t.assignedDevice
                   : null)
               return (
                 <article
@@ -113,9 +113,9 @@ export function OrderMissionsOverview({
                       }`}
                     >
                       {cancelled
-                        ? 'Đã hủy'
+                        ? t.cancelled
                         : readiness.complete
-                          ? 'Đã phân công'
+                          ? t.assigned
                           : (readiness.label ?? mission.status)}
                     </span>
                   </header>
@@ -126,7 +126,7 @@ export function OrderMissionsOverview({
                     <div>
                       <dt>
                         <OrderIcon name="calendar" size={16} />
-                        Lịch
+                        {t.schedule}
                       </dt>
                       <dd>
                         {planningSchedule(
@@ -138,7 +138,7 @@ export function OrderMissionsOverview({
                     <div>
                       <dt>
                         <OrderIcon name="drone" size={16} />
-                        Thiết bị
+                        {t.device}
                       </dt>
                       <dd>{device ?? '—'}</dd>
                     </div>
@@ -171,13 +171,12 @@ export function OrderMissionsOverview({
                     })}
                   </dl>
                   {!cancelled && !readiness.complete && onAssignMore ? (
-                    <button
+                    <Button
                       type="button"
-                      className="odm-or-btn-outline"
                       onClick={() => onAssignMore(mission.id)}
                     >
-                      Phân công tiếp
-                    </button>
+                      {t.assignMore}
+                    </Button>
                   ) : null}
                 </article>
               )
@@ -204,18 +203,18 @@ export function OrderMissionsOverview({
       <div className="odm-or-actionbar">
         <div className="odm-or-actionbar-hint">
           {mode === 'permit'
-            ? 'Cập nhật giấy phép bay cho từng Mission trước khi thực hiện.'
+            ? t.hintPermit
             : allReady
-              ? 'Tất cả Mission đã đủ nhân sự và thiết bị.'
-              : 'Hoàn tất phân công các Mission còn thiếu để kết thúc kế hoạch.'}
+              ? t.hintAllReady
+              : t.hintMissing}
         </div>
-        <button
+        <Button
           type="button"
-          className="odm-or-btn odm-or-btn-blue"
+          variant="primary"
           onClick={onDone}
         >
           {doneLabel}
-        </button>
+        </Button>
       </div>
     </div>
   )

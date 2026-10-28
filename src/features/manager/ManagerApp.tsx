@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react'
 
-import { StateView } from '../../shared/components/odm/StateView'
+import { FileSearchOutlined } from '@ant-design/icons'
+import { Button } from 'antd'
+
+import { CardComponent } from '../../shared/components/antd'
 import { useApiQuery } from '../../shared/hooks/useApiQuery'
 import { managerApi } from './api/dashboardApi'
 import { ManagerLayout } from './ManagerLayout'
@@ -8,17 +11,18 @@ import { MissionCreatePage } from './pages/MissionCreate'
 import { DashboardPage } from './pages/Dashboard'
 import { MissionDispatchPage } from './pages/MissionDispatch'
 import { DronesPage } from './pages/Drones'
-import { LivePage } from './pages/Live'
 import { MaintenancePage } from './pages/Maintenance'
-import { MediaPage } from './pages/Media'
 import { MissionDetailPage } from './pages/MissionDetail'
 import { MissionsPage } from './pages/Missions'
-import { ReportsPage } from './pages/Reports'
 import { OrderReviewPage } from './pages/OrderReview'
 import { OrderQueuePage } from './pages/OrderQueue'
 import { SchedulePage } from './pages/Schedule'
 import { StaffSupportDashboardPage } from '../support/pages/StaffSupportDashboardPage'
 import { managerHref, parseManagerRoute, type ManagerRoute } from './routes'
+import { useI18n } from '../../shared/i18n'
+import { managerLayoutMessages } from './ManagerLayout.messages'
+import { EmptyState } from './components/common/EmptyState'
+import { ManagerErrorBoundary } from './components/common/ManagerErrorBoundary'
 
 function useHash(): string {
   const [hash, setHash] = useState(() => window.location.hash)
@@ -30,23 +34,23 @@ function useHash(): string {
   return hash
 }
 
-const breadcrumbLabel: Record<ManagerRoute['screen'], string> = {
-  dashboard: 'Dashboard',
-  orderQueue: 'Đơn hàng',
-  orderReview: 'Đơn hàng',
-  missionCreate: 'Đơn hàng',
-  missionDispatch: 'Nhiệm vụ',
-  missionSetup: 'Thiết lập nhiệm vụ',
-  missionDetail: 'Chi tiết nhiệm vụ',
-  schedule: 'Lịch nhiệm vụ',
-  live: 'Giám sát realtime',
-  missions: 'Nhiệm vụ',
-  drones: 'Đội drone',
-  maintenance: 'Bảo trì',
-  media: 'Media và giao kết quả',
-  reports: 'Báo cáo',
-  support: 'Trung tâm Hỗ trợ',
-  notFound: 'Không tìm thấy',
+const breadcrumbKey: Record<
+  ManagerRoute['screen'],
+  keyof (typeof managerLayoutMessages)['vi']['breadcrumbs']
+> = {
+  dashboard: 'dashboard',
+  orderQueue: 'orders',
+  orderReview: 'orders',
+  missionCreate: 'orders',
+  missionDispatch: 'missions',
+  missionSetup: 'missionSetup',
+  missionDetail: 'missionDetail',
+  schedule: 'schedule',
+  missions: 'missions',
+  drones: 'drones',
+  maintenance: 'maintenance',
+  support: 'support',
+  notFound: 'notFound',
 }
 
 /**
@@ -57,45 +61,36 @@ const breadcrumbLabel: Record<ManagerRoute['screen'], string> = {
  * that later phases (P4-P8) will replace.
  *
  * Fetches the dashboard once here (rather than inside `DashboardPage`) so
- * the sidebar nav-count badges (Duyệt đơn / Bảo trì / Media) stay populated
- * from real API data on every screen, not just the dashboard itself.
+ * the sidebar pending-orders badge stays populated from real API data on
+ * every screen, not just the dashboard itself.
  */
 export function ManagerApp() {
   const hash = useHash()
+  const { t } = useI18n(managerLayoutMessages)
   const route = parseManagerRoute(hash)
   const navCounts = useApiQuery((signal) => managerApi.getDashboard('30D', signal), [])
 
-  const data = navCounts.data
-  // Nav badges come from the dashboard's (PROPOSED) `navCounts` field, not
-  // from counting `actionItems` — that list only surfaces the handful of
-  // items needing attention right now, which undercounts the real totals
-  // (Bảo trì / Media). `navCounts` values are backed by design strings from
-  // MNG-10/MNG-11, not invented — see the type doc in
-  // src/features/manager/types/dashboard.ts and evd/P3-manager-dashboard.md.
-  const counts = data
-    ? {
-        pendingOrders:
-          data.navCounts?.pendingOrders ??
-          data.summary?.pendingOrderCount ??
-          data.kpis?.pendingOrders.count ??
-          0,
-        openMaintenance: data.navCounts?.openMaintenanceTickets ?? 0,
-        mediaNeedsAction: data.navCounts?.mediaNeedsAction ?? 0,
-      }
+  const counts = navCounts.data?.summary
+    ? { pendingOrders: navCounts.data.summary.pendingOrderCount }
     : undefined
 
   return (
     <ManagerLayout
       route={route}
-      breadcrumb={breadcrumbLabel[route.screen]}
+      breadcrumb={t.breadcrumbs[breadcrumbKey[route.screen]]}
       counts={counts}
     >
-      {renderScreen(route)}
+      <ManagerErrorBoundary resetKey={hash}>
+        {renderScreen(route, t.notFound)}
+      </ManagerErrorBoundary>
     </ManagerLayout>
   )
 }
 
-function renderScreen(route: ManagerRoute) {
+function renderScreen(
+  route: ManagerRoute,
+  notFound: (typeof managerLayoutMessages)['vi']['notFound'],
+) {
   if (route.screen === 'dashboard') return <DashboardPage />
   if (route.screen === 'orderQueue') return <OrderQueuePage />
   if (route.screen === 'orderReview')
@@ -121,35 +116,27 @@ function renderScreen(route: ManagerRoute) {
   if (route.screen === 'missionDetail')
     return <MissionDetailPage missionId={route.missionId} />
   if (route.screen === 'schedule') return <SchedulePage />
-  if (route.screen === 'live')
-    return (
-      <LivePage
-        key={route.missionId ?? 'generic'}
-        missionId={route.missionId}
-      />
-    )
   if (route.screen === 'missions')
     return <MissionsPage missionId={route.missionId} />
   if (route.screen === 'drones') return <DronesPage droneId={route.droneId} />
   if (route.screen === 'maintenance') return <MaintenancePage />
-  if (route.screen === 'media') return <MediaPage />
-  if (route.screen === 'reports') return <ReportsPage />
   if (route.screen === 'support') return <StaffSupportDashboardPage />
 
   // route.screen === 'notFound'
   return (
-    <StateView
-      state="empty"
-      title="Không tìm thấy màn hình"
-      description="Đường dẫn này không tồn tại trong khu vực Staff."
-      action={
-        <a
-          className="odm-btn odm-btn-p"
-          href={managerHref({ screen: 'dashboard' })}
-        >
-          Về Dashboard
-        </a>
-      }
-    />
+    <div className="mgr-view">
+      <CardComponent>
+        <EmptyState
+          icon={<FileSearchOutlined />}
+          title={notFound.title}
+          description={notFound.description}
+          action={
+            <Button type="primary" href={managerHref({ screen: 'dashboard' })}>
+              {notFound.back}
+            </Button>
+          }
+        />
+      </CardComponent>
+    </div>
   )
 }

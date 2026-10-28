@@ -1,43 +1,84 @@
-import { formatVnd } from '../../../../../shared/lib/formatVnd'
+import { ThunderboltOutlined } from '@ant-design/icons'
+import { Badge, Button, Empty, Tag } from 'antd'
+import { useState } from 'react'
+
+import { CardComponent } from '../../../../../shared/components/antd'
+import { useI18n } from '../../../../../shared/i18n'
 import { managerHref } from '../../../routes'
 import type { ActionItem } from '../../../types/dashboard'
-import { actionItemRoute, formatDashboardDate } from '../dashboardHelpers'
+import { dashboardPageMessages } from '../DashboardPage.messages'
+import { actionItemRoute, formatAge, groupActionItems, statusLabel } from '../dashboardHelpers'
+import { MANAGER_COLORS } from '../../../theme/managerTheme'
 
-const actionLabel: Record<NonNullable<ActionItem['actionType']>, string> = {
-  REVIEW_PRICING: 'Xem & duyệt giá',
-  VIEW_ORDER: 'Xem yêu cầu',
-  VIEW_QUOTE: 'Xem báo giá',
-  VIEW_MISSION: 'Xem Mission',
-}
+const PRIORITY_COLOR = {
+  HIGH: MANAGER_COLORS.danger,
+  MEDIUM: MANAGER_COLORS.warning,
+  LOW: '#94A3B8',
+} as const
 
-export function ActionListCard({ items }: { items: ActionItem[] }) {
+export function ActionListCard({ items, generatedAt }: { items: ActionItem[]; generatedAt: string }) {
+  const { t, locale } = useI18n(dashboardPageMessages)
+  const a = t.actions
+  const [filter, setFilter] = useState<string>('ALL')
+  const groups = groupActionItems(items)
+  const active = groups.find((g) => g.type === filter)
+  const visible = active ? [active] : groups
+  const typeLabel = (type: string) => a.types[type] ?? statusLabel(type)
+
   return (
-    <section className="odm-card odm-mgr-section">
-      <div className="odm-card-header">Cần bạn xử lý</div>
+    <CardComponent
+      title={a.title}
+      icon={<ThunderboltOutlined />}
+      tone="amber"
+      extra={items.length > 0 ? <Badge count={items.length} color={MANAGER_COLORS.primary} /> : undefined}
+    >
       {items.length === 0 ? (
-        <div className="odm-mgr-empty-list">
-          <div className="odm-mgr-empty-list-title">Hiện tại không có công việc nào cần xử lý.</div>
-        </div>
+        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={a.empty} />
       ) : (
-        <ul className="odm-mgr-action-list">
-          {items.map((item) => (
-            <li key={item.id} className="odm-mgr-action-row">
-              <span className={`odm-mgr-priority is-${(item.priority ?? 'MEDIUM').toLowerCase()}`}>{item.priority ?? 'MEDIUM'}</span>
-              <div className="odm-mgr-action-text">
-                <div className="odm-mgr-action-title">{item.title}</div>
-                <div className="odm-mgr-action-subtitle">
-                  {[item.orderCode ?? item.code, item.description ?? item.subtitle].filter(Boolean).join(' · ')}
-                </div>
-                {item.systemCalculatedAmount != null ? (
-                  <div className="odm-mgr-action-price">Giá hệ thống: {formatVnd(item.systemCalculatedAmount)}</div>
-                ) : null}
-              </div>
-              <time className="odm-mgr-action-age" dateTime={item.createdAt}>{item.createdAt ? formatDashboardDate(item.createdAt) : ''}</time>
-              <a className="odm-btn odm-btn-sm" href={managerHref(actionItemRoute(item))}>{item.actionType ? actionLabel[item.actionType] : 'Xem'}</a>
-            </li>
+        <>
+          {groups.length > 1 ? (
+            <div className="mgr-filter-row" role="group" aria-label={a.filterLabel}>
+              <Button size="small" type={filter === 'ALL' ? 'primary' : 'default'}
+                aria-pressed={filter === 'ALL'} onClick={() => setFilter('ALL')}>
+                {a.all} <span>{items.length}</span>
+              </Button>
+              {groups.map((g) => (
+                <Button key={g.type} size="small" type={filter === g.type ? 'primary' : 'default'}
+                  aria-pressed={filter === g.type} onClick={() => setFilter(g.type)}>
+                  {typeLabel(g.type)} <span>{g.items.length}</span>
+                </Button>
+              ))}
+            </div>
+          ) : null}
+          <div className="mgr-scroll-list">
+          {visible.map((g) => (
+            <section key={g.type}>
+              {groups.length > 1 && !active ? (
+                <h4 className="mgr-group-title">
+                  {typeLabel(g.type)} <Tag bordered={false}>{g.items.length}</Tag>
+                </h4>
+              ) : null}
+              <ul className="m-0 list-none p-0">
+                {g.items.map((item) => (
+                  <li key={item.id} className="mgr-dash-row">
+                    <span className="mgr-prio" style={{ background: PRIORITY_COLOR[item.priority ?? 'MEDIUM'], color: PRIORITY_COLOR[item.priority ?? 'MEDIUM'] }} aria-hidden="true" />
+                    <div className="mgr-dash-row-main">
+                      <div className="mgr-dash-row-title">{item.title}</div>
+                      <div className="mgr-dash-row-meta">
+                        {[item.orderCode ?? item.code, formatAge(item.createdAt, generatedAt, locale, t.age.now)].filter(Boolean).join(' · ')}
+                      </div>
+                    </div>
+                    <Button size="small" href={managerHref(actionItemRoute(item))}>
+                      {item.actionType ? a[item.actionType] : a.view}
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            </section>
           ))}
-        </ul>
+          </div>
+        </>
       )}
-    </section>
+    </CardComponent>
   )
 }

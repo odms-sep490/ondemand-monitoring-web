@@ -41,7 +41,7 @@ it.each([
     'EXECUTION_PLAN_REVISION_CONFLICT',
     'Kế hoạch đã được thay đổi ở phiên bản khác. Vui lòng tải lại dữ liệu.',
   ],
-  ['ORDER_NOT_APPROVED', 'Order chưa ở trạng thái cho phép chốt kế hoạch.'],
+  ['ORDER_NOT_APPROVED', 'Đơn hàng chưa ở trạng thái cho phép chốt kế hoạch.'],
   ['UNKNOWN_RAW_CODE', planningBlocker('UNKNOWN_RAW_CODE')],
 ])(
   'localizes finalize error %s but preserves diagnostic code',

@@ -2,7 +2,7 @@ import { MissionSatelliteMap } from './MissionSatelliteMap'
 import { formatNumber } from '../../../components/common/missionDetailHelpers'
 import { waypointReasonLabel } from './MissionRouteMap'
 import { MissionResultReviewCard } from '../../../components/common/MissionResultReviewCard'
-import { ManagerDeliveryPanel } from '../../../../delivery/ManagerDeliveryPanel'
+import { ChecklistEmptyNote } from './ChecklistEmptyNote'
 import { MonitoringChecklistSection } from '../../../../mission/components/MonitoringChecklistSection'
 import { MissionUploadedMedia } from '../../../../media/components/MissionUploadedMedia'
 import { staffMissionMediaReader } from '../../../api/missionMediaReader'
@@ -30,9 +30,6 @@ export function ActiveMissionOverview({
   loading,
   refreshDetail,
   mediaLibrary,
-  isCompleted,
-  resultApproved,
-  revision,
   missionId,
 }: {
   activeTab: MissionDetailTab
@@ -45,9 +42,6 @@ export function ActiveMissionOverview({
   loading: boolean
   refreshDetail: () => void
   mediaLibrary: RefObject<HTMLElement | null>
-  isCompleted: false
-  resultApproved: boolean
-  revision: number
   missionId: string
 }) {
   const { t, locale } = useI18n(missionDetailPageMessages)
@@ -99,7 +93,7 @@ export function ActiveMissionOverview({
             </li>
           </ul>
           {waypoints.length > 0 ? (
-            <ul className="odm-rm-wps">
+            <ul className="odm-rm-wps mgr-scroll-list">
               {waypoints.map((point, index) => (
                 <li key={point.id}>
                   <b>
@@ -133,10 +127,6 @@ export function ActiveMissionOverview({
         />
       </div>
 
-      {isCompleted && resultApproved ? (
-        <ManagerDeliveryPanel orderId={mission.orderId} refreshKey={revision} />
-      ) : null}
-
       <div
         className="odm-md-panel is-checklist"
         hidden={activeTab !== 'checklist'}
@@ -145,17 +135,11 @@ export function ActiveMissionOverview({
           hideImplementationHints
           missionId={mission.id}
           data={
-            checklist.data?.missionId === missionId
-              ? checklist.data
-              : undefined
+            checklist.data?.missionId === missionId ? checklist.data : undefined
           }
           loading={checklist.loading}
           error={
-            checklist.error
-              ? new Error(
-                  'Không thể tải checklist của Mission này. Vui lòng thử lại.',
-                )
-              : undefined
+            checklist.error ? new Error(t.extra.checklistLoadError) : undefined
           }
           resultStatus={detail.result?.approvalStatus}
           resultNote={detail.result?.reviewNote}
@@ -164,13 +148,20 @@ export function ActiveMissionOverview({
             refreshDetail()
           }}
         />
+        <ChecklistEmptyNote
+          show={
+            !checklist.loading &&
+            !checklist.error &&
+            (checklist.data?.executions?.length ?? 0) === 0
+          }
+        />
       </div>
       <section
         ref={mediaLibrary}
         tabIndex={-1}
         className="odm-md-panel is-media"
         hidden={activeTab !== 'media'}
-        aria-label="Thư viện media"
+        aria-label={t.extra.mediaLibrary}
       >
         <MissionUploadedMedia
           missionId={mission.id}

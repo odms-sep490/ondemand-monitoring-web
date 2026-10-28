@@ -4,6 +4,9 @@ import { MIN_REASON_LENGTH } from '../pricingHelpers'
 import type { Draft } from '../pricingHelpers'
 import type { Dispatch, SetStateAction } from 'react'
 import type { PricingReview } from '../../types'
+import { Button } from '../../../../shared/components/ui'
+import { useI18n } from '../../../../shared/i18n'
+import { pricingMessages } from '../pricing.messages'
 
 export function QuoteSummary({
   systemPrice,
@@ -42,16 +45,21 @@ export function QuoteSummary({
   approve: () => Promise<void>
   data: PricingReview
 }) {
+  const { t } = useI18n(pricingMessages)
+  const policyVersion =
+    data.systemCalculation?.policyVersion ??
+    data.currentQuote?.pricingPolicyVersion ??
+    null
   return (
-    <aside className="odm-or-card finance-quote" aria-label="Tóm tắt báo giá">
+    <aside className="odm-or-card finance-quote" aria-label={t.summaryAria}>
       <header className="finance-heading finance-quote-heading">
-        <h2>Tóm tắt báo giá</h2>
-        <span className="finance-policy-pill">
-          Chính sách giá v
-          {data.systemCalculation?.policyVersion ??
-            data.currentQuote?.pricingPolicyVersion ??
-            '—'}
-        </span>
+        <h2>{t.summaryTitle}</h2>
+        {policyVersion != null ? (
+          <span className="finance-policy-pill">
+            {t.policyVersion}
+            {policyVersion}
+          </span>
+        ) : null}
       </header>
       <div className="finance-quote-body">
         <div className="finance-quote-content">
@@ -60,9 +68,9 @@ export function QuoteSummary({
             checklistItems={data.checklistItems}
           />
           <dl className="finance-summary">
-            <SummaryRow label="Giá hệ thống" value={systemPrice} />
+            <SummaryRow label={t.systemPrice} value={systemPrice} />
             <SummaryRow
-              label="Điều chỉnh"
+              label={t.adjustment}
               value={checklistAdjustment}
               signed
               tone={
@@ -73,18 +81,18 @@ export function QuoteSummary({
                     : undefined
               }
             />
-            <SummaryRow label="Tổng báo giá" value={total} total />
+            <SummaryRow label={t.quoteTotal} value={total} total />
           </dl>
           {!reviewComplete && (
             <p className="finance-block-hint">
-              Còn {pendingReviewCount} nội dung cần xem xét trước khi duyệt.
+              {t.remainingToReview(pendingReviewCount)}
             </p>
           )}
           {checklistAdjustment !== 0 || draft.adjustmentReason ? (
             <label className="finance-quote-note">
               <span>
-                Lý do điều chỉnh giá{' '}
-                <em>(bắt buộc, ít nhất {MIN_REASON_LENGTH} ký tự)</em>
+                {t.adjustmentReasonLabel}{' '}
+                <em>{t.adjustmentReasonHint(MIN_REASON_LENGTH)}</em>
               </span>
               <textarea
                 rows={3}
@@ -102,17 +110,19 @@ export function QuoteSummary({
                 }
               />
               <small>
-                {draft.adjustmentReason.trim().length}/{MIN_REASON_LENGTH} ký tự
-                tối thiểu
+                {t.reasonCounter(
+                  draft.adjustmentReason.trim().length,
+                  MIN_REASON_LENGTH,
+                )}
               </small>
             </label>
           ) : null}
           <label className="finance-quote-note">
-            <span>Ghi chú báo giá (tùy chọn)</span>
+            <span>{t.quoteNoteLabel}</span>
             <textarea
               rows={3}
               maxLength={500}
-              placeholder="Thêm ghi chú cho báo giá..."
+              placeholder={t.quoteNotePlaceholder}
               value={draft.managerNote}
               disabled={accepted}
               onChange={(event) =>
@@ -140,9 +150,9 @@ export function QuoteSummary({
           ) : null}
           {!accepted ? (
             <div className="finance-actions">
-              <button
+              <Button
                 id="manager-approve-quote"
-                className="odm-btn odm-btn-p"
+                variant="primary"
                 type="button"
                 disabled={
                   busy ||
@@ -153,15 +163,15 @@ export function QuoteSummary({
                 }
                 title={
                   pendingCustomCount > 0
-                    ? 'Phân loại các yêu cầu bổ sung trước khi duyệt báo giá'
+                    ? t.approveTitlePending
                     : outOfRangeCount > 0
-                      ? 'Có giá duyệt ngoài khoảng cho phép'
+                      ? t.approveTitleOutOfRange
                       : (approveBlockedReason ?? undefined)
                 }
                 onClick={() => void approve()}
               >
-                {approved ? 'Đã duyệt thành công' : 'Duyệt báo giá'}
-              </button>
+                {approved ? t.approved : t.approve}
+              </Button>
             </div>
           ) : null}
         </div>

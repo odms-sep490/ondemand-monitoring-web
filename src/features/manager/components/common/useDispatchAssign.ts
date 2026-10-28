@@ -9,6 +9,8 @@ import {
 import { ApiError } from '../../../../shared/api/httpClient'
 import { liveDispatchPageMessages } from './LiveDispatchPage.messages'
 import { useI18n } from '../../../../shared/i18n'
+import { useToast } from '../../../../shared/components/ui'
+import { managerFeedbackMessages } from '../../feedback.messages'
 import type { MissionStaffRole } from '../../../mission/types/mission'
 import type { OrderDispatchContext, DispatchStep } from './liveDispatchTypes'
 import type { UseApiQueryState } from '../../../../shared/hooks/useApiQuery'
@@ -50,6 +52,8 @@ export function useDispatchAssign({
   setActiveStep: Dispatch<SetStateAction<DispatchStep>>
 }) {
   const { t } = useI18n(liveDispatchPageMessages)
+  const { t: fb } = useI18n(managerFeedbackMessages)
+  const toast = useToast()
   const selectedStaffIds = missionRoles.flatMap(
     (role) => staffByRole[role] ?? [],
   )
@@ -93,11 +97,13 @@ export function useDispatchAssign({
     setError(null)
     try {
       await missionApi.assignResources(missionId, droneIds, staffByRole)
+      toast.success(fb.resourcesAssigned)
       orderContext?.onAssigned()
       mission.reload()
       availability.reload()
     } catch (cause) {
       setError(planningError(cause))
+      toast.error(planningError(cause))
       if (resourceAssignmentConflict(cause)) {
         conflictStep.current =
           cause instanceof ApiError && cause.path.includes('assign-device')

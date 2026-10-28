@@ -10,13 +10,16 @@
 //   POST /api/orders/{id}/deliver            [BRIEF C4] mark as delivered
 import type {
   ApprovalDecision,
-  OrderAnalysis,
   OrderCreateResponse,
   OrderDetail,
-  OrderInternalNote,
   OrderQueueItem,
-  OrderResourcePreview,
 } from '../../features/manager/types/orders'
+// Loose local shapes: the manager client no longer calls these legacy
+// endpoints, so the typed DTOs were removed from the app.
+type OrderAnalysis = Record<string, unknown>
+type OrderResourcePreview = Record<string, unknown>
+type OrderInternalNote = { note: string; authorName: string; updatedAt: string }
+
 import { createCollection } from '../db'
 import { fail, ok, registerMockRoutes } from '../mockServer'
 import analysesSeed from '../data/order-analyses.json'
@@ -121,7 +124,6 @@ function toDetail(order: SeedOrder): OrderDetail {
     addressText: order.addressText,
     center: order.center,
     radiusM: order.radiusM,
-    nearestBase: order.nearestBase,
     mediaRequirements: order.mediaRequirements,
     purpose: order.purpose,
     attachments: order.attachments,
@@ -325,7 +327,7 @@ registerMockRoutes([
           return fail(
             409,
             'ORDER_NOT_APPROVED',
-            'Đơn chưa được duyệt, chưa thể tạo mission.',
+            'Đơn chưa được duyệt, chưa thể tạo nhiệm vụ.',
           )
         }
         return ok({
@@ -351,7 +353,7 @@ registerMockRoutes([
         return fail(
           409,
           'ORDER_NOT_APPROVED',
-          'Đơn chưa được duyệt, chưa thể tạo mission.',
+          'Đơn chưa được duyệt, chưa thể tạo nhiệm vụ.',
         )
       }
       return ok({

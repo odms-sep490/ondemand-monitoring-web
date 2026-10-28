@@ -1,3 +1,5 @@
+import { useI18n } from '../../../../shared/i18n'
+import { wizardRoleSelectionMessages } from './WizardRoleSelection.messages'
 import { planningError } from '../../lib/planningErrors'
 import { assignmentReadiness } from '../../lib/assignmentReadiness'
 import { planningSchedule } from './planningSchedule'
@@ -6,6 +8,7 @@ import type { ExecutionPlan, SafeStop } from '../../types/planning'
 import type { MissionResponse } from '../../types/missions'
 import type { OrderDetail } from '../../types/orders'
 import type { Dispatch, SetStateAction } from 'react'
+import { Button } from '../../../../shared/components/ui'
 
 export function WizardRoleSelection({
   busy,
@@ -36,20 +39,20 @@ export function WizardRoleSelection({
   candidateId: string | null
   setCandidateId: Dispatch<SetStateAction<string | null>>
 }) {
+  const { t } = useI18n(wizardRoleSelectionMessages)
   return (
-    <section className="odm-or-card" aria-label="Chọn nhiệm vụ để phân công">
+    <section className="odm-or-card" aria-label={t.title}>
       <header className="odm-or-card-head">
-        <span className="odm-or-card-title">Chọn nhiệm vụ để phân công</span>
-        <button
-          className="odm-or-btn-outline"
+        <span className="odm-or-card-title">{t.title}</span>
+        <Button
           disabled={busy || query.loading}
           onClick={query.reload}
         >
-          Làm mới nhiệm vụ
-        </button>
+          {t.reload}
+        </Button>
       </header>
       <div className="odm-or-card-body">
-        {query.loading && <p role="status">Đang tải nhiệm vụ…</p>}
+        {query.loading && <p role="status">{t.loading}</p>}
         {query.error ? <p role="alert">{planningError(query.error)}</p> : null}
         <div className="odm-or-role-grid">
           {data?.missions.map((mission) => {
@@ -60,18 +63,18 @@ export function WizardRoleSelection({
               mission.status,
             )
             const label = historical
-              ? 'Lịch sử · chỉ xem'
+              ? t.history
               : readiness.complete
-                ? 'Đã phân công nguồn lực'
+                ? t.resourcesAssigned
                 : data.plan.planStatus !== 'FINALIZED' ||
                     !data.plan.missions.find((m) => m.missionId === mission.id)
                       ?.finalizedPlanRevision
-                  ? 'Chưa chốt kế hoạch'
+                  ? t.planNotFinalized
                   : !eligible(mission.id)
-                    ? 'Chưa đủ điều kiện phân công'
+                    ? t.notEligible
                     : device && count === 4
-                      ? 'Chờ xác nhận phân công'
-                      : `Đã phân công ${count}/4 vai trò`
+                      ? t.awaitingConfirm
+                      : t.rolesAssigned(count)
             return (
               <label className="odm-or-role-card" key={mission.id}>
                 <span>

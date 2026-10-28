@@ -50,7 +50,7 @@ it('stays hidden for Staff until a safe-stop request exists', async () => {
   )
   await waitFor(() => expect(planningApi.getSafeStop).toHaveBeenCalled())
   expect(
-    screen.queryByText('Dừng Mission an toàn'),
+    screen.queryByText('Dừng nhiệm vụ an toàn'),
   ).not.toBeInTheDocument()
 
   view.unmount()
@@ -94,7 +94,7 @@ it.each([
       screen.queryByRole('button', { name: 'Giải phóng tài nguyên' }),
     ).not.toBeInTheDocument()
     expect(
-      screen.queryByRole('button', { name: 'Hủy Mission' }),
+      screen.queryByRole('button', { name: 'Hủy nhiệm vụ' }),
     ).not.toBeInTheDocument()
     expect(
       screen.queryByRole('button', { name: 'Yêu cầu dừng an toàn' }),
@@ -128,7 +128,7 @@ it('requires an explicit capability, note and safety attestation, then re-querie
   expect(planningApi.getSafeStop).toHaveBeenCalledTimes(2)
   expect(onChanged).toHaveBeenCalledTimes(1)
   expect(
-    screen.getByText('Đang chờ Manager giải phóng tài nguyên.'),
+    screen.getByText('Đang chờ quản lý giải phóng tài nguyên.'),
   ).toBeInTheDocument()
   expect(
     screen.queryByRole('button', { name: 'Xác nhận đã an toàn' }),
@@ -227,7 +227,7 @@ it('keeps actions disabled while confirming and reloads after a rejected command
       path: '/confirm',
     }),
   )
-  await screen.findByText(/Mission chưa ở trạng thái an toàn/)
+  await screen.findByText(/Nhiệm vụ chưa ở trạng thái an toàn/)
   await waitFor(() =>
     expect(
       screen.queryByRole('button', { name: 'Xác nhận đã an toàn' }),

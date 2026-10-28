@@ -1,0 +1,56 @@
+import { defineMessages } from '../../../../shared/i18n'
+
+export const flightPermitCardMessages = defineMessages({
+  vi: {
+    statuses: {
+      NOT_REQUESTED: 'Chưa xin phép',
+      PENDING: 'Đang chờ cấp phép',
+      APPROVED: 'Đã được cấp phép',
+      REJECTED: 'Bị từ chối',
+    },
+    fileTooLarge: 'File giấy phép không được vượt quá 5 MB.',
+    updateFailed: 'Không thể cập nhật giấy phép bay.',
+    ariaLabel: (code: string) => `Giấy phép bay ${code}`,
+    title: (code: string) => `Giấy phép bay · ${code}`,
+    intro:
+      'Nhiệm vụ chỉ được bắt đầu sau khi giấy phép được xác nhận là đã cấp.',
+    note: 'Ghi chú',
+    notePlaceholder: 'Ví dụ: Đã gửi thông tin xin phép',
+    fileOptional: 'File giấy phép (không bắt buộc)',
+    chooseFileAria: 'Chọn tệp giấy phép',
+    chooseFile: 'Chọn tệp',
+    noFileChosen: 'Chưa chọn tệp',
+    currentFile: 'File hiện tại:',
+    noPermitFile: 'File giấy phép: Chưa có',
+    confirmApproved: 'Xác nhận đã được cấp phép',
+    saveChanges: 'Lưu thay đổi',
+    reject: 'Từ chối',
+    readFailed: 'Không thể đọc file giấy phép.',
+  },
+  en: {
+    statuses: {
+      NOT_REQUESTED: 'Permit not requested',
+      PENDING: 'Awaiting permit',
+      APPROVED: 'Permit granted',
+      REJECTED: 'Rejected',
+    },
+    fileTooLarge: 'The permit file must not exceed 5 MB.',
+    updateFailed: 'Unable to update the flight permit.',
+    ariaLabel: (code: string) => `Flight permit ${code}`,
+    title: (code: string) => `Flight permit · ${code}`,
+    intro:
+      'The mission can only start after the permit is confirmed as granted.',
+    note: 'Note',
+    notePlaceholder: 'E.g. Permit request information sent',
+    fileOptional: 'Permit file (optional)',
+    chooseFileAria: 'Choose permit file',
+    chooseFile: 'Choose file',
+    noFileChosen: 'No file chosen',
+    currentFile: 'Current file:',
+    noPermitFile: 'Permit file: None',
+    confirmApproved: 'Confirm permit granted',
+    saveChanges: 'Save changes',
+    reject: 'Reject',
+    readFailed: 'Unable to read the permit file.',
+  },
+})

@@ -124,22 +124,41 @@ describe('Router - auth hash sync (regression)', () => {
 
 describe('Router - manager routes (#portal/manager*)', () => {
   const sampleDashboard: ManagerDashboardResponse = {
-    kpis: {
-      pendingOrders: { count: 6, detail: '2 quá 24h' },
-      missionsToday: { count: 5, detail: '3 đã xong' },
-      missionsInFlight: { count: 1, detail: '' },
-      dronesReady: { ready: 5, total: 9, detail: '1 bảo trì' },
-      actionItems: { count: 4, detail: '2 upload · 2 lỗi media' },
+    summary: {
+      totalOrders: 10,
+      totalQuoteValue: 0,
+      pendingOrderCount: 6,
+      pendingAdditionalChecklistCount: 0,
+      waitingDepositCount: 0,
+      activeMissionCount: 1,
+      attentionRequiredCount: 0,
     },
-    missionStatusByDay: [],
-    droneStatusBreakdown: [],
+    orderStatusDistribution: [],
+    serviceDistribution: [],
+    additionalServiceDistribution: [],
+    priceAdjustmentSummary: { approvedAtSystemPrice: 0, adjustedByManager: 0 },
+    missionStatusDistribution: [],
+    missionTrend: [],
     actionItems: [],
-    flyingMission: null,
-    navCounts: {
-      pendingOrders: 6,
-      openMaintenanceTickets: 3,
-      mediaNeedsAction: 6,
+    recentOrders: [],
+    pricingPipeline: {
+      pricingReviewCount: 0,
+      quoteReadyCount: 0,
+      waitingCustomerCount: 0,
+      waitingDepositCount: 0,
+      depositPaidCount: 0,
     },
+    missionOverview: {
+      scheduledCount: 0,
+      readyCount: 0,
+      inFlightCount: 0,
+      returningCount: 0,
+      completedTodayCount: 0,
+      issueCount: 0,
+    },
+    activeMissions: [],
+    recentActivities: [],
+    generatedAt: '2026-10-22T00:00:00Z',
   }
 
   beforeEach(() => {
@@ -167,7 +186,7 @@ describe('Router - manager routes (#portal/manager*)', () => {
     render(<Router />)
 
     await waitFor(() =>
-      expect(screen.getByText('Dashboard điều hành')).toBeInTheDocument(),
+      expect(screen.getByRole('heading', { name: 'Bảng điều khiển quản lý' })).toBeInTheDocument(),
     )
   })
   it('allows authenticated Admin into Manager planning without granting crew authority', async () => {
@@ -180,7 +199,7 @@ describe('Router - manager routes (#portal/manager*)', () => {
     window.location.hash = '#portal/manager'
     render(<Router />)
     await waitFor(() =>
-      expect(screen.getByText('Dashboard điều hành')).toBeInTheDocument(),
+      expect(screen.getByRole('heading', { name: 'Bảng điều khiển quản lý' })).toBeInTheDocument(),
     )
   })
 

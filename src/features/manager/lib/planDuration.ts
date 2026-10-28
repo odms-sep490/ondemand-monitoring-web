@@ -13,6 +13,7 @@
 // because CreateMissionPage (MNG-04) shows a duration estimate before a
 // station/drone has been picked — `shared/lib/flightTime.ts` is the
 // authoritative estimate once a drone (and its base) is selected in MNG-05.
+import { managerLibMessages } from './lib.messages'
 import type { Waypoint } from './waypoints'
 
 export type MediaRequirement =
@@ -140,17 +141,16 @@ export function getCeilingWarnings(
     warnings.push({
       code: 'ABOVE_NO_FLY_CEILING',
       message:
-        lang === 'en'
-          ? `Altitude ${altitudeM} m exceeds the no-fly ceiling ${noFlyCeilingM} m.`
-          : `Độ cao ${altitudeM} m vượt trần cấm bay ${noFlyCeilingM} m.`,
+        managerLibMessages[lang].ceiling.noFly(altitudeM, noFlyCeilingM),
     })
   } else if (altitudeM > serviceMaxAltitudeM) {
     warnings.push({
       code: 'ABOVE_SERVICE_CEILING',
       message:
-        lang === 'en'
-          ? `Altitude ${altitudeM} m exceeds the normal operating ceiling ${serviceMaxAltitudeM} m.`
-          : `Độ cao ${altitudeM} m vượt trần khai thác thông thường ${serviceMaxAltitudeM} m.`,
+        managerLibMessages[lang].ceiling.service(
+          altitudeM,
+          serviceMaxAltitudeM,
+        ),
     })
   }
   return warnings

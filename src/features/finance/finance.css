@@ -134,7 +134,7 @@
   cursor: pointer;
 }
 .finance-filter.is-on {
-  background: #e8f1ff;
+  background: var(--blue-bg);
   color: #0862df;
   font-weight: 700;
 }
@@ -181,7 +181,7 @@
   height: 30px;
   justify-self: center;
   border-radius: 8px;
-  background: #e8f1ff;
+  background: var(--blue-bg);
   color: #0862df;
   font-size: 12px;
   font-weight: 700;
@@ -216,11 +216,6 @@
   padding: 4px 8px;
   font-size: 13px;
   background: #f2f5f9;
-}
-.finance-workspace .finance-price input {
-  height: 40px;
-  padding: 4px 8px;
-  font-size: 13px;
 }
 .finance-workspace .finance-zero {
   margin: 0;
@@ -375,42 +370,6 @@
   color: #486187;
   font-size: 12px;
 }
-.finance-quote .finance-pricing-grid {
-  display: block;
-  padding: 6px 0 0;
-}
-.finance-adjustments {
-  margin: 8px 0;
-  border: 1px solid #e5eaf0;
-  border-radius: 8px;
-  background: #fbfcfe;
-}
-.finance-adjustments summary {
-  padding: 9px 10px;
-  color: #475569;
-  font-size: 12px;
-  font-weight: 650;
-  cursor: pointer;
-}
-.finance-adjustments[open] summary {
-  border-bottom: 1px solid #e5eaf0;
-}
-.finance-adjustments .finance-pricing-grid {
-  padding: 10px;
-}
-.finance-quote .finance-inputs {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 8px;
-}
-.finance-quote .finance-inputs label {
-  font-size: 12px;
-}
-.finance-quote .finance-inputs input {
-  height: 36px;
-  padding: 5px 8px;
-  font-size: 13px;
-}
 .finance-quote-note {
   display: grid;
   gap: 5px;
@@ -455,7 +414,7 @@
   grid-template-columns: 1fr;
   gap: 8px;
 }
-.finance-quote .finance-actions .odm-btn {
+.finance-quote .finance-actions :is(.odm-btn, .ui-btn) {
   justify-content: center;
   width: 100%;
   height: 44px;
@@ -482,28 +441,6 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
-}
-.finance-quote .odm-or-actionbar-actions .odm-or-btn {
-  width: 100%;
-  height: 36px;
-  padding: 0 8px;
-  font-size: 12px;
-  background: transparent;
-}
-.finance-quote .odm-or-actionbar-actions .odm-or-btn-primary {
-  grid-column: 1 / -1;
-  height: 42px;
-  background: #1677ff;
-  color: #fff;
-  font-size: 13px;
-}
-.finance-quote .odm-or-btn-amber {
-  border-color: #f6bc43;
-  color: #9a6700;
-}
-.finance-quote .odm-or-btn-red {
-  border-color: #ff8a80;
-  color: #d92d20;
 }
 @media (max-width: 1279px) {
   .finance-workspace {
@@ -533,7 +470,6 @@
   .finance-workspace .finance-requirement {
     grid-template-columns: 30px minmax(0, 1fr) minmax(105px, 130px) 34px;
   }
-  .finance-workspace .finance-price,
   .finance-workspace .finance-zero {
     grid-column: 3;
   }
@@ -649,74 +585,6 @@
 .finance-note {
   grid-column: 2 / -1;
 }
-.finance-pricing-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(260px, 0.8fr);
-  gap: 24px;
-  padding: 20px;
-}
-
-.finance-system-breakdown {
-  display: grid;
-  gap: 0.5rem;
-  padding: 0.9rem;
-  margin-bottom: 0.9rem;
-  border: 1px solid var(--odm-border, #d8e0e8);
-  border-radius: 0.75rem;
-  background: #f7fafc;
-}
-
-.finance-custom-assessment {
-  margin: 1rem 0;
-  padding: 1rem;
-  border: 1px solid #d8e0e8;
-  border-radius: 0.75rem;
-  background: #fbfcfe;
-}
-
-.finance-assessment-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 0.75rem;
-  margin: 0.75rem 0;
-}
-
-.finance-assessment-grid label {
-  display: grid;
-  gap: 0.3rem;
-}
-
-.finance-assessment-checks {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-bottom: 0.75rem;
-}
-
-.finance-system-breakdown > div {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.finance-risk {
-  display: inline-block;
-  margin: 0 0.35rem 0.5rem 0;
-  padding: 0.2rem 0.45rem;
-  border-radius: 999px;
-  color: #8a3b00;
-  background: #fff0d9;
-  font-size: 0.75rem;
-  font-weight: 700;
-}
-.finance-inputs {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-}
-.finance-inputs label:last-child {
-  grid-column: 1 / -1;
-}
 .finance-summary {
   margin: 0;
 }
@@ -769,15 +637,11 @@
   .finance-review-progress span {
     text-align: left;
   }
-  .finance-requirement,
-  .finance-pricing-grid {
+  .finance-requirement {
     grid-template-columns: 1fr;
   }
   .finance-note {
     grid-column: auto;
-  }
-  .finance-inputs {
-    grid-template-columns: 1fr;
   }
 }
 .customer-finance-card {
@@ -811,35 +675,9 @@
 .customer-invoice {
   padding: 20px;
 }
-.customer-quote-items {
-  display: grid;
-  gap: 2px;
-}
-.customer-quote-items > div {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--ui-border);
-  font-size: 13px;
-}
-.customer-quote-items span,
-.customer-quote-items small {
-  display: block;
-}
-.customer-quote-items small {
-  margin-top: 3px;
-  color: var(--ui-text-3);
-}
 .customer-summary {
   max-width: 420px;
   margin: 16px 0 16px auto;
-}
-.customer-manager-note {
-  padding: 12px;
-  border-left: 3px solid var(--ui-primary);
-  background: var(--ui-primary-soft, #eef2ff);
-  font-size: 13px;
 }
 .customer-invoice {
   border-top: 1px solid var(--ui-border);
@@ -1044,7 +882,6 @@
 .finance-quote,
 .finance-quote-body,
 .finance-quote-content,
-.finance-system-breakdown,
 .finance-summary {
   min-width: 0;
   max-width: 100%;
@@ -1060,14 +897,11 @@
 }
 
 .finance-workspace .finance-status,
-.finance-system-breakdown > strong,
-.finance-system-breakdown > div > span,
 .finance-summary dt {
   min-width: 0;
   overflow-wrap: anywhere;
 }
 
-.finance-system-breakdown > div > b,
 .finance-summary dd {
   flex: none;
   white-space: nowrap;
@@ -1080,8 +914,7 @@
   overflow-wrap: anywhere;
 }
 
-.finance-quote .finance-actions .odm-btn,
-.finance-quote .odm-or-actionbar-actions .odm-or-btn {
+.finance-quote .finance-actions .odm-btn {
   height: auto;
   min-height: 36px;
 }
@@ -1144,10 +977,6 @@
   .finance-quote .finance-actions,
   .finance-quote .odm-or-actionbar-actions {
     grid-template-columns: minmax(0, 1fr);
-  }
-
-  .finance-quote .odm-or-actionbar-actions .odm-or-btn-primary {
-    grid-column: auto;
   }
 }
 
@@ -1240,7 +1069,7 @@
   padding: 0;
   margin-top: 4px;
 }
-.finance-quote .finance-actions .odm-btn {
+.finance-quote .finance-actions :is(.odm-btn, .ui-btn) {
   width: 100%;
   justify-content: center;
 }
@@ -1290,4 +1119,239 @@
 .customer-quote-group li span:last-child {
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+}
+
+/* Quote total: prominent block, tokens only */
+.finance-quote .finance-summary .is-total {
+  padding: var(--ui-space-3);
+  border-radius: var(--ui-radius-md);
+  background: var(--ui-primary-soft);
+}
+.finance-quote .finance-summary .is-total dd {
+  color: var(--ui-primary-text);
+}
+
+/* ---------- Manager skin: theme tokens (light + dark) ----------
+   Scoped to .mgr-layout so the customer finance screens keep their own look. */
+.finance-panel {
+  container-type: inline-size;
+}
+
+.mgr-layout .finance-workspace {
+  --fin-blue-bg: color-mix(in srgb, #1565e8 12%, var(--mgr-card));
+  --fin-blue-fg: #1565e8;
+  --fin-amber-bg: color-mix(in srgb, #f59e0b 16%, var(--mgr-card));
+  --fin-amber-fg: #b45309;
+  --fin-green-bg: color-mix(in srgb, #16a34a 14%, var(--mgr-card));
+  --fin-green-fg: #15803d;
+  --fin-red-fg: #b42318;
+}
+
+:root[data-theme='dark'] .mgr-layout .finance-workspace {
+  --fin-blue-bg: color-mix(in srgb, #3b82f6 20%, var(--mgr-card));
+  --fin-blue-fg: #93c5fd;
+  --fin-amber-bg: color-mix(in srgb, #f59e0b 20%, var(--mgr-card));
+  --fin-amber-fg: #fcd34d;
+  --fin-green-bg: color-mix(in srgb, #22c55e 18%, var(--mgr-card));
+  --fin-green-fg: #86efac;
+  --fin-red-fg: #fca5a5;
+}
+
+.mgr-layout .finance-workspace {
+  --or-tx: var(--mgr-text);
+  --or-tx2: var(--mgr-muted);
+  --or-border: var(--mgr-border);
+  --tx1: var(--mgr-text);
+  --tx2: var(--mgr-muted);
+  --tx3: var(--mgr-muted);
+  --sf1: var(--mgr-card);
+}
+
+.mgr-layout .finance-workspace .finance-panel label,
+.mgr-layout .finance-workspace .finance-quote-note,
+.mgr-layout .finance-workspace .finance-quote-note em {
+  color: var(--mgr-muted);
+}
+
+.mgr-layout .finance-workspace :is(input, select, textarea) {
+  border-color: var(--mgr-border);
+  background: var(--mgr-card-2);
+  color: var(--mgr-text);
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] .mgr-layout .finance-workspace :is(input, select, textarea) {
+  color-scheme: dark;
+}
+
+.mgr-layout .finance-workspace .finance-quote-note textarea {
+  border-color: var(--mgr-border);
+  background: var(--mgr-card-2);
+  color: var(--mgr-text);
+}
+
+.mgr-layout .finance-workspace .finance-quote-note textarea::placeholder,
+.mgr-layout .finance-workspace .finance-quote-note small {
+  color: var(--mgr-muted);
+}
+
+.mgr-layout .finance-workspace .finance-quote-note textarea:focus {
+  border-color: var(--fin-blue-fg);
+  outline: 2px solid color-mix(in srgb, var(--fin-blue-fg) 25%, transparent);
+}
+
+.mgr-layout .finance-workspace .finance-progress-track {
+  background: var(--mgr-border);
+}
+
+.mgr-layout .finance-workspace .finance-progress-track span {
+  background: var(--fin-blue-fg);
+}
+
+/* progress row stays a single wrapping row at every width (was a vertical bar on phones) */
+.mgr-layout .finance-workspace .finance-review-progress {
+  flex-direction: row;
+  align-items: center;
+}
+
+.mgr-layout .finance-workspace .finance-progress-track {
+  flex: 1 1 120px;
+  align-self: center;
+  width: auto;
+  height: 6px;
+}
+
+.mgr-layout .finance-workspace .finance-filter {
+  background: var(--mgr-card-2);
+  color: var(--mgr-muted);
+}
+
+.mgr-layout .finance-workspace .finance-filter.is-on,
+.mgr-layout .finance-workspace .finance-index {
+  background: var(--fin-blue-bg);
+  color: var(--fin-blue-fg);
+}
+
+.mgr-layout .finance-workspace .finance-review-warning.is-pending,
+.mgr-layout .finance-workspace .finance-review-badge.is-quote-pending,
+.mgr-layout .finance-workspace .finance-requirement.is-additional .finance-review-badge {
+  background: var(--fin-amber-bg);
+  color: var(--fin-amber-fg);
+}
+
+.mgr-layout .finance-workspace .finance-review-warning.is-complete,
+.mgr-layout .finance-workspace .finance-review-badge:not(.is-pending):not(.is-quote-pending) {
+  background: var(--fin-green-bg);
+  color: var(--fin-green-fg);
+}
+
+.mgr-layout .finance-workspace .finance-requirement.is-additional .finance-review-badge {
+  background: var(--fin-amber-bg);
+  color: var(--fin-amber-fg);
+}
+
+.mgr-layout .finance-workspace .finance-review-badge.is-pending {
+  background: var(--mgr-card-2);
+  color: var(--mgr-muted);
+}
+
+.mgr-layout .finance-workspace .finance-requirement.is-additional .finance-index,
+.mgr-layout .finance-workspace .finance-requirement.is-additional .finance-status-select select {
+  background: var(--fin-amber-bg);
+  color: var(--fin-amber-fg);
+}
+
+.mgr-layout .finance-workspace .finance-requirement.is-included .finance-status-select select {
+  background: var(--fin-green-bg);
+  color: var(--fin-green-fg);
+}
+
+.mgr-layout .finance-workspace .finance-table-head,
+.mgr-layout .finance-workspace .finance-requirement {
+  border-color: var(--mgr-border);
+}
+
+.mgr-layout .finance-workspace .finance-table-head {
+  color: var(--mgr-muted);
+}
+
+.mgr-layout .finance-workspace .finance-requirement:hover,
+.mgr-layout .finance-workspace .finance-chevron:hover {
+  background: var(--mgr-card-2);
+}
+
+.mgr-layout .finance-workspace .finance-chevron {
+  color: var(--mgr-muted);
+}
+
+.mgr-layout .finance-workspace .finance-item-price .finance-range.is-out {
+  color: var(--fin-red-fg);
+}
+
+.mgr-layout .finance-workspace .finance-status {
+  background: var(--mgr-card-2);
+  color: var(--mgr-muted);
+}
+
+.mgr-layout .finance-workspace .finance-quote .finance-summary .is-total dd {
+  color: var(--fin-blue-fg);
+}
+
+.mgr-layout .finance-workspace .finance-quote .finance-summary .is-total {
+  background: var(--fin-blue-bg);
+}
+
+.mgr-layout .finance-workspace .finance-block-hint {
+  background: var(--fin-blue-bg);
+  color: var(--mgr-text);
+}
+
+.mgr-layout .finance-workspace .finance-policy-pill {
+  background: var(--fin-blue-bg);
+  color: var(--fin-blue-fg);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mgr-layout .finance-workspace .finance-breakdown-group {
+  border-color: var(--mgr-border);
+  background: var(--mgr-card);
+}
+
+.mgr-layout .finance-workspace .finance-breakdown-group > header {
+  background: var(--mgr-card-2);
+}
+
+.mgr-layout .finance-workspace .finance-quote .finance-actions .odm-btn-p {
+  border-color: var(--fin-blue-fg);
+  background: var(--fin-blue-bg);
+  color: var(--fin-blue-fg);
+}
+
+.mgr-layout .finance-workspace .finance-summary dd.is-up {
+  color: var(--fin-amber-fg);
+}
+
+.mgr-layout .finance-workspace .finance-summary dd.is-down {
+  color: var(--fin-green-fg);
+}
+
+.mgr-layout .finance-workspace .finance-alert.is-error {
+  background: color-mix(in srgb, #ef4444 14%, var(--mgr-card));
+  color: var(--fin-red-fg);
+}
+
+.mgr-layout .finance-workspace .finance-alert.is-success {
+  background: var(--fin-green-bg);
+  color: var(--fin-green-fg);
+}
+
+/* quote table: never clip, scroll as a last resort */
+.finance-checklist {
+  overflow-x: auto;
+}
+
+.mgr-layout .finance-workspace .finance-heading > :first-child {
+  min-width: 0;
 }

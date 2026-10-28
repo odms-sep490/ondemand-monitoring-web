@@ -78,7 +78,7 @@ it('localizes media failures and never exposes a JS exception', async () => {
     new Error("Cannot read properties of undefined (reading 'mediaFiles')"),
   )
   render(<MissionExecutionPanel mission={mission('m1')} />)
-  await screen.findByText('Không thể tải ảnh/video của Mission này.')
+  await screen.findByText('Không thể tải ảnh/video của nhiệm vụ này.')
   expect(screen.queryByText(/Cannot read properties/)).not.toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Thử lại' })).toBeInTheDocument()
 })

@@ -1,0 +1,440 @@
+/* Maintenance tickets (MNG-10) in the Manager look: status board card + detail drawer. */
+:root .mgr-layout {
+  .mgr-maintenance {
+    .mgr-maint-selects {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px 16px;
+    }
+
+    .mgr-maint-select {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .mgr-maint-select-label {
+      font-size: 13px;
+      color: var(--mgr-muted);
+      white-space: nowrap;
+    }
+
+    /* Four status lanes side by side; each lane scrolls vertically on its own. */
+    .mgr-maint-board {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      align-items: start;
+      min-width: 0;
+    }
+
+    .mgr-maint-col {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-width: 0;
+      max-height: calc(100vh - 120px);
+      padding: 10px;
+      border-radius: var(--mgr-radius);
+      background: color-mix(in srgb, var(--mgr-muted) 10%, transparent);
+    }
+
+    .mgr-maint-col-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .mgr-maint-col-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 24px;
+      height: 24px;
+      padding: 0 6px;
+      border-radius: 999px;
+      background: var(--mgr-card);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--mgr-muted);
+    }
+
+    .mgr-maint-col-list {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      gap: 8px;
+      min-width: 0;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 2px;
+      margin: -2px;
+    }
+
+    .mgr-maint-more {
+      flex: none;
+      align-self: center;
+    }
+
+    .mgr-maint-col-empty {
+      padding: 24px 12px;
+      border: 1px dashed var(--mgr-border);
+      border-radius: 8px;
+      font-size: 12.5px;
+      text-align: center;
+      color: var(--mgr-muted);
+    }
+
+    .mgr-ticket-card {
+      display: flex;
+      flex: none;
+      flex-direction: column;
+      gap: 8px;
+      padding: 10px;
+      border: 1px solid var(--mgr-border);
+      border-radius: 10px;
+      background: var(--mgr-card);
+      cursor: pointer;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+      &:hover {
+        border-color: var(--pl-blue-ac);
+        box-shadow: var(--mgr-shadow-hover);
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--pl-blue-ac);
+        outline-offset: 2px;
+      }
+
+      &.is-selected {
+        border-color: var(--pl-blue-ac);
+        box-shadow: 0 0 0 1px var(--pl-blue-ac);
+      }
+    }
+
+    .mgr-ticket-card-top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0 8px;
+    }
+
+    .mgr-ticket-card-code {
+      flex: none;
+      overflow: visible;
+      font-size: 0.74rem;
+      font-weight: 700;
+      white-space: nowrap;
+      color: var(--mgr-text);
+    }
+
+    .mgr-ticket-card-age {
+      flex: none;
+      font-size: 0.72rem;
+      color: var(--mgr-muted);
+    }
+
+    .mgr-ticket-card-title {
+      display: -webkit-box;
+      overflow: hidden;
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.35;
+      color: var(--mgr-text);
+      overflow-wrap: anywhere;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+    }
+
+    .mgr-ticket-card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 4px;
+
+      .ant-tag {
+        margin-inline-end: 0;
+        padding-inline: 6px;
+        font-size: 11px;
+        line-height: 18px;
+      }
+    }
+
+    .mgr-ticket-card-action {
+      font-weight: 600;
+      height: 28px;
+      padding-block: 0;
+      font-size: 12.5px;
+    }
+
+    .mgr-ticket-drone {
+      padding: 0 5px;
+      border-radius: 6px;
+      background: var(--mgr-card-2);
+      border: 1px solid var(--mgr-border);
+      font-size: 11px;
+      line-height: 18px;
+      font-weight: 600;
+      color: var(--mgr-muted);
+    }
+
+    .mgr-ticket-op {
+      display: flex;
+      align-items: center;
+      min-width: 0;
+      gap: 6px;
+      font-size: 11.5px;
+      font-weight: 600;
+
+      &.is-ok {
+        color: var(--pl-green-fg);
+      }
+
+      &.is-warn {
+        color: var(--pl-amber-fg);
+      }
+
+      > span:not(.mgr-ticket-op-dot) {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    }
+
+    .mgr-ticket-op-dot {
+      width: 6px;
+      height: 6px;
+      flex: none;
+      border-radius: 50%;
+      background: currentcolor;
+    }
+  }
+
+  .mgr-ticket-done {
+    padding: 4px 8px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--pl-green-fg);
+    background: var(--pl-green-bg);
+  }
+
+  /* Detail drawer is portalled into .mgr-layout, so it is styled outside .mgr-maintenance. */
+  .mgr-maint-drawer,
+  .mgr-ticket-pop {
+    .mgr-ticket-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .mgr-ticket-panel-code {
+      font-size: 14px;
+      color: var(--mgr-muted);
+    }
+
+    .mgr-ticket-heading {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 800;
+      line-height: 1.35;
+      letter-spacing: 0;
+      color: var(--mgr-text);
+      overflow-wrap: anywhere;
+    }
+
+    .mgr-ticket-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .mgr-ticket-facts {
+      display: grid;
+      grid-template-columns: minmax(96px, 40%) minmax(0, 1fr);
+      gap: 10px 12px;
+      margin: 0;
+      font-size: 13.5px;
+      overflow-wrap: anywhere;
+
+      dd {
+        margin: 0;
+      }
+    }
+
+    .mgr-ticket-key {
+      color: var(--mgr-muted);
+
+      &.is-block {
+        display: block;
+        margin-bottom: 4px;
+      }
+    }
+
+    .mgr-ticket-ok {
+      color: var(--pl-green-fg);
+    }
+
+    .mgr-ticket-warn {
+      color: var(--pl-amber-fg);
+    }
+
+    .mgr-ticket-text {
+      padding: 12px;
+      border: 1px solid var(--mgr-border);
+      border-radius: 10px;
+      background: var(--mgr-card-2);
+      white-space: pre-wrap;
+      line-height: 1.5;
+    }
+
+    .mgr-ticket-resolution {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 14px;
+      border-radius: 12px;
+      background: var(--pl-green-bg);
+      color: var(--pl-green-fg);
+    }
+
+    .mgr-ticket-resolution-title {
+      font-weight: 700;
+    }
+
+    .mgr-ticket-resolution-text {
+      white-space: pre-wrap;
+      font-size: 13px;
+    }
+
+    .mgr-ticket-history {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding-top: 14px;
+      border-top: 1px solid var(--mgr-border);
+      font-size: 12.5px;
+    }
+
+    .mgr-ticket-history-row {
+      display: grid;
+      grid-template-columns: minmax(96px, 40%) minmax(0, 1fr);
+      gap: 12px;
+    }
+
+    .mgr-ticket-history-title {
+      margin-bottom: 2px;
+      font-weight: 700;
+      color: var(--mgr-muted);
+    }
+  }
+
+  .mgr-ticket-pop {
+    width: 320px;
+    max-width: calc(100vw - 32px);
+
+    .ant-popover-container {
+      padding: 14px;
+    }
+
+    .mgr-ticket-panel {
+      gap: 12px;
+    }
+
+    .mgr-ticket-text {
+      max-height: 120px;
+      overflow: hidden;
+    }
+  }
+
+  .mgr-assign-ticket {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: 16px;
+    padding: 12px;
+    border: 1px solid var(--mgr-border);
+    border-radius: 10px;
+    background: var(--mgr-card-2);
+    font-size: 13px;
+  }
+
+  .mgr-assign-label {
+    margin-bottom: 8px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .mgr-assign-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .mgr-assign-item {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin: 0;
+    padding: 10px 12px;
+    border: 1px solid var(--mgr-border);
+    border-radius: 10px;
+    transition: border-color 0.15s ease, background 0.15s ease;
+
+    flex-direction: row-reverse;
+    justify-content: space-between;
+
+    > span:last-child {
+      flex: 1;
+      min-width: 0;
+    }
+
+    &.is-selected {
+      border-color: var(--pl-blue-ac);
+      background: color-mix(in srgb, var(--mgr-card) 92%, var(--pl-blue-ac));
+    }
+  }
+
+  .mgr-assign-error {
+    margin-top: 12px;
+  }
+}
+
+@media (max-width: 899px) {
+  :root .mgr-layout .mgr-maintenance .mgr-maint-board {
+    grid-template-columns: repeat(4, minmax(220px, 1fr));
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 599px) {
+  :root .mgr-layout .mgr-maintenance .mgr-maint-board {
+    grid-template-columns: minmax(0, 1fr);
+    overflow-x: visible;
+
+    .mgr-maint-col {
+      max-height: none;
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  :root .mgr-layout .mgr-maintenance {
+    .mgr-maint-selects,
+    .mgr-maint-select {
+      width: 100%;
+    }
+
+    .mgr-maint-select .ant-select {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+}

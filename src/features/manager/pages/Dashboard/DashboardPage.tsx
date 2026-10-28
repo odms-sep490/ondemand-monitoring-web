@@ -4,11 +4,14 @@ import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
 import { managerApi } from '../../api/dashboardApi'
 import '../../manager.css'
+import './dashboard.scss'
 import { dashboardPageMessages } from './DashboardPage.messages'
+import { DashboardHeader, type DashboardRange } from './components/DashboardHeader'
 import { DashboardSkeleton } from './components/DashboardSkeleton'
 import { KpiRow } from './components/KpiRow'
 import { ActionListCard } from './components/ActionListCard'
-import { OperationalSections } from './components/OperationalSections'
+import { RecentOrdersCard } from './components/RecentOrdersCard'
+import { ActiveMissionsCard, PipelineCard, RecentActivityCard } from './components/SideCards'
 import { AnalyticsCharts } from './components/AnalyticsCharts'
 import { formatDashboardDate } from './dashboardHelpers'
 import type {
@@ -57,54 +60,44 @@ function normalizeDashboard(data: ManagerDashboardResponse): ManagerDashboardDat
 }
 
 export function DashboardPage() {
-  const { t, lang } = useI18n(dashboardPageMessages)
-  const [range, setRange] = useState<'7D' | '30D' | '90D'>('30D')
+  const { t } = useI18n(dashboardPageMessages)
+  const [range, setRange] = useState<DashboardRange>('30D')
   const query = useApiQuery((signal) => managerApi.getDashboard(range, signal), [range])
 
   if (query.loading) return <DashboardSkeleton t={t} />
   if (query.error) {
     return (
-      <StateView
-        state="error"
-        title={t.loadError}
-        error={query.error}
-        onRetry={query.reload}
-      />
+      <StateView state="error" title={t.loadError} error={query.error} onRetry={query.reload} />
     )
   }
   if (!query.data) return null
 
   const data = normalizeDashboard(query.data)
   return (
-    <div className="odm-mgr-dash">
-      <div className="odm-mgr-dash-head">
-        <div>
-          <h1 className="odm-mgr-dash-title">{t.title}</h1>
-          <span className="odm-visually-hidden">
-            {lang === 'vi' ? 'Dashboard điều hành' : 'Operations dashboard'}
-          </span>
-          <p className="odm-mgr-dash-subtitle">{t.subtitle}</p>
-          <div className="odm-mgr-dash-date">
-            {t.lastUpdated}: {formatDashboardDate(data.generatedAt)}
-          </div>
+    <div className="mgr-dash">
+      <DashboardHeader
+        subtitle={`${t.generatedAt}: ${formatDashboardDate(data.generatedAt)}`}
+        range={range}
+        pendingCount={data.summary.pendingOrderCount}
+        onRangeChange={setRange}
+        onRefresh={query.reload}
+      />
+
+      <KpiRow data={data} />
+
+      <div className="mgr-columns">
+        <div className="mgr-stack">
+          <ActionListCard items={data.actionItems} generatedAt={data.generatedAt} />
+          <RecentOrdersCard orders={data.recentOrders} className="mgr-grow" />
         </div>
-        <div className="odm-mgr-dashboard-controls">
-          <div className="odm-mgr-range" role="group" aria-label="Khoảng thời gian phân tích">
-            {(['7D', '30D', '90D'] as const).map((value) => (
-              <button key={value} type="button" className={range === value ? 'is-active' : ''}
-                aria-pressed={range === value} onClick={() => setRange(value)}>
-                {value === '7D' ? '7 ngày' : value === '30D' ? '30 ngày' : '90 ngày'}
-              </button>
-            ))}
-          </div>
-          <button type="button" className="odm-btn" onClick={query.reload}>{t.refresh}</button>
+        <div className="mgr-stack">
+          <ActiveMissionsCard missions={data.activeMissions} />
+          <PipelineCard pipeline={data.pricingPipeline} />
+          <RecentActivityCard activities={data.recentActivities} className="mgr-grow" />
         </div>
       </div>
 
-      <KpiRow data={data} />
       <AnalyticsCharts data={data} />
-      <ActionListCard items={data.actionItems} />
-      <OperationalSections data={data} />
     </div>
   )
 }

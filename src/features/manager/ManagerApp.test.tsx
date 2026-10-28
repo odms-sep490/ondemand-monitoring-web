@@ -9,32 +9,41 @@ import type { OrderMissionBrief } from './types/orders'
 import type { ManagerDashboardResponse } from './types/dashboard'
 
 const sampleData: ManagerDashboardResponse = {
-  kpis: {
-    pendingOrders: { count: 6, detail: '2 quá 24h' },
-    missionsToday: { count: 5, detail: '3 đã xong' },
-    missionsInFlight: { count: 1, detail: '' },
-    dronesReady: { ready: 5, total: 9, detail: '1 bảo trì' },
-    actionItems: { count: 4, detail: '2 upload · 2 lỗi media' },
+  summary: {
+    totalOrders: 10,
+    totalQuoteValue: 0,
+    pendingOrderCount: 6,
+    pendingAdditionalChecklistCount: 0,
+    waitingDepositCount: 0,
+    activeMissionCount: 1,
+    attentionRequiredCount: 0,
   },
-  missionStatusByDay: [],
-  droneStatusBreakdown: [],
-  actionItems: [
-    {
-      id: 'ai-4',
-      type: 'MAINTENANCE_TICKET',
-      ticketId: 'MT-1',
-      code: 'MT-1',
-      title: 'DRN-07: rung bất thường',
-      subtitle: 'CRITICAL',
-      openedAtIso: '2026-09-13T14:32:00+07:00',
-    },
-  ],
-  flyingMission: null,
-  navCounts: {
-    pendingOrders: 6,
-    openMaintenanceTickets: 3,
-    mediaNeedsAction: 6,
+  orderStatusDistribution: [],
+  serviceDistribution: [],
+  additionalServiceDistribution: [],
+  priceAdjustmentSummary: { approvedAtSystemPrice: 0, adjustedByManager: 0 },
+  missionStatusDistribution: [],
+  missionTrend: [],
+  actionItems: [],
+  recentOrders: [],
+  pricingPipeline: {
+    pricingReviewCount: 0,
+    quoteReadyCount: 0,
+    waitingCustomerCount: 0,
+    waitingDepositCount: 0,
+    depositPaidCount: 0,
   },
+  missionOverview: {
+    scheduledCount: 0,
+    readyCount: 0,
+    inFlightCount: 0,
+    returningCount: 0,
+    completedTodayCount: 0,
+    issueCount: 0,
+  },
+  activeMissions: [],
+  recentActivities: [],
+  generatedAt: '2026-10-22T00:00:00Z',
 }
 
 beforeEach(() => {
@@ -64,41 +73,20 @@ describe('ManagerApp', () => {
     render(<ManagerApp />)
 
     await waitFor(() =>
-      expect(screen.getByText('Dashboard điều hành')).toBeInTheDocument(),
+      expect(screen.getByRole('heading', { name: 'Bảng điều khiển quản lý' })).toBeInTheDocument(),
     )
   })
 
-  it('feeds the nav badges from navCounts, not from actionItems', async () => {
+  it('feeds the pending-orders nav badge from summary.pendingOrderCount', async () => {
     vi.spyOn(managerApi, 'getDashboard').mockResolvedValue(sampleData)
     window.location.hash = '#portal/manager'
     render(<ManagerApp />)
 
     await waitFor(() => {
-      // sampleData.actionItems only has 1 MAINTENANCE_TICKET row, but the
-      // badge must reflect navCounts.openMaintenanceTickets (3), not that
-      // undercounted list length.
-      expect(screen.getByRole('link', { name: /Bảo trì/ })).toHaveTextContent(
-        '3',
-      )
       expect(
         screen.getByRole('link', { name: /Đơn hàng/ }),
       ).toHaveTextContent('6')
-      expect(
-        screen.getByRole('link', { name: /Media và giao kết quả/ }),
-      ).toHaveTextContent('6')
     })
-  })
-
-  it('renders the real MediaPage (MNG-11) for #portal/manager/media', async () => {
-    vi.spyOn(managerApi, 'getDashboard').mockResolvedValue(sampleData)
-    window.location.hash = '#portal/manager/media'
-    render(<ManagerApp />)
-
-    await waitFor(() =>
-      expect(
-        screen.getAllByText('Media và giao kết quả').length,
-      ).toBeGreaterThan(0),
-    )
   })
 
   it('renders the real QueuePage (MNG-02) for #portal/manager/orders', async () => {
@@ -124,7 +112,6 @@ describe('ManagerApp', () => {
       addressText: 'KCN Hiệp Phước, Nhà Bè',
       center: { lat: 10.6402, lon: 106.74 },
       radiusM: 300,
-      nearestBase: 'Trạm Nhà Bè',
       mediaRequirements: [],
     }
     vi.spyOn(ordersApi, 'getOrderForMission').mockResolvedValue(brief)
@@ -138,62 +125,17 @@ describe('ManagerApp', () => {
     )
   })
 
-  it('renders the real DispatchPage (MNG-05) for #portal/manager/missions/:id/dispatch', async () => {
+  it('renders the mission-scoped assignment page (MNG-05) for #portal/manager/missions/:id/dispatch', async () => {
     vi.spyOn(managerApi, 'getDashboard').mockResolvedValue(sampleData)
     const { missionsApi } = await import('./api/missionsApi')
-    vi.spyOn(missionsApi, 'getMission').mockResolvedValue({
-      id: 'msn-2609-0153-1',
-      orderId: 'ord-2609-0153',
-      orderCode: 'ORD-2609-0153',
-      missionCode: 'MSN-2609-0153-1',
-      status: 'CREATED',
-      attemptNumber: 1,
-      droneId: null,
-      operatorId: null,
-      droneAssignmentId: null,
-      operatorAssignmentId: null,
-      scheduledStartAt: null,
-      scheduledEndAt: null,
-      addressText: null,
-      centerLat: null,
-      centerLon: null,
-      radiusM: null,
-      requiredSensor: null,
-      nearestBase: null,
-      mediaRequirements: [],
-      flightPlan: null,
-      waypoints: [],
-    })
-    vi.spyOn(missionsApi, 'getResourceSuggestions').mockResolvedValue({
-      feasible: true,
-      missionCode: 'MSN-2609-0153-1',
-      attemptNumber: 1,
-      scheduledStart: '',
-      scheduledEnd: '',
-      addressText: null,
-      centerLat: null,
-      centerLon: null,
-      radiusM: null,
-      mediaSummary: null,
-      requiredDurationLabel: null,
-      requiredSensor: null,
-      nearestBase: null,
-      eligibleDroneCount: 0,
-      eligibleOperatorCount: 0,
-      topDrones: [],
-      topOperators: [],
-      rejected: { drones: [], operators: [] },
-      explanation: '',
-      timeline: { date: '', windowStart: '', windowEnd: '', resources: [] },
-      alternatives: [],
-    })
+    vi.spyOn(missionsApi, 'getMissionResponse').mockReturnValue(
+      new Promise(() => undefined),
+    )
     window.location.hash = '#portal/manager/missions/msn-2609-0153-1/dispatch'
     render(<ManagerApp />)
 
     await waitFor(() =>
-      expect(
-        screen.getByRole('heading', { name: 'Phân công nguồn lực' }),
-      ).toBeInTheDocument(),
+      expect(screen.getByText('Đang tải phân công…')).toBeInTheDocument(),
     )
   })
 
@@ -205,7 +147,7 @@ describe('ManagerApp', () => {
     await waitFor(() =>
       expect(screen.getByText('Không tìm thấy màn hình')).toBeInTheDocument(),
     )
-    expect(screen.getByRole('link', { name: 'Về Dashboard' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Về bảng điều khiển' })).toHaveAttribute(
       'href',
       '#portal/manager',
     )

@@ -1,4 +1,6 @@
 import type { MissionResultResponse, MediaResponse } from '../../types/missions'
+import { useI18n } from '../../../../shared/i18n'
+import { detailPanelsMessages } from './detailPanels.messages'
 import {
   checkTone,
   checkLabel,
@@ -18,6 +20,7 @@ export function ResultDetail({
   locale: 'vi-VN' | 'en-US'
   mediaLimit?: number
 }) {
+  const { t } = useI18n(detailPanelsMessages)
   const mediaCount =
     result?.mediaCount ?? result?.mediaFiles?.length ?? media.length
   return (
@@ -38,19 +41,19 @@ export function ResultDetail({
           </div>
           <dl className="odm-or-kv compact">
             <div>
-              <dt>Gửi lúc</dt>
+              <dt>{t.submittedAt}</dt>
               <dd>
                 {result.approvalStatus === 'DRAFT'
-                  ? 'Chưa gửi'
+                  ? t.notSubmitted
                   : formatDateTime(result.submittedAt, locale)}
               </dd>
             </div>
             <div>
-              <dt>Thời lượng thực tế</dt>
+              <dt>{t.actualDuration}</dt>
               <dd>{formatDuration(result.durationSeconds)}</dd>
             </div>
             <div>
-              <dt>Số media</dt>
+              <dt>{t.mediaCount}</dt>
               <dd>{mediaCount}</dd>
             </div>
           </dl>
@@ -61,7 +64,7 @@ export function ResultDetail({
           ) : null}
         </>
       ) : (
-        <div className="odm-or-empty">Chưa có mission result được gửi.</div>
+        <div className="odm-or-empty">{t.noResult}</div>
       )}
       {media.length > 0 ? (
         <ul className="odm-or-media-list">

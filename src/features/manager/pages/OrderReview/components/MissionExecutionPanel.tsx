@@ -7,6 +7,9 @@ import { missionsApi } from '../../../api/missionsApi'
 import { staffMissionMediaReader } from '../../../api/missionMediaReader'
 import type { MissionResponse } from '../../../types/missions'
 import { MissionResultReviewCard } from '../../../components/common/MissionResultReviewCard'
+import { Button } from '../../../../../shared/components/ui'
+import { useI18n } from '../../../../../shared/i18n'
+import { missionExecutionPanelMessages } from './MissionExecutionPanel.messages'
 
 /** Mounted by exact selected ID, never by Order ID. Switching destroys old request/state. */
 export function MissionExecutionPanel({
@@ -14,6 +17,7 @@ export function MissionExecutionPanel({
 }: {
   mission: MissionResponse
 }) {
+  const { t } = useI18n(missionExecutionPanelMessages)
   const mediaLibrary = useRef<HTMLElement>(null)
   const checklist = useApiQuery(
     (signal) =>
@@ -35,20 +39,14 @@ export function MissionExecutionPanel({
   return (
     <section
       className="odm-mission-execution"
-      aria-label={`Thực thi ${mission.missionCode}`}
+      aria-label={t.execution(mission.missionCode)}
     >
       <MonitoringChecklistSection
         hideImplementationHints
         missionId={mission.id}
         data={matchingChecklist}
         loading={checklist.loading}
-        error={
-          checklist.error
-            ? new Error(
-                'Không thể tải checklist của Mission này. Vui lòng thử lại.',
-              )
-            : undefined
-        }
+        error={checklist.error ? new Error(t.checklistLoadFailed) : undefined}
         resultKnown={!result.loading && !result.error}
         resultStatus={matchingResult?.approvalStatus}
         resultNote={matchingResult?.reviewNote}
@@ -56,10 +54,8 @@ export function MissionExecutionPanel({
       />
       {result.error ? (
         <p role="alert">
-          Không thể tải kết quả của Mission này.{' '}
-          <button className="odm-btn" onClick={result.reload}>
-            Thử lại
-          </button>
+          {t.resultLoadFailed}{' '}
+          <Button onClick={result.reload}>{t.retry}</Button>
         </p>
       ) : null}
       {matchingResult && (
@@ -80,7 +76,7 @@ export function MissionExecutionPanel({
           }}
         />
       )}
-      <section ref={mediaLibrary} tabIndex={-1} aria-label="Thư viện media">
+      <section ref={mediaLibrary} tabIndex={-1} aria-label={t.mediaLibrary}>
         <MissionUploadedMedia
           missionId={mission.id}
           missionStatus={mission.status}

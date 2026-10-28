@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import {
   ApiError,
@@ -7,6 +7,7 @@ import {
 } from '../../../shared/api/httpClient'
 import { resetMockDb } from '../../../mocks/db'
 import { mockFetch } from '../../../mocks'
+import { env } from '../../../config/env'
 import { ordersApi } from './ordersApi'
 import { missionsApi, toMissionCalendarItem } from './missionsApi'
 import type { MissionResponse } from '../types/missions'
@@ -85,7 +86,6 @@ describe('missionsApi (mock mode)', () => {
     setHttpTransport(mockFetch)
     const mission = await missionsApi.getMission('msn-2609-0153-1')
     expect(mission.orderCode).toBe('ORD-2609-0153')
-    expect(mission.nearestBase).toBe('Trạm Nhà Bè')
   })
 
   it('getMission 404s for an unknown id', async () => {
@@ -93,25 +93,6 @@ describe('missionsApi (mock mode)', () => {
     await expect(
       missionsApi.getMission('does-not-exist'),
     ).rejects.toMatchObject({ status: 404 })
-  })
-
-  it('getResourceSuggestions resolves the default feasible scenario', async () => {
-    setHttpTransport(mockFetch)
-    const suggestions =
-      await missionsApi.getResourceSuggestions('msn-2609-0153-1')
-    expect(suggestions.feasible).toBe(true)
-    expect(suggestions.topDrones).toHaveLength(3)
-    expect(suggestions.topDrones[0].code).toBe('DRN-01')
-  })
-
-  it('getResourceSuggestions resolves the insufficient scenario via query flag', async () => {
-    setHttpTransport(mockFetch)
-    const suggestions = await missionsApi.getResourceSuggestions(
-      'msn-2609-0153-1',
-      { scenario: 'insufficient' },
-    )
-    expect(suggestions.feasible).toBe(false)
-    expect(suggestions.alternatives).toHaveLength(3)
   })
 
   it('assignDrone assigns and moves the mission to RESOURCE_ASSIGNING', async () => {
@@ -146,30 +127,6 @@ describe('missionsApi (mock mode)', () => {
     )
     expect(afterOperator.status).toBe('WAITING_OPERATOR_ACCEPTANCE')
   })
-
-  it('releaseAssignment requires a non-blank reason', async () => {
-    setHttpTransport(mockFetch)
-    await missionsApi.assignDrone('msn-2609-0153-1', 'DRN-01')
-    await expect(
-      missionsApi.releaseAssignment(
-        'msn-2609-0153-1',
-        'mda-msn-2609-0153-1-drn-01',
-        '',
-      ),
-    ).rejects.toMatchObject({ status: 400 })
-  })
-
-  it('releaseAssignment releases the drone and returns the mission to CREATED', async () => {
-    setHttpTransport(mockFetch)
-    await missionsApi.assignDrone('msn-2609-0153-1', 'DRN-01')
-    const released = await missionsApi.releaseAssignment(
-      'msn-2609-0153-1',
-      'mda-msn-2609-0153-1-drn-01',
-      'Drone bị gọi bảo trì khẩn',
-    )
-    expect(released.status).toBe('CREATED')
-    expect(released.droneId).toBeNull()
-  })
 })
 
 // ── P6 API client tests ───────────────────────────────────────────────────
@@ -186,6 +143,59 @@ describe('missionsApi.listMissions', () => {
     setHttpTransport(mockFetch)
     const result = await missionsApi.listMissions({ status: 'IN_FLIGHT' })
     expect(result.items.every((m) => m.status === 'IN_FLIGHT')).toBe(true)
+  })
+})
+
+describe('missionsApi.listMissions (real backend)', () => {
+  const mutableEnv = env as { useMockApi: boolean }
+  const originalUseMockApi = mutableEnv.useMockApi
+  afterEach(() => {
+    mutableEnv.useMockApi = originalUseMockApi
+    vi.unstubAllEnvs()
+    resetHttpTransport()
+  })
+
+  it('reads GET /api/missions/all and filters client-side by date and status', async () => {
+    vi.stubEnv('MODE', 'production')
+    mutableEnv.useMockApi = false
+    const urls: string[] = []
+    setHttpTransport(async (url) => {
+      urls.push(String(url))
+      return Response.json({
+        success: true,
+        data: [
+          {
+            id: 'in',
+            orderId: 'o1',
+            missionCode: 'M-IN',
+            status: 'SCHEDULED',
+            scheduledStartAt: '2026-10-21T03:00:00Z',
+          },
+          {
+            id: 'out',
+            orderId: 'o1',
+            missionCode: 'M-OUT',
+            status: 'SCHEDULED',
+            scheduledStartAt: '2026-11-21T03:00:00Z',
+          },
+          {
+            id: 'other-status',
+            orderId: 'o1',
+            missionCode: 'M-X',
+            status: 'CANCELLED',
+            scheduledStartAt: '2026-10-21T03:00:00Z',
+          },
+        ],
+      })
+    })
+    const result = await missionsApi.listMissions({
+      from: '2026-10-19',
+      to: '2026-10-25',
+      status: 'SCHEDULED',
+    })
+    expect(urls).toHaveLength(1)
+    expect(urls[0]).toContain('/api/missions/all')
+    expect(result.items.map((item) => item.id)).toEqual(['in'])
   })
 })
 
@@ -211,27 +221,6 @@ describe('missionsApi.patchSchedule', () => {
         customerConfirmed: false,
       }),
     ).rejects.toBeInstanceOf(ApiError)
-  })
-})
-
-describe('missionsApi.getLive', () => {
-  it('returns telemetry for MSN-2609-0142-1', async () => {
-    setHttpTransport(mockFetch)
-    const live = await missionsApi.getLive('msn-2609-0142-1')
-    expect(live.missionStatus).toBe('IN_FLIGHT')
-    expect(live.batteryPct).toBe(71)
-    expect(live.livestream?.isLive).toBe(true)
-  })
-})
-
-describe('missionsApi.createIncident', () => {
-  it('creates an incident', async () => {
-    setHttpTransport(mockFetch)
-    const incident = await missionsApi.createIncident('msn-2609-0142-1', {
-      type: 'WIND',
-      description: 'Gió mạnh',
-    })
-    expect(incident.type).toBe('WIND')
   })
 })
 

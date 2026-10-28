@@ -3,6 +3,8 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
 import { HCMC_SERVICE_CENTER } from '../../../../../shared/lib/serviceArea'
+import { useI18n } from '../../../../../shared/i18n'
+import { missionDetailPageMessages } from '../MissionDetailPage.messages'
 
 type GpsPoint = { latitude: number; longitude: number }
 
@@ -58,6 +60,8 @@ export function MissionSatelliteMap({
   const targetMarker = useRef<L.Marker | null>(null)
   const routeLine = useRef<L.Polyline | null>(null)
   const targetPin = useRef<L.Marker | null>(null)
+  const { t } = useI18n(missionDetailPageMessages)
+  const x = t.extra
   const circle = useRef<L.Circle | null>(null)
   const target = validGps({
     latitude: latitude ?? Number.NaN,
@@ -79,6 +83,8 @@ export function MissionSatelliteMap({
       zoomControl: true,
       attributionControl: true,
     }).setView(initialCenter, target ? 16 : 11)
+    // The route/target chips sit in the top corners; keep the zoom buttons clear of them.
+    instance.zoomControl.setPosition('bottomright')
 
     L.tileLayer(
       'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
@@ -121,25 +127,27 @@ export function MissionSatelliteMap({
     const routeColor = '#2563eb'
 
     if (homeMarker.current) {
-      homeMarker.current.setLatLng(home)
+      homeMarker.current.setLatLng(home).setTooltipContent(x.startPoint)
     } else {
       homeMarker.current = L.marker(home, {
         icon: routeMarkerIcon('HOME', '#16a34a'),
         keyboard: false,
       })
         .addTo(map.current)
-        .bindTooltip('Điểm xuất phát')
+        .bindTooltip(x.startPoint)
     }
 
     if (targetMarker.current) {
-      targetMarker.current.setLatLng(targetLatLng)
+      targetMarker.current
+        .setLatLng(targetLatLng)
+        .setTooltipContent(x.targetPoint)
     } else {
       targetMarker.current = L.marker(targetLatLng, {
         icon: routeMarkerIcon('TARGET', '#dc2626'),
         keyboard: false,
       })
         .addTo(map.current)
-        .bindTooltip('Điểm giám sát')
+        .bindTooltip(x.targetPoint)
     }
 
     if (routeLine.current) {
@@ -156,11 +164,11 @@ export function MissionSatelliteMap({
     }
 
     if (targetPin.current) {
-      targetPin.current.setLatLng(targetLatLng)
+      targetPin.current.setLatLng(targetLatLng).setTooltipContent(x.targetPoint)
     } else {
       targetPin.current = L.marker(targetLatLng)
         .addTo(map.current)
-        .bindTooltip('Điểm giám sát')
+        .bindTooltip(x.targetPoint)
     }
 
     if (radiusMeters && radiusMeters > 0) {
@@ -184,34 +192,30 @@ export function MissionSatelliteMap({
     if (circle.current) bounds.extend(circle.current.getBounds())
     if (routeLine.current) bounds.extend(routeLine.current.getBounds())
     map.current.fitBounds(bounds, { padding: [36, 36], maxZoom: 16 })
-  }, [homePoint, radiusMeters, targetLat, targetLon])
+  }, [homePoint, radiusMeters, targetLat, targetLon, x])
 
   return (
     <div
       className="odm-rm-satellite"
       role="application"
-      aria-label="Bản đồ vệ tinh mission"
+      aria-label={x.satelliteAria}
     >
       <div ref={container} className="odm-rm-leaflet" />
       {target ? (
         <div className="odm-rm-chip odm-rm-chip-target">
-          ĐIỂM GIÁM SÁT · {target.latitude.toFixed(6)},{' '}
+          {x.targetChip} · {target.latitude.toFixed(6)},{' '}
           {target.longitude.toFixed(6)}
         </div>
       ) : null}
       {target ? (
-        <div className="odm-rm-chip odm-rm-chip-route">
-          Đường bay: HOME → điểm giám sát
-        </div>
+        <div className="odm-rm-chip odm-rm-chip-route">{x.routeChip}</div>
       ) : null}
       {radiusMeters ? (
         <div className="odm-rm-chip odm-rm-chip-radius">
-          Bán kính giám sát: {Math.round(radiusMeters)} m
+          {x.radiusChip} {Math.round(radiusMeters)} m
         </div>
       ) : null}
-      {!target ? (
-        <div className="odm-rm-empty">Chưa có tọa độ mission</div>
-      ) : null}
+      {!target ? <div className="odm-rm-empty">{x.noCoordinates}</div> : null}
     </div>
   )
 }

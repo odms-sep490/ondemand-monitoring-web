@@ -1,6 +1,7 @@
 import { missionDetailPageMessages } from '../MissionDetailPage.messages'
 import { useI18n } from '../../../../../shared/i18n'
 import type { MissionDetailTab } from '../missionDetailTypes'
+import '../../../components/layout/mgrLayout.css'
 import type { Dispatch, SetStateAction } from 'react'
 
 export function MissionDetailTabs({
@@ -14,14 +15,14 @@ export function MissionDetailTabs({
 }) {
   const { t } = useI18n(missionDetailPageMessages)
   return (
-    <div className="odm-or-seg" role="tablist" aria-label={t.tabsAria}>
+    <div className="mgr-seg" role="tablist" aria-label={t.tabsAria}>
       {tabs.map((item) => (
         <button
           key={item.id}
           type="button"
           role="tab"
           aria-selected={activeTab === item.id}
-          className={`odm-or-seg-btn${activeTab === item.id ? ' is-active' : ''}`}
+          className={activeTab === item.id ? 'is-active' : ''}
           onClick={() => setTab(item.id)}
         >
           {item.label}

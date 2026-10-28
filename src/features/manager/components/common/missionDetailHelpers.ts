@@ -4,6 +4,10 @@ import type {
   PreflightCheckItem,
 } from '../../types/missions'
 import type { StatusTone } from '../../../../shared/types/domain'
+import { getLanguage } from '../../../../shared/i18n'
+import { missionDetailHelpersMessages } from './missionDetailHelpers.messages'
+
+const msgs = () => missionDetailHelpersMessages[getLanguage()]
 
 export function formatDateTime(
   value: string | null | undefined,
@@ -26,15 +30,17 @@ export function formatDateTime(
 
 export function formatNumber(value: number | null | undefined, suffix = '') {
   if (value === null || value === undefined || Number.isNaN(value)) return '—'
-  return `${new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 1 }).format(value)}${suffix}`
+  return `${new Intl.NumberFormat(getLanguage() === 'en' ? 'en-US' : 'vi-VN', { maximumFractionDigits: 1 }).format(value)}${suffix}`
 }
 
 export function formatDuration(seconds: number | null | undefined) {
   if (seconds === null || seconds === undefined) return '—'
-  if (seconds < 60) return `${Math.round(seconds)} giây`
+  if (seconds < 60) return msgs().seconds(Math.round(seconds))
   const minutes = Math.floor(seconds / 60)
   const rest = Math.round(seconds % 60)
-  return rest > 0 ? `${minutes} phút ${rest} giây` : `${minutes} phút`
+  return rest > 0
+    ? msgs().minutesSeconds(minutes, rest)
+    : msgs().minutes(minutes)
 }
 
 export function checkTone(status: string | null | undefined) {
@@ -46,20 +52,7 @@ export function checkTone(status: string | null | undefined) {
 }
 
 export function checkLabel(status: string | null | undefined) {
-  const labels: Record<string, string> = {
-    PLANNING: 'Đang lập kế hoạch',
-    PASSED: 'Đạt',
-    FAILED: 'Không đạt',
-    PENDING: 'Chờ kiểm tra',
-    CHECKING: 'Đang kiểm tra',
-    CANCELLED: 'Đã hủy',
-    COMPLETED: 'Hoàn thành',
-    IN_PROGRESS: 'Đang xử lý',
-    DRAFT: 'Nháp',
-    PENDING_MANAGER_APPROVAL: 'Chờ duyệt',
-    APPROVED: 'Đã duyệt',
-    REJECTED: 'Từ chối',
-  }
+  const labels = msgs().checkLabels
   return status ? (labels[status] ?? status) : '—'
 }
 
@@ -67,20 +60,36 @@ export const STAFF_ROLE_LABELS: Record<
   MissionStaffAssignmentResponse['assignedRole'],
   string
 > = {
-  PILOT: 'Phi công',
-  OPERATOR: 'Vận hành',
-  MAINTAINER: 'Bảo trì',
-  INSPECTOR: 'Nghiệm thu',
+  get PILOT() {
+    return msgs().staffRoles.PILOT
+  },
+  get OPERATOR() {
+    return msgs().staffRoles.OPERATOR
+  },
+  get MAINTAINER() {
+    return msgs().staffRoles.MAINTAINER
+  },
+  get INSPECTOR() {
+    return msgs().staffRoles.INSPECTOR
+  },
 }
 
 export const STAFF_RESPONSE_LABELS: Record<
   MissionStaffAssignmentResponse['responseStatus'],
   string
 > = {
-  PLANNING: 'Đang lập kế hoạch',
-  PENDING: 'Chờ phản hồi',
-  ACCEPTED: 'Đã chấp nhận',
-  REJECTED: 'Đã từ chối',
+  get PLANNING() {
+    return msgs().staffResponses.PLANNING
+  },
+  get PENDING() {
+    return msgs().staffResponses.PENDING
+  },
+  get ACCEPTED() {
+    return msgs().staffResponses.ACCEPTED
+  },
+  get REJECTED() {
+    return msgs().staffResponses.REJECTED
+  },
 }
 
 export function assignmentTone(

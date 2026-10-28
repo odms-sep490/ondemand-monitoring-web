@@ -1,21 +1,89 @@
-import type { ManagerDashboardData } from '../../../types/dashboard'
-import { managerHref } from '../../../routes'
-import { KpiCard } from './KpiCard'
+import {
+  AlertOutlined,
+  CheckCircleOutlined,
+  DollarOutlined,
+  FileSearchOutlined,
+  RocketOutlined,
+} from '@ant-design/icons'
+import type { ReactNode } from 'react'
 
-const vnd = new Intl.NumberFormat('vi-VN', {
-  style: 'currency', currency: 'VND', notation: 'compact', maximumFractionDigits: 1,
-})
+import { StatisticComponent } from '../../../../../shared/components/antd'
+import { useI18n } from '../../../../../shared/i18n'
+import { managerHref, type ManagerRoute } from '../../../routes'
+import type { ManagerDashboardData } from '../../../types/dashboard'
+import { dashboardPageMessages } from '../DashboardPage.messages'
+
+function KpiLink({ route, children }: { route: ManagerRoute; children: ReactNode }) {
+  return (
+    <a className="mgr-dash-kpi" href={managerHref(route)}>
+      {children}
+    </a>
+  )
+}
 
 export function KpiRow({ data }: { data: ManagerDashboardData }) {
+  const { t } = useI18n(dashboardPageMessages)
+  const k = t.kpi
   const s = data.summary
+  const p = data.pricingPipeline
+  const completed = data.missionTrend.reduce((sum, point) => sum + point.completed, 0)
+  const failed = data.missionTrend.reduce((sum, point) => sum + point.failed, 0)
+  const completedSeries = data.missionTrend.map((point) => point.completed)
+  const queue: ManagerRoute = { screen: 'orderQueue' }
+  const missions: ManagerRoute = { screen: 'missions' }
+  const attention = s.attentionRequiredCount > 0
   return (
-    <div className="odm-mgr-kpi-row">
-      <KpiCard label="Tổng yêu cầu" value={s.totalOrders} detail="Trong khoảng thời gian đã chọn" href={managerHref({ screen: 'orderQueue' })} />
-      <KpiCard label="Checklist chờ duyệt giá" value={s.pendingAdditionalChecklistCount} detail="Dịch vụ bổ sung cần báo giá" href={managerHref({ screen: 'orderQueue' })} tone="warning" />
-      <KpiCard label="Giá trị báo giá" value={vnd.format(s.totalQuoteValue)} detail="Bản mới nhất đã duyệt/chấp nhận" href={managerHref({ screen: 'orderQueue' })} />
-      <KpiCard label="Chờ thanh toán cọc" value={s.waitingDepositCount} detail="Chưa hoàn tất cọc" href={managerHref({ screen: 'orderQueue' })} tone="warning" />
-      <KpiCard label="Mission đang hoạt động" value={s.activeMissionCount} detail="Nhiệm vụ đang được triển khai" href={managerHref({ screen: 'missions' })} />
-      <KpiCard label="Cần chú ý" value={s.attentionRequiredCount} detail="Sự cố hoặc thiếu nguồn lực" href={managerHref({ screen: 'missions' })} tone="danger" />
+    <div className="mgr-kpi-grid">
+      <KpiLink route={queue}>
+        <StatisticComponent
+          index={0}
+          tone={s.pendingOrderCount > 0 ? 'amber' : 'blue'}
+          icon={<FileSearchOutlined />}
+          title={k.pendingReview}
+          value={s.pendingOrderCount}
+        />
+      </KpiLink>
+      <KpiLink route={queue}>
+        <StatisticComponent
+          index={1}
+          tone="blue"
+          icon={<DollarOutlined />}
+          title={k.waitingQuote}
+          value={p.pricingReviewCount + p.quoteReadyCount}
+        />
+      </KpiLink>
+      <KpiLink route={queue}>
+        <StatisticComponent
+          index={2}
+          tone="violet"
+          icon={<AlertOutlined />}
+          title={k.waitingDeposit}
+          value={s.waitingDepositCount}
+          hint={p.depositPaidCount > 0 ? k.waitingDepositHint(p.depositPaidCount) : undefined}
+        />
+      </KpiLink>
+      <KpiLink route={missions}>
+        <StatisticComponent
+          index={3}
+          tone={attention ? 'red' : 'green'}
+          icon={<RocketOutlined />}
+          title={k.activeMissions}
+          value={s.activeMissionCount}
+          hint={attention ? k.attentionHint(s.attentionRequiredCount) : undefined}
+        />
+      </KpiLink>
+      <KpiLink route={missions}>
+        <StatisticComponent
+          index={4}
+          tone="green"
+          icon={<CheckCircleOutlined />}
+          title={k.completed}
+          value={completed}
+          hint={failed > 0 ? k.completedHint(failed) : undefined}
+          hintTone="red"
+          spark={completedSeries}
+        />
+      </KpiLink>
     </div>
   )
 }

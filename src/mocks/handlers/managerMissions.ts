@@ -12,9 +12,12 @@
 //   POST   /api/missions/{id}/assignments/{aid}/release   [BRIEF C4 = TK]
 import type {
   Mission,
-  ResourceSuggestions,
 } from '../../features/manager/types/missions'
 import type { MissionStatus } from '../../shared/types/domain'
+// Loose shape: the manager client no longer calls resource-suggestions, so the
+// typed DTO was removed from the app; this legacy mock handler keeps a local one.
+type ResourceSuggestions = { timeline: unknown; [key: string]: unknown }
+
 import { NO_FLY_CEILING_M } from '../../features/manager/lib/missionPolicy'
 import { hasScheduleConflict } from '../../features/manager/lib/schedule'
 import { createCollection } from '../db'
@@ -106,7 +109,6 @@ function toMissionDto(m: StoredMission): Mission {
     orderCode: m.orderCode,
     missionCode: m.missionCode,
     status: m.status,
-    attemptNumber: m.attemptNumber,
     droneId: m.droneId,
     operatorId: m.operatorId,
     droneAssignmentId: m.droneAssignmentId,
@@ -122,7 +124,6 @@ function toMissionDto(m: StoredMission): Mission {
     centerLon: m.centerLon,
     radiusM: m.radiusM,
     requiredSensor: m.requiredSensor,
-    nearestBase: m.nearestBase,
     mediaRequirements: m.mediaRequirements as Mission['mediaRequirements'],
     flightPlan: m.flightPlan as Mission['flightPlan'],
     waypoints: m.waypoints as Mission['waypoints'],
@@ -476,6 +477,8 @@ registerMockRoutes([
       const req = (body ?? {}) as {
         scheduledStart?: string
         scheduledEnd?: string
+        scheduledStartAt?: string
+        scheduledEndAt?: string
         flightPlan?: {
           planType: 'ORBIT' | 'GRID' | 'POINT'
           centerLat: number
@@ -494,11 +497,13 @@ registerMockRoutes([
         return fail(
           409,
           'ORDER_NOT_APPROVED',
-          'Đơn chưa được duyệt, chưa thể tạo mission.',
+          'Đơn chưa được duyệt, chưa thể tạo nhiệm vụ.',
         )
       }
 
-      if (!req.scheduledStart || !req.scheduledEnd) {
+      const scheduledStart = req.scheduledStartAt ?? req.scheduledStart
+      const scheduledEnd = req.scheduledEndAt ?? req.scheduledEnd
+      if (!scheduledStart || !scheduledEnd) {
         return fail(
           400,
           'VALIDATION_ERROR',
@@ -533,8 +538,8 @@ registerMockRoutes([
       const mission = existing ?? newMinimalMission(order.id, order.code)
       if (!existing) missions.push(mission)
 
-      mission.scheduledStartAt = req.scheduledStart
-      mission.scheduledEndAt = req.scheduledEnd
+      mission.scheduledStartAt = scheduledStart
+      mission.scheduledEndAt = scheduledEnd
       if (req.flightPlan) {
         mission.flightPlan = req.flightPlan
         mission.waypoints = req.waypoints ?? []

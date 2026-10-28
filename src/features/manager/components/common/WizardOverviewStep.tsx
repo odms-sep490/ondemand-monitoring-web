@@ -1,3 +1,5 @@
+import { useI18n } from '../../../../shared/i18n'
+import { commonMiscMessages } from './commonMisc.messages'
 import type { usePlanningConfirmation } from './usePlanningConfirmation'
 import { OrderMissionsOverview } from './OrderMissionsOverview'
 import type { Dispatch, SetStateAction } from 'react'
@@ -41,6 +43,7 @@ export function WizardOverviewStep({
   onClose: () => void
   embedded: boolean
 }) {
+  const { t } = useI18n(commonMiscMessages)
   return (
     <>
       {confirmation.dialog}
@@ -69,7 +72,7 @@ export function WizardOverviewStep({
           }
         }}
         doneLabel={
-          permitting ? 'Hoàn tất giấy phép bay' : 'Tiếp: Giấy phép bay'
+          permitting ? t.finishPermit : t.nextPermit
         }
         embedded={embedded}
         mode={permitting ? 'permit' : 'preparation'}

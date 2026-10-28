@@ -1,9 +1,12 @@
 import { OrderIcon } from './OrderIcon'
 import { liveDispatchPageMessages } from './LiveDispatchPage.messages'
+import { commonMiscMessages } from './commonMisc.messages'
 import { useI18n } from '../../../../shared/i18n'
 import type { DispatchStep, OrderDispatchContext } from './liveDispatchTypes'
 import type { AvailableDrone } from '../../../staff/api/droneApi'
+import { Button, Card } from '../../../../shared/components/ui'
 
+/** Step actions, rendered as the confirm card of the sticky sidebar. */
 export function DispatchActionBar({
   stepHint,
   activeStep,
@@ -34,46 +37,38 @@ export function DispatchActionBar({
   assign: () => Promise<void>
 }) {
   const { t } = useI18n(liveDispatchPageMessages)
+  const { t: m } = useI18n(commonMiscMessages)
   return (
-    <div className="odm-or-actionbar">
-      <div className="odm-or-actionbar-hint">
-        <span className="odm-or-actionbar-hint-icon">
-          <OrderIcon name="info" size={18} />
-        </span>
+    <Card title={t.sideActions}>
+      <div className="mgr-dispatch-hint">
+        <OrderIcon name="info" size={16} />
         <span>{stepHint[activeStep]}</span>
-        {activeStep === 'staff' && missingRoleNames.length > 0 && (
-          <strong className="odm-or-actionbar-missing">
-            Còn thiếu: {missingRoleNames.join(', ')}
-          </strong>
-        )}
       </div>
-      <div className="odm-or-actionbar-actions">
-        <button
-          type="button"
-          className="odm-or-btn odm-or-btn-ghost"
-          disabled={activeStepIndex === 0}
-          onClick={goPrevious}
-        >
-          {t.previous}
-        </button>
+      {activeStep === 'staff' && missingRoleNames.length > 0 && (
+        <strong className="mgr-dispatch-missing">
+          {m.missingPrefix} {missingRoleNames.join(', ')}
+        </strong>
+      )}
+      <div className="mgr-actions">
         {activeStep !== 'confirm' ? (
-          <button
+          <Button
             type="button"
-            className={`odm-or-btn odm-or-btn-blue${
+            variant="primary"
+            className={
               (activeStep === 'staff' && missingRoles > 0) ||
               (activeStep === 'device' && selectedDrones.length === 0)
-                ? ' is-blocked'
-                : ''
-            }`}
+                ? 'is-blocked'
+                : undefined
+            }
             onClick={goNext}
           >
             {t.next}
             <OrderIcon name="chevron-right" size={16} />
-          </button>
+          </Button>
         ) : (
-          <button
+          <Button
             type="button"
-            className="odm-or-btn odm-or-btn-primary"
+            variant="primary"
             disabled={
               busy ||
               droneIds.length === 0 ||
@@ -83,9 +78,17 @@ export function DispatchActionBar({
             onClick={() => void assign()}
           >
             {busy ? t.assigning : t.assign}
-          </button>
+          </Button>
         )}
+        <Button
+          type="button"
+          variant="ghost"
+          disabled={activeStepIndex === 0}
+          onClick={goPrevious}
+        >
+          {t.previous}
+        </Button>
       </div>
-    </div>
+    </Card>
   )
 }

@@ -22,14 +22,7 @@ describe('managerApi.getDashboard (mock mode)', () => {
 
     const data = await managerApi.getDashboard()
 
-    expect(data.kpis?.pendingOrders.count).toBe(6)
-    expect(data.kpis?.dronesReady).toEqual({
-      ready: 5,
-      total: 9,
-      detail: '1 bảo trì',
-    })
     expect(data.actionItems).toHaveLength(6)
-    expect(data.flyingMission).toBeTruthy()
   })
 
   it('sends the selected period preset to the aggregate endpoint', async () => {

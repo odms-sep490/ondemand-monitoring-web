@@ -1,9 +1,12 @@
+import { CheckOutlined, ExclamationOutlined } from '@ant-design/icons'
 import { pricingLabel } from '../../../../shared/lib/pricingPresentation'
 import type { ChecklistReviewStatus } from '../../types'
 import type { Dispatch, SetStateAction, RefObject } from 'react'
 import type { PricingChecklistItem, PricingReview } from '../../types'
 import type { Draft } from '../pricingHelpers'
 import { ChecklistRow } from './ChecklistRow'
+import { useI18n } from '../../../../shared/i18n'
+import { pricingMessages } from '../pricing.messages'
 
 export function ChecklistReview({
   reviewComplete,
@@ -28,20 +31,16 @@ export function ChecklistReview({
   reviewedCount: number
   checklistCount: number
   filterLabels: readonly [
-    { readonly key: 'all'; readonly label: 'Tất cả'; readonly count: number },
-    {
-      readonly key: 'pending'
-      readonly label: 'Chưa xem xét'
-      readonly count: number
-    },
+    { readonly key: 'all'; readonly label: string; readonly count: number },
+    { readonly key: 'pending'; readonly label: string; readonly count: number },
     {
       readonly key: 'reviewed'
-      readonly label: 'Đã xem xét'
+      readonly label: string
       readonly count: number
     },
     {
       readonly key: 'additional'
-      readonly label: 'Có phụ phí'
+      readonly label: string
       readonly count: number
     },
   ]
@@ -65,6 +64,7 @@ export function ChecklistReview({
   setOpenNote: Dispatch<SetStateAction<string | null>>
   data: PricingReview
 }) {
+  const { t } = useI18n(pricingMessages)
   return (
     <section
       className="odm-or-card finance-panel"
@@ -72,8 +72,8 @@ export function ChecklistReview({
     >
       <header className="finance-heading">
         <div>
-          <h2 id="manager-pricing-title">Xem xét yêu cầu và báo giá</h2>
-          <p>Mỗi yêu cầu phải được phân loại trước khi duyệt báo giá.</p>
+          <h2 id="manager-pricing-title">{t.reviewTitle}</h2>
+          <p>{t.reviewSubtitle}</p>
         </div>
         {data.currentQuote ? (
           <span
@@ -89,9 +89,7 @@ export function ChecklistReview({
           className={`finance-review-progress ${reviewComplete ? 'is-complete' : 'is-pending'}`}
           role="status"
         >
-          <strong>
-            {reviewedCount}/{checklistCount} nội dung đã xem xét
-          </strong>
+          <strong>{t.reviewedProgress(reviewedCount, checklistCount)}</strong>
           <span className="finance-progress-percent">
             (
             {checklistCount
@@ -107,7 +105,11 @@ export function ChecklistReview({
             />
           </span>
         </div>
-        <div className="finance-filters" role="group" aria-label="Lọc nội dung">
+        <div
+          className="finance-filters"
+          role="group"
+          aria-label={t.filterGroupAria}
+        >
           {filterLabels.map((item) => (
             <button
               key={item.key}
@@ -126,20 +128,20 @@ export function ChecklistReview({
         role="status"
       >
         <span aria-hidden="true" className="finance-review-warning-icon">
-          {reviewComplete ? '✓' : '!'}
+          {reviewComplete ? <CheckOutlined /> : <ExclamationOutlined />}
         </span>
         {reviewComplete
-          ? 'Checklist đã hoàn tất và có thể duyệt báo giá.'
-          : `Còn ${pendingReviewCount} nội dung cần chọn cách tính giá trước khi duyệt.`}
+          ? t.checklistComplete
+          : t.checklistRemaining(pendingReviewCount)}
       </div>
       <div className="finance-checklist">
         <div className="finance-table-head" aria-hidden="true">
           <span>#</span>
-          <span>Nội dung yêu cầu</span>
-          <span>Cách tính giá</span>
-          <span>Phụ phí</span>
-          <span>Trạng thái</span>
-          <span>Ghi chú</span>
+          <span>{t.colContent}</span>
+          <span>{t.colPricing}</span>
+          <span>{t.colSurcharge}</span>
+          <span>{t.colStatus}</span>
+          <span>{t.colNote}</span>
         </div>
         {visibleItems.map((item) => (
           <ChecklistRow

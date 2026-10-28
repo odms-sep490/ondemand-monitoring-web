@@ -1,4 +1,5 @@
 import type { OrderDispatchContext, DispatchStep } from './liveDispatchTypes'
+import { commonMiscMessages } from './commonMisc.messages'
 import { useI18n } from '../../../../shared/i18n'
 import { liveDispatchPageMessages } from './LiveDispatchPage.messages'
 import { useState, useRef } from 'react'
@@ -18,6 +19,11 @@ import { DispatchStaffStep } from './DispatchStaffStep'
 import { DispatchDeviceStep } from './DispatchDeviceStep'
 import { DispatchReviewStep } from './DispatchReviewStep'
 import { DispatchActionBar } from './DispatchActionBar'
+import { DispatchSideSummary } from './DispatchSideSummary'
+import '../layout/mgrLayout.css'
+import './missionPages.css'
+import '../../pages/MissionDispatch/missionDispatch.scss'
+import { Button, Skeleton } from '../../../../shared/components/ui'
 
 export function LiveDispatchContent({
   missionId,
@@ -27,6 +33,7 @@ export function LiveDispatchContent({
   orderContext?: OrderDispatchContext
 }) {
   const { t } = useI18n(liveDispatchPageMessages)
+  const { t: m } = useI18n(commonMiscMessages)
   const {
     mission,
     scope,
@@ -88,8 +95,11 @@ export function LiveDispatchContent({
     (validWindow && !availability.error && availability.data?.scope !== scope)
   ) {
     return (
-      <div className="odm-mgr-dash" role="status">
-        {activeStep === 'device' ? t.checkingDevices : t.checkingStaff}
+      <div className="mgr-page" role="status" aria-busy="true">
+        <span>
+          {activeStep === 'device' ? t.checkingDevices : t.checkingStaff}
+        </span>
+        <Skeleton variant="block" height={220} />
       </div>
     )
   }
@@ -99,11 +109,7 @@ export function LiveDispatchContent({
         state="error"
         title={t.loadError}
         error={
-          new Error(
-            !validWindow
-              ? t.scheduleRequired
-              : 'Không thể tải nguồn lực của nhiệm vụ này. Vui lòng thử lại.',
-          )
+          new Error(!validWindow ? t.scheduleRequired : m.resourcesLoadFailed)
         }
         onRetry={() => {
           mission.reload()
@@ -124,18 +130,12 @@ export function LiveDispatchContent({
   )
     return (
       <section className="odm-or-card odm-or-card-body">
-        <p role="alert">
-          Nhiệm vụ không còn đủ điều kiện phân công trong Order này. Vui lòng
-          chọn lại nhiệm vụ.
-        </p>
-        <button
-          className="odm-or-btn-outline"
-          onClick={() => orderContext.onReturn()}
-        >
+        <p role="alert">{m.missionNotEligible}</p>
+        <Button onClick={() => orderContext.onReturn()}>
           {orderContext.missionScoped
             ? orderContext.returnLabel
-            : 'Chọn nhiệm vụ khác'}
-        </button>
+            : m.chooseOtherMission}
+        </Button>
       </section>
     )
   const {
@@ -168,7 +168,7 @@ export function LiveDispatchContent({
   })
 
   return (
-    <div className="odm-or">
+    <div className="odm-or mgr-view mgr-mdp">
       {!orderContext?.embeddedInOrderReview && (
         <DispatchPageHead
           orderContext={orderContext}
@@ -197,85 +197,97 @@ export function LiveDispatchContent({
             onStep={(step) => setActiveStep(step)}
           />
 
-          {activeStep === 'order' && (
-            <DispatchOverviewCard
-              target={target}
-              currentOrderCode={currentOrderCode}
-              current={current}
-              mapImageUrl={mapImageUrl}
-              imageStyle={imageStyle}
-            />
-          )}
+          <div className="mgr-detail-grid">
+            <div className="mgr-detail-main">
+              {activeStep === 'order' && (
+                <DispatchOverviewCard
+                  target={target}
+                  currentOrderCode={currentOrderCode}
+                  current={current}
+                  mapImageUrl={mapImageUrl}
+                  imageStyle={imageStyle}
+                />
+              )}
 
-          {activeStep === 'mission' &&
-            orderContext &&
-            orderContext.missionSelection}
-          {activeStep === 'mission' && !orderContext && (
-            <DispatchScheduleCard
-              current={current}
-              scheduleText={scheduleText}
-            />
-          )}
+              {activeStep === 'mission' &&
+                orderContext &&
+                orderContext.missionSelection}
+              {activeStep === 'mission' && !orderContext && (
+                <DispatchScheduleCard
+                  current={current}
+                  scheduleText={scheduleText}
+                />
+              )}
 
-          {activeStep === 'staff' && (
-            <DispatchStaffStep
-              missingRoles={missingRoles}
-              current={current}
-              scheduleText={scheduleText}
-              staffByRole={staffByRole}
-              setStaffByRole={setStaffByRole}
-              setError={setError}
-              operators={operators}
-              openStaffRole={openStaffRole}
-              setOpenStaffRole={setOpenStaffRole}
-              selectedStaffIds={selectedStaffIds}
-            />
-          )}
+              {activeStep === 'staff' && (
+                <DispatchStaffStep
+                  missingRoles={missingRoles}
+                  current={current}
+                  scheduleText={scheduleText}
+                  staffByRole={staffByRole}
+                  setStaffByRole={setStaffByRole}
+                  setError={setError}
+                  operators={operators}
+                  openStaffRole={openStaffRole}
+                  setOpenStaffRole={setOpenStaffRole}
+                  selectedStaffIds={selectedStaffIds}
+                />
+              )}
 
-          {activeStep === 'device' && (
-            <DispatchDeviceStep
-              selectedDrones={selectedDrones}
-              drones={drones}
-              droneIds={droneIds}
-              devicePickerOpen={devicePickerOpen}
-              setDevicePickerOpen={setDevicePickerOpen}
-              setOpenStaffRole={setOpenStaffRole}
-              setDroneIds={setDroneIds}
-              setError={setError}
-            />
-          )}
+              {activeStep === 'device' && (
+                <DispatchDeviceStep
+                  selectedDrones={selectedDrones}
+                  drones={drones}
+                  droneIds={droneIds}
+                  devicePickerOpen={devicePickerOpen}
+                  setDevicePickerOpen={setDevicePickerOpen}
+                  setOpenStaffRole={setOpenStaffRole}
+                  setDroneIds={setDroneIds}
+                  setError={setError}
+                />
+              )}
 
-          {activeStep === 'confirm' && (
-            <DispatchReviewStep
-              current={current}
-              scheduleText={scheduleText}
-              roleSummary={roleSummary}
-              selectedDrones={selectedDrones}
-              missingRoles={missingRoles}
-            />
-          )}
+              {activeStep === 'confirm' && (
+                <DispatchReviewStep
+                  current={current}
+                  scheduleText={scheduleText}
+                  roleSummary={roleSummary}
+                  selectedDrones={selectedDrones}
+                  missingRoles={missingRoles}
+                />
+              )}
 
-          {error && (
-            <div role="alert" className="odm-or-error">
-              {error}
+              {error && (
+                <div role="alert" className="odm-or-error">
+                  {error}
+                </div>
+              )}
             </div>
-          )}
-
-          <DispatchActionBar
-            stepHint={stepHint}
-            activeStep={activeStep}
-            missingRoleNames={missingRoleNames}
-            activeStepIndex={activeStepIndex}
-            goPrevious={goPrevious}
-            missingRoles={missingRoles}
-            selectedDrones={selectedDrones}
-            goNext={goNext}
-            busy={busy}
-            droneIds={droneIds}
-            hasAllRoles={hasAllRoles}
-            orderContext={orderContext}
-            assign={assign}
-          />
+            <aside className="mgr-detail-side">
+              <DispatchSideSummary
+                current={current}
+                scheduleText={scheduleText}
+                roleSummary={roleSummary}
+                selectedDrones={selectedDrones}
+                showSelection={activeStep !== 'confirm'}
+              />
+              <DispatchActionBar
+                stepHint={stepHint}
+                activeStep={activeStep}
+                missingRoleNames={missingRoleNames}
+                activeStepIndex={activeStepIndex}
+                goPrevious={goPrevious}
+                missingRoles={missingRoles}
+                selectedDrones={selectedDrones}
+                goNext={goNext}
+                busy={busy}
+                droneIds={droneIds}
+                hasAllRoles={hasAllRoles}
+                orderContext={orderContext}
+                assign={assign}
+              />
+            </aside>
+          </div>
         </>
       )}
     </div>

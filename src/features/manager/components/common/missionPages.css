@@ -1,0 +1,253 @@
+/* Mission pages (create, detail, dispatch, list): theme-aware overrides. Tokens only. */
+
+/* ---- Weather forecast rows (create mission) ---- */
+.mgr-layout .odm-or-weather-row {
+  background: var(--mgr-card-2);
+  border-color: var(--mgr-border);
+}
+.mgr-layout .odm-or-weather-row.is-good {
+  background: var(--pl-green-bg);
+  border-color: var(--pl-green-bd);
+}
+.mgr-layout .odm-or-weather-row.is-caution {
+  background: var(--pl-amber-bg);
+  border-color: var(--pl-amber-bd);
+}
+.mgr-layout .odm-or-weather-row.is-poor {
+  background: var(--pl-red-bg);
+  border-color: var(--pl-red-bd);
+}
+.mgr-layout .odm-or-weather-metric {
+  background: var(--mgr-card);
+  border: 1px solid var(--mgr-border);
+}
+.mgr-layout .odm-or-weather-metric-label {
+  color: var(--mgr-muted);
+}
+.mgr-layout .odm-or-weather-metric-value,
+.mgr-layout .odm-or-weather-label,
+.mgr-layout .odm-or-weather-date {
+  color: var(--mgr-text);
+}
+.mgr-layout .odm-or-weather-badge {
+  background: var(--pl-chip-bg);
+  color: var(--mgr-text);
+}
+.mgr-layout .odm-or-weather-row.is-good .odm-or-weather-badge {
+  background: var(--pl-green-bg);
+  color: var(--pl-green-fg);
+  border: 1px solid var(--pl-green-bd);
+}
+.mgr-layout .odm-or-weather-row.is-caution .odm-or-weather-badge {
+  background: var(--pl-amber-bg);
+  color: var(--pl-amber-fg);
+  border: 1px solid var(--pl-amber-bd);
+}
+.mgr-layout .odm-or-weather-row.is-poor .odm-or-weather-badge {
+  background: var(--pl-red-bg);
+  color: var(--pl-red-fg);
+  border: 1px solid var(--pl-red-bd);
+}
+.mgr-layout .odm-or-weather-empty,
+.mgr-layout .odm-or-weather-desc {
+  color: var(--mgr-muted);
+}
+.mgr-layout .odm-or-weather-empty {
+  background: var(--mgr-card-2);
+}
+
+/* ---- Flight route / satellite map (mission detail) ---- */
+.mgr-layout .odm-rm-stage {
+  background: var(--mgr-card-2);
+}
+.mgr-layout .odm-rm-chip {
+  background: var(--mgr-card);
+  color: var(--mgr-text);
+  border: 1px solid var(--mgr-border);
+  box-shadow: var(--mgr-shadow);
+}
+.mgr-layout .odm-rm-chip-target {
+  background: var(--pl-red-bg);
+  color: var(--pl-red-fg);
+  border-color: var(--pl-red-bd);
+}
+.mgr-layout .odm-rm-badge {
+  background: color-mix(in srgb, var(--mgr-bg) 82%, transparent);
+  color: var(--mgr-text);
+}
+.mgr-layout .odm-rm-satellite,
+.mgr-layout .odm-rm {
+  border: 1px solid var(--mgr-border);
+}
+.mgr-layout .odm-rm-satellite .leaflet-bar {
+  border: 1px solid var(--mgr-border);
+  box-shadow: var(--mgr-shadow);
+}
+.mgr-layout .odm-rm-satellite .leaflet-bar a,
+.mgr-layout .odm-rm-satellite .leaflet-bar a:hover {
+  background: var(--mgr-card);
+  color: var(--mgr-text);
+  border-bottom-color: var(--mgr-border);
+}
+.mgr-layout .odm-rm-satellite .leaflet-control-attribution {
+  background: color-mix(in srgb, var(--mgr-card) 85%, transparent);
+  color: var(--mgr-muted);
+}
+.mgr-layout .odm-rm-satellite .leaflet-control-attribution a {
+  color: var(--pl-blue-fg);
+}
+.mgr-layout .odm-rm-key i.is-home {
+  background: var(--mgr-text);
+  box-shadow: 0 0 0 2px var(--mgr-border);
+}
+.mgr-layout .odm-rm-key i.is-line,
+.mgr-layout .odm-rm-key i.is-wp {
+  background: var(--pl-blue-ac);
+}
+.mgr-layout .odm-rm-wps li:first-child b {
+  background: var(--mgr-text);
+  color: var(--mgr-card);
+}
+
+/* ---- Next-step strip, dispatch mission bar, readiness checklist ---- */
+.mgr-layout .odm-md-next.is-wait {
+  background: var(--pl-amber-bg);
+  border-color: var(--pl-amber-bd);
+  color: var(--pl-amber-fg);
+}
+.mgr-layout .odm-md-next.is-go {
+  background: var(--pl-blue-bg);
+  border-color: var(--pl-blue-bd);
+  color: var(--pl-blue-fg);
+}
+.mgr-layout .odm-md-next.is-done {
+  background: var(--pl-green-bg);
+  border-color: var(--pl-green-bd);
+  color: var(--pl-green-fg);
+}
+.mgr-layout .odm-md-next.is-bad {
+  background: var(--pl-red-bg);
+  border-color: var(--pl-red-bd);
+  color: var(--pl-red-fg);
+}
+.mgr-layout .odm-assign-mission {
+  background: var(--pl-blue-bg);
+  color: var(--pl-blue-fg);
+}
+.mgr-layout .odm-or-checklist li.is-ok {
+  background: var(--pl-green-bg);
+  color: var(--pl-green-fg);
+}
+.mgr-layout .odm-or-checklist li.is-bad {
+  background: var(--pl-amber-bg);
+  color: var(--pl-amber-fg);
+}
+.mgr-layout .odm-or-pill-red {
+  background: var(--pl-red-bg);
+  color: var(--pl-red-fg);
+}
+.mgr-layout .odm-or-pill-green {
+  background: var(--pl-green-bg);
+  color: var(--pl-green-fg);
+}
+.mgr-layout .odm-or-pill-blue {
+  background: var(--pl-blue-bg);
+  color: var(--pl-blue-fg);
+}
+.mgr-layout .odm-or-pill-amber {
+  background: var(--pl-amber-bg);
+  color: var(--pl-amber-fg);
+}
+
+/* ---- Dispatch: wizard tabs sit in their own card, tabs wrap on narrow screens ---- */
+.mgr-layout .mgr-wf-tabs {
+  padding: 8px 6px;
+}
+.mgr-layout .mgr-wf-tabs .odm-wf-btn:disabled {
+  cursor: default;
+}
+@media (max-width: 640px) {
+  .mgr-layout .mgr-wf-tabs .odm-wf-steps {
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+  }
+  .mgr-layout .mgr-wf-tabs .odm-wf-btn {
+    flex-direction: column;
+    gap: 4px;
+    padding: 6px 4px;
+    text-align: center;
+  }
+}
+
+/* ---- Crew / device avatars in the detail sidebar ---- */
+.mgr-layout .odm-or-crew-avatar.is-device {
+  background: var(--pl-green-bg);
+  border: 1px solid var(--pl-green-bd);
+  color: var(--pl-green-fg);
+}
+
+/* ---- Mission list with side panel: keep device names on one line ---- */
+.mgr-layout .mgr-missions .mgr-list-grid.has-panel .ant-table-wrapper {
+  overflow-x: auto;
+}
+.mgr-layout .mgr-missions .mgr-list-grid.has-panel td {
+  vertical-align: middle;
+}
+.mgr-layout .mgr-missions .mgr-list-grid.has-panel td:nth-child(3) {
+  white-space: nowrap;
+}
+/* With the panel open the table is narrow: drop crew + delivery columns instead of clipping actions */
+.mgr-layout .mgr-missions .mgr-list-grid.has-panel :is(th, td):nth-child(4),
+.mgr-layout .mgr-missions .mgr-list-grid.has-panel :is(th, td):nth-child(6) {
+  display: none;
+}
+.mgr-layout .mgr-missions .ant-table-thead > tr > th {
+  white-space: nowrap;
+}
+.mgr-layout .mgr-missions .odm-or-pill-green,
+.mgr-layout .mgr-missions .odm-or-pill-red,
+.mgr-layout .mgr-missions .odm-or-pill-yellow,
+.mgr-layout .mgr-missions .odm-or-pill-orange,
+.mgr-layout .mgr-missions .odm-or-pill-blue {
+  border: 0;
+}
+
+/* ---- Mission code as page title: readable size, not a 28px monospace banner ---- */
+.mgr-layout .mgr-title-row .odm-mono {
+  font-size: 22px;
+  letter-spacing: 0;
+}
+
+@media (max-width: 640px) {
+  .mgr-layout .odm-rm-chip {
+    max-width: calc(100% - 20px);
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+  .mgr-layout .odm-rm-chip-target {
+    top: 52px;
+    right: auto;
+    left: 10px;
+  }
+}
+
+/* Mission list on phones: keep the row action visible (status wraps instead of pushing it off-screen) */
+@media (max-width: 767px) {
+  .mgr-layout .mgr-missions .ant-table-wrapper .ant-table-cell {
+    padding: 10px 6px;
+  }
+  .mgr-layout .mgr-missions .ant-table-wrapper .ant-table-cell :is(.ant-tag, .mgr-tag, [class*='tag']) {
+    white-space: normal;
+  }
+  .mgr-layout .mgr-missions .ant-table-wrapper .ant-table-cell .ant-btn {
+    padding-inline: 8px;
+  }
+}
+
+/* Checklist coverage sidebar stacks above the mission list on narrow screens: never float over it */
+@media (max-width: 1000px) {
+  .mgr-layout .odm-master-checklist-sidebar {
+    position: static;
+    max-height: none;
+  }
+}

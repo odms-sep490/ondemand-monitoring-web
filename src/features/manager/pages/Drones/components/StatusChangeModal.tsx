@@ -1,164 +1,105 @@
-import type { DroneResponse } from '../../../types/drones'
-import { useI18n } from '../../../../../shared/i18n'
-import { dronesPageMessages } from '../DronesPage.messages'
-import { MANUAL_TRANSITIONS } from '../droneHelpers'
 import { useState } from 'react'
-import type { DroneStatus } from '../../../../../shared/types/domain'
-import { dronesApi } from '../../../api/dronesApi'
+import { Alert, Button, Modal, Select } from 'antd'
+
+import { useToast } from '../../../../../shared/components/ui'
+import { useI18n } from '../../../../../shared/i18n'
 import { getDroneStatusLabel } from '../../../../../shared/lib/statusTone'
+import type { DroneStatus } from '../../../../../shared/types/domain'
+import { mgrPopupContainer } from '../../../components/common/mgrPopupContainer'
+import { dronesApi } from '../../../api/dronesApi'
+import { managerFeedbackMessages } from '../../../feedback.messages'
+import type { DeviceResponse } from '../../../types/drones'
+import { MANUAL_TRANSITIONS } from '../droneHelpers'
+import { dronesPageMessages } from '../DronesPage.messages'
+import { DroneStatusTag } from './DroneStatusTag'
 
 export type StatusChangeModalProps = {
-  drone: DroneResponse
+  drone: DeviceResponse
   onClose: () => void
-  onChanged: (updated: DroneResponse) => void
+  onChanged: (updated: DeviceResponse) => void
 }
 
-export function StatusChangeModal({
-  drone,
-  onClose,
-  onChanged,
-}: StatusChangeModalProps) {
+export function StatusChangeModal({ drone, onClose, onChanged }: StatusChangeModalProps) {
   const { t, lang } = useI18n(dronesPageMessages)
+  const { t: fb } = useI18n(managerFeedbackMessages)
+  const toast = useToast()
   const nextStatuses = MANUAL_TRANSITIONS[drone.status] ?? []
-  const [selectedStatus, setSelectedStatus] = useState<DroneStatus | ''>(
-    nextStatuses[0] ?? '',
-  )
-  const [reason, setReason] = useState('')
+  const [selectedStatus, setSelectedStatus] = useState<DroneStatus | ''>(nextStatuses[0] ?? '')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   async function handleSave() {
     if (!selectedStatus) return
-    if (!reason.trim()) {
-      setError(t.modal.reasonRequired)
-      return
-    }
     setSaving(true)
     setError(null)
     try {
       const updated = await dronesApi.updateDrone(drone.id, {
         serialNumber: drone.serialNumber,
-        droneModelId: drone.droneModel.id,
-        dronePayloadId: drone.dronePayload.id,
+        // Always send the full body so a PUT cannot clear name/model.
+        // Null source values fall back to undefined (nothing to preserve).
+        name: drone.name ?? undefined,
+        modelId: drone.deviceModel?.id,
         status: selectedStatus,
       })
+      toast.success(fb.droneUpdated)
       onChanged(updated)
     } catch (e) {
-      setError(e instanceof Error ? e.message : t.unknownError)
+      const failure = e instanceof Error ? e.message : t.unknownError
+      setError(failure)
+      toast.error(failure)
     } finally {
       setSaving(false)
     }
   }
 
+  const canSave = nextStatuses.length > 0
+  const model = drone.deviceModel?.modelName ?? ''
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        background: 'rgba(0,0,0,0.4)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 100,
-      }}
-      onClick={onClose}
-    >
-      <div
-        className="odm-card"
-        style={{ padding: 24, minWidth: 360, maxWidth: 440 }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h3 style={{ margin: '0 0 16px', fontSize: 15 }}>
-          {t.modal.title(drone.serialNumber, drone.droneModel?.modelCode ?? '')}
-        </h3>
-
-        {nextStatuses.length === 0 ? (
-          <div style={{ color: 'var(--tx3)', fontSize: 13 }}>
-            {t.modal.cannotChange(getDroneStatusLabel(drone.status, lang))}
-          </div>
+    <Modal
+      open
+      centered
+      getContainer={mgrPopupContainer}
+      width={440}
+      title={t.modal.title}
+      onCancel={onClose}
+      footer={
+        canSave ? (
+          <>
+            <Button onClick={onClose} disabled={saving}>
+              {t.modal.cancel}
+            </Button>
+            <Button type="primary" onClick={handleSave} disabled={saving || !selectedStatus}>
+              {saving ? t.modal.saving : t.modal.confirm}
+            </Button>
+          </>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <div>
-              <label
-                htmlFor="drone-new-status"
-                style={{
-                  fontSize: 12,
-                  color: 'var(--tx2)',
-                  display: 'block',
-                  marginBottom: 4,
-                }}
-              >
-                {t.modal.newStatus}
-              </label>
-              <select
-                id="drone-new-status"
-                className="odm-input"
-                value={selectedStatus}
-                onChange={(e) =>
-                  setSelectedStatus(e.target.value as DroneStatus)
-                }
-                style={{ width: '100%' }}
-              >
-                {nextStatuses.map((s) => (
-                  <option key={s} value={s}>
-                    {getDroneStatusLabel(s, lang)}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label
-                htmlFor="drone-reason"
-                style={{
-                  fontSize: 12,
-                  color: 'var(--tx2)',
-                  display: 'block',
-                  marginBottom: 4,
-                }}
-              >
-                {t.modal.reason}
-              </label>
-              <textarea
-                id="drone-reason"
-                className="odm-input"
-                rows={3}
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                placeholder={t.modal.reasonPlaceholder}
-                style={{ width: '100%', resize: 'vertical' }}
-              />
-            </div>
-
-            {error && (
-              <div style={{ color: 'var(--red-fg)', fontSize: 13 }}>
-                {error}
-              </div>
-            )}
-
-            <div
-              style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}
-            >
-              <button
-                type="button"
-                className="odm-btn"
-                onClick={onClose}
-                disabled={saving}
-              >
-                {t.modal.cancel}
-              </button>
-              <button
-                type="button"
-                className="odm-btn odm-btn-p"
-                onClick={handleSave}
-                disabled={saving || !selectedStatus}
-              >
-                {saving ? t.modal.saving : t.modal.confirm}
-              </button>
-            </div>
+          <Button onClick={onClose}>{t.modal.close}</Button>
+        )
+      }
+    >
+      <p className="mgr-modal-sub">{t.modal.subtitle(drone.serialNumber, model)}</p>
+      {canSave ? (
+        <div className="mgr-modal-stack">
+          <div className="mgr-modal-field">
+            <span className="mgr-modal-label">{t.modal.current}</span>
+            <DroneStatusTag status={drone.status} />
           </div>
-        )}
-      </div>
-    </div>
+          <div className="mgr-modal-field">
+            <label className="mgr-modal-label" htmlFor="drone-new-status">
+              {t.modal.newStatus} <span aria-hidden="true">*</span>
+            </label>
+            <Select
+              id="drone-new-status"
+              value={selectedStatus || undefined}
+              onChange={(value: DroneStatus) => setSelectedStatus(value)}
+              options={nextStatuses.map((s) => ({ value: s, label: getDroneStatusLabel(s, lang) }))}
+            />
+          </div>
+          {error ? <Alert type="error" showIcon role="alert" message={error} /> : null}
+        </div>
+      ) : (
+        <p>{t.modal.cannotChange(getDroneStatusLabel(drone.status, lang))}</p>
+      )}
+    </Modal>
   )
 }

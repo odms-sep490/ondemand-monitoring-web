@@ -1,6 +1,8 @@
 import type { PricingChecklistItem } from '../../types'
 import { formatVnd } from '../../../../shared/lib/formatVnd'
 import { pricingDescription } from '../../../../shared/lib/pricingPresentation'
+import { useI18n } from '../../../../shared/i18n'
+import { pricingMessages } from '../pricing.messages'
 
 /** System price lines grouped per checklist (with a subtotal each), then the order-level lines. */
 export function QuoteBreakdown({
@@ -15,6 +17,7 @@ export function QuoteBreakdown({
   }>
   checklistItems: PricingChecklistItem[]
 }) {
+  const { t } = useI18n(pricingMessages)
   const groups = new Map<string, typeof items>()
   const orderLevel: typeof items = []
   for (const item of items) {
@@ -27,10 +30,11 @@ export function QuoteBreakdown({
   }
   if (items.length === 0) return null
   return (
-    <div className="finance-breakdown" aria-label="Chi tiết giá hệ thống">
+    <div className="finance-breakdown" aria-label={t.breakdownAria}>
       {[...groups.entries()].map(([id, lines]) => {
         const name =
-          checklistItems.find((entry) => entry.id === id)?.content ?? 'Nội dung'
+          checklistItems.find((entry) => entry.id === id)?.content ??
+          t.breakdownFallbackName
         const subtotal = lines.reduce((sum, line) => sum + line.amount, 0)
         return (
           <section key={id} className="finance-breakdown-group">
@@ -52,7 +56,7 @@ export function QuoteBreakdown({
       {orderLevel.length > 0 && (
         <section className="finance-breakdown-group">
           <header>
-            <strong>Theo đơn hàng</strong>
+            <strong>{t.breakdownOrderLevel}</strong>
             <b>
               {formatVnd(
                 orderLevel.reduce((sum, line) => sum + line.amount, 0),

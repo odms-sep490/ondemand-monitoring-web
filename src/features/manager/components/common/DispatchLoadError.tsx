@@ -4,6 +4,7 @@ import { missionStatusLabel } from './liveDispatchHelpers'
 import { managerHref } from '../../routes'
 import { liveDispatchPageMessages } from './LiveDispatchPage.messages'
 import { useI18n } from '../../../../shared/i18n'
+import { Button } from '../../../../shared/components/ui'
 
 export function DispatchLoadError({
   current,
@@ -45,14 +46,14 @@ export function DispatchLoadError({
           </div>
         </dl>
         <div className="odm-or-result-actions">
-          <a
-            className="odm-or-btn odm-or-btn-ghost"
+          <Button
+            variant="ghost"
             href={managerHref({ screen: 'orderQueue' })}
           >
             {t.backToOrders}
-          </a>
-          <a
-            className="odm-or-btn odm-or-btn-primary"
+          </Button>
+          <Button
+            variant="primary"
             href={managerHref({
               screen: 'missions',
               missionId: current.id,
@@ -60,7 +61,7 @@ export function DispatchLoadError({
           >
             {t.viewMission}
             <OrderIcon name="chevron-right" size={16} />
-          </a>
+          </Button>
         </div>
       </div>
     </section>

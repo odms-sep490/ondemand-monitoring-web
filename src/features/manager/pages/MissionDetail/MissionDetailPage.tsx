@@ -2,7 +2,11 @@
 import { useRef, useState } from 'react'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { checklistExecutionApi } from '../../../mission/api/checklistExecutionApi'
-import { StateView } from '../../../../shared/components/odm/StateView'
+import { Skeleton } from 'antd'
+import { ArrowLeftOutlined } from '@ant-design/icons'
+import { CardComponent } from '../../../../shared/components/antd'
+import { ErrorState } from '../../components/common/ErrorState'
+import { EmptyState as MgrEmptyState } from '../../components/common/EmptyState'
 import { useI18n } from '../../../../shared/i18n'
 import { OrderAttachmentsCard } from '../../components/common/OrderAttachmentsCard'
 import { OrderChecklistCard } from './components/OrderChecklistCard'
@@ -10,11 +14,14 @@ import { OrderCustomerCard } from '../../components/common/OrderCustomerCard'
 import { OrderCustomerRequestDetails } from '../../components/common/OrderCustomerRequestDetails'
 import { OrderServiceInfo } from '../../components/common/OrderServiceInfo'
 import { type DetailData } from '../../components/common/missionDetailTypes'
-import { OrderIcon } from '../../components/common/OrderIcon'
 import { managerHref } from '../../routes'
+import { ManagerDeliveryPanel } from '../../../delivery/ManagerDeliveryPanel'
+import '../../components/layout/mgrLayout.css'
 import { missionDetailPageMessages } from './MissionDetailPage.messages'
 import { orderReviewPageMessages } from '../OrderReview/OrderReviewPage.messages'
 import '../../manager.css'
+import '../../components/common/missionPages.css'
+import './missionDetail.scss'
 import { type MissionDetailTab } from './missionDetailTypes'
 import { useMissionDetailLoad } from './useMissionDetailLoad'
 import { deriveMissionDetailView } from './deriveMissionDetailView'
@@ -58,17 +65,21 @@ function MissionDetail({ missionId }: { missionId: string }) {
   })
 
   const backLink = (
-    <a className="odm-or-back" href={managerHref({ screen: 'missions' })}>
-      <OrderIcon name="arrow-right" size={14} />
-      {t.back}
+    <a className="mgr-back-link" href={managerHref({ screen: 'missions' })}>
+      <ArrowLeftOutlined aria-hidden="true" /> {t.back}
     </a>
   )
 
   if (loading && (!detail || detail.mission?.id !== missionId)) {
     return (
-      <div className="odm-or" aria-busy="true">
+      <div className="odm-or mgr-view mgr-md" aria-busy="true">
         {backLink}
-        <span className="odm-sk" style={{ width: '100%', height: 320 }} />
+        <CardComponent>
+          <Skeleton active paragraph={{ rows: 1 }} />
+        </CardComponent>
+        <CardComponent>
+          <Skeleton active paragraph={{ rows: 6 }} />
+        </CardComponent>
       </div>
     )
   }
@@ -76,15 +87,9 @@ function MissionDetail({ missionId }: { missionId: string }) {
   const mission = detail?.mission
   if (error || !mission || !detail) {
     return (
-      <div className="odm-or">
+      <div className="odm-or mgr-view mgr-md">
         {backLink}
-        <section className="odm-or-card">
-          <StateView
-            state="error"
-            title={t.loadError}
-            error={error ?? undefined}
-          />
-        </section>
+        <ErrorState title={t.loadError} description={error ?? undefined} />
       </div>
     )
   }
@@ -121,8 +126,7 @@ function MissionDetail({ missionId }: { missionId: string }) {
   })
 
   return (
-    <div className="odm-or">
-      {backLink}
+    <div className="odm-or mgr-view mgr-md">
       <MissionDetailHeader
         mission={mission}
         headline={headline}
@@ -133,17 +137,17 @@ function MissionDetail({ missionId }: { missionId: string }) {
 
       <MissionKpis kpis={kpis} />
 
-      <div className="odm-or-md-grid">
-        <div className="odm-or-col">
+      <div className="mgr-detail-grid">
+        <div className="mgr-detail-main">
           <MissionDetailTabs
             tabs={tabs}
             activeTab={activeTab}
             setTab={setTab}
           />
 
-          {(['result', 'media', 'checklist', 'route'] as MissionDetailTab[]).includes(
-            activeTab,
-          ) ? (
+          {(
+            ['result', 'media', 'checklist', 'route'] as MissionDetailTab[]
+          ).includes(activeTab) ? (
             <OverviewTab
               activeTab={activeTab}
               onTabChange={setTab}
@@ -155,7 +159,6 @@ function MissionDetail({ missionId }: { missionId: string }) {
               refreshDetail={refreshDetail}
               mediaLibrary={mediaLibrary}
               resultApproved={resultApproved}
-              revision={revision}
               checklistExecutions={checklistExecutions}
               compliantCount={compliantCount}
               missionId={missionId}
@@ -174,11 +177,9 @@ function MissionDetail({ missionId }: { missionId: string }) {
                 <OrderAttachmentsCard order={detail.order} t={orderT} />
               </div>
             ) : (
-              <section className="odm-or-card">
-                <div className="odm-or-card-body odm-or-empty">
-                  {t.loadError}
-                </div>
-              </section>
+              <CardComponent>
+                <MgrEmptyState title={t.loadError} />
+              </CardComponent>
             )
           ) : null}
 
@@ -194,7 +195,16 @@ function MissionDetail({ missionId }: { missionId: string }) {
           accepted={accepted}
           deviceCode={deviceCode}
           deviceLabel={deviceLabel}
-        />
+          permitStatus={mission.flightPermitStatus ?? 'NOT_REQUESTED'}
+          permitNote={mission.flightPermitNote}
+        >
+          {isCompleted && resultApproved ? (
+            <ManagerDeliveryPanel
+              orderId={mission.orderId}
+              refreshKey={revision}
+            />
+          ) : null}
+        </MissionCrewCard>
       </div>
     </div>
   )

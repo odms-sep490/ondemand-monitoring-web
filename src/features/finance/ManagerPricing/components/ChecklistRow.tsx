@@ -11,6 +11,8 @@ import { PriceDifference } from './PriceDifference'
 import type { PricingChecklistItem, PricingReview } from '../../types'
 import type { Draft } from '../pricingHelpers'
 import type { Dispatch, SetStateAction, RefObject } from 'react'
+import { useI18n } from '../../../../shared/i18n'
+import { pricingMessages } from '../pricing.messages'
 
 export function ChecklistRow({
   item,
@@ -39,6 +41,7 @@ export function ChecklistRow({
   openNote: string | null
   setOpenNote: Dispatch<SetStateAction<string | null>>
 }) {
+  const { t } = useI18n(pricingMessages)
   return (
     <div
       className={`finance-requirement is-${item.reviewStatus.toLowerCase()}`}
@@ -50,22 +53,24 @@ export function ChecklistRow({
         <strong>{item.content}</strong>
         <span>
           {item.sourceType === 'SERVICE_TEMPLATE'
-            ? 'Yêu cầu mặc định của gói'
-            : 'Yêu cầu thêm của khách hàng'}
+            ? t.sourceTemplate
+            : t.sourceCustom}
         </span>
         {(item.requestedImageCount ?? 0) + (item.requestedVideoCount ?? 0) >
         0 ? (
           <span>
-            Khách yêu cầu: {item.requestedImageCount ?? 0} ảnh ·{' '}
-            {item.requestedVideoCount ?? 0} video
+            {t.customerRequested(
+              item.requestedImageCount ?? 0,
+              item.requestedVideoCount ?? 0,
+            )}
           </span>
         ) : null}
       </div>
       {item.sourceType === 'SERVICE_TEMPLATE' ? (
-        <div className="finance-zero">Đã gồm trong gói</div>
+        <div className="finance-zero">{t.includedInPackage}</div>
       ) : (
         <label className="finance-status-select">
-          <span className="finance-sr">Phân loại</span>
+          <span className="finance-sr">{t.classify}</span>
           <select
             value={item.reviewStatus}
             disabled={accepted}
@@ -77,7 +82,7 @@ export function ChecklistRow({
             }
           >
             <option value="PENDING" disabled>
-              Chưa xem xét
+              {t.pending}
             </option>
             {statuses.map((status) => (
               <option key={status.value} value={status.value}>
@@ -89,12 +94,12 @@ export function ChecklistRow({
       )}
       <div className="finance-item-price">
         <small>
-          Giá hệ thống:{' '}
+          {t.systemPriceInline}
           {formatVnd(liveSystemPrice(item, data?.systemCalculation?.items))}
         </small>
         {isManagerPriced(item) ? (
           <MoneyInput
-            label="Giá duyệt"
+            label={t.approvedPriceLabel}
             value={
               draft.prices[item.id] ??
               String(
@@ -136,19 +141,19 @@ export function ChecklistRow({
         className={`finance-review-badge is-${item.reviewStatus.toLowerCase()}`}
       >
         {item.sourceType === 'SERVICE_TEMPLATE'
-          ? 'Tự động tính giá'
+          ? t.badgeAuto
           : item.reviewStatus === 'PENDING'
-            ? 'Chưa xem xét'
+            ? t.pending
             : isManagerPriced(item) &&
                 item.managerApprovedAmount == null &&
                 item.managerQuotedPrice == null
-              ? 'Chờ duyệt giá'
-              : 'Đã xem xét'}
+              ? t.badgeAwaitingPrice
+              : t.badgeReviewed}
       </span>
       <button
         type="button"
         className="finance-chevron"
-        aria-label={`Ghi chú: ${item.content}`}
+        aria-label={t.noteAria(item.content)}
         aria-expanded={openNote === item.id}
         onClick={() => setOpenNote(openNote === item.id ? null : item.id)}
       >
@@ -156,14 +161,14 @@ export function ChecklistRow({
       </button>
       {openNote === item.id ? (
         <label className="finance-note">
-          <span>Ghi chú của quản lý</span>
+          <span>{t.managerNote}</span>
           <input
             defaultValue={item.managerNote ?? ''}
             disabled={accepted || item.reviewStatus === 'PENDING'}
             placeholder={
               item.reviewStatus === 'PENDING'
-                ? 'Phân loại nội dung trước'
-                : 'Lý do hoặc phạm vi xử lý'
+                ? t.notePlaceholderPending
+                : t.notePlaceholderReason
             }
             onBlur={(event) =>
               void updateReview(item, item.reviewStatus, event.target.value)

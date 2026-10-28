@@ -83,7 +83,7 @@ describe('QueuePage', () => {
     vi.mocked(ordersApi.getApproved).mockResolvedValue([{ ...rows[0], orderStatus: 'APPROVED' }])
     vi.mocked(financeApi.getManagerInvoice).mockResolvedValue({ paidAmount: 1_000_000, depositAmount: 1_000_000 } as Invoice)
     render(<OrderQueuePage />)
-    expect(await screen.findByText('Đơn đã nhận cọc – chờ lập kế hoạch')).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: /Chờ lập kế hoạch/ })).toBeInTheDocument()
     expect(screen.getByText('Đã nhận cọc')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Lập kế hoạch' })).toHaveAttribute('href', '#portal/manager/orders/ord-2609-0157')
     expect(screen.queryByText('Không còn đơn chờ duyệt')).not.toBeInTheDocument()
@@ -174,6 +174,7 @@ describe('QueuePage', () => {
       { ...rows[0], id: 'o-done', orderCode: 'ORD-DONE', orderStatus: 'COMPLETED' },
     ])
     render(<OrderQueuePage />)
+    fireEvent.click(await screen.findByRole('button', { name: /Tất cả đơn/ }))
     await waitFor(() => screen.getByText('ORD-A'))
     expect(screen.getByText('ORD-DONE')).toBeInTheDocument()
 

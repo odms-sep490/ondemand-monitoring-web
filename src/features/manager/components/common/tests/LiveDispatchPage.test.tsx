@@ -21,7 +21,7 @@ describe('LiveDispatchPage', () => {
   function clickLastStaffOption(name: RegExp) {
     const picker = screen
       .getByPlaceholderText('Tìm theo tên hoặc email...')
-      .closest('div[style*="position: absolute"]')
+      .closest('.mgr-pk-panel')
     if (!picker) throw new Error('Staff picker is not open')
     fireEvent.click(within(picker as HTMLElement).getByRole('button', { name }))
   }

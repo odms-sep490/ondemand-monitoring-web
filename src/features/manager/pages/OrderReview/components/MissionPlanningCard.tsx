@@ -11,7 +11,8 @@ import { STAFF_ROLE_LABELS } from '../../../components/common/missionDetailHelpe
 import { OrderIcon } from '../../../components/common/OrderIcon'
 import { planningSchedule } from '../../../components/common/planningSchedule'
 import { missionStopLabel } from '../../../../mission/lib/missionOperationalState'
-import { useLanguage } from '../../../../../shared/i18n'
+import { useI18n } from '../../../../../shared/i18n'
+import { missionPlanningCardMessages } from './MissionPlanningCard.messages'
 import { localizePlanningScopeLabel } from './planningScopeLabel'
 
 export function MissionPlanningCard({
@@ -25,7 +26,7 @@ export function MissionPlanningCard({
   missions: MissionResponse[]
   children: ReactNode
 }) {
-  const { lang } = useLanguage()
+  const { t, lang } = useI18n(missionPlanningCardMessages)
   const original = missions.find((m) => m.id === mission.replacesMissionId)
   const replacements = missions.filter(
     (m) => m.replacesMissionId === mission.id,
@@ -51,11 +52,11 @@ export function MissionPlanningCard({
         >
           {missionStopLabel(mission) ??
             missionStatusLabel[mission.status] ??
-            'Chưa xác định'}
+            t.unknownStatus}
         </StatusBadge>
         {scope?.finalizedPlanRevision != null && (
           <span className="odm-mission-meta">
-            Đã chốt tại phiên bản {scope.finalizedPlanRevision}
+            {t.finalizedAt(scope.finalizedPlanRevision)}
           </span>
         )}
       </header>
@@ -63,7 +64,7 @@ export function MissionPlanningCard({
         <p>
           {scope?.scopeLabel
             ? localizePlanningScopeLabel(scope.scopeLabel, lang)
-            : mission.orderTitle || 'Phạm vi theo đơn hàng'}
+            : mission.orderTitle || t.orderScope}
         </p>
         <span>
           <OrderIcon name="calendar" size={15} />
@@ -71,22 +72,22 @@ export function MissionPlanningCard({
         </span>
       </div>
       <div className="odm-mission-resources">
-        <section aria-label="Thiết bị" className="odm-mission-resource">
+        <section aria-label={t.device} className="odm-mission-resource">
           <h4>
             <OrderIcon name="drone" size={16} />
-            Thiết bị
+            {t.device}
           </h4>
           <strong>
-            {mission.deviceName || mission.deviceCode || 'Chưa phân công'}
+            {mission.deviceName || mission.deviceCode || t.notAssigned}
           </strong>
           {mission.deviceName && mission.deviceCode && (
             <span className="odm-mission-meta">{mission.deviceCode}</span>
           )}
         </section>
-        <section aria-label="Nhân sự" className="odm-mission-resource">
+        <section aria-label={t.staff} className="odm-mission-resource">
           <h4>
             <OrderIcon name="users" size={16} />
-            Nhân sự
+            {t.staff}
           </h4>
           {mission.staffAssignments?.length ? (
             <ul className="odm-mission-crew">
@@ -98,43 +99,43 @@ export function MissionPlanningCard({
                   }
                 >
                   <span>
-                    {STAFF_ROLE_LABELS[person.assignedRole] ?? 'Nhân sự'}
+                    {STAFF_ROLE_LABELS[person.assignedRole] ?? t.staff}
                   </span>
-                  <strong>{person.staffName || 'Chưa có tên'}</strong>
+                  <strong>{person.staffName || t.noName}</strong>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="odm-mission-meta">Chưa phân công</p>
+            <p className="odm-mission-meta">{t.notAssigned}</p>
           )}
         </section>
       </div>
       {children}
       {(mission.replacesMissionId || replacements.length > 0) && (
-        <footer className="odm-mission-history" aria-label="Lịch sử Mission">
+        <footer className="odm-mission-history" aria-label={t.missionHistory}>
           {mission.replacesMissionId && (
             <p>
-              Thay thế cho{' '}
+              {t.replaces}{' '}
               <a
                 href={managerHref({
                   screen: 'missionDetail',
                   missionId: mission.replacesMissionId,
                 })}
               >
-                {original?.missionCode || 'Mission trước'}
+                {original?.missionCode || t.previousMission}
               </a>
             </p>
           )}
           {replacements.map((replacement) => (
             <p key={replacement.id}>
-              Được thay thế bởi{' '}
+              {t.replacedBy}{' '}
               <a
                 href={managerHref({
                   screen: 'missionDetail',
                   missionId: replacement.id,
                 })}
               >
-                {replacement.missionCode || 'Mission thay thế'}
+                {replacement.missionCode || t.replacementMission}
               </a>
             </p>
           ))}

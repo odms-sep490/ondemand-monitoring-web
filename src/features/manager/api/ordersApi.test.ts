@@ -76,35 +76,13 @@ describe('ordersApi (mock mode)', () => {
     expect(detail.mediaRequirements?.[0].label).not.toContain('{')
   })
 
-  it('getLatestAnalysis resolves findings for a known order', async () => {
-    setHttpTransport(mockFetch)
-    const analysis = await ordersApi.getLatestAnalysis('ord-2609-0157')
-    expect(analysis.overallVerdict).toBe('FEASIBLE')
-    expect(analysis.findings).toHaveLength(2)
-  })
-
-  it('getResourcePreview resolves the preview panel for a sourced order', async () => {
-    setHttpTransport(mockFetch)
-    const preview = await ordersApi.getResourcePreview('ord-2609-0157')
-    expect(preview).not.toBeNull()
-    expect(preview?.eligibleDroneCount).toBe(4)
-    expect(preview?.topDrones[0].name).toBe('DRN-06 Cú Mèo')
-  })
-
-  it('getResourcePreview resolves null for an order without source content', async () => {
-    setHttpTransport(mockFetch)
-    const preview = await ordersApi.getResourcePreview('ord-2609-0149')
-    expect(preview).toBeNull()
-  })
-
-  it('saveInternalNote upserts the note', async () => {
-    setHttpTransport(mockFetch)
-    const saved = await ordersApi.saveInternalNote(
-      'ord-2609-0157',
-      'Ghi chú mới',
-    )
-    expect(saved.note).toBe('Ghi chú mới')
-    expect(saved.authorName).toBe('Lê Thị Thanh Hằng')
+  it('maps orderCode (not id) as the displayed order code', async () => {
+    setHttpTransport(async () => new Response(JSON.stringify({ success: true, data: {
+      id: 'order-uuid', orderCode: 'ORD-2610-0001', orderStatus: 'PENDING', customerName: 'A',
+    } }), { status: 200 }))
+    const detail = await ordersApi.getOrder('order-uuid')
+    expect(detail.id).toBe('order-uuid')
+    expect(detail.code).toBe('ORD-2610-0001')
   })
 
   it('approve resolves without throwing', async () => {
@@ -135,9 +113,22 @@ describe('ordersApi (mock mode)', () => {
     ).resolves.toBeUndefined()
   })
 
-  it('getOrderForMission resolves the seeded APPROVED order', async () => {
-    setHttpTransport(mockFetch)
-    const brief = await ordersApi.getOrderForMission('ord-2609-0153')
+  it('getOrderForMission builds the brief from an APPROVED order and its orderCode', async () => {
+    setHttpTransport(async () => new Response(JSON.stringify({ success: true, data: {
+      id: 'order-uuid',
+      orderCode: 'ORD-2610-0007',
+      orderStatus: 'APPROVED',
+      customerName: 'Trần Thị Thu Hà',
+      serviceName: 'Kiểm tra nhiệt',
+      latitude: 10.6402,
+      longitude: 106.74,
+      radiusM: 300,
+      address: 'KCN Hiệp Phước',
+      preferredDateFrom: '2026-10-24',
+      preferredTimeName: 'Sáng',
+    } }), { status: 200 }))
+    const brief = await ordersApi.getOrderForMission('order-uuid')
+    expect(brief.code).toBe('ORD-2610-0007')
     expect(brief.customerFullName).toBe('Trần Thị Thu Hà')
     expect(brief.center).toEqual({ lat: 10.6402, lon: 106.74 })
   })

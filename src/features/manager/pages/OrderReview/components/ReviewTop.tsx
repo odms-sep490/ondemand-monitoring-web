@@ -1,18 +1,30 @@
+import { ArrowLeftOutlined } from '@ant-design/icons'
+
 import { WorkflowStepper } from '../../../components/common/WorkflowStepper'
 import { getOrderStatusLabel } from '../../../../../shared/lib/statusTone'
 import { orderStageToReviewStep } from '../../../components/common/workflowModel'
 import { missionLayer } from '../reviewHelpers'
-import {
-  OrderServiceBanner,
-  orderDeliverableLabels,
-} from './OrderServiceBanner'
-import { OrderBannerMeta } from './OrderBannerMeta'
+import { orderDeliverableLabels } from './OrderServiceBanner'
+import { OrderServiceCard } from './OrderServiceCard'
+import { PageHeader } from '../../../components/common/PageHeader'
+import { StatusTag } from '../../../components/common/StatusTag'
+import { orderStatusTone } from '../../../../../shared/lib/statusTone'
+import { formatOrderCode } from '../../../components/common/format'
+import { managerHref } from '../../../routes'
 import { orderReviewPageMessages } from '../OrderReviewPage.messages'
 import { useI18n } from '../../../../../shared/i18n'
 import type { OrderProgress } from '../../../components/common/workflowModel'
 import type { OrderDetail } from '../../../types/orders'
 import type { ReviewStep } from '../reviewTypes'
 import type { PlanningWorkflowInfo } from './OrderMissionPlanningSection'
+
+function OrderStatusBadge({ order, lang }: { order: OrderDetail; lang: 'vi' | 'en' }) {
+  return (
+    <StatusTag tone={order.status === 'PENDING' ? 'yellow' : orderStatusTone[order.status]}>
+      {getOrderStatusLabel(order.status, lang)}
+    </StatusTag>
+  )
+}
 
 export function ReviewTop({
   showExecutionPlan,
@@ -40,12 +52,34 @@ export function ReviewTop({
   const { t, locale, lang } = useI18n(orderReviewPageMessages)
   return (
     <div className="odm-or-review-top">
-      {!showExecutionPlan && (
-        <div className="odm-or-pagehead">
-          <h1 className="odm-or-title">{t.pageTitle}</h1>
-          <p className="odm-or-subtitle">{t.pageSubtitle}</p>
-        </div>
-      )}
+      <PageHeader
+        as={showExecutionPlan ? 'h2' : 'h1'}
+        crumb={
+          <a href={managerHref({ screen: 'orderQueue' })}>
+            <ArrowLeftOutlined aria-hidden="true" /> {t.backToOrders}
+          </a>
+        }
+        title={
+          showExecutionPlan ? (
+            <span className="mgr-title-row">
+              <span className="odm-mono">{formatOrderCode(order.code)}</span>
+              <OrderStatusBadge order={order} lang={lang} />
+            </span>
+          ) : (
+            t.pageTitle
+          )
+        }
+        description={
+          showExecutionPlan ? (
+            `${t.pageTitle} · ${order.serviceName}`
+          ) : (
+            <>
+              <span className="mgr-code">{formatOrderCode(order.code)}</span> · {order.serviceName}
+            </>
+          )
+        }
+        actions={showExecutionPlan ? undefined : <OrderStatusBadge order={order} lang={lang} />}
+      />
       <WorkflowStepper
         order={{
           progress: stepperProgress,
@@ -74,14 +108,15 @@ export function ReviewTop({
             : undefined
         }
       />
-      <OrderServiceBanner
-        serviceName={order.serviceName}
-        serviceDescription={order.serviceDescription}
-        deliverables={orderDeliverableLabels(order, locale)}
-        deliverablesLabel={t.deliverableFormat}
-        eyebrow={t.serviceEyebrow}
-        meta={<OrderBannerMeta order={order} locale={locale} />}
-      />
+      {showExecutionPlan && (
+        <OrderServiceCard
+          serviceName={order.serviceName}
+          serviceDescription={order.serviceDescription}
+          deliverables={orderDeliverableLabels(order, locale)}
+          deliverablesLabel={t.deliverableFormat}
+          eyebrow={t.serviceEyebrow}
+        />
+      )}
     </div>
   )
 }
