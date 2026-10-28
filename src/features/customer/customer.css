@@ -204,3 +204,17 @@
     transform: translateY(-9px);
   }
 }
+
+/* Mid widths: keep the whole breadcrumb readable by compacting the header controls. */
+@media (max-width: 1200px) and (min-width: 992px) {
+  .odm-cus .mgr-search {
+    width: 150px;
+  }
+  .odm-cus .mgr-support-label {
+    display: none;
+  }
+  .odm-cus .mgr-support-btn {
+    width: 40px;
+    padding-inline: 0;
+  }
+}

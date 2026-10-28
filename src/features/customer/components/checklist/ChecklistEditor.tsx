@@ -1,3 +1,4 @@
+import { UnorderedListOutlined } from '@ant-design/icons'
 import { Fragment, useEffect, useRef, useState } from 'react'
 import { Icon } from '../../../../shared/components/Icon'
 import { formatVnd } from '../../../../shared/lib/formatVnd'
@@ -432,6 +433,7 @@ export function ChecklistEditor({
   return (
     <div role="region" aria-label={t.title}>
       <Card
+        icon={<UnorderedListOutlined />}
         className={`checklist-card${compact ? ' is-compact' : ''}`}
         title={t.title}
         actions={
