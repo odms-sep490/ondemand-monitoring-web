@@ -5,7 +5,7 @@ export const customerLayoutMessages = defineMessages({
     nav: 'Điều hướng khách hàng',
     menu: 'Menu',
     navItems: {
-      missionHistory: 'Lịch sử mission',
+      missionHistory: 'Lịch sử nhiệm vụ',
       dashboard: 'Tổng quan',
       help: 'Trợ giúp & FAQ',
       support: 'Yêu cầu hỗ trợ',

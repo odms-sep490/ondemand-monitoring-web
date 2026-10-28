@@ -18,6 +18,7 @@ import { activeNavKey, type CustomerNavItemKey } from './components/layout/navCo
 import { customerLayoutMessages } from './CustomerLayout.messages'
 import { customerHref, type CustomerRoute } from './routes'
 import './customer.css'
+import './styles/customer-pages.scss'
 
 export type { CustomerNavItemKey }
 

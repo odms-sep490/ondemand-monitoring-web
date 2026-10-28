@@ -36,6 +36,7 @@ export function RecentOrdersCard({ orders }: { orders: OrderRow[] }) {
     {
       title: t.columns.date,
       key: 'date',
+      responsive: ['md'],
       render: (_, order) => (
         <span className="mgr-muted mgr-nowrap">
           {formatDateRange(order.dateFrom, order.dateTo, locale) ?? '—'}
@@ -86,7 +87,6 @@ export function RecentOrdersCard({ orders }: { orders: OrderRow[] }) {
           rowKey="id"
           columns={columns}
           dataSource={orders}
-          scroll={{ x: 520 }}
         />
       )}
     </CardComponent>

@@ -1,7 +1,7 @@
 import {
   ErrorState,
   LoadingState,
-} from '../../../../shared/components/odm/StateView'
+} from '../../components/common/StateView'
 import { PortalLayout } from '../../../../shared/components/portal/PortalLayout'
 import { useI18n } from '../../../../shared/i18n'
 import { ConfirmSubmitModal } from '../CreateOrder/components/ConfirmSubmitModal'

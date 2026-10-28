@@ -1,4 +1,4 @@
-import { ErrorState, LoadingState } from '../../../../shared/components/odm/StateView'
+import { ErrorState, LoadingState } from '../../components/common/StateView'
 import { Card, PageHeader } from '../../../../shared/components/ui'
 import { useI18n } from '../../../../shared/i18n'
 import { MediaInfoList, MediaViewer } from '../../components/common/media'

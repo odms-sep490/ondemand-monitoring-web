@@ -3,7 +3,7 @@ import { useCallback, useState } from 'react'
 import {
   ErrorState,
   LoadingState,
-} from '../../../../shared/components/odm/StateView'
+} from '../../components/common/StateView'
 import { useI18n } from '../../../../shared/i18n'
 import { ContextAwareHelpWidget } from '../../../support/components/ContextAwareHelpWidget'
 import { OrderActions } from './components/OrderActions'

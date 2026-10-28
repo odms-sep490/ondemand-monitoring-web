@@ -1,4 +1,4 @@
-import { ErrorState, LoadingState } from '../../../../shared/components/odm/StateView'
+import { ErrorState, LoadingState } from '../../components/common/StateView'
 import { EmptyState } from '../../../../shared/components/ui'
 import { useI18n } from '../../../../shared/i18n'
 import { ContextAwareHelpWidget } from '../../../support/components/ContextAwareHelpWidget'

@@ -50,6 +50,7 @@ export function RecentMissionsCard({ missions, loading, error, onRetry }: Props)
     {
       title: t.columns.time,
       key: 'time',
+      responsive: ['md'],
       render: (_, mission) => {
         const at = mission.completedAt ?? mission.startedAt ?? mission.scheduledStartAt
         return <span className="mgr-muted mgr-nowrap">{at ? fmtDateTime(at, locale) : '—'}</span>
@@ -86,7 +87,6 @@ export function RecentMissionsCard({ missions, loading, error, onRetry }: Props)
           rowKey="id"
           columns={columns}
           dataSource={missions}
-          scroll={{ x: 520 }}
         />
       )}
     </CardComponent>

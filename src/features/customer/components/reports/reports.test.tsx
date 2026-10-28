@@ -226,7 +226,7 @@ describe('Customer aggregate/report publication', () => {
       expect(
         within(header as HTMLElement).getByText(
           status === 'COMPLETED' ? 'Completed' : 'In progress',
-          { selector: '.ui-badge' },
+          { selector: '.mgr-status-tag' },
         ),
       ).toBeInTheDocument()
       expect(screen.queryByText('Order completed')).not.toBeInTheDocument()

@@ -41,16 +41,21 @@ export function useOrdersList() {
     [all.data],
   )
 
+  const rows = useMemo(
+    () => searchOrders(orders.data ?? [], query),
+    [orders.data, query],
+  )
   const view = useMemo(
-    () =>
-      paginate(searchOrders(orders.data ?? [], query), page, ORDERS_PAGE_SIZE),
-    [orders.data, query, page],
+    () => paginate(rows, page, ORDERS_PAGE_SIZE),
+    [rows, page],
   )
 
   return {
     status,
     query,
     view,
+    /** Every row matching the search; the table paginates these itself. */
+    rows,
     stats,
     loading: orders.loading,
     error: orders.error,

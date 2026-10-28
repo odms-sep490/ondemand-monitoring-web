@@ -1,7 +1,7 @@
 import {
   ErrorState,
   LoadingState,
-} from '../../../../shared/components/odm/StateView'
+} from '../../components/common/StateView'
 import { PageHeader } from '../../../../shared/components/ui'
 import { useI18n } from '../../../../shared/i18n'
 import { CustomerDeliveryPanel } from '../../../delivery/CustomerDeliveryPanel'

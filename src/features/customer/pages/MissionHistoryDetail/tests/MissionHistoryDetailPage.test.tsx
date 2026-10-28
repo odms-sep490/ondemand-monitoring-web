@@ -22,7 +22,7 @@ describe('MissionHistoryDetailPage', () => {
     render(<MissionHistoryDetailPage missionId="msn-006-1" />)
     expect(await screen.findByText('Thông tin lần bay')).toBeInTheDocument()
     expect(screen.getByText('Kiểm tra tiến độ nhà xưởng KCN Hiệp Phước')).toBeInTheDocument()
-    expect(screen.getByText('Hoàn thành', { selector: '.ui-badge' })).toBeInTheDocument()
+    expect(screen.getByText('Hoàn thành', { selector: '.mgr-status-tag' })).toBeInTheDocument()
     act(() => setLanguage('en'))
     expect(await screen.findByText('Mission information')).toBeInTheDocument()
   })

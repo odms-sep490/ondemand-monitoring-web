@@ -37,7 +37,7 @@ describe('OrderDetailPage', () => {
 
   it('shows the status with OrderStatusBadge', async () => {
     render(<OrderDetailPage orderId="cus-ord-006" />)
-    expect(await screen.findByText('Hoàn thành', { selector: '.ui-badge' })).toBeInTheDocument()
+    expect(await screen.findByText('Hoàn thành', { selector: '.mgr-status-tag' })).toBeInTheDocument()
   })
 
   it('shows the rejection reason from the BE for a rejected order', async () => {
