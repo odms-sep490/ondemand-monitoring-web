@@ -1,10 +1,21 @@
 import '../styles/global.css'
 import '../styles/odm.css'
 
-import { lazy, Suspense, useEffect, useState, type ReactNode } from 'react'
+import {
+  Fragment,
+  lazy,
+  Suspense,
+  useEffect,
+  useState,
+  type ReactNode,
+} from 'react'
 
 import { LandingPage } from '../features/landing/pages/LandingPage'
-import { authSession } from '../features/auth/api/authApi'
+import {
+  restoreAuthSession,
+  startAuthSession,
+} from '../features/auth/api/authApi'
+import { useAuthSession } from '../features/auth/hooks/useAuthSession'
 import { getRoleHomePath } from '../features/auth/routing'
 import type { UserRole } from '../features/auth/types'
 import { useI18n } from '../shared/i18n'
@@ -63,8 +74,20 @@ const SupportRoutes = lazy(() =>
 )
 
 const routeMessages = defineMessages({
-  vi: { loading: 'Đang tải trang…' },
-  en: { loading: 'Loading page…' },
+  vi: {
+    loading: 'Đang tải trang…',
+    restoring: 'Đang khôi phục phiên đăng nhập…',
+    unavailable:
+      'Chưa thể kiểm tra phiên đăng nhập. Vui lòng kiểm tra kết nối và thử lại.',
+    retry: 'Thử lại',
+  },
+  en: {
+    loading: 'Loading page…',
+    restoring: 'Restoring your session…',
+    unavailable:
+      'Unable to verify your session. Check your connection and try again.',
+    retry: 'Try again',
+  },
 })
 
 function redirectHash(to: string) {
@@ -83,9 +106,11 @@ function RoleRoute({
   role: UserRole | readonly UserRole[]
   children: ReactNode
 }) {
-  const user = authSession.getUser()
-  const redirectTo =
-    !authSession.getAccessToken() || !user
+  const { status, user } = useAuthSession()
+  const pending = status === 'loading' || status === 'unavailable'
+  const redirectTo = pending
+    ? null
+    : !user || status !== 'authenticated'
       ? '#auth/login'
       : !(Array.isArray(role) ? role.includes(user.role) : user.role === role)
         ? getRoleHomePath(user.role)
@@ -93,7 +118,26 @@ function RoleRoute({
   useEffect(() => {
     if (redirectTo) redirectHash(redirectTo)
   }, [redirectTo])
-  return redirectTo ? null : children
+  return pending ? <SessionFeedback /> : redirectTo ? null : children
+}
+
+function SessionFeedback() {
+  const { t } = useI18n(routeMessages)
+  const { status } = useAuthSession()
+  return (
+    <div className="route-loading" role="status">
+      <p>{status === 'unavailable' ? t.unavailable : t.restoring}</p>
+      {status === 'unavailable' && (
+        <button
+          type="button"
+          className="button"
+          onClick={() => void restoreAuthSession()}
+        >
+          {t.retry}
+        </button>
+      )}
+    </div>
+  )
 }
 
 function RouteContent({ children }: { children: ReactNode }) {
@@ -112,16 +156,29 @@ function RouteContent({ children }: { children: ReactNode }) {
 }
 
 function AuthRoute({ children }: { children: ReactNode }) {
-  const authenticated = Boolean(
-    authSession.getAccessToken() && authSession.getUser(),
-  )
+  const { status, user } = useAuthSession()
+  const pending = status === 'loading' || status === 'unavailable'
+  const authenticated = status === 'authenticated' && Boolean(user)
   useEffect(() => {
-    if (!authenticated) redirectHash('#auth/login')
-  }, [authenticated])
-  return authenticated ? children : null
+    if (!pending && !authenticated) redirectHash('#auth/login')
+  }, [authenticated, pending])
+  return pending ? <SessionFeedback /> : authenticated ? children : null
 }
 
 export function Router() {
+  const { sessionKey } = useAuthSession()
+  useEffect(startAuthSession, [])
+  // An account switch discards data, dialogs and pending UI from the previous account.
+  return (
+    <Fragment key={sessionKey}>
+      <Routes />
+    </Fragment>
+  )
+}
+
+function Routes() {
+  const { status, user } = useAuthSession()
+  const currentRole = user?.role
   const [hash, setHash] = useState(() => window.location.hash)
   const [pathname, setPathname] = useState(() => window.location.pathname)
 
@@ -135,6 +192,12 @@ export function Router() {
       window.removeEventListener('popstate', handleNavigation)
     }
   }, [])
+
+  useEffect(() => {
+    if (hash === '#auth/login' && status === 'authenticated' && currentRole) {
+      redirectHash(getRoleHomePath(currentRole))
+    }
+  }, [hash, status, currentRole])
 
   if (hash.startsWith('#help/tickets/')) {
     const ticketId = hash.replace('#help/tickets/', '')
@@ -199,12 +262,15 @@ export function Router() {
         <AuthPage key="register" initialMode="register" />
       </RouteContent>
     )
-  if (hash === '#auth/login')
+  if (hash === '#auth/login') {
+    if (status === 'loading' || status === 'unavailable')
+      return <SessionFeedback />
     return (
       <RouteContent>
         <AuthPage key="login" initialMode="login" />
       </RouteContent>
     )
+  }
   if (hash === '#portal/customer/request')
     return (
       <RoleRoute role="CUSTOMER">

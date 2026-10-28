@@ -15,6 +15,13 @@ import { Router } from './router'
 
 configure({ asyncUtilTimeout: 10000 })
 
+// These tests isolate navigation. The cookie/bootstrap contract is exercised
+// by sessionLifecycle.test.ts and the multi-tab browser suite.
+vi.mock('../features/auth/api/authApi', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../features/auth/api/authApi')>()),
+  startAuthSession: () => () => {},
+}))
+
 // jsdom does not fire `hashchange` automatically when `location.hash` is set
 // programmatically (unlike a real browser), so tests that simulate the user
 // navigating (back/forward, a pasted link) set the hash and dispatch the
@@ -25,6 +32,7 @@ function navigateHash(hash: string) {
 }
 
 beforeEach(() => {
+  authSession.clear()
   window.location.hash = ''
 })
 
@@ -164,6 +172,7 @@ describe('Router - manager routes (#portal/manager*)', () => {
         role: 'MANAGER',
       }),
     )
+    authSession.setStatus('authenticated')
   })
 
   afterEach(() => {
@@ -229,6 +238,7 @@ describe('Router - customer support navigation', () => {
         role: 'CUSTOMER',
       }),
     )
+    authSession.setStatus('authenticated')
   })
 
   afterEach(() => {

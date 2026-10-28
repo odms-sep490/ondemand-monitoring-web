@@ -12,6 +12,7 @@ import type {
   MissionResponse,
   MissionResultResponse,
   MissionUpdateRequest,
+  PatchScheduleRequest,
   PersistedPostDeviceCheckResponse,
   PersistedPreflightCheckResponse,
   PreflightCheckResponse,
@@ -42,6 +43,16 @@ export function toMissionCalendarItem(
     operatorAssignmentId: null,
     scheduledStartAt: source.scheduledStartAt,
     scheduledEndAt: source.scheduledEndAt ?? null,
+    orderPreferredDateFrom: source.orderPreferredDateFrom ?? null,
+    orderPreferredDateTo: source.orderPreferredDateTo ?? null,
+    orderPreferredTimeName: source.orderPreferredTimeName ?? null,
+    orderPreferredTimeStart: source.orderPreferredTimeStart ?? null,
+    orderPreferredTimeEnd: source.orderPreferredTimeEnd ?? null,
+    orderWeatherFallback: source.orderWeatherFallback ?? 'CONTACT_CUSTOMER',
+    lastRescheduleReason: source.lastRescheduleReason ?? null,
+    lastRescheduleNote: source.lastRescheduleNote ?? null,
+    lastRescheduledAt: source.lastRescheduledAt ?? null,
+    scheduleRevision: source.scheduleRevision ?? 0,
     addressText: source.address,
     centerLat: source.latitude,
     centerLon: source.longitude,
@@ -228,6 +239,20 @@ export const missionsApi = {
       method: 'PUT',
       body: request,
     })
+  },
+
+  /** Updates a pre-flight mission schedule after enforcing the Order fallback policy. */
+  async patchSchedule(
+    missionId: string,
+    request: PatchScheduleRequest,
+  ): Promise<MissionCalendarItem> {
+    const response = await apiRequest<MissionResponse | MissionCalendarItem>(`/api/missions/${missionId}/schedule`, {
+      method: 'PATCH',
+      body: request,
+    })
+    return 'customerName' in response
+      ? toMissionCalendarItem(response)
+      : response
   },
 
   /**

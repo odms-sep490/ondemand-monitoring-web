@@ -1,10 +1,9 @@
 import { CloseOutlined } from '@ant-design/icons'
-import { Button, Input } from 'antd'
+import { Button, Checkbox, Input, Select } from 'antd'
 import { useState } from 'react'
-import type { MissionCalendarItem } from '../../../types/missions'
+import type { MissionCalendarItem, MissionRescheduleReason } from '../../../types/missions'
 import type { PageMessages } from '../scheduleTypes'
 import { missionsApi } from '../../../api/missionsApi'
-import { planningApi } from '../../../api/planningApi'
 import { ApiError } from '../../../../../shared/api/httpClient'
 import { CardComponent } from '../../../../../shared/components/antd'
 import { MissionStatusTag } from '../../../components/common/MissionStatusTag'
@@ -21,6 +20,14 @@ export type ReschedulePanelProps = {
   onRescheduled: (updated: MissionCalendarItem) => void
   t: PageMessages
   locale: 'vi-VN' | 'en-US'
+}
+
+function toLocalDateTimeInput(value: string | null | undefined) {
+  if (!value) return ''
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return ''
+  const offset = date.getTimezoneOffset() * 60_000
+  return new Date(date.getTime() - offset).toISOString().slice(0, 16)
 }
 
 export function ReschedulePanel({
@@ -40,14 +47,24 @@ export function ReschedulePanel({
 
   const [reschedule, setReschedule] = useState(false)
   const [newStart, setNewStart] = useState(
-    mission.scheduledStartAt?.slice(0, 16) ?? '',
+    toLocalDateTimeInput(mission.scheduledStartAt),
   )
   const [newEnd, setNewEnd] = useState(
-    mission.scheduledEndAt?.slice(0, 16) ?? '',
+    toLocalDateTimeInput(mission.scheduledEndAt),
   )
-  const [reason, setReason] = useState('')
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
+  const [reason, setReason] = useState<MissionRescheduleReason>('WEATHER_UNSAFE')
+  const [note, setNote] = useState('')
+  const [customerConfirmed, setCustomerConfirmed] = useState(false)
+
+  const fallback = mission.orderWeatherFallback ?? 'CONTACT_CUSTOMER'
+  const rescheduleBlocked = fallback === 'CANCEL_ORDER'
+  const needsCustomerConfirmation = fallback === 'CONTACT_CUSTOMER'
+  const runtimeStarted = Boolean(
+    ['CONNECTED', 'PREFLIGHT_CHECKING', 'READY_TO_FLY', 'IN_FLIGHT', 'IN_PROGRESS', 'RETURNING', 'POSTFLIGHT_CHECKING', 'PENDING_REVIEW', 'COMPLETED', 'FAILED', 'CANCELLED']
+      .includes(mission.status),
+  )
 
   const handleSave = async () => {
     if (!newStart || !newEnd) {
@@ -58,15 +75,23 @@ export function ReschedulePanel({
       setSaveError(t.validationOrder)
       return
     }
+    if (needsCustomerConfirmation && !customerConfirmed) {
+      setSaveError(t.customerConfirmationRequired)
+      return
+    }
+    if (rescheduleBlocked) {
+      setSaveError(t.cancelPolicyMessage)
+      return
+    }
     setSaving(true)
     setSaveError(null)
     try {
-      const plan = await planningApi.getExecutionPlan(mission.orderId)
-      const updated = await missionsApi.rescheduleMission(mission.id, {
-        expectedPlanRevision: plan.revision,
-        scheduledStartAt: newStart + ':00+07:00',
-        scheduledEndAt: newEnd + ':00+07:00',
-        ...(reason.trim() ? { rescheduleReason: reason.trim() } : {}),
+      const updated = await missionsApi.patchSchedule(mission.id, {
+        scheduledStartAt: new Date(newStart).toISOString(),
+        scheduledEndAt: new Date(newEnd).toISOString(),
+        reason,
+        note: note.trim() || undefined,
+        customerConfirmed,
       })
       // Merge only the fields a reschedule changes; the response lacks
       // radiusM, mediaRequirements and flightPlan, so a full spread would wipe them.
@@ -103,6 +128,11 @@ export function ReschedulePanel({
     [t.schedule, timeText],
   ]
   if (mission.addressText) rows.push([t.location, mission.addressText])
+  rows.push([
+    t.customerWindow,
+    `${mission.orderPreferredDateFrom ?? '—'} → ${mission.orderPreferredDateTo ?? '—'}${mission.orderPreferredTimeName ? ` · ${mission.orderPreferredTimeName}` : ''}`,
+  ])
+  rows.push([t.customerFallback, t.fallbackLabels[fallback]])
 
   return (
     <aside
@@ -153,8 +183,30 @@ export function ReschedulePanel({
         </dl>
       </CardComponent>
 
+      {mission.lastRescheduledAt ? (
+        <CardComponent title={t.lastReschedule}>
+          <div>
+            {new Date(mission.lastRescheduledAt).toLocaleString(locale)}
+            {mission.lastRescheduleReason
+              ? ` · ${t.reasonLabels[mission.lastRescheduleReason]}`
+              : ''}
+          </div>
+          {mission.lastRescheduleNote ? <div>{mission.lastRescheduleNote}</div> : null}
+        </CardComponent>
+      ) : null}
+
+      {!finished && (rescheduleBlocked || runtimeStarted) ? (
+        <div className="mgr-form-error" role="alert">
+          {runtimeStarted ? t.runtimeStartedMessage : t.cancelPolicyMessage}
+        </div>
+      ) : null}
+
       {finished ? null : !reschedule ? (
-        <Button block onClick={() => setReschedule(true)}>
+        <Button
+          block
+          disabled={rescheduleBlocked || runtimeStarted}
+          onClick={() => setReschedule(true)}
+        >
           {t.reschedule}
         </Button>
       ) : (
@@ -177,14 +229,33 @@ export function ReschedulePanel({
               />
             </label>
             <label className="mgr-field">
-              <span>{t.rescheduleReason}</span>
-              <Input
-                type="text"
+              <span>{t.reason}</span>
+              <Select
                 value={reason}
-                placeholder={t.rescheduleReasonPlaceholder}
-                onChange={(e) => setReason(e.target.value)}
+                onChange={(value: MissionRescheduleReason) => setReason(value)}
+                options={Object.entries(t.reasonLabels).map(([value, label]) => ({
+                  value,
+                  label,
+                }))}
               />
             </label>
+            <label className="mgr-field">
+              <span>{t.note}</span>
+              <Input.TextArea
+                value={note}
+                maxLength={1000}
+                rows={3}
+                onChange={(e) => setNote(e.target.value)}
+              />
+            </label>
+            {needsCustomerConfirmation && (
+              <Checkbox
+                checked={customerConfirmed}
+                onChange={(e) => setCustomerConfirmed(e.target.checked)}
+              >
+                {t.customerConfirmed}
+              </Checkbox>
+            )}
             {saveError && (
               <div className="mgr-form-error" role="alert">
                 {saveError}

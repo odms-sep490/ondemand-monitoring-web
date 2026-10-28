@@ -46,12 +46,12 @@ describe('logout', () => {
     expect(window.location.hash).toBe('#auth/login')
   })
 
-  it('skips the API call and still redirects when there is no token', async () => {
-    const logoutSpy = vi.spyOn(authApi, 'logout')
+  it('revokes the cookie session even when this tab has no access token', async () => {
+    const logoutSpy = vi.spyOn(authApi, 'logout').mockResolvedValue(undefined)
 
     await logout()
 
-    expect(logoutSpy).not.toHaveBeenCalled()
+    expect(logoutSpy).toHaveBeenCalledWith(undefined)
     expect(window.location.hash).toBe('#auth/login')
   })
 })

@@ -4,14 +4,17 @@ import {
   writeStoredWeatherState,
 } from './preflightStorage'
 import {
-  controlBaseUrl,
   NO_MISSION_SENTINEL,
   NO_DRONE_SENTINEL,
 } from './preflightConstants'
 import { authenticatedFetch } from '../../../auth/api/authApi'
 import { env } from '../../../../config/env'
 import { isWeatherStatus, weatherFormFromStatus } from './preflightHelpers'
-import { fetchCurrentPersistedPreflight } from './preflightApi'
+import {
+  fetchCurrentPersistedPreflight,
+  runtimeStatusFromPersisted,
+  startPersistedPreflight,
+} from './preflightApi'
 import { preflightPageMessages } from './PreflightPage.messages'
 import { useI18n } from '../../../../shared/i18n'
 import type { Dispatch, SetStateAction, RefObject } from 'react'
@@ -99,14 +102,23 @@ export function usePreflightActions({
     })
 
     try {
-      const response = await fetch(`${controlBaseUrl}/api/preflight/check`, {
-        method: 'POST',
-      })
-      if (!response.ok) throw new Error(`Preflight API ${response.status}`)
-      const payload = await response.json()
-      setCheckId(payload.checkId)
-      setPersistedPreflightId(payload.checkId)
-      setPersistedPreflightStatus('CHECKING')
+      if (missionId === NO_MISSION_SENTINEL) {
+        throw new Error('Missing mission')
+      }
+      const persisted = await startPersistedPreflight(missionId)
+      setRuntimeStatus(runtimeStatusFromPersisted(persisted))
+      setPersistedPreflightId(persisted.id)
+      setPersistedPreflightStatus(persisted.status)
+      setPersistedWeatherPassed(
+        persisted.items.some(
+          (item) =>
+            item.checkType === 'weather_conditions' &&
+            item.status === 'PASSED',
+        ),
+      )
+      // Backend owns the business precheck lifecycle. Do not poll or sync the
+      // removed PX4/MAVSDK simulation checklist.
+      setCheckId(null)
     } catch {
       setRuntimeStatus(null)
       setError(t.triggerFailed)
@@ -164,7 +176,8 @@ export function usePreflightActions({
           setPersistedWeatherPassed(
             persisted.items.some(
               (item) =>
-                item.checkType === 'WEATHER' && item.status === 'PASSED',
+                item.checkType === 'weather_conditions' &&
+                item.status === 'PASSED',
             ),
           )
         }

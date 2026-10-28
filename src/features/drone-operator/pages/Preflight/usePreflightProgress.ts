@@ -43,7 +43,12 @@ export function usePreflightProgress({
   const isReady =
     runtimeItemsReady && weatherReady && persistedPreflightStatus === 'PASSED'
   const progress = runtimeStatus?.progress ?? 0
-  const hasTriggered = runtimeStatus !== null || checkId !== null || triggering
+  // A persisted run is loaded into runtimeStatus when the page opens. It is
+  // only a snapshot, not an actively running controller check. Treating every
+  // loaded snapshot as "triggered" leaves the trigger button disabled forever
+  // when an earlier run was interrupted in CHECKING state.
+  const hasTriggered =
+    checkId !== null || triggering || runtimeStatus?.checkId === 'triggering'
   const canContinueToHandover = isReady
   const isAlreadyInFlight = isMissionInFlight(missionStatus)
   const isFailed =

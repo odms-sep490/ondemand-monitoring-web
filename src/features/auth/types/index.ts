@@ -13,6 +13,7 @@ export type RegisterRequest = {
 export type LoginRequest = {
   email: string
   password: string
+  rememberMe?: boolean
   portalRole?: UserRole
 }
 
@@ -28,6 +29,7 @@ export type FirstLoginPasswordChangeRequest = {
   email: string
   session: string
   newPassword: string
+  rememberMe?: boolean
 }
 
 export type SocialSyncRequest = {
@@ -35,6 +37,7 @@ export type SocialSyncRequest = {
   redirectUri: string
   intent?: SocialAuthIntent
   provider?: AuthProvider
+  rememberMe?: boolean
 }
 
 export type UserProfile = {

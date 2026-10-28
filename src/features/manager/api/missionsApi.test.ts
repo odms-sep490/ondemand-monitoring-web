@@ -199,6 +199,31 @@ describe('missionsApi.listMissions (real backend)', () => {
   })
 })
 
+describe('missionsApi.patchSchedule', () => {
+  it('updates the mission schedule', async () => {
+    setHttpTransport(mockFetch)
+    const updated = await missionsApi.patchSchedule('msn-2609-0153-1', {
+      scheduledStartAt: '2026-09-26T10:00:00+07:00',
+      scheduledEndAt: '2026-09-26T11:30:00+07:00',
+      reason: 'WEATHER_UNSAFE',
+      customerConfirmed: false,
+    })
+    expect(updated.scheduledStartAt).toBe('2026-09-26T10:00:00+07:00')
+  })
+
+  it('throws ApiError 400 when body incomplete', async () => {
+    setHttpTransport(mockFetch)
+    await expect(
+      missionsApi.patchSchedule('msn-2609-0153-1', {
+        scheduledStartAt: '',
+        scheduledEndAt: '',
+        reason: 'WEATHER_UNSAFE',
+        customerConfirmed: false,
+      }),
+    ).rejects.toBeInstanceOf(ApiError)
+  })
+})
+
 describe('missionsApi.rescheduleMission', () => {
   afterEach(resetHttpTransport)
 

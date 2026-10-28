@@ -3,18 +3,34 @@ import type { ItemState } from '../preflightTypes'
 import { useI18n } from '../../../../../shared/i18n'
 import { preflightPageMessages } from '../PreflightPage.messages'
 import { statusText } from '../preflightHelpers'
+import { useState } from 'react'
 
 export function RuntimePreflightItemRow({
   def,
   state,
+  manual,
+  updating,
+  onUpdate,
+  onRecheck,
 }: {
   def: PreflightItemDef
   state: ItemState
+  manual: boolean
+  updating: boolean
+  onUpdate: (
+    checkType: string,
+    status: 'PASSED' | 'FAILED',
+    message: string,
+  ) => Promise<void>
+  onRecheck: (checkType: string) => Promise<void>
 }) {
   const { t } = useI18n(preflightPageMessages)
   const failed = state.result === 'fail'
   const passed = state.result === 'ok'
   const checking = state.status === 'CHECKING'
+  const decided = passed || failed
+  const [showFailureReason, setShowFailureReason] = useState(false)
+  const [failureReason, setFailureReason] = useState('')
   const tone = failed
     ? {
         label: t.itemFail,
@@ -50,7 +66,7 @@ export function RuntimePreflightItemRow({
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: '44px minmax(0, 1fr) 104px',
+          gridTemplateColumns: '44px minmax(0, 1fr) auto',
           alignItems: 'center',
           gap: 12,
         }}
@@ -107,26 +123,117 @@ export function RuntimePreflightItemRow({
             {statusText(t, state.status, state.message)}
           </div>
         </div>
-        <span
-          style={{
-            justifySelf: 'end',
-            minWidth: 94,
-            height: 32,
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderRadius: 8,
-            border: `1px solid ${tone.border}`,
-            background: tone.bg,
-            color: tone.fg,
-            fontSize: 12,
-            fontWeight: 800,
-            whiteSpace: 'nowrap',
-          }}
-        >
-          {tone.label}
-        </span>
+        {manual && !decided ? (
+          <div style={{ display: 'flex', gap: 6, justifySelf: 'end' }}>
+            <button
+              type="button"
+              className="odm-btn odm-btn-ok"
+              disabled={updating}
+              onClick={() => {
+                void onUpdate(
+                  def.key,
+                  'PASSED',
+                  'Người vận hành xác nhận đạt',
+                )
+                  .then(() => {
+                    setShowFailureReason(false)
+                  })
+                  .catch(() => undefined)
+              }}
+              style={{ minWidth: 72 }}
+            >
+              {updating ? '...' : 'Đạt'}
+            </button>
+            <button
+              type="button"
+              className="odm-btn odm-btn-rd"
+              disabled={updating}
+              onClick={() => setShowFailureReason((value) => !value)}
+              style={{ minWidth: 96 }}
+            >
+              Không đạt
+            </button>
+          </div>
+        ) : manual ? (
+            <span
+              style={{
+                minWidth: 88,
+                height: 32,
+                padding: '0 12px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 999,
+                border: `1px solid ${tone.border}`,
+                background: tone.bg,
+                color: tone.fg,
+                fontSize: 12,
+                fontWeight: 800,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {tone.label}
+            </span>
+        ) : def.key === 'battery_health' && !decided ? (
+          <button
+            type="button"
+            className="odm-btn odm-btn-p"
+            disabled={updating}
+            onClick={() =>
+              void onRecheck(def.key).catch(() => undefined)
+            }
+            style={{ minWidth: 132 }}
+          >
+            {updating ? t.itemChecking : t.fetchCurrentBattery}
+          </button>
+        ) : (
+          <span
+            style={{
+              justifySelf: 'end',
+              minWidth: 112,
+              height: 32,
+              padding: '0 12px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: 999,
+              border: `1px solid ${tone.border}`,
+              background: tone.bg,
+              color: tone.fg,
+              fontSize: 12,
+              fontWeight: 800,
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {tone.label}
+          </span>
+        )}
       </div>
+      {manual && !decided && showFailureReason ? (
+        <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+          <input
+            className="odm-input"
+            value={failureReason}
+            onChange={(event) => setFailureReason(event.target.value)}
+            placeholder={t.failureReasonPlaceholder}
+          />
+          <button
+            type="button"
+            className="odm-btn odm-btn-rd"
+            disabled={updating || failureReason.trim().length === 0}
+            onClick={() =>
+              void onUpdate(def.key, 'FAILED', failureReason.trim())
+                .then(() => {
+                  setShowFailureReason(false)
+                  setFailureReason('')
+                })
+                .catch(() => undefined)
+            }
+          >
+            {t.confirmFailure}
+          </button>
+        </div>
+      ) : null}
     </div>
   )
 }

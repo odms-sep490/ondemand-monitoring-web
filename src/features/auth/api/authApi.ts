@@ -1,5 +1,9 @@
 import { matchesRealApiRoute } from '../../../shared/api/realApiRoutes'
-import { isUserRole } from '../roles'
+import { AuthApiError, sessionChangedError } from './authErrors'
+import { authSession, withAuthLock } from './authSession'
+import type { SessionStamp } from './authSession'
+export { AuthApiError } from './authErrors'
+export { authSession } from './authSession'
 import { env } from '../../../config/env'
 import type {
   ApiResponse,
@@ -21,18 +25,6 @@ type RequestOptions = Omit<RequestInit, 'body'> & {
   body?: unknown
   accessToken?: string
   skipRefresh?: boolean
-}
-
-export class AuthApiError extends Error {
-  readonly code?: string
-  readonly errors?: Record<string, string>
-
-  constructor(message: string, code?: string, errors?: Record<string, string>) {
-    super(message)
-    this.name = 'AuthApiError'
-    this.code = code
-    this.errors = errors
-  }
 }
 
 export function getGoogleAuthorizationUrl() {
@@ -60,27 +52,153 @@ export function getGoogleAuthorizationUrl() {
   return `${domain.replace(/\/$/, '')}/oauth2/authorize?${params.toString()}`
 }
 
-let refreshPromise: Promise<AuthResponse | undefined> | undefined
+let refreshJob:
+  | { stamp: SessionStamp; promise: Promise<AuthResponse | undefined> }
+  | undefined
+let bootstrapJob: { stamp: SessionStamp; promise: Promise<void> } | undefined
+
+function terminalSessionError(error: unknown) {
+  return (
+    error instanceof AuthApiError &&
+    (error.status === 401 ||
+      error.code === 'ACCOUNT_DISABLED' ||
+      error.code === 'INVALID_AUTH_RESPONSE')
+  )
+}
+
+async function validatedProfile(accessToken: string) {
+  return request<NonNullable<AuthResponse['user']>>('/api/users/me', {
+    accessToken,
+    skipRefresh: true,
+    signal: AbortSignal.timeout(15_000),
+  })
+}
 
 async function refreshAccessTokenOnce() {
-  if (!refreshPromise) {
-    refreshPromise = request<AuthResponse>('/api/auth/refresh', {
-      method: 'POST',
-      skipRefresh: true,
-    })
-      .then((response) => {
-        authSession.updateAccessToken(response)
-        return response
+  if (!refreshJob || !authSession.isCurrent(refreshJob.stamp)) {
+    const stamp = authSession.capture()
+    const promise = withAuthLock(async () => {
+      if (!authSession.isCurrent(stamp) || authSession.isLoggedOut())
+        return undefined
+      const response = await request<AuthResponse>('/api/auth/refresh', {
+        method: 'POST',
+        skipRefresh: true,
+        signal: AbortSignal.timeout(15_000),
       })
-      .catch(() => {
-        authSession.clear()
+      if (!authSession.isCurrent(stamp)) throw sessionChangedError()
+      if (!response?.accessToken)
+        throw new AuthApiError('Missing access token.', 'INVALID_AUTH_RESPONSE')
+      const user = await validatedProfile(response.accessToken)
+      authSession.restore({ ...response, user }, stamp)
+      return { ...response, user }
+    })
+      .catch((error: unknown) => {
+        if (authSession.isCurrent(stamp)) {
+          if (terminalSessionError(error)) authSession.clear()
+          else {
+            if (
+              !authSession.getAccessToken() ||
+              authSession.getStatus() === 'loading'
+            ) {
+              authSession.setStatus('unavailable')
+            }
+            // A temporary refresh failure must not be reported as an expired
+            // session by returning the protected request's original 401.
+            throw error
+          }
+        }
         return undefined
       })
       .finally(() => {
-        refreshPromise = undefined
+        if (refreshJob?.promise === promise) refreshJob = undefined
       })
+    refreshJob = { stamp, promise }
   }
-  return refreshPromise
+  return refreshJob.promise
+}
+
+export function restoreAuthSession(): Promise<void> {
+  if (bootstrapJob && authSession.isCurrent(bootstrapJob.stamp))
+    return bootstrapJob.promise
+  const stamp = authSession.capture()
+  authSession.setStatus('loading')
+  const promise = (async () => {
+    if (authSession.isLoggedOut() && !authSession.getAccessToken()) {
+      authSession.setStatus('guest')
+      return
+    }
+    const token = authSession.getAccessToken()
+    if (token) {
+      try {
+        const user = await validatedProfile(token)
+        authSession.restore(
+          { accessToken: token, tokenType: 'Bearer', user },
+          stamp,
+        )
+        return
+      } catch (error) {
+        if (!authSession.isCurrent(stamp)) return
+        if (!(error instanceof AuthApiError && error.status === 401)) {
+          if (terminalSessionError(error)) authSession.clear()
+          else authSession.setStatus('unavailable')
+          return
+        }
+      }
+    }
+    try {
+      await refreshAccessTokenOnce()
+    } catch {
+      // The refresh job already exposed the retryable bootstrap status.
+    }
+  })().finally(() => {
+    if (bootstrapJob?.promise === promise) bootstrapJob = undefined
+  })
+  bootstrapJob = { stamp, promise }
+  return promise
+}
+
+export function startAuthSession() {
+  const restore = () => {
+    void restoreAuthSession()
+  }
+  const retryUnavailable = () => {
+    if (authSession.getStatus() === 'unavailable') restore()
+  }
+  const disconnect = authSession.connect(restore)
+  window.addEventListener('online', retryUnavailable)
+  if (window.location.pathname !== '/social/callback') restore()
+  return () => {
+    disconnect()
+    window.removeEventListener('online', retryUnavailable)
+  }
+}
+
+async function authenticate(path: string, body: unknown) {
+  const stamp = authSession.capture()
+  return withAuthLock(async () => {
+    if (!authSession.isCurrent(stamp)) throw sessionChangedError()
+    const response = await request<AuthResponse>(path, {
+      method: 'POST',
+      body,
+      skipRefresh: true,
+      signal: AbortSignal.timeout(30_000),
+    })
+    if (!authSession.isCurrent(stamp)) throw sessionChangedError()
+    if (!response)
+      throw new AuthApiError(
+        'Missing authentication response.',
+        'INVALID_AUTH_RESPONSE',
+      )
+    // Commit while holding the cookie lock: another tab cannot issue a login
+    // between Set-Cookie and the publication of this account's session event.
+    if (!(response.status === 'PASSWORD_CHANGE_REQUIRED' && response.session)) {
+      authSession.save(
+        response,
+        (body as { rememberMe?: boolean }).rememberMe === true,
+      )
+    }
+    return response
+  })
 }
 
 // Same transport choice as `src/shared/api/httpClient.ts`: mockFetch when
@@ -128,6 +246,7 @@ async function csrfHeaders(url: string, method = 'GET'): Promise<Headers> {
   const response = await fetch(`${env.apiBaseUrl}/api/auth/csrf`, {
     credentials: 'include',
     headers: { Accept: 'application/json' },
+    signal: AbortSignal.timeout(10_000),
   })
   const payload = (await response.json().catch(() => undefined)) as
     ApiResponse<string> | undefined
@@ -149,7 +268,9 @@ export async function authenticatedFetch(
   url: string,
   init: RequestInit = {},
 ): Promise<Response> {
+  const stamp = authSession.capture()
   const protection = await csrfHeaders(url, init.method)
+  if (!authSession.isCurrent(stamp)) throw sessionChangedError()
   const request = (token?: string) => {
     const headers = new Headers(init.headers)
     protection.forEach((value, key) => headers.set(key, value))
@@ -158,14 +279,24 @@ export async function authenticatedFetch(
   }
 
   const response = await request(authSession.getAccessToken() ?? undefined)
+  if (!authSession.isCurrent(stamp)) throw sessionChangedError()
   if (response.status !== 401) return response
+  if (
+    cookieAuthenticationPaths.has(new URL(url, env.apiBaseUrl).pathname) ||
+    authSession.isLoggedOut()
+  )
+    return response
 
   const refreshed = await refreshAccessTokenOnce()
+  if (!authSession.isCurrent(stamp)) throw sessionChangedError()
   if (!refreshed?.accessToken) return response
-  return request(refreshed.accessToken)
+  const retried = await request(refreshed.accessToken)
+  if (!authSession.isCurrent(stamp)) throw sessionChangedError()
+  return retried
 }
 
 async function request<T>(path: string, options: RequestOptions = {}) {
+  const stamp = authSession.capture()
   const { accessToken, skipRefresh, body, ...requestInit } = options
   const headers = new Headers(options.headers)
   const protection = await csrfHeaders(
@@ -191,8 +322,16 @@ async function request<T>(path: string, options: RequestOptions = {}) {
     )
   }
 
-  if (response.status === 401 && !skipRefresh && path !== '/api/auth/refresh') {
+  if (accessToken && !authSession.isCurrent(stamp)) throw sessionChangedError()
+
+  if (
+    response.status === 401 &&
+    accessToken &&
+    !skipRefresh &&
+    path !== '/api/auth/refresh'
+  ) {
     const refreshed = await refreshAccessTokenOnce()
+    if (!authSession.isCurrent(stamp)) throw sessionChangedError()
     if (refreshed?.accessToken) {
       return request<T>(path, {
         ...options,
@@ -213,6 +352,7 @@ async function request<T>(path: string, options: RequestOptions = {}) {
       payload?.message ?? 'Something went wrong. Please try again.',
       payload?.code,
       errors,
+      response.status,
     )
   }
   return payload?.data as T
@@ -228,20 +368,11 @@ export const authApi = {
     request<void>('/api/auth/verify-otp', { method: 'POST', body }),
   resendOtp: (body: ResendOtpRequest) =>
     request<void>('/api/auth/resend-otp', { method: 'POST', body }),
-  login: (body: LoginRequest) =>
-    request<AuthResponse>('/api/auth/login', {
-      method: 'POST',
-      body,
-      skipRefresh: true,
-    }),
+  login: (body: LoginRequest) => authenticate('/api/auth/login', body),
   completeFirstLogin: (body: FirstLoginPasswordChangeRequest) =>
-    request<AuthResponse>('/api/auth/first-login/change-password', {
-      method: 'POST',
-      body,
-      skipRefresh: true,
-    }),
+    authenticate('/api/auth/first-login/change-password', body),
   socialSync: (body: SocialSyncRequest) =>
-    request<AuthResponse>('/api/auth/social/sync', { method: 'POST', body }),
+    authenticate('/api/auth/social/sync', body),
   linkLocal: (password: string) =>
     request<void>('/api/auth/social/link-local', {
       method: 'POST',
@@ -253,8 +384,13 @@ export const authApi = {
       method: 'POST',
       skipRefresh: true,
     }),
-  logout: (accessToken: string) =>
-    request<void>('/api/auth/logout', { method: 'POST', accessToken }),
+  logout: (accessToken?: string) =>
+    request<void>('/api/auth/logout', {
+      method: 'POST',
+      accessToken,
+      skipRefresh: true,
+      signal: AbortSignal.timeout(15_000),
+    }),
   createManagedAccount: (
     body: CreateManagedAccountRequest,
     accessToken: string,
@@ -271,123 +407,4 @@ export const authApi = {
   /** `GET /api/auth/csrf` [BE]. */
   getCsrf: (signal?: AbortSignal) =>
     request<string>('/api/auth/csrf', { signal }),
-}
-
-const ACCESS_TOKEN_KEY = 'fieldwise.accessToken'
-const USER_KEY = 'fieldwise.user'
-
-const isSafeToken = (value: unknown): value is string =>
-  typeof value === 'string' && /^[A-Za-z0-9._~-]+$/.test(value)
-
-const isJwtLikeToken = (value: string) => value.split('.').length === 3
-
-function isUsableAccessToken(value: unknown): value is string {
-  if (!isSafeToken(value)) return false
-  return env.useMockApi || isJwtLikeToken(value)
-}
-
-const sanitizeUser = (user: NonNullable<AuthResponse['user']>) => ({
-  id: String(user.id),
-  fullName: String(user.fullName),
-  email: String(user.email),
-  emailVerified: user.emailVerified,
-  role: user.role,
-  linkedProviders: user.linkedProviders?.filter(
-    (provider): provider is string => typeof provider === 'string',
-  ),
-  avatarUrl:
-    typeof user.avatarUrl === 'string' && /^https?:\/\//i.test(user.avatarUrl)
-      ? user.avatarUrl
-      : undefined,
-  isActive: user.isActive,
-})
-
-export const authSession = {
-  save(response: AuthResponse, rememberMe: boolean) {
-    if (
-      !isUsableAccessToken(response.accessToken) ||
-      !response.user ||
-      !isUserRole(response.user.role)
-    ) {
-      throw new AuthApiError(
-        'Invalid authentication response or unsupported account role.',
-        'INVALID_AUTH_RESPONSE',
-      )
-    }
-    authSession.clear()
-    const storage = rememberMe ? localStorage : sessionStorage
-    storage.setItem(ACCESS_TOKEN_KEY, response.accessToken)
-    storage.setItem(USER_KEY, JSON.stringify(sanitizeUser(response.user)))
-  },
-  updateAccessToken(response: AuthResponse) {
-    if (!isUsableAccessToken(response.accessToken)) {
-      throw new AuthApiError(
-        'Invalid refreshed access token.',
-        'INVALID_AUTH_RESPONSE',
-      )
-    }
-    const storage = localStorage.getItem(ACCESS_TOKEN_KEY)
-      ? localStorage
-      : sessionStorage
-    storage.setItem(ACCESS_TOKEN_KEY, response.accessToken)
-    if (response.user) {
-      if (!isUserRole(response.user.role)) {
-        authSession.clear()
-        throw new AuthApiError(
-          'Unsupported account role.',
-          'INVALID_AUTH_RESPONSE',
-        )
-      }
-      storage.setItem(USER_KEY, JSON.stringify(sanitizeUser(response.user)))
-    }
-  },
-  getAccessToken() {
-    const token =
-      localStorage.getItem(ACCESS_TOKEN_KEY) ??
-      sessionStorage.getItem(ACCESS_TOKEN_KEY)
-
-    if (!token) return undefined
-    if (isUsableAccessToken(token)) return token
-
-    localStorage.removeItem(ACCESS_TOKEN_KEY)
-    sessionStorage.removeItem(ACCESS_TOKEN_KEY)
-    return undefined
-  },
-  getUser() {
-    const raw =
-      localStorage.getItem(USER_KEY) ?? sessionStorage.getItem(USER_KEY)
-    if (!raw) return undefined
-    try {
-      const user = JSON.parse(raw) as AuthResponse['user']
-      if (!user || !isUserRole(user.role)) {
-        authSession.clear()
-        return undefined
-      }
-      return user
-    } catch {
-      return undefined
-    }
-  },
-  markLocalLinked() {
-    const user = authSession.getUser()
-    if (!user) return
-    const storage = localStorage.getItem(USER_KEY)
-      ? localStorage
-      : sessionStorage
-    storage.setItem(
-      USER_KEY,
-      JSON.stringify({
-        ...user,
-        linkedProviders: Array.from(
-          new Set([...(user.linkedProviders ?? ['GOOGLE']), 'LOCAL']),
-        ),
-      }),
-    )
-  },
-  clear() {
-    localStorage.removeItem(ACCESS_TOKEN_KEY)
-    localStorage.removeItem(USER_KEY)
-    sessionStorage.removeItem(ACCESS_TOKEN_KEY)
-    sessionStorage.removeItem(USER_KEY)
-  },
 }

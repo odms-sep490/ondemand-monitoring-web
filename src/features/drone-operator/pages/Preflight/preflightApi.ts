@@ -50,6 +50,22 @@ export async function fetchCurrentPersistedPreflight(
   return persisted as PersistedPreflightCheck
 }
 
+export async function startPersistedPreflight(missionId: string) {
+  const response = await authenticatedFetch(
+    `${env.apiBaseUrl}/api/missions/${encodeURIComponent(missionId)}/pre-device-checks`,
+    { method: 'POST' },
+  )
+  if (!response.ok) {
+    throw new Error(`Start preflight ${response.status}`)
+  }
+  const payload = await response.json()
+  const persisted = payload?.data ?? payload
+  if (!persisted || typeof persisted.id !== 'string') {
+    throw new Error('Invalid preflight response')
+  }
+  return persisted as PersistedPreflightCheck
+}
+
 export async function fetchPersistedPreflight(
   persistedId: string,
   signal?: AbortSignal,
@@ -80,6 +96,22 @@ export async function updatePersistedPreflightItem(
   )
   if (!response.ok) {
     throw new Error(`Persisted preflight item ${checkType} ${response.status}`)
+  }
+  const payload = await response.json()
+  const persisted = payload?.data ?? payload
+  return persisted as PersistedPreflightCheck
+}
+
+export async function recheckPersistedPreflightItem(
+  persistedId: string,
+  checkType: string,
+) {
+  const response = await authenticatedFetch(
+    `${env.apiBaseUrl}/api/pre-device-checks/${encodeURIComponent(persistedId)}/items/${encodeURIComponent(checkType)}/recheck`,
+    { method: 'POST' },
+  )
+  if (!response.ok) {
+    throw new Error(`Recheck preflight item ${checkType} ${response.status}`)
   }
   const payload = await response.json()
   const persisted = payload?.data ?? payload
