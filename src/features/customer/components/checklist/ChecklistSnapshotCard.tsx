@@ -68,14 +68,14 @@ export function ChecklistSnapshotCard({
                     <span className="checklist-snapshot-evidence">
                       {item.priceAvailable ? (
                         item.pricingStatus === 'DUPLICATE' ? (
-                          'Không tính phí — yêu cầu đã được bao gồm trong dịch vụ hiện tại.'
+                          t.priceDuplicate
                         ) : item.pricingStatus === 'REJECTED' ? (
-                          'Yêu cầu không được chấp thuận · 0 ₫'
+                          t.priceRejected
                         ) : (
-                          <>Dịch vụ bổ sung: {formatVnd(item.approvedPrice ?? 0)}</>
+                          <>{t.priceAdditional} {formatVnd(item.approvedPrice ?? 0)}</>
                         )
                       ) : (
-                        'Đang chờ Manager xem xét giá.'
+                        t.pricePending
                       )}
                     </span>
                   )}

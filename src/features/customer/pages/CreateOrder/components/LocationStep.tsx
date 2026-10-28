@@ -59,6 +59,7 @@ export function RealLocationMap({
   onPick: (latitude: number, longitude: number) => void
   cameraRequest?: number
 }) {
+  const { t } = useI18n(locationStepMessages)
   const container = useRef<HTMLDivElement>(null)
   const map = useRef<L.Map | null>(null)
   const circle = useRef<L.Circle | null>(null)
@@ -288,13 +289,12 @@ export function RealLocationMap({
       />
       {invalidCoordinates ? (
         <div className="co-real-map-notice">
-          Vĩ độ phải từ -90 đến 90, kinh độ từ -180 đến 180.
+          {t.invalidCoordinates}
         </div>
       ) : null}
       {outsideServiceArea ? (
         <div className="co-real-map-notice">
-          Hiện chỉ phục vụ trong khu vực TP.HCM. Vui lòng chọn điểm trong vùng
-          xanh.
+          {t.outsideServiceArea}
         </div>
       ) : null}
     </div>
@@ -364,7 +364,7 @@ export function LocationStep({ form, errors, update, footer }: Props) {
     } catch (error) {
       console.error('[CreateRequestMap] Address geocoding failed', error)
       setAddressLookupError(
-        error instanceof Error ? error.message : 'Không thể tìm địa chỉ.',
+        error instanceof Error ? error.message : t.addressLookupFailed,
       )
       update('locationStatus', 'error')
     } finally {
@@ -418,7 +418,7 @@ export function LocationStep({ form, errors, update, footer }: Props) {
       setAddressLookupError(
         error instanceof Error
           ? error.message
-          : 'Không thể tìm địa chỉ tại vị trí này.',
+          : t.reverseLookupFailed,
       )
       update('locationStatus', 'error')
     }

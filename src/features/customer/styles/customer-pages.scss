@@ -221,7 +221,7 @@
 }
 
 /* Native form controls look like antd inputs: 38px, 10px radius, border token, primary focus ring. */
-$cus-native: '.co-input, .od-additional-info-grid input, .od-additional-info-grid select, .od-additional-info-form textarea, .od-inline-edit-field input, .od-inline-edit-field select, .od-inline-edit-field textarea';
+$cus-native: '.co-input, .od-additional-info-grid input:not([type='range']), .od-additional-info-grid select, .od-additional-info-form textarea, .od-inline-edit-field input, .od-inline-edit-field select, .od-inline-edit-field textarea';
 
 .mgr-layout {
   #{$cus-native} {
@@ -267,6 +267,10 @@ $cus-native: '.co-input, .od-additional-info-grid input, .od-additional-info-gri
     &[aria-invalid='true'] {
       border-color: var(--ui-danger);
     }
+  }
+
+  .od-radius-inputs .od-radius-number {
+    width: 120px;
   }
 
   textarea.co-input,

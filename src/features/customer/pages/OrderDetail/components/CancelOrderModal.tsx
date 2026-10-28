@@ -1,3 +1,4 @@
+import { Button } from 'antd'
 import { MockDataBadge, Modal } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import { cancelOrderModalMessages } from './CancelOrderModal.messages'
@@ -16,12 +17,12 @@ export function CancelOrderModal({ orderTitle, cancelling, error, onConfirm, onC
 
   const footer = (
     <>
-      <button type="button" className="odm-btn odm-btn-gh" onClick={onClose} disabled={cancelling}>
+      <Button onClick={onClose} disabled={cancelling}>
         {t.keep}
-      </button>
-      <button type="button" className="odm-btn is-danger" onClick={onConfirm} disabled={cancelling}>
+      </Button>
+      <Button type="primary" danger onClick={onConfirm} disabled={cancelling}>
         {cancelling ? t.cancelling : t.confirm}
-      </button>
+      </Button>
     </>
   )
 

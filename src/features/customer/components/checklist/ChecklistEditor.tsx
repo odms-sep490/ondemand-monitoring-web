@@ -266,11 +266,10 @@ export function ChecklistEditor({
               {awaitingManagerQuote(row) && (
                 <>
                   <span className="checklist-custom-tag is-pending-quote">
-                    Dịch vụ theo yêu cầu
+                    {t.onDemandService}
                   </span>
                   <small className="checklist-hint">
-                    Giá của dịch vụ này sẽ được xem xét và báo giá sau khi
-                    Manager duyệt yêu cầu.
+                    {t.onDemandHint}
                   </small>
                 </>
               )}

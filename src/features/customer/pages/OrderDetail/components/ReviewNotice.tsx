@@ -1,3 +1,4 @@
+import { Button } from 'antd'
 import { useRef, useState } from 'react'
 
 import { ApiError, apiRequest } from '../../../../../shared/api/httpClient'
@@ -25,7 +26,7 @@ function readDocument(file: File) {
   return new Promise<string>((resolve, reject) => {
     const reader = new FileReader()
     reader.onload = () => resolve(String(reader.result ?? ''))
-    reader.onerror = () => reject(new Error('Không thể đọc tài liệu.'))
+    reader.onerror = () => reject(new Error('READ_FAILED'))
     reader.readAsDataURL(file)
   })
 }
@@ -72,16 +73,16 @@ export function ReviewNotice({
 
   async function submitInformation() {
     if (requiresAuthorizationDocument && documents.length === 0) {
-      setError('Vui lòng tải lên giấy tờ được yêu cầu.')
+      setError(t.needDocument)
       return
     }
     const submissionInformation =
       information.trim() ||
       (documents.length > 0
-        ? 'Đã bổ sung tài liệu xác minh quyền truy cập hiện trường.'
+        ? t.docAutoInfo
         : '')
     if (!submissionInformation) {
-      setError('Vui lòng nhập thông tin cần bổ sung trước khi gửi.')
+      setError(t.needInfo)
       return
     }
     setBusy(true)
@@ -118,15 +119,15 @@ export function ReviewNotice({
     if (!file) return
     setError(null)
     if (!ACCEPTED_DOCUMENT_TYPES.includes(file.type)) {
-      setError('Chỉ chấp nhận file PDF, JPG hoặc PNG.')
+      setError(t.badFileType)
       return
     }
     if (file.size > MAX_DOCUMENT_BYTES) {
-      setError('Mỗi tài liệu không được vượt quá 5 MB.')
+      setError(t.fileTooBig)
       return
     }
     if (documents.length >= 10) {
-      setError('Chỉ được tải tối đa 10 tài liệu.')
+      setError(t.tooManyFiles)
       return
     }
     try {
@@ -146,7 +147,7 @@ export function ReviewNotice({
       ])
     } catch (cause) {
       setError(
-        cause instanceof Error ? cause.message : 'Không thể đọc tài liệu.',
+        cause instanceof Error && cause.message !== 'READ_FAILED' ? cause.message : t.readError,
       )
     }
   }
@@ -216,13 +217,13 @@ export function ReviewNotice({
                 }
               >
                 <option value="">—</option>
-                <option value="OWNER">Chủ sở hữu / Chủ đầu tư</option>
-                <option value="AUTHORIZED_PERSON">Người được ủy quyền</option>
-                <option value="CONTRACTOR">Nhà thầu / Đơn vị thi công</option>
+                <option value="OWNER">{t.optOwner}</option>
+                <option value="AUTHORIZED_PERSON">{t.optAuthorized}</option>
+                <option value="CONTRACTOR">{t.optContractor}</option>
                 <option value="MANAGER_OR_SUPERVISOR">
-                  Đơn vị quản lý / Tư vấn giám sát
+                  {t.optManager}
                 </option>
-                <option value="OTHER">Khác</option>
+                <option value="OTHER">{t.optOther}</option>
               </select>
             </label>
           </div>
@@ -243,9 +244,9 @@ export function ReviewNotice({
             >
               <div>
                 <strong id="additional-documents-title">
-                  Tài liệu xác minh quyền truy cập
+                  {t.docTitle}
                 </strong>
-                <span>Bắt buộc · PDF, JPG hoặc PNG · tối đa 5 MB/file</span>
+                <span>{t.docRule}</span>
               </div>
               <input
                 ref={documentInput}
@@ -257,13 +258,9 @@ export function ReviewNotice({
                   event.target.value = ''
                 }}
               />
-              <button
-                type="button"
-                className="odm-btn"
-                onClick={() => documentInput.current?.click()}
-              >
-                Tải tài liệu lên
-              </button>
+              <Button onClick={() => documentInput.current?.click()}>
+                {t.upload}
+              </Button>
               {documents.length > 0 ? (
                 <ul>
                   {documents.map((document) => (
@@ -271,20 +268,20 @@ export function ReviewNotice({
                       <span>{document.fileName}</span>
                       <button
                         type="button"
-                        aria-label={`Xóa ${document.fileName}`}
+                        aria-label={t.removeFile(document.fileName)}
                         onClick={() =>
                           setDocuments((current) =>
                             current.filter((item) => item.id !== document.id),
                           )
                         }
                       >
-                        Xóa
+                        {t.remove}
                       </button>
                     </li>
                   ))}
                 </ul>
               ) : (
-                <small>Chưa có tài liệu nào được chọn.</small>
+                <small>{t.noDocs}</small>
               )}
             </section>
           ) : null}
@@ -295,14 +292,9 @@ export function ReviewNotice({
             placeholder={t.informationPlaceholder}
             onChange={(event) => setInformation(event.target.value)}
           />
-          <button
-            type="button"
-            className="odm-btn odm-btn-ok"
-            disabled={busy}
-            onClick={() => void submitInformation()}
-          >
+          <Button type="primary" disabled={busy} onClick={() => void submitInformation()}>
             {busy ? t.sending : t.sendInformation}
-          </button>
+          </Button>
           {error ? <span role="alert">{error}</span> : null}
         </div>
       ) : null}
