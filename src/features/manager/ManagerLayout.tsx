@@ -18,8 +18,8 @@ import {
   MANAGER_SIDER_WIDTH,
 } from './theme/managerTheme'
 import './manager.css'
-import './components/layout/layout.scss'
-import './components/layout/popups.scss'
+import '../../shared/styles/app-shell/layout.scss'
+import '../../shared/styles/app-shell/popups.scss'
 import { managerLayoutMessages } from './ManagerLayout.messages'
 
 export type { ManagerNavCounts }

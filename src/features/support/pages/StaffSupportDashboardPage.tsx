@@ -27,8 +27,8 @@ import {
 import { useDocumentDark } from './StaffSupportDashboard/useDocumentDark'
 import { useTicketActions } from './StaffSupportDashboard/useTicketActions'
 import '../../manager/manager.css'
-import '../../manager/components/layout/layout.scss'
-import '../../manager/components/layout/popups.scss'
+import '../../../shared/styles/app-shell/layout.scss'
+import '../../../shared/styles/app-shell/popups.scss'
 import '../../manager/components/common/planning.css'
 import './StaffSupportDashboard/staffSupportDashboard.scss'
 
