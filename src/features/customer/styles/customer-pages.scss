@@ -160,12 +160,12 @@
   &.odm-btn-p {
     border-color: var(--ui-primary);
     background: var(--ui-primary);
-    color: var(--ui-primary-contrast, #fff);
-    box-shadow: 0 2px 0 rgb(5 145 255 / 10%);
+    color: var(--ui-on-primary);
+    box-shadow: 0 2px 0 color-mix(in srgb, var(--ui-primary) 10%, transparent);
 
     &:hover {
       opacity: 0.9;
-      color: var(--ui-primary-contrast, #fff);
+      color: var(--ui-on-primary);
       background: var(--ui-primary);
     }
   }
@@ -197,7 +197,7 @@
 
 /* `.odm a { color: inherit }` would otherwise win over antd's zero-specificity link-button colours. */
 .mgr-layout a.ant-btn-color-primary.ant-btn-variant-solid:not(.ant-btn-disabled) {
-  color: var(--ui-primary-contrast, #fff);
+  color: var(--ui-on-primary);
 }
 
 /* Global h1/h2 negative letter-spacing glues Vietnamese words together. */

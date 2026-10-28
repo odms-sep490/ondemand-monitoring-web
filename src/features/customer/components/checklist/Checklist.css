@@ -94,7 +94,7 @@
 }
 .checklist-card .checklist-custom-tag.is-pending-quote {
   background: var(--ui-warning-soft);
-  color: #9a6700;
+  color: var(--ui-warning-text);
 }
 .checklist-card .checklist-remove {
   margin-left: auto;
@@ -128,7 +128,7 @@
 .checklist-card .checklist-row textarea:focus-visible {
   outline: none;
   border-color: var(--ui-primary);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-primary) 10%, transparent);
 }
 .checklist-row.is-removed {
   background: var(--ui-surface);
@@ -190,7 +190,7 @@
 }
 .checklist-card .checklist-add:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-primary) 10%, transparent);
   border-color: var(--ui-primary);
 }
 .checklist-card .checklist-add:disabled {
@@ -580,7 +580,7 @@
 .checklist-card .checklist-add-top:focus-visible {
   outline: none;
   border-color: var(--ui-primary);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-primary) 10%, transparent);
 }
 .checklist-card .checklist-row.is-compact .checklist-length {
   flex: none;
@@ -658,7 +658,7 @@
 }
 .checklist-card .checklist-view button[aria-pressed='true'] {
   background: var(--ui-primary);
-  color: var(--ui-on-primary, #fff);
+  color: var(--ui-on-primary);
 }
 .checklist-card .checklist-view button:focus-visible {
   outline: 2px solid var(--ui-primary);
@@ -704,7 +704,7 @@
 }
 .checklist-card .checklist-row.is-compact:hover {
   background: var(--ui-surface-2);
-  border-color: #c7d2e0;
+  border-color: var(--ui-border-strong);
 }
 .checklist-card .checklist-row.is-compact.is-removed {
   background: var(--ui-surface-2);
@@ -728,7 +728,7 @@
 /* Expanded (editing) row: highlighted so the user knows which one is open. */
 .checklist-card .checklist-row:not(.is-compact):focus-within {
   border-color: var(--ui-primary);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-primary) 8%, transparent);
   background: var(--ui-surface-2);
 }
 .checklist-card .checklist-row-heading .checklist-done {

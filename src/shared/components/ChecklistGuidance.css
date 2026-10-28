@@ -5,7 +5,7 @@
 }
 .odm-cg > summary {
   cursor: pointer;
-  color: #1d4ed8;
+  color: var(--ui-primary);
   font-weight: 600;
   width: fit-content;
 }
@@ -14,8 +14,8 @@
   gap: 10px;
   margin-top: 8px;
   padding: 10px 12px;
-  border-left: 3px solid #bfdbfe;
-  background: rgba(59, 130, 246, 0.05);
+  border-left: 3px solid var(--ui-primary-soft);
+  background: color-mix(in srgb, var(--ui-primary) 6%, transparent);
   border-radius: 0 8px 8px 0;
 }
 .odm-cg-body h4 {

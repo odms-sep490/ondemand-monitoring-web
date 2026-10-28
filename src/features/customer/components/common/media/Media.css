@@ -33,7 +33,7 @@
 .md-card:hover {
   transform: translateY(-2px);
   border-color: var(--ui-border-strong);
-  box-shadow: 0 12px 28px rgba(17, 24, 39, 0.12);
+  box-shadow: var(--ui-shadow-2);
 }
 
 .md-card:focus-visible {
@@ -84,7 +84,7 @@
 }
 
 .md-kind--video {
-  background: rgba(21, 101, 232, 0.82);
+  background: color-mix(in srgb, var(--ui-primary) 82%, transparent);
 }
 .md-kind--other {
   background: rgba(75, 85, 99, 0.82);

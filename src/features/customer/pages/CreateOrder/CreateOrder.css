@@ -571,12 +571,12 @@ textarea.co-input {
 .co-map-zone {
   position: absolute;
   inset: 0;
-  background: rgba(220, 38, 38, 0.14);
+  background: color-mix(in srgb, var(--ui-danger) 14%, transparent);
   pointer-events: none;
 }
 
 .co-map-zone.is-blocked {
-  background: rgba(220, 38, 38, 0.28);
+  background: color-mix(in srgb, var(--ui-danger) 28%, transparent);
 }
 
 .co-map-circle,
@@ -589,24 +589,24 @@ textarea.co-input {
 
 .co-map-circle {
   border: 2px solid var(--ui-primary);
-  background: rgba(21, 101, 232, 0.16);
+  background: color-mix(in srgb, var(--ui-primary) 16%, transparent);
 }
 
 .co-map-dot {
   width: 14px;
   height: 14px;
   background: var(--ui-primary);
-  box-shadow: 0 0 0 2px rgba(21, 101, 232, 0.24);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--ui-primary) 24%, transparent);
 }
 
 .co-map.has-error .co-map-circle {
   border-color: var(--ui-danger);
-  background: rgba(220, 38, 38, 0.18);
+  background: color-mix(in srgb, var(--ui-danger) 18%, transparent);
 }
 
 .co-map.has-error .co-map-dot {
   background: var(--ui-danger);
-  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.24);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--ui-danger) 24%, transparent);
 }
 
 .co-map-legend {
@@ -627,7 +627,7 @@ textarea.co-input {
   width: 12px;
   height: 12px;
   border-radius: 3px;
-  background: rgba(220, 38, 38, 0.22);
+  background: color-mix(in srgb, var(--ui-danger) 22%, transparent);
   border: 1px solid var(--ui-danger);
 }
 
@@ -772,7 +772,7 @@ textarea.co-input {
 /* Same card look as the order list and order detail pages. */
 .co-page .ant-card {
   border-radius: 16px;
-  box-shadow: 0 1px 2px rgba(15, 40, 90, 0.04);
+  box-shadow: var(--ui-shadow-1);
 }
 
 .co-service-lead {
@@ -861,7 +861,7 @@ textarea.co-input {
 .co-service:hover {
   transform: translateY(-2px);
   border-color: var(--ui-primary);
-  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+  box-shadow: var(--ui-shadow-2);
 }
 
 .co-service:focus-visible {
@@ -1054,7 +1054,7 @@ textarea.co-input {
   background: var(--ui-surface);
   border: 1px solid var(--ui-border);
   border-radius: 16px;
-  box-shadow: 0 1px 2px rgba(15, 40, 90, 0.04);
+  box-shadow: var(--ui-shadow-1);
 }
 
 /* Long summaries (steps 1, 4, 5) just grow with the page; short ones may stay in view. */
@@ -1229,9 +1229,9 @@ textarea.co-input {
 .co-real-map .leaflet-control-layers {
   background: var(--ui-surface);
   color: var(--ui-text);
-  border: 1px solid rgba(148, 163, 184, 0.45);
+  border: 1px solid var(--ui-border);
   border-radius: 8px;
-  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+  box-shadow: var(--ui-shadow-2);
   font: inherit;
 }
 
@@ -1269,13 +1269,13 @@ textarea.co-input {
   z-index: 500;
   max-width: min(360px, calc(100% - 28px));
   padding: 8px 10px;
-  border: 1px solid rgba(180, 83, 9, 0.35);
+  border: 1px solid var(--ui-warning);
   border-radius: 8px;
-  background: rgba(255, 251, 235, 0.96);
+  background: var(--ui-warning-soft);
   color: var(--ui-warning-text);
   font-size: 13px;
   font-weight: 700;
-  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+  box-shadow: var(--ui-shadow-2);
 }
 
 /* ---------- Step 4: review layout ---------- */
@@ -1701,7 +1701,7 @@ textarea.co-input {
   background: var(--ui-surface);
   border: 1px solid var(--ui-border);
   border-radius: 16px;
-  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.1);
+  box-shadow: var(--ui-shadow-2);
 }
 .co-bottom-bar .co-footer {
   flex: 1;
@@ -2322,7 +2322,7 @@ ul.co-help {
   padding: 6px 10px;
   border: 1px solid var(--ui-border);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.94);
+  background: color-mix(in srgb, var(--ui-surface) 94%, transparent);
   font-size: 12px;
   pointer-events: none;
 }
@@ -2339,11 +2339,11 @@ ul.co-help {
 .co-map-key-area {
   border: 2px solid var(--ui-primary);
   border-radius: 50%;
-  background: rgba(21, 101, 232, 0.14);
+  background: color-mix(in srgb, var(--ui-primary) 14%, transparent);
 }
 .co-map-key-zone {
-  border: 2px dashed #dc2626;
-  background: rgba(220, 38, 38, 0.18);
+  border: 2px dashed var(--ui-danger);
+  background: color-mix(in srgb, var(--ui-danger) 18%, transparent);
 }
 .co-map-key-point {
   border-radius: 50%;
@@ -2510,7 +2510,7 @@ ul.co-help {
   cursor: pointer;
 }
 .co-authz-document-title button {
-  color: #b91c1c;
+  color: var(--ui-danger-text);
 }
 .co-authz-document-grid {
   display: grid;
@@ -2525,7 +2525,7 @@ ul.co-help {
   padding: 10px 12px;
   border: 1px dashed var(--ui-border);
   border-radius: 9px;
-  color: #475569;
+  color: var(--ui-text-2);
 }
 .co-authz-confirm {
   display: flex;
@@ -2679,13 +2679,13 @@ ul.co-help {
   border: 1px solid var(--ui-primary-soft);
   border-radius: 10px;
   background: var(--ui-primary-soft);
-  color: #1e3a5f;
+  color: var(--ui-primary-text);
   font-size: 13px;
 }
 .airspace-status.is-warning {
   border-color: var(--ui-warning);
   background: var(--ui-warning-soft);
-  color: #7c2d12;
+  color: var(--ui-warning-text);
 }
 .airspace-status strong {
   font-size: 14px;
@@ -2694,7 +2694,7 @@ ul.co-help {
   display: block;
 }
 .airspace-status a {
-  color: #075fd8;
+  color: var(--ui-primary);
   font-weight: 600;
   text-decoration: none;
   width: max-content;
@@ -2724,7 +2724,7 @@ ul.co-help {
   min-width: 0;
   font-size: 16px;
   font-weight: 800;
-  color: #7a4a00;
+  color: var(--ui-warning-text);
 }
 .co-terms-badge {
   flex: none;
@@ -2738,7 +2738,7 @@ ul.co-help {
 .co-terms-list {
   margin: 0 0 14px;
   padding-left: 20px;
-  color: #5b4a2a;
+  color: var(--ui-text-2);
   font-size: 13.5px;
   line-height: 1.6;
 }
@@ -2746,7 +2746,7 @@ ul.co-help {
   margin-top: 4px;
 }
 .co-terms-list li.is-key {
-  color: #7a2e0b;
+  color: var(--ui-warning-text);
   font-weight: 700;
 }
 .co-terms-check {
@@ -2758,7 +2758,7 @@ ul.co-help {
   font-weight: 700;
 }
 .co-terms-check.has-error {
-  border-color: var(--ui-danger, #d92d20);
+  border-color: var(--ui-danger);
 }
 .co-terms-check-copy {
   display: grid;
@@ -2801,8 +2801,8 @@ ul.co-help {
   margin: 10px 0 0;
 }
 :root[data-theme='dark'] .co-terms-important {
-  background: rgba(245, 158, 11, 0.1);
-  border-color: rgba(245, 158, 11, 0.45);
+  background: color-mix(in srgb, var(--ui-warning) 10%, transparent);
+  border-color: color-mix(in srgb, var(--ui-warning) 45%, transparent);
 }
 :root[data-theme='dark'] .co-terms-title,
 :root[data-theme='dark'] .co-terms-list,
@@ -2895,15 +2895,15 @@ ul.co-help {
 }
 .co-service-grid .co-service:hover {
   transform: none;
-  border-color: #93c5fd;
-  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+  border-color: var(--ui-primary);
+  box-shadow: var(--ui-shadow-2);
 }
 .co-service-grid .co-service.is-active {
   /* Same border width as the idle state so the card never changes size. */
   padding: 14px;
   border-color: var(--ui-primary);
   background: var(--ui-surface-2);
-  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.14);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--ui-primary) 14%, transparent);
 }
 .co-service-grid .co-service-illustration {
   height: 120px;
@@ -3559,11 +3559,11 @@ ul.co-help {
 }
 .co-map-legend .is-monitoring {
   border-color: var(--ui-primary);
-  background: rgba(21, 101, 232, 0.14);
+  background: color-mix(in srgb, var(--ui-primary) 14%, transparent);
 }
 .co-map-legend .is-service {
-  border-color: #16a34a;
-  background: rgba(34, 197, 94, 0.08);
+  border-color: var(--ui-success);
+  background: color-mix(in srgb, var(--ui-success) 10%, transparent);
 }
 .co-map-legend .is-unknown {
   border-color: var(--ui-text-3);
