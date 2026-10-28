@@ -60,7 +60,7 @@ describe('LiveDispatchPage', () => {
     ])
     const assign = vi
       .spyOn(missionApi, 'assignResources')
-      .mockResolvedValue({ ...mission, status: 'WAITING_CREW_CONFIRMATION' })
+      .mockResolvedValue({ ...mission, status: 'READY' })
 
     render(<LiveDispatchPage missionId="mission-1" />)
     await waitFor(() => screen.getByRole('button', { name: 'Tiếp theo' }))
@@ -118,7 +118,7 @@ describe('LiveDispatchPage', () => {
     ])
     const assign = vi
       .spyOn(missionApi, 'assignResources')
-      .mockResolvedValue({ ...mission, status: 'WAITING_CREW_CONFIRMATION' })
+      .mockResolvedValue({ ...mission, status: 'READY' })
 
     render(<LiveDispatchPage missionId="mission-1" />)
     await waitFor(() => screen.getByRole('button', { name: 'Tiếp theo' }))

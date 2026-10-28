@@ -4,7 +4,6 @@ export type MissionStatus =
   | 'WAITING_DEPOSIT'
   | 'READY'
   | 'RESOURCE_ASSIGNING'
-  | 'WAITING_CREW_CONFIRMATION'
   | 'WAITING_OPERATOR_ACCEPTANCE'
   | 'SCHEDULED'
   | 'CONNECTED'
@@ -20,6 +19,8 @@ export type MissionStatus =
   | 'COMPLETED'
   | 'FAILED'
   | 'CANCELLED'
+
+export type MissionResourcePrepareStatus = 'PLANNING' | 'PENDING' | 'READY'
 
 export type DeviceStatus =
   | 'AVAILABLE'

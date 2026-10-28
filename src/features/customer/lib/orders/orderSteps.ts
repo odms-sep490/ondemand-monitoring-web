@@ -23,7 +23,7 @@ export type OrderMissionProgress = {
 }
 
 const PLANNING_COMPLETED_STATUSES = new Set<MissionStatus>([
-  'WAITING_CREW_CONFIRMATION',
+  'READY',
   'WAITING_OPERATOR_ACCEPTANCE',
   'SCHEDULED',
   'CONNECTED',

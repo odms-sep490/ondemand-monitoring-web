@@ -23,7 +23,7 @@ describe('Mission workflow', () => {
 
   it('does not jump back to preparation after a permit is approved', () => {
     expect(
-      missionProgress('WAITING_CREW_CONFIRMATION', 'APPROVED').current,
+      missionProgress('READY', 'APPROVED').current,
     ).toBe('execute')
   })
 })

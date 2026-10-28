@@ -6,6 +6,7 @@ export const missionDetailHelpersMessages = defineMessages({
     minutes: (n: number) => `${n} phút`,
     minutesSeconds: (m: number, s: number) => `${m} phút ${s} giây`,
     checkLabels: {
+      PLANNING: 'Đang lập kế hoạch',
       PASSED: 'Đạt',
       FAILED: 'Không đạt',
       PENDING: 'Chờ kiểm tra',
@@ -25,6 +26,7 @@ export const missionDetailHelpersMessages = defineMessages({
       INSPECTOR: 'Nghiệm thu',
     },
     staffResponses: {
+      PLANNING: 'Đang lập kế hoạch',
       PENDING: 'Chờ phản hồi',
       ACCEPTED: 'Đã chấp nhận',
       REJECTED: 'Đã từ chối',
@@ -35,6 +37,7 @@ export const missionDetailHelpersMessages = defineMessages({
     minutes: (n: number) => `${n} min`,
     minutesSeconds: (m: number, s: number) => `${m} min ${s} sec`,
     checkLabels: {
+      PLANNING: 'Planning',
       PASSED: 'Passed',
       FAILED: 'Failed',
       PENDING: 'Pending check',
@@ -54,6 +57,7 @@ export const missionDetailHelpersMessages = defineMessages({
       INSPECTOR: 'Inspector',
     },
     staffResponses: {
+      PLANNING: 'Planning',
       PENDING: 'Awaiting response',
       ACCEPTED: 'Accepted',
       REJECTED: 'Declined',

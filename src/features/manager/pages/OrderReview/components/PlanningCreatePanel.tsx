@@ -1,7 +1,7 @@
 import { CloseOutlined } from '@ant-design/icons'
+import type { Dispatch, SetStateAction } from 'react'
 import type { usePlanningConfirmation } from '../../../components/common/usePlanningConfirmation'
 import { MissionCreatePage } from '../../MissionCreate/MissionCreatePage'
-import type { Dispatch, SetStateAction } from 'react'
 import type { UseApiQueryState } from '../../../../../shared/hooks/useApiQuery'
 import type { ExecutionPlan } from '../../../types/planning'
 import type { MissionResponse } from '../../../types/missions'
@@ -15,16 +15,12 @@ export function PlanningCreatePanel({
   confirmation,
   setCreating,
   orderId,
-  creating,
   setSelectedId,
   query,
 }: {
   confirmation: ReturnType<typeof usePlanningConfirmation>
-  setCreating: Dispatch<
-    SetStateAction<{ replacesMissionId?: string | undefined } | null>
-  >
+  setCreating: Dispatch<SetStateAction<{} | null>>
   orderId: string
-  creating: { replacesMissionId?: string | undefined }
   setSelectedId: Dispatch<SetStateAction<string | null>>
   query: UseApiQueryState<{
     plan: ExecutionPlan
@@ -52,8 +48,9 @@ export function PlanningCreatePanel({
                 body: t.confirmBody,
                 action: t.confirmAction,
               })
-            )
+            ) {
               setCreating(null)
+            }
           }}
         >
           <CloseOutlined aria-hidden="true" />
@@ -64,7 +61,6 @@ export function PlanningCreatePanel({
         <p className="mgr-muted">{t.intro}</p>
         <MissionCreatePage
           orderId={orderId}
-          replacesMissionId={creating.replacesMissionId}
           onCreated={(id) => {
             setSelectedId(id)
             setCreating(null)

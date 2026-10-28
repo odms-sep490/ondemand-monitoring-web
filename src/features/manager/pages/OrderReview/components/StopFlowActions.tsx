@@ -15,7 +15,6 @@ export function StopFlowActions({
   setIntent,
   query,
   missionCode,
-  draft,
 }: {
   stop: SafeStop
   requested: boolean
@@ -23,10 +22,9 @@ export function StopFlowActions({
   missionId: string
   allowed: boolean
   triggerRef: RefObject<HTMLButtonElement | null>
-  setIntent: Dispatch<SetStateAction<'cancel' | 'replace' | null>>
+  setIntent: Dispatch<SetStateAction<'cancel' | null>>
   query: UseApiQueryState<SafeStop>
   missionCode: string
-  draft: boolean
 }) {
   const { t } = useI18n(stopFlowActionsMessages)
   return (
@@ -43,19 +41,6 @@ export function StopFlowActions({
           }}
         >
           {t.cancelMission(missionCode)}
-        </Button>
-      )}
-      {draft && (stop?.canCancelMission === true || relevant) && (
-        <Button
-          data-stop-trigger={`${missionId}:replace`}
-          disabled={!allowed}
-          onClick={(event) => {
-            triggerRef.current = event.currentTarget
-            setIntent('replace')
-            query.reload()
-          }}
-        >
-          {t.replaceMission(missionCode)}
         </Button>
       )}
     </div>

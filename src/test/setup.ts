@@ -46,5 +46,9 @@ if (typeof window !== 'undefined' && !('ResizeObserver' in window)) {
     unobserve() {}
     disconnect() {}
   }
-  window.ResizeObserver = ResizeObserverStub as unknown as typeof ResizeObserver
+  Object.defineProperty(window, 'ResizeObserver', {
+    configurable: true,
+    writable: true,
+    value: ResizeObserverStub,
+  })
 }

@@ -182,6 +182,7 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
             onAssignResources={setAssigningMissionId}
             onWorkflowInfo={setPlanning}
             activeTab={activeWorkflowTab}
+            onBackToPlanning={() => setActiveWorkflowTab('planning')}
           />
         </div>
       )}

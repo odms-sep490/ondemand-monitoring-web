@@ -41,9 +41,9 @@ export function StopFlowPanel({
   stop: SafeStop
   requested: boolean
   refresh: () => void
-  setIntent: Dispatch<SetStateAction<'cancel' | 'replace' | null>>
+  setIntent: Dispatch<SetStateAction<'cancel' | null>>
   missionId: string
-  intent: 'cancel' | 'replace'
+  intent: 'cancel'
   triggerRef: RefObject<HTMLButtonElement | null>
   reason: string
   nextAction: 'cancel' | 'request' | 'cleanup' | null
@@ -105,9 +105,6 @@ export function StopFlowPanel({
                 <p className="mission-stop__guidance">{t.crewResponsible}</p>
               )}
             </>
-          )}
-          {intent === 'replace' && (
-            <p className="mission-stop__guidance">{t.afterCancel}</p>
           )}
           {requested ? (
             <dl className="mission-stop__reason">

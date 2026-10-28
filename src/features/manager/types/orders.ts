@@ -5,6 +5,7 @@
 // truth) plus `AiVerdict` (brief A4).
 import type {
   AiVerdict,
+  FindingSeverity,
   OrderStatus,
   RequiredEvidenceType,
 } from '../../../shared/types/domain'
@@ -100,6 +101,7 @@ export type OrderDetail = {
   addressText: string | null
   center: { lat: number; lon: number } | null
   radiusM: number | null
+  nearestBase?: string | null
   mediaRequirements: OrderMediaRequirement[] | null
   purpose: string | null
   attachments: OrderAttachment[] | null
@@ -155,6 +157,44 @@ export type FlightAreaReviewRequest = {
   note?: string | null
 }
 
+export type FindingCustomerAction = 'ACCEPTED' | 'IGNORED' | 'AUTO_FIXED' | null
+
+export type AnalysisFinding = {
+  severity: FindingSeverity
+  message: string
+  evidence: Record<string, string>
+  customerAction: FindingCustomerAction
+}
+
+export type OrderAnalysis = {
+  overallVerdict: AiVerdict
+  blockerCount: number
+  warningCount: number
+  ruleEngineMs: number | null
+  createdAt: string | null
+  llmSummary: string | null
+  findings: AnalysisFinding[]
+}
+
+export type ResourceCandidate = {
+  name: string
+  score: number
+  distanceLabel: string
+}
+
+export type OrderResourcePreview = {
+  eligibleDroneCount: number
+  eligiblePilotCount: number
+  topDrones: ResourceCandidate[]
+  topPilots: ResourceCandidate[]
+}
+
+export type OrderInternalNote = {
+  note: string
+  authorName: string
+  updatedAt: string
+}
+
 /**
  * Read-only projection of an APPROVED / IN_PROGRESS order, built client-side
  * from `GET /api/orders/{id}` to prefill CreateMissionPage (MNG-04).
@@ -173,6 +213,7 @@ export type OrderMissionBrief = {
   addressText: string | null
   center: { lat: number; lon: number } | null
   radiusM: number | null
+  nearestBase?: string | null
   mediaRequirements: OrderMediaRequirement[] | null
 }
 

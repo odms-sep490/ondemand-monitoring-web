@@ -69,7 +69,7 @@ describe('buildOrderSteps', () => {
     const steps = buildOrderSteps('APPROVED', [created, approved], {
       quote: { status: 'ACCEPTED_BY_CUSTOMER', approvedAt: null, acceptedAt: '2026-09-29T02:00:00Z' },
       invoice: { depositAmount: 1_000_000, paidAmount: 1_000_000, issuedAt: '2026-09-29T03:00:00Z' },
-    }, [{ status: 'WAITING_CREW_CONFIRMATION', scheduledStartAt: '2026-10-21T01:00:00Z' }])
+    }, [{ status: 'READY', scheduledStartAt: '2026-10-21T01:00:00Z' }])
 
     expect(states(steps)).toEqual([
       'submitted:done', 'approved:done', 'quote:done', 'deposit:done',

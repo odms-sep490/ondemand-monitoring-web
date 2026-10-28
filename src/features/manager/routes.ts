@@ -72,7 +72,11 @@ export function parseManagerRoute(hash: string): ManagerRoute {
       if (tail.length === 2 && tail[1] === 'mission')
         return { screen: 'missionCreate', orderId: tail[0] }
       if (tail.length === 3 && tail[1] === 'replacement')
-        return { screen: 'missionCreate', orderId: tail[0], replacesMissionId: tail[2] }
+        return {
+          screen: 'missionCreate',
+          orderId: tail[0],
+          replacesMissionId: tail[2],
+        }
       if (tail.length === 0) return { screen: 'orderQueue' }
       return { screen: 'notFound' }
     }

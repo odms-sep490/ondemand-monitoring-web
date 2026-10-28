@@ -103,7 +103,6 @@ function renderScreen(
     return (
       <MissionCreatePage
         orderId={route.orderId}
-        replacesMissionId={route.replacesMissionId}
       />
     )
   if (route.screen === 'missionDispatch')
