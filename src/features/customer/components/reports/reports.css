@@ -435,13 +435,13 @@
   align-self: flex-start;
   margin-top: auto;
 }
-.cr-status--completed { background: var(--ui-success-soft); color: #166534; }
+.cr-status--completed { background: var(--ui-success-soft); color: var(--ui-success-text); }
 .cr-status--active { background: var(--ui-primary-soft); color: var(--ui-primary); }
-.cr-status--review { background: var(--ui-primary-soft); color: #3730a3; }
-.cr-status--scheduled { background: var(--ui-primary-soft); color: #075985; }
-.cr-status--waiting { background: var(--ui-warning-soft); color: #92560a; }
+.cr-status--review { background: var(--ui-primary-soft); color: var(--ui-primary-text); }
+.cr-status--scheduled { background: var(--ui-primary-soft); color: var(--ui-primary-text); }
+.cr-status--waiting { background: var(--ui-warning-soft); color: var(--ui-warning-text); }
 .cr-status--failed,
-.cr-status--cancelled { background: var(--ui-danger-soft); color: #991b1b; }
+.cr-status--cancelled { background: var(--ui-danger-soft); color: var(--ui-danger-text); }
 .cr-metrics {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
