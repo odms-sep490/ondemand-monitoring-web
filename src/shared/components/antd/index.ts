@@ -1,7 +1,9 @@
 export { CardComponent } from './CardComponent'
 export { StatisticComponent } from './StatisticComponent'
 export { TableComponent } from './TableComponent'
-export { CalendarComponent, type CalendarView } from './CalendarComponent'
+// CalendarComponent (FullCalendar, ~260 kB) is intentionally not re-exported here so that
+// importing any other shared component does not pull FullCalendar into the bundle.
+export type { CalendarView } from './CalendarComponent'
 export { usePagedGrid } from './GridPagination'
 export { useTablePagination } from './tablePagination'
 export { ShowMoreList } from './ShowMoreList'

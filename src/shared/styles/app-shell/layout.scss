@@ -1,5 +1,4 @@
 @use 'mgr';
-@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&subset=vietnamese,latin,latin-ext&display=swap');
 
 /*
  * Manager shell: flat white sider, solid header, light slate page.
@@ -391,7 +390,6 @@ $primary: #1565e8;
     padding: 0 24px;
     line-height: 1;
     background: color-mix(in srgb, var(--mgr-card) 82%, transparent);
-    backdrop-filter: saturate(1.4) blur(12px);
     border-bottom: 1px solid var(--mgr-border);
     box-shadow: 0 1px 0 rgb(15 27 61 / 3%);
   }

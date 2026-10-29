@@ -4,7 +4,7 @@ import type { EventContentArg, EventInput } from '@fullcalendar/core'
 import {
   CalendarComponent,
   type CalendarView,
-} from '../../../../../shared/components/antd'
+} from '../../../../../shared/components/antd/CalendarComponent'
 import { toStatusTagTone } from '../../../components/common/StatusTag'
 import { missionStatusTone } from '../../../../../shared/lib/statusTone'
 import type { MissionCalendarItem } from '../../../types/missions'

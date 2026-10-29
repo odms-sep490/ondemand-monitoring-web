@@ -1,29 +1,53 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 
 import { FileSearchOutlined } from '@ant-design/icons'
 import { Button } from 'antd'
 
 import { CardComponent } from '../../shared/components/antd'
+import { Skeleton } from '../../shared/components/ui'
 import { useApiQuery } from '../../shared/hooks/useApiQuery'
 import { managerApi } from './api/dashboardApi'
 import { ManagerLayout } from './ManagerLayout'
-import { MissionCreatePage } from './pages/MissionCreate'
 import { DashboardPage } from './pages/Dashboard'
-import { MissionDispatchPage } from './pages/MissionDispatch'
-import { DronesPage } from './pages/Drones'
-import { MaintenancePage } from './pages/Maintenance'
-import { MissionDetailPage } from './pages/MissionDetail'
-import { MissionsPage } from './pages/Missions'
-import { OrderReviewPage } from './pages/OrderReview'
 import { OrderQueuePage } from './pages/OrderQueue'
-import { OrderResultsPage } from './pages/OrderResults'
-import { SchedulePage } from './pages/Schedule'
-import { StaffSupportDashboardPage } from '../support/pages/StaffSupportDashboardPage'
 import { managerHref, parseManagerRoute, type ManagerRoute } from './routes'
 import { useI18n } from '../../shared/i18n'
 import { managerLayoutMessages } from './ManagerLayout.messages'
 import { EmptyState } from './components/common/EmptyState'
 import { ManagerErrorBoundary } from './components/common/ManagerErrorBoundary'
+
+// Non-landing screens are split out so the dashboard (the manager's first screen)
+// does not download maps, the calendar and every other page up front.
+const MissionCreatePage = lazy(() =>
+  import('./pages/MissionCreate').then((m) => ({ default: m.MissionCreatePage })),
+)
+const MissionDispatchPage = lazy(() =>
+  import('./pages/MissionDispatch').then((m) => ({ default: m.MissionDispatchPage })),
+)
+const DronesPage = lazy(() =>
+  import('./pages/Drones').then((m) => ({ default: m.DronesPage })),
+)
+const MaintenancePage = lazy(() =>
+  import('./pages/Maintenance').then((m) => ({ default: m.MaintenancePage })),
+)
+const MissionDetailPage = lazy(() =>
+  import('./pages/MissionDetail').then((m) => ({ default: m.MissionDetailPage })),
+)
+const MissionsPage = lazy(() =>
+  import('./pages/Missions').then((m) => ({ default: m.MissionsPage })),
+)
+const OrderReviewPage = lazy(() =>
+  import('./pages/OrderReview').then((m) => ({ default: m.OrderReviewPage })),
+)
+const OrderResultsPage = lazy(() =>
+  import('./pages/OrderResults').then((m) => ({ default: m.OrderResultsPage })),
+)
+const SchedulePage = lazy(() =>
+  import('./pages/Schedule').then((m) => ({ default: m.SchedulePage })),
+)
+const StaffSupportDashboardPage = lazy(() =>
+  import('../support/pages/StaffSupportDashboardPage').then((m) => ({ default: m.StaffSupportDashboardPage })),
+)
 
 function useHash(): string {
   const [hash, setHash] = useState(() => window.location.hash)
@@ -83,9 +107,20 @@ export function ManagerApp() {
       counts={counts}
     >
       <ManagerErrorBoundary resetKey={hash}>
-        {renderScreen(route, t.notFound)}
+        <Suspense fallback={<ScreenFallback />}>
+          {renderScreen(route, t.notFound)}
+        </Suspense>
       </ManagerErrorBoundary>
     </ManagerLayout>
+  )
+}
+
+function ScreenFallback() {
+  return (
+    <div className="mgr-page" role="status" aria-busy="true">
+      <Skeleton variant="block" height={56} />
+      <Skeleton variant="block" height={320} />
+    </div>
   )
 }
 

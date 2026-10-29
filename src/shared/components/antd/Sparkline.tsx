@@ -1,40 +1,21 @@
-import { useId } from 'react'
-import { Area, AreaChart, ResponsiveContainer } from 'recharts'
+import { lazy, Suspense } from 'react'
 
-const STROKE = {
-  blue: '#1565E8',
-  green: '#16A34A',
-  amber: '#F59E0B',
-  violet: '#7C3AED',
-  red: '#DC2626',
-  cyan: '#0891B2',
-} as const
+// recharts is ~400 kB: load it only when a stat tile actually renders a sparkline,
+// so screens without trend tiles (and the first paint of every portal) skip it.
+const SparklineChart = lazy(() =>
+  import('./SparklineChart').then((m) => ({ default: m.SparklineChart })),
+)
+
+type SparklineProps = {
+  values: number[]
+  tone: 'blue' | 'green' | 'amber' | 'violet' | 'red' | 'cyan'
+}
 
 /** Decorative mini area chart; the figure itself carries the accessible value. */
-export function Sparkline({ values, tone }: { values: number[]; tone: keyof typeof STROKE }) {
-  const id = useId().replace(/:/g, '')
-  const data = values.map((v, i) => ({ i, v }))
+export function Sparkline(props: SparklineProps) {
   return (
-    <div className="mgr-spark" aria-hidden="true">
-      <ResponsiveContainer width="100%" height={36}>
-        <AreaChart data={data} margin={{ top: 2, right: 0, bottom: 0, left: 0 }}>
-          <defs>
-            <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={STROKE[tone]} stopOpacity={0.35} />
-              <stop offset="100%" stopColor={STROKE[tone]} stopOpacity={0} />
-            </linearGradient>
-          </defs>
-          <Area
-            type="monotone"
-            dataKey="v"
-            stroke={STROKE[tone]}
-            strokeWidth={2}
-            fill={`url(#${id})`}
-            isAnimationActive={false}
-            dot={false}
-          />
-        </AreaChart>
-      </ResponsiveContainer>
-    </div>
+    <Suspense fallback={<div className="mgr-spark" aria-hidden="true" />}>
+      <SparklineChart {...props} />
+    </Suspense>
   )
 }

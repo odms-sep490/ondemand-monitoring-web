@@ -279,6 +279,9 @@
   font: inherit;
   text-align: left;
   cursor: pointer;
+  /* Long operator/device lists: skip layout and paint of rows scrolled out of the panel. */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 62px;
 }
 
 .mgr-layout .mgr-pk-option.is-active {
