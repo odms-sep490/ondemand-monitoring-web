@@ -15,10 +15,11 @@ export const adminLayoutMessages = defineMessages({
     closeNav: 'Đóng điều hướng',
     openNav: 'Mở điều hướng',
     search: 'Tìm kiếm',
-    searchPlaceholder: 'Tìm mã đơn, mission, drone...',
+    searchPlaceholder: 'Tìm mã đơn, nhiệm vụ, thiết bị...',
     toggleTheme: 'Đổi giao diện sáng / tối',
     notifications: 'Thông báo',
-    admin: 'Admin',
+    admin: 'Quản trị viên',
+    adminRole: 'Quản trị viên',
   },
   en: {
     nav: 'Admin navigation',
@@ -38,5 +39,6 @@ export const adminLayoutMessages = defineMessages({
     toggleTheme: 'Switch to light / dark theme',
     notifications: 'Notifications',
     admin: 'Admin',
+    adminRole: 'Administrator',
   },
 })

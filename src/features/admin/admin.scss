@@ -1,0 +1,392 @@
+/*
+ * Admin portal (`.odm.odm-adm.mgr-layout`): page-level helpers only. The shell,
+ * cards, tables, tags, filter bar and popups come from shared/styles/app-shell;
+ * colours come from the antd theme and the --mgr-* tokens (no hard-coded values).
+ */
+
+.odm-adm-content-inner {
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  min-width: 0;
+}
+
+.mgr-layout.odm-adm {
+  .mgr-view {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+  }
+
+  .mgr-card .ant-card-head-wrapper {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .mgr-card,
+  .ant-table-wrapper {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  /* ---------- Generic helpers ---------- */
+  .adm-wrap {
+    overflow-wrap: anywhere;
+    min-width: 0;
+  }
+
+  .adm-mono {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .adm-row,
+  .adm-row-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .adm-card-hint {
+    margin: 0 0 12px;
+    color: var(--mgr-muted);
+  }
+
+  .adm-modal-gap {
+    margin-top: 12px;
+  }
+
+  .adm-narrow {
+    max-width: 880px;
+  }
+
+  .adm-card-title {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .adm-card-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .adm-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .adm-section-block {
+    min-width: 0;
+  }
+
+  .adm-section-title {
+    margin: 0 0 8px;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--mgr-text);
+  }
+
+  /* ---------- Filters ---------- */
+  .adm-filter-select {
+    min-width: 160px;
+  }
+
+  .adm-filter-date {
+    width: 150px;
+  }
+
+  .adm-inline-input {
+    min-width: 120px;
+  }
+
+  .adm-col-desc {
+    max-width: 320px;
+  }
+
+  /* ---------- Tabs (antd Tabs sitting between page blocks) ---------- */
+  .adm-tabs {
+    .ant-tabs-nav {
+      margin: 0;
+    }
+  }
+
+  .adm-tab-count {
+    margin-left: 8px;
+    padding: 0 7px;
+    border-radius: 999px;
+    font-size: 11.5px;
+    font-variant-numeric: tabular-nums;
+    background: var(--mgr-card-2);
+    border: 1px solid var(--mgr-border);
+    color: var(--mgr-muted);
+  }
+
+  /* ---------- Tables ---------- */
+  .adm-cell-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .adm-list-link {
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    font-weight: 600;
+    text-align: left;
+    color: var(--mgr-text);
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .adm-service-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .adm-service-thumbnail {
+    flex: none;
+    width: 56px;
+    height: 56px;
+    border-radius: 10px;
+    object-fit: cover;
+    border: 1px solid var(--mgr-border);
+  }
+
+  .adm-service-description {
+    max-width: 520px;
+    line-height: 1.5;
+  }
+
+  .service-row-actions {
+    justify-content: flex-end;
+  }
+
+  /* ---------- Dashboard ---------- */
+  .adm-grid-wide {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr));
+    gap: 16px;
+  }
+
+  .adm-bar-list {
+    display: grid;
+    gap: 12px;
+  }
+
+  .adm-bar-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 2px;
+  }
+
+  .adm-role-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
+    gap: 16px;
+  }
+
+  .adm-role-desc {
+    margin: 0 0 12px;
+    color: var(--mgr-muted);
+  }
+
+  .adm-role-count {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--mgr-text);
+  }
+
+  /* ---------- Modals and forms ---------- */
+  .ant-modal .ant-modal-body {
+    max-height: calc(100vh - 210px);
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .mgr-modal-sub {
+    margin: 0 0 12px;
+    color: var(--mgr-muted);
+    overflow-wrap: anywhere;
+  }
+
+  .adm-form-pair {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 12px;
+  }
+
+  .adm-choice-list {
+    display: grid;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .adm-choice {
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    padding: 10px 12px;
+    border: 1px solid var(--mgr-border);
+    border-radius: 10px;
+    background: var(--mgr-card-2);
+  }
+
+  .adm-choice-text {
+    display: grid;
+    gap: 4px;
+
+    small {
+      color: var(--mgr-muted);
+      font-size: 12px;
+    }
+  }
+
+  .adm-check-hint {
+    display: block;
+    color: var(--mgr-muted);
+  }
+
+  .adm-section {
+    margin-bottom: 16px;
+  }
+
+  .adm-identity {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  .adm-chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .adm-readonly-note {
+    margin: 6px 0 0;
+    font-size: 12px;
+    color: var(--mgr-muted);
+  }
+
+  .adm-service-image {
+    display: grid;
+    gap: 8px;
+    justify-items: start;
+
+    img {
+      max-width: 180px;
+      max-height: 120px;
+      border-radius: 10px;
+      border: 1px solid var(--mgr-border);
+      object-fit: cover;
+    }
+  }
+
+  .adm-service-price-check {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 16px;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid var(--mgr-border);
+    background: var(--mgr-card-2);
+  }
+
+  /* ---------- Operating configuration ---------- */
+  .adm-weight-row {
+    display: grid;
+    grid-template-columns: minmax(120px, 220px) minmax(0, 1fr) 56px;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .adm-weight-value {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .adm-weight-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  /* ---------- Audit log ---------- */
+  .adm-json-block {
+    margin-top: 12px;
+  }
+
+  .adm-json-label {
+    margin-bottom: 6px;
+  }
+
+  .adm-json {
+    margin: 0;
+    padding: 12px;
+    max-height: 240px;
+    overflow: auto;
+    border-radius: 10px;
+    border: 1px solid var(--mgr-border);
+    background: var(--mgr-card-2);
+    color: var(--mgr-text);
+    font-size: 12.5px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (max-width: 640px) {
+  .mgr-layout.odm-adm {
+    .adm-form-pair {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .adm-weight-row {
+      grid-template-columns: minmax(0, 1fr) 48px;
+
+      .adm-weight-label {
+        grid-column: 1 / -1;
+      }
+    }
+
+    .adm-filter-select,
+    .adm-filter-date {
+      width: 100%;
+    }
+
+    .adm-service-thumbnail {
+      width: 44px;
+      height: 44px;
+    }
+  }
+}
+
+.mgr-layout.odm-adm .adm-tag-stack {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}

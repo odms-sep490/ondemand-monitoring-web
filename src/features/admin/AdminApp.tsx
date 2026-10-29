@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 
+import { CardComponent, EmptyState } from '../../shared/components/antd'
 import { useApiQuery } from '../../shared/hooks/useApiQuery'
 import { useI18n } from '../../shared/i18n'
 import { adminAppMessages } from './AdminApp.messages'
@@ -51,9 +52,9 @@ function renderScreen(route: AdminRoute, notFoundText: string) {
       return <AuditLogPage />
     default:
       return (
-        <div style={{ padding: 40, textAlign: 'center', color: 'var(--tx3)' }}>
-          {notFoundText}
-        </div>
+        <CardComponent>
+          <EmptyState title={notFoundText} />
+        </CardComponent>
       )
   }
 }
