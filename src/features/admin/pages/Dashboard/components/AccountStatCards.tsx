@@ -1,31 +1,42 @@
+import { CheckCircleOutlined, LockOutlined, TeamOutlined } from '@ant-design/icons'
+
+import { StatisticComponent } from '../../../../../shared/components/antd'
 import { useI18n } from '../../../../../shared/i18n'
-import { StatCard } from '../../../../../shared/components/ui'
 import type { AccountStats } from '../accountStats'
 import { adminDashboardPageMessages } from '../AdminDashboardPage.messages'
-
-const SKELETON = <span className="adm-skeleton" aria-busy="true" />
 
 /** KPI row: total / active / locked, values from the BE (`null` = loading). */
 export function AccountStatCards({ stats }: { stats: AccountStats | null | undefined }) {
   const { t } = useI18n(adminDashboardPageMessages)
+  const loading = !stats
   return (
-    <div className="adm-grid">
-      <StatCard
-        label={t.totalAccounts}
-        value={stats ? stats.total : SKELETON}
+    <div className="mgr-kpi-strip">
+      <StatisticComponent
+        index={0}
+        title={t.totalAccounts}
+        icon={<TeamOutlined aria-hidden="true" aria-label={undefined} />}
+        tone="blue"
+        value={stats?.total ?? 0}
+        loading={loading}
         hint={t.systemWide}
       />
-      <StatCard
-        label={t.active}
-        value={stats ? stats.active : SKELETON}
+      <StatisticComponent
+        index={1}
+        title={t.active}
+        icon={<CheckCircleOutlined aria-hidden="true" aria-label={undefined} />}
+        tone="green"
+        value={stats?.active ?? 0}
+        loading={loading}
         hint={t.accountsUnit}
-        tone="success"
       />
-      <StatCard
-        label={t.locked}
-        value={stats ? stats.locked : SKELETON}
+      <StatisticComponent
+        index={2}
+        title={t.locked}
+        icon={<LockOutlined aria-hidden="true" aria-label={undefined} />}
+        tone={stats && stats.locked > 0 ? 'amber' : 'violet'}
+        value={stats?.locked ?? 0}
+        loading={loading}
         hint={t.accountsUnit}
-        tone={stats && stats.locked > 0 ? 'warning' : 'default'}
       />
     </div>
   )

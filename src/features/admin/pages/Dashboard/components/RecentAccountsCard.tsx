@@ -1,56 +1,48 @@
+import { Avatar, List } from 'antd'
+
+import { CardComponent, StatusTag } from '../../../../../shared/components/antd'
 import { useI18n } from '../../../../../shared/i18n'
-import type { AdminAccountItem } from '../../../types/accounts'
-import { Card } from '../../../../../shared/components/ui'
-import { MockDataBadge } from '../../../../../shared/components/ui'
-import {
-  StatusBadge,
-  toUiTone,
-} from '../../../../../shared/components/ui'
+import { MockDataTag } from '../../../components/common/MockDataTag'
 import { fmtDate, getAccountStatusMeta } from '../../../lib/accountStatus'
 import { adminHref } from '../../../routes'
+import type { AdminAccountItem } from '../../../types/accounts'
 import { adminDashboardPageMessages } from '../AdminDashboardPage.messages'
 
 /** Latest accounts: still backed by the mock dashboard endpoint. */
-export function RecentAccountsCard({
-  accounts,
-}: {
-  accounts: AdminAccountItem[]
-}) {
+export function RecentAccountsCard({ accounts }: { accounts: AdminAccountItem[] }) {
   const { t, lang } = useI18n(adminDashboardPageMessages)
   return (
-    <Card
+    <CardComponent
       title={
-        <>
-          {t.latestAccounts} <MockDataBadge />
-        </>
+        <span className="adm-card-title">
+          <h3 className="mgr-card-title">{t.latestAccounts}</h3>
+          <MockDataTag />
+        </span>
       }
-      actions={<a href={adminHref({ screen: 'accounts' })}>{t.viewAll}</a>}
+      extra={<a href={adminHref({ screen: 'accounts' })}>{t.viewAll}</a>}
     >
-      <div className="adm-list">
-        {accounts.map((acc) => {
+      <List
+        dataSource={accounts}
+        rowKey="id"
+        renderItem={(acc) => {
           const meta = getAccountStatusMeta(acc.status, lang)
           return (
-            <div key={acc.id} className="adm-list-row">
-              <div className="odm-adm-avatar" aria-hidden="true">
-                {(acc.fullName[0] ?? '?').toUpperCase()}
-              </div>
-              <div className="adm-list-main">
-                <a
-                  className="adm-list-link"
-                  href={adminHref({
-                    screen: 'accountDetail',
-                    accountId: acc.id,
-                  })}
-                >
-                  {acc.fullName}
-                </a>
-                <div className="adm-list-sub">{fmtDate(acc.createdAt, lang)}</div>
-              </div>
-              <StatusBadge tone={toUiTone(meta.tone)}>{meta.label}</StatusBadge>
-            </div>
+            <List.Item extra={<StatusTag tone={meta.tone}>{meta.label}</StatusTag>}>
+              <List.Item.Meta
+                avatar={
+                  <Avatar aria-hidden="true">{(acc.fullName[0] ?? '?').toUpperCase()}</Avatar>
+                }
+                title={
+                  <a href={adminHref({ screen: 'accountDetail', accountId: acc.id })}>
+                    {acc.fullName}
+                  </a>
+                }
+                description={fmtDate(acc.createdAt, lang)}
+              />
+            </List.Item>
           )
-        })}
-      </div>
-    </Card>
+        }}
+      />
+    </CardComponent>
   )
 }
