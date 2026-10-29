@@ -1,9 +1,8 @@
 import { useMemo, useState } from 'react'
 
-import {
-  EmptyState,
-  LoadingState,
-} from '../../../../shared/components/odm/StateView'
+import { Skeleton } from 'antd'
+
+import { CardComponent, ErrorState } from '../../../../shared/components/antd'
 import { useI18n } from '../../../../shared/i18n'
 import { useActiveMission } from '../../api/useActiveMission'
 import { type FlightControlStatus } from '../../api/flightControlApi'
@@ -114,11 +113,21 @@ export function PostflightPage({ missionId }: { missionId?: string }) {
       setTicketCreated,
     })
 
-  if (loading) return <LoadingState />
+  if (loading)
+    return (
+      <div className="stf-stack" aria-busy="true">
+        <CardComponent>
+          <Skeleton active paragraph={{ rows: 1 }} />
+        </CardComponent>
+        <CardComponent>
+          <Skeleton active paragraph={{ rows: 6 }} />
+        </CardComponent>
+      </div>
+    )
 
   if (queryError || !effectiveMissionId) {
     return (
-      <EmptyState
+      <ErrorState
         title={t.missionNotFoundTitle}
         description={String(queryError || t.missionNotFoundDesc)}
       />
@@ -137,7 +146,7 @@ export function PostflightPage({ missionId }: { missionId?: string }) {
   }
 
   return (
-    <div className="odm-card" style={{ marginBottom: 0 }}>
+    <CardComponent styles={{ body: { padding: 0 } }}>
       <PostflightHeader
         missionLabel={missionLabel}
         postflightMissions={postflightMissions}
@@ -146,8 +155,8 @@ export function PostflightPage({ missionId }: { missionId?: string }) {
         deviceLabel={deviceLabel}
       />
 
-      <div style={{ padding: '24px 28px', maxWidth: 880, margin: '0 auto' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div className="stf-pad stf-narrow">
+        <div className="stf-stack">
           {error && <PostflightErrorBanner error={error} />}
 
           {telemetrySnapshot && (
@@ -163,7 +172,7 @@ export function PostflightPage({ missionId }: { missionId?: string }) {
           />
 
           {/* Inspection Item Categories */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+          <div className="stf-stack">
             {categories.map((cat) => (
               <InspectionCategory
                 key={cat.title}
@@ -210,6 +219,6 @@ export function PostflightPage({ missionId }: { missionId?: string }) {
           onConfirm={handleCreateTicket}
         />
       )}
-    </div>
+    </CardComponent>
   )
 }

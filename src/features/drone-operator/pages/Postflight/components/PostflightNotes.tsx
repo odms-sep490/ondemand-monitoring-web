@@ -1,6 +1,9 @@
-import { postflightPageMessages } from '../PostflightPage.messages'
-import { useI18n } from '../../../../../shared/i18n'
+import { Input } from 'antd'
 import type { Dispatch, SetStateAction } from 'react'
+
+import { CardComponent } from '../../../../../shared/components/antd'
+import { useI18n } from '../../../../../shared/i18n'
+import { postflightPageMessages } from '../PostflightPage.messages'
 
 export function PostflightNotes({
   notes,
@@ -11,37 +14,25 @@ export function PostflightNotes({
 }) {
   const { t } = useI18n(postflightPageMessages)
   return (
-    <div
-      style={{
-        background: 'var(--sf, #fff)',
-        border: '1.5px solid var(--bd, #e2e8f0)',
-        borderRadius: 14,
-        padding: 16,
-      }}
-    >
+    <CardComponent>
       <label
+        htmlFor="postflight-notes"
         style={{
-          fontWeight: 700,
-          fontSize: 14,
           display: 'block',
           marginBottom: 8,
+          fontWeight: 700,
+          fontSize: 14,
         }}
       >
         {t.notesLabel}
       </label>
-      <textarea
-        className="odm-input"
+      <Input.TextArea
+        id="postflight-notes"
         rows={3}
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
         placeholder={t.notesPlaceholder}
-        style={{
-          width: '100%',
-          resize: 'vertical',
-          borderRadius: 8,
-          padding: 10,
-        }}
       />
-    </div>
+    </CardComponent>
   )
 }

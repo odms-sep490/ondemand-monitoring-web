@@ -1,6 +1,8 @@
-import { postflightPageMessages } from '../PostflightPage.messages'
+import { Button } from 'antd'
+
 import { useI18n } from '../../../../../shared/i18n'
 import type { PostflightItemKey } from '../../../types/mission'
+import { postflightPageMessages } from '../PostflightPage.messages'
 
 export function PostflightSubmitButton({
   saving,
@@ -15,43 +17,21 @@ export function PostflightSubmitButton({
 }) {
   const { t } = useI18n(postflightPageMessages)
   return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'flex-end',
-        marginTop: 8,
-      }}
-    >
-      <button
-        type="button"
-        className="odm-btn odm-btn-ok"
+    <div className="stf-row" style={{ justifyContent: 'flex-end' }}>
+      <Button
+        type="primary"
+        size="large"
+        danger={failItems.length > 0}
         disabled={saving || !allAssessed}
+        loading={saving}
         onClick={handleComplete}
-        style={{
-          minWidth: 240,
-          height: 46,
-          fontSize: 15,
-          fontWeight: 800,
-          borderRadius: 10,
-          background: !allAssessed
-            ? '#94a3b8'
-            : failItems.length > 0
-              ? '#f59e0b'
-              : 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-          color: '#fff',
-          cursor: !allAssessed || saving ? 'not-allowed' : 'pointer',
-          boxShadow: allAssessed
-            ? '0 4px 14px rgba(16, 185, 129, 0.35)'
-            : 'none',
-          border: 'none',
-        }}
       >
         {saving
           ? t.submitting
           : failItems.length > 0
             ? t.submitAndCreateTicket
             : t.completeFlight}
-      </button>
+      </Button>
     </div>
   )
 }

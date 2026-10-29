@@ -11,17 +11,7 @@ export function TelemetrySummary({
 }) {
   const { t } = useI18n(postflightPageMessages)
   return (
-    <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
-        gap: 10,
-        padding: '12px 14px',
-        borderRadius: 12,
-        background: 'rgba(37, 99, 235, 0.06)',
-        border: '1px solid rgba(37, 99, 235, 0.18)',
-      }}
-    >
+    <div className="stf-metric-grid">
       <TelemetryMetric
         label={t.landingBattery}
         value={formatMetric(telemetrySnapshot.batteryPercent, '%', 1)}
