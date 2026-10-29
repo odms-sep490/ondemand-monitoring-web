@@ -65,7 +65,7 @@ export const maintenancePageMessages = defineMessages({
     resolveSuccess: (ticketCode: string, deviceId: string, status: string) =>
       `Maintenance completed for ticket ${ticketCode}. Device ${deviceId} moved to ${status}!`,
     resolveFailed: 'Could not save the maintenance information',
-    modalTitle: 'Update Repair Report',
+    modalTitle: 'Update repair report',
     modalTicketPrefix: 'Ticket:',
     modalDronePrefix: 'Device:',
     notesLabel: 'Repair details / notes *',

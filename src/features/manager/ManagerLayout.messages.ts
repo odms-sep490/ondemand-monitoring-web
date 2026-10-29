@@ -94,7 +94,7 @@ export const managerLayoutMessages = defineMessages({
       schedule: 'Mission schedule',
       drones: 'Drone fleet',
       maintenance: 'Maintenance',
-      support: 'Support Center',
+      support: 'Support center',
       notFound: 'Not found',
     },
     notFound: {

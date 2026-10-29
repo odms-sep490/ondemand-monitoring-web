@@ -61,7 +61,7 @@ export const staffAssignmentPageMessages = defineMessages({
   en: {
     title: 'Assignments',
     subtitle: 'Assign devices and staff to newly approved missions.',
-    pendingAssignments: 'Pending Assignments',
+    pendingAssignments: 'Pending assignments',
     refresh: 'Refresh',
     loadFailed: 'Failed to load assignments',
     chooseBoth:
@@ -74,8 +74,8 @@ export const staffAssignmentPageMessages = defineMessages({
     missionId: 'Mission ID',
     missionTitle: 'Title',
     customer: 'Customer',
-    selectDrone: 'Select Device',
-    selectOperator: 'Select Staff',
+    selectDrone: 'Select device',
+    selectOperator: 'Select staff',
     staffSectionTitle: 'Staff assignment',
     staffSectionSubtitle:
       'Search and assign people for each role in this mission.',

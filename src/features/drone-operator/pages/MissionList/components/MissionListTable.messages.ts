@@ -71,7 +71,7 @@ export const missionListTableMessages = defineMessages({
       viewResult: 'View result',
       respond: 'Respond',
       start: 'Start',
-      startMission: 'Start Mission',
+      startMission: 'Start mission',
       details: 'Details',
     },
     managerSubmissionLabel: {

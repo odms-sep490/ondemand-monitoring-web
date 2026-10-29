@@ -19,11 +19,11 @@ export const postflightModalMessages = defineMessages({
     defaultNotes:
       'The drone completed the flight safely, no structural damage.',
     title: 'Post-flight Inspection',
-    deviceStatusLabel: 'Device Status After Flight',
+    deviceStatusLabel: 'Device status after flight',
     available: '✅ AVAILABLE (Ready for next mission)',
     idleCharging: '🔋 IDLE_CHARGING (Move to charging station)',
     maintenance: '🔧 MAINTENANCE (Issue found - needs maintenance)',
-    notesLabel: 'Inspection Log Notes',
+    notesLabel: 'Inspection log notes',
     notesPlaceholder: 'Enter note details...',
     cancel: 'Cancel',
     submitting: 'Submitting...',

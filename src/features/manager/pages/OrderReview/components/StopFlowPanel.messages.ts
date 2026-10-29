@@ -48,6 +48,6 @@ export const stopFlowPanelMessages = defineMessages({
     processing: 'Processing…',
     requestStop: 'Request safe stop',
     releaseResources: 'Release resources',
-    cancelMission: 'Cancel Mission',
+    cancelMission: 'Cancel mission',
   },
 })

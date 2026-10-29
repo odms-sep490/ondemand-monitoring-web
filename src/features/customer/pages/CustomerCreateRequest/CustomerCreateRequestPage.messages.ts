@@ -8,7 +8,7 @@ export const customerCreateRequestPageMessages = defineMessages({
     metaErrorTitle: 'Không tải được dữ liệu tạo yêu cầu',
   },
   en: {
-    pageTitle: 'Create Monitoring Request',
+    pageTitle: 'Create monitoring request',
     pageSubtitle:
       'Fill in one quick form: pick a location on the map, the service, schedule and deliverables.',
     metaErrorTitle: 'Unable to load data for creating this request',

@@ -331,7 +331,7 @@ describe('Customer portal i18n (vi -> en)', () => {
     expect(await screen.findByText('Tạo yêu cầu giám sát')).toBeInTheDocument()
     await settled()
     act(() => setLanguage('en'))
-    expect(await screen.findByText('Create Monitoring Request')).toBeInTheDocument()
+    expect(await screen.findByText('Create monitoring request')).toBeInTheDocument()
     await settled()
     fireEvent.click(screen.getByRole('button', { name: 'Submit request' }))
     await settled()

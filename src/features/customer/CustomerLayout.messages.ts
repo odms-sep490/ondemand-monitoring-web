@@ -54,7 +54,7 @@ export const customerLayoutMessages = defineMessages({
     customer: 'Customer',
     helpLink: 'Help & Support',
     supportCrumbs: {
-      help: 'Help Center',
+      help: 'Help center',
       tickets: 'My support tickets',
       ticketDetail: 'Support ticket details',
     },

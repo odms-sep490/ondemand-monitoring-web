@@ -38,7 +38,7 @@ const readyPayload = {
     },
     {
       key: 'MEDIA',
-      name: 'Media Upload',
+      name: 'Media upload',
       status: 'PASS',
       message: 'Media capture pipeline ready',
       critical: false,

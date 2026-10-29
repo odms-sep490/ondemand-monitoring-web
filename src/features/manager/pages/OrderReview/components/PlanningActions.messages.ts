@@ -11,8 +11,8 @@ export const planningActionsMessages = defineMessages({
     assignResourcesFor: 'Phân công nguồn lực cho',
   },
   en: {
-    creating: 'Creating Mission',
-    addMission: 'Add Mission',
+    creating: 'Creating mission',
+    addMission: 'Add mission',
     uncoveredHint: (n: number) =>
       `${n} checklist item(s) are not assigned to any Mission yet. Assign them all before continuing.`,
     nextAssignResources: 'Next: Assign resources',

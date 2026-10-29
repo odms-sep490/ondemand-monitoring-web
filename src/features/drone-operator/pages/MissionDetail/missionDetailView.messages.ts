@@ -140,7 +140,7 @@ export const missionDetailViewMessages = defineMessages({
     runPostflight: 'Postflight check',
     openAcceptanceData: 'Open acceptance data',
     stopFlight: 'Stop the flight',
-    startMission: 'Start Mission',
+    startMission: 'Start mission',
     starting: 'Starting...',
     accepted: 'Accepted',
     openCockpit: 'Open cockpit',

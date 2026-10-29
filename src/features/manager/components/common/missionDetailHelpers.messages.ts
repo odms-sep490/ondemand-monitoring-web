@@ -40,7 +40,7 @@ export const missionDetailHelpersMessages = defineMessages({
     checkLabels: {
       PLANNING: 'Planning',
       PASSED: 'Passed',
-      STALE: 'Stale · cần kiểm tra lại',
+      STALE: 'Stale · needs rechecking',
       FAILED: 'Failed',
       PENDING: 'Pending check',
       CHECKING: 'Checking',

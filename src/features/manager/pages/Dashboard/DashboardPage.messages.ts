@@ -144,7 +144,7 @@ export const dashboardPageMessages = defineMessages({
     age: { now: 'Vừa xong' },
   },
   en: {
-    title: 'Manager Dashboard',
+    title: 'Manager dashboard',
     generatedAt: 'Updated',
     refresh: 'Refresh',
     loadError: 'Could not load dashboard data.',

@@ -36,7 +36,7 @@ export const orderPlanningMessages = defineMessages({
       'Opens a new plan version so the Mission structure can change. History is kept.',
     cancelBody: 'The Mission will be cancelled and kept in history.',
     amendAction: 'Amend plan',
-    cancelAction: 'Cancel Mission',
+    cancelAction: 'Cancel mission',
     finalized: 'The plan was finalized successfully.',
     updated: 'The plan was updated.',
     noInvoice:

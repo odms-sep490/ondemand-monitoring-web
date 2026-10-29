@@ -17,7 +17,7 @@ export const managerMissionStopFlowMessages = defineMessages({
     releaseBody: (code: string) => `Release the device and staff of ${code}.`,
     cancelBody: (code: string) => `Cancel ${code} and keep its history.`,
     releaseAction: 'Release resources',
-    cancelAction: 'Cancel Mission',
+    cancelAction: 'Cancel mission',
     recorded: 'The action has been recorded.',
   },
 })

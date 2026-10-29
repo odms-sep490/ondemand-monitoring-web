@@ -134,7 +134,7 @@ export const missionListPageMessages = defineMessages({
       `${hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`} left`,
     today2: 'Today',
     startFlight: 'Start flight',
-    startMission: 'Start Mission',
+    startMission: 'Start mission',
     details: 'Details',
     connect: 'Connect device',
     precheck: 'Precheck',

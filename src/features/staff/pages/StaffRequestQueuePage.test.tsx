@@ -38,6 +38,6 @@ describe('StaffRequestQueuePage', () => {
         'Review incoming monitoring requests and approve them to create missions.',
       ),
     ).toBeInTheDocument()
-    expect(screen.getByText('Pending Orders')).toBeInTheDocument()
+    expect(screen.getByText('Pending orders')).toBeInTheDocument()
   })
 })

@@ -252,7 +252,7 @@ export const inFlightControlMessages = defineMessages({
   en: {
     controls: {
       takeoff: 'Take off',
-      autoPlan: 'Auto Plan',
+      autoPlan: 'Auto plan',
       land: 'Land',
       eStop: 'E-Stop',
       ascend: 'Ascend',
@@ -286,16 +286,16 @@ export const inFlightControlMessages = defineMessages({
       offlineBody:
         'Start the flight controller terminal to show the camera stream.',
     },
-    missionProgress: 'Mission Progress',
+    missionProgress: 'Mission progress',
     map: {
-      title: 'Mission Map',
+      title: 'Mission map',
       zoomOut: 'Zoom out',
       zoomIn: 'Zoom in',
       order: 'ORDER',
       north: 'N',
     },
     telemetry: {
-      title: 'Live Telemetry',
+      title: 'Live telemetry',
       offline: 'Offline',
       live: 'MAVLink Live',
       altitude: 'Altitude',
@@ -310,7 +310,7 @@ export const inFlightControlMessages = defineMessages({
       waiting: 'Waiting',
     },
     airPressure: {
-      title: 'Air Pressure',
+      title: 'Air pressure',
       offline: 'OFFLINE',
       live: 'LIVE',
       pressure: 'Pressure',
@@ -368,13 +368,13 @@ export const inFlightControlMessages = defineMessages({
       actionContinue: 'CONTINUE',
     },
     missionInfo: {
-      title: 'Mission Info',
+      title: 'Mission info',
       mission: 'Mission',
       order: 'Order',
       progress: 'Progress',
       distance: 'Distance',
       points: 'Points',
-      maxAlt: 'Max Alt',
+      maxAlt: 'Max alt',
       heading: 'Heading',
       auto: 'Auto',
       manual: 'Manual',
@@ -390,13 +390,13 @@ export const inFlightControlMessages = defineMessages({
       cruise: 'Cruise',
     },
     hold: 'Hold',
-    flightPlanGuide: 'Waypoint Guide',
+    flightPlanGuide: 'Waypoint guide',
     cameraStatus: {
       thermal: 'Thermal',
       downward: 'Downward',
       fpv: 'FPV',
       gimbal: 'Gimbal',
-      heatMap: 'Heat Map',
+      heatMap: 'Heat map',
       pitch: (deg: number) => `${deg}° pitch`,
       camera: 'Camera',
       view: 'View',
@@ -404,9 +404,9 @@ export const inFlightControlMessages = defineMessages({
       manual: 'Manual',
     },
     toolbar: {
-      quickActions: 'Quick Actions',
+      quickActions: 'Quick actions',
       hover: 'Hover',
-      manualControl: 'Manual Control',
+      manualControl: 'Manual control',
       cameraTools: 'Camera & Tools',
       reviewMedia: 'Review captured media',
       review: 'Review',
@@ -443,7 +443,7 @@ export const inFlightControlMessages = defineMessages({
     header: {
       live: 'LIVE',
       offline: 'OFFLINE',
-      droneOperator: 'Drone Operator',
+      droneOperator: 'Drone operator',
       settings: 'Settings',
     },
     thermalPanel: {
@@ -481,7 +481,7 @@ export const inFlightControlMessages = defineMessages({
         `Restricted zone danger: ${distance} m from ${zone}`,
       caution: (distance: number, zone: string) =>
         `Restricted zone caution: ${distance} m from ${zone}`,
-      allNominal: 'All Systems Nominal',
+      allNominal: 'All systems nominal',
       breachTitle: 'No-fly zone breach',
       warningTitle: 'No-fly zone warning',
       restrictedZoneName: 'Restricted zone',

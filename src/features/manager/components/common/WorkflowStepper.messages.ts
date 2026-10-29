@@ -71,7 +71,7 @@ export const workflowStepperMessages = defineMessages({
     waitingDepositNote:
       'Waiting for the customer to pay the deposit before continuing.',
     missionOf: (index: number, total: number) => `Mission ${index} / ${total}`,
-    missionPrev: 'Previous Mission',
-    missionNext: 'Next Mission',
+    missionPrev: 'Previous mission',
+    missionNext: 'Next mission',
   },
 })

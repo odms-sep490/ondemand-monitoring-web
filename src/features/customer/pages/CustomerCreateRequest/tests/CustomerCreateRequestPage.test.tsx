@@ -29,7 +29,7 @@ describe('CustomerCreateRequestPage', () => {
     await screen.findByText('Tạo yêu cầu giám sát')
     act(() => setLanguage('en'))
     expect(
-      await screen.findByText('Create Monitoring Request'),
+      await screen.findByText('Create monitoring request'),
     ).toBeInTheDocument()
     expect(
       screen.getByRole('button', { name: 'Submit request' }),

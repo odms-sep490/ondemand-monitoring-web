@@ -22,7 +22,7 @@ export const staffRequestQueuePageMessages = defineMessages({
     title: 'Request queue',
     subtitle:
       'Review incoming monitoring requests and approve them to create missions.',
-    pendingOrders: 'Pending Orders',
+    pendingOrders: 'Pending orders',
     refresh: 'Refresh',
     loadFailed: 'Failed to fetch pending orders',
     approveFailed: 'Approval failed',
@@ -31,7 +31,7 @@ export const staffRequestQueuePageMessages = defineMessages({
     orderId: 'Order ID',
     orderTitle: 'Title',
     customer: 'Customer',
-    preferredDate: 'Preferred Date',
+    preferredDate: 'Preferred date',
     location: 'Location',
     actions: 'Actions',
     approve: 'Approve',

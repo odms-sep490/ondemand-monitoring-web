@@ -79,7 +79,7 @@ export const createOrderPageMessages = defineMessages({
     },
   },
   en: {
-    pageTitle: 'Create Monitoring Request',
+    pageTitle: 'Create monitoring request',
     pageSubtitle:
       'Choose a service, define the monitoring area, confirm the monitoring content, pick a schedule, then confirm deliverables.',
     cancel: 'Cancel',

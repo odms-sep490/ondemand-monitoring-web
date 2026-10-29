@@ -20,6 +20,6 @@ describe('CreateOrderPage', () => {
     render(<CreateOrderPage />)
     await screen.findByText('Tạo yêu cầu giám sát')
     act(() => setLanguage('en'))
-    expect(await screen.findByText('Create Monitoring Request')).toBeTruthy()
+    expect(await screen.findByText('Create monitoring request')).toBeTruthy()
   })
 })

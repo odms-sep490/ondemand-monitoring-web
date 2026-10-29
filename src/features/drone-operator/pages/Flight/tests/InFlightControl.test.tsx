@@ -98,7 +98,7 @@ describe('InFlightControl', () => {
       />,
     )
     act(() => setLanguage('en'))
-    expect(screen.getByText('Drone Operator')).toBeInTheDocument()
+    expect(screen.getByText('Drone operator')).toBeInTheDocument()
     expect(screen.getByText('Waiting for PX4 GPS')).toBeInTheDocument()
   })
 

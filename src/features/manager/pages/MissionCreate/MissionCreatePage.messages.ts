@@ -154,7 +154,7 @@ export const missionCreatePageMessages = defineMessages({
       'Choose the concrete mission flight time. The system does not copy the order time automatically.',
     start: 'Takeoff time',
     end: 'Estimated finish time',
-    flightPlan: 'Kế hoạch bay',
+    flightPlan: 'Flight plan',
     planTypeLabel: 'Flight pattern',
     radius: 'Radius (m)',
     altitude: 'Altitude (m)',
