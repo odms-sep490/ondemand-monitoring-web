@@ -64,7 +64,7 @@ it('drops late M1 checklist and media after switching to M2', async () => {
   expect(await screen.findByText('Chưa có ảnh/video')).toBeInTheDocument()
   expect(
     screen.getByText(
-      'Media sẽ xuất hiện sau khi Mission được thực hiện và dữ liệu được tải lên.',
+      'Media sẽ xuất hiện sau khi nhiệm vụ được thực hiện và dữ liệu được tải lên.',
     ),
   ).toBeInTheDocument()
 })

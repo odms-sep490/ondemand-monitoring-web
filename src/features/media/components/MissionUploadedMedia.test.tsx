@@ -108,10 +108,10 @@ describe('uploaded mission media gallery', () => {
     )
     render(<MissionUploadedMedia missionId="mission" reviewStatus="DRAFT" />)
     expect(
-      await screen.findByText('Ảnh vệ tinh · Browser snapshot'),
+      await screen.findByText('Ảnh vệ tinh · Ảnh chụp từ trình duyệt'),
     ).toBeTruthy()
     expect(
-      screen.getAllByText('Kết quả nháp — chưa gửi manager').length,
+      screen.getAllByText('Kết quả nháp, chưa gửi quản lý').length,
     ).toBeGreaterThan(0)
     expect(screen.queryByText('Camera drone')).toBeNull()
   })

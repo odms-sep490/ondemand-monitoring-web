@@ -105,7 +105,7 @@ it('acceptance gallery and picker see the same eligible pending satellite MediaA
   await waitFor(() =>
     expect(
       screen
-        .getByRole('region', { name: 'Media đã upload của mission' })
+        .getByRole('region', { name: 'Media đã tải lên của nhiệm vụ' })
         .querySelector('img'),
     ).toHaveAttribute('src', preview),
   )
