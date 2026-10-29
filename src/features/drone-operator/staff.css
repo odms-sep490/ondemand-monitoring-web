@@ -312,7 +312,9 @@
 }
 
 .stf-stephead .stf-stepper-wrap {
-  flex: 3 1 420px;
+  flex: 3 1 min(420px, 100%);
+  min-width: 0;
+  max-width: 100%;
 }
 
 .stf-stephead-title h1 {

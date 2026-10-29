@@ -9,9 +9,11 @@ export function FlightStepper({ active }: { active: number }) {
   const { t } = useI18n(flightStepperMessages)
   const ref = useRef<HTMLDivElement>(null)
   useEffect(() => {
-    ref.current
-      ?.querySelector('.ant-steps-item-process')
-      ?.scrollIntoView?.({ inline: 'center', block: 'nearest' })
+    const box = ref.current?.querySelector<HTMLElement>('.stf-stepper')
+    const item = box?.querySelector<HTMLElement>('.ant-steps-item-process')
+    if (!box || !item) return
+    box.scrollLeft =
+      item.offsetLeft - box.clientWidth / 2 + item.offsetWidth / 2
   }, [active])
   return (
     <div ref={ref} className="stf-stepper-wrap">
