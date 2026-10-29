@@ -78,6 +78,22 @@ $tones: (
       font-size: var(--mgr-fs-small);
     }
 
+    /* Narrow cards: the extra (tag or link) drops below the title instead of squeezing it. */
+    .ant-card-head-wrapper {
+      flex-wrap: wrap;
+      row-gap: 4px;
+      padding-block: 8px;
+    }
+
+    .ant-card-head-title {
+      flex: 1 1 140px;
+      min-width: 0;
+    }
+
+    .ant-card-extra {
+      margin-inline-start: auto;
+    }
+
     .ant-card-body {
       padding: var(--mgr-card-pad);
     }
@@ -155,6 +171,19 @@ $tones: (
       --stat-accent: #{list.nth($pair, 2)};
       --stat-tint: #{rgba(list.nth($pair, 2), 0.07)};
     }
+  }
+
+  /* Long tag text (for example a format list) wraps inside its card instead of overflowing. */
+  .ant-tag:not(.mgr-status-tag) {
+    max-width: 100%;
+    height: auto;
+    white-space: normal;
+    overflow-wrap: break-word;
+  }
+
+  .mgr-or-service-row .mgr-status-tag {
+    white-space: normal;
+    overflow-wrap: break-word;
   }
 
   .mgr-chip {
@@ -240,6 +269,7 @@ $tones: (
     font-weight: 600;
     line-height: 20px;
     white-space: nowrap;
+    max-width: 100%;
     border-radius: 999px;
     margin-inline-end: 0;
 

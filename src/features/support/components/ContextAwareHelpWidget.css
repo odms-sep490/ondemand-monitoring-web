@@ -94,3 +94,12 @@
 .hw-card .mgr-card-title {
   line-height: 1.35;
 }
+
+/* Long ticket label must wrap inside the card on narrow screens. */
+.hw-foot .ant-btn {
+  height: auto;
+  max-width: 100%;
+  padding-block: 6px;
+  white-space: normal;
+  text-align: center;
+}

@@ -15,7 +15,10 @@ import {
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
 import { formatVnd } from '../../../../shared/lib/formatVnd'
-import { checklistsApi, type ChecklistDefinition } from '../../api/checklistsApi'
+import {
+  checklistsApi,
+  type ChecklistDefinition,
+} from '../../api/checklistsApi'
 import { AdminLoading } from '../../components/common/AdminLoading'
 import { adminHref } from '../../routes'
 import { checklistMessages } from './checklists.messages'
@@ -34,7 +37,12 @@ export function ChecklistCatalogPage() {
   const [usageId, setUsageId] = useState<string | null>(null)
   const query = useApiQuery(
     (signal) =>
-      checklistsApi.list(search, active === '' ? undefined : active === 'true', page, signal),
+      checklistsApi.list(
+        search,
+        active === '' ? undefined : active === 'true',
+        page,
+        signal,
+      ),
     [search, active, page],
   )
   async function toggle(row: ChecklistDefinition) {
@@ -54,11 +62,15 @@ export function ChecklistCatalogPage() {
     {
       title: t.content,
       key: 'content',
-      render: (_, row) => <span className="adm-wrap checklist-content-cell">{row.content}</span>,
+      width: 280,
+      render: (_, row) => (
+        <span className="adm-wrap checklist-content-cell">{row.content}</span>
+      ),
     },
     {
       title: t.filter,
       key: 'status',
+      width: 140,
       render: (_, row) => (
         <StatusTag tone={row.isActive ? 'success' : 'neutral'}>
           {row.isActive ? t.active : t.inactive}
@@ -72,8 +84,8 @@ export function ChecklistCatalogPage() {
         <span className="mgr-cell-stack">
           <strong>{formatVnd(row.basePrice ?? 0)}</strong>
           <span className="mgr-cell-sub">
-            {row.includedImageCount ?? 0} {t.imagesShort} · {row.includedVideoCount ?? 0}{' '}
-            {t.videosShort}
+            {row.includedImageCount ?? 0} {t.imagesShort} ·{' '}
+            {row.includedVideoCount ?? 0} {t.videosShort}
             {row.pricingProfile ? ` · ${row.pricingProfile}` : ''}
           </span>
         </span>
@@ -94,7 +106,9 @@ export function ChecklistCatalogPage() {
       responsive: ['lg'],
       render: (_, row) => (
         <span className="mgr-cell-sub mgr-nowrap">
-          {new Date(row.updatedAt ?? row.createdAt).toLocaleString(lang === 'vi' ? 'vi-VN' : 'en-US')}
+          {new Date(row.updatedAt ?? row.createdAt).toLocaleString(
+            lang === 'vi' ? 'vi-VN' : 'en-US',
+          )}
         </span>
       ),
     },
@@ -104,10 +118,20 @@ export function ChecklistCatalogPage() {
       align: 'right',
       render: (_, row) => (
         <Space size={6} wrap>
-          <Button size="small" icon={<EditOutlined aria-hidden="true" aria-label={undefined} />} disabled={busy} onClick={() => setEditor(row)}>
+          <Button
+            size="small"
+            icon={<EditOutlined aria-hidden="true" aria-label={undefined} />}
+            disabled={busy}
+            onClick={() => setEditor(row)}
+          >
             {t.edit}
           </Button>
-          <Button size="small" danger={row.isActive} disabled={busy} onClick={() => void toggle(row)}>
+          <Button
+            size="small"
+            danger={row.isActive}
+            disabled={busy}
+            onClick={() => void toggle(row)}
+          >
             {row.isActive ? t.deactivate : t.reactivate}
           </Button>
         </Space>
@@ -121,7 +145,11 @@ export function ChecklistCatalogPage() {
         title={t.title}
         description={t.catalogSubtitle}
         actions={
-          <Button type="primary" icon={<PlusOutlined aria-hidden="true" aria-label={undefined} />} onClick={() => setEditor('new')}>
+          <Button
+            type="primary"
+            icon={<PlusOutlined aria-hidden="true" aria-label={undefined} />}
+            onClick={() => setEditor('new')}
+          >
             {t.add}
           </Button>
         }
@@ -153,7 +181,12 @@ export function ChecklistCatalogPage() {
                 { value: 'false', label: t.inactive },
               ]}
             />
-            <Button icon={<ProfileOutlined aria-hidden="true" aria-label={undefined} />} href={adminHref({ screen: 'serviceChecklists' })}>
+            <Button
+              icon={
+                <ProfileOutlined aria-hidden="true" aria-label={undefined} />
+              }
+              href={adminHref({ screen: 'serviceChecklists' })}
+            >
               {t.template}
             </Button>
           </>
@@ -162,7 +195,11 @@ export function ChecklistCatalogPage() {
       {error && <Alert type="error" showIcon role="alert" message={error} />}
       {query.loading && <AdminLoading />}
       {query.error !== undefined && (
-        <ChecklistLoadError title={t.catalogLoadError} error={query.error} retry={query.reload} />
+        <ChecklistLoadError
+          title={t.catalogLoadError}
+          error={query.error}
+          retry={query.reload}
+        />
       )}
       {!query.loading && query.error === undefined && query.data && (
         <CardComponent styles={{ body: { padding: 0 } }}>
@@ -174,6 +211,7 @@ export function ChecklistCatalogPage() {
               columns={columns}
               dataSource={query.data.items}
               pagination={false}
+              scroll={{ x: 1000 }}
             />
           )}
           <ChecklistPagination
@@ -198,14 +236,23 @@ export function ChecklistCatalogPage() {
           }}
         />
       )}
-      {usageId && <ChecklistUsage key={usageId} id={usageId} close={() => setUsageId(null)} />}
+      {usageId && (
+        <ChecklistUsage
+          key={usageId}
+          id={usageId}
+          close={() => setUsageId(null)}
+        />
+      )}
     </div>
   )
 }
 
 function ChecklistUsage({ id, close }: { id: string; close: () => void }) {
   const { t } = useI18n(checklistMessages)
-  const query = useApiQuery((signal) => checklistsApi.services(id, signal), [id])
+  const query = useApiQuery(
+    (signal) => checklistsApi.services(id, signal),
+    [id],
+  )
   return (
     <Modal
       open
@@ -217,13 +264,22 @@ function ChecklistUsage({ id, close }: { id: string; close: () => void }) {
     >
       {query.loading && <AdminLoading />}
       {query.error !== undefined && (
-        <ChecklistLoadError title={t.catalogLoadError} error={query.error} retry={query.reload} />
+        <ChecklistLoadError
+          title={t.catalogLoadError}
+          error={query.error}
+          retry={query.reload}
+        />
       )}
       {!query.loading && query.error === undefined && query.data && (
         <ul className="checklist-usage-list">
           {query.data.map((row) => (
             <li key={row.id}>
-              <a href={adminHref({ screen: 'serviceChecklists', serviceId: row.serviceId })}>
+              <a
+                href={adminHref({
+                  screen: 'serviceChecklists',
+                  serviceId: row.serviceId,
+                })}
+              >
                 {row.serviceName}
               </a>
             </li>

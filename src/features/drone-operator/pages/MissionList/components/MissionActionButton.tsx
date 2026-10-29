@@ -15,7 +15,8 @@ export function MissionActionButton({
   onClick?: () => void
 }) {
   const danger = cls.includes('odm-btn-rd')
-  const primary = danger || cls.includes('odm-btn-p') || cls.includes('odm-btn-ok')
+  const primary =
+    danger || cls.includes('odm-btn-p') || cls.includes('odm-btn-ok')
   return (
     <Button
       size="small"

@@ -34,7 +34,7 @@ export function DeliveryProgress({ status }: { status: DeliveryStatus }) {
       <Steps
         size="small"
         current={currentStep}
-        responsive
+        direction="vertical"
         items={t.steps.map((step) => ({ key: step.label, title: step.label }))}
       />
     </div>

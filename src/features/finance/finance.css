@@ -713,19 +713,17 @@
   margin-top: 5px;
   font-size: var(--mgr-fs-section, 16px);
 }
-.customer-deposit-notice {
-  display: grid;
-  gap: 3px;
-  padding: 12px;
-  border-left: 3px solid var(--ui-warning);
-  background: var(--ui-warning-soft);
-  color: var(--ui-warning-text);
+.customer-deposit-notice.ant-alert {
+  padding: 10px 12px;
+  border-radius: 10px;
   font-size: var(--mgr-fs-small, 13px);
 }
-.customer-deposit-notice.is-ready {
-  border-color: var(--ui-success);
-  background: var(--ui-success-soft);
-  color: var(--ui-success-text);
+.customer-deposit-notice .ant-alert-message {
+  font-size: var(--mgr-fs-small, 13px);
+  font-weight: 600;
+}
+.customer-deposit-notice .ant-alert-description {
+  font-size: var(--mgr-fs-caption, 12px);
 }
 .customer-payment-actions {
   padding: 16px 0 0;
@@ -766,9 +764,7 @@
   white-space: nowrap;
 }
 
-.od-page .customer-deposit-notice {
-  padding: 14px 16px;
-  border-radius: 0 10px 10px 0;
+.od-page .customer-deposit-notice.ant-alert {
   line-height: 1.45;
 }
 

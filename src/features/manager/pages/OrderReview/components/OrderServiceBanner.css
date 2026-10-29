@@ -111,11 +111,13 @@
 .odm-osb-tag {
   max-width: 100%;
   padding: 3px 12px;
-  border: 1px solid #b9d4fb;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 1px 3px rgba(20, 88, 196, 0.15);
-  color: #1458c4;
+  border: 1px solid var(--ui-border);
+  border-radius: 12px;
+  background: var(--ui-primary-soft);
+  box-shadow: none;
+  color: var(--ui-primary-text);
+  white-space: normal;
+  overflow-wrap: anywhere;
   font-size: var(--mgr-fs-caption, 12px);
   font-weight: 500;
   line-height: 1.5;

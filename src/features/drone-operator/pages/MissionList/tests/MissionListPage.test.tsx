@@ -13,8 +13,12 @@ afterEach(() => vi.restoreAllMocks())
 // bilingual error state.
 describe('MissionListPage', () => {
   it('renders the vietnamese error state', async () => {
-    vi.spyOn(operatorApi, 'getProfile').mockRejectedValue(new Error('No session'))
-    vi.spyOn(operatorApi, 'listMissions').mockRejectedValue(new Error('No session'))
+    vi.spyOn(operatorApi, 'getProfile').mockRejectedValue(
+      new Error('No session'),
+    )
+    vi.spyOn(operatorApi, 'listMissions').mockRejectedValue(
+      new Error('No session'),
+    )
     render(<MissionListPage searchQuery="" />)
     expect(
       await screen.findByText('Không tải được danh sách nhiệm vụ'),
@@ -23,8 +27,12 @@ describe('MissionListPage', () => {
   })
 
   it('renders the english error state when language is switched', async () => {
-    vi.spyOn(operatorApi, 'getProfile').mockRejectedValue(new Error('No session'))
-    vi.spyOn(operatorApi, 'listMissions').mockRejectedValue(new Error('No session'))
+    vi.spyOn(operatorApi, 'getProfile').mockRejectedValue(
+      new Error('No session'),
+    )
+    vi.spyOn(operatorApi, 'listMissions').mockRejectedValue(
+      new Error('No session'),
+    )
     render(<MissionListPage searchQuery="" />)
     await screen.findByText('Không tải được danh sách nhiệm vụ')
     act(() => setLanguage('en'))

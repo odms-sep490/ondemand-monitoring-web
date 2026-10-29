@@ -205,7 +205,7 @@ export function CustomerDeliveryPanel({ orderId }: { orderId: string }) {
           <Descriptions
             className="delivery-payment"
             size="small"
-            column={{ xs: 1, sm: 3 }}
+            column={1}
             items={[
               {
                 key: 't',

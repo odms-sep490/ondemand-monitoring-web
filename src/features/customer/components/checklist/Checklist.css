@@ -224,14 +224,17 @@
 }
 .checklist-snapshot-evidence {
   display: inline-block;
-  margin-left: 8px;
-  padding: 3px 9px;
-  border-radius: 999px;
+  max-width: 100%;
+  margin: 4px 0 0;
+  padding: 3px 10px;
+  border-radius: 12px;
   background: var(--ui-primary-soft);
   color: var(--ui-primary-text);
   font-size: var(--mgr-fs-caption, 12px);
   font-weight: 600;
-  white-space: nowrap;
+  line-height: 1.5;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 @media (max-width: 600px) {
   .checklist-row {

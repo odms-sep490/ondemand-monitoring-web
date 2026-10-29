@@ -20,6 +20,22 @@
     align-items: start;
   }
 
+  /* Grid children must be allowed to shrink; long chips and tables wrap or scroll inside their card. */
+  .cus-main-grid > *,
+  .cus-side > *,
+  .cus-stack > * {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .cus-main-grid:has(> .cus-stack:empty) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cus-stack:empty {
+    display: none;
+  }
+
   .cus-help-row {
     margin-top: 16px;
   }

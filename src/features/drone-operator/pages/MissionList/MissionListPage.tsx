@@ -1,9 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Button, Skeleton } from 'antd'
-import {
-  CardComponent,
-  ErrorState,
-} from '../../../../shared/components/antd'
+import { CardComponent, ErrorState } from '../../../../shared/components/antd'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
 import { operatorApi } from '../../api/operatorApi'

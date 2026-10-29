@@ -1,4 +1,7 @@
-import { FilterBar, FilterSegments } from '../../../../../shared/components/antd'
+import {
+  FilterBar,
+  FilterSegments,
+} from '../../../../../shared/components/antd'
 import type { OperatorMissionTab } from '../../../types/mission'
 import { MissionListTable } from './MissionListTable'
 import { UpcomingRail } from './UpcomingRail'
