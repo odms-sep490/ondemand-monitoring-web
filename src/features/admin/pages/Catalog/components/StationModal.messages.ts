@@ -4,7 +4,7 @@ export const stationModalMessages = defineMessages({
   vi: {
     createTitle: 'Tạo trạm mới',
     editTitle: 'Sửa trạm',
-    subtitle: 'Trạm xuất phát của drone',
+    subtitle: 'Trạm xuất phát của thiết bị bay',
     code: 'Mã trạm',
     name: 'Tên trạm',
     address: 'Địa chỉ',

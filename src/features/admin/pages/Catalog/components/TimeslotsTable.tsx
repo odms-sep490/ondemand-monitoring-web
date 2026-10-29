@@ -1,3 +1,6 @@
+import type { ColumnsType } from 'antd/es/table'
+
+import { TableComponent } from '../../../../../shared/components/antd'
 import { useI18n } from '../../../../../shared/i18n'
 import type { AdminTimeslot } from '../../../types/catalog'
 import { RowActions } from './RowActions'
@@ -15,37 +18,39 @@ export function TimeslotsTable({
 }) {
   const { t } = useI18n(timeslotsTableMessages)
   const { t: codes } = useI18n(timeslotCodeMessages)
-  return (
-    <table className="odm-adm-table">
-      <thead>
-        <tr>
-          <th>{t.code}</th>
-          <th>{t.name}</th>
-          <th>{t.window}</th>
-          <th className="adm-text-right">{t.actions}</th>
-        </tr>
-      </thead>
-      <tbody>
-        {items.map((s) => (
-          <tr key={s.id}>
-            <td>
-              <div className="adm-cell-mono">{s.code}</div>
-              <div className="adm-cell-email">{codes[s.code]}</div>
-            </td>
-            <td className="adm-wrap adm-strong">{s.name}</td>
-            <td className="adm-cell-mono">
-              {s.startTime} – {s.endTime}
-            </td>
-            <td>
-              <RowActions
-                label={s.name}
-                onEdit={() => onEdit(s)}
-                onDelete={() => onDelete(s)}
-              />
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  )
+  const columns: ColumnsType<AdminTimeslot> = [
+    {
+      title: t.code,
+      key: 'code',
+      render: (_, s) => (
+        <span className="mgr-cell-stack">
+          <span className="mgr-code">{s.code}</span>
+          <span className="mgr-cell-sub">{codes[s.code]}</span>
+        </span>
+      ),
+    },
+    {
+      title: t.name,
+      key: 'name',
+      render: (_, s) => <strong className="adm-wrap">{s.name}</strong>,
+    },
+    {
+      title: t.window,
+      key: 'window',
+      render: (_, s) => (
+        <span className="mgr-nowrap">
+          {s.startTime} – {s.endTime}
+        </span>
+      ),
+    },
+    {
+      title: t.actions,
+      key: 'actions',
+      align: 'right',
+      render: (_, s) => (
+        <RowActions label={s.name} onEdit={() => onEdit(s)} onDelete={() => onDelete(s)} />
+      ),
+    },
+  ]
+  return <TableComponent<AdminTimeslot> rowKey="id" columns={columns} dataSource={items} />
 }

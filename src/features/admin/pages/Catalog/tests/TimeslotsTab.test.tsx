@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 
 import { TimeslotsTab } from '../components/TimeslotsTab'
+import { chooseSelectOption } from '../../../testUtils'
 import { useMockTransport } from './helpers'
 
 useMockTransport()
@@ -17,9 +18,7 @@ describe('TimeslotsTab', () => {
     render(<TimeslotsTab />)
     await screen.findByLabelText('Sửa Buổi chiều')
     fireEvent.click(screen.getByText('+ Thêm khung giờ'))
-    fireEvent.change(screen.getByLabelText(/Mã khung giờ/), {
-      target: { value: 'NIGHT' },
-    })
+    await chooseSelectOption(/Mã khung giờ/, 'NIGHT · Ban đêm')
     fireEvent.change(screen.getByLabelText(/Tên hiển thị/), {
       target: { value: 'Đêm khuya' },
     })

@@ -1,4 +1,7 @@
-import { useState, type FormEvent } from 'react'
+import { Alert, Form, Input, Modal, Select } from 'antd'
+import { useState } from 'react'
+
+import { mgrPopupContainer } from '../../../../../shared/components/antd'
 
 import { useI18n } from '../../../../../shared/i18n'
 import {
@@ -6,7 +9,8 @@ import {
   catalogApi,
   type PreferredTimeCode,
 } from '../../../api/catalogApi'
-import { Modal } from '../../../../../shared/components/ui'
+import { AdminFormFooter } from '../../../components/common/AdminFormFooter'
+import { onFormSubmit } from '../../../components/common/formSubmit'
 import {
   emptyTimeslotForm,
   mapTimeslot,
@@ -16,8 +20,6 @@ import {
 } from '../../../lib/catalogMappers'
 import type { AdminTimeslot } from '../../../types/catalog'
 import { EditLoader } from './EditLoader'
-import { FormField } from '../../../../../shared/components/ui'
-import { FormFooter } from '../../../../../shared/components/ui'
 import { timeslotCodeMessages } from './timeslotCodes'
 import { timeslotModalMessages } from './TimeslotModal.messages'
 
@@ -37,8 +39,7 @@ function TimeslotForm({ timeslot, onClose, onSaved }: Props) {
   const [busy, setBusy] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault()
+  async function handleSubmit() {
     const next: Record<string, string> = {}
     if (!values.name.trim()) next.name = t.required
     if (!values.startTime) next.startTime = t.required
@@ -61,68 +62,62 @@ function TimeslotForm({ timeslot, onClose, onSaved }: Props) {
     }
   }
 
+  const status = (key: string) => (errors[key] ? 'error' : undefined)
+
   return (
     <Modal
+      open
+      centered
+      getContainer={mgrPopupContainer}
       width={540}
-      icon="clock"
       title={timeslot ? t.editTitle : t.createTitle}
-      subtitle={timeslot ? t.editSubtitle : t.createSubtitle}
-      onClose={onClose}
-      footer={<FormFooter formId="adm-timeslot-form" busy={busy} onClose={onClose} />}
+      onCancel={onClose}
+      footer={<AdminFormFooter formId="adm-timeslot-form" busy={busy} onClose={onClose} />}
     >
-      <form id="adm-timeslot-form" onSubmit={handleSubmit} noValidate>
-        <FormField id="adm-ts-code" label={t.code} required error={errors.code}>
-          <select
+      <p className="mgr-modal-sub">{timeslot ? t.editSubtitle : t.createSubtitle}</p>
+      <Form
+        id="adm-timeslot-form"
+        layout="vertical"
+        onSubmitCapture={onFormSubmit(handleSubmit)}
+        noValidate
+      >
+        <Form.Item label={t.code} required htmlFor="adm-ts-code" validateStatus={status('code')} help={errors.code}>
+          <Select<PreferredTimeCode>
             id="adm-ts-code"
-            className="odm-inp"
             value={values.code}
-            onChange={(e) =>
-              setValues({ ...values, code: e.target.value as PreferredTimeCode })
-            }
-          >
-            {PREFERRED_TIME_CODES.map((c) => (
-              <option key={c} value={c}>
-                {c} · {codes[c]}
-              </option>
-            ))}
-          </select>
-        </FormField>
-        <FormField id="adm-ts-name" label={t.name} required error={errors.name}>
-          <input
+            onChange={(code) => setValues({ ...values, code })}
+            getPopupContainer={mgrPopupContainer}
+            options={PREFERRED_TIME_CODES.map((c) => ({ value: c, label: `${c} · ${codes[c]}` }))}
+          />
+        </Form.Item>
+        <Form.Item label={t.name} required htmlFor="adm-ts-name" validateStatus={status('name')} help={errors.name}>
+          <Input
             id="adm-ts-name"
-            className="odm-inp"
             value={values.name}
             placeholder={t.namePlaceholder}
-            aria-invalid={!!errors.name}
             onChange={(e) => setValues({ ...values, name: e.target.value })}
           />
-        </FormField>
+        </Form.Item>
         <div className="adm-form-pair">
-          <FormField id="adm-ts-start" label={t.startTime} required error={errors.startTime}>
-            <input
+          <Form.Item label={t.startTime} required htmlFor="adm-ts-start" validateStatus={status('startTime')} help={errors.startTime}>
+            <Input
               id="adm-ts-start"
-              className="odm-inp"
               type="time"
               value={values.startTime}
               onChange={(e) => setValues({ ...values, startTime: e.target.value })}
             />
-          </FormField>
-          <FormField id="adm-ts-end" label={t.endTime} required error={errors.endTime}>
-            <input
+          </Form.Item>
+          <Form.Item label={t.endTime} required htmlFor="adm-ts-end" validateStatus={status('endTime')} help={errors.endTime}>
+            <Input
               id="adm-ts-end"
-              className="odm-inp"
               type="time"
               value={values.endTime}
               onChange={(e) => setValues({ ...values, endTime: e.target.value })}
             />
-          </FormField>
+          </Form.Item>
         </div>
-        {submitError && (
-          <div role="alert" className="adm-alert is-danger">
-            {submitError}
-          </div>
-        )}
-      </form>
+        {submitError && <Alert type="error" showIcon role="alert" message={submitError} />}
+      </Form>
     </Modal>
   )
 }

@@ -1,14 +1,14 @@
 import { useState } from 'react'
 
 import {
+  CardComponent,
+  EmptyState,
   ErrorState,
-  LoadingState,
-} from '../../../../../shared/components/odm/StateView'
+} from '../../../../../shared/components/antd'
 import { useApiQuery } from '../../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../../shared/i18n'
 import { catalogApi } from '../../../api/catalogApi'
-import { EmptyState } from '../../../../../shared/components/ui'
-import { TableCard } from '../../../../../shared/components/ui'
+import { AdminLoading } from '../../../components/common/AdminLoading'
 import { mapService } from '../../../lib/catalogMappers'
 import type { AdminService } from '../../../types/catalog'
 import { DeleteConfirmModal } from './DeleteConfirmModal'
@@ -36,30 +36,28 @@ export function ServicesTab() {
   }
 
   return (
-    <div>
+    <div className="mgr-view">
       <Toolbar createLabel={t.add} onCreate={() => setDialog({ type: 'form' })} />
-      {loading && !data && <LoadingState />}
+      {loading && !data && <AdminLoading />}
       {!loading && (error !== undefined || !data) && (
         <ErrorState error={error} onRetry={reload} />
       )}
       {data && data.length === 0 && (
-        <EmptyState title={t.emptyTitle} description={t.emptyDescription} />
+        <CardComponent>
+          <EmptyState title={t.emptyTitle} description={t.emptyDescription} />
+        </CardComponent>
       )}
       {data && data.length > 0 && (
-        <TableCard>
+        <CardComponent styles={{ body: { padding: 0 } }}>
           <ServicesTable
             items={data}
             onEdit={(service) => setDialog({ type: 'form', service })}
             onDelete={(service) => setDialog({ type: 'delete', service })}
           />
-        </TableCard>
+        </CardComponent>
       )}
       {dialog?.type === 'form' && (
-        <ServiceModal
-          service={dialog.service}
-          onClose={() => setDialog(null)}
-          onSaved={done}
-        />
+        <ServiceModal service={dialog.service} onClose={() => setDialog(null)} onSaved={done} />
       )}
       {dialog?.type === 'delete' && (
         <DeleteConfirmModal

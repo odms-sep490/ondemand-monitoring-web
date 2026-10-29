@@ -1,8 +1,12 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { Alert, Button, Checkbox, Form, Input, Modal } from 'antd'
+import { useEffect, useState } from 'react'
+
+import { mgrPopupContainer } from '../../../../../shared/components/antd'
 
 import { useI18n } from '../../../../../shared/i18n'
 import { catalogApi } from '../../../api/catalogApi'
-import { Modal } from '../../../../../shared/components/ui'
+import { AdminFormFooter } from '../../../components/common/AdminFormFooter'
+import { onFormSubmit } from '../../../components/common/formSubmit'
 import {
   emptyServiceForm,
   mapService,
@@ -12,8 +16,6 @@ import {
 } from '../../../lib/catalogMappers'
 import type { AdminService } from '../../../types/catalog'
 import { EditLoader } from './EditLoader'
-import { FormField } from '../../../../../shared/components/ui'
-import { FormFooter } from '../../../../../shared/components/ui'
 import { serviceModalMessages } from './ServiceModal.messages'
 import { PriceBreakdownView } from '../../../../../shared/components/odm/PriceBreakdownView'
 import {
@@ -72,8 +74,7 @@ function ServiceForm({ service, onClose, onSaved }: Props) {
     }
   }
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault()
+  async function handleSubmit() {
     if (
       !values.name.trim() ||
       !Number.isSafeInteger(values.basePrice) ||
@@ -110,106 +111,86 @@ function ServiceForm({ service, onClose, onSaved }: Props) {
     }
   }
 
+  const status = (key: string) => (errors[key] ? 'error' : undefined)
+
   return (
     <Modal
-      width={540}
-      icon="plus"
+      open
+      centered
+      getContainer={mgrPopupContainer}
+      width={560}
       title={service ? t.editTitle : t.createTitle}
-      subtitle={service ? t.editSubtitle : t.createSubtitle}
-      onClose={onClose}
-      footer={
-        <FormFooter formId="adm-service-form" busy={busy} onClose={onClose} />
-      }
+      onCancel={onClose}
+      footer={<AdminFormFooter formId="adm-service-form" busy={busy} onClose={onClose} />}
     >
-      <form id="adm-service-form" onSubmit={handleSubmit} noValidate>
-        <FormField
-          id="adm-svc-name"
-          label={t.name}
-          required
-          error={errors.name}
-        >
-          <input
+      <p className="mgr-modal-sub">{service ? t.editSubtitle : t.createSubtitle}</p>
+      <Form
+        id="adm-service-form"
+        layout="vertical"
+        onSubmitCapture={onFormSubmit(handleSubmit)}
+        noValidate
+      >
+        <Form.Item label={t.name} required htmlFor="adm-svc-name" validateStatus={status('name')} help={errors.name}>
+          <Input
             id="adm-svc-name"
-            className="odm-inp"
             value={values.name}
             placeholder={t.namePlaceholder}
-            aria-invalid={!!errors.name}
             onChange={(e) => setValues({ ...values, name: e.target.value })}
           />
-        </FormField>
-        <FormField
-          id="adm-svc-price"
+        </Form.Item>
+        <Form.Item
           label={t.basePrice}
           required
-          error={errors.basePrice}
+          htmlFor="adm-svc-price"
+          validateStatus={status('basePrice')}
+          help={errors.basePrice}
+          extra={t.basePriceHint}
         >
-          <input
+          <Input
             id="adm-svc-price"
-            className="odm-inp"
             type="number"
             min={1}
             step={1000}
             inputMode="numeric"
             value={values.basePrice}
-            aria-invalid={!!errors.basePrice}
-            onChange={(e) =>
-              setValues({ ...values, basePrice: Number(e.target.value) })
-            }
+            onChange={(e) => setValues({ ...values, basePrice: Number(e.target.value) })}
           />
-          <small>{t.basePriceHint}</small>
-        </FormField>
-        <section
-          aria-label={t.previewTitle}
-          className="adm-service-price-check"
-        >
+        </Form.Item>
+        <section aria-label={t.previewTitle} className="adm-service-price-check">
           <strong>{t.previewTitle}</strong>
           {service?.id ? (
             <>
-              <div>
-                <button
-                  type="button"
-                  className="odm-btn odm-btn-sm"
-                  disabled={busy}
-                  onClick={() => void checkPrice()}
-                >
+              <div className="adm-row">
+                <Button size="small" disabled={busy} onClick={() => void checkPrice()}>
                   {t.previewButton}
-                </button>{' '}
-                <a
-                  className="odm-btn odm-btn-gh odm-btn-sm"
-                  href={adminHref({
-                    screen: 'serviceChecklists',
-                    serviceId: service.id,
-                  })}
+                </Button>
+                <Button
+                  size="small"
+                  type="link"
+                  href={adminHref({ screen: 'serviceChecklists', serviceId: service.id })}
                 >
                   {t.manageChecklists}
-                </a>
+                </Button>
               </div>
-              {priceCheckError && <p role="alert">{priceCheckError}</p>}
+              {priceCheckError && <Alert type="error" showIcon role="alert" message={priceCheckError} />}
               {priceCheck && <PriceBreakdownView preview={priceCheck} />}
             </>
           ) : (
-            <small>{t.previewSaveFirst}</small>
+            <small className="mgr-cell-sub">{t.previewSaveFirst}</small>
           )}
         </section>
-        <FormField
-          id="adm-svc-desc"
-          label={t.description}
-          error={errors.description}
-        >
-          <textarea
+        <Form.Item label={t.description} htmlFor="adm-svc-desc" validateStatus={status('description')} help={errors.description}>
+          <Input.TextArea
             id="adm-svc-desc"
-            className="odm-inp"
             rows={4}
             value={values.description}
-            onChange={(e) =>
-              setValues({ ...values, description: e.target.value })
-            }
+            onChange={(e) => setValues({ ...values, description: e.target.value })}
           />
-        </FormField>
-        <FormField id="adm-svc-image" label={t.image} error={errors.image}>
+        </Form.Item>
+        <Form.Item label={t.image} htmlFor="adm-svc-image" validateStatus={status('image')} help={errors.image} extra={t.imageHint}>
           <div className="adm-service-image">
             {preview && <img src={preview} alt={t.image} />}
-            <input
+            <Input
               id="adm-svc-image"
               type="file"
               accept="image/jpeg,image/png,image/webp"
@@ -218,16 +199,11 @@ function ServiceForm({ service, onClose, onSaved }: Props) {
                 const file = event.target.files?.[0]
                 if (!file) return
                 if (
-                  !['image/jpeg', 'image/png', 'image/webp'].includes(
-                    file.type,
-                  ) ||
+                  !['image/jpeg', 'image/png', 'image/webp'].includes(file.type) ||
                   file.size === 0 ||
                   file.size > 5 * 1024 * 1024
                 ) {
-                  setErrors((current) => ({
-                    ...current,
-                    image: t.invalidImage,
-                  }))
+                  setErrors((current) => ({ ...current, image: t.invalidImage }))
                   event.target.value = ''
                   return
                 }
@@ -236,11 +212,9 @@ function ServiceForm({ service, onClose, onSaved }: Props) {
                 setRemoveImage(false)
               }}
             />
-            <small>{t.imageHint}</small>
             {(preview || image) && (
-              <button
-                type="button"
-                className="odm-btn odm-btn-sm"
+              <Button
+                size="small"
                 disabled={busy}
                 onClick={() => {
                   setImage(null)
@@ -249,29 +223,21 @@ function ServiceForm({ service, onClose, onSaved }: Props) {
                 }}
               >
                 {t.removeImage}
-              </button>
+              </Button>
             )}
           </div>
-        </FormField>
-        <label className="adm-check">
-          <input
-            type="checkbox"
+        </Form.Item>
+        <Form.Item>
+          <Checkbox
             checked={values.isActive}
-            onChange={(e) =>
-              setValues({ ...values, isActive: e.target.checked })
-            }
-          />
-          <span>
+            onChange={(e) => setValues({ ...values, isActive: e.target.checked })}
+          >
             {t.isActive}
-            <small>{t.isActiveHint}</small>
-          </span>
-        </label>
-        {submitError && (
-          <div role="alert" className="adm-alert is-danger">
-            {submitError}
-          </div>
-        )}
-      </form>
+            <small className="adm-check-hint">{t.isActiveHint}</small>
+          </Checkbox>
+        </Form.Item>
+        {submitError && <Alert type="error" showIcon role="alert" message={submitError} />}
+      </Form>
     </Modal>
   )
 }

@@ -1,15 +1,15 @@
 import { useState } from 'react'
 
 import {
+  CardComponent,
+  EmptyState,
   ErrorState,
-  LoadingState,
-} from '../../../../../shared/components/odm/StateView'
+} from '../../../../../shared/components/antd'
 import { useApiQuery } from '../../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../../shared/i18n'
 import { adminApi } from '../../../api/adminApi'
-import { EmptyState } from '../../../../../shared/components/ui'
-import { MockDataBadge } from '../../../../../shared/components/ui'
-import { TableCard } from '../../../../../shared/components/ui'
+import { AdminLoading } from '../../../components/common/AdminLoading'
+import { MockDataTag } from '../../../components/common/MockDataTag'
 import type { AdminStation } from '../../../types/catalog'
 import { StationModal } from './StationModal'
 import { StationsTable } from './StationsTable'
@@ -36,28 +36,26 @@ export function StationsTab() {
   }
 
   return (
-    <div>
-      <Toolbar
-        badge={<MockDataBadge />}
-        createLabel={t.add}
-        onCreate={() => setDialog({})}
-      />
-      {loading && !data && <LoadingState />}
+    <div className="mgr-view">
+      <Toolbar badge={<MockDataTag />} createLabel={t.add} onCreate={() => setDialog({})} />
+      {loading && !data && <AdminLoading />}
       {!loading && (error !== undefined || !data) && (
         <ErrorState error={error} onRetry={reload} />
       )}
       {data && data.items.length === 0 && (
-        <EmptyState title={t.emptyTitle} description={t.emptyDescription} />
+        <CardComponent>
+          <EmptyState title={t.emptyTitle} description={t.emptyDescription} />
+        </CardComponent>
       )}
       {data && data.items.length > 0 && (
-        <TableCard>
+        <CardComponent styles={{ body: { padding: 0 } }}>
           <StationsTable
             items={data.items}
             togglingId={togglingId}
             onEdit={(station) => setDialog({ station })}
             onToggle={handleToggle}
           />
-        </TableCard>
+        </CardComponent>
       )}
       {dialog && (
         <StationModal

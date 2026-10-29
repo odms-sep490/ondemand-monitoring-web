@@ -1,7 +1,8 @@
+import { Tabs } from 'antd'
 import { useState } from 'react'
 
+import { PageHeader } from '../../../../shared/components/antd'
 import { useI18n } from '../../../../shared/i18n'
-import { PageHeader } from '../../../../shared/components/ui'
 import { catalogPageMessages } from './CatalogPage.messages'
 import { ServicesTab } from './components/ServicesTab'
 import { StationsTab } from './components/StationsTab'
@@ -20,22 +21,14 @@ export function CatalogPage() {
   ]
 
   return (
-    <div>
-      <PageHeader title={t.title} subtitle={t.subtitle} />
-      <div className="adm-tabs" role="tablist">
-        {tabs.map((item) => (
-          <button
-            key={item.key}
-            type="button"
-            role="tab"
-            aria-selected={tab === item.key}
-            onClick={() => setTab(item.key)}
-            className={`adm-tab${tab === item.key ? ' is-active' : ''}`}
-          >
-            {item.label}
-          </button>
-        ))}
-      </div>
+    <div className="mgr-view">
+      <PageHeader title={t.title} description={t.subtitle} />
+      <Tabs
+        className="adm-tabs"
+        activeKey={tab}
+        onChange={(key) => setTab(key as Tab)}
+        items={tabs}
+      />
       {tab === 'services' && <ServicesTab />}
       {tab === 'timeslots' && <TimeslotsTab />}
       {tab === 'stations' && <StationsTab />}

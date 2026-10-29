@@ -1,12 +1,13 @@
-import { useState, type FormEvent } from 'react'
+import { Alert, Form, Input, Modal } from 'antd'
+import { useState } from 'react'
 
+import { mgrPopupContainer } from '../../../../../shared/components/antd'
 import { useI18n } from '../../../../../shared/i18n'
 import { adminApi } from '../../../api/adminApi'
-import { Modal } from '../../../../../shared/components/ui'
+import { AdminFormFooter } from '../../../components/common/AdminFormFooter'
+import { onFormSubmit } from '../../../components/common/formSubmit'
 import { readApiError } from '../../../lib/catalogMappers'
 import type { AdminStation } from '../../../types/catalog'
-import { FormField } from '../../../../../shared/components/ui'
-import { FormFooter } from '../../../../../shared/components/ui'
 import { stationModalMessages } from './StationModal.messages'
 
 type Props = {
@@ -27,8 +28,7 @@ export function StationModal({ station, onClose, onSaved }: Props) {
   const [busy, setBusy] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault()
+  async function handleSubmit() {
     const next: Record<string, string> = {}
     if (!station && !code.trim()) next.code = t.required
     if (!name.trim()) next.name = t.required
@@ -56,59 +56,49 @@ export function StationModal({ station, onClose, onSaved }: Props) {
     }
   }
 
+  const status = (key: string) => (errors[key] ? 'error' : undefined)
+
   return (
     <Modal
+      open
+      centered
+      getContainer={mgrPopupContainer}
       width={560}
-      icon="map-pin"
       title={station ? t.editTitle : t.createTitle}
-      subtitle={t.subtitle}
-      onClose={onClose}
-      footer={<FormFooter formId="adm-station-form" busy={busy} onClose={onClose} />}
+      onCancel={onClose}
+      footer={<AdminFormFooter formId="adm-station-form" busy={busy} onClose={onClose} />}
     >
-      <form id="adm-station-form" onSubmit={handleSubmit} noValidate>
+      <p className="mgr-modal-sub">{t.subtitle}</p>
+      <Form
+        id="adm-station-form"
+        layout="vertical"
+        onSubmitCapture={onFormSubmit(handleSubmit)}
+        noValidate
+      >
         {!station && (
-          <FormField id="adm-st-code" label={t.code} required error={errors.code}>
-            <input
-              id="adm-st-code"
-              className="odm-inp"
-              value={code}
-              onChange={(e) => setCode(e.target.value.toUpperCase())}
-            />
-          </FormField>
+          <Form.Item label={t.code} required htmlFor="adm-st-code" validateStatus={status('code')} help={errors.code}>
+            <Input id="adm-st-code" value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} />
+          </Form.Item>
         )}
-        <FormField id="adm-st-name" label={t.name} required error={errors.name}>
-          <input
-            id="adm-st-name"
-            className="odm-inp"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </FormField>
-        <FormField id="adm-st-addr" label={t.address}>
-          <input
-            id="adm-st-addr"
-            className="odm-inp"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-          />
-        </FormField>
+        <Form.Item label={t.name} required htmlFor="adm-st-name" validateStatus={status('name')} help={errors.name}>
+          <Input id="adm-st-name" value={name} onChange={(e) => setName(e.target.value)} />
+        </Form.Item>
+        <Form.Item label={t.address} htmlFor="adm-st-addr">
+          <Input id="adm-st-addr" value={address} onChange={(e) => setAddress(e.target.value)} />
+        </Form.Item>
         <div className="adm-form-pair">
-          <FormField id="adm-st-lat" label={t.lat}>
-            <input id="adm-st-lat" className="odm-inp" type="number" step="0.0001" value={lat} onChange={(e) => setLat(e.target.value)} />
-          </FormField>
-          <FormField id="adm-st-lon" label={t.lon}>
-            <input id="adm-st-lon" className="odm-inp" type="number" step="0.0001" value={lon} onChange={(e) => setLon(e.target.value)} />
-          </FormField>
+          <Form.Item label={t.lat} htmlFor="adm-st-lat">
+            <Input id="adm-st-lat" type="number" step="0.0001" value={lat} onChange={(e) => setLat(e.target.value)} />
+          </Form.Item>
+          <Form.Item label={t.lon} htmlFor="adm-st-lon">
+            <Input id="adm-st-lon" type="number" step="0.0001" value={lon} onChange={(e) => setLon(e.target.value)} />
+          </Form.Item>
         </div>
-        <FormField id="adm-st-radius" label={t.radius}>
-          <input id="adm-st-radius" className="odm-inp" type="number" value={radius} onChange={(e) => setRadius(e.target.value)} />
-        </FormField>
-        {submitError && (
-          <div role="alert" className="adm-alert is-danger">
-            {submitError}
-          </div>
-        )}
-      </form>
+        <Form.Item label={t.radius} htmlFor="adm-st-radius">
+          <Input id="adm-st-radius" type="number" value={radius} onChange={(e) => setRadius(e.target.value)} />
+        </Form.Item>
+        {submitError && <Alert type="error" showIcon role="alert" message={submitError} />}
+      </Form>
     </Modal>
   )
 }

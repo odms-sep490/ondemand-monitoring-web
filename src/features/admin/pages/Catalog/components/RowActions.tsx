@@ -1,3 +1,5 @@
+import { Button, Space } from 'antd'
+
 import { useI18n } from '../../../../../shared/i18n'
 import { rowActionsMessages } from './RowActions.messages'
 
@@ -12,25 +14,15 @@ export function RowActions({
 }) {
   const { t } = useI18n(rowActionsMessages)
   return (
-    <div className="adm-row-actions">
-      <button
-        type="button"
-        className="odm-btn odm-btn-gh odm-btn-sm"
-        onClick={onEdit}
-        aria-label={`${t.edit} ${label}`}
-      >
+    <Space size={4} className="adm-row-actions">
+      <Button size="small" onClick={onEdit} aria-label={`${t.edit} ${label}`}>
         {t.edit}
-      </button>
+      </Button>
       {onDelete && (
-        <button
-          type="button"
-          className="odm-btn odm-btn-gh odm-btn-sm"
-          onClick={onDelete}
-          aria-label={`${t.remove} ${label}`}
-        >
+        <Button size="small" danger onClick={onDelete} aria-label={`${t.remove} ${label}`}>
           {t.remove}
-        </button>
+        </Button>
       )}
-    </div>
+    </Space>
   )
 }

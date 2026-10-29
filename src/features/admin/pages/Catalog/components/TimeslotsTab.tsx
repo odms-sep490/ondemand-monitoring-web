@@ -1,14 +1,14 @@
 import { useState } from 'react'
 
 import {
+  CardComponent,
+  EmptyState,
   ErrorState,
-  LoadingState,
-} from '../../../../../shared/components/odm/StateView'
+} from '../../../../../shared/components/antd'
 import { useApiQuery } from '../../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../../shared/i18n'
 import { catalogApi } from '../../../api/catalogApi'
-import { EmptyState } from '../../../../../shared/components/ui'
-import { TableCard } from '../../../../../shared/components/ui'
+import { AdminLoading } from '../../../components/common/AdminLoading'
 import { mapTimeslot } from '../../../lib/catalogMappers'
 import type { AdminTimeslot } from '../../../types/catalog'
 import { DeleteConfirmModal } from './DeleteConfirmModal'
@@ -37,23 +37,25 @@ export function TimeslotsTab() {
   }
 
   return (
-    <div>
+    <div className="mgr-view">
       <Toolbar createLabel={t.add} onCreate={() => setDialog({ type: 'form' })} />
-      {loading && !data && <LoadingState />}
+      {loading && !data && <AdminLoading />}
       {!loading && (error !== undefined || !data) && (
         <ErrorState error={error} onRetry={reload} />
       )}
       {data && data.length === 0 && (
-        <EmptyState title={t.emptyTitle} description={t.emptyDescription} />
+        <CardComponent>
+          <EmptyState title={t.emptyTitle} description={t.emptyDescription} />
+        </CardComponent>
       )}
       {data && data.length > 0 && (
-        <TableCard>
+        <CardComponent styles={{ body: { padding: 0 } }}>
           <TimeslotsTable
             items={data}
             onEdit={(timeslot) => setDialog({ type: 'form', timeslot })}
             onDelete={(timeslot) => setDialog({ type: 'delete', timeslot })}
           />
-        </TableCard>
+        </CardComponent>
       )}
       {dialog?.type === 'form' && (
         <TimeslotModal

@@ -1,7 +1,8 @@
+import { Alert, Button, Modal } from 'antd'
 import { useState } from 'react'
 
+import { mgrPopupContainer } from '../../../../../shared/components/antd'
 import { useI18n } from '../../../../../shared/i18n'
-import { Modal } from '../../../../../shared/components/ui'
 import { readApiError } from '../../../lib/catalogMappers'
 import { deleteConfirmMessages } from './DeleteConfirmModal.messages'
 
@@ -13,13 +14,7 @@ type Props = {
   onDeleted: () => void
 }
 
-export function DeleteConfirmModal({
-  title,
-  name,
-  onConfirm,
-  onClose,
-  onDeleted,
-}: Props) {
+export function DeleteConfirmModal({ title, name, onConfirm, onClose, onDeleted }: Props) {
   const { t } = useI18n(deleteConfirmMessages)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -39,37 +34,27 @@ export function DeleteConfirmModal({
 
   return (
     <Modal
+      open
+      centered
+      getContainer={mgrPopupContainer}
       width={440}
-      tone="danger"
-      icon="shield"
       title={title}
-      subtitle={name}
-      onClose={onClose}
+      onCancel={onClose}
       footer={
         <>
-          <button type="button" className="odm-btn odm-btn-gh" onClick={onClose}>
-            {t.cancel}
-          </button>
-          <button
-            type="button"
-            className="odm-btn is-danger"
-            onClick={handleConfirm}
-            disabled={busy}
-          >
+          <Button onClick={onClose}>{t.cancel}</Button>
+          <Button type="primary" danger onClick={handleConfirm} loading={busy}>
             {busy ? t.processing : t.action}
-          </button>
+          </Button>
         </>
       }
     >
+      <p className="mgr-modal-sub">{name}</p>
       <p className="adm-wrap">
         {t.confirmPrefix} <strong>{name}</strong>
         {t.confirmSuffix}
       </p>
-      {error && (
-        <div role="alert" className="adm-alert is-danger">
-          {error}
-        </div>
-      )}
+      {error && <Alert type="error" showIcon role="alert" message={error} />}
     </Modal>
   )
 }
