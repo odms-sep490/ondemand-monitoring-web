@@ -1,6 +1,10 @@
-import { handoverPageMessages } from '../HandoverPage.messages'
-import { useI18n } from '../../../../../shared/i18n'
+import { SafetyCertificateOutlined } from '@ant-design/icons'
+import { Checkbox } from 'antd'
 import type { Dispatch, SetStateAction } from 'react'
+
+import { CardComponent } from '../../../../../shared/components/antd'
+import { useI18n } from '../../../../../shared/i18n'
+import { handoverPageMessages } from '../HandoverPage.messages'
 
 export function CommitmentsCard({
   COMMITMENTS,
@@ -13,63 +17,32 @@ export function CommitmentsCard({
 }) {
   const { t } = useI18n(handoverPageMessages)
   return (
-    <div className="odm-card-body" style={{ padding: '18px 22px' }}>
-      <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 4 }}>
-        {t.commitmentTitle}
-      </div>
+    <CardComponent
+      title={t.commitmentTitle}
+      icon={<SafetyCertificateOutlined />}
+    >
       <div
-        className="odm-mono"
-        style={{
-          fontSize: 11.5,
-          color: 'var(--tx3)',
-          marginBottom: 12,
-        }}
+        className="stf-mono stf-muted"
+        style={{ fontSize: 12, marginBottom: 12 }}
       >
         control_handover.acknowledgement_text
       </div>
-      <ol
-        style={{
-          margin: 0,
-          padding: 0,
-          listStyle: 'none',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 10,
-        }}
-      >
+      <ol className="stf-commitments">
         {COMMITMENTS.map((text, i) => (
-          <li
-            key={i}
-            style={{
-              display: 'flex',
-              gap: 12,
-              fontSize: 13.5,
-              lineHeight: 1.5,
-            }}
-          >
-            <label
-              style={{
-                display: 'flex',
-                gap: 12,
-                cursor: 'pointer',
-                width: '100%',
+          <li key={i}>
+            <Checkbox
+              checked={checked[i]}
+              onChange={(e) => {
+                const next = [...checked]
+                next[i] = e.target.checked
+                setChecked(next)
               }}
             >
-              <input
-                type="checkbox"
-                checked={checked[i]}
-                onChange={(e) => {
-                  const next = [...checked]
-                  next[i] = e.target.checked
-                  setChecked(next)
-                }}
-                style={{ marginTop: 2, flex: 'none' }}
-              />
-              <span>{text}</span>
-            </label>
+              {text}
+            </Checkbox>
           </li>
         ))}
       </ol>
-    </div>
+    </CardComponent>
   )
 }

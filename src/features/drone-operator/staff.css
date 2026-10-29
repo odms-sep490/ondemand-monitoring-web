@@ -175,10 +175,6 @@
 }
 
 /* Page-level action bar (accept / reject, bottom of a form). */
-.stf-action-bar.ant-card {
-  border-color: var(--ant-color-primary-border, var(--mgr-border));
-}
-
 .stf-action-bar-body {
   display: flex;
   flex-wrap: wrap;
@@ -496,4 +492,64 @@
 
 .stf-embedded-card {
   height: 100%;
+}
+
+/* Handover */
+.stf-narrow {
+  max-width: 820px;
+  margin: 0 auto;
+}
+
+.stf-commitments {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stf-commitments .ant-checkbox-wrapper {
+  align-items: flex-start;
+  line-height: 1.5;
+}
+
+.stf-ack {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 14px 16px;
+  text-align: left;
+  font: inherit;
+  color: var(--mgr-text);
+  cursor: pointer;
+  border-radius: var(--mgr-radius);
+  border: 2px solid var(--mgr-border);
+  background: var(--mgr-card);
+  transition: border-color 0.15s ease;
+}
+
+.stf-ack:focus-visible {
+  outline: 2px solid currentcolor;
+  outline-offset: 2px;
+}
+
+.stf-ack-box {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 3px solid var(--mgr-border);
+}
+
+.stf-ack-box.is-on {
+  border-color: transparent;
+}
+
+.stf-ack-label {
+  font-size: 15px;
+  font-weight: 700;
 }

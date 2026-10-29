@@ -1,5 +1,7 @@
+import { Alert, theme } from 'antd'
 import { useState } from 'react'
 
+import { CardComponent } from '../../../../shared/components/antd'
 import { useI18n } from '../../../../shared/i18n'
 import { missionApi } from '../../../mission/api/missionApi'
 import { useActiveMission } from '../../api/useActiveMission'
@@ -23,6 +25,7 @@ import { HandoverActions } from './components/HandoverActions'
 export function HandoverPage({ missionId }: { missionId?: string }) {
   const mission = useActiveMission(missionId)
   const { t } = useI18n(handoverPageMessages)
+  const { token } = theme.useToken()
   const COMMITMENTS = t.commitments
   const missionLabel =
     mission.data?.missionCode ?? mission.missionId ?? t.noMissionSelected
@@ -101,19 +104,15 @@ export function HandoverPage({ missionId }: { missionId?: string }) {
   }
 
   return (
-    <div className="odm-card" style={{ marginBottom: 0 }}>
+    <CardComponent styles={{ body: { padding: 0 } }}>
       <FlightStepHeader
         title={t.stepTitle}
         missionId={missionLabel}
         active={4}
       />
-      <div style={{ padding: '18px 22px', maxWidth: 800, margin: '0 auto' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          {error && (
-            <p role="alert" style={{ color: 'var(--red-fg)' }}>
-              {error}
-            </p>
-          )}
+      <div className="stf-pad stf-narrow">
+        <div className="stf-stack">
+          {error && <Alert type="error" showIcon message={error} />}
           <DroneStrip
             missionLabel={missionLabel}
             droneLabel={deviceLabel ?? t.noDroneAssigned}
@@ -123,36 +122,23 @@ export function HandoverPage({ missionId }: { missionId?: string }) {
             <RevokedBanner onReconfirm={() => setRevoked(false)} />
           ) : (
             <>
-              <div className="odm-card">
-                <CommitmentsCard
-                  COMMITMENTS={COMMITMENTS}
-                  checked={checked}
-                  setChecked={setChecked}
-                />
-              </div>
+              <CommitmentsCard
+                COMMITMENTS={COMMITMENTS}
+                checked={checked}
+                setChecked={setChecked}
+              />
 
               <button
                 type="button"
+                aria-pressed={ack}
+                className={`stf-ack${ack ? ' is-on' : ''}`}
+                style={ack ? { borderColor: token.colorSuccess } : undefined}
                 onClick={() => setAck((v) => !v)}
-                style={{
-                  width: '100%',
-                  textAlign: 'left',
-                  display: 'flex',
-                  gap: 14,
-                  alignItems: 'center',
-                  padding: '14px 16px',
-                  borderRadius: 12,
-                  border: `2px solid ${ack ? 'var(--green-dot)' : 'var(--bd2)'}`,
-                  background: ack ? 'var(--green-bg)' : 'var(--sf)',
-                  cursor: 'pointer',
-                  font: 'inherit',
-                  color: 'inherit',
-                }}
               >
                 <AckToggle ack={ack} />
               </button>
 
-              <div style={{ display: 'flex', gap: 12 }}>
+              <div className="stf-row" style={{ flexWrap: 'nowrap' }}>
                 <HandoverActions
                   mission={mission}
                   canConfirm={canConfirm}
@@ -161,11 +147,8 @@ export function HandoverPage({ missionId }: { missionId?: string }) {
                 />
               </div>
               <div
-                style={{
-                  fontSize: 11.5,
-                  color: 'var(--tx3)',
-                  textAlign: 'center',
-                }}
+                className="stf-muted"
+                style={{ fontSize: 12, textAlign: 'center' }}
               >
                 {t.confirmLockedNote}
               </div>
@@ -173,6 +156,6 @@ export function HandoverPage({ missionId }: { missionId?: string }) {
           )}
         </div>
       </div>
-    </div>
+    </CardComponent>
   )
 }

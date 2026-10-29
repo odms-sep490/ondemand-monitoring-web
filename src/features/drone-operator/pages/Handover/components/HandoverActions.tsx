@@ -1,3 +1,5 @@
+import { Button } from 'antd'
+
 import { operatorHref } from '../../../routes'
 import { handoverPageMessages } from '../HandoverPage.messages'
 import { useI18n } from '../../../../../shared/i18n'
@@ -26,25 +28,25 @@ export function HandoverActions({
   const { t } = useI18n(handoverPageMessages)
   return (
     <>
-      <a
-        className="odm-btn"
+      <Button
+        size="large"
         href={operatorHref({
           screen: 'preflight',
           missionId: mission.missionId,
         })}
-        style={{ minWidth: 150 }}
       >
         {t.back}
-      </a>
-      <button
-        type="button"
-        className="odm-btn odm-btn-p"
-        disabled={!canConfirm}
-        onClick={handleConfirm}
+      </Button>
+      <Button
+        type="primary"
+        size="large"
         style={{ flex: 1 }}
+        disabled={!canConfirm}
+        loading={submitting}
+        onClick={handleConfirm}
       >
         {submitting ? t.processing : t.confirmHandover}
-      </button>
+      </Button>
     </>
   )
 }

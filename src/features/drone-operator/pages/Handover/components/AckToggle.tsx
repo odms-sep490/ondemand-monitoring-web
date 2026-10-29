@@ -1,27 +1,22 @@
-import { handoverPageMessages } from '../HandoverPage.messages'
+import { CheckOutlined } from '@ant-design/icons'
+import { theme } from 'antd'
+
 import { useI18n } from '../../../../../shared/i18n'
+import { handoverPageMessages } from '../HandoverPage.messages'
 
 export function AckToggle({ ack }: { ack: boolean }) {
   const { t } = useI18n(handoverPageMessages)
+  const { token } = theme.useToken()
   return (
     <>
       <span
-        style={{
-          width: 30,
-          height: 30,
-          borderRadius: 8,
-          flex: 'none',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          border: ack ? 'none' : '3px solid var(--bd2)',
-          background: ack ? 'var(--green-solid)' : 'transparent',
-          color: 'var(--green-on)',
-        }}
+        className={`stf-ack-box${ack ? ' is-on mgr-tone-green' : ''}`}
+        style={ack ? { color: token.colorWhite } : undefined}
+        aria-hidden="true"
       >
-        {ack ? '✓' : null}
+        {ack ? <CheckOutlined /> : null}
       </span>
-      <span style={{ fontSize: 15, fontWeight: 700 }}>{t.ackLabel}</span>
+      <span className="stf-ack-label">{t.ackLabel}</span>
     </>
   )
 }

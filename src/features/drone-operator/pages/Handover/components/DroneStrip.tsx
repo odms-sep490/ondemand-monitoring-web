@@ -1,3 +1,6 @@
+import { LinkOutlined } from '@ant-design/icons'
+
+import { CardComponent, StatusTag } from '../../../../../shared/components/antd'
 import { useI18n } from '../../../../../shared/i18n'
 import { handoverPageMessages } from '../HandoverPage.messages'
 
@@ -10,43 +13,21 @@ export function DroneStrip({
 }) {
   const { t } = useI18n(handoverPageMessages)
   return (
-    <div
-      style={{
-        display: 'flex',
-        gap: 14,
-        alignItems: 'center',
-        padding: '10px 14px',
-        background: 'var(--sf)',
-        border: '1px solid var(--bd)',
-        borderRadius: 12,
-      }}
-    >
-      <span
-        style={{
-          width: 40,
-          height: 40,
-          borderRadius: 10,
-          background: 'var(--sf3)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flex: 'none',
-        }}
-      >
-        🔗
-      </span>
-      <div style={{ flex: 1 }}>
-        <div style={{ fontWeight: 700, fontSize: 15 }}>
-          {droneLabel} · {missionLabel}
+    <CardComponent>
+      <div className="stf-row" style={{ flexWrap: 'nowrap' }}>
+        <span className="mgr-tile mgr-tile-sm mgr-tone-blue" aria-hidden="true">
+          <LinkOutlined />
+        </span>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontWeight: 700, fontSize: 15 }}>
+            {droneLabel} · {missionLabel}
+          </div>
+          <div className="stf-muted" style={{ fontSize: 12.5 }}>
+            {t.connectedAt}
+          </div>
         </div>
-        <div style={{ color: 'var(--tx3)', fontSize: 12.5 }}>
-          {t.connectedAt}
-        </div>
+        <StatusTag tone="success">{t.connected}</StatusTag>
       </div>
-      <span className="odm-badge odm-badge-green odm-badge-lg">
-        <span className="odm-badge-dot" aria-hidden="true" />
-        {t.connected}
-      </span>
-    </div>
+    </CardComponent>
   )
 }
