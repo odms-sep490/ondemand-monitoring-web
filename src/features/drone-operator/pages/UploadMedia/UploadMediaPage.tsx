@@ -21,7 +21,7 @@ import {
 } from '../../components/common/MissionResultActions'
 import './UploadMediaPage.css'
 import { useMissionMonitoring } from '../../../mission/hooks/useMissionMonitoring'
-import { finishedUploadStatuses } from './uploadMediaHelpers'
+import { successfullyUploadedStatuses } from './uploadMediaHelpers'
 import { useLocalMediaList } from './useLocalMediaList'
 import { useMediaWorkspace } from './useMediaWorkspace'
 import { UploadMediaBar } from './components/UploadMediaBar'
@@ -71,6 +71,7 @@ function UploadMediaContent({
     {},
   )
   const [preview, setPreview] = useState<LocalMedia | null>(null)
+  const [selectedMediaId, setSelectedMediaId] = useState<string | null>(null)
   const previewDialog = useRef<HTMLDialogElement>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -88,6 +89,7 @@ function UploadMediaContent({
     setSelectedTargets({})
     setAttachFailures({})
     setItems([])
+    setSelectedMediaId(null)
     itemsRef.current = []
     uploadedMediaIds.current = {}
   }, [missionId])
@@ -130,6 +132,7 @@ function UploadMediaContent({
     files,
     uploaded,
     uploading,
+    validating,
     manual,
     deviceLabel,
     canManageMedia,
@@ -194,6 +197,7 @@ function UploadMediaContent({
             totalMedia={totalMedia}
             pendingMedia={pendingMedia}
             uploading={uploading}
+            validating={validating}
             manual={manual}
             backRoute={backRoute}
             refreshWorkspace={refreshWorkspace}
@@ -233,7 +237,6 @@ function UploadMediaContent({
               {error}
             </p>
           )}
-          {loading && <p>{t.loadingMedia}</p>}
           {missionId && !canManageMedia && (
             <ManagerContactNotice
               permissions={permissions}
@@ -254,46 +257,89 @@ function UploadMediaContent({
                   view={view}
                   setView={setView}
                 />
-                {!loading && visibleItems.length === 0 && (
-                  <p className="upload-media-empty">{t.emptyMedia}</p>
+                {loading && items.length === 0 && (
+                  <div
+                    className="upload-media-loading"
+                    role="status"
+                    aria-label={t.loadingMedia}
+                  >
+                    <span className="upload-media-sr">{t.loadingMedia}</span>
+                    <span aria-hidden="true" />
+                    <span aria-hidden="true" />
+                  </div>
                 )}
-                <div
-                  className={`upload-media-grid${view === 'list' ? ' is-list' : ''}`}
-                >
-                  {visibleItems.map((item) => {
-                    const status = effectiveStatus(item)
-                    const canApprove = approvable.includes(item)
-                    const targetCount =
-                      selectedTargets[item.localMediaId]?.length ?? 0
-                    const canDiscard =
-                      ['REVIEW_PENDING', 'UPLOAD_FAILED'].includes(
-                        item.status,
-                      ) || finishedUploadStatuses.has(status)
-                    return (
-                      <MediaCard
-                        key={item.localMediaId}
-                        item={item}
-                        setPreview={setPreview}
-                        status={status}
-                        canManageMedia={canManageMedia}
-                        isBusy={isBusy}
-                        approve={approve}
-                        canApprove={canApprove}
-                        busyId={busyId}
-                        canDiscard={canDiscard}
-                        discard={discard}
-                        monitoring={monitoring}
-                        targetCount={targetCount}
-                        selectedTargets={selectedTargets}
-                        setSelectedTargets={setSelectedTargets}
-                        setBusyId={setBusyId}
-                        attachSelected={attachSelected}
-                        attachFailures={attachFailures}
-                        uploadPc={uploadPc}
-                      />
-                    )
-                  })}
-                </div>
+                {!loading &&
+                  !error &&
+                  visibleItems.length === 0 &&
+                  (items.length === 0 ? (
+                    <div className="upload-media-empty" role="status">
+                      <span
+                        className="upload-media-empty-icon"
+                        aria-hidden="true"
+                      >
+                        ▧
+                      </span>
+                      <strong>{t.emptyMedia}</strong>
+                      <p>{t.emptyMediaHelp}</p>
+                    </div>
+                  ) : (
+                    <div
+                      className="upload-media-empty is-filtered"
+                      role="status"
+                    >
+                      <p>{t.emptyFilteredMedia}</p>
+                      <button
+                        type="button"
+                        className="odm-btn"
+                        onClick={() => setFilter('all')}
+                      >
+                        {t.showAllMedia}
+                      </button>
+                    </div>
+                  ))}
+                {visibleItems.length > 0 && (
+                  <div
+                    className={`upload-media-grid${view === 'list' ? ' is-list' : ''}${view === 'grid' && visibleItems.length === 1 ? ' has-single-item' : ''}`}
+                  >
+                    {visibleItems.map((item) => {
+                      const status = effectiveStatus(item)
+                      const canApprove = approvable.includes(item)
+                      const targetCount =
+                        selectedTargets[item.localMediaId]?.length ?? 0
+                      const canDiscard =
+                        ['REVIEW_PENDING', 'UPLOAD_FAILED'].includes(
+                          item.status,
+                        ) || successfullyUploadedStatuses.has(status)
+                      return (
+                        <MediaCard
+                          key={item.localMediaId}
+                          item={item}
+                          onOpenPreview={(selectedItem) => {
+                            setSelectedMediaId(selectedItem.localMediaId)
+                            setPreview(selectedItem)
+                          }}
+                          isSelected={selectedMediaId === item.localMediaId}
+                          status={status}
+                          canManageMedia={canManageMedia}
+                          isBusy={isBusy}
+                          approve={approve}
+                          canApprove={canApprove}
+                          busyId={busyId}
+                          canDiscard={canDiscard}
+                          discard={discard}
+                          monitoring={monitoring}
+                          targetCount={targetCount}
+                          selectedTargets={selectedTargets}
+                          setSelectedTargets={setSelectedTargets}
+                          setBusyId={setBusyId}
+                          attachSelected={attachSelected}
+                          attachFailures={attachFailures}
+                          uploadPc={uploadPc}
+                        />
+                      )
+                    })}
+                  </div>
+                )}
               </section>
               {canManageMedia ? (
                 <MediaFileTable

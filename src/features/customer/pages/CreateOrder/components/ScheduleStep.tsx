@@ -1,6 +1,4 @@
 import { FileTextOutlined } from '@ant-design/icons'
-import type { ReactNode } from 'react'
-
 import { Card } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import type {
@@ -8,7 +6,11 @@ import type {
   ServiceOption,
 } from '../../../api/customerApi'
 import { calcArea } from '../../../lib/createOrder/payload'
-import type { FormErrors, FormState, UpdateField } from '../../../lib/createOrder/types'
+import type {
+  FormErrors,
+  FormState,
+  UpdateField,
+} from '../../../lib/createOrder/types'
 import { localizeServiceName } from '../../../lib/i18n/serviceNames'
 import { localizeTimeslot } from '../../../lib/i18n/timeslots'
 import { ScheduleCard } from './ScheduleCard'
@@ -22,15 +24,15 @@ type Props = {
   preferredTimes: PreferredTimeOption[]
   service?: ServiceOption
   time?: PreferredTimeOption
-  /** Wizard actions, rendered in-flow at the bottom of the summary panel. */
-  footer?: ReactNode
 }
 
 /** `2026-10-07` → `07/10/2026` for Vietnamese; other values pass through. */
 function formatDate(value: string, lang: string) {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value)
   if (!match) return value
-  return lang === 'vi' ? `${match[3]}/${match[2]}/${match[1]}` : `${match[2]}/${match[3]}/${match[1]}`
+  return lang === 'vi'
+    ? `${match[3]}/${match[2]}/${match[1]}`
+    : `${match[2]}/${match[3]}/${match[1]}`
 }
 
 /** Whole days between two ISO dates, inclusive; null when either is missing/invalid. */
@@ -47,7 +49,11 @@ export function ScheduleStep(p: Props) {
   const { form } = p
   const from = formatDate(form.preferredDateFrom, lang)
   const to = formatDate(form.preferredDateTo, lang)
-  const dates = !from ? t.notSelected : to && to !== from ? `${from} → ${to}` : from
+  const dates = !from
+    ? t.notSelected
+    : to && to !== from
+      ? `${from} → ${to}`
+      : from
   const days = inclusiveDays(form.preferredDateFrom, form.preferredDateTo)
 
   return (
@@ -60,7 +66,11 @@ export function ScheduleStep(p: Props) {
             update={p.update}
             preferredTimes={p.preferredTimes}
           />
-          <ScheduleOptionsCard form={form} errors={p.errors} update={p.update} />
+          <ScheduleOptionsCard
+            form={form}
+            errors={p.errors}
+            update={p.update}
+          />
         </div>
         <aside className="co-stack co-summary is-tall">
           <Card icon={<FileTextOutlined />} title={t.summaryTitle}>
@@ -100,7 +110,9 @@ export function ScheduleStep(p: Props) {
                 <span className="co-sum-icon" aria-hidden="true" />
                 <div className="co-sum-body">
                   <dt>{t.timeWindow}</dt>
-                  <dd>{p.time ? localizeTimeslot(p.time, lang) : t.notSelected}</dd>
+                  <dd>
+                    {p.time ? localizeTimeslot(p.time, lang) : t.notSelected}
+                  </dd>
                 </div>
               </div>
               <div className="co-sum-item">
@@ -136,7 +148,6 @@ export function ScheduleStep(p: Props) {
               </div>
             </dl>
           </Card>
-          {p.footer && <div className="co-summary-cta">{p.footer}</div>}
         </aside>
       </div>
     </>

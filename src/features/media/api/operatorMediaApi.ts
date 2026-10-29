@@ -21,7 +21,7 @@ export type LocalMedia = {
   checksumSha256: string
   capturedAt: string
   sourceType?: 'DRONE_CAMERA' | 'SATELLITE_SNAPSHOT' | 'MANUAL_UPLOAD' | null
-  status: 'REVIEW_PENDING' | 'UPLOADING' | 'UPLOAD_FAILED' | 'VALIDATING' | 'MANUAL_UPLOAD_REQUIRED' | 'UPLOAD_PENDING' | 'RETRY_REQUIRED' | 'PENDING_MANAGER_APPROVAL' | 'AVAILABLE'
+  status: 'REVIEW_PENDING' | 'UPLOADING' | 'UPLOAD_FAILED' | 'VALIDATING' | 'MANUAL_UPLOAD_REQUIRED' | 'UPLOAD_PENDING' | 'RETRY_REQUIRED' | 'PENDING_MANAGER_APPROVAL' | 'AVAILABLE' | 'REJECTED'
   previewError?: string
   backendMediaId?: string
   manualTaskId?: string

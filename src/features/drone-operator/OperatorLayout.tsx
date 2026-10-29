@@ -36,6 +36,11 @@ export function OperatorLayout({
   return (
     <div className="odm odm-opr">
       <div className="odm-opr-shell">
+        {route.screen === 'missionDetail' ? (
+          <a className="odm-opr-skip-link" href="#mission-detail-main">
+            Bỏ qua đến nội dung chính
+          </a>
+        ) : null}
         <OperatorSidebar
           route={route}
           pendingCount={pendingCount}
@@ -61,6 +66,12 @@ export function OperatorLayout({
             onOpenMenu={() => setMenuOpen(true)}
           />
           <main
+            id={
+              route.screen === 'missionDetail'
+                ? 'mission-detail-main'
+                : undefined
+            }
+            tabIndex={route.screen === 'missionDetail' ? -1 : undefined}
             className={
               fillContent
                 ? 'odm-opr-content odm-opr-content--fill'

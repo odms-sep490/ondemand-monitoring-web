@@ -1,5 +1,3 @@
-import type { ReactNode } from 'react'
-
 import type {
   PreferredTimeOption,
   ServiceDeliverableOption,
@@ -24,7 +22,6 @@ type Props = {
   update: UpdateField
   service?: ServiceOption
   time?: PreferredTimeOption
-  deliverable?: ServiceDeliverableOption
   deliverables: ServiceDeliverableOption[]
   deliverablesLoading: boolean
   deliverablesError?: unknown
@@ -37,8 +34,6 @@ type Props = {
   packageCount: number
   /** Jump back to an earlier step from the summary. */
   onEdit: (step: Step) => void
-  /** Wizard actions, rendered at the bottom of the sticky summary panel. */
-  footer?: ReactNode
 }
 
 /** Step 6: choose delivery options, review the request and submit. */
@@ -62,11 +57,9 @@ export function ReviewStep(p: Props) {
       </div>
       <aside className="co-stack co-summary is-tall co-review-summary">
         <RequestSummaryCard
-          mediaTotals={p.mediaTotals}
           form={p.form}
           service={p.service}
           time={p.time}
-          deliverable={p.deliverable}
           checklistCounts={{
             total: p.packageSelectedCount + p.additionalChecklists.length,
             packageSelected: p.packageSelectedCount,
@@ -82,7 +75,6 @@ export function ReviewStep(p: Props) {
           aiAnalysisRequested={false}
           additionalChecklists={p.additionalChecklists}
         />
-        {p.footer && <div className="co-summary-cta">{p.footer}</div>}
       </aside>
     </div>
   )

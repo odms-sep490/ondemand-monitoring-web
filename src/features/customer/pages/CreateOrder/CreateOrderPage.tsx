@@ -1,10 +1,7 @@
 import { Button } from 'antd'
 import { useEffect, useRef } from 'react'
 
-import {
-  ErrorState,
-  LoadingState,
-} from '../../components/common/StateView'
+import { ErrorState, LoadingState } from '../../components/common/StateView'
 import { PageHeader } from '../../components/common/ui'
 import { useI18n } from '../../../../shared/i18n'
 import { customerHref } from '../../routes'
@@ -20,6 +17,7 @@ import { StepTabs } from './components/StepTabs'
 import { WizardFooter } from './components/WizardFooter'
 import { createOrderPageMessages } from './CreateOrderPage.messages'
 import './CreateOrder.css'
+import './CreateOrder.refinement.css'
 import { useCreateOrderWizard } from './hooks/useCreateOrderWizard'
 import { ChecklistEditor } from '../../components/checklist/ChecklistEditor'
 import { selectionEstimate } from '../../lib/checklist/selectionEstimate'
@@ -29,16 +27,8 @@ import type { Step } from '../../lib/createOrder/types'
 export function CreateOrderPage() {
   const pageRef = useRef<HTMLDivElement>(null)
   const { t } = useI18n(createOrderPageMessages)
-  const {
-    f,
-    meta,
-    wizard,
-    submit,
-    service,
-    time,
-    deliverable,
-    checklist,
-  } = useCreateOrderWizard()
+  const { f, meta, wizard, submit, service, time, checklist } =
+    useCreateOrderWizard()
   const { form, step } = f
   const estimate = selectionEstimate(
     meta.pricingEstimate,
@@ -47,8 +37,12 @@ export function CreateOrderPage() {
   const additionalChecklists = checklist.rows.filter(
     (row) => row.selected && row.packageItem === false,
   )
-  const packageChecklists = checklist.rows.filter((row) => row.packageItem === true)
-  const packageSelectedCount = packageChecklists.filter((row) => row.selected).length
+  const packageChecklists = checklist.rows.filter(
+    (row) => row.packageItem === true,
+  )
+  const packageSelectedCount = packageChecklists.filter(
+    (row) => row.selected,
+  ).length
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
@@ -69,22 +63,25 @@ export function CreateOrderPage() {
   }
 
   const footer = (
-    <WizardFooter
-      step={step}
-      nextLabel={t.stepLabels[Math.min(6, step + 1) as Step]}
-      submitDisabled={meta.loading || submit.submitting || !checklist.valid}
-      nextDisabled={step === 3 && !checklist.valid}
-      blockedReason={
-        (step === 3 || step === 6) && !checklist.valid
-          ? t.blockedChecklist
-          : step === 6 && meta.loading
-            ? t.blockedLoading
-            : null
-      }
-      onBack={wizard.back}
-      onNext={wizard.next}
-      onSubmit={submit.openConfirm}
-    />
+    <nav className="co-action-dock" aria-label={t.navigationLabel}>
+      <WizardFooter
+        step={step}
+        nextLabel={t.stepLabels[Math.min(6, step + 1) as Step]}
+        submitDisabled={meta.loading || submit.submitting || !checklist.valid}
+        submitting={submit.submitting}
+        nextDisabled={step === 3 && !checklist.valid}
+        blockedReason={
+          (step === 3 || step === 6) && !checklist.valid
+            ? t.blockedChecklist
+            : step === 6 && meta.loading
+              ? t.blockedLoading
+              : null
+        }
+        onBack={wizard.back}
+        onNext={wizard.next}
+        onSubmit={submit.openConfirm}
+      />
+    </nav>
   )
 
   return (
@@ -103,7 +100,12 @@ export function CreateOrderPage() {
           </Button>
         }
       />
-      <StepTabs step={step} reached={wizard.reached} labels={t.stepLabels} onSelect={wizard.goTo} />
+      <StepTabs
+        step={step}
+        reached={wizard.reached}
+        labels={t.stepLabels}
+        onSelect={wizard.goTo}
+      />
 
       {meta.loading && !meta.services.length && <LoadingState />}
       {Boolean(meta.error) && (
@@ -124,11 +126,10 @@ export function CreateOrderPage() {
           pricingEstimate={estimate}
           pricingLoading={checklist.quote.loading}
           additionalChecklists={additionalChecklists}
-          footer={footer}
         />
       )}
       {step === 2 && (
-        <LocationStep form={form} errors={f.errors} update={f.update} footer={footer} />
+        <LocationStep form={form} errors={f.errors} update={f.update} />
       )}
       {step === 3 && (
         <ContentStep
@@ -150,16 +151,10 @@ export function CreateOrderPage() {
               onReload={() => f.setSubmitError(null)}
             />
           }
-          footer={footer}
         />
       )}
       {step === 4 && (
-        <SiteDetailsStep
-          form={form}
-          errors={f.errors}
-          update={f.update}
-          footer={footer}
-        />
+        <SiteDetailsStep form={form} errors={f.errors} update={f.update} />
       )}
       {step === 5 && (
         <ScheduleStep
@@ -169,7 +164,6 @@ export function CreateOrderPage() {
           preferredTimes={meta.preferredTimes}
           service={service}
           time={time}
-          footer={footer}
         />
       )}
       {step === 6 && (
@@ -179,7 +173,6 @@ export function CreateOrderPage() {
           update={f.update}
           service={service}
           time={time}
-          deliverable={deliverable}
           deliverables={meta.deliverables}
           deliverablesLoading={meta.deliverablesLoading}
           deliverablesError={meta.deliverablesError}
@@ -191,7 +184,6 @@ export function CreateOrderPage() {
           packageSelectedCount={packageSelectedCount}
           packageCount={packageChecklists.length}
           onEdit={wizard.goTo}
-          footer={footer}
         />
       )}
 
@@ -200,6 +192,8 @@ export function CreateOrderPage() {
           {f.submitError}
         </div>
       )}
+
+      {footer}
 
       {submit.confirmOpen && (
         <ConfirmSubmitModal

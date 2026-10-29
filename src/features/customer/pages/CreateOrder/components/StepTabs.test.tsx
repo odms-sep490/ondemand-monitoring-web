@@ -15,11 +15,16 @@ const labels = {
 describe('StepTabs', () => {
   it('keeps steps already reached clickable after going back', () => {
     const onSelect = vi.fn()
-    render(<StepTabs step={3} reached={5} labels={labels} onSelect={onSelect} />)
+    render(
+      <StepTabs step={3} reached={5} labels={labels} onSelect={onSelect} />,
+    )
     const tabs = screen.getAllByRole('button')
     expect(tabs[3]).toBeEnabled()
     expect(tabs[4]).toBeEnabled()
     expect(tabs[5]).toBeDisabled()
+    expect(tabs[0]).toHaveAccessibleName('Một — đã hoàn tất')
+    expect(tabs[2]).toHaveAccessibleName('Ba — đang thực hiện')
+    expect(tabs[3]).toHaveAccessibleName('Bốn — chưa thực hiện')
     fireEvent.click(tabs[4])
     expect(onSelect).toHaveBeenCalledWith(5)
   })

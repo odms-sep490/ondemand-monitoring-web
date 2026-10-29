@@ -24,7 +24,11 @@ export function DeliverablesCard({
 }: Props) {
   const { t } = useI18n(deliverablesCardMessages)
   return (
-    <Card icon={<PictureOutlined />} title={t.cardTitle}>
+    <Card
+      className="co-deliverables-card"
+      icon={<PictureOutlined />}
+      title={t.cardTitle}
+    >
       <p className="co-hint co-card-sub">{t.cardSubtitle}</p>
       {loading && <p className="co-hint">{t.loading}</p>}
       {!loading && error ? (

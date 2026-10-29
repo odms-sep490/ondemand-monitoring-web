@@ -11,66 +11,89 @@ import {
   missionDescriptionText,
 } from '../missionFormat'
 import { InfoRow } from './InfoRow'
+import { Icon } from '../../../../../shared/components/Icon'
 
 // ─── Mission info card ────────────────────────────────────────────────────────
 
-export function MissionInfoCard({ mission }: { mission: OperatorMission }) {
+export function MissionInfoCard({
+  mission,
+  compact = false,
+}: {
+  mission: OperatorMission
+  compact?: boolean
+}) {
   return (
-    <div className="odm-card">
+    <section className="odm-card" aria-labelledby="mission-info-heading">
       <div className="odm-card-header">
-        <span style={{ fontWeight: 700 }}>Thông tin nhiệm vụ</span>
-        <StatusBadge tone={STATUS_TONE[mission.status]}>
-          {missionStopLabel(mission) ??
-            missionStatusLabel(mission.backendStatus ?? mission.status)}
-        </StatusBadge>
+        <h2 id="mission-info-heading" className="mds-card-heading">
+          {compact ? 'Thông tin bổ sung' : 'Thông tin nhiệm vụ'}
+        </h2>
+        {!compact ? (
+          <StatusBadge tone={STATUS_TONE[mission.status]}>
+            {missionStopLabel(mission) ??
+              missionStatusLabel(mission.backendStatus ?? mission.status)}
+          </StatusBadge>
+        ) : null}
       </div>
       <div className="odm-card-body" style={{ padding: '10px 14px' }}>
+        {!compact ? (
+          <>
+            <InfoRow
+              icon={<Icon name="file-text" width={15} height={15} />}
+              label="Mã nhiệm vụ"
+              value={mission.missionCode ?? mission.id}
+            />
+            <InfoRow
+              icon={<Icon name="activity" width={15} height={15} />}
+              label="Trạng thái hệ thống"
+              value={missionStatusLabel(
+                mission.backendStatus ?? mission.status,
+              )}
+            />
+            <InfoRow
+              icon={<Icon name="clock" width={15} height={15} />}
+              label="Ngày bay"
+              value={formatVnDate(mission.date)}
+            />
+            <InfoRow
+              icon={<Icon name="clock" width={15} height={15} />}
+              label="Giờ bắt đầu"
+              value={mission.startTime || 'Chưa lên lịch'}
+            />
+            <InfoRow
+              icon={<Icon name="clock" width={15} height={15} />}
+              label="Giờ kết thúc"
+              value={mission.endTime || 'Chưa lên lịch'}
+            />
+            <InfoRow
+              icon={<Icon name="map-pin" width={15} height={15} />}
+              label="Địa điểm"
+              value={locationLabel(mission.location)}
+            />
+            <InfoRow
+              icon={<Icon name="route" width={15} height={15} />}
+              label="Vùng giám sát"
+              value={`Bán kính ${mission.radiusMeters == null ? '—' : `${mission.radiusMeters} m`}`}
+            />
+          </>
+        ) : null}
         <InfoRow
-          icon="#"
-          label="Mã nhiệm vụ"
-          value={mission.missionCode ?? mission.id}
-        />
-        <InfoRow
-          icon="•"
-          label="Trạng thái hệ thống"
-          value={missionStatusLabel(mission.backendStatus ?? mission.status)}
-        />
-        <InfoRow
-          icon="📅"
-          label="Ngày bay"
-          value={formatVnDate(mission.date)}
-        />
-        <InfoRow
-          icon="⏱"
-          label="Giờ bắt đầu"
-          value={mission.startTime || 'Chưa lên lịch'}
-        />
-        <InfoRow
-          icon="⏳"
-          label="Giờ kết thúc"
-          value={mission.endTime || 'Chưa lên lịch'}
-        />
-        <InfoRow
-          icon="📍"
-          label="Địa điểm"
-          value={locationLabel(mission.location)}
-        />
-        <InfoRow
-          icon="🔵"
-          label="Vùng giám sát"
-          value={`Bán kính ${mission.radiusMeters == null ? '—' : `${mission.radiusMeters} m`}`}
-        />
-        <InfoRow
-          icon="◎"
+          icon={<Icon name="map-pin" width={15} height={15} />}
           label="Tọa độ GPS"
           value={`${formatCoord(mission.latitude)}, ${formatCoord(mission.longitude)}`}
         />
         <InfoRow
-          icon="X"
+          icon={<Icon name="activity" width={15} height={15} />}
           label="Tọa độ mô phỏng"
           value={`X ${dash(mission.targetX)} · Y ${dash(mission.targetY)}`}
         />
-        <InfoRow icon="📋" label="Loại nhiệm vụ" value={mission.serviceLabel} />
+        {!compact ? (
+          <InfoRow
+            icon={<Icon name="clipboard" width={15} height={15} />}
+            label="Loại nhiệm vụ"
+            value={mission.serviceLabel}
+          />
+        ) : null}
 
         {/* Description */}
         <div
@@ -80,30 +103,12 @@ export function MissionInfoCard({ mission }: { mission: OperatorMission }) {
             marginTop: 6,
           }}
         >
-          <div
-            style={{
-              fontSize: 11.5,
-              color: 'var(--tx3)',
-              marginBottom: 5,
-              fontWeight: 600,
-            }}
-          >
-            Mô tả mission
-          </div>
-          <div
-            style={{
-              fontSize: 12,
-              lineHeight: 1.55,
-              color: 'var(--tx2)',
-              whiteSpace: 'pre-wrap',
-              maxHeight: 90,
-              overflowY: 'auto',
-            }}
-          >
+          <h3 className="mds-info-description-heading">Mô tả nhiệm vụ</h3>
+          <div className="mds-info-description">
             {missionDescriptionText(mission.description)}
           </div>
         </div>
       </div>
-    </div>
+    </section>
   )
 }

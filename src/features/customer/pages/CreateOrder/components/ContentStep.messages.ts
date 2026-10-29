@@ -4,7 +4,6 @@ export const contentStepMessages = defineMessages({
   vi: {
     summaryTitle: 'Tóm tắt yêu cầu',
     editorTitle: 'Danh sách nội dung giám sát',
-    navigationTitle: 'Điều hướng các bước tạo yêu cầu',
     service: 'Dịch vụ đã chọn',
     notSelected: 'Chưa chọn',
     selectedCount: 'Nội dung đã chọn',
@@ -18,7 +17,6 @@ export const contentStepMessages = defineMessages({
   en: {
     summaryTitle: 'Request summary',
     editorTitle: 'Monitoring content list',
-    navigationTitle: 'Request step navigation',
     service: 'Selected service',
     notSelected: 'Not selected',
     selectedCount: 'Selected content',

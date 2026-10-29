@@ -3,7 +3,10 @@ import type { ReactNode } from 'react'
 
 import { Card } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
-import type { ServiceOption, ServicePricingEstimate } from '../../../api/customerApi'
+import type {
+  ServiceOption,
+  ServicePricingEstimate,
+} from '../../../api/customerApi'
 import { localizeServiceName } from '../../../lib/i18n/serviceNames'
 import type { ChecklistRow } from '../../../lib/checklist/types'
 import { contentStepMessages } from './ContentStep.messages'
@@ -22,7 +25,6 @@ type Props = {
   pricingEstimate: ServicePricingEstimate | null
   pricingLoading: boolean
   aiAnalysisRequested: boolean
-  footer?: ReactNode
 }
 
 /** Edit requirements while summary and navigation remain available on all screens. */
@@ -39,14 +41,22 @@ export function ContentStep(p: Props) {
           {p.checklist}
         </section>
         <div className="co-content-sidegroup">
-          <aside className="co-summary co-content-aside" aria-label={t.summaryTitle}>
+          <aside
+            className="co-summary co-content-aside"
+            aria-label={t.summaryTitle}
+          >
             <Card icon={<FileTextOutlined />} title={t.summaryTitle}>
               <div className="co-content-service">
                 <span className="co-content-service-label">{t.service}</span>
-                <strong className="co-content-service-name">{serviceName}</strong>
+                <strong className="co-content-service-name">
+                  {serviceName}
+                </strong>
               </div>
               <div className="co-content-stats">
-                <Metric label={t.totalContent} value={String(p.selectedCount)} />
+                <Metric
+                  label={t.totalContent}
+                  value={String(p.selectedCount)}
+                />
                 <Metric
                   label={t.packageContent}
                   value={t.count(p.packageSelectedCount, p.packageCount)}
@@ -56,7 +66,10 @@ export function ContentStep(p: Props) {
                   value={String(p.additionalChecklists.length)}
                 />
               </div>
-              <p className="co-content-hint" role={p.valid ? undefined : 'alert'}>
+              <p
+                className="co-content-hint"
+                role={p.valid ? undefined : 'alert'}
+              >
                 {p.valid ? t.hint : t.invalid}
               </p>
             </Card>
@@ -68,11 +81,6 @@ export function ContentStep(p: Props) {
               additionalChecklists={p.additionalChecklists}
             />
           </aside>
-          {p.footer && (
-            <nav className="co-content-navigation" aria-label={t.navigationTitle}>
-              {p.footer}
-            </nav>
-          )}
         </div>
       </div>
     </div>

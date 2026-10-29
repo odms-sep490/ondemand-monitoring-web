@@ -7,6 +7,7 @@ import type {
   WeatherPreflightStatus,
   PostflightCheckStatus,
 } from '../types'
+import { Icon } from '../../../../../shared/components/Icon'
 import {
   readStoredPreflightState,
   readStoredWeatherState,
@@ -16,7 +17,6 @@ import {
 } from '../checkData'
 import { isAwaitingResponse } from '../missionResponse'
 import { MissionHeader } from './MissionHeader'
-import { formatVnDate, locationLabel } from '../missionFormat'
 import { DecisionSummary } from './DecisionSummary'
 import { MissionMapCard } from './MissionMapCard'
 import { MissionInfoCard } from './MissionInfoCard'
@@ -112,27 +112,18 @@ export function MissionDashboard({
 
   if (isAwaitingResponse(mission)) {
     return (
-      <div className="mds-pending">
+      <div className="mds-dashboard mds-pending">
         <MissionHeader mission={mission} access={access} />
-        <p className="mds-meta-line">
-          {[
-            mission.serviceLabel,
-            [formatVnDate(mission.date), mission.startTime]
-              .filter(Boolean)
-              .join(' · '),
-            locationLabel(mission.location),
-          ]
-            .filter(Boolean)
-            .join(' · ')}
-        </p>
         <DecisionSummary mission={mission} />
         <div
           className="mds-action-bar"
-          role="region"
-          aria-label="Phản hồi nhiệm vụ"
+          role="group"
+          aria-labelledby="mission-response-heading"
         >
           <div className="mds-action-bar-text">
-            Bạn có muốn nhận nhiệm vụ này?
+            <h2 id="mission-response-heading" className="mds-card-heading">
+              Bạn có muốn nhận nhiệm vụ này?
+            </h2>
             {!access?.canRespond && (
               <small>Bạn chưa có quyền phản hồi nhiệm vụ này.</small>
             )}
@@ -152,7 +143,7 @@ export function MissionDashboard({
               onClick={onAccept}
               disabled={submitting || !access?.canRespond}
             >
-              {submitting ? 'Đang xử lý...' : '✓ Chấp nhận nhiệm vụ'}
+              {submitting ? 'Đang xử lý...' : 'Chấp nhận nhiệm vụ'}
             </button>
           </div>
         </div>
@@ -172,32 +163,34 @@ export function MissionDashboard({
             {actionError}
           </div>
         ) : null}
-        <MissionMapCard mission={mission} />
-        <div className="mds-tab-grid" style={{ marginTop: 16 }}>
-          <div className="mds-col">
-            <MissionInfoCard mission={mission} />
+        <div className="mds-pending-grid">
+          <div className="mds-col mds-pending-primary">
+            <MissionMapCard mission={mission} />
+            <details className="odm-card mds-pending-checklist">
+              <summary>
+                <span>Checklist thực hiện</span>
+                <small>
+                  <Icon name="lock" width={14} height={14} aria-hidden="true" />
+                  Checklist chỉ đọc trước khi nhận nhiệm vụ. Bấm để xem trước.
+                </small>
+              </summary>
+              <div className="mds-pending-checklist-body">
+                {monitoringSection}
+              </div>
+            </details>
+          </div>
+          <div className="mds-col mds-pending-secondary">
+            <MissionInfoCard mission={mission} compact />
+            <DroneDeviceCard mission={mission} compact />
             {mission.managerNote ? <ManagerNoteCard mission={mission} /> : null}
           </div>
-          <div className="mds-col">
-            <DroneDeviceCard mission={mission} />
-          </div>
         </div>
-        <details className="odm-card mds-pending-checklist">
-          <summary>
-            Checklist thực hiện
-            <small>
-              🔒 Checklist sẽ được mở sau khi bạn chấp nhận nhiệm vụ. Bấm để xem
-              trước.
-            </small>
-          </summary>
-          <div className="mds-pending-checklist-body">{monitoringSection}</div>
-        </details>
       </div>
     )
   }
 
   return (
-    <div>
+    <div className="mds-dashboard">
       {/* ── Header ── */}
       <MissionHeader
         mission={mission}
@@ -225,7 +218,7 @@ export function MissionDashboard({
         </div>
       ) : null}
 
-      <div className="mds-tabs" role="tablist">
+      <div className="mds-tabs" role="tablist" aria-label="Nội dung nhiệm vụ">
         {tabs.map((t) => (
           <button
             key={t.id}

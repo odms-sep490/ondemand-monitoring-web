@@ -385,6 +385,29 @@
   display: none;
 }
 
+.odm-opr-skip-link {
+  position: absolute;
+  top: 8px;
+  left: 244px;
+  z-index: 1000;
+  transform: translateY(calc(-100% - 12px));
+  padding: 10px 14px;
+  border: 2px solid var(--focus, #1767ff);
+  border-radius: 8px;
+  background: var(--sf, #fff);
+  color: var(--tx, #0f172a);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.16);
+}
+
+.odm-opr-skip-link:focus-visible {
+  transform: translateY(0);
+  outline: 3px solid var(--focus, #1767ff);
+  outline-offset: 2px;
+}
+
 /* ---------- Main column + top bar ---------- */
 
 .odm-opr-main {
@@ -594,6 +617,10 @@
 }
 
 @media (max-width: 900px) {
+  .odm-opr-skip-link {
+    left: 12px;
+  }
+
   .odm-opr-side {
     position: fixed;
     inset: 0 auto 0 0;
@@ -660,6 +687,21 @@
   gap: 10px;
   margin-bottom: 6px;
 }
+.mds-title {
+  min-width: 0;
+  flex: 1 1 220px;
+  margin: 0;
+  color: var(--tx);
+  font-size: clamp(18px, 1.7vw, 22px);
+  font-weight: 700;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+.mds-title .odm-mono {
+  font: inherit;
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  letter-spacing: 0.01em;
+}
 .mds-header-row > .odm-btn,
 .mds-header-row > a.odm-btn {
   white-space: nowrap;
@@ -668,13 +710,10 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  min-height: 40px;
+  min-height: 44px;
   padding: 0 20px;
   font-weight: 600;
   box-shadow: 0 2px 8px rgba(37, 99, 235, 0.28);
-}
-.mds-header-row .mds-cta::before {
-  content: '⚡';
 }
 @media (max-width: 640px) {
   .mds-header-row .mds-cta {
@@ -699,7 +738,145 @@
 }
 
 .mds-map-viewport {
-  height: clamp(520px, 34vw, 580px);
+  position: relative;
+  height: clamp(360px, 27vw, 420px);
+  overflow: hidden;
+  background: #111827;
+}
+
+.mds-map-card {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.mds-map-header {
+  flex-wrap: wrap;
+  gap: 10px 16px;
+}
+
+.mds-card-heading {
+  min-width: 0;
+  margin: 0;
+  color: var(--tx);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: normal;
+  overflow-wrap: anywhere;
+}
+
+.mds-map-modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.mds-map-mode {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+  background: var(--sf);
+  color: var(--tx2);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.mds-map-mode:hover:not(:disabled) {
+  border-color: var(--blue-dot, #1767ff);
+  color: var(--blue-dot, #1767ff);
+}
+
+.mds-map-mode.is-active {
+  border-color: var(--blue-dot, #1767ff);
+  background: var(--blue-bg, #eff6ff);
+  color: var(--blue-fg, #1d4ed8);
+}
+
+.mds-map-mode:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.mds-leaflet-map {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.mds-map-radius,
+.mds-map-restriction {
+  position: absolute;
+  z-index: 500;
+  bottom: 10px;
+  max-width: calc(50% - 18px);
+  padding: 8px 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.12);
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.mds-map-radius {
+  left: 10px;
+  background: rgba(255, 255, 255, 0.96);
+  color: var(--tx);
+}
+
+.mds-map-restriction {
+  right: 10px;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  background: rgba(254, 242, 242, 0.96);
+  color: #991b1b;
+  text-align: right;
+}
+
+.mds-map-viewport .leaflet-control-zoom a {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  line-height: 1;
+  font-size: 22px;
+}
+
+.mds-map-viewport .leaflet-control-zoom a:focus-visible {
+  position: relative;
+  z-index: 2;
+  outline: 3px solid var(--focus, #1767ff);
+  outline-offset: 2px;
+}
+
+.mds-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.mds-info-icon {
+  display: inline-flex;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  align-items: center;
+  justify-content: center;
+}
+
+.mds-info-icon svg {
+  width: 15px;
+  height: 15px;
 }
 
 .mds-waypoint-scroll {
@@ -758,7 +935,7 @@
   }
 
   .mds-map-viewport {
-    height: clamp(500px, 48vw, 560px);
+    height: clamp(340px, 34vw, 390px);
   }
 }
 
@@ -776,16 +953,61 @@
   }
 
   .mds-map-viewport {
-    height: clamp(360px, 70vw, 520px);
+    height: clamp(300px, 42vw, 360px);
   }
 }
 
 /* Mission detail tabs */
-.mds-tabs{display:flex;gap:4px;padding:4px;margin:0 0 16px;background:#f1f5f9;border-radius:12px;overflow-x:auto;width:fit-content;max-width:100%}
-.mds-tab{border:0;background:transparent;padding:9px 16px;border-radius:9px;font-size:14px;font-weight:600;color:#475569;cursor:pointer;white-space:nowrap}
-.mds-tab.is-active{background:#fff;color:#1767ff;box-shadow:0 1px 3px rgba(15,23,42,.12)}
-.mds-tab-grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px;align-items:start}
-@media (max-width:999px){.mds-tab-grid{grid-template-columns:minmax(0,1fr)}}
+.mds-dashboard {
+  min-width: 0;
+}
+
+.mds-dashboard :is(a, button, summary, [tabindex]):focus-visible {
+  outline: 3px solid var(--focus, #1767ff);
+  outline-offset: 3px;
+}
+
+.mds-tabs {
+  display: flex;
+  gap: 4px;
+  max-width: 100%;
+  padding: 4px;
+  margin: 0 0 16px;
+  overflow-x: auto;
+  border-radius: 12px;
+  background: #f1f5f9;
+}
+
+.mds-tab {
+  min-height: 44px;
+  padding: 9px 16px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #475569;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.mds-tab.is-active {
+  background: #fff;
+  color: #1767ff;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
+}
+
+.mds-tab-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+@media (max-width: 999px) {
+  .mds-tab-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
 
 .mds-sticky-col{position:sticky;top:84px}
 @media (max-width:999px){.mds-sticky-col{position:static}}
@@ -796,9 +1018,7 @@
 .odm-opr-mission-table .odm-opr-mission-job,.odm-opr-mission-table td.odm-opr-mission-job{overflow:visible}
 
 /* ── Mission detail: waiting for pilot response ── */
-.mds-pending {
-  padding-bottom: 16px;
-}
+.mds-pending { padding-bottom: 16px; }
 .mds-meta-line {
   margin: 0 0 12px 2px;
   color: var(--tx2, #334155);
@@ -809,40 +1029,108 @@
 }
 .mds-decision-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-  gap: 14px 20px;
-  padding: 14px 16px;
+  grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
+  gap: 14px 18px;
+  padding: 16px;
 }
 .mds-decision-item dt {
-  font-size: 12.5px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--tx2, #475569);
 }
 .mds-decision-item dd {
   margin: 2px 0 0;
-  font-size: 14px;
+  font-size: 14.5px;
+  line-height: 1.45;
   font-weight: 600;
   color: var(--tx, #0f172a);
   overflow-wrap: anywhere;
 }
+.mds-pending-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(300px, 0.95fr);
+  gap: 16px;
+  align-items: start;
+}
+.mds-pending-grid > * { min-width: 0; }
+.mds-device-details {
+  margin-top: 10px;
+  border-top: 1px solid var(--bd);
+  color: var(--tx2, #475569);
+}
+.mds-device-details summary {
+  min-height: 40px;
+  padding: 10px 2px 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+}
+.mds-device-details summary:focus-visible {
+  outline: 2px solid #1767ff;
+  outline-offset: 2px;
+}
+.mds-device-details > div {
+  padding-bottom: 4px;
+}
+.mds-device-primary-rows .mds-info-row:last-child {
+  border-bottom: 0;
+}
+.mds-info-row {
+  font-size: 13.5px !important;
+  line-height: 1.45;
+}
+.mds-info-description-heading {
+  margin: 0 0 5px;
+  color: var(--tx2);
+  font-size: 13px;
+  font-weight: 700;
+}
+.mds-info-description {
+  max-height: 120px;
+  overflow-y: auto;
+  color: var(--tx2);
+  font-size: 13.5px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.mds-note-heading { margin: 0; }
+.mds-weather-icon {
+  display: flex;
+  align-items: center;
+  min-height: 24px;
+  margin-bottom: 6px;
+  color: var(--blue-dot, #1767ff);
+  font-size: 20px;
+}
+.mds-weather-icon svg { width: 20px; height: 20px; }
 .mds-pending-checklist {
-  margin-top: 16px;
+  margin-top: 0;
 }
 .mds-pending-checklist summary {
   cursor: pointer;
+  min-height: 44px;
   padding: 12px 16px;
   font-weight: 600;
   list-style: none;
+  overflow-wrap: anywhere;
 }
 .mds-pending-checklist summary:focus-visible {
   outline: 2px solid #1767ff;
   outline-offset: -2px;
 }
 .mds-pending-checklist summary small {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 6px;
   margin-top: 2px;
   font-weight: 400;
   color: var(--tx2, #475569);
+  font-size: 13px;
+  line-height: 1.45;
 }
 .mds-pending-checklist-body {
   padding: 0 16px 16px;
@@ -852,10 +1140,9 @@
   margin-bottom: 16px;
   border-color: #b9ccf5 !important;
   background: #f3f7ff !important;
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
   gap: 12px;
   margin-top: 16px;
   padding: 12px 16px;
@@ -865,8 +1152,12 @@
   box-shadow: 0 -4px 16px rgba(15, 23, 42, 0.08);
 }
 .mds-action-bar-text {
+  min-width: 0;
   font-weight: 600;
   color: var(--tx, #0f172a);
+}
+.mds-action-bar-text .mds-card-heading {
+  font-size: 16px;
 }
 .mds-action-bar-text small {
   display: block;
@@ -875,11 +1166,19 @@
 }
 .mds-action-bar-buttons {
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
   align-items: center;
+  justify-content: flex-end;
+  min-width: 0;
+}
+.mds-action-bar-buttons .odm-btn {
+  min-width: 112px;
+  min-height: 44px;
+  white-space: normal;
 }
 .mds-action-bar .odm-btn-p {
-  min-height: 42px;
+  min-height: 44px;
   padding: 0 24px;
   font-weight: 700;
 }
@@ -890,4 +1189,57 @@
 .mds-action-bar .odm-btn:disabled {
   opacity: 0.55;
   cursor: not-allowed;
+}
+
+@media (max-width: 1199px) {
+  .mds-pending-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 999px) {
+  .mds-action-bar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mds-action-bar-buttons {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 640px) {
+  .mds-map-modes {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .mds-map-mode {
+    flex: 1 1 140px;
+  }
+
+  .mds-map-viewport {
+    height: clamp(260px, 72vw, 320px);
+  }
+
+  .mds-map-radius,
+  .mds-map-restriction {
+    max-width: calc(50% - 16px);
+    padding: 7px 8px;
+    font-size: 11.5px;
+  }
+
+  .mds-action-bar-buttons {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .mds-action-bar-buttons .odm-btn {
+    width: 100%;
+  }
+
+  .mds-header-row .mds-cta {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
 }
