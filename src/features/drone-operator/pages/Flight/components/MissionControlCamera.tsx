@@ -63,9 +63,10 @@ export function MissionControlCamera({
           height: '100%',
           overflow: 'hidden',
           borderRadius: 10,
-          border: '1px solid rgba(59, 130, 246, 0.32)',
-          background: '#020617',
-          boxShadow: '0 18px 45px rgba(0, 0, 0, 0.24)',
+          border:
+            '1px solid color-mix(in srgb, var(--fc-blue) 32%, transparent)',
+          background: 'var(--fc-bg)',
+          boxShadow: '0 18px 45px color-mix(in srgb, black 24%, transparent)',
         }}
       >
         <CameraFeed
@@ -81,7 +82,7 @@ export function MissionControlCamera({
             inset: 0,
             pointerEvents: 'none',
             background:
-              'radial-gradient(circle at center, transparent 0 42%, rgba(2,6,23,.08) 72%, rgba(2,6,23,.34) 100%)',
+              'radial-gradient(circle at center, transparent 0 42%, color-mix(in srgb, var(--fc-bg) 8%, transparent) 72%, color-mix(in srgb, var(--fc-bg) 34%, transparent) 100%)',
           }}
         />
 
@@ -93,7 +94,7 @@ export function MissionControlCamera({
             width: 78,
             height: 78,
             transform: 'translate(-50%,-50%)',
-            color: 'rgba(226,232,240,.68)',
+            color: 'color-mix(in srgb, var(--fc-tx) 68%, transparent)',
             pointerEvents: 'none',
           }}
         >

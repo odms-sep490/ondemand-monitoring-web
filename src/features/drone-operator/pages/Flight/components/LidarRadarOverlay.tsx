@@ -123,7 +123,7 @@ export const LidarRadarOverlay = memo(function LidarRadarOverlay({
         overflow: 'hidden',
         border: `1px solid ${panelBorder.badgeBorder}`,
         background:
-          'linear-gradient(180deg, rgba(8,18,33,.9), rgba(8,13,24,.78))',
+          'linear-gradient(180deg, color-mix(in srgb, var(--fc-bg) 90%, transparent), color-mix(in srgb, var(--fc-bg) 78%, transparent))',
       }}
     >
       <LidarRadarHeader

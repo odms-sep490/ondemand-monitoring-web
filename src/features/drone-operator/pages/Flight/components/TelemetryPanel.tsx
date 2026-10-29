@@ -28,12 +28,12 @@ export const TelemetryPanel = memo(function TelemetryPanel({
       : t.telemetry.inFlight
   const batteryTone =
     batteryState === 'EMERGENCY'
-      ? '#ef4444'
+      ? 'var(--fc-red)'
       : batteryState === 'CRITICAL'
-        ? '#f87171'
+        ? 'var(--fc-red)'
         : batteryState === 'LOW'
-          ? '#fbbf24'
-          : '#22c55e'
+          ? 'var(--fc-amber)'
+          : 'var(--fc-green)'
   return (
     <GlassPanel
       style={{
@@ -57,7 +57,7 @@ export const TelemetryPanel = memo(function TelemetryPanel({
           style={{
             fontSize: 12,
             fontWeight: 950,
-            color: '#cbd5e1',
+            color: 'var(--fc-tx)',
             letterSpacing: '.08em',
             textTransform: 'uppercase',
           }}
@@ -69,7 +69,8 @@ export const TelemetryPanel = memo(function TelemetryPanel({
             display: 'inline-flex',
             alignItems: 'center',
             gap: 6,
-            color: status?.online === false ? '#fca5a5' : '#93c5fd',
+            color:
+              status?.online === false ? 'var(--fc-red)' : 'var(--fc-blue)',
             fontSize: 10,
             fontWeight: 900,
           }}
@@ -79,7 +80,10 @@ export const TelemetryPanel = memo(function TelemetryPanel({
               width: 6,
               height: 6,
               borderRadius: '50%',
-              background: status?.online === false ? '#ef4444' : '#38bdf8',
+              background:
+                status?.online === false
+                  ? 'var(--fc-red-solid)'
+                  : 'var(--fc-blue-solid)',
             }}
           />
           {status?.online === false ? t.telemetry.offline : t.telemetry.live}
@@ -104,11 +108,15 @@ export const TelemetryPanel = memo(function TelemetryPanel({
               minWidth: 0,
               padding: '7px 9px',
               borderRadius: 8,
-              background: 'rgba(15,23,42,.54)',
-              border: '1px solid rgba(148,163,184,.14)',
+              background:
+                'color-mix(in srgb, var(--fc-panel) 54%, transparent)',
+              border:
+                '1px solid color-mix(in srgb, var(--fc-tx2) 14%, transparent)',
             }}
           >
-            <div style={{ color: '#94a3b8', fontSize: 11, fontWeight: 750 }}>
+            <div
+              style={{ color: 'var(--fc-tx2)', fontSize: 11, fontWeight: 750 }}
+            >
               {label}
             </div>
             <strong
@@ -118,7 +126,7 @@ export const TelemetryPanel = memo(function TelemetryPanel({
                 fontFamily: 'var(--font-data)',
                 fontSize: 16,
                 lineHeight: 1,
-                color: '#e5edf8',
+                color: 'var(--fc-tx)',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
               }}
@@ -145,12 +153,14 @@ export const TelemetryPanel = memo(function TelemetryPanel({
               gap: 12,
             }}
           >
-            <span style={{ color: '#94a3b8', fontSize: 11 }}>{label}</span>
+            <span style={{ color: 'var(--fc-tx2)', fontSize: 11 }}>
+              {label}
+            </span>
             <strong
               style={{
                 fontFamily: 'var(--font-data)',
                 fontSize: 11,
-                color: '#cbd5e1',
+                color: 'var(--fc-tx)',
                 textAlign: 'right',
               }}
             >
@@ -164,7 +174,7 @@ export const TelemetryPanel = memo(function TelemetryPanel({
           marginTop: 7,
           height: 5,
           borderRadius: 999,
-          background: 'rgba(30,41,59,.95)',
+          background: 'color-mix(in srgb, var(--fc-panel) 95%, transparent)',
           overflow: 'hidden',
         }}
       >

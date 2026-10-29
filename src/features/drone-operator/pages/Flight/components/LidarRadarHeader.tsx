@@ -28,7 +28,8 @@ export function LidarRadarHeader({
         gap: 8,
         height: 36,
         padding: '0 9px',
-        borderBottom: '1px solid rgba(148,163,184,.16)',
+        borderBottom:
+          '1px solid color-mix(in srgb, var(--fc-tx2) 16%, transparent)',
       }}
     >
       <span
@@ -36,7 +37,7 @@ export function LidarRadarHeader({
           display: 'inline-flex',
           alignItems: 'center',
           gap: 7,
-          color: '#67e8f9',
+          color: 'var(--fc-blue)',
           fontSize: 10,
           fontWeight: 950,
           letterSpacing: '.08em',
@@ -67,7 +68,7 @@ export function LidarRadarHeader({
         >
           {statusLabel}
         </strong>
-        <span style={{ color: '#cbd5e1', fontSize: 9 }}>
+        <span style={{ color: 'var(--fc-tx)', fontSize: 9 }}>
           {t.lidarRadar.range}
         </span>
         <strong
@@ -77,9 +78,10 @@ export function LidarRadarHeader({
             gap: 6,
             borderRadius: 8,
             padding: '5px 7px',
-            color: '#e5edf8',
-            background: 'rgba(15,23,42,.58)',
-            border: '1px solid rgba(148,163,184,.14)',
+            color: 'var(--fc-tx)',
+            background: 'color-mix(in srgb, var(--fc-panel) 58%, transparent)',
+            border:
+              '1px solid color-mix(in srgb, var(--fc-tx2) 14%, transparent)',
             fontFamily: 'var(--font-data)',
             fontSize: 12,
             fontWeight: 950,

@@ -47,7 +47,7 @@ export const MissionInfoPanel = memo(function MissionInfoPanel({
         style={{
           fontSize: 12,
           fontWeight: 950,
-          color: '#cbd5e1',
+          color: 'var(--fc-tx)',
           marginBottom: 8,
           letterSpacing: '.08em',
           textTransform: 'uppercase',
@@ -122,11 +122,11 @@ export const MissionInfoPanel = memo(function MissionInfoPanel({
             marginBottom: 4,
           }}
         >
-          <span style={{ color: '#94a3b8', fontSize: 11 }}>{label}</span>
+          <span style={{ color: 'var(--fc-tx2)', fontSize: 11 }}>{label}</span>
           <strong
             style={{
               minWidth: 0,
-              color: '#e5edf8',
+              color: 'var(--fc-tx)',
               fontSize: 12,
               fontFamily: mono ? 'var(--font-data)' : 'var(--font-ui)',
               overflow: 'hidden',

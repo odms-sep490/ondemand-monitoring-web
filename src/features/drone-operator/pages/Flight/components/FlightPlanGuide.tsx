@@ -20,7 +20,8 @@ export function FlightPlanGuide({
       style={{
         marginTop: 10,
         paddingTop: 9,
-        borderTop: '1px solid rgba(148,163,184,.18)',
+        borderTop:
+          '1px solid color-mix(in srgb, var(--fc-tx2) 18%, transparent)',
       }}
     >
       <div
@@ -34,7 +35,7 @@ export function FlightPlanGuide({
       >
         <span
           style={{
-            color: '#cbd5e1',
+            color: 'var(--fc-tx)',
             fontSize: 11,
             fontWeight: 900,
             letterSpacing: '.08em',
@@ -45,7 +46,7 @@ export function FlightPlanGuide({
         </span>
         <strong
           style={{
-            color: '#67e8f9',
+            color: 'var(--fc-blue)',
             fontSize: 10,
             fontFamily: 'var(--font-data)',
           }}
@@ -64,14 +65,16 @@ export function FlightPlanGuide({
               gap: 7,
               minHeight: 28,
               padding: '5px 7px',
-              border: '1px solid rgba(148,163,184,.16)',
+              border:
+                '1px solid color-mix(in srgb, var(--fc-tx2) 16%, transparent)',
               borderRadius: 7,
-              background: 'rgba(15,23,42,.42)',
+              background:
+                'color-mix(in srgb, var(--fc-panel) 42%, transparent)',
             }}
           >
             <strong
               style={{
-                color: '#f8fafc',
+                color: 'var(--fc-tx)',
                 fontSize: 11,
                 fontFamily: 'var(--font-data)',
               }}
@@ -81,7 +84,7 @@ export function FlightPlanGuide({
             <span
               style={{
                 minWidth: 0,
-                color: '#cbd5e1',
+                color: 'var(--fc-tx)',
                 fontSize: 11,
                 fontWeight: 800,
                 overflow: 'hidden',
@@ -93,7 +96,7 @@ export function FlightPlanGuide({
             </span>
             <span
               style={{
-                color: '#e5edf8',
+                color: 'var(--fc-tx)',
                 fontSize: 10,
                 fontFamily: 'var(--font-data)',
                 textAlign: 'right',

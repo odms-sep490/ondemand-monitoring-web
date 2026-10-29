@@ -23,8 +23,9 @@ export function MissionControlFooter({
         alignItems: 'center',
         gap: 10,
         padding: '5px 18px',
-        background: '#071324',
-        borderTop: '1px solid rgba(59,130,246,.24)',
+        background: 'var(--fc-bg)',
+        borderTop:
+          '1px solid color-mix(in srgb, var(--fc-blue) 24%, transparent)',
       }}
     >
       <button
@@ -40,9 +41,10 @@ export function MissionControlFooter({
           height: 28,
           padding: '0 12px',
           borderRadius: 9,
-          border: '1px solid rgba(148,163,184,.2)',
-          background: 'rgba(15,23,42,.72)',
-          color: '#dbeafe',
+          border:
+            '1px solid color-mix(in srgb, var(--fc-tx2) 20%, transparent)',
+          background: 'color-mix(in srgb, var(--fc-panel) 72%, transparent)',
+          color: 'var(--fc-tx)',
           fontSize: 12,
           fontWeight: 850,
           cursor: 'pointer',
@@ -89,8 +91,10 @@ export function MissionControlFooter({
             padding: '0 12px',
             borderRadius: 9,
             border: '1px solid transparent',
-            background: item.active ? 'rgba(37,99,235,.2)' : 'transparent',
-            color: item.active ? '#bfdbfe' : '#94a3b8',
+            background: item.active
+              ? 'color-mix(in srgb, var(--fc-blue) 20%, transparent)'
+              : 'transparent',
+            color: item.active ? 'var(--fc-tx)' : 'var(--fc-tx2)',
             fontSize: 12,
             fontWeight: 800,
             cursor: 'pointer',
@@ -132,9 +136,10 @@ export function MissionControlFooter({
           style={{
             padding: '5px 10px',
             borderRadius: 999,
-            background: 'rgba(37,99,235,.22)',
-            border: '1px solid rgba(96,165,250,.28)',
-            color: '#bfdbfe',
+            background: 'color-mix(in srgb, var(--fc-blue) 22%, transparent)',
+            border:
+              '1px solid color-mix(in srgb, var(--fc-blue) 28%, transparent)',
+            color: 'var(--fc-tx)',
             fontSize: 11,
             fontWeight: 900,
           }}

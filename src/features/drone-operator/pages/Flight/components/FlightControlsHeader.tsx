@@ -46,7 +46,7 @@ export function FlightControlsHeader({
       <div
         style={{
           width: '100%',
-          color: '#94a3b8',
+          color: 'var(--fc-tx2)',
           fontSize: 10,
           fontWeight: 850,
           marginBottom: 2,
@@ -68,8 +68,9 @@ export function FlightControlsHeader({
           disabled={commandDisabled('stop')}
           style={{
             ...buttonStyle(),
-            background: 'rgba(20,83,45,.82)',
-            color: '#86efac',
+            background:
+              'color-mix(in srgb, color-mix(in srgb, var(--fc-green) 24%, var(--fc-panel)) 82%, transparent)',
+            color: 'var(--fc-green)',
           }}
           title={t.toolbar.hover}
         >

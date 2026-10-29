@@ -152,9 +152,20 @@
   box-shadow: var(--mgr-shadow);
 }
 
-.stf-map-tag.ant-tag:not(.ant-tag-error) {
+.stf-map-tag.ant-tag {
   background: var(--mgr-card);
+}
+
+.stf-map-tag.ant-tag:not(.ant-tag-error) {
   color: var(--mgr-text);
+}
+
+@media (max-width: 640px) {
+  .stf-map-tag--tr {
+    top: 46px;
+    right: auto;
+    left: 10px;
+  }
 }
 
 .stf-map-tag--tl {
@@ -282,12 +293,22 @@
 
 /* Flight-prep step header (title, mission id, stepper, right slot) */
 .stf-stephead {
-  display: grid;
-  grid-template-columns: minmax(150px, 260px) minmax(0, 1fr) auto;
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 12px 20px;
   padding: 14px 20px;
   border-bottom: 1px solid var(--mgr-border);
+}
+
+.stf-stephead-title {
+  flex: 1 1 200px;
+  min-width: 0;
+  max-width: 280px;
+}
+
+.stf-stephead .stf-stepper {
+  flex: 3 1 420px;
 }
 
 .stf-stephead-title h1 {
@@ -312,17 +333,21 @@
 }
 
 .stf-stephead-right {
+  flex: 0 0 auto;
   min-width: 0;
+  margin-left: auto;
 }
 
 .stf-stepper.ant-steps {
   min-width: 0;
 }
 
-@media (max-width: 900px) {
-  .stf-stephead {
-    grid-template-columns: minmax(0, 1fr);
-  }
+.stf-stepper.ant-steps {
+  overflow-x: auto;
+}
+
+.stf-stepper.ant-steps .ant-steps-item {
+  flex: none;
 }
 
 /* Numbered section title inside a card */
@@ -468,7 +493,7 @@
   justify-self: end;
 }
 
-.stf-tile-neutral {
+.mgr-layout .stf-tile-neutral {
   color: var(--mgr-muted);
   background: var(--mgr-card-2);
   border: 1px solid var(--mgr-border);
@@ -931,4 +956,103 @@
 
 .stf-table-scroll .ant-table {
   min-width: 720px;
+}
+
+/*
+ * Flight cockpit palette. Surfaces and text follow the --mgr-* shell tokens so
+ * the cockpit switches with light / dark; only the four semantic accents are
+ * defined here (the app theme's primary / success / warning / danger).
+ */
+.mgr-layout {
+  --stf-blue: #1565e8;
+  --stf-green: #16a34a;
+  --stf-amber: #f59e0b;
+  --stf-red: #dc2626;
+  --fc-bg: var(--mgr-bg);
+  --fc-panel: var(--mgr-card);
+  --fc-panel-2: var(--mgr-card-2);
+  --fc-line: var(--mgr-border);
+  --fc-line-2: var(--mgr-border);
+  --fc-tx: var(--mgr-text);
+  --fc-tx2: var(--mgr-muted);
+  --fc-blue: var(--stf-blue);
+  --fc-green: var(--stf-green);
+  --fc-amber: var(--stf-amber);
+  --fc-red: var(--stf-red);
+  --fc-blue-solid: var(--stf-blue);
+  --fc-green-solid: var(--stf-green);
+  --fc-amber-solid: var(--stf-amber);
+  --fc-red-solid: var(--stf-red);
+}
+
+:root[data-theme='dark'] .mgr-layout {
+  --fc-blue: color-mix(in srgb, var(--stf-blue) 55%, white);
+  --fc-green: color-mix(in srgb, var(--stf-green) 60%, white);
+  --fc-amber: color-mix(in srgb, var(--stf-amber) 65%, white);
+  --fc-red: color-mix(in srgb, var(--stf-red) 55%, white);
+}
+
+/* Flight chrome: centered states, overlays and banners */
+.stf-flight-center {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: var(--mgr-bg);
+  color: var(--mgr-text);
+}
+
+.stf-flight-card {
+  width: min(100%, 560px);
+}
+
+.stf-flight-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 600;
+  overflow: auto;
+  padding: 20px;
+  background: color-mix(in srgb, var(--mgr-bg) 96%, transparent);
+}
+
+.stf-flight-banner.ant-alert {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  z-index: 30;
+  width: min(460px, calc(100% - 56px));
+  transform: translateX(-50%);
+  box-shadow: var(--mgr-shadow);
+}
+
+.stf-manual-preflight {
+  width: min(520px, 100%);
+  margin: 6vh auto 0;
+}
+
+.stf-manual-title {
+  margin: 4px 0 2px;
+  font-size: 22px;
+  line-height: 1.15;
+  color: var(--mgr-text);
+}
+
+.stf-manual-count {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.stf-manual-item {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  cursor: pointer;
+}
+
+.stf-flight-shell {
+  overflow: auto;
+}
+
+.stf-tn {
+  font-variant-numeric: tabular-nums;
 }

@@ -1,6 +1,7 @@
 import { isInsideHcmcServiceArea } from '../../../../../shared/lib/serviceArea'
 import { gpsDistanceMeters } from '../gpsRoutePlanner'
 import { getLanguage, useI18n } from '../../../../../shared/i18n'
+import { copy } from './cockpitCopy'
 import { FlightCockpit } from './FlightCockpit'
 import { DroneCameraView } from './DroneCameraView'
 import { SatelliteFlightMap } from './SatelliteFlightMap'
@@ -86,9 +87,7 @@ export function GpsCockpitView({
       roleLabel={t.header.droneOperator}
       liveLabel={isOnline ? t.header.live : t.header.offline}
       online={isOnline}
-      waitingGpsLabel={
-        language === 'en' ? 'Waiting for PX4 GPS' : 'Đang chờ GPS từ PX4'
-      }
+      waitingGpsLabel={copy[language].waitingGps}
       statusMessage={operationalMessage ?? lastCommand}
       telemetry={{
         latitude: droneGps?.latitude ?? null,
@@ -128,7 +127,7 @@ export function GpsCockpitView({
       onReferenceCapture={() => void handleReferenceCapture()}
       overlay={
         !preflightReady && normalFlightAllowed ? (
-          <div className="satellite-flight-preflight">
+          <div className="stf-flight-overlay">
             <ManualCockpitPreflight
               missionLabel={mission.id}
               deviceLabel={drone.name || drone.id}

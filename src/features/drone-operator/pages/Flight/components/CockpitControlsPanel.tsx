@@ -14,7 +14,6 @@ export function CockpitControlsPanel({
   finishingFlight,
   canFly,
   canTerminate,
-  language,
   confirmStop,
   setConfirmStop,
 }: {
@@ -78,13 +77,7 @@ export function CockpitControlsPanel({
                 onClick={onFinishFlight}
               >
                 <Ico name="land" size={20} />
-                <strong>
-                  {finishingFlight
-                    ? language === 'en'
-                      ? 'Updating...'
-                      : 'Đang cập nhật...'
-                    : c.finishFlight}
-                </strong>
+                <strong>{finishingFlight ? c.updating : c.finishFlight}</strong>
                 <small>{c.finishFlightSub}</small>
               </button>
             ) : null}

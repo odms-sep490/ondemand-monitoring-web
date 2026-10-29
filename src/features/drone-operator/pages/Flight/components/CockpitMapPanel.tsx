@@ -1,3 +1,5 @@
+import { Button } from 'antd'
+
 import { copy } from './cockpitCopy'
 import { Ico } from './CockpitIcon'
 import type { Dispatch, SetStateAction, ReactNode } from 'react'
@@ -31,15 +33,13 @@ export function CockpitMapPanel({
               {statusMessage}
             </span>
           ) : null}
-          <button
-            type="button"
-            className="fc-icon-btn is-sm"
+          <Button
+            size="small"
             onClick={() => setLayout(layout === 'map' ? 'split' : 'map')}
             aria-label={layout === 'map' ? c.shrink : c.enlarge}
             title={layout === 'map' ? c.shrink : c.enlarge}
-          >
-            <Ico name="expand" size={15} />
-          </button>
+            icon={<Ico name="expand" size={15} />}
+          />
         </span>
       </header>
       <div className="fc-map__body">

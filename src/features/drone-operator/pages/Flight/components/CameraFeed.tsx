@@ -32,7 +32,7 @@ export const CameraFeed = memo(function CameraFeed({
           objectFit: 'cover',
           objectPosition: 'center center',
           display: 'block',
-          background: '#020617',
+          background: 'var(--fc-bg)',
         }}
       />
       {!isOnline && preflightReady && (
@@ -42,7 +42,7 @@ export const CameraFeed = memo(function CameraFeed({
             inset: 0,
             display: 'grid',
             placeItems: 'center',
-            background: 'rgba(2,6,23,.72)',
+            background: 'color-mix(in srgb, var(--fc-bg) 72%, transparent)',
           }}
         >
           <GlassPanel style={{ padding: '18px 22px', textAlign: 'center' }}>
@@ -50,13 +50,13 @@ export const CameraFeed = memo(function CameraFeed({
               style={{
                 fontSize: 13,
                 fontWeight: 900,
-                color: '#e5edf8',
+                color: 'var(--fc-tx)',
                 marginBottom: 7,
               }}
             >
               {t.cameraFeed.offlineTitle}
             </div>
-            <div style={{ fontSize: 12, color: '#94a3b8' }}>
+            <div style={{ fontSize: 12, color: 'var(--fc-tx2)' }}>
               {t.cameraFeed.offlineBody}
             </div>
           </GlassPanel>

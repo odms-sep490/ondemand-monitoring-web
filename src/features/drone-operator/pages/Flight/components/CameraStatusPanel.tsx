@@ -78,14 +78,16 @@ export const CameraStatusPanel = memo(function CameraStatusPanel({
               display: 'flex',
               alignItems: 'center',
               gap: 8,
-              color: '#cbd5e1',
+              color: 'var(--fc-tx)',
               fontSize: 12,
             }}
           >
             <Icon name={icon as IconName} size={15} />
             {label}
           </span>
-          <strong style={{ color: '#4ade80', fontSize: 12 }}>{value}</strong>
+          <strong style={{ color: 'var(--fc-green)', fontSize: 12 }}>
+            {value}
+          </strong>
         </div>
       ))}
     </GlassPanel>

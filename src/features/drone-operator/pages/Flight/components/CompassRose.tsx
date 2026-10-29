@@ -14,8 +14,8 @@ export function CompassRose({
           cx="100"
           cy="100"
           r="88"
-          fill="#06101f"
-          stroke="#334155"
+          fill="var(--fc-bg)"
+          stroke="color-mix(in srgb, var(--fc-blue) 24%, var(--fc-panel))"
           strokeWidth="4"
         />
         <g
@@ -32,7 +32,7 @@ export function CompassRose({
               x2="100"
               y1="16"
               y2={deg % 90 === 0 ? 30 : 24}
-              stroke={deg % 90 === 0 ? '#e2e8f0' : '#64748b'}
+              stroke={deg % 90 === 0 ? 'var(--fc-tx)' : 'var(--fc-blue)'}
               strokeWidth={deg % 90 === 0 ? 2.5 : 1.4}
               transform={`rotate(${deg} 100 100)`}
             />
@@ -45,21 +45,21 @@ export function CompassRose({
               textAnchor="middle"
               fontSize="15"
               fontWeight="800"
-              fill={c === 'N' ? '#f87171' : '#e2e8f0'}
+              fill={c === 'N' ? 'var(--fc-red)' : 'var(--fc-tx)'}
               transform={`rotate(${i * 90} 100 100)`}
             >
               {c}
             </text>
           ))}
         </g>
-        <path d="M100 8l-7 12h14z" fill="#38bdf8" />
+        <path d="M100 8l-7 12h14z" fill="var(--fc-blue)" />
         <text
           x="100"
           y="112"
           textAnchor="middle"
           fontSize="30"
           fontWeight="800"
-          fill="#f8fafc"
+          fill="var(--fc-tx)"
         >
           {heading === null ? '--' : Math.round(((h % 360) + 360) % 360)}°
         </text>

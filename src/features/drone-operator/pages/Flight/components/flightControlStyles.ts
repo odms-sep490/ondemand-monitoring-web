@@ -6,15 +6,15 @@ export const buttonStyle = (tone?: 'danger' | 'amber'): CSSProperties => ({
   borderRadius: 8,
   border:
     tone === 'danger'
-      ? '1px solid rgba(248,113,113,.72)'
-      : '1px solid rgba(148,163,184,.18)',
+      ? '1px solid color-mix(in srgb, var(--fc-red) 72%, transparent)'
+      : '1px solid color-mix(in srgb, var(--fc-tx2) 18%, transparent)',
   background:
     tone === 'danger'
-      ? 'rgba(127,29,29,.78)'
+      ? 'color-mix(in srgb, color-mix(in srgb, var(--fc-red) 24%, var(--fc-panel)) 78%, transparent)'
       : tone === 'amber'
-        ? 'rgba(180,83,9,.76)'
-        : 'rgba(15,23,42,.78)',
-  color: tone === 'danger' ? '#fecaca' : '#e5edf8',
+        ? 'color-mix(in srgb, var(--fc-amber) 76%, transparent)'
+        : 'color-mix(in srgb, var(--fc-panel) 78%, transparent)',
+  color: tone === 'danger' ? 'var(--fc-tx)' : 'var(--fc-tx)',
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
@@ -23,7 +23,7 @@ export const buttonStyle = (tone?: 'danger' | 'amber'): CSSProperties => ({
   fontSize: 8,
   fontWeight: 800,
   cursor: 'pointer',
-  boxShadow: 'inset 0 1px 0 rgba(255,255,255,.06)',
+  boxShadow: 'inset 0 1px 0 color-mix(in srgb, black 6%, transparent)',
 })
 
 export const toolbarGroupStyle: CSSProperties = {
@@ -34,6 +34,6 @@ export const toolbarGroupStyle: CSSProperties = {
   gap: 4,
   padding: 3,
   borderRadius: 10,
-  background: 'rgba(15, 23, 42, .42)',
-  border: '1px solid rgba(148,163,184,.12)',
+  background: 'color-mix(in srgb, var(--fc-panel) 42%, transparent)',
+  border: '1px solid color-mix(in srgb, var(--fc-tx2) 12%, transparent)',
 }

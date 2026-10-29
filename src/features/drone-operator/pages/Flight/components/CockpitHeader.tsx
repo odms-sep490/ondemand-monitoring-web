@@ -1,3 +1,5 @@
+import { Button } from 'antd'
+
 import { copy } from './cockpitCopy'
 import { Ico } from './CockpitIcon'
 import type { CockpitLayout } from './cockpitTypes'
@@ -15,7 +17,6 @@ export function CockpitHeader({
   gpsText,
   onStartFlight,
   canStartFlight,
-  language,
   busy,
   startingFlight,
   layout,
@@ -98,31 +99,16 @@ export function CockpitHeader({
 
       <div className="fc-header__actions">
         {onStartFlight && canStartFlight ? (
-          <button
-            type="button"
-            className="fc-start-flight fc-start-flight--header"
-            aria-label={
-              language === 'en' ? 'Start flight' : 'Bắt đầu chuyến bay'
-            }
+          <Button
+            type="primary"
+            aria-label={c.startFlight}
             disabled={busy || startingFlight}
+            loading={startingFlight}
             onClick={onStartFlight}
+            icon={<Ico name="takeoff" size={16} />}
           >
-            <Ico name="takeoff" size={19} />
-            <span>
-              <strong>
-                {startingFlight
-                  ? language === 'en'
-                    ? 'Starting...'
-                    : 'Đang bắt đầu...'
-                  : language === 'en'
-                    ? 'Start flight'
-                    : 'Bắt đầu chuyến bay'}
-              </strong>
-              <small>
-                {language === 'en' ? 'Set In flight' : 'Đổi sang Đang bay'}
-              </small>
-            </span>
-          </button>
+            {startingFlight ? c.startingFlight : c.startFlight}
+          </Button>
         ) : null}
         <div className="fc-seg" role="group" aria-label={c.layout}>
           {(
@@ -143,23 +129,15 @@ export function CockpitHeader({
             </button>
           ))}
         </div>
-        <button
-          type="button"
-          className="fc-ghost"
-          onClick={onReview}
-          disabled={busy}
-        >
-          <Ico name="review" /> {c.review}
-        </button>
-        <button
-          type="button"
-          className="fc-icon-btn"
+        <Button onClick={onReview} disabled={busy} icon={<Ico name="review" />}>
+          {c.review}
+        </Button>
+        <Button
           onClick={toggleFullscreen}
           aria-label={c.fullscreen}
           title={c.fullscreen}
-        >
-          <Ico name="expand" />
-        </button>
+          icon={<Ico name="expand" />}
+        />
       </div>
     </header>
   )

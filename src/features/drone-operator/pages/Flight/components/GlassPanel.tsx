@@ -10,9 +10,9 @@ export function GlassPanel({
   return (
     <div
       style={{
-        background: 'rgba(8, 13, 24, .66)',
-        border: '1px solid rgba(148, 163, 184, .2)',
-        boxShadow: '0 16px 40px rgba(0,0,0,.24)',
+        background: 'color-mix(in srgb, var(--fc-bg) 66%, transparent)',
+        border: '1px solid color-mix(in srgb, var(--fc-tx2) 20%, transparent)',
+        boxShadow: '0 16px 40px color-mix(in srgb, black 24%, transparent)',
         borderRadius: 12,
         ...style,
       }}

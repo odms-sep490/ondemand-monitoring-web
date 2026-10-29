@@ -1,3 +1,5 @@
+import { getLanguage } from '../../../../../shared/i18n'
+import { copy } from './cockpitCopy'
 import { inFlightControlMessages } from './InFlightControl.messages'
 import { useI18n } from '../../../../../shared/i18n'
 
@@ -116,7 +118,7 @@ export function MiniMapSvg({
             stroke="rgba(15,23,42,.9)"
             strokeWidth={2 / zoom}
           >
-            KẾ HOẠCH BAY · {routeScreenPoints.length} WP
+            {copy[getLanguage()].routePlan} · {routeScreenPoints.length} WP
           </text>
         </g>
       )}

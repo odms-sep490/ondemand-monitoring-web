@@ -27,8 +27,9 @@ export function MissionControlHeader({
         alignItems: 'center',
         gap: 22,
         padding: '12px 22px',
-        background: 'linear-gradient(180deg,#071324,#08111f)',
-        borderBottom: '1px solid rgba(59,130,246,.28)',
+        background: 'linear-gradient(180deg,var(--fc-bg),var(--fc-bg))',
+        borderBottom:
+          '1px solid color-mix(in srgb, var(--fc-blue) 28%, transparent)',
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -39,9 +40,10 @@ export function MissionControlHeader({
             borderRadius: 12,
             display: 'grid',
             placeItems: 'center',
-            background: 'rgba(37,99,235,.18)',
-            border: '1px solid rgba(96,165,250,.3)',
-            color: '#93c5fd',
+            background: 'color-mix(in srgb, var(--fc-blue) 18%, transparent)',
+            border:
+              '1px solid color-mix(in srgb, var(--fc-blue) 30%, transparent)',
+            color: 'var(--fc-blue)',
           }}
         >
           <Icon name="drone" size={22} />
@@ -58,8 +60,9 @@ export function MissionControlHeader({
                 gap: 6,
                 padding: '3px 8px',
                 borderRadius: 999,
-                background: 'rgba(22,163,74,.18)',
-                color: '#4ade80',
+                background:
+                  'color-mix(in srgb, var(--fc-green) 18%, transparent)',
+                color: 'var(--fc-green)',
                 fontSize: 10,
                 fontWeight: 900,
               }}
@@ -70,13 +73,15 @@ export function MissionControlHeader({
                   width: 7,
                   height: 7,
                   borderRadius: '50%',
-                  background: isOnline ? '#22c55e' : '#ef4444',
+                  background: isOnline
+                    ? 'var(--fc-green-solid)'
+                    : 'var(--fc-red-solid)',
                 }}
               />
               {isOnline ? t.header.live : t.header.offline}
             </span>
           </div>
-          <div style={{ marginTop: 2, fontSize: 12, color: '#94a3b8' }}>
+          <div style={{ marginTop: 2, fontSize: 12, color: 'var(--fc-tx2)' }}>
             {t.header.droneOperator}
           </div>
         </div>
@@ -96,7 +101,7 @@ export function MissionControlHeader({
           style={{
             fontSize: 12,
             fontFamily: 'var(--font-data)',
-            color: '#94a3b8',
+            color: 'var(--fc-tx2)',
           }}
         >
           {fmt(elapsed)} / {fmt(remaining)}
@@ -106,9 +111,10 @@ export function MissionControlHeader({
             width: 36,
             height: 36,
             borderRadius: 10,
-            border: '1px solid rgba(148,163,184,.2)',
-            background: 'rgba(15,23,42,.76)',
-            color: '#cbd5e1',
+            border:
+              '1px solid color-mix(in srgb, var(--fc-tx2) 20%, transparent)',
+            background: 'color-mix(in srgb, var(--fc-panel) 76%, transparent)',
+            color: 'var(--fc-tx)',
             display: 'grid',
             placeItems: 'center',
             cursor: 'pointer',

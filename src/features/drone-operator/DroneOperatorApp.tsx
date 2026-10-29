@@ -13,6 +13,7 @@ import { operatorApi } from './api/operatorApi'
 import { missionsByTab } from './lib/filterMissions'
 import { demoNow } from './lib/demoNow'
 import { OperatorLayout } from './OperatorLayout'
+import { FlightShell } from './components/layout/FlightShell'
 import SimulationZonesScreen from './pages/SimulationZones'
 import { FlightPage } from './pages/Flight'
 import { MissionDetailPage } from './pages/MissionDetail'
@@ -83,13 +84,15 @@ export function DroneOperatorApp() {
   // Buồng lái renders full-screen without the shell, same as OMSS.
   if (route.screen === 'flight') {
     return (
-      <MissionActionGuard
-        key={`${route.missionId}:${route.screen}`}
-        missionId={route.missionId}
-        action="flight"
-      >
-        <FlightPage missionId={route.missionId} />
-      </MissionActionGuard>
+      <FlightShell>
+        <MissionActionGuard
+          key={`${route.missionId}:${route.screen}`}
+          missionId={route.missionId}
+          action="flight"
+        >
+          <FlightPage missionId={route.missionId} />
+        </MissionActionGuard>
+      </FlightShell>
     )
   }
 

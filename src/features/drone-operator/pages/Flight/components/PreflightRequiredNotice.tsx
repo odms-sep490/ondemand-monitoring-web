@@ -1,5 +1,5 @@
+import type { Drone, Mission } from '../../../types/omss'
 import { ManualCockpitPreflight } from './ManualCockpitPreflight'
-import type { Mission, Drone } from '../../../types/omss'
 
 export function PreflightRequiredNotice({
   mission,
@@ -11,16 +11,7 @@ export function PreflightRequiredNotice({
   handlePreflightReady: () => Promise<void>
 }) {
   return (
-    <div
-      style={{
-        position: 'absolute',
-        inset: 0,
-        zIndex: 20,
-        background: '#f1f5f9',
-        overflow: 'auto',
-        padding: 22,
-      }}
-    >
+    <div className="stf-flight-overlay">
       <ManualCockpitPreflight
         missionLabel={mission.id}
         deviceLabel={drone.name || drone.id}

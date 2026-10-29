@@ -28,7 +28,7 @@ export function FlightControlGrid({
       <div
         style={{
           gridColumn: '1 / -1',
-          color: '#94a3b8',
+          color: 'var(--fc-tx2)',
           fontSize: 10,
           fontWeight: 850,
           marginBottom: 1,
@@ -45,9 +45,10 @@ export function FlightControlGrid({
             width: 46,
             height: 29,
             borderRadius: 8,
-            border: '1px solid rgba(148,163,184,.18)',
-            background: 'rgba(15,23,42,.78)',
-            color: '#e5edf8',
+            border:
+              '1px solid color-mix(in srgb, var(--fc-tx2) 18%, transparent)',
+            background: 'color-mix(in srgb, var(--fc-panel) 78%, transparent)',
+            color: 'var(--fc-tx)',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -56,7 +57,8 @@ export function FlightControlGrid({
             cursor: 'pointer',
             fontSize: 7,
             fontWeight: 850,
-            boxShadow: 'inset 0 1px 0 rgba(255,255,255,.05)',
+            boxShadow:
+              'inset 0 1px 0 color-mix(in srgb, black 5%, transparent)',
           }}
           title={t.controls[item.labelKey]}
         >

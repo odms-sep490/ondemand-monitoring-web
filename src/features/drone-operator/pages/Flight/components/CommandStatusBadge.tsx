@@ -14,7 +14,7 @@ export function CommandStatusBadge({
         right: 14,
         bottom: 14,
         padding: '7px 11px',
-        color: '#cbd5e1',
+        color: 'var(--fc-tx)',
         fontSize: 11,
       }}
     >

@@ -1,7 +1,8 @@
 import type { ReactElement } from 'react'
 import { toolbarGroupStyle, buttonStyle } from './flightControlStyles'
+import { copy } from './cockpitCopy'
 import { Icon } from './Icon'
-import { getLanguage, useI18n } from '../../../../../shared/i18n'
+import { useI18n } from '../../../../../shared/i18n'
 import { GlassPanel } from './GlassPanel'
 import { moreToolControls, weatherControls } from './flightControlItems'
 import { inFlightControlMessages } from './InFlightControl.messages'
@@ -65,7 +66,8 @@ export function FlightControlTools({
   }) => ReactElement
   onWeatherPreset: (preset: WeatherPreset) => void
 }) {
-  const { t } = useI18n(inFlightControlMessages)
+  const { t, lang } = useI18n(inFlightControlMessages)
+  const cc = copy[lang]
   return (
     <div
       style={{
@@ -77,7 +79,7 @@ export function FlightControlTools({
       <div
         style={{
           width: '100%',
-          color: '#94a3b8',
+          color: 'var(--fc-tx2)',
           fontSize: 10,
           fontWeight: 850,
           marginBottom: 2,
@@ -101,21 +103,11 @@ export function FlightControlTools({
           onClick={onReferenceCapture}
           disabled={!canFly || busyCommand !== null || referenceBusy}
           style={{ ...buttonStyle(), width: 62 }}
-          title={
-            getLanguage() === 'en'
-              ? 'Capture real-world reference image (Mapillary)'
-              : 'Chụp ảnh tham chiếu thực tế (Mapillary)'
-          }
+          title={cc.referenceTitle}
         >
           <Icon name="photo" size={14} />
           <span>
-            {referenceBusy
-              ? getLanguage() === 'en'
-                ? 'Fetching…'
-                : 'Đang lấy…'
-              : getLanguage() === 'en'
-                ? 'Ref. photo'
-                : 'Ảnh TT'}
+            {referenceBusy ? cc.referenceFetching : cc.referenceShort}
           </span>
         </button>
       )}
@@ -126,8 +118,9 @@ export function FlightControlTools({
           style={{
             ...buttonStyle(),
             width: 86,
-            background: 'rgba(20,83,45,.82)',
-            color: '#86efac',
+            background:
+              'color-mix(in srgb, color-mix(in srgb, var(--fc-green) 24%, var(--fc-panel)) 82%, transparent)',
+            color: 'var(--fc-green)',
           }}
           title={t.toolbar.finishFlightTitle}
         >

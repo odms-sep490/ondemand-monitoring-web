@@ -63,7 +63,7 @@ export function LidarRadarSummary({
             display: 'grid',
             placeItems: 'center',
             color: alertStyle.icon,
-            background: 'rgba(2,6,23,.26)',
+            background: 'color-mix(in srgb, var(--fc-bg) 26%, transparent)',
           }}
         >
           {!fresh || !lidar?.available ? (
@@ -84,7 +84,9 @@ export function LidarRadarSummary({
             minWidth: 0,
           }}
         >
-          <strong style={{ color: '#f8fafc', fontSize: 10, lineHeight: 1.15 }}>
+          <strong
+            style={{ color: 'var(--fc-tx)', fontSize: 10, lineHeight: 1.15 }}
+          >
             {!fresh || !lidar?.available
               ? fresh
                 ? t.lidarRadar.unavailable
@@ -96,7 +98,9 @@ export function LidarRadarSummary({
                   )
                 : t.lidarRadar.noObstacle}
           </strong>
-          <span style={{ color: '#cbd5e1', fontSize: 8, lineHeight: 1.15 }}>
+          <span
+            style={{ color: 'var(--fc-tx)', fontSize: 8, lineHeight: 1.15 }}
+          >
             {nearestObstacle?.severity === 'DANGER'
               ? t.lidarRadar.holdPosition
               : nearestObstacle?.severity === 'CAUTION'

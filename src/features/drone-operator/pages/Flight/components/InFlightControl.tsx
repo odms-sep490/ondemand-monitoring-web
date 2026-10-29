@@ -216,8 +216,8 @@ export default function InFlightControl({
         height: '100vh',
         display: 'grid',
         gridTemplateRows: '76px 1fr 42px',
-        background: '#020617',
-        color: '#e5edf8',
+        background: 'var(--fc-bg)',
+        color: 'var(--fc-tx)',
         overflow: 'hidden',
         colorScheme: 'dark',
       }}
@@ -244,7 +244,7 @@ export default function InFlightControl({
           gap: 12,
           padding: '10px 14px 10px',
           background:
-            'radial-gradient(circle at 28% 10%, rgba(37, 99, 235, 0.12), transparent 34%), #020617',
+            'radial-gradient(circle at 28% 10%, color-mix(in srgb, var(--fc-blue) 12%, transparent), transparent 34%), var(--fc-bg)',
         }}
       >
         <MissionControlCamera

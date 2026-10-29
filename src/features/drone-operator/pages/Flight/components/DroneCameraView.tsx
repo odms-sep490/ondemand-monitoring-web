@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { copy } from './cockpitCopy'
 import { CameraHud } from './CameraHud'
 import { CameraSatelliteMap } from './CameraSatelliteMap'
 
@@ -44,6 +45,7 @@ export function DroneCameraView({
   expandable,
 }: Props) {
   const ready = hasFix(telemetry)
+  const cc = copy[language]
   const [expanded, setExpanded] = useState(false)
   return (
     <div
@@ -73,15 +75,7 @@ export function DroneCameraView({
           type="button"
           className="camera-expand"
           onClick={() => setExpanded((value) => !value)}
-          aria-label={
-            expanded
-              ? language === 'en'
-                ? 'Shrink camera'
-                : 'Thu nhỏ camera'
-              : language === 'en'
-                ? 'Enlarge camera'
-                : 'Phóng to camera'
-          }
+          aria-label={expanded ? cc.shrinkCamera : cc.enlargeCamera}
         >
           {expanded ? '⤡' : '⤢'}
         </button>
@@ -89,14 +83,8 @@ export function DroneCameraView({
       {ready ? null : (
         <div className="camera-waiting" role="status">
           <span className="camera-waiting__radar" aria-hidden="true" />
-          <strong>
-            {language === 'en' ? 'WAITING FOR TELEMETRY' : 'ĐANG CHỜ TELEMETRY'}
-          </strong>
-          <small>
-            {language === 'en'
-              ? 'Camera turns on when the drone reports GPS'
-              : 'Camera sẽ bật khi drone gửi tọa độ GPS'}
-          </small>
+          <strong>{cc.waitingTelemetry}</strong>
+          <small>{cc.cameraStartsOnGps}</small>
         </div>
       )}
     </div>

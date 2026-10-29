@@ -34,13 +34,16 @@ export function LidarRadarDial({
         preserveAspectRatio="xMidYMid meet"
         style={{ maxWidth: 204 }}
       >
-        <circle r="89" fill="rgba(2,6,23,.36)" />
+        <circle
+          r="89"
+          fill="color-mix(in srgb, var(--fc-bg) 36%, transparent)"
+        />
         {[29, 55, 82].map((r) => (
           <circle
             key={r}
             r={r}
             fill="none"
-            stroke="rgba(203,213,225,.16)"
+            stroke="color-mix(in srgb, var(--fc-tx) 16%, transparent)"
             strokeWidth="1"
           />
         ))}
@@ -53,7 +56,7 @@ export function LidarRadarDial({
               y1={Math.sin(a) * 18}
               x2={Math.cos(a) * 88}
               y2={Math.sin(a) * 88}
-              stroke="rgba(203,213,225,.12)"
+              stroke="color-mix(in srgb, var(--fc-tx) 12%, transparent)"
             />
           )
         })}
@@ -72,7 +75,7 @@ export function LidarRadarDial({
                 x={label.x}
                 y={label.y}
                 textAnchor={label.anchor}
-                fill="#e5edf8"
+                fill="var(--fc-tx)"
                 fontSize="9"
                 fontWeight="950"
               >
@@ -82,7 +85,7 @@ export function LidarRadarDial({
                 x={label.x}
                 y={label.y + 16}
                 textAnchor={label.anchor}
-                fill="#f8fafc"
+                fill="var(--fc-tx)"
                 fontSize="12"
                 fontWeight="950"
                 fontFamily="var(--font-data)"
@@ -102,22 +105,30 @@ export function LidarRadarDial({
             </g>
           )
         })}
-        <circle r="20" fill="rgba(15,23,42,.88)" stroke="#334155" />
-        <circle r="10" fill="rgba(96,165,250,.2)" stroke="#bfdbfe" />
+        <circle
+          r="20"
+          fill="color-mix(in srgb, var(--fc-panel) 88%, transparent)"
+          stroke="color-mix(in srgb, var(--fc-blue) 24%, var(--fc-panel))"
+        />
+        <circle
+          r="10"
+          fill="color-mix(in srgb, var(--fc-blue) 20%, transparent)"
+          stroke="var(--fc-tx)"
+        />
         <path
           d="M0 -18 L10 9 L0 4 L-10 9 Z"
-          fill="#60a5fa"
-          stroke="#eff6ff"
+          fill="var(--fc-blue)"
+          stroke="var(--fc-tx)"
           strokeWidth="1.2"
         />
         <g opacity=".85">
-          <circle cx="-14" cy="-2" r="3" fill="#e2e8f0" />
-          <circle cx="14" cy="-2" r="3" fill="#e2e8f0" />
-          <circle cx="-8" cy="9" r="3" fill="#e2e8f0" />
-          <circle cx="8" cy="9" r="3" fill="#e2e8f0" />
+          <circle cx="-14" cy="-2" r="3" fill="var(--fc-tx)" />
+          <circle cx="14" cy="-2" r="3" fill="var(--fc-tx)" />
+          <circle cx="-8" cy="9" r="3" fill="var(--fc-tx)" />
+          <circle cx="8" cy="9" r="3" fill="var(--fc-tx)" />
           <path
             d="M-14 -2H14M-8 9H8"
-            stroke="#e2e8f0"
+            stroke="var(--fc-tx)"
             strokeWidth="1.2"
             strokeLinecap="round"
           />

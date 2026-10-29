@@ -1,3 +1,5 @@
+import { copy } from './cockpitCopy'
+
 type Props = {
   heading?: number | null
   speedMps?: number | null
@@ -56,7 +58,7 @@ export function CameraHud({
   gimbalPitchDeg = -90,
   language = 'vi',
 }: Props) {
-  const vi = language !== 'en'
+  const cc = copy[language]
   const headingValue = finite(heading)
     ? ((Math.round(heading) % 360) + 360) % 360
     : null
@@ -114,13 +116,13 @@ export function CameraHud({
       <div className="camera-hud__bottom is-right">
         {finite(photoCount) ? (
           <span>
-            {vi ? 'ẢNH' : 'PHOTOS'} {photoCount}
+            {cc.hudPhotos} {photoCount}
             {finite(photoTotal) ? `/${photoTotal}` : ''}
           </span>
         ) : null}
-        <span>{vi ? 'NHIỆM VỤ' : 'MISSION'}</span>
+        <span>{cc.hudMission}</span>
         <span>
-          {vi ? 'PIN' : 'BAT'}{' '}
+          {cc.hudBattery}{' '}
           {finite(batteryPercent) ? `${Math.round(batteryPercent)}%` : '--'}
         </span>
       </div>

@@ -1,3 +1,5 @@
+import { Button } from 'antd'
+
 import { copy } from './cockpitCopy'
 import { Ico } from './CockpitIcon'
 import type { Dispatch, SetStateAction, ReactNode } from 'react'
@@ -30,15 +32,13 @@ export function CockpitCameraPanel({
             <Ico name="battery" size={14} />{' '}
             {battery === null ? '--' : `${Math.round(battery)}%`}
           </span>
-          <button
-            type="button"
-            className="fc-icon-btn is-sm"
+          <Button
+            size="small"
             onClick={() => setLayout(layout === 'camera' ? 'split' : 'camera')}
             aria-label={layout === 'camera' ? c.shrink : c.enlarge}
             title={layout === 'camera' ? c.shrink : c.enlarge}
-          >
-            <Ico name="expand" size={15} />
-          </button>
+            icon={<Ico name="expand" size={15} />}
+          />
         </span>
       </header>
       <div className="fc-camera__body">{camera}</div>

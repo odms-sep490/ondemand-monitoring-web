@@ -53,8 +53,8 @@ export const LidarDetailPanel = memo(function LidarDetailPanel({
         width: '100%',
         padding: 12,
         border: fresh
-          ? '1px solid rgba(34,211,238,.28)'
-          : '1px solid rgba(251,191,36,.35)',
+          ? '1px solid color-mix(in srgb, var(--fc-blue) 28%, transparent)'
+          : '1px solid color-mix(in srgb, var(--fc-amber) 35%, transparent)',
       }}
     >
       <div
@@ -70,7 +70,7 @@ export const LidarDetailPanel = memo(function LidarDetailPanel({
             display: 'inline-flex',
             alignItems: 'center',
             gap: 7,
-            color: fresh ? '#67e8f9' : '#fbbf24',
+            color: fresh ? 'var(--fc-blue)' : 'var(--fc-amber)',
             fontSize: 12,
             fontWeight: 950,
             letterSpacing: '.08em',
@@ -80,17 +80,24 @@ export const LidarDetailPanel = memo(function LidarDetailPanel({
           <Icon name="radar" size={14} />
           {t.lidarDetail.title}
         </span>
-        <strong style={{ color: fresh ? '#bbf7d0' : '#fde68a', fontSize: 10 }}>
+        <strong
+          style={{
+            color: fresh ? 'var(--fc-tx)' : 'var(--fc-amber)',
+            fontSize: 10,
+          }}
+        >
           {lidar?.enabled ? t.lidarDetail.on : t.lidarDetail.off}
         </strong>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 7 }}>
         {rows.map(([label, value]) => (
           <Fragment key={label}>
-            <span style={{ color: '#94a3b8', fontSize: 11 }}>{label}</span>
+            <span style={{ color: 'var(--fc-tx2)', fontSize: 11 }}>
+              {label}
+            </span>
             <strong
               style={{
-                color: '#e5edf8',
+                color: 'var(--fc-tx)',
                 fontSize: 11,
                 fontFamily: 'var(--font-data)',
                 textAlign: 'right',

@@ -32,13 +32,14 @@ export function LidarSectorCards({
             style={{
               borderRadius: 9,
               padding: '6px 6px',
-              background: 'rgba(15,23,42,.62)',
+              background:
+                'color-mix(in srgb, var(--fc-panel) 62%, transparent)',
               border: `1px solid ${style.badgeBorder}`,
             }}
           >
             <div
               style={{
-                color: '#dbeafe',
+                color: 'var(--fc-tx)',
                 fontSize: 8,
                 fontWeight: 950,
                 marginBottom: 2,
@@ -56,7 +57,7 @@ export function LidarSectorCards({
             >
               <strong
                 style={{
-                  color: '#e5edf8',
+                  color: 'var(--fc-tx)',
                   fontFamily: 'var(--font-data)',
                   fontSize: 10,
                   whiteSpace: 'nowrap',

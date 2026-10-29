@@ -50,9 +50,9 @@ export const AirPressurePanel = memo(function AirPressurePanel({
       style={{
         width: '100%',
         padding: 9,
-        border: '1px solid rgba(56,189,248,.28)',
+        border: '1px solid color-mix(in srgb, var(--fc-blue) 28%, transparent)',
         background:
-          'linear-gradient(180deg, rgba(8,18,33,.88), rgba(8,13,24,.76))',
+          'linear-gradient(180deg, color-mix(in srgb, var(--fc-bg) 88%, transparent), color-mix(in srgb, var(--fc-bg) 76%, transparent))',
       }}
     >
       <div
@@ -69,7 +69,7 @@ export const AirPressurePanel = memo(function AirPressurePanel({
             display: 'inline-flex',
             alignItems: 'center',
             gap: 7,
-            color: '#67e8f9',
+            color: 'var(--fc-blue)',
             fontSize: 10,
             fontWeight: 950,
             letterSpacing: '.08em',
@@ -83,15 +83,15 @@ export const AirPressurePanel = memo(function AirPressurePanel({
           style={{
             borderRadius: 999,
             padding: '3px 8px',
-            color: status?.online === false ? '#fecaca' : '#bbf7d0',
+            color: status?.online === false ? 'var(--fc-tx)' : 'var(--fc-tx)',
             background:
               status?.online === false
-                ? 'rgba(127,29,29,.36)'
-                : 'rgba(20,83,45,.34)',
+                ? 'color-mix(in srgb, color-mix(in srgb, var(--fc-red) 24%, var(--fc-panel)) 36%, transparent)'
+                : 'color-mix(in srgb, color-mix(in srgb, var(--fc-green) 24%, var(--fc-panel)) 34%, transparent)',
             border:
               status?.online === false
-                ? '1px solid rgba(248,113,113,.36)'
-                : '1px solid rgba(34,197,94,.32)',
+                ? '1px solid color-mix(in srgb, var(--fc-red) 36%, transparent)'
+                : '1px solid color-mix(in srgb, var(--fc-green) 32%, transparent)',
             fontSize: 10,
             fontWeight: 950,
           }}
@@ -114,19 +114,22 @@ export const AirPressurePanel = memo(function AirPressurePanel({
           style={{
             borderRadius: 9,
             padding: '8px 10px',
-            background: 'rgba(15,23,42,.62)',
-            border: '1px solid rgba(56,189,248,.2)',
+            background: 'color-mix(in srgb, var(--fc-panel) 62%, transparent)',
+            border:
+              '1px solid color-mix(in srgb, var(--fc-blue) 20%, transparent)',
             minWidth: 0,
           }}
         >
-          <div style={{ color: '#94a3b8', fontSize: 10, fontWeight: 800 }}>
+          <div
+            style={{ color: 'var(--fc-tx2)', fontSize: 10, fontWeight: 800 }}
+          >
             {t.airPressure.pressure}
           </div>
           <strong
             style={{
               display: 'block',
               marginTop: 4,
-              color: '#e0f2fe',
+              color: 'var(--fc-tx)',
               fontFamily: 'var(--font-data)',
               fontSize: 16,
               lineHeight: 1,
@@ -143,7 +146,7 @@ export const AirPressurePanel = memo(function AirPressurePanel({
               display: 'flex',
               justifyContent: 'space-between',
               gap: 8,
-              color: '#93c5fd',
+              color: 'var(--fc-blue)',
               fontFamily: 'var(--font-data)',
               fontSize: 10,
             }}
@@ -157,19 +160,22 @@ export const AirPressurePanel = memo(function AirPressurePanel({
           style={{
             borderRadius: 9,
             padding: '8px 9px',
-            background: 'rgba(15,23,42,.5)',
-            border: '1px solid rgba(148,163,184,.14)',
+            background: 'color-mix(in srgb, var(--fc-panel) 50%, transparent)',
+            border:
+              '1px solid color-mix(in srgb, var(--fc-tx2) 14%, transparent)',
             minWidth: 0,
           }}
         >
-          <div style={{ color: '#94a3b8', fontSize: 10, fontWeight: 800 }}>
+          <div
+            style={{ color: 'var(--fc-tx2)', fontSize: 10, fontWeight: 800 }}
+          >
             {t.airPressure.altitude}
           </div>
           <strong
             style={{
               display: 'block',
               marginTop: 4,
-              color: '#f8fafc',
+              color: 'var(--fc-tx)',
               fontFamily: 'var(--font-data)',
               fontSize: 15,
               lineHeight: 1,
@@ -183,7 +189,7 @@ export const AirPressurePanel = memo(function AirPressurePanel({
           <div
             style={{
               marginTop: 5,
-              color: '#cbd5e1',
+              color: 'var(--fc-tx)',
               fontSize: 9,
               lineHeight: 1.15,
             }}

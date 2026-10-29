@@ -21,8 +21,9 @@ export function MiniMapToolbar({
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: '0 12px',
-        borderBottom: '1px solid rgba(148,163,184,.16)',
-        color: '#cbd5e1',
+        borderBottom:
+          '1px solid color-mix(in srgb, var(--fc-tx2) 16%, transparent)',
+        color: 'var(--fc-tx)',
         fontSize: 12,
         fontWeight: 900,
       }}
@@ -35,7 +36,7 @@ export function MiniMapToolbar({
           gap: 7,
           border: 0,
           background: 'transparent',
-          color: follow ? '#93c5fd' : '#cbd5e1',
+          color: follow ? 'var(--fc-blue)' : 'var(--fc-tx)',
           fontSize: 11,
           fontWeight: 800,
           cursor: 'pointer',
@@ -51,7 +52,7 @@ export function MiniMapToolbar({
           style={{
             border: 0,
             background: 'transparent',
-            color: '#cbd5e1',
+            color: 'var(--fc-tx)',
             cursor: 'pointer',
             display: 'grid',
             placeItems: 'center',
@@ -67,7 +68,7 @@ export function MiniMapToolbar({
           style={{
             border: 0,
             background: 'transparent',
-            color: '#cbd5e1',
+            color: 'var(--fc-tx)',
             cursor: 'pointer',
             display: 'grid',
             placeItems: 'center',

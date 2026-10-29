@@ -25,7 +25,7 @@ export const MissionProgress = memo(function MissionProgress({
             style={{
               fontSize: 10,
               fontWeight: 900,
-              color: '#64748b',
+              color: 'var(--fc-blue)',
               letterSpacing: '.18em',
               textTransform: 'uppercase',
             }}
@@ -36,7 +36,7 @@ export const MissionProgress = memo(function MissionProgress({
             style={{
               fontSize: 12,
               fontFamily: 'var(--font-data)',
-              color: '#4ade80',
+              color: 'var(--fc-green)',
               fontWeight: 800,
             }}
           >
@@ -47,7 +47,7 @@ export const MissionProgress = memo(function MissionProgress({
           style={{
             height: 5,
             borderRadius: 999,
-            background: 'rgba(30,41,59,.92)',
+            background: 'color-mix(in srgb, var(--fc-panel) 92%, transparent)',
             overflow: 'hidden',
           }}
         >
@@ -56,7 +56,8 @@ export const MissionProgress = memo(function MissionProgress({
               width: `${progress}%`,
               height: '100%',
               borderRadius: 999,
-              background: 'linear-gradient(90deg,#16a34a,#22c55e)',
+              background:
+                'linear-gradient(90deg,var(--fc-green-solid),var(--fc-green-solid))',
             }}
           />
         </div>

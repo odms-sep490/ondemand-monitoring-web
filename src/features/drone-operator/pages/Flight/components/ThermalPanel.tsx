@@ -21,8 +21,8 @@ export function ThermalPanel({
         width: 260,
         padding: '12px 14px',
         border: controlStatus?.hotspotDetected
-          ? '1px solid rgba(251,146,60,.78)'
-          : '1px solid rgba(56,189,248,.35)',
+          ? '1px solid color-mix(in srgb, var(--fc-amber) 78%, transparent)'
+          : '1px solid color-mix(in srgb, var(--fc-blue) 35%, transparent)',
       }}
     >
       <div
@@ -39,7 +39,7 @@ export function ThermalPanel({
             fontSize: 12,
             letterSpacing: '.08em',
             textTransform: 'uppercase',
-            color: '#e5edf8',
+            color: 'var(--fc-tx)',
           }}
         >
           {t.thermalPanel.title}
@@ -50,8 +50,8 @@ export function ThermalPanel({
             fontWeight: 900,
             color:
               controlStatus?.thermalSensorOnline === false
-                ? '#fca5a5'
-                : '#67e8f9',
+                ? 'var(--fc-red)'
+                : 'var(--fc-blue)',
           }}
         >
           {controlStatus?.thermalSensorOnline === false
@@ -64,7 +64,9 @@ export function ThermalPanel({
           marginBottom: 8,
           fontSize: 12,
           fontWeight: 900,
-          color: controlStatus?.hotspotDetected ? '#fed7aa' : '#bae6fd',
+          color: controlStatus?.hotspotDetected
+            ? 'var(--fc-amber)'
+            : 'var(--fc-tx)',
         }}
       >
         {controlStatus?.hotspotDetected
@@ -78,7 +80,7 @@ export function ThermalPanel({
           rowGap: 5,
           columnGap: 12,
           fontSize: 11,
-          color: '#cbd5e1',
+          color: 'var(--fc-tx)',
         }}
       >
         {thermalRows.map(([label, value]) => (
@@ -89,8 +91,8 @@ export function ThermalPanel({
                 color:
                   label === t.thermalPanel.rows.max &&
                   controlStatus?.hotspotDetected
-                    ? '#fed7aa'
-                    : '#f8fafc',
+                    ? 'var(--fc-amber)'
+                    : 'var(--fc-tx)',
                 fontFamily: 'var(--font-data)',
                 textAlign: 'right',
                 whiteSpace: 'nowrap',
@@ -105,7 +107,7 @@ export function ThermalPanel({
         <div
           style={{
             marginTop: 8,
-            color: '#fca5a5',
+            color: 'var(--fc-red)',
             fontSize: 10,
             lineHeight: 1.35,
           }}
