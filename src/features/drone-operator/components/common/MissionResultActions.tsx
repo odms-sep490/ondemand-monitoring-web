@@ -96,6 +96,7 @@ export function MissionResultActions({
   onComplete,
   onSubmit,
   showComplete = true,
+  showSubmit = true,
 }: {
   missionId: string
   status?: string
@@ -104,6 +105,7 @@ export function MissionResultActions({
   onComplete: () => void
   onSubmit: () => void
   showComplete?: boolean
+  showSubmit?: boolean
 }) {
   const state = missionResultActions(missionId, status, monitoring)
   if (!['PENDING_REVIEW', 'COMPLETED'].includes(status ?? '')) return null
@@ -136,7 +138,8 @@ export function MissionResultActions({
           </>
         )}
       </div>
-      {((showComplete && state.canComplete) || state.canSubmit) && (
+      {((showComplete && state.canComplete) ||
+        (showSubmit && state.canSubmit)) && (
         <div className="staff-result-buttons">
           {showComplete && state.canComplete && (
             <button
@@ -149,7 +152,7 @@ export function MissionResultActions({
               Xác nhận hoàn thành Mission
             </button>
           )}
-          {state.canSubmit && (
+          {showSubmit && state.canSubmit && (
             <button
               type="button"
               className={`odm-btn${status === 'COMPLETED' ? ' odm-btn-p' : ''}`}
@@ -162,7 +165,7 @@ export function MissionResultActions({
           )}
         </div>
       )}
-      {((state.canSubmit && !state.submitReady) ||
+      {((showSubmit && state.canSubmit && !state.submitReady) ||
         (showComplete && state.canComplete && !state.completeReady)) && (
         <p id={reasonId} className="staff-result-reason">
           {showComplete && state.canComplete && !state.completeReady

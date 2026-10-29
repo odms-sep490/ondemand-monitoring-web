@@ -68,6 +68,7 @@ export function MissionListTable({
         </thead>
         <tbody>
           {missions.map((mission) => {
+            const currentStatus = mission.backendStatus ?? mission.status
             const baseAction = actionFor(mission, t)
             const action =
               mission.status === 'PENDING' &&
@@ -124,17 +125,17 @@ export function MissionListTable({
                   )}
                 </td>
                 <td>
-                  <StatusBadge tone={STATUS_TONE[mission.status]}>
+                  <StatusBadge
+                    tone={
+                      STATUS_TONE[currentStatus as keyof typeof STATUS_TONE] ??
+                      'gray'
+                    }
+                  >
                     {missionStopLabel(mission) ??
-                      (mission.backendStatus === 'PENDING_REVIEW'
-                        ? lang === 'vi'
-                          ? 'Chờ nghiệm thu'
-                          : 'Awaiting review'
-                        : ((t.statusLabel as Record<string, string>)[
-                            mission.status
-                          ] ??
-                          mission.backendStatus ??
-                          mission.status))}
+                      (t.statusLabel as Record<string, string>)[
+                        currentStatus
+                      ] ??
+                      currentStatus}
                   </StatusBadge>
                 </td>
                 {showSubmission && (

@@ -295,6 +295,17 @@
 .odm-flight-permit__current-file {
   margin-top: -6px;
   font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.odm-flight-permit__current-file .odm-flight-permit__file-button {
+  min-height: 32px;
+  padding: 5px 10px;
+  border: 1px solid var(--or-border);
+  border-radius: 7px;
 }
 
 .odm-flight-permit__error {
@@ -307,6 +318,203 @@
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
+}
+
+.odm-flight-permit__blocked,
+.odm-flight-permit__remediation {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid #f2c66d;
+  border-radius: 10px;
+  background: #fff8e8;
+  color: #6b4700;
+}
+
+.odm-flight-permit__preferred-schedule {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #d5dfef;
+  border-radius: 8px;
+  background: #fff;
+  color: #172033;
+}
+
+.odm-flight-permit__current-schedule {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px;
+  border: 1px solid #b9cff5;
+  border-radius: 8px;
+  background: #eef5ff;
+  color: #173b75;
+}
+
+.odm-flight-permit__current-schedule span {
+  text-align: right;
+  font-weight: 700;
+}
+
+.odm-flight-permit__scope {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.odm-flight-permit__scope legend {
+  grid-column: 1 / -1;
+  margin-bottom: 2px;
+  font-weight: 700;
+}
+
+.odm-flight-permit__scope label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: 76px;
+  padding: 12px;
+  border: 1px solid #cfd7e6;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.odm-flight-permit__scope label:has(input:checked) {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 1px #2563eb;
+  background: #eff6ff;
+}
+
+.odm-flight-permit__scope input {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+}
+
+.odm-flight-permit__scope span {
+  display: grid;
+  gap: 4px;
+}
+
+.odm-flight-permit__scope small {
+  color: #64748b;
+  line-height: 1.4;
+}
+
+.odm-flight-permit__schedule-step {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #d5dfef;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.odm-flight-permit__schedule-step > label {
+  display: grid;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.odm-flight-permit__schedule-step select {
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #cfd7e6;
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+}
+
+.odm-flight-permit__preferred-schedule dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+
+.odm-flight-permit__preferred-schedule dl > div {
+  display: grid;
+  gap: 3px;
+}
+
+.odm-flight-permit__preferred-schedule dt {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.odm-flight-permit__preferred-schedule dd {
+  margin: 0;
+  font-weight: 700;
+}
+
+.odm-flight-permit__blocked span,
+.odm-flight-permit__blocked small {
+  line-height: 1.45;
+}
+
+.odm-flight-permit__remediation {
+  margin-top: 12px;
+}
+.odm-flight-permit__remediation--danger {
+  border-color: #efb2b2;
+  background: #fff3f3;
+  color: #7f1d1d;
+}
+.odm-flight-permit__schedule-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.odm-flight-permit__remediation label {
+  display: grid;
+  gap: 6px;
+  font-weight: 600;
+}
+.odm-flight-permit__remediation input[type='datetime-local'],
+.odm-flight-permit__remediation textarea {
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #cfd7e6;
+  border-radius: 8px;
+  font: inherit;
+}
+.odm-flight-permit__remediation .odm-flight-permit__check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.odm-flight-permit__remediation .odm-flight-permit__check input {
+  width: 18px;
+  height: 18px;
+}
+
+@media (max-width: 720px) {
+  .odm-flight-permit__schedule-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .odm-flight-permit__preferred-schedule dl {
+    grid-template-columns: 1fr;
+  }
+
+  .odm-flight-permit__current-schedule {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .odm-flight-permit__current-schedule span {
+    text-align: left;
+  }
+
+  .odm-flight-permit__scope {
+    grid-template-columns: 1fr;
+  }
 }
 
 .odm-flight-permit__approve {
@@ -2350,7 +2558,9 @@
   background: #dc2626;
   color: #fff;
 }
-.odm-or-area-modal footer :is(.odm-btn, .ui-btn).is-danger:hover:not(:disabled) {
+.odm-or-area-modal
+  footer
+  :is(.odm-btn, .ui-btn).is-danger:hover:not(:disabled) {
   background: #b91c1c;
 }
 .odm-or-area-secondary-actions {
@@ -3795,7 +4005,6 @@ fieldset.odm-or-readonly {
 }
 
 /* ---------- Drones and Maintenance (shared list-page pattern) ---------- */
-
 
 /* Long lists keep a bounded height and scroll inside their card. */
 .mgr-scroll-list {

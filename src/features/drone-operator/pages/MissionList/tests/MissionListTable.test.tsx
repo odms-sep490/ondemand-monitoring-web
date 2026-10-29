@@ -130,6 +130,24 @@ describe('MissionListTable', () => {
     expect(screen.getByText('Không phân công')).toBeTruthy()
   })
 
+  it('uses backend lifecycle status instead of exposing raw SCHEDULED', () => {
+    render(
+      <MissionListTable
+        missions={[
+          {
+            ...missions[0],
+            status: 'ACCEPTED',
+            backendStatus: 'SCHEDULED',
+          },
+        ]}
+        now={new Date('2026-09-20T00:00:00+07:00')}
+      />,
+    )
+
+    expect(screen.getByText('Đã bắt đầu Mission')).toBeInTheDocument()
+    expect(screen.queryByText('SCHEDULED')).not.toBeInTheDocument()
+  })
+
   it('renders english column headers and status label when language is switched', () => {
     render(
       <MissionListTable
