@@ -40,9 +40,7 @@ describe('StaffAssignmentPage', () => {
       screen.getByText('No missions waiting for assignment.'),
     ).toBeInTheDocument()
     expect(
-      screen.getByText(
-        'Assign devices and staff to newly approved missions.',
-      ),
+      screen.getByText('Assign devices and staff to newly approved missions.'),
     ).toBeInTheDocument()
     expect(screen.getByText('Pending Assignments')).toBeInTheDocument()
   })

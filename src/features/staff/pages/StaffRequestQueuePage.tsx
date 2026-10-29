@@ -1,6 +1,12 @@
 import { useEffect, useState } from 'react'
-import { PortalLayout } from '../../../shared/components/portal/PortalLayout'
-import { Button } from '../../../shared/components/Button'
+import { Button, message } from 'antd'
+import {
+  CardComponent,
+  EmptyState,
+  PageHeader,
+  TableComponent,
+} from '../../../shared/components/antd'
+import { PageFrame } from '../../../shared/components/antd/PageFrame'
 import { useI18n } from '../../../shared/i18n'
 import { orderApi, type OrderCreateResponse } from '../../customer/api/orderApi'
 import { localizeTimeslot } from '../../manager/lib/viLabels'
@@ -34,96 +40,84 @@ export function StaffRequestQueuePage() {
       await orderApi.approveOrder(orderId)
       fetchOrders()
     } catch (e: unknown) {
-      alert(e instanceof Error ? e.message : t.approveFailed)
+      message.error(e instanceof Error ? e.message : t.approveFailed)
     }
   }
 
   return (
-    <PortalLayout role="MANAGER" title={t.title} subtitle={t.subtitle}>
-      <section className="portal-panel">
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: 20,
-          }}
-        >
-          <h2>{t.pendingOrders}</h2>
-          <Button onClick={fetchOrders}>{t.refresh}</Button>
-        </div>
-
+    <PageFrame maxWidth={1280}>
+      <PageHeader title={t.title} description={t.subtitle} />
+      <CardComponent
+        title={t.pendingOrders}
+        extra={<Button onClick={fetchOrders}>{t.refresh}</Button>}
+      >
         {loading ? (
           <p>{t.loading}</p>
         ) : error ? (
-          <p style={{ color: 'var(--red-text)' }}>{error}</p>
+          <p role="alert" style={{ color: 'var(--ui-danger-text)' }}>
+            {error}
+          </p>
         ) : orders.length === 0 ? (
-          <p>{t.noOrders}</p>
+          <EmptyState title={t.noOrders} />
         ) : (
-          <table
-            style={{
-              width: '100%',
-              borderCollapse: 'collapse',
-              textAlign: 'left',
-            }}
-          >
-            <thead>
-              <tr
-                style={{
-                  borderBottom: '2px solid var(--border)',
-                  color: 'var(--text-3)',
-                }}
-              >
-                <th style={{ padding: '12px 8px' }}>{t.orderId}</th>
-                <th style={{ padding: '12px 8px' }}>{t.orderTitle}</th>
-                <th style={{ padding: '12px 8px' }}>{t.customer}</th>
-                <th style={{ padding: '12px 8px' }}>{t.preferredDate}</th>
-                <th style={{ padding: '12px 8px' }}>{t.location}</th>
-                <th style={{ padding: '12px 8px', width: '120px' }}>
-                  {t.actions}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.map((order) => (
-                <tr
-                  key={order.id}
-                  style={{ borderBottom: '1px solid var(--border)' }}
-                >
-                  <td style={{ padding: '12px 8px', fontSize: 13 }}>
-                    {order.id}
-                  </td>
-                  <td style={{ padding: '12px 8px' }}>
+          <TableComponent<OrderCreateResponse>
+            rowKey="id"
+            dataSource={orders}
+            pagination={false}
+            scroll={{ x: 900 }}
+            columns={[
+              {
+                title: t.orderId,
+                dataIndex: 'id',
+                render: (id: string) => <span className="mgr-code">{id}</span>,
+              },
+              {
+                title: t.orderTitle,
+                render: (_: unknown, order) => (
+                  <div className="mgr-cell-stack">
                     <strong>{order.title}</strong>
-                    <div style={{ fontSize: 12, color: 'var(--text-3)' }}>
-                      {order.serviceName}
-                    </div>
-                  </td>
-                  <td style={{ padding: '12px 8px', fontSize: 13 }}>
-                    {order.customerName || order.customerId}
-                  </td>
-                  <td style={{ padding: '12px 8px', fontSize: 13 }}>
-                    {[order.preferredDateFrom, order.preferredDateTo]
-                      .filter(Boolean)
-                      .join(' → ')}
-                    <div style={{ fontSize: 12, color: 'var(--text-3)' }}>
+                    <span className="mgr-cell-sub">{order.serviceName}</span>
+                  </div>
+                ),
+              },
+              {
+                title: t.customer,
+                render: (_: unknown, order) =>
+                  order.customerName || order.customerId,
+              },
+              {
+                title: t.preferredDate,
+                render: (_: unknown, order) => (
+                  <div className="mgr-cell-stack">
+                    <span>
+                      {[order.preferredDateFrom, order.preferredDateTo]
+                        .filter(Boolean)
+                        .join(' → ')}
+                    </span>
+                    <span className="mgr-cell-sub">
                       {localizeTimeslot(order.preferredTimeName)}
-                    </div>
-                  </td>
-                  <td style={{ padding: '12px 8px', fontSize: 13 }}>
-                    {order.address}
-                  </td>
-                  <td style={{ padding: '12px 8px' }}>
-                    <Button onClick={() => handleApprove(order.id)}>
-                      {t.approve}
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    </span>
+                  </div>
+                ),
+              },
+              { title: t.location, dataIndex: 'address' },
+              {
+                title: t.actions,
+                width: 120,
+                render: (_: unknown, order) => (
+                  <Button
+                    type="primary"
+                    size="small"
+                    onClick={() => handleApprove(order.id)}
+                  >
+                    {t.approve}
+                  </Button>
+                ),
+              },
+            ]}
+          />
         )}
-      </section>
-    </PortalLayout>
+      </CardComponent>
+    </PageFrame>
   )
 }

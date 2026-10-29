@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
-import { PortalLayout } from '../../../shared/components/portal/PortalLayout'
-import { Button } from '../../../shared/components/Button'
+import { Button } from 'antd'
+import { PageHeader } from '../../../shared/components/antd'
+import { PageFrame } from '../../../shared/components/antd/PageFrame'
 import { useI18n } from '../../../shared/i18n'
 import { missionApi } from '../../mission/api/missionApi'
 import type { Mission } from '../../mission/types/mission'
@@ -141,8 +142,9 @@ export function StaffAssignmentPage() {
   )
 
   return (
-    <PortalLayout role="MANAGER" title={t.title} subtitle={t.subtitle}>
-      <section className="portal-panel">
+    <PageFrame maxWidth={1280}>
+      <PageHeader title={t.title} description={t.subtitle} />
+      <section className="mgr-card" style={{ padding: 20 }}>
         <div
           style={{
             display: 'flex',
@@ -156,7 +158,7 @@ export function StaffAssignmentPage() {
         </div>
 
         {error && (
-          <p role="alert" style={{ color: 'var(--red-text)' }}>
+          <p role="alert" style={{ color: 'var(--ui-danger-text)' }}>
             {error}
           </p>
         )}
@@ -179,9 +181,9 @@ export function StaffAssignmentPage() {
                 <article
                   key={m.id}
                   style={{
-                    border: '1px solid var(--border)',
+                    border: '1px solid var(--ui-border)',
                     borderRadius: 12,
-                    background: 'var(--surface)',
+                    background: 'var(--ui-surface)',
                     boxShadow: '0 12px 30px rgba(15, 23, 42, 0.06)',
                     overflow: 'hidden',
                   }}
@@ -193,13 +195,13 @@ export function StaffAssignmentPage() {
                         'minmax(220px, 1.2fr) minmax(220px, 0.8fr)',
                       gap: 18,
                       padding: 18,
-                      borderBottom: '1px solid var(--border)',
+                      borderBottom: '1px solid var(--ui-border)',
                     }}
                   >
                     <div>
                       <div
                         style={{
-                          color: 'var(--text-3)',
+                          color: 'var(--ui-text-3)',
                           fontSize: 12,
                           fontWeight: 700,
                         }}
@@ -209,7 +211,7 @@ export function StaffAssignmentPage() {
                       <h3 style={{ margin: '4px 0 6px' }}>
                         {m.orderTitle ?? m.id}
                       </h3>
-                      <div style={{ color: 'var(--text-3)', fontSize: 13 }}>
+                      <div style={{ color: 'var(--ui-text-3)', fontSize: 13 }}>
                         {m.id} · {m.customerName}
                       </div>
                     </div>
@@ -240,7 +242,10 @@ export function StaffAssignmentPage() {
                       <div>
                         <h4 style={{ margin: 0 }}>{t.staffSectionTitle}</h4>
                         <p
-                          style={{ margin: '4px 0 0', color: 'var(--text-3)' }}
+                          style={{
+                            margin: '4px 0 0',
+                            color: 'var(--ui-text-3)',
+                          }}
                         >
                           {t.staffSectionSubtitle}
                         </p>
@@ -252,8 +257,8 @@ export function StaffAssignmentPage() {
                         <div
                           style={{
                             color: missing.length
-                              ? 'var(--red-text)'
-                              : 'var(--green-text)',
+                              ? 'var(--ui-danger-text)'
+                              : 'var(--ui-success-text)',
                           }}
                         >
                           {missing.length
@@ -281,12 +286,12 @@ export function StaffAssignmentPage() {
                             style={{
                               border: staff
                                 ? '1px solid rgba(22, 163, 74, 0.42)'
-                                : '1px solid var(--border)',
+                                : '1px solid var(--ui-border)',
                               borderRadius: 10,
                               padding: 14,
                               background: staff
                                 ? 'rgba(22, 163, 74, 0.06)'
-                                : 'var(--bg)',
+                                : 'var(--ui-surface-2)',
                               minHeight: 190,
                               display: 'flex',
                               flexDirection: 'column',
@@ -305,7 +310,7 @@ export function StaffAssignmentPage() {
                                 {staff && (
                                   <span
                                     style={{
-                                      color: 'var(--green-text)',
+                                      color: 'var(--ui-success-text)',
                                       fontSize: 12,
                                     }}
                                   >
@@ -314,7 +319,10 @@ export function StaffAssignmentPage() {
                                 )}
                               </div>
                               <div
-                                style={{ color: 'var(--text-3)', fontSize: 12 }}
+                                style={{
+                                  color: 'var(--ui-text-3)',
+                                  fontSize: 12,
+                                }}
                               >
                                 {t.roleDescriptions[role]}
                               </div>
@@ -352,7 +360,7 @@ export function StaffAssignmentPage() {
                                     </div>
                                     <div
                                       style={{
-                                        color: 'var(--text-3)',
+                                        color: 'var(--ui-text-3)',
                                         fontSize: 12,
                                         overflow: 'hidden',
                                         textOverflow: 'ellipsis',
@@ -364,7 +372,7 @@ export function StaffAssignmentPage() {
                                 </div>
                                 <span
                                   style={{
-                                    color: 'var(--green-text)',
+                                    color: 'var(--ui-success-text)',
                                     fontSize: 12,
                                   }}
                                 >
@@ -373,7 +381,10 @@ export function StaffAssignmentPage() {
                               </div>
                             ) : (
                               <div
-                                style={{ color: 'var(--text-3)', fontSize: 13 }}
+                                style={{
+                                  color: 'var(--ui-text-3)',
+                                  fontSize: 13,
+                                }}
                               >
                                 {t.unassigned}
                               </div>
@@ -413,17 +424,18 @@ export function StaffAssignmentPage() {
                       style={{
                         marginTop: 16,
                         paddingTop: 14,
-                        borderTop: '1px solid var(--border)',
+                        borderTop: '1px solid var(--ui-border)',
                         display: 'flex',
                         justifyContent: 'space-between',
                         alignItems: 'center',
                         gap: 12,
                       }}
                     >
-                      <div style={{ color: 'var(--text-3)', fontSize: 13 }}>
+                      <div style={{ color: 'var(--ui-text-3)', fontSize: 13 }}>
                         {t.assignedCount(assignedCount, missionRoles.length)}
                       </div>
                       <Button
+                        type="primary"
                         disabled={assigningMissionId !== null}
                         onClick={() => void handleAssign(m.id)}
                       >
@@ -461,7 +473,7 @@ export function StaffAssignmentPage() {
             style={{
               width: 'min(620px, 100%)',
               maxHeight: 'min(720px, 90vh)',
-              background: 'var(--surface)',
+              background: 'var(--ui-surface)',
               borderRadius: 14,
               boxShadow: '0 24px 70px rgba(15, 23, 42, 0.28)',
               overflow: 'hidden',
@@ -472,7 +484,7 @@ export function StaffAssignmentPage() {
             <header
               style={{
                 padding: 18,
-                borderBottom: '1px solid var(--border)',
+                borderBottom: '1px solid var(--ui-border)',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
@@ -483,7 +495,7 @@ export function StaffAssignmentPage() {
                 <h3 style={{ margin: 0 }}>
                   {t.pickerTitle(t.roles[staffPicker.role])}
                 </h3>
-                <div style={{ color: 'var(--text-3)', fontSize: 13 }}>
+                <div style={{ color: 'var(--ui-text-3)', fontSize: 13 }}>
                   {t.roleDescriptions[staffPicker.role]}
                 </div>
               </div>
@@ -506,7 +518,7 @@ export function StaffAssignmentPage() {
                   width: '100%',
                   padding: '12px 14px',
                   borderRadius: 10,
-                  border: '1px solid var(--border)',
+                  border: '1px solid var(--ui-border)',
                   font: 'inherit',
                 }}
               />
@@ -548,9 +560,9 @@ export function StaffAssignmentPage() {
                 <div
                   style={{
                     padding: 24,
-                    border: '1px dashed var(--border)',
+                    border: '1px dashed var(--ui-border)',
                     borderRadius: 10,
-                    color: 'var(--text-3)',
+                    color: 'var(--ui-text-3)',
                     textAlign: 'center',
                   }}
                 >
@@ -567,7 +579,7 @@ export function StaffAssignmentPage() {
                     <article
                       key={staff.id}
                       style={{
-                        border: '1px solid var(--border)',
+                        border: '1px solid var(--ui-border)',
                         borderRadius: 10,
                         padding: 14,
                         display: 'grid',
@@ -597,12 +609,14 @@ export function StaffAssignmentPage() {
                           <div style={{ fontWeight: 800 }}>
                             {staff.fullName}
                           </div>
-                          <div style={{ color: 'var(--text-3)', fontSize: 13 }}>
+                          <div
+                            style={{ color: 'var(--ui-text-3)', fontSize: 13 }}
+                          >
                             {staff.email}
                           </div>
                           <div
                             style={{
-                              color: 'var(--green-text)',
+                              color: 'var(--ui-success-text)',
                               fontSize: 12,
                               marginTop: 4,
                             }}
@@ -619,7 +633,10 @@ export function StaffAssignmentPage() {
                               }}
                             >
                               <span
-                                style={{ color: 'var(--text-3)', fontSize: 12 }}
+                                style={{
+                                  color: 'var(--ui-text-3)',
+                                  fontSize: 12,
+                                }}
                               >
                                 {t.alreadyAssigned}:
                               </span>
@@ -665,6 +682,6 @@ export function StaffAssignmentPage() {
           </section>
         </div>
       )}
-    </PortalLayout>
+    </PageFrame>
   )
 }
