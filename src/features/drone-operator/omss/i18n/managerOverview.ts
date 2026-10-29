@@ -5,7 +5,7 @@ export const managerOverviewMessages = defineMessages({
     title: 'Tổng quan vận hành',
     managerLine: 'Manager',
     stats: {
-      operatorsOnline: 'Operator trực tuyến',
+      operatorsOnline: 'Người vận hành trực tuyến',
       activeFlights: 'Đang bay',
       pendingApprovals: 'Chờ phê duyệt',
       missionsToday: 'Nhiệm vụ hôm nay',

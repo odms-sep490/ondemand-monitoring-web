@@ -38,7 +38,7 @@ export const portalLayoutMessages = defineMessages({
     darkMode: 'Chế độ tối',
     closeNav: 'Đóng điều hướng',
     openNav: 'Mở điều hướng',
-    defaultUser: 'Người dùng Fieldwise',
+    defaultUser: 'Người dùng OnDemand Monitor',
   },
   en: {
     roleLabels: {
@@ -77,6 +77,6 @@ export const portalLayoutMessages = defineMessages({
     darkMode: 'Dark mode',
     closeNav: 'Close navigation',
     openNav: 'Open navigation',
-    defaultUser: 'Fieldwise user',
+    defaultUser: 'OnDemand Monitor user',
   },
 })

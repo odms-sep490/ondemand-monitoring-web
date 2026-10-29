@@ -14,7 +14,7 @@ export const acceptRejectMessages = defineMessages({
     },
     durationValue: (minutes: number) => `~${minutes} phút`,
     confirmLabel:
-      'Tôi đã xem lại yêu cầu nhiệm vụ và xác nhận sẵn sàng vận hành nhiệm vụ này với tư cách operator được phân công.',
+      'Tôi đã xem lại yêu cầu nhiệm vụ và xác nhận sẵn sàng vận hành nhiệm vụ này với tư cách người vận hành được phân công.',
     rejectMission: 'Từ chối nhiệm vụ',
     acceptMission: 'Chấp nhận nhiệm vụ',
     reasonForRejection: 'Lý do từ chối',

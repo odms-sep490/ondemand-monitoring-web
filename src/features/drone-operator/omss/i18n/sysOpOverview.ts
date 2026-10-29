@@ -3,7 +3,7 @@ import { defineMessages } from '../../../../shared/i18n'
 export const sysOpOverviewMessages = defineMessages({
   vi: {
     title: 'Tổng quan hệ thống',
-    headerLine: 'System Operator · Vừa làm mới',
+    headerLine: 'Người vận hành hệ thống · Vừa làm mới',
     stats: {
       fleetSize: 'Quy mô đội bay',
       active: (count: number) => `${count} đang hoạt động`,

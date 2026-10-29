@@ -12,14 +12,14 @@ export const runtimePreflightCheckMessages = defineMessages({
       BATTERY: 'Pin',
       LIDAR: 'LiDAR',
       CAMERA: 'Camera hướng xuống',
-      BACKEND: 'Kết nối Backend',
+      BACKEND: 'Kết nối hệ thống',
       MEDIA: 'Tải lên media',
       MODULES: 'Kiểm tra module',
     },
     pending: 'Đang chờ',
     waitingForController: 'Đang chờ API flight controller',
     backendPreflightFailed:
-      'Kiểm tra trước bay ở backend thất bại. Vui lòng thử lại.',
+      'Kiểm tra trước bay ở hệ thống thất bại. Vui lòng thử lại.',
     preflightApiError: (status: number) => `API kiểm tra trước bay ${status}`,
     waitingForControllerApi:
       'Đang chờ API kiểm tra trước bay của flight controller. Bạn có thể mở Start Drone Stack bất cứ lúc nào; màn hình này sẽ tự động tiếp tục.',
@@ -39,7 +39,7 @@ export const runtimePreflightCheckMessages = defineMessages({
     failedBanner: '× KIỂM TRA TRƯỚC BAY THẤT BẠI',
     checking: '◌ ĐANG KIỂM TRA TRƯỚC BAY',
     readyBody:
-      'Tất cả hệ thống quan trọng đã sẵn sàng. Bạn có thể vào màn hình Drone Operator.',
+      'Tất cả hệ thống quan trọng đã sẵn sàng. Bạn có thể vào màn hình người vận hành.',
     failedBody:
       'Một hệ thống quan trọng chưa sẵn sàng. Khắc phục và thử lại các mục thất bại.',
     checkingBody:
@@ -47,7 +47,7 @@ export const runtimePreflightCheckMessages = defineMessages({
     critical: 'Bắt buộc',
     optional: 'Tùy chọn',
     retryFailedChecks: 'Thử lại các mục thất bại',
-    goToOperator: '✓ OK - Vào Drone Operator',
+    goToOperator: '✓ OK - Vào màn hình người vận hành',
   },
   en: {
     checkNames: {

@@ -14,8 +14,8 @@ export const socialCallbackPageMessages = defineMessages({
     accountConnected: 'Đã kết nối tài khoản Google',
     welcome: (name?: string) => `Chào mừng${name ? `, ${name}` : ''}`,
     accountReady:
-      'Tài khoản khách hàng của bạn đã sẵn sàng. Tiếp tục vào Fieldwise để quản lý yêu cầu giám sát.',
-    continueToApp: 'Tiếp tục vào Fieldwise',
+      'Tài khoản khách hàng của bạn đã sẵn sàng. Tiếp tục vào OnDemand Monitor để quản lý yêu cầu giám sát.',
+    continueToApp: 'Tiếp tục vào OnDemand Monitor',
     googleAccount: 'Tài khoản Google',
     finishingSignIn: 'Đang hoàn tất đăng nhập',
     takingLonger:
@@ -35,8 +35,8 @@ export const socialCallbackPageMessages = defineMessages({
     accountConnected: 'Google account connected',
     welcome: (name?: string) => `Welcome${name ? `, ${name}` : ''}`,
     accountReady:
-      'Your customer account is ready. Continue to Fieldwise to manage monitoring requests.',
-    continueToApp: 'Continue to Fieldwise',
+      'Your customer account is ready. Continue to OnDemand Monitor to manage monitoring requests.',
+    continueToApp: 'Continue to OnDemand Monitor',
     googleAccount: 'Google account',
     finishingSignIn: 'Finishing sign-in',
     takingLonger:

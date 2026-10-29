@@ -5,10 +5,10 @@ export const controlHandoverMessages = defineMessages({
     preflightCheck: 'Kiểm tra trước bay',
     title: 'Bàn giao quyền điều khiển',
     description:
-      'Yêu cầu phê duyệt từ manager giám sát trước khi bắt đầu nhiệm vụ.',
+      'Yêu cầu phê duyệt từ quản lý giám sát trước khi bắt đầu nhiệm vụ.',
     steps: {
       submitRequest: 'Gửi yêu cầu',
-      managerApproves: 'Manager phê duyệt',
+      managerApproves: 'Quản lý phê duyệt',
       enterAuthCode: 'Nhập mã xác thực',
     },
     fields: {
@@ -18,11 +18,11 @@ export const controlHandoverMessages = defineMessages({
       scheduled: 'Lịch trình',
     },
     requestHandover: 'Yêu cầu phê duyệt bàn giao',
-    awaitingApproval: 'Đang chờ manager phê duyệt',
-    notificationSent: 'Thông báo đã được gửi tới manager giám sát.',
-    approvedByManager: 'Manager đã phê duyệt bàn giao',
+    awaitingApproval: 'Đang chờ quản lý phê duyệt',
+    notificationSent: 'Thông báo đã được gửi tới quản lý giám sát.',
+    approvedByManager: 'Quản lý đã phê duyệt bàn giao',
     enterCodePrompt:
-      'Nhập mã xác thực do manager của bạn cung cấp để tiếp tục.',
+      'Nhập mã xác thực do quản lý của bạn cung cấp để tiếp tục.',
     authCodeLabel: 'Mã xác thực',
     authCodePlaceholder: 'Nhập mã 6 chữ số',
     confirmLabel:

@@ -11,7 +11,7 @@ const NAMES: Record<string, string> = {
   'media storage probe': 'Kiểm tra lưu trữ media',
   'px4 flight controller': 'Bộ điều khiển bay PX4',
   'px4 control': 'Điều khiển PX4',
-  'backend connection': 'Kết nối backend',
+  'backend connection': 'Kết nối hệ thống',
   'local position': 'Vị trí cục bộ',
   'battery handling safety': 'An toàn xử lý pin',
   'communication logs': 'Nhật ký liên lạc',

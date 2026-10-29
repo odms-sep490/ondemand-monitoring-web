@@ -21,7 +21,7 @@ export const rolePortalPageMessages = defineMessages({
   vi: {
     heroTitle: 'Đưa ra quyết định tiếp theo một cách tự tin.',
     heroCopy:
-      'Fieldwise gắn kết yêu cầu, con người, thiết bị và bằng chứng vào một chỗ để mọi đội đều hành động trên cùng một bức tranh vận hành.',
+      'OnDemand Monitor gắn kết yêu cầu, con người, thiết bị và bằng chứng vào một chỗ để mọi đội đều hành động trên cùng một bức tranh vận hành.',
     metricsAriaLabel: 'Chỉ số chính',
     recentActivityEyebrow: 'Hoạt động gần đây',
     recentActivityTitle: 'Việc cần chú ý',
@@ -150,7 +150,7 @@ export const rolePortalPageMessages = defineMessages({
       ADMIN: {
         title: 'Tổng quan quản trị',
         subtitle:
-          'Quản lý quyền truy cập, quản trị hệ thống và tình trạng nền tảng Fieldwise.',
+          'Quản lý quyền truy cập, quản trị hệ thống và tình trạng nền tảng OnDemand Monitor.',
         eyebrow: 'Quản trị hệ thống',
         primary: 'Quản lý tài khoản người dùng',
         metrics: [
@@ -190,7 +190,7 @@ export const rolePortalPageMessages = defineMessages({
   en: {
     heroTitle: 'Make the next decision with confidence.',
     heroCopy:
-      'Fieldwise keeps the request, people, devices, and evidence connected so every team can act from the same operational picture.',
+      'OnDemand Monitor keeps the request, people, devices, and evidence connected so every team can act from the same operational picture.',
     metricsAriaLabel: 'Key metrics',
     recentActivityEyebrow: 'Recent activity',
     recentActivityTitle: 'What needs attention',
@@ -319,7 +319,7 @@ export const rolePortalPageMessages = defineMessages({
       ADMIN: {
         title: 'Administration overview',
         subtitle:
-          'Manage access, system governance, and the health of the Fieldwise platform.',
+          'Manage access, system governance, and the health of the OnDemand Monitor platform.',
         eyebrow: 'System administration',
         primary: 'Manage user accounts',
         metrics: [

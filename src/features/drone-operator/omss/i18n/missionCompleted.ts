@@ -28,7 +28,7 @@ export const missionCompletedMessages = defineMessages({
       postflight: 'Sau bay',
       media: 'Media',
     },
-    currentOperator: 'Operator hiện tại',
+    currentOperator: 'Người vận hành hiện tại',
     inspectionCompleted: 'Đã hoàn tất kiểm tra',
     openMediaReview: 'Mở kiểm tra media để xem trạng thái hiện tại',
     nextStep: 'Bước tiếp theo:',

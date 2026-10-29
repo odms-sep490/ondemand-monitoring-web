@@ -4,7 +4,7 @@ export const manualUploadMessages = defineMessages({
   vi: {
     title: 'Tải thủ công tệp media',
     description:
-      'Các tệp này đã hết số lần thử tự động. Bản gốc vẫn còn trên Flight Controller để operator kích hoạt thử lại.',
+      'Các tệp này đã hết số lần thử tự động. Bản gốc vẫn còn trên Flight Controller để người vận hành kích hoạt thử lại.',
     refresh: 'Làm mới',
     backToReview: 'Quay lại kiểm tra',
     backToMissions: 'Quay lại danh sách nhiệm vụ',

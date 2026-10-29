@@ -4,10 +4,10 @@ export const operatorOverviewMessages = defineMessages({
   vi: {
     notScheduled: 'Chưa lên lịch',
     welcome: (name: string) => `Chào mừng, ${name}`,
-    operatorId: 'Mã operator',
+    operatorId: 'Mã người vận hành',
     stats: {
       assignedMissions: 'Nhiệm vụ được giao',
-      assignedMissionsSub: 'Operator hiện tại',
+      assignedMissionsSub: 'Người vận hành hiện tại',
       awaitingAcceptance: 'Chờ chấp nhận',
       awaitingAcceptanceSub: 'Cần phản hồi',
       activeFlights: 'Đang bay',

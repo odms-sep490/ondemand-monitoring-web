@@ -8,7 +8,7 @@ export const operatorWorkspaceMessages = defineMessages({
     },
     failReasons: {
       preflightHardware: 'Lỗi phần cứng khi kiểm tra trước bay',
-      emergencyStop: 'Dừng khẩn cấp — operator hủy nhiệm vụ',
+      emergencyStop: 'Dừng khẩn cấp — người vận hành hủy nhiệm vụ',
     },
     errors: {
       cannotLoadMissions: 'Không thể tải danh sách nhiệm vụ được giao',
@@ -23,7 +23,7 @@ export const operatorWorkspaceMessages = defineMessages({
         'Drone của nhiệm vụ đã thay đổi. Kết nối lại GCS trước khi kiểm tra trước bay.',
       telemetryTimeout:
         'Chờ dữ liệu telemetry mới từ drone quá thời gian. Kiểm tra Telemetry Sender và thử lại.',
-      backendPreflightFailed: 'Kiểm tra trước bay ở backend không đạt',
+      backendPreflightFailed: 'Kiểm tra trước bay ở hệ thống không đạt',
       preflightRegistrationFailed: 'Ghi nhận kiểm tra trước bay thất bại',
       rtbUpdateFailed: 'Cập nhật trạng thái quay về căn cứ thất bại',
       missionFailureUpdateFailed:

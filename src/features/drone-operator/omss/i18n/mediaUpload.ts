@@ -4,7 +4,7 @@ export const mediaUploadMessages = defineMessages({
   vi: {
     title: 'Kiểm tra media đã chụp',
     description:
-      'Tệp vẫn lưu trên Flight Controller cho đến khi bạn xóa. Duyệt sẽ gửi bản gốc thẳng lên S3; Khách hàng chỉ thấy sau khi backend xác thực.',
+      'Tệp vẫn lưu trên Flight Controller cho đến khi bạn xóa. Duyệt sẽ gửi bản gốc thẳng lên S3; khách hàng chỉ thấy sau khi hệ thống xác thực.',
     refresh: 'Làm mới',
     manualUploadTasks: 'Tác vụ tải thủ công',
     backToMissions: 'Quay lại danh sách nhiệm vụ',

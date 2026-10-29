@@ -12,7 +12,7 @@ export function CheckItemsList({
 }: {
   items: Array<PreflightCheckItem | PostDeviceCheckItem>
 }) {
-  const { t } = useI18n(commonMiscMessages)
+  const { t, lang } = useI18n(commonMiscMessages)
   if (!items || items.length === 0) {
     return <div className="odm-or-empty">{t.noCheckItems}</div>
   }
@@ -25,9 +25,13 @@ export function CheckItemsList({
         >
           <span className={`odm-or-dot is-${checkTone(item.status)}`} />
           <span>
-            <strong>{viCheckName(item.checkName)}</strong>
+            <strong>
+              {lang === 'vi' ? viCheckName(item.checkName) : item.checkName}
+            </strong>
             {item.message ? (
-              <small>{viCheckMessage(item.message)}</small>
+              <small>
+                {lang === 'vi' ? viCheckMessage(item.message) : item.message}
+              </small>
             ) : null}
           </span>
           <span className={`odm-or-pill odm-or-pill-${checkTone(item.status)}`}>

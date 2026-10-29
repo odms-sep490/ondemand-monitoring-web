@@ -87,7 +87,7 @@ export const INSPECTION_MEDIA_STATUSES = new Set([
 ])
 
 export const PREFLIGHT_NAME_LABELS: Record<string, string> = {
-  BACKEND: 'Kết nối backend',
+  BACKEND: 'Kết nối hệ thống',
   BATTERY: 'Pin',
   CAMERA: 'Camera dưới',
   GAZEBO: 'Mô phỏng Gazebo',
@@ -102,7 +102,7 @@ export const PREFLIGHT_NAME_LABELS: Record<string, string> = {
 }
 
 export const PREFLIGHT_NAME_FALLBACKS: Record<string, string> = {
-  'Backend Connection': 'Kết nối backend',
+  'Backend Connection': 'Kết nối hệ thống',
   Battery: 'Pin',
   'Downward Camera': 'Camera dưới',
   'Gazebo Simulation': 'Mô phỏng Gazebo',

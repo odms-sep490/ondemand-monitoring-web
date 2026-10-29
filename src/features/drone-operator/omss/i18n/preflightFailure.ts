@@ -34,7 +34,7 @@ export const preflightFailureMessages = defineMessages({
     action: 'Hành động:',
     selectReplacement: 'Chọn drone thay thế',
     acknowledgeAndContinue: 'Xác nhận và tiếp tục',
-    escalateToManager: 'Báo cáo lên manager',
+    escalateToManager: 'Báo cáo lên quản lý',
   },
   en: {
     preflightCheck: 'Pre-flight check',
