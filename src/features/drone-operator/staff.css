@@ -166,6 +166,10 @@
     right: auto;
     left: 10px;
   }
+
+  .stf-map-tag--br {
+    bottom: 48px;
+  }
 }
 
 .stf-map-tag--tl {
@@ -1055,4 +1059,10 @@
 
 .stf-tn {
   font-variant-numeric: tabular-nums;
+}
+
+/* Long status tags next to a card title wrap instead of truncating it. */
+.odm-opr .ant-card-head-wrapper {
+  flex-wrap: wrap;
+  row-gap: 6px;
 }
