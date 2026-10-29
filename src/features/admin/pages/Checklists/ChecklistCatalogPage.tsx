@@ -1,23 +1,25 @@
+import { EditOutlined, PlusOutlined, ProfileOutlined } from '@ant-design/icons'
+import { Alert, Button, Modal, Select, Space, Typography } from 'antd'
+import type { ColumnsType } from 'antd/es/table'
 import { useState } from 'react'
+
+import {
+  CardComponent,
+  EmptyState,
+  FilterBar,
+  PageHeader,
+  StatusTag,
+  TableComponent,
+  mgrPopupContainer,
+} from '../../../../shared/components/antd'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
-import { LoadingState } from '../../../../shared/components/odm/StateView'
-import {
-  Modal,
-  PageHeader,
-  Card,
-  EmptyState,
-  StatusBadge,
-} from '../../../../shared/components/ui'
-import {
-  checklistsApi,
-  type ChecklistDefinition,
-} from '../../api/checklistsApi'
+import { formatVnd } from '../../../../shared/lib/formatVnd'
+import { checklistsApi, type ChecklistDefinition } from '../../api/checklistsApi'
+import { AdminLoading } from '../../components/common/AdminLoading'
 import { adminHref } from '../../routes'
 import { checklistMessages } from './checklists.messages'
 import { checklistError } from './checklistError'
-import { Icon } from '../../../../shared/components/Icon'
-import { formatVnd } from '../../../../shared/lib/formatVnd'
 import { ChecklistPagination, ChecklistLoadError } from './ChecklistUi'
 import { ChecklistConfigModal } from './ChecklistConfigModal'
 
@@ -32,12 +34,7 @@ export function ChecklistCatalogPage() {
   const [usageId, setUsageId] = useState<string | null>(null)
   const query = useApiQuery(
     (signal) =>
-      checklistsApi.list(
-        search,
-        active === '' ? undefined : active === 'true',
-        page,
-        signal,
-      ),
+      checklistsApi.list(search, active === '' ? undefined : active === 'true', page, signal),
     [search, active, page],
   )
   async function toggle(row: ChecklistDefinition) {
@@ -52,165 +49,145 @@ export function ChecklistCatalogPage() {
       setBusy(false)
     }
   }
+
+  const columns: ColumnsType<ChecklistDefinition> = [
+    {
+      title: t.content,
+      key: 'content',
+      render: (_, row) => <span className="adm-wrap checklist-content-cell">{row.content}</span>,
+    },
+    {
+      title: t.filter,
+      key: 'status',
+      render: (_, row) => (
+        <StatusTag tone={row.isActive ? 'success' : 'neutral'}>
+          {row.isActive ? t.active : t.inactive}
+        </StatusTag>
+      ),
+    },
+    {
+      title: t.priceColumn,
+      key: 'price',
+      render: (_, row) => (
+        <span className="mgr-cell-stack">
+          <strong>{formatVnd(row.basePrice ?? 0)}</strong>
+          <span className="mgr-cell-sub">
+            {row.includedImageCount ?? 0} {t.imagesShort} · {row.includedVideoCount ?? 0}{' '}
+            {t.videosShort}
+            {row.pricingProfile ? ` · ${row.pricingProfile}` : ''}
+          </span>
+        </span>
+      ),
+    },
+    {
+      title: t.usage,
+      key: 'usage',
+      render: (_, row) => (
+        <Button size="small" onClick={() => setUsageId(row.id)}>
+          {t.usedBy(row.usedByServiceCount ?? 0, row.usedByOrderCount ?? 0)}
+        </Button>
+      ),
+    },
+    {
+      title: t.updated,
+      key: 'updated',
+      responsive: ['lg'],
+      render: (_, row) => (
+        <span className="mgr-cell-sub mgr-nowrap">
+          {new Date(row.updatedAt ?? row.createdAt).toLocaleString(lang === 'vi' ? 'vi-VN' : 'en-US')}
+        </span>
+      ),
+    },
+    {
+      title: t.actions,
+      key: 'actions',
+      align: 'right',
+      render: (_, row) => (
+        <Space size={6} wrap>
+          <Button size="small" icon={<EditOutlined aria-hidden="true" aria-label={undefined} />} disabled={busy} onClick={() => setEditor(row)}>
+            {t.edit}
+          </Button>
+          <Button size="small" danger={row.isActive} disabled={busy} onClick={() => void toggle(row)}>
+            {row.isActive ? t.deactivate : t.reactivate}
+          </Button>
+        </Space>
+      ),
+    },
+  ]
+
   return (
-    <div className="checklist-page">
+    <div className="mgr-view checklist-page">
       <PageHeader
         title={t.title}
-        subtitle={t.catalogSubtitle}
+        description={t.catalogSubtitle}
         actions={
-          <button
-            className="odm-btn odm-btn-p"
-            onClick={() => setEditor('new')}
-          >
-            <Icon name="plus" width={16} height={16} aria-hidden="true" />
+          <Button type="primary" icon={<PlusOutlined aria-hidden="true" aria-label={undefined} />} onClick={() => setEditor('new')}>
             {t.add}
-          </button>
+          </Button>
         }
       />
-      <Card flush>
-        <div className="checklist-toolbar">
-          <div className="checklist-search">
-            <Icon name="search" width={16} height={16} aria-hidden="true" />
-            <input
-              className="odm-inp"
-              type="search"
-              aria-label={t.search}
-              placeholder={t.search}
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value)
+      <FilterBar
+        search={{
+          value: search,
+          onChange: (value) => {
+            setSearch(value)
+            setPage(0)
+          },
+          placeholder: t.search,
+          ariaLabel: t.search,
+        }}
+        end={
+          <>
+            <Select
+              className="adm-filter-select"
+              aria-label={t.filter}
+              value={active}
+              onChange={(value) => {
+                setActive(value)
                 setPage(0)
               }}
+              getPopupContainer={mgrPopupContainer}
+              options={[
+                { value: '', label: t.all },
+                { value: 'true', label: t.active },
+                { value: 'false', label: t.inactive },
+              ]}
             />
-          </div>
-          <select
-            className="odm-inp"
-            aria-label={t.filter}
-            value={active}
-            onChange={(e) => {
-              setActive(e.target.value)
-              setPage(0)
-            }}
-          >
-            <option value="">{t.all}</option>
-            <option value="true">{t.active}</option>
-            <option value="false">{t.inactive}</option>
-          </select>
-          <a
-            className="odm-btn"
-            href={adminHref({ screen: 'serviceChecklists' })}
-          >
-            <Icon name="clipboard" width={16} height={16} aria-hidden="true" />
-            {t.template}
-          </a>
-        </div>
-        {error && (
-          <p className="checklist-banner is-error" role="alert">
-            {error}
-          </p>
-        )}
-        {query.loading && <LoadingState />}
-        {query.error !== undefined && (
-          <ChecklistLoadError
-            title={t.catalogLoadError}
-            error={query.error}
-            retry={query.reload}
-          />
-        )}
-        {!query.loading && query.error === undefined && query.data && (
-          <>
-            <div className="ui-table-scroll">
-              <table className="odm-adm-table checklist-table">
-                <thead>
-                  <tr>
-                    <th>{t.content}</th>
-                    <th>{t.filter}</th>
-                    <th>{t.priceColumn}</th>
-                    <th>{t.usage}</th>
-                    <th>{t.updated}</th>
-                    <th>{t.actions}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {query.data.items.map((row) => (
-                    <tr key={row.id}>
-                      <td className="adm-wrap checklist-content-cell">
-                        {row.content}
-                      </td>
-                      <td>
-                        <StatusBadge
-                          tone={row.isActive ? 'success' : 'neutral'}
-                        >
-                          {row.isActive ? t.active : t.inactive}
-                        </StatusBadge>
-                      </td>
-                      <td className="adm-cell-mono">
-                        {formatVnd(row.basePrice ?? 0)}
-                        <br />
-                        {row.includedImageCount ?? 0} {t.imagesShort} ·{' '}
-                        {row.includedVideoCount ?? 0} {t.videosShort}
-                        {row.pricingProfile ? ` · ${row.pricingProfile}` : ''}
-                      </td>
-                      <td>
-                        <button
-                          className="odm-btn odm-btn-gh odm-btn-sm"
-                          onClick={() => setUsageId(row.id)}
-                        >
-                          {t.usedBy(
-                            row.usedByServiceCount ?? 0,
-                            row.usedByOrderCount ?? 0,
-                          )}
-                        </button>
-                      </td>
-                      <td className="adm-cell-mono">
-                        {new Date(
-                          row.updatedAt ?? row.createdAt,
-                        ).toLocaleString(lang === 'vi' ? 'vi-VN' : 'en-US')}
-                      </td>
-                      <td>
-                        <div className="checklist-actions">
-                          <button
-                            className="odm-btn odm-btn-gh odm-btn-sm"
-                            disabled={busy}
-                            onClick={() => setEditor(row)}
-                          >
-                            <Icon
-                              name="edit"
-                              width={15}
-                              height={15}
-                              aria-hidden="true"
-                            />
-                            {t.edit}
-                          </button>{' '}
-                          <button
-                            className={
-                              'odm-btn odm-btn-gh odm-btn-sm' +
-                              (row.isActive ? ' checklist-danger' : '')
-                            }
-                            disabled={busy}
-                            onClick={() => void toggle(row)}
-                          >
-                            {row.isActive ? t.deactivate : t.reactivate}
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            {!query.data.items.length && <EmptyState title={t.empty} />}
-            <ChecklistPagination
-              page={page}
-              totalPages={query.data.totalPages}
-              first={query.data.first}
-              last={query.data.last}
-              change={setPage}
-            />
+            <Button icon={<ProfileOutlined aria-hidden="true" aria-label={undefined} />} href={adminHref({ screen: 'serviceChecklists' })}>
+              {t.template}
+            </Button>
           </>
-        )}
-      </Card>
-      <p className="checklist-banner">{t.future}</p>
+        }
+      />
+      {error && <Alert type="error" showIcon role="alert" message={error} />}
+      {query.loading && <AdminLoading />}
+      {query.error !== undefined && (
+        <ChecklistLoadError title={t.catalogLoadError} error={query.error} retry={query.reload} />
+      )}
+      {!query.loading && query.error === undefined && query.data && (
+        <CardComponent styles={{ body: { padding: 0 } }}>
+          {query.data.items.length === 0 ? (
+            <EmptyState title={t.empty} />
+          ) : (
+            <TableComponent<ChecklistDefinition>
+              rowKey="id"
+              columns={columns}
+              dataSource={query.data.items}
+              pagination={false}
+            />
+          )}
+          <ChecklistPagination
+            page={page}
+            totalPages={query.data.totalPages}
+            first={query.data.first}
+            last={query.data.last}
+            change={setPage}
+          />
+        </CardComponent>
+      )}
+      <Typography.Paragraph type="secondary" className="checklist-banner">
+        {t.future}
+      </Typography.Paragraph>
       {editor && (
         <ChecklistConfigModal
           checklist={editor === 'new' ? undefined : editor}
@@ -221,59 +198,33 @@ export function ChecklistCatalogPage() {
           }}
         />
       )}
-      {usageId && (
-        <ChecklistUsage
-          key={usageId}
-          id={usageId}
-          close={() => setUsageId(null)}
-        />
-      )}
+      {usageId && <ChecklistUsage key={usageId} id={usageId} close={() => setUsageId(null)} />}
     </div>
   )
 }
 
 function ChecklistUsage({ id, close }: { id: string; close: () => void }) {
   const { t } = useI18n(checklistMessages)
-  const query = useApiQuery(
-    (signal) => checklistsApi.services(id, signal),
-    [id],
-  )
+  const query = useApiQuery((signal) => checklistsApi.services(id, signal), [id])
   return (
     <Modal
+      open
+      centered
+      getContainer={mgrPopupContainer}
       title={t.usage}
-      icon="clipboard"
-      onClose={close}
-      footer={
-        <button type="button" className="odm-btn" onClick={close}>
-          {t.close}
-        </button>
-      }
+      onCancel={close}
+      footer={<Button onClick={close}>{t.close}</Button>}
     >
-      {query.loading && <LoadingState />}
+      {query.loading && <AdminLoading />}
       {query.error !== undefined && (
-        <ChecklistLoadError
-          title={t.catalogLoadError}
-          error={query.error}
-          retry={query.reload}
-        />
+        <ChecklistLoadError title={t.catalogLoadError} error={query.error} retry={query.reload} />
       )}
       {!query.loading && query.error === undefined && query.data && (
         <ul className="checklist-usage-list">
           {query.data.map((row) => (
             <li key={row.id}>
-              <a
-                href={adminHref({
-                  screen: 'serviceChecklists',
-                  serviceId: row.serviceId,
-                })}
-              >
+              <a href={adminHref({ screen: 'serviceChecklists', serviceId: row.serviceId })}>
                 {row.serviceName}
-                <Icon
-                  name="arrow-right"
-                  width={16}
-                  height={16}
-                  aria-hidden="true"
-                />
               </a>
             </li>
           ))}

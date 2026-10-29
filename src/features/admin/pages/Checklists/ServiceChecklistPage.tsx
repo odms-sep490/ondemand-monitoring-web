@@ -1,15 +1,24 @@
+import {
+  ArrowDownOutlined,
+  ArrowLeftOutlined,
+  ArrowUpOutlined,
+  DeleteOutlined,
+  PlusOutlined,
+  ProfileOutlined,
+} from '@ant-design/icons'
+import { Alert, Button, Input, Modal, Radio, Select, Tag, Typography } from 'antd'
 import { useState } from 'react'
+
+import {
+  CardComponent,
+  EmptyState,
+  PageHeader,
+  StatusTag,
+  mgrPopupContainer,
+} from '../../../../shared/components/antd'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
-import { Icon } from '../../../../shared/components/Icon'
-import { LoadingState } from '../../../../shared/components/odm/StateView'
-import {
-  Modal,
-  PageHeader,
-  Card,
-  StatusBadge,
-  EmptyState,
-} from '../../../../shared/components/ui'
+import { AdminLoading } from '../../components/common/AdminLoading'
 import { catalogApi, type ServiceResponse } from '../../api/catalogApi'
 import { checklistsApi, type ServiceChecklist } from '../../api/checklistsApi'
 import { formatVnd } from '../../../../shared/lib/formatVnd'
@@ -29,24 +38,22 @@ export function ServiceChecklistPage({ serviceId }: { serviceId?: string }) {
   const services = useApiQuery((signal) => catalogApi.listServices(signal), [])
   const selected = serviceId ?? services.data?.[0]?.id
   return (
-    <div className="checklist-page">
+    <div className="mgr-view checklist-page">
       <PageHeader
         title={t.template}
-        subtitle={t.templateSubtitle}
-        back={
+        description={t.templateSubtitle}
+        crumb={
           <a className="checklist-back" href={adminHref({ screen: 'catalog' })}>
-            <Icon name="arrow-left" width={16} height={16} aria-hidden="true" />
-            {t.back}
+            <ArrowLeftOutlined aria-hidden="true" aria-label={undefined} /> {t.back}
           </a>
         }
         actions={
-          <a className="odm-btn" href={adminHref({ screen: 'checklists' })}>
-            <Icon name="clipboard" width={16} height={16} aria-hidden="true" />
+          <Button icon={<ProfileOutlined aria-hidden="true" aria-label={undefined} />} href={adminHref({ screen: 'checklists' })}>
             {t.catalog}
-          </a>
+          </Button>
         }
       />
-      {services.loading && <LoadingState />}
+      {services.loading && <AdminLoading />}
       {services.error !== undefined && (
         <ChecklistLoadError
           title={t.loadError}
@@ -64,9 +71,9 @@ export function ServiceChecklistPage({ serviceId }: { serviceId?: string }) {
             services={services.data}
           />
         ) : (
-          <Card>
+          <CardComponent>
             <EmptyState title={t.noServices} />
-          </Card>
+          </CardComponent>
         ))}
     </div>
   )
@@ -121,9 +128,9 @@ function ServiceTemplateEditor({
     void act(() => checklistsApi.reorder(serviceId, reordered))
   }
   const add = (
-    <button
-      type="button"
-      className="odm-btn odm-btn-p"
+    <Button
+      type="primary"
+      icon={<PlusOutlined aria-hidden="true" aria-label={undefined} />}
       disabled={
         busy ||
         query.loading ||
@@ -133,36 +140,34 @@ function ServiceTemplateEditor({
       }
       onClick={() => setPicker(true)}
     >
-      <Icon name="plus" width={16} height={16} aria-hidden="true" />
       {t.add}
-    </button>
+    </Button>
   )
   return (
     <>
-      <Card>
+      <CardComponent>
         <div className="checklist-service-select">
-          <label className="ui-label" htmlFor="checklist-service">
+          <label className="checklist-field-label" htmlFor="checklist-service">
             {t.serviceLabel}
           </label>
-          <select
+          <Select
             id="checklist-service"
-            className="odm-inp"
             value={serviceId}
-            onChange={(event) => {
+            getPopupContainer={mgrPopupContainer}
+            onChange={(value) => {
               window.location.hash = adminHref({
                 screen: 'serviceChecklists',
-                serviceId: event.target.value,
+                serviceId: value,
               })
             }}
-          >
-            {!service && <option value={serviceId}>{serviceId}</option>}
-            {services.map((row) => (
-              <option value={row.id} key={row.id}>
-                {row.name}
-                {row.isActive ? '' : ' (' + t.inactive + ')'}
-              </option>
-            ))}
-          </select>
+            options={[
+              ...(service ? [] : [{ value: serviceId, label: serviceId }]),
+              ...services.map((row) => ({
+                value: row.id,
+                label: row.name + (row.isActive ? '' : ' (' + t.inactive + ')'),
+              })),
+            ]}
+          />
         </div>
         <div className="checklist-summary">
           <div>
@@ -180,31 +185,37 @@ function ServiceTemplateEditor({
                 : ''}
             </p>
           </div>
-          <StatusBadge tone={serviceActive ? 'success' : 'neutral'}>
+          <StatusTag tone={serviceActive ? 'success' : 'neutral'}>
             {serviceActive ? t.active : t.inactive}
-          </StatusBadge>
+          </StatusTag>
         </div>
-      </Card>
+      </CardComponent>
       {error && (
-        <div className="checklist-banner is-error" role="alert">
-          {error === t.stale && !query.loading && query.error === undefined
-            ? t.staleReloaded
-            : error}
-        </div>
+        <Alert
+          type="error"
+          showIcon
+          role="alert"
+          message={
+            error === t.stale && !query.loading && query.error === undefined
+              ? t.staleReloaded
+              : error
+          }
+        />
       )}
-      <Card flush>
-        <div className="checklist-section-head">
-          <div>
-            <h2>{t.defaultsTitle}</h2>
-            <p>{t.snapshotHint}</p>
+      <CardComponent
+        title={
+          <div className="checklist-card-title">
+            <h2 className="mgr-card-title">{t.defaultsTitle}</h2>
+            <p className="mgr-cell-sub">{t.snapshotHint}</p>
           </div>
-          {query.data &&
-            query.error === undefined &&
-            !query.loading &&
-            rows.length > 0 &&
-            add}
-        </div>
-        {query.loading && <LoadingState />}
+        }
+        extra={
+          query.data && query.error === undefined && !query.loading && rows.length > 0
+            ? add
+            : undefined
+        }
+      >
+        {query.loading && <AdminLoading />}
         {query.error !== undefined && (
           <ChecklistLoadError
             title={t.loadError}
@@ -230,69 +241,52 @@ function ServiceTemplateEditor({
                   </span>
                   <div className="checklist-row-content">
                     <div>{row.content}</div>
-                    {!row.checklistActive && (
-                      <StatusBadge tone="neutral">{t.inactive}</StatusBadge>
-                    )}
-                    {row.required && (
-                      <StatusBadge tone="warning">
-                        {t.requiredBadge}
-                      </StatusBadge>
-                    )}
+                    {!row.checklistActive && <StatusTag tone="neutral">{t.inactive}</StatusTag>}
+                    {row.required && <StatusTag tone="warning">{t.requiredBadge}</StatusTag>}
                     {(row.usedByServiceCount ?? 0) > 1 && (
-                      <StatusBadge tone="info">
-                        {t.sharedBadge(row.usedByServiceCount ?? 0)}
-                      </StatusBadge>
+                      <StatusTag tone="info">{t.sharedBadge(row.usedByServiceCount ?? 0)}</StatusTag>
                     )}
                     <PricingChips row={row} />
                   </div>
                   <div className="checklist-actions">
-                    <button
-                      type="button"
-                      className="odm-btn odm-btn-gh"
-                      disabled={busy}
-                      onClick={() => setPricing(row)}
-                    >
+                    <Button disabled={busy} onClick={() => setPricing(row)}>
                       {t.configure}
-                    </button>
+                    </Button>
                     <ChecklistIconButton
-                      icon="arrow-up"
+                      icon={<ArrowUpOutlined aria-hidden="true" aria-label={undefined} />}
                       label={t.up + ': ' + row.content}
                       disabled={busy || index === 0}
                       onClick={() => move(index, -1)}
                     />
                     <ChecklistIconButton
-                      icon="arrow-down"
+                      icon={<ArrowDownOutlined aria-hidden="true" aria-label={undefined} />}
                       label={t.down + ': ' + row.content}
                       disabled={busy || index === rows.length - 1}
                       onClick={() => move(index, 1)}
                     />
-                    <button
-                      type="button"
-                      className="odm-btn odm-btn-gh checklist-danger"
+                    <Button
+                      danger
+                      icon={<DeleteOutlined aria-hidden="true" aria-label={undefined} />}
                       aria-label={t.remove + ': ' + row.content}
                       title={t.remove}
                       disabled={busy}
                       onClick={() => setRemoving(row)}
                     >
-                      <Icon
-                        name="trash"
-                        width={16}
-                        height={16}
-                        aria-hidden="true"
-                      />
                       {t.remove}
-                    </button>
+                    </Button>
                   </div>
                 </li>
               ))}
             </ol>
           ))}
-      </Card>
+      </CardComponent>
       <ServicePricePreviewCard
         serviceId={serviceId}
         refreshKey={priceRevision}
       />
-      <p className="checklist-banner">{t.future}</p>
+      <Typography.Paragraph type="secondary" className="checklist-banner">
+        {t.future}
+      </Typography.Paragraph>
       {pricing && (
         <ChecklistConfigModal
           key={pricing.id}
@@ -324,34 +318,28 @@ function ServiceTemplateEditor({
       )}
       {removing && (
         <Modal
+          open
+          centered
+          getContainer={mgrPopupContainer}
           title={t.removeTitle}
-          icon="trash"
-          tone="danger"
-          onClose={() => {
+          onCancel={() => {
             if (!busy) setRemoving(null)
           }}
           footer={
             <>
-              <button
-                type="button"
-                className="odm-btn odm-btn-gh"
-                disabled={busy}
-                onClick={() => setRemoving(null)}
-              >
+              <Button disabled={busy} onClick={() => setRemoving(null)}>
                 {t.cancel}
-              </button>
-              <button
-                type="button"
-                className="odm-btn odm-btn-rd"
-                disabled={busy}
+              </Button>
+              <Button
+                type="primary"
+                danger
+                loading={busy}
                 onClick={() =>
-                  void act(() =>
-                    checklistsApi.remove(serviceId, removing.checklistId),
-                  )
+                  void act(() => checklistsApi.remove(serviceId, removing.checklistId))
                 }
               >
                 {busy ? t.saving : t.remove}
-              </button>
+              </Button>
             </>
           }
         >
@@ -370,16 +358,17 @@ function ServiceTemplateEditor({
 function PricingChips({ row }: { row: ServiceChecklist }) {
   const { t } = useI18n(checklistMessages)
   const chip = (text: string, override: boolean) => (
-    <span
-      className={'checklist-pricing-chip' + (override ? ' is-override' : '')}
+    <Tag
+      bordered={false}
+      color={override ? 'processing' : undefined}
       title={override ? t.overrideValue : t.inheritedValue}
     >
       {text}
       {override ? ' *' : ''}
-    </span>
+    </Tag>
   )
   return (
-    <div className="checklist-actions" style={{ justifyContent: 'flex-start' }}>
+    <div className="checklist-actions checklist-actions-start">
       {chip(formatVnd(row.basePrice ?? 0), row.basePriceOverride != null)}
       {chip(
         `${row.includedImageCount ?? 0} ${t.imagesShort}`,
@@ -449,28 +438,24 @@ function ChecklistPicker({
   }
   return (
     <Modal
+      open
+      centered
+      getContainer={mgrPopupContainer}
       title={t.pick}
-      subtitle={t.snapshotHint}
-      icon="clipboard"
       width={620}
-      onClose={() => {
+      onCancel={() => {
         if (!busy) close()
       }}
       footer={
         <>
-          <button
-            type="button"
-            className="odm-btn odm-btn-gh"
-            disabled={busy}
-            onClick={close}
-          >
+          <Button disabled={busy} onClick={close}>
             {t.cancel}
-          </button>
-          <button
-            type="button"
-            className="odm-btn odm-btn-p"
+          </Button>
+          <Button
+            type="primary"
+            icon={<PlusOutlined aria-hidden="true" aria-label={undefined} />}
+            loading={busy}
             disabled={
-              busy ||
               !selected ||
               query.loading ||
               query.error !== undefined ||
@@ -478,61 +463,45 @@ function ChecklistPicker({
             }
             onClick={() => void assign()}
           >
-            <Icon name="plus" width={16} height={16} aria-hidden="true" />
             {busy ? t.saving : t.add}
-          </button>
+          </Button>
         </>
       }
     >
+      <p className="mgr-modal-sub">{t.snapshotHint}</p>
       <div className="checklist-dialog">
-        <div className="checklist-search">
-          <Icon name="search" width={16} height={16} aria-hidden="true" />
-          <input
-            className="odm-inp"
-            aria-label={t.search}
-            placeholder={t.search}
-            type="search"
-            value={search}
-            disabled={busy}
-            onChange={(event) => {
-              setSearch(event.target.value)
-              setPage(0)
-              setSelected(null)
-            }}
-          />
-        </div>
-        {error && (
-          <p className="checklist-banner is-error" role="alert">
-            {error}
-          </p>
-        )}
-        {query.loading && <LoadingState />}
+        <Input.Search
+          aria-label={t.search}
+          placeholder={t.search}
+          allowClear
+          value={search}
+          disabled={busy}
+          onChange={(event) => {
+            setSearch(event.target.value)
+            setPage(0)
+            setSelected(null)
+          }}
+        />
+        {error && <Alert type="error" showIcon role="alert" message={error} />}
+        {query.loading && <AdminLoading />}
         {query.error !== undefined && (
-          <ChecklistLoadError
-            title={t.catalogLoadError}
-            error={query.error}
-            retry={query.reload}
-          />
+          <ChecklistLoadError title={t.catalogLoadError} error={query.error} retry={query.reload} />
         )}
         {!query.loading && query.error === undefined && query.data && (
           <>
             {candidates.length > 0 ? (
-              <ul className="checklist-candidates">
+              <Radio.Group
+                className="checklist-candidates"
+                value={selected}
+                disabled={busy}
+                onChange={(event) => setSelected(event.target.value as string)}
+              >
                 {candidates.map((row) => (
-                  <li key={row.id}>
-                    <label className="checklist-candidate">
-                      <input
-                        type="radio"
-                        name="checklist-candidate"
-                        checked={selected === row.id}
-                        disabled={busy}
-                        onChange={() => setSelected(row.id)}
-                      />
-                      <span>{row.content}</span>
-                    </label>
-                  </li>
+                  <Radio key={row.id} value={row.id} className="checklist-candidate">
+                    {row.content}
+                  </Radio>
                 ))}
-              </ul>
+              </Radio.Group>
             ) : (
               <EmptyState title={t.noCandidates} />
             )}

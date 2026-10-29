@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
-import { LoadingState } from '../../../../shared/components/odm/StateView'
-import { EmptyState } from '../../../../shared/components/ui'
+import { Tag } from 'antd'
+
+import { EmptyState } from '../../../../shared/components/antd'
+import { AdminLoading } from '../../components/common/AdminLoading'
 import { checklistsApi, type ChecklistAudit } from '../../api/checklistsApi'
 import { checklistMessages } from './checklists.messages'
 import { ChecklistLoadError, ChecklistPagination } from './ChecklistUi'
@@ -22,7 +24,7 @@ export function ChecklistHistoryPanel({
   const empty = (value: string | null) => value ?? t.historyValueEmpty
   return (
     <div className="checklist-dialog">
-      {query.loading && <LoadingState />}
+      {query.loading && <AdminLoading />}
       {query.error !== undefined && (
         <ChecklistLoadError
           title={t.historyLoadError}
@@ -41,9 +43,9 @@ export function ChecklistHistoryPanel({
                   <div className="checklist-history-head">
                     <strong>{t.audit[entry.action] ?? entry.action}</strong>
                     {entry.serviceName && (
-                      <span className="checklist-pricing-chip">
+                      <Tag bordered={false}>
                         {t.historyFor}: {entry.serviceName}
-                      </span>
+                      </Tag>
                     )}
                   </div>
                   <div className="checklist-field-meta">

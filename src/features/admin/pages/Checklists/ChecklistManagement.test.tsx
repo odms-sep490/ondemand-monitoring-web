@@ -16,6 +16,7 @@ import {
 import { catalogApi } from '../../api/catalogApi'
 import { ApiError } from '../../../../shared/api/httpClient'
 import { parseAdminRoute, adminHref } from '../../routes'
+import { chooseSelectOption } from '../../testUtils'
 
 const definition: ChecklistDefinition = {
   id: 'a',
@@ -83,12 +84,10 @@ describe('Admin checklist catalog', () => {
   it('searches and filters with page reset', async () => {
     render(<ChecklistCatalogPage />)
     await screen.findByText(definition.content)
-    fireEvent.change(screen.getByRole('searchbox'), {
+    fireEvent.change(screen.getByRole('textbox', { name: 'Tìm nội dung checklist' }), {
       target: { value: 'hàng rào' },
     })
-    fireEvent.change(screen.getByRole('combobox'), {
-      target: { value: 'false' },
-    })
+    await chooseSelectOption('Trạng thái', 'Ngừng hoạt động')
     await waitFor(() =>
       expect(checklistsApi.list).toHaveBeenLastCalledWith(
         'hàng rào',
@@ -424,9 +423,7 @@ describe('Admin service template', () => {
     ])
     render(<ServiceChecklistPage serviceId="s" />)
     await screen.findByText(definition.content)
-    fireEvent.change(screen.getByRole('combobox'), {
-      target: { value: 'second' },
-    })
+    await chooseSelectOption('Dịch vụ', 'Second')
     expect(window.location.hash).toBe(
       '#portal/admin/services/second/checklists',
     )
@@ -460,16 +457,17 @@ describe('Admin checklist visual structure and interaction', () => {
     ).toBeInTheDocument()
     expect(
       screen.getByRole('link', { name: 'Mở danh mục checklist' }),
-    ).toHaveClass('odm-btn')
+    ).toHaveClass('ant-btn')
     expect(
       await screen.findByRole('combobox', { name: 'Dịch vụ' }),
-    ).toHaveValue('s')
+    ).toBeInTheDocument()
+    expect(screen.getByTitle('Dịch vụ test')).toBeInTheDocument()
     expect(await screen.findByText('2 checklist')).toBeInTheDocument()
     expect(
       screen.getByRole('heading', { name: 'Checklist mặc định' }),
     ).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Thêm checklist' })).toHaveClass(
-      'odm-btn-p',
+      'ant-btn-primary',
     )
   })
   it('exposes accessible tooltips and disables reorder boundaries', async () => {
@@ -503,7 +501,7 @@ describe('Admin checklist visual structure and interaction', () => {
     expect(
       screen.getAllByRole('button', { name: 'Thêm checklist' }),
     ).toHaveLength(1)
-    expect(screen.queryByRole('list')).toBeNull()
+    expect(document.querySelector('.checklist-list')).toBeNull()
   })
   it('shows a user-facing load error and recovers through retry', async () => {
     vi.mocked(checklistsApi.template)
@@ -520,7 +518,7 @@ describe('Admin checklist visual structure and interaction', () => {
       'Không thể tải checklist dịch vụ.',
     )
     fireEvent.click(
-      within(loadError.closest('.odm-card')!).getByRole('button', {
+      within(loadError.closest('.mgr-card')!).getByRole('button', {
         name: 'Thử lại',
       }),
     )
@@ -582,7 +580,7 @@ describe('Admin checklist visual structure and interaction', () => {
       screen.getByRole('navigation', { name: 'Phân trang checklist' }),
     ).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Trang trước' })).toHaveClass(
-      'odm-btn',
+      'ant-btn',
     )
     fireEvent.click(screen.getByRole('button', { name: 'Thêm checklist' }))
     const textarea = screen.getByRole('textbox', { name: /Nội dung/ })
@@ -590,8 +588,13 @@ describe('Admin checklist visual structure and interaction', () => {
       'aria-describedby',
       'checklist-content-hint',
     )
-    expect(screen.getByRole('button', { name: 'Lưu' })).toHaveClass('odm-btn-p')
-    fireEvent.keyDown(document, { key: 'Escape' })
+    expect(screen.getByRole('button', { name: 'Lưu' })).toHaveClass(
+      'ant-btn-primary',
+    )
+    fireEvent.keyDown(screen.getByRole('dialog'), {
+      key: 'Escape',
+      keyCode: 27,
+    })
     expect(screen.queryByRole('dialog')).toBeNull()
   })
 })

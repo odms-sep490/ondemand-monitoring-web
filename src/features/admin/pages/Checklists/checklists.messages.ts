@@ -3,6 +3,18 @@ import { defineMessages } from '../../../../shared/i18n'
 export const checklistMessages = defineMessages({
   vi: {
     // Unified configuration
+    difficultyLabel: 'Độ khó tính giá',
+    difficultyBasic: 'Cơ bản',
+    difficultyMedium: 'Trung bình',
+    difficultyHard: 'Khó',
+    difficultyVeryHard: 'Rất khó',
+    dimensionsHint: 'Chỉ bật chiều đo thực sự ảnh hưởng đến checklist này.',
+    areaPricing: 'Tính theo diện tích',
+    lengthPricing: 'Tính theo chiều dài',
+    altitudePricing: 'Tính theo độ cao',
+    includedArea: 'Diện tích đã bao gồm (ha)',
+    includedLength: 'Chiều dài đã bao gồm (km)',
+    includedAltitude: 'Độ cao đã bao gồm (m)',
     title: 'Thư viện checklist',
     configTitle: 'Cấu hình checklist',
     configure: 'Cấu hình',
@@ -179,6 +191,18 @@ export const checklistMessages = defineMessages({
     whatIf: 'Xem thử giá với cấu hình chưa lưu',
   },
   en: {
+    difficultyLabel: 'Pricing difficulty',
+    difficultyBasic: 'Basic',
+    difficultyMedium: 'Medium',
+    difficultyHard: 'Hard',
+    difficultyVeryHard: 'Very hard',
+    dimensionsHint: 'Turn on only the dimensions that really affect this checklist.',
+    areaPricing: 'Price by area',
+    lengthPricing: 'Price by length',
+    altitudePricing: 'Price by altitude',
+    includedArea: 'Included area (ha)',
+    includedLength: 'Included length (km)',
+    includedAltitude: 'Included altitude (m)',
     // Unified configuration
     title: 'Checklist library',
     configTitle: 'Checklist configuration',

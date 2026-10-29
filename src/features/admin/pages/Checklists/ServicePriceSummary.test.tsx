@@ -124,7 +124,7 @@ describe('ServicePriceSummary', () => {
     )
     expect(screen.getByText(/\+5 ảnh/)).toBeInTheDocument()
     expect(screen.getByText('Ngoài danh mục')).toBeInTheDocument()
-    expect(screen.getByText('Chờ Manager báo giá')).toBeInTheDocument()
+    expect(screen.getByText('Chờ quản lý báo giá')).toBeInTheDocument()
     expect(screen.getByRole('status')).toHaveTextContent(
       'chưa được tính vào tổng',
     )

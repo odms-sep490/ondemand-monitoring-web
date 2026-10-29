@@ -210,21 +210,29 @@ describe('Service configuration page', () => {
         selected: true,
       }),
     ).toBeInTheDocument()
-    expect(within(dialog).getByLabelText(/Mô tả chi tiết/)).toBeVisible()
+    expect(
+      within(dialog)
+        .getByLabelText(/Mô tả chi tiết/)
+        .closest('[aria-hidden="true"]'),
+    ).toBeNull()
     expect(within(dialog).getByLabelText(/Mô tả chi tiết/)).toHaveValue(
       'Phạm vi kiểm tra mái',
     )
     // The price page is not on screen until it is opened.
     expect(
-      within(dialog).getByLabelText('Giá công việc kiểm tra (VND)'),
-    ).not.toBeVisible()
+      within(dialog)
+        .getByLabelText('Giá công việc kiểm tra (VND)')
+        .closest('[aria-hidden="true"]'),
+    ).not.toBeNull()
     fireEvent.click(
       within(dialog).getByRole('tab', { name: 'Giá và định mức' }),
     )
     // Both scopes of the same price sit side by side, with labels that tell them apart.
     expect(
-      within(dialog).getByLabelText('Giá công việc kiểm tra (VND)'),
-    ).toBeVisible()
+      within(dialog)
+        .getByLabelText('Giá công việc kiểm tra (VND)')
+        .closest('[aria-hidden="true"]'),
+    ).toBeNull()
     expect(
       within(dialog).getByLabelText('Giá công việc kiểm tra (VND)'),
     ).toHaveValue(200_000)
@@ -233,7 +241,11 @@ describe('Service configuration page', () => {
         'Riêng cho dịch vụ này: Giá công việc kiểm tra (VND)',
       ),
     ).toHaveValue(null)
-    expect(within(dialog).getByLabelText(/Mô tả chi tiết/)).not.toBeVisible()
+    expect(
+      within(dialog)
+        .getByLabelText(/Mô tả chi tiết/)
+        .closest('[aria-hidden="true"]'),
+    ).not.toBeNull()
     expect(checklistsApi.get).toHaveBeenCalledWith('a', expect.anything())
   })
 
@@ -248,7 +260,9 @@ describe('Service configuration page', () => {
       },
     )
     fireEvent.click(screen.getByRole('button', { name: 'Lưu' }))
-    expect(await screen.findByRole('alert')).toBeInTheDocument()
+    expect(
+      await within(screen.getByRole('dialog')).findByRole('alert'),
+    ).toBeInTheDocument()
     expect(
       screen.getByRole('tab', { name: 'Giá và định mức', selected: true }),
     ).toBeInTheDocument()

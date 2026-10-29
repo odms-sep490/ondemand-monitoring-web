@@ -1,9 +1,9 @@
+import { CardComponent } from '../../../../shared/components/antd'
+import { checklistPricingApi } from '../../../../shared/api/checklistPricingApi'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
-import { Card } from '../../../../shared/components/ui'
-import { LoadingState } from '../../../../shared/components/odm/StateView'
+import { AdminLoading } from '../../components/common/AdminLoading'
 import { ServicePriceSummary } from './ServicePriceSummary'
-import { checklistPricingApi } from '../../../../shared/api/checklistPricingApi'
 import { checklistMessages } from './checklists.messages'
 import { ChecklistLoadError } from './ChecklistUi'
 
@@ -24,26 +24,21 @@ export function ServicePricePreviewCard({
     [serviceId, refreshKey],
   )
   return (
-    <Card flush>
-      <div className="checklist-section-head">
-        <div>
-          <h2>{t.previewTitle}</h2>
-          <p>{t.previewHint}</p>
+    <CardComponent
+      title={
+        <div className="checklist-card-title">
+          <h2 className="mgr-card-title">{t.previewTitle}</h2>
+          <p className="mgr-cell-sub">{t.previewHint}</p>
         </div>
-      </div>
-      <div className="checklist-preview-card" style={{ padding: 16 }}>
-        {query.loading && <LoadingState />}
-        {query.error !== undefined && (
-          <ChecklistLoadError
-            title={t.previewError}
-            error={query.error}
-            retry={query.reload}
-          />
-        )}
-        {!query.loading && query.error === undefined && query.data && (
-          <ServicePriceSummary preview={query.data} />
-        )}
-      </div>
-    </Card>
+      }
+    >
+      {query.loading && <AdminLoading />}
+      {query.error !== undefined && (
+        <ChecklistLoadError title={t.previewError} error={query.error} retry={query.reload} />
+      )}
+      {!query.loading && query.error === undefined && query.data && (
+        <ServicePriceSummary preview={query.data} />
+      )}
+    </CardComponent>
   )
 }

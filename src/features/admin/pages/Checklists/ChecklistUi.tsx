@@ -1,6 +1,8 @@
-import type { ButtonHTMLAttributes } from 'react'
-import { Icon, type IconName } from '../../../../shared/components/Icon'
-import { ErrorState } from '../../../../shared/components/odm/StateView'
+import { ArrowLeftOutlined, ArrowRightOutlined } from '@ant-design/icons'
+import { Button } from 'antd'
+import type { ReactNode } from 'react'
+
+import { ErrorState } from '../../../../shared/components/antd'
 import { useI18n } from '../../../../shared/i18n'
 import { checklistMessages } from './checklists.messages'
 import './checklists.css'
@@ -9,25 +11,25 @@ export function ChecklistIconButton({
   icon,
   label,
   danger = false,
-  ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & {
-  icon: IconName
+  disabled,
+  onClick,
+}: {
+  icon: ReactNode
   label: string
   danger?: boolean
+  disabled?: boolean
+  onClick?: () => void
 }) {
   return (
-    <button
-      type="button"
-      className={
-        'odm-btn odm-btn-gh checklist-icon-button' +
-        (danger ? ' checklist-danger' : '')
-      }
+    <Button
+      type="text"
+      danger={danger}
+      icon={icon}
       aria-label={label}
       title={label}
-      {...props}
-    >
-      <Icon name={icon} width={16} height={16} aria-hidden="true" />
-    </button>
+      disabled={disabled}
+      onClick={onClick}
+    />
   )
 }
 
@@ -54,24 +56,13 @@ export function ChecklistPagination({
         {totalPages !== undefined ? ' / ' + Math.max(1, totalPages) : ''}
       </span>
       <div className="checklist-actions">
-        <button
-          type="button"
-          className="odm-btn"
-          disabled={busy || first}
-          onClick={() => change(page - 1)}
-        >
-          <Icon name="arrow-left" width={15} height={15} aria-hidden="true" />
+        <Button icon={<ArrowLeftOutlined aria-hidden="true" aria-label={undefined} />} disabled={busy || first} onClick={() => change(page - 1)}>
           {t.previous}
-        </button>
-        <button
-          type="button"
-          className="odm-btn"
-          disabled={busy || last}
-          onClick={() => change(page + 1)}
-        >
+        </Button>
+        <Button disabled={busy || last} onClick={() => change(page + 1)}>
           {t.next}
-          <Icon name="arrow-right" width={15} height={15} aria-hidden="true" />
-        </button>
+          <ArrowRightOutlined aria-hidden="true" aria-label={undefined} />
+        </Button>
       </div>
     </nav>
   )

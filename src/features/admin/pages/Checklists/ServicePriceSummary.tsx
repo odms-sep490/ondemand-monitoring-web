@@ -1,3 +1,5 @@
+import { Alert, Tag } from 'antd'
+
 import { defineMessages, useI18n } from '../../../../shared/i18n'
 import { formatVnd } from '../../../../shared/lib/formatVnd'
 import type {
@@ -23,7 +25,7 @@ const messages = defineMessages({
     videos: 'video',
     extra: 'thêm',
     custom: 'Ngoài danh mục',
-    awaitingQuote: 'Chờ Manager báo giá',
+    awaitingQuote: 'Chờ quản lý báo giá',
     details: 'Chi tiết cách tính',
     qty: 'SL',
     unit: 'Đơn giá',
@@ -35,10 +37,10 @@ const messages = defineMessages({
     addOns: 'Dịch vụ bổ sung',
     total: 'Giá mặc định',
     excludes:
-      'Chưa gồm các yếu tố theo từng đơn như quãng đường và diện tích. Manager báo giá khi duyệt đơn.',
+      'Chưa gồm các yếu tố theo từng đơn như quãng đường và diện tích. Quản lý báo giá khi duyệt đơn.',
     warnings: 'Chưa tính được giá cho một số checklist',
     quotePending:
-      'Các yêu cầu đang chờ Manager báo giá chưa được tính vào tổng này.',
+      'Các yêu cầu đang chờ quản lý báo giá chưa được tính vào tổng này.',
     unpriced:
       'Dịch vụ này chưa có checklist mặc định nào có giá. Hãy cấu hình giá checklist để dịch vụ có giá.',
     none: 'Chưa có checklist trong cấu hình này.',
@@ -119,35 +121,34 @@ export function ServicePriceSummary({
           </strong>
         </div>
         <div className="psum-chips">
-          <span className="psum-chip">
+          <Tag bordered={false}>
             {t.policy} v{preview.policyVersion}
             {preview.draftPolicy ? ` (${t.draft})` : ''}
-          </span>
-          <span className="psum-chip">
-            {t.checklistCount(preview.checklists.length)}
-          </span>
+          </Tag>
+          <Tag bordered={false}>{t.checklistCount(preview.checklists.length)}</Tag>
         </div>
       </div>
 
       {preview.warnings.length > 0 && (
-        <div role="alert" className="psum-notice is-warn">
-          <strong>{t.warnings}</strong>
-          <ul>
-            {preview.warnings.map((warning) => (
-              <li key={warning}>{warning}</li>
-            ))}
-          </ul>
-        </div>
+        <Alert
+          type="warning"
+          showIcon
+          role="alert"
+          message={t.warnings}
+          description={
+            <ul className="psum-warning-list">
+              {preview.warnings.map((warning) => (
+                <li key={warning}>{warning}</li>
+              ))}
+            </ul>
+          }
+        />
       )}
       {preview.quotePending && (
-        <p role="status" className="psum-notice is-warn">
-          {t.quotePending}
-        </p>
+        <Alert type="warning" showIcon role="status" message={t.quotePending} />
       )}
       {preview.priceSource === 'UNPRICED' && (
-        <p role="status" className="psum-notice is-warn">
-          {t.unpriced}
-        </p>
+        <Alert type="warning" showIcon role="status" message={t.unpriced} />
       )}
 
       {preview.checklists.length === 0 ? (
@@ -203,7 +204,11 @@ function ChecklistLine({ row }: { row: ChecklistPriceBreakdown }) {
       <summary className="psum-row" role="row">
         <span className="psum-name" role="cell">
           <strong>{row.content}</strong>
-          {row.custom && <span className="psum-chip is-soft">{t.custom}</span>}
+          {row.custom && (
+            <Tag bordered={false} className="psum-tag-soft">
+              {t.custom}
+            </Tag>
+          )}
           <small>
             {row.includedImageCount} {t.images} · {row.includedVideoCount}{' '}
             {t.videos}

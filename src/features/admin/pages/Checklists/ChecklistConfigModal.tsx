@@ -1,8 +1,10 @@
+import { Alert, Button, Modal } from 'antd'
 import { useState } from 'react'
+
+import { mgrPopupContainer } from '../../../../shared/components/antd'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
-import { LoadingState } from '../../../../shared/components/odm/StateView'
-import { Modal } from '../../../../shared/components/ui'
+import { AdminLoading } from '../../components/common/AdminLoading'
 import {
   checklistsApi,
   type ChecklistDefinition,
@@ -40,26 +42,26 @@ export function ChecklistConfigModal({
   const [showHistory, setShowHistory] = useState(false)
   return (
     <Modal
+      open
+      centered
+      getContainer={mgrPopupContainer}
       width={720}
-      icon="clipboard"
       title={creating ? t.add : t.configTitle}
-      subtitle={
-        service
-          ? `${service.name} · ${service.row.content}`
-          : checklist?.content
-      }
-      onClose={close}
+      onCancel={close}
+      footer={null}
     >
+      <p className="mgr-modal-sub">
+        {service ? `${service.name} · ${service.row.content}` : checklist?.content}
+      </p>
       {checklistId && (
         <div className="checklist-modal-tools">
-          <button
-            type="button"
-            className="odm-btn odm-btn-gh odm-btn-sm"
+          <Button
+            size="small"
             aria-pressed={showHistory}
             onClick={() => setShowHistory((value) => !value)}
           >
             {showHistory ? t.historyBack : t.tabHistory}
-          </button>
+          </Button>
         </div>
       )}
       {showHistory && checklistId ? (
@@ -96,7 +98,7 @@ function ServiceFormLoader({
     (signal) => checklistsApi.get(service.row.checklistId, signal),
     [service.row.checklistId],
   )
-  if (query.loading) return <LoadingState />
+  if (query.loading) return <AdminLoading />
   if (query.error !== undefined || !query.data)
     return (
       <ChecklistLoadError
@@ -158,38 +160,19 @@ function ForkOffer({
       {confirming ? (
         <div className="checklist-form-actions">
           <span>{t.forkConfirm}</span>
-          <button
-            type="button"
-            className="odm-btn odm-btn-gh"
-            disabled={busy}
-            onClick={() => setConfirming(false)}
-          >
+          <Button disabled={busy} onClick={() => setConfirming(false)}>
             {t.cancel}
-          </button>
-          <button
-            type="button"
-            className="odm-btn odm-btn-p"
-            disabled={busy}
-            onClick={() => void fork()}
-          >
+          </Button>
+          <Button type="primary" loading={busy} onClick={() => void fork()}>
             {busy ? t.forking : t.fork}
-          </button>
+          </Button>
         </div>
       ) : (
-        <button
-          type="button"
-          className="odm-btn odm-btn-sm"
-          title={t.forkHint}
-          onClick={() => setConfirming(true)}
-        >
+        <Button size="small" title={t.forkHint} onClick={() => setConfirming(true)}>
           {t.fork}
-        </button>
+        </Button>
       )}
-      {error && (
-        <p className="checklist-banner is-error" role="alert">
-          {error}
-        </p>
-      )}
+      {error && <Alert type="error" showIcon role="alert" message={error} />}
     </div>
   )
 }

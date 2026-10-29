@@ -1,6 +1,7 @@
+import { Alert, Button, Checkbox, Form, Input, Select, Tabs } from 'antd'
 import { useState, type FormEvent, type ReactNode } from 'react'
+import { mgrPopupContainer } from '../../../../shared/components/antd'
 import { useI18n } from '../../../../shared/i18n'
-import { FormField } from '../../../../shared/components/ui'
 import { PriceBreakdownView } from '../../../../shared/components/odm/PriceBreakdownView'
 import {
   checklistPricingApi,
@@ -269,319 +270,245 @@ export function ChecklistConfigForm({
     },
   ]
 
+  const contentPanel = (
+    <fieldset className="checklist-section checklist-content-grid">
+      <legend>{t.sectionContent}</legend>
+      <Form.Item label={t.content} required htmlFor="checklist-content" validateStatus={error !== null ? 'error' : undefined}>
+        <Input.TextArea
+          id="checklist-content"
+          required
+          rows={2}
+          maxLength={500}
+          value={content.content}
+          onChange={(event) => setContent({ ...content, content: event.target.value })}
+          aria-describedby="checklist-content-hint"
+          aria-invalid={error !== null}
+        />
+      </Form.Item>
+      <div id="checklist-content-hint" className="checklist-field-meta">
+        <span>{t.contentHint}</span>
+        <span>{content.content.length}/500</span>
+      </div>
+      <Form.Item label={t.descriptionLabel} htmlFor="checklist-description">
+        <Input.TextArea
+          id="checklist-description"
+          rows={3}
+          maxLength={4000}
+          value={content.description}
+          onChange={(event) => setContent({ ...content, description: event.target.value })}
+          aria-describedby="checklist-description-hint"
+        />
+      </Form.Item>
+      <div id="checklist-description-hint" className="checklist-field-meta">
+        <span>{t.descriptionHint}</span>
+        <span>{content.description.length}/4000</span>
+      </div>
+      {(
+        [
+          ['steps', t.stepsLabel, t.stepsHint],
+          ['inputs', t.inputsLabel, t.inputsHint],
+          ['outputs', t.outputsLabel, t.outputsHint],
+        ] as const
+      ).map(([key, label, hint]) => (
+        <div key={key} className={key === 'steps' ? undefined : 'is-half'}>
+          <Form.Item label={label} htmlFor={`checklist-${key}`}>
+            <Input.TextArea
+              id={`checklist-${key}`}
+              rows={key === 'steps' ? 4 : 3}
+              value={content[key]}
+              onChange={(event) => setContent({ ...content, [key]: event.target.value })}
+              aria-describedby={`checklist-${key}-hint`}
+            />
+          </Form.Item>
+          <div id={`checklist-${key}-hint`} className="checklist-field-meta">
+            <span>{hint}</span>
+          </div>
+        </div>
+      ))}
+    </fieldset>
+  )
+
+  const pricingPanel = (
+    <>
+      <fieldset className="checklist-section">
+        <legend>{t.sectionPricing}</legend>
+        <p className="checklist-field-meta is-block">
+          {service ? t.pricingScopeHint : t.pricingHint}{' '}
+          <a href={adminHref({ screen: 'operatingConfig' })}>{t.openPricingPolicy}</a>
+        </p>
+        <div
+          className={'checklist-price-grid' + (service ? ' has-service' : '')}
+          role="group"
+          aria-label={t.sectionPricing}
+        >
+          <span aria-hidden="true" />
+          <strong className="checklist-price-head">
+            {t.columnBase}
+            {shared ? ` · ${t.sharedBadge(sharedBy)}` : ''}
+          </strong>
+          {service && <strong className="checklist-price-head">{t.columnService}</strong>}
+          {priceRows.map((item) => (
+            <PriceLine
+              key={item.key}
+              id={`checklist-${item.key}`}
+              label={item.label}
+              step={item.step}
+              base={pricing[item.field]}
+              invalid={pricingErrors[item.field] !== undefined}
+              onBase={(value) => setPricing({ ...pricing, [item.field]: value })}
+              service={service !== undefined}
+              override={overrides[item.key]}
+              onOverride={(value) => setOverrides({ ...overrides, [item.key]: value })}
+            />
+          ))}
+        </div>
+        {service && (
+          <Checkbox
+            checked={overrides.required}
+            onChange={(event) => setOverrides({ ...overrides, required: event.target.checked })}
+          >
+            {t.requiredLabel}
+          </Checkbox>
+        )}
+      </fieldset>
+
+      <details className="checklist-section checklist-advanced">
+        <summary>{t.sectionAdvanced}</summary>
+        <Form.Item label={t.difficultyLabel} required htmlFor="checklist-difficulty">
+          <Select<Content['difficulty']>
+            id="checklist-difficulty"
+            value={content.difficulty}
+            onChange={(difficulty) => setContent({ ...content, difficulty })}
+            getPopupContainer={mgrPopupContainer}
+            options={[
+              { value: 'BASIC', label: t.difficultyBasic },
+              { value: 'MEDIUM', label: t.difficultyMedium },
+              { value: 'HARD', label: t.difficultyHard },
+              { value: 'VERY_HARD', label: t.difficultyVeryHard },
+            ]}
+          />
+        </Form.Item>
+        <Form.Item
+          label={t.videoDuration}
+          htmlFor="checklist-video-duration"
+          validateStatus={pricingErrors.standardVideoDurationSeconds ? 'error' : undefined}
+          help={pricingErrors.standardVideoDurationSeconds ? t.invalidPricing : undefined}
+        >
+          <Input
+            id="checklist-video-duration"
+            type="number"
+            min={0}
+            inputMode="numeric"
+            value={pricing.standardVideoDurationSeconds}
+            onChange={(event) =>
+              setPricing({ ...pricing, standardVideoDurationSeconds: event.target.value })
+            }
+          />
+        </Form.Item>
+        <div className="checklist-field-meta">{t.dimensionsHint}</div>
+        {(
+          [
+            ['areaPricingEnabled', t.areaPricing],
+            ['lengthPricingEnabled', t.lengthPricing],
+            ['altitudePricingEnabled', t.altitudePricing],
+          ] as const
+        ).map(([field, label]) => (
+          <div key={field}>
+            <Checkbox
+              checked={pricing[field] ?? false}
+              onChange={(event) => setPricing({ ...pricing, [field]: event.target.checked })}
+            >
+              {label}
+            </Checkbox>
+          </div>
+        ))}
+        {(
+          [
+            ['includedAreaHa', t.includedArea, 0.001],
+            ['includedLengthKm', t.includedLength, 0.001],
+            ['includedAltitudeM', t.includedAltitude, 0.01],
+          ] as const
+        ).map(([field, label, step]) => (
+          <Form.Item
+            key={field}
+            label={label}
+            htmlFor={`checklist-${field}`}
+            validateStatus={pricingErrors[field] ? 'error' : undefined}
+            help={pricingErrors[field] ? t.invalidPricing : undefined}
+          >
+            <Input
+              id={`checklist-${field}`}
+              type="number"
+              min={0}
+              step={step}
+              inputMode="numeric"
+              value={pricing[field] ?? '0'}
+              onChange={(event) => setPricing({ ...pricing, [field]: event.target.value })}
+            />
+          </Form.Item>
+        ))}
+      </details>
+    </>
+  )
+
   return (
-    <form
+    <Form
       id="checklist-config"
+      layout="vertical"
       className="checklist-dialog"
       noValidate
-      onSubmit={(event) => void submit(event)}
+      onSubmitCapture={(event) => void submit(event as unknown as FormEvent)}
     >
       {!shared && extra}
       {shared && (
-        <div className="checklist-banner is-warning" role="note">
-          <p>{t.sharedWarning(sharedBy)}</p>
-          {extra}
-          {sharedDirty && (
-            <label className="adm-check">
-              <input
-                type="checkbox"
-                checked={acknowledged}
-                onChange={(event) => setAcknowledged(event.target.checked)}
-              />
-              <span>{t.sharedAck(sharedBy)}</span>
-            </label>
-          )}
-        </div>
+        <Alert
+          type="warning"
+          showIcon
+          role="note"
+          message={t.sharedWarning(sharedBy)}
+          description={
+            <>
+              {extra}
+              {sharedDirty && (
+                <Checkbox
+                  checked={acknowledged}
+                  onChange={(event) => setAcknowledged(event.target.checked)}
+                >
+                  {t.sharedAck(sharedBy)}
+                </Checkbox>
+              )}
+            </>
+          }
+        />
       )}
 
-      <div className="checklist-tabs" role="tablist" aria-label={t.configTitle}>
-        {(
-          [
-            ['content', t.sectionContent],
-            ['pricing', t.sectionPricing],
-          ] as const
-        ).map(([id, label]) => (
-          <button
-            key={id}
-            type="button"
-            role="tab"
-            id={`checklist-tab-${id}`}
-            aria-selected={page === id}
-            aria-controls={`checklist-page-${id}`}
-            className={'checklist-tab' + (page === id ? ' is-active' : '')}
-            onClick={() => setPage(id)}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-
-      <div
-        id="checklist-page-content"
-        role="tabpanel"
-        aria-labelledby="checklist-tab-content"
-        hidden={page !== 'content'}
-      >
-        <fieldset className="checklist-section checklist-content-grid">
-          <legend>{t.sectionContent}</legend>
-          <FormField id="checklist-content" label={t.content} required>
-            <textarea
-              id="checklist-content"
-              className="odm-inp"
-              required
-              rows={2}
-              maxLength={500}
-              value={content.content}
-              onChange={(event) =>
-                setContent({ ...content, content: event.target.value })
-              }
-              aria-describedby="checklist-content-hint"
-              aria-invalid={error !== null}
-            />
-          </FormField>
-          <div id="checklist-content-hint" className="checklist-field-meta">
-            <span>{t.contentHint}</span>
-            <span>{content.content.length}/500</span>
-          </div>
-          <FormField id="checklist-description" label={t.descriptionLabel}>
-            <textarea
-              id="checklist-description"
-              className="odm-inp"
-              rows={3}
-              maxLength={4000}
-              value={content.description}
-              onChange={(event) =>
-                setContent({ ...content, description: event.target.value })
-              }
-              aria-describedby="checklist-description-hint"
-            />
-          </FormField>
-          <div id="checklist-description-hint" className="checklist-field-meta">
-            <span>{t.descriptionHint}</span>
-            <span>{content.description.length}/4000</span>
-          </div>
-          {(
-            [
-              ['steps', t.stepsLabel, t.stepsHint],
-              ['inputs', t.inputsLabel, t.inputsHint],
-              ['outputs', t.outputsLabel, t.outputsHint],
-            ] as const
-          ).map(([key, label, hint]) => (
-            <div key={key} className={key === 'steps' ? undefined : 'is-half'}>
-              <FormField id={`checklist-${key}`} label={label}>
-                <textarea
-                  id={`checklist-${key}`}
-                  className="odm-inp"
-                  rows={key === 'steps' ? 4 : 3}
-                  value={content[key]}
-                  onChange={(event) =>
-                    setContent({ ...content, [key]: event.target.value })
-                  }
-                  aria-describedby={`checklist-${key}-hint`}
-                />
-              </FormField>
-              <div
-                id={`checklist-${key}-hint`}
-                className="checklist-field-meta"
-              >
-                <span>{hint}</span>
-              </div>
-            </div>
-          ))}
-        </fieldset>
-      </div>
-
-      <div
-        id="checklist-page-pricing"
-        role="tabpanel"
-        aria-labelledby="checklist-tab-pricing"
-        hidden={page !== 'pricing'}
-      >
-        <fieldset className="checklist-section">
-          <legend>{t.sectionPricing}</legend>
-          <p className="checklist-field-meta is-block">
-            {service ? t.pricingScopeHint : t.pricingHint}{' '}
-            <a href={adminHref({ screen: 'operatingConfig' })}>
-              {t.openPricingPolicy}
-            </a>
-          </p>
-          <div
-            className={'checklist-price-grid' + (service ? ' has-service' : '')}
-            role="group"
-            aria-label={t.sectionPricing}
-          >
-            <span aria-hidden="true" />
-            <strong className="checklist-price-head">
-              {t.columnBase}
-              {shared ? ` · ${t.sharedBadge(sharedBy)}` : ''}
-            </strong>
-            {service && (
-              <strong className="checklist-price-head">
-                {t.columnService}
-              </strong>
-            )}
-            {priceRows.map((item) => (
-              <PriceLine
-                key={item.key}
-                id={`checklist-${item.key}`}
-                label={item.label}
-                step={item.step}
-                base={pricing[item.field]}
-                invalid={pricingErrors[item.field] !== undefined}
-                onBase={(value) =>
-                  setPricing({ ...pricing, [item.field]: value })
-                }
-                service={service !== undefined}
-                override={overrides[item.key]}
-                onOverride={(value) =>
-                  setOverrides({ ...overrides, [item.key]: value })
-                }
-              />
-            ))}
-          </div>
-          {service && (
-            <label className="adm-check">
-              <input
-                type="checkbox"
-                checked={overrides.required}
-                onChange={(event) =>
-                  setOverrides({ ...overrides, required: event.target.checked })
-                }
-              />
-              <span>{t.requiredLabel}</span>
-            </label>
-          )}
-        </fieldset>
-
-        <details className="checklist-section checklist-advanced">
-          <summary>{t.sectionAdvanced}</summary>
-          <FormField id="checklist-difficulty" label="Độ khó tính giá" required>
-            <select
-              id="checklist-difficulty"
-              className="odm-inp"
-              value={content.difficulty}
-              onChange={(event) =>
-                setContent({
-                  ...content,
-                  difficulty: event.target.value as Content['difficulty'],
-                })
-              }
-            >
-              <option value="BASIC">Cơ bản</option>
-              <option value="MEDIUM">Trung bình</option>
-              <option value="HARD">Khó</option>
-              <option value="VERY_HARD">Rất khó</option>
-            </select>
-          </FormField>
-          <FormField
-            id="checklist-video-duration"
-            label={t.videoDuration}
-            error={
-              pricingErrors.standardVideoDurationSeconds
-                ? t.invalidPricing
-                : undefined
-            }
-          >
-            <input
-              id="checklist-video-duration"
-              className="odm-inp"
-              type="number"
-              min={0}
-              inputMode="numeric"
-              value={pricing.standardVideoDurationSeconds}
-              onChange={(event) =>
-                setPricing({
-                  ...pricing,
-                  standardVideoDurationSeconds: event.target.value,
-                })
-              }
-            />
-          </FormField>
-          <div className="checklist-field-meta">
-            Chỉ bật chiều đo thực sự ảnh hưởng đến checklist này.
-          </div>
-          {(
-            [
-              ['areaPricingEnabled', 'Tính theo diện tích'],
-              ['lengthPricingEnabled', 'Tính theo chiều dài'],
-              ['altitudePricingEnabled', 'Tính theo độ cao'],
-            ] as const
-          ).map(([field, label]) => (
-            <label key={field} className="checklist-field-meta">
-              <input
-                type="checkbox"
-                checked={pricing[field] ?? false}
-                onChange={(event) =>
-                  setPricing({ ...pricing, [field]: event.target.checked })
-                }
-              />{' '}
-              {label}
-            </label>
-          ))}
-          {(
-            [
-              ['includedAreaHa', 'Diện tích đã bao gồm (ha)', 0.001],
-              ['includedLengthKm', 'Chiều dài đã bao gồm (km)', 0.001],
-              ['includedAltitudeM', 'Độ cao đã bao gồm (m)', 0.01],
-            ] as const
-          ).map(([field, label, step]) => (
-            <FormField
-              key={field}
-              id={`checklist-${field}`}
-              label={label}
-              error={pricingErrors[field] ? t.invalidPricing : undefined}
-            >
-              <input
-                id={`checklist-${field}`}
-                className="odm-inp"
-                type="number"
-                min={0}
-                step={step}
-                inputMode="numeric"
-                value={pricing[field] ?? '0'}
-                onChange={(event) =>
-                  setPricing({ ...pricing, [field]: event.target.value })
-                }
-              />
-            </FormField>
-          ))}
-        </details>
-      </div>
+      <Tabs
+        className="checklist-tabs"
+        aria-label={t.configTitle}
+        activeKey={page}
+        onChange={(key) => setPage(key as 'content' | 'pricing')}
+        items={[
+          { key: 'content', label: t.sectionContent, children: contentPanel, forceRender: true },
+          { key: 'pricing', label: t.sectionPricing, children: pricingPanel, forceRender: true },
+        ]}
+      />
 
       {preview && <PriceBreakdownView preview={preview} />}
-      {error && (
-        <p className="checklist-banner is-error" role="alert">
-          {error}
-        </p>
-      )}
+      {error && <Alert type="error" showIcon role="alert" message={error} />}
       <div className="checklist-form-actions">
-        <button
-          type="button"
-          className="odm-btn odm-btn-gh"
-          disabled={busy}
-          onClick={close}
-        >
+        <Button disabled={busy} onClick={close}>
           {t.cancel}
-        </button>
+        </Button>
         {service && (
-          <button
-            type="button"
-            className="odm-btn"
-            disabled={busy}
-            onClick={() => void check()}
-          >
+          <Button disabled={busy} onClick={() => void check()}>
             {t.whatIf}
-          </button>
+          </Button>
         )}
-        <button
-          type="submit"
-          className="odm-btn odm-btn-p"
-          disabled={busy || needsAck}
-        >
+        <Button type="primary" htmlType="submit" loading={busy} disabled={needsAck}>
           {busy ? t.saving : t.save}
-        </button>
+        </Button>
       </div>
-    </form>
+    </Form>
   )
 }
 
@@ -613,20 +540,19 @@ function PriceLine({
       <label className="checklist-price-label" htmlFor={id}>
         {label}
       </label>
-      <input
+      <Input
         id={id}
-        className="odm-inp"
         type="number"
         min={0}
         step={step}
         inputMode="numeric"
         value={base}
+        status={invalid ? 'error' : undefined}
         aria-invalid={invalid}
         onChange={(event) => onBase(event.target.value)}
       />
       {service && (
-        <input
-          className="odm-inp"
+        <Input
           type="number"
           min={0}
           step={step}
