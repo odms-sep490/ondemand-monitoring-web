@@ -5,12 +5,14 @@
  * table skin, page header, filter bar, empty state). Loaded once from
  * shared/styles/app-shell/layout.scss; tokens (--mgr-*) are defined there.
  */
+/* name: (gradient from, gradient to, text on light, text on dark) */
 $tones: (
-  'blue': (#3b82f6, #1565e8),
-  'green': (#34d399, #16a34a),
-  'amber': (#fbbf24, #f59e0b),
-  'violet': (#a78bfa, #7c3aed),
-  'red': (#f87171, #dc2626),
+  'blue': (#3b82f6, #1565e8, #1d4ed8, #9cc4ff),
+  'green': (#34d399, #16a34a, #15803d, #6ee7a8),
+  'amber': (#fbbf24, #f59e0b, #b45309, #fcd070),
+  'violet': (#a78bfa, #7c3aed, #6d28d9, #c4b0ff),
+  'red': (#f87171, #dc2626, #b91c1c, #ff9b9b),
+  'cyan': (#22d3ee, #0891b2, #0e7490, #67e3f5),
 );
 
 @mixin mgr-surface {
@@ -24,16 +26,45 @@ $tones: (
   /* ---------- Cards ---------- */
   .mgr-card {
     @include mgr-surface;
-    height: fit-content;
+    height: auto;
+
+    transition:
+      box-shadow 0.2s ease,
+      transform 0.2s ease,
+      border-color 0.2s ease;
 
     .ant-card-head {
       min-height: 56px;
-      padding: 0 20px;
+      padding: 0 var(--mgr-card-pad);
       border-bottom: 1px solid var(--mgr-border);
+      background: linear-gradient(180deg, var(--mgr-card-2), transparent);
+      border-radius: var(--mgr-radius) var(--mgr-radius) 0 0;
+    }
+
+    .ant-card-head-title {
+      font-size: var(--mgr-fs-section);
+      font-weight: 600;
+    }
+
+    .ant-card-extra {
+      font-size: var(--mgr-fs-small);
     }
 
     .ant-card-body {
-      padding: 16px 20px;
+      padding: var(--mgr-card-pad);
+    }
+  }
+
+  /* clickable cards lift on hover */
+  a.mgr-card,
+  .mgr-card.is-clickable,
+  .mgr-card.ant-card-hoverable {
+    cursor: pointer;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--mgr-shadow-hover);
+      border-color: color-mix(in srgb, var(--mgr-primary) 45%, var(--mgr-border));
     }
   }
 
@@ -45,13 +76,14 @@ $tones: (
 
   .mgr-card-title {
     margin: 0;
-    font-size: 15.5px;
-    font-weight: 700;
+    font-size: var(--mgr-fs-section);
+    font-weight: 600;
+    line-height: var(--mgr-lh-tight);
     color: var(--mgr-text);
   }
 
   .mgr-card-link {
-    font-size: 13px;
+    font-size: var(--mgr-fs-small);
     font-weight: 600;
 
     &::after {
@@ -64,18 +96,20 @@ $tones: (
     flex: none;
     display: inline-grid;
     place-items: center;
-    width: 46px;
-    height: 46px;
-    border-radius: 14px;
-    font-size: 21px;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    font-size: 20px;
     color: #fff;
-    box-shadow: 0 8px 18px -8px rgb(0 0 0 / 35%);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 28%),
+      0 8px 16px -8px rgb(0 0 0 / 35%);
 
     &.mgr-tile-sm {
       width: 32px;
       height: 32px;
-      border-radius: 10px;
-      font-size: 15px;
+      border-radius: 8px;
+      font-size: 16px;
     }
   }
 
@@ -85,19 +119,24 @@ $tones: (
     }
 
     .mgr-chip-#{$name} {
-      color: list.nth($pair, 2);
-      background: rgba(list.nth($pair, 2), 0.11);
+      color: list.nth($pair, 3);
+      background: rgba(list.nth($pair, 2), 0.13);
+    }
+
+    .mgr-stat.mgr-stat-#{$name} {
+      --stat-accent: #{list.nth($pair, 2)};
+      --stat-tint: #{rgba(list.nth($pair, 2), 0.07)};
     }
   }
 
   .mgr-chip {
     display: inline-flex;
     align-items: center;
-    padding: 3px 10px;
+    padding: 2px 10px;
     border-radius: 999px;
-    font-size: 11.5px;
+    font-size: var(--mgr-fs-caption);
     font-weight: 600;
-    line-height: 1.4;
+    line-height: 1.5;
   }
 
   .mgr-spark {
@@ -112,12 +151,33 @@ $tones: (
     }
 
     .ant-table-thead > tr > th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
       background: var(--mgr-card-2);
+      border-bottom: 1px solid var(--mgr-border);
+      padding-block: 12px;
     }
 
     .ant-table-tbody > tr > td {
       border-bottom: 1px solid var(--mgr-border);
+      padding-block: 14px;
+      font-size: var(--mgr-fs-body);
+      line-height: var(--mgr-lh-body);
       transition: background 0.15s ease;
+    }
+
+    .ant-table-tbody > tr:nth-child(even):not(.ant-table-placeholder) > td {
+      background: var(--mgr-zebra);
+    }
+
+    .ant-table-tbody > tr:hover > td {
+      background: var(--mgr-hover-row) !important;
+    }
+
+    .ant-table-cell-fix-left,
+    .ant-table-cell-fix-right {
+      background: var(--mgr-card);
     }
 
     .ant-table-tbody > tr:last-child > td {
@@ -148,9 +208,37 @@ $tones: (
     align-items: center;
     gap: 6px;
     padding: 2px 10px;
+    font-size: var(--mgr-fs-caption);
     font-weight: 600;
+    line-height: 20px;
+    white-space: nowrap;
     border-radius: 999px;
     margin-inline-end: 0;
+
+    &.ant-tag-success {
+      color: var(--mgr-success);
+      background: var(--mgr-success-soft);
+    }
+
+    &.ant-tag-warning {
+      color: var(--mgr-warning);
+      background: var(--mgr-warning-soft);
+    }
+
+    &.ant-tag-error {
+      color: var(--mgr-error);
+      background: var(--mgr-error-soft);
+    }
+
+    &.ant-tag-processing {
+      color: var(--mgr-info);
+      background: var(--mgr-info-soft);
+    }
+
+    &.ant-tag-default {
+      color: var(--mgr-neutral);
+      background: var(--mgr-neutral-soft);
+    }
   }
 
   .mgr-atable .ant-btn-sm {
@@ -164,7 +252,7 @@ $tones: (
     margin-left: 4px;
     padding: 0 6px;
     border-radius: 999px;
-    font-size: 12px;
+    font-size: var(--mgr-fs-caption);
     line-height: 18px;
     text-align: center;
     color: var(--mgr-muted);
@@ -185,7 +273,7 @@ $tones: (
   }
 
   .mgr-cell-sub {
-    font-size: 12px;
+    font-size: var(--mgr-fs-caption);
     color: var(--mgr-muted);
   }
 
@@ -207,7 +295,7 @@ $tones: (
   .mgr-table-foot {
     padding: 12px 20px;
     border-top: 1px solid var(--mgr-border);
-    font-size: 12.5px;
+    font-size: var(--mgr-fs-caption);
     color: var(--mgr-muted);
   }
 
@@ -220,19 +308,41 @@ $tones: (
 
   /* ---------- Stat cards ---------- */
   .mgr-stat {
+    --stat-accent: var(--mgr-primary);
+    --stat-tint: var(--mgr-primary-soft);
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: 10px;
-    padding: 18px;
+    padding: var(--mgr-card-pad);
     height: 100%;
-    transition: box-shadow 0.25s ease;
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--stat-tint), transparent 65%), var(--mgr-card);
+
+    /* left accent bar */
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 4px;
+      background: var(--stat-accent);
+    }
+
+    &:hover {
+      box-shadow: var(--mgr-shadow-hover);
+    }
 
     .ant-statistic-content {
-      font-size: 32px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
+      font-size: var(--mgr-fs-kpi);
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      font-variant-numeric: tabular-nums;
       color: var(--mgr-text);
-      line-height: 1.1;
+      line-height: 1.15;
+    }
+
+    .ant-statistic-content-value {
+      font-variant-numeric: tabular-nums;
     }
   }
 
@@ -243,9 +353,9 @@ $tones: (
   }
 
   .mgr-stat-label {
-    font-size: 13px;
-    font-weight: 600;
-    line-height: 1.3;
+    font-size: var(--mgr-fs-caption);
+    font-weight: 500;
+    line-height: 1.35;
     color: var(--mgr-muted);
   }
 
@@ -254,27 +364,57 @@ $tones: (
     align-items: flex-end;
     justify-content: space-between;
     gap: 10px;
-    min-height: 26px;
+    min-height: 24px;
     margin-top: auto;
   }
 
   .mgr-kpi-strip {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 16px;
+    gap: var(--mgr-gap);
   }
 
-  /* ---------- Page header (white banner card) ---------- */
+  /* ---------- Page header (hero banner) ---------- */
   .mgr-page-head {
     @include mgr-surface;
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
     display: flex;
     flex-wrap: wrap;
     align-items: flex-start;
     justify-content: space-between;
-    gap: 16px 20px;
-    padding: 20px 24px;
-    border-radius: 20px;
-    background: linear-gradient(180deg, var(--mgr-hero-bg), var(--mgr-card));
+    gap: 16px 24px;
+    padding: 24px;
+    border-radius: 16px;
+    background:
+      radial-gradient(circle at 92% -20%, var(--mgr-hero-ring), transparent 46%),
+      linear-gradient(120deg, var(--mgr-hero-from), var(--mgr-hero-to) 70%, var(--mgr-card));
+
+    /* decorative rings */
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      z-index: -1;
+      border-radius: 50%;
+      border: 1.5px solid var(--mgr-hero-ring);
+      pointer-events: none;
+    }
+
+    &::before {
+      width: 220px;
+      height: 220px;
+      right: -50px;
+      top: -90px;
+    }
+
+    &::after {
+      width: 120px;
+      height: 120px;
+      right: 80px;
+      bottom: -70px;
+    }
   }
 
   .mgr-page-head-main {
@@ -283,8 +423,8 @@ $tones: (
   }
 
   .mgr-page-head-crumb {
-    margin: 0 0 6px;
-    font-size: 13px;
+    margin: 0 0 8px;
+    font-size: var(--mgr-fs-small);
     font-weight: 500;
     color: var(--mgr-muted);
 
@@ -292,25 +432,25 @@ $tones: (
       color: var(--mgr-muted);
 
       &:hover {
-        color: #1565e8;
+        color: var(--mgr-primary);
       }
     }
   }
 
   .mgr-page-head-title {
     margin: 0;
-    font-size: 24px;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    line-height: 1.25;
+    font-size: var(--mgr-fs-title);
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    line-height: var(--mgr-lh-tight);
     color: var(--mgr-text);
     overflow-wrap: anywhere;
   }
 
   .mgr-page-head-desc {
-    margin: 4px 0 0;
-    font-size: 14px;
-    line-height: 1.5;
+    margin: 6px 0 0;
+    font-size: var(--mgr-fs-body);
+    line-height: var(--mgr-lh-body);
     color: var(--mgr-muted);
     overflow-wrap: anywhere;
   }
@@ -329,7 +469,7 @@ $tones: (
     flex-wrap: wrap;
     align-items: center;
     gap: 12px;
-    padding: 12px 16px;
+    padding: 12px var(--mgr-card-pad);
   }
 
   .mgr-filter-bar-search {
@@ -358,18 +498,26 @@ $tones: (
     flex-direction: column;
     align-items: center;
     gap: 6px;
-    padding: 36px 16px;
+    padding: 32px 16px;
     text-align: center;
 
+    .mgr-empty-art {
+      width: 112px;
+      height: auto;
+      margin-bottom: 4px;
+      color: var(--mgr-primary);
+    }
+
     .mgr-empty-title {
-      font-size: 15px;
-      font-weight: 700;
+      font-size: var(--mgr-fs-body);
+      font-weight: 600;
       color: var(--mgr-text);
     }
 
     .mgr-empty-desc {
       max-width: 420px;
-      font-size: 13px;
+      font-size: var(--mgr-fs-small);
+      line-height: var(--mgr-lh-body);
       color: var(--mgr-muted);
     }
 
@@ -384,7 +532,7 @@ $tones: (
       color: var(--mgr-muted);
 
       &.is-danger {
-        color: #dc2626;
+        color: var(--mgr-error);
       }
     }
 
@@ -394,7 +542,7 @@ $tones: (
       margin: 8px auto 0;
       padding: 2px 8px;
       border-radius: 6px;
-      font-size: 11.5px;
+      font-size: var(--mgr-fs-caption);
       background: var(--mgr-card-2);
       color: var(--mgr-muted);
     }
@@ -404,22 +552,34 @@ $tones: (
   .mgr-view {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: var(--mgr-gap);
     min-width: 0;
     max-width: 1600px;
     margin: 0 auto;
   }
 }
 
-:root[data-theme='dark'] .mgr-layout .mgr-status-tag,
-:root[data-theme='dark'] .mgr-layout .mgr-chip {
-  filter: brightness(1.45) saturate(1.2);
+:root[data-theme='dark'] .mgr-layout {
+  @each $name, $pair in $tones {
+    .mgr-chip-#{$name} {
+      color: list.nth($pair, 4);
+      background: rgba(list.nth($pair, 2), 0.22);
+    }
+  }
+
+  .mgr-stat::before {
+    opacity: 0.9;
+  }
+
+  .mgr-page-head {
+    border-color: rgb(120 160 255 / 22%);
+  }
 }
 
 @media (max-width: 640px) {
   .mgr-layout {
     .mgr-stat {
-      padding: 14px;
+      padding: 14px 14px 14px 18px;
     }
 
     .mgr-stat-top {
@@ -429,7 +589,7 @@ $tones: (
     }
 
     .mgr-stat .ant-statistic-content {
-      font-size: 26px;
+      font-size: 24px;
     }
 
     .mgr-spark {
@@ -443,7 +603,7 @@ $tones: (
 
     .mgr-page-head {
       padding: 16px;
-      border-radius: 16px;
+      border-radius: 12px;
     }
 
     .mgr-page-head-title {
@@ -492,6 +652,97 @@ $tones: (
     .mgr-filter-bar-end {
       margin-left: 0;
       width: 100%;
+    }
+  }
+}
+
+/*
+ * Column balancing: two/three-column layouts stretch to the row height so the
+ * bottom edges line up. The last card of each column grows (empty space stays
+ * inside the card, content at the top); card grids and KPI rows use equal rows.
+ */
+:root .mgr-layout {
+  .mgr-columns,
+  .cus-columns,
+  .cus-main-grid,
+  .mgr-detail-grid:not(.is-wide),
+  .mgr-detail-extra,
+  .odm-or-grid,
+  .od-info-sections,
+  .odm-or-area-check-grid,
+  .odm-or-order-body.has-map {
+    align-items: stretch;
+  }
+
+  .mgr-detail-grid.is-wide > .mgr-detail-side {
+    align-items: stretch;
+  }
+
+  .mgr-stack,
+  .cus-stack,
+  .cus-side,
+  .odm-or-col,
+  .mgr-detail-main,
+  .mgr-detail-side {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mgr-gap);
+    min-width: 0;
+
+    > :last-child {
+      flex: 1 1 auto;
+    }
+  }
+
+  /* a stretched rail replaces the sticky rail (sticky only works when it is shorter than the row) */
+  .cus-side,
+  .mgr-detail-side {
+    position: static;
+  }
+
+  .mgr-actions-slot:not(:empty) {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+
+    > * {
+      flex: 1 1 auto;
+    }
+  }
+
+  .mgr-actions-slot:empty {
+    display: none;
+  }
+
+  /* cards that are direct grid/flex children fill their cell */
+  .mgr-columns > .mgr-card,
+  .cus-columns > .mgr-card,
+  .mgr-detail-extra > *,
+  .odm-or-grid > .mgr-card,
+  .mgr-drone-grid > *,
+  .mgr-kpi-strip > * {
+    height: 100%;
+  }
+
+  .mgr-kpi-strip,
+  .cus-kpi-grid {
+    grid-auto-rows: 1fr;
+    align-items: stretch;
+  }
+
+  .mgr-drone-grid,
+  .mgr-grid-cards {
+    grid-auto-rows: 1fr;
+  }
+}
+
+@media (max-width: 1100px) {
+  :root .mgr-layout {
+    .mgr-detail-main > :last-child,
+    .mgr-detail-side > :last-child,
+    .cus-stack > :last-child,
+    .cus-side > :last-child {
+      flex: 0 0 auto;
     }
   }
 }

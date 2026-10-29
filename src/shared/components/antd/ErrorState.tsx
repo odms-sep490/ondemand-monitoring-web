@@ -35,6 +35,7 @@ export function ErrorState({ title, error, description, onRetry, action }: Props
   return (
     <CardComponent role="alert" styles={{ body: { padding: 0 } }}>
       <EmptyState
+        art={false}
         title={
           <>
             <WarningOutlined className="mgr-empty-icon is-danger" aria-hidden="true" />

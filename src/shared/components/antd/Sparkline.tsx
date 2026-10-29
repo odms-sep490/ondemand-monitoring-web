@@ -7,6 +7,7 @@ const STROKE = {
   amber: '#F59E0B',
   violet: '#7C3AED',
   red: '#DC2626',
+  cyan: '#0891B2',
 } as const
 
 /** Decorative mini area chart; the figure itself carries the accessible value. */

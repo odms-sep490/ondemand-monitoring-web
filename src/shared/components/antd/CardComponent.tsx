@@ -5,7 +5,7 @@ type Props = CardProps & {
   /** Icon shown in a gradient tile before the title. */
   icon?: ReactNode
   /** Tile colour; defaults to blue. */
-  tone?: 'blue' | 'green' | 'amber' | 'violet' | 'red'
+  tone?: 'blue' | 'green' | 'amber' | 'violet' | 'red' | 'cyan'
 }
 
 /**
