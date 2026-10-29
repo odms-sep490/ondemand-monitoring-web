@@ -225,3 +225,61 @@
   display: grid;
   place-items: center;
 }
+
+/* Maintenance tickets */
+.stf-ticket-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr));
+  gap: 16px;
+}
+
+.stf-ticket-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--mgr-text);
+}
+
+.stf-ticket-foot {
+  padding-top: 12px;
+  border-top: 1px solid var(--mgr-border);
+}
+
+/* Simulation zones: full-bleed viewer under a slim header */
+.stf-zones {
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--mgr-bg);
+}
+
+.stf-zones-head {
+  flex-shrink: 0;
+  padding: 16px 24px;
+  background: var(--mgr-card);
+  border-bottom: 1px solid var(--mgr-border);
+}
+
+.stf-zones-title {
+  margin: 0 0 4px;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--mgr-text);
+}
+
+.stf-zones-desc {
+  margin: 0;
+  font-size: 13px;
+  color: var(--mgr-muted);
+}
+
+.stf-zones-frame {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  border: 0;
+  background: var(--mgr-card-2);
+}

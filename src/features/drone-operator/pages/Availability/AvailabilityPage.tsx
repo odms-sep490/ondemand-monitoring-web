@@ -1,9 +1,13 @@
 import { useMemo, useState } from 'react'
 
+import { LeftOutlined, RightOutlined, SaveOutlined } from '@ant-design/icons'
+import { Alert, Button, Skeleton, Space } from 'antd'
+
 import {
-  EmptyState,
-  LoadingState,
-} from '../../../../shared/components/odm/StateView'
+  CardComponent,
+  ErrorState,
+  PageHeader,
+} from '../../../../shared/components/antd'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
 import { operatorApi } from '../../api/operatorApi'
@@ -17,12 +21,6 @@ import {
   type MissionOverlay,
 } from './components/AvailabilityGrid'
 import { availabilityPageMessages } from './AvailabilityPage.messages'
-
-const MODE_CLASS: Record<AvailabilityStatus, string> = {
-  AVAILABLE: 'odm-btn-ok',
-  BUSY: '',
-  OFF: 'odm-btn-rd',
-}
 
 // Fixed to the design's reference week (21/09 - 27/09/2026, Tuần 39). A real
 // implementation would derive this from the demo clock plus ‹ › navigation;
@@ -68,20 +66,26 @@ export function AvailabilityPage() {
     label: t.overlayLabels[i],
   }))
 
-  if (query.loading) return <LoadingState />
+  if (query.loading)
+    return (
+      <div className="stf-stack" aria-busy="true">
+        <CardComponent>
+          <Skeleton active paragraph={{ rows: 1 }} />
+        </CardComponent>
+        <CardComponent>
+          <Skeleton active paragraph={{ rows: 8 }} />
+        </CardComponent>
+      </div>
+    )
   if (query.error) {
     return (
-      <EmptyState
+      <ErrorState
         title={t.loadFailedTitle}
         description={t.loadFailedDesc}
         action={
-          <button
-            type="button"
-            className="odm-btn odm-btn-p"
-            onClick={() => query.reload()}
-          >
+          <Button type="primary" onClick={() => query.reload()}>
             {t.retry}
-          </button>
+          </Button>
         }
       />
     )
@@ -109,101 +113,82 @@ export function AvailabilityPage() {
   const dirty = localSlots !== null
 
   return (
-    <div>
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 12,
-          marginBottom: 14,
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <button
-            type="button"
-            className="odm-btn odm-btn-sm"
-            aria-label={t.prevWeek}
+    <div className="stf-stack">
+      <PageHeader
+        title={t.title}
+        description={t.description}
+        actions={
+          <Button
+            type="primary"
+            icon={<SaveOutlined aria-hidden="true" />}
+            onClick={handleSave}
+            disabled={saving || !dirty}
+            loading={saving}
           >
-            ‹
-          </button>
-          <span style={{ fontWeight: 600, fontSize: 13.5 }}>{t.weekLabel}</span>
-          <button
-            type="button"
-            className="odm-btn odm-btn-sm"
-            aria-label={t.nextWeek}
-          >
-            ›
-          </button>
-        </div>
-        <button
-          type="button"
-          className="odm-btn odm-btn-p"
-          onClick={handleSave}
-          disabled={saving || !dirty}
-        >
-          {saving ? t.saving : t.saveChanges}
-        </button>
-      </div>
+            {saving ? t.saving : t.saveChanges}
+          </Button>
+        }
+      />
 
       {saveState === 'saved' ? (
-        <Banner tone="green">{t.savedBanner}</Banner>
+        <Alert type="success" showIcon message={t.savedBanner} />
       ) : saveState === 'error' ? (
-        <Banner tone="red">{t.saveErrorBanner}</Banner>
+        <Alert type="error" showIcon message={t.saveErrorBanner} />
       ) : !dirty && Object.keys(slots).length === 0 ? (
-        <Banner tone="yellow">{t.emptyWeekBanner}</Banner>
+        <Alert type="warning" showIcon message={t.emptyWeekBanner} />
       ) : null}
 
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 12,
-          marginBottom: 10,
-        }}
-      >
-        <span style={{ fontSize: 12.5, color: 'var(--tx3)' }}>
-          {t.declarePrefix}
-        </span>
-        {(['AVAILABLE', 'BUSY', 'OFF'] as AvailabilityStatus[]).map((m) => (
-          <button
-            key={m}
-            type="button"
-            className={`odm-btn odm-btn-sm ${mode === m ? MODE_CLASS[m] : ''}`}
-            aria-pressed={mode === m}
-            onClick={() => {
-              setMode(m)
-              if (selection.length > 0) {
-                setLocalSlots(mergeSlots(slots, selection, m))
-                setSelection([])
-              }
-            }}
-          >
-            {t.modeLabel[m]}
-          </button>
-        ))}
-        {selection.length > 0 ? (
-          <>
-            <span style={{ fontSize: 12, color: 'var(--tx3)' }}>
-              {t.selectionCount(selection.length)}
-            </span>
-            <button
-              type="button"
-              className="odm-btn odm-btn-sm"
-              onClick={() => setSelection([])}
-            >
-              {t.deselect}
-            </button>
-            <button
-              type="button"
-              className="odm-btn odm-btn-sm odm-btn-p"
-              onClick={applyMode}
-            >
-              {t.apply}
-            </button>
-          </>
-        ) : null}
-      </div>
+      <CardComponent>
+        <div className="stf-row" style={{ justifyContent: 'space-between' }}>
+          <Space>
+            <Button
+              size="small"
+              icon={<LeftOutlined aria-hidden="true" />}
+              aria-label={t.prevWeek}
+            />
+            <strong>{t.weekLabel}</strong>
+            <Button
+              size="small"
+              icon={<RightOutlined aria-hidden="true" />}
+              aria-label={t.nextWeek}
+            />
+          </Space>
+          <div className="stf-row">
+            <span className="stf-muted">{t.declarePrefix}</span>
+            {(['AVAILABLE', 'BUSY', 'OFF'] as AvailabilityStatus[]).map((m) => (
+              <Button
+                key={m}
+                size="small"
+                type={mode === m ? 'primary' : 'default'}
+                danger={mode === m && m === 'OFF'}
+                aria-pressed={mode === m}
+                onClick={() => {
+                  setMode(m)
+                  if (selection.length > 0) {
+                    setLocalSlots(mergeSlots(slots, selection, m))
+                    setSelection([])
+                  }
+                }}
+              >
+                {t.modeLabel[m]}
+              </Button>
+            ))}
+            {selection.length > 0 ? (
+              <>
+                <span className="stf-muted">
+                  {t.selectionCount(selection.length)}
+                </span>
+                <Button size="small" onClick={() => setSelection([])}>
+                  {t.deselect}
+                </Button>
+                <Button size="small" type="primary" onClick={applyMode}>
+                  {t.apply}
+                </Button>
+              </>
+            ) : null}
+          </div>
+        </div>
+      </CardComponent>
 
       <AvailabilityGrid
         days={WEEK_DAYS}
@@ -224,30 +209,6 @@ function applySelectionPreview(
   const next = { ...slots }
   for (const key of selected) next[key] = mode
   return next
-}
-
-function Banner({
-  tone,
-  children,
-}: {
-  tone: 'green' | 'red' | 'yellow'
-  children: React.ReactNode
-}) {
-  return (
-    <div
-      style={{
-        marginBottom: 14,
-        padding: '10px 14px',
-        borderRadius: 8,
-        background: `var(--${tone}-bg)`,
-        color: `var(--${tone}-fg)`,
-        border: `1px solid var(--${tone}-dot)`,
-        fontSize: 13,
-      }}
-    >
-      {children}
-    </div>
-  )
 }
 
 // re-export for tests / potential reuse elsewhere

@@ -1,6 +1,8 @@
-import { maintenancePageMessages } from '../MaintenancePage.messages'
-import { useI18n } from '../../../../../shared/i18n'
+import { Alert, Button } from 'antd'
 import type { Dispatch, SetStateAction } from 'react'
+
+import { useI18n } from '../../../../../shared/i18n'
+import { maintenancePageMessages } from '../MaintenancePage.messages'
 
 export function SuccessBanner({
   successMsg,
@@ -11,31 +13,15 @@ export function SuccessBanner({
 }) {
   const { t } = useI18n(maintenancePageMessages)
   return (
-    <div
-      role="alert"
-      style={{
-        padding: '12px 16px',
-        borderRadius: 10,
-        background: '#f0fdf4',
-        border: '1px solid #bbf7d0',
-        color: '#166534',
-        fontSize: 13.5,
-        fontWeight: 600,
-        marginBottom: 20,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-      }}
-    >
-      <span>{successMsg}</span>
-      <button
-        type="button"
-        className="odm-btn"
-        style={{ padding: '2px 8px', fontSize: 12 }}
-        onClick={() => setSuccessMsg(null)}
-      >
-        {t.close}
-      </button>
-    </div>
+    <Alert
+      type="success"
+      showIcon
+      message={<strong>{successMsg}</strong>}
+      action={
+        <Button size="small" onClick={() => setSuccessMsg(null)}>
+          {t.close}
+        </Button>
+      }
+    />
   )
 }

@@ -1,4 +1,7 @@
+import { Skeleton } from 'antd'
 import { useMemo, useState } from 'react'
+
+import { CardComponent } from '../../../../shared/components/antd'
 
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
@@ -98,8 +101,7 @@ export function MaintenancePage() {
   }
 
   return (
-    <div style={{ padding: '24px 28px', maxWidth: 1100, margin: '0 auto' }}>
-      {/* Header Banner */}
+    <div className="stf-stack">
       <MaintenanceHeader myOpenCount={myOpenCount} allTickets={allTickets} />
 
       {successMsg && (
@@ -116,23 +118,17 @@ export function MaintenancePage() {
 
       {/* Ticket List */}
       {query.loading ? (
-        <div style={{ padding: 40, textAlign: 'center' }}>
-          <div
-            className="odm-sk"
-            style={{ height: 120, borderRadius: 12, marginBottom: 12 }}
-          />
-          <div className="odm-sk" style={{ height: 120, borderRadius: 12 }} />
+        <div className="stf-ticket-grid" aria-busy="true">
+          {[0, 1, 2].map((i) => (
+            <CardComponent key={i}>
+              <Skeleton active paragraph={{ rows: 3 }} />
+            </CardComponent>
+          ))}
         </div>
       ) : filteredTickets.length === 0 ? (
         <MaintenanceEmpty />
       ) : (
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
-            gap: 16,
-          }}
-        >
+        <div className="stf-ticket-grid">
           {filteredTickets.map((ticket) => (
             <TicketCard
               key={ticket.id}

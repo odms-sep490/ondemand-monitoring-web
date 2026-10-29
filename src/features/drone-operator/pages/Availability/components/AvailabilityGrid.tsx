@@ -1,4 +1,7 @@
+import { theme } from 'antd'
 import { useState } from 'react'
+
+import { CardComponent } from '../../../../../shared/components/antd'
 
 import { useI18n } from '../../../../../shared/i18n'
 import {
@@ -8,15 +11,6 @@ import {
   type AvailabilityStatus,
 } from '../../../lib/availabilitySlots'
 import { availabilityGridMessages } from './AvailabilityGrid.messages'
-
-const STATUS_STYLE: Record<AvailabilityStatus, React.CSSProperties> = {
-  AVAILABLE: { background: 'var(--green-bg)' },
-  BUSY: { background: 'var(--sf3)' },
-  OFF: {
-    background:
-      'repeating-linear-gradient(45deg, var(--sf2) 0, var(--sf2) 4px, var(--bg) 4px, var(--bg) 8px)',
-  },
-}
 
 export type MissionOverlay = {
   day: string
@@ -37,6 +31,14 @@ export function AvailabilityGrid({
   onSelectionChange: (keys: string[]) => void
 }) {
   const { t } = useI18n(availabilityGridMessages)
+  const { token } = theme.useToken()
+  const statusStyle: Record<AvailabilityStatus, React.CSSProperties> = {
+    AVAILABLE: { background: token.colorSuccessBg },
+    BUSY: { background: token.colorFillSecondary },
+    OFF: {
+      background: `repeating-linear-gradient(45deg, ${token.colorFillTertiary} 0, ${token.colorFillTertiary} 4px, ${token.colorBgContainer} 4px, ${token.colorBgContainer} 8px)`,
+    },
+  }
   const WEEKDAY_SHORT = t.weekdayShort
   const times = slotTimes()
   const [anchor, setAnchor] = useState<{ day: string; time: string } | null>(
@@ -62,9 +64,8 @@ export function AvailabilityGrid({
   }
 
   return (
-    <div
-      className="odm-card"
-      style={{ overflowX: 'auto' }}
+    <CardComponent
+      styles={{ body: { padding: 0, overflowX: 'auto' } }}
       onMouseUp={endDrag}
       onMouseLeave={endDrag}
     >
@@ -77,7 +78,7 @@ export function AvailabilityGrid({
               style={{
                 width: 60,
                 fontSize: 11,
-                color: 'var(--tx3)',
+                color: token.colorTextTertiary,
                 padding: 6,
               }}
             />
@@ -90,7 +91,7 @@ export function AvailabilityGrid({
                     padding: 6,
                     fontSize: 11.5,
                     fontWeight: 600,
-                    borderBottom: '1px solid var(--bd)',
+                    borderBottom: `1px solid ${token.colorBorderSecondary}`,
                     textAlign: 'center',
                   }}
                 >
@@ -108,7 +109,7 @@ export function AvailabilityGrid({
               <td
                 style={{
                   fontSize: 10.5,
-                  color: 'var(--tx3)',
+                  color: token.colorTextTertiary,
                   padding: '2px 6px',
                   textAlign: 'right',
                   verticalAlign: 'top',
@@ -128,10 +129,10 @@ export function AvailabilityGrid({
                     onMouseEnter={() => moveDrag(day, time)}
                     style={{
                       height: 18,
-                      border: '1px solid var(--bd)',
+                      border: `1px solid ${token.colorBorderSecondary}`,
                       cursor: overlay ? 'not-allowed' : 'pointer',
                       position: 'relative',
-                      ...(status ? STATUS_STYLE[status] : {}),
+                      ...(status ? statusStyle[status] : {}),
                     }}
                     title={overlay ? overlay.label : undefined}
                   >
@@ -142,11 +143,11 @@ export function AvailabilityGrid({
                           inset: 1,
                           background:
                             overlay.tone === 'green'
-                              ? 'var(--green-solid)'
-                              : 'var(--sf3)',
+                              ? token.colorSuccess
+                              : token.colorTextQuaternary,
                           borderRadius: 2,
-                          fontSize: 8,
-                          color: '#fff',
+                          fontSize: 10,
+                          color: token.colorWhite,
                           overflow: 'hidden',
                           padding: '1px 2px',
                         }}
@@ -161,6 +162,6 @@ export function AvailabilityGrid({
           ))}
         </tbody>
       </table>
-    </div>
+    </CardComponent>
   )
 }
