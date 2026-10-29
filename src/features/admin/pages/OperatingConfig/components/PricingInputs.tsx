@@ -1,4 +1,7 @@
-import { useEffect, useState } from 'react'
+import { Input } from 'antd'
+import { useEffect, useState, type ReactNode } from 'react'
+
+import { useLanguage } from '../../../../../shared/i18n'
 
 type NumericInputProps = {
   id?: string
@@ -14,22 +17,23 @@ type NumericInputProps = {
   ariaLabel?: string
 }
 
+const money = (value: number | null, locale: string) =>
+  value == null ? '' : Math.max(0, value).toLocaleString(locale)
 const digits = (value: number | null) => (value == null ? '' : String(value))
-const money = (value: number | null) =>
-  value == null ? '' : Math.max(0, value).toLocaleString('vi-VN')
 
 /** Keeps raw digits while typing and formats only after focus leaves the field. */
 export function MoneyInput(props: Omit<NumericInputProps, 'suffix'>) {
+  const { locale } = useLanguage()
   const [focused, setFocused] = useState(false)
-  const [text, setText] = useState(() => money(props.value))
+  const [text, setText] = useState(() => money(props.value, locale))
 
   useEffect(() => {
-    if (!focused) setText(money(props.value))
-  }, [focused, props.value])
+    if (!focused) setText(money(props.value, locale))
+  }, [focused, props.value, locale])
 
   return (
     <PricingInputShell {...props} suffix="₫">
-      <input
+      <Input
         id={props.id}
         type="text"
         inputMode="numeric"
@@ -42,7 +46,7 @@ export function MoneyInput(props: Omit<NumericInputProps, 'suffix'>) {
         }}
         onBlur={() => {
           setFocused(false)
-          setText(money(props.value))
+          setText(money(props.value, locale))
         }}
         onChange={(event) => {
           const raw = event.target.value.replace(/[^0-9]/g, '')
@@ -57,7 +61,7 @@ export function MoneyInput(props: Omit<NumericInputProps, 'suffix'>) {
 export function UnitInput(props: NumericInputProps) {
   return (
     <PricingInputShell {...props}>
-      <input
+      <Input
         id={props.id}
         type="number"
         min={props.min ?? 0}
@@ -83,7 +87,7 @@ function PricingInputShell({
   helper,
   children,
 }: Pick<NumericInputProps, 'id' | 'label' | 'suffix' | 'helper'> & {
-  children: React.ReactNode
+  children: ReactNode
 }) {
   return (
     <label className="pricing-field" htmlFor={id}>

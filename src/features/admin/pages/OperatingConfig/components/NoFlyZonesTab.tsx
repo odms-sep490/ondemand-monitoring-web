@@ -1,14 +1,16 @@
 import { useState } from 'react'
 
+import { Button } from 'antd'
+
 import {
+  CardComponent,
+  EmptyState,
   ErrorState,
-  LoadingState,
-} from '../../../../../shared/components/odm/StateView'
+} from '../../../../../shared/components/antd'
+import { AdminLoading } from '../../../components/common/AdminLoading'
 import { useApiQuery } from '../../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../../shared/i18n'
 import { adminApi } from '../../../api/adminApi'
-import { EmptyState } from '../../../../../shared/components/ui'
-import { TableCard } from '../../../../../shared/components/ui'
 import type { NoFlyZone } from '../../../types/operatingConfig'
 import { NoFlyZonesTable } from './NoFlyZonesTable'
 import { noFlyZonesTabMessages } from './NoFlyZonesTab.messages'
@@ -28,30 +30,28 @@ export function NoFlyZonesTab() {
   }
 
   return (
-    <div>
+    <div className="mgr-view">
       <div className="adm-toolbar">
         <span />
-        <button
-          type="button"
-          className="odm-btn odm-btn-p"
-          onClick={() => setDialog({})}
-        >
+        <Button type="primary" onClick={() => setDialog({})}>
           {t.addZone}
-        </button>
+        </Button>
       </div>
-      {loading && !data && <LoadingState />}
+      {loading && !data && <AdminLoading />}
       {!loading && !data && <ErrorState error={error} onRetry={reload} />}
       {data && data.items.length === 0 && (
-        <EmptyState title={t.emptyTitle} description={t.emptyDescription} />
+        <CardComponent>
+          <EmptyState title={t.emptyTitle} description={t.emptyDescription} />
+        </CardComponent>
       )}
       {data && data.items.length > 0 && (
-        <TableCard>
+        <CardComponent styles={{ body: { padding: 0 } }}>
           <NoFlyZonesTable
             items={data.items}
             onEdit={(zone) => setDialog({ zone })}
             onToggle={handleToggle}
           />
-        </TableCard>
+        </CardComponent>
       )}
       {dialog && (
         <ZoneModal

@@ -1,5 +1,5 @@
 import { defineMessages } from '../../../../../shared/i18n'
-import type { UiTone } from '../../../../../shared/components/ui'
+import type { StatusTagTone } from '../../../../../shared/components/antd'
 import type { ZoneType } from '../../../types/operatingConfig'
 
 export const ZONE_TYPES: ZoneType[] = [
@@ -9,7 +9,7 @@ export const ZONE_TYPES: ZoneType[] = [
   'TEMPORARY',
 ]
 
-export const ZONE_TYPE_TONE: Record<ZoneType, UiTone> = {
+export const ZONE_TYPE_TONE: Record<ZoneType, StatusTagTone> = {
   AIRPORT: 'danger',
   MILITARY: 'danger',
   RESTRICTED: 'warning',

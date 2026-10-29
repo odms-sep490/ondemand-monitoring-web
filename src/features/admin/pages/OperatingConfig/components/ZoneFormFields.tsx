@@ -1,5 +1,7 @@
+import { Form, Input, Select } from 'antd'
+
+import { mgrPopupContainer } from '../../../../../shared/components/antd'
 import { useI18n } from '../../../../../shared/i18n'
-import { FormField } from '../../../../../shared/components/ui'
 import type { ZoneType } from '../../../types/operatingConfig'
 import type { ZoneFormState } from './zoneForm'
 import { zoneModalMessages } from './ZoneModal.messages'
@@ -15,9 +17,8 @@ export function ZoneFormFields({ form, errors, onChange }: Props) {
   const { t } = useI18n(zoneModalMessages)
   const { t: zt } = useI18n(zoneTypeMessages)
   const text = (id: string, key: keyof ZoneFormState, type = 'text', extra = {}) => (
-    <input
+    <Input
       id={id}
-      className="odm-inp"
       type={type}
       value={form[key]}
       onChange={(e) => onChange({ [key]: e.target.value })}
@@ -26,51 +27,46 @@ export function ZoneFormFields({ form, errors, onChange }: Props) {
   )
   return (
     <>
-      <FormField id="adm-nfz-name" label={t.name} required error={errors.name}>
+      <Form.Item label={t.name} required htmlFor="adm-nfz-name" validateStatus={errors.name ? 'error' : undefined} help={errors.name}>
         {text('adm-nfz-name', 'name')}
-      </FormField>
+      </Form.Item>
       <div className="adm-form-pair">
-        <FormField id="adm-nfz-source" label={t.source}>
+        <Form.Item label={t.source} htmlFor="adm-nfz-source">
           {text('adm-nfz-source', 'source')}
-        </FormField>
-        <FormField id="adm-nfz-type" label={t.zoneTypeLabel}>
-          <select
+        </Form.Item>
+        <Form.Item label={t.zoneTypeLabel} htmlFor="adm-nfz-type">
+          <Select<ZoneType>
             id="adm-nfz-type"
-            className="odm-inp"
             value={form.zoneType}
-            onChange={(e) => onChange({ zoneType: e.target.value as ZoneType })}
-          >
-            {ZONE_TYPES.map((z) => (
-              <option key={z} value={z}>
-                {zt[z]}
-              </option>
-            ))}
-          </select>
-        </FormField>
+            onChange={(zoneType) => onChange({ zoneType })}
+            getPopupContainer={mgrPopupContainer}
+            options={ZONE_TYPES.map((z) => ({ value: z, label: zt[z] }))}
+          />
+        </Form.Item>
       </div>
       <div className="adm-form-pair">
-        <FormField id="adm-nfz-lat" label={t.lat}>
+        <Form.Item label={t.lat} htmlFor="adm-nfz-lat">
           {text('adm-nfz-lat', 'lat', 'number', { step: '0.0001' })}
-        </FormField>
-        <FormField id="adm-nfz-lon" label={t.lon}>
+        </Form.Item>
+        <Form.Item label={t.lon} htmlFor="adm-nfz-lon">
           {text('adm-nfz-lon', 'lon', 'number', { step: '0.0001' })}
-        </FormField>
+        </Form.Item>
       </div>
       <div className="adm-form-pair">
-        <FormField id="adm-nfz-radius" label={t.radius}>
+        <Form.Item label={t.radius} htmlFor="adm-nfz-radius">
           {text('adm-nfz-radius', 'radiusM', 'number')}
-        </FormField>
-        <FormField id="adm-nfz-alt" label={t.maxAlt}>
+        </Form.Item>
+        <Form.Item label={t.maxAlt} htmlFor="adm-nfz-alt">
           {text('adm-nfz-alt', 'maxAlt', 'number', { placeholder: t.unlimited })}
-        </FormField>
+        </Form.Item>
       </div>
       <div className="adm-form-pair">
-        <FormField id="adm-nfz-from" label={t.effectiveFrom}>
+        <Form.Item label={t.effectiveFrom} htmlFor="adm-nfz-from">
           {text('adm-nfz-from', 'effectiveFrom', 'date')}
-        </FormField>
-        <FormField id="adm-nfz-to" label={t.effectiveTo}>
+        </Form.Item>
+        <Form.Item label={t.effectiveTo} htmlFor="adm-nfz-to">
           {text('adm-nfz-to', 'effectiveTo', 'date')}
-        </FormField>
+        </Form.Item>
       </div>
     </>
   )

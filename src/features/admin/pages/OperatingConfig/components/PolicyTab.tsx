@@ -6,12 +6,12 @@ import { WeightsPanel } from './WeightsPanel'
 export function PolicyTab() {
   const { t } = useI18n(policyTabMessages)
   return (
-    <div className="adm-stack">
-      <section>
+    <div className="mgr-view">
+      <section className="adm-section-block">
         <h2 className="adm-section-title">{t.operatingParams}</h2>
         <PolicyTable />
       </section>
-      <section>
+      <section className="adm-section-block">
         <h2 className="adm-section-title">{t.dispatchWeights}</h2>
         <WeightsPanel />
       </section>

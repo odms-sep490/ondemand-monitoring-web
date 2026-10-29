@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import { useState } from 'react'
+import { chooseSelectOption } from '../../../testUtils'
 import { PricingDraftEditor } from './PricingDraftEditor'
 import { newMediaRule } from '../../../lib/mediaPricingRules'
 import type { PricingPolicy } from '../../../types/pricing'
@@ -69,7 +70,7 @@ describe('PricingDraftEditor', () => {
     expect(setDraft.mock.calls[0][0].rules[0].fixedAmount).toBe(60000)
   })
 
-  it('shows only the fields needed by the selected calculation method', () => {
+  it('shows only the fields needed by the selected calculation method', async () => {
     const policy: PricingPolicy = {
       ...draft,
       rules: [
@@ -102,9 +103,7 @@ describe('PricingDraftEditor', () => {
     fireEvent.click(screen.getByRole('tab', { name: /Quy tắc nâng cao/ }))
     fireEvent.click(screen.getByRole('button', { name: 'Chỉnh sửa' }))
     expect(screen.getByLabelText('Kích thước khối')).toBeInTheDocument()
-    fireEvent.change(screen.getByLabelText('Cách tính'), {
-      target: { value: 'FIXED' },
-    })
+    await chooseSelectOption('Cách tính', 'Giá cố định')
     expect(screen.getByLabelText('Giá cố định')).toBeInTheDocument()
     expect(screen.queryByLabelText('Kích thước khối')).not.toBeInTheDocument()
   })

@@ -2,7 +2,7 @@ import { defineMessages } from '../../../../../shared/i18n'
 
 export const weightsPanelMessages = defineMessages({
   vi: {
-    droneSuggestion: 'gợi ý drone',
+    droneSuggestion: 'gợi ý thiết bị bay',
     pilotSuggestion: 'gợi ý phi công',
     emptyTitle: 'Chưa có trọng số',
     emptyDescription: 'Trọng số gợi ý sẽ hiển thị tại đây.',

@@ -1,10 +1,11 @@
+import { Tabs } from 'antd'
 import { useState } from 'react'
 
+import { PageHeader } from '../../../../shared/components/antd'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
 import { adminApi } from '../../api/adminApi'
-import { MockDataBadge } from '../../../../shared/components/ui'
-import { PageHeader } from '../../../../shared/components/ui'
+import { MockDataTag } from '../../components/common/MockDataTag'
 import { NoFlyZonesTab } from './components/NoFlyZonesTab'
 import { PolicyTab } from './components/PolicyTab'
 import { PricingPolicyTab } from './components/PricingPolicyTab'
@@ -40,32 +41,27 @@ export function OperatingConfigPage() {
   }
   const tabs: Array<{ key: Tab; label: string }> = [
     { key: 'policy', label: t.policyTab },
-    { key: 'pricing', label: 'Định giá' },
+    { key: 'pricing', label: t.pricingTab },
     { key: 'nfz', label: t.nfzTab },
   ]
 
   return (
-    <div>
-      <PageHeader
-        title={t.title}
-        subtitle={t.subtitle}
-        actions={<MockDataBadge />}
+    <div className="mgr-view">
+      <PageHeader title={t.title} description={t.subtitle} actions={<MockDataTag />} />
+      <Tabs
+        className="adm-tabs"
+        activeKey={tab}
+        onChange={(key) => setTab(key as Tab)}
+        items={tabs.map((item) => ({
+          key: item.key,
+          label: (
+            <span>
+              {item.label}
+              <span className="adm-tab-count">{counts[item.key]}</span>
+            </span>
+          ),
+        }))}
       />
-      <div className="adm-tabs" role="tablist">
-        {tabs.map((item) => (
-          <button
-            key={item.key}
-            type="button"
-            role="tab"
-            aria-selected={tab === item.key}
-            onClick={() => setTab(item.key)}
-            className={`adm-tab${tab === item.key ? ' is-active' : ''}`}
-          >
-            {item.label}
-            <span className="adm-tab-count odm-mono">{counts[item.key]}</span>
-          </button>
-        ))}
-      </div>
       {tab === 'policy' && <PolicyTab />}
       {tab === 'pricing' && <PricingPolicyTab />}
       {tab === 'nfz' && <NoFlyZonesTab />}

@@ -1,9 +1,12 @@
-import { useState, type FormEvent } from 'react'
+import { Alert, Form, Modal } from 'antd'
+import { useState } from 'react'
+
+import { mgrPopupContainer } from '../../../../../shared/components/antd'
 
 import { useI18n } from '../../../../../shared/i18n'
 import { adminApi } from '../../../api/adminApi'
-import { FormFooter } from '../../../../../shared/components/ui'
-import { Modal } from '../../../../../shared/components/ui'
+import { AdminFormFooter } from '../../../components/common/AdminFormFooter'
+import { onFormSubmit } from '../../../components/common/formSubmit'
 import type { NoFlyZone } from '../../../types/operatingConfig'
 import { toFormState, toPayload, type ZoneFormState } from './zoneForm'
 import { ZoneFormFields } from './ZoneFormFields'
@@ -22,8 +25,7 @@ export function ZoneModal({ zone, onClose, onSaved }: Props) {
   const [busy, setBusy] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault()
+  async function handleSubmit() {
     if (!form.name.trim()) {
       setErrors({ name: t.required })
       return
@@ -45,26 +47,28 @@ export function ZoneModal({ zone, onClose, onSaved }: Props) {
 
   return (
     <Modal
+      open
+      centered
+      getContainer={mgrPopupContainer}
       width={560}
-      icon="map-pin"
-      tone="warning"
       title={zone ? t.editTitle : t.addTitle}
-      subtitle={t.subtitle}
-      onClose={onClose}
-      footer={<FormFooter formId="adm-nfz-form" busy={busy} onClose={onClose} />}
+      onCancel={onClose}
+      footer={<AdminFormFooter formId="adm-nfz-form" busy={busy} onClose={onClose} />}
     >
-      <form id="adm-nfz-form" onSubmit={handleSubmit} noValidate>
+      <p className="mgr-modal-sub">{t.subtitle}</p>
+      <Form
+        id="adm-nfz-form"
+        layout="vertical"
+        onSubmitCapture={onFormSubmit(handleSubmit)}
+        noValidate
+      >
         <ZoneFormFields
           form={form}
           errors={errors}
           onChange={(patch) => setForm((prev) => ({ ...prev, ...patch }))}
         />
-        {submitError && (
-          <div role="alert" className="adm-alert is-danger">
-            {submitError}
-          </div>
-        )}
-      </form>
+        {submitError && <Alert type="error" showIcon role="alert" message={submitError} />}
+      </Form>
     </Modal>
   )
 }

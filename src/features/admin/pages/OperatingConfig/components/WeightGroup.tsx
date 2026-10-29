@@ -1,7 +1,8 @@
+import { Alert, Button, Slider, Typography } from 'antd'
 import { useEffect, useState } from 'react'
 
+import { CardComponent } from '../../../../../shared/components/antd'
 import { useI18n } from '../../../../../shared/i18n'
-import { Card } from '../../../../../shared/components/ui'
 import type { DispatchWeight } from '../../../types/operatingConfig'
 import { weightGroupMessages } from './WeightGroup.messages'
 
@@ -27,7 +28,7 @@ export function WeightGroup({ group, label, items, onSave }: Props) {
 
   const sum = Object.values(values).reduce((a, b) => a + b, 0)
   const isValid = sum === 100
-  const tone = isValid ? 'is-ok' : 'is-bad'
+  const tone = isValid ? 'success' : 'danger'
 
   async function handleSave() {
     if (!isValid) {
@@ -46,56 +47,45 @@ export function WeightGroup({ group, label, items, onSave }: Props) {
   }
 
   return (
-    <Card
+    <CardComponent
       title={t.groupTitle(label, group === 'DRONE' ? t.droneGroup : t.pilotGroup)}
     >
       {items.map((w) => (
         <div key={w.key} className="adm-weight-row">
           <span className="adm-weight-label adm-wrap">{w.label}</span>
-          <input
-            type="range"
+          <Slider
             min={0}
             max={100}
             step={5}
             aria-label={w.label}
+            tooltip={{ open: false }}
             value={values[w.key] ?? w.value}
-            onChange={(e) =>
-              setValues({ ...values, [w.key]: Number(e.target.value) })
-            }
+            onChange={(value) => setValues({ ...values, [w.key]: value })}
           />
-          <span className={`adm-weight-value ${tone}`}>
+          <Typography.Text type={tone} className="adm-weight-value">
             {values[w.key] ?? w.value}%
-          </span>
+          </Typography.Text>
         </div>
       ))}
       <div className="adm-weight-footer">
-        <span className={`adm-weight-total ${tone}`}>{t.total(sum, isValid)}</span>
+        <Typography.Text type={tone} strong className="adm-weight-total">
+          {t.total(sum, isValid)}
+        </Typography.Text>
         <div className="adm-row-actions">
-          <button
-            type="button"
-            className="odm-btn odm-btn-gh"
+          <Button
             onClick={() => {
               setValues(toValues(items))
               setError(null)
             }}
           >
             {t.resetDefault}
-          </button>
-          <button
-            type="button"
-            className="odm-btn odm-btn-p"
-            disabled={!isValid || saving}
-            onClick={handleSave}
-          >
+          </Button>
+          <Button type="primary" disabled={!isValid} loading={saving} onClick={handleSave}>
             {saving ? t.saving : t.save}
-          </button>
+          </Button>
         </div>
       </div>
-      {error && (
-        <div role="alert" className="adm-alert is-danger">
-          {error}
-        </div>
-      )}
-    </Card>
+      {error && <Alert type="error" showIcon role="alert" message={error} />}
+    </CardComponent>
   )
 }

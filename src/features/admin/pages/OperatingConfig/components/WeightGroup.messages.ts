@@ -4,7 +4,7 @@ export const weightGroupMessages = defineMessages({
   vi: {
     groupTitle: (label: string, group: string) =>
       `Trọng số ${label} (${group})`,
-    droneGroup: 'Drone',
+    droneGroup: 'Thiết bị bay',
     pilotGroup: 'Phi công',
     sumInvalid: (sum: number) =>
       `Tổng trọng số phải bằng 100%, hiện tại: ${sum}%.`,

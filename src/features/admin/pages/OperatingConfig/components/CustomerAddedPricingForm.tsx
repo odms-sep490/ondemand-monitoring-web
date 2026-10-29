@@ -2,6 +2,7 @@ import { defineMessages, useI18n } from '../../../../../shared/i18n'
 import { CUSTOM_PROFILE, newMediaRule } from '../../../lib/mediaPricingRules'
 import type { MediaPricingComponent, PricingRule } from '../../../types/pricing'
 import { MoneyInput, UnitInput } from './PricingInputs'
+import { pricingConfigMessages } from './pricingConfig.messages'
 
 const messages = defineMessages({
   vi: {
@@ -110,6 +111,7 @@ export function CustomerAddedPricingForm({
   disabled?: boolean
 }) {
   const { t } = useI18n(messages)
+  const { t: tp } = useI18n(pricingConfigMessages)
 
   function valueOf(field: Field): string {
     const index = find(rules, field.component)
@@ -149,27 +151,25 @@ export function CustomerAddedPricingForm({
     <section className="pricing-customer-added pricing-section" aria-label={t.title}>
       <header className="pricing-section-head">
         <div>
-          <span className="pricing-section-kicker">Cấu hình cơ bản</span>
+          <span className="pricing-section-kicker">{tp.kicker}</span>
           <h3>{t.title}</h3>
           <p>{t.hint}</p>
         </div>
       </header>
       <div className="pricing-basic-layout">
         <div className="pricing-subcard pricing-subcard-featured">
-          <h4>Giá cơ bản</h4>
+          <h4>{tp.basePriceTitle}</h4>
           {renderField(FIELDS[0])}
         </div>
         <div className="pricing-subcard">
-          <h4>Định mức đã bao gồm</h4>
-          <p className="pricing-helper">
-            Khách chỉ bị tính thêm khi yêu cầu vượt các số lượng này.
-          </p>
+          <h4>{tp.allowanceTitle}</h4>
+          <p className="pricing-helper">{tp.allowanceHint}</p>
           <div className="pricing-field-grid">
             {FIELDS.slice(1, 4).map(renderField)}
           </div>
         </div>
         <div className="pricing-subcard">
-          <h4>Chi phí vượt định mức</h4>
+          <h4>{tp.overageTitle}</h4>
           {renderField(FIELDS[4])}
         </div>
       </div>
@@ -192,10 +192,10 @@ export function CustomerAddedPricingForm({
     if (field.target === 'price') return <MoneyInput key={field.key} {...common} />
     const suffix =
       field.component === 'INCLUDED_IMAGE'
-        ? 'ảnh'
+        ? tp.nounImage
         : field.component === 'INCLUDED_VIDEO'
-          ? 'video'
-          : 'ha'
+          ? tp.nounVideo
+          : tp.unitHa
     return <UnitInput key={field.key} {...common} suffix={suffix} min={0} />
   }
 }

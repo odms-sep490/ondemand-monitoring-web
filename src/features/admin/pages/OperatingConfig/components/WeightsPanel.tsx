@@ -1,11 +1,12 @@
 import {
+  CardComponent,
+  EmptyState,
   ErrorState,
-  LoadingState,
-} from '../../../../../shared/components/odm/StateView'
+} from '../../../../../shared/components/antd'
 import { useApiQuery } from '../../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../../shared/i18n'
 import { adminApi } from '../../../api/adminApi'
-import { EmptyState } from '../../../../../shared/components/ui'
+import { AdminLoading } from '../../../components/common/AdminLoading'
 import { WeightGroup } from './WeightGroup'
 import { weightsPanelMessages } from './WeightsPanel.messages'
 
@@ -16,10 +17,14 @@ export function WeightsPanel() {
     [],
   )
 
-  if (loading && !data) return <LoadingState />
+  if (loading && !data) return <AdminLoading />
   if (!data) return <ErrorState error={error} onRetry={reload} />
   if (data.items.length === 0)
-    return <EmptyState title={t.emptyTitle} description={t.emptyDescription} />
+    return (
+      <CardComponent>
+        <EmptyState title={t.emptyTitle} description={t.emptyDescription} />
+      </CardComponent>
+    )
 
   async function saveGroup(
     group: 'DRONE' | 'OPERATOR',
@@ -30,7 +35,7 @@ export function WeightsPanel() {
   }
 
   return (
-    <div className="adm-stack is-tight">
+    <div className="mgr-view">
       <WeightGroup
         group="DRONE"
         label={t.droneSuggestion}

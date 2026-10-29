@@ -1,5 +1,8 @@
+import { Alert, Button, Input, Select, Switch, Tabs, Tag } from 'antd'
 import { useState } from 'react'
 
+import { CardComponent, mgrPopupContainer } from '../../../../../shared/components/antd'
+import { useI18n } from '../../../../../shared/i18n'
 import {
   pricingDescription,
   pricingLabel,
@@ -7,15 +10,17 @@ import {
 } from '../../../../../shared/lib/pricingPresentation'
 import { MediaPricingEditor } from './MediaPricingEditor'
 import { CustomerAddedPricingForm } from './CustomerAddedPricingForm'
-import { ISSUES, SharedMediaTiers } from './SharedMediaTiers'
+import { SharedMediaTiers } from './SharedMediaTiers'
 import { isMediaRule, validateMediaRules } from '../../../lib/mediaPricingRules'
 import type { PricingPolicy, PricingRule } from '../../../types/pricing'
 import { formatVnd } from '../../../../../shared/lib/formatVnd'
 import { MoneyInput, UnitInput } from './PricingInputs'
+import { pricingConfigMessages } from './pricingConfig.messages'
 import './pricingPolicyOverview.css'
 import './pricingDraftEditor.css'
 
 type Tab = 'common' | 'advanced'
+type Messages = (typeof pricingConfigMessages)['vi']
 
 /**
  * Edits a draft policy. What admins change most (limits, customer-added prices, the shared media price list) is on the
@@ -39,6 +44,7 @@ export function PricingDraftEditor({
   onPublish: () => void
   onCancel: () => void
 }) {
+  const { t } = useI18n(pricingConfigMessages)
   const [tab, setTab] = useState<Tab>('common')
   const [opened, setOpened] = useState<string[]>([])
   const [editingRule, setEditingRule] = useState<number | null>(null)
@@ -63,22 +69,46 @@ export function PricingDraftEditor({
     setOpened((current) =>
       current.includes('AREA') ? current : [...current, 'AREA'],
     )
-    setNewRule(blankRule(draft.rules.length))
+    setNewRule(blankRule(draft.rules.length, t.newRuleName))
   }
   function removeRule(index: number) {
     const rule = draft.rules[index]
-    if (
-      !window.confirm(
-        `Bạn có chắc muốn xóa quy tắc “${pricingDescription(rule.description)}”?`,
-      )
-    )
-      return
+    if (!window.confirm(t.deleteRuleConfirm(pricingDescription(rule.description)))) return
     setDraft({
       ...draft,
       rules: draft.rules
         .filter((_, i) => i !== index)
         .map((rule, priority) => ({ ...rule, priority })),
     })
+  }
+
+  const ruleRange = (rule: PricingRule) => {
+    if (rule.minValue == null && rule.maxValue == null) return ''
+    const unit = dimensionUnit(rule.category, t)
+    if (rule.maxValue == null) return t.rangeFromUp(rule.minValue ?? 0, unit)
+    return `${rule.minValue ?? 0}–${rule.maxValue} ${unit}`
+  }
+  const rulePrice = (rule: PricingRule) => {
+    if (['PER_BLOCK', 'TIERED_BLOCK'].includes(rule.calculationType))
+      return t.perBlock(
+        formatVnd(rule.fixedAmount ?? 0),
+        rule.unitSize ?? 1,
+        dimensionUnit(rule.category, t),
+      )
+    if (rule.calculationType === 'PERCENT_OF_BASE') return t.percentOfBase(rule.percentage ?? 0)
+    if (rule.calculationType === 'MULTIPLIER') return t.multiplierValue(rule.multiplier ?? 0)
+    if (rule.calculationType === 'MANUAL_QUOTE') return t.manualQuote
+    return formatVnd(rule.fixedAmount ?? rule.baseAmount ?? 0)
+  }
+  const roundingLabel = (rounding: PricingRule['roundingMode']) =>
+    rounding === 'FLOOR' ? t.roundDown : rounding === 'HALF_UP' ? t.roundNearest : t.roundUp
+  const categorySummary = (list: PricingRule[]) => {
+    const preview = list.slice(0, 2).map((rule) => {
+      const range = ruleRange(rule)
+      return `${range ? `${range}: ` : ''}${rulePrice(rule)}`
+    })
+    const remaining = list.length - preview.length
+    return `${preview.join(' · ')}${remaining > 0 ? t.andMore(remaining) : ''}`
   }
 
   const renderRule = (rule: PricingRule, index: number) => (
@@ -96,51 +126,46 @@ export function PricingDraftEditor({
         <>
           <div className="pricing-rule-card-head">
             <div>
-              <span className="pricing-rule-kind">
-                {pricingLabel(rule.calculationType)}
-              </span>
+              <span className="pricing-rule-kind">{pricingLabel(rule.calculationType)}</span>
               <h4>{pricingDescription(rule.description)}</h4>
               <code>{rule.ruleKey}</code>
             </div>
-            <span className={`pricing-rule-state${rule.enabled ? '' : ' is-off'}`}>
-              {rule.enabled ? 'Đang áp dụng' : 'Đã tắt'}
-            </span>
+            <Tag bordered={false} color={rule.enabled ? 'success' : 'default'}>
+              {rule.enabled ? t.ruleActive : t.ruleOff}
+            </Tag>
           </div>
           <dl className="pricing-rule-summary">
             {ruleRange(rule) && (
               <div>
-                <dt>Khoảng áp dụng</dt>
+                <dt>{t.ruleRange}</dt>
                 <dd>{ruleRange(rule)}</dd>
               </div>
             )}
             <div>
-              <dt>Cách tính</dt>
+              <dt>{t.ruleCalc}</dt>
               <dd>{rulePrice(rule)}</dd>
             </div>
             {isDimensionBlockRule(rule) && (
               <div>
-                <dt>Làm tròn</dt>
+                <dt>{t.ruleRounding}</dt>
                 <dd>{roundingLabel(rule.roundingMode)}</dd>
               </div>
             )}
           </dl>
           <div className="pricing-card-actions">
-            <button
-              className="odm-btn odm-btn-sm"
-              type="button"
-              onClick={() => setEditingRule(index)}
-            >
-              Chỉnh sửa
-            </button>
-            <button
-              className="pricing-icon-button is-danger"
-              type="button"
-              aria-label={`Xóa quy tắc ${pricingDescription(rule.description)}`}
-              title="Xóa quy tắc"
+            <Button size="small" onClick={() => setEditingRule(index)}>
+              {t.edit}
+            </Button>
+            <Button
+              size="small"
+              danger
+              type="text"
+              aria-label={t.deleteRuleNamed(pricingDescription(rule.description))}
+              title={t.deleteRule}
               onClick={() => removeRule(index)}
             >
               ×
-            </button>
+            </Button>
           </div>
         </>
       )}
@@ -152,32 +177,162 @@ export function PricingDraftEditor({
       category,
       items: rules
         .map((rule, index) => ({ rule, index }))
-        .filter(
-          (entry) =>
-            !isMediaRule(entry.rule) && entry.rule.category === category,
-        ),
+        .filter((entry) => !isMediaRule(entry.rule) && entry.rule.category === category),
     }))
     .filter((group) => group.items.length > 0)
 
   const actions = (
     <div className="ppd-actions">
-      <button className="odm-btn" disabled={busy} onClick={onCancel}>
-        {dirty ? 'Hủy thay đổi' : 'Đóng'}
-      </button>
-      <button
-        className="odm-btn"
-        disabled={busy || !canSubmit}
-        onClick={onSave}
-      >
-        Lưu bản nháp
-      </button>
-      <button
-        className="odm-btn odm-btn-p"
-        disabled={busy || !canSubmit}
-        onClick={onPublish}
-      >
-        Áp dụng
-      </button>
+      <Button disabled={busy} onClick={onCancel}>
+        {dirty ? t.discard : t.close}
+      </Button>
+      <Button disabled={busy || !canSubmit} onClick={onSave}>
+        {t.saveDraft}
+      </Button>
+      <Button type="primary" disabled={busy || !canSubmit} onClick={onPublish}>
+        {t.publish}
+      </Button>
+    </div>
+  )
+
+  const commonPage = (
+    <div className="ppd-page" role="tabpanel">
+      <label className="ppd-name">
+        {t.policyName}
+        <Input
+          value={pricingPolicyName(draft.name)}
+          onChange={(e) => setDraft({ ...draft, name: e.target.value })}
+        />
+      </label>
+
+      <CardComponent aria-label={t.guardrails}>
+        <h3>{t.guardrails}</h3>
+        <p className="ppo-hint">{t.guardrailsHint}</p>
+        <div className="pricing-policy-guardrails">
+          <NumberField
+            label={t.fieldMaxDiscount}
+            value={draft.managerMaxDiscountPercent}
+            onChange={(v) => {
+              const percent = Math.min(100, Math.max(0, v))
+              // The lowest price a Manager may reach is the system price less this discount, so the ratio follows it.
+              setDraft({
+                ...draft,
+                managerMaxDiscountPercent: percent,
+                minimumPriceRatio: Math.round((100 - percent) * 100) / 10000,
+              })
+            }}
+          />
+          <NumberField
+            label={t.fieldMaxMarkup}
+            value={draft.managerMaxMarkupPercent}
+            onChange={(v) => setDraft({ ...draft, managerMaxMarkupPercent: v })}
+          />
+          <NumberField
+            label={t.fieldHighRisk}
+            value={draft.highRiskDiscountPercent}
+            onChange={(v) => setDraft({ ...draft, highRiskDiscountPercent: v })}
+          />
+          <NumberField
+            label={t.fieldFloorPrice}
+            value={draft.minimumPrice}
+            onChange={(v) => setDraft({ ...draft, minimumPrice: v })}
+          />
+        </div>
+        <p className="ppo-hint">
+          {t.guardrailsNote(Math.round(draft.minimumPriceRatio * 10000) / 100)}
+        </p>
+        {!guardrailsValid && (
+          <Alert type="error" showIcon role="alert" message={t.guardrailsInvalid} />
+        )}
+      </CardComponent>
+
+      <CustomerAddedPricingForm
+        rules={draft.rules}
+        onChange={(next) => setDraft({ ...draft, rules: next })}
+      />
+
+      <CardComponent aria-label={t.sharedTiersSection}>
+        <h3>{t.sharedTiersSection}</h3>
+        <p className="ppo-hint">{t.sharedTiersDraftHint}</p>
+        <SharedMediaTiers
+          rules={draft.rules}
+          onChange={(next) => setDraft({ ...draft, rules: next })}
+        />
+      </CardComponent>
+    </div>
+  )
+
+  const advancedPage = (
+    <div className="ppd-page" role="tabpanel">
+      <p className="ppo-hint">{t.advancedHint}</p>
+      <div className="adm-card-head">
+        <h3>{t.pricingRules}</h3>
+        <Button onClick={addRule}>{t.addRule}</Button>
+      </div>
+      {newRule && (
+        <section className="pricing-new-rule" aria-label={t.createRuleSection}>
+          <header>
+            <div>
+              <span className="pricing-section-kicker">{t.newRuleKicker}</span>
+              <h3>{t.createRuleSection}</h3>
+            </div>
+          </header>
+          <PricingRuleEditor
+            rule={newRule}
+            onChange={(changes) =>
+              setNewRule((current) => (current ? { ...current, ...changes } : current))
+            }
+            onDone={() => {
+              setDraft({ ...draft, rules: [...draft.rules, newRule] })
+              setNewRule(null)
+            }}
+            onCancel={() => setNewRule(null)}
+            create
+          />
+        </section>
+      )}
+      {groups.length === 0 && <p className="ppo-empty">{t.noRules}</p>}
+      {groups.map((group) => (
+        <details
+          key={group.category}
+          className="ppd-group"
+          open={opened.includes(group.category)}
+          onToggle={(event) => {
+            const isOpen = (event.currentTarget as HTMLDetailsElement).open
+            setOpened((current) =>
+              isOpen
+                ? current.includes(group.category)
+                  ? current
+                  : [...current, group.category]
+                : current.filter((key) => key !== group.category),
+            )
+          }}
+        >
+          <summary>
+            <span className="pricing-group-heading">
+              <strong>{pricingLabel(group.category)}</strong>
+              <Tag bordered={false}>{t.ruleCount(group.items.length)}</Tag>
+            </span>
+            <span className="pricing-group-preview">
+              {categorySummary(group.items.map((entry) => entry.rule))}
+            </span>
+          </summary>
+          <div className="ppd-group-body pricing-rule-cards">
+            {group.items.map((entry) => renderRule(entry.rule, entry.index))}
+          </div>
+        </details>
+      ))}
+      <details className="ppd-group">
+        <summary>{t.advancedMedia}</summary>
+        <div className="ppd-group-body">
+          <MediaPricingEditor
+            rules={draft.rules}
+            draftId={draft.id}
+            onChange={(next) => setDraft({ ...draft, rules: next })}
+            showCustomerForm={false}
+          />
+        </div>
+      </details>
     </div>
   )
 
@@ -185,239 +340,57 @@ export function PricingDraftEditor({
     <div className="ppd">
       <div className="ppd-bar">
         <div>
-          <span className="ppo-eyebrow is-draft">Bản nháp</span>
-          <h3>Chính sách giá v{draft.version}</h3>
-          <p>Thiết lập giá áp dụng cho yêu cầu và giới hạn điều chỉnh của Manager.</p>
-          {dirty && <span className="pricing-dirty">Có thay đổi chưa lưu</span>}
+          <span className="ppo-eyebrow is-draft">{t.draftBadge}</span>
+          <h3>{t.draftTitle(draft.version)}</h3>
+          <p>{t.draftIntro}</p>
+          {dirty && <Tag color="warning">{t.unsaved}</Tag>}
         </div>
         {actions}
       </div>
       {!mediaValid && (
-        <div role="alert" className="ppd-warning">
-          <p>
-            Có bậc giá ảnh/video chưa hợp lệ. Sửa các lỗi dưới đây trước khi lưu
-            hoặc phát hành:
-          </p>
-          <ul>
-            {problems.map((problem) => {
-              const rule = draft.rules[problem.index]
-              return (
-                <li key={`${problem.index}-${problem.issue}`}>
-                  <b>
-                    {rule.pricingProfile ?? '?'} · {rule.mediaComponent ?? '?'}
-                    {rule.checklistDefinitionName
-                      ? ` · ${rule.checklistDefinitionName}`
-                      : ''}{' '}
-                    ({rule.minValue ?? 0}–{rule.maxValue ?? '∞'})
-                  </b>
-                  : {ISSUES[problem.issue] ?? problem.issue}
-                </li>
-              )
-            })}
-          </ul>
-          <button
-            type="button"
-            className="odm-btn odm-btn-sm"
-            onClick={() => setTab('advanced')}
-          >
-            Mở Quy tắc nâng cao để sửa
-          </button>
-        </div>
-      )}
-
-      <div className="adm-tabs" role="tablist">
-        {(
-          [
-            ['common', 'Cấu hình cơ bản'],
-            ['advanced', `Quy tắc nâng cao (${ordinary.length})`],
-          ] as const
-        ).map(([key, label]) => (
-          <button
-            key={key}
-            type="button"
-            role="tab"
-            aria-selected={tab === key}
-            className={`adm-tab${tab === key ? ' is-active' : ''}`}
-            onClick={() => setTab(key)}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-
-      {tab === 'common' && (
-        <div className="ppd-page" role="tabpanel">
-          <label className="ppd-name">
-            Tên chính sách
-            <input
-              value={pricingPolicyName(draft.name)}
-              onChange={(e) => setDraft({ ...draft, name: e.target.value })}
-            />
-          </label>
-
-          <section className="ppo-card" aria-label="Giới hạn điều chỉnh giá">
-            <h3>Giới hạn điều chỉnh giá</h3>
-            <p className="ppo-hint">
-              Mức Manager được phép giảm hoặc tăng so với giá hệ thống.
-            </p>
-            <div className="pricing-policy-guardrails">
-              <NumberField
-                label="Giảm giá tối đa (%)"
-                value={draft.managerMaxDiscountPercent}
-                onChange={(v) => {
-                  const percent = Math.min(100, Math.max(0, v))
-                  // The lowest price a Manager may reach is the system price less this discount, so the ratio follows it.
-                  setDraft({
-                    ...draft,
-                    managerMaxDiscountPercent: percent,
-                    minimumPriceRatio:
-                      Math.round((100 - percent) * 100) / 10000,
-                  })
-                }}
-              />
-              <NumberField
-                label="Mức tăng giá tối đa (%)"
-                value={draft.managerMaxMarkupPercent}
-                onChange={(v) =>
-                  setDraft({ ...draft, managerMaxMarkupPercent: v })
-                }
-              />
-              <NumberField
-                label="Ngưỡng rủi ro cao (%)"
-                value={draft.highRiskDiscountPercent}
-                onChange={(v) =>
-                  setDraft({ ...draft, highRiskDiscountPercent: v })
-                }
-              />
-              <NumberField
-                label="Giá sàn (VND)"
-                value={draft.minimumPrice}
-                onChange={(v) => setDraft({ ...draft, minimumPrice: v })}
-              />
-            </div>
-            <p className="ppo-hint">
-              Giá sau điều chỉnh không được thấp hơn{' '}
-              {Math.round(draft.minimumPriceRatio * 10000) / 100}% giá hệ thống
-              (tính từ mức giảm tối đa) và không thấp hơn giá sàn tuyệt đối.
-              Giảm từ ngưỡng rủi ro cao trở lên sẽ được gắn cờ.
-            </p>
-            {!guardrailsValid && (
-              <p role="alert" className="ppd-issues">
-                Ngưỡng rủi ro cao không được lớn hơn mức giảm giá tối đa.
-              </p>
-            )}
-          </section>
-
-          <CustomerAddedPricingForm
-            rules={draft.rules}
-            onChange={(next) => setDraft({ ...draft, rules: next })}
-          />
-
-          <section
-            className="ppo-card"
-            aria-label="Bảng giá ảnh và video dùng chung"
-          >
-            <h3>Bảng giá ảnh và video dùng chung</h3>
-            <p className="ppo-hint">
-              Giá ảnh/video vượt định mức, áp dụng cho mọi checklist kể cả yêu
-              cầu bổ sung. Số lượng vượt = max(0, số yêu cầu − số đã bao gồm).
-            </p>
-            <SharedMediaTiers
-              rules={draft.rules}
-              onChange={(next) => setDraft({ ...draft, rules: next })}
-            />
-          </section>
-        </div>
-      )}
-
-      {tab === 'advanced' && (
-        <div className="ppd-page" role="tabpanel">
-          <p className="ppo-hint">
-            Dành cho người quản trị có kinh nghiệm. Cấu hình cơ bản đã đủ cho
-            hầu hết nhu cầu vận hành.
-          </p>
-          <div className="adm-card-head">
-            <h3>Quy tắc tính giá</h3>
-            <button className="odm-btn" type="button" onClick={addRule}>
-              + Thêm quy tắc
-            </button>
-          </div>
-          {newRule && (
-            <section className="pricing-new-rule" aria-label="Tạo quy tắc giá">
-              <header>
-                <div>
-                  <span className="pricing-section-kicker">Quy tắc mới</span>
-                  <h3>Tạo quy tắc giá</h3>
-                </div>
-              </header>
-              <PricingRuleEditor
-                rule={newRule}
-                onChange={(changes) =>
-                  setNewRule((current) =>
-                    current ? { ...current, ...changes } : current,
+        <Alert
+          type="warning"
+          showIcon
+          role="alert"
+          className="ppd-warning"
+          message={t.mediaInvalid}
+          description={
+            <>
+              <ul>
+                {problems.map((problem) => {
+                  const rule = draft.rules[problem.index]
+                  return (
+                    <li key={`${problem.index}-${problem.issue}`}>
+                      <b>
+                        {rule.pricingProfile ?? '?'} · {rule.mediaComponent ?? '?'}
+                        {rule.checklistDefinitionName ? ` · ${rule.checklistDefinitionName}` : ''}{' '}
+                        ({rule.minValue ?? 0}–{rule.maxValue ?? '∞'})
+                      </b>
+                      : {t.issues[problem.issue] ?? problem.issue}
+                    </li>
                   )
-                }
-                onDone={() => {
-                  setDraft({ ...draft, rules: [...draft.rules, newRule] })
-                  setNewRule(null)
-                }}
-                onCancel={() => setNewRule(null)}
-                create
-              />
-            </section>
-          )}
-          {groups.length === 0 && (
-            <p className="ppo-empty">Chưa có quy tắc nào.</p>
-          )}
-          {groups.map((group) => (
-            <details
-              key={group.category}
-              className="ppd-group"
-              open={opened.includes(group.category)}
-              onToggle={(event) => {
-                const isOpen = (event.currentTarget as HTMLDetailsElement).open
-                setOpened((current) =>
-                  isOpen
-                    ? current.includes(group.category)
-                      ? current
-                      : [...current, group.category]
-                    : current.filter((key) => key !== group.category),
-                )
-              }}
-            >
-              <summary>
-                <span className="pricing-group-heading">
-                  <strong>{pricingLabel(group.category)}</strong>
-                  <span className="ppd-count">
-                    {group.items.length} quy tắc
-                  </span>
-                </span>
-                <span className="pricing-group-preview">
-                  {categorySummary(group.items.map((entry) => entry.rule))}
-                </span>
-              </summary>
-              <div className="ppd-group-body pricing-rule-cards">
-                {group.items.map((entry) =>
-                  renderRule(entry.rule, entry.index),
-                )}
-              </div>
-            </details>
-          ))}
-          <details className="ppd-group">
-            <summary>
-              Giá ảnh/video nâng cao (hồ sơ giá, giá riêng cho từng checklist)
-            </summary>
-            <div className="ppd-group-body">
-              <MediaPricingEditor
-                rules={draft.rules}
-                draftId={draft.id}
-                onChange={(next) => setDraft({ ...draft, rules: next })}
-                showCustomerForm={false}
-              />
-            </div>
-          </details>
-        </div>
+                })}
+              </ul>
+              <Button size="small" onClick={() => setTab('advanced')}>
+                {t.openAdvanced}
+              </Button>
+            </>
+          }
+        />
       )}
+
+      <Tabs
+        className="adm-tabs"
+        activeKey={tab}
+        onChange={(key) => setTab(key as Tab)}
+        items={[
+          { key: 'common', label: t.tabBasic },
+          { key: 'advanced', label: t.tabAdvanced(ordinary.length) },
+        ]}
+      />
+
+      {tab === 'common' && commonPage}
+      {tab === 'advanced' && advancedPage}
       <div className="ppd-foot">{actions}</div>
     </div>
   )
@@ -435,11 +408,7 @@ function NumberField({
   return (
     <label>
       <span>{label}</span>
-      <input
-        type="number"
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-      />
+      <Input type="number" value={value} onChange={(e) => onChange(Number(e.target.value))} />
     </label>
   )
 }
@@ -457,85 +426,71 @@ function PricingRuleEditor({
   onCancel?: () => void
   create?: boolean
 }) {
+  const { t } = useI18n(pricingConfigMessages)
   const block = ['PER_BLOCK', 'TIERED_BLOCK'].includes(rule.calculationType)
-  const fixed = ['FIXED', 'PER_UNIT', 'PER_BLOCK', 'TIERED_BLOCK'].includes(
-    rule.calculationType,
-  )
+  const fixed = ['FIXED', 'PER_UNIT', 'PER_BLOCK', 'TIERED_BLOCK'].includes(rule.calculationType)
   const percentage = rule.calculationType === 'PERCENT_OF_BASE'
-  const multiplier = ['MULTIPLIER', 'RESOURCE_BASED', 'ACTUAL_COST'].includes(
-    rule.calculationType,
-  )
+  const multiplier = ['MULTIPLIER', 'RESOURCE_BASED', 'ACTUAL_COST'].includes(rule.calculationType)
+  const unit = dimensionUnit(rule.category, t)
   return (
     <div className="pricing-rule-editor">
       <fieldset>
-        <legend>Thông tin chung</legend>
+        <legend>{t.general}</legend>
         <div className="pricing-field-grid">
-          <label className="pricing-field">
-            <span className="pricing-field-label">Nhóm giá</span>
-            <select
-              aria-label="Nhóm giá"
+          <div className="pricing-field">
+            <span className="pricing-field-label">{t.category}</span>
+            <Select<PricingRule['category']>
+              aria-label={t.category}
               value={rule.category}
-              onChange={(event) =>
+              getPopupContainer={mgrPopupContainer}
+              onChange={(category) =>
                 onChange({
-                  category: event.target.value as PricingRule['category'],
-                  roundingMode: ['AREA', 'DISTANCE', 'ALTITUDE'].includes(
-                    event.target.value,
-                  )
+                  category,
+                  roundingMode: ['AREA', 'DISTANCE', 'ALTITUDE'].includes(category)
                     ? (rule.roundingMode ?? 'CEILING')
                     : null,
                 })
               }
-            >
-              {categories.map((category) => (
-                <option key={category} value={category}>
-                  {pricingLabel(category)}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="pricing-field">
-            <span className="pricing-field-label">Cách tính</span>
-            <select
-              aria-label="Cách tính"
+              options={categories.map((category) => ({
+                value: category,
+                label: pricingLabel(category),
+              }))}
+            />
+          </div>
+          <div className="pricing-field">
+            <span className="pricing-field-label">{t.calculation}</span>
+            <Select<PricingRule['calculationType']>
+              aria-label={t.calculation}
               value={rule.calculationType}
-              onChange={(event) => {
-                const calculationType = event.target
-                  .value as PricingRule['calculationType']
-                const nextBlock = ['PER_BLOCK', 'TIERED_BLOCK'].includes(
-                  calculationType,
-                )
+              getPopupContainer={mgrPopupContainer}
+              onChange={(calculationType) => {
+                const nextBlock = ['PER_BLOCK', 'TIERED_BLOCK'].includes(calculationType)
                 onChange({
                   calculationType,
                   unitSize: nextBlock ? (rule.unitSize ?? 1) : null,
-                  roundingMode: nextBlock
-                    ? (rule.roundingMode ?? 'CEILING')
-                    : null,
+                  roundingMode: nextBlock ? (rule.roundingMode ?? 'CEILING') : null,
                 })
               }}
-            >
-              {calculationTypes.map((type) => (
-                <option key={type} value={type}>
-                  {pricingLabel(type)}
-                </option>
-              ))}
-            </select>
-          </label>
+              options={calculationTypes.map((type) => ({
+                value: type,
+                label: pricingLabel(type),
+              }))}
+            />
+          </div>
           <label className="pricing-field">
-            <span className="pricing-field-label">Mã quy tắc</span>
-            <input
-              aria-label="Mã quy tắc"
+            <span className="pricing-field-label">{t.ruleKey}</span>
+            <Input
+              aria-label={t.ruleKey}
               value={rule.ruleKey}
               onChange={(event) => onChange({ ruleKey: event.target.value })}
             />
           </label>
           <label className="pricing-field pricing-field-wide">
-            <span className="pricing-field-label">Tên quy tắc</span>
-            <input
-              aria-label="Tên quy tắc"
+            <span className="pricing-field-label">{t.ruleName}</span>
+            <Input
+              aria-label={t.ruleName}
               value={pricingDescription(rule.description)}
-              onChange={(event) =>
-                onChange({ description: event.target.value })
-              }
+              onChange={(event) => onChange({ description: event.target.value })}
             />
           </label>
         </div>
@@ -543,20 +498,20 @@ function PricingRuleEditor({
 
       {(block || rule.minValue != null || rule.maxValue != null) && (
         <fieldset>
-          <legend>Khoảng áp dụng</legend>
+          <legend>{t.rangeSection}</legend>
           <div className="pricing-field-grid">
             <UnitInput
-              label="Giá trị từ"
-              suffix={dimensionUnit(rule.category)}
+              label={t.valueFrom}
+              suffix={unit}
               value={rule.minValue}
               onChange={(value) => onChange({ minValue: value })}
             />
             <UnitInput
-              label="Giá trị đến"
-              suffix={dimensionUnit(rule.category)}
+              label={t.valueTo}
+              suffix={unit}
               value={rule.maxValue}
               onChange={(value) => onChange({ maxValue: value })}
-              helper="Để trống nếu không có giới hạn trên."
+              helper={t.noUpperLimit}
             />
           </div>
         </fieldset>
@@ -564,28 +519,28 @@ function PricingRuleEditor({
 
       {rule.calculationType !== 'MANUAL_QUOTE' && (
         <fieldset>
-          <legend>Cách tính giá</legend>
+          <legend>{t.pricingSection}</legend>
           <div className="pricing-field-grid">
             {block && (
               <UnitInput
-                label="Kích thước khối"
-                suffix={dimensionUnit(rule.category)}
+                label={t.blockSize}
+                suffix={unit}
                 min={1}
                 value={rule.unitSize}
                 onChange={(value) => onChange({ unitSize: value })}
-                helper="Số lượng được tính thành một đơn vị giá."
+                helper={t.blockSizeHint}
               />
             )}
             {fixed && (
               <MoneyInput
-                label={block ? 'Giá mỗi khối' : 'Giá cố định'}
+                label={block ? t.pricePerBlock : t.fixedPrice}
                 value={rule.fixedAmount}
                 onChange={(value) => onChange({ fixedAmount: value })}
               />
             )}
             {percentage && (
               <UnitInput
-                label="Tỷ lệ phần trăm"
+                label={t.percentage}
                 suffix="%"
                 value={rule.percentage}
                 onChange={(value) => onChange({ percentage: value })}
@@ -593,31 +548,28 @@ function PricingRuleEditor({
             )}
             {multiplier && (
               <UnitInput
-                label="Hệ số"
-                suffix="lần"
+                label={t.multiplier}
+                suffix={t.times}
                 step={0.01}
                 value={rule.multiplier}
                 onChange={(value) => onChange({ multiplier: value })}
               />
             )}
             {block && isDimensionBlockRule(rule) && (
-              <label className="pricing-field">
-                <span className="pricing-field-label">Làm tròn</span>
-                <select
-                  aria-label="Làm tròn"
+              <div className="pricing-field">
+                <span className="pricing-field-label">{t.ruleRounding}</span>
+                <Select<NonNullable<PricingRule['roundingMode']>>
+                  aria-label={t.ruleRounding}
                   value={rule.roundingMode ?? 'CEILING'}
-                  onChange={(event) =>
-                    onChange({
-                      roundingMode: event.target
-                        .value as PricingRule['roundingMode'],
-                    })
-                  }
-                >
-                  <option value="CEILING">Làm tròn lên</option>
-                  <option value="FLOOR">Làm tròn xuống</option>
-                  <option value="HALF_UP">Làm tròn gần nhất</option>
-                </select>
-              </label>
+                  getPopupContainer={mgrPopupContainer}
+                  onChange={(roundingMode) => onChange({ roundingMode })}
+                  options={[
+                    { value: 'CEILING', label: t.roundUp },
+                    { value: 'FLOOR', label: t.roundDown },
+                    { value: 'HALF_UP', label: t.roundNearest },
+                  ]}
+                />
+              </div>
             )}
           </div>
         </fieldset>
@@ -625,35 +577,26 @@ function PricingRuleEditor({
 
       <div className="pricing-rule-editor-footer">
         <label className="pricing-switch">
-          <input
-            type="checkbox"
-            checked={rule.enabled}
-            onChange={(event) => onChange({ enabled: event.target.checked })}
-          />
-          <span aria-hidden="true" />
-          Đang áp dụng
+          <Switch checked={rule.enabled} onChange={(enabled) => onChange({ enabled })} />
+          {t.ruleActive}
         </label>
         <div className="pricing-card-actions">
-          {onCancel && (
-            <button type="button" className="odm-btn" onClick={onCancel}>
-              Hủy
-            </button>
-          )}
-          <button type="button" className="odm-btn odm-btn-p" onClick={onDone}>
-            {create ? 'Thêm quy tắc' : 'Xong'}
-          </button>
+          {onCancel && <Button onClick={onCancel}>{t.cancel}</Button>}
+          <Button type="primary" onClick={onDone}>
+            {create ? t.addRuleConfirm : t.done}
+          </Button>
         </div>
       </div>
     </div>
   )
 }
 
-function blankRule(priority: number): PricingRule {
+function blankRule(priority: number, description: string): PricingRule {
   return {
     category: 'AREA',
     calculationType: 'PER_BLOCK',
     ruleKey: `NEW_RULE_${priority + 1}`,
-    description: 'Quy tắc mới',
+    description,
     minValue: 0,
     maxValue: null,
     fixedAmount: 0,
@@ -667,44 +610,11 @@ function blankRule(priority: number): PricingRule {
   }
 }
 
-function ruleRange(rule: PricingRule) {
-  if (rule.minValue == null && rule.maxValue == null) return ''
-  const unit = dimensionUnit(rule.category)
-  if (rule.maxValue == null) return `Từ ${rule.minValue ?? 0} ${unit} trở lên`
-  return `${rule.minValue ?? 0}–${rule.maxValue} ${unit}`
-}
-
-function rulePrice(rule: PricingRule) {
-  if (['PER_BLOCK', 'TIERED_BLOCK'].includes(rule.calculationType))
-    return `${formatVnd(rule.fixedAmount ?? 0)} / mỗi ${rule.unitSize ?? 1} ${dimensionUnit(rule.category)}`
-  if (rule.calculationType === 'PERCENT_OF_BASE')
-    return `${rule.percentage ?? 0}% giá cơ sở`
-  if (rule.calculationType === 'MULTIPLIER')
-    return `Hệ số ${rule.multiplier ?? 0}`
-  if (rule.calculationType === 'MANUAL_QUOTE') return 'Báo giá thủ công'
-  return formatVnd(rule.fixedAmount ?? rule.baseAmount ?? 0)
-}
-
-function categorySummary(rules: PricingRule[]) {
-  const preview = rules.slice(0, 2).map((rule) => {
-    const range = ruleRange(rule)
-    return `${range ? `${range}: ` : ''}${rulePrice(rule)}`
-  })
-  const remaining = rules.length - preview.length
-  return `${preview.join(' · ')}${remaining > 0 ? ` · và ${remaining} quy tắc khác` : ''}`
-}
-
-function dimensionUnit(category: PricingRule['category']) {
+function dimensionUnit(category: PricingRule['category'], t: Messages) {
   if (category === 'AREA') return 'ha'
   if (category === 'DISTANCE') return 'km'
   if (category === 'ALTITUDE') return 'm'
-  return 'đơn vị'
-}
-
-function roundingLabel(rounding: PricingRule['roundingMode']) {
-  if (rounding === 'FLOOR') return 'Làm tròn xuống'
-  if (rounding === 'HALF_UP') return 'Làm tròn gần nhất'
-  return 'Làm tròn lên'
+  return t.unitGeneric
 }
 
 const categories: PricingRule['category'][] = [

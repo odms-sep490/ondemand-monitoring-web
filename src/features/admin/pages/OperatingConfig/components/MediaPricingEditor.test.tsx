@@ -7,6 +7,7 @@ import {
   within,
 } from '@testing-library/react'
 import { useState } from 'react'
+import { chooseSelectOption } from '../../../testUtils'
 import { MediaPricingEditor } from './MediaPricingEditor'
 import { PricingPolicyTab } from './PricingPolicyTab'
 import { adminApi } from '../../../api/adminApi'
@@ -112,7 +113,7 @@ describe('MediaPricingEditor', () => {
     expect(seen.at(-1)![0]).toMatchObject({ fixedAmount: 45_000, unitSize: 5 })
   })
 
-  it('adds a continuing tier for a profile and removes a rule', () => {
+  it('adds a continuing tier for a profile and removes a rule', async () => {
     const seen: PricingRule[][] = []
     render(
       <Harness initial={[tier(0, 10, 50_000)]} onRules={(r) => seen.push(r)} />,
@@ -120,9 +121,7 @@ describe('MediaPricingEditor', () => {
     fireEvent.change(screen.getByPlaceholderText('Tên hồ sơ giá mới'), {
       target: { value: 'standard' },
     })
-    fireEvent.change(screen.getByLabelText('Thành phần'), {
-      target: { value: 'EXTRA_IMAGE' },
-    })
+    await chooseSelectOption('Thành phần', 'Ảnh bổ sung')
     fireEvent.click(screen.getByRole('button', { name: 'Thêm quy tắc' }))
     expect(seen.at(-1)).toHaveLength(2)
     expect(seen.at(-1)![1]).toMatchObject({
@@ -145,14 +144,14 @@ describe('MediaPricingEditor', () => {
     const seen: PricingRule[][] = []
     render(<Harness initial={[]} onRules={(rules) => seen.push(rules)} />)
 
-    fireEvent.change(await screen.findByLabelText('Checklist áp dụng'), {
-      target: { value: 'checklist-x' },
-    })
+    await screen.findByRole('combobox', { name: 'Checklist áp dụng' })
+    await chooseSelectOption(
+      'Checklist áp dụng',
+      'Kiểm tra tình trạng tổng thể công trình',
+    )
     expect(screen.getByText(/Giá cơ bản: 100\.000 VND/)).toBeInTheDocument()
     expect(screen.getByText(/Đã bao gồm: 1 ảnh · 1 video/)).toBeInTheDocument()
-    fireEvent.change(screen.getByLabelText('Thành phần'), {
-      target: { value: 'EXTRA_IMAGE' },
-    })
+    await chooseSelectOption('Thành phần', 'Ảnh bổ sung')
     fireEvent.click(screen.getByRole('button', { name: 'Thêm quy tắc' }))
 
     expect(seen.at(-1)?.at(-1)).toMatchObject({
@@ -183,7 +182,7 @@ describe('MediaPricingEditor', () => {
         quotePending: false,
       })
     render(<Harness initial={[tier(0, null, 50_000)]} />)
-    await screen.findByRole('option', { name: 'Dịch vụ test' })
+    await screen.findByText('Dịch vụ test')
     fireEvent.click(screen.getByRole('button', { name: 'Xem thử' }))
     await waitFor(() =>
       expect(adminPreview).toHaveBeenCalledWith({
@@ -312,12 +311,8 @@ describe('PricingPolicyTab with MEDIA rules', () => {
     fireEvent.change(screen.getByLabelText('Mã quy tắc'), {
       target: { value: 'AREA_EXTRA' },
     })
-    fireEvent.change(screen.getByLabelText('Cách tính'), {
-      target: { value: 'FIXED' },
-    })
-    fireEvent.change(screen.getByLabelText('Cách tính'), {
-      target: { value: 'PER_BLOCK' },
-    })
+    await chooseSelectOption('Cách tính', 'Giá cố định')
+    await chooseSelectOption('Cách tính', 'Theo khối')
     fireEvent.change(screen.getByLabelText('Giá trị đến'), {
       target: { value: '100' },
     })

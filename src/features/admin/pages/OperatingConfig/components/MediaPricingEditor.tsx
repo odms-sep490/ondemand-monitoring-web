@@ -1,4 +1,7 @@
+import { Button, Checkbox, Input, Select } from 'antd'
 import { useEffect, useState } from 'react'
+
+import { mgrPopupContainer } from '../../../../../shared/components/antd'
 
 import { useApiQuery } from '../../../../../shared/hooks/useApiQuery'
 import { defineMessages, useI18n } from '../../../../../shared/i18n'
@@ -89,6 +92,11 @@ const messages = defineMessages({
     previewButton: 'Xem thử',
     previewHint: 'Lưu bản nháp trước; bản xem thử dùng đúng bản nháp đã lưu.',
     previewError: 'Không thể xem thử giá.',
+    imagesShort: 'ảnh',
+    videosShort: 'video',
+    extraImageLine: 'Ảnh bổ sung',
+    extraVideoLine: 'Video bổ sung',
+    vnd: 'VND',
   },
   en: {
     title: 'Shared media price list',
@@ -152,6 +160,11 @@ const messages = defineMessages({
     previewButton: 'Preview',
     previewHint: 'Save the draft first; the preview uses the saved draft.',
     previewError: 'Unable to preview the price.',
+    imagesShort: 'images',
+    videosShort: 'videos',
+    extraImageLine: 'Extra images',
+    extraVideoLine: 'Extra videos',
+    vnd: 'VND',
   },
 })
 
@@ -166,7 +179,7 @@ export function MediaPricingEditor({
   onChange: (rules: PricingRule[]) => void
   showCustomerForm?: boolean
 }) {
-  const { t } = useI18n(messages)
+  const { t, locale } = useI18n(messages)
   const checklists = useApiQuery(
     (signal) => checklistsApi.list('', true, 0, signal, 200),
     [],
@@ -214,7 +227,7 @@ export function MediaPricingEditor({
           <>
             <label>
               <span>{t.from}</span>
-              <input
+              <Input
                 type="number"
                 min={0}
                 value={rule.minValue ?? 0}
@@ -225,7 +238,7 @@ export function MediaPricingEditor({
             </label>
             <label>
               <span>{t.to}</span>
-              <input
+              <Input
                 type="number"
                 min={1}
                 value={rule.maxValue ?? ''}
@@ -236,7 +249,7 @@ export function MediaPricingEditor({
             </label>
             <label>
               <span>{t.block}</span>
-              <input
+              <Input
                 type="number"
                 min={1}
                 value={rule.unitSize ?? ''}
@@ -247,26 +260,19 @@ export function MediaPricingEditor({
             </label>
             <label>
               <span>{t.rounding}</span>
-              <select
+              <Select<NonNullable<PricingRule['roundingMode']>>
+                aria-label={t.rounding}
                 value={rule.roundingMode ?? 'CEILING'}
-                onChange={(e) =>
-                  patch(index, {
-                    roundingMode: e.target.value as PricingRule['roundingMode'],
-                  })
-                }
-              >
-                {ROUNDING_MODES.map((mode) => (
-                  <option key={mode} value={mode}>
-                    {t[mode]}
-                  </option>
-                ))}
-              </select>
+                getPopupContainer={mgrPopupContainer}
+                onChange={(roundingMode) => patch(index, { roundingMode })}
+                options={ROUNDING_MODES.map((mode) => ({ value: mode, label: t[mode] }))}
+              />
             </label>
           </>
         )}
         <label>
           <span>{tier ? t.pricePerBlock : t.price}</span>
-          <input
+          <Input
             type="number"
             min={0}
             step={1000}
@@ -279,7 +285,7 @@ export function MediaPricingEditor({
           rule.pricingProfile === CUSTOM_PROFILE && (
             <label>
               <span>{t.allowance}</span>
-              <input
+              <Input
                 type="number"
                 min={0}
                 max={500}
@@ -290,21 +296,15 @@ export function MediaPricingEditor({
               />
             </label>
           )}
-        <label>
-          <input
-            type="checkbox"
-            checked={rule.enabled}
-            onChange={(e) => patch(index, { enabled: e.target.checked })}
-          />{' '}
-          {t.enabled}
-        </label>
-        <button
-          type="button"
-          className="odm-btn odm-btn-sm"
-          onClick={() => onChange(rules.filter((_, i) => i !== index))}
+        <Checkbox
+          checked={rule.enabled}
+          onChange={(e) => patch(index, { enabled: e.target.checked })}
         >
+          {t.enabled}
+        </Checkbox>
+        <Button size="small" onClick={() => onChange(rules.filter((_, i) => i !== index))}>
           {t.remove}
-        </button>
+        </Button>
         {issues.length > 0 && (
           <ul role="alert" className="pricing-rule-issues">
             {issues.map((issue) => (
@@ -328,17 +328,19 @@ export function MediaPricingEditor({
       <p>{t.customHint}</p>
       <label>
         <span>{t.checklistTarget}</span>
-        <select
+        <Select
+          aria-label={t.checklistTarget}
           value={checklistId}
-          onChange={(event) => setChecklistId(event.target.value)}
-        >
-          <option value="">{t.profileFallback}</option>
-          {(checklists.data?.items ?? []).map((checklist) => (
-            <option key={checklist.id} value={checklist.id}>
-              {checklist.content}
-            </option>
-          ))}
-        </select>
+          getPopupContainer={mgrPopupContainer}
+          onChange={(value) => setChecklistId(value)}
+          options={[
+            { value: '', label: t.profileFallback },
+            ...(checklists.data?.items ?? []).map((checklist) => ({
+              value: checklist.id,
+              label: checklist.content,
+            })),
+          ]}
+        />
       </label>
       {selectedChecklist && (
         <section
@@ -349,14 +351,14 @@ export function MediaPricingEditor({
           <strong>{selectedChecklist.content}</strong>
           <p>
             {t.basePrice}:{' '}
-            {(selectedChecklist.basePrice ?? 0).toLocaleString('vi-VN')} VND
+            {(selectedChecklist.basePrice ?? 0).toLocaleString(locale)} {t.vnd}
           </p>
           <p>
-            {t.includedScope}: {selectedChecklist.includedImageCount ?? 0} ảnh ·{' '}
-            {selectedChecklist.includedVideoCount ?? 0} video
+            {t.includedScope}: {selectedChecklist.includedImageCount ?? 0} {t.imagesShort} ·{' '}
+            {selectedChecklist.includedVideoCount ?? 0} {t.videosShort}
           </p>
           <p>
-            Extra Image:{' '}
+            {t.extraImageLine}:{' '}
             {rules.some(
               (rule) =>
                 rule.checklistDefinitionId === checklistId &&
@@ -366,7 +368,7 @@ export function MediaPricingEditor({
               : t.inherited}
           </p>
           <p>
-            Extra Video:{' '}
+            {t.extraVideoLine}:{' '}
             {rules.some(
               (rule) =>
                 rule.checklistDefinitionId === checklistId &&
@@ -385,7 +387,7 @@ export function MediaPricingEditor({
       <div className="pricing-rule-row">
         <label>
           <span>{t.profile}</span>
-          <input
+          <Input
             value={profile}
             placeholder={t.newProfile}
             onChange={(e) => setProfile(e.target.value)}
@@ -393,22 +395,15 @@ export function MediaPricingEditor({
         </label>
         <label>
           <span>{t.component}</span>
-          <select
+          <Select<MediaPricingComponent>
+            aria-label={t.component}
             value={component}
-            onChange={(e) =>
-              setComponent(e.target.value as MediaPricingComponent)
-            }
-          >
-            {MEDIA_COMPONENTS.map((c) => (
-              <option key={c} value={c}>
-                {t[c]}
-              </option>
-            ))}
-          </select>
+            getPopupContainer={mgrPopupContainer}
+            onChange={(value) => setComponent(value)}
+            options={MEDIA_COMPONENTS.map((c) => ({ value: c, label: t[c] }))}
+          />
         </label>
-        <button
-          type="button"
-          className="odm-btn"
+        <Button
           disabled={!/^[A-Za-z0-9_]{1,60}$/.test(profile.trim())}
           onClick={() => {
             onChange([
@@ -428,7 +423,7 @@ export function MediaPricingEditor({
           }}
         >
           {t.add}
-        </button>
+        </Button>
       </div>
       {problems.length > 0 && (
         <p role="alert" className="pricing-rule-issues">
@@ -490,31 +485,36 @@ function DraftPreview({ draftId }: { draftId: string }) {
       <p>{t.previewHint}</p>
       <label>
         <span>{t.previewService}</span>
-        <select value={selected} onChange={(e) => setServiceId(e.target.value)}>
-          {(services.data ?? []).map((service) => (
-            <option key={service.id} value={service.id}>
-              {service.name}
-            </option>
-          ))}
-        </select>
+        <Select
+          aria-label={t.previewService}
+          value={selected}
+          getPopupContainer={mgrPopupContainer}
+          onChange={(value) => setServiceId(value)}
+          options={(services.data ?? []).map((service) => ({
+            value: service.id,
+            label: service.name,
+          }))}
+        />
       </label>{' '}
       <label>
         <span>{t.previewChecklist}</span>
-        <select
+        <Select
+          aria-label={t.previewChecklist}
           value={checklistId}
-          onChange={(e) => setChecklistId(e.target.value)}
-        >
-          <option value="">—</option>
-          {(checklists.data?.items ?? []).map((checklist) => (
-            <option key={checklist.id} value={checklist.id}>
-              {checklist.content}
-            </option>
-          ))}
-        </select>
+          getPopupContainer={mgrPopupContainer}
+          onChange={(value) => setChecklistId(value)}
+          options={[
+            { value: '', label: '—' },
+            ...(checklists.data?.items ?? []).map((checklist) => ({
+              value: checklist.id,
+              label: checklist.content,
+            })),
+          ]}
+        />
       </label>{' '}
       <label>
         <span>{t.requestedImages}</span>
-        <input
+        <Input
           type="number"
           min={0}
           max={500}
@@ -524,7 +524,7 @@ function DraftPreview({ draftId }: { draftId: string }) {
       </label>{' '}
       <label>
         <span>{t.requestedVideos}</span>
-        <input
+        <Input
           type="number"
           min={0}
           max={500}
@@ -534,7 +534,7 @@ function DraftPreview({ draftId }: { draftId: string }) {
       </label>{' '}
       <label>
         <span>{t.area}</span>
-        <input
+        <Input
           type="number"
           min={0}
           value={areaHa}
@@ -543,7 +543,7 @@ function DraftPreview({ draftId }: { draftId: string }) {
       </label>{' '}
       <label>
         <span>{t.length}</span>
-        <input
+        <Input
           type="number"
           min={0}
           value={lengthKm}
@@ -552,16 +552,14 @@ function DraftPreview({ draftId }: { draftId: string }) {
       </label>{' '}
       <label>
         <span>{t.altitude}</span>
-        <input
+        <Input
           type="number"
           min={0}
           value={altitudeM}
           onChange={(e) => setAltitudeM(Number(e.target.value))}
         />
       </label>{' '}
-      <button type="button" className="odm-btn" onClick={() => void run()}>
-        {t.previewButton}
-      </button>
+      <Button onClick={() => void run()}>{t.previewButton}</Button>
       {error && <p role="alert">{error}</p>}
       {preview && <PriceBreakdownView preview={preview} />}
     </section>

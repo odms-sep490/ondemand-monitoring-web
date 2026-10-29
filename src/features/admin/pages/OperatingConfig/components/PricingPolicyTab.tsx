@@ -1,11 +1,14 @@
+import { Alert, Button } from 'antd'
 import { useEffect, useState } from 'react'
 
-import { useApiQuery } from '../../../../../shared/hooks/useApiQuery'
 import { ApiError } from '../../../../../shared/api/httpClient'
-import { LoadingState } from '../../../../../shared/components/odm/StateView'
+import { useApiQuery } from '../../../../../shared/hooks/useApiQuery'
+import { useI18n } from '../../../../../shared/i18n'
 import { adminApi } from '../../../api/adminApi'
+import { AdminLoading } from '../../../components/common/AdminLoading'
 import { PricingDraftEditor } from './PricingDraftEditor'
 import { PricingPolicyOverview } from './PricingPolicyOverview'
+import { pricingConfigMessages } from './pricingConfig.messages'
 import {
   migrateLegacyCustomerAdded,
   validateMediaRules,
@@ -17,6 +20,7 @@ import type {
 } from '../../../types/pricing'
 
 export function PricingPolicyTab() {
+  const { t } = useI18n(pricingConfigMessages)
   const query = useApiQuery(
     (signal) => adminApi.listPricingPolicies(signal),
     [],
@@ -45,8 +49,7 @@ export function PricingPolicyTab() {
     saved !== null &&
     JSON.stringify(draft) !== JSON.stringify(saved)
   function cancel() {
-    if (dirty && !window.confirm('Bỏ các thay đổi chưa lưu của bản nháp?'))
-      return
+    if (dirty && !window.confirm(t.discardConfirm)) return
     setDraft(saved)
     setEditing(false)
     setError(null)
@@ -58,7 +61,7 @@ export function PricingPolicyTab() {
     await run(async () => {
       await adminApi.clonePricingPolicy(active.id)
       query.reload()
-    }, 'Đã nhân bản chính sách đang áp dụng thành bản nháp mới.')
+    }, t.cloned)
   }
   const mediaValid = !draft || validateMediaRules(draft.rules).length === 0
   async function save() {
@@ -66,20 +69,15 @@ export function PricingPolicyTab() {
     await run(async () => {
       await adminApi.updatePricingPolicy(draft.id, payload(draft))
       query.reload()
-    }, 'Đã lưu bản nháp.')
+    }, t.draftSaved)
   }
   async function publish() {
     if (!draft || !mediaValid) return
-    if (
-      !window.confirm(
-        `Bạn có chắc muốn áp dụng chính sách giá v${draft.version}? Chính sách đang áp dụng hiện tại sẽ được thay thế.`,
-      )
-    )
-      return
+    if (!window.confirm(t.publishConfirm(draft.version))) return
     await run(async () => {
       await adminApi.publishPricingPolicy(draft.id)
       query.reload()
-    }, 'Đã áp dụng chính sách giá.')
+    }, t.published)
   }
   async function run(action: () => Promise<void>, success: string) {
     setBusy(true)
@@ -89,26 +87,27 @@ export function PricingPolicyTab() {
       await action()
       setMessage(success)
     } catch (cause) {
-      setError(
-        cause instanceof ApiError
-          ? cause.message
-          : 'Không thể cập nhật chính sách giá. Vui lòng kiểm tra dữ liệu và thử lại.',
-      )
+      setError(cause instanceof ApiError ? cause.message : t.updateError)
     } finally {
       setBusy(false)
     }
   }
 
   return (
-    <section className="adm-card pricing-policy-admin">
-      {query.loading && !query.data && <LoadingState />}
+    <section className="mgr-view pricing-policy-admin">
+      {query.loading && !query.data && <AdminLoading />}
       {query.error !== undefined && !query.data && (
-        <div role="alert">
-          <p>Không thể tải chính sách giá. Vui lòng thử lại.</p>
-          <button type="button" className="odm-btn" onClick={query.reload}>
-            Thử lại
-          </button>
-        </div>
+        <Alert
+          type="error"
+          showIcon
+          role="alert"
+          message={t.loadError}
+          action={
+            <Button size="small" onClick={query.reload}>
+              {t.retry}
+            </Button>
+          }
+        />
       )}
       {!query.loading && query.error === undefined && (!draft || !editing) && (
         <PricingPolicyOverview
@@ -131,8 +130,8 @@ export function PricingPolicyTab() {
           onCancel={cancel}
         />
       )}
-      {message && <p role="status">{message}</p>}
-      {error && <p role="alert">{error}</p>}
+      {message && <Alert type="success" showIcon role="status" message={message} />}
+      {error && <Alert type="error" showIcon role="alert" message={error} />}
     </section>
   )
 }
