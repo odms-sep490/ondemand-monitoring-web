@@ -15,7 +15,7 @@
     }
 
     .mgr-maint-select-label {
-      font-size: 13px;
+      font-size: var(--mgr-fs-small, 13px);
       color: var(--mgr-muted);
       white-space: nowrap;
     }
@@ -25,7 +25,7 @@
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 12px;
-      align-items: start;
+      align-items: stretch;
       min-width: 0;
     }
 
@@ -55,7 +55,7 @@
       padding: 0 6px;
       border-radius: 999px;
       background: var(--mgr-card);
-      font-size: 12px;
+      font-size: var(--mgr-fs-caption, 12px);
       font-weight: 600;
       color: var(--mgr-muted);
     }
@@ -81,7 +81,7 @@
       padding: 24px 12px;
       border: 1px dashed var(--mgr-border);
       border-radius: 8px;
-      font-size: 12.5px;
+      font-size: var(--mgr-fs-caption, 12px);
       text-align: center;
       color: var(--mgr-muted);
     }
@@ -140,7 +140,7 @@
     .mgr-ticket-card-title {
       display: -webkit-box;
       overflow: hidden;
-      font-size: 13px;
+      font-size: var(--mgr-fs-small, 13px);
       font-weight: 600;
       line-height: 1.35;
       color: var(--mgr-text);
@@ -159,7 +159,7 @@
       .ant-tag {
         margin-inline-end: 0;
         padding-inline: 6px;
-        font-size: 11px;
+        font-size: var(--mgr-fs-caption, 12px);
         line-height: 18px;
       }
     }
@@ -168,7 +168,7 @@
       font-weight: 600;
       height: 28px;
       padding-block: 0;
-      font-size: 12.5px;
+      font-size: var(--mgr-fs-caption, 12px);
     }
 
     .mgr-ticket-drone {
@@ -176,7 +176,7 @@
       border-radius: 6px;
       background: var(--mgr-card-2);
       border: 1px solid var(--mgr-border);
-      font-size: 11px;
+      font-size: var(--mgr-fs-caption, 12px);
       line-height: 18px;
       font-weight: 600;
       color: var(--mgr-muted);
@@ -187,7 +187,7 @@
       align-items: center;
       min-width: 0;
       gap: 6px;
-      font-size: 11.5px;
+      font-size: var(--mgr-fs-caption, 12px);
       font-weight: 600;
 
       &.is-ok {
@@ -220,7 +220,7 @@
     border-radius: 8px;
     text-align: center;
     font-weight: 600;
-    font-size: 12px;
+    font-size: var(--mgr-fs-caption, 12px);
     color: var(--pl-green-fg);
     background: var(--pl-green-bg);
   }
@@ -235,13 +235,13 @@
     }
 
     .mgr-ticket-panel-code {
-      font-size: 14px;
+      font-size: var(--mgr-fs-body, 14px);
       color: var(--mgr-muted);
     }
 
     .mgr-ticket-heading {
       margin: 0;
-      font-size: 16px;
+      font-size: var(--mgr-fs-section, 16px);
       font-weight: 800;
       line-height: 1.35;
       letter-spacing: 0;
@@ -260,7 +260,7 @@
       grid-template-columns: minmax(96px, 40%) minmax(0, 1fr);
       gap: 10px 12px;
       margin: 0;
-      font-size: 13.5px;
+      font-size: var(--mgr-fs-small, 13px);
       overflow-wrap: anywhere;
 
       dd {
@@ -310,7 +310,7 @@
 
     .mgr-ticket-resolution-text {
       white-space: pre-wrap;
-      font-size: 13px;
+      font-size: var(--mgr-fs-small, 13px);
     }
 
     .mgr-ticket-history {
@@ -319,7 +319,7 @@
       gap: 6px;
       padding-top: 14px;
       border-top: 1px solid var(--mgr-border);
-      font-size: 12.5px;
+      font-size: var(--mgr-fs-caption, 12px);
     }
 
     .mgr-ticket-history-row {
@@ -362,12 +362,12 @@
     border: 1px solid var(--mgr-border);
     border-radius: 10px;
     background: var(--mgr-card-2);
-    font-size: 13px;
+    font-size: var(--mgr-fs-small, 13px);
   }
 
   .mgr-assign-label {
     margin-bottom: 8px;
-    font-size: 13px;
+    font-size: var(--mgr-fs-small, 13px);
     font-weight: 600;
   }
 

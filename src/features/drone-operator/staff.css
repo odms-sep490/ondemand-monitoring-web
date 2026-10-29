@@ -41,7 +41,12 @@
   display: grid;
   grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
   gap: 16px;
-  align-items: start;
+  align-items: stretch;
+}
+
+/* columns end on the same line: the last card of each column grows */
+.stf-grid-2 > .stf-stack > :last-child {
+  flex: 1 1 auto;
 }
 
 .stf-grid-2--even {
@@ -49,8 +54,7 @@
 }
 
 .stf-sticky {
-  position: sticky;
-  top: 16px;
+  position: static;
 }
 
 @media (max-width: 999px) {
@@ -74,13 +78,13 @@
 }
 
 .stf-metric-label {
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   color: var(--mgr-muted);
 }
 
 .stf-metric-value {
   margin-top: 2px;
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
   font-weight: 700;
   color: var(--mgr-text);
   overflow-wrap: anywhere;
@@ -105,7 +109,7 @@
   gap: 8px;
   align-items: center;
   padding: 9px 12px;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   background: var(--mgr-card);
 }
 
@@ -120,7 +124,7 @@
 
 .stf-check-msg {
   margin-top: 1px;
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   color: var(--mgr-muted);
   overflow-wrap: anywhere;
 }
@@ -144,7 +148,7 @@
   z-index: 500;
   margin: 0;
   padding: 6px 10px;
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 700;
   line-height: 1.35;
   max-width: calc(100% - 20px);
@@ -227,7 +231,7 @@
   overflow-y: auto;
   white-space: pre-wrap;
   color: var(--mgr-muted);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   line-height: 1.55;
 }
 
@@ -246,7 +250,7 @@
 
 .stf-ticket-title {
   margin: 0;
-  font-size: 15px;
+  font-size: var(--mgr-fs-section, 16px);
   font-weight: 700;
   color: var(--mgr-text);
 }
@@ -283,7 +287,7 @@
 
 .stf-zones-desc {
   margin: 0;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   color: var(--mgr-muted);
 }
 
@@ -335,7 +339,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 
 .stf-stephead-right {
@@ -362,7 +366,7 @@
   align-items: center;
   gap: 10px;
   margin-bottom: 12px;
-  font-size: 15px;
+  font-size: var(--mgr-fs-section, 16px);
   font-weight: 700;
   color: var(--mgr-text);
 }
@@ -439,14 +443,14 @@
 }
 
 .stf-field-label {
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 700;
   color: var(--mgr-muted);
 }
 
 .stf-group-title {
   margin: 0;
-  font-size: 12.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -473,14 +477,14 @@
 
 .stf-item-name {
   font-weight: 700;
-  font-size: 14.5px;
+  font-size: var(--mgr-fs-body, 14px);
   line-height: 1.25;
   color: var(--mgr-text);
 }
 
 .stf-item-msg {
   margin-top: 2px;
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   color: var(--mgr-muted);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -575,7 +579,7 @@
 }
 
 .stf-ack-label {
-  font-size: 15px;
+  font-size: var(--mgr-fs-section, 16px);
   font-weight: 700;
 }
 
@@ -721,7 +725,7 @@
 .stf-media-unavailable {
   margin: 0;
   padding: 14px;
-  font-size: 12.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   color: var(--mgr-muted);
 }
 
@@ -760,7 +764,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 600;
   color: var(--mgr-text);
 }
@@ -770,7 +774,7 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 2px 6px;
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 
 .stf-media-actions {
@@ -833,7 +837,7 @@
   align-items: center;
   gap: 8px;
   padding: 12px 16px;
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
   font-weight: 600;
   color: var(--mgr-text);
   cursor: pointer;
@@ -852,7 +856,7 @@
 
 .stf-details--inner > summary {
   padding: 8px 12px;
-  font-size: 12.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 500;
   color: var(--mgr-muted);
 }
@@ -871,7 +875,7 @@
   justify-content: space-between;
   gap: 8px;
   padding: 6px 0;
-  font-size: 12.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   line-height: 1.45;
 }
 
@@ -884,7 +888,7 @@
 .stf-attach-row em {
   flex: none;
   font-style: normal;
-  font-size: 11.5px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 
 .stf-attach-button.ant-btn {
@@ -1038,7 +1042,7 @@
 }
 
 .stf-manual-count {
-  font-size: 15px;
+  font-size: var(--mgr-fs-section, 16px);
   font-weight: 700;
 }
 
