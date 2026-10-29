@@ -83,7 +83,7 @@ function toOrderDetail(order: OrderCreateResponse): OrderDetail {
   return {
     executionPlanRevision: order.executionPlanRevision,
     id: order.id,
-    code: order.id,
+    code: order.orderCode || order.id,
     status: order.orderStatus,
     customer: {
       fullName: order.customerName || order.customerId,
