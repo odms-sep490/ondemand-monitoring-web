@@ -84,3 +84,5 @@ export const operatorSidebarMessages = defineMessages({
     notFoundTitle: 'Not found',
   },
 })
+
+export type OperatorSidebarMessages = (typeof operatorSidebarMessages)['vi']

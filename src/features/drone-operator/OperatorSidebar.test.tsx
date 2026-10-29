@@ -15,9 +15,9 @@ describe('unified staff navigation', () => {
     render(<OperatorSidebar route={{ screen: 'technical' }} />)
     const technical = screen.getByRole('link', { name: 'Tổng quan kỹ thuật' })
     expect(technical).toHaveAttribute('aria-current', 'page')
-    expect(technical).toHaveClass('odm-opr-navi')
+    expect(technical).toHaveClass('mgr-menu-link')
     expect(screen.getByRole('link', { name: 'Hỗ trợ khách hàng' })).toHaveClass(
-      'odm-opr-navi',
+      'mgr-menu-link',
     )
     expect(screen.queryByRole('link', { name: /Password|mật khẩu/ })).toBeNull()
   })

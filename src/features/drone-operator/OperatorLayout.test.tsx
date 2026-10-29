@@ -17,7 +17,7 @@ describe('OperatorLayout', () => {
       </OperatorLayout>,
     )
     expect(
-      container.querySelector('.odm-opr-breadcrumb strong')?.textContent,
+      container.querySelector('.ant-breadcrumb li:last-child')?.textContent,
     ).toBe('Lịch rảnh')
   })
 
@@ -33,7 +33,7 @@ describe('OperatorLayout', () => {
     )
     act(() => setLanguage('en'))
     expect(
-      container.querySelector('.odm-opr-breadcrumb strong')?.textContent,
+      container.querySelector('.ant-breadcrumb li:last-child')?.textContent,
     ).toBe('Availability')
   })
 })
