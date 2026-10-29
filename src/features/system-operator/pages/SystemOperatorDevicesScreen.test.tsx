@@ -9,17 +9,19 @@ describe('SystemOperatorDevicesScreen', () => {
   it('renders Vietnamese labels', () => {
     render(<SystemOperatorDevicesScreen />)
     expect(
-      screen.getByText('Quản lý Trạng thái Fleet & Thiết bị Drone'),
+      screen.getByText('Trạng thái đội bay và thiết bị drone'),
     ).toBeInTheDocument()
-    expect(screen.getByText('AVAILABLE — Sẵn sàng bay')).toBeInTheDocument()
+    expect(screen.getByText('Sẵn sàng bay')).toBeInTheDocument()
     expect(screen.getByText('Vừa xong', { exact: false })).toBeInTheDocument()
   })
 
   it('renders English labels when language is switched', () => {
     render(<SystemOperatorDevicesScreen />)
     act(() => setLanguage('en'))
-    expect(screen.getByText('Fleet & Drone Device Status')).toBeInTheDocument()
-    expect(screen.getByText('AVAILABLE — Ready to fly')).toBeInTheDocument()
+    expect(
+      screen.getByText('Fleet and drone device status'),
+    ).toBeInTheDocument()
+    expect(screen.getByText('Ready to fly')).toBeInTheDocument()
     expect(screen.getByText('Just now', { exact: false })).toBeInTheDocument()
   })
 })

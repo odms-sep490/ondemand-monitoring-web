@@ -1,64 +1,81 @@
+import {
+  CardComponent,
+  PageHeader,
+  StatisticComponent,
+} from '../../shared/components/antd'
 import { Icon, type IconName } from '../../shared/components/Icon'
 import { useI18n } from '../../shared/i18n'
 import { rolePortalPageMessages } from '../portal/pages/RolePortalPage.messages'
 import { technicalOverviewMessages } from './TechnicalOverview.messages'
-import './sysop.css'
+import './sysop.scss'
 
-/** Overview body for the System Operator portal (same data as the old portal home). */
+const TONES = ['blue', 'cyan', 'amber', 'green'] as const
+
+/** Overview body for the system operator, shown inside the staff shell. */
 export function SystemOperatorOverview() {
   const { t } = useI18n(rolePortalPageMessages)
   const { t: technical } = useI18n(technicalOverviewMessages)
   const content = technical.content
   return (
-    <>
-      <section className="odm-sysop-hero">
-        <div>
-          <p className="odm-sysop-hero-eyebrow">{content.eyebrow}</p>
-          <h2>{t.heroTitle}</h2>
-          <p>{t.heroCopy}</p>
-        </div>
-        <a className="odm-btn odm-btn-p" href="#portal/staff/technical/devices">
-          {content.primary}
-        </a>
-      </section>
+    <div className="mgr-view">
+      <PageHeader
+        title={content.title}
+        description={content.subtitle}
+        crumb={content.eyebrow}
+        actions={
+          <a
+            className="ant-btn ant-btn-primary"
+            href="#portal/staff/technical/devices"
+          >
+            {content.primary}
+          </a>
+        }
+      />
 
-      <section className="odm-sysop-metrics" aria-label={t.metricsAriaLabel}>
-        {content.metrics.map((metric) => (
-          <article className="odm-sysop-metric" key={metric.label}>
-            <div className="odm-sysop-metric-icon">
-              <Icon name={metric.icon as IconName} />
-            </div>
-            <span>{metric.label}</span>
-            <strong>{metric.value}</strong>
-            <small>{metric.detail}</small>
-          </article>
+      <section className="mgr-kpi-strip" aria-label={t.metricsAriaLabel}>
+        {content.metrics.map((metric, index) => (
+          <StatisticComponent
+            key={metric.label}
+            index={index}
+            tone={TONES[index % TONES.length]}
+            title={metric.label}
+            value={metric.value}
+            hint={metric.detail}
+            icon={<Icon name={metric.icon as IconName} />}
+          />
         ))}
       </section>
 
-      <section className="odm-sysop-lower">
-        <article className="odm-sysop-panel">
-          <p className="odm-sysop-hero-eyebrow">{t.recentActivityEyebrow}</p>
-          <h2>{t.recentActivityTitle}</h2>
-          <div className="odm-sysop-activity">
+      <div className="sysop-lower">
+        <CardComponent
+          title={t.recentActivityTitle}
+          icon={<Icon name="clock" />}
+        >
+          <ul className="sysop-activity">
             {content.activities.map((activity, index) => (
-              <div className="odm-sysop-activity-item" key={activity}>
-                <i className={index === 0 ? 'is-active' : ''} />
+              <li className="sysop-activity-item" key={activity}>
+                <i
+                  className={index === 0 ? 'is-active' : ''}
+                  aria-hidden="true"
+                />
                 <div>
                   <strong>{activity}</strong>
                   <small>
                     {index === 0 ? t.updatedJustNow : t.hoursAgo(index + 1)}
                   </small>
                 </div>
-              </div>
+              </li>
             ))}
-          </div>
-        </article>
-        <article className="odm-sysop-panel">
-          <p className="odm-sysop-hero-eyebrow">{t.nextActionEyebrow}</p>
-          <h2>{t.nextActionTitle}</h2>
-          <p>{t.nextActionCopy}</p>
-        </article>
-      </section>
-    </>
+          </ul>
+        </CardComponent>
+        <CardComponent
+          title={t.nextActionTitle}
+          icon={<Icon name="shield" />}
+          tone="violet"
+        >
+          <p className="sysop-note">{t.nextActionCopy}</p>
+        </CardComponent>
+      </div>
+    </div>
   )
 }

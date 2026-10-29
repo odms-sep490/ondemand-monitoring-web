@@ -11,6 +11,7 @@ import {
   activeNavLabel,
   type ManagerNavCounts,
 } from './components/layout/navConfig'
+import { ShellContext } from '../../shared/components/antd/shellContext'
 import { mgrPopupContainer } from './components/common/mgrPopupContainer'
 import {
   buildManagerTheme,
@@ -61,69 +62,73 @@ export function ManagerLayout({
 
   return (
     <ConfigProvider theme={themeConfig} getPopupContainer={mgrPopupContainer}>
-      <div className="odm odm-mgr mgr-layout">
-        <Layout hasSider className="mgr-shell">
-          <Sider
-            width={MANAGER_SIDER_WIDTH}
-            collapsedWidth={broken ? 0 : MANAGER_SIDER_RAIL_WIDTH}
-            breakpoint="lg"
-            trigger={null}
-            collapsible
-            collapsed={collapsed}
-            onBreakpoint={(isBroken) => {
-              setBroken(isBroken)
-              setCollapsed(isBroken)
-            }}
-            theme={dark ? 'dark' : 'light'}
-            className={`mgr-sider ${overlayOpen ? 'is-overlay' : ''} ${rail ? 'is-rail' : ''}`}
-          >
-            <a
-              className="mgr-brand"
-              href={managerHref({ screen: 'dashboard' })}
-            >
-              <span className="mgr-brand-tile">
-                <img
-                  src="/images/logo-new.png"
-                  alt="OnDemand Monitor"
-                  className="mgr-brand-mark"
-                />
-              </span>
-              <span className="mgr-brand-name">
-                <span className="mgr-brand-primary">OnDemand</span>
-                <span className="mgr-brand-accent">Monitor</span>
-              </span>
-            </a>
-            <SiderMenu
-              activeLabel={activeNavLabel[route.screen]}
-              counts={counts}
-              collapsed={rail}
-              onNavigate={() => broken && setCollapsed(true)}
-            />
-            <SiderUserCard />
-          </Sider>
-
-          {overlayOpen ? (
-            <button
-              type="button"
-              className="mgr-scrim"
-              aria-label={t.closeNav}
-              onClick={() => setCollapsed(true)}
-            />
-          ) : null}
-
-          <Layout className="mgr-main">
-            <ManagerHeader
-              breadcrumb={breadcrumb}
+      <ShellContext.Provider value>
+        <div className="odm odm-mgr mgr-layout">
+          <Layout hasSider className="mgr-shell">
+            <Sider
+              width={MANAGER_SIDER_WIDTH}
+              collapsedWidth={broken ? 0 : MANAGER_SIDER_RAIL_WIDTH}
+              breakpoint="lg"
+              trigger={null}
+              collapsible
               collapsed={collapsed}
-              dark={dark}
-              pendingOrders={counts?.pendingOrders}
-              onToggleSider={() => setCollapsed((v) => !v)}
-              onToggleTheme={() => setDark((v) => !v)}
-            />
-            <Content className="mgr-content odm-mgr-content">{children}</Content>
+              onBreakpoint={(isBroken) => {
+                setBroken(isBroken)
+                setCollapsed(isBroken)
+              }}
+              theme={dark ? 'dark' : 'light'}
+              className={`mgr-sider ${overlayOpen ? 'is-overlay' : ''} ${rail ? 'is-rail' : ''}`}
+            >
+              <a
+                className="mgr-brand"
+                href={managerHref({ screen: 'dashboard' })}
+              >
+                <span className="mgr-brand-tile">
+                  <img
+                    src="/images/logo-new.png"
+                    alt="OnDemand Monitor"
+                    className="mgr-brand-mark"
+                  />
+                </span>
+                <span className="mgr-brand-name">
+                  <span className="mgr-brand-primary">OnDemand</span>
+                  <span className="mgr-brand-accent">Monitor</span>
+                </span>
+              </a>
+              <SiderMenu
+                activeLabel={activeNavLabel[route.screen]}
+                counts={counts}
+                collapsed={rail}
+                onNavigate={() => broken && setCollapsed(true)}
+              />
+              <SiderUserCard />
+            </Sider>
+
+            {overlayOpen ? (
+              <button
+                type="button"
+                className="mgr-scrim"
+                aria-label={t.closeNav}
+                onClick={() => setCollapsed(true)}
+              />
+            ) : null}
+
+            <Layout className="mgr-main">
+              <ManagerHeader
+                breadcrumb={breadcrumb}
+                collapsed={collapsed}
+                dark={dark}
+                pendingOrders={counts?.pendingOrders}
+                onToggleSider={() => setCollapsed((v) => !v)}
+                onToggleTheme={() => setDark((v) => !v)}
+              />
+              <Content className="mgr-content odm-mgr-content">
+                {children}
+              </Content>
+            </Layout>
           </Layout>
-        </Layout>
-      </div>
+        </div>
+      </ShellContext.Provider>
     </ConfigProvider>
   )
 }

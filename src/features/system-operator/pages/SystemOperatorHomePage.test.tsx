@@ -14,7 +14,7 @@ describe('SystemOperatorHomePage', () => {
     window.location.hash = '#portal/staff/technical/devices'
     render(<SystemOperatorHomePage />)
     expect(
-      screen.getByText('Quản lý Trạng thái Fleet & Thiết bị Drone'),
+      screen.getByText('Trạng thái đội bay và thiết bị drone'),
     ).toBeInTheDocument()
   })
 
@@ -22,6 +22,8 @@ describe('SystemOperatorHomePage', () => {
     window.location.hash = '#portal/staff/technical/devices'
     render(<SystemOperatorHomePage />)
     act(() => setLanguage('en'))
-    expect(screen.getByText('Fleet & Drone Device Status')).toBeInTheDocument()
+    expect(
+      screen.getByText('Fleet and drone device status'),
+    ).toBeInTheDocument()
   })
 })

@@ -2,6 +2,7 @@ import '@ant-design/v5-patch-for-react-19'
 import { ConfigProvider, Layout } from 'antd'
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 
+import { ShellContext } from '../../shared/components/antd/shellContext'
 import { mgrPopupContainer } from '../../shared/components/antd'
 import { useI18n, useLanguage } from '../../shared/i18n'
 import {
@@ -61,66 +62,68 @@ export function OperatorLayout({
 
   return (
     <ConfigProvider theme={themeConfig} getPopupContainer={mgrPopupContainer}>
-      <div className="odm odm-opr mgr-layout">
-        <Layout hasSider className="mgr-shell">
-          <Sider
-            width={APP_SIDER_WIDTH}
-            collapsedWidth={broken ? 0 : APP_SIDER_RAIL_WIDTH}
-            breakpoint="lg"
-            trigger={null}
-            collapsible
-            collapsed={collapsed}
-            onBreakpoint={(isBroken) => {
-              setBroken(isBroken)
-              setCollapsed(isBroken)
-            }}
-            theme={dark ? 'dark' : 'light'}
-            className={`mgr-sider ${overlayOpen ? 'is-overlay' : ''} ${rail ? 'is-rail' : ''}`}
-          >
-            <OperatorSidebar
-              route={route}
-              pendingCount={pendingCount}
-              notificationCount={notificationCount}
-              collapsed={rail}
-              onNavigate={() => broken && setCollapsed(true)}
-            />
-          </Sider>
-
-          {overlayOpen ? (
-            <button
-              type="button"
-              className="mgr-scrim"
-              aria-label={t.closeMenu}
-              onClick={() => setCollapsed(true)}
-            />
-          ) : null}
-
-          <Layout className="mgr-main">
-            <OperatorHeader
-              breadcrumb={operatorActiveLabel(route.screen, lang)}
+      <ShellContext.Provider value>
+        <div className="odm odm-opr mgr-layout">
+          <Layout hasSider className="mgr-shell">
+            <Sider
+              width={APP_SIDER_WIDTH}
+              collapsedWidth={broken ? 0 : APP_SIDER_RAIL_WIDTH}
+              breakpoint="lg"
+              trigger={null}
+              collapsible
               collapsed={collapsed}
-              dark={dark}
-              searchQuery={searchQuery}
-              onSearchChange={onSearchChange}
-              onToggleSider={() => setCollapsed((v) => !v)}
-              onToggleTheme={() => setDark((v) => !v)}
-            />
-            <Content
-              className={
-                fillContent
-                  ? 'mgr-content odm-opr-content--fill'
-                  : 'mgr-content'
-              }
+              onBreakpoint={(isBroken) => {
+                setBroken(isBroken)
+                setCollapsed(isBroken)
+              }}
+              theme={dark ? 'dark' : 'light'}
+              className={`mgr-sider ${overlayOpen ? 'is-overlay' : ''} ${rail ? 'is-rail' : ''}`}
             >
-              {fillContent ? (
-                children
-              ) : (
-                <div className="odm-opr-content-inner">{children}</div>
-              )}
-            </Content>
+              <OperatorSidebar
+                route={route}
+                pendingCount={pendingCount}
+                notificationCount={notificationCount}
+                collapsed={rail}
+                onNavigate={() => broken && setCollapsed(true)}
+              />
+            </Sider>
+
+            {overlayOpen ? (
+              <button
+                type="button"
+                className="mgr-scrim"
+                aria-label={t.closeMenu}
+                onClick={() => setCollapsed(true)}
+              />
+            ) : null}
+
+            <Layout className="mgr-main">
+              <OperatorHeader
+                breadcrumb={operatorActiveLabel(route.screen, lang)}
+                collapsed={collapsed}
+                dark={dark}
+                searchQuery={searchQuery}
+                onSearchChange={onSearchChange}
+                onToggleSider={() => setCollapsed((v) => !v)}
+                onToggleTheme={() => setDark((v) => !v)}
+              />
+              <Content
+                className={
+                  fillContent
+                    ? 'mgr-content odm-opr-content--fill'
+                    : 'mgr-content'
+                }
+              >
+                {fillContent ? (
+                  children
+                ) : (
+                  <div className="odm-opr-content-inner">{children}</div>
+                )}
+              </Content>
+            </Layout>
           </Layout>
-        </Layout>
-      </div>
+        </div>
+      </ShellContext.Provider>
     </ConfigProvider>
   )
 }

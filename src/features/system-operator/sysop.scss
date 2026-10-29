@@ -1,0 +1,130 @@
+/* System operator pages, built on the shared --mgr-* tokens. */
+.mgr-layout {
+  .sysop-lower {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    gap: var(--mgr-gap);
+    align-items: start;
+  }
+
+  .sysop-note {
+    margin: 0;
+    font-size: var(--mgr-fs-body);
+    line-height: var(--mgr-lh-body);
+    color: var(--mgr-muted);
+  }
+
+  .sysop-activity {
+    display: grid;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .sysop-activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--mgr-border);
+    border-radius: 10px;
+    background: var(--mgr-card-2);
+
+    i {
+      flex: none;
+      width: 8px;
+      height: 8px;
+      margin-top: 7px;
+      border-radius: 50%;
+      background: var(--mgr-border);
+
+      &.is-active {
+        background: var(--mgr-primary);
+      }
+    }
+
+    strong {
+      display: block;
+      font-size: var(--mgr-fs-small);
+      color: var(--mgr-text);
+    }
+
+    small {
+      font-size: var(--mgr-fs-caption);
+      color: var(--mgr-muted);
+    }
+  }
+
+  .sysop-device-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--mgr-gap);
+    align-items: start;
+  }
+
+  .sysop-device {
+    .ant-card-body {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+  }
+
+  .sysop-device-name {
+    font-size: var(--mgr-fs-section);
+    font-weight: 700;
+    color: var(--mgr-text);
+  }
+
+  .sysop-device-model {
+    margin-top: -8px;
+    font-size: var(--mgr-fs-small);
+    color: var(--mgr-muted);
+  }
+
+  .sysop-device-meter {
+    .ant-progress {
+      margin: 0;
+      line-height: 1;
+    }
+  }
+
+  .sysop-device-meter-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2px;
+    font-size: var(--mgr-fs-caption);
+    color: var(--mgr-muted);
+
+    strong {
+      color: var(--mgr-success);
+
+      &.is-low {
+        color: var(--mgr-error);
+      }
+    }
+  }
+
+  .sysop-device-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding-top: 10px;
+    border-top: 1px solid var(--mgr-border);
+    font-size: var(--mgr-fs-caption);
+    color: var(--mgr-muted);
+
+    a {
+      font-weight: 600;
+      color: var(--mgr-primary);
+    }
+  }
+}
+
+@media (max-width: 900px) {
+  .mgr-layout .sysop-lower {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -1,0 +1,75 @@
+/*
+ * Standalone page frame (help centre, tickets, payment result, profile).
+ * Reuses the --mgr-* tokens; only layout of the top bar and scrolling lives here.
+ */
+.mgr-layout.mgr-frame {
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: var(--mgr-bg);
+
+  .mgr-frame-bar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 12px;
+    height: 60px;
+    padding: 0 var(--mgr-page-pad);
+    background: color-mix(in srgb, var(--mgr-card) 88%, transparent);
+    border-bottom: 1px solid var(--mgr-border);
+    backdrop-filter: blur(6px);
+  }
+
+  .mgr-frame-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    font-size: var(--mgr-fs-section);
+    font-weight: 700;
+    color: var(--mgr-text);
+    text-decoration: none;
+
+    span {
+      white-space: nowrap;
+    }
+  }
+
+  .mgr-frame-back {
+    color: var(--mgr-muted);
+  }
+
+  .mgr-frame-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+  }
+
+  .mgr-frame-main {
+    flex: 1;
+    min-width: 0;
+    padding: var(--mgr-page-pad);
+  }
+}
+
+@media (max-width: 640px) {
+  .mgr-layout.mgr-frame {
+    .mgr-frame-bar {
+      padding: 0 12px;
+      gap: 6px;
+    }
+
+    .mgr-frame-brand span {
+      display: none;
+    }
+
+    .mgr-frame-main {
+      padding: var(--mgr-page-pad-m, 16px);
+    }
+  }
+}

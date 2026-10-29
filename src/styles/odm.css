@@ -76,7 +76,6 @@
 .odm :where(.odm-adm-brand-name,
   .odm-cus-brand-name,
   .odm-mgr-brand-name,
-  .odm-opr-brand-name,
   .odm-auth-brand-name,
   .lp-logo-text) {
   font-family: 'Arial Black', 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
@@ -93,7 +92,6 @@
 .odm :where(.odm-adm-brand-accent,
   .odm-cus-brand-accent,
   .odm-mgr-brand-accent,
-  .odm-opr-brand-accent,
   .odm-auth-brand-accent,
   .lp-logo-accent) {
   color: var(--brand-accent);
