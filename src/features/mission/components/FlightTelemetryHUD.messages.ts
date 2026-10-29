@@ -2,14 +2,14 @@ import { defineMessages } from '../../../shared/i18n'
 
 export const flightTelemetryHudMessages = defineMessages({
   vi: {
-    uploadError: (msg: string) => `Lỗi upload ảnh: ${msg}`,
+    uploadError: (msg: string) => `Lỗi tải lên ảnh: ${msg}`,
     stationTitle: (deviceId: string, missionId: string) =>
-      `Trạm điều khiển chuyến bay - thiết bị ${deviceId} (Mission ${missionId})`,
+      `Trạm điều khiển chuyến bay - thiết bị ${deviceId} (nhiệm vụ ${missionId})`,
     altitudeLabel: 'ĐỘ CAO (ALTITUDE)',
     relativeAlt: 'Relative Alt (AGL)',
     speedLabel: 'VẬN TỐC (GROUND SPEED)',
     batteryLabel: 'MỨC PIN THIẾT BỊ',
-    uploadTitle: 'Upload hình ảnh / video từ thiết bị (Amazon S3 Direct)',
+    uploadTitle: 'Tải lên hình ảnh / video từ thiết bị (Amazon S3 Direct)',
     uploadSuccess: 'Đã lưu tập tin lên S3 thành công!',
     chooseFile: 'Chọn ảnh/video...',
     uploading: '⏳ Đang tải lên...',

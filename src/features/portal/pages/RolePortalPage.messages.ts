@@ -87,11 +87,11 @@ export const rolePortalPageMessages = defineMessages({
           {
             label: 'Đang phân công',
             value: '07',
-            detail: '2 yêu cầu cần operator',
+            detail: '2 yêu cầu cần người vận hành',
             icon: 'clock',
           },
           {
-            label: 'Mission đang hoạt động',
+            label: 'Nhiệm vụ đang hoạt động',
             value: '04',
             detail: 'Trải rộng 3 địa điểm',
             icon: 'chart',
@@ -110,16 +110,16 @@ export const rolePortalPageMessages = defineMessages({
         ],
       },
       STAFF: {
-        title: 'Bảng điều khiển mission',
+        title: 'Bảng điều khiển nhiệm vụ',
         subtitle:
-          'Quản lý các mission được giao, từ khi nhận đến khi kiểm tra sau bay.',
+          'Quản lý các nhiệm vụ được giao, từ khi nhận đến khi kiểm tra sau bay.',
         eyebrow: 'Thực thi hiện trường',
-        primary: 'Mở bảng điều khiển mission',
+        primary: 'Mở bảng điều khiển nhiệm vụ',
         metrics: [
           {
-            label: 'Mission được giao',
+            label: 'Nhiệm vụ được giao',
             value: '03',
-            detail: '1 mission sẵn sàng nhận',
+            detail: '1 nhiệm vụ sẵn sàng nhận',
             icon: 'ticket',
           },
           {
@@ -129,7 +129,7 @@ export const rolePortalPageMessages = defineMessages({
             icon: 'shield',
           },
           {
-            label: 'Mission trực tiếp',
+            label: 'Nhiệm vụ trực tiếp',
             value: '01',
             detail: 'Telemetry đã kết nối',
             icon: 'chart',
@@ -142,7 +142,7 @@ export const rolePortalPageMessages = defineMessages({
           },
         ],
         activities: [
-          'Mission M-001 sẵn sàng để operator nhận',
+          'Nhiệm vụ M-001 sẵn sàng để người vận hành nhận',
           'Luồng telemetry của DRONE-01 đã kết nối',
           'M-0008 đang chờ kiểm tra sau bay',
         ],

@@ -35,7 +35,7 @@ describe('ReviewNotice', () => {
     expect(
       screen.getByText(/Cần xác nhận quyền truy cập hiện trường/),
     ).toBeInTheDocument()
-    const submit = screen.getByRole('button', { name: 'Gửi lại cho manager' })
+    const submit = screen.getByRole('button', { name: 'Gửi lại cho quản lý' })
     expect(submit).toBeEnabled()
     fireEvent.click(submit)
     expect(
@@ -82,7 +82,7 @@ describe('ReviewNotice', () => {
     )
 
     expect(screen.getByText('Tài liệu xác minh quyền truy cập')).toBeVisible()
-    const submit = screen.getByRole('button', { name: 'Gửi lại cho manager' })
+    const submit = screen.getByRole('button', { name: 'Gửi lại cho quản lý' })
     expect(submit).toBeEnabled()
     fireEvent.click(submit)
     expect(

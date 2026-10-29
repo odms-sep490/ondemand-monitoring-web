@@ -7,7 +7,8 @@ export const mediaProgressPanelMessages = defineMessages({
     rejected: 'Không đạt',
     processingNote: (n: number) =>
       `Kết quả đang được xử lý: ${n} tệp đang chờ tải lên, thử lại hoặc xác thực.`,
-    rejectedNote: (n: number) => `${n} tệp chưa đạt xác thực và không được công bố.`,
+    rejectedNote: (n: number) =>
+      `${n} tệp chưa đạt xác thực và không được công bố.`,
   },
   en: {
     available: 'Available',
@@ -15,6 +16,7 @@ export const mediaProgressPanelMessages = defineMessages({
     rejected: 'Rejected',
     processingNote: (n: number) =>
       `Results are being processed: ${n} file(s) waiting for upload, retry or validation.`,
-    rejectedNote: (n: number) => `${n} file(s) failed validation and are not published.`,
+    rejectedNote: (n: number) =>
+      `${n} file(s) failed validation and are not published.`,
   },
 })

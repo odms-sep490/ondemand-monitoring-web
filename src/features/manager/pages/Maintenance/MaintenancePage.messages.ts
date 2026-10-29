@@ -53,8 +53,7 @@ export const maintenancePageMessages = defineMessages({
       unassignedStat: 'Chưa phân công',
       urgentStat: 'Khẩn cấp',
       resolvedStat: 'Đã hoàn tất',
-      searchPlaceholder:
-        'Tìm mã phiếu, drone, tiêu đề…',
+      searchPlaceholder: 'Tìm mã phiếu, drone, tiêu đề…',
       priorityLabel: 'Mức độ:',
       priorityAll: 'Tất cả mức độ',
       assignedLabel: 'Phân công:',

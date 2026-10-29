@@ -4,14 +4,14 @@ export const maintenancePageMessages = defineMessages({
   vi: {
     headerTitle: 'Bảo trì & Khôi phục thiết bị',
     headerSubtitle:
-      'Quản lý Ticket sự cố được phân công, cập nhật báo cáo khắc phục và chuyển trạng thái thiết bị về AVAILABLE.',
+      'Quản lý yêu cầu hỗ trợ sự cố được phân công, cập nhật báo cáo khắc phục và chuyển trạng thái thiết bị về AVAILABLE.',
     needsAction: 'Cần xử lý',
-    totalTickets: 'Tổng Ticket',
+    totalTickets: 'Tổng yêu cầu hỗ trợ',
     close: 'Đóng',
     tabMine: (count: number) => `Đã gán cho tôi (${count})`,
-    tabAllActive: (count: number) => `Tất cả Ticket đang mở (${count})`,
+    tabAllActive: (count: number) => `Tất cả yêu cầu hỗ trợ đang mở (${count})`,
     tabResolved: (count: number) => `Đã hoàn tất (${count})`,
-    emptyTitle: 'Không có ticket bảo trì',
+    emptyTitle: 'Không có yêu cầu bảo trì',
     emptyBody:
       'Toàn bộ thiết bị đang hoạt động bình thường hoặc chưa có công việc được phân công.',
     defaultIssue: 'Sự cố kỹ thuật',
@@ -23,7 +23,7 @@ export const maintenancePageMessages = defineMessages({
     updateAndRestore: 'Cập nhật & Khôi phục thiết bị',
     notesRequiredError: 'Vui lòng nhập chi tiết công việc sửa chữa/khắc phục.',
     resolveSuccess: (ticketCode: string, deviceId: string, status: string) =>
-      `Đã hoàn tất bảo trì cho Ticket ${ticketCode}. Thiết bị ${deviceId} đã chuyển về ${status}!`,
+      `Đã hoàn tất bảo trì cho yêu cầu hỗ trợ ${ticketCode}. Thiết bị ${deviceId} đã chuyển về ${status}!`,
     resolveFailed: 'Không thể lưu thông tin bảo trì',
     modalTitle: 'Cập nhật Báo cáo Sửa chữa',
     modalTicketPrefix: 'Ticket:',

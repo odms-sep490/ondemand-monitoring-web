@@ -196,7 +196,7 @@ describe('MissionDetailScreen', () => {
         expect(screen.queryByText('Xác nhận hoàn thành nhiệm vụ')).toBeNull()
       }
       expect(
-        screen.queryByRole('button', { name: 'Gửi kết quả cho Manager' }),
+        screen.queryByRole('button', { name: 'Gửi kết quả cho quản lý' }),
       ).toBeNull()
     },
   )
@@ -224,7 +224,7 @@ describe('MissionDetailScreen', () => {
       await screen.findByText('Chưa sẵn sàng gửi kết quả'),
     ).toBeInTheDocument()
     expect(
-      await screen.findByRole('button', { name: 'Gửi kết quả cho Manager' }),
+      await screen.findByRole('button', { name: 'Gửi kết quả cho quản lý' }),
     ).toBeDisabled()
   })
   it('keeps mission detail stable on focus and refreshes result status only from the checklist button', async () => {
@@ -256,13 +256,13 @@ describe('MissionDetailScreen', () => {
     })
     act(() => window.dispatchEvent(new Event('focus')))
     expect(
-      screen.queryByRole('button', { name: 'Gửi kết quả cho Manager' }),
+      screen.queryByRole('button', { name: 'Gửi kết quả cho quản lý' }),
     ).toBeNull()
 
     fireEvent.click(screen.getByRole('button', { name: /Tải lại/ }))
     await waitFor(() =>
       expect(
-        screen.getByRole('button', { name: 'Gửi kết quả cho Manager' }),
+        screen.getByRole('button', { name: 'Gửi kết quả cho quản lý' }),
       ).toBeEnabled(),
     )
   })
@@ -295,7 +295,7 @@ describe('MissionDetailScreen', () => {
     expect(complete).not.toHaveBeenCalled()
     expect(submit).not.toHaveBeenCalled()
     expect(
-      screen.queryByRole('button', { name: 'Gửi kết quả cho Manager' }),
+      screen.queryByRole('button', { name: 'Gửi kết quả cho quản lý' }),
     ).toBeNull()
   })
 
@@ -337,7 +337,7 @@ describe('MissionDetailScreen', () => {
 
     render(<MissionDetailPage missionId="m" />)
     fireEvent.click(
-      await screen.findByRole('button', { name: 'Gửi kết quả cho Manager' }),
+      await screen.findByRole('button', { name: 'Gửi kết quả cho quản lý' }),
     )
 
     await waitFor(() => expect(complete).toHaveBeenCalledWith('m'))
@@ -436,7 +436,7 @@ describe('MissionDetailScreen', () => {
         .mockResolvedValue({} as never)
       render(<MissionDetailPage missionId="m" />)
       fireEvent.click(
-        await screen.findByRole('button', { name: 'Gửi kết quả cho Manager' }),
+        await screen.findByRole('button', { name: 'Gửi kết quả cho quản lý' }),
       )
       await waitFor(() =>
         expect(submit).toHaveBeenCalledWith('m', expect.any(Object)),
@@ -462,7 +462,7 @@ describe('MissionDetailScreen', () => {
     render(<MissionDetailPage missionId="m" />)
     await screen.findByText('Mở dữ liệu nghiệm thu')
     expect(
-      screen.queryByRole('button', { name: 'Gửi kết quả cho Manager' }),
+      screen.queryByRole('button', { name: 'Gửi kết quả cho quản lý' }),
     ).toBeNull()
   })
 
@@ -522,23 +522,23 @@ describe('MissionDetailScreen', () => {
       })
     const view = render(<MissionDetailPage missionId="m1" />)
     const first = await screen.findByRole('button', {
-      name: 'Gửi kết quả cho Manager',
+      name: 'Gửi kết quả cho quản lý',
     })
     expect(first).toBeEnabled()
     view.rerender(<MissionDetailPage missionId="m2" />)
     expect(
-      await screen.findByRole('button', { name: 'Gửi kết quả cho Manager' }),
+      await screen.findByRole('button', { name: 'Gửi kết quả cho quản lý' }),
     ).toBeDisabled()
     view.rerender(<MissionDetailPage missionId="m1" />)
     fireEvent.click(
-      await screen.findByRole('button', { name: 'Gửi kết quả cho Manager' }),
+      await screen.findByRole('button', { name: 'Gửi kết quả cho quản lý' }),
     )
     await waitFor(() =>
       expect(submit).toHaveBeenCalledWith('m1', expect.any(Object)),
     )
     await waitFor(() =>
       expect(
-        screen.queryByRole('button', { name: 'Gửi kết quả cho Manager' }),
+        screen.queryByRole('button', { name: 'Gửi kết quả cho quản lý' }),
       ).toBeNull(),
     )
     expect(submit).toHaveBeenCalledOnce()

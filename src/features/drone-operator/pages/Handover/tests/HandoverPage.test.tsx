@@ -33,7 +33,7 @@ describe('HandoverScreen', () => {
     render(<HandoverPage />)
     expect(screen.getByText('Bàn giao quyền điều khiển')).toBeTruthy()
     expect(
-      screen.getByText('Xác nhận bàn giao sau preflight'),
+      screen.getByText('Xác nhận bàn giao sau kiểm tra trước chuyến bay'),
     ).toBeTruthy()
   })
 

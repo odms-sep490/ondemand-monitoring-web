@@ -2,13 +2,15 @@ import { defineMessages } from '../../../../../shared/i18n'
 
 export const locationCorrectionFormMessages = defineMessages({
   vi: {
-    outOfRange: 'Điểm vừa chọn nằm ngoài phạm vi bản đồ hợp lệ. Vui lòng chọn lại.',
+    outOfRange:
+      'Điểm vừa chọn nằm ngoài phạm vi bản đồ hợp lệ. Vui lòng chọn lại.',
     notFound: 'Không tìm được địa chỉ tại vị trí này.',
     manualHint: 'Bạn vẫn có thể nhập địa chỉ thủ công.',
     lookupFailed: 'Không thể tìm địa chỉ. Bạn vẫn có thể nhập thủ công.',
     updateFailed: 'Không thể cập nhật khu vực.',
     heading: 'Cập nhật khu vực giám sát',
-    intro: 'Bấm vào bản đồ để chọn lại vị trí. Chỉ khu vực hiện tại của đơn sẽ được thay đổi.',
+    intro:
+      'Bấm vào bản đồ để chọn lại vị trí. Chỉ khu vực hiện tại của đơn sẽ được thay đổi.',
     mapLabel: 'Bản đồ chọn lại khu vực giám sát',
     street: 'Bản đồ',
     satellite: 'Vệ tinh',
@@ -25,13 +27,16 @@ export const locationCorrectionFormMessages = defineMessages({
     max: '5.000 m',
   },
   en: {
-    outOfRange: 'The selected point is outside the valid map range. Please pick again.',
+    outOfRange:
+      'The selected point is outside the valid map range. Please pick again.',
     notFound: 'No address found at this location.',
     manualHint: 'You can still enter the address manually.',
-    lookupFailed: 'Could not look up the address. You can still enter it manually.',
+    lookupFailed:
+      'Could not look up the address. You can still enter it manually.',
     updateFailed: 'Could not update the area.',
     heading: 'Update the monitoring area',
-    intro: 'Click the map to pick a new location. Only the current area of this order will change.',
+    intro:
+      'Click the map to pick a new location. Only the current area of this order will change.',
     mapLabel: 'Map for re-picking the monitoring area',
     street: 'Map',
     satellite: 'Satellite',

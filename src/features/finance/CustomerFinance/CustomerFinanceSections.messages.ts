@@ -12,10 +12,12 @@ export const customerFinanceSectionsMessages = defineMessages({
     legalCheckingBody:
       'Chúng tôi đang xác minh các điều kiện cần thiết trước khi đơn hàng có thể tiếp tục.',
     permitTitle: 'Đang xác minh giấy phép bay',
-    permitBody: 'Bạn vẫn có thể tiếp tục. Chúng tôi sẽ cập nhật khi giấy phép được xác nhận.',
+    permitBody:
+      'Bạn vẫn có thể tiếp tục. Chúng tôi sẽ cập nhật khi giấy phép được xác nhận.',
     accept: 'Chấp nhận báo giá',
     invoice: (number: string) => `Hóa đơn ${number}`,
-    depositIpn: 'Khoản đặt cọc được xác nhận qua IPN VNPAY trước khi nhiệm vụ bắt đầu.',
+    depositIpn:
+      'Khoản đặt cọc được xác nhận qua IPN VNPAY trước khi nhiệm vụ bắt đầu.',
     total: 'Tổng',
     deposit: 'Tiền đặt cọc (30%)',
     paid: 'Đã thanh toán',
@@ -46,14 +48,17 @@ export const customerFinanceSectionsMessages = defineMessages({
     estimateNotice: 'The estimated quote does not include on-demand services.',
     legalRejectedTitle: 'This order cannot be carried out',
     legalCheckingTitle: 'Verifying flight area conditions',
-    legalRejectedBody: 'This order cannot be carried out because of the flight area conditions.',
+    legalRejectedBody:
+      'This order cannot be carried out because of the flight area conditions.',
     legalCheckingBody:
       'We are verifying the required conditions before the order can continue.',
     permitTitle: 'Verifying the flight permit',
-    permitBody: 'You can still continue. We will update you once the permit is confirmed.',
+    permitBody:
+      'You can still continue. We will update you once the permit is confirmed.',
     accept: 'Accept quote',
     invoice: (number: string) => `Invoice ${number}`,
-    depositIpn: 'The deposit is confirmed through VNPAY IPN before the mission starts.',
+    depositIpn:
+      'The deposit is confirmed through VNPAY IPN before the mission starts.',
     total: 'Total',
     deposit: 'Deposit (30%)',
     paid: 'Paid',

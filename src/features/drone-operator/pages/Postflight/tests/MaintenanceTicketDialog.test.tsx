@@ -18,8 +18,8 @@ describe('MaintenanceTicketDialog', () => {
         onConfirm={vi.fn()}
       />,
     )
-    expect(screen.getByText('Tạo ticket bảo trì')).toBeTruthy()
-    expect(screen.getByText('Tạo ticket')).toBeTruthy()
+    expect(screen.getByText('Tạo yêu cầu bảo trì')).toBeTruthy()
+    expect(screen.getByText('Tạo yêu cầu hỗ trợ')).toBeTruthy()
   })
 
   it('renders english title and buttons when language is switched', () => {

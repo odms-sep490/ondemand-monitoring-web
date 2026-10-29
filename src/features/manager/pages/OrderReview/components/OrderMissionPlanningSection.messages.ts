@@ -75,14 +75,14 @@ export const orderMissionPlanningSectionMessages = defineMessages({
       'Give it a recognizable name, then check the weather and pick a flight schedule.',
     closeCreateAria: 'Close mission creation form',
     replaceCloseTitle: 'Close the replacement mission form?',
-    replaceDialogAria: (code: string) => `Create replacement mission for ${code}`,
+    replaceDialogAria: (code: string) =>
+      `Create replacement mission for ${code}`,
     replaceHeading: (code: string) => `Create replacement mission for ${code}`,
     replaceSubtitle:
       'Set up the flight schedule, scope and task list again to replace the cancelled mission.',
     closeReplaceAria: 'Close replacement mission form',
     noMissions: 'No missions yet',
-    permitEmptyHint:
-      'Plan and create missions before managing flight permits.',
+    permitEmptyHint: 'Plan and create missions before managing flight permits.',
     planEmptyHint:
       'Use the “Add mission” button above to create the first mission for this order.',
     openChecklist: (uncovered: number) =>

@@ -8,7 +8,8 @@ export const notificationItemMessages = defineMessages({
   },
   en: {
     mediaAvailable: 'New results are ready',
-    other: (type: string) => (type ? `Notification: ${type}` : 'New notification'),
+    other: (type: string) =>
+      type ? `Notification: ${type}` : 'New notification',
     view: 'View result',
   },
 })

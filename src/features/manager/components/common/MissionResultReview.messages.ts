@@ -46,7 +46,8 @@ export const missionResultReviewMessages = defineMessages({
     noteHint: 'Cần khi từ chối, hoặc khi duyệt dù thiếu ảnh/video so với đơn',
     notePlaceholder:
       'Nhập lý do (ít nhất 10 ký tự) nếu từ chối hoặc duyệt khi còn thiếu ảnh/video…',
-    checklistNotReadyToApprove: 'Danh mục kiểm tra chưa sẵn sàng để duyệt kết quả.',
+    checklistNotReadyToApprove:
+      'Danh mục kiểm tra chưa sẵn sàng để duyệt kết quả.',
     rejectResult: 'Từ chối kết quả',
     approveResult: 'Duyệt kết quả',
   },

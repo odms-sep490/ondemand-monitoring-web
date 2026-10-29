@@ -44,19 +44,23 @@ export const schedulePageMessages = defineMessages({
     unknownError: 'Lỗi không xác định.',
     rescheduleReason: 'Lý do đổi lịch (tuỳ chọn)',
     rescheduleReasonPlaceholder: 'Ví dụ: khách yêu cầu dời lịch',
-    backendNotSupported: 'Backend chưa hỗ trợ đổi lịch nhiệm vụ',
-    customerWindow: 'Khoảng thời gian Customer yêu cầu',
+    backendNotSupported: 'Hệ thống chưa hỗ trợ đổi lịch nhiệm vụ',
+    customerWindow: 'Khoảng thời gian khách hàng yêu cầu',
     customerFallback: 'Phương án khi không thể bay',
     lastReschedule: 'Lần đổi lịch gần nhất',
     reason: 'Lý do đổi lịch',
     note: 'Ghi chú',
-    customerConfirmed: 'Tôi xác nhận đã liên hệ và được Customer đồng ý lịch mới.',
-    customerConfirmationRequired: 'Phải liên hệ và được Customer xác nhận trước khi đổi lịch.',
-    cancelPolicyMessage: 'Customer đã chọn hủy yêu cầu khi chuyến bay không thể thực hiện. Hãy dùng quy trình hủy Order.',
-    runtimeStartedMessage: 'Mission đã bắt đầu vận hành nên không thể đổi lịch. Hãy dùng quy trình safe-stop hoặc xử lý sự cố.',
+    customerConfirmed:
+      'Tôi xác nhận đã liên hệ và được khách hàng đồng ý lịch mới.',
+    customerConfirmationRequired:
+      'Phải liên hệ và được khách hàng xác nhận trước khi đổi lịch.',
+    cancelPolicyMessage:
+      'Khách hàng đã chọn hủy yêu cầu khi chuyến bay không thể thực hiện. Hãy dùng quy trình hủy Order.',
+    runtimeStartedMessage:
+      'Nhiệm vụ đã bắt đầu vận hành nên không thể đổi lịch. Hãy dùng quy trình safe-stop hoặc xử lý sự cố.',
     fallbackLabels: {
       AUTO_RESCHEDULE: 'Tự dời lịch trong khoảng đã yêu cầu',
-      CONTACT_CUSTOMER: 'Liên hệ Customer trước khi đổi',
+      CONTACT_CUSTOMER: 'Liên hệ khách hàng trước khi đổi',
       CANCEL_ORDER: 'Hủy yêu cầu',
     },
     reasonLabels: {
@@ -65,7 +69,7 @@ export const schedulePageMessages = defineMessages({
       RESOURCE_UNAVAILABLE: 'Nhân sự hoặc thiết bị không sẵn sàng',
       EQUIPMENT_ISSUE: 'Thiết bị gặp sự cố',
       SITE_ACCESS_BLOCKED: 'Không thể tiếp cận hiện trường',
-      CUSTOMER_REQUEST: 'Theo yêu cầu Customer',
+      CUSTOMER_REQUEST: 'Theo yêu cầu khách hàng',
       OTHER: 'Lý do khác',
     },
     weekGridAriaLabel: 'Lịch nhiệm vụ theo tuần',
@@ -141,10 +145,14 @@ export const schedulePageMessages = defineMessages({
     lastReschedule: 'Latest schedule change',
     reason: 'Reschedule reason',
     note: 'Note',
-    customerConfirmed: 'I confirm the customer was contacted and accepted the new schedule.',
-    customerConfirmationRequired: 'Contact the customer and obtain confirmation before rescheduling.',
-    cancelPolicyMessage: 'The customer selected cancellation when the flight cannot proceed. Use the Order cancellation workflow.',
-    runtimeStartedMessage: 'This mission has started and cannot be rescheduled. Use safe-stop or incident handling.',
+    customerConfirmed:
+      'I confirm the customer was contacted and accepted the new schedule.',
+    customerConfirmationRequired:
+      'Contact the customer and obtain confirmation before rescheduling.',
+    cancelPolicyMessage:
+      'The customer selected cancellation when the flight cannot proceed. Use the Order cancellation workflow.',
+    runtimeStartedMessage:
+      'This mission has started and cannot be rescheduled. Use safe-stop or incident handling.',
     fallbackLabels: {
       AUTO_RESCHEDULE: 'Reschedule automatically inside the requested window',
       CONTACT_CUSTOMER: 'Contact customer before changing',

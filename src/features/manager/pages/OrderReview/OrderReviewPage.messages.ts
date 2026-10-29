@@ -46,7 +46,7 @@ export const orderReviewPageMessages = defineMessages({
     underReview: 'Đang duyệt',
     actionHint: 'Chọn kết quả duyệt. Khách sẽ nhận thông báo sau quyết định.',
     requestInfo: 'Yêu cầu bổ sung',
-    requestInfoDisabled: 'Backend chưa hỗ trợ yêu cầu bổ sung thông tin',
+    requestInfoDisabled: 'Hệ thống chưa hỗ trợ yêu cầu bổ sung thông tin',
     reject: 'Từ chối',
     approveAndCreateMission: 'Duyệt & lên lịch',
     approveFailed: 'Duyệt đơn thất bại, thử lại.',
@@ -159,8 +159,7 @@ export const orderReviewPageMessages = defineMessages({
     actionHintNext:
       'Sau khi duyệt, hệ thống sẽ chuyển sang bước Lên lịch để thiết lập thời gian, gán nguồn lực và xác nhận thực hiện nhiệm vụ.',
     approveTitle: 'Duyệt đơn hàng?',
-    approveHint:
-      'Hệ thống sẽ tạo nhiệm vụ và giữ bạn trong luồng thiết lập.',
+    approveHint: 'Hệ thống sẽ tạo nhiệm vụ và giữ bạn trong luồng thiết lập.',
     approveChecklist: [
       'Tạo nhiệm vụ tự động',
       'Sao chép khu vực',

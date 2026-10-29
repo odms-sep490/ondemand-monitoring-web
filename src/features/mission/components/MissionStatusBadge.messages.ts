@@ -4,16 +4,16 @@ export const missionStatusBadgeMessages = defineMessages({
   vi: {
     mission: {
       WAITING_DEPOSIT: 'Chờ xác nhận tiền cọc',
-      READY: 'Mission đã xác nhận, đang chuẩn bị resource',
-      WAITING_OPERATOR_ACCEPTANCE: 'Chờ Operator tiếp nhận',
+      READY: 'Nhiệm vụ đã xác nhận, đang chuẩn bị resource',
+      WAITING_OPERATOR_ACCEPTANCE: 'Chờ người vận hành tiếp nhận',
       SCHEDULED: 'Đã lên lịch (Scheduled)',
       CONNECTED: 'GCS App Connected',
-      PREFLIGHT_CHECKING: 'Đang kiểm tra Preflight',
+      PREFLIGHT_CHECKING: 'Đang kiểm tra trước chuyến bay',
       READY_TO_FLY: 'Sẵn sàng cất cánh (Ready)',
       IN_FLIGHT: 'Đang bay (In-Flight)',
       RETURNING: 'Đang hạ cánh / về trạm',
       COMPLETED: 'Nhiệm vụ hoàn thành',
-      FAILED_PREFLIGHT: 'Lỗi Preflight / Chờ duyệt lại',
+      FAILED_PREFLIGHT: 'Lỗi kiểm tra trước chuyến bay / Chờ duyệt lại',
       CANCELLED: 'Đã hủy / Thất bại',
     },
     device: {

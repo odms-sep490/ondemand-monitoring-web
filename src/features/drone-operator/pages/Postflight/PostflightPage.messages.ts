@@ -54,7 +54,7 @@ export const postflightPageMessages = defineMessages({
     assessAllRequired: (total: number) =>
       `Vui lòng kiểm tra và chọn ĐẠT/KHÔNG ĐẠT đủ cả ${total} mục.`,
     saveFailed:
-      'Không thể lưu báo cáo Postflight. Vui lòng kiểm tra kết nối Server.',
+      'Không thể lưu báo cáo kiểm tra sau chuyến bay. Vui lòng kiểm tra kết nối Server.',
     noteWriteFailed: 'Không ghi được ghi chú bảo trì',
     incidentDetailsPrefix: '[Chi tiết sự cố]:',
     missionNotFoundTitle: 'Không tìm thấy thông tin nhiệm vụ',
@@ -66,15 +66,15 @@ export const postflightPageMessages = defineMessages({
     missionCodeLabel: 'Mã nhiệm vụ:',
     deviceLabel: 'Thiết bị:',
     missionStatusLabel: 'Trạng thái nhiệm vụ',
-    missionStatusValue: 'Chờ nghiệm thu upload media',
+    missionStatusValue: 'Chờ nghiệm thu tải lên media',
     physicalCheckLabel: 'Kiểm tra vật lý sau bay',
     physicalCheckAllPass: '100% ĐẠT',
     physicalCheckSomeFail: (count: number) =>
       `PHÁT HIỆN BẤT THƯỜNG (${count} mục)`,
     droneStatusLabel: (deviceId: string) => `Trạng thái thiết bị (${deviceId})`,
     droneStatusAvailable: '🟢 AVAILABLE (Sẵn sàng bay)',
-    droneStatusMaintenance: '🟡 MAINTENANCE (Tự động mở Ticket Bảo trì)',
-    maintenanceTicketLabel: 'Ticket Bảo trì Backend',
+    droneStatusMaintenance: '🟡 MAINTENANCE (Tự động mở yêu cầu bảo trì)',
+    maintenanceTicketLabel: 'Yêu cầu bảo trì hệ thống',
     maintenanceTicketValue: 'TKT-POSTFLIGHT-XXXX (Đã tạo thành công)',
     backToMissionList: 'Về danh sách nhiệm vụ',
     stepTitle: 'Kiểm tra sau chuyến bay',
@@ -95,8 +95,8 @@ export const postflightPageMessages = defineMessages({
     notesPlaceholder:
       'Ghi chú thêm về hiện trạng thiết bị, điều kiện môi trường hoặc phát sinh trong chuyến bay...',
     foundFailures: (count: number) => `🚨 Phát hiện ${count} mục KHÔNG ĐẠT`,
-    autoTicketNotePrefix: 'Hệ thống Backend sẽ',
-    autoTicketNoteBold: 'tự động khởi tạo Ticket Bảo trì (Ticket Status: OPEN)',
+    autoTicketNotePrefix: 'Hệ thống sẽ',
+    autoTicketNoteBold: 'tự động khởi tạo yêu cầu bảo trì (trạng thái: OPEN)',
     autoTicketNoteMid: 'cho thiết bị',
     autoTicketNoteSuffix: 'ngay khi bạn gửi báo cáo.',
     detailsAdded: '✓ Đã bổ sung chi tiết',
@@ -106,7 +106,7 @@ export const postflightPageMessages = defineMessages({
     allPassNoteBold: 'SẴN SÀNG (AVAILABLE)',
     allPassNoteSuffix: 'cho chuyến bay tiếp theo.',
     submitting: 'Đang gửi báo cáo...',
-    submitAndCreateTicket: 'Gửi báo cáo & Tạo Ticket Bảo trì',
+    submitAndCreateTicket: 'Gửi báo cáo & Tạo yêu cầu bảo trì',
     completeFlight: 'Hoàn tất postcheck',
     failedItemsDescription: (items: string) =>
       `Mục không đạt kiểm tra sau bay: ${items}`,

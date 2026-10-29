@@ -9,7 +9,8 @@ export const accountsPageMessages = defineMessages({
     emptyDescription: 'Thử thay đổi bộ lọc hoặc tạo tài khoản mới.',
     createdBanner: 'Đã tạo tài khoản',
     invitationSent: 'Lời mời đã được gửi qua email.',
-    passwordChangeRequired: 'Người dùng phải đổi mật khẩu khi đăng nhập lần đầu.',
+    passwordChangeRequired:
+      'Người dùng phải đổi mật khẩu khi đăng nhập lần đầu.',
   },
   en: {
     title: 'Users',
@@ -19,6 +20,7 @@ export const accountsPageMessages = defineMessages({
     emptyDescription: 'Try changing the filters or create a new account.',
     createdBanner: 'Account created',
     invitationSent: 'An invitation was sent by email.',
-    passwordChangeRequired: 'The user must change their password on first sign-in.',
+    passwordChangeRequired:
+      'The user must change their password on first sign-in.',
   },
 })

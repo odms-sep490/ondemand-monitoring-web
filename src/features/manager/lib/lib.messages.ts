@@ -95,7 +95,8 @@ export const managerLibMessages = defineMessages({
     },
     planning: {
       blockers: {
-        ORDER_NOT_APPROVED: 'Đơn hàng chưa ở trạng thái cho phép chốt kế hoạch.',
+        ORDER_NOT_APPROVED:
+          'Đơn hàng chưa ở trạng thái cho phép chốt kế hoạch.',
         INVOICE_NOT_PAYABLE:
           'Khách hàng cần chấp nhận báo giá trước khi tạo nhiệm vụ.',
         FINAL_PAYMENT_REQUIRED:
@@ -109,8 +110,7 @@ export const managerLibMessages = defineMessages({
           'Phân công danh mục kiểm tra cần được kiểm tra lại trước khi chốt.',
         MULTI_MISSION_LEGACY_ORDER_NOT_MIGRATED:
           'Kế hoạch cũ cần được kiểm tra trước khi tiếp tục.',
-        INVALID_REQUEST:
-          'Thông tin chưa hợp lệ. Vui lòng kiểm tra và thử lại.',
+        INVALID_REQUEST: 'Thông tin chưa hợp lệ. Vui lòng kiểm tra và thử lại.',
         ACCESS_DENIED: 'Bạn không có quyền thực hiện thao tác này.',
         UNAUTHORIZED: 'Vui lòng đăng nhập lại để tiếp tục.',
         EXECUTION_PLAN_REVISION_CONFLICT:
@@ -151,8 +151,7 @@ export const managerLibMessages = defineMessages({
       orderOverdue: (hours: number, overdueHours: number) =>
         `${hours}h · over ${overdueHours}h`,
       orderHours: (hours: number) => `${hours}h`,
-      hoursMinutes: (hours: number, minutes: number) =>
-        `${hours}h ${minutes}m`,
+      hoursMinutes: (hours: number, minutes: number) => `${hours}h ${minutes}m`,
       minutesOnly: (minutes: number) => `${minutes}m`,
       late: (label: string) => `${label} late`,
       remaining: (label: string) => `In ${label}`,
@@ -240,7 +239,8 @@ export const managerLibMessages = defineMessages({
     },
     planning: {
       blockers: {
-        ORDER_NOT_APPROVED: 'The order is not in a state that allows finalizing the plan.',
+        ORDER_NOT_APPROVED:
+          'The order is not in a state that allows finalizing the plan.',
         INVOICE_NOT_PAYABLE:
           'The customer must accept the quote before a Mission can be created.',
         FINAL_PAYMENT_REQUIRED:
@@ -255,7 +255,8 @@ export const managerLibMessages = defineMessages({
           'The checklist assignment needs to be rechecked before finalizing.',
         MULTI_MISSION_LEGACY_ORDER_NOT_MIGRATED:
           'The legacy plan needs to be reviewed before continuing.',
-        INVALID_REQUEST: 'The information is invalid. Please check and try again.',
+        INVALID_REQUEST:
+          'The information is invalid. Please check and try again.',
         ACCESS_DENIED: 'You do not have permission to perform this action.',
         UNAUTHORIZED: 'Please sign in again to continue.',
         EXECUTION_PLAN_REVISION_CONFLICT:

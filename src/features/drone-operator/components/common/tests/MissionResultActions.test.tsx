@@ -65,12 +65,12 @@ describe('Exact Mission result actions', () => {
       ).toBe(Boolean(complete))
       expect(
         Boolean(
-          screen.queryByRole('button', { name: 'Gửi kết quả cho Manager' }),
+          screen.queryByRole('button', { name: 'Gửi kết quả cho quản lý' }),
         ),
       ).toBe(Boolean(submit))
       if (submit) {
         const button = screen.getByRole('button', {
-          name: 'Gửi kết quả cho Manager',
+          name: 'Gửi kết quả cho quản lý',
         })
         if (complete) expect(button).toBeEnabled()
         else expect(button).toBeDisabled()
@@ -155,7 +155,7 @@ describe('Exact Mission result actions', () => {
       screen.queryByRole('button', { name: 'Xác nhận hoàn thành nhiệm vụ' }),
     ).toBeNull()
     expect(
-      screen.queryByRole('button', { name: 'Gửi kết quả cho Manager' }),
+      screen.queryByRole('button', { name: 'Gửi kết quả cho quản lý' }),
     ).toBeNull()
     expect(screen.getByText('Chờ duyệt')).toBeInTheDocument()
   })

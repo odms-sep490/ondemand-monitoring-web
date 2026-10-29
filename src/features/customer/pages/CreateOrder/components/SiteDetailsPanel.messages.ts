@@ -17,7 +17,8 @@ export const siteDetailsPanelMessages = defineMessages({
     contactPhoneLabel: 'Số điện thoại',
     contactPhonePlaceholder: '0901 234 567',
     accessNotesLabel: 'Điều kiện ra vào',
-    accessNotesPlaceholder: 'Cổng vào, thủ tục đăng ký, người dẫn đường, giờ làm việc...',
+    accessNotesPlaceholder:
+      'Cổng vào, thủ tục đăng ký, người dẫn đường, giờ làm việc...',
     filesSection: 'Tệp khu vực (tùy chọn)',
   },
   en: {
@@ -30,7 +31,8 @@ export const siteDetailsPanelMessages = defineMessages({
     lengthPlaceholder: 'E.g. 1200',
     lengthHint: 'Optional. For runways, roads, pipelines.',
     contactSection: 'On-site contact',
-    contactHint: 'So the flight crew can call you on arrival or when access is needed.',
+    contactHint:
+      'So the flight crew can call you on arrival or when access is needed.',
     contactNameLabel: 'Contact person',
     contactNamePlaceholder: 'Full name',
     contactPhoneLabel: 'Phone number',

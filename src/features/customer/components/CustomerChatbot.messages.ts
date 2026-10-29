@@ -13,7 +13,7 @@ export const customerChatbotMessages = defineMessages({
         'Bạn chọn dịch vụ, vị trí, phạm vi giám sát rồi gửi yêu cầu để quản lý duyệt.',
       flightZone:
         'Khi bạn kéo vị trí hoặc đổi bán kính, hệ thống sẽ kiểm tra vùng cấm bay và báo hợp lệ ngay trên bản đồ.',
-      cost: 'Chi phí phụ thuộc diện tích, thời lượng, loại payload và độ phức tạp mission. Báo giá sẽ hiện trước khi bạn gửi duyệt.',
+      cost: 'Chi phí phụ thuộc diện tích, thời lượng, loại payload và độ phức tạp nhiệm vụ. Báo giá sẽ hiện trước khi bạn gửi duyệt.',
       weather:
         'Nếu thời tiết xấu, hệ thống sẽ cảnh báo và có thể gợi ý đổi lịch bay để đảm bảo an toàn.',
       status:
@@ -22,7 +22,7 @@ export const customerChatbotMessages = defineMessages({
         'Mình có thể hỗ trợ về tạo yêu cầu, vùng bay, chi phí, thời tiết và trạng thái đơn. Bạn hỏi ngắn hơn một chút nhé.',
     },
     greeting:
-      'Xin chào! Mình có thể hỗ trợ bạn tạo yêu cầu giám sát và kiểm tra thông tin mission.',
+      'Xin chào! Mình có thể hỗ trợ bạn tạo yêu cầu giám sát và kiểm tra thông tin nhiệm vụ.',
     assistantLabel: 'Trợ lý khách hàng',
     assistantName: 'Trợ lý ODMS',
     online: 'Đang trực tuyến',

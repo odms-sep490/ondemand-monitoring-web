@@ -20,7 +20,7 @@ describe('StaffRequestQueuePage', () => {
     ).toBeInTheDocument()
     expect(
       screen.getByText(
-        'Xem lại các yêu cầu giám sát mới gửi và duyệt để tạo mission.',
+        'Xem lại các yêu cầu giám sát mới gửi và duyệt để tạo nhiệm vụ.',
       ),
     ).toBeInTheDocument()
     expect(screen.getByText('Đơn chờ duyệt')).toBeInTheDocument()

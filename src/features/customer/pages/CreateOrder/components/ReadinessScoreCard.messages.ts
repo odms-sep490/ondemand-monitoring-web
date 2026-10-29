@@ -9,6 +9,7 @@ export const readinessScoreCardMessages = defineMessages({
   en: {
     cardTitle: 'Readiness assessment',
     scoreTitle: 'Request readiness score',
-    scoreHint: 'This score helps you spot missing information before creating the order.',
+    scoreHint:
+      'This score helps you spot missing information before creating the order.',
   },
 })

@@ -10,7 +10,8 @@ export const scheduleOptionsCardMessages = defineMessages({
     occurrencesHint: (type: 'WEEKLY' | 'MONTHLY', n: number) =>
       `${n} chuyến, mỗi ${type === 'WEEKLY' ? 'tuần' : 'tháng'} một chuyến (2–52).`,
     weatherLegend: 'Nếu chuyến bay không thực hiện được',
-    weatherHint: 'Do thời tiết xấu, thiết bị gặp sự cố hoặc không vào được hiện trường.',
+    weatherHint:
+      'Do thời tiết xấu, thiết bị gặp sự cố hoặc không vào được hiện trường.',
     weather: {
       AUTO_RESCHEDULE: {
         title: 'Tự dời lịch',
@@ -27,7 +28,8 @@ export const scheduleOptionsCardMessages = defineMessages({
     },
     deadline: 'Hạn chót cần có kết quả',
     deadlineOptional: '(không bắt buộc)',
-    deadlineHint: 'Chọn ngày bạn cần nhận kết quả, từ ngày bay muộn nhất trở đi.',
+    deadlineHint:
+      'Chọn ngày bạn cần nhận kết quả, từ ngày bay muộn nhất trở đi.',
   },
   en: {
     cardTitle: 'Schedule options',
@@ -38,7 +40,8 @@ export const scheduleOptionsCardMessages = defineMessages({
     occurrencesHint: (type: 'WEEKLY' | 'MONTHLY', n: number) =>
       `${n} flights, one every ${type === 'WEEKLY' ? 'week' : 'month'} (2–52).`,
     weatherLegend: 'If the flight cannot go ahead',
-    weatherHint: 'Because of bad weather, equipment trouble or blocked site access.',
+    weatherHint:
+      'Because of bad weather, equipment trouble or blocked site access.',
     weather: {
       AUTO_RESCHEDULE: {
         title: 'Reschedule',
@@ -55,6 +58,7 @@ export const scheduleOptionsCardMessages = defineMessages({
     },
     deadline: 'Result deadline',
     deadlineOptional: '(optional)',
-    deadlineHint: 'Pick the date you need the result by, on or after the latest flight date.',
+    deadlineHint:
+      'Pick the date you need the result by, on or after the latest flight date.',
   },
 })

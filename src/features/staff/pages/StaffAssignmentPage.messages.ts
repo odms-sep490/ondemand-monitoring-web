@@ -3,17 +3,17 @@ import { defineMessages } from '../../../shared/i18n'
 export const staffAssignmentPageMessages = defineMessages({
   vi: {
     title: 'Phân công',
-    subtitle: 'Phân công thiết bị và staff cho các mission vừa được duyệt.',
-    pendingAssignments: 'Mission chờ phân công',
+    subtitle: 'Phân công thiết bị và staff cho các nhiệm vụ vừa được duyệt.',
+    pendingAssignments: 'Nhiệm vụ chờ phân công',
     refresh: 'Làm mới',
     loadFailed: 'Không tải được danh sách phân công',
     chooseBoth: 'Vui lòng chọn cả thiết bị và staff trước khi phân công.',
     chooseAll:
       'Vui lòng chọn thiết bị và PILOT. Các vai trò còn lại là tùy chọn.',
     assignFailed: 'Phân công thất bại',
-    loadingMissions: 'Đang tải mission...',
-    noMissions: 'Không có mission nào đang chờ phân công.',
-    missionId: 'Mã mission',
+    loadingMissions: 'Đang tải nhiệm vụ...',
+    noMissions: 'Không có nhiệm vụ nào đang chờ phân công.',
+    missionId: 'Mã nhiệm vụ',
     missionTitle: 'Tiêu đề',
     customer: 'Khách hàng',
     selectDrone: 'Chọn thiết bị',
@@ -21,11 +21,11 @@ export const staffAssignmentPageMessages = defineMessages({
     chooseStaffPlaceholder: '-- Chọn staff --',
     staffSectionTitle: 'Phân công nhân sự',
     staffSectionSubtitle:
-      'Tìm và phân công nhân sự cho từng vai trò của mission.',
+      'Tìm và phân công nhân sự cho từng vai trò của nhiệm vụ.',
     assignedCount: (assigned: number, total: number) =>
       `${assigned}/${total} vai trò đã phân công`,
     missingRoles: (roles: string) => `Còn thiếu ${roles}`,
-    noMissingRoles: 'Đã đủ nhân sự cho mission.',
+    noMissingRoles: 'Đã đủ nhân sự cho nhiệm vụ.',
     chooseStaff: '+ Chọn staff',
     changeStaff: 'Đổi nhân sự',
     removeStaff: 'Bỏ chọn',

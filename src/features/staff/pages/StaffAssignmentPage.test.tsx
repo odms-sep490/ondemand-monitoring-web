@@ -22,19 +22,19 @@ describe('StaffAssignmentPage', () => {
   it('renders the Vietnamese title and empty state', async () => {
     render(<StaffAssignmentPage />)
     expect(
-      await screen.findByText('Không có mission nào đang chờ phân công.'),
+      await screen.findByText('Không có nhiệm vụ nào đang chờ phân công.'),
     ).toBeInTheDocument()
     expect(
       screen.getByText(
-        'Phân công thiết bị và staff cho các mission vừa được duyệt.',
+        'Phân công thiết bị và staff cho các nhiệm vụ vừa được duyệt.',
       ),
     ).toBeInTheDocument()
-    expect(screen.getByText('Mission chờ phân công')).toBeInTheDocument()
+    expect(screen.getByText('Nhiệm vụ chờ phân công')).toBeInTheDocument()
   })
 
   it('renders the English title and empty state when language is switched', async () => {
     render(<StaffAssignmentPage />)
-    await screen.findByText('Không có mission nào đang chờ phân công.')
+    await screen.findByText('Không có nhiệm vụ nào đang chờ phân công.')
     act(() => setLanguage('en'))
     expect(
       screen.getByText('No missions waiting for assignment.'),

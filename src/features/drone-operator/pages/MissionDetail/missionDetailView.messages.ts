@@ -41,7 +41,7 @@ export const missionDetailViewMessages = defineMessages({
     radiusValue: (m: number) => `Bán kính ${m} m`,
     missionType: 'Loại nhiệm vụ',
     respondBy: 'Hạn phản hồi',
-    managerRemark: 'Lưu ý từ manager',
+    managerRemark: 'Lưu ý từ quản lý',
     // info card
     infoTitle: 'Thông tin nhiệm vụ',
     missionCode: 'Mã nhiệm vụ',

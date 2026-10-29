@@ -90,8 +90,7 @@ export const pricingConfigMessages = defineMessages({
     tabAdvanced: (n: number) => `Quy tắc nâng cao (${n})`,
     policyName: 'Tên chính sách',
     guardrails: 'Giới hạn điều chỉnh giá',
-    guardrailsHint:
-      'Mức Quản lý được phép giảm hoặc tăng so với giá hệ thống.',
+    guardrailsHint: 'Mức Quản lý được phép giảm hoặc tăng so với giá hệ thống.',
     fieldMaxDiscount: 'Giảm giá tối đa (%)',
     fieldMaxMarkup: 'Mức tăng giá tối đa (%)',
     fieldHighRisk: 'Ngưỡng rủi ro cao (%)',
@@ -159,8 +158,7 @@ export const pricingConfigMessages = defineMessages({
     tierPriceAria: (title: string) => `${title}: giá mỗi khối`,
     perEvery: (price: string, size: number, noun: string) =>
       `${price} / mỗi ${size} ${noun}`,
-    deleteTierAria: (noun: string, range: string) =>
-      `Xóa bậc ${noun} ${range}`,
+    deleteTierAria: (noun: string, range: string) => `Xóa bậc ${noun} ${range}`,
     deleteTier: 'Xóa bậc giá',
     deleteTierConfirm: (range: string) =>
       `Bạn có chắc muốn xóa bậc giá “${range}”?`,
@@ -258,8 +256,7 @@ export const pricingConfigMessages = defineMessages({
     edit: 'Edit',
     deleteRule: 'Delete rule',
     deleteRuleNamed: (name: string) => `Delete rule ${name}`,
-    deleteRuleConfirm: (name: string) =>
-      `Delete the rule “${name}”?`,
+    deleteRuleConfirm: (name: string) => `Delete the rule “${name}”?`,
     discard: 'Discard changes',
     close: 'Close',
     saveDraft: 'Save draft',
@@ -276,8 +273,7 @@ export const pricingConfigMessages = defineMessages({
     tabAdvanced: (n: number) => `Advanced rules (${n})`,
     policyName: 'Policy name',
     guardrails: 'Price adjustment limits',
-    guardrailsHint:
-      'How far a Manager may lower or raise the system price.',
+    guardrailsHint: 'How far a Manager may lower or raise the system price.',
     fieldMaxDiscount: 'Maximum discount (%)',
     fieldMaxMarkup: 'Maximum markup (%)',
     fieldHighRisk: 'High-risk threshold (%)',
@@ -337,7 +333,8 @@ export const pricingConfigMessages = defineMessages({
       'No price tier yet. Images/videos above the allowance cannot be priced until one is added.',
     tierFromLabel: 'Value from',
     tierFromAria: (title: string) => `${title}: from`,
-    tierFromHint: 'Technical starting point; begins at 0 for the part above the allowance.',
+    tierFromHint:
+      'Technical starting point; begins at 0 for the part above the allowance.',
     tierToAria: (title: string) => `${title}: to`,
     tierToHint: 'Leave empty if this is the last, unlimited tier.',
     tierBlockAria: (title: string) => `${title}: block size`,
@@ -347,8 +344,7 @@ export const pricingConfigMessages = defineMessages({
     deleteTierAria: (noun: string, range: string) =>
       `Delete ${noun} tier ${range}`,
     deleteTier: 'Delete price tier',
-    deleteTierConfirm: (range: string) =>
-      `Delete the price tier “${range}”?`,
+    deleteTierConfirm: (range: string) => `Delete the price tier “${range}”?`,
     addTier: '+ Add price tier',
     firstVideo: 'First video',
     videoFrom: (from: number) => `Video ${from} and up`,
@@ -356,7 +352,8 @@ export const pricingConfigMessages = defineMessages({
     videoRange: (from: number, to: number) => `Video ${from}–${to}`,
     imageRange: (from: number, to: number) => `Image ${from}–${to}`,
     issues: {
-      PROFILE: 'Pricing profile may only contain letters, digits and underscores.',
+      PROFILE:
+        'Pricing profile may only contain letters, digits and underscores.',
       COMPONENT: 'The price component is missing.',
       ALLOWANCE:
         'Invalid included allowance (whole number 0–500, customer-added requirements only).',

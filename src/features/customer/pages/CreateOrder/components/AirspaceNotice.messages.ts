@@ -3,7 +3,8 @@ import { defineMessages } from '../../../../../shared/i18n'
 export const airspaceNoticeMessages = defineMessages({
   vi: {
     title: 'Thông tin giấy phép bay (không bắt buộc)',
-    message: 'Đội vận hành chịu trách nhiệm kiểm tra và thực hiện thủ tục xin phép bay. Nếu đã có giấy phép, bạn có thể cung cấp để chúng tôi đối chiếu nhanh hơn.',
+    message:
+      'Đội vận hành chịu trách nhiệm kiểm tra và thực hiện thủ tục xin phép bay. Nếu đã có giấy phép, bạn có thể cung cấp để chúng tôi đối chiếu nhanh hơn.',
     question: 'Thông tin bạn muốn cung cấp',
     noPermitRequired: 'Tôi không cung cấp thông tin giấy phép',
     havePermit: 'Tôi đã có giấy phép bay',
@@ -15,16 +16,20 @@ export const airspaceNoticeMessages = defineMessages({
     permitFilesDrop: 'Kéo thả tệp vào đây hoặc',
     permitFilesChoose: 'chọn tệp',
     permitFilesMeta: 'PDF hoặc ảnh, tối đa 3 tệp, mỗi tệp không quá 5 MB',
-    permitFilesHint: 'Bộ phận vận hành sẽ đối chiếu tệp này với số giấy phép và thời hạn trước khi duyệt.',
-    permitFilesUnsupported: (name: string) => `Không hỗ trợ tệp ${name}. Chỉ nhận PDF hoặc ảnh.`,
+    permitFilesHint:
+      'Bộ phận vận hành sẽ đối chiếu tệp này với số giấy phép và thời hạn trước khi duyệt.',
+    permitFilesUnsupported: (name: string) =>
+      `Không hỗ trợ tệp ${name}. Chỉ nhận PDF hoặc ảnh.`,
     permitFilesTooLarge: (name: string) => `Tệp ${name} vượt quá 5 MB.`,
     permitFilesTooMany: 'Chỉ đính kèm tối đa 3 tệp giấy phép.',
     permitFilesRemove: (name: string) => `Xóa tệp ${name}`,
-    supportHint: 'Đội vận hành sẽ chủ động liên hệ và thực hiện thủ tục xin phép trước khi bay.',
+    supportHint:
+      'Đội vận hành sẽ chủ động liên hệ và thực hiện thủ tục xin phép trước khi bay.',
   },
   en: {
     title: 'Flight permit information (optional)',
-    message: 'The operations team is responsible for checking and arranging the flight permit. If you already have one, you may provide it for faster verification.',
+    message:
+      'The operations team is responsible for checking and arranging the flight permit. If you already have one, you may provide it for faster verification.',
     question: 'Information you want to provide',
     noPermitRequired: 'I am not providing permit information',
     havePermit: 'I already have a flight permit',
@@ -36,11 +41,14 @@ export const airspaceNoticeMessages = defineMessages({
     permitFilesDrop: 'Drop files here or',
     permitFilesChoose: 'choose files',
     permitFilesMeta: 'PDF or image, up to 3 files, 5 MB each',
-    permitFilesHint: 'Operations will check this file against the permit number and validity before approving.',
-    permitFilesUnsupported: (name: string) => `${name} is not supported. Only PDF or images are accepted.`,
+    permitFilesHint:
+      'Operations will check this file against the permit number and validity before approving.',
+    permitFilesUnsupported: (name: string) =>
+      `${name} is not supported. Only PDF or images are accepted.`,
     permitFilesTooLarge: (name: string) => `${name} is larger than 5 MB.`,
     permitFilesTooMany: 'You can attach at most 3 permit files.',
     permitFilesRemove: (name: string) => `Remove ${name}`,
-    supportHint: 'The operations team will contact you and arrange the permit before the flight.',
+    supportHint:
+      'The operations team will contact you and arrange the permit before the flight.',
   },
 })

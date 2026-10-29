@@ -24,7 +24,8 @@ export const missionResultReviewReadinessMessages = defineMessages({
         'Loại ảnh/video chưa phù hợp. Cần bổ sung ảnh/video đúng loại yêu cầu.',
     },
     checking: 'Đang kiểm tra điều kiện duyệt…',
-    unknown: 'Chưa xác nhận được điều kiện duyệt. Vui lòng tải lại danh mục kiểm tra.',
+    unknown:
+      'Chưa xác nhận được điều kiện duyệt. Vui lòng tải lại danh mục kiểm tra.',
     missionNotComplete:
       'Nhiệm vụ chưa hoàn thành. Chỉ duyệt kết quả sau khi nhiệm vụ hoàn thành.',
     checklistNotReady:

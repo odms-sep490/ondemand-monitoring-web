@@ -13,7 +13,7 @@ export const postflightModalMessages = defineMessages({
     notesPlaceholder: 'Nhập chi tiết ghi chú...',
     cancel: 'Hủy',
     submitting: 'Đang gửi...',
-    confirmComplete: 'Xác nhận & Hoàn thành Mission',
+    confirmComplete: 'Xác nhận & Hoàn thành nhiệm vụ',
   },
   en: {
     defaultNotes:

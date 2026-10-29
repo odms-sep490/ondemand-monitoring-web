@@ -18,7 +18,8 @@ export const createTicketModalMessages = defineMessages({
     subject: 'Tiêu đề',
     subjectPlaceholder: 'Mô tả ngắn gọn vấn đề của bạn...',
     description: 'Nội dung / chi tiết',
-    descriptionPlaceholder: 'Mô tả điều đã xảy ra hoặc bạn cần hỗ trợ về vấn đề gì...',
+    descriptionPlaceholder:
+      'Mô tả điều đã xảy ra hoặc bạn cần hỗ trợ về vấn đề gì...',
     priority: 'Mức ưu tiên',
     attachment: 'Đường dẫn đính kèm (tùy chọn)',
     attachmentPlaceholder: 'https://... (ảnh chụp màn hình / liên kết video)',
@@ -30,7 +31,8 @@ export const createTicketModalMessages = defineMessages({
     successTitle: 'Yêu cầu hỗ trợ của bạn đã được tạo',
     ticketCode: 'Mã yêu cầu',
     status: 'Trạng thái',
-    successNote: 'Thời gian phản hồi dự kiến: 15 – 30 phút. Bạn sẽ nhận được cập nhật trong trung tâm thông báo.',
+    successNote:
+      'Thời gian phản hồi dự kiến: 15 – 30 phút. Bạn sẽ nhận được cập nhật trong trung tâm thông báo.',
     close: 'Đóng',
     viewTicket: 'Xem chi tiết yêu cầu',
   },
@@ -51,7 +53,8 @@ export const createTicketModalMessages = defineMessages({
     subject: 'Subject',
     subjectPlaceholder: 'Briefly describe your problem...',
     description: 'Details',
-    descriptionPlaceholder: 'Tell us what happened or what you need help with...',
+    descriptionPlaceholder:
+      'Tell us what happened or what you need help with...',
     priority: 'Priority',
     attachment: 'Attachment link (optional)',
     attachmentPlaceholder: 'https://... (screenshot or video link)',
@@ -63,7 +66,8 @@ export const createTicketModalMessages = defineMessages({
     successTitle: 'Your support ticket has been created',
     ticketCode: 'Ticket code',
     status: 'Status',
-    successNote: 'Expected reply time: 15 to 30 minutes. Updates will appear in your notification center.',
+    successNote:
+      'Expected reply time: 15 to 30 minutes. Updates will appear in your notification center.',
     close: 'Close',
     viewTicket: 'View ticket details',
   },

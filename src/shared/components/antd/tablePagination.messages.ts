@@ -2,7 +2,8 @@ import { defineMessages } from '../../i18n'
 
 export const tablePaginationMessages = defineMessages({
   vi: {
-    range: (from: number, to: number, total: number) => `${from}–${to} / ${total}`,
+    range: (from: number, to: number, total: number) =>
+      `${from}–${to} / ${total}`,
     perPage: '/ trang',
     prev: 'Trang trước',
     next: 'Trang sau',
@@ -11,7 +12,8 @@ export const tablePaginationMessages = defineMessages({
     showLess: 'Thu gọn',
   },
   en: {
-    range: (from: number, to: number, total: number) => `${from}–${to} / ${total}`,
+    range: (from: number, to: number, total: number) =>
+      `${from}–${to} / ${total}`,
     perPage: '/ page',
     prev: 'Previous page',
     next: 'Next page',

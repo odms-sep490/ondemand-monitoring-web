@@ -3,7 +3,7 @@ import { defineMessages } from '../../../shared/i18n'
 export const staffRequestQueuePageMessages = defineMessages({
   vi: {
     title: 'Hàng chờ yêu cầu',
-    subtitle: 'Xem lại các yêu cầu giám sát mới gửi và duyệt để tạo mission.',
+    subtitle: 'Xem lại các yêu cầu giám sát mới gửi và duyệt để tạo nhiệm vụ.',
     pendingOrders: 'Đơn chờ duyệt',
     refresh: 'Làm mới',
     loadFailed: 'Không tải được danh sách đơn chờ duyệt',

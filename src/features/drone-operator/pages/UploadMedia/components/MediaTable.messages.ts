@@ -2,7 +2,7 @@ import { defineMessages } from '../../../../../shared/i18n'
 
 export const mediaTableMessages = defineMessages({
   vi: {
-    emptyTitle: 'Chưa có media để upload',
+    emptyTitle: 'Chưa có media để tải lên',
     emptyBody: 'Không có tệp nào ở trạng thái PENDING_UPLOAD trên thiết bị.',
     columns: {
       name: 'Tên tệp',
@@ -13,10 +13,10 @@ export const mediaTableMessages = defineMessages({
       status: 'Trạng thái',
     },
     statusLabel: {
-      UPLOADED: 'Đã upload',
+      UPLOADED: 'Đã tải lên',
       UPLOADING: 'Đang upload',
       FAILED: 'Thất bại',
-      PENDING_UPLOAD: 'Chờ upload',
+      PENDING_UPLOAD: 'Chờ tải lên',
     },
     manualTaskCreated: 'Đã tạo yêu cầu xử lý thủ công',
     retrying: 'Đang thử...',

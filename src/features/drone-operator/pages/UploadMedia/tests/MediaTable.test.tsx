@@ -23,7 +23,7 @@ describe('MediaTable', () => {
   it('renders vietnamese column headers and status label', () => {
     render(<MediaTable files={files} retryingId={null} onRetry={vi.fn()} />)
     expect(screen.getByText('Tên tệp')).toBeTruthy()
-    expect(screen.getByText('Đã upload')).toBeTruthy()
+    expect(screen.getByText('Đã tải lên')).toBeTruthy()
   })
 
   it('renders english column headers and status label when language is switched', () => {
@@ -35,6 +35,6 @@ describe('MediaTable', () => {
 
   it('renders the vietnamese empty state', () => {
     render(<MediaTable files={[]} retryingId={null} onRetry={vi.fn()} />)
-    expect(screen.getByText('Chưa có media để upload')).toBeTruthy()
+    expect(screen.getByText('Chưa có media để tải lên')).toBeTruthy()
   })
 })

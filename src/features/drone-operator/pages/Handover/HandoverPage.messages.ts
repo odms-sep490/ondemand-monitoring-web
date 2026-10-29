@@ -15,9 +15,9 @@ export const handoverPageMessages = defineMessages({
       'Vui lòng chạy precheck thành công trước khi bàn giao',
     confirmFailed: 'Không xác nhận được cam kết',
     stepTitle: 'Bàn giao quyền điều khiển',
-    commitmentTitle: 'Xác nhận bàn giao sau preflight',
+    commitmentTitle: 'Xác nhận bàn giao sau kiểm tra trước chuyến bay',
     ackLabel:
-      'Tôi xác nhận preflight đã đạt và bàn giao cho pilot tiếp tục bay',
+      'Tôi xác nhận kiểm tra trước chuyến bay đã đạt và bàn giao cho pilot tiếp tục bay',
     back: 'Quay lại',
     processing: 'Đang xử lý...',
     confirmHandover: 'Xác nhận bàn giao',

@@ -41,7 +41,8 @@ export const orderQueuePageMessages = defineMessages({
       action: 'Thao tác',
     },
     depositReceived: 'Đã nhận cọc',
-    resultCount: (shown: number, total: number) => `Hiển thị ${shown}/${total} đơn`,
+    resultCount: (shown: number, total: number) =>
+      `Hiển thị ${shown}/${total} đơn`,
     review: 'Duyệt',
     plan: 'Lập kế hoạch',
     view: 'Xem',
@@ -50,8 +51,7 @@ export const orderQueuePageMessages = defineMessages({
     loadError: 'Không tải được hàng đợi',
     allLoadError: 'Không tải được danh sách đơn.',
     emptyTitle: 'Không còn đơn chờ duyệt',
-    emptyDescription:
-      'Khi khách gửi đơn mới, đơn sẽ xuất hiện ở đây.',
+    emptyDescription: 'Khi khách gửi đơn mới, đơn sẽ xuất hiện ở đây.',
     emptyReady: 'Chưa có đơn nào chờ lập kế hoạch',
     emptyAll: 'Không có đơn nào trong nhóm này.',
     emptySearch: 'Không có đơn phù hợp với tìm kiếm.',
@@ -97,7 +97,8 @@ export const orderQueuePageMessages = defineMessages({
       action: 'Action',
     },
     depositReceived: 'Deposit received',
-    resultCount: (shown: number, total: number) => `Showing ${shown}/${total} orders`,
+    resultCount: (shown: number, total: number) =>
+      `Showing ${shown}/${total} orders`,
     review: 'Review',
     plan: 'Plan execution',
     view: 'View',

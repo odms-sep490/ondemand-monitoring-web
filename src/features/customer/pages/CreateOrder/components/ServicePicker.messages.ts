@@ -3,7 +3,8 @@ import { defineMessages } from '../../../../../shared/i18n'
 export const servicePickerMessages = defineMessages({
   vi: {
     cardTitle: 'Chọn dịch vụ giám sát',
-    cardHint: 'Chọn dịch vụ phù hợp với nhu cầu của bạn. Sau đó hệ thống sẽ gợi ý nội dung giám sát tương ứng.',
+    cardHint:
+      'Chọn dịch vụ phù hợp với nhu cầu của bạn. Sau đó hệ thống sẽ gợi ý nội dung giám sát tương ứng.',
     searchPlaceholder: 'Tìm dịch vụ…',
     searchLabel: 'Tìm dịch vụ',
     scrollNext: 'Xem thêm dịch vụ',
@@ -25,7 +26,8 @@ export const servicePickerMessages = defineMessages({
   },
   en: {
     cardTitle: 'Choose a monitoring service',
-    cardHint: 'Pick the service that fits your needs. We will then suggest the matching monitoring content.',
+    cardHint:
+      'Pick the service that fits your needs. We will then suggest the matching monitoring content.',
     searchPlaceholder: 'Search services…',
     searchLabel: 'Search services',
     scrollNext: 'Show more services',

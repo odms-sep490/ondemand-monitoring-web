@@ -3,7 +3,8 @@ import { defineMessages } from '../../../../../shared/i18n'
 export const confirmSubmitModalMessages = defineMessages({
   vi: {
     title: 'Gửi yêu cầu giám sát?',
-    subtitle: 'Yêu cầu sẽ được chuyển cho bộ phận vận hành để xem xét và duyệt.',
+    subtitle:
+      'Yêu cầu sẽ được chuyển cho bộ phận vận hành để xem xét và duyệt.',
     groupContent: 'Nội dung giám sát',
     checklists: 'Nội dung đã chọn',
     checklistCount: (n: number) => `${n} nội dung`,

@@ -4,11 +4,13 @@ export const helpCenterHomeMessages = defineMessages({
   vi: {
     eyebrow: 'Thông tin & Hướng dẫn sử dụng',
     title: 'Chúng tôi có thể hỗ trợ bạn như thế nào?',
-    subtitle: 'Tìm câu trả lời về đơn hàng giám sát, lịch bay, kết quả và cài đặt tài khoản của bạn.',
+    subtitle:
+      'Tìm câu trả lời về đơn hàng giám sát, lịch bay, kết quả và cài đặt tài khoản của bạn.',
     myTickets: 'Yêu cầu hỗ trợ của tôi',
     createTicket: '+ Tạo yêu cầu hỗ trợ',
     searchLabel: 'Tìm kiếm câu trả lời',
-    searchPlaceholder: "Tìm kiếm câu trả lời (vd: 'Tại sao đơn hàng chưa được duyệt?', 'Video bị thiếu')...",
+    searchPlaceholder:
+      "Tìm kiếm câu trả lời (vd: 'Tại sao đơn hàng chưa được duyệt?', 'Video bị thiếu')...",
     clearSearch: 'Xóa tìm kiếm',
     topicsTitle: 'Chủ đề phổ biến',
     articleCount: (n: number) => `${n} bài viết`,
@@ -31,16 +33,19 @@ export const helpCenterHomeMessages = defineMessages({
   en: {
     eyebrow: 'Guides & how-tos',
     title: 'How can we help you?',
-    subtitle: 'Find answers about your monitoring orders, flight schedules, results and account settings.',
+    subtitle:
+      'Find answers about your monitoring orders, flight schedules, results and account settings.',
     myTickets: 'My support tickets',
     createTicket: '+ New support ticket',
     searchLabel: 'Search for answers',
-    searchPlaceholder: "Search for answers (for example 'Why is my order not approved?', 'Video is missing')...",
+    searchPlaceholder:
+      "Search for answers (for example 'Why is my order not approved?', 'Video is missing')...",
     clearSearch: 'Clear search',
     topicsTitle: 'Popular topics',
     articleCount: (n: number) => `${n} ${n === 1 ? 'article' : 'articles'}`,
     faqTitle: 'Frequently asked questions',
-    faqTitleFiltered: (topic: string) => `Frequently asked questions (${topic})`,
+    faqTitleFiltered: (topic: string) =>
+      `Frequently asked questions (${topic})`,
     clearFilter: 'Clear filter',
     emptyTitle: 'No articles found',
     emptyDescription: (query: string) =>

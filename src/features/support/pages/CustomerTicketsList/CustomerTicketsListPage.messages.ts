@@ -4,7 +4,8 @@ export const customerTicketsListMessages = defineMessages({
   vi: {
     back: '← Trung tâm hỗ trợ',
     title: 'Yêu cầu hỗ trợ của tôi',
-    subtitle: 'Theo dõi các yêu cầu hỗ trợ bạn đã gửi và trao đổi với đội ngũ của chúng tôi.',
+    subtitle:
+      'Theo dõi các yêu cầu hỗ trợ bạn đã gửi và trao đổi với đội ngũ của chúng tôi.',
     create: '+ Tạo yêu cầu hỗ trợ',
     total: 'Tổng số yêu cầu',
     filter: 'Lọc trạng thái',

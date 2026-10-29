@@ -12,10 +12,10 @@ export const sidebarMessages = defineMessages({
     },
     operatorNav: {
       dashboard: 'Tổng quan',
-      myMissions: 'Mission của tôi',
-      missionControl: 'Điều khiển mission',
+      myMissions: 'Nhiệm vụ của tôi',
+      missionControl: 'Điều khiển nhiệm vụ',
       media: 'Media',
-      history: 'Lịch sử mission',
+      history: 'Lịch sử nhiệm vụ',
       zoneMap: 'Bản đồ vùng bay',
     },
     customerNav: {

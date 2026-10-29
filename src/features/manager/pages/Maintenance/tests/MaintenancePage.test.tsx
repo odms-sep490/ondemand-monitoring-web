@@ -23,6 +23,6 @@ describe('MaintenancePage', () => {
 
   it('has no create-ticket button (backend has no POST endpoint)', () => {
     render(<MaintenancePage />)
-    expect(screen.queryByText('+ Tạo ticket')).toBeNull()
+    expect(screen.queryByText('+ Tạo yêu cầu hỗ trợ')).toBeNull()
   })
 })

@@ -5,7 +5,7 @@ import { operatorApiMessages } from './operatorApi.messages'
 describe('operatorApiMessages', () => {
   it('provides Vietnamese text', () => {
     expect(operatorApiMessages.vi.loadFailed(500)).toBe(
-      'Không tải được danh sách operator (HTTP 500)',
+      'Không tải được danh sách người vận hành (HTTP 500)',
     )
   })
 

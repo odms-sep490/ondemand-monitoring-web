@@ -3,7 +3,7 @@ import { defineMessages } from '../../../shared/i18n'
 export const customerFinancePanelMessages = defineMessages({
   vi: {
     title: 'Báo giá và thanh toán',
-    description: 'Giá được manager xác nhận theo phạm vi yêu cầu của đơn.',
+    description: 'Giá được quản lý xác nhận theo phạm vi yêu cầu của đơn.',
     loading: 'Đang tải báo giá...',
     networkError: 'Không thể kết nối tới máy chủ. Vui lòng thử lại.',
     paymentProviderError:

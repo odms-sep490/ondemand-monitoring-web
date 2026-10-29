@@ -40,7 +40,8 @@ export const checklistMessages = defineMessages({
     fork: 'Tạo bản sao riêng cho dịch vụ này',
     forking: 'Đang tạo bản sao…',
     forkConfirm: 'Tạo bản sao riêng và chuyển dịch vụ này sang bản sao?',
-    forked: 'Đã tạo bản sao riêng. Bạn có thể sửa nội dung mà không ảnh hưởng dịch vụ khác.',
+    forked:
+      'Đã tạo bản sao riêng. Bạn có thể sửa nội dung mà không ảnh hưởng dịch vụ khác.',
     baseValue: 'Giá trị gốc',
     serviceOverrideNote:
       'Các giá trị dưới đây chỉ áp dụng cho dịch vụ này. Để trống để kế thừa giá trị gốc.',
@@ -105,14 +106,16 @@ export const checklistMessages = defineMessages({
     removeTitle: 'Gỡ checklist khỏi dịch vụ?',
     contentHint: 'Nội dung có thể tái sử dụng cho nhiều dịch vụ.',
     descriptionLabel: 'Mô tả chi tiết',
-    descriptionHint: 'Mục đích và phạm vi của hạng mục này. Khách hàng và manager đều đọc được.',
+    descriptionHint:
+      'Mục đích và phạm vi của hạng mục này. Khách hàng và quản lý đều đọc được.',
     stepsLabel: 'Các bước thực hiện',
     stepsHint: 'Mỗi dòng là một bước, theo đúng thứ tự thực hiện.',
     inputsLabel: 'Đầu vào cần có',
     inputsHint: 'Mỗi dòng là một điều kiện cần có trước khi làm.',
     outputsLabel: 'Đầu ra cần nộp',
     outputsHint: 'Mỗi dòng là một sản phẩm đội bay phải nộp.',
-    guidanceInvalid: 'Mô tả tối đa 4000 ký tự; mỗi danh sách tối đa 30 dòng, mỗi dòng tối đa 500 ký tự.',
+    guidanceInvalid:
+      'Mô tả tối đa 4000 ký tự; mỗi danh sách tối đa 30 dòng, mỗi dòng tối đa 500 ký tự.',
     future:
       'Thay đổi chỉ áp dụng cho đơn hàng tương lai. Snapshot đơn hàng cũ không đổi.',
     add: 'Thêm checklist',
@@ -196,7 +199,8 @@ export const checklistMessages = defineMessages({
     difficultyMedium: 'Medium',
     difficultyHard: 'Hard',
     difficultyVeryHard: 'Very hard',
-    dimensionsHint: 'Turn on only the dimensions that really affect this checklist.',
+    dimensionsHint:
+      'Turn on only the dimensions that really affect this checklist.',
     areaPricing: 'Price by area',
     lengthPricing: 'Price by length',
     altitudePricing: 'Price by altitude',
@@ -230,7 +234,8 @@ export const checklistMessages = defineMessages({
     fork: 'Make a private copy for this service',
     forking: 'Creating copy…',
     forkConfirm: 'Create a private copy and move this service to it?',
-    forked: 'Private copy created. You can edit its content without affecting other services.',
+    forked:
+      'Private copy created. You can edit its content without affecting other services.',
     baseValue: 'Base value',
     serviceOverrideNote:
       'These values apply to this service only. Leave blank to inherit the base value.',
@@ -294,14 +299,17 @@ export const checklistMessages = defineMessages({
     removeTitle: 'Remove checklist from service?',
     contentHint: 'Requirements can be reused across multiple services.',
     descriptionLabel: 'Detailed description',
-    descriptionHint: 'Purpose and scope of this item. Customers and managers can read it.',
+    descriptionHint:
+      'Purpose and scope of this item. Customers and managers can read it.',
     stepsLabel: 'Execution steps',
     stepsHint: 'One step per line, in the order they are carried out.',
     inputsLabel: 'Required inputs',
-    inputsHint: 'One condition per line that must be in place before the work starts.',
+    inputsHint:
+      'One condition per line that must be in place before the work starts.',
     outputsLabel: 'Expected outputs',
     outputsHint: 'One deliverable per line that the crew must hand in.',
-    guidanceInvalid: 'Description up to 4000 characters; each list up to 30 lines of at most 500 characters.',
+    guidanceInvalid:
+      'Description up to 4000 characters; each list up to 30 lines of at most 500 characters.',
     future:
       'Changes apply only to future orders. Existing order snapshots stay unchanged.',
     add: 'Add checklist',

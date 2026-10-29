@@ -13,7 +13,7 @@ export const missionActionGuardMessages = defineMessages({
     errorMessage:
       'Không thể xác nhận quyền nhiệm vụ. Vui lòng kiểm tra lại hoặc đăng nhập lại.',
     pilotMessage:
-      'Bước này dành cho người vận hành kết nối thiết bị, preflight và bàn giao. Pilot tiếp tục ở buồng lái sau khi người vận hành bàn giao.',
+      'Bước này dành cho người vận hành kết nối thiết bị, kiểm tra trước chuyến bay và bàn giao. Pilot tiếp tục ở buồng lái sau khi người vận hành bàn giao.',
     deniedMessage:
       'Bạn chưa được phân công hoặc chưa có quyền thực hiện thao tác này.',
     deniedEyebrow: 'Chưa thể thao tác',

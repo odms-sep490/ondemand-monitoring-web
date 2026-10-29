@@ -7,7 +7,8 @@ export const missionHistoryPageMessages = defineMessages({
     refresh: 'Làm mới',
     errorTitle: 'Không tải được lịch sử lần bay',
     emptyTitle: 'Chưa có lần bay nào',
-    emptyDescription: 'Lần bay đã hoàn thành, thất bại hoặc bị huỷ sẽ hiện ở đây.',
+    emptyDescription:
+      'Lần bay đã hoàn thành, thất bại hoặc bị huỷ sẽ hiện ở đây.',
     unit: 'lần bay',
   },
   en: {

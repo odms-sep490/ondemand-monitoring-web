@@ -16,7 +16,8 @@ export const notificationsPageMessages = defineMessages({
     refresh: 'Refresh',
     errorTitle: 'Unable to load notifications',
     emptyTitle: 'No notifications yet',
-    emptyDescription: 'Notifications about your mission results will appear here.',
+    emptyDescription:
+      'Notifications about your mission results will appear here.',
     unit: 'notifications',
   },
 })

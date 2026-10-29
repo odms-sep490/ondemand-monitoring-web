@@ -24,7 +24,8 @@ export const customerTicketDetailMessages = defineMessages({
     send: 'Gửi phản hồi',
     sending: 'Đang gửi...',
     sendFailed: 'Không thể gửi phản hồi.',
-    finished: 'Yêu cầu hỗ trợ này đã được đóng. Nếu bạn vẫn còn thắc mắc, vui lòng tạo yêu cầu hỗ trợ mới.',
+    finished:
+      'Yêu cầu hỗ trợ này đã được đóng. Nếu bạn vẫn còn thắc mắc, vui lòng tạo yêu cầu hỗ trợ mới.',
   },
   en: {
     back: '← Back to my tickets',
@@ -49,6 +50,7 @@ export const customerTicketDetailMessages = defineMessages({
     send: 'Send reply',
     sending: 'Sending...',
     sendFailed: 'Could not send your reply.',
-    finished: 'This ticket is closed. If you still need help, please open a new ticket.',
+    finished:
+      'This ticket is closed. If you still need help, please open a new ticket.',
   },
 })

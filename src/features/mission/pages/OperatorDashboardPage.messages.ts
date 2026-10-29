@@ -2,10 +2,11 @@ import { defineMessages } from '../../../shared/i18n'
 
 export const operatorDashboardPageMessages = defineMessages({
   vi: {
-    loadingConnecting: (url: string) => `Đang kết nối backend server ${url}...`,
-    cannotConnect: 'Không thể kết nối Backend API',
+    loadingConnecting: (url: string) =>
+      `Đang kết nối hệ thống server ${url}...`,
+    cannotConnect: 'Không thể kết nối hệ thống API',
     errorPrefix: 'Lỗi:',
-    missionNotFound: 'Mission M-001 không tồn tại',
+    missionNotFound: 'Nhiệm vụ M-001 không tồn tại',
     ensureServerPrefix: 'Hãy đảm bảo Spring Boot server đang khởi chạy tại',
     retry: 'Thử lại (Reload)',
     missionTitle: (code: string) => `Nhiệm vụ ${code}`,
@@ -29,7 +30,7 @@ export const operatorDashboardPageMessages = defineMessages({
     rejectMission: 'Từ chối (Reject)',
     replaceDroneStandby: '🔄 Đổi Drone Dự Phòng (Replace Drone)',
     startFlight: 'XÁC NHẬN CẤT CÁNH (START FLIGHT)',
-    openPostflight: 'Mở Kiểm tra Post-flight & Hoàn thành Mission',
+    openPostflight: 'Mở Kiểm tra Post-flight & Hoàn thành nhiệm vụ',
     missionCompletedTitle: (code: string) => `Nhiệm vụ ${code} Đã Hoàn Thành!`,
     missionCompletedDescriptionPrefix:
       'Dữ liệu hình ảnh và nhật ký kiểm tra đã được lưu trữ an toàn. Drone',
@@ -45,8 +46,8 @@ export const operatorDashboardPageMessages = defineMessages({
     apiConnectGcsError: '[Lỗi API Connect GCS]:',
     apiPreflightError: '[Lỗi API Pre-flight Check]:',
     apiReplaceDroneError: '[Lỗi API Replace Drone]:',
-    apiStartMissionError: '[Lỗi API Start Mission]:',
-    apiUploadMediaError: '[Lỗi API Upload Media]:',
+    apiStartMissionError: '[Lỗi API Start nhiệm vụ]:',
+    apiUploadMediaError: '[Lỗi API tải lên Media]:',
     apiMarkReturningError: '[Lỗi API Mark Returning]:',
     apiPostflightError: '[Lỗi API Post-flight Status]:',
     uploadMediaSuccess: 'Tải tệp hình ảnh/video lên S3 thành công!',

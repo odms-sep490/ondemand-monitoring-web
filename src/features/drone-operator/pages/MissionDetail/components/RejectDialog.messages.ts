@@ -4,7 +4,7 @@ export const rejectDialogMessages = defineMessages({
   vi: {
     title: (missionId: string) => `Từ chối nhiệm vụ ${missionId}`,
     description:
-      'Vui lòng cho biết lý do để Manager có thể điều phối lại nhiệm vụ.',
+      'Vui lòng cho biết lý do để quản lý có thể điều phối lại nhiệm vụ.',
     reasons: [
       'Trùng lịch cá nhân',
       'Chưa đủ điều kiện vận hành',
