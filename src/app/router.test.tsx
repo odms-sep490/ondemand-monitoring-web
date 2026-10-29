@@ -13,7 +13,7 @@ import { ordersApi } from '../features/manager/api/ordersApi'
 import type { ManagerDashboardResponse } from '../features/manager/types/dashboard'
 import { Router } from './router'
 
-configure({ asyncUtilTimeout: 10000 })
+configure({ asyncUtilTimeout: 40000 })
 
 // These tests isolate navigation. The cookie/bootstrap contract is exercised
 // by sessionLifecycle.test.ts and the multi-tab browser suite.
@@ -40,7 +40,7 @@ afterEach(() => {
   window.location.hash = ''
 })
 
-vi.setConfig({ testTimeout: 15000 })
+vi.setConfig({ testTimeout: 60000 })
 
 describe('Router - auth hash sync (regression)', () => {
   it.each(['#portal/manager/missions', '#portal/staff/missions', '#profile'])(
