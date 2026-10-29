@@ -9,7 +9,6 @@ import {
 } from '../../../customer/components/common/ui'
 import { useI18n } from '../../../../shared/i18n'
 import { authSession } from '../../../auth/api/authApi'
-import { CUSTOMER_ROOT } from '../../../customer/routes'
 import { supportApi } from '../../api/supportApi'
 import { CreateTicketModal } from '../../components/CreateTicketModal'
 import { getFaqArticles, getPopularTopics } from '../../data/helpArticles'
@@ -68,7 +67,6 @@ export function HelpCenterHomePage() {
   return (
     <div className="sp-page">
       <PageHeader
-        back={<a href={CUSTOMER_ROOT}>{t.backHome}</a>}
         title={t.title}
         subtitle={t.subtitle}
         actions={

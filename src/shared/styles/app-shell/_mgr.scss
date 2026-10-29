@@ -23,6 +23,34 @@ $tones: (
 }
 
 .mgr-layout {
+  /*
+   * Bridge: legacy --ui-* tokens (shared kit, support, mission, finance...)
+   * resolve to the --mgr-* palette so they follow the same light/dark navy theme.
+   */
+  --ui-bg: var(--mgr-bg);
+  --ui-surface: var(--mgr-card);
+  --ui-surface-2: var(--mgr-card-2);
+  --ui-border: var(--mgr-border);
+  --ui-border-strong: color-mix(in srgb, var(--mgr-border) 70%, var(--mgr-muted));
+  --ui-text: var(--mgr-text);
+  --ui-text-2: color-mix(in srgb, var(--mgr-text) 78%, var(--mgr-muted));
+  --ui-text-3: var(--mgr-muted);
+  --ui-primary: var(--mgr-primary);
+  --ui-primary-soft: var(--mgr-primary-soft);
+  --ui-primary-text: var(--mgr-info);
+  --ui-success: var(--mgr-success);
+  --ui-success-soft: var(--mgr-success-soft);
+  --ui-success-text: var(--mgr-success);
+  --ui-warning: var(--mgr-warning);
+  --ui-warning-soft: var(--mgr-warning-soft);
+  --ui-warning-text: var(--mgr-warning);
+  --ui-danger: var(--mgr-error);
+  --ui-danger-soft: var(--mgr-error-soft);
+  --ui-danger-text: var(--mgr-error);
+  --ui-shadow: var(--mgr-shadow);
+  --ui-shadow-1: var(--mgr-shadow);
+  --ui-shadow-2: var(--mgr-shadow);
+
   /* ---------- Cards ---------- */
   .mgr-card {
     @include mgr-surface;

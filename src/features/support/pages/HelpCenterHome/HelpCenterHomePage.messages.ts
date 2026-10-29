@@ -2,7 +2,6 @@ import { defineMessages } from '../../../../shared/i18n'
 
 export const helpCenterHomeMessages = defineMessages({
   vi: {
-    backHome: '← Về trang chính',
     eyebrow: 'Thông tin & Hướng dẫn sử dụng',
     title: 'Chúng tôi có thể hỗ trợ bạn như thế nào?',
     subtitle: 'Tìm câu trả lời về đơn hàng giám sát, lịch bay, kết quả và cài đặt tài khoản của bạn.',
@@ -30,7 +29,6 @@ export const helpCenterHomeMessages = defineMessages({
     createTicketShort: 'Tạo yêu cầu hỗ trợ',
   },
   en: {
-    backHome: '← Back to dashboard',
     eyebrow: 'Guides & how-tos',
     title: 'How can we help you?',
     subtitle: 'Find answers about your monitoring orders, flight schedules, results and account settings.',
