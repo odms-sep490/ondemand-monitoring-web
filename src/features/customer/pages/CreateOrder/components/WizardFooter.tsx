@@ -1,3 +1,5 @@
+import { Button } from 'antd'
+
 import { useI18n } from '../../../../../shared/i18n'
 import type { Step } from '../../../lib/createOrder/types'
 import { wizardFooterMessages } from './WizardFooter.messages'
@@ -19,9 +21,7 @@ export function WizardFooter({ step, nextLabel, submitDisabled, nextDisabled = f
   return (
     <div className="co-footer">
       {step > 1 && (
-        <button type="button" className="odm-btn odm-btn-gh" onClick={onBack}>
-          {t.back}
-        </button>
+        <Button onClick={onBack}>{t.back}</Button>
       )}
       <span className="co-draft-note">{t.draftNote}</span>
       <div className="co-footer-spacer" />
@@ -31,13 +31,13 @@ export function WizardFooter({ step, nextLabel, submitDisabled, nextDisabled = f
         </span>
       )}
       {step < 6 ? (
-        <button type="button" className="odm-btn odm-btn-p" onClick={onNext} disabled={nextDisabled}>
+        <Button type="primary" onClick={onNext} disabled={nextDisabled}>
           {t.continueTo} {nextLabel}
-        </button>
+        </Button>
       ) : (
-        <button type="button" className="odm-btn odm-btn-p" onClick={onSubmit} disabled={submitDisabled}>
+        <Button type="primary" onClick={onSubmit} disabled={submitDisabled}>
           {t.submit}
-        </button>
+        </Button>
       )}
     </div>
   )

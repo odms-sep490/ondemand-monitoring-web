@@ -118,6 +118,8 @@ function visibleStrings(): string[] {
 function viLines(): string[] {
   return visibleStrings()
     .map(stripSeed)
+    // The language switch names Vietnamese in Vietnamese on purpose.
+    .filter((text) => text !== '[aria-label] Tiếng Việt')
     .filter((text) => VI_CHARS.test(text))
     .map((text) => text.trim().slice(0, 140))
 }
@@ -191,7 +193,7 @@ const ROUTES: Route[] = [
   {
     name: 'MissionHistory',
     hash: '#portal/customer/mission-history',
-    vi: 'Lịch sử mission',
+    vi: 'Lịch sử nhiệm vụ',
     en: 'Mission history',
   },
   {

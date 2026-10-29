@@ -1,5 +1,7 @@
+import { FileSearchOutlined } from '@ant-design/icons'
+import { InnerCollapse } from '../../../components/common/InnerCollapse'
 import { Icon, type IconName } from '../../../../../shared/components/Icon'
-import { Card } from '../../../../../shared/components/ui'
+import { Card } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import type {
   PreferredTimeOption,
@@ -47,7 +49,8 @@ type Item = {
 /** `2026-10-07` → `07/10/2026` for Vietnamese; other values pass through. */
 function formatDate(value: string, lang: string) {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value)
-  return match && lang === 'vi' ? `${match[3]}/${match[2]}/${match[1]}` : value
+  if (!match) return value
+  return lang === 'vi' ? `${match[3]}/${match[2]}/${match[1]}` : `${match[2]}/${match[3]}/${match[1]}`
 }
 
 /** Bold headline line(s) first, everything else folded into one muted line. */
@@ -257,7 +260,7 @@ export function RequestSummaryCard(p: Props) {
   ]
 
   return (
-    <Card title={t.cardTitle}>
+    <Card icon={<FileSearchOutlined />} title={t.cardTitle}>
       <p className="co-hint">{t.cardSubtitle}</p>
       <div className="co-sum-request-title">
         <span>{t.requestTitle}</span>
@@ -294,8 +297,7 @@ export function RequestSummaryCard(p: Props) {
           </div>
         ))}
       </dl>
-      <details className="co-sum-tech">
-        <summary>{t.technical}</summary>
+      <InnerCollapse className="co-sum-tech" title={t.technical}>
         <div className="co-sum-tech-row">
           <span>{t.coordinates}</span>
           <span className="co-mono">
@@ -304,7 +306,7 @@ export function RequestSummaryCard(p: Props) {
               : '—'}
           </span>
         </div>
-      </details>
+      </InnerCollapse>
     </Card>
   )
 }

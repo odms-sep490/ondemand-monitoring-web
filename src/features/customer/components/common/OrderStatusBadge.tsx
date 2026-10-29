@@ -1,4 +1,4 @@
-import { StatusBadge, toUiTone } from '../../../../shared/components/ui'
+import { StatusTag } from '../../../../shared/components/antd'
 import { useLanguage } from '../../../../shared/i18n'
 import type { OrderStatus } from '../../../../shared/types/domain'
 import { getOrderStatusMeta } from '../../lib/orderStatus'
@@ -7,5 +7,5 @@ import { getOrderStatusMeta } from '../../lib/orderStatus'
 export function OrderStatusBadge({ status }: { status: OrderStatus }) {
   const { lang } = useLanguage()
   const meta = getOrderStatusMeta(status, lang)
-  return <StatusBadge tone={toUiTone(meta.tone)}>{meta.label}</StatusBadge>
+  return <StatusTag tone={meta.tone}>{meta.label}</StatusTag>
 }

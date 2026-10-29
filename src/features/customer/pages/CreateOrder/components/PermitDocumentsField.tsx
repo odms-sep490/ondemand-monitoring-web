@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
 import { Icon } from '../../../../../shared/components/Icon'
-import { FormField } from '../../../../../shared/components/ui'
+import { FormField } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import type { CustomerOrderAttachment } from '../../../lib/createOrder/types'
 import { airspaceNoticeMessages } from './AirspaceNotice.messages'

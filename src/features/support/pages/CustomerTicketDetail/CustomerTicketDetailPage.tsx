@@ -1,5 +1,10 @@
-import { ErrorState, LoadingState } from '../../../../shared/components/odm/StateView'
-import { Card, EmptyState, PageHeader } from '../../../../shared/components/ui'
+import { Button } from 'antd'
+import {
+  EmptyState,
+  ErrorState,
+  LoadingState,
+} from '../../../customer/components/common/StateView'
+import { Card, PageHeader } from '../../../customer/components/common/ui'
 import { useI18n } from '../../../../shared/i18n'
 import { isTicketFinished } from '../../lib/ticketStatus'
 import '../../support.css'
@@ -19,15 +24,15 @@ export function CustomerTicketDetailPage({ ticketId }: { ticketId: string }) {
 
   if (!ticket) {
     return detail.error ? (
-      <ErrorState title={t.errorTitle} error={detail.error} onRetry={detail.reload} />
+      <ErrorState
+        title={t.errorTitle}
+        error={detail.error}
+        onRetry={detail.reload}
+      />
     ) : (
       <EmptyState
         title={t.notFoundTitle}
-        action={
-          <a className="odm-btn odm-btn-gh" href="#help/tickets">
-            {t.notFoundAction}
-          </a>
-        }
+        action={<Button href="#help/tickets">{t.notFoundAction}</Button>}
       />
     )
   }
@@ -46,7 +51,10 @@ export function CustomerTicketDetailPage({ ticketId }: { ticketId: string }) {
       <TicketOverview ticket={ticket} />
 
       <Card title={t.conversation}>
-        <MessageList messages={ticket.messages} description={ticket.description} />
+        <MessageList
+          messages={ticket.messages}
+          description={ticket.description}
+        />
         {isTicketFinished(ticket.status) ? (
           <div className="sp-notice is-success">{t.finished}</div>
         ) : (

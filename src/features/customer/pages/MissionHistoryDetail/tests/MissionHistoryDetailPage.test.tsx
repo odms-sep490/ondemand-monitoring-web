@@ -22,7 +22,7 @@ describe('MissionHistoryDetailPage', () => {
     render(<MissionHistoryDetailPage missionId="msn-006-1" />)
     expect(await screen.findByText('Thông tin lần bay')).toBeInTheDocument()
     expect(screen.getByText('Kiểm tra tiến độ nhà xưởng KCN Hiệp Phước')).toBeInTheDocument()
-    expect(screen.getByText('Hoàn thành', { selector: '.ui-badge' })).toBeInTheDocument()
+    expect(screen.getByText('Hoàn thành', { selector: '.mgr-status-tag' })).toBeInTheDocument()
     act(() => setLanguage('en'))
     expect(await screen.findByText('Mission information')).toBeInTheDocument()
   })
@@ -32,7 +32,7 @@ describe('MissionHistoryDetailPage', () => {
     render(<MissionHistoryDetailPage missionId="msn-006-1" />)
     await waitFor(() => expect(cards()).toHaveLength(12))
     expect(list).toHaveBeenCalledWith('msn-006-1', 0, 12, expect.any(AbortSignal))
-    const stat = screen.getByText('Sẵn sàng', { selector: '.ui-stat-label' }).closest('.ui-stat') as HTMLElement
+    const stat = screen.getByText('Sẵn sàng', { selector: '.mgr-stat-label' }).closest('.mgr-stat') as HTMLElement
     expect(within(stat).getByText('15')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Trang sau' }))
     await waitFor(() => expect(cards()).toHaveLength(3))

@@ -1,6 +1,6 @@
 /*
  * Shared manager page bits. The shell (sidebar / header) now lives in
- * components/layout/layout.scss.
+ * shared/styles/app-shell/layout.scss.
  */
 
 /* ---------- Shared page header bits (queue, error states) ---------- */

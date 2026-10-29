@@ -2,7 +2,7 @@
  * Shared skin for antd popups (Dropdown, Select, Popover, DatePicker, Modal,
  * Drawer). They mount inside `.mgr-layout` (see mgrPopupContainer), so the
  * --mgr-* variables resolve; surface colours come from the antd theme tokens
- * in theme/managerTheme.ts, this file only adds border / shadow / spacing.
+ * in shared/theme/appTheme.ts, this file only adds border / shadow / spacing.
  */
 .mgr-layout {
   .ant-dropdown .ant-dropdown-menu,

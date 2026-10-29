@@ -1,6 +1,7 @@
+import { Button } from 'antd'
 import { useEffect, useState } from 'react'
 
-import { EmptyState } from '../../shared/components/odm/StateView'
+import { EmptyState } from './components/common/StateView'
 import { useI18n } from '../../shared/i18n'
 import { customerAppMessages } from './CustomerApp.messages'
 import { CustomerLayout } from './CustomerLayout'
@@ -80,12 +81,9 @@ function renderScreen(
       title={t.notFoundTitle}
       description={t.notFoundDescription}
       action={
-        <a
-          className="odm-btn odm-btn-p"
-          href={customerHref({ screen: 'dashboard' })}
-        >
+        <Button type="primary" href={customerHref({ screen: 'dashboard' })}>
           {t.backToDashboard}
-        </a>
+        </Button>
       }
     />
   )

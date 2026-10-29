@@ -1,5 +1,9 @@
-import { ErrorState, LoadingState } from '../../../../shared/components/odm/StateView'
-import { PageHeader } from '../../../../shared/components/ui'
+import { ReloadOutlined } from '@ant-design/icons'
+import { Button } from 'antd'
+
+import { CardComponent } from '../../../../shared/components/antd'
+import { ErrorState, LoadingState } from '../../components/common/StateView'
+import { PageHeader } from '../../components/common/ui'
 import { useI18n } from '../../../../shared/i18n'
 import { MediaGrid, MediaPreviewModal } from '../../components/common/media'
 import { Pager } from '../../components/common/Pager'
@@ -23,14 +27,14 @@ export function MediaLibraryPage() {
   }
 
   return (
-    <div className="ml-page">
+    <div className="cus-page ml-page">
       <PageHeader
         title={t.title}
         subtitle={t.subtitle}
         actions={
-          <button type="button" className="odm-btn odm-btn-gh" onClick={lib.reload}>
+          <Button icon={<ReloadOutlined aria-hidden="true" aria-label={undefined} />} onClick={lib.reload}>
             {t.refresh}
-          </button>
+          </Button>
         }
       />
       <NewMediaNotice count={lib.notificationCount} />
@@ -46,7 +50,7 @@ export function MediaLibraryPage() {
           {lib.totalFiltered === 0 ? (
             <LibraryEmpty filtered={lib.isFiltered} onClear={lib.clearFilter} />
           ) : (
-            <>
+            <CardComponent styles={{ body: { padding: 16 } }}>
               <MediaGrid items={lib.pageItems} onOpen={(item) => lib.openPreview(item.id)} />
               <Pager
                 page={lib.page}
@@ -55,7 +59,7 @@ export function MediaLibraryPage() {
                 unit={t.unit}
                 onPage={lib.setPage}
               />
-            </>
+            </CardComponent>
           )}
         </div>
       </div>

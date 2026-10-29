@@ -1,7 +1,8 @@
+import { UnorderedListOutlined } from '@ant-design/icons'
 import type { ReactNode } from 'react'
 
 import { useI18n } from '../../../../shared/i18n'
-import { Card } from '../../../../shared/components/ui'
+import { Card } from '../common/ui'
 import { checklistMessages } from '../../lib/checklist/messages'
 import type { ChecklistSnapshot } from '../../lib/checklist/types'
 import './Checklist.css'
@@ -21,7 +22,7 @@ export function ChecklistSnapshotCard({
   const { t } = useI18n(checklistMessages)
   return (
     <div role="region" aria-label={t.title}>
-      <Card className="checklist-card" title={title ?? t.title}>
+      <Card icon={<UnorderedListOutlined />} className="checklist-card" title={title ?? t.title}>
         <p className="checklist-lock">{t.locked}</p>
         <p className="checklist-hint">{t.history}</p>
         {items.length ? (
@@ -68,14 +69,14 @@ export function ChecklistSnapshotCard({
                     <span className="checklist-snapshot-evidence">
                       {item.priceAvailable ? (
                         item.pricingStatus === 'DUPLICATE' ? (
-                          'Không tính phí — yêu cầu đã được bao gồm trong dịch vụ hiện tại.'
+                          t.priceDuplicate
                         ) : item.pricingStatus === 'REJECTED' ? (
-                          'Yêu cầu không được chấp thuận · 0 ₫'
+                          t.priceRejected
                         ) : (
-                          <>Dịch vụ bổ sung: {formatVnd(item.approvedPrice ?? 0)}</>
+                          <>{t.priceAdditional} {formatVnd(item.approvedPrice ?? 0)}</>
                         )
                       ) : (
-                        'Đang chờ Manager xem xét giá.'
+                        t.pricePending
                       )}
                     </span>
                   )}

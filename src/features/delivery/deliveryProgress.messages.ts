@@ -5,14 +5,14 @@ export const deliveryProgressMessages = defineMessages({
     ariaLabel: 'Tiến trình bàn giao',
     steps: [
       { label: 'Kiểm tra kết quả', shortLabel: 'Kiểm tra' },
-      { label: 'Customer duyệt', shortLabel: 'Duyệt' },
+      { label: 'Khách hàng duyệt', shortLabel: 'Duyệt' },
       { label: 'Thanh toán cuối', shortLabel: 'Thanh toán' },
       { label: 'Bàn giao dữ liệu', shortLabel: 'Bàn giao' },
     ],
     status: {
       PROCESSING: 'Đang xử lý kết quả',
-      READY_FOR_MANAGER_REVIEW: 'Chờ Manager kiểm tra',
-      CUSTOMER_REVIEW: 'Chờ Customer duyệt',
+      READY_FOR_MANAGER_REVIEW: 'Chờ quản lý kiểm tra',
+      CUSTOMER_REVIEW: 'Chờ Khách hàng duyệt',
       REVISION_REQUESTED: 'Đang chỉnh sửa',
       FINAL_PAYMENT_PENDING: 'Chờ thanh toán cuối',
       PAYMENT_CONFIRMED: 'Đã xác nhận thanh toán',

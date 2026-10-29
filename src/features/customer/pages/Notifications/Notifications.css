@@ -17,7 +17,7 @@
   display: flex;
   align-items: center;
   gap: var(--ui-space-3);
-  padding: var(--ui-space-3) 0;
+  padding: 12px 20px;
   border-bottom: 1px solid var(--ui-border);
 }
 
@@ -25,12 +25,19 @@
   border-bottom: none;
 }
 
-.nt-dot {
+.nt-icon {
   flex: none;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--ui-primary);
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border-radius: 8px;
+  background: var(--ui-primary-soft);
+  color: var(--ui-primary-text);
+}
+
+.nt-item:hover {
+  background: var(--ui-surface-2);
 }
 
 .nt-main {
@@ -50,15 +57,10 @@
   overflow-wrap: anywhere;
 }
 
-.nt-link {
+.nt-link.ant-btn {
   flex: none;
-  color: var(--ui-primary-text);
-  font-weight: 500;
-  text-decoration: none;
-}
-
-.nt-link:hover {
-  text-decoration: underline;
+  padding-inline: 8px;
+  font-weight: 600;
 }
 
 .nt-footer {

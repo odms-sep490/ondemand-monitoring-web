@@ -20,9 +20,9 @@ export const confirmSubmitModalMessages = defineMessages({
     aiAnalysis: 'Phân tích hình ảnh bằng AI',
     aiYes: 'Có (tính thêm phí)',
     priceNotePending:
-      'Chi phí chưa gồm các nội dung bạn tự thêm đang chờ Manager báo giá; Manager sẽ gửi báo giá cuối cùng để bạn xác nhận.',
+      'Chi phí chưa gồm các nội dung bạn tự thêm đang chờ quản lý báo giá; quản lý sẽ gửi báo giá cuối cùng để bạn xác nhận.',
     priceNote:
-      'Đây là chi phí dự kiến. Manager sẽ xem xét và gửi báo giá cuối cùng để bạn xác nhận trước khi thanh toán.',
+      'Đây là chi phí dự kiến. Quản lý sẽ xem xét và gửi báo giá cuối cùng để bạn xác nhận trước khi thanh toán.',
     service: 'Dịch vụ',
     location: 'Địa điểm',
     dates: 'Ngày bay mong muốn',

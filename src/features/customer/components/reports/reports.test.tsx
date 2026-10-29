@@ -113,7 +113,7 @@ describe('Customer aggregate/report publication', () => {
       'Scope m1',
     )
     expect(
-      screen.getByText('Bạn có thể xem đầy đủ kết quả và media của Mission.'),
+      screen.getByText('Bạn có thể xem đầy đủ kết quả và media của nhiệm vụ.'),
     ).toBeInTheDocument()
     expect(screen.getAllByText('Trạng thái')).toHaveLength(3)
     expect(screen.queryByRole('checkbox')).toBeNull()
@@ -226,7 +226,7 @@ describe('Customer aggregate/report publication', () => {
       expect(
         within(header as HTMLElement).getByText(
           status === 'COMPLETED' ? 'Completed' : 'In progress',
-          { selector: '.ui-badge' },
+          { selector: '.mgr-status-tag' },
         ),
       ).toBeInTheDocument()
       expect(screen.queryByText('Order completed')).not.toBeInTheDocument()

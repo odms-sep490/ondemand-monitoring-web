@@ -1,9 +1,11 @@
+import { Button, Checkbox } from 'antd'
+import { UnorderedListOutlined } from '@ant-design/icons'
 import { Fragment, useEffect, useRef, useState } from 'react'
 import { Icon } from '../../../../shared/components/Icon'
 import { formatVnd } from '../../../../shared/lib/formatVnd'
 import { ChecklistGuidance } from '../../../../shared/components/ChecklistGuidance'
 import { useI18n } from '../../../../shared/i18n'
-import { Card } from '../../../../shared/components/ui'
+import { Card } from '../common/ui'
 import { checklistMessages } from '../../lib/checklist/messages'
 import {
   extraMedia,
@@ -133,8 +135,7 @@ export function ChecklistEditor({
     if (searching && !expanded && !row.content.toLowerCase().includes(needle))
       return null
     const checkbox = (
-      <input
-        type="checkbox"
+      <Checkbox
         className="checklist-check"
         checked={row.selected}
         aria-label={t.select(index + 1)}
@@ -266,11 +267,10 @@ export function ChecklistEditor({
               {awaitingManagerQuote(row) && (
                 <>
                   <span className="checklist-custom-tag is-pending-quote">
-                    Dịch vụ theo yêu cầu
+                    {t.onDemandService}
                   </span>
                   <small className="checklist-hint">
-                    Giá của dịch vụ này sẽ được xem xét và báo giá sau khi
-                    Manager duyệt yêu cầu.
+                    {t.onDemandHint}
                   </small>
                 </>
               )}
@@ -433,6 +433,7 @@ export function ChecklistEditor({
   return (
     <div role="region" aria-label={t.title}>
       <Card
+        icon={<UnorderedListOutlined />}
         className={`checklist-card${compact ? ' is-compact' : ''}`}
         title={t.title}
         actions={
@@ -469,21 +470,20 @@ export function ChecklistEditor({
               />
             </label>
             <div className="checklist-toolbar-selection">
-              <label className="checklist-selectall">
-                <input
-                  type="checkbox"
-                  disabled={disabled}
-                  checked={visibleRows.every((row) => row.selected)}
-                  onChange={(event) => {
-                    for (const row of visibleRows)
-                      if (row.selected !== event.target.checked)
-                        checklist.change(row.key, {
-                          selected: event.target.checked,
-                        })
-                  }}
-                />
+              <Checkbox
+                className="checklist-selectall"
+                disabled={disabled}
+                checked={visibleRows.every((row) => row.selected)}
+                onChange={(event) => {
+                  for (const row of visibleRows)
+                    if (row.selected !== event.target.checked)
+                      checklist.change(row.key, {
+                        selected: event.target.checked,
+                      })
+                }}
+              >
                 {t.selectAll(visibleRows.length)}
-              </label>
+              </Checkbox>
               <button
                 type="button"
                 className="checklist-clear"
@@ -532,9 +532,7 @@ export function ChecklistEditor({
           <div role="alert" className="co-notice is-danger">
             <p>{status === 'stale' ? t.stale : checklist.error}</p>
             {status === 'stale' && <p>{t.discard}</p>}
-            <button
-              type="button"
-              className="odm-btn odm-btn-gh"
+            <Button
               disabled={disabled}
               onClick={() => {
                 checklist.reload()
@@ -542,7 +540,7 @@ export function ChecklistEditor({
               }}
             >
               {status === 'stale' ? t.reload : t.retry}
-            </button>
+            </Button>
           </div>
         )}
         {ready && !visibleRows.length && <p>{t.empty}</p>}

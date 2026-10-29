@@ -1,3 +1,6 @@
+import { DownloadOutlined } from '@ant-design/icons'
+import { Button } from 'antd'
+
 import { useI18n } from '../../../../../shared/i18n'
 import type { MediaItem } from '../../../lib/media/types'
 import { downloadButtonMessages } from './DownloadButton.messages'
@@ -12,14 +15,16 @@ export function DownloadButton({ item }: { item: MediaItem }) {
     )
   }
   return (
-    <a
-      className="odm-btn odm-btn-p mdp-download"
+    <Button
+      type="primary"
+      className="mdp-download"
+      icon={<DownloadOutlined aria-hidden="true" aria-label={undefined} />}
       href={item.url}
       download={item.fileName}
       target="_blank"
       rel="noopener noreferrer"
     >
       {t.download}
-    </a>
+    </Button>
   )
 }

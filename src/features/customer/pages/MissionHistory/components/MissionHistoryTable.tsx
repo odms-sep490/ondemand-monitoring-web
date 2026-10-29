@@ -1,3 +1,6 @@
+import type { ColumnsType } from 'antd/es/table'
+
+import { TableComponent } from '../../../../../shared/components/antd'
 import { useI18n } from '../../../../../shared/i18n'
 import { MissionStatusBadge } from '../../../components/common/MissionStatusBadge'
 import { fmtDateTime } from '../../../lib/orderStatus'
@@ -10,46 +13,63 @@ const DASH = '—'
 export function MissionHistoryTable({ rows }: { rows: MissionRow[] }) {
   const { t, locale } = useI18n(missionHistoryTableMessages)
   const c = t.columns
+  const hrefOf = (row: MissionRow) =>
+    customerHref({ screen: 'missionHistoryDetail', missionId: row.id })
+
+  const columns: ColumnsType<MissionRow> = [
+    {
+      title: c.mission,
+      key: 'mission',
+      render: (_, row) => (
+        <a className="cus-order-title mgr-code" href={hrefOf(row)}>
+          {row.code}
+        </a>
+      ),
+    },
+    {
+      title: c.order,
+      key: 'order',
+      className: 'cus-hide-md',
+      render: (_, row) => (
+        <span className="mgr-cell-stack">
+          <span>{row.orderTitle}</span>
+          {row.address && <span className="mgr-cell-sub">{row.address}</span>}
+        </span>
+      ),
+    },
+    {
+      title: c.status,
+      key: 'status',
+      render: (_, row) => <MissionStatusBadge status={row.status} />,
+    },
+    {
+      title: c.finished,
+      key: 'finished',
+      className: 'cus-hide-lg',
+      render: (_, row) => (
+        <span className="mgr-nowrap">
+          {row.completedAt ? fmtDateTime(row.completedAt, locale) : DASH}
+        </span>
+      ),
+    },
+    {
+      title: c.results,
+      key: 'results',
+      align: 'right',
+      render: (_, row) => (
+        <a className="mgr-card-link" href={hrefOf(row)}>
+          {t.view}
+        </a>
+      ),
+    },
+  ]
+
   return (
-    <table className="mh-table">
-      <thead>
-        <tr>
-          <th>{c.mission}</th>
-          <th>{c.order}</th>
-          <th>{c.status}</th>
-          <th>{c.finished}</th>
-          <th>{c.results}</th>
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((row) => {
-          const href = customerHref({ screen: 'missionHistoryDetail', missionId: row.id })
-          return (
-            <tr key={row.id}>
-              <td>
-                <a className="mh-code" href={href}>
-                  {row.code}
-                </a>
-              </td>
-              <td>
-                {row.orderTitle}
-                {row.address && <div className="mh-muted">{row.address}</div>}
-              </td>
-              <td>
-                <MissionStatusBadge status={row.status} />
-              </td>
-              <td className="mh-nowrap">
-                {row.completedAt ? fmtDateTime(row.completedAt, locale) : DASH}
-              </td>
-              <td>
-                <a className="mh-link" href={href}>
-                  {t.view}
-                </a>
-              </td>
-            </tr>
-          )
-        })}
-      </tbody>
-    </table>
+    <TableComponent<MissionRow>
+      rowKey="id"
+      columns={columns}
+      dataSource={rows}
+      pagination={false}
+    />
   )
 }

@@ -29,6 +29,9 @@ const makeOrder = (n: number): OrderCreateResponse => ({
   createdAt: `2026-09-${String(n).padStart(2, '0')}T00:00:00Z`,
 })
 
+const nextBtn = () => document.querySelector('.ant-pagination-next') as HTMLElement
+const prevBtn = () => document.querySelector('.ant-pagination-prev') as HTMLElement
+
 const rowsOf = () =>
   within(screen.getByRole('table')).getAllByRole('row').slice(1)
 
@@ -48,7 +51,7 @@ describe('OrdersPage', () => {
     act(() => setLanguage('en'))
     expect(screen.getByText('My orders')).toBeInTheDocument()
     expect(
-      screen.getByRole('button', { name: 'Completed' }),
+      screen.getByRole('button', { name: /^Completed/ }),
     ).toBeInTheDocument()
     expect(
       screen.getByRole('columnheader', { name: 'Preferred schedule' }),
@@ -94,7 +97,7 @@ describe('OrdersPage', () => {
       '#portal/customer/orders/ord-1',
     )
     expect(
-      screen.getByRole('button', { name: 'Cần bổ sung thông tin' }),
+      screen.getByRole('button', { name: /^Cần bổ sung thông tin/ }),
     ).toBeInTheDocument()
   })
 
@@ -102,12 +105,12 @@ describe('OrdersPage', () => {
     const spy = vi.spyOn(customerApi, 'listMyOrders')
     render(<OrdersPage />)
     await screen.findByRole('table')
-    fireEvent.click(screen.getByRole('button', { name: 'Hoàn thành' }))
+    fireEvent.click(screen.getByRole('button', { name: /^Hoàn thành/ }))
     await waitFor(() => expect(rowsOf()).toHaveLength(1))
     expect(spy).toHaveBeenLastCalledWith(
       expect.objectContaining({ status: 'COMPLETED' }),
     )
-    expect(screen.getByRole('button', { name: 'Hoàn thành' })).toHaveAttribute(
+    expect(screen.getByRole('button', { name: /^Hoàn thành/ })).toHaveAttribute(
       'aria-pressed',
       'true',
     )
@@ -116,7 +119,7 @@ describe('OrdersPage', () => {
   it('searches client-side and shows a filtered empty state that can be cleared', async () => {
     render(<OrdersPage />)
     await screen.findByRole('table')
-    const search = screen.getByRole('searchbox', { name: 'Tìm đơn hàng' })
+    const search = screen.getByRole('textbox', { name: 'Tìm đơn hàng' })
     fireEvent.change(search, { target: { value: 'cát lái' } })
     expect(rowsOf()).toHaveLength(1)
     fireEvent.change(search, { target: { value: 'không có đơn nào như vậy' } })
@@ -134,13 +137,12 @@ describe('OrdersPage', () => {
     render(<OrdersPage />)
     await screen.findByRole('table')
     expect(rowsOf()).toHaveLength(10)
-    expect(screen.getByText('Trang 1 / 3')).toBeInTheDocument()
-    expect(screen.getByText('Tổng 25 đơn')).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: 'Sau' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Sau' }))
-    expect(screen.getByText('Trang 3 / 3')).toBeInTheDocument()
+    expect(screen.getByText('1–10 / 25')).toBeInTheDocument()
+    fireEvent.click(nextBtn())
+    fireEvent.click(nextBtn())
+    expect(screen.getByText('21–25 / 25')).toBeInTheDocument()
     expect(rowsOf()).toHaveLength(5)
-    expect(screen.getByRole('button', { name: 'Sau' })).toBeDisabled()
+    expect(nextBtn()).toHaveClass('ant-pagination-disabled')
   })
 
   it('shows the empty state with a create link when there are no orders', async () => {
@@ -167,7 +169,7 @@ describe('OrdersPage', () => {
       expect(link.querySelector('svg')).toHaveAttribute('aria-hidden', 'true'),
     )
     expect(
-      screen.getByRole('searchbox', { name: 'Tìm đơn hàng' }),
+      screen.getByRole('textbox', { name: 'Tìm đơn hàng' }),
     ).toBeInTheDocument()
   })
 
@@ -180,48 +182,45 @@ describe('OrdersPage', () => {
       return el as HTMLElement
     })
     expect(
-      within(stats).getByText('Tổng số đơn').nextElementSibling,
+      within(stats).getByText('Tổng số đơn').closest('.mgr-stat'),
     ).toHaveTextContent('9')
-    expect(stats.querySelectorAll('.ui-stat')).toHaveLength(4)
+    expect(stats.querySelectorAll('.mgr-stat')).toHaveLength(4)
     expect(
       screen
-        .getByRole('button', { name: 'Hoàn thành' })
-        .querySelector('.ord-chip-count'),
-    ).toHaveAttribute('aria-hidden', 'true')
+        .getByRole('button', { name: /^Hoàn thành/ })
+        .querySelector('.mgr-seg-count'),
+    ).toBeInTheDocument()
     expect(
       screen
-        .getByRole('button', { name: 'Tất cả' })
-        .querySelector('.ord-chip-count'),
+        .getByRole('button', { name: /^Tất cả/ })
+        .querySelector('.mgr-seg-count'),
     ).toHaveTextContent('9')
   })
 
-  it('hides the pager nav on a single page and shows it with several pages', async () => {
+  it('hides the pager on a single page', async () => {
     render(<OrdersPage />)
     await screen.findByRole('table')
-    expect(screen.getByText('Tổng 9 đơn')).toBeInTheDocument()
-    expect(
-      screen.queryByRole('button', { name: 'Sau' }),
-    ).not.toBeInTheDocument()
+    expect(document.querySelector('.ant-pagination-next')).toBeNull()
   })
 
   it('shows a no-match title when a search finds nothing', async () => {
     render(<OrdersPage />)
     await screen.findByRole('table')
-    fireEvent.change(screen.getByRole('searchbox', { name: 'Tìm đơn hàng' }), {
+    fireEvent.change(screen.getByRole('textbox', { name: 'Tìm đơn hàng' }), {
       target: { value: 'không có đơn nào như vậy' },
     })
     expect(screen.getByText('Không tìm thấy đơn phù hợp')).toBeInTheDocument()
     expect(screen.queryByText('Chưa có đơn hàng')).not.toBeInTheDocument()
   })
 
-  it('shows the pager nav with 25 orders', async () => {
+  it('shows the pager with 25 orders', async () => {
     vi.spyOn(customerApi, 'listMyOrders').mockResolvedValue(
       Array.from({ length: 25 }, (_, i) => makeOrder(i + 1)),
     )
     render(<OrdersPage />)
     await screen.findByRole('table')
-    expect(screen.getByRole('button', { name: 'Trước' })).toBeDisabled()
-    expect(screen.getByRole('button', { name: 'Sau' })).toBeEnabled()
+    expect(prevBtn()).toHaveClass('ant-pagination-disabled')
+    expect(nextBtn()).not.toHaveClass('ant-pagination-disabled')
   })
 
   it('shows an error with retry and recovers', async () => {

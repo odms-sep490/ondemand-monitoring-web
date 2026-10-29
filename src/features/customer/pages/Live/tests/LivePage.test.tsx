@@ -18,7 +18,7 @@ describe('LivePage', () => {
   it('renders the Vietnamese title and the order from the BE', async () => {
     render(<LivePage orderId="cus-ord-001" />)
     expect(await screen.findByText('Giám sát trực tiếp')).toBeInTheDocument()
-    expect(screen.getByText('Đang thực hiện', { selector: '.ui-badge' })).toBeInTheDocument()
+    expect(screen.getByText('Đang thực hiện', { selector: '.mgr-status-tag' })).toBeInTheDocument()
     expect(screen.getByText('Xem trực tiếp đang được phát triển')).toBeInTheDocument()
   })
 

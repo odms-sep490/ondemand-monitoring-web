@@ -8,6 +8,7 @@ export const recentMissionsMessages = defineMessages({
     errorTitle: 'Không tải được nhiệm vụ gần đây',
     retry: 'Thử lại',
     loading: 'Đang tải...',
+    columns: { mission: 'Nhiệm vụ', time: 'Thời gian', status: 'Trạng thái' },
   },
   en: {
     title: 'Recent missions',
@@ -16,5 +17,6 @@ export const recentMissionsMessages = defineMessages({
     errorTitle: 'Unable to load recent missions',
     retry: 'Retry',
     loading: 'Loading...',
+    columns: { mission: 'Mission', time: 'Time', status: 'Status' },
   },
 })
