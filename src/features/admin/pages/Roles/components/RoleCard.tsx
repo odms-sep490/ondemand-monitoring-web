@@ -1,10 +1,9 @@
+import { Button, Skeleton } from 'antd'
+
+import { CardComponent } from '../../../../../shared/components/antd'
 import { useApiQuery } from '../../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../../shared/i18n'
-import {
-  adminUsersApi,
-  type ManagedUserRole,
-} from '../../../api/adminUsersApi'
-import { Card } from '../../../../../shared/components/ui'
+import { adminUsersApi, type ManagedUserRole } from '../../../api/adminUsersApi'
 import { RoleBadge } from '../../../components/common/RoleBadge'
 import { rolesPageMessages } from '../RolesPage.messages'
 
@@ -17,29 +16,27 @@ export function RoleCard({ role }: { role: ManagedUserRole }) {
   )
 
   return (
-    <Card title={<RoleBadge role={role} />}>
+    <CardComponent title={<RoleBadge role={role} />}>
       <p className="adm-role-desc">{t.descriptions[role]}</p>
       {loading ? (
-        <span
-          className="adm-skeleton"
-          data-testid={`role-skeleton-${role}`}
-          aria-busy="true"
-        />
+        <span data-testid={`role-skeleton-${role}`} aria-busy="true">
+          <Skeleton.Input active size="small" />
+        </span>
       ) : error || !data ? (
-        <div>
-          <span className="adm-list-sub">{t.loadError}</span>{' '}
-          <button type="button" className="odm-btn" onClick={reload}>
+        <div className="adm-row">
+          <span className="mgr-cell-sub">{t.loadError}</span>
+          <Button size="small" onClick={reload}>
             {t.retry}
-          </button>
+          </Button>
         </div>
       ) : (
         <div>
           <span className="adm-role-count" data-testid={`role-count-${role}`}>
             {data.totalItems}
           </span>{' '}
-          <span className="adm-list-sub">{t.users}</span>
+          <span className="mgr-cell-sub">{t.users}</span>
         </div>
       )}
-    </Card>
+    </CardComponent>
   )
 }
