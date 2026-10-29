@@ -1,5 +1,7 @@
 import { operatorApi } from '../../api/operatorApi'
+import { getLanguage } from '../../../../shared/i18n'
 import { actionErrorMessage } from './missionResponse'
+import { missionDetailActionMessages } from './useMissionDetailActions.messages'
 import { missionApi } from '../../../mission/api/missionApi'
 import { formatVnDate } from './missionFormat'
 import type { Dispatch, SetStateAction } from 'react'
@@ -64,7 +66,8 @@ export function useMissionDetailActions({
       setActionError(
         actionErrorMessage(
           error,
-          'Không thể chấp nhận mission. Vui lòng thử lại.',
+          missionDetailActionMessages[getLanguage()].acceptFailed,
+          getLanguage(),
         ),
       )
     } finally {
@@ -82,7 +85,8 @@ export function useMissionDetailActions({
       setActionError(
         actionErrorMessage(
           error,
-          'Không thể bắt đầu Mission. Hãy kiểm tra đủ 4 role đã chấp nhận.',
+          missionDetailActionMessages[getLanguage()].startFailed,
+          getLanguage(),
         ),
       )
     } finally {
@@ -101,7 +105,8 @@ export function useMissionDetailActions({
       setActionError(
         actionErrorMessage(
           error,
-          'Không thể từ chối mission. Vui lòng thử lại.',
+          missionDetailActionMessages[getLanguage()].rejectFailed,
+          getLanguage(),
         ),
       )
     } finally {

@@ -476,7 +476,9 @@
   border: 1px solid var(--ui-border);
   border-radius: 12px;
   background: var(--ui-surface);
-  transition: border-color 0.15s, background-color 0.15s;
+  transition:
+    border-color 0.15s,
+    background-color 0.15s;
 }
 .mc-item.is-open {
   background: var(--ui-surface);

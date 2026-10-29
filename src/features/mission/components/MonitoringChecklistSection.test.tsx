@@ -171,7 +171,7 @@ describe('MonitoringChecklistSection', () => {
       />,
     )
     expect(
-      screen.getByText(/1\/3.*Chỉ video.*còn thiếu 2.*cần đúng loại media/),
+      screen.getByText(/1\/3.*Chỉ video.*còn thiếu 2.*cần đúng loại tệp/),
     ).toBeInTheDocument()
     expect(
       within(screen.getByLabelText('Bằng chứng: Yêu cầu lịch sử')).getByText(
@@ -343,7 +343,9 @@ describe('MonitoringChecklistSection', () => {
     fireEvent.click(
       screen.getByText('Dùng dữ liệu mới (bỏ chỉnh sửa chưa lưu)'),
     )
-    expect(screen.getByLabelText('Ghi nhận thực hiện')).toHaveValue('Mới từ server')
+    expect(screen.getByLabelText('Ghi nhận thực hiện')).toHaveValue(
+      'Mới từ server',
+    )
   })
   it.each(['DRAFT', 'REJECTED'] as const)(
     '%s allows capability-driven editing',

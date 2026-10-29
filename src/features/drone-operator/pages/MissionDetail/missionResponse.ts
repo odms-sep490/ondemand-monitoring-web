@@ -11,8 +11,12 @@ export function isAwaitingResponse(mission: OperatorMission) {
   )
 }
 
-export function actionErrorMessage(error: unknown, fallback: string) {
+export function actionErrorMessage(
+  error: unknown,
+  fallback: string,
+  lang: 'vi' | 'en' = 'vi',
+) {
   return error instanceof Error && error.message
-    ? monitoringErrorMessage(error)
+    ? monitoringErrorMessage(error, lang)
     : fallback
 }

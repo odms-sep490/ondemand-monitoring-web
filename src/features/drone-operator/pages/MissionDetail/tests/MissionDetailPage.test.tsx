@@ -248,7 +248,7 @@ describe('MissionDetailScreen', () => {
     vi.mocked(missionApi.getMissionResult).mockResolvedValue(result)
     render(<MissionDetailPage missionId="m" />)
     await screen.findByText(
-      'Chỉ đọc — kết quả đang chờ duyệt hoặc đã được duyệt.',
+      'Chỉ đọc: kết quả đang chờ duyệt hoặc đã được duyệt.',
     )
     vi.mocked(missionApi.getMissionResult).mockResolvedValue({
       ...result,
