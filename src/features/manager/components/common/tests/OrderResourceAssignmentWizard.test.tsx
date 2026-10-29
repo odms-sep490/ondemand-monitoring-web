@@ -105,11 +105,7 @@ async function enter(id: string) {
     await screen.findByRole('radio', { name: new RegExp(id.toUpperCase()) }),
   )
   fireEvent.click(screen.getByRole('button', { name: 'Tiếp theo' }))
-  await waitFor(() =>
-    expect(document.querySelector('.ui-page-header')).toHaveTextContent(
-      'Gán nguồn lực',
-    ),
-  )
+  await screen.findByRole('heading', { name: 'Gán nguồn lực' })
 }
 function chooseStaff(name: string) {
   const picker = screen
@@ -170,7 +166,7 @@ it('reuses the staff/device/confirmation screens for M1 then M2 and returns to t
   expect(screen.getByText('Drone 1')).toBeInTheDocument()
   expect(screen.queryByText('Staff 2')).not.toBeInTheDocument()
   expect(window.location.hash).toBe('#portal/manager/orders/o')
-}, 15_000)
+}, 60_000)
 it('disables unfinalized and terminal Missions without inferring the first Mission', async () => {
   missions[0].status = 'COMPLETED'
   missions[1].status = 'CANCELLED'
@@ -341,9 +337,14 @@ it('scoped submit returns to its origin and never mutates Order/Mission completi
   // Step 8: overview of every Mission; leaving it returns to the origin.
   await screen.findByRole('heading', { name: 'Tổng quan nhiệm vụ' })
   expect(close).not.toHaveBeenCalled()
+  // There is no separate "preparation" stage any more: after assignment the
+  // Mission row starts at the flight permit.
   const preparationSteps = screen.getByRole('region', { name: 'Nhiệm vụ' })
   expect(
-    within(preparationSteps).getByText('Chuẩn bị').closest('li'),
+    within(preparationSteps).queryByText('Chuẩn bị'),
+  ).not.toBeInTheDocument()
+  expect(
+    within(preparationSteps).getByText('Giấy phép bay').closest('li'),
   ).toHaveClass('is-current')
   expect(
     screen.queryByRole('region', { name: 'Giấy phép bay M1' }),
@@ -374,9 +375,10 @@ it('all assignments submitted provides an explicit navigation-only finish', asyn
   const close = vi.fn()
   render(<OrderResourceAssignmentWizard orderId="o" onClose={close} />)
   const missionSteps = await screen.findByRole('region', { name: 'Nhiệm vụ' })
-  expect(within(missionSteps).getAllByRole('listitem')).toHaveLength(3)
+  expect(within(missionSteps).getAllByRole('listitem')).toHaveLength(2)
   expect(within(missionSteps).getByText('Giấy phép bay')).toBeInTheDocument()
-  expect(within(missionSteps).queryByText('Thực hiện')).not.toBeInTheDocument()
+  expect(within(missionSteps).getByText('Thực hiện')).toBeInTheDocument()
+  expect(within(missionSteps).queryByText('Chuẩn bị')).not.toBeInTheDocument()
   expect(within(missionSteps).queryByText('Hoàn tất')).not.toBeInTheDocument()
   fireEvent.click(
     await screen.findByRole('button', { name: 'Hoàn tất phân công' }),

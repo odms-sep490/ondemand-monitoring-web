@@ -117,12 +117,19 @@ describe('CreateMissionPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Tạo nhiệm vụ' }))
     await waitFor(() => expect(create).toHaveBeenCalledWith(brief.id, expect.objectContaining({ scopeLabel: 'Second scope' })))
   })
-  it('locks new creation when the server plan is finalized', async () => {
+  it('creates an additional Mission (not a planning Mission) when the server plan is finalized', async () => {
     vi.spyOn(ordersApi, 'getOrderForMission').mockResolvedValue(brief)
     vi.mocked(planningApi.getExecutionPlan).mockResolvedValue({ orderId: brief.id, planStatus: 'FINALIZED', revision: 4, missions: [], coverage: { total: 0, covered: 0, uncovered: 0, repeated: 0, coverageReady: true, uncoveredItemIds: [] }, blockers: [] })
     render(<MissionCreatePage orderId={brief.id} />)
+    const create = vi.spyOn(missionsApi, 'createMission')
+    const createAdditional = vi.spyOn(missionsApi, 'createAdditionalMission').mockResolvedValue(createdMission)
     expect(await screen.findByText('Kế hoạch đã chốt. Có thể tạo nhiệm vụ thay thế và chốt riêng nhiệm vụ đó.')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Tạo nhiệm vụ' })).toBeDisabled()
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Tạo nhiệm vụ' })).toBeEnabled())
+    fireEvent.change(await screen.findByLabelText('Giờ cất cánh'), { target: { value: '2026-09-24T09:00' } })
+    fireEvent.change(screen.getByLabelText('Giờ kết thúc dự kiến'), { target: { value: '2026-09-24T10:00' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Tạo nhiệm vụ' }))
+    await waitFor(() => expect(createAdditional).toHaveBeenCalledWith(brief.id, expect.objectContaining({ scheduledStart: '2026-09-24T02:00:00.000Z' })))
+    expect(create).not.toHaveBeenCalled()
   })
   it('shows the customer window but leaves the flight schedule for staff to choose', async () => {
     vi.spyOn(ordersApi, 'getOrderForMission').mockResolvedValue(brief)
@@ -197,8 +204,8 @@ describe('CreateMissionPage', () => {
         'ord-2609-0153',
         expect.objectContaining({
           scopeLabel: 'Whole Order scope',
-          scheduledStartAt: '2026-09-24T01:00:00.000Z',
-          scheduledEndAt: '2026-09-24T02:30:00.000Z',
+          scheduledStart: '2026-09-24T01:00:00.000Z',
+          scheduledEnd: '2026-09-24T02:30:00.000Z',
         }),
       ),
     )
