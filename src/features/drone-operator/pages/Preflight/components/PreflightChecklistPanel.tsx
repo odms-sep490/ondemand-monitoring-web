@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { CardComponent } from '../../../../../shared/components/antd'
 import {
   readStoredPreflightState,
   readStoredWeatherState,
@@ -228,8 +229,7 @@ export function PreflightChecklistPanel({
       setPersistedWeatherPassed(
         persisted.items.some(
           (item) =>
-            item.checkType === 'weather_conditions' &&
-            item.status === 'PASSED',
+            item.checkType === 'weather_conditions' && item.status === 'PASSED',
         ),
       )
     } catch (cause) {
@@ -299,14 +299,15 @@ export function PreflightChecklistPanel({
   })
 
   return (
-    <div
-      className="odm-card"
-      style={{
-        marginBottom: 0,
-        height: embedded ? '100%' : undefined,
-        display: embedded ? 'flex' : undefined,
-        flexDirection: embedded ? 'column' : undefined,
-        overflow: embedded ? 'hidden' : undefined,
+    <CardComponent
+      className={embedded ? 'stf-embedded-card' : undefined}
+      styles={{
+        body: {
+          padding: 0,
+          ...(embedded
+            ? { height: '100%', display: 'flex', flexDirection: 'column' }
+            : null),
+        },
       }}
     >
       <PreflightHeader
@@ -317,12 +318,10 @@ export function PreflightChecklistPanel({
         deviceLabel={deviceLabel}
       />
       <div
-        style={{
-          padding: '18px 22px',
-          overflow: embedded ? 'auto' : undefined,
-        }}
+        className="stf-pad"
+        style={embedded ? { overflow: 'auto' } : undefined}
       >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div className="stf-stack">
           <PreflightSummary
             nOk={nOk}
             nTotal={nTotal}
@@ -359,6 +358,6 @@ export function PreflightChecklistPanel({
           />
         </div>
       </div>
-    </div>
+    </CardComponent>
   )
 }

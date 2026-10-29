@@ -1,3 +1,4 @@
+import { Alert } from 'antd'
 import { useState } from 'react'
 import { useI18n } from '../../../../shared/i18n'
 import { missionApi } from '../../../mission/api/missionApi'
@@ -72,16 +73,22 @@ export function PreflightPage({ missionId }: { missionId?: string }) {
   }
 
   return (
-    <>
+    <div className="stf-stack">
       {(mission.error || startError) && (
-        <p role="alert" style={{ color: 'var(--red-fg)' }}>
-          {startError ??
+        <Alert
+          type="error"
+          showIcon
+          message={
+            startError ??
             (mission.error instanceof Error
               ? mission.error.message
-              : t.loadMissionFailed)}
-        </p>
+              : t.loadMissionFailed)
+          }
+        />
       )}
-      {starting && <p>{t.confirmingTelemetry}</p>}
+      {starting && (
+        <Alert type="info" showIcon message={t.confirmingTelemetry} />
+      )}
       <PreflightChecklistPanel
         missionId={mission.missionId ?? NO_MISSION_SENTINEL}
         missionLabel={
@@ -100,6 +107,6 @@ export function PreflightPage({ missionId }: { missionId?: string }) {
           void handleContinueToHandover()
         }}
       />
-    </>
+    </div>
   )
 }

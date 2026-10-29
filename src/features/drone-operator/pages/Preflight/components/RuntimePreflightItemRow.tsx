@@ -1,9 +1,18 @@
-import type { PreflightItemDef } from './PreflightItem'
-import type { ItemState } from '../preflightTypes'
-import { useI18n } from '../../../../../shared/i18n'
-import { preflightPageMessages } from '../PreflightPage.messages'
-import { statusText } from '../preflightHelpers'
+import {
+  CheckOutlined,
+  CloseOutlined,
+  LoadingOutlined,
+  MinusOutlined,
+} from '@ant-design/icons'
+import { Button, Input, theme } from 'antd'
 import { useState } from 'react'
+
+import { StatusTag } from '../../../../../shared/components/antd'
+import { useI18n } from '../../../../../shared/i18n'
+import type { ItemState } from '../preflightTypes'
+import { statusText } from '../preflightHelpers'
+import { preflightPageMessages } from '../PreflightPage.messages'
+import type { PreflightItemDef } from './PreflightItem'
 
 export function RuntimePreflightItemRow({
   def,
@@ -25,6 +34,7 @@ export function RuntimePreflightItemRow({
   onRecheck: (checkType: string) => Promise<void>
 }) {
   const { t } = useI18n(preflightPageMessages)
+  const { token } = theme.useToken()
   const failed = state.result === 'fail'
   const passed = state.result === 'ok'
   const checking = state.status === 'CHECKING'
@@ -32,194 +42,107 @@ export function RuntimePreflightItemRow({
   const [showFailureReason, setShowFailureReason] = useState(false)
   const [failureReason, setFailureReason] = useState('')
   const tone = failed
-    ? {
-        label: t.itemFail,
-        bg: 'var(--red-solid)',
-        fg: 'var(--red-on)',
-        border: 'var(--red-solid)',
-      }
+    ? { label: t.itemFail, tag: 'danger' as const }
     : passed
-      ? {
-          label: t.itemPass,
-          bg: 'var(--green-solid)',
-          fg: 'var(--green-on)',
-          border: 'var(--green-solid)',
-        }
+      ? { label: t.itemPass, tag: 'success' as const }
       : {
           label: checking ? t.itemChecking : t.itemPending,
-          bg: 'var(--sf3)',
-          fg: 'var(--tx2)',
-          border: 'var(--bd2)',
+          tag: 'neutral' as const,
         }
+  const message = statusText(t, state.status, state.message)
+  const tile = passed
+    ? 'mgr-tone-green'
+    : failed
+      ? 'mgr-tone-red'
+      : 'stf-tile-neutral'
 
   return (
     <div
-      style={{
-        background: failed ? 'var(--red-bg)' : 'var(--sf)',
-        border: `1.5px solid ${
-          failed ? 'var(--red-dot)' : passed ? 'var(--green-dot)' : 'var(--bd)'
-        }`,
-        borderRadius: 12,
-        padding: 12,
-      }}
+      className="stf-item"
+      style={
+        failed
+          ? {
+              borderColor: token.colorErrorBorder,
+              background: token.colorErrorBg,
+            }
+          : passed
+            ? { borderColor: token.colorSuccessBorder }
+            : undefined
+      }
     >
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '44px minmax(0, 1fr) auto',
-          alignItems: 'center',
-          gap: 12,
-        }}
-      >
-        <span
-          style={{
-            width: 40,
-            height: 40,
-            borderRadius: 10,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flex: 'none',
-            background: passed
-              ? 'var(--green-bg)'
-              : failed
-                ? 'var(--red-solid)'
-                : 'var(--sf3)',
-            color: passed
-              ? 'var(--green-fg)'
-              : failed
-                ? 'var(--red-on)'
-                : 'var(--tx2)',
-            fontWeight: 700,
-          }}
-        >
-          {passed
-            ? '✓'
-            : failed
-              ? '✕'
-              : state.status === 'CHECKING'
-                ? '◌'
-                : '•'}
+      <div className="stf-item-main">
+        <span className={`mgr-tile mgr-tile-sm ${tile}`} aria-hidden="true">
+          {passed ? (
+            <CheckOutlined />
+          ) : failed ? (
+            <CloseOutlined />
+          ) : checking ? (
+            <LoadingOutlined />
+          ) : (
+            <MinusOutlined />
+          )}
         </span>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontWeight: 700, fontSize: 14.5, lineHeight: 1.2 }}>
-            {def.label}
-          </div>
-          <div style={{ fontSize: 11.5, color: 'var(--tx3)' }}>
+        <div style={{ minWidth: 0 }}>
+          <div className="stf-item-name">{def.label}</div>
+          <div className="stf-muted" style={{ fontSize: 12 }}>
             {def.detail ? `${def.detail} · ` : ''}
-            <span className="odm-mono">{def.code}</span>
+            <span className="stf-mono">{def.code}</span>
           </div>
-          <div
-            style={{
-              marginTop: 2,
-              fontSize: 11,
-              color: failed ? 'var(--red-fg)' : 'var(--tx3)',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            }}
-            title={statusText(t, state.status, state.message)}
-          >
-            {statusText(t, state.status, state.message)}
+          <div className="stf-item-msg" title={message}>
+            {message}
           </div>
         </div>
-        {manual && !decided ? (
-          <div style={{ display: 'flex', gap: 6, justifySelf: 'end' }}>
-            <button
-              type="button"
-              className="odm-btn odm-btn-ok"
+        <div className="stf-item-action">
+          {manual && !decided ? (
+            <>
+              <Button
+                type="primary"
+                disabled={updating}
+                loading={updating}
+                onClick={() => {
+                  void onUpdate(def.key, 'PASSED', t.operatorConfirmedPass)
+                    .then(() => {
+                      setShowFailureReason(false)
+                    })
+                    .catch(() => undefined)
+                }}
+              >
+                {t.itemPass}
+              </Button>
+              <Button
+                danger
+                disabled={updating}
+                onClick={() => setShowFailureReason((value) => !value)}
+              >
+                {t.itemFail}
+              </Button>
+            </>
+          ) : manual ? (
+            <StatusTag tone={tone.tag}>{tone.label}</StatusTag>
+          ) : def.key === 'battery_health' && !decided ? (
+            <Button
+              type="primary"
               disabled={updating}
-              onClick={() => {
-                void onUpdate(
-                  def.key,
-                  'PASSED',
-                  'Người vận hành xác nhận đạt',
-                )
-                  .then(() => {
-                    setShowFailureReason(false)
-                  })
-                  .catch(() => undefined)
-              }}
-              style={{ minWidth: 72 }}
+              loading={updating}
+              onClick={() => void onRecheck(def.key).catch(() => undefined)}
             >
-              {updating ? '...' : 'Đạt'}
-            </button>
-            <button
-              type="button"
-              className="odm-btn odm-btn-rd"
-              disabled={updating}
-              onClick={() => setShowFailureReason((value) => !value)}
-              style={{ minWidth: 96 }}
-            >
-              Không đạt
-            </button>
-          </div>
-        ) : manual ? (
-            <span
-              style={{
-                minWidth: 88,
-                height: 32,
-                padding: '0 12px',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: 999,
-                border: `1px solid ${tone.border}`,
-                background: tone.bg,
-                color: tone.fg,
-                fontSize: 12,
-                fontWeight: 800,
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {tone.label}
-            </span>
-        ) : def.key === 'battery_health' && !decided ? (
-          <button
-            type="button"
-            className="odm-btn odm-btn-p"
-            disabled={updating}
-            onClick={() =>
-              void onRecheck(def.key).catch(() => undefined)
-            }
-            style={{ minWidth: 132 }}
-          >
-            {updating ? t.itemChecking : t.fetchCurrentBattery}
-          </button>
-        ) : (
-          <span
-            style={{
-              justifySelf: 'end',
-              minWidth: 112,
-              height: 32,
-              padding: '0 12px',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: 999,
-              border: `1px solid ${tone.border}`,
-              background: tone.bg,
-              color: tone.fg,
-              fontSize: 12,
-              fontWeight: 800,
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {tone.label}
-          </span>
-        )}
+              {updating ? t.itemChecking : t.fetchCurrentBattery}
+            </Button>
+          ) : (
+            <StatusTag tone={tone.tag}>{tone.label}</StatusTag>
+          )}
+        </div>
       </div>
       {manual && !decided && showFailureReason ? (
-        <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
-          <input
-            className="odm-input"
+        <div className="stf-row" style={{ marginTop: 10, flexWrap: 'nowrap' }}>
+          <Input
             value={failureReason}
             onChange={(event) => setFailureReason(event.target.value)}
             placeholder={t.failureReasonPlaceholder}
           />
-          <button
-            type="button"
-            className="odm-btn odm-btn-rd"
+          <Button
+            danger
+            type="primary"
             disabled={updating || failureReason.trim().length === 0}
             onClick={() =>
               void onUpdate(def.key, 'FAILED', failureReason.trim())
@@ -231,7 +154,7 @@ export function RuntimePreflightItemRow({
             }
           >
             {t.confirmFailure}
-          </button>
+          </Button>
         </div>
       ) : null}
     </div>

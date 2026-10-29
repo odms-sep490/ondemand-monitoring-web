@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import { CardComponent } from '../../../../shared/components/antd'
 import { useI18n } from '../../../../shared/i18n'
 import { missionApi } from '../../../mission/api/missionApi'
 import { flightControlApi } from '../../api/flightControlApi'
@@ -9,7 +10,7 @@ import { operatorHref } from '../../routes'
 import { ConnectStatusPanel } from './components/ConnectStatusPanel'
 import { FlightStepHeader } from '../../components/common/FlightStepper'
 import { connectDronePageMessages } from './ConnectDronePage.messages'
-import { DroneChip } from './components/DroneChip'
+import { DroneChip } from '../../components/common/DroneChip'
 import { type ConnectState } from './connectTypes'
 import { ConnectForm } from './components/ConnectForm'
 
@@ -45,7 +46,7 @@ export function ConnectDronePage({ missionId }: { missionId?: string }) {
   }
 
   return (
-    <div className="odm-card" style={{ marginBottom: 0 }}>
+    <CardComponent styles={{ body: { padding: 0 } }}>
       <FlightStepHeader
         title={t.stepTitle}
         missionId={
@@ -54,31 +55,22 @@ export function ConnectDronePage({ missionId }: { missionId?: string }) {
         active={2}
         right={<DroneChip label={deviceLabel ?? t.noDroneAssigned} />}
       />
-      <div style={{ padding: '18px 22px' }}>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'minmax(0,1.25fr) minmax(0,1fr)',
-            gap: 18,
-            alignItems: 'start',
-          }}
-        >
-          <ConnectForm
-            state={state}
-            token={token}
-            gcsId={gcsId}
-            onTokenChange={setToken}
-            onGcsChange={setGcsId}
-            onConnect={handleConnect}
-            onRetryExpired={() => setState('default')}
-          />
-          <ConnectStatusPanel
-            state={state}
-            error={error}
-            mission={mission.data}
-          />
-        </div>
+      <div className="stf-grid-2 stf-pad">
+        <ConnectForm
+          state={state}
+          token={token}
+          gcsId={gcsId}
+          onTokenChange={setToken}
+          onGcsChange={setGcsId}
+          onConnect={handleConnect}
+          onRetryExpired={() => setState('default')}
+        />
+        <ConnectStatusPanel
+          state={state}
+          error={error}
+          mission={mission.data}
+        />
       </div>
-    </div>
+    </CardComponent>
   )
 }

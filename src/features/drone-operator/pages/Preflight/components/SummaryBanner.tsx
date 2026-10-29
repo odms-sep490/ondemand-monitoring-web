@@ -1,7 +1,10 @@
-import type { PreflightItemDef } from './PreflightItem'
+import { Alert, Button, Progress } from 'antd'
+
+import { CardComponent } from '../../../../../shared/components/antd'
 import { useI18n } from '../../../../../shared/i18n'
-import { preflightPageMessages } from '../PreflightPage.messages'
 import { operatorHref } from '../../../routes'
+import { preflightPageMessages } from '../PreflightPage.messages'
+import type { PreflightItemDef } from './PreflightItem'
 
 export function SummaryBanner({
   nOk,
@@ -35,117 +38,112 @@ export function SummaryBanner({
   backendPreflightRegistering?: boolean
 }) {
   const { t } = useI18n(preflightPageMessages)
-  const bg = isFailed
-    ? 'var(--red-bg)'
-    : isReady
-      ? 'var(--green-bg)'
-      : 'var(--sf)'
-  const border = isFailed
-    ? 'var(--red-dot)'
-    : isReady
-      ? 'var(--green-dot)'
-      : 'var(--bd)'
-  const fg = isFailed
-    ? 'var(--red-fg)'
-    : isReady
-      ? 'var(--green-fg)'
-      : 'var(--tx)'
+  const percent = nTotal > 0 ? Math.round((nOk / nTotal) * 100) : 0
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        gap: 18,
-        alignItems: 'center',
-        padding: '12px 18px',
-        borderRadius: 14,
-        background: bg,
-        border: `1.5px solid ${border}`,
-        color: fg,
-      }}
-    >
-      <div style={{ minWidth: 150 }}>
-        <div
-          className="odm-mono"
-          style={{ fontSize: 26, fontWeight: 700, lineHeight: 1 }}
-        >
-          {nOk}/{nTotal}
+    <CardComponent>
+      <div className="stf-summary">
+        <Progress
+          type="circle"
+          size={72}
+          percent={percent}
+          status={isFailed ? 'exception' : isReady ? 'success' : 'active'}
+          format={() => (
+            <span className="stf-mono">
+              {nOk}/{nTotal}
+            </span>
+          )}
+        />
+        <div className="stf-summary-text">
+          <div
+            className="stf-muted"
+            style={{ fontWeight: 600, fontSize: 12.5 }}
+          >
+            {t.itemsPassed}
+          </div>
+          {isReady ? (
+            <Alert
+              type="success"
+              showIcon
+              message={<strong>{t.passReady}</strong>}
+              description={backendPreflightMessage || undefined}
+            />
+          ) : isFailed ? (
+            <Alert
+              type="error"
+              showIcon
+              message={
+                <strong>
+                  {t.failBlocked(
+                    failedItems.map((item) => item.label).join(', '),
+                  )}
+                </strong>
+              }
+            />
+          ) : (
+            <Alert
+              type={error ? 'error' : 'info'}
+              showIcon
+              message={
+                error ??
+                (hasTriggered
+                  ? t.runningPrecheck(progress)
+                  : t.pressTriggerHint)
+              }
+            />
+          )}
         </div>
-        <div style={{ fontSize: 12.5, fontWeight: 600 }}>{t.itemsPassed}</div>
+        <div className="stf-summary-action">
+          {isReady ? (
+            onReady ? (
+              <Button
+                type="primary"
+                size="large"
+                onClick={onReady}
+                disabled={backendPreflightRegistering}
+                loading={backendPreflightRegistering}
+              >
+                {backendPreflightRegistering
+                  ? t.switchingToReady
+                  : t.continueToHandover}
+              </Button>
+            ) : (
+              <Button
+                type="primary"
+                size="large"
+                href={operatorHref({ screen: 'missionDetail', missionId })}
+              >
+                {t.continueToHandover}
+              </Button>
+            )
+          ) : isFailed ? (
+            <Button
+              danger
+              type="primary"
+              size="large"
+              onClick={onTrigger}
+              disabled={triggering}
+              loading={triggering}
+            >
+              {triggering ? t.triggeringAgain : t.triggerAgain}
+            </Button>
+          ) : !hasTriggered || error ? (
+            <Button
+              type="primary"
+              size="large"
+              onClick={onTrigger}
+              disabled={triggering}
+              loading={triggering}
+            >
+              {triggering ? t.triggeringAgain : t.triggerPrecheck}
+            </Button>
+          ) : (
+            <Button size="large" disabled>
+              {t.continueToHandover}
+            </Button>
+          )}
+        </div>
       </div>
-      <div style={{ flex: 1 }}>
-        {isReady ? (
-          <div>
-            <div style={{ fontSize: 18, fontWeight: 700 }}>{t.passReady}</div>
-            {backendPreflightMessage ? (
-              <div style={{ fontSize: 12.5, marginTop: 4 }}>
-                {backendPreflightMessage}
-              </div>
-            ) : null}
-          </div>
-        ) : isFailed ? (
-          <div style={{ fontSize: 18, fontWeight: 700 }}>
-            {t.failBlocked(failedItems.map((item) => item.label).join(', '))}
-          </div>
-        ) : (
-          <div style={{ fontSize: 13.5 }}>
-            {error ??
-              (hasTriggered ? t.runningPrecheck(progress) : t.pressTriggerHint)}
-          </div>
-        )}
-      </div>
-      {isReady ? (
-        onReady ? (
-          <button
-            type="button"
-            className="odm-btn odm-btn-ok"
-            onClick={onReady}
-            disabled={backendPreflightRegistering}
-            style={{ minWidth: 220 }}
-          >
-            {backendPreflightRegistering
-              ? t.switchingToReady
-              : t.continueToHandover}
-          </button>
-        ) : (
-          <a
-            className="odm-btn odm-btn-ok"
-            href={operatorHref({ screen: 'missionDetail', missionId })}
-            style={{ minWidth: 220 }}
-          >
-            {t.continueToHandover}
-          </a>
-        )
-      ) : isFailed ? (
-        <button
-          type="button"
-          className="odm-btn odm-btn-rd"
-          onClick={onTrigger}
-          disabled={triggering}
-          style={{ minWidth: 200 }}
-        >
-          {triggering ? t.triggeringAgain : t.triggerAgain}
-        </button>
-      ) : !hasTriggered || error ? (
-        <button
-          type="button"
-          className="odm-btn odm-btn-p"
-          onClick={onTrigger}
-          disabled={triggering}
-          style={{ minWidth: 220 }}
-        >
-          {triggering ? t.triggeringAgain : t.triggerPrecheck}
-        </button>
-      ) : (
-        <button
-          type="button"
-          className="odm-btn"
-          disabled
-          style={{ minWidth: 220 }}
-        >
-          {t.continueToHandover}
-        </button>
-      )}
-    </div>
+    </CardComponent>
   )
 }

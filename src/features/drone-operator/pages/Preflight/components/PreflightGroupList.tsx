@@ -25,30 +25,11 @@ export function PreflightGroupList({
   updatingItem: string | null
 }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+    <div className="stf-stack">
       {RUNTIME_GROUPS.map((group) => (
-        <div
-          key={group.title}
-          style={{ display: 'flex', flexDirection: 'column', gap: 8 }}
-        >
-          <div
-            style={{
-              fontWeight: 700,
-              fontSize: 12.5,
-              color: 'var(--tx2)',
-              textTransform: 'uppercase',
-              letterSpacing: '.04em',
-            }}
-          >
-            {group.title}
-          </div>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-              gap: 10,
-            }}
-          >
+        <section key={group.title} className="stf-stack-sm">
+          <h2 className="stf-group-title">{group.title}</h2>
+          <div className="stf-grid-2 stf-grid-2--even">
             {group.items.map((def) => (
               <RuntimePreflightItemRow
                 key={def.key}
@@ -65,7 +46,7 @@ export function PreflightGroupList({
               />
             ))}
           </div>
-        </div>
+        </section>
       ))}
     </div>
   )
