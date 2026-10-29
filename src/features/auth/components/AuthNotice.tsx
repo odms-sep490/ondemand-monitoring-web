@@ -10,7 +10,7 @@ function getNoticeIcon(type: Notice['type']) {
 export function AuthNotice({ notice }: { notice: Notice }) {
   return (
     <output
-      className={`odm-auth-notice odm-auth-notice--${notice.type}`}
+      className={`auth-notice auth-notice--${notice.type}`}
       aria-live="polite"
     >
       <Icon name={getNoticeIcon(notice.type)} />

@@ -1,7 +1,12 @@
-import { useState, type FormEvent } from 'react'
+import '@ant-design/v5-patch-for-react-19'
+import { Button, ConfigProvider, Form } from 'antd'
+import { useMemo, useState, type FormEvent } from 'react'
 
+import { mgrPopupContainer } from '../../../shared/components/antd'
+import { useDocumentDark } from '../../../shared/components/antd/useDocumentDark'
 import { Icon } from '../../../shared/components/Icon'
 import { useI18n } from '../../../shared/i18n'
+import { buildAppTheme } from '../../../shared/theme/appTheme'
 import {
   AuthApiError,
   authApi,
@@ -21,8 +26,9 @@ import { VerifyForm } from '../components/VerifyForm'
 import { redirectToRoleHome } from '../routing'
 import type { AuthMode, Notice } from '../types/authMode'
 import { authPageMessages } from './AuthPage.messages'
-import '../auth.css'
-import '../auth-reference.css'
+import '../../../shared/styles/app-shell/layout.scss'
+import '../../../shared/styles/app-shell/popups.scss'
+import '../auth.scss'
 
 export function AuthPage({
   initialMode = 'login',
@@ -30,6 +36,8 @@ export function AuthPage({
   initialMode?: 'login' | 'register'
 }) {
   const { t } = useI18n(authPageMessages)
+  const dark = useDocumentDark()
+  const themeConfig = useMemo(() => buildAppTheme(dark), [dark])
   const [mode, setMode] = useState<AuthMode>(initialMode)
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
@@ -219,128 +227,133 @@ export function AuthPage({
   const subtitle = t.subtitles[mode]
 
   return (
-    <div className="odm odm-auth">
-      <a className="skip-link" href="#auth-form">
-        {t.skipLink}
-      </a>
-      <AuthAside />
-      <main className="odm-auth-main">
-        <div className="odm-auth-topbar">
-          <ThemeToggle />
-        </div>
-        <div className="odm-auth-content">
-          <div className="odm-auth-card">
-            <AuthLogo />
-            <div className="odm-auth-heading">
-              <h1>{title}</h1>
-              <p>{subtitle}</p>
-            </div>
-            {notice ? <AuthNotice notice={notice} /> : null}
-            <form
-              id="auth-form"
-              className="odm-auth-form"
-              key={mode}
-              onSubmit={handleSubmit}
-            >
-              {mode === 'login' ? (
-                <LoginForm
-                  email={email}
-                  onEmailChange={setEmail}
-                  password={password}
-                  onPasswordChange={setPassword}
-                  rememberMe={rememberMe}
-                  onRememberMeChange={setRememberMe}
-                  fieldErrors={fieldErrors}
-                  isSubmitting={isSubmitting}
-                  onGoogleSignIn={handleGoogleSignIn}
-                  onForgotPassword={() => {
-                    setMode('forgot')
-                    setNotice(undefined)
-                  }}
-                />
-              ) : null}
-              {mode === 'register' ? (
-                <RegisterForm
-                  fullName={fullName}
-                  onFullNameChange={setFullName}
-                  email={email}
-                  onEmailChange={setEmail}
-                  password={password}
-                  onPasswordChange={setPassword}
-                  confirmPassword={confirmPassword}
-                  onConfirmPasswordChange={setConfirmPassword}
-                  fieldErrors={fieldErrors}
-                  isSubmitting={isSubmitting}
-                />
-              ) : null}
-              {mode === 'verify' ? (
-                <VerifyForm
-                  email={email}
-                  onEmailChange={setEmail}
-                  otpCode={otpCode}
-                  onOtpCodeChange={setOtpCode}
-                  fieldErrors={fieldErrors}
-                  isSubmitting={isSubmitting}
-                  onResendOtp={handleResendOtp}
-                />
-              ) : null}
-              {mode === 'forgot' ? (
-                <ForgotForm
-                  email={email}
-                  onEmailChange={setEmail}
-                  fieldErrors={fieldErrors}
-                  isSubmitting={isSubmitting}
-                  onBackToLogin={backToLogin}
-                />
-              ) : null}
-              {mode === 'reset' ? (
-                <ResetForm
-                  email={email}
-                  onEmailChange={setEmail}
-                  otpCode={otpCode}
-                  onOtpCodeChange={setOtpCode}
-                  newPassword={newPassword}
-                  onNewPasswordChange={setNewPassword}
-                  fieldErrors={fieldErrors}
-                  isSubmitting={isSubmitting}
-                  onBackToLogin={backToLogin}
-                />
-              ) : null}
-              {mode === 'first-login' ? (
-                <FirstLoginForm
-                  email={email}
-                  onEmailChange={setEmail}
-                  newPassword={newPassword}
-                  onNewPasswordChange={setNewPassword}
-                  fieldErrors={fieldErrors}
-                  isSubmitting={isSubmitting}
-                  challengeSession={challengeSession}
-                />
-              ) : null}
-            </form>
-            <ModeSwitch
-              mode={mode}
-              onChange={(nextMode) => {
-                setMode(nextMode)
-                setNotice(undefined)
-                // Keep the URL in sync with the visible form so the back
-                // button and a copy-pasted link both land on the right mode.
-                window.location.hash =
-                  nextMode === 'register' ? '#auth/register' : '#auth/login'
-              }}
-            />
-            {mode === 'verify' ? (
-              <button
-                type="button"
-                className="odm-auth-back odm-auth-bottom-back"
-                onClick={backToLogin}
-              >
-                <Icon name="arrow-left" /> {t.useAnotherEmail}
-              </button>
-            ) : null}
+    <ConfigProvider theme={themeConfig} getPopupContainer={mgrPopupContainer}>
+      <div className="odm mgr-layout mgr-auth">
+        <a className="skip-link" href="#auth-form">
+          {t.skipLink}
+        </a>
+        <AuthAside />
+        <main className="auth-main">
+          <div className="auth-topbar">
+            <ThemeToggle />
           </div>
-        </div>
-      </main>
-    </div>
+          <div className="auth-content">
+            <div className="auth-card">
+              <AuthLogo />
+              <div className="auth-heading">
+                <h1>{title}</h1>
+                <p>{subtitle}</p>
+              </div>
+              {notice ? <AuthNotice notice={notice} /> : null}
+              <Form layout="vertical" component="div" requiredMark={false}>
+                <form
+                  id="auth-form"
+                  className="auth-form"
+                  key={mode}
+                  onSubmit={handleSubmit}
+                >
+                  {mode === 'login' ? (
+                    <LoginForm
+                      email={email}
+                      onEmailChange={setEmail}
+                      password={password}
+                      onPasswordChange={setPassword}
+                      rememberMe={rememberMe}
+                      onRememberMeChange={setRememberMe}
+                      fieldErrors={fieldErrors}
+                      isSubmitting={isSubmitting}
+                      onGoogleSignIn={handleGoogleSignIn}
+                      onForgotPassword={() => {
+                        setMode('forgot')
+                        setNotice(undefined)
+                      }}
+                    />
+                  ) : null}
+                  {mode === 'register' ? (
+                    <RegisterForm
+                      fullName={fullName}
+                      onFullNameChange={setFullName}
+                      email={email}
+                      onEmailChange={setEmail}
+                      password={password}
+                      onPasswordChange={setPassword}
+                      confirmPassword={confirmPassword}
+                      onConfirmPasswordChange={setConfirmPassword}
+                      fieldErrors={fieldErrors}
+                      isSubmitting={isSubmitting}
+                    />
+                  ) : null}
+                  {mode === 'verify' ? (
+                    <VerifyForm
+                      email={email}
+                      onEmailChange={setEmail}
+                      otpCode={otpCode}
+                      onOtpCodeChange={setOtpCode}
+                      fieldErrors={fieldErrors}
+                      isSubmitting={isSubmitting}
+                      onResendOtp={handleResendOtp}
+                    />
+                  ) : null}
+                  {mode === 'forgot' ? (
+                    <ForgotForm
+                      email={email}
+                      onEmailChange={setEmail}
+                      fieldErrors={fieldErrors}
+                      isSubmitting={isSubmitting}
+                      onBackToLogin={backToLogin}
+                    />
+                  ) : null}
+                  {mode === 'reset' ? (
+                    <ResetForm
+                      email={email}
+                      onEmailChange={setEmail}
+                      otpCode={otpCode}
+                      onOtpCodeChange={setOtpCode}
+                      newPassword={newPassword}
+                      onNewPasswordChange={setNewPassword}
+                      fieldErrors={fieldErrors}
+                      isSubmitting={isSubmitting}
+                      onBackToLogin={backToLogin}
+                    />
+                  ) : null}
+                  {mode === 'first-login' ? (
+                    <FirstLoginForm
+                      email={email}
+                      onEmailChange={setEmail}
+                      newPassword={newPassword}
+                      onNewPasswordChange={setNewPassword}
+                      fieldErrors={fieldErrors}
+                      isSubmitting={isSubmitting}
+                      challengeSession={challengeSession}
+                    />
+                  ) : null}
+                </form>
+              </Form>
+              <ModeSwitch
+                mode={mode}
+                onChange={(nextMode) => {
+                  setMode(nextMode)
+                  setNotice(undefined)
+                  // Keep the URL in sync with the visible form so the back
+                  // button and a copy-pasted link both land on the right mode.
+                  window.location.hash =
+                    nextMode === 'register' ? '#auth/register' : '#auth/login'
+                }}
+              />
+              {mode === 'verify' ? (
+                <Button
+                  type="link"
+                  className="auth-link auth-back"
+                  icon={<Icon name="arrow-left" />}
+                  onClick={backToLogin}
+                >
+                  {t.useAnotherEmail}
+                </Button>
+              ) : null}
+            </div>
+          </div>
+        </main>
+      </div>
+    </ConfigProvider>
   )
 }

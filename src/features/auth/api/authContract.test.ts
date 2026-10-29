@@ -120,20 +120,20 @@ describe('backend authentication contract', () => {
     expect(network.mock.calls[1][1].credentials).toBe('include')
   })
 
-  it.each([
-    '/api/support-tickets',
-    '/api/v1/admin/accounts',
-  ])('sends bearer without CSRF for %s', async (path) => {
-    authSession.save({ accessToken: token, tokenType: 'Bearer', user }, false)
-    const network = vi
-      .fn()
-      .mockResolvedValue(Response.json({ success: true, data: null }))
-    vi.stubGlobal('fetch', network)
-    await authenticatedFetch(env.apiBaseUrl + path, { method: 'POST' })
-    expect(network).toHaveBeenCalledTimes(1)
-    expect(network.mock.calls[0][1].headers.has('X-XSRF-TOKEN')).toBe(false)
-    expect(network.mock.calls[0][1].headers.get('Authorization')).toBe(
-      'Bearer ' + token,
-    )
-  })
+  it.each(['/api/support-tickets', '/api/v1/admin/accounts'])(
+    'sends bearer without CSRF for %s',
+    async (path) => {
+      authSession.save({ accessToken: token, tokenType: 'Bearer', user }, false)
+      const network = vi
+        .fn()
+        .mockResolvedValue(Response.json({ success: true, data: null }))
+      vi.stubGlobal('fetch', network)
+      await authenticatedFetch(env.apiBaseUrl + path, { method: 'POST' })
+      expect(network).toHaveBeenCalledTimes(1)
+      expect(network.mock.calls[0][1].headers.has('X-XSRF-TOKEN')).toBe(false)
+      expect(network.mock.calls[0][1].headers.get('Authorization')).toBe(
+        'Bearer ' + token,
+      )
+    },
+  )
 })

@@ -1,9 +1,12 @@
+import { Checkbox, Input } from 'antd'
+
 import { Icon } from '../../../shared/components/Icon'
 import { useI18n } from '../../../shared/i18n'
 import { EmailField } from './EmailField'
 import { Field } from './Field'
 import { PasswordField } from './PasswordField'
 import { registerFormMessages } from './RegisterForm.messages'
+import { SubmitButton } from './SubmitButton'
 
 export function RegisterForm({
   fullName,
@@ -37,21 +40,20 @@ export function RegisterForm({
         hint={t.fullNameHint}
         error={fieldErrors.fullName}
       >
-        <div className="odm-auth-input-wrap">
-          <Icon name="users" />
-          <input
-            id="fullName"
-            name="fullName"
-            className={`odm-inp${fieldErrors.fullName ? ' odm-inp-err' : ''}`}
-            type="text"
-            value={fullName}
-            onChange={(event) => onFullNameChange(event.target.value)}
-            placeholder={t.fullNamePlaceholder}
-            maxLength={100}
-            autoComplete="name"
-            required
-          />
-        </div>
+        <Input
+          id="fullName"
+          name="fullName"
+          size="large"
+          status={fieldErrors.fullName ? 'error' : undefined}
+          prefix={<Icon name="users" />}
+          type="text"
+          value={fullName}
+          onChange={(event) => onFullNameChange(event.target.value)}
+          placeholder={t.fullNamePlaceholder}
+          maxLength={100}
+          autoComplete="name"
+          required
+        />
       </Field>
       <EmailField
         value={email}
@@ -72,18 +74,12 @@ export function RegisterForm({
         onChange={onConfirmPasswordChange}
         error={fieldErrors.confirmPassword}
       />
-      <label className="odm-auth-checkbox">
-        <input type="checkbox" required />
-        <span>{t.termsLabel}</span>
-      </label>
-      <button
-        type="submit"
-        className="odm-btn odm-btn-p odm-auth-submit"
-        disabled={isSubmitting}
-        aria-busy={isSubmitting}
-      >
+      <Checkbox className="auth-terms" required>
+        {t.termsLabel}
+      </Checkbox>
+      <SubmitButton busy={isSubmitting}>
         {isSubmitting ? t.creatingAccount : t.createAccount}
-      </button>
+      </SubmitButton>
     </>
   )
 }

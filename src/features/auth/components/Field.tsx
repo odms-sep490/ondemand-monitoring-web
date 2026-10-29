@@ -1,5 +1,7 @@
+import { Form } from 'antd'
 import type { ReactNode } from 'react'
 
+/** Labelled form row (antd Form.Item). The error is announced as an alert. */
 export function Field({
   label,
   htmlFor,
@@ -14,17 +16,19 @@ export function Field({
   children: ReactNode
 }) {
   return (
-    <div className="odm-auth-field">
-      <div className="odm-auth-field-label-row">
-        <label htmlFor={htmlFor}>{label}</label>
-        {hint ? <span>{hint}</span> : null}
-      </div>
+    <Form.Item
+      className="auth-field"
+      label={label}
+      htmlFor={htmlFor}
+      validateStatus={error ? 'error' : undefined}
+      extra={hint}
+    >
       {children}
       {error ? (
-        <p className="odm-auth-field-error" role="alert">
+        <p className="auth-field-error" role="alert">
           {error}
         </p>
       ) : null}
-    </div>
+    </Form.Item>
   )
 }

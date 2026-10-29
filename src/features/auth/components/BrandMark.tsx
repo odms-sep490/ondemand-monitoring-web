@@ -1,9 +1,11 @@
-export function BrandMark() {
+export function BrandMark({ size = 40 }: { size?: number }) {
   return (
     <img
       src="/images/logo-new.png"
       alt="OnDemand Monitor"
-      className="odm-auth-aside-brand-mark"
+      className="auth-brand-mark"
+      width={size}
+      height={size}
     />
   )
 }

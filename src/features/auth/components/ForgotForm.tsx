@@ -1,7 +1,10 @@
+import { Button } from 'antd'
+
 import { Icon } from '../../../shared/components/Icon'
 import { useI18n } from '../../../shared/i18n'
 import { EmailField } from './EmailField'
 import { forgotFormMessages } from './ForgotForm.messages'
+import { SubmitButton } from './SubmitButton'
 
 export function ForgotForm({
   email,
@@ -24,17 +27,17 @@ export function ForgotForm({
         onChange={onEmailChange}
         error={fieldErrors.email}
       />
-      <button
-        type="submit"
-        className="odm-btn odm-btn-p odm-auth-submit"
-        disabled={isSubmitting}
-        aria-busy={isSubmitting}
-      >
+      <SubmitButton busy={isSubmitting}>
         {isSubmitting ? t.sending : t.sendResetCode}
-      </button>
-      <button type="button" className="odm-auth-back" onClick={onBackToLogin}>
-        <Icon name="arrow-left" /> {t.backToLogin}
-      </button>
+      </SubmitButton>
+      <Button
+        type="link"
+        className="auth-link auth-back"
+        icon={<Icon name="arrow-left" />}
+        onClick={onBackToLogin}
+      >
+        {t.backToLogin}
+      </Button>
     </>
   )
 }

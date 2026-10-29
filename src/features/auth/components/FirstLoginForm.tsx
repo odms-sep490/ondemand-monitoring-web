@@ -1,5 +1,8 @@
+import { useI18n } from '../../../shared/i18n'
 import { EmailField } from './EmailField'
+import { firstLoginFormMessages } from './FirstLoginForm.messages'
 import { PasswordField } from './PasswordField'
+import { SubmitButton } from './SubmitButton'
 
 export function FirstLoginForm({
   email,
@@ -18,6 +21,7 @@ export function FirstLoginForm({
   isSubmitting: boolean
   challengeSession: string
 }) {
+  const { t } = useI18n(firstLoginFormMessages)
   return (
     <>
       <EmailField
@@ -27,20 +31,15 @@ export function FirstLoginForm({
       />
       <PasswordField
         id="newPassword"
-        label="Mật khẩu mới"
+        label={t.newPasswordLabel}
         value={newPassword}
         onChange={onNewPasswordChange}
-        hint="Tối thiểu 8 ký tự"
+        hint={t.passwordHint}
         error={fieldErrors.newPassword}
       />
-      <button
-        type="submit"
-        className="odm-btn odm-btn-p odm-auth-submit"
-        disabled={isSubmitting || !challengeSession}
-        aria-busy={isSubmitting}
-      >
-        {isSubmitting ? 'Đang lưu mật khẩu...' : 'Tiếp tục vào workspace'}
-      </button>
+      <SubmitButton busy={isSubmitting} disabled={!challengeSession}>
+        {isSubmitting ? t.saving : t.continue}
+      </SubmitButton>
     </>
   )
 }

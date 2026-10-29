@@ -5,11 +5,10 @@ import { BrandMark } from './BrandMark'
 export function AuthLogo() {
   const { t } = useI18n(authLogoMessages)
   return (
-    <a className="odm-auth-logo" href="#" aria-label={t.homeAriaLabel}>
-      <BrandMark />
-      <span className="odm-auth-brand-name">
-        <span className="odm-auth-brand-primary">OnDemand</span>
-        <span className="odm-auth-brand-accent">Monitor</span>
+    <a className="auth-logo" href="#" aria-label={t.homeAriaLabel}>
+      <BrandMark size={36} />
+      <span className="auth-logo-name">
+        <span>OnDemand</span> <span className="auth-logo-accent">Monitor</span>
       </span>
     </a>
   )

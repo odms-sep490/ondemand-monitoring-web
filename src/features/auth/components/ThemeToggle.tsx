@@ -1,3 +1,4 @@
+import { Button } from 'antd'
 import { useEffect, useState } from 'react'
 
 import { Icon } from '../../../shared/components/Icon'
@@ -14,16 +15,16 @@ export function ThemeToggle() {
     document.documentElement.dataset.theme = dark ? 'dark' : 'light'
   }, [dark])
   return (
-    <div className="odm-auth-theme-toggle">
-      <span>{t.label}</span>
-      <button
-        type="button"
+    <div className="auth-toggles">
+      <LanguageToggle className="mgr-lang-toggle" />
+      <Button
+        type="text"
+        className="mgr-icon-btn"
+        title={t.label}
         aria-label={dark ? t.switchToLight : t.switchToDark}
+        icon={<Icon name={dark ? 'sun' : 'moon'} width={18} height={18} />}
         onClick={() => setDark((value) => !value)}
-      >
-        <Icon name={dark ? 'sun' : 'moon'} />
-      </button>
-      <LanguageToggle />
+      />
     </div>
   )
 }

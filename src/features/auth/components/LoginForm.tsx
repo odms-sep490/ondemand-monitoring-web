@@ -1,8 +1,11 @@
+import { Button, Checkbox } from 'antd'
+
 import { Icon } from '../../../shared/components/Icon'
 import { useI18n } from '../../../shared/i18n'
 import { EmailField } from './EmailField'
 import { loginFormMessages } from './LoginForm.messages'
 import { PasswordField } from './PasswordField'
+import { SubmitButton } from './SubmitButton'
 
 export function LoginForm({
   email,
@@ -30,15 +33,16 @@ export function LoginForm({
   const { t } = useI18n(loginFormMessages)
   return (
     <>
-      <button
-        type="button"
-        className="odm-auth-google"
+      <Button
+        size="large"
+        block
+        className="auth-google"
+        icon={<Icon name="google" />}
         onClick={onGoogleSignIn}
       >
-        <Icon name="google" />
         {t.continueWithGoogle}
-      </button>
-      <div className="odm-auth-divider" aria-hidden="true">
+      </Button>
+      <div className="auth-divider" aria-hidden="true">
         <span>{t.orDivider}</span>
       </div>
       <EmailField
@@ -52,32 +56,20 @@ export function LoginForm({
         onChange={onPasswordChange}
         error={fieldErrors.password}
       />
-      <div className="odm-auth-row">
-        <label className="odm-auth-checkbox">
-          <input
-            type="checkbox"
-            checked={rememberMe}
-            onChange={(event) => onRememberMeChange(event.target.checked)}
-          />
-          <span>{t.rememberMe}</span>
-        </label>
-        <button
-          type="button"
-          className="odm-auth-link-button"
-          onClick={onForgotPassword}
+      <div className="auth-row">
+        <Checkbox
+          checked={rememberMe}
+          onChange={(event) => onRememberMeChange(event.target.checked)}
         >
+          {t.rememberMe}
+        </Checkbox>
+        <Button type="link" className="auth-link" onClick={onForgotPassword}>
           {t.forgotPassword}
-        </button>
+        </Button>
       </div>
-      <button
-        type="submit"
-        className="odm-btn odm-btn-p odm-auth-submit"
-        disabled={isSubmitting}
-        aria-busy={isSubmitting}
-      >
-        <span>{isSubmitting ? t.signingIn : t.signIn}</span>
-        {isSubmitting ? null : <Icon name="arrow-right" />}
-      </button>
+      <SubmitButton busy={isSubmitting}>
+        {isSubmitting ? t.signingIn : t.signIn}
+      </SubmitButton>
     </>
   )
 }

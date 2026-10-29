@@ -1,9 +1,12 @@
+import { Button } from 'antd'
+
 import { Icon } from '../../../shared/components/Icon'
 import { useI18n } from '../../../shared/i18n'
 import { EmailField } from './EmailField'
-import { Field } from './Field'
+import { OtpField } from './OtpField'
 import { PasswordField } from './PasswordField'
 import { resetFormMessages } from './ResetForm.messages'
+import { SubmitButton } from './SubmitButton'
 
 export function ResetForm({
   email,
@@ -34,50 +37,32 @@ export function ResetForm({
         onChange={onEmailChange}
         error={fieldErrors.email}
       />
-      <Field
+      <OtpField
         label={t.codeLabel}
-        htmlFor="otpCode"
         hint={t.codeHint}
+        value={otpCode}
+        onChange={onOtpCodeChange}
         error={fieldErrors.otpCode}
-      >
-        <div className="odm-auth-input-wrap">
-          <Icon name="ticket" />
-          <input
-            id="otpCode"
-            name="otpCode"
-            className={`odm-inp${fieldErrors.otpCode ? ' odm-inp-err' : ''}`}
-            type="text"
-            inputMode="numeric"
-            pattern="[0-9]{6}"
-            maxLength={6}
-            value={otpCode}
-            onChange={(event) =>
-              onOtpCodeChange(event.target.value.replace(/\D/g, ''))
-            }
-            placeholder="000000"
-            required
-          />
-        </div>
-      </Field>
+      />
       <PasswordField
         id="newPassword"
-        label="Mật khẩu mới"
+        label={t.newPasswordLabel}
         value={newPassword}
         onChange={onNewPasswordChange}
-        hint="Tối thiểu 8 ký tự"
+        hint={t.passwordHint}
         error={fieldErrors.newPassword}
       />
-      <button
-        type="submit"
-        className="odm-btn odm-btn-p odm-auth-submit"
-        disabled={isSubmitting}
-        aria-busy={isSubmitting}
+      <SubmitButton busy={isSubmitting}>
+        {isSubmitting ? t.resetting : t.resetPassword}
+      </SubmitButton>
+      <Button
+        type="link"
+        className="auth-link auth-back"
+        icon={<Icon name="arrow-left" />}
+        onClick={onBackToLogin}
       >
-        {isSubmitting ? 'Đang đặt lại...' : 'Đặt lại mật khẩu'}
-      </button>
-      <button type="button" className="odm-auth-back" onClick={onBackToLogin}>
-        <Icon name="arrow-left" /> Quay lại đăng nhập
-      </button>
+        {t.backToLogin}
+      </Button>
     </>
   )
 }

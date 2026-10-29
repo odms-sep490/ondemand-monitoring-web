@@ -1,3 +1,5 @@
+import { Button } from 'antd'
+
 import { useI18n } from '../../../shared/i18n'
 import type { AuthMode } from '../types/authMode'
 import { modeSwitchMessages } from './ModeSwitch.messages'
@@ -18,14 +20,15 @@ export function ModeSwitch({
   )
     return null
   return (
-    <p className="odm-auth-switch">
+    <p className="auth-switch">
       {mode === 'login' ? t.noAccount : t.hasAccount}{' '}
-      <button
-        type="button"
+      <Button
+        type="link"
+        className="auth-link"
         onClick={() => onChange(mode === 'login' ? 'register' : 'login')}
       >
         {mode === 'login' ? t.register : t.login}
-      </button>
+      </Button>
     </p>
   )
 }
