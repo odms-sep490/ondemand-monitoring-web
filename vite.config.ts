@@ -25,6 +25,8 @@ export default defineConfig({
     setupFiles: ['./src/test/setup.ts'],
     exclude: ['**/node_modules/**', '.claude/**', 'e2e/**'],
     env: {
+      // Fixtures and expectations assume Vietnam time (UTC+7); CI runners default to UTC.
+      TZ: 'Asia/Ho_Chi_Minh',
       VITE_USE_MOCK_API: 'true',
       VITE_REAL_API_ROUTES: '',
     },
