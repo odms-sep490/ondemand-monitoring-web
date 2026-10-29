@@ -20,6 +20,7 @@ export const missionListPageMessages = defineMessages({
     loadFailedDesc:
       'Mất kết nối hoặc máy chủ đang bận. Dữ liệu đã lưu vẫn an toàn.',
     retry: 'Thử lại',
+    filterAria: 'Lọc mission theo trạng thái',
     title: 'Mission của tôi',
     pilotRank: (rank: string) => ` · phi công hạng ${rank}`,
     declareAvailability: 'Khai báo lịch rảnh',
@@ -91,6 +92,7 @@ export const missionListPageMessages = defineMessages({
     loadFailedDesc:
       'Connection lost or the server is busy. Saved data is still safe.',
     retry: 'Retry',
+    filterAria: 'Filter missions by status',
     title: 'My missions',
     pilotRank: (rank: string) => ` · pilot rank ${rank}`,
     declareAvailability: 'Set availability',

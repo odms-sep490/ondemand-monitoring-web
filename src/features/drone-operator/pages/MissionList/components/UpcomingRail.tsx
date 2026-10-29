@@ -1,3 +1,9 @@
+import { ThunderboltOutlined } from '@ant-design/icons'
+
+import {
+  CardComponent,
+  EmptyState,
+} from '../../../../../shared/components/antd'
 import type { OperatorMission } from '../../../types/mission'
 import { useI18n } from '../../../../../shared/i18n'
 import { missionListPageMessages } from '../MissionListPage.messages'
@@ -30,26 +36,21 @@ export function UpcomingRail({
     })[0]
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-      <div className="odm-card">
-        <div className="odm-card-body" style={{ padding: '14px 16px' }}>
-          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 10 }}>
-            {t.upcomingSoon}
-          </div>
-          {!next ? (
-            <div style={{ color: 'var(--tx3)', fontSize: 12.5 }}>
-              {t.noUpcomingMission}
-            </div>
-          ) : (
-            <NextFlightCard
-              mission={next.m}
-              start={next.start}
-              now={now}
-              today={today}
-            />
-          )}
-        </div>
-      </div>
-    </div>
+    <CardComponent
+      title={t.upcomingSoon}
+      icon={<ThunderboltOutlined />}
+      tone="amber"
+    >
+      {!next ? (
+        <EmptyState title={t.noUpcomingMission} />
+      ) : (
+        <NextFlightCard
+          mission={next.m}
+          start={next.start}
+          now={now}
+          today={today}
+        />
+      )}
+    </CardComponent>
   )
 }

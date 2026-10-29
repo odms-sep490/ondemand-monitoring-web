@@ -1,3 +1,4 @@
+import { FilterBar, FilterSegments } from '../../../../../shared/components/antd'
 import type { OperatorMissionTab } from '../../../types/mission'
 import { MissionListTable } from './MissionListTable'
 import { UpcomingRail } from './UpcomingRail'
@@ -79,66 +80,26 @@ export function MissionTabs({
   })[]
 }) {
   const { t } = useI18n(missionListPageMessages)
+  const options = (Object.keys(t.tabLabel) as OperatorMissionTab[]).map(
+    (tabKey) => ({
+      value: tabKey,
+      label: t.tabLabel[tabKey],
+      count: counts[tabKey],
+    }),
+  )
   return (
-    <div
-      style={{
-        marginTop: 16,
-        display: 'grid',
-        gridTemplateColumns: 'minmax(0, 1fr) 320px',
-        gap: 16,
-        alignItems: 'start',
-      }}
-    >
-      <div>
-        <div
-          role="tablist"
-          style={{
-            display: 'flex',
-            gap: 2,
-            background: 'var(--sf)',
-            border: '1px solid var(--bd)',
-            borderRadius: '8px 8px 0 0',
-            padding: '0 8px',
-          }}
-        >
-          {(Object.keys(t.tabLabel) as OperatorMissionTab[]).map((tabKey) => (
-            <button
-              key={tabKey}
-              type="button"
-              role="tab"
-              aria-selected={tab === tabKey}
-              onClick={() => setTab(tabKey)}
-              style={{
-                height: 38,
-                padding: '0 14px',
-                border: 0,
-                borderBottom: `2px solid ${tab === tabKey ? 'var(--ink)' : 'transparent'}`,
-                marginBottom: -1,
-                background: 'transparent',
-                fontWeight: 600,
-                fontSize: 13,
-                color: tab === tabKey ? 'var(--tx)' : 'var(--tx3)',
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-              }}
-            >
-              {t.tabLabel[tabKey]}
-              <span
-                className="odm-tn"
-                style={{
-                  fontSize: 11,
-                  padding: '1px 6px',
-                  borderRadius: 9,
-                  background: 'var(--sf3)',
-                }}
-              >
-                {counts[tabKey]}
-              </span>
-            </button>
-          ))}
-        </div>
+    <div className="odm-opr-mission-layout">
+      <div className="odm-opr-mission-main">
+        <FilterBar
+          start={
+            <FilterSegments
+              options={options}
+              value={tab}
+              onChange={setTab}
+              ariaLabel={t.filterAria}
+            />
+          }
+        />
         <MissionListTable
           missions={tabItems}
           now={now}

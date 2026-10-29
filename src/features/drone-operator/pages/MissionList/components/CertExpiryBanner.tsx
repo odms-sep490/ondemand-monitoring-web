@@ -1,3 +1,5 @@
+import { Alert, Button } from 'antd'
+
 import { formatVn } from '../missionListHelpers'
 import { operatorHref } from '../../../routes'
 import { missionListPageMessages } from '../MissionListPage.messages'
@@ -14,32 +16,20 @@ export function CertExpiryBanner({
 }) {
   const { t } = useI18n(missionListPageMessages)
   return (
-    <div style={{ marginBottom: 14 }}>
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 12,
-          padding: '10px 14px',
-          borderRadius: 8,
-          background: 'var(--yellow-bg)',
-          color: 'var(--yellow-fg)',
-          border: '1px solid var(--yellow-dot)',
-        }}
-      >
-        <div style={{ flex: 1 }}>
-          <strong>
-            {t.certExpiring(formatVn(profile.certExpiry), kpis.certDaysLeft)}
-          </strong>{' '}
-          <span>{t.certExpiringHint}</span>
-        </div>
-        <a
-          className="odm-btn odm-btn-sm"
-          href={operatorHref({ screen: 'profile' })}
-        >
+    <Alert
+      type="warning"
+      showIcon
+      message={
+        <strong>
+          {t.certExpiring(formatVn(profile.certExpiry), kpis.certDaysLeft)}
+        </strong>
+      }
+      description={t.certExpiringHint}
+      action={
+        <Button size="small" href={operatorHref({ screen: 'profile' })}>
           {t.viewProfile}
-        </a>
-      </div>
-    </div>
+        </Button>
+      }
+    />
   )
 }

@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react'
+import { Button, Skeleton } from 'antd'
 import {
-  EmptyState,
-  LoadingState,
-} from '../../../../shared/components/odm/StateView'
+  CardComponent,
+  ErrorState,
+} from '../../../../shared/components/antd'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
 import { operatorApi } from '../../api/operatorApi'
@@ -55,23 +56,40 @@ export function MissionListPage({ searchQuery }: { searchQuery: string }) {
     [filtered, now],
   )
 
-  if (missionsQuery.loading || profileQuery.loading) return <LoadingState />
+  if (missionsQuery.loading || profileQuery.loading) {
+    return (
+      <div className="odm-opr-page" aria-busy="true">
+        <CardComponent>
+          <Skeleton active paragraph={{ rows: 1 }} />
+        </CardComponent>
+        <div className="mgr-kpi-strip">
+          {[0, 1, 2, 3].map((i) => (
+            <CardComponent key={i}>
+              <Skeleton active title={false} paragraph={{ rows: 2 }} />
+            </CardComponent>
+          ))}
+        </div>
+        <CardComponent>
+          <Skeleton active paragraph={{ rows: 5 }} />
+        </CardComponent>
+      </div>
+    )
+  }
   if (missionsQuery.error || profileQuery.error) {
     return (
-      <EmptyState
+      <ErrorState
         title={t.loadFailedTitle}
         description={t.loadFailedDesc}
         action={
-          <button
-            type="button"
-            className="odm-btn odm-btn-p"
+          <Button
+            type="primary"
             onClick={() => {
               missionsQuery.reload()
               profileQuery.reload()
             }}
           >
             {t.retry}
-          </button>
+          </Button>
         }
       />
     )
@@ -81,7 +99,7 @@ export function MissionListPage({ searchQuery }: { searchQuery: string }) {
   if (!profile || !kpis) return null
 
   return (
-    <div>
+    <div className="odm-opr-page">
       <MissionListHeader profile={profile} now={now} />
 
       {profile.certExpiry && <CertExpiryBanner profile={profile} kpis={kpis} />}

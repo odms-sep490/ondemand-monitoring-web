@@ -866,3 +866,40 @@
   opacity: 0.55;
   cursor: not-allowed;
 }
+
+/* ---------- Mission list (staff) ---------- */
+
+.odm-opr-mission-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 16px;
+  align-items: start;
+}
+
+.odm-opr-mission-main {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+@media (max-width: 1100px) {
+  .odm-opr-mission-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.odm-opr-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.odm-opr-mission-main .ant-card-body {
+  overflow-x: auto;
+}
+
+.odm-opr-mission-main .ant-table {
+  min-width: 760px;
+}

@@ -9,7 +9,8 @@ import {
 } from '../missionListHelpers'
 import { missionStopLabel } from '../../../../mission/lib/missionOperationalState'
 import { hasAcknowledgedHandover } from '../../../lib/flightWorkflowStorage'
-import { StatusBadge } from '../../../../../shared/components/odm/StatusBadge'
+import { StatusTag } from '../../../../../shared/components/antd'
+import { MissionActionButton } from './MissionActionButton'
 import { setActiveMissionId } from '../../../api/liveMission'
 
 export function NextFlightCard({
@@ -57,9 +58,9 @@ export function NextFlightCard({
         <span className="odm-mono" style={{ fontWeight: 600, fontSize: 12.5 }}>
           {mission.missionCode ?? mission.id}
         </span>
-        <StatusBadge tone={railStatusTone(status)}>{statusLabel}</StatusBadge>
+        <StatusTag tone={railStatusTone(status)}>{statusLabel}</StatusTag>
       </div>
-      <div style={{ color: 'var(--tx3)', fontSize: 12, marginBottom: 8 }}>
+      <div style={{ color: 'var(--mgr-muted)', fontSize: 12, marginBottom: 8 }}>
         {t.timeLeft(hours, minutes)}
       </div>
       <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 2 }}>
@@ -67,24 +68,23 @@ export function NextFlightCard({
       </div>
       <div
         className="odm-tn"
-        style={{ color: 'var(--tx3)', fontSize: 12, marginBottom: 4 }}
+        style={{ color: 'var(--mgr-muted)', fontSize: 12, marginBottom: 4 }}
       >
         {mission.startTime}–{mission.endTime} · {dayLabel}
       </div>
-      <div style={{ color: 'var(--tx3)', fontSize: 12, marginBottom: 4 }}>
+      <div style={{ color: 'var(--mgr-muted)', fontSize: 12, marginBottom: 4 }}>
         {mission.location}
       </div>
-      <div style={{ color: 'var(--tx3)', fontSize: 12, marginBottom: 12 }}>
+      <div style={{ color: 'var(--mgr-muted)', fontSize: 12, marginBottom: 12 }}>
         {deviceLabel ?? t.unassignedDevice}
       </div>
-      <a
-        className="odm-btn odm-btn-ok"
-        style={{ width: '100%', justifyContent: 'center' }}
+      <MissionActionButton
+        block
+        cls="odm-btn-ok"
         href={action.href}
+        label={action.label}
         onClick={() => setActiveMissionId(mission.id)}
-      >
-        {action.label}
-      </a>
+      />
     </div>
   )
 }

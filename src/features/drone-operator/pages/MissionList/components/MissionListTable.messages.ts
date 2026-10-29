@@ -51,6 +51,7 @@ export const missionListTableMessages = defineMessages({
       deadline: 'Thời hạn',
     },
     unassigned: 'Không phân công',
+    respondAndView: 'Xem & phản hồi',
   },
   en: {
     statusLabel: {
@@ -94,5 +95,6 @@ export const missionListTableMessages = defineMessages({
       deadline: 'Deadline',
     },
     unassigned: 'Unassigned',
+    respondAndView: 'View & respond',
   },
 })
