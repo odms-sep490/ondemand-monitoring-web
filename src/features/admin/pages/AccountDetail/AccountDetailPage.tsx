@@ -1,9 +1,7 @@
 import { useState } from 'react'
 
-import {
-  ErrorState,
-  LoadingState,
-} from '../../../../shared/components/odm/StateView'
+import { ErrorState } from '../../../../shared/components/antd'
+import { AdminLoading } from '../../components/common/AdminLoading'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
 import { adminUsersApi } from '../../api/adminUsersApi'
@@ -34,7 +32,7 @@ export function AccountDetailPage({ accountId }: { accountId: string }) {
 
   const display = account ?? data ?? null
 
-  if (loading && !display) return <LoadingState />
+  if (loading && !display) return <AdminLoading />
   if (!display) return <ErrorState error={error} onRetry={reload} />
 
   async function runAction(action: () => Promise<AdminAccountDetail>) {
@@ -50,7 +48,7 @@ export function AccountDetailPage({ accountId }: { accountId: string }) {
   }
 
   return (
-    <div className="adm-narrow">
+    <div className="mgr-view adm-narrow">
       {editing && (
         <EditUserModal
           userId={display.id}

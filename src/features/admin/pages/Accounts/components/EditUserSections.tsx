@@ -1,10 +1,11 @@
+import { Avatar, Descriptions, Input, Tag } from 'antd'
 import type { ReactNode } from 'react'
 
+import { StatusTag } from '../../../../../shared/components/antd'
 import { useI18n } from '../../../../../shared/i18n'
 import type { UserManagementDetailResponse } from '../../../api/adminUsersApi'
 import { AdminToggle } from '../../../components/common/AdminToggle'
 import { RoleBadge } from '../../../components/common/RoleBadge'
-import { StatusBadge } from '../../../../../shared/components/ui'
 import { fmtDateTime } from '../../../lib/accountStatus'
 import { editUserModalMessages } from './EditUserModal.messages'
 
@@ -15,6 +16,8 @@ export type ProfileDraft = {
   companyName: string
 }
 
+const COLUMNS = { xs: 1, sm: 2 }
+
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="adm-section">
@@ -24,42 +27,24 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
   )
 }
 
-function Field({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <div>
-      <div className="adm-field-label">{label}</div>
-      <div className="adm-value">{children}</div>
-    </div>
-  )
-}
-
-function TextField({
+/** Editable (self) input or plain read-only value. */
+function TextValue({
   id,
-  label,
   value,
   editable,
   onChange,
 }: {
   id: string
-  label: string
   value: string
   editable: boolean
   onChange: (v: string) => void
 }) {
-  return (
-    <div>
-      <label htmlFor={id} className="adm-field-label">
-        {label}
-      </label>
-      <input
-        id={id}
-        className="odm-inp"
-        value={value}
-        readOnly={!editable}
-        onChange={(e) => onChange(e.target.value)}
-      />
-    </div>
-  )
+  if (!editable) return <>{value || '—'}</>
+  return <Input id={id} value={value} onChange={(e) => onChange(e.target.value)} />
+}
+
+function textLabel(id: string, label: string, editable: boolean): ReactNode {
+  return editable ? <label htmlFor={id}>{label}</label> : label
 }
 
 export function AccountSection({
@@ -84,21 +69,32 @@ export function AccountSection({
   return (
     <Section title={t.sectionAccount}>
       <div className="adm-identity">
-        <span className="adm-avatar-lg" aria-hidden="true">
+        <Avatar size={44} aria-hidden="true">
           {initials}
-        </span>
+        </Avatar>
         <RoleBadge role={user.role} />
       </div>
-      <div className="adm-section-grid">
-        <TextField
-          id="adm-eu-name"
-          label={t.fullName}
-          value={draft.fullName}
-          editable={editable}
-          onChange={(fullName) => onChange({ fullName })}
-        />
-        <Field label={t.email}>{user.email}</Field>
-      </div>
+      <Descriptions
+        colon={false}
+        size="small"
+        column={COLUMNS}
+        layout="vertical"
+        items={[
+          {
+            key: 'name',
+            label: textLabel('adm-eu-name', t.fullName, editable),
+            children: (
+              <TextValue
+                id="adm-eu-name"
+                value={draft.fullName}
+                editable={editable}
+                onChange={(fullName) => onChange({ fullName })}
+              />
+            ),
+          },
+          { key: 'email', label: t.email, children: user.email },
+        ]}
+      />
     </Section>
   )
 }
@@ -117,35 +113,60 @@ export function StatusSection({
   onToggle: () => void
 }) {
   const { t } = useI18n(editUserModalMessages)
+  const providers = user.linkedProviders ?? []
   return (
     <Section title={t.sectionStatus}>
-      <div className="adm-section-grid">
-        <Field label={t.active}>
-          <AdminToggle
-            active={active}
-            label={t.active}
-            onToggle={onToggle}
-            disabled={busy || !canToggle}
-          />
-          <div className="adm-readonly-note">{t.activeHint}</div>
-        </Field>
-        <Field label={t.emailVerified}>
-          <StatusBadge tone={user.emailVerified ? 'success' : 'warning'}>
-            {user.emailVerified ? t.verified : t.unverified}
-          </StatusBadge>
-        </Field>
-        {user.linkedProviders && user.linkedProviders.length > 0 && (
-          <Field label={t.providers}>
-            <div className="adm-chip-row">
-              {user.linkedProviders.map((p) => (
-                <span key={p} className="odm-adm-chip">
-                  {p}
-                </span>
-              ))}
-            </div>
-          </Field>
-        )}
-      </div>
+      <Descriptions
+        colon={false}
+        size="small"
+        column={COLUMNS}
+        layout="vertical"
+        items={[
+          {
+            key: 'active',
+            label: t.active,
+            children: (
+              <div>
+                <div>
+                  <AdminToggle
+                    active={active}
+                    label={t.active}
+                    onToggle={onToggle}
+                    disabled={busy || !canToggle}
+                  />
+                </div>
+                <div className="adm-readonly-note">{t.activeHint}</div>
+              </div>
+            ),
+          },
+          {
+            key: 'verified',
+            label: t.emailVerified,
+            children: (
+              <StatusTag tone={user.emailVerified ? 'success' : 'warning'}>
+                {user.emailVerified ? t.verified : t.unverified}
+              </StatusTag>
+            ),
+          },
+          ...(providers.length > 0
+            ? [
+                {
+                  key: 'providers',
+                  label: t.providers,
+                  children: (
+                    <div className="adm-chip-row">
+                      {providers.map((p) => (
+                        <Tag key={p} bordered={false}>
+                          {p}
+                        </Tag>
+                      ))}
+                    </div>
+                  ),
+                },
+              ]
+            : []),
+        ]}
+      />
     </Section>
   )
 }
@@ -162,31 +183,51 @@ export function ContactSection({
   const { t } = useI18n(editUserModalMessages)
   return (
     <Section title={t.sectionContact}>
-      <div className="adm-section-grid">
-        <TextField
-          id="adm-eu-phone"
-          label={t.phone}
-          value={draft.phoneNumber}
-          editable={editable}
-          onChange={(phoneNumber) => onChange({ phoneNumber })}
-        />
-        <TextField
-          id="adm-eu-company"
-          label={t.company}
-          value={draft.companyName}
-          editable={editable}
-          onChange={(companyName) => onChange({ companyName })}
-        />
-      </div>
-      <div style={{ marginTop: 12 }}>
-        <TextField
-          id="adm-eu-address"
-          label={t.address}
-          value={draft.address}
-          editable={editable}
-          onChange={(address) => onChange({ address })}
-        />
-      </div>
+      <Descriptions
+        colon={false}
+        size="small"
+        column={COLUMNS}
+        layout="vertical"
+        items={[
+          {
+            key: 'phone',
+            label: textLabel('adm-eu-phone', t.phone, editable),
+            children: (
+              <TextValue
+                id="adm-eu-phone"
+                value={draft.phoneNumber}
+                editable={editable}
+                onChange={(phoneNumber) => onChange({ phoneNumber })}
+              />
+            ),
+          },
+          {
+            key: 'company',
+            label: textLabel('adm-eu-company', t.company, editable),
+            children: (
+              <TextValue
+                id="adm-eu-company"
+                value={draft.companyName}
+                editable={editable}
+                onChange={(companyName) => onChange({ companyName })}
+              />
+            ),
+          },
+          {
+            key: 'address',
+            span: 'filled',
+            label: textLabel('adm-eu-address', t.address, editable),
+            children: (
+              <TextValue
+                id="adm-eu-address"
+                value={draft.address}
+                editable={editable}
+                onChange={(address) => onChange({ address })}
+              />
+            ),
+          },
+        ]}
+      />
     </Section>
   )
 }
@@ -196,11 +237,17 @@ export function TimesSection({ user }: { user: UserManagementDetailResponse }) {
   const fmt = (iso?: string) => (iso ? fmtDateTime(iso, lang) : '—')
   return (
     <Section title={t.sectionTimes}>
-      <div className="adm-section-grid">
-        <Field label={t.createdAt}>{fmt(user.createdAt)}</Field>
-        <Field label={t.updatedAt}>{fmt(user.updatedAt)}</Field>
-        <Field label={t.lastLogin}>{fmt(user.lastLoginAt)}</Field>
-      </div>
+      <Descriptions
+        colon={false}
+        size="small"
+        column={COLUMNS}
+        layout="vertical"
+        items={[
+          { key: 'created', label: t.createdAt, children: fmt(user.createdAt) },
+          { key: 'updated', label: t.updatedAt, children: fmt(user.updatedAt) },
+          { key: 'login', label: t.lastLogin, children: fmt(user.lastLoginAt) },
+        ]}
+      />
     </Section>
   )
 }

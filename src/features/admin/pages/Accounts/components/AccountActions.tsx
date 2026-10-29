@@ -1,4 +1,6 @@
-import { Icon } from '../../../../../shared/components/Icon'
+import { EyeOutlined, KeyOutlined, LockOutlined, UnlockOutlined } from '@ant-design/icons'
+import { Button, Space } from 'antd'
+
 import { useI18n } from '../../../../../shared/i18n'
 import type { AdminAccountItem } from '../../../types/accounts'
 import { accountActionsMessages } from './AccountActions.messages'
@@ -19,34 +21,32 @@ export function AccountActions({
   const lockLabel = locked ? t.unlock : t.lock
 
   return (
-    <div className="odm-adm-account-actions">
-      <button
-        type="button"
-        className="adm-action-btn"
+    <Space size={4} className="odm-adm-account-actions">
+      <Button
+        type="text"
+        size="small"
+        icon={<EyeOutlined aria-hidden="true" aria-label={undefined} />}
         onClick={onEdit}
         aria-label={t.edit}
         title={t.edit}
-      >
-        <Icon name="eye" width={16} height={16} />
-      </button>
-      <button
-        type="button"
-        className={`adm-action-btn ${locked ? 'is-success' : 'is-danger'}`}
+      />
+      <Button
+        type="text"
+        size="small"
+        danger={!locked}
+        icon={locked ? <UnlockOutlined aria-hidden="true" aria-label={undefined} /> : <LockOutlined aria-hidden="true" aria-label={undefined} />}
         onClick={onLock}
         aria-label={lockLabel}
         title={lockLabel}
-      >
-        <Icon name="lock" width={16} height={16} />
-      </button>
-      <button
-        type="button"
-        className="adm-action-btn is-warning"
+      />
+      <Button
+        type="text"
+        size="small"
+        icon={<KeyOutlined aria-hidden="true" aria-label={undefined} />}
         onClick={onResetPassword}
         aria-label={t.resetPassword}
         title={t.resetPassword}
-      >
-        <Icon name="key" width={16} height={16} />
-      </button>
-    </div>
+      />
+    </Space>
   )
 }

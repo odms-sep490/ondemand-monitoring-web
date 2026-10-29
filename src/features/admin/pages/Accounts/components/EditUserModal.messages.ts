@@ -32,7 +32,7 @@ export const editUserModalMessages = defineMessages({
     updatedAt: 'Cập nhật',
     lastLogin: 'Đăng nhập gần nhất',
     readonlyNote:
-      'BE chỉ cho phép người dùng tự sửa hồ sơ của mình (PATCH /api/users/me), nên thông tin này chỉ để xem.',
+      'Máy chủ chỉ cho phép người dùng tự sửa hồ sơ của mình, nên thông tin này chỉ để xem.',
     selfNote: 'Đây là tài khoản của bạn: có thể sửa tên và thông tin liên hệ.',
   },
   en: {
@@ -66,7 +66,7 @@ export const editUserModalMessages = defineMessages({
     updatedAt: 'Updated',
     lastLogin: 'Last login',
     readonlyNote:
-      'The backend only lets users edit their own profile (PATCH /api/users/me), so these details are read-only.',
+      'The server only lets users edit their own profile, so these details are read-only.',
     selfNote: 'This is your account: you can edit your name and contact info.',
   },
 })

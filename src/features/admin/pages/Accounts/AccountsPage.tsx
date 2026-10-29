@@ -1,18 +1,20 @@
 import { useEffect, useState } from 'react'
 
+import { Alert, Button } from 'antd'
+
 import {
+  CardComponent,
+  EmptyState,
   ErrorState,
-  LoadingState,
-} from '../../../../shared/components/odm/StateView'
+  PageHeader,
+} from '../../../../shared/components/antd'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
 import {
   adminUsersApi,
   type ManagedAccountResponse,
 } from '../../api/adminUsersApi'
-import { EmptyState } from '../../../../shared/components/ui'
-import { PageHeader } from '../../../../shared/components/ui'
-import { TableCard } from '../../../../shared/components/ui'
+import { AdminLoading } from '../../components/common/AdminLoading'
 import { mapUserSummary } from '../../lib/accountMappers'
 import { adminHref } from '../../routes'
 import type { AdminAccountItem } from '../../types/accounts'
@@ -22,9 +24,13 @@ import { AccountsTable } from './components/AccountsTable'
 import { CreateUserModal } from './components/CreateUserModal'
 import { EditUserModal } from './components/EditUserModal'
 import { LockAccountDialog } from './components/LockAccountDialog'
-import { Pager } from './components/Pager'
+import { pagerMessages } from './components/Pager.messages'
 import { ResetPasswordDialog } from './components/ResetPasswordDialog'
-import { buildListParams, type AccountsFilterState } from './listParams'
+import {
+  ACCOUNTS_PAGE_SIZE,
+  buildListParams,
+  type AccountsFilterState,
+} from './listParams'
 
 type DialogState =
   | { type: 'edit'; account: AdminAccountItem }
@@ -36,6 +42,7 @@ const NO_FILTERS: AccountsFilterState = { search: '', role: '', status: '' }
 
 export function AccountsPage({ openCreate = false }: { openCreate?: boolean }) {
   const { t } = useI18n(accountsPageMessages)
+  const { t: tp } = useI18n(pagerMessages)
   const [filters, setFilters] = useState(NO_FILTERS)
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(0)
@@ -81,59 +88,66 @@ export function AccountsPage({ openCreate = false }: { openCreate?: boolean }) {
   }
 
   return (
-    <div>
+    <div className="mgr-view">
       <PageHeader
         title={t.title}
-        subtitle={data ? `${data.totalItems} ${t.subtitle}` : undefined}
+        description={data ? `${data.totalItems} ${t.subtitle}` : undefined}
         actions={
-          <button
-            type="button"
-            className="odm-btn odm-btn-p"
-            onClick={() => setCreating(true)}
-          >
+          <Button type="primary" onClick={() => setCreating(true)}>
             {t.createUser}
-          </button>
+          </Button>
         }
       />
 
       {created && (
-        <div role="status" className="adm-alert is-success">
-          <strong>{t.createdBanner}: </strong>
-          {created.email}.{' '}
-          {created.invitationSent ? t.invitationSent : ''}{' '}
-          {created.passwordChangeRequired ? t.passwordChangeRequired : ''}
-        </div>
+        <Alert
+          type="success"
+          showIcon
+          role="status"
+          message={
+            <>
+              <strong>{t.createdBanner}: </strong>
+              {created.email}. {created.invitationSent ? t.invitationSent : ''}{' '}
+              {created.passwordChangeRequired ? t.passwordChangeRequired : ''}
+            </>
+          }
+        />
       )}
 
       <AccountsFilters value={filters} onChange={changeFilters} />
 
-      {loading && !data && <LoadingState />}
+      {loading && !data && <AdminLoading />}
       {!loading && (error !== undefined || !data) && (
         <ErrorState error={error} onRetry={reload} />
       )}
       {data && data.items.length === 0 && !loading && (
-        <EmptyState title={t.emptyTitle} description={t.emptyDescription} />
+        <CardComponent>
+          <EmptyState title={t.emptyTitle} description={t.emptyDescription} />
+        </CardComponent>
       )}
       {data && data.items.length > 0 && (
-        <TableCard
-          footer={
-            <Pager
-              page={data.page}
-              totalPages={data.totalPages}
-              totalItems={data.totalItems}
-              onPage={setPage}
-            />
-          }
-        >
+        <CardComponent styles={{ body: { padding: 0 } }}>
           <AccountsTable
             items={data.items}
+            pagination={{
+              current: data.page + 1,
+              pageSize: ACCOUNTS_PAGE_SIZE,
+              total: data.totalItems,
+              showSizeChanger: false,
+              hideOnSinglePage: false,
+              position: ['bottomRight'],
+              showTotal: (total) => `${tp.total}: ${total}`,
+              locale: { prev_page: tp.prev, next_page: tp.next },
+              onChange: (next) => setPage(next - 1),
+            }}
             onEdit={(account) => setDialog({ type: 'edit', account })}
             onLock={(account) => setDialog({ type: 'lock', account })}
-            onResetPassword={(account) =>
-              setDialog({ type: 'resetPwd', account })
-            }
+            onResetPassword={(account) => setDialog({ type: 'resetPwd', account })}
           />
-        </TableCard>
+          <div className="mgr-table-foot">
+            {tp.page} {data.page + 1} {tp.of} {Math.max(data.totalPages, 1)}
+          </div>
+        </CardComponent>
       )}
 
       {creating && (

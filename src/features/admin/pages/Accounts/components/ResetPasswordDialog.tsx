@@ -1,5 +1,7 @@
+import { Alert, Button, Modal } from 'antd'
+
+import { mgrPopupContainer } from '../../../../../shared/components/antd'
 import { useI18n } from '../../../../../shared/i18n'
-import { Modal } from '../../../../../shared/components/ui'
 import type { AdminAccountItem } from '../../../types/accounts'
 import { resetPasswordDialogMessages } from './ResetPasswordDialog.messages'
 
@@ -14,32 +16,32 @@ export function ResetPasswordDialog({ account, onClose }: Props) {
 
   return (
     <Modal
+      open
+      centered
+      getContainer={mgrPopupContainer}
       width={440}
-      tone="warning"
-      icon="key"
       title={t.title}
-      subtitle={account.email}
-      onClose={onClose}
+      onCancel={onClose}
       footer={
         <>
-          <button type="button" className="odm-btn odm-btn-gh" onClick={onClose}>
-            {t.cancel}
-          </button>
-          <button type="button" className="odm-btn odm-btn-p" disabled>
+          <Button onClick={onClose}>{t.cancel}</Button>
+          <Button type="primary" disabled>
             {t.confirm}
-          </button>
+          </Button>
         </>
       }
     >
-      <p style={{ margin: 0 }}>
+      <p className="mgr-modal-sub">{account.email}</p>
+      <p>
         {t.confirmPrefix} <strong>{account.fullName}</strong>?
       </p>
-      <div className="adm-modal-warning" role="note">
-        <div>
-          <strong>{t.unsupported}</strong>
-          <div>{t.unsupportedHint}</div>
-        </div>
-      </div>
+      <Alert
+        type="warning"
+        showIcon
+        role="note"
+        message={t.unsupported}
+        description={t.unsupportedHint}
+      />
     </Modal>
   )
 }

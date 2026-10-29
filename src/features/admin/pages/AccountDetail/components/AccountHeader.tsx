@@ -1,11 +1,9 @@
+import { EditOutlined } from '@ant-design/icons'
+import { Button } from 'antd'
 import type { ReactNode } from 'react'
 
+import { PageHeader, StatusTag } from '../../../../../shared/components/antd'
 import { useI18n } from '../../../../../shared/i18n'
-import { PageHeader } from '../../../../../shared/components/ui'
-import {
-  StatusBadge,
-  toUiTone,
-} from '../../../../../shared/components/ui'
 import { getAccountStatusMeta } from '../../../lib/accountStatus'
 import type { AdminAccountDetail } from '../../../types/accounts'
 import { accountHeaderMessages } from './AccountHeader.messages'
@@ -24,23 +22,17 @@ export function AccountHeader({
 
   return (
     <PageHeader
-        back={back}
-        title={account.fullName}
-        subtitle={account.email}
-        actions={
-          <>
-            <StatusBadge tone={toUiTone(statusMeta.tone)}>
-              {statusMeta.label}
-            </StatusBadge>
-            <button
-              type="button"
-              className="odm-btn odm-btn-sm"
-              onClick={onEdit}
-            >
-              {t.edit}
-            </button>
-          </>
-        }
+      crumb={back}
+      title={account.fullName}
+      description={account.email}
+      actions={
+        <>
+          <StatusTag tone={statusMeta.tone}>{statusMeta.label}</StatusTag>
+          <Button icon={<EditOutlined aria-hidden="true" aria-label={undefined} />} onClick={onEdit}>
+            {t.edit}
+          </Button>
+        </>
+      }
     />
   )
 }

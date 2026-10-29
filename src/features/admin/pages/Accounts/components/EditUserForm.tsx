@@ -1,4 +1,7 @@
+import { Alert, Button, Modal } from 'antd'
 import { useState } from 'react'
+
+import { mgrPopupContainer } from '../../../../../shared/components/antd'
 
 import { useI18n } from '../../../../../shared/i18n'
 import {
@@ -6,7 +9,6 @@ import {
   type UserManagementDetailResponse,
 } from '../../../api/adminUsersApi'
 import { userProfileApi } from '../../../api/userProfileApi'
-import { Modal } from '../../../../../shared/components/ui'
 import {
   AccountSection,
   ContactSection,
@@ -85,29 +87,29 @@ export function EditUserForm({
 
   return (
     <Modal
+      open
+      centered
+      getContainer={mgrPopupContainer}
       width={640}
-      icon="users"
       title={user.fullName}
-      subtitle={user.email}
-      onClose={onClose}
+      onCancel={onClose}
       footer={
         <>
-          <button type="button" className="odm-btn odm-btn-gh" onClick={onClose}>
-            {isSelf ? t.cancel : t.close}
-          </button>
+          <Button onClick={onClose}>{isSelf ? t.cancel : t.close}</Button>
           {isSelf && (
-            <button
-              type="button"
-              className="odm-btn odm-btn-p"
+            <Button
+              type="primary"
               onClick={save}
-              disabled={busy || !draft.fullName.trim()}
+              loading={busy}
+              disabled={!draft.fullName.trim()}
             >
               {busy ? t.saving : t.save}
-            </button>
+            </Button>
           )}
         </>
       }
     >
+      <p className="mgr-modal-sub">{user.email}</p>
       <AccountSection
         user={user}
         draft={draft}
@@ -129,12 +131,12 @@ export function EditUserForm({
         {isSelf ? t.selfNote : t.readonlyNote}
       </p>
       {message && (
-        <div
+        <Alert
+          type={message.ok ? 'success' : 'error'}
+          showIcon
           role={message.ok ? 'status' : 'alert'}
-          className={`adm-alert ${message.ok ? 'is-success' : 'is-danger'}`}
-        >
-          {message.text}
-        </div>
+          message={message.text}
+        />
       )}
     </Modal>
   )

@@ -1,5 +1,7 @@
-import { useState, type FormEvent } from 'react'
+import { Alert, Button, Form, Input, Modal, Radio } from 'antd'
+import { useState } from 'react'
 
+import { mgrPopupContainer } from '../../../../../shared/components/antd'
 import { ApiError } from '../../../../../shared/api/httpClient'
 import { useI18n } from '../../../../../shared/i18n'
 import {
@@ -7,7 +9,7 @@ import {
   adminUsersApi,
   type ManagedAccountResponse,
 } from '../../../api/adminUsersApi'
-import { Modal } from '../../../../../shared/components/ui'
+import { onFormSubmit } from '../../../components/common/formSubmit'
 import { RoleBadge } from '../../../components/common/RoleBadge'
 import { createUserModalMessages } from './CreateUserModal.messages'
 
@@ -42,8 +44,7 @@ export function CreateUserModal({
     return Object.keys(next).length === 0
   }
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault()
+  async function handleSubmit() {
     if (!validate()) return
     setSubmitting(true)
     setSubmitError(null)
@@ -66,59 +67,54 @@ export function CreateUserModal({
 
   return (
     <Modal
+      open
+      centered
+      getContainer={mgrPopupContainer}
       width={520}
-      icon="plus"
       title={t.title}
-      subtitle={t.subtitle}
-      onClose={onClose}
+      onCancel={onClose}
       footer={
         <>
-          <button
-            type="button"
-            className="odm-btn odm-btn-gh"
-            onClick={onClose}
-          >
-            {t.cancel}
-          </button>
-          <button
-            type="submit"
-            form="adm-create-user-form"
-            className="odm-btn odm-btn-p"
-            disabled={submitting}
-          >
+          <Button onClick={onClose}>{t.cancel}</Button>
+          <Button type="primary" htmlType="submit" form="adm-create-user-form" loading={submitting}>
             {submitting ? t.sending : t.submit}
-          </button>
+          </Button>
         </>
       }
     >
-      <form id="adm-create-user-form" onSubmit={handleSubmit} noValidate>
-        <div className="adm-form-field">
-          <label htmlFor="adm-cu-name" className="adm-label">
-            {t.fullName} <span className="adm-required">*</span>
-          </label>
-          <input
+      <p className="mgr-modal-sub">{t.subtitle}</p>
+      <Form
+        id="adm-create-user-form"
+        layout="vertical"
+        onSubmitCapture={onFormSubmit(handleSubmit)}
+        noValidate
+      >
+        <Form.Item
+          label={t.fullName}
+          required
+          htmlFor="adm-cu-name"
+          validateStatus={errors.fullName ? 'error' : undefined}
+          help={errors.fullName}
+        >
+          <Input
             id="adm-cu-name"
-            className="odm-inp"
-            type="text"
             placeholder={t.fullNamePlaceholder}
             value={fullName}
             onChange={(e) => {
               setFullName(e.target.value)
               setErrors((p) => ({ ...p, fullName: undefined }))
             }}
-            aria-invalid={!!errors.fullName}
           />
-          {errors.fullName && (
-            <div className="adm-field-error">{errors.fullName}</div>
-          )}
-        </div>
-        <div className="adm-form-field">
-          <label htmlFor="adm-cu-email" className="adm-label">
-            {t.email} <span className="adm-required">*</span>
-          </label>
-          <input
+        </Form.Item>
+        <Form.Item
+          label={t.email}
+          required
+          htmlFor="adm-cu-email"
+          validateStatus={errors.email ? 'error' : undefined}
+          help={errors.email}
+        >
+          <Input
             id="adm-cu-email"
-            className="odm-inp"
             type="email"
             placeholder="name@company.vn"
             value={email}
@@ -126,40 +122,26 @@ export function CreateUserModal({
               setEmail(e.target.value)
               setErrors((p) => ({ ...p, email: undefined }))
             }}
-            aria-invalid={!!errors.email}
           />
-          {errors.email && (
-            <div className="adm-field-error">{errors.email}</div>
-          )}
-        </div>
-        <div className="adm-form-field">
-          <span className="adm-label">{t.role}</span>
-          <div className="adm-choice-grid">
+        </Form.Item>
+        <Form.Item label={t.role}>
+          <Radio.Group
+            className="adm-choice-list"
+            value={role}
+            onChange={(e) => setRole(e.target.value as 'MANAGER' | 'STAFF')}
+          >
             {CREATABLE_ROLES.map((r) => (
-              <button
-                key={r}
-                type="button"
-                onClick={() => setRole(r)}
-                className={`adm-choice${role === r ? ' is-selected' : ''}`}
-                aria-pressed={role === r}
-              >
-                <span className="adm-choice-radio" aria-hidden="true" />
+              <Radio key={r} value={r} className="adm-choice">
                 <span className="adm-choice-text">
-                  <span>
-                    <RoleBadge role={r} />
-                  </span>
+                  <RoleBadge role={r} />
                   <small>{t.roleDescriptions[r]}</small>
                 </span>
-              </button>
+              </Radio>
             ))}
-          </div>
-        </div>
-        {submitError && (
-          <div role="alert" className="adm-alert is-danger">
-            {submitError}
-          </div>
-        )}
-      </form>
+          </Radio.Group>
+        </Form.Item>
+        {submitError && <Alert type="error" showIcon role="alert" message={submitError} />}
+      </Form>
     </Modal>
   )
 }

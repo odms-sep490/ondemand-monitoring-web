@@ -3,15 +3,15 @@ import { defineMessages } from '../../../../../shared/i18n'
 export const createUserModalMessages = defineMessages({
   vi: {
     title: 'Tạo tài khoản',
-    subtitle: 'Hệ thống gửi lời mời qua email. Admin không cần nhập mật khẩu.',
+    subtitle: 'Hệ thống gửi lời mời qua email. Quản trị viên không cần nhập mật khẩu.',
     fullName: 'Họ và tên',
     fullNamePlaceholder: 'VD: Nguyễn Văn A',
     email: 'Email',
     role: 'Vai trò',
     roleDescriptions: {
       ADMIN: 'Quản trị người dùng, danh mục và cấu hình hệ thống.',
-      MANAGER: 'Duyệt đơn, điều phối mission, giao kết quả.',
-      STAFF: 'Thực hiện công việc theo profile và phân công trong mission.',
+      MANAGER: 'Duyệt đơn, điều phối nhiệm vụ, giao kết quả.',
+      STAFF: 'Thực hiện công việc theo hồ sơ và phân công trong nhiệm vụ.',
     } as Record<string, string>,
     required: 'Bắt buộc',
     invalidEmail: 'Email không hợp lệ',

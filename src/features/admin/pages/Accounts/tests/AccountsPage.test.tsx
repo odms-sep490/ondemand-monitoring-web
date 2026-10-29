@@ -4,6 +4,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 
 import { setLanguage } from '../../../../../shared/i18n'
 import { AccountsPage } from '../AccountsPage'
+import { chooseSelectOption } from '../../../testUtils'
 import { requestedUrls, useMockTransport } from './helpers'
 
 useMockTransport()
@@ -24,9 +25,7 @@ describe('AccountsPage', () => {
       requestedUrls.some((u) => /page=0/.test(u) && /size=20/.test(u)),
     ).toBe(true)
 
-    fireEvent.change(screen.getByLabelText('Vai trò'), {
-      target: { value: 'MANAGER' },
-    })
+    await chooseSelectOption('Vai trò', 'Quản lý')
     await waitFor(() =>
       expect(requestedUrls.some((u) => u.includes('role=MANAGER'))).toBe(true),
     )
@@ -49,10 +48,8 @@ describe('AccountsPage', () => {
     render(<AccountsPage />)
     const buttons = await screen.findAllByLabelText('Reset mật khẩu')
     fireEvent.click(buttons[0])
-    expect(screen.getByText('BE chưa hỗ trợ')).toBeTruthy()
-    expect(
-      (screen.getByText('Xác nhận reset') as HTMLButtonElement).disabled,
-    ).toBe(true)
+    expect(screen.getByText('Máy chủ chưa hỗ trợ')).toBeTruthy()
+    expect(screen.getByText('Xác nhận reset').closest('button')).toBeDisabled()
   })
 
   it('opens the create modal when routed with openCreate', () => {
