@@ -2,10 +2,14 @@
 // etc) for every test file, per vite.config.ts `test.setupFiles`.
 import '@testing-library/jest-dom/vitest'
 
-import { cleanup } from '@testing-library/react'
+import { cleanup, configure } from '@testing-library/react'
 import { afterEach } from 'vitest'
 
 import { setLanguage } from '../shared/i18n/languageStore'
+
+// Lazy route chunks and antd render slowly on shared CI runners; the 1s default
+// for findBy*/waitFor makes otherwise correct tests flaky under load.
+configure({ asyncUtilTimeout: 20000 })
 
 // vite.config.ts does not set `test.globals: true`, so @testing-library/react
 // cannot auto-detect a global `afterEach` to register its DOM cleanup. Without

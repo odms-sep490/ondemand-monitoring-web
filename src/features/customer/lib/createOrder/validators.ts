@@ -99,7 +99,8 @@ export function validateStep(
     ) {
       errors.address = msg.outsideZone
     }
-    if (!location.monitoringValid) errors.address = msg.locationUnconfirmed
+    if (!location.monitoringValid && form.address.trim())
+      errors.address = msg.locationUnconfirmed
     if (location.blockedZoneNames.length > 0) {
       errors.address = msg.blockedZone(location.blockedZoneNames.join(', '))
     }

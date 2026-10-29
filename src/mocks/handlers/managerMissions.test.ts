@@ -334,8 +334,9 @@ describe('PATCH /api/missions/{id}/schedule', () => {
       'PATCH',
       '/api/missions/msn-2609-0153-1/schedule',
       {
-        scheduledStart: '2026-09-26T10:00:00+07:00',
-        scheduledEnd: '2026-09-26T11:30:00+07:00',
+        scheduledStartAt: '2026-09-26T10:00:00+07:00',
+        scheduledEndAt: '2026-09-26T11:30:00+07:00',
+        reason: 'CUSTOMER_REQUEST',
       },
     )
     expect(status).toBe(200)

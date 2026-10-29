@@ -86,7 +86,7 @@ export function useCreateOrderWizard() {
   )
 
   const submit = useSubmitOrder({
-    validate: () => wizard.validate(5) && checklist.valid,
+    validate: () => wizard.validate(6) && checklist.valid,
     onTemplateChanged: checklist.markStale,
     onError: f.setSubmitError,
     onValidationError: (error) => {

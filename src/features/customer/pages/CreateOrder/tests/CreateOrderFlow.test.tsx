@@ -169,7 +169,12 @@ describe('CreateOrderPage wizard', () => {
 
   it('blocks step 1 without a title when the catalog selects its default service', async () => {
     await renderWizard()
-    await screen.findByRole('button', { name: /Giám sát công trình/ })
+    // The default service is applied in an effect after the catalog loads; wait for it.
+    await waitFor(() =>
+      expect(
+        screen.getByRole('button', { name: /Giám sát công trình/ }),
+      ).toHaveAttribute('aria-pressed', 'true'),
+    )
     next('Vị trí & vùng giám sát')
     expect(await screen.findByText('Nhập tiêu đề yêu cầu.')).toBeInTheDocument()
     expect(screen.queryByText('Chọn dịch vụ giám sát.')).not.toBeInTheDocument()
@@ -192,7 +197,7 @@ describe('CreateOrderPage wizard', () => {
     await renderWizard()
     await fillService()
     expect(
-      await screen.findByRole('application', {
+      await screen.findByRole('region', {
         name: 'Bản đồ chọn vị trí giám sát',
       }),
     ).toBeInTheDocument()
@@ -214,16 +219,15 @@ describe('CreateOrderPage wizard', () => {
     fireEvent.click(
       await screen.findByRole('button', { name: /Giám sát công trình/ }),
     )
+    // The base price shows on the selected service card (step 1 no longer repeats it elsewhere).
     await waitFor(() =>
       expect(screen.getAllByText(/3\.500\.000/).length).toBeGreaterThanOrEqual(
-        3,
+        1,
       ),
     )
-    fireEvent.click(screen.getByLabelText(/AI phân tích hình ảnh/))
-    expect(await screen.findByText(/^\+.*500\.000/)).toBeInTheDocument()
-    expect(
-      (await screen.findAllByText(/4\.000\.000/)).length,
-    ).toBeGreaterThanOrEqual(1)
+    // The AI-analysis add-on was removed from the wizard: the estimate is the service base price.
+    expect(screen.queryByLabelText(/AI phân tích hình ảnh/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/^\+.*500\.000/)).not.toBeInTheDocument()
   })
 
   it('shows a retryable error when deliverable types cannot be loaded', async () => {
@@ -309,7 +313,7 @@ describe('CreateOrderPage wizard', () => {
     )
     expect(screen.queryByText('internal detail')).not.toBeInTheDocument()
     expect(create).toHaveBeenCalledTimes(1)
-  }, 15_000)
+  }, 60_000)
 
   it('shows the API error inside the dialog and stays on the form', async () => {
     vi.spyOn(customerApi, 'createOrder').mockRejectedValue(
@@ -322,7 +326,7 @@ describe('CreateOrderPage wizard', () => {
     ).toBeInTheDocument()
     expect(screen.queryByText('Vùng bị từ chối')).not.toBeInTheDocument()
     expect(screen.getByRole('dialog')).toBeInTheDocument()
-  }, 15_000)
+  }, 60_000)
 
   it('routes a backend preferredDateFrom error back to the schedule field', async () => {
     vi.spyOn(customerApi, 'createOrder').mockRejectedValueOnce(

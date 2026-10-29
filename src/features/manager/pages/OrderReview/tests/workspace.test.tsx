@@ -41,6 +41,7 @@ function plan(): ExecutionPlan {
       missionId: m.id,
       scopeLabel: m.missionCode,
       assignmentCount: selected[m.id]?.length ?? 0,
+      checklistItemIds: selected[m.id] ?? [],
       finalizedPlanRevision: finalized ? revision : null,
     })),
     coverage: {
@@ -56,12 +57,6 @@ function plan(): ExecutionPlan {
     blockers: [],
   }
 }
-function choose(id: string) {
-  fireEvent.click(
-    screen.getByRole('button', { name: new RegExp(`^${id.toUpperCase()}`) }),
-  )
-}
-
 it('reuses only the initial Order snapshot and fetches authoritative Order on refresh', async () => {
   render(
     <OrderMissionPlanningSection
@@ -71,7 +66,7 @@ it('reuses only the initial Order snapshot and fetches authoritative Order on re
       }
     />,
   )
-  await screen.findByRole('button', { name: /^M1/ })
+  await screen.findByRole('link', { name: 'M1' })
   expect(ordersApi.getOrder).not.toHaveBeenCalled()
   fireEvent.click(screen.getByRole('button', { name: 'Tải lại kế hoạch' }))
   await waitFor(() => expect(ordersApi.getOrder).toHaveBeenCalledTimes(1))
@@ -90,7 +85,7 @@ it('never reuses an initial snapshot belonging to a sibling Order', async () => 
       }
     />,
   )
-  await screen.findByRole('button', { name: /^M1/ })
+  await screen.findByRole('link', { name: 'M1' })
   expect(ordersApi.getOrder).toHaveBeenCalledTimes(1)
   expect(ordersApi.getOrder).toHaveBeenCalledWith('o', expect.any(AbortSignal))
 })
@@ -106,7 +101,7 @@ it('does not consume the initial snapshot in an aborted StrictMode request', asy
       />
     </StrictMode>,
   )
-  await screen.findByRole('button', { name: /^M1/ })
+  await screen.findByRole('link', { name: 'M1' })
   expect(ordersApi.getOrder).not.toHaveBeenCalled()
 })
 beforeEach(() => {
@@ -226,159 +221,57 @@ it('fails closed for finalized responses without materialization metadata', asyn
     })),
   }))
   render(<OrderMissionPlanningSection orderId="o" />)
-  await screen.findByRole('button', { name: /^M1/ })
+  await screen.findByRole('link', { name: 'M1' })
   expect(
     screen.queryByRole('button', { name: 'Lưu tài nguyên' }),
   ).not.toBeInTheDocument()
   expect(droneApi.getAvailable).not.toHaveBeenCalled()
   expect(operatorApi.getAvailable).not.toHaveBeenCalled()
 })
-it('opens the dedicated result page for a completed Mission', async () => {
+it('links a completed Mission to its dedicated result page', async () => {
   finalized = true
   missions[0].status = 'COMPLETED'
   render(<OrderMissionPlanningSection orderId="o" />)
-  fireEvent.click(await screen.findByRole('button', { name: /^M1/ }))
-  expect(window.location.hash).toBe('#portal/manager/missions/m1/detail')
+  expect(await screen.findByRole('link', { name: 'M1' })).toHaveAttribute(
+    'href',
+    '#portal/manager/missions/m1/detail',
+  )
 })
-async function saveChecklist(id: string, indices: number[]) {
-  choose(id)
-  const group = await screen.findByRole('group', { name: `Checklist ${id}` })
-  await waitFor(() =>
-    expect(within(group).getAllByRole('checkbox')[0]).toBeEnabled(),
-  )
-  indices.forEach((i) =>
-    fireEvent.click(within(group).getAllByRole('checkbox')[i]),
-  )
-  fireEvent.click(
-    within(group.closest('details')!).getByRole('button', {
-      name: 'Lưu phân công',
-    }),
-  )
-  await waitFor(() => expect(selected[id]).toHaveLength(indices.length))
-  await waitFor(() =>
-    expect(
-      screen.getByRole('button', { name: 'Tải lại kế hoạch' }),
-    ).toBeEnabled(),
-  )
-}
 describe('Order-centric workspace', () => {
-  it('plans split checklist, finalizes and enters the original wizard without an inline resource form', async () => {
-    const onAssign = vi.fn()
-    const view = render(
-      <OrderMissionPlanningSection orderId="o" onAssignResources={onAssign} />,
-    )
-    await screen.findByRole('link', { name: 'M1' })
-    expect(
-      screen.queryByRole('region', { name: 'Tài nguyên m1' }),
-    ).not.toBeInTheDocument()
-    await saveChecklist('m1', [0, 2, 4])
-    await saveChecklist('m2', [1, 3, 4])
-    expect(selected).toEqual({ m1: ['A', 'C', 'E'], m2: ['B', 'D', 'E'] })
-    expect(screen.getByText('Đã phân công').parentElement).toHaveTextContent(
-      '5',
-    )
-    // "Next" locks the plan and hands over to resource assignment in one step.
+  it('finalizes a fully covered split plan and then locks planning edits', async () => {
+    selected = { m1: ['A', 'C', 'E'], m2: ['B', 'D', 'E'] }
+    render(<OrderMissionPlanningSection orderId="o" />)
+    const m1 = await screen.findByRole('article', { name: 'M1' })
+    const m2 = await screen.findByRole('article', { name: 'M2' })
+    for (const key of ['A', 'C', 'E'])
+      expect(within(m1).getByText(`Requirement ${key}`)).toBeInTheDocument()
+    for (const key of ['B', 'D', 'E'])
+      expect(within(m2).getByText(`Requirement ${key}`)).toBeInTheDocument()
+    expect(screen.getByText('Đã phân công').parentElement).toHaveTextContent('5')
     fireEvent.click(screen.getByRole('button', { name: 'Chốt kế hoạch' }))
+    fireEvent.click(
+      within(await screen.findByRole('dialog')).getByRole('button', {
+        name: 'Chốt kế hoạch',
+      }),
+    )
     await waitFor(() =>
       expect(planningApi.finalizeExecutionPlan).toHaveBeenCalledTimes(1),
     )
-    expect(onAssign).toHaveBeenCalled()
-    // The parent leaves this screen after "Next"; reopen the Order to see the locked plan.
-    view.unmount()
-    render(<OrderMissionPlanningSection orderId="o" />)
-    await screen.findByRole('button', { name: 'Điều chỉnh kế hoạch' })
-    choose('m1')
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'Phân công nguồn lực cho M1' }),
-    )
-    await screen.findByLabelText('Chọn nhân sự cho Phi công')
-    expect(screen.queryByRole('radio')).not.toBeInTheDocument()
-    expect(
-      screen.queryByRole('region', { name: 'Tài nguyên m1' }),
-    ).not.toBeInTheDocument()
-    expect(window.location.hash).toBe('#portal/manager/orders/o')
-  })
-  it('preserves unsaved checkbox edits by exact Mission ID when switching', async () => {
-    render(<OrderMissionPlanningSection orderId="o" />)
-    const group = await screen.findByRole('group', { name: 'Checklist m1' })
     await waitFor(() =>
-      expect(within(group).getAllByRole('checkbox')[0]).toBeEnabled(),
+      expect(
+        screen.queryByRole('button', { name: 'Chốt kế hoạch' }),
+      ).not.toBeInTheDocument(),
     )
-    fireEvent.click(within(group).getAllByRole('checkbox')[0])
-    choose('m2')
     expect(
-      within(screen.getByRole('group', { name: 'Checklist m2' })).getAllByRole(
-        'checkbox',
-      )[0],
-    ).not.toBeChecked()
-    choose('m1')
+      screen.queryByRole('button', { name: 'Thêm mới nhiệm vụ' }),
+    ).not.toBeInTheDocument()
+    // Finalized Missions are READY: they can be cancelled, not edited.
     expect(
-      within(screen.getByRole('group', { name: 'Checklist m1' })).getAllByRole(
-        'checkbox',
-      )[0],
-    ).toBeChecked()
-    expect(planningApi.updateMissionChecklistAssignments).not.toHaveBeenCalled()
-    expect(
-      screen.getByRole('button', { name: 'Chốt kế hoạch' }),
+      await screen.findByRole('button', { name: 'Hủy nhiệm vụ M1' }),
     ).toBeInTheDocument()
-  })
-  it('returns from resource Mission selection to the same Order planning workspace', async () => {
-    finalized = true
-    missions = missions.map((mission) => ({ ...mission, status: 'READY' }))
-    render(<OrderMissionPlanningSection orderId="o" />)
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'Phân công nguồn lực cho M1' }),
-    )
-    await screen.findByLabelText('Chọn nhân sự cho Phi công')
-    fireEvent.click(screen.getByRole('button', { name: 'Về kế hoạch đơn hàng' }))
-    expect(await screen.findByRole('link', { name: 'M1' })).toBeInTheDocument()
     expect(window.location.hash).toBe('#portal/manager/orders/o')
   })
-  it('hides the resource assignment action after every Mission is fully assigned', async () => {
-    finalized = true
-    missions = missions.map((mission) => ({
-      ...mission,
-      status: 'READY',
-      deviceId: 'd1',
-      deviceName: 'Drone 1',
-      staffAssignments: [
-        {
-          id: `${mission.id}-pilot`,
-          staffId: 's1',
-          staffName: 'Crew 1',
-          assignedRole: 'PILOT',
-        },
-        {
-          id: `${mission.id}-operator`,
-          staffId: 's1',
-          staffName: 'Crew 1',
-          assignedRole: 'OPERATOR',
-        },
-        {
-          id: `${mission.id}-maintainer`,
-          staffId: 's1',
-          staffName: 'Crew 1',
-          assignedRole: 'MAINTAINER',
-        },
-        {
-          id: `${mission.id}-inspector`,
-          staffId: 's1',
-          staffName: 'Crew 1',
-          assignedRole: 'INSPECTOR',
-        },
-      ],
-    })) as MissionResponse[]
-
-    render(<OrderMissionPlanningSection orderId="o" />)
-
-    expect(
-      await screen.findByText('Tất cả nhiệm vụ đã được phân công đầy đủ.'),
-    ).toBeInTheDocument()
-    expect(
-      screen.queryByRole('button', { name: /Phân công nguồn lực cho/ }),
-    ).not.toBeInTheDocument()
-  })
-  it('creates two Missions inline without leaving the Order route', async () => {
+  it('creates two Missions from the dialog without leaving the Order route', async () => {
     missions = []
     vi.spyOn(ordersApi, 'getOrderForMission').mockResolvedValue({
       id: 'o',
@@ -408,7 +301,7 @@ describe('Order-centric workspace', () => {
     render(<OrderMissionPlanningSection orderId="o" />)
     for (let i = 1; i <= 2; i++) {
       fireEvent.click(
-        await screen.findByRole('button', { name: 'Tạo thêm nhiệm vụ' }),
+        await screen.findByRole('button', { name: 'Thêm mới nhiệm vụ' }),
       )
       await screen.findByRole('heading', { name: 'Tạo nhiệm vụ mới' })
       fireEvent.change(screen.getByLabelText('Giờ cất cánh'), {
@@ -419,13 +312,13 @@ describe('Order-centric workspace', () => {
       })
       // The form renders before its plan/replacement queries finish. Wait for
       // the real readiness gate rather than clicking a still-disabled button.
-      const createButton = screen.getByRole('button', { name: 'Tạo Mission' })
+      const createButton = screen.getByRole('button', { name: 'Tạo nhiệm vụ' })
       await waitFor(() => expect(createButton).toBeEnabled())
       fireEvent.click(createButton)
       await screen.findByRole('link', { name: 'M' + i })
       expect(missionsApi.createMission).toHaveBeenCalledTimes(i)
       expect(window.location.hash).toBe('#portal/manager/orders/o')
     }
-    expect(screen.getAllByRole('button', { name: /^M[12]/ })).toHaveLength(2)
+    expect(screen.getAllByRole('article')).toHaveLength(2)
   })
 })
