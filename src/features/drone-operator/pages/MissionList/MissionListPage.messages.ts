@@ -44,6 +44,7 @@ export const missionListPageMessages = defineMessages({
     unassignedDevice: 'Không phân công',
     accepted: 'Đã nhận',
     statusLabel: {
+      READY: 'Sẵn sàng',
       ACCEPTED: 'Đã nhận',
       SCHEDULED: 'Đã bắt đầu Mission',
       CONNECTED: 'Đã kết nối',
@@ -115,6 +116,7 @@ export const missionListPageMessages = defineMessages({
     unassignedDevice: 'Unassigned',
     accepted: 'Accepted',
     statusLabel: {
+      READY: 'Ready',
       ACCEPTED: 'Accepted',
       SCHEDULED: 'Scheduled',
       CONNECTED: 'Connected',

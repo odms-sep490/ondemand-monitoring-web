@@ -80,7 +80,9 @@ export function usePreflightPersistenceEffects({
   const { t } = useI18n(preflightPageMessages)
   useEffect(() => {
     const weatherPassed =
-      weatherStatus?.safeToFly === true || persistedWeatherPassed
+      weatherStatus?.status === 'PASS' ||
+      weatherStatus?.status === 'WARN' ||
+      persistedWeatherPassed
     if (
       !runtimeItemsReady ||
       !weatherPassed ||
@@ -105,8 +107,7 @@ export function usePreflightPersistenceEffects({
       setPersistedWeatherPassed(
         persisted.items.some(
           (item) =>
-            item.checkType === 'weather_conditions' &&
-            item.status === 'PASSED',
+            item.checkType === 'weather_conditions' && item.status === 'PASSED',
         ),
       )
 
@@ -144,7 +145,7 @@ export function usePreflightPersistenceEffects({
     persistedWeatherPassed,
     runtimeItemsReady,
     runtimeStatus,
-    weatherStatus?.safeToFly,
+    weatherStatus?.status,
   ])
 
   useEffect(() => {

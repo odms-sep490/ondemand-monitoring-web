@@ -4,6 +4,7 @@ export const missionListTableMessages = defineMessages({
   vi: {
     statusLabel: {
       PENDING: 'Chờ phản hồi',
+      READY: 'Sẵn sàng',
       ACCEPTED: 'Đã nhận',
       SCHEDULED: 'Đã bắt đầu Mission',
       CONNECTED: 'Đã kết nối',
@@ -64,6 +65,7 @@ export const missionListTableMessages = defineMessages({
   en: {
     statusLabel: {
       PENDING: 'Awaiting reply',
+      READY: 'Ready',
       ACCEPTED: 'Accepted',
       SCHEDULED: 'Mission started',
       CONNECTED: 'Connected',

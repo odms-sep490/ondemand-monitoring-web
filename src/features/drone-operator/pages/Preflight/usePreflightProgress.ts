@@ -39,7 +39,9 @@ export function usePreflightProgress({
   )
   const runtimeItemsReady = nOk === nTotal && failedItems.length === 0
   const weatherReady =
-    weatherStatus?.safeToFly === true || persistedWeatherPassed
+    weatherStatus?.status === 'PASS' ||
+    weatherStatus?.status === 'WARN' ||
+    persistedWeatherPassed
   const isReady =
     runtimeItemsReady && weatherReady && persistedPreflightStatus === 'PASSED'
   const progress = runtimeStatus?.progress ?? 0
@@ -54,7 +56,7 @@ export function usePreflightProgress({
   const isFailed =
     runtimeStatus?.status === 'FAILED' ||
     persistedPreflightStatus === 'FAILED' ||
-    weatherStatus?.safeToFly === false
+    weatherStatus?.status === 'FAIL'
   return {
     itemStates,
     nOk,
