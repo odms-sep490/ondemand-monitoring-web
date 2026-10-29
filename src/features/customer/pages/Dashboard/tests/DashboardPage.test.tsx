@@ -16,7 +16,12 @@ afterEach(() => {
 })
 
 const stat = (label: string) =>
-  screen.getByText(label, { selector: '.ui-stat-label' }).closest('.ui-stat') as HTMLElement
+  screen.getByText(label, { selector: '.mgr-stat-label' }).closest('.mgr-stat') as HTMLElement
+
+const card = (title: string) => screen.getByText(title).closest('.ant-card') as HTMLElement
+
+/** Body rows of the antd table inside a card (header row excluded). */
+const tableRows = (el: HTMLElement) => el.querySelectorAll('tbody tr.ant-table-row')
 
 describe('DashboardPage', () => {
   it('renders the Vietnamese title', async () => {
@@ -43,18 +48,20 @@ describe('DashboardPage', () => {
 
   it('lists the 5 most recent orders with status badges and a by-status breakdown', async () => {
     render(<DashboardPage />)
-    const recent = (await screen.findByText('Đơn hàng gần đây')).closest('section') as HTMLElement
-    expect(within(recent).getAllByRole('listitem')).toHaveLength(5)
+    await screen.findByText('Đơn hàng gần đây')
+    const recent = card('Đơn hàng gần đây')
+    expect(tableRows(recent)).toHaveLength(5)
     expect(within(recent).getByText('Cần thanh toán cọc')).toBeInTheDocument()
-    const breakdown = screen.getByText('Đơn hàng theo trạng thái').closest('section') as HTMLElement
+    const breakdown = card('Đơn hàng theo trạng thái')
     expect(within(breakdown).getAllByRole('listitem')).toHaveLength(6)
   })
 
   it('lists recent missions from the mission history', async () => {
     render(<DashboardPage />)
-    const card = (await screen.findByText('Nhiệm vụ gần đây')).closest('section') as HTMLElement
-    expect(await within(card).findByText('MSN-2609-0131-1', { exact: false })).toBeInTheDocument()
-    expect(within(card).getAllByRole('listitem')).toHaveLength(3)
+    await screen.findByText('Nhiệm vụ gần đây')
+    const missions = card('Nhiệm vụ gần đây')
+    expect(await within(missions).findByText('MSN-2609-0131-1', { exact: false })).toBeInTheDocument()
+    expect(tableRows(missions)).toHaveLength(3)
   })
 
   it('shows the empty state when there are no orders', async () => {

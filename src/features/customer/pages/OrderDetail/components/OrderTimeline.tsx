@@ -1,4 +1,4 @@
-import { Card } from '../../../../../shared/components/ui'
+import { Card } from '../../../components/common/ui'
 import { useI18n, useLanguage } from '../../../../../shared/i18n'
 import type { OrderStatus } from '../../../../../shared/types/domain'
 import { OrderIcon, type OrderIconName } from '../../../../manager/components/common/OrderIcon'

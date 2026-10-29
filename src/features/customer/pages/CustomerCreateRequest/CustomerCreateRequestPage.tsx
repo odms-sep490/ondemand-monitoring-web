@@ -1,8 +1,11 @@
 import {
   ErrorState,
   LoadingState,
-} from '../../../../shared/components/odm/StateView'
-import { PortalLayout } from '../../../../shared/components/portal/PortalLayout'
+} from '../../components/common/StateView'
+import { PageHeader } from '../../components/common/ui'
+import { CustomerLayout } from '../../CustomerLayout'
+import { customerAppMessages } from '../../CustomerApp.messages'
+import { useNewMediaCount } from '../../hooks/useNewMediaCount'
 import { useI18n } from '../../../../shared/i18n'
 import { ConfirmSubmitModal } from '../CreateOrder/components/ConfirmSubmitModal'
 import { CreatedSuccess } from '../CreateOrder/components/CreatedSuccess'
@@ -27,6 +30,8 @@ import { selectionEstimate } from '../../lib/checklist/selectionEstimate'
  */
 export function CustomerCreateRequestPage() {
   const { t } = useI18n(customerCreateRequestPageMessages)
+  const { t: appT } = useI18n(customerAppMessages)
+  const newMediaCount = useNewMediaCount()
   const r = useCreateRequest()
   const { form, errors, update, meta, submit } = r
   const estimate = selectionEstimate(
@@ -40,14 +45,19 @@ export function CustomerCreateRequestPage() {
   const packageSelectedCount = packageChecklists.filter((row) => row.selected).length
 
   return (
-    <PortalLayout role="CUSTOMER" title={t.pageTitle} subtitle={t.pageSubtitle}>
+    <CustomerLayout
+      route={{ screen: 'createOrder' }}
+      breadcrumb={appT.breadcrumb.createOrder}
+      newMediaCount={newMediaCount}
+    >
       {submit.createdId ? (
         <CreatedSuccess
           orderId={submit.createdId}
           orderCode={submit.createdCode}
         />
       ) : (
-        <div className="co-page">
+        <div className="cus-page co-page">
+          <PageHeader title={t.pageTitle} subtitle={t.pageSubtitle} />
           {meta.loading && !meta.services.length && <LoadingState />}
           {Boolean(meta.error) && (
             <ErrorState
@@ -145,6 +155,6 @@ export function CustomerCreateRequestPage() {
           )}
         </div>
       )}
-    </PortalLayout>
+    </CustomerLayout>
   )
 }

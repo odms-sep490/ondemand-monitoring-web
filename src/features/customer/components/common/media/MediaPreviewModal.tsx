@@ -1,4 +1,5 @@
-import { Modal } from '../../../../../shared/components/ui'
+import { Button } from 'antd'
+import { Modal } from '../ui'
 import { useI18n } from '../../../../../shared/i18n'
 import type { MediaItem } from '../../../lib/media/types'
 import { customerHref } from '../../../routes'
@@ -39,35 +40,34 @@ export function MediaPreviewModal({
       onClose={onClose}
       footer={
         <>
-          <button type="button" className="odm-btn odm-btn-gh" disabled={!onPrev} onClick={onPrev}>
+          <Button disabled={!onPrev} onClick={onPrev}>
             {t.prev}
-          </button>
-          <button type="button" className="odm-btn odm-btn-gh" disabled={!onNext} onClick={onNext}>
+          </Button>
+          <Button disabled={!onNext} onClick={onNext}>
             {t.next}
-          </button>
+          </Button>
           <span className="md-footer-spacer" />
           {showDetailLink && (
-            <a
-              className="odm-btn odm-btn-gh"
+            <Button
               href={customerHref({ screen: 'mediaDetail', mediaId: item.id })}
             >
               {t.detail}
-            </a>
+            </Button>
           )}
           {fresh.data?.url ? (
-            <a
-              className="odm-btn odm-btn-p"
+            <Button
+              type="primary"
               href={fresh.data.url}
               download={item.fileName}
               target="_blank"
               rel="noopener noreferrer"
             >
               {t.download}
-            </a>
+            </Button>
           ) : (
-            <button type="button" className="odm-btn odm-btn-p" disabled>
+            <Button type="primary" disabled>
               {t.download}
-            </button>
+            </Button>
           )}
         </>
       }
@@ -81,9 +81,9 @@ export function MediaPreviewModal({
         {fresh.error !== undefined && !fresh.data && (
           <div className="md-preview-error" role="alert">
             <span>{t.error}</span>
-            <button type="button" className="odm-btn odm-btn-gh odm-btn-sm" onClick={fresh.reload}>
+            <Button size="small" onClick={fresh.reload}>
               {t.retry}
-            </button>
+            </Button>
           </div>
         )}
         {fresh.data && <MediaViewer item={fresh.data} />}

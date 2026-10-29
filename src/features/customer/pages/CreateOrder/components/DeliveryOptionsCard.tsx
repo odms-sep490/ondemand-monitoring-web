@@ -1,5 +1,8 @@
+import { Checkbox } from 'antd'
+import { SendOutlined } from '@ant-design/icons'
+import { InnerCollapse } from '../../../components/common/InnerCollapse'
 import { useEffect } from 'react'
-import { Card, FormField } from '../../../../../shared/components/ui'
+import { Card, FormField } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import {
   DELIVERY_METHODS,
@@ -60,7 +63,7 @@ export function DeliveryOptionsCard({
   }
 
   return (
-    <Card title={t.cardTitle}>
+    <Card icon={<SendOutlined />} title={t.cardTitle}>
       <p className="co-hint co-card-sub">{t.cardSubtitle}</p>
 
       <FormField
@@ -71,22 +74,19 @@ export function DeliveryOptionsCard({
       >
         <div className="co-chip-group" role="group" aria-label={t.formatsLabel}>
           {RESULT_FORMATS.map((format) => (
-            <label
+            <Checkbox
               key={format}
               className={`co-chip-option${form.resultFormats.includes(format) ? ' is-on' : ''}`}
+              name="resultFormats"
+              checked={form.resultFormats.includes(format)}
+              disabled={derived(format) !== undefined}
+              aria-invalid={Boolean(errors.resultFormats)}
+              onChange={() =>
+                update('resultFormats', toggle(form.resultFormats, format))
+              }
             >
-              <input
-                type="checkbox"
-                name="resultFormats"
-                checked={form.resultFormats.includes(format)}
-                disabled={derived(format) !== undefined}
-                aria-invalid={Boolean(errors.resultFormats)}
-                onChange={() =>
-                  update('resultFormats', toggle(form.resultFormats, format))
-                }
-              />
-              <span>{t.formats[format]}</span>
-            </label>
+              {t.formats[format]}
+            </Checkbox>
           ))}
         </div>
         <p className="co-hint">{t.formatsHint}</p>
@@ -100,24 +100,18 @@ export function DeliveryOptionsCard({
       >
         <div className="co-chip-group" role="group" aria-label={t.methodsLabel}>
           {DELIVERY_METHODS.map((method) => (
-            <label
+            <Checkbox
               key={method}
               className={`co-chip-option${form.deliveryMethods.includes(method) ? ' is-on' : ''}`}
+              name="deliveryMethods"
+              checked={form.deliveryMethods.includes(method)}
+              aria-invalid={Boolean(errors.deliveryMethods)}
+              onChange={() =>
+                update('deliveryMethods', toggle(form.deliveryMethods, method))
+              }
             >
-              <input
-                type="checkbox"
-                name="deliveryMethods"
-                checked={form.deliveryMethods.includes(method)}
-                aria-invalid={Boolean(errors.deliveryMethods)}
-                onChange={() =>
-                  update(
-                    'deliveryMethods',
-                    toggle(form.deliveryMethods, method),
-                  )
-                }
-              />
-              <span>{t.methods[method]}</span>
-            </label>
+              {t.methods[method]}
+            </Checkbox>
           ))}
         </div>
       </FormField>
@@ -163,31 +157,27 @@ export function DeliveryOptionsCard({
           <div className="co-terms-title">{t.termsHeading}</div>
           <span className="co-terms-badge">{t.termsRequired}</span>
         </div>
-        <label
+        <Checkbox
           className={`co-check co-terms-check${errors.termsAccepted ? ' has-error' : ''}`}
+          name="termsAccepted"
+          checked={form.termsAccepted}
+          aria-invalid={Boolean(errors.termsAccepted)}
+          aria-describedby={
+            errors.termsAccepted ? 'co-terms-error' : 'co-terms-privacy'
+          }
+          onChange={(event) => update('termsAccepted', event.target.checked)}
         >
-          <input
-            type="checkbox"
-            name="termsAccepted"
-            checked={form.termsAccepted}
-            aria-invalid={Boolean(errors.termsAccepted)}
-            aria-describedby={
-              errors.termsAccepted ? 'co-terms-error' : 'co-terms-privacy'
-            }
-            onChange={(event) => update('termsAccepted', event.target.checked)}
-          />
           <span className="co-terms-check-copy">
             <strong>{t.termsLabel}</strong>
             <small id="co-terms-privacy">{t.termsPrivacyNotice}</small>
           </span>
-        </label>
+        </Checkbox>
         {errors.termsAccepted && (
           <div id="co-terms-error" className="ui-field-error" role="alert">
             {errors.termsAccepted}
           </div>
         )}
-        <details className="co-terms-details">
-          <summary>{t.commitmentsToggle}</summary>
+        <InnerCollapse className="co-terms-details" title={t.commitmentsToggle}>
           <ul className="co-terms-list">
             <li>{t.commitmentUse}</li>
             <li>{t.commitmentRetention}</li>
@@ -195,7 +185,7 @@ export function DeliveryOptionsCard({
             <li>{t.commitmentPermit}</li>
             <li className="is-key">{t.commitmentPrivacy}</li>
           </ul>
-        </details>
+        </InnerCollapse>
       </div>
     </Card>
   )

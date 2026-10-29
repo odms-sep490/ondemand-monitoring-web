@@ -59,7 +59,8 @@ async function fillLocation(onContent?: () => Promise<void> | void) {
   fireEvent.change(await screen.findByLabelText(/Địa chỉ hoặc khu vực/), {
     target: { value: 'KCN Long Hậu' },
   })
-  fireEvent.click(screen.getByRole('button', { name: 'Xác nhận tọa độ này' }))
+  fireEvent.click(screen.getByText('Tọa độ nâng cao'))
+  fireEvent.click(await screen.findByRole('button', { name: 'Xác nhận tọa độ này' }))
   await screen.findByText('Đã xác nhận vị trí')
   next('Nội dung giám sát')
   await onContent?.()
@@ -422,7 +423,7 @@ describe('CreateOrderPage wizard', () => {
     fireEvent.click(screen.getByLabelText(/Tôi xác nhận mục đích giám sát/))
     fireEvent.click(await screen.findByRole('button', { name: 'Gửi yêu cầu' }))
     await screen.findByRole('dialog')
-    fireEvent.keyDown(document, { key: 'Escape' })
+    fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape', keyCode: 27 })
     await waitFor(() =>
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument(),
     )

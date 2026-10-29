@@ -132,7 +132,7 @@ export function OrderOverviewVisualCard({ order }: { order: OrderDetailView }) {
         ) : (
           <div className="od-map-empty">
             <OrderIcon name="pin" size={24} />
-            <span>{en ? 'This order has no monitoring-area coordinates yet.' : 'Order chưa có tọa độ khu vực giám sát.'}</span>
+            <span>{en ? 'This order has no monitoring-area coordinates yet.' : 'Đơn hàng chưa có tọa độ khu vực giám sát.'}</span>
           </div>
         )}
         <div className="od-map-caption">

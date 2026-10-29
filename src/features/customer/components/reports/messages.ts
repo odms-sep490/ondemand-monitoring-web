@@ -12,16 +12,16 @@ export const customerReportMessages = defineMessages({
     publicationPublished: 'Báo cáo đã được công bố',
     publicationPending: 'Báo cáo chưa được công bố',
     publicationPublishedNote:
-      'Bạn có thể xem đầy đủ kết quả và media của Mission.',
+      'Bạn có thể xem đầy đủ kết quả và media của nhiệm vụ.',
     publicationPendingNote:
-      'Kết quả Mission đang chờ hoàn tất quy trình phê duyệt.',
+      'Kết quả nhiệm vụ đang chờ hoàn tất quy trình phê duyệt.',
     actualPeriod: 'Thời gian giám sát',
     duration: 'Thời lượng',
     minutes: (n: number) => `${n} phút`,
     executionLabel: 'Trạng thái',
     assessmentLabel: 'Đánh giá',
     unknown: 'Chưa có thông tin',
-    noMissionMedia: 'Chưa có ảnh/video được công bố cho Mission này.',
+    noMissionMedia: 'Chưa có ảnh/video được công bố cho nhiệm vụ này.',
     loading: 'Đang tải…',
     error:
       'Không thể tải thông tin. Vui lòng kiểm tra quyền truy cập hoặc thử lại.',
@@ -48,6 +48,7 @@ export const customerReportMessages = defineMessages({
     checklist: 'Kết quả yêu cầu giám sát',
     emptyChecklist: 'Phiên này không có yêu cầu checklist được phân công.',
     media: 'Ảnh và video của phiên',
+    files: 'tệp',
     noMedia: 'Chưa có ảnh/video được công bố.',
     mediaNote: 'Ảnh/video được công bố độc lập với báo cáo.',
     resultSummary: 'Tóm tắt kết quả',
@@ -84,9 +85,9 @@ export const customerReportMessages = defineMessages({
     publicationPublished: 'Report has been published',
     publicationPending: 'Report is not available yet.',
     publicationPublishedNote:
-      'You can view the Mission results and published media.',
+      'You can view the mission results and published media.',
     publicationPendingNote:
-      'The Mission result is awaiting completion of the review process.',
+      'The mission result is awaiting completion of the review process.',
     actualPeriod: 'Monitoring period',
     duration: 'Duration',
     minutes: (n: number) => `${n} min`,
@@ -119,6 +120,7 @@ export const customerReportMessages = defineMessages({
     checklist: 'Monitoring requirement results',
     emptyChecklist: 'No checklist requirements were assigned to this session.',
     media: 'Session photos and videos',
+    files: 'files',
     noMedia: 'No published photos or videos yet.',
     mediaNote: 'Photos and videos are published independently from the report.',
     resultSummary: 'Result summary',

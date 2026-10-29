@@ -1,4 +1,6 @@
-import { Card, FormField } from '../../../../../shared/components/ui'
+import { Radio } from 'antd'
+import { ClockCircleOutlined } from '@ant-design/icons'
+import { Card, FormField } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import type {
   FormErrors,
@@ -24,25 +26,18 @@ export function ScheduleOptionsCard({ form, errors, update }: Props) {
   const { t } = useI18n(scheduleOptionsCardMessages)
   const repeating = form.recurrenceType !== 'NONE'
   return (
-    <Card title={t.cardTitle}>
+    <Card icon={<ClockCircleOutlined />} title={t.cardTitle}>
       <p className="co-hint co-card-sub">{t.cardHint}</p>
 
       <fieldset className="co-opt-group">
         <legend>{t.repeatLegend}</legend>
-        <div className="co-segmented">
-          {RECURRENCE.map((value) => (
-            <label key={value} className={form.recurrenceType === value ? 'is-on' : ''}>
-              <input
-                type="radio"
-                name="co-recurrence"
-                value={value}
-                checked={form.recurrenceType === value}
-                onChange={() => update('recurrenceType', value)}
-              />
-              {t.repeat[value]}
-            </label>
-          ))}
-        </div>
+        <Radio.Group
+          className="co-recurrence"
+          optionType="button"
+          value={form.recurrenceType}
+          onChange={(event) => update('recurrenceType', event.target.value)}
+          options={RECURRENCE.map((value) => ({ value, label: t.repeat[value] }))}
+        />
         {repeating && (
           <div className="co-mt">
             <FormField
@@ -75,22 +70,19 @@ export function ScheduleOptionsCard({ form, errors, update }: Props) {
         <p className="co-help">{t.weatherHint}</p>
         <div className="co-choice-list">
           {WEATHER.map((value) => (
-            <label
+            <Radio
               key={value}
               className={`co-choice${form.weatherFallback === value ? ' is-on' : ''}`}
+              name="co-weather"
+              value={value}
+              checked={form.weatherFallback === value}
+              onChange={() => update('weatherFallback', value)}
             >
-              <input
-                type="radio"
-                name="co-weather"
-                value={value}
-                checked={form.weatherFallback === value}
-                onChange={() => update('weatherFallback', value)}
-              />
               <span>
                 <strong>{t.weather[value].title}</strong>
                 <small>{t.weather[value].desc}</small>
               </span>
-            </label>
+            </Radio>
           ))}
         </div>
       </fieldset>

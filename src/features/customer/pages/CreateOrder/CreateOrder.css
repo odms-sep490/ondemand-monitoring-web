@@ -77,30 +77,6 @@
 
 /* ---------- Inputs ---------- */
 
-.co-input {
-  width: 100%;
-  min-height: 40px;
-  padding: 8px 12px;
-  border: 1px solid var(--ui-border-strong);
-  border-radius: 10px;
-  background: var(--ui-surface);
-  color: var(--ui-text);
-  font: inherit;
-  font-size: 14px;
-  line-height: 1.4;
-  max-width: 100%;
-}
-
-.co-input:focus {
-  outline: none;
-  border-color: var(--ui-primary);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-primary) 20%, transparent);
-}
-
-textarea.co-input {
-  resize: vertical;
-}
-
 .co-range {
   width: 100%;
 }
@@ -148,52 +124,63 @@ textarea.co-input {
 }
 
 .co-tabs {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: var(--ui-space-2);
-}
-
-.co-tab {
-  /* Lets the subtitle ask how wide its own tab is instead of guessing from the viewport. */
-  container-type: inline-size;
   display: flex;
   align-items: center;
-  gap: 10px;
-  min-height: 56px;
-  padding: var(--ui-space-2) var(--ui-space-3);
+  padding: 16px 20px;
   border: 1px solid var(--ui-border);
   border-radius: 12px;
   background: var(--ui-surface);
-  color: var(--ui-text-2);
-  font: inherit;
-  text-align: left;
-  transition:
-    background-color 0.15s,
-    border-color 0.15s;
 }
 
-.co-tab:disabled {
-  background: var(--ui-surface-2);
+/* antd Steps look: number circle, title, connector line to the next step. */
+.co-tab {
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
   color: var(--ui-text-3);
-  cursor: not-allowed;
+  font: inherit;
+  text-align: left;
+  cursor: default;
+}
+
+.co-tab:last-child {
+  flex: 0 0 auto;
+}
+
+.co-tab:not(:last-child)::after {
+  content: '';
+  flex: 1 1 24px;
+  min-width: 16px;
+  height: 1px;
+  margin: 0 12px;
+  background: var(--ui-border-strong);
+}
+
+.co-tab.is-done:not(:last-child)::after {
+  background: var(--ui-primary);
 }
 
 .co-tab-num {
   flex: none;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: var(--ui-surface-2);
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.co-tab:disabled .co-tab-num {
-  background: var(--ui-surface);
   border: 1px solid var(--ui-border-strong);
+  background: transparent;
+  color: var(--ui-text-3);
+  font-size: 14px;
+  font-weight: 600;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s;
 }
 
 .co-tab-text {
@@ -202,28 +189,20 @@ textarea.co-input {
   min-width: 0;
 }
 
-/* Titles wrap onto a second line; nothing in the bar is ever cut with an ellipsis. */
 .co-tab-title {
   font-size: 14px;
-  font-weight: 600;
-  line-height: 1.35;
-  overflow-wrap: break-word;
+  font-weight: 500;
+  line-height: 1.4;
+  white-space: nowrap;
 }
 
-/* The subtitle is secondary: it only appears when its tab is wide enough to show it whole. */
+/* The subtitle is secondary and the bar is horizontal, so it stays out of the way. */
 .co-tab-sub {
   display: none;
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 1.35;
-  color: var(--ui-text-3);
-  overflow-wrap: break-word;
 }
 
-@container (min-width: 200px) {
-  .co-tab-sub {
-    display: block;
-  }
+.co-tab:disabled {
+  cursor: not-allowed;
 }
 
 .co-tab.is-done {
@@ -231,72 +210,69 @@ textarea.co-input {
   color: var(--ui-text);
 }
 
-.co-tab.is-done:hover {
-  background: var(--ui-surface-2);
+.co-tab.is-done .co-tab-num {
+  border-color: var(--ui-primary);
+  background: var(--ui-primary-soft);
+  color: var(--ui-primary);
+}
+
+.co-tab.is-done:hover .co-tab-num {
+  background: var(--ui-primary);
+  color: var(--ui-on-primary);
 }
 
 .co-tab.is-active {
-  border-color: var(--ui-primary);
-  background: var(--ui-primary-soft);
-  color: var(--ui-primary-text);
-  box-shadow: inset 0 -3px 0 var(--ui-primary);
+  color: var(--ui-text);
 }
 
 .co-tab.is-active .co-tab-title {
   font-weight: 700;
 }
 
-.co-tab.is-active .co-tab-sub {
-  color: var(--ui-primary-text);
-}
-
-.co-tab.is-done .co-tab-num {
-  background: var(--ui-success-soft);
-  color: var(--ui-success-text);
-}
-
 .co-tab.is-active .co-tab-num {
+  border-color: var(--ui-primary);
   background: var(--ui-primary);
   color: var(--ui-on-primary);
 }
 
-/* Too narrow for five titles side by side: scroll the bar sideways. */
+.co-tab:focus-visible {
+  outline: 2px solid var(--ui-primary);
+  outline-offset: 4px;
+  border-radius: 8px;
+}
+
+/* Too narrow for six titles: only the active title stays, the rest are numbers. */
 @media (max-width: 1100px) {
-  .co-tabs {
-    display: flex;
-    overflow-x: auto;
-    scrollbar-width: thin;
-    padding-bottom: 2px;
+  .co-tab:not(.is-active) .co-tab-text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
   }
-  .co-tab {
-    flex: 0 0 176px;
+  .co-tab:not(:last-child)::after {
+    margin: 0 8px;
   }
 }
 
-/* Phones: five numbered dots; the current title and "Step N of 5" sit in the line above them. */
+/* Phones: numbered circles only; the current title and "Step N of 6" sit in the line above. */
 @media (max-width: 640px) {
   .co-steps-progress {
     display: block;
   }
   .co-tabs {
-    overflow-x: visible;
-    justify-content: space-between;
+    padding: 12px;
   }
-  .co-tab {
-    flex: 0 0 44px;
-    min-height: 44px;
-    padding: 0;
-    justify-content: center;
-    border-radius: 50%;
-  }
-  /* Visually hidden, still in the accessible name. */
   .co-tab .co-tab-text {
     position: absolute;
     width: 1px;
     height: 1px;
     overflow: hidden;
     clip-path: inset(50%);
-    white-space: nowrap;
+  }
+  .co-tab:not(:last-child)::after {
+    margin: 0 6px;
+    min-width: 6px;
   }
 }
 
@@ -304,7 +280,6 @@ textarea.co-input {
    like a second full form. */
 .co-optional-details {
   margin-top: 12px;
-  border-top: 1px solid var(--ui-border);
 }
 .co-optional-details > summary {
   padding: 14px 0 2px;
@@ -571,12 +546,12 @@ textarea.co-input {
 .co-map-zone {
   position: absolute;
   inset: 0;
-  background: rgba(220, 38, 38, 0.14);
+  background: color-mix(in srgb, var(--ui-danger) 14%, transparent);
   pointer-events: none;
 }
 
 .co-map-zone.is-blocked {
-  background: rgba(220, 38, 38, 0.28);
+  background: color-mix(in srgb, var(--ui-danger) 28%, transparent);
 }
 
 .co-map-circle,
@@ -589,24 +564,24 @@ textarea.co-input {
 
 .co-map-circle {
   border: 2px solid var(--ui-primary);
-  background: rgba(21, 101, 232, 0.16);
+  background: color-mix(in srgb, var(--ui-primary) 16%, transparent);
 }
 
 .co-map-dot {
   width: 14px;
   height: 14px;
   background: var(--ui-primary);
-  box-shadow: 0 0 0 2px rgba(21, 101, 232, 0.24);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--ui-primary) 24%, transparent);
 }
 
 .co-map.has-error .co-map-circle {
   border-color: var(--ui-danger);
-  background: rgba(220, 38, 38, 0.18);
+  background: color-mix(in srgb, var(--ui-danger) 18%, transparent);
 }
 
 .co-map.has-error .co-map-dot {
   background: var(--ui-danger);
-  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.24);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--ui-danger) 24%, transparent);
 }
 
 .co-map-legend {
@@ -627,7 +602,7 @@ textarea.co-input {
   width: 12px;
   height: 12px;
   border-radius: 3px;
-  background: rgba(220, 38, 38, 0.22);
+  background: color-mix(in srgb, var(--ui-danger) 22%, transparent);
   border: 1px solid var(--ui-danger);
 }
 
@@ -758,8 +733,8 @@ textarea.co-input {
 /* ---------- Services ---------- */
 
 /* The global `h1, h2 { letter-spacing: -0.045em; font-weight: 800 }` glued Vietnamese words together. */
-.co-page .ui-card-title,
-.co-page .ui-card-header h2 {
+.co-page .mgr-card-title,
+.co-page .ant-card-head h2 {
   font-family: inherit;
   letter-spacing: 0;
   word-spacing: normal;
@@ -770,9 +745,9 @@ textarea.co-input {
 }
 
 /* Same card look as the order list and order detail pages. */
-.co-page .ui-card {
+.co-page .ant-card {
   border-radius: 16px;
-  box-shadow: 0 1px 2px rgba(15, 40, 90, 0.04);
+  box-shadow: var(--ui-shadow-1);
 }
 
 .co-service-lead {
@@ -861,7 +836,7 @@ textarea.co-input {
 .co-service:hover {
   transform: translateY(-2px);
   border-color: var(--ui-primary);
-  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+  box-shadow: var(--ui-shadow-2);
 }
 
 .co-service:focus-visible {
@@ -1054,7 +1029,7 @@ textarea.co-input {
   background: var(--ui-surface);
   border: 1px solid var(--ui-border);
   border-radius: 16px;
-  box-shadow: 0 1px 2px rgba(15, 40, 90, 0.04);
+  box-shadow: var(--ui-shadow-1);
 }
 
 /* Long summaries (steps 1, 4, 5) just grow with the page; short ones may stay in view. */
@@ -1072,23 +1047,23 @@ textarea.co-input {
   }
 }
 
-.co-summary .ui-card {
+.co-summary .ant-card {
   margin: 0;
   border: 0;
   border-radius: 0;
   box-shadow: none;
 }
 
-.co-summary .ui-card + .ui-card,
+.co-summary .ant-card + .ant-card,
 .co-summary > .co-block,
 .co-summary-cta {
   border-top: 1px solid var(--ui-border);
 }
 
-.co-summary .ui-card-header {
+.co-summary .ant-card-head {
   padding: 16px 20px 0;
 }
-.co-summary .ui-card-body {
+.co-summary .ant-card-body {
   padding: 12px 20px 16px;
 }
 
@@ -1115,7 +1090,7 @@ textarea.co-input {
 .co-summary-cta .co-footer-spacer {
   display: none;
 }
-.co-summary-cta .co-footer .odm-btn {
+.co-summary-cta .co-footer .ant-btn {
   width: 100%;
   justify-content: center;
 }
@@ -1227,9 +1202,11 @@ textarea.co-input {
 }
 
 .co-real-map .leaflet-control-layers {
-  border: 1px solid rgba(148, 163, 184, 0.45);
+  background: var(--ui-surface);
+  color: var(--ui-text);
+  border: 1px solid var(--ui-border);
   border-radius: 8px;
-  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+  box-shadow: var(--ui-shadow-2);
   font: inherit;
 }
 
@@ -1254,7 +1231,7 @@ textarea.co-input {
   padding: 7px 10px;
   border-radius: 8px;
   background: rgba(15, 23, 42, 0.72);
-  color: #fff;
+  color: var(--ui-on-primary);
   font-size: 12px;
   font-weight: 700;
   pointer-events: none;
@@ -1267,13 +1244,13 @@ textarea.co-input {
   z-index: 500;
   max-width: min(360px, calc(100% - 28px));
   padding: 8px 10px;
-  border: 1px solid rgba(180, 83, 9, 0.35);
+  border: 1px solid var(--ui-warning);
   border-radius: 8px;
-  background: rgba(255, 251, 235, 0.96);
+  background: var(--ui-warning-soft);
   color: var(--ui-warning-text);
   font-size: 13px;
   font-weight: 700;
-  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+  box-shadow: var(--ui-shadow-2);
 }
 
 /* ---------- Step 4: review layout ---------- */
@@ -1363,8 +1340,6 @@ textarea.co-input {
 
 .co-sum-tech {
   margin-top: var(--ui-space-2);
-  padding-top: var(--ui-space-2);
-  border-top: 1px solid var(--ui-border);
   font-size: 12px;
   color: var(--ui-text-3);
 }
@@ -1585,7 +1560,7 @@ textarea.co-input {
   border: 0;
   border-radius: 50%;
   background: rgba(15, 23, 42, 0.7);
-  color: #fff;
+  color: var(--ui-on-primary);
   cursor: pointer;
 }
 
@@ -1643,30 +1618,9 @@ textarea.co-input {
     grid-template-columns: minmax(0, 1fr);
   }
 }
-.co-service-more {
-  display: block;
+.co-service-more.ant-btn {
+  display: flex;
   margin: var(--ui-space-3) auto 0;
-  min-height: 40px;
-  padding: 0 18px;
-  border: 1px solid var(--ui-border-strong);
-  border-radius: 999px;
-  background: var(--ui-surface);
-  color: var(--ui-primary);
-  font: inherit;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition:
-    background-color 0.15s,
-    border-color 0.15s;
-}
-.co-service-more:hover {
-  background: var(--ui-primary-soft);
-  border-color: var(--ui-primary);
-}
-.co-service-more:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-primary) 20%, transparent);
 }
 .co-page .ui-page-title {
   max-width: none;
@@ -1699,13 +1653,13 @@ textarea.co-input {
   background: var(--ui-surface);
   border: 1px solid var(--ui-border);
   border-radius: 16px;
-  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.1);
+  box-shadow: var(--ui-shadow-2);
 }
 .co-bottom-bar .co-footer {
   flex: 1;
   flex-wrap: nowrap;
 }
-.co-bottom-bar .co-footer .odm-btn-p {
+.co-bottom-bar .co-footer .ant-btn-primary {
   margin-left: 0;
 }
 .co-draft-note {
@@ -1736,7 +1690,7 @@ textarea.co-input {
   .co-bottom-bar .co-footer {
     flex-wrap: wrap;
   }
-  .co-bottom-bar .co-footer .odm-btn {
+  .co-bottom-bar .co-footer .ant-btn {
     flex: 1 1 100%;
     justify-content: center;
     min-height: 44px;
@@ -1779,8 +1733,7 @@ textarea.co-input {
   background: var(--ui-primary);
   color: var(--ui-on-primary);
 }
-.co-segmented input,
-.co-choice input {
+.co-segmented input {
   position: absolute;
   opacity: 0;
   width: 1px;
@@ -1809,23 +1762,9 @@ textarea.co-input {
     border-color 0.15s,
     background-color 0.15s;
 }
-.co-choice::before {
-  content: '';
-  flex: none;
-  width: 16px;
-  height: 16px;
-  margin-top: 2px;
-  border: 2px solid var(--ui-border-strong);
-  border-radius: 50%;
-  background: var(--ui-surface);
-}
 .co-choice.is-on {
   border-color: var(--ui-primary);
   background: var(--ui-primary-soft);
-}
-.co-choice.is-on::before {
-  border-color: var(--ui-primary);
-  background: radial-gradient(var(--ui-primary) 45%, transparent 50%);
 }
 .co-choice strong {
   display: block;
@@ -1890,7 +1829,7 @@ ul.co-help {
   max-height: 780px;
   border-radius: 14px;
 }
-.co-grid.is-location .ui-card-body {
+.co-grid.is-location .ant-card-body {
   padding-top: 8px;
   padding-bottom: 14px;
 }
@@ -1933,11 +1872,6 @@ ul.co-help {
     background-color 0.15s,
     border-color 0.15s,
     color 0.15s;
-}
-.co-chip-option input {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
 }
 .co-chip-option:hover {
   border-color: var(--ui-primary);
@@ -2033,16 +1967,16 @@ ul.co-help {
   }
 }
 
-.co-bottom-bar .co-footer .odm-btn-p {
+.co-bottom-bar .co-footer .ant-btn-primary {
   white-space: nowrap;
 }
 
-.co-bottom-bar .co-footer .odm-btn-gh {
+.co-bottom-bar .co-footer .ant-btn-default {
   font-weight: 600;
 }
 
 /* Step 4 cards: consistent field rhythm and a clearer split between option groups. */
-.co-stack > .ui-card .co-two {
+.co-stack > .ant-card .co-two {
   gap: var(--ui-space-3) var(--ui-space-4);
 }
 
@@ -2074,7 +2008,7 @@ ul.co-help {
 }
 
 /* ---------- Flight area assessment card + map key ---------- */
-.co-fa-card .ui-card-body {
+.co-fa-card .ant-card-body {
   display: flex;
   flex-direction: column;
   gap: var(--ui-space-3);
@@ -2320,7 +2254,7 @@ ul.co-help {
   padding: 6px 10px;
   border: 1px solid var(--ui-border);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.94);
+  background: color-mix(in srgb, var(--ui-surface) 94%, transparent);
   font-size: 12px;
   pointer-events: none;
 }
@@ -2335,17 +2269,17 @@ ul.co-help {
   height: 12px;
 }
 .co-map-key-area {
-  border: 2px solid #1565e8;
+  border: 2px solid var(--ui-primary);
   border-radius: 50%;
-  background: rgba(21, 101, 232, 0.14);
+  background: color-mix(in srgb, var(--ui-primary) 14%, transparent);
 }
 .co-map-key-zone {
-  border: 2px dashed #dc2626;
-  background: rgba(220, 38, 38, 0.18);
+  border: 2px dashed var(--ui-danger);
+  background: color-mix(in srgb, var(--ui-danger) 18%, transparent);
 }
 .co-map-key-point {
   border-radius: 50%;
-  background: #1565e8;
+  background: var(--ui-primary);
   width: 8px !important;
   height: 8px !important;
   margin: 0 2px;
@@ -2411,10 +2345,10 @@ ul.co-help {
 
 .co-authz {
   padding: 18px 20px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--ui-border);
   border-radius: 12px;
-  background: #fff;
-  color: #0f172a;
+  background: var(--ui-surface);
+  color: var(--ui-text);
 }
 .co-authz-head h3 {
   margin: 0;
@@ -2423,7 +2357,7 @@ ul.co-help {
 .co-authz-head p,
 .co-authz-note {
   margin: 6px 0 0;
-  color: #64748b;
+  color: var(--ui-text-3);
   line-height: 1.5;
 }
 .co-authz-fieldset {
@@ -2441,18 +2375,18 @@ ul.co-help {
   flex-wrap: wrap;
   gap: 8px;
 }
-.co-authz-relationships label {
+.co-authz-relationships .ant-radio-wrapper {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 9px 12px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--ui-border);
   border-radius: 10px;
   cursor: pointer;
 }
-.co-authz-relationships label:has(input:checked) {
-  border-color: #2563eb;
-  background: #eff6ff;
+.co-authz-relationships .ant-radio-wrapper:has(input:checked) {
+  border-color: var(--ui-primary);
+  background: var(--ui-primary-soft);
 }
 .co-authz-other {
   display: grid;
@@ -2484,7 +2418,7 @@ ul.co-help {
 }
 .co-authz-docs-head span,
 .co-authz-document label > span {
-  color: #64748b;
+  color: var(--ui-text-3);
   font-size: 13px;
 }
 .co-authz-documents {
@@ -2496,19 +2430,19 @@ ul.co-help {
   display: grid;
   gap: 10px;
   padding: 14px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--ui-border);
   border-radius: 10px;
 }
 .co-authz-document-title button,
 .co-authz-file button {
   border: 0;
   background: transparent;
-  color: #2563eb;
+  color: var(--ui-primary);
   font-weight: 700;
   cursor: pointer;
 }
 .co-authz-document-title button {
-  color: #b91c1c;
+  color: var(--ui-danger-text);
 }
 .co-authz-document-grid {
   display: grid;
@@ -2521,9 +2455,9 @@ ul.co-help {
 }
 .co-authz-file {
   padding: 10px 12px;
-  border: 1px dashed #cbd5e1;
+  border: 1px dashed var(--ui-border);
   border-radius: 9px;
-  color: #475569;
+  color: var(--ui-text-2);
 }
 .co-authz-confirm {
   display: flex;
@@ -2531,15 +2465,14 @@ ul.co-help {
   gap: 10px;
   margin-top: 18px;
   padding: 13px;
-  border: 1px solid #bfdbfe;
+  border: 1px solid var(--ui-primary-soft);
   border-radius: 10px;
-  background: #eff6ff;
+  background: var(--ui-primary-soft);
   font-weight: 600;
   line-height: 1.45;
 }
-.co-authz-confirm input {
-  margin-top: 3px;
-  accent-color: #2563eb;
+.co-authz-confirm .ant-checkbox {
+  margin-top: 2px;
 }
 @media (max-width: 640px) {
   .co-authz {
@@ -2605,7 +2538,7 @@ ul.co-help {
 /* Step 2, no default content: the two loose sentences become one dashed empty state. */
 .co-page
   .checklist-card
-  .ui-card-body
+  .ant-card-body
   > p:not([class]):has(+ .checklist-fields:empty) {
   margin: var(--ui-space-4) 0 0;
   padding: 28px var(--ui-space-4) 4px;
@@ -2674,16 +2607,16 @@ ul.co-help {
   display: grid;
   gap: 6px;
   padding: 12px 14px;
-  border: 1px solid #bfdbfe;
+  border: 1px solid var(--ui-primary-soft);
   border-radius: 10px;
-  background: #eff6ff;
-  color: #1e3a5f;
+  background: var(--ui-primary-soft);
+  color: var(--ui-primary-text);
   font-size: 13px;
 }
 .airspace-status.is-warning {
-  border-color: #fdba74;
-  background: #fff7ed;
-  color: #7c2d12;
+  border-color: var(--ui-warning);
+  background: var(--ui-warning-soft);
+  color: var(--ui-warning-text);
 }
 .airspace-status strong {
   font-size: 14px;
@@ -2692,7 +2625,7 @@ ul.co-help {
   display: block;
 }
 .airspace-status a {
-  color: #075fd8;
+  color: var(--ui-primary);
   font-weight: 600;
   text-decoration: none;
   width: max-content;
@@ -2702,10 +2635,10 @@ ul.co-help {
 .co-terms-important {
   margin-top: var(--ui-space-4);
   padding: 16px 18px;
-  border: 1px solid #f5c26b;
-  border-left: 5px solid #f59e0b;
+  border: 1px solid var(--ui-warning);
+  border-left: 5px solid var(--ui-warning);
   border-radius: 12px;
-  background: #fff8e6;
+  background: var(--ui-warning-soft);
 }
 .co-terms-head {
   display: flex;
@@ -2715,28 +2648,28 @@ ul.co-help {
 }
 .co-terms-icon {
   flex: none;
-  color: #d97706;
+  color: var(--ui-warning);
 }
 .co-terms-title {
   flex: 1 1 auto;
   min-width: 0;
   font-size: 16px;
   font-weight: 800;
-  color: #7a4a00;
+  color: var(--ui-warning-text);
 }
 .co-terms-badge {
   flex: none;
   padding: 2px 10px;
   border-radius: 999px;
-  background: #f59e0b;
-  color: #fff;
+  background: var(--ui-warning);
+  color: var(--ui-on-primary);
   font-size: 12px;
   font-weight: 700;
 }
 .co-terms-list {
   margin: 0 0 14px;
   padding-left: 20px;
-  color: #5b4a2a;
+  color: var(--ui-text-2);
   font-size: 13.5px;
   line-height: 1.6;
 }
@@ -2744,19 +2677,19 @@ ul.co-help {
   margin-top: 4px;
 }
 .co-terms-list li.is-key {
-  color: #7a2e0b;
+  color: var(--ui-warning-text);
   font-weight: 700;
 }
 .co-terms-check {
   padding: 12px 14px;
-  border: 1px solid #f5c26b;
+  border: 1px solid var(--ui-warning);
   border-radius: 10px;
-  background: #fff;
+  background: var(--ui-surface);
   font-size: 14.5px;
   font-weight: 700;
 }
 .co-terms-check.has-error {
-  border-color: var(--ui-danger, #d92d20);
+  border-color: var(--ui-danger);
 }
 .co-terms-check-copy {
   display: grid;
@@ -2776,18 +2709,16 @@ ul.co-help {
 .co-terms-check input {
   width: 18px;
   height: 18px;
-  accent-color: #d97706;
+  accent-color: var(--ui-warning);
 }
 .co-terms-important .co-terms-details {
   margin-top: 12px;
-  padding-top: 10px;
-  border-top: 1px solid color-mix(in srgb, #d97706 30%, transparent);
 }
 .co-terms-important .co-terms-details summary {
   width: max-content;
   max-width: 100%;
   padding: 2px 0;
-  color: #92400e;
+  color: var(--ui-warning-text);
   font-weight: 700;
 }
 .co-terms-important .co-terms-details summary:focus-visible {
@@ -2799,8 +2730,8 @@ ul.co-help {
   margin: 10px 0 0;
 }
 :root[data-theme='dark'] .co-terms-important {
-  background: rgba(245, 158, 11, 0.1);
-  border-color: rgba(245, 158, 11, 0.45);
+  background: color-mix(in srgb, var(--ui-warning) 10%, transparent);
+  border-color: color-mix(in srgb, var(--ui-warning) 45%, transparent);
 }
 :root[data-theme='dark'] .co-terms-title,
 :root[data-theme='dark'] .co-terms-list,
@@ -2825,7 +2756,7 @@ ul.co-help {
   height: 30px;
   margin-top: 0;
   border-radius: 9px;
-  background: var(--ui-primary-soft, #e8f1ff);
+  background: var(--ui-primary-soft, var(--ui-primary-soft));
   color: var(--ui-primary);
 }
 .co-summary .co-sum-body dt {
@@ -2849,7 +2780,7 @@ ul.co-help {
   font-size: 12.5px;
 }
 .co-summary .co-sum-edit:hover {
-  background: var(--ui-primary-soft, #e8f1ff);
+  background: var(--ui-primary-soft, var(--ui-primary-soft));
   text-decoration: none;
 }
 .co-grid.is-location > .co-location-left,
@@ -2886,22 +2817,22 @@ ul.co-help {
   height: 100%;
   gap: 0;
   padding: 14px;
-  border: 2px solid #e2e8f0;
+  border: 2px solid var(--ui-border);
   border-radius: 14px;
-  background: #fff;
+  background: var(--ui-surface);
   overflow-wrap: break-word;
 }
 .co-service-grid .co-service:hover {
   transform: none;
-  border-color: #93c5fd;
-  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+  border-color: var(--ui-primary);
+  box-shadow: var(--ui-shadow-2);
 }
 .co-service-grid .co-service.is-active {
   /* Same border width as the idle state so the card never changes size. */
   padding: 14px;
-  border-color: #2563eb;
-  background: #f8faff;
-  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.14);
+  border-color: var(--ui-primary);
+  background: var(--ui-surface-2);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--ui-primary) 14%, transparent);
 }
 .co-service-grid .co-service-illustration {
   height: 120px;
@@ -2914,7 +2845,7 @@ ul.co-help {
   margin-top: 12px;
   font-size: 16px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--ui-text);
 }
 .co-service-grid .co-service-desc {
   display: block;
@@ -2924,14 +2855,14 @@ ul.co-help {
   text-overflow: clip;
   font-size: 13px;
   line-height: 1.55;
-  color: #64748b;
+  color: var(--ui-text-3);
 }
 .co-service-grid .co-service > strong {
   margin-top: auto;
   padding-top: 14px;
   font-size: 17px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--ui-text);
 }
 .co-service-card {
   padding-bottom: 8px;
@@ -2954,31 +2885,9 @@ ul.co-help {
   align-self: stretch;
 }
 
-.co-grid.is-service > .co-stack:first-child > .ui-card {
+.co-grid.is-service > .co-stack:first-child > .ant-card {
   height: 100%;
   box-sizing: border-box;
-}
-
-/* Keep the progress overview compact; details belong to the current step only. */
-.co-tab {
-  min-height: 48px;
-  padding: 8px 12px;
-  border-color: transparent;
-  border-radius: 8px;
-  background: transparent;
-}
-.co-tab:disabled {
-  background: transparent;
-}
-.co-tab.is-active {
-  border-color: var(--ui-primary);
-  box-shadow: none;
-}
-.co-tab-sub {
-  display: none;
-}
-.co-tab.is-active .co-tab-sub {
-  display: block;
 }
 
 /* Two columns keep service descriptions readable and avoid clipped rows. */
@@ -2999,11 +2908,9 @@ ul.co-help {
   border-width: 1px;
   box-shadow: inset 3px 0 0 var(--ui-primary);
 }
-.co-service-selected {
+.co-service-selected.ant-tag {
   align-self: flex-start;
-  margin-top: 10px;
-  color: var(--ui-primary-text);
-  font-size: 12px;
+  margin: 10px 0 0;
   font-weight: 700;
 }
 
@@ -3040,7 +2947,7 @@ ul.co-help {
     max-height: none;
     overflow: visible;
   }
-  .co-grid.is-service > .co-stack:first-child > .ui-card {
+  .co-grid.is-service > .co-stack:first-child > .ant-card {
     height: auto;
   }
 }
@@ -3049,9 +2956,6 @@ ul.co-help {
   .co-service-grid,
   .co-service-grid:last-of-type {
     grid-template-columns: minmax(0, 1fr);
-  }
-  .co-tab.is-active .co-tab-sub {
-    display: none;
   }
 }
 
@@ -3105,14 +3009,14 @@ ul.co-help {
   border-radius: 12px;
 }
 
-.co-review-form > .ui-card {
+.co-review-form > .ant-card {
   margin: 0;
   border: 0;
   border-radius: 0;
   box-shadow: none;
 }
 
-.co-review-form > .ui-card + .ui-card {
+.co-review-form > .ant-card + .ant-card {
   flex: 1;
   border-top: 1px solid var(--ui-border);
 }
@@ -3141,7 +3045,7 @@ ul.co-help {
   align-self: start;
 }
 
-.co-page .ui-card,
+.co-page .ant-card,
 .co-authz,
 .co-flow-actions {
   border-color: var(--ui-border);
@@ -3149,75 +3053,18 @@ ul.co-help {
   box-shadow: none;
 }
 
-.co-page .ui-card-header {
+.co-page .ant-card-head {
   padding: 20px 24px 0;
 }
 
-.co-page .ui-card-body {
+.co-page .ant-card-body {
   padding: 16px 24px 24px;
 }
 
-.co-page .ui-card-title,
-.co-page .ui-card-header h2 {
+.co-page .mgr-card-title,
+.co-page .ant-card-head h2 {
   font-size: 18px;
   line-height: 1.35;
-}
-
-/* Compact progress rail: the active item is clear without becoming a large card. */
-.co-steps {
-  padding: 4px 0 0;
-}
-
-.co-tabs {
-  position: relative;
-  gap: 0;
-}
-
-.co-tabs::before {
-  content: '';
-  position: absolute;
-  top: 23px;
-  left: 5%;
-  right: 5%;
-  height: 1px;
-  background: var(--ui-border);
-}
-
-.co-tab {
-  position: relative;
-  z-index: 1;
-  justify-content: center;
-  min-height: 48px;
-  padding: 5px 12px;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-  text-align: left;
-}
-
-.co-tab:disabled,
-.co-tab.is-done,
-.co-tab.is-done:hover {
-  background: transparent;
-}
-
-.co-tab-num {
-  box-shadow: 0 0 0 6px var(--ui-bg, #f8fafc);
-}
-
-.co-tab.is-active {
-  border: 0;
-  background: transparent;
-  box-shadow: none;
-}
-
-.co-tab.is-active .co-tab-text {
-  color: var(--ui-primary-text);
-}
-
-.co-tab-sub,
-.co-tab.is-active .co-tab-sub {
-  display: none;
 }
 
 /* The summary is one composed panel, not a stack of unrelated floating cards. */
@@ -3234,11 +3081,11 @@ ul.co-help {
   box-shadow: none;
 }
 
-.co-summary .ui-card-header {
+.co-summary .ant-card-head {
   padding: 18px 20px 0;
 }
 
-.co-summary .ui-card-body {
+.co-summary .ant-card-body {
   padding: 12px 20px 18px;
 }
 
@@ -3252,11 +3099,11 @@ ul.co-help {
   gap: 10px;
 }
 
-.co-summary-cta .co-footer .odm-btn-p {
+.co-summary-cta .co-footer .ant-btn-primary {
   order: -3;
 }
 
-.co-summary-cta .co-footer .odm-btn-gh {
+.co-summary-cta .co-footer .ant-btn-default {
   order: -2;
 }
 
@@ -3354,7 +3201,7 @@ ul.co-help {
   gap: 2px;
   margin-bottom: 16px;
   padding: 10px 12px;
-  border-left: 3px solid var(--ui-border-strong, #94a3b8);
+  border-left: 3px solid var(--ui-border-strong, var(--ui-border-strong));
   background: var(--ui-surface-2);
   color: var(--ui-text-2);
 }
@@ -3367,17 +3214,17 @@ ul.co-help {
   line-height: 1.45;
 }
 .co-location-status.is-confirmed {
-  border-left-color: #15803d;
-  background: #f0fdf4;
+  border-left-color: var(--ui-success);
+  background: var(--ui-success-soft);
 }
 .co-location-status.is-resolving {
   border-left-color: var(--ui-primary);
-  background: #eff6ff;
+  background: var(--ui-primary-soft);
 }
 .co-location-status.is-stale,
 .co-location-status.is-error {
-  border-left-color: #b45309;
-  background: #fff7ed;
+  border-left-color: var(--ui-warning);
+  background: var(--ui-warning-soft);
 }
 
 .co-address-search {
@@ -3392,15 +3239,12 @@ ul.co-help {
 }
 .co-address-error {
   margin-top: 6px;
-  color: var(--ui-danger, #b42318);
+  color: var(--ui-danger, var(--ui-danger-text));
   font-size: 12px;
   line-height: 1.45;
 }
 .co-location-advanced {
   margin: 14px 0;
-  padding: 10px 0;
-  border-top: 1px solid var(--ui-border);
-  border-bottom: 1px solid var(--ui-border);
 }
 .co-location-advanced summary {
   min-height: 36px;
@@ -3446,7 +3290,7 @@ ul.co-help {
   width: 72px;
   min-height: 36px;
   padding: 6px 8px;
-  border: 1px solid var(--ui-border-strong, #cbd5e1);
+  border: 1px solid var(--ui-border-strong, var(--ui-border));
   border-radius: 6px;
   background: var(--ui-surface);
   color: var(--ui-text);
@@ -3556,16 +3400,16 @@ ul.co-help {
   border-radius: 50%;
 }
 .co-map-legend .is-monitoring {
-  border-color: #1565e8;
-  background: rgba(21, 101, 232, 0.14);
+  border-color: var(--ui-primary);
+  background: color-mix(in srgb, var(--ui-primary) 14%, transparent);
 }
 .co-map-legend .is-service {
-  border-color: #16a34a;
-  background: rgba(34, 197, 94, 0.08);
+  border-color: var(--ui-success);
+  background: color-mix(in srgb, var(--ui-success) 10%, transparent);
 }
 .co-map-legend .is-unknown {
-  border-color: #64748b;
-  background: #e2e8f0;
+  border-color: var(--ui-text-3);
+  background: var(--ui-border);
 }
 
 .co-flight-status {
@@ -3573,7 +3417,7 @@ ul.co-help {
   gap: 8px;
   padding: 18px 20px;
   border: 1px solid var(--ui-border);
-  border-left: 4px solid #64748b;
+  border-left: 4px solid var(--ui-text-3);
   border-radius: 10px;
   background: var(--ui-surface);
 }
@@ -3701,10 +3545,6 @@ ul.co-help {
   .co-grid.is-schedule > .co-summary {
     position: static;
   }
-
-  .co-tab {
-    flex: 0 0 150px;
-  }
 }
 
 @media (max-width: 1000px) {
@@ -3729,10 +3569,6 @@ ul.co-help {
   .co-grid.is-service > .co-summary.is-tall {
     position: static;
   }
-
-  .co-tabs::before {
-    display: none;
-  }
 }
 
 @media (max-width: 640px) {
@@ -3741,33 +3577,16 @@ ul.co-help {
     padding: 0 12px 28px;
   }
 
-  .co-page .ui-card-header {
+  .co-page .ant-card-head {
     padding: 16px 16px 0;
   }
 
-  .co-page .ui-card-body {
+  .co-page .ant-card-body {
     padding: 12px 16px 18px;
   }
 
   .co-steps-progress {
     margin-bottom: 10px;
-  }
-
-  .co-tabs {
-    gap: 8px;
-  }
-
-  .co-tab {
-    flex: 1 1 0;
-    min-width: 0;
-    min-height: 40px;
-    border-radius: 8px;
-  }
-
-  .co-tab-num {
-    width: 30px;
-    height: 30px;
-    box-shadow: none;
   }
 
   .co-summary .co-two {
@@ -3818,7 +3637,7 @@ ul.co-help {
     display: none;
   }
 
-  .co-flow-actions .odm-btn {
+  .co-flow-actions .ant-btn {
     width: 100%;
     justify-content: center;
   }
@@ -3883,7 +3702,7 @@ ul.co-help {
   min-height: 0;
 }
 
-.co-grid.is-location > .co-location-settings > .ui-card {
+.co-grid.is-location > .co-location-settings > .ant-card {
   height: auto;
   box-sizing: border-box;
 }
@@ -3938,7 +3757,7 @@ ul.co-help {
     margin-top: 0;
   }
 
-  .co-grid.is-location > .co-location-settings > .ui-card {
+  .co-grid.is-location > .co-location-settings > .ant-card {
     height: auto;
   }
 }
@@ -3949,46 +3768,7 @@ ul.co-help {
   }
 }
 
-/* Six-step progress rail. Desktop is a true six-column track, so no item can
-   wrap onto a second row. Narrow screens deliberately switch presentation. */
-.co-tabs {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 0;
-  overflow: visible;
-}
-
-.co-tab {
-  width: 100%;
-  min-width: 0;
-  max-width: none;
-}
-
-.co-tab-text,
-.co-tab-title {
-  min-width: 0;
-}
-
 @media (max-width: 1100px) {
-  .co-tabs {
-    display: flex;
-    flex-wrap: nowrap;
-    gap: 0;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scroll-snap-type: x proximity;
-    scrollbar-width: thin;
-  }
-
-  .co-tabs::before {
-    display: none;
-  }
-
-  .co-tab {
-    flex: 0 0 168px;
-    width: 168px;
-    scroll-snap-align: start;
-  }
 
   /* At tablet width the sidebar leaves too little usable room for a balanced
      map/settings split, so both panels use the full content width. */
@@ -4025,26 +3805,155 @@ ul.co-help {
     margin-top: 0;
   }
 
-  .co-grid.is-location > .co-location-settings > .ui-card {
+  .co-grid.is-location > .co-location-settings > .ant-card {
     height: auto;
   }
 }
 
 @media (max-width: 640px) {
-  .co-tabs {
-    display: grid;
-    grid-template-columns: repeat(6, minmax(40px, 1fr));
-    gap: 4px;
-    overflow: visible;
-  }
-
-  .co-tab {
-    width: 100%;
-    min-width: 0;
-    flex: none;
-  }
 
   .co-grid.is-location .co-real-map-wrap {
     height: clamp(300px, 46vh, 420px);
   }
+}
+
+/* The summary column is one joined card; inner antd cards stay flat. */
+.mgr-layout .co-summary .ant-card {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.mgr-layout .co-summary .ant-card + .ant-card {
+  border-top: 1px solid var(--mgr-border);
+}
+
+.mgr-layout .co-summary {
+  border-color: var(--mgr-border);
+  background: var(--mgr-card);
+  box-shadow: var(--mgr-shadow);
+}
+
+.mgr-layout .co-page input:not([type='checkbox']):not([type='radio']):not([type='range']),
+.mgr-layout .co-page select,
+.mgr-layout .co-page textarea {
+  border-radius: 8px;
+}
+
+.mgr-layout .co-review-form > .ant-card {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.mgr-layout .co-review-form > .ant-card + .ant-card {
+  border-top: 1px solid var(--mgr-border);
+}
+
+.mgr-layout .co-review-form {
+  border-color: var(--mgr-border);
+  background: var(--mgr-card);
+  box-shadow: var(--mgr-shadow);
+  border-radius: var(--mgr-radius);
+}
+
+/* Long step names must wrap inside the stacked summary buttons instead of overflowing them. */
+.co-summary-cta .co-footer .ant-btn,
+.co-flow-actions .co-footer .ant-btn-primary {
+  height: auto;
+  min-height: 38px;
+  padding-block: 7px;
+  white-space: normal;
+  line-height: 1.35;
+}
+
+/* Authorization section now lives in a standard portal card. */
+.co-authz.mgr-card {
+  padding: 0;
+  border: 1px solid var(--ui-border);
+}
+.co-authz-intro {
+  margin: 0 0 12px;
+  color: var(--ui-text-3);
+  line-height: 1.5;
+}
+
+/* Summary column: every block is its own portal card (no single merged panel). */
+.co-grid .co-summary,
+.co-grid .co-summary.is-tall,
+.co-grid.is-service > .co-summary,
+.co-grid.is-service > .co-summary.is-tall,
+.co-content-sidegroup,
+.co-content-sidegroup .co-summary.co-content-aside {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow: visible;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.co-grid .co-summary .ant-card,
+.co-content-sidegroup .co-summary .ant-card {
+  margin: 0;
+  border: 1px solid var(--ui-border);
+  border-radius: 12px;
+  background: var(--ui-surface);
+  box-shadow: var(--ui-shadow-1);
+  overflow: hidden;
+}
+.co-grid .co-summary .ant-card + .ant-card,
+.co-content-sidegroup .co-summary .ant-card + .ant-card {
+  border-top: 1px solid var(--ui-border);
+}
+.co-grid .co-summary .ant-card-head,
+.co-content-sidegroup .co-summary .ant-card-head {
+  min-height: 56px;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--ui-border);
+}
+.co-grid .co-summary .ant-card-body,
+.co-content-sidegroup .co-summary .ant-card-body {
+  padding: 16px 20px;
+}
+.co-grid .co-summary .co-summary-cta,
+.co-content-navigation {
+  border: 1px solid var(--ui-border);
+  border-radius: 12px;
+  background: var(--ui-surface);
+  box-shadow: var(--ui-shadow-1);
+}
+
+/* Step 6 form column: separate portal cards too. */
+.mgr-layout .co-grid .co-review-form {
+  gap: 16px;
+  height: auto;
+  overflow: visible;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+.mgr-layout .co-grid .co-review-form > .ant-card,
+.mgr-layout .co-grid .co-review-form > .ant-card + .ant-card {
+  flex: none;
+  border: 1px solid var(--ui-border);
+  border-radius: 12px;
+  background: var(--ui-surface);
+  box-shadow: var(--ui-shadow-1);
+}
+
+/* antd radio/checkbox wrappers inside option cards keep their own text layout. */
+.mgr-layout .co-choice.ant-radio-wrapper,
+.mgr-layout .co-chip-option.ant-checkbox-wrapper {
+  align-items: flex-start;
+  margin: 0;
+}
+.mgr-layout .co-chip-option.ant-checkbox-wrapper {
+  align-items: center;
+}
+.mgr-layout .co-recurrence {
+  margin-bottom: 4px;
 }

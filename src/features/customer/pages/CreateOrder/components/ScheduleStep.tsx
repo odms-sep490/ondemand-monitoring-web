@@ -1,6 +1,7 @@
+import { FileTextOutlined } from '@ant-design/icons'
 import type { ReactNode } from 'react'
 
-import { Card } from '../../../../../shared/components/ui'
+import { Card } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import type {
   PreferredTimeOption,
@@ -28,7 +29,8 @@ type Props = {
 /** `2026-10-07` → `07/10/2026` for Vietnamese; other values pass through. */
 function formatDate(value: string, lang: string) {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value)
-  return match && lang === 'vi' ? `${match[3]}/${match[2]}/${match[1]}` : value
+  if (!match) return value
+  return lang === 'vi' ? `${match[3]}/${match[2]}/${match[1]}` : `${match[2]}/${match[3]}/${match[1]}`
 }
 
 /** Whole days between two ISO dates, inclusive; null when either is missing/invalid. */
@@ -61,7 +63,7 @@ export function ScheduleStep(p: Props) {
           <ScheduleOptionsCard form={form} errors={p.errors} update={p.update} />
         </div>
         <aside className="co-stack co-summary is-tall">
-          <Card title={t.summaryTitle}>
+          <Card icon={<FileTextOutlined />} title={t.summaryTitle}>
             <dl className="co-sum-list">
               <div className="co-sum-item">
                 <span className="co-sum-icon" aria-hidden="true" />

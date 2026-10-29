@@ -1,6 +1,8 @@
+import { Button, Skeleton, Tag } from 'antd'
+import { AppstoreOutlined } from '@ant-design/icons'
 import { useState } from 'react'
 
-import { Card, EmptyState } from '../../../../../shared/components/ui'
+import { Card, EmptyState } from '../../../components/common/ui'
 import { Icon } from '../../../../../shared/components/Icon'
 import { useI18n } from '../../../../../shared/i18n'
 import type { ServiceOption } from '../../../api/customerApi'
@@ -79,6 +81,7 @@ export function ServicePicker({
 
   return (
     <Card
+      icon={<AppstoreOutlined />}
       title={t.cardTitle}
       className="co-service-card"
       actions={
@@ -114,13 +117,12 @@ export function ServicePicker({
               {suggested.description || t.defaultDescription}
             </div>
             <strong>{formatMoney(suggested.defaultPrice ?? suggested.basePrice, locale)}</strong>
-            <button
-              type="button"
-              className="odm-btn odm-btn-sm"
+            <Button
+              size="small"
               onClick={() => onSelect(suggested.id)}
             >
               {selectedId === suggested.id ? t.selectedNow : t.pickSuggestion}
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -128,7 +130,12 @@ export function ServicePicker({
         <strong>{t.allServices}</strong>
         <span className="co-hint">{t.serviceCount(services.length)}</span>
       </div>
-      {loading && <p className="co-hint co-mt">{t.loading}</p>}
+      {loading && (
+        <div className="co-mt" role="status" aria-busy="true">
+          <Skeleton active paragraph={{ rows: 3 }} title={false} />
+          <span className="odm-visually-hidden">{t.loading}</span>
+        </div>
+      )}
       {!loading && services.length === 0 && (
         <EmptyState title={t.emptyTitle} description={t.emptyDescription} />
       )}
@@ -172,7 +179,9 @@ export function ServicePicker({
                 )}
               </span>
               {selectedId === service.id && (
-                <span className="co-service-selected">{t.selectedBadge}</span>
+                <Tag color="processing" bordered={false} className="co-service-selected">
+                  {t.selectedBadge}
+                </Tag>
               )}
               <span className="co-service-name">
                 {localizeServiceName(service.id, lang, service.name)}
@@ -186,22 +195,14 @@ export function ServicePicker({
         })}
       </div>
       {hiddenCount > 0 && (
-        <button
-          type="button"
-          className="co-service-more"
-          onClick={() => setExpanded(true)}
-        >
+        <Button className="co-service-more" onClick={() => setExpanded(true)}>
           {t.showMore(hiddenCount)}
-        </button>
+        </Button>
       )}
       {showAll && !needle && !selectedHidden && visible.length > SERVICE_LIMIT && (
-        <button
-          type="button"
-          className="co-service-more"
-          onClick={() => setExpanded(false)}
-        >
+        <Button className="co-service-more" onClick={() => setExpanded(false)}>
           {t.showLess}
-        </button>
+        </Button>
       )}
       {error &&<div className="ui-field-error">{error}</div>}
     </Card>

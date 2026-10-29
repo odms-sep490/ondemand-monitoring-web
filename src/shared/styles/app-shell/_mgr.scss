@@ -3,7 +3,7 @@
 /*
  * Shared Manager building blocks (cards, icon tiles, tone chips, status tags,
  * table skin, page header, filter bar, empty state). Loaded once from
- * components/layout/layout.scss; tokens (--mgr-*) are defined there.
+ * shared/styles/app-shell/layout.scss; tokens (--mgr-*) are defined there.
  */
 $tones: (
   'blue': (#3b82f6, #1565e8),

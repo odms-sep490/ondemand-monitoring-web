@@ -21,7 +21,7 @@ export const servicePickerMessages = defineMessages({
     serviceCount: (n: number) => `${n} dịch vụ`,
     loading: 'Đang tải dịch vụ...',
     emptyTitle: 'Chưa có dịch vụ nào đang hoạt động',
-    emptyDescription: 'Backend chưa có dịch vụ hoạt động để chọn.',
+    emptyDescription: 'Hệ thống chưa có dịch vụ hoạt động để chọn.',
   },
   en: {
     cardTitle: 'Choose a monitoring service',

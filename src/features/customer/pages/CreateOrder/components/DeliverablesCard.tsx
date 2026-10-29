@@ -1,4 +1,6 @@
-import { Card } from '../../../../../shared/components/ui'
+import { Button } from 'antd'
+import { PictureOutlined } from '@ant-design/icons'
+import { Card } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import type { ServiceDeliverableOption } from '../../../api/customerApi'
 import { deliverablesCardMessages } from './DeliverablesCard.messages'
@@ -22,19 +24,13 @@ export function DeliverablesCard({
 }: Props) {
   const { t } = useI18n(deliverablesCardMessages)
   return (
-    <Card title={t.cardTitle}>
+    <Card icon={<PictureOutlined />} title={t.cardTitle}>
       <p className="co-hint co-card-sub">{t.cardSubtitle}</p>
       {loading && <p className="co-hint">{t.loading}</p>}
       {!loading && error ? (
         <div className="co-notice is-danger" role="alert">
           <p>{t.loadFailed}</p>
-          <button
-            type="button"
-            className="odm-btn odm-btn-gh"
-            onClick={onRetry}
-          >
-            {t.retry}
-          </button>
+          <Button onClick={onRetry}>{t.retry}</Button>
         </div>
       ) : null}
       {!loading && !error && deliverables.length === 0 ? (

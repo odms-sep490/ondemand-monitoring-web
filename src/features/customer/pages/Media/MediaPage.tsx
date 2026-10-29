@@ -1,8 +1,11 @@
+import { Button } from 'antd'
+
 import {
+  EmptyState,
   ErrorState,
   LoadingState,
-} from '../../../../shared/components/odm/StateView'
-import { EmptyState, PageHeader } from '../../../../shared/components/ui'
+} from '../../components/common/StateView'
+import { PageHeader } from '../../components/common/ui'
 import { useI18n } from '../../../../shared/i18n'
 import { MediaPreviewModal } from '../../components/common/media'
 import { customerHref } from '../../routes'
@@ -28,10 +31,10 @@ export function MediaPage({ orderId }: { orderId: string }) {
   }
 
   return (
-    <div className="om-page">
+    <div className="cus-page om-page">
       <PageHeader
         back={
-          <a href={customerHref({ screen: 'orderDetail', orderId })}>
+          <a className="cus-back" href={customerHref({ screen: 'orderDetail', orderId })}>
             {t.backToOrder}
           </a>
         }
@@ -43,12 +46,9 @@ export function MediaPage({ orderId }: { orderId: string }) {
           title={t.emptyTitle}
           description={t.emptyDescription}
           action={
-            <a
-              className="odm-btn odm-btn-gh"
-              href={customerHref({ screen: 'mediaLibrary' })}
-            >
+            <Button href={customerHref({ screen: 'mediaLibrary' })}>
               {t.openLibrary}
-            </a>
+            </Button>
           }
         />
       ) : (

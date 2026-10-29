@@ -9,10 +9,10 @@
 
 .sp-input {
   width: 100%;
-  min-height: 40px;
+  min-height: 36px;
   padding: 0 var(--ui-space-3);
   border: 1px solid var(--ui-border-strong);
-  border-radius: var(--ui-radius-sm);
+  border-radius: 8px;
   background: var(--ui-surface);
   color: var(--ui-text);
   font: inherit;
@@ -26,8 +26,9 @@ textarea.sp-input {
 }
 
 .sp-input:focus {
-  outline: 2px solid var(--ui-primary);
-  outline-offset: 1px;
+  outline: none;
+  border-color: var(--ui-primary);
+  box-shadow: 0 0 0 2px var(--ui-primary-soft);
 }
 
 .sp-mono {

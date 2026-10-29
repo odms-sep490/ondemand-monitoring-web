@@ -37,7 +37,7 @@ describe('OrderDetailPage', () => {
 
   it('shows the status with OrderStatusBadge', async () => {
     render(<OrderDetailPage orderId="cus-ord-006" />)
-    expect(await screen.findByText('Hoàn thành', { selector: '.ui-badge' })).toBeInTheDocument()
+    expect(await screen.findByText('Hoàn thành', { selector: '.mgr-status-tag' })).toBeInTheDocument()
   })
 
   it('shows the rejection reason from the BE for a rejected order', async () => {
@@ -54,7 +54,7 @@ describe('OrderDetailPage', () => {
 
   it('shows the order code once, in the header, with a copy button', async () => {
     render(<OrderDetailPage orderId="cus-ord-003" />)
-    const info = (await screen.findByText('Chi tiết đơn hàng')).closest('section') as HTMLElement
+    const info = (await screen.findByText('Chi tiết đơn hàng')).closest('section, .ant-card') as HTMLElement
     expect(screen.getAllByText('ORD-2609-0149')).toHaveLength(1)
     const code = screen.getByText('ORD-2609-0149')
     expect(code.closest('.od-meta')).not.toBeNull()
@@ -64,7 +64,7 @@ describe('OrderDetailPage', () => {
 
   it('no longer lists an order-code field in the info card', async () => {
     render(<OrderDetailPage orderId="cus-ord-003" />)
-    const info = (await screen.findByText('Chi tiết đơn hàng')).closest('section') as HTMLElement
+    const info = (await screen.findByText('Chi tiết đơn hàng')).closest('section, .ant-card') as HTMLElement
     expect(within(info).queryByText('Mã đơn')).not.toBeInTheDocument()
     expect(within(info).queryByRole('button', { name: 'Sao chép mã đơn' })).not.toBeInTheDocument()
   })
@@ -80,7 +80,7 @@ describe('OrderDetailPage', () => {
   it('shows the full progress flow for a pending order with the approval step as current', async () => {
     render(<OrderDetailPage orderId="cus-ord-003" />)
     const heading = await screen.findByText('Tiến trình đơn hàng')
-    const list = within(heading.closest('section') as HTMLElement).getByRole('list')
+    const list = within(heading.closest('section, .ant-card') as HTMLElement).getByRole('list')
     const steps = within(list).getAllByRole('listitem')
     expect(steps).toHaveLength(7)
     expect(within(steps[0]).getByText('Gửi yêu cầu')).toBeInTheDocument()
@@ -96,7 +96,7 @@ describe('OrderDetailPage', () => {
   it('ends a rejected order at a failed step with no upcoming steps', async () => {
     render(<OrderDetailPage orderId="cus-ord-007" />)
     const heading = await screen.findByText('Tiến trình đơn hàng')
-    const steps = within(within(heading.closest('section') as HTMLElement).getByRole('list')).getAllByRole('listitem')
+    const steps = within(within(heading.closest('section, .ant-card') as HTMLElement).getByRole('list')).getAllByRole('listitem')
     expect(steps).toHaveLength(2)
     expect(steps[1]).toHaveClass('is-failed')
     expect(within(steps[1]).getByText('Bị từ chối')).toBeInTheDocument()

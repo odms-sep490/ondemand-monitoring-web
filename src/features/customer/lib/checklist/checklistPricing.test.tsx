@@ -388,7 +388,7 @@ describe('ChecklistSnapshotCard', () => {
       />,
     )
     expect(
-      screen.getByText('Đang chờ Manager xem xét giá.'),
+      screen.getByText('Đang chờ quản lý xem xét giá.'),
     ).toBeInTheDocument()
     expect(screen.queryByText(/880.000/)).not.toBeInTheDocument()
   })

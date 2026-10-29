@@ -2,6 +2,20 @@ import { defineMessages } from '../../../../../shared/i18n'
 
 export const orderInfoCardMessages = defineMessages({
   vi: {
+    noInfo: 'Chưa có thông tin',
+    values: {
+      INTERNAL: 'Nội bộ', LEGAL: 'Pháp lý', PARTNER_REPORT: 'Báo cáo cho đối tác', OTHER: 'Khác',
+      SURVEY_MONITORING: 'Đo đạc, khảo sát, giám sát từ trên cao', AGRICULTURE: 'Phục vụ nông nghiệp',
+      CONSTRUCTION_MONITORING: 'Giám sát tiến độ công trình', INDUSTRIAL_INSPECTION: 'Kiểm tra nhà xưởng',
+      AREA_MONITORING: 'Giám sát khu vực', FOREST_MONITORING: 'Giám sát tài nguyên rừng',
+      NORMAL: 'Bình thường', HIGH: 'Cao', URGENT: 'Khẩn cấp', NONE: 'Không có',
+      HAVE_PERMIT: 'Đã có giấy phép', NEED_SUPPORT: 'Cần hỗ trợ xin phép',
+      WEEKLY: 'Hằng tuần', MONTHLY: 'Hằng tháng', AUTO_RESCHEDULE: 'Tự dời lịch',
+      CONTACT_CUSTOMER: 'Liên hệ khách trước', CANCEL_ORDER: 'Huỷ yêu cầu',
+      OWNER: 'Chủ sở hữu / Chủ đầu tư', AUTHORIZED_PERSON: 'Người được ủy quyền',
+      CONTRACTOR: 'Nhà thầu / Đơn vị thi công', MANAGER_OR_SUPERVISOR: 'Đơn vị quản lý / Tư vấn giám sát',
+      PHOTO: 'Ảnh', IMAGE: 'Ảnh', VIDEO: 'Video', PDF_REPORT: 'Báo cáo PDF', DOWNLOAD: 'Tải về', EMAIL: 'Email', API: 'API',
+    } as Record<string, string>,
     title: 'Chi tiết đơn hàng',
     edit: 'Chỉnh sửa',
     subtitle: 'Xem đầy đủ thông tin yêu cầu và điều kiện thực hiện',
@@ -28,6 +42,20 @@ export const orderInfoCardMessages = defineMessages({
     terms: 'Điều khoản đã chấp nhận', executionPlan: 'Kế hoạch thực hiện', yes: 'Có', no: 'Không',
   },
   en: {
+    noInfo: 'No information yet',
+    values: {
+      INTERNAL: 'Internal', LEGAL: 'Legal', PARTNER_REPORT: 'Partner report', OTHER: 'Other',
+      SURVEY_MONITORING: 'Aerial surveying, mapping and monitoring', AGRICULTURE: 'Agriculture',
+      CONSTRUCTION_MONITORING: 'Construction progress monitoring', INDUSTRIAL_INSPECTION: 'Factory inspection',
+      AREA_MONITORING: 'Area monitoring', FOREST_MONITORING: 'Forest resource monitoring',
+      NORMAL: 'Normal', HIGH: 'High', URGENT: 'Urgent', NONE: 'None',
+      HAVE_PERMIT: 'Permit obtained', NEED_SUPPORT: 'Needs help applying for a permit',
+      WEEKLY: 'Weekly', MONTHLY: 'Monthly', AUTO_RESCHEDULE: 'Reschedule automatically',
+      CONTACT_CUSTOMER: 'Contact the customer first', CANCEL_ORDER: 'Cancel the request',
+      OWNER: 'Owner / Investor', AUTHORIZED_PERSON: 'Authorized person',
+      CONTRACTOR: 'Contractor / Construction unit', MANAGER_OR_SUPERVISOR: 'Management unit / Supervision consultant',
+      PHOTO: 'Photo', IMAGE: 'Image', VIDEO: 'Video', PDF_REPORT: 'PDF report', DOWNLOAD: 'Download', EMAIL: 'Email', API: 'API',
+    } as Record<string, string>,
     title: 'Order details',
     edit: 'Edit',
     subtitle: 'Full request information and execution conditions',

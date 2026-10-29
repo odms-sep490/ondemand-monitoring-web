@@ -1,3 +1,5 @@
+import { getLanguage } from '../i18n'
+
 const descriptions: Record<string, string> = {
   'Default pricing policy': 'Chính sách giá mặc định',
   'Distance up to 5 km': 'Quãng đường đến 5 km',
@@ -122,7 +124,16 @@ export function pricingLabel(value: string | null | undefined) {
   return labels[value] ?? value.replaceAll('_', ' ').toLocaleLowerCase('vi-VN')
 }
 
+/** English display text for engine descriptions; unknown English text passes through. */
+const descriptionsEn: Record<string, string> = {
+  'Video theo yêu cầu': 'Requested video output',
+}
+
 export function pricingDescription(value: string | null | undefined) {
+  if (getLanguage() === 'en') {
+    if (!value) return 'Pricing item'
+    return descriptionsEn[value] ?? value
+  }
   if (!value) return 'Nội dung tính giá'
   return descriptions[value] ?? value
 }

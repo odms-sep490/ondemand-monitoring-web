@@ -41,7 +41,7 @@ export const monitoringAuthorizationMessages = defineMessages({
     chooseFile: 'Chọn tệp',
     confirm:
       'Tôi xác nhận mình có quyền yêu cầu giám sát tại khu vực đã chọn và chịu trách nhiệm về tính chính xác của thông tin đã cung cấp.',
-    note: 'Xác nhận này là khai báo của khách hàng và chưa phải kết quả xác minh của Manager.',
+    note: 'Xác nhận này là khai báo của khách hàng và chưa phải kết quả xác minh của quản lý.',
   },
   en: {
     relationships: {

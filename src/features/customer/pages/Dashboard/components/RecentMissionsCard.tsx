@@ -1,4 +1,14 @@
-import { Card, StatusBadge, toUiTone } from '../../../../../shared/components/ui'
+import { RocketOutlined } from '@ant-design/icons'
+import { Skeleton } from 'antd'
+import type { ColumnsType } from 'antd/es/table'
+
+import {
+  CardComponent,
+  EmptyState,
+  ErrorState,
+  StatusTag,
+  TableComponent,
+} from '../../../../../shared/components/antd'
 import { useI18n, useLanguage } from '../../../../../shared/i18n'
 import type { CustomerMissionHistory } from '../../../api/customerMissionHistoryApi'
 import { fmtDateTime, getMissionStatusMeta } from '../../../lib/orderStatus'
@@ -17,55 +27,68 @@ export function RecentMissionsCard({ missions, loading, error, onRetry }: Props)
   const { t, locale } = useI18n(recentMissionsMessages)
   const { lang } = useLanguage()
 
-  let body
-  if (loading && !missions) {
-    body = <p className="dash-hint">{t.loading}</p>
-  } else if (error !== undefined || !missions) {
-    body = (
-      <div className="dash-error" role="alert">
-        <span>{t.errorTitle}</span>
-        <button type="button" className="odm-btn odm-btn-gh odm-btn-sm" onClick={onRetry}>
-          {t.retry}
-        </button>
-      </div>
-    )
-  } else if (missions.length === 0) {
-    body = <p className="dash-hint">{t.empty}</p>
-  } else {
-    body = (
-      <ul className="dash-list">
-        {missions.map((mission) => {
-          const meta = getMissionStatusMeta(mission.status, lang)
-          const at = mission.completedAt ?? mission.startedAt ?? mission.scheduledStartAt
-          return (
-            <li key={mission.id}>
-              <div className="dash-list-main">
-                <a
-                  className="dash-list-title"
-                  href={customerHref({ screen: 'missionHistoryDetail', missionId: mission.id })}
-                >
-                  {mission.orderTitle}
-                </a>
-                <div className="dash-list-sub">
-                  {[mission.missionCode, at ? fmtDateTime(at, locale) : null]
-                    .filter(Boolean)
-                    .join(' · ')}
-                </div>
-              </div>
-              <StatusBadge tone={toUiTone(meta.tone)}>{meta.label}</StatusBadge>
-            </li>
-          )
-        })}
-      </ul>
-    )
+  if (error !== undefined && !missions && !loading) {
+    return <ErrorState title={t.errorTitle} error={error} onRetry={onRetry} />
   }
 
+  const columns: ColumnsType<CustomerMissionHistory> = [
+    {
+      title: t.columns.mission,
+      dataIndex: 'orderTitle',
+      render: (title: string, mission) => (
+        <span className="mgr-cell-stack">
+          <a
+            className="cus-order-title"
+            href={customerHref({ screen: 'missionHistoryDetail', missionId: mission.id })}
+          >
+            {title}
+          </a>
+          <span className="mgr-cell-sub">{mission.missionCode}</span>
+        </span>
+      ),
+    },
+    {
+      title: t.columns.time,
+      key: 'time',
+      responsive: ['md'],
+      render: (_, mission) => {
+        const at = mission.completedAt ?? mission.startedAt ?? mission.scheduledStartAt
+        return <span className="mgr-muted mgr-nowrap">{at ? fmtDateTime(at, locale) : '—'}</span>
+      },
+    },
+    {
+      title: t.columns.status,
+      dataIndex: 'status',
+      render: (_, mission) => {
+        const meta = getMissionStatusMeta(mission.status, lang)
+        return <StatusTag tone={meta.tone}>{meta.label}</StatusTag>
+      },
+    },
+  ]
+
   return (
-    <Card
+    <CardComponent
       title={t.title}
-      actions={<a href={customerHref({ screen: 'missionHistory' })}>{t.viewAll}</a>}
+      icon={<RocketOutlined />}
+      tone="green"
+      extra={
+        <a className="mgr-card-link" href={customerHref({ screen: 'missionHistory' })}>
+          {t.viewAll}
+        </a>
+      }
+      styles={{ body: { padding: loading && !missions ? undefined : 0 } }}
     >
-      {body}
-    </Card>
+      {loading && !missions ? (
+        <Skeleton active paragraph={{ rows: 3 }} title={false} />
+      ) : !missions || missions.length === 0 ? (
+        <EmptyState title={t.empty} />
+      ) : (
+        <TableComponent<CustomerMissionHistory>
+          rowKey="id"
+          columns={columns}
+          dataSource={missions}
+        />
+      )}
+    </CardComponent>
   )
 }

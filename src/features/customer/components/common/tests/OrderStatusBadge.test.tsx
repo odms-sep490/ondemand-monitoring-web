@@ -7,12 +7,12 @@ import { ORDER_STATUS_TONE } from '../../../lib/orderStatus'
 import { OrderStatusBadge } from '../OrderStatusBadge'
 
 const TONE_CLASS = {
-  green: 'is-success',
-  yellow: 'is-warning',
-  orange: 'is-warning',
-  red: 'is-danger',
-  blue: 'is-info',
-  gray: 'is-neutral',
+  green: 'ant-tag-success',
+  yellow: 'ant-tag-warning',
+  orange: 'ant-tag-warning',
+  red: 'ant-tag-error',
+  blue: 'ant-tag-processing',
+  gray: 'ant-tag-default',
 } as const
 
 describe('OrderStatusBadge', () => {
@@ -22,22 +22,22 @@ describe('OrderStatusBadge', () => {
   it('renders the Vietnamese label with the mapped tone', () => {
     act(() => setLanguage('vi'))
     render(<OrderStatusBadge status="APPROVED" />)
-    const badge = screen.getByText('Đã duyệt').closest('.ui-badge')
-    expect(badge?.className).toContain('is-info')
+    const badge = screen.getByText('Đã duyệt').closest('.mgr-status-tag')
+    expect(badge?.className).toContain('ant-tag-processing')
   })
 
   it('switches to the English label', () => {
     act(() => setLanguage('en'))
     render(<OrderStatusBadge status="REJECTED" />)
-    const badge = screen.getByText('Rejected').closest('.ui-badge')
-    expect(badge?.className).toContain('is-danger')
+    const badge = screen.getByText('Rejected').closest('.mgr-status-tag')
+    expect(badge?.className).toContain('ant-tag-error')
   })
 
   it('maps every order status to its tone class', () => {
     act(() => setLanguage('en'))
     for (const status of Object.keys(ORDER_STATUS_TONE) as OrderStatus[]) {
       const { container, unmount } = render(<OrderStatusBadge status={status} />)
-      expect(container.querySelector('.ui-badge')?.className).toContain(
+      expect(container.querySelector('.mgr-status-tag')?.className).toContain(
         TONE_CLASS[ORDER_STATUS_TONE[status]],
       )
       unmount()

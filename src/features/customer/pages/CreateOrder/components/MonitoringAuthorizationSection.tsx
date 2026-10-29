@@ -1,4 +1,8 @@
+import { Button, Checkbox, Radio } from 'antd'
+import { SafetyOutlined } from '@ant-design/icons'
 import { useRef, useState } from 'react'
+
+import { Card } from '../../../components/common/ui'
 
 import { useI18n } from '../../../../../shared/i18n'
 import { monitoringAuthorizationMessages } from './MonitoringAuthorizationSection.messages'
@@ -105,27 +109,25 @@ export function MonitoringAuthorizationSection({
   }
 
   return (
-    <section className="co-authz" aria-labelledby="co-authz-title">
-      <div className="co-authz-head">
-        <div>
-          <h3 id="co-authz-title">{t.title}</h3>
-          <p>{t.intro}</p>
-        </div>
-      </div>
+    <Card
+      icon={<SafetyOutlined />}
+      title={t.title}
+      className="co-authz"
+    >
+      <p className="co-authz-intro">{t.intro}</p>
 
       <fieldset className="co-authz-fieldset">
         <legend>{t.relationship}</legend>
         <div className="co-authz-relationships">
           {MONITORING_RELATIONSHIPS.map((relationship) => (
-            <label key={relationship}>
-              <input
-                type="radio"
-                name="monitoring-relationship"
-                checked={form.monitoringRelationship === relationship}
-                onChange={() => update('monitoringRelationship', relationship)}
-              />
-              <span>{t.relationships[relationship]}</span>
-            </label>
+            <Radio
+              key={relationship}
+              name="monitoring-relationship"
+              checked={form.monitoringRelationship === relationship}
+              onChange={() => update('monitoringRelationship', relationship)}
+            >
+              {t.relationships[relationship]}
+            </Radio>
           ))}
         </div>
         {errors.monitoringRelationship ? (
@@ -165,9 +167,8 @@ export function MonitoringAuthorizationSection({
           <strong>{t.docsTitle}</strong>
           <span>{t.docsHint}</span>
         </div>
-        <button
-          type="button"
-          className="odm-btn odm-btn-sm"
+        <Button
+          size="small"
           disabled={documents.length >= MAX_DOCUMENTS}
           onClick={() =>
             update('monitoringAuthorizationDocuments', [
@@ -177,7 +178,7 @@ export function MonitoringAuthorizationSection({
           }
         >
           {t.addDocument}
-        </button>
+        </Button>
       </div>
 
       {documents.length > 0 ? (
@@ -282,22 +283,21 @@ export function MonitoringAuthorizationSection({
         </div>
       ) : null}
 
-      <label className="co-authz-confirm">
-        <input
-          type="checkbox"
-          checked={form.monitoringAuthorizationConfirmed}
-          onChange={(event) =>
-            update('monitoringAuthorizationConfirmed', event.target.checked)
-          }
-        />
-        <span>{t.confirm}</span>
-      </label>
+      <Checkbox
+        className="co-authz-confirm"
+        checked={form.monitoringAuthorizationConfirmed}
+        onChange={(event) =>
+          update('monitoringAuthorizationConfirmed', event.target.checked)
+        }
+      >
+        {t.confirm}
+      </Checkbox>
       {errors.monitoringAuthorizationConfirmed ? (
         <div className="ui-field-error">
           {errors.monitoringAuthorizationConfirmed}
         </div>
       ) : null}
       <p className="co-authz-note">{t.note}</p>
-    </section>
+    </Card>
   )
 }

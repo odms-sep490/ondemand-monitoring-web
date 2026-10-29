@@ -1,3 +1,4 @@
+import { Button } from 'antd'
 import { Icon } from '../../../../../shared/components/Icon'
 import { useI18n } from '../../../../../shared/i18n'
 import { customerHref } from '../../../routes'
@@ -21,9 +22,9 @@ export function CreatedSuccess({
       <p className="co-hint">
         {t.orderCode}: <span className="co-mono">{orderCode ?? orderId}</span>
       </p>
-      <a href={customerHref({ screen: 'orders' })} className="odm-btn odm-btn-p">
+      <Button href={customerHref({ screen: 'orders' })} type="primary">
         {t.viewMyOrders}
-      </a>
+      </Button>
     </div>
   )
 }

@@ -1,3 +1,5 @@
+import { Button } from 'antd'
+
 import { useI18n } from '../../../../shared/i18n'
 import './Pager.css'
 import { pagerMessages } from './Pager.messages'
@@ -16,26 +18,16 @@ type Props = {
 export function Pager({ page, totalPages, totalItems, unit, onPage }: Props) {
   const { t } = useI18n(pagerMessages)
   return (
-    <div className="cm-pager">
+    <div className="cm-pager mgr-table-foot">
       <span>{t.total(totalItems, unit)}</span>
       <div className="cm-pager-nav">
-        <button
-          type="button"
-          className="odm-btn odm-btn-gh odm-btn-sm"
-          disabled={page <= 0}
-          onClick={() => onPage(page - 1)}
-        >
+        <Button size="small" disabled={page <= 0} onClick={() => onPage(page - 1)}>
           {t.prev}
-        </button>
+        </Button>
         <span>{t.page(totalPages === 0 ? 0 : page + 1, totalPages)}</span>
-        <button
-          type="button"
-          className="odm-btn odm-btn-gh odm-btn-sm"
-          disabled={page + 1 >= totalPages}
-          onClick={() => onPage(page + 1)}
-        >
+        <Button size="small" disabled={page + 1 >= totalPages} onClick={() => onPage(page + 1)}>
           {t.next}
-        </button>
+        </Button>
       </div>
     </div>
   )

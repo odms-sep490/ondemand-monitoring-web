@@ -1,4 +1,6 @@
-import { Card, StatusBadge } from '../../../../../shared/components/ui'
+import { Tag } from 'antd'
+import { StatusTag } from '../../../../../shared/components/antd'
+import { Card } from '../../../../customer/components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import { fmtDateTime } from '../../../../customer/lib/orderStatus'
 import { customerHref } from '../../../../customer/routes'
@@ -10,7 +12,9 @@ import { customerTicketDetailMessages } from '../CustomerTicketDetailPage.messag
 export function TicketOverview({ ticket }: { ticket: SupportTicketDto }) {
   const { t, locale } = useI18n(customerTicketDetailMessages)
   const { t: labels } = useI18n(ticketLabelsMessages)
-  const category = labels.category[ticket.category as keyof typeof labels.category] ?? ticket.category
+  const category =
+    labels.category[ticket.category as keyof typeof labels.category] ??
+    ticket.category
   const priorityLabel = labels.priority[ticket.priority] ?? ticket.priority
   const urgent = ticket.priority === 'URGENT' || ticket.priority === 'HIGH'
 
@@ -20,12 +24,16 @@ export function TicketOverview({ ticket }: { ticket: SupportTicketDto }) {
         <div>
           <div className="td-badges">
             <TicketStatusBadge status={ticket.status} />
-            <span className="sp-chip">{category}</span>
-            <StatusBadge tone={urgent ? 'danger' : 'neutral'}>{t.priority(priorityLabel)}</StatusBadge>
+            <Tag>{category}</Tag>
+            <StatusTag tone={urgent ? 'danger' : 'neutral'}>
+              {t.priority(priorityLabel)}
+            </StatusTag>
           </div>
           <h2 className="td-subject">{ticket.subject}</h2>
         </div>
-        <div className="sp-muted">{t.openedAt(fmtDateTime(ticket.openedAt, locale))}</div>
+        <div className="sp-muted">
+          {t.openedAt(fmtDateTime(ticket.openedAt, locale))}
+        </div>
       </div>
 
       {(ticket.orderId || ticket.missionId) && (
@@ -33,13 +41,25 @@ export function TicketOverview({ ticket }: { ticket: SupportTicketDto }) {
           {ticket.orderId && (
             <div>
               {t.relatedOrder}:{' '}
-              <a href={customerHref({ screen: 'orderDetail', orderId: ticket.orderId })}>{t.viewOrder}</a>
+              <a
+                href={customerHref({
+                  screen: 'orderDetail',
+                  orderId: ticket.orderId,
+                })}
+              >
+                {t.viewOrder}
+              </a>
             </div>
           )}
           {ticket.missionId && (
             <div>
               {t.relatedMission}:{' '}
-              <a href={customerHref({ screen: 'live', orderId: ticket.orderId || ticket.missionId })}>
+              <a
+                href={customerHref({
+                  screen: 'live',
+                  orderId: ticket.orderId || ticket.missionId,
+                })}
+              >
                 {t.viewMission}
               </a>
             </div>

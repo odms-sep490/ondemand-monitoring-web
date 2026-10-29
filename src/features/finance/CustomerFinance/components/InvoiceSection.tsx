@@ -1,7 +1,19 @@
-import { invoiceStatusLabels } from '../customerFinanceHelpers'
+import { Button } from 'antd'
+import { useI18n } from '../../../../shared/i18n'
+import { customerFinanceSectionsMessages } from '../CustomerFinanceSections.messages'
 import { pricingLabel } from '../../../../shared/lib/pricingPresentation'
+import { StatusTag } from '../../../../shared/components/antd'
 import { PaymentStat } from './PaymentStat'
 import type { Invoice } from '../../types'
+
+const INVOICE_TONE: Record<string, 'success' | 'warning' | 'danger' | 'info' | 'neutral'> = {
+  ISSUED: 'info',
+  PARTIALLY_PAID: 'warning',
+  PAID: 'success',
+  OVERDUE: 'danger',
+  CANCELLED: 'neutral',
+  REFUNDED: 'neutral',
+}
 
 export function InvoiceSection({
   invoice,
@@ -18,74 +30,65 @@ export function InvoiceSection({
   completeTestDeposit: () => Promise<void>
   testPaymentLabel: string
 }) {
+  const { t } = useI18n(customerFinanceSectionsMessages)
   return (
     <div className="customer-invoice">
       <div className="customer-invoice-title">
         <div>
-          <h3>Hóa đơn {invoice.invoiceNumber}</h3>
-          <p>
-            Khoản đặt cọc được xác nhận qua IPN VNPAY trước khi nhiệm vụ bắt
-            đầu.
-          </p>
+          <h3>{t.invoice(invoice.invoiceNumber)}</h3>
+          <p>{t.depositIpn}</p>
         </div>
-        <span className={`finance-status is-${invoice.status.toLowerCase()}`}>
-          {invoiceStatusLabels[invoice.status] ?? pricingLabel(invoice.status)}
-        </span>
+        <StatusTag tone={INVOICE_TONE[invoice.status] ?? 'neutral'}>
+          {t.invoiceStatus[invoice.status] ?? pricingLabel(invoice.status)}
+        </StatusTag>
       </div>
       <div className="customer-payment-stats">
-        <PaymentStat label="Tổng" value={invoice.totalAmount} />
-        <PaymentStat label="Tiền đặt cọc (30%)" value={invoice.depositAmount} />
-        <PaymentStat label="Đã thanh toán" value={invoice.paidAmount} />
-        <PaymentStat label="Còn lại" value={invoice.remainingAmount} />
+        <PaymentStat label={t.total} value={invoice.totalAmount} />
+        <PaymentStat label={t.deposit} value={invoice.depositAmount} />
+        <PaymentStat label={t.paid} value={invoice.paidAmount} />
+        <PaymentStat label={t.remaining} value={invoice.remainingAmount} />
       </div>
       {invoice.paidAmount < invoice.depositAmount ? (
         <div className="customer-deposit-notice">
-          <b>Đang chờ đặt cọc</b>
-          <span>
-            Kế hoạch thực hiện và Mission sẽ được mở sau khi khoản đặt cọc được
-            xác nhận.
-          </span>
+          <b>{t.awaitingDeposit}</b>
+          <span>{t.awaitingDepositBody}</span>
         </div>
       ) : invoice.status !== 'PAID' ? (
         <div className="customer-deposit-notice is-ready">
-          <b>Đã nhận tiền đặt cọc</b>
-          <span>Nhiệm vụ đã được mở khóa cho quy trình vận hành.</span>
+          <b>{t.depositReceived}</b>
+          <span>{t.depositReceivedBody}</span>
         </div>
       ) : null}
       <div className="finance-actions customer-payment-actions">
         {invoice.paidAmount < invoice.depositAmount && legalReady ? (
           <>
-            <button
-              className="odm-btn odm-btn-p"
-              type="button"
+            <Button
+              type="primary"
               disabled={busy}
               onClick={() => void pay('deposit')}
             >
-              Thanh toán đặt cọc
-            </button>
+              {t.payDeposit}
+            </Button>
             {import.meta.env.DEV ? (
-              <button
-                className="odm-btn"
-                type="button"
+              <Button
                 disabled={busy}
                 onClick={() => void completeTestDeposit()}
               >
                 {testPaymentLabel}
-              </button>
+              </Button>
             ) : null}
           </>
         ) : null}
         {invoice.finalPaymentAllowed &&
         invoice.paidAmount >= invoice.depositAmount &&
         invoice.remainingAmount > 0 ? (
-          <button
-            className="odm-btn odm-btn-p"
-            type="button"
+          <Button
+            type="primary"
             disabled={busy}
             onClick={() => void pay('final')}
           >
-            Thanh toán phần còn lại
-          </button>
+            {t.payRemaining}
+          </Button>
         ) : null}
       </div>
     </div>

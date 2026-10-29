@@ -1,4 +1,5 @@
-import { Modal } from '../../../../../shared/components/ui'
+import { Button } from 'antd'
+import { Modal } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import type {
   PreferredTimeOption,
@@ -37,12 +38,12 @@ export function ConfirmSubmitModal(p: Props) {
 
   const footer = (
     <>
-      <button type="button" className="odm-btn odm-btn-gh" onClick={p.onClose} disabled={p.submitting}>
+      <Button onClick={p.onClose} disabled={p.submitting}>
         {t.back}
-      </button>
-      <button type="button" className="odm-btn odm-btn-p" onClick={p.onConfirm} disabled={p.submitting}>
+      </Button>
+      <Button type="primary" onClick={p.onConfirm} disabled={p.submitting}>
         {p.submitting ? t.submitting : t.confirm}
-      </button>
+      </Button>
     </>
   )
 

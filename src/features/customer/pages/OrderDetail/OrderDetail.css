@@ -8,32 +8,6 @@
   min-width: 0;
 }
 
-.od-page .ui-page-header {
-  margin-bottom: 0;
-}
-
-.od-page .ui-page-back {
-  margin-bottom: 8px;
-}
-
-.od-page .ui-page-back a {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  color: var(--ui-primary);
-  font-weight: 500;
-}
-
-.od-page .ui-page-title {
-  font-size: 26px;
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1.3;
-  color: var(--ui-text);
-  background: none;
-  -webkit-text-fill-color: currentColor;
-}
-
 .od-meta {
   display: inline-flex;
   flex-wrap: wrap;
@@ -55,55 +29,12 @@
   color: var(--ui-text);
 }
 
-/* Action buttons */
-.od-actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 12px;
-}
-
 .od-cancel {
   margin-left: auto;
   display: inline-flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--ui-space-2);
-}
-
-.odm-btn.od-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  height: 40px;
-  padding: 0 16px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  text-decoration: none;
-  background: var(--ui-surface);
-  border: 1px solid var(--ui-border-strong);
-  color: var(--ui-text);
-}
-
-.odm-btn.od-btn:hover {
-  background: var(--ui-surface-2);
-}
-
-.odm-btn.od-btn:focus-visible {
-  outline: 2px solid var(--ui-primary);
-  outline-offset: 2px;
-}
-
-.odm-btn.od-btn.od-btn-primary-outline {
-  border-color: var(--ui-primary);
-  color: var(--ui-primary);
-  background: var(--ui-primary-soft);
-}
-
-.odm-btn.od-btn.od-btn-primary-outline:hover {
-  background: var(--ui-primary-soft);
-  filter: brightness(0.97);
 }
 
 .odm-btn.od-btn.od-btn-cancel {
@@ -129,14 +60,14 @@
   border: 1px solid var(--ui-border);
   border-radius: 18px;
   background: var(--ui-surface);
-  box-shadow: 0 8px 28px rgba(15, 40, 90, 0.07);
+  box-shadow: var(--ui-shadow-2);
 }
 
 .od-service-hero {
   position: relative;
   min-height: 280px;
   overflow: hidden;
-  background: linear-gradient(145deg, #0b4fb3, #38a8ec);
+  background: linear-gradient(145deg, var(--ui-primary-grad-to), var(--ui-primary-grad-from));
 }
 .od-service-hero > img {
   width: 100%;
@@ -212,12 +143,12 @@
   bottom: 18px;
   max-width: calc(100% - 36px);
   padding: 10px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.78);
+  border: 1px solid var(--ui-border);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.94);
-  box-shadow: 0 6px 18px rgba(15, 40, 90, 0.15);
+  background: color-mix(in srgb, var(--ui-surface) 94%, transparent);
+  box-shadow: var(--ui-shadow-2);
   backdrop-filter: blur(8px);
-  color: #13233a;
+  color: var(--ui-text);
 }
 .od-map-caption strong,
 .od-map-caption span {
@@ -228,7 +159,7 @@
 }
 .od-map-caption span {
   margin-top: 2px;
-  color: #5f6f85;
+  color: var(--ui-text-3);
   font-size: 12px;
 }
 .od-map-empty {
@@ -240,70 +171,12 @@
   color: var(--ui-text-3);
 }
 
-.od-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
-  gap: 16px;
-  align-items: start;
-}
-
-.od-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  min-width: 0;
-}
-
-.od-page .ui-card {
-  margin-bottom: 0;
-  border-radius: 16px;
-  border-color: var(--ui-border);
-  box-shadow: 0 1px 2px rgba(15, 40, 90, 0.04);
-}
-
-.od-page .ui-card-header {
-  padding: 20px 24px 0;
-}
-
-.od-page .ui-card-body {
-  padding: 16px 24px 24px;
-}
-
-.od-page .ui-card .ui-card-title,
-.od-page .customer-finance-head h2,
-.od-page .hw-title {
+.od-page .ant-card .mgr-card-title {
   margin: 0;
   font-family: inherit;
   font-size: 17px;
   font-weight: 700;
   letter-spacing: 0;
-  color: var(--ui-text);
-}
-
-.od-page .ui-card-title span {
-  color: var(--ui-text);
-}
-
-.od-page .od-card-title .od-card-icon {
-  color: var(--ui-primary);
-}
-
-.od-page .customer-finance-head {
-  padding: 20px 24px 0;
-  border-bottom: 0;
-}
-
-.od-page .customer-quote-body,
-.od-page .customer-invoice {
-  padding: 16px 24px 24px;
-}
-
-.od-card-title {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 17px;
-  font-weight: 700;
   color: var(--ui-text);
 }
 
@@ -624,26 +497,6 @@
   overflow-wrap: anywhere;
 }
 
-/* Help widget inside the order page */
-.od-page .hw-card {
-  margin: 0;
-  padding: 20px 24px 24px;
-  border-radius: 16px;
-  box-shadow: 0 1px 2px rgba(15, 40, 90, 0.04);
-}
-
-.od-page .hw-ref {
-  font-family: inherit;
-  font-size: 12.5px;
-  padding: 4px 10px;
-  border-radius: 8px;
-  background: var(--ui-primary-soft);
-}
-
-.od-page .hw-item {
-  border-radius: 10px;
-}
-
 /* Responsive (kept after the base rules they override) */
 @media (max-width: 900px) {
   .od-overview-visual {
@@ -672,11 +525,11 @@
     font-size: 21px;
   }
 
-  .od-page .ui-card-header {
+  .od-page .ant-card-head {
     padding: 16px 16px 0;
   }
 
-  .od-page .ui-card-body {
+  .od-page .ant-card-body {
     padding: 16px;
   }
 
@@ -713,17 +566,6 @@
   grid-column: 1 / -1;
 }
 
-.od-additional-info-grid input,
-.od-additional-info-grid select {
-  min-width: 0;
-  padding: 10px 12px;
-  border: 1px solid var(--ui-border);
-  border-radius: 8px;
-  background: var(--ui-surface);
-  color: var(--ui-text);
-  font: inherit;
-}
-
 .od-additional-info-confirm {
   display: flex;
   align-items: flex-start;
@@ -754,9 +596,9 @@
   display: grid;
   gap: 10px;
   padding: 14px;
-  border: 1px dashed #c8a846;
+  border: 1px dashed var(--ui-warning);
   border-radius: 10px;
-  background: #fffdf5;
+  background: var(--ui-warning-soft);
 }
 
 .od-additional-documents > div {
@@ -799,7 +641,7 @@
 .od-additional-documents li button {
   border: 0;
   background: transparent;
-  color: #b42318;
+  color: var(--ui-danger-text);
   cursor: pointer;
   font: inherit;
   font-weight: 650;
@@ -846,24 +688,6 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-}
-
-.od-info-edit {
-  flex: none;
-  padding: 6px 10px;
-  border: 1px solid var(--ui-primary);
-  border-radius: 8px;
-  background: var(--ui-primary-soft);
-  color: var(--ui-primary);
-  font: inherit;
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.od-info-edit:hover,
-.od-info-edit:focus-visible {
-  filter: brightness(0.96);
 }
 
 .od-additional-info-target {
@@ -946,10 +770,16 @@
 .od-inline-editor {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 12px 16px;
   margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid var(--ui-border);
+  padding: 16px;
+  border: 1px solid var(--ui-border);
+  border-radius: 8px;
+  background: var(--ui-surface);
+}
+
+.od-inline-select {
+  width: 100%;
 }
 
 .od-inline-edit-field {
@@ -962,27 +792,6 @@
 
 .od-inline-edit-field:has(textarea) {
   grid-column: 1 / -1;
-}
-
-.od-inline-edit-field input,
-.od-inline-edit-field select,
-.od-inline-edit-field textarea {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 9px 11px;
-  border: 1px solid var(--ui-border-strong);
-  border-radius: 9px;
-  background: var(--ui-surface);
-  color: var(--ui-text);
-  font: inherit;
-  font-weight: 500;
-}
-
-.od-inline-edit-field input:focus,
-.od-inline-edit-field select:focus,
-.od-inline-edit-field textarea:focus {
-  border-color: var(--ui-primary);
-  outline: 2px solid var(--ui-primary-soft);
 }
 
 .od-inline-check,
@@ -1146,6 +955,10 @@
   white-space: nowrap;
 }
 
+.od-info-empty {
+  padding: 4px 0 2px;
+}
+
 .od-info-list .od-field {
   grid-template-columns: 150px minmax(0, 1fr);
 }
@@ -1154,25 +967,6 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.od-tabs {
-  display: flex;
-  gap: 4px;
-  border-bottom: 1px solid var(--ui-border);
-}
-.od-tab {
-  padding: 10px 18px;
-  border: 0;
-  border-bottom: 2px solid transparent;
-  background: none;
-  color: var(--ui-text-3);
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
-}
-.od-tab.is-active {
-  color: var(--ui-primary, #0b6fd6);
-  border-bottom-color: var(--ui-primary, #0b6fd6);
-}
 .od-page > [hidden] {
   display: none;
 }
@@ -1268,4 +1062,16 @@
 
 .od-notice .od-additional-info-form [role='alert'] {
   color: var(--ui-danger-text);
+}
+
+@media (max-width: 900px) {
+  .od-info-section.is-wide .od-info-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .od-info-list .od-field {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }

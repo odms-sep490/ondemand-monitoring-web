@@ -59,7 +59,7 @@ describe('CreateOrderPage header', () => {
     await screen.findByText('Tạo yêu cầu giám sát')
     const cancel = screen.getByRole('link', { name: 'Hủy' })
     expect(cancel.getAttribute('href')).toContain('orders')
-    expect(cancel.className).toContain('odm-btn')
+    expect(cancel.className).toContain('ant-btn')
   })
 
   it('still asks for confirmation before leaving', async () => {

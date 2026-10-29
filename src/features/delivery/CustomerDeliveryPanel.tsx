@@ -1,16 +1,18 @@
+import { Alert, Button, Input, Progress } from 'antd'
 import { useCallback, useEffect, useState } from 'react'
 import { ApiError } from '../../shared/api/httpClient'
-import { Modal } from '../../shared/components/ui'
-import { useLanguage } from '../../shared/i18n'
+import { Modal } from '../customer/components/common/ui'
+import { useI18n } from '../../shared/i18n'
 import { formatVnd } from '../../shared/lib/formatVnd'
 import { financeApi } from '../finance/api'
 import { deliveryApi } from './api'
+import { customerDeliveryPanelMessages } from './customerDeliveryPanel.messages'
 import { DeliveryProgress, DeliveryStatusPill } from './DeliveryProgress'
 import type { Delivery } from './types'
 import './delivery.css'
 
 export function CustomerDeliveryPanel({ orderId }: { orderId: string }) {
-  const { lang } = useLanguage()
+  const { t } = useI18n(customerDeliveryPanelMessages)
   const [delivery, setDelivery] = useState<Delivery | null>(null)
   const [busy, setBusy] = useState(false)
   const [acceptOpen, setAcceptOpen] = useState(false)
@@ -50,9 +52,7 @@ export function CustomerDeliveryPanel({ orderId }: { orderId: string }) {
   }, [load])
   if (!delivery)
     return error ? (
-      <p className="delivery-error" role="alert">
-        {message(error, lang)}
-      </p>
+      <Alert type="error" showIcon message={message(error, t)} />
     ) : null
 
   async function accept() {
@@ -61,7 +61,7 @@ export function CustomerDeliveryPanel({ orderId }: { orderId: string }) {
   }
   async function revise() {
     if (!reason.trim()) {
-      setError('Vui lòng nhập lý do yêu cầu chỉnh sửa.')
+      setError(t.reasonRequired)
       return
     }
     await act(() => deliveryApi.requestRevision(orderId, reason.trim(), []))
@@ -74,8 +74,7 @@ export function CustomerDeliveryPanel({ orderId }: { orderId: string }) {
     try {
       const invoice = await financeApi.getInvoice(orderId)
       const payment = await financeApi.createFinalPayment(invoice.id)
-      if (!payment.paymentUrl)
-        throw new Error('VNPAY chưa trả về đường dẫn thanh toán.')
+      if (!payment.paymentUrl) throw new Error(t.noVnpayUrl)
       window.location.assign(payment.paymentUrl)
     } catch (cause) {
       setError(cause)
@@ -111,12 +110,9 @@ export function CustomerDeliveryPanel({ orderId }: { orderId: string }) {
     >
       <header className="delivery-hero">
         <div className="delivery-hero__copy">
-          <span className="delivery-eyebrow">Kết quả nhiệm vụ</span>
-          <h2 id="delivery-title">Kết quả giám sát của bạn</h2>
-          <p>
-            Theo dõi quá trình duyệt, thanh toán và nhận dữ liệu gốc tại một
-            nơi.
-          </p>
+          <span className="delivery-eyebrow">{t.eyebrow}</span>
+          <h2 id="delivery-title">{t.title}</h2>
+          <p>{t.subtitle}</p>
         </div>
         <DeliveryStatusPill status={delivery.deliveryStatus} />
       </header>
@@ -131,22 +127,21 @@ export function CustomerDeliveryPanel({ orderId }: { orderId: string }) {
               <div>
                 <h3 id="customer-assets-title">
                   {delivery.deliveryStatus === 'DELIVERED'
-                    ? 'Dữ liệu gốc'
-                    : 'Bản xem trước'}
+                    ? t.originals
+                    : t.previews}
                 </h3>
                 <p>
-                  {delivery.assets.length} tệp ·{' '}
                   {delivery.deliveryStatus === 'DELIVERED'
-                    ? 'Sẵn sàng tải xuống'
-                    : 'Vui lòng kiểm tra trước khi xác nhận'}
+                    ? t.filesReady(delivery.assets.length)
+                    : t.filesCheck(delivery.assets.length)}
                 </p>
               </div>
               <span
                 className={`delivery-access-badge${delivery.deliveryStatus === 'DELIVERED' ? ' is-original' : ''}`}
               >
                 {delivery.deliveryStatus === 'DELIVERED'
-                  ? 'Bản gốc'
-                  : 'Preview'}
+                  ? t.badgeOriginal
+                  : t.badgePreview}
               </span>
             </div>
             <div className="delivery-grid">
@@ -161,22 +156,22 @@ export function CustomerDeliveryPanel({ orderId }: { orderId: string }) {
                     <strong title={asset.fileName}>{asset.fileName}</strong>
                     <small>
                       {asset.type.toUpperCase().includes('VIDEO')
-                        ? 'Video'
-                        : 'Hình ảnh'}{' '}
-                      · {formatBytes(asset.size)}
+                        ? t.video
+                        : t.image}{' '}
+                      · {formatBytes(asset.size, t.unknownSize)}
                     </small>
                   </div>
                   {asset.downloadable ? (
-                    <a
-                      className="odm-btn delivery-download"
+                    <Button
+                      className="delivery-download"
                       href={asset.url}
                       download
                     >
-                      Tải bản gốc
-                    </a>
+                      {t.download}
+                    </Button>
                   ) : (
                     <span className="delivery-preview-note">
-                      Bản xem trước · chưa thể tải bản gốc
+                      {t.previewNote}
                     </span>
                   )}
                 </article>
@@ -187,7 +182,7 @@ export function CustomerDeliveryPanel({ orderId }: { orderId: string }) {
 
         {delivery.deliveryNotes ? (
           <div className="delivery-manager-note">
-            <span>Ghi chú từ Manager</span>
+            <span>{t.managerNote}</span>
             <p>{delivery.deliveryNotes}</p>
           </div>
         ) : null}
@@ -197,30 +192,29 @@ export function CustomerDeliveryPanel({ orderId }: { orderId: string }) {
         >
           <div className="delivery-payment-card__head">
             <div>
-              <span className="delivery-eyebrow">Thanh toán</span>
-              <h3 id="payment-summary-title">Tổng quan chi phí</h3>
+              <span className="delivery-eyebrow">{t.payment}</span>
+              <h3 id="payment-summary-title">{t.costOverview}</h3>
             </div>
             <strong>{paymentPercent}%</strong>
           </div>
-          <div
-            className="delivery-payment-progress"
-            aria-label={`Đã thanh toán ${paymentPercent}%`}
-          >
-            <span style={{ width: `${paymentPercent}%` }} />
-          </div>
+          <Progress
+            percent={paymentPercent}
+            showInfo={false}
+            aria-label={t.paidPercent(paymentPercent)}
+          />
           <div className="delivery-payment">
             <div>
-              <span>Tổng giá trị</span>
+              <span>{t.total}</span>
               <strong>{formatVnd(delivery.totalAmount)}</strong>
             </div>
             <div>
-              <span>Đã thanh toán</span>
+              <span>{t.paid}</span>
               <strong className="is-paid">
                 {formatVnd(delivery.paidAmount)}
               </strong>
             </div>
             <div className="is-remaining">
-              <span>Còn lại</span>
+              <span>{t.remaining}</span>
               <strong>{formatVnd(delivery.remainingAmount)}</strong>
             </div>
           </div>
@@ -233,121 +227,97 @@ export function CustomerDeliveryPanel({ orderId }: { orderId: string }) {
                 ✓
               </span>
               <div>
-                <b>Bản preview đã sẵn sàng</b>
-                <span>
-                  Hãy kiểm tra các tệp phía trên và cho chúng tôi biết lựa chọn
-                  của bạn.
-                </span>
+                <b>{t.previewReady}</b>
+                <span>{t.previewReadyText}</span>
               </div>
             </div>
             <div className="delivery-actions">
-              <button
-                type="button"
-                className="odm-btn"
-                onClick={() => setRevisionOpen(true)}
-                disabled={busy}
-              >
-                Yêu cầu chỉnh sửa
-              </button>
-              <button
-                type="button"
-                className="odm-btn odm-btn-p delivery-primary-action"
+              <Button onClick={() => setRevisionOpen(true)} disabled={busy}>
+                {t.requestRevision}
+              </Button>
+              <Button
+                type="primary"
+                className="delivery-primary-action"
                 onClick={() => setAcceptOpen(true)}
                 disabled={busy}
               >
-                {busy ? 'Đang xác nhận…' : 'Chấp nhận kết quả'}
-              </button>
+                {busy ? t.confirming : t.accept}
+              </Button>
             </div>
           </div>
         ) : null}
         {acceptOpen ? (
           <Modal
-            title="Chấp nhận kết quả"
-            subtitle="Xác nhận đã kiểm tra bản preview"
+            title={t.acceptTitle}
+            subtitle={t.acceptSubtitle}
             icon="shield"
             width={480}
             onClose={() => !busy && setAcceptOpen(false)}
             footer={
               <>
-                <button
-                  type="button"
-                  className="odm-btn odm-btn-gh"
-                  onClick={() => setAcceptOpen(false)}
-                  disabled={busy}
-                >
-                  Xem lại
-                </button>
-                <button
-                  type="button"
-                  className="odm-btn odm-btn-p"
+                <Button onClick={() => setAcceptOpen(false)} disabled={busy}>
+                  {t.reviewAgain}
+                </Button>
+                <Button
+                  type="primary"
                   onClick={() => void accept()}
                   disabled={busy}
                 >
-                  {busy ? 'Đang xác nhận…' : 'Xác nhận chấp nhận'}
-                </button>
+                  {busy ? t.confirming : t.acceptConfirm}
+                </Button>
               </>
             }
           >
-            <p>
-              Tôi xác nhận đã xem các bản preview và chấp nhận kết quả giám sát
-              được bàn giao.
-            </p>
-            {error ? <p className="delivery-error" role="alert">{message(error, lang)}</p> : null}
+            <p>{t.acceptBody}</p>
+            {error ? (
+              <Alert type="error" showIcon message={message(error, t)} />
+            ) : null}
           </Modal>
         ) : null}
         {revisionOpen ? (
           <div className="delivery-revision">
             <div className="delivery-field-head">
               <label htmlFor="revision-reason">
-                Nội dung cần chỉnh sửa <em>*</em>
+                {t.revisionLabel} <em>*</em>
               </label>
               <span>{reason.length}/2000</span>
             </div>
-            <textarea
+            <Input.TextArea
               id="revision-reason"
+              rows={4}
               value={reason}
               onChange={(event) => setReason(event.target.value)}
               maxLength={2000}
-              placeholder="Mô tả cụ thể vị trí, tệp hoặc nội dung bạn muốn điều chỉnh…"
+              placeholder={t.revisionPlaceholder}
               autoFocus
             />
             <div className="delivery-actions">
-              <button
-                type="button"
-                className="odm-btn"
-                onClick={() => setRevisionOpen(false)}
-              >
-                Hủy
-              </button>
-              <button
-                type="button"
-                className="odm-btn odm-btn-p"
+              <Button onClick={() => setRevisionOpen(false)}>{t.cancel}</Button>
+              <Button
+                type="primary"
                 disabled={busy || !reason.trim()}
                 onClick={() => void revise()}
               >
-                Gửi yêu cầu
-              </button>
+                {t.sendRequest}
+              </Button>
             </div>
           </div>
         ) : null}
 
         {delivery.deliveryStatus === 'PROCESSING' ? (
-          <StatusBanner
-            title="Kết quả đang được xử lý"
-            text="Trang sẽ tự động cập nhật khi dữ liệu sẵn sàng."
-          />
+          <StatusBanner title={t.processingTitle} text={t.processingText} />
         ) : null}
         {delivery.deliveryStatus === 'READY_FOR_MANAGER_REVIEW' ? (
           <StatusBanner
-            title="Nhiệm vụ đã hoàn thành"
-            text="Manager đang kiểm tra chất lượng dữ liệu trước khi gửi bản preview cho bạn."
+            title={t.managerReviewTitle}
+            text={t.managerReviewText}
           />
         ) : null}
         {delivery.deliveryStatus === 'REVISION_REQUESTED' ? (
           <StatusBanner
             tone="warning"
-            title="Đã gửi yêu cầu chỉnh sửa"
-            text="Manager sẽ cập nhật và gửi lại bản preview mới cho bạn."
+            title={t.revisionSentTitle}
+            text={t.revisionSentText}
           />
         ) : null}
         {delivery.deliveryStatus === 'FINAL_PAYMENT_PENDING' ? (
@@ -360,42 +330,40 @@ export function CustomerDeliveryPanel({ orderId }: { orderId: string }) {
                 ₫
               </span>
               <div>
-                <b>Hoàn tất thanh toán để nhận bản gốc</b>
+                <b>{t.payToGet}</b>
                 <span>
-                  Số tiền còn lại:{' '}
+                  {t.amountLeft}:{' '}
                   <strong>{formatVnd(delivery.remainingAmount)}</strong>
                 </span>
               </div>
             </div>
-            <button
-              type="button"
-              className="odm-btn odm-btn-p delivery-primary-action"
+            <Button
+              type="primary"
+              className="delivery-primary-action"
               disabled={busy}
               onClick={() => void payFinal()}
             >
-              {busy ? 'Đang chuyển đến VNPAY…' : 'Thanh toán qua VNPAY'}
-            </button>
+              {busy ? t.redirecting : t.payVnpay}
+            </Button>
           </div>
         ) : null}
         {delivery.deliveryStatus === 'READY_FOR_DELIVERY' ||
         delivery.deliveryStatus === 'PAYMENT_CONFIRMED' ? (
           <StatusBanner
             tone="success"
-            title="Thanh toán đã được xác nhận"
-            text="Manager đang chuẩn bị phát hành dữ liệu gốc cho bạn."
+            title={t.paymentConfirmedTitle}
+            text={t.paymentConfirmedText}
           />
         ) : null}
         {delivery.deliveryStatus === 'DELIVERED' ? (
           <StatusBanner
             tone="success"
-            title="Bàn giao hoàn tất"
-            text={`${delivery.assets.length} tệp gốc đã sẵn sàng để tải xuống.`}
+            title={t.deliveredTitle}
+            text={t.deliveredText(delivery.assets.length)}
           />
         ) : null}
         {error ? (
-          <p className="delivery-error" role="alert">
-            {message(error, lang)}
-          </p>
+          <Alert type="error" showIcon message={message(error, t)} />
         ) : null}
       </div>
     </section>
@@ -411,35 +379,21 @@ function StatusBanner({
   text: string
   tone?: 'info' | 'warning' | 'success'
 }) {
-  return (
-    <div className={`delivery-banner delivery-banner--${tone}`} role="status">
-      <span className="delivery-banner__icon" aria-hidden="true">
-        {tone === 'success' ? '✓' : tone === 'warning' ? '!' : 'i'}
-      </span>
-      <div>
-        <b>{title}</b>
-        <span>{text}</span>
-      </div>
-    </div>
-  )
+  return <Alert type={tone} showIcon message={title} description={text} />
 }
 
-function formatBytes(bytes: number) {
-  if (!Number.isFinite(bytes) || bytes <= 0) return 'Không rõ dung lượng'
+function formatBytes(bytes: number, unknown: string) {
+  if (!Number.isFinite(bytes) || bytes <= 0) return unknown
   if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
-function message(cause: unknown, lang: 'vi' | 'en') {
+function message(
+  cause: unknown,
+  t: { networkError: string; genericError: string },
+) {
   if (typeof cause === 'string') return cause
-  if (cause instanceof ApiError && cause.code === 'NETWORK_ERROR') {
-    return lang === 'en'
-      ? 'Unable to reach the server. Please try again.'
-      : 'Không thể kết nối tới máy chủ. Vui lòng thử lại.'
-  }
-  return cause instanceof Error
-    ? cause.message
-    : lang === 'en'
-      ? 'Unable to process the request.'
-      : 'Không thể xử lý yêu cầu.'
+  if (cause instanceof ApiError && cause.code === 'NETWORK_ERROR')
+    return t.networkError
+  return cause instanceof Error ? cause.message : t.genericError
 }

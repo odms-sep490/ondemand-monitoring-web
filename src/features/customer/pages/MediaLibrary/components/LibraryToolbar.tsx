@@ -1,3 +1,4 @@
+import { FilterBar, FilterSegments } from '../../../../../shared/components/antd'
 import { useI18n } from '../../../../../shared/i18n'
 import type { MediaFilter } from '../../../lib/media/types'
 import { libraryToolbarMessages } from './LibraryToolbar.messages'
@@ -9,28 +10,21 @@ const KINDS = ['all', 'image', 'video'] as const
 export function LibraryToolbar({ filter, onChange }: Props) {
   const { t } = useI18n(libraryToolbarMessages)
   return (
-    <div className="ml-toolbar">
-      <div className="ml-chips" role="group" aria-label={t.kindLabel}>
-        {KINDS.map((kind) => (
-          <button
-            key={kind}
-            type="button"
-            className={`ml-chip${filter.kind === kind ? ' is-active' : ''}`}
-            aria-pressed={filter.kind === kind}
-            onClick={() => onChange({ kind })}
-          >
-            {t.kind[kind]}
-          </button>
-        ))}
-      </div>
-      <input
-        type="search"
-        className="ml-search"
-        value={filter.query}
-        placeholder={t.searchPlaceholder}
-        aria-label={t.searchLabel}
-        onChange={(event) => onChange({ query: event.target.value })}
-      />
-    </div>
+    <FilterBar
+      start={
+        <FilterSegments<string>
+          ariaLabel={t.kindLabel}
+          options={KINDS.map((kind) => ({ value: kind, label: t.kind[kind] }))}
+          value={filter.kind}
+          onChange={(kind) => onChange({ kind: kind as MediaFilter['kind'] })}
+        />
+      }
+      search={{
+        value: filter.query,
+        onChange: (query) => onChange({ query }),
+        placeholder: t.searchPlaceholder,
+        ariaLabel: t.searchLabel,
+      }}
+    />
   )
 }
