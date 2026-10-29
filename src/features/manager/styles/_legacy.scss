@@ -53,7 +53,7 @@
   }
 
   .ui-card-title {
-    font-size: 15.5px;
+    font-size: var(--mgr-fs-section, 16px);
     font-weight: 700;
     color: var(--mgr-text);
   }
@@ -74,7 +74,7 @@
 
   .odm-or-card-title {
     gap: 10px;
-    font-size: 15.5px;
+    font-size: var(--mgr-fs-section, 16px);
     font-weight: 700;
     color: var(--mgr-text);
   }

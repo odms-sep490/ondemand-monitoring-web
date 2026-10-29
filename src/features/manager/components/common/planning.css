@@ -88,7 +88,7 @@
   margin: 0;
   color: var(--tx2);
   line-height: 1.6;
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
 }
 .odm-plan-badges {
   display: flex;
@@ -101,7 +101,7 @@
   border-radius: 8px;
   background: var(--sf3);
   font-weight: 600;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   white-space: nowrap;
 }
 .odm-plan-create-body {
@@ -114,7 +114,7 @@
   margin-bottom: 20px;
   color: var(--blue-fg);
   font-weight: 600;
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
 }
 .odm-plan-create-grid {
   display: grid;
@@ -130,7 +130,7 @@
 .odm-plan-form h3,
 .odm-plan-geography h3 {
   margin: 0 0 8px;
-  font-size: 16px;
+  font-size: var(--mgr-fs-section, 16px);
   line-height: 1.4;
 }
 .odm-plan-description {
@@ -145,7 +145,7 @@
 }
 .odm-plan-field-help {
   color: var(--tx2);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   line-height: 1.5;
   margin: 8px 0 0;
 }
@@ -168,7 +168,7 @@
   margin: 12px 0 0;
   padding-left: 20px;
   color: var(--tx2);
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
   line-height: 1.6;
 }
 .odm-plan-geography li + li {
@@ -190,7 +190,7 @@
 }
 .odm-plan-empty h3 {
   margin: 0 0 8px;
-  font-size: 16px;
+  font-size: var(--mgr-fs-section, 16px);
 }
 .odm-plan-empty p {
   margin: 0;
@@ -249,7 +249,7 @@
   background: var(--sf);
   color: var(--tx);
   font: inherit;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   cursor: pointer;
   overflow-wrap: anywhere;
   min-width: 0;
@@ -264,7 +264,7 @@
   outline-offset: 2px;
 }
 .odm-workspace-choice strong {
-  font-size: 16px;
+  font-size: var(--mgr-fs-section, 16px);
 }
 .odm-workspace-choice-head {
   display: flex;
@@ -275,7 +275,7 @@
 }
 .odm-workspace-plan-state {
   color: var(--tx2);
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 .odm-workspace-readiness {
   display: flex;
@@ -286,7 +286,7 @@
 .odm-workspace-readiness > span {
   padding: 4px 7px;
   border-radius: 999px;
-  font-size: 11.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 600;
 }
 .odm-workspace-readiness .is-ready {
@@ -335,7 +335,7 @@
 }
 .odm-planning-metrics dt {
   color: var(--tx2);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 .odm-planning-metrics dd {
   margin: 0;
@@ -381,7 +381,7 @@
 }
 .odm-mission-meta {
   color: var(--tx2);
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   line-height: 1.5;
 }
 .odm-mission-identity > .odm-mission-meta {
@@ -391,7 +391,7 @@
   margin: 12px 0 16px;
 }
 .odm-mission-scope p {
-  font-size: 15px;
+  font-size: var(--mgr-fs-section, 16px);
   font-weight: 600;
   margin: 0 0 6px;
 }
@@ -400,7 +400,7 @@
   align-items: center;
   gap: 7px;
   color: var(--tx2);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 .odm-mission-resources {
   display: grid;
@@ -420,12 +420,12 @@
   gap: 7px;
   margin: 0 0 10px;
   color: var(--tx2);
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 600;
 }
 .odm-mission-resource > strong {
   display: block;
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
 }
 .odm-mission-resource p {
   margin: 0;
@@ -441,7 +441,7 @@
   display: grid;
   grid-template-columns: 88px minmax(0, 1fr);
   gap: 12px;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 .odm-mission-crew li > span {
   color: var(--tx2);
@@ -455,7 +455,7 @@
   list-style: none;
   display: grid;
   gap: 9px;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 .odm-mission-checklist li {
   display: flex;
@@ -509,7 +509,7 @@
   padding-top: 10px;
   margin-top: 8px;
   color: var(--tx2);
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 .odm-mission-history p {
   margin: 4px 0;
@@ -607,7 +607,7 @@
 .odm-planning-create-head p {
   margin: 0;
   color: var(--tx2);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 .odm-planning-create-close {
   display: grid;
@@ -653,14 +653,14 @@
   display: none;
 }
 .odm-plan-page.is-embedded .odm-plan-form .odm-or-field-label {
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
   font-weight: 700;
 }
 .odm-plan-page.is-embedded .odm-plan-form .odm-or-input {
   height: 50px;
   border-radius: 11px;
   background: var(--sf);
-  font-size: 15px;
+  font-size: var(--mgr-fs-section, 16px);
   transition: border-color 160ms ease, box-shadow 160ms ease;
 }
 .odm-plan-page.is-embedded .odm-plan-form .odm-or-input:focus {
@@ -677,7 +677,7 @@
 }
 .odm-plan-page.is-embedded .odm-plan-geography h3 {
   margin: 0;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   color: var(--pl-blue-fg);
   white-space: nowrap;
 }
@@ -687,7 +687,7 @@
   padding: 0;
   list-style: none;
   color: var(--tx2);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   line-height: 1.45;
 }
 .odm-plan-page.is-embedded .odm-plan-geography li:not(:first-child) {
@@ -872,7 +872,7 @@
 }
 .odm-planning-adjustment h3 {
   margin: 0 0 8px;
-  font-size: 15px;
+  font-size: var(--mgr-fs-section, 16px);
 }
 .odm-planning :is(textarea) {
   border: 1px solid var(--bd);
@@ -948,7 +948,7 @@
 
 /* Mission rail: position in the Order ("Mission 2 / 3") and a clear bucket. */
 .odm-workspace-rank {
-  font-size: 11.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 700;
   letter-spacing: 0.02em;
   color: var(--or-tx2, #5b6472);
@@ -980,7 +980,7 @@
 }
 .odm-planning-metrics dt {
   order: 2;
-  font-size: 12.5px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 .odm-planning-metrics dd {
   order: 1;
@@ -992,10 +992,10 @@
   text-align: left;
 }
 .odm-plan-empty h3 {
-  font-size: 15px;
+  font-size: var(--mgr-fs-section, 16px);
 }
 .odm-plan-empty p {
-  font-size: 13.5px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 
 /* Planning workspace polish: compact Mission cards, calmer detail panel */
@@ -1013,7 +1013,7 @@
 .odm-workspace-choice .odm-workspace-readiness > span {
   padding: 2px 8px;
   border-radius: 999px;
-  font-size: 11.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 600;
   white-space: nowrap;
 }
@@ -1038,7 +1038,7 @@
 }
 .odm-planning-bulk :is(.odm-btn, .ui-btn) {
   padding: 4px 10px;
-  font-size: 12.5px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 .odm-planning-item {
   display: flex;
@@ -1065,7 +1065,7 @@
   border-radius: 999px;
   background: var(--pl-chip-bg);
   color: var(--tx2);
-  font-size: 11.5px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 .odm-planning-tag.is-customer {
   background: var(--pl-amber-bg);
@@ -1086,7 +1086,7 @@
 }
 .odm-mission-actions :is(.odm-btn, .ui-btn) {
   padding: 6px 12px;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 
 .odm-planning-actions {
@@ -1095,7 +1095,7 @@
 .odm-planning-next-hint {
   margin-left: auto;
   color: var(--pl-amber-fg);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 
 /* =========================================================================
@@ -1143,7 +1143,7 @@
 }
 .odm-sidebar-header h3 {
   margin: 0;
-  font-size: 16px;
+  font-size: var(--mgr-fs-section, 16px);
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -1159,7 +1159,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 600;
   color: var(--tx2);
 }
@@ -1173,7 +1173,7 @@
   border-radius: 8px;
   border: 1px solid var(--bd);
   background: var(--sf2);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -1191,7 +1191,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 11.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   color: var(--tx3);
 }
 
@@ -1267,7 +1267,7 @@
   gap: 2px;
 }
 .odm-mcard-title-group strong {
-  font-size: 16px;
+  font-size: var(--mgr-fs-section, 16px);
   font-weight: 700;
   color: var(--tx);
   letter-spacing: -0.01em;
@@ -1281,7 +1281,7 @@
   color: var(--blue-fg, #2563eb);
 }
 .odm-mcard-title-group span {
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   color: var(--tx3, #64748b);
 }
 
@@ -1294,14 +1294,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 600;
   color: var(--tx2, #475569);
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
 .odm-mcard-sec-badge {
-  font-size: 11px;
+  font-size: var(--mgr-fs-caption, 12px);
   padding: 1px 7px;
   border-radius: 999px;
   background: var(--sf3, #f1f5f9);
@@ -1314,7 +1314,7 @@
   background: var(--sf2, #f8fafc);
   border: 1px solid var(--bd-subtle, rgba(0, 0, 0, 0.04));
   border-radius: 8px;
-  font-size: 12.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   color: var(--tx, #1e293b);
   display: flex;
   align-items: center;
@@ -1337,7 +1337,7 @@
   border-radius: 8px;
   background: var(--sf2, #f8fafc);
   border: 1px solid var(--bd-subtle, rgba(0, 0, 0, 0.04));
-  font-size: 12.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   color: var(--tx, #1e293b);
   line-height: 1.4;
   transition: background 0.15s ease;
@@ -1351,7 +1351,7 @@
   color: var(--mgr-muted);
   cursor: pointer;
   padding: 2px 6px;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   border-radius: 4px;
   transition: all 0.15s ease;
 }
@@ -1375,7 +1375,7 @@
   border-radius: 8px;
   background: var(--mgr-card);
   border: 1px solid var(--bd-subtle, #e2e8f0);
-  font-size: 12.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   transition: border-color 0.15s ease;
 }
 .odm-mcard-res-item:hover {
@@ -1399,7 +1399,7 @@
   cursor: pointer;
   padding: 2px 6px;
   border-radius: 4px;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   line-height: 1;
   transition: all 0.15s ease;
 }
@@ -1428,14 +1428,14 @@
 }
 .odm-mcard-inline-form-heading strong {
   color: var(--pl-blue-fg);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 700;
 }
 .odm-mcard-inline-form-heading span,
 .odm-mcard-inline-form-hint {
   margin: 0;
   color: var(--mgr-muted);
-  font-size: 11.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   line-height: 1.45;
 }
 .odm-mcard-field {
@@ -1444,7 +1444,7 @@
   flex-direction: column;
   gap: 5px;
   color: var(--mgr-muted);
-  font-size: 11px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 650;
 }
 .odm-mcard-inline-fields {
@@ -1463,7 +1463,7 @@
   background-color: var(--mgr-card);
   color: var(--mgr-text);
   font: inherit;
-  font-size: 12.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 .odm-mcard-inline-form select:focus-visible {
@@ -1496,7 +1496,7 @@
   border-radius: 8px;
   background: var(--pl-red-bg);
   color: var(--pl-red-fg);
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   line-height: 1.45;
 }
 @keyframes odmInlineFormIn {
@@ -1556,7 +1556,7 @@
 }
 .odm-reason-modal p {
   margin: 0;
-  font-size: 13.5px;
+  font-size: var(--mgr-fs-small, 13px);
   color: var(--tx2);
   line-height: 1.5;
 }
@@ -1568,7 +1568,7 @@
   border: 1px solid var(--bd);
   border-radius: 8px;
   font: inherit;
-  font-size: 13.5px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 .odm-reason-modal-actions {
   display: flex;
@@ -1608,7 +1608,7 @@
   border-radius: 999px;
   background: var(--pl-chip-bg);
   color: var(--mgr-muted);
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 600;
 }
 
@@ -1707,7 +1707,7 @@
 }
 
 .odm-checklist-item-title {
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
   color: var(--tx, #0f172a);
   font-weight: 600;
   line-height: 1.4;
@@ -1725,7 +1725,7 @@
   align-items: center;
   padding: 2px 8px;
   border-radius: 6px;
-  font-size: 11px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 600;
   line-height: 1.3;
 }
@@ -1747,7 +1747,7 @@
 
 .odm-checklist-item-desc {
   margin: 2px 0 0;
-  font-size: 12.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   color: var(--tx2, #64748b);
   line-height: 1.4;
 }
@@ -1756,7 +1756,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 11.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   color: var(--mgr-muted);
   margin-top: 4px;
   flex-wrap: wrap;
@@ -1768,7 +1768,7 @@
   border: 1px solid var(--pl-red-bd);
   padding: 8px 12px;
   border-radius: 6px;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 500;
   margin: 12px 0 0;
 }
@@ -1809,7 +1809,7 @@
 }
 
 .mgr-layout .odm-workspace-uncovered {
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   color: var(--pl-amber-fg);
 }
 

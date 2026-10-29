@@ -33,7 +33,7 @@
 .ppd-bar p {
   margin: 4px 0 0;
   color: var(--mgr-muted);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 
 .ppd-actions {
@@ -58,7 +58,7 @@
   gap: 7px;
   max-width: 420px;
   color: var(--mgr-text);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 600;
 }
 
@@ -105,7 +105,7 @@
 
 .pricing-group-preview {
   font-weight: 400;
-  font-size: 12.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   color: var(--mgr-muted);
   overflow-wrap: anywhere;
 }
@@ -129,7 +129,7 @@
 }
 
 .pricing-tier-head p {
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   color: var(--mgr-muted);
 }
 
@@ -190,7 +190,7 @@
 }
 
 .pricing-rule-kind {
-  font-size: 11.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -275,7 +275,7 @@
 }
 
 .pricing-field-label {
-  font-size: 12.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 600;
   color: var(--mgr-text);
 }
@@ -283,7 +283,7 @@
 .pricing-field small,
 .pricing-helper {
   color: var(--mgr-muted);
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 
 .pricing-input-affix {
@@ -307,7 +307,7 @@
 .pricing-policy-guardrails label {
   display: grid;
   gap: 6px;
-  font-size: 12.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 600;
 }
 
@@ -318,14 +318,14 @@
 
 .pricing-section-head p,
 .pricing-customer-added-note {
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   color: var(--mgr-muted);
 }
 
 .pricing-section-kicker {
   display: block;
   margin-bottom: 2px;
-  font-size: 11.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -365,7 +365,7 @@
 .pricing-rule-row label {
   display: grid;
   gap: 6px;
-  font-size: 12.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 600;
 }
 

@@ -1,5 +1,5 @@
 .odm-mcard-replacement-tag {
-  font-size: 11px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 600;
   color: #4f46e5;
 }
@@ -7,7 +7,7 @@
 .odm-mcard-error {
   padding: 6px 10px;
   border-radius: 6px;
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   color: #dc2626;
   background: #fef2f2;
 }
@@ -15,7 +15,7 @@
 .odm-mcard-cancelled-note {
   padding: 8px 12px;
   border-radius: 6px;
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   color: #991b1b;
   background: #fee2e2;
 }
@@ -98,7 +98,7 @@
 }
 
 .odm-master-desc {
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   color: var(--mgr-muted);
 }
 

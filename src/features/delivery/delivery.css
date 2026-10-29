@@ -28,7 +28,7 @@
   display: block;
   margin-bottom: 6px;
   color: var(--d-blue);
-  font-size: 11px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 800;
   letter-spacing: 0.09em;
   text-transform: uppercase;
@@ -43,7 +43,7 @@
   max-width: 680px;
   margin: 7px 0 0;
   color: var(--d-muted);
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
   line-height: 1.55;
 }
 .delivery-status {
@@ -54,7 +54,7 @@
   padding: 7px 11px;
   border: 1px solid transparent;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 800;
   white-space: nowrap;
 }
@@ -102,7 +102,7 @@
   justify-items: center;
   gap: 8px;
   color: var(--ui-text-3);
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 700;
   text-align: center;
 }
@@ -130,7 +130,7 @@
   border-radius: 50%;
   background: var(--d-surface);
   color: var(--ui-text-3);
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 .delivery-progress li.is-current {
   color: var(--d-blue);
@@ -170,12 +170,12 @@
 .delivery-payment-card h3 {
   margin: 0;
   color: var(--d-text);
-  font-size: 16px;
+  font-size: var(--mgr-fs-section, 16px);
 }
 .delivery-section__head p {
   margin: 4px 0 0;
   color: var(--d-muted);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 .delivery-text-button {
   padding: 4px;
@@ -183,7 +183,7 @@
   background: transparent;
   color: var(--d-blue);
   font: inherit;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 750;
   cursor: pointer;
 }
@@ -233,14 +233,14 @@
 .delivery-asset__meta strong {
   overflow: hidden;
   color: var(--d-text);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   line-height: 1.4;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .delivery-asset__meta small {
   color: var(--d-muted);
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 .delivery-select {
   cursor: pointer;
@@ -269,7 +269,7 @@
   border-radius: 50%;
   background: color-mix(in srgb, var(--ui-text) 58%, transparent);
   color: transparent;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   box-shadow: 0 2px 8px color-mix(in srgb, var(--ui-text) 20%, transparent);
 }
 .delivery-select.is-selected .delivery-asset__check {
@@ -281,7 +281,7 @@
   border-radius: 999px;
   background: var(--ui-warning-soft);
   color: var(--ui-warning-text);
-  font-size: 11px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 800;
   text-transform: uppercase;
 }
@@ -294,7 +294,7 @@
   border-radius: 8px;
   background: var(--d-muted-surface);
   color: var(--d-muted);
-  font-size: 11px;
+  font-size: var(--mgr-fs-caption, 12px);
   text-align: center;
 }
 .delivery-download {
@@ -330,7 +330,7 @@
   place-items: center;
   border: 1px solid currentcolor;
   border-radius: 50%;
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 900;
 }
 .delivery-banner > div {
@@ -338,10 +338,10 @@
   gap: 3px;
 }
 .delivery-banner b {
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 .delivery-banner span:not(.delivery-banner__icon) {
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   line-height: 1.5;
   opacity: 0.78;
 }
@@ -359,12 +359,12 @@
   justify-content: space-between;
   gap: 12px;
   color: var(--d-text);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 750;
 }
 .delivery-field-head span {
   color: var(--d-muted);
-  font-size: 11px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 500;
 }
 .delivery-field-head em {
@@ -384,7 +384,7 @@
   background: var(--d-surface);
   color: var(--d-text);
   font: inherit;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   line-height: 1.5;
 }
 .delivery-composer textarea:focus,
@@ -407,11 +407,11 @@
 }
 .delivery-action-bar b {
   color: var(--d-text);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 .delivery-action-bar span {
   color: var(--d-muted);
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 .delivery-primary-action {
   min-height: 40px;
@@ -465,11 +465,11 @@
 }
 .delivery-payment span {
   color: var(--d-muted);
-  font-size: 11px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 .delivery-payment strong {
   color: var(--d-text);
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
 }
 .delivery-payment .is-paid {
   color: var(--ui-success-text);
@@ -489,14 +489,14 @@
 }
 .delivery-manager-note span {
   color: var(--d-blue);
-  font-size: 11px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 800;
   text-transform: uppercase;
 }
 .delivery-manager-note p {
   margin: 6px 0 0;
   color: var(--d-text);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   line-height: 1.55;
 }
 .delivery-review-card,
@@ -554,13 +554,13 @@
 .delivery-payment-action b,
 .delivery-next-action b {
   color: var(--d-text);
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
 }
 .delivery-review-card > div > div > span:not([class]),
 .delivery-payment-action > div > div > span:not([class]),
 .delivery-next-action > div > div > span:not([class]) {
   color: var(--d-muted);
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   line-height: 1.45;
 }
 .delivery-actions {
@@ -576,7 +576,7 @@
   border-radius: 10px;
   background: var(--ui-danger-soft);
   color: var(--ui-danger-text);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 @media (max-width: 760px) {
   .delivery-hero {

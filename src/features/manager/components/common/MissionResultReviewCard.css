@@ -33,20 +33,20 @@
 .mgr-result-review-metrics dt {
   margin-bottom: 6px;
   color: var(--mgr-muted);
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 
 .mgr-result-review-metrics dd {
   margin: 0;
   color: var(--mgr-text);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 650;
   overflow-wrap: anywhere;
 }
 
 .mgr-result-review-description {
   margin: 18px 0 0;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   line-height: 1.6;
   color: var(--mgr-muted);
   overflow-wrap: anywhere;
@@ -60,7 +60,7 @@
 
 .mgr-result-review-readiness h3 {
   margin: 0 0 12px;
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 700;
   color: var(--mgr-text);
 }
@@ -78,7 +78,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   line-height: 1.5;
   color: var(--mgr-muted);
 }
@@ -110,7 +110,7 @@
   border-radius: 8px;
   background: var(--pl-amber-bg);
   color: var(--pl-amber-fg);
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   line-height: 1.6;
 }
 
@@ -122,7 +122,7 @@
   gap: 8px 16px;
   margin-top: 16px;
   color: var(--mgr-muted);
-  font-size: 11px;
+  font-size: var(--mgr-fs-caption, 12px);
   line-height: 1.5;
 }
 
@@ -150,7 +150,7 @@
 .mgr-result-review-empty {
   margin: 0;
   color: var(--mgr-muted);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   line-height: 1.6;
 }
 
@@ -167,13 +167,13 @@
 
 .mgr-result-review-note-label label {
   color: var(--mgr-text);
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 650;
 }
 
 .mgr-result-review-note-label span {
   color: var(--mgr-muted);
-  font-size: 11px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 
 .mgr-result-review-note textarea {
@@ -187,7 +187,7 @@
   background: var(--mgr-card);
   color: var(--mgr-text);
   font: inherit;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   line-height: 1.5;
   resize: vertical;
 }
@@ -229,7 +229,7 @@
 }
 .mgr-result-review-recorded-note {
   margin-bottom: 16px;
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 .mgr-result-review-recorded-note p {
   margin: 8px 0 0;

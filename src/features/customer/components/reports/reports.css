@@ -35,13 +35,13 @@
 }
 .cr-note {
   color: var(--tx3, var(--ui-text-3));
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
 }
 .cr-status {
   background: var(--sf3, var(--ui-surface-2));
   padding: 6px 10px;
   border-radius: 20px;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 .cr-checklist {
   padding-left: 24px;
@@ -64,7 +64,7 @@
   display: inline-flex;
   gap: 6px;
   margin-bottom: 14px;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 600;
   color: var(--ui-text-2);
 }
@@ -91,7 +91,7 @@
   flex-wrap: wrap;
   gap: 8px 12px;
   align-items: center;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   color: var(--ui-text-2);
 }
 .cr-report-identity > .odm-mono {
@@ -105,7 +105,7 @@
   background: var(--ui-surface);
 }
 .cr-report .cr-section h2 {
-  font-size: 16px;
+  font-size: var(--mgr-fs-section, 16px);
   line-height: 1.4;
   margin: 0 0 14px;
   font-weight: 700;
@@ -122,12 +122,12 @@
 .cr-summary-grid dt,
 .cr-checklist-meta dt {
   color: var(--ui-text-3);
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   margin-bottom: 5px;
 }
 .cr-summary-grid dd {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
   line-height: 1.5;
   font-weight: 550;
   overflow-wrap: anywhere;
@@ -150,18 +150,18 @@
   line-height: 1.3;
 }
 .cr-publication h2 {
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
   margin: 0 0 5px;
   line-height: 1.4;
   font-weight: 700;
 }
 .cr-publication p {
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   margin: 0;
   line-height: 1.5;
 }
 .cr-report .cr-copy {
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
   line-height: 1.65;
   margin: 8px 0 0;
 }
@@ -189,7 +189,7 @@
 }
 .cr-checklist-title h3 {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
   font-weight: 650;
   line-height: 1.5;
 }
@@ -206,7 +206,7 @@
   border-radius: 50%;
   background: var(--green-bg, var(--ui-success-soft));
   color: var(--green-fg, var(--ui-success-text));
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 .cr-check-icon.is-unverified {
   background: var(--sf3);
@@ -220,7 +220,7 @@
 }
 .cr-checklist-meta dd {
   margin: 0;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 550;
 }
 .cr-checklist li > .cr-copy {
@@ -236,7 +236,7 @@
   margin: 0;
 }
 .cr-media-count {
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   padding: 3px 7px;
   border-radius: 20px;
   background: var(--ui-surface-2);
@@ -268,7 +268,7 @@
   border-radius: 8px;
   background: var(--ui-surface-2);
   color: var(--ui-text-3);
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
 }
 .cr-media-empty > span {
   font-size: 24px;
@@ -333,7 +333,7 @@
   padding: 0 14px;
   border: 1px solid var(--ui-border-strong);
   border-radius: 10px;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 600;
   color: var(--ui-text-2);
 }
@@ -354,7 +354,7 @@
   background: var(--ui-surface-2);
 }
 .cr-metric dt {
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   color: var(--ui-text-3);
 }
 .cr-metric dd {
@@ -375,7 +375,7 @@
   padding: 20px;
   border-radius: 12px;
   text-align: center;
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
 }
 .cr-empty {
   border: 1px dashed var(--ui-border-strong);
@@ -422,7 +422,7 @@
 }
 .cr-mission-facts dt {
   color: var(--tx3, var(--ui-text-3));
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 .cr-mission-facts dd {
   margin: 0;
@@ -432,7 +432,7 @@
 .cr-mission-unavailable {
   margin: 0;
   color: var(--tx3, var(--ui-text-3));
-  font-size: 13.5px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 .cr-mission .cr-mission-link {
   align-self: flex-start;
@@ -460,7 +460,7 @@
 }
 .mgr-layout .cr-report .cr-heading h3,
 .mgr-layout .cr-mission h3 {
-  font-size: 15px;
+  font-size: var(--mgr-fs-section, 16px);
   font-weight: 700;
 }
 .mgr-layout .cr-metric {

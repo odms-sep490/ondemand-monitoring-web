@@ -52,7 +52,7 @@
 
 .nt-sub {
   margin-top: 2px;
-  font-size: 12.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   color: var(--ui-text-3);
   overflow-wrap: anywhere;
 }

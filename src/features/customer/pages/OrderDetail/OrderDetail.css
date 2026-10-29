@@ -15,7 +15,7 @@
   gap: 8px 12px;
   margin-top: 4px;
   color: var(--ui-text-3);
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
 }
 
 .od-code {
@@ -25,7 +25,7 @@
 }
 
 .od-code .od-mono {
-  font-size: 13.5px;
+  font-size: var(--mgr-fs-small, 13px);
   color: var(--ui-text);
 }
 
@@ -105,7 +105,7 @@
 .od-service-hero-overlay span {
   display: block;
   margin-bottom: 5px;
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -118,7 +118,7 @@
 }
 .od-service-hero-overlay p {
   margin: 7px 0 0;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   line-height: 1.45;
   opacity: 0.88;
   display: -webkit-box;
@@ -155,12 +155,12 @@
   display: block;
 }
 .od-map-caption strong {
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
 }
 .od-map-caption span {
   margin-top: 2px;
   color: var(--ui-text-3);
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 .od-map-empty {
   min-height: 280px;
@@ -228,7 +228,7 @@
 }
 
 .od-field dt {
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   color: var(--ui-text-3);
   margin-bottom: 2px;
 }
@@ -238,7 +238,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 14.5px;
+  font-size: var(--mgr-fs-body, 14px);
   font-weight: 500;
   color: var(--ui-text);
   overflow-wrap: anywhere;
@@ -247,7 +247,7 @@
 
 .od-mono {
   font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: 12.5px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 
 .od-field dd.od-num {
@@ -256,7 +256,7 @@
 
 .od-hint {
   margin: 0;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   color: var(--ui-text-3);
 }
 
@@ -289,7 +289,7 @@
   align-items: center;
   gap: 12px;
   margin-bottom: 8px;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   color: var(--ui-text-3);
 }
 
@@ -299,7 +299,7 @@
   border-radius: 12px;
   background: var(--ui-surface-2);
   color: var(--ui-text-2);
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
   line-height: 1.6;
   overflow-wrap: anywhere;
   white-space: pre-wrap;
@@ -310,7 +310,7 @@
   border: 1px solid var(--ui-border);
   border-radius: var(--ui-radius-lg);
   padding: var(--ui-space-3) var(--ui-space-4);
-  font-size: 13.5px;
+  font-size: var(--mgr-fs-small, 13px);
   overflow-wrap: anywhere;
 }
 
@@ -332,7 +332,7 @@
 
 .od-notice-meta {
   margin-left: var(--ui-space-2);
-  font-size: 12.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   opacity: 0.85;
 }
 
@@ -356,7 +356,7 @@
   font-weight: 600;
   margin-bottom: 8px;
   overflow-wrap: anywhere;
-  font-size: 14.5px;
+  font-size: var(--mgr-fs-body, 14px);
 }
 
 .od-req {
@@ -370,7 +370,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   color: var(--ui-text-3);
 }
 
@@ -382,7 +382,7 @@
 .od-req dd {
   margin: 2px 0 0;
   padding-left: 20px;
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
   font-weight: 600;
 }
 
@@ -464,7 +464,7 @@
 
 .od-step-label {
   font-weight: 600;
-  font-size: 14.5px;
+  font-size: var(--mgr-fs-body, 14px);
   color: var(--ui-text);
   overflow-wrap: anywhere;
 }
@@ -479,14 +479,14 @@
 }
 
 .od-step-hint {
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 500;
   color: var(--ui-primary-text);
 }
 
 .od-step-meta,
 .od-step-note {
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   color: var(--ui-text-3);
   overflow-wrap: anywhere;
 }
@@ -609,7 +609,7 @@
 .od-additional-documents > div > span,
 .od-additional-documents > small {
   color: var(--ui-text-3);
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 
 .od-additional-documents ul {
@@ -650,7 +650,7 @@
 /* Order info: grouped sections */
 .od-info-subtitle {
   margin: -4px 0 16px;
-  font-size: 13.5px;
+  font-size: var(--mgr-fs-small, 13px);
   color: var(--ui-text-3);
 }
 
@@ -678,7 +678,7 @@
   align-items: center;
   gap: 10px;
   margin: 0 0 14px;
-  font-size: 15px;
+  font-size: var(--mgr-fs-section, 16px);
   font-weight: 700;
   color: var(--ui-text);
 }
@@ -696,7 +696,7 @@
   border-radius: 8px;
   background: var(--ui-primary-soft);
   color: var(--ui-primary-text);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 600;
 }
 
@@ -786,7 +786,7 @@
   display: grid;
   gap: 6px;
   color: var(--ui-text-2);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 600;
 }
 
@@ -804,14 +804,14 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 600;
 }
 
 .od-inline-error {
   margin: 0;
   color: var(--ui-danger-text);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 
 .od-inline-actions {
@@ -865,7 +865,7 @@
   border-radius: 12px;
   background: var(--ui-surface-2);
   color: var(--ui-text-2);
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
   line-height: 1.6;
   overflow-wrap: anywhere;
   white-space: pre-wrap;
@@ -901,11 +901,11 @@
 
 .od-info-list .od-field dt {
   margin: 0;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 
 .od-info-list .od-field dd {
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
   font-weight: 600;
   text-align: left;
 }
@@ -976,12 +976,12 @@
   background: var(--ui-warning-soft);
   border-color: var(--ui-warning);
   color: var(--ui-warning-text);
-  font-size: 15px;
+  font-size: var(--mgr-fs-section, 16px);
   padding: var(--ui-space-4) var(--ui-space-5);
 }
 
 .od-notice.is-warning > strong {
-  font-size: 16px;
+  font-size: var(--mgr-fs-section, 16px);
 }
 
 .od-notice.is-warning > p {
@@ -997,7 +997,7 @@
   border-radius: var(--ui-radius-lg);
   background: var(--ui-surface);
   color: var(--ui-text);
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
   font-weight: 400;
 }
 
@@ -1007,26 +1007,26 @@
 }
 
 .od-notice .od-additional-info-form > strong {
-  font-size: 16px;
+  font-size: var(--mgr-fs-section, 16px);
   color: var(--ui-text);
 }
 
 .od-notice .od-additional-info-form > p {
   margin: -8px 0 0;
   color: var(--ui-text-2);
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
   line-height: 1.5;
 }
 
 .od-notice .od-additional-info-form small {
   color: var(--ui-text-3);
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
 }
 
 .od-notice .od-additional-info-grid label {
   gap: 6px;
   color: var(--ui-text-2);
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
   font-weight: 600;
 }
 
@@ -1035,7 +1035,7 @@
 .od-notice .od-additional-info-form textarea {
   border-color: var(--ui-border-strong, var(--ui-border));
   color: var(--ui-text);
-  font-size: 15px;
+  font-size: var(--mgr-fs-section, 16px);
   font-weight: 400;
 }
 

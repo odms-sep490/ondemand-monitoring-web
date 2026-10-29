@@ -42,7 +42,7 @@
 
   .odm-wf-chip {
     padding: 2px 10px;
-    font-size: 12px;
+    font-size: var(--mgr-fs-caption, 12px);
   }
 
   .odm-wf-btn {
@@ -83,7 +83,7 @@
   }
 
   .odm-wf-text strong {
-    font-size: 13.5px;
+    font-size: var(--mgr-fs-small, 13px);
   }
 
   .odm-or-readonly-banner {
@@ -105,7 +105,7 @@
   }
 
   .mgr-or-service-eyebrow {
-    font-size: 11px;
+    font-size: var(--mgr-fs-caption, 12px);
     font-weight: 700;
     letter-spacing: 0.06em;
     color: var(--mgr-muted);
@@ -113,7 +113,7 @@
 
   .mgr-or-service-name {
     margin: 2px 0 0;
-    font-size: 16px;
+    font-size: var(--mgr-fs-section, 16px);
     font-weight: 700;
     color: var(--mgr-text);
     overflow-wrap: anywhere;
@@ -121,7 +121,7 @@
 
   .mgr-or-service-desc {
     margin: 4px 0 0;
-    font-size: 13px;
+    font-size: var(--mgr-fs-small, 13px);
     color: var(--mgr-muted);
   }
 
@@ -300,7 +300,7 @@
     background: transparent;
 
     h4 {
-      font-size: 15px;
+      font-size: var(--mgr-fs-section, 16px);
     }
 
     &:last-child:nth-child(odd) {
@@ -342,7 +342,7 @@
 
     p {
       color: var(--mgr-muted);
-      font-size: 13.5px;
+      font-size: var(--mgr-fs-small, 13px);
     }
   }
 }

@@ -31,7 +31,7 @@
 }
 .monitoring-checklist header p {
   margin: 4px 0 0;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 .monitoring-checklist header p,
 .monitoring-checklist small {
@@ -43,7 +43,7 @@
   border: 1px solid var(--bd, #e2e8f0);
   border-radius: 12px;
   background: var(--sf2, #f8fafc);
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
 }
 .monitoring-summary.is-ready {
   border-color: #bbf7d0;
@@ -83,7 +83,7 @@
   padding: 4px 12px;
   border-radius: 999px;
   background: var(--bg2, #f1f5f9);
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   line-height: 1.5;
 }
 .monitoring-notes p.is-warn {
@@ -126,7 +126,7 @@
   border-radius: 50%;
   background: #eff6ff;
   color: #1d4ed8;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 700;
 }
 .monitoring-item {
@@ -134,18 +134,18 @@
 }
 .monitoring-item h3 {
   margin: 0 0 8px;
-  font-size: 15px;
+  font-size: var(--mgr-fs-section, 16px);
   font-weight: 600;
   line-height: 1.4;
 }
 .monitoring-item p {
   margin: 8px 0 0;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 .monitoring-item > small {
   display: block;
   margin-top: 8px;
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 .monitoring-item > .odm-btn {
   margin-top: 12px;
@@ -158,7 +158,7 @@
   border-radius: 999px;
   background: var(--bg2, #f1f5f9);
   color: #475569;
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 500;
 }
 .monitoring-meta .is-exec-completed,
@@ -196,7 +196,7 @@
 .monitoring-item label {
   display: grid;
   gap: 6px;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 600;
 }
 .monitoring-item textarea,
@@ -293,12 +293,12 @@
   margin-bottom: 10px;
 }
 .monitoring-checklist.is-compact h2 {
-  font-size: 16px;
+  font-size: var(--mgr-fs-section, 16px);
   font-weight: 600;
 }
 .mc-count {
   margin-left: auto;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 600;
   color: #475569;
   font-variant-numeric: tabular-nums;
@@ -309,7 +309,7 @@
 }
 .mc-count small {
   color: #15803d;
-  font-size: 11px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 600;
 }
 .mc-progress {
@@ -332,7 +332,7 @@
   border-radius: 8px;
   background: #f8fafc;
   color: #64748b;
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   line-height: 1.45;
 }
 .mc-note.is-warn {
@@ -390,7 +390,7 @@
   border-radius: 50%;
   background: #f1f5f9;
   color: #64748b;
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 600;
 }
 .mc-item.is-done .mc-mark {
@@ -412,7 +412,7 @@
 .mc-title {
   flex: 1;
   min-width: 0;
-  font-size: 13.5px;
+  font-size: var(--mgr-fs-small, 13px);
   line-height: 1.35;
   overflow-wrap: anywhere;
 }
@@ -420,7 +420,7 @@
   flex: none;
   padding: 2px 8px;
   border-radius: 999px;
-  font-size: 11.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 500;
   white-space: nowrap;
 }
@@ -452,7 +452,7 @@
   margin-top: 4px;
   min-height: 32px;
   padding: 4px 12px;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 .mc-detail .monitoring-item p {
   margin: 4px 0 0;
@@ -506,12 +506,12 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
   font-weight: 600;
   line-height: 1.35;
 }
 .mc-sub {
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   color: #64748b;
 }
 .mc-chip.is-pending {
@@ -532,7 +532,7 @@
 }
 .mc-detail .monitoring-item p {
   margin: 0;
-  font-size: 12.5px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 .mc-detail .monitoring-item form {
   align-self: stretch;
@@ -543,7 +543,7 @@
   border: 0;
   background: none;
   font: inherit;
-  font-size: 12.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 500;
   color: #2563eb;
   cursor: pointer;
@@ -552,7 +552,7 @@
   text-decoration: underline;
 }
 .mc-updated {
-  font-size: 11.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   color: #94a3b8;
 }
 @media (max-width: 380px) {
@@ -591,12 +591,12 @@
   grid-column: 1 / -1;
 }
 .mc-fields dt {
-  font-size: 11.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   color: #64748b;
 }
 .mc-fields dd {
   margin: 1px 0 0;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 600;
   color: #0f172a;
   overflow-wrap: anywhere;
@@ -614,7 +614,7 @@
   background: #fff;
   color: #2563eb;
   font: inherit;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 600;
   cursor: pointer;
 }
@@ -639,7 +639,7 @@
 .mc-form label {
   gap: 6px;
   margin-bottom: 12px;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 600;
   color: #0f172a;
 }
@@ -650,7 +650,7 @@
   border: 1px solid #dce3ec;
   border-radius: 8px;
   background: #fff;
-  font-size: 13.5px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 400;
 }
 .mc-form textarea {
@@ -662,14 +662,14 @@
 }
 .mc-form .mc-help {
   margin: -6px 0 12px;
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   color: #64748b;
   line-height: 1.4;
 }
 .mc-form .mc-counter {
   display: block;
   margin: -8px 0 12px;
-  font-size: 11.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   color: #94a3b8;
   text-align: right;
 }
@@ -693,7 +693,7 @@
   background: none;
   color: #64748b;
   font: inherit;
-  font-size: 13.5px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 600;
   cursor: pointer;
 }
@@ -710,7 +710,7 @@
   border-radius: 8px;
   background: #eff6ff;
   color: #1e3a8a;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   line-height: 1.5;
 }
 .mc-preview-list {
@@ -740,5 +740,5 @@
 }
 .mc-preview-text small {
   color: #475569;
-  font-size: 12.5px;
+  font-size: var(--mgr-fs-caption, 12px);
 }

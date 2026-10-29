@@ -8,7 +8,7 @@
 .checklist-hint {
   margin: 0;
   color: var(--ui-muted, var(--ui-text-3));
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   line-height: 1.55;
 }
 .checklist-pricing-notice {
@@ -17,7 +17,7 @@
   border-left: 3px solid var(--ui-warning);
   background: var(--ui-warning-soft);
   color: var(--ui-warning-text);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   line-height: 1.55;
 }
 .checklist-card .ant-card-extra .checklist-hint {
@@ -78,7 +78,7 @@
   min-height: 20px;
 }
 .checklist-card .checklist-index {
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 700;
   letter-spacing: 0.04em;
   color: var(--ui-primary-text);
@@ -89,7 +89,7 @@
   border-radius: 999px;
   background: var(--ui-surface-2);
   color: var(--ui-text-2);
-  font-size: 11px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 600;
 }
 .checklist-card .checklist-custom-tag.is-pending-quote {
@@ -103,7 +103,7 @@
   background: transparent;
   color: var(--ui-danger);
   font: inherit;
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 600;
   cursor: pointer;
 }
@@ -118,7 +118,7 @@
   padding: 8px 12px;
   resize: vertical;
   font: inherit;
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
   line-height: 1.5;
   border: 1px solid var(--ui-border-strong);
   border-radius: 8px;
@@ -156,7 +156,7 @@
 }
 .checklist-card .checklist-length {
   align-self: flex-end;
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   line-height: 1;
   color: var(--ui-border-strong);
   white-space: nowrap;
@@ -207,7 +207,7 @@
   background: var(--ui-primary-soft);
   padding: 5px 10px;
   border-radius: 8px;
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 .checklist-snapshot {
   padding-left: 24px;
@@ -229,7 +229,7 @@
   border-radius: 999px;
   background: var(--ui-primary-soft);
   color: var(--ui-primary-text);
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 600;
   white-space: nowrap;
 }
@@ -378,7 +378,7 @@
   align-items: center;
   gap: 8px;
   color: var(--ui-text-2);
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 600;
 }
 .checklist-evidence-field-label {
@@ -393,7 +393,7 @@
   background: var(--ui-surface);
   color: var(--ui-text);
   font: inherit;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 .checklist-evidence-requirements input {
   width: 76px;
@@ -405,7 +405,7 @@
   border-radius: 999px;
   background: var(--ui-primary-soft);
   color: var(--ui-primary-text);
-  font-size: 11px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 600;
   white-space: nowrap;
 }
@@ -432,7 +432,7 @@
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   overflow: hidden;
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
   line-height: 1.45;
   overflow-wrap: anywhere;
 }
@@ -450,7 +450,7 @@
   background: var(--ui-surface);
   color: var(--ui-primary-text);
   font: inherit;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 600;
   cursor: pointer;
 }
@@ -512,7 +512,7 @@
   background: var(--ui-surface);
   color: var(--ui-primary);
   font: inherit;
-  font-size: 13.5px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 600;
   cursor: pointer;
 }
@@ -538,7 +538,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 13.5px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 600;
   cursor: pointer;
 }
@@ -555,7 +555,7 @@
   background: var(--ui-surface);
   color: var(--ui-text-2);
   font: inherit;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 600;
   cursor: pointer;
 }
@@ -573,7 +573,7 @@
   background: var(--ui-surface);
   color: inherit;
   font: inherit;
-  font-size: 13.5px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 .checklist-card .checklist-search:focus-visible,
 .checklist-card .checklist-clear:focus-visible,
@@ -652,7 +652,7 @@
   background: transparent;
   color: var(--ui-text-2);
   font: inherit;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 600;
   cursor: pointer;
 }
@@ -666,7 +666,7 @@
 }
 .checklist-card .checklist-group-title {
   margin: 8px 0 0;
-  font-size: 12.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 700;
   color: var(--ui-text-3);
   text-transform: none;
@@ -807,7 +807,7 @@
   margin: 0;
   padding: 0;
   list-style: none;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   color: var(--ui-text-3);
 }
 .checklist-quote-line li {
@@ -818,7 +818,7 @@
 .checklist-quote-sum.is-total {
   padding-top: 8px;
   border-top: 1px solid var(--ui-border);
-  font-size: 15px;
+  font-size: var(--mgr-fs-section, 16px);
   font-weight: 700;
 }
 .checklist-card.is-compact .checklist-row.is-compact,

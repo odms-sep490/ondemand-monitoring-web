@@ -50,7 +50,7 @@
   border-left: 3px solid transparent;
   border-radius: var(--ui-radius-sm);
   font: inherit;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   cursor: pointer;
 }
 
@@ -72,6 +72,6 @@
 
 .ml-mission-count {
   flex: none;
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   color: var(--ui-text-3);
 }

@@ -62,7 +62,7 @@
   background: var(--sf);
   box-shadow: var(--shadow);
   color: var(--tx);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 700;
   padding: 9px 13px;
   animation: odm-cus-chatbot-float 2.8s ease-in-out infinite;
@@ -101,12 +101,12 @@
 }
 
 .odm-cus-chatbot-head b {
-  font-size: 15px;
+  font-size: var(--mgr-fs-section, 16px);
 }
 
 .odm-cus-chatbot-head small {
   color: var(--tx3);
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 
 .odm-cus-chatbot-head button {
@@ -134,7 +134,7 @@
   max-width: 82%;
   border-radius: 14px;
   padding: 9px 11px;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   line-height: 1.35;
 }
 
@@ -164,7 +164,7 @@
   background: var(--sf2);
   color: var(--tx2);
   cursor: pointer;
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 700;
   padding: 6px 9px;
 }

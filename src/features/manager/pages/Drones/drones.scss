@@ -39,7 +39,7 @@
     margin: 0;
     padding-top: 12px;
     border-top: 1px solid var(--mgr-border);
-    font-size: 13px;
+    font-size: var(--mgr-fs-small, 13px);
 
     div {
       display: flex;
@@ -61,7 +61,7 @@
   }
 
   .mgr-drone-count {
-    font-size: 13px;
+    font-size: var(--mgr-fs-small, 13px);
     color: var(--mgr-muted);
   }
 }
@@ -89,6 +89,6 @@
 }
 
 .mgr-modal-label {
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 600;
 }

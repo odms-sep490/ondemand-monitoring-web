@@ -40,7 +40,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 11px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 700;
   color: var(--ui-danger-text);
   text-transform: uppercase;
@@ -60,7 +60,7 @@
 
 .lh-sub {
   margin-top: var(--ui-space-1);
-  font-size: 12.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   color: var(--ui-text-3);
   overflow-wrap: anywhere;
 }

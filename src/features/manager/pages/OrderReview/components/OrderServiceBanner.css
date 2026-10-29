@@ -69,7 +69,7 @@
 }
 
 .odm-osb-eyebrow {
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -93,7 +93,7 @@
 
 .odm-osb-desc {
   margin: 0;
-  font-size: 13.5px;
+  font-size: var(--mgr-fs-small, 13px);
   line-height: 1.45;
   color: #3d5575;
   overflow-wrap: anywhere;
@@ -116,7 +116,7 @@
   background: rgba(255, 255, 255, 0.92);
   box-shadow: 0 1px 3px rgba(20, 88, 196, 0.15);
   color: #1458c4;
-  font-size: 12.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 500;
   line-height: 1.5;
   overflow-wrap: anywhere;
@@ -136,7 +136,7 @@
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.9);
   color: #3d5575;
-  font-size: 12.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 500;
   white-space: nowrap;
 }

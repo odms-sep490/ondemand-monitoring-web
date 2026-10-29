@@ -41,7 +41,7 @@
 
   .cus-deposit {
     margin-top: 4px;
-    font-size: 12px;
+    font-size: var(--mgr-fs-caption, 12px);
     font-weight: 600;
     color: var(--ui-warning-text);
   }
@@ -71,7 +71,7 @@
     }
 
     strong {
-      font-size: 16px;
+      font-size: var(--mgr-fs-section, 16px);
       color: var(--mgr-text);
     }
   }

@@ -10,7 +10,7 @@
 /* ---------- MNG-03 Order review ---------- */
 
 .odm-mgr-review-hint {
-  font-size: 11.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   color: var(--tx3);
 }
 
@@ -54,7 +54,7 @@
   border-radius: 5px;
   background: var(--sf3);
   color: var(--tx2);
-  font-size: 11.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 500;
   border: 1px solid var(--bd);
   cursor: pointer;
@@ -62,14 +62,14 @@
 
 .odm-mgr-modal-label {
   display: block;
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 600;
   color: var(--tx2);
   margin-bottom: 4px;
 }
 
 .odm-mgr-modal-error {
-  font-size: 11.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   color: var(--red-fg);
   margin-top: 4px;
 }
@@ -151,7 +151,7 @@
 .odm-or-subtitle {
   margin: 4px 0 0;
   color: var(--or-tx2);
-  font-size: 13.5px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 
 /* Cards */
@@ -175,7 +175,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 15px;
+  font-size: var(--mgr-fs-section, 16px);
   font-weight: 600;
   min-width: 0;
 }
@@ -222,7 +222,7 @@
 }
 
 .odm-flight-permit__field > strong {
-  font-size: 15px;
+  font-size: var(--mgr-fs-section, 16px);
   line-height: 1.4;
 }
 
@@ -294,12 +294,12 @@
 
 .odm-flight-permit__current-file {
   margin-top: -6px;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 
 .odm-flight-permit__error {
   color: var(--red-solid, #dc2626);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 
 .odm-flight-permit__actions {
@@ -360,7 +360,7 @@
 
 .odm-or-empty {
   color: var(--or-tx2);
-  font-size: 13.5px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 
 .odm-or-cq {
@@ -423,7 +423,7 @@
   padding: 10px 16px;
 }
 .odm-or-review-page .odm-or-card-title {
-  font-size: 16px;
+  font-size: var(--mgr-fs-section, 16px);
   font-weight: 700;
   letter-spacing: 0;
 }
@@ -471,7 +471,7 @@
 
 .odm-or-review-stage-progress {
   color: var(--or-tx2);
-  font-size: 12.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 600;
   white-space: nowrap;
 }
@@ -479,7 +479,7 @@
 .odm-or-review-stage-hint {
   min-width: 0;
   color: var(--or-amber-fg);
-  font-size: 12.5px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 
 .odm-or-review-stage-actions .odm-btn-p {
@@ -526,7 +526,7 @@
 .odm-or-req-hero-text p {
   margin: 4px 0 0;
   color: var(--or-tx2);
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
   line-height: 1.5;
   overflow-wrap: anywhere;
 }
@@ -541,11 +541,11 @@
 }
 .odm-or-req-facts dt {
   color: var(--or-tx2);
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 .odm-or-req-facts dd {
   margin: 2px 0 0;
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
   font-weight: 600;
   overflow-wrap: anywhere;
 }
@@ -578,7 +578,7 @@
   gap: 5px;
   padding: 3px 10px;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 600;
   line-height: 1.4;
   white-space: nowrap;
@@ -624,7 +624,7 @@
   padding: 13px 16px 14px;
   border-top: 1px solid var(--or-border);
   color: var(--or-tx);
-  font-size: 13.5px;
+  font-size: var(--mgr-fs-small, 13px);
   line-height: 1.45;
 }
 
@@ -639,7 +639,7 @@
   display: block;
   margin-bottom: 2px;
   color: var(--or-tx2);
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 
 .odm-or-area-address strong {
@@ -702,7 +702,7 @@
   border: 1px solid var(--or-border);
   background: rgb(255 255 255 / 94%);
   color: #b91c1c;
-  font-size: 11px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 700;
   white-space: nowrap;
   pointer-events: none;
@@ -729,7 +729,7 @@
   border-radius: 8px;
   background: rgb(255 255 255 / 95%);
   color: #111827;
-  font-size: 12.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   line-height: 1.45;
 }
 
@@ -791,12 +791,12 @@
 .odm-or-attachment-name {
   color: var(--or-tx);
   font-weight: 600;
-  font-size: 13.5px;
+  font-size: var(--mgr-fs-small, 13px);
   overflow-wrap: anywhere;
 }
 
 .odm-or-attachment-meta {
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 
 /* Customer */
@@ -834,7 +834,7 @@
 }
 
 .odm-or-customer-name {
-  font-size: 16px;
+  font-size: var(--mgr-fs-section, 16px);
   font-weight: 600;
   overflow-wrap: anywhere;
 }
@@ -853,7 +853,7 @@
   align-items: center;
   gap: 10px;
   color: var(--or-tx2);
-  font-size: 13.5px;
+  font-size: var(--mgr-fs-small, 13px);
   overflow-wrap: anywhere;
 }
 
@@ -868,7 +868,7 @@
 
 .odm-or-contact li small {
   color: var(--or-tx3);
-  font-size: 11px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 600;
 }
 
@@ -884,7 +884,7 @@
 
 .odm-or-note-error {
   color: var(--or-red);
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 
 /* Order review action footer */
@@ -913,7 +913,7 @@
   border-radius: 8px;
   background: var(--or-primary-soft);
   color: var(--or-tx2);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   line-height: 1.5;
 }
 
@@ -993,7 +993,7 @@
 .odm-or-muted {
   margin: 6px 0 0;
   color: var(--or-tx2);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   line-height: 1.55;
 }
 
@@ -1051,7 +1051,7 @@
 
 .odm-or-weather-label {
   color: var(--or-tx);
-  font-size: 16px;
+  font-size: var(--mgr-fs-section, 16px);
   font-weight: 800;
 }
 
@@ -1074,13 +1074,13 @@
 
 .odm-or-weather-metric-label {
   color: var(--or-tx2);
-  font-size: 11.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 700;
 }
 
 .odm-or-weather-metric-value {
   color: var(--or-tx);
-  font-size: 16px;
+  font-size: var(--mgr-fs-section, 16px);
   font-weight: 800;
 }
 
@@ -1093,7 +1093,7 @@
 .odm-or-weather-desc {
   margin-top: 2px;
   color: var(--or-tx2);
-  font-size: 12.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   line-height: 1.45;
 }
 
@@ -1103,7 +1103,7 @@
   border-radius: 999px;
   background: rgba(15, 23, 42, 0.08);
   color: var(--or-tx);
-  font-size: 11.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 800;
 }
 
@@ -1133,7 +1133,7 @@
   border-radius: 8px;
   background: var(--or-bg);
   color: var(--or-tx);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 700;
   cursor: pointer;
 }
@@ -1148,7 +1148,7 @@
   border-radius: 8px;
   background: var(--sf3);
   color: var(--or-tx);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 700;
 }
 
@@ -1158,7 +1158,7 @@
   border-radius: 10px;
   background: var(--sf3);
   color: var(--or-tx2);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 
 .odm-or-form-row {
@@ -1181,7 +1181,7 @@
 }
 
 .odm-or-field-label {
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 600;
 }
 
@@ -1212,7 +1212,7 @@
   border-radius: 8px;
   background: #fef3f2;
   color: #b42318;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 
 .odm-or-summary-list {
@@ -1238,7 +1238,7 @@
   align-items: flex-start;
   gap: 8px;
   color: var(--or-tx2);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 
 .odm-or-summary-list dt svg {
@@ -1248,7 +1248,7 @@
 
 .odm-or-summary-list dd {
   margin: 0;
-  font-size: 13.5px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 600;
   overflow-wrap: anywhere;
 }
@@ -1259,7 +1259,7 @@
   padding: 0;
   color: var(--or-primary);
   font: inherit;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 600;
   cursor: pointer;
 }
@@ -1347,7 +1347,7 @@
   align-items: center;
   gap: 8px;
   color: var(--or-tx2);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 
 .odm-or-chips > strong {
@@ -1369,7 +1369,7 @@
   border: 0;
   background: transparent;
   color: var(--or-tx2);
-  font-size: 15px;
+  font-size: var(--mgr-fs-section, 16px);
   line-height: 1;
   padding: 0 4px;
   cursor: pointer;
@@ -1389,7 +1389,7 @@
   gap: 8px;
   padding: 10px 12px;
   border-radius: 8px;
-  font-size: 13.5px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 600;
 }
 
@@ -1461,7 +1461,7 @@
   gap: 10px;
   padding: 9px 0;
   border-bottom: 1px dashed var(--or-border);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 
 .odm-or-kv > div:last-child {
@@ -1500,7 +1500,7 @@
 
 .odm-or-detail-section-head h3 {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
   line-height: 1.25;
 }
 
@@ -1537,14 +1537,14 @@
 .odm-or-detail-metric span {
   display: block;
   color: var(--or-tx2);
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   line-height: 1.25;
 }
 
 .odm-or-detail-metric strong {
   display: block;
   margin-top: 5px;
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
   line-height: 1.25;
   overflow-wrap: anywhere;
 }
@@ -1552,7 +1552,7 @@
 .odm-or-detail-note {
   margin: 10px 0 0;
   color: var(--or-tx2);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   line-height: 1.45;
 }
 
@@ -1568,14 +1568,14 @@
   display: block;
   margin-bottom: 5px;
   color: #92400e;
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 700;
 }
 
 .odm-or-addon-list p {
   margin: 0;
   color: #111827;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 600;
   line-height: 1.45;
 }
@@ -1612,13 +1612,13 @@
 }
 
 .odm-or-check-item strong {
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 
 .odm-or-check-item small {
   margin-top: 2px;
   color: var(--or-tx2);
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 
 .odm-or-dot {
@@ -1667,11 +1667,11 @@
   border: 1px solid var(--or-border);
   border-radius: 8px;
   color: var(--or-tx2);
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 
 .odm-or-crew-count {
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 600;
   color: var(--or-green);
 }
@@ -1705,7 +1705,7 @@
   justify-content: center;
   background: var(--or-primary-soft);
   color: var(--or-primary-fg);
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 700;
 }
 
@@ -1723,17 +1723,17 @@
 }
 
 .odm-or-crew-role {
-  font-size: 11.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   color: var(--or-tx2);
 }
 
 .odm-or-crew-main strong {
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   overflow-wrap: anywhere;
 }
 
 .odm-or-crew-main small {
-  font-size: 11.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   color: var(--or-tx2);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1742,7 +1742,7 @@
 
 .odm-or-crew-item .odm-or-pill {
   flex: none;
-  font-size: 11px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 
 /* Mission list — fit within viewport when the detail panel is open */
@@ -1834,7 +1834,7 @@
   border-radius: 8px;
   background: rgba(15, 23, 42, 0.78);
   color: #fff;
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 600;
 }
 
@@ -1845,7 +1845,7 @@
   display: grid;
   place-items: center;
   color: #475569;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 600;
 }
 
@@ -1906,7 +1906,7 @@
   background: rgba(255, 255, 255, 0.94);
   color: var(--or-tx);
   box-shadow: 0 2px 10px rgba(15, 23, 42, 0.12);
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 700;
 }
 
@@ -1938,7 +1938,7 @@
   padding: 0;
   list-style: none;
   color: var(--or-tx2);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 
 .odm-or-weather-advisories li {
@@ -1959,7 +1959,7 @@
 
 .odm-rm-side h3 {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
   font-weight: 700;
 }
 
@@ -1971,7 +1971,7 @@
   flex-direction: column;
   gap: 8px;
   border-top: 1px solid var(--or-border);
-  font-size: 12.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   color: var(--or-tx2);
 }
 
@@ -2057,7 +2057,7 @@
   padding: 8px 10px;
   border-radius: 8px;
   background: var(--or-tile);
-  font-size: 12.5px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 
 .odm-rm-wps b {
@@ -2069,7 +2069,7 @@
   border-radius: 50%;
   background: #2563eb;
   color: #fff;
-  font-size: 11px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 
 .odm-rm-wps li:first-child b {
@@ -2154,12 +2154,12 @@
 
 .odm-or-area-decision strong {
   display: block;
-  font-size: 15px;
+  font-size: var(--mgr-fs-section, 16px);
 }
 
 .odm-or-area-decision p {
   margin: 5px 0 0;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   line-height: 1.5;
 }
 
@@ -2205,7 +2205,7 @@
   color: #b91c1c;
   cursor: pointer;
   font: inherit;
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 700;
 }
 
@@ -2215,7 +2215,7 @@
 
 .odm-or-area-source {
   color: var(--pr);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 650;
   text-decoration: none;
 }
@@ -2234,7 +2234,7 @@
 .odm-or-area-manager-review > span,
 .odm-or-area-manager-review > small {
   color: var(--tx3);
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 
 .odm-or-area-manager-review > strong {
@@ -2450,13 +2450,13 @@
 
 .odm-or-req-fallback-label {
   color: var(--or-tx2);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 600;
 }
 
 .odm-or-req-fallback strong {
   overflow-wrap: anywhere;
-  font-size: 15px;
+  font-size: var(--mgr-fs-section, 16px);
 }
 
 .odm-or-req-section {
@@ -2511,13 +2511,13 @@
 
 .odm-or-req-section .odm-or-req-facts dt {
   color: var(--or-tx2);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 
 .odm-or-req-section .odm-or-req-facts dd {
   overflow-wrap: anywhere;
   color: var(--or-tx);
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
   font-weight: 700;
 }
 
@@ -2581,7 +2581,7 @@
 }
 .odm-or-svc-time dt {
   color: var(--or-tx2);
-  font-size: 13.5px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 .odm-or-svc-time dd {
   margin: 4px 0 0;
@@ -2617,11 +2617,11 @@
 }
 .odm-or-svc-tile dt {
   color: var(--or-tx2);
-  font-size: 12.5px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 .odm-or-svc-tile dd {
   margin: 2px 0 0;
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
   font-weight: 700;
   overflow-wrap: anywhere;
 }
@@ -2668,7 +2668,7 @@
   color: var(--or-primary);
 }
 .odm-or-req-facts > div.has-icon dd {
-  font-size: 15px;
+  font-size: var(--mgr-fs-section, 16px);
   font-weight: 700;
 }
 .odm-or-req-facts > div.tone-green {
@@ -2702,11 +2702,11 @@
   min-height: 78px;
 }
 .odm-or-req-facts > div.has-icon dt {
-  font-size: 12.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   line-height: 1.3;
 }
 .odm-or-req-facts > div.has-icon dd {
-  font-size: 15px;
+  font-size: var(--mgr-fs-section, 16px);
   line-height: 1.35;
 }
 .odm-or-req-ico {
@@ -2781,7 +2781,7 @@
     height: 36px;
   }
   .odm-or-req-facts > div.has-icon dd {
-    font-size: 14px;
+    font-size: var(--mgr-fs-body, 14px);
   }
 }
 @container odm-req (max-width: 820px) {
@@ -2872,12 +2872,12 @@
 }
 .odm-or-req-facts > div.has-icon dt {
   color: var(--or-tx2);
-  font-size: 12.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 500;
 }
 .odm-or-req-facts > div.has-icon dd {
   color: var(--or-tx);
-  font-size: 15px;
+  font-size: var(--mgr-fs-section, 16px);
   font-weight: 700;
 }
 
@@ -2938,12 +2938,12 @@
   align-items: center;
   gap: 6px;
   color: var(--or-tx2);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 
 .odm-or-overview-list dd {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
   font-weight: 600;
   overflow-wrap: anywhere;
 }
@@ -2964,7 +2964,7 @@
 }
 .odm-or-review-page .odm-or-subtitle {
   margin-top: 2px;
-  font-size: 13.5px;
+  font-size: var(--mgr-fs-small, 13px);
   color: var(--or-tx2);
 }
 
@@ -2997,7 +2997,7 @@
   gap: 12px;
 }
 .odm-osb-eyebrow {
-  font-size: 11px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 .odm-osb-title {
   font-size: 18px;
@@ -3010,7 +3010,7 @@
 }
 .odm-osb-tag {
   padding: 2px 10px;
-  font-size: 12.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   box-shadow: none;
 }
 .odm-osb-status {
@@ -3020,7 +3020,7 @@
 }
 .odm-osb-code {
   font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 600;
   color: #0a1f3d;
 }
@@ -3066,7 +3066,7 @@
   min-width: 0;
 }
 .odm-or-svc-period {
-  font-size: 13.5px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 500;
   color: var(--or-tx2);
 }
@@ -3078,7 +3078,7 @@
   align-items: center;
   gap: 6px;
   font-variant-numeric: tabular-nums;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   white-space: nowrap;
 }
 .odm-or-svc-toast {
@@ -3089,7 +3089,7 @@
   border-radius: 6px;
   background: var(--or-tx);
   color: var(--or-card);
-  font-size: 11.5px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 
 /* ---------- Two-level workflow: Order stages, then Mission stages ---------- */
@@ -3115,14 +3115,14 @@
 }
 .odm-wf-eyebrow {
   color: var(--or-tx2);
-  font-size: 11.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 .odm-wf-mission-of {
   color: var(--or-tx);
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
 }
 .odm-wf-code {
   padding: 1px 7px;
@@ -3130,7 +3130,7 @@
   background: var(--or-card);
   border: 1px solid var(--or-border);
   color: var(--or-tx2);
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 .odm-wf-pager {
   display: inline-flex;
@@ -3143,7 +3143,7 @@
   gap: 5px;
   padding: 2px 10px;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 600;
   background: var(--or-primary-soft);
   color: var(--or-primary-fg);
@@ -3206,7 +3206,7 @@ button.odm-wf-btn:focus-visible {
   height: 28px;
   border-radius: 50%;
   background: #eef2f7;
-  font-size: 12.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 700;
 }
 :root[data-theme='dark'] .odm-wf-dot {
@@ -3221,12 +3221,12 @@ button.odm-wf-btn:focus-visible {
 }
 .odm-wf-text strong {
   color: var(--or-tx);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   line-height: 1.3;
 }
 .odm-wf-text small {
   overflow: hidden;
-  font-size: 11.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -3283,7 +3283,7 @@ button.odm-wf-btn:focus-visible {
   margin: 6px 12px 2px;
   padding: 6px 10px;
   border-radius: 8px;
-  font-size: 12.5px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 .odm-wf-note.is-waiting {
   background: var(--or-amber-soft);
@@ -3314,7 +3314,7 @@ button.odm-wf-btn:focus-visible {
   border-radius: 10px;
   background: var(--or-primary-soft);
   color: var(--or-primary-fg);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 .odm-or-readonly-banner strong {
   margin-right: auto;
@@ -3339,10 +3339,10 @@ fieldset.odm-or-readonly {
   border: 1px solid var(--bd, #e3e8ef);
   border-radius: 12px;
   background: var(--sf, #fff);
-  font-size: 13.5px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 .odm-assign-context strong {
-  font-size: 15px;
+  font-size: var(--mgr-fs-section, 16px);
 }
 .odm-assign-context span {
   color: var(--tx2, #667085);
@@ -3356,14 +3356,14 @@ fieldset.odm-or-readonly {
   border-radius: 10px;
   background: #eef4ff;
   color: #1d4ed8;
-  font-size: 13.5px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 .odm-or-bulk-assign {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 8px 12px;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   color: var(--tx2, #667085);
 }
 .odm-or-bulk-assign select {
@@ -3387,10 +3387,10 @@ fieldset.odm-or-readonly {
   padding: 12px 16px;
   border-radius: 12px;
   border: 1px solid transparent;
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
 }
 .odm-md-next strong {
-  font-size: 15px;
+  font-size: var(--mgr-fs-section, 16px);
 }
 .odm-md-next.is-wait {
   background: #fff7df;
@@ -3441,13 +3441,13 @@ fieldset.odm-or-readonly {
 }
 
 .odm-md-collapse-title {
-  font-size: 16px;
+  font-size: var(--mgr-fs-section, 16px);
   font-weight: 700;
 }
 
 .odm-md-collapse-meta {
   color: var(--or-tx2);
-  font-size: 13.5px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 
 .odm-md-collapse[open] > summary {
@@ -3456,7 +3456,7 @@ fieldset.odm-or-readonly {
 
 .odm-or-area-contact {
   margin: 0;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 600;
 }
 .odm-or-area-contact a {
@@ -3538,11 +3538,11 @@ fieldset.odm-or-readonly {
   color: #991b1b;
 }
 .odm-or-area-decision strong {
-  font-size: 15px;
+  font-size: var(--mgr-fs-section, 16px);
 }
 .odm-or-area-decision p {
   margin-top: 4px;
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
 }
 
 .odm-or-area-source {
@@ -3553,7 +3553,7 @@ fieldset.odm-or-readonly {
   border: 1px solid var(--or-border);
   border-radius: 12px;
   color: var(--or-tx);
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
   font-weight: 600;
 }
 .odm-or-area-source:hover {
@@ -3575,7 +3575,7 @@ fieldset.odm-or-readonly {
   border-radius: 12px;
 }
 .odm-or-area-review-label {
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
   color: var(--or-tx2);
 }
 .odm-or-area-verdict {
@@ -3590,14 +3590,14 @@ fieldset.odm-or-readonly {
 .odm-or-area-reason {
   display: grid;
   gap: 2px;
-  font-size: 15px;
+  font-size: var(--mgr-fs-section, 16px);
 }
 .odm-or-area-reason span {
   color: var(--or-tx2);
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
 }
 .odm-or-area-manager-review > small {
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
 }
 
 .odm-or-area-edit {
@@ -3611,7 +3611,7 @@ fieldset.odm-or-readonly {
   background: var(--or-card);
   color: var(--or-tx);
   font: inherit;
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
   font-weight: 600;
   text-align: left;
   cursor: pointer;
@@ -3630,7 +3630,7 @@ fieldset.odm-or-readonly {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
 }
 .odm-or-area-contact svg {
   color: var(--or-tx2);
@@ -3649,7 +3649,7 @@ fieldset.odm-or-readonly {
   min-width: 0;
   padding: 10px 12px;
   border-radius: 10px;
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
   color: var(--or-tx);
 }
 .odm-or-area-secondary-actions .is-danger {
@@ -3672,18 +3672,18 @@ fieldset.odm-or-readonly {
 }
 
 .odm-or-area-decision strong {
-  font-size: 16px;
+  font-size: var(--mgr-fs-section, 16px);
   line-height: 1.35;
 }
 .odm-or-area-decision p {
-  font-size: 14.5px;
+  font-size: var(--mgr-fs-body, 14px);
   line-height: 1.55;
 }
 
 .odm-or-area-source,
 .odm-or-area-edit {
   min-height: 52px;
-  font-size: 15px;
+  font-size: var(--mgr-fs-section, 16px);
   font-weight: 600;
 }
 
@@ -3707,7 +3707,7 @@ fieldset.odm-or-readonly {
   background: #f6fdf8;
 }
 .odm-or-area-review-label {
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -3726,13 +3726,13 @@ fieldset.odm-or-readonly {
   line-height: 1.5;
 }
 .odm-or-area-reason span {
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 .odm-or-area-manager-review > small {
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
   color: var(--or-tx2);
 }
 
@@ -3756,20 +3756,20 @@ fieldset.odm-or-readonly {
   min-width: 0;
 }
 .odm-or-area-contact span {
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   color: var(--or-tx2);
 }
 .odm-or-area-contact strong {
-  font-size: 15px;
+  font-size: var(--mgr-fs-section, 16px);
   font-weight: 700;
 }
 .odm-or-area-contact a {
-  font-size: 16px;
+  font-size: var(--mgr-fs-section, 16px);
   font-weight: 700;
   color: var(--or-primary);
 }
 .odm-or-area-contact em {
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
   color: var(--or-tx2);
 }
 
@@ -3783,7 +3783,7 @@ fieldset.odm-or-readonly {
   flex: none;
   width: 100%;
   min-height: 48px;
-  font-size: 15px;
+  font-size: var(--mgr-fs-section, 16px);
   font-weight: 700;
 }
 .odm-or-area-secondary-actions button:not(.is-danger) {

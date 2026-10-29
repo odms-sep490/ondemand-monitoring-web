@@ -9,6 +9,6 @@
 
 .om-empty {
   margin: 0;
-  font-size: 13.5px;
+  font-size: var(--mgr-fs-small, 13px);
   color: var(--ui-text-3);
 }

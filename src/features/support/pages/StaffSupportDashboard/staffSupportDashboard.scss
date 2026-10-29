@@ -70,7 +70,7 @@
 
   .sd-note {
     margin: 4px 0 0;
-    font-size: 12.5px;
+    font-size: var(--mgr-fs-caption, 12px);
     color: var(--mgr-muted);
   }
 
@@ -78,7 +78,7 @@
     margin: 12px 0 0;
     padding: 8px 12px;
     border-radius: 10px;
-    font-size: 13px;
+    font-size: var(--mgr-fs-small, 13px);
     font-weight: 600;
     color: var(--pl-green-fg, #166534);
     background: var(--pl-green-bg, #dcfce7);
@@ -86,7 +86,7 @@
 
   .sd-sub-title {
     margin: 16px 0 8px;
-    font-size: 12.5px;
+    font-size: var(--mgr-fs-caption, 12px);
     font-weight: 700;
     color: var(--mgr-muted);
   }
@@ -97,7 +97,7 @@
     gap: 6px;
     margin: 0;
     padding-left: 18px;
-    font-size: 13px;
+    font-size: var(--mgr-fs-small, 13px);
 
     li {
       padding-left: 2px;
@@ -120,7 +120,7 @@
 
   .sd-faq-n {
     margin-left: 8px;
-    font-size: 12px;
+    font-size: var(--mgr-fs-caption, 12px);
     color: var(--mgr-muted);
   }
 
@@ -137,7 +137,7 @@
     display: flex;
     justify-content: space-between;
     gap: 12px;
-    font-size: 13px;
+    font-size: var(--mgr-fs-small, 13px);
 
     b {
       font-variant-numeric: tabular-nums;
@@ -240,7 +240,7 @@
 
   .sd-detail-heading {
     margin: 0;
-    font-size: 12px;
+    font-size: var(--mgr-fs-caption, 12px);
     font-weight: 700;
     letter-spacing: 0.04em;
     text-transform: uppercase;
@@ -252,7 +252,7 @@
     flex-direction: column;
     gap: 8px;
     margin: 0;
-    font-size: 13.5px;
+    font-size: var(--mgr-fs-small, 13px);
   }
 
   .sd-fact {
@@ -302,7 +302,7 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
-    font-size: 12.5px;
+    font-size: var(--mgr-fs-caption, 12px);
     color: var(--mgr-muted);
 
     .ant-select {
@@ -326,7 +326,7 @@
   .sd-thread-empty {
     padding: 16px;
     text-align: center;
-    font-size: 13px;
+    font-size: var(--mgr-fs-small, 13px);
     color: var(--mgr-muted);
     white-space: pre-wrap;
   }
@@ -347,7 +347,7 @@
     align-items: center;
     gap: 8px;
     margin-bottom: 4px;
-    font-size: 12px;
+    font-size: var(--mgr-fs-caption, 12px);
     color: var(--mgr-muted);
 
     b {
@@ -364,7 +364,7 @@
     padding: 10px 14px;
     border: 1px solid var(--mgr-border);
     border-radius: 12px;
-    font-size: 13.5px;
+    font-size: var(--mgr-fs-small, 13px);
     line-height: 1.5;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
@@ -381,7 +381,7 @@
     margin-top: 6px;
     padding-top: 6px;
     border-top: 1px solid var(--mgr-border);
-    font-size: 12.5px;
+    font-size: var(--mgr-fs-caption, 12px);
     font-weight: 600;
   }
 

@@ -16,7 +16,7 @@
 }
 .mission-stop__header h4 {
   margin: 0;
-  font-size: 15px;
+  font-size: var(--mgr-fs-section, 16px);
   font-weight: 750;
   display: flex;
   align-items: center;
@@ -39,7 +39,7 @@
   line-height: 1.5;
 }
 .mission-stop__description {
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   color: var(--tx2);
 }
 .mission-stop__progress {
@@ -54,7 +54,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   color: var(--tx3);
 }
 .mission-stop__step-icon {
@@ -77,19 +77,19 @@
 .mission-stop__meta,
 .mission-stop__guidance {
   color: var(--tx3);
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 .mission-stop__reason {
   margin: 14px 0 0;
 }
 .mission-stop__reason dt {
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 650;
   color: var(--tx2);
 }
 .mission-stop__reason dd {
   margin: 4px 0 0;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   white-space: pre-wrap;
 }
 .mission-stop__form {
@@ -101,7 +101,7 @@
 .mission-stop__field {
   display: grid;
   gap: 6px;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 600;
 }
 .mission-stop .mission-stop__attestation {
@@ -135,7 +135,7 @@
   margin-top: 14px;
 }
 .mission-stop__warning {
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   color: var(--red-fg);
 }
 .mission-stop :is(button, textarea, input):focus-visible,

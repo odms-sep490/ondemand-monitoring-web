@@ -30,7 +30,7 @@
   display: inline-block;
   margin-right: 8px;
   color: var(--or-tx2);
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 .odm-or-checklist-evidence {
   padding: 2px 8px;

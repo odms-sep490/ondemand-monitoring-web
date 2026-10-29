@@ -19,7 +19,7 @@
 
 .psum-hero-label {
   display: block;
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -53,7 +53,7 @@
 .psum-empty,
 .psum-note {
   margin: 0;
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   color: var(--mgr-muted);
 }
 
@@ -73,7 +73,7 @@
 }
 
 .psum-row.is-head {
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -124,7 +124,7 @@
 .psum-detail-title {
   display: block;
   margin-bottom: 6px;
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 600;
   color: var(--mgr-muted);
 }
@@ -132,7 +132,7 @@
 .psum-detail table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 
 .psum-detail th,

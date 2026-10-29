@@ -40,6 +40,6 @@
 
 .mdp-expired {
   margin: 0;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   color: var(--ui-danger-text);
 }

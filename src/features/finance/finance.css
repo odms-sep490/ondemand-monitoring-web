@@ -28,7 +28,7 @@
   font-weight: 700;
 }
 .finance-quote .finance-heading h2 {
-  font-size: 16px;
+  font-size: var(--mgr-fs-section, 16px);
 }
 
 /* Toolbar: progress left, filters right */
@@ -53,7 +53,7 @@
   border: 0;
   background: transparent;
   color: var(--or-tx, #172033);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 .finance-workspace .finance-review-progress span {
   text-align: left;
@@ -87,7 +87,7 @@
   margin: 0 18px 8px;
   padding: 6px 12px;
   border-radius: 8px;
-  font-size: 12.5px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 .finance-review-warning.is-pending {
   background: #fff7e6;
@@ -130,7 +130,7 @@
   background: #f2f5f9;
   color: #53627b;
   font: inherit;
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   cursor: pointer;
 }
 .finance-filter.is-on {
@@ -151,7 +151,7 @@
   padding: 8px 12px;
   border-block: 1px solid #e8edf4;
   color: #64748b;
-  font-size: 11px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 650;
 }
 .finance-workspace .finance-requirement {
@@ -183,12 +183,12 @@
   border-radius: 8px;
   background: var(--blue-bg);
   color: #0862df;
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 700;
 }
 .finance-workspace .finance-requirement-main strong {
   display: -webkit-box;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   font-weight: 600;
   line-height: 1.3;
   overflow: hidden;
@@ -197,7 +197,7 @@
 }
 .finance-workspace .finance-requirement-main span {
   color: var(--or-tx2, #667085);
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   margin-top: 2px;
 }
 .finance-sr {
@@ -214,12 +214,12 @@
 .finance-workspace .finance-status-select select {
   height: 40px;
   padding: 4px 8px;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
   background: #f2f5f9;
 }
 .finance-workspace .finance-zero {
   margin: 0;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 .finance-item-price {
   display: grid;
@@ -238,7 +238,7 @@
   display: grid;
   gap: 3px;
   min-width: 0;
-  font-size: 11px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 .finance-item-price input {
   box-sizing: border-box;
@@ -257,7 +257,7 @@
   border-radius: 999px;
   background: #eef2f6;
   color: #64748b;
-  font-size: 11px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 650;
   white-space: nowrap;
 }
@@ -341,7 +341,7 @@
 }
 .finance-quote .finance-summary > div {
   padding: 5px 0;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 .finance-quote .finance-summary dt {
   color: var(--or-tx2, #667085);
@@ -350,7 +350,7 @@
   margin-top: 8px;
   padding-top: 12px;
   align-items: baseline;
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
   font-weight: 600;
 }
 .finance-quote .finance-summary .is-total dt {
@@ -368,7 +368,7 @@
   border-radius: 8px;
   background: #eaf2ff;
   color: #486187;
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 .finance-quote-note {
   display: grid;
@@ -377,7 +377,7 @@
   margin-top: 8px;
   min-width: 0;
   color: #334155;
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 .finance-quote-note textarea {
   display: block;
@@ -418,7 +418,7 @@
   justify-content: center;
   width: 100%;
   height: 44px;
-  font-size: 14px;
+  font-size: var(--mgr-fs-body, 14px);
   font-weight: 700;
 }
 .finance-quote .finance-actions .odm-btn-p {
@@ -506,7 +506,7 @@
 .finance-heading p {
   margin: 5px 0 0;
   color: var(--tx3, var(--ui-text-3));
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 .finance-status {
   flex: 0 0 auto;
@@ -514,7 +514,7 @@
   border-radius: 6px;
   background: var(--sf3, #eef2ff);
   color: var(--tx2, #3730a3);
-  font-size: 11px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 700;
 }
 .finance-review-progress {
@@ -526,7 +526,7 @@
   border-left: 3px solid #d97706;
   background: #fffbeb;
   color: #92400e;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 .finance-review-progress span {
   text-align: right;
@@ -559,14 +559,14 @@
 .finance-zero {
   margin-top: 4px;
   color: var(--tx3, var(--ui-text-3));
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 .finance-panel label {
   display: grid;
   gap: 6px;
   min-width: 0;
   color: var(--tx2, var(--ui-text-2));
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 600;
 }
 .finance-panel input,
@@ -580,7 +580,7 @@
   background: var(--sf1, var(--ui-surface));
   color: var(--tx1, var(--ui-text));
   font: inherit;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 .finance-note {
   grid-column: 2 / -1;
@@ -593,7 +593,7 @@
   justify-content: space-between;
   gap: 16px;
   padding: 8px 0;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 .finance-summary dt,
 .finance-summary dd {
@@ -607,13 +607,13 @@
   margin-top: 7px;
   padding-top: 13px;
   border-top: 1px solid var(--or-border, var(--ui-border));
-  font-size: 16px;
+  font-size: var(--mgr-fs-section, 16px);
 }
 .finance-alert {
   margin: 0 20px 12px;
   padding: 10px 12px;
   border-radius: 6px;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 .finance-alert.is-error {
   background: var(--ui-danger-soft);
@@ -654,7 +654,7 @@
   margin: 0;
   padding: 16px 20px 0;
   color: var(--ui-text-3);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 .customer-finance-head,
 .customer-invoice-title {
@@ -677,7 +677,7 @@
 .customer-invoice-title p {
   margin: 5px 0 0;
   color: var(--ui-text-3);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 .customer-quote-body,
 .customer-invoice {
@@ -707,11 +707,11 @@
 }
 .customer-payment-stats span {
   color: var(--ui-text-3);
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
 }
 .customer-payment-stats strong {
   margin-top: 5px;
-  font-size: 15px;
+  font-size: var(--mgr-fs-section, 16px);
 }
 .customer-deposit-notice {
   display: grid;
@@ -720,7 +720,7 @@
   border-left: 3px solid var(--ui-warning);
   background: var(--ui-warning-soft);
   color: var(--ui-warning-text);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 .customer-deposit-notice.is-ready {
   border-color: var(--ui-success);
@@ -762,7 +762,7 @@
 }
 
 .od-page .customer-payment-stats strong {
-  font-size: 16px;
+  font-size: var(--mgr-fs-section, 16px);
   white-space: nowrap;
 }
 
@@ -1001,7 +1001,7 @@
   border-radius: 999px;
   background: #eef4ff;
   color: #1d4ed8;
-  font-size: 12px;
+  font-size: var(--mgr-fs-caption, 12px);
   font-weight: 600;
   white-space: nowrap;
 }
@@ -1023,7 +1023,7 @@
   gap: 12px;
   padding: 8px 12px;
   background: #f1f5f9;
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 .finance-breakdown-group > header strong {
   min-width: 0;
@@ -1046,7 +1046,7 @@
   gap: 12px;
   padding: 3px 0;
   color: var(--or-tx2, #667085);
-  font-size: 12.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   line-height: 1.4;
 }
 .finance-breakdown-group li span:last-child {
@@ -1101,7 +1101,7 @@
   gap: 12px;
   padding: 8px 12px;
   background: var(--ui-surface-2);
-  font-size: 13px;
+  font-size: var(--mgr-fs-small, 13px);
 }
 .customer-quote-group > header strong {
   min-width: 0;
@@ -1120,7 +1120,7 @@
   gap: 12px;
   padding: 3px 0;
   color: var(--ui-text-2);
-  font-size: 12.5px;
+  font-size: var(--mgr-fs-caption, 12px);
   line-height: 1.4;
 }
 .customer-quote-group header b,

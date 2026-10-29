@@ -222,7 +222,7 @@
   .mgr-layout .odm-rm-chip {
     max-width: calc(100% - 20px);
     padding: 6px 10px;
-    font-size: 11px;
+    font-size: var(--mgr-fs-caption, 12px);
   }
   .mgr-layout .odm-rm-chip-target {
     top: 52px;
