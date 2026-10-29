@@ -2,8 +2,8 @@ import { defineMessages } from '../../../../shared/i18n'
 
 export const missionDetailPageMessages = defineMessages({
   vi: {
-    errorTitle: 'Không tải được mission',
-    errorDescription: 'Mission có thể không tồn tại hoặc đã bị xoá.',
+    errorTitle: 'Không tải được nhiệm vụ',
+    errorDescription: 'Nhiệm vụ có thể không tồn tại hoặc đã bị xoá.',
     backToList: 'Về danh sách',
   },
   en: {

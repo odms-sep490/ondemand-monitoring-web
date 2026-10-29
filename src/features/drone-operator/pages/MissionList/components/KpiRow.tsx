@@ -57,15 +57,11 @@ export function KpiRow({
         tone="violet"
         icon={<SafetyCertificateOutlined />}
         title={t.kpi.certValid}
-        value={
-          profile.certExpiry
-            ? t.kpi.certDays(kpis.certDaysLeft)
-            : t.kpi.certNoData
-        }
+        value={profile.certExpiry ? t.kpi.certDays(kpis.certDaysLeft) : '—'}
         hint={
           profile.certExpiry
             ? t.kpi.certExpirySub(kpis.certExpiryLabel)
-            : undefined
+            : t.kpi.certNoData
         }
       />
     </div>

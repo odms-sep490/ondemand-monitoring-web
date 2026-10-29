@@ -11,7 +11,7 @@ describe('ConnectDroneScreen', () => {
   it('renders vietnamese chrome text', () => {
     render(<ConnectDronePage />)
     expect(screen.getByText('Kết nối thiết bị')).toBeTruthy()
-    expect(screen.getByText('Xác thực phiên operator')).toBeTruthy()
+    expect(screen.getByText('Xác thực phiên người vận hành')).toBeTruthy()
   })
 
   it('renders english chrome text when language is switched', () => {

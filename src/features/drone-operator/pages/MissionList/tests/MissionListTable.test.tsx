@@ -125,7 +125,7 @@ describe('MissionListTable', () => {
         now={new Date('2026-09-20T00:00:00+07:00')}
       />,
     )
-    expect(screen.getByText('Mã mission')).toBeTruthy()
+    expect(screen.getByText('Mã nhiệm vụ')).toBeTruthy()
     expect(screen.getByText('Chờ phản hồi')).toBeTruthy()
     expect(screen.getByText('Không phân công')).toBeTruthy()
   })
@@ -164,6 +164,6 @@ describe('MissionListTable', () => {
 
   it('renders the vietnamese empty state', () => {
     render(<MissionListTable missions={[]} now={new Date()} />)
-    expect(screen.getByText('Không có mission')).toBeTruthy()
+    expect(screen.getByText('Không có nhiệm vụ')).toBeTruthy()
   })
 })

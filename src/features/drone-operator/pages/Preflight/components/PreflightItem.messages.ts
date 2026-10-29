@@ -40,7 +40,7 @@ export const preflightItemMessages = defineMessages({
       px4Control: { label: 'Điều khiển PX4', detail: 'kênh lệnh' },
       localPosition: { label: 'Local Position', detail: 'PX4 local pose' },
       mavsdkHealth: { label: 'Trạng thái MAVSDK', detail: 'điều kiện arm' },
-      backend: { label: 'Kết nối backend', detail: 'backend mission' },
+      backend: { label: 'Kết nối backend', detail: 'backend nhiệm vụ' },
       media: { label: 'Tải media', detail: 'luồng upload' },
     },
     pass: 'Đạt',

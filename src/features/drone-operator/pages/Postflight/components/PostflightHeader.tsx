@@ -28,19 +28,14 @@ export function PostflightHeader({
       missionId={missionLabel}
       active={6}
       right={
-        <div className="stf-row" style={{ flexWrap: 'nowrap' }}>
+        <div className="stf-row">
           {postflightMissions.length > 0 && (
-            <label className="stf-row" style={{ flexWrap: 'nowrap' }}>
-              <span
-                className="stf-muted"
-                style={{ fontSize: 12.5, fontWeight: 700 }}
-              >
-                {t.selectMission}
-              </span>
+            <label className="stf-field stf-select-field">
+              <span className="stf-field-label">{t.selectMission}</span>
               <Select
                 value={effectiveMissionId}
                 onChange={(value) => selectMission(value)}
-                style={{ minWidth: 220 }}
+                style={{ width: '100%' }}
                 getPopupContainer={mgrPopupContainer}
                 options={postflightMissions.map((m) => ({
                   value: m.id,

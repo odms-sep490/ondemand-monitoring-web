@@ -44,7 +44,7 @@ export function DecisionSummary({ mission }: { mission: OperatorMission }) {
       icon={<SolutionOutlined />}
       aria-label={t.decisionTitle}
     >
-      <KeyValueList items={items} column={2} />
+      <KeyValueList items={items} column={{ xs: 1, md: 2 }} />
     </CardComponent>
   )
 }

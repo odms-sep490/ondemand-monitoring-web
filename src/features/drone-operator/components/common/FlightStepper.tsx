@@ -1,5 +1,5 @@
 import { Steps } from 'antd'
-import type { ReactNode } from 'react'
+import { useEffect, useRef, type ReactNode } from 'react'
 
 import { useI18n } from '../../../../shared/i18n'
 import { flightStepperMessages } from './FlightStepper.messages'
@@ -7,17 +7,25 @@ import { flightStepperMessages } from './FlightStepper.messages'
 /** Stepper header shared by the flight-prep screens (OPR-04/05/06). `active` is the current step index (0-based). */
 export function FlightStepper({ active }: { active: number }) {
   const { t } = useI18n(flightStepperMessages)
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    ref.current
+      ?.querySelector('.ant-steps-item-process')
+      ?.scrollIntoView?.({ inline: 'center', block: 'nearest' })
+  }, [active])
   return (
-    <Steps
-      className="stf-stepper"
-      size="small"
-      responsive={false}
-      current={active}
-      items={t.steps.map((step, i) => ({
-        key: step.key,
-        title: i === active ? step.label : undefined,
-      }))}
-    />
+    <div ref={ref} className="stf-stepper-wrap">
+      <Steps
+        className="stf-stepper"
+        size="small"
+        responsive={false}
+        current={active}
+        items={t.steps.map((step, i) => ({
+          key: step.key,
+          title: i === active ? step.label : undefined,
+        }))}
+      />
+    </div>
   )
 }
 

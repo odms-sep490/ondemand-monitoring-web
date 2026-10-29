@@ -77,7 +77,7 @@ export const postflightPageMessages = defineMessages({
     maintenanceTicketLabel: 'Ticket Bảo trì Backend',
     maintenanceTicketValue: 'TKT-POSTFLIGHT-XXXX (Đã tạo thành công)',
     backToMissionList: 'Về danh sách nhiệm vụ',
-    stepTitle: 'Postflight Check — Kiểm tra sau chuyến bay',
+    stepTitle: 'Kiểm tra sau chuyến bay',
     selectMission: 'Chọn nhiệm vụ:',
     landingBattery: 'Pin hạ cánh',
     altitude: 'Độ cao',

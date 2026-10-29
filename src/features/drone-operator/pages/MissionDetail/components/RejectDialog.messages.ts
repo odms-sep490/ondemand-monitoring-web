@@ -2,7 +2,7 @@ import { defineMessages } from '../../../../../shared/i18n'
 
 export const rejectDialogMessages = defineMessages({
   vi: {
-    title: (missionId: string) => `Từ chối mission ${missionId}`,
+    title: (missionId: string) => `Từ chối nhiệm vụ ${missionId}`,
     description:
       'Vui lòng cho biết lý do để Manager có thể điều phối lại nhiệm vụ.',
     reasons: [

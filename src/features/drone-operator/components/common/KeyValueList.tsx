@@ -9,7 +9,7 @@ export function KeyValueList({
   column = 1,
 }: {
   items: KeyValueItem[]
-  column?: number
+  column?: number | { xs?: number; sm?: number; md?: number }
 }) {
   return (
     <Descriptions

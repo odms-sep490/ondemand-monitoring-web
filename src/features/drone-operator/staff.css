@@ -311,7 +311,7 @@
   max-width: 280px;
 }
 
-.stf-stephead .stf-stepper {
+.stf-stephead .stf-stepper-wrap {
   flex: 3 1 420px;
 }
 
@@ -369,13 +369,6 @@
   padding: 18px 20px;
 }
 
-.stf-token-input.ant-input {
-  font-size: 18px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-align: center;
-}
-
 /* Preflight summary, form grid and item cards */
 .stf-summary {
   display: grid;
@@ -430,7 +423,8 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .stf-form-grid > * {
+  .stf-form-grid > *,
+  .stf-form-grid > [style*='span'] {
     grid-column: span 1 !important;
   }
 }
@@ -1065,4 +1059,37 @@
 .odm-opr .ant-card-head-wrapper {
   flex-wrap: wrap;
   row-gap: 6px;
+}
+
+.stf-select-field {
+  flex: 1 1 220px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.stf-stephead-right > .stf-row {
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+@media (max-width: 640px) {
+  .stf-stephead-right {
+    flex: 1 1 100%;
+    margin-left: 0;
+  }
+}
+
+.odm-opr .ant-card-head-title,
+.odm-opr .mgr-card-title {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+/* antd danger outline buttons are dim on dark surfaces; use the lifted accent. */
+:root[data-theme='dark']
+  .mgr-layout
+  .ant-btn-default.ant-btn-dangerous:not(:disabled) {
+  color: var(--fc-red);
+  border-color: var(--fc-red);
 }

@@ -3,13 +3,13 @@ import { defineMessages } from '../../../../../shared/i18n'
 export const connectStatusPanelMessages = defineMessages({
   vi: {
     trackerSteps: [
-      'Xác thực operator',
+      'Xác thực người vận hành',
       'Mở liên kết tới GCS',
       'Nhận heartbeat telemetry',
     ],
-    noMissionSelected: 'Chưa chọn mission',
+    noMissionSelected: 'Chưa chọn nhiệm vụ',
     received: 'Đã nhận',
-    missionBeingAssigned: 'Mission đang được gán',
+    missionBeingAssigned: 'Nhiệm vụ đang được gán',
     noSchedule: 'Chưa có lịch bay',
     noDroneAssigned: 'Chưa gán thiết bị',
     noAddress: 'Chưa có địa chỉ',
@@ -27,7 +27,7 @@ export const connectStatusPanelMessages = defineMessages({
     telemetrySummary: (satellites: number) =>
       `telemetry_active = TRUE · pin thiết bị 100% · ${satellites} vệ tinh`,
     continueToPrecheck: 'Tiếp tục: precheck',
-    backToMission: 'Quay lại mission',
+    backToMission: 'Quay lại nhiệm vụ',
   },
   en: {
     trackerSteps: [

@@ -1,7 +1,7 @@
 export const copy = {
   vi: {
     brand: 'Buồng lái bay',
-    brandSub: 'Drone Mission Control',
+    brandSub: 'Điều khiển nhiệm vụ bay',
     flightTime: 'Thời gian bay',
     link: 'Kết nối',
     linkOk: 'Trực tuyến',

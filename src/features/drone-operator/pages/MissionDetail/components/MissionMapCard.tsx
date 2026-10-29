@@ -1,4 +1,4 @@
-import { Tag } from 'antd'
+import { Tag, theme } from 'antd'
 
 import { CardComponent } from '../../../../../shared/components/antd'
 import { useI18n } from '../../../../../shared/i18n'
@@ -8,6 +8,7 @@ import { useOperatorMissionMap } from '../useOperatorMissionMap'
 
 export function MissionMapCard({ mission }: { mission: OperatorMission }) {
   const { t } = useI18n(missionDetailViewMessages)
+  const { token } = theme.useToken()
   const { container, target } = useOperatorMissionMap(mission)
 
   return (
@@ -27,8 +28,8 @@ export function MissionMapCard({ mission }: { mission: OperatorMission }) {
         {target ? (
           <Tag
             bordered={false}
-            color="error"
             className="stf-map-tag stf-map-tag--tr"
+            style={{ borderInlineStart: `4px solid ${token.colorError}` }}
           >
             {t.monitoringPoint} · {target.latitude.toFixed(6)},{' '}
             {target.longitude.toFixed(6)}
@@ -41,8 +42,8 @@ export function MissionMapCard({ mission }: { mission: OperatorMission }) {
         ) : null}
         <Tag
           bordered={false}
-          color="error"
           className="stf-map-tag stf-map-tag--br"
+          style={{ borderInlineStart: `4px solid ${token.colorError}` }}
         >
           {t.noFlyZone}
         </Tag>

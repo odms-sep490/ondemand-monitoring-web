@@ -4,15 +4,15 @@ export const connectDronePageMessages = defineMessages({
   vi: {
     gcsOptions: ['Flight Controller hiện tại'],
     tokenPlaceholder: 'Flight token cấp sau preflight',
-    noMissionAssigned: 'Mission chưa được gán thiết bị',
+    noMissionAssigned: 'Nhiệm vụ chưa được gán thiết bị',
     connectFailed: 'Không kết nối được Flight Controller',
     stepTitle: 'Kết nối thiết bị',
-    noMissionSelected: 'Chưa chọn mission',
+    noMissionSelected: 'Chưa chọn nhiệm vụ',
     noDroneAssigned: 'Chưa gán thiết bị',
-    step1Title: 'Xác thực phiên operator',
+    step1Title: 'Xác thực phiên người vận hành',
     scanQr: 'Quét QR',
     tokenAriaLabel: 'Mã flight token',
-    droneCodeHint: 'Mã thiết bị được lấy từ mission đã gán',
+    droneCodeHint: 'Mã thiết bị được lấy từ nhiệm vụ đã gán',
     expiredAt: 'Hết hạn lúc 13:24:12',
     tokenAfterPreflight: 'Token cấp sau backend preflight',
     step2Title: 'Kết nối Flight Controller',
@@ -23,7 +23,7 @@ export const connectDronePageMessages = defineMessages({
     retry: 'Thử lại',
     connect: 'Kết nối',
     sessionNote:
-      'Phiên điều khiển được xác thực bằng tài khoản operator và thiết bị đã gán cho mission.',
+      'Phiên điều khiển được xác thực bằng tài khoản người vận hành và thiết bị đã gán cho nhiệm vụ.',
   },
   en: {
     gcsOptions: ['Current Flight Controller'],

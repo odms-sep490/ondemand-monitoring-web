@@ -144,10 +144,17 @@ export function AvailabilityGrid({
                           background:
                             overlay.tone === 'green'
                               ? token.colorSuccess
-                              : token.colorTextQuaternary,
+                              : token.colorWarningBg,
+                          boxShadow:
+                            overlay.tone === 'green'
+                              ? undefined
+                              : `inset 0 0 0 1px ${token.colorWarningBorder}`,
                           borderRadius: 2,
                           fontSize: 10,
-                          color: token.colorWhite,
+                          color:
+                            overlay.tone === 'green'
+                              ? token.colorWhite
+                              : token.colorWarningText,
                           overflow: 'hidden',
                           padding: '1px 2px',
                         }}

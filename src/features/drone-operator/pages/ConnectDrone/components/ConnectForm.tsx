@@ -34,16 +34,12 @@ export function ConnectForm({
         <StepTitle n={1} text={t.step1Title} />
         <div className="stf-row" style={{ flexWrap: 'nowrap' }}>
           <Input
-            size="large"
-            className="stf-mono stf-token-input"
             value={token}
             disabled
             onChange={(e) => onTokenChange(e.target.value)}
             aria-label={t.tokenAriaLabel}
           />
-          <Button size="large" disabled>
-            {t.scanQr}
-          </Button>
+          <Button disabled>{t.scanQr}</Button>
         </div>
         <div
           className="stf-row"

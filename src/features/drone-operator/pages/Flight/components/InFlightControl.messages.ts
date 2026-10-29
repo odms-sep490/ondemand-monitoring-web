@@ -38,9 +38,9 @@ export const inFlightControlMessages = defineMessages({
       offlineBody:
         'Khởi động terminal điều khiển bay để hiển thị luồng camera.',
     },
-    missionProgress: 'Tiến độ Mission',
+    missionProgress: 'Tiến độ nhiệm vụ',
     map: {
-      title: 'Bản đồ Mission',
+      title: 'Bản đồ nhiệm vụ',
       zoomOut: 'Thu nhỏ',
       zoomIn: 'Phóng to',
       order: 'ĐƠN HÀNG',
@@ -120,8 +120,8 @@ export const inFlightControlMessages = defineMessages({
       actionContinue: 'TIẾP TỤC',
     },
     missionInfo: {
-      title: 'Thông tin Mission',
-      mission: 'Mission',
+      title: 'Thông tin nhiệm vụ',
+      mission: 'Nhiệm vụ',
       order: 'Đơn hàng',
       progress: 'Tiến độ',
       distance: 'Quãng đường',
@@ -175,8 +175,8 @@ export const inFlightControlMessages = defineMessages({
       waitingController: 'Đang chờ bộ điều khiển',
       preflightRequired: 'Cần hoàn thành kiểm tra trước bay',
       controllerNotBound:
-        'Bộ điều khiển bay chưa gắn với mission này. Kết nối lại GCS trước khi chụp media.',
-      noWaypoints: 'Không có waypoint trong kế hoạch mission',
+        'Bộ điều khiển bay chưa gắn với nhiệm vụ này. Kết nối lại GCS trước khi chụp media.',
+      noWaypoints: 'Không có waypoint trong kế hoạch nhiệm vụ',
       autoPlanStarted: (count: number) =>
         `Đã bắt đầu kế hoạch tự động (${count} điểm)`,
       cameraReset: 'Camera đã đặt lại về 0° FPV',
@@ -243,7 +243,7 @@ export const inFlightControlMessages = defineMessages({
       back: 'Quay lại màn trước',
       backLabel: '← Quay lại',
       overview: 'Tổng quan',
-      missions: 'Mission',
+      missions: 'Nhiệm vụ',
       detail: 'Chi tiết',
       gcsConnect: 'Kết nối GCS',
       inFlight: 'Đang bay',

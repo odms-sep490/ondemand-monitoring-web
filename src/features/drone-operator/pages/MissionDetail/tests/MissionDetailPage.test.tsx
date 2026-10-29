@@ -193,7 +193,7 @@ describe('MissionDetailScreen', () => {
       else expect(screen.queryByText('Cập nhật mục')).toBeNull()
       if (canCompleteMission) {
         expect(await screen.findByText('Mở dữ liệu nghiệm thu')).toBeInTheDocument()
-        expect(screen.queryByText('Xác nhận hoàn thành Mission')).toBeNull()
+        expect(screen.queryByText('Xác nhận hoàn thành nhiệm vụ')).toBeNull()
       }
       expect(
         screen.queryByRole('button', { name: 'Gửi kết quả cho Manager' }),
@@ -291,7 +291,7 @@ describe('MissionDetailScreen', () => {
       .mockResolvedValue({} as never)
     render(<MissionDetailPage missionId="m" />)
     expect(await screen.findByText('Mở dữ liệu nghiệm thu')).toBeInTheDocument()
-    expect(screen.queryByText('Xác nhận hoàn thành Mission')).toBeNull()
+    expect(screen.queryByText('Xác nhận hoàn thành nhiệm vụ')).toBeNull()
     expect(complete).not.toHaveBeenCalled()
     expect(submit).not.toHaveBeenCalled()
     expect(
@@ -410,7 +410,7 @@ describe('MissionDetailScreen', () => {
       .mockResolvedValue({} as never)
     render(<MissionDetailPage missionId="m" />)
     expect(await screen.findByText('Mở dữ liệu nghiệm thu')).toBeInTheDocument()
-    expect(screen.queryByText('Xác nhận hoàn thành Mission')).toBeNull()
+    expect(screen.queryByText('Xác nhận hoàn thành nhiệm vụ')).toBeNull()
     expect(complete).not.toHaveBeenCalled()
   })
 
@@ -443,7 +443,7 @@ describe('MissionDetailScreen', () => {
       )
       expect(complete).not.toHaveBeenCalled()
       expect(
-        screen.queryByRole('button', { name: 'Xác nhận hoàn thành Mission' }),
+        screen.queryByRole('button', { name: 'Xác nhận hoàn thành nhiệm vụ' }),
       ).toBeNull()
     },
   )
@@ -482,7 +482,7 @@ describe('MissionDetailScreen', () => {
     expect(await screen.findByText('Mở dữ liệu nghiệm thu')).toBeInTheDocument()
     expect(screen.getByRole('tab', { name: 'Ảnh & video' })).toBeInTheDocument()
     expect(
-      screen.queryByRole('button', { name: 'Xác nhận hoàn thành Mission' }),
+      screen.queryByRole('button', { name: 'Xác nhận hoàn thành nhiệm vụ' }),
     ).toBeNull()
   })
   it('switches between sibling Missions without borrowing checklist readiness or result state', async () => {
@@ -548,7 +548,7 @@ describe('MissionDetailScreen', () => {
       new Error('not found'),
     )
     render(<MissionDetailPage missionId="MSN-1" />)
-    expect(await screen.findByText('Không tải được mission')).toBeTruthy()
+    expect(await screen.findByText('Không tải được nhiệm vụ')).toBeTruthy()
     expect(screen.getByText('Về danh sách')).toBeTruthy()
   })
 
@@ -557,7 +557,7 @@ describe('MissionDetailScreen', () => {
       new Error('not found'),
     )
     render(<MissionDetailPage missionId="MSN-1" />)
-    await screen.findByText('Không tải được mission')
+    await screen.findByText('Không tải được nhiệm vụ')
     act(() => setLanguage('en'))
     expect(await screen.findByText('Could not load the mission')).toBeTruthy()
     expect(screen.getByText('Back to list')).toBeTruthy()

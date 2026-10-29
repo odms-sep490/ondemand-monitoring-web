@@ -52,7 +52,7 @@ export const uploadMediaPageMessages = defineMessages({
       'Không tải được quyền upload. Bấm Làm mới để thử lại.',
     enlargePreview: 'Xem ảnh lớn',
     closePreview: 'Đóng ảnh',
-    openingMission: 'Đang mở mission',
+    openingMission: 'Đang mở nhiệm vụ',
     summary: (
       uploaded: number,
       total: number,
@@ -92,7 +92,7 @@ export const uploadMediaPageMessages = defineMessages({
     missingChecklistEvidence:
       'Checklist chưa đủ bằng chứng hợp lệ. Upload media trước khi gửi manager.',
     viewOnly: 'Chỉ xem media',
-    restoringMission: 'Đang khôi phục mission đang mở...',
+    restoringMission: 'Đang khôi phục nhiệm vụ đang mở...',
     loadingMedia: 'Đang tải media…',
     confirmDiscard: (fileName: string) =>
       `Xóa bản local ${fileName} trên Flight Controller?`,

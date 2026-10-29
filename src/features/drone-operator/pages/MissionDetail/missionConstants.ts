@@ -15,12 +15,12 @@ export const STATUS_TONE = {
 
 export const STATUS_LABEL: Record<string, string> = {
   PLANNING: 'Đang lập kế hoạch',
-  CREATED: 'Đã tạo Mission',
+  CREATED: 'Đã tạo nhiệm vụ',
   WAITING_DEPOSIT: 'Chờ xác nhận đặt cọc',
   READY: 'Sẵn sàng phân công',
   RESOURCE_ASSIGNING: 'Đang phân công nguồn lực',
   WAITING_OPERATOR_ACCEPTANCE: 'Chờ người vận hành xác nhận',
-  SCHEDULED: 'Đã bắt đầu Mission',
+  SCHEDULED: 'Đã bắt đầu nhiệm vụ',
   CONNECTED: 'Đã kết nối thiết bị',
   PREFLIGHT_CHECKING: 'Đang kiểm tra trước bay',
   FAILED_PREFLIGHT: 'Kiểm tra trước bay không đạt',

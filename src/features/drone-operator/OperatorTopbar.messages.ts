@@ -5,7 +5,7 @@ export const operatorTopbarMessages = defineMessages({
     pilotLabel: 'Phi công',
     maintenanceLink: 'Bảo trì & Sự cố',
     search: 'Tìm kiếm',
-    searchPlaceholder: 'Tìm mã đơn, mission, thiết bị...',
+    searchPlaceholder: 'Tìm mã đơn, nhiệm vụ, thiết bị...',
     toggleTheme: 'Đổi giao diện sáng / tối',
     openMenu: 'Mở điều hướng',
     closeMenu: 'Đóng điều hướng',

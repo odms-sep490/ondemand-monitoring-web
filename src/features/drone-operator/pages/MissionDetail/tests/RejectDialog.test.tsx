@@ -15,7 +15,7 @@ describe('RejectDialog', () => {
         onConfirm={vi.fn()}
       />,
     )
-    expect(screen.getByText('Từ chối mission MSN-1')).toBeTruthy()
+    expect(screen.getByText('Từ chối nhiệm vụ MSN-1')).toBeTruthy()
     expect(screen.getByText('Trùng lịch cá nhân')).toBeTruthy()
     expect(screen.getByText('Xác nhận từ chối')).toBeTruthy()
   })

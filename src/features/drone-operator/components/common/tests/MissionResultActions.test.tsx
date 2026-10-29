@@ -61,7 +61,7 @@ describe('Exact Mission result actions', () => {
         />,
       )
       expect(
-        Boolean(screen.queryByRole('button', { name: 'Xác nhận hoàn thành Mission' })),
+        Boolean(screen.queryByRole('button', { name: 'Xác nhận hoàn thành nhiệm vụ' })),
       ).toBe(Boolean(complete))
       expect(
         Boolean(
@@ -79,7 +79,7 @@ describe('Exact Mission result actions', () => {
       }
       if (complete) {
         fireEvent.click(
-          screen.getByRole('button', { name: 'Xác nhận hoàn thành Mission' }),
+          screen.getByRole('button', { name: 'Xác nhận hoàn thành nhiệm vụ' }),
         )
         expect(onComplete).toHaveBeenCalledOnce()
         expect(onSubmit).toHaveBeenCalledTimes(submit ? 1 : 0)
@@ -133,7 +133,7 @@ describe('Exact Mission result actions', () => {
       />,
     )
     expect(
-      screen.getByRole('button', { name: 'Xác nhận hoàn thành Mission' }),
+      screen.getByRole('button', { name: 'Xác nhận hoàn thành nhiệm vụ' }),
     ).toBeDisabled()
     monitoring.data!.result = {
       id: 'r1',
@@ -152,7 +152,7 @@ describe('Exact Mission result actions', () => {
       />,
     )
     expect(
-      screen.queryByRole('button', { name: 'Xác nhận hoàn thành Mission' }),
+      screen.queryByRole('button', { name: 'Xác nhận hoàn thành nhiệm vụ' }),
     ).toBeNull()
     expect(
       screen.queryByRole('button', { name: 'Gửi kết quả cho Manager' }),

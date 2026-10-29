@@ -17,7 +17,7 @@ describe('MissionListPage', () => {
     vi.spyOn(operatorApi, 'listMissions').mockRejectedValue(new Error('No session'))
     render(<MissionListPage searchQuery="" />)
     expect(
-      await screen.findByText('Không tải được danh sách mission'),
+      await screen.findByText('Không tải được danh sách nhiệm vụ'),
     ).toBeTruthy()
     expect(screen.getByText('Thử lại')).toBeTruthy()
   })
@@ -26,7 +26,7 @@ describe('MissionListPage', () => {
     vi.spyOn(operatorApi, 'getProfile').mockRejectedValue(new Error('No session'))
     vi.spyOn(operatorApi, 'listMissions').mockRejectedValue(new Error('No session'))
     render(<MissionListPage searchQuery="" />)
-    await screen.findByText('Không tải được danh sách mission')
+    await screen.findByText('Không tải được danh sách nhiệm vụ')
     act(() => setLanguage('en'))
     expect(
       await screen.findByText('Could not load the mission list'),

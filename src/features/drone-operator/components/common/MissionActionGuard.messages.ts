@@ -9,17 +9,17 @@ export const missionActionGuardMessages = defineMessages({
     readyEyebrow: 'Sẵn sàng bay',
     readyTitle: 'Đang mở buồng lái',
     readyDesc:
-      'Operator đã hoàn tất kiểm tra và bàn giao. Pilot có thể tiếp tục bay trong buồng lái.',
+      'Người vận hành đã hoàn tất kiểm tra và bàn giao. Pilot có thể tiếp tục bay trong buồng lái.',
     errorMessage:
-      'Không thể xác nhận quyền Mission. Vui lòng kiểm tra lại hoặc đăng nhập lại.',
+      'Không thể xác nhận quyền nhiệm vụ. Vui lòng kiểm tra lại hoặc đăng nhập lại.',
     pilotMessage:
-      'Bước này dành cho operator kết nối thiết bị, preflight và bàn giao. Pilot tiếp tục ở buồng lái sau khi operator bàn giao.',
+      'Bước này dành cho người vận hành kết nối thiết bị, preflight và bàn giao. Pilot tiếp tục ở buồng lái sau khi người vận hành bàn giao.',
     deniedMessage:
       'Bạn chưa được phân công hoặc chưa có quyền thực hiện thao tác này.',
     deniedEyebrow: 'Chưa thể thao tác',
     deniedTitle: 'Bạn chưa có quyền mở bước này',
     openCockpit: 'Mở buồng lái',
-    backToMission: 'Quay lại mission',
+    backToMission: 'Quay lại nhiệm vụ',
     retry: 'Kiểm tra lại',
   },
   en: {

@@ -10,7 +10,7 @@ export const operatorSidebarMessages = defineMessages({
       account: 'Tài khoản',
     },
     nav: {
-      missions: 'Mission của tôi',
+      missions: 'Nhiệm vụ của tôi',
       technical: 'Tổng quan kỹ thuật',
       devices: 'Thiết bị',
       support: 'Hỗ trợ khách hàng',
@@ -21,8 +21,8 @@ export const operatorSidebarMessages = defineMessages({
       profile: 'Hồ sơ và chứng chỉ',
     },
     activeScreen: {
-      missions: 'Mission của tôi',
-      missionDetail: 'Mission của tôi',
+      missions: 'Nhiệm vụ của tôi',
+      missionDetail: 'Nhiệm vụ của tôi',
       availability: 'Lịch rảnh',
       connect: 'Kết nối thiết bị',
       handover: 'Bàn giao quyền',

@@ -9,15 +9,15 @@ export const missionDetailViewMessages = defineMessages({
     runPostflight: 'Kiểm tra sau bay',
     openAcceptanceData: 'Mở dữ liệu nghiệm thu',
     stopFlight: 'Dừng chuyến bay',
-    startMission: 'Bắt đầu Mission',
+    startMission: 'Bắt đầu nhiệm vụ',
     starting: 'Đang bắt đầu...',
     accepted: 'Đã chấp nhận',
     openCockpit: 'Mở buồng lái',
     connectGcs: 'Kết nối GCS',
     reviewMedia: 'Review media',
-    missionLabel: 'Mission',
+    missionLabel: 'Nhiệm vụ',
     safeStopNotice:
-      'Mission đã xác nhận an toàn nhưng chưa hoàn tất kiểm tra sau bay. Quyền bay vẫn bị khóa.',
+      'Nhiệm vụ đã xác nhận an toàn nhưng chưa hoàn tất kiểm tra sau bay. Quyền bay vẫn bị khóa.',
     preparePostflight: 'Chuẩn bị kiểm tra sau bay',
     // tabs
     tabOverview: 'Tổng quan',
@@ -54,13 +54,13 @@ export const missionDetailViewMessages = defineMessages({
     monitoringZone: 'Vùng giám sát',
     gps: 'Tọa độ GPS',
     simCoords: 'Tọa độ mô phỏng',
-    description: 'Mô tả mission',
+    description: 'Mô tả nhiệm vụ',
     // manager note
     managerNote: (name: string) => `Ghi chú của quản lý · ${name}`,
     respondBefore: (date: string, time: string) =>
       `Hãy phản hồi trước ${date} ${time}`,
     // map card
-    mapAria: 'Bản đồ vệ tinh mission',
+    mapAria: 'Bản đồ vệ tinh nhiệm vụ',
     monitoringPoint: 'ĐIỂM GIÁM SÁT',
     monitoringRadius: (m: number) => `Bán kính giám sát: ${m} m`,
     routeLegend: 'Đường bay: HOME → điểm giám sát',
@@ -96,7 +96,7 @@ export const missionDetailViewMessages = defineMessages({
       `${pct}% · ${pass} đạt${fail ? ` · ${fail} lỗi` : ''}`,
     showMore: (n: number) => `Xem chi tiết (${n} thêm)`,
     collapse: 'Thu gọn',
-    noPrecheck: 'Chưa có dữ liệu precheck cho mission này.',
+    noPrecheck: 'Chưa có dữ liệu precheck cho nhiệm vụ này.',
     weatherResult: 'Kết quả check thời tiết',
     weatherNone: 'Chưa có kết quả check thời tiết.',
     weatherPass: 'Đạt',
@@ -131,7 +131,7 @@ export const missionDetailViewMessages = defineMessages({
     partCamera: 'Camera',
     partGps: 'Định vị',
     partComms: 'Kết nối',
-    noPostcheck: 'Chưa có kết quả postcheck cho mission này.',
+    noPostcheck: 'Chưa có kết quả postcheck cho nhiệm vụ này.',
   },
   en: {
     backToList: 'Back to list',

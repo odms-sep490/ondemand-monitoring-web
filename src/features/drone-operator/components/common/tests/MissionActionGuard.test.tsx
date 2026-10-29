@@ -121,7 +121,7 @@ describe('mission action guard', () => {
       </MissionActionGuard>,
     )
     expect(await screen.findByRole('alert')).toHaveTextContent(
-      'Không thể xác nhận quyền Mission.',
+      'Không thể xác nhận quyền nhiệm vụ.',
     )
     expect(screen.queryByText('Forbidden')).toBeNull()
     expect(screen.queryByText('Upload form')).toBeNull()

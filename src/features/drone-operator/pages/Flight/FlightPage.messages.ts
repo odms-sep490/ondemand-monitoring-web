@@ -3,17 +3,17 @@ import { defineMessages } from '../../../../shared/i18n'
 export const flightPageMessages = defineMessages({
   vi: {
     opening: 'Đang mở buồng lái...',
-    backToMissions: 'Về Mission của tôi',
+    backToMissions: 'Về nhiệm vụ của tôi',
     throughPreflight: 'Qua Preflight',
-    loadMissionFailed: 'Không tải được mission',
+    loadMissionFailed: 'Không tải được nhiệm vụ',
     cockpitOpenFailed: 'Không mở được buồng lái',
-    backToMission: 'Quay lại Mission',
-    noDroneTitle: 'Mission chưa có thiết bị',
+    backToMission: 'Quay lại nhiệm vụ',
+    noDroneTitle: 'Nhiệm vụ chưa có thiết bị',
     noDroneMessage:
-      'Mission này chưa được gán thiết bị nên chưa thể mở buồng lái. Hãy quay lại danh sách mission hoặc yêu cầu quản lý gán thiết bị trước.',
-    rtbFailed: 'Không chuyển được mission sang RETURNING',
+      'Nhiệm vụ này chưa được gán thiết bị nên chưa thể mở buồng lái. Hãy quay lại danh sách nhiệm vụ hoặc yêu cầu quản lý gán thiết bị trước.',
+    rtbFailed: 'Không chuyển được nhiệm vụ sang RETURNING',
     emergencyPrompt: 'Lý do kết thúc khẩn cấp',
-    emergencyUpdateFailed: 'Không cập nhật được mission',
+    emergencyUpdateFailed: 'Không cập nhật được nhiệm vụ',
   },
   en: {
     opening: 'Opening the cockpit...',

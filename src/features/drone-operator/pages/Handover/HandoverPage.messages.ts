@@ -3,14 +3,14 @@ import { defineMessages } from '../../../../shared/i18n'
 export const handoverPageMessages = defineMessages({
   vi: {
     commitments: [
-      'Tôi đã kiểm tra khu vực bay, không có người và phương tiện trong vùng an toàn, và tuân thủ mọi vùng cấm bay được cảnh báo trong mission.',
+      'Tôi đã kiểm tra khu vực bay, không có người và phương tiện trong vùng an toàn, và tuân thủ mọi vùng cấm bay được cảnh báo trong nhiệm vụ.',
       'Tôi giữ thiết bị trong tầm nhìn khi có thể, không bay quá độ cao 120 m và không vượt bán kính vùng giám sát 500 m.',
       'Tôi sẵn sàng bấm RTL hoặc LAND ngay khi có cảnh báo pin thấp, mất telemetry hoặc thời tiết xấu.',
       'Tôi chịu trách nhiệm an toàn vận hành từ lúc xác nhận cho tới khi thiết bị hạ cánh và tắt động cơ.',
     ],
-    noMissionSelected: 'Chưa chọn mission',
+    noMissionSelected: 'Chưa chọn nhiệm vụ',
     noDroneAssigned: 'Chưa gán thiết bị',
-    noDroneAssignedError: 'Chọn mission đã gán thiết bị trước khi tiếp tục',
+    noDroneAssignedError: 'Chọn nhiệm vụ đã gán thiết bị trước khi tiếp tục',
     precheckRequiredError:
       'Vui lòng chạy precheck thành công trước khi bàn giao',
     confirmFailed: 'Không xác nhận được cam kết',

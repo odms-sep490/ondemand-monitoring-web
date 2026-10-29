@@ -795,8 +795,9 @@
   font-size: 13px;
 }
 .fc-seg button.is-active {
-  background: color-mix(in srgb, var(--fc-blue) 24%, var(--fc-panel));
-  border-color: color-mix(in srgb, var(--fc-blue-solid) 80%, transparent);
+  background: var(--fc-blue-solid);
+  border-color: var(--fc-blue-solid);
+  color: white;
   box-shadow: none;
 }
 

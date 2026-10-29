@@ -3,15 +3,15 @@ import { defineMessages } from '../../../../shared/i18n'
 export const missionResultActionsMessages = defineMessages({
   vi: {
     sectionLabel: 'Nghiệm thu và gửi kết quả',
-    accepted: 'Mission đã được nghiệm thu.',
-    pendingAcceptance: 'Mission đang chờ nghiệm thu.',
+    accepted: 'Nhiệm vụ đã được nghiệm thu.',
+    pendingAcceptance: 'Nhiệm vụ đang chờ nghiệm thu.',
     approvedNote: 'Kết quả đã được Manager duyệt.',
     sentNote: 'Kết quả đã được gửi Manager và đang chờ duyệt.',
     approvedTag: 'Đã duyệt',
     waitingTag: 'Chờ duyệt',
-    complete: 'Xác nhận hoàn thành Mission',
+    complete: 'Xác nhận hoàn thành nhiệm vụ',
     submit: 'Gửi kết quả cho Manager',
-    needComplete: 'Cần xác nhận hoàn thành Mission trước khi gửi kết quả.',
+    needComplete: 'Cần xác nhận hoàn thành nhiệm vụ trước khi gửi kết quả.',
     busy: 'Đang xử lý…',
     confirming: 'Đang xác nhận checklist và quyền thao tác.',
     remaining: (n: number) => `Còn ${n} mục checklist chưa hoàn tất.`,
@@ -26,7 +26,7 @@ export const missionResultActionsMessages = defineMessages({
     err401: 'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.',
     err403: 'Bạn không có quyền thực hiện thao tác này.',
     errStatus:
-      'Trạng thái Mission đã thay đổi. Dữ liệu mới đang được cập nhật.',
+      'Trạng thái nhiệm vụ đã thay đổi. Dữ liệu mới đang được cập nhật.',
     errLocked:
       'Kết quả đã được gửi hoặc duyệt. Dữ liệu mới đang được cập nhật.',
     errEvidenceType:
