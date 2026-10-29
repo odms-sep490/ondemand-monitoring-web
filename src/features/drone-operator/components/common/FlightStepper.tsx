@@ -11,6 +11,7 @@ export function FlightStepper({ active }: { active: number }) {
     <Steps
       className="stf-stepper"
       size="small"
+      responsive={false}
       current={active}
       items={t.steps.map((step, i) => ({
         key: step.key,

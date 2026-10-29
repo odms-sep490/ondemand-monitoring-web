@@ -1,4 +1,3 @@
-import { CheckOutlined } from '@ant-design/icons'
 import { Button, Progress } from 'antd'
 
 import { CardComponent, StatusTag } from '../../../../../shared/components/antd'
@@ -45,11 +44,7 @@ export function AssessmentProgress({
             status={failItems.length > 0 ? 'exception' : 'normal'}
           />
         </div>
-        <Button
-          type="primary"
-          icon={<CheckOutlined aria-hidden="true" />}
-          onClick={handlePassAll}
-        >
+        <Button type="primary" onClick={handlePassAll}>
           {t.passAll}
         </Button>
       </div>

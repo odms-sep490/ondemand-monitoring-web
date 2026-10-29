@@ -64,8 +64,11 @@ export function MissionListTable({
       width: 130,
       render: (_, mission) => (
         <a
-          className="odm-mono"
-          href={operatorHref({ screen: 'missionDetail', missionId: mission.id })}
+          className="stf-mono"
+          href={operatorHref({
+            screen: 'missionDetail',
+            missionId: mission.id,
+          })}
           onClick={() => setActiveMissionId(mission.id)}
           style={{ fontWeight: 600 }}
         >
@@ -93,11 +96,11 @@ export function MissionListTable({
       width: 140,
       render: (_, mission) => (
         <>
-          <div className="odm-tn">
+          <div className="stf-tn">
             {weekdayDdMm(mission.date, today, t, locale)}
           </div>
           <div
-            className="odm-tn"
+            className="stf-tn"
             style={{ color: 'var(--mgr-muted)', fontSize: 11.5 }}
           >
             {mission.startTime && mission.endTime
@@ -162,7 +165,10 @@ export function MissionListTable({
       title: t.columns.deadline,
       width: 130,
       render: (_, mission) => (
-        <span className="odm-tn" style={{ fontWeight: 500, whiteSpace: 'nowrap' }}>
+        <span
+          className="stf-tn"
+          style={{ fontWeight: 500, whiteSpace: 'nowrap' }}
+        >
           {formatDeadline(mission, now, lang)}
         </span>
       ),

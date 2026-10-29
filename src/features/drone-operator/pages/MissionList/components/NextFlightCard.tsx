@@ -55,7 +55,7 @@ export function NextFlightCard({
           marginBottom: 6,
         }}
       >
-        <span className="odm-mono" style={{ fontWeight: 600, fontSize: 12.5 }}>
+        <span className="stf-mono" style={{ fontWeight: 600, fontSize: 12.5 }}>
           {mission.missionCode ?? mission.id}
         </span>
         <StatusTag tone={railStatusTone(status)}>{statusLabel}</StatusTag>
@@ -67,7 +67,7 @@ export function NextFlightCard({
         {mission.title}
       </div>
       <div
-        className="odm-tn"
+        className="stf-tn"
         style={{ color: 'var(--mgr-muted)', fontSize: 12, marginBottom: 4 }}
       >
         {mission.startTime}–{mission.endTime} · {dayLabel}
@@ -75,7 +75,9 @@ export function NextFlightCard({
       <div style={{ color: 'var(--mgr-muted)', fontSize: 12, marginBottom: 4 }}>
         {mission.location}
       </div>
-      <div style={{ color: 'var(--mgr-muted)', fontSize: 12, marginBottom: 12 }}>
+      <div
+        style={{ color: 'var(--mgr-muted)', fontSize: 12, marginBottom: 12 }}
+      >
         {deviceLabel ?? t.unassignedDevice}
       </div>
       <MissionActionButton

@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { CardComponent } from '../../../../../shared/components/antd'
+import { useI18n } from '../../../../../shared/i18n'
+import { preflightPageMessages } from '../PreflightPage.messages'
 import {
   readStoredPreflightState,
   readStoredWeatherState,
@@ -50,6 +52,7 @@ export function PreflightChecklistPanel({
   onReady?: () => void
   embedded?: boolean
 }) {
+  const { t } = useI18n(preflightPageMessages)
   const { RUNTIME_GROUPS, ALL_ITEMS, storageKey, weatherStorageKey } =
     usePreflightGroups({ missionId, deviceId })
   const [checkId, setCheckId] = useState<string | null>(null)
@@ -162,7 +165,7 @@ export function PreflightChecklistPanel({
 
   async function handleRecheckItem(checkType: string) {
     if (!persistedPreflightId || checkType !== 'battery_health') {
-      setError('Hãy bắt đầu kiểm tra preflight trước.')
+      setError(t.startPreflightFirst)
       return
     }
     setUpdatingItem(checkType)
@@ -193,14 +196,10 @@ export function PreflightChecklistPanel({
       setPersistedPreflightStatus(persisted.status)
       setRuntimeStatus(runtimeStatusFromPersisted(persisted))
       if (!Number.isFinite(batteryPercent)) {
-        setError('Gazebo chưa trả về dữ liệu pin hiện tại.')
+        setError(t.gazeboNoBattery)
       }
     } catch (cause) {
-      setError(
-        cause instanceof Error
-          ? cause.message
-          : 'Không thể lấy pin hiện tại từ Gazebo.',
-      )
+      setError(cause instanceof Error ? cause.message : t.gazeboBatteryFailed)
       throw cause
     } finally {
       setUpdatingItem(null)
@@ -213,7 +212,7 @@ export function PreflightChecklistPanel({
     message: string,
   ) {
     if (!persistedPreflightId) {
-      setError('Hãy bắt đầu kiểm tra preflight trước.')
+      setError(t.startPreflightFirst)
       return
     }
     setUpdatingItem(checkType)
@@ -233,11 +232,7 @@ export function PreflightChecklistPanel({
         ),
       )
     } catch (cause) {
-      setError(
-        cause instanceof Error
-          ? cause.message
-          : 'Không thể lưu kết quả kiểm tra.',
-      )
+      setError(cause instanceof Error ? cause.message : t.saveCheckFailed)
       throw cause
     } finally {
       setUpdatingItem(null)
