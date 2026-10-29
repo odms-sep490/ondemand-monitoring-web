@@ -1,15 +1,22 @@
+import { SafetyCertificateOutlined, UserOutlined } from '@ant-design/icons'
+import { Avatar, Button } from 'antd'
 import { useState, type FormEvent } from 'react'
 import { userProfileApi, canSetLocalPassword } from '../api/userProfileApi'
+import {
+  CardComponent,
+  ErrorState,
+  PageHeader,
+} from '../../../shared/components/antd'
+import { PageFrame } from '../../../shared/components/antd/PageFrame'
 import { useApiQuery } from '../../../shared/hooks/useApiQuery'
-import { useLanguage } from '../../../shared/i18n'
+import { useI18n } from '../../../shared/i18n'
 import { authApi, authSession } from '../../auth/api/authApi'
 import { PasswordField } from '../../auth/components/PasswordField'
-import { getRoleHomePath } from '../../auth/routing'
-import './UserProfilePage.css'
+import { userProfileMessages } from './UserProfilePage.messages'
+import './UserProfilePage.scss'
 
 export function UserProfilePage() {
-  const { lang } = useLanguage()
-  const vi = lang === 'vi'
+  const { t } = useI18n(userProfileMessages)
   const profile = useApiQuery((signal) => userProfileApi.getCurrent(signal), [])
   const [password, setPassword] = useState('')
   const [confirmation, setConfirmation] = useState('')
@@ -22,7 +29,7 @@ export function UserProfilePage() {
     if (!canSetLocalPassword(profile.data) || busy || linked) return
     setError('')
     if (password !== confirmation) {
-      setError(vi ? 'Mật khẩu không khớp.' : 'Passwords do not match.')
+      setError(t.passwordMismatch)
       return
     }
     setBusy(true)
@@ -34,9 +41,7 @@ export function UserProfilePage() {
       setLinked(true)
       profile.reload()
     } catch (cause) {
-      setError(
-        cause instanceof Error ? cause.message : 'Unable to set password.',
-      )
+      setError(cause instanceof Error ? cause.message : t.passwordFailed)
     } finally {
       setBusy(false)
     }
@@ -44,150 +49,121 @@ export function UserProfilePage() {
 
   if (profile.loading && !profile.data)
     return (
-      <main className="user-profile-page">
-        <p role="status">{vi ? 'Đang tải hồ sơ…' : 'Loading profile…'}</p>
-      </main>
+      <PageFrame maxWidth={920}>
+        <p role="status" className="up-status">
+          {t.loading}
+        </p>
+      </PageFrame>
     )
   if (profile.error)
     return (
-      <section className="user-profile-page">
-        <p role="alert">
-          {vi
-            ? 'Không tải được hồ sơ. Vui lòng thử lại.'
-            : 'Unable to load profile. Please retry.'}
-        </p>
-        <button className="user-profile-button" onClick={profile.reload}>
-          {vi ? 'Thử lại' : 'Retry'}
-        </button>
-      </section>
+      <PageFrame maxWidth={920}>
+        <ErrorState
+          title={t.loadFailed}
+          error={profile.error}
+          onRetry={profile.reload}
+        />
+      </PageFrame>
     )
+
+  const initials =
+    profile.data?.fullName
+      ?.trim()
+      .split(/\s+/)
+      .map((word) => word[0])
+      .filter(Boolean)
+      .slice(-2)
+      .join('')
+      .toUpperCase() || 'U'
+
   return (
-    <main className="user-profile-page">
-      <a
-        className="user-profile-back"
-        href={getRoleHomePath(profile.data?.role)}
-      >
-        ← {vi ? 'Về trang chính' : 'Back to workspace'}
-      </a>
-      <header className="user-profile-heading">
-        <p className="user-profile-eyebrow">
-          {vi ? 'TÀI KHOẢN CỦA BẠN' : 'YOUR ACCOUNT'}
-        </p>
-        <h1>{vi ? 'Hồ sơ cá nhân' : 'My profile'}</h1>
-        <p>
-          {vi
-            ? 'Thông tin liên hệ và bảo mật tài khoản của bạn.'
-            : 'Your contact details and account security.'}
-        </p>
-      </header>
-      <section
-        className="user-profile-card"
-        aria-label={vi ? 'Thông tin cá nhân' : 'Personal information'}
-      >
-        <div className="user-profile-identity">
-          <span className="user-profile-avatar" aria-hidden="true">
-            {profile.data?.fullName
-              ?.trim()
-              .split(/\s+/)
-              .map((word) => word[0])
-              .filter(Boolean)
-              .slice(-2)
-              .join('')
-              .toUpperCase() || 'U'}
-          </span>
-          <div>
-            <h2>{profile.data?.fullName}</h2>
-            <p>{profile.data?.email}</p>
+    <PageFrame maxWidth={920}>
+      <PageHeader crumb={t.eyebrow} title={t.title} description={t.subtitle} />
+      <div className="up-grid">
+        <CardComponent
+          title={t.personalInfo}
+          icon={<UserOutlined />}
+          aria-label={t.personalInfo}
+        >
+          <div className="up-identity">
+            <Avatar size={56} className="up-avatar" aria-hidden="true">
+              {initials}
+            </Avatar>
+            <div>
+              <h2 className="up-name">{profile.data?.fullName}</h2>
+              <p className="up-email">{profile.data?.email}</p>
+            </div>
           </div>
-        </div>
-        {profile.data?.role === 'CUSTOMER' && (
-          <dl className="user-profile-details">
-            <div>
-              <dt>{vi ? 'Số điện thoại' : 'Phone number'}</dt>
-              <dd>
-                {profile.data.customerProfile?.phoneNumber ||
-                  (vi ? 'Chưa cập nhật' : 'Not provided')}
-              </dd>
-            </div>
-            <div>
-              <dt>{vi ? 'Công ty / tổ chức' : 'Company / organization'}</dt>
-              <dd>
-                {profile.data.customerProfile?.companyName ||
-                  (vi ? 'Chưa cập nhật' : 'Not provided')}
-              </dd>
-            </div>
-            <div className="user-profile-detail-wide">
-              <dt>{vi ? 'Địa chỉ liên hệ' : 'Contact address'}</dt>
-              <dd>
-                {profile.data.customerProfile?.address ||
-                  (vi ? 'Chưa cập nhật' : 'Not provided')}
-              </dd>
-            </div>
-          </dl>
+          {profile.data?.role === 'CUSTOMER' && (
+            <dl className="up-details">
+              <div>
+                <dt>{t.phone}</dt>
+                <dd>
+                  {profile.data.customerProfile?.phoneNumber || t.notProvided}
+                </dd>
+              </div>
+              <div>
+                <dt>{t.company}</dt>
+                <dd>
+                  {profile.data.customerProfile?.companyName || t.notProvided}
+                </dd>
+              </div>
+              <div className="up-detail-wide">
+                <dt>{t.address}</dt>
+                <dd>
+                  {profile.data.customerProfile?.address || t.notProvided}
+                </dd>
+              </div>
+            </dl>
+          )}
+        </CardComponent>
+
+        {linked && (
+          <p className="up-success" role="status">
+            {t.passwordSet}
+          </p>
         )}
-      </section>
-      {linked && (
-        <p className="user-profile-success" role="status">
-          {vi
-            ? 'Đã đặt mật khẩu. Bạn có thể đăng nhập bằng email và mật khẩu.'
-            : 'Password set. You can now sign in with email and password.'}
-        </p>
-      )}
-      {!linked && canSetLocalPassword(profile.data) && (
-        <section className="user-profile-card user-profile-security">
-          <div className="user-profile-security-heading">
-            <span aria-hidden="true">◇</span>
-            <div>
-              <h2>{vi ? 'Bảo mật tài khoản' : 'Account security'}</h2>
-              <p>
-                {vi
-                  ? 'Thêm cách đăng nhập bằng email và mật khẩu.'
-                  : 'Add email and password sign-in.'}
-              </p>
-            </div>
-          </div>
-          <form onSubmit={submit}>
-            <h3>{vi ? 'Tạo mật khẩu' : 'Create a password'}</h3>
-            <p className="user-profile-help">
-              {vi
-                ? 'Bạn đang đăng nhập bằng Google. Tạo mật khẩu để có thêm lựa chọn đăng nhập bằng email; đăng nhập Google vẫn được giữ nguyên.'
-                : 'You currently sign in with Google. Create a password to also sign in with email. Google sign-in will remain available.'}
-            </p>
-            <div className="user-profile-passwords">
-              <PasswordField
-                id="local-password"
-                label={vi ? 'Mật khẩu mới' : 'New password'}
-                value={password}
-                onChange={setPassword}
-              />
-              <PasswordField
-                id="local-confirmation"
-                label={vi ? 'Xác nhận mật khẩu' : 'Confirm password'}
-                value={confirmation}
-                onChange={setConfirmation}
-              />
-            </div>
-            {error && (
-              <p className="user-profile-error" role="alert">
-                {error}
-              </p>
-            )}
-            <button
-              className="user-profile-button"
-              type="submit"
-              disabled={busy}
-            >
-              {busy
-                ? vi
-                  ? 'Đang lưu…'
-                  : 'Saving…'
-                : vi
-                  ? 'Đặt mật khẩu'
-                  : 'Set password'}
-            </button>
-          </form>
-        </section>
-      )}
-    </main>
+        {!linked && canSetLocalPassword(profile.data) && (
+          <CardComponent
+            title={t.security}
+            icon={<SafetyCertificateOutlined />}
+            tone="green"
+          >
+            <form onSubmit={submit} className="up-form">
+              <p className="up-help">{t.securityHint}</p>
+              <h3 className="up-form-title">{t.createPassword}</h3>
+              <p className="up-help">{t.googleNote}</p>
+              <div className="up-passwords">
+                <PasswordField
+                  id="local-password"
+                  label={t.newPassword}
+                  value={password}
+                  onChange={setPassword}
+                />
+                <PasswordField
+                  id="local-confirmation"
+                  label={t.confirmPassword}
+                  value={confirmation}
+                  onChange={setConfirmation}
+                />
+              </div>
+              {error && (
+                <p className="up-error" role="alert">
+                  {error}
+                </p>
+              )}
+              <Button
+                type="primary"
+                htmlType="submit"
+                loading={busy}
+                disabled={busy}
+              >
+                {busy ? t.saving : t.setPassword}
+              </Button>
+            </form>
+          </CardComponent>
+        )}
+      </div>
+    </PageFrame>
   )
 }

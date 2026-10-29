@@ -1,0 +1,53 @@
+import { defineMessages } from '../../../shared/i18n'
+
+export const userProfileMessages = defineMessages({
+  vi: {
+    passwordMismatch: 'Mật khẩu không khớp.',
+    passwordFailed: 'Không thể đặt mật khẩu.',
+    loading: 'Đang tải hồ sơ…',
+    loadFailed: 'Không tải được hồ sơ. Vui lòng thử lại.',
+    eyebrow: 'Tài khoản của bạn',
+    title: 'Hồ sơ cá nhân',
+    subtitle: 'Thông tin liên hệ và bảo mật tài khoản của bạn.',
+    personalInfo: 'Thông tin cá nhân',
+    phone: 'Số điện thoại',
+    company: 'Công ty / tổ chức',
+    address: 'Địa chỉ liên hệ',
+    notProvided: 'Chưa cập nhật',
+    passwordSet:
+      'Đã đặt mật khẩu. Bạn có thể đăng nhập bằng email và mật khẩu.',
+    security: 'Bảo mật tài khoản',
+    securityHint: 'Thêm cách đăng nhập bằng email và mật khẩu.',
+    createPassword: 'Tạo mật khẩu',
+    googleNote:
+      'Bạn đang đăng nhập bằng Google. Tạo mật khẩu để có thêm lựa chọn đăng nhập bằng email; đăng nhập Google vẫn được giữ nguyên.',
+    newPassword: 'Mật khẩu mới',
+    confirmPassword: 'Xác nhận mật khẩu',
+    saving: 'Đang lưu…',
+    setPassword: 'Đặt mật khẩu',
+  },
+  en: {
+    passwordMismatch: 'Passwords do not match.',
+    passwordFailed: 'Unable to set password.',
+    loading: 'Loading profile…',
+    loadFailed: 'Unable to load your profile. Please try again.',
+    eyebrow: 'Your account',
+    title: 'My profile',
+    subtitle: 'Your contact details and account security.',
+    personalInfo: 'Personal information',
+    phone: 'Phone number',
+    company: 'Company / organization',
+    address: 'Contact address',
+    notProvided: 'Not provided',
+    passwordSet: 'Password set. You can now sign in with email and password.',
+    security: 'Account security',
+    securityHint: 'Add email and password sign-in.',
+    createPassword: 'Create a password',
+    googleNote:
+      'You currently sign in with Google. Create a password to also sign in with email. Google sign-in will remain available.',
+    newPassword: 'New password',
+    confirmPassword: 'Confirm password',
+    saving: 'Saving…',
+    setPassword: 'Set password',
+  },
+})

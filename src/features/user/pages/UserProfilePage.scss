@@ -1,0 +1,116 @@
+.mgr-layout {
+  .up-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
+    gap: var(--mgr-gap);
+    align-items: start;
+  }
+
+  .up-status {
+    margin: 0;
+    color: var(--mgr-muted);
+  }
+
+  .up-identity {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
+  }
+
+  .up-avatar {
+    flex: none;
+    font-weight: 700;
+    color: #fff;
+    background: linear-gradient(135deg, #3b82f6, #4f46e5);
+  }
+
+  .up-name {
+    margin: 0;
+    font-size: var(--mgr-fs-section);
+    font-weight: 700;
+    overflow-wrap: anywhere;
+  }
+
+  .up-email {
+    margin: 2px 0 0;
+    font-size: var(--mgr-fs-small);
+    color: var(--mgr-muted);
+    overflow-wrap: anywhere;
+  }
+
+  .up-details {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 16px;
+    margin: 20px 0 0;
+    padding-top: 16px;
+    border-top: 1px solid var(--mgr-border);
+
+    dt {
+      font-size: var(--mgr-fs-caption);
+      color: var(--mgr-muted);
+    }
+
+    dd {
+      margin: 2px 0 0;
+      font-size: var(--mgr-fs-body);
+      font-weight: 500;
+      overflow-wrap: anywhere;
+    }
+  }
+
+  .up-detail-wide {
+    grid-column: 1 / -1;
+  }
+
+  .up-form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .up-form-title {
+    margin: 0;
+    font-size: var(--mgr-fs-body);
+    font-weight: 600;
+  }
+
+  .up-help {
+    margin: 0;
+    font-size: var(--mgr-fs-small);
+    line-height: var(--mgr-lh-body);
+    color: var(--mgr-muted);
+  }
+
+  .up-passwords {
+    display: grid;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .up-error {
+    margin: 0;
+    font-size: var(--mgr-fs-small);
+    font-weight: 600;
+    color: var(--mgr-error);
+  }
+
+  .up-success {
+    margin: 0;
+    padding: 12px 16px;
+    border: 1px solid var(--mgr-success);
+    border-radius: var(--mgr-radius);
+    background: var(--mgr-success-soft);
+    color: var(--mgr-success);
+    font-size: var(--mgr-fs-small);
+    font-weight: 600;
+  }
+}
+
+@media (max-width: 480px) {
+  .mgr-layout .up-details {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
