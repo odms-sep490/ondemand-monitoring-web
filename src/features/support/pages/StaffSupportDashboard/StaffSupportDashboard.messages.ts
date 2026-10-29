@@ -3,21 +3,21 @@ import { defineMessages } from '../../../../shared/i18n'
 export const staffSupportMessages = defineMessages({
   vi: {
     page: {
-      title: 'Trung tâm hỗ trợ & hàng chờ phiếu hỗ trợ',
+      title: 'Trung tâm hỗ trợ & hàng chờ yêu cầu hỗ trợ',
       subtitle:
         'Theo dõi yêu cầu hỗ trợ của khách hàng, xem ngữ cảnh vận hành đơn hàng/nhiệm vụ và phản hồi theo thời gian thực.',
       refresh: 'Làm mới',
       loadError: 'Không tải được danh sách hỗ trợ.',
     },
     kpi: {
-      open: 'Phiếu mới',
+      open: 'Yêu cầu mới',
       inProgress: 'Đang xử lý',
       waiting: 'Chờ khách hàng',
       resolved: 'Đã giải quyết',
-      openHint: 'Bấm để lọc các phiếu mới mở',
-      inProgressHint: 'Bấm để lọc các phiếu đang xử lý / đã phân công',
-      waitingHint: 'Bấm để lọc các phiếu chờ khách hàng phản hồi',
-      resolvedHint: 'Bấm để lọc các phiếu đã giải quyết / đã đóng',
+      openHint: 'Bấm để lọc các yêu cầu mới mở',
+      inProgressHint: 'Bấm để lọc các yêu cầu đang xử lý / đã phân công',
+      waitingHint: 'Bấm để lọc các yêu cầu chờ khách hàng phản hồi',
+      resolvedHint: 'Bấm để lọc các yêu cầu đã giải quyết / đã đóng',
     },
     insight: {
       faqTitle: 'Tỷ lệ tự giải quyết qua FAQ',
@@ -30,7 +30,7 @@ export const staffSupportMessages = defineMessages({
       minutes: (n: number | string) => `${n} phút`,
       avgResponse: 'Thời gian phản hồi trung bình',
       slaCommit: (pct: number | string) =>
-        `Cam kết SLA: ${pct}% phiếu được phản hồi trong 30 phút`,
+        `Cam kết SLA: ${pct}% yêu cầu được phản hồi trong 30 phút`,
       sourceTitle: 'Phân loại nguồn sự cố',
       sourceOrders: 'Đơn hàng & đánh giá khả thi AI',
       sourceMissions: 'Nhiệm vụ & drone',
@@ -38,8 +38,8 @@ export const staffSupportMessages = defineMessages({
     },
     filter: {
       searchPlaceholder:
-        'Tìm theo mã phiếu, khách hàng, tiêu đề, mã đơn hàng hoặc nhiệm vụ...',
-      searchAria: 'Tìm phiếu hỗ trợ',
+        'Tìm theo mã yêu cầu, khách hàng, tiêu đề, mã đơn hàng hoặc nhiệm vụ...',
+      searchAria: 'Tìm yêu cầu hỗ trợ',
       statusAria: 'Lọc theo trạng thái',
       categoryAria: 'Lọc theo danh mục',
       statusAll: 'Tất cả trạng thái',
@@ -70,7 +70,7 @@ export const staffSupportMessages = defineMessages({
       TECHNICAL: 'Kỹ thuật',
     },
     table: {
-      ticket: 'Phiếu hỗ trợ',
+      ticket: 'Yêu cầu hỗ trợ',
       customer: 'Khách hàng',
       category: 'Danh mục',
       context: 'Ngữ cảnh',
@@ -89,12 +89,12 @@ export const staffSupportMessages = defineMessages({
       empty: 'Không tìm thấy yêu cầu hỗ trợ nào phù hợp với bộ lọc.',
       emptyHint: 'Thử đổi từ khóa hoặc bỏ bớt bộ lọc.',
       count: (shown: number, total: number) =>
-        `Hiển thị ${shown}/${total} phiếu hỗ trợ`,
+        `Hiển thị ${shown}/${total} yêu cầu hỗ trợ`,
     },
     detail: {
       close: 'Đóng',
       conversation: 'Lịch sử hội thoại',
-      noMessages: 'Chưa có tin nhắn trong phiếu hỗ trợ này.',
+      noMessages: 'Chưa có tin nhắn trong yêu cầu hỗ trợ này.',
       attachment: 'Xem đính kèm',
       replyPlaceholder: 'Nhập phản hồi chính thức cho khách hàng...',
       replyAria: 'Nội dung phản hồi',
@@ -117,7 +117,7 @@ export const staffSupportMessages = defineMessages({
       missionStatus: 'Trạng thái nhiệm vụ',
       missionStatusValue: 'Chờ người vận hành chấp nhận',
       assignedDrone: 'Drone được phân công',
-      controls: 'Điều khiển phiếu hỗ trợ',
+      controls: 'Điều khiển yêu cầu hỗ trợ',
       assignStaff: 'Phân công nhân viên',
       unassignedOption: '— Chưa phân công —',
       loadingStaff: 'Đang tải nhân viên...',
