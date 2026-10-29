@@ -16,6 +16,7 @@ export type ManagerRoute =
   | { screen: 'orderQueue' }
   | { screen: 'orderReview'; orderId: string }
   | { screen: 'missionCreate'; orderId: string; replacesMissionId?: string }
+  | { screen: 'orderResults'; orderId: string }
   | { screen: 'missionDispatch'; missionId: string }
   | { screen: 'missionSetup'; missionId: string }
   | { screen: 'missionDetail'; missionId: string }
@@ -33,6 +34,7 @@ export const managerScreenCode: Record<ManagerScreen, string> = {
   dashboard: 'MNG-01',
   orderQueue: 'MNG-02',
   orderReview: 'MNG-03',
+  orderResults: 'MNG-03R',
   missionCreate: 'MNG-04',
   missionDispatch: 'MNG-05',
   missionSetup: 'MNG-05',
@@ -64,11 +66,17 @@ export function parseManagerRoute(hash: string): ManagerRoute {
 
   switch (head) {
     case 'orders': {
+      if (tail.length === 2 && tail[1] === 'results')
+        return { screen: 'orderResults', orderId: tail[0] }
       if (tail.length === 1) return { screen: 'orderReview', orderId: tail[0] }
       if (tail.length === 2 && tail[1] === 'mission')
         return { screen: 'missionCreate', orderId: tail[0] }
       if (tail.length === 3 && tail[1] === 'replacement')
-        return { screen: 'missionCreate', orderId: tail[0], replacesMissionId: tail[2] }
+        return {
+          screen: 'missionCreate',
+          orderId: tail[0],
+          replacesMissionId: tail[2],
+        }
       if (tail.length === 0) return { screen: 'orderQueue' }
       return { screen: 'notFound' }
     }
@@ -110,6 +118,8 @@ export function managerHref(route: ManagerRoute): string {
       return `${MANAGER_ROOT}/orders`
     case 'orderReview':
       return `${MANAGER_ROOT}/orders/${route.orderId}`
+    case 'orderResults':
+      return `${MANAGER_ROOT}/orders/${route.orderId}/results`
     case 'missionCreate':
       return route.replacesMissionId
         ? `${MANAGER_ROOT}/orders/${encodeURIComponent(route.orderId)}/replacement/${encodeURIComponent(route.replacesMissionId)}`

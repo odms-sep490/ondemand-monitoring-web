@@ -22,6 +22,13 @@ describe('parseManagerRoute', () => {
     })
   })
 
+  it('parses the completed order results route', () => {
+    expect(parseManagerRoute('#portal/manager/orders/ORD-1/results')).toEqual({
+      screen: 'orderResults',
+      orderId: 'ORD-1',
+    })
+  })
+
   it('parses the create-mission route (MNG-04)', () => {
     expect(parseManagerRoute('#portal/manager/orders/ORD-1/mission')).toEqual({
       screen: 'missionCreate',
@@ -115,6 +122,10 @@ describe('managerHref', () => {
     [
       { screen: 'orderReview', orderId: 'ORD-1' },
       '#portal/manager/orders/ORD-1',
+    ],
+    [
+      { screen: 'orderResults', orderId: 'ORD-1' },
+      '#portal/manager/orders/ORD-1/results',
     ],
     [
       { screen: 'missionCreate', orderId: 'ORD-1' },

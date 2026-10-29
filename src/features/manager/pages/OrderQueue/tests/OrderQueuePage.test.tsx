@@ -94,7 +94,7 @@ describe('QueuePage', () => {
     vi.mocked(ordersApi.getApproved).mockResolvedValue([{ ...rows[0], orderStatus: 'APPROVED' }])
     vi.mocked(financeApi.getManagerInvoice).mockResolvedValue({ paidAmount: 1_000_000, depositAmount: 1_000_000 } as Invoice)
     vi.mocked(planningApi.getOrderMissions).mockResolvedValue([
-      { id: 'mission-1', status: 'WAITING_CREW_CONFIRMATION' } as MissionResponse,
+      { id: 'mission-1', status: 'READY' } as MissionResponse,
     ])
 
     render(<OrderQueuePage />)
@@ -186,7 +186,7 @@ describe('QueuePage', () => {
     expect(screen.getByText('ORD-DONE')).toBeInTheDocument()
     expect(screen.getAllByRole('link', { name: 'Xem' })[0]).toHaveAttribute(
       'href',
-      '#portal/manager/orders/o-done',
+      '#portal/manager/orders/o-done/results',
     )
   })
 })

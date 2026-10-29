@@ -43,6 +43,7 @@ export type RevisionReasonRequest = {
 export type MissionCancellationResponse = {
   missionId: string
   status: 'CANCELLED'
+  resourcePrepareStatus: 'CANCELLED'
   executionPlanRevision: number
   cancelledAt: string
   cancelledBy: string

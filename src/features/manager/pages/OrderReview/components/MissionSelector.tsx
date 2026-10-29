@@ -65,7 +65,7 @@ export function MissionSelector({
           mission.status === 'PLANNING'
         const resourcesEditable =
           plan.planStatus === 'FINALIZED' &&
-          ['READY', 'WAITING_CREW_CONFIRMATION'].includes(
+          ['READY', 'READY'].includes(
             mission.status,
           )
         return (

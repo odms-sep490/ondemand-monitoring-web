@@ -87,7 +87,7 @@ const GROUPS: Record<MissionGroup, readonly MissionStatus[]> = {
     'CREATED',
     'WAITING_DEPOSIT',
     'RESOURCE_ASSIGNING',
-    'WAITING_CREW_CONFIRMATION',
+    'READY',
     'WAITING_OPERATOR_ACCEPTANCE',
     'SCHEDULED',
     'CONNECTED',

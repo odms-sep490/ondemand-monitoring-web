@@ -9,7 +9,6 @@ import type { UseApiQueryState } from '../../../../../shared/hooks/useApiQuery'
 import type { ExecutionPlan } from '../../../types/planning'
 import type { Dispatch, SetStateAction } from 'react'
 import type { SubmitState } from '../createMissionTypes'
-import type { MissionResponse } from '../../../types/missions'
 
 export function PlanningContextCard({
   onCreated,
@@ -19,8 +18,6 @@ export function PlanningContextCard({
   scopeLabel,
   setScopeLabel,
   submit,
-  replacesMissionId,
-  replacementQuery,
 }: {
   onCreated: ((missionId: string) => void) | undefined
   planQuery: UseApiQueryState<ExecutionPlan>
@@ -29,8 +26,6 @@ export function PlanningContextCard({
   scopeLabel: string
   setScopeLabel: Dispatch<SetStateAction<string>>
   submit: SubmitState
-  replacesMissionId: string | undefined
-  replacementQuery: UseApiQueryState<MissionResponse | null>
 }) {
   const { t: planningT } = useI18n(planningPresentationMessages)
   return (
@@ -127,16 +122,6 @@ export function PlanningContextCard({
             </ul>
           </aside>
         </div>
-        {replacesMissionId && (
-          <p className="odm-planning-notice">
-            {planningT.replacement(replacesMissionId)}
-          </p>
-        )}
-        {replacementQuery.error ? (
-          <p role="alert" className="odm-or-error">
-            {planningError(replacementQuery.error)}
-          </p>
-        ) : null}
       </div>
     </section>
   )

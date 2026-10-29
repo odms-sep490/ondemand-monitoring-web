@@ -8,7 +8,6 @@ import { planningError } from '../../lib/planningErrors'
 import type { SubmitState } from './createMissionTypes'
 import type { UseApiQueryState } from '../../../../shared/hooks/useApiQuery'
 import type { ExecutionPlan } from '../../types/planning'
-import type { MissionResponse } from '../../types/missions'
 import type { Dispatch, SetStateAction } from 'react'
 import { useToast } from '../../../../shared/components/ui'
 import { useI18n } from '../../../../shared/i18n'
@@ -17,8 +16,6 @@ import { managerFeedbackMessages } from '../../feedback.messages'
 export function useCreateMissionSubmit({
   submit,
   planQuery,
-  replacementQuery,
-  replacesMissionId,
   orderId,
   scopeLabel,
   selectedChecklistIds,
@@ -34,8 +31,6 @@ export function useCreateMissionSubmit({
 }: {
   submit: SubmitState
   planQuery: UseApiQueryState<ExecutionPlan>
-  replacementQuery: UseApiQueryState<MissionResponse | null>
-  replacesMissionId: string | undefined
   orderId: string
   scopeLabel: string
   selectedChecklistIds: string[]
@@ -57,13 +52,7 @@ export function useCreateMissionSubmit({
       submit.kind === 'submitting' ||
       planQuery.loading ||
       planQuery.error ||
-      (planQuery.data?.planStatus !== 'DRAFT' &&
-        !(replacesMissionId && planQuery.data?.planStatus === 'FINALIZED')) ||
-      replacementQuery.loading ||
-      replacementQuery.error ||
-      (replacesMissionId &&
-        (replacementQuery.data?.status !== 'CANCELLED' ||
-          replacementQuery.data.orderId !== orderId))
+      !['DRAFT', 'FINALIZED'].includes(planQuery.data?.planStatus ?? '')
     )
       return
     if (!scopeLabel.trim()) {
@@ -101,8 +90,8 @@ export function useCreateMissionSubmit({
         scheduledEnd: endDate.toISOString(),
         checklistIds: selectedChecklistIds,
       }
-      const mission = replacesMissionId
-        ? await missionsApi.replaceMission(replacesMissionId, intent)
+      const mission = planQuery.data?.planStatus === 'FINALIZED'
+        ? await missionsApi.createAdditionalMission(orderId, intent)
         : await missionsApi.createMission(orderId, intent)
       toast.success(fb.missionCreated)
       if (onCreated) onCreated(mission.id)

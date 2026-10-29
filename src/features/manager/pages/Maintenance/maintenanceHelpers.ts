@@ -29,4 +29,3 @@ export const SEVERITIES: TicketSeverity[] = [
   'HIGH',
   'CRITICAL',
 ]
-

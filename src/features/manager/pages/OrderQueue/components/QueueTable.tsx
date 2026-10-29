@@ -92,7 +92,10 @@ export function QueueTable({ rows, total, mode, isInProgress }: Props) {
         <Button
           size="small"
           type={mode === 'all' ? 'default' : 'primary'}
-          href={managerHref({ screen: 'orderReview', orderId: row.id })}
+          href={managerHref({
+            screen: row.orderStatus === 'COMPLETED' ? 'orderResults' : 'orderReview',
+            orderId: row.id,
+          })}
         >
           {actionLabel}
         </Button>

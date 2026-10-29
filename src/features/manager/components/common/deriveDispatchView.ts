@@ -45,7 +45,7 @@ export function deriveDispatchView({
 }) {
   const currentOrderCode = displayOrderCode(current.orderCode, current.orderId)
   const assignable = orderContext
-    ? ['RESOURCE_ASSIGNING', 'WAITING_CREW_CONFIRMATION'].includes(
+    ? ['RESOURCE_ASSIGNING', 'READY'].includes(
         current.status,
       )
     : current.status === 'RESOURCE_ASSIGNING' || current.status === 'CREATED'

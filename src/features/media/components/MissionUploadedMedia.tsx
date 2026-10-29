@@ -239,7 +239,7 @@ function Gallery({
               {[
                 'CREATED',
                 'RESOURCE_ASSIGNING',
-                'WAITING_CREW_CONFIRMATION',
+                'READY',
                 'SCHEDULED',
                 'READY_TO_FLY',
               ].includes(missionStatus ?? '')

@@ -16,6 +16,7 @@ import { MissionDetailPage } from './pages/MissionDetail'
 import { MissionsPage } from './pages/Missions'
 import { OrderReviewPage } from './pages/OrderReview'
 import { OrderQueuePage } from './pages/OrderQueue'
+import { OrderResultsPage } from './pages/OrderResults'
 import { SchedulePage } from './pages/Schedule'
 import { StaffSupportDashboardPage } from '../support/pages/StaffSupportDashboardPage'
 import { managerHref, parseManagerRoute, type ManagerRoute } from './routes'
@@ -41,6 +42,7 @@ const breadcrumbKey: Record<
   dashboard: 'dashboard',
   orderQueue: 'orders',
   orderReview: 'orders',
+  orderResults: 'orders',
   missionCreate: 'orders',
   missionDispatch: 'missions',
   missionSetup: 'missionSetup',
@@ -95,11 +97,12 @@ function renderScreen(
   if (route.screen === 'orderQueue') return <OrderQueuePage />
   if (route.screen === 'orderReview')
     return <OrderReviewPage key={route.orderId} orderId={route.orderId} />
+  if (route.screen === 'orderResults')
+    return <OrderResultsPage key={route.orderId} orderId={route.orderId} />
   if (route.screen === 'missionCreate')
     return (
       <MissionCreatePage
         orderId={route.orderId}
-        replacesMissionId={route.replacesMissionId}
       />
     )
   if (route.screen === 'missionDispatch')
