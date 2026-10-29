@@ -201,7 +201,6 @@ export function MissionListTable({
         rowKey="id"
         columns={columns}
         dataSource={missions}
-        scroll={{ x: 'max-content' }}
       />
     </CardComponent>
   )

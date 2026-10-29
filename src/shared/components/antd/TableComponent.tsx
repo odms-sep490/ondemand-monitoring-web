@@ -20,8 +20,6 @@ export function TableComponent<T extends object>({
       size="middle"
       pagination={pagination === undefined ? defaultPagination : pagination}
       className={`mgr-atable ${className}`.trim()}
-      // Keep a readable minimum width: below it the table scrolls inside its card instead of squeezing cells.
-      scroll={props.scroll ?? { x: 720 }}
       {...props}
     />
   )

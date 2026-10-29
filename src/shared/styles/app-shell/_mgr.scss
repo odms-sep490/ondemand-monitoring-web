@@ -186,6 +186,20 @@ $tones: (
     overflow-wrap: break-word;
   }
 
+  /* Readable minimum width: below it the table scrolls inside its card instead of squeezing cells. */
+  .mgr-atable .ant-table-container {
+    overflow-x: auto;
+  }
+
+  .mgr-atable .ant-table-content > table,
+  .mgr-atable .ant-table-body > table {
+    min-width: 720px;
+  }
+
+  .mgr-atable.adm-wide-table .ant-table-content > table {
+    min-width: 1000px;
+  }
+
   .mgr-chip {
     display: inline-flex;
     align-items: center;
