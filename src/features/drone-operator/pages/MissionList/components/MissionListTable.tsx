@@ -201,6 +201,7 @@ export function MissionListTable({
         rowKey="id"
         columns={columns}
         dataSource={missions}
+        className="mgr-wide-table"
       />
     </CardComponent>
   )

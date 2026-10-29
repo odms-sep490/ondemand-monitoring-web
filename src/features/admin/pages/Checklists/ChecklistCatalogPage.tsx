@@ -211,7 +211,7 @@ export function ChecklistCatalogPage() {
               columns={columns}
               dataSource={query.data.items}
               pagination={false}
-              className="adm-wide-table"
+              className="mgr-wide-table"
             />
           )}
           <ChecklistPagination
