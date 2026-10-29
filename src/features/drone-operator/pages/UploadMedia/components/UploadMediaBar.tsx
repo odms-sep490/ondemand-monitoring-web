@@ -1,7 +1,11 @@
-import { uploadMediaPageMessages } from '../UploadMediaPage.messages'
-import { useI18n } from '../../../../../shared/i18n'
+import { ArrowLeftOutlined, ReloadOutlined } from '@ant-design/icons'
+import { Button, Progress } from 'antd'
 import type { Dispatch, SetStateAction } from 'react'
+
+import { CardComponent, StatusTag } from '../../../../../shared/components/antd'
+import { useI18n } from '../../../../../shared/i18n'
 import type { LocalMedia } from '../../../../media/api/operatorMediaApi'
+import { uploadMediaPageMessages } from '../UploadMediaPage.messages'
 
 export function UploadMediaBar({
   loadedMedia,
@@ -42,108 +46,91 @@ export function UploadMediaBar({
 }) {
   const { t } = useI18n(uploadMediaPageMessages)
   return (
-    <div className="upload-media-bar">
-      <div className="upload-media-bar-main">
-        <div className="upload-media-bar-head">
-          <strong className="upload-media-bar-count">
-            {loadedMedia} / {totalMedia}
-          </strong>
-          <span>{t.mediaLoaded}</span>
-          <span className="upload-media-chips">
+    <CardComponent>
+      <div className="stf-bar">
+        <div className="stf-bar-main">
+          <div className="stf-row">
+            <strong className="stf-bar-count">
+              {loadedMedia} / {totalMedia}
+            </strong>
+            <span className="stf-muted">{t.mediaLoaded}</span>
             {loadedMedia > 0 && (
-              <span className="upload-media-status is-success">
+              <StatusTag tone="success">
                 {t.uploadedChip(loadedMedia)}
-              </span>
+              </StatusTag>
             )}
             {pendingMedia > 0 && (
-              <span className="upload-media-status is-warning">
+              <StatusTag tone="warning">
                 {t.pendingChip(pendingMedia)}
-              </span>
+              </StatusTag>
             )}
             {uploading > 0 && (
-              <span className="upload-media-status is-info">
-                {t.uploadingChip(uploading)}
-              </span>
+              <StatusTag tone="info">{t.uploadingChip(uploading)}</StatusTag>
             )}
             {manual > 0 && (
-              <span className="upload-media-status is-danger">
-                {t.manualChip(manual)}
-              </span>
+              <StatusTag tone="danger">{t.manualChip(manual)}</StatusTag>
             )}
-          </span>
-        </div>
-        <div
-          className="upload-media-progress"
-          role="progressbar"
-          aria-valuemin={0}
-          aria-valuemax={totalMedia}
-          aria-valuenow={loadedMedia}
-          aria-label={t.summary(loadedMedia, totalMedia, uploading, manual)}
-        >
-          <span
-            style={{
-              width: totalMedia
-                ? `${Math.round((loadedMedia / totalMedia) * 100)}%`
-                : '0%',
-            }}
+          </div>
+          <Progress
+            size="small"
+            showInfo={false}
+            percent={
+              totalMedia ? Math.round((loadedMedia / totalMedia) * 100) : 0
+            }
+            aria-label={t.summary(loadedMedia, totalMedia, uploading, manual)}
           />
+          <small className="stf-muted">{t.summaryNote}</small>
         </div>
-        <small className="upload-media-bar-note">{t.summaryNote}</small>
-      </div>
-      <div className="upload-media-bar-actions">
-        <a className="odm-btn upload-media-btn-ghost" href={backRoute}>
-          <span aria-hidden="true">←</span>
-          {t.backToCockpit}
-        </a>
-        <button
-          type="button"
-          className="odm-btn upload-media-btn-ghost"
-          onClick={() => {
-            refreshWorkspace()
-          }}
-        >
-          <span aria-hidden="true">↻</span>
-          {t.refresh}
-        </button>
-        {canManageMedia ? (
-          <button
-            type="button"
-            className="odm-btn upload-media-btn-ghost"
-            disabled={!missionId || isBusy}
+        <div className="stf-bar-actions">
+          <Button
+            href={backRoute}
+            icon={<ArrowLeftOutlined aria-hidden="true" />}
+          >
+            {t.backToCockpit}
+          </Button>
+          <Button
+            icon={<ReloadOutlined aria-hidden="true" />}
             onClick={() => {
-              void (async () => {
-                setUploadInfo(null)
-                if (approvable.length === 0) {
-                  await refresh()
-                  setUploadInfo(
-                    referenceCount > 0
-                      ? `Tất cả media đã được lưu (${referenceCount} ảnh tham chiếu). Không còn file nào chờ upload.`
-                      : 'Không có file nào chờ upload.',
-                  )
-                  return
-                }
-                setBatchUploading(true)
-                try {
-                  for (const item of approvable) {
-                    if (!(await approve(item))) return
-                  }
-                  setUploadInfo(
-                    'Đã gửi các file đang chờ. Trạng thái lưu/xác thực được cập nhật từ backend.',
-                  )
-                } finally {
-                  setBatchUploading(false)
-                }
-              })()
+              refreshWorkspace()
             }}
           >
-            {t.uploadAll}
-          </button>
-        ) : (
-          <span role="status" className="upload-media-viewonly">
-            {t.viewOnly}
-          </span>
-        )}
+            {t.refresh}
+          </Button>
+          {canManageMedia ? (
+            <Button
+              type="primary"
+              disabled={!missionId || isBusy}
+              onClick={() => {
+                void (async () => {
+                  setUploadInfo(null)
+                  if (approvable.length === 0) {
+                    await refresh()
+                    setUploadInfo(
+                      referenceCount > 0
+                        ? t.uploadAllNoneRef(referenceCount)
+                        : t.uploadAllNone,
+                    )
+                    return
+                  }
+                  setBatchUploading(true)
+                  try {
+                    for (const item of approvable) {
+                      if (!(await approve(item))) return
+                    }
+                    setUploadInfo(t.uploadAllSent)
+                  } finally {
+                    setBatchUploading(false)
+                  }
+                })()
+              }}
+            >
+              {t.uploadAll}
+            </Button>
+          ) : (
+            <StatusTag tone="neutral">{t.viewOnly}</StatusTag>
+          )}
+        </div>
       </div>
-    </div>
+    </CardComponent>
   )
 }

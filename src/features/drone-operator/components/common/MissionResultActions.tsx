@@ -166,6 +166,7 @@ export function MissionResultActions({
         {showReason && (
           <Alert
             id={reasonId}
+            role="status"
             type="warning"
             showIcon
             message={

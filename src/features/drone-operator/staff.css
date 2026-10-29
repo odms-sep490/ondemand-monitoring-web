@@ -553,3 +553,382 @@
   font-size: 15px;
   font-weight: 700;
 }
+
+/* Upload media */
+.stf-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 24px;
+}
+
+.stf-bar-main {
+  flex: 1 1 320px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.stf-bar-count {
+  font-size: 20px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--mgr-text);
+}
+
+.stf-bar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.stf-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  gap: 16px;
+  align-items: start;
+}
+
+.stf-workspace > * {
+  min-width: 0;
+}
+
+/* The checklist column stays in view; it only scrolls when taller than the viewport. */
+.stf-workspace > :last-child {
+  max-height: calc(100vh - 110px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+
+@media (min-width: 1101px) {
+  .stf-workspace > :last-child {
+    position: sticky;
+    top: 16px;
+  }
+}
+
+@media (max-width: 1100px) {
+  .stf-workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .stf-workspace > :last-child {
+    max-height: none;
+    overflow: visible;
+  }
+}
+
+.stf-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin-bottom: 14px;
+}
+
+.stf-toolbar-title {
+  margin: 0;
+  font-family: inherit;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: normal;
+  color: var(--mgr-text);
+}
+
+.stf-toolbar-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+@media (max-width: 640px) {
+  .stf-toolbar-tools {
+    margin-left: 0;
+  }
+}
+
+.stf-media-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr));
+  gap: 16px;
+}
+
+.stf-media-grid.is-list {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+}
+
+.stf-media-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--mgr-border);
+  border-radius: 14px;
+  background: var(--mgr-card);
+  transition: box-shadow 0.18s ease;
+}
+
+.stf-media-card:hover {
+  box-shadow: var(--mgr-shadow-hover);
+}
+
+.stf-media-thumb {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  background: var(--mgr-card-2);
+}
+
+.stf-media-preview {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.stf-media-unavailable {
+  margin: 0;
+  padding: 14px;
+  font-size: 12.5px;
+  color: var(--mgr-muted);
+}
+
+.stf-media-expand {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--mgr-border);
+  border-radius: 8px;
+  background: var(--mgr-card);
+  color: var(--mgr-text);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.stf-media-card:hover .stf-media-expand {
+  opacity: 1;
+}
+
+.stf-media-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+  padding: 12px 14px 14px;
+}
+
+.stf-media-filename {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--mgr-text);
+}
+
+.stf-media-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 6px;
+  font-size: 12px;
+}
+
+.stf-media-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.stf-media-grid.is-list .stf-media-card {
+  flex-direction: row;
+  align-items: stretch;
+}
+
+.stf-media-grid.is-list .stf-media-thumb {
+  flex: none;
+  width: 180px;
+  aspect-ratio: auto;
+  min-height: 112px;
+}
+
+.stf-media-grid.is-list .stf-media-body {
+  flex: 1;
+  justify-content: center;
+}
+
+@media (max-width: 640px) {
+  .stf-media-grid.is-list .stf-media-card {
+    flex-direction: column;
+  }
+
+  .stf-media-grid.is-list .stf-media-thumb {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+  }
+}
+
+.stf-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Native <details> disclosures (kept for always-in-DOM content) */
+.stf-details {
+  border: 1px solid var(--mgr-border);
+  border-radius: 14px;
+  background: var(--mgr-card);
+  overflow: hidden;
+}
+
+.stf-details > summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--mgr-text);
+  cursor: pointer;
+}
+
+.stf-details > summary:focus-visible {
+  outline: 2px solid currentcolor;
+  outline-offset: -2px;
+}
+
+.stf-details--inner {
+  width: 100%;
+  border-radius: 10px;
+  background: var(--mgr-card-2);
+}
+
+.stf-details--inner > summary {
+  padding: 8px 12px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--mgr-muted);
+}
+
+.stf-attach {
+  min-width: 0;
+  margin: 0;
+  padding: 4px 12px 10px;
+  border: 0;
+  border-top: 1px solid var(--mgr-border);
+}
+
+.stf-attach-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 0;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.stf-attach-row .ant-checkbox-wrapper {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.stf-attach-row em {
+  flex: none;
+  font-style: normal;
+  font-size: 11.5px;
+}
+
+.stf-attach-button.ant-btn {
+  height: auto;
+  margin-top: 6px;
+  padding: 6px 10px;
+  line-height: 1.3;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+/* Result gallery: thumbnails only (details live in the media list above) */
+.stf-uploaded .mission-media {
+  margin-top: 0;
+  border-radius: 14px;
+}
+
+.stf-uploaded .mission-media__body {
+  gap: 14px;
+  padding: 18px 20px;
+}
+
+.stf-uploaded .mission-media__header p,
+.stf-uploaded .mission-media__card-body {
+  display: none;
+}
+
+.stf-uploaded .mission-media__title-row h3 {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: normal;
+}
+
+.stf-uploaded .mission-media__grid {
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.stf-uploaded .mission-media__preview {
+  aspect-ratio: 4 / 3;
+  height: auto;
+}
+
+/* Native dialog lightbox */
+.stf-lightbox {
+  max-width: min(1000px, 92vw);
+  padding: 16px;
+  border: 1px solid var(--mgr-border);
+  border-radius: 12px;
+  color: var(--mgr-text);
+  background: var(--mgr-card);
+}
+
+.stf-lightbox::backdrop {
+  background: color-mix(in srgb, var(--mgr-bg) 70%, transparent);
+}
+
+.stf-lightbox img {
+  display: block;
+  max-width: 100%;
+  max-height: 75vh;
+  margin: 12px auto 0;
+  object-fit: contain;
+}
+
+.stf-table-scroll {
+  overflow-x: auto;
+}
+
+.stf-table-scroll .ant-table {
+  min-width: 720px;
+}

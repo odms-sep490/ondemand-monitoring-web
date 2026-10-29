@@ -2,6 +2,36 @@ import { defineMessages } from '../../../../shared/i18n'
 
 export const uploadMediaPageMessages = defineMessages({
   vi: {
+    mediaTypeLabel: { IMAGE: 'Ảnh', VIDEO: 'Video' },
+    mediaSourceLabel: {
+      DRONE_CAMERA: 'Camera drone',
+      SATELLITE_SNAPSHOT: 'Ảnh vệ tinh',
+      MANUAL_UPLOAD: 'Upload thủ công',
+      MAPILLARY_REFERENCE: 'Ảnh tham chiếu Mapillary',
+    },
+    mediaStatusLabel: {
+      REVIEW_PENDING: 'Chờ duyệt',
+      UPLOADING: 'Đang upload',
+      UPLOAD_FAILED: 'Upload thất bại',
+      VALIDATING: 'Đang xác thực',
+      MANUAL_UPLOAD_REQUIRED: 'Cần upload thủ công',
+      UPLOAD_PENDING: 'Chờ upload',
+      RETRY_REQUIRED: 'Cần thử lại',
+      PENDING_MANAGER_APPROVAL: 'Chờ manager duyệt',
+      AVAILABLE: 'Đã duyệt',
+      UPLOADED: 'Đã upload',
+    } as Record<string, string>,
+    originalUnavailable:
+      'Bản gốc trên Flight Controller không khả dụng. Chọn bản sao PC để khôi phục.',
+    manualUploadFromOriginal: 'Upload thủ công từ bản gốc',
+    attachWithoutReupload: 'Gắn bằng chứng — không upload lại',
+    attachFailedNotice: (reason: string) =>
+      `Media đã được giữ. Gắn bằng chứng chưa thành công: ${reason}. Chọn “Gắn bằng chứng” để thử lại, không upload lại.`,
+    uploadAllNoneRef: (n: number) =>
+      `Tất cả media đã được lưu (${n} ảnh tham chiếu). Không còn file nào chờ upload.`,
+    uploadAllNone: 'Không có file nào chờ upload.',
+    uploadAllSent:
+      'Đã gửi các file đang chờ. Trạng thái lưu/xác thực được cập nhật từ backend.',
     stepTitle: 'Upload media',
     uploadPermissionNote:
       'Upload ảnh cần Pilot hoặc Inspector đã nhận nhiệm vụ. Bạn vẫn có thể xem media và cập nhật checklist nếu được phân công giám sát.',
@@ -75,6 +105,36 @@ export const uploadMediaPageMessages = defineMessages({
     deleteFailed: 'Không xóa được media',
   },
   en: {
+    mediaTypeLabel: { IMAGE: 'Photo', VIDEO: 'Video' },
+    mediaSourceLabel: {
+      DRONE_CAMERA: 'Drone camera',
+      SATELLITE_SNAPSHOT: 'Satellite image',
+      MANUAL_UPLOAD: 'Manual upload',
+      MAPILLARY_REFERENCE: 'Mapillary reference image',
+    },
+    mediaStatusLabel: {
+      REVIEW_PENDING: 'Awaiting review',
+      UPLOADING: 'Uploading',
+      UPLOAD_FAILED: 'Upload failed',
+      VALIDATING: 'Validating',
+      MANUAL_UPLOAD_REQUIRED: 'Manual upload needed',
+      UPLOAD_PENDING: 'Awaiting upload',
+      RETRY_REQUIRED: 'Retry needed',
+      PENDING_MANAGER_APPROVAL: 'Awaiting manager approval',
+      AVAILABLE: 'Approved',
+      UPLOADED: 'Uploaded',
+    } as Record<string, string>,
+    originalUnavailable:
+      'The original on the Flight Controller is unavailable. Pick the PC copy to restore it.',
+    manualUploadFromOriginal: 'Upload manually from the original',
+    attachWithoutReupload: 'Attach evidence — no re-upload',
+    attachFailedNotice: (reason: string) =>
+      `The media was kept. Attaching evidence failed: ${reason}. Choose "Attach evidence" to retry without re-uploading.`,
+    uploadAllNoneRef: (n: number) =>
+      `All media is stored (${n} reference image(s)). No file is waiting for upload.`,
+    uploadAllNone: 'No file is waiting for upload.',
+    uploadAllSent:
+      'Pending files were sent. Storage and validation status is refreshed from the backend.',
     uploadPermissionNote:
       'Uploading requires an accepted Pilot or Inspector assignment. You can still view media and update the checklist if assigned to monitoring.',
     inspectorContact: 'Inspector contact',

@@ -246,7 +246,7 @@ describe('Upload media and monitoring workspace', () => {
     await screen.findByText('Quan sát hàng rào')
     expect(screen.getByText('Chỉnh sửa')).toBeInTheDocument()
     const image = await screen.findByAltText('capture.jpg')
-    expect(image).toHaveClass('upload-media-preview')
+    expect(image).toHaveClass('stf-media-preview')
     expect(screen.queryByText('Upload ảnh')).toBeNull()
     expect(
       screen.getByText(/Upload ảnh cần Pilot hoặc Inspector/),

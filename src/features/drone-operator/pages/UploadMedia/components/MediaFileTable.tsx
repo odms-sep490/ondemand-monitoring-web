@@ -21,7 +21,7 @@ export function MediaFileTable({
 }) {
   const { t } = useI18n(uploadMediaPageMessages)
   return (
-    <details className="upload-media-table-wrap">
+    <details className="stf-details">
       <summary>{t.fileTable(files.length)}</summary>
       <MediaTable
         files={files}

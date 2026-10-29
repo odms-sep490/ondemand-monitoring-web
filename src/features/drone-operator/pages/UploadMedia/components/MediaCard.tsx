@@ -1,11 +1,9 @@
+import { EllipsisOutlined, ExpandOutlined } from '@ant-design/icons'
+import { Alert, Button, Checkbox, Dropdown } from 'antd'
+
+import { StatusTag } from '../../../../../shared/components/antd'
 import { operatorMediaApi } from '../../../../media/api/operatorMediaApi'
-import {
-  mediaTypeLabel,
-  mediaSourceLabel,
-  statusTone,
-  mediaStatusLabel,
-  finishedUploadStatuses,
-} from '../uploadMediaHelpers'
+import { finishedUploadStatuses } from '../uploadMediaHelpers'
 import { PcBackupPicker } from '../../../../media/components/PcBackupPicker'
 import { uploadMediaPageMessages } from '../UploadMediaPage.messages'
 import { useI18n } from '../../../../../shared/i18n'
@@ -60,136 +58,137 @@ export function MediaCard({
   uploadPc: (item: LocalMedia, file: File) => Promise<void>
 }) {
   const { t } = useI18n(uploadMediaPageMessages)
+  const statusKind = /FAIL|REJECT|ERROR|MANUAL_UPLOAD_REQUIRED/.test(status)
+    ? 'danger'
+    : /PENDING|VALIDATING|UPLOADING|REVIEW/.test(status)
+      ? 'warning'
+      : /AVAILABLE|UPLOADED|VALIDATED|STORED|COMPLETED|READY/.test(status)
+        ? 'success'
+        : 'neutral'
   return (
-    <article className="upload-media-card">
-      <div className="upload-media-thumb">
+    <article className="stf-media-card">
+      <div className="stf-media-thumb">
         {item.localAvailable === false ? (
-          <p className="upload-media-unavailable">
-            Bản gốc trên Flight Controller không khả dụng. Chọn bản sao PC để
-            khôi phục.
-          </p>
+          <p className="stf-media-unavailable">{t.originalUnavailable}</p>
         ) : item.mediaType === 'IMAGE' ? (
           <img
             src={operatorMediaApi.previewUrl(item.localMediaId)}
             alt={item.fileName}
-            className="upload-media-preview"
+            className="stf-media-preview"
           />
         ) : (
           <video
             src={operatorMediaApi.previewUrl(item.localMediaId)}
             controls
             preload="metadata"
-            className="upload-media-preview"
+            className="stf-media-preview"
           />
         )}
         {item.mediaType === 'IMAGE' && item.localAvailable !== false && (
           <button
             type="button"
-            className="upload-media-expand"
+            className="stf-media-expand"
             aria-hidden="true"
             tabIndex={-1}
             onClick={() => setPreview(item)}
           >
-            ⛶
+            <ExpandOutlined />
           </button>
         )}
       </div>
-      <div className="upload-media-card-body">
-        <div className="odm-mono upload-media-filename" title={item.fileName}>
+      <div className="stf-media-body">
+        <div className="stf-mono stf-media-filename" title={item.fileName}>
           {item.fileName}
         </div>
-        <div className="upload-media-meta">
-          <span>{mediaTypeLabel[item.mediaType] ?? item.mediaType}</span>
+        <div className="stf-muted stf-media-meta">
+          <span>{t.mediaTypeLabel[item.mediaType] ?? item.mediaType}</span>
           <span aria-hidden="true">•</span>
           <span>{(item.fileSize / 1_000_000).toFixed(2)} MB</span>
           {item.sourceType && (
             <>
               <span aria-hidden="true">•</span>
               <span>
-                {mediaSourceLabel[item.sourceType] ?? item.sourceType}
+                {t.mediaSourceLabel[item.sourceType] ?? item.sourceType}
               </span>
             </>
           )}
         </div>
-        <span className={`upload-media-status ${statusTone(status)}`}>
-          {mediaStatusLabel[status] ?? status}
-        </span>
+        <StatusTag tone={statusKind}>
+          {t.mediaStatusLabel[status] ?? status}
+        </StatusTag>
         {item.previewError && (
-          <p role="alert" className="upload-media-notice is-danger">
-            {item.previewError}
-          </p>
+          <Alert type="error" showIcon message={item.previewError} />
         )}
-        <div className="upload-media-actions">
+        <div className="stf-media-actions">
           {canManageMedia && status === 'MANUAL_UPLOAD_REQUIRED' && (
-            <button
-              type="button"
-              className="odm-btn odm-btn-p"
+            <Button
+              type="primary"
               disabled={isBusy || item.localAvailable === false}
               onClick={() => void approve(item, true)}
             >
-              Upload thủ công từ bản gốc
-            </button>
+              {t.manualUploadFromOriginal}
+            </Button>
           )}
           {canManageMedia && (
-            <button
-              type="button"
-              className="odm-btn odm-btn-p"
+            <Button
+              type="primary"
+              style={{ flex: 1 }}
               disabled={isBusy || !canApprove || item.localAvailable === false}
               onClick={() => void approve(item)}
             >
               {busyId === item.localMediaId ? t.processing : t.approveUpload}
-            </button>
+            </Button>
           )}
           {item.mediaType === 'IMAGE' && item.localAvailable !== false && (
-            <button
-              type="button"
-              className="odm-btn"
-              onClick={() => setPreview(item)}
-            >
+            <Button onClick={() => setPreview(item)}>
               <span aria-hidden="true">{t.viewShort}</span>
-              <span className="upload-media-sr">{t.enlargePreview}</span>
-            </button>
+              <span className="stf-sr">{t.enlargePreview}</span>
+            </Button>
           )}
           {canManageMedia && (
-            <details className="upload-media-more">
-              <summary aria-label={t.moreActions} title={t.moreActions}>
-                ⋮
-              </summary>
-              <div className="upload-media-menu">
-                <button
-                  type="button"
-                  className="odm-btn"
-                  disabled={isBusy || !canDiscard}
-                  onClick={() => void discard(item)}
-                >
-                  {finishedUploadStatuses.has(status)
-                    ? t.deleteLocal
-                    : t.discard}
-                </button>
-              </div>
-            </details>
+            <Dropdown
+              trigger={['click']}
+              menu={{
+                items: [
+                  {
+                    key: 'discard',
+                    danger: true,
+                    disabled: isBusy || !canDiscard,
+                    label: finishedUploadStatuses.has(status)
+                      ? t.deleteLocal
+                      : t.discard,
+                    onClick: () => void discard(item),
+                  },
+                ],
+              }}
+            >
+              <Button
+                icon={<EllipsisOutlined aria-hidden="true" />}
+                aria-label={t.moreActions}
+                title={t.moreActions}
+              />
+            </Dropdown>
           )}
         </div>
         {monitoring.data?.permissions.canAttachChecklistEvidence === true &&
           !monitoring.loading &&
           !monitoring.error && (
             <details
-              className="upload-media-attach-wrap"
+              className="stf-details stf-details--inner"
               open={targetCount > 0}
             >
               <summary>
                 {t.attachToChecklist}
                 {targetCount > 0 && (
-                  <span className="upload-media-chip">
+                  <StatusTag tone="info">
                     {t.attachSelected(targetCount)}
-                  </span>
+                  </StatusTag>
                 )}
               </summary>
-              <fieldset disabled={isBusy} className="upload-media-attach">
+              <fieldset disabled={isBusy} className="stf-attach">
                 {monitoring.data.checklist.executions.map((execution) => (
-                  <label key={execution.id} className="upload-media-attach-row">
-                    <input
-                      type="checkbox"
+                  <label key={execution.id} className="stf-attach-row">
+                    <Checkbox
                       checked={(
                         selectedTargets[item.localMediaId] ?? []
                       ).includes(execution.id)}
@@ -204,18 +203,19 @@ export function MediaCard({
                           }
                         })
                       }
-                    />
-                    <span>{execution.content}</span>
-                    <em>
+                    >
+                      <span>{execution.content}</span>
+                    </Checkbox>
+                    <em className="stf-muted">
                       {execution.eligibleEvidenceCount ?? 0}/
                       {execution.minimumEvidenceCount ?? 0}
                     </em>
                   </label>
                 ))}
                 {item.backendMediaId && (
-                  <button
-                    type="button"
-                    className="odm-btn upload-media-attach-button"
+                  <Button
+                    block
+                    className="stf-attach-button"
                     disabled={isBusy || !targetCount}
                     onClick={() => {
                       const mediaId = item.backendMediaId
@@ -226,18 +226,18 @@ export function MediaCard({
                       )
                     }}
                   >
-                    Gắn bằng chứng — không upload lại
-                  </button>
+                    {t.attachWithoutReupload}
+                  </Button>
                 )}
               </fieldset>
             </details>
           )}
         {attachFailures[item.localMediaId] && (
-          <p role="alert" className="upload-media-notice is-danger">
-            Media đã được giữ. Gắn bằng chứng chưa thành công:{' '}
-            {attachFailures[item.localMediaId]}. Chọn “Gắn bằng chứng” để thử
-            lại, không upload lại.
-          </p>
+          <Alert
+            type="error"
+            showIcon
+            message={t.attachFailedNotice(attachFailures[item.localMediaId])}
+          />
         )}
         {canManageMedia &&
           item.manualTaskId &&

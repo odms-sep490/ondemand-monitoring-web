@@ -1,7 +1,11 @@
-import { uploadMediaPageMessages } from '../UploadMediaPage.messages'
+import { AppstoreOutlined, UnorderedListOutlined } from '@ant-design/icons'
+import { Radio, Select } from 'antd'
+import type { Dispatch, SetStateAction } from 'react'
+
+import { StatusTag } from '../../../../../shared/components/antd'
 import { useI18n } from '../../../../../shared/i18n'
 import type { LocalMedia } from '../../../../media/api/operatorMediaApi'
-import type { Dispatch, SetStateAction } from 'react'
+import { uploadMediaPageMessages } from '../UploadMediaPage.messages'
 
 export function MediaToolbar({
   items,
@@ -22,47 +26,54 @@ export function MediaToolbar({
 }) {
   const { t } = useI18n(uploadMediaPageMessages)
   return (
-    <header className="upload-media-toolbar">
-      <h2>{t.mediaList}</h2>
-      <span className="upload-media-count">{t.fileCount(items.length)}</span>
-      <div className="upload-media-tools">
-        <select
+    <header className="stf-toolbar">
+      <h2 className="stf-toolbar-title">{t.mediaList}</h2>
+      <StatusTag tone="info">{t.fileCount(items.length)}</StatusTag>
+      <div className="stf-toolbar-tools">
+        <Select
           aria-label={t.filterLabel}
           value={filter}
-          onChange={(event) => setFilter(event.target.value as typeof filter)}
-        >
-          <option value="all">{t.filterAll}</option>
-          <option value="pending">{t.filterPending}</option>
-          <option value="uploaded">{t.filterUploaded}</option>
-        </select>
-        <select
+          onChange={(value) => setFilter(value)}
+          style={{ minWidth: 130 }}
+          options={[
+            { value: 'all', label: t.filterAll },
+            { value: 'pending', label: t.filterPending },
+            { value: 'uploaded', label: t.filterUploaded },
+          ]}
+        />
+        <Select
           aria-label={t.sortLabel}
           value={sort}
-          onChange={(event) => setSort(event.target.value as typeof sort)}
-        >
-          <option value="newest">{t.sortNewest}</option>
-          <option value="oldest">{t.sortOldest}</option>
-        </select>
-        <span className="upload-media-seg" role="group">
-          <button
-            type="button"
-            aria-pressed={view === 'grid'}
-            aria-label={t.gridView}
-            title={t.gridView}
-            onClick={() => setView('grid')}
-          >
-            ▦
-          </button>
-          <button
-            type="button"
-            aria-pressed={view === 'list'}
-            aria-label={t.listView}
-            title={t.listView}
-            onClick={() => setView('list')}
-          >
-            ☰
-          </button>
-        </span>
+          onChange={(value) => setSort(value)}
+          style={{ minWidth: 120 }}
+          options={[
+            { value: 'newest', label: t.sortNewest },
+            { value: 'oldest', label: t.sortOldest },
+          ]}
+        />
+        <Radio.Group
+          optionType="button"
+          value={view}
+          onChange={(event) => setView(event.target.value)}
+          options={[
+            {
+              value: 'grid',
+              label: (
+                <span aria-label={t.gridView} title={t.gridView}>
+                  <AppstoreOutlined aria-hidden="true" />
+                </span>
+              ),
+            },
+            {
+              value: 'list',
+              label: (
+                <span aria-label={t.listView} title={t.listView}>
+                  <UnorderedListOutlined aria-hidden="true" />
+                </span>
+              ),
+            },
+          ]}
+        />
       </div>
     </header>
   )

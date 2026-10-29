@@ -1,4 +1,7 @@
+import { Alert, Skeleton } from 'antd'
 import { useEffect, useRef, useState } from 'react'
+
+import { CardComponent, EmptyState } from '../../../../shared/components/antd'
 
 import { useI18n } from '../../../../shared/i18n'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
@@ -12,6 +15,7 @@ import {
   setActiveMissionId,
 } from '../../api/liveMission'
 import { useActiveMission } from '../../api/useActiveMission'
+import { DroneChip } from '../../components/common/DroneChip'
 import { FlightStepHeader } from '../../components/common/FlightStepper'
 import { uploadMediaPageMessages } from './UploadMediaPage.messages'
 import { MonitoringChecklistSection } from '../../../mission/components/MonitoringChecklistSection'
@@ -19,7 +23,6 @@ import {
   MissionResultActions,
   staffResultError,
 } from '../../components/common/MissionResultActions'
-import './UploadMediaPage.css'
 import { useMissionMonitoring } from '../../../mission/hooks/useMissionMonitoring'
 import { finishedUploadStatuses } from './uploadMediaHelpers'
 import { useLocalMediaList } from './useLocalMediaList'
@@ -177,18 +180,16 @@ function UploadMediaContent({
     activeMission.data?.missionCode ?? missionId ?? t.openingMission
 
   return (
-    <div className="odm-card upload-media-page" style={{ marginBottom: 0 }}>
+    <CardComponent styles={{ body: { padding: 0 } }}>
       <FlightStepHeader
         title={t.stepTitle}
         missionId={missionLabel}
         idTitle={missionId ?? undefined}
         active={7}
-        right={
-          <span className="upload-media-device">{deviceLabel ?? '—'}</span>
-        }
+        right={<DroneChip label={deviceLabel ?? '—'} />}
       />
-      <div className="upload-media-body">
-        <div className="upload-media-stack">
+      <div className="stf-pad">
+        <div className="stf-stack">
           <UploadMediaBar
             loadedMedia={loadedMedia}
             totalMedia={totalMedia}
@@ -207,7 +208,9 @@ function UploadMediaContent({
             setBatchUploading={setBatchUploading}
             approve={approve}
           />
-          {!missionId && !loading && <p role="alert">{t.restoringMission}</p>}
+          {!missionId && !loading && (
+            <Alert type="warning" showIcon message={t.restoringMission} />
+          )}
           {missionId && (
             <MissionResultActions
               missionId={missionId}
@@ -219,21 +222,17 @@ function UploadMediaContent({
             />
           )}
           {resultError ? (
-            <p role="alert" className="upload-media-notice is-danger">
-              {staffResultError(resultError)}
-            </p>
+            <Alert
+              type="error"
+              showIcon
+              message={staffResultError(resultError)}
+            />
           ) : null}
           {uploadInfo && (
-            <p role="status" className="upload-media-notice is-success">
-              {uploadInfo}
-            </p>
+            <Alert role="status" type="success" showIcon message={uploadInfo} />
           )}
-          {error && (
-            <p role="alert" className="upload-media-notice is-danger">
-              {error}
-            </p>
-          )}
-          {loading && <p>{t.loadingMedia}</p>}
+          {error && <Alert type="error" showIcon message={error} />}
+          {loading && <Skeleton active paragraph={{ rows: 2 }} />}
           {missionId && !canManageMedia && (
             <ManagerContactNotice
               permissions={permissions}
@@ -242,9 +241,9 @@ function UploadMediaContent({
               activeMission={activeMission}
             />
           )}
-          <div className="upload-media-workspace">
-            <div className="upload-media-files">
-              <section className="upload-media-panel" aria-label={t.mediaList}>
+          <div className="stf-workspace">
+            <div className="stf-stack">
+              <CardComponent aria-label={t.mediaList}>
                 <MediaToolbar
                   items={items}
                   filter={filter}
@@ -255,10 +254,10 @@ function UploadMediaContent({
                   setView={setView}
                 />
                 {!loading && visibleItems.length === 0 && (
-                  <p className="upload-media-empty">{t.emptyMedia}</p>
+                  <EmptyState title={t.emptyMedia} />
                 )}
                 <div
-                  className={`upload-media-grid${view === 'list' ? ' is-list' : ''}`}
+                  className={`stf-media-grid${view === 'list' ? ' is-list' : ''}`}
                 >
                   {visibleItems.map((item) => {
                     const status = effectiveStatus(item)
@@ -294,7 +293,7 @@ function UploadMediaContent({
                     )
                   })}
                 </div>
-              </section>
+              </CardComponent>
               {canManageMedia ? (
                 <MediaFileTable
                   files={files}
@@ -306,7 +305,7 @@ function UploadMediaContent({
                 />
               ) : null}
               {missionId ? (
-                <div className="upload-media-uploaded">
+                <div className="stf-uploaded">
                   <MissionUploadedMedia
                     missionId={missionId}
                     missionStatus={missionStatus}
@@ -360,6 +359,6 @@ function UploadMediaContent({
           preview={preview}
         />
       )}
-    </div>
+    </CardComponent>
   )
 }

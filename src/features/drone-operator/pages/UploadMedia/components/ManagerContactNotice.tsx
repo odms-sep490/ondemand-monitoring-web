@@ -1,3 +1,5 @@
+import { Alert, Button } from 'antd'
+
 import { uploadMediaPageMessages } from '../UploadMediaPage.messages'
 import { useI18n } from '../../../../../shared/i18n'
 import type { UseApiQueryState } from '../../../../../shared/hooks/useApiQuery'
@@ -34,58 +36,56 @@ export function ManagerContactNotice({
   }
 }) {
   const { t } = useI18n(uploadMediaPageMessages)
+  const phone = showManagerContact
+    ? activeMission.data?.managerPhone
+    : inspector?.staffPhone
   return (
-    <div role="status" className="upload-media-notice upload-media-contact">
-      <p>
-        {permissions.error
+    <Alert
+      role="status"
+      type="info"
+      showIcon
+      message={
+        permissions.error
           ? t.permissionsUnavailable
           : permissions.loading
             ? t.checkingPermissions
-            : t.uploadPermissionNote}
-      </p>
-      {!permissions.loading && !permissions.error && inspector ? (
-        <div className="upload-media-contact-row">
-          <div>
-            <strong>
-              {showManagerContact ? t.managerContact : t.inspectorContact}
-            </strong>
-            <span>
-              {showManagerContact
-                ? activeMission.data?.managerName || t.notUpdated
-                : inspector.staffName || t.notUpdated}
-            </span>
-            <small>
-              {showManagerContact
-                ? activeMission.data?.managerEmail || t.notUpdated
-                : `${t.responseStatus(inspector.responseStatus)}${
-                    inspector.staffEmail ? ` · ${inspector.staffEmail}` : ''
-                  }`}
-            </small>
+            : t.uploadPermissionNote
+      }
+      description={
+        !permissions.loading && !permissions.error && inspector ? (
+          <div
+            className="stf-row"
+            style={{ justifyContent: 'space-between', marginTop: 4 }}
+          >
+            <div className="stf-stack-sm" style={{ gap: 2 }}>
+              <strong>
+                {showManagerContact ? t.managerContact : t.inspectorContact}
+              </strong>
+              <span>
+                {showManagerContact
+                  ? activeMission.data?.managerName || t.notUpdated
+                  : inspector.staffName || t.notUpdated}
+              </span>
+              <small className="stf-muted">
+                {showManagerContact
+                  ? activeMission.data?.managerEmail || t.notUpdated
+                  : `${t.responseStatus(inspector.responseStatus)}${
+                      inspector.staffEmail ? ` · ${inspector.staffEmail}` : ''
+                    }`}
+              </small>
+            </div>
+            {phone ? (
+              <Button type="primary" href={`tel:${phone}`}>
+                {showManagerContact
+                  ? t.callManager(activeMission.data?.managerPhone ?? '')
+                  : t.callInspector(inspector.staffPhone ?? '')}
+              </Button>
+            ) : (
+              <span className="stf-muted">{t.phoneNotUpdated}</span>
+            )}
           </div>
-          {(
-            showManagerContact
-              ? activeMission.data?.managerPhone
-              : inspector.staffPhone
-          ) ? (
-            <a
-              className="odm-btn odm-btn-p"
-              href={`tel:${
-                showManagerContact
-                  ? activeMission.data?.managerPhone
-                  : inspector.staffPhone
-              }`}
-            >
-              {showManagerContact
-                ? t.callManager(activeMission.data?.managerPhone ?? '')
-                : t.callInspector(inspector.staffPhone ?? '')}
-            </a>
-          ) : (
-            <span className="upload-media-contact-missing">
-              {t.phoneNotUpdated}
-            </span>
-          )}
-        </div>
-      ) : null}
-    </div>
+        ) : null
+      }
+    />
   )
 }

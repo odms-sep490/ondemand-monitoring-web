@@ -1,8 +1,10 @@
-import { operatorMediaApi } from '../../../../media/api/operatorMediaApi'
-import { uploadMediaPageMessages } from '../UploadMediaPage.messages'
+import { Button } from 'antd'
+import type { Dispatch, RefObject, SetStateAction } from 'react'
+
 import { useI18n } from '../../../../../shared/i18n'
-import type { RefObject, Dispatch, SetStateAction } from 'react'
+import { operatorMediaApi } from '../../../../media/api/operatorMediaApi'
 import type { LocalMedia } from '../../../../media/api/operatorMediaApi'
+import { uploadMediaPageMessages } from '../UploadMediaPage.messages'
 
 export function PreviewLightbox({
   previewDialog,
@@ -17,17 +19,13 @@ export function PreviewLightbox({
   return (
     <dialog
       ref={previewDialog}
-      className="upload-media-lightbox"
+      className="stf-lightbox"
       aria-label={t.enlargePreview}
       onClose={() => setPreview(null)}
     >
-      <button
-        type="button"
-        className="odm-btn"
-        onClick={() => previewDialog.current?.close()}
-      >
+      <Button onClick={() => previewDialog.current?.close()}>
         {t.closePreview}
-      </button>
+      </Button>
       <img
         src={operatorMediaApi.previewUrl(preview.localMediaId)}
         alt={preview.fileName}
