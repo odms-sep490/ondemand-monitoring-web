@@ -109,7 +109,7 @@ it('acceptance gallery and picker see the same eligible pending satellite MediaA
         .querySelector('img'),
     ).toHaveAttribute('src', preview),
   )
-  fireEvent.click(screen.getByText('Thêm bằng chứng từ media Mission'))
+  fireEvent.click(screen.getByText('Thêm bằng chứng từ media của nhiệm vụ'))
   const dialog = within(screen.getByRole('dialog'))
   expect(await dialog.findByAltText('Xem trước satellite.jpg')).toHaveAttribute(
     'src',

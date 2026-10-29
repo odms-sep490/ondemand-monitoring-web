@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useI18n } from '../../../shared/i18n'
+import { evidencePanelMessages } from './ChecklistEvidencePanel.messages'
 import { monitoringChecklistMessages } from './MonitoringChecklistSection.messages'
 import { evidenceCountLabel, evidenceShortfall } from '../lib/evidenceProgress'
 import { ApiError } from '../../../shared/api/httpClient'
@@ -14,10 +15,7 @@ import type {
 import type { MissionResultApprovalStatus } from '../types/mission'
 import './MonitoringChecklistSection.css'
 import { ChecklistGuidance } from '../../../shared/components/ChecklistGuidance'
-import {
-  ChecklistEvidencePanel,
-  evidenceReason,
-} from './ChecklistEvidencePanel'
+import { ChecklistEvidencePanel } from './ChecklistEvidencePanel'
 
 type ChecklistMessages = (typeof monitoringChecklistMessages)['vi']
 
@@ -142,6 +140,7 @@ export function MonitoringChecklistSection({
   preview?: boolean
 }) {
   const { t, lang, locale } = useI18n(monitoringChecklistMessages)
+  const { t: ev } = useI18n(evidencePanelMessages)
   const [openId, setOpenId] = useState<string | null>(null)
   const locked =
     resultStatus === 'PENDING_MANAGER_APPROVAL' || resultStatus === 'APPROVED'
@@ -449,7 +448,7 @@ export function MonitoringChecklistSection({
             {!rows.length &&
               data.blockingReasons?.map((reason) => (
                 <p key={reason} role="status" className="is-warn">
-                  {evidenceReason[reason]}
+                  {ev.reasons[reason]}
                 </p>
               ))}
             {resultStatus && (

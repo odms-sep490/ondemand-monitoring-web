@@ -90,7 +90,7 @@ describe('Checklist evidence', () => {
     expect(screen.getByAltText('capture.jpg')).toBeInTheDocument()
     expect(screen.getByText(/Camera drone/)).toBeInTheDocument()
     expect(screen.getByText(/Bằng chứng hợp lệ: 1 \/ 1/)).toBeInTheDocument()
-    expect(screen.getByText('Chờ manager duyệt')).toBeInTheDocument()
+    expect(screen.getByText('Chờ quản lý duyệt')).toBeInTheDocument()
     expect(screen.queryByText(/Duyệt media bắt buộc/)).toBeNull()
   })
   it('attaches stable backend media id with expected execution version', async () => {
@@ -101,7 +101,7 @@ describe('Checklist evidence', () => {
     render(
       <ChecklistEvidencePanel {...props} item={{ ...item, evidence: [] }} />,
     )
-    fireEvent.click(screen.getByText('Thêm bằng chứng từ media Mission'))
+    fireEvent.click(screen.getByText('Thêm bằng chứng từ media của nhiệm vụ'))
     fireEvent.click(await screen.findByText('Gắn media'))
     await waitFor(() =>
       expect(attach).toHaveBeenCalledWith('m', 'e', 'backend-media', 4),
@@ -127,7 +127,7 @@ describe('Checklist evidence', () => {
       },
     ])
     render(<ChecklistEvidencePanel {...props} />)
-    fireEvent.click(screen.getByText('Thêm bằng chứng từ media Mission'))
+    fireEvent.click(screen.getByText('Thêm bằng chứng từ media của nhiệm vụ'))
     const dialog = within(await screen.findByRole('dialog'))
     expect(
       await dialog.findByText(/Nguồn media không hợp lệ/),
@@ -139,10 +139,10 @@ describe('Checklist evidence', () => {
   it('explains an empty Mission and links to the upload screen', async () => {
     vi.spyOn(checklistEvidenceApi, 'candidates').mockResolvedValue([])
     render(<ChecklistEvidencePanel {...props} />)
-    fireEvent.click(screen.getByText('Thêm bằng chứng từ media Mission'))
+    fireEvent.click(screen.getByText('Thêm bằng chứng từ media của nhiệm vụ'))
     const dialog = within(await screen.findByRole('dialog'))
     expect(
-      await dialog.findByText(/chưa có media nào được upload/),
+      await dialog.findByText(/chưa có media nào được tải lên/),
     ).toBeInTheDocument()
     expect(
       dialog.getByRole('link', { name: 'mở media nghiệm thu' }),
@@ -224,7 +224,7 @@ describe('Checklist evidence', () => {
         item={{ ...item, evidence: [], requiredEvidenceType: 'VIDEO' }}
       />,
     )
-    fireEvent.click(screen.getByText('Thêm bằng chứng từ media Mission'))
+    fireEvent.click(screen.getByText('Thêm bằng chứng từ media của nhiệm vụ'))
     expect(await screen.findByText('capture.mp4')).toBeInTheDocument()
     const wrongTypeRow = within(screen.getByRole('dialog'))
       .getAllByRole('button', { name: 'Gắn media' })
@@ -279,7 +279,7 @@ describe('Checklist evidence', () => {
       />,
     )
     expect(screen.queryByText('Cập nhật mục')).toBeNull()
-    expect(screen.getByText('Thêm bằng chứng từ media Mission')).toBeEnabled()
+    expect(screen.getByText('Thêm bằng chứng từ media của nhiệm vụ')).toBeEnabled()
   })
   it.each(['PENDING_MANAGER_APPROVAL', 'APPROVED'] as const)(
     'locks evidence controls for result %s',
@@ -301,7 +301,7 @@ describe('Checklist evidence', () => {
         />,
       )
       expect(screen.queryByText('Gỡ bằng chứng')).toBeNull()
-      expect(screen.queryByText('Thêm bằng chứng từ media Mission')).toBeNull()
+      expect(screen.queryByText('Thêm bằng chứng từ media của nhiệm vụ')).toBeNull()
     },
   )
   it('does not expose per-media manager approval', () => {
@@ -317,7 +317,7 @@ describe('Checklist evidence', () => {
 describe('Evidence picker Mission-scoped loading', () => {
   const emptyItem = { ...item, evidence: [] }
   function open() {
-    fireEvent.click(screen.getByText('Thêm bằng chứng từ media Mission'))
+    fireEvent.click(screen.getByText('Thêm bằng chứng từ media của nhiệm vụ'))
   }
   it.each(['DRONE_CAMERA', 'SATELLITE_SNAPSHOT'])(
     'shows pending approval %s media with a thumbnail, regardless of final approval readiness',
@@ -333,7 +333,7 @@ describe('Evidence picker Mission-scoped loading', () => {
       expect(
         within(screen.getByRole('dialog')).getByText('Gắn media'),
       ).toBeEnabled()
-      expect(screen.getByText('Chờ manager duyệt')).toBeInTheDocument()
+      expect(screen.getByText('Chờ quản lý duyệt')).toBeInTheDocument()
       expect(screen.queryByText('Trang sau')).not.toBeInTheDocument()
     },
   )
@@ -386,11 +386,11 @@ describe('Evidence picker Mission-scoped loading', () => {
     render(<ChecklistEvidencePanel {...props} item={emptyItem} />)
     open()
     expect(
-      await screen.findByText('Không thể tải media của Mission.'),
+      await screen.findByText('Không thể tải media của nhiệm vụ.'),
     ).toBeInTheDocument()
     const dialog = within(screen.getByRole('dialog'))
     expect(dialog.getByRole('alert')).toHaveTextContent(
-      'Không thể tải media của Mission.',
+      'Không thể tải media của nhiệm vụ.',
     )
     expect(screen.queryByText('INTERNAL_SERVER_ERROR')).not.toBeInTheDocument()
     expect(
@@ -409,7 +409,7 @@ describe('Evidence picker Mission-scoped loading', () => {
     render(<ChecklistEvidencePanel {...props} item={emptyItem} />)
     open()
     expect(
-      await screen.findByText('Không thể tải media của Mission.'),
+      await screen.findByText('Không thể tải media của nhiệm vụ.'),
     ).toBeInTheDocument()
   })
   it('distinguishes no eligible media from filename search returning no matches', async () => {
