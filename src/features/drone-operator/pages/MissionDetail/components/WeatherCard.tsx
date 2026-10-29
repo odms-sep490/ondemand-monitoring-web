@@ -1,81 +1,69 @@
-import type { WeatherPreflightStatus } from '../types'
-import { StatusBadge } from '../../../../../shared/components/odm/StatusBadge'
-import { statusTone } from '../missionFormat'
-import { WeatherTile } from './WeatherTile'
+import { CloudOutlined } from '@ant-design/icons'
+import { Alert } from 'antd'
 
-// ─── Weather card ─────────────────────────────────────────────────────────────
+import { CardComponent, StatusTag } from '../../../../../shared/components/antd'
+import { useI18n } from '../../../../../shared/i18n'
+import { missionDetailViewMessages } from '../missionDetailView.messages'
+import { statusTone } from '../missionFormat'
+import type { WeatherPreflightStatus } from '../types'
 
 export function WeatherCard({
   weather,
 }: {
   weather: WeatherPreflightStatus | null
 }) {
+  const { t } = useI18n(missionDetailViewMessages)
+  const metrics = weather
+    ? [
+        {
+          label: t.windGust,
+          value: `${weather.windSpeedMps.toFixed(1)} / ${weather.windGustMps.toFixed(1)} m/s`,
+        },
+        { label: t.rain, value: `${weather.precipitationMmH.toFixed(1)} mm/h` },
+        { label: t.visibility, value: `${weather.visibilityKm.toFixed(1)} km` },
+        {
+          label: t.tempHumidity,
+          value: `${weather.temperatureC.toFixed(1)}°C · ${weather.humidityPercent.toFixed(0)}%`,
+        },
+      ]
+    : []
   return (
-    <div className="odm-card">
-      <div className="odm-card-header">
-        <div>
-          <div style={{ fontWeight: 700, fontSize: 13 }}>Thời tiết bay</div>
-          {weather && (
-            <div style={{ fontSize: 11.5, color: 'var(--tx3)', marginTop: 1 }}>
-              {weather.summary}
-            </div>
-          )}
-        </div>
-        <StatusBadge tone={statusTone(weather?.status)}>
+    <CardComponent
+      title={t.weatherTitle}
+      icon={<CloudOutlined />}
+      tone="amber"
+      extra={
+        <StatusTag tone={statusTone(weather?.status)}>
           {weather
             ? weather.safeToFly
-              ? 'An toàn'
+              ? t.weatherSafe
               : weather.status
-            : 'Chưa check'}
-        </StatusBadge>
-      </div>
-      <div className="odm-card-body" style={{ padding: '12px 14px' }}>
-        {weather ? (
-          <>
-            <div className="mds-weather-grid">
-              <WeatherTile
-                label="Gió / giật"
-                value={`${weather.windSpeedMps.toFixed(1)} / ${weather.windGustMps.toFixed(1)} m/s`}
-                icon="💨"
-              />
-              <WeatherTile
-                label="Mưa"
-                value={`${weather.precipitationMmH.toFixed(1)} mm/h`}
-                icon="🌧"
-              />
-              <WeatherTile
-                label="Tầm nhìn"
-                value={`${weather.visibilityKm.toFixed(1)} km`}
-                icon="👁"
-              />
-              <WeatherTile
-                label="Nhiệt / ẩm"
-                value={`${weather.temperatureC.toFixed(1)}°C · ${weather.humidityPercent.toFixed(0)}%`}
-                icon="🌡"
-              />
-            </div>
-            {weather.advisories.length > 0 && (
-              <div
-                style={{
-                  marginTop: 10,
-                  padding: '7px 10px',
-                  borderRadius: 6,
-                  background: 'var(--yellow-bg)',
-                  color: 'var(--yellow-fg)',
-                  fontSize: 12,
-                  border: '1px solid var(--yellow-dot)',
-                }}
-              >
-                {weather.advisories.join(' · ')}
+            : t.weatherUnchecked}
+        </StatusTag>
+      }
+    >
+      {weather ? (
+        <div className="stf-stack-sm">
+          <div className="stf-muted">{weather.summary}</div>
+          <div className="stf-metric-grid">
+            {metrics.map((m) => (
+              <div className="stf-metric" key={m.label}>
+                <div className="stf-metric-label">{m.label}</div>
+                <div className="stf-metric-value">{m.value}</div>
               </div>
-            )}
-          </>
-        ) : (
-          <div style={{ color: 'var(--tx3)', fontSize: 12.5 }}>
-            Chưa có kết quả check thời tiết.
+            ))}
           </div>
-        )}
-      </div>
-    </div>
+          {weather.advisories.length > 0 && (
+            <Alert
+              type="warning"
+              showIcon
+              message={weather.advisories.join(' · ')}
+            />
+          )}
+        </div>
+      ) : (
+        <div className="stf-muted">{t.weatherNone}</div>
+      )}
+    </CardComponent>
   )
 }

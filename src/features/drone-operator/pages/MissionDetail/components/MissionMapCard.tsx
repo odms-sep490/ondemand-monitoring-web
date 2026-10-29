@@ -1,107 +1,52 @@
+import { Tag } from 'antd'
+
+import { CardComponent } from '../../../../../shared/components/antd'
+import { useI18n } from '../../../../../shared/i18n'
 import type { OperatorMission } from '../../../types/mission'
+import { missionDetailViewMessages } from '../missionDetailView.messages'
 import { useOperatorMissionMap } from '../useOperatorMissionMap'
 
 export function MissionMapCard({ mission }: { mission: OperatorMission }) {
+  const { t } = useI18n(missionDetailViewMessages)
   const { container, target } = useOperatorMissionMap(mission)
 
   return (
-    <div className="odm-card" style={{ overflow: 'hidden' }}>
-      <div
-        className="mds-map-viewport"
-        style={{
-          position: 'relative',
-          background: '#111827',
-          overflow: 'hidden',
-        }}
-      >
+    <CardComponent styles={{ body: { padding: 0, overflow: 'hidden' } }}>
+      <div className="stf-map-view">
         <div
           ref={container}
-          style={{ position: 'absolute', inset: 0, zIndex: 0 }}
+          className="stf-map-canvas"
           role="application"
-          aria-label="Bản đồ vệ tinh mission"
+          aria-label={t.mapAria}
         />
-
         {target ? (
-          <div
-            style={{
-              position: 'absolute',
-              right: 10,
-              top: 10,
-              padding: '7px 10px',
-              borderRadius: 8,
-              background: 'rgba(254,242,242,.94)',
-              color: '#991b1b',
-              border: '1px solid rgba(239,68,68,.35)',
-              fontSize: 11.5,
-              fontWeight: 700,
-              boxShadow: '0 2px 10px rgba(15,23,42,.10)',
-              zIndex: 500,
-            }}
+          <Tag bordered={false} className="stf-map-tag stf-map-tag--tl">
+            {t.routeLegend}
+          </Tag>
+        ) : null}
+        {target ? (
+          <Tag
+            bordered={false}
+            color="error"
+            className="stf-map-tag stf-map-tag--tr"
           >
-            ĐIỂM GIÁM SÁT · {target.latitude.toFixed(6)},{' '}
+            {t.monitoringPoint} · {target.latitude.toFixed(6)},{' '}
             {target.longitude.toFixed(6)}
-          </div>
+          </Tag>
         ) : null}
-
         {mission.radiusMeters ? (
-          <div
-            style={{
-              position: 'absolute',
-              left: 10,
-              bottom: 10,
-              padding: '8px 12px',
-              borderRadius: 8,
-              background: 'rgba(255,255,255,.94)',
-              color: 'var(--tx)',
-              fontSize: 12,
-              fontWeight: 700,
-              boxShadow: '0 2px 10px rgba(15,23,42,.12)',
-              zIndex: 500,
-            }}
-          >
-            Bán kính giám sát: {Math.round(mission.radiusMeters)} m
-          </div>
+          <Tag bordered={false} className="stf-map-tag stf-map-tag--bl">
+            {t.monitoringRadius(Math.round(mission.radiusMeters))}
+          </Tag>
         ) : null}
-
-        {target ? (
-          <div
-            style={{
-              position: 'absolute',
-              left: 10,
-              top: 10,
-              padding: '8px 12px',
-              borderRadius: 8,
-              background: 'rgba(255,255,255,.94)',
-              color: 'var(--tx)',
-              fontSize: 12,
-              fontWeight: 700,
-              boxShadow: '0 2px 10px rgba(15,23,42,.12)',
-              zIndex: 500,
-            }}
-          >
-            Đường bay: HOME → điểm giám sát
-          </div>
-        ) : null}
-
-        <div
-          style={{
-            position: 'absolute',
-            right: 10,
-            bottom: 10,
-            padding: '8px 12px',
-            borderRadius: 8,
-            background: 'rgba(254,242,242,.94)',
-            color: '#991b1b',
-            border: '1px solid rgba(239,68,68,.35)',
-            fontSize: 12,
-            fontWeight: 700,
-            boxShadow: '0 2px 10px rgba(15,23,42,.12)',
-            zIndex: 500,
-          }}
+        <Tag
+          bordered={false}
+          color="error"
+          className="stf-map-tag stf-map-tag--br"
         >
-          Vùng cấm bay Tân Sơn Nhất
-        </div>
+          {t.noFlyZone}
+        </Tag>
       </div>
-    </div>
+    </CardComponent>
   )
 }

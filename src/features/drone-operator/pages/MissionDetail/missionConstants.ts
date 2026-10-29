@@ -40,6 +40,33 @@ export const STATUS_LABEL: Record<string, string> = {
   FAILED: 'Không hoàn thành',
 }
 
+export const STATUS_LABEL_EN: Record<string, string> = {
+  PLANNING: 'Planning',
+  CREATED: 'Mission created',
+  WAITING_DEPOSIT: 'Awaiting deposit confirmation',
+  READY: 'Ready for assignment',
+  RESOURCE_ASSIGNING: 'Assigning resources',
+  WAITING_OPERATOR_ACCEPTANCE: 'Awaiting operator confirmation',
+  SCHEDULED: 'Mission started',
+  CONNECTED: 'Device connected',
+  PREFLIGHT_CHECKING: 'Preflight in progress',
+  FAILED_PREFLIGHT: 'Preflight failed',
+  READY_TO_FLY: 'Ready to fly',
+  IN_PROGRESS: 'In progress',
+  RETURNING: 'Returning',
+  POSTFLIGHT_CHECKING: 'Postflight in progress',
+  PENDING_REVIEW: 'Awaiting acceptance',
+  PENDING_APPROVAL: 'Awaiting Manager review',
+  CANCELLED: 'Cancelled',
+  UNKNOWN: 'Unsupported status',
+  PENDING: 'Awaiting reply',
+  ACCEPTED: 'Accepted',
+  IN_FLIGHT: 'In flight',
+  COMPLETED: 'Completed',
+  REJECTED: 'Rejected',
+  FAILED: 'Not completed',
+}
+
 export const GCS_CONNECTED_STATUSES = new Set([
   'PENDING_REVIEW',
   'CONNECTED',

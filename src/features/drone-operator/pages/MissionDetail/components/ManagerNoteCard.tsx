@@ -1,46 +1,30 @@
-import type { OperatorMission } from '../../../types/mission'
-import { formatVnDate, formatHm } from '../missionFormat'
+import { Alert } from 'antd'
 
-// ─── Manager note card ────────────────────────────────────────────────────────
+import { useI18n } from '../../../../../shared/i18n'
+import type { OperatorMission } from '../../../types/mission'
+import { missionDetailViewMessages } from '../missionDetailView.messages'
+import { formatHm, formatVnDate } from '../missionFormat'
 
 export function ManagerNoteCard({ mission }: { mission: OperatorMission }) {
+  const { t, lang } = useI18n(missionDetailViewMessages)
   return (
-    <div
-      className="odm-card"
-      style={{
-        background: 'var(--yellow-bg)',
-        borderColor: 'var(--yellow-dot)',
-      }}
-    >
-      <div className="odm-card-body" style={{ padding: '10px 14px' }}>
-        <div
-          style={{
-            fontWeight: 600,
-            fontSize: 12.5,
-            marginBottom: 5,
-            color: 'var(--yellow-fg)',
-          }}
-        >
-          Ghi chú của quản lý · {mission.managerName ?? ''}
-        </div>
-        <div
-          style={{ fontSize: 12.5, color: 'var(--yellow-fg)', marginBottom: 6 }}
-        >
-          {mission.managerNote}
-        </div>
-        {mission.respondBy && mission.status === 'PENDING' && (
-          <div
-            style={{
-              fontSize: 11.5,
-              fontWeight: 600,
-              color: 'var(--yellow-fg)',
-            }}
-          >
-            Hãy phản hồi trước {formatVnDate(mission.respondBy.slice(0, 10))}{' '}
-            {formatHm(mission.respondBy)}
-          </div>
-        )}
-      </div>
-    </div>
+    <Alert
+      type="warning"
+      showIcon
+      message={<strong>{t.managerNote(mission.managerName ?? '')}</strong>}
+      description={
+        <>
+          <div>{mission.managerNote}</div>
+          {mission.respondBy && mission.status === 'PENDING' && (
+            <div style={{ marginTop: 6, fontWeight: 600 }}>
+              {t.respondBefore(
+                formatVnDate(mission.respondBy.slice(0, 10), lang),
+                formatHm(mission.respondBy),
+              )}
+            </div>
+          )}
+        </>
+      }
+    />
   )
 }

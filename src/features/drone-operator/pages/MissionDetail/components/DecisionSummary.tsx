@@ -1,50 +1,50 @@
-import type { OperatorMission } from '../../../types/mission'
-import { locationLabel, formatVnDate, formatCheckedAt } from '../missionFormat'
+import { SolutionOutlined } from '@ant-design/icons'
 
-// ─── Decision summary ─────────────────────────────────────────────────────────
+import { CardComponent } from '../../../../../shared/components/antd'
+import { useI18n } from '../../../../../shared/i18n'
+import { KeyValueList } from '../../../components/common/KeyValueList'
+import type { OperatorMission } from '../../../types/mission'
+import { missionDetailViewMessages } from '../missionDetailView.messages'
+import { formatCheckedAt, formatVnDate, locationLabel } from '../missionFormat'
 
 export function DecisionSummary({ mission }: { mission: OperatorMission }) {
+  const { t, lang } = useI18n(missionDetailViewMessages)
   const time = [mission.startTime, mission.endTime].filter(Boolean).join('–')
-  const items: Array<{ label: string; value: string }> = [
-    { label: '📍 Khu vực', value: locationLabel(mission.location) },
+  const items = [
+    { label: t.area, value: locationLabel(mission.location, lang) },
     {
-      label: '🕐 Thời gian',
-      value: [formatVnDate(mission.date), time].filter(Boolean).join(' · '),
+      label: t.time,
+      value: [formatVnDate(mission.date, lang), time]
+        .filter(Boolean)
+        .join(' · '),
     },
     {
-      label: '🛩 Phạm vi',
+      label: t.scope,
       value:
         mission.radiusMeters == null
           ? '—'
-          : `Bán kính ${Math.round(mission.radiusMeters)} m`,
+          : t.radiusValue(Math.round(mission.radiusMeters)),
     },
-    { label: '📋 Loại nhiệm vụ', value: mission.serviceLabel || '—' },
+    { label: t.missionType, value: mission.serviceLabel || '—' },
+    ...(mission.respondBy
+      ? [
+          {
+            label: t.respondBy,
+            value: formatCheckedAt(mission.respondBy, lang),
+          },
+        ]
+      : []),
+    ...(mission.managerNote
+      ? [{ label: t.managerRemark, value: mission.managerNote }]
+      : []),
   ]
-  if (mission.respondBy) {
-    items.push({
-      label: '⏳ Hạn phản hồi',
-      value: formatCheckedAt(mission.respondBy),
-    })
-  }
-  if (mission.managerNote) {
-    items.push({ label: '⚠ Lưu ý từ manager', value: mission.managerNote })
-  }
   return (
-    <section
-      className="odm-card mds-decision"
-      aria-label="Thông tin để quyết định"
+    <CardComponent
+      title={t.decisionTitle}
+      icon={<SolutionOutlined />}
+      aria-label={t.decisionTitle}
     >
-      <div className="odm-card-header">
-        <span style={{ fontWeight: 700 }}>Thông tin để quyết định</span>
-      </div>
-      <dl className="mds-decision-grid" style={{ margin: 0 }}>
-        {items.map((item) => (
-          <div key={item.label} className="mds-decision-item">
-            <dt>{item.label}</dt>
-            <dd>{item.value}</dd>
-          </div>
-        ))}
-      </dl>
-    </section>
+      <KeyValueList items={items} column={2} />
+    </CardComponent>
   )
 }

@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react'
 import 'leaflet/dist/leaflet.css'
-import {
-  EmptyState,
-  LoadingState,
-} from '../../../../shared/components/odm/StateView'
+import { Alert, Button, Skeleton } from 'antd'
+import { CardComponent, ErrorState } from '../../../../shared/components/antd'
+import { missionDetailViewMessages } from './missionDetailView.messages'
 import { useI18n } from '../../../../shared/i18n'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { missionApi } from '../../../mission/api/missionApi'
@@ -33,6 +32,7 @@ export function MissionDetailPage({ missionId }: { missionId: string }) {
 
 function MissionDetailContent({ missionId }: { missionId: string }) {
   const { t } = useI18n(missionDetailPageMessages)
+  const { t: tv } = useI18n(missionDetailViewMessages)
   const query = useApiQuery(
     (signal) => operatorApi.getMission(missionId, signal),
     [missionId],
@@ -66,19 +66,26 @@ function MissionDetailContent({ missionId }: { missionId: string }) {
     return () => window.clearInterval(timer)
   }, [missionId, monitoring.reload, query.reload])
 
-  if (query.loading && !query.data) return <LoadingState />
+  if (query.loading && !query.data)
+    return (
+      <div className="stf-stack" aria-busy="true">
+        <CardComponent>
+          <Skeleton active paragraph={{ rows: 1 }} />
+        </CardComponent>
+        <CardComponent>
+          <Skeleton active paragraph={{ rows: 6 }} />
+        </CardComponent>
+      </div>
+    )
   if (query.error || !query.data || query.data.id !== missionId) {
     return (
-      <EmptyState
+      <ErrorState
         title={t.errorTitle}
         description={t.errorDescription}
         action={
-          <a
-            className="odm-btn odm-btn-p"
-            href={operatorHref({ screen: 'missions' })}
-          >
+          <Button type="primary" href={operatorHref({ screen: 'missions' })}>
             {t.backToList}
-          </a>
+          </Button>
         }
       />
     )
@@ -107,7 +114,7 @@ function MissionDetailContent({ missionId }: { missionId: string }) {
   })
 
   return (
-    <>
+    <div className="stf-stack">
       <MissionDashboard
         mission={mission}
         submitting={submitting}
@@ -160,31 +167,30 @@ function MissionDetailContent({ missionId }: { missionId: string }) {
       {!isAwaitingResponse(mission) &&
         actions.known &&
         monitoring.data?.permissions.canPrepareSafeStopPostflight === true && (
-          <div className="odm-card">
-            <p>
-              Mission đã xác nhận an toàn nhưng chưa hoàn tất kiểm tra sau bay.
-              Quyền bay vẫn bị khóa.
-            </p>
-            <button
-              type="button"
-              className="odm-btn"
-              disabled={submitting}
-              onClick={async () => {
-                setSubmitting(true)
-                setActionError(null)
-                try {
-                  await missionApi.startPostflight(mission.id)
-                } catch (error) {
-                  setActionError(error)
-                } finally {
-                  refreshWorkspace(false)
-                  setSubmitting(false)
-                }
-              }}
-            >
-              Chuẩn bị kiểm tra sau bay
-            </button>
-          </div>
+          <Alert
+            type="warning"
+            showIcon
+            message={tv.safeStopNotice}
+            action={
+              <Button
+                disabled={submitting}
+                onClick={async () => {
+                  setSubmitting(true)
+                  setActionError(null)
+                  try {
+                    await missionApi.startPostflight(mission.id)
+                  } catch (error) {
+                    setActionError(error)
+                  } finally {
+                    refreshWorkspace(false)
+                    setSubmitting(false)
+                  }
+                }}
+              >
+                {tv.preparePostflight}
+              </Button>
+            }
+          />
         )}
       <SafeStopPanel
         key={mission.id}
@@ -203,6 +209,6 @@ function MissionDetailContent({ missionId }: { missionId: string }) {
           onConfirm={handleReject}
         />
       ) : null}
-    </>
+    </div>
   )
 }

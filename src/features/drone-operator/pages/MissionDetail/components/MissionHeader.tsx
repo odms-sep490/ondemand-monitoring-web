@@ -1,20 +1,23 @@
-import type { OperatorMission } from '../../../types/mission'
+import { ArrowLeftOutlined, ThunderboltOutlined } from '@ant-design/icons'
+import { Button } from 'antd'
+
+import { PageHeader, StatusTag } from '../../../../../shared/components/antd'
+import { useI18n } from '../../../../../shared/i18n'
 import type { MissionPermissions } from '../../../../mission/types/permissions'
 import {
   missionHasSafeStop,
-  missionStopLabel,
   missionMayTerminate,
+  missionStopLabel,
 } from '../../../../mission/lib/missionOperationalState'
-import { missionProgressBadge, missionStatusLabel } from '../missionFormat'
+import { operatorHref } from '../../../routes'
+import type { OperatorMission } from '../../../types/mission'
 import {
   GCS_CONNECTED_STATUSES,
   INSPECTION_MEDIA_STATUSES,
   STATUS_TONE,
 } from '../missionConstants'
-import { operatorHref } from '../../../routes'
-import { StatusBadge } from '../../../../../shared/components/odm/StatusBadge'
-
-// ─── Mission Header ───────────────────────────────────────────────────────────
+import { missionProgressBadge, missionStatusLabel } from '../missionFormat'
+import { missionDetailViewMessages } from '../missionDetailView.messages'
 
 export function MissionHeader({
   mission,
@@ -27,11 +30,12 @@ export function MissionHeader({
   submitting?: boolean
   onStartWorkflow?: () => void
 }) {
+  const { t, lang } = useI18n(missionDetailViewMessages)
   const hasAccepted = mission.myResponseStatus === 'ACCEPTED'
   const stopping = missionHasSafeStop(mission)
   const progressBadge = stopping
     ? null
-    : missionProgressBadge(mission.backendStatus)
+    : missionProgressBadge(mission.backendStatus, lang)
   const backendStatus = mission.backendStatus ?? mission.status
   const canConnectGcs =
     !stopping &&
@@ -52,137 +56,109 @@ export function MissionHeader({
   const showProgressBadge =
     progressBadge &&
     !(access?.canInspectDevice === true || access?.canUploadMedia === true)
+  const uploadHref = operatorHref({ screen: 'upload', missionId: mission.id })
+  const flightHref = operatorHref({ screen: 'flight', missionId: mission.id })
+
   return (
-    <div className="mds-header">
-      {/* Row 1: code + badge + actions */}
-      <div className="mds-header-row">
-        <a
-          href={operatorHref({ screen: 'missions' })}
-          className="odm-btn odm-btn-sm odm-btn-ic1"
-          style={{ flexShrink: 0, fontSize: 16 }}
-          title="Về danh sách"
-        >
-          ←
+    <PageHeader
+      crumb={
+        <a href={operatorHref({ screen: 'missions' })}>
+          <ArrowLeftOutlined /> {t.backToList}
         </a>
-        <span
-          className="odm-mono"
-          style={{ fontWeight: 700, fontSize: 16, letterSpacing: '0.01em' }}
-        >
-          {mission.missionCode ?? mission.id}
-        </span>
-        <StatusBadge tone={STATUS_TONE[mission.status]}>
-          {missionStopLabel(mission) ??
-            missionStatusLabel(mission.backendStatus ?? mission.status)}
-        </StatusBadge>
-
-        {/* spacer */}
-        <div style={{ flex: 1 }} />
-        {access?.canExecuteMonitoringChecklist === true &&
-          !canHandleInspectionMedia && (
-            <a
-              className="odm-btn"
-              href={operatorHref({ screen: 'upload', missionId: mission.id })}
-            >
-              Checklist và dữ liệu
-            </a>
-          )}
-
-        {canRunPreflight && (
-          <a
-            className="odm-btn"
-            href={operatorHref({ screen: 'preflight', missionId: mission.id })}
-          >
-            Kiểm tra thiết bị
-          </a>
-        )}
-        {access?.canMaintainDevice &&
-          ['RETURNING', 'POSTFLIGHT_CHECKING'].includes(
-            mission.backendStatus ?? '',
-          ) && (
-            <a
-              className="odm-btn"
+      }
+      title={
+        <span className="stf-mono">{mission.missionCode ?? mission.id}</span>
+      }
+      description={mission.serviceLabel || undefined}
+      actions={
+        <>
+          {access?.canExecuteMonitoringChecklist === true &&
+            !canHandleInspectionMedia && (
+              <Button href={uploadHref}>{t.checklistAndData}</Button>
+            )}
+          {canRunPreflight && (
+            <Button
               href={operatorHref({
-                screen: 'postflight',
+                screen: 'preflight',
                 missionId: mission.id,
               })}
             >
-              Kiểm tra sau bay
-            </a>
+              {t.runPreflight}
+            </Button>
           )}
-        {canHandleInspectionMedia && (
-          <a
-            className="odm-btn"
-            href={operatorHref({ screen: 'upload', missionId: mission.id })}
-          >
-            Mở dữ liệu nghiệm thu
-          </a>
-        )}
+          {access?.canMaintainDevice &&
+            ['RETURNING', 'POSTFLIGHT_CHECKING'].includes(
+              mission.backendStatus ?? '',
+            ) && (
+              <Button
+                href={operatorHref({
+                  screen: 'postflight',
+                  missionId: mission.id,
+                })}
+              >
+                {t.runPostflight}
+              </Button>
+            )}
+          {canHandleInspectionMedia && (
+            <Button href={uploadHref}>{t.openAcceptanceData}</Button>
+          )}
+          {stopping ? (
+            missionMayTerminate(mission, access?.canTerminateFlight) ? (
+              <Button danger type="primary" href={flightHref}>
+                {t.stopFlight}
+              </Button>
+            ) : null
+          ) : hasAccepted &&
+            (backendStatus === 'READY' ||
+              backendStatus === 'WAITING_OPERATOR_ACCEPTANCE') ? (
+            access?.canStartMission ? (
+              <Button
+                type="primary"
+                disabled={submitting}
+                onClick={onStartWorkflow}
+              >
+                {submitting ? t.starting : t.startMission}
+              </Button>
+            ) : (
+              <StatusTag tone="success">{t.accepted}</StatusTag>
+            )
+          ) : mission.status === 'PENDING' ? null : mission.backendStatus ===
+              'READY_TO_FLY' && access?.canControlFlight ? (
+            <Button type="primary" href={flightHref}>
+              {t.openCockpit}
+            </Button>
+          ) : canConnectGcs ? (
+            <Button
+              type="primary"
+              icon={<ThunderboltOutlined aria-hidden="true" />}
+              href={operatorHref({ screen: 'connect', missionId: mission.id })}
+            >
+              {t.connectGcs}
+            </Button>
+          ) : mission.status === 'IN_FLIGHT' ? (
+            <>
+              {access?.canUploadMedia && (
+                <Button href={uploadHref}>{t.reviewMedia}</Button>
+              )}
+              {access?.canControlFlight && (
+                <Button type="primary" href={flightHref}>
+                  {t.openCockpit}
+                </Button>
+              )}
+            </>
+          ) : null}
+        </>
+      }
+    >
+      <div className="stf-row" style={{ marginTop: 8 }}>
+        <StatusTag tone={STATUS_TONE[mission.status]}>
+          {missionStopLabel(mission) ??
+            missionStatusLabel(mission.backendStatus ?? mission.status, lang)}
+        </StatusTag>
         {showProgressBadge ? (
-          <StatusBadge tone={progressBadge.tone}>
-            {progressBadge.label}
-          </StatusBadge>
-        ) : null}
-        {/* Action permissions come from the backend assignment policy. */}
-        {stopping ? (
-          missionMayTerminate(mission, access?.canTerminateFlight) ? (
-            <a
-              className="odm-btn odm-btn-rd"
-              href={operatorHref({ screen: 'flight', missionId: mission.id })}
-            >
-              Dừng chuyến bay
-            </a>
-          ) : null
-        ) : hasAccepted &&
-          (backendStatus === 'READY' ||
-            backendStatus === 'WAITING_OPERATOR_ACCEPTANCE') ? (
-          access?.canStartMission ? (
-            <button
-              type="button"
-              className="odm-btn odm-btn-p"
-              disabled={submitting}
-              onClick={onStartWorkflow}
-            >
-              {submitting ? 'Đang bắt đầu...' : 'Bắt đầu Mission'}
-            </button>
-          ) : (
-            <StatusBadge tone="green">Đã chấp nhận</StatusBadge>
-          )
-        ) : mission.status === 'PENDING' ? null : mission.backendStatus ===
-            'READY_TO_FLY' && access?.canControlFlight ? (
-          <a
-            className="odm-btn odm-btn-p"
-            href={operatorHref({ screen: 'flight', missionId: mission.id })}
-          >
-            Mở buồng lái
-          </a>
-        ) : canConnectGcs ? (
-          <a
-            className="odm-btn odm-btn-p mds-cta"
-            href={operatorHref({ screen: 'connect', missionId: mission.id })}
-          >
-            Kết nối GCS
-          </a>
-        ) : mission.status === 'IN_FLIGHT' ? (
-          <>
-            {access?.canUploadMedia && (
-              <a
-                className="odm-btn"
-                href={operatorHref({ screen: 'upload', missionId: mission.id })}
-              >
-                Review media
-              </a>
-            )}
-            {access?.canControlFlight && (
-              <a
-                className="odm-btn odm-btn-p"
-                href={operatorHref({ screen: 'flight', missionId: mission.id })}
-              >
-                Mở buồng lái
-              </a>
-            )}
-          </>
+          <StatusTag tone={progressBadge.tone}>{progressBadge.label}</StatusTag>
         ) : null}
       </div>
-    </div>
+    </PageHeader>
   )
 }

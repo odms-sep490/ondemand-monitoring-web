@@ -1,5 +1,6 @@
 import type { OperatorMission } from '../../../types/mission'
 import type { MissionPermissions } from '../../../../mission/types/permissions'
+import { Alert, Button, Collapse, Tabs } from 'antd'
 import { type ReactNode, useState, useEffect } from 'react'
 import type { MissionResultApprovalStatus } from '../../../../mission/types/mission'
 import type {
@@ -15,6 +16,9 @@ import {
   fetchLatestPostflightCheck,
 } from '../checkData'
 import { isAwaitingResponse } from '../missionResponse'
+import { CardComponent } from '../../../../../shared/components/antd'
+import { useI18n } from '../../../../../shared/i18n'
+import { missionDetailViewMessages } from '../missionDetailView.messages'
 import { MissionHeader } from './MissionHeader'
 import { formatVnDate, locationLabel } from '../missionFormat'
 import { DecisionSummary } from './DecisionSummary'
@@ -56,6 +60,7 @@ export function MissionDashboard({
   onStartWorkflow: () => void
   onOpenReject: () => void
 }) {
+  const { t, lang } = useI18n(missionDetailViewMessages)
   const deviceId = mission.deviceId
   const [preflightStatus, setPreflightStatus] =
     useState<RuntimePreflightStatus | null>(() =>
@@ -73,13 +78,6 @@ export function MissionDashboard({
     access?.canUploadMedia === true ||
     mission.status === 'COMPLETED' ||
     mission.backendStatus === 'PENDING_REVIEW'
-  const tabs: Array<{ id: 'overview' | 'checks' | 'media'; label: string }> = [
-    { id: 'overview', label: 'Tổng quan' },
-    { id: 'checks', label: 'Kết quả kiểm tra thiết bị' },
-    ...(canViewMissionMedia
-      ? [{ id: 'media' as const, label: 'Ảnh & video' }]
-      : []),
-  ]
 
   useEffect(() => {
     setPreflightStatus(readStoredPreflightState(mission.id, deviceId))
@@ -110,170 +108,160 @@ export function MissionDashboard({
     return () => controller.abort()
   }, [deviceId, mission.id])
 
+  const errorAlert = actionError ? (
+    <Alert type="error" showIcon message={actionError} />
+  ) : null
+
   if (isAwaitingResponse(mission)) {
     return (
-      <div className="mds-pending">
+      <div className="stf-stack">
         <MissionHeader mission={mission} access={access} />
-        <p className="mds-meta-line">
+        <p className="stf-muted" style={{ margin: 0 }}>
           {[
             mission.serviceLabel,
-            [formatVnDate(mission.date), mission.startTime]
+            [formatVnDate(mission.date, lang), mission.startTime]
               .filter(Boolean)
               .join(' · '),
-            locationLabel(mission.location),
+            locationLabel(mission.location, lang),
           ]
             .filter(Boolean)
             .join(' · ')}
         </p>
         <DecisionSummary mission={mission} />
-        <div
-          className="mds-action-bar"
+        <CardComponent
+          className="stf-action-bar"
           role="region"
-          aria-label="Phản hồi nhiệm vụ"
+          aria-label={t.respondRegion}
         >
-          <div className="mds-action-bar-text">
-            Bạn có muốn nhận nhiệm vụ này?
-            {!access?.canRespond && (
-              <small>Bạn chưa có quyền phản hồi nhiệm vụ này.</small>
-            )}
+          <div className="stf-action-bar-body">
+            <div className="stf-action-bar-text">
+              {t.wantToAccept}
+              {!access?.canRespond && <small>{t.noRespondPermission}</small>}
+            </div>
+            <div className="stf-action-bar-buttons">
+              <Button
+                danger
+                onClick={onOpenReject}
+                disabled={submitting || !access?.canRespond}
+              >
+                {t.reject}
+              </Button>
+              <Button
+                type="primary"
+                onClick={onAccept}
+                disabled={submitting || !access?.canRespond}
+              >
+                {submitting ? t.processing : t.acceptMission}
+              </Button>
+            </div>
           </div>
-          <div className="mds-action-bar-buttons">
-            <button
-              type="button"
-              className="odm-btn odm-btn-rd"
-              onClick={onOpenReject}
-              disabled={submitting || !access?.canRespond}
-            >
-              Từ chối
-            </button>
-            <button
-              type="button"
-              className="odm-btn odm-btn-p"
-              onClick={onAccept}
-              disabled={submitting || !access?.canRespond}
-            >
-              {submitting ? 'Đang xử lý...' : '✓ Chấp nhận nhiệm vụ'}
-            </button>
-          </div>
-        </div>
-        {actionError ? (
-          <div
-            role="alert"
-            style={{
-              marginBottom: 12,
-              padding: '10px 14px',
-              borderRadius: 8,
-              background: 'var(--red-bg)',
-              color: 'var(--red-fg)',
-              border: '1px solid var(--red-dot)',
-              fontSize: 13,
-            }}
-          >
-            {actionError}
-          </div>
-        ) : null}
+        </CardComponent>
+        {errorAlert}
         <MissionMapCard mission={mission} />
-        <div className="mds-tab-grid" style={{ marginTop: 16 }}>
-          <div className="mds-col">
+        <div className="stf-grid-2">
+          <div className="stf-stack">
             <MissionInfoCard mission={mission} />
             {mission.managerNote ? <ManagerNoteCard mission={mission} /> : null}
           </div>
-          <div className="mds-col">
+          <div className="stf-stack">
             <DroneDeviceCard mission={mission} />
           </div>
         </div>
-        <details className="odm-card mds-pending-checklist">
-          <summary>
-            Checklist thực hiện
-            <small>
-              🔒 Checklist sẽ được mở sau khi bạn chấp nhận nhiệm vụ. Bấm để xem
-              trước.
-            </small>
-          </summary>
-          <div className="mds-pending-checklist-body">{monitoringSection}</div>
-        </details>
+        <Collapse
+          items={[
+            {
+              key: 'checklist',
+              label: (
+                <>
+                  <strong>{t.executionChecklist}</strong>
+                  <div className="stf-muted" style={{ fontSize: 12.5 }}>
+                    {t.checklistLocked}
+                  </div>
+                </>
+              ),
+              children: monitoringSection,
+              forceRender: true,
+            },
+          ]}
+        />
       </div>
     )
   }
 
+  const tabItems = [
+    {
+      key: 'overview',
+      label: t.tabOverview,
+      children:
+        tab === 'overview' ? (
+          <div className="stf-grid-2">
+            <div className="stf-stack">
+              <MissionMapCard mission={mission} />
+              {monitoringSection}
+            </div>
+            <div className="stf-stack stf-sticky">
+              <MissionInfoCard mission={mission} />
+              <DroneDeviceCard mission={mission} />
+              {mission.managerNote ? (
+                <ManagerNoteCard mission={mission} />
+              ) : null}
+            </div>
+          </div>
+        ) : null,
+    },
+    {
+      key: 'checks',
+      label: t.tabChecks,
+      children:
+        tab === 'checks' ? (
+          <div className="stf-grid-2">
+            <div className="stf-stack">
+              <PrecheckCard
+                preflight={preflightStatus}
+                weather={weatherStatus}
+              />
+              <WeatherCard weather={weatherStatus} />
+            </div>
+            <div className="stf-stack">
+              <PostcheckCard postflight={postflightStatus} />
+            </div>
+          </div>
+        ) : null,
+    },
+    ...(canViewMissionMedia
+      ? [
+          {
+            key: 'media',
+            label: t.tabMedia,
+            children:
+              tab === 'media' ? (
+                <MissionUploadedMedia
+                  missionId={mission.id}
+                  reviewStatus={resultApprovalStatus}
+                  onChanged={refreshWorkspace}
+                  refreshKey={mediaRevision}
+                />
+              ) : null,
+          },
+        ]
+      : []),
+  ]
+
   return (
-    <div>
-      {/* ── Header ── */}
+    <div className="stf-stack">
       <MissionHeader
         mission={mission}
         access={access}
         submitting={submitting}
         onStartWorkflow={onStartWorkflow}
       />
-
       {resultActions}
-
-      {actionError ? (
-        <div
-          role="alert"
-          style={{
-            marginBottom: 12,
-            padding: '10px 14px',
-            borderRadius: 8,
-            background: 'var(--red-bg)',
-            color: 'var(--red-fg)',
-            border: '1px solid var(--red-dot)',
-            fontSize: 13,
-          }}
-        >
-          {actionError}
-        </div>
-      ) : null}
-
-      <div className="mds-tabs" role="tablist">
-        {tabs.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            role="tab"
-            aria-selected={tab === t.id}
-            className={`mds-tab${tab === t.id ? ' is-active' : ''}`}
-            onClick={() => setTab(t.id)}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
-
-      {tab === 'overview' ? (
-        <div className="mds-tab-grid">
-          <div className="mds-col">
-            <MissionMapCard mission={mission} />
-            {monitoringSection}
-          </div>
-          <div className="mds-col mds-sticky-col">
-            <MissionInfoCard mission={mission} />
-            <DroneDeviceCard mission={mission} />
-            {mission.managerNote ? <ManagerNoteCard mission={mission} /> : null}
-          </div>
-        </div>
-      ) : null}
-
-      {tab === 'checks' ? (
-        <div className="mds-tab-grid">
-          <div className="mds-col">
-            <PrecheckCard preflight={preflightStatus} weather={weatherStatus} />
-            <WeatherCard weather={weatherStatus} />
-          </div>
-          <div className="mds-col">
-            <PostcheckCard postflight={postflightStatus} />
-          </div>
-        </div>
-      ) : null}
-
-      {tab === 'media' && canViewMissionMedia ? (
-        <MissionUploadedMedia
-          missionId={mission.id}
-          reviewStatus={resultApprovalStatus}
-          onChanged={refreshWorkspace}
-          refreshKey={mediaRevision}
-        />
-      ) : null}
+      {errorAlert}
+      <Tabs
+        activeKey={tab}
+        onChange={(key) => setTab(key as 'overview' | 'checks' | 'media')}
+        items={tabItems}
+      />
     </div>
   )
 }

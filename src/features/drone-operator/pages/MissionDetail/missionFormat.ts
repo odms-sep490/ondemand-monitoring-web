@@ -1,5 +1,7 @@
+import type { Language } from '../../../../shared/i18n'
 import {
   STATUS_LABEL,
+  STATUS_LABEL_EN,
   PREFLIGHT_NAME_LABELS,
   PREFLIGHT_NAME_FALLBACKS,
 } from './missionConstants'
@@ -10,32 +12,53 @@ import type {
   RuntimeCheck,
 } from './types'
 
-export function missionStatusLabel(status?: string | null) {
-  if (!status) return 'Chưa xác định'
+export function missionStatusLabel(
+  status?: string | null,
+  lang: Language = 'vi',
+) {
+  if (!status) return lang === 'en' ? 'Unknown' : 'Chưa xác định'
+  if (lang === 'en') return STATUS_LABEL_EN[status] ?? 'Unsupported status'
   return STATUS_LABEL[status] ?? 'Trạng thái chưa hỗ trợ'
 }
 
-export function missionProgressBadge(status?: string | null) {
+export function missionProgressBadge(
+  status?: string | null,
+  lang: Language = 'vi',
+) {
+  const en = lang === 'en'
   if (status === 'CONNECTED') {
-    return { tone: 'blue' as const, label: 'Quy trình: đã kết nối GCS' }
+    return {
+      tone: 'blue' as const,
+      label: en ? 'Workflow: GCS connected' : 'Quy trình: đã kết nối GCS',
+    }
   }
   if (status === 'PREFLIGHT_CHECKING') {
     return {
       tone: 'blue' as const,
-      label: 'Quy trình: đang kiểm tra trước bay',
+      label: en
+        ? 'Workflow: preflight in progress'
+        : 'Quy trình: đang kiểm tra trước bay',
     }
   }
   if (status === 'READY_TO_FLY') {
-    return { tone: 'green' as const, label: 'Quy trình: sẵn sàng bàn giao' }
+    return {
+      tone: 'green' as const,
+      label: en
+        ? 'Workflow: ready for handover'
+        : 'Quy trình: sẵn sàng bàn giao',
+    }
   }
   return null
 }
 
 // ─── Format helpers ───────────────────────────────────────────────────────────
 
-export function formatVnDate(isoDate: string): string {
-  if (!isoDate) return 'Chưa lên lịch'
+export function formatVnDate(isoDate: string, lang: Language = 'vi'): string {
+  if (!isoDate) return lang === 'en' ? 'Not scheduled' : 'Chưa lên lịch'
   const d = new Date(`${isoDate}T00:00:00+07:00`)
+  if (lang === 'en') {
+    return `${d.toLocaleDateString('en-US', { weekday: 'long' })}, ${d.toLocaleDateString('en-GB')}`
+  }
   const weekdays = [
     'Chủ Nhật',
     'Thứ Hai',
@@ -66,6 +89,7 @@ export function formatCoord(value?: number | null): string {
 
 export function missionDescriptionText(
   description: string | undefined,
+  lang: Language = 'vi',
 ): string {
   const text = description?.trim() ?? ''
   const lower = text.toLowerCase()
@@ -76,12 +100,13 @@ export function missionDescriptionText(
     lower === 'na' ||
     lower === 'none'
   ) {
-    return 'Chưa có mô tả'
+    return lang === 'en' ? 'No description yet' : 'Chưa có mô tả'
   }
   return text
 }
 
-export function locationLabel(value: string): string {
+export function locationLabel(value: string, lang: Language = 'vi'): string {
+  if (lang === 'en') return value || 'No location yet'
   if (value === 'Construction Site') return 'Công trường'
   if (value === 'Dam') return 'Đập nước / hồ chứa'
   if (value === 'Warehouse') return 'Kho bãi'
@@ -95,29 +120,36 @@ export function statusTone(status?: RuntimeOverallStatus | WeatherCheckStatus) {
   return 'gray'
 }
 
-export function preflightLabel(status?: RuntimeOverallStatus) {
-  if (status === 'READY') return 'Đã đạt'
-  if (status === 'FAILED') return 'Không đạt'
-  if (status === 'CHECKING') return 'Đang kiểm'
-  return 'Chưa kiểm'
+export function preflightLabel(
+  status?: RuntimeOverallStatus,
+  lang: Language = 'vi',
+) {
+  const en = lang === 'en'
+  if (status === 'READY') return en ? 'Passed' : 'Đã đạt'
+  if (status === 'FAILED') return en ? 'Failed' : 'Không đạt'
+  if (status === 'CHECKING') return en ? 'Checking' : 'Đang kiểm'
+  return en ? 'Not checked' : 'Chưa kiểm'
 }
 
-export function checkLabel(status: RuntimeStatus) {
-  if (status === 'PASS') return 'Đạt'
-  if (status === 'WARN') return 'Cảnh báo'
-  if (status === 'FAIL') return 'Không đạt'
-  if (status === 'CHECKING') return 'Đang kiểm'
-  return 'Chờ kiểm'
+export function checkLabel(status: RuntimeStatus, lang: Language = 'vi') {
+  const en = lang === 'en'
+  if (status === 'PASS') return en ? 'Pass' : 'Đạt'
+  if (status === 'WARN') return en ? 'Warning' : 'Cảnh báo'
+  if (status === 'FAIL') return en ? 'Fail' : 'Không đạt'
+  if (status === 'CHECKING') return en ? 'Checking' : 'Đang kiểm'
+  return en ? 'Pending' : 'Chờ kiểm'
 }
 
-export function inspectionLabel(status?: string | null) {
-  if (status === 'PASS') return 'Đạt'
-  if (status === 'WARN') return 'Cảnh báo'
-  if (status === 'FAIL') return 'Không đạt'
-  return 'Chưa rõ'
+export function inspectionLabel(status?: string | null, lang: Language = 'vi') {
+  const en = lang === 'en'
+  if (status === 'PASS') return en ? 'Pass' : 'Đạt'
+  if (status === 'WARN') return en ? 'Warning' : 'Cảnh báo'
+  if (status === 'FAIL') return en ? 'Fail' : 'Không đạt'
+  return en ? 'Unknown' : 'Chưa rõ'
 }
 
-export function preflightCheckName(item: RuntimeCheck) {
+export function preflightCheckName(item: RuntimeCheck, lang: Language = 'vi') {
+  if (lang === 'en') return item.name
   return (
     PREFLIGHT_NAME_LABELS[item.key] ??
     PREFLIGHT_NAME_FALLBACKS[item.name] ??
@@ -125,9 +157,10 @@ export function preflightCheckName(item: RuntimeCheck) {
   )
 }
 
-export function preflightMessageLabel(message: string) {
+export function preflightMessageLabel(message: string, lang: Language = 'vi') {
   const text = message.trim()
   if (!text) return ''
+  if (lang === 'en') return text
 
   const lower = text.toLowerCase()
   if (lower.includes('required components'))
@@ -165,11 +198,18 @@ export function formatNumber(value?: number | null, suffix = '', decimals = 1) {
   return `${value.toFixed(decimals)}${suffix}`
 }
 
-export function postflightFaultLabel(faultType?: string | null) {
+export function postflightFaultLabel(
+  faultType?: string | null,
+  lang: Language = 'vi',
+) {
   if (!faultType) return null
-  if (faultType === 'PHYSICAL_DAMAGE') return 'Thân vỏ cần kiểm tra'
-  if (faultType === 'BATTERY') return 'Pin cần kiểm tra'
-  if (faultType === 'HARDWARE') return 'Phần cứng cần kiểm tra'
+  const en = lang === 'en'
+  if (faultType === 'PHYSICAL_DAMAGE')
+    return en ? 'Airframe needs inspection' : 'Thân vỏ cần kiểm tra'
+  if (faultType === 'BATTERY')
+    return en ? 'Battery needs inspection' : 'Pin cần kiểm tra'
+  if (faultType === 'HARDWARE')
+    return en ? 'Hardware needs inspection' : 'Phần cứng cần kiểm tra'
   return faultType.replaceAll('_', ' ')
 }
 
@@ -178,11 +218,11 @@ export function postflightNoteLabel(notes?: string | null) {
   return notes.replace(/^Inspection:\s*[^.]*\.\s*/i, '').trim()
 }
 
-export function formatCheckedAt(value?: string) {
+export function formatCheckedAt(value?: string, lang: Language = 'vi') {
   if (!value) return '—'
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return '—'
-  return date.toLocaleString('vi-VN', {
+  return date.toLocaleString(lang === 'en' ? 'en-GB' : 'vi-VN', {
     hour: '2-digit',
     minute: '2-digit',
     day: '2-digit',

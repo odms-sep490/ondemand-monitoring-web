@@ -1,0 +1,227 @@
+/*
+ * Staff (drone operator) page building blocks. Everything here is scoped to
+ * the staff pages and reads the shared --mgr-* tokens, so light and dark
+ * follow the app shell. Page-level rules live next to this file.
+ */
+
+.stf-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.stf-stack-sm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.stf-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+
+.stf-spacer {
+  flex: 1;
+}
+
+.stf-muted {
+  color: var(--mgr-muted);
+}
+
+.stf-mono {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+}
+
+.stf-grid-2 {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.stf-grid-2--even {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.stf-sticky {
+  position: sticky;
+  top: 16px;
+}
+
+@media (max-width: 999px) {
+  .stf-grid-2,
+  .stf-grid-2--even {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .stf-sticky {
+    position: static;
+  }
+}
+
+/* Tiny tile for a value (weather, metric, telemetry). */
+.stf-metric {
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--mgr-border);
+  background: var(--mgr-card-2);
+}
+
+.stf-metric-label {
+  font-size: 12px;
+  color: var(--mgr-muted);
+}
+
+.stf-metric-value {
+  margin-top: 2px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--mgr-text);
+  overflow-wrap: anywhere;
+}
+
+.stf-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+}
+
+/* A bordered list of check rows (icon, name + message, result). */
+.stf-checklist {
+  border: 1px solid var(--mgr-border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.stf-check {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  padding: 9px 12px;
+  font-size: 13px;
+  background: var(--mgr-card);
+}
+
+.stf-check + .stf-check {
+  border-top: 1px solid var(--mgr-border);
+}
+
+.stf-check-name {
+  font-weight: 600;
+  color: var(--mgr-text);
+}
+
+.stf-check-msg {
+  margin-top: 1px;
+  font-size: 12px;
+  color: var(--mgr-muted);
+  overflow-wrap: anywhere;
+}
+
+/* Overlay chips on the leaflet mission map. */
+.stf-map-view {
+  position: relative;
+  height: clamp(320px, 46vw, 520px);
+  overflow: hidden;
+  background: var(--mgr-card-2);
+}
+
+.stf-map-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.stf-map-tag.ant-tag {
+  position: absolute;
+  z-index: 500;
+  margin: 0;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.35;
+  max-width: calc(100% - 20px);
+  white-space: normal;
+  box-shadow: var(--mgr-shadow);
+}
+
+.stf-map-tag.ant-tag:not(.ant-tag-error) {
+  background: var(--mgr-card);
+  color: var(--mgr-text);
+}
+
+.stf-map-tag--tl {
+  top: 10px;
+  left: 10px;
+}
+.stf-map-tag--tr {
+  top: 10px;
+  right: 10px;
+}
+.stf-map-tag--bl {
+  bottom: 10px;
+  left: 10px;
+}
+.stf-map-tag--br {
+  bottom: 10px;
+  right: 10px;
+}
+
+/* Page-level action bar (accept / reject, bottom of a form). */
+.stf-action-bar.ant-card {
+  border-color: var(--ant-color-primary-border, var(--mgr-border));
+}
+
+.stf-action-bar-body {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.stf-action-bar-text {
+  font-weight: 600;
+  color: var(--mgr-text);
+}
+
+.stf-action-bar-text small {
+  display: block;
+  font-weight: 400;
+  color: var(--mgr-muted);
+}
+
+.stf-action-bar-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+@media (max-width: 640px) {
+  .stf-action-bar-buttons,
+  .stf-action-bar-buttons .ant-btn {
+    width: 100%;
+  }
+}
+
+.stf-scroll-note {
+  max-height: 120px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  color: var(--mgr-muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.stf-fill-center {
+  min-height: calc(100vh - 220px);
+  display: grid;
+  place-items: center;
+}

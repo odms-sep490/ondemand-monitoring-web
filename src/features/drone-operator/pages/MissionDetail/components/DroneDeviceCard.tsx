@@ -1,148 +1,100 @@
-import type { OperatorMission } from '../../../types/mission'
-import { formatDeviceLabel } from '../../../lib/deviceLabel'
-import { StatusBadge } from '../../../../../shared/components/odm/StatusBadge'
-import { InfoRow } from './InfoRow'
+import { RocketOutlined } from '@ant-design/icons'
+import { Divider } from 'antd'
 
-// ─── Device card ──────────────────────────────────────────────────────────────
+import { CardComponent, StatusTag } from '../../../../../shared/components/antd'
+import { useI18n } from '../../../../../shared/i18n'
+import { KeyValueList } from '../../../components/common/KeyValueList'
+import { formatDeviceLabel } from '../../../lib/deviceLabel'
+import type { OperatorMission } from '../../../types/mission'
+import { missionDetailViewMessages } from '../missionDetailView.messages'
 
 export function DroneDeviceCard({ mission }: { mission: OperatorMission }) {
-  const droneLabel = formatDeviceLabel(mission) ?? 'Chưa gán thiết bị'
-  const deviceInfoRows = [
-    { icon: '#', label: 'Device ID', value: mission.deviceId },
-    { icon: 'ID', label: 'Device code', value: mission.deviceCode },
-    { icon: 'SN', label: 'Serial', value: mission.deviceSerialNumber },
-    { icon: '●', label: 'Trạng thái', value: mission.deviceStatus },
-    { icon: 'DR', label: 'Drone code', value: mission.droneCode },
-    { icon: 'NM', label: 'Tên drone', value: mission.droneName },
-    { icon: 'MD', label: 'Model', value: mission.droneModel },
-    { icon: 'MC', label: 'Model code', value: mission.deviceModelCode },
-    { icon: 'MF', label: 'Hãng', value: mission.deviceManufacturer },
-    { icon: 'PL', label: 'Payload', value: mission.dronePayload },
-    { icon: 'ST', label: 'Trạm', value: mission.droneStation },
+  const { t } = useI18n(missionDetailViewMessages)
+  const droneLabel = formatDeviceLabel(mission) ?? t.noDevice
+  const rows = [
+    { label: t.deviceId, value: mission.deviceId },
+    { label: t.deviceCode, value: mission.deviceCode },
+    { label: t.serial, value: mission.deviceSerialNumber },
+    { label: t.status, value: mission.deviceStatus },
+    { label: t.droneCode, value: mission.droneCode },
+    { label: t.droneName, value: mission.droneName },
+    { label: t.model, value: mission.droneModel },
+    { label: t.modelCode, value: mission.deviceModelCode },
+    { label: t.manufacturer, value: mission.deviceManufacturer },
+    { label: t.payload, value: mission.dronePayload },
+    { label: t.station, value: mission.droneStation },
     {
-      icon: '↔',
-      label: 'Khoảng cách trạm',
+      label: t.stationDistance,
       value:
         mission.droneStationDistanceKm == null
           ? null
           : `${mission.droneStationDistanceKm} km`,
     },
     {
-      icon: '%',
-      label: 'Sẵn sàng',
+      label: t.readiness,
       value:
         mission.droneReadinessPct == null
           ? null
           : `${mission.droneReadinessPct}%`,
     },
     {
-      icon: '⏱',
-      label: 'Giờ bay từ bảo trì',
+      label: t.hoursSinceMaintenance,
       value:
         mission.droneHoursSinceMaintenance == null
           ? null
-          : `${mission.droneHoursSinceMaintenance} giờ`,
+          : t.hours(mission.droneHoursSinceMaintenance),
     },
   ].filter((row) => row.value != null && String(row.value).trim() !== '')
+  const pct = mission.droneReadinessPct
 
   return (
-    <div className="odm-card">
-      <div className="odm-card-header">
-        <span style={{ fontWeight: 700 }}>Thiết bị thực hiện</span>
-      </div>
-      <div className="odm-card-body" style={{ padding: '10px 14px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          {/* Device icon placeholder */}
-          <div
-            style={{
-              width: 44,
-              height: 44,
-              borderRadius: 8,
-              background: 'var(--sf2)',
-              border: '1px solid var(--bd)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0,
-              fontSize: 22,
-            }}
+    <CardComponent title={t.deviceTitle} icon={<RocketOutlined />}>
+      <div className="stf-stack-sm">
+        <div>
+          <div style={{ fontWeight: 700 }}>{droneLabel}</div>
+          {(mission.droneModel || mission.dronePayload) && (
+            <div className="stf-muted" style={{ fontSize: 13 }}>
+              {[mission.droneModel, mission.dronePayload]
+                .filter(Boolean)
+                .join(' / ')}
+            </div>
+          )}
+        </div>
+        <div>
+          <StatusTag
+            tone={pct == null ? 'neutral' : pct >= 80 ? 'success' : 'warning'}
           >
-            🚁
-          </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 2 }}>
-              {droneLabel}
-            </div>
-            {(mission.droneModel || mission.dronePayload) && (
-              <div
-                style={{ fontSize: 12, color: 'var(--tx3)', marginBottom: 4 }}
-              >
-                {[mission.droneModel, mission.dronePayload]
-                  .filter(Boolean)
-                  .join(' / ')}
-              </div>
-            )}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <StatusBadge
-                tone={
-                  mission.droneReadinessPct != null &&
-                  mission.droneReadinessPct >= 80
-                    ? 'green'
-                    : mission.droneReadinessPct != null
-                      ? 'yellow'
-                      : 'gray'
-                }
-              >
-                {mission.droneReadinessPct == null
-                  ? 'Chưa có telemetry'
-                  : `${mission.droneReadinessPct}% Sẵn sàng`}
-              </StatusBadge>
-            </div>
-          </div>
+            {pct == null ? t.noTelemetry : t.readyPct(pct)}
+          </StatusTag>
         </div>
         {(mission.droneStation ||
           mission.droneHoursSinceMaintenance != null) && (
-          <div
-            style={{
-              marginTop: 10,
-              paddingTop: 10,
-              borderTop: '1px solid var(--bd)',
-              fontSize: 11.5,
-              color: 'var(--tx3)',
-            }}
-          >
+          <div className="stf-muted" style={{ fontSize: 12.5 }}>
             {mission.droneStation && (
-              <span>Lấy tại {mission.droneStation}</span>
+              <span>{t.pickupAt(mission.droneStation)}</span>
             )}
             {mission.droneStation && mission.droneStationDistanceKm != null && (
-              <span> · cách {mission.droneStationDistanceKm} km</span>
+              <span>{t.distanceAway(mission.droneStationDistanceKm)}</span>
             )}
             {mission.droneHoursSinceMaintenance != null && (
               <span style={{ display: 'block', marginTop: 2 }}>
-                {mission.droneHoursSinceMaintenance} giờ bay từ lần bảo trì
+                {t.hoursSinceService(mission.droneHoursSinceMaintenance)}
               </span>
             )}
           </div>
         )}
-        {deviceInfoRows.length > 0 ? (
-          <div
-            style={{
-              marginTop: 10,
-              paddingTop: 10,
-              borderTop: '1px solid var(--bd)',
-            }}
-          >
-            {deviceInfoRows.map((row) => (
-              <InfoRow
-                key={`${row.icon}-${row.label}`}
-                icon={row.icon}
-                label={row.label}
-                value={String(row.value)}
-              />
-            ))}
-          </div>
-        ) : null}
       </div>
-    </div>
+      {rows.length > 0 ? (
+        <>
+          <Divider style={{ margin: '12px 0' }} />
+          <KeyValueList
+            items={rows.map((r) => ({
+              label: r.label,
+              value: String(r.value),
+            }))}
+          />
+        </>
+      ) : null}
+    </CardComponent>
   )
 }

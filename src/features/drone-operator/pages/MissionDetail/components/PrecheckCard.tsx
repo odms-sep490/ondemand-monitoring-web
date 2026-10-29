@@ -1,16 +1,23 @@
-import type { RuntimePreflightStatus, WeatherPreflightStatus } from '../types'
+import { SafetyCertificateOutlined } from '@ant-design/icons'
+import { Button } from 'antd'
 import { useState } from 'react'
-import { StatusBadge } from '../../../../../shared/components/odm/StatusBadge'
+
+import { CardComponent, StatusTag } from '../../../../../shared/components/antd'
+import { useI18n } from '../../../../../shared/i18n'
+import { CheckGlyph, checkTone } from '../../../components/common/CheckGlyph'
+import { KeyValueList } from '../../../components/common/KeyValueList'
+import { missionDetailViewMessages } from '../missionDetailView.messages'
 import {
-  statusTone,
+  checkLabel,
+  preflightCheckName,
   preflightLabel,
   preflightMessageLabel,
-  preflightCheckName,
-  checkLabel,
+  statusTone,
 } from '../missionFormat'
+import type { RuntimePreflightStatus, WeatherPreflightStatus } from '../types'
 import { PrecheckWeatherResult } from './PrecheckWeatherResult'
 
-// ─── Precheck card ────────────────────────────────────────────────────────────
+const PREVIEW_COUNT = 5
 
 export function PrecheckCard({
   preflight,
@@ -19,13 +26,13 @@ export function PrecheckCard({
   preflight: RuntimePreflightStatus | null
   weather: WeatherPreflightStatus | null
 }) {
+  const { t, lang } = useI18n(missionDetailViewMessages)
   const [expanded, setExpanded] = useState(false)
   const passCount =
     preflight?.checks.filter((c) => c.status === 'PASS' || c.status === 'WARN')
       .length ?? 0
   const failCount =
     preflight?.checks.filter((c) => c.status === 'FAIL').length ?? 0
-  const PREVIEW_COUNT = 5
   const visibleChecks = preflight
     ? expanded
       ? preflight.checks
@@ -34,185 +41,77 @@ export function PrecheckCard({
   const hasMore = (preflight?.checks.length ?? 0) > PREVIEW_COUNT
 
   return (
-    <div className="odm-card">
-      <div className="odm-card-header">
-        <span style={{ fontWeight: 700 }}>Kết quả precheck</span>
-        <StatusBadge tone={statusTone(preflight?.status)}>
-          {preflightLabel(preflight?.status)}
-        </StatusBadge>
-      </div>
-      <div className="odm-card-body" style={{ padding: '10px 14px' }}>
-        {preflight ? (
-          <>
-            {/* Meta rows */}
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                fontSize: 11.5,
-                color: 'var(--tx3)',
-                marginBottom: 4,
-              }}
-            >
-              <span># Mã check</span>
-              <span
-                style={{
-                  fontFamily: 'IBM Plex Mono, monospace',
-                  fontSize: 10.5,
-                  color: 'var(--tx2)',
-                  maxWidth: 170,
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                {preflight.checkId}
-              </span>
-            </div>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                fontSize: 11.5,
-                color: 'var(--tx3)',
-                marginBottom: 10,
-              }}
-            >
-              <span>Tiến độ</span>
-              <span style={{ fontWeight: 600, color: 'var(--tx)' }}>
-                {Math.round(preflight.progress)}% · {passCount} đạt
-                {failCount ? ` · ${failCount} lỗi` : ''}
-              </span>
-            </div>
-
-            <PrecheckWeatherResult weather={weather} />
-
-            {/* Check items */}
-            <div
-              style={{
-                border: '1px solid var(--bd)',
-                borderRadius: 7,
-                overflow: 'hidden',
-              }}
-            >
-              {visibleChecks.map((item, idx) => {
-                const message = preflightMessageLabel(item.message)
-                return (
-                  <div
-                    key={`${item.key}-${idx}`}
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: '18px 1fr auto',
-                      gap: 6,
-                      alignItems: 'center',
-                      padding: '7px 10px',
-                      borderBottom:
-                        idx < visibleChecks.length - 1
-                          ? '1px solid var(--bd)'
-                          : 'none',
-                      background:
-                        item.status === 'FAIL' ? 'var(--red-bg)' : '#fff',
-                      fontSize: 12,
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontWeight: 800,
-                        color:
-                          item.status === 'FAIL'
-                            ? 'var(--red-fg)'
-                            : 'var(--green-fg)',
-                        fontSize: 13,
-                      }}
-                    >
-                      {item.status === 'FAIL'
-                        ? '✗'
-                        : item.status === 'PASS' || item.status === 'WARN'
-                          ? '✓'
-                          : '○'}
-                    </span>
-                    <div>
-                      <div
-                        style={{
-                          fontWeight: 600,
-                          color:
-                            item.status === 'FAIL'
-                              ? 'var(--red-fg)'
-                              : 'var(--tx)',
-                        }}
-                      >
-                        {preflightCheckName(item)}
-                      </div>
-                      {message && (
-                        <div
-                          style={{
-                            fontSize: 11,
-                            color:
-                              item.status === 'FAIL'
-                                ? 'var(--red-fg)'
-                                : 'var(--tx3)',
-                            marginTop: 1,
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                            maxWidth: 140,
-                          }}
-                          title={message}
-                        >
-                          {message}
-                        </div>
-                      )}
+    <CardComponent
+      title={t.precheckTitle}
+      icon={<SafetyCertificateOutlined />}
+      tone="green"
+      extra={
+        <StatusTag tone={statusTone(preflight?.status)}>
+          {preflightLabel(preflight?.status, lang)}
+        </StatusTag>
+      }
+    >
+      {preflight ? (
+        <>
+          <KeyValueList
+            items={[
+              {
+                label: t.checkId,
+                value: <span className="stf-mono">{preflight.checkId}</span>,
+              },
+              {
+                label: t.progress,
+                value: t.progressValue(
+                  Math.round(preflight.progress),
+                  passCount,
+                  failCount,
+                ),
+              },
+            ]}
+          />
+          <PrecheckWeatherResult weather={weather} />
+          <div className="stf-checklist">
+            {visibleChecks.map((item, idx) => {
+              const message = preflightMessageLabel(item.message, lang)
+              return (
+                <div className="stf-check" key={`${item.key}-${idx}`}>
+                  <CheckGlyph tone={checkTone(item.status)} />
+                  <div style={{ minWidth: 0 }}>
+                    <div className="stf-check-name">
+                      {preflightCheckName(item, lang)}
                     </div>
-                    <span
-                      style={{
-                        fontWeight: 700,
-                        fontSize: 11.5,
-                        color:
-                          item.status === 'FAIL'
-                            ? 'var(--red-fg)'
-                            : 'var(--green-fg)',
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      {checkLabel(item.status)}
-                    </span>
+                    {message && (
+                      <div className="stf-check-msg" title={message}>
+                        {message}
+                      </div>
+                    )}
                   </div>
-                )
-              })}
-            </div>
-
-            {hasMore && (
-              <button
-                type="button"
-                onClick={() => setExpanded((v) => !v)}
-                style={{
-                  marginTop: 8,
-                  width: '100%',
-                  padding: '5px 0',
-                  fontSize: 12,
-                  fontWeight: 600,
-                  color: 'var(--blue-dot)',
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  textAlign: 'center',
-                }}
-              >
-                {expanded
-                  ? `Thu gọn ↑`
-                  : `Xem chi tiết (${preflight.checks.length - PREVIEW_COUNT} thêm) ↓`}
-              </button>
-            )}
-          </>
-        ) : (
-          <>
-            <PrecheckWeatherResult weather={weather} />
-            <div style={{ color: 'var(--tx3)', fontSize: 12.5 }}>
-              Chưa có dữ liệu precheck cho mission này.
-            </div>
-          </>
-        )}
-      </div>
-    </div>
+                  <StatusTag tone={checkTone(item.status)}>
+                    {checkLabel(item.status, lang)}
+                  </StatusTag>
+                </div>
+              )
+            })}
+          </div>
+          {hasMore && (
+            <Button
+              type="link"
+              block
+              style={{ marginTop: 6 }}
+              onClick={() => setExpanded((v) => !v)}
+            >
+              {expanded
+                ? t.collapse
+                : t.showMore(preflight.checks.length - PREVIEW_COUNT)}
+            </Button>
+          )}
+        </>
+      ) : (
+        <>
+          <PrecheckWeatherResult weather={weather} />
+          <div className="stf-muted">{t.noPrecheck}</div>
+        </>
+      )}
+    </CardComponent>
   )
 }

@@ -4,6 +4,7 @@ import { SystemOperatorOverview } from '../system-operator/SystemOperatorOvervie
 import { SystemOperatorDevicesScreen } from '../system-operator/pages/SystemOperatorDevicesScreen'
 import { MissionActionGuard } from './components/common/MissionActionGuard'
 import { useEffect, useState } from 'react'
+import './staff.css'
 
 import { useApiQuery } from '../../shared/hooks/useApiQuery'
 import { useLanguage } from '../../shared/i18n'

@@ -1,9 +1,16 @@
 import { ApiError } from '../../../../shared/api/httpClient'
-import { StatusBadge } from '../../../../shared/components/odm/StatusBadge'
+import { Alert, Button } from 'antd'
+
+import { CardComponent, StatusTag } from '../../../../shared/components/antd'
+import { getLanguage, useI18n } from '../../../../shared/i18n'
 import type { useMissionMonitoring } from '../../../mission/hooks/useMissionMonitoring'
-import './MissionResultActions.css'
+import { missionResultActionsMessages } from './MissionResultActions.messages'
 
 type Monitoring = ReturnType<typeof useMissionMonitoring>
+
+function copy() {
+  return missionResultActionsMessages[getLanguage()]
+}
 
 /** Backend capabilities identify the actor; readiness and lifecycle identify the operation. */
 export function missionResultActions(
@@ -37,25 +44,26 @@ export function missionResultActions(
     data?.checklist.executions.filter(
       (row) => !['COMPLETED', 'UNABLE_TO_VERIFY'].includes(row.executionStatus),
     ).length ?? 0
+  const c = copy()
   const readinessReason = !known
-    ? 'Đang xác nhận checklist và quyền thao tác.'
+    ? c.confirming
     : remaining > 0
-      ? `Còn ${remaining} mục checklist chưa hoàn tất.`
+      ? c.remaining(remaining)
       : data.checklist.executions.some(
             (row) =>
               row.executionStatus === 'UNABLE_TO_VERIFY' &&
               !row.unableToVerifyReason?.trim(),
           )
-        ? 'Cần bổ sung lý do cho mục không thể xác minh.'
+        ? c.needReason
         : data.checklist.blockingReasons?.includes(
               'CHECKLIST_INTEGRITY_INVALID',
             )
-          ? 'Checklist chưa được xác nhận. Vui lòng làm mới và kiểm tra lại.'
+          ? c.integrity
           : data.checklist.blockingReasons?.includes('MEDIA_REJECTED')
-            ? 'Có media bằng chứng bị từ chối. Cần bổ sung bằng chứng hợp lệ.'
+            ? c.mediaRejected
             : data.checklist.blockingReasons?.includes('MEDIA_NOT_VALIDATED')
-              ? 'Media bằng chứng chưa xác thực thành công.'
-              : 'Checklist chưa sẵn sàng hoặc chưa đủ bằng chứng hợp lệ. Kiểm tra các mục và media đã gắn.'
+              ? c.mediaNotValidated
+              : c.notReady
   return {
     known,
     submitted,
@@ -69,23 +77,20 @@ export function missionResultActions(
 
 /** Keep the original error object in state for diagnostics; never present server internals. */
 export function staffResultError(error: unknown) {
+  const c = copy()
   if (error instanceof ApiError) {
-    if (error.status === 401)
-      return 'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.'
-    if (error.status === 403)
-      return 'Bạn không có quyền thực hiện thao tác này.'
-    if (error.code === 'MISSION_STATUS_INVALID')
-      return 'Trạng thái Mission đã thay đổi. Dữ liệu mới đang được cập nhật.'
-    if (error.code === 'CHECKLIST_EXECUTION_LOCKED')
-      return 'Kết quả đã được gửi hoặc duyệt. Dữ liệu mới đang được cập nhật.'
+    if (error.status === 401) return c.err401
+    if (error.status === 403) return c.err403
+    if (error.code === 'MISSION_STATUS_INVALID') return c.errStatus
+    if (error.code === 'CHECKLIST_EXECUTION_LOCKED') return c.errLocked
     if (error.code === 'CHECKLIST_NOT_READY')
       return error.message.includes('EVIDENCE_TYPE_NOT_ELIGIBLE')
-        ? 'Một hoặc nhiều mục có media sai loại. Thay bằng đúng loại ảnh/video theo yêu cầu của từng mục.'
+        ? c.errEvidenceType
         : error.message.includes('INSUFFICIENT_EVIDENCE')
-          ? 'Chưa đủ bằng chứng hợp lệ theo số lượng yêu cầu. Kiểm tra tiến độ từng mục và bổ sung phần còn thiếu.'
-          : 'Checklist chưa hoàn tất hoặc chưa đủ bằng chứng hợp lệ.'
+          ? c.errEvidenceCount
+          : c.errChecklist
   }
-  return 'Không thể thực hiện thao tác. Dữ liệu mới đang được cập nhật; vui lòng kiểm tra và thử lại.'
+  return c.errGeneric
 }
 
 export function MissionResultActions({
@@ -105,75 +110,82 @@ export function MissionResultActions({
   onSubmit: () => void
   showComplete?: boolean
 }) {
+  const { t } = useI18n(missionResultActionsMessages)
   const state = missionResultActions(missionId, status, monitoring)
   if (!['PENDING_REVIEW', 'COMPLETED'].includes(status ?? '')) return null
   const reasonId = `result-readiness-${missionId}`
   const submitReason =
     status !== 'COMPLETED' && !state.completeReady
-      ? 'Cần xác nhận hoàn thành Mission trước khi gửi kết quả.'
+      ? t.needComplete
       : state.readinessReason
+  const approved = monitoring.data?.result?.approvalStatus === 'APPROVED'
+  const showReason =
+    (state.canSubmit && !state.submitReady) ||
+    (showComplete && state.canComplete && !state.completeReady)
   return (
-    <section
-      className="staff-result-actions"
-      aria-label="Nghiệm thu và gửi kết quả"
-    >
-      <div className="staff-result-phase" role="status">
-        {status === 'COMPLETED'
-          ? 'Mission đã được nghiệm thu.'
-          : 'Mission đang chờ nghiệm thu.'}
-        {state.submitted && (
-          <>
-            <span>
-              {monitoring.data?.result?.approvalStatus === 'APPROVED'
-                ? 'Kết quả đã được Manager duyệt.'
-                : 'Kết quả đã được gửi Manager và đang chờ duyệt.'}
-            </span>
-            <StatusBadge tone="green">
-              {monitoring.data?.result?.approvalStatus === 'APPROVED'
-                ? 'Đã duyệt'
-                : 'Chờ duyệt'}
-            </StatusBadge>
-          </>
-        )}
-      </div>
-      {((showComplete && state.canComplete) || state.canSubmit) && (
-        <div className="staff-result-buttons">
-          {showComplete && state.canComplete && (
-            <button
-              type="button"
-              className="odm-btn odm-btn-p"
-              disabled={busy || !state.completeReady}
-              aria-describedby={!state.completeReady ? reasonId : undefined}
-              onClick={onComplete}
-            >
-              Xác nhận hoàn thành Mission
-            </button>
+    <CardComponent aria-label={t.sectionLabel} className="stf-result-actions">
+      <div className="stf-stack-sm">
+        <div className="stf-row" role="status" style={{ fontWeight: 600 }}>
+          {status === 'COMPLETED' ? t.accepted : t.pendingAcceptance}
+          {state.submitted && (
+            <>
+              <span className="stf-muted" style={{ fontWeight: 400 }}>
+                {approved ? t.approvedNote : t.sentNote}
+              </span>
+              <StatusTag tone="success">
+                {approved ? t.approvedTag : t.waitingTag}
+              </StatusTag>
+            </>
           )}
-          {state.canSubmit && (
-            <button
-              type="button"
-              className={`odm-btn${status === 'COMPLETED' ? ' odm-btn-p' : ''}`}
-              disabled={busy || !state.submitReady}
-              aria-describedby={!state.submitReady ? reasonId : undefined}
-              onClick={onSubmit}
-            >
-              Gửi kết quả cho Manager
-            </button>
+          <span className="stf-spacer" />
+          {((showComplete && state.canComplete) || state.canSubmit) && (
+            <span className="stf-row">
+              {showComplete && state.canComplete && (
+                <Button
+                  type="primary"
+                  disabled={busy || !state.completeReady}
+                  aria-describedby={!state.completeReady ? reasonId : undefined}
+                  onClick={onComplete}
+                >
+                  {t.complete}
+                </Button>
+              )}
+              {state.canSubmit && (
+                <Button
+                  type={status === 'COMPLETED' ? 'primary' : 'default'}
+                  disabled={busy || !state.submitReady}
+                  aria-describedby={!state.submitReady ? reasonId : undefined}
+                  onClick={onSubmit}
+                >
+                  {t.submit}
+                </Button>
+              )}
+            </span>
           )}
         </div>
-      )}
-      {((state.canSubmit && !state.submitReady) ||
-        (showComplete && state.canComplete && !state.completeReady)) && (
-        <p id={reasonId} className="staff-result-reason">
-          {showComplete && state.canComplete && !state.completeReady
-            ? state.readinessReason
-            : submitReason}
-        </p>
-      )}
-      {busy && <p role="status">Đang xử lý…</p>}
-      {!state.known && (
-        <p role="status">Đang xác nhận checklist và quyền thao tác.</p>
-      )}
-    </section>
+        {showReason && (
+          <Alert
+            id={reasonId}
+            type="warning"
+            showIcon
+            message={
+              showComplete && state.canComplete && !state.completeReady
+                ? state.readinessReason
+                : submitReason
+            }
+          />
+        )}
+        {busy && (
+          <p role="status" className="stf-muted" style={{ margin: 0 }}>
+            {t.busy}
+          </p>
+        )}
+        {!state.known && (
+          <p role="status" className="stf-muted" style={{ margin: 0 }}>
+            {t.confirming}
+          </p>
+        )}
+      </div>
+    </CardComponent>
   )
 }
