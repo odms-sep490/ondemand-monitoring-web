@@ -12,6 +12,7 @@ import type {
   MissionResponse,
   MissionResultResponse,
   PatchScheduleRequest,
+  PreferredTimeOption,
   PersistedPostDeviceCheckResponse,
   PersistedPreflightCheckResponse,
   PreflightCheckResponse,
@@ -45,6 +46,7 @@ export function toMissionCalendarItem(
     orderPreferredDateFrom: source.orderPreferredDateFrom ?? null,
     orderPreferredDateTo: source.orderPreferredDateTo ?? null,
     orderPreferredTimeName: source.orderPreferredTimeName ?? null,
+    orderPreferredTimeId: source.orderPreferredTimeId ?? null,
     orderPreferredTimeStart: source.orderPreferredTimeStart ?? null,
     orderPreferredTimeEnd: source.orderPreferredTimeEnd ?? null,
     orderWeatherFallback: source.orderWeatherFallback ?? 'CONTACT_CUSTOMER',
@@ -72,6 +74,9 @@ export function toMissionCalendarItem(
 
 /** MNG-04 / MNG-05 mission-creation + dispatch APIs. See evd/00-PLAN.md §3-5. */
 export const missionsApi = {
+  listPreferredTimes(signal?: AbortSignal): Promise<PreferredTimeOption[]> {
+    return apiRequest<PreferredTimeOption[]>('/api/preferred-times', { signal })
+  },
   /**
    * Canonical planning-only creation command. Requires an idempotency key
    * and public plan revision; replay returns the original Mission.
@@ -91,10 +96,13 @@ export const missionsApi = {
     orderId: string,
     request: CreateMissionRequest,
   ): Promise<Mission> {
-    return apiRequest<Mission>(`/api/missions/${encodeURIComponent(orderId)}/additional`, {
-      method: 'POST',
-      body: request,
-    })
+    return apiRequest<Mission>(
+      `/api/missions/${encodeURIComponent(orderId)}/additional`,
+      {
+        method: 'POST',
+        body: request,
+      },
+    )
   },
 
   /** `POST /api/missions/{missionId}/confirm-planning`. */
@@ -129,7 +137,11 @@ export const missionsApi = {
   },
 
   /** `POST /api/missions/{id}/assign-device` [BE]. */
-  assignDrone(missionId: string, droneId: string, deviceRole: string = 'MAIN'): Promise<Mission> {
+  assignDrone(
+    missionId: string,
+    droneId: string,
+    deviceRole: string = 'MAIN',
+  ): Promise<Mission> {
     return apiRequest<Mission>(`/api/missions/${missionId}/assign-device`, {
       method: 'POST',
       body: { deviceId: droneId, deviceRole },
@@ -137,7 +149,11 @@ export const missionsApi = {
   },
 
   /** `POST /api/missions/{id}/assign-device` [BE]. */
-  assignDevice(missionId: string, deviceId: string, deviceRole: string = 'MAIN'): Promise<Mission> {
+  assignDevice(
+    missionId: string,
+    deviceId: string,
+    deviceRole: string = 'MAIN',
+  ): Promise<Mission> {
     return apiRequest<Mission>(`/api/missions/${missionId}/assign-device`, {
       method: 'POST',
       body: { deviceId, deviceRole },
@@ -145,7 +161,11 @@ export const missionsApi = {
   },
 
   /** `POST /api/missions/{id}/remove-device` [BE]. */
-  removeDevice(missionId: string, deviceId: string, reason?: string): Promise<Mission> {
+  removeDevice(
+    missionId: string,
+    deviceId: string,
+    reason?: string,
+  ): Promise<Mission> {
     return apiRequest<Mission>(`/api/missions/${missionId}/remove-device`, {
       method: 'POST',
       body: { deviceId, reason },
@@ -153,7 +173,11 @@ export const missionsApi = {
   },
 
   /** `POST /api/missions/{id}/assign-staff` [BE]. */
-  assignOperator(missionId: string, operatorId: string, assignedRole: string = 'PILOT'): Promise<Mission> {
+  assignOperator(
+    missionId: string,
+    operatorId: string,
+    assignedRole: string = 'PILOT',
+  ): Promise<Mission> {
     return apiRequest<Mission>(`/api/missions/${missionId}/assign-staff`, {
       method: 'POST',
       body: { staffId: operatorId, assignedRole },
@@ -161,7 +185,11 @@ export const missionsApi = {
   },
 
   /** `POST /api/missions/{id}/assign-staff` [BE]. */
-  assignStaff(missionId: string, staffId: string, assignedRole: string = 'PILOT'): Promise<Mission> {
+  assignStaff(
+    missionId: string,
+    staffId: string,
+    assignedRole: string = 'PILOT',
+  ): Promise<Mission> {
     return apiRequest<Mission>(`/api/missions/${missionId}/assign-staff`, {
       method: 'POST',
       body: { staffId, assignedRole },
@@ -169,7 +197,12 @@ export const missionsApi = {
   },
 
   /** `POST /api/missions/{id}/remove-staff` [BE]. */
-  removeStaff(missionId: string, staffId: string, assignedRole?: string, reason?: string): Promise<Mission> {
+  removeStaff(
+    missionId: string,
+    staffId: string,
+    assignedRole?: string,
+    reason?: string,
+  ): Promise<Mission> {
     return apiRequest<Mission>(`/api/missions/${missionId}/remove-staff`, {
       method: 'POST',
       body: { staffId, assignedRole, reason },
@@ -203,29 +236,34 @@ export const missionsApi = {
     const all = await apiRequest<MissionResponse[]>('/api/missions/all', {
       signal: options.signal,
     })
-    const items = all
-      .map(toMissionCalendarItem)
-      .filter((item) => {
-        if (options.status && item.status !== options.status) return false
-        const day = item.scheduledStartAt
-          ? toISODate(new Date(item.scheduledStartAt))
-          : undefined
-        if (options.from && (!day || day < options.from)) return false
-        if (options.to && (!day || day > options.to)) return false
-        return true
-      })
+    const items = all.map(toMissionCalendarItem).filter((item) => {
+      if (options.status && item.status !== options.status) return false
+      const day = item.scheduledStartAt
+        ? toISODate(new Date(item.scheduledStartAt))
+        : undefined
+      if (options.from && (!day || day < options.from)) return false
+      if (options.to && (!day || day > options.to)) return false
+      return true
+    })
     return { items }
   },
 
   /** `PUT /api/missions/{id}` [BE `MissionController.updateMission`]. Planning-phase edit of schedule/checklist. */
   updateMission(
     missionId: string,
-    request: { scheduledStartAt?: string; scheduledEndAt?: string; checklistIds?: string[] },
+    request: {
+      scheduledStartAt?: string
+      scheduledEndAt?: string
+      checklistIds?: string[]
+    },
   ): Promise<MissionResponse> {
-    return apiRequest<MissionResponse>(`/api/missions/${encodeURIComponent(missionId)}`, {
-      method: 'PUT',
-      body: request,
-    })
+    return apiRequest<MissionResponse>(
+      `/api/missions/${encodeURIComponent(missionId)}`,
+      {
+        method: 'PUT',
+        body: request,
+      },
+    )
   },
 
   /** Updates a pre-flight mission schedule after enforcing the Order fallback policy. */
@@ -233,10 +271,13 @@ export const missionsApi = {
     missionId: string,
     request: PatchScheduleRequest,
   ): Promise<MissionCalendarItem> {
-    const response = await apiRequest<MissionResponse | MissionCalendarItem>(`/api/missions/${missionId}/schedule`, {
-      method: 'PATCH',
-      body: request,
-    })
+    const response = await apiRequest<MissionResponse | MissionCalendarItem>(
+      `/api/missions/${missionId}/schedule`,
+      {
+        method: 'PATCH',
+        body: { ...request, scope: request.scope ?? 'MISSION_ONLY' },
+      },
+    )
     return 'customerName' in response
       ? toMissionCalendarItem(response)
       : response
@@ -414,5 +455,4 @@ export const missionsApi = {
       { query: { missionId }, signal },
     )
   },
-
 }

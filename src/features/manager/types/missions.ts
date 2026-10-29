@@ -72,6 +72,8 @@ export type Mission = MissionStopMetadata & {
   flightPermitFileName?: string | null
   flightPermitContentType?: string | null
   flightPermitDataUrl?: string | null
+  flightPermitResourceHoldUntil?: string | null
+  flightPermitResourcesReleasedAt?: string | null
   droneId: string | null
   operatorId: string | null
   /** PROPOSED — id of the current `mission_drone_assignment` row, needed for release. */
@@ -83,9 +85,11 @@ export type Mission = MissionStopMetadata & {
   orderPreferredDateFrom?: string | null
   orderPreferredDateTo?: string | null
   orderPreferredTimeName?: string | null
+  orderPreferredTimeId?: string | null
   orderPreferredTimeStart?: string | null
   orderPreferredTimeEnd?: string | null
-  orderWeatherFallback?: 'AUTO_RESCHEDULE' | 'CONTACT_CUSTOMER' | 'CANCEL_ORDER' | null
+  orderWeatherFallback?:
+    'AUTO_RESCHEDULE' | 'CONTACT_CUSTOMER' | 'CANCEL_ORDER' | null
   lastRescheduleReason?: MissionRescheduleReason | null
   lastRescheduleNote?: string | null
   lastRescheduledAt?: string | null
@@ -130,6 +134,17 @@ export type PatchScheduleRequest = {
   reason: MissionRescheduleReason
   note?: string
   customerConfirmed: boolean
+  scope?: 'MISSION_ONLY' | 'ORDER_AND_MISSION'
+  orderPreferredDateFrom?: string
+  orderPreferredDateTo?: string
+  orderPreferredTimeId?: string
+}
+
+export type PreferredTimeOption = {
+  id: string
+  name: string
+  startTime: string
+  endTime: string
 }
 
 /** Body of `POST /api/missions/{id}/cancel` [ĐỀ XUẤT]. */
@@ -196,14 +211,17 @@ export type MissionResponse = MissionStopMetadata & {
   id: string
   orderId: string
   orderCode?: string | null
+  orderStatus?: string | null
   orderTitle: string
   scopeLabel?: string | null
   orderPreferredDateFrom?: string | null
   orderPreferredDateTo?: string | null
   orderPreferredTimeName?: string | null
+  orderPreferredTimeId?: string | null
   orderPreferredTimeStart?: string | null
   orderPreferredTimeEnd?: string | null
-  orderWeatherFallback?: 'AUTO_RESCHEDULE' | 'CONTACT_CUSTOMER' | 'CANCEL_ORDER' | null
+  orderWeatherFallback?:
+    'AUTO_RESCHEDULE' | 'CONTACT_CUSTOMER' | 'CANCEL_ORDER' | null
   serviceName?: string | null
   customerName: string
   missionCode: string
@@ -214,6 +232,8 @@ export type MissionResponse = MissionStopMetadata & {
   flightPermitFileName?: string | null
   flightPermitContentType?: string | null
   flightPermitDataUrl?: string | null
+  flightPermitResourceHoldUntil?: string | null
+  flightPermitResourcesReleasedAt?: string | null
   operatorId: string | null
   staffAssignments?: MissionStaffAssignmentResponse[]
   deviceAssignments?: MissionDeviceAssignmentResponse[]
@@ -273,7 +293,8 @@ export type MissionDeviceAssignmentResponse = {
   assignedAt: string | null
 }
 
-export type MissionResourcePrepareStatus = 'PLANNING' | 'PENDING' | 'READY' | 'CANCELLED'
+export type MissionResourcePrepareStatus =
+  'PLANNING' | 'PENDING' | 'READY' | 'CANCELLED'
 
 export type FlightTokenResponse = {
   id: string

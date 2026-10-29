@@ -31,8 +31,8 @@ export const mediaStatusLabel: Record<string, string> = {
   UPLOAD_PENDING: 'Chờ upload',
   RETRY_REQUIRED: 'Cần thử lại',
   PENDING_MANAGER_APPROVAL: 'Chờ manager duyệt',
-  AVAILABLE: 'Đã duyệt',
-  UPLOADED: 'Đã upload',
+  AVAILABLE: 'Đã tải lên',
+  UPLOADED: 'Đã tải lên',
 }
 
 /** Existing upload layout backed by the selected mission's local media. */

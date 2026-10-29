@@ -126,6 +126,7 @@ function MissionDetailContent({ missionId }: { missionId: string }) {
             monitoring={monitoring}
             busy={submitting || resultSubmitting || query.loading}
             showComplete={false}
+            showSubmit={false}
             onComplete={() => void handleCompleteMission()}
             onSubmit={() => void handleSubmitResult()}
           />

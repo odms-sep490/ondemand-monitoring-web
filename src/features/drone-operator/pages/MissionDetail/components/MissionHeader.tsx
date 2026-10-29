@@ -45,10 +45,10 @@ export function MissionHeader({
       backendStatus,
     )
   const canHandleInspectionMedia =
-    access?.canInspectDevice === true ||
-    access?.canCompleteMission === true ||
-    (access?.canUploadMedia === true &&
-      INSPECTION_MEDIA_STATUSES.has(mission.backendStatus ?? ''))
+    INSPECTION_MEDIA_STATUSES.has(backendStatus) &&
+    (access?.canInspectDevice === true ||
+      access?.canCompleteMission === true ||
+      access?.canUploadMedia === true)
   const showProgressBadge =
     progressBadge &&
     !(access?.canInspectDevice === true || access?.canUploadMedia === true)
@@ -77,16 +77,6 @@ export function MissionHeader({
 
         {/* spacer */}
         <div style={{ flex: 1 }} />
-        {access?.canExecuteMonitoringChecklist === true &&
-          !canHandleInspectionMedia && (
-            <a
-              className="odm-btn"
-              href={operatorHref({ screen: 'upload', missionId: mission.id })}
-            >
-              Checklist và dữ liệu
-            </a>
-          )}
-
         {canRunPreflight && (
           <a
             className="odm-btn"

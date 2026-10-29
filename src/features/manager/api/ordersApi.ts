@@ -49,7 +49,10 @@ function radiusFromDeliverables(order: OrderCreateResponse) {
 }
 
 function attachmentsFromDeliverables(order: OrderCreateResponse) {
-  const files = new Map<string, NonNullable<OrderDetail['attachments']>[number]>()
+  const files = new Map<
+    string,
+    NonNullable<OrderDetail['attachments']>[number]
+  >()
   for (const deliverable of order.deliverables ?? []) {
     const requirement = deliverable.requirement
     if (!requirement) continue
@@ -66,7 +69,9 @@ function attachmentsFromDeliverables(order: OrderCreateResponse) {
         files.set(`${name}:${url}`, {
           name,
           sizeLabel:
-            sizeBytes == null ? 'Không rõ dung lượng' : `${(sizeBytes / 1_000_000).toFixed(2)} MB`,
+            sizeBytes == null
+              ? 'Không rõ dung lượng'
+              : `${(sizeBytes / 1_000_000).toFixed(2)} MB`,
           mimeType:
             typeof file.contentType === 'string'
               ? file.contentType
@@ -187,7 +192,10 @@ export const ordersApi = {
   },
 
   /** `GET /api/orders/managed?status=` [BE]: every order, newest first. */
-  getManaged(status?: string, signal?: AbortSignal): Promise<OrderCreateResponse[]> {
+  getManaged(
+    status?: string,
+    signal?: AbortSignal,
+  ): Promise<OrderCreateResponse[]> {
     return apiRequest<OrderCreateResponse[]>('/api/orders/managed', {
       query: status ? { status } : undefined,
       signal,
@@ -258,6 +266,16 @@ export const ordersApi = {
     return apiRequest<OrderCreateResponse>(
       `/api/orders/${encodeURIComponent(id)}/legal-review/resolve`,
       { method: 'POST', body: { status, note } },
+    )
+  },
+
+  cancelAfterPermitRejection(
+    id: string,
+    reason: string,
+  ): Promise<OrderCreateResponse> {
+    return apiRequest<OrderCreateResponse>(
+      `/api/orders/${encodeURIComponent(id)}/permit-cancellation`,
+      { method: 'POST', body: { reason } },
     )
   },
 
