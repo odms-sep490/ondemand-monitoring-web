@@ -366,12 +366,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) 320px;
   gap: 16px;
-  align-items: stretch;
-}
-
-.odm-opr-mission-main > :last-child,
-.odm-opr-mission-layout > :last-child {
-  flex: 1 1 auto;
+  align-items: start;
 }
 
 .odm-opr-mission-main {

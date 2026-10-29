@@ -32,9 +32,11 @@ export function EmptyState({ title, description, action, icon, art = true }: Pro
           <path d="m82 68 4.5 4.5L95 63" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       ) : null}
-      <div className="mgr-empty-title">{title}</div>
-      {description ? <div className="mgr-empty-desc">{description}</div> : null}
-      {action ? <div className="mgr-empty-action">{action}</div> : null}
+      <div className="mgr-empty-text">
+        <div className="mgr-empty-title">{title}</div>
+        {description ? <div className="mgr-empty-desc">{description}</div> : null}
+        {action ? <div className="mgr-empty-action">{action}</div> : null}
+      </div>
     </div>
   )
 }

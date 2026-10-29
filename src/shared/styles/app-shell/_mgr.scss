@@ -521,6 +521,10 @@ $tones: (
       color: var(--mgr-muted);
     }
 
+    .mgr-empty-text {
+      display: contents;
+    }
+
     .mgr-empty-action {
       margin-top: 10px;
     }
@@ -657,71 +661,39 @@ $tones: (
 }
 
 /*
- * Column balancing: two/three-column layouts stretch to the row height so the
- * bottom edges line up. The last card of each column grows (empty space stays
- * inside the card, content at the top); card grids and KPI rows use equal rows.
+ * Layout balance: columns size to their content (never stretched). Rails are
+ * sticky, short cards are compact, and rows of small cards share equal height.
  */
 :root .mgr-layout {
   .mgr-columns,
-  .cus-columns,
-  .cus-main-grid,
-  .mgr-detail-grid:not(.is-wide),
-  .mgr-detail-extra,
-  .odm-or-grid,
-  .od-info-sections,
-  .odm-or-area-check-grid,
-  .odm-or-order-body.has-map {
-    align-items: stretch;
+  .cus-columns {
+    align-items: start;
   }
 
-  .mgr-detail-grid.is-wide > .mgr-detail-side {
-    align-items: stretch;
-  }
-
-  .mgr-stack,
-  .cus-stack,
-  .cus-side,
-  .odm-or-col,
-  .mgr-detail-main,
-  .mgr-detail-side {
-    display: flex;
-    flex-direction: column;
+  .mgr-triple {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: var(--mgr-gap);
-    min-width: 0;
+    align-items: stretch;
 
-    > :last-child {
-      flex: 1 1 auto;
+    > .mgr-card {
+      height: 100%;
     }
   }
 
-  /* a stretched rail replaces the sticky rail (sticky only works when it is shorter than the row) */
+  .mgr-columns {
+    grid-template-columns: minmax(0, 10fr) minmax(0, 14fr);
+
+    > .mgr-card {
+      height: auto;
+    }
+  }
+
   .cus-side,
   .mgr-detail-side {
-    position: static;
-  }
-
-  .mgr-actions-slot:not(:empty) {
-    display: flex;
-    flex-direction: column;
-    flex: 1 1 auto;
-
-    > * {
-      flex: 1 1 auto;
-    }
-  }
-
-  .mgr-actions-slot:empty {
-    display: none;
-  }
-
-  /* cards that are direct grid/flex children fill their cell */
-  .mgr-columns > .mgr-card,
-  .cus-columns > .mgr-card,
-  .mgr-detail-extra > *,
-  .odm-or-grid > .mgr-card,
-  .mgr-drone-grid > *,
-  .mgr-kpi-strip > * {
-    height: 100%;
+    position: sticky;
+    top: 80px;
+    align-self: start;
   }
 
   .mgr-kpi-strip,
@@ -730,19 +702,77 @@ $tones: (
     align-items: stretch;
   }
 
-  .mgr-drone-grid,
-  .mgr-grid-cards {
+  .mgr-kpi-strip > *,
+  .mgr-drone-grid > * {
+    height: 100%;
+  }
+
+  .mgr-drone-grid {
     grid-auto-rows: 1fr;
+  }
+
+  /* compact empty states: one short row instead of a tall illustration */
+  .mgr-card .ant-empty {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin: 0;
+    padding: 4px 0;
+    text-align: left;
+
+    .ant-empty-image {
+      height: 36px;
+      margin: 0;
+
+      svg {
+        height: 36px;
+        width: auto;
+      }
+    }
+
+    .ant-empty-description {
+      font-size: var(--mgr-fs-small);
+      color: var(--mgr-muted);
+    }
+  }
+
+  /* inside a card the empty state is one short row: art, then text and CTA */
+  .mgr-card .mgr-empty {
+    flex-direction: row;
+    justify-content: center;
+    gap: 16px;
+    padding: 16px 20px;
+    text-align: left;
+
+    .mgr-empty-art {
+      flex: none;
+      width: 64px;
+      margin: 0;
+    }
+
+    .mgr-empty-text {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .mgr-tile {
+      flex: none;
+    }
+  }
+
+  .mgr-scroll-list-cap {
+    max-height: 420px;
+    overflow-y: auto;
   }
 }
 
-@media (max-width: 1100px) {
-  :root .mgr-layout {
-    .mgr-detail-main > :last-child,
-    .mgr-detail-side > :last-child,
-    .cus-stack > :last-child,
-    .cus-side > :last-child {
-      flex: 0 0 auto;
-    }
+@media (max-width: 1199px) {
+  :root .mgr-layout .mgr-triple {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
