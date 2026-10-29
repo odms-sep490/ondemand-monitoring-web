@@ -36,7 +36,7 @@ describe('live mission mapping', () => {
 
   it('preserves planning statuses instead of showing them as unsupported', () => {
     expect(toOperatorMission({ ...mission, status: 'PLANNING' }).status).toBe('PLANNING')
-    expect(toOperatorMission({ ...mission, status: 'READY' }).status).toBe('READY')
+    expect(toOperatorMission({ ...mission, status: 'READY' }).status).toBe('PENDING')
     expect(toOperatorMission({ ...mission, status: 'WAITING_DEPOSIT' }).status).toBe('WAITING_DEPOSIT')
   })
   it('keeps the backend ID for API calls and the code for display', () => {

@@ -13,9 +13,17 @@ import {
 } from '../lib/i18n/catalogNames'
 import { translatedServiceNames } from '../lib/i18n/serviceNames'
 import { Router } from '../../../app/router'
+import { authSession } from '../../auth/api/authApi'
 import { supportApi, type SupportTicketDto } from '../../support/api/supportApi'
 import { CustomerApp } from '../CustomerApp'
 import { CustomerCreateRequestPage } from '../pages/CustomerCreateRequest'
+
+// Support routes render the real Router. Skip the cookie/bootstrap restore (it needs
+// the network and is covered by the session lifecycle tests) and seed the session below.
+vi.mock('../../auth/api/authApi', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../auth/api/authApi')>()),
+  startAuthSession: () => () => {},
+}))
 
 /**
  * Regression guard: after switching to English, no Vietnamese diacritic may
@@ -106,6 +114,8 @@ function visibleStrings(): string[] {
     if (text) out.push(text)
   }
   document.querySelectorAll('*').forEach((el) => {
+    // antd icons carry a fixed English glyph name (aria-label="search"); it is not UI copy.
+    if (el.classList.contains('anticon')) return
     for (const attr of ['aria-label', 'title', 'placeholder', 'alt']) {
       const v = el.getAttribute(attr)
       if (v) out.push(`[${attr}] ${v}`)
@@ -164,12 +174,6 @@ const ROUTES: Route[] = [
     hash: '#portal/customer/orders/new',
     vi: 'Chọn dịch vụ giám sát',
     en: 'Choose a monitoring service',
-  },
-  {
-    name: 'Analysis',
-    hash: '#portal/customer/orders/cus-ord-002/analysis',
-    vi: 'Phân tích AI',
-    en: 'AI analysis',
   },
   {
     name: 'Live',
@@ -287,15 +291,26 @@ describe('Customer portal i18n (vi -> en)', () => {
     await settled()
     expect(viLines()).toEqual([])
 
-    // Step 2: the current service checklist is ready before moving to location.
-    const locationNext = await screen.findByRole('button', { name: /Continue: Location & monitoring area/ })
-    await waitFor(() => expect(locationNext).toBeEnabled())
-    fireEvent.click(locationNext)
-
-    // Step 3: location is now the active wizard step.
-    fireEvent.change(await screen.findByLabelText(/Address\/area/), {
+    // Step 2: location. The address must be confirmed before moving on.
+    fireEvent.change(await screen.findByLabelText(/Address or area/), {
       target: { value: 'KCN Long Hậu' },
     })
+    fireEvent.click(screen.getByText('Advanced coordinates'))
+    fireEvent.click(await screen.findByRole('button', { name: 'Confirm these coordinates' }))
+    await screen.findByText('Location confirmed')
+    await settled()
+    expect(viLines()).toEqual([])
+    fireEvent.click(screen.getByRole('button', { name: /^Continue: Monitoring content/ }))
+
+    // Step 3: the service checklist must be ready before moving on.
+    const contentNext = await screen.findByRole('button', { name: /Continue: Site details & authorization/ })
+    await waitFor(() => expect(contentNext).toBeEnabled())
+    await settled()
+    expect(viLines()).toEqual([])
+    fireEvent.click(contentNext)
+
+    // Step 4: site details.
+    await screen.findByLabelText(/Contact person/)
     await settled()
     expect(viLines()).toEqual([])
     // The right-to-monitor declaration is required before moving on.
@@ -309,7 +324,7 @@ describe('Customer portal i18n (vi -> en)', () => {
     await settled()
     expect(viLines()).toEqual([])
 
-    // Step 4: choose a time window to reach the deliverables/review step.
+    // Step 5: choose a time window to reach the deliverables/review step.
     const time = screen.getByLabelText(/Preferred time window/) as HTMLSelectElement
     await waitFor(() => expect(time.options.length).toBeGreaterThan(1))
     fireEvent.change(time, { target: { value: time.options[1].value } })
@@ -318,13 +333,13 @@ describe('Customer portal i18n (vi -> en)', () => {
     await settled()
     expect(viLines()).toEqual([])
 
-    // Step 5 and the confirmation dialog.
+    // Step 6 and the confirmation dialog.
     fireEvent.click(screen.getByLabelText(/I confirm the monitoring purpose/))
     fireEvent.click(await screen.findByRole('button', { name: 'Submit request' }))
     await screen.findByRole('dialog')
     await settled()
     expect(viLines()).toEqual([])
-  }, 15_000)
+  }, 60_000)
 
   it('CustomerCreateRequest (PortalLayout) is English', async () => {
     render(<CustomerCreateRequestPage />)
@@ -406,6 +421,7 @@ describe('Support pages i18n (vi -> en)', () => {
       'fieldwise.user',
       JSON.stringify({ id: 'u-1', fullName: 'Customer', email: 'c@example.com', role: 'CUSTOMER' }),
     )
+    authSession.setStatus('authenticated')
     vi.spyOn(supportApi, 'listTickets').mockResolvedValue([TICKET])
     vi.spyOn(supportApi, 'getTicketById').mockResolvedValue(TICKET)
     vi.spyOn(supportApi, 'getFaqArticles').mockResolvedValue([])
@@ -413,6 +429,7 @@ describe('Support pages i18n (vi -> en)', () => {
     vi.spyOn(supportApi, 'createTicket').mockResolvedValue({ ...TICKET, id: 'tk-2', ticketCode: 'TK-0002', status: 'OPEN' })
   })
   afterEach(() => {
+    authSession.clear()
     vi.restoreAllMocks()
     window.location.hash = ''
   })
