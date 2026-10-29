@@ -1,3 +1,4 @@
+import { Input } from 'antd'
 import { digits } from '../pricingHelpers'
 
 export function MoneyInput({
@@ -14,7 +15,7 @@ export function MoneyInput({
   return (
     <label>
       <span>{label} (VND)</span>
-      <input
+      <Input
         inputMode="numeric"
         value={value}
         disabled={disabled}

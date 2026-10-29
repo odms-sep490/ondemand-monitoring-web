@@ -1,3 +1,5 @@
+import { DownOutlined } from '@ant-design/icons'
+import { Button, Input } from 'antd'
 import type { ChecklistReviewStatus } from '../../types'
 import {
   statuses,
@@ -150,19 +152,18 @@ export function ChecklistRow({
               ? t.badgeAwaitingPrice
               : t.badgeReviewed}
       </span>
-      <button
-        type="button"
+      <Button
+        type="text"
         className="finance-chevron"
         aria-label={t.noteAria(item.content)}
         aria-expanded={openNote === item.id}
+        icon={<DownOutlined />}
         onClick={() => setOpenNote(openNote === item.id ? null : item.id)}
-      >
-        <span aria-hidden="true">⌄</span>
-      </button>
+      />
       {openNote === item.id ? (
         <label className="finance-note">
           <span>{t.managerNote}</span>
-          <input
+          <Input
             defaultValue={item.managerNote ?? ''}
             disabled={accepted || item.reviewStatus === 'PENDING'}
             placeholder={

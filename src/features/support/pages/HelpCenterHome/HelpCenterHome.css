@@ -69,7 +69,7 @@
 
 .hc-topics {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--ui-space-4);
 }
 
@@ -207,4 +207,15 @@
   flex: none;
   margin: 0;
   white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .hc-topics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 560px) {
+  .hc-topics {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }

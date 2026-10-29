@@ -1,4 +1,4 @@
-import { Alert, Button, Input, Progress } from 'antd'
+import { Alert, Button, Descriptions, Input, Progress } from 'antd'
 import { useCallback, useEffect, useState } from 'react'
 import { ApiError } from '../../shared/api/httpClient'
 import { Modal } from '../customer/components/common/ui'
@@ -202,22 +202,36 @@ export function CustomerDeliveryPanel({ orderId }: { orderId: string }) {
             showInfo={false}
             aria-label={t.paidPercent(paymentPercent)}
           />
-          <div className="delivery-payment">
-            <div>
-              <span>{t.total}</span>
-              <strong>{formatVnd(delivery.totalAmount)}</strong>
-            </div>
-            <div>
-              <span>{t.paid}</span>
-              <strong className="is-paid">
-                {formatVnd(delivery.paidAmount)}
-              </strong>
-            </div>
-            <div className="is-remaining">
-              <span>{t.remaining}</span>
-              <strong>{formatVnd(delivery.remainingAmount)}</strong>
-            </div>
-          </div>
+          <Descriptions
+            className="delivery-payment"
+            size="small"
+            column={{ xs: 1, sm: 3 }}
+            items={[
+              {
+                key: 't',
+                label: t.total,
+                children: <strong>{formatVnd(delivery.totalAmount)}</strong>,
+              },
+              {
+                key: 'p',
+                label: t.paid,
+                children: (
+                  <strong className="is-paid">
+                    {formatVnd(delivery.paidAmount)}
+                  </strong>
+                ),
+              },
+              {
+                key: 'r',
+                label: t.remaining,
+                children: (
+                  <strong className="is-remaining">
+                    {formatVnd(delivery.remainingAmount)}
+                  </strong>
+                ),
+              },
+            ]}
+          />
         </section>
 
         {canReview ? (

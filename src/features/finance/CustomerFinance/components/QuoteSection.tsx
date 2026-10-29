@@ -1,4 +1,4 @@
-import { Button } from 'antd'
+import { Alert, Button } from 'antd'
 import { useI18n } from '../../../../shared/i18n'
 import { customerFinanceSectionsMessages } from '../CustomerFinanceSections.messages'
 import { QuoteLines } from './QuoteLines'
@@ -38,34 +38,34 @@ export function QuoteSection({
         />
         <Summary label={t.orderTotal} value={quote.finalOrderAmount} total />
       </dl>
-      <p className="co-estimate-notice">
-        {t.estimateNotice}
-      </p>
+      <p className="co-estimate-notice">{t.estimateNotice}</p>
       {!legalReady ? (
-        <div className="customer-deposit-notice">
-          <b>
-            {legalStatus === 'REJECTED'
+        <Alert
+          className="customer-deposit-notice"
+          type={legalStatus === 'REJECTED' ? 'error' : 'warning'}
+          showIcon
+          message={
+            legalStatus === 'REJECTED'
               ? t.legalRejectedTitle
-              : t.legalCheckingTitle}
-          </b>
-          <span>
-            {legalStatus === 'REJECTED'
+              : t.legalCheckingTitle
+          }
+          description={
+            legalStatus === 'REJECTED'
               ? t.legalRejectedBody
-              : t.legalCheckingBody}
-          </span>
-        </div>
+              : t.legalCheckingBody
+          }
+        />
       ) : legalStatus === 'PENDING_PERMIT' ? (
-        <div className="customer-deposit-notice">
-          <b>{t.permitTitle}</b>
-          <span>{t.permitBody}</span>
-        </div>
+        <Alert
+          className="customer-deposit-notice"
+          type="info"
+          showIcon
+          message={t.permitTitle}
+          description={t.permitBody}
+        />
       ) : null}
       {quote.status === 'APPROVED' && !invoice && legalReady ? (
-        <Button
-          type="primary"
-          disabled={busy}
-          onClick={() => void accept()}
-        >
+        <Button type="primary" disabled={busy} onClick={() => void accept()}>
           {t.accept}
         </Button>
       ) : null}

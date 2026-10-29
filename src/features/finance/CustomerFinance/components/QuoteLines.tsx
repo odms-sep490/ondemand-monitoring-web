@@ -27,7 +27,8 @@ export function QuoteLines({ items }: { items: CustomerQuote['items'] }) {
     <div className="customer-quote-groups">
       {[...groups.entries()].map(([id, rows]) => {
         const name =
-          pricingDescription(rows[0].description).split(' · ')[0] || t.contentFallback
+          pricingDescription(rows[0].description).split(' · ')[0] ||
+          t.contentFallback
         return (
           <section key={id} className="customer-quote-group">
             <header>

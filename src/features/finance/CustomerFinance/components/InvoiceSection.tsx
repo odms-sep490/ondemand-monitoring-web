@@ -1,4 +1,4 @@
-import { Button } from 'antd'
+import { Alert, Button } from 'antd'
 import { useI18n } from '../../../../shared/i18n'
 import { customerFinanceSectionsMessages } from '../CustomerFinanceSections.messages'
 import { pricingLabel } from '../../../../shared/lib/pricingPresentation'
@@ -6,7 +6,10 @@ import { StatusTag } from '../../../../shared/components/antd'
 import { PaymentStat } from './PaymentStat'
 import type { Invoice } from '../../types'
 
-const INVOICE_TONE: Record<string, 'success' | 'warning' | 'danger' | 'info' | 'neutral'> = {
+const INVOICE_TONE: Record<
+  string,
+  'success' | 'warning' | 'danger' | 'info' | 'neutral'
+> = {
   ISSUED: 'info',
   PARTIALLY_PAID: 'warning',
   PAID: 'success',
@@ -49,15 +52,21 @@ export function InvoiceSection({
         <PaymentStat label={t.remaining} value={invoice.remainingAmount} />
       </div>
       {invoice.paidAmount < invoice.depositAmount ? (
-        <div className="customer-deposit-notice">
-          <b>{t.awaitingDeposit}</b>
-          <span>{t.awaitingDepositBody}</span>
-        </div>
+        <Alert
+          className="customer-deposit-notice"
+          type="warning"
+          showIcon
+          message={t.awaitingDeposit}
+          description={t.awaitingDepositBody}
+        />
       ) : invoice.status !== 'PAID' ? (
-        <div className="customer-deposit-notice is-ready">
-          <b>{t.depositReceived}</b>
-          <span>{t.depositReceivedBody}</span>
-        </div>
+        <Alert
+          className="customer-deposit-notice is-ready"
+          type="success"
+          showIcon
+          message={t.depositReceived}
+          description={t.depositReceivedBody}
+        />
       ) : null}
       <div className="finance-actions customer-payment-actions">
         {invoice.paidAmount < invoice.depositAmount && legalReady ? (

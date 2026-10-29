@@ -88,68 +88,12 @@
   border-color: var(--ui-success);
 }
 .delivery-progress {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  margin: 0;
-  padding: 20px 26px;
+  padding: 18px 26px;
   border-bottom: 1px solid var(--d-border);
-  list-style: none;
   background: var(--d-muted-surface);
 }
-.delivery-progress li {
-  position: relative;
-  display: grid;
-  justify-items: center;
-  gap: 8px;
-  color: var(--ui-text-3);
-  font-size: var(--mgr-fs-caption, 12px);
-  font-weight: 700;
-  text-align: center;
-}
-.delivery-progress li:not(:last-child)::after {
-  position: absolute;
-  z-index: 0;
-  top: 14px;
-  left: calc(50% + 22px);
-  width: calc(100% - 44px);
-  height: 2px;
-  background: var(--ui-border);
-  content: '';
-}
-.delivery-progress li.is-complete:not(:last-child)::after {
-  background: var(--ui-success);
-}
-.delivery-progress__marker {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  width: 30px;
-  height: 30px;
-  place-items: center;
-  border: 2px solid var(--ui-border-strong);
-  border-radius: 50%;
-  background: var(--d-surface);
-  color: var(--ui-text-3);
-  font-size: var(--mgr-fs-caption, 12px);
-}
-.delivery-progress li.is-current {
-  color: var(--d-blue);
-}
-.delivery-progress li.is-current .delivery-progress__marker {
-  border-color: var(--d-blue);
-  color: var(--d-blue);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--ui-primary) 10%, transparent);
-}
-.delivery-progress li.is-complete {
-  color: var(--ui-success-text);
-}
-.delivery-progress li.is-complete .delivery-progress__marker {
-  border-color: var(--ui-success);
-  background: var(--ui-success);
-  color: var(--ui-on-primary);
-}
-.delivery-progress__short {
-  display: none;
+.delivery-progress .ant-steps-item-title {
+  font-size: var(--mgr-fs-small, 13px);
 }
 .delivery-content {
   display: grid;
@@ -451,21 +395,10 @@
   background: var(--ui-success);
   transition: width 0.35s ease;
 }
-.delivery-payment {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-.delivery-payment > div {
-  display: grid;
-  gap: 5px;
-  padding: 12px 14px;
+.delivery-payment .ant-descriptions-view {
   border-radius: 10px;
   background: var(--d-surface);
-}
-.delivery-payment span {
-  color: var(--d-muted);
-  font-size: var(--mgr-fs-caption, 12px);
+  padding: 4px 14px;
 }
 .delivery-payment strong {
   color: var(--d-text);
@@ -474,11 +407,7 @@
 .delivery-payment .is-paid {
   color: var(--ui-success-text);
 }
-.delivery-payment .is-remaining {
-  border: 1px solid var(--ui-warning);
-  background: var(--ui-warning-soft);
-}
-.delivery-payment .is-remaining strong {
+.delivery-payment strong.is-remaining {
   color: var(--ui-warning-text);
 }
 .delivery-manager-note {
@@ -632,9 +561,6 @@
     height: 27px;
   }
   .delivery-grid {
-    grid-template-columns: 1fr;
-  }
-  .delivery-payment {
     grid-template-columns: 1fr;
   }
   .delivery-section__head {

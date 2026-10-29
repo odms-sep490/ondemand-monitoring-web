@@ -1,3 +1,4 @@
+import { Button } from 'antd'
 import { CheckOutlined, ExclamationOutlined } from '@ant-design/icons'
 import { pricingLabel } from '../../../../shared/lib/pricingPresentation'
 import type { ChecklistReviewStatus } from '../../types'
@@ -67,7 +68,7 @@ export function ChecklistReview({
   const { t } = useI18n(pricingMessages)
   return (
     <section
-      className="odm-or-card finance-panel"
+      className="mgr-card finance-panel"
       aria-labelledby="manager-pricing-title"
     >
       <header className="finance-heading">
@@ -111,15 +112,16 @@ export function ChecklistReview({
           aria-label={t.filterGroupAria}
         >
           {filterLabels.map((item) => (
-            <button
+            <Button
               key={item.key}
-              type="button"
+              size="small"
+              type={filter === item.key ? 'primary' : 'default'}
               className={`finance-filter${filter === item.key ? ' is-on' : ''}`}
               aria-pressed={filter === item.key}
               onClick={() => setFilter(item.key)}
             >
               {item.label} ({item.count})
-            </button>
+            </Button>
           ))}
         </div>
       </div>

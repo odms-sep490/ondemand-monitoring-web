@@ -34,9 +34,7 @@ export function lineText(
 ) {
   if (row.type === 'MANAGER_ADJUSTMENT') {
     const reason = row.description.split(' · ').slice(1).join(' · ')
-    return reason
-      ? `${adjustmentLabel}: ${reason}`
-      : adjustmentLabel
+    return reason ? `${adjustmentLabel}: ${reason}` : adjustmentLabel
   }
   const text = pricingDescription(row.description)
   const prefix = checklistName ? `${checklistName} · ` : ''

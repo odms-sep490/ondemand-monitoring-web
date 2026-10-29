@@ -1,3 +1,4 @@
+import { Alert } from 'antd'
 import { errorMessage } from '../pricingHelpers'
 import type { UseApiQueryState } from '../../../../shared/hooks/useApiQuery'
 import type { PricingReview } from '../../types'
@@ -9,11 +10,11 @@ export function PricingLoadError({
 }) {
   return (
     <div className="finance-workspace">
-      <section className="odm-or-card finance-panel finance-error finance-fallback">
-        {errorMessage(query.error)}
+      <section className="mgr-card finance-panel finance-error finance-fallback">
+        <Alert type="error" showIcon message={errorMessage(query.error)} />
       </section>
       <div className="finance-sidebar">
-        <aside className="odm-or-card finance-quote finance-fallback">
+        <aside className="mgr-card finance-quote finance-fallback">
           {null}
           <div className="finance-quote-body">
             <div className="finance-quote-content" />

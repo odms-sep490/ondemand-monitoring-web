@@ -110,7 +110,11 @@ export function CustomerFinancePanel({
 
   if (loading && !quote && !invoice)
     return (
-      <CardComponent className="customer-finance-card" title={t.title} icon={<OrderIcon name="tag" size={16} />}>
+      <CardComponent
+        className="customer-finance-card"
+        title={t.title}
+        icon={<OrderIcon name="tag" size={16} />}
+      >
         <p className="customer-finance-desc">{t.loading}</p>
       </CardComponent>
     )
@@ -121,7 +125,13 @@ export function CustomerFinancePanel({
       className="customer-finance-card"
       title={t.title}
       icon={<OrderIcon name="tag" size={16} />}
-      extra={quote ? <span className="finance-status">{t.quoteVersion(quote.version)}</span> : null}
+      extra={
+        quote ? (
+          <span className="finance-status">
+            {t.quoteVersion(quote.version)}
+          </span>
+        ) : null
+      }
     >
       <p className="customer-finance-desc">{t.description}</p>
 
@@ -147,7 +157,12 @@ export function CustomerFinancePanel({
         />
       ) : null}
       {error ? (
-        <Alert className="finance-alert-box" type="error" showIcon message={error} />
+        <Alert
+          className="finance-alert-box"
+          type="error"
+          showIcon
+          message={error}
+        />
       ) : null}
     </CardComponent>
   )

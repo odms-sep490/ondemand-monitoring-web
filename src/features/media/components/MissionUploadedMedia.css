@@ -456,3 +456,14 @@
   font-weight: 600;
   line-height: 1.4;
 }
+.pc-backup {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+.pc-backup__label {
+  font-size: var(--mgr-fs-caption, 12px);
+  color: var(--ui-text-3);
+}

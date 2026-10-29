@@ -51,7 +51,7 @@ export function QuoteSummary({
     data.currentQuote?.pricingPolicyVersion ??
     null
   return (
-    <aside className="odm-or-card finance-quote" aria-label={t.summaryAria}>
+    <aside className="mgr-card finance-quote" aria-label={t.summaryAria}>
       <header className="finance-heading finance-quote-heading">
         <h2>{t.summaryTitle}</h2>
         {policyVersion != null ? (
