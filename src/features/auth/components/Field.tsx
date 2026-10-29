@@ -20,6 +20,8 @@ export function Field({
       className="auth-field"
       label={label}
       htmlFor={htmlFor}
+      labelCol={{ span: 24 }}
+      wrapperCol={{ span: 24 }}
       validateStatus={error ? 'error' : undefined}
       extra={hint}
     >

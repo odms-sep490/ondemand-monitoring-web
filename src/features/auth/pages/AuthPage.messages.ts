@@ -14,7 +14,7 @@ export const authPageMessages = defineMessages({
     subtitles: {
       login: 'Chào mừng bạn trở lại.',
       register:
-        'Dành cho khách hàng cá nhân. Phi công và nhân viên do quản trị viên tạo.',
+        'Dành cho khách hàng cá nhân. Tài khoản người vận hành và nhân viên do quản trị viên tạo.',
       verify:
         'Nhập mã 6 số chúng tôi đã gửi tới email của bạn để kích hoạt tài khoản.',
       forgot:
@@ -57,7 +57,7 @@ export const authPageMessages = defineMessages({
     subtitles: {
       login: 'Welcome back.',
       register:
-        'For individual customers. Pilots and staff accounts are created by an administrator.',
+        'For individual customers. Operator and staff accounts are created by an administrator.',
       verify:
         'Enter the 6-digit code we sent to your email to activate your account.',
       forgot: 'Enter your email and we will help you regain access.',

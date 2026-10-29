@@ -13,7 +13,7 @@ import { localizeTimeslot } from '../../manager/lib/viLabels'
 import { staffRequestQueuePageMessages } from './StaffRequestQueuePage.messages'
 
 export function StaffRequestQueuePage() {
-  const { t } = useI18n(staffRequestQueuePageMessages)
+  const { t, locale } = useI18n(staffRequestQueuePageMessages)
   const [orders, setOrders] = useState<OrderCreateResponse[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -92,6 +92,12 @@ export function StaffRequestQueuePage() {
                     <span>
                       {[order.preferredDateFrom, order.preferredDateTo]
                         .filter(Boolean)
+                        .map((value) => {
+                          const date = new Date(value as string)
+                          return Number.isNaN(date.getTime())
+                            ? value
+                            : date.toLocaleDateString(locale)
+                        })
                         .join(' → ')}
                     </span>
                     <span className="mgr-cell-sub">
