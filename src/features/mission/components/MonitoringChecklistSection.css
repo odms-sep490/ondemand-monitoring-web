@@ -1,7 +1,7 @@
 .monitoring-checklist {
   margin: 16px 0;
   padding: 24px;
-  color: var(--tx, #172033);
+  color: var(--tx, var(--ui-text));
 }
 .monitoring-checklist header,
 .monitoring-summary,
@@ -35,19 +35,19 @@
 }
 .monitoring-checklist header p,
 .monitoring-checklist small {
-  color: var(--tx3, #64748b);
+  color: var(--tx3, var(--ui-text-3));
 }
 .monitoring-summary {
   position: relative;
   padding: 14px 16px 18px;
-  border: 1px solid var(--bd, #e2e8f0);
+  border: 1px solid var(--bd, var(--ui-border));
   border-radius: 12px;
-  background: var(--sf2, #f8fafc);
+  background: var(--sf2, var(--ui-surface-2));
   font-size: var(--mgr-fs-body, 14px);
 }
 .monitoring-summary.is-ready {
-  border-color: #bbf7d0;
-  background: #f0fdf4;
+  border-color: var(--ui-success);
+  background: var(--ui-success-soft);
 }
 .monitoring-summary strong {
   font-weight: 600;
@@ -59,7 +59,7 @@
   bottom: 8px;
   height: 6px;
   border-radius: 999px;
-  background: #cbd5e1;
+  background: var(--ui-border-strong);
   overflow: hidden;
 }
 .monitoring-progress::after {
@@ -67,7 +67,7 @@
   display: block;
   width: var(--p, 0%);
   height: 100%;
-  background: #16a34a;
+  background: var(--ui-success);
   transition: width 0.25s ease;
 }
 .monitoring-notes {
@@ -82,20 +82,20 @@
   margin: 0;
   padding: 4px 12px;
   border-radius: 999px;
-  background: var(--bg2, #f1f5f9);
+  background: var(--bg2, var(--ui-surface-2));
   font-size: var(--mgr-fs-caption, 12px);
   line-height: 1.5;
 }
 .monitoring-notes p.is-warn {
-  background: #fef3c7;
-  color: #92400e;
+  background: var(--ui-warning-soft);
+  color: var(--ui-warning-text);
 }
 .monitoring-notes p.monitoring-hint {
   flex: 1 1 100%;
   padding: 0;
   border-radius: 0;
   background: none;
-  color: var(--tx3, #64748b);
+  color: var(--tx3, var(--ui-text-3));
 }
 .monitoring-list {
   list-style: none;
@@ -110,9 +110,9 @@
   position: relative;
   counter-increment: item;
   padding: 16px 16px 16px 56px;
-  border: 1px solid var(--bd, #e2e8f0);
+  border: 1px solid var(--bd, var(--ui-border));
   border-radius: 12px;
-  background: var(--bg, #fff);
+  background: var(--bg, var(--ui-surface));
 }
 .monitoring-list > li::before {
   content: counter(item);
@@ -124,8 +124,8 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: #eff6ff;
-  color: #1d4ed8;
+  background: var(--ui-primary-soft);
+  color: var(--ui-primary-text);
   font-size: var(--mgr-fs-small, 13px);
   font-weight: 700;
 }
@@ -156,35 +156,35 @@
 .monitoring-meta span {
   padding: 3px 10px;
   border-radius: 999px;
-  background: var(--bg2, #f1f5f9);
-  color: #475569;
+  background: var(--bg2, var(--ui-surface-2));
+  color: var(--ui-text-2);
   font-size: var(--mgr-fs-caption, 12px);
   font-weight: 500;
 }
 .monitoring-meta .is-exec-completed,
 .monitoring-meta .is-assess-compliant,
 .monitoring-meta .is-done {
-  background: #dcfce7;
-  color: #166534;
+  background: var(--ui-success-soft);
+  color: var(--ui-success-text);
 }
 .monitoring-meta .is-exec-in_progress {
-  background: #dbeafe;
-  color: #1e40af;
+  background: var(--ui-primary-soft);
+  color: var(--ui-primary-text);
 }
 .monitoring-meta .is-exec-unable_to_verify,
 .monitoring-meta .is-assess-non_compliant {
-  background: #fee2e2;
-  color: #991b1b;
+  background: var(--ui-danger-soft);
+  color: var(--ui-danger-text);
 }
 .monitoring-meta .is-todo {
-  background: #fef3c7;
-  color: #92400e;
+  background: var(--ui-warning-soft);
+  color: var(--ui-warning-text);
 }
 .monitoring-item form {
   margin-top: 12px;
   padding: 12px 14px;
   border-radius: 10px;
-  background: var(--bg2, #f8fafc);
+  background: var(--bg2, var(--ui-surface-2));
 }
 .monitoring-item fieldset {
   border: 0;
@@ -204,7 +204,7 @@
   width: 100%;
   box-sizing: border-box;
   padding: 10px 12px;
-  border: 1px solid var(--bd, #cbd5e1);
+  border: 1px solid var(--bd, var(--ui-border-strong));
   border-radius: 8px;
   font: inherit;
   background: var(--bg, white);
@@ -213,7 +213,7 @@
 .monitoring-item textarea:focus,
 .monitoring-item select:focus {
   outline: none;
-  border-color: #2563eb;
+  border-color: var(--ui-primary);
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 .monitoring-item textarea {
@@ -225,10 +225,10 @@
   white-space: nowrap;
 }
 .monitoring-checklist [role='alert'] {
-  color: var(--red-fg, #b91c1c);
+  color: var(--red-fg, var(--ui-danger-text));
 }
 .monitoring-notes p.is-warn[role='alert'] {
-  color: #92400e;
+  color: var(--ui-warning-text);
 }
 @media (max-width: 640px) {
   .monitoring-checklist {
@@ -300,7 +300,7 @@
   margin-left: auto;
   font-size: var(--mgr-fs-small, 13px);
   font-weight: 600;
-  color: #475569;
+  color: var(--ui-text-2);
   font-variant-numeric: tabular-nums;
   display: flex;
   flex-direction: column;
@@ -308,7 +308,7 @@
   line-height: 1.25;
 }
 .mc-count small {
-  color: #15803d;
+  color: var(--ui-success-text);
   font-size: var(--mgr-fs-caption, 12px);
   font-weight: 600;
 }
@@ -316,32 +316,32 @@
   height: 6px;
   margin-bottom: 12px;
   border-radius: 999px;
-  background: #e2e8f0;
+  background: var(--ui-border);
   overflow: hidden;
 }
 .mc-progress > span {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: #16a34a;
+  background: var(--ui-success);
   transition: width 0.25s ease;
 }
 .mc-note {
   margin: 0 0 8px;
   padding: 6px 10px;
   border-radius: 8px;
-  background: #f8fafc;
-  color: #64748b;
+  background: var(--ui-surface-2);
+  color: var(--ui-text-3);
   font-size: var(--mgr-fs-caption, 12px);
   line-height: 1.45;
 }
 .mc-note.is-warn {
-  background: #fef3c7;
-  color: #b45309;
+  background: var(--ui-warning-soft);
+  color: var(--ui-warning-text);
 }
 .mc-note.is-danger {
-  background: #fef2f2;
-  color: #dc2626;
+  background: var(--ui-danger-soft);
+  color: var(--ui-danger);
 }
 .mc-list {
   list-style: none;
@@ -356,8 +356,8 @@
   min-width: 0;
 }
 .mc-item.is-open {
-  background: #f8fbff;
-  box-shadow: inset 0 0 0 1px #bfdbfe;
+  background: var(--ui-surface);
+  box-shadow: inset 0 0 0 1px var(--ui-primary-soft);
 }
 .mc-row {
   display: flex;
@@ -371,11 +371,11 @@
   background: transparent;
   font: inherit;
   text-align: left;
-  color: #0f172a;
+  color: var(--ui-text);
   cursor: pointer;
 }
 .mc-row:hover {
-  background: #f1f5f9;
+  background: var(--ui-surface-2);
 }
 .mc-row:focus-visible {
   outline: none;
@@ -388,26 +388,26 @@
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: #f1f5f9;
-  color: #64748b;
+  background: var(--ui-surface-2);
+  color: var(--ui-text-3);
   font-size: var(--mgr-fs-caption, 12px);
   font-weight: 600;
 }
 .mc-item.is-done .mc-mark {
-  background: #16a34a;
+  background: var(--ui-success);
   color: #fff;
 }
 .mc-item.is-current .mc-mark {
-  background: #2563eb;
+  background: var(--ui-primary);
   color: #fff;
 }
 .mc-item.is-missing .mc-mark {
-  background: #fef3c7;
-  color: #b45309;
+  background: var(--ui-warning-soft);
+  color: var(--ui-warning-text);
 }
 .mc-item.is-unable .mc-mark {
-  background: #fee2e2;
-  color: #dc2626;
+  background: var(--ui-danger-soft);
+  color: var(--ui-danger);
 }
 .mc-title {
   flex: 1;
@@ -425,19 +425,19 @@
   white-space: nowrap;
 }
 .mc-chip.is-todo {
-  background: #fef3c7;
-  color: #b45309;
+  background: var(--ui-warning-soft);
+  color: var(--ui-warning-text);
 }
 .mc-chip.is-danger {
-  background: #fef2f2;
-  color: #dc2626;
+  background: var(--ui-danger-soft);
+  color: var(--ui-danger);
 }
 .mc-caret {
   flex: none;
   width: 7px;
   height: 7px;
-  border-right: 2px solid #94a3b8;
-  border-bottom: 2px solid #94a3b8;
+  border-right: 2px solid var(--ui-text-3);
+  border-bottom: 2px solid var(--ui-text-3);
   transform: rotate(-45deg);
   transition: transform 0.15s;
 }
@@ -460,12 +460,12 @@
 .mc-detail .monitoring-item form {
   margin-top: 8px;
   padding: 10px 12px;
-  background: #fff;
+  background: var(--ui-surface);
 }
 .mc-detail .checklist-evidence {
   margin-top: 10px;
   padding: 10px;
-  background: #fff;
+  background: var(--ui-surface);
 }
 
 /* ---------- Compact panel, round 2: bordered items, flat expanded body (no nested cards) ---------- */
@@ -473,14 +473,14 @@
   gap: 8px;
 }
 .mc-item {
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--ui-border);
   border-radius: 12px;
-  background: #fff;
+  background: var(--ui-surface);
   transition: border-color 0.15s, background-color 0.15s;
 }
 .mc-item.is-open {
-  background: #f8fbff;
-  border-color: #bfdbfe;
+  background: var(--ui-surface);
+  border-color: var(--ui-primary-soft);
   box-shadow: none;
 }
 .mc-row {
@@ -512,11 +512,11 @@
 }
 .mc-sub {
   font-size: var(--mgr-fs-caption, 12px);
-  color: #64748b;
+  color: var(--ui-text-3);
 }
 .mc-chip.is-pending {
-  background: #fff7ed;
-  color: #c2410c;
+  background: var(--ui-warning-soft);
+  color: var(--ui-warning-text);
 }
 .mc-detail {
   display: flex;
@@ -536,7 +536,7 @@
 }
 .mc-detail .monitoring-item form {
   align-self: stretch;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--ui-border);
 }
 .mc-link {
   padding: 0;
@@ -545,7 +545,7 @@
   font: inherit;
   font-size: var(--mgr-fs-caption, 12px);
   font-weight: 500;
-  color: #2563eb;
+  color: var(--ui-primary);
   cursor: pointer;
 }
 .mc-link:hover {
@@ -553,7 +553,7 @@
 }
 .mc-updated {
   font-size: var(--mgr-fs-caption, 12px);
-  color: #94a3b8;
+  color: var(--ui-text-3);
 }
 @media (max-width: 380px) {
   .mc-detail {
@@ -592,39 +592,39 @@
 }
 .mc-fields dt {
   font-size: var(--mgr-fs-caption, 12px);
-  color: #64748b;
+  color: var(--ui-text-3);
 }
 .mc-fields dd {
   margin: 1px 0 0;
   font-size: var(--mgr-fs-small, 13px);
   font-weight: 600;
-  color: #0f172a;
+  color: var(--ui-text);
   overflow-wrap: anywhere;
 }
 .mc-fields dd.is-empty {
   font-weight: 400;
-  color: #94a3b8;
+  color: var(--ui-text-3);
 }
 .mc-edit {
   align-self: flex-start;
   min-height: 32px;
   padding: 4px 14px;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--ui-border-strong);
   border-radius: 8px;
-  background: #fff;
-  color: #2563eb;
+  background: var(--ui-surface);
+  color: var(--ui-primary);
   font: inherit;
   font-size: var(--mgr-fs-small, 13px);
   font-weight: 600;
   cursor: pointer;
 }
 .mc-edit:hover {
-  background: #eff6ff;
-  border-color: #2563eb;
+  background: var(--ui-primary-soft);
+  border-color: var(--ui-primary);
 }
 .mc-edit:focus-visible,
 .mc-cancel:focus-visible {
-  outline: 2px solid #2563eb;
+  outline: 2px solid var(--ui-primary);
   outline-offset: 2px;
 }
 .mc-detail .monitoring-item form.mc-form {
@@ -641,15 +641,15 @@
   margin-bottom: 12px;
   font-size: var(--mgr-fs-small, 13px);
   font-weight: 600;
-  color: #0f172a;
+  color: var(--ui-text);
 }
 .mc-form select,
 .mc-form textarea {
   padding: 0 12px;
   height: 40px;
-  border: 1px solid #dce3ec;
+  border: 1px solid var(--ui-border);
   border-radius: 8px;
-  background: #fff;
+  background: var(--ui-surface);
   font-size: var(--mgr-fs-small, 13px);
   font-weight: 400;
 }
@@ -663,14 +663,14 @@
 .mc-form .mc-help {
   margin: -6px 0 12px;
   font-size: var(--mgr-fs-caption, 12px);
-  color: #64748b;
+  color: var(--ui-text-3);
   line-height: 1.4;
 }
 .mc-form .mc-counter {
   display: block;
   margin: -8px 0 12px;
   font-size: var(--mgr-fs-caption, 12px);
-  color: #94a3b8;
+  color: var(--ui-text-3);
   text-align: right;
 }
 .mc-form label .mc-counter {
@@ -691,14 +691,14 @@
   padding: 0 12px;
   border: 0;
   background: none;
-  color: #64748b;
+  color: var(--ui-text-3);
   font: inherit;
   font-size: var(--mgr-fs-small, 13px);
   font-weight: 600;
   cursor: pointer;
 }
 .mc-cancel:hover {
-  color: #0f172a;
+  color: var(--ui-text);
 }
 
 /* Read-only preview before the pilot accepts the mission */
@@ -706,10 +706,10 @@
   display: grid;
   gap: 2px;
   padding: 10px 12px;
-  border: 1px solid #bfdbfe;
+  border: 1px solid var(--ui-primary-soft);
   border-radius: 8px;
-  background: #eff6ff;
-  color: #1e3a8a;
+  background: var(--ui-primary-soft);
+  color: var(--ui-primary-text);
   font-size: var(--mgr-fs-small, 13px);
   line-height: 1.5;
 }
@@ -725,12 +725,12 @@
   gap: 10px;
   align-items: flex-start;
   padding: 10px 12px;
-  border: 1px solid var(--bd, #e2e8f0);
+  border: 1px solid var(--bd, var(--ui-border));
   border-radius: 8px;
-  background: var(--sf2, #f8fafc);
+  background: var(--sf2, var(--ui-surface-2));
 }
 .mc-preview-mark {
-  color: #475569;
+  color: var(--ui-text-2);
   line-height: 1.4;
 }
 .mc-preview-text {
@@ -739,6 +739,6 @@
   min-width: 0;
 }
 .mc-preview-text small {
-  color: #475569;
+  color: var(--ui-text-2);
   font-size: var(--mgr-fs-caption, 12px);
 }

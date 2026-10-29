@@ -1,6 +1,8 @@
 import { Button } from 'antd'
+import { useI18n } from '../../../../shared/i18n'
 import { formatVnd } from '../../../../shared/lib/formatVnd'
 import type { Payment } from '../../types'
+import { paymentResultMessages } from '../PaymentResult.messages'
 
 export function PaymentResultCard({
   success,
@@ -19,6 +21,7 @@ export function PaymentResultCard({
   check: () => Promise<void>
   retryPayment: () => Promise<void>
 }) {
+  const { t } = useI18n(paymentResultMessages)
   return (
     <section className="payment-result-card" aria-live="polite">
       <div
@@ -29,30 +32,30 @@ export function PaymentResultCard({
       </div>
       <h1>
         {success
-          ? 'Thanh toán thành công'
+          ? t.titleSuccess
           : cancelled
-            ? 'Thanh toán đã hủy'
+            ? t.titleCancelled
             : checking
-              ? 'Đang kiểm tra thanh toán'
-              : 'Thanh toán đang được xác nhận'}
+              ? t.titleChecking
+              : t.titlePending}
       </h1>
       <p>
         {success
           ? payment?.type === 'DEPOSIT'
-            ? 'Tiền đặt cọc đã được ghi nhận. Kế hoạch thực hiện đang được chuẩn bị.'
-            : 'Thanh toán đã hoàn tất. Đang chờ quản lý bàn giao dữ liệu.'
+            ? t.bodyDeposit
+            : t.bodyFinal
           : cancelled
-            ? 'Chưa có khoản thu nào được xác nhận từ lần quay lại này.'
-            : 'Hệ thống đang xác minh trạng thái giao dịch với VNPAY.'}
+            ? t.bodyCancelled
+            : t.bodyPending}
       </p>
       {payment ? (
         <dl className="payment-result-detail">
           <div>
-            <dt>Mã thanh toán</dt>
+            <dt>{t.reference}</dt>
             <dd>{payment.transactionReference}</dd>
           </div>
           <div>
-            <dt>Số tiền</dt>
+            <dt>{t.amount}</dt>
             <dd>{formatVnd(payment.amount)}</dd>
           </div>
         </dl>
@@ -65,13 +68,13 @@ export function PaymentResultCard({
       <div className="payment-result-actions">
         {!success && !checking ? (
           <Button type="primary" onClick={() => void check()}>
-            Làm mới trạng thái
+            {t.refresh}
           </Button>
         ) : null}
         {cancelled && payment && !success ? (
-          <Button onClick={() => void retryPayment()}>Thử lại</Button>
+          <Button onClick={() => void retryPayment()}>{t.retry}</Button>
         ) : null}
-        <Button href="#portal/customer/orders">Về danh sách đơn</Button>
+        <Button href="#portal/customer/orders">{t.backToOrders}</Button>
       </div>
     </section>
   )

@@ -810,6 +810,7 @@
 }
 .payment-result-card {
   width: min(520px, 100%);
+  margin: 24px auto;
   box-sizing: border-box;
   padding: 28px;
   border: 1px solid var(--ui-border);

@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { PageFrame } from '../../../shared/components/antd/PageFrame'
+import { useI18n } from '../../../shared/i18n'
 import { financeApi } from '../api'
 import type { Payment } from '../types'
 import '../finance.css'
+import { paymentResultMessages } from './PaymentResult.messages'
 import { PaymentResultCard } from './components/PaymentResultCard'
 
 export function PaymentResultPage({
@@ -9,6 +12,9 @@ export function PaymentResultPage({
 }: {
   cancelled?: boolean
 }) {
+  const { t } = useI18n(paymentResultMessages)
+  const tRef = useRef(t)
+  tRef.current = t
   const transactionReference = readTransactionReference()
   const [payment, setPayment] = useState<Payment | null>(null)
   const [checking, setChecking] = useState(true)
@@ -18,7 +24,7 @@ export function PaymentResultPage({
   const check = useCallback(async () => {
     if (!transactionReference) {
       setChecking(false)
-      setError('Không tìm thấy mã thanh toán trong URL trả về.')
+      setError(tRef.current.missingReference)
       return
     }
     setChecking(true)
@@ -39,9 +45,7 @@ export function PaymentResultPage({
       }
     } catch (cause) {
       setError(
-        cause instanceof Error
-          ? cause.message
-          : 'Không thể kiểm tra thanh toán.',
+        cause instanceof Error ? cause.message : tRef.current.checkFailed,
       )
     }
     setChecking(false)
@@ -64,16 +68,14 @@ export function PaymentResultPage({
     } catch (cause) {
       setChecking(false)
       setError(
-        cause instanceof Error
-          ? cause.message
-          : 'Không thể tạo lại thanh toán.',
+        cause instanceof Error ? cause.message : tRef.current.retryFailed,
       )
     }
   }
 
   const success = payment?.status === 'SUCCESS'
   return (
-    <main className="payment-result-page">
+    <PageFrame maxWidth={640}>
       <PaymentResultCard
         success={success}
         cancelled={cancelled}
@@ -83,7 +85,7 @@ export function PaymentResultPage({
         check={check}
         retryPayment={retryPayment}
       />
-    </main>
+    </PageFrame>
   )
 }
 
