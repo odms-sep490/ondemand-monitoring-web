@@ -72,7 +72,7 @@ export function PipelineCard({ pipeline }: { pipeline: PricingPipeline }) {
       {max === 0 ? (
         <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={p.empty} />
       ) : (
-        <div className="flex flex-col gap-3" role="img" aria-label={p.title}>
+        <div className="mgr-pipe-grid" role="img" aria-label={p.title}>
           {stages.map((s, i) => (
             <div key={s.label}>
               <div className="mgr-pipe-row">

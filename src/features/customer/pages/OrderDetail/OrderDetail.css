@@ -661,6 +661,10 @@
   align-items: start;
 }
 
+.od-info-sections > :last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+
 .od-info-section {
   min-width: 0;
   padding: 16px 18px 18px;

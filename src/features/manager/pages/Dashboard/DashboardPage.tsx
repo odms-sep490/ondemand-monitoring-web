@@ -85,16 +85,16 @@ export function DashboardPage() {
 
       <KpiRow data={data} />
 
+      <div className="mgr-pair">
+        <ActiveMissionsCard missions={data.activeMissions} />
+        <RecentActivityCard activities={data.recentActivities} />
+      </div>
+
+      <PipelineCard pipeline={data.pricingPipeline} />
+
       <div className="mgr-columns">
-        <div className="mgr-stack">
-          <ActionListCard items={data.actionItems} generatedAt={data.generatedAt} />
-          <RecentOrdersCard orders={data.recentOrders} className="mgr-grow" />
-        </div>
-        <div className="mgr-stack">
-          <ActiveMissionsCard missions={data.activeMissions} />
-          <PipelineCard pipeline={data.pricingPipeline} />
-          <RecentActivityCard activities={data.recentActivities} className="mgr-grow" />
-        </div>
+        <ActionListCard items={data.actionItems} generatedAt={data.generatedAt} />
+        <RecentOrdersCard orders={data.recentOrders} />
       </div>
 
       <AnalyticsCharts data={data} />

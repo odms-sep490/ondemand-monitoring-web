@@ -88,11 +88,6 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
             }
             onUpdated={detail.reload}
           />
-          <ChecklistSnapshotCard
-            title={<CardTitle icon="drone">{checklistT.title}</CardTitle>}
-            items={order.checklistItems}
-            snapshotAt={order.checklistSnapshotAt}
-          />
         </div>
         <div className="cus-side">
           <CustomerFinancePanel
@@ -101,14 +96,21 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
             onStateChange={updateFinance}
           />
           <OrderTimeline status={order.status} events={order.timeline} finance={finance} missions={missions} />
-          <ContextAwareHelpWidget
-            type="ORDER"
-            id={order.code}
-            status={order.status}
-            statusLabel={getOrderStatusMeta(order.status, lang).label}
-            orderId={order.id}
+          <ChecklistSnapshotCard
+            title={<CardTitle icon="drone">{checklistT.title}</CardTitle>}
+            items={order.checklistItems}
+            snapshotAt={order.checklistSnapshotAt}
           />
         </div>
+      </div>
+      <div className="cus-help-row">
+        <ContextAwareHelpWidget
+          type="ORDER"
+          id={order.code}
+          status={order.status}
+          statusLabel={getOrderStatusMeta(order.status, lang).label}
+          orderId={order.id}
+        />
       </div>
       </div>
     </div>

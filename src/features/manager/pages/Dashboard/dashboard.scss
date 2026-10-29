@@ -8,9 +8,9 @@
 
   .mgr-columns {
     display: grid;
-    grid-template-columns: minmax(0, 14fr) minmax(0, 10fr);
+    grid-template-columns: minmax(0, 10fr) minmax(0, 14fr);
     gap: 16px;
-    align-items: stretch;
+    align-items: start;
   }
 
   .mgr-stack {
@@ -413,6 +413,88 @@
 
     .mgr-hero-updated {
       flex-basis: 100%;
+    }
+  }
+}
+
+/* Analytics grid: cards with data take 1/2 or 2/3 width, empty ones sit three to a row. */
+.mgr-layout .mgr-dash {
+  .mgr-an-grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: var(--mgr-gap);
+    grid-auto-flow: dense;
+    align-items: stretch;
+  }
+
+  .mgr-an-cell {
+    min-width: 0;
+
+    > .mgr-card {
+      height: 100%;
+    }
+  }
+
+  .mgr-an-span-4 {
+    grid-column: span 4;
+  }
+
+  .mgr-an-span-6 {
+    grid-column: span 6;
+  }
+
+  .mgr-an-span-8 {
+    grid-column: span 8;
+  }
+
+  .mgr-an-span-12 {
+    grid-column: span 12;
+  }
+}
+
+@media (max-width: 1199px) {
+  .mgr-layout .mgr-dash {
+    .mgr-an-span-4,
+    .mgr-an-span-8 {
+      grid-column: span 6;
+    }
+  }
+}
+
+@media (max-width: 767px) {
+  .mgr-layout .mgr-dash .mgr-an-cell {
+    grid-column: span 12;
+  }
+}
+
+.mgr-layout .mgr-dash {
+  .mgr-pair {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--mgr-gap);
+    align-items: stretch;
+
+    > .mgr-card {
+      height: 100%;
+    }
+  }
+
+  /* pricing pipeline: five stage tiles in one row */
+  .mgr-pipe-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: var(--mgr-gap);
+  }
+}
+
+@media (max-width: 1099px) {
+  .mgr-layout .mgr-dash {
+    .mgr-pair {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .mgr-pipe-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 }

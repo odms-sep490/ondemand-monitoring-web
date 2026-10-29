@@ -114,7 +114,7 @@ describe('DashboardPage', () => {
     expect(screen.getByRole('link', { name: /Hoàn thành trong kỳ/ })).toHaveAttribute('href', '#portal/manager/missions')
     expect(screen.getByRole('link', { name: 'Duyệt giá' })).toHaveAttribute('href', '#portal/manager/orders/order-1')
     expect(screen.getByRole('link', { name: 'ORD-2026-00124' })).toHaveAttribute('href', '#portal/manager/orders/order-1')
-    expect(screen.getAllByRole('link', { name: 'Xem tất cả' })[0]).toHaveAttribute('href', '#portal/manager/orders')
+    expect(screen.getAllByRole('link', { name: 'Xem tất cả' })[1]).toHaveAttribute('href', '#portal/manager/orders')
   })
 
   it('reloads period analytics when the date-range preset changes', async () => {
