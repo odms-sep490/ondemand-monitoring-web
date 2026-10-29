@@ -9,12 +9,12 @@ $primary: #1565e8;
 
 .mgr-layout {
   /* surfaces */
-  --mgr-bg: #f4f7fc;
+  --mgr-bg: #eef3fb;
   --mgr-card: #ffffff;
-  --mgr-card-2: #f6f8fd;
-  --mgr-border: #e6ecf5;
+  --mgr-card-2: #f4f7fd;
+  --mgr-border: #e1e8f3;
   --mgr-text: #0f1b3d;
-  --mgr-muted: #64748b;
+  --mgr-muted: #5b6b86;
   --mgr-glass: rgb(255 255 255 / 72%);
   --mgr-sider-bg: #ffffff;
   --mgr-hero-bg: #f3f8ff;
@@ -23,7 +23,50 @@ $primary: #1565e8;
     0 1px 2px rgb(15 27 61 / 4%), 0 8px 24px -8px rgb(15 27 61 / 10%);
   --mgr-shadow-hover:
     0 2px 4px rgb(15 27 61 / 6%), 0 18px 36px -12px rgb(21 101 232 / 28%);
-  --mgr-radius: 16px;
+  --mgr-radius: 12px;
+
+  /* type scale: title 24/700, section 16/600, body 14/400, caption 12/500, kpi 28/700 */
+  --mgr-fs-title: 24px;
+  --mgr-fs-section: 16px;
+  --mgr-fs-body: 14px;
+  --mgr-fs-small: 13px;
+  --mgr-fs-caption: 12px;
+  --mgr-fs-kpi: 28px;
+  --mgr-lh-tight: 1.25;
+  --mgr-lh-body: 1.5;
+
+  /* spacing (4/8 grid) */
+  --mgr-gap: 16px;
+  --mgr-gap-lg: 24px;
+  --mgr-page-pad: 24px;
+  --mgr-card-pad: 20px;
+
+  /* brand + semantic */
+  --mgr-primary: #1565e8;
+  --mgr-primary-soft: rgb(21 101 232 / 10%);
+  --mgr-success: #15803d;
+  --mgr-success-soft: #e3f6ea;
+  --mgr-warning: #b45309;
+  --mgr-warning-soft: #fef0d6;
+  --mgr-error: #b91c1c;
+  --mgr-error-soft: #fde6e6;
+  --mgr-info: #1d4ed8;
+  --mgr-info-soft: #e4edff;
+  --mgr-neutral: #475569;
+  --mgr-neutral-soft: #eceff5;
+
+  /* categorical accents for icon tiles / chips (fg = readable text colour) */
+  --mgr-cat-blue: #1565e8;
+  --mgr-cat-green: #16a34a;
+  --mgr-cat-amber: #d97706;
+  --mgr-cat-violet: #7c3aed;
+  --mgr-cat-red: #dc2626;
+  --mgr-cat-cyan: #0891b2;
+  --mgr-hero-from: #d9e8ff;
+  --mgr-hero-to: #e4e6ff;
+  --mgr-hero-ring: rgb(21 101 232 / 16%);
+  --mgr-hover-row: rgb(21 101 232 / 5%);
+  --mgr-zebra: rgb(15 27 61 / 2%);
 
   position: fixed;
   inset: 0;
@@ -118,7 +161,7 @@ $primary: #1565e8;
     flex: 1;
     border-inline-end: 0 !important;
     background: transparent;
-    font-size: 14.5px;
+    font-size: var(--mgr-fs-body);
 
     .ant-menu-item-group-title {
       padding: 18px 14px 6px;
@@ -157,9 +200,9 @@ $primary: #1565e8;
     }
 
     .ant-menu-item-selected {
-      font-weight: 700;
+      font-weight: 600;
       color: $primary;
-      background: rgb(21 101 232 / 9%) !important;
+      background: linear-gradient(90deg, rgb(21 101 232 / 14%), rgb(21 101 232 / 5%)) !important;
 
       &::before {
         content: '';
@@ -167,8 +210,8 @@ $primary: #1565e8;
         left: -12px;
         top: 9px;
         bottom: 9px;
-        width: 3px;
-        border-radius: 0 3px 3px 0;
+        width: 4px;
+        border-radius: 0 4px 4px 0;
         background: $primary;
       }
     }
@@ -179,7 +222,7 @@ $primary: #1565e8;
     font-weight: 700;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: #94a3b8;
+    color: var(--mgr-muted);
   }
 
   .mgr-menu-link {
@@ -347,8 +390,10 @@ $primary: #1565e8;
     height: 64px;
     padding: 0 24px;
     line-height: 1;
-    background: var(--mgr-card);
+    background: color-mix(in srgb, var(--mgr-card) 82%, transparent);
+    backdrop-filter: saturate(1.4) blur(12px);
     border-bottom: 1px solid var(--mgr-border);
+    box-shadow: 0 1px 0 rgb(15 27 61 / 3%);
   }
 
   .mgr-header-left,
@@ -464,35 +509,52 @@ $primary: #1565e8;
     flex: 1;
     min-height: 0;
     overflow: auto;
-    padding: 24px 28px 36px;
+    padding: var(--mgr-page-pad) var(--mgr-page-pad) 40px;
     background: var(--mgr-bg);
   }
 
   .mgr-atable .ant-table-thead > tr > th {
     border: none;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
+    font-size: var(--mgr-fs-caption);
+    font-weight: 600;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
   }
 }
 
 :root[data-theme='dark'] .mgr-layout {
-  --mgr-bg: #0b1226;
-  --mgr-card: #111b36;
-  --mgr-card-2: #16213f;
-  --mgr-border: #1f2c4d;
-  --mgr-text: #e6ecfa;
-  --mgr-muted: #93a1c0;
+  --mgr-bg: #0a1022;
+  --mgr-card: #121d3a;
+  --mgr-card-2: #182546;
+  --mgr-border: #27365e;
+  --mgr-text: #e9eefb;
+  --mgr-muted: #a3b1cf;
+  --mgr-primary: #5b9bff;
+  --mgr-primary-soft: rgb(91 155 255 / 16%);
+  --mgr-success: #5ee0a0;
+  --mgr-success-soft: rgb(34 197 94 / 16%);
+  --mgr-warning: #fbbf5c;
+  --mgr-warning-soft: rgb(245 158 11 / 16%);
+  --mgr-error: #ff8a8a;
+  --mgr-error-soft: rgb(248 113 113 / 16%);
+  --mgr-info: #8db8ff;
+  --mgr-info-soft: rgb(91 155 255 / 16%);
+  --mgr-neutral: #b6c2dc;
+  --mgr-neutral-soft: rgb(148 163 184 / 14%);
+  --mgr-hero-from: #1b3472;
+  --mgr-hero-to: #242b7a;
+  --mgr-hero-ring: rgb(140 175 255 / 20%);
+  --mgr-hover-row: rgb(96 165 250 / 8%);
+  --mgr-zebra: rgb(255 255 255 / 2.5%);
   --mgr-glass: rgb(11 18 38 / 72%);
-  --mgr-sider-bg: #0f172a;
+  --mgr-sider-bg: #0d1530;
   --mgr-hero-bg: #14213f;
   --mgr-wash: none;
   --mgr-shadow: 0 1px 2px rgb(0 0 0 / 30%), 0 10px 28px -10px rgb(0 0 0 / 55%);
   --mgr-shadow-hover: 0 2px 4px rgb(0 0 0 / 40%), 0 18px 36px -12px rgb(59 130 246 / 40%);
 
   .mgr-menu .ant-menu-item {
-    color: #cbd5e1;
+    color: #d3dcf0;
   }
 
   .mgr-menu .ant-menu-item:hover {
@@ -500,8 +562,8 @@ $primary: #1565e8;
   }
 
   .mgr-menu .ant-menu-item-selected {
-    color: #93c5fd;
-    background: rgb(59 130 246 / 15%) !important;
+    color: #a9ccff;
+    background: linear-gradient(90deg, rgb(91 155 255 / 24%), rgb(91 155 255 / 8%)) !important;
 
     &::before {
       background: #60a5fa;
@@ -554,11 +616,11 @@ $primary: #1565e8;
     }
 
     .mgr-header {
-      padding: 0 12px;
+      padding: 0 16px;
     }
 
     .mgr-content {
-      padding: 14px 12px 24px;
+      padding: 16px 16px 24px;
     }
   }
 }
