@@ -1,9 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 
 import { env } from '../../../../../config/env'
-import { apiRequest } from '../../../../../shared/api/httpClient'
 import {
-  normalizeZones,
   validateMonitoringZone,
   validateRestrictedZones,
 } from '../../../lib/createOrder/geometry'
@@ -11,7 +9,6 @@ import { toNumber } from '../../../lib/createOrder/format'
 import type {
   SimulationMapMeta,
   SimulationZone,
-  ZonePayload,
 } from '../../../lib/createOrder/types'
 
 const MAP_TOP_IMAGE = '/simulation-viewer/simulation_map_top.png'
@@ -22,7 +19,7 @@ type LocationInput = { longitude: string; latitude: string; radiusM: number }
 export function useSimulationMap(input: LocationInput) {
   const [meta, setMeta] = useState<SimulationMapMeta | null>(null)
   const [metaFailed, setMetaFailed] = useState(false)
-  const [zones, setZones] = useState<SimulationZone[]>([])
+  const zones: SimulationZone[] = []
 
   useEffect(() => {
     let alive = true
@@ -35,16 +32,6 @@ export function useSimulationMap(input: LocationInput) {
     return () => {
       alive = false
     }
-  }, [])
-
-  useEffect(() => {
-    const controller = new AbortController()
-    apiRequest<ZonePayload[]>('/api/zones', { signal: controller.signal })
-      .then((items) => setZones(normalizeZones(Array.isArray(items) ? items : [])))
-      .catch(() => {
-        if (!controller.signal.aborted) setZones([])
-      })
-    return () => controller.abort()
   }, [])
 
   const point = useMemo<[number, number]>(

@@ -12,6 +12,7 @@ export const missionDetailPageMessages = defineMessages({
       checks: 'Kiểm tra trước bay',
     },
     tabsAria: 'Các mục chi tiết nhiệm vụ',
+    contextCard: 'Thông tin nhiệm vụ & nguồn lực',
     permitCard: 'Giấy phép bay',
     kpi: {
       customer: 'Khách hàng',
@@ -70,6 +71,7 @@ export const missionDetailPageMessages = defineMessages({
     postcheckCard: 'Kiểm tra pin & phần cứng sau bay',
     infoCard: 'Thông tin nhiệm vụ',
     crewCard: 'Phân công nguồn lực',
+    notes: 'Ghi chú',
     crewDevice: 'Thiết bị',
     crewEmpty: 'Nhiệm vụ này chưa có thiết bị hoặc nhân sự được gán.',
     crewAccepted: (accepted: number, total: number) =>
@@ -97,6 +99,12 @@ export const missionDetailPageMessages = defineMessages({
     device: 'Thiết bị',
     batteryLeft: 'Pin còn lại',
     batteryState: 'Trạng thái pin',
+    batteryStates: {
+      normal: 'Bình thường',
+      low: 'Pin yếu',
+      critical: 'Nguy cấp',
+      emergency: 'Khẩn cấp',
+    },
     checkedAt: 'Thời điểm kiểm tra',
     extra: {
       checklistLoadError:
@@ -149,6 +157,7 @@ export const missionDetailPageMessages = defineMessages({
       checks: 'Preflight checks',
     },
     tabsAria: 'Mission detail sections',
+    contextCard: 'Mission & resource details',
     permitCard: 'Flight permit',
     kpi: {
       customer: 'Customer',
@@ -207,6 +216,7 @@ export const missionDetailPageMessages = defineMessages({
     postcheckCard: 'Post-flight battery & hardware check',
     infoCard: 'Mission information',
     crewCard: 'Resource assignment',
+    notes: 'Notes',
     crewDevice: 'Device',
     crewEmpty: 'No device or staff assigned to this mission yet.',
     crewAccepted: (accepted: number, total: number) =>
@@ -234,6 +244,12 @@ export const missionDetailPageMessages = defineMessages({
     device: 'Device',
     batteryLeft: 'Battery left',
     batteryState: 'Battery state',
+    batteryStates: {
+      normal: 'Normal',
+      low: 'Low',
+      critical: 'Critical',
+      emergency: 'Emergency',
+    },
     checkedAt: 'Checked at',
     extra: {
       checklistLoadError:

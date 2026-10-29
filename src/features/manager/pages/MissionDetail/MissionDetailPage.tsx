@@ -137,14 +137,31 @@ function MissionDetail({ missionId }: { missionId: string }) {
 
       <MissionKpis kpis={kpis} />
 
-      <div className="mgr-detail-grid">
-        <div className="mgr-detail-main">
-          <MissionDetailTabs
-            tabs={tabs}
-            activeTab={activeTab}
-            setTab={setTab}
-          />
+      <MissionCrewCard
+        rows={rows}
+        note={note}
+        staff={staff}
+        accepted={accepted}
+        deviceCode={deviceCode}
+        deviceLabel={deviceLabel}
+        permitStatus={mission.flightPermitStatus ?? 'NOT_REQUESTED'}
+        permitNote={mission.flightPermitNote}
+      />
 
+      <div className="mgr-md-workbench">
+        <MissionDetailTabs
+          tabs={tabs}
+          activeTab={activeTab}
+          setTab={setTab}
+        />
+
+        <div
+          className="mgr-md-tabpanel"
+          role="tabpanel"
+          id="mission-detail-panel"
+          aria-labelledby={`mission-detail-tab-${activeTab}`}
+          tabIndex={0}
+        >
           {(
             ['result', 'media', 'checklist', 'route'] as MissionDetailTab[]
           ).includes(activeTab) ? (
@@ -186,25 +203,19 @@ function MissionDetail({ missionId }: { missionId: string }) {
           {activeTab === 'checks' ? (
             <ChecksTab preflight={preflight} postcheck={postcheck} />
           ) : null}
-        </div>
 
-        <MissionCrewCard
-          rows={rows}
-          note={note}
-          staff={staff}
-          accepted={accepted}
-          deviceCode={deviceCode}
-          deviceLabel={deviceLabel}
-          permitStatus={mission.flightPermitStatus ?? 'NOT_REQUESTED'}
-          permitNote={mission.flightPermitNote}
-        >
           {isCompleted && resultApproved ? (
-            <ManagerDeliveryPanel
-              orderId={mission.orderId}
-              refreshKey={revision}
-            />
+            <div
+              className="mgr-md-delivery"
+              hidden={activeTab !== 'result'}
+            >
+              <ManagerDeliveryPanel
+                orderId={mission.orderId}
+                refreshKey={revision}
+              />
+            </div>
           ) : null}
-        </MissionCrewCard>
+        </div>
       </div>
     </div>
   )
