@@ -44,10 +44,16 @@ describe('AuditLogPage', () => {
   it('pages forward when there is more than one page', async () => {
     render(<AuditLogPage />)
     await screen.findAllByLabelText(/^Xem diff /)
-    const next = screen.getByRole('button', { name: 'Trang sau' })
-    if (!(next as HTMLButtonElement).disabled) {
+    const next = screen.getByTitle('Trang sau')
+    if (!next.className.includes('ant-pagination-disabled')) {
       fireEvent.click(next)
-      await waitFor(() => expect(screen.getByText(/^2 \//)).toBeTruthy())
+      await waitFor(() =>
+        expect(
+          document
+            .querySelector('.ant-pagination-item-active')
+            ?.getAttribute('title'),
+        ).toBe('2'),
+      )
     }
   })
 

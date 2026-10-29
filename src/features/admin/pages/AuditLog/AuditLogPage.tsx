@@ -1,16 +1,19 @@
 import { useState } from 'react'
 
+import { ExportOutlined } from '@ant-design/icons'
+import { Alert, Button } from 'antd'
+
 import {
+  CardComponent,
+  EmptyState,
   ErrorState,
-  LoadingState,
-} from '../../../../shared/components/odm/StateView'
+  PageHeader,
+} from '../../../../shared/components/antd'
+import { AdminLoading } from '../../components/common/AdminLoading'
+import { MockDataTag } from '../../components/common/MockDataTag'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
 import { adminApi } from '../../api/adminApi'
-import { EmptyState } from '../../../../shared/components/ui'
-import { MockDataBadge } from '../../../../shared/components/ui'
-import { PageHeader } from '../../../../shared/components/ui'
-import { TableCard } from '../../../../shared/components/ui'
 import type { AuditEntry } from '../../types/auditLog'
 import { AuditDetailModal } from './components/AuditDetailModal'
 import {
@@ -18,7 +21,7 @@ import {
   EMPTY_AUDIT_FILTERS,
   type AuditFilterState,
 } from './components/AuditFilters'
-import { AuditPager } from './components/AuditPager'
+import { auditPagerMessages } from './components/AuditPager.messages'
 import { AuditTable } from './components/AuditTable'
 import { auditLogPageMessages } from './AuditLogPage.messages'
 
@@ -26,6 +29,7 @@ const PAGE_SIZE = 10
 
 export function AuditLogPage() {
   const { t } = useI18n(auditLogPageMessages)
+  const { t: tp } = useI18n(auditPagerMessages)
   const [filters, setFilters] = useState<AuditFilterState>(EMPTY_AUDIT_FILTERS)
   const [page, setPage] = useState(1)
   const [selected, setSelected] = useState<AuditEntry | null>(null)
@@ -47,32 +51,22 @@ export function AuditLogPage() {
     [filters, page],
   )
 
-  const totalPages = data ? Math.ceil(data.total / data.limit) : 1
-
   return (
-    <div>
+    <div className="mgr-view">
       <PageHeader
         title={t.title}
-        subtitle={
+        description={
           <>
-            {t.subtitle} <MockDataBadge />
+            {t.subtitle} <MockDataTag />
           </>
         }
         actions={
-          <button
-            type="button"
-            className="odm-btn"
-            onClick={() => setExported(true)}
-          >
+          <Button icon={<ExportOutlined aria-hidden="true" aria-label={undefined} />} onClick={() => setExported(true)}>
             {t.exportCsv}
-          </button>
+          </Button>
         }
       />
-      {exported && (
-        <div role="status" className="adm-alert is-success">
-          {t.exportSuccess}
-        </div>
-      )}
+      {exported && <Alert type="success" showIcon role="status" message={t.exportSuccess} />}
       <AuditFilters
         value={filters}
         onChange={(next) => {
@@ -80,28 +74,32 @@ export function AuditLogPage() {
           setPage(1)
         }}
       />
-      {loading && !data && <LoadingState />}
+      {loading && !data && <AdminLoading />}
       {!loading && !data && <ErrorState error={error} onRetry={reload} />}
       {data && data.items.length === 0 && (
-        <EmptyState title={t.emptyTitle} description={t.emptyDescription} />
+        <CardComponent>
+          <EmptyState title={t.emptyTitle} description={t.emptyDescription} />
+        </CardComponent>
       )}
       {data && data.items.length > 0 && (
-        <TableCard
-          footer={
-            <AuditPager
-              page={page}
-              totalPages={totalPages}
-              total={data.total}
-              onPage={setPage}
-            />
-          }
-        >
-          <AuditTable items={data.items} onView={setSelected} />
-        </TableCard>
+        <CardComponent styles={{ body: { padding: 0 } }}>
+          <AuditTable
+            items={data.items}
+            pagination={{
+              current: page,
+              pageSize: PAGE_SIZE,
+              total: data.total,
+              showSizeChanger: false,
+              position: ['bottomRight'],
+              showTotal: (total) => `${tp.total}: ${total}`,
+              locale: { prev_page: tp.prev, next_page: tp.next },
+              onChange: setPage,
+            }}
+            onView={setSelected}
+          />
+        </CardComponent>
       )}
-      {selected && (
-        <AuditDetailModal entry={selected} onClose={() => setSelected(null)} />
-      )}
+      {selected && <AuditDetailModal entry={selected} onClose={() => setSelected(null)} />}
     </div>
   )
 }

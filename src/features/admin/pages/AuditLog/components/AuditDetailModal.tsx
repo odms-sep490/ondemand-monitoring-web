@@ -1,5 +1,7 @@
+import { Button, Descriptions, Modal, Tag } from 'antd'
+
+import { mgrPopupContainer } from '../../../../../shared/components/antd'
 import { useI18n } from '../../../../../shared/i18n'
-import { Modal } from '../../../../../shared/components/ui'
 import { fmtDateTime } from '../../../lib/accountStatus'
 import type { AuditEntry } from '../../../types/auditLog'
 import { auditDetailMessages } from './AuditDetailModal.messages'
@@ -17,10 +19,10 @@ function JsonBlock({
 }) {
   return (
     <div className="adm-json-block">
-      <p className={`adm-json-label is-${tone}`}>{label}</p>
-      <pre className="adm-json">
-        {value ? JSON.stringify(value, null, 2) : empty}
-      </pre>
+      <Tag bordered={false} color={tone === 'before' ? 'error' : 'success'} className="adm-json-label">
+        {label}
+      </Tag>
+      <pre className="adm-json">{value ? JSON.stringify(value, null, 2) : empty}</pre>
     </div>
   )
 }
@@ -35,25 +37,26 @@ export function AuditDetailModal({
   const { t, lang } = useI18n(auditDetailMessages)
   return (
     <Modal
+      open
+      centered
+      getContainer={mgrPopupContainer}
       width={640}
-      icon="clipboard"
       title={t.title}
-      subtitle={`${entry.entityType} / ${entry.entityId}`}
-      onClose={onClose}
-      footer={
-        <button type="button" className="odm-btn odm-btn-gh" onClick={onClose}>
-          {t.close}
-        </button>
-      }
+      onCancel={onClose}
+      footer={<Button onClick={onClose}>{t.close}</Button>}
     >
-      <dl className="adm-detail-meta">
-        <dt>{t.time}</dt>
-        <dd>{fmtDateTime(entry.createdAt, lang)}</dd>
-        <dt>{t.actor}</dt>
-        <dd>{entry.actorName}</dd>
-        <dt>{t.ip}</dt>
-        <dd>{entry.ip}</dd>
-      </dl>
+      <p className="mgr-modal-sub">{`${entry.entityType} / ${entry.entityId}`}</p>
+      <Descriptions
+        colon={false}
+        size="small"
+        column={{ xs: 1, sm: 3 }}
+        layout="vertical"
+        items={[
+          { key: 'time', label: t.time, children: fmtDateTime(entry.createdAt, lang) },
+          { key: 'actor', label: t.actor, children: entry.actorName },
+          { key: 'ip', label: t.ip, children: <span className="mgr-code">{entry.ip}</span> },
+        ]}
+      />
       <JsonBlock label={t.before} tone="before" value={entry.before} empty={t.none} />
       <JsonBlock label={t.after} tone="after" value={entry.after} empty={t.none} />
     </Modal>

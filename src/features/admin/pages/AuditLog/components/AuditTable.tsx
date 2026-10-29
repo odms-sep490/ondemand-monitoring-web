@@ -1,5 +1,9 @@
+import { Avatar, Button } from 'antd'
+import type { TablePaginationConfig } from 'antd'
+import type { ColumnsType } from 'antd/es/table'
+
+import { StatusTag, TableComponent } from '../../../../../shared/components/antd'
 import { useI18n } from '../../../../../shared/i18n'
-import { StatusBadge } from '../../../../../shared/components/ui'
 import { fmtDateTime } from '../../../lib/accountStatus'
 import type { AuditEntry } from '../../../types/auditLog'
 import { ACTION_TONE, auditActionMessages } from '../auditActions'
@@ -16,63 +20,80 @@ function initials(name: string) {
 
 type Props = {
   items: AuditEntry[]
+  pagination: TablePaginationConfig
   onView: (entry: AuditEntry) => void
 }
 
-export function AuditTable({ items, onView }: Props) {
+export function AuditTable({ items, pagination, onView }: Props) {
   const { t, lang } = useI18n(auditTableMessages)
   const { t: actions } = useI18n(auditActionMessages)
+  const columns: ColumnsType<AuditEntry> = [
+    {
+      title: t.createdAt,
+      key: 'createdAt',
+      render: (_, e) => <span className="mgr-cell-sub mgr-nowrap">{fmtDateTime(e.createdAt, lang)}</span>,
+    },
+    {
+      title: t.actor,
+      key: 'actor',
+      render: (_, e) => (
+        <div className="adm-cell-user">
+          <Avatar size={28} aria-hidden="true">
+            {initials(e.actorName)}
+          </Avatar>
+          <span className="adm-wrap">{e.actorName}</span>
+        </div>
+      ),
+    },
+    {
+      title: t.action,
+      key: 'action',
+      render: (_, e) => <StatusTag tone={ACTION_TONE[e.action]}>{actions[e.action]}</StatusTag>,
+    },
+    {
+      title: t.entityType,
+      key: 'entityType',
+      responsive: ['md'],
+      render: (_, e) => <span className="adm-wrap">{e.entityType}</span>,
+    },
+    {
+      title: t.entityId,
+      key: 'entityId',
+      responsive: ['lg'],
+      render: (_, e) => (
+        <span className="mgr-code adm-wrap" title={e.entityId}>
+          {e.entityId.slice(0, 20)}
+          {e.entityId.length > 20 ? '...' : ''}
+        </span>
+      ),
+    },
+    {
+      title: t.ip,
+      key: 'ip',
+      responsive: ['lg'],
+      render: (_, e) => <span className="mgr-code">{e.ip}</span>,
+    },
+    {
+      title: t.actions,
+      key: 'actions',
+      align: 'right',
+      render: (_, e) => (
+        <Button
+          size="small"
+          aria-label={`${t.viewDiff} ${e.entityType} ${e.entityId}`}
+          onClick={() => onView(e)}
+        >
+          {t.viewDiff}
+        </Button>
+      ),
+    },
+  ]
   return (
-    <table className="odm-adm-table">
-      <thead>
-        <tr>
-          <th>{t.createdAt}</th>
-          <th>{t.actor}</th>
-          <th>{t.action}</th>
-          <th>{t.entityType}</th>
-          <th>{t.entityId}</th>
-          <th>{t.ip}</th>
-          <th className="adm-text-right">{t.actions}</th>
-        </tr>
-      </thead>
-      <tbody>
-        {items.map((entry) => (
-          <tr key={entry.id}>
-            <td className="adm-cell-mono">{fmtDateTime(entry.createdAt, lang)}</td>
-            <td>
-              <div className="adm-actor">
-                <span className="adm-avatar" aria-hidden="true">
-                  {initials(entry.actorName)}
-                </span>
-                <span className="adm-wrap">{entry.actorName}</span>
-              </div>
-            </td>
-            <td>
-              <StatusBadge tone={ACTION_TONE[entry.action]}>
-                {actions[entry.action]}
-              </StatusBadge>
-            </td>
-            <td className="adm-wrap">{entry.entityType}</td>
-            <td className="adm-cell-mono adm-wrap" title={entry.entityId}>
-              {entry.entityId.slice(0, 20)}
-              {entry.entityId.length > 20 ? '...' : ''}
-            </td>
-            <td className="adm-cell-mono">{entry.ip}</td>
-            <td>
-              <div className="adm-row-actions">
-                <button
-                  type="button"
-                  className="odm-btn odm-btn-gh odm-btn-sm"
-                  aria-label={`${t.viewDiff} ${entry.entityType} ${entry.entityId}`}
-                  onClick={() => onView(entry)}
-                >
-                  {t.viewDiff}
-                </button>
-              </div>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <TableComponent<AuditEntry>
+      rowKey="id"
+      columns={columns}
+      dataSource={items}
+      pagination={pagination}
+    />
   )
 }
