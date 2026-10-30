@@ -1,3 +1,9 @@
+import { Button } from 'antd'
+import {
+  ChecklistGuidance,
+  hasChecklistGuidance,
+} from '../../../../shared/components/ChecklistGuidance'
+import { guidanceMessages } from '../guidance.messages'
 import type { ChecklistReviewStatus } from '../../types'
 import {
   statuses,
@@ -16,6 +22,7 @@ import { pricingMessages } from '../pricing.messages'
 
 export function ChecklistRow({
   item,
+  onEditGuidance,
   data,
   accepted,
   updateReview,
@@ -27,6 +34,7 @@ export function ChecklistRow({
   setOpenNote,
 }: {
   item: PricingChecklistItem
+  onEditGuidance: (item: PricingChecklistItem) => void
   data: PricingReview
   accepted: boolean
   updateReview: (
@@ -42,6 +50,7 @@ export function ChecklistRow({
   setOpenNote: Dispatch<SetStateAction<string | null>>
 }) {
   const { t } = useI18n(pricingMessages)
+  const { t: g } = useI18n(guidanceMessages)
   return (
     <div
       className={`finance-requirement is-${item.reviewStatus.toLowerCase()}`}
@@ -51,6 +60,25 @@ export function ChecklistRow({
       </span>
       <div className="finance-requirement-main">
         <strong>{item.content}</strong>
+        {item.sourceType === 'CUSTOMER_CUSTOM' ? (
+          <div className="finance-guidance-status">
+            <span role="status">
+              {item.guidanceReady
+                ? g.ready
+                : hasChecklistGuidance(item)
+                  ? g.draft
+                  : g.missing}
+            </span>
+            {!accepted && item.canEditGuidance === true ? (
+              <Button size="small" onClick={() => onEditGuidance(item)}>
+                {g.title}
+              </Button>
+            ) : (
+              <small title={g.blocked}>{g.blocked}</small>
+            )}
+          </div>
+        ) : null}
+        <ChecklistGuidance guidance={item} />
         {item.sourceType !== 'SERVICE_TEMPLATE' ? (
           <span>{t.sourceCustom}</span>
         ) : null}

@@ -8,6 +8,7 @@ import { useI18n } from '../../../../shared/i18n'
 import { pricingMessages } from '../pricing.messages'
 
 export function ChecklistReview({
+  onEditGuidance,
   reviewComplete,
   reviewedCount,
   checklistCount,
@@ -25,6 +26,7 @@ export function ChecklistReview({
   setOpenNote,
   data,
 }: {
+  onEditGuidance: (item: PricingChecklistItem) => void
   reviewComplete: boolean
   reviewedCount: number
   checklistCount: number
@@ -126,6 +128,7 @@ export function ChecklistReview({
           <ChecklistRow
             key={item.id}
             item={item}
+            onEditGuidance={onEditGuidance}
             data={data}
             accepted={accepted}
             updateReview={updateReview}

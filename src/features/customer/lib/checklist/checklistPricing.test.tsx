@@ -500,7 +500,7 @@ describe('Cost shown where the customer chooses', () => {
     expect(list.style.maxHeight).toBe('')
   })
 
-  it('keeps the last price on screen while a new one is calculated', async () => {
+  it('clears the stale price while a changed selection is calculated', async () => {
     vi.spyOn(checklistPricingApi, 'customerQuote')
       .mockResolvedValueOnce(preview)
       .mockImplementationOnce(
@@ -518,8 +518,8 @@ describe('Cost shown where the customer chooses', () => {
     )
     hook.rerender({ images: 20 })
     await waitFor(() => expect(hook.result.current.loading).toBe(true))
-    // Never falls back to nothing (and so to another figure) while the next price is being worked out.
-    expect(hook.result.current.preview?.total).toBe(540_000)
+    // A price for the previous evidence count must not appear as the new estimate.
+    expect(hook.result.current.preview).toBeNull()
   })
 
   it('drops the old price when the service changes', async () => {

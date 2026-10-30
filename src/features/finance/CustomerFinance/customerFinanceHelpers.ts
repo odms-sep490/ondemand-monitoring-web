@@ -1,3 +1,5 @@
+import { getLanguage } from '../../../shared/i18n'
+import { guidanceMessages } from '../ManagerPricing/guidance.messages'
 import { ApiError } from '../../../shared/api/httpClient'
 import { customerFinancePanelMessages } from './CustomerFinancePanel.messages'
 import type { CustomerQuote } from '../types'
@@ -12,6 +14,12 @@ export function messageOf(
   t: (typeof customerFinancePanelMessages)['vi'],
 ) {
   if (error instanceof ApiError) {
+    if (error.code?.includes('GUIDANCE')) {
+      const guidance = guidanceMessages[getLanguage()]
+      return error.code === 'CHECKLIST_GUIDANCE_INCOMPLETE'
+        ? guidance.quoteMissing
+        : guidance.quoteStale
+    }
     if (error.code === 'NETWORK_ERROR') {
       return t.networkError
     }
@@ -34,9 +42,7 @@ export function lineText(
 ) {
   if (row.type === 'MANAGER_ADJUSTMENT') {
     const reason = row.description.split(' · ').slice(1).join(' · ')
-    return reason
-      ? `${adjustmentLabel}: ${reason}`
-      : adjustmentLabel
+    return reason ? `${adjustmentLabel}: ${reason}` : adjustmentLabel
   }
   const text = pricingDescription(row.description)
   const prefix = checklistName ? `${checklistName} · ` : ''

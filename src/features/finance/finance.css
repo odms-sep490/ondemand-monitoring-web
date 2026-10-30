@@ -949,7 +949,6 @@
   }
 }
 
-
 /* Quote summary (manager): grouped breakdown, clear totals, stacked actions */
 .finance-quote-heading {
   display: flex;
@@ -1064,7 +1063,6 @@
   width: 100%;
   justify-content: center;
 }
-
 
 /* Customer quote: compact, expandable price breakdown by checklist */
 .customer-quote-groups {
@@ -1209,7 +1207,10 @@
   color-scheme: light;
 }
 
-:root[data-theme='dark'] .mgr-layout .finance-workspace :is(input, select, textarea) {
+:root[data-theme='dark']
+  .mgr-layout
+  .finance-workspace
+  :is(input, select, textarea) {
   color-scheme: dark;
 }
 
@@ -1262,17 +1263,25 @@
 }
 
 .mgr-layout .finance-workspace .finance-review-badge.is-quote-pending,
-.mgr-layout .finance-workspace .finance-requirement.is-additional .finance-review-badge {
+.mgr-layout
+  .finance-workspace
+  .finance-requirement.is-additional
+  .finance-review-badge {
   background: var(--fin-amber-bg);
   color: var(--fin-amber-fg);
 }
 
-.mgr-layout .finance-workspace .finance-review-badge:not(.is-pending):not(.is-quote-pending) {
+.mgr-layout
+  .finance-workspace
+  .finance-review-badge:not(.is-pending):not(.is-quote-pending) {
   background: var(--fin-green-bg);
   color: var(--fin-green-fg);
 }
 
-.mgr-layout .finance-workspace .finance-requirement.is-additional .finance-review-badge {
+.mgr-layout
+  .finance-workspace
+  .finance-requirement.is-additional
+  .finance-review-badge {
   background: var(--fin-amber-bg);
   color: var(--fin-amber-fg);
 }
@@ -1282,13 +1291,24 @@
   color: var(--mgr-muted);
 }
 
-.mgr-layout .finance-workspace .finance-requirement.is-additional .finance-index,
-.mgr-layout .finance-workspace .finance-requirement.is-additional .finance-status-select select {
+.mgr-layout
+  .finance-workspace
+  .finance-requirement.is-additional
+  .finance-index,
+.mgr-layout
+  .finance-workspace
+  .finance-requirement.is-additional
+  .finance-status-select
+  select {
   background: var(--fin-amber-bg);
   color: var(--fin-amber-fg);
 }
 
-.mgr-layout .finance-workspace .finance-requirement.is-included .finance-status-select select {
+.mgr-layout
+  .finance-workspace
+  .finance-requirement.is-included
+  .finance-status-select
+  select {
   background: var(--fin-green-bg);
   color: var(--fin-green-fg);
 }
@@ -1416,4 +1436,8 @@
 }
 .od-page .customer-invoice .customer-payment-stats {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.finance-quote-guidance {
+  margin-block: 16px;
 }

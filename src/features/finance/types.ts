@@ -1,7 +1,35 @@
+import type { ChecklistGuidanceData } from '../../shared/components/ChecklistGuidance'
+
+export type ChecklistGuidanceSnapshot = {
+  schemaVersion: 1
+  items: Array<
+    ChecklistGuidanceData & {
+      itemId: string
+      checklistRevision: number
+      guidanceVersion: number
+    }
+  >
+}
+
+export type ChecklistGuidanceRequest = {
+  expectedChecklistRevision: number
+  expectedGuidanceVersion: number
+  description: string | null
+  executionSteps: string[]
+  inputRequirements: string[]
+  expectedOutputs: string[]
+  confirm: boolean
+}
+
 export type ChecklistReviewStatus =
   'PENDING' | 'INCLUDED' | 'ADDITIONAL' | 'DUPLICATE' | 'REJECTED'
 
-export type PricingChecklistItem = {
+export type PricingChecklistItem = ChecklistGuidanceData & {
+  guidanceVersion?: number
+  guidanceConfirmedVersion?: number | null
+  guidanceReady?: boolean
+  canEditGuidance?: boolean
+  guidanceBlockedReason?: string | null
   id: string
   sourceChecklistId: string | null
   content: string
@@ -72,6 +100,7 @@ export type Quote = {
   approvedAt: string | null
   acceptedAt: string | null
   checklistRevision?: number
+  checklistGuidanceSnapshot?: ChecklistGuidanceSnapshot | null
   items: QuoteItem[]
   pricingPolicyId?: string
   pricingPolicyVersion?: number
@@ -116,6 +145,7 @@ export type CustomerQuote = {
   approvedAt: string | null
   acceptedAt: string | null
   checklistRevision?: number
+  checklistGuidanceSnapshot?: ChecklistGuidanceSnapshot | null
   items: QuoteItem[]
 }
 
