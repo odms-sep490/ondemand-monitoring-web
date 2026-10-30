@@ -14,7 +14,10 @@ import '../../shared/styles/app-shell/popups.scss'
 import { CustomerHeader } from './components/layout/CustomerHeader'
 import { CustomerSiderMenu } from './components/layout/CustomerSiderMenu'
 import { CustomerSiderUserCard } from './components/layout/CustomerSiderUserCard'
-import { activeNavKey, type CustomerNavItemKey } from './components/layout/navConfig'
+import {
+  activeNavKey,
+  type CustomerNavItemKey,
+} from './components/layout/navConfig'
 import { customerLayoutMessages } from './CustomerLayout.messages'
 import { customerHref, type CustomerRoute } from './routes'
 import './customer.css'
@@ -71,6 +74,7 @@ export function CustomerLayout({
             trigger={null}
             collapsible
             collapsed={collapsed}
+            style={broken && collapsed ? { transition: 'none' } : undefined}
             onBreakpoint={(isBroken) => {
               setBroken(isBroken)
               setCollapsed(isBroken)
@@ -78,7 +82,10 @@ export function CustomerLayout({
             theme={dark ? 'dark' : 'light'}
             className={`mgr-sider ${overlayOpen ? 'is-overlay' : ''} ${rail ? 'is-rail' : ''}`}
           >
-            <a className="mgr-brand" href={customerHref({ screen: 'dashboard' })}>
+            <a
+              className="mgr-brand"
+              href={customerHref({ screen: 'dashboard' })}
+            >
               <span className="mgr-brand-tile">
                 <img
                   src="/images/logo-new.png"

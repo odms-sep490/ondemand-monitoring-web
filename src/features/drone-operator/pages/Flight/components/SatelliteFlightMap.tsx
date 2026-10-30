@@ -1,15 +1,12 @@
 import { useEffect, useRef } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import { env } from '../../../../../config/env'
 import {
   bearingDegrees,
   buildFlightPath,
-  isRestrictedGpsZonePayload,
   isValidGps,
   type GpsPoint,
   type RestrictedGpsZone,
-  withDefaultRestrictedGpsZones,
 } from '../gpsRoutePlanner'
 import { SATELLITE_TILE_URL } from '../satelliteSource'
 import {
@@ -32,7 +29,6 @@ export function SatelliteFlightMap({ missionId, target, drone }: Props) {
   const targetMarker = useRef<L.CircleMarker | null>(null)
   const track = useRef<L.Polyline | null>(null)
   const targetLine = useRef<L.Polyline | null>(null)
-  const zoneLayers = useRef<L.Polygon[]>([])
   const zones = useRef<RestrictedGpsZone[]>([])
   const trackPoints = useRef<L.LatLngExpression[]>([])
   const displayedDronePoint = useRef<GpsPoint | null>(null)
@@ -78,79 +74,6 @@ export function SatelliteFlightMap({ missionId, target, drone }: Props) {
       targetLine.current = null
       displayedDronePoint.current = null
       droneAnimationFrame.current = null
-    }
-  }, [])
-
-  useEffect(() => {
-    let alive = true
-
-    async function loadZones() {
-      try {
-        const response = await fetch(`${env.apiBaseUrl}/api/zones`, {
-          cache: 'no-store',
-        })
-        const payload = await response.json()
-        const items = Array.isArray(payload?.data)
-          ? payload.data
-          : Array.isArray(payload)
-            ? payload
-            : []
-        const restrictedZones = withDefaultRestrictedGpsZones(
-          items
-            .filter(isRestrictedGpsZonePayload)
-            .map(
-              (zone: {
-                id?: string
-                code?: string
-                name?: string
-                coordinates?: number[][]
-              }) => ({
-                id: String(
-                  zone.id ?? zone.code ?? zone.name ?? 'restricted-zone',
-                ),
-                code: zone.code,
-                name: zone.name,
-                coordinates: (zone.coordinates ?? [])
-                  .map((point) => ({
-                    longitude: Number(point[0]),
-                    latitude: Number(point[1]),
-                  }))
-                  .filter(isValidGps),
-              }),
-            )
-            .filter((zone: RestrictedGpsZone) => zone.coordinates.length >= 3),
-        )
-        if (!alive) return
-        zones.current = restrictedZones
-
-        if (!map.current) return
-        for (const layer of zoneLayers.current) layer.remove()
-        zoneLayers.current = restrictedZones.map((zone: RestrictedGpsZone) =>
-          L.polygon(
-            zone.coordinates.map((point) => [point.latitude, point.longitude]),
-            {
-              color: '#ef4444',
-              dashArray: '6 6',
-              fillColor: '#ef4444',
-              fillOpacity: 0.18,
-              weight: 2,
-            },
-          )
-            .addTo(map.current!)
-            .bindTooltip(zone.name ?? zone.code ?? 'Vùng cấm bay'),
-        )
-      } catch {
-        if (alive) zones.current = withDefaultRestrictedGpsZones([])
-      }
-    }
-
-    void loadZones()
-    const timer = window.setInterval(loadZones, 10000)
-    return () => {
-      alive = false
-      window.clearInterval(timer)
-      for (const layer of zoneLayers.current) layer.remove()
-      zoneLayers.current = []
     }
   }, [])
 

@@ -5,7 +5,7 @@ import {
   mediaSourceLabel,
   statusTone,
   mediaStatusLabel,
-  finishedUploadStatuses,
+  successfullyUploadedStatuses,
 } from '../uploadMediaHelpers'
 import { PcBackupPicker } from '../../../../media/components/PcBackupPicker'
 import { uploadMediaPageMessages } from '../UploadMediaPage.messages'
@@ -20,6 +20,8 @@ import type { MissionPermissions } from '../../../../mission/types/permissions'
 export function MediaCard({
   item,
   setPreview,
+  onOpenPreview,
+  isSelected,
   status,
   canManageMedia,
   isBusy,
@@ -40,7 +42,9 @@ export function MediaCard({
   reviewMedia,
 }: {
   item: LocalMedia
-  setPreview: Dispatch<SetStateAction<LocalMedia | null>>
+  setPreview?: (item: LocalMedia) => void
+  onOpenPreview?: (item: LocalMedia) => void
+  isSelected?: boolean
   status: string
   canManageMedia: boolean
   isBusy: boolean
@@ -66,7 +70,10 @@ export function MediaCard({
 }) {
   const { t } = useI18n(uploadMediaPageMessages)
   return (
-    <article className="upload-media-card">
+    <article
+      className={`upload-media-card${isSelected ? ' is-selected' : ''}`}
+      aria-current={isSelected ? 'true' : undefined}
+    >
       <div className="upload-media-thumb">
         {item.localAvailable === false && !remotePreviewUrl ? (
           <p className="upload-media-unavailable">
@@ -91,17 +98,6 @@ export function MediaCard({
             className="upload-media-preview"
           />
         )}
-        {item.mediaType === 'IMAGE' && item.localAvailable !== false && (
-          <button
-            type="button"
-            className="upload-media-expand"
-            aria-hidden="true"
-            tabIndex={-1}
-            onClick={() => setPreview(item)}
-          >
-            ⛶
-          </button>
-        )}
       </div>
       <div className="upload-media-card-body">
         <div className="odm-mono upload-media-filename" title={item.fileName}>
@@ -123,6 +119,17 @@ export function MediaCard({
         <span className={`upload-media-status ${statusTone(status)}`}>
           {mediaStatusLabel[status] ?? status}
         </span>
+        {status === 'PENDING_MANAGER_APPROVAL' && (
+          <p className="upload-media-state-note">{t.managerReviewPending}</p>
+        )}
+        {status === 'AVAILABLE' && (
+          <p className="upload-media-state-note">{t.managerApproved}</p>
+        )}
+        {status === 'REJECTED' && (
+          <p className="upload-media-state-note is-danger" role="status">
+            {t.managerRejected(item.reason)}
+          </p>
+        )}
         {item.previewError && (
           <p role="alert" className="upload-media-notice is-danger">
             {item.previewError}
@@ -148,7 +155,7 @@ export function MediaCard({
               disabled={isBusy || item.localAvailable === false}
               onClick={() => void approve(item, true)}
             >
-              Upload thủ công từ bản gốc
+              {t.manualUpload}
             </button>
           )}
           {canManageMedia &&
@@ -162,7 +169,11 @@ export function MediaCard({
                 }
                 onClick={() => void approve(item)}
               >
-                {busyId === item.localMediaId ? t.processing : t.approveUpload}
+                {busyId === item.localMediaId
+                  ? t.uploadingNow
+                  : ['UPLOAD_FAILED', 'RETRY_REQUIRED'].includes(status)
+                    ? t.retryUpload
+                    : t.approveUpload}
               </button>
             )}
           {item.mediaType === 'IMAGE' &&
@@ -170,6 +181,7 @@ export function MediaCard({
               <button
                 type="button"
                 className="odm-btn"
+                aria-label={t.openMediaPreview(item.fileName)}
                 onClick={() =>
                   remotePreviewUrl
                     ? window.open(
@@ -177,7 +189,7 @@ export function MediaCard({
                         '_blank',
                         'noopener,noreferrer',
                       )
-                    : setPreview(item)
+                    : (onOpenPreview ?? setPreview)?.(item)
                 }
               >
                 <span aria-hidden="true">{t.viewShort}</span>
@@ -196,7 +208,7 @@ export function MediaCard({
                   disabled={isBusy || !canDiscard}
                   onClick={() => void discard(item)}
                 >
-                  {finishedUploadStatuses.has(status)
+                  {successfullyUploadedStatuses.has(status)
                     ? t.deleteLocal
                     : t.discard}
                 </button>
@@ -204,7 +216,9 @@ export function MediaCard({
             </details>
           )}
         </div>
-        {monitoring.data?.permissions.canAttachChecklistEvidence === true &&
+        {status !== 'REJECTED' &&
+          monitoring.data?.permissions.canAttachChecklistEvidence === true &&
+          !monitoring.loading &&
           !monitoring.error && (
             <MediaChecklistAttachment
               fileName={item.fileName}

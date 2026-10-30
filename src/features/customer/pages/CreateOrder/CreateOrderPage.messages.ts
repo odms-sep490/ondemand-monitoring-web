@@ -9,6 +9,7 @@ export const createOrderPageMessages = defineMessages({
     cancel: 'Hủy',
     cancelConfirm:
       'Thoát khỏi trang tạo yêu cầu? Bản nháp của bạn được lưu tự động.',
+    navigationLabel: 'Điều hướng tạo yêu cầu',
     blockedChecklist: 'Hãy sửa nội dung giám sát chưa hợp lệ để tiếp tục.',
     blockedLoading: 'Đang tải dữ liệu…',
     stepLabels: {
@@ -84,6 +85,7 @@ export const createOrderPageMessages = defineMessages({
       'Choose a service, define the monitoring area, confirm the monitoring content, pick a schedule, then confirm deliverables.',
     cancel: 'Cancel',
     cancelConfirm: 'Leave the request page? Your draft is saved automatically.',
+    navigationLabel: 'Request navigation',
     blockedChecklist: 'Fix the invalid monitoring content to continue.',
     blockedLoading: 'Loading data…',
     stepLabels: {

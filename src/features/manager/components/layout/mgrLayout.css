@@ -78,10 +78,10 @@
   .mgr-detail-side { position: static; }
 }
 
-/* Wide variant: sidebar content moves above the stage, laid out as a row */
+/* Wide review variant: place order context above the stage. */
 .mgr-detail-grid.is-wide { grid-template-columns: minmax(0, 1fr); }
 .mgr-detail-grid.is-wide > .mgr-detail-side {
-  order: -1; position: static; display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); align-items: start;
+  position: static; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: stretch;
 }
 .mgr-stage-actions .ui-card-body,
 .mgr-stage-actions .ant-card-body { display: flex; flex-direction: column; gap: var(--ui-space-2); }

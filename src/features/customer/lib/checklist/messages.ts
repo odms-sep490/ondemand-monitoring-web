@@ -4,6 +4,8 @@ export const checklistMessages = defineMessages({
   vi: {
     title: 'Nội dung giám sát',
     hint: 'Danh sách mặc định của dịch vụ được hiển thị bên dưới. Bạn có thể chỉnh sửa, bỏ mục không cần thiết hoặc thêm nội dung riêng; danh sách được chốt khi gửi yêu cầu.',
+    compactHint: 'Chọn hạng mục cần làm; số ảnh/video có thể chỉnh khi sửa.',
+    guidanceSummary: 'Hướng dẫn',
     pricingNotice:
       'Thay đổi danh sách có thể làm thay đổi chi phí dự kiến.',
     choose: 'Chọn dịch vụ để xem nội dung giám sát.',
@@ -23,7 +25,7 @@ export const checklistMessages = defineMessages({
     searchLabel: 'Tìm nội dung giám sát',
     searchPlaceholder: 'Tìm nội dung giám sát…',
     noMatch: 'Không có nội dung nào khớp.',
-    editRow: (n: number) => `Sửa nội dung ${n}`,
+    editRow: (content: string) => `Sửa: ${content}`,
     done: 'Xong',
     emptyContent: 'Chưa có nội dung',
     onDemandService: 'Dịch vụ theo yêu cầu',
@@ -37,7 +39,7 @@ export const checklistMessages = defineMessages({
     remove: 'Xóa nội dung bổ sung',
     removeDefault: 'Bỏ khỏi yêu cầu',
     restoreDefault: 'Thêm lại',
-    select: (n: number) => `Chọn nội dung ${n}`,
+    select: (content: string) => `Chọn ${content}`,
     content: (n: number) => `Nội dung giám sát ${n}`,
     evidenceCountLabel: 'Số bằng chứng tối thiểu',
     evidenceTypeLabel: 'Loại bằng chứng',
@@ -108,6 +110,8 @@ export const checklistMessages = defineMessages({
   en: {
     title: 'Monitoring requirements',
     hint: 'The service defaults are listed below. You can edit them, remove anything you do not need, or add your own; the list is locked when submitted.',
+    compactHint: 'Choose the requirements; adjust image/video counts when editing.',
+    guidanceSummary: 'Guidance',
     pricingNotice:
       'Changing this list may change the cost. A manager will review each requirement and send the final quote for your confirmation.',
     choose: 'Select a service to view monitoring requirements.',
@@ -127,7 +131,7 @@ export const checklistMessages = defineMessages({
     searchLabel: 'Search requirements',
     searchPlaceholder: 'Search requirements…',
     noMatch: 'No requirement matches.',
-    editRow: (n: number) => `Edit requirement ${n}`,
+    editRow: (content: string) => `Edit: ${content}`,
     done: 'Done',
     emptyContent: 'No content yet',
     onDemandService: 'On-demand service',
@@ -141,7 +145,7 @@ export const checklistMessages = defineMessages({
     remove: 'Remove custom requirement',
     removeDefault: 'Remove from request',
     restoreDefault: 'Add back',
-    select: (n: number) => `Select requirement ${n}`,
+    select: (content: string) => `Select ${content}`,
     content: (n: number) => `Monitoring requirement ${n}`,
     evidenceCountLabel: 'Minimum evidence count',
     evidenceTypeLabel: 'Evidence type',

@@ -55,10 +55,12 @@ export function ChecklistGuidance({
   guidance,
   sections = ['description', 'steps', 'inputs', 'outputs'],
   defaultOpen = false,
+  summaryLabel,
 }: {
   guidance?: ChecklistGuidanceData | null
   sections?: Section[]
   defaultOpen?: boolean
+  summaryLabel?: string
 }) {
   const { t } = useI18n(messages)
   if (!guidance || !hasChecklistGuidance(guidance, sections)) return null
@@ -67,7 +69,7 @@ export function ChecklistGuidance({
   const outputs = list(guidance.expectedOutputs)
   return (
     <details className="odm-cg" open={defaultOpen}>
-      <summary>{t.summary}</summary>
+      <summary>{summaryLabel ?? t.summary}</summary>
       <div className="odm-cg-body">
         {sections.includes('description') && guidance.description?.trim() ? (
           <section>

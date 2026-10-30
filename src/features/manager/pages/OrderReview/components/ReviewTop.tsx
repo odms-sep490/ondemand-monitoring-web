@@ -13,6 +13,7 @@ import { formatOrderCode } from '../../../components/common/format'
 import { managerHref } from '../../../routes'
 import { orderReviewPageMessages } from '../OrderReviewPage.messages'
 import { useI18n } from '../../../../../shared/i18n'
+import { OrderDetailsDrawer } from '../../../components/common/OrderDetailsDrawer'
 import type { OrderProgress } from '../../../components/common/workflowModel'
 import type { OrderDetail } from '../../../types/orders'
 import type { ReviewStep } from '../reviewTypes'
@@ -78,7 +79,12 @@ export function ReviewTop({
             </>
           )
         }
-        actions={showExecutionPlan ? undefined : <OrderStatusBadge order={order} lang={lang} />}
+        actions={
+          <div className="odm-or-order-page-actions">
+            {!showExecutionPlan ? <OrderStatusBadge order={order} lang={lang} /> : null}
+            <OrderDetailsDrawer order={order} />
+          </div>
+        }
       />
       <WorkflowStepper
         order={{

@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { ContentStep } from './ContentStep'
 
@@ -14,20 +14,12 @@ function renderStep(valid = true) {
       pricingEstimate={null}
       pricingLoading={false}
       aiAnalysisRequested={false}
-      footer={
-        <>
-          <button type="button">Back</button>
-          <button type="button" disabled={!valid}>
-            Continue
-          </button>
-        </>
-      }
     />,
   )
 }
 
 describe('ContentStep', () => {
-  it('keeps editing, summary, pricing and a single navigation set', () => {
+  it('keeps editing and summary together without duplicating wizard navigation', () => {
     renderStep()
     expect(
       screen.getByRole('region', {
@@ -41,20 +33,13 @@ describe('ContentStep', () => {
     ).toBeInTheDocument()
     expect(screen.getByText('2 / 4')).toBeInTheDocument()
 
-    const nav = screen.getByRole('navigation', {
-      name: /request step navigation|điều hướng các bước tạo yêu cầu/i,
-    })
-    expect(within(nav).getByRole('button', { name: 'Back' })).toBeInTheDocument()
-    expect(within(nav).getByRole('button', { name: 'Continue' })).toBeEnabled()
-    expect(screen.getAllByRole('button', { name: 'Continue' })).toHaveLength(1)
+    expect(
+      screen.queryByRole('navigation', { name: /request step navigation/i }),
+    ).toBeNull()
   })
 
   it('does not bypass the wizard disabled state or lose the validation warning', () => {
     renderStep(false)
-    const nav = screen.getByRole('navigation', {
-      name: /request step navigation|điều hướng các bước tạo yêu cầu/i,
-    })
-    expect(within(nav).getByRole('button', { name: 'Continue' })).toBeDisabled()
     expect(screen.getByRole('alert')).toBeInTheDocument()
   })
 })

@@ -8,6 +8,9 @@ export type DeliveryStatus =
   | 'READY_FOR_DELIVERY'
   | 'DELIVERED'
 
+export type DeliveryPanelLoadState =
+  'loading' | 'ready' | 'unavailable' | 'error'
+
 export type DeliveryAsset = {
   id: string
   type: string

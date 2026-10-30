@@ -13,6 +13,7 @@ import {
 } from '../missionConstants'
 import { operatorHref } from '../../../routes'
 import { StatusBadge } from '../../../../../shared/components/odm/StatusBadge'
+import { Icon } from '../../../../../shared/components/Icon'
 
 // ─── Mission Header ───────────────────────────────────────────────────────────
 
@@ -59,17 +60,17 @@ export function MissionHeader({
         <a
           href={operatorHref({ screen: 'missions' })}
           className="odm-btn odm-btn-sm odm-btn-ic1"
-          style={{ flexShrink: 0, fontSize: 16 }}
+          style={{ flexShrink: 0, fontSize: 16, minWidth: 44, minHeight: 44 }}
           title="Về danh sách"
+          aria-label="Về danh sách nhiệm vụ"
         >
-          ←
+          <span aria-hidden="true">←</span>
         </a>
-        <span
-          className="odm-mono"
-          style={{ fontWeight: 700, fontSize: 16, letterSpacing: '0.01em' }}
-        >
-          {mission.missionCode ?? mission.id}
-        </span>
+        <h1 id="mission-detail-title" className="mds-title">
+          <span className="odm-mono">
+            Mission {mission.missionCode ?? mission.id}
+          </span>
+        </h1>
         <StatusBadge tone={STATUS_TONE[mission.status]}>
           {missionStopLabel(mission) ??
             missionStatusLabel(mission.backendStatus ?? mission.status)}
@@ -150,6 +151,7 @@ export function MissionHeader({
             className="odm-btn odm-btn-p mds-cta"
             href={operatorHref({ screen: 'connect', missionId: mission.id })}
           >
+            <Icon name="zap" width={16} height={16} aria-hidden="true" />
             Kết nối GCS
           </a>
         ) : mission.status === 'IN_FLIGHT' ? (

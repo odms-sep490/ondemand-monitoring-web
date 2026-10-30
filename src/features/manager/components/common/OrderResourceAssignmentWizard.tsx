@@ -16,6 +16,7 @@ import { WizardMissionStep } from './WizardMissionStep'
 import { Button, PageHeader } from '../../../../shared/components/ui'
 import '../layout/mgrLayout.css'
 import '../../pages/MissionDispatch/missionDispatch.scss'
+import { OrderDetailsDrawer } from './OrderDetailsDrawer'
 
 const roles: MissionStaffRole[] = [
   'PILOT',
@@ -238,9 +239,12 @@ export function OrderResourceAssignmentWizard({
       <PageHeader
         title={t.title}
         actions={
-          <Button disabled={busy} onClick={() => leave(true)}>
-            {returnLabel}
-          </Button>
+          <div className="odm-or-order-page-actions">
+            {!embedded && data?.order ? <OrderDetailsDrawer order={data.order} /> : null}
+            <Button disabled={busy} onClick={() => leave(true)}>
+              {returnLabel}
+            </Button>
+          </div>
         }
       />
       <OrderWorkflowStepper currentStep={6} />

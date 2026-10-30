@@ -450,6 +450,22 @@ describe('MissionDetailScreen', () => {
     })
 
     render(<MissionDetailPage missionId="m" />)
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Mission MS-1' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', {
+        level: 2,
+        name: 'Thông tin để quyết định',
+      }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('region', { name: 'Bản đồ vệ tinh nhiệm vụ' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: 'Thông tin bổ sung' }),
+    ).toBeInTheDocument()
+    expect(screen.queryByText('Ngày bay')).not.toBeInTheDocument()
     const acceptButton = await screen.findByRole('button', {
       name: /Chấp nhận nhiệm vụ/,
     })

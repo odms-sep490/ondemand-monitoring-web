@@ -32,6 +32,7 @@ export type LocalMedia = {
     | 'RETRY_REQUIRED'
     | 'PENDING_MANAGER_APPROVAL'
     | 'AVAILABLE'
+    | 'REJECTED'
   previewError?: string
   backendMediaId?: string
   manualTaskId?: string

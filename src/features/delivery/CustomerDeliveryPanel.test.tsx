@@ -30,6 +30,27 @@ const pending: Delivery = {
   originalsReleasedAt: null,
   assets: [],
 }
+
+const delivery: Delivery = {
+  orderId: 'order-1',
+  deliveryStatus: 'PROCESSING',
+  missionStatus: 'IN_PROGRESS',
+  orderStatus: 'COMPLETED',
+  invoiceStatus: 'ISSUED',
+  totalAmount: 1000,
+  paidAmount: 0,
+  remainingAmount: 1000,
+  deliveryNotes: null,
+  previewReleasedAt: null,
+  customerAcceptedAt: null,
+  revisionRequestedAt: null,
+  revisionReason: null,
+  revisionCount: 0,
+  finalPaymentConfirmedAt: null,
+  originalsReleasedAt: null,
+  assets: [],
+}
+
 const invoice: Invoice = {
   id: 'i1',
   invoiceNumber: 'INV-1',
@@ -43,6 +64,7 @@ const invoice: Invoice = {
   issuedAt: '2026-10-30T03:00:00Z',
   finalPaymentAllowed: true,
 }
+
 const payment: Payment = {
   id: 'p1',
   invoiceId: 'i1',
@@ -68,6 +90,7 @@ beforeEach(() => {
   vi.spyOn(deliveryApi, 'previews').mockResolvedValue(pending)
   vi.spyOn(financeApi, 'getInvoice').mockResolvedValue(invoice)
 })
+
 afterEach(() => {
   vi.restoreAllMocks()
   Object.defineProperty(env, 'testPaymentsEnabled', {
@@ -151,5 +174,25 @@ describe('Customer delivery final test payment', () => {
     expect(
       screen.queryByRole('button', { name: 'Thanh toán nhanh (Test)' }),
     ).not.toBeInTheDocument()
+  })
+})
+
+describe('CustomerDeliveryPanel', () => {
+  it('shows a retryable error and recovers to a clear empty-assets state', async () => {
+    setLanguage('vi')
+    const getDelivery = vi
+      .spyOn(deliveryApi, 'get')
+      .mockRejectedValueOnce(new Error('Mất kết nối'))
+      .mockResolvedValue(delivery)
+
+    render(<CustomerDeliveryPanel orderId="order-1" />)
+
+    expect(await screen.findByText('Mất kết nối')).toBeInTheDocument()
+    screen.getByRole('button', { name: 'Thử lại' }).click()
+
+    expect(
+      await screen.findByText('Chưa có tệp kết quả được gửi ở bước này.'),
+    ).toBeInTheDocument()
+    expect(getDelivery).toHaveBeenCalledTimes(2)
   })
 })

@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test'
 
-const PORT = 5173
+const PORT = Number(process.env.E2E_PORT ?? 5173)
 const ORIGIN = `http://localhost:${PORT}`
 
 /**
@@ -26,7 +26,15 @@ export default defineConfig({
       ? { executablePath: process.env.PW_CHROMIUM_PATH, args: ['--no-sandbox'] }
       : {},
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'], viewport: { width: 1366, height: 900 } } }],
+  projects: [
+    {
+      name: 'chromium',
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1366, height: 900 },
+      },
+    },
+  ],
   webServer: {
     command: `npm run dev -- --port ${PORT} --strictPort`,
     url: ORIGIN,

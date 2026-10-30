@@ -47,8 +47,9 @@ export function ChecklistEditor({
   const visibleRows = rows.filter(
     (row) => row.packageItem !== false || row.selected,
   )
-  const ready = status === 'ready'
   const compact = variant === 'compact'
+  const showAdvancedToolbar = compact && visibleRows.length > 8
+  const ready = status === 'ready'
   const [editingKey, setEditingKey] = useState<string | null>(null)
   const [showAll, setShowAll] = useState(false)
   const [query, setQuery] = useState('')
@@ -81,7 +82,7 @@ export function ChecklistEditor({
   }, [editingKey])
 
   const needle = query.trim().toLowerCase()
-  const searching = compact && needle !== ''
+  const searching = showAdvancedToolbar && needle !== ''
   const hiddenCount =
     compact && !showAll && !searching
       ? Math.max(0, visibleRows.length - COMPACT_VISIBLE)
@@ -93,7 +94,7 @@ export function ChecklistEditor({
     checklist.add()
   }
 
-  const grouped = compact && view === 'group'
+  const grouped = showAdvancedToolbar && view === 'group'
   const selectedTotal = visibleRows.filter((row) => row.selected).length
   const awaitingManagerQuote = (row: ChecklistRow) =>
     (row.packageItem === false || !row.sourceChecklistId) &&
@@ -138,7 +139,7 @@ export function ChecklistEditor({
       <Checkbox
         className="checklist-check"
         checked={row.selected}
-        aria-label={t.select(index + 1)}
+        aria-label={t.select(row.content)}
         aria-describedby={compact ? `checklist-summary-${row.key}` : undefined}
         disabled={row.mandatory}
         onChange={(event) =>
@@ -264,6 +265,14 @@ export function ChecklistEditor({
               {!row.sourceChecklistId && (
                 <span className="checklist-custom-tag">{t.custom}</span>
               )}
+              {row.mandatory && (
+                <span
+                  className="checklist-custom-tag is-mandatory"
+                  title={t.mandatoryHint}
+                >
+                  {t.mandatory}
+                </span>
+              )}
               {awaitingManagerQuote(row) && (
                 <>
                   <span className="checklist-custom-tag is-pending-quote">
@@ -312,7 +321,7 @@ export function ChecklistEditor({
                 id={`checklist-edit-${row.key}`}
                 type="button"
                 className="checklist-icon-btn"
-                aria-label={t.editRow(index + 1)}
+                aria-label={t.editRow(row.content)}
                 title={t.edit}
                 disabled={!row.selected}
                 onClick={() => setEditingKey(row.key)}
@@ -334,7 +343,10 @@ export function ChecklistEditor({
           </div>
           {row.sourceChecklistId ? (
             <div className="checklist-guidance">
-              <ChecklistGuidance guidance={row} />
+              <ChecklistGuidance
+                guidance={row}
+                summaryLabel={compact ? t.guidanceSummary : undefined}
+              />
             </div>
           ) : null}
         </div>
@@ -454,26 +466,37 @@ export function ChecklistEditor({
           </>
         }
       >
-        <p className="checklist-hint">{t.hint}</p>
-        {ready && <p className="checklist-pricing-notice">{t.pricingNotice}</p>}
+        <p className="checklist-hint">
+          {compact ? t.compactHint : t.hint}
+        </p>
+        {ready && !compact && (
+          <p className="checklist-pricing-notice">{t.pricingNotice}</p>
+        )}
         {compact && ready && visibleRows.length > 0 && (
-          <div className="checklist-toolbar">
-            <label className="checklist-search-wrap">
-              <Icon name="search" width={17} height={17} aria-hidden="true" />
-              <input
-                type="search"
-                className="checklist-search"
-                aria-label={t.searchLabel}
-                placeholder={t.searchPlaceholder}
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-              />
-            </label>
+          <div
+            className={`checklist-toolbar${showAdvancedToolbar ? '' : ' is-simple'}`}
+          >
+            {showAdvancedToolbar && (
+              <label className="checklist-search-wrap">
+                <Icon name="search" width={17} height={17} aria-hidden="true" />
+                <input
+                  type="search"
+                  className="checklist-search"
+                  aria-label={t.searchLabel}
+                  placeholder={t.searchPlaceholder}
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                />
+              </label>
+            )}
             <div className="checklist-toolbar-selection">
               <Checkbox
                 className="checklist-selectall"
                 disabled={disabled}
                 checked={visibleRows.every((row) => row.selected)}
+                indeterminate={
+                  selectedTotal > 0 && selectedTotal < visibleRows.length
+                }
                 onChange={(event) => {
                   for (const row of visibleRows)
                     if (row.selected !== event.target.checked)
@@ -484,46 +507,36 @@ export function ChecklistEditor({
               >
                 {t.selectAll(visibleRows.length)}
               </Checkbox>
-              <button
-                type="button"
-                className="checklist-clear"
-                disabled={disabled || checklist.selectedCount === 0}
-                onClick={() => {
-                  for (const row of visibleRows)
-                    if (row.selected)
-                      checklist.change(row.key, { selected: false })
-                }}
-              >
-                {t.deselectAll}
-              </button>
             </div>
-            <div
-              className="checklist-view"
-              role="group"
-              aria-label={t.viewLabel}
-            >
-              <button
-                type="button"
-                aria-pressed={view === 'list'}
-                onClick={() => setView('list')}
+            {showAdvancedToolbar && (
+              <div
+                className="checklist-view"
+                role="group"
+                aria-label={t.viewLabel}
               >
-                <Icon name="menu" width={14} height={14} aria-hidden="true" />
-                {t.viewList}
-              </button>
-              <button
-                type="button"
-                aria-pressed={view === 'group'}
-                onClick={() => setView('group')}
-              >
-                <Icon
-                  name="clipboard"
-                  width={14}
-                  height={14}
-                  aria-hidden="true"
-                />
-                {t.viewGroup}
-              </button>
-            </div>
+                <button
+                  type="button"
+                  aria-pressed={view === 'list'}
+                  onClick={() => setView('list')}
+                >
+                  <Icon name="menu" width={14} height={14} aria-hidden="true" />
+                  {t.viewList}
+                </button>
+                <button
+                  type="button"
+                  aria-pressed={view === 'group'}
+                  onClick={() => setView('group')}
+                >
+                  <Icon
+                    name="clipboard"
+                    width={14}
+                    height={14}
+                    aria-hidden="true"
+                  />
+                  {t.viewGroup}
+                </button>
+              </div>
+            )}
           </div>
         )}
         {status === 'idle' && <p>{t.choose}</p>}
@@ -590,7 +603,10 @@ export function ChecklistEditor({
           <p className="checklist-hint">{t.none}</p>
         )}
         {ready && quote && checklist.serviceId && (
-          <ChecklistQuoteCard quote={checklist.quote} />
+          <ChecklistQuoteCard
+            quote={checklist.quote}
+            showSummaryTotal={!compact}
+          />
         )}
         {checklist.validation && (
           <p role="alert" className="co-notice is-danger">

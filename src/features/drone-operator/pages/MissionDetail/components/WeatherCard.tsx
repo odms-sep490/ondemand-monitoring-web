@@ -2,6 +2,12 @@ import type { WeatherPreflightStatus } from '../types'
 import { StatusBadge } from '../../../../../shared/components/odm/StatusBadge'
 import { statusTone } from '../missionFormat'
 import { WeatherTile } from './WeatherTile'
+import {
+  CloudOutlined,
+  CloudDownloadOutlined,
+  DashboardOutlined,
+  EyeOutlined,
+} from '@ant-design/icons'
 
 // ─── Weather card ─────────────────────────────────────────────────────────────
 
@@ -14,7 +20,7 @@ export function WeatherCard({
     <div className="odm-card">
       <div className="odm-card-header">
         <div>
-          <div style={{ fontWeight: 700, fontSize: 13 }}>Thời tiết bay</div>
+          <h2 className="mds-card-heading">Thời tiết bay</h2>
           {weather && (
             <div style={{ fontSize: 11.5, color: 'var(--tx3)', marginTop: 1 }}>
               {weather.summary}
@@ -36,22 +42,22 @@ export function WeatherCard({
               <WeatherTile
                 label="Gió / giật"
                 value={`${weather.windSpeedMps.toFixed(1)} / ${weather.windGustMps.toFixed(1)} m/s`}
-                icon="💨"
+                icon={<CloudOutlined />}
               />
               <WeatherTile
                 label="Mưa"
                 value={`${weather.precipitationMmH.toFixed(1)} mm/h`}
-                icon="🌧"
+                icon={<CloudDownloadOutlined />}
               />
               <WeatherTile
                 label="Tầm nhìn"
                 value={`${weather.visibilityKm.toFixed(1)} km`}
-                icon="👁"
+                icon={<EyeOutlined />}
               />
               <WeatherTile
                 label="Nhiệt / ẩm"
                 value={`${weather.temperatureC.toFixed(1)}°C · ${weather.humidityPercent.toFixed(0)}%`}
-                icon="🌡"
+                icon={<DashboardOutlined />}
               />
             </div>
             {weather.advisories.length > 0 && (

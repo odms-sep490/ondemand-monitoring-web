@@ -74,6 +74,7 @@ export function WizardOverviewStep({
         doneLabel={
           permitting ? t.finishPermit : t.nextPermit
         }
+        order={data.order}
         embedded={embedded}
         mode={permitting ? 'permit' : 'preparation'}
       />

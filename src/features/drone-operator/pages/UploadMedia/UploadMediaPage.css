@@ -173,7 +173,7 @@
   background: #fff;
   font: inherit;
   font-size: 13px;
-  color: #334155;
+  color: #334455;
 }
 .upload-media-seg {
   display: inline-flex;
@@ -205,6 +205,10 @@
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr));
   gap: 16px;
 }
+.upload-media-grid.has-single-item {
+  grid-template-columns: minmax(0, min(100%, 720px));
+  justify-content: start;
+}
 .upload-media-grid.is-list {
   grid-template-columns: minmax(0, 1fr);
   gap: 10px;
@@ -226,6 +230,10 @@
 .upload-media-card:hover {
   border-color: #cbd5e1;
   box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+}
+.upload-media-card.is-selected {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.16);
 }
 .upload-media-thumb {
   position: relative;
@@ -322,6 +330,15 @@
   background: #fef2f2;
   color: #dc2626;
 }
+.upload-media-state-note {
+  margin: -2px 0 0;
+  color: #475569;
+  font-size: 12px;
+  line-height: 1.45;
+}
+.upload-media-state-note.is-danger {
+  color: #b91c1c;
+}
 .upload-media-actions {
   display: flex;
   align-items: center;
@@ -410,6 +427,153 @@
   .upload-media-grid.is-list .upload-media-thumb {
     width: 100%;
     aspect-ratio: 16 / 10;
+  }
+}
+
+/* Honest status progress: the API has no byte-level percentage during transfer. */
+.upload-file-progress {
+  position: relative;
+  height: 7px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--sf3, #e2e8f0);
+}
+.upload-file-progress > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--blue-dot, #2563eb);
+}
+.upload-file-progress.is-indeterminate > span {
+  width: 38%;
+  animation: upload-media-indeterminate 1.2s ease-in-out infinite alternate;
+}
+.upload-file-progress-label {
+  margin-top: 4px;
+  color: var(--tx3, #64748b);
+  font-size: 11px;
+  line-height: 1.35;
+}
+@keyframes upload-media-indeterminate {
+  from {
+    transform: translateX(-20%);
+  }
+  to {
+    transform: translateX(180%);
+  }
+}
+
+.upload-media-loading {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+  gap: 16px;
+}
+.upload-media-loading > span:not(.upload-media-sr) {
+  min-height: 210px;
+  border-radius: 14px;
+  background: #eef2f7;
+  animation: upload-media-skeleton 1.6s ease-in-out infinite alternate;
+}
+@keyframes upload-media-skeleton {
+  to {
+    opacity: 0.62;
+  }
+}
+.upload-media-empty {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: clamp(24px, 5vw, 44px) 20px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 12px;
+  text-align: center;
+  color: #475569;
+}
+.upload-media-empty > strong {
+  color: #172033;
+  font-size: 14px;
+}
+.upload-media-empty > p {
+  max-width: 46ch;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.upload-media-empty-icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 21px;
+}
+.upload-media-empty.is-filtered > p {
+  margin-bottom: 4px;
+}
+
+.upload-media-page
+  :where(button, a, select, summary, input, textarea):focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.6);
+  outline-offset: 2px;
+}
+.upload-media-tools select,
+.upload-media-seg button,
+.upload-media-actions .odm-btn,
+.upload-media-more > summary {
+  min-height: 44px;
+}
+.upload-media-seg button {
+  width: 44px;
+}
+.upload-media-more > summary {
+  width: 44px;
+}
+
+@media (max-width: 640px) {
+  .upload-media-panel {
+    padding: 14px;
+  }
+  .upload-media-toolbar {
+    align-items: flex-start;
+  }
+  .upload-media-tools {
+    width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  }
+  .upload-media-tools select {
+    min-width: 0;
+    max-width: 100%;
+  }
+  .upload-media-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .upload-media-grid.has-single-item {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .upload-media-grid.has-single-item .upload-media-thumb {
+    aspect-ratio: 4 / 3;
+  }
+  .upload-media-empty {
+    padding-inline: 14px;
+  }
+  .upload-media-table-wrap .odm-card {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .upload-media-page *,
+  .upload-media-page *::before,
+  .upload-media-page *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 

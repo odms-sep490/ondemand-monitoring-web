@@ -28,7 +28,7 @@ import {
 } from '../../components/common/MissionResultActions'
 import './UploadMediaPage.css'
 import { useMissionMonitoring } from '../../../mission/hooks/useMissionMonitoring'
-import { finishedUploadStatuses } from './uploadMediaHelpers'
+import { successfullyUploadedStatuses } from './uploadMediaHelpers'
 import { useLocalMediaList } from './useLocalMediaList'
 import { useMediaWorkspace } from './useMediaWorkspace'
 import { UploadMediaBar } from './components/UploadMediaBar'
@@ -90,6 +90,7 @@ function UploadMediaContent({
     {},
   )
   const [preview, setPreview] = useState<LocalMedia | null>(null)
+  const [selectedMediaId, setSelectedMediaId] = useState<string | null>(null)
   const previewDialog = useRef<HTMLDialogElement>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -107,6 +108,7 @@ function UploadMediaContent({
     setSelectedTargets({})
     setAttachFailures({})
     setItems([])
+    setSelectedMediaId(null)
     itemsRef.current = []
     uploadedMediaIds.current = {}
   }, [missionId])
@@ -150,6 +152,7 @@ function UploadMediaContent({
     files,
     uploaded,
     uploading,
+    validating,
     manual,
     deviceLabel,
     canManageMedia,
@@ -263,19 +266,19 @@ function UploadMediaContent({
       (remote) =>
         filter === 'all' ||
         (filter === 'uploaded'
-          ? finishedUploadStatuses.has(remote.status ?? 'UNKNOWN')
-          : !finishedUploadStatuses.has(remote.status ?? 'UNKNOWN')),
+          ? successfullyUploadedStatuses.has(remote.status ?? 'UNKNOWN')
+          : !successfullyUploadedStatuses.has(remote.status ?? 'UNKNOWN')),
     )
   async function attachTargets(item: LocalMedia, ids: string[]) {
     if (
       permissions.data?.canUploadMedia !== true &&
       (!item.backendMediaId ||
-        !finishedUploadStatuses.has(effectiveStatus(item)))
+        !successfullyUploadedStatuses.has(effectiveStatus(item)))
     )
       throw new Error(t.uploadPermissionNote)
     if (
       item.localAvailable === false &&
-      !finishedUploadStatuses.has(effectiveStatus(item)) &&
+      !successfullyUploadedStatuses.has(effectiveStatus(item)) &&
       effectiveStatus(item) !== 'VALIDATING'
     )
       throw new Error(t.localUnavailable)
@@ -480,6 +483,11 @@ function UploadMediaContent({
                   item={item}
                   remotePreviewUrl={remote}
                   setPreview={setPreview}
+                  onOpenPreview={(selectedItem) => {
+                    setSelectedMediaId(selectedItem.localMediaId)
+                    setPreview(selectedItem)
+                  }}
+                  isSelected={selectedMediaId === item.localMediaId}
                   status={effectiveStatus(item)}
                   canManageMedia={
                     canManageMedia && !item.localMediaId.startsWith('backend:')
@@ -490,7 +498,7 @@ function UploadMediaContent({
                   busyId={busyId}
                   canDiscard={
                     ['REVIEW_PENDING', 'UPLOAD_FAILED'].includes(item.status) ||
-                    finishedUploadStatuses.has(effectiveStatus(item))
+                    successfullyUploadedStatuses.has(effectiveStatus(item))
                   }
                   discard={discard}
                   monitoring={monitoring}
@@ -563,6 +571,7 @@ function UploadMediaContent({
             totalMedia={totalMedia}
             pendingMedia={pendingMedia}
             uploading={uploading}
+            validating={validating}
             manual={manual}
             backRoute={backRoute}
             refreshWorkspace={refreshWorkspace}

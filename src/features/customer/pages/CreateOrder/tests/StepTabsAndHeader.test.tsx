@@ -32,16 +32,34 @@ describe('StepTabs', () => {
     expect(tabs).toHaveLength(6)
     // Full text is in the DOM (CSS wraps or hides it, never truncates), so the accessible names are complete.
     expect(tabs[5].textContent).toContain('Kết quả bàn giao & xác nhận')
-    expect(within(nav).getByRole('button', { name: /Kết quả bàn giao & xác nhận/ })).toBeTruthy()
-    expect(tabs.map((tab) => tab.getAttribute('aria-current'))).toEqual([null, null, 'step', null, null, null])
-    expect(tabs.map((tab) => (tab as HTMLButtonElement).disabled)).toEqual([false, false, false, true, true, true])
+    expect(
+      within(nav).getByRole('button', { name: /Kết quả bàn giao & xác nhận/ }),
+    ).toBeTruthy()
+    expect(tabs.map((tab) => tab.getAttribute('aria-current'))).toEqual([
+      null,
+      null,
+      'step',
+      null,
+      null,
+      null,
+    ])
+    expect(tabs.map((tab) => (tab as HTMLButtonElement).disabled)).toEqual([
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+    ])
   })
 
   it('lets finished steps be reopened but not later ones', () => {
     const onSelect = vi.fn()
     render(<StepTabs step={3} labels={labels} onSelect={onSelect} />)
     const nav = screen.getByRole('navigation')
-    fireEvent.click(within(nav).getByRole('button', { name: /Vị trí & vùng giám sát/ }))
+    fireEvent.click(
+      within(nav).getByRole('button', { name: /Vị trí & vùng giám sát/ }),
+    )
     fireEvent.click(within(nav).getByRole('button', { name: /Thời gian/ }))
     expect(onSelect).toHaveBeenCalledTimes(1)
     expect(onSelect).toHaveBeenCalledWith(2)
@@ -54,6 +72,18 @@ describe('StepTabs', () => {
 })
 
 describe('CreateOrderPage header', () => {
+  it('keeps one shared navigation bar available outside the step cards', async () => {
+    render(<CreateOrderPage />)
+    await screen.findByRole('button', { name: /Giám sát công trình/ })
+    const nav = screen.getByRole('navigation', {
+      name: 'Điều hướng tạo yêu cầu',
+    })
+    expect(within(nav).getByRole('button', { name: /Tiếp tục:/ })).toBeEnabled()
+    expect(
+      screen.getAllByRole('navigation', { name: 'Điều hướng tạo yêu cầu' }),
+    ).toHaveLength(1)
+  })
+
   it('keeps Cancel as a link to the orders page', async () => {
     render(<CreateOrderPage />)
     await screen.findByText('Tạo yêu cầu giám sát')

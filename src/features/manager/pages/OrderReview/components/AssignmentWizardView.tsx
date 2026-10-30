@@ -6,6 +6,7 @@ import { OrderResourceAssignmentWizard } from '../../../components/common/OrderR
 import { orderReviewPageMessages } from '../OrderReviewPage.messages'
 import { useI18n } from '../../../../../shared/i18n'
 import { assignmentWizardViewMessages } from './AssignmentWizardView.messages'
+import { OrderDetailsDrawer } from '../../../components/common/OrderDetailsDrawer'
 import type { PlanningWorkflowInfo } from './OrderMissionPlanningSection'
 import type { UseApiQueryState } from '../../../../../shared/hooks/useApiQuery'
 import type { OrderDetail } from '../../../types/orders'
@@ -35,7 +36,11 @@ export function AssignmentWizardView({
   return (
     <div className="odm-or odm-or-review-page">
       <div className="odm-or-review-top">
-        <PageHeader title={tw.title} subtitle={tw.subtitle} />
+        <PageHeader
+          title={tw.title}
+          subtitle={tw.subtitle}
+          actions={<OrderDetailsDrawer order={orderData} />}
+        />
         <WorkflowStepper
           compactOrder
           order={{

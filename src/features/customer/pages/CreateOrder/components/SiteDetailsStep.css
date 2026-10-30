@@ -1,0 +1,117 @@
+/* Step 4: keep the operational details and authorization visible together. */
+.co-site-details-step {
+  display: grid;
+  grid-template-columns: minmax(0, 1.03fr) minmax(0, 0.97fr);
+  align-items: stretch;
+  gap: 16px;
+  min-width: 0;
+}
+
+.co-page .co-site-details-step > .mgr-card {
+  min-width: 0;
+  height: 100%;
+}
+
+.co-site-details-step .co-two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.co-site-details-step .co-help {
+  max-width: 42ch;
+  line-height: 1.4;
+}
+
+.co-site-details-step .co-authz-intro {
+  max-width: 56ch;
+  margin-bottom: 10px;
+  line-height: 1.45;
+}
+
+.co-site-details-step .co-authz-fieldset {
+  margin: 12px 0 16px;
+}
+
+.co-site-details-step .co-authz-relationships {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.co-site-details-step .co-authz-relationships .ant-radio-wrapper {
+  min-width: 0;
+  min-height: 48px;
+  box-sizing: border-box;
+  padding: 9px 10px;
+  line-height: 1.35;
+}
+
+.co-site-details-step .co-authz-docs-head {
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid var(--ui-border);
+}
+
+.co-site-details-step .co-authz-docs-head > div {
+  min-width: 0;
+}
+
+.co-site-details-step .co-authz-docs-head span {
+  line-height: 1.35;
+}
+
+.co-site-details-step .co-authz-docs-head .ant-btn {
+  min-height: 44px;
+  flex: 0 0 auto;
+}
+
+.co-site-details-step .co-authz-document-title button,
+.co-site-details-step .co-authz-file button {
+  min-height: 40px;
+  padding: 6px 8px;
+}
+
+.co-site-details-step .co-authz-confirm {
+  margin-top: 14px;
+}
+
+.co-site-details-step .co-authz-note {
+  font-size: 12px;
+}
+
+.co-site-details-step .co-fold {
+  margin-top: 12px;
+}
+
+.co-site-details-step .co-fold-head {
+  min-height: 48px;
+}
+
+.co-site-details-step .co-fold-body {
+  padding-bottom: 12px;
+}
+
+@media (max-width: 1100px) {
+  .co-site-details-step {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .co-page .co-site-details-step > .mgr-card {
+    height: auto;
+  }
+}
+
+@media (max-width: 560px) {
+  .co-site-details-step .co-two,
+  .co-site-details-step .co-authz-relationships {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .co-site-details-step .co-authz-docs-head {
+    align-items: flex-start;
+  }
+
+  .co-site-details-step .co-authz-docs-head .ant-btn {
+    white-space: nowrap;
+  }
+}

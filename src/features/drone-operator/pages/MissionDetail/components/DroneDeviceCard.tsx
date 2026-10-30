@@ -2,10 +2,17 @@ import type { OperatorMission } from '../../../types/mission'
 import { formatDeviceLabel } from '../../../lib/deviceLabel'
 import { StatusBadge } from '../../../../../shared/components/odm/StatusBadge'
 import { InfoRow } from './InfoRow'
+import { RocketOutlined } from '@ant-design/icons'
 
 // ─── Device card ──────────────────────────────────────────────────────────────
 
-export function DroneDeviceCard({ mission }: { mission: OperatorMission }) {
+export function DroneDeviceCard({
+  mission,
+  compact = false,
+}: {
+  mission: OperatorMission
+  compact?: boolean
+}) {
   const droneLabel = formatDeviceLabel(mission) ?? 'Chưa gán thiết bị'
   const deviceInfoRows = [
     { icon: '#', label: 'Device ID', value: mission.deviceId },
@@ -44,13 +51,27 @@ export function DroneDeviceCard({ mission }: { mission: OperatorMission }) {
           : `${mission.droneHoursSinceMaintenance} giờ`,
     },
   ].filter((row) => row.value != null && String(row.value).trim() !== '')
+  const compactLabels = new Set(['Device code', 'Serial', 'Trạng thái'])
+  const primaryRows = compact
+    ? deviceInfoRows.filter((row) => compactLabels.has(row.label))
+    : deviceInfoRows
+  const extraRows = compact
+    ? deviceInfoRows.filter((row) => !compactLabels.has(row.label))
+    : []
 
   return (
-    <div className="odm-card">
+    <section className="odm-card" aria-labelledby="mission-device-heading">
       <div className="odm-card-header">
-        <span style={{ fontWeight: 700 }}>Thiết bị thực hiện</span>
+        <h2 id="mission-device-heading" className="mds-card-heading">
+          Thông tin thiết bị
+        </h2>
       </div>
-      <div className="odm-card-body" style={{ padding: '10px 14px' }}>
+      <div
+        className={
+          compact ? 'odm-card-body mds-device-compact' : 'odm-card-body'
+        }
+        style={{ padding: '10px 14px' }}
+      >
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           {/* Device icon placeholder */}
           <div
@@ -66,8 +87,9 @@ export function DroneDeviceCard({ mission }: { mission: OperatorMission }) {
               flexShrink: 0,
               fontSize: 22,
             }}
+            aria-hidden="true"
           >
-            🚁
+            <RocketOutlined />
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 2 }}>
@@ -107,7 +129,7 @@ export function DroneDeviceCard({ mission }: { mission: OperatorMission }) {
               marginTop: 10,
               paddingTop: 10,
               borderTop: '1px solid var(--bd)',
-              fontSize: 11.5,
+              fontSize: 12.5,
               color: 'var(--tx3)',
             }}
           >
@@ -124,15 +146,16 @@ export function DroneDeviceCard({ mission }: { mission: OperatorMission }) {
             )}
           </div>
         )}
-        {deviceInfoRows.length > 0 ? (
+        {primaryRows.length > 0 ? (
           <div
+            className={compact ? 'mds-device-primary-rows' : undefined}
             style={{
               marginTop: 10,
               paddingTop: 10,
               borderTop: '1px solid var(--bd)',
             }}
           >
-            {deviceInfoRows.map((row) => (
+            {primaryRows.map((row) => (
               <InfoRow
                 key={`${row.icon}-${row.label}`}
                 icon={row.icon}
@@ -142,7 +165,22 @@ export function DroneDeviceCard({ mission }: { mission: OperatorMission }) {
             ))}
           </div>
         ) : null}
+        {extraRows.length > 0 ? (
+          <details className="mds-device-details">
+            <summary>Thông số và mã định danh khác</summary>
+            <div>
+              {extraRows.map((row) => (
+                <InfoRow
+                  key={`${row.icon}-${row.label}`}
+                  icon={row.icon}
+                  label={row.label}
+                  value={String(row.value)}
+                />
+              ))}
+            </div>
+          </details>
+        ) : null}
       </div>
-    </div>
+    </section>
   )
 }

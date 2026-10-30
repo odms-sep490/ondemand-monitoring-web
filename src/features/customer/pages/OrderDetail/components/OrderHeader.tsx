@@ -9,6 +9,7 @@ import { orderHeaderMessages } from './OrderHeader.messages'
 
 export function OrderHeader({ order }: { order: OrderDetailView }) {
   const { t } = useI18n(orderHeaderMessages)
+  const title = getDisplayTitle(order, t.orderTitleFallback)
   return (
     <PageHeader
       back={
@@ -16,11 +17,16 @@ export function OrderHeader({ order }: { order: OrderDetailView }) {
           {t.backToOrders}
         </a>
       }
-      title={order.title}
+      title={title}
       actions={<OrderActions order={order} />}
       subtitle={
         <span className="od-meta">
-          <OrderStatusBadge status={order.status} />
+          <OrderStatusBadge
+            status={order.status}
+            label={
+              order.status === 'COMPLETED' ? t.missionCompleted : undefined
+            }
+          />
           <span className="od-code">
             <span>{`${t.codeLabel}:`}</span>
             <span className="od-mono">{order.code}</span>
@@ -30,4 +36,19 @@ export function OrderHeader({ order }: { order: OrderDetailView }) {
       }
     />
   )
+}
+
+export function getDisplayTitle(order: OrderDetailView, fallbackLabel: string) {
+  const title = order.title.trim()
+  const isMeaningful =
+    Array.from(title).length >= 2 && /[\p{L}\p{N}]/u.test(title)
+
+  if (isMeaningful) return title
+
+  const code = order.code?.trim()
+  const context = [order.serviceName, order.address, code ? `#${code}` : '']
+    .map((value) => value?.trim())
+    .filter((value): value is string => Boolean(value))
+
+  return context.length ? context.join(' · ') : fallbackLabel
 }

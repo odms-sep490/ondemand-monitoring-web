@@ -1,5 +1,3 @@
-import type { ReactNode } from 'react'
-
 import type {
   FormErrors,
   FormState,
@@ -7,25 +5,24 @@ import type {
 } from '../../../lib/createOrder/types'
 import { MonitoringAuthorizationSection } from './MonitoringAuthorizationSection'
 import { SiteDetailsPanel } from './SiteDetailsPanel'
+import './SiteDetailsStep.css'
 
 type Props = {
   form: FormState
   errors: FormErrors
   update: UpdateField
-  footer?: ReactNode
 }
 
 /** Operational site details and the customer's monitoring authorization. */
-export function SiteDetailsStep({ form, errors, update, footer }: Props) {
+export function SiteDetailsStep({ form, errors, update }: Props) {
   return (
-    <div className="co-stack co-site-details-step">
+    <div className="co-site-details-step">
       <SiteDetailsPanel form={form} errors={errors} update={update} />
       <MonitoringAuthorizationSection
         form={form}
         errors={errors}
         update={update}
       />
-      {footer && <div className="co-flow-actions">{footer}</div>}
     </div>
   )
 }

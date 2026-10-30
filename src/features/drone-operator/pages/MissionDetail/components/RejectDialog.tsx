@@ -28,6 +28,7 @@ export function RejectDialog({
     <div
       role="dialog"
       aria-modal="true"
+      aria-labelledby="mission-reject-dialog-title"
       style={{
         position: 'fixed',
         inset: 0,
@@ -43,7 +44,10 @@ export function RejectDialog({
         style={{ width: 440, maxWidth: '92vw', padding: 0 }}
       >
         <div className="odm-card-body" style={{ padding: 20 }}>
-          <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>
+          <h2
+            id="mission-reject-dialog-title"
+            style={{ margin: 0, fontSize: 16, fontWeight: 600 }}
+          >
             {t.title(missionId)}
           </h2>
           <p style={{ margin: '6px 0 0', fontSize: 13, color: 'var(--tx2)' }}>

@@ -119,7 +119,16 @@ export function CustomerFinancePanel({
         <p className="customer-finance-desc">{t.loading}</p>
       </CardComponent>
     )
-  if (!quote && !invoice && !error) return null
+  if (!quote && !invoice && !error)
+    return (
+      <CardComponent
+        className="customer-finance-card"
+        title={t.title}
+        icon={<OrderIcon name="tag" size={16} />}
+      >
+        <p className="customer-finance-desc">{t.noFinancialData}</p>
+      </CardComponent>
+    )
 
   return (
     <CardComponent

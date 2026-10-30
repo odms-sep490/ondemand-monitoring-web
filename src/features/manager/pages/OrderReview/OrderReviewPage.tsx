@@ -190,7 +190,11 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
         <ReadonlyBanner setViewStage={setViewStage} />
       )}
       {reviewing ? (
-        <ReviewLayout order={order} wide={reviewStep === 4}>
+        <ReviewLayout
+          order={order}
+          wide={reviewStep === 4}
+          reviewStep={reviewStep}
+        >
           {reviewing && reviewStep === 1 ? (
             <ReviewStageRequest
               readOnly={readOnly}
