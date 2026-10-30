@@ -249,7 +249,7 @@ describe('Upload media and monitoring workspace', () => {
     expect(image).toHaveClass('stf-media-preview')
     expect(screen.queryByText('Tải lên ảnh')).toBeNull()
     expect(
-      screen.getByText(/Tải lên ảnh cần Pilot hoặc Inspector/),
+      screen.getByText(/Tải lên ảnh cần phi công hoặc kiểm tra viên/),
     ).toBeInTheDocument()
     fireEvent.click(screen.getByText('Chỉnh sửa'))
     expect(screen.getByLabelText('Trạng thái thực hiện')).toBeEnabled()
