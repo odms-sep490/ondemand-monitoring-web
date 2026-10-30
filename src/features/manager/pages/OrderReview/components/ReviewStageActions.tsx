@@ -38,7 +38,7 @@ export function ReviewStageActions({
   const body = (
     <>
       <span className="odm-or-review-stage-progress">
-        {t.step(step, REVIEW_PAGE_COUNT)}
+        {step === 4 ? t.pricingStep : t.step(step, REVIEW_PAGE_COUNT)}
       </span>
       {hint ? (
         <span className="odm-or-review-stage-hint" role="status">

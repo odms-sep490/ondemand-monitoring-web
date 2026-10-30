@@ -1,8 +1,17 @@
-import { UnorderedListOutlined } from '@ant-design/icons'
+import {
+  DownOutlined,
+  PaperClipOutlined,
+  PictureOutlined,
+  UnorderedListOutlined,
+  VideoCameraOutlined,
+} from '@ant-design/icons'
 import { Alert, Button, Modal } from 'antd'
 import { useState, type ReactNode } from 'react'
 
-import { ChecklistGuidance } from '../../../../shared/components/ChecklistGuidance'
+import {
+  ChecklistGuidance,
+  hasChecklistGuidance,
+} from '../../../../shared/components/ChecklistGuidance'
 import { useI18n } from '../../../../shared/i18n'
 import { formatVnd } from '../../../../shared/lib/formatVnd'
 import { customerApi } from '../../api/customerApi'
@@ -17,8 +26,8 @@ import type { ChecklistSnapshot } from '../../lib/checklist/types'
 import { useOrderChecklistEdit } from '../../lib/checklist/useOrderChecklistEdit'
 import type { OrderDetailView } from '../../lib/orders/types'
 import { Card } from '../common/ui'
-import './Checklist.css'
 import { ChecklistEditor } from './ChecklistEditor'
+import './Checklist.css'
 
 export function ChecklistSnapshotCard({
   items = [],
@@ -45,11 +54,12 @@ export function ChecklistSnapshotCard({
   const [conflictError, setConflictError] = useState(false)
   const [confirmApprovedOpen, setConfirmApprovedOpen] = useState(false)
   const [savedMessage, setSavedMessage] = useState<string | null>(null)
-
   const editor = useOrderChecklistEdit(order, editing)
+  const sortedItems = [...items].sort(
+    (a, b) => a.displayOrder - b.displayOrder || a.id.localeCompare(b.id),
+  )
 
   function resolveLockBanner(): string {
-    if (canEdit) return t.editableHint
     if (
       blockedReason === 'QUOTE_ACCEPTED' ||
       blockedReason === 'INVOICE_ISSUED'
@@ -63,6 +73,16 @@ export function ChecklistSnapshotCard({
     if (blockedReason === 'EXECUTION_STARTED') return t.blockedExecutionStarted
     return t.locked
   }
+
+  const lockMessage = !canEdit
+    ? blockedReason
+      ? resolveLockBanner()
+      : snapshotAt
+        ? t.locked
+        : order?.canEditChecklist === false
+          ? t.editLocked
+          : null
+    : null
 
   function handleStartEdit() {
     setSaveError(null)
@@ -123,6 +143,115 @@ export function ChecklistSnapshotCard({
     onUpdated?.()
   }
 
+  const evidenceSummary = (item: ChecklistSnapshot) => {
+    const images =
+      item.evidencePolicyVersion === 3
+        ? (item.requestedImageCount ?? 0)
+        : (item.minimumImageCount ?? 0)
+    const videos =
+      item.evidencePolicyVersion === 3
+        ? (item.requestedVideoCount ?? 0)
+        : (item.minimumVideoCount ?? 0)
+
+    if (images > 0 || videos > 0) {
+      return (
+        <span
+          className="checklist-snapshot-media"
+          role="group"
+          aria-label={t.requiredMedia(images, videos)}
+        >
+          {images > 0 && (
+            <span>
+              <PictureOutlined aria-hidden="true" />
+              {t.requiredImages(images)}
+            </span>
+          )}
+          {videos > 0 && (
+            <span>
+              <VideoCameraOutlined aria-hidden="true" />
+              {t.requiredVideos(videos)}
+            </span>
+          )}
+        </span>
+      )
+    }
+
+    if (item.evidencePolicyVersion === 3) return null
+
+    const count = item.minimumEvidenceCount ?? 1
+    const type = item.requiredEvidenceType
+    if (type === 'IMAGE') {
+      return (
+        <span
+          className="checklist-snapshot-media"
+          role="group"
+          aria-label={t.requiredMedia(count, 0)}
+        >
+          <span>
+            <PictureOutlined aria-hidden="true" />
+            {t.requiredImages(count)}
+          </span>
+        </span>
+      )
+    }
+    if (type === 'VIDEO') {
+      return (
+        <span
+          className="checklist-snapshot-media"
+          role="group"
+          aria-label={t.requiredMedia(0, count)}
+        >
+          <span>
+            <VideoCameraOutlined aria-hidden="true" />
+            {t.requiredVideos(count)}
+          </span>
+        </span>
+      )
+    }
+    if (type === 'IMAGE_AND_VIDEO') {
+      return (
+        <span
+          className="checklist-snapshot-media"
+          role="group"
+          aria-label={t.requiredEvidence(count, t.imageAndVideo)}
+        >
+          <span>
+            <PictureOutlined aria-hidden="true" />
+            <VideoCameraOutlined aria-hidden="true" />
+            {t.requiredEvidence(count, t.imageAndVideo)}
+          </span>
+        </span>
+      )
+    }
+    if (type === 'IMAGE_OR_VIDEO') {
+      return (
+        <span
+          className="checklist-snapshot-media"
+          role="group"
+          aria-label={t.requiredEvidence(count, t.imageOrVideo)}
+        >
+          <span>
+            <PaperClipOutlined aria-hidden="true" />
+            {t.requiredEvidence(count, t.imageOrVideo)}
+          </span>
+        </span>
+      )
+    }
+    return null
+  }
+
+  const priceSummary = (item: ChecklistSnapshot) => {
+    if (item.sourceType === 'SERVICE_TEMPLATE') return null
+    if (!item.priceAvailable) return t.pricePending
+    if (item.pricingStatus === 'DUPLICATE') return t.priceDuplicate
+    if (item.pricingStatus === 'REJECTED') return t.priceRejected
+    return (
+      <>
+        {t.priceAdditional} {formatVnd(item.approvedPrice ?? 0)}
+      </>
+    )
+  }
+
   if (editing && order) {
     return (
       <div className="checklist-edit-wrapper">
@@ -146,15 +275,7 @@ export function ChecklistSnapshotCard({
             ) : null}
           </div>
         ) : null}
-        <div
-          className="checklist-edit-actions"
-          style={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-            gap: 8,
-            marginTop: 12,
-          }}
-        >
+        <div className="checklist-edit-actions">
           <Button onClick={handleCancel} disabled={saving}>
             {t.cancelChecklist}
           </Button>
@@ -186,14 +307,22 @@ export function ChecklistSnapshotCard({
     <div role="region" aria-label={t.title}>
       <Card
         icon={<UnorderedListOutlined />}
-        className="checklist-card"
+        className="checklist-card checklist-card-snapshot"
         title={title ?? t.title}
         actions={
-          canEdit && order ? (
-            <Button size="small" onClick={handleStartEdit}>
-              {t.editChecklist}
-            </Button>
-          ) : undefined
+          <div className="checklist-snapshot-actions">
+            <span className="checklist-snapshot-count">
+              {t.itemCount(items.length)}
+            </span>
+            {lockMessage ? (
+              <span className="checklist-lock">{lockMessage}</span>
+            ) : null}
+            {canEdit && order ? (
+              <Button size="small" onClick={handleStartEdit}>
+                {t.editChecklist}
+              </Button>
+            ) : null}
+          </div>
         }
       >
         {savedMessage ? (
@@ -206,82 +335,85 @@ export function ChecklistSnapshotCard({
             style={{ marginBottom: 12 }}
           />
         ) : null}
-        <p className={canEdit ? 'checklist-hint' : 'checklist-lock'}>
-          {resolveLockBanner()}
-        </p>
-        <p className="checklist-hint">{t.history}</p>
-        {items.length ? (
-          <ol className="checklist-snapshot">
-            {[...items]
-              .sort(
-                (a, b) =>
-                  a.displayOrder - b.displayOrder || a.id.localeCompare(b.id),
-              )
-              .map((item) => (
-                <li key={item.id}>
+        {sortedItems.length ? (
+          <ol className="checklist-snapshot" aria-label={t.title}>
+            {sortedItems.map((item, index) => {
+              const guidanceAvailable = hasChecklistGuidance(item)
+              const detailsAvailable =
+                guidanceAvailable ||
+                item.evidencePolicyVersion === 3 ||
+                item.sourceType === 'CUSTOMER_CUSTOM'
+              const evidence = evidenceSummary(item)
+              const price = priceSummary(item)
+              const meta =
+                evidence || price ? (
+                  <span className="checklist-snapshot-row-meta">
+                    {evidence}
+                    {price ? (
+                      <span className="checklist-snapshot-price">{price}</span>
+                    ) : null}
+                  </span>
+                ) : null
+              const row = (
+                <span className="checklist-snapshot-header">
+                  <span className="checklist-snapshot-index" aria-hidden="true">
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
                   <span className="checklist-snapshot-content">
                     {item.content}
                     {item.required ? (
                       <span
                         className="checklist-custom-tag is-mandatory"
-                        style={{ marginLeft: 8 }}
                         title={t.mandatoryHint}
                       >
                         {t.mandatory}
                       </span>
                     ) : null}
                   </span>
-                  <ChecklistGuidance
-                    guidance={item}
-                    showEmpty={item.sourceType === 'CUSTOMER_CUSTOM'}
-                  />
-                  {item.evidencePolicyVersion === 3 && (
-                    <span className="checklist-snapshot-evidence">
-                      {t.requestedImages}: {item.requestedImageCount ?? 0} ·{' '}
-                      {t.requestedVideos}: {item.requestedVideoCount ?? 0} ·{' '}
-                      {t.includedMedia(
-                        item.includedImageCountSnapshot ?? 0,
-                        item.includedVideoCountSnapshot ?? 0,
-                      )}
-                    </span>
-                  )}
-                  {item.evidencePolicyVersion !== 3 &&
-                    (item.minimumEvidenceCount !== undefined ||
-                      item.requiredEvidenceType !== undefined) && (
-                      <span className="checklist-snapshot-evidence">
-                        {item.minimumEvidenceCount ?? 1} ·{' '}
-                        {item.requiredEvidenceType === 'IMAGE'
-                          ? t.image
-                          : item.requiredEvidenceType === 'VIDEO'
-                            ? t.video
-                            : item.requiredEvidenceType === 'IMAGE_AND_VIDEO'
-                              ? t.imageAndVideo
-                              : t.imageOrVideo}
-                      </span>
-                    )}
-                  {item.sourceType !== 'SERVICE_TEMPLATE' && (
-                    <span className="checklist-snapshot-evidence">
-                      {item.priceAvailable ? (
-                        item.pricingStatus === 'DUPLICATE' ? (
-                          t.priceDuplicate
-                        ) : item.pricingStatus === 'REJECTED' ? (
-                          t.priceRejected
-                        ) : (
-                          <>
-                            {t.priceAdditional}{' '}
-                            {formatVnd(item.approvedPrice ?? 0)}
-                          </>
-                        )
-                      ) : (
-                        t.pricePending
-                      )}
-                    </span>
+                  {meta}
+                  {detailsAvailable ? (
+                    <DownOutlined
+                      className="checklist-snapshot-chevron"
+                      aria-hidden="true"
+                    />
+                  ) : null}
+                </span>
+              )
+
+              return (
+                <li key={item.id} className="checklist-snapshot-item">
+                  {detailsAvailable ? (
+                    <details>
+                      <summary>{row}</summary>
+                      <div className="checklist-snapshot-detail">
+                        <ChecklistGuidance
+                          guidance={item}
+                          collapsible={false}
+                          showEmpty={item.sourceType === 'CUSTOMER_CUSTOM'}
+                        />
+                        {item.evidencePolicyVersion === 3 &&
+                        ((item.includedImageCountSnapshot ?? 0) > 0 ||
+                          (item.includedVideoCountSnapshot ?? 0) > 0) ? (
+                          <p className="checklist-snapshot-included">
+                            {t.includedMedia(
+                              item.includedImageCountSnapshot ?? 0,
+                              item.includedVideoCountSnapshot ?? 0,
+                            )}
+                          </p>
+                        ) : null}
+                      </div>
+                    </details>
+                  ) : (
+                    <div className="checklist-snapshot-static">{row}</div>
                   )}
                 </li>
-              ))}
+              )
+            })}
           </ol>
         ) : (
-          <p>{snapshotAt ? t.emptySnapshot : t.legacy}</p>
+          <p className="checklist-snapshot-empty">
+            {snapshotAt ? t.emptySnapshot : t.legacy}
+          </p>
         )}
       </Card>
     </div>

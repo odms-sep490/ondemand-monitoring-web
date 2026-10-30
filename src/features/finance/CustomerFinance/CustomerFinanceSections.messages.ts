@@ -5,7 +5,7 @@ export const customerFinanceSectionsMessages = defineMessages({
     estimated: 'Chi phí dự kiến',
     additional: 'Dịch vụ bổ sung',
     orderTotal: 'Tổng đơn hàng',
-    estimateNotice: 'Báo giá dự kiến chưa bao gồm dịch vụ theo yêu cầu.',
+    estimateNotice: 'Dịch vụ phát sinh sẽ được báo giá riêng.',
     legalRejectedTitle: 'Đơn hàng không thể thực hiện',
     legalCheckingTitle: 'Đang xác minh điều kiện khu vực bay',
     legalRejectedBody: 'Đơn hàng không thể thực hiện do điều kiện khu vực bay.',
@@ -29,6 +29,7 @@ export const customerFinanceSectionsMessages = defineMessages({
     payRemaining: 'Thanh toán phần còn lại',
     contentFallback: 'Nội dung',
     perOrder: 'Theo đơn hàng',
+    priceDetails: 'Chi tiết giá',
     adjustment: 'Điều chỉnh đã được phê duyệt',
     invoiceStatus: {
       ISSUED: 'Chờ thanh toán',
@@ -43,7 +44,7 @@ export const customerFinanceSectionsMessages = defineMessages({
     estimated: 'Estimated cost',
     additional: 'Additional services',
     orderTotal: 'Order total',
-    estimateNotice: 'The estimated quote does not include on-demand services.',
+    estimateNotice: 'Any additional services will be quoted separately.',
     legalRejectedTitle: 'This order cannot be carried out',
     legalCheckingTitle: 'Verifying flight area conditions',
     legalRejectedBody: 'This order cannot be carried out because of the flight area conditions.',
@@ -67,6 +68,7 @@ export const customerFinanceSectionsMessages = defineMessages({
     payRemaining: 'Pay the remaining balance',
     contentFallback: 'Content',
     perOrder: 'Per order',
+    priceDetails: 'Price details',
     adjustment: 'Approved adjustment',
     invoiceStatus: {
       ISSUED: 'Awaiting payment',

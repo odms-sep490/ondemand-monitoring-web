@@ -283,7 +283,11 @@ describe('ManagerPricingPanel', () => {
     expect(
       screen.queryByRole('combobox', { name: 'Phân loại' }),
     ).not.toBeInTheDocument()
-    expect(screen.getByText('Tự động tính giá')).toBeInTheDocument()
+    expect(
+      screen
+        .getByText('Requirement awaiting review')
+        .closest('.finance-requirement'),
+    ).toHaveTextContent('Trong gói')
     expect(onChecklistReviewChanged).not.toHaveBeenCalled()
   })
 
@@ -514,11 +518,6 @@ describe('ManagerPricingPanel', () => {
 
     await screen.findByText('Requirement awaiting review')
     expect(screen.getByText('0/1 nội dung đã xem xét')).toBeInTheDocument()
-    expect(
-      screen.getByText(
-        'Còn 1 nội dung cần chọn cách tính giá trước khi duyệt.',
-      ),
-    ).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Duyệt báo giá' })).toBeDisabled()
     expect(screen.queryByRole('button', { name: 'Lưu nháp' })).toBeNull()
     expect(approve).not.toHaveBeenCalled()

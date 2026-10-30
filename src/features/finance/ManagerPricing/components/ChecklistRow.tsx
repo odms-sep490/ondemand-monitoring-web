@@ -79,11 +79,9 @@ export function ChecklistRow({
           </div>
         ) : null}
         <ChecklistGuidance guidance={item} />
-        <span>
-          {item.sourceType === 'SERVICE_TEMPLATE'
-            ? t.sourceTemplate
-            : t.sourceCustom}
-        </span>
+        {item.sourceType !== 'SERVICE_TEMPLATE' ? (
+          <span>{t.sourceCustom}</span>
+        ) : null}
         {(item.requestedImageCount ?? 0) + (item.requestedVideoCount ?? 0) >
         0 ? (
           <span>

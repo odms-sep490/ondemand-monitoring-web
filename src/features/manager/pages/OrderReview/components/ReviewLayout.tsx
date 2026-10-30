@@ -28,6 +28,12 @@ export function ReviewLayout({
   const { t } = useI18n(orderReviewPageMessages)
   const [slot, setSlot] = useState<HTMLDivElement | null>(null)
   const actionTarget = <div ref={setSlot} className="mgr-actions-slot" />
+  const showCustomerInSidebar = !wide && reviewStep === 1
+  const showCustomerInMain =
+    !wide && !showCustomerInSidebar && reviewStep !== 2 && reviewStep !== 3
+  const hasAttachments = Boolean(order.attachments?.length)
+  const showExtraInMain =
+    showCustomerInMain || (hasAttachments && !showCustomerInSidebar)
   const summaryAndActions = (
     <aside className={`mgr-detail-side${wide ? ' is-review-context' : ''}`}>
       <OrderSummaryCard
@@ -35,18 +41,30 @@ export function ReviewLayout({
         compact={wide}
         actionSlot={wide ? actionTarget : undefined}
       />
+      {showCustomerInSidebar ? (
+        <OrderCustomerCard order={order} t={t} hideEmpty />
+      ) : null}
       {!wide ? actionTarget : null}
     </aside>
   )
   const main = (
     <div className="mgr-detail-main">
       {children}
-      {wide || reviewStep === 2 || reviewStep === 3 ? null : (
-        <div className="mgr-detail-extra">
-          <OrderCustomerCard order={order} t={t} />
-          <OrderAttachmentsCard order={order} t={t} />
+      {showCustomerInSidebar && hasAttachments ? (
+        <OrderAttachmentsCard order={order} t={t} />
+      ) : null}
+      {showExtraInMain ? (
+        <div
+          className={`mgr-detail-extra${
+            showCustomerInMain && hasAttachments ? '' : ' is-single'
+          }`}
+        >
+          {showCustomerInMain ? (
+            <OrderCustomerCard order={order} t={t} hideEmpty />
+          ) : null}
+          {hasAttachments ? <OrderAttachmentsCard order={order} t={t} /> : null}
         </div>
-      )}
+      ) : null}
     </div>
   )
   return (

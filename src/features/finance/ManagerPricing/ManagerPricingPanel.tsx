@@ -333,7 +333,6 @@ export function ManagerPricingPanel({
         filterLabels={filterLabels}
         filter={filter}
         setFilter={setFilter}
-        pendingReviewCount={pendingReviewCount}
         visibleItems={visibleItems}
         accepted={accepted}
         updateReview={updateReview}

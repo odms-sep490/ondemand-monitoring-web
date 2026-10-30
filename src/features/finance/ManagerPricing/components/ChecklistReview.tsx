@@ -1,4 +1,3 @@
-import { CheckOutlined, ExclamationOutlined } from '@ant-design/icons'
 import { pricingLabel } from '../../../../shared/lib/pricingPresentation'
 import type { ChecklistReviewStatus } from '../../types'
 import type { Dispatch, SetStateAction, RefObject } from 'react'
@@ -16,7 +15,6 @@ export function ChecklistReview({
   filterLabels,
   filter,
   setFilter,
-  pendingReviewCount,
   visibleItems,
   accepted,
   updateReview,
@@ -50,7 +48,6 @@ export function ChecklistReview({
   setFilter: Dispatch<
     SetStateAction<'all' | 'pending' | 'reviewed' | 'additional'>
   >
-  pendingReviewCount: number
   visibleItems: PricingChecklistItem[]
   accepted: boolean
   updateReview: (
@@ -92,13 +89,6 @@ export function ChecklistReview({
           role="status"
         >
           <strong>{t.reviewedProgress(reviewedCount, checklistCount)}</strong>
-          <span className="finance-progress-percent">
-            (
-            {checklistCount
-              ? Math.round((reviewedCount / checklistCount) * 100)
-              : 0}
-            %)
-          </span>
           <span className="finance-progress-track">
             <span
               style={{
@@ -124,17 +114,6 @@ export function ChecklistReview({
             </button>
           ))}
         </div>
-      </div>
-      <div
-        className={`finance-review-warning ${reviewComplete ? 'is-complete' : 'is-pending'}`}
-        role="status"
-      >
-        <span aria-hidden="true" className="finance-review-warning-icon">
-          {reviewComplete ? <CheckOutlined /> : <ExclamationOutlined />}
-        </span>
-        {reviewComplete
-          ? t.checklistComplete
-          : t.checklistRemaining(pendingReviewCount)}
       </div>
       <div className="finance-checklist">
         <div className="finance-table-head" aria-hidden="true">
