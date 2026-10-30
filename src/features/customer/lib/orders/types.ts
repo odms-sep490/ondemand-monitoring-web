@@ -68,6 +68,10 @@ export type OrderDetailView = OrderRow & {
     'NOT_REVIEWED' | 'NOT_REQUIRED' | 'PENDING_PERMIT' | 'APPROVED' | 'REJECTED'
   checklistItems?: ChecklistSnapshot[]
   checklistSnapshotAt?: string | null
+  checklistRevision: number
+  canEditChecklist: boolean
+  checklistEditBlockedReason: string | null
+  coverageArea: Record<string, unknown> | null
   description: string | null
   usagePurpose: string | null
   flightPurpose: string | null

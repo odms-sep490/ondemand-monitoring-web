@@ -185,6 +185,27 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
         title={<CardTitle icon="drone">{checklistT.title}</CardTitle>}
         items={order.checklistItems}
         snapshotAt={order.checklistSnapshotAt}
+        order={order}
+        canEdit={
+          order.canEditChecklist &&
+          ((['PENDING', 'NEEDS_INFO'].includes(order.status) &&
+            !(order.status === 'NEEDS_INFO' && order.requestedUpdateScope)) ||
+            (order.status === 'APPROVED' &&
+              finance.quote?.status !== 'ACCEPTED_BY_CUSTOMER' &&
+              !finance.invoice)) &&
+          missions.filter((m) => m.status !== 'CANCELLED').length === 0
+        }
+        blockedReason={
+          order.checklistEditBlockedReason ??
+          (finance.quote?.status === 'ACCEPTED_BY_CUSTOMER' || finance.invoice
+            ? 'QUOTE_ACCEPTED'
+            : order.status === 'NEEDS_INFO' && order.requestedUpdateScope
+              ? 'NEEDS_INFO_SCOPE_RESTRICTED'
+              : missions.some((m) => m.status !== 'CANCELLED')
+                ? 'EXECUTION_STARTED'
+                : null)
+        }
+        onUpdated={detail.reload}
       />
       <OrderOverviewVisualCard order={order} />
     </div>
@@ -195,6 +216,7 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
         orderId={order.id}
         legalStatus={order.legalReviewStatus}
         onStateChange={updateFinance}
+        refreshKey={`${order.status}:${order.checklistRevision}`}
       />
     </div>
   )

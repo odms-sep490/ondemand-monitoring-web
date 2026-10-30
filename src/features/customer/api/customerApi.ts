@@ -6,6 +6,7 @@ import { normalizeStatus } from '../lib/orders/mapOrder'
 import type { OrderCreateResponse } from './orderApi'
 import type {
   ChecklistInput,
+  ChecklistUpdatePayload,
   ServiceChecklistItem,
 } from '../lib/checklist/types'
 
@@ -352,6 +353,16 @@ export const customerApi = {
       signal: params.signal,
     }),
 
+
+  /** `PUT /api/orders/{id}/checklist` [BE] `OrderChecklistUpdateRequest` -> `OrderCreateResponse`. */
+  updateOrderChecklist: (orderId: string, payload: ChecklistUpdatePayload) =>
+    apiRequest<OrderCreateResponse>(
+      `/api/orders/${encodeURIComponent(orderId)}/checklist`,
+      {
+        method: 'PUT',
+        body: payload,
+      },
+    ),
 
   /** `POST /api/orders` [BE] `OrderCreateRequest` -> `OrderCreateResponse`. */
   createOrder: (payload: CreateOrderPayload) =>

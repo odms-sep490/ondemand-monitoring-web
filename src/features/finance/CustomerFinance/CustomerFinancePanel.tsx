@@ -21,11 +21,13 @@ export function CustomerFinancePanel({
   orderId,
   legalStatus,
   onStateChange,
+  refreshKey,
 }: {
   orderId: string
   legalStatus?:
     'NOT_REVIEWED' | 'NOT_REQUIRED' | 'PENDING_PERMIT' | 'APPROVED' | 'REJECTED'
   onStateChange?: (state: CustomerFinanceState) => void
+  refreshKey?: number | string
 }) {
   const legalReady =
     legalStatus == null ||
@@ -47,13 +49,13 @@ export function CustomerFinancePanel({
       financeApi.getInvoice(orderId),
     ])
     if (quoteResult.status === 'fulfilled') setQuote(quoteResult.value)
-    else if (!isNotFound(quoteResult.reason))
-      setError(messageOf(quoteResult.reason, t))
+    else if (isNotFound(quoteResult.reason)) setQuote(null)
+    else setError(messageOf(quoteResult.reason, t))
     if (invoiceResult.status === 'fulfilled') setInvoice(invoiceResult.value)
-    else if (!isNotFound(invoiceResult.reason))
-      setError(messageOf(invoiceResult.reason, t))
+    else if (isNotFound(invoiceResult.reason)) setInvoice(null)
+    else setError(messageOf(invoiceResult.reason, t))
     setLoading(false)
-  }, [orderId, t])
+  }, [orderId, refreshKey, t])
 
   useEffect(() => {
     void load()

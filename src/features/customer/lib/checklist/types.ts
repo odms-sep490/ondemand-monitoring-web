@@ -47,9 +47,28 @@ export type ChecklistInput = {
   requestedVideoCount?: number
 }
 
+export type ChecklistUpdateItemInput = {
+  existingItemId?: string
+  sourceChecklistId?: string
+  expectedChecklistVersion?: number
+  contentOverride?: string
+  minimumEvidenceCount?: number
+  requiredEvidenceType?: RequiredEvidenceType
+  requestedImageCount?: number
+  requestedVideoCount?: number
+}
+
+export type ChecklistUpdatePayload = {
+  expectedRevision: number
+  items: ChecklistUpdateItemInput[]
+}
+
 export type ChecklistSnapshot = {
   id: string
   sourceChecklistId: string | null
+  sourceChecklistVersion?: number | null
+  checklistRevision?: number
+  required?: boolean
   content: string
   description?: string | null
   executionSteps?: string[] | null
@@ -82,6 +101,7 @@ export type ChecklistSnapshot = {
 
 export type ChecklistRow = {
   key: string
+  existingItemId?: string | null
   sourceChecklistId: string | null
   version: number | null
   originalContent: string
@@ -204,6 +224,45 @@ export const normalizeContent = (content: string) =>
     .normalize('NFC')
     .replace(/\p{White_Space}+/gu, ' ')
     .replace(/^ +| +$/g, '')
+
+export function serializeChecklistUpdate(
+  rows: ChecklistRow[],
+): ChecklistUpdateItemInput[] {
+  return rows
+    .filter((row) => row.selected)
+    .map((row) => {
+      const content = normalizeContent(row.content)
+      const evidenceRequirements = usesMedia(row)
+        ? {
+            requestedImageCount: row.requestedImageCount,
+            requestedVideoCount: row.requestedVideoCount,
+          }
+        : {
+            minimumEvidenceCount: row.minimumEvidenceCount,
+            requiredEvidenceType: row.requiredEvidenceType,
+          }
+      if (row.existingItemId) {
+        return {
+          existingItemId: row.existingItemId,
+          ...evidenceRequirements,
+          ...(content !== normalizeContent(row.originalContent)
+            ? { contentOverride: content }
+            : {}),
+        }
+      }
+      if (!row.sourceChecklistId) {
+        return { contentOverride: content, ...evidenceRequirements }
+      }
+      return {
+        sourceChecklistId: row.sourceChecklistId,
+        expectedChecklistVersion: row.version ?? 0,
+        ...evidenceRequirements,
+        ...(content !== normalizeContent(row.originalContent)
+          ? { contentOverride: content }
+          : {}),
+      }
+    })
+}
 
 export function serializeChecklist(rows: ChecklistRow[]): ChecklistInput[] {
   return rows
