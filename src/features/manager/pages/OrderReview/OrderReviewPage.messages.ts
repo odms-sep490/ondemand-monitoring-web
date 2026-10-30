@@ -82,6 +82,7 @@ export const orderReviewPageMessages = defineMessages({
     saved: 'Đã lưu',
     saveFailed: 'Lưu thất bại',
     close: 'Đóng',
+    viewOrderDetails: 'Xem thông tin đơn',
     rejectModalTitle: (code: string) => `Từ chối đơn ${code}`,
     infoModalTitle: 'Yêu cầu khách bổ sung thông tin',
     rejectModalHint:
@@ -260,6 +261,7 @@ export const orderReviewPageMessages = defineMessages({
     saved: 'Saved',
     saveFailed: 'Save failed',
     close: 'Close',
+    viewOrderDetails: 'View order details',
     rejectModalTitle: (code: string) => `Reject order ${code}`,
     infoModalTitle: 'Request more information from the customer',
     rejectModalHint:

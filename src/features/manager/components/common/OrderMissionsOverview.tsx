@@ -10,6 +10,8 @@ import { planningSchedule } from './planningSchedule'
 import { FlightPermitCard } from './FlightPermitCard'
 import type { MissionResponse } from '../../types/missions'
 import { Button } from '../../../../shared/components/ui'
+import { OrderDetailsDrawer } from './OrderDetailsDrawer'
+import type { OrderDetail } from '../../types/orders'
 
 const ROLES: MissionStaffRole[] = [
   'PILOT',
@@ -29,6 +31,7 @@ export function OrderMissionsOverview({
   onReload,
   onAssignMore,
   doneLabel,
+  order,
   embedded = false,
   mode = 'preparation',
 }: {
@@ -39,6 +42,7 @@ export function OrderMissionsOverview({
   onReload: () => void
   onAssignMore?: (missionId: string) => void
   doneLabel: ReactNode
+  order?: OrderDetail
   /** The outer page already renders the heading and stepper. */
   embedded?: boolean
   mode?: 'preparation' | 'permit'
@@ -59,13 +63,16 @@ export function OrderMissionsOverview({
               <h1 className="odm-or-title">{t.title}</h1>
               <p className="odm-or-subtitle">{t.subtitle}</p>
             </div>
-            <Button
-              type="button"
-              disabled={loading}
-              onClick={onReload}
-            >
-              {t.reload}
-            </Button>
+            <div className="odm-or-order-page-actions">
+              {order ? <OrderDetailsDrawer order={order} /> : null}
+              <Button
+                type="button"
+                disabled={loading}
+                onClick={onReload}
+              >
+                {t.reload}
+              </Button>
+            </div>
           </div>
           <OrderWorkflowStepper currentStep={mode === 'permit' ? 9 : 8} />
         </>

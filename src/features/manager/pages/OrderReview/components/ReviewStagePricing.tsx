@@ -25,7 +25,10 @@ export function ReviewStagePricing({
 }) {
   const { t } = useI18n(reviewStagePricingMessages)
   return (
-    <div className="odm-or-review-stage" aria-label={t.checklistAndQuote}>
+    <div
+      className="odm-or-review-stage odm-or-pricing-stage"
+      aria-label={t.checklistAndQuote}
+    >
       <ReadOnlyScope on={readOnly}>
         <section className="odm-or-review-section">
           <ManagerPricingPanel
@@ -36,7 +39,7 @@ export function ReviewStagePricing({
           />
         </section>
       </ReadOnlyScope>
-      <ReviewStageActions step={4} onBack={() => goToStep(3)} />
+      <ReviewStageActions step={4} onBack={() => goToStep(3)} compact />
     </div>
   )
 }
