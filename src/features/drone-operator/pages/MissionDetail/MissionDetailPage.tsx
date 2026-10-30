@@ -6,6 +6,7 @@ import {
 } from '../../../../shared/components/odm/StateView'
 import { useI18n } from '../../../../shared/i18n'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
+import { ApiError } from '../../../../shared/api/httpClient'
 import { missionApi } from '../../../mission/api/missionApi'
 import { useMissionMonitoring } from '../../../mission/hooks/useMissionMonitoring'
 import { MonitoringChecklistSection } from '../../../mission/components/MonitoringChecklistSection'
@@ -44,6 +45,21 @@ function MissionDetailContent({ missionId }: { missionId: string }) {
   const monitoring = useMissionMonitoring(missionId, undefined, {
     autoRefresh: false,
   })
+  const awaitingResponse = Boolean(query.data && isAwaitingResponse(query.data))
+  // Accept/reject only depends on assignment permissions, not post-flight data.
+  const responsePermissions = useApiQuery(async () => {
+    if (!awaitingResponse) return undefined
+    const permissions = await missionApi.getPermissions(missionId)
+    if (!permissions || typeof permissions.canRespond !== 'boolean') {
+      throw new ApiError('Mission permissions unavailable', {
+        code: 'MISSION_PERMISSIONS_UNAVAILABLE',
+        status: 503,
+        method: 'GET',
+        path: `/api/missions/${missionId}/permissions`,
+      })
+    }
+    return permissions
+  }, [missionId, awaitingResponse])
   const resultApprovalStatus = monitoring.data?.result?.approvalStatus ?? null
   const monitoringKnown =
     !monitoring.loading && !monitoring.error && Boolean(monitoring.data)
@@ -62,9 +78,16 @@ function MissionDetailContent({ missionId }: { missionId: string }) {
     const timer = window.setInterval(() => {
       query.reload()
       monitoring.reload()
+      if (awaitingResponse) responsePermissions.reload()
     }, 5_000)
     return () => window.clearInterval(timer)
-  }, [missionId, monitoring.reload, query.reload])
+  }, [
+    missionId,
+    monitoring.reload,
+    query.reload,
+    responsePermissions.reload,
+    awaitingResponse,
+  ])
 
   if (query.loading && !query.data) return <LoadingState />
   if (query.error || !query.data || query.data.id !== missionId) {
@@ -118,7 +141,17 @@ function MissionDetailContent({ missionId }: { missionId: string }) {
               : staffResultError(actionError)
             : null
         }
-        access={actions.known ? monitoring.data?.permissions : undefined}
+        access={
+          awaitingResponse
+            ? !responsePermissions.loading && !responsePermissions.error
+              ? responsePermissions.data
+              : undefined
+            : actions.known
+              ? monitoring.data?.permissions
+              : undefined
+        }
+        responseAccessLoading={responsePermissions.loading}
+        responseAccessError={Boolean(responsePermissions.error)}
         resultActions={
           <MissionResultActions
             missionId={missionId}

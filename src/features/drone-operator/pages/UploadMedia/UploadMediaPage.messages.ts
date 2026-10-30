@@ -2,7 +2,36 @@ import { defineMessages } from '../../../../shared/i18n'
 
 export const uploadMediaPageMessages = defineMessages({
   vi: {
-    stepTitle: 'Upload media',
+    approveEvidence: 'Duyệt bằng chứng',
+    evidenceApproved: 'Đã duyệt bằng chứng.',
+    reviewFailed: 'Không duyệt được bằng chứng.',
+    localUnavailable:
+      'File chưa có trên S3 và không còn bản local. Cần khôi phục bản sao hợp lệ trước khi gắn.',
+    checklistTitle: 'Checklist thực hiện',
+    mediaTitle: 'Danh sách media',
+    workspaceNav: 'Bằng chứng của mission',
+    missingChecklistItem: 'Mục checklist không còn thuộc mission này.',
+    autoAttachHint:
+      'Chọn “Gắn vào checklist” trên ảnh/video. Hệ thống tự tải và gắn bằng chứng sau khi xác nhận.',
+    mediaLibraryFailed: 'Không tải được thư viện media. ',
+    transferDetails: 'Chi tiết upload và khôi phục',
+    queueHint:
+      'File chưa xác thực không tính là đủ bằng chứng. Tác vụ được khôi phục khi mở lại; hãy thử lại để tiếp tục.',
+    retryTask: 'Thử lại',
+    hideTask: 'Ẩn tác vụ',
+    previousPage: 'Trang trước',
+    nextPage: 'Trang sau',
+    queueSummary: (done: number, total: number, failed: number) =>
+      `Tác vụ bằng chứng: ${done}/${total}${failed ? ` · ${failed} cần xử lý` : ''}`,
+    queueStages: {
+      QUEUED: 'Đang chờ',
+      PREPARING: 'Đang chuẩn bị',
+      ATTACHING: 'Đang gắn checklist',
+      TRANSFERRING: 'Đang tải file',
+      VALIDATING: 'Đang chờ xác thực',
+      FAILED: 'Cần thử lại',
+      DONE: 'Đã chuyển file; kiểm tra trạng thái xác thực trong checklist',
+    } as Record<string, string>,
     uploadPermissionNote:
       'Upload ảnh cần Pilot hoặc Inspector đã nhận nhiệm vụ. Bạn vẫn có thể xem media và cập nhật checklist nếu được phân công giám sát.',
     inspectorContact: 'Liên hệ người nghiệm thu',
@@ -36,8 +65,6 @@ export const uploadMediaPageMessages = defineMessages({
     pendingChip: (n: number) => `${n} chờ xử lý`,
     uploadingChip: (n: number) => `${n} đang tải`,
     manualChip: (n: number) => `${n} cần thủ công`,
-    sendBlocked:
-      'Hoàn tất checklist và upload đủ bằng chứng trước khi gửi manager.',
     mediaList: 'Danh sách media',
     fileCount: (n: number) => `${n} file`,
     sortNewest: 'Mới nhất',
@@ -51,18 +78,12 @@ export const uploadMediaPageMessages = defineMessages({
     listView: 'Dạng danh sách',
     viewShort: 'Xem',
     moreActions: 'Thêm thao tác',
-    attachToChecklist: 'Gắn vào checklist',
-    attachSelected: (n: number) => `${n} mục`,
     fileTable: (n: number) => `Danh sách file (${n})`,
     emptyMedia: 'Chưa có media nào.',
     backToCockpit: 'Quay lại buồng lái',
-    backToResult: 'Quay lại kết quả',
     refresh: 'Làm mới',
     uploadAll: 'Upload tất cả',
-    missingChecklistEvidence:
-      'Checklist chưa đủ bằng chứng hợp lệ. Upload media trước khi gửi manager.',
     viewOnly: 'Chỉ xem media',
-    restoringMission: 'Đang khôi phục mission đang mở...',
     loadingMedia: 'Đang tải media…',
     confirmDiscard: (fileName: string) =>
       `Xóa bản local ${fileName} trên Flight Controller?`,
@@ -75,6 +96,37 @@ export const uploadMediaPageMessages = defineMessages({
     deleteFailed: 'Không xóa được media',
   },
   en: {
+    approveEvidence: 'Approve evidence',
+    evidenceApproved: 'Evidence approved.',
+    reviewFailed: 'Could not approve evidence.',
+    localUnavailable:
+      'The file is not uploaded and its local copy is unavailable. Restore a valid backup before attaching.',
+    checklistTitle: 'Mission checklist',
+    mediaTitle: 'Mission media',
+    workspaceNav: 'Mission evidence',
+    missingChecklistItem:
+      'This checklist item no longer belongs to the mission.',
+    autoAttachHint:
+      'Choose “Attach to checklist” on an image or video. Upload and attachment start after you confirm.',
+    mediaLibraryFailed: 'Could not load the media library. ',
+    transferDetails: 'Upload details and recovery',
+    queueHint:
+      'Unvalidated files do not count as ready evidence. Recovered tasks need an explicit retry to continue.',
+    retryTask: 'Retry',
+    hideTask: 'Hide task',
+    previousPage: 'Previous page',
+    nextPage: 'Next page',
+    queueSummary: (done: number, total: number, failed: number) =>
+      `Evidence tasks: ${done}/${total}${failed ? ` · ${failed} need attention` : ''}`,
+    queueStages: {
+      QUEUED: 'Queued',
+      PREPARING: 'Preparing',
+      ATTACHING: 'Attaching',
+      TRANSFERRING: 'Uploading',
+      VALIDATING: 'Waiting for validation',
+      FAILED: 'Retry required',
+      DONE: 'File transferred; check validation in the checklist',
+    } as Record<string, string>,
     uploadPermissionNote:
       'Uploading requires an accepted Pilot or Inspector assignment. You can still view media and update the checklist if assigned to monitoring.',
     inspectorContact: 'Inspector contact',
@@ -94,7 +146,6 @@ export const uploadMediaPageMessages = defineMessages({
       'Could not load upload permissions. Refresh to retry.',
     enlargePreview: 'Enlarge image',
     closePreview: 'Close image',
-    stepTitle: 'Upload media',
     openingMission: 'Opening mission',
     summary: (
       uploaded: number,
@@ -109,8 +160,6 @@ export const uploadMediaPageMessages = defineMessages({
     pendingChip: (n: number) => `${n} pending`,
     uploadingChip: (n: number) => `${n} uploading`,
     manualChip: (n: number) => `${n} need manual upload`,
-    sendBlocked:
-      'Complete the checklist and upload enough evidence before sending to the manager.',
     mediaList: 'Media',
     fileCount: (n: number) => `${n} file(s)`,
     sortNewest: 'Newest',
@@ -124,18 +173,12 @@ export const uploadMediaPageMessages = defineMessages({
     listView: 'List view',
     viewShort: 'View',
     moreActions: 'More actions',
-    attachToChecklist: 'Attach to checklist',
-    attachSelected: (n: number) => `${n} item(s)`,
     fileTable: (n: number) => `File list (${n})`,
     emptyMedia: 'No media yet.',
     backToCockpit: 'Back to cockpit',
-    backToResult: 'Back to results',
     refresh: 'Refresh',
     uploadAll: 'Upload all',
-    missingChecklistEvidence:
-      'The checklist does not have enough valid evidence. Upload media before sending to the manager.',
     viewOnly: 'View only',
-    restoringMission: 'Restoring the open mission...',
     loadingMedia: 'Loading media…',
     confirmDiscard: (fileName: string) =>
       `Delete the local copy of ${fileName} on the Flight Controller?`,

@@ -10,11 +10,13 @@ import { customerDeliveryPanelMessages } from './customerDeliveryPanel.messages'
 import { DeliveryProgress, DeliveryStatusPill } from './DeliveryProgress'
 import type { Delivery } from './types'
 import './delivery.css'
+import { env } from '../../config/env'
 
 export function CustomerDeliveryPanel({ orderId }: { orderId: string }) {
   const { t } = useI18n(customerDeliveryPanelMessages)
   const [delivery, setDelivery] = useState<Delivery | null>(null)
   const [busy, setBusy] = useState(false)
+  const [testPaying, setTestPaying] = useState(false)
   const [acceptOpen, setAcceptOpen] = useState(false)
   const [error, setError] = useState<unknown>(null)
   const [revisionOpen, setRevisionOpen] = useState(false)
@@ -78,6 +80,22 @@ export function CustomerDeliveryPanel({ orderId }: { orderId: string }) {
       window.location.assign(payment.paymentUrl)
     } catch (cause) {
       setError(cause)
+      setBusy(false)
+    }
+  }
+  async function completeTestFinal() {
+    if (busy) return
+    setBusy(true)
+    setTestPaying(true)
+    setError(null)
+    try {
+      const invoice = await financeApi.getInvoice(orderId)
+      await financeApi.completeTestFinal(invoice.id)
+      await load()
+    } catch (cause) {
+      setError(cause)
+    } finally {
+      setTestPaying(false)
       setBusy(false)
     }
   }
@@ -337,14 +355,25 @@ export function CustomerDeliveryPanel({ orderId }: { orderId: string }) {
                 </span>
               </div>
             </div>
-            <Button
-              type="primary"
-              className="delivery-primary-action"
-              disabled={busy}
-              onClick={() => void payFinal()}
-            >
-              {busy ? t.redirecting : t.payVnpay}
-            </Button>
+            <div className="delivery-actions">
+              <Button
+                type="primary"
+                className="delivery-primary-action"
+                disabled={busy}
+                onClick={() => void payFinal()}
+              >
+                {busy && !testPaying ? t.redirecting : t.payVnpay}
+              </Button>
+              {env.testPaymentsEnabled ? (
+                <Button
+                  disabled={busy}
+                  loading={testPaying}
+                  onClick={() => void completeTestFinal()}
+                >
+                  {t.testPayment}
+                </Button>
+              ) : null}
+            </div>
           </div>
         ) : null}
         {delivery.deliveryStatus === 'READY_FOR_DELIVERY' ||

@@ -36,6 +36,7 @@ describe('MediaLibraryPage', () => {
     await waitFor(() => expect(cards()).toHaveLength(12))
     expect(list).toHaveBeenCalled()
     const sidebar = screen.getByText('Lần bay', { selector: '.mgr-card-title' }).closest('section, .ant-card') as HTMLElement
+    expect(await within(sidebar).findByText('Tất cả lần bay')).toBeInTheDocument()
     expect(await within(sidebar).findByText('MSN-2609-0131-1')).toBeInTheDocument()
     expect(await screen.findByText(/thông báo kết quả mới sẵn sàng/)).toBeInTheDocument()
   })
@@ -45,7 +46,7 @@ describe('MediaLibraryPage', () => {
     await waitFor(() => expect(cards()).toHaveLength(12))
     fireEvent.click(screen.getByRole('button', { name: /^MSN-2609-0131-1/ }))
     await waitFor(() => expect(cards()).toHaveLength(12))
-    fireEvent.click(screen.getByRole('button', { name: 'Video' }))
+    fireEvent.click(screen.getByRole('button', { name: /^Video\b/ }))
     await waitFor(() => expect(screen.queryAllByRole('button', { name: /^Xem .*\.jpg$/ })).toHaveLength(0))
     fireEvent.change(screen.getByLabelText('Tìm theo tên tệp'), { target: { value: 'khong-co-tep' } })
     expect(await screen.findByText('Không có tệp nào khớp bộ lọc hiện tại.')).toBeInTheDocument()

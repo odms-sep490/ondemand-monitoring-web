@@ -1,5 +1,14 @@
+import 'fake-indexeddb/auto'
+import { authSession } from '../../../../auth/api/authSession'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import {
+  fireEvent,
+  render as renderComponent,
+  screen,
+  waitFor,
+} from '@testing-library/react'
+import { ConfigProvider } from 'antd'
+import type { ReactNode } from 'react'
 import { UploadMediaPage } from '../UploadMediaPage'
 import { missionApi } from '../../../../mission/api/missionApi'
 import { checklistExecutionApi } from '../../../../mission/api/checklistExecutionApi'
@@ -11,6 +20,11 @@ import { operatorMissionMediaApi } from '../../../../media/api/operatorMissionMe
 import { flightControlApi } from '../../../api/flightControlApi'
 import { ApiError } from '../../../../../shared/api/httpClient'
 import { checklistEvidenceApi } from '../../../../mission/api/checklistEvidenceApi'
+
+const render = (ui: ReactNode) =>
+  renderComponent(
+    <ConfigProvider theme={{ token: { motion: false } }}>{ui}</ConfigProvider>,
+  )
 
 const active = vi.hoisted(() => ({ status: 'PENDING_REVIEW', reload: vi.fn() }))
 vi.mock('../../../api/useActiveMission', () => ({
@@ -58,6 +72,11 @@ const media: LocalMedia = {
   status: 'REVIEW_PENDING',
 }
 beforeEach(() => {
+  vi.spyOn(authSession, 'getUser').mockReturnValue({
+    id: crypto.randomUUID(),
+    role: 'STAFF',
+  } as never)
+  vi.spyOn(authSession, 'isLoggedOut').mockReturnValue(false)
   active.status = 'PENDING_REVIEW'
   active.reload.mockClear()
   HTMLDialogElement.prototype.showModal = vi.fn()
@@ -161,15 +180,13 @@ describe('Upload media and monitoring workspace', () => {
 
     fireEvent.click(
       await screen.findByRole('button', {
-        name: 'Duyệt media cho khách hàng',
+        name: 'Duyệt bằng chứng',
       }),
     )
     await waitFor(() =>
       expect(approve).toHaveBeenCalledWith('m', 'backend-media'),
     )
-    expect(
-      screen.getByText('Đã duyệt media trong phiên này'),
-    ).toBeInTheDocument()
+    expect(screen.getByText('Đã duyệt bằng chứng.')).toBeInTheDocument()
   })
   it('allows one capture to target multiple historical checklist executions', async () => {
     vi.mocked(missionApi.getPermissions).mockResolvedValue({
@@ -194,16 +211,24 @@ describe('Upload media and monitoring workspace', () => {
         },
       ],
     })
-    vi.spyOn(operatorMediaApi, 'upload').mockResolvedValue('backend-media')
+    vi.spyOn(operatorMediaApi, 'upload').mockImplementation(
+      async (_item, _manual, prepared) => {
+        await prepared?.('backend-media')
+        return 'backend-media'
+      },
+    )
     const attach = vi.spyOn(checklistEvidenceApi, 'batch').mockResolvedValue([])
     render(<UploadMediaPage missionId="m" />)
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Gắn vào checklist' }),
+    )
     fireEvent.click(
       await screen.findByRole('checkbox', { name: /Quan sát hàng rào/ }),
     )
     fireEvent.click(screen.getByRole('checkbox', { name: /Khu vực phía Bắc/ }))
-    fireEvent.click(screen.getByText('Upload ảnh'))
+    fireEvent.click(screen.getByRole('button', { name: 'Gắn vào 2 mục' }))
     await waitFor(() =>
-      expect(attach).toHaveBeenCalledWith('m', 'backend-media', [
+      expect(attach.mock.calls.flatMap((call) => call[2])).toEqual([
         { executionId: 'e', expectedVersion: 4 },
         { executionId: 'e2', expectedVersion: 2 },
       ]),
@@ -221,41 +246,46 @@ describe('Upload media and monitoring workspace', () => {
     ])
     const upload = vi
       .spyOn(operatorMediaApi, 'upload')
-      .mockResolvedValue('backend-media')
+      .mockImplementation(async (_item, _manual, prepared) => {
+        await prepared?.('backend-media')
+        return 'backend-media'
+      })
     const attach = vi
       .spyOn(checklistEvidenceApi, 'batch')
       .mockRejectedValueOnce(new Error('attach failed'))
       .mockResolvedValue([])
     render(<UploadMediaPage missionId="m" />)
     fireEvent.click(
+      await screen.findByRole('button', { name: 'Gắn vào checklist' }),
+    )
+    fireEvent.click(
       await screen.findByRole('checkbox', { name: /Quan sát hàng rào/ }),
     )
-    fireEvent.click(screen.getByText('Upload ảnh'))
-    await screen.findByText(/Gắn bằng chứng chưa thành công/)
+    fireEvent.click(screen.getByRole('button', { name: 'Gắn vào 1 mục' }))
+    await screen.findByRole('button', { name: 'Thử lại' }, { timeout: 10000 })
     expect(attach).toHaveBeenCalledWith('m', 'backend-media', [
       { executionId: 'e', expectedVersion: 4 },
     ])
-    const retry = await screen.findByText('Gắn bằng chứng — không upload lại')
-    await waitFor(() => expect(retry).toBeEnabled())
-    fireEvent.click(retry)
+    fireEvent.click(
+      await screen.findByRole(
+        'button',
+        { name: 'Thử lại' },
+        { timeout: 10000 },
+      ),
+    )
     await waitFor(() => expect(attach).toHaveBeenCalledTimes(2))
     expect(upload).toHaveBeenCalledOnce()
   })
   it('shows captured images and lets a reporting pilot edit status without assessment', async () => {
-    render(<UploadMediaPage missionId="m" />)
+    render(<UploadMediaPage missionId="m" mode="checklist" />)
     await screen.findByText('Quan sát hàng rào')
-    expect(screen.getByText('Chỉnh sửa')).toBeInTheDocument()
-    const image = await screen.findByAltText('capture.jpg')
-    expect(image).toHaveClass('upload-media-preview')
-    expect(screen.queryByText('Upload ảnh')).toBeNull()
+    expect(await screen.findByText('Cập nhật mục')).toBeInTheDocument()
     expect(
-      screen.getByText(/Upload ảnh cần Pilot hoặc Inspector/),
-    ).toBeInTheDocument()
-    fireEvent.click(screen.getByText('Chỉnh sửa'))
+      screen.getByRole('link', { name: 'Danh sách media' }),
+    ).toHaveAttribute('href', '#portal/staff/upload/m')
+    fireEvent.click(await screen.findByText('Cập nhật mục'))
     expect(screen.getByLabelText('Trạng thái thực hiện')).toBeEnabled()
     expect(screen.queryByLabelText('Đánh giá nghiệm thu')).toBeNull()
-    fireEvent.click(screen.getByText('Xem ảnh lớn'))
-    expect(HTMLDialogElement.prototype.showModal).toHaveBeenCalledOnce()
   })
   it('lets only the Inspector edit the acceptance assessment', async () => {
     active.status = 'IN_FLIGHT'
@@ -266,9 +296,9 @@ describe('Upload media and monitoring workspace', () => {
       canSubmitMissionResult: false,
     })
 
-    render(<UploadMediaPage missionId="m" />)
+    render(<UploadMediaPage missionId="m" mode="checklist" />)
 
-    fireEvent.click(await screen.findByText('Chỉnh sửa'))
+    fireEvent.click(await screen.findByText('Cập nhật mục'))
     expect(screen.queryByLabelText('Trạng thái thực hiện')).toBeNull()
     expect(screen.getByLabelText('Đánh giá nghiệm thu')).toBeEnabled()
   })
@@ -291,12 +321,12 @@ describe('Upload media and monitoring workspace', () => {
         })
         return {} as never
       })
-    render(<UploadMediaPage missionId="m" />)
-    fireEvent.click(await screen.findByText('Chỉnh sửa'))
+    render(<UploadMediaPage missionId="m" mode="checklist" />)
+    fireEvent.click(await screen.findByText('Cập nhật mục'))
     fireEvent.change(screen.getByLabelText('Trạng thái thực hiện'), {
       target: { value: 'COMPLETED' },
     })
-    fireEvent.click(screen.getByText('Lưu'))
+    fireEvent.click(screen.getByText('Lưu mục'))
     await waitFor(() =>
       expect(save).toHaveBeenCalledWith(
         'm',
@@ -314,25 +344,14 @@ describe('Upload media and monitoring workspace', () => {
     )
     expect(active.reload).toHaveBeenCalled()
   })
-  it('offers upload to Inspector while the monitoring checklist is read-only', async () => {
-    vi.mocked(missionApi.getPermissions).mockResolvedValue({
-      ...permissions,
-      canUploadMedia: true,
-      canExecuteMonitoringChecklist: false,
-    })
-    const upload = vi
-      .spyOn(operatorMediaApi, 'upload')
-      .mockResolvedValue('backend-media')
+  it('keeps checklist and media as separate primary pages', async () => {
     render(<UploadMediaPage missionId="m" />)
-    await screen.findByText('Quan sát hàng rào')
-    expect(screen.queryByText('Cập nhật mục')).toBeNull()
-    fireEvent.click(await screen.findByText('Upload ảnh'))
-    await waitFor(() =>
-      expect(upload).toHaveBeenCalledWith(
-        expect.objectContaining({ localMediaId: 'local' }),
-        false,
-      ),
-    )
+    await screen.findByAltText('capture.jpg')
+    expect(screen.queryByText('Chỉnh sửa')).not.toBeInTheDocument()
+    expect(
+      screen.getByRole('link', { name: 'Checklist thực hiện' }),
+    ).toHaveAttribute('href', '#portal/staff/checklist/m')
+    expect(screen.queryByText('Upload ảnh')).not.toBeInTheDocument()
   })
   it('does not claim batch success after an upload fails', async () => {
     vi.mocked(missionApi.getPermissions).mockResolvedValue({
@@ -391,7 +410,9 @@ describe('Upload media and monitoring workspace', () => {
     expect(
       await screen.findByRole('button', { name: 'Gửi kết quả cho Manager' }),
     ).toBeEnabled()
-    fireEvent.click(screen.getByRole('button', { name: 'Xác nhận hoàn thành Mission' }))
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Xác nhận hoàn thành Mission' }),
+    )
     await waitFor(() => expect(complete).toHaveBeenCalledWith('m'))
     expect(submit).not.toHaveBeenCalled()
     await waitFor(() =>
@@ -528,7 +549,7 @@ describe('Upload media and monitoring workspace', () => {
     )
     expect(complete).not.toHaveBeenCalled()
     expect(
-      screen.getByRole('link', { name: 'Quay lại buồng lái' }),
+      screen.getAllByRole('link', { name: 'Quay lại buồng lái' })[0],
     ).toHaveAttribute('href', '#portal/staff/flight/m')
   })
 
@@ -571,7 +592,7 @@ describe('Upload media and monitoring workspace', () => {
       canUploadMedia: true,
     })
     render(<UploadMediaPage missionId="m" />)
-    await screen.findByText('Upload ảnh')
+    await screen.findByRole('button', { name: 'Upload tất cả' })
     vi.mocked(missionApi.getPermissions).mockRejectedValue(new Error('denied'))
     fireEvent.click(screen.getAllByRole('button', { name: 'Làm mới' })[0])
     await screen.findByText(

@@ -15,9 +15,10 @@ describe('Pager', () => {
     expect(onPage).toHaveBeenNthCalledWith(2, 2)
   })
 
-  it('disables both buttons on a single page', () => {
+  it('hides navigation buttons when all items fit on a single page', () => {
     render(<Pager page={0} totalPages={1} totalItems={3} unit="x" onPage={() => {}} />)
-    expect(screen.getByRole('button', { name: 'Trang trước' })).toBeDisabled()
-    expect(screen.getByRole('button', { name: 'Trang sau' })).toBeDisabled()
+    expect(screen.getByText('3 x')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Trang trước' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Trang sau' })).not.toBeInTheDocument()
   })
 })

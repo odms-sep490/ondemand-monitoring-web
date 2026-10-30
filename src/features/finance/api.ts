@@ -97,6 +97,11 @@ export const financeApi = {
         method: 'POST',
       },
     ),
+  completeTestFinal: (invoiceId: string) =>
+    apiRequest<Payment>(
+      `/api/invoices/${encodeURIComponent(invoiceId)}/payments/test-final`,
+      { method: 'POST' },
+    ),
   getPaymentByReference: (transactionReference: string, signal?: AbortSignal) =>
     apiRequest<Payment>(
       `/api/payments/by-reference/${encodeURIComponent(transactionReference)}`,

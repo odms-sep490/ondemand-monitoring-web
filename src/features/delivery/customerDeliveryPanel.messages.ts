@@ -54,6 +54,7 @@ export const customerDeliveryPanelMessages = defineMessages({
     amountLeft: 'Số tiền còn lại',
     redirecting: 'Đang chuyển đến VNPAY…',
     payVnpay: 'Thanh toán qua VNPAY',
+    testPayment: 'Thanh toán nhanh (Test)',
     paymentConfirmedTitle: 'Thanh toán đã được xác nhận',
     paymentConfirmedText:
       'Quản lý đang chuẩn bị phát hành dữ liệu gốc cho bạn.',
@@ -114,6 +115,7 @@ export const customerDeliveryPanelMessages = defineMessages({
     amountLeft: 'Amount remaining',
     redirecting: 'Redirecting to VNPAY…',
     payVnpay: 'Pay with VNPAY',
+    testPayment: 'Quick payment (Test)',
     paymentConfirmedTitle: 'Payment confirmed',
     paymentConfirmedText:
       'The manager is preparing to release your original data.',
