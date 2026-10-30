@@ -54,10 +54,6 @@ export function ContentStep(p: Props) {
               </div>
               <div className="co-content-stats">
                 <Metric
-                  label={t.totalContent}
-                  value={String(p.selectedCount)}
-                />
-                <Metric
                   label={t.packageContent}
                   value={t.count(p.packageSelectedCount, p.packageCount)}
                 />
@@ -66,12 +62,11 @@ export function ContentStep(p: Props) {
                   value={String(p.additionalChecklists.length)}
                 />
               </div>
-              <p
-                className="co-content-hint"
-                role={p.valid ? undefined : 'alert'}
-              >
-                {p.valid ? t.hint : t.invalid}
-              </p>
+              {!p.valid && (
+                <p className="co-content-hint" role="alert">
+                  {t.invalid}
+                </p>
+              )}
             </Card>
             <PricingEstimateCard
               estimate={p.pricingEstimate}

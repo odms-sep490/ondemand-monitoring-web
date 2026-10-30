@@ -112,7 +112,7 @@ export function MonitoringAuthorizationSection({
     <Card
       icon={<SafetyOutlined />}
       title={t.title}
-      className="co-authz"
+      className="co-authz co-site-authorization-card"
     >
       <p className="co-authz-intro">{t.intro}</p>
 

@@ -23,7 +23,7 @@
 /* One sidebar surface: summary and navigation share the same visual rail. */
 .co-content-sidegroup {
   position: sticky;
-  top: 16px;
+  top: 80px;
   align-self: start;
   overflow: hidden;
   background: var(--ui-surface);
@@ -119,33 +119,28 @@
 .co-content-stats {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  gap: 8px;
 }
 
 .co-summary.co-content-aside .co-content-stats .co-metric {
   min-width: 0;
-  min-height: 0;
-  padding: 12px;
+  min-height: 72px;
+  padding: 10px 8px;
   background: var(--ui-surface-2);
   border: 1px solid var(--ui-border);
-  border-radius: 10px;
-}
-
-.co-summary.co-content-aside .co-content-stats .co-metric:first-child {
-  grid-column: 1 / -1;
-  background: var(--ui-primary-soft);
-  border-color: color-mix(in srgb, var(--ui-primary) 18%, var(--ui-border));
+  border-radius: 8px;
 }
 
 .co-summary.co-content-aside .co-content-stats .co-metric-label {
   color: var(--ui-text-2);
-  font-size: 12px;
-  line-height: 1.4;
+  font-size: 11px;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
 }
 
 .co-summary.co-content-aside .co-content-stats .co-metric-value {
-  margin-top: 5px;
-  font-size: 19px;
+  margin-top: 4px;
+  font-size: 16px;
   font-weight: 700;
   line-height: 1.3;
   font-variant-numeric: tabular-nums;
@@ -172,40 +167,29 @@
 }
 
 .co-page .co-content-editor .checklist-card .checklist-fields {
-  gap: 0;
-  margin-top: 16px;
+  gap: 4px;
+  margin-top: 8px;
   padding: 0;
-}
-
-.co-page .co-content-editor .checklist-card.is-compact .checklist-row.is-compact {
-  padding: 0;
-  border-radius: 0;
-  box-shadow: none;
-}
-
-.co-page .co-content-editor .checklist-card.is-compact .checklist-row.is-compact.is-selected {
-  background: color-mix(in srgb, var(--ui-primary-soft) 20%, var(--ui-surface));
-  box-shadow: inset 3px 0 0 var(--ui-primary);
 }
 
 .co-content-editor .checklist-card .checklist-row.is-compact .checklist-row-header {
-  grid-template-columns: 20px 30px minmax(0, 1fr) auto auto;
+  grid-template-columns: 20px minmax(0, 1fr) auto;
   grid-template-areas:
-    'check index summary price actions'
-    'check index evidence price actions';
-  column-gap: 12px;
-  row-gap: 7px;
+    'check summary actions'
+    'check evidence evidence';
+  column-gap: 10px;
+  row-gap: 5px;
   align-items: center;
-  min-height: 82px;
-  padding: 15px 16px;
+  min-height: 72px;
+  padding: 12px;
 }
 
 .co-content-editor .checklist-row-header > .checklist-check {
   grid-area: check;
 }
 
-.co-content-editor .checklist-row-header > .checklist-index {
-  grid-area: index;
+.co-page .co-content-editor .checklist-card.is-compact .checklist-row-header > .checklist-index {
+  display: none;
 }
 
 .co-page .co-content-editor .checklist-row-header > .checklist-summary {
@@ -238,11 +222,16 @@
 .co-content-editor .checklist-row-header > .checklist-row-price {
   grid-area: price;
   align-self: center;
-  min-width: 104px;
-  font-size: 14px;
+  min-width: 0;
+  font-size: 13px;
   font-weight: 700;
   white-space: nowrap;
   text-align: right;
+}
+
+.co-page .co-content-editor .checklist-card.is-compact .checklist-row-header > .checklist-row-price,
+.co-page .co-content-editor .checklist-card.is-compact .checklist-length-with-evidence {
+  display: none;
 }
 
 .co-content-editor .checklist-row-actions {
@@ -262,7 +251,59 @@
 }
 
 .co-content-editor .checklist-row.is-compact > .checklist-guidance {
-  padding: 0 18px 14px 78px;
+  padding: 0 12px 12px 42px;
+}
+
+.co-page .co-content-editor .checklist-card.is-compact .checklist-row.is-compact {
+  min-width: 0;
+  border: 1px solid var(--ui-border);
+  border-radius: 10px;
+  background: var(--ui-surface);
+}
+
+.co-page .co-content-editor .checklist-card.is-compact .checklist-row.is-compact.is-selected {
+  background: color-mix(in srgb, var(--ui-primary-soft) 28%, var(--ui-surface));
+  border-color: color-mix(in srgb, var(--ui-primary) 42%, var(--ui-border));
+  box-shadow: none;
+}
+
+.co-page .co-content-editor .checklist-row.is-removed .checklist-row-actions .checklist-icon-btn:not(.is-danger) {
+  display: none;
+}
+
+.co-page .co-content-editor .checklist-card .checklist-toolbar.is-simple {
+  display: flex;
+  justify-content: flex-start;
+  min-height: 0;
+  margin-top: 4px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+/* On wide screens, use the editor's unused horizontal space to shorten the
+   checklist. Keep each requirement as a distinct, easy-to-scan touch surface. */
+@container monitoring-editor (min-width: 760px) {
+  .co-page .co-content-editor .checklist-card.is-compact .checklist-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: 12px;
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .co-content-editor .checklist-row.is-compact .checklist-row-header {
+    min-height: 70px;
+    padding: 10px;
+    column-gap: 8px;
+  }
+
+  .co-page .co-content-editor .checklist-card.is-compact .checklist-row.is-compact > .checklist-guidance {
+    padding: 0 10px 10px 38px;
+  }
 }
 
 /* One predictable toolbar instead of controls wrapping at arbitrary widths. */
@@ -398,7 +439,7 @@
   }
 }
 
-@media (max-height: 820px) {
+@media (max-height: 600px) {
   .co-content-sidegroup {
     position: static;
   }
@@ -432,15 +473,15 @@
   }
 }
 
-@container monitoring-editor (max-width: 700px) {
+@container monitoring-editor (max-width: 759px) {
   .co-content-editor .checklist-card .checklist-row.is-compact .checklist-row-header {
-    grid-template-columns: 20px 30px minmax(0, 1fr) auto;
+    grid-template-columns: 20px minmax(0, 1fr) auto;
     grid-template-areas:
-      'check index summary actions'
-      '. . evidence actions'
-      '. . price price';
-    gap: 8px 10px;
-    padding: 14px;
+      'check summary actions'
+      'check evidence price';
+    gap: 6px 10px;
+    min-height: 70px;
+    padding: 12px;
   }
 
   .co-content-editor .checklist-row-header > .checklist-row-price {
@@ -450,7 +491,7 @@
   }
 
   .co-content-editor .checklist-row.is-compact > .checklist-guidance {
-    padding: 0 14px 14px 74px;
+    padding: 0 12px 12px 42px;
   }
 }
 
