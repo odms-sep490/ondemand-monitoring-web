@@ -77,12 +77,14 @@ export type AdminPreviewRequest = {
 
 /** Customer input is choices and quantities only; the backend owns every price. */
 export type CustomerQuoteItem = {
+  existingItemId?: string
   sourceChecklistId?: string
   content?: string
   requestedImageCount?: number
   requestedVideoCount?: number
 }
 export type ChecklistQuoteContext = {
+  orderId?: string
   areaHa?: number
   lengthKm?: number
   altitudeM?: number

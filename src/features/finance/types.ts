@@ -20,6 +20,9 @@ export type PricingChecklistItem = {
   requestedImageCount?: number
   requestedVideoCount?: number
   difficultySnapshot?: 'BASIC' | 'MEDIUM' | 'HARD' | 'VERY_HARD'
+  checklistRevision?: number
+  required?: boolean
+  sourceChecklistVersion?: number | null
 }
 
 export type PricingCategory =
@@ -68,6 +71,7 @@ export type Quote = {
   approvedByName: string | null
   approvedAt: string | null
   acceptedAt: string | null
+  checklistRevision?: number
   items: QuoteItem[]
   pricingPolicyId?: string
   pricingPolicyVersion?: number
@@ -111,6 +115,7 @@ export type CustomerQuote = {
   pricingFinalized: boolean
   approvedAt: string | null
   acceptedAt: string | null
+  checklistRevision?: number
   items: QuoteItem[]
 }
 
@@ -177,4 +182,5 @@ export type PricingReview = {
   currentManagerId?: string
   managerMaxDiscountPercent?: number | null
   managerMaxMarkupPercent?: number | null
+  checklistRevision?: number
 }

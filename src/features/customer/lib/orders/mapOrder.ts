@@ -177,6 +177,15 @@ export function toOrderDetail(order: OrderCreateResponse): OrderDetailView {
     executionPlanStatus: orNull(order.executionPlanStatus),
     checklistItems: order.checklistItems ?? [],
     checklistSnapshotAt: orNull(order.checklistSnapshotAt),
+    checklistRevision: order.checklistRevision ?? 1,
+    canEditChecklist:
+      order.canEditChecklist !== undefined
+        ? Boolean(order.canEditChecklist)
+        : (['PENDING', 'NEEDS_INFO'].includes(row.status) &&
+            !(row.status === 'NEEDS_INFO' && order.requestedUpdateScope)) ||
+          row.status === 'APPROVED',
+    checklistEditBlockedReason: orNull(order.checklistEditBlockedReason),
+    coverageArea: orNull(order.coverageArea),
     latitude: orNull(order.latitude),
     longitude: orNull(order.longitude),
     rejectReason: orNull(order.rejectReason),

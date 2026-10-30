@@ -81,6 +81,9 @@ export type OrderDeliverableResponse = {
 export type OrderCreateResponse = {
   checklistItems?: ChecklistSnapshot[]
   checklistSnapshotAt?: string | null
+  checklistRevision?: number
+  canEditChecklist?: boolean
+  checklistEditBlockedReason?: string | null
   id: string
   orderCode?: string | null
   customerId: string

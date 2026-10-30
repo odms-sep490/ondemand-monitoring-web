@@ -18,7 +18,11 @@ export const financeApi = {
   reviewChecklist: (
     orderId: string,
     itemId: string,
-    body: { status: ChecklistReviewStatus; managerNote: string | null },
+    body: {
+      status: ChecklistReviewStatus
+      managerNote: string | null
+      expectedChecklistRevision?: number | null
+    },
   ) =>
     apiRequest<PricingChecklistItem>(
       `/api/manager/orders/${encodeURIComponent(orderId)}/checklist-items/${encodeURIComponent(itemId)}`,
@@ -37,6 +41,7 @@ export const financeApi = {
         'DISCOUNT' | 'PROMOTION' | 'COMPENSATION' | 'GOODWILL' | 'CORRECTION'
       expectedPricingRevision?: number | null
       expectedPolicyVersion?: number | null
+      expectedChecklistRevision?: number | null
     },
   ) =>
     apiRequest<Quote>(

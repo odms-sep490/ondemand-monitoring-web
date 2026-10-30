@@ -106,6 +106,32 @@ export const checklistMessages = defineMessages({
       'Đây là nội dung đã lưu của yêu cầu, không thay đổi theo danh mục dịch vụ.',
     legacy: 'Yêu cầu này chưa lưu danh sách nội dung giám sát.',
     emptySnapshot: 'Yêu cầu được gửi không kèm nội dung giám sát.',
+    editChecklist: 'Chỉnh sửa checklist',
+    saveChecklist: 'Lưu thay đổi',
+    savingChecklist: 'Đang lưu…',
+    cancelChecklist: 'Hủy',
+    editableHint:
+      'Bạn có thể điều chỉnh danh sách nội dung giám sát và số lượng ảnh/video trước khi chấp nhận báo giá.',
+    editSaved: 'Đã cập nhật danh sách nội dung giám sát.',
+    approvedEditWarningTitle: 'Xác nhận cập nhật nội dung giám sát',
+    approvedEditWarningBody:
+      'Đơn hàng đã được duyệt. Nếu lưu thay đổi nội dung giám sát, đơn hàng sẽ quay về trạng thái Chờ duyệt để Quản lý xem xét và báo giá lại. Báo giá hiện tại (nếu có) sẽ bị thay thế.',
+    approvedEditConfirm: 'Xác nhận và lưu',
+    revisionConflict:
+      'Nội dung giám sát đã được cập nhật từ phiên khác. Vui lòng tải lại dữ liệu mới nhất trước khi tiếp tục.',
+    reloadLatest: 'Tải lại dữ liệu mới nhất',
+    editLocked:
+      'Không thể chỉnh sửa nội dung giám sát ở trạng thái hiện tại của đơn hàng.',
+    blockedQuoteAccepted:
+      'Đã chốt nội dung giám sát sau khi chấp nhận báo giá · Chỉ xem',
+    blockedNeedsLocation:
+      'Đơn hàng đang chờ cập nhật vị trí giám sát · Chỉ xem',
+    blockedNeedsInfo:
+      'Đơn hàng đang chờ bổ sung thông tin theo yêu cầu của Quản lý · Chỉ xem',
+    blockedExecutionStarted:
+      'Đã chốt nội dung giám sát khi triển khai · Chỉ xem',
+    requiredMissing:
+      'Không thể bỏ nội dung giám sát bắt buộc của dịch vụ.',
   },
   en: {
     title: 'Monitoring requirements',
@@ -217,5 +243,28 @@ export const checklistMessages = defineMessages({
     legacy: 'This request has no saved monitoring requirements.',
     emptySnapshot:
       'This request was submitted with no monitoring requirements.',
+    editChecklist: 'Edit checklist',
+    saveChecklist: 'Save changes',
+    savingChecklist: 'Saving…',
+    cancelChecklist: 'Cancel',
+    editableHint:
+      'You can update the monitoring requirements and image/video counts before accepting the quote.',
+    editSaved: 'Monitoring requirements updated.',
+    approvedEditWarningTitle: 'Confirm monitoring requirements update',
+    approvedEditWarningBody:
+      'This order is already approved. Saving changes will return the order to Pending review so a Manager can review and re-quote it. Any current quote will be superseded.',
+    approvedEditConfirm: 'Confirm and save',
+    revisionConflict:
+      'The monitoring requirements were updated in another session. Reload the latest data before continuing.',
+    reloadLatest: 'Reload latest data',
+    editLocked:
+      'Monitoring requirements can no longer be edited in the current order state.',
+    blockedQuoteAccepted: 'Locked after quote acceptance · Read only',
+    blockedNeedsLocation: 'Waiting for monitoring location update · Read only',
+    blockedNeedsInfo:
+      'Waiting for requested additional information · Read only',
+    blockedExecutionStarted:
+      'Locked after mission planning started · Read only',
+    requiredMissing: 'A required service requirement cannot be removed.',
   },
 })

@@ -161,6 +161,7 @@ export function ManagerPricingPanel({
       await financeApi.reviewChecklist(orderId, item.id, {
         status,
         managerNote: managerNote.trim() || null,
+        expectedChecklistRevision: query.data?.checklistRevision ?? null,
       })
       toast.success(fb.reviewSaved)
       query.reload()
@@ -218,8 +219,11 @@ export function ManagerPricingPanel({
         adjustmentType: draft.adjustmentType,
         expectedPricingRevision:
           query.data.currentQuote?.pricingRevision ?? null,
-        expectedPolicyVersion:
-          query.data.systemCalculation?.policyVersion ?? null,
+
+
+        expectedPolicyVersion: query.data.systemCalculation?.policyVersion ?? null,
+        expectedChecklistRevision: query.data.checklistRevision ?? null,
+
       })
       dirtyPriceIds.current.clear()
       await financeApi.approveQuote(orderId, quote.id)
@@ -231,7 +235,12 @@ export function ManagerPricingPanel({
     } catch (cause) {
       setError(errorMessage(cause))
       toast.error(errorMessage(cause))
-      if (cause instanceof ApiError && cause.code === 'STALE_PRICING_POLICY') {
+      if (
+        cause instanceof ApiError &&
+        (cause.code === 'STALE_PRICING_POLICY' ||
+          cause.code === 'STALE_PRICING_REVISION' ||
+          cause.code === 'ORDER_CHECKLIST_REVISION_CONFLICT')
+      ) {
         // Show the Manager the prices that now apply; typed prices would be judged against the old ones.
         dirtyPriceIds.current.clear()
         query.reload()

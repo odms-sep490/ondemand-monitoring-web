@@ -262,8 +262,10 @@ export function ChecklistEditor({
               title={row.content}
             >
               {row.content || t.emptyContent}
-              {!row.sourceChecklistId && (
-                <span className="checklist-custom-tag">{t.custom}</span>
+              {!row.sourceChecklistId && awaitingManagerQuote(row) && (
+                <span className="checklist-custom-tag is-pending-quote">
+                  {t.onDemandService}
+                </span>
               )}
               {row.mandatory && (
                 <span
@@ -272,16 +274,6 @@ export function ChecklistEditor({
                 >
                   {t.mandatory}
                 </span>
-              )}
-              {awaitingManagerQuote(row) && (
-                <>
-                  <span className="checklist-custom-tag is-pending-quote">
-                    {t.onDemandService}
-                  </span>
-                  <small className="checklist-hint">
-                    {t.onDemandHint}
-                  </small>
-                </>
               )}
             </span>
             <span className="checklist-evidence-summary">
@@ -347,6 +339,10 @@ export function ChecklistEditor({
                 guidance={row}
                 summaryLabel={compact ? t.guidanceSummary : undefined}
               />
+            </div>
+          ) : awaitingManagerQuote(row) ? (
+            <div className="checklist-guidance checklist-custom-details">
+              <small className="checklist-hint">{t.onDemandHint}</small>
             </div>
           ) : null}
         </div>
