@@ -5,8 +5,12 @@ import { pricingLabel } from '../../../../shared/lib/pricingPresentation'
 import { StatusTag } from '../../../../shared/components/antd'
 import { PaymentStat } from './PaymentStat'
 import type { Invoice } from '../../types'
+import { env } from '../../../../config/env'
 
-const INVOICE_TONE: Record<string, 'success' | 'warning' | 'danger' | 'info' | 'neutral'> = {
+const INVOICE_TONE: Record<
+  string,
+  'success' | 'warning' | 'danger' | 'info' | 'neutral'
+> = {
   ISSUED: 'info',
   PARTIALLY_PAID: 'warning',
   PAID: 'success',
@@ -21,6 +25,7 @@ export function InvoiceSection({
   busy,
   pay,
   completeTestDeposit,
+  completeTestFinal,
   testPaymentLabel,
 }: {
   invoice: Invoice
@@ -28,6 +33,7 @@ export function InvoiceSection({
   busy: boolean
   pay: (type: 'deposit' | 'final') => Promise<void>
   completeTestDeposit: () => Promise<void>
+  completeTestFinal: () => Promise<void>
   testPaymentLabel: string
 }) {
   const { t } = useI18n(customerFinanceSectionsMessages)
@@ -69,7 +75,7 @@ export function InvoiceSection({
             >
               {t.payDeposit}
             </Button>
-            {import.meta.env.DEV ? (
+            {env.testPaymentsEnabled ? (
               <Button
                 disabled={busy}
                 onClick={() => void completeTestDeposit()}
@@ -82,13 +88,20 @@ export function InvoiceSection({
         {invoice.finalPaymentAllowed &&
         invoice.paidAmount >= invoice.depositAmount &&
         invoice.remainingAmount > 0 ? (
-          <Button
-            type="primary"
-            disabled={busy}
-            onClick={() => void pay('final')}
-          >
-            {t.payRemaining}
-          </Button>
+          <>
+            <Button
+              type="primary"
+              disabled={busy}
+              onClick={() => void pay('final')}
+            >
+              {t.payRemaining}
+            </Button>
+            {env.testPaymentsEnabled ? (
+              <Button disabled={busy} onClick={() => void completeTestFinal()}>
+                {testPaymentLabel}
+              </Button>
+            ) : null}
+          </>
         ) : null}
       </div>
     </div>

@@ -94,12 +94,13 @@ export function CustomerFinancePanel({
     }
   }
 
-  async function completeTestDeposit() {
+  async function completeTestPayment(type: 'deposit' | 'final') {
     if (!invoice) return
     setBusy(true)
     setError(null)
     try {
-      await financeApi.completeTestDeposit(invoice.id)
+      if (type === 'deposit') await financeApi.completeTestDeposit(invoice.id)
+      else await financeApi.completeTestFinal(invoice.id)
       await load()
     } catch (cause) {
       setError(messageOf(cause, t))
@@ -161,7 +162,8 @@ export function CustomerFinancePanel({
           legalReady={legalReady}
           busy={busy}
           pay={pay}
-          completeTestDeposit={completeTestDeposit}
+          completeTestDeposit={() => completeTestPayment('deposit')}
+          completeTestFinal={() => completeTestPayment('final')}
           testPaymentLabel={t.testPayment}
         />
       ) : null}

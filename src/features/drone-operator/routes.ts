@@ -9,6 +9,7 @@ export type OperatorRoute =
   | { screen: 'preflight'; missionId?: string }
   | { screen: 'flight'; missionId?: string }
   | { screen: 'upload'; missionId?: string }
+  | { screen: 'checklist'; missionId?: string }
   | { screen: 'postflight'; missionId?: string }
   | { screen: 'technical' }
   | { screen: 'devices' }
@@ -29,17 +30,13 @@ export const OPERATOR_FLOW_SCREENS = [
   'flight',
   'postflight',
   'upload',
+  'checklist',
 ] as const
 
 type OperatorFlowScreen = (typeof OPERATOR_FLOW_SCREENS)[number]
 
-export function isOperatorFlowScreen(
-  screen: OperatorScreen,
-): screen is OperatorFlowScreen {
-  return (OPERATOR_FLOW_SCREENS as readonly string[]).includes(screen)
-}
-
 export function operatorFlowStep(screen: OperatorScreen): number | null {
+  if (screen === 'checklist') return OPERATOR_FLOW_SCREENS.indexOf('upload')
   const index = (OPERATOR_FLOW_SCREENS as readonly string[]).indexOf(screen)
   return index >= 0 ? index : null
 }
@@ -100,6 +97,8 @@ export function parseOperatorRoute(hash: string): OperatorRoute {
       return { screen: 'flight', missionId: tail[0] }
     case 'upload':
       return { screen: 'upload', missionId: tail[0] }
+    case 'checklist':
+      return { screen: 'checklist', missionId: tail[0] }
     case 'postflight':
       return { screen: 'postflight', missionId: tail[0] }
     case 'support':
@@ -147,6 +146,10 @@ export function operatorHref(route: OperatorRoute): string {
       return route.missionId
         ? `${OPERATOR_ROOT}/flight/${encodeURIComponent(route.missionId)}`
         : `${OPERATOR_ROOT}/flight`
+    case 'checklist':
+      return route.missionId
+        ? `${OPERATOR_ROOT}/checklist/${encodeURIComponent(route.missionId)}`
+        : `${OPERATOR_ROOT}/checklist`
     case 'upload':
       return route.missionId
         ? `${OPERATOR_ROOT}/upload/${encodeURIComponent(route.missionId)}`

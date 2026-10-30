@@ -103,7 +103,7 @@ export function MissionHeader({
         {canHandleInspectionMedia && (
           <a
             className="odm-btn"
-            href={operatorHref({ screen: 'upload', missionId: mission.id })}
+            href={operatorHref({ screen: 'checklist', missionId: mission.id })}
           >
             Mở dữ liệu nghiệm thu
           </a>
@@ -159,7 +159,10 @@ export function MissionHeader({
             {access?.canUploadMedia && (
               <a
                 className="odm-btn"
-                href={operatorHref({ screen: 'upload', missionId: mission.id })}
+                href={operatorHref({
+                  screen: 'checklist',
+                  missionId: mission.id,
+                })}
               >
                 Review media
               </a>

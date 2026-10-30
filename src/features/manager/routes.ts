@@ -29,23 +29,6 @@ export type ManagerRoute =
 
 export type ManagerScreen = ManagerRoute['screen']
 
-/** Design artboard code for each screen, used by the "under construction" placeholder. */
-export const managerScreenCode: Record<ManagerScreen, string> = {
-  dashboard: 'MNG-01',
-  orderQueue: 'MNG-02',
-  orderReview: 'MNG-03',
-  orderResults: 'MNG-03R',
-  missionCreate: 'MNG-04',
-  missionDispatch: 'MNG-05',
-  missionSetup: 'MNG-05',
-  missionDetail: 'MNG-08',
-  schedule: 'MNG-06',
-  missions: 'MNG-08',
-  drones: 'MNG-09',
-  maintenance: 'MNG-10',
-  support: 'MNG-SUP',
-  notFound: '',
-}
 
 /**
  * Parses a `window.location.hash`-style string into a `ManagerRoute`. Any

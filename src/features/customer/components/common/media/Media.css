@@ -64,6 +64,7 @@
 }
 
 .md-kind,
+.md-mission-badge,
 .md-open-label {
   position: absolute;
   z-index: 1;
@@ -81,6 +82,16 @@
   border: 1px solid rgba(255, 255, 255, 0.28);
   background: rgba(17, 24, 39, 0.7);
   backdrop-filter: blur(6px);
+}
+
+.md-mission-badge {
+  top: 10px;
+  right: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  background: rgba(15, 23, 42, 0.68);
+  backdrop-filter: blur(6px);
+  font-family: var(--font-mono, monospace);
+  font-weight: 600;
 }
 
 .md-kind--video {
@@ -125,17 +136,9 @@
 }
 
 .md-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--ui-space-1) var(--ui-space-2);
   font-size: 12px;
+  line-height: 1.45;
   color: var(--ui-text-3);
-}
-
-.md-meta span:not(:last-child)::after {
-  margin-left: var(--ui-space-2);
-  color: var(--ui-border-strong);
-  content: '•';
 }
 
 .md-viewer {
@@ -223,11 +226,17 @@
   .md-meta {
     font-size: 11px;
   }
-  .md-kind {
+  .md-kind,
+  .md-mission-badge {
     top: 6px;
-    left: 6px;
     padding: 4px 7px;
     font-size: 10px;
+  }
+  .md-kind {
+    left: 6px;
+  }
+  .md-mission-badge {
+    right: 6px;
   }
 }
 
