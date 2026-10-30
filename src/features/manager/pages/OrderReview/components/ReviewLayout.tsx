@@ -6,6 +6,7 @@ import { OrderCustomerCard } from '../../../components/common/OrderCustomerCard'
 import { useI18n } from '../../../../../shared/i18n'
 import type { OrderDetail } from '../../../types/orders'
 import { orderReviewPageMessages } from '../OrderReviewPage.messages'
+import type { ReviewStep } from '../reviewTypes'
 import { OrderSummaryCard } from './OrderSummaryCard'
 import { ReviewActionsSlot } from './ReviewActionsSlot'
 
@@ -18,17 +19,29 @@ import { ReviewActionsSlot } from './ReviewActionsSlot'
 export function ReviewLayout({
   order,
   wide = false,
+  reviewStep,
   children,
 }: {
   order: OrderDetail
   wide?: boolean
+  reviewStep?: ReviewStep
   children: ReactNode
 }) {
   const { t } = useI18n(orderReviewPageMessages)
   const [slot, setSlot] = useState<HTMLDivElement | null>(null)
   return (
     <ReviewActionsSlot.Provider value={slot}>
-      <div className={`mgr-detail-grid${wide ? ' is-wide' : ''}`}>
+      <div
+        className={[
+          'mgr-detail-grid',
+          wide ? 'is-wide' : '',
+          reviewStep && reviewStep < 4
+            ? `is-review-step-${reviewStep}`
+            : '',
+        ]
+          .filter(Boolean)
+          .join(' ')}
+      >
         <div className="mgr-detail-main">
           {children}
           {wide ? null : (
