@@ -1,3 +1,7 @@
+import { Button } from 'antd'
+import { ChecklistGuidanceEditor } from './components/ChecklistGuidanceEditor'
+import { guidanceMessages } from './guidance.messages'
+import { needsGuidance } from './guidanceHelpers'
 import { useEffect, useRef, useState } from 'react'
 
 import { ApiError } from '../../../shared/api/httpClient'
@@ -43,6 +47,10 @@ export function ManagerPricingPanel({
   )
   const { t: fb } = useI18n(pricingFeedbackMessages)
   const { t } = useI18n(pricingMessages)
+  const { t: g } = useI18n(guidanceMessages)
+  const [guidanceItem, setGuidanceItem] = useState<PricingChecklistItem | null>(
+    null,
+  )
   const toast = useToast()
   const [draft, setDraft] = useState<Draft>(emptyDraft)
   const [busy, setBusy] = useState(false)
@@ -58,6 +66,7 @@ export function ManagerPricingPanel({
 
   useEffect(() => {
     setApprovalSucceeded(false)
+    setGuidanceItem(null)
     dirtyPriceIds.current.clear()
     initializedQuoteKey.current = null
     setDraft(emptyDraft)
@@ -183,8 +192,15 @@ export function ManagerPricingPanel({
       : t.reasonTooShort(MIN_REASON_LENGTH, length)
   }
 
+  const missingGuidance = (query.data?.checklistItems ?? []).filter(
+    needsGuidance,
+  )
   async function approve() {
     if (!query.data) return
+    if (missingGuidance.length) {
+      setError(g.pending)
+      return
+    }
     const problem = reasonProblem()
     if (problem) {
       setMessage(null)
@@ -220,10 +236,9 @@ export function ManagerPricingPanel({
         expectedPricingRevision:
           query.data.currentQuote?.pricingRevision ?? null,
 
-
-        expectedPolicyVersion: query.data.systemCalculation?.policyVersion ?? null,
+        expectedPolicyVersion:
+          query.data.systemCalculation?.policyVersion ?? null,
         expectedChecklistRevision: query.data.checklistRevision ?? null,
-
       })
       dirtyPriceIds.current.clear()
       await financeApi.approveQuote(orderId, quote.id)
@@ -237,7 +252,12 @@ export function ManagerPricingPanel({
       toast.error(errorMessage(cause))
       if (
         cause instanceof ApiError &&
-        (cause.code === 'STALE_PRICING_POLICY' ||
+        (cause.code === 'CHECKLIST_GUIDANCE_INCOMPLETE' ||
+          cause.code === 'STALE_GUIDANCE_SNAPSHOT' ||
+          cause.code === 'QUOTE_GUIDANCE_SNAPSHOT_STALE' ||
+          cause.code === 'CHECKLIST_GUIDANCE_SNAPSHOT_STALE' ||
+          cause.code === 'STALE_GUIDANCE_VERSION' ||
+          cause.code === 'STALE_PRICING_POLICY' ||
           cause.code === 'STALE_PRICING_REVISION' ||
           cause.code === 'ORDER_CHECKLIST_REVISION_CONFLICT')
       ) {
@@ -277,7 +297,36 @@ export function ManagerPricingPanel({
 
   return (
     <div className="finance-workspace">
+      {guidanceItem ? (
+        <ChecklistGuidanceEditor
+          key={`${orderId}:${guidanceItem.id}`}
+          orderId={orderId}
+          item={guidanceItem}
+          checklistRevision={
+            query.data.checklistRevision ?? guidanceItem.checklistRevision ?? 0
+          }
+          invalidatesQuote={Boolean(
+            query.data.currentQuote &&
+            ![
+              'DRAFT',
+              'SUPERSEDED',
+              'EXPIRED',
+              'REJECTED',
+              'ACCEPTED_BY_CUSTOMER',
+            ].includes(query.data.currentQuote.status),
+          )}
+          onClose={() => setGuidanceItem(null)}
+          onSaved={() => {
+            setGuidanceItem(null)
+            setApprovalSucceeded(false)
+            setMessage(null)
+            query.reload()
+            onChecklistReviewChanged?.()
+          }}
+        />
+      ) : null}
       <ChecklistReview
+        onEditGuidance={setGuidanceItem}
         reviewComplete={reviewComplete}
         reviewedCount={reviewedCount}
         checklistCount={checklistCount}
@@ -297,6 +346,24 @@ export function ManagerPricingPanel({
         data={query.data}
       />
       <div className="finance-sidebar">
+        {!accepted && missingGuidance.length ? (
+          <div className="odm-or-card finance-guidance-missing" role="status">
+            <p>{g.pending}</p>
+            <ul>
+              {missingGuidance.map((item) => (
+                <li key={item.id}>
+                  {item.canEditGuidance === true ? (
+                    <Button type="link" onClick={() => setGuidanceItem(item)}>
+                      {item.content}
+                    </Button>
+                  ) : (
+                    <span>{item.content}</span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
         <QuoteSummary
           systemPrice={systemPrice}
           checklistAdjustment={checklistAdjustment}
@@ -312,7 +379,9 @@ export function ManagerPricingPanel({
           approved={approved}
           pendingCustomCount={pendingCustomCount}
           outOfRangeCount={outOfRangeCount}
-          approveBlockedReason={approveBlockedReason}
+          approveBlockedReason={
+            missingGuidance.length ? g.pending : approveBlockedReason
+          }
           approve={approve}
           data={query.data}
         />

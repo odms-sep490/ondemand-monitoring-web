@@ -327,7 +327,11 @@ export function MonitoringChecklistSection({
                   </button>
                   {open && (
                     <div className="mc-detail">
-                      <ChecklistGuidance guidance={item} defaultOpen />
+                      <ChecklistGuidance
+                        guidance={item}
+                        defaultOpen
+                        showEmpty={item.sourceType === 'CUSTOMER_CUSTOM'}
+                      />
                       <ChecklistExecutionItem
                         key={`${missionId}:${item.id}`}
                         item={item}
@@ -802,7 +806,11 @@ function ChecklistExecutionItem({
   return (
     <div className="monitoring-item">
       <h3>{item.content}</h3>
-      <ChecklistGuidance guidance={item} defaultOpen />
+      <ChecklistGuidance
+        guidance={item}
+        defaultOpen
+        showEmpty={item.sourceType === 'CUSTOMER_CUSTOM'}
+      />
       <div className="monitoring-meta">
         <span className={`is-exec-${item.executionStatus.toLowerCase()}`}>
           {statuses[item.executionStatus]}

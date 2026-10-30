@@ -233,7 +233,7 @@ export function ChecklistSnapshotCard({
                   </span>
                   <ChecklistGuidance
                     guidance={item}
-                    sections={['description', 'outputs']}
+                    showEmpty={item.sourceType === 'CUSTOMER_CUSTOM'}
                   />
                   {item.evidencePolicyVersion === 3 && (
                     <span className="checklist-snapshot-evidence">

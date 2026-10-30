@@ -14,6 +14,7 @@ type Section = 'description' | 'steps' | 'inputs' | 'outputs'
 const messages = defineMessages({
   vi: {
     summary: 'Chi tiết thực hiện',
+    empty: 'Chưa có hướng dẫn chi tiết',
     description: 'Mô tả',
     steps: 'Các bước thực hiện',
     inputs: 'Đầu vào cần có',
@@ -21,6 +22,7 @@ const messages = defineMessages({
   },
   en: {
     summary: 'Work details',
+    empty: 'No detailed guidance available',
     description: 'Description',
     steps: 'Steps',
     inputs: 'Required inputs',
@@ -56,14 +58,17 @@ export function ChecklistGuidance({
   sections = ['description', 'steps', 'inputs', 'outputs'],
   defaultOpen = false,
   summaryLabel,
+  showEmpty = false,
 }: {
   guidance?: ChecklistGuidanceData | null
   sections?: Section[]
   defaultOpen?: boolean
   summaryLabel?: string
+  showEmpty?: boolean
 }) {
   const { t } = useI18n(messages)
-  if (!guidance || !hasChecklistGuidance(guidance, sections)) return null
+  if (!guidance || !hasChecklistGuidance(guidance, sections))
+    return showEmpty ? <p className="odm-cg-empty">{t.empty}</p> : null
   const steps = list(guidance.executionSteps)
   const inputs = list(guidance.inputRequirements)
   const outputs = list(guidance.expectedOutputs)

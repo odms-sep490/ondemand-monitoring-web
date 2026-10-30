@@ -38,6 +38,7 @@ function reviewWith(amount: number) {
         sourceChecklistId: null,
         content: 'Extra requirement',
         displayOrder: 1,
+        guidanceReady: true,
         sourceType: 'CUSTOMER_CUSTOM' as const,
         reviewStatus: 'ADDITIONAL' as const,
         managerNote: null,
@@ -51,6 +52,54 @@ function reviewWith(amount: number) {
 }
 
 describe('ManagerPricingPanel', () => {
+  it('blocks approval for unconfirmed custom guidance and links directly to its editor', async () => {
+    const review = reviewWith(400_000)
+    vi.spyOn(financeApi, 'getPricingReview').mockResolvedValue({
+      ...review,
+      checklistRevision: 2,
+      checklistItems: [
+        {
+          ...review.checklistItems[0],
+          guidanceReady: false,
+          canEditGuidance: true,
+          guidanceVersion: 1,
+          executionSteps: ['Draft step'],
+        },
+      ],
+    })
+    const save = vi.spyOn(financeApi, 'saveDraft')
+    render(<ManagerPricingPanel orderId="order-1" />)
+    expect(
+      await screen.findByRole('button', { name: 'Duyệt báo giá' }),
+    ).toBeDisabled()
+    expect(screen.getByText('Bản nháp')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Extra requirement' }))
+    expect(await screen.findByRole('dialog')).toBeInTheDocument()
+    expect(screen.getByLabelText('Các bước thực hiện 1')).toHaveValue(
+      'Draft step',
+    )
+    expect(save).not.toHaveBeenCalled()
+  })
+  it('does not expose the guidance editor without permission and exempts rejected work', async () => {
+    const review = reviewWith(400_000)
+    vi.spyOn(financeApi, 'getPricingReview').mockResolvedValue({
+      ...review,
+      checklistItems: [
+        {
+          ...review.checklistItems[0],
+          reviewStatus: 'REJECTED',
+          guidanceReady: false,
+          canEditGuidance: false,
+        },
+      ],
+    })
+    render(<ManagerPricingPanel orderId="order-1" />)
+    expect(
+      await screen.findByRole('button', { name: 'Duyệt báo giá' }),
+    ).toBeEnabled()
+    expect(screen.queryByRole('button', { name: 'Soạn hướng dẫn' })).toBeNull()
+  })
+
   it('shows manager-required pricing without a draft button', async () => {
     vi.spyOn(financeApi, 'getPricingReview').mockResolvedValue({
       orderId: 'order-1',
@@ -64,6 +113,7 @@ describe('ManagerPricingPanel', () => {
           sourceChecklistId: null,
           content: 'Inspect custom structure',
           displayOrder: 1,
+          guidanceReady: true,
           sourceType: 'CUSTOMER_CUSTOM',
           reviewStatus: 'INCLUDED',
           managerNote: null,
@@ -112,6 +162,7 @@ describe('ManagerPricingPanel', () => {
           sourceChecklistId: null,
           content: 'Extra requirement',
           displayOrder: 1,
+          guidanceReady: true,
           sourceType: 'CUSTOMER_CUSTOM' as const,
           reviewStatus: 'ADDITIONAL' as const,
           managerNote: null,
@@ -123,6 +174,7 @@ describe('ManagerPricingPanel', () => {
           sourceChecklistId: null,
           content: 'Another requirement',
           displayOrder: 2,
+          guidanceReady: true,
           sourceType: 'CUSTOMER_CUSTOM' as const,
           reviewStatus: 'PENDING' as const,
           managerNote: null,
@@ -166,6 +218,7 @@ describe('ManagerPricingPanel', () => {
           sourceChecklistId: null,
           content: `${id} requirement`,
           displayOrder: 1,
+          guidanceReady: true,
           sourceType: 'CUSTOMER_CUSTOM',
           reviewStatus: 'ADDITIONAL',
           managerNote: null,
@@ -283,6 +336,7 @@ describe('ManagerPricingPanel', () => {
           sourceChecklistId: null,
           content: 'Extra requirement',
           displayOrder: 2,
+          guidanceReady: true,
           sourceType: 'CUSTOMER_CUSTOM',
           reviewStatus: 'ADDITIONAL',
           managerNote: null,
@@ -427,6 +481,7 @@ describe('ManagerPricingPanel', () => {
           sourceChecklistId: 'template-1',
           content: 'Requirement awaiting review',
           displayOrder: 1,
+          guidanceReady: true,
           sourceType: 'CUSTOMER_CUSTOM',
           reviewStatus: 'PENDING',
           managerNote: null,
