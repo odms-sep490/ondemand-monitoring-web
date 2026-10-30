@@ -51,11 +51,9 @@ export function ChecklistRow({
       </span>
       <div className="finance-requirement-main">
         <strong>{item.content}</strong>
-        <span>
-          {item.sourceType === 'SERVICE_TEMPLATE'
-            ? t.sourceTemplate
-            : t.sourceCustom}
-        </span>
+        {item.sourceType !== 'SERVICE_TEMPLATE' ? (
+          <span>{t.sourceCustom}</span>
+        ) : null}
         {(item.requestedImageCount ?? 0) + (item.requestedVideoCount ?? 0) >
         0 ? (
           <span>

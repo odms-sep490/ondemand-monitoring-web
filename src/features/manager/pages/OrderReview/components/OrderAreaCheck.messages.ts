@@ -3,8 +3,7 @@ import { defineMessages } from '../../../../../shared/i18n'
 export const orderAreaCheckMessages = defineMessages({
   vi: {
     title: 'Kiểm tra vùng giám sát',
-    intro:
-      'Giúp xác định khu vực có cần kiểm tra thêm trước khi duyệt đơn hay không. Kết quả này chỉ là cảnh báo sơ bộ, không tự động từ chối đơn.',
+    intro: 'Kết quả tham khảo, không tự động từ chối đơn.',
     resultTitle: 'Kết quả kiểm tra khu vực',
     checking: 'Đang kiểm tra…',
     recheck: 'Kiểm tra lại',
@@ -14,8 +13,7 @@ export const orderAreaCheckMessages = defineMessages({
   },
   en: {
     title: 'Monitoring area check',
-    intro:
-      'Helps determine whether the area needs further checks before the order is approved. This result is only a preliminary warning and does not automatically reject the order.',
+    intro: 'For reference only. This result does not automatically reject the order.',
     resultTitle: 'Area check result',
     checking: 'Checking…',
     recheck: 'Check again',

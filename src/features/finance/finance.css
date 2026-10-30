@@ -61,9 +61,6 @@
 .finance-workspace .finance-review-progress {
   border-left: 0;
 }
-.finance-progress-percent {
-  color: var(--or-tx2, #667085);
-}
 .finance-progress-track {
   flex: 1 1 120px;
   min-width: 90px;
@@ -78,42 +75,6 @@
   height: 100%;
   background: #1677ff;
   border-radius: inherit;
-}
-.finance-review-warning {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 32px;
-  margin: 0 18px 8px;
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-size: 12.5px;
-}
-.finance-review-warning.is-pending {
-  background: #fff7e6;
-  color: #8a5a00;
-}
-.finance-review-warning.is-complete {
-  background: #eaf8ef;
-  color: #16803c;
-}
-.finance-review-warning-icon {
-  display: grid;
-  place-items: center;
-  flex: none;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  color: #fff;
-  font-size: 10px;
-  font-weight: 700;
-  line-height: 1;
-}
-.finance-review-warning.is-pending .finance-review-warning-icon {
-  background: #e09b12;
-}
-.finance-review-warning.is-complete .finance-review-warning-icon {
-  background: #16803c;
 }
 .finance-filters {
   display: flex;
@@ -1006,9 +967,31 @@
   white-space: nowrap;
 }
 .finance-breakdown {
+  margin-bottom: 14px;
+}
+.finance-breakdown > summary {
+  width: fit-content;
+  max-width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--or-border, #e3e8ef);
+  border-radius: 8px;
+  color: var(--mgr-muted, var(--or-tx2, #667085));
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+}
+.finance-breakdown > summary:hover {
+  background: var(--mgr-card-2, #f8faff);
+  color: var(--mgr-text, var(--or-tx, #172033));
+}
+.finance-breakdown > summary:focus-visible {
+  outline: 2px solid #1677ff;
+  outline-offset: 2px;
+}
+.finance-breakdown-content {
   display: grid;
   gap: 10px;
-  margin-bottom: 14px;
+  margin-top: 10px;
 }
 .finance-breakdown-group {
   border: 1px solid var(--or-border, #e3e8ef);
@@ -1240,14 +1223,12 @@
   color: var(--fin-blue-fg);
 }
 
-.mgr-layout .finance-workspace .finance-review-warning.is-pending,
 .mgr-layout .finance-workspace .finance-review-badge.is-quote-pending,
 .mgr-layout .finance-workspace .finance-requirement.is-additional .finance-review-badge {
   background: var(--fin-amber-bg);
   color: var(--fin-amber-fg);
 }
 
-.mgr-layout .finance-workspace .finance-review-warning.is-complete,
 .mgr-layout .finance-workspace .finance-review-badge:not(.is-pending):not(.is-quote-pending) {
   background: var(--fin-green-bg);
   color: var(--fin-green-fg);
@@ -1325,6 +1306,16 @@
 .mgr-layout .finance-workspace .finance-breakdown-group {
   border-color: var(--mgr-border);
   background: var(--mgr-card);
+}
+
+.mgr-layout .finance-workspace .finance-breakdown > summary {
+  border-color: var(--mgr-border);
+  color: var(--mgr-muted);
+}
+
+.mgr-layout .finance-workspace .finance-breakdown > summary:hover {
+  background: var(--mgr-card-2);
+  color: var(--mgr-text);
 }
 
 .mgr-layout .finance-workspace .finance-breakdown-group > header {

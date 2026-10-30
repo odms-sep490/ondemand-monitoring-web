@@ -316,10 +316,10 @@ describe('OrderReviewPage', () => {
     render(<OrderReviewPage orderId="ord-2609-0157" />)
 
     fireEvent.click(await screen.findByText('Kiểm tra điều kiện'))
-    await screen.findByText('Chưa ghi nhận giao vùng cấm bay')
+    await screen.findByText('Không giao với vùng cấm bay')
     fireEvent.click(screen.getByText('Tiếp nhận'))
     fireEvent.click(screen.getByText('Kiểm tra điều kiện'))
-    await screen.findByText('Chưa ghi nhận giao vùng cấm bay')
+    await screen.findByText('Không giao với vùng cấm bay')
 
     expect(assessmentSpy).toHaveBeenCalledTimes(1)
   })
