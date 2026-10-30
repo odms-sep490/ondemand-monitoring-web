@@ -1,6 +1,12 @@
 import { act } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import {
+  configure,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react'
 
 import { resetMockDb } from '../../../../../mocks/db'
 import '../../../../../mocks/index'
@@ -14,6 +20,9 @@ const originalScrollIntoView = Object.getOwnPropertyDescriptor(
   HTMLElement.prototype,
   'scrollIntoView',
 )
+
+// The wizard lazy-loads maps and catalog data; a longer async window keeps the full-suite run deterministic under load.
+configure({ asyncUtilTimeout: 5000 })
 
 beforeEach(() => {
   resetMockDb()
@@ -60,7 +69,9 @@ async function fillLocation(onContent?: () => Promise<void> | void) {
     target: { value: 'KCN Long Hậu' },
   })
   fireEvent.click(screen.getByText('Tọa độ nâng cao'))
-  fireEvent.click(await screen.findByRole('button', { name: 'Xác nhận tọa độ này' }))
+  fireEvent.click(
+    await screen.findByRole('button', { name: 'Xác nhận tọa độ này' }),
+  )
   await screen.findByText('Đã xác nhận vị trí')
   next('Nội dung giám sát')
   await onContent?.()
@@ -69,9 +80,15 @@ async function fillLocation(onContent?: () => Promise<void> | void) {
   })
   await waitFor(() => expect(forward).toBeEnabled())
   fireEvent.click(forward)
-  fireEvent.change(screen.getByLabelText(/Người liên hệ/), { target: { value: 'An' } })
-  fireEvent.change(screen.getByLabelText(/Số điện thoại/), { target: { value: '0901234567' } })
-  fireEvent.change(screen.getByLabelText(/Điều kiện ra vào/), { target: { value: 'Cổng chính' } })
+  fireEvent.change(screen.getByLabelText(/Người liên hệ/), {
+    target: { value: 'An' },
+  })
+  fireEvent.change(screen.getByLabelText(/Số điện thoại/), {
+    target: { value: '0901234567' },
+  })
+  fireEvent.change(screen.getByLabelText(/Điều kiện ra vào/), {
+    target: { value: 'Cổng chính' },
+  })
   fireEvent.click(screen.getByLabelText('Chủ sở hữu / Chủ đầu tư'))
   fireEvent.click(
     screen.getByLabelText(/Tôi xác nhận mình có quyền yêu cầu giám sát/),
@@ -173,7 +190,9 @@ describe('CreateOrderPage wizard', () => {
     next('Vị trí & vùng giám sát')
     expect(await screen.findByText('Nhập tiêu đề yêu cầu.')).toBeInTheDocument()
     expect(screen.queryByText('Chọn dịch vụ giám sát.')).not.toBeInTheDocument()
-    expect(screen.queryByLabelText(/Địa chỉ hoặc khu vực/)).not.toBeInTheDocument()
+    expect(
+      screen.queryByLabelText(/Địa chỉ hoặc khu vực/),
+    ).not.toBeInTheDocument()
   })
 
   it('requires a service and title when the active catalog is empty', async () => {
@@ -185,7 +204,9 @@ describe('CreateOrderPage wizard', () => {
       await screen.findByText('Chọn dịch vụ giám sát.'),
     ).toBeInTheDocument()
     expect(screen.getByText('Nhập tiêu đề yêu cầu.')).toBeInTheDocument()
-    expect(screen.queryByLabelText(/Địa chỉ hoặc khu vực/)).not.toBeInTheDocument()
+    expect(
+      screen.queryByLabelText(/Địa chỉ hoặc khu vực/),
+    ).not.toBeInTheDocument()
   })
 
   it('shows the real location map on step 2 and requires an address', async () => {
@@ -361,7 +382,9 @@ describe('CreateOrderPage wizard', () => {
     const time = screen.getByLabelText(/Khung giờ/) as HTMLSelectElement
     fireEvent.change(time, { target: { value: '' } })
     fireEvent.click(
-      screen.getByRole('button', { name: 'Tiếp tục: Kết quả bàn giao & xác nhận' }),
+      screen.getByRole('button', {
+        name: 'Tiếp tục: Kết quả bàn giao & xác nhận',
+      }),
     )
     expect(await screen.findByText('Chọn khung giờ.')).toBeInTheDocument()
     expect(screen.queryByText('Kết quả bàn giao')).toBeNull()
@@ -423,7 +446,10 @@ describe('CreateOrderPage wizard', () => {
     fireEvent.click(screen.getByLabelText(/Tôi xác nhận mục đích giám sát/))
     fireEvent.click(await screen.findByRole('button', { name: 'Gửi yêu cầu' }))
     await screen.findByRole('dialog')
-    fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape', keyCode: 27 })
+    fireEvent.keyDown(screen.getByRole('dialog'), {
+      key: 'Escape',
+      keyCode: 27,
+    })
     await waitFor(() =>
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument(),
     )

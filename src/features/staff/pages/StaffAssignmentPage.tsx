@@ -192,7 +192,7 @@ export function StaffAssignmentPage() {
                     style={{
                       display: 'grid',
                       gridTemplateColumns:
-                        'minmax(220px, 1.2fr) minmax(220px, 0.8fr)',
+                        'repeat(auto-fit, minmax(min(100%, 220px), 1fr))',
                       gap: 18,
                       padding: 18,
                       borderBottom: '1px solid var(--ui-border)',
@@ -292,7 +292,7 @@ export function StaffAssignmentPage() {
                               background: staff
                                 ? 'rgba(22, 163, 74, 0.06)'
                                 : 'var(--ui-surface-2)',
-                              minHeight: 190,
+                              minHeight: 130,
                               display: 'flex',
                               flexDirection: 'column',
                               gap: 12,

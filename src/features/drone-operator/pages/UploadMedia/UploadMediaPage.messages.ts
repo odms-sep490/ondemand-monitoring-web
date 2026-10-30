@@ -32,9 +32,9 @@ export const uploadMediaPageMessages = defineMessages({
     uploadAllNone: 'Không có file nào chờ tải lên.',
     uploadAllSent:
       'Đã gửi các file đang chờ. Trạng thái lưu/xác thực được cập nhật từ hệ thống.',
-    stepTitle: 'Upload media',
+    stepTitle: 'Tải media lên',
     uploadPermissionNote:
-      'Tải lên ảnh cần Pilot hoặc Inspector đã nhận nhiệm vụ. Bạn vẫn có thể xem media và cập nhật checklist nếu được phân công giám sát.',
+      'Tải lên ảnh cần phi công hoặc kiểm tra viên đã nhận nhiệm vụ. Bạn vẫn có thể xem media và cập nhật checklist nếu được phân công giám sát.',
     inspectorContact: 'Liên hệ người nghiệm thu',
     managerContact: 'Liên hệ quản lý',
     notUpdated: 'Chưa cập nhật',
@@ -60,7 +60,7 @@ export const uploadMediaPageMessages = defineMessages({
       manual: number,
     ) =>
       `${uploaded}/${total} file đã lên${uploading ? ` · ${uploading} đang lên` : ''}${manual ? ` · ${manual} cần xử lý thủ công` : ''}`,
-    summaryNote: 'File local được giữ đến khi duyệt hoặc xóa.',
+    summaryNote: 'Tệp trên thiết bị được giữ đến khi duyệt hoặc xóa.',
     mediaLoaded: 'media đã tải',
     uploadedChip: (n: number) => `${n} đã tải lên`,
     pendingChip: (n: number) => `${n} chờ xử lý`,

@@ -391,7 +391,9 @@ describe('Upload media and monitoring workspace', () => {
     expect(
       await screen.findByRole('button', { name: 'Gửi kết quả cho quản lý' }),
     ).toBeEnabled()
-    fireEvent.click(screen.getByRole('button', { name: 'Xác nhận hoàn thành nhiệm vụ' }))
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Xác nhận hoàn thành nhiệm vụ' }),
+    )
     await waitFor(() => expect(complete).toHaveBeenCalledWith('m'))
     expect(submit).not.toHaveBeenCalled()
     await waitFor(() =>
