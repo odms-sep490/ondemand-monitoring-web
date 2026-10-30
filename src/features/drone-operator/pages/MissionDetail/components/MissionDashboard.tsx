@@ -26,6 +26,8 @@ import { PrecheckCard } from './PrecheckCard'
 import { WeatherCard } from './WeatherCard'
 import { PostcheckCard } from './PostcheckCard'
 import { MissionUploadedMedia } from '../../../../media/components/MissionUploadedMedia'
+import { useI18n } from '../../../../../shared/i18n'
+import { missionDetailPageMessages } from '../MissionDetailPage.messages'
 
 // ─── Dashboard shell ──────────────────────────────────────────────────────────
 
@@ -34,6 +36,8 @@ export function MissionDashboard({
   submitting,
   actionError,
   access,
+  responseAccessLoading = false,
+  responseAccessError = false,
   resultActions,
   monitoringSection,
   resultApprovalStatus,
@@ -47,6 +51,8 @@ export function MissionDashboard({
   submitting: boolean
   actionError: string | null
   access?: MissionPermissions
+  responseAccessLoading?: boolean
+  responseAccessError?: boolean
   resultActions: ReactNode
   monitoringSection: ReactNode
   resultApprovalStatus: MissionResultApprovalStatus | null
@@ -56,6 +62,7 @@ export function MissionDashboard({
   onStartWorkflow: () => void
   onOpenReject: () => void
 }) {
+  const { t } = useI18n(missionDetailPageMessages)
   const deviceId = mission.deviceId
   const [preflightStatus, setPreflightStatus] =
     useState<RuntimePreflightStatus | null>(() =>
@@ -124,8 +131,14 @@ export function MissionDashboard({
             <h2 id="mission-response-heading" className="mds-card-heading">
               Bạn có muốn nhận nhiệm vụ này?
             </h2>
-            {!access?.canRespond && (
-              <small>Bạn chưa có quyền phản hồi nhiệm vụ này.</small>
+            {access?.canRespond !== true && (
+              <small>
+                {responseAccessLoading
+                  ? t.responseAccessLoading
+                  : responseAccessError
+                    ? t.responseAccessError
+                    : t.responseAccessDenied}
+              </small>
             )}
           </div>
           <div className="mds-action-bar-buttons">
@@ -133,7 +146,7 @@ export function MissionDashboard({
               type="button"
               className="odm-btn odm-btn-rd"
               onClick={onOpenReject}
-              disabled={submitting || !access?.canRespond}
+              disabled={submitting || access?.canRespond !== true}
             >
               Từ chối
             </button>
@@ -141,7 +154,7 @@ export function MissionDashboard({
               type="button"
               className="odm-btn odm-btn-p"
               onClick={onAccept}
-              disabled={submitting || !access?.canRespond}
+              disabled={submitting || access?.canRespond !== true}
             >
               {submitting ? 'Đang xử lý...' : 'Chấp nhận nhiệm vụ'}
             </button>

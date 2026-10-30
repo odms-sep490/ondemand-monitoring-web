@@ -52,6 +52,46 @@ const pendingDeposit: Payment = {
 afterEach(() => vi.restoreAllMocks())
 
 describe('CustomerFinancePanel', () => {
+  it('completes the remaining balance with the development test button and reloads the invoice', async () => {
+    vi.spyOn(financeApi, 'getQuote').mockResolvedValue(quote)
+    vi.spyOn(financeApi, 'getInvoice')
+      .mockResolvedValueOnce({
+        ...invoice,
+        paidAmount: invoice.depositAmount,
+        remainingAmount: 3_500_000,
+        status: 'PARTIALLY_PAID',
+        finalPaymentAllowed: true,
+      })
+      .mockResolvedValueOnce({
+        ...invoice,
+        paidAmount: invoice.totalAmount,
+        remainingAmount: 0,
+        status: 'PAID',
+        finalPaymentAllowed: false,
+      })
+    const complete = vi
+      .spyOn(financeApi, 'completeTestFinal')
+      .mockResolvedValue({
+        ...pendingDeposit,
+        type: 'FINAL_PAYMENT',
+        status: 'SUCCESS',
+      })
+    const deposit = vi.spyOn(financeApi, 'completeTestDeposit')
+    render(<CustomerFinancePanel orderId="order-1" />)
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Thanh toán nhanh (Test)' }),
+    )
+    await waitFor(() =>
+      expect(complete).toHaveBeenCalledExactlyOnceWith('invoice-1'),
+    )
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('button', { name: 'Thanh toán nhanh (Test)' }),
+      ).not.toBeInTheDocument(),
+    )
+    expect(deposit).not.toHaveBeenCalled()
+  })
+
   it('explains when the order has no quote or payment records yet', async () => {
     vi.spyOn(financeApi, 'getQuote').mockRejectedValue(
       new ApiError('Not found', {

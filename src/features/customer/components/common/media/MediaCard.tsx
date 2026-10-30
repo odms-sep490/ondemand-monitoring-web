@@ -6,10 +6,14 @@ import type { MediaItem } from '../../../lib/media/types'
 import { mediaCardMessages } from './MediaCard.messages'
 import { mediaUiMessages } from './mediaUi'
 
-type Props = { item: MediaItem; onOpen: (item: MediaItem) => void }
+type Props = {
+  item: MediaItem
+  missionLabel?: string
+  onOpen: (item: MediaItem) => void
+}
 
 /** One asset tile; the whole card opens the preview. */
-export function MediaCard({ item, onOpen }: Props) {
+export function MediaCard({ item, missionLabel, onOpen }: Props) {
   const { t, locale } = useI18n(mediaCardMessages)
   const { t: ui } = useI18n(mediaUiMessages)
   const size = formatBytes(item.fileSize)
@@ -18,6 +22,7 @@ export function MediaCard({ item, onOpen }: Props) {
     item.sourceType && Object.hasOwn(ui.source, item.sourceType)
       ? ui.source[item.sourceType as keyof typeof ui.source]
       : null
+  const metaParts = [source, size, captured].filter(Boolean)
 
   return (
     <button
@@ -36,15 +41,16 @@ export function MediaCard({ item, onOpen }: Props) {
         <span className={`md-kind md-kind--${item.kind}`}>
           {ui.kind[item.kind]}
         </span>
+        {missionLabel && (
+          <span className="md-mission-badge">{missionLabel}</span>
+        )}
         <span className="md-open-label">{item.url ? t.view : t.locked}</span>
       </span>
       <span className="md-card-body">
-        <span className="md-name">{item.fileName}</span>
-        <span className="md-meta">
-          {source && <span>{source}</span>}
-          {size && <span>{size}</span>}
-          {captured && <span>{captured}</span>}
+        <span className="md-name" title={item.fileName}>
+          {item.fileName}
         </span>
+        <span className="md-meta">{metaParts.join(' • ')}</span>
       </span>
     </button>
   )

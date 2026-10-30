@@ -53,6 +53,84 @@ const noActions = {
 // it rejects in this test environment and the screen settles on its
 // bilingual "mission not found" error state.
 describe('MissionDetailScreen', () => {
+  it.each(['checklist', 'result'])(
+    'accepts a pending assignment when unrelated %s data fails to load',
+    async (failedResource) => {
+      vi.spyOn(operatorApi, 'getMission').mockResolvedValue({
+        ...mission,
+        status: 'PENDING',
+        backendStatus: 'READY',
+        myResponseStatus: 'PENDING',
+      })
+      vi.spyOn(missionApi, 'getPermissions').mockResolvedValue({
+        ...noActions,
+        canRespond: true,
+      })
+      if (failedResource === 'checklist') {
+        vi.mocked(
+          checklistExecutionApi.getMissionChecklistExecutions,
+        ).mockRejectedValue(new Error('Checklist service unavailable'))
+      } else {
+        vi.mocked(missionApi.getMissionResult).mockRejectedValue(
+          new Error('Result service unavailable'),
+        )
+      }
+      const accept = vi
+        .spyOn(operatorApi, 'acceptMission')
+        .mockResolvedValue({} as never)
+      render(<MissionDetailPage missionId="m" />)
+      const button = await screen.findByRole('button', {
+        name: /Chấp nhận nhiệm vụ/,
+      })
+      await waitFor(() => expect(button).toBeEnabled())
+      fireEvent.click(button)
+      await waitFor(() => expect(accept).toHaveBeenCalledExactlyOnceWith('m'))
+    },
+  )
+
+  it('keeps acceptance locked and reports a permission load failure truthfully', async () => {
+    vi.spyOn(operatorApi, 'getMission').mockResolvedValue({
+      ...mission,
+      status: 'PENDING',
+      backendStatus: 'READY',
+      myResponseStatus: 'PENDING',
+    })
+    vi.spyOn(missionApi, 'getPermissions').mockRejectedValue(
+      new Error('Permissions unavailable'),
+    )
+    const accept = vi.spyOn(operatorApi, 'acceptMission')
+    render(<MissionDetailPage missionId="m" />)
+    expect(
+      await screen.findByText(
+        'Không tải được quyền nhận nhiệm vụ. Hệ thống sẽ tự thử lại.',
+      ),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: /Chấp nhận nhiệm vụ/ }),
+    ).toBeDisabled()
+    expect(
+      screen.queryByText('Bạn chưa có quyền phản hồi nhiệm vụ này.'),
+    ).not.toBeInTheDocument()
+    expect(accept).not.toHaveBeenCalled()
+  })
+
+  it('does not accept an assignment when the backend denies the capability', async () => {
+    vi.spyOn(operatorApi, 'getMission').mockResolvedValue({
+      ...mission,
+      status: 'PENDING',
+      backendStatus: 'READY',
+      myResponseStatus: 'PENDING',
+    })
+    vi.spyOn(missionApi, 'getPermissions').mockResolvedValue(noActions)
+    render(<MissionDetailPage missionId="m" />)
+    expect(
+      await screen.findByText('Bạn chưa có quyền phản hồi nhiệm vụ này.'),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: /Chấp nhận nhiệm vụ/ }),
+    ).toBeDisabled()
+  })
+
   it('missing permission response keeps legacy detail readable without granting actions', async () => {
     vi.spyOn(operatorApi, 'getMission').mockResolvedValue(mission)
     // Deliberately malformed response, outside the typed API contract.
@@ -388,12 +466,11 @@ describe('MissionDetailScreen', () => {
       screen.getByRole('heading', { name: 'Thông tin bổ sung' }),
     ).toBeInTheDocument()
     expect(screen.queryByText('Ngày bay')).not.toBeInTheDocument()
-    expect(
-      screen.getByRole('button', { name: /Chấp nhận nhiệm vụ/ }),
-    ).toHaveProperty('disabled', false)
-    fireEvent.click(
-      await screen.findByRole('button', { name: /Chấp nhận nhiệm vụ/ }),
-    )
+    const acceptButton = await screen.findByRole('button', {
+      name: /Chấp nhận nhiệm vụ/,
+    })
+    await waitFor(() => expect(acceptButton).toBeEnabled())
+    fireEvent.click(acceptButton)
 
     expect(
       await screen.findByRole('link', { name: 'Kết nối GCS' }),

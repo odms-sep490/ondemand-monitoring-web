@@ -46,12 +46,20 @@ export function MediaLibraryPage() {
           onSelect={(missionId) => lib.setFilter({ missionId })}
         />
         <div className="ml-main">
-          <LibraryToolbar filter={lib.filter} onChange={lib.setFilter} />
+          <LibraryToolbar
+            filter={lib.filter}
+            counts={lib.kindCounts}
+            onChange={lib.setFilter}
+          />
           {lib.totalFiltered === 0 ? (
             <LibraryEmpty filtered={lib.isFiltered} onClear={lib.clearFilter} />
           ) : (
             <CardComponent styles={{ body: { padding: 16 } }}>
-              <MediaGrid items={lib.pageItems} onOpen={(item) => lib.openPreview(item.id)} />
+              <MediaGrid
+                items={lib.pageItems}
+                missionLabels={lib.filter.missionId === null ? lib.labels : undefined}
+                onOpen={(item) => lib.openPreview(item.id)}
+              />
               <Pager
                 page={lib.page}
                 totalPages={lib.totalPages}

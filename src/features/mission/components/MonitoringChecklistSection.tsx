@@ -123,6 +123,8 @@ export function MonitoringChecklistSection({
   canDetach = false,
   loadEvidenceCandidates,
   attachEvidenceCandidate,
+  attachEvidenceCandidates,
+  evidenceDetached,
   compact = false,
   hideImplementationHints = false,
   preview = false,
@@ -145,6 +147,11 @@ export function MonitoringChecklistSection({
     media: EvidenceCandidate,
     item: MissionChecklistExecution,
   ) => Promise<unknown>
+  attachEvidenceCandidates?: (
+    media: EvidenceCandidate[],
+    item: MissionChecklistExecution,
+  ) => Promise<unknown>
+  evidenceDetached?: (executionId: string, mediaId: string) => Promise<void>
   /** Dense acceptance panel: one line per item, only the active item expands. */
   compact?: boolean
   /** Read-only preview shown before the pilot accepts the mission. */
@@ -351,6 +358,8 @@ export function MonitoringChecklistSection({
                         refresh={refresh}
                         loadCandidates={loadEvidenceCandidates}
                         attachCandidate={attachEvidenceCandidate}
+                        attachCandidates={attachEvidenceCandidates}
+                        evidenceDetached={evidenceDetached}
                         compact
                       />
                       {item.updatedAt && (
@@ -546,6 +555,8 @@ export function MonitoringChecklistSection({
                 refresh={refresh}
                 loadCandidates={loadEvidenceCandidates}
                 attachCandidate={attachEvidenceCandidate}
+                attachCandidates={attachEvidenceCandidates}
+                evidenceDetached={evidenceDetached}
               />
             </li>
           ))}
@@ -615,12 +626,11 @@ function ChecklistExecutionItem({
             observation: canExecute
               ? observation.trim() || null
               : base.observation,
-            unableToVerifyReason:
-              canExecute
-                ? status === 'UNABLE_TO_VERIFY'
-                  ? reason.trim()
-                  : null
-                : base.unableToVerifyReason,
+            unableToVerifyReason: canExecute
+              ? status === 'UNABLE_TO_VERIFY'
+                ? reason.trim()
+                : null
+              : base.unableToVerifyReason,
           },
         )
       setBase(updated)
@@ -686,56 +696,70 @@ function ChecklistExecutionItem({
             }}
           >
             <fieldset disabled={!editable || busy}>
-              {canExecute && <label>
-                Trạng thái thực hiện
-                <select
-                  value={status}
-                  onChange={(event) => {
-                    setStatus(event.target.value as ChecklistExecutionStatus)
-                    if (event.target.value !== 'UNABLE_TO_VERIFY') setReason('')
-                  }}
-                >
-                  {allowedExecutionStatuses(base.executionStatus, rejected).map(
-                    (value) => (
+              {canExecute && (
+                <label>
+                  Trạng thái thực hiện
+                  <select
+                    value={status}
+                    onChange={(event) => {
+                      setStatus(event.target.value as ChecklistExecutionStatus)
+                      if (event.target.value !== 'UNABLE_TO_VERIFY')
+                        setReason('')
+                    }}
+                  >
+                    {allowedExecutionStatuses(
+                      base.executionStatus,
+                      rejected,
+                    ).map((value) => (
                       <option key={value} value={value}>
                         {statuses[value]}
                       </option>
-                    ),
-                  )}
-                </select>
-              </label>}
-              {canAssess && <label>
-                Đánh giá nghiệm thu
-                <select
-                  value={assessment}
-                  onChange={(event) =>
-                    setAssessment(
-                      event.target.value as ChecklistAssessmentStatus,
-                    )
-                  }
-                >
-                  {(
-                    Object.keys(assessments) as ChecklistAssessmentStatus[]
-                  ).map((value) => (
-                    <option key={value} value={value}>
-                      {assessments[value]}
-                    </option>
-                  ))}
-                </select>
-              </label>}
-              {canAssess && <p className="mc-help">
-                ⓘ Đánh giá không đạt không tự động làm mission thất bại.
-              </p>}
-              {canExecute && <label>
-                Ghi nhận thực hiện
-                <textarea
-                  maxLength={2000}
-                  placeholder="Thêm ghi chú nếu cần..."
-                  value={observation}
-                  onChange={(event) => setObservation(event.target.value)}
-                />
-              </label>}
-              {canExecute && <small className="mc-counter">{observation.length} / 2000</small>}
+                    ))}
+                  </select>
+                </label>
+              )}
+              {canAssess && (
+                <label>
+                  Đánh giá nghiệm thu
+                  <select
+                    value={assessment}
+                    onChange={(event) =>
+                      setAssessment(
+                        event.target.value as ChecklistAssessmentStatus,
+                      )
+                    }
+                  >
+                    {(
+                      Object.keys(assessments) as ChecklistAssessmentStatus[]
+                    ).map((value) => (
+                      <option key={value} value={value}>
+                        {assessments[value]}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
+              {canAssess && (
+                <p className="mc-help">
+                  ⓘ Đánh giá không đạt không tự động làm mission thất bại.
+                </p>
+              )}
+              {canExecute && (
+                <label>
+                  Ghi nhận thực hiện
+                  <textarea
+                    maxLength={2000}
+                    placeholder="Thêm ghi chú nếu cần..."
+                    value={observation}
+                    onChange={(event) => setObservation(event.target.value)}
+                  />
+                </label>
+              )}
+              {canExecute && (
+                <small className="mc-counter">
+                  {observation.length} / 2000
+                </small>
+              )}
               {canExecute && status === 'UNABLE_TO_VERIFY' && (
                 <label>
                   Lý do không thể xác minh
@@ -777,24 +801,18 @@ function ChecklistExecutionItem({
   }
   return (
     <div className="monitoring-item">
-      {!compact && <h3>{item.content}</h3>}
-      {!compact && <ChecklistGuidance guidance={item} defaultOpen />}
-      {(!compact || item.assessmentStatus !== 'NOT_ASSESSED') && (
-        <div className="monitoring-meta">
-          {!compact && (
-            <span className={`is-exec-${item.executionStatus.toLowerCase()}`}>
-              {statuses[item.executionStatus]}
-            </span>
-          )}
-          {item.assessmentStatus !== 'NOT_ASSESSED' && (
-            <span
-              className={`is-assess-${item.assessmentStatus.toLowerCase()}`}
-            >
-              {assessments[item.assessmentStatus]}
-            </span>
-          )}
-        </div>
-      )}
+      <h3>{item.content}</h3>
+      <ChecklistGuidance guidance={item} defaultOpen />
+      <div className="monitoring-meta">
+        <span className={`is-exec-${item.executionStatus.toLowerCase()}`}>
+          {statuses[item.executionStatus]}
+        </span>
+        {item.assessmentStatus !== 'NOT_ASSESSED' && (
+          <span className={`is-assess-${item.assessmentStatus.toLowerCase()}`}>
+            {assessments[item.assessmentStatus]}
+          </span>
+        )}
+      </div>
       {item.observation && (
         <p>
           <strong>Ghi nhận:</strong> {item.observation}
@@ -805,7 +823,7 @@ function ChecklistExecutionItem({
           <strong>Lý do không thể xác minh:</strong> {item.unableToVerifyReason}
         </p>
       )}
-      {!compact && item.updatedAt && (
+      {item.updatedAt && (
         <small>
           Cập nhật: {new Date(item.updatedAt).toLocaleString('vi-VN')}
         </small>
@@ -814,7 +832,7 @@ function ChecklistExecutionItem({
       {editable && !editing && (
         <button
           type="button"
-          className={compact ? 'mc-link' : 'odm-btn'}
+          className="odm-btn"
           onClick={() => {
             reset()
             setEditing(true)
@@ -831,53 +849,63 @@ function ChecklistExecutionItem({
           }}
         >
           <fieldset disabled={!editable || busy}>
-            {canExecute && <label>
-              Trạng thái thực hiện
-              <select
-                value={status}
-                onChange={(event) => {
-                  setStatus(event.target.value as ChecklistExecutionStatus)
-                  if (event.target.value !== 'UNABLE_TO_VERIFY') setReason('')
-                }}
-              >
-                {allowedExecutionStatuses(base.executionStatus, rejected).map(
-                  (value) => (
-                    <option key={value} value={value}>
-                      {statuses[value]}
-                    </option>
-                  ),
-                )}
-              </select>
-            </label>}
-            {canAssess && <label>
-              Đánh giá nghiệm thu
-              <select
-                value={assessment}
-                onChange={(event) =>
-                  setAssessment(event.target.value as ChecklistAssessmentStatus)
-                }
-              >
-                {(Object.keys(assessments) as ChecklistAssessmentStatus[]).map(
-                  (value) => (
+            {canExecute && (
+              <label>
+                Trạng thái thực hiện
+                <select
+                  value={status}
+                  onChange={(event) => {
+                    setStatus(event.target.value as ChecklistExecutionStatus)
+                    if (event.target.value !== 'UNABLE_TO_VERIFY') setReason('')
+                  }}
+                >
+                  {allowedExecutionStatuses(base.executionStatus, rejected).map(
+                    (value) => (
+                      <option key={value} value={value}>
+                        {statuses[value]}
+                      </option>
+                    ),
+                  )}
+                </select>
+              </label>
+            )}
+            {canAssess && (
+              <label>
+                Đánh giá nghiệm thu
+                <select
+                  value={assessment}
+                  onChange={(event) =>
+                    setAssessment(
+                      event.target.value as ChecklistAssessmentStatus,
+                    )
+                  }
+                >
+                  {(
+                    Object.keys(assessments) as ChecklistAssessmentStatus[]
+                  ).map((value) => (
                     <option key={value} value={value}>
                       {assessments[value]}
                     </option>
-                  ),
-                )}
-              </select>
-            </label>}
-            {canAssess && <small>
-              Không đạt yêu cầu không đồng nghĩa mission thất bại. Chưa đánh giá
-              là lựa chọn hợp lệ.
-            </small>}
-            {canExecute && <label>
-              Ghi nhận thực hiện
-              <textarea
-                maxLength={2000}
-                value={observation}
-                onChange={(event) => setObservation(event.target.value)}
-              />
-            </label>}
+                  ))}
+                </select>
+              </label>
+            )}
+            {canAssess && (
+              <small>
+                Không đạt yêu cầu không đồng nghĩa mission thất bại. Chưa đánh
+                giá là lựa chọn hợp lệ.
+              </small>
+            )}
+            {canExecute && (
+              <label>
+                Ghi nhận thực hiện
+                <textarea
+                  maxLength={2000}
+                  value={observation}
+                  onChange={(event) => setObservation(event.target.value)}
+                />
+              </label>
+            )}
             {canExecute && <small>{observation.length} / 2000</small>}
             {canExecute && status === 'UNABLE_TO_VERIFY' && (
               <label>

@@ -93,7 +93,7 @@ export function railActionFor(mission: OperatorMission, t: Messages) {
   ) {
     return {
       label: t.reviewMedia,
-      href: operatorHref({ screen: 'upload', missionId: mission.id }),
+      href: operatorHref({ screen: 'checklist', missionId: mission.id }),
     }
   }
   if (permissions?.canStartMission && status === 'SCHEDULED') {

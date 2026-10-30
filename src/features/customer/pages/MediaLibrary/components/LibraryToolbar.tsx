@@ -3,18 +3,26 @@ import { useI18n } from '../../../../../shared/i18n'
 import type { MediaFilter } from '../../../lib/media/types'
 import { libraryToolbarMessages } from './LibraryToolbar.messages'
 
-type Props = { filter: MediaFilter; onChange: (patch: Partial<MediaFilter>) => void }
+type Props = {
+  filter: MediaFilter
+  counts?: Partial<Record<(typeof KINDS)[number], number>>
+  onChange: (patch: Partial<MediaFilter>) => void
+}
 
 const KINDS = ['all', 'image', 'video'] as const
 
-export function LibraryToolbar({ filter, onChange }: Props) {
+export function LibraryToolbar({ filter, counts, onChange }: Props) {
   const { t } = useI18n(libraryToolbarMessages)
   return (
     <FilterBar
       start={
         <FilterSegments<string>
           ariaLabel={t.kindLabel}
-          options={KINDS.map((kind) => ({ value: kind, label: t.kind[kind] }))}
+          options={KINDS.map((kind) => ({
+            value: kind,
+            label: t.kind[kind],
+            ...(counts?.[kind] !== undefined ? { count: counts[kind] } : {}),
+          }))}
           value={filter.kind}
           onChange={(kind) => onChange({ kind: kind as MediaFilter['kind'] })}
         />

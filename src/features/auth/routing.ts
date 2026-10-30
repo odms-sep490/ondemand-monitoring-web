@@ -1,4 +1,3 @@
-import { authSession } from './api/authApi'
 import type { UserRole } from './types'
 
 export const roleHomePaths: Record<UserRole, string> = {
@@ -21,8 +20,4 @@ export function getRoleHomeUrl(
 
 export function redirectToRoleHome(role?: UserRole) {
   window.location.hash = getRoleHomePath(role)
-}
-
-export function getStoredRole() {
-  return authSession.getUser()?.role
 }

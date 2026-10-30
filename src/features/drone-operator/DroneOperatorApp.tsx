@@ -146,14 +146,17 @@ function renderScreen(
         <PreflightPage missionId={route.missionId} />
       </MissionActionGuard>
     )
-  if (route.screen === 'upload')
+  if (route.screen === 'upload' || route.screen === 'checklist')
     return (
       <MissionActionGuard
         key={`${route.missionId}:${route.screen}`}
         missionId={route.missionId}
         action="upload"
       >
-        <UploadMediaPage missionId={route.missionId} />
+        <UploadMediaPage
+          missionId={route.missionId}
+          mode={route.screen === 'checklist' ? 'checklist' : 'media'}
+        />
       </MissionActionGuard>
     )
   if (route.screen === 'postflight')
