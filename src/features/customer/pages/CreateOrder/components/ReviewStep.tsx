@@ -47,6 +47,7 @@ export function ReviewStep(p: Props) {
           error={p.deliverablesError}
           onRetry={p.reloadDeliverables}
           mediaTotals={p.mediaTotals}
+          onEditContent={() => p.onEdit(3)}
         />
         <DeliveryOptionsCard
           form={p.form}

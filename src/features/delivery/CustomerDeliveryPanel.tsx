@@ -1,4 +1,4 @@
-import { Alert, Button, Input, Progress } from 'antd'
+import { Alert, Button, Empty, Input, Progress, Skeleton } from 'antd'
 import { useCallback, useEffect, useState } from 'react'
 import { ApiError } from '../../shared/api/httpClient'
 import { Modal } from '../customer/components/common/ui'
@@ -8,36 +8,84 @@ import { financeApi } from '../finance/api'
 import { deliveryApi } from './api'
 import { customerDeliveryPanelMessages } from './customerDeliveryPanel.messages'
 import { DeliveryProgress, DeliveryStatusPill } from './DeliveryProgress'
-import type { Delivery } from './types'
+import type { Delivery, DeliveryPanelLoadState } from './types'
 import './delivery.css'
 
-export function CustomerDeliveryPanel({ orderId }: { orderId: string }) {
+export function CustomerDeliveryPanel({
+  orderId,
+  initialDelivery = null,
+  onStateChange,
+  onFinalPaymentActionChange,
+}: {
+  orderId: string
+  initialDelivery?: Delivery | null
+  onStateChange?: (
+    delivery: Delivery | null,
+    state: DeliveryPanelLoadState,
+  ) => void
+  onFinalPaymentActionChange?: (action: (() => Promise<void>) | null) => void
+}) {
   const { t } = useI18n(customerDeliveryPanelMessages)
-  const [delivery, setDelivery] = useState<Delivery | null>(null)
+  const [delivery, setDelivery] = useState<Delivery | null>(initialDelivery)
+  const [loadState, setLoadState] = useState<DeliveryPanelLoadState>(
+    initialDelivery ? 'ready' : 'loading',
+  )
   const [busy, setBusy] = useState(false)
   const [acceptOpen, setAcceptOpen] = useState(false)
   const [error, setError] = useState<unknown>(null)
   const [revisionOpen, setRevisionOpen] = useState(false)
   const [reason, setReason] = useState('')
 
-  const load = useCallback(async () => {
+  const payFinal = useCallback(async () => {
+    setBusy(true)
+    setError(null)
     try {
-      const summary = await deliveryApi.get(orderId)
-      const detailed =
-        summary.deliveryStatus === 'DELIVERED'
-          ? await deliveryApi.originals(orderId)
-          : summary.previewReleasedAt
-            ? await deliveryApi.previews(orderId)
-            : summary
-      setDelivery(detailed)
-      setError(null)
+      const invoice = await financeApi.getInvoice(orderId)
+      const payment = await financeApi.createFinalPayment(invoice.id)
+      if (!payment.paymentUrl) throw new Error(t.noVnpayUrl)
+      window.location.assign(payment.paymentUrl)
     } catch (cause) {
-      if (!(
-        cause instanceof ApiError && [404, 409].includes(cause.status ?? 0)
-      ))
-        setError(cause)
+      setError(cause)
+      setBusy(false)
     }
-  }, [orderId])
+  }, [orderId, t.noVnpayUrl])
+
+  const load = useCallback(
+    async (showLoading = false) => {
+      if (showLoading) {
+        setLoadState('loading')
+        setError(null)
+      }
+      try {
+        const summary = await deliveryApi.get(orderId)
+        let detailed = summary
+        try {
+          if (summary.deliveryStatus === 'DELIVERED') {
+            detailed = await deliveryApi.originals(orderId)
+          } else if (summary.previewReleasedAt) {
+            detailed = await deliveryApi.previews(orderId)
+          }
+        } catch (cause) {
+          // Keep the real summary status visible if the optional asset endpoint
+          // has no files for this delivery state yet.
+          if (!isNotReady(cause)) throw cause
+        }
+        setDelivery(detailed)
+        setLoadState('ready')
+        setError(null)
+      } catch (cause) {
+        if (isNotReady(cause)) {
+          setDelivery(null)
+          setLoadState('unavailable')
+          setError(null)
+          return
+        }
+        setLoadState('error')
+        setError(cause)
+      }
+    },
+    [orderId],
+  )
 
   useEffect(() => {
     void load()
@@ -50,10 +98,63 @@ export function CustomerDeliveryPanel({ orderId }: { orderId: string }) {
       document.removeEventListener('visibilitychange', refreshWhenVisible)
     }
   }, [load])
-  if (!delivery)
-    return error ? (
-      <Alert type="error" showIcon message={message(error, t)} />
-    ) : null
+
+  useEffect(() => {
+    onStateChange?.(delivery, loadState)
+  }, [delivery, loadState, onStateChange])
+
+  useEffect(() => {
+    onFinalPaymentActionChange?.(
+      delivery?.deliveryStatus === 'FINAL_PAYMENT_PENDING' ? payFinal : null,
+    )
+    return () => onFinalPaymentActionChange?.(null)
+  }, [delivery?.deliveryStatus, onFinalPaymentActionChange, payFinal])
+
+  if (!delivery) {
+    return (
+      <section
+        id="customer-delivery-panel"
+        className="ui-card delivery-shell delivery-customer delivery-empty-state"
+        aria-labelledby="delivery-title"
+        aria-busy={loadState === 'loading'}
+        tabIndex={-1}
+      >
+        <header className="delivery-hero">
+          <div className="delivery-hero__copy">
+            <span className="delivery-eyebrow">{t.eyebrow}</span>
+            <h2 id="delivery-title">{t.title}</h2>
+            <p>{t.subtitle}</p>
+          </div>
+        </header>
+        {loadState === 'loading' ? (
+          <div className="delivery-empty-state__body" role="status">
+            <Skeleton active paragraph={{ rows: 2 }} />
+            <span className="odm-visually-hidden">{t.loading}</span>
+          </div>
+        ) : loadState === 'unavailable' ? (
+          <div className="delivery-empty-state__body">
+            <Empty
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              description={t.noDelivery}
+            />
+          </div>
+        ) : (
+          <div className="delivery-empty-state__body">
+            <Alert
+              type="error"
+              showIcon
+              message={message(error, t)}
+              action={
+                <Button type="link" onClick={() => void load(true)}>
+                  {t.retry}
+                </Button>
+              }
+            />
+          </div>
+        )}
+      </section>
+    )
+  }
 
   async function accept() {
     await act(() => deliveryApi.accept(orderId))
@@ -67,19 +168,6 @@ export function CustomerDeliveryPanel({ orderId }: { orderId: string }) {
     await act(() => deliveryApi.requestRevision(orderId, reason.trim(), []))
     setRevisionOpen(false)
     setReason('')
-  }
-  async function payFinal() {
-    setBusy(true)
-    setError(null)
-    try {
-      const invoice = await financeApi.getInvoice(orderId)
-      const payment = await financeApi.createFinalPayment(invoice.id)
-      if (!payment.paymentUrl) throw new Error(t.noVnpayUrl)
-      window.location.assign(payment.paymentUrl)
-    } catch (cause) {
-      setError(cause)
-      setBusy(false)
-    }
   }
   async function act(action: () => Promise<Delivery>) {
     setBusy(true)
@@ -105,8 +193,11 @@ export function CustomerDeliveryPanel({ orderId }: { orderId: string }) {
 
   return (
     <section
+      id="customer-delivery-panel"
       className="ui-card delivery-shell delivery-customer"
       aria-labelledby="delivery-title"
+      aria-busy={loadState === 'loading'}
+      tabIndex={-1}
     >
       <header className="delivery-hero">
         <div className="delivery-hero__copy">
@@ -114,7 +205,9 @@ export function CustomerDeliveryPanel({ orderId }: { orderId: string }) {
           <h2 id="delivery-title">{t.title}</h2>
           <p>{t.subtitle}</p>
         </div>
-        <DeliveryStatusPill status={delivery.deliveryStatus} />
+        <span role="status" aria-live="polite">
+          <DeliveryStatusPill status={delivery.deliveryStatus} />
+        </span>
       </header>
       <DeliveryProgress status={delivery.deliveryStatus} />
       <div className="delivery-content">
@@ -178,6 +271,15 @@ export function CustomerDeliveryPanel({ orderId }: { orderId: string }) {
               ))}
             </div>
           </section>
+        ) : null}
+
+        {delivery.assets.length === 0 ? (
+          <div className="delivery-empty-state__body" role="status">
+            <Empty
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              description={t.noAssets}
+            />
+          </div>
         ) : null}
 
         {delivery.deliveryNotes ? (
@@ -363,11 +465,24 @@ export function CustomerDeliveryPanel({ orderId }: { orderId: string }) {
           />
         ) : null}
         {error ? (
-          <Alert type="error" showIcon message={message(error, t)} />
+          <Alert
+            type="error"
+            showIcon
+            message={message(error, t)}
+            action={
+              <Button type="link" onClick={() => void load(true)}>
+                {t.retry}
+              </Button>
+            }
+          />
         ) : null}
       </div>
     </section>
   )
+}
+
+function isNotReady(cause: unknown) {
+  return cause instanceof ApiError && [404, 409].includes(cause.status ?? 0)
 }
 
 function StatusBanner({

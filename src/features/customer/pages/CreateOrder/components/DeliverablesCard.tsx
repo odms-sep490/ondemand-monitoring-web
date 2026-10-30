@@ -1,5 +1,5 @@
 import { Button } from 'antd'
-import { PictureOutlined } from '@ant-design/icons'
+import { InfoCircleOutlined, PictureOutlined } from '@ant-design/icons'
 import { Card } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import type { ServiceDeliverableOption } from '../../../api/customerApi'
@@ -13,6 +13,7 @@ type Props = {
   onRetry: () => void
   /** Images and videos requested in the checklists; shown, not edited here. */
   mediaTotals: { images: number; videos: number }
+  onEditContent?: () => void
 }
 
 export function DeliverablesCard({
@@ -21,6 +22,7 @@ export function DeliverablesCard({
   error,
   onRetry,
   mediaTotals,
+  onEditContent,
 }: Props) {
   const { t } = useI18n(deliverablesCardMessages)
   return (
@@ -29,7 +31,9 @@ export function DeliverablesCard({
       icon={<PictureOutlined />}
       title={t.cardTitle}
     >
-      <p className="co-hint co-card-sub">{t.cardSubtitle}</p>
+      {!onEditContent ? (
+        <p className="co-hint co-card-sub">{t.cardSubtitle}</p>
+      ) : null}
       {loading && <p className="co-hint">{t.loading}</p>}
       {!loading && error ? (
         <div className="co-notice is-danger" role="alert">
@@ -40,11 +44,36 @@ export function DeliverablesCard({
       {!loading && !error && deliverables.length === 0 ? (
         <p className="co-hint">{t.empty}</p>
       ) : null}
-      <div className="co-two co-mt" aria-label={t.mediaSummary}>
-        <Metric label={t.requestedPhotos} value={String(mediaTotals.images)} />
-        <Metric label={t.requestedVideos} value={String(mediaTotals.videos)} />
+      <div
+        className={`co-deliverables-summary${onEditContent ? ' has-edit-content' : ''}`}
+      >
+        <div className="co-two co-mt" aria-label={t.mediaSummary}>
+          <Metric
+            label={t.requestedPhotos}
+            value={String(mediaTotals.images)}
+          />
+          <Metric
+            label={t.requestedVideos}
+            value={String(mediaTotals.videos)}
+          />
+        </div>
+        {onEditContent ? (
+          <div className="co-deliverables-guidance">
+            <span aria-hidden="true">
+              <InfoCircleOutlined />
+            </span>
+            <div className="co-deliverables-guidance-copy">
+              <strong>{t.cardSubtitle}</strong>
+              <p className="co-hint co-deliverables-note">
+                {t.mediaFromChecklist}
+              </p>
+            </div>
+            <Button type="link" onClick={onEditContent}>
+              {t.editContent}
+            </Button>
+          </div>
+        ) : null}
       </div>
-      <p className="co-hint">{t.mediaFromChecklist}</p>
     </Card>
   )
 }

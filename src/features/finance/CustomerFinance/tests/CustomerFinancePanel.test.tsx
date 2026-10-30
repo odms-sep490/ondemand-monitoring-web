@@ -52,6 +52,31 @@ const pendingDeposit: Payment = {
 afterEach(() => vi.restoreAllMocks())
 
 describe('CustomerFinancePanel', () => {
+  it('explains when the order has no quote or payment records yet', async () => {
+    vi.spyOn(financeApi, 'getQuote').mockRejectedValue(
+      new ApiError('Not found', {
+        status: 404,
+        method: 'GET',
+        path: '/api/orders/order-1/quote',
+      }),
+    )
+    vi.spyOn(financeApi, 'getInvoice').mockRejectedValue(
+      new ApiError('Not found', {
+        status: 404,
+        method: 'GET',
+        path: '/api/orders/order-1/invoice',
+      }),
+    )
+
+    render(<CustomerFinancePanel orderId="order-1" />)
+
+    expect(
+      await screen.findByText(
+        'Đơn hàng chưa có báo giá hoặc thông tin thanh toán.',
+      ),
+    ).toBeInTheDocument()
+  })
+
   it('completes a deposit immediately with the development test button', async () => {
     vi.spyOn(financeApi, 'getQuote').mockResolvedValue(quote)
     vi.spyOn(financeApi, 'getInvoice')

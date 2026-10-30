@@ -123,11 +123,15 @@ export function RequestSummaryCard(p: Props) {
             label: t.monitoringContent,
             lines: [
               t.totalContent(p.checklistCounts.total),
-              t.packageContent(
-                p.checklistCounts.packageSelected,
-                p.checklistCounts.packageTotal,
-              ),
-              t.additionalContent(p.checklistCounts.additional),
+              [
+                t.packageContent(
+                  p.checklistCounts.packageSelected,
+                  p.checklistCounts.packageTotal,
+                ),
+                ...(p.checklistCounts.additional > 0
+                  ? [t.additionalContent(p.checklistCounts.additional)]
+                  : []),
+              ].join(' · '),
             ],
             step: 3 as Step,
           },
@@ -217,8 +221,7 @@ export function RequestSummaryCard(p: Props) {
       icon: 'clock',
       label: t.schedule,
       lines: [
-        dates || t.noValue,
-        timeWindow,
+        [dates, timeWindow].filter(Boolean).join(' · ') || t.noValue,
         form.recurrenceType === 'WEEKLY'
           ? t.repeatWeekly(form.recurrenceOccurrences)
           : form.recurrenceType === 'MONTHLY'
@@ -229,7 +232,7 @@ export function RequestSummaryCard(p: Props) {
           : '',
         t.fallbackValues[form.weatherFallback],
       ].filter(Boolean),
-      lead: 2,
+      lead: 1,
       step: 5,
     },
     ...(p.mediaTotals || p.deliverable
@@ -264,17 +267,15 @@ export function RequestSummaryCard(p: Props) {
           },
         ]
       : []),
-    {
-      key: 'attachments',
-      icon: 'file-text',
-      label: t.attachments,
-      lines: [
-        form.attachments.length
-          ? t.attachmentCount(form.attachments.length)
-          : t.none,
-      ],
-      step: 1,
-    },
+    ...(form.attachments.length > 0
+      ? [{
+          key: 'attachments',
+          icon: 'file-text' as const,
+          label: t.attachments,
+          lines: [t.attachmentCount(form.attachments.length)],
+          step: 1 as Step,
+        }]
+      : []),
   ]
   const sections: Array<{ step: Step; title: string }> = [
     { step: 1, title: t.groupService },
@@ -302,7 +303,7 @@ export function RequestSummaryCard(p: Props) {
           return (
             <section
               key={section.step}
-              className="co-review-group"
+              className={`co-review-group is-step-${section.step}`}
               aria-labelledby={`co-review-group-${section.step}`}
             >
               <div className="co-review-group-heading">

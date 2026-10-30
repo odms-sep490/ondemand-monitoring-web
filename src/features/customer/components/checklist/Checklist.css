@@ -210,6 +210,8 @@
   font-size: 12px;
 }
 .checklist-snapshot {
+  min-width: 0;
+  max-width: 100%;
   padding-left: 24px;
 }
 .checklist-snapshot li {
@@ -223,15 +225,18 @@
   display: block;
 }
 .checklist-snapshot-evidence {
+  box-sizing: border-box;
   display: inline-block;
-  margin-left: 8px;
+  max-width: 100%;
+  margin: 6px 0 0;
   padding: 3px 9px;
   border-radius: 999px;
   background: var(--ui-primary-soft);
   color: var(--ui-primary-text);
   font-size: 12px;
   font-weight: 600;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 @media (max-width: 600px) {
   .checklist-row {
@@ -250,10 +255,9 @@
 
 .checklist-card.is-compact .checklist-row-header {
   display: grid;
-  grid-template-columns: 20px 28px minmax(180px, 1fr) auto minmax(
-      96px,
-      auto
-    ) 32px auto;
+  grid-template-columns:
+    20px 28px minmax(180px, 1fr) auto minmax(96px, auto)
+    32px auto;
   grid-template-areas: 'check index summary evidence price edit remove';
   align-items: center;
   gap: 12px;

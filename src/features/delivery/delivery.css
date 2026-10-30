@@ -12,6 +12,10 @@
   background: var(--d-surface);
   box-shadow: var(--ui-shadow-1);
 }
+
+.delivery-customer :is(.ant-btn, .ui-btn) {
+  min-height: 44px;
+}
 .delivery-hero {
   display: flex;
   align-items: flex-start;
@@ -48,6 +52,8 @@
 }
 .delivery-status {
   flex: none;
+  box-sizing: border-box;
+  max-width: 100%;
   display: inline-flex;
   align-items: center;
   gap: 7px;
@@ -56,7 +62,8 @@
   border-radius: 999px;
   font-size: 12px;
   font-weight: 800;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 .delivery-status::before {
   width: 7px;
