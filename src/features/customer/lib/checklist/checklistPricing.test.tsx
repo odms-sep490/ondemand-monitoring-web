@@ -295,7 +295,9 @@ describe('ChecklistQuoteCard', () => {
   })
 
   it('recalculates through the backend when VIDEO is selected or removed', async () => {
-    const quote = vi.spyOn(checklistPricingApi, 'customerQuote').mockResolvedValue(preview)
+    const quote = vi
+      .spyOn(checklistPricingApi, 'customerQuote')
+      .mockResolvedValue(preview)
     const hook = renderHook(
       ({ resultFormats }) =>
         useChecklistQuote('A', [{ sourceChecklistId: 'c-roof' }], {
@@ -346,14 +348,19 @@ describe('ChecklistQuoteCard', () => {
 })
 
 describe('ChecklistSnapshotCard', () => {
-  it('shows the frozen requested and included media of a V3 snapshot', () => {
-    render(
+  it('shows a compact requirement row and expands the saved guidance on demand', () => {
+    const { container } = render(
       <ChecklistSnapshotCard
+        snapshotAt="2026-10-04T00:00:00Z"
         items={[
           {
             id: 's1',
             sourceChecklistId: 'c-roof',
             content: 'Kiểm tra mái',
+            description: 'Ghi nhận hiện trạng mái từ trên cao.',
+            executionSteps: ['Bay quanh mái', 'Chụp các khu vực bất thường'],
+            inputRequirements: ['Ranh giới khu vực đã xác nhận'],
+            expectedOutputs: ['Ảnh tổng quan', 'Ghi chú hiện trạng'],
             displayOrder: 0,
             sourceType: 'SERVICE_TEMPLATE',
             evidencePolicyVersion: 3,
@@ -365,9 +372,51 @@ describe('ChecklistSnapshotCard', () => {
         ]}
       />,
     )
-    expect(screen.getByText(/Số ảnh yêu cầu: 30/)).toBeInTheDocument()
-    expect(screen.getByText(/Số video yêu cầu: 3/)).toBeInTheDocument()
+    const details = container.querySelector('li details')!
+    expect(screen.getByText('1 hạng mục')).toBeInTheDocument()
+    expect(
+      screen.getByText('Đã chốt khi gửi yêu cầu · Chỉ xem'),
+    ).toBeInTheDocument()
+    expect(details).not.toHaveAttribute('open')
+    fireEvent.click(details.querySelector('summary')!)
+    expect(details).toHaveAttribute('open')
+    expect(
+      screen.getByRole('group', { name: 'Yêu cầu: 30 ảnh · 3 video' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText('Ghi nhận hiện trạng mái từ trên cao.'),
+    ).toBeInTheDocument()
+    expect(screen.getByText('Bay quanh mái')).toBeInTheDocument()
+    expect(
+      screen.getByText('Ranh giới khu vực đã xác nhận'),
+    ).toBeInTheDocument()
+    expect(screen.getByText('Ảnh tổng quan')).toBeInTheDocument()
     expect(screen.getByText(/Đã bao gồm: 10 ảnh · 1 video/)).toBeInTheDocument()
+    expect(details.querySelectorAll('details')).toHaveLength(0)
+  })
+
+  it('does not present the request as frozen without a backend snapshot timestamp', () => {
+    render(
+      <ChecklistSnapshotCard
+        items={[
+          {
+            id: 'legacy-1',
+            sourceChecklistId: 'c-roof',
+            content: 'Kiểm tra mái',
+            displayOrder: 0,
+            sourceType: 'SERVICE_TEMPLATE',
+            minimumEvidenceCount: 2,
+            requiredEvidenceType: 'IMAGE',
+          },
+        ]}
+      />,
+    )
+    expect(
+      screen.queryByText('Đã chốt khi gửi yêu cầu · Chỉ xem'),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.getByRole('group', { name: 'Yêu cầu: 2 ảnh' }),
+    ).toBeInTheDocument()
   })
 
   it('shows no amount while a customer-added checklist awaits manager pricing', () => {

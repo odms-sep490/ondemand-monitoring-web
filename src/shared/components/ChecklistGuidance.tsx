@@ -56,58 +56,69 @@ export function ChecklistGuidance({
   sections = ['description', 'steps', 'inputs', 'outputs'],
   defaultOpen = false,
   summaryLabel,
+  collapsible = true,
 }: {
   guidance?: ChecklistGuidanceData | null
   sections?: Section[]
   defaultOpen?: boolean
   summaryLabel?: string
+  /** Render only the content when a parent disclosure owns the open/closed state. */
+  collapsible?: boolean
 }) {
   const { t } = useI18n(messages)
   if (!guidance || !hasChecklistGuidance(guidance, sections)) return null
   const steps = list(guidance.executionSteps)
   const inputs = list(guidance.inputRequirements)
   const outputs = list(guidance.expectedOutputs)
+  const body = (
+    <div className="odm-cg-body">
+      {sections.includes('description') && guidance.description?.trim() ? (
+        <section>
+          <h4>{t.description}</h4>
+          <p>{guidance.description.trim()}</p>
+        </section>
+      ) : null}
+      {sections.includes('steps') && steps.length > 0 ? (
+        <section>
+          <h4>{t.steps}</h4>
+          <ol>
+            {steps.map((step, index) => (
+              <li key={`${index}:${step}`}>{step}</li>
+            ))}
+          </ol>
+        </section>
+      ) : null}
+      {sections.includes('inputs') && inputs.length > 0 ? (
+        <section>
+          <h4>{t.inputs}</h4>
+          <ul>
+            {inputs.map((item, index) => (
+              <li key={`${index}:${item}`}>{item}</li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+      {sections.includes('outputs') && outputs.length > 0 ? (
+        <section>
+          <h4>{t.outputs}</h4>
+          <ul>
+            {outputs.map((item, index) => (
+              <li key={`${index}:${item}`}>{item}</li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+    </div>
+  )
+
+  if (!collapsible) {
+    return <div className="odm-cg odm-cg-static">{body}</div>
+  }
+
   return (
     <details className="odm-cg" open={defaultOpen}>
       <summary>{summaryLabel ?? t.summary}</summary>
-      <div className="odm-cg-body">
-        {sections.includes('description') && guidance.description?.trim() ? (
-          <section>
-            <h4>{t.description}</h4>
-            <p>{guidance.description.trim()}</p>
-          </section>
-        ) : null}
-        {sections.includes('steps') && steps.length > 0 ? (
-          <section>
-            <h4>{t.steps}</h4>
-            <ol>
-              {steps.map((step, index) => (
-                <li key={`${index}:${step}`}>{step}</li>
-              ))}
-            </ol>
-          </section>
-        ) : null}
-        {sections.includes('inputs') && inputs.length > 0 ? (
-          <section>
-            <h4>{t.inputs}</h4>
-            <ul>
-              {inputs.map((item, index) => (
-                <li key={`${index}:${item}`}>{item}</li>
-              ))}
-            </ul>
-          </section>
-        ) : null}
-        {sections.includes('outputs') && outputs.length > 0 ? (
-          <section>
-            <h4>{t.outputs}</h4>
-            <ul>
-              {outputs.map((item, index) => (
-                <li key={`${index}:${item}`}>{item}</li>
-              ))}
-            </ul>
-          </section>
-        ) : null}
-      </div>
+      {body}
     </details>
   )
 }

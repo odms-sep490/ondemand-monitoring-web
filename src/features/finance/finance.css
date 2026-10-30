@@ -1066,38 +1066,66 @@
 }
 
 
-/* Customer quote: lines grouped per checklist */
+/* Customer quote: compact, expandable price breakdown by checklist */
 .customer-quote-groups {
-  display: grid;
-  gap: 10px;
+  display: block;
   margin-bottom: 14px;
+  border-top: 1px solid var(--ui-border);
 }
 .customer-quote-group {
-  border: 1px solid var(--ui-border);
-  border-radius: 10px;
-  overflow: hidden;
+  display: block;
+  border-bottom: 1px solid var(--ui-border);
 }
-.customer-quote-group > header {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
+.customer-quote-group > summary,
+.customer-quote-group-summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content max-content;
+  align-items: center;
   gap: 12px;
-  padding: 8px 12px;
-  background: var(--ui-surface-2);
-  font-size: 13px;
+  min-height: 44px;
+  padding: 8px 2px;
+  color: var(--ui-text);
+  font-size: 14px;
 }
-.customer-quote-group > header strong {
+.customer-quote-group > summary {
+  cursor: pointer;
+  list-style-position: outside;
+}
+.customer-quote-group > summary::marker {
+  color: var(--ui-primary);
+}
+.customer-quote-group > summary strong,
+.customer-quote-group-summary strong {
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow-wrap: anywhere;
+  font-weight: 650;
+}
+.customer-quote-group > summary b,
+.customer-quote-group-summary b {
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
-.customer-quote-group ul {
+.customer-quote-group > summary .customer-quote-detail-label {
+  color: var(--ui-primary-text);
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.customer-quote-group > summary:focus-visible {
+  outline: 2px solid var(--ui-primary);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+.customer-quote-group[open] > summary {
+  color: var(--ui-primary-text);
+}
+.customer-quote-group > ul {
   margin: 0;
-  padding: 4px 12px 8px;
+  padding: 8px 0 12px 20px;
+  border-top: 1px solid var(--ui-border);
   list-style: none;
 }
-.customer-quote-group li {
+.customer-quote-group > ul li {
   display: flex;
   justify-content: space-between;
   gap: 12px;
@@ -1106,10 +1134,20 @@
   font-size: 12.5px;
   line-height: 1.4;
 }
-.customer-quote-group header b,
-.customer-quote-group li span:last-child {
+.customer-quote-group > ul li span:last-child {
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+}
+
+@media (max-width: 560px) {
+  .customer-quote-group > summary,
+  .customer-quote-group-summary {
+    grid-template-columns: minmax(0, 1fr) max-content;
+    gap: 4px 12px;
+  }
+  .customer-quote-group > summary .customer-quote-detail-label {
+    grid-column: 1 / -1;
+  }
 }
 
 /* Quote total: prominent block, tokens only */

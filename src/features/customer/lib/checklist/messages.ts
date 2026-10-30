@@ -6,8 +6,7 @@ export const checklistMessages = defineMessages({
     hint: 'Danh sách mặc định của dịch vụ được hiển thị bên dưới. Bạn có thể chỉnh sửa, bỏ mục không cần thiết hoặc thêm nội dung riêng; danh sách được chốt khi gửi yêu cầu.',
     compactHint: 'Chọn hạng mục cần làm; số ảnh/video có thể chỉnh khi sửa.',
     guidanceSummary: 'Hướng dẫn',
-    pricingNotice:
-      'Thay đổi danh sách có thể làm thay đổi chi phí dự kiến.',
+    pricingNotice: 'Thay đổi danh sách có thể làm thay đổi chi phí dự kiến.',
     choose: 'Chọn dịch vụ để xem nội dung giám sát.',
     loading: 'Đang tải nội dung giám sát…',
     empty:
@@ -29,8 +28,10 @@ export const checklistMessages = defineMessages({
     done: 'Xong',
     emptyContent: 'Chưa có nội dung',
     onDemandService: 'Dịch vụ theo yêu cầu',
-    onDemandHint: 'Giá của dịch vụ này sẽ được xem xét và báo giá sau khi quản lý duyệt yêu cầu.',
-    priceDuplicate: 'Không tính phí — yêu cầu đã được bao gồm trong dịch vụ hiện tại.',
+    onDemandHint:
+      'Giá của dịch vụ này sẽ được xem xét và báo giá sau khi quản lý duyệt yêu cầu.',
+    priceDuplicate:
+      'Không tính phí — yêu cầu đã được bao gồm trong dịch vụ hiện tại.',
     priceRejected: 'Yêu cầu không được chấp thuận · 0 ₫',
     priceAdditional: 'Dịch vụ bổ sung:',
     pricePending: 'Đang chờ quản lý xem xét giá.',
@@ -53,8 +54,7 @@ export const checklistMessages = defineMessages({
     minimumVideosLabel: 'Số video tối thiểu',
     imageAndVideoSummary: (images: number, videos: number) =>
       `${images} ảnh + ${videos} video`,
-    bothMediaRequired:
-      'Loại "Ảnh và video" cần ít nhất một ảnh và một video.',
+    bothMediaRequired: 'Loại "Ảnh và video" cần ít nhất một ảnh và một video.',
     custom: 'Bổ sung của bạn',
     awaitingManagerQuote: 'Chờ quản lý đánh giá',
     defaultItem: 'Mặc định của dịch vụ',
@@ -71,6 +71,15 @@ export const checklistMessages = defineMessages({
     requestedVideos: 'Số video yêu cầu',
     includedMedia: (images: number, videos: number) =>
       `Đã bao gồm: ${images} ảnh · ${videos} video`,
+    requiredMedia: (images: number, videos: number) => {
+      const counts = [
+        images > 0 ? `${images} ảnh` : null,
+        videos > 0 ? `${videos} video` : null,
+      ].filter(Boolean)
+      return counts.length
+        ? `Yêu cầu: ${counts.join(' · ')}`
+        : 'Không yêu cầu ảnh/video'
+    },
     extraMedia: (images: number, videos: number) =>
       `Bổ sung: ${images} ảnh · ${videos} video`,
     mediaAcceptanceNote: 'Nghiệm thu cần đủ số ảnh và đủ số video đã yêu cầu.',
@@ -82,10 +91,12 @@ export const checklistMessages = defineMessages({
     quoteLoading: 'Đang tính giá…',
     quoteTotal: 'Tổng dự kiến',
     rowPriceVisits: (n: number) => `Giá cho ${n} lần thực hiện`,
-    quoteOccurrences: (n: number) => `Giá đã nhân cho ${n} lần thực hiện theo lịch định kỳ.`,
+    quoteOccurrences: (n: number) =>
+      `Giá đã nhân cho ${n} lần thực hiện theo lịch định kỳ.`,
     quoteAddOns: 'Dịch vụ bổ sung',
     quoteAwaiting: 'Chờ quản lý báo giá',
-    quoteNote: 'Chưa gồm các yếu tố theo từng đơn như quãng đường và diện tích.',
+    quoteNote:
+      'Chưa gồm các yếu tố theo từng đơn như quãng đường và diện tích.',
     quoteFailed: 'Không thể tính chi phí lúc này.',
     limit: 'Chỉ được chọn tối đa 100 nội dung.',
     loadFailed:
@@ -102,8 +113,11 @@ export const checklistMessages = defineMessages({
     inactive: 'Dịch vụ không còn hoạt động. Vui lòng chọn dịch vụ khác.',
     failed: 'Không thể gửi yêu cầu. Vui lòng thử lại.',
     locked: 'Đã chốt khi gửi yêu cầu · Chỉ xem',
-    history:
-      'Đây là nội dung đã lưu của yêu cầu, không thay đổi theo danh mục dịch vụ.',
+    itemCount: (count: number) => count + ' hạng mục',
+    requiredImages: (count: number) => count + ' ảnh',
+    requiredVideos: (count: number) => count + ' video',
+    requiredEvidence: (count: number, type: string) =>
+      'Tối thiểu ' + count + ' · ' + type,
     legacy: 'Yêu cầu này chưa lưu danh sách nội dung giám sát.',
     emptySnapshot: 'Yêu cầu được gửi không kèm nội dung giám sát.',
     editChecklist: 'Chỉnh sửa checklist',
@@ -136,7 +150,8 @@ export const checklistMessages = defineMessages({
   en: {
     title: 'Monitoring requirements',
     hint: 'The service defaults are listed below. You can edit them, remove anything you do not need, or add your own; the list is locked when submitted.',
-    compactHint: 'Choose the requirements; adjust image/video counts when editing.',
+    compactHint:
+      'Choose the requirements; adjust image/video counts when editing.',
     guidanceSummary: 'Guidance',
     pricingNotice:
       'Changing this list may change the cost. A manager will review each requirement and send the final quote for your confirmation.',
@@ -161,8 +176,10 @@ export const checklistMessages = defineMessages({
     done: 'Done',
     emptyContent: 'No content yet',
     onDemandService: 'On-demand service',
-    onDemandHint: 'The price of this service is reviewed and quoted after the Manager approves the request.',
-    priceDuplicate: 'No charge — this request is already included in the current service.',
+    onDemandHint:
+      'The price of this service is reviewed and quoted after the Manager approves the request.',
+    priceDuplicate:
+      'No charge — this request is already included in the current service.',
     priceRejected: 'Request not approved · 0 ₫',
     priceAdditional: 'Additional service:',
     pricePending: 'Waiting for the Manager to review the price.',
@@ -204,6 +221,15 @@ export const checklistMessages = defineMessages({
     requestedVideos: 'Requested videos',
     includedMedia: (images: number, videos: number) =>
       `Included: ${images} images · ${videos} videos`,
+    requiredMedia: (images: number, videos: number) => {
+      const counts = [
+        images > 0 ? `${images} photos` : null,
+        videos > 0 ? `${videos} videos` : null,
+      ].filter(Boolean)
+      return counts.length
+        ? `Required: ${counts.join(' · ')}`
+        : 'No photos or videos required'
+    },
     extraMedia: (images: number, videos: number) =>
       `Extra: ${images} images · ${videos} videos`,
     mediaAcceptanceNote:
@@ -216,7 +242,8 @@ export const checklistMessages = defineMessages({
     quoteLoading: 'Calculating price…',
     quoteTotal: 'Estimated total',
     rowPriceVisits: (n: number) => `Price for ${n} visits`,
-    quoteOccurrences: (n: number) => `Prices already cover ${n} scheduled visits.`,
+    quoteOccurrences: (n: number) =>
+      `Prices already cover ${n} scheduled visits.`,
     quoteAddOns: 'Add-ons',
     quoteAwaiting: 'Awaiting manager quote',
     quoteNote: 'Excludes order-specific factors such as distance and area.',
@@ -238,8 +265,11 @@ export const checklistMessages = defineMessages({
     inactive: 'The service is no longer active. Please select another service.',
     failed: 'Unable to submit the request. Please try again.',
     locked: 'Locked on submission · Read only',
-    history:
-      'These are the saved requirements, independent of the current service catalog.',
+    itemCount: (count: number) => count + (count === 1 ? ' item' : ' items'),
+    requiredImages: (count: number) => count + ' photos',
+    requiredVideos: (count: number) => count + ' videos',
+    requiredEvidence: (count: number, type: string) =>
+      'Minimum ' + count + ' · ' + type,
     legacy: 'This request has no saved monitoring requirements.',
     emptySnapshot:
       'This request was submitted with no monitoring requirements.',

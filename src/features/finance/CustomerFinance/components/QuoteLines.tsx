@@ -29,11 +29,12 @@ export function QuoteLines({ items }: { items: CustomerQuote['items'] }) {
         const name =
           pricingDescription(rows[0].description).split(' · ')[0] || t.contentFallback
         return (
-          <section key={id} className="customer-quote-group">
-            <header>
+          <details key={id} className="customer-quote-group">
+            <summary>
               <strong title={name}>{name}</strong>
               <b>{formatVnd(sum(rows))}</b>
-            </header>
+              <span className="customer-quote-detail-label">{t.priceDetails}</span>
+            </summary>
             <ul>
               {rows.map((row) => (
                 <li key={row.id}>
@@ -42,15 +43,23 @@ export function QuoteLines({ items }: { items: CustomerQuote['items'] }) {
                 </li>
               ))}
             </ul>
-          </section>
+          </details>
         )
       })}
-      {orderLevel.length > 0 && (
-        <section className="customer-quote-group">
-          <header>
+      {orderLevel.length === 1 ? (
+        <div className="customer-quote-group customer-quote-group--static">
+          <div className="customer-quote-group-summary">
+            <strong>{lineText(orderLevel[0], undefined, t.adjustment)}</strong>
+            <b>{formatVnd(orderLevel[0].amount)}</b>
+          </div>
+        </div>
+      ) : orderLevel.length > 1 ? (
+        <details className="customer-quote-group">
+          <summary>
             <strong>{t.perOrder}</strong>
             <b>{formatVnd(sum(orderLevel))}</b>
-          </header>
+            <span className="customer-quote-detail-label">{t.priceDetails}</span>
+          </summary>
           <ul>
             {orderLevel.map((row) => (
               <li key={row.id}>
@@ -59,8 +68,8 @@ export function QuoteLines({ items }: { items: CustomerQuote['items'] }) {
               </li>
             ))}
           </ul>
-        </section>
-      )}
+        </details>
+      ) : null}
     </div>
   )
 }
