@@ -1,4 +1,6 @@
-import { Alert } from 'antd'
+import { Alert, Button } from 'antd'
+import { ApiError } from '../../../shared/api/httpClient'
+import { guidanceMessages } from '../ManagerPricing/guidance.messages'
 import { useCallback, useEffect, useState } from 'react'
 import { useI18n } from '../../../shared/i18n'
 import { financeApi } from '../api'
@@ -35,6 +37,8 @@ export function CustomerFinancePanel({
     legalStatus === 'APPROVED' ||
     legalStatus === 'PENDING_PERMIT'
   const { t } = useI18n(customerFinancePanelMessages)
+  const { t: g } = useI18n(guidanceMessages)
+  const [quoteStale, setQuoteStale] = useState(false)
   const [quote, setQuote] = useState<CustomerQuote | null>(null)
   const [invoice, setInvoice] = useState<Invoice | null>(null)
   const [loading, setLoading] = useState(true)
@@ -43,6 +47,7 @@ export function CustomerFinancePanel({
 
   const load = useCallback(async () => {
     setLoading(true)
+    setQuoteStale(false)
     setError(null)
     const [quoteResult, invoiceResult] = await Promise.allSettled([
       financeApi.getQuote(orderId),
@@ -50,7 +55,10 @@ export function CustomerFinancePanel({
     ])
     if (quoteResult.status === 'fulfilled') setQuote(quoteResult.value)
     else if (isNotFound(quoteResult.reason)) setQuote(null)
-    else setError(messageOf(quoteResult.reason, t))
+    else {
+      setQuote(null)
+      setError(messageOf(quoteResult.reason, t))
+    }
     if (invoiceResult.status === 'fulfilled') setInvoice(invoiceResult.value)
     else if (isNotFound(invoiceResult.reason)) setInvoice(null)
     else setError(messageOf(invoiceResult.reason, t))
@@ -66,7 +74,7 @@ export function CustomerFinancePanel({
   }, [invoice, loading, onStateChange, quote])
 
   async function accept() {
-    if (!quote) return
+    if (!quote || quoteStale) return
     setBusy(true)
     setError(null)
     try {
@@ -74,6 +82,7 @@ export function CustomerFinancePanel({
       await load()
     } catch (cause) {
       setError(messageOf(cause, t))
+      if (cause instanceof ApiError && cause.status === 409) setQuoteStale(true)
     } finally {
       setBusy(false)
     }
@@ -153,7 +162,7 @@ export function CustomerFinancePanel({
           legalReady={legalReady}
           legalStatus={legalStatus}
           invoice={invoice}
-          busy={busy}
+          busy={busy || quoteStale}
           accept={accept}
         />
       ) : null}
@@ -168,6 +177,11 @@ export function CustomerFinancePanel({
           completeTestFinal={() => completeTestPayment('final')}
           testPaymentLabel={t.testPayment}
         />
+      ) : null}
+      {quoteStale ? (
+        <Button disabled={busy || loading} onClick={() => void load()}>
+          {g.reload}
+        </Button>
       ) : null}
       {error ? (
         <Alert

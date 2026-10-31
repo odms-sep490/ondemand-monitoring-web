@@ -340,7 +340,9 @@ export function ChecklistSnapshotCard({
             {sortedItems.map((item, index) => {
               const guidanceAvailable = hasChecklistGuidance(item)
               const detailsAvailable =
-                guidanceAvailable || item.evidencePolicyVersion === 3
+                guidanceAvailable ||
+                item.evidencePolicyVersion === 3 ||
+                item.sourceType === 'CUSTOMER_CUSTOM'
               const evidence = evidenceSummary(item)
               const price = priceSummary(item)
               const meta =
@@ -387,6 +389,7 @@ export function ChecklistSnapshotCard({
                         <ChecklistGuidance
                           guidance={item}
                           collapsible={false}
+                          showEmpty={item.sourceType === 'CUSTOMER_CUSTOM'}
                         />
                         {item.evidencePolicyVersion === 3 &&
                         ((item.includedImageCountSnapshot ?? 0) > 0 ||

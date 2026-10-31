@@ -1,6 +1,7 @@
 import { apiRequest } from '../../shared/api/httpClient'
 import type {
   ChecklistReviewStatus,
+  ChecklistGuidanceRequest,
   Invoice,
   Payment,
   PricingChecklistItem,
@@ -27,6 +28,15 @@ export const financeApi = {
     apiRequest<PricingChecklistItem>(
       `/api/manager/orders/${encodeURIComponent(orderId)}/checklist-items/${encodeURIComponent(itemId)}`,
       { method: 'PATCH', body },
+    ),
+  saveChecklistGuidance: (
+    orderId: string,
+    itemId: string,
+    body: ChecklistGuidanceRequest,
+  ) =>
+    apiRequest<PricingChecklistItem>(
+      `/api/manager/orders/${encodeURIComponent(orderId)}/checklist-items/${encodeURIComponent(itemId)}/guidance`,
+      { method: 'PUT', body },
     ),
   saveDraft: (
     orderId: string,

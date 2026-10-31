@@ -64,6 +64,11 @@ export type ChecklistUpdatePayload = {
 }
 
 export type ChecklistSnapshot = {
+  guidanceVersion?: number
+  guidanceConfirmedVersion?: number | null
+  guidanceReady?: boolean
+  canEditGuidance?: boolean
+  guidanceBlockedReason?: string | null
   id: string
   sourceChecklistId: string | null
   sourceChecklistVersion?: number | null
@@ -185,8 +190,16 @@ export function withSingleEvidenceCount(
   const media = row.includedImageCount + row.includedVideoCount > 0
   if (!media) return { minimumEvidenceCount: count }
   return row.requiredEvidenceType === 'VIDEO'
-    ? { minimumEvidenceCount: count, requestedImageCount: 0, requestedVideoCount: count }
-    : { minimumEvidenceCount: count, requestedImageCount: count, requestedVideoCount: 0 }
+    ? {
+        minimumEvidenceCount: count,
+        requestedImageCount: 0,
+        requestedVideoCount: count,
+      }
+    : {
+        minimumEvidenceCount: count,
+        requestedImageCount: count,
+        requestedVideoCount: 0,
+      }
 }
 
 /** Patch for switching a row's evidence type; carries the current numbers over so nothing has to be retyped. */
@@ -197,7 +210,9 @@ export function withEvidenceType(
   const media = row.includedImageCount + row.includedVideoCount > 0
   const carried = Math.max(
     1,
-    row.requestedImageCount || row.requestedVideoCount || row.minimumEvidenceCount,
+    row.requestedImageCount ||
+      row.requestedVideoCount ||
+      row.minimumEvidenceCount,
   )
   if (type === 'IMAGE_AND_VIDEO')
     return {
@@ -205,7 +220,10 @@ export function withEvidenceType(
       requestedImageCount: Math.max(1, row.requestedImageCount || carried),
       requestedVideoCount: Math.max(1, row.requestedVideoCount || 1),
     }
-  const count = row.requiredEvidenceType === 'IMAGE_AND_VIDEO' ? carried : singleEvidenceCount(row) || carried
+  const count =
+    row.requiredEvidenceType === 'IMAGE_AND_VIDEO'
+      ? carried
+      : singleEvidenceCount(row) || carried
   return {
     requiredEvidenceType: type,
     minimumEvidenceCount: count,

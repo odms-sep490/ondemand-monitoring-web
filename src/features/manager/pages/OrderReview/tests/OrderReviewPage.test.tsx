@@ -338,7 +338,7 @@ describe('OrderReviewPage', () => {
 
     fireEvent.click(await screen.findByText('Kiểm tra điều kiện'))
     expect(
-      await screen.findByText('Cần đối chiếu với bản đồ cấm bay'),
+      await screen.findByText('Cần đối chiếu vùng cấm bay'),
     ).toBeInTheDocument()
     expect(screen.getByText('VN-P-01')).toBeInTheDocument()
     expect(screen.queryByText('Độ cao mặt đất tại vị trí')).toBeNull()
@@ -496,7 +496,7 @@ describe('OrderReviewPage', () => {
     )
   })
 
-  it('renders an order without detail source without crashing, showing empty markers', async () => {
+  it('renders an order without detail source without crashing and hides absent optional details', async () => {
     mockPricing()
     vi.spyOn(ordersApi, 'getOrder').mockResolvedValue(unsourcedOrder)
 
@@ -507,10 +507,10 @@ describe('OrderReviewPage', () => {
     )
     expect(screen.getByText('Nguyễn Minh Khoa')).toBeInTheDocument()
     expect(
-      screen.getByText('Chưa có dữ liệu tệp đính kèm cho đơn này.'),
-    ).toBeInTheDocument()
+      screen.queryByText('Chưa có dữ liệu tệp đính kèm cho đơn này.'),
+    ).not.toBeInTheDocument()
     expect(screen.queryByText('Tình trạng nguồn lực')).not.toBeInTheDocument()
-    expect(screen.getByText('Không có email')).toBeInTheDocument()
+    expect(screen.queryByText('Không có email')).not.toBeInTheDocument()
     await openPricingStep()
     // Action bar still renders — the page didn't crash on null fields.
     expect(
