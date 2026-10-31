@@ -82,14 +82,11 @@ export function CreateMissionForm({
   const [selectedChecklistIds, setSelectedChecklistIds] = useState<string[]>([])
   const [hasInitializedChecklist, setHasInitializedChecklist] = useState(false)
 
-  // Default selection: automatically select uncovered items (or all items if first mission)
+  // Start with uncovered items only; already assigned checks require an explicit repeat selection.
   useEffect(() => {
     if (hasInitializedChecklist || checklistItems.length === 0) return
-    if (uncoveredIds.length > 0) {
+    if (planQuery.data) {
       setSelectedChecklistIds(uncoveredIds)
-      setHasInitializedChecklist(true)
-    } else if (planQuery.data) {
-      setSelectedChecklistIds(checklistItems.map((i) => i.id))
       setHasInitializedChecklist(true)
     }
   }, [hasInitializedChecklist, checklistItems, uncoveredIds, planQuery.data])
@@ -117,11 +114,7 @@ export function CreateMissionForm({
     const availableUncovered = checklistItems
       .filter((i) => uncoveredIds.includes(i.id))
       .map((i) => i.id)
-    setSelectedChecklistIds(
-      availableUncovered.length > 0
-        ? availableUncovered
-        : checklistItems.map((i) => i.id),
-    )
+    setSelectedChecklistIds(availableUncovered)
     if (submit.kind === 'validationFailed') {
       setSubmit({ kind: 'idle' })
     }
@@ -241,7 +234,9 @@ export function CreateMissionForm({
   })
 
   return (
-    <div className={`odm-or odm-plan-page${onCreated ? ' is-embedded' : ' mgr-view mgr-mc'}`}>
+    <div
+      className={`odm-or odm-plan-page${onCreated ? ' is-embedded' : ' mgr-view mgr-mc'}`}
+    >
       {!onCreated && (
         <PageHeader
           title={t.title}
@@ -282,7 +277,7 @@ export function CreateMissionForm({
 
           <FlightScheduleCard
             durationText={durationText}
-            forecastRows={forecastRows}
+            canFillFromCustomer={Boolean(dateRangeFromBrief(brief)[0])}
             fillFromCustomer={fillFromCustomer}
             scheduledStart={scheduledStart}
             setScheduledStart={setScheduledStart}

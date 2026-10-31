@@ -21,34 +21,66 @@ export function MissionGridStaffList({
   busy: boolean
   onRemove: (staffId: string, role: string) => void
 }) {
+  const staffGroups = Array.from(
+    staff.reduce((groups, assignment) => {
+      const current = groups.get(assignment.staffId) ?? {
+        staffId: assignment.staffId,
+        staffName: assignment.staffName,
+        assignments: [],
+      }
+      current.assignments.push(assignment)
+      groups.set(assignment.staffId, current)
+      return groups
+    }, new Map<string, { staffId: string; staffName?: string | null; assignments: MissionStaffAssignmentResponse[] }>()),
+  ).map(([, group]) => group)
+
   return (
     <div className="odm-mcard-res-list">
-      {staff.length === 0 ? (
+      {staffGroups.length === 0 ? (
         <p className="odm-mission-meta odm-mcard-note">{t.staffEmpty}</p>
       ) : (
-        staff.map((item, idx) => (
+        staffGroups.map((group) => (
           <div
-            key={item.id || `${item.staffId}-${idx}`}
-            className="odm-mcard-res-item"
+            key={group.staffId}
+            className="odm-mcard-res-item odm-mcard-res-staff-group"
           >
-            <div>
-              <span className="odm-mcard-res-role">
-                {STAFF_ROLE_LABELS[item.assignedRole] || item.assignedRole}:
-              </span>{' '}
-              <strong>{item.staffName || t.staffUnnamed}</strong>
+            <div className="odm-mcard-res-staff-main">
+              <strong>{group.staffName || t.staffUnnamed}</strong>
+              <div className="odm-mcard-res-role-list">
+                {group.assignments.map((item) => {
+                  const roleName =
+                    STAFF_ROLE_LABELS[item.assignedRole] || item.assignedRole
+                  return (
+                    <span
+                      key={item.id || `${item.staffId}-${item.assignedRole}`}
+                      className="odm-mcard-res-role-chip"
+                    >
+                      <span>{roleName}</span>
+                      {canRemove && (
+                        <button
+                          type="button"
+                          className="odm-mcard-res-remove"
+                          title={t.staffRemoveRoleTitle(
+                            group.staffName || t.staffUnnamed,
+                            roleName,
+                          )}
+                          aria-label={t.staffRemoveRoleTitle(
+                            group.staffName || t.staffUnnamed,
+                            roleName,
+                          )}
+                          onClick={() =>
+                            onRemove(item.staffId, item.assignedRole)
+                          }
+                          disabled={busy}
+                        >
+                          <CloseOutlined aria-hidden="true" />
+                        </button>
+                      )}
+                    </span>
+                  )
+                })}
+              </div>
             </div>
-            {canRemove && (
-              <button
-                type="button"
-                className="odm-mcard-res-remove"
-                title={t.staffRemoveTitle}
-                aria-label={t.staffRemoveTitle}
-                onClick={() => onRemove(item.staffId, item.assignedRole)}
-                disabled={busy}
-              >
-                <CloseOutlined aria-hidden="true" />
-              </button>
-            )}
           </div>
         ))
       )}
@@ -86,7 +118,9 @@ export function MissionGridDeviceList({
                   : t.deviceRoleShortMain}
                 :
               </span>{' '}
-              <strong>{dev.deviceName || dev.deviceCode || t.deviceFallback}</strong>
+              <strong>
+                {dev.deviceName || dev.deviceCode || t.deviceFallback}
+              </strong>
             </div>
             {canRemove && (
               <button

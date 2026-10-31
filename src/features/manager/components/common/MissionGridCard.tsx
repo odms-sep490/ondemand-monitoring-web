@@ -14,14 +14,20 @@ import { planningSchedule } from './planningSchedule'
 import { planningApi } from '../../api/planningApi'
 import { missionsApi } from '../../api/missionsApi'
 import { droneApi, type AvailableDrone } from '../../../staff/api/droneApi'
-import { operatorApi, type AvailableOperator } from '../../../staff/api/operatorApi'
-import { MissionUpdatePanel } from './MissionUpdatePanel'
 import {
-  missionResourcePrepareLabel,
-  missionResourcePrepareTone,
-} from './missionDetailHelpers'
-import { MissionGridDeviceList, MissionGridStaffList } from './MissionGridResourceLists'
-import { MissionGridAddStaffForm } from './MissionGridAddStaffForm'
+  operatorApi,
+  type AvailableOperator,
+} from '../../../staff/api/operatorApi'
+import { MissionUpdatePanel } from './MissionUpdatePanel'
+import { missionResourcePrepareTone } from './missionDetailHelpers'
+import {
+  MissionGridDeviceList,
+  MissionGridStaffList,
+} from './MissionGridResourceLists'
+import {
+  MissionGridAddStaffForm,
+  type StaffAssignmentDraft,
+} from './MissionGridAddStaffForm'
 import { MissionGridAddDeviceForm } from './MissionGridAddDeviceForm'
 import type { MissionStaffRole } from '../../../mission/types/mission'
 import { useI18n } from '../../../../shared/i18n'
@@ -35,11 +41,20 @@ interface MissionGridCardProps {
   orderChecklistItems: OrderChecklistSnapshot[]
   disabled: boolean
   onPlanChanged: () => void
-  onRequestReason: (title: string, hint: string, onConfirm: (reason: string) => Promise<void>) => void
+  onRequestReason: (
+    title: string,
+    hint: string,
+    onConfirm: (reason: string) => Promise<void>,
+  ) => void
   onEditMission?: (mission: MissionResponse) => void
 }
 
-const ROLES: MissionStaffRole[] = ['PILOT', 'OPERATOR', 'MAINTAINER', 'INSPECTOR']
+const ROLES: MissionStaffRole[] = [
+  'PILOT',
+  'OPERATOR',
+  'MAINTAINER',
+  'INSPECTOR',
+]
 
 export function MissionGridCard({
   mission,
@@ -61,9 +76,12 @@ export function MissionGridCard({
 
   // Add Staff Popover state
   const [showAddStaff, setShowAddStaff] = useState(false)
-  const [availableOperators, setAvailableOperators] = useState<AvailableOperator[]>([])
-  const [selectedStaffRole, setSelectedStaffRole] = useState<MissionStaffRole>('PILOT')
-  const [selectedStaffId, setSelectedStaffId] = useState('')
+  const [availableOperators, setAvailableOperators] = useState<
+    AvailableOperator[]
+  >([])
+  const [staffAssignmentsDraft, setStaffAssignmentsDraft] = useState<
+    StaffAssignmentDraft[]
+  >([])
   const [loadingStaff, setLoadingStaff] = useState(false)
 
   // Add Device Popover state
@@ -82,30 +100,50 @@ export function MissionGridCard({
 
   // Staff and device counts
   const currentStaff = mission.staffAssignments || []
-  const currentDevices = mission.deviceAssignments && mission.deviceAssignments.length > 0
-    ? mission.deviceAssignments
-    : mission.droneId || mission.deviceId
-    ? [
-        {
-          id: mission.deviceId || mission.droneId || 'default-device',
-          deviceId: mission.deviceId || mission.droneId || '',
-          deviceCode: mission.deviceCode || mission.droneCode || null,
-          deviceName: mission.deviceName || mission.deviceCode || 'Drone',
-          deviceSerialNumber: null,
-          deviceStatus: null,
-          deviceRole: 'MAIN' as const,
-          checkupStatus: 'PENDING' as const,
-          assignedAt: null,
-        },
+  const assignedRolesByStaff = currentStaff.reduce<
+    Record<string, MissionStaffRole[]>
+  >((rolesByStaff, assignment) => {
+    const assignedRoles = rolesByStaff[assignment.staffId] ?? []
+    if (!assignedRoles.includes(assignment.assignedRole)) {
+      rolesByStaff[assignment.staffId] = [
+        ...assignedRoles,
+        assignment.assignedRole,
       ]
-    : []
+    }
+    return rolesByStaff
+  }, {})
+  const currentStaffCount = Object.keys(assignedRolesByStaff).length
+  const hasUnassignedRoles = Object.values(assignedRolesByStaff).some(
+    (assignedRoles) => ROLES.some((role) => !assignedRoles.includes(role)),
+  )
+  const currentDevices =
+    mission.deviceAssignments && mission.deviceAssignments.length > 0
+      ? mission.deviceAssignments
+      : mission.droneId || mission.deviceId
+        ? [
+            {
+              id: mission.deviceId || mission.droneId || 'default-device',
+              deviceId: mission.deviceId || mission.droneId || '',
+              deviceCode: mission.deviceCode || mission.droneCode || null,
+              deviceName: mission.deviceName || mission.deviceCode || 'Drone',
+              deviceSerialNumber: null,
+              deviceStatus: null,
+              deviceRole: 'MAIN' as const,
+              checkupStatus: 'PENDING' as const,
+              assignedAt: null,
+            },
+          ]
+        : []
   const maxStaff = 10
   const maxDevices = 10
+  const remainingStaffSlots = Math.max(0, maxStaff - currentStaffCount)
 
   // 1. Remove Checklist Item (Click [X])
   async function handleRemoveChecklist(itemId: string) {
     if (disabled || busy || !isPlanning) return
-    const remainingIds = assignedChecklistIds.filter((id: string) => id !== itemId)
+    const remainingIds = assignedChecklistIds.filter(
+      (id: string) => id !== itemId,
+    )
     if (remainingIds.length === 0) {
       setErrorMsg(t.errMinWork)
       return
@@ -130,14 +168,13 @@ export function MissionGridCard({
   async function handleOpenAddStaff() {
     setShowAddStaff(true)
     setShowAddDevice(false)
-    setSelectedStaffId('')
+    setStaffAssignmentsDraft([])
     setAvailableOperators([])
     setLoadingStaff(true)
     setErrorMsg('')
     try {
       const ops = await operatorApi.getAvailable(mission.id)
       setAvailableOperators(ops)
-      if (ops.length > 0) setSelectedStaffId(ops[0].id)
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : t.errLoadStaff)
     } finally {
@@ -146,29 +183,77 @@ export function MissionGridCard({
   }
 
   // Submit Add Staff
-  async function handleConfirmAddStaff() {
-    if (!selectedStaffId || busy) return
+  async function handleConfirmAddStaff(assignments: StaffAssignmentDraft[]) {
+    if (assignments.length === 0 || busy) return
+    const existingStaffIds = new Set(
+      currentStaff.map((assignment) => assignment.staffId),
+    )
+    const newStaffCount = assignments.filter(
+      ({ staffId }) => !existingStaffIds.has(staffId),
+    ).length
+    if (newStaffCount > remainingStaffSlots) {
+      setErrorMsg(t.errStaffLimit(maxStaff))
+      return
+    }
+
+    const roleRequests = assignments.flatMap(({ staffId, roles }) =>
+      roles.map((role) => ({ staffId, role })),
+    )
+    if (roleRequests.length === 0) return
+
     const doAssign = async () => {
       setBusy(true)
-      try {
-        await missionsApi.assignStaff(mission.id, selectedStaffId, selectedStaffRole)
-        setShowAddStaff(false)
-        onPlanChanged()
-      } catch (err: unknown) {
-        setErrorMsg(err instanceof Error ? err.message : t.errAssignStaff)
-      } finally {
-        setBusy(false)
+      setErrorMsg('')
+      const assignedRoleKeys = new Set<string>()
+      for (const assignment of roleRequests) {
+        try {
+          await missionsApi.assignStaff(
+            mission.id,
+            assignment.staffId,
+            assignment.role,
+          )
+          assignedRoleKeys.add(`${assignment.staffId}:${assignment.role}`)
+        } catch (err: unknown) {
+          const remainingAssignments = roleRequests.filter(
+            (item) => !assignedRoleKeys.has(`${item.staffId}:${item.role}`),
+          )
+          const remainingByStaff = remainingAssignments.reduce<
+            StaffAssignmentDraft[]
+          >((grouped, item) => {
+            const existing = grouped.find(
+              (entry) => entry.staffId === item.staffId,
+            )
+            if (existing) existing.roles.push(item.role)
+            else grouped.push({ staffId: item.staffId, roles: [item.role] })
+            return grouped
+          }, [])
+          const reason = err instanceof Error ? err.message : t.errAssignStaff
+          setStaffAssignmentsDraft(remainingByStaff)
+          setErrorMsg(
+            assignedRoleKeys.size > 0
+              ? t.staffPartialAssignment(
+                  assignedRoleKeys.size,
+                  roleRequests.length,
+                  reason,
+                )
+              : reason,
+          )
+          if (assignedRoleKeys.size > 0) onPlanChanged()
+          setBusy(false)
+          return
+        }
       }
+
+      setShowAddStaff(false)
+      setStaffAssignmentsDraft([])
+      onPlanChanged()
+      setBusy(false)
     }
 
     if (isReady) {
-      onRequestReason(
-        t.reasonAddStaffTitle,
-        t.reasonAddStaffHint,
-        async () => {
-          await doAssign()
-        },
-      )
+      onRequestReason(t.reasonAddStaffTitle, t.reasonAddStaffHint, async () => {
+        await doAssign()
+      })
     } else {
       await doAssign()
     }
@@ -228,7 +313,11 @@ export function MissionGridCard({
     const doAssign = async () => {
       setBusy(true)
       try {
-        await missionsApi.assignDevice(mission.id, selectedDeviceId, selectedDeviceRole)
+        await missionsApi.assignDevice(
+          mission.id,
+          selectedDeviceId,
+          selectedDeviceRole,
+        )
         setShowAddDevice(false)
         onPlanChanged()
       } catch (err: unknown) {
@@ -303,14 +392,15 @@ export function MissionGridCard({
   }
 
   async function handleConfirmPlanning() {
-    if (disabled || busy || !isPlanning || plan.planStatus !== 'FINALIZED') return
+    if (disabled || busy || !isPlanning || plan.planStatus !== 'FINALIZED')
+      return
     setBusy(true)
     setErrorMsg('')
     try {
       await missionsApi.confirmMissionPlanning(mission.id)
       onPlanChanged()
     } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : 'Không thể xác nhận Mission')
+      setErrorMsg(err instanceof Error ? err.message : t.errConfirmMission)
     } finally {
       setBusy(false)
     }
@@ -319,23 +409,33 @@ export function MissionGridCard({
   const cardStatusClass = isCancelled
     ? 'is-cancelled'
     : isReady
-    ? 'is-ready'
-    : 'is-planning'
+      ? 'is-ready'
+      : 'is-planning'
 
   return (
-    <article className={`odm-mission-grid-card ${cardStatusClass}`} aria-label={mission.missionCode}>
+    <article
+      className={`odm-mission-grid-card ${cardStatusClass}`}
+      aria-label={mission.missionCode}
+    >
       {/* Header */}
       <div className="odm-mcard-header">
         <div className="odm-mcard-title-group">
           <strong>
-            <a href={managerHref({ screen: 'missionDetail', missionId: mission.id })}>
+            <a
+              href={managerHref({
+                screen: 'missionDetail',
+                missionId: mission.id,
+              })}
+            >
               {mission.missionCode || t.mission}
             </a>
           </strong>
           <span>{mission.orderTitle || t.orderScope}</span>
         </div>
         <div className="odm-mcard-inline">
-          <StatusBadge tone={toUiTone(missionStatusTone[mission.status] ?? 'gray')}>
+          <StatusBadge
+            tone={toUiTone(missionStatusTone[mission.status] ?? 'gray')}
+          >
             {missionStatusLabel[mission.status] ?? mission.status}
           </StatusBadge>
           {isPlanning && plan.planStatus === 'FINALIZED' && !disabled && (
@@ -349,8 +449,9 @@ export function MissionGridCard({
               {busy ? 'Đang xác nhận…' : 'Xác nhận'}
             </button>
           )}
-          {isPlanning && !disabled && (
-            onEditMission ? (
+          {isPlanning &&
+            !disabled &&
+            (onEditMission ? (
               <button
                 type="button"
                 className="odm-btn odm-btn-sm"
@@ -369,8 +470,7 @@ export function MissionGridCard({
                 disabled={disabled || busy}
                 onUpdated={onPlanChanged}
               />
-            )
-          )}
+            ))}
         </div>
       </div>
 
@@ -387,7 +487,9 @@ export function MissionGridCard({
         </div>
         <div className="odm-mcard-schedule">
           <OrderIcon name="calendar" size={14} />
-          <span>{planningSchedule(mission.scheduledStartAt, mission.scheduledEndAt)}</span>
+          <span>
+            {planningSchedule(mission.scheduledStartAt, mission.scheduledEndAt)}
+          </span>
         </div>
       </div>
 
@@ -398,9 +500,7 @@ export function MissionGridCard({
         </div>
         <div className="odm-mcard-checklist-list">
           {assignedChecklists.length === 0 ? (
-            <p className="odm-mission-meta odm-mcard-note">
-              {t.workEmpty}
-            </p>
+            <p className="odm-mission-meta odm-mcard-note">{t.workEmpty}</p>
           ) : (
             assignedChecklists.map((item) => (
               <div key={item.id} className="odm-mcard-ch-item">
@@ -426,19 +526,27 @@ export function MissionGridCard({
       {/* Staff Section */}
       <div className="odm-mcard-section">
         <div className="odm-mcard-sec-head">
-          <span>Trạng thái chuẩn bị nguồn lực</span>
-          <StatusBadge tone={toUiTone(missionResourcePrepareTone(mission.resourcePrepareStatus))}>
-            {missionResourcePrepareLabel(mission.resourcePrepareStatus)}
+          <span>{t.resourcePreparation}</span>
+          <StatusBadge
+            tone={toUiTone(
+              missionResourcePrepareTone(mission.resourcePrepareStatus),
+            )}
+          >
+            {mission.resourcePrepareStatus
+              ? t.resourcePrepLabels[mission.resourcePrepareStatus]
+              : t.resourcePrepLabels.unknown}
           </StatusBadge>
         </div>
         <div className="odm-mcard-sec-head">
-          <span>{t.staffHead(currentStaff.length, maxStaff)}</span>
+          <span>{t.staffHead(currentStaffCount, maxStaff)}</span>
           {!isCancelled && !disabled && (
             <button
               type="button"
               className="odm-btn odm-btn-sm"
               onClick={handleOpenAddStaff}
-              disabled={busy || currentStaff.length >= maxStaff}
+              disabled={
+                busy || (remainingStaffSlots === 0 && !hasUnassignedRoles)
+              }
             >
               {t.addShort}
             </button>
@@ -451,13 +559,14 @@ export function MissionGridCard({
             loading={loadingStaff}
             busy={busy}
             roles={ROLES}
-            role={selectedStaffRole}
-            onRoleChange={setSelectedStaffRole}
-            staffId={selectedStaffId}
-            onStaffChange={setSelectedStaffId}
+            assignedRolesByStaff={assignedRolesByStaff}
+            assignments={staffAssignmentsDraft}
+            onAssignmentsChange={setStaffAssignmentsDraft}
+            remainingSlots={remainingStaffSlots}
             operators={availableOperators}
             onCancel={() => {
               setShowAddStaff(false)
+              setStaffAssignmentsDraft([])
               setErrorMsg('')
             }}
             onSave={handleConfirmAddStaff}
@@ -530,11 +639,13 @@ export function MissionGridCard({
         </div>
       )}
 
-
       {isCancelled && (
         <div className="odm-mcard-stack">
           <div className="odm-mcard-cancelled-note">
-            <strong>{t.cancelledPrefix}</strong> {mission.failureReason || mission.rejectionReason || t.cancelledDefault}
+            <strong>{t.cancelledPrefix}</strong>{' '}
+            {mission.failureReason ||
+              mission.rejectionReason ||
+              t.cancelledDefault}
           </div>
         </div>
       )}

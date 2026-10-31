@@ -27,8 +27,9 @@ export function MissionChecklistSelectionCard({
 }: MissionChecklistSelectionCardProps) {
   const { t } = useI18n(missionChecklistSelectionMessages)
   const uncoveredItemIds = plan?.coverage.uncoveredItemIds ?? []
-  const hasUncovered = items.some((item) =>
-    uncoveredItemIds.includes(item.id),
+  const hasUncovered = items.some((item) => uncoveredItemIds.includes(item.id))
+  const showRepeatHint = Boolean(
+    plan && items.length > 0 && !hasUncovered && selectedIds.length === 0,
   )
 
   return (
@@ -76,6 +77,11 @@ export function MissionChecklistSelectionCard({
       </header>
 
       <div className="odm-or-card-body odm-checklist-selection-body">
+        {showRepeatHint && (
+          <p className="odm-checklist-repeat-hint" role="note">
+            {t.allAssignedHint}
+          </p>
+        )}
         {items.length === 0 ? (
           <div className="odm-checklist-empty-note">
             <p>{t.empty}</p>
@@ -84,8 +90,7 @@ export function MissionChecklistSelectionCard({
           <div className="odm-checklist-items-grid mgr-scroll-list">
             {items.map((item) => {
               const isChecked = selectedIds.includes(item.id)
-              const isUncovered =
-                !plan || uncoveredItemIds.includes(item.id)
+              const isUncovered = !plan || uncoveredItemIds.includes(item.id)
               const assignedMission = plan?.missions.find((m) =>
                 m.checklistItemIds?.includes(item.id),
               )
@@ -115,7 +120,9 @@ export function MissionChecklistSelectionCard({
                           </span>
                         ) : (
                           <span className="odm-badge odm-badge-assigned">
-                            {t.assigned(assignedMission?.scopeLabel || t.otherMission)}
+                            {t.assigned(
+                              assignedMission?.scopeLabel || t.otherMission,
+                            )}
                           </span>
                         )}
                         <span className="odm-badge odm-badge-source">

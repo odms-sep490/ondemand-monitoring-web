@@ -2,12 +2,12 @@ import { OrderIcon } from '../../../components/common/OrderIcon'
 import { formatLocalInput } from '../createMissionHelpers'
 import { missionCreatePageMessages } from '../MissionCreatePage.messages'
 import { useI18n } from '../../../../../shared/i18n'
-import type { ForecastRow, SubmitState } from '../createMissionTypes'
+import type { SubmitState } from '../createMissionTypes'
 import type { Dispatch, SetStateAction } from 'react'
 
 export function FlightScheduleCard({
   durationText,
-  forecastRows,
+  canFillFromCustomer,
   fillFromCustomer,
   scheduledStart,
   setScheduledStart,
@@ -17,7 +17,7 @@ export function FlightScheduleCard({
   scopeLabel,
 }: {
   durationText: string | null
-  forecastRows: ForecastRow[]
+  canFillFromCustomer: boolean
   fillFromCustomer: () => void
   scheduledStart: string
   setScheduledStart: Dispatch<SetStateAction<string>>
@@ -42,7 +42,7 @@ export function FlightScheduleCard({
       </header>
       <div className="odm-or-card-body">
         <p className="odm-or-muted odm-or-hint">{t.flightScheduleHint}</p>
-        {forecastRows.length > 0 ? (
+        {canFillFromCustomer ? (
           <button
             type="button"
             className="odm-or-quickfill"

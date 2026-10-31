@@ -78,7 +78,11 @@ export function WeatherForecastCard({
                 <div className="odm-or-weather-main">
                   <div className="odm-or-weather-top">
                     <div className="odm-or-weather-date">{row.label}</div>
-                    <span className="odm-or-weather-badge">
+                    <span
+                      className="odm-or-weather-badge"
+                      role={onCreated ? 'status' : undefined}
+                      aria-live={onCreated ? 'polite' : undefined}
+                    >
                       {row.status === 'ready'
                         ? t.weatherSuitability[
                             row.forecast.suitability ?? 'GOOD'
