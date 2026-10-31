@@ -69,6 +69,7 @@ export function toMissionCalendarItem(
       source.staffAssignments?.find((item) => item.assignedRole === 'PILOT')
         ?.staffName ?? null,
     staffAssignments: source.staffAssignments ?? [],
+    deviceAssignments: source.deviceAssignments ?? [],
   }
 }
 
@@ -136,77 +137,92 @@ export const missionsApi = {
     )
   },
 
-  /** `POST /api/missions/{id}/assign-device` [BE]. */
+  /** `POST /api/missions/{id}/device-assignments` [BE]. */
   assignDrone(
     missionId: string,
     droneId: string,
     deviceRole: string = 'MAIN',
   ): Promise<Mission> {
-    return apiRequest<Mission>(`/api/missions/${missionId}/assign-device`, {
+    return apiRequest<Mission>(`/api/missions/${encodeURIComponent(missionId)}/device-assignments`, {
       method: 'POST',
       body: { deviceId: droneId, deviceRole },
     })
   },
 
-  /** `POST /api/missions/{id}/assign-device` [BE]. */
+  /** `POST /api/missions/{id}/device-assignments` [BE]. */
   assignDevice(
     missionId: string,
     deviceId: string,
     deviceRole: string = 'MAIN',
   ): Promise<Mission> {
-    return apiRequest<Mission>(`/api/missions/${missionId}/assign-device`, {
+    return apiRequest<Mission>(`/api/missions/${encodeURIComponent(missionId)}/device-assignments`, {
       method: 'POST',
       body: { deviceId, deviceRole },
     })
   },
 
-  /** `POST /api/missions/{id}/remove-device` [BE]. */
-  removeDevice(
-    missionId: string,
-    deviceId: string,
-    reason?: string,
-  ): Promise<Mission> {
-    return apiRequest<Mission>(`/api/missions/${missionId}/remove-device`, {
-      method: 'POST',
-      body: { deviceId, reason },
+  /** `DELETE /api/missions/{id}/device-assignments/{assignmentId}` [BE]. */
+  removeDevice(missionId: string, assignmentId: string): Promise<Mission> {
+    return apiRequest<Mission>(`/api/missions/${encodeURIComponent(missionId)}/device-assignments/${encodeURIComponent(assignmentId)}`, {
+      method: 'DELETE',
     })
   },
 
-  /** `POST /api/missions/{id}/assign-staff` [BE]. */
+  /** `PUT /api/missions/{id}/device-assignments/{assignmentId}/resource` [BE]. */
+  replaceDevice(
+    missionId: string,
+    assignmentId: string,
+    deviceId: string,
+    reason: string,
+  ): Promise<MissionResponse> {
+    return apiRequest<MissionResponse>(
+      `/api/missions/${encodeURIComponent(missionId)}/device-assignments/${encodeURIComponent(assignmentId)}/resource`,
+      { method: 'PUT', body: { deviceId, reason } },
+    )
+  },
+
+  /** `POST /api/missions/{id}/staff-assignments` [BE]. */
   assignOperator(
     missionId: string,
     operatorId: string,
-    assignedRole: string = 'PILOT',
+    assignedRoles: string[] = ['PILOT'],
   ): Promise<Mission> {
-    return apiRequest<Mission>(`/api/missions/${missionId}/assign-staff`, {
+    return apiRequest<Mission>(`/api/missions/${encodeURIComponent(missionId)}/staff-assignments`, {
       method: 'POST',
-      body: { staffId: operatorId, assignedRole },
+      body: { staffId: operatorId, assignedRoles },
     })
   },
 
-  /** `POST /api/missions/{id}/assign-staff` [BE]. */
+  /** `POST /api/missions/{id}/staff-assignments` [BE]. */
   assignStaff(
     missionId: string,
     staffId: string,
-    assignedRole: string = 'PILOT',
+    assignedRoles: string[] = ['PILOT'],
   ): Promise<Mission> {
-    return apiRequest<Mission>(`/api/missions/${missionId}/assign-staff`, {
+    return apiRequest<Mission>(`/api/missions/${encodeURIComponent(missionId)}/staff-assignments`, {
       method: 'POST',
-      body: { staffId, assignedRole },
+      body: { staffId, assignedRoles },
     })
   },
 
-  /** `POST /api/missions/{id}/remove-staff` [BE]. */
-  removeStaff(
-    missionId: string,
-    staffId: string,
-    assignedRole?: string,
-    reason?: string,
-  ): Promise<Mission> {
-    return apiRequest<Mission>(`/api/missions/${missionId}/remove-staff`, {
-      method: 'POST',
-      body: { staffId, assignedRole, reason },
+  /** `DELETE /api/missions/{id}/staff-assignments/{assignmentId}` [BE]. */
+  removeStaff(missionId: string, assignmentId: string): Promise<Mission> {
+    return apiRequest<Mission>(`/api/missions/${encodeURIComponent(missionId)}/staff-assignments/${encodeURIComponent(assignmentId)}`, {
+      method: 'DELETE',
     })
+  },
+
+  /** `PUT /api/missions/{id}/staff-assignments/{staffId}/resource` [BE]. */
+  replaceStaff(
+    missionId: string,
+    currentStaffId: string,
+    staffId: string,
+    reason: string,
+  ): Promise<MissionResponse> {
+    return apiRequest<MissionResponse>(
+      `/api/missions/${encodeURIComponent(missionId)}/staff-assignments/${encodeURIComponent(currentStaffId)}/resource`,
+      { method: 'PUT', body: { staffId, reason } },
+    )
   },
 
   /**

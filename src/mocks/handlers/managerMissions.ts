@@ -7,9 +7,10 @@
 //   GET    /api/missions/{id}/live                        [BRIEF C4]
 //   POST   /api/missions/{id}/incidents                  [ĐỀ XUẤT]
 //   POST   /api/missions/{id}/cancel                     [ĐỀ XUẤT]
-//   POST   /api/missions/{id}/assign-drone?droneId=       [BE]
-//   POST   /api/missions/{id}/assign-operator?operatorId= [BE]
-//   POST   /api/missions/{id}/assignments/{aid}/release   [BRIEF C4 = TK]
+//   POST   /api/missions/{id}/device-assignments         [BE]
+//   DELETE /api/missions/{id}/device-assignments/{aid}   [BE]
+//   POST   /api/missions/{id}/staff-assignments          [BE]
+//   DELETE /api/missions/{id}/staff-assignments/{aid}    [BE]
 import type {
   Mission,
 } from '../../features/manager/types/missions'
@@ -26,7 +27,6 @@ import {
   ok,
   created,
   registerMockRoutes,
-  type MockContext,
 } from '../mockServer'
 import resourceSuggestionsSeed from '../data/resource-suggestions.json'
 import dronesSeed from '../data/drones.json'
@@ -208,9 +208,7 @@ registerMockRoutes([
         ...calendarMissions,
       ]
       const items = all
-        .filter(
-          (m) => m.status === 'CREATED' || m.status === 'RESOURCE_ASSIGNING',
-        )
+        .filter((m) => m.status === 'PLANNING')
         .map(toMissionResponse)
       return ok({ items })
     },
@@ -437,7 +435,7 @@ registerMockRoutes([
         ...mission,
         id: newMissionId,
         missionCode: `${mission.missionCode}-RETRY`,
-        status: 'CREATED',
+        status: 'PLANNING',
         attemptNumber: (mission.attemptNumber ?? 1) + 1,
         droneId: null,
         operatorId: null,
@@ -538,6 +536,7 @@ registerMockRoutes([
       const mission = existing ?? newMinimalMission(order.id, order.code)
       if (!existing) missions.push(mission)
 
+      mission.status = 'PLANNING'
       mission.scheduledStartAt = scheduledStart
       mission.scheduledEndAt = scheduledEnd
       if (req.flightPlan) {
@@ -651,17 +650,16 @@ registerMockRoutes([
       return ok(response)
     },
   },
-  // `/assign-device` is the current BE contract (JSON body); `/assign-drone`
-  // is the legacy query-string form kept for older callers.
-  ...['/api/missions/:id/assign-device', '/api/missions/:id/assign-drone'].map(
-    (path) => ({
-    method: 'POST' as const,
-    path,
-    handler: ({ params, query, body }: MockContext) => {
+  {
+    method: 'POST',
+    path: '/api/missions/:id/device-assignments',
+    handler: ({ params, body }) => {
       const mission = findMissionById(params.id)
       if (!mission) return fail(404, 'NOT_FOUND', 'Không tìm thấy mission')
-      const droneId =
-        query.get('droneId') ?? (body as { deviceId?: string } | null)?.deviceId
+      if (mission.status !== 'PLANNING') {
+        return fail(409, 'MISSION_STATUS_INVALID', 'Chỉ được gán resource khi mission ở trạng thái PLANNING')
+      }
+      const { deviceId: droneId } = (body ?? {}) as { deviceId?: string }
       if (!droneId) {
         return fail(400, 'VALIDATION_ERROR', 'Thiếu droneId', {
           droneId: 'droneId là bắt buộc',
@@ -686,26 +684,43 @@ registerMockRoutes([
 
       mission.droneId = drone.id
       mission.droneAssignmentId = `mda-${mission.id}-${drone.id}`
-      mission.status = mission.operatorId
-        ? 'WAITING_OPERATOR_ACCEPTANCE'
-        : 'RESOURCE_ASSIGNING'
+      mission.status = 'PLANNING'
       return ok(toMissionDto(mission), 'Đã gán Drone thành công')
     },
-    }),
-  ),
-  // `/assign-staff` is the current BE contract; `/assign-operator` is legacy.
-  ...['/api/missions/:id/assign-staff', '/api/missions/:id/assign-operator'].map(
-    (path) => ({
-    method: 'POST' as const,
-    path,
-    handler: ({ params, query, body }: MockContext) => {
+  },
+  {
+    method: 'DELETE',
+    path: '/api/missions/:id/device-assignments/:assignmentId',
+    handler: ({ params }) => {
       const mission = findMissionById(params.id)
       if (!mission) return fail(404, 'NOT_FOUND', 'Không tìm thấy mission')
-      const operatorId =
-        query.get('operatorId') ?? (body as { staffId?: string } | null)?.staffId
-      if (!operatorId) {
+      if (mission.status !== 'PLANNING') {
+        return fail(409, 'MISSION_STATUS_INVALID', 'Chỉ được gỡ resource khi mission ở trạng thái PLANNING')
+      }
+      if (params.assignmentId !== mission.droneAssignmentId) {
+        return fail(404, 'NOT_FOUND', 'Không tìm thấy device assignment')
+      }
+      mission.droneId = null
+      mission.droneAssignmentId = null
+      return ok(toMissionDto(mission), 'Đã gỡ thiết bị khỏi mission')
+    },
+  },
+  {
+    method: 'POST',
+    path: '/api/missions/:id/staff-assignments',
+    handler: ({ params, body }) => {
+      const mission = findMissionById(params.id)
+      if (!mission) return fail(404, 'NOT_FOUND', 'Không tìm thấy mission')
+      if (mission.status !== 'PLANNING') {
+        return fail(409, 'MISSION_STATUS_INVALID', 'Chỉ được gán resource khi mission ở trạng thái PLANNING')
+      }
+      const { staffId: operatorId, assignedRoles } = (body ?? {}) as {
+        staffId?: string
+        assignedRoles?: string[]
+      }
+      if (!operatorId || !assignedRoles?.length) {
         return fail(400, 'VALIDATION_ERROR', 'Thiếu operatorId', {
-          operatorId: 'operatorId là bắt buộc',
+          operatorId: 'staffId và assignedRoles là bắt buộc',
         })
       }
       const operator = operators.find(
@@ -715,41 +730,25 @@ registerMockRoutes([
 
       mission.operatorId = operator.id
       mission.operatorAssignmentId = `moa-${mission.id}-${operator.id}`
-      mission.status = mission.droneId
-        ? 'WAITING_OPERATOR_ACCEPTANCE'
-        : 'RESOURCE_ASSIGNING'
+      mission.status = 'PLANNING'
       return ok(toMissionDto(mission), 'Đã gán Operator thành công')
     },
-    }),
-  ),
+  },
   {
-    method: 'POST',
-    path: '/api/missions/:id/assignments/:aid/release',
-    handler: ({ params, body }) => {
+    method: 'DELETE',
+    path: '/api/missions/:id/staff-assignments/:assignmentId',
+    handler: ({ params }) => {
       const mission = findMissionById(params.id)
       if (!mission) return fail(404, 'NOT_FOUND', 'Không tìm thấy mission')
-      const { releaseReason } = (body ?? {}) as { releaseReason?: string }
-      if (!releaseReason || !releaseReason.trim()) {
-        return fail(400, 'VALIDATION_ERROR', 'Yêu cầu nhập lý do thu hồi', {
-          releaseReason: 'Lý do là bắt buộc',
-        })
+      if (mission.status !== 'PLANNING') {
+        return fail(409, 'MISSION_STATUS_INVALID', 'Chỉ được gỡ resource khi mission ở trạng thái PLANNING')
       }
-      if (
-        params.aid !== mission.droneAssignmentId &&
-        params.aid !== mission.operatorAssignmentId
-      ) {
-        return fail(404, 'NOT_FOUND', 'Không tìm thấy assignment')
+      if (params.assignmentId !== mission.operatorAssignmentId) {
+        return fail(404, 'NOT_FOUND', 'Không tìm thấy staff assignment')
       }
-      if (params.aid === mission.droneAssignmentId) {
-        mission.droneId = null
-        mission.droneAssignmentId = null
-      }
-      if (params.aid === mission.operatorAssignmentId) {
-        mission.operatorId = null
-        mission.operatorAssignmentId = null
-      }
-      mission.status = 'CREATED'
-      return ok(toMissionDto(mission), 'Đã thu hồi phân công')
+      mission.operatorId = null
+      mission.operatorAssignmentId = null
+      return ok(toMissionDto(mission), 'Đã gỡ staff khỏi mission')
     },
   },
 ])

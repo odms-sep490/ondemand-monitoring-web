@@ -1,3 +1,4 @@
+import { Button, Checkbox, Select } from 'antd'
 import type { MissionStaffRole } from '../../../mission/types/mission'
 import type { AvailableOperator } from '../../../staff/api/operatorApi'
 import { STAFF_ROLE_LABELS } from './missionDetailHelpers'
@@ -11,8 +12,8 @@ export function MissionGridAddStaffForm({
   loading,
   busy,
   roles,
-  role,
-  onRoleChange,
+  selectedRoles,
+  onRolesChange,
   staffId,
   onStaffChange,
   operators,
@@ -23,8 +24,8 @@ export function MissionGridAddStaffForm({
   loading: boolean
   busy: boolean
   roles: MissionStaffRole[]
-  role: MissionStaffRole
-  onRoleChange: (role: MissionStaffRole) => void
+  selectedRoles: MissionStaffRole[]
+  onRolesChange: (roles: MissionStaffRole[]) => void
   staffId: string
   onStaffChange: (id: string) => void
   operators: AvailableOperator[]
@@ -42,44 +43,45 @@ export function MissionGridAddStaffForm({
         <strong>{t.addStaffTitle}</strong>
         <span>{t.addStaffHint}</span>
       </div>
-      <div className="odm-mcard-inline-fields">
-        <label className="odm-mcard-field">
-          <span>{t.roleLabel}</span>
-          <select
-            aria-label={t.staffRoleAria}
-            value={role}
-            onChange={(e) => onRoleChange(e.target.value as MissionStaffRole)}
-            className="odm-input odm-input-sm odm-mcard-grow-1"
-          >
-            {roles.map((r) => (
-              <option key={r} value={r}>
-                {STAFF_ROLE_LABELS[r] || r}
-              </option>
-            ))}
-          </select>
-        </label>
+      <div className="odm-mcard-add-staff-fields">
         <label className="odm-mcard-field">
           <span>{t.staffLabel}</span>
-          <select
+          <Select
+            showSearch
+            optionFilterProp="label"
             aria-label={t.staffAvailableAria}
             value={staffId}
-            onChange={(e) => onStaffChange(e.target.value)}
-            className="odm-input odm-input-sm odm-mcard-grow-2"
+            onChange={onStaffChange}
+            className="odm-mcard-staff-select"
             disabled={loading || busy || operators.length === 0}
-          >
-            {loading ? (
-              <option>{t.staffLoadingOption}</option>
-            ) : operators.length === 0 ? (
-              <option>{t.staffNoneOption}</option>
-            ) : (
-              operators.map((op) => (
-                <option key={op.id} value={op.id}>
-                  {op.fullName}
-                </option>
-              ))
-            )}
-          </select>
+            loading={loading}
+            placeholder={loading ? t.staffLoadingOption : t.staffNoneOption}
+            options={operators.map((operator) => ({
+              value: operator.id,
+              label: `${operator.fullName} (${operator.email})`,
+            }))}
+          />
         </label>
+        <div className="odm-mcard-field">
+          <span>{t.roleLabel}</span>
+          <Checkbox.Group
+            aria-label={t.staffRoleAria}
+            className="odm-mcard-role-chips"
+            value={selectedRoles}
+            onChange={(values) => onRolesChange(values as MissionStaffRole[])}
+            disabled={busy}
+          >
+            {roles.map((role) => (
+              <Checkbox
+                key={role}
+                value={role}
+                className={`odm-mcard-role-chip${selectedRoles.includes(role) ? ' is-selected' : ''}`}
+              >
+                {STAFF_ROLE_LABELS[role] || role}
+              </Checkbox>
+            ))}
+          </Checkbox.Group>
+        </div>
       </div>
       <p
         className="odm-mcard-inline-form-hint"
@@ -92,22 +94,22 @@ export function MissionGridAddStaffForm({
             : t.staffNoneHint}
       </p>
       <div className="odm-mcard-inline-actions">
-        <button
-          type="button"
-          className="odm-btn odm-btn-sm"
+        <Button
+          size="small"
           onClick={onCancel}
           disabled={busy}
         >
           {t.cancel}
-        </button>
-        <button
-          type="button"
-          className="odm-btn odm-btn-sm odm-btn-p"
+        </Button>
+        <Button
+          type="primary"
+          size="small"
           onClick={onSave}
-          disabled={busy || loading || !staffId}
+          loading={busy}
+          disabled={loading || !staffId || selectedRoles.length === 0}
         >
           {t.save}
-        </button>
+        </Button>
       </div>
     </div>
   )

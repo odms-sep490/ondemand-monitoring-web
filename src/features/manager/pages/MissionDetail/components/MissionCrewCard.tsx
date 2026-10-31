@@ -1,6 +1,7 @@
 import { OrderIcon } from '../../../components/common/OrderIcon'
 import {
   initialsOf,
+  groupStaffAssignments,
   STAFF_ROLE_LABELS,
   assignmentTone,
   STAFF_RESPONSE_LABELS,
@@ -24,7 +25,6 @@ export function MissionCrewCard({
   rows,
   note,
   staff,
-  accepted,
   deviceCode,
   deviceLabel,
   permitStatus,
@@ -34,7 +34,6 @@ export function MissionCrewCard({
   rows: { label: string; value: string }[]
   note: string | null
   staff: MissionStaffAssignmentResponse[]
-  accepted: number
   deviceCode: string | null
   deviceLabel: string
   permitStatus: FlightPermitStatus
@@ -44,6 +43,10 @@ export function MissionCrewCard({
 }) {
   const { t } = useI18n(missionDetailPageMessages)
   const { t: permit } = useI18n(flightPermitCardMessages)
+  const staffGroups = groupStaffAssignments(staff)
+  const accepted = staffGroups.filter(
+    (group) => group.responseStatus === 'ACCEPTED',
+  ).length
   return (
     <aside className="mgr-detail-side">
       <Card title={t.infoCard}>
@@ -61,22 +64,22 @@ export function MissionCrewCard({
       <Card
         title={t.crewCard}
         actions={
-          staff.length > 0 ? (
+          staffGroups.length > 0 ? (
             <span className="odm-or-crew-count">
-              {t.crewAccepted(accepted, staff.length)}
+              {t.crewAccepted(accepted, staffGroups.length)}
             </span>
           ) : undefined
         }
       >
-        {staff.length > 0 ? (
+        {staffGroups.length > 0 ? (
           <progress
             className="mgr-plan-progress"
-            max={staff.length}
+            max={staffGroups.length}
             value={accepted}
             aria-hidden="true"
           />
         ) : null}
-        {deviceCode || staff.length > 0 ? (
+        {deviceCode || staffGroups.length > 0 ? (
           <ul className="odm-or-crew-list">
             {deviceCode ? (
               <li className="odm-or-crew-item">
@@ -89,31 +92,35 @@ export function MissionCrewCard({
                 </span>
               </li>
             ) : null}
-            {staff.map((assignment) => {
+            {staffGroups.map((group) => {
               const name =
-                assignment.staffName ??
-                assignment.staffEmail ??
-                assignment.staffId
+                group.staffName ??
+                group.staffEmail ??
+                group.staffId
               return (
-                <li key={assignment.id} className="odm-or-crew-item">
+                <li key={group.staffId} className="odm-or-crew-item">
                   <span className="odm-or-crew-avatar" aria-hidden="true">
                     {initialsOf(name)}
                   </span>
                   <span className="odm-or-crew-main">
-                    <span className="odm-or-crew-role">
-                      {STAFF_ROLE_LABELS[assignment.assignedRole]}
-                    </span>
                     <strong>{name}</strong>
-                    {assignment.staffEmail && assignment.staffName ? (
-                      <small>{assignment.staffEmail}</small>
+                    {group.staffEmail && group.staffName ? (
+                      <small>{group.staffEmail}</small>
                     ) : null}
+                    <span className="odm-or-crew-roles">
+                      {group.assignments.map((assignment) => (
+                        <span key={assignment.id}>
+                          {STAFF_ROLE_LABELS[assignment.assignedRole]}
+                        </span>
+                      ))}
+                    </span>
                   </span>
                   <span
                     className={`odm-or-pill odm-or-pill-${assignmentTone(
-                      assignment.responseStatus,
+                      group.responseStatus,
                     )}`}
                   >
-                    {STAFF_RESPONSE_LABELS[assignment.responseStatus]}
+                    {STAFF_RESPONSE_LABELS[group.responseStatus]}
                   </span>
                 </li>
               )

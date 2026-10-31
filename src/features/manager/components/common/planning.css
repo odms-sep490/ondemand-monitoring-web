@@ -443,6 +443,10 @@
   gap: 12px;
   font-size: 13px;
 }
+.odm-mission-crew li.odm-mission-crew-staff {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px;
+}
 .odm-mission-crew li > span {
   color: var(--tx2);
 }
@@ -1381,6 +1385,53 @@
 .odm-mcard-res-item:hover {
   border-color: var(--pl-border-strong);
 }
+.odm-mcard-assignment-item {
+  align-items: flex-start;
+  flex-direction: column;
+}
+.odm-mcard-assignment-heading {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.odm-mcard-assignment-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  width: 100%;
+}
+.odm-mcard-assignment-chip {
+  display: inline-flex;
+  min-height: 30px;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 5px 3px 9px;
+  border: 1px solid var(--pl-blue-bd);
+  border-radius: 999px;
+  background: var(--pl-blue-bg);
+  color: var(--pl-blue-fg);
+  font-size: 11px;
+  font-weight: 700;
+}
+.odm-mcard-assignment-chip .ant-btn {
+  width: 24px;
+  min-width: 24px;
+  height: 24px;
+  padding: 0;
+  color: inherit;
+}
+.odm-mcard-assignment-chip .odm-mcard-res-remove {
+  width: 24px;
+  height: 24px;
+}
+.odm-mcard-resource-actions {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  gap: 2px;
+}
 .odm-mcard-res-role {
   font-size: 10.5px;
   font-weight: 700;
@@ -1406,6 +1457,20 @@
 .odm-mcard-res-remove:hover {
   background: var(--pl-red-bg);
   color: var(--pl-red-ac);
+}
+.odm-mcard-replacement-form {
+  margin-top: 0;
+}
+.odm-mcard-replacement-form .ant-form-item {
+  margin-bottom: 10px;
+}
+.odm-mcard-replacement-form .ant-alert {
+  margin-bottom: 10px;
+}
+.odm-mcard-replacement-loading {
+  display: flex;
+  justify-content: center;
+  padding: 8px;
 }
 
 /* Inline form for adding resources */
@@ -1451,6 +1516,49 @@
   display: grid;
   grid-template-columns: minmax(110px, 0.9fr) minmax(0, 1.6fr);
   gap: 9px;
+}
+.odm-mcard-add-staff-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+}
+.odm-mcard-staff-select {
+  width: 100%;
+}
+.odm-mcard-staff-select .ant-select-selector {
+  min-height: 40px;
+  align-items: center;
+  border-radius: 9px;
+}
+.odm-mcard-role-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.odm-mcard-role-chip.ant-checkbox-wrapper {
+  min-height: 34px;
+  margin-inline-start: 0;
+  padding: 6px 11px;
+  border: 1px solid var(--pl-border-strong);
+  border-radius: 999px;
+  background: var(--mgr-card);
+  color: var(--mgr-text);
+  font-size: 12px;
+  font-weight: 650;
+  transition: border-color 0.15s ease, background-color 0.15s ease,
+    box-shadow 0.15s ease, color 0.15s ease;
+}
+.odm-mcard-role-chip.ant-checkbox-wrapper:hover {
+  border-color: var(--pl-blue-ac);
+}
+.odm-mcard-role-chip.ant-checkbox-wrapper.is-selected {
+  border-color: var(--pl-blue-ac);
+  background: var(--pl-blue-bg);
+  color: var(--pl-blue-fg);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.09);
+}
+.odm-mcard-role-chip .ant-checkbox + span {
+  padding-inline-end: 0;
 }
 .odm-mcard-inline-form select {
   box-sizing: border-box;
@@ -1817,6 +1925,11 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+.odm-flight-permit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 /* a lone mission card stretches instead of sitting in the first column */

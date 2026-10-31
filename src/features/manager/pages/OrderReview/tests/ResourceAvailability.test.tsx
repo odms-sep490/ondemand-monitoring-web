@@ -29,7 +29,7 @@ const mission = {
   id: 'm1',
   orderId: 'o',
   missionCode: 'M1',
-  status: 'RESOURCE_ASSIGNING',
+  status: 'PLANNING',
   scheduledStartAt: '2026-10-10T03:00:00Z',
   scheduledEndAt: '2026-10-10T04:00:00Z',
 } as Mission
@@ -88,7 +88,7 @@ it('refreshes staff conflict, removes only unavailable selections and returns to
       status: 409,
       code: 'RESOURCE_TIME_CONFLICT',
       method: 'POST',
-      path: '/api/missions/m1/assign-staff',
+      path: '/api/missions/m1/staff-assignments',
     }),
   )
   render(<LiveDispatchPage missionId="m1" orderContext={context()} />)
@@ -117,7 +117,7 @@ it('refreshes device conflict, retains valid devices/crew and returns to device'
       status: 409,
       code: 'RESOURCE_TIME_CONFLICT',
       method: 'POST',
-      path: '/api/missions/m1/assign-device',
+      path: '/api/missions/m1/device-assignments',
     }),
   )
   render(<LiveDispatchPage missionId="m1" orderContext={context()} />)
@@ -149,7 +149,7 @@ it('keeps the exact failed device step even when another staff option also becam
       status: 409,
       code: 'RESOURCE_TIME_CONFLICT',
       method: 'POST',
-      path: '/api/missions/m1/assign-device',
+      path: '/api/missions/m1/device-assignments',
     }),
   )
   render(<LiveDispatchPage missionId="m1" orderContext={context()} />)

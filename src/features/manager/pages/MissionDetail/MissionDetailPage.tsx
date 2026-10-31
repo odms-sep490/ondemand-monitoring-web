@@ -99,7 +99,6 @@ function MissionDetail({ missionId }: { missionId: string }) {
     preflight,
     postcheck,
     staff,
-    accepted,
     canSetup,
     deviceCode,
     deviceLabel,
@@ -192,7 +191,6 @@ function MissionDetail({ missionId }: { missionId: string }) {
           rows={rows}
           note={note}
           staff={staff}
-          accepted={accepted}
           deviceCode={deviceCode}
           deviceLabel={deviceLabel}
           permitStatus={mission.flightPermitStatus ?? 'NOT_REQUESTED'}

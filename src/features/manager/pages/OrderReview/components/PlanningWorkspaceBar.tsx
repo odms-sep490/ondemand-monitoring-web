@@ -9,6 +9,7 @@ export function PlanningWorkspaceBar({
   onOpenSidebar,
   uncovered,
   canEdit,
+  canAddMission,
   creating,
   busy,
   canConfirmPlan,
@@ -20,6 +21,8 @@ export function PlanningWorkspaceBar({
   uncovered: number
   /** True while the plan is a writable draft. */
   canEdit: boolean
+  /** True while a new Mission may be created on a draft or finalized Order. */
+  canAddMission: boolean
   creating: boolean
   busy: boolean
   canConfirmPlan: boolean
@@ -40,7 +43,7 @@ export function PlanningWorkspaceBar({
             <RightOutlined aria-hidden="true" /> {t.openChecklist(uncovered)}
           </button>
         ) : null}
-        {canEdit ? (
+        {canAddMission ? (
           <button
             type="button"
             className="odm-btn"

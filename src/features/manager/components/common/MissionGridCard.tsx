@@ -1,5 +1,6 @@
 import { CloseOutlined } from '@ant-design/icons'
 import { useState } from 'react'
+import { message } from 'antd'
 import type { OrderChecklistSnapshot, OrderDetail } from '../../types/orders'
 import type { MissionResponse } from '../../types/missions'
 import type { ExecutionPlan } from '../../types/planning'
@@ -17,10 +18,17 @@ import { droneApi, type AvailableDrone } from '../../../staff/api/droneApi'
 import { operatorApi, type AvailableOperator } from '../../../staff/api/operatorApi'
 import { MissionUpdatePanel } from './MissionUpdatePanel'
 import {
+  groupStaffAssignments,
   missionResourcePrepareLabel,
   missionResourcePrepareTone,
 } from './missionDetailHelpers'
-import { MissionGridDeviceList, MissionGridStaffList } from './MissionGridResourceLists'
+import {
+  MissionGridDeviceList,
+  MissionGridStaffList,
+  type ReplacementFormState,
+  type ReplacementOption,
+  type ReplacementValues,
+} from './MissionGridResourceLists'
 import { MissionGridAddStaffForm } from './MissionGridAddStaffForm'
 import { MissionGridAddDeviceForm } from './MissionGridAddDeviceForm'
 import type { MissionStaffRole } from '../../../mission/types/mission'
@@ -62,7 +70,7 @@ export function MissionGridCard({
   // Add Staff Popover state
   const [showAddStaff, setShowAddStaff] = useState(false)
   const [availableOperators, setAvailableOperators] = useState<AvailableOperator[]>([])
-  const [selectedStaffRole, setSelectedStaffRole] = useState<MissionStaffRole>('PILOT')
+  const [selectedStaffRoles, setSelectedStaffRoles] = useState<MissionStaffRole[]>(['PILOT'])
   const [selectedStaffId, setSelectedStaffId] = useState('')
   const [loadingStaff, setLoadingStaff] = useState(false)
 
@@ -73,6 +81,15 @@ export function MissionGridCard({
   const [selectedDeviceRole, setSelectedDeviceRole] = useState('MAIN')
   const [loadingDevices, setLoadingDevices] = useState(false)
 
+  const [replacementTarget, setReplacementTarget] = useState<{
+    kind: 'DEVICE' | 'STAFF'
+    targetId: string
+    currentResourceId: string
+  } | null>(null)
+  const [replacementOptions, setReplacementOptions] = useState<ReplacementOption[]>([])
+  const [replacementLoading, setReplacementLoading] = useState(false)
+  const [replacementError, setReplacementError] = useState('')
+
   // Assigned checklists for this mission
   const scope = plan.missions.find((m) => m.missionId === mission.id)
   const assignedChecklistIds: string[] = scope?.checklistItemIds || []
@@ -82,6 +99,7 @@ export function MissionGridCard({
 
   // Staff and device counts
   const currentStaff = mission.staffAssignments || []
+  const currentStaffGroups = groupStaffAssignments(currentStaff)
   const currentDevices = mission.deviceAssignments && mission.deviceAssignments.length > 0
     ? mission.deviceAssignments
     : mission.droneId || mission.deviceId
@@ -101,6 +119,95 @@ export function MissionGridCard({
     : []
   const maxStaff = 10
   const maxDevices = 10
+  const canReplaceResources =
+    !disabled &&
+    !mission.actualStartAt &&
+    ['WAITING_DEPOSIT', 'WAITING_OPERATOR_ACCEPTANCE', 'READY'].includes(mission.status)
+  const replacementForm: ReplacementFormState | null = replacementTarget
+    ? {
+        targetId: replacementTarget.targetId,
+        options: replacementOptions,
+        loading: replacementLoading,
+        busy,
+        error: replacementError,
+      }
+    : null
+
+  async function handleOpenReplacement(
+    kind: 'DEVICE' | 'STAFF',
+    targetId: string,
+    currentResourceId: string,
+  ) {
+    if (!canReplaceResources || busy) return
+    setReplacementTarget({ kind, targetId, currentResourceId })
+    setReplacementOptions([])
+    setReplacementError('')
+    setReplacementLoading(true)
+    try {
+      if (kind === 'DEVICE') {
+        const available = await droneApi.getAvailable(mission.id)
+        const assignedIds = new Set((mission.deviceAssignments ?? [])
+          .filter((item) => item.id !== targetId)
+          .map((item) => item.deviceId))
+        setReplacementOptions(available
+          .filter((item) => item.id !== currentResourceId && !assignedIds.has(item.id))
+          .map((item) => ({ value: item.id, label: item.label })))
+      } else {
+        const available = await operatorApi.getAvailable(mission.id)
+        const replacedRoles = new Set((mission.staffAssignments ?? [])
+          .filter((item) => item.staffId === currentResourceId)
+          .map((item) => item.assignedRole))
+        const assignedIds = new Set((mission.staffAssignments ?? [])
+          .filter((item) => item.staffId !== currentResourceId &&
+            replacedRoles.has(item.assignedRole))
+          .map((item) => item.staffId))
+        setReplacementOptions(available
+          .filter((item) => item.id !== currentResourceId && !assignedIds.has(item.id))
+          .map((item) => ({ value: item.id, label: `${item.fullName} (${item.email})` })))
+      }
+    } catch {
+      setReplacementError(t.replacementLoadError)
+    } finally {
+      setReplacementLoading(false)
+    }
+  }
+
+  function handleCloseReplacement() {
+    if (busy) return
+    setReplacementTarget(null)
+    setReplacementOptions([])
+    setReplacementError('')
+  }
+
+  async function handleSubmitReplacement(values: ReplacementValues) {
+    if (!replacementTarget || busy) return
+    setBusy(true)
+    setReplacementError('')
+    try {
+      if (replacementTarget.kind === 'DEVICE') {
+        await missionsApi.replaceDevice(
+          mission.id,
+          replacementTarget.targetId,
+          values.resourceId,
+          values.reason.trim(),
+        )
+      } else {
+        await missionsApi.replaceStaff(
+          mission.id,
+          replacementTarget.targetId,
+          values.resourceId,
+          values.reason.trim(),
+        )
+      }
+      setReplacementTarget(null)
+      message.success(t.replacementSuccess)
+      onPlanChanged()
+    } catch (error) {
+      setReplacementError(error instanceof Error ? error.message : t.replacementError)
+    } finally {
+      setBusy(false)
+    }
+  }
 
   // 1. Remove Checklist Item (Click [X])
   async function handleRemoveChecklist(itemId: string) {
@@ -128,9 +235,11 @@ export function MissionGridCard({
 
   // 2. Open Add Staff
   async function handleOpenAddStaff() {
+    if (disabled || busy || !isPlanning) return
     setShowAddStaff(true)
     setShowAddDevice(false)
     setSelectedStaffId('')
+    setSelectedStaffRoles(['PILOT'])
     setAvailableOperators([])
     setLoadingStaff(true)
     setErrorMsg('')
@@ -147,64 +256,37 @@ export function MissionGridCard({
 
   // Submit Add Staff
   async function handleConfirmAddStaff() {
-    if (!selectedStaffId || busy) return
-    const doAssign = async () => {
-      setBusy(true)
-      try {
-        await missionsApi.assignStaff(mission.id, selectedStaffId, selectedStaffRole)
-        setShowAddStaff(false)
-        onPlanChanged()
-      } catch (err: unknown) {
-        setErrorMsg(err instanceof Error ? err.message : t.errAssignStaff)
-      } finally {
-        setBusy(false)
-      }
-    }
-
-    if (isReady) {
-      onRequestReason(
-        t.reasonAddStaffTitle,
-        t.reasonAddStaffHint,
-        async () => {
-          await doAssign()
-        },
-      )
-    } else {
-      await doAssign()
+    if (!isPlanning || !selectedStaffId || selectedStaffRoles.length === 0 || busy) return
+    setBusy(true)
+    try {
+      await missionsApi.assignStaff(mission.id, selectedStaffId, selectedStaffRoles)
+      setShowAddStaff(false)
+      onPlanChanged()
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : t.errAssignStaff)
+    } finally {
+      setBusy(false)
     }
   }
 
   // Remove Staff
-  function handleRemoveStaff(staffId: string, role: string) {
-    if (disabled || busy) return
-    const doRemove = async (reason?: string) => {
-      setBusy(true)
-      setErrorMsg('')
-      try {
-        await missionsApi.removeStaff(mission.id, staffId, role, reason)
-        onPlanChanged()
-      } catch (err: unknown) {
-        setErrorMsg(err instanceof Error ? err.message : t.errRemoveStaff)
-      } finally {
-        setBusy(false)
-      }
-    }
-
-    if (isReady) {
-      onRequestReason(
-        t.reasonRemoveStaffTitle,
-        t.reasonRemoveStaffHint,
-        async (reason) => {
-          await doRemove(reason)
-        },
-      )
-    } else {
-      void doRemove()
+  async function handleRemoveStaff(assignmentId: string) {
+    if (!isPlanning || disabled || busy) return
+    setBusy(true)
+    setErrorMsg('')
+    try {
+      await missionsApi.removeStaff(mission.id, assignmentId)
+      onPlanChanged()
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : t.errRemoveStaff)
+    } finally {
+      setBusy(false)
     }
   }
 
   // 3. Open Add Device
   async function handleOpenAddDevice() {
+    if (disabled || busy || !isPlanning) return
     setShowAddDevice(true)
     setShowAddStaff(false)
     setSelectedDeviceId('')
@@ -224,59 +306,31 @@ export function MissionGridCard({
 
   // Submit Add Device
   async function handleConfirmAddDevice() {
-    if (!selectedDeviceId || busy) return
-    const doAssign = async () => {
-      setBusy(true)
-      try {
-        await missionsApi.assignDevice(mission.id, selectedDeviceId, selectedDeviceRole)
-        setShowAddDevice(false)
-        onPlanChanged()
-      } catch (err: unknown) {
-        setErrorMsg(err instanceof Error ? err.message : t.errAssignDevice)
-      } finally {
-        setBusy(false)
-      }
-    }
-
-    if (isReady) {
-      onRequestReason(
-        t.reasonAddDeviceTitle,
-        t.reasonAddDeviceHint,
-        async () => {
-          await doAssign()
-        },
-      )
-    } else {
-      await doAssign()
+    if (!isPlanning || !selectedDeviceId || busy) return
+    setBusy(true)
+    try {
+      await missionsApi.assignDevice(mission.id, selectedDeviceId, selectedDeviceRole)
+      setShowAddDevice(false)
+      onPlanChanged()
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : t.errAssignDevice)
+    } finally {
+      setBusy(false)
     }
   }
 
   // Remove Device
-  function handleRemoveDevice(deviceId: string) {
-    if (disabled || busy) return
-    const doRemove = async (reason?: string) => {
-      setBusy(true)
-      setErrorMsg('')
-      try {
-        await missionsApi.removeDevice(mission.id, deviceId, reason)
-        onPlanChanged()
-      } catch (err: unknown) {
-        setErrorMsg(err instanceof Error ? err.message : t.errRemoveDevice)
-      } finally {
-        setBusy(false)
-      }
-    }
-
-    if (isReady) {
-      onRequestReason(
-        t.reasonRemoveDeviceTitle,
-        t.reasonRemoveDeviceHint,
-        async (reason) => {
-          await doRemove(reason)
-        },
-      )
-    } else {
-      void doRemove()
+  async function handleRemoveDevice(assignmentId: string) {
+    if (!isPlanning || disabled || busy) return
+    setBusy(true)
+    setErrorMsg('')
+    try {
+      await missionsApi.removeDevice(mission.id, assignmentId)
+      onPlanChanged()
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : t.errRemoveDevice)
+    } finally {
+      setBusy(false)
     }
   }
 
@@ -432,13 +486,13 @@ export function MissionGridCard({
           </StatusBadge>
         </div>
         <div className="odm-mcard-sec-head">
-          <span>{t.staffHead(currentStaff.length, maxStaff)}</span>
-          {!isCancelled && !disabled && (
+          <span>{t.staffHead(currentStaffGroups.length, maxStaff)}</span>
+          {isPlanning && !disabled && (
             <button
               type="button"
               className="odm-btn odm-btn-sm"
               onClick={handleOpenAddStaff}
-              disabled={busy || currentStaff.length >= maxStaff}
+              disabled={busy || currentStaffGroups.length >= maxStaff}
             >
               {t.addShort}
             </button>
@@ -451,8 +505,8 @@ export function MissionGridCard({
             loading={loadingStaff}
             busy={busy}
             roles={ROLES}
-            role={selectedStaffRole}
-            onRoleChange={setSelectedStaffRole}
+            selectedRoles={selectedStaffRoles}
+            onRolesChange={setSelectedStaffRoles}
             staffId={selectedStaffId}
             onStaffChange={setSelectedStaffId}
             operators={availableOperators}
@@ -467,9 +521,16 @@ export function MissionGridCard({
         <MissionGridStaffList
           t={t}
           staff={currentStaff}
-          canRemove={!isCancelled && !disabled}
-          busy={busy}
+          canRemove={isPlanning && !disabled}
+          canReplace={canReplaceResources}
+          busy={busy || replacementLoading}
+          replacement={replacementForm}
           onRemove={handleRemoveStaff}
+          onReplace={(staffId) =>
+            void handleOpenReplacement('STAFF', staffId, staffId)
+          }
+          onCancelReplacement={handleCloseReplacement}
+          onSubmitReplacement={handleSubmitReplacement}
         />
       </div>
 
@@ -477,7 +538,7 @@ export function MissionGridCard({
       <div className="odm-mcard-section">
         <div className="odm-mcard-sec-head">
           <span>{t.deviceHead(currentDevices.length, maxDevices)}</span>
-          {!isCancelled && !disabled && currentDevices.length < maxDevices && (
+          {isPlanning && !disabled && currentDevices.length < maxDevices && (
             <button
               type="button"
               className="odm-btn odm-btn-sm"
@@ -510,9 +571,16 @@ export function MissionGridCard({
         <MissionGridDeviceList
           t={t}
           devices={currentDevices}
-          canRemove={!isCancelled && !disabled}
-          busy={busy}
+          canRemove={isPlanning && !disabled && Boolean(mission.deviceAssignments?.length)}
+          canReplace={canReplaceResources && Boolean(mission.deviceAssignments?.length)}
+          busy={busy || replacementLoading}
+          replacement={replacementForm}
           onRemove={handleRemoveDevice}
+          onReplace={(assignmentId, currentResourceId) =>
+            void handleOpenReplacement('DEVICE', assignmentId, currentResourceId)
+          }
+          onCancelReplacement={handleCloseReplacement}
+          onSubmitReplacement={handleSubmitReplacement}
         />
       </div>
 

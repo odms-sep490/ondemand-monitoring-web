@@ -5,6 +5,7 @@ export const liveDispatchPageMessages = defineMessages({
     selectDroneAndOperator:
       'Cần phân công đủ 4 vai trò và ít nhất 1 thiết bị trước khi phân công.',
     assignFailed: 'Không phân công được nguồn lực',
+    planningOnly: 'Chỉ được gán hoặc gỡ nguồn lực khi Mission ở trạng thái PLANNING.',
     loadingResources: 'Đang tải nguồn lực khả dụng…',
     checkingStaff: 'Đang kiểm tra nhân sự khả dụng...',
     checkingDevices: 'Đang kiểm tra thiết bị khả dụng...',
@@ -132,6 +133,7 @@ export const liveDispatchPageMessages = defineMessages({
     notSelected: 'Chưa chọn',
     openOrder: 'Xem đơn hàng',
     missionStatuses: {
+      PLANNING: 'Đang lập kế hoạch',
       CREATED: 'Đã tạo',
       RESOURCE_ASSIGNING: 'Đang phân công nguồn lực',
       READY: 'Chờ đội bay xác nhận',
@@ -145,6 +147,7 @@ export const liveDispatchPageMessages = defineMessages({
     selectDroneAndOperator:
       'Assign all 4 mission roles and one device before assigning.',
     assignFailed: 'Could not assign the resources',
+    planningOnly: 'Resources can only be assigned or removed while the Mission is PLANNING.',
     loadingResources: 'Loading available resources…',
     checkingStaff: 'Checking available staff...',
     checkingDevices: 'Checking available devices...',
@@ -270,6 +273,7 @@ export const liveDispatchPageMessages = defineMessages({
     notSelected: 'Not selected',
     openOrder: 'View order',
     missionStatuses: {
+      PLANNING: 'Planning',
       CREATED: 'Created',
       RESOURCE_ASSIGNING: 'Assigning resources',
       READY: 'Confirmed, preparing resources',

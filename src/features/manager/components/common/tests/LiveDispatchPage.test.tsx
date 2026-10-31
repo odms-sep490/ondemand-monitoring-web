@@ -30,7 +30,7 @@ describe('LiveDispatchPage', () => {
     const mission = {
       id: 'mission-1',
       missionCode: 'MS-1',
-      status: 'READY',
+      status: 'PLANNING',
       orderTitle: 'Chụp ảnh',
       scheduledStartAt: '2026-10-10T03:00:00Z',
       scheduledEndAt: '2026-10-10T04:00:00Z',
@@ -60,7 +60,7 @@ describe('LiveDispatchPage', () => {
     ])
     const assign = vi
       .spyOn(missionApi, 'assignResources')
-      .mockResolvedValue({ ...mission, status: 'READY' })
+      .mockResolvedValue({ ...mission, status: 'PLANNING' })
 
     render(<LiveDispatchPage missionId="mission-1" />)
     await waitFor(() => screen.getByRole('button', { name: 'Tiếp theo' }))
@@ -100,7 +100,7 @@ describe('LiveDispatchPage', () => {
     const mission = {
       id: 'mission-1',
       missionCode: 'MS-1',
-      status: 'READY',
+      status: 'PLANNING',
       orderTitle: 'Chụp ảnh',
       scheduledStartAt: '2026-10-10T03:00:00Z',
       scheduledEndAt: '2026-10-10T04:00:00Z',
@@ -118,7 +118,7 @@ describe('LiveDispatchPage', () => {
     ])
     const assign = vi
       .spyOn(missionApi, 'assignResources')
-      .mockResolvedValue({ ...mission, status: 'READY' })
+      .mockResolvedValue({ ...mission, status: 'PLANNING' })
 
     render(<LiveDispatchPage missionId="mission-1" />)
     await waitFor(() => screen.getByRole('button', { name: 'Tiếp theo' }))
@@ -152,7 +152,7 @@ describe('LiveDispatchPage', () => {
     const mission = {
       id: 'mission-1',
       missionCode: 'MS-1',
-      status: 'READY',
+      status: 'PLANNING',
       orderTitle: 'Chụp ảnh',
       scheduledStartAt: '2026-10-10T03:00:00Z',
       scheduledEndAt: '2026-10-10T04:00:00Z',

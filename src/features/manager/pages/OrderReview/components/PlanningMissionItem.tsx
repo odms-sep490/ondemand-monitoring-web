@@ -92,7 +92,7 @@ export function PlanningMissionItem({
             !busy &&
             draft &&
             scope?.finalizedPlanRevision == null &&
-            mission.status === 'RESOURCE_ASSIGNING'
+            mission.status === 'PLANNING'
           }
           items={data.order.checklistItems ?? []}
           onChanged={query.reload}

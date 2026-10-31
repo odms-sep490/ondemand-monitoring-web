@@ -116,6 +116,7 @@ export type MissionCalendarItem = Mission & {
   droneName: string | null
   operatorName: string | null
   staffAssignments?: MissionStaffAssignmentResponse[]
+  deviceAssignments?: MissionDeviceAssignmentResponse[]
 }
 
 export type MissionRescheduleReason =
