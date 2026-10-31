@@ -31,8 +31,13 @@ export function QuoteSection({
   refreshExpired?: () => void
 }) {
   const { t } = useI18n(customerFinanceSectionsMessages)
-  const deadline = useDeadline(quote.expiresAt, refreshExpired)
-  const expired = quote.status === 'EXPIRED' || deadline.expired
+  const acceptancePending = quote.status === 'APPROVED'
+  const deadline = useDeadline(
+    acceptancePending ? quote.expiresAt : null,
+    refreshExpired,
+  )
+  const expired =
+    quote.status === 'EXPIRED' || (acceptancePending && deadline.expired)
   return (
     <div className="customer-quote-body">
       <QuoteLines items={quote.items} />
@@ -46,14 +51,22 @@ export function QuoteSection({
         <Summary label={t.orderTotal} value={quote.finalOrderAmount} total />
       </dl>
       <p className="co-estimate-notice">{t.estimateNotice}</p>
-      {quote.expiresAt ? (
+      {quote.expiresAt && (acceptancePending || quote.status === 'EXPIRED') ? (
         <div className={`finance-deadline${expired ? ' is-expired' : ''}`}>
-          <b>{expired ? t.quoteExpired : t.quoteExpiresIn(deadline.remaining ?? '')}</b>
-          <span>{t.deadlineAt(new Date(quote.expiresAt).toLocaleString())}</span>
+          <b>
+            {expired
+              ? t.quoteExpired
+              : t.quoteExpiresIn(deadline.remaining ?? '')}
+          </b>
+          <span>
+            {t.deadlineAt(new Date(quote.expiresAt).toLocaleString())}
+          </span>
         </div>
       ) : null}
       {quote.orderCancellationReason === 'QUOTATION_EXPIRED' ? (
-        <div className="customer-deposit-notice"><b>{t.orderCancelledQuoteTimeout}</b></div>
+        <div className="customer-deposit-notice">
+          <b>{t.orderCancelledQuoteTimeout}</b>
+        </div>
       ) : null}
       {!legalReady ? (
         <div className="customer-deposit-notice">
