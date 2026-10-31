@@ -162,9 +162,7 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
         openStage={openStage}
         goToStep={goToStep}
         planning={planning}
-        viewMissionStage={
-          planning?.isFinalized && activeWorkflowTab === 'permit' ? 'permit' : null
-        }
+        viewMissionStage={activeWorkflowTab === 'permit' ? 'permit' : null}
         onSelectMissionStage={(stage) => {
           if (stage === 'permit') {
             setViewStage(null)

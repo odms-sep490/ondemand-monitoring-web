@@ -114,7 +114,7 @@ export function ReviewTop({
             : undefined
         }
       />
-      {showExecutionPlan && (
+      {showExecutionPlan && viewMissionStage !== 'permit' && (
         <OrderServiceCard
           serviceName={order.serviceName}
           serviceDescription={order.serviceDescription}

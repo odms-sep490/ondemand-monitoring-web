@@ -266,28 +266,33 @@ function OrderPlanningWorkspace({
 
 
 
-      <PlanningHeader
-        primary
-        status={data?.plan.planStatus}
-        revision={data?.plan.revision ?? 0}
-        loading={query.loading}
-        action={
-          <Button
-            type="button"
-            className="odm-btn"
-            disabled={busy || query.loading}
-            onClick={query.reload}
-          >
-            {ts.reloadPlan}
-          </Button>
-        }
-      />
-      {query.loading && (
+      {activeTab !== 'permit' && (
+        <PlanningHeader
+          primary
+          status={data?.plan.planStatus}
+          revision={data?.plan.revision ?? 0}
+          loading={query.loading}
+          action={
+            <Button
+              type="button"
+              className="odm-btn"
+              disabled={busy || query.loading}
+              onClick={query.reload}
+            >
+              {ts.reloadPlan}
+            </Button>
+          }
+        />
+      )}
+      {query.loading && activeTab !== 'permit' && (
         <div className="mgr-plan-loading">
           <p role="status">{ts.loadingPlan}</p>
           <Skeleton variant="block" height={96} />
           <Skeleton variant="block" height={160} />
         </div>
+      )}
+      {query.loading && activeTab === 'permit' && (
+        <p role="status">{ts.loadingPlan}</p>
       )}
       {query.error ? <p role="alert">{planningError(query.error)}</p> : null}
       {message && <p role="status" className="odm-planning-notice">{message}</p>}
@@ -295,7 +300,12 @@ function OrderPlanningWorkspace({
 
       {data && !query.error && (
         <>
-          <ExecutionPlanSummary plan={data.plan} items={data.order.checklistItems ?? []} />
+          {activeTab !== 'permit' && (
+            <ExecutionPlanSummary
+              plan={data.plan}
+              items={data.order.checklistItems ?? []}
+            />
+          )}
 
           {!depositPaid && data.order.status === 'APPROVED' ? (
             <PlanningPaymentGate
