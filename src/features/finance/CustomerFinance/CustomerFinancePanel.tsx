@@ -164,6 +164,7 @@ export function CustomerFinancePanel({
           invoice={invoice}
           busy={busy || quoteStale}
           accept={accept}
+          refreshExpired={() => void load()}
         />
       ) : null}
 
@@ -176,6 +177,7 @@ export function CustomerFinancePanel({
           completeTestDeposit={() => completeTestPayment('deposit')}
           completeTestFinal={() => completeTestPayment('final')}
           testPaymentLabel={t.testPayment}
+          refreshExpired={() => void load()}
         />
       ) : null}
       {quoteStale ? (

@@ -6,6 +6,7 @@ import { StatusTag } from '../../../../shared/components/antd'
 import { PaymentStat } from './PaymentStat'
 import type { Invoice } from '../../types'
 import { env } from '../../../../config/env'
+import { useDeadline } from '../useDeadline'
 
 const INVOICE_TONE: Record<
   string,
@@ -27,6 +28,7 @@ export function InvoiceSection({
   completeTestDeposit,
   completeTestFinal,
   testPaymentLabel,
+  refreshExpired,
 }: {
   invoice: Invoice
   legalReady: boolean
@@ -35,8 +37,11 @@ export function InvoiceSection({
   completeTestDeposit: () => Promise<void>
   completeTestFinal: () => Promise<void>
   testPaymentLabel: string
+  refreshExpired?: () => void
 }) {
   const { t } = useI18n(customerFinanceSectionsMessages)
+  const deadline = useDeadline(invoice.depositExpiresAt, refreshExpired)
+  const depositExpired = invoice.orderCancellationReason === 'DEPOSIT_PAYMENT_EXPIRED' || deadline.expired
   return (
     <div className="customer-invoice">
       <div className="customer-invoice-title">
@@ -54,6 +59,15 @@ export function InvoiceSection({
         <PaymentStat label={t.paid} value={invoice.paidAmount} />
         <PaymentStat label={t.remaining} value={invoice.remainingAmount} />
       </div>
+      {invoice.depositExpiresAt && invoice.paidAmount < invoice.depositAmount ? (
+        <div className={`finance-deadline${depositExpired ? ' is-expired' : ''}`}>
+          <b>{depositExpired ? t.depositExpired : t.depositDeadline(deadline.remaining ?? '')}</b>
+          <span>{t.deadlineAt(new Date(invoice.depositExpiresAt).toLocaleString())}</span>
+        </div>
+      ) : null}
+      {invoice.orderCancellationReason === 'DEPOSIT_PAYMENT_EXPIRED' ? (
+        <div className="customer-deposit-notice"><b>{t.orderCancelledPaymentTimeout}</b></div>
+      ) : null}
       {invoice.paidAmount < invoice.depositAmount ? (
         <div className="customer-deposit-notice">
           <b>{t.awaitingDeposit}</b>
@@ -66,7 +80,7 @@ export function InvoiceSection({
         </div>
       ) : null}
       <div className="finance-actions customer-payment-actions">
-        {invoice.paidAmount < invoice.depositAmount && legalReady ? (
+        {invoice.paidAmount < invoice.depositAmount && legalReady && !depositExpired && invoice.status !== 'CANCELLED' ? (
           <>
             <Button
               type="primary"

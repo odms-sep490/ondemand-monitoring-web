@@ -10,7 +10,10 @@ import type {
   DispatchWeight,
   NoFlyZone,
   OperatingPolicy,
+  OrderExpirationSettingAudit,
+  OrderExpirationSettings,
   UpdateNoFlyZonePayload,
+  UpdateOrderExpirationSettingsPayload,
   UpdatePolicyPayload,
   UpdateWeightsPayload,
 } from '../types/operatingConfig'
@@ -93,6 +96,24 @@ export const adminApi = {
       method: 'PUT',
       body: payload,
     }),
+
+  // Operating Config — Quote and deposit expiration windows
+  getOrderExpirationSettings: (signal?: AbortSignal) =>
+    apiRequest<OrderExpirationSettings>('/api/admin/config/order-expiration', {
+      signal,
+    }),
+
+  updateOrderExpirationSettings: (payload: UpdateOrderExpirationSettingsPayload) =>
+    apiRequest<OrderExpirationSettings>('/api/admin/config/order-expiration', {
+      method: 'PUT',
+      body: payload,
+    }),
+
+  listOrderExpirationAudit: (signal?: AbortSignal) =>
+    apiRequest<OrderExpirationSettingAudit[]>(
+      '/api/admin/config/order-expiration/audit',
+      { signal },
+    ),
 
   // Operating Config — No-fly Zones
   listNoFlyZones: (signal?: AbortSignal) =>
