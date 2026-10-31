@@ -617,6 +617,22 @@
   color: var(--ui-text-3);
   font-size: 13px;
 }
+.finance-deadline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin: 0.75rem 0;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid #f0c36a;
+  border-radius: 8px;
+  background: #fff9e8;
+  color: #754c00;
+}
+.finance-deadline.is-expired {
+  border-color: #e4a0a0;
+  background: #fff1f0;
+  color: #9f1d1d;
+}
 .customer-finance-head,
 .customer-invoice-title {
   display: flex;

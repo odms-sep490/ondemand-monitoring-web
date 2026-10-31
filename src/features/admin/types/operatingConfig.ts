@@ -40,5 +40,26 @@ export type UpdateWeightsPayload = {
   weights: Array<{ key: string; value: number }>
 }
 
+export type OrderExpirationSettings = {
+  quotationAcceptanceTimeoutHours: number
+  depositPaymentTimeoutHours: number
+  updatedBy: string
+  updatedAt: string | null
+}
+
+export type OrderExpirationSettingAudit = {
+  id: string
+  settingName: 'quotationAcceptanceTimeoutHours' | 'depositPaymentTimeoutHours'
+  previousValue: number
+  newValue: number
+  actor: string
+  changedAt: string
+}
+
+export type UpdateOrderExpirationSettingsPayload = Pick<
+  OrderExpirationSettings,
+  'quotationAcceptanceTimeoutHours' | 'depositPaymentTimeoutHours'
+>
+
 export type CreateNoFlyZonePayload = Omit<NoFlyZone, 'id'>
 export type UpdateNoFlyZonePayload = Partial<Omit<NoFlyZone, 'id'>>

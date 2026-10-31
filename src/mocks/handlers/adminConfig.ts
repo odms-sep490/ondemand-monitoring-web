@@ -6,19 +6,105 @@
 //   GET   /api/admin/config/no-fly-zones
 //   POST  /api/admin/config/no-fly-zones
 //   PATCH /api/admin/config/no-fly-zones/:id
+//   GET/PUT /api/admin/config/order-expiration
+//   GET   /api/admin/config/order-expiration/audit
 import { createCollection } from '../db'
-import { fail, ok, registerMockRoutes } from '../mockServer'
+import { fail, isRealApiRoute, ok, passThrough, registerMockRoutes } from '../mockServer'
 import seedData from '../data/admin-config.json'
 
 type PolicySeed = (typeof seedData.policies)[number]
 type WeightSeed = (typeof seedData.dispatchWeights)[number]
 type ZoneSeed = (typeof seedData.noFlyZones)[number]
+type ExpirationSettingsSeed = {
+  quotationAcceptanceTimeoutHours: number
+  depositPaymentTimeoutHours: number
+  updatedBy: string
+  updatedAt: string | null
+}
+
+type ExpirationAuditSeed = {
+  id: string
+  settingName: 'quotationAcceptanceTimeoutHours' | 'depositPaymentTimeoutHours'
+  previousValue: number
+  newValue: number
+  actor: string
+  changedAt: string
+}
 
 const policies = createCollection(seedData.policies as PolicySeed[]) as unknown as PolicySeed[]
 const weights = createCollection(seedData.dispatchWeights as WeightSeed[]) as unknown as WeightSeed[]
 const zones = createCollection(seedData.noFlyZones as ZoneSeed[]) as unknown as ZoneSeed[]
+const expirationSettings = createCollection(
+  seedData.orderExpirationSettings as ExpirationSettingsSeed,
+) as ExpirationSettingsSeed
+const expirationAudit = createCollection([] as ExpirationAuditSeed[])
 
 registerMockRoutes([
+  {
+    method: 'GET',
+    path: '/api/admin/config/order-expiration',
+    handler: () => isRealApiRoute('GET', '/api/admin/config/order-expiration')
+      ? passThrough()
+      : ok({ ...expirationSettings }),
+  },
+
+  {
+    method: 'PUT',
+    path: '/api/admin/config/order-expiration',
+    handler: ({ body }) => {
+      if (isRealApiRoute('PUT', '/api/admin/config/order-expiration'))
+        return passThrough()
+      const payload = body as Partial<ExpirationSettingsSeed>
+      const validHours = (value: unknown) =>
+        Number.isInteger(value) && Number(value) >= 1 && Number(value) <= 8760
+      if (
+        !validHours(payload.quotationAcceptanceTimeoutHours) ||
+        !validHours(payload.depositPaymentTimeoutHours)
+      )
+        return fail(400, 'VALIDATION_ERROR', 'Timeout must be an integer from 1 to 8760 hours.')
+
+      const changedAt = new Date().toISOString()
+      const actor = 'admin-mock'
+      for (const field of [
+        'quotationAcceptanceTimeoutHours',
+        'depositPaymentTimeoutHours',
+      ] as const) {
+        const previousValue = expirationSettings[field]
+        const newValue = payload[field] as number
+        if (previousValue === newValue) continue
+        expirationAudit.unshift({
+          id: `expiration-audit-${Date.now()}-${field}`,
+          settingName: field,
+          previousValue,
+          newValue,
+          actor,
+          changedAt,
+        })
+      }
+      expirationSettings.quotationAcceptanceTimeoutHours =
+        payload.quotationAcceptanceTimeoutHours as number
+      expirationSettings.depositPaymentTimeoutHours =
+        payload.depositPaymentTimeoutHours as number
+      expirationSettings.updatedBy = actor
+      expirationSettings.updatedAt = changedAt
+      return ok({ ...expirationSettings }, 'Expiration settings updated')
+    },
+  },
+
+  {
+    method: 'GET',
+    path: '/api/admin/config/order-expiration/audit',
+    handler: ({ query }) => {
+      if (isRealApiRoute('GET', '/api/admin/config/order-expiration/audit'))
+        return passThrough()
+      const requestedLimit = Number(query.get('limit') ?? 50)
+      const limit = Number.isInteger(requestedLimit)
+        ? Math.max(1, Math.min(requestedLimit, 200))
+        : 50
+      return ok(expirationAudit.slice(0, limit))
+    },
+  },
+
   {
     method: 'GET',
     path: '/api/admin/config/policies',
