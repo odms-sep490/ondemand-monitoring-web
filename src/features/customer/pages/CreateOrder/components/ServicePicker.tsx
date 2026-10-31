@@ -47,7 +47,6 @@ type Props = {
   services: ServiceOption[]
   loading: boolean
   selectedId: string
-  suggested?: ServiceOption
   error?: string
   onSelect: (serviceId: string) => void
 }
@@ -56,7 +55,6 @@ export function ServicePicker({
   services,
   loading,
   selectedId,
-  suggested,
   error,
   onSelect,
 }: Props) {
@@ -98,34 +96,6 @@ export function ServicePicker({
       }
     >
       <p className="co-service-lead">{t.cardHint}</p>
-      {suggested && (
-        <div className="co-suggest">
-          <strong>{t.aiSuggested}</strong>
-          <div className="co-hint">{t.aiSuggestedHint}</div>
-          <div className="co-service">
-            <span className="co-service-illustration">
-              <ServiceImage
-                imageUrl={suggested.imageUrl}
-                fallbackImageUrl={suggested.fallbackImageUrl}
-                noImage={t.noImage}
-              />
-            </span>
-            <div className="co-service-name">
-              {localizeServiceName(suggested.id, lang, suggested.name)}
-            </div>
-            <div className="co-service-desc">
-              {suggested.description || t.defaultDescription}
-            </div>
-            <strong>{formatMoney(suggested.defaultPrice ?? suggested.basePrice, locale)}</strong>
-            <Button
-              size="small"
-              onClick={() => onSelect(suggested.id)}
-            >
-              {selectedId === suggested.id ? t.selectedNow : t.pickSuggestion}
-            </Button>
-          </div>
-        </div>
-      )}
       <div className="co-row-between co-mt">
         <strong>{t.allServices}</strong>
         <span className="co-hint">{t.serviceCount(services.length)}</span>
@@ -147,7 +117,6 @@ export function ServicePicker({
           const cls = [
             'co-service',
             selectedId === service.id ? 'is-active' : '',
-            suggested?.id === service.id ? 'is-suggested' : '',
           ].join(' ')
           return (
             <button

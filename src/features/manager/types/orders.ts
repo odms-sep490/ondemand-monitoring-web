@@ -2,10 +2,8 @@
 // Field names follow [BE] `OrderCreateResponse` DTO (camelCase) where they
 // overlap; fields only described in [BRIEF]/[TK] are added alongside and
 // marked in comments. Enums come from `shared/types/domain.ts` (backend
-// truth) plus `AiVerdict` (brief A4).
+// truth).
 import type {
-  AiVerdict,
-  FindingSeverity,
   OrderStatus,
   RequiredEvidenceType,
 } from '../../../shared/types/domain'
@@ -26,9 +24,6 @@ export type OrderQueueItem = {
   preferredDateTo?: string | null
   preferredTimeName: string
   submittedAt: string
-  aiVerdict: AiVerdict
-  blockerCount: number
-  warningCount: number
 }
 
 // Contact info has no source for orders the design never renders a detail
@@ -155,25 +150,6 @@ export type FlightAreaReviewRequest = {
   requestedScopeFeasible?: boolean | null
   reason?: string | null
   note?: string | null
-}
-
-export type FindingCustomerAction = 'ACCEPTED' | 'IGNORED' | 'AUTO_FIXED' | null
-
-export type AnalysisFinding = {
-  severity: FindingSeverity
-  message: string
-  evidence: Record<string, string>
-  customerAction: FindingCustomerAction
-}
-
-export type OrderAnalysis = {
-  overallVerdict: AiVerdict
-  blockerCount: number
-  warningCount: number
-  ruleEngineMs: number | null
-  createdAt: string | null
-  llmSummary: string | null
-  findings: AnalysisFinding[]
 }
 
 export type ResourceCandidate = {

@@ -25,7 +25,7 @@ export function useCreateRequest() {
     permitStatus: form.permitStatus,
   })
 
-  const meta = useCreateOrderMeta(form.serviceId, false, setForm)
+  const meta = useCreateOrderMeta(form.serviceId, setForm)
   const service = meta.services.find((s) => s.id === form.serviceId)
   const time = meta.preferredTimes.find((x) => x.id === form.preferredTimeId)
   const deliverable = meta.deliverables.find(
@@ -69,8 +69,6 @@ export function useCreateRequest() {
         deliverableOptions: meta.deliverables,
         form,
         score,
-        aiAnalysisRequested: false,
-        pricingEstimate: meta.pricingEstimate,
       }),
       checklistItems: checklist.serialize(),
     }),

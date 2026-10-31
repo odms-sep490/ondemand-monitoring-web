@@ -9,9 +9,11 @@ import { RocketOutlined } from '@ant-design/icons'
 export function DroneDeviceCard({
   mission,
   compact = false,
+  overview = false,
 }: {
   mission: OperatorMission
   compact?: boolean
+  overview?: boolean
 }) {
   const droneLabel = formatDeviceLabel(mission) ?? 'Chưa gán thiết bị'
   const deviceInfoRows = [
@@ -52,18 +54,25 @@ export function DroneDeviceCard({
     },
   ].filter((row) => row.value != null && String(row.value).trim() !== '')
   const compactLabels = new Set(['Device code', 'Serial', 'Trạng thái'])
-  const primaryRows = compact
-    ? deviceInfoRows.filter((row) => compactLabels.has(row.label))
-    : deviceInfoRows
-  const extraRows = compact
-    ? deviceInfoRows.filter((row) => !compactLabels.has(row.label))
-    : []
+  const primaryRows = overview
+    ? []
+    : compact
+      ? deviceInfoRows.filter((row) => compactLabels.has(row.label))
+      : deviceInfoRows
+  const extraRows = overview
+    ? deviceInfoRows.filter((row) => row.label !== 'Sẵn sàng')
+    : compact
+      ? deviceInfoRows.filter((row) => !compactLabels.has(row.label))
+      : []
 
   return (
-    <section className="odm-card" aria-labelledby="mission-device-heading">
+    <section
+      className={`odm-card${overview ? ' mds-overview-device' : ''}`}
+      aria-labelledby="mission-device-heading"
+    >
       <div className="odm-card-header">
         <h2 id="mission-device-heading" className="mds-card-heading">
-          Thông tin thiết bị
+          {overview ? 'Thiết bị' : 'Thông tin thiết bị'}
         </h2>
       </div>
       <div
@@ -122,30 +131,32 @@ export function DroneDeviceCard({
             </div>
           </div>
         </div>
-        {(mission.droneStation ||
-          mission.droneHoursSinceMaintenance != null) && (
-          <div
-            style={{
-              marginTop: 10,
-              paddingTop: 10,
-              borderTop: '1px solid var(--bd)',
-              fontSize: 12.5,
-              color: 'var(--tx3)',
-            }}
-          >
-            {mission.droneStation && (
-              <span>Lấy tại {mission.droneStation}</span>
-            )}
-            {mission.droneStation && mission.droneStationDistanceKm != null && (
-              <span> · cách {mission.droneStationDistanceKm} km</span>
-            )}
-            {mission.droneHoursSinceMaintenance != null && (
-              <span style={{ display: 'block', marginTop: 2 }}>
-                {mission.droneHoursSinceMaintenance} giờ bay từ lần bảo trì
-              </span>
-            )}
-          </div>
-        )}
+        {!overview &&
+          (mission.droneStation ||
+            mission.droneHoursSinceMaintenance != null) && (
+            <div
+              style={{
+                marginTop: 10,
+                paddingTop: 10,
+                borderTop: '1px solid var(--bd)',
+                fontSize: 12.5,
+                color: 'var(--tx3)',
+              }}
+            >
+              {mission.droneStation && (
+                <span>Lấy tại {mission.droneStation}</span>
+              )}
+              {mission.droneStation &&
+                mission.droneStationDistanceKm != null && (
+                  <span> · cách {mission.droneStationDistanceKm} km</span>
+                )}
+              {mission.droneHoursSinceMaintenance != null && (
+                <span style={{ display: 'block', marginTop: 2 }}>
+                  {mission.droneHoursSinceMaintenance} giờ bay từ lần bảo trì
+                </span>
+              )}
+            </div>
+          )}
         {primaryRows.length > 0 ? (
           <div
             className={compact ? 'mds-device-primary-rows' : undefined}
@@ -167,7 +178,9 @@ export function DroneDeviceCard({
         ) : null}
         {extraRows.length > 0 ? (
           <details className="mds-device-details">
-            <summary>Thông số và mã định danh khác</summary>
+            <summary>
+              {overview ? 'Thông số kỹ thuật' : 'Thông số và mã định danh khác'}
+            </summary>
             <div>
               {extraRows.map((row) => (
                 <InfoRow

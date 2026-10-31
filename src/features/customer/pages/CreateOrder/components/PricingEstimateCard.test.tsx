@@ -16,7 +16,6 @@ describe('PricingEstimateCard', () => {
         }}
         loading={false}
         hasService
-        aiAnalysisRequested={false}
       />,
     )
 
@@ -39,7 +38,6 @@ describe('PricingEstimateCard', () => {
         }}
         loading={false}
         hasService
-        aiAnalysisRequested={false}
       />,
     )
 
@@ -60,7 +58,6 @@ describe('PricingEstimateCard', () => {
         }}
         loading={false}
         hasService
-        aiAnalysisRequested={false}
         additionalChecklists={[
           {
             key: 'additional-1',
@@ -122,7 +119,7 @@ describe('PricingEstimateCard', () => {
           warnings: [],
           quotePending: true,
           addOns: [
-            { key: 'AI_IMAGE_ANALYSIS', description: 'AI', amount: 500_000 },
+            { key: 'OUTPUT_VIDEO', description: 'Video bàn giao', amount: 500_000 },
           ],
         },
       ),
@@ -131,7 +128,7 @@ describe('PricingEstimateCard', () => {
       totalPrice: 1_400_000,
       quotePending: true,
       additionalRequirements: [
-        { type: 'AI_IMAGE_ANALYSIS', additionalPrice: 500_000 },
+        { type: 'OUTPUT_VIDEO', description: 'Video bàn giao', additionalPrice: 500_000 },
       ],
     })
   })
@@ -153,7 +150,6 @@ describe('PricingEstimateCard', () => {
         }}
         loading={false}
         hasService
-        aiAnalysisRequested={false}
       />,
     )
 
@@ -249,7 +245,6 @@ describe('PricingEstimateCard', () => {
         estimate={estimate}
         loading={false}
         hasService
-        aiAnalysisRequested={false}
       />,
     )
 

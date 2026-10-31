@@ -1,6 +1,12 @@
 import type { OperatorMission } from '../../../types/mission'
 import type { MissionPermissions } from '../../../../mission/types/permissions'
-import { type ReactNode, useState, useEffect } from 'react'
+import {
+  type KeyboardEvent,
+  type ReactNode,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import type { MissionResultApprovalStatus } from '../../../../mission/types/mission'
 import type {
   RuntimePreflightStatus,
@@ -28,6 +34,8 @@ import { PostcheckCard } from './PostcheckCard'
 import { MissionUploadedMedia } from '../../../../media/components/MissionUploadedMedia'
 import { useI18n } from '../../../../../shared/i18n'
 import { missionDetailPageMessages } from '../MissionDetailPage.messages'
+
+type MissionTab = 'overview' | 'checklist' | 'checks' | 'media'
 
 // ─── Dashboard shell ──────────────────────────────────────────────────────────
 
@@ -74,19 +82,43 @@ export function MissionDashboard({
     )
   const [postflightStatus, setPostflightStatus] =
     useState<PostflightCheckStatus | null>(null)
-  const [tab, setTab] = useState<'overview' | 'checks' | 'media'>('overview')
+  const [tab, setTab] = useState<MissionTab>('overview')
+  const tabButtonRefs = useRef<Array<HTMLButtonElement | null>>([])
   const canViewMissionMedia =
     access?.canInspectDevice === true ||
     access?.canUploadMedia === true ||
     mission.status === 'COMPLETED' ||
     mission.backendStatus === 'PENDING_REVIEW'
-  const tabs: Array<{ id: 'overview' | 'checks' | 'media'; label: string }> = [
+  const tabs: Array<{ id: MissionTab; label: string }> = [
     { id: 'overview', label: 'Tổng quan' },
-    { id: 'checks', label: 'Kết quả kiểm tra thiết bị' },
+    { id: 'checklist', label: 'Checklist' },
+    { id: 'checks', label: 'Kiểm tra thiết bị' },
     ...(canViewMissionMedia
       ? [{ id: 'media' as const, label: 'Ảnh & video' }]
       : []),
   ]
+
+  useEffect(() => {
+    if (!canViewMissionMedia && tab === 'media') setTab('overview')
+  }, [canViewMissionMedia, tab])
+
+  const handleTabKeyDown = (
+    event: KeyboardEvent<HTMLButtonElement>,
+    index: number,
+  ) => {
+    let nextIndex: number | null = null
+    if (event.key === 'ArrowRight') nextIndex = (index + 1) % tabs.length
+    if (event.key === 'ArrowLeft')
+      nextIndex = (index - 1 + tabs.length) % tabs.length
+    if (event.key === 'Home') nextIndex = 0
+    if (event.key === 'End') nextIndex = tabs.length - 1
+    if (nextIndex == null) return
+
+    event.preventDefault()
+    const nextTab = tabs[nextIndex]
+    setTab(nextTab.id)
+    tabButtonRefs.current[nextIndex]?.focus()
+  }
 
   useEffect(() => {
     setPreflightStatus(readStoredPreflightState(mission.id, deviceId))
@@ -232,54 +264,77 @@ export function MissionDashboard({
       ) : null}
 
       <div className="mds-tabs" role="tablist" aria-label="Nội dung nhiệm vụ">
-        {tabs.map((t) => (
+        {tabs.map((t, index) => (
           <button
             key={t.id}
+            ref={(node) => {
+              tabButtonRefs.current[index] = node
+            }}
             type="button"
             role="tab"
+            id={`mds-tab-${t.id}`}
+            aria-controls="mds-tab-panel"
             aria-selected={tab === t.id}
+            tabIndex={tab === t.id ? 0 : -1}
             className={`mds-tab${tab === t.id ? ' is-active' : ''}`}
             onClick={() => setTab(t.id)}
+            onKeyDown={(event) => handleTabKeyDown(event, index)}
           >
             {t.label}
           </button>
         ))}
       </div>
 
-      {tab === 'overview' ? (
-        <div className="mds-tab-grid">
-          <div className="mds-col">
-            <MissionMapCard mission={mission} />
-            {monitoringSection}
+      <div
+        className="mds-tab-panel"
+        id="mds-tab-panel"
+        role="tabpanel"
+        aria-labelledby={`mds-tab-${tab}`}
+        tabIndex={0}
+      >
+        {tab === 'overview' ? (
+          <div className="mds-tab-grid">
+            <div className="mds-col">
+              <MissionMapCard mission={mission} />
+            </div>
+            <div className="mds-col mds-sticky-col">
+              <MissionInfoCard mission={mission} overview />
+              <DroneDeviceCard mission={mission} overview />
+              {mission.managerNote ? (
+                <ManagerNoteCard mission={mission} />
+              ) : null}
+            </div>
           </div>
-          <div className="mds-col mds-sticky-col">
-            <MissionInfoCard mission={mission} />
-            <DroneDeviceCard mission={mission} />
-            {mission.managerNote ? <ManagerNoteCard mission={mission} /> : null}
-          </div>
-        </div>
-      ) : null}
+        ) : null}
 
-      {tab === 'checks' ? (
-        <div className="mds-tab-grid">
-          <div className="mds-col">
-            <PrecheckCard preflight={preflightStatus} weather={weatherStatus} />
-            <WeatherCard weather={weatherStatus} />
-          </div>
-          <div className="mds-col">
-            <PostcheckCard postflight={postflightStatus} />
-          </div>
-        </div>
-      ) : null}
+        {tab === 'checklist' ? (
+          <div className="mds-checklist-panel">{monitoringSection}</div>
+        ) : null}
 
-      {tab === 'media' && canViewMissionMedia ? (
-        <MissionUploadedMedia
-          missionId={mission.id}
-          reviewStatus={resultApprovalStatus}
-          onChanged={refreshWorkspace}
-          refreshKey={mediaRevision}
-        />
-      ) : null}
+        {tab === 'checks' ? (
+          <div className="mds-tab-grid">
+            <div className="mds-col">
+              <PrecheckCard
+                preflight={preflightStatus}
+                weather={weatherStatus}
+              />
+              <WeatherCard weather={weatherStatus} />
+            </div>
+            <div className="mds-col">
+              <PostcheckCard postflight={postflightStatus} />
+            </div>
+          </div>
+        ) : null}
+
+        {tab === 'media' && canViewMissionMedia ? (
+          <MissionUploadedMedia
+            missionId={mission.id}
+            reviewStatus={resultApprovalStatus}
+            onChanged={refreshWorkspace}
+            refreshKey={mediaRevision}
+          />
+        ) : null}
+      </div>
     </div>
   )
 }

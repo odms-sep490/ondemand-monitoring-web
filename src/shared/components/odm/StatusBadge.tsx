@@ -2,7 +2,6 @@ import type { ReactNode } from 'react'
 
 import { useLanguage, type Language } from '../../i18n'
 import {
-  getAiVerdictLabel,
   getDroneStatusLabel,
   getMediaStatusLabel,
   getMissionStatusLabel,
@@ -11,7 +10,6 @@ import {
   getTicketStatusLabel,
 } from '../../lib/statusTone'
 import type {
-  AiVerdict,
   DroneStatus,
   MediaStatus,
   MissionStatus,
@@ -25,7 +23,6 @@ const LABEL_GETTERS = {
   order: getOrderStatusLabel,
   mission: getMissionStatusLabel,
   drone: getDroneStatusLabel,
-  aiVerdict: getAiVerdictLabel,
   ticketSeverity: getTicketSeverityLabel,
   ticketStatus: getTicketStatusLabel,
   media: getMediaStatusLabel,
@@ -39,8 +36,6 @@ type StatusForKind<K extends StatusKind> = K extends 'order'
     ? MissionStatus
     : K extends 'drone'
       ? DroneStatus
-      : K extends 'aiVerdict'
-        ? AiVerdict
         : K extends 'ticketSeverity'
           ? TicketSeverity
           : K extends 'ticketStatus'

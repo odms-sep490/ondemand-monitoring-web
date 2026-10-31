@@ -108,6 +108,7 @@ function MissionDetailContent({ missionId }: { missionId: string }) {
   }
 
   const mission = query.data
+  const checklistPreview = isAwaitingResponse(mission)
   const {
     refreshWorkspace,
     handleAccept,
@@ -180,7 +181,9 @@ function MissionDetailContent({ missionId }: { missionId: string }) {
             resultNote={monitoring.data?.result?.reviewNote}
             resultKnown={monitoringKnown}
             refresh={refreshWorkspace}
-            preview={isAwaitingResponse(mission)}
+            compact={!checklistPreview}
+            compactTitle={checklistPreview ? undefined : 'Checklist thực hiện'}
+            preview={checklistPreview}
           />
         }
         resultApprovalStatus={resultApprovalStatus}

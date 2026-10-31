@@ -88,6 +88,38 @@
   scroll-margin-block: 24px 120px;
 }
 
+/* The schedule form is shorter than the adjacent summary; let it size to its fields. */
+.co-grid.is-service.is-schedule {
+  align-items: start;
+}
+
+.co-grid.is-service.is-schedule > .co-stack:first-child {
+  align-self: start;
+}
+
+.co-grid.is-service.is-schedule > .co-stack:first-child > .ant-card {
+  height: auto;
+}
+
+@media (min-width: 1181px) {
+  .co-grid.is-service.is-schedule > .co-summary .ant-card-head {
+    min-height: 48px;
+    padding-inline: 16px;
+  }
+
+  .co-grid.is-service.is-schedule > .co-summary .ant-card-body {
+    padding: 8px 16px;
+  }
+
+  .co-grid.is-service.is-schedule > .co-summary .co-sum-item {
+    padding-block: 4px;
+  }
+
+  .co-grid.is-service.is-schedule > .co-summary .co-sum-item:first-child {
+    padding-top: 0;
+  }
+}
+
 .co-schedule-options {
   overflow: hidden;
   border: 1px solid var(--ui-border);
@@ -154,8 +186,18 @@
 }
 
 .co-schedule-options-panel > .ant-card {
+  height: auto;
+  min-height: 0;
+  max-height: none;
   border: 0;
   box-shadow: none;
+}
+
+.co-schedule-options-panel > .ant-card .ant-card-body {
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  overflow: visible;
 }
 
 .co-review-groups {
@@ -538,5 +580,20 @@
 
   .co-page {
     padding-bottom: calc(132px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* On the single-column schedule layout the sticky footer can cover the
+   expanded options. Keep navigation in the document flow so every option
+   remains reachable without changing the form's content height. */
+@media (max-width: 1180px), (max-height: 760px) {
+  .co-page:has(.co-schedule-options) .co-action-dock {
+    position: static;
+    width: auto;
+    margin-inline: 0;
+  }
+
+  .co-page:has(.co-schedule-options) {
+    padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px));
   }
 }

@@ -144,7 +144,6 @@ function getOrderFaqIds(
 
   switch (status) {
     case 'DRAFT':
-    case 'AI_ANALYZED':
     case 'SUBMITTED':
     case 'PENDING':
       return ['ord-1', 'ord-3', 'ord-4']

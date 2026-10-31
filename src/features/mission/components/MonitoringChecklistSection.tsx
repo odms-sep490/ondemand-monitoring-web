@@ -126,6 +126,7 @@ export function MonitoringChecklistSection({
   attachEvidenceCandidates,
   evidenceDetached,
   compact = false,
+  compactTitle,
   hideImplementationHints = false,
   preview = false,
 }: {
@@ -154,6 +155,8 @@ export function MonitoringChecklistSection({
   evidenceDetached?: (executionId: string, mediaId: string) => Promise<void>
   /** Dense acceptance panel: one line per item, only the active item expands. */
   compact?: boolean
+  /** Optional heading for a compact checklist embedded in another workflow. */
+  compactTitle?: string
   /** Read-only preview shown before the pilot accepts the mission. */
   preview?: boolean
 }) {
@@ -185,10 +188,10 @@ export function MonitoringChecklistSection({
     return (
       <section
         className="monitoring-checklist odm-card is-compact"
-        aria-label="Monitoring Checklist"
+        aria-label={compactTitle ?? 'Checklist nghiệm thu'}
       >
         <header>
-          <h2>Checklist nghiệm thu</h2>
+          <h2>{compactTitle ?? 'Checklist nghiệm thu'}</h2>
           <span className="mc-count" title="Tiến độ hoàn tất checklist">
             {done} / {rows.length} mục hoàn tất
             <small>{attachedEvidence} bằng chứng đã gắn</small>

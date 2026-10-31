@@ -5,7 +5,6 @@ import { readStoredDraft } from '../../../lib/createOrder/draftStorage'
 import {
   buildOrderPayload,
   pricingAreaHa,
-  withAdditionalRequirementChecklist,
 } from '../../../lib/createOrder/payload'
 import { scoreRequest } from '../../../lib/createOrder/scoring'
 import { createOrderPageMessages } from '../CreateOrderPage.messages'
@@ -56,7 +55,6 @@ export function useCreateOrderWizard() {
     areaHa: checklistPricingReady ? pricingAreaHa(form) : undefined,
     lengthKm: Number(form.estimatedLengthM || 0) / 1000,
     altitudeM: Number.isFinite(form.altitudeM) ? form.altitudeM : 0,
-    aiAnalysisRequested: false,
     occurrences:
       form.recurrenceType !== 'NONE' && form.recurrenceOccurrences > 1
         ? form.recurrenceOccurrences
@@ -64,7 +62,7 @@ export function useCreateOrderWizard() {
     resultFormats: form.resultFormats,
     permitStatus: form.permitStatus,
   })
-  const meta = useCreateOrderMeta(form.serviceId, false, f.setForm)
+  const meta = useCreateOrderMeta(form.serviceId, f.setForm)
   const service = meta.services.find((s) => s.id === form.serviceId)
 
   const wizard = useWizard({
@@ -122,13 +120,8 @@ export function useCreateOrderWizard() {
         deliverableOptions: meta.deliverables,
         form,
         score,
-        aiAnalysisRequested: false,
-        pricingEstimate: meta.pricingEstimate,
       }),
-      checklistItems: withAdditionalRequirementChecklist(
-        checklist.serialize(),
-        false,
-      ),
+      checklistItems: checklist.serialize(),
     }),
   })
 

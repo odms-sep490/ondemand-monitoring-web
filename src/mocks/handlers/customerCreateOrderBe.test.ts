@@ -25,12 +25,6 @@ describe('/api/services/pricing-estimate (BE shape)', () => {
     expect(payload.data.additionalRequirements).toEqual([])
   })
 
-  it('adds the AI add-on to the total', async () => {
-    const { payload } = await call('GET', '/api/services/pricing-estimate?serviceId=svc-construction&aiImageAnalysis=true')
-    expect(payload.data.additionalRequirements[0]).toMatchObject({ type: 'AI_IMAGE_ANALYSIS', additionalPrice: 500_000 })
-    expect(payload.data.totalPrice).toBe(4_000_000)
-  })
-
   it('requires serviceId', async () => {
     expect((await call('GET', '/api/services/pricing-estimate')).status).toBe(400)
   })

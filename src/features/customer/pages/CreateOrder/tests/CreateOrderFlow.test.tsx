@@ -219,11 +219,6 @@ describe('CreateOrderPage wizard', () => {
         3,
       ),
     )
-    fireEvent.click(screen.getByLabelText(/AI phân tích hình ảnh/))
-    expect(await screen.findByText(/^\+.*500\.000/)).toBeInTheDocument()
-    expect(
-      (await screen.findAllByText(/4\.000\.000/)).length,
-    ).toBeGreaterThanOrEqual(1)
   })
 
   it('shows a retryable error when deliverable types cannot be loaded', async () => {

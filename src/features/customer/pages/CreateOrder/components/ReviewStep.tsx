@@ -73,7 +73,6 @@ export function ReviewStep(p: Props) {
           estimate={p.pricingEstimate}
           loading={p.pricingLoading}
           hasService={Boolean(p.service)}
-          aiAnalysisRequested={false}
           additionalChecklists={p.additionalChecklists}
         />
       </aside>

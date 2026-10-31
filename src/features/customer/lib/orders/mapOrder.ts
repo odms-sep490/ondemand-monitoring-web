@@ -13,7 +13,6 @@ import type {
 
 const KNOWN: readonly OrderStatus[] = [
   'DRAFT',
-  'AI_ANALYZED',
   'SUBMITTED',
   'PENDING',
   'NEEDS_INFO',
@@ -25,9 +24,12 @@ const KNOWN: readonly OrderStatus[] = [
   'CANCELLED',
 ]
 
-/** The BE always sends an enum value; anything unknown is treated as PENDING. */
+/** Legacy AI_ANALYZED orders are displayed as submitted; unknown values fall back to PENDING. */
 export function normalizeStatus(value: string | null | undefined): OrderStatus {
-  return KNOWN.includes(value as OrderStatus) ? (value as OrderStatus) : 'PENDING'
+  if (value === 'AI_ANALYZED') return 'SUBMITTED'
+  return KNOWN.includes(value as OrderStatus)
+    ? (value as OrderStatus)
+    : 'PENDING'
 }
 
 /** Orders are identified by uuid; show the first block as a short code. */
@@ -66,11 +68,23 @@ function statusDepositState(
   return depositSatisfied ? 'PAID' : 'ACTION_REQUIRED'
 }
 
-/** Requirement keys that are internal bookkeeping, not customer-facing. */
+/** Hide internal bookkeeping and retired AI fields from old order payloads. */
 const HIDDEN_REQUIREMENT_KEYS = new Set([
   'readinessScore',
   'aiAnalysisRequested',
 ])
+
+function customerRequirementValue(key: string, value: unknown): string | null {
+  if (key !== 'additionalRequirements' || !Array.isArray(value))
+    return requirementText(value)
+
+  const customerVisible = value.filter((item) => {
+    if (!item || typeof item !== 'object') return true
+    // Keep historical orders from exposing the retired AI add-on.
+    return (item as Record<string, unknown>).type !== 'AI_IMAGE_ANALYSIS'
+  })
+  return requirementText(customerVisible)
+}
 
 function requirementText(value: unknown): string | null {
   if (typeof value === 'string') return value.trim() || null
@@ -107,10 +121,12 @@ export function toDeliverableView(item: OrderDeliverableResponse): DeliverableVi
       .filter(
         ([key, value]) =>
           !HIDDEN_REQUIREMENT_KEYS.has(key) &&
-          requirementText(value) != null,
+          customerRequirementValue(key, value) != null,
       )
-      .map(([key, value]) => ({ key, value: requirementText(value)! })),
-    aiAnalysisRequested: requirement.aiAnalysisRequested === true,
+      .map(([key, value]) => ({
+        key,
+        value: customerRequirementValue(key, value)!,
+      })),
   }
 }
 

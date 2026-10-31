@@ -22,7 +22,6 @@ type Props = {
   checklistCount?: number
   mediaTotals?: { images: number; videos: number }
   time?: PreferredTimeOption
-  aiAnalysisRequested?: boolean
   submitting: boolean
   error: string | null
   onConfirm: () => void
@@ -106,12 +105,6 @@ export function ConfirmSubmitModal(p: Props) {
         <dd>{form.deliveryMethods.map((method) => d.methods[method]).join(', ') || '—'}</dd>
         <dt>{t.retention}</dt>
         <dd>{t.retentionDays(form.dataRetentionDays)}</dd>
-        {p.aiAnalysisRequested && (
-          <>
-            <dt>{t.aiAnalysis}</dt>
-            <dd>{t.aiYes}</dd>
-          </>
-        )}
       </dl>
       <div className="co-confirm-total co-row-between">
         <span>{t.total}</span>

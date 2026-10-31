@@ -1,5 +1,5 @@
 import { clamp } from './format'
-import type { AiScore, FormState } from './types'
+import type { ReadinessScore, FormState } from './types'
 
 export type ScoreNotes = {
   missingAddress: string
@@ -11,7 +11,7 @@ export type ScoreNotes = {
 }
 
 /** Simulated readiness score: starts at 92 and loses points per missing field. */
-export function scoreRequest(form: FormState, notesT: ScoreNotes): AiScore {
+export function scoreRequest(form: FormState, notesT: ScoreNotes): ReadinessScore {
   const notes: string[] = []
   let score = 92
 

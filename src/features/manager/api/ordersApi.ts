@@ -2,7 +2,6 @@ import { ApiError, apiRequest } from '../../../shared/api/httpClient'
 import { readOrderChecklistSnapshot } from '../lib/orderChecklistSnapshot'
 import type {
   ApprovalRequest,
-  OrderAnalysis,
   OrderCreateResponse,
   OrderDetail,
   OrderInternalNote,
@@ -217,13 +216,6 @@ export const ordersApi = {
       ...('customer' in order ? order : toOrderDetail(order)),
       ...readOrderChecklistSnapshot(order, id),
     }))
-  },
-
-  /** `GET /api/orders/{id}/analysis/latest` [BRIEF C4]. */
-  getLatestAnalysis(id: string, signal?: AbortSignal): Promise<OrderAnalysis> {
-    return apiRequest<OrderAnalysis>(`/api/orders/${id}/analysis/latest`, {
-      signal,
-    })
   },
 
   /**

@@ -95,34 +95,3 @@ describe('mock-only cancel reflected in the BE shape', () => {
     expect((await call('POST', `/api/customer/orders/${id}/cancel`)).status).toBe(409)
   })
 })
-
-describe('GET /api/orders/:id/analysis/latest for the customer own orders', () => {
-  it('returns the analysis of an analysed order', async () => {
-    const { status, payload } = await call('GET', '/api/orders/cus-ord-002/analysis/latest')
-    expect(status).toBe(200)
-    expect(payload.data.verdict).toBe('RISKY')
-    expect(payload.data.findings).toHaveLength(4)
-  })
-
-  it('returns data: null when the order has no analysis yet (BE contract)', async () => {
-    const { status, payload } = await call('GET', '/api/orders/cus-ord-003/analysis/latest')
-    expect(status).toBe(200)
-    expect(payload.data).toBeNull()
-  })
-
-  it('returns 404 for an unknown order', async () => {
-    const { status } = await call('GET', '/api/orders/nope/analysis/latest')
-    expect(status).toBe(404)
-  })
-
-  it('persists a mock apply / ignore decision into the latest analysis', async () => {
-    const applied = await call('POST', '/api/customer/orders/cus-ord-002/analysis/findings/finding-002-1/apply')
-    expect(applied.payload.data).toEqual({ findingId: 'finding-002-1', state: 'ACCEPTED' })
-    const ignored = await call('POST', '/api/customer/orders/cus-ord-002/analysis/findings/finding-002-2/ignore')
-    expect(ignored.payload.data.state).toBe('IGNORED')
-    const { payload } = await call('GET', '/api/orders/cus-ord-002/analysis/latest')
-    expect(payload.data.findings[0].suggestionState).toBe('ACCEPTED')
-    expect(payload.data.findings[1].suggestionState).toBe('IGNORED')
-    expect((await call('POST', '/api/customer/orders/cus-ord-002/analysis/findings/x/apply')).status).toBe(404)
-  })
-})

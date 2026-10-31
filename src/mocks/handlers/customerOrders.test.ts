@@ -23,7 +23,7 @@ async function call(
 beforeEach(() => resetMockDb())
 afterEach(() => resetMockDb())
 
-// Seed data summary (9 orders): cus-ord-001 IN_PROGRESS, 002 AI_ANALYZED,
+// Seed data summary (9 orders): cus-ord-001 IN_PROGRESS, 002 SUBMITTED,
 // 003 SUBMITTED, 004 SCHEDULED, 005 APPROVED, 006 COMPLETED, 007 REJECTED,
 // 008 DRAFT, 009 CANCELLED. Only the mock-only actions live in this file;
 // reading orders is covered by customerOrdersBe.test.ts.

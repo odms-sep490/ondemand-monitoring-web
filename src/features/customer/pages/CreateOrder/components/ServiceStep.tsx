@@ -34,7 +34,6 @@ export function ServiceStep(p: Props) {
           services={p.services}
           loading={p.servicesLoading}
           selectedId={p.form.serviceId}
-          suggested={undefined}
           error={p.errors.serviceId}
           onSelect={(id) => p.update('serviceId', id)}
         />
@@ -45,7 +44,6 @@ export function ServiceStep(p: Props) {
           estimate={p.pricingEstimate}
           loading={p.pricingLoading}
           hasService={Boolean(selected)}
-          aiAnalysisRequested={false}
           additionalChecklists={p.additionalChecklists}
         />
       </aside>

@@ -1,6 +1,6 @@
 // Mock handlers in the BE DTO shape (ApiResponse envelope) for the customer
 // "create order" wizard, so it runs offline. Verified against /v3/api-docs:
-//   GET  /api/services/pricing-estimate        ?serviceId&aiImageAnalysis
+//   GET  /api/services/pricing-estimate        ?serviceId
 //   GET  /api/service-deliverables             ?serviceId&deliverableTypeId
 //   GET  /api/category-services
 //   GET  /api/zones                            ZoneResponse[] (simulation map zones)
@@ -81,7 +81,6 @@ const SERVICE_PRICES: Record<string, number> = {
   'svc-forest': 4_000_000,
 }
 const DEFAULT_SERVICE_PRICE = 2_000_000
-const AI_ANALYSIS_PRICE = 500_000
 
 // Simulation-map zones: one big monitoring zone containing the wizard's default
 // point and one restricted (no-fly) zone away from it.
@@ -151,21 +150,11 @@ registerMockRoutes([
         })
       }
       const servicePrice = SERVICE_PRICES[serviceId] ?? DEFAULT_SERVICE_PRICE
-      const withAi = query.get('aiImageAnalysis') === 'true'
-      const additionalRequirements = withAi
-        ? [
-            {
-              type: 'AI_IMAGE_ANALYSIS',
-              description: 'AI image analysis',
-              additionalPrice: AI_ANALYSIS_PRICE,
-            },
-          ]
-        : []
       return ok({
         serviceId,
         servicePrice,
-        additionalRequirements,
-        totalPrice: servicePrice + (withAi ? AI_ANALYSIS_PRICE : 0),
+        additionalRequirements: [],
+        totalPrice: servicePrice,
       })
     },
   },

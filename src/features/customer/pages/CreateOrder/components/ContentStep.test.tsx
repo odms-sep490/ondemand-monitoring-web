@@ -13,7 +13,6 @@ function renderStep(valid = true) {
       valid={valid}
       pricingEstimate={null}
       pricingLoading={false}
-      aiAnalysisRequested={false}
     />,
   )
 }

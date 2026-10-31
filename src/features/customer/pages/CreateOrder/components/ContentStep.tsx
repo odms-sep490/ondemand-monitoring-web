@@ -24,7 +24,6 @@ type Props = {
   valid: boolean
   pricingEstimate: ServicePricingEstimate | null
   pricingLoading: boolean
-  aiAnalysisRequested: boolean
 }
 
 /** Edit requirements while summary and navigation remain available on all screens. */
@@ -72,7 +71,6 @@ export function ContentStep(p: Props) {
               estimate={p.pricingEstimate}
               loading={p.pricingLoading}
               hasService={Boolean(p.selected)}
-              aiAnalysisRequested={p.aiAnalysisRequested}
               additionalChecklists={p.additionalChecklists}
             />
           </aside>

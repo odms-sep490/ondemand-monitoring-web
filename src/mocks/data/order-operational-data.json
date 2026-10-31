@@ -1,0 +1,78 @@
+{
+  "_note": "Mock data for order resource previews and manager internal notes.",
+  "resourcePreviews": {
+    "ORD-2609-0157": {
+      "eligibleDroneCount": 4,
+      "eligiblePilotCount": 3,
+      "topDrones": [
+        {
+          "name": "DRN-06 Cú Mèo",
+          "score": 88,
+          "distanceLabel": "4,1 km"
+        },
+        {
+          "name": "DRN-08 Cò Trắng",
+          "score": 79,
+          "distanceLabel": "5,3 km"
+        },
+        {
+          "name": "DRN-01 Đại Bàng",
+          "score": 74,
+          "distanceLabel": "9,0 km"
+        }
+      ],
+      "topPilots": [
+        {
+          "name": "Bùi Anh Tuấn",
+          "score": 84,
+          "distanceLabel": "1 mission/tuần"
+        },
+        {
+          "name": "Ngô Thị Lan Phương",
+          "score": 79,
+          "distanceLabel": "3 mission/tuần"
+        },
+        {
+          "name": "Hoàng Đức Thắng",
+          "score": 75,
+          "distanceLabel": "2 mission/tuần"
+        }
+      ]
+    },
+    "ORD-2609-0160": {
+      "eligibleDroneCount": 2,
+      "eligiblePilotCount": 1,
+      "topDrones": [
+        {
+          "name": "DRN-06 Cú Mèo",
+          "score": 88,
+          "distanceLabel": "4,1 km"
+        },
+        {
+          "name": "DRN-08 Cò Trắng",
+          "score": 79,
+          "distanceLabel": "5,3 km"
+        }
+      ],
+      "topPilots": [
+        {
+          "name": "Bùi Anh Tuấn",
+          "score": 84,
+          "distanceLabel": "1 mission/tuần"
+        }
+      ]
+    }
+  },
+  "internalNotes": {
+    "ORD-2609-0157": {
+      "note": "Khách quen, đã bay 2 đơn trước tại Cát Lái, không phát sinh sự cố.",
+      "authorName": "Lê Thị Thanh Hằng",
+      "updatedAt": "2026-09-19T13:50:00+07:00"
+    },
+    "ORD-2609-0160": {
+      "note": "Khách quen, đã bay 2 đơn trước tại Cát Lái, không phát sinh sự cố.",
+      "authorName": "Lê Thị Thanh Hằng",
+      "updatedAt": "2026-09-19T13:50:00+07:00"
+    }
+  }
+}

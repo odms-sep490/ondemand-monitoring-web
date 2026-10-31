@@ -141,7 +141,6 @@ export function CreateOrderPage() {
           valid={checklist.valid}
           pricingEstimate={estimate}
           pricingLoading={checklist.quote.loading}
-          aiAnalysisRequested={false}
           checklist={
             <ChecklistEditor
               variant="compact"
@@ -203,7 +202,6 @@ export function CreateOrderPage() {
           checklistCount={checklist.selectedCount}
           mediaTotals={checklist.mediaTotals}
           time={time}
-          aiAnalysisRequested={false}
           submitting={submit.submitting}
           error={f.submitError}
           onConfirm={() => void submit.submit()}

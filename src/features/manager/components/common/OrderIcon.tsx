@@ -27,7 +27,6 @@ export type OrderIconName =
   | 'plus'
   | 'minus'
   | 'locate'
-  | 'ai'
   | 'file'
   | 'tag'
   | 'trash'
@@ -191,9 +190,6 @@ const paths: Record<OrderIconName, ReactNode> = {
       <circle cx="12" cy="12" r="3.5" />
       <path d="M12 2v3.5M12 18.5V22M2 12h3.5M18.5 12H22" />
     </>
-  ),
-  ai: (
-    <path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8zM19 16l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z" />
   ),
   file: (
     <>

@@ -35,7 +35,6 @@ export const requestDetailHelpersMessages = defineMessages({
       DOWNLOAD: 'Tải về',
       EMAIL: 'Email',
       API: 'API',
-      AI_IMAGE_ANALYSIS: 'AI phân tích hình ảnh',
     } as Record<string, string>,
     yes: 'Có',
     no: 'Không',
@@ -44,7 +43,6 @@ export const requestDetailHelpersMessages = defineMessages({
     mediaPhoto: 'Ảnh',
     mediaReport: 'Báo cáo',
     itemsCount: (n: string) => `${n} mục`,
-    withAi: 'Có AI',
     extraRequirement: 'Yêu cầu bổ sung',
   },
   en: {
@@ -82,7 +80,6 @@ export const requestDetailHelpersMessages = defineMessages({
       DOWNLOAD: 'Download',
       EMAIL: 'Email',
       API: 'API',
-      AI_IMAGE_ANALYSIS: 'AI image analysis',
     } as Record<string, string>,
     yes: 'Yes',
     no: 'No',
@@ -91,7 +88,6 @@ export const requestDetailHelpersMessages = defineMessages({
     mediaPhoto: 'Photo',
     mediaReport: 'Report',
     itemsCount: (n: string) => `${n} items`,
-    withAi: 'With AI',
     extraRequirement: 'Additional requirement',
   },
 })

@@ -11,9 +11,7 @@
 // (see inline comments) and called out in evd/P0-mock-api-foundation.md.
 import type { Language } from '../i18n/languageStore'
 import type {
-  AiVerdict,
   DroneStatus,
-  FindingSeverity,
   MediaStatus,
   MissionStatus,
   OrderStatus,
@@ -24,7 +22,6 @@ import type {
 
 export const orderStatusTone: Record<OrderStatus, StatusTone> = {
   DRAFT: 'gray',
-  AI_ANALYZED: 'blue',
   SUBMITTED: 'yellow',
   PENDING: 'gray',
   NEEDS_INFO: 'orange',
@@ -91,23 +88,9 @@ export const droneStatusTone: Record<DroneStatus, StatusTone> = {
   OFFLINE: 'gray',
 }
 
-export const aiVerdictTone: Record<AiVerdict, StatusTone> = {
-  FEASIBLE: 'green', // meaning: success, matches APPROVED/PASS family
-  RISKY: 'orange', // brief: RISKY → orange
-  // mapping by meaning: engine recommends rejecting, matches REJECTED/FAILED family.
-  INFEASIBLE: 'red',
-}
-
-export const findingSeverityTone: Record<FindingSeverity, StatusTone> = {
-  // mapping by meaning: informational note, lowest severity, neutral.
-  INFO: 'gray',
-  WARNING: 'orange', // brief: WARNING → orange
-  BLOCKER: 'red', // brief: BLOCKER → red
-}
-
 export const ticketSeverityTone: Record<TicketSeverity, StatusTone> = {
   // mapping by meaning: 4-step severity scale, spread across the tone ramp
-  // the same way FindingSeverity (INFO/WARNING/BLOCKER) does.
+  // across the four severity levels.
   LOW: 'gray',
   MEDIUM: 'yellow',
   HIGH: 'orange',
@@ -130,7 +113,6 @@ export const mediaStatusTone: Record<MediaStatus, StatusTone> = {
 
 export const orderStatusLabel: Record<OrderStatus, string> = {
   DRAFT: 'Nháp',
-  AI_ANALYZED: 'Đã phân tích AI',
   SUBMITTED: 'Đã gửi duyệt',
   PENDING: 'Chờ duyệt',
   NEEDS_INFO: 'Đang chờ khách bổ sung',
@@ -179,18 +161,6 @@ export const droneStatusLabel: Record<DroneStatus, string> = {
   OFFLINE: 'Mất kết nối',
 }
 
-export const aiVerdictLabel: Record<AiVerdict, string> = {
-  FEASIBLE: 'Khả thi',
-  RISKY: 'Rủi ro',
-  INFEASIBLE: 'Không khả thi',
-}
-
-export const findingSeverityLabel: Record<FindingSeverity, string> = {
-  INFO: 'Thông tin',
-  WARNING: 'Cảnh báo',
-  BLOCKER: 'Chặn',
-}
-
 export const ticketSeverityLabel: Record<TicketSeverity, string> = {
   LOW: 'Thấp',
   MEDIUM: 'Trung bình',
@@ -236,7 +206,6 @@ export const mediaStatusLabel: Record<MediaStatus, string> = {
 
 export const orderStatusLabelEn: Record<OrderStatus, string> = {
   DRAFT: 'Draft',
-  AI_ANALYZED: 'AI analyzed',
   SUBMITTED: 'Submitted',
   PENDING: 'Pending',
   NEEDS_INFO: 'Waiting for customer information',
@@ -283,18 +252,6 @@ export const droneStatusLabelEn: Record<DroneStatus, string> = {
   MAINTENANCE: 'Maintenance',
   OUT_OF_SERVICE: 'Out of service',
   OFFLINE: 'Offline',
-}
-
-export const aiVerdictLabelEn: Record<AiVerdict, string> = {
-  FEASIBLE: 'Feasible',
-  RISKY: 'Risky',
-  INFEASIBLE: 'Infeasible',
-}
-
-export const findingSeverityLabelEn: Record<FindingSeverity, string> = {
-  INFO: 'Info',
-  WARNING: 'Warning',
-  BLOCKER: 'Blocker',
 }
 
 export const ticketSeverityLabelEn: Record<TicketSeverity, string> = {
@@ -345,19 +302,6 @@ export function getDroneStatusLabel(
   lang: Language,
 ): string {
   return lang === 'en' ? droneStatusLabelEn[status] : droneStatusLabel[status]
-}
-
-export function getAiVerdictLabel(status: AiVerdict, lang: Language): string {
-  return lang === 'en' ? aiVerdictLabelEn[status] : aiVerdictLabel[status]
-}
-
-export function getFindingSeverityLabel(
-  status: FindingSeverity,
-  lang: Language,
-): string {
-  return lang === 'en'
-    ? findingSeverityLabelEn[status]
-    : findingSeverityLabel[status]
 }
 
 export function getTicketSeverityLabel(

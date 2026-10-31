@@ -125,7 +125,6 @@ export function deliverableSummary(
       ? msgs().itemsCount(numberText(requirement.quantity) as string)
       : null,
     text(requirement.resolution),
-    text(requirement.aiAnalysisRequested) === msgs().yes ? msgs().withAi : null,
   ].filter((item): item is string => Boolean(item))
 }
 
@@ -151,6 +150,11 @@ export function addOnItems(
   const value = requirement?.additionalRequirements
   if (!Array.isArray(value)) return []
   return value
+    .filter((item) => {
+      if (!item || typeof item !== 'object') return true
+      // Keep historical order payloads from showing the retired AI add-on.
+      return (item as Record<string, unknown>).type !== 'AI_IMAGE_ANALYSIS'
+    })
     .map((item) => {
       if (!item || typeof item !== 'object') return requirementValue(item)
       const record = item as Record<string, unknown>

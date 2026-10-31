@@ -51,7 +51,7 @@ export type ServicePricePreview = {
   complete: boolean
   warnings: string[]
   quotePending: boolean
-  /** Order-level extras priced by the policy (for example AI image analysis). */
+  /** Order-level extras priced by the policy. */
   addOns?: PriceAddOn[]
   /** How many times the work is carried out; every figure already includes it. Absent or 1 for a single visit. */
   occurrences?: number
@@ -88,7 +88,6 @@ export type ChecklistQuoteContext = {
   areaHa?: number
   lengthKm?: number
   altitudeM?: number
-  aiAnalysisRequested?: boolean
   /** Number of visits of a repeating order; the quote is multiplied by it. */
   occurrences?: number
   /** Order-level deliverables selected in the current form. */

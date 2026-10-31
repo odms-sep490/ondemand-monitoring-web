@@ -724,7 +724,10 @@
 
 .mds-main-grid {
   display: grid;
-  grid-template-columns: minmax(520px, 1.7fr) minmax(340px, 1fr) minmax(340px, 0.95fr);
+  grid-template-columns: minmax(520px, 1.7fr) minmax(340px, 1fr) minmax(
+      340px,
+      0.95fr
+    );
   gap: 16px;
   align-items: start;
 }
@@ -1003,22 +1006,63 @@
   gap: 16px;
   align-items: start;
 }
+.mds-tab-panel {
+  min-width: 0;
+}
+.mds-tab-panel:focus-visible {
+  outline: 3px solid var(--focus, #1767ff);
+  outline-offset: 3px;
+  border-radius: 10px;
+}
+.mds-checklist-panel {
+  min-width: 0;
+}
+.mds-checklist-panel > .monitoring-checklist {
+  max-width: 1440px;
+  margin: 0;
+}
+.mds-mission-details > div {
+  padding-bottom: 4px;
+}
+.mds-info-extra-description {
+  padding: 8px 0 4px;
+}
 @media (max-width: 999px) {
   .mds-tab-grid {
     grid-template-columns: minmax(0, 1fr);
   }
 }
 
-.mds-sticky-col{position:sticky;top:84px}
-@media (max-width:999px){.mds-sticky-col{position:static}}
-.mds-tab-grid--single{grid-template-columns:minmax(0,1fr)}
+.mds-sticky-col {
+  position: sticky;
+  top: 84px;
+}
+@media (max-width: 999px) {
+  .mds-sticky-col {
+    position: static;
+  }
+}
+.mds-tab-grid--single {
+  grid-template-columns: minmax(0, 1fr);
+}
 
-.odm-opr-mission-manager{width:170px}
-.odm-opr-mission-table td,.odm-opr-mission-table th{overflow:hidden;text-overflow:ellipsis}
-.odm-opr-mission-table .odm-opr-mission-job,.odm-opr-mission-table td.odm-opr-mission-job{overflow:visible}
+.odm-opr-mission-manager {
+  width: 170px;
+}
+.odm-opr-mission-table td,
+.odm-opr-mission-table th {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.odm-opr-mission-table .odm-opr-mission-job,
+.odm-opr-mission-table td.odm-opr-mission-job {
+  overflow: visible;
+}
 
 /* ── Mission detail: waiting for pilot response ── */
-.mds-pending { padding-bottom: 16px; }
+.mds-pending {
+  padding-bottom: 16px;
+}
 .mds-meta-line {
   margin: 0 0 12px 2px;
   color: var(--tx2, #334155);
@@ -1055,7 +1099,9 @@
   gap: 16px;
   align-items: start;
 }
-.mds-pending-grid > * { min-width: 0; }
+.mds-pending-grid > * {
+  min-width: 0;
+}
 .mds-device-details {
   margin-top: 10px;
   border-top: 1px solid var(--bd);
@@ -1097,7 +1143,9 @@
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
-.mds-note-heading { margin: 0; }
+.mds-note-heading {
+  margin: 0;
+}
 .mds-weather-icon {
   display: flex;
   align-items: center;
@@ -1106,7 +1154,10 @@
   color: var(--blue-dot, #1767ff);
   font-size: 20px;
 }
-.mds-weather-icon svg { width: 20px; height: 20px; }
+.mds-weather-icon svg {
+  width: 20px;
+  height: 20px;
+}
 .mds-pending-checklist {
   margin-top: 0;
 }

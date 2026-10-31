@@ -2,7 +2,6 @@
 // and MNG-11 (deliver results). Endpoints per evd/00-PLAN.md §3:
 //   GET  /api/orders?status=PENDING          [TK path; BE OrderStatus value]
 //   GET  /api/orders/{id}                    [TK]
-//   GET  /api/orders/{id}/analysis/latest    [BRIEF C4]
 //   GET  /api/orders/{id}/resource-preview   PROPOSED (no source endpoint)
 //   PUT  /api/orders/{id}/internal-note      PROPOSED (no source endpoint)
 //   POST /api/orders/{id}/approve            [BE] approve only; staff schedules later
@@ -14,16 +13,13 @@ import type {
   OrderDetail,
   OrderQueueItem,
 } from '../../features/manager/types/orders'
-// Loose local shapes: the manager client no longer calls these legacy
-// endpoints, so the typed DTOs were removed from the app.
-type OrderAnalysis = Record<string, unknown>
 type OrderResourcePreview = Record<string, unknown>
 type OrderInternalNote = { note: string; authorName: string; updatedAt: string }
 
 import { createCollection } from '../db'
 import { fail, ok, registerMockRoutes } from '../mockServer'
-import analysesSeed from '../data/order-analyses.json'
-import { findBeOrder, findCustomerAnalysis, listBeOrders } from './customerOrdersStore'
+import operationalDataSeed from '../data/order-operational-data.json'
+import { findBeOrder, listBeOrders } from './customerOrdersStore'
 import { missions } from './missionsStore'
 import { findOrder, orders, type SeedOrder } from './ordersStore'
 
@@ -44,15 +40,11 @@ const REVIEWER_ID = 'staff-hang-le'
 // was given directly (arrays are spliced in place; objects have their keys
 // replaced in place). Reading `createCollection(seed).nested` instead would
 // leave `nested` pointing at the pre-reset value forever.
-const analyses = createCollection(analysesSeed.analyses) as unknown as Record<
-  string,
-  OrderAnalysis
->
 const resourcePreviews = createCollection(
-  analysesSeed.resourcePreviews,
+  operationalDataSeed.resourcePreviews,
 ) as unknown as Record<string, OrderResourcePreview>
 const internalNotes = createCollection(
-  analysesSeed.internalNotes,
+  operationalDataSeed.internalNotes,
 ) as unknown as Record<string, OrderInternalNote>
 const approvals = createCollection([] as Approval[])
 
@@ -73,9 +65,6 @@ function toQueueItem(order: SeedOrder): OrderQueueItem {
     preferredDate: order.preferredDate,
     preferredTimeName: order.preferredTimeName,
     submittedAt: order.submittedAt,
-    aiVerdict: order.aiVerdict,
-    blockerCount: order.blockerCount,
-    warningCount: order.warningCount,
   }
 }
 
@@ -188,34 +177,6 @@ registerMockRoutes([
         )
       }
       return ok(toDetail(order))
-    },
-  },
-  {
-    method: 'GET',
-    path: '/api/orders/:id/analysis/latest',
-    handler: ({ params }) => {
-      const order = findOrder(params.id)
-      if (!order) {
-        // The customer's own orders: BE returns `data: null` when none yet.
-        const own = findCustomerAnalysis(params.id)
-        return own === undefined ? fail(404, 'NOT_FOUND', 'Không tìm thấy đơn') : ok(own)
-      }
-      const found = analyses[order.code]
-      if (found) return ok(found)
-      // No design-sourced analysis for this order — verdict/counts are
-      // still the evidenced queue-row values, but the analysis-only fields
-      // (rule engine timing, LLM summary, findings) have no source, so they
-      // go null/empty instead of being invented.
-      const fallback: OrderAnalysis = {
-        overallVerdict: order.aiVerdict,
-        blockerCount: order.blockerCount,
-        warningCount: order.warningCount,
-        ruleEngineMs: null,
-        createdAt: null,
-        llmSummary: null,
-        findings: [],
-      }
-      return ok(fallback)
     },
   },
   {

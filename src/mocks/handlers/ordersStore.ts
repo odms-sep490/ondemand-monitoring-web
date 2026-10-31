@@ -5,7 +5,7 @@
 // `createCollection(ordersSeed.orders)` calls would silently diverge the
 // moment one handler mutates `order.status` (P4's `approve()` did exactly
 // this — see missionsStore.ts for the equivalent problem with missions).
-import type { AiVerdict, OrderStatus } from '../../shared/types/domain'
+import type { OrderStatus } from '../../shared/types/domain'
 import { createCollection } from '../db'
 import ordersSeed from '../data/orders.json'
 
@@ -38,9 +38,6 @@ export type SeedOrder = {
         url: string
       }[]
     | null
-  aiVerdict: AiVerdict
-  blockerCount: number
-  warningCount: number
   // P6 additions — BE `OrderCreateResponse` fields, kept alongside the
   // pre-existing TK/BRIEF fields above rather than replacing them (see
   // features/manager/types/orders.ts `OrderCreateResponse`).

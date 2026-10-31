@@ -27,7 +27,6 @@ export type DeliverableView = {
   format: string | null
   /** Scalar requirement entries (key, display value) worth showing. */
   requirements: Array<{ key: string; value: string }>
-  aiAnalysisRequested: boolean
 }
 
 export type OrderTimelineEvent = {

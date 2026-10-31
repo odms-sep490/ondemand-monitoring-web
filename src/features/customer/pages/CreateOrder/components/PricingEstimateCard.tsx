@@ -3,7 +3,6 @@ import { Card } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import type { ServicePricingEstimate } from '../../../api/customerApi'
 import { formatMoney } from '../../../lib/createOrder/format'
-import { aiAddonPrice } from '../../../lib/createOrder/payload'
 import { usesMedia, type ChecklistRow } from '../../../lib/checklist/types'
 import { pricingEstimateMessages } from './PricingEstimateCard.messages'
 
@@ -11,7 +10,6 @@ type Props = {
   estimate: ServicePricingEstimate | null
   loading: boolean
   hasService: boolean
-  aiAnalysisRequested: boolean
   additionalChecklists?: ChecklistRow[]
 }
 
@@ -46,7 +44,6 @@ export function PricingEstimateCard({
   estimate,
   loading,
   hasService,
-  aiAnalysisRequested,
   additionalChecklists = [],
 }: Props) {
   const { t, locale } = useI18n(pricingEstimateMessages)
@@ -76,12 +73,6 @@ export function PricingEstimateCard({
             <strong>+{formatMoney(fee.additionalPrice, locale)}</strong>
           </div>
         ))}
-        {aiAnalysisRequested && (
-          <div className="co-money-row">
-            <span>{t.aiAnalysis}</span>
-            <strong>+{formatMoney(aiAddonPrice(estimate), locale)}</strong>
-          </div>
-        )}
         {deliverableFees.length > 0 && (
           <section className="co-price-section" aria-label={t.deliverables}>
             <h3>{t.deliverables}</h3>
