@@ -7,8 +7,6 @@ import { useApiQuery } from '../../../../../shared/hooks/useApiQuery'
 import { ordersApi } from '../../../api/ordersApi'
 import { planningApi } from '../../../api/planningApi'
 import { planningError, finalizeError } from '../../../lib/planningErrors'
-import { ExecutionPlanSummary } from './ExecutionPlanSummary'
-import { PlanningHeader } from '../../../components/common/PlanningHeader'
 import { MasterChecklistSidebar } from '../../../components/common/MasterChecklistSidebar'
 import { MissionGridCard } from '../../../components/common/MissionGridCard'
 import { MissionUpdatePanel } from '../../../components/common/MissionUpdatePanel'
@@ -22,7 +20,7 @@ import { financeApi } from '../../../../finance/api'
 import { PlanningPaymentGate } from './PlanningPaymentGate'
 import { PlanningFormModal } from './PlanningFormModal'
 import { PlanningWorkspaceBar } from './PlanningWorkspaceBar'
-import { Button, Skeleton } from '../../../../../shared/components/ui'
+import { Button } from '../../../../../shared/components/ui'
 import '../planningLayout.css'
 import { orderMissionPlanningSectionMessages } from './OrderMissionPlanningSection.messages'
 import { useI18n } from '../../../../../shared/i18n'
@@ -266,47 +264,13 @@ function OrderPlanningWorkspace({
 
 
 
-      {activeTab !== 'permit' && (
-        <PlanningHeader
-          primary
-          status={data?.plan.planStatus}
-          revision={data?.plan.revision ?? 0}
-          loading={query.loading}
-          action={
-            <Button
-              type="button"
-              className="odm-btn"
-              disabled={busy || query.loading}
-              onClick={query.reload}
-            >
-              {ts.reloadPlan}
-            </Button>
-          }
-        />
-      )}
-      {query.loading && activeTab !== 'permit' && (
-        <div className="mgr-plan-loading">
-          <p role="status">{ts.loadingPlan}</p>
-          <Skeleton variant="block" height={96} />
-          <Skeleton variant="block" height={160} />
-        </div>
-      )}
-      {query.loading && activeTab === 'permit' && (
-        <p role="status">{ts.loadingPlan}</p>
-      )}
+      {query.loading && <p role="status">{ts.loadingPlan}</p>}
       {query.error ? <p role="alert">{planningError(query.error)}</p> : null}
       {message && <p role="status" className="odm-planning-notice">{message}</p>}
       {coverageWarning && <p role="alert" className="odm-planning-notice">{coverageWarning}</p>}
 
       {data && !query.error && (
         <>
-          {activeTab !== 'permit' && (
-            <ExecutionPlanSummary
-              plan={data.plan}
-              items={data.order.checklistItems ?? []}
-            />
-          )}
-
           {!depositPaid && data.order.status === 'APPROVED' ? (
             <PlanningPaymentGate
               checkingPayment={checkingPayment}
@@ -403,7 +367,9 @@ function OrderPlanningWorkspace({
                 creating={creating}
                 busy={busy}
                 canConfirmPlan={canConfirmPlan}
+                reloading={query.loading}
                 onAddMission={() => setCreating(true)}
+                onReload={query.reload}
                 onFinalize={() => void handleFinalizePlan()}
               />
 

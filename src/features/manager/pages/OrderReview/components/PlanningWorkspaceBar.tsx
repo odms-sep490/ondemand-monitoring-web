@@ -1,9 +1,9 @@
-import { PlusOutlined, RightOutlined } from '@ant-design/icons'
+import { PlusOutlined, ReloadOutlined, RightOutlined } from '@ant-design/icons'
 
 import { useI18n } from '../../../../../shared/i18n'
 import { orderMissionPlanningSectionMessages } from './OrderMissionPlanningSection.messages'
 
-/** Top bar of the mission workspace: add mission on the left, coverage note and finalize on the right. */
+/** Top bar for mission creation, plan refresh, coverage and finalization actions. */
 export function PlanningWorkspaceBar({
   sidebarCollapsed,
   onOpenSidebar,
@@ -12,7 +12,9 @@ export function PlanningWorkspaceBar({
   creating,
   busy,
   canConfirmPlan,
+  reloading,
   onAddMission,
+  onReload,
   onFinalize,
 }: {
   sidebarCollapsed: boolean
@@ -23,7 +25,9 @@ export function PlanningWorkspaceBar({
   creating: boolean
   busy: boolean
   canConfirmPlan: boolean
+  reloading: boolean
   onAddMission: () => void
+  onReload: () => void
   onFinalize: () => void
 }) {
   const { t } = useI18n(orderMissionPlanningSectionMessages)
@@ -52,6 +56,14 @@ export function PlanningWorkspaceBar({
         ) : null}
       </div>
       <div className="odm-workspace-topbar-group">
+        <button
+          type="button"
+          className="odm-btn"
+          disabled={busy || reloading}
+          onClick={onReload}
+        >
+          <ReloadOutlined aria-hidden="true" /> {t.reloadPlan}
+        </button>
         {uncovered > 0 ? (
           <span className="odm-workspace-uncovered">{t.uncoveredNote(uncovered)}</span>
         ) : null}
