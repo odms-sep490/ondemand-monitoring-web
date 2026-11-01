@@ -221,7 +221,7 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
       {reviewing ? (
         <ReviewLayout
           order={order}
-          wide={reviewStep === 4}
+          wide={reviewStep !== 1}
           reviewStep={reviewStep}
         >
           {reviewing && reviewStep === 1 ? (

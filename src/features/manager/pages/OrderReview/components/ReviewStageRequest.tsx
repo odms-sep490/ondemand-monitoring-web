@@ -1,7 +1,7 @@
 import { ReadOnlyScope } from './ReadOnlyScope'
-import { OrderServiceInfo } from '../../../components/common/OrderServiceInfo'
 import { OrderCustomerRequestDetails } from '../../../components/common/OrderCustomerRequestDetails'
 import { ReviewStageActions } from './ReviewStageActions'
+import { OrderLocationCard } from './OrderLocationCard'
 import { orderReviewPageMessages } from '../OrderReviewPage.messages'
 import { useI18n } from '../../../../../shared/i18n'
 import { reviewStageRequestMessages } from './ReviewStageRequest.messages'
@@ -26,7 +26,7 @@ export function ReviewStageRequest({
   return (
     <div className="odm-or-review-stage" aria-label={tr.orderInfo}>
       <ReadOnlyScope on={readOnly}>
-        <OrderServiceInfo order={order} t={t} hideService />
+        <OrderLocationCard order={order} t={t} overview />
         <OrderCustomerRequestDetails order={order} t={t} />
       </ReadOnlyScope>
       <ReviewStageActions

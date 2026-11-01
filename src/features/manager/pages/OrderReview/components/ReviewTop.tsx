@@ -87,7 +87,6 @@ export function ReviewTop({
       <WorkflowStepper
         order={{
           progress: stepperProgress,
-          statusLabel: getOrderStatusLabel(order.status, lang),
           viewing: viewStage,
           onSelect: (stage) =>
             showExecutionPlan
