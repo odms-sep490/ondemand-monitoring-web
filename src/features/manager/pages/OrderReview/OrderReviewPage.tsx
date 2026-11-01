@@ -31,7 +31,6 @@ import { ReviewStageArea } from './components/ReviewStageArea'
 import { ReviewStageReadiness } from './components/ReviewStageReadiness'
 import { ReviewStagePricing } from './components/ReviewStagePricing'
 import { ReviewLayout } from './components/ReviewLayout'
-import { OrderIcon } from '../../components/common/OrderIcon'
 import '../../components/layout/mgrLayout.css'
 
 export function OrderReviewPage({ orderId }: { orderId: string }) {
@@ -127,7 +126,6 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
   })
   const reviewable = ['PENDING', 'UNDER_REVIEW'].includes(order.status)
   const readOnly = showExecutionPlan || !reviewable
-  const waitingForCustomerInfo = order.status === 'NEEDS_INFO'
   const reviewing = !showExecutionPlan || viewStage !== null
   const openStage = (stage: OrderStage) => {
     if (stage === 'planning') {
@@ -204,17 +202,6 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
           }
         }}
       />
-      {waitingForCustomerInfo ? (
-        <div className="odm-or-customer-info-lock" role="status" aria-live="polite">
-          <span className="odm-or-customer-info-lock-icon" aria-hidden="true">
-            <OrderIcon name="lock" size={18} />
-          </span>
-          <div>
-            <strong>{t.customerInfoPendingTitle}</strong>
-            <span>{t.customerInfoPendingBody}</span>
-          </div>
-        </div>
-      ) : null}
       {showExecutionPlan && (
         // Stays mounted while history is open so unsaved planning drafts survive.
         <div hidden={viewStage !== null}>

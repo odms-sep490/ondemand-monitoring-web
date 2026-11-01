@@ -97,9 +97,6 @@ export const orderReviewPageMessages = defineMessages({
     pageSubtitle:
       'Xem chi tiết đơn hàng và phê duyệt để tiếp tục lên lịch thực hiện',
     statusPending: 'Chờ duyệt',
-    customerInfoPendingTitle: 'Đang chờ khách bổ sung thông tin',
-    customerInfoPendingBody:
-      'Các thao tác chỉnh sửa và duyệt báo giá đang bị khóa. Bạn vẫn có thể xem lại các bước; chờ khách cập nhật thông tin rồi tải lại đơn.',
     orderStatus: 'Trạng thái đơn hàng',
     orderCode: 'Mã đơn hàng',
     createdAt: 'Ngày tạo',
@@ -270,9 +267,6 @@ export const orderReviewPageMessages = defineMessages({
     stageActionsTitle: 'Actions',
     pageSubtitle: 'Review the order details and approve to continue scheduling',
     statusPending: 'Pending review',
-    customerInfoPendingTitle: 'Waiting for customer information',
-    customerInfoPendingBody:
-      'Editing and quote approval are locked. You can still review the stages; reload the order after the customer updates the information.',
     orderStatus: 'Order status',
     orderCode: 'Order code',
     createdAt: 'Created',
