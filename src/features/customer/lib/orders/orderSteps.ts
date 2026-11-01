@@ -43,6 +43,7 @@ const PLANNING_COMPLETED_STATUSES = new Set<MissionStatus>([
 const CURRENT_INDEX: Partial<Record<OrderStatus, number>> = {
   SUBMITTED: 1,
   PENDING: 1,
+  UNDER_REVIEW: 1,
   NEEDS_INFO: 1,
   SCHEDULED: 4,
   IN_PROGRESS: 5,

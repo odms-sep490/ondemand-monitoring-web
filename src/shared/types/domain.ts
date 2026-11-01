@@ -24,6 +24,7 @@ export type OrderStatus =
   | 'DRAFT'
   | 'SUBMITTED'
   | 'PENDING'
+  | 'UNDER_REVIEW'
   | 'NEEDS_INFO'
   | 'APPROVED'
   | 'SCHEDULED'

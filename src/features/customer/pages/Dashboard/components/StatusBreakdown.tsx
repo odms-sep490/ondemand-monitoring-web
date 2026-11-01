@@ -8,6 +8,7 @@ import { statusBreakdownMessages } from './StatusBreakdown.messages'
 
 const ROWS = [
   ['PENDING', 'pending'],
+  ['UNDER_REVIEW', 'underReview'],
   ['APPROVED', 'approved'],
   ['IN_PROGRESS', 'inProgress'],
   ['COMPLETED', 'completed'],

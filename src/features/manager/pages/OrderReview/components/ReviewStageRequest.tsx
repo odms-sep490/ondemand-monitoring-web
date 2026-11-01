@@ -12,10 +12,14 @@ export function ReviewStageRequest({
   readOnly,
   order,
   goToStep,
+  startingReview,
+  startReviewError,
 }: {
   readOnly: boolean
   order: OrderDetail
-  goToStep: (step: ReviewStep) => void
+  goToStep: (step: ReviewStep) => void | Promise<void>
+  startingReview: boolean
+  startReviewError: string | null
 }) {
   const { t } = useI18n(orderReviewPageMessages)
   const { t: tr } = useI18n(reviewStageRequestMessages)
@@ -25,7 +29,12 @@ export function ReviewStageRequest({
         <OrderServiceInfo order={order} t={t} hideService />
         <OrderCustomerRequestDetails order={order} t={t} />
       </ReadOnlyScope>
-      <ReviewStageActions step={1} onNext={() => goToStep(2)} />
+      <ReviewStageActions
+        step={1}
+        onNext={() => void goToStep(2)}
+        nextDisabled={startingReview}
+        hint={startReviewError}
+      />
     </div>
   )
 }

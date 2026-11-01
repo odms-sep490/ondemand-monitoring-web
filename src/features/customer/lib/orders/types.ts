@@ -124,6 +124,7 @@ export type OrderDetailView = OrderRow & {
 export type OrderStats = {
   total: number
   pending: number
+  underReview?: number
   needsInfo: number
   approved: number
   inProgress: number

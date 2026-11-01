@@ -8,6 +8,7 @@ import { ordersToolbarMessages } from './OrdersToolbar.messages'
 /** Statuses the BE `GET /api/orders/mine?status=` accepts. */
 export const ORDER_FILTERS: readonly OrderStatus[] = [
   'PENDING',
+  'UNDER_REVIEW',
   'NEEDS_INFO',
   'APPROVED',
   'IN_PROGRESS',
@@ -18,6 +19,7 @@ export const ORDER_FILTERS: readonly OrderStatus[] = [
 
 const STAT_KEY = {
   PENDING: 'pending',
+  UNDER_REVIEW: 'underReview',
   NEEDS_INFO: 'needsInfo',
   APPROVED: 'approved',
   IN_PROGRESS: 'inProgress',

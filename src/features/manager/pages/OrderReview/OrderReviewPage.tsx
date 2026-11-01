@@ -48,6 +48,9 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
   const [navigateHome, setNavigateHome] = useState(false)
   const [assignStep, setAssignStep] = useState<6 | 7 | 8 | 9>(6)
   const [reviewStep, setReviewStep] = useState<ReviewStep>(1)
+  const [startingReview, setStartingReview] = useState(false)
+  const [startReviewError, setStartReviewError] = useState<string | null>(null)
+  const [reviewStartedLocally, setReviewStartedLocally] = useState(false)
   const [areaReviewStatus, setAreaReviewStatus] =
     useState<LegalReviewStatus | null>(null)
   // A completed Order stage reopened read-only; null = the live (current) screen.
@@ -62,6 +65,14 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
   useEffect(() => {
     setAreaReviewStatus(orderQuery.data?.legalReviewStatus ?? null)
   }, [orderQuery.data])
+  useEffect(() => {
+    setReviewStartedLocally(false)
+  }, [orderId])
+  useEffect(() => {
+    if (orderQuery.data?.status === 'UNDER_REVIEW') {
+      setReviewStartedLocally(false)
+    }
+  }, [orderQuery.data?.status])
 
   // When the plan is finalized, automatically default the active workflow tab to 'permit'
   useEffect(() => {
@@ -95,8 +106,12 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
     return <ReviewLoadError orderId={orderId} is409={is409} />
   }
 
-  const order = orderQuery.data
-  if (!order) return null
+  const orderData = orderQuery.data
+  if (!orderData) return null
+  const order =
+    reviewStartedLocally && orderData.status === 'PENDING'
+      ? { ...orderData, status: 'UNDER_REVIEW' as const }
+      : orderData
   const showExecutionPlan = ['APPROVED', 'IN_PROGRESS', 'COMPLETED'].includes(
     order.status,
   )
@@ -109,8 +124,8 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
     reviewStep,
     planFinalized: planning?.isFinalized,
   })
-  // Only a PENDING order can still be reviewed; rejected/cancelled/need-info orders are view-only.
-  const readOnly = showExecutionPlan || order.status !== 'PENDING'
+  const reviewable = ['PENDING', 'UNDER_REVIEW'].includes(order.status)
+  const readOnly = showExecutionPlan || !reviewable
   const reviewing = !showExecutionPlan || viewStage !== null
   const openStage = (stage: OrderStage) => {
     if (stage === 'planning') {
@@ -126,7 +141,23 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
     pageRef.current?.scrollIntoView?.({ block: 'start' })
   }
 
-  const goToStep = (step: ReviewStep) => {
+  const goToStep = async (step: ReviewStep) => {
+    if (reviewStep === 1 && step === 2 && order.status === 'PENDING') {
+      setStartingReview(true)
+      setStartReviewError(null)
+      try {
+        await ordersApi.startReview(order.id)
+        setReviewStartedLocally(true)
+        orderQuery.reload()
+      } catch (error) {
+        setStartReviewError(
+          error instanceof Error ? error.message : 'Không thể bắt đầu duyệt đơn.',
+        )
+        return
+      } finally {
+        setStartingReview(false)
+      }
+    }
     setReviewStep(step)
     // Each step is a long page; start the next one from the top.
     pageRef.current?.scrollIntoView?.({ block: 'start' })
@@ -141,7 +172,7 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
   // The backend enforces the same criteria; this only keeps the button honest.
   const readiness = readinessQuery.data
   const approveBlockedReason =
-    order.status === 'PENDING' && readiness && !readiness.canApprove
+    order.status === 'UNDER_REVIEW' && readiness && !readiness.canApprove
       ? pm.approveBlocked(readiness.blockingReasons.join('; '))
       : null
   const pendingRequired =
@@ -198,6 +229,8 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
               readOnly={readOnly}
               order={order}
               goToStep={goToStep}
+              startingReview={startingReview}
+              startReviewError={startReviewError}
             />
           ) : null}
 
