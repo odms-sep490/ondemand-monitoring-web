@@ -145,7 +145,7 @@ export function DetailPanel({ mission, onClose, t, locale, onResourceChanged }: 
   const hasAssignedResources = Boolean(mission.droneCode) || deviceAssignments.length > 0 || staffAssignments.length > 0
   const accepted = staffGroups.filter((item) => item.responseStatus === 'ACCEPTED').length
   const canReplaceResources =
-    ['WAITING_DEPOSIT', 'WAITING_OPERATOR_ACCEPTANCE', 'READY'].includes(mission.status)
+    ['PENDING_PAYMENT', 'PENDING_CONFIRMATION', 'READY'].includes(mission.status)
 
   async function openDeviceReplacement(assignment: MissionDeviceAssignmentResponse) {
     setReplacementTarget({ kind: 'DEVICE', targetId: assignment.id })

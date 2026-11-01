@@ -130,7 +130,7 @@ function localDateAndTime(iso?: string | null) {
 }
 
 function operatorStatus(status: string): OperatorMissionStatus {
-  if (status === 'READY') return 'PENDING'
+  if (status === 'PENDING_CONFIRMATION') return 'PENDING'
   if (status === 'WAITING_OPERATOR_ACCEPTANCE') return 'PENDING'
   if (
     status === 'IN_FLIGHT' ||
@@ -145,6 +145,8 @@ function operatorStatus(status: string): OperatorMissionStatus {
     'PLANNING',
     'CREATED',
     'WAITING_DEPOSIT',
+    'PENDING_PAYMENT',
+    'PENDING_CONFIRMATION',
     'READY',
     'RESOURCE_ASSIGNING',
     'SCHEDULED',
@@ -164,12 +166,16 @@ function operatorStatusForAssignment(
   responseStatus?: string | null,
 ): OperatorMissionStatus {
   if (responseStatus === 'ACCEPTED') {
-    return operatorStatus(status) === 'PENDING'
+    return status === 'READY' || operatorStatus(status) === 'PENDING'
       ? 'ACCEPTED'
       : operatorStatus(status)
   }
   if (responseStatus === 'REJECTED') return 'REJECTED'
-  if (responseStatus === 'PENDING' && status === 'READY') return 'PENDING'
+  if (
+    responseStatus === 'PENDING' &&
+    (status === 'PENDING_CONFIRMATION' || status === 'READY')
+  )
+    return 'PENDING'
   return operatorStatus(status)
 }
 

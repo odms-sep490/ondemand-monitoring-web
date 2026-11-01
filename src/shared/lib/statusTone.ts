@@ -38,9 +38,11 @@ export const missionStatusTone: Record<MissionStatus, StatusTone> = {
   PLANNING: 'gray',
   CREATED: 'gray', // brief: CREATED → gray
   WAITING_DEPOSIT: 'yellow',
+  PENDING_PAYMENT: 'yellow',
+  PENDING_CONFIRMATION: 'yellow',
   // mapping by meaning: system is still matching drone/operator, nothing to
   // act on yet — closer to "waiting" than "in progress".
-  READY: 'blue',
+  READY: 'green',
   RESOURCE_ASSIGNING: 'yellow',
   WAITING_OPERATOR_ACCEPTANCE: 'yellow', // brief: ASSIGNED-like → yellow
   // mapping by meaning: operator accepted, mission is waiting for its
@@ -127,10 +129,12 @@ export const orderStatusLabel: Record<OrderStatus, string> = {
 }
 
 export const missionStatusLabel: Record<MissionStatus, string> = {
-  READY: 'Đã xác nhận; đang chuẩn bị nguồn lực',
+  READY: 'Nguồn lực đã sẵn sàng',
   PLANNING: 'Đang lập kế hoạch',
   CREATED: 'Mới tạo',
   WAITING_DEPOSIT: 'Chờ thanh toán tiền cọc',
+  PENDING_PAYMENT: 'Chờ thanh toán phần còn lại',
+  PENDING_CONFIRMATION: 'Chờ nhân sự xác nhận',
   RESOURCE_ASSIGNING: 'Đang gán nguồn lực',
   WAITING_OPERATOR_ACCEPTANCE: 'Chờ operator nhận',
   SCHEDULED: 'Đã lên lịch',
@@ -221,10 +225,12 @@ export const orderStatusLabelEn: Record<OrderStatus, string> = {
 }
 
 export const missionStatusLabelEn: Record<MissionStatus, string> = {
-  READY: 'Confirmed, preparing resources',
+  READY: 'Resources ready',
   PLANNING: 'Planning',
   CREATED: 'Created',
   WAITING_DEPOSIT: 'Waiting for deposit',
+  PENDING_PAYMENT: 'Waiting for final payment',
+  PENDING_CONFIRMATION: 'Waiting for crew confirmation',
   RESOURCE_ASSIGNING: 'Assigning resources',
   WAITING_OPERATOR_ACCEPTANCE: 'Waiting for operator',
   SCHEDULED: 'Scheduled',

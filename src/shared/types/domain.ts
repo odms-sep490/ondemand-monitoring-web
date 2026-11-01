@@ -38,6 +38,8 @@ export type MissionStatus =
   // Legacy values are retained while old mocks/history records are migrated.
   | 'CREATED'
   | 'WAITING_DEPOSIT'
+  | 'PENDING_PAYMENT'
+  | 'PENDING_CONFIRMATION'
   | 'READY'
   | 'RESOURCE_ASSIGNING'
   | 'WAITING_OPERATOR_ACCEPTANCE'

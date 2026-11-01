@@ -1,9 +1,8 @@
 import type {
-  MissionResourcePrepareStatus,
   MissionStaffAssignmentResponse,
   PreflightCheckItem,
 } from '../../types/missions'
-import type { StatusTone } from '../../../../shared/types/domain'
+import type { MissionStatus, StatusTone } from '../../../../shared/types/domain'
 import { getLanguage } from '../../../../shared/i18n'
 import { missionDetailHelpersMessages } from './missionDetailHelpers.messages'
 
@@ -139,24 +138,12 @@ export function groupStaffAssignments(
   })
 }
 
-export function missionResourcePrepareLabel(
-  status: MissionResourcePrepareStatus | null | undefined,
-): string {
-  const labels: Record<MissionResourcePrepareStatus, string> = {
-    PLANNING: 'Đang lập kế hoạch',
-    PENDING: 'Đang chờ phản hồi và kiểm tra',
-    READY: 'Đã sẵn sàng',
-    CANCELLED: 'Đã hủy',
-  }
-  return status ? labels[status] : 'Chưa xác định'
-}
-
 export function missionResourcePrepareTone(
-  status: MissionResourcePrepareStatus | null | undefined,
+  status: MissionStatus,
 ): StatusTone {
   if (status === 'READY') return 'green'
-  if (status === 'PENDING') return 'yellow'
-  if (status === 'CANCELLED') return 'red'
+  if (status === 'PENDING_PAYMENT' || status === 'PENDING_CONFIRMATION') return 'yellow'
+  if (status === 'CANCELLED' || status === 'FAILED') return 'red'
   return 'gray'
 }
 

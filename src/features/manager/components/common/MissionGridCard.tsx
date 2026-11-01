@@ -68,6 +68,16 @@ export function MissionGridCard({
 }: MissionGridCardProps) {
   const { t } = useI18n(missionGridCardMessages)
   const isPlanning = mission.status === 'PLANNING'
+  const resourcePreparationKey =
+    mission.status === 'PLANNING'
+      ? 'PLANNING'
+      : mission.status === 'PENDING_PAYMENT' ||
+          mission.status === 'PENDING_CONFIRMATION' ||
+          mission.status === 'WAITING_DEPOSIT'
+        ? 'PENDING'
+        : mission.status === 'CANCELLED' || mission.status === 'FAILED'
+          ? 'CANCELLED'
+          : 'READY'
   const isReady = mission.status === 'READY'
   const isCancelled = mission.status === 'CANCELLED'
 
@@ -531,12 +541,10 @@ export function MissionGridCard({
           <span>{t.resourcePreparation}</span>
           <StatusBadge
             tone={toUiTone(
-              missionResourcePrepareTone(mission.resourcePrepareStatus),
+              missionResourcePrepareTone(mission.status),
             )}
           >
-            {mission.resourcePrepareStatus
-              ? t.resourcePrepLabels[mission.resourcePrepareStatus]
-              : t.resourcePrepLabels.unknown}
+            {t.resourcePrepLabels[resourcePreparationKey]}
           </StatusBadge>
         </div>
         <div className="odm-mcard-sec-head">

@@ -86,6 +86,21 @@ describe('live mission mapping', () => {
     expect(mapped.status).toBe('PENDING')
   })
 
+  it('shows the Accept action while the mission is pending crew confirmation', () => {
+    const mapped = toOperatorMission(
+      {
+        ...mission,
+        status: 'PENDING_CONFIRMATION',
+        staffAssignments: [{ staffId: 'staff-1', responseStatus: 'PENDING' }],
+      },
+      'staff-1',
+    )
+
+    expect(mapped.myResponseStatus).toBe('PENDING')
+    expect(mapped.status).toBe('PENDING')
+    expect(mapped.backendStatus).toBe('PENDING_CONFIRMATION')
+  })
+
   it('maps the manager scheduled end time for operator mission detail', () => {
     const mapped = toOperatorMission({
       ...mission,

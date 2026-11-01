@@ -21,7 +21,6 @@ const mission = {
   customerName: 'Customer One',
   missionCode: 'MS-001',
   status: 'PLANNING',
-  resourcePrepareStatus: 'PLANNING',
   staffAssignments: [],
   deviceAssignments: [],
   droneId: null,

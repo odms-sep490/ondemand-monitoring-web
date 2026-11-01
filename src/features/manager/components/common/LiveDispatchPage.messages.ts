@@ -135,8 +135,10 @@ export const liveDispatchPageMessages = defineMessages({
     missionStatuses: {
       PLANNING: 'Đang lập kế hoạch',
       CREATED: 'Đã tạo',
+      PENDING_PAYMENT: 'Chờ thanh toán phần còn lại',
+      PENDING_CONFIRMATION: 'Chờ đội bay xác nhận',
       RESOURCE_ASSIGNING: 'Đang phân công nguồn lực',
-      READY: 'Chờ đội bay xác nhận',
+      READY: 'Nguồn lực đã sẵn sàng',
       IN_PROGRESS: 'Đang thực hiện',
       COMPLETED: 'Hoàn thành',
       CANCELLED: 'Đã hủy',
@@ -275,8 +277,10 @@ export const liveDispatchPageMessages = defineMessages({
     missionStatuses: {
       PLANNING: 'Planning',
       CREATED: 'Created',
+      PENDING_PAYMENT: 'Waiting for final payment',
+      PENDING_CONFIRMATION: 'Waiting for crew confirmation',
       RESOURCE_ASSIGNING: 'Assigning resources',
-      READY: 'Confirmed, preparing resources',
+      READY: 'Resources ready',
       IN_PROGRESS: 'In progress',
       COMPLETED: 'Completed',
       CANCELLED: 'Cancelled',

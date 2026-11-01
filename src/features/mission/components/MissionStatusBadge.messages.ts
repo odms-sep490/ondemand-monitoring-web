@@ -4,7 +4,9 @@ export const missionStatusBadgeMessages = defineMessages({
   vi: {
     mission: {
       WAITING_DEPOSIT: 'Chờ xác nhận tiền cọc',
-      READY: 'Mission đã xác nhận, đang chuẩn bị resource',
+      PENDING_PAYMENT: 'Chờ thanh toán phần còn lại',
+      PENDING_CONFIRMATION: 'Chờ đội bay xác nhận',
+      READY: 'Nguồn lực đã sẵn sàng',
       WAITING_OPERATOR_ACCEPTANCE: 'Chờ Operator tiếp nhận',
       SCHEDULED: 'Đã lên lịch (Scheduled)',
       CONNECTED: 'GCS App Connected',
@@ -27,7 +29,9 @@ export const missionStatusBadgeMessages = defineMessages({
   en: {
     mission: {
       WAITING_DEPOSIT: 'Waiting for deposit',
-      READY: 'Confirmed, preparing resources',
+      PENDING_PAYMENT: 'Waiting for final payment',
+      PENDING_CONFIRMATION: 'Waiting for crew confirmation',
+      READY: 'Resources ready',
       WAITING_OPERATOR_ACCEPTANCE: 'Waiting for operator acceptance',
       SCHEDULED: 'Scheduled',
       CONNECTED: 'GCS App connected',

@@ -28,7 +28,9 @@ function Dot({ color }: { color: string }) {
 // with every other screen's mission status colour/label pairing.
 const MISSION_CFG: Record<MissionState, { color: string; dot: string }> = {
   WAITING_DEPOSIT: { color: 'var(--amber)', dot: 'var(--amber)' },
-  READY: { color: 'var(--amber)', dot: 'var(--amber)' },
+  PENDING_PAYMENT: { color: 'var(--amber)', dot: 'var(--amber)' },
+  PENDING_CONFIRMATION: { color: 'var(--amber)', dot: 'var(--amber)' },
+  READY: { color: 'var(--green)', dot: 'var(--green)' },
   WAITING_OPERATOR_ACCEPTANCE: { color: 'var(--amber)', dot: 'var(--amber)' },
   RESOURCE_ASSIGNING: { color: 'var(--blue)', dot: 'var(--blue)' },
   SCHEDULED: { color: 'var(--blue)', dot: 'var(--blue)' },

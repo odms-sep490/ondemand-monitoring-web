@@ -88,6 +88,8 @@ const GROUPS: Record<MissionGroup, readonly MissionStatus[]> = {
     'PLANNING',
     'CREATED',
     'WAITING_DEPOSIT',
+    'PENDING_PAYMENT',
+    'PENDING_CONFIRMATION',
     'RESOURCE_ASSIGNING',
     'READY',
     'WAITING_OPERATOR_ACCEPTANCE',

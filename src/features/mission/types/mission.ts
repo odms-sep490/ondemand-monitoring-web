@@ -2,6 +2,8 @@ export type MissionStatus =
   | 'PLANNING'
   | 'CREATED'
   | 'WAITING_DEPOSIT'
+  | 'PENDING_PAYMENT'
+  | 'PENDING_CONFIRMATION'
   | 'READY'
   | 'RESOURCE_ASSIGNING'
   | 'WAITING_OPERATOR_ACCEPTANCE'
@@ -19,8 +21,6 @@ export type MissionStatus =
   | 'COMPLETED'
   | 'FAILED'
   | 'CANCELLED'
-
-export type MissionResourcePrepareStatus = 'PLANNING' | 'PENDING' | 'READY'
 
 export type DeviceStatus =
   | 'AVAILABLE'
