@@ -19,7 +19,6 @@ import {
   type AvailableOperator,
 } from '../../../staff/api/operatorApi'
 import { MissionUpdatePanel } from './MissionUpdatePanel'
-import { missionResourcePrepareTone } from './missionDetailHelpers'
 import {
   MissionGridDeviceList,
   MissionGridStaffList,
@@ -68,16 +67,6 @@ export function MissionGridCard({
 }: MissionGridCardProps) {
   const { t } = useI18n(missionGridCardMessages)
   const isPlanning = mission.status === 'PLANNING'
-  const resourcePreparationKey =
-    mission.status === 'PLANNING'
-      ? 'PLANNING'
-      : mission.status === 'PENDING_PAYMENT' ||
-          mission.status === 'PENDING_CONFIRMATION' ||
-          mission.status === 'WAITING_DEPOSIT'
-        ? 'PENDING'
-        : mission.status === 'CANCELLED' || mission.status === 'FAILED'
-          ? 'CANCELLED'
-          : 'READY'
   const isReady = mission.status === 'READY'
   const isCancelled = mission.status === 'CANCELLED'
 
@@ -540,11 +529,9 @@ export function MissionGridCard({
         <div className="odm-mcard-sec-head">
           <span>{t.resourcePreparation}</span>
           <StatusBadge
-            tone={toUiTone(
-              missionResourcePrepareTone(mission.status),
-            )}
+            tone={toUiTone(missionStatusTone[mission.status] ?? 'gray')}
           >
-            {t.resourcePrepLabels[resourcePreparationKey]}
+            {missionStatusLabel[mission.status] ?? mission.status}
           </StatusBadge>
         </div>
         <div className="odm-mcard-sec-head">

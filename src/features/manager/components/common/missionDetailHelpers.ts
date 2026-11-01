@@ -2,7 +2,7 @@ import type {
   MissionStaffAssignmentResponse,
   PreflightCheckItem,
 } from '../../types/missions'
-import type { MissionStatus, StatusTone } from '../../../../shared/types/domain'
+import type { StatusTone } from '../../../../shared/types/domain'
 import { getLanguage } from '../../../../shared/i18n'
 import { missionDetailHelpersMessages } from './missionDetailHelpers.messages'
 
@@ -136,15 +136,6 @@ export function groupStaffAssignments(
       responseStatus,
     }
   })
-}
-
-export function missionResourcePrepareTone(
-  status: MissionStatus,
-): StatusTone {
-  if (status === 'READY') return 'green'
-  if (status === 'PENDING_PAYMENT' || status === 'PENDING_CONFIRMATION') return 'yellow'
-  if (status === 'CANCELLED' || status === 'FAILED') return 'red'
-  return 'gray'
 }
 
 export function staffAssignmentStatusTone(
