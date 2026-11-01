@@ -1,11 +1,12 @@
+import { useState, type ReactNode } from 'react'
 import { QuoteGuidance } from './QuoteGuidance'
 import { Button } from 'antd'
 import { useI18n } from '../../../../shared/i18n'
 import { customerFinanceSectionsMessages } from '../CustomerFinanceSections.messages'
 import { QuoteLines } from './QuoteLines'
 import { Summary } from './Summary'
+import { DeadlineCountdown } from './DeadlineCountdown'
 import type { CustomerQuote, Invoice } from '../../types'
-import { useDeadline } from '../useDeadline'
 import { OrderIcon } from '../../../manager/components/common/OrderIcon'
 
 export function QuoteSection({
@@ -16,6 +17,8 @@ export function QuoteSection({
   busy,
   accept,
   refreshExpired,
+  paymentContent,
+  paymentSummaryContent,
 }: {
   quote: CustomerQuote
   legalReady: boolean
@@ -30,42 +33,25 @@ export function QuoteSection({
   busy: boolean
   accept: () => Promise<void>
   refreshExpired?: () => void
+  paymentContent?: ReactNode
+  paymentSummaryContent?: ReactNode
 }) {
   const { t, locale } = useI18n(customerFinanceSectionsMessages)
   const acceptancePending = quote.status === 'APPROVED'
-  const deadline = useDeadline(
-    acceptancePending ? quote.expiresAt : null,
-    refreshExpired,
+  const [expiredDeadlineKey, setExpiredDeadlineKey] = useState<string | null>(
+    null,
   )
-  const expired =
-    quote.status === 'EXPIRED' || (acceptancePending && deadline.expired)
+  const deadlineKey = `${quote.id}:${quote.version}:${quote.expiresAt ?? ''}`
   const approvedAt = quote.approvedAt
     ? Date.parse(quote.approvedAt)
     : Number.NaN
   const expiresAt = quote.expiresAt ? Date.parse(quote.expiresAt) : Number.NaN
   const hasValidExpiry = Number.isFinite(expiresAt)
-  const remainingMs = expired ? 0 : deadline.remainingMs
-  const remainingSeconds = Math.ceil((deadline.remainingMs ?? 0) / 1000)
-  const countdownDays = Math.floor(remainingSeconds / 86_400)
-  const countdownHours = Math.floor((remainingSeconds % 86_400) / 3_600)
-  const countdownMinutes = Math.floor((remainingSeconds % 3_600) / 60)
-  const countdownSeconds = remainingSeconds % 60
-  const countdownText =
-    deadline.remainingMs == null
-      ? '—'
-      : t.quoteCountdown(
-          countdownDays,
-          countdownHours,
-          countdownMinutes,
-          countdownSeconds,
-        )
-  const progress =
-    Number.isFinite(approvedAt) &&
-    Number.isFinite(expiresAt) &&
-    expiresAt > approvedAt &&
-    remainingMs != null
-      ? Math.max(0, Math.min(1, 1 - remainingMs / (expiresAt - approvedAt)))
-      : null
+  const deadlineReached = hasValidExpiry && expiresAt <= Date.now()
+  const expired =
+    quote.status === 'EXPIRED' ||
+    (acceptancePending &&
+      (deadlineReached || expiredDeadlineKey === deadlineKey))
   return (
     <div className="customer-quote-body">
       <div className="customer-quote-layout">
@@ -82,67 +68,65 @@ export function QuoteSection({
             <QuoteLines items={quote.items} />
           </section>
           <QuoteGuidance quote={quote} />
-          <section
-            className="customer-quote-summary-section"
-            aria-label={t.summaryLabel}
-          >
-            <h3>{t.summaryLabel}</h3>
-            <dl className="finance-summary customer-summary">
-              <Summary label={t.estimated} value={quote.estimatedBaseAmount} />
-              <Summary
-                label={t.additional}
-                value={quote.approvedAdditionalServiceAmount}
-              />
-              <Summary
-                label={t.orderTotal}
-                value={quote.finalOrderAmount}
-                total
-              />
-            </dl>
-          </section>
+          <div className="customer-quote-financial-summary">
+            <section
+              className="customer-quote-summary-section"
+              aria-label={t.summaryLabel}
+            >
+              <h3>{t.summaryLabel}</h3>
+              <dl className="finance-summary customer-summary">
+                <Summary
+                  label={t.estimated}
+                  value={quote.estimatedBaseAmount}
+                />
+                <Summary
+                  label={t.additional}
+                  value={quote.approvedAdditionalServiceAmount}
+                />
+                <Summary
+                  label={t.orderTotal}
+                  value={quote.finalOrderAmount}
+                  total
+                />
+              </dl>
+            </section>
+            {paymentSummaryContent ? (
+              <div className="customer-quote-payment-summary">
+                {paymentSummaryContent}
+              </div>
+            ) : null}
+          </div>
         </div>
 
         <aside className="customer-quote-actions" aria-label={t.actionsLabel}>
           {quote.expiresAt &&
           hasValidExpiry &&
           (acceptancePending || quote.status === 'EXPIRED') ? (
-            <div
-              className={`customer-quote-countdown${expired ? ' is-expired' : ''}`}
-            >
-              <div className="customer-quote-countdown-ring" aria-hidden="true">
-                <svg viewBox="0 0 84 84" focusable="false">
-                  <circle
-                    className="customer-quote-ring-track"
-                    cx="42"
-                    cy="42"
-                    r="35"
-                  />
-                  {progress != null ? (
-                    <circle
-                      className="customer-quote-ring-progress"
-                      cx="42"
-                      cy="42"
-                      r="35"
-                      style={{ strokeDashoffset: 220 * (1 - progress) }}
-                    />
-                  ) : null}
-                </svg>
-                <span className="customer-quote-ring-icon">
-                  <OrderIcon name="clock" size={30} />
-                </span>
-              </div>
-              <div>
-                <span className="customer-quote-countdown-label">
-                  {expired ? t.quoteExpired : t.quoteExpiresLabel}
-                </span>
-                {!expired ? <strong>{countdownText}</strong> : null}
-                <small>
-                  {t.deadlineAt(
-                    new Date(quote.expiresAt).toLocaleString(locale),
-                  )}
-                </small>
-              </div>
-            </div>
+            <DeadlineCountdown
+              expired={expired}
+              label={expired ? t.quoteExpired : t.quoteExpiresLabel}
+              deadline={quote.expiresAt}
+              startAt={Number.isFinite(approvedAt) ? quote.approvedAt : null}
+              deadlineLabel={t.quoteDeadlineAt(
+                new Date(quote.expiresAt).toLocaleString(locale, {
+                  dateStyle: 'short',
+                  timeStyle: 'medium',
+                }),
+              )}
+              dayLabel={t.dayUnit}
+              hourLabel={t.hourUnit}
+              minuteLabel={t.minuteUnit}
+              secondLabel={t.secondUnit}
+              clockLabel={t.clockLabel}
+              onExpire={
+                acceptancePending
+                  ? () => {
+                      setExpiredDeadlineKey(deadlineKey)
+                      refreshExpired?.()
+                    }
+                  : undefined
+              }
+            />
           ) : null}
 
           {quote.status === 'ACCEPTED_BY_CUSTOMER' ? (
@@ -151,7 +135,10 @@ export function QuoteSection({
               {quote.acceptedAt ? (
                 <span>
                   {t.acceptedAt(
-                    new Date(quote.acceptedAt).toLocaleString(locale),
+                    new Date(quote.acceptedAt).toLocaleString(locale, {
+                      dateStyle: 'short',
+                      timeStyle: 'short',
+                    }),
                   )}
                 </span>
               ) : null}
@@ -186,6 +173,11 @@ export function QuoteSection({
             <div className="customer-deposit-notice">
               <b>{t.permitTitle}</b>
               <span>{t.permitBody}</span>
+            </div>
+          ) : null}
+          {paymentContent ? (
+            <div className="customer-quote-payment-content">
+              {paymentContent}
             </div>
           ) : null}
           {quote.status === 'APPROVED' && !invoice && legalReady && !expired ? (

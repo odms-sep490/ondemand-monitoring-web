@@ -31,16 +31,5 @@ export function useDeadline(
   return {
     expired: remainingMs === 0,
     remainingMs,
-    remaining: remainingMs == null ? null : formatRemaining(remainingMs),
   }
-}
-
-function formatRemaining(ms: number) {
-  const totalSeconds = Math.max(0, Math.ceil(ms / 1000))
-  const hours = Math.floor(totalSeconds / 3600)
-  const minutes = Math.floor((totalSeconds % 3600) / 60)
-  const seconds = totalSeconds % 60
-  return hours > 0
-    ? `${hours}h ${String(minutes).padStart(2, '0')}m`
-    : `${minutes}m ${String(seconds).padStart(2, '0')}s`
 }

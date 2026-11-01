@@ -1,6 +1,7 @@
 import { act, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { QuoteSection } from '../components/QuoteSection'
+import { InvoiceSection } from '../components/InvoiceSection'
 import type { CustomerQuote } from '../../types'
 
 const quote: CustomerQuote = {
@@ -123,7 +124,7 @@ describe('commercial deadline presentation', () => {
   it('shows and updates seconds while more than one hour remains', () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-11-03T02:00:00Z'))
-    render(
+    const { container } = render(
       <QuoteSection
         quote={{ ...quote, expiresAt: '2026-11-03T03:30:45Z' }}
         legalReady
@@ -134,11 +135,127 @@ describe('commercial deadline presentation', () => {
       />,
     )
 
-    expect(screen.getByText('1 giờ 30 phút 45 giây')).toBeInTheDocument()
+    expect(screen.getByRole('timer')).toHaveAccessibleName(
+      'Báo giá hết hạn sau: 01 Giờ 30 Phút 45 Giây',
+    )
+    expect(
+      Array.from(container.querySelectorAll('.customer-deadline-unit')).map(
+        (unit) => unit.textContent,
+      ),
+    ).toEqual(['01Giờ', '30Phút', '45Giây'])
     act(() => {
       vi.advanceTimersByTime(1_000)
     })
-    expect(screen.getByText('1 giờ 30 phút 44 giây')).toBeInTheDocument()
+    expect(screen.getByRole('timer')).toHaveAccessibleName(
+      'Báo giá hết hạn sau: 01 Giờ 30 Phút 44 Giây',
+    )
+  })
+
+  it('shows and updates the deposit countdown with the same clock treatment', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-01T03:00:00Z'))
+    const { container } = render(
+      <InvoiceSection
+        invoice={{
+          id: 'invoice-1',
+          invoiceNumber: 'INV-1',
+          orderId: 'order-1',
+          quoteId: 'quote-1',
+          totalAmount: 3_800_000,
+          depositAmount: 1_140_000,
+          paidAmount: 0,
+          remainingAmount: 3_800_000,
+          status: 'ISSUED',
+          issuedAt: '2026-11-01T03:00:00Z',
+          depositExpiresAt: '2026-11-02T02:30:45Z',
+          finalPaymentAllowed: false,
+        }}
+        legalReady
+        busy={false}
+        pay={vi.fn()}
+        completeTestDeposit={vi.fn()}
+        completeTestFinal={vi.fn()}
+        testPaymentLabel="Thanh toán nhanh"
+      />,
+    )
+
+    expect(screen.getByRole('timer')).toHaveAccessibleName(
+      'Còn lại để đặt cọc: 23 Giờ 30 Phút 45 Giây',
+    )
+    expect(
+      container.querySelector('.customer-deadline-ring-progress'),
+    ).toBeInTheDocument()
+    act(() => {
+      vi.advanceTimersByTime(1_000)
+    })
+    expect(screen.getByRole('timer')).toHaveAccessibleName(
+      'Còn lại để đặt cọc: 23 Giờ 30 Phút 44 Giây',
+    )
+  })
+
+  it('sets analog hands from the current local time, independently of the deadline', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-01T03:15:30Z'))
+    const { container } = render(
+      <InvoiceSection
+        invoice={{
+          id: 'invoice-clock',
+          invoiceNumber: 'INV-CLOCK',
+          orderId: 'order-clock',
+          quoteId: 'quote-clock',
+          totalAmount: 100_000,
+          depositAmount: 30_000,
+          paidAmount: 0,
+          remainingAmount: 100_000,
+          status: 'ISSUED',
+          issuedAt: '2026-11-01T03:00:00Z',
+          depositExpiresAt: '2026-11-02T03:15:30Z',
+          finalPaymentAllowed: false,
+        }}
+        legalReady
+        busy={false}
+        pay={vi.fn()}
+        completeTestDeposit={vi.fn()}
+        completeTestFinal={vi.fn()}
+        testPaymentLabel="Thanh toán nhanh"
+      />,
+    )
+
+    const secondHand = container.querySelector('.is-second')
+    const angle = Number(
+      secondHand?.getAttribute('transform')?.match(/rotate\(([-\d.]+)/)?.[1],
+    )
+    expect(angle).toBeCloseTo(new Date().getSeconds() * 6, 0)
+    expect(container.querySelector('.is-hour')).toHaveAttribute('transform')
+    expect(container.querySelector('.is-minute')).toHaveAttribute('transform')
+  })
+
+  it('adds a day cell for deadlines beyond 99 hours and omits progress without a start timestamp', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-01T03:00:00Z'))
+    const { container } = render(
+      <QuoteSection
+        quote={{
+          ...quote,
+          expiresAt: '2026-11-06T06:07:08Z',
+          approvedAt: null,
+        }}
+        legalReady
+        legalStatus="APPROVED"
+        invoice={null}
+        busy={false}
+        accept={vi.fn()}
+      />,
+    )
+
+    expect(
+      Array.from(container.querySelectorAll('.customer-deadline-unit')).map(
+        (unit) => unit.textContent,
+      ),
+    ).toEqual(['05Ngày', '03Giờ', '07Phút', '08Giây'])
+    expect(
+      container.querySelector('.customer-deadline-ring-progress'),
+    ).not.toBeInTheDocument()
   })
 
   it('stops showing the quote-acceptance countdown after the customer accepts', () => {
