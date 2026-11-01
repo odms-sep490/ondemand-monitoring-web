@@ -32,7 +32,7 @@ export function ReviewStageRequest({
       <ReviewStageActions
         step={1}
         onNext={() => void goToStep(2)}
-        nextDisabled={startingReview}
+        nextDisabled={startingReview || readOnly}
         hint={startReviewError}
       />
     </div>

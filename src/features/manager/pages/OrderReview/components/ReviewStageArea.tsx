@@ -38,7 +38,8 @@ export function ReviewStageArea({
         onNext={() => goToStep(3)}
         nextLabel={ts.nextLabel}
         nextDisabled={
-          areaReviewStatus !== 'NOT_REQUIRED' && areaReviewStatus !== 'APPROVED'
+          readOnly ||
+          (areaReviewStatus !== 'NOT_REQUIRED' && areaReviewStatus !== 'APPROVED')
         }
         hint={
           areaReviewStatus == null
