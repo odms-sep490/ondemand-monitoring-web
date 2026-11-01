@@ -35,10 +35,11 @@ export function ReviewStageReadiness({
         (criterion.result === 'FAIL' || criterion.result === 'PENDING'),
     ) ?? true
   const nextBlocked =
-    order.status === 'UNDER_REVIEW' &&
-    (readiness?.canApprove !== true ||
-      requiredCriterionBlocked ||
-      localDraftBlocked)
+    readOnly ||
+    (order.status === 'UNDER_REVIEW' &&
+      (readiness?.canApprove !== true ||
+        requiredCriterionBlocked ||
+        localDraftBlocked))
   const failedRequired =
     readiness?.criteria.filter(
       (criterion) => criterion.required && criterion.result === 'FAIL',
