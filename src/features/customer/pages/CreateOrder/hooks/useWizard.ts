@@ -25,6 +25,9 @@ type Options = {
 const errorFieldIds: Partial<Record<keyof FormErrors, string>> = {
   serviceId: 'co-service',
   title: 'co-title',
+  usagePurpose: 'co-purpose',
+  otherFlightPurpose: 'co-other-flight-purpose',
+  otherUsagePurpose: 'co-other-usage-purpose',
   address: 'co-address',
   preferredDateFrom: 'co-from',
   preferredDateTo: 'co-to',
@@ -77,7 +80,14 @@ const stepFourErrors: Array<keyof FormErrors> = [
 ]
 
 function firstInvalidStep(errors: FormErrors): Step {
-  if (errors.serviceId || errors.title) return 1
+  if (
+    errors.serviceId ||
+    errors.title ||
+    errors.usagePurpose ||
+    errors.otherFlightPurpose ||
+    errors.otherUsagePurpose
+  )
+    return 1
   if (stepTwoErrors.some((key) => Boolean(errors[key]))) return 2
   if (stepFourErrors.some((key) => Boolean(errors[key]))) return 4
   if (

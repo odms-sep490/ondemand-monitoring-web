@@ -86,11 +86,20 @@ export function RequestInfoPanel({ form, errors, update }: Props) {
         ) : null}
       </div>
       <div className="co-mt">
-        <FormField id="co-purpose" label={t.purposeLabel}>
+        <FormField
+          id="co-purpose"
+          label={t.purposeLabel}
+          required
+          error={errors.usagePurpose}
+        >
           <select
             id="co-purpose"
             className="co-input"
             value={form.usagePurpose}
+            aria-invalid={Boolean(errors.usagePurpose)}
+            aria-describedby={
+              errors.usagePurpose ? 'co-purpose-error' : undefined
+            }
             onChange={(e) =>
               update('usagePurpose', e.target.value as UsagePurpose)
             }
