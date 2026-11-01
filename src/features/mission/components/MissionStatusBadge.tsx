@@ -19,16 +19,33 @@ export function MissionStatusBadge({ status }: MissionStatusBadgeProps) {
           label: t.mission.WAITING_DEPOSIT,
           icon: 'lock' as const,
         }
-      case 'WAITING_OPERATOR_ACCEPTANCE':
-      case 'READY':
+      case 'PENDING_PAYMENT':
+        return {
+          bg: '#fff7ed',
+          color: '#9a3412',
+          label: t.mission.PENDING_PAYMENT,
+          icon: 'lock' as const,
+        }
+      case 'PENDING_CONFIRMATION':
         return {
           bg: '#fef3c7',
           color: '#92400e',
-          label:
-            status === 'READY'
-              ? t.mission.READY
-              : t.mission.WAITING_OPERATOR_ACCEPTANCE,
+          label: t.mission.PENDING_CONFIRMATION,
           icon: 'clock' as const,
+        }
+      case 'WAITING_OPERATOR_ACCEPTANCE':
+        return {
+          bg: '#fef3c7',
+          color: '#92400e',
+          label: t.mission.WAITING_OPERATOR_ACCEPTANCE,
+          icon: 'clock' as const,
+        }
+      case 'READY':
+        return {
+          bg: '#dcfce7',
+          color: '#15803d',
+          label: t.mission.READY,
+          icon: 'check' as const,
         }
       case 'SCHEDULED':
         return {

@@ -7,6 +7,9 @@ import type { MissionMediaProgress, MissionRow } from './types'
 
 const KNOWN: readonly MissionStatus[] = [
   'CREATED',
+  'WAITING_DEPOSIT',
+  'PENDING_PAYMENT',
+  'PENDING_CONFIRMATION',
   'RESOURCE_ASSIGNING',
   'READY',
   'WAITING_OPERATOR_ACCEPTANCE',

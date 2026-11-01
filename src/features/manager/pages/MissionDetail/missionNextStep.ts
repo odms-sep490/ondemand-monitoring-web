@@ -10,6 +10,7 @@ export function missionNextStep(
 ): NextStep | null {
   const n = missionDetailPageMessages[getLanguage()].extra.nextStep
   switch (status) {
+    case 'PLANNING':
     case 'RESOURCE_ASSIGNING':
       return {
         tone: 'go',

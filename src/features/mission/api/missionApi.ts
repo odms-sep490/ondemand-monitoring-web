@@ -165,7 +165,7 @@ export const missionApi = {
     let latest: Mission | null = null
     for (const [index, deviceId] of resolvedDeviceIds.entries()) {
       latest = await request<Mission>(
-        `${API_BASE}/missions/${encodeURIComponent(missionId)}/assign-device`,
+        `${API_BASE}/missions/${encodeURIComponent(missionId)}/device-assignments`,
         {
           method: 'POST',
           body: JSON.stringify({
@@ -196,7 +196,7 @@ export const missionApi = {
           : []
       for (const staffId of staffIds) {
         latest = await request<Mission>(
-          `${API_BASE}/missions/${encodeURIComponent(missionId)}/assign-staff`,
+          `${API_BASE}/missions/${encodeURIComponent(missionId)}/staff-assignments`,
           {
             method: 'POST',
             body: JSON.stringify({ staffId, assignedRole }),
@@ -240,7 +240,7 @@ export const missionApi = {
   },
 
   assignDrone: async (missionId: string, droneId: string): Promise<Mission> => {
-    return request<Mission>(`${API_BASE}/missions/${missionId}/assign-device`, {
+    return request<Mission>(`${API_BASE}/missions/${encodeURIComponent(missionId)}/device-assignments`, {
       method: 'POST',
       body: JSON.stringify({ deviceId: droneId, deviceRole: 'MAIN' }),
     })
@@ -250,7 +250,7 @@ export const missionApi = {
     missionId: string,
     operatorId: string,
   ): Promise<Mission> => {
-    return request<Mission>(`${API_BASE}/missions/${missionId}/assign-staff`, {
+    return request<Mission>(`${API_BASE}/missions/${encodeURIComponent(missionId)}/staff-assignments`, {
       method: 'POST',
       body: JSON.stringify({ staffId: operatorId, assignedRole: 'PILOT' }),
     })

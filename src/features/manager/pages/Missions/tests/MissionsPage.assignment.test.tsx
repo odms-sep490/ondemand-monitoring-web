@@ -21,7 +21,7 @@ it('Mission menu has exact resume links and Order context but no duplicate plann
         orderId: 'o',
         missionCode: 'M1',
         orderCode: 'ORD-1',
-        status: 'RESOURCE_ASSIGNING',
+        status: 'PLANNING',
         staffAssignments: crew,
         droneId: null,
       },

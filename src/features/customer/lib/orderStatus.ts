@@ -51,7 +51,9 @@ export const MISSION_STATUS_TONE: Record<MissionStatus, StatusTone> = {
   PLANNING: 'gray',
   CREATED: 'gray',
   WAITING_DEPOSIT: 'yellow',
-  READY: 'blue',
+  PENDING_PAYMENT: 'yellow',
+  PENDING_CONFIRMATION: 'yellow',
+  READY: 'green',
   RESOURCE_ASSIGNING: 'yellow',
   WAITING_OPERATOR_ACCEPTANCE: 'yellow',
   SCHEDULED: 'blue',
@@ -71,10 +73,12 @@ export const MISSION_STATUS_TONE: Record<MissionStatus, StatusTone> = {
 }
 
 const MISSION_STATUS_LABEL_VI: Record<MissionStatus, string> = {
-  READY: 'Mission đã xác nhận; đang chuẩn bị resource',
+  READY: 'Nguồn lực đã sẵn sàng',
   PLANNING: 'Đang lập kế hoạch',
   CREATED: 'Mới tạo',
   WAITING_DEPOSIT: 'Chờ thanh toán tiền cọc',
+  PENDING_PAYMENT: 'Chờ thanh toán phần còn lại',
+  PENDING_CONFIRMATION: 'Chờ nhân sự xác nhận',
   RESOURCE_ASSIGNING: 'Phân công nguồn lực',
   WAITING_OPERATOR_ACCEPTANCE: 'Chờ phi công xác nhận',
   SCHEDULED: 'Đã lên lịch',
@@ -94,10 +98,12 @@ const MISSION_STATUS_LABEL_VI: Record<MissionStatus, string> = {
 }
 
 const MISSION_STATUS_LABEL_EN: Record<MissionStatus, string> = {
-  READY: 'Confirmed, preparing resources',
+  READY: 'Resources ready',
   PLANNING: 'Planning',
   CREATED: 'Created',
   WAITING_DEPOSIT: 'Waiting for deposit',
+  PENDING_PAYMENT: 'Waiting for final payment',
+  PENDING_CONFIRMATION: 'Waiting for crew confirmation',
   RESOURCE_ASSIGNING: 'Assigning resources',
   WAITING_OPERATOR_ACCEPTANCE: 'Waiting for operator',
   SCHEDULED: 'Scheduled',

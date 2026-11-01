@@ -27,7 +27,7 @@ beforeEach(() => {
         id,
         orderId: 'o',
         missionCode: id.toUpperCase(),
-        status: 'READY',
+        status: 'PLANNING',
         scheduledStartAt: '2026-10-10T03:00:00Z',
         scheduledEndAt: '2026-10-10T04:00:00Z',
         staffAssignments: [],
@@ -89,7 +89,7 @@ beforeEach(() => {
             assignedRole,
           })),
       ) as unknown as MissionResponse['staffAssignments']
-      mission.status = 'READY'
+      mission.status = 'PLANNING'
       return mission as unknown as Mission
     },
   )
@@ -369,7 +369,7 @@ it('all assignments submitted provides an explicit navigation-only finish', asyn
   for (const mission of missions) {
     mission.staffAssignments = crew('s1')
     mission.deviceId = 'd1'
-    mission.status = 'READY'
+    mission.status = 'PLANNING'
   }
   const close = vi.fn()
   render(<OrderResourceAssignmentWizard orderId="o" onClose={close} />)

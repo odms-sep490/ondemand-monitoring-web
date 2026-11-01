@@ -103,9 +103,7 @@ export function OrderResourceAssignmentWizard({
       data?.plan.planStatus === 'FINALIZED' &&
       ['APPROVED', 'IN_PROGRESS'].includes(data.order.status) &&
       (scope?.finalizedPlanRevision ?? 0) > 0 &&
-      ['RESOURCE_ASSIGNING', 'READY'].includes(
-        mission.status,
-      ) &&
+      mission.status === 'PLANNING' &&
       stop &&
       !stop.status &&
       !stop.requestedAt,

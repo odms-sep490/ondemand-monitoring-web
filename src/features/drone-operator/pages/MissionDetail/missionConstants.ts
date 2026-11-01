@@ -17,6 +17,8 @@ export const STATUS_LABEL: Record<string, string> = {
   PLANNING: 'Đang lập kế hoạch',
   CREATED: 'Đã tạo Mission',
   WAITING_DEPOSIT: 'Chờ xác nhận đặt cọc',
+  PENDING_PAYMENT: 'Chờ thanh toán phần còn lại',
+  PENDING_CONFIRMATION: 'Chờ đội bay xác nhận',
   READY: 'Sẵn sàng phân công',
   RESOURCE_ASSIGNING: 'Đang phân công nguồn lực',
   WAITING_OPERATOR_ACCEPTANCE: 'Chờ người vận hành xác nhận',

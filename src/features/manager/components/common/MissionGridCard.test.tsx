@@ -21,7 +21,6 @@ const mission = {
   customerName: 'Customer One',
   missionCode: 'MS-001',
   status: 'PLANNING',
-  resourcePrepareStatus: 'PLANNING',
   staffAssignments: [],
   deviceAssignments: [],
   droneId: null,
@@ -100,38 +99,27 @@ describe('MissionGridCard staff assignment', () => {
       }),
     )
 
-    await waitFor(() => expect(assign).toHaveBeenCalledTimes(5))
-    expect(assign).toHaveBeenNthCalledWith(1, 'mission-1', 'staff-1', 'PILOT')
+    await waitFor(() => expect(assign).toHaveBeenCalledTimes(2))
     expect(assign).toHaveBeenNthCalledWith(
-      2,
+      1,
       'mission-1',
       'staff-1',
-      'OPERATOR',
+      ['PILOT', 'OPERATOR', 'MAINTAINER', 'INSPECTOR'],
     )
-    expect(assign).toHaveBeenNthCalledWith(
-      3,
-      'mission-1',
-      'staff-1',
-      'MAINTAINER',
-    )
-    expect(assign).toHaveBeenNthCalledWith(
-      4,
-      'mission-1',
-      'staff-1',
-      'INSPECTOR',
-    )
-    expect(assign).toHaveBeenNthCalledWith(5, 'mission-1', 'staff-2', 'PILOT')
+    expect(assign).toHaveBeenNthCalledWith(2, 'mission-1', 'staff-2', [
+      'PILOT',
+    ])
     expect(
       screen.queryByRole('group', { name: 'Thêm nhân sự cho nhiệm vụ' }),
     ).not.toBeInTheDocument()
   })
 
-  it('keeps only unassigned roles after a partial failure so the manager can retry', async () => {
+  it('keeps an atomic role batch after a failure so the manager can retry', async () => {
     vi.spyOn(operatorApi, 'getAvailable').mockResolvedValue(operators)
     const assign = vi
       .spyOn(missionsApi, 'assignStaff')
-      .mockImplementation(async (_missionId, staffId, role) => {
-        if (staffId === 'staff-1' && role === 'MAINTAINER') {
+      .mockImplementation(async (_missionId, staffId, roles) => {
+        if (staffId === 'staff-1' && roles?.includes('MAINTAINER')) {
           throw new Error('Vai trò không còn khả dụng')
         }
         return {} as never
@@ -150,32 +138,26 @@ describe('MissionGridCard staff assignment', () => {
     )
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
-      'Đã gán 2/4 vai trò',
+      'Vai trò không còn khả dụng',
     )
     form = screen.getByRole('group', { name: 'Thêm nhân sự cho nhiệm vụ' })
     expect(
       within(form).getByRole('checkbox', { name: /Pilot One/ }),
     ).toBeChecked()
     expect(
-      within(form).getByRole('button', { name: 'Gán 1 người · 2 vai trò' }),
+      within(form).getByRole('button', { name: 'Gán 1 người · 4 vai trò' }),
     ).toBeEnabled()
 
     assign.mockImplementation(async () => ({}) as never)
     fireEvent.click(
-      within(form).getByRole('button', { name: 'Gán 1 người · 2 vai trò' }),
+      within(form).getByRole('button', { name: 'Gán 1 người · 4 vai trò' }),
     )
-    await waitFor(() => expect(assign).toHaveBeenCalledTimes(5))
+    await waitFor(() => expect(assign).toHaveBeenCalledTimes(2))
     expect(assign).toHaveBeenNthCalledWith(
-      4,
+      2,
       'mission-1',
       'staff-1',
-      'MAINTAINER',
-    )
-    expect(assign).toHaveBeenNthCalledWith(
-      5,
-      'mission-1',
-      'staff-1',
-      'INSPECTOR',
+      ['PILOT', 'OPERATOR', 'MAINTAINER', 'INSPECTOR'],
     )
   })
 
@@ -224,7 +206,7 @@ describe('MissionGridCard staff assignment', () => {
     )
 
     await waitFor(() => expect(assign).toHaveBeenCalledTimes(1))
-    expect(assign).toHaveBeenCalledWith('mission-1', 'staff-1', 'OPERATOR')
+    expect(assign).toHaveBeenCalledWith('mission-1', 'staff-1', ['OPERATOR'])
   })
 
   it('selects all four roles for one person with one action', async () => {
@@ -245,25 +227,12 @@ describe('MissionGridCard staff assignment', () => {
       }),
     )
 
-    await waitFor(() => expect(assign).toHaveBeenCalledTimes(4))
-    expect(assign).toHaveBeenNthCalledWith(1, 'mission-1', 'staff-1', 'PILOT')
+    await waitFor(() => expect(assign).toHaveBeenCalledTimes(1))
     expect(assign).toHaveBeenNthCalledWith(
-      2,
+      1,
       'mission-1',
       'staff-1',
-      'OPERATOR',
-    )
-    expect(assign).toHaveBeenNthCalledWith(
-      3,
-      'mission-1',
-      'staff-1',
-      'MAINTAINER',
-    )
-    expect(assign).toHaveBeenNthCalledWith(
-      4,
-      'mission-1',
-      'staff-1',
-      'INSPECTOR',
+      ['PILOT', 'OPERATOR', 'MAINTAINER', 'INSPECTOR'],
     )
   })
 })

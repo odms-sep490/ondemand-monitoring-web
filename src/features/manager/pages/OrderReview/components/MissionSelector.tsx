@@ -65,9 +65,7 @@ export function MissionSelector({
           mission.status === 'PLANNING'
         const resourcesEditable =
           plan.planStatus === 'FINALIZED' &&
-          ['READY', 'READY'].includes(
-            mission.status,
-          )
+          mission.status === 'PLANNING'
         return (
           <button
             type="button"

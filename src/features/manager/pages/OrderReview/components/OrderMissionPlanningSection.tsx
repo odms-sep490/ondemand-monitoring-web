@@ -178,6 +178,11 @@ function OrderPlanningWorkspace({
       data.missions.length > 0 &&
       data.plan.coverage.uncovered === 0,
   )
+  const canAddMission = Boolean(
+    writable &&
+      data &&
+      ['DRAFT', 'FINALIZED'].includes(data.plan.planStatus),
+  )
 
   async function confirmClose(title: string, close: () => void) {
     if (
@@ -294,6 +299,7 @@ function OrderPlanningWorkspace({
                 orderId={orderId}
                 onCreated={() => {
                   setCreating(false)
+                  onBackToPlanning?.()
                   query.reload()
                 }}
               />
@@ -319,7 +325,7 @@ function OrderPlanningWorkspace({
           {activeTab === 'permit' ? (
             /* Permit stage keeps the current branch navigation behavior. */
             <div className="odm-flight-permits-container">
-              <div>
+              <div className="odm-flight-permit-actions">
                 <Button
                   type="button"
                   size="sm"
@@ -327,6 +333,17 @@ function OrderPlanningWorkspace({
                 >
                   ← Quay lại lập kế hoạch
                 </Button>
+                {canAddMission && isFinalized ? (
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="odm-permit-add-mission"
+                    onClick={() => setCreating(true)}
+                    disabled={busy || creating}
+                  >
+                    {ts.addMission}
+                  </Button>
+                ) : null}
               </div>
               {effective.length === 0 ? (
                 <div className="odm-plan-empty">
@@ -364,6 +381,7 @@ function OrderPlanningWorkspace({
                 onOpenSidebar={() => setSidebarCollapsed(false)}
                 uncovered={data.plan.coverage.uncovered}
                 canEdit={writable && data.plan.planStatus === 'DRAFT'}
+                canAddMission={canAddMission}
                 creating={creating}
                 busy={busy}
                 canConfirmPlan={canConfirmPlan}
@@ -388,7 +406,7 @@ function OrderPlanningWorkspace({
                       order={data.order}
                       plan={data.plan}
                       orderChecklistItems={data.order.checklistItems ?? []}
-                      disabled={busy}
+                      disabled={busy || !writable}
                       onPlanChanged={query.reload}
                       onRequestReason={handleOpenReasonModal}
                       onEditMission={setEditingMission}
