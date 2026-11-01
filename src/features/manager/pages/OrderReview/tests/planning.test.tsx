@@ -65,6 +65,8 @@ beforeEach(() => {
     id: 'invoice-paid',
     paidAmount: 500,
     depositAmount: 500,
+    remainingAmount: 0,
+    finalPaymentAllowed: false,
   } as Invoice)
   vi.spyOn(window, 'confirm').mockReturnValue(true)
   vi.spyOn(ordersApi, 'getOrder').mockResolvedValue({
@@ -99,6 +101,8 @@ describe('Manager multi-Mission planning', () => {
       id: 'invoice-unpaid',
       paidAmount: 0,
       depositAmount: 500,
+      remainingAmount: 500,
+      finalPaymentAllowed: false,
     } as Invoice)
 
     render(<OrderMissionPlanningSection orderId="o" />)
@@ -113,6 +117,37 @@ describe('Manager multi-Mission planning', () => {
     expect(
       screen.queryByRole('button', { name: 'Chốt kế hoạch' }),
     ).not.toBeInTheDocument()
+  })
+
+  it('shows that the Order is awaiting final payment after resource assignment', async () => {
+    vi.mocked(planningApi.getExecutionPlan).mockResolvedValue({
+      ...plan,
+      planStatus: 'FINALIZED',
+    })
+    vi.mocked(planningApi.getOrderMissions).mockResolvedValue(
+      ['m1', 'm2'].map(
+        (id) =>
+          ({
+            id,
+            orderId: 'o',
+            missionCode: id.toUpperCase(),
+            status: 'PENDING_PAYMENT',
+            staffAssignments: [],
+          }) as unknown as MissionResponse,
+      ),
+    )
+    vi.mocked(financeApi.getManagerInvoice).mockResolvedValue({
+      id: 'invoice-awaiting-final-payment',
+      paidAmount: 500,
+      depositAmount: 500,
+      remainingAmount: 500,
+      finalPaymentAllowed: true,
+    } as Invoice)
+
+    render(<OrderMissionPlanningSection orderId="o" />)
+
+    expect(await screen.findByText('Đang chờ khách hàng thanh toán phần còn lại'))
+      .toBeInTheDocument()
   })
 
   it.each(['RESOURCE_ASSIGNING', 'IN_FLIGHT', 'COMPLETED'])(

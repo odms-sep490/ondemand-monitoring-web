@@ -10,6 +10,7 @@ export const orderTimelineMessages = defineMessages({
     stepQuote: 'Xác nhận báo giá',
     stepDeposit: 'Thanh toán tiền cọc',
     stepPlanning: 'Lên lịch & phân công',
+    stepFinalPayment: 'Thanh toán phần còn lại',
     hintReview: 'Đang chờ duyệt',
     hintNeedsInfo: 'Chờ bạn bổ sung thông tin',
     hintWaiting: 'Chờ bắt đầu thực hiện',
@@ -17,6 +18,8 @@ export const orderTimelineMessages = defineMessages({
     hintQuote: 'Chờ bạn chấp nhận báo giá',
     hintDeposit: 'Đang chờ thanh toán tiền cọc',
     hintPlanning: 'Đang lên lịch và phân công nguồn lực',
+    hintFinalPayment: (amount: string) => `Nguồn lực đã được phân công. Vui lòng thanh toán ${amount} còn lại trong mục Tài chính để bắt đầu nhiệm vụ.`,
+    hintFinalPaymentWaiting: 'Vui lòng mở mục Tài chính để xem và thanh toán phần còn lại của hóa đơn.',
     by: (name: string) => `bởi ${name}`,
   },
   en: {
@@ -28,6 +31,7 @@ export const orderTimelineMessages = defineMessages({
     stepQuote: 'Confirm quote',
     stepDeposit: 'Deposit payment',
     stepPlanning: 'Scheduling & assignment',
+    stepFinalPayment: 'Final payment',
     hintReview: 'Awaiting review',
     hintNeedsInfo: 'Waiting for your additional information',
     hintWaiting: 'Waiting to start',
@@ -35,6 +39,8 @@ export const orderTimelineMessages = defineMessages({
     hintQuote: 'Waiting for quote acceptance',
     hintDeposit: 'Waiting for deposit payment',
     hintPlanning: 'Scheduling and assigning resources',
+    hintFinalPayment: (amount: string) => `Resources are assigned. Pay the remaining ${amount} in Finance to start the mission.`,
+    hintFinalPaymentWaiting: 'Open Finance to review and pay the remaining invoice balance.',
     by: (name: string) => `by ${name}`,
   },
 })

@@ -114,6 +114,8 @@ beforeEach(() => {
     id: 'invoice-paid',
     paidAmount: 500,
     depositAmount: 500,
+    remainingAmount: 0,
+    finalPaymentAllowed: false,
   } as Invoice)
   missions = ['m1', 'm2'].map(
     (id) =>

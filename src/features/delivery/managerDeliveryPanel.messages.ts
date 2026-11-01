@@ -7,7 +7,7 @@ export const managerDeliveryPanelMessages = defineMessages({
     eyebrow: 'Quy trình bàn giao',
     title: 'Gửi kết quả cho khách hàng',
     intro:
-      'Chọn ảnh/video đã nghiệm thu để gửi cho khách hàng xem và xác nhận. Sau khi thanh toán hoàn tất, bạn có thể bàn giao tệp gốc.',
+      'Chọn ảnh/video đã nghiệm thu để gửi cho khách hàng xem và xác nhận. Sau khi khách hàng chấp nhận, bạn có thể bàn giao tệp gốc.',
     revisionTitle: 'khách hàng yêu cầu chỉnh sửa',
     processingTitle: 'Chưa thể gửi bản xem trước',
     processingText:
@@ -33,8 +33,8 @@ export const managerDeliveryPanelMessages = defineMessages({
     sentTitle: 'Đã gửi kết quả cho khách hàng',
     sentText: 'Đang chờ khách hàng xem và phản hồi kết quả.',
     acceptedTitle: 'khách hàng đã chấp nhận kết quả',
-    acceptedText: 'Đang chờ khách hàng hoàn tất khoản thanh toán còn lại.',
-    paymentConfirmed: 'Thanh toán đã được xác nhận',
+    acceptedText: 'Kiểm tra trạng thái hóa đơn trước khi bàn giao tệp gốc.',
+    paymentConfirmed: 'Sẵn sàng bàn giao',
     originalsReady: 'Bản gốc đã sẵn sàng để phát hành cho khách hàng.',
     delivering: 'Đang bàn giao…',
     deliverOriginals: 'Bàn giao bản gốc',
@@ -48,7 +48,7 @@ export const managerDeliveryPanelMessages = defineMessages({
     eyebrow: 'Delivery workflow',
     title: 'Send results to the customer',
     intro:
-      'Select the accepted photos/videos to send to the customer for review and confirmation. Once payment is complete, you can deliver the original files.',
+      'Select the accepted photos/videos to send to the customer for review. After the customer accepts the results, you can deliver the original files.',
     revisionTitle: 'The customer requested changes',
     processingTitle: 'Preview cannot be sent yet',
     processingText:
@@ -74,8 +74,8 @@ export const managerDeliveryPanelMessages = defineMessages({
     sentTitle: 'Results sent to the customer',
     sentText: 'Waiting for the customer to review and respond.',
     acceptedTitle: 'The customer accepted the results',
-    acceptedText: 'Waiting for the customer to pay the remaining balance.',
-    paymentConfirmed: 'Payment confirmed',
+    acceptedText: 'Check the invoice status before delivering original files.',
+    paymentConfirmed: 'Ready for delivery',
     originalsReady:
       'The original files are ready to be released to the customer.',
     delivering: 'Delivering…',

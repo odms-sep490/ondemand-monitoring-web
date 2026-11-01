@@ -15,7 +15,6 @@ import { FlightPermitCard } from '../../../components/common/FlightPermitCard'
 import { MissionCreatePage } from '../../MissionCreate/MissionCreatePage'
 import '../../../components/common/planning.css'
 import { usePlanningConfirmation } from '../../../components/common/usePlanningConfirmation'
-import { ApiError } from '../../../../../shared/api/httpClient'
 import { financeApi } from '../../../../finance/api'
 import { PlanningPaymentGate } from './PlanningPaymentGate'
 import { PlanningFormModal } from './PlanningFormModal'
@@ -88,10 +87,7 @@ function OrderPlanningWorkspace({
         planningApi.getExecutionPlan(orderId, signal),
         planningApi.getOrderMissions(orderId, signal),
         initialOrderRef.current ?? ordersApi.getOrder(orderId, signal),
-        financeApi.getManagerInvoice(orderId, signal).catch((error) => {
-          if (error instanceof ApiError && error.status === 404) return null
-          throw error
-        }),
+        financeApi.getManagerInvoice(orderId, signal).catch(() => null),
       ])
       if (!signal.aborted) initialOrderRef.current = undefined
       return { plan, missions, order, invoice }
@@ -282,6 +278,14 @@ function OrderPlanningWorkspace({
               checkPayment={checkPayment}
               data={data}
             />
+          ) : null}
+          {data.invoice?.finalPaymentAllowed && data.invoice.remainingAmount > 0 ? (
+            <div className="mgr-banner mgr-plan-gate" role="status">
+              <div className="mgr-plan-gate-text">
+                <strong>{ts.awaitingFinalPayment}</strong>
+                <span>{ts.awaitingFinalPaymentBody}</span>
+              </div>
+            </div>
           ) : null}
 
           {/* Create Mission Modal Popup */}

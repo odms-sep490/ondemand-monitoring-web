@@ -2,17 +2,20 @@ import { defineMessages } from '../../../../../shared/i18n'
 
 export const orderExpirationSettingsMessages = defineMessages({
   vi: {
-    title: 'Thời hạn báo giá và tiền đặt cọc',
+    title: 'Thời hạn thanh toán và báo giá',
     formTitle: 'Thiết lập thời hạn',
     description:
-      'Thời hạn độc lập, được áp dụng khi báo giá được duyệt hoặc khách hàng chấp nhận báo giá.',
-    independentBadge: 'Hai mốc thời gian độc lập',
+      'Cấu hình thời gian chấp nhận báo giá, thanh toán đặt cọc và thanh toán phần còn lại.',
+    independentBadge: 'Ba mốc thời gian độc lập',
     quotation: 'Thời hạn khách hàng chấp nhận báo giá',
     quotationHint:
       'Báo giá sẽ hết hiệu lực nếu khách hàng chưa phản hồi trong khoảng thời gian này.',
     deposit: 'Thời hạn thanh toán tiền đặt cọc',
     depositHint:
       'Khách hàng cần hoàn tất thanh toán đặt cọc trước khi thời hạn này kết thúc.',
+    finalPayment: 'Thời hạn thanh toán phần còn lại',
+    finalPaymentHint:
+      'Bắt đầu khi nhiệm vụ đã được phân công tài nguyên và khoản còn lại được mở để thanh toán.',
     requiredHours: 'Vui lòng nhập thời hạn.',
     integerHours: 'Thời hạn phải là số giờ nguyên.',
     positiveHours: 'Thời hạn phải lớn hơn 0.',
@@ -40,17 +43,20 @@ export const orderExpirationSettingsMessages = defineMessages({
     hoursShort: 'giờ',
   },
   en: {
-    title: 'Quotation and deposit timeouts',
+    title: 'Quotation and payment timeouts',
     formTitle: 'Configure timeouts',
     description:
-      'Independent timeouts applied when a quote is approved or accepted by the customer.',
-    independentBadge: 'Two independent timers',
+      'Configure quote acceptance, deposit payment, and final balance payment deadlines.',
+    independentBadge: 'Three independent timers',
     quotation: 'Customer quote-acceptance timeout',
     quotationHint:
       'The quote expires if the customer has not responded within this period.',
     deposit: 'Deposit-payment timeout',
     depositHint:
       'The customer must complete the deposit payment before this period ends.',
+    finalPayment: 'Final balance payment timeout',
+    finalPaymentHint:
+      'Starts when mission resources are assigned and the remaining balance becomes payable.',
     requiredHours: 'Enter a timeout duration.',
     integerHours: 'The timeout must be a whole number of hours.',
     positiveHours: 'The timeout must be greater than zero.',

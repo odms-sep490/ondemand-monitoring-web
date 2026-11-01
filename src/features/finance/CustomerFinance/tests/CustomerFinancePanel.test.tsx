@@ -51,7 +51,10 @@ const pendingDeposit: Payment = {
   paidAt: null,
 }
 
-afterEach(() => vi.restoreAllMocks())
+afterEach(() => {
+  vi.restoreAllMocks()
+  act(() => setLanguage('vi'))
+})
 
 describe('CustomerFinancePanel', () => {
   it.each([
@@ -157,6 +160,7 @@ describe('CustomerFinancePanel', () => {
   })
 
   it('completes a deposit immediately with the development test button', async () => {
+    act(() => setLanguage('en'))
     vi.spyOn(financeApi, 'getQuote').mockResolvedValue(quote)
     vi.spyOn(financeApi, 'getInvoice')
       .mockResolvedValueOnce(invoice)
@@ -176,11 +180,14 @@ describe('CustomerFinancePanel', () => {
 
     render(<CustomerFinancePanel orderId="order-1" />)
     fireEvent.click(
-      await screen.findByRole('button', { name: 'Thanh toán nhanh (Test)' }),
+      await screen.findByRole('button', { name: 'Quick payment (Test)' }),
     )
 
     await waitFor(() => expect(complete).toHaveBeenCalledWith('invoice-1'))
-    expect(await screen.findByText('Đã nhận tiền đặt cọc')).toBeInTheDocument()
+    expect(await screen.findByText('Mission preparation in progress')).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Pay the remaining balance' }),
+    ).not.toBeInTheDocument()
   })
 
   it('lets the customer accept an approved quote and start the deposit payment', async () => {

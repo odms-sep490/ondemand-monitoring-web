@@ -7,6 +7,7 @@ const HAPPY_PATH: OrderStepKey[] = [
   'quote',
   'deposit',
   'planning',
+  'finalPayment',
   'inProgress',
   'completed',
 ]
@@ -14,7 +15,14 @@ const HAPPY_PATH: OrderStepKey[] = [
 export type OrderFinanceProgress = {
   loading?: boolean
   quote?: { status: string; approvedAt: string | null; acceptedAt: string | null } | null
-  invoice?: { depositAmount: number; paidAmount: number; issuedAt: string } | null
+  invoice?: {
+    depositAmount: number
+    paidAmount: number
+    remainingAmount?: number
+    status?: string
+    finalPaymentAllowed?: boolean
+    issuedAt: string
+  } | null
 }
 
 export type OrderMissionProgress = {
@@ -48,7 +56,7 @@ const CURRENT_INDEX: Partial<Record<OrderStatus, number>> = {
   UNDER_REVIEW: 1,
   NEEDS_INFO: 1,
   SCHEDULED: 4,
-  IN_PROGRESS: 5,
+  IN_PROGRESS: 6,
   COMPLETED: HAPPY_PATH.length,
 }
 
@@ -94,7 +102,7 @@ function step(
 }
 
 /**
- * Ordered progress steps for an order: submitted, approved, in progress, completed.
+ * Ordered progress steps for an order: submitted, approved, quote, payments, planning, execution.
  * REJECTED and CANCELLED end the path with a terminal step and nothing upcoming; for those
  * only the steps the events prove are listed. Draft-like statuses have no progress yet.
  * Dates, actors and notes are copied from the events and never invented.
@@ -123,7 +131,12 @@ export function buildOrderSteps(
   const planningCompleted = missions.some(
     (mission) => Boolean(mission.scheduledStartAt) && PLANNING_COMPLETED_STATUSES.has(mission.status),
   )
-  if (planningCompleted && current === 4) current = 5
+  if (planningCompleted && status !== 'COMPLETED') {
+    const finalPaid = status === 'IN_PROGRESS'
+      || Boolean(finance?.invoice?.status === 'PAID')
+      || (finance?.invoice?.remainingAmount != null && finance.invoice.remainingAmount <= 0)
+    current = finalPaid ? 6 : 5
+  }
   if (current === undefined) return []
   return HAPPY_PATH.map((key, index) =>
     step(key, index < current ? 'done' : index === current ? 'current' : 'upcoming', events, finance, missions),

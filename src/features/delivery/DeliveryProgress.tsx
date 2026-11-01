@@ -7,10 +7,10 @@ const STATUS_META: Record<DeliveryStatus, { tone: string; step: number }> = {
   READY_FOR_MANAGER_REVIEW: { tone: 'warning', step: 0 },
   CUSTOMER_REVIEW: { tone: 'info', step: 1 },
   REVISION_REQUESTED: { tone: 'warning', step: 1 },
-  FINAL_PAYMENT_PENDING: { tone: 'warning', step: 2 },
-  PAYMENT_CONFIRMED: { tone: 'success', step: 3 },
-  READY_FOR_DELIVERY: { tone: 'info', step: 3 },
-  DELIVERED: { tone: 'success', step: 4 },
+  FINAL_PAYMENT_PENDING: { tone: 'success', step: 2 },
+  PAYMENT_CONFIRMED: { tone: 'success', step: 2 },
+  READY_FOR_DELIVERY: { tone: 'info', step: 2 },
+  DELIVERED: { tone: 'success', step: 3 },
 }
 
 export function DeliveryStatusPill({ status }: { status: DeliveryStatus }) {

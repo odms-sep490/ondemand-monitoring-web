@@ -6,7 +6,6 @@ export const deliveryProgressMessages = defineMessages({
     steps: [
       { label: 'Kiểm tra kết quả', shortLabel: 'Kiểm tra' },
       { label: 'Khách hàng duyệt', shortLabel: 'Duyệt' },
-      { label: 'Thanh toán cuối', shortLabel: 'Thanh toán' },
       { label: 'Bàn giao dữ liệu', shortLabel: 'Bàn giao' },
     ],
     status: {
@@ -14,8 +13,8 @@ export const deliveryProgressMessages = defineMessages({
       READY_FOR_MANAGER_REVIEW: 'Chờ quản lý kiểm tra',
       CUSTOMER_REVIEW: 'Chờ Khách hàng duyệt',
       REVISION_REQUESTED: 'Đang chỉnh sửa',
-      FINAL_PAYMENT_PENDING: 'Chờ thanh toán cuối',
-      PAYMENT_CONFIRMED: 'Đã xác nhận thanh toán',
+      FINAL_PAYMENT_PENDING: 'Đã chấp nhận kết quả',
+      PAYMENT_CONFIRMED: 'Đã chấp nhận kết quả',
       READY_FOR_DELIVERY: 'Sẵn sàng bàn giao',
       DELIVERED: 'Đã bàn giao',
     },
@@ -25,7 +24,6 @@ export const deliveryProgressMessages = defineMessages({
     steps: [
       { label: 'Result check', shortLabel: 'Check' },
       { label: 'Customer approval', shortLabel: 'Approval' },
-      { label: 'Final payment', shortLabel: 'Payment' },
       { label: 'Data delivery', shortLabel: 'Delivery' },
     ],
     status: {
@@ -33,8 +31,8 @@ export const deliveryProgressMessages = defineMessages({
       READY_FOR_MANAGER_REVIEW: 'Awaiting Manager check',
       CUSTOMER_REVIEW: 'Awaiting Customer approval',
       REVISION_REQUESTED: 'Revising',
-      FINAL_PAYMENT_PENDING: 'Awaiting final payment',
-      PAYMENT_CONFIRMED: 'Payment confirmed',
+      FINAL_PAYMENT_PENDING: 'Results accepted',
+      PAYMENT_CONFIRMED: 'Results accepted',
       READY_FOR_DELIVERY: 'Ready for delivery',
       DELIVERED: 'Delivered',
     },
