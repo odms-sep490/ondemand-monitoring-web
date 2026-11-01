@@ -20,6 +20,80 @@ const quote: CustomerQuote = {
 describe('commercial deadline presentation', () => {
   afterEach(() => vi.useRealTimers())
 
+  it.each([3, 10])(
+    'keeps the service list and cost summary structured with %i checklist items',
+    (count) => {
+      const items = Array.from({ length: count }, (_, index) => ({
+        id: `item-${index + 1}`,
+        orderChecklistItemId: `checklist-${index + 1}`,
+        type: 'CHECKLIST' as const,
+        description:
+          index === 0
+            ? 'Kiểm tra khu vực phía sau nhà xưởng có chiều dài mô tả rất dài để xác nhận nội dung vẫn xuống dòng an toàn'
+            : `Hạng mục giám sát ${index + 1}`,
+        quantity: 1,
+        unitPrice: 250_000,
+        amount: 250_000,
+        displayOrder: index,
+      }))
+      const { container } = render(
+        <QuoteSection
+          quote={{ ...quote, items }}
+          legalReady
+          legalStatus="APPROVED"
+          invoice={null}
+          busy={false}
+          accept={vi.fn()}
+        />,
+      )
+
+      expect(container.querySelectorAll('.customer-quote-group')).toHaveLength(
+        count,
+      )
+      expect(
+        screen.getByRole('region', { name: 'Dịch vụ' }),
+      ).toBeInTheDocument()
+      expect(
+        screen.getByRole('region', { name: 'Tổng kết chi phí' }),
+      ).toBeInTheDocument()
+      expect(
+        screen.getByText('Báo giá chưa có thời hạn chấp nhận'),
+      ).toBeInTheDocument()
+      expect(
+        screen.getAllByText(
+          'Kiểm tra khu vực phía sau nhà xưởng có chiều dài mô tả rất dài để xác nhận nội dung vẫn xuống dòng an toàn',
+        ),
+      ).toHaveLength(2)
+    },
+  )
+
+  it('keeps multiple order-level add-ons inside one expandable price group', () => {
+    const items = Array.from({ length: 3 }, (_, index) => ({
+      id: `addon-${index + 1}`,
+      orderChecklistItemId: null,
+      type: 'ADDITIONAL' as const,
+      description: `Dịch vụ bổ sung ${index + 1}`,
+      quantity: 1,
+      unitPrice: 100_000,
+      amount: 100_000,
+      displayOrder: index,
+    }))
+    const { container } = render(
+      <QuoteSection
+        quote={{ ...quote, items, approvedAdditionalServiceAmount: 300_000 }}
+        legalReady
+        legalStatus="APPROVED"
+        invoice={null}
+        busy={false}
+        accept={vi.fn()}
+      />,
+    )
+
+    expect(container.querySelectorAll('.customer-quote-group')).toHaveLength(1)
+    expect(screen.getByText('Theo đơn hàng')).toBeInTheDocument()
+    expect(screen.getByText('Dịch vụ bổ sung 3')).toBeInTheDocument()
+  })
+
   it('disables stale acceptance and asks the backend to refresh when the countdown reaches zero', () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-11-03T02:59:59Z'))
@@ -44,6 +118,27 @@ describe('commercial deadline presentation', () => {
       screen.getByText(/Báo giá đã hết hạn|Quotation expired/),
     ).toBeInTheDocument()
     expect(refresh).toHaveBeenCalledTimes(1)
+  })
+
+  it('shows and updates seconds while more than one hour remains', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-03T02:00:00Z'))
+    render(
+      <QuoteSection
+        quote={{ ...quote, expiresAt: '2026-11-03T03:30:45Z' }}
+        legalReady
+        legalStatus="APPROVED"
+        invoice={null}
+        busy={false}
+        accept={vi.fn()}
+      />,
+    )
+
+    expect(screen.getByText('1 giờ 30 phút 45 giây')).toBeInTheDocument()
+    act(() => {
+      vi.advanceTimersByTime(1_000)
+    })
+    expect(screen.getByText('1 giờ 30 phút 44 giây')).toBeInTheDocument()
   })
 
   it('stops showing the quote-acceptance countdown after the customer accepts', () => {

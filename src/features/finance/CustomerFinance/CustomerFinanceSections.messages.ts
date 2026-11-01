@@ -12,17 +12,38 @@ export const customerFinanceSectionsMessages = defineMessages({
     legalCheckingBody:
       'Chúng tôi đang xác minh các điều kiện cần thiết trước khi đơn hàng có thể tiếp tục.',
     permitTitle: 'Đang xác minh giấy phép bay',
-    permitBody: 'Bạn vẫn có thể tiếp tục. Chúng tôi sẽ cập nhật khi giấy phép được xác nhận.',
+    permitBody:
+      'Bạn vẫn có thể tiếp tục. Chúng tôi sẽ cập nhật khi giấy phép được xác nhận.',
     accept: 'Chấp nhận báo giá',
     quoteExpiresIn: (remaining: string) => `Báo giá hết hạn sau ${remaining}`,
+    quoteExpiresLabel: 'Báo giá hết hạn sau',
+    quoteCountdown: (
+      days: number,
+      hours: number,
+      minutes: number,
+      seconds: number,
+    ) =>
+      [
+        days > 0 ? `${days} ngày` : null,
+        days > 0 || hours > 0 ? `${hours} giờ` : null,
+        days > 0 || hours > 0 || minutes > 0 ? `${minutes} phút` : null,
+        `${seconds} giây`,
+      ]
+        .filter(Boolean)
+        .join(' '),
     quoteExpired: 'Báo giá đã hết hạn',
-    depositDeadline: (remaining: string) => `Hạn thanh toán tiền cọc: ${remaining}`,
+    quoteAccepted: 'Bạn đã chấp nhận báo giá',
+    acceptedAt: (value: string) => `Đã xác nhận lúc ${value}`,
+    noQuoteDeadline: 'Báo giá chưa có thời hạn chấp nhận',
+    depositDeadline: (remaining: string) =>
+      `Hạn thanh toán tiền cọc: ${remaining}`,
     depositExpired: 'Hạn thanh toán tiền cọc đã qua',
     deadlineAt: (value: string) => `Thời hạn: ${value}`,
     orderCancelledQuoteTimeout: 'Đơn hàng đã bị hủy do báo giá hết hạn.',
     orderCancelledPaymentTimeout: 'Đơn hàng đã bị hủy do quá hạn thanh toán.',
     invoice: (number: string) => `Hóa đơn ${number}`,
-    depositIpn: 'Khoản đặt cọc được xác nhận qua IPN VNPAY trước khi nhiệm vụ bắt đầu.',
+    depositIpn:
+      'Khoản đặt cọc được xác nhận qua IPN VNPAY trước khi nhiệm vụ bắt đầu.',
     total: 'Tổng',
     deposit: 'Tiền đặt cọc (30%)',
     paid: 'Đã thanh toán',
@@ -37,6 +58,10 @@ export const customerFinanceSectionsMessages = defineMessages({
     contentFallback: 'Nội dung',
     perOrder: 'Theo đơn hàng',
     priceDetails: 'Chi tiết giá',
+    serviceColumn: 'Dịch vụ',
+    priceColumn: 'Thành tiền',
+    actionsLabel: 'Thời hạn và thao tác',
+    summaryLabel: 'Tổng kết chi phí',
     adjustment: 'Điều chỉnh đã được phê duyệt',
     invoiceStatus: {
       ISSUED: 'Chờ thanh toán',
@@ -54,21 +79,44 @@ export const customerFinanceSectionsMessages = defineMessages({
     estimateNotice: 'Any additional services will be quoted separately.',
     legalRejectedTitle: 'This order cannot be carried out',
     legalCheckingTitle: 'Verifying flight area conditions',
-    legalRejectedBody: 'This order cannot be carried out because of the flight area conditions.',
+    legalRejectedBody:
+      'This order cannot be carried out because of the flight area conditions.',
     legalCheckingBody:
       'We are verifying the required conditions before the order can continue.',
     permitTitle: 'Verifying the flight permit',
-    permitBody: 'You can still continue. We will update you once the permit is confirmed.',
+    permitBody:
+      'You can still continue. We will update you once the permit is confirmed.',
     accept: 'Accept quote',
     quoteExpiresIn: (remaining: string) => `Quotation expires in ${remaining}`,
+    quoteExpiresLabel: 'Quotation expires in',
+    quoteCountdown: (
+      days: number,
+      hours: number,
+      minutes: number,
+      seconds: number,
+    ) =>
+      [
+        days > 0 ? `${days} days` : null,
+        days > 0 || hours > 0 ? `${hours} hours` : null,
+        days > 0 || hours > 0 || minutes > 0 ? `${minutes} minutes` : null,
+        `${seconds} seconds`,
+      ]
+        .filter(Boolean)
+        .join(' '),
     quoteExpired: 'Quotation expired',
-    depositDeadline: (remaining: string) => `Deposit payment deadline: ${remaining}`,
+    quoteAccepted: 'You accepted this quote',
+    acceptedAt: (value: string) => `Accepted at ${value}`,
+    noQuoteDeadline: 'No quote acceptance deadline is available',
+    depositDeadline: (remaining: string) =>
+      `Deposit payment deadline: ${remaining}`,
     depositExpired: 'Deposit payment deadline expired',
     deadlineAt: (value: string) => `Deadline: ${value}`,
-    orderCancelledQuoteTimeout: 'Order cancelled because the quotation expired.',
+    orderCancelledQuoteTimeout:
+      'Order cancelled because the quotation expired.',
     orderCancelledPaymentTimeout: 'Order cancelled due to payment timeout.',
     invoice: (number: string) => `Invoice ${number}`,
-    depositIpn: 'The deposit is confirmed through VNPAY IPN before the mission starts.',
+    depositIpn:
+      'The deposit is confirmed through VNPAY IPN before the mission starts.',
     total: 'Total',
     deposit: 'Deposit (30%)',
     paid: 'Paid',
@@ -83,6 +131,10 @@ export const customerFinanceSectionsMessages = defineMessages({
     contentFallback: 'Content',
     perOrder: 'Per order',
     priceDetails: 'Price details',
+    serviceColumn: 'Service',
+    priceColumn: 'Amount',
+    actionsLabel: 'Deadline and actions',
+    summaryLabel: 'Cost summary',
     adjustment: 'Approved adjustment',
     invoiceStatus: {
       ISSUED: 'Awaiting payment',

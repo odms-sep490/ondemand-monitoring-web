@@ -1,4 +1,5 @@
-import { Tabs } from 'antd'
+import { Badge, Tabs } from 'antd'
+import { Client } from '@stomp/stompjs'
 import { useCallback, useEffect, useState } from 'react'
 
 import { ErrorState, LoadingState } from '../../components/common/StateView'
@@ -26,6 +27,8 @@ import { CardTitle } from './components/CardTitle'
 import { useOrderDetail } from './hooks/useOrderDetail'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { orderDetailPageMessages } from './OrderDetailPage.messages'
+import { authSession } from '../../../auth/api/authApi'
+import { env } from '../../../../config/env'
 import './OrderDetail.css'
 
 type DetailTab = 'order' | 'monitoring' | 'finance' | 'support' | 'results'
@@ -33,6 +36,32 @@ type CachedDeliveryState = {
   orderId: string
   delivery: Delivery | null
   state: DeliveryPanelLoadState
+}
+
+type CustomerOrderEvent = {
+  eventType: string
+  orderId: string
+  quoteId: string
+}
+
+function quoteSeenStorageKey(orderId: string) {
+  return `customer-order-quote-seen:${orderId}`
+}
+
+function getSeenQuoteId(orderId: string) {
+  try {
+    return window.localStorage.getItem(quoteSeenStorageKey(orderId))
+  } catch {
+    return null
+  }
+}
+
+function markQuoteAsSeen(orderId: string, quoteId: string) {
+  try {
+    window.localStorage.setItem(quoteSeenStorageKey(orderId), quoteId)
+  } catch {
+    // The live session still clears the badge when browser storage is unavailable.
+  }
 }
 
 /** Customer order detail backed by `GET /api/orders/{id}`. */
@@ -54,6 +83,8 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
     invoice: null,
     loading: true,
   })
+  const [financeRefreshVersion, setFinanceRefreshVersion] = useState(0)
+  const [unreadQuoteId, setUnreadQuoteId] = useState<string | null>(null)
   const [selectedTab, setSelectedTab] = useState<{
     orderId: string
     tab: DetailTab
@@ -87,6 +118,74 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
   const updateFinance = useCallback((state: CustomerFinanceState) => {
     setFinance(state)
   }, [])
+
+  useEffect(() => {
+    if (env.useMockApi) return
+
+    const token = authSession.getAccessToken()
+    if (!token) return
+
+    const brokerUrl = new URL('/ws', env.apiBaseUrl)
+    brokerUrl.protocol = brokerUrl.protocol === 'https:' ? 'wss:' : 'ws:'
+
+    const client = new Client({
+      brokerURL: brokerUrl.toString(),
+      connectHeaders: { Authorization: `Bearer ${token}` },
+      reconnectDelay: 3_000,
+      heartbeatIncoming: 10_000,
+      heartbeatOutgoing: 10_000,
+      debug: () => undefined,
+    })
+
+    client.onConnect = () => {
+      client.subscribe('/user/queue/order-events', (message) => {
+        let event: CustomerOrderEvent
+        try {
+          event = JSON.parse(message.body) as CustomerOrderEvent
+        } catch {
+          return
+        }
+        if (
+          event.eventType !== 'QUOTE_APPROVED' ||
+          event.orderId !== orderId ||
+          !event.quoteId
+        ) {
+          return
+        }
+
+        if (getSeenQuoteId(orderId) !== event.quoteId)
+          setUnreadQuoteId(event.quoteId)
+        setFinanceRefreshVersion((version) => version + 1)
+        detail.reload()
+      })
+    }
+
+    client.activate()
+    return () => {
+      void client.deactivate()
+    }
+  }, [detail.reload, orderId])
+
+  useEffect(() => {
+    const quote = finance.quote
+    if (!quote || quote.status !== 'APPROVED') return
+    if (getSeenQuoteId(orderId) === quote.id) setUnreadQuoteId(null)
+    else setUnreadQuoteId(quote.id)
+  }, [finance.quote?.id, finance.quote?.status, orderId])
+
+  const acknowledgeQuote = useCallback(() => {
+    const quoteId = finance.quote?.id ?? unreadQuoteId
+    if (quoteId) markQuoteAsSeen(orderId, quoteId)
+    setUnreadQuoteId(null)
+  }, [finance.quote?.id, orderId, unreadQuoteId])
+
+  const handleTabChange = useCallback(
+    (key: string) => {
+      setSelectedTab({ orderId, tab: key as DetailTab })
+      if (key === 'finance') acknowledgeQuote()
+    },
+    [acknowledgeQuote, orderId],
+  )
   const updateDelivery = useCallback(
     (delivery: Delivery | null, state: DeliveryPanelLoadState) => {
       setDeliveryState({ orderId, delivery, state })
@@ -216,7 +315,7 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
         orderId={order.id}
         legalStatus={order.legalReviewStatus}
         onStateChange={updateFinance}
-        refreshKey={`${order.status}:${order.checklistRevision}`}
+        refreshKey={`${order.status}:${order.checklistRevision}:${financeRefreshVersion}`}
       />
     </div>
   )
@@ -258,9 +357,10 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
         className="od-tabs"
         activeKey={activeTab}
         aria-label={t.pageTabs}
-        onChange={(key) =>
-          setSelectedTab({ orderId: order.id, tab: key as DetailTab })
-        }
+        onChange={handleTabChange}
+        onTabClick={(key) => {
+          if (key === 'finance') acknowledgeQuote()
+        }}
         items={[
           ...(hasResults
             ? [
@@ -294,7 +394,14 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
           },
           {
             key: 'finance',
-            label: t.tabFinance,
+            label: (
+              <span className="od-finance-tab-label">
+                {t.tabFinance}
+                {unreadQuoteId ? (
+                  <Badge count={1} size="small" title={t.newQuoteApproval} />
+                ) : null}
+              </span>
+            ),
             forceRender: true,
             children: financeContent,
           },

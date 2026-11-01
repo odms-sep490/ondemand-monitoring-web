@@ -1,8 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 
-export function useDeadline(value: string | null | undefined, onExpire?: () => void) {
+export function useDeadline(
+  value: string | null | undefined,
+  onExpire?: () => void,
+) {
   const deadline = value ? Date.parse(value) : Number.NaN
-  const calculate = () => (Number.isFinite(deadline) ? Math.max(0, deadline - Date.now()) : null)
+  const calculate = () =>
+    Number.isFinite(deadline) ? Math.max(0, deadline - Date.now()) : null
   const [remainingMs, setRemainingMs] = useState<number | null>(calculate)
   const notified = useRef(false)
   const callback = useRef(onExpire)
@@ -26,6 +30,7 @@ export function useDeadline(value: string | null | undefined, onExpire?: () => v
 
   return {
     expired: remainingMs === 0,
+    remainingMs,
     remaining: remainingMs == null ? null : formatRemaining(remainingMs),
   }
 }

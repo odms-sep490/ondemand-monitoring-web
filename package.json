@@ -45,6 +45,7 @@
     "@fullcalendar/react": "^6.1.22",
     "@fullcalendar/timegrid": "^6.1.22",
     "@noble/hashes": "^2.4.0",
+    "@stomp/stompjs": "^7.5.0",
     "antd": "^5.29.3",
     "framer-motion": "^14.6.0",
     "leaflet": "^1.9.4",
