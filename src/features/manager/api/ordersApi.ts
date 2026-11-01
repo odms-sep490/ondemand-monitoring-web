@@ -218,6 +218,13 @@ export const ordersApi = {
     }))
   },
 
+  startReview(id: string): Promise<OrderCreateResponse> {
+    return apiRequest<OrderCreateResponse>(
+      `/api/orders/${encodeURIComponent(id)}/start-review`,
+      { method: 'POST' },
+    )
+  },
+
   /**
    * `GET /api/orders/{id}/resource-preview` — PROPOSED, no source endpoint.
    * `null` for orders without design-sourced preview content.

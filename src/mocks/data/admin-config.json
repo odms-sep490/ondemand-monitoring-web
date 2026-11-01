@@ -1,5 +1,11 @@
 {
   "_note": "Mock operating config data for ADM-04.",
+  "orderExpirationSettings": {
+    "quotationAcceptanceTimeoutHours": 48,
+    "depositPaymentTimeoutHours": 24,
+    "updatedBy": "system",
+    "updatedAt": null
+  },
   "policies": [
     {
       "id": "pol-lead-time",

@@ -11,7 +11,7 @@ import { CardComponent } from '../../../shared/components/antd'
 import { OrderIcon } from '../../manager/components/common/OrderIcon'
 import { isNotFound, messageOf } from './customerFinanceHelpers'
 import { QuoteSection } from './components/QuoteSection'
-import { InvoiceSection } from './components/InvoiceSection'
+import { InvoiceSection, InvoiceSummary } from './components/InvoiceSection'
 
 export type CustomerFinanceState = {
   quote: CustomerQuote | null
@@ -120,6 +120,23 @@ export function CustomerFinancePanel({
     }
   }
 
+  const invoiceSummaryContent = invoice ? (
+    <InvoiceSummary invoice={invoice} />
+  ) : null
+
+  const invoiceContent = invoice ? (
+    <InvoiceSection
+      invoice={invoice}
+      legalReady={legalReady}
+      busy={busy}
+      pay={pay}
+      completeTestDeposit={() => completeTestPayment('deposit')}
+      completeTestFinal={() => completeTestPayment('final')}
+      testPaymentLabel={t.testPayment}
+      refreshExpired={() => void load()}
+    />
+  ) : null
+
   if (loading && !quote && !invoice)
     return (
       <CardComponent
@@ -164,19 +181,17 @@ export function CustomerFinancePanel({
           invoice={invoice}
           busy={busy || quoteStale}
           accept={accept}
+          refreshExpired={() => void load()}
+          paymentContent={invoiceContent}
+          paymentSummaryContent={invoiceSummaryContent}
         />
       ) : null}
 
-      {invoice ? (
-        <InvoiceSection
-          invoice={invoice}
-          legalReady={legalReady}
-          busy={busy}
-          pay={pay}
-          completeTestDeposit={() => completeTestPayment('deposit')}
-          completeTestFinal={() => completeTestPayment('final')}
-          testPaymentLabel={t.testPayment}
-        />
+      {!quote && invoice ? (
+        <div className="customer-invoice-standalone">
+          {invoiceSummaryContent}
+          {invoiceContent}
+        </div>
       ) : null}
       {quoteStale ? (
         <Button disabled={busy || loading} onClick={() => void load()}>

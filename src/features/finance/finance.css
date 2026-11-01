@@ -484,7 +484,8 @@
   gap: 16px;
   margin: 16px 20px 0;
   padding: 10px 12px;
-  border-left: 3px solid #d97706;
+  border: 1px solid #f3d18a;
+  border-radius: 10px;
   background: #fffbeb;
   color: #92400e;
   font-size: 13px;
@@ -608,6 +609,9 @@
 .customer-finance-card {
   overflow: hidden;
 }
+.customer-finance-card:has(.customer-quote-layout) {
+  overflow: visible;
+}
 .customer-finance-card .ant-card-body {
   padding: 0;
 }
@@ -644,9 +648,360 @@
 .customer-invoice {
   padding: 20px;
 }
+.customer-quote-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(320px, 0.85fr);
+  gap: 24px;
+  align-items: stretch;
+}
+.customer-quote-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.customer-quote-table-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content max-content;
+  gap: 12px;
+  padding: 9px 14px;
+  border-radius: 9px;
+  background: #f1f5fb;
+  color: var(--ui-text-2);
+  font-size: 12px;
+  font-weight: 700;
+}
+.customer-quote-table-head span:last-child {
+  text-align: right;
+}
+.customer-quote-table-head span:nth-child(2) {
+  min-width: 118px;
+  text-align: right;
+}
+.customer-quote-actions {
+  position: sticky;
+  top: 24px;
+  align-self: start;
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid #dbe7f7;
+  border-radius: 16px;
+  background: #fbfdff;
+  box-shadow: 0 8px 24px rgb(31 82 147 / 8%);
+}
+.customer-quote-actions > .ant-btn {
+  width: 100%;
+  min-height: 46px;
+  font-weight: 700;
+}
+.customer-deadline-countdown {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid #d5e4fb;
+  border-radius: 14px;
+  background: radial-gradient(ellipse at 50% 0%, #fff 0%, #f4f8ff 74%);
+  color: #123b82;
+  text-align: center;
+}
+.customer-deadline-countdown-label {
+  margin: 0;
+  color: #334e78;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+.customer-deadline-clock {
+  position: relative;
+  width: clamp(148px, 42vw, 194px);
+  aspect-ratio: 1;
+  filter: drop-shadow(0 7px 10px rgb(38 102 190 / 12%));
+}
+.customer-deadline-clock > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.customer-deadline-ring-track,
+.customer-deadline-ring-progress {
+  fill: none;
+  stroke-width: 7;
+}
+.customer-deadline-ring-track {
+  stroke: #cbdfff;
+}
+.customer-deadline-ring-progress {
+  stroke: #1474ed;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: 120px 120px;
+  transition: stroke-dashoffset 500ms linear;
+}
+.customer-deadline-clock-face {
+  stroke: #fff;
+  stroke-width: 2;
+}
+.customer-deadline-clock-tick {
+  stroke: #6b9df0;
+  stroke-linecap: round;
+  stroke-width: 1.5;
+}
+.customer-deadline-clock-tick.is-major {
+  stroke: #276de0;
+  stroke-width: 2.5;
+}
+.customer-deadline-clock-numerals {
+  fill: #123b82;
+  font-size: 17px;
+  font-weight: 750;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  font-variant-numeric: tabular-nums;
+}
+.customer-deadline-clock-hand {
+  stroke-linecap: round;
+}
+.customer-deadline-clock-hand.is-hour {
+  stroke: #123b82;
+  stroke-width: 6;
+}
+.customer-deadline-clock-hand.is-minute {
+  stroke: #1769db;
+  stroke-width: 4.5;
+}
+.customer-deadline-clock-hand.is-second {
+  stroke: #36a0f6;
+  stroke-width: 2;
+}
+.customer-deadline-clock-pin {
+  fill: #1769db;
+  stroke: #fff;
+  stroke-width: 2;
+}
+.customer-deadline-units {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+  width: 100%;
+}
+.customer-deadline-unit {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+  padding: 7px 4px 6px;
+  border: 1px solid #d7e6ff;
+  border-radius: 10px;
+  background: #fff;
+}
+.customer-deadline-unit strong {
+  color: #1158c7;
+  font-size: 22px;
+  font-weight: 750;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+}
+.customer-deadline-unit span {
+  color: #405878;
+  font-size: 10px;
+  line-height: 1.3;
+}
+.customer-deadline-units.has-days {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.customer-deadline-date {
+  display: block;
+  max-width: 100%;
+  color: var(--ui-text-2);
+  font-size: 12px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.customer-deadline-countdown.is-expired {
+  border-color: #efc9c9;
+  background: radial-gradient(ellipse at 50% 0%, #fff 0%, #fff6f6 74%);
+  color: #982b2b;
+}
+.customer-deadline-countdown.is-expired .customer-deadline-countdown-label,
+.customer-deadline-countdown.is-expired .customer-deadline-unit strong {
+  color: #a82f35;
+}
+.customer-deadline-countdown.is-expired .customer-deadline-ring-track {
+  stroke: #efd1d1;
+}
+.customer-deadline-countdown.is-expired .customer-deadline-ring-progress {
+  stroke: #c74848;
+}
+.customer-deadline-countdown.is-expired .customer-deadline-clock-tick {
+  stroke: #d88787;
+}
+.customer-deadline-countdown.is-expired .customer-deadline-clock-hand,
+.customer-deadline-countdown.is-expired .customer-deadline-clock-pin {
+  stroke: #a82f35;
+}
+.customer-deadline-countdown.is-expired .customer-deadline-clock-pin {
+  fill: #a82f35;
+}
+.customer-quote-state {
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  border: 1px solid var(--ui-border);
+  border-radius: 10px;
+  background: var(--ui-surface-2);
+  color: var(--ui-text-2);
+  font-size: 13px;
+}
+.customer-quote-state strong {
+  color: var(--ui-text);
+}
+.customer-quote-state span {
+  overflow-wrap: anywhere;
+}
+.customer-quote-state.is-accepted {
+  gap: 2px;
+  padding: 9px 12px;
+  border-color: #a7e3c1;
+  background: #edfbf3;
+  color: #236644;
+  font-size: 12px;
+}
+.customer-quote-actions .customer-quote-state.is-accepted {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+}
+.customer-quote-actions .customer-quote-state.is-accepted span {
+  font-size: 11px;
+}
+.customer-quote-state.is-accepted strong {
+  color: #146c43;
+}
+.customer-quote-actions .co-estimate-notice {
+  margin: 0;
+  padding: 9px 11px;
+  border: 1px solid #f3df9f;
+  border-radius: 10px;
+  background: #fff8df;
+  color: #755114;
+  font-size: 12px;
+  line-height: 1.45;
+}
+.customer-quote-actions .customer-deposit-notice {
+  margin: 0;
+}
+.customer-quote-financial-summary {
+  display: grid;
+  gap: 16px;
+  margin-top: auto;
+}
+.customer-quote-summary-section {
+  margin-top: 0;
+  padding-top: 20px;
+  border-top: 1px solid var(--ui-border);
+}
+.customer-quote-summary-section h3 {
+  margin: 0 0 8px;
+  color: var(--ui-text);
+  font-size: 15px;
+  font-weight: 700;
+}
+.customer-invoice-summary {
+  min-width: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--ui-border);
+  border-radius: 12px;
+  background: var(--ui-surface, #fff);
+}
+.customer-invoice-summary-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.customer-invoice-summary-title h3 {
+  margin: 0;
+  color: var(--ui-text);
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+.customer-invoice-summary .customer-payment-stats {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 12px 0 0;
+}
+.customer-invoice-summary .customer-payment-stats > div {
+  min-width: 0;
+  min-height: 64px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--ui-surface-2);
+}
+.customer-invoice-summary .customer-payment-stats strong {
+  color: var(--ui-text);
+  font-size: 15px;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
 .customer-summary {
-  max-width: 420px;
-  margin: 16px 0 16px auto;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+.customer-summary .is-total {
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 10px;
+  background: #eaf2ff;
+  color: #123b82;
+}
+.customer-summary .is-total dd {
+  color: #1158c7;
+  font-size: 20px;
+  font-weight: 750;
+}
+@media (max-width: 920px) {
+  .customer-quote-layout {
+    grid-template-columns: 1fr;
+  }
+  .customer-quote-actions {
+    order: -1;
+    position: static;
+  }
+}
+@media (max-width: 560px) {
+  .customer-quote-body,
+  .customer-invoice {
+    padding: 14px;
+  }
+  .customer-quote-table-head {
+    grid-template-columns: minmax(0, 1fr) max-content max-content;
+    gap: 8px;
+    padding-inline: 10px;
+  }
+  .customer-quote-table-head span:nth-child(2) {
+    min-width: 84px;
+  }
+  .customer-quote-table-head span:last-child {
+    display: none;
+  }
+  .customer-deadline-countdown {
+    padding: 14px;
+  }
+  .customer-deadline-clock {
+    width: min(56vw, 182px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .customer-deadline-ring-progress {
+    transition: none;
+  }
 }
 .customer-invoice {
   border-top: 1px solid var(--ui-border);
@@ -678,7 +1033,8 @@
   display: grid;
   gap: 3px;
   padding: 12px;
-  border-left: 3px solid var(--ui-warning);
+  border: 1px solid var(--ui-warning);
+  border-radius: 10px;
   background: var(--ui-warning-soft);
   color: var(--ui-warning-text);
   font-size: 13px;
@@ -1436,6 +1792,86 @@
 }
 .od-page .customer-invoice .customer-payment-stats {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+/* Keep invoice totals with the quote; reserve the action rail for deadlines and payment. */
+.customer-quote-payment-content {
+  min-width: 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--ui-border);
+}
+
+.customer-quote-payment-summary {
+  min-width: 0;
+}
+
+.customer-invoice-standalone {
+  display: grid;
+  gap: 16px;
+}
+
+.customer-invoice-standalone .customer-invoice {
+  padding: 16px;
+  border: 1px solid var(--ui-border);
+  border-radius: 12px;
+}
+
+.customer-quote-actions .customer-invoice {
+  min-width: 0;
+  padding: 0;
+  border: 0;
+}
+
+.customer-quote-actions .customer-deposit-notice {
+  gap: 2px;
+  padding: 8px 10px;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.customer-quote-actions .customer-deadline-countdown {
+  gap: 10px;
+  padding: 12px;
+}
+
+.customer-quote-actions .customer-deadline-clock {
+  width: min(100%, 232px);
+}
+
+.customer-quote-actions .customer-deadline-unit strong {
+  font-size: 22px;
+}
+
+.customer-quote-actions .customer-deadline-date {
+  font-size: 11px;
+}
+
+.customer-quote-actions .customer-payment-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+  margin-top: 8px;
+  padding: 0;
+}
+
+.customer-quote-actions .customer-payment-actions > .ant-btn {
+  width: 100%;
+  min-height: 44px;
+  height: auto;
+  white-space: normal;
+}
+
+@media (max-width: 680px) {
+  .customer-invoice-summary .customer-payment-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+}
+
+@media (max-width: 420px) {
+  .customer-invoice-summary .customer-payment-stats {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .finance-quote-guidance {

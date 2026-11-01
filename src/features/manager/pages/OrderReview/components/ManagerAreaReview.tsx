@@ -39,7 +39,7 @@ export function ManagerAreaReview({
     }
   }
   // Once the order is rejected/cancelled/sent back, the review is history: no more actions.
-  const decided = order.status !== 'PENDING'
+  const decided = order.status !== 'UNDER_REVIEW'
   return (
     <>
       <div

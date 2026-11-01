@@ -9,6 +9,7 @@ export const ORDER_STATUS_TONE: Record<OrderStatus, StatusTone> = {
   DRAFT: 'gray',
   SUBMITTED: 'yellow',
   PENDING: 'yellow',
+  UNDER_REVIEW: 'blue',
   NEEDS_INFO: 'orange',
   APPROVED: 'blue',
   SCHEDULED: 'blue',
@@ -21,7 +22,8 @@ export const ORDER_STATUS_TONE: Record<OrderStatus, StatusTone> = {
 const ORDER_STATUS_LABEL_VI: Record<OrderStatus, string> = {
   DRAFT: 'Nháp',
   SUBMITTED: 'Đã gửi duyệt',
-  PENDING: 'Đang duyệt',
+  PENDING: 'Chờ duyệt',
+  UNDER_REVIEW: 'Đang duyệt',
   NEEDS_INFO: 'Cần bổ sung thông tin',
   APPROVED: 'Đã duyệt',
   SCHEDULED: 'Đã lên lịch',
@@ -34,7 +36,8 @@ const ORDER_STATUS_LABEL_VI: Record<OrderStatus, string> = {
 const ORDER_STATUS_LABEL_EN: Record<OrderStatus, string> = {
   DRAFT: 'Draft',
   SUBMITTED: 'Submitted',
-  PENDING: 'Pending review',
+  PENDING: 'Waiting for review',
+  UNDER_REVIEW: 'Under review',
   NEEDS_INFO: 'More information required',
   APPROVED: 'Approved',
   SCHEDULED: 'Scheduled',

@@ -1,8 +1,8 @@
 // Maps every backend/brief status enum to one of the 6 status-colour tones
 // from [BRIEF Phần B "Quy ước hiển thị trạng thái"]:
-//   gray   = nháp / chưa xử lý       (DRAFT, PENDING, CREATED)
-//   yellow = đang chờ người khác     (SUBMITTED, UNDER_REVIEW, ASSIGNED)
-//   blue   = đang diễn ra            (IN_PROGRESS, IN_FLIGHT, UPLOADING, LIVE)
+//   gray   = nháp / chưa xử lý       (DRAFT, CREATED)
+//   yellow = đang chờ người khác     (SUBMITTED, PENDING, ASSIGNED)
+//   blue   = đang diễn ra            (UNDER_REVIEW, IN_PROGRESS, IN_FLIGHT, UPLOADING, LIVE)
 //   green  = thành công              (APPROVED, COMPLETED, AVAILABLE, PASS)
 //   orange = cảnh báo                (WARNING, RISKY, MANUAL_REQUIRED, MAINTENANCE)
 //   red    = lỗi / từ chối           (REJECTED, FAILED, VALIDATION_FAILED, BLOCKER)
@@ -23,7 +23,8 @@ import type {
 export const orderStatusTone: Record<OrderStatus, StatusTone> = {
   DRAFT: 'gray',
   SUBMITTED: 'yellow',
-  PENDING: 'gray',
+  PENDING: 'yellow',
+  UNDER_REVIEW: 'blue',
   NEEDS_INFO: 'orange',
   APPROVED: 'green',
   SCHEDULED: 'blue',
@@ -115,6 +116,7 @@ export const orderStatusLabel: Record<OrderStatus, string> = {
   DRAFT: 'Nháp',
   SUBMITTED: 'Đã gửi duyệt',
   PENDING: 'Chờ duyệt',
+  UNDER_REVIEW: 'Đang duyệt',
   NEEDS_INFO: 'Đang chờ khách bổ sung',
   APPROVED: 'Đã duyệt',
   SCHEDULED: 'Đã lên lịch',
@@ -207,7 +209,8 @@ export const mediaStatusLabel: Record<MediaStatus, string> = {
 export const orderStatusLabelEn: Record<OrderStatus, string> = {
   DRAFT: 'Draft',
   SUBMITTED: 'Submitted',
-  PENDING: 'Pending',
+  PENDING: 'Waiting for review',
+  UNDER_REVIEW: 'Under review',
   NEEDS_INFO: 'Waiting for customer information',
   APPROVED: 'Approved',
   SCHEDULED: 'Scheduled',

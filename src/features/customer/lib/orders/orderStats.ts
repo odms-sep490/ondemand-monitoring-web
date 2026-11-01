@@ -8,6 +8,7 @@ export function computeOrderStats(rows: OrderRow[]): OrderStats {
   return {
     total: rows.length,
     pending: count('PENDING'),
+    underReview: count('UNDER_REVIEW'),
     needsInfo: count('NEEDS_INFO'),
     approved: count('APPROVED'),
     inProgress: count('IN_PROGRESS'),

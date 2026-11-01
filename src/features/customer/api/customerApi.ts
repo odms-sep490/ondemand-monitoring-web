@@ -223,6 +223,8 @@ export type ServiceDeliverableOption = {
 
 const BACKEND_ORDER_STATUSES = new Set<OrderStatus>([
   'PENDING',
+  'UNDER_REVIEW',
+  'NEEDS_INFO',
   'APPROVED',
   'REJECTED',
   'IN_PROGRESS',

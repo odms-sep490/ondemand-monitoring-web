@@ -7,12 +7,11 @@ import { useI18n } from '../../../../../shared/i18n'
 import type { OrderDetail } from '../../../types/orders'
 import { orderReviewPageMessages } from '../OrderReviewPage.messages'
 import type { ReviewStep } from '../reviewTypes'
-import { OrderSummaryCard } from './OrderSummaryCard'
 import { ReviewActionsSlot } from './ReviewActionsSlot'
 
 /**
- * Detail layout of the review stages. The quote stage leads with compact order
- * context and actions before the checklist/quote workspace.
+ * Detail layout of the review stages. Intake keeps customer information and
+ * actions in a sidebar; later stages use the full workspace with actions below.
  */
 export function ReviewLayout({
   order,
@@ -34,13 +33,8 @@ export function ReviewLayout({
   const hasAttachments = Boolean(order.attachments?.length)
   const showExtraInMain =
     showCustomerInMain || (hasAttachments && !showCustomerInSidebar)
-  const summaryAndActions = (
-    <aside className={`mgr-detail-side${wide ? ' is-review-context' : ''}`}>
-      <OrderSummaryCard
-        order={order}
-        compact={wide}
-        actionSlot={wide ? actionTarget : undefined}
-      />
+  const sidebar = (
+    <aside className="mgr-detail-side">
       {showCustomerInSidebar ? (
         <OrderCustomerCard order={order} t={t} hideEmpty />
       ) : null}
@@ -50,6 +44,7 @@ export function ReviewLayout({
   const main = (
     <div className="mgr-detail-main">
       {children}
+      {wide ? actionTarget : null}
       {showCustomerInSidebar && hasAttachments ? (
         <OrderAttachmentsCard order={order} t={t} />
       ) : null}
@@ -81,14 +76,11 @@ export function ReviewLayout({
           .join(' ')}
       >
         {wide ? (
-          <>
-            {summaryAndActions}
-            {main}
-          </>
+          main
         ) : (
           <>
             {main}
-            {summaryAndActions}
+            {sidebar}
           </>
         )}
       </div>

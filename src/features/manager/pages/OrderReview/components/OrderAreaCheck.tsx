@@ -72,7 +72,7 @@ export function OrderAreaCheck({
               </span>
               {ta.resultTitle}
             </span>
-            {order.status === 'PENDING' ? (
+            {order.status === 'UNDER_REVIEW' ? (
               <button
                 type="button"
                 className={`odm-or-area-refresh${assessment.loading ? ' is-loading' : ''}`}
