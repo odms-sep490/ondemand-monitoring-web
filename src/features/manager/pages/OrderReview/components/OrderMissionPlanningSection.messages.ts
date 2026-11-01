@@ -20,6 +20,9 @@ export const orderMissionPlanningSectionMessages = defineMessages({
       'Khách hàng chưa chấp nhận báo giá nên chưa có khoản đặt cọc để kiểm tra.',
     paymentChecked:
       'Đã đối soát với VNPAY. Trạng thái đặt cọc đã được cập nhật.',
+    awaitingFinalPayment: 'Đang chờ khách hàng thanh toán phần còn lại',
+    awaitingFinalPaymentBody:
+      'Các nhiệm vụ và phân công tài nguyên đã sẵn sàng; xác nhận tài nguyên sẽ mở sau khi thanh toán hoàn tất.',
     closeFormTitle: 'Đóng form tạo nhiệm vụ?',
     closeFormBody: 'Dữ liệu chưa gửi sẽ không được lưu.',
     closeFormAction: 'Đóng form',
@@ -65,6 +68,9 @@ export const orderMissionPlanningSectionMessages = defineMessages({
       'The customer has not accepted the quote yet, so there is no deposit to check.',
     paymentChecked:
       'Reconciled with VNPAY. The deposit status has been updated.',
+    awaitingFinalPayment: 'Awaiting final payment',
+    awaitingFinalPaymentBody:
+      'Mission planning and resource assignments are complete. Resource confirmation will open after payment settles.',
     closeFormTitle: 'Close the mission form?',
     closeFormBody: 'Unsent data will not be saved.',
     closeFormAction: 'Close form',

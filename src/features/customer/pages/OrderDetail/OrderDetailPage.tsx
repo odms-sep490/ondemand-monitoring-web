@@ -91,9 +91,6 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
   } | null>(null)
   const [deliveryState, setDeliveryState] =
     useState<CachedDeliveryState | null>(null)
-  const [finalPaymentAction, setFinalPaymentAction] = useState<
-    (() => Promise<void>) | null
-  >(null)
   const [focusResultsOrderId, setFocusResultsOrderId] = useState<string | null>(
     null,
   )
@@ -192,26 +189,12 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
     },
     [orderId],
   )
-  const updateFinalPaymentAction = useCallback(
-    (action: (() => Promise<void>) | null) =>
-      setFinalPaymentAction(() => action),
-    [],
-  )
-
   const cachedDelivery =
     deliveryState?.orderId === order?.id ? deliveryState : null
   const onPrimaryAction = useCallback(() => {
-    if (cachedDelivery?.delivery?.deliveryStatus === 'FINAL_PAYMENT_PENDING') {
-      if (finalPaymentAction) {
-        void finalPaymentAction()
-      } else {
-        setSelectedTab({ orderId, tab: 'finance' })
-      }
-      return
-    }
     setSelectedTab({ orderId, tab: 'results' })
     setFocusResultsOrderId(orderId)
-  }, [cachedDelivery?.delivery?.deliveryStatus, finalPaymentAction, orderId])
+  }, [orderId])
 
   const hasResults = Boolean(
     order && ['IN_PROGRESS', 'COMPLETED'].includes(order.status),
@@ -375,7 +358,6 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
                         orderId={order.id}
                         initialDelivery={cachedDelivery?.delivery ?? null}
                         onStateChange={updateDelivery}
-                        onFinalPaymentActionChange={updateFinalPaymentAction}
                       />
                     </div>
                   ),

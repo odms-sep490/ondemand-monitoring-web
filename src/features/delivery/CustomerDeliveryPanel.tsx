@@ -1,22 +1,18 @@
-import { Alert, Button, Empty, Input, Progress, Skeleton } from 'antd'
+import { Alert, Button, Empty, Input, Skeleton } from 'antd'
 import { useCallback, useEffect, useState } from 'react'
 import { ApiError } from '../../shared/api/httpClient'
 import { Modal } from '../customer/components/common/ui'
 import { useI18n } from '../../shared/i18n'
-import { formatVnd } from '../../shared/lib/formatVnd'
-import { financeApi } from '../finance/api'
 import { deliveryApi } from './api'
 import { customerDeliveryPanelMessages } from './customerDeliveryPanel.messages'
 import { DeliveryProgress, DeliveryStatusPill } from './DeliveryProgress'
 import type { Delivery, DeliveryPanelLoadState } from './types'
 import './delivery.css'
-import { env } from '../../config/env'
 
 export function CustomerDeliveryPanel({
   orderId,
   initialDelivery = null,
   onStateChange,
-  onFinalPaymentActionChange,
 }: {
   orderId: string
   initialDelivery?: Delivery | null
@@ -24,7 +20,6 @@ export function CustomerDeliveryPanel({
     delivery: Delivery | null,
     state: DeliveryPanelLoadState,
   ) => void
-  onFinalPaymentActionChange?: (action: (() => Promise<void>) | null) => void
 }) {
   const { t } = useI18n(customerDeliveryPanelMessages)
   const [delivery, setDelivery] = useState<Delivery | null>(initialDelivery)
@@ -32,25 +27,10 @@ export function CustomerDeliveryPanel({
     initialDelivery ? 'ready' : 'loading',
   )
   const [busy, setBusy] = useState(false)
-  const [testPaying, setTestPaying] = useState(false)
   const [acceptOpen, setAcceptOpen] = useState(false)
   const [error, setError] = useState<unknown>(null)
   const [revisionOpen, setRevisionOpen] = useState(false)
   const [reason, setReason] = useState('')
-
-  const payFinal = useCallback(async () => {
-    setBusy(true)
-    setError(null)
-    try {
-      const invoice = await financeApi.getInvoice(orderId)
-      const payment = await financeApi.createFinalPayment(invoice.id)
-      if (!payment.paymentUrl) throw new Error(t.noVnpayUrl)
-      window.location.assign(payment.paymentUrl)
-    } catch (cause) {
-      setError(cause)
-      setBusy(false)
-    }
-  }, [orderId, t.noVnpayUrl])
 
   const load = useCallback(
     async (showLoading = false) => {
@@ -104,13 +84,6 @@ export function CustomerDeliveryPanel({
   useEffect(() => {
     onStateChange?.(delivery, loadState)
   }, [delivery, loadState, onStateChange])
-
-  useEffect(() => {
-    onFinalPaymentActionChange?.(
-      delivery?.deliveryStatus === 'FINAL_PAYMENT_PENDING' ? payFinal : null,
-    )
-    return () => onFinalPaymentActionChange?.(null)
-  }, [delivery?.deliveryStatus, onFinalPaymentActionChange, payFinal])
 
   if (!delivery) {
     return (
@@ -171,22 +144,6 @@ export function CustomerDeliveryPanel({
     setRevisionOpen(false)
     setReason('')
   }
-  async function completeTestFinal() {
-    if (busy) return
-    setBusy(true)
-    setTestPaying(true)
-    setError(null)
-    try {
-      const invoice = await financeApi.getInvoice(orderId)
-      await financeApi.completeTestFinal(invoice.id)
-      await load()
-    } catch (cause) {
-      setError(cause)
-    } finally {
-      setTestPaying(false)
-      setBusy(false)
-    }
-  }
   async function act(action: () => Promise<Delivery>) {
     setBusy(true)
     setError(null)
@@ -201,14 +158,6 @@ export function CustomerDeliveryPanel({
   }
 
   const canReview = delivery.deliveryStatus === 'CUSTOMER_REVIEW'
-  const paymentPercent =
-    delivery.totalAmount > 0
-      ? Math.min(
-          100,
-          Math.round((delivery.paidAmount / delivery.totalAmount) * 100),
-        )
-      : 0
-
   return (
     <section
       id="customer-delivery-panel"
@@ -306,40 +255,6 @@ export function CustomerDeliveryPanel({
             <p>{delivery.deliveryNotes}</p>
           </div>
         ) : null}
-        <section
-          className="delivery-payment-card"
-          aria-labelledby="payment-summary-title"
-        >
-          <div className="delivery-payment-card__head">
-            <div>
-              <span className="delivery-eyebrow">{t.payment}</span>
-              <h3 id="payment-summary-title">{t.costOverview}</h3>
-            </div>
-            <strong>{paymentPercent}%</strong>
-          </div>
-          <Progress
-            percent={paymentPercent}
-            showInfo={false}
-            aria-label={t.paidPercent(paymentPercent)}
-          />
-          <div className="delivery-payment">
-            <div>
-              <span>{t.total}</span>
-              <strong>{formatVnd(delivery.totalAmount)}</strong>
-            </div>
-            <div>
-              <span>{t.paid}</span>
-              <strong className="is-paid">
-                {formatVnd(delivery.paidAmount)}
-              </strong>
-            </div>
-            <div className="is-remaining">
-              <span>{t.remaining}</span>
-              <strong>{formatVnd(delivery.remainingAmount)}</strong>
-            </div>
-          </div>
-        </section>
-
         {canReview ? (
           <div className="delivery-review-card">
             <div>
@@ -440,50 +355,12 @@ export function CustomerDeliveryPanel({
             text={t.revisionSentText}
           />
         ) : null}
-        {delivery.deliveryStatus === 'FINAL_PAYMENT_PENDING' ? (
-          <div className="delivery-payment-action">
-            <div>
-              <span
-                className="delivery-payment-action__icon"
-                aria-hidden="true"
-              >
-                ₫
-              </span>
-              <div>
-                <b>{t.payToGet}</b>
-                <span>
-                  {t.amountLeft}:{' '}
-                  <strong>{formatVnd(delivery.remainingAmount)}</strong>
-                </span>
-              </div>
-            </div>
-            <div className="delivery-actions">
-              <Button
-                type="primary"
-                className="delivery-primary-action"
-                disabled={busy}
-                onClick={() => void payFinal()}
-              >
-                {busy && !testPaying ? t.redirecting : t.payVnpay}
-              </Button>
-              {env.testPaymentsEnabled ? (
-                <Button
-                  disabled={busy}
-                  loading={testPaying}
-                  onClick={() => void completeTestFinal()}
-                >
-                  {t.testPayment}
-                </Button>
-              ) : null}
-            </div>
-          </div>
-        ) : null}
         {delivery.deliveryStatus === 'READY_FOR_DELIVERY' ||
         delivery.deliveryStatus === 'PAYMENT_CONFIRMED' ? (
           <StatusBanner
             tone="success"
-            title={t.paymentConfirmedTitle}
-            text={t.paymentConfirmedText}
+            title={t.resultsAcceptedTitle}
+            text={t.resultsAcceptedText}
           />
         ) : null}
         {delivery.deliveryStatus === 'DELIVERED' ? (
