@@ -1,0 +1,49 @@
+/* Admin dashboard: reuses the manager dashboard layout (hero, columns, rows). */
+.mgr-layout .mgr-dash.adm-dash {
+  .adm-dash-pair {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .adm-dash-error {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 12px;
+    border: 1px solid var(--adm-red-line);
+    border-radius: 10px;
+    color: var(--adm-red-fg);
+    background: var(--adm-red-soft);
+  }
+
+  .adm-dash-config {
+    display: grid;
+    gap: 12px;
+  }
+
+  .adm-dash-quick {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .adm-muted {
+    margin: 8px 0 0;
+    color: var(--mgr-muted);
+    font-size: 12px;
+  }
+}
+
+@media (min-width: 1400px) {
+  .mgr-layout .mgr-dash.adm-dash .mgr-kpi-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 991px) {
+  .mgr-layout .mgr-dash.adm-dash .adm-dash-pair {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

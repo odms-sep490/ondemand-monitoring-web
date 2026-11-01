@@ -1,3 +1,4 @@
+import { Alert, Form, Input, Select } from 'antd'
 import { useState, type FormEvent } from 'react'
 
 import { useI18n } from '../../../../../shared/i18n'
@@ -6,7 +7,9 @@ import {
   catalogApi,
   type PreferredTimeCode,
 } from '../../../api/catalogApi'
-import { Modal } from '../../../../../shared/components/ui'
+import { AdminField } from '../../../components/common/AdminField'
+import { AdminFormFooter } from '../../../components/common/AdminFormFooter'
+import { AdminModal } from '../../../components/common/AdminModal'
 import {
   emptyTimeslotForm,
   mapTimeslot,
@@ -16,8 +19,6 @@ import {
 } from '../../../lib/catalogMappers'
 import type { AdminTimeslot } from '../../../types/catalog'
 import { EditLoader } from './EditLoader'
-import { FormField } from '../../../../../shared/components/ui'
-import { FormFooter } from '../../../../../shared/components/ui'
 import { timeslotCodeMessages } from './timeslotCodes'
 import { timeslotModalMessages } from './TimeslotModal.messages'
 
@@ -62,68 +63,97 @@ function TimeslotForm({ timeslot, onClose, onSaved }: Props) {
   }
 
   return (
-    <Modal
+    <AdminModal
       width={540}
-      icon="clock"
       title={timeslot ? t.editTitle : t.createTitle}
       subtitle={timeslot ? t.editSubtitle : t.createSubtitle}
       onClose={onClose}
-      footer={<FormFooter formId="adm-timeslot-form" busy={busy} onClose={onClose} />}
+      footer={
+        <AdminFormFooter
+          formId="adm-timeslot-form"
+          busy={busy}
+          onClose={onClose}
+        />
+      }
     >
-      <form id="adm-timeslot-form" onSubmit={handleSubmit} noValidate>
-        <FormField id="adm-ts-code" label={t.code} required error={errors.code}>
-          <select
+      <Form
+        id="adm-timeslot-form"
+        layout="vertical"
+        onSubmitCapture={handleSubmit}
+        noValidate
+      >
+        <AdminField
+          id="adm-ts-code"
+          label={t.code}
+          required
+          error={errors.code}
+        >
+          <Select<PreferredTimeCode>
             id="adm-ts-code"
-            className="odm-inp"
             value={values.code}
-            onChange={(e) =>
-              setValues({ ...values, code: e.target.value as PreferredTimeCode })
-            }
-          >
-            {PREFERRED_TIME_CODES.map((c) => (
-              <option key={c} value={c}>
-                {c} · {codes[c]}
-              </option>
-            ))}
-          </select>
-        </FormField>
-        <FormField id="adm-ts-name" label={t.name} required error={errors.name}>
-          <input
+            onChange={(code) => setValues({ ...values, code })}
+            options={PREFERRED_TIME_CODES.map((c) => ({
+              value: c,
+              label: `${c} · ${codes[c]}`,
+            }))}
+          />
+        </AdminField>
+        <AdminField
+          id="adm-ts-name"
+          label={t.name}
+          required
+          error={errors.name}
+        >
+          <Input
             id="adm-ts-name"
-            className="odm-inp"
             value={values.name}
             placeholder={t.namePlaceholder}
             aria-invalid={!!errors.name}
             onChange={(e) => setValues({ ...values, name: e.target.value })}
           />
-        </FormField>
+        </AdminField>
         <div className="adm-form-pair">
-          <FormField id="adm-ts-start" label={t.startTime} required error={errors.startTime}>
-            <input
+          <AdminField
+            id="adm-ts-start"
+            label={t.startTime}
+            required
+            error={errors.startTime}
+          >
+            <Input
               id="adm-ts-start"
-              className="odm-inp"
               type="time"
               value={values.startTime}
-              onChange={(e) => setValues({ ...values, startTime: e.target.value })}
+              onChange={(e) =>
+                setValues({ ...values, startTime: e.target.value })
+              }
             />
-          </FormField>
-          <FormField id="adm-ts-end" label={t.endTime} required error={errors.endTime}>
-            <input
+          </AdminField>
+          <AdminField
+            id="adm-ts-end"
+            label={t.endTime}
+            required
+            error={errors.endTime}
+          >
+            <Input
               id="adm-ts-end"
-              className="odm-inp"
               type="time"
               value={values.endTime}
-              onChange={(e) => setValues({ ...values, endTime: e.target.value })}
+              onChange={(e) =>
+                setValues({ ...values, endTime: e.target.value })
+              }
             />
-          </FormField>
+          </AdminField>
         </div>
         {submitError && (
-          <div role="alert" className="adm-alert is-danger">
-            {submitError}
-          </div>
+          <Alert
+            type="error"
+            showIcon
+            message={submitError}
+            className="adm-alert"
+          />
         )}
-      </form>
-    </Modal>
+      </Form>
+    </AdminModal>
   )
 }
 
@@ -141,7 +171,11 @@ export function TimeslotModal({ timeslot, onClose, onSaved }: Props) {
       }
     >
       {(fresh) => (
-        <TimeslotForm timeslot={fresh ?? timeslot} onClose={onClose} onSaved={onSaved} />
+        <TimeslotForm
+          timeslot={fresh ?? timeslot}
+          onClose={onClose}
+          onSaved={onSaved}
+        />
       )}
     </EditLoader>
   )

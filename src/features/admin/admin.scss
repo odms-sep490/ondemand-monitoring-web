@@ -1,0 +1,664 @@
+/*
+ * Admin portal (`.odm.odm-adm.mgr-layout`). The shell, cards, tables, tags, filter
+ * bar, page header and popups come from shared/styles/app-shell (same as the
+ * Manager and Customer portals). This file only adds:
+ *   1. the admin palette tokens (--adm-*) built on top of the --mgr-* tokens,
+ *   2. a slightly more colourful page header / KPI cards / role tags,
+ *   3. small page-level helpers (wide tables, rows, modals, dashboard grids).
+ * Colours are defined once here as tokens; nothing below hard-codes a hex value.
+ */
+
+.mgr-layout.odm-adm {
+  /* ---------- Palette (light) ---------- */
+  --adm-blue-fg: #1565e8;
+  --adm-blue-soft: rgb(21 101 232 / 9%);
+  --adm-blue-line: rgb(21 101 232 / 28%);
+  --adm-green-fg: #15803d;
+  --adm-green-soft: rgb(22 163 74 / 11%);
+  --adm-green-line: rgb(22 163 74 / 30%);
+  --adm-amber-fg: #b45309;
+  --adm-amber-soft: rgb(245 158 11 / 13%);
+  --adm-amber-line: rgb(245 158 11 / 35%);
+  --adm-violet-fg: #6d28d9;
+  --adm-violet-soft: rgb(124 58 237 / 10%);
+  --adm-violet-line: rgb(124 58 237 / 28%);
+  --adm-red-fg: #b91c1c;
+  --adm-red-soft: rgb(220 38 38 / 9%);
+  --adm-red-line: rgb(220 38 38 / 28%);
+
+  /* One colour per backend role */
+  --adm-role-admin-fg: var(--adm-violet-fg);
+  --adm-role-manager-fg: var(--adm-blue-fg);
+  --adm-role-staff-fg: var(--adm-green-fg);
+  --adm-role-customer-fg: var(--adm-amber-fg);
+  --adm-role-unknown-fg: var(--mgr-muted);
+}
+
+:root[data-theme='dark'] .mgr-layout.odm-adm {
+  --adm-blue-fg: #93c5fd;
+  --adm-blue-soft: rgb(96 165 250 / 14%);
+  --adm-blue-line: rgb(96 165 250 / 35%);
+  --adm-green-fg: #86efac;
+  --adm-green-soft: rgb(74 222 128 / 13%);
+  --adm-green-line: rgb(74 222 128 / 32%);
+  --adm-amber-fg: #fcd34d;
+  --adm-amber-soft: rgb(251 191 36 / 14%);
+  --adm-amber-line: rgb(251 191 36 / 36%);
+  --adm-violet-fg: #c4b5fd;
+  --adm-violet-soft: rgb(167 139 250 / 15%);
+  --adm-violet-line: rgb(167 139 250 / 35%);
+  --adm-red-fg: #fca5a5;
+  --adm-red-soft: rgb(248 113 113 / 14%);
+  --adm-red-line: rgb(248 113 113 / 35%);
+}
+
+.odm-adm-content-inner {
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  min-width: 0;
+}
+
+.mgr-layout.odm-adm {
+  /* ---------- Page header: tinted banner with an accent edge ---------- */
+  .mgr-page-head {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(
+      120deg,
+      var(--adm-blue-soft) 0%,
+      var(--adm-violet-soft) 100%
+    );
+    border-color: var(--adm-blue-line);
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 5px;
+      background: linear-gradient(180deg, #3b82f6, #7c3aed);
+    }
+  }
+
+  .mgr-view {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+  }
+
+  .mgr-card,
+  .ant-table-wrapper {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .mgr-card .ant-card-head-wrapper {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  /* ---------- KPI cards: soft tinted background + gradient icon badge ---------- */
+  .adm-kpi-strip {
+    grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+  }
+
+  .adm-stat {
+    border-width: 1px;
+
+    &.is-blue {
+      background: linear-gradient(
+        135deg,
+        var(--adm-blue-soft),
+        var(--mgr-card) 70%
+      );
+      border-color: var(--adm-blue-line);
+    }
+
+    &.is-green {
+      background: linear-gradient(
+        135deg,
+        var(--adm-green-soft),
+        var(--mgr-card) 70%
+      );
+      border-color: var(--adm-green-line);
+    }
+
+    &.is-amber {
+      background: linear-gradient(
+        135deg,
+        var(--adm-amber-soft),
+        var(--mgr-card) 70%
+      );
+      border-color: var(--adm-amber-line);
+    }
+
+    &.is-violet {
+      background: linear-gradient(
+        135deg,
+        var(--adm-violet-soft),
+        var(--mgr-card) 70%
+      );
+      border-color: var(--adm-violet-line);
+    }
+
+    &.is-red {
+      background: linear-gradient(
+        135deg,
+        var(--adm-red-soft),
+        var(--mgr-card) 70%
+      );
+      border-color: var(--adm-red-line);
+    }
+  }
+
+  /* ---------- Role tags ---------- */
+  .adm-role.ant-tag {
+    margin: 0;
+    font-weight: 700;
+    border-radius: 999px;
+    padding: 2px 12px;
+  }
+
+  @each $role in admin, manager, staff, customer, unknown {
+    .adm-role.is-#{$role} {
+      color: var(--adm-role-#{$role}-fg);
+      background: color-mix(
+        in srgb,
+        var(--adm-role-#{$role}-fg) 12%,
+        transparent
+      );
+    }
+  }
+
+  /* ---------- Wide table: CSS min-width + inner horizontal scroll ---------- */
+  .adm-wide-table .ant-table-content {
+    overflow-x: auto;
+  }
+
+  .adm-wide-table .ant-table-content > table {
+    min-width: 780px;
+  }
+
+  .adm-old-value.ant-tag {
+    text-decoration: line-through;
+    color: var(--mgr-muted);
+  }
+
+  /* ---------- Role chips on the Accounts page ---------- */
+  .adm-role-tabs {
+    overflow-x: auto;
+    padding-bottom: 2px;
+
+    .ant-segmented {
+      background: var(--mgr-card-2);
+    }
+  }
+
+  .adm-role-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 2px 4px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .adm-role-tab-count {
+    min-width: 24px;
+    padding: 0 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 20px;
+    text-align: center;
+    color: var(--mgr-muted);
+    background: color-mix(in srgb, var(--mgr-muted) 14%, transparent);
+  }
+
+  @each $role in admin, manager, staff, customer {
+    .adm-role-tab.is-#{$role} .adm-role-tab-label {
+      color: var(--adm-role-#{$role}-fg);
+    }
+
+    .adm-role-tab.is-#{$role} .adm-role-tab-count {
+      color: var(--adm-role-#{$role}-fg);
+      background: color-mix(
+        in srgb,
+        var(--adm-role-#{$role}-fg) 14%,
+        transparent
+      );
+    }
+  }
+
+  .adm-filter-select {
+    min-width: 170px;
+  }
+
+  /* ---------- Row action buttons ---------- */
+  .adm-action-btn {
+    color: var(--mgr-muted);
+
+    &.is-info:hover {
+      color: var(--adm-blue-fg);
+      background: var(--adm-blue-soft);
+    }
+
+    &.is-success:hover {
+      color: var(--adm-green-fg);
+      background: var(--adm-green-soft);
+    }
+
+    &.is-warning:hover {
+      color: var(--adm-amber-fg);
+      background: var(--adm-amber-soft);
+    }
+
+    &.is-danger:hover {
+      color: var(--adm-red-fg);
+      background: var(--adm-red-soft);
+    }
+  }
+
+  /* ---------- Generic helpers ---------- */
+  .adm-wrap {
+    overflow-wrap: anywhere;
+    min-width: 0;
+  }
+
+  .adm-mono {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .adm-strong {
+    font-weight: 700;
+  }
+
+  .adm-muted {
+    color: var(--mgr-muted);
+  }
+
+  .adm-warn {
+    color: var(--adm-amber-fg);
+  }
+
+  .adm-required {
+    color: var(--adm-red-fg);
+  }
+
+  .adm-row,
+  .adm-row-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .adm-card-hint {
+    margin: 0 0 12px;
+    color: var(--mgr-muted);
+  }
+
+  .adm-card-pad {
+    padding: 16px 20px;
+  }
+
+  .adm-check-hint {
+    display: block;
+    color: var(--mgr-muted);
+    font-size: 12px;
+  }
+
+  .adm-narrow {
+    max-width: 880px;
+  }
+
+  .adm-input-full {
+    width: 100%;
+  }
+
+  .adm-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .adm-alert {
+    margin-bottom: 12px;
+  }
+
+  .adm-tabs .ant-tabs-nav {
+    margin: 0;
+  }
+
+  .adm-cell-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .adm-list-link {
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    font-weight: 700;
+    text-align: left;
+    color: var(--mgr-text);
+    cursor: pointer;
+
+    &:hover {
+      color: var(--adm-blue-fg);
+      text-decoration: underline;
+    }
+  }
+
+  .adm-service-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .adm-service-thumbnail {
+    flex: none;
+    width: 56px;
+    height: 56px;
+    border-radius: 10px;
+    object-fit: cover;
+    border: 1px solid var(--mgr-border);
+  }
+
+  .adm-service-description {
+    max-width: 520px;
+    line-height: 1.5;
+  }
+
+  .service-row-actions {
+    display: grid;
+    grid-template-columns: auto 32px 32px;
+    justify-content: end;
+    align-items: center;
+    gap: 6px;
+    min-width: 190px;
+  }
+
+  .service-action-icon {
+    width: 32px;
+    padding: 0;
+  }
+
+  .service-action-disclosure {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: flex-end;
+    padding: 6px;
+    border: 1px solid var(--mgr-border);
+    border-radius: 10px;
+    background: var(--mgr-card-2);
+  }
+
+  /* ---------- Dashboard and role grids ---------- */
+  .adm-grid-wide {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr));
+    gap: 16px;
+  }
+
+  .adm-bar-list {
+    display: grid;
+    gap: 12px;
+  }
+
+  .adm-bar-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 2px;
+  }
+
+  .adm-descriptions .ant-descriptions-item-label {
+    color: var(--mgr-muted);
+    font-size: 12.5px;
+  }
+
+  /* ---------- Modals and forms ---------- */
+  .adm-modal .ant-modal-body {
+    max-height: calc(100vh - 210px);
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .adm-modal .ant-modal-header {
+    border-top: 3px solid var(--adm-blue-fg);
+    border-radius: 14px 14px 0 0;
+  }
+
+  @each $tone, $token in (success: green, danger: red, warning: amber) {
+    .adm-modal.is-#{$tone} .ant-modal-header {
+      border-top-color: var(--adm-#{$token}-fg);
+    }
+  }
+
+  .mgr-modal-sub {
+    margin: 0 0 12px;
+    color: var(--mgr-muted);
+    overflow-wrap: anywhere;
+  }
+
+  .adm-modal-text {
+    margin: 0 0 12px;
+  }
+
+  .adm-modal-gap {
+    margin-top: 12px;
+  }
+
+  .adm-form-pair {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 12px;
+  }
+
+  .adm-choice-list {
+    display: grid;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .adm-choice {
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    padding: 10px 12px;
+    border: 1px solid var(--mgr-border);
+    border-radius: 12px;
+    background: var(--mgr-card-2);
+
+    &.is-selected {
+      border-color: var(--adm-blue-line);
+      background: var(--adm-blue-soft);
+    }
+  }
+
+  .adm-choice-text {
+    display: grid;
+    gap: 4px;
+
+    small {
+      color: var(--mgr-muted);
+      font-size: 12px;
+    }
+  }
+
+  .adm-section {
+    margin-bottom: 16px;
+  }
+
+  .adm-section-title {
+    margin: 0 0 8px;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--mgr-text);
+  }
+
+  .adm-section-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+    gap: 12px;
+  }
+
+  .adm-identity {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  .adm-avatar-lg.ant-avatar {
+    background: linear-gradient(135deg, #3b82f6, #4f46e5);
+    color: #fff;
+    font-weight: 700;
+  }
+
+  .adm-chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .adm-field-label {
+    font-size: 12.5px;
+    color: var(--mgr-muted);
+    margin-bottom: 2px;
+  }
+
+  .adm-readonly-note {
+    margin: 6px 0 0;
+    font-size: 12px;
+    color: var(--mgr-muted);
+  }
+
+  .adm-service-image {
+    display: grid;
+    gap: 8px;
+    justify-items: start;
+
+    img {
+      max-width: 180px;
+      max-height: 120px;
+      border-radius: 10px;
+      border: 1px solid var(--mgr-border);
+      object-fit: cover;
+    }
+  }
+
+  .adm-service-price-check {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 16px;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid var(--mgr-border);
+    background: var(--mgr-card-2);
+  }
+
+  /* ---------- Order expiration ---------- */
+  .adm-timeout-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+    gap: 16px;
+    margin-bottom: 12px;
+  }
+
+  .adm-timeout-field {
+    padding: 16px;
+    border-radius: 14px;
+    border: 1px solid var(--mgr-border);
+    background: var(--mgr-card-2);
+
+    &.is-invalid {
+      border-color: var(--adm-red-line);
+      background: var(--adm-red-soft);
+    }
+  }
+
+  .adm-timeout-head {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 8px;
+
+    .adm-card-hint {
+      margin: 2px 0 0;
+      font-size: 13px;
+    }
+  }
+
+  .adm-timeout-label {
+    font-weight: 700;
+  }
+
+  .adm-timeout-input {
+    margin-bottom: 0;
+  }
+
+  .adm-timeout-footer {
+    padding-top: 12px;
+    border-top: 1px solid var(--mgr-border);
+
+    .adm-card-hint {
+      margin: 0;
+    }
+  }
+
+  /* ---------- Mobile drawer ---------- */
+  .adm-drawer-body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    padding: 14px 12px 12px;
+  }
+
+  /* ---------- Native controls inside the legacy pricing / checklist editors ---------- */
+  .odm-inp,
+  select.odm-inp,
+  textarea.odm-inp {
+    width: 100%;
+    min-height: 36px;
+    padding: 6px 12px;
+    border: 1px solid var(--mgr-border);
+    border-radius: 10px;
+    background: var(--mgr-card);
+    color: var(--mgr-text);
+    font: inherit;
+    transition:
+      border-color 0.15s ease,
+      box-shadow 0.15s ease;
+
+    &:focus {
+      outline: 0;
+      border-color: var(--adm-blue-fg);
+      box-shadow: 0 0 0 3px var(--adm-blue-soft);
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  .mgr-layout.odm-adm {
+    .adm-form-pair {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .adm-filter-select {
+      width: 100%;
+    }
+
+    .adm-service-thumbnail {
+      width: 44px;
+      height: 44px;
+    }
+  }
+}

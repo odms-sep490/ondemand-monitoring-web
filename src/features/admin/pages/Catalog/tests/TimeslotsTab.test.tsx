@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 
 import { TimeslotsTab } from '../components/TimeslotsTab'
-import { useMockTransport } from './helpers'
+import { pickOption, useMockTransport } from './helpers'
 
 useMockTransport()
 
@@ -16,10 +16,8 @@ describe('TimeslotsTab', () => {
   it('creates a timeslot through the modal', async () => {
     render(<TimeslotsTab />)
     await screen.findByLabelText('Sửa Buổi chiều')
-    fireEvent.click(screen.getByText('+ Thêm khung giờ'))
-    fireEvent.change(screen.getByLabelText(/Mã khung giờ/), {
-      target: { value: 'NIGHT' },
-    })
+    fireEvent.click(screen.getByText('Thêm khung giờ'))
+    await pickOption(/Mã khung giờ/, 'NIGHT · Ban đêm')
     fireEvent.change(screen.getByLabelText(/Tên hiển thị/), {
       target: { value: 'Đêm khuya' },
     })
@@ -30,7 +28,7 @@ describe('TimeslotsTab', () => {
   it('shows the BE conflict error for a duplicate code', async () => {
     render(<TimeslotsTab />)
     await screen.findByLabelText('Sửa Buổi chiều')
-    fireEvent.click(screen.getByText('+ Thêm khung giờ'))
+    fireEvent.click(screen.getByText('Thêm khung giờ'))
     fireEvent.change(screen.getByLabelText(/Tên hiển thị/), {
       target: { value: 'Trùng' },
     })
@@ -42,13 +40,19 @@ describe('TimeslotsTab', () => {
     render(<TimeslotsTab />)
     await screen.findByLabelText('Sửa Buổi chiều')
     fireEvent.click(screen.getByLabelText('Sửa Buổi chiều'))
-    const name = (await screen.findByLabelText(/Tên hiển thị/)) as HTMLInputElement
+    const name = (await screen.findByLabelText(
+      /Tên hiển thị/,
+    )) as HTMLInputElement
     expect(name.value).toBe('Buổi chiều')
-    expect((screen.getByLabelText(/Bắt đầu/) as HTMLInputElement).value).toBe('12:00')
+    expect((screen.getByLabelText(/Bắt đầu/) as HTMLInputElement).value).toBe(
+      '12:00',
+    )
     fireEvent.click(screen.getByText('Huỷ'))
 
     fireEvent.click(screen.getByLabelText('Xoá Buổi chiều'))
     fireEvent.click(screen.getByRole('button', { name: 'Xoá' }))
-    await waitFor(() => expect(screen.queryByLabelText('Sửa Buổi chiều')).toBeNull())
+    await waitFor(() =>
+      expect(screen.queryByLabelText('Sửa Buổi chiều')).toBeNull(),
+    )
   })
 })

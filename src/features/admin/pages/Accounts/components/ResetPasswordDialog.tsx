@@ -1,5 +1,7 @@
+import { Alert, Button } from 'antd'
+
 import { useI18n } from '../../../../../shared/i18n'
-import { Modal } from '../../../../../shared/components/ui'
+import { AdminModal } from '../../../components/common/AdminModal'
 import type { AdminAccountItem } from '../../../types/accounts'
 import { resetPasswordDialogMessages } from './ResetPasswordDialog.messages'
 
@@ -13,33 +15,32 @@ export function ResetPasswordDialog({ account, onClose }: Props) {
   const { t } = useI18n(resetPasswordDialogMessages)
 
   return (
-    <Modal
+    <AdminModal
       width={440}
       tone="warning"
-      icon="key"
       title={t.title}
       subtitle={account.email}
       onClose={onClose}
       footer={
         <>
-          <button type="button" className="odm-btn odm-btn-gh" onClick={onClose}>
-            {t.cancel}
-          </button>
-          <button type="button" className="odm-btn odm-btn-p" disabled>
+          <Button onClick={onClose}>{t.cancel}</Button>
+          <Button type="primary" disabled>
             {t.confirm}
-          </button>
+          </Button>
         </>
       }
     >
-      <p style={{ margin: 0 }}>
+      <p className="adm-modal-text">
         {t.confirmPrefix} <strong>{account.fullName}</strong>?
       </p>
-      <div className="adm-modal-warning" role="note">
-        <div>
-          <strong>{t.unsupported}</strong>
-          <div>{t.unsupportedHint}</div>
-        </div>
-      </div>
-    </Modal>
+      <Alert
+        type="warning"
+        showIcon
+        role="note"
+        className="adm-alert"
+        message={t.unsupported}
+        description={t.unsupportedHint}
+      />
+    </AdminModal>
   )
 }

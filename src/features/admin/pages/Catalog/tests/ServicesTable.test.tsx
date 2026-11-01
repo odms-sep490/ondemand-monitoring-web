@@ -22,7 +22,7 @@ describe('Service catalog related actions', () => {
       '#portal/admin/services/s/checklists',
     )
     expect(screen.getByRole('link', { name: 'Checklist' })).toHaveClass(
-      'odm-btn',
+      'ant-btn',
     )
     expect(screen.queryByRole('button', { name: 'Xoá Service' })).toBeNull()
     fireEvent.click(screen.getByRole('button', { name: 'Sửa Service' }))

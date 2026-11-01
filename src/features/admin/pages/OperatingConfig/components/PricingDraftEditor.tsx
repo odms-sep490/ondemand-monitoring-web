@@ -1,3 +1,4 @@
+import { Button, Tabs } from 'antd'
 import { useState } from 'react'
 
 import {
@@ -102,7 +103,9 @@ export function PricingDraftEditor({
               <h4>{pricingDescription(rule.description)}</h4>
               <code>{rule.ruleKey}</code>
             </div>
-            <span className={`pricing-rule-state${rule.enabled ? '' : ' is-off'}`}>
+            <span
+              className={`pricing-rule-state${rule.enabled ? '' : ' is-off'}`}
+            >
               {rule.enabled ? 'Đang áp dụng' : 'Đã tắt'}
             </span>
           </div>
@@ -125,13 +128,13 @@ export function PricingDraftEditor({
             )}
           </dl>
           <div className="pricing-card-actions">
-            <button
-              className="odm-btn odm-btn-sm"
-              type="button"
+            <Button
+              size="small"
+              htmlType="button"
               onClick={() => setEditingRule(index)}
             >
               Chỉnh sửa
-            </button>
+            </Button>
             <button
               className="pricing-icon-button is-danger"
               type="button"
@@ -161,23 +164,15 @@ export function PricingDraftEditor({
 
   const actions = (
     <div className="ppd-actions">
-      <button className="odm-btn" disabled={busy} onClick={onCancel}>
+      <Button disabled={busy} onClick={onCancel}>
         {dirty ? 'Hủy thay đổi' : 'Đóng'}
-      </button>
-      <button
-        className="odm-btn"
-        disabled={busy || !canSubmit}
-        onClick={onSave}
-      >
+      </Button>
+      <Button disabled={busy || !canSubmit} onClick={onSave}>
         Lưu bản nháp
-      </button>
-      <button
-        className="odm-btn odm-btn-p"
-        disabled={busy || !canSubmit}
-        onClick={onPublish}
-      >
+      </Button>
+      <Button type="primary" disabled={busy || !canSubmit} onClick={onPublish}>
         Áp dụng
-      </button>
+      </Button>
     </div>
   )
 
@@ -187,7 +182,10 @@ export function PricingDraftEditor({
         <div>
           <span className="ppo-eyebrow is-draft">Bản nháp</span>
           <h3>Chính sách giá v{draft.version}</h3>
-          <p>Thiết lập giá áp dụng cho yêu cầu và giới hạn điều chỉnh của Manager.</p>
+          <p>
+            Thiết lập giá áp dụng cho yêu cầu và giới hạn điều chỉnh của
+            Manager.
+          </p>
           {dirty && <span className="pricing-dirty">Có thay đổi chưa lưu</span>}
         </div>
         {actions}
@@ -215,35 +213,25 @@ export function PricingDraftEditor({
               )
             })}
           </ul>
-          <button
-            type="button"
-            className="odm-btn odm-btn-sm"
+          <Button
+            htmlType="button"
+            size="small"
             onClick={() => setTab('advanced')}
           >
             Mở Quy tắc nâng cao để sửa
-          </button>
+          </Button>
         </div>
       )}
 
-      <div className="adm-tabs" role="tablist">
-        {(
-          [
-            ['common', 'Cấu hình cơ bản'],
-            ['advanced', `Quy tắc nâng cao (${ordinary.length})`],
-          ] as const
-        ).map(([key, label]) => (
-          <button
-            key={key}
-            type="button"
-            role="tab"
-            aria-selected={tab === key}
-            className={`adm-tab${tab === key ? ' is-active' : ''}`}
-            onClick={() => setTab(key)}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+      <Tabs
+        className="adm-tabs"
+        activeKey={tab}
+        onChange={(key) => setTab(key as typeof tab)}
+        items={[
+          { key: 'common', label: 'Cấu hình cơ bản' },
+          { key: 'advanced', label: `Quy tắc nâng cao (${ordinary.length})` },
+        ]}
+      />
 
       {tab === 'common' && (
         <div className="ppd-page" role="tabpanel">
@@ -336,11 +324,11 @@ export function PricingDraftEditor({
             Dành cho người quản trị có kinh nghiệm. Cấu hình cơ bản đã đủ cho
             hầu hết nhu cầu vận hành.
           </p>
-          <div className="adm-card-head">
+          <div className="adm-toolbar">
             <h3>Quy tắc tính giá</h3>
-            <button className="odm-btn" type="button" onClick={addRule}>
+            <Button htmlType="button" onClick={addRule}>
               + Thêm quy tắc
-            </button>
+            </Button>
           </div>
           {newRule && (
             <section className="pricing-new-rule" aria-label="Tạo quy tắc giá">
@@ -635,13 +623,13 @@ function PricingRuleEditor({
         </label>
         <div className="pricing-card-actions">
           {onCancel && (
-            <button type="button" className="odm-btn" onClick={onCancel}>
+            <Button htmlType="button" onClick={onCancel}>
               Hủy
-            </button>
+            </Button>
           )}
-          <button type="button" className="odm-btn odm-btn-p" onClick={onDone}>
+          <Button htmlType="button" type="primary" onClick={onDone}>
             {create ? 'Thêm quy tắc' : 'Xong'}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

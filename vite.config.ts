@@ -19,6 +19,8 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
+    // antd-heavy page tests render slowly in jsdom when the whole suite runs in parallel.
+    testTimeout: 20000,
     exclude: ['**/node_modules/**', '.claude/**', 'e2e/**'],
     env: {
       VITE_USE_MOCK_API: 'true',

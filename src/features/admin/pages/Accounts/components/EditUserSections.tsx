@@ -1,10 +1,11 @@
+import { Avatar, Input, Tag } from 'antd'
 import type { ReactNode } from 'react'
 
 import { useI18n } from '../../../../../shared/i18n'
 import type { UserManagementDetailResponse } from '../../../api/adminUsersApi'
 import { AdminToggle } from '../../../components/common/AdminToggle'
 import { RoleBadge } from '../../../components/common/RoleBadge'
-import { StatusBadge } from '../../../../../shared/components/ui'
+import { StatusTag } from '../../../../../shared/components/antd'
 import { fmtDateTime } from '../../../lib/accountStatus'
 import { editUserModalMessages } from './EditUserModal.messages'
 
@@ -51,9 +52,8 @@ function TextField({
       <label htmlFor={id} className="adm-field-label">
         {label}
       </label>
-      <input
+      <Input
         id={id}
-        className="odm-inp"
         value={value}
         readOnly={!editable}
         onChange={(e) => onChange(e.target.value)}
@@ -84,9 +84,9 @@ export function AccountSection({
   return (
     <Section title={t.sectionAccount}>
       <div className="adm-identity">
-        <span className="adm-avatar-lg" aria-hidden="true">
+        <Avatar size={44} className="adm-avatar-lg" aria-hidden="true">
           {initials}
-        </span>
+        </Avatar>
         <RoleBadge role={user.role} />
       </div>
       <div className="adm-section-grid">
@@ -130,17 +130,17 @@ export function StatusSection({
           <div className="adm-readonly-note">{t.activeHint}</div>
         </Field>
         <Field label={t.emailVerified}>
-          <StatusBadge tone={user.emailVerified ? 'success' : 'warning'}>
+          <StatusTag tone={user.emailVerified ? 'success' : 'warning'}>
             {user.emailVerified ? t.verified : t.unverified}
-          </StatusBadge>
+          </StatusTag>
         </Field>
         {user.linkedProviders && user.linkedProviders.length > 0 && (
           <Field label={t.providers}>
             <div className="adm-chip-row">
               {user.linkedProviders.map((p) => (
-                <span key={p} className="odm-adm-chip">
+                <Tag key={p} bordered={false} color="processing">
                   {p}
-                </span>
+                </Tag>
               ))}
             </div>
           </Field>
@@ -178,7 +178,7 @@ export function ContactSection({
           onChange={(companyName) => onChange({ companyName })}
         />
       </div>
-      <div style={{ marginTop: 12 }}>
+      <div className="adm-modal-gap">
         <TextField
           id="adm-eu-address"
           label={t.address}

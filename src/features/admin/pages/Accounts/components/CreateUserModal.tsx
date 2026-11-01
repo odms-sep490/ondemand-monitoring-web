@@ -1,3 +1,4 @@
+import { Alert, Button, Form, Input, Radio } from 'antd'
 import { useState, type FormEvent } from 'react'
 
 import { ApiError } from '../../../../../shared/api/httpClient'
@@ -7,7 +8,7 @@ import {
   adminUsersApi,
   type ManagedAccountResponse,
 } from '../../../api/adminUsersApi'
-import { Modal } from '../../../../../shared/components/ui'
+import { AdminModal } from '../../../components/common/AdminModal'
 import { RoleBadge } from '../../../components/common/RoleBadge'
 import { createUserModalMessages } from './CreateUserModal.messages'
 
@@ -65,41 +66,44 @@ export function CreateUserModal({
   }
 
   return (
-    <Modal
+    <AdminModal
       width={520}
-      icon="plus"
       title={t.title}
       subtitle={t.subtitle}
       onClose={onClose}
       footer={
         <>
-          <button
-            type="button"
-            className="odm-btn odm-btn-gh"
-            onClick={onClose}
-          >
-            {t.cancel}
-          </button>
-          <button
-            type="submit"
+          <Button onClick={onClose}>{t.cancel}</Button>
+          <Button
+            type="primary"
+            htmlType="submit"
             form="adm-create-user-form"
-            className="odm-btn odm-btn-p"
             disabled={submitting}
           >
             {submitting ? t.sending : t.submit}
-          </button>
+          </Button>
         </>
       }
     >
-      <form id="adm-create-user-form" onSubmit={handleSubmit} noValidate>
-        <div className="adm-form-field">
-          <label htmlFor="adm-cu-name" className="adm-label">
-            {t.fullName} <span className="adm-required">*</span>
-          </label>
-          <input
+      <Form
+        id="adm-create-user-form"
+        layout="vertical"
+        onSubmitCapture={handleSubmit}
+        noValidate
+        requiredMark={false}
+      >
+        <Form.Item
+          label={
+            <>
+              {t.fullName} <span className="adm-required">*</span>
+            </>
+          }
+          htmlFor="adm-cu-name"
+          validateStatus={errors.fullName ? 'error' : undefined}
+          help={errors.fullName}
+        >
+          <Input
             id="adm-cu-name"
-            className="odm-inp"
-            type="text"
             placeholder={t.fullNamePlaceholder}
             value={fullName}
             onChange={(e) => {
@@ -108,17 +112,19 @@ export function CreateUserModal({
             }}
             aria-invalid={!!errors.fullName}
           />
-          {errors.fullName && (
-            <div className="adm-field-error">{errors.fullName}</div>
-          )}
-        </div>
-        <div className="adm-form-field">
-          <label htmlFor="adm-cu-email" className="adm-label">
-            {t.email} <span className="adm-required">*</span>
-          </label>
-          <input
+        </Form.Item>
+        <Form.Item
+          label={
+            <>
+              {t.email} <span className="adm-required">*</span>
+            </>
+          }
+          htmlFor="adm-cu-email"
+          validateStatus={errors.email ? 'error' : undefined}
+          help={errors.email}
+        >
+          <Input
             id="adm-cu-email"
-            className="odm-inp"
             type="email"
             placeholder="name@company.vn"
             value={email}
@@ -128,38 +134,36 @@ export function CreateUserModal({
             }}
             aria-invalid={!!errors.email}
           />
-          {errors.email && (
-            <div className="adm-field-error">{errors.email}</div>
-          )}
-        </div>
-        <div className="adm-form-field">
-          <span className="adm-label">{t.role}</span>
-          <div className="adm-choice-grid">
+        </Form.Item>
+        <Form.Item label={t.role}>
+          <Radio.Group
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+            className="adm-choice-list"
+          >
             {CREATABLE_ROLES.map((r) => (
-              <button
+              <Radio
                 key={r}
-                type="button"
-                onClick={() => setRole(r)}
+                value={r}
                 className={`adm-choice${role === r ? ' is-selected' : ''}`}
-                aria-pressed={role === r}
               >
-                <span className="adm-choice-radio" aria-hidden="true" />
                 <span className="adm-choice-text">
-                  <span>
-                    <RoleBadge role={r} />
-                  </span>
+                  <RoleBadge role={r} />
                   <small>{t.roleDescriptions[r]}</small>
                 </span>
-              </button>
+              </Radio>
             ))}
-          </div>
-        </div>
+          </Radio.Group>
+        </Form.Item>
         {submitError && (
-          <div role="alert" className="adm-alert is-danger">
-            {submitError}
-          </div>
+          <Alert
+            type="error"
+            showIcon
+            message={submitError}
+            className="adm-alert"
+          />
         )}
-      </form>
-    </Modal>
+      </Form>
+    </AdminModal>
   )
 }

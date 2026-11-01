@@ -17,12 +17,3 @@ export type AdminAccountDetail = AdminAccountItem & {
   linkedProviders: string[]
   avatarUrl: string | null
 }
-
-export type AdminDashboard = {
-  totalAccounts: number
-  activeAccounts: number
-  pendingAccounts: number
-  inactiveAccounts: number
-  byRole: Record<string, number>
-  recentAccounts: AdminAccountItem[]
-}

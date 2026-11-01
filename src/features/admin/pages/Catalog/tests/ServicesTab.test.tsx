@@ -20,7 +20,7 @@ describe('ServicesTab', () => {
     try {
       render(<ServicesTab />)
       await screen.findByText('Giám sát công trình')
-      fireEvent.click(screen.getByText('+ Thêm dịch vụ'))
+      fireEvent.click(screen.getByText('Thêm dịch vụ'))
       fireEvent.change(screen.getByLabelText(/Tên dịch vụ/), {
         target: { value: 'Image service' },
       })
@@ -62,7 +62,7 @@ describe('ServicesTab', () => {
   it('creates a service through the modal', async () => {
     render(<ServicesTab />)
     await screen.findByText('Giám sát công trình')
-    fireEvent.click(screen.getByText('+ Thêm dịch vụ'))
+    fireEvent.click(screen.getByText('Thêm dịch vụ'))
     fireEvent.change(screen.getByLabelText(/Tên dịch vụ/), {
       target: { value: 'Dịch vụ thử' },
     })
@@ -77,7 +77,7 @@ describe('ServicesTab', () => {
   it('validates the required name and shows BE errors inline', async () => {
     render(<ServicesTab />)
     await screen.findByText('Giám sát công trình')
-    fireEvent.click(screen.getByText('+ Thêm dịch vụ'))
+    fireEvent.click(screen.getByText('Thêm dịch vụ'))
     fireEvent.click(screen.getByText('Lưu'))
     expect(screen.getByText('Bắt buộc')).toBeTruthy()
   })
@@ -90,7 +90,7 @@ describe('ServicesTab', () => {
       /Tên dịch vụ/,
     )) as HTMLInputElement
     expect(name.value).toBe('Giám sát công trình')
-    expect(screen.getByLabelText(/Giá danh mục cũ/)).toHaveValue(3_500_000)
+    expect(screen.getByLabelText(/Giá danh mục cũ/)).toHaveValue('3500000')
     expect(
       (screen.getByLabelText(/Mô tả/) as HTMLTextAreaElement).value,
     ).toContain('công trình')
@@ -102,9 +102,7 @@ describe('ServicesTab', () => {
   it('deletes after a danger confirmation', async () => {
     render(<ServicesTab />)
     await screen.findByText('Giám sát công trình')
-    fireEvent.click(
-      screen.getByLabelText('Thao tác khác Giám sát công trình'),
-    )
+    fireEvent.click(screen.getByLabelText('Thao tác khác Giám sát công trình'))
     fireEvent.click(screen.getByLabelText('Xoá Giám sát công trình'))
     expect(screen.getByText(/Bạn có chắc muốn xoá/)).toBeTruthy()
     fireEvent.click(screen.getByRole('button', { name: 'Xoá' }))

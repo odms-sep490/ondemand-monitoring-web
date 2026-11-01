@@ -1,3 +1,5 @@
+import { Switch } from 'antd'
+
 import { useI18n } from '../../../../shared/i18n'
 import { adminToggleMessages } from './AdminToggle.messages'
 
@@ -14,15 +16,11 @@ export function AdminToggle({
 }) {
   const { t } = useI18n(adminToggleMessages)
   return (
-    <button
-      type="button"
-      className={`odm-adm-toggle${active ? ' is-on' : ''}`}
-      aria-label={`${active ? t.on : t.off} ${label}`}
-      aria-pressed={active}
-      onClick={onToggle}
+    <Switch
+      checked={active}
       disabled={disabled}
-    >
-      <i />
-    </button>
+      onChange={onToggle}
+      aria-label={`${active ? t.on : t.off} ${label}`}
+    />
   )
 }

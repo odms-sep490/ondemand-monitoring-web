@@ -1,53 +1,51 @@
-import type { ReactNode } from 'react'
+import { IdcardOutlined } from '@ant-design/icons'
+import { Descriptions } from 'antd'
 
+import { CardComponent, StatusTag } from '../../../../../shared/components/antd'
 import { useI18n } from '../../../../../shared/i18n'
-import { Card } from '../../../../../shared/components/ui'
 import { RoleBadge } from '../../../components/common/RoleBadge'
-import { StatusBadge } from '../../../../../shared/components/ui'
 import { fmtDate, fmtDateTime } from '../../../lib/accountStatus'
 import type { AdminAccountDetail } from '../../../types/accounts'
 import { accountInfoCardMessages } from './AccountInfoCard.messages'
-
-function Field({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <div className="adm-field">
-      <div className="adm-field-label">{label}</div>
-      {children}
-    </div>
-  )
-}
 
 export function AccountInfoCard({ account }: { account: AdminAccountDetail }) {
   const { t, lang } = useI18n(accountInfoCardMessages)
 
   return (
-    <Card title={t.accountInfo}>
-      <div className="adm-fields">
-        <Field label={t.idLabel}>
-          <div className="adm-mono">{account.id}</div>
-        </Field>
-        <Field label={t.roleLabel}>
+    <CardComponent
+      title={t.accountInfo}
+      icon={<IdcardOutlined aria-hidden="true" aria-label={undefined} />}
+    >
+      <Descriptions
+        column={{ xs: 1, sm: 2 }}
+        layout="vertical"
+        className="adm-descriptions"
+      >
+        <Descriptions.Item label={t.idLabel}>
+          <span className="adm-mono adm-wrap">{account.id}</span>
+        </Descriptions.Item>
+        <Descriptions.Item label={t.roleLabel}>
           <RoleBadge role={account.role} />
-        </Field>
-        <Field label={t.emailVerification}>
-          <StatusBadge tone={account.emailVerified ? 'success' : 'warning'}>
+        </Descriptions.Item>
+        <Descriptions.Item label={t.emailVerification}>
+          <StatusTag tone={account.emailVerified ? 'success' : 'warning'}>
             {account.emailVerified ? t.verified : t.unverified}
-          </StatusBadge>
-        </Field>
-        <Field label={t.createdAt}>
-          <div className="adm-mono">{fmtDate(account.createdAt, lang)}</div>
-        </Field>
-        <Field label={t.lastLogin}>
-          <div className="adm-mono">
+          </StatusTag>
+        </Descriptions.Item>
+        <Descriptions.Item label={t.createdAt}>
+          <span className="adm-mono">{fmtDate(account.createdAt, lang)}</span>
+        </Descriptions.Item>
+        <Descriptions.Item label={t.lastLogin}>
+          <span className="adm-mono">
             {account.lastLoginAt ? fmtDateTime(account.lastLoginAt, lang) : '—'}
-          </div>
-        </Field>
+          </span>
+        </Descriptions.Item>
         {account.linkedProviders.length > 0 && (
-          <Field label={t.oauth}>
-            <div>{account.linkedProviders.join(', ')}</div>
-          </Field>
+          <Descriptions.Item label={t.oauth}>
+            {account.linkedProviders.join(', ')}
+          </Descriptions.Item>
         )}
-      </div>
-    </Card>
+      </Descriptions>
+    </CardComponent>
   )
 }

@@ -1,8 +1,9 @@
+import { Alert, Skeleton } from 'antd'
 import { useEffect, useState } from 'react'
 
 import { useApiQuery } from '../../../../../shared/hooks/useApiQuery'
 import { ApiError } from '../../../../../shared/api/httpClient'
-import { LoadingState } from '../../../../../shared/components/odm/StateView'
+import { ErrorState } from '../../../../../shared/components/antd'
 import { adminApi } from '../../../api/adminApi'
 import { PricingDraftEditor } from './PricingDraftEditor'
 import { PricingPolicyOverview } from './PricingPolicyOverview'
@@ -100,15 +101,17 @@ export function PricingPolicyTab() {
   }
 
   return (
-    <section className="adm-card pricing-policy-admin">
-      {query.loading && !query.data && <LoadingState />}
-      {query.error !== undefined && !query.data && (
-        <div role="alert">
-          <p>Không thể tải chính sách giá. Vui lòng thử lại.</p>
-          <button type="button" className="odm-btn" onClick={query.reload}>
-            Thử lại
-          </button>
+    <section className="mgr-view pricing-policy-admin">
+      {query.loading && !query.data && (
+        <div className="mgr-card adm-card-pad" aria-busy="true">
+          <Skeleton active />
         </div>
+      )}
+      {query.error !== undefined && !query.data && (
+        <ErrorState
+          description="Không thể tải chính sách giá. Vui lòng thử lại."
+          onRetry={query.reload}
+        />
       )}
       {!query.loading && query.error === undefined && (!draft || !editing) && (
         <PricingPolicyOverview
@@ -131,8 +134,10 @@ export function PricingPolicyTab() {
           onCancel={cancel}
         />
       )}
-      {message && <p role="status">{message}</p>}
-      {error && <p role="alert">{error}</p>}
+      {message && (
+        <Alert role="status" type="success" showIcon message={message} />
+      )}
+      {error && <Alert role="alert" type="error" showIcon message={error} />}
     </section>
   )
 }

@@ -1,6 +1,7 @@
+import { Button, Form } from 'antd'
 import { useState, type FormEvent, type ReactNode } from 'react'
 import { useI18n } from '../../../../shared/i18n'
-import { FormField } from '../../../../shared/components/ui'
+import { AdminField } from '../../components/common/AdminField'
 import { PriceBreakdownView } from '../../../../shared/components/odm/PriceBreakdownView'
 import {
   checklistPricingApi,
@@ -270,11 +271,12 @@ export function ChecklistConfigForm({
   ]
 
   return (
-    <form
+    <Form
       id="checklist-config"
+      layout="vertical"
       className="checklist-dialog"
       noValidate
-      onSubmit={(event) => void submit(event)}
+      onSubmitCapture={(event) => void submit(event)}
     >
       {!shared && extra}
       {shared && (
@@ -324,7 +326,7 @@ export function ChecklistConfigForm({
       >
         <fieldset className="checklist-section checklist-content-grid">
           <legend>{t.sectionContent}</legend>
-          <FormField id="checklist-content" label={t.content} required>
+          <AdminField id="checklist-content" label={t.content} required>
             <textarea
               id="checklist-content"
               className="odm-inp"
@@ -338,12 +340,12 @@ export function ChecklistConfigForm({
               aria-describedby="checklist-content-hint"
               aria-invalid={error !== null}
             />
-          </FormField>
+          </AdminField>
           <div id="checklist-content-hint" className="checklist-field-meta">
             <span>{t.contentHint}</span>
             <span>{content.content.length}/500</span>
           </div>
-          <FormField id="checklist-description" label={t.descriptionLabel}>
+          <AdminField id="checklist-description" label={t.descriptionLabel}>
             <textarea
               id="checklist-description"
               className="odm-inp"
@@ -355,7 +357,7 @@ export function ChecklistConfigForm({
               }
               aria-describedby="checklist-description-hint"
             />
-          </FormField>
+          </AdminField>
           <div id="checklist-description-hint" className="checklist-field-meta">
             <span>{t.descriptionHint}</span>
             <span>{content.description.length}/4000</span>
@@ -368,7 +370,7 @@ export function ChecklistConfigForm({
             ] as const
           ).map(([key, label, hint]) => (
             <div key={key} className={key === 'steps' ? undefined : 'is-half'}>
-              <FormField id={`checklist-${key}`} label={label}>
+              <AdminField id={`checklist-${key}`} label={label}>
                 <textarea
                   id={`checklist-${key}`}
                   className="odm-inp"
@@ -379,7 +381,7 @@ export function ChecklistConfigForm({
                   }
                   aria-describedby={`checklist-${key}-hint`}
                 />
-              </FormField>
+              </AdminField>
               <div
                 id={`checklist-${key}-hint`}
                 className="checklist-field-meta"
@@ -455,7 +457,11 @@ export function ChecklistConfigForm({
 
         <details className="checklist-section checklist-advanced">
           <summary>{t.sectionAdvanced}</summary>
-          <FormField id="checklist-difficulty" label="Độ khó tính giá" required>
+          <AdminField
+            id="checklist-difficulty"
+            label="Độ khó tính giá"
+            required
+          >
             <select
               id="checklist-difficulty"
               className="odm-inp"
@@ -472,8 +478,8 @@ export function ChecklistConfigForm({
               <option value="HARD">Khó</option>
               <option value="VERY_HARD">Rất khó</option>
             </select>
-          </FormField>
-          <FormField
+          </AdminField>
+          <AdminField
             id="checklist-video-duration"
             label={t.videoDuration}
             error={
@@ -496,7 +502,7 @@ export function ChecklistConfigForm({
                 })
               }
             />
-          </FormField>
+          </AdminField>
           <div className="checklist-field-meta">
             Chỉ bật chiều đo thực sự ảnh hưởng đến checklist này.
           </div>
@@ -525,7 +531,7 @@ export function ChecklistConfigForm({
               ['includedAltitudeM', 'Độ cao đã bao gồm (m)', 0.01],
             ] as const
           ).map(([field, label, step]) => (
-            <FormField
+            <AdminField
               key={field}
               id={`checklist-${field}`}
               label={label}
@@ -543,7 +549,7 @@ export function ChecklistConfigForm({
                   setPricing({ ...pricing, [field]: event.target.value })
                 }
               />
-            </FormField>
+            </AdminField>
           ))}
         </details>
       </div>
@@ -555,33 +561,24 @@ export function ChecklistConfigForm({
         </p>
       )}
       <div className="checklist-form-actions">
-        <button
-          type="button"
-          className="odm-btn odm-btn-gh"
-          disabled={busy}
-          onClick={close}
-        >
+        <Button htmlType="button" type="text" disabled={busy} onClick={close}>
           {t.cancel}
-        </button>
+        </Button>
         {service && (
-          <button
-            type="button"
-            className="odm-btn"
+          <Button
+            htmlType="button"
+
             disabled={busy}
             onClick={() => void check()}
           >
             {t.whatIf}
-          </button>
+          </Button>
         )}
-        <button
-          type="submit"
-          className="odm-btn odm-btn-p"
-          disabled={busy || needsAck}
-        >
+        <Button htmlType="submit" type="primary" disabled={busy || needsAck}>
           {busy ? t.saving : t.save}
-        </button>
+        </Button>
       </div>
-    </form>
+    </Form>
   )
 }
 

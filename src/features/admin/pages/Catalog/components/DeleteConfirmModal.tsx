@@ -1,7 +1,8 @@
+import { Alert, Button } from 'antd'
 import { useState } from 'react'
 
 import { useI18n } from '../../../../../shared/i18n'
-import { Modal } from '../../../../../shared/components/ui'
+import { AdminModal } from '../../../components/common/AdminModal'
 import { readApiError } from '../../../lib/catalogMappers'
 import { deleteConfirmMessages } from './DeleteConfirmModal.messages'
 
@@ -38,38 +39,28 @@ export function DeleteConfirmModal({
   }
 
   return (
-    <Modal
+    <AdminModal
       width={440}
       tone="danger"
-      icon="shield"
       title={title}
       subtitle={name}
       onClose={onClose}
       footer={
         <>
-          <button type="button" className="odm-btn odm-btn-gh" onClick={onClose}>
-            {t.cancel}
-          </button>
-          <button
-            type="button"
-            className="odm-btn is-danger"
-            onClick={handleConfirm}
-            disabled={busy}
-          >
+          <Button onClick={onClose}>{t.cancel}</Button>
+          <Button type="primary" danger onClick={handleConfirm} disabled={busy}>
             {busy ? t.processing : t.action}
-          </button>
+          </Button>
         </>
       }
     >
-      <p className="adm-wrap">
+      <p className="adm-wrap adm-modal-text">
         {t.confirmPrefix} <strong>{name}</strong>
         {t.confirmSuffix}
       </p>
       {error && (
-        <div role="alert" className="adm-alert is-danger">
-          {error}
-        </div>
+        <Alert type="error" showIcon message={error} className="adm-alert" />
       )}
-    </Modal>
+    </AdminModal>
   )
 }

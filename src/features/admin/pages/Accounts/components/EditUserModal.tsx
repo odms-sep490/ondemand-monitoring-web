@@ -1,8 +1,10 @@
+import { Alert, Button, Skeleton } from 'antd'
+
 import { useApiQuery } from '../../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../../shared/i18n'
 import { authSession } from '../../../../auth/api/authApi'
 import { adminUsersApi } from '../../../api/adminUsersApi'
-import { Modal } from '../../../../../shared/components/ui'
+import { AdminModal } from '../../../components/common/AdminModal'
 import { EditUserForm } from './EditUserForm'
 import { editUserModalMessages } from './EditUserModal.messages'
 
@@ -34,23 +36,25 @@ export function EditUserModal({
   }
 
   return (
-    <Modal width={640} icon="users" title={t.title} onClose={onClose}>
+    <AdminModal width={640} title={t.title} onClose={onClose}>
       {loading && (
-        <div aria-busy="true" style={{ display: 'grid', gap: 12 }}>
-          <span className="odm-sk" style={{ height: 64, display: 'block' }} />
-          <span className="odm-sk" style={{ height: 64, display: 'block' }} />
-          <span className="odm-sk" style={{ height: 96, display: 'block' }} />
+        <div aria-busy="true">
+          <Skeleton active paragraph={{ rows: 4 }} />
           <span className="odm-visually-hidden">{t.loading}</span>
         </div>
       )}
       {!loading && error !== undefined && (
-        <div role="alert" className="adm-alert is-danger">
-          {t.loadError}{' '}
-          <button type="button" className="odm-btn odm-btn-gh" onClick={reload}>
-            {t.retry}
-          </button>
-        </div>
+        <Alert
+          type="error"
+          showIcon
+          message={t.loadError}
+          action={
+            <Button size="small" onClick={reload}>
+              {t.retry}
+            </Button>
+          }
+        />
       )}
-    </Modal>
+    </AdminModal>
   )
 }

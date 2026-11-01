@@ -1,7 +1,8 @@
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
-import { Card } from '../../../../shared/components/ui'
-import { LoadingState } from '../../../../shared/components/odm/StateView'
+import { Skeleton } from 'antd'
+
+import { CardComponent } from '../../../../shared/components/antd'
 import { ServicePriceSummary } from './ServicePriceSummary'
 import { checklistPricingApi } from '../../../../shared/api/checklistPricingApi'
 import { checklistMessages } from './checklists.messages'
@@ -24,15 +25,15 @@ export function ServicePricePreviewCard({
     [serviceId, refreshKey],
   )
   return (
-    <Card flush>
+    <CardComponent styles={{ body: { padding: 0 } }}>
       <div className="checklist-section-head">
         <div>
           <h2>{t.previewTitle}</h2>
           <p>{t.previewHint}</p>
         </div>
       </div>
-      <div className="checklist-preview-card" style={{ padding: 16 }}>
-        {query.loading && <LoadingState />}
+      <div className="checklist-preview-card adm-card-pad">
+        {query.loading && <Skeleton active aria-busy="true" />}
         {query.error !== undefined && (
           <ChecklistLoadError
             title={t.previewError}
@@ -44,6 +45,6 @@ export function ServicePricePreviewCard({
           <ServicePriceSummary preview={query.data} />
         )}
       </div>
-    </Card>
+    </CardComponent>
   )
 }

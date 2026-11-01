@@ -1,56 +1,67 @@
+import { UserOutlined } from '@ant-design/icons'
+import { Empty, Tag } from 'antd'
+
+import { CardComponent } from '../../../../../shared/components/antd'
+import type { UseApiQueryState } from '../../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../../shared/i18n'
-import type { AdminAccountItem } from '../../../types/accounts'
-import { Card } from '../../../../../shared/components/ui'
-import { MockDataBadge } from '../../../../../shared/components/ui'
-import {
-  StatusBadge,
-  toUiTone,
-} from '../../../../../shared/components/ui'
-import { fmtDate, getAccountStatusMeta } from '../../../lib/accountStatus'
+import { RoleBadge } from '../../../components/common/RoleBadge'
+import { fmtDateTime } from '../../../lib/accountStatus'
 import { adminHref } from '../../../routes'
 import { adminDashboardPageMessages } from '../AdminDashboardPage.messages'
+import type { RecentAccounts } from '../dashboardData'
+import { pickRecent } from '../dashboardStats'
+import { QueryBody } from './QueryBody'
 
-/** Latest accounts: still backed by the mock dashboard endpoint. */
+const ROWS = 5
+
 export function RecentAccountsCard({
-  accounts,
+  recent,
 }: {
-  accounts: AdminAccountItem[]
+  recent: UseApiQueryState<RecentAccounts>
 }) {
   const { t, lang } = useI18n(adminDashboardPageMessages)
+  const r = t.recent
   return (
-    <Card
-      title={
-        <>
-          {t.latestAccounts} <MockDataBadge />
-        </>
+    <CardComponent
+      title={r.title}
+      icon={<UserOutlined aria-hidden="true" aria-label={undefined} />}
+      tone="blue"
+      extra={
+        <a className="mgr-card-link" href={adminHref({ screen: 'accounts' })}>
+          {r.viewAll}
+        </a>
       }
-      actions={<a href={adminHref({ screen: 'accounts' })}>{t.viewAll}</a>}
     >
-      <div className="adm-list">
-        {accounts.map((acc) => {
-          const meta = getAccountStatusMeta(acc.status, lang)
-          return (
-            <div key={acc.id} className="adm-list-row">
-              <div className="odm-adm-avatar" aria-hidden="true">
-                {(acc.fullName[0] ?? '?').toUpperCase()}
-              </div>
-              <div className="adm-list-main">
-                <a
-                  className="adm-list-link"
-                  href={adminHref({
-                    screen: 'accountDetail',
-                    accountId: acc.id,
-                  })}
-                >
-                  {acc.fullName}
-                </a>
-                <div className="adm-list-sub">{fmtDate(acc.createdAt, lang)}</div>
-              </div>
-              <StatusBadge tone={toUiTone(meta.tone)}>{meta.label}</StatusBadge>
-            </div>
+      <QueryBody query={recent}>
+        {(data) =>
+          data.items.length === 0 ? (
+            <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={r.empty} />
+          ) : (
+            <ul className="m-0 list-none p-0">
+              {pickRecent(data.items, ROWS).map((u) => (
+                <li key={u.id}>
+                  <a
+                    className="mgr-dash-row mgr-dash-row-link"
+                    href={adminHref({
+                      screen: 'accountDetail',
+                      accountId: u.id,
+                    })}
+                  >
+                    <div className="mgr-dash-row-main">
+                      <div className="mgr-dash-row-title">{u.fullName}</div>
+                      <div className="mgr-dash-row-meta">
+                        {u.email} · {fmtDateTime(u.createdAt, lang)}
+                      </div>
+                    </div>
+                    {u.active ? null : <Tag bordered={false}>{r.locked}</Tag>}
+                    <RoleBadge role={u.role} />
+                  </a>
+                </li>
+              ))}
+            </ul>
           )
-        })}
-      </div>
-    </Card>
+        }
+      </QueryBody>
+    </CardComponent>
   )
 }

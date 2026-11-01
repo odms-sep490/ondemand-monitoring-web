@@ -1,30 +1,37 @@
 import { useEffect, useState } from 'react'
 
+import { PlusOutlined } from '@ant-design/icons'
+import { Alert, Button } from 'antd'
+
 import {
+  CardComponent,
+  EmptyState,
   ErrorState,
-  LoadingState,
-} from '../../../../shared/components/odm/StateView'
+  PageHeader,
+} from '../../../../shared/components/antd'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
 import {
   adminUsersApi,
   type ManagedAccountResponse,
 } from '../../api/adminUsersApi'
-import { EmptyState } from '../../../../shared/components/ui'
-import { PageHeader } from '../../../../shared/components/ui'
-import { TableCard } from '../../../../shared/components/ui'
 import { mapUserSummary } from '../../lib/accountMappers'
+import { fetchAccountStats } from '../../lib/accountStats'
 import { adminHref } from '../../routes'
 import type { AdminAccountItem } from '../../types/accounts'
 import { accountsPageMessages } from './AccountsPage.messages'
 import { AccountsFilters } from './components/AccountsFilters'
+import { AccountsRoleTabs } from './components/AccountsRoleTabs'
 import { AccountsTable } from './components/AccountsTable'
 import { CreateUserModal } from './components/CreateUserModal'
 import { EditUserModal } from './components/EditUserModal'
 import { LockAccountDialog } from './components/LockAccountDialog'
-import { Pager } from './components/Pager'
 import { ResetPasswordDialog } from './components/ResetPasswordDialog'
-import { buildListParams, type AccountsFilterState } from './listParams'
+import {
+  ACCOUNTS_PAGE_SIZE,
+  buildListParams,
+  type AccountsFilterState,
+} from './listParams'
 
 type DialogState =
   | { type: 'edit'; account: AdminAccountItem }
@@ -65,6 +72,12 @@ export function AccountsPage({ openCreate = false }: { openCreate?: boolean }) {
     [page, search, filters.role, filters.status],
   )
 
+  const stats = useApiQuery((signal) => fetchAccountStats(signal), [])
+  const reloadAll = () => {
+    reload()
+    stats.reload()
+  }
+
   function changeFilters(next: AccountsFilterState) {
     if (next.role !== filters.role || next.status !== filters.status) setPage(0)
     setFilters(next)
@@ -77,64 +90,76 @@ export function AccountsPage({ openCreate = false }: { openCreate?: boolean }) {
 
   function handleDialogDone() {
     setDialog(null)
-    reload()
+    reloadAll()
   }
 
   return (
-    <div>
+    <div className="mgr-view">
       <PageHeader
         title={t.title}
-        subtitle={data ? `${data.totalItems} ${t.subtitle}` : undefined}
+        description={data ? `${data.totalItems} ${t.subtitle}` : undefined}
         actions={
-          <button
-            type="button"
-            className="odm-btn odm-btn-p"
+          <Button
+            type="primary"
+            icon={<PlusOutlined aria-hidden="true" aria-label={undefined} />}
             onClick={() => setCreating(true)}
           >
             {t.createUser}
-          </button>
+          </Button>
         }
       />
 
       {created && (
-        <div role="status" className="adm-alert is-success">
-          <strong>{t.createdBanner}: </strong>
-          {created.email}.{' '}
-          {created.invitationSent ? t.invitationSent : ''}{' '}
-          {created.passwordChangeRequired ? t.passwordChangeRequired : ''}
-        </div>
+        <Alert
+          type="success"
+          showIcon
+          closable
+          className="adm-alert"
+          message={
+            <>
+              <strong>{t.createdBanner}: </strong>
+              {created.email}. {created.invitationSent ? t.invitationSent : ''}{' '}
+              {created.passwordChangeRequired ? t.passwordChangeRequired : ''}
+            </>
+          }
+          onClose={() => setCreated(null)}
+        />
       )}
 
+      <AccountsRoleTabs
+        value={filters.role}
+        stats={stats.data}
+        onChange={(role) => changeFilters({ ...filters, role })}
+      />
       <AccountsFilters value={filters} onChange={changeFilters} />
 
-      {loading && !data && <LoadingState />}
       {!loading && (error !== undefined || !data) && (
         <ErrorState error={error} onRetry={reload} />
       )}
       {data && data.items.length === 0 && !loading && (
-        <EmptyState title={t.emptyTitle} description={t.emptyDescription} />
+        <CardComponent>
+          <EmptyState title={t.emptyTitle} description={t.emptyDescription} />
+        </CardComponent>
       )}
-      {data && data.items.length > 0 && (
-        <TableCard
-          footer={
-            <Pager
-              page={data.page}
-              totalPages={data.totalPages}
-              totalItems={data.totalItems}
-              onPage={setPage}
-            />
-          }
-        >
+      {(loading && !data) || (data && data.items.length > 0) ? (
+        <CardComponent styles={{ body: { padding: 0 } }}>
           <AccountsTable
-            items={data.items}
+            items={data?.items ?? []}
+            loading={loading}
+            pagination={{
+              current: (data?.page ?? 0) + 1,
+              pageSize: ACCOUNTS_PAGE_SIZE,
+              total: data?.totalItems ?? 0,
+              onChange: (next) => setPage(next - 1),
+            }}
             onEdit={(account) => setDialog({ type: 'edit', account })}
             onLock={(account) => setDialog({ type: 'lock', account })}
             onResetPassword={(account) =>
               setDialog({ type: 'resetPwd', account })
             }
           />
-        </TableCard>
-      )}
+        </CardComponent>
+      ) : null}
 
       {creating && (
         <CreateUserModal
@@ -143,7 +168,7 @@ export function AccountsPage({ openCreate = false }: { openCreate?: boolean }) {
             setCreated(result)
             closeCreate()
             setPage(0)
-            reload()
+            reloadAll()
           }}
         />
       )}
@@ -151,7 +176,7 @@ export function AccountsPage({ openCreate = false }: { openCreate?: boolean }) {
         <EditUserModal
           userId={dialog.account.id}
           onClose={() => setDialog(null)}
-          onChanged={reload}
+          onChanged={reloadAll}
         />
       )}
       {dialog?.type === 'lock' && (

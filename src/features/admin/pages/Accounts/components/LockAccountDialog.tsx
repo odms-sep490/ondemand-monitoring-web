@@ -1,8 +1,9 @@
+import { Alert, Button } from 'antd'
 import { useState } from 'react'
 
 import { useI18n } from '../../../../../shared/i18n'
 import { adminUsersApi } from '../../../api/adminUsersApi'
-import { Modal } from '../../../../../shared/components/ui'
+import { AdminModal } from '../../../components/common/AdminModal'
 import type { AdminAccountItem } from '../../../types/accounts'
 import { lockAccountDialogMessages } from './LockAccountDialog.messages'
 
@@ -32,40 +33,42 @@ export function LockAccountDialog({ account, onClose, onSuccess }: Props) {
   }
 
   return (
-    <Modal
+    <AdminModal
       width={440}
       tone={isLocked ? 'success' : 'danger'}
-      icon="lock"
       title={isLocked ? t.unlockTitle : t.lockTitle}
       subtitle={account.email}
       onClose={onClose}
       footer={
         <>
-          <button type="button" className="odm-btn odm-btn-gh" onClick={onClose}>
-            {t.cancel}
-          </button>
-          <button
-            type="button"
-            className={`odm-btn ${isLocked ? 'odm-btn-p' : 'is-danger'}`}
+          <Button onClick={onClose}>{t.cancel}</Button>
+          <Button
+            type="primary"
+            danger={!isLocked}
             onClick={handleConfirm}
             disabled={loading}
           >
             {loading ? t.processing : isLocked ? t.unlockAction : t.lockAction}
-          </button>
+          </Button>
         </>
       }
     >
-      <p style={{ margin: 0 }}>
+      <p className="adm-modal-text">
         {isLocked ? t.unlockConfirmPrefix : t.lockConfirmPrefix}{' '}
         <strong>{account.fullName}</strong>
         {isLocked ? t.unlockConfirmSuffix : t.lockConfirmSuffix}
       </p>
-      {!isLocked && <div className="adm-modal-warning">{t.lockWarning}</div>}
-      {error && (
-        <div role="alert" className="adm-alert is-danger">
-          {error}
-        </div>
+      {!isLocked && (
+        <Alert
+          type="warning"
+          showIcon
+          message={t.lockWarning}
+          className="adm-alert"
+        />
       )}
-    </Modal>
+      {error && (
+        <Alert type="error" showIcon message={error} className="adm-alert" />
+      )}
+    </AdminModal>
   )
 }

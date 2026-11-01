@@ -1,49 +1,102 @@
-import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
-import { useI18n } from '../../../../shared/i18n'
-import { adminApi } from '../../api/adminApi'
-import { PageHeader } from '../../../../shared/components/ui'
-import { adminHref } from '../../routes'
-import { fetchAccountStats } from './accountStats'
-import { adminDashboardPageMessages } from './AdminDashboardPage.messages'
-import { AccountStatCards } from './components/AccountStatCards'
-import { RecentAccountsCard } from './components/RecentAccountsCard'
-import { RoleBreakdown } from './components/RoleBreakdown'
+import { useEffect, useRef, useState } from 'react'
 
+import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
+import '../../../manager/manager.css'
+import '../../../manager/pages/Dashboard/dashboard.scss'
+import { adminApi } from '../../api/adminApi'
+import { fetchAccountStats } from '../../lib/accountStats'
+import './adminDashboard.scss'
+import { AttentionCard } from './components/AttentionCard'
+import { DashboardCharts } from './components/DashboardCharts'
+import { DashboardHero } from './components/DashboardHero'
+import { DashboardKpis } from './components/DashboardKpis'
+import { QuickActionsCard } from './components/QuickActionsCard'
+import { RecentAccountsCard } from './components/RecentAccountsCard'
+import { SystemConfigCard } from './components/SystemConfigCard'
+import {
+  fetchCatalogSummary,
+  fetchChecklistSummary,
+  fetchDeviceSummary,
+  fetchPolicySummary,
+  fetchRecentAccounts,
+} from './dashboardData'
+import { buildAlerts } from './dashboardStats'
+
+/** Each source is its own query, so one failing endpoint only affects its cards. */
 export function AdminDashboardPage() {
-  const { t } = useI18n(adminDashboardPageMessages)
-  const stats = useApiQuery((signal) => fetchAccountStats(signal), [])
-  const mock = useApiQuery((signal) => adminApi.getDashboard(signal), [])
+  const stats = useApiQuery((s) => fetchAccountStats(s), [])
+  const recent = useApiQuery((s) => fetchRecentAccounts(s), [])
+  const devices = useApiQuery((s) => fetchDeviceSummary(s), [])
+  const catalog = useApiQuery((s) => fetchCatalogSummary(s), [])
+  const checklists = useApiQuery((s) => fetchChecklistSummary(s), [])
+  const policies = useApiQuery((s) => fetchPolicySummary(s), [])
+  const expiration = useApiQuery(
+    (s) => adminApi.getOrderExpirationSettings(s),
+    [],
+  )
+  const all = [
+    stats,
+    recent,
+    devices,
+    catalog,
+    checklists,
+    policies,
+    expiration,
+  ]
+
+  const loading = all.some((q) => q.loading)
+  const [updatedAt, setUpdatedAt] = useState<Date | null>(null)
+  const wasLoading = useRef(true)
+  useEffect(() => {
+    if (wasLoading.current && !loading) setUpdatedAt(new Date())
+    wasLoading.current = loading
+  }, [loading])
+
+  const alerts = buildAlerts({
+    locked: stats.data?.locked,
+    unverified: stats.data?.unverified,
+    devices: devices.data?.groups,
+    servicesWithoutChecklist: checklists.data?.servicesWithoutChecklist,
+    policies: policies.data,
+  })
+  const now = new Date()
 
   return (
-    <div>
-      <PageHeader
-        title={t.title}
-        actions={
-          <a
-            className="odm-btn odm-btn-p"
-            href={adminHref({ screen: 'createAccount' })}
-          >
-            {t.createAccount}
-          </a>
-        }
+    <div className="mgr-dash adm-dash">
+      <DashboardHero
+        alertCount={alerts.length}
+        updatedAt={updatedAt}
+        refreshing={loading}
+        onRefresh={() => all.forEach((q) => q.reload())}
       />
-
-      {stats.error ? (
-        <div className="adm-list-sub" role="alert">
-          {t.statsError}{' '}
-          <button type="button" className="odm-btn" onClick={stats.reload}>
-            {t.retry}
-          </button>
+      <DashboardKpis
+        stats={stats}
+        recent={recent}
+        devices={devices}
+        catalog={catalog}
+        checklists={checklists}
+        now={now}
+      />
+      <div className="mgr-columns">
+        <div className="mgr-stack">
+          <DashboardCharts
+            stats={stats}
+            recent={recent}
+            devices={devices}
+            now={now}
+          />
+          <RecentAccountsCard recent={recent} />
         </div>
-      ) : null}
-
-      <AccountStatCards stats={stats.data} />
-
-      <div className="adm-grid-wide">
-        <RoleBreakdown stats={stats.data} />
-        {mock.data ? (
-          <RecentAccountsCard accounts={mock.data.recentAccounts} />
-        ) : null}
+        <div className="mgr-stack">
+          <AttentionCard alerts={alerts} settled={!loading} />
+          <SystemConfigCard
+            policies={policies}
+            expiration={expiration}
+            catalog={catalog}
+            devices={devices}
+          />
+          <QuickActionsCard />
+        </div>
       </div>
     </div>
   )

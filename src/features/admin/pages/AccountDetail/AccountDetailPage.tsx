@@ -1,9 +1,8 @@
 import { useState } from 'react'
 
-import {
-  ErrorState,
-  LoadingState,
-} from '../../../../shared/components/odm/StateView'
+import { Skeleton } from 'antd'
+
+import { CardComponent, ErrorState } from '../../../../shared/components/antd'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
 import { adminUsersApi } from '../../api/adminUsersApi'
@@ -34,7 +33,14 @@ export function AccountDetailPage({ accountId }: { accountId: string }) {
 
   const display = account ?? data ?? null
 
-  if (loading && !display) return <LoadingState />
+  if (loading && !display)
+    return (
+      <div className="mgr-view adm-narrow" aria-busy="true">
+        <CardComponent>
+          <Skeleton active />
+        </CardComponent>
+      </div>
+    )
   if (!display) return <ErrorState error={error} onRetry={reload} />
 
   async function runAction(action: () => Promise<AdminAccountDetail>) {
@@ -50,7 +56,7 @@ export function AccountDetailPage({ accountId }: { accountId: string }) {
   }
 
   return (
-    <div className="adm-narrow">
+    <div className="mgr-view adm-narrow">
       {editing && (
         <EditUserModal
           userId={display.id}
@@ -74,9 +80,7 @@ export function AccountDetailPage({ accountId }: { accountId: string }) {
         inactive={display.status === 'INACTIVE'}
         loading={actionLoading}
         error={actionError}
-        onDeactivate={() =>
-          runAction(() => setActive(display.id, false))
-        }
+        onDeactivate={() => runAction(() => setActive(display.id, false))}
         onActivate={() => runAction(() => setActive(display.id, true))}
       />
     </div>

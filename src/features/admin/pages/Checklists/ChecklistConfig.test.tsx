@@ -210,7 +210,12 @@ describe('Service configuration page', () => {
         selected: true,
       }),
     ).toBeInTheDocument()
-    expect(within(dialog).getByLabelText(/Mô tả chi tiết/)).toBeVisible()
+    // antd's zoom-in motion keeps the dialog at opacity 0 in jsdom, so check the tab panel instead.
+    expect(
+      within(dialog)
+        .getByLabelText(/Mô tả chi tiết/)
+        .closest('[role="tabpanel"]'),
+    ).not.toHaveAttribute('hidden')
     expect(within(dialog).getByLabelText(/Mô tả chi tiết/)).toHaveValue(
       'Phạm vi kiểm tra mái',
     )
@@ -223,8 +228,10 @@ describe('Service configuration page', () => {
     )
     // Both scopes of the same price sit side by side, with labels that tell them apart.
     expect(
-      within(dialog).getByLabelText('Giá công việc kiểm tra (VND)'),
-    ).toBeVisible()
+      within(dialog)
+        .getByLabelText('Giá công việc kiểm tra (VND)')
+        .closest('[role="tabpanel"]'),
+    ).not.toHaveAttribute('hidden')
     expect(
       within(dialog).getByLabelText('Giá công việc kiểm tra (VND)'),
     ).toHaveValue(200_000)
@@ -248,7 +255,9 @@ describe('Service configuration page', () => {
       },
     )
     fireEvent.click(screen.getByRole('button', { name: 'Lưu' }))
-    expect(await screen.findByRole('alert')).toBeInTheDocument()
+    expect(
+      await within(screen.getByRole('dialog')).findByRole('alert'),
+    ).toBeInTheDocument()
     expect(
       screen.getByRole('tab', { name: 'Giá và định mức', selected: true }),
     ).toBeInTheDocument()

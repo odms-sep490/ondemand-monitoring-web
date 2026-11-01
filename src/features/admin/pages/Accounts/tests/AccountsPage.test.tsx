@@ -11,24 +11,38 @@ useMockTransport()
 describe('AccountsPage', () => {
   it('renders the vietnamese title and switches to english', () => {
     render(<AccountsPage />)
-    expect(screen.getByText('Người dùng')).toBeTruthy()
+    expect(screen.getByRole('heading', { name: 'Tài khoản' })).toBeTruthy()
     act(() => setLanguage('en'))
-    expect(screen.getByText('Users')).toBeTruthy()
+    expect(screen.getByRole('heading', { name: 'Accounts' })).toBeTruthy()
     act(() => setLanguage('vi'))
   })
 
   it('sends server-side pagination and role filter queries', async () => {
     render(<AccountsPage />)
-    await waitFor(() => expect(screen.getByText(/Trang 1/)).toBeTruthy())
+    await screen.findAllByLabelText('Xem / sửa thông tin')
     expect(
       requestedUrls.some((u) => /page=0/.test(u) && /size=20/.test(u)),
     ).toBe(true)
 
-    fireEvent.change(screen.getByLabelText('Vai trò'), {
-      target: { value: 'MANAGER' },
-    })
+    fireEvent.click(screen.getByRole('radio', { name: /Quản lý/ }))
     await waitFor(() =>
       expect(requestedUrls.some((u) => u.includes('role=MANAGER'))).toBe(true),
+    )
+  })
+
+  it('shows role chips with counts and filters by the selected role', async () => {
+    render(<AccountsPage />)
+    await waitFor(() =>
+      expect(screen.getByTestId('role-tab-count-all').textContent).toMatch(
+        /^\d+$/,
+      ),
+    )
+    expect(screen.getByTestId('role-tab-count-customer').textContent).toMatch(
+      /^\d+$/,
+    )
+    fireEvent.click(screen.getByRole('radio', { name: /Khách hàng/ }))
+    await waitFor(() =>
+      expect(requestedUrls.some((u) => u.includes('role=CUSTOMER'))).toBe(true),
     )
   })
 
@@ -51,8 +65,8 @@ describe('AccountsPage', () => {
     fireEvent.click(buttons[0])
     expect(screen.getByText('BE chưa hỗ trợ')).toBeTruthy()
     expect(
-      (screen.getByText('Xác nhận reset') as HTMLButtonElement).disabled,
-    ).toBe(true)
+      screen.getByRole('button', { name: 'Xác nhận reset' }),
+    ).toBeDisabled()
   })
 
   it('opens the create modal when routed with openCreate', () => {

@@ -1,8 +1,9 @@
+import { Alert, Button, Skeleton } from 'antd'
 import type { ReactNode } from 'react'
 
 import { useApiQuery } from '../../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../../shared/i18n'
-import { Modal } from '../../../../../shared/components/ui'
+import { AdminModal } from '../../../components/common/AdminModal'
 import { editLoaderMessages } from './EditLoader.messages'
 
 type Props<T> = {
@@ -22,19 +23,24 @@ export function EditLoader<T>({ title, load, onClose, children }: Props<T>) {
   )
   if (!load || data !== undefined) return <>{children(data)}</>
   return (
-    <Modal title={title} icon="plus" onClose={onClose}>
+    <AdminModal title={title} onClose={onClose}>
       {error === undefined ? (
-        <div className="adm-muted" aria-busy="true">
-          {t.loading}
+        <div aria-busy="true">
+          <Skeleton active paragraph={{ rows: 3 }} />
+          <span className="odm-visually-hidden">{t.loading}</span>
         </div>
       ) : (
-        <div role="alert" className="adm-alert is-danger">
-          {error instanceof Error ? error.message : String(error)}{' '}
-          <button type="button" className="odm-btn odm-btn-gh odm-btn-sm" onClick={reload}>
-            {t.retry}
-          </button>
-        </div>
+        <Alert
+          type="error"
+          showIcon
+          message={error instanceof Error ? error.message : String(error)}
+          action={
+            <Button size="small" onClick={reload}>
+              {t.retry}
+            </Button>
+          }
+        />
       )}
-    </Modal>
+    </AdminModal>
   )
 }

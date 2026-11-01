@@ -1,3 +1,4 @@
+import { Button } from 'antd'
 import { useEffect, useState } from 'react'
 
 import { useApiQuery } from '../../../../../shared/hooks/useApiQuery'
@@ -298,13 +299,13 @@ export function MediaPricingEditor({
           />{' '}
           {t.enabled}
         </label>
-        <button
-          type="button"
-          className="odm-btn odm-btn-sm"
+        <Button
+          htmlType="button"
+          size="small"
           onClick={() => onChange(rules.filter((_, i) => i !== index))}
         >
           {t.remove}
-        </button>
+        </Button>
         {issues.length > 0 && (
           <ul role="alert" className="pricing-rule-issues">
             {issues.map((issue) => (
@@ -406,9 +407,9 @@ export function MediaPricingEditor({
             ))}
           </select>
         </label>
-        <button
-          type="button"
-          className="odm-btn"
+        <Button
+          htmlType="button"
+
           disabled={!/^[A-Za-z0-9_]{1,60}$/.test(profile.trim())}
           onClick={() => {
             onChange([
@@ -428,7 +429,7 @@ export function MediaPricingEditor({
           }}
         >
           {t.add}
-        </button>
+        </Button>
       </div>
       {problems.length > 0 && (
         <p role="alert" className="pricing-rule-issues">
@@ -559,9 +560,9 @@ function DraftPreview({ draftId }: { draftId: string }) {
           onChange={(e) => setAltitudeM(Number(e.target.value))}
         />
       </label>{' '}
-      <button type="button" className="odm-btn" onClick={() => void run()}>
+      <Button htmlType="button" onClick={() => void run()}>
         {t.previewButton}
-      </button>
+      </Button>
       {error && <p role="alert">{error}</p>}
       {preview && <PriceBreakdownView preview={preview} />}
     </section>

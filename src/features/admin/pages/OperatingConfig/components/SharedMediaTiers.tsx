@@ -1,3 +1,4 @@
+import { Button } from 'antd'
 import { useState } from 'react'
 
 import {
@@ -115,7 +116,9 @@ export function SharedMediaTiers({
                           suffix={kind.noun}
                           min={1}
                           value={rule.maxValue ?? null}
-                          onChange={(value) => patch(index, { maxValue: value })}
+                          onChange={(value) =>
+                            patch(index, { maxValue: value })
+                          }
                           helper="Để trống nếu đây là bậc cuối không giới hạn."
                         />
                         <UnitInput
@@ -124,7 +127,9 @@ export function SharedMediaTiers({
                           suffix={kind.noun}
                           min={1}
                           value={rule.unitSize ?? null}
-                          onChange={(value) => patch(index, { unitSize: value })}
+                          onChange={(value) =>
+                            patch(index, { unitSize: value })
+                          }
                           helper="Số lượng được tính thành một đơn vị giá."
                         />
                         <MoneyInput
@@ -137,13 +142,13 @@ export function SharedMediaTiers({
                         />
                       </div>
                       <div className="pricing-card-actions">
-                        <button
-                          type="button"
-                          className="odm-btn odm-btn-sm"
+                        <Button
+                          htmlType="button"
+                          size="small"
                           onClick={() => setEditing(null)}
                         >
                           Xong
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   ) : (
@@ -157,13 +162,13 @@ export function SharedMediaTiers({
                         <small>{roundingLabel(rule.roundingMode)}</small>
                       </div>
                       <div className="pricing-card-actions">
-                        <button
-                          type="button"
-                          className="odm-btn odm-btn-sm"
+                        <Button
+                          htmlType="button"
+                          size="small"
                           onClick={() => setEditing(index)}
                         >
                           Chỉnh sửa
-                        </button>
+                        </Button>
                         <button
                           type="button"
                           className="pricing-icon-button is-danger"
@@ -193,9 +198,9 @@ export function SharedMediaTiers({
                 </article>
               )
             })}
-            <button
-              type="button"
-              className="odm-btn odm-btn-sm"
+            <Button
+              htmlType="button"
+              size="small"
               onClick={() => {
                 const next = [
                   ...rules,
@@ -206,7 +211,7 @@ export function SharedMediaTiers({
               }}
             >
               + Thêm bậc giá
-            </button>
+            </Button>
           </section>
         )
       })}

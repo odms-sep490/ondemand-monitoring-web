@@ -83,12 +83,18 @@ describe('Admin checklist catalog', () => {
   it('searches and filters with page reset', async () => {
     render(<ChecklistCatalogPage />)
     await screen.findByText(definition.content)
-    fireEvent.change(screen.getByRole('searchbox'), {
-      target: { value: 'hàng rào' },
-    })
-    fireEvent.change(screen.getByRole('combobox'), {
-      target: { value: 'false' },
-    })
+    fireEvent.change(
+      screen.getByRole('textbox', { name: 'Tìm nội dung checklist' }),
+      {
+        target: { value: 'hàng rào' },
+      },
+    )
+    fireEvent.mouseDown(screen.getByRole('combobox', { name: 'Trạng thái' }))
+    fireEvent.click(
+      await screen.findByText('Ngừng hoạt động', {
+        selector: '.ant-select-item-option-content',
+      }),
+    )
     await waitFor(() =>
       expect(checklistsApi.list).toHaveBeenLastCalledWith(
         'hàng rào',
@@ -384,9 +390,12 @@ describe('Admin service template', () => {
     fireEvent.click(
       await screen.findByRole('button', { name: 'Thêm checklist' }),
     )
-    fireEvent.change(screen.getByRole('searchbox'), {
-      target: { value: 'khu vực' },
-    })
+    fireEvent.change(
+      screen.getByRole('textbox', { name: 'Tìm nội dung checklist' }),
+      {
+        target: { value: 'khu vực' },
+      },
+    )
     await waitFor(() =>
       expect(checklistsApi.list).toHaveBeenLastCalledWith(
         'khu vực',
@@ -424,9 +433,12 @@ describe('Admin service template', () => {
     ])
     render(<ServiceChecklistPage serviceId="s" />)
     await screen.findByText(definition.content)
-    fireEvent.change(screen.getByRole('combobox'), {
-      target: { value: 'second' },
-    })
+    fireEvent.mouseDown(screen.getByRole('combobox', { name: 'Dịch vụ' }))
+    fireEvent.click(
+      await screen.findByText('Second', {
+        selector: '.ant-select-item-option-content',
+      }),
+    )
     expect(window.location.hash).toBe(
       '#portal/admin/services/second/checklists',
     )
@@ -460,16 +472,19 @@ describe('Admin checklist visual structure and interaction', () => {
     ).toBeInTheDocument()
     expect(
       screen.getByRole('link', { name: 'Mở danh mục checklist' }),
-    ).toHaveClass('odm-btn')
+    ).toHaveClass('ant-btn')
     expect(
       await screen.findByRole('combobox', { name: 'Dịch vụ' }),
-    ).toHaveValue('s')
+    ).toBeInTheDocument()
+    expect(
+      document.querySelector('.ant-select-selection-item'),
+    ).toHaveTextContent('Dịch vụ test')
     expect(await screen.findByText('2 checklist')).toBeInTheDocument()
     expect(
       screen.getByRole('heading', { name: 'Checklist mặc định' }),
     ).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Thêm checklist' })).toHaveClass(
-      'odm-btn-p',
+      'ant-btn-primary',
     )
   })
   it('exposes accessible tooltips and disables reorder boundaries', async () => {
@@ -503,7 +518,7 @@ describe('Admin checklist visual structure and interaction', () => {
     expect(
       screen.getAllByRole('button', { name: 'Thêm checklist' }),
     ).toHaveLength(1)
-    expect(screen.queryByRole('list')).toBeNull()
+    expect(document.querySelector('.checklist-list')).toBeNull()
   })
   it('shows a user-facing load error and recovers through retry', async () => {
     vi.mocked(checklistsApi.template)
@@ -520,7 +535,7 @@ describe('Admin checklist visual structure and interaction', () => {
       'Không thể tải checklist dịch vụ.',
     )
     fireEvent.click(
-      within(loadError.closest('.odm-card')!).getByRole('button', {
+      within(loadError.closest('.mgr-card')!).getByRole('button', {
         name: 'Thử lại',
       }),
     )
@@ -582,7 +597,7 @@ describe('Admin checklist visual structure and interaction', () => {
       screen.getByRole('navigation', { name: 'Phân trang checklist' }),
     ).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Trang trước' })).toHaveClass(
-      'odm-btn',
+      'ant-btn',
     )
     fireEvent.click(screen.getByRole('button', { name: 'Thêm checklist' }))
     const textarea = screen.getByRole('textbox', { name: /Nội dung/ })
@@ -590,8 +605,13 @@ describe('Admin checklist visual structure and interaction', () => {
       'aria-describedby',
       'checklist-content-hint',
     )
-    expect(screen.getByRole('button', { name: 'Lưu' })).toHaveClass('odm-btn-p')
-    fireEvent.keyDown(document, { key: 'Escape' })
-    expect(screen.queryByRole('dialog')).toBeNull()
+    expect(screen.getByRole('button', { name: 'Lưu' })).toHaveClass(
+      'ant-btn-primary',
+    )
+    fireEvent.keyDown(screen.getByRole('dialog'), {
+      key: 'Escape',
+      keyCode: 27,
+    })
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
   })
 })

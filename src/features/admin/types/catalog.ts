@@ -24,25 +24,3 @@ export type AdminTimeslot = {
   /** "HH:mm" */
   endTime: string
 }
-
-export type AdminStation = {
-  id: string
-  code: string
-  name: string
-  address: string
-  lat: number
-  lon: number
-  maxServiceRadiusM: number
-  isActive: boolean
-}
-
-export type CreateStationPayload = {
-  code: string
-  name: string
-  address: string
-  lat: number
-  lon: number
-  maxServiceRadiusM: number
-}
-
-export type UpdateStationPayload = Partial<Omit<AdminStation, 'id'>>

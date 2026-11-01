@@ -1,4 +1,5 @@
-import { StatusBadge, toUiTone } from '../../../../../shared/components/ui'
+import { Button } from 'antd'
+import { StatusTag } from '../../../../../shared/components/antd'
 import {
   pricingLabel,
   pricingPolicyName,
@@ -93,9 +94,9 @@ export function PricingPolicyOverview({
       <header className="ppo-head">
         <h2>Chính sách giá mặc định</h2>
         <p>
-          Chính sách giá được sử dụng để tính giá cho các yêu cầu vận hành.
-          Mỗi lần áp dụng sẽ tạo một phiên bản mới; chính sách đã áp dụng không
-          thể chỉnh sửa.
+          Chính sách giá được sử dụng để tính giá cho các yêu cầu vận hành. Mỗi
+          lần áp dụng sẽ tạo một phiên bản mới; chính sách đã áp dụng không thể
+          chỉnh sửa.
         </p>
       </header>
 
@@ -104,13 +105,9 @@ export function PricingPolicyOverview({
           <p className="ppo-note">
             Đang có bản nháp phiên bản {draft.version} chưa phát hành.{' '}
             {onEditDraft && (
-              <button
-                type="button"
-                className="odm-btn odm-btn-sm"
-                onClick={onEditDraft}
-              >
+              <Button htmlType="button" size="small" onClick={onEditDraft}>
                 Tiếp tục chỉnh sửa bản nháp
-              </button>
+              </Button>
             )}
           </p>
         </section>
@@ -134,17 +131,17 @@ export function PricingPolicyOverview({
                   {active.rules.length} quy tắc
                 </small>
               </div>
-              <button
-                className="odm-btn odm-btn-p"
+              <Button
+                type="primary"
                 disabled={busy || draft !== null}
                 onClick={onClone}
               >
                 Tạo bản nháp mới
-              </button>
+              </Button>
             </div>
             <p role="note" className="ppo-note">
-              Chính sách giá đang áp dụng không thể chỉnh sửa trực tiếp. Hãy
-              tạo bản nháp mới để thay đổi và áp dụng.
+              Chính sách giá đang áp dụng không thể chỉnh sửa trực tiếp. Hãy tạo
+              bản nháp mới để thay đổi và áp dụng.
             </p>
             <dl className="ppo-tiles">
               <Tile
@@ -269,31 +266,33 @@ export function PricingPolicyOverview({
         ) : (
           <ul className="ppo-versions">
             {sorted.map((policy) => (
-            <li key={policy.id}>
-              <span>
-                <b>
-                  Chính sách giá v{policy.version} ·{' '}
-                  {pricingPolicyName(policy.name)}
-                </b>
-                <small>
-                  {policy.effectiveFrom
-                    ? `từ ${date(policy.effectiveFrom)}`
-                    : 'chưa phát hành'}
-                  {policy.effectiveTo ? ` đến ${date(policy.effectiveTo)}` : ''}
-                </small>
-              </span>
-              <StatusBadge
-                tone={toUiTone(
-                  policy.status === 'ACTIVE'
-                    ? 'green'
-                    : policy.status === 'DRAFT'
-                      ? 'yellow'
-                      : 'gray',
-                )}
-              >
-                {pricingLabel(policy.status)}
-              </StatusBadge>
-            </li>
+              <li key={policy.id}>
+                <span>
+                  <b>
+                    Chính sách giá v{policy.version} ·{' '}
+                    {pricingPolicyName(policy.name)}
+                  </b>
+                  <small>
+                    {policy.effectiveFrom
+                      ? `từ ${date(policy.effectiveFrom)}`
+                      : 'chưa phát hành'}
+                    {policy.effectiveTo
+                      ? ` đến ${date(policy.effectiveTo)}`
+                      : ''}
+                  </small>
+                </span>
+                <StatusTag
+                  tone={
+                    policy.status === 'ACTIVE'
+                      ? 'success'
+                      : policy.status === 'DRAFT'
+                        ? 'warning'
+                        : 'neutral'
+                  }
+                >
+                  {pricingLabel(policy.status)}
+                </StatusTag>
+              </li>
             ))}
           </ul>
         )}

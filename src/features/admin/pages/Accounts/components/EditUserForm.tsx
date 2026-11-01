@@ -1,3 +1,4 @@
+import { Alert, Button } from 'antd'
 import { useState } from 'react'
 
 import { useI18n } from '../../../../../shared/i18n'
@@ -6,7 +7,7 @@ import {
   type UserManagementDetailResponse,
 } from '../../../api/adminUsersApi'
 import { userProfileApi } from '../../../api/userProfileApi'
-import { Modal } from '../../../../../shared/components/ui'
+import { AdminModal } from '../../../components/common/AdminModal'
 import {
   AccountSection,
   ContactSection,
@@ -84,26 +85,22 @@ export function EditUserForm({
   const patch = (p: Partial<ProfileDraft>) => setDraft((d) => ({ ...d, ...p }))
 
   return (
-    <Modal
+    <AdminModal
       width={640}
-      icon="users"
       title={user.fullName}
       subtitle={user.email}
       onClose={onClose}
       footer={
         <>
-          <button type="button" className="odm-btn odm-btn-gh" onClick={onClose}>
-            {isSelf ? t.cancel : t.close}
-          </button>
+          <Button onClick={onClose}>{isSelf ? t.cancel : t.close}</Button>
           {isSelf && (
-            <button
-              type="button"
-              className="odm-btn odm-btn-p"
+            <Button
+              type="primary"
               onClick={save}
               disabled={busy || !draft.fullName.trim()}
             >
               {busy ? t.saving : t.save}
-            </button>
+            </Button>
           )}
         </>
       }
@@ -129,13 +126,14 @@ export function EditUserForm({
         {isSelf ? t.selfNote : t.readonlyNote}
       </p>
       {message && (
-        <div
+        <Alert
           role={message.ok ? 'status' : 'alert'}
-          className={`adm-alert ${message.ok ? 'is-success' : 'is-danger'}`}
-        >
-          {message.text}
-        </div>
+          type={message.ok ? 'success' : 'error'}
+          showIcon
+          message={message.text}
+          className="adm-alert"
+        />
       )}
-    </Modal>
+    </AdminModal>
   )
 }

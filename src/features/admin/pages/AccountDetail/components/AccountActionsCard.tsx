@@ -1,5 +1,7 @@
+import { Alert, Button } from 'antd'
+
+import { CardComponent } from '../../../../../shared/components/antd'
 import { useI18n } from '../../../../../shared/i18n'
-import { Card } from '../../../../../shared/components/ui'
 import { accountActionsCardMessages } from './AccountActionsCard.messages'
 
 export function AccountActionsCard({
@@ -18,37 +20,30 @@ export function AccountActionsCard({
   const { t } = useI18n(accountActionsCardMessages)
 
   return (
-    <Card title={t.actions}>
+    <CardComponent title={t.actions}>
       <p className="adm-card-hint">{t.deactivateHint}</p>
 
       {error && (
-        <div role="alert" className="adm-alert is-danger">
-          {error}
-        </div>
+        <Alert type="error" showIcon message={error} className="adm-alert" />
       )}
 
       <div className="adm-row">
         {!inactive && (
-          <button
-            type="button"
-            className="odm-btn is-danger"
+          <Button
+            danger
+            type="primary"
             disabled={loading}
             onClick={onDeactivate}
           >
             {loading ? t.processing : t.deactivate}
-          </button>
+          </Button>
         )}
         {inactive && (
-          <button
-            type="button"
-            className="odm-btn odm-btn-p"
-            disabled={loading}
-            onClick={onActivate}
-          >
+          <Button type="primary" disabled={loading} onClick={onActivate}>
             {loading ? t.processing : t.reactivate}
-          </button>
+          </Button>
         )}
       </div>
-    </Card>
+    </CardComponent>
   )
 }

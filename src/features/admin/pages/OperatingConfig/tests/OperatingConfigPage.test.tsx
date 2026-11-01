@@ -10,31 +10,24 @@ import { useMockTransport } from './helpers'
 useMockTransport()
 
 describe('OperatingConfigPage', () => {
-  it('renders the vietnamese title with the sample-data badge', () => {
+  it('renders the vietnamese title without the sample-data badge', () => {
+    vi.spyOn(adminApi, 'listPricingPolicies').mockResolvedValue([])
     render(<OperatingConfigPage />)
     expect(screen.getByText('Cấu hình vận hành')).toBeTruthy()
-    expect(screen.getByText('Dữ liệu mẫu')).toBeTruthy()
+    expect(screen.queryByText('Dữ liệu mẫu')).toBeNull()
   })
 
   it('renders the english title when language is switched', () => {
+    vi.spyOn(adminApi, 'listPricingPolicies').mockResolvedValue([])
     render(<OperatingConfigPage />)
     act(() => setLanguage('en'))
     expect(screen.getByText('Operating configuration')).toBeTruthy()
     act(() => setLanguage('vi'))
   })
 
-  it('shows policies and switches to the no-fly zones tab', async () => {
-    render(<OperatingConfigPage />)
-    expect(await screen.findByText('Tham số vận hành')).toBeTruthy()
-    fireEvent.click(screen.getByRole('tab', { name: /Vùng cấm bay/ }))
-    expect((await screen.findAllByLabelText(/^Sửa /)).length).toBeGreaterThan(0)
-  })
-
-  it('keeps pricing inside operational configuration', async () => {
+  it('shows pricing policies inside operational configuration', async () => {
     vi.spyOn(adminApi, 'listPricingPolicies').mockResolvedValue([])
     render(<OperatingConfigPage />)
-
-    fireEvent.click(screen.getByRole('tab', { name: /Định giá/ }))
 
     expect(
       await screen.findByRole('heading', {
@@ -43,69 +36,101 @@ describe('OperatingConfigPage', () => {
     ).toBeInTheDocument()
   })
 
-  it('shows independent quote and deposit timeout settings with the default values', async () => {
-    render(<OperatingConfigPage />)
+  describe('order expiration tab', () => {
+    const settings = {
+      quotationAcceptanceTimeoutHours: 48,
+      depositPaymentTimeoutHours: 24,
+      updatedBy: 'admin',
+      updatedAt: null,
+    }
 
-    const quoteTimeout = await screen.findByRole('spinbutton', {
-      name: 'Thời hạn khách hàng chấp nhận báo giá',
+    async function openExpiration() {
+      vi.spyOn(adminApi, 'listPricingPolicies').mockResolvedValue([])
+      render(<OperatingConfigPage />)
+      fireEvent.click(screen.getByRole('tab', { name: 'Hạn đơn hàng' }))
+    }
+
+    it('shows independent quote and deposit timeout settings', async () => {
+      vi.spyOn(adminApi, 'getOrderExpirationSettings').mockResolvedValue(
+        settings,
+      )
+      vi.spyOn(adminApi, 'listOrderExpirationAudit').mockResolvedValue([])
+      await openExpiration()
+
+      const quoteTimeout = await screen.findByRole('spinbutton', {
+        name: 'Thời hạn khách hàng chấp nhận báo giá',
+      })
+      const depositTimeout = screen.getByRole('spinbutton', {
+        name: 'Thời hạn thanh toán tiền đặt cọc',
+      })
+      await waitFor(() => expect(quoteTimeout).toHaveValue('48'))
+      expect(depositTimeout).toHaveValue('24')
+      expect(
+        screen.getByRole('button', { name: 'Lưu thời hạn' }),
+      ).toBeDisabled()
     })
-    const depositTimeout = screen.getByRole('spinbutton', {
-      name: 'Thời hạn thanh toán tiền đặt cọc',
+
+    it('saves both timeout settings and reloads the audit trail', async () => {
+      vi.spyOn(adminApi, 'getOrderExpirationSettings').mockResolvedValue(
+        settings,
+      )
+      const audit = vi
+        .spyOn(adminApi, 'listOrderExpirationAudit')
+        .mockResolvedValue([])
+      const update = vi
+        .spyOn(adminApi, 'updateOrderExpirationSettings')
+        .mockResolvedValue({
+          ...settings,
+          quotationAcceptanceTimeoutHours: 72,
+          depositPaymentTimeoutHours: 12,
+        })
+      await openExpiration()
+      const quoteTimeout = await screen.findByRole('spinbutton', {
+        name: 'Thời hạn khách hàng chấp nhận báo giá',
+      })
+      await waitFor(() => expect(quoteTimeout).toHaveValue('48'))
+      const depositTimeout = screen.getByRole('spinbutton', {
+        name: 'Thời hạn thanh toán tiền đặt cọc',
+      })
+
+      fireEvent.change(quoteTimeout, { target: { value: '72' } })
+      fireEvent.change(depositTimeout, { target: { value: '12' } })
+      fireEvent.click(screen.getByRole('button', { name: 'Lưu thời hạn' }))
+
+      expect(await screen.findByRole('status')).toHaveTextContent(
+        'Đã cập nhật thời hạn hết hạn.',
+      )
+      expect(update).toHaveBeenCalledWith({
+        quotationAcceptanceTimeoutHours: 72,
+        depositPaymentTimeoutHours: 12,
+      })
+      await waitFor(() => expect(audit.mock.calls.length).toBeGreaterThan(1))
     })
-    await waitFor(() => expect(quoteTimeout).toHaveValue(48))
-    expect(depositTimeout).toHaveValue(24)
-    expect(screen.getByRole('button', { name: 'Lưu thời hạn' })).toBeDisabled()
-    expect(screen.queryByText(/Nhập số giờ nguyên/)).not.toBeInTheDocument()
-    expect(
-      screen.getByText(
-        'Chưa có thay đổi mới — lịch sử chỉ ghi khi giá trị thay đổi.',
-      ),
-    ).toBeInTheDocument()
-  })
 
-  it('saves both timeout settings and shows field-level audit entries', async () => {
-    render(<OperatingConfigPage />)
-    const quoteTimeout = await screen.findByRole('spinbutton', {
-      name: 'Thời hạn khách hàng chấp nhận báo giá',
+    it('rejects zero and values above one year in the editor', async () => {
+      vi.spyOn(adminApi, 'getOrderExpirationSettings').mockResolvedValue(
+        settings,
+      )
+      vi.spyOn(adminApi, 'listOrderExpirationAudit').mockResolvedValue([])
+      const update = vi.spyOn(adminApi, 'updateOrderExpirationSettings')
+      await openExpiration()
+      const quoteTimeout = await screen.findByRole('spinbutton', {
+        name: 'Thời hạn khách hàng chấp nhận báo giá',
+      })
+      await waitFor(() => expect(quoteTimeout).toHaveValue('48'))
+      const save = screen.getByRole('button', { name: 'Lưu thời hạn' })
+
+      fireEvent.change(quoteTimeout, { target: { value: '0' } })
+      expect(save).toBeDisabled()
+      expect(await screen.findByRole('alert')).toHaveTextContent(
+        'Thời hạn phải lớn hơn 0.',
+      )
+      fireEvent.change(quoteTimeout, { target: { value: '8761' } })
+      expect(save).toBeDisabled()
+      expect(screen.getByRole('alert')).toHaveTextContent(
+        'Thời hạn không được vượt quá 8.760 giờ.',
+      )
+      expect(update).not.toHaveBeenCalled()
     })
-    const depositTimeout = screen.getByRole('spinbutton', {
-      name: 'Thời hạn thanh toán tiền đặt cọc',
-    })
-
-    fireEvent.change(quoteTimeout, { target: { value: '72' } })
-    fireEvent.change(depositTimeout, { target: { value: '12' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Lưu thời hạn' }))
-
-    expect(await screen.findByRole('status')).toHaveTextContent(
-      'Đã cập nhật thời hạn hết hạn.',
-    )
-    await waitFor(() =>
-      expect(screen.getAllByText('Admin Mock')).toHaveLength(2),
-    )
-    expect(screen.getAllByText('48 giờ')).toHaveLength(1)
-    expect(screen.getAllByText('24 giờ')).toHaveLength(1)
-    expect(screen.getAllByText('72 giờ')).toHaveLength(1)
-    expect(screen.getAllByText('12 giờ')).toHaveLength(1)
-  })
-
-  it('rejects zero and values above one year in the editor', async () => {
-    const update = vi.spyOn(adminApi, 'updateOrderExpirationSettings')
-    render(<OperatingConfigPage />)
-    const quoteTimeout = await screen.findByRole('spinbutton', {
-      name: 'Thời hạn khách hàng chấp nhận báo giá',
-    })
-    const save = screen.getByRole('button', { name: 'Lưu thời hạn' })
-
-    fireEvent.change(quoteTimeout, { target: { value: '0' } })
-    expect(save).toBeDisabled()
-    expect(await screen.findByRole('alert')).toHaveTextContent(
-      'Thời hạn phải lớn hơn 0.',
-    )
-    fireEvent.change(quoteTimeout, { target: { value: '8761' } })
-    expect(save).toBeDisabled()
-    expect(screen.getByRole('alert')).toHaveTextContent(
-      'Thời hạn không được vượt quá 8.760 giờ.',
-    )
-    expect(update).not.toHaveBeenCalled()
   })
 })

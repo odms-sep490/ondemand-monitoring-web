@@ -1,10 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
-import { Icon } from '../../../../../shared/components/Icon'
+import {
+  CheckSquareOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  MoreOutlined,
+} from '@ant-design/icons'
+import { Button } from 'antd'
 import { useI18n } from '../../../../../shared/i18n'
 import { adminHref } from '../../../routes'
 import { servicesTableMessages } from './ServicesTable.messages'
 import type { AdminService } from '../../../types/catalog'
-import './servicesTable.css'
 
 export function ServiceRowActions({
   service,
@@ -44,52 +49,51 @@ export function ServiceRowActions({
         }
       }}
     >
-      <a
-        className="odm-btn odm-btn-sm"
+      <Button
+        size="small"
         href={adminHref({ screen: 'serviceChecklists', serviceId: service.id })}
+        icon={<CheckSquareOutlined aria-hidden="true" aria-label={undefined} />}
       >
-        <Icon name="clipboard" width={15} height={15} aria-hidden="true" />
         Checklist
-      </a>
-      <button
-        type="button"
-        className="odm-btn odm-btn-gh service-action-icon"
+      </Button>
+      <Button
+        type="text"
+        className="service-action-icon"
         aria-label={t.edit + ' ' + service.name}
         title={t.edit}
+        icon={<EditOutlined aria-hidden="true" aria-label={undefined} />}
         onClick={edit}
-      >
-        <Icon name="edit" width={16} height={16} aria-hidden="true" />
-      </button>
-      <button
-        type="button"
-        className="odm-btn odm-btn-gh service-action-icon"
+      />
+      <Button
+        type="text"
+        className="service-action-icon"
         ref={trigger}
         aria-label={t.more + ' ' + service.name}
         aria-expanded={open}
         title={t.more}
+        icon={<MoreOutlined aria-hidden="true" aria-label={undefined} />}
         onClick={() => setOpen((value) => !value)}
-      >
-        <Icon name="more" width={16} height={16} aria-hidden="true" />
-      </button>
+      />
       {open && (
         <div
           className="service-action-disclosure"
           role="group"
           aria-label={t.more + ' ' + service.name}
         >
-          <button
-            type="button"
-            className="odm-btn odm-btn-gh service-action-delete"
+          <Button
+            danger
+            size="small"
+            className="service-action-delete"
             ref={deleteButton}
             aria-label={t.remove + ' ' + service.name}
+            icon={<DeleteOutlined aria-hidden="true" aria-label={undefined} />}
             onClick={() => {
               setOpen(false)
               remove()
             }}
           >
-            <Icon name="trash" width={15} height={15} aria-hidden="true" />
             {t.remove}
-          </button>
+          </Button>
         </div>
       )}
     </div>
