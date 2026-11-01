@@ -2,11 +2,13 @@ import type { ReactNode } from 'react'
 import type { MissionStaffRole } from '../../../mission/types/mission'
 import type { AvailableOperator } from '../../../staff/api/operatorApi'
 import type { AvailableDrone } from '../../../staff/api/droneApi'
+import type { OrderDetail } from '../../types/orders'
 
 export type DispatchStep = 'order' | 'mission' | 'staff' | 'device' | 'confirm'
 
 export type OrderDispatchContext = {
   orderId: string
+  order?: OrderDetail
   embeddedInOrderReview?: boolean
   missionScoped: boolean
   returnLabel: string

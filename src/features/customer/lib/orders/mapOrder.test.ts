@@ -78,16 +78,15 @@ describe('toOrderRow', () => {
 })
 
 describe('toDeliverableView', () => {
-  it('hides internal requirement keys and detects the AI add-on', () => {
+  it('hides internal and legacy AI-only requirement fields', () => {
     const view = toDeliverableView(be.deliverables![0])
     expect(view.name).toBe('Ảnh chụp')
     expect(view.format).toBe('JPG')
     expect(view.requirements).toEqual([
       { key: 'mediaType', value: 'IMAGE' },
       { key: 'quantity', value: '10' },
-      { key: 'additionalRequirements', value: 'AI_IMAGE_ANALYSIS' },
     ])
-    expect(view.aiAnalysisRequested).toBe(true)
+    expect(view).not.toHaveProperty('aiAnalysisRequested')
   })
 })
 

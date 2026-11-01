@@ -36,7 +36,7 @@ export function PrecheckCard({
   return (
     <div className="odm-card">
       <div className="odm-card-header">
-        <span style={{ fontWeight: 700 }}>Kết quả precheck</span>
+        <h2 className="mds-card-heading">Kết quả precheck</h2>
         <StatusBadge tone={statusTone(preflight?.status)}>
           {preflightLabel(preflight?.status)}
         </StatusBadge>

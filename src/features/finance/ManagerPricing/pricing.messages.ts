@@ -65,13 +65,10 @@ export const pricingMessages = defineMessages({
     approve: 'Duyệt báo giá',
 
     reviewTitle: 'Xem xét yêu cầu và báo giá',
-    reviewSubtitle: 'Mỗi yêu cầu phải được phân loại trước khi duyệt báo giá.',
+    reviewSubtitle: 'Phân loại yêu cầu để chốt báo giá.',
     reviewedProgress: (reviewed: number, total: number) =>
       `${reviewed}/${total} nội dung đã xem xét`,
     filterGroupAria: 'Lọc nội dung',
-    checklistComplete: 'Danh mục kiểm tra đã hoàn tất và có thể duyệt báo giá.',
-    checklistRemaining: (n: number) =>
-      `Còn ${n} nội dung cần chọn cách tính giá trước khi duyệt.`,
     colContent: 'Nội dung yêu cầu',
     colPricing: 'Cách tính giá',
     colSurcharge: 'Phụ phí',
@@ -86,19 +83,19 @@ export const pricingMessages = defineMessages({
     loadingQuote: 'Đang tải báo giá...',
 
     breakdownAria: 'Chi tiết giá hệ thống',
+    breakdownTitle: (count: number) => `Chi tiết giá hệ thống · ${count} dòng`,
     breakdownFallbackName: 'Nội dung',
     breakdownOrderLevel: 'Theo đơn hàng',
 
-    sourceTemplate: 'Yêu cầu mặc định của gói',
-    sourceCustom: 'Yêu cầu thêm của khách hàng',
+    sourceCustom: 'Khách yêu cầu thêm',
     customerRequested: (images: number, videos: number) =>
-      `Khách yêu cầu: ${images} ảnh · ${videos} video`,
-    includedInPackage: 'Đã gồm trong gói',
+      `${images} ảnh · ${videos} video`,
+    includedInPackage: 'Trong gói',
     classify: 'Phân loại',
     pending: 'Chưa xem xét',
     systemPriceInline: 'Giá hệ thống: ',
     approvedPriceLabel: 'Giá duyệt',
-    badgeAuto: 'Tự động tính giá',
+    badgeAuto: 'Tự tính',
     badgeAwaitingPrice: 'Chờ duyệt giá',
     badgeReviewed: 'Đã xem xét',
     noteAria: (content: string) => `Ghi chú: ${content}`,
@@ -171,15 +168,10 @@ export const pricingMessages = defineMessages({
     approve: 'Approve quote',
 
     reviewTitle: 'Review requests and quote',
-    reviewSubtitle:
-      'Every request must be classified before the quote is approved.',
+    reviewSubtitle: 'Classify requests to finalize the quote.',
     reviewedProgress: (reviewed: number, total: number) =>
       `${reviewed}/${total} items reviewed`,
     filterGroupAria: 'Filter items',
-    checklistComplete:
-      'The checklist is complete and the quote can be approved.',
-    checklistRemaining: (n: number) =>
-      `${n} item(s) still need a pricing method before approval.`,
     colContent: 'Request',
     colPricing: 'Pricing method',
     colSurcharge: 'Surcharge',
@@ -194,19 +186,19 @@ export const pricingMessages = defineMessages({
     loadingQuote: 'Loading quote...',
 
     breakdownAria: 'System price breakdown',
+    breakdownTitle: (count: number) => `System price details · ${count} lines`,
     breakdownFallbackName: 'Item',
     breakdownOrderLevel: 'Order level',
 
-    sourceTemplate: 'Default package requirement',
-    sourceCustom: 'Additional customer request',
+    sourceCustom: 'Customer extra',
     customerRequested: (images: number, videos: number) =>
-      `Customer requested: ${images} photo(s) · ${videos} video(s)`,
-    includedInPackage: 'Included in package',
+      `${images} photo(s) · ${videos} video(s)`,
+    includedInPackage: 'Included',
     classify: 'Classify',
     pending: 'Not reviewed',
     systemPriceInline: 'System price: ',
     approvedPriceLabel: 'Approved price',
-    badgeAuto: 'Auto-priced',
+    badgeAuto: 'Auto',
     badgeAwaitingPrice: 'Awaiting price approval',
     badgeReviewed: 'Reviewed',
     noteAria: (content: string) => `Note: ${content}`,

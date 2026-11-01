@@ -22,12 +22,12 @@ export const monitoringAuthorizationMessages = defineMessages({
     tooLarge: 'Tệp vượt quá dung lượng tối đa 5 MB.',
     title: 'Quyền giám sát khu vực',
     intro:
-      'Xác nhận bạn có quyền yêu cầu giám sát tại khu vực đã chọn. ODMS có thể yêu cầu tài liệu chứng minh trước khi thực hiện nhiệm vụ.',
+      'Chọn quan hệ của bạn với khu vực. Quản lý có thể yêu cầu tài liệu xác minh.',
     relationship: 'Quan hệ của bạn với khu vực',
     otherRelationshipLabel: 'Mô tả quan hệ khác',
     otherRelationshipPlaceholder: 'Nhập quan hệ cụ thể của bạn với khu vực',
     docsTitle: 'Tài liệu xác nhận quyền giám sát',
-    docsHint: 'Không bắt buộc. Có thể thêm nhiều tài liệu.',
+    docsHint: 'Không bắt buộc · có thể thêm nhiều tệp',
     addDocument: '+ Thêm tài liệu',
     document: (n: number) => `Tài liệu ${n}`,
     remove: 'Xóa',
@@ -41,7 +41,7 @@ export const monitoringAuthorizationMessages = defineMessages({
     chooseFile: 'Chọn tệp',
     confirm:
       'Tôi xác nhận mình có quyền yêu cầu giám sát tại khu vực đã chọn và chịu trách nhiệm về tính chính xác của thông tin đã cung cấp.',
-    note: 'Xác nhận này là khai báo của khách hàng và chưa phải kết quả xác minh của quản lý.',
+    note: 'Đây là xác nhận của khách hàng; quản lý vẫn cần xác minh.',
   },
   en: {
     relationships: {
@@ -64,13 +64,13 @@ export const monitoringAuthorizationMessages = defineMessages({
     tooLarge: 'The file exceeds the 5 MB limit.',
     title: 'Right to monitor the area',
     intro:
-      'Confirm that you are entitled to request monitoring at the selected area. ODMS may ask for supporting documents before carrying out the mission.',
+      'Choose your relationship to the area. A manager may request supporting documents.',
     relationship: 'Your relationship to the area',
     otherRelationshipLabel: 'Describe the other relationship',
     otherRelationshipPlaceholder:
       'Enter your specific relationship to the area',
     docsTitle: 'Documents proving the right to monitor',
-    docsHint: 'Optional. You can add several documents.',
+    docsHint: 'Optional · multiple files allowed',
     addDocument: '+ Add document',
     document: (n: number) => `Document ${n}`,
     remove: 'Remove',
@@ -84,6 +84,6 @@ export const monitoringAuthorizationMessages = defineMessages({
     chooseFile: 'Choose file',
     confirm:
       'I confirm that I am entitled to request monitoring at the selected area and am responsible for the accuracy of the information provided.',
-    note: "This confirmation is the customer's own declaration and is not yet verified by a Manager.",
+    note: "This is the customer's declaration; a manager must still verify it.",
   },
 })

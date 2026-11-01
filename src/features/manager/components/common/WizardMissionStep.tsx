@@ -66,6 +66,7 @@ export function WizardMissionStep({
         missionId={current.id}
         orderContext={{
           orderId,
+          order: query.data?.order,
           embeddedInOrderReview: embedded,
           missionScoped: Boolean(initialMissionId),
           returnLabel,

@@ -52,6 +52,14 @@ export function useMediaLibrary() {
   const items = useMemo(() => media.data ?? [], [media.data])
   const groups = useMemo(() => groupByMission(items, labels), [items, labels])
   const filtered = useMemo(() => filterMedia(items, filter), [items, filter])
+  const kindCounts = useMemo(() => {
+    const base = filterMedia(items, { ...filter, kind: 'all' })
+    return {
+      all: base.length,
+      image: base.filter((i) => i.kind === 'image').length,
+      video: base.filter((i) => i.kind === 'video').length,
+    }
+  }, [items, filter])
   const totalPages = Math.ceil(filtered.length / LIBRARY_PAGE_SIZE)
   const safePage = Math.min(page, Math.max(0, totalPages - 1))
   const pageItems = filtered.slice(
@@ -77,6 +85,7 @@ export function useMediaLibrary() {
     notificationCount: notifications.data?.length ?? 0,
     labels,
     groups,
+    kindCounts,
     total: items.length,
     filter,
     isFiltered: filter.missionId !== null || filter.kind !== 'all' || filter.query.trim() !== '',

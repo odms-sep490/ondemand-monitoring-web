@@ -19,6 +19,7 @@ export function ReviewStageActions({
   nextLabel,
   hint,
   nextDisabled = false,
+  compact = false,
   decisionHostRef,
 }: {
   step: ReviewStep
@@ -27,6 +28,7 @@ export function ReviewStageActions({
   nextLabel?: string
   hint?: string | null
   nextDisabled?: boolean
+  compact?: boolean
   /** Receives an empty container in the card for relocated decision buttons. */
   decisionHostRef?: (el: HTMLDivElement | null) => void
 }) {
@@ -36,7 +38,7 @@ export function ReviewStageActions({
   const body = (
     <>
       <span className="odm-or-review-stage-progress">
-        {t.step(step, REVIEW_PAGE_COUNT)}
+        {step === 4 ? t.pricingStep : t.step(step, REVIEW_PAGE_COUNT)}
       </span>
       {hint ? (
         <span className="odm-or-review-stage-hint" role="status">
@@ -65,11 +67,23 @@ export function ReviewStageActions({
       </div>
     </>
   )
-  // Inside the review layout the actions live in the sticky sidebar.
+  // Inside the review layout, actions live in the context card or sidebar.
   if (slot === undefined) {
     return <div className="odm-or-review-stage-actions">{body}</div>
   }
   if (slot === null) return null
+  if (compact) {
+    return createPortal(
+      <div
+        className="mgr-stage-actions is-compact"
+        role="group"
+        aria-label={page.stageActionsTitle}
+      >
+        {body}
+      </div>,
+      slot,
+    )
+  }
   return createPortal(
     <CardComponent
       icon={<ThunderboltOutlined />}

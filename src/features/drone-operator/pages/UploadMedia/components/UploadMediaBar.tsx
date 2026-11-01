@@ -8,6 +8,7 @@ export function UploadMediaBar({
   totalMedia,
   pendingMedia,
   uploading,
+  validating,
   manual,
   backRoute,
   refreshWorkspace,
@@ -25,6 +26,7 @@ export function UploadMediaBar({
   totalMedia: number
   pendingMedia: number
   uploading: number
+  validating: number
   manual: number
   backRoute: string
   refreshWorkspace: (clearError?: boolean) => void
@@ -65,6 +67,11 @@ export function UploadMediaBar({
                 {t.uploadingChip(uploading)}
               </span>
             )}
+            {validating > 0 && (
+              <span className="upload-media-status is-warning">
+                {t.validatingChip(validating)}
+              </span>
+            )}
             {manual > 0 && (
               <span className="upload-media-status is-danger">
                 {t.manualChip(manual)}
@@ -76,9 +83,10 @@ export function UploadMediaBar({
           className="upload-media-progress"
           role="progressbar"
           aria-valuemin={0}
-          aria-valuemax={totalMedia}
-          aria-valuenow={loadedMedia}
-          aria-label={t.summary(loadedMedia, totalMedia, uploading, manual)}
+          aria-valuemax={Math.max(totalMedia, 1)}
+          aria-valuenow={Math.min(loadedMedia, Math.max(totalMedia, 1))}
+          aria-valuetext={t.mediaProgress(loadedMedia, totalMedia)}
+          aria-label={t.mediaLoaded}
         >
           <span
             style={{
@@ -115,11 +123,7 @@ export function UploadMediaBar({
                 setUploadInfo(null)
                 if (approvable.length === 0) {
                   await refresh()
-                  setUploadInfo(
-                    referenceCount > 0
-                      ? `Tất cả media đã được lưu (${referenceCount} ảnh tham chiếu). Không còn file nào chờ upload.`
-                      : 'Không có file nào chờ upload.',
-                  )
+                  setUploadInfo(t.noPendingUploads(referenceCount))
                   return
                 }
                 setBatchUploading(true)
@@ -127,9 +131,7 @@ export function UploadMediaBar({
                   for (const item of approvable) {
                     if (!(await approve(item))) return
                   }
-                  setUploadInfo(
-                    'Đã gửi các file đang chờ. Trạng thái lưu/xác thực được cập nhật từ backend.',
-                  )
+                  setUploadInfo(t.batchUploadComplete)
                 } finally {
                   setBatchUploading(false)
                 }

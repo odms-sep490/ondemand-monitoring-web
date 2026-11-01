@@ -98,14 +98,10 @@ export function getActiveMissionId(): string | null {
   return storedId
 }
 
-export function getActiveMissionFlowStep(): number {
-  const value = Number(window.sessionStorage.getItem(ACTIVE_FLOW_STEP_KEY))
-  return Number.isFinite(value) ? Math.max(0, value) : 0
-}
-
 export function markActiveMissionFlowStep(missionId: string, step: number) {
   if (window.sessionStorage.getItem(ACTIVE_MISSION_KEY) !== missionId) return
-  const current = getActiveMissionFlowStep()
+  const value = Number(window.sessionStorage.getItem(ACTIVE_FLOW_STEP_KEY))
+  const current = Number.isFinite(value) ? Math.max(0, value) : 0
   window.sessionStorage.setItem(
     ACTIVE_FLOW_STEP_KEY,
     String(Math.max(current, step)),

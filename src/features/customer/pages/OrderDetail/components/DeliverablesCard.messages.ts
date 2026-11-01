@@ -5,7 +5,6 @@ export const orderDeliverablesMessages = defineMessages({
     title: 'Kết quả bàn giao',
     empty: 'Đơn này chưa có kết quả bàn giao nào.',
     format: 'Định dạng',
-    aiAnalysis: 'Có phân tích ảnh bằng AI',
     keys: {
       mediaType: 'Loại',
       quantity: 'Số lượng',
@@ -30,7 +29,6 @@ export const orderDeliverablesMessages = defineMessages({
     title: 'Deliverables',
     empty: 'This order has no deliverables yet.',
     format: 'Format',
-    aiAnalysis: 'Includes AI image analysis',
     keys: {
       mediaType: 'Type',
       quantity: 'Quantity',

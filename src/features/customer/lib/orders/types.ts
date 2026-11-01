@@ -27,7 +27,6 @@ export type DeliverableView = {
   format: string | null
   /** Scalar requirement entries (key, display value) worth showing. */
   requirements: Array<{ key: string; value: string }>
-  aiAnalysisRequested: boolean
 }
 
 export type OrderTimelineEvent = {
@@ -68,6 +67,10 @@ export type OrderDetailView = OrderRow & {
     'NOT_REVIEWED' | 'NOT_REQUIRED' | 'PENDING_PERMIT' | 'APPROVED' | 'REJECTED'
   checklistItems?: ChecklistSnapshot[]
   checklistSnapshotAt?: string | null
+  checklistRevision: number
+  canEditChecklist: boolean
+  checklistEditBlockedReason: string | null
+  coverageArea: Record<string, unknown> | null
   description: string | null
   usagePurpose: string | null
   flightPurpose: string | null

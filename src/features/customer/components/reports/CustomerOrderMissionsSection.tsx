@@ -1,8 +1,10 @@
 import { Alert, Button, Skeleton } from 'antd'
-import { useEffect } from 'react'
 
 import { CardComponent, EmptyState } from '../../../../shared/components/antd'
-import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
+import {
+  useApiQuery,
+  type UseApiQueryState,
+} from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
 import { customerMissionReportApi } from '../../api/customerMissionReportApi'
 import type { CustomerMissionSummary } from '../../api/customerMissionReportApi'
@@ -11,15 +13,22 @@ import { CustomerMissionCard } from './CustomerMissionCard'
 import { customerReportMessages } from './messages'
 import './reports.css'
 
-export function CustomerOrderMissionsSection({ orderId, onMissionsChange }: { orderId: string; onMissionsChange?: (missions: CustomerMissionSummary[]) => void }) {
-  const { t } = useI18n(customerReportMessages)
+type MissionListQuery = UseApiQueryState<CustomerMissionSummary[]>
+
+export function CustomerOrderMissionsSection({ orderId }: { orderId: string }) {
   const query = useApiQuery(
     (signal) => customerMissionReportApi.list(orderId, signal),
     [orderId],
   )
-  useEffect(() => {
-    if (query.data) onMissionsChange?.(query.data)
-  }, [onMissionsChange, query.data])
+  return <CustomerOrderMissionsView query={query} />
+}
+
+export function CustomerOrderMissionsView({
+  query,
+}: {
+  query: MissionListQuery
+}) {
+  const { t } = useI18n(customerReportMessages)
   return (
     <CardComponent
       className="cr-section"
@@ -47,23 +56,28 @@ export function CustomerOrderMissionsSection({ orderId, onMissionsChange }: { or
           <>
             {query.data.length > 0 && (
               <>
-            <dl className="cr-metrics">
-              <div className="cr-metric">
-                <dt>{t.total}</dt>
-                <dd>{query.data.length}</dd>
-              </div>
-              <div className="cr-metric">
-                <dt>{t.finished}</dt>
-                <dd>
-                  {query.data.filter((m) => m.status === 'COMPLETED').length}
-                </dd>
-              </div>
-              <div className="cr-metric">
-                <dt>{t.published}</dt>
-                <dd>{query.data.filter((m) => m.reportAvailable).length}</dd>
-              </div>
-            </dl>
-            <p className="cr-note">{t.progressNote}</p>
+                <dl className="cr-metrics">
+                  <div className="cr-metric">
+                    <dt>{t.total}</dt>
+                    <dd>{query.data.length}</dd>
+                  </div>
+                  <div className="cr-metric">
+                    <dt>{t.finished}</dt>
+                    <dd>
+                      {
+                        query.data.filter((m) => m.status === 'COMPLETED')
+                          .length
+                      }
+                    </dd>
+                  </div>
+                  <div className="cr-metric">
+                    <dt>{t.published}</dt>
+                    <dd>
+                      {query.data.filter((m) => m.reportAvailable).length}
+                    </dd>
+                  </div>
+                </dl>
+                <p className="cr-note">{t.progressNote}</p>
               </>
             )}
             {query.data.length === 0 ? (

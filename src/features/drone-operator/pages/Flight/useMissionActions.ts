@@ -62,7 +62,7 @@ export function useMissionActions({
       onReviewMedia()
       return
     }
-    navigateOperator(operatorHref({ screen: 'upload', missionId }))
+    navigateOperator(operatorHref({ screen: 'checklist', missionId }))
   }, [mission.backendId, mission.id, onReviewMedia])
   const handleStartFlight = useCallback(async () => {
     if (!onStartFlight || startFlightBusy) return

@@ -5,6 +5,7 @@ import {
   type LocalMedia,
 } from '../../../media/api/operatorMediaApi'
 import { visibleAfterControllerDropStatuses } from './uploadMediaHelpers'
+import { resolveUploadState } from '../../../media/upload/resolveUploadState'
 import { operatorMissionMediaApi } from '../../../media/api/operatorMissionMediaApi'
 import { uploadMediaPageMessages } from './UploadMediaPage.messages'
 import { useI18n } from '../../../../shared/i18n'
@@ -28,6 +29,7 @@ export function useLocalMediaList({
   items,
   statuses,
   setChecklistRevision,
+  autoRefresh = true,
 }: {
   missionId: string | null
   setLoading: Dispatch<SetStateAction<boolean>>
@@ -52,8 +54,10 @@ export function useLocalMediaList({
   items: LocalMedia[]
   statuses: Record<string, string>
   setChecklistRevision: Dispatch<SetStateAction<number>>
+  autoRefresh?: boolean
 }) {
   const { t } = useI18n(uploadMediaPageMessages)
+  const boundSession = useRef<string | null>(null)
   const refresh = useCallback(
     async (options?: { background?: boolean }) => {
       if (!missionId) {
@@ -64,9 +68,17 @@ export function useLocalMediaList({
       try {
         const mission = activeMission.data
         const deviceId = mission?.deviceId
-        if (deviceId) {
+        const binding = `${missionId}:${deviceId}`
+        if (
+          deviceId &&
+          !options?.background &&
+          boundSession.current !== binding
+        ) {
           await flightControlApi
             .bindSession(missionId, deviceId)
+            .then(() => {
+              boundSession.current = binding
+            })
             .catch(() => undefined)
         }
         const media = await operatorMediaApi.reviewItems(
@@ -161,9 +173,15 @@ export function useLocalMediaList({
   // Storage validation finishes in the background, after the upload itself. Keep asking the backend while any file
   // is still being checked, so "Đang xác thực" turns into "Đã upload" without a manual reload.
   const stillValidating = items.some((item) => {
-    const status =
-      (item.backendMediaId && statuses[item.backendMediaId]) || item.status
-    return status === 'VALIDATING' || status === 'UPLOADING'
+    const status = resolveUploadState(
+      item.status,
+      item.backendMediaId ? statuses[item.backendMediaId] : undefined,
+    )
+    return (
+      status === 'VALIDATING' ||
+      status === 'UPLOADING' ||
+      status === 'UPLOAD_PENDING'
+    )
   })
   const wasValidating = useRef(false)
   useEffect(() => {
@@ -174,7 +192,7 @@ export function useLocalMediaList({
     wasValidating.current = stillValidating
   }, [stillValidating])
   useEffect(() => {
-    if (!stillValidating || !missionId) return
+    if (!autoRefresh || !stillValidating || !missionId) return
     const startedAt = Date.now()
     const timer = window.setInterval(() => {
       if (Date.now() - startedAt > 3 * 60_000) {
@@ -184,6 +202,6 @@ export function useLocalMediaList({
       void refresh({ background: true })
     }, 2500)
     return () => window.clearInterval(timer)
-  }, [stillValidating, missionId, refresh])
+  }, [stillValidating, missionId, refresh, autoRefresh])
   return { refresh }
 }

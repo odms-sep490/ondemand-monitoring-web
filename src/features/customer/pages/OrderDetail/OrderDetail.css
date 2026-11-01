@@ -8,6 +8,121 @@
   min-width: 0;
 }
 
+.od-page,
+.od-page > *,
+.od-overview-panel,
+.od-results-panel,
+.od-page .cus-main-grid,
+.od-page .cus-stack,
+.od-page .cus-side {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.od-next-step {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+  padding: 20px 22px;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-lg);
+  background: var(--ui-surface);
+  box-shadow: var(--ui-shadow-1);
+}
+
+.od-next-step__header h2 {
+  margin: 0;
+  color: var(--ui-text);
+  font-size: 18px;
+  line-height: 1.35;
+}
+
+.od-next-step__header p {
+  margin: 4px 0 0;
+  color: var(--ui-text-3);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.od-next-step__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+
+.od-next-step__item {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-md);
+  background: var(--ui-surface-2);
+}
+
+.od-next-step__item dt {
+  color: var(--ui-text-3);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.od-next-step__item dd {
+  min-width: 0;
+  margin: 0;
+  color: var(--ui-text);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.od-next-step__result {
+  color: var(--ui-text-2);
+  font-weight: 600;
+}
+
+.od-next-step__action {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.od-next-step__action .ant-btn {
+  min-height: 44px;
+  gap: 8px;
+  white-space: normal;
+}
+
+.od-tabs {
+  min-width: 0;
+  margin: 0;
+}
+
+.od-results-panel:focus,
+.od-overview-panel:focus {
+  outline: none;
+}
+
+.od-results-panel #customer-delivery-panel:focus-visible {
+  outline: 3px solid var(--ui-primary);
+  outline-offset: 3px;
+}
+
+.delivery-empty-state__body {
+  min-width: 0;
+  padding: 24px;
+}
+
+.delivery-empty-state__body .ant-alert {
+  align-items: center;
+}
+
+.delivery-empty-state__body .ant-skeleton {
+  max-width: 680px;
+}
+
 .od-meta {
   display: inline-flex;
   flex-wrap: wrap;
@@ -54,7 +169,7 @@
 /* Layout */
 .od-overview-visual {
   display: grid;
-  grid-template-columns: minmax(280px, 0.8fr) minmax(420px, 1.2fr);
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
   min-height: 280px;
   overflow: hidden;
   border: 1px solid var(--ui-border);
@@ -67,7 +182,11 @@
   position: relative;
   min-height: 280px;
   overflow: hidden;
-  background: linear-gradient(145deg, var(--ui-primary-grad-to), var(--ui-primary-grad-from));
+  background: linear-gradient(
+    145deg,
+    var(--ui-primary-grad-to),
+    var(--ui-primary-grad-from)
+  );
 }
 .od-service-hero > img {
   width: 100%;
@@ -499,6 +618,10 @@
 
 /* Responsive (kept after the base rules they override) */
 @media (max-width: 900px) {
+  .od-next-step__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .od-overview-visual {
     grid-template-columns: 1fr;
   }
@@ -517,6 +640,24 @@
 }
 
 @media (max-width: 640px) {
+  .od-next-step {
+    padding: 16px;
+  }
+
+  .od-next-step__grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .od-next-step__action,
+  .od-next-step__action .ant-btn {
+    width: 100%;
+  }
+
+  .od-next-step__action .ant-btn {
+    justify-content: center;
+  }
+
   .od-cancel {
     margin-left: 0;
   }
@@ -921,6 +1062,48 @@
 @media (max-width: 640px) {
   .od-info-list .od-field {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .od-tabs .ant-tabs-nav {
+    margin-bottom: 12px;
+  }
+
+  .od-tabs .ant-tabs-nav::before {
+    display: none;
+  }
+
+  .od-tabs .ant-tabs-nav-wrap {
+    overflow: visible;
+  }
+
+  .od-tabs .ant-tabs-nav-list {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 8px;
+    transform: none !important;
+  }
+
+  .od-tabs .ant-tabs-tab {
+    min-height: 44px;
+    margin: 0 !important;
+    padding: 0 12px;
+    border: 1px solid var(--ui-border);
+    border-radius: 10px;
+    background: var(--ui-surface);
+  }
+
+  .od-tabs .ant-tabs-tab-active {
+    border-color: var(--ui-primary);
+    background: var(--ui-primary-soft);
+  }
+
+  .od-tabs .ant-tabs-tab-btn {
+    white-space: nowrap;
+  }
+
+  .od-tabs .ant-tabs-ink-bar,
+  .od-tabs .ant-tabs-nav-operations {
+    display: none;
   }
 }
 

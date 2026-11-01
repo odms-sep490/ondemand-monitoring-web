@@ -1,11 +1,5 @@
 import { Button } from 'antd'
-import {
-  type ReactNode,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
@@ -28,7 +22,6 @@ type Props = {
   form: FormState
   errors: FormErrors
   update: UpdateField
-  footer?: ReactNode
 }
 
 type GeocodeResult = {
@@ -289,21 +282,17 @@ export function RealLocationMap({
         aria-describedby="co-map-instructions"
       />
       {invalidCoordinates ? (
-        <div className="co-real-map-notice">
-          {t.invalidCoordinates}
-        </div>
+        <div className="co-real-map-notice">{t.invalidCoordinates}</div>
       ) : null}
       {outsideServiceArea ? (
-        <div className="co-real-map-notice">
-          {t.outsideServiceArea}
-        </div>
+        <div className="co-real-map-notice">{t.outsideServiceArea}</div>
       ) : null}
     </div>
   )
 }
 
 /** Customer chooses a WGS84 target, not a point on the Gazebo image. */
-export function LocationStep({ form, errors, update, footer }: Props) {
+export function LocationStep({ form, errors, update }: Props) {
   const { t } = useI18n(locationStepMessages)
   const [locatingAddress, setLocatingAddress] = useState(false)
   const [addressLookupError, setAddressLookupError] = useState<string | null>(
@@ -417,9 +406,7 @@ export function LocationStep({ form, errors, update, footer }: Props) {
       if (lookupId !== reverseLookupId.current) return
       console.error('[CreateRequestMap] Reverse geocoding failed', error)
       setAddressLookupError(
-        error instanceof Error
-          ? error.message
-          : t.reverseLookupFailed,
+        error instanceof Error ? error.message : t.reverseLookupFailed,
       )
       update('locationStatus', 'error')
     }
@@ -536,7 +523,6 @@ export function LocationStep({ form, errors, update, footer }: Props) {
         </a>
         <small>{t.flightNote}</small>
       </section>
-      {footer && <div className="co-flow-actions">{footer}</div>}
     </div>
   )
 }

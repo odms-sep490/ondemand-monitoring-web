@@ -166,12 +166,6 @@ const ROUTES: Route[] = [
     en: 'Choose a monitoring service',
   },
   {
-    name: 'Analysis',
-    hash: '#portal/customer/orders/cus-ord-002/analysis',
-    vi: 'Phân tích AI',
-    en: 'AI analysis',
-  },
-  {
     name: 'Live',
     hash: '#portal/customer/orders/cus-ord-001/live',
     vi: 'Giám sát trực tiếp',

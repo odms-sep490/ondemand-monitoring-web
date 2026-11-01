@@ -21,6 +21,12 @@ export function ChecksTab({
   postcheck: PersistedPostDeviceCheckResponse | null
 }) {
   const { t, locale } = useI18n(missionDetailPageMessages)
+  const batteryState = postcheck?.landingBatteryState?.trim()
+  const batteryStateLabel = batteryState
+    ? (t.batteryStates[
+        batteryState.toLowerCase() as keyof typeof t.batteryStates
+      ] ?? batteryState)
+    : '—'
   return (
     <>
       <section className="odm-or-card">
@@ -67,7 +73,7 @@ export function ChecksTab({
                   />
                   <MetricTile
                     label={t.batteryState}
-                    value={postcheck.landingBatteryState}
+                    value={batteryStateLabel}
                   />
                   <MetricTile
                     label={t.checkedAt}

@@ -1,3 +1,4 @@
+import { guidanceMessages } from './guidance.messages'
 import type { ChecklistReviewStatus, PricingChecklistItem } from '../types'
 import { ApiError } from '../../../shared/api/httpClient'
 import { getLanguage } from '../../../shared/i18n'
@@ -124,7 +125,15 @@ export function errorMessage(error: unknown) {
   const t = pricingMessages[getLanguage()]
   if (error instanceof ApiError) {
     if (error.code === 'CUSTOM_WORK_PRICING_INCOMPLETE') return error.message
+    const guidance = guidanceMessages[getLanguage()]
     const messages: Record<string, string> = {
+      CHECKLIST_GUIDANCE_EDIT_BLOCKED: guidance.blocked,
+      CHECKLIST_GUIDANCE_INVALID: guidance.invalid,
+      CHECKLIST_GUIDANCE_INCOMPLETE: guidance.pending,
+      STALE_GUIDANCE_VERSION: guidance.conflict,
+      STALE_GUIDANCE_SNAPSHOT: guidance.quoteStale,
+      QUOTE_GUIDANCE_SNAPSHOT_STALE: guidance.quoteStale,
+      CHECKLIST_GUIDANCE_SNAPSHOT_STALE: guidance.quoteStale,
       ORDER_CHECKLIST_REVIEW_INVALID: t.errReviewInvalid,
       STALE_PRICING_POLICY: t.errStalePolicy,
       STALE_PRICING_REVISION: t.errStaleRevision,

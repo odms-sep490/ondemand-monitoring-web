@@ -2,6 +2,7 @@ import { useI18n } from '../../../../../shared/i18n'
 import { StatusBadge } from '../../../../../shared/components/odm/StatusBadge'
 import type { MediaFile, MediaFileStatus } from '../../../types/mission'
 import { mediaTableMessages } from './MediaTable.messages'
+import { successfullyUploadedStatuses } from '../uploadMediaHelpers'
 
 const STATUS_TONE: Record<MediaFileStatus, 'gray' | 'blue' | 'green' | 'red'> =
   {
@@ -9,6 +10,10 @@ const STATUS_TONE: Record<MediaFileStatus, 'gray' | 'blue' | 'green' | 'red'> =
     UPLOADING: 'blue',
     FAILED: 'red',
     PENDING_UPLOAD: 'gray',
+    VALIDATING: 'blue',
+    PENDING_MANAGER_APPROVAL: 'blue',
+    AVAILABLE: 'green',
+    REJECTED: 'red',
   }
 
 function formatSize(bytes: number): string {
@@ -70,37 +75,51 @@ export function MediaTable({
               </td>
               <td>
                 <StatusBadge tone={file.type === 'VIDEO' ? 'blue' : 'gray'}>
-                  {file.type}
+                  {t.typeLabel[file.type]}
                 </StatusBadge>
               </td>
               <td className="odm-tn">{formatSize(file.sizeBytes)}</td>
               <td>
-                <div
-                  style={{
-                    height: 8,
-                    borderRadius: 4,
-                    background: 'var(--sf3)',
-                    overflow: 'hidden',
-                  }}
-                >
-                  <div
-                    style={{
-                      height: '100%',
-                      width: `${file.progressPct}%`,
-                      background:
-                        file.status === 'FAILED'
-                          ? 'var(--red-dot)'
-                          : 'var(--blue-dot)',
-                      borderRadius: 4,
-                    }}
-                  />
-                </div>
-                <div
-                  className="odm-tn"
-                  style={{ fontSize: 11, color: 'var(--tx3)', marginTop: 2 }}
-                >
-                  {file.progressPct}%
-                </div>
+                {successfullyUploadedStatuses.has(file.status) ? (
+                  <>
+                    <div
+                      className="upload-file-progress"
+                      role="progressbar"
+                      aria-label={t.columns.progress}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-valuenow={100}
+                    >
+                      <span style={{ width: '100%' }} />
+                    </div>
+                    <div className="upload-file-progress-label">
+                      {file.status === 'VALIDATING'
+                        ? t.validating
+                        : t.uploadComplete}
+                    </div>
+                  </>
+                ) : file.status === 'UPLOADING' ? (
+                  <>
+                    <div
+                      className="upload-file-progress is-indeterminate"
+                      role="progressbar"
+                      aria-label={
+                        file.validationPending ? t.validating : t.uploading
+                      }
+                    >
+                      <span />
+                    </div>
+                    <div className="upload-file-progress-label">
+                      {file.validationPending ? t.validating : t.uploading}
+                    </div>
+                  </>
+                ) : (
+                  <div className="upload-file-progress-label">
+                    {file.status === 'PENDING_UPLOAD'
+                      ? t.notStarted
+                      : t.incomplete}
+                  </div>
+                )}
               </td>
               <td className="odm-mono">
                 {file.attempt > 0 ? `${file.attempt}/${file.maxAttempts}` : '—'}
@@ -108,7 +127,7 @@ export function MediaTable({
               <td>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <StatusBadge tone={STATUS_TONE[file.status]}>
-                    {file.validationPending
+                    {file.validationPending || file.status === 'VALIDATING'
                       ? t.validating
                       : t.statusLabel[file.status]}
                   </StatusBadge>

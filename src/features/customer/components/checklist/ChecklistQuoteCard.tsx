@@ -10,7 +10,13 @@ import type { ChecklistQuoteState } from '../../lib/checklist/useChecklistQuote'
  * how many images/videos, so it has no way to send a price. Pricing profiles, quantities and unit prices are not shown
  * to the customer.
  */
-export function ChecklistQuoteCard({ quote }: { quote: ChecklistQuoteState }) {
+export function ChecklistQuoteCard({
+  quote,
+  showSummaryTotal = true,
+}: {
+  quote: ChecklistQuoteState
+  showSummaryTotal?: boolean
+}) {
   const { t } = useI18n(checklistMessages)
   return (
     <div className="checklist-quote">
@@ -24,18 +30,29 @@ export function ChecklistQuoteCard({ quote }: { quote: ChecklistQuoteState }) {
           {quote.error.message}
         </p>
       )}
-      {quote.preview && <QuoteDetails preview={quote.preview} />}
+      {quote.preview && (
+        <QuoteDetails
+          preview={quote.preview}
+          showSummaryTotal={showSummaryTotal}
+        />
+      )}
     </div>
   )
 }
 
-function QuoteDetails({ preview }: { preview: ServicePricePreview }) {
+function QuoteDetails({
+  preview,
+  showSummaryTotal,
+}: {
+  preview: ServicePricePreview
+  showSummaryTotal: boolean
+}) {
   const { t } = useI18n(checklistMessages)
   return (
     <details className="checklist-quote-details">
       <summary>
         <span>{t.quoteTitle}</span>
-        <strong>{formatVnd(preview.total)}</strong>
+        {showSummaryTotal && <strong>{formatVnd(preview.total)}</strong>}
       </summary>
       <div className="checklist-quote-body">
         <p className="checklist-hint">{t.quoteHint}</p>

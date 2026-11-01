@@ -1,5 +1,6 @@
 import { Radio } from 'antd'
 import { ClockCircleOutlined } from '@ant-design/icons'
+import { useState } from 'react'
 import { Card, FormField } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import type {
@@ -19,94 +20,128 @@ type Props = {
 }
 
 const RECURRENCE: RecurrenceType[] = ['NONE', 'WEEKLY', 'MONTHLY']
-const WEATHER: WeatherFallback[] = ['AUTO_RESCHEDULE', 'CONTACT_CUSTOMER', 'CANCEL_ORDER']
+const WEATHER: WeatherFallback[] = [
+  'AUTO_RESCHEDULE',
+  'CONTACT_CUSTOMER',
+  'CANCEL_ORDER',
+]
 
 /** Recurrence, flight-incident fallback and result deadline for the schedule. */
 export function ScheduleOptionsCard({ form, errors, update }: Props) {
   const { t } = useI18n(scheduleOptionsCardMessages)
   const repeating = form.recurrenceType !== 'NONE'
-  return (
-    <Card icon={<ClockCircleOutlined />} title={t.cardTitle}>
-      <p className="co-hint co-card-sub">{t.cardHint}</p>
+  const needsAttention = Boolean(
+    errors.resultDeadline || errors.recurrenceOccurrences,
+  )
+  const [expanded, setExpanded] = useState(false)
+  const open = expanded || needsAttention
 
-      <fieldset className="co-opt-group">
-        <legend>{t.repeatLegend}</legend>
-        <Radio.Group
-          className="co-recurrence"
-          optionType="button"
-          value={form.recurrenceType}
-          onChange={(event) => update('recurrenceType', event.target.value)}
-          options={RECURRENCE.map((value) => ({ value, label: t.repeat[value] }))}
-        />
-        {repeating && (
-          <div className="co-mt">
+  return (
+    <section className="co-schedule-options">
+      <button
+        type="button"
+        className="co-schedule-options-toggle"
+        aria-expanded={open}
+        aria-controls="co-schedule-options-panel"
+        onClick={() => setExpanded((current) => !current)}
+      >
+        <span>
+          <strong>{t.expandTitle}</strong>
+          <small>{t.cardHint}</small>
+        </span>
+        <span className="co-schedule-options-chevron" aria-hidden="true">
+          {open ? '−' : '+'}
+        </span>
+      </button>
+      <div
+        id="co-schedule-options-panel"
+        className="co-schedule-options-panel"
+        hidden={!open}
+      >
+        <Card icon={<ClockCircleOutlined />} title={t.cardTitle}>
+          <fieldset className="co-opt-group">
+            <legend>{t.repeatLegend}</legend>
+            <Radio.Group
+              className="co-recurrence"
+              optionType="button"
+              value={form.recurrenceType}
+              onChange={(event) => update('recurrenceType', event.target.value)}
+              options={RECURRENCE.map((value) => ({
+                value,
+                label: t.repeat[value],
+              }))}
+            />
+            {repeating && (
+              <div className="co-mt">
+                <FormField
+                  id="co-occurrences"
+                  label={t.occurrences}
+                  error={errors.recurrenceOccurrences}
+                >
+                  <input
+                    id="co-occurrences"
+                    type="number"
+                    min={2}
+                    max={52}
+                    className="co-input co-input-narrow"
+                    value={form.recurrenceOccurrences}
+                    onChange={(e) =>
+                      update('recurrenceOccurrences', Number(e.target.value))
+                    }
+                  />
+                </FormField>
+                <p className="co-hint">
+                  {t.occurrencesHint(
+                    form.recurrenceType as 'WEEKLY' | 'MONTHLY',
+                    form.recurrenceOccurrences || 0,
+                  )}
+                </p>
+              </div>
+            )}
+          </fieldset>
+
+          <fieldset className="co-opt-group">
+            <legend>{t.weatherLegend}</legend>
+            <p className="co-help">{t.weatherHint}</p>
+            <div className="co-choice-list">
+              {WEATHER.map((value) => (
+                <Radio
+                  key={value}
+                  className={`co-choice${form.weatherFallback === value ? ' is-on' : ''}`}
+                  name="co-weather"
+                  value={value}
+                  checked={form.weatherFallback === value}
+                  onChange={() => update('weatherFallback', value)}
+                >
+                  <span>
+                    <strong>{t.weather[value].title}</strong>
+                    <small>{t.weather[value].desc}</small>
+                  </span>
+                </Radio>
+              ))}
+            </div>
+          </fieldset>
+
+          <div className="co-opt-group">
             <FormField
-              id="co-occurrences"
-              label={t.occurrences}
-              error={errors.recurrenceOccurrences}
+              id="co-deadline"
+              label={`${t.deadline} ${t.deadlineOptional}`}
+              error={errors.resultDeadline}
             >
               <input
-                id="co-occurrences"
-                type="number"
-                min={2}
-                max={52}
+                id="co-deadline"
+                type="date"
                 className="co-input co-input-narrow"
-                value={form.recurrenceOccurrences}
-                onChange={(e) => update('recurrenceOccurrences', Number(e.target.value))}
+                min={form.preferredDateTo || undefined}
+                value={form.resultDeadline}
+                onChange={(e) => update('resultDeadline', e.target.value)}
               />
+              {form.resultDeadline && <DateEcho value={form.resultDeadline} />}
             </FormField>
-            <p className="co-hint">
-              {t.occurrencesHint(
-                form.recurrenceType as 'WEEKLY' | 'MONTHLY',
-                form.recurrenceOccurrences || 0,
-              )}
-            </p>
+            <p className="co-hint">{t.deadlineHint}</p>
           </div>
-        )}
-      </fieldset>
-
-      <fieldset className="co-opt-group">
-        <legend>{t.weatherLegend}</legend>
-        <p className="co-help">{t.weatherHint}</p>
-        <div className="co-choice-list">
-          {WEATHER.map((value) => (
-            <Radio
-              key={value}
-              className={`co-choice${form.weatherFallback === value ? ' is-on' : ''}`}
-              name="co-weather"
-              value={value}
-              checked={form.weatherFallback === value}
-              onChange={() => update('weatherFallback', value)}
-            >
-              <span>
-                <strong>{t.weather[value].title}</strong>
-                <small>{t.weather[value].desc}</small>
-              </span>
-            </Radio>
-          ))}
-        </div>
-      </fieldset>
-
-      <div className="co-opt-group">
-        <FormField
-          id="co-deadline"
-          label={`${t.deadline} ${t.deadlineOptional}`}
-          error={errors.resultDeadline}
-        >
-          <input
-            id="co-deadline"
-            type="date"
-            className="co-input co-input-narrow"
-            min={form.preferredDateTo || undefined}
-            value={form.resultDeadline}
-            onChange={(e) => update('resultDeadline', e.target.value)}
-          />
-          {form.resultDeadline && (
-            <DateEcho value={form.resultDeadline} />
-          )}
-        </FormField>
-        <p className="co-hint">{t.deadlineHint}</p>
+        </Card>
       </div>
-    </Card>
+    </section>
   )
 }

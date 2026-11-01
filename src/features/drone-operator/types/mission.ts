@@ -137,7 +137,14 @@ export type PreflightRecord = {
 export type MediaFileType = 'PHOTO' | 'VIDEO'
 
 export type MediaFileStatus =
-  'UPLOADED' | 'UPLOADING' | 'FAILED' | 'PENDING_UPLOAD'
+  | 'UPLOADED'
+  | 'UPLOADING'
+  | 'FAILED'
+  | 'PENDING_UPLOAD'
+  | 'VALIDATING'
+  | 'PENDING_MANAGER_APPROVAL'
+  | 'AVAILABLE'
+  | 'REJECTED'
 
 export type MediaFile = {
   id: string

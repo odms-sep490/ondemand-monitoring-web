@@ -1,3 +1,4 @@
+import { QuoteGuidance } from './QuoteGuidance'
 import { Button } from 'antd'
 import { useI18n } from '../../../../shared/i18n'
 import { customerFinanceSectionsMessages } from '../CustomerFinanceSections.messages'
@@ -30,6 +31,7 @@ export function QuoteSection({
   return (
     <div className="customer-quote-body">
       <QuoteLines items={quote.items} />
+      <QuoteGuidance quote={quote} />
       <dl className="finance-summary customer-summary">
         <Summary label={t.estimated} value={quote.estimatedBaseAmount} />
         <Summary
@@ -38,9 +40,7 @@ export function QuoteSection({
         />
         <Summary label={t.orderTotal} value={quote.finalOrderAmount} total />
       </dl>
-      <p className="co-estimate-notice">
-        {t.estimateNotice}
-      </p>
+      <p className="co-estimate-notice">{t.estimateNotice}</p>
       {!legalReady ? (
         <div className="customer-deposit-notice">
           <b>
@@ -61,11 +61,7 @@ export function QuoteSection({
         </div>
       ) : null}
       {quote.status === 'APPROVED' && !invoice && legalReady ? (
-        <Button
-          type="primary"
-          disabled={busy}
-          onClick={() => void accept()}
-        >
+        <Button type="primary" disabled={busy} onClick={() => void accept()}>
           {t.accept}
         </Button>
       ) : null}

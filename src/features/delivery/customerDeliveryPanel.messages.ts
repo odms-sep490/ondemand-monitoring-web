@@ -54,6 +54,7 @@ export const customerDeliveryPanelMessages = defineMessages({
     amountLeft: 'Số tiền còn lại',
     redirecting: 'Đang chuyển đến VNPAY…',
     payVnpay: 'Thanh toán qua VNPAY',
+    testPayment: 'Thanh toán nhanh (Test)',
     paymentConfirmedTitle: 'Thanh toán đã được xác nhận',
     paymentConfirmedText:
       'Quản lý đang chuẩn bị phát hành dữ liệu gốc cho bạn.',
@@ -63,6 +64,10 @@ export const customerDeliveryPanelMessages = defineMessages({
     noVnpayUrl: 'VNPAY chưa trả về đường dẫn thanh toán.',
     networkError: 'Không thể kết nối tới máy chủ. Vui lòng thử lại.',
     genericError: 'Không thể xử lý yêu cầu.',
+    loading: 'Đang tải trạng thái bàn giao…',
+    noDelivery: 'Đơn hàng chưa có thông tin bàn giao kết quả.',
+    noAssets: 'Chưa có tệp kết quả được gửi ở bước này.',
+    retry: 'Thử lại',
   },
   en: {
     eyebrow: 'Mission results',
@@ -114,6 +119,7 @@ export const customerDeliveryPanelMessages = defineMessages({
     amountLeft: 'Amount remaining',
     redirecting: 'Redirecting to VNPAY…',
     payVnpay: 'Pay with VNPAY',
+    testPayment: 'Quick payment (Test)',
     paymentConfirmedTitle: 'Payment confirmed',
     paymentConfirmedText:
       'The manager is preparing to release your original data.',
@@ -123,5 +129,9 @@ export const customerDeliveryPanelMessages = defineMessages({
     noVnpayUrl: 'VNPAY did not return a payment link.',
     networkError: 'Unable to reach the server. Please try again.',
     genericError: 'Unable to process the request.',
+    loading: 'Loading delivery status…',
+    noDelivery: 'There is no result delivery information for this order yet.',
+    noAssets: 'No result files have been released at this step.',
+    retry: 'Try again',
   },
 })

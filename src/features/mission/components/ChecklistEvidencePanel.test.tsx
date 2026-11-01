@@ -108,6 +108,7 @@ describe('Checklist evidence', () => {
     )
   })
   it('soft-detach command uses association id and execution version', async () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
     const detach = vi
       .spyOn(checklistEvidenceApi, 'detach')
       .mockResolvedValue(undefined)

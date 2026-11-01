@@ -36,7 +36,7 @@ export function PostcheckCard({
   return (
     <div className="odm-card">
       <div className="odm-card-header">
-        <span style={{ fontWeight: 700 }}>Kết quả postcheck</span>
+        <h2 className="mds-card-heading">Kết quả postcheck</h2>
         <StatusBadge
           tone={postflight ? (postflight.overallOk ? 'green' : 'red') : 'gray'}
         >

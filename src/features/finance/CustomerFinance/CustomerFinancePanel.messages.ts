@@ -3,8 +3,9 @@ import { defineMessages } from '../../../shared/i18n'
 export const customerFinancePanelMessages = defineMessages({
   vi: {
     title: 'Báo giá và thanh toán',
-    description: 'Giá được manager xác nhận theo phạm vi yêu cầu của đơn.',
+    description: 'Giá do quản lý xác nhận theo nội dung đơn hàng.',
     loading: 'Đang tải báo giá...',
+    noFinancialData: 'Đơn hàng chưa có báo giá hoặc thông tin thanh toán.',
     networkError: 'Không thể kết nối tới máy chủ. Vui lòng thử lại.',
     paymentProviderError:
       'Không thể khởi tạo thanh toán VNPAY. Vui lòng kiểm tra cấu hình cổng thanh toán hoặc thử lại sau.',
@@ -23,8 +24,9 @@ export const customerFinancePanelMessages = defineMessages({
   },
   en: {
     title: 'Quote and payment',
-    description: 'The manager confirms pricing based on the order scope.',
+    description: 'Pricing is confirmed for the items in this order.',
     loading: 'Loading quote…',
+    noFinancialData: 'This order does not have a quote or payment record yet.',
     networkError: 'Unable to reach the server. Please try again.',
     paymentProviderError:
       'Unable to start the VNPAY payment. Check the payment gateway configuration or try again later.',

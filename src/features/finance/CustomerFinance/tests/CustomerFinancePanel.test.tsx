@@ -1,6 +1,8 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { act } from '@testing-library/react'
+import { setLanguage } from '../../../../shared/i18n'
 import { ApiError } from '../../../../shared/api/httpClient'
 import { financeApi } from '../../api'
 import { CustomerFinancePanel } from '../CustomerFinancePanel'
@@ -52,6 +54,108 @@ const pendingDeposit: Payment = {
 afterEach(() => vi.restoreAllMocks())
 
 describe('CustomerFinancePanel', () => {
+  it.each([
+    'CHECKLIST_GUIDANCE_INCOMPLETE',
+    'STALE_GUIDANCE_SNAPSHOT',
+    'QUOTE_GUIDANCE_SNAPSHOT_STALE',
+  ])(
+    'asks the Manager to reissue when getQuote rejects with %s',
+    async (code) => {
+      vi.spyOn(financeApi, 'getQuote').mockRejectedValue(
+        new ApiError('Guidance rejected', {
+          code,
+          status: 409,
+          method: 'GET',
+          path: '/',
+        }),
+      )
+      vi.spyOn(financeApi, 'getInvoice').mockRejectedValue(
+        new ApiError('Not found', { status: 404, method: 'GET', path: '/' }),
+      )
+      render(<CustomerFinancePanel orderId="order-1" />)
+      expect(
+        await screen.findByText(
+          code === 'CHECKLIST_GUIDANCE_INCOMPLETE'
+            ? /yêu cầu quản lý bổ sung hướng dẫn/
+            : /yêu cầu quản lý cập nhật và phát hành lại/,
+        ),
+      ).toBeInTheDocument()
+      act(() => setLanguage('en'))
+      expect(
+        await screen.findByText(
+          code === 'CHECKLIST_GUIDANCE_INCOMPLETE'
+            ? /Manager to complete the guidance and reissue/
+            : /Ask the Manager to update and reissue/,
+        ),
+      ).toBeInTheDocument()
+    },
+  )
+
+  it('completes the remaining balance with the development test button and reloads the invoice', async () => {
+    vi.spyOn(financeApi, 'getQuote').mockResolvedValue(quote)
+    vi.spyOn(financeApi, 'getInvoice')
+      .mockResolvedValueOnce({
+        ...invoice,
+        paidAmount: invoice.depositAmount,
+        remainingAmount: 3_500_000,
+        status: 'PARTIALLY_PAID',
+        finalPaymentAllowed: true,
+      })
+      .mockResolvedValueOnce({
+        ...invoice,
+        paidAmount: invoice.totalAmount,
+        remainingAmount: 0,
+        status: 'PAID',
+        finalPaymentAllowed: false,
+      })
+    const complete = vi
+      .spyOn(financeApi, 'completeTestFinal')
+      .mockResolvedValue({
+        ...pendingDeposit,
+        type: 'FINAL_PAYMENT',
+        status: 'SUCCESS',
+      })
+    const deposit = vi.spyOn(financeApi, 'completeTestDeposit')
+    render(<CustomerFinancePanel orderId="order-1" />)
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Thanh toán nhanh (Test)' }),
+    )
+    await waitFor(() =>
+      expect(complete).toHaveBeenCalledExactlyOnceWith('invoice-1'),
+    )
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('button', { name: 'Thanh toán nhanh (Test)' }),
+      ).not.toBeInTheDocument(),
+    )
+    expect(deposit).not.toHaveBeenCalled()
+  })
+
+  it('explains when the order has no quote or payment records yet', async () => {
+    vi.spyOn(financeApi, 'getQuote').mockRejectedValue(
+      new ApiError('Not found', {
+        status: 404,
+        method: 'GET',
+        path: '/api/orders/order-1/quote',
+      }),
+    )
+    vi.spyOn(financeApi, 'getInvoice').mockRejectedValue(
+      new ApiError('Not found', {
+        status: 404,
+        method: 'GET',
+        path: '/api/orders/order-1/invoice',
+      }),
+    )
+
+    render(<CustomerFinancePanel orderId="order-1" />)
+
+    expect(
+      await screen.findByText(
+        'Đơn hàng chưa có báo giá hoặc thông tin thanh toán.',
+      ),
+    ).toBeInTheDocument()
+  })
+
   it('completes a deposit immediately with the development test button', async () => {
     vi.spyOn(financeApi, 'getQuote').mockResolvedValue(quote)
     vi.spyOn(financeApi, 'getInvoice')

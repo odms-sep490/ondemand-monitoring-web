@@ -1,4 +1,13 @@
-export const finishedUploadStatuses = new Set([
+/** Transfer is complete once the server has accepted/stored the file, even if review later rejects it. */
+export const successfullyUploadedStatuses = new Set([
+  'VALIDATING',
+  'PENDING_MANAGER_APPROVAL',
+  'AVAILABLE',
+  'REJECTED',
+])
+
+/** Only these states can be used as checklist evidence. */
+export const evidenceEligibleUploadStatuses = new Set([
   'PENDING_MANAGER_APPROVAL',
   'AVAILABLE',
 ])
@@ -8,6 +17,7 @@ export const visibleAfterControllerDropStatuses = new Set([
   'VALIDATING',
   'PENDING_MANAGER_APPROVAL',
   'AVAILABLE',
+  'REJECTED',
 ])
 
 export const mediaTypeLabel: Record<string, string> = {
@@ -23,15 +33,16 @@ export const mediaSourceLabel: Record<string, string> = {
 }
 
 export const mediaStatusLabel: Record<string, string> = {
-  REVIEW_PENDING: 'Chờ duyệt',
-  UPLOADING: 'Đang upload',
-  UPLOAD_FAILED: 'Upload thất bại',
+  REVIEW_PENDING: 'Chờ tải lên',
+  UPLOADING: 'Đang tải lên',
+  UPLOAD_FAILED: 'Tải lên thất bại',
   VALIDATING: 'Đang xác thực',
-  MANUAL_UPLOAD_REQUIRED: 'Cần upload thủ công',
-  UPLOAD_PENDING: 'Chờ upload',
-  RETRY_REQUIRED: 'Cần thử lại',
-  PENDING_MANAGER_APPROVAL: 'Chờ manager duyệt',
-  AVAILABLE: 'Đã tải lên',
+  MANUAL_UPLOAD_REQUIRED: 'Cần tải thủ công',
+  UPLOAD_PENDING: 'Chờ tải lên',
+  RETRY_REQUIRED: 'Cần tải lại',
+  PENDING_MANAGER_APPROVAL: 'Chờ Manager duyệt',
+  AVAILABLE: 'Đã duyệt',
+  REJECTED: 'Bị từ chối',
   UPLOADED: 'Đã tải lên',
 }
 

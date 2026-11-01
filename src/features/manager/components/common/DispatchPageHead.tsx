@@ -8,6 +8,7 @@ import type { OrderDispatchContext } from './liveDispatchTypes'
 import { Button } from 'antd'
 import { PageHeader } from './PageHeader'
 import { StatusTag } from './StatusTag'
+import { OrderDetailsDrawer } from './OrderDetailsDrawer'
 
 export function DispatchPageHead({
   orderContext,
@@ -37,11 +38,14 @@ export function DispatchPageHead({
       }
       actions={
         orderContext ? (
-          <Button disabled={busy} onClick={() => orderContext.onReturn()}>
-            {orderContext.missionScoped
-              ? orderContext.returnLabel
-              : m.chooseOtherMission}
-          </Button>
+          <div className="odm-or-order-page-actions">
+            {orderContext.order ? <OrderDetailsDrawer order={orderContext.order} /> : null}
+            <Button disabled={busy} onClick={() => orderContext.onReturn()}>
+              {orderContext.missionScoped
+                ? orderContext.returnLabel
+                : m.chooseOtherMission}
+            </Button>
+          </div>
         ) : (
           <Button href={managerHref({ screen: 'orderQueue' })}>
             {t.backToOrders}

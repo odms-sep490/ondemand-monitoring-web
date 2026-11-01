@@ -33,3 +33,5 @@ evd/
 .env.example
 
 document/
+
+*.tsbuildinfo

@@ -5,33 +5,41 @@ import { formatVnDate, formatHm } from '../missionFormat'
 
 export function ManagerNoteCard({ mission }: { mission: OperatorMission }) {
   return (
-    <div
+    <section
       className="odm-card"
+      aria-labelledby="mission-manager-note-heading"
       style={{
         background: 'var(--yellow-bg)',
         borderColor: 'var(--yellow-dot)',
       }}
     >
       <div className="odm-card-body" style={{ padding: '10px 14px' }}>
-        <div
+        <h2
+          id="mission-manager-note-heading"
+          className="mds-note-heading"
           style={{
             fontWeight: 600,
-            fontSize: 12.5,
+            fontSize: 14,
             marginBottom: 5,
             color: 'var(--yellow-fg)',
           }}
         >
           Ghi chú của quản lý · {mission.managerName ?? ''}
-        </div>
+        </h2>
         <div
-          style={{ fontSize: 12.5, color: 'var(--yellow-fg)', marginBottom: 6 }}
+          style={{
+            fontSize: 14,
+            lineHeight: 1.5,
+            color: 'var(--yellow-fg)',
+            marginBottom: 6,
+          }}
         >
           {mission.managerNote}
         </div>
         {mission.respondBy && mission.status === 'PENDING' && (
           <div
             style={{
-              fontSize: 11.5,
+              fontSize: 13,
               fontWeight: 600,
               color: 'var(--yellow-fg)',
             }}
@@ -41,6 +49,6 @@ export function ManagerNoteCard({ mission }: { mission: OperatorMission }) {
           </div>
         )}
       </div>
-    </div>
+    </section>
   )
 }

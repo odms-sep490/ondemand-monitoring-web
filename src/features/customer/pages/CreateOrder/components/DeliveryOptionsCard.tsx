@@ -63,7 +63,11 @@ export function DeliveryOptionsCard({
   }
 
   return (
-    <Card icon={<SendOutlined />} title={t.cardTitle}>
+    <Card
+      className="co-delivery-options-card"
+      icon={<SendOutlined />}
+      title={t.cardTitle}
+    >
       <p className="co-hint co-card-sub">{t.cardSubtitle}</p>
 
       <FormField

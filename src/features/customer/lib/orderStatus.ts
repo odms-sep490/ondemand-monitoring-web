@@ -7,7 +7,6 @@ import type {
 
 export const ORDER_STATUS_TONE: Record<OrderStatus, StatusTone> = {
   DRAFT: 'gray',
-  AI_ANALYZED: 'blue',
   SUBMITTED: 'yellow',
   PENDING: 'yellow',
   NEEDS_INFO: 'orange',
@@ -21,7 +20,6 @@ export const ORDER_STATUS_TONE: Record<OrderStatus, StatusTone> = {
 
 const ORDER_STATUS_LABEL_VI: Record<OrderStatus, string> = {
   DRAFT: 'Nháp',
-  AI_ANALYZED: 'Đã phân tích AI',
   SUBMITTED: 'Đã gửi duyệt',
   PENDING: 'Đang duyệt',
   NEEDS_INFO: 'Cần bổ sung thông tin',
@@ -35,7 +33,6 @@ const ORDER_STATUS_LABEL_VI: Record<OrderStatus, string> = {
 
 const ORDER_STATUS_LABEL_EN: Record<OrderStatus, string> = {
   DRAFT: 'Draft',
-  AI_ANALYZED: 'AI analyzed',
   SUBMITTED: 'Submitted',
   PENDING: 'Pending review',
   NEEDS_INFO: 'More information required',

@@ -20,15 +20,17 @@ export function Pager({ page, totalPages, totalItems, unit, onPage }: Props) {
   return (
     <div className="cm-pager mgr-table-foot">
       <span>{t.total(totalItems, unit)}</span>
-      <div className="cm-pager-nav">
-        <Button size="small" disabled={page <= 0} onClick={() => onPage(page - 1)}>
-          {t.prev}
-        </Button>
-        <span>{t.page(totalPages === 0 ? 0 : page + 1, totalPages)}</span>
-        <Button size="small" disabled={page + 1 >= totalPages} onClick={() => onPage(page + 1)}>
-          {t.next}
-        </Button>
-      </div>
+      {totalPages > 1 && (
+        <div className="cm-pager-nav">
+          <Button size="small" disabled={page <= 0} onClick={() => onPage(page - 1)}>
+            {t.prev}
+          </Button>
+          <span>{t.page(page + 1, totalPages)}</span>
+          <Button size="small" disabled={page + 1 >= totalPages} onClick={() => onPage(page + 1)}>
+            {t.next}
+          </Button>
+        </div>
+      )}
     </div>
   )
 }

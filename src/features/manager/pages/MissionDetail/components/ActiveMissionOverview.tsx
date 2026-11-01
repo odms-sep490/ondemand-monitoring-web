@@ -56,6 +56,7 @@ export function ActiveMissionOverview({
             missionId={mission.id}
             latitude={mission.latitude}
             longitude={mission.longitude}
+            visible={activeTab === 'route'}
           />
         </div>
         <div className="odm-rm-side">

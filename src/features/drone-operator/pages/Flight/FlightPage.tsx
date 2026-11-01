@@ -116,7 +116,7 @@ export function FlightPage({
         setActiveMissionId(mission.id)
         markActiveMissionFlowStep(mission.id, 5)
         window.location.hash = operatorHref({
-          screen: 'upload',
+          screen: 'checklist',
           missionId: mission.id,
         })
       }}

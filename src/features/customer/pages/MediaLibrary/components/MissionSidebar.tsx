@@ -15,7 +15,7 @@ type Props = {
 export function MissionSidebar({ groups, total, selected, onSelect }: Props) {
   const { t } = useI18n(missionSidebarMessages)
   const item = (id: string | null, label: string, count: number) => (
-    <li key={id ?? 'all'}>
+    <li key={id ?? 'all'} className={id === null && groups.length > 0 ? 'ml-mission-all' : undefined}>
       <button
         type="button"
         className={`ml-mission${selected === id ? ' is-active' : ''}`}

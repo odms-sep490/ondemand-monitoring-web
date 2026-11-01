@@ -48,11 +48,13 @@ export function MissionSatelliteMap({
   latitude,
   longitude,
   radiusMeters,
+  visible,
 }: {
   missionId: string
   latitude: number | null
   longitude: number | null
   radiusMeters?: number | null
+  visible: boolean
 }) {
   const container = useRef<HTMLDivElement>(null)
   const map = useRef<L.Map | null>(null)
@@ -74,7 +76,7 @@ export function MissionSatelliteMap({
   const homePoint = HCMC_SERVICE_CENTER
 
   useEffect(() => {
-    if (import.meta.env.MODE === 'test') return
+    if (import.meta.env.MODE === 'test' || !visible) return
     if (!container.current || map.current) return
     const initialCenter: L.LatLngExpression = target
       ? [target.latitude, target.longitude]
@@ -96,8 +98,26 @@ export function MissionSatelliteMap({
     ).addTo(instance)
 
     map.current = instance
-    window.setTimeout(() => instance.invalidateSize(), 0)
+    // This map lives inside a tab panel that starts hidden. Leaflet measures a
+    // hidden container as a tiny map and only paints the first tile unless its
+    // size is recalculated after the panel becomes visible/resizes.
+    let frame = window.requestAnimationFrame(() => {
+      instance.invalidateSize({ pan: false })
+    })
+    const resizeObserver =
+      typeof ResizeObserver !== 'undefined'
+        ? new ResizeObserver(() => {
+            window.cancelAnimationFrame(frame)
+            frame = window.requestAnimationFrame(() => {
+              instance.invalidateSize({ pan: false })
+            })
+          })
+        : null
+    resizeObserver?.observe(container.current)
+
     return () => {
+      window.cancelAnimationFrame(frame)
+      resizeObserver?.disconnect()
       instance.remove()
       map.current = null
       homeMarker.current = null
@@ -106,7 +126,7 @@ export function MissionSatelliteMap({
       targetPin.current = null
       circle.current = null
     }
-  }, [homePoint.latitude, homePoint.longitude, targetLat, targetLon])
+  }, [homePoint.latitude, homePoint.longitude, targetLat, targetLon, visible])
 
   useEffect(() => {
     if (!map.current) return

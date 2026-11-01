@@ -4,8 +4,6 @@ import { WorkflowStepper } from '../../../components/common/WorkflowStepper'
 import { getOrderStatusLabel } from '../../../../../shared/lib/statusTone'
 import { orderStageToReviewStep } from '../../../components/common/workflowModel'
 import { missionLayer } from '../reviewHelpers'
-import { orderDeliverableLabels } from './OrderServiceBanner'
-import { OrderServiceCard } from './OrderServiceCard'
 import { PageHeader } from '../../../components/common/PageHeader'
 import { StatusTag } from '../../../components/common/StatusTag'
 import { orderStatusTone } from '../../../../../shared/lib/statusTone'
@@ -13,6 +11,7 @@ import { formatOrderCode } from '../../../components/common/format'
 import { managerHref } from '../../../routes'
 import { orderReviewPageMessages } from '../OrderReviewPage.messages'
 import { useI18n } from '../../../../../shared/i18n'
+import { OrderDetailsDrawer } from '../../../components/common/OrderDetailsDrawer'
 import type { OrderProgress } from '../../../components/common/workflowModel'
 import type { OrderDetail } from '../../../types/orders'
 import type { ReviewStep } from '../reviewTypes'
@@ -49,7 +48,7 @@ export function ReviewTop({
   onSelectMissionStage?: (stage: import('../../../components/common/workflowModel').MissionStage) => void
   viewMissionStage?: import('../../../components/common/workflowModel').MissionStage | null
 }) {
-  const { t, locale, lang } = useI18n(orderReviewPageMessages)
+  const { t, lang } = useI18n(orderReviewPageMessages)
   return (
     <div className="odm-or-review-top">
       <PageHeader
@@ -78,7 +77,12 @@ export function ReviewTop({
             </>
           )
         }
-        actions={showExecutionPlan ? undefined : <OrderStatusBadge order={order} lang={lang} />}
+        actions={
+          <div className="odm-or-order-page-actions">
+            {!showExecutionPlan ? <OrderStatusBadge order={order} lang={lang} /> : null}
+            <OrderDetailsDrawer order={order} />
+          </div>
+        }
       />
       <WorkflowStepper
         order={{
@@ -108,15 +112,6 @@ export function ReviewTop({
             : undefined
         }
       />
-      {showExecutionPlan && (
-        <OrderServiceCard
-          serviceName={order.serviceName}
-          serviceDescription={order.serviceDescription}
-          deliverables={orderDeliverableLabels(order, locale)}
-          deliverablesLabel={t.deliverableFormat}
-          eyebrow={t.serviceEyebrow}
-        />
-      )}
     </div>
   )
 }

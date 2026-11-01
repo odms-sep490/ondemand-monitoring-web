@@ -3,8 +3,8 @@
 // [BE] .../order/enums/OrderStatus.java
 // [BE] .../mission/enums/MissionStatus.java
 // [BE] .../drone/enums/DroneStatus.java
-// [BRIEF] evd/design/FA26SE039_Design_Brief.md §A4 (ai_analysis_session,
-//   feasibility_rule), §A5 (maintenance_ticket.severity), §A8 (media_asset.media_status)
+// [BRIEF] evd/design/FA26SE039_Design_Brief.md §A5 (maintenance_ticket.severity),
+//   §A8 (media_asset.media_status)
 
 /** One of the 6 status-colour tones from [BRIEF Phần B]. */
 export type StatusTone = 'gray' | 'yellow' | 'blue' | 'green' | 'orange' | 'red'
@@ -22,7 +22,6 @@ export type RequiredEvidenceType =
 
 export type OrderStatus =
   | 'DRAFT'
-  | 'AI_ANALYZED'
   | 'SUBMITTED'
   | 'PENDING'
   | 'NEEDS_INFO'
@@ -68,12 +67,6 @@ export type DroneStatus =
   | 'MAINTENANCE'
   | 'OUT_OF_SERVICE'
   | 'OFFLINE'
-
-/** `ai_analysis_session.overall_verdict` [BRIEF A4] */
-export type AiVerdict = 'FEASIBLE' | 'RISKY' | 'INFEASIBLE'
-
-/** `feasibility_rule.severity` / `ai_finding.severity` [BRIEF A4] */
-export type FindingSeverity = 'INFO' | 'WARNING' | 'BLOCKER'
 
 /** `maintenance_ticket.status` [TK] */
 export type TicketStatus = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED'

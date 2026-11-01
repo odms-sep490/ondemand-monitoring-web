@@ -125,7 +125,6 @@ export function CustomerCreateRequestPage() {
               estimate={estimate}
               loading={r.checklist.quote.loading}
               hasService={Boolean(r.service)}
-              aiAnalysisRequested={false}
               additionalChecklists={additionalChecklists}
             />
           </div>

@@ -1,7 +1,12 @@
-import type { ReactNode } from 'react'
-
-import type { ServiceOption, ServicePricingEstimate } from '../../../api/customerApi'
-import type { FormErrors, FormState, UpdateField } from '../../../lib/createOrder/types'
+import type {
+  ServiceOption,
+  ServicePricingEstimate,
+} from '../../../api/customerApi'
+import type {
+  FormErrors,
+  FormState,
+  UpdateField,
+} from '../../../lib/createOrder/types'
 import type { ChecklistRow } from '../../../lib/checklist/types'
 import { PricingEstimateCard } from './PricingEstimateCard'
 import { RequestInfoPanel } from './RequestInfoPanel'
@@ -16,8 +21,6 @@ type Props = {
   pricingEstimate: ServicePricingEstimate | null
   pricingLoading: boolean
   additionalChecklists: ChecklistRow[]
-  /** Wizard actions, rendered at the bottom of the sticky summary panel. */
-  footer?: ReactNode
 }
 
 /** Step 1: choose the core monitoring service. */
@@ -31,25 +34,18 @@ export function ServiceStep(p: Props) {
           services={p.services}
           loading={p.servicesLoading}
           selectedId={p.form.serviceId}
-          suggested={undefined}
           error={p.errors.serviceId}
           onSelect={(id) => p.update('serviceId', id)}
         />
       </div>
       <aside className="co-stack co-summary is-tall">
-        <RequestInfoPanel
-          form={p.form}
-          errors={p.errors}
-          update={p.update}
-        />
+        <RequestInfoPanel form={p.form} errors={p.errors} update={p.update} />
         <PricingEstimateCard
           estimate={p.pricingEstimate}
           loading={p.pricingLoading}
           hasService={Boolean(selected)}
-          aiAnalysisRequested={false}
           additionalChecklists={p.additionalChecklists}
         />
-        {p.footer && <div className="co-summary-cta">{p.footer}</div>}
       </aside>
     </div>
   )

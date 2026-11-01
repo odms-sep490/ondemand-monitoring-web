@@ -30,50 +30,53 @@ export function QuoteBreakdown({
   }
   if (items.length === 0) return null
   return (
-    <div className="finance-breakdown" aria-label={t.breakdownAria}>
-      {[...groups.entries()].map(([id, lines]) => {
-        const name =
-          checklistItems.find((entry) => entry.id === id)?.content ??
-          t.breakdownFallbackName
-        const subtotal = lines.reduce((sum, line) => sum + line.amount, 0)
-        return (
-          <section key={id} className="finance-breakdown-group">
+    <details className="finance-breakdown" aria-label={t.breakdownAria}>
+      <summary>{t.breakdownTitle(items.length)}</summary>
+      <div className="finance-breakdown-content">
+        {[...groups.entries()].map(([id, lines]) => {
+          const name =
+            checklistItems.find((entry) => entry.id === id)?.content ??
+            t.breakdownFallbackName
+          const subtotal = lines.reduce((sum, line) => sum + line.amount, 0)
+          return (
+            <section key={id} className="finance-breakdown-group">
+              <header>
+                <strong title={name}>{name}</strong>
+                <b>{formatVnd(subtotal)}</b>
+              </header>
+              <ul>
+                {lines.map((line, index) => (
+                  <li key={`${line.category}-${index}`}>
+                    <span>{lineLabel(line.description, name)}</span>
+                    <span>{formatVnd(line.amount)}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )
+        })}
+        {orderLevel.length > 0 && (
+          <section className="finance-breakdown-group">
             <header>
-              <strong title={name}>{name}</strong>
-              <b>{formatVnd(subtotal)}</b>
+              <strong>{t.breakdownOrderLevel}</strong>
+              <b>
+                {formatVnd(
+                  orderLevel.reduce((sum, line) => sum + line.amount, 0),
+                )}
+              </b>
             </header>
             <ul>
-              {lines.map((line, index) => (
+              {orderLevel.map((line, index) => (
                 <li key={`${line.category}-${index}`}>
-                  <span>{lineLabel(line.description, name)}</span>
+                  <span>{pricingDescription(line.description)}</span>
                   <span>{formatVnd(line.amount)}</span>
                 </li>
               ))}
             </ul>
           </section>
-        )
-      })}
-      {orderLevel.length > 0 && (
-        <section className="finance-breakdown-group">
-          <header>
-            <strong>{t.breakdownOrderLevel}</strong>
-            <b>
-              {formatVnd(
-                orderLevel.reduce((sum, line) => sum + line.amount, 0),
-              )}
-            </b>
-          </header>
-          <ul>
-            {orderLevel.map((line, index) => (
-              <li key={`${line.category}-${index}`}>
-                <span>{pricingDescription(line.description)}</span>
-                <span>{formatVnd(line.amount)}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-    </div>
+        )}
+      </div>
+    </details>
   )
 }
 

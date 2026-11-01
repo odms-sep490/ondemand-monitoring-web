@@ -13,7 +13,15 @@ export type UploadSummary = {
  * and the mock `/media` handler so the rules live in one place. */
 export function uploadSummary(files: MediaFile[]): UploadSummary {
   const nTotal = files.length
-  const nUploaded = files.filter((f) => f.status === 'UPLOADED').length
+  const nUploaded = files.filter((file) =>
+    [
+      'UPLOADED',
+      'VALIDATING',
+      'PENDING_MANAGER_APPROVAL',
+      'AVAILABLE',
+      'REJECTED',
+    ].includes(file.status),
+  ).length
   const nUploading = files.filter((f) => f.status === 'UPLOADING').length
   const nManual = files.filter((f) => f.manualTaskCreated).length
   return {

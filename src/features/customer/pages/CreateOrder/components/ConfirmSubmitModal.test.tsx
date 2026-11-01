@@ -31,14 +31,12 @@ describe('ConfirmSubmitModal', () => {
         {...base()}
         checklistCount={4}
         mediaTotals={{ images: 3, videos: 1 }}
-        aiAnalysisRequested
       />,
     )
     expect(screen.getByText(/4 nội dung · 3 ảnh · 1 video/)).toBeInTheDocument()
     expect(screen.getByText('Vùng bay')).toBeInTheDocument()
     expect(screen.getByText('Định dạng kết quả')).toBeInTheDocument()
     expect(screen.getByText('Thời hạn lưu trữ')).toBeInTheDocument()
-    expect(screen.getByText(/Có \(tính thêm phí\)/)).toBeInTheDocument()
   })
 
   it('says the cost excludes items still awaiting a Manager quote', () => {

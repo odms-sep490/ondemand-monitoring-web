@@ -22,10 +22,17 @@ import { WeatherForecastCard } from '../../pages/MissionCreate/components/Weathe
 import { FlightScheduleCard } from '../../pages/MissionCreate/components/FlightScheduleCard'
 import { OrderSummaryCard } from '../../pages/MissionCreate/components/OrderSummaryCard'
 import { MissionChecklistSelectionCard } from '../../pages/MissionCreate/components/MissionChecklistSelectionCard'
-import type { OrderChecklistSnapshot, OrderDetail, OrderMissionBrief } from '../../types/orders'
+import type {
+  OrderChecklistSnapshot,
+  OrderDetail,
+  OrderMissionBrief,
+} from '../../types/orders'
 import type { ExecutionPlan } from '../../types/planning'
 import type { MissionResponse } from '../../types/missions'
-import type { ForecastRow, SubmitState } from '../../pages/MissionCreate/createMissionTypes'
+import type {
+  ForecastRow,
+  SubmitState,
+} from '../../pages/MissionCreate/createMissionTypes'
 
 function parseToLocal(iso?: string | null): string {
   if (!iso) return ''
@@ -122,7 +129,9 @@ export function MissionUpdatePanel({
       const d = new Date(mission.scheduledStartAt)
       if (!Number.isNaN(d.getTime())) {
         const p = (n: number) => String(n).padStart(2, '0')
-        setWeatherCheckDate(`${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`)
+        setWeatherCheckDate(
+          `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`,
+        )
         setWeatherCheckTime(`${p(d.getHours())}:${p(d.getMinutes())}`)
       }
     } else {
@@ -131,7 +140,12 @@ export function MissionUpdatePanel({
       setWeatherCheckTime(forecastTimeFromBrief(brief))
     }
     setSubmit({ kind: 'idle' })
-  }, [mission.scheduledStartAt, mission.scheduledEndAt, initialAssignedIds, brief])
+  }, [
+    mission.scheduledStartAt,
+    mission.scheduledEndAt,
+    initialAssignedIds,
+    brief,
+  ])
 
   // Sync initial data when modal opens
   useEffect(() => {
@@ -185,14 +199,27 @@ export function MissionUpdatePanel({
         if (cancelled) return
         setForecastRows([
           forecast.status === 'AVAILABLE'
-            ? { date: weatherCheckDate, label: formatDateLabel(weatherCheckDate), status: 'ready', forecast }
-            : { date: weatherCheckDate, label: formatDateLabel(weatherCheckDate), status: 'unavailable' },
+            ? {
+                date: weatherCheckDate,
+                label: formatDateLabel(weatherCheckDate),
+                status: 'ready',
+                forecast,
+              }
+            : {
+                date: weatherCheckDate,
+                label: formatDateLabel(weatherCheckDate),
+                status: 'unavailable',
+              },
         ])
       })
       .catch(() => {
         if (cancelled) return
         setForecastRows([
-          { date: weatherCheckDate, label: formatDateLabel(weatherCheckDate), status: 'error' },
+          {
+            date: weatherCheckDate,
+            label: formatDateLabel(weatherCheckDate),
+            status: 'error',
+          },
         ])
       })
     return () => {
@@ -218,11 +245,11 @@ export function MissionUpdatePanel({
 
   const handleSelectUncoveredChecklist = () => {
     const uncoveredIds = plan.coverage.uncoveredItemIds ?? []
-    const combined = Array.from(new Set([...initialAssignedIds, ...uncoveredIds]))
+    const combined = Array.from(
+      new Set([...initialAssignedIds, ...uncoveredIds]),
+    )
     setSelected(
-      combined.length > 0
-        ? combined
-        : orderChecklistItems.map((i) => i.id),
+      combined.length > 0 ? combined : orderChecklistItems.map((i) => i.id),
     )
     if (submit.kind === 'validationFailed') {
       setSubmit({ kind: 'idle' })
@@ -362,7 +389,11 @@ export function MissionUpdatePanel({
                           <input
                             className="odm-or-input"
                             readOnly
-                            value={mission.scopeLabel || mission.orderTitle || tu.scopeFallback}
+                            value={
+                              mission.scopeLabel ||
+                              mission.orderTitle ||
+                              tu.scopeFallback
+                            }
                           />
                         </div>
                       </div>
@@ -375,9 +406,22 @@ export function MissionUpdatePanel({
                           {tu.planInfo}
                         </h3>
                         <ul>
-                          <li>{tu.orderCode} <strong>{brief.code}</strong></li>
-                          <li>{tu.planStatus} <strong>{plan.planStatus} ({tu.planVersion(plan.revision)})</strong></li>
-                          <li>{tu.location} <strong>{brief.addressText || tu.locationFallback}</strong></li>
+                          <li>
+                            {tu.orderCode} <strong>{brief.code}</strong>
+                          </li>
+                          <li>
+                            {tu.planStatus}{' '}
+                            <strong>
+                              {plan.planStatus} ({tu.planVersion(plan.revision)}
+                              )
+                            </strong>
+                          </li>
+                          <li>
+                            {tu.location}{' '}
+                            <strong>
+                              {brief.addressText || tu.locationFallback}
+                            </strong>
+                          </li>
                         </ul>
                       </aside>
                     </div>
@@ -401,14 +445,18 @@ export function MissionUpdatePanel({
 
                     <FlightScheduleCard
                       durationText={durationText}
-                      forecastRows={forecastRows}
+                      canFillFromCustomer={Boolean(
+                        dateRangeFromBrief(brief)[0],
+                      )}
                       fillFromCustomer={fillFromCustomer}
                       scheduledStart={scheduledStart}
                       setScheduledStart={setScheduledStart}
                       scheduledEnd={scheduledEnd}
                       setScheduledEnd={setScheduledEnd}
                       submit={submit}
-                      scopeLabel={mission.scopeLabel || mission.missionCode || ''}
+                      scopeLabel={
+                        mission.scopeLabel || mission.missionCode || ''
+                      }
                     />
 
                     <MissionChecklistSelectionCard
@@ -420,7 +468,8 @@ export function MissionUpdatePanel({
                       onSelectUncovered={handleSelectUncoveredChecklist}
                       onDeselectAll={handleDeselectAllChecklist}
                       error={
-                        submit.kind === 'validationFailed' && selected.length === 0
+                        submit.kind === 'validationFailed' &&
+                        selected.length === 0
                           ? submit.message
                           : undefined
                       }
@@ -443,7 +492,9 @@ export function MissionUpdatePanel({
                     </span>
                     <span>
                       {submit.kind === 'validationFailed' ? (
-                        <strong className="odm-mcard-error-text">{submit.message}</strong>
+                        <strong className="odm-mcard-error-text">
+                          {submit.message}
+                        </strong>
                       ) : (
                         tu.actionHint
                       )}
@@ -477,4 +528,3 @@ export function MissionUpdatePanel({
     </>
   )
 }
-

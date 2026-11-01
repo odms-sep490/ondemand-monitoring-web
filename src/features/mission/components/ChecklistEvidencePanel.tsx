@@ -1,3 +1,5 @@
+import { ChecklistEvidencePicker } from './ChecklistEvidencePicker'
+import { useLanguage } from '../../../shared/i18n'
 import { useEffect, useRef, useState } from 'react'
 import {
   evidenceCountLabel,
@@ -93,6 +95,8 @@ function MissionEvidencePanel({
   refresh,
   loadCandidates,
   attachCandidate,
+  attachCandidates,
+  evidenceDetached,
   compact = false,
 }: {
   missionId: string
@@ -105,9 +109,36 @@ function MissionEvidencePanel({
     media: EvidenceCandidate,
     item: MissionChecklistExecution,
   ) => Promise<unknown>
+  attachCandidates?: (
+    media: EvidenceCandidate[],
+    item: MissionChecklistExecution,
+  ) => Promise<unknown>
+  evidenceDetached?: (executionId: string, mediaId: string) => Promise<void>
   /** Flat list layout for narrow side panels: no nested cards, one status per row. */
   compact?: boolean
 }) {
+  const { lang } = useLanguage()
+  async function detachEvidence(
+    link: NonNullable<MissionChecklistExecution['evidence']>[number],
+  ) {
+    if (
+      !window.confirm(
+        lang === 'vi'
+          ? 'Gỡ bằng chứng khỏi mục này? Hệ thống chỉ dọn file trên S3 khi không còn được sử dụng và không thuộc hồ sơ nghiệm thu cần giữ.'
+          : 'Remove this attachment? S3 cleanup only applies to unused draft files that are not retained in a result.',
+      )
+    )
+      return
+    await act(async () => {
+      await checklistEvidenceApi.detach(
+        missionId,
+        item.id,
+        link.evidenceId,
+        item.version,
+      )
+      await evidenceDetached?.(item.id, link.mediaId)
+    })
+  }
   const [candidates, setCandidates] = useState<EvidenceCandidate[] | null>(null)
   const [page, setPage] = useState(0)
   const [query, setQuery] = useState('')
@@ -152,6 +183,10 @@ function MissionEvidencePanel({
     }
   }
   async function load(nextPage: number) {
+    if (attachCandidates) {
+      setPickerOpen(true)
+      return
+    }
     request.current.abort?.abort()
     const abort = new AbortController()
     const number = ++request.current.number
@@ -278,16 +313,7 @@ function MissionEvidencePanel({
                           <button
                             type="button"
                             disabled={busy}
-                            onClick={() =>
-                              void act(() =>
-                                checklistEvidenceApi.detach(
-                                  missionId,
-                                  item.id,
-                                  link.evidenceId,
-                                  item.version,
-                                ),
-                              )
-                            }
+                            onClick={() => void detachEvidence(link)}
                           >
                             Gỡ bằng chứng
                           </button>
@@ -410,16 +436,7 @@ function MissionEvidencePanel({
                         type="button"
                         className="odm-btn"
                         disabled={busy}
-                        onClick={() =>
-                          void act(() =>
-                            checklistEvidenceApi.detach(
-                              missionId,
-                              item.id,
-                              link.evidenceId,
-                              item.version,
-                            ),
-                          )
-                        }
+                        onClick={() => void detachEvidence(link)}
                       >
                         Gỡ bằng chứng
                       </button>
@@ -444,7 +461,23 @@ function MissionEvidencePanel({
           )}
         </>
       )}
+      {canAttach && attachCandidates && (
+        <ChecklistEvidencePicker
+          missionId={missionId}
+          open={pickerOpen}
+          requiredType={item.requiredEvidenceType}
+          executionId={item.id}
+          alreadyAttached={(item.evidence ?? []).map((link) => link.mediaId)}
+          loadCandidates={loadCandidates}
+          onClose={closePicker}
+          onSelect={async (selected) => {
+            await attachCandidates(selected, item)
+            refresh()
+          }}
+        />
+      )}
       {canAttach &&
+        !attachCandidates &&
         pickerOpen &&
         createPortal(
           <div

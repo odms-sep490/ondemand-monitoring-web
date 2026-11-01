@@ -40,7 +40,7 @@ describe('DashboardPage', () => {
     render(<DashboardPage />)
     await screen.findByText('Tổng số đơn')
     expect(within(stat('Tổng số đơn')).getByText('9')).toBeInTheDocument()
-    // Seed: SUBMITTED, AI_ANALYZED and DRAFT all map to the BE status PENDING.
+    // Legacy draft/submitted statuses map to the BE status PENDING.
     expect(within(stat('Chờ duyệt')).getByText('3')).toBeInTheDocument()
     expect(within(stat('Đang thực hiện')).getByText('1')).toBeInTheDocument()
     expect(within(stat('Hoàn thành')).getByText('1')).toBeInTheDocument()

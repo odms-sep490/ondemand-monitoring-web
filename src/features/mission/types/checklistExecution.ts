@@ -14,7 +14,11 @@ export type MissionChecklistExecution = {
   inputRequirements?: string[] | null
   expectedOutputs?: string[] | null
   displayOrder: number
-  sourceType: 'SERVICE_TEMPLATE' | 'CUSTOMER_CUSTOM'
+  sourceType: 'SERVICE_TEMPLATE' | 'CUSTOMER_SELECTED' | 'CUSTOMER_CUSTOM'
+  checklistRevision?: number
+  guidanceVersion?: number
+  guidanceConfirmedVersion?: number | null
+  guidanceReady?: boolean
   executionStatus: ChecklistExecutionStatus
   assessmentStatus: ChecklistAssessmentStatus
   observation: string | null

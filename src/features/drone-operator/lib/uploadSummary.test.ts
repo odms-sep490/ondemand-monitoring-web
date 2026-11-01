@@ -57,4 +57,16 @@ describe('uploadSummary', () => {
     expect(summary.isEmpty).toBe(true)
     expect(summary.isDone).toBe(false)
   })
+
+  it('counts server-accepted files as uploaded while preserving review outcomes', () => {
+    const summary = uploadSummary([
+      file({ id: 'validating', status: 'VALIDATING' }),
+      file({ id: 'pending-review', status: 'PENDING_MANAGER_APPROVAL' }),
+      file({ id: 'approved', status: 'AVAILABLE' }),
+      file({ id: 'rejected', status: 'REJECTED' }),
+    ])
+
+    expect(summary.nUploaded).toBe(4)
+    expect(summary.isDone).toBe(true)
+  })
 })

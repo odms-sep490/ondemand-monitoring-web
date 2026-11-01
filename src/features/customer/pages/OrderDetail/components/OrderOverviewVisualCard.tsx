@@ -19,7 +19,8 @@ function ReadonlyOrderMap({
   const container = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (!container.current || order.latitude == null || order.longitude == null) return
+    if (!container.current || order.latitude == null || order.longitude == null)
+      return
     const center: L.LatLngExpression = [order.latitude, order.longitude]
     const map = L.map(container.current, {
       attributionControl: false,
@@ -78,23 +79,40 @@ function ReadonlyOrderMap({
       fillColor: '#0958d9',
       fillOpacity: 1,
     }).addTo(map)
-    if (order.radiusM) map.fitBounds(area.getBounds(), { padding: [28, 28], maxZoom: 16 })
+    if (order.radiusM)
+      map.fitBounds(area.getBounds(), { padding: [28, 28], maxZoom: 16 })
     window.setTimeout(() => map.invalidateSize(), 0)
     return (): void => {
       map.remove()
     }
-  }, [layerLabels.satellite, layerLabels.street, order.latitude, order.longitude, order.radiusM])
+  }, [
+    layerLabels.satellite,
+    layerLabels.street,
+    order.latitude,
+    order.longitude,
+    order.radiusM,
+  ])
 
-  return <div ref={container} className="od-order-map" aria-label={layerLabels.street === 'Map' ? 'Monitoring area map' : 'Bản đồ khu vực giám sát'} />
+  return (
+    <div
+      ref={container}
+      className="od-order-map"
+      role="region"
+      aria-label={
+        layerLabels.street === 'Map'
+          ? 'Monitoring area map'
+          : 'Bản đồ khu vực giám sát'
+      }
+    />
+  )
 }
 
 export function OrderOverviewVisualCard({ order }: { order: OrderDetailView }) {
   const { lang } = useLanguage()
   const en = lang === 'en'
-  const layerLabels =
-    en
-      ? { street: 'Map', satellite: 'Satellite' }
-      : { street: 'Bản đồ', satellite: 'Vệ tinh' }
+  const layerLabels = en
+    ? { street: 'Map', satellite: 'Satellite' }
+    : { street: 'Bản đồ', satellite: 'Vệ tinh' }
   const services = useApiQuery((signal) => customerApi.listServices(signal), [])
   const service = useMemo(
     () => services.data?.find((item) => item.id === order.serviceId),
@@ -111,10 +129,19 @@ export function OrderOverviewVisualCard({ order }: { order: OrderDetailView }) {
   )
 
   return (
-    <section className="od-overview-visual" aria-label={en ? 'Service and location overview' : 'Tổng quan dịch vụ và vị trí'}>
+    <section
+      className="od-overview-visual"
+      aria-label={
+        en ? 'Service and location overview' : 'Tổng quan dịch vụ và vị trí'
+      }
+    >
       <div className="od-service-hero">
         {image ? (
-          <img src={image} alt="" onError={() => setFailed((items) => [...items, image])} />
+          <img
+            src={image}
+            alt=""
+            onError={() => setFailed((items) => [...items, image])}
+          />
         ) : (
           <div className="od-service-placeholder" aria-hidden="true">
             <OrderIcon name="drone" size={34} />
@@ -132,12 +159,26 @@ export function OrderOverviewVisualCard({ order }: { order: OrderDetailView }) {
         ) : (
           <div className="od-map-empty">
             <OrderIcon name="pin" size={24} />
-            <span>{en ? 'This order has no monitoring-area coordinates yet.' : 'Đơn hàng chưa có tọa độ khu vực giám sát.'}</span>
+            <span>
+              {en
+                ? 'This order has no monitoring-area coordinates yet.'
+                : 'Đơn hàng chưa có tọa độ khu vực giám sát.'}
+            </span>
           </div>
         )}
         <div className="od-map-caption">
-          <strong>{order.address || (en ? 'Monitoring location' : 'Vị trí giám sát')}</strong>
-          <span>{order.radiusM != null ? (en ? `Radius ${order.radiusM} m` : `Phạm vi ${order.radiusM} m`) : en ? 'No radius' : 'Chưa có bán kính'}</span>
+          <strong>
+            {order.address || (en ? 'Monitoring location' : 'Vị trí giám sát')}
+          </strong>
+          <span>
+            {order.radiusM != null
+              ? en
+                ? `Radius ${order.radiusM} m`
+                : `Phạm vi ${order.radiusM} m`
+              : en
+                ? 'No radius'
+                : 'Chưa có bán kính'}
+          </span>
         </div>
       </div>
     </section>

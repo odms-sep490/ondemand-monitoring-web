@@ -59,7 +59,6 @@ export function DeliverablesCard({ order }: { order: OrderDetailView }) {
                   </div>
                 ))}
               </dl>
-              {item.aiAnalysisRequested && <p className="od-hint">{t.aiAnalysis}</p>}
             </li>
           ))}
         </ul>

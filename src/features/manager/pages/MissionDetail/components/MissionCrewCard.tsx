@@ -1,7 +1,6 @@
 import { OrderIcon } from '../../../components/common/OrderIcon'
 import {
   initialsOf,
-  groupStaffAssignments,
   STAFF_ROLE_LABELS,
   assignmentTone,
   STAFF_RESPONSE_LABELS,
@@ -10,144 +9,173 @@ import { flightPermitCardMessages } from '../../../components/common/FlightPermi
 import { missionDetailPageMessages } from '../MissionDetailPage.messages'
 import { useI18n } from '../../../../../shared/i18n'
 import {
-  Card,
   EmptyState,
   StatusBadge,
 } from '../../../../../shared/components/ui'
-import type { ReactNode } from 'react'
 import type {
   FlightPermitStatus,
   MissionStaffAssignmentResponse,
 } from '../../../types/missions'
 
-/** Sticky sidebar: mission info, crew & device, flight permit and the delivery panel. */
+/** A compact mission context row that keeps secondary operational detail available. */
 export function MissionCrewCard({
   rows,
   note,
   staff,
+  accepted,
   deviceCode,
   deviceLabel,
   permitStatus,
   permitNote,
-  children,
 }: {
   rows: { label: string; value: string }[]
   note: string | null
   staff: MissionStaffAssignmentResponse[]
+  accepted: number
   deviceCode: string | null
   deviceLabel: string
   permitStatus: FlightPermitStatus
   permitNote?: string | null
-  /** Extra sidebar cards, e.g. the customer delivery panel. */
-  children?: ReactNode
 }) {
   const { t } = useI18n(missionDetailPageMessages)
   const { t: permit } = useI18n(flightPermitCardMessages)
-  const staffGroups = groupStaffAssignments(staff)
-  const accepted = staffGroups.filter(
-    (group) => group.responseStatus === 'ACCEPTED',
-  ).length
-  return (
-    <aside className="mgr-detail-side">
-      <Card title={t.infoCard}>
-        <dl className="mgr-kv">
-          {rows.map((row) => (
-            <div className="mgr-kv-row" key={row.label}>
-              <dt>{row.label}</dt>
-              <dd>{row.value}</dd>
-            </div>
-          ))}
-        </dl>
-        {note ? <p className="odm-or-detail-note">{note}</p> : null}
-      </Card>
+  const scheduledStart =
+    rows.find((row) => row.label === t.fields.scheduledStart)?.value ?? '—'
+  const scheduledEnd =
+    rows.find((row) => row.label === t.fields.scheduledEnd)?.value ?? '—'
 
-      <Card
-        title={t.crewCard}
-        actions={
-          staffGroups.length > 0 ? (
-            <span className="odm-or-crew-count">
-              {t.crewAccepted(accepted, staffGroups.length)}
-            </span>
-          ) : undefined
-        }
-      >
-        {staffGroups.length > 0 ? (
-          <progress
-            className="mgr-plan-progress"
-            max={staffGroups.length}
-            value={accepted}
-            aria-hidden="true"
-          />
-        ) : null}
-        {deviceCode || staffGroups.length > 0 ? (
-          <ul className="odm-or-crew-list">
-            {deviceCode ? (
-              <li className="odm-or-crew-item">
-                <span className="odm-or-crew-avatar is-device">
-                  <OrderIcon name="drone" size={16} />
+  return (
+    <details className="mgr-md-context">
+      <summary className="mgr-md-context-summary">
+        <span className="mgr-md-context-title">{t.contextCard}</span>
+        <span className="mgr-md-context-meta">
+          <span>
+            {t.fields.schedule}: {scheduledStart} – {scheduledEnd}
+          </span>
+          <span>{deviceLabel}</span>
+          {staff.length > 0 ? (
+            <span>{t.crewAccepted(accepted, staff.length)}</span>
+          ) : null}
+          <StatusBadge
+            tone={
+              permitStatus === 'APPROVED'
+                ? 'success'
+                : permitStatus === 'REJECTED'
+                  ? 'danger'
+                  : 'warning'
+            }
+          >
+            {permit.statuses[permitStatus]}
+          </StatusBadge>
+        </span>
+        <span className="mgr-md-context-chevron" aria-hidden="true" />
+      </summary>
+
+      <div className="mgr-md-context-body">
+        <section className="mgr-md-context-section mgr-md-context-info">
+          <h2>{t.infoCard}</h2>
+          <dl className="mgr-md-context-kv">
+            {rows.map((row) => (
+              <div className="mgr-kv-row" key={row.label}>
+                <dt>{row.label}</dt>
+                <dd>{row.value}</dd>
+              </div>
+            ))}
+          </dl>
+          {note ? (
+            <p className="mgr-md-context-note">
+              <strong>{t.notes}:</strong> {note}
+            </p>
+          ) : null}
+        </section>
+
+        <div className="mgr-md-context-support">
+          <section className="mgr-md-context-section">
+            <div className="mgr-md-context-section-head">
+              <h2>{t.crewCard}</h2>
+              {staff.length > 0 ? (
+                <span className="odm-or-crew-count">
+                  {t.crewAccepted(accepted, staff.length)}
                 </span>
-                <span className="odm-or-crew-main">
-                  <span className="odm-or-crew-role">{t.crewDevice}</span>
-                  <strong>{deviceLabel}</strong>
-                </span>
-              </li>
+              ) : null}
+            </div>
+            {staff.length > 0 ? (
+              <progress
+                className="mgr-plan-progress"
+                max={staff.length}
+                value={accepted}
+                aria-label={t.crewAccepted(accepted, staff.length)}
+              />
             ) : null}
-            {staffGroups.map((group) => {
-              const name =
-                group.staffName ??
-                group.staffEmail ??
-                group.staffId
-              return (
-                <li key={group.staffId} className="odm-or-crew-item">
-                  <span className="odm-or-crew-avatar" aria-hidden="true">
-                    {initialsOf(name)}
-                  </span>
-                  <span className="odm-or-crew-main">
-                    <strong>{name}</strong>
-                    {group.staffEmail && group.staffName ? (
-                      <small>{group.staffEmail}</small>
-                    ) : null}
-                    <span className="odm-or-crew-roles">
-                      {group.assignments.map((assignment) => (
-                        <span key={assignment.id}>
+            {deviceCode || staff.length > 0 ? (
+              <ul className="odm-or-crew-list mgr-md-crew-list">
+                {deviceCode ? (
+                  <li className="odm-or-crew-item">
+                    <span className="odm-or-crew-avatar is-device">
+                      <OrderIcon name="drone" size={16} />
+                    </span>
+                    <span className="odm-or-crew-main">
+                      <span className="odm-or-crew-role">{t.crewDevice}</span>
+                      <strong>{deviceLabel}</strong>
+                    </span>
+                  </li>
+                ) : null}
+                {staff.map((assignment) => {
+                  const name =
+                    assignment.staffName ??
+                    assignment.staffEmail ??
+                    assignment.staffId
+                  return (
+                    <li key={assignment.id} className="odm-or-crew-item">
+                      <span className="odm-or-crew-avatar" aria-hidden="true">
+                        {initialsOf(name)}
+                      </span>
+                      <span className="odm-or-crew-main">
+                        <span className="odm-or-crew-role">
                           {STAFF_ROLE_LABELS[assignment.assignedRole]}
                         </span>
-                      ))}
-                    </span>
-                  </span>
-                  <span
-                    className={`odm-or-pill odm-or-pill-${assignmentTone(
-                      group.responseStatus,
-                    )}`}
-                  >
-                    {STAFF_RESPONSE_LABELS[group.responseStatus]}
-                  </span>
-                </li>
-              )
-            })}
-          </ul>
-        ) : (
-          <EmptyState title={t.crewEmpty} />
-        )}
-      </Card>
+                        <strong>{name}</strong>
+                        {assignment.staffEmail && assignment.staffName ? (
+                          <small>{assignment.staffEmail}</small>
+                        ) : null}
+                      </span>
+                      <span
+                        className={`odm-or-pill odm-or-pill-${assignmentTone(
+                          assignment.responseStatus,
+                        )}`}
+                      >
+                        {STAFF_RESPONSE_LABELS[assignment.responseStatus]}
+                      </span>
+                    </li>
+                  )
+                })}
+              </ul>
+            ) : (
+              <EmptyState title={t.crewEmpty} />
+            )}
+          </section>
 
-      <Card title={t.permitCard}>
-        <dl className="mgr-kv">
-          <div className="mgr-kv-row">
-            <dt>{t.permitCard}</dt>
-            <dd>
+          <section className="mgr-md-context-section mgr-md-permit">
+            <div className="mgr-md-context-section-head">
+              <h2>{t.permitCard}</h2>
               <StatusBadge
-                tone={permitStatus === 'APPROVED' ? 'success' : 'warning'}
+                tone={
+                  permitStatus === 'APPROVED'
+                    ? 'success'
+                    : permitStatus === 'REJECTED'
+                      ? 'danger'
+                      : 'warning'
+                }
               >
                 {permit.statuses[permitStatus]}
               </StatusBadge>
-            </dd>
-          </div>
-        </dl>
-        {permitNote ? <p className="odm-or-detail-note">{permitNote}</p> : null}
-      </Card>
-
-      {children}
-    </aside>
+            </div>
+            {permitNote ? (
+              <p className="mgr-md-context-note">{permitNote}</p>
+            ) : null}
+          </section>
+        </div>
+      </div>
+    </details>
   )
 }

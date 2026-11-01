@@ -91,11 +91,14 @@ export function OrderServiceInfo({
   order,
   t,
   hideService = false,
+  hideEmpty = false,
 }: {
   order: OrderDetail
   t: OrderReviewMessages
   /** Skip the service tile when a banner above already shows it. */
   hideService?: boolean
+  /** Hide optional fields with no value in compact, read-only order previews. */
+  hideEmpty?: boolean
 }) {
   const areaHa = estimatedAreaHa(order.radiusM)
   const preferred =
@@ -132,6 +135,9 @@ export function OrderServiceInfo({
       value: areaHa != null ? `${areaHa} ha` : '—',
     },
   )
+  const visibleTiles = hideEmpty
+    ? tiles.filter((tile) => tile.value !== '—' && tile.value != null)
+    : tiles
   return (
     <section className="odm-or-card">
       <header className="odm-or-card-head">
@@ -141,38 +147,42 @@ export function OrderServiceInfo({
         </span>
       </header>
       <div className="odm-or-card-body odm-or-cq">
-        <dl className="odm-or-svc-grid">
-          <div className="odm-or-svc-time">
-            <span className="odm-or-svc-ico" aria-hidden="true">
-              <OrderIcon name="calendar" size={30} />
-            </span>
-            <div className="odm-or-svc-tile-text">
-              <dt>{t.preferredWindow}</dt>
-              <dd>
-                {preferred ? (
-                  <>
-                    {preferred
-                      .split(' · ')[0]
-                      .split(/\s*→\s*/)
-                      .map((part, i) => (
-                        <span className="odm-or-svc-date" key={i}>
-                          {i > 0 ? `→ ${part}` : part}
+        <dl
+          className={`odm-or-svc-grid${!preferred && hideEmpty ? ' has-no-time' : ''}`}
+        >
+          {preferred || !hideEmpty ? (
+            <div className="odm-or-svc-time">
+              <span className="odm-or-svc-ico" aria-hidden="true">
+                <OrderIcon name="calendar" size={30} />
+              </span>
+              <div className="odm-or-svc-tile-text">
+                <dt>{t.preferredWindow}</dt>
+                <dd>
+                  {preferred ? (
+                    <>
+                      {preferred
+                        .split(' · ')[0]
+                        .split(/\s*→\s*/)
+                        .map((part, i) => (
+                          <span className="odm-or-svc-date" key={i}>
+                            {i > 0 ? `→ ${part}` : part}
+                          </span>
+                        ))}
+                      {preferred.includes(' · ') ? (
+                        <span className="odm-or-svc-period">
+                          {preferred.split(' · ').slice(1).join(' · ')}
                         </span>
-                      ))}
-                    {preferred.includes(' · ') ? (
-                      <span className="odm-or-svc-period">
-                        {preferred.split(' · ').slice(1).join(' · ')}
-                      </span>
-                    ) : null}
-                  </>
-                ) : (
-                  '—'
-                )}
-              </dd>
+                      ) : null}
+                    </>
+                  ) : (
+                    '—'
+                  )}
+                </dd>
+              </div>
             </div>
-          </div>
+          ) : null}
           <div className="odm-or-svc-tiles">
-            {tiles.map((tile) => (
+            {visibleTiles.map((tile) => (
               <InfoTileCard
                 key={tile.label}
                 tile={tile}

@@ -162,9 +162,7 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
         openStage={openStage}
         goToStep={goToStep}
         planning={planning}
-        viewMissionStage={
-          planning?.isFinalized && activeWorkflowTab === 'permit' ? 'permit' : null
-        }
+        viewMissionStage={activeWorkflowTab === 'permit' ? 'permit' : null}
         onSelectMissionStage={(stage) => {
           if (stage === 'permit') {
             setViewStage(null)
@@ -190,7 +188,11 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
         <ReadonlyBanner setViewStage={setViewStage} />
       )}
       {reviewing ? (
-        <ReviewLayout order={order} wide={reviewStep === 4}>
+        <ReviewLayout
+          order={order}
+          wide={reviewStep === 4}
+          reviewStep={reviewStep}
+        >
           {reviewing && reviewStep === 1 ? (
             <ReviewStageRequest
               readOnly={readOnly}

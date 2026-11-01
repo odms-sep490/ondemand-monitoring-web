@@ -1,7 +1,35 @@
+import type { ChecklistGuidanceData } from '../../shared/components/ChecklistGuidance'
+
+export type ChecklistGuidanceSnapshot = {
+  schemaVersion: 1
+  items: Array<
+    ChecklistGuidanceData & {
+      itemId: string
+      checklistRevision: number
+      guidanceVersion: number
+    }
+  >
+}
+
+export type ChecklistGuidanceRequest = {
+  expectedChecklistRevision: number
+  expectedGuidanceVersion: number
+  description: string | null
+  executionSteps: string[]
+  inputRequirements: string[]
+  expectedOutputs: string[]
+  confirm: boolean
+}
+
 export type ChecklistReviewStatus =
   'PENDING' | 'INCLUDED' | 'ADDITIONAL' | 'DUPLICATE' | 'REJECTED'
 
-export type PricingChecklistItem = {
+export type PricingChecklistItem = ChecklistGuidanceData & {
+  guidanceVersion?: number
+  guidanceConfirmedVersion?: number | null
+  guidanceReady?: boolean
+  canEditGuidance?: boolean
+  guidanceBlockedReason?: string | null
   id: string
   sourceChecklistId: string | null
   content: string
@@ -20,6 +48,9 @@ export type PricingChecklistItem = {
   requestedImageCount?: number
   requestedVideoCount?: number
   difficultySnapshot?: 'BASIC' | 'MEDIUM' | 'HARD' | 'VERY_HARD'
+  checklistRevision?: number
+  required?: boolean
+  sourceChecklistVersion?: number | null
 }
 
 export type PricingCategory =
@@ -68,6 +99,8 @@ export type Quote = {
   approvedByName: string | null
   approvedAt: string | null
   acceptedAt: string | null
+  checklistRevision?: number
+  checklistGuidanceSnapshot?: ChecklistGuidanceSnapshot | null
   items: QuoteItem[]
   pricingPolicyId?: string
   pricingPolicyVersion?: number
@@ -111,6 +144,8 @@ export type CustomerQuote = {
   pricingFinalized: boolean
   approvedAt: string | null
   acceptedAt: string | null
+  checklistRevision?: number
+  checklistGuidanceSnapshot?: ChecklistGuidanceSnapshot | null
   items: QuoteItem[]
 }
 
@@ -177,4 +212,5 @@ export type PricingReview = {
   currentManagerId?: string
   managerMaxDiscountPercent?: number | null
   managerMaxMarkupPercent?: number | null
+  checklistRevision?: number
 }

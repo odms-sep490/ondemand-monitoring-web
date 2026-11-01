@@ -1,12 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
 import {
-  aiVerdictLabel,
-  aiVerdictTone,
   droneStatusLabel,
   droneStatusTone,
-  findingSeverityLabel,
-  findingSeverityTone,
   getDroneStatusLabel,
   getMediaStatusLabel,
   getMissionStatusLabel,
@@ -22,9 +18,7 @@ import {
   ticketSeverityTone,
 } from './statusTone'
 import type {
-  AiVerdict,
   DroneStatus,
-  FindingSeverity,
   MediaStatus,
   MissionStatus,
   OrderStatus,
@@ -86,8 +80,6 @@ const DRONE_STATUSES: DroneStatus[] = [
   'OFFLINE',
 ]
 
-const AI_VERDICTS: AiVerdict[] = ['FEASIBLE', 'RISKY', 'INFEASIBLE']
-const FINDING_SEVERITIES: FindingSeverity[] = ['INFO', 'WARNING', 'BLOCKER']
 const TICKET_SEVERITIES: TicketSeverity[] = [
   'LOW',
   'MEDIUM',
@@ -130,22 +122,6 @@ describe('statusTone maps', () => {
     },
   )
 
-  it.each(AI_VERDICTS)(
-    'maps AiVerdict.%s to a valid tone + label',
-    (verdict) => {
-      expect(VALID_TONES).toContain(aiVerdictTone[verdict])
-      expect(aiVerdictLabel[verdict]).toBeTruthy()
-    },
-  )
-
-  it.each(FINDING_SEVERITIES)(
-    'maps FindingSeverity.%s to a valid tone + label',
-    (severity) => {
-      expect(VALID_TONES).toContain(findingSeverityTone[severity])
-      expect(findingSeverityLabel[severity]).toBeTruthy()
-    },
-  )
-
   it.each(TICKET_SEVERITIES)(
     'maps TicketSeverity.%s to a valid tone + label',
     (severity) => {
@@ -177,9 +153,6 @@ describe('statusTone maps', () => {
     expect(droneStatusTone.AVAILABLE).toBe('green')
     expect(droneStatusTone.MAINTENANCE).toBe('orange')
 
-    expect(aiVerdictTone.RISKY).toBe('orange')
-    expect(findingSeverityTone.WARNING).toBe('orange')
-    expect(findingSeverityTone.BLOCKER).toBe('red')
     expect(mediaStatusTone.MANUAL_REQUIRED).toBe('orange')
     expect(mediaStatusTone.VALIDATION_FAILED).toBe('red')
     expect(mediaStatusTone.UPLOADING).toBe('blue')

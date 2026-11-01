@@ -12,7 +12,6 @@ import type { FormState } from '../../../lib/createOrder/types'
  */
 export function useCreateOrderMeta(
   serviceId: string,
-  _aiAnalysisRequested: boolean,
   setForm: Dispatch<SetStateAction<FormState>>,
 ) {
   const base = useApiQuery(

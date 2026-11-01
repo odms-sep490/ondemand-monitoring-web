@@ -52,6 +52,37 @@ const props = {
 afterEach(() => vi.restoreAllMocks())
 
 describe('MonitoringChecklistSection', () => {
+  it('renders all accepted guidance sections from the mission response without edit controls', () => {
+    render(
+      <MonitoringChecklistSection
+        {...props}
+        canExecute={false}
+        data={{
+          ...data,
+          executions: [
+            {
+              ...item,
+              sourceType: 'CUSTOMER_CUSTOM',
+              guidanceVersion: 4,
+              description: 'Accepted scope',
+              executionSteps: ['Accepted steps'],
+              inputRequirements: ['Accepted inputs'],
+              expectedOutputs: ['Accepted outputs'],
+            },
+          ],
+        }}
+      />,
+    )
+    for (const text of [
+      'Accepted scope',
+      'Accepted steps',
+      'Accepted inputs',
+      'Accepted outputs',
+    ])
+      expect(screen.getByText(text)).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Soạn hướng dẫn' })).toBeNull()
+  })
+
   it.each([401, 403, 404, 409, 500])(
     'localizes API failure %s without showing diagnostics',
     (status) => {
@@ -343,7 +374,9 @@ describe('MonitoringChecklistSection', () => {
     fireEvent.click(
       screen.getByText('Dùng dữ liệu mới (bỏ chỉnh sửa chưa lưu)'),
     )
-    expect(screen.getByLabelText('Ghi nhận thực hiện')).toHaveValue('Mới từ server')
+    expect(screen.getByLabelText('Ghi nhận thực hiện')).toHaveValue(
+      'Mới từ server',
+    )
   })
   it.each(['DRAFT', 'REJECTED'] as const)(
     '%s allows capability-driven editing',

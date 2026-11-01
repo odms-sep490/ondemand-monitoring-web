@@ -31,7 +31,7 @@ export function MissionDetailHeader({
           <MissionStatusTag mission={mission} />
         </span>
       }
-      description={headline ?? t.noDescription}
+      description={headline ?? undefined}
       actions={
         <>
           <Button href={managerHref({ screen: 'orderReview', orderId: mission.orderId })}>

@@ -1,12 +1,19 @@
 import type { OperatorMission } from '../../../types/mission'
 import type { MissionPermissions } from '../../../../mission/types/permissions'
-import { type ReactNode, useState, useEffect } from 'react'
+import {
+  type KeyboardEvent,
+  type ReactNode,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import type { MissionResultApprovalStatus } from '../../../../mission/types/mission'
 import type {
   RuntimePreflightStatus,
   WeatherPreflightStatus,
   PostflightCheckStatus,
 } from '../types'
+import { Icon } from '../../../../../shared/components/Icon'
 import {
   readStoredPreflightState,
   readStoredWeatherState,
@@ -16,7 +23,6 @@ import {
 } from '../checkData'
 import { isAwaitingResponse } from '../missionResponse'
 import { MissionHeader } from './MissionHeader'
-import { formatVnDate, locationLabel } from '../missionFormat'
 import { DecisionSummary } from './DecisionSummary'
 import { MissionMapCard } from './MissionMapCard'
 import { MissionInfoCard } from './MissionInfoCard'
@@ -26,6 +32,10 @@ import { PrecheckCard } from './PrecheckCard'
 import { WeatherCard } from './WeatherCard'
 import { PostcheckCard } from './PostcheckCard'
 import { MissionUploadedMedia } from '../../../../media/components/MissionUploadedMedia'
+import { useI18n } from '../../../../../shared/i18n'
+import { missionDetailPageMessages } from '../MissionDetailPage.messages'
+
+type MissionTab = 'overview' | 'checklist' | 'checks' | 'media'
 
 // ─── Dashboard shell ──────────────────────────────────────────────────────────
 
@@ -34,6 +44,8 @@ export function MissionDashboard({
   submitting,
   actionError,
   access,
+  responseAccessLoading = false,
+  responseAccessError = false,
   resultActions,
   monitoringSection,
   resultApprovalStatus,
@@ -47,6 +59,8 @@ export function MissionDashboard({
   submitting: boolean
   actionError: string | null
   access?: MissionPermissions
+  responseAccessLoading?: boolean
+  responseAccessError?: boolean
   resultActions: ReactNode
   monitoringSection: ReactNode
   resultApprovalStatus: MissionResultApprovalStatus | null
@@ -56,6 +70,7 @@ export function MissionDashboard({
   onStartWorkflow: () => void
   onOpenReject: () => void
 }) {
+  const { t } = useI18n(missionDetailPageMessages)
   const deviceId = mission.deviceId
   const [preflightStatus, setPreflightStatus] =
     useState<RuntimePreflightStatus | null>(() =>
@@ -67,19 +82,43 @@ export function MissionDashboard({
     )
   const [postflightStatus, setPostflightStatus] =
     useState<PostflightCheckStatus | null>(null)
-  const [tab, setTab] = useState<'overview' | 'checks' | 'media'>('overview')
+  const [tab, setTab] = useState<MissionTab>('overview')
+  const tabButtonRefs = useRef<Array<HTMLButtonElement | null>>([])
   const canViewMissionMedia =
     access?.canInspectDevice === true ||
     access?.canUploadMedia === true ||
     mission.status === 'COMPLETED' ||
     mission.backendStatus === 'PENDING_REVIEW'
-  const tabs: Array<{ id: 'overview' | 'checks' | 'media'; label: string }> = [
+  const tabs: Array<{ id: MissionTab; label: string }> = [
     { id: 'overview', label: 'Tổng quan' },
-    { id: 'checks', label: 'Kết quả kiểm tra thiết bị' },
+    { id: 'checklist', label: 'Checklist' },
+    { id: 'checks', label: 'Kiểm tra thiết bị' },
     ...(canViewMissionMedia
       ? [{ id: 'media' as const, label: 'Ảnh & video' }]
       : []),
   ]
+
+  useEffect(() => {
+    if (!canViewMissionMedia && tab === 'media') setTab('overview')
+  }, [canViewMissionMedia, tab])
+
+  const handleTabKeyDown = (
+    event: KeyboardEvent<HTMLButtonElement>,
+    index: number,
+  ) => {
+    let nextIndex: number | null = null
+    if (event.key === 'ArrowRight') nextIndex = (index + 1) % tabs.length
+    if (event.key === 'ArrowLeft')
+      nextIndex = (index - 1 + tabs.length) % tabs.length
+    if (event.key === 'Home') nextIndex = 0
+    if (event.key === 'End') nextIndex = tabs.length - 1
+    if (nextIndex == null) return
+
+    event.preventDefault()
+    const nextTab = tabs[nextIndex]
+    setTab(nextTab.id)
+    tabButtonRefs.current[nextIndex]?.focus()
+  }
 
   useEffect(() => {
     setPreflightStatus(readStoredPreflightState(mission.id, deviceId))
@@ -112,29 +151,26 @@ export function MissionDashboard({
 
   if (isAwaitingResponse(mission)) {
     return (
-      <div className="mds-pending">
+      <div className="mds-dashboard mds-pending">
         <MissionHeader mission={mission} access={access} />
-        <p className="mds-meta-line">
-          {[
-            mission.serviceLabel,
-            [formatVnDate(mission.date), mission.startTime]
-              .filter(Boolean)
-              .join(' · '),
-            locationLabel(mission.location),
-          ]
-            .filter(Boolean)
-            .join(' · ')}
-        </p>
         <DecisionSummary mission={mission} />
         <div
           className="mds-action-bar"
-          role="region"
-          aria-label="Phản hồi nhiệm vụ"
+          role="group"
+          aria-labelledby="mission-response-heading"
         >
           <div className="mds-action-bar-text">
-            Bạn có muốn nhận nhiệm vụ này?
-            {!access?.canRespond && (
-              <small>Bạn chưa có quyền phản hồi nhiệm vụ này.</small>
+            <h2 id="mission-response-heading" className="mds-card-heading">
+              Bạn có muốn nhận nhiệm vụ này?
+            </h2>
+            {access?.canRespond !== true && (
+              <small>
+                {responseAccessLoading
+                  ? t.responseAccessLoading
+                  : responseAccessError
+                    ? t.responseAccessError
+                    : t.responseAccessDenied}
+              </small>
             )}
           </div>
           <div className="mds-action-bar-buttons">
@@ -142,7 +178,7 @@ export function MissionDashboard({
               type="button"
               className="odm-btn odm-btn-rd"
               onClick={onOpenReject}
-              disabled={submitting || !access?.canRespond}
+              disabled={submitting || access?.canRespond !== true}
             >
               Từ chối
             </button>
@@ -150,9 +186,9 @@ export function MissionDashboard({
               type="button"
               className="odm-btn odm-btn-p"
               onClick={onAccept}
-              disabled={submitting || !access?.canRespond}
+              disabled={submitting || access?.canRespond !== true}
             >
-              {submitting ? 'Đang xử lý...' : '✓ Chấp nhận nhiệm vụ'}
+              {submitting ? 'Đang xử lý...' : 'Chấp nhận nhiệm vụ'}
             </button>
           </div>
         </div>
@@ -172,32 +208,34 @@ export function MissionDashboard({
             {actionError}
           </div>
         ) : null}
-        <MissionMapCard mission={mission} />
-        <div className="mds-tab-grid" style={{ marginTop: 16 }}>
-          <div className="mds-col">
-            <MissionInfoCard mission={mission} />
+        <div className="mds-pending-grid">
+          <div className="mds-col mds-pending-primary">
+            <MissionMapCard mission={mission} />
+            <details className="odm-card mds-pending-checklist">
+              <summary>
+                <span>Checklist thực hiện</span>
+                <small>
+                  <Icon name="lock" width={14} height={14} aria-hidden="true" />
+                  Checklist chỉ đọc trước khi nhận nhiệm vụ. Bấm để xem trước.
+                </small>
+              </summary>
+              <div className="mds-pending-checklist-body">
+                {monitoringSection}
+              </div>
+            </details>
+          </div>
+          <div className="mds-col mds-pending-secondary">
+            <MissionInfoCard mission={mission} compact />
+            <DroneDeviceCard mission={mission} compact />
             {mission.managerNote ? <ManagerNoteCard mission={mission} /> : null}
           </div>
-          <div className="mds-col">
-            <DroneDeviceCard mission={mission} />
-          </div>
         </div>
-        <details className="odm-card mds-pending-checklist">
-          <summary>
-            Checklist thực hiện
-            <small>
-              🔒 Checklist sẽ được mở sau khi bạn chấp nhận nhiệm vụ. Bấm để xem
-              trước.
-            </small>
-          </summary>
-          <div className="mds-pending-checklist-body">{monitoringSection}</div>
-        </details>
       </div>
     )
   }
 
   return (
-    <div>
+    <div className="mds-dashboard">
       {/* ── Header ── */}
       <MissionHeader
         mission={mission}
@@ -225,55 +263,78 @@ export function MissionDashboard({
         </div>
       ) : null}
 
-      <div className="mds-tabs" role="tablist">
-        {tabs.map((t) => (
+      <div className="mds-tabs" role="tablist" aria-label="Nội dung nhiệm vụ">
+        {tabs.map((t, index) => (
           <button
             key={t.id}
+            ref={(node) => {
+              tabButtonRefs.current[index] = node
+            }}
             type="button"
             role="tab"
+            id={`mds-tab-${t.id}`}
+            aria-controls="mds-tab-panel"
             aria-selected={tab === t.id}
+            tabIndex={tab === t.id ? 0 : -1}
             className={`mds-tab${tab === t.id ? ' is-active' : ''}`}
             onClick={() => setTab(t.id)}
+            onKeyDown={(event) => handleTabKeyDown(event, index)}
           >
             {t.label}
           </button>
         ))}
       </div>
 
-      {tab === 'overview' ? (
-        <div className="mds-tab-grid">
-          <div className="mds-col">
-            <MissionMapCard mission={mission} />
-            {monitoringSection}
+      <div
+        className="mds-tab-panel"
+        id="mds-tab-panel"
+        role="tabpanel"
+        aria-labelledby={`mds-tab-${tab}`}
+        tabIndex={0}
+      >
+        {tab === 'overview' ? (
+          <div className="mds-tab-grid">
+            <div className="mds-col">
+              <MissionMapCard mission={mission} />
+            </div>
+            <div className="mds-col mds-sticky-col">
+              <MissionInfoCard mission={mission} overview />
+              <DroneDeviceCard mission={mission} overview />
+              {mission.managerNote ? (
+                <ManagerNoteCard mission={mission} />
+              ) : null}
+            </div>
           </div>
-          <div className="mds-col mds-sticky-col">
-            <MissionInfoCard mission={mission} />
-            <DroneDeviceCard mission={mission} />
-            {mission.managerNote ? <ManagerNoteCard mission={mission} /> : null}
-          </div>
-        </div>
-      ) : null}
+        ) : null}
 
-      {tab === 'checks' ? (
-        <div className="mds-tab-grid">
-          <div className="mds-col">
-            <PrecheckCard preflight={preflightStatus} weather={weatherStatus} />
-            <WeatherCard weather={weatherStatus} />
-          </div>
-          <div className="mds-col">
-            <PostcheckCard postflight={postflightStatus} />
-          </div>
-        </div>
-      ) : null}
+        {tab === 'checklist' ? (
+          <div className="mds-checklist-panel">{monitoringSection}</div>
+        ) : null}
 
-      {tab === 'media' && canViewMissionMedia ? (
-        <MissionUploadedMedia
-          missionId={mission.id}
-          reviewStatus={resultApprovalStatus}
-          onChanged={refreshWorkspace}
-          refreshKey={mediaRevision}
-        />
-      ) : null}
+        {tab === 'checks' ? (
+          <div className="mds-tab-grid">
+            <div className="mds-col">
+              <PrecheckCard
+                preflight={preflightStatus}
+                weather={weatherStatus}
+              />
+              <WeatherCard weather={weatherStatus} />
+            </div>
+            <div className="mds-col">
+              <PostcheckCard postflight={postflightStatus} />
+            </div>
+          </div>
+        ) : null}
+
+        {tab === 'media' && canViewMissionMedia ? (
+          <MissionUploadedMedia
+            missionId={mission.id}
+            reviewStatus={resultApprovalStatus}
+            onChanged={refreshWorkspace}
+            refreshKey={mediaRevision}
+          />
+        ) : null}
+      </div>
     </div>
   )
 }

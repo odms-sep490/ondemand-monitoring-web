@@ -5,6 +5,8 @@ export const missionChecklistSelectionMessages = defineMessages({
     title: 'Hạng mục kiểm tra của nhiệm vụ *',
     selectedCount: (selected: number, total: number) =>
       `Đã chọn ${selected}/${total} mục`,
+    allAssignedHint:
+      'Tất cả mục đã được gán. Chọn lại mục nếu nhiệm vụ này cần kiểm tra lặp.',
     selectAllTitle: 'Chọn tất cả các mục',
     selectAll: 'Chọn tất cả',
     selectUncoveredTitle: 'Chỉ chọn các mục chưa gán cho nhiệm vụ nào',
@@ -32,6 +34,8 @@ export const missionChecklistSelectionMessages = defineMessages({
     title: 'Mission checklist items *',
     selectedCount: (selected: number, total: number) =>
       `${selected}/${total} selected`,
+    allAssignedHint:
+      'All items are already assigned. Select any item again if this mission should repeat the check.',
     selectAllTitle: 'Select all items',
     selectAll: 'Select all',
     selectUncoveredTitle: 'Select only items not assigned to any mission',

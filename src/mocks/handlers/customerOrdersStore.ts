@@ -1,6 +1,6 @@
 // Shared in-memory customer orders for the mock API.
 //   - `orders`: the legacy seed (customer-orders.json) used by the mock-only
-//     /api/customer/orders/* routes (cancel, draft, submit, analysis).
+//     /api/customer/orders/* routes (cancel, draft, submit).
 //   - `createdOrders`: orders made through `POST /api/orders` (BE shape).
 // `listBeOrders()` projects both onto the BE `OrderCreateResponse` so
 // `GET /api/orders/mine` and `GET /api/orders/{id}` stay consistent with the
@@ -13,17 +13,6 @@ import seed from '../data/customer-orders.json'
 export type SeedOrder = (typeof seed.orders)[number]
 
 export const orders = createCollection(seed.orders as SeedOrder[]) as unknown as SeedOrder[]
-/** Latest AI analysis per customer order (seed shape, findings carry ids). */
-export type CustomerAnalysis = {
-  orderId: string
-  verdict: string
-  findings: Array<{ id: string; suggestionState: string | null }>
-} & Record<string, unknown>
-
-export const customerAnalyses = createCollection(
-  seed.aiAnalyses,
-) as unknown as Record<string, CustomerAnalysis>
-
 export const createdOrders = createCollection<OrderCreateResponse[]>([])
 
 export const BE_ORDER_STATUSES = [
@@ -35,7 +24,7 @@ export const BE_ORDER_STATUSES = [
   'CANCELLED',
 ] as const
 
-/** The BE order status enum has no DRAFT / AI_ANALYZED / SUBMITTED / SCHEDULED. */
+/** The BE order status enum has no DRAFT / SUBMITTED / SCHEDULED. */
 function toBeStatus(status: OrderStatus): (typeof BE_ORDER_STATUSES)[number] {
   if (status === 'SCHEDULED') return 'APPROVED'
   if ((BE_ORDER_STATUSES as readonly string[]).includes(status)) {
@@ -81,16 +70,6 @@ export function listBeOrders(): OrderCreateResponse[] {
   return [...createdOrders, ...orders.map(toBeOrder)].sort((a, b) =>
     String(b.createdAt ?? '').localeCompare(String(a.createdAt ?? '')),
   )
-}
-
-/**
- * `GET /api/orders/{id}/analysis/latest` for the customer's own orders:
- * the analysis, `null` when the order has none, `undefined` when the order
- * is not the customer's.
- */
-export function findCustomerAnalysis(id: string): CustomerAnalysis | null | undefined {
-  if (!findBeOrder(id)) return undefined
-  return customerAnalyses[id] ?? null
 }
 
 export function findBeOrder(id: string): OrderCreateResponse | undefined {

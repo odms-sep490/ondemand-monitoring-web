@@ -13,13 +13,13 @@ import { localizeDeliverableName } from '../../../lib/i18n/catalogNames'
 import { localizeTimeslot } from '../../../lib/i18n/timeslots'
 import { calcArea } from '../../../lib/createOrder/payload'
 import type { FormState, Step } from '../../../lib/createOrder/types'
-import { deliveryOptionsCardMessages } from './DeliveryOptionsCard.messages'
 import { requestInfoPanelMessages } from './RequestInfoPanel.messages'
 import { monitoringAuthorizationMessages } from './MonitoringAuthorizationSection.messages'
 import { requestSummaryCardMessages } from './RequestSummaryCard.messages'
+import { deliveryOptionsCardMessages } from './DeliveryOptionsCard.messages'
 
 type Props = {
-  /** Images and videos requested in the checklists. */
+  /** Legacy request page still includes the selected result format summary. */
   mediaTotals?: { images: number; videos: number }
   form: FormState
   service?: ServiceOption
@@ -50,7 +50,9 @@ type Item = {
 function formatDate(value: string, lang: string) {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value)
   if (!match) return value
-  return lang === 'vi' ? `${match[3]}/${match[2]}/${match[1]}` : `${match[2]}/${match[3]}/${match[1]}`
+  return lang === 'vi'
+    ? `${match[3]}/${match[2]}/${match[1]}`
+    : `${match[2]}/${match[3]}/${match[1]}`
 }
 
 /** Bold headline line(s) first, everything else folded into one muted line. */
@@ -65,7 +67,7 @@ function summaryLines(item: Item) {
 /** Read-only, scannable summary of everything the customer entered. */
 export function RequestSummaryCard(p: Props) {
   const { t, lang } = useI18n(requestSummaryCardMessages)
-  const { t: d } = useI18n(deliveryOptionsCardMessages)
+  const { t: delivery } = useI18n(deliveryOptionsCardMessages)
   const { t: info } = useI18n(requestInfoPanelMessages)
   const { t: authorization } = useI18n(monitoringAuthorizationMessages)
   const { form } = p
@@ -77,7 +79,7 @@ export function RequestSummaryCard(p: Props) {
       ? `${dateFrom} → ${dateTo}`
       : dateFrom
   const timeWindow = p.time ? localizeTimeslot(p.time, lang) : ''
-  const result = [
+  const resultQuantity = [
     p.mediaTotals?.images ? t.quantityUnit('IMAGE', p.mediaTotals.images) : '',
     p.mediaTotals?.videos ? t.quantityUnit('VIDEO', p.mediaTotals.videos) : '',
   ]
@@ -121,13 +123,17 @@ export function RequestSummaryCard(p: Props) {
             label: t.monitoringContent,
             lines: [
               t.totalContent(p.checklistCounts.total),
-              t.packageContent(
-                p.checklistCounts.packageSelected,
-                p.checklistCounts.packageTotal,
-              ),
-              t.additionalContent(p.checklistCounts.additional),
+              [
+                t.packageContent(
+                  p.checklistCounts.packageSelected,
+                  p.checklistCounts.packageTotal,
+                ),
+                ...(p.checklistCounts.additional > 0
+                  ? [t.additionalContent(p.checklistCounts.additional)]
+                  : []),
+              ].join(' · '),
             ],
-            step: 2 as Step,
+            step: 3 as Step,
           },
         ]
       : []),
@@ -137,14 +143,20 @@ export function RequestSummaryCard(p: Props) {
       label: t.location,
       lines: [form.address || t.noAddress],
       clamp: true,
-      step: 3,
+      step: 2,
     },
     {
       key: 'area',
       icon: 'radio',
       label: t.area,
+      lines: [`${t.radius} ${form.radiusM} m · ${calcArea(form.radiusM)} ha`],
+      step: 2,
+    },
+    {
+      key: 'site-details',
+      icon: 'radio',
+      label: t.siteDetails,
       lines: [
-        `${t.radius} ${form.radiusM} m · ${calcArea(form.radiusM)} ha`,
         t.altitude(form.altitudeM),
         Number(form.estimatedLengthM) > 0
           ? t.length(Number(form.estimatedLengthM))
@@ -209,8 +221,7 @@ export function RequestSummaryCard(p: Props) {
       icon: 'clock',
       label: t.schedule,
       lines: [
-        dates || t.noValue,
-        timeWindow,
+        [dates, timeWindow].filter(Boolean).join(' · ') || t.noValue,
         form.recurrenceType === 'WEEKLY'
           ? t.repeatWeekly(form.recurrenceOccurrences)
           : form.recurrenceType === 'MONTHLY'
@@ -221,42 +232,60 @@ export function RequestSummaryCard(p: Props) {
           : '',
         t.fallbackValues[form.weatherFallback],
       ].filter(Boolean),
-      lead: 2,
+      lead: 1,
       step: 5,
     },
-    {
-      key: 'deliverable',
-      icon: 'camera',
-      label: t.deliverable,
-      lines: [
-        localizeDeliverableName(p.deliverable?.deliverableTypeName, lang) ||
-          t.noValue,
-        result,
-      ].filter(Boolean),
-      step: 6,
-    },
-    {
-      key: 'delivery',
-      icon: 'mail',
-      label: t.delivery,
-      lines: [
-        form.resultFormats.map((format) => d.formats[format]).join(', '),
-        form.deliveryMethods.map((method) => d.methods[method]).join(', '),
-        d.days(form.dataRetentionDays),
-      ].filter(Boolean),
-      step: 6,
-    },
-    {
-      key: 'attachments',
-      icon: 'file-text',
-      label: t.attachments,
-      lines: [
-        form.attachments.length
-          ? t.attachmentCount(form.attachments.length)
-          : t.none,
-      ],
-      step: 1,
-    },
+    ...(p.mediaTotals || p.deliverable
+      ? [
+          {
+            key: 'deliverable',
+            icon: 'camera' as const,
+            label: t.deliverable,
+            lines: [
+              localizeDeliverableName(
+                p.deliverable?.deliverableTypeName,
+                lang,
+              ) || t.noValue,
+              resultQuantity,
+            ].filter(Boolean),
+            step: 6 as Step,
+          },
+          {
+            key: 'delivery',
+            icon: 'mail' as const,
+            label: t.delivery,
+            lines: [
+              form.resultFormats
+                .map((format) => delivery.formats[format])
+                .join(', '),
+              form.deliveryMethods
+                .map((method) => delivery.methods[method])
+                .join(', '),
+              delivery.days(form.dataRetentionDays),
+            ].filter(Boolean),
+            step: 6 as Step,
+          },
+        ]
+      : []),
+    ...(form.attachments.length > 0
+      ? [{
+          key: 'attachments',
+          icon: 'file-text' as const,
+          label: t.attachments,
+          lines: [t.attachmentCount(form.attachments.length)],
+          step: 1 as Step,
+        }]
+      : []),
+  ]
+  const sections: Array<{ step: Step; title: string }> = [
+    { step: 1, title: t.groupService },
+    { step: 2, title: t.groupLocation },
+    { step: 3, title: t.groupContent },
+    { step: 4, title: t.groupSite },
+    { step: 5, title: t.groupSchedule },
+    ...(p.mediaTotals || p.deliverable
+      ? [{ step: 6 as Step, title: t.groupDelivery }]
+      : []),
   ]
 
   return (
@@ -266,37 +295,57 @@ export function RequestSummaryCard(p: Props) {
         <span>{t.requestTitle}</span>
         <p title={form.title || undefined}>{form.title.trim() || t.noTitle}</p>
       </div>
-      <dl className="co-sum-list">
-        {items.map((item) => (
-          <div key={item.key} className="co-sum-item">
-            <span className="co-sum-icon" aria-hidden="true">
-              {item.icon && <Icon name={item.icon} width={16} height={16} />}
-            </span>
-            <div className="co-sum-body">
-              <dt>{item.label}</dt>
-              {summaryLines(item).map((line, index) => (
-                <dd
-                  key={index}
-                  className={`${index > 0 ? 'is-sub ' : ''}${item.clamp ? 'is-clamp' : ''}`}
-                  title={item.clamp ? line : undefined}
-                >
-                  {line}
-                </dd>
-              ))}
-            </div>
-            {item.step && item.step !== 6 && p.onEdit && (
-              <button
-                type="button"
-                className="co-sum-edit"
-                aria-label={`${t.edit}: ${item.label}`}
-                onClick={() => p.onEdit?.(item.step as Step)}
-              >
-                {t.edit}
-              </button>
-            )}
-          </div>
-        ))}
-      </dl>
+      <div className="co-review-groups">
+        {sections.map((section) => {
+          const sectionItems = items.filter(
+            (item) => item.step === section.step,
+          )
+          return (
+            <section
+              key={section.step}
+              className={`co-review-group is-step-${section.step}`}
+              aria-labelledby={`co-review-group-${section.step}`}
+            >
+              <div className="co-review-group-heading">
+                <h3 id={`co-review-group-${section.step}`}>{section.title}</h3>
+                {p.onEdit && (
+                  <button
+                    type="button"
+                    className="co-sum-edit"
+                    aria-label={`${t.edit}: ${section.title}`}
+                    onClick={() => p.onEdit?.(section.step)}
+                  >
+                    {t.edit}
+                  </button>
+                )}
+              </div>
+              <dl className="co-sum-list">
+                {sectionItems.map((item) => (
+                  <div key={item.key} className="co-sum-item">
+                    <span className="co-sum-icon" aria-hidden="true">
+                      {item.icon && (
+                        <Icon name={item.icon} width={16} height={16} />
+                      )}
+                    </span>
+                    <div className="co-sum-body">
+                      <dt>{item.label}</dt>
+                      {summaryLines(item).map((line, index) => (
+                        <dd
+                          key={index}
+                          className={`${index > 0 ? 'is-sub ' : ''}${item.clamp ? 'is-clamp' : ''}`}
+                          title={item.clamp ? line : undefined}
+                        >
+                          {line}
+                        </dd>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </dl>
+            </section>
+          )
+        })}
+      </div>
       <InnerCollapse className="co-sum-tech" title={t.technical}>
         <div className="co-sum-tech-row">
           <span>{t.coordinates}</span>
