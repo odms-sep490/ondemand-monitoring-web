@@ -19,16 +19,16 @@ export const adminDashboardPageMessages = defineMessages({
     kpi: {
       accounts: 'Tài khoản',
       accountsHint: (n: number) => `+${n} trong 30 ngày`,
-      locked: 'Tài khoản bị khoá',
+      locked: 'Tài khoản bị khóa',
       lockedHint: (n: number) => `${n} chưa xác thực`,
       devicesReady: 'Thiết bị sẵn sàng',
       devicesTotal: (n: number) => `/ ${n}`,
       devicesHint: (n: number) => `${n} đang hoạt động`,
-      devicesAttention: 'Bảo trì / offline',
+      devicesAttention: 'Bảo trì / ngoại tuyến',
       devicesAttentionHint: (m: number, o: number) =>
-        `${m} bảo trì · ${o} ngừng`,
-      services: 'Dịch vụ đang mở',
-      servicesHint: (n: number) => `${n} tạm đóng`,
+        `${m} bảo trì · ${o} ngừng/ngoại tuyến`,
+      services: 'Dịch vụ đang hoạt động',
+      servicesHint: (n: number) => `${n} tạm tắt`,
       checklists: 'Checklist đang dùng',
       checklistsHint: (n: number) => `${n} tạm tắt`,
       unavailable: 'Không có dữ liệu',
@@ -49,25 +49,26 @@ export const adminDashboardPageMessages = defineMessages({
         active: 'Đang hoạt động',
         charging: 'Đang sạc',
         maintenance: 'Bảo trì',
-        offline: 'Ngừng / Offline',
+        offline: 'Ngừng hoạt động / ngoại tuyến',
       },
     },
     recent: {
       title: 'Tài khoản mới nhất',
       viewAll: 'Xem tất cả',
       empty: 'Chưa có tài khoản nào.',
-      locked: 'Đã khoá',
+      locked: 'Đã khóa',
     },
     attention: {
       title: 'Cần chú ý',
       empty: 'Không có mục nào cần xử lý.',
       open: 'Xử lý',
       items: {
-        lockedAccounts: (n: number) => `${n} tài khoản đang bị khoá`,
+        lockedAccounts: (n: number) => `${n} tài khoản đang bị khóa`,
         unverifiedAccounts: (n: number) => `${n} tài khoản chưa xác thực email`,
-        devicesAttention: (n: number) => `${n} thiết bị bảo trì hoặc offline`,
+        devicesAttention: (n: number) =>
+          `${n} thiết bị bảo trì hoặc ngoại tuyến`,
         servicesWithoutChecklist: (n: number) =>
-          `${n} dịch vụ đang mở chưa có checklist`,
+          `${n} dịch vụ đang hoạt động chưa có checklist`,
         draftPolicies: (n: number) => `${n} chính sách giá đang là bản nháp`,
         noActivePolicy: () => 'Chưa có chính sách giá nào đang áp dụng',
       },
@@ -118,11 +119,11 @@ export const adminDashboardPageMessages = defineMessages({
       devicesHint: (n: number) => `${n} in operation`,
       devicesAttention: 'Maintenance / offline',
       devicesAttentionHint: (m: number, o: number) =>
-        `${m} maintenance · ${o} out`,
-      services: 'Open services',
-      servicesHint: (n: number) => `${n} closed`,
+        `${m} maintenance · ${o} out of service/offline`,
+      services: 'Active services',
+      servicesHint: (n: number) => `${n} inactive`,
       checklists: 'Active checklists',
-      checklistsHint: (n: number) => `${n} disabled`,
+      checklistsHint: (n: number) => `${n} inactive`,
       unavailable: 'No data',
     },
     charts: {
@@ -162,7 +163,7 @@ export const adminDashboardPageMessages = defineMessages({
         devicesAttention: (n: number) =>
           `${n} device${n === 1 ? '' : 's'} in maintenance or offline`,
         servicesWithoutChecklist: (n: number) =>
-          `${n} open service${n === 1 ? '' : 's'} without a checklist`,
+          `${n} active service${n === 1 ? '' : 's'} without a checklist`,
         draftPolicies: (n: number) =>
           `${n} pricing polic${n === 1 ? 'y' : 'ies'} still in draft`,
         noActivePolicy: () => 'No pricing policy is currently in effect',

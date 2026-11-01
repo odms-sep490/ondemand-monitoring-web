@@ -7,7 +7,7 @@ import {
   ErrorState,
 } from '../../../../../shared/components/antd'
 import { useApiQuery } from '../../../../../shared/hooks/useApiQuery'
-import { useI18n } from '../../../../../shared/i18n'
+import { displayLocalized, useI18n } from '../../../../../shared/i18n'
 import { catalogApi } from '../../../api/catalogApi'
 import { mapTimeslot } from '../../../lib/catalogMappers'
 import type { AdminTimeslot } from '../../../types/catalog'
@@ -74,7 +74,7 @@ export function TimeslotsTab() {
       {dialog?.type === 'delete' && (
         <DeleteConfirmModal
           title={t.deleteTitle}
-          name={dialog.timeslot.name}
+          name={displayLocalized(dialog.timeslot.name)}
           onConfirm={() => catalogApi.deletePreferredTime(dialog.timeslot.id)}
           onClose={() => setDialog(null)}
           onDeleted={done}

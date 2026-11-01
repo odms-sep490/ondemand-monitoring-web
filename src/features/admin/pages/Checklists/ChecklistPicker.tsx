@@ -4,7 +4,7 @@ import { useState } from 'react'
 
 import { EmptyState } from '../../../../shared/components/antd'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
-import { useI18n } from '../../../../shared/i18n'
+import { displayLocalized, useI18n } from '../../../../shared/i18n'
 import { AdminModal } from '../../components/common/AdminModal'
 import { checklistsApi, type ServiceChecklist } from '../../api/checklistsApi'
 import { checklistError } from './checklistError'
@@ -123,7 +123,7 @@ export function ChecklistPicker({
                     value={row.id}
                     className="checklist-candidate"
                   >
-                    {row.content}
+                    {displayLocalized(row.content)}
                   </Radio>
                 ))}
               </Radio.Group>

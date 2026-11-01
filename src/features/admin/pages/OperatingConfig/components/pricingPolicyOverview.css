@@ -1,11 +1,10 @@
+/* Pricing policy overview: layout only; cards and figures come from antd. */
 .ppo {
   display: grid;
   gap: 16px;
 }
 .ppo-head h2,
-.ppo-head p,
-.ppo-card h3,
-.ppo-card p {
+.ppo-head p {
   margin: 0;
 }
 .ppo-head p {
@@ -13,16 +12,10 @@
   color: var(--mgr-muted);
 }
 .ppo-card {
-  display: grid;
-  gap: 12px;
-  padding: 16px 18px;
-  border: 1px solid var(--mgr-border);
-  border-radius: var(--mgr-radius);
-  background: var(--mgr-card);
+  display: block;
 }
 .ppo-active {
   border-color: var(--adm-blue-line);
-  background: linear-gradient(135deg, var(--adm-blue-soft), var(--mgr-card));
 }
 .ppo-active-head {
   display: flex;
@@ -30,15 +23,21 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  margin-bottom: 12px;
 }
 .ppo-active-head h3 {
+  margin: 0;
   font-size: 18px;
 }
 .ppo-active-head small,
 .ppo-hint,
-.ppo-empty {
+.ppo-empty,
+.ppo-version-dates {
   color: var(--mgr-muted);
   font-size: 13px;
+}
+.ppo-hint {
+  margin: 0 0 8px;
 }
 .ppo-eyebrow {
   display: inline-block;
@@ -50,43 +49,21 @@
   font-size: 12px;
   font-weight: 600;
 }
+.ppo-eyebrow.is-draft {
+  background: var(--adm-amber-soft);
+  color: var(--adm-amber-fg);
+}
 .ppo-note {
-  padding: 8px 12px;
-  border-left: 3px solid var(--adm-blue-line);
-  background: var(--adm-blue-soft);
-  border-radius: 0 8px 8px 0;
+  margin: 0;
   font-size: 13px;
-  color: var(--mgr-text);
 }
 .ppo-tiles {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 10px;
-  margin: 0;
+  margin-top: 12px;
 }
-.ppo-tile {
-  padding: 10px 12px;
-  border: 1px solid var(--mgr-border);
-  border-radius: 10px;
-  background: var(--mgr-card);
-}
-.ppo-tile dt {
-  font-size: 12px;
-  color: var(--mgr-muted);
-}
-.ppo-tile dd {
-  margin: 2px 0 0;
-  font-size: 16px;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-.ppo-columns {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 14px;
-}
-.ppo-columns ul,
-.ppo-versions {
+.ppo-tier-list {
   margin: 6px 0 0;
   padding: 0;
   list-style: none;
@@ -94,18 +71,13 @@
   gap: 6px;
   font-size: 14px;
 }
-.ppo-versions li {
+.ppo-version {
   display: flex;
+  width: 100%;
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  padding: 8px 0;
-  border-top: 1px solid var(--mgr-border);
 }
-.ppo-versions li:first-child {
-  border-top: 0;
-}
-.ppo-versions small {
+.ppo-version-dates {
   display: block;
-  color: var(--mgr-muted);
 }

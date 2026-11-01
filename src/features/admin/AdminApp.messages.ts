@@ -4,7 +4,7 @@ export const adminAppMessages = defineMessages({
   vi: {
     breadcrumb: {
       dashboard: 'Tổng quan',
-      accounts: 'Người dùng',
+      accounts: 'Tài khoản',
       createAccount: 'Tạo tài khoản',
       accountDetail: 'Chi tiết tài khoản',
       catalog: 'Danh mục',
@@ -19,7 +19,7 @@ export const adminAppMessages = defineMessages({
   en: {
     breadcrumb: {
       dashboard: 'Overview',
-      accounts: 'Users',
+      accounts: 'Accounts',
       createAccount: 'Create account',
       accountDetail: 'Account detail',
       catalog: 'Catalog',

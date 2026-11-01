@@ -10,6 +10,7 @@ import {
 import { AdminField } from '../../../components/common/AdminField'
 import { AdminFormFooter } from '../../../components/common/AdminFormFooter'
 import { AdminModal } from '../../../components/common/AdminModal'
+import { LocalizedTextInput } from '../../../components/common/LocalizedTextInput'
 import {
   emptyTimeslotForm,
   mapTimeslot,
@@ -17,9 +18,10 @@ import {
   timeslotToForm,
   toTimeslotRequest,
 } from '../../../lib/catalogMappers'
+import { LOCALIZED_LIMITS, validateLocalized } from '../../../lib/localizedField'
 import type { AdminTimeslot } from '../../../types/catalog'
 import { EditLoader } from './EditLoader'
-import { timeslotCodeMessages } from './timeslotCodes'
+import { timeslotCodeMessages } from './timeslotCodes.messages'
 import { timeslotModalMessages } from './TimeslotModal.messages'
 
 type Props = {
@@ -41,7 +43,12 @@ function TimeslotForm({ timeslot, onClose, onSaved }: Props) {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     const next: Record<string, string> = {}
-    if (!values.name.trim()) next.name = t.required
+    const nameIssue = validateLocalized(values.name, {
+      required: true,
+      maxEncoded: LOCALIZED_LIMITS.timeslotName,
+    })
+    if (nameIssue)
+      next.name = nameIssue === 'required' ? t.nameRequired : t.nameTooLong
     if (!values.startTime) next.startTime = t.required
     if (!values.endTime) next.endTime = t.required
     setErrors(next)
@@ -104,12 +111,14 @@ function TimeslotForm({ timeslot, onClose, onSaved }: Props) {
           required
           error={errors.name}
         >
-          <Input
+          <LocalizedTextInput
             id="adm-ts-name"
+            label={t.name}
             value={values.name}
+            required
             placeholder={t.namePlaceholder}
-            aria-invalid={!!errors.name}
-            onChange={(e) => setValues({ ...values, name: e.target.value })}
+            maxEncoded={LOCALIZED_LIMITS.timeslotName}
+            onChange={(name) => setValues({ ...values, name })}
           />
         </AdminField>
         <div className="adm-form-pair">

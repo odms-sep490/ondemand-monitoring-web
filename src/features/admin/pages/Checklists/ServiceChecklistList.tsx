@@ -5,7 +5,7 @@ import {
 } from '@ant-design/icons'
 import { Button, Tag } from 'antd'
 
-import { useI18n } from '../../../../shared/i18n'
+import { displayLocalized, useI18n } from '../../../../shared/i18n'
 import type { ServiceChecklist } from '../../api/checklistsApi'
 import { PricingChips } from './PricingChips'
 import { ChecklistIconButton } from './ChecklistUi'
@@ -34,7 +34,7 @@ export function ServiceChecklistList({
             {String(index + 1).padStart(2, '0')}
           </span>
           <div className="checklist-row-content">
-            <div>{row.content}</div>
+            <div>{displayLocalized(row.content)}</div>
             <div className="checklist-chips">
               {!row.checklistActive && <Tag bordered={false}>{t.inactive}</Tag>}
               {row.required && (
@@ -58,7 +58,7 @@ export function ServiceChecklistList({
               icon={
                 <ArrowUpOutlined aria-hidden="true" aria-label={undefined} />
               }
-              label={t.up + ': ' + row.content}
+              label={t.up + ': ' + displayLocalized(row.content)}
               disabled={busy || index === 0}
               onClick={() => onMove(index, -1)}
             />
@@ -66,7 +66,7 @@ export function ServiceChecklistList({
               icon={
                 <ArrowDownOutlined aria-hidden="true" aria-label={undefined} />
               }
-              label={t.down + ': ' + row.content}
+              label={t.down + ': ' + displayLocalized(row.content)}
               disabled={busy || index === rows.length - 1}
               onClick={() => onMove(index, 1)}
             />
@@ -76,7 +76,7 @@ export function ServiceChecklistList({
               icon={
                 <DeleteOutlined aria-hidden="true" aria-label={undefined} />
               }
-              aria-label={t.remove + ': ' + row.content}
+              aria-label={t.remove + ': ' + displayLocalized(row.content)}
               title={t.remove}
               disabled={busy}
               onClick={() => onRemove(row)}

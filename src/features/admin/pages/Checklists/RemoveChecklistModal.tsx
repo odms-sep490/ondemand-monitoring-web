@@ -1,6 +1,6 @@
 import { Button } from 'antd'
 
-import { useI18n } from '../../../../shared/i18n'
+import { displayLocalized, useI18n } from '../../../../shared/i18n'
 import { AdminModal } from '../../components/common/AdminModal'
 import type { ServiceChecklist } from '../../api/checklistsApi'
 import { checklistMessages } from './checklists.messages'
@@ -39,7 +39,7 @@ export function RemoveChecklistModal({
     >
       <div className="checklist-dialog">
         <p>{t.removeConfirm}</p>
-        <div className="checklist-danger-summary">{row.content}</div>
+        <div className="checklist-danger-summary">{displayLocalized(row.content)}</div>
         {error && <p role="alert">{error}</p>}
       </div>
     </AdminModal>

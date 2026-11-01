@@ -1,6 +1,6 @@
 // Vietnamese display helpers for values the backend returns as raw codes or
 // ISO strings (time slots, media types, dates).
-import { getLanguage } from '../../../shared/i18n'
+import { decodeLocalizedInText, getLanguage } from '../../../shared/i18n'
 import { managerLibMessages } from './lib.messages'
 
 const SLOT_KEYS: Record<string, string> = {
@@ -21,7 +21,7 @@ const SLOT_RE =
  * (`Buổi sáng` in vi, `Morning` in en), keeping any time range.
  */
 export function localizeTimeslot(name: string | null | undefined): string {
-  const raw = name?.trim()
+  const raw = decodeLocalizedInText(name)?.trim()
   if (!raw) return ''
   const slots = managerLibMessages[getLanguage()].timeslots
   return raw.replace(SLOT_RE, (match, word: string) => {

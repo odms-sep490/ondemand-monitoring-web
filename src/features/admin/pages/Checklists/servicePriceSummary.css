@@ -1,212 +1,50 @@
+/* Service price summary: layout only; cards, tables, alerts and figures come from antd. */
 .psum {
   display: grid;
   gap: 16px;
 }
 .psum-hero {
+  border-color: var(--adm-blue-line);
+  background: linear-gradient(135deg, var(--adm-blue-soft), var(--mgr-card-2));
+}
+.psum-hero-body {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 16px 18px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, var(--adm-blue-soft), var(--mgr-card-2));
-  border: 1px solid var(--adm-blue-line);
-}
-.psum-hero-label {
-  display: block;
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--mgr-muted);
-}
-.psum-hero-value {
-  display: block;
-  margin-top: 2px;
-  font-size: 28px;
-  line-height: 1.15;
-  color: var(--adm-blue-fg);
-  font-variant-numeric: tabular-nums;
 }
 .psum-chips {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
 }
-.psum-chip {
-  padding: 2px 10px;
-  border-radius: 999px;
-  border: 1px solid var(--mgr-border);
-  background: var(--mgr-card);
-  font-size: 12px;
-  color: var(--mgr-muted);
-}
-.psum-chip.is-soft {
-  margin-left: 6px;
-  background: var(--mgr-card-2);
-}
-.psum-notice {
-  margin: 0;
-  padding: 10px 12px;
-  border-radius: 8px;
-  font-size: 13px;
-}
-.psum-notice.is-warn {
-  background: var(--adm-amber-soft);
-  border: 1px solid var(--adm-amber-line);
-  color: var(--adm-amber-fg);
-}
-.psum-notice ul {
-  margin: 6px 0 0;
-  padding-left: 18px;
-}
-.psum-empty,
-.psum-note {
-  margin: 0;
-  font-size: 12px;
-  color: var(--mgr-muted);
-}
-.psum-table {
-  border: 1px solid var(--mgr-border);
-  border-radius: 12px;
-  overflow: hidden;
-}
-.psum-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 120px 120px 130px;
-  gap: 12px;
-  align-items: center;
-  padding: 10px 16px;
-  font-variant-numeric: tabular-nums;
-}
-.psum-row > :not(.psum-name):not(:first-child) {
-  text-align: right;
-}
-.psum-row.is-head {
-  background: var(--mgr-card-2);
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--mgr-muted);
-}
-.psum-item {
-  border-top: 1px solid var(--mgr-border);
-}
-.psum-item > summary {
-  cursor: pointer;
-  list-style: none;
-}
-.psum-item > summary::-webkit-details-marker {
-  display: none;
-}
-.psum-item > summary:hover {
-  background: var(--mgr-card-2);
-}
-.psum-item[open] > summary {
-  background: var(--mgr-card-2);
-}
 .psum-name {
   display: grid;
   gap: 2px;
-  min-width: 0;
 }
-.psum-name small {
+.psum-name small,
+.psum-note,
+.psum-detail-title {
   color: var(--mgr-muted);
+  font-size: 12px;
+}
+.psum-note {
+  margin: 0;
 }
 .psum-extra {
-  color: var(--adm-amber-fg);
-  font-weight: 600;
-}
-.psum-wide {
-  grid-column: span 3;
-  text-align: right;
   color: var(--adm-amber-fg);
 }
 .psum-detail {
   display: grid;
   gap: 8px;
-  padding: 10px 16px 14px;
-  background: var(--mgr-card-2);
-  border-top: 1px dashed var(--mgr-border);
 }
 .psum-detail-title {
-  font-size: 12px;
   font-weight: 600;
-  color: var(--mgr-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
-.psum-detail table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-}
-.psum-detail th,
-.psum-detail td {
-  padding: 4px 6px;
-  text-align: right;
-}
-.psum-detail th:first-child,
-.psum-detail td:first-child {
-  text-align: left;
-}
-.psum-detail th {
-  font-weight: 600;
-  color: var(--mgr-muted);
-}
-.psum-totals {
-  display: grid;
-  gap: 6px;
-  margin: 0;
-  max-width: 460px;
-  margin-left: auto;
-}
-.psum-totals > div {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  align-items: baseline;
-}
-.psum-totals dt {
-  color: var(--mgr-muted);
-}
-.psum-totals dd {
-  margin: 0;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
-.psum-totals .is-total {
-  margin-top: 4px;
-  padding-top: 10px;
-  border-top: 1px solid var(--mgr-border);
-  font-size: 16px;
-}
-.psum-totals .is-total dt,
-.psum-totals .is-total dd {
-  color: var(--mgr-text);
-  font-weight: 700;
-}
-@media (max-width: 720px) {
-  .psum-row {
-    grid-template-columns: minmax(0, 1fr) auto;
-  }
-  .psum-row.is-head {
-    display: none;
-  }
-  .psum-row > :nth-child(2),
-  .psum-row > :nth-child(3) {
-    display: none;
-  }
-}
-
-/* A small arrow tells the row can be opened. */
-.psum-name strong::before {
-  content: '▸';
-  display: inline-block;
-  width: 14px;
-  color: var(--mgr-muted);
-  transition: transform 0.15s;
-}
-.psum-item[open] .psum-name strong::before {
-  transform: rotate(90deg);
+.psum ul {
+  margin: 6px 0 0;
+  padding-left: 18px;
 }

@@ -1,4 +1,4 @@
-import { getLanguage } from '../../../../shared/i18n'
+import { displayLocalized, getLanguage } from '../../../../shared/i18n'
 import { liveDispatchHelpersMessages } from './liveDispatchHelpers.messages'
 import { liveDispatchPageMessages } from './LiveDispatchPage.messages'
 import type { AvailableOperator } from '../../../staff/api/operatorApi'
@@ -26,10 +26,11 @@ export function fmtDateTime(value?: string | null) {
 }
 
 export function preferredTimeLabel(value?: string | null) {
-  const key = value?.trim().toUpperCase()
+  const text = displayLocalized(value)
+  const key = text.trim().toUpperCase()
   if (!key) return ''
   const labels = liveDispatchHelpersMessages[getLanguage()].preferredTimes
-  return labels[key] ?? value?.trim() ?? ''
+  return labels[key] ?? text.trim()
 }
 
 export function missionStatusLabel(

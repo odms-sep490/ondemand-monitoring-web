@@ -2,6 +2,7 @@ import { ToolOutlined } from '@ant-design/icons'
 
 import { CardComponent } from '../../../../../shared/components/antd'
 import { StatusTag } from '../../../components/common/StatusTag'
+import { displayLocalized } from '../../../../../shared/i18n'
 
 /** Compact service summary under the page header: service name, description and result formats. */
 export function OrderServiceCard({
@@ -17,9 +18,9 @@ export function OrderServiceCard({
   deliverablesLabel: string
   eyebrow: string
 }) {
-  const name = serviceName.trim()
+  const name = displayLocalized(serviceName).trim()
   if (!name) return null
-  const description = serviceDescription?.trim()
+  const description = displayLocalized(serviceDescription).trim()
   return (
     <CardComponent className="mgr-or-service" aria-label={name}>
       <div className="mgr-or-service-row">

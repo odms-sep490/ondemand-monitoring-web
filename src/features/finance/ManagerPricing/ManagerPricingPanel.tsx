@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from 'react'
 import { ApiError } from '../../../shared/api/httpClient'
 import { useApiQuery } from '../../../shared/hooks/useApiQuery'
 import { useToast } from '../../../shared/components/ui'
-import { useI18n } from '../../../shared/i18n'
+import { displayLocalized, useI18n } from '../../../shared/i18n'
 import { financeApi } from '../api'
 import { pricingFeedbackMessages } from './pricingFeedback.messages'
 import { pricingMessages } from './pricing.messages'
@@ -353,10 +353,10 @@ export function ManagerPricingPanel({
                 <li key={item.id}>
                   {item.canEditGuidance === true ? (
                     <Button type="link" onClick={() => setGuidanceItem(item)}>
-                      {item.content}
+                      {displayLocalized(item.content)}
                     </Button>
                   ) : (
-                    <span>{item.content}</span>
+                    <span>{displayLocalized(item.content)}</span>
                   )}
                 </li>
               ))}

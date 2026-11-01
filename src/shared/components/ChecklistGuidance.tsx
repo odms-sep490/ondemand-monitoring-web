@@ -1,4 +1,4 @@
-import { defineMessages, useI18n } from '../i18n'
+import { defineMessages, displayLocalized, useI18n } from '../i18n'
 import './ChecklistGuidance.css'
 
 /** Description and work guidance of a checklist item (catalog value or the copy frozen on an order). */
@@ -31,7 +31,7 @@ const messages = defineMessages({
 })
 
 const list = (values?: string[] | null) =>
-  (values ?? []).map((value) => value.trim()).filter(Boolean)
+  (values ?? []).map((value) => displayLocalized(value).trim()).filter(Boolean)
 
 export function hasChecklistGuidance(
   guidance?: ChecklistGuidanceData | null,
@@ -40,7 +40,7 @@ export function hasChecklistGuidance(
   if (!guidance) return false
   return sections.some((section) =>
     section === 'description'
-      ? Boolean(guidance.description?.trim())
+      ? Boolean(displayLocalized(guidance.description).trim())
       : section === 'steps'
         ? list(guidance.executionSteps).length > 0
         : section === 'inputs'
@@ -77,10 +77,10 @@ export function ChecklistGuidance({
   const outputs = list(guidance.expectedOutputs)
   const body = (
     <div className="odm-cg-body">
-      {sections.includes('description') && guidance.description?.trim() ? (
+      {sections.includes('description') && displayLocalized(guidance.description).trim() ? (
         <section>
           <h4>{t.description}</h4>
-          <p>{guidance.description.trim()}</p>
+          <p>{displayLocalized(guidance.description).trim()}</p>
         </section>
       ) : null}
       {sections.includes('steps') && steps.length > 0 ? (

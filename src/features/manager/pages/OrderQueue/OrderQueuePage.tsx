@@ -5,7 +5,7 @@ import { ReloadOutlined, RocketOutlined } from '@ant-design/icons'
 
 import { CardComponent } from '../../../../shared/components/antd'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
-import { useI18n } from '../../../../shared/i18n'
+import { localizedSearchText, useI18n } from '../../../../shared/i18n'
 import { displayOrderCode } from '../../../../shared/lib/orderCode'
 import { financeApi } from '../../../finance/api'
 import { ordersApi } from '../../api/ordersApi'
@@ -25,7 +25,11 @@ import { ALL_FILTERS } from './queueHelpers'
 function matchesSearch(order: OrderCreateResponse, search: string): boolean {
   const needle = search.trim().toLowerCase()
   if (!needle) return true
-  return [displayOrderCode(order.orderCode, order.id), order.customerName, order.serviceName]
+  return [
+    displayOrderCode(order.orderCode, order.id),
+    order.customerName,
+    localizedSearchText(order.serviceName),
+  ]
     .join(' ')
     .toLowerCase()
     .includes(needle)

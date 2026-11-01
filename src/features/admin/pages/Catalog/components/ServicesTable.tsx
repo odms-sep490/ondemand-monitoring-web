@@ -4,7 +4,7 @@ import {
   StatusTag,
   TableComponent,
 } from '../../../../../shared/components/antd'
-import { useI18n } from '../../../../../shared/i18n'
+import { displayLocalized, useI18n } from '../../../../../shared/i18n'
 import { formatVnd } from '../../../../../shared/lib/formatVnd'
 import { fmtDateTime } from '../../../lib/accountStatus'
 import type { AdminService } from '../../../types/catalog'
@@ -37,10 +37,10 @@ export function ServicesTable({
             />
           )}
           <div className="mgr-cell-stack">
-            <span className="adm-wrap adm-strong">{s.name}</span>
+            <span className="adm-wrap adm-strong">{displayLocalized(s.name)}</span>
             {s.description && (
               <span className="mgr-cell-sub adm-wrap adm-service-description">
-                {s.description}
+                {displayLocalized(s.description)}
               </span>
             )}
           </div>

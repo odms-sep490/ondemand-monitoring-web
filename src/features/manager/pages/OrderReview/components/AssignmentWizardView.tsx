@@ -4,7 +4,7 @@ import { missionLayer } from '../reviewHelpers'
 import { orderDeliverableLabels } from './OrderServiceBanner'
 import { OrderResourceAssignmentWizard } from '../../../components/common/OrderResourceAssignmentWizard'
 import { orderReviewPageMessages } from '../OrderReviewPage.messages'
-import { useI18n } from '../../../../../shared/i18n'
+import { displayLocalized, useI18n } from '../../../../../shared/i18n'
 import { assignmentWizardViewMessages } from './AssignmentWizardView.messages'
 import { OrderDetailsDrawer } from '../../../components/common/OrderDetailsDrawer'
 import type { PlanningWorkflowInfo } from './OrderMissionPlanningSection'
@@ -56,7 +56,7 @@ export function AssignmentWizardView({
           )}
         />
         <div className="odm-assign-context" aria-label={t.serviceEyebrow}>
-          <strong>{orderData.serviceName}</strong>
+          <strong>{displayLocalized(orderData.serviceName)}</strong>
           {orderDeliverableLabels(orderData, locale).length > 0 && (
             <span>
               {t.deliverableFormat}:{' '}

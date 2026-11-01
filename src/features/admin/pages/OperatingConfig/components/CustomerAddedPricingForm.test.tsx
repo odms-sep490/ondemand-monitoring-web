@@ -49,13 +49,13 @@ describe('CustomerAddedPricingForm', () => {
       />,
     )
     expect(screen.getByLabelText('Giá cơ bản')).toHaveValue('200.000')
-    expect(screen.getByLabelText('Số ảnh đã bao gồm')).toHaveValue(5)
-    expect(screen.getByLabelText('Diện tích đã bao gồm')).toHaveValue(5)
+    expect(screen.getByLabelText('Số ảnh đã bao gồm')).toHaveValue('5')
+    expect(screen.getByLabelText('Diện tích đã bao gồm')).toHaveValue('5')
     expect(
       screen.getByLabelText('Phụ thu diện tích vượt định mức'),
     ).toHaveValue('50.000')
     // Not configured yet: empty, not zero.
-    expect(screen.getByLabelText('Số video đã bao gồm')).toHaveValue(null)
+    expect(screen.getByLabelText('Số video đã bao gồm')).toHaveValue('')
   })
 
   it('edits an existing rule in place without touching the others', () => {
@@ -87,10 +87,9 @@ describe('CustomerAddedPricingForm', () => {
     fireEvent.change(screen.getByLabelText('Diện tích đã bao gồm'), {
       target: { value: '5' },
     })
-    fireEvent.change(
-      screen.getByLabelText('Phụ thu diện tích vượt định mức'),
-      { target: { value: '50000' } },
-    )
+    fireEvent.change(screen.getByLabelText('Phụ thu diện tích vượt định mức'), {
+      target: { value: '50000' },
+    })
     const area = latest.find((r) => r.mediaComponent === 'INCLUDED_AREA')!
     expect(area.pricingProfile).toBe('GENERIC_CUSTOMER_ADDED')
     expect(area.includedQuantity).toBe(5)
@@ -110,7 +109,7 @@ describe('CustomerAddedPricingForm', () => {
     expect(latest).toBeNull()
   })
 
-  it('formats money for reading and exposes plain digits while editing', () => {
+  it('formats money with the UI locale grouping and accepts plain digits', () => {
     render(
       <Harness
         onRules={() => undefined}
@@ -119,10 +118,7 @@ describe('CustomerAddedPricingForm', () => {
     )
     const input = screen.getByLabelText('Giá cơ bản')
     expect(input).toHaveValue('200.000')
-    fireEvent.focus(input)
-    expect(input).toHaveValue('200000')
     fireEvent.change(input, { target: { value: '250000' } })
-    fireEvent.blur(input)
     expect(input).toHaveValue('250.000')
   })
 })

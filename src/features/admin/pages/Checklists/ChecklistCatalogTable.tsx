@@ -3,7 +3,7 @@ import { Button, Space } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 
 import { StatusTag, TableComponent } from '../../../../shared/components/antd'
-import { useI18n } from '../../../../shared/i18n'
+import { displayLocalized, useI18n } from '../../../../shared/i18n'
 import { formatVnd } from '../../../../shared/lib/formatVnd'
 import type { ChecklistDefinition } from '../../api/checklistsApi'
 import { checklistMessages } from './checklists.messages'
@@ -21,14 +21,14 @@ export function ChecklistCatalogTable({
   onEdit: (row: ChecklistDefinition) => void
   onToggle: (row: ChecklistDefinition) => void
 }) {
-  const { t, lang } = useI18n(checklistMessages)
+  const { t, locale } = useI18n(checklistMessages)
 
   const columns: ColumnsType<ChecklistDefinition> = [
     {
       title: t.content,
       key: 'content',
       render: (_, row) => (
-        <span className="adm-wrap checklist-content-cell">{row.content}</span>
+        <span className="adm-wrap checklist-content-cell">{displayLocalized(row.content)}</span>
       ),
     },
     {
@@ -69,9 +69,7 @@ export function ChecklistCatalogTable({
       className: 'mgr-nowrap',
       render: (_, row) => (
         <span className="adm-mono">
-          {new Date(row.updatedAt ?? row.createdAt).toLocaleString(
-            lang === 'vi' ? 'vi-VN' : 'en-US',
-          )}
+          {new Date(row.updatedAt ?? row.createdAt).toLocaleString(locale)}
         </span>
       ),
     },

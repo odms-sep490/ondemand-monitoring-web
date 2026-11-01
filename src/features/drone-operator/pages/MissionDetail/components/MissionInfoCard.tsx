@@ -12,6 +12,7 @@ import {
 } from '../missionFormat'
 import { InfoRow } from './InfoRow'
 import { Icon } from '../../../../../shared/components/Icon'
+import { displayLocalized } from '../../../../../shared/i18n'
 
 // ─── Mission info card ────────────────────────────────────────────────────────
 
@@ -57,12 +58,12 @@ export function MissionInfoCard({
             value: `${mission.radiusMeters} m`,
           },
         ]),
-    ...(mission.serviceLabel.trim()
+    ...(displayLocalized(mission.serviceLabel).trim()
       ? [
           {
             icon: <Icon name="clipboard" width={15} height={15} />,
             label: 'Dịch vụ',
-            value: mission.serviceLabel,
+            value: displayLocalized(mission.serviceLabel),
           },
         ]
       : []),
@@ -191,7 +192,7 @@ export function MissionInfoCard({
           <InfoRow
             icon={<Icon name="clipboard" width={15} height={15} />}
             label="Loại nhiệm vụ"
-            value={mission.serviceLabel}
+            value={displayLocalized(mission.serviceLabel)}
           />
         ) : null}
 

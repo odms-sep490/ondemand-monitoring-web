@@ -3,7 +3,7 @@ import { useState } from 'react'
 import type { OrderChecklistSnapshot } from '../../types/orders'
 import type { ExecutionPlan } from '../../types/planning'
 import type { MissionResponse } from '../../types/missions'
-import { useI18n } from '../../../../shared/i18n'
+import { displayLocalized, localizedSearchText, useI18n } from '../../../../shared/i18n'
 import { OrderIcon } from './OrderIcon'
 import { masterChecklistSidebarMessages } from './MasterChecklistSidebar.messages'
 
@@ -49,10 +49,10 @@ export function MasterChecklistSidebar({
   })
 
   const filteredAssigned = assignedItems.filter((i) =>
-    (i.content || i.description || '').toLowerCase().includes(filterQuery.toLowerCase()),
+    localizedSearchText(`${i.content || ''} ${i.description || ''}`).includes(filterQuery.toLowerCase()),
   )
   const filteredUnassigned = unassignedItems.filter((i) =>
-    (i.content || i.description || '').toLowerCase().includes(filterQuery.toLowerCase()),
+    localizedSearchText(`${i.content || ''} ${i.description || ''}`).includes(filterQuery.toLowerCase()),
   )
 
   if (collapsed) {
@@ -101,9 +101,9 @@ export function MasterChecklistSidebar({
           ) : (
             filteredAssigned.map((item) => (
               <div key={item.id} className="odm-master-item-card is-assigned">
-                <span className="odm-master-name">{item.content}</span>
+                <span className="odm-master-name">{displayLocalized(item.content)}</span>
                 {item.description && (
-                  <span className="odm-master-desc">{item.description}</span>
+                  <span className="odm-master-desc">{displayLocalized(item.description)}</span>
                 )}
                 <div className="odm-master-item-meta">
                   <span className="odm-mcard-sec-badge is-assigned">
@@ -132,9 +132,9 @@ export function MasterChecklistSidebar({
           ) : (
             filteredUnassigned.map((item) => (
               <div key={item.id} className="odm-master-item-card is-unassigned">
-                <span className="odm-master-name">{item.content}</span>
+                <span className="odm-master-name">{displayLocalized(item.content)}</span>
                 {item.description && (
-                  <span className="odm-master-desc">{item.description}</span>
+                  <span className="odm-master-desc">{displayLocalized(item.description)}</span>
                 )}
                 <div className="odm-master-item-meta">
                   <span>{t.order(item.displayOrder)}</span>

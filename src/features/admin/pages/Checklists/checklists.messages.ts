@@ -28,7 +28,8 @@ export const checklistMessages = defineMessages({
     fork: 'Tạo bản sao riêng cho dịch vụ này',
     forking: 'Đang tạo bản sao…',
     forkConfirm: 'Tạo bản sao riêng và chuyển dịch vụ này sang bản sao?',
-    forked: 'Đã tạo bản sao riêng. Bạn có thể sửa nội dung mà không ảnh hưởng dịch vụ khác.',
+    forked:
+      'Đã tạo bản sao riêng. Bạn có thể sửa nội dung mà không ảnh hưởng dịch vụ khác.',
     baseValue: 'Giá trị gốc',
     serviceOverrideNote:
       'Các giá trị dưới đây chỉ áp dụng cho dịch vụ này. Để trống để kế thừa giá trị gốc.',
@@ -93,14 +94,18 @@ export const checklistMessages = defineMessages({
     removeTitle: 'Gỡ checklist khỏi dịch vụ?',
     contentHint: 'Nội dung có thể tái sử dụng cho nhiều dịch vụ.',
     descriptionLabel: 'Mô tả chi tiết',
-    descriptionHint: 'Mục đích và phạm vi của hạng mục này. Khách hàng và manager đều đọc được.',
+    descriptionHint:
+      'Mục đích và phạm vi của hạng mục này. Khách hàng và quản lý đều đọc được.',
     stepsLabel: 'Các bước thực hiện',
     stepsHint: 'Mỗi dòng là một bước, theo đúng thứ tự thực hiện.',
     inputsLabel: 'Đầu vào cần có',
     inputsHint: 'Mỗi dòng là một điều kiện cần có trước khi làm.',
     outputsLabel: 'Đầu ra cần nộp',
     outputsHint: 'Mỗi dòng là một sản phẩm đội bay phải nộp.',
-    guidanceInvalid: 'Mô tả tối đa 4000 ký tự; mỗi danh sách tối đa 30 dòng, mỗi dòng tối đa 500 ký tự.',
+    guidanceInvalid:
+      'Khi lưu (cả hai ngôn ngữ): mô tả tối đa 4000 ký tự; mỗi danh sách tối đa 30 dòng, mỗi dòng tối đa 500 ký tự.',
+    linesMismatch:
+      'Số dòng tiếng Việt và English đang khác nhau; dòng thứ N của hai bản sẽ được ghép với nhau.',
     future:
       'Thay đổi chỉ áp dụng cho đơn hàng tương lai. Snapshot đơn hàng cũ không đổi.',
     add: 'Thêm checklist',
@@ -122,7 +127,8 @@ export const checklistMessages = defineMessages({
     previous: 'Trang trước',
     next: 'Trang sau',
     page: 'Trang',
-    required: 'Nội dung cần từ 1 đến 500 ký tự.',
+    required:
+      'Cần nhập nội dung cả Tiếng Việt và English; tổng độ dài khi lưu tối đa 500 ký tự.',
     error: 'Không thể cập nhật checklist. Vui lòng thử lại.',
     duplicate: 'Checklist có nội dung tương đương đã tồn tại.',
     assignmentDuplicate: 'Checklist đã được gán vào dịch vụ.',
@@ -157,7 +163,19 @@ export const checklistMessages = defineMessages({
     includedImages: 'Số ảnh đã bao gồm',
     includedVideos: 'Số video đã bao gồm',
     videoDuration: 'Thời lượng video tiêu chuẩn (giây)',
-    pricingProfile: 'Hồ sơ giá (pricing profile)',
+    difficulty: 'Độ khó tính giá',
+    difficultyBasic: 'Cơ bản',
+    difficultyMedium: 'Trung bình',
+    difficultyHard: 'Khó',
+    difficultyVeryHard: 'Rất khó',
+    measureHint: 'Chỉ bật chiều đo thực sự ảnh hưởng đến checklist này.',
+    areaPricing: 'Tính theo diện tích',
+    lengthPricing: 'Tính theo chiều dài',
+    altitudePricing: 'Tính theo độ cao',
+    includedArea: 'Diện tích đã bao gồm (ha)',
+    includedLength: 'Chiều dài đã bao gồm (km)',
+    includedAltitude: 'Độ cao đã bao gồm (m)',
+    pricingProfile: 'Hồ sơ giá',
     pricingProfileHint:
       'Để trống để dùng hồ sơ DEFAULT. Chỉ gồm chữ, số và dấu gạch dưới.',
     invalidPricing:
@@ -206,7 +224,8 @@ export const checklistMessages = defineMessages({
     fork: 'Make a private copy for this service',
     forking: 'Creating copy…',
     forkConfirm: 'Create a private copy and move this service to it?',
-    forked: 'Private copy created. You can edit its content without affecting other services.',
+    forked:
+      'Private copy created. You can edit its content without affecting other services.',
     baseValue: 'Base value',
     serviceOverrideNote:
       'These values apply to this service only. Leave blank to inherit the base value.',
@@ -270,14 +289,19 @@ export const checklistMessages = defineMessages({
     removeTitle: 'Remove checklist from service?',
     contentHint: 'Requirements can be reused across multiple services.',
     descriptionLabel: 'Detailed description',
-    descriptionHint: 'Purpose and scope of this item. Customers and managers can read it.',
+    descriptionHint:
+      'Purpose and scope of this item. Customers and managers can read it.',
     stepsLabel: 'Execution steps',
     stepsHint: 'One step per line, in the order they are carried out.',
     inputsLabel: 'Required inputs',
-    inputsHint: 'One condition per line that must be in place before the work starts.',
+    inputsHint:
+      'One condition per line that must be in place before the work starts.',
     outputsLabel: 'Expected outputs',
     outputsHint: 'One deliverable per line that the crew must hand in.',
-    guidanceInvalid: 'Description up to 4000 characters; each list up to 30 lines of at most 500 characters.',
+    guidanceInvalid:
+      'As saved (both languages): description up to 4000 characters; each list up to 30 items of at most 500 characters.',
+    linesMismatch:
+      'The Vietnamese and English line counts differ; line N of each language is paired.',
     future:
       'Changes apply only to future orders. Existing order snapshots stay unchanged.',
     add: 'Add checklist',
@@ -299,7 +323,8 @@ export const checklistMessages = defineMessages({
     previous: 'Previous page',
     next: 'Next page',
     page: 'Page',
-    required: 'Content must contain 1 to 500 characters.',
+    required:
+      'Content is required in both Vietnamese and English, at most 500 characters when saved.',
     error: 'Unable to update checklist. Please try again.',
     duplicate: 'A checklist with equivalent content already exists.',
     assignmentDuplicate: 'Checklist is already assigned to this service.',
@@ -333,6 +358,19 @@ export const checklistMessages = defineMessages({
     includedImages: 'Included images',
     includedVideos: 'Included videos',
     videoDuration: 'Standard video duration (seconds)',
+    difficulty: 'Pricing difficulty',
+    difficultyBasic: 'Basic',
+    difficultyMedium: 'Medium',
+    difficultyHard: 'Hard',
+    difficultyVeryHard: 'Very hard',
+    measureHint:
+      'Only enable the dimensions that actually affect this checklist.',
+    areaPricing: 'Price by area',
+    lengthPricing: 'Price by length',
+    altitudePricing: 'Price by altitude',
+    includedArea: 'Included area (ha)',
+    includedLength: 'Included length (km)',
+    includedAltitude: 'Included altitude (m)',
     pricingProfile: 'Pricing profile',
     pricingProfileHint:
       'Leave empty for the DEFAULT profile. Letters, digits and underscore only.',

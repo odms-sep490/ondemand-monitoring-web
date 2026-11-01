@@ -61,11 +61,11 @@ describe('AccountsPage', () => {
 
   it('shows disabled confirm with unsupported note for reset password', async () => {
     render(<AccountsPage />)
-    const buttons = await screen.findAllByLabelText('Reset mật khẩu')
+    const buttons = await screen.findAllByLabelText('Đặt lại mật khẩu')
     fireEvent.click(buttons[0])
-    expect(screen.getByText('BE chưa hỗ trợ')).toBeTruthy()
+    expect(screen.getByText('Chưa được hỗ trợ')).toBeTruthy()
     expect(
-      screen.getByRole('button', { name: 'Xác nhận reset' }),
+      screen.getByRole('button', { name: 'Xác nhận đặt lại' }),
     ).toBeDisabled()
   })
 

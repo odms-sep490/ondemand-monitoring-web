@@ -1,5 +1,5 @@
 import { PageHeader } from '../../../components/common/ui'
-import { useI18n } from '../../../../../shared/i18n'
+import { displayLocalized, useI18n } from '../../../../../shared/i18n'
 import { OrderStatusBadge } from '../../../components/common/OrderStatusBadge'
 import type { OrderDetailView } from '../../../lib/orders/types'
 import { customerHref } from '../../../routes'
@@ -46,7 +46,7 @@ export function getDisplayTitle(order: OrderDetailView, fallbackLabel: string) {
   if (isMeaningful) return title
 
   const code = order.code?.trim()
-  const context = [order.serviceName, order.address, code ? `#${code}` : '']
+  const context = [displayLocalized(order.serviceName), order.address, code ? `#${code}` : '']
     .map((value) => value?.trim())
     .filter((value): value is string => Boolean(value))
 

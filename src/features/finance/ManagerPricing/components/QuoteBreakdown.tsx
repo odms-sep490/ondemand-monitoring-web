@@ -1,7 +1,10 @@
 import type { PricingChecklistItem } from '../../types'
 import { formatVnd } from '../../../../shared/lib/formatVnd'
-import { pricingDescription } from '../../../../shared/lib/pricingPresentation'
-import { useI18n } from '../../../../shared/i18n'
+import {
+  pricingDescription,
+  stripChecklistPrefix,
+} from '../../../../shared/lib/pricingPresentation'
+import { displayLocalized, useI18n } from '../../../../shared/i18n'
 import { pricingMessages } from '../pricing.messages'
 
 /** System price lines grouped per checklist (with a subtotal each), then the order-level lines. */
@@ -35,7 +38,7 @@ export function QuoteBreakdown({
       <div className="finance-breakdown-content">
         {[...groups.entries()].map(([id, lines]) => {
           const name =
-            checklistItems.find((entry) => entry.id === id)?.content ??
+            displayLocalized(checklistItems.find((entry) => entry.id === id)?.content) ||
             t.breakdownFallbackName
           const subtotal = lines.reduce((sum, line) => sum + line.amount, 0)
           return (
@@ -83,6 +86,5 @@ export function QuoteBreakdown({
 /** Engine descriptions are "<checklist> · <line>"; inside a group the checklist name is already the heading. */
 export function lineLabel(description: string, checklistName: string) {
   const text = pricingDescription(description)
-  const prefix = `${checklistName.length <= 80 ? checklistName : checklistName.slice(0, 77) + '...'} · `
-  return text.startsWith(prefix) ? text.slice(prefix.length) : text
+  return stripChecklistPrefix(text, checklistName)
 }

@@ -1,4 +1,5 @@
 import type { OrderRow } from './types'
+import { localizedSearchText } from '../../../../shared/i18n'
 
 const byNewest = (a: OrderRow, b: OrderRow) =>
   (b.createdAt ?? '').localeCompare(a.createdAt ?? '')
@@ -12,8 +13,8 @@ export function searchOrders(rows: OrderRow[], query: string): OrderRow[] {
   const needle = query.trim().toLowerCase()
   if (!needle) return rows
   return rows.filter((row) =>
-    [row.title, row.address, row.serviceName, row.code, row.id].some((field) =>
-      field?.toLowerCase().includes(needle),
+    [row.title, row.address, localizedSearchText(row.serviceName), row.code, row.id].some(
+      (field) => field?.toLowerCase().includes(needle),
     ),
   )
 }

@@ -12,6 +12,8 @@ export const timeslotModalMessages = defineMessages({
     startTime: 'Bắt đầu',
     endTime: 'Kết thúc',
     required: 'Bắt buộc',
+    nameRequired: 'Bắt buộc nhập cả Tiếng Việt và English',
+    nameTooLong: 'Tên song ngữ quá dài. Hãy rút gọn.',
     genericError: 'Không lưu được khung giờ.',
   },
   en: {
@@ -25,6 +27,8 @@ export const timeslotModalMessages = defineMessages({
     startTime: 'Start',
     endTime: 'End',
     required: 'Required',
+    nameRequired: 'Required in both Vietnamese and English',
+    nameTooLong: 'The bilingual name is too long. Please shorten it.',
     genericError: 'Could not save the timeslot.',
   },
 })

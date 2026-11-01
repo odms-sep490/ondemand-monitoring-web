@@ -1,4 +1,10 @@
-import { getLanguage } from '../i18n'
+import {
+  decodeLocalizedInText,
+  getLanguage,
+  isLocalizedText,
+  parseLocalizedText,
+  type LocalizedText,
+} from '../i18n'
 
 const descriptions: Record<string, string> = {
   'Default pricing policy': 'Chính sách giá mặc định',
@@ -127,7 +133,9 @@ const descriptionsEn: Record<string, string> = {
   'Video theo yêu cầu': 'Requested video output',
 }
 
-export function pricingDescription(value: string | null | undefined) {
+export function pricingDescription(raw: string | null | undefined) {
+  // Admin-entered rules store `{"vi":..,"en":..}`; engine text stays plain.
+  const value = decodeLocalizedInText(raw)
   if (getLanguage() === 'en') {
     if (!value) return 'Pricing item'
     return descriptionsEn[value] ?? value
@@ -136,6 +144,32 @@ export function pricingDescription(value: string | null | undefined) {
   return descriptions[value] ?? value
 }
 
-export function pricingPolicyName(value: string) {
+export function pricingPolicyName(raw: string) {
+  const value = decodeLocalizedInText(raw)
   return descriptions[value] ?? value
+}
+
+/**
+ * Engine descriptions are "<checklist> · <line>". The backend shortens a long
+ * checklist name with "...", which can cut a bilingual name mid-way, so a
+ * truncated head is dropped as well.
+ */
+export function stripChecklistPrefix(text: string, checklistName: string): string {
+  const prefix = `${checklistName.length <= 80 ? checklistName : checklistName.slice(0, 77) + '...'} · `
+  if (text.startsWith(prefix)) return text.slice(prefix.length)
+  const cut = text.indexOf(' · ')
+  if (cut > 0 && text.slice(0, cut).endsWith('...')) return text.slice(cut + 3)
+  return text
+}
+
+/**
+ * Editor value of a policy name or rule description: stored bilingual text, or
+ * a legacy engine/plain text split into its Vietnamese and English readings.
+ */
+export function pricingTextToLocalized(raw: string | null | undefined): LocalizedText {
+  if (!raw) return { vi: '', en: '' }
+  if (isLocalizedText(raw)) return parseLocalizedText(raw)
+  const vi = descriptions[raw] ?? raw
+  const en = descriptions[raw] ? raw : (descriptionsEn[raw] ?? raw)
+  return { vi, en }
 }

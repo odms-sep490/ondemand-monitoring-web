@@ -66,7 +66,8 @@ export const orderExpirationSettingsMessages = defineMessages({
     saveError: 'Could not update expiration timeouts. Please try again.',
     auditTitle: 'Timeout change history',
     auditDescription: 'Review recent updates to these settings.',
-    changeCount: (count: number) => `${count} changes`,
+    changeCount: (count: number) =>
+      `${count} ${count === 1 ? 'change' : 'changes'}`,
     noAudit: 'No changes have been recorded.',
     field: 'Setting',
     previous: 'Previous value',

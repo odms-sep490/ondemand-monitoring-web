@@ -1,7 +1,7 @@
 import { Skeleton, Tag } from 'antd'
 import { useState } from 'react'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
-import { useI18n } from '../../../../shared/i18n'
+import { decodeLocalizedInText, displayLocalized, useI18n } from '../../../../shared/i18n'
 import { EmptyState } from '../../../../shared/components/antd'
 import { checklistsApi, type ChecklistAudit } from '../../api/checklistsApi'
 import { checklistMessages } from './checklists.messages'
@@ -13,13 +13,14 @@ export function ChecklistHistoryPanel({
 }: {
   checklistId: string
 }) {
-  const { t, lang } = useI18n(checklistMessages)
+  const { t, locale } = useI18n(checklistMessages)
   const [page, setPage] = useState(0)
   const query = useApiQuery(
     (signal) => checklistsApi.audits({ checklistId, page }, signal),
     [checklistId, page],
   )
-  const empty = (value: string | null) => value ?? t.historyValueEmpty
+  const empty = (value: string | null) =>
+    value === null ? t.historyValueEmpty : decodeLocalizedInText(value)
   return (
     <div className="checklist-dialog">
       {query.loading && <Skeleton active aria-busy="true" />}
@@ -42,14 +43,12 @@ export function ChecklistHistoryPanel({
                     <strong>{t.audit[entry.action] ?? entry.action}</strong>
                     {entry.serviceName && (
                       <Tag bordered={false} color="processing">
-                        {t.historyFor}: {entry.serviceName}
+                        {t.historyFor}: {displayLocalized(entry.serviceName)}
                       </Tag>
                     )}
                   </div>
                   <div className="checklist-field-meta">
-                    {new Date(entry.createdAt).toLocaleString(
-                      lang === 'vi' ? 'vi-VN' : 'en-US',
-                    )}
+                    {new Date(entry.createdAt).toLocaleString(locale)}
                     {entry.actorName
                       ? ` · ${t.historyBy} ${entry.actorName}`
                       : ''}

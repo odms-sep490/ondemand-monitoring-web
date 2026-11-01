@@ -4,16 +4,28 @@ import type {
   ServiceRequest,
   ServiceResponse,
 } from '../api/catalogApi'
+import {
+  encodeLocalizedText,
+  parseLocalizedText,
+  type LocalizedText,
+} from '../../../shared/i18n'
 import type { AdminService, AdminTimeslot } from '../types/catalog'
+import { emptyLocalized } from './localizedField'
 
 export type ServiceFormValues = {
-  name: string
-  description: string
+  name: LocalizedText
+  description: LocalizedText
   basePrice: number
   isActive: boolean
 }
 
-export type TimeslotFormValues = PreferredTimeCreateRequest
+export type TimeslotFormValues = Omit<PreferredTimeCreateRequest, 'name'> & {
+  name: LocalizedText
+}
+
+/** Optional text: nothing entered in either language stays empty instead of `{"vi":"","en":""}`. */
+const encodeOptional = (value: LocalizedText) =>
+  value.vi.trim() || value.en.trim() ? encodeLocalizedText(value) : ''
 
 /** Trims "HH:mm:ss" to "HH:mm" so it fits `<input type="time">`. */
 export function toHourMinute(value: string | undefined | null): string {
@@ -46,13 +58,18 @@ export function mapTimeslot(dto: PreferredTimeResponse): AdminTimeslot {
 }
 
 export function emptyServiceForm(): ServiceFormValues {
-  return { name: '', description: '', basePrice: 3_200_000, isActive: true }
+  return {
+    name: emptyLocalized(),
+    description: emptyLocalized(),
+    basePrice: 3_200_000,
+    isActive: true,
+  }
 }
 
 export function serviceToForm(s: AdminService): ServiceFormValues {
   return {
-    name: s.name,
-    description: s.description,
+    name: parseLocalizedText(s.name),
+    description: parseLocalizedText(s.description),
     basePrice: s.basePrice,
     isActive: s.isActive,
   }
@@ -60,21 +77,21 @@ export function serviceToForm(s: AdminService): ServiceFormValues {
 
 export function toServiceRequest(v: ServiceFormValues): ServiceRequest {
   return {
-    name: v.name.trim(),
-    description: v.description.trim(),
+    name: encodeLocalizedText(v.name),
+    description: encodeOptional(v.description),
     basePrice: v.basePrice,
     isActive: v.isActive,
   }
 }
 
 export function emptyTimeslotForm(): TimeslotFormValues {
-  return { code: 'MORNING', name: '', startTime: '06:00', endTime: '12:00' }
+  return { code: 'MORNING', name: emptyLocalized(), startTime: '06:00', endTime: '12:00' }
 }
 
 export function timeslotToForm(t: AdminTimeslot): TimeslotFormValues {
   return {
     code: t.code,
-    name: t.name,
+    name: parseLocalizedText(t.name),
     startTime: t.startTime,
     endTime: t.endTime,
   }
@@ -85,7 +102,7 @@ export function toTimeslotRequest(
 ): PreferredTimeCreateRequest {
   return {
     code: v.code,
-    name: v.name.trim(),
+    name: encodeLocalizedText(v.name),
     startTime: v.startTime,
     endTime: v.endTime,
   }

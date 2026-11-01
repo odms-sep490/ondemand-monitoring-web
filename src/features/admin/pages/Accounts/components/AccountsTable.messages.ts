@@ -2,7 +2,7 @@ import { defineMessages } from '../../../../../shared/i18n'
 
 export const accountsTableMessages = defineMessages({
   vi: {
-    columnUser: 'Người dùng',
+    columnUser: 'Tài khoản',
     columnRole: 'Vai trò',
     columnStatus: 'Trạng thái',
     columnLastLogin: 'Đăng nhập cuối',
@@ -10,10 +10,10 @@ export const accountsTableMessages = defineMessages({
     unverifiedEmail: 'Chưa xác thực email',
   },
   en: {
-    columnUser: 'User',
+    columnUser: 'Account',
     columnRole: 'Role',
     columnStatus: 'Status',
-    columnLastLogin: 'Last login',
+    columnLastLogin: 'Last sign-in',
     columnActions: 'Actions',
     unverifiedEmail: 'Email not verified',
   },

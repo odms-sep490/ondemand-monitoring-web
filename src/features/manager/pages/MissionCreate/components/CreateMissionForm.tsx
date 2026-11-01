@@ -1,5 +1,5 @@
 import type { OrderMissionBrief } from '../../../types/orders'
-import { useI18n } from '../../../../../shared/i18n'
+import { displayLocalized, useI18n } from '../../../../../shared/i18n'
 import { missionCreatePageMessages } from '../MissionCreatePage.messages'
 import { orderReviewPageMessages } from '../../OrderReview/OrderReviewPage.messages'
 import { planningPresentationMessages } from '../../../components/common/planningPresentation.messages'
@@ -242,7 +242,7 @@ export function CreateMissionForm({
           title={t.title}
           description={t.fromOrder(
             formatOrderCode(brief.code),
-            brief.serviceName,
+            displayLocalized(brief.serviceName),
             brief.customerFullName,
           )}
         />

@@ -8,7 +8,7 @@ import {
 } from '@ant-design/icons'
 import { useState } from 'react'
 import { ApiError } from '../../../../shared/api/httpClient'
-import { useI18n } from '../../../../shared/i18n'
+import { displayLocalized, useI18n } from '../../../../shared/i18n'
 import { financeApi } from '../../api'
 import type { PricingChecklistItem } from '../../types'
 import { guidanceMessages } from '../guidance.messages'
@@ -214,7 +214,7 @@ export function ChecklistGuidanceEditor({
               <span className="checklist-guidance-eyebrow">
                 {t.requirement}
               </span>
-              <strong>{item.content}</strong>
+              <strong>{displayLocalized(item.content)}</strong>
               <p>
                 {t.media(
                   item.requestedImageCount ?? 0,

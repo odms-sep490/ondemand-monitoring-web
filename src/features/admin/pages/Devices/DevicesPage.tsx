@@ -1,6 +1,6 @@
 import { PlusOutlined } from '@ant-design/icons'
 import { Button, message } from 'antd'
-import { useEffect, useMemo, useState } from 'react'
+import { useState } from 'react'
 
 import {
   CardComponent,
@@ -8,100 +8,41 @@ import {
   ErrorState,
   PageHeader,
 } from '../../../../shared/components/antd'
-import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
 import { adminDevicesApi } from '../../api/adminDevicesApi'
 import { deviceErrorMessage } from '../../lib/deviceError'
-import {
-  computeDeviceStats,
-  mapDeviceModel,
-  mapDevice,
-  mapDevicePage,
-} from '../../lib/deviceMappers'
+import { mapDevice } from '../../lib/deviceMappers'
 import type { AdminDevice, DeviceFormValues } from '../../types/devices'
 import { DeviceDetailDrawer } from './components/DeviceDetailDrawer'
-import {
-  DeviceFilters,
-  NO_DEVICE_FILTERS,
-  type DeviceFilterState,
-} from './components/DeviceFilters'
+import { DeviceFilters } from './components/DeviceFilters'
 import { DeviceFormModal } from './components/DeviceFormModal'
 import { DeviceStats } from './components/DeviceStats'
 import { DevicesTable } from './components/DevicesTable'
 import { devicesPageMessages } from './DevicesPage.messages'
-
-const STATS_PAGE_SIZE = 200
+import { useDevicesData } from './useDevicesData'
 
 type FormState = { device: AdminDevice | null } | null
 
 export function DevicesPage() {
   const { t } = useI18n(devicesPageMessages)
   const [messageApi, messageHolder] = message.useMessage()
-  const [filters, setFilters] = useState<DeviceFilterState>(NO_DEVICE_FILTERS)
-  const [keyword, setKeyword] = useState('')
-  const [page, setPage] = useState(1)
-  const [size, setSize] = useState(10)
+  const {
+    filters,
+    changeFilters,
+    keyword,
+    page,
+    setPage,
+    size,
+    setSize,
+    list,
+    stats,
+    models,
+    modelsFailed,
+    refresh,
+  } = useDevicesData()
   const [form, setForm] = useState<FormState>(null)
   const [viewing, setViewing] = useState<AdminDevice | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
-
-  // Debounce free-text search so each keystroke does not hit the backend.
-  useEffect(() => {
-    const id = window.setTimeout(() => {
-      setKeyword(filters.keyword.trim())
-      setPage(1)
-    }, 300)
-    return () => window.clearTimeout(id)
-  }, [filters.keyword])
-
-  const list = useApiQuery(
-    (signal) =>
-      adminDevicesApi
-        .list({
-          page: page - 1,
-          size,
-          keyword,
-          status: filters.status,
-          modelId: filters.modelId,
-          signal,
-        })
-        .then(mapDevicePage),
-    [page, size, keyword, filters.status, filters.modelId],
-  )
-  const statsQuery = useApiQuery(
-    (signal) =>
-      adminDevicesApi
-        .list({ page: 0, size: STATS_PAGE_SIZE, signal })
-        .then(mapDevicePage),
-    [],
-  )
-  const modelsQuery = useApiQuery(
-    (signal) =>
-      adminDevicesApi
-        .listModels(signal)
-        .then((rows) => rows.map(mapDeviceModel)),
-    [],
-  )
-  const models = modelsQuery.data ?? []
-  const stats = useMemo(() => {
-    if (!statsQuery.data) return null
-    return {
-      ...computeDeviceStats(statsQuery.data.items),
-      total: statsQuery.data.totalItems,
-    }
-  }, [statsQuery.data])
-
-  function refresh() {
-    list.reload()
-    statsQuery.reload()
-  }
-
-  function changeFilters(next: DeviceFilterState) {
-    if (next.status !== filters.status || next.modelId !== filters.modelId) {
-      setPage(1)
-    }
-    setFilters(next)
-  }
 
   async function submitForm(values: DeviceFormValues) {
     const editing = form?.device ?? null
@@ -198,7 +139,7 @@ export function DevicesPage() {
         open={form !== null}
         device={form?.device ?? null}
         models={models}
-        modelsFailed={Boolean(modelsQuery.error)}
+        modelsFailed={modelsFailed}
         onCancel={() => setForm(null)}
         onSubmit={submitForm}
       />

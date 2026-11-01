@@ -3,9 +3,9 @@ import { defineMessages } from '../../../../../shared/i18n'
 export const accountActionsMessages = defineMessages({
   vi: {
     edit: 'Xem / sửa thông tin',
-    unlock: 'Mở khoá tài khoản',
-    lock: 'Khoá tài khoản',
-    resetPassword: 'Reset mật khẩu',
+    unlock: 'Mở khóa tài khoản',
+    lock: 'Khóa tài khoản',
+    resetPassword: 'Đặt lại mật khẩu',
   },
   en: {
     edit: 'View / edit details',

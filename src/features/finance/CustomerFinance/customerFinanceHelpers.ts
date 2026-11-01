@@ -1,9 +1,12 @@
-import { getLanguage } from '../../../shared/i18n'
+import { displayLocalized, getLanguage } from '../../../shared/i18n'
 import { guidanceMessages } from '../ManagerPricing/guidance.messages'
 import { ApiError } from '../../../shared/api/httpClient'
 import { customerFinancePanelMessages } from './CustomerFinancePanel.messages'
 import type { CustomerQuote } from '../types'
-import { pricingDescription } from '../../../shared/lib/pricingPresentation'
+import {
+  pricingDescription,
+  stripChecklistPrefix,
+} from '../../../shared/lib/pricingPresentation'
 
 export function isNotFound(error: unknown) {
   return error instanceof ApiError && error.status === 404
@@ -45,6 +48,5 @@ export function lineText(
     return reason ? `${adjustmentLabel}: ${reason}` : adjustmentLabel
   }
   const text = pricingDescription(row.description)
-  const prefix = checklistName ? `${checklistName} · ` : ''
-  return prefix && text.startsWith(prefix) ? text.slice(prefix.length) : text
+  return checklistName ? stripChecklistPrefix(text, displayLocalized(checklistName)) : text
 }

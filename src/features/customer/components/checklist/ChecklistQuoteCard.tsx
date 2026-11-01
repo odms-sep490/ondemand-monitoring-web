@@ -1,4 +1,4 @@
-import { useI18n } from '../../../../shared/i18n'
+import { decodeLocalizedInText, displayLocalized, useI18n } from '../../../../shared/i18n'
 import { formatVnd } from '../../../../shared/lib/formatVnd'
 import type { ServicePricePreview } from '../../../../shared/api/checklistPricingApi'
 import { checklistMessages } from '../../lib/checklist/messages'
@@ -65,7 +65,7 @@ function QuoteDetails({
           <div role="alert" className="co-notice is-danger">
             <ul>
               {preview.warnings.map((warning) => (
-                <li key={warning}>{warning}</li>
+                <li key={warning}>{decodeLocalizedInText(warning)}</li>
               ))}
             </ul>
           </div>
@@ -74,10 +74,10 @@ function QuoteDetails({
           <section
             key={`${row.checklistId ?? 'custom'}-${index}`}
             className="checklist-quote-line"
-            aria-label={row.content}
+            aria-label={displayLocalized(row.content)}
           >
             <header>
-              <strong>{row.content}</strong>
+              <strong>{displayLocalized(row.content)}</strong>
               <span>
                 {row.quotePending ? t.quoteAwaiting : formatVnd(row.subtotal)}
               </span>
@@ -88,7 +88,7 @@ function QuoteDetails({
                   .filter((line) => line.amount !== 0)
                   .map((line, lineIndex) => (
                     <li key={`${line.component}-${lineIndex}`}>
-                      <span>{line.description}</span>
+                      <span>{decodeLocalizedInText(line.description)}</span>
                       <span>{formatVnd(line.amount)}</span>
                     </li>
                   ))}
@@ -104,7 +104,7 @@ function QuoteDetails({
         {(preview.addOns ?? []).map((addOn) => (
           <div className="checklist-quote-sum" key={addOn.key}>
             <span>
-              {t.quoteAddOns}: {addOn.description}
+              {t.quoteAddOns}: {decodeLocalizedInText(addOn.description)}
             </span>
             <strong>{formatVnd(addOn.amount)}</strong>
           </div>

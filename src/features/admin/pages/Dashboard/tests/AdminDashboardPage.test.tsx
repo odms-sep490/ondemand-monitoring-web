@@ -98,18 +98,20 @@ describe('AdminDashboardPage', () => {
     await waitFor(() =>
       expect(within(kpi('Tài khoản')).getByText('40')).toBeTruthy(),
     )
-    expect(within(kpi('Tài khoản bị khoá')).getByText('4')).toBeTruthy()
+    expect(within(kpi('Tài khoản bị khóa')).getByText('4')).toBeTruthy()
     expect(within(kpi('Thiết bị sẵn sàng')).getByText('5')).toBeTruthy()
-    expect(within(kpi('Bảo trì / offline')).getByText('3')).toBeTruthy()
-    expect(within(kpi('Dịch vụ đang mở')).getByText('2')).toBeTruthy()
+    expect(within(kpi('Bảo trì / ngoại tuyến')).getByText('3')).toBeTruthy()
+    expect(within(kpi('Dịch vụ đang hoạt động')).getByText('2')).toBeTruthy()
     expect(within(kpi('Checklist đang dùng')).getByText('7')).toBeTruthy()
 
     expect(
-      await screen.findByText('3 thiết bị bảo trì hoặc offline'),
+      await screen.findByText('3 thiết bị bảo trì hoặc ngoại tuyến'),
     ).toBeTruthy()
-    expect(screen.getByText('1 dịch vụ đang mở chưa có checklist')).toBeTruthy()
+    expect(
+      screen.getByText('1 dịch vụ đang hoạt động chưa có checklist'),
+    ).toBeTruthy()
     expect(screen.getByText('1 chính sách giá đang là bản nháp')).toBeTruthy()
-    expect(screen.getByText('4 tài khoản đang bị khoá')).toBeTruthy()
+    expect(screen.getByText('4 tài khoản đang bị khóa')).toBeTruthy()
 
     expect(await screen.findByText('Bảng giá 2026')).toBeTruthy()
     expect(screen.getByText('48 giờ')).toBeTruthy()
@@ -129,8 +131,8 @@ describe('AdminDashboardPage', () => {
         screen.getAllByText('Không tải được dữ liệu này').length,
       ).toBeGreaterThan(0),
     )
-    expect(within(kpi('Dịch vụ đang mở')).getByText('2')).toBeTruthy()
+    expect(within(kpi('Dịch vụ đang hoạt động')).getByText('2')).toBeTruthy()
     expect(await screen.findByText('Bảng giá 2026')).toBeTruthy()
-    expect(screen.queryByText(/thiết bị bảo trì hoặc offline/)).toBeNull()
+    expect(screen.queryByText(/thiết bị bảo trì hoặc ngoại tuyến/)).toBeNull()
   })
 })

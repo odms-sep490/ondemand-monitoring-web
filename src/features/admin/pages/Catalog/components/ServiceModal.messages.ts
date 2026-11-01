@@ -21,12 +21,14 @@ export const serviceModalMessages = defineMessages({
     image: 'Ảnh minh họa',
     imageHint: 'JPG, PNG hoặc WebP · Tối đa 5 MB · Không bắt buộc',
     removeImage: 'Gỡ ảnh',
+    chooseImage: 'Chọn ảnh',
     invalidImage: 'Chọn ảnh JPG, PNG hoặc WebP không quá 5 MB.',
     imageError:
       'Thông tin dịch vụ đã lưu, nhưng chưa cập nhật được ảnh. Hãy thử lưu lại.',
     isActive: 'Đang hoạt động',
-    isActiveHint: 'Dịch vụ tắt sẽ không hiển thị cho khách hàng.',
-    required: 'Bắt buộc',
+    isActiveHint: 'Dịch vụ đã tắt sẽ không hiển thị cho khách hàng.',
+    required: 'Bắt buộc nhập cả Tiếng Việt và English',
+    nameTooLong: 'Tên song ngữ quá dài. Hãy rút gọn.',
     genericError: 'Không lưu được dịch vụ.',
   },
   en: {
@@ -50,12 +52,14 @@ export const serviceModalMessages = defineMessages({
     image: 'Illustration image',
     imageHint: 'JPG, PNG or WebP · Maximum 5 MB · Optional',
     removeImage: 'Remove image',
+    chooseImage: 'Choose image',
     invalidImage: 'Choose a JPG, PNG or WebP image no larger than 5 MB.',
     imageError:
       'Service details were saved, but the image was not updated. Please save again.',
     isActive: 'Active',
     isActiveHint: 'Inactive services are hidden from customers.',
-    required: 'Required',
+    required: 'Required (both Vietnamese and English)',
+    nameTooLong: 'The bilingual name is too long. Please shorten it.',
     genericError: 'Could not save the service.',
   },
 })

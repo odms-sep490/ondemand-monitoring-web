@@ -2,20 +2,20 @@ import { defineMessages } from '../../../../../shared/i18n'
 
 export const resetPasswordDialogMessages = defineMessages({
   vi: {
-    title: 'Reset mật khẩu',
+    title: 'Đặt lại mật khẩu',
     confirmPrefix: 'Đặt lại mật khẩu cho',
-    unsupported: 'BE chưa hỗ trợ',
+    unsupported: 'Chưa được hỗ trợ',
     unsupportedHint:
-      'Backend chưa có endpoint reset mật khẩu cho admin. Chức năng sẽ được bật khi BE bổ sung.',
+      'Hệ thống chưa hỗ trợ đặt lại mật khẩu cho quản trị viên. Chức năng sẽ được bật khi có hỗ trợ.',
     cancel: 'Đóng',
-    confirm: 'Xác nhận reset',
+    confirm: 'Xác nhận đặt lại',
   },
   en: {
     title: 'Reset password',
     confirmPrefix: 'Reset the password for',
-    unsupported: 'Not supported by backend yet',
+    unsupported: 'Not supported yet',
     unsupportedHint:
-      'The backend has no admin password reset endpoint yet. This will be enabled once it is added.',
+      'The system does not support admin password reset yet. This will be enabled once it is available.',
     cancel: 'Close',
     confirm: 'Confirm reset',
   },

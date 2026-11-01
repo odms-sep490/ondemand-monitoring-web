@@ -3,7 +3,7 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
 import { useApiQuery } from '../../../../../shared/hooks/useApiQuery'
-import { useLanguage } from '../../../../../shared/i18n'
+import { displayLocalized, useLanguage } from '../../../../../shared/i18n'
 import { customerApi } from '../../../api/customerApi'
 import { localizeServiceName } from '../../../lib/i18n/serviceNames'
 import type { OrderDetailView } from '../../../lib/orders/types'
@@ -149,8 +149,8 @@ export function OrderOverviewVisualCard({ order }: { order: OrderDetailView }) {
         )}
         <div className="od-service-hero-overlay">
           <span>{en ? 'Selected service' : 'Dịch vụ đã chọn'}</span>
-          <strong>{serviceName || order.serviceName || '—'}</strong>
-          {service?.description ? <p>{service.description}</p> : null}
+          <strong>{serviceName || displayLocalized(order.serviceName) || '—'}</strong>
+          {service?.description ? <p>{displayLocalized(service.description)}</p> : null}
         </div>
       </div>
       <div className="od-map-panel">

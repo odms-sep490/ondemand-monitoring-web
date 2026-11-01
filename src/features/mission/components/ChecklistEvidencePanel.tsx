@@ -1,5 +1,5 @@
 import { ChecklistEvidencePicker } from './ChecklistEvidencePicker'
-import { useLanguage } from '../../../shared/i18n'
+import { displayLocalized, useLanguage } from '../../../shared/i18n'
 import { useEffect, useRef, useState } from 'react'
 import {
   evidenceCountLabel,
@@ -348,7 +348,7 @@ function MissionEvidencePanel({
   return (
     <section
       className={`checklist-evidence${compact ? ' is-compact' : ''}`}
-      aria-label={`Bằng chứng: ${item.content}`}
+      aria-label={`Bằng chứng: ${displayLocalized(item.content)}`}
     >
       {compact ? (
         compactBody
@@ -500,7 +500,7 @@ function MissionEvidencePanel({
                 <div>
                   <strong>Chọn media làm bằng chứng</strong>
                   <span>
-                    {item.content} · Trang {page + 1}
+                    {displayLocalized(item.content)} · Trang {page + 1}
                   </span>
                 </div>
                 <button

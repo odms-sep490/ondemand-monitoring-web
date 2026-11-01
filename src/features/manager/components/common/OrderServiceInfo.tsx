@@ -6,6 +6,7 @@ import { preferredRangeLabel } from '../../lib/viLabels'
 import { estimatedAreaHa } from './format'
 import { OrderIcon, type OrderIconName } from './OrderIcon'
 import { resolveOrderGpsCenter } from './orderGps'
+import { displayLocalized } from '../../../../shared/i18n'
 
 type InfoTile = {
   icon: OrderIconName
@@ -112,7 +113,7 @@ export function OrderServiceInfo({
 
   const tiles: InfoTile[] = []
   if (!hideService) {
-    tiles.push({ icon: 'service', label: t.service, value: order.serviceName })
+    tiles.push({ icon: 'service', label: t.service, value: displayLocalized(order.serviceName) })
   }
   tiles.push(
     { icon: 'pin', label: t.locationLabel, value: locationLabel(order, t) },

@@ -6,6 +6,7 @@ import {
 } from '../../../components/common/OrderIcon'
 import { orderServiceBannerMessages } from './OrderServiceBanner.messages'
 import './OrderServiceBanner.css'
+import { displayLocalized } from '../../../../../shared/i18n'
 
 export type OrderServiceBannerProps = {
   serviceName: string
@@ -128,7 +129,7 @@ export function OrderServiceBanner({
   deliverablesLabel,
   meta,
 }: OrderServiceBannerProps) {
-  const name = clean(serviceName)
+  const name = clean(displayLocalized(serviceName))
   const labels = deliverables ?? []
   return (
     <section className="odm-osb" aria-label={name ?? eyebrow}>
@@ -137,7 +138,7 @@ export function OrderServiceBanner({
         {name ? (
           <ServiceIdentity
             name={name}
-            description={clean(serviceDescription)}
+            description={clean(displayLocalized(serviceDescription))}
             icon={serviceIcon ?? 'service'}
             eyebrow={eyebrow}
           />

@@ -1,3 +1,4 @@
+import { fillLocalized } from '../../testing/fillLocalized'
 import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest'
 import {
   fireEvent,
@@ -107,31 +108,35 @@ describe('Admin checklist catalog', () => {
   it('sends the description and one list entry per non-empty line, in order', async () => {
     render(<ChecklistCatalogPage />)
     fireEvent.click(screen.getByRole('button', { name: 'Thêm checklist' }))
-    fireEvent.change(screen.getByRole('textbox', { name: /Nội dung/ }), {
-      target: { value: 'Kiểm tra mái' },
-    })
-    fireEvent.change(screen.getByLabelText('Mô tả chi tiết'), {
-      target: { value: '  Phạm vi kiểm tra mái  ' },
-    })
-    fireEvent.change(screen.getByLabelText('Các bước thực hiện'), {
-      target: { value: ' Bay lưới song song \n\n Chụp cận ' },
-    })
-    fireEvent.change(screen.getByLabelText('Đầu vào cần có'), {
-      target: { value: 'Trời quang' },
-    })
-    fireEvent.change(screen.getByLabelText('Đầu ra cần nộp'), {
-      target: { value: 'Ảnh toàn mái\nGhi chú' },
-    })
+    fillLocalized('Nội dung', 'Kiểm tra mái', 'Roof check')
+    fillLocalized('Mô tả chi tiết', '  Phạm vi kiểm tra mái  ', ' Roof scope ')
+    fillLocalized(
+      'Các bước thực hiện',
+      ' Bay lưới song song \n\n Chụp cận ',
+      ' Fly a grid \n\n Take close-ups ',
+    )
+    fillLocalized('Đầu vào cần có', 'Trời quang', 'Clear sky')
+    fillLocalized(
+      'Đầu ra cần nộp',
+      'Ảnh toàn mái\nGhi chú',
+      'Roof photos\nNotes',
+    )
     fireEvent.click(screen.getByRole('button', { name: 'Lưu' }))
     await waitFor(() =>
       expect(checklistsApi.create).toHaveBeenCalledWith(
-        'Kiểm tra mái',
+        '{"vi":"Kiểm tra mái","en":"Roof check"}',
         'BASIC',
         expect.objectContaining({
-          description: 'Phạm vi kiểm tra mái',
-          executionSteps: ['Bay lưới song song', 'Chụp cận'],
-          inputRequirements: ['Trời quang'],
-          expectedOutputs: ['Ảnh toàn mái', 'Ghi chú'],
+          description: '{"vi":"Phạm vi kiểm tra mái","en":"Roof scope"}',
+          executionSteps: [
+            '{"vi":"Bay lưới song song","en":"Fly a grid"}',
+            '{"vi":"Chụp cận","en":"Take close-ups"}',
+          ],
+          inputRequirements: ['{"vi":"Trời quang","en":"Clear sky"}'],
+          expectedOutputs: [
+            '{"vi":"Ảnh toàn mái","en":"Roof photos"}',
+            '{"vi":"Ghi chú","en":"Notes"}',
+          ],
         }),
       ),
     )
@@ -139,14 +144,11 @@ describe('Admin checklist catalog', () => {
   it('refuses more than 30 lines in a list without calling the API', async () => {
     render(<ChecklistCatalogPage />)
     fireEvent.click(screen.getByRole('button', { name: 'Thêm checklist' }))
-    fireEvent.change(screen.getByRole('textbox', { name: /Nội dung/ }), {
-      target: { value: 'Kiểm tra mái' },
-    })
-    fireEvent.change(screen.getByLabelText('Các bước thực hiện'), {
-      target: {
-        value: Array.from({ length: 31 }, (_, i) => `Bước ${i}`).join('\n'),
-      },
-    })
+    fillLocalized('Nội dung', 'Kiểm tra mái')
+    fillLocalized(
+      'Các bước thực hiện',
+      Array.from({ length: 31 }, (_, i) => `Bước ${i}`).join('\n'),
+    )
     fireEvent.click(screen.getByRole('button', { name: 'Lưu' }))
     expect(await screen.findByText(/tối đa 30 dòng/)).toBeInTheDocument()
     expect(checklistsApi.create).not.toHaveBeenCalled()
@@ -154,13 +156,11 @@ describe('Admin checklist catalog', () => {
   it('creates trimmed content without sending normalizedContent', async () => {
     render(<ChecklistCatalogPage />)
     fireEvent.click(screen.getByRole('button', { name: 'Thêm checklist' }))
-    fireEvent.change(screen.getByRole('textbox', { name: /Nội dung/ }), {
-      target: { value: '  New checklist  ' },
-    })
+    fillLocalized('Nội dung', '  New checklist  ')
     fireEvent.click(screen.getByRole('button', { name: 'Lưu' }))
     await waitFor(() =>
       expect(checklistsApi.create).toHaveBeenCalledWith(
-        'New checklist',
+        '{"vi":"New checklist","en":"New checklist"}',
         'BASIC',
         {
           description: '',
@@ -192,9 +192,7 @@ describe('Admin checklist catalog', () => {
     )
     render(<ChecklistCatalogPage />)
     fireEvent.click(screen.getByRole('button', { name: 'Thêm checklist' }))
-    fireEvent.change(screen.getByRole('textbox', { name: /Nội dung/ }), {
-      target: { value: definition.content },
-    })
+    fillLocalized('Nội dung', definition.content)
     fireEvent.click(screen.getByRole('button', { name: 'Lưu' }))
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'nội dung tương đương',
@@ -204,11 +202,11 @@ describe('Admin checklist catalog', () => {
   it('rejects whitespace content locally', async () => {
     render(<ChecklistCatalogPage />)
     fireEvent.click(screen.getByRole('button', { name: 'Thêm checklist' }))
-    fireEvent.change(screen.getByRole('textbox', { name: /Nội dung/ }), {
-      target: { value: '   ' },
-    })
+    fillLocalized('Nội dung', '   ')
     fireEvent.click(screen.getByRole('button', { name: 'Lưu' }))
-    expect(await screen.findByRole('alert')).toHaveTextContent('1 đến 500')
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'tối đa 500 ký tự',
+    )
     expect(checklistsApi.create).not.toHaveBeenCalled()
   })
   it('edits content and reloads catalog', async () => {
@@ -216,14 +214,12 @@ describe('Admin checklist catalog', () => {
     fireEvent.click(
       await screen.findByRole('button', { name: 'Sửa checklist' }),
     )
-    fireEvent.change(screen.getByRole('textbox', { name: /Nội dung/ }), {
-      target: { value: 'Edited' },
-    })
+    fillLocalized('Nội dung', 'Edited')
     fireEvent.click(screen.getByRole('button', { name: 'Lưu' }))
     await waitFor(() =>
       expect(checklistsApi.update).toHaveBeenCalledWith(
         'a',
-        'Edited',
+        '{"vi":"Edited","en":"Edited"}',
         'BASIC',
         {
           description: '',
@@ -600,11 +596,8 @@ describe('Admin checklist visual structure and interaction', () => {
       'ant-btn',
     )
     fireEvent.click(screen.getByRole('button', { name: 'Thêm checklist' }))
-    const textarea = screen.getByRole('textbox', { name: /Nội dung/ })
-    expect(textarea).toHaveAttribute(
-      'aria-describedby',
-      'checklist-content-hint',
-    )
+    expect(screen.getByLabelText('Nội dung (Tiếng Việt)')).toBeInTheDocument()
+    expect(screen.getByLabelText('Nội dung (English)')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Lưu' })).toHaveClass(
       'ant-btn-primary',
     )

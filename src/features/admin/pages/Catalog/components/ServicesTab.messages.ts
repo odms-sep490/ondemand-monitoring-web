@@ -5,7 +5,7 @@ export const servicesTabMessages = defineMessages({
     add: 'Thêm dịch vụ',
     emptyTitle: 'Chưa có dịch vụ',
     emptyDescription: 'Thêm dịch vụ đầu tiên vào danh mục.',
-    deleteTitle: 'Xoá dịch vụ',
+    deleteTitle: 'Xóa dịch vụ',
   },
   en: {
     add: 'Add service',

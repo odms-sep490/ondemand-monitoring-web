@@ -10,7 +10,7 @@ import { orderStatusTone } from '../../../../../shared/lib/statusTone'
 import { formatOrderCode } from '../../../components/common/format'
 import { managerHref } from '../../../routes'
 import { orderReviewPageMessages } from '../OrderReviewPage.messages'
-import { useI18n } from '../../../../../shared/i18n'
+import { displayLocalized, useI18n } from '../../../../../shared/i18n'
 import { OrderDetailsDrawer } from '../../../components/common/OrderDetailsDrawer'
 import type { OrderProgress } from '../../../components/common/workflowModel'
 import type { OrderDetail } from '../../../types/orders'
@@ -70,10 +70,10 @@ export function ReviewTop({
         }
         description={
           showExecutionPlan ? (
-            `${t.pageTitle} · ${order.serviceName}`
+            `${t.pageTitle} · ${displayLocalized(order.serviceName)}`
           ) : (
             <>
-              <span className="mgr-code">{formatOrderCode(order.code)}</span> · {order.serviceName}
+              <span className="mgr-code">{formatOrderCode(order.code)}</span> · {displayLocalized(order.serviceName)}
             </>
           )
         }

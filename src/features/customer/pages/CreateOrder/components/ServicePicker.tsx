@@ -4,7 +4,7 @@ import { useState } from 'react'
 
 import { Card, EmptyState } from '../../../components/common/ui'
 import { Icon } from '../../../../../shared/components/Icon'
-import { useI18n } from '../../../../../shared/i18n'
+import { displayLocalized, localizedSearchText, useI18n } from '../../../../../shared/i18n'
 import type { ServiceOption } from '../../../api/customerApi'
 import { localizeServiceName } from '../../../lib/i18n/serviceNames'
 import { servicePickerMessages } from './ServicePicker.messages'
@@ -64,7 +64,7 @@ export function ServicePicker({
   const needle = query.trim().toLowerCase()
   const visible = needle
     ? services.filter((service) =>
-        `${localizeServiceName(service.id, lang, service.name)} ${service.description ?? ''}`
+        `${localizeServiceName(service.id, lang, service.name)} ${localizedSearchText(service.name)} ${localizedSearchText(service.description)}`
           .toLowerCase()
           .includes(needle),
       )
@@ -156,7 +156,7 @@ export function ServicePicker({
                 {localizeServiceName(service.id, lang, service.name)}
               </span>
               <span className="co-service-desc">
-                {service.description || t.defaultDescription}
+                {displayLocalized(service.description) || t.defaultDescription}
               </span>
               <strong>{formatMoney(service.defaultPrice ?? service.basePrice, locale)}</strong>
             </button>

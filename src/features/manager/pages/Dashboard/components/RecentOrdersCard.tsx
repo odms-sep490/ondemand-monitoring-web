@@ -3,7 +3,7 @@ import { Avatar, Empty, Tag } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 
 import { CardComponent, TableComponent } from '../../../../../shared/components/antd'
-import { useI18n } from '../../../../../shared/i18n'
+import { displayLocalized, useI18n } from '../../../../../shared/i18n'
 import { managerHref } from '../../../routes'
 import type { RecentOrder } from '../../../types/dashboard'
 import { dashboardPageMessages } from '../DashboardPage.messages'
@@ -36,7 +36,11 @@ export function RecentOrdersCard({ orders, className }: { orders: RecentOrder[];
         </span>
       ),
     },
-    { title: o.service, dataIndex: 'serviceName' },
+    {
+      title: o.service,
+      dataIndex: 'serviceName',
+      render: (name: string) => displayLocalized(name),
+    },
     {
       title: o.status,
       dataIndex: 'status',

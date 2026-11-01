@@ -8,6 +8,7 @@ import type { OperatorMission } from '../../types/mission'
 import type { MissionChecklistResponse } from '../../../mission/types/checklistExecution'
 import type { MissionResult } from '../../../mission/types/mission'
 import type { MissionPermissions } from '../../../mission/types/permissions'
+import { displayLocalized } from '../../../../shared/i18n'
 
 export function useMissionDetailActions({
   setActionError,
@@ -117,7 +118,7 @@ export function useMissionDetailActions({
       completedAt: mission.completedAt ?? new Date().toISOString(),
       summary: [
         `Mission ${mission.missionCode ?? mission.id} đã hoàn thành.`,
-        `Dịch vụ: ${mission.serviceLabel || 'Chưa rõ'}.`,
+        `Dịch vụ: ${displayLocalized(mission.serviceLabel) || 'Chưa rõ'}.`,
         `Địa điểm: ${mission.location || 'Chưa rõ'}.`,
         `Ngày bay: ${formatVnDate(mission.date)}.`,
         `Vùng giám sát: ${mission.radiusMeters == null ? 'chưa rõ bán kính' : `bán kính ${mission.radiusMeters} m`}.`,

@@ -4,10 +4,10 @@ export const accountsFiltersMessages = defineMessages({
   vi: {
     allStatuses: 'Mọi trạng thái',
     active: 'Hoạt động',
-    locked: 'Đã khoá',
+    locked: 'Đã khóa',
     unverified: 'Chưa xác thực',
     searchPlaceholder: 'Tìm tên hoặc email...',
-    searchAria: 'Tìm người dùng',
+    searchAria: 'Tìm tài khoản',
     statusAria: 'Trạng thái',
   },
   en: {
@@ -16,7 +16,7 @@ export const accountsFiltersMessages = defineMessages({
     locked: 'Locked',
     unverified: 'Unverified',
     searchPlaceholder: 'Search name or email...',
-    searchAria: 'Search users',
+    searchAria: 'Search accounts',
     statusAria: 'Status',
   },
 })

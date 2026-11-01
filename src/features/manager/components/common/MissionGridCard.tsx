@@ -30,7 +30,7 @@ import {
 } from './MissionGridAddStaffForm'
 import { MissionGridAddDeviceForm } from './MissionGridAddDeviceForm'
 import type { MissionStaffRole } from '../../../mission/types/mission'
-import { useI18n } from '../../../../shared/i18n'
+import { displayLocalized, useI18n } from '../../../../shared/i18n'
 import { missionGridCardMessages } from './MissionGridCard.messages'
 import './MissionGridCard.css'
 
@@ -504,7 +504,7 @@ export function MissionGridCard({
           ) : (
             assignedChecklists.map((item) => (
               <div key={item.id} className="odm-mcard-ch-item">
-                <span>{item.content}</span>
+                <span>{displayLocalized(item.content)}</span>
                 {isPlanning && (
                   <button
                     type="button"

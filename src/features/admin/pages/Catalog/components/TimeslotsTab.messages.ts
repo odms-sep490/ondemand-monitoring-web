@@ -5,7 +5,7 @@ export const timeslotsTabMessages = defineMessages({
     add: 'Thêm khung giờ',
     emptyTitle: 'Chưa có khung giờ',
     emptyDescription: 'Thêm khung giờ ưu tiên đầu tiên.',
-    deleteTitle: 'Xoá khung giờ',
+    deleteTitle: 'Xóa khung giờ',
   },
   en: {
     add: 'Add timeslot',

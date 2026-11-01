@@ -3,7 +3,7 @@ import { defineMessages } from '../../../../../shared/i18n'
 export const accountInfoCardMessages = defineMessages({
   vi: {
     accountInfo: 'Thông tin tài khoản',
-    idLabel: 'Mã ID',
+    idLabel: 'ID',
     roleLabel: 'Vai trò',
     emailVerification: 'Xác minh email',
     verified: 'Đã xác minh',
@@ -20,7 +20,7 @@ export const accountInfoCardMessages = defineMessages({
     verified: 'Verified',
     unverified: 'Unverified',
     createdAt: 'Created at',
-    lastLogin: 'Last login',
+    lastLogin: 'Last sign-in',
     oauth: 'OAuth',
   },
 })

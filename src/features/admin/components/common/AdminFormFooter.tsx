@@ -1,11 +1,7 @@
 import { Button } from 'antd'
 
-import { defineMessages, useI18n } from '../../../../shared/i18n'
-
-const adminFormFooterMessages = defineMessages({
-  vi: { cancel: 'Huỷ', save: 'Lưu', saving: 'Đang lưu...' },
-  en: { cancel: 'Cancel', save: 'Save', saving: 'Saving...' },
-})
+import { useI18n } from '../../../../shared/i18n'
+import { adminFormFooterMessages } from './AdminFormFooter.messages'
 
 /** Cancel + submit pair for a modal whose `<form id>` lives in the body. */
 export function AdminFormFooter({

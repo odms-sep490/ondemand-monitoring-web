@@ -4,6 +4,7 @@ import { Descriptions, Tag } from 'antd'
 import { CardComponent } from '../../../../../shared/components/antd'
 import type { UseApiQueryState } from '../../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../../shared/i18n'
+import { pricingPolicyName } from '../../../../../shared/lib/pricingPresentation'
 import { adminHref } from '../../../routes'
 import type { OrderExpirationSettings } from '../../../types/operatingConfig'
 import { adminDashboardPageMessages } from '../AdminDashboardPage.messages'
@@ -48,7 +49,7 @@ export function SystemConfigCard({
               <Descriptions.Item label={c.policy}>
                 {p.active ? (
                   <>
-                    <strong>{p.active.name}</strong>{' '}
+                    <strong>{pricingPolicyName(p.active.name)}</strong>{' '}
                     <Tag bordered={false} color="success">
                       {c.version(p.active.version)}
                     </Tag>

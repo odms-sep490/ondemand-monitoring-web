@@ -95,9 +95,7 @@ describe('PricingPolicyOverview', () => {
       />,
     )
     expect(screen.getByRole('note')).toHaveTextContent('không thể chỉnh sửa')
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Tạo bản nháp mới' }),
-    )
+    fireEvent.click(screen.getByRole('button', { name: 'Tạo bản nháp mới' }))
     expect(clone).toHaveBeenCalledTimes(1)
   })
 

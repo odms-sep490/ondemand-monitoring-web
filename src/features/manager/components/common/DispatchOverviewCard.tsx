@@ -4,7 +4,7 @@ import { fmtRadius, requestedWindow } from './liveDispatchHelpers'
 import { simulationMapAspectRatio } from '../../../../shared/lib/simulationMapProjection'
 import { SIMULATION_MAP_IMAGE_CROP } from './liveDispatchConstants'
 import { liveDispatchPageMessages } from './LiveDispatchPage.messages'
-import { useI18n } from '../../../../shared/i18n'
+import { displayLocalized, useI18n } from '../../../../shared/i18n'
 
 export function DispatchOverviewCard({
   target,
@@ -51,7 +51,7 @@ export function DispatchOverviewCard({
               <OrderIcon name="service" size={16} />
               {t.service}
             </dt>
-            <dd>{current.serviceName ?? '—'}</dd>
+            <dd>{displayLocalized(current.serviceName) || '—'}</dd>
           </div>
           <div>
             <dt>

@@ -126,7 +126,7 @@ export function CreateUserModal({
           <Input
             id="adm-cu-email"
             type="email"
-            placeholder="name@company.vn"
+            placeholder={t.emailPlaceholder}
             value={email}
             onChange={(e) => {
               setEmail(e.target.value)

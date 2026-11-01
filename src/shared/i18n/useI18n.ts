@@ -7,7 +7,8 @@ import {
   type Language,
 } from './languageStore'
 
-function localeOf(lang: Language): 'vi-VN' | 'en-US' {
+/** BCP 47 locale for a UI language, ready for `toLocaleString` / `Intl.*`. */
+export function localeOf(lang: Language): 'vi-VN' | 'en-US' {
   return lang === 'en' ? 'en-US' : 'vi-VN'
 }
 

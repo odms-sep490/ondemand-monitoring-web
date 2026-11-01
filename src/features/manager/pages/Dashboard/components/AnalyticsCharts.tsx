@@ -3,7 +3,7 @@ import { Button, Col, Empty, Row } from 'antd'
 import { useState } from 'react'
 
 import { CardComponent } from '../../../../../shared/components/antd'
-import { useI18n } from '../../../../../shared/i18n'
+import { displayLocalized, useI18n } from '../../../../../shared/i18n'
 import type { ManagerDashboardData } from '../../../types/dashboard'
 import { dashboardPageMessages } from '../DashboardPage.messages'
 import { statusLabel } from '../dashboardHelpers'
@@ -51,7 +51,7 @@ export function AnalyticsCharts({ data }: { data: ManagerDashboardData }) {
           <Col xs={24} xl={12}>
             <CardComponent title={c.servicesTitle} icon={<BarChartOutlined />} tone="green">
               <BarChartCard
-                points={data.serviceDistribution.map((p) => ({ label: p.serviceName, value: p.count }))}
+                points={data.serviceDistribution.map((p) => ({ label: displayLocalized(p.serviceName), value: p.count }))}
                 empty={c.servicesEmpty}
                 ariaLabel={c.barAria}
               />

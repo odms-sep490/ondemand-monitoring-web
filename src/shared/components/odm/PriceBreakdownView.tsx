@@ -1,4 +1,4 @@
-import { defineMessages, useI18n } from '../../i18n'
+import { decodeLocalizedInText, defineMessages, displayLocalized, useI18n } from '../../i18n'
 import { formatVnd } from '../../lib/formatVnd'
 import type {
   ChecklistPriceBreakdown,
@@ -84,9 +84,9 @@ const messages = defineMessages({
 export function ChecklistBreakdown({ row }: { row: ChecklistPriceBreakdown }) {
   const { t } = useI18n(messages)
   return (
-    <section className="price-bd-checklist" aria-label={row.content}>
+    <section className="price-bd-checklist" aria-label={displayLocalized(row.content)}>
       <header>
-        <strong>{row.content}</strong>
+        <strong>{displayLocalized(row.content)}</strong>
         {row.custom && <span className="price-bd-tag">{t.custom}</span>}
         <span className="price-bd-profile">
           {t.profile}: {t.profileNames[row.pricingProfile] ?? row.pricingProfile}
@@ -131,7 +131,7 @@ export function ChecklistBreakdown({ row }: { row: ChecklistPriceBreakdown }) {
           <tbody>
             {row.lines.map((line, index) => (
               <tr key={`${line.component}-${index}`}>
-                <td>{line.description}</td>
+                <td>{decodeLocalizedInText(line.description)}</td>
                 <td>
                   {line.quantity}
                   {line.blockSize ? ` ${t.block}` : ''}
@@ -173,7 +173,7 @@ export function PriceBreakdownView({
           <strong>{t.warnings}</strong>
           <ul>
             {preview.warnings.map((warning) => (
-              <li key={warning}>{warning}</li>
+              <li key={warning}>{decodeLocalizedInText(warning)}</li>
             ))}
           </ul>
         </div>
@@ -208,7 +208,7 @@ export function PriceBreakdownView({
       {(preview.addOns ?? []).map((addOn) => (
         <div className="price-bd-row" key={addOn.key}>
           <span>
-            {t.addOns}: {addOn.description}
+            {t.addOns}: {decodeLocalizedInText(addOn.description)}
           </span>
           <strong>{formatVnd(addOn.amount)}</strong>
         </div>

@@ -2,7 +2,7 @@ import { ProfileOutlined } from '@ant-design/icons'
 import type { ReactNode } from 'react'
 
 import { CardComponent } from '../../../../../shared/components/antd'
-import { useI18n } from '../../../../../shared/i18n'
+import { displayLocalized, useI18n } from '../../../../../shared/i18n'
 import { preferredRangeLabel } from '../../../lib/viLabels'
 import { formatVn } from '../../../components/common/format'
 import { resolveOrderGpsCenter } from '../../../components/common/orderGps'
@@ -31,7 +31,7 @@ export function OrderSummaryCard({
   const location =
     order.addressText ?? (gps ? `${gps.center.lat}, ${gps.center.lon}` : '—')
   const rows: Array<[string, string]> = [
-    [t.service, order.serviceName],
+    [t.service, displayLocalized(order.serviceName)],
     [t.preferredWindow, preferred],
     [t.locationLabel, location],
     [t.createdAt, order.submittedAt ? formatVn(order.submittedAt, locale) : '—'],

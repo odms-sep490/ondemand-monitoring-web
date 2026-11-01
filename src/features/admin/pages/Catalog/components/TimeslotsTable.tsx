@@ -1,10 +1,10 @@
 import type { ColumnsType } from 'antd/es/table'
 
 import { TableComponent } from '../../../../../shared/components/antd'
-import { useI18n } from '../../../../../shared/i18n'
+import { displayLocalized, useI18n } from '../../../../../shared/i18n'
 import type { AdminTimeslot } from '../../../types/catalog'
 import { RowActions } from './RowActions'
-import { timeslotCodeMessages } from './timeslotCodes'
+import { timeslotCodeMessages } from './timeslotCodes.messages'
 import { timeslotsTableMessages } from './TimeslotsTable.messages'
 
 export function TimeslotsTable({
@@ -33,7 +33,7 @@ export function TimeslotsTable({
     {
       title: t.name,
       key: 'name',
-      render: (_, s) => <span className="adm-wrap adm-strong">{s.name}</span>,
+      render: (_, s) => <span className="adm-wrap adm-strong">{displayLocalized(s.name)}</span>,
     },
     {
       title: t.window,
@@ -51,7 +51,7 @@ export function TimeslotsTable({
       align: 'right',
       render: (_, s) => (
         <RowActions
-          label={s.name}
+          label={displayLocalized(s.name)}
           onEdit={() => onEdit(s)}
           onDelete={() => onDelete(s)}
         />

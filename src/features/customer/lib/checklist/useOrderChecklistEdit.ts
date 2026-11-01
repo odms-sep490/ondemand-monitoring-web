@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useI18n } from '../../../../shared/i18n'
+import { displayLocalized, displayLocalizedList, useI18n } from '../../../../shared/i18n'
 import type { RequiredEvidenceType } from '../../../../shared/types/domain'
 import type { ChecklistQuoteContext } from '../../../../shared/api/checklistPricingApi'
 import { customerApi } from '../../api/customerApi'
@@ -50,12 +50,12 @@ export function snapshotToChecklistRows(
         existingItemId: item.id,
         sourceChecklistId: item.sourceChecklistId ?? null,
         version: item.sourceChecklistVersion ?? null,
-        originalContent: item.content,
-        content: item.content,
-        description: item.description,
-        executionSteps: item.executionSteps,
-        inputRequirements: item.inputRequirements,
-        expectedOutputs: item.expectedOutputs,
+        originalContent: displayLocalized(item.content),
+        content: displayLocalized(item.content),
+        description: item.description == null ? item.description : displayLocalized(item.description),
+        executionSteps: displayLocalizedList(item.executionSteps),
+        inputRequirements: displayLocalizedList(item.inputRequirements),
+        expectedOutputs: displayLocalizedList(item.expectedOutputs),
         selected: true,
         minimumEvidenceCount: item.minimumEvidenceCount ?? 1,
         requiredEvidenceType,
@@ -97,15 +97,23 @@ function mergeCatalogMetadata(
       ...row,
       version: row.version ?? tpl?.checklistVersion ?? cat?.version ?? 0,
       mandatory: row.mandatory || tpl?.required === true,
-      description: row.description ?? tpl?.description ?? cat?.description,
+      description: displayLocalized(
+        row.description ?? tpl?.description ?? cat?.description,
+      ),
       executionSteps:
-        row.executionSteps ?? tpl?.executionSteps ?? cat?.executionSteps,
+        displayLocalizedList(
+          row.executionSteps ?? tpl?.executionSteps ?? cat?.executionSteps,
+        ),
       inputRequirements:
-        row.inputRequirements ??
-        tpl?.inputRequirements ??
-        cat?.inputRequirements,
+        displayLocalizedList(
+          row.inputRequirements ??
+            tpl?.inputRequirements ??
+            cat?.inputRequirements,
+        ),
       expectedOutputs:
-        row.expectedOutputs ?? tpl?.expectedOutputs ?? cat?.expectedOutputs,
+        displayLocalizedList(
+          row.expectedOutputs ?? tpl?.expectedOutputs ?? cat?.expectedOutputs,
+        ),
     }
   })
 
@@ -116,12 +124,12 @@ function mergeCatalogMetadata(
       existingItemId: null,
       sourceChecklistId: item.checklistId,
       version: item.checklistVersion,
-      originalContent: item.content,
-      content: item.content,
-      description: item.description,
-      executionSteps: item.executionSteps,
-      inputRequirements: item.inputRequirements,
-      expectedOutputs: item.expectedOutputs,
+      originalContent: displayLocalized(item.content),
+      content: displayLocalized(item.content),
+      description: item.description == null ? item.description : displayLocalized(item.description),
+      executionSteps: displayLocalizedList(item.executionSteps),
+      inputRequirements: displayLocalizedList(item.inputRequirements),
+      expectedOutputs: displayLocalizedList(item.expectedOutputs),
       selected: false,
       minimumEvidenceCount: item.minimumEvidenceCount ?? 1,
       requiredEvidenceType: evidenceTypeFor(
@@ -149,12 +157,12 @@ function mergeCatalogMetadata(
       existingItemId: null,
       sourceChecklistId: item.id,
       version: item.version,
-      originalContent: item.content,
-      content: item.content,
-      description: item.description,
-      executionSteps: item.executionSteps,
-      inputRequirements: item.inputRequirements,
-      expectedOutputs: item.expectedOutputs,
+      originalContent: displayLocalized(item.content),
+      content: displayLocalized(item.content),
+      description: item.description == null ? item.description : displayLocalized(item.description),
+      executionSteps: displayLocalizedList(item.executionSteps),
+      inputRequirements: displayLocalizedList(item.inputRequirements),
+      expectedOutputs: displayLocalizedList(item.expectedOutputs),
       selected: false,
       minimumEvidenceCount: 1,
       requiredEvidenceType: evidenceTypeFor(

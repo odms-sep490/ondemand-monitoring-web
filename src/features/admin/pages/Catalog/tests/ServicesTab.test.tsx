@@ -21,7 +21,10 @@ describe('ServicesTab', () => {
       render(<ServicesTab />)
       await screen.findByText('Giám sát công trình')
       fireEvent.click(screen.getByText('Thêm dịch vụ'))
-      fireEvent.change(screen.getByLabelText(/Tên dịch vụ/), {
+      fireEvent.change(screen.getByLabelText('Tên dịch vụ (Tiếng Việt)'), {
+        target: { value: 'Image service' },
+      })
+      fireEvent.change(screen.getByLabelText('Tên dịch vụ (English)'), {
         target: { value: 'Image service' },
       })
       fireEvent.change(screen.getByLabelText('Ảnh minh họa'), {
@@ -59,12 +62,22 @@ describe('ServicesTab', () => {
     await screen.findByText('Thử lại')
   })
 
-  it('creates a service through the modal', async () => {
+  it('creates a service through the modal with bilingual JSON text', async () => {
+    const create = vi.spyOn(catalogApi, 'createService')
     render(<ServicesTab />)
     await screen.findByText('Giám sát công trình')
     fireEvent.click(screen.getByText('Thêm dịch vụ'))
-    fireEvent.change(screen.getByLabelText(/Tên dịch vụ/), {
+    fireEvent.change(screen.getByLabelText('Tên dịch vụ (Tiếng Việt)'), {
       target: { value: 'Dịch vụ thử' },
+    })
+    fireEvent.change(screen.getByLabelText('Tên dịch vụ (English)'), {
+      target: { value: 'Trial service' },
+    })
+    fireEvent.change(screen.getByLabelText('Mô tả (Tiếng Việt)'), {
+      target: { value: 'Mô tả thử' },
+    })
+    fireEvent.change(screen.getByLabelText('Mô tả (English)'), {
+      target: { value: 'Trial description' },
     })
     fireEvent.change(screen.getByLabelText(/Giá danh mục cũ/), {
       target: { value: '1800000' },
@@ -72,6 +85,26 @@ describe('ServicesTab', () => {
     fireEvent.click(screen.getByText('Lưu'))
     expect(await screen.findByText('Dịch vụ thử')).toBeTruthy()
     expect(screen.getByText(/1\.800\.000/)).toBeTruthy()
+    expect(create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: '{"vi":"Dịch vụ thử","en":"Trial service"}',
+        description: '{"vi":"Mô tả thử","en":"Trial description"}',
+      }),
+    )
+    create.mockRestore()
+  })
+
+  it('requires the name in both languages', async () => {
+    render(<ServicesTab />)
+    await screen.findByText('Giám sát công trình')
+    fireEvent.click(screen.getByText('Thêm dịch vụ'))
+    fireEvent.change(screen.getByLabelText('Tên dịch vụ (Tiếng Việt)'), {
+      target: { value: 'Chỉ tiếng Việt' },
+    })
+    fireEvent.click(screen.getByText('Lưu'))
+    expect(
+      screen.getByText('Bắt buộc nhập cả Tiếng Việt và English'),
+    ).toBeTruthy()
   })
 
   it('validates the required name and shows BE errors inline', async () => {
@@ -79,7 +112,9 @@ describe('ServicesTab', () => {
     await screen.findByText('Giám sát công trình')
     fireEvent.click(screen.getByText('Thêm dịch vụ'))
     fireEvent.click(screen.getByText('Lưu'))
-    expect(screen.getByText('Bắt buộc')).toBeTruthy()
+    expect(
+      screen.getByText('Bắt buộc nhập cả Tiếng Việt và English'),
+    ).toBeTruthy()
   })
 
   it('prefills the edit modal from the BE and saves', async () => {
@@ -87,12 +122,12 @@ describe('ServicesTab', () => {
     await screen.findByText('Giám sát công trình')
     fireEvent.click(screen.getByLabelText('Sửa Giám sát công trình'))
     const name = (await screen.findByLabelText(
-      /Tên dịch vụ/,
+      'Tên dịch vụ (Tiếng Việt)',
     )) as HTMLInputElement
     expect(name.value).toBe('Giám sát công trình')
     expect(screen.getByLabelText(/Giá danh mục cũ/)).toHaveValue('3500000')
     expect(
-      (screen.getByLabelText(/Mô tả/) as HTMLTextAreaElement).value,
+      (screen.getByLabelText('Mô tả (Tiếng Việt)') as HTMLTextAreaElement).value,
     ).toContain('công trình')
     fireEvent.change(name, { target: { value: 'Tên mới' } })
     fireEvent.click(screen.getByText('Lưu'))
@@ -103,9 +138,9 @@ describe('ServicesTab', () => {
     render(<ServicesTab />)
     await screen.findByText('Giám sát công trình')
     fireEvent.click(screen.getByLabelText('Thao tác khác Giám sát công trình'))
-    fireEvent.click(screen.getByLabelText('Xoá Giám sát công trình'))
-    expect(screen.getByText(/Bạn có chắc muốn xoá/)).toBeTruthy()
-    fireEvent.click(screen.getByRole('button', { name: 'Xoá' }))
+    fireEvent.click(screen.getByLabelText('Xóa Giám sát công trình'))
+    expect(screen.getByText(/Bạn có chắc muốn xóa/)).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'Xóa' }))
     await waitFor(() =>
       expect(screen.queryByText('Giám sát công trình')).toBeNull(),
     )

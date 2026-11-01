@@ -1,12 +1,21 @@
 import { Alert, Skeleton } from 'antd'
 import { useEffect, useState } from 'react'
 
+import {
+  encodeLocalizedText,
+  isLocalizedText,
+  parseLocalizedText,
+  useI18n,
+} from '../../../../../shared/i18n'
+
 import { useApiQuery } from '../../../../../shared/hooks/useApiQuery'
 import { ApiError } from '../../../../../shared/api/httpClient'
 import { ErrorState } from '../../../../../shared/components/antd'
 import { adminApi } from '../../../api/adminApi'
+import { useAdminConfirm } from '../../../components/common/useAdminConfirm'
 import { PricingDraftEditor } from './PricingDraftEditor'
 import { PricingPolicyOverview } from './PricingPolicyOverview'
+import { pricingPolicyTabMessages } from './PricingPolicyTab.messages'
 import {
   migrateLegacyCustomerAdded,
   validateMediaRules,
@@ -18,6 +27,8 @@ import type {
 } from '../../../types/pricing'
 
 export function PricingPolicyTab() {
+  const { t } = useI18n(pricingPolicyTabMessages)
+  const confirm = useAdminConfirm()
   const query = useApiQuery(
     (signal) => adminApi.listPricingPolicies(signal),
     [],
@@ -45,8 +56,8 @@ export function PricingPolicyTab() {
     draft !== null &&
     saved !== null &&
     JSON.stringify(draft) !== JSON.stringify(saved)
-  function cancel() {
-    if (dirty && !window.confirm('Bỏ các thay đổi chưa lưu của bản nháp?'))
+  async function cancel() {
+    if (dirty && !(await confirm({ title: t.discardConfirm, danger: true })))
       return
     setDraft(saved)
     setEditing(false)
@@ -59,7 +70,7 @@ export function PricingPolicyTab() {
     await run(async () => {
       await adminApi.clonePricingPolicy(active.id)
       query.reload()
-    }, 'Đã nhân bản chính sách đang áp dụng thành bản nháp mới.')
+    }, t.cloned)
   }
   const mediaValid = !draft || validateMediaRules(draft.rules).length === 0
   async function save() {
@@ -67,20 +78,15 @@ export function PricingPolicyTab() {
     await run(async () => {
       await adminApi.updatePricingPolicy(draft.id, payload(draft))
       query.reload()
-    }, 'Đã lưu bản nháp.')
+    }, t.saved)
   }
   async function publish() {
     if (!draft || !mediaValid) return
-    if (
-      !window.confirm(
-        `Bạn có chắc muốn áp dụng chính sách giá v${draft.version}? Chính sách đang áp dụng hiện tại sẽ được thay thế.`,
-      )
-    )
-      return
+    if (!(await confirm({ title: t.publishConfirm(draft.version) }))) return
     await run(async () => {
       await adminApi.publishPricingPolicy(draft.id)
       query.reload()
-    }, 'Đã áp dụng chính sách giá.')
+    }, t.published)
   }
   async function run(action: () => Promise<void>, success: string) {
     setBusy(true)
@@ -90,11 +96,7 @@ export function PricingPolicyTab() {
       await action()
       setMessage(success)
     } catch (cause) {
-      setError(
-        cause instanceof ApiError
-          ? cause.message
-          : 'Không thể cập nhật chính sách giá. Vui lòng kiểm tra dữ liệu và thử lại.',
-      )
+      setError(cause instanceof ApiError ? cause.message : t.updateFailed)
     } finally {
       setBusy(false)
     }
@@ -108,10 +110,7 @@ export function PricingPolicyTab() {
         </div>
       )}
       {query.error !== undefined && !query.data && (
-        <ErrorState
-          description="Không thể tải chính sách giá. Vui lòng thử lại."
-          onRetry={query.reload}
-        />
+        <ErrorState description={t.loadFailed} onRetry={query.reload} />
       )}
       {!query.loading && query.error === undefined && (!draft || !editing) && (
         <PricingPolicyOverview
@@ -131,7 +130,7 @@ export function PricingPolicyTab() {
           dirty={dirty}
           onSave={() => void save()}
           onPublish={() => void publish()}
-          onCancel={cancel}
+          onCancel={() => void cancel()}
         />
       )}
       {message && (
@@ -142,9 +141,16 @@ export function PricingPolicyTab() {
   )
 }
 
+/** Bilingual text is saved trimmed; plain text is left exactly as stored. */
+function normalizeText(raw: string): string {
+  return isLocalizedText(raw)
+    ? encodeLocalizedText(parseLocalizedText(raw))
+    : raw
+}
+
 function payload(policy: PricingPolicy): PricingPolicyPayload {
   return {
-    name: policy.name,
+    name: normalizeText(policy.name),
     effectiveFrom: null,
     effectiveTo: null,
     managerMaxDiscountPercent: policy.managerMaxDiscountPercent,
@@ -155,7 +161,11 @@ function payload(policy: PricingPolicy): PricingPolicyPayload {
     rules: policy.rules.map(
       (rule, priority) =>
         Object.fromEntries(
-          Object.entries({ ...rule, priority }).filter(
+          Object.entries({
+            ...rule,
+            description: normalizeText(rule.description),
+            priority,
+          }).filter(
             ([key]) => key !== 'id' && key !== 'checklistDefinitionName',
           ),
         ) as PricingRule,

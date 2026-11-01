@@ -3,6 +3,7 @@ import type { OrderReviewMessages } from '../../OrderReview/OrderReviewPage.mess
 import { OrderIcon } from '../../../components/common/OrderIcon'
 import './OrderChecklistCard.css'
 import { ChecklistGuidance } from '../../../../../shared/components/ChecklistGuidance'
+import { displayLocalized } from '../../../../../shared/i18n'
 
 export function OrderChecklistCard({
   order,
@@ -30,7 +31,7 @@ export function OrderChecklistCard({
           <ol className="odm-or-checklist-list mgr-scroll-list">
             {items.map((item) => (
               <li key={item.id}>
-                <p className="odm-or-checklist-content">{item.content}</p>
+                <p className="odm-or-checklist-content">{displayLocalized(item.content)}</p>
                 <ChecklistGuidance guidance={item} />
                 <span className="odm-or-checklist-source">
                   {item.sourceType === 'CUSTOMER_CUSTOM'

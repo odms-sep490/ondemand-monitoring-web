@@ -19,8 +19,18 @@ vi.mock('../../../../../shared/api/httpClient', async (importOriginal) => ({
 
 const mocked = vi.mocked(apiRequest)
 
-const model = { id: 'm1', code: 'M350', modelName: 'Matrice 350', manufacturer: 'DJI' }
-const mkDevice = (id: string, serial: string, name: string, status: string) => ({
+const model = {
+  id: 'm1',
+  code: 'M350',
+  modelName: 'Matrice 350',
+  manufacturer: 'DJI',
+}
+const mkDevice = (
+  id: string,
+  serial: string,
+  name: string,
+  status: string,
+) => ({
   id,
   serialNumber: serial,
   name,
@@ -62,7 +72,9 @@ const calls = (key: string) =>
   )
 
 async function pick(label: string, optionText: string, scope?: HTMLElement) {
-  const box = within(scope ?? document.body).getByRole('combobox', { name: label })
+  const box = within(scope ?? document.body).getByRole('combobox', {
+    name: label,
+  })
   fireEvent.mouseDown(box)
   const option = await waitFor(() => {
     const el = Array.from(
@@ -82,13 +94,19 @@ describe('DevicesPage', () => {
 
   it('renders KPI cards and the device rows', async () => {
     render(<DevicesPage />)
-    expect(screen.getByRole('heading', { name: 'Thiết bị' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: 'Thiết bị' }),
+    ).toBeInTheDocument()
     expect(await screen.findByText('Đại Bàng')).toBeInTheDocument()
     expect(screen.getByText('SN-002')).toBeInTheDocument()
     expect(screen.getByText('Tổng thiết bị')).toBeInTheDocument()
     await waitFor(() =>
       expect(
-        within(screen.getByText('Sẵn sàng', { selector: '.mgr-stat-label' }).closest('.mgr-stat') as HTMLElement).getByText('1'),
+        within(
+          screen
+            .getByText('Sẵn sàng', { selector: '.mgr-stat-label' })
+            .closest('.mgr-stat') as HTMLElement,
+        ).getByText('1'),
       ).toBeInTheDocument(),
     )
   })
@@ -102,7 +120,11 @@ describe('DevicesPage', () => {
   it('shows an error state when listing fails', async () => {
     route({
       'GET /api/devices': () => {
-        throw new ApiError('boom', { status: 500, method: 'GET', path: '/api/devices' })
+        throw new ApiError('boom', {
+          status: 500,
+          method: 'GET',
+          path: '/api/devices',
+        })
       },
     })
     render(<DevicesPage />)
@@ -128,7 +150,8 @@ describe('DevicesPage', () => {
     await waitFor(() =>
       expect(
         calls('GET /api/devices').some(
-          ([, o]) => (o?.query as { status?: string })?.status === 'MAINTENANCE',
+          ([, o]) =>
+            (o?.query as { status?: string })?.status === 'MAINTENANCE',
         ),
       ).toBe(true),
     )
@@ -141,7 +164,9 @@ describe('DevicesPage', () => {
     const dialog = await screen.findByRole('dialog')
 
     fireEvent.click(within(dialog).getByRole('button', { name: 'Lưu' }))
-    expect(await within(dialog).findByText('Vui lòng nhập số serial.')).toBeInTheDocument()
+    expect(
+      await within(dialog).findByText('Vui lòng nhập số serial.'),
+    ).toBeInTheDocument()
     expect(calls('POST /api/devices')).toHaveLength(0)
 
     fireEvent.change(within(dialog).getByLabelText('Số serial'), {
@@ -182,12 +207,12 @@ describe('DevicesPage', () => {
   it('deletes after confirming in a popconfirm', async () => {
     render(<DevicesPage />)
     await screen.findByText('Đại Bàng')
-    fireEvent.click(screen.getByLabelText('Xoá SN-001'))
-    expect(await screen.findByText('Xoá thiết bị này?')).toBeInTheDocument()
+    fireEvent.click(screen.getByLabelText('Xóa SN-001'))
+    expect(await screen.findByText('Xóa thiết bị này?')).toBeInTheDocument()
     expect(calls('DELETE /api/devices/d1')).toHaveLength(0)
-    fireEvent.click(screen.getByRole('button', { name: 'Xoá' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Xóa' }))
     await waitFor(() => expect(calls('DELETE /api/devices/d1')).toHaveLength(1))
-    expect(await screen.findByText('Đã xoá thiết bị.')).toBeInTheDocument()
+    expect(await screen.findByText('Đã xóa thiết bị.')).toBeInTheDocument()
   })
 
   it('shows a clear message when the backend lacks the endpoint', async () => {
@@ -202,10 +227,10 @@ describe('DevicesPage', () => {
     })
     render(<DevicesPage />)
     await screen.findByText('Đại Bàng')
-    fireEvent.click(screen.getByLabelText('Xoá SN-001'))
-    fireEvent.click(await screen.findByRole('button', { name: 'Xoá' }))
+    fireEvent.click(screen.getByLabelText('Xóa SN-001'))
+    fireEvent.click(await screen.findByRole('button', { name: 'Xóa' }))
     expect(
-      await screen.findByText('Backend chưa hỗ trợ thao tác này.'),
+      await screen.findByText('Hệ thống chưa hỗ trợ thao tác này.'),
     ).toBeInTheDocument()
   })
 

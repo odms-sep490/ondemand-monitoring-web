@@ -5,7 +5,7 @@ import { planningError } from '../../../lib/planningErrors'
 import type { OrderChecklistSnapshot } from '../../../types/orders'
 import { OrderIcon } from '../../../components/common/OrderIcon'
 import { Button, useToast } from '../../../../../shared/components/ui'
-import { useI18n } from '../../../../../shared/i18n'
+import { displayLocalized, useI18n } from '../../../../../shared/i18n'
 import { managerFeedbackMessages } from '../../../feedback.messages'
 import { missionChecklistAssignmentEditorMessages } from './MissionChecklistAssignmentEditor.messages'
 
@@ -112,7 +112,7 @@ export function MissionChecklistAssignmentEditor({
                 <span className="odm-mission-check" aria-label={t.assigned}>
                   <OrderIcon name="check" size={15} />
                 </span>
-                {item.content}
+                {displayLocalized(item.content)}
               </li>
             ))}
           {!query.data?.assignments.some((a) => a.active) && (
@@ -172,7 +172,7 @@ export function MissionChecklistAssignmentEditor({
                     }}
                   />
                   <span>
-                    {item.content}
+                    {displayLocalized(item.content)}
                     <small
                       className={
                         item.sourceType === 'SERVICE_TEMPLATE'

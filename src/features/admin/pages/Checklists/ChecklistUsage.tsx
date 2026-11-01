@@ -3,7 +3,7 @@ import { Button, Skeleton } from 'antd'
 
 import { EmptyState } from '../../../../shared/components/antd'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
-import { useI18n } from '../../../../shared/i18n'
+import { displayLocalized, useI18n } from '../../../../shared/i18n'
 import { AdminModal } from '../../components/common/AdminModal'
 import { checklistsApi } from '../../api/checklistsApi'
 import { adminHref } from '../../routes'
@@ -47,7 +47,7 @@ export function ChecklistUsage({
                   serviceId: row.serviceId,
                 })}
               >
-                {row.serviceName}
+                {displayLocalized(row.serviceName)}
                 <ArrowRightOutlined aria-hidden="true" />
               </a>
             </li>

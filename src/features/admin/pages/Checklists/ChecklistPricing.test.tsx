@@ -1,3 +1,4 @@
+import { fillLocalized } from '../../testing/fillLocalized'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { ChecklistCatalogPage } from './ChecklistCatalogPage'
@@ -159,9 +160,7 @@ describe('Checklist create/edit with media pricing', () => {
   it('sends the configured price and allowance without touching the pricing profile', async () => {
     render(<ChecklistCatalogPage />)
     fireEvent.click(screen.getByRole('button', { name: 'Thêm checklist' }))
-    fireEvent.change(screen.getByRole('textbox', { name: /Nội dung/ }), {
-      target: { value: 'Kiểm tra cột' },
-    })
+    fillLocalized('Nội dung', 'Kiểm tra cột')
     fireEvent.change(screen.getByLabelText(/Giá công việc kiểm tra/), {
       target: { value: '150000' },
     })
@@ -177,7 +176,7 @@ describe('Checklist create/edit with media pricing', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Lưu' }))
     await waitFor(() =>
       expect(checklistsApi.create).toHaveBeenCalledWith(
-        'Kiểm tra cột',
+        '{"vi":"Kiểm tra cột","en":"Kiểm tra cột"}',
         'BASIC',
         {
           description: '',
@@ -207,9 +206,7 @@ describe('Checklist create/edit with media pricing', () => {
   ])('rejects %s = %s before any request', async (label, value) => {
     render(<ChecklistCatalogPage />)
     fireEvent.click(screen.getByRole('button', { name: 'Thêm checklist' }))
-    fireEvent.change(screen.getByRole('textbox', { name: /Nội dung/ }), {
-      target: { value: 'Kiểm tra cột' },
-    })
+    fillLocalized('Nội dung', 'Kiểm tra cột')
     fireEvent.change(screen.getByLabelText(new RegExp(label)), {
       target: { value },
     })
@@ -231,6 +228,7 @@ describe('Service default checklists and price', () => {
         expect.any(AbortSignal),
       ),
     )
+    fireEvent.click(await screen.findByRole('button', { name: /Expand row/i }))
     expect(await screen.findByText('Giá cơ bản checklist')).toBeInTheDocument()
     expect(screen.getByText('Đã bao gồm 10 ảnh')).toBeInTheDocument()
     expect(screen.getAllByText(/370\.000/).length).toBeGreaterThan(0)
@@ -240,7 +238,7 @@ describe('Service default checklists and price', () => {
 
   it('recalculates the price after a default checklist is removed', async () => {
     render(<ServiceChecklistPage serviceId="s" />)
-    await screen.findByText('Giá cơ bản checklist')
+    await screen.findByRole('button', { name: /Expand row/i })
     const before = vi.mocked(checklistPricingApi.defaultPrice).mock.calls.length
     fireEvent.click(
       await screen.findByRole('button', { name: /Gỡ checklist:/ }),

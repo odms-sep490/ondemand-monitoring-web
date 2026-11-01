@@ -401,24 +401,6 @@
   }
 
   /* ---------- Dashboard and role grids ---------- */
-  .adm-grid-wide {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr));
-    gap: 16px;
-  }
-
-  .adm-bar-list {
-    display: grid;
-    gap: 12px;
-  }
-
-  .adm-bar-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    margin-bottom: 2px;
-  }
 
   .adm-descriptions .ant-descriptions-item-label {
     color: var(--mgr-muted);
@@ -621,29 +603,6 @@
     min-height: 100%;
     padding: 14px 12px 12px;
   }
-
-  /* ---------- Native controls inside the legacy pricing / checklist editors ---------- */
-  .odm-inp,
-  select.odm-inp,
-  textarea.odm-inp {
-    width: 100%;
-    min-height: 36px;
-    padding: 6px 12px;
-    border: 1px solid var(--mgr-border);
-    border-radius: 10px;
-    background: var(--mgr-card);
-    color: var(--mgr-text);
-    font: inherit;
-    transition:
-      border-color 0.15s ease,
-      box-shadow 0.15s ease;
-
-    &:focus {
-      outline: 0;
-      border-color: var(--adm-blue-fg);
-      box-shadow: 0 0 0 3px var(--adm-blue-soft);
-    }
-  }
 }
 
 @media (max-width: 640px) {
@@ -661,4 +620,31 @@
       height: 44px;
     }
   }
+}
+
+.adm-localized {
+  display: grid;
+  gap: 8px;
+}
+.adm-localized-row {
+  display: grid;
+  gap: 4px;
+}
+.adm-localized-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--ant-color-text-secondary, #666);
+}
+.adm-localized-hint,
+.adm-localized-counter {
+  font-size: 12px;
+  color: var(--ant-color-text-secondary, #666);
+}
+.adm-localized-hint {
+  color: var(--ant-color-warning, #d48806);
+}
+.adm-localized-counter.is-over {
+  color: var(--ant-color-error, #cf1322);
 }

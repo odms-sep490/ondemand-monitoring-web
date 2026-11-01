@@ -9,10 +9,10 @@ export const servicesTableMessages = defineMessages({
     unpriced: 'Chưa có giá',
     actions: 'Thao tác',
     edit: 'Sửa',
-    remove: 'Xoá',
+    remove: 'Xóa',
     more: 'Thao tác khác',
     active: 'Hoạt động',
-    inactive: 'Tắt',
+    inactive: 'Tạm tắt',
   },
   en: {
     service: 'Service',

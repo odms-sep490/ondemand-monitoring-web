@@ -1,7 +1,7 @@
 import type { OrderChecklistSnapshot } from '../../../types/orders'
 import type { ExecutionPlan } from '../../../types/planning'
 import { OrderIcon } from '../../../components/common/OrderIcon'
-import { useI18n } from '../../../../../shared/i18n'
+import { displayLocalized, useI18n } from '../../../../../shared/i18n'
 import { missionChecklistSelectionMessages } from './MissionChecklistSelectionCard.messages'
 
 interface MissionChecklistSelectionCardProps {
@@ -111,7 +111,7 @@ export function MissionChecklistSelectionCard({
                   <div className="odm-checklist-item-content">
                     <div className="odm-checklist-item-header">
                       <strong className="odm-checklist-item-title">
-                        {item.content}
+                        {displayLocalized(item.content)}
                       </strong>
                       <div className="odm-checklist-badges">
                         {isUncovered ? (
@@ -135,7 +135,7 @@ export function MissionChecklistSelectionCard({
 
                     {item.description && (
                       <p className="odm-checklist-item-desc">
-                        {item.description}
+                        {displayLocalized(item.description)}
                       </p>
                     )}
 

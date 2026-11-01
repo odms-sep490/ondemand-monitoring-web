@@ -7,14 +7,12 @@ import {
 
 afterEach(resetHttpTransport)
 function transport() {
-  const fetch = vi
-    .fn()
-    .mockResolvedValue(
-      new Response(JSON.stringify({ success: true, data: [] }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      }),
-    )
+  const fetch = vi.fn().mockResolvedValue(
+    new Response(JSON.stringify({ success: true, data: [] }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    }),
+  )
   setHttpTransport(fetch)
   return fetch
 }

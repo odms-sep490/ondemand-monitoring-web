@@ -7,7 +7,7 @@ import {
   ErrorState,
 } from '../../../../../shared/components/antd'
 import { useApiQuery } from '../../../../../shared/hooks/useApiQuery'
-import { useI18n } from '../../../../../shared/i18n'
+import { displayLocalized, useI18n } from '../../../../../shared/i18n'
 import { catalogApi } from '../../../api/catalogApi'
 import { mapService } from '../../../lib/catalogMappers'
 import type { AdminService } from '../../../types/catalog'
@@ -73,7 +73,7 @@ export function ServicesTab() {
       {dialog?.type === 'delete' && (
         <DeleteConfirmModal
           title={t.deleteTitle}
-          name={dialog.service.name}
+          name={displayLocalized(dialog.service.name)}
           onConfirm={() => catalogApi.deleteService(dialog.service.id)}
           onClose={() => setDialog(null)}
           onDeleted={done}

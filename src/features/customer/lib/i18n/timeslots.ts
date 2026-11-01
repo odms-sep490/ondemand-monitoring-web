@@ -1,4 +1,4 @@
-import type { Language } from '../../../../shared/i18n'
+import { isLocalizedText, pickLocalizedText, type Language } from '../../../../shared/i18n'
 import { normalizeKey } from './normalize'
 
 export type TimeslotCode = 'MORNING' | 'AFTERNOON' | 'EVENING' | 'NIGHT'
@@ -62,6 +62,13 @@ export function localizeTimeslot(
   known: TimeslotRef[] = [],
 ): string {
   const slot = resolveTimeslot(input, known)
+  // Admin-entered bilingual names win over the built-in code labels.
+  if (isLocalizedText(slot.name)) {
+    const picked = pickLocalizedText(slot.name, lang).trim()
+    const from = hhmm(slot.startTime)
+    const to = hhmm(slot.endTime)
+    return picked && from && to && !RANGE_IN_NAME.test(picked) ? `${picked} ${from}–${to}` : picked
+  }
   const name = slot.name?.trim() ?? ''
   const code = asCode(slot.code) ?? timeslotCodeFromName(name)
   const start = hhmm(slot.startTime)

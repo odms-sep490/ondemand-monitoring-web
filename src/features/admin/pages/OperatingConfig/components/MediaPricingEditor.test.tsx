@@ -6,6 +6,7 @@ import {
   waitFor,
   within,
 } from '@testing-library/react'
+import { App } from 'antd'
 import { useState } from 'react'
 import { MediaPricingEditor } from './MediaPricingEditor'
 import { PricingPolicyTab } from './PricingPolicyTab'
@@ -15,6 +16,7 @@ import { checklistsApi } from '../../../api/checklistsApi'
 import { newMediaRule } from '../../../lib/mediaPricingRules'
 import { checklistPricingApi } from '../../../../../shared/api/checklistPricingApi'
 import { setLanguage } from '../../../../../shared/i18n'
+import { pickOption } from '../../../testing/pickOption'
 import type { PricingPolicy, PricingRule } from '../../../types/pricing'
 
 beforeEach(() => {
@@ -112,7 +114,7 @@ describe('MediaPricingEditor', () => {
     expect(seen.at(-1)![0]).toMatchObject({ fixedAmount: 45_000, unitSize: 5 })
   })
 
-  it('adds a continuing tier for a profile and removes a rule', () => {
+  it('adds a continuing tier for a profile and removes a rule', async () => {
     const seen: PricingRule[][] = []
     render(
       <Harness initial={[tier(0, 10, 50_000)]} onRules={(r) => seen.push(r)} />,
@@ -120,9 +122,7 @@ describe('MediaPricingEditor', () => {
     fireEvent.change(screen.getByPlaceholderText('Tên hồ sơ giá mới'), {
       target: { value: 'standard' },
     })
-    fireEvent.change(screen.getByLabelText('Thành phần'), {
-      target: { value: 'EXTRA_IMAGE' },
-    })
+    await pickOption('Thành phần', 'Ảnh bổ sung')
     fireEvent.click(screen.getByRole('button', { name: 'Thêm quy tắc' }))
     expect(seen.at(-1)).toHaveLength(2)
     expect(seen.at(-1)![1]).toMatchObject({
@@ -145,14 +145,15 @@ describe('MediaPricingEditor', () => {
     const seen: PricingRule[][] = []
     render(<Harness initial={[]} onRules={(rules) => seen.push(rules)} />)
 
-    fireEvent.change(await screen.findByLabelText('Checklist áp dụng'), {
-      target: { value: 'checklist-x' },
-    })
-    expect(screen.getByText(/Giá cơ bản: 100\.000 VND/)).toBeInTheDocument()
+    await screen.findByLabelText('Checklist áp dụng')
+    await waitFor(() => expect(checklistsApi.list).toHaveBeenCalled())
+    await pickOption(
+      'Checklist áp dụng',
+      'Kiểm tra tình trạng tổng thể công trình',
+    )
+    expect(screen.getByText(/Giá cơ bản: 100\.000 ₫/)).toBeInTheDocument()
     expect(screen.getByText(/Đã bao gồm: 1 ảnh · 1 video/)).toBeInTheDocument()
-    fireEvent.change(screen.getByLabelText('Thành phần'), {
-      target: { value: 'EXTRA_IMAGE' },
-    })
+    await pickOption('Thành phần', 'Ảnh bổ sung')
     fireEvent.click(screen.getByRole('button', { name: 'Thêm quy tắc' }))
 
     expect(seen.at(-1)?.at(-1)).toMatchObject({
@@ -183,7 +184,7 @@ describe('MediaPricingEditor', () => {
         quotePending: false,
       })
     render(<Harness initial={[tier(0, null, 50_000)]} />)
-    await screen.findByRole('option', { name: 'Dịch vụ test' })
+    await screen.findByText('Dịch vụ test')
     fireEvent.click(screen.getByRole('button', { name: 'Xem thử' }))
     await waitFor(() =>
       expect(adminPreview).toHaveBeenCalledWith({
@@ -231,9 +232,7 @@ describe('PricingPolicyTab with MEDIA rules', () => {
       await screen.findAllByRole('button', { name: 'Lưu bản nháp' })
     )[0]
     expect(save).toBeDisabled()
-    expect(
-      screen.getAllByRole('button', { name: 'Áp dụng' })[0],
-    ).toBeDisabled()
+    expect(screen.getAllByRole('button', { name: 'Áp dụng' })[0]).toBeDisabled()
     fireEvent.click(save)
     expect(update).not.toHaveBeenCalled()
     expect(publish).not.toHaveBeenCalled()
@@ -284,13 +283,37 @@ describe('PricingPolicyTab with MEDIA rules', () => {
         /Chính sách giá đang áp dụng không thể chỉnh sửa/,
       ),
     ).toBeInTheDocument()
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Tạo bản nháp mới' }),
-    )
+    fireEvent.click(screen.getByRole('button', { name: 'Tạo bản nháp mới' }))
 
     await waitFor(() => expect(clone).toHaveBeenCalledWith('active-1'))
     await waitFor(() => expect(list).toHaveBeenCalledTimes(2))
-    expect(await screen.findByLabelText('Tên chính sách')).toHaveValue('Draft')
+    expect(await screen.findByLabelText('Tên chính sách (Tiếng Việt)')).toHaveValue('Draft')
+  })
+
+  it('saves the policy name as bilingual JSON and requires both languages', async () => {
+    const valid = {
+      ...draft,
+      rules: [tier(0, 10, 50_000), tier(10, null, 40_000)],
+    }
+    vi.spyOn(adminApi, 'listPricingPolicies').mockResolvedValue([valid])
+    const update = vi
+      .spyOn(adminApi, 'updatePricingPolicy')
+      .mockResolvedValue(valid)
+    render(<PricingPolicyTab />)
+    const vi_ = await screen.findByLabelText('Tên chính sách (Tiếng Việt)')
+    const en = screen.getByLabelText('Tên chính sách (English)')
+    expect(vi_).toHaveValue('Draft')
+    fireEvent.change(vi_, { target: { value: ' Chính sách hè ' } })
+    fireEvent.change(en, { target: { value: '' } })
+    expect(
+      screen.getAllByRole('button', { name: 'Lưu bản nháp' })[0],
+    ).toBeDisabled()
+    fireEvent.change(en, { target: { value: ' Summer policy ' } })
+    fireEvent.click(screen.getAllByRole('button', { name: 'Lưu bản nháp' })[0])
+    await waitFor(() => expect(update).toHaveBeenCalled())
+    expect(update.mock.calls[0][1].name).toBe(
+      '{"vi":"Chính sách hè","en":"Summer policy"}',
+    )
   })
 
   it('adds, edits, enables and removes ordinary draft rules before saving', async () => {
@@ -312,12 +335,8 @@ describe('PricingPolicyTab with MEDIA rules', () => {
     fireEvent.change(screen.getByLabelText('Mã quy tắc'), {
       target: { value: 'AREA_EXTRA' },
     })
-    fireEvent.change(screen.getByLabelText('Cách tính'), {
-      target: { value: 'FIXED' },
-    })
-    fireEvent.change(screen.getByLabelText('Cách tính'), {
-      target: { value: 'PER_BLOCK' },
-    })
+    await pickOption('Cách tính', 'Giá cố định')
+    await pickOption('Cách tính', 'Theo khối')
     fireEvent.change(screen.getByLabelText('Giá trị đến'), {
       target: { value: '100' },
     })
@@ -345,22 +364,25 @@ describe('PricingPolicyTab with MEDIA rules', () => {
     vi.spyOn(adminApi, 'listPricingPolicies').mockResolvedValue([
       { ...draft, rules: [tier(0, null, 50_000)] },
     ])
-    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(true)
-    render(<PricingPolicyTab />)
-    fireEvent.change(await screen.findByLabelText('Tên chính sách'), {
+    render(
+      <App>
+        <PricingPolicyTab />
+      </App>,
+    )
+    fireEvent.change(await screen.findByLabelText('Tên chính sách (Tiếng Việt)'), {
       target: { value: 'Changed' },
     })
     fireEvent.click(screen.getAllByRole('button', { name: 'Hủy thay đổi' })[0])
-    expect(confirm).toHaveBeenCalledTimes(1)
+    fireEvent.click(await screen.findByRole('button', { name: 'Xác nhận' }))
     expect(
       await screen.findByRole('button', {
         name: 'Tiếp tục chỉnh sửa bản nháp',
       }),
     ).toBeInTheDocument()
-    expect(screen.queryByLabelText('Tên chính sách')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('Tên chính sách (Tiếng Việt)')).not.toBeInTheDocument()
     fireEvent.click(
       screen.getByRole('button', { name: 'Tiếp tục chỉnh sửa bản nháp' }),
     )
-    expect(await screen.findByLabelText('Tên chính sách')).toHaveValue('Draft')
+    expect(await screen.findByLabelText('Tên chính sách (Tiếng Việt)')).toHaveValue('Draft')
   })
 })

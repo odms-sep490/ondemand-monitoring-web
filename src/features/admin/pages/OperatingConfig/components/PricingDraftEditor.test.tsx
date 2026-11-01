@@ -3,6 +3,7 @@ import { fireEvent, render, screen, within } from '@testing-library/react'
 import { useState } from 'react'
 import { PricingDraftEditor } from './PricingDraftEditor'
 import { newMediaRule } from '../../../lib/mediaPricingRules'
+import { pickOption } from '../../../testing/pickOption'
 import type { PricingPolicy } from '../../../types/pricing'
 
 const draft: PricingPolicy = {
@@ -53,7 +54,9 @@ describe('PricingDraftEditor', () => {
     expect(screen.getByLabelText('Giảm giá tối đa (%)')).toBeInTheDocument()
     expect(screen.getByText('Ảnh từ 1 trở lên')).toBeInTheDocument()
     expect(screen.getByText(/50\.000 ₫/)).toBeInTheDocument()
-    expect(screen.queryByLabelText('Ảnh vượt định mức: giá mỗi khối')).not.toBeInTheDocument()
+    expect(
+      screen.queryByLabelText('Ảnh vượt định mức: giá mỗi khối'),
+    ).not.toBeInTheDocument()
     expect(screen.queryByText('Quy tắc tính giá')).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('tab', { name: /Quy tắc nâng cao/ }))
     expect(screen.getByText('Quy tắc tính giá')).toBeInTheDocument()
@@ -69,7 +72,7 @@ describe('PricingDraftEditor', () => {
     expect(setDraft.mock.calls[0][0].rules[0].fixedAmount).toBe(60000)
   })
 
-  it('shows only the fields needed by the selected calculation method', () => {
+  it('shows only the fields needed by the selected calculation method', async () => {
     const policy: PricingPolicy = {
       ...draft,
       rules: [
@@ -100,11 +103,10 @@ describe('PricingDraftEditor', () => {
     }
     render(<StatefulEditor />)
     fireEvent.click(screen.getByRole('tab', { name: /Quy tắc nâng cao/ }))
-    fireEvent.click(screen.getByRole('button', { name: 'Chỉnh sửa' }))
+    fireEvent.click(screen.getAllByRole('button', { expanded: false })[0])
+    fireEvent.click(await screen.findByRole('button', { name: 'Chỉnh sửa' }))
     expect(screen.getByLabelText('Kích thước khối')).toBeInTheDocument()
-    fireEvent.change(screen.getByLabelText('Cách tính'), {
-      target: { value: 'FIXED' },
-    })
+    await pickOption('Cách tính', 'Giá cố định')
     expect(screen.getByLabelText('Giá cố định')).toBeInTheDocument()
     expect(screen.queryByLabelText('Kích thước khối')).not.toBeInTheDocument()
   })
@@ -125,9 +127,7 @@ describe('PricingDraftEditor', () => {
     expect(
       screen.getAllByRole('button', { name: 'Lưu bản nháp' })[0],
     ).toBeDisabled()
-    expect(
-      screen.getAllByRole('button', { name: 'Áp dụng' })[0],
-    ).toBeDisabled()
+    expect(screen.getAllByRole('button', { name: 'Áp dụng' })[0]).toBeDisabled()
     expect(screen.getAllByRole('alert').length).toBeGreaterThan(0)
   })
 

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Alert, Button, Checkbox, Empty, Input, Modal, Tag } from 'antd'
 import { LinkOutlined, SearchOutlined } from '@ant-design/icons'
-import { useI18n } from '../../../../../shared/i18n'
+import { displayLocalized, localizedSearchText, useI18n } from '../../../../../shared/i18n'
 import type { MissionChecklistExecution } from '../../../../mission/types/checklistExecution'
 import { mediaChecklistAttachmentMessages } from './MediaChecklistAttachment.messages'
 import './MediaChecklistAttachment.css'
@@ -56,8 +56,7 @@ export function MediaChecklistAttachment({
     (row) => attachedIds.has(row.id) || selectedIds.includes(row.id),
   )
   const visible = executions.filter((row) =>
-    `${row.content} ${row.description ?? ''}`
-      .toLocaleLowerCase()
+    localizedSearchText(`${row.content} ${row.description ?? ''}`)
       .includes(search.trim().toLocaleLowerCase()),
   )
 
@@ -105,7 +104,7 @@ export function MediaChecklistAttachment({
             .filter((row) => !onDetach || !attachedIds.has(row.id))
             .slice(0, 2)
             .map((row) => (
-              <span key={row.id}>{row.content}</span>
+              <span key={row.id}>{displayLocalized(row.content)}</span>
             ))}
           {summary.length > 2 && <span>{t.more(summary.length - 2)}</span>}
         </div>
@@ -118,7 +117,7 @@ export function MediaChecklistAttachment({
           .filter((row) => attachedIds.has(row.id))
           .map((row) => (
             <div className="media-checklist-attachment__remove" key={row.id}>
-              <span>{row.content}</span>
+              <span>{displayLocalized(row.content)}</span>
               <Button
                 size="small"
                 disabled={disabled || saving}
@@ -246,7 +245,7 @@ export function MediaChecklistAttachment({
                   }
                 >
                   <span className="media-checklist-picker__heading">
-                    <strong>{row.content}</strong>
+                    <strong>{displayLocalized(row.content)}</strong>
                     {!compatible(row) ? (
                       <Tag color="orange">{t.wrongType}</Tag>
                     ) : attached ? (
@@ -257,7 +256,7 @@ export function MediaChecklistAttachment({
                   </span>
                   {row.description && (
                     <span className="media-checklist-picker__description">
-                      {row.description}
+                      {displayLocalized(row.description)}
                     </span>
                   )}
                   <span className="media-checklist-picker__progress">

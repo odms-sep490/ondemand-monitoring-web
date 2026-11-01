@@ -4,9 +4,6 @@
   display: grid;
   gap: 24px;
 }
-.checklist-page .ui-page-header {
-  margin-bottom: 0;
-}
 .checklist-actions {
   display: flex;
   align-items: center;
@@ -26,9 +23,6 @@
 }
 .checklist-service-select {
   max-width: 560px;
-}
-.checklist-service-select .odm-inp {
-  width: 100%;
 }
 .checklist-summary {
   display: flex;
@@ -105,21 +99,10 @@
   font-size: 14px;
   overflow-wrap: anywhere;
 }
-.checklist-row-content .ui-badge {
-  margin-top: 6px;
-}
 .checklist-icon-button {
   width: 34px;
   padding: 0 !important;
   flex-shrink: 0;
-}
-.odm-btn.checklist-danger {
-  color: var(--adm-red-fg);
-}
-.checklist-page .odm-btn:disabled,
-.checklist-dialog .odm-btn:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
 }
 .checklist-banner {
   padding: 12px 16px;
@@ -132,35 +115,6 @@
 }
 .checklist-banner.is-error {
   color: var(--adm-red-fg);
-}
-.checklist-toolbar {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  flex-wrap: wrap;
-  padding: 20px 24px;
-  border-bottom: 1px solid var(--mgr-border);
-}
-.checklist-search {
-  flex: 1;
-  min-width: 200px;
-  max-width: 480px;
-  position: relative;
-}
-.checklist-search > svg {
-  position: absolute;
-  top: 50%;
-  left: 12px;
-  transform: translateY(-50%);
-  color: var(--mgr-muted);
-  pointer-events: none;
-}
-.checklist-search .odm-inp {
-  width: 100%;
-  padding-left: 36px;
-}
-.checklist-toolbar select {
-  max-width: 210px;
 }
 .checklist-pagination {
   display: flex;
@@ -188,12 +142,6 @@
 .checklist-table th:last-child,
 .checklist-table td:last-child {
   text-align: right;
-}
-.checklist-dialog textarea.odm-inp {
-  width: 100%;
-  min-height: 140px;
-  resize: vertical;
-  line-height: 1.6;
 }
 .checklist-field-meta {
   display: flex;
@@ -277,11 +225,9 @@
   .checklist-row .checklist-actions {
     width: 100%;
   }
-  .checklist-toolbar,
   .checklist-section-head {
     padding: 16px;
   }
-  .checklist-search,
   .checklist-service-select {
     max-width: none;
   }
@@ -294,61 +240,9 @@
     justify-content: space-between;
   }
 }
-
-.checklist-pricing {
-  display: grid;
-  gap: 12px;
-  border: 1px solid var(--mgr-border);
-  border-radius: 8px;
-  padding: 12px 16px 16px;
-  margin: 0;
-}
-.checklist-pricing legend {
-  font-weight: 600;
-  padding: 0 6px;
-}
-.checklist-pricing .checklist-field-meta {
-  margin: 0;
-}
-.checklist-pricing-chip {
-  font-size: 12px;
-  color: var(--mgr-muted);
-}
-.checklist-pricing-chip.is-override {
-  color: var(--mgr-text);
-  font-weight: 600;
-}
 .checklist-preview-card {
   display: grid;
   gap: 12px;
-}
-
-/* ---- Unified checklist configuration dialog ---- */
-.checklist-tabs {
-  display: flex;
-  gap: 4px;
-  margin: 0 0 16px;
-  border-bottom: 1px solid var(--mgr-border);
-  overflow-x: auto;
-}
-.checklist-tab {
-  appearance: none;
-  background: none;
-  border: 0;
-  border-bottom: 2px solid transparent;
-  padding: 8px 14px;
-  font: inherit;
-  font-weight: 600;
-  color: var(--mgr-muted);
-  cursor: pointer;
-  white-space: nowrap;
-}
-.checklist-tab:hover {
-  color: var(--adm-blue-fg);
-}
-.checklist-tab.is-active {
-  color: var(--adm-blue-fg);
-  border-bottom-color: var(--adm-blue-fg);
 }
 .checklist-form-actions {
   display: flex;
@@ -435,7 +329,6 @@
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
-
 /* ---- One-screen checklist configuration ---- */
 .checklist-modal-tools {
   display: flex;
@@ -487,17 +380,10 @@
     grid-template-columns: 1fr;
   }
 }
-
-/* Rows decide the height inside the one-screen form; the 140px default is for the old single-field dialogs. */
-.checklist-section textarea.odm-inp {
-  min-height: 0;
-  line-height: 1.5;
-}
 .checklist-field-meta.is-block {
   display: block;
   margin: 0;
 }
-
 /* Content and price are separate pages of the form; no box around each, and the legend is only for screen readers. */
 .checklist-section {
   border: 0;
@@ -520,30 +406,8 @@
 [role='tabpanel'][hidden] {
   display: none;
 }
-
-/* Tighter rhythm inside the form pages so a page fits without scrolling. */
-.checklist-section .ui-form-field {
-  margin-bottom: 2px;
-}
 .checklist-section .checklist-field-meta {
   margin-bottom: 8px;
-}
-
-/* Fields on the content page: visible boxes with room for the text, inputs and outputs side by side. */
-.checklist-section input.odm-inp,
-.checklist-section select.odm-inp,
-.checklist-section textarea.odm-inp {
-  border: 1px solid var(--mgr-muted);
-  background: var(--mgr-card);
-  padding: 8px 10px;
-  font-size: 14px;
-  box-shadow: inset 0 1px 2px rgb(15 27 61 / 6%);
-}
-.checklist-section textarea.odm-inp:focus,
-.checklist-section input.odm-inp:focus,
-.checklist-section select.odm-inp:focus {
-  border-color: var(--adm-blue-fg);
-  box-shadow: 0 0 0 3px var(--adm-blue-soft);
 }
 .checklist-section textarea#checklist-content {
   min-height: 64px;
@@ -577,4 +441,11 @@
   .checklist-content-grid > .is-half {
     grid-column: 1 / -1;
   }
+}
+
+.checklist-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin: 8px 0 12px;
 }

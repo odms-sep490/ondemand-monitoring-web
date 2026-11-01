@@ -1,6 +1,6 @@
 import { DollarOutlined } from '@ant-design/icons'
 import { Card } from '../../../components/common/ui'
-import { useI18n } from '../../../../../shared/i18n'
+import { displayLocalized, useI18n } from '../../../../../shared/i18n'
 import type { ServicePricingEstimate } from '../../../api/customerApi'
 import { formatMoney } from '../../../lib/createOrder/format'
 import { usesMedia, type ChecklistRow } from '../../../lib/checklist/types'
@@ -109,7 +109,7 @@ export function PricingEstimateCard({
                 const media = requestedMedia(item)
                 return (
                   <li key={item.key}>
-                    <strong>{item.content}</strong>
+                    <strong>{displayLocalized(item.content)}</strong>
                     <span>{t.mediaCounts(media.images, media.videos)}</span>
                     <span className="co-additional-status">
                       {t.awaitingManagerQuote}

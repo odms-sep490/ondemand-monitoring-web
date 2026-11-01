@@ -1,6 +1,6 @@
 import { FileDoneOutlined, ProfileOutlined, UnorderedListOutlined } from '@ant-design/icons'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
-import { useI18n } from '../../../../shared/i18n'
+import { displayLocalized, useI18n } from '../../../../shared/i18n'
 import { ReloadOutlined } from '@ant-design/icons'
 import { Button, Skeleton } from 'antd'
 
@@ -244,7 +244,7 @@ export function CustomerMissionReportContent({
                             >
                               {item.status === 'COMPLETED' ? '✓' : '—'}
                             </span>
-                            <h3>{item.content}</h3>
+                            <h3>{displayLocalized(item.content)}</h3>
                           </div>
                           <dl className="cr-checklist-meta">
                             <div>

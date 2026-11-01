@@ -1,4 +1,4 @@
-import type { Language } from '../../../../shared/i18n'
+import { isLocalizedText, pickLocalizedText, type Language } from '../../../../shared/i18n'
 import { normalizeKey } from './normalize'
 
 type Names = { vi: string; en: string }
@@ -56,6 +56,9 @@ export function localizeServiceName(
   lang: Language,
   fallback?: string,
 ): string {
+  // Admin-entered names are bilingual JSON; show the active language directly.
+  if (isLocalizedText(fallback)) return pickLocalizedText(fallback, lang)
+  if (isLocalizedText(nameOrId)) return pickLocalizedText(nameOrId, lang)
   const input = nameOrId?.trim() ?? ''
   const shown = fallback ?? input
   if (!input) return shown

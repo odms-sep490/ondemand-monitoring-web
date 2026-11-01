@@ -12,7 +12,7 @@ import {
   ChecklistGuidance,
   hasChecklistGuidance,
 } from '../../../../shared/components/ChecklistGuidance'
-import { useI18n } from '../../../../shared/i18n'
+import { displayLocalized, useI18n } from '../../../../shared/i18n'
 import { formatVnd } from '../../../../shared/lib/formatVnd'
 import { customerApi } from '../../api/customerApi'
 import {
@@ -360,7 +360,7 @@ export function ChecklistSnapshotCard({
                     {String(index + 1).padStart(2, '0')}
                   </span>
                   <span className="checklist-snapshot-content">
-                    {item.content}
+                    {displayLocalized(item.content)}
                     {item.required ? (
                       <span
                         className="checklist-custom-tag is-mandatory"

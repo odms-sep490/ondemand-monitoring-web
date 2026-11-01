@@ -11,6 +11,7 @@ import type { MissionResponse } from '../../types/missions'
 import type { DetailData } from '../../components/common/missionDetailTypes'
 import type { UseApiQueryState } from '../../../../shared/hooks/useApiQuery'
 import type { MissionChecklistResponse } from '../../../mission/types/checklistExecution'
+import { displayLocalized } from '../../../../shared/i18n'
 
 export function deriveMissionDetailView({
   mission,
@@ -62,7 +63,7 @@ export function deriveMissionDetailView({
       label: t.fields.order,
       value: mission.orderCode ? formatOrderCode(mission.orderCode) : '—',
     },
-    { label: t.fields.service, value: mission.serviceName ?? '—' },
+    { label: t.fields.service, value: displayLocalized(mission.serviceName) || '—' },
     {
       label: t.fields.scheduledStart,
       value: formatDateTime(mission.scheduledStartAt, locale),

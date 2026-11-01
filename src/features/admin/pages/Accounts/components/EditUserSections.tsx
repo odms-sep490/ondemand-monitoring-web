@@ -1,5 +1,4 @@
-import { Avatar, Input, Tag } from 'antd'
-import type { ReactNode } from 'react'
+import { Avatar, Tag } from 'antd'
 
 import { useI18n } from '../../../../../shared/i18n'
 import type { UserManagementDetailResponse } from '../../../api/adminUsersApi'
@@ -7,6 +6,7 @@ import { AdminToggle } from '../../../components/common/AdminToggle'
 import { RoleBadge } from '../../../components/common/RoleBadge'
 import { StatusTag } from '../../../../../shared/components/antd'
 import { fmtDateTime } from '../../../lib/accountStatus'
+import { Field, Section, TextField } from './EditUserParts'
 import { editUserModalMessages } from './EditUserModal.messages'
 
 export type ProfileDraft = {
@@ -14,52 +14,6 @@ export type ProfileDraft = {
   phoneNumber: string
   address: string
   companyName: string
-}
-
-function Section({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <section className="adm-section">
-      <h3 className="adm-section-title">{title}</h3>
-      {children}
-    </section>
-  )
-}
-
-function Field({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <div>
-      <div className="adm-field-label">{label}</div>
-      <div className="adm-value">{children}</div>
-    </div>
-  )
-}
-
-function TextField({
-  id,
-  label,
-  value,
-  editable,
-  onChange,
-}: {
-  id: string
-  label: string
-  value: string
-  editable: boolean
-  onChange: (v: string) => void
-}) {
-  return (
-    <div>
-      <label htmlFor={id} className="adm-field-label">
-        {label}
-      </label>
-      <Input
-        id={id}
-        value={value}
-        readOnly={!editable}
-        onChange={(e) => onChange(e.target.value)}
-      />
-    </div>
-  )
 }
 
 export function AccountSection({

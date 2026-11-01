@@ -87,12 +87,11 @@ describe('ServicePriceSummary', () => {
   })
 
   it('keeps the full calculation inside the row instead of repeating it for every checklist', () => {
-    const { container } = render(<ServicePriceSummary preview={preview()} />)
-    const details = container.querySelector('details')!
-    expect(details).not.toHaveAttribute('open')
-    expect(within(details).getByText('Ảnh đã bao gồm')).toBeInTheDocument()
-    fireEvent.click(within(details).getByText('Kiểm tra mái'))
-    expect(details).toHaveAttribute('open')
+    render(<ServicePriceSummary preview={preview()} />)
+    expect(screen.queryByText('Ảnh đã bao gồm')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /Expand row/i }))
+    expect(screen.getByText('Ảnh đã bao gồm')).toBeInTheDocument()
+    expect(screen.getByText('Chi tiết cách tính')).toBeInTheDocument()
   })
 
   it('lists add-ons and states what the figure leaves out', () => {
@@ -124,7 +123,7 @@ describe('ServicePriceSummary', () => {
     )
     expect(screen.getByText(/\+5 ảnh/)).toBeInTheDocument()
     expect(screen.getByText('Ngoài danh mục')).toBeInTheDocument()
-    expect(screen.getByText('Chờ Manager báo giá')).toBeInTheDocument()
+    expect(screen.getByText('Chờ quản lý báo giá')).toBeInTheDocument()
     expect(screen.getByRole('status')).toHaveTextContent(
       'chưa được tính vào tổng',
     )

@@ -120,7 +120,7 @@ describe('Library page', () => {
     )
     // Nothing changed yet, so there is nothing to acknowledge.
     expect(within(dialog).getByRole('button', { name: 'Lưu' })).toBeEnabled()
-    fireEvent.change(within(dialog).getByLabelText(/Mô tả chi tiết/), {
+    fireEvent.change(within(dialog).getByLabelText('Mô tả chi tiết (Tiếng Việt)'), {
       target: { value: 'Mô tả mới' },
     })
     const save = within(dialog).getByRole('button', { name: 'Lưu' })
@@ -145,7 +145,7 @@ describe('Library page', () => {
     )
     const dialog = await screen.findByRole('dialog')
     expect(within(dialog).queryByRole('note')).toBeNull()
-    fireEvent.change(within(dialog).getByLabelText(/Mô tả chi tiết/), {
+    fireEvent.change(within(dialog).getByLabelText('Mô tả chi tiết (Tiếng Việt)'), {
       target: { value: 'Mô tả mới' },
     })
     expect(within(dialog).getByRole('button', { name: 'Lưu' })).toBeEnabled()
@@ -213,10 +213,10 @@ describe('Service configuration page', () => {
     // antd's zoom-in motion keeps the dialog at opacity 0 in jsdom, so check the tab panel instead.
     expect(
       within(dialog)
-        .getByLabelText(/Mô tả chi tiết/)
+        .getByLabelText('Mô tả chi tiết (Tiếng Việt)')
         .closest('[role="tabpanel"]'),
     ).not.toHaveAttribute('hidden')
-    expect(within(dialog).getByLabelText(/Mô tả chi tiết/)).toHaveValue(
+    expect(within(dialog).getByLabelText('Mô tả chi tiết (Tiếng Việt)')).toHaveValue(
       'Phạm vi kiểm tra mái',
     )
     // The price page is not on screen until it is opened.
@@ -240,7 +240,7 @@ describe('Service configuration page', () => {
         'Riêng cho dịch vụ này: Giá công việc kiểm tra (VND)',
       ),
     ).toHaveValue(null)
-    expect(within(dialog).getByLabelText(/Mô tả chi tiết/)).not.toBeVisible()
+    expect(within(dialog).getByLabelText('Mô tả chi tiết (Tiếng Việt)')).not.toBeVisible()
     expect(checklistsApi.get).toHaveBeenCalledWith('a', expect.anything())
   })
 
@@ -263,7 +263,7 @@ describe('Service configuration page', () => {
     ).toBeInTheDocument()
     // An empty content jumps back to the content page.
     fireEvent.click(screen.getByRole('tab', { name: 'Nội dung' }))
-    fireEvent.change(screen.getByRole('textbox', { name: /^Nội dung/ }), {
+    fireEvent.change(screen.getByLabelText('Nội dung (English)'), {
       target: { value: '' },
     })
     fireEvent.click(screen.getByRole('tab', { name: 'Giá và định mức' }))
@@ -321,7 +321,7 @@ describe('Service configuration page', () => {
     )
     expect(checklistsApi.update).toHaveBeenCalledWith(
       'a',
-      'Kiểm tra mái nhà',
+      '{"vi":"Kiểm tra mái nhà","en":"Kiểm tra mái nhà"}',
       'BASIC',
       expect.objectContaining({ basePrice: 900_000 }),
     )
@@ -363,7 +363,7 @@ describe('Service configuration page', () => {
     })
     render(<ServiceChecklistPage serviceId="s" />)
     fireEvent.click(await screen.findByRole('button', { name: 'Cấu hình' }))
-    await screen.findByLabelText(/Mô tả chi tiết/)
+    await screen.findByLabelText('Mô tả chi tiết (Tiếng Việt)')
     expect(screen.queryByText('Chỉ muốn đổi cho dịch vụ này?')).toBeNull()
     expect(screen.queryByRole('note')).toBeNull()
   })

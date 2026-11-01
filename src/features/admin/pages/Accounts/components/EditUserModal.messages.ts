@@ -2,12 +2,12 @@ import { defineMessages } from '../../../../../shared/i18n'
 
 export const editUserModalMessages = defineMessages({
   vi: {
-    title: 'Thông tin người dùng',
+    title: 'Thông tin tài khoản',
     loading: 'Đang tải...',
-    loadError: 'Không tải được thông tin người dùng.',
+    loadError: 'Không tải được thông tin tài khoản.',
     retry: 'Thử lại',
     close: 'Đóng',
-    cancel: 'Huỷ',
+    cancel: 'Hủy',
     save: 'Lưu thay đổi',
     saving: 'Đang lưu...',
     saved: 'Đã lưu thay đổi.',
@@ -20,7 +20,7 @@ export const editUserModalMessages = defineMessages({
     email: 'Email',
     role: 'Vai trò',
     active: 'Đang hoạt động',
-    activeHint: 'Tắt để khoá đăng nhập của người dùng này.',
+    activeHint: 'Tắt để khóa đăng nhập của người dùng này.',
     emailVerified: 'Email',
     verified: 'Đã xác minh',
     unverified: 'Chưa xác minh',
@@ -32,13 +32,13 @@ export const editUserModalMessages = defineMessages({
     updatedAt: 'Cập nhật',
     lastLogin: 'Đăng nhập gần nhất',
     readonlyNote:
-      'BE chỉ cho phép người dùng tự sửa hồ sơ của mình (PATCH /api/users/me), nên thông tin này chỉ để xem.',
+      'Hệ thống chỉ cho phép người dùng tự sửa hồ sơ của mình, nên thông tin này chỉ để xem.',
     selfNote: 'Đây là tài khoản của bạn: có thể sửa tên và thông tin liên hệ.',
   },
   en: {
-    title: 'User details',
+    title: 'Account details',
     loading: 'Loading...',
-    loadError: 'Could not load user details.',
+    loadError: 'Could not load account details.',
     retry: 'Retry',
     close: 'Close',
     cancel: 'Cancel',
@@ -64,9 +64,10 @@ export const editUserModalMessages = defineMessages({
     company: 'Company',
     createdAt: 'Created',
     updatedAt: 'Updated',
-    lastLogin: 'Last login',
+    lastLogin: 'Last sign-in',
     readonlyNote:
-      'The backend only lets users edit their own profile (PATCH /api/users/me), so these details are read-only.',
-    selfNote: 'This is your account: you can edit your name and contact info.',
+      'Users can only edit their own profile, so these details are read-only.',
+    selfNote:
+      'This is your account: you can edit your name and contact details.',
   },
 })

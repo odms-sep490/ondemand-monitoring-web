@@ -1,5 +1,5 @@
 import { StatusBadge } from '../../../../../shared/components/odm/StatusBadge'
-import { useI18n } from '../../../../../shared/i18n'
+import { displayLocalized, useI18n } from '../../../../../shared/i18n'
 import { setActiveMissionId } from '../../../api/liveMission'
 import { formatDeviceLabel } from '../../../lib/deviceLabel'
 import { formatDeadline } from '../../../lib/formatDeadline'
@@ -100,8 +100,8 @@ export function MissionListTable({
                   <div className="odm-opr-mission-location">
                     {mission.location}
                   </div>
-                  {mission.serviceLabel ? (
-                    <span className="odm-opr-chip">{mission.serviceLabel}</span>
+                  {displayLocalized(mission.serviceLabel) ? (
+                    <span className="odm-opr-chip">{displayLocalized(mission.serviceLabel)}</span>
                   ) : null}
                 </td>
                 <td>

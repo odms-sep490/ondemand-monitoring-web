@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useI18n } from '../../../../shared/i18n'
+import { displayLocalized, displayLocalizedList, useI18n } from '../../../../shared/i18n'
 import { customerApi } from '../../api/customerApi'
 import { checklistError } from './errors'
 import { checklistMessages } from './messages'
@@ -71,12 +71,12 @@ export function useOrderChecklist(
               key: item.id,
               sourceChecklistId: item.checklistId,
               version: item.checklistVersion,
-              originalContent: item.content,
-              content: item.content,
-              description: item.description,
-              executionSteps: item.executionSteps,
-              inputRequirements: item.inputRequirements,
-              expectedOutputs: item.expectedOutputs,
+              originalContent: displayLocalized(item.content),
+              content: displayLocalized(item.content),
+              description: item.description == null ? item.description : displayLocalized(item.description),
+              executionSteps: displayLocalizedList(item.executionSteps),
+              inputRequirements: displayLocalizedList(item.inputRequirements),
+              expectedOutputs: displayLocalizedList(item.expectedOutputs),
               selected: true,
               minimumEvidenceCount: item.minimumEvidenceCount ?? 1,
               requiredEvidenceType: evidenceTypeFor(
@@ -107,12 +107,12 @@ export function useOrderChecklist(
                   key: `catalog-${item.id}`,
                   sourceChecklistId: item.id,
                   version: item.version,
-                  originalContent: item.content,
-                  content: item.content,
-                  description: item.description,
-                  executionSteps: item.executionSteps,
-                  inputRequirements: item.inputRequirements,
-                  expectedOutputs: item.expectedOutputs,
+                  originalContent: displayLocalized(item.content),
+                  content: displayLocalized(item.content),
+                  description: item.description == null ? item.description : displayLocalized(item.description),
+                  executionSteps: displayLocalizedList(item.executionSteps),
+                  inputRequirements: displayLocalizedList(item.inputRequirements),
+                  expectedOutputs: displayLocalizedList(item.expectedOutputs),
                   selected: false,
                   minimumEvidenceCount: 1,
                   requiredEvidenceType: evidenceTypeFor(

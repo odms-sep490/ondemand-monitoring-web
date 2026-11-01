@@ -24,7 +24,7 @@ describe('Service catalog related actions', () => {
     expect(screen.getByRole('link', { name: 'Checklist' })).toHaveClass(
       'ant-btn',
     )
-    expect(screen.queryByRole('button', { name: 'Xoá Service' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Xóa Service' })).toBeNull()
     fireEvent.click(screen.getByRole('button', { name: 'Sửa Service' }))
     expect(edit).toHaveBeenCalledWith(service)
     fireEvent.click(
@@ -32,7 +32,7 @@ describe('Service catalog related actions', () => {
     )
     const actions = screen.getByRole('group', { name: 'Thao tác khác Service' })
     fireEvent.click(
-      within(actions).getByRole('button', { name: 'Xoá Service' }),
+      within(actions).getByRole('button', { name: 'Xóa Service' }),
     )
     expect(remove).toHaveBeenCalledWith(service)
   })
@@ -44,13 +44,13 @@ describe('Service catalog related actions', () => {
       name: 'Thao tác khác Service',
     })
     fireEvent.click(trigger)
-    expect(screen.getByRole('button', { name: 'Xoá Service' })).toHaveFocus()
-    fireEvent.keyDown(screen.getByRole('button', { name: 'Xoá Service' }), {
+    expect(screen.getByRole('button', { name: 'Xóa Service' })).toHaveFocus()
+    fireEvent.keyDown(screen.getByRole('button', { name: 'Xóa Service' }), {
       key: 'Escape',
     })
     expect(trigger).toHaveFocus()
     expect(trigger).toHaveAttribute('aria-expanded', 'false')
-    expect(screen.queryByRole('button', { name: 'Xoá Service' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Xóa Service' })).toBeNull()
   })
   it('closes secondary actions when clicking outside the row actions', () => {
     render(
@@ -60,6 +60,6 @@ describe('Service catalog related actions', () => {
       screen.getByRole('button', { name: 'Thao tác khác Service' }),
     )
     fireEvent.mouseDown(screen.getByText('Description'))
-    expect(screen.queryByRole('button', { name: 'Xoá Service' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Xóa Service' })).toBeNull()
   })
 })

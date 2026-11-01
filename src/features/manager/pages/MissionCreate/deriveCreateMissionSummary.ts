@@ -3,6 +3,7 @@ import type { OrderIconName } from '../../components/common/OrderIcon'
 import type { ReactNode } from 'react'
 import type { OrderMissionBrief } from '../../types/orders'
 import type { SubmitState } from './createMissionTypes'
+import { displayLocalized } from '../../../../shared/i18n'
 
 export function deriveCreateMissionSummary({
   scheduledStart,
@@ -36,7 +37,7 @@ export function deriveCreateMissionSummary({
     label: string
     value: ReactNode
   }> = [
-    { icon: 'service', label: t.serviceLabel, value: brief.serviceName },
+    { icon: 'service', label: t.serviceLabel, value: displayLocalized(brief.serviceName) },
     { icon: 'user', label: t.customerLabel, value: brief.customerFullName },
     { icon: 'pin', label: t.locationLabel, value: brief.addressText ?? '—' },
     {

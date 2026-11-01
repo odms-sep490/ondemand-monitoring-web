@@ -17,7 +17,7 @@ import { PriceDifference } from './PriceDifference'
 import type { PricingChecklistItem, PricingReview } from '../../types'
 import type { Draft } from '../pricingHelpers'
 import type { Dispatch, SetStateAction, RefObject } from 'react'
-import { useI18n } from '../../../../shared/i18n'
+import { displayLocalized, useI18n } from '../../../../shared/i18n'
 import { pricingMessages } from '../pricing.messages'
 
 export function ChecklistRow({
@@ -59,7 +59,7 @@ export function ChecklistRow({
         {String(data!.checklistItems.indexOf(item) + 1).padStart(2, '0')}
       </span>
       <div className="finance-requirement-main">
-        <strong>{item.content}</strong>
+        <strong>{displayLocalized(item.content)}</strong>
         {item.sourceType === 'CUSTOMER_CUSTOM' ? (
           <div className="finance-guidance-status">
             <span role="status">
@@ -179,7 +179,7 @@ export function ChecklistRow({
       <button
         type="button"
         className="finance-chevron"
-        aria-label={t.noteAria(item.content)}
+        aria-label={t.noteAria(displayLocalized(item.content))}
         aria-expanded={openNote === item.id}
         onClick={() => setOpenNote(openNote === item.id ? null : item.id)}
       >

@@ -2,7 +2,7 @@ import { Avatar, Button } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 
 import { CardComponent, TableComponent } from '../../../../../shared/components/antd'
-import { useI18n } from '../../../../../shared/i18n'
+import { displayLocalized, useI18n } from '../../../../../shared/i18n'
 import { displayOrderCode } from '../../../../../shared/lib/orderCode'
 import {
   orderStatusLabel,
@@ -50,7 +50,13 @@ export function QueueTable({ rows, total, mode, isInProgress }: Props) {
         </span>
       ),
     },
-    { title: t.columns.service, dataIndex: 'serviceName', key: 'service', responsive: ['md'] },
+    {
+      title: t.columns.service,
+      dataIndex: 'serviceName',
+      key: 'service',
+      responsive: ['md'],
+      render: (name: string) => displayLocalized(name),
+    },
     {
       title: t.columns.preferred,
       key: 'preferred',

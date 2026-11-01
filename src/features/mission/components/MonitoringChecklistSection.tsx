@@ -16,6 +16,7 @@ import {
   ChecklistEvidencePanel,
   evidenceReason,
 } from './ChecklistEvidencePanel'
+import { displayLocalized } from '../../../shared/i18n'
 
 const statuses: Record<ChecklistExecutionStatus, string> = {
   PENDING: 'Chưa thực hiện',
@@ -299,7 +300,7 @@ export function MonitoringChecklistSection({
                           : index + 1}
                     </span>
                     <span className="mc-text">
-                      <span className="mc-title">{item.content}</span>
+                      <span className="mc-title">{displayLocalized(item.content)}</span>
                       <span className="mc-sub">
                         {item.executionStatus === 'UNABLE_TO_VERIFY'
                           ? `${item.eligibleEvidenceCount ?? 0}/0`
@@ -417,7 +418,7 @@ export function MonitoringChecklistSection({
                   ○
                 </span>
                 <span className="mc-preview-text">
-                  <strong>{item.content}</strong>
+                  <strong>{displayLocalized(item.content)}</strong>
                   <small>
                     {statuses[item.executionStatus]} · Bằng chứng tối thiểu:{' '}
                     {item.minimumEvidenceCount ?? 0}
@@ -808,7 +809,7 @@ function ChecklistExecutionItem({
   }
   return (
     <div className="monitoring-item">
-      <h3>{item.content}</h3>
+      <h3>{displayLocalized(item.content)}</h3>
       <ChecklistGuidance
         guidance={item}
         defaultOpen

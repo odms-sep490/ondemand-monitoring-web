@@ -1,6 +1,7 @@
 import type { OperatorMission } from '../../../types/mission'
 import { locationLabel, formatVnDate, formatCheckedAt } from '../missionFormat'
 import { Icon, type IconName } from '../../../../../shared/components/Icon'
+import { displayLocalized } from '../../../../../shared/i18n'
 
 // ─── Decision summary ─────────────────────────────────────────────────────────
 
@@ -28,7 +29,7 @@ export function DecisionSummary({ mission }: { mission: OperatorMission }) {
     {
       icon: 'clipboard',
       label: 'Loại nhiệm vụ',
-      value: mission.serviceLabel || '—',
+      value: displayLocalized(mission.serviceLabel) || '—',
     },
   ]
   if (mission.respondBy) {

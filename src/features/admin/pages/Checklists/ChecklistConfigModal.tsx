@@ -1,7 +1,7 @@
 import { Button, Skeleton } from 'antd'
 import { useState } from 'react'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
-import { useI18n } from '../../../../shared/i18n'
+import { displayLocalized, useI18n } from '../../../../shared/i18n'
 import { AdminModal } from '../../components/common/AdminModal'
 import {
   checklistsApi,
@@ -44,8 +44,8 @@ export function ChecklistConfigModal({
       title={creating ? t.add : t.configTitle}
       subtitle={
         service
-          ? `${service.name} · ${service.row.content}`
-          : checklist?.content
+          ? `${displayLocalized(service.name)} · ${displayLocalized(service.row.content)}`
+          : displayLocalized(checklist?.content)
       }
       onClose={close}
     >

@@ -6,7 +6,7 @@ import {
   MoreOutlined,
 } from '@ant-design/icons'
 import { Button } from 'antd'
-import { useI18n } from '../../../../../shared/i18n'
+import { displayLocalized, useI18n } from '../../../../../shared/i18n'
 import { adminHref } from '../../../routes'
 import { servicesTableMessages } from './ServicesTable.messages'
 import type { AdminService } from '../../../types/catalog'
@@ -59,7 +59,7 @@ export function ServiceRowActions({
       <Button
         type="text"
         className="service-action-icon"
-        aria-label={t.edit + ' ' + service.name}
+        aria-label={t.edit + ' ' + displayLocalized(service.name)}
         title={t.edit}
         icon={<EditOutlined aria-hidden="true" aria-label={undefined} />}
         onClick={edit}
@@ -68,7 +68,7 @@ export function ServiceRowActions({
         type="text"
         className="service-action-icon"
         ref={trigger}
-        aria-label={t.more + ' ' + service.name}
+        aria-label={t.more + ' ' + displayLocalized(service.name)}
         aria-expanded={open}
         title={t.more}
         icon={<MoreOutlined aria-hidden="true" aria-label={undefined} />}
@@ -78,14 +78,14 @@ export function ServiceRowActions({
         <div
           className="service-action-disclosure"
           role="group"
-          aria-label={t.more + ' ' + service.name}
+          aria-label={t.more + ' ' + displayLocalized(service.name)}
         >
           <Button
             danger
             size="small"
             className="service-action-delete"
             ref={deleteButton}
-            aria-label={t.remove + ' ' + service.name}
+            aria-label={t.remove + ' ' + displayLocalized(service.name)}
             icon={<DeleteOutlined aria-hidden="true" aria-label={undefined} />}
             onClick={() => {
               setOpen(false)

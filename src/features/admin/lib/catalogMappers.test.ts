@@ -14,7 +14,12 @@ import {
 
 describe('catalogMappers', () => {
   it('maps a service dto and fills optional fields', () => {
-    const s = mapService({ id: '1', name: 'A', basePrice: 2_000_000, isActive: false })
+    const s = mapService({
+      id: '1',
+      name: 'A',
+      basePrice: 2_000_000,
+      isActive: false,
+    })
     expect(s).toEqual({
       id: '1',
       name: 'A',
@@ -29,14 +34,53 @@ describe('catalogMappers', () => {
 
   it('builds a trimmed service request from the form', () => {
     expect(
-      toServiceRequest({ name: ' X ', description: ' d ', basePrice: 2_000_000, isActive: true }),
-    ).toEqual({ name: 'X', description: 'd', basePrice: 2_000_000, isActive: true })
+      toServiceRequest({
+        name: { vi: ' X ', en: ' Xe ' },
+        description: { vi: ' d ', en: ' de ' },
+        basePrice: 2_000_000,
+        isActive: true,
+      }),
+    ).toEqual({
+      name: '{"vi":"X","en":"Xe"}',
+      description: '{"vi":"d","en":"de"}',
+      basePrice: 2_000_000,
+      isActive: true,
+    })
+    expect(
+      toServiceRequest({
+        name: { vi: 'A', en: 'B' },
+        description: { vi: ' ', en: '' },
+        basePrice: 1,
+        isActive: true,
+      }).description,
+    ).toBe('')
     expect(emptyServiceForm().isActive).toBe(true)
     expect(
       serviceToForm(
-        mapService({ id: '1', name: 'A', description: 'd', basePrice: 2_000_000, isActive: true }),
+        mapService({
+          id: '1',
+          name: 'A',
+          description: 'd',
+          basePrice: 2_000_000,
+          isActive: true,
+        }),
       ),
-    ).toEqual({ name: 'A', description: 'd', basePrice: 2_000_000, isActive: true })
+    ).toEqual({
+      name: { vi: 'A', en: 'A' },
+      description: { vi: 'd', en: 'd' },
+      basePrice: 2_000_000,
+      isActive: true,
+    })
+    expect(
+      serviceToForm(
+        mapService({
+          id: '1',
+          name: '{"vi":"Mái nhà","en":"Roof"}',
+          basePrice: 1,
+          isActive: true,
+        }),
+      ).name,
+    ).toEqual({ vi: 'Mái nhà', en: 'Roof' })
   })
 
   it('trims seconds from times', () => {
@@ -55,7 +99,7 @@ describe('catalogMappers', () => {
     expect(t.startTime).toBe('22:00')
     expect(toTimeslotRequest(timeslotToForm(t))).toEqual({
       code: 'NIGHT',
-      name: 'Đêm',
+      name: '{"vi":"Đêm","en":"Đêm"}',
       startTime: '22:00',
       endTime: '05:00',
     })

@@ -2,12 +2,12 @@ import { defineMessages } from '../../../../../shared/i18n'
 
 export const deleteConfirmMessages = defineMessages({
   vi: {
-    confirmPrefix: 'Bạn có chắc muốn xoá',
+    confirmPrefix: 'Bạn có chắc muốn xóa',
     confirmSuffix: '? Thao tác này không thể hoàn tác.',
-    cancel: 'Huỷ',
-    processing: 'Đang xoá...',
-    action: 'Xoá',
-    genericError: 'Không xoá được. Vui lòng thử lại.',
+    cancel: 'Hủy',
+    processing: 'Đang xóa...',
+    action: 'Xóa',
+    genericError: 'Không xóa được. Vui lòng thử lại.',
   },
   en: {
     confirmPrefix: 'Are you sure you want to delete',

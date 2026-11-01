@@ -18,8 +18,11 @@ describe('TimeslotsTab', () => {
     await screen.findByLabelText('Sửa Buổi chiều')
     fireEvent.click(screen.getByText('Thêm khung giờ'))
     await pickOption(/Mã khung giờ/, 'NIGHT · Ban đêm')
-    fireEvent.change(screen.getByLabelText(/Tên hiển thị/), {
+    fireEvent.change(screen.getByLabelText('Tên hiển thị (Tiếng Việt)'), {
       target: { value: 'Đêm khuya' },
+    })
+    fireEvent.change(screen.getByLabelText('Tên hiển thị (English)'), {
+      target: { value: 'Late night' },
     })
     fireEvent.click(screen.getByText('Lưu'))
     expect(await screen.findByText('Đêm khuya')).toBeTruthy()
@@ -29,8 +32,11 @@ describe('TimeslotsTab', () => {
     render(<TimeslotsTab />)
     await screen.findByLabelText('Sửa Buổi chiều')
     fireEvent.click(screen.getByText('Thêm khung giờ'))
-    fireEvent.change(screen.getByLabelText(/Tên hiển thị/), {
+    fireEvent.change(screen.getByLabelText('Tên hiển thị (Tiếng Việt)'), {
       target: { value: 'Trùng' },
+    })
+    fireEvent.change(screen.getByLabelText('Tên hiển thị (English)'), {
+      target: { value: 'Duplicate' },
     })
     fireEvent.click(screen.getByText('Lưu'))
     expect(await screen.findByText('Code already exists')).toBeTruthy()
@@ -41,16 +47,16 @@ describe('TimeslotsTab', () => {
     await screen.findByLabelText('Sửa Buổi chiều')
     fireEvent.click(screen.getByLabelText('Sửa Buổi chiều'))
     const name = (await screen.findByLabelText(
-      /Tên hiển thị/,
+      'Tên hiển thị (Tiếng Việt)',
     )) as HTMLInputElement
     expect(name.value).toBe('Buổi chiều')
     expect((screen.getByLabelText(/Bắt đầu/) as HTMLInputElement).value).toBe(
       '12:00',
     )
-    fireEvent.click(screen.getByText('Huỷ'))
+    fireEvent.click(screen.getByText('Hủy'))
 
-    fireEvent.click(screen.getByLabelText('Xoá Buổi chiều'))
-    fireEvent.click(screen.getByRole('button', { name: 'Xoá' }))
+    fireEvent.click(screen.getByLabelText('Xóa Buổi chiều'))
+    fireEvent.click(screen.getByRole('button', { name: 'Xóa' }))
     await waitFor(() =>
       expect(screen.queryByLabelText('Sửa Buổi chiều')).toBeNull(),
     )
