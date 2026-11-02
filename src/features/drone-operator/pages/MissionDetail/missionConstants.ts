@@ -19,6 +19,7 @@ export const STATUS_LABEL: Record<string, string> = {
   PENDING_PAYMENT: 'Chờ khách hàng thanh toán',
   PENDING_CONFIRMATION: 'Chờ phi hành đoàn xác nhận',
   READY: 'Sẵn sàng chờ nghiệm thu',
+  WAITING_DEPOSIT: 'Chờ xác nhận đặt cọc',
   RESOURCE_ASSIGNING: 'Đang phân công nguồn lực',
   WAITING_OPERATOR_ACCEPTANCE: 'Chờ người vận hành xác nhận',
   SCHEDULED: 'Đang chuẩn bị trước bay',

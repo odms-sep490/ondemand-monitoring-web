@@ -1,5 +1,7 @@
 export type MissionStatus =
   | 'PLANNING'
+  | 'CREATED'
+  | 'WAITING_DEPOSIT'
   | 'PENDING_PAYMENT'
   | 'PENDING_CONFIRMATION'
   | 'READY'
@@ -11,7 +13,6 @@ export type MissionStatus =
   | 'FAILED'
   | 'CANCELLED'
   // Legacy / transition aliases kept for mock data and component compatibility:
-  | 'CREATED'
   | 'RESOURCE_ASSIGNING'
   | 'WAITING_OPERATOR_ACCEPTANCE'
   | 'CONNECTED'
@@ -51,8 +52,6 @@ export type MissionDeviceCheckStatus =
   | 'CHECKING'
   | 'PASSED'
   | 'FAILED'
-
-export type MissionResourcePrepareStatus = 'PLANNING' | 'PENDING' | 'READY'
 
 export type DeviceStatus =
   | 'AVAILABLE'

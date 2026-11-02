@@ -57,15 +57,21 @@ export function toOrderRow(order: OrderCreateResponse): OrderRow {
     radiusM: orNull(order.radiusM),
     createdAt: orNull(order.createdAt),
     depositState:
-      statusDepositState(normalizeStatus(order.orderStatus), order.depositSatisfied),
+      statusDepositState(
+        normalizeStatus(order.orderStatus),
+        order.depositSatisfied,
+        order.invoicePaidInFull,
+      ),
   }
 }
 
 function statusDepositState(
   status: OrderStatus,
   depositSatisfied: boolean | null | undefined,
+  invoicePaidInFull: boolean | null | undefined,
 ): OrderRow['depositState'] {
   if (status !== 'APPROVED') return undefined
+  if (invoicePaidInFull) return 'PAID_IN_FULL'
   return depositSatisfied ? 'PAID' : 'ACTION_REQUIRED'
 }
 

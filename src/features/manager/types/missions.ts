@@ -65,7 +65,6 @@ export type Mission = {
   orderCode: string | null
   missionCode: string
   status: MissionStatus
-  resourcePrepareStatus?: MissionResourcePrepareStatus
   flightPermitStatus?: FlightPermitStatus | null
   flightPermitNote?: string | null
   flightPermitFileName?: string | null
@@ -115,6 +114,7 @@ export type MissionCalendarItem = Mission & {
   droneName: string | null
   operatorName: string | null
   staffAssignments?: MissionStaffAssignmentResponse[]
+  deviceAssignments?: MissionDeviceAssignmentResponse[]
 }
 
 export type MissionRescheduleReason =
@@ -225,7 +225,6 @@ export type MissionResponse = {
   customerName: string
   missionCode: string
   status: MissionStatus
-  resourcePrepareStatus?: MissionResourcePrepareStatus
   flightPermitStatus?: FlightPermitStatus | null
   flightPermitNote?: string | null
   flightPermitFileName?: string | null
@@ -294,6 +293,18 @@ export type MissionDeviceAssignmentResponse = {
 
 export type MissionResourcePrepareStatus =
   'PLANNING' | 'PENDING' | 'READY' | 'CANCELLED'
+
+export type FlightTokenResponse = {
+  id: string
+  missionId: string
+  droneCode: string
+  operatorId: string
+  tokenValue: string
+  issuedAt: string
+  expiresAt: string
+  used: boolean
+  revoked: boolean
+}
 
 export type PreflightCheckItemStatus =
   'PENDING' | 'CHECKING' | 'PASSED' | 'FAILED' | 'STALE'

@@ -114,6 +114,8 @@ beforeEach(() => {
     id: 'invoice-paid',
     paidAmount: 500,
     depositAmount: 500,
+    remainingAmount: 0,
+    finalPaymentAllowed: false,
   } as Invoice)
   missions = ['m1', 'm2'].map(
     (id) =>
@@ -174,7 +176,7 @@ beforeEach(() => {
       revision++
       missions = missions.map((mission) => ({
         ...mission,
-        status: 'READY',
+        status: 'PLANNING',
       }))
       return plan()
     },
@@ -317,7 +319,7 @@ describe('Order-centric workspace', () => {
   })
   it('returns from resource Mission selection to the same Order planning workspace', async () => {
     finalized = true
-    missions = missions.map((mission) => ({ ...mission, status: 'READY' }))
+    missions = missions.map((mission) => ({ ...mission, status: 'PLANNING' }))
     render(<OrderMissionPlanningSection orderId="o" />)
     fireEvent.click(
       await screen.findByRole('button', { name: 'Phân công nguồn lực cho M1' }),
@@ -331,7 +333,7 @@ describe('Order-centric workspace', () => {
     finalized = true
     missions = missions.map((mission) => ({
       ...mission,
-      status: 'READY',
+      status: 'PLANNING',
       deviceId: 'd1',
       deviceName: 'Drone 1',
       staffAssignments: [
@@ -390,7 +392,7 @@ describe('Order-centric workspace', () => {
         id,
         orderId: 'o',
         missionCode: id.toUpperCase(),
-        status: 'RESOURCE_ASSIGNING',
+        status: 'PLANNING',
         staffAssignments: [],
       } as unknown as MissionResponse)
       revision++

@@ -13,11 +13,11 @@ const crew = requiredAssignmentRoles.map((assignedRole) => ({
 it('distinguishes submission from crew acceptance and excludes rejected assignments', () => {
   expect(
     assignmentReadiness({
-      status: 'RESOURCE_ASSIGNING',
+      status: 'PLANNING',
       deviceId: 'd',
       staffAssignments: crew,
     }),
-  ).toMatchObject({ step: 'confirm', complete: false, needsSetup: true })
+  ).toMatchObject({ step: 'confirm', complete: true, needsSetup: false })
   expect(
     assignmentReadiness({
       status: 'READY',

@@ -123,6 +123,8 @@ export function missionProgress(
   let stage: MissionStage = (
     {
       PLANNING: 'permit',
+      CREATED: 'permit',
+      WAITING_DEPOSIT: 'permit',
       PENDING_PAYMENT: 'permit',
       PENDING_CONFIRMATION: 'permit',
       READY: 'permit',
@@ -155,6 +157,15 @@ export type MissionBucket = 'finished' | 'active' | 'queued' | 'blocked'
 export function missionBucket(status: MissionStatus): MissionBucket {
   if (status === 'COMPLETED') return 'finished'
   if (status === 'FAILED' || status === 'CANCELLED') return 'blocked'
-  if (['PLANNING', 'PENDING_PAYMENT'].includes(status)) return 'queued'
+  if (
+    [
+      'PLANNING',
+      'CREATED',
+      'WAITING_DEPOSIT',
+      'PENDING_PAYMENT',
+      'PENDING_CONFIRMATION',
+    ].includes(status)
+  )
+    return 'queued'
   return 'active'
 }

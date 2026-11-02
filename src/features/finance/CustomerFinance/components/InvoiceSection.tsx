@@ -75,6 +75,9 @@ export function InvoiceSection({
   const [expiredDeadlineKey, setExpiredDeadlineKey] = useState<string | null>(
     null,
   )
+  const [expiredFinalDeadlineKey, setExpiredFinalDeadlineKey] = useState<
+    string | null
+  >(null)
   const deadlineKey = `${invoice.id}:${invoice.depositExpiresAt ?? ''}`
   const depositIssuedAt = Date.parse(invoice.issuedAt)
   const depositExpiresAt = invoice.depositExpiresAt
@@ -88,6 +91,15 @@ export function InvoiceSection({
     invoice.status === 'OVERDUE' ||
     depositReachedDeadline ||
     expiredDeadlineKey === deadlineKey
+  const finalDeadlineKey = `${invoice.id}:${invoice.finalPaymentExpiresAt ?? ''}`
+  const finalPaymentDeadline = invoice.finalPaymentExpiresAt
+    ? Date.parse(invoice.finalPaymentExpiresAt)
+    : Number.NaN
+  const hasValidFinalDeadline = Number.isFinite(finalPaymentDeadline)
+  const finalPaymentExpired =
+    invoice.status === 'OVERDUE' ||
+    (hasValidFinalDeadline && finalPaymentDeadline <= Date.now()) ||
+    expiredFinalDeadlineKey === finalDeadlineKey
   return (
     <div className="customer-invoice customer-invoice-actions">
       {invoice.depositExpiresAt &&
@@ -120,6 +132,36 @@ export function InvoiceSection({
           </div>
         )
       ) : null}
+      {invoice.finalPaymentExpiresAt &&
+      invoice.paidAmount >= invoice.depositAmount &&
+      invoice.remainingAmount > 0 ? (
+        hasValidFinalDeadline ? (
+          <DeadlineCountdown
+            expired={finalPaymentExpired}
+            label={
+              finalPaymentExpired
+                ? t.finalPaymentExpired
+                : t.finalPaymentCountdownLabel
+            }
+            deadline={invoice.finalPaymentExpiresAt}
+            deadlineLabel={t.finalPaymentDeadlineAt(
+              new Date(invoice.finalPaymentExpiresAt).toLocaleString(locale, {
+                dateStyle: 'short',
+                timeStyle: 'medium',
+              }),
+            )}
+            dayLabel={t.dayUnit}
+            hourLabel={t.hourUnit}
+            minuteLabel={t.minuteUnit}
+            secondLabel={t.secondUnit}
+            clockLabel={t.clockLabel}
+            onExpire={() => {
+              setExpiredFinalDeadlineKey(finalDeadlineKey)
+              refreshExpired?.()
+            }}
+          />
+        ) : null
+      ) : null}
       {invoice.orderCancellationReason === 'DEPOSIT_PAYMENT_EXPIRED' ? (
         <div className="customer-deposit-notice">
           <b>{t.orderCancelledPaymentTimeout}</b>
@@ -130,12 +172,27 @@ export function InvoiceSection({
           <b>{t.awaitingDeposit}</b>
           <span>{t.awaitingDepositBody}</span>
         </div>
-      ) : invoice.status !== 'PAID' ? (
+      ) : invoice.status === 'PAID' ? (
         <div className="customer-deposit-notice is-ready">
-          <b>{t.depositReceived}</b>
-          <span>{t.depositReceivedBody}</span>
+          <b>{t.paymentCompleted}</b>
+          <span>{t.awaitingResourceConfirmation}</span>
         </div>
-      ) : null}
+      ) : invoice.finalPaymentAllowed ? (
+        <div className="customer-deposit-notice is-ready">
+          <b>{t.resourcesAssigned}</b>
+          <span>{t.finalPaymentRequired}</span>
+        </div>
+      ) : finalPaymentExpired ? (
+        <div className="customer-deposit-notice">
+          <b>{t.finalPaymentExpired}</b>
+          <span>{t.finalPaymentExpiredBody}</span>
+        </div>
+      ) : (
+        <div className="customer-deposit-notice">
+          <b>{t.missionPreparation}</b>
+          <span>{t.missionPreparationBody}</span>
+        </div>
+      )}
       <div className="finance-actions customer-payment-actions">
         {invoice.paidAmount < invoice.depositAmount &&
         legalReady &&
@@ -160,6 +217,7 @@ export function InvoiceSection({
           </>
         ) : null}
         {invoice.finalPaymentAllowed &&
+        !finalPaymentExpired &&
         invoice.paidAmount >= invoice.depositAmount &&
         invoice.remainingAmount > 0 ? (
           <>

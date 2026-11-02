@@ -44,11 +44,7 @@ export function deriveDispatchView({
   t: (typeof liveDispatchPageMessages)['vi']
 }) {
   const currentOrderCode = displayOrderCode(current.orderCode, current.orderId)
-  const assignable = orderContext
-    ? ['RESOURCE_ASSIGNING', 'READY'].includes(
-        current.status,
-      )
-    : current.status === 'RESOURCE_ASSIGNING' || current.status === 'CREATED'
+  const assignable = current.status === 'PLANNING'
   const activeStepIndex = dispatchSteps.indexOf(activeStep)
   const selectedDrones = (drones.data ?? []).filter((drone) =>
     droneIds.includes(drone.id),

@@ -14,6 +14,7 @@ export const ordersTableMessages = defineMessages({
     addInformation: 'Bổ sung ngay',
     paymentRequired: 'Cần xác nhận & thanh toán',
     depositPaid: 'Đã thanh toán cọc',
+    invoicePaidInFull: 'Đã thanh toán đầy đủ',
   },
   en: {
     columns: {
@@ -28,5 +29,6 @@ export const ordersTableMessages = defineMessages({
     addInformation: 'Add information',
     paymentRequired: 'Confirmation & payment required',
     depositPaid: 'Deposit paid',
+    invoicePaidInFull: 'Paid in full',
   },
 })

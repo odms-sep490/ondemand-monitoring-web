@@ -31,10 +31,7 @@ export function assignmentReadiness(mission: AssignmentSnapshot) {
       ),
   )
   const device = Boolean(mission.deviceId || mission.droneId)
-  const setupState = [
-    'RESOURCE_ASSIGNING',
-    'READY',
-  ].includes(mission.status)
+  const setupState = ['PLANNING', 'READY'].includes(mission.status)
   const submitted =
     mission.status !== 'RESOURCE_ASSIGNING' && mission.status !== 'CREATED'
   const complete = !missingRoles.length && device && submitted
@@ -55,6 +52,6 @@ export function assignmentReadiness(mission: AssignmentSnapshot) {
     complete,
     step,
     label,
-    needsSetup: setupState && !complete,
+    needsSetup: mission.status === 'PLANNING' && !complete,
   } as const
 }

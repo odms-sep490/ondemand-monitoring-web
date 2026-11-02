@@ -241,7 +241,7 @@ export const missionApi = {
   },
 
   assignDrone: async (missionId: string, droneId: string): Promise<Mission> => {
-    return request<Mission>(`${API_BASE}/missions/${missionId}/device-assignments`, {
+    return request<Mission>(`${API_BASE}/missions/${encodeURIComponent(missionId)}/device-assignments`, {
       method: 'POST',
       body: JSON.stringify({ deviceId: droneId, deviceRole: 'MAIN' }),
     })
@@ -251,7 +251,7 @@ export const missionApi = {
     missionId: string,
     operatorId: string,
   ): Promise<Mission> => {
-    return request<Mission>(`${API_BASE}/missions/${missionId}/staff-assignments`, {
+    return request<Mission>(`${API_BASE}/missions/${encodeURIComponent(missionId)}/staff-assignments`, {
       method: 'POST',
       body: JSON.stringify({ staffId: operatorId, assignedRoles: ['PILOT'] }),
     })

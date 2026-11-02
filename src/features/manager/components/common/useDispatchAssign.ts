@@ -80,6 +80,10 @@ export function useDispatchAssign({
   }, [activeStep, globalStepCallback])
 
   async function assign() {
+    if (mission.data?.status !== 'PLANNING') {
+      setError(t.planningOnly)
+      return
+    }
     if (
       busy ||
       !resourcesReady ||
@@ -107,8 +111,7 @@ export function useDispatchAssign({
       if (resourceAssignmentConflict(cause)) {
         conflictStep.current =
           cause instanceof ApiError &&
-          (cause.path.includes('device-assignments') ||
-            cause.path.includes('assign-device'))
+          cause.path.includes('/device-assignments')
             ? 'device'
             : 'staff'
         setActiveStep(conflictStep.current)

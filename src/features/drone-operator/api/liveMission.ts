@@ -2,31 +2,6 @@ import type { Drone, Mission } from '../types/omss'
 import type { OperatorMission, OperatorMissionStatus } from '../types/mission'
 import type { MissionDeviceAssignmentStatus } from '../../mission/types/mission'
 
-const KNOWN_MISSION_STATUSES = new Set([
-  'PLANNING',
-  'PENDING_PAYMENT',
-  'PENDING_CONFIRMATION',
-  'READY',
-  'SCHEDULED',
-  'IN_PROGRESS',
-  'AWAITING_REVIEW',
-  'PENDING_REVIEW',
-  'COMPLETED',
-  'FAILED',
-  'CANCELLED',
-  'CREATED',
-  'RESOURCE_ASSIGNING',
-  'WAITING_OPERATOR_ACCEPTANCE',
-  'CONNECTED',
-  'PREFLIGHT_CHECKING',
-  'READY_TO_FLY',
-  'FAILED_PREFLIGHT',
-  'PENDING_APPROVAL',
-  'IN_FLIGHT',
-  'RETURNING',
-  'POSTFLIGHT_CHECKING',
-])
-
 export type BackendMission = {
   id: string
   missionCode?: string | null
@@ -160,23 +135,73 @@ function localDateAndTime(iso?: string | null) {
   }
 }
 
+function operatorStatus(status: string): OperatorMissionStatus {
+  if (status === 'PENDING_CONFIRMATION') return 'PENDING'
+  if (status === 'WAITING_OPERATOR_ACCEPTANCE') return 'PENDING'
+  if (
+    status === 'IN_FLIGHT' ||
+    status === 'IN_PROGRESS' ||
+    status === 'RETURNING'
+  )
+    return 'IN_FLIGHT'
+  if (status === 'COMPLETED') return 'COMPLETED'
+  if (status === 'FAILED' || status === 'CANCELLED') return 'FAILED'
+  if (status === 'RESOURCE_ASSIGNING') return 'PENDING'
+  const remainingStatuses = [
+    'PLANNING',
+    'CREATED',
+    'WAITING_DEPOSIT',
+    'PENDING_PAYMENT',
+    'PENDING_CONFIRMATION',
+    'READY',
+    'RESOURCE_ASSIGNING',
+    'SCHEDULED',
+    'CONNECTED',
+    'PREFLIGHT_CHECKING',
+    'READY_TO_FLY',
+    'FAILED_PREFLIGHT',
+    'PENDING_APPROVAL',
+    'POSTFLIGHT_CHECKING',
+    'PENDING_REVIEW',
+  ] as const
+  return remainingStatuses.find((value) => value === status) ?? 'UNKNOWN'
+}
+
+function operatorStatusForAssignment(
+  status: string,
+  responseStatus?: string | null,
+): OperatorMissionStatus {
+  if (responseStatus === 'ACCEPTED') {
+    return status === 'READY' || operatorStatus(status) === 'PENDING'
+      ? 'ACCEPTED'
+      : operatorStatus(status)
+  }
+  if (responseStatus === 'REJECTED') return 'REJECTED'
+  if (
+    responseStatus === 'PENDING' &&
+    (status === 'PENDING_CONFIRMATION' || status === 'READY')
+  )
+    return 'PENDING'
+  return operatorStatus(status)
+}
+
 function operatorStatusForCrewResponse(
   missionStatus: string,
   responseStatus?: string | null,
 ): OperatorMissionStatus {
-  // Payment activates crew acceptance. Keep each operator's response separate
-  // from the mission lifecycle while the mission awaits confirmation.
-  if (
-    missionStatus === 'PENDING_CONFIRMATION' ||
-    missionStatus === 'PLANNING' ||
-    missionStatus === 'READY'
-  ) {
+  const awaitingCrew = new Set([
+    'PLANNING',
+    'PENDING_PAYMENT',
+    'PENDING_CONFIRMATION',
+    'READY',
+    'WAITING_OPERATOR_ACCEPTANCE',
+  ])
+  if (awaitingCrew.has(missionStatus)) {
     if (responseStatus === 'ACCEPTED') return 'ACCEPTED'
     if (responseStatus === 'REJECTED') return 'REJECTED'
     if (responseStatus === 'PENDING') return 'PENDING'
   }
-  if (!KNOWN_MISSION_STATUSES.has(missionStatus)) return 'UNKNOWN'
-  return missionStatus as OperatorMissionStatus
+  return operatorStatusForAssignment(missionStatus, responseStatus)
 }
 
 export function toOperatorMission(

@@ -1933,6 +1933,23 @@
   color: var(--or-tx2);
 }
 
+.odm-or-crew-roles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 3px;
+}
+
+.odm-or-crew-roles > span {
+  padding: 2px 7px;
+  border: 1px solid var(--pl-blue-bd);
+  border-radius: 999px;
+  background: var(--pl-blue-bg);
+  color: var(--pl-blue-fg);
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
 .odm-or-crew-main strong {
   font-size: 13px;
   overflow-wrap: anywhere;

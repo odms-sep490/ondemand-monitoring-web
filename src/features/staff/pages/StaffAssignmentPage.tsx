@@ -76,6 +76,13 @@ export function StaffAssignmentPage() {
   }, [])
 
   const handleAssign = async (missionId: string) => {
+    if (
+      missions.find((mission) => mission.id === missionId)?.status !==
+      'PLANNING'
+    ) {
+      setError(t.planningOnly)
+      return
+    }
     const droneId = selectedDrone[missionId]
     const staffAssignments = selectedStaffByRole[missionId] ?? {}
 
@@ -424,7 +431,9 @@ export function StaffAssignmentPage() {
                         {t.assignedCount(assignedCount, missionRoles.length)}
                       </div>
                       <Button
-                        disabled={assigningMissionId !== null}
+                        disabled={
+                          assigningMissionId !== null || m.status !== 'PLANNING'
+                        }
                         onClick={() => void handleAssign(m.id)}
                       >
                         {assigningMissionId === m.id ? t.assigning : t.assign}

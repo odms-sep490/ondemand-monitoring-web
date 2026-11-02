@@ -112,13 +112,43 @@ export function missionResourcePrepareLabel(
   return status ? labels[status] : 'Chưa xác định'
 }
 
-export function missionResourcePrepareTone(
-  status: MissionResourcePrepareStatus | null | undefined,
-): StatusTone {
-  if (status === 'READY') return 'green'
-  if (status === 'PENDING') return 'yellow'
-  if (status === 'CANCELLED') return 'red'
-  return 'gray'
+export type StaffAssignmentGroup = {
+  staffId: string
+  staffName: string | null
+  staffEmail: string | null
+  assignments: MissionStaffAssignmentResponse[]
+  responseStatus: MissionStaffAssignmentResponse['responseStatus']
+}
+
+/** Groups role-level persistence rows into one presentation item per staff. */
+export function groupStaffAssignments(
+  assignments: MissionStaffAssignmentResponse[] = [],
+): StaffAssignmentGroup[] {
+  const groups = new Map<string, MissionStaffAssignmentResponse[]>()
+  for (const assignment of assignments) {
+    const key = assignment.staffId || assignment.staffEmail || assignment.id
+    const existing = groups.get(key)
+    if (existing) existing.push(assignment)
+    else groups.set(key, [assignment])
+  }
+
+  return [...groups.entries()].map(([staffId, rows]) => {
+    const statuses = new Set(rows.map((row) => row.responseStatus))
+    const responseStatus = statuses.has('REJECTED')
+      ? 'REJECTED'
+      : statuses.has('PENDING')
+        ? 'PENDING'
+        : statuses.has('PLANNING')
+          ? 'PLANNING'
+          : 'ACCEPTED'
+    return {
+      staffId,
+      staffName: rows.find((row) => row.staffName)?.staffName ?? null,
+      staffEmail: rows.find((row) => row.staffEmail)?.staffEmail ?? null,
+      assignments: rows,
+      responseStatus,
+    }
+  })
 }
 
 export function staffAssignmentStatusTone(

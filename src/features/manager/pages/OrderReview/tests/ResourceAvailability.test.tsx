@@ -29,7 +29,7 @@ const mission = {
   id: 'm1',
   orderId: 'o',
   missionCode: 'M1',
-  status: 'RESOURCE_ASSIGNING',
+  status: 'PLANNING',
   scheduledStartAt: '2026-10-10T03:00:00Z',
   scheduledEndAt: '2026-10-10T04:00:00Z',
 } as Mission

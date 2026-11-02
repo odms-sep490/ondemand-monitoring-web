@@ -7,7 +7,10 @@ import {
 import { managerHref } from '../../../routes'
 import type { MissionResponse } from '../../../types/missions'
 import type { ExecutionPlan } from '../../../types/planning'
-import { STAFF_ROLE_LABELS } from '../../../components/common/missionDetailHelpers'
+import {
+  groupStaffAssignments,
+  STAFF_ROLE_LABELS,
+} from '../../../components/common/missionDetailHelpers'
 import { OrderIcon } from '../../../components/common/OrderIcon'
 import { planningSchedule } from '../../../components/common/planningSchedule'
 import { useI18n } from '../../../../../shared/i18n'
@@ -30,6 +33,7 @@ export function MissionPlanningCard({
   const replacements = missions.filter(
     (m) => m.replacesMissionId === mission.id,
   )
+  const staffGroups = groupStaffAssignments(mission.staffAssignments ?? [])
   return (
     <article
       className="odm-planning-mission"
@@ -87,19 +91,18 @@ export function MissionPlanningCard({
             <OrderIcon name="users" size={16} />
             {t.staff}
           </h4>
-          {mission.staffAssignments?.length ? (
+          {staffGroups.length ? (
             <ul className="odm-mission-crew">
-              {mission.staffAssignments.map((person, index) => (
-                <li
-                  key={
-                    person.id ||
-                    `${person.staffId}-${person.assignedRole}-${index}`
-                  }
-                >
-                  <span>
-                    {STAFF_ROLE_LABELS[person.assignedRole] ?? t.staff}
+              {staffGroups.map((group) => (
+                <li className="odm-mission-crew-staff" key={group.staffId}>
+                  <strong>{group.staffName || group.staffEmail || t.noName}</strong>
+                  <span className="odm-or-crew-roles">
+                    {group.assignments.map((assignment) => (
+                      <span key={assignment.id}>
+                        {STAFF_ROLE_LABELS[assignment.assignedRole] ?? t.staff}
+                      </span>
+                    ))}
                   </span>
-                  <strong>{person.staffName || t.noName}</strong>
                 </li>
               ))}
             </ul>

@@ -27,9 +27,11 @@ export function OrderExpirationSettings() {
   )
   const [quotationHours, setQuotationHours] = useState('')
   const [depositHours, setDepositHours] = useState('')
+  const [finalPaymentHours, setFinalPaymentHours] = useState('')
   const [savedValues, setSavedValues] = useState<{
     quotation: number
     deposit: number
+    finalPayment: number
   } | null>(null)
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
@@ -41,9 +43,11 @@ export function OrderExpirationSettings() {
       String(settingsQuery.data.quotationAcceptanceTimeoutHours),
     )
     setDepositHours(String(settingsQuery.data.depositPaymentTimeoutHours))
+    setFinalPaymentHours(String(settingsQuery.data.finalPaymentTimeoutHours))
     setSavedValues({
       quotation: settingsQuery.data.quotationAcceptanceTimeoutHours,
       deposit: settingsQuery.data.depositPaymentTimeoutHours,
+      finalPayment: settingsQuery.data.finalPaymentTimeoutHours,
     })
   }, [settingsQuery.data])
 
@@ -55,6 +59,7 @@ export function OrderExpirationSettings() {
 
   const quotationValue = Number(quotationHours)
   const depositValue = Number(depositHours)
+  const finalPaymentValue = Number(finalPaymentHours)
   const valid = (text: string, value: number) =>
     /^\d+$/.test(text) &&
     Number.isInteger(value) &&
@@ -69,13 +74,16 @@ export function OrderExpirationSettings() {
   }
   const quotationError = fieldError(quotationHours, quotationValue)
   const depositError = fieldError(depositHours, depositValue)
+  const finalPaymentError = fieldError(finalPaymentHours, finalPaymentValue)
   const hasChanges =
     savedValues !== null &&
     (quotationValue !== savedValues.quotation ||
-      depositValue !== savedValues.deposit)
+      depositValue !== savedValues.deposit ||
+      finalPaymentValue !== savedValues.finalPayment)
   const canSave =
     valid(quotationHours, quotationValue) &&
     valid(depositHours, depositValue) &&
+    valid(finalPaymentHours, finalPaymentValue) &&
     hasChanges &&
     !busy
 
@@ -89,12 +97,15 @@ export function OrderExpirationSettings() {
       const updated = await adminApi.updateOrderExpirationSettings({
         quotationAcceptanceTimeoutHours: quotationValue,
         depositPaymentTimeoutHours: depositValue,
+        finalPaymentTimeoutHours: finalPaymentValue,
       })
       setQuotationHours(String(updated.quotationAcceptanceTimeoutHours))
       setDepositHours(String(updated.depositPaymentTimeoutHours))
+      setFinalPaymentHours(String(updated.finalPaymentTimeoutHours))
       setSavedValues({
         quotation: updated.quotationAcceptanceTimeoutHours,
         deposit: updated.depositPaymentTimeoutHours,
+        finalPayment: updated.finalPaymentTimeoutHours,
       })
       setMessage(t.saved)
       settingsQuery.reload()
@@ -106,8 +117,11 @@ export function OrderExpirationSettings() {
     }
   }
 
-  const settingLabel = (name: OrderExpirationSettingAudit['settingName']) =>
-    name === 'quotationAcceptanceTimeoutHours' ? t.quotation : t.deposit
+  const settingLabel = (name: OrderExpirationSettingAudit['settingName']) => {
+    if (name === 'quotationAcceptanceTimeoutHours') return t.quotation
+    if (name === 'depositPaymentTimeoutHours') return t.deposit
+    return t.finalPayment
+  }
   const changedAt = (audit: OrderExpirationSettingAudit) =>
     new Date(audit.changedAt).toLocaleString(locale)
   const actorDisplayName = (actor: string) => {
@@ -253,6 +267,15 @@ export function OrderExpirationSettings() {
             value: depositHours,
             onChange: setDepositHours,
             error: depositError,
+          })}
+          {renderTimeoutField({
+            id: 'final-payment-timeout',
+            icon: 'clock',
+            label: t.finalPayment,
+            description: t.finalPaymentHint,
+            value: finalPaymentHours,
+            onChange: setFinalPaymentHours,
+            error: finalPaymentError,
           })}
         </div>
 

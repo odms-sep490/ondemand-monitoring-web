@@ -35,7 +35,6 @@ export const orderDetailPageMessages = defineMessages({
     missionSummary: (count: number, statuses: string) =>
       `${count} nhiệm vụ · ${statuses}`,
     reviewResults: 'Xem kết quả cần duyệt',
-    payFinal: 'Thanh toán',
     viewFinalResults: 'Xem kết quả cuối cùng',
     viewDeliveryProgress: 'Xem tiến trình bàn giao',
     pageTabs: 'Nội dung chi tiết đơn hàng',
@@ -73,7 +72,6 @@ export const orderDetailPageMessages = defineMessages({
     missionSummary: (count: number, statuses: string) =>
       `${count} missions · ${statuses}`,
     reviewResults: 'Review results',
-    payFinal: 'Go to payment',
     viewFinalResults: 'View final results',
     viewDeliveryProgress: 'View delivery progress',
     pageTabs: 'Order detail sections',
