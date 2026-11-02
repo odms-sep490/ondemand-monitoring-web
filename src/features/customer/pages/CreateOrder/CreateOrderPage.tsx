@@ -85,7 +85,10 @@ export function CreateOrderPage() {
   )
 
   return (
-    <div ref={pageRef} className="cus-page co-page">
+    <div
+      ref={pageRef}
+      className={`cus-page co-page${step === 6 ? ' is-review-step' : ''}`}
+    >
       <PageHeader
         title={step === 6 ? t.reviewTitle : t.pageTitle}
         subtitle={step === 6 ? t.reviewSubtitle : t.pageSubtitle}
@@ -172,9 +175,6 @@ export function CreateOrderPage() {
           update={f.update}
           service={service}
           time={time}
-          deliverable={meta.deliverables.find(
-            (item) => item.deliverableTypeId === form.deliverableTypeId,
-          )}
           deliverables={meta.deliverables}
           deliverablesLoading={meta.deliverablesLoading}
           deliverablesError={meta.deliverablesError}

@@ -19,6 +19,8 @@ import { requestSummaryCardMessages } from './RequestSummaryCard.messages'
 import { deliveryOptionsCardMessages } from './DeliveryOptionsCard.messages'
 
 type Props = {
+  /** `review` keeps the final wizard screen focused on steps 1–5. */
+  variant?: 'default' | 'review'
   /** Legacy request page still includes the selected result format summary. */
   mediaTotals?: { images: number; videos: number }
   form: FormState
@@ -44,6 +46,15 @@ type Item = {
   lead?: number
   /** Wizard step where this value is edited. */
   step?: Step
+}
+
+type ReviewRow = {
+  step: Step
+  label: string
+  icon: IconName
+  primary: string
+  secondary?: string
+  detail?: string
 }
 
 /** `2026-10-07` → `07/10/2026` for Vietnamese; other values pass through. */
@@ -239,7 +250,7 @@ export function RequestSummaryCard(p: Props) {
       lead: 1,
       step: 5,
     },
-    ...(p.mediaTotals || p.deliverable
+    ...(p.variant !== 'review' && (p.mediaTotals || p.deliverable)
       ? [
           {
             key: 'deliverable',
@@ -272,13 +283,15 @@ export function RequestSummaryCard(p: Props) {
         ]
       : []),
     ...(form.attachments.length > 0
-      ? [{
-          key: 'attachments',
-          icon: 'file-text' as const,
-          label: t.attachments,
-          lines: [t.attachmentCount(form.attachments.length)],
-          step: 1 as Step,
-        }]
+      ? [
+          {
+            key: 'attachments',
+            icon: 'file-text' as const,
+            label: t.attachments,
+            lines: [t.attachmentCount(form.attachments.length)],
+            step: 1 as Step,
+          },
+        ]
       : []),
   ]
   const sections: Array<{ step: Step; title: string }> = [
@@ -287,69 +300,207 @@ export function RequestSummaryCard(p: Props) {
     { step: 3, title: t.groupContent },
     { step: 4, title: t.groupSite },
     { step: 5, title: t.groupSchedule },
-    ...(p.mediaTotals || p.deliverable
+    ...(p.variant !== 'review' && (p.mediaTotals || p.deliverable)
       ? [{ step: 6 as Step, title: t.groupDelivery }]
       : []),
   ]
+  const reviewRows: ReviewRow[] = [
+    {
+      step: 1,
+      label: t.groupService,
+      icon: 'clipboard',
+      primary: p.service
+        ? localizeServiceName(p.service.id, lang, p.service.name)
+        : t.noValue,
+      secondary: [flightPurpose, usagePurpose].filter(Boolean).join(' · '),
+      detail: form.attachments.length
+        ? t.attachmentCount(form.attachments.length)
+        : undefined,
+    },
+    {
+      step: 2,
+      label: t.groupLocation,
+      icon: 'map-pin',
+      primary: form.address || t.noAddress,
+      secondary: `${t.radius} ${form.radiusM} m · ${calcArea(form.radiusM)} ha`,
+    },
+    {
+      step: 3,
+      label: t.groupContent,
+      icon: 'check',
+      primary: p.checklistCounts
+        ? t.totalContent(p.checklistCounts.total)
+        : t.noValue,
+      secondary: p.checklistCounts
+        ? [
+            t.packageContent(
+              p.checklistCounts.packageSelected,
+              p.checklistCounts.packageTotal,
+            ),
+            ...(p.checklistCounts.additional > 0
+              ? [t.additionalContent(p.checklistCounts.additional)]
+              : []),
+          ].join(' · ')
+        : undefined,
+    },
+    {
+      step: 4,
+      label: t.groupSite,
+      icon: 'radio',
+      primary: [
+        t.altitude(form.altitudeM),
+        Number(form.estimatedLengthM) > 0
+          ? t.length(Number(form.estimatedLengthM))
+          : '',
+      ]
+        .filter(Boolean)
+        .join(' · '),
+      secondary: [
+        relationship,
+        form.permitStatus === 'HAVE_PERMIT'
+          ? t.permitHave(form.permitNumber.trim())
+          : form.permitStatus === 'NEED_SUPPORT'
+            ? t.permitSupport
+            : '',
+      ]
+        .filter(Boolean)
+        .join(' · '),
+      detail: [
+        [form.siteContactName.trim(), form.siteContactPhone.trim()]
+          .filter(Boolean)
+          .join(' · '),
+        form.accessNotes.trim(),
+        form.areaFiles.length ? t.areaFiles(form.areaFiles.length) : '',
+      ]
+        .filter(Boolean)
+        .join(' · '),
+    },
+    {
+      step: 5,
+      label: t.groupSchedule,
+      icon: 'clock',
+      primary: [dates, timeWindow].filter(Boolean).join(' · ') || t.noValue,
+      secondary: [
+        form.recurrenceType === 'WEEKLY'
+          ? t.repeatWeekly(form.recurrenceOccurrences)
+          : form.recurrenceType === 'MONTHLY'
+            ? t.repeatMonthly(form.recurrenceOccurrences)
+            : '',
+        form.resultDeadline
+          ? t.deadline(formatDate(form.resultDeadline, lang))
+          : '',
+        t.fallbackValues[form.weatherFallback],
+      ]
+        .filter(Boolean)
+        .join(' · '),
+    },
+  ]
 
   return (
-    <Card icon={<FileSearchOutlined />} title={t.cardTitle}>
-      <p className="co-hint">{t.cardSubtitle}</p>
+    <Card
+      className={
+        p.variant === 'review'
+          ? 'co-request-summary is-compact'
+          : 'co-request-summary'
+      }
+      icon={<FileSearchOutlined />}
+      title={t.cardTitle}
+    >
+      {p.variant !== 'review' && <p className="co-hint">{t.cardSubtitle}</p>}
       <div className="co-sum-request-title">
         <span>{t.requestTitle}</span>
         <p title={form.title || undefined}>{form.title.trim() || t.noTitle}</p>
       </div>
-      <div className="co-review-groups">
-        {sections.map((section) => {
-          const sectionItems = items.filter(
-            (item) => item.step === section.step,
-          )
-          return (
+      {p.variant === 'review' ? (
+        <div className="co-review-rows">
+          {reviewRows.map((row) => (
             <section
-              key={section.step}
-              className={`co-review-group is-step-${section.step}`}
-              aria-labelledby={`co-review-group-${section.step}`}
+              key={row.step}
+              className="co-review-row"
+              aria-label={`${row.label}: ${[row.primary, row.secondary, row.detail].filter(Boolean).join('. ')}`}
             >
-              <div className="co-review-group-heading">
-                <h3 id={`co-review-group-${section.step}`}>{section.title}</h3>
-                {p.onEdit && (
-                  <button
-                    type="button"
-                    className="co-sum-edit"
-                    aria-label={`${t.edit}: ${section.title}`}
-                    onClick={() => p.onEdit?.(section.step)}
-                  >
-                    {t.edit}
-                  </button>
+              <span className="co-review-row-icon" aria-hidden="true">
+                <Icon name={row.icon} width={18} height={18} />
+              </span>
+              <strong className="co-review-row-label">{row.label}</strong>
+              <span className="co-review-row-divider" aria-hidden="true" />
+              <div className="co-review-row-value">
+                <strong>{row.primary || t.noValue}</strong>
+                {row.secondary && <span>{row.secondary}</span>}
+                {row.detail && (
+                  <span className="is-detail" title={row.detail}>
+                    {row.detail}
+                  </span>
                 )}
               </div>
-              <dl className="co-sum-list">
-                {sectionItems.map((item) => (
-                  <div key={item.key} className="co-sum-item">
-                    <span className="co-sum-icon" aria-hidden="true">
-                      {item.icon && (
-                        <Icon name={item.icon} width={16} height={16} />
-                      )}
-                    </span>
-                    <div className="co-sum-body">
-                      <dt>{item.label}</dt>
-                      {summaryLines(item).map((line, index) => (
-                        <dd
-                          key={index}
-                          className={`${index > 0 ? 'is-sub ' : ''}${item.clamp ? 'is-clamp' : ''}`}
-                          title={item.clamp ? line : undefined}
-                        >
-                          {line}
-                        </dd>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </dl>
+              {p.onEdit && (
+                <button
+                  type="button"
+                  className="co-sum-edit"
+                  aria-label={`${t.edit}: ${row.label}`}
+                  onClick={() => p.onEdit?.(row.step)}
+                >
+                  {t.edit}
+                </button>
+              )}
             </section>
-          )
-        })}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <div className="co-review-groups">
+          {sections.map((section) => {
+            const sectionItems = items.filter(
+              (item) => item.step === section.step,
+            )
+            return (
+              <section
+                key={section.step}
+                className={`co-review-group is-step-${section.step}`}
+                aria-labelledby={`co-review-group-${section.step}`}
+              >
+                <div className="co-review-group-heading">
+                  <h3 id={`co-review-group-${section.step}`}>
+                    {section.title}
+                  </h3>
+                  {p.onEdit && (
+                    <button
+                      type="button"
+                      className="co-sum-edit"
+                      aria-label={`${t.edit}: ${section.title}`}
+                      onClick={() => p.onEdit?.(section.step)}
+                    >
+                      {t.edit}
+                    </button>
+                  )}
+                </div>
+                <dl className="co-sum-list">
+                  {sectionItems.map((item) => (
+                    <div key={item.key} className="co-sum-item">
+                      <span className="co-sum-icon" aria-hidden="true">
+                        {item.icon && (
+                          <Icon name={item.icon} width={16} height={16} />
+                        )}
+                      </span>
+                      <div className="co-sum-body">
+                        <dt>{item.label}</dt>
+                        {summaryLines(item).map((line, index) => (
+                          <dd
+                            key={index}
+                            className={`${index > 0 ? 'is-sub ' : ''}${item.clamp ? 'is-clamp' : ''}`}
+                            title={item.clamp ? line : undefined}
+                          >
+                            {line}
+                          </dd>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </dl>
+              </section>
+            )
+          })}
+        </div>
+      )}
       <InnerCollapse className="co-sum-tech" title={t.technical}>
         <div className="co-sum-tech-row">
           <span>{t.coordinates}</span>
