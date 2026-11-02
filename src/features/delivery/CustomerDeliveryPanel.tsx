@@ -1,12 +1,12 @@
-import { Alert, Button, Empty, Input, Progress, Skeleton } from 'antd'
+import { Alert, Button, Empty, Progress, Skeleton } from 'antd'
 import { useCallback, useEffect, useState } from 'react'
 import { ApiError } from '../../shared/api/httpClient'
-import { Modal } from '../customer/components/common/ui'
 import { useI18n } from '../../shared/i18n'
 import { formatVnd } from '../../shared/lib/formatVnd'
 import { financeApi } from '../finance/api'
 import { deliveryApi } from './api'
 import { customerDeliveryPanelMessages } from './customerDeliveryPanel.messages'
+import { CustomerResultReview } from './CustomerResultReview'
 import { DeliveryProgress, DeliveryStatusPill } from './DeliveryProgress'
 import type { Delivery, DeliveryPanelLoadState } from './types'
 import './delivery.css'
@@ -33,10 +33,11 @@ export function CustomerDeliveryPanel({
   )
   const [busy, setBusy] = useState(false)
   const [testPaying, setTestPaying] = useState(false)
-  const [acceptOpen, setAcceptOpen] = useState(false)
   const [error, setError] = useState<unknown>(null)
-  const [revisionOpen, setRevisionOpen] = useState(false)
-  const [reason, setReason] = useState('')
+  const [submittedTicket, setSubmittedTicket] = useState<{
+    id: string
+    code: string
+  } | null>(null)
 
   const payFinal = useCallback(async () => {
     setBusy(true)
@@ -158,19 +159,6 @@ export function CustomerDeliveryPanel({
     )
   }
 
-  async function accept() {
-    await act(() => deliveryApi.accept(orderId))
-    setAcceptOpen(false)
-  }
-  async function revise() {
-    if (!reason.trim()) {
-      setError(t.reasonRequired)
-      return
-    }
-    await act(() => deliveryApi.requestRevision(orderId, reason.trim(), []))
-    setRevisionOpen(false)
-    setReason('')
-  }
   async function completeTestFinal() {
     if (busy) return
     setBusy(true)
@@ -187,19 +175,6 @@ export function CustomerDeliveryPanel({
       setBusy(false)
     }
   }
-  async function act(action: () => Promise<Delivery>) {
-    setBusy(true)
-    setError(null)
-    try {
-      setDelivery(await action())
-      await load()
-    } catch (cause) {
-      setError(cause)
-    } finally {
-      setBusy(false)
-    }
-  }
-
   const canReview = delivery.deliveryStatus === 'CUSTOMER_REVIEW'
   const paymentPercent =
     delivery.totalAmount > 0
@@ -340,88 +315,26 @@ export function CustomerDeliveryPanel({
           </div>
         </section>
 
-        {canReview ? (
-          <div className="delivery-review-card">
-            <div>
-              <span className="delivery-review-card__icon" aria-hidden="true">
-                ✓
-              </span>
-              <div>
-                <b>{t.previewReady}</b>
-                <span>{t.previewReadyText}</span>
-              </div>
-            </div>
-            <div className="delivery-actions">
-              <Button onClick={() => setRevisionOpen(true)} disabled={busy}>
-                {t.requestRevision}
-              </Button>
-              <Button
-                type="primary"
-                className="delivery-primary-action"
-                onClick={() => setAcceptOpen(true)}
-                disabled={busy}
+        {submittedTicket ? (
+          <Alert
+            type="success"
+            showIcon
+            message={t.revisionSentTitle}
+            description={
+              <a
+                href={`#help/tickets/${encodeURIComponent(submittedTicket.id)}`}
               >
-                {busy ? t.confirming : t.accept}
-              </Button>
-            </div>
-          </div>
-        ) : null}
-        {acceptOpen ? (
-          <Modal
-            title={t.acceptTitle}
-            subtitle={t.acceptSubtitle}
-            icon="shield"
-            width={480}
-            onClose={() => !busy && setAcceptOpen(false)}
-            footer={
-              <>
-                <Button onClick={() => setAcceptOpen(false)} disabled={busy}>
-                  {t.reviewAgain}
-                </Button>
-                <Button
-                  type="primary"
-                  onClick={() => void accept()}
-                  disabled={busy}
-                >
-                  {busy ? t.confirming : t.acceptConfirm}
-                </Button>
-              </>
+                {t.viewSubmittedTicket(submittedTicket.code)}
+              </a>
             }
-          >
-            <p>{t.acceptBody}</p>
-            {error ? (
-              <Alert type="error" showIcon message={message(error, t)} />
-            ) : null}
-          </Modal>
+          />
         ) : null}
-        {revisionOpen ? (
-          <div className="delivery-revision">
-            <div className="delivery-field-head">
-              <label htmlFor="revision-reason">
-                {t.revisionLabel} <em>*</em>
-              </label>
-              <span>{reason.length}/2000</span>
-            </div>
-            <Input.TextArea
-              id="revision-reason"
-              rows={4}
-              value={reason}
-              onChange={(event) => setReason(event.target.value)}
-              maxLength={2000}
-              placeholder={t.revisionPlaceholder}
-              autoFocus
-            />
-            <div className="delivery-actions">
-              <Button onClick={() => setRevisionOpen(false)}>{t.cancel}</Button>
-              <Button
-                type="primary"
-                disabled={busy || !reason.trim()}
-                onClick={() => void revise()}
-              >
-                {t.sendRequest}
-              </Button>
-            </div>
-          </div>
+        {canReview ? (
+          <CustomerResultReview
+            orderId={orderId}
+            onComplete={() => void load()}
+            onSubmitted={setSubmittedTicket}
+          />
         ) : null}
 
         {delivery.deliveryStatus === 'PROCESSING' ? (

@@ -9,6 +9,7 @@ import { TicketContextCards, TicketControls } from './TicketContextCards'
 import { TicketConversation } from './TicketConversation'
 import { TicketStatusTag } from './TicketTags'
 import type { useTicketActions } from './useTicketActions'
+import { TicketResultReviewCard } from '../../components/TicketResultReviewCard'
 
 type Props = {
   ticket: SupportTicketDto
@@ -74,6 +75,9 @@ export function TicketDetailDrawer({
     >
       <div className="sd-detail">
         <h2 className="sd-detail-subject">{ticket.subject}</h2>
+        {ticket.orderId ? (
+          <TicketResultReviewCard ticketId={ticket.id} />
+        ) : null}
 
         <section className="sd-detail-section">
           <h3 className="sd-detail-heading">{t.detail.conversation}</h3>

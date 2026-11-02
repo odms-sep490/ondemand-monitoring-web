@@ -585,6 +585,88 @@
   color: var(--ui-danger-text);
   font-size: 13px;
 }
+.delivery-review-round,
+.delivery-review-item {
+  display: grid;
+  gap: 14px;
+}
+.delivery-review-round {
+  padding: 18px;
+  border: 1px solid var(--d-border);
+  border-radius: 14px;
+  background: var(--d-muted-surface);
+}
+.delivery-review-items {
+  display: grid;
+  gap: 14px;
+}
+.delivery-review-item {
+  padding: 16px;
+  border: 1px solid var(--d-border);
+  border-radius: 12px;
+  background: var(--d-surface);
+}
+.delivery-review-item h4,
+.delivery-review-item p {
+  margin: 0;
+  color: var(--d-text);
+}
+.delivery-review-item p,
+.delivery-review-item small {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--d-muted);
+}
+.delivery-review-evidence {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 10px;
+}
+.delivery-review-media-empty {
+  margin: 0;
+  padding: 12px;
+  border: 1px dashed var(--d-border);
+  border-radius: 10px;
+  color: var(--d-muted);
+  background: var(--d-muted-surface);
+  font-size: 13px;
+}
+.delivery-review-evidence label {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  min-width: 0;
+  padding: 9px;
+  border: 1px solid var(--d-border);
+  border-radius: 10px;
+}
+.delivery-review-evidence img,
+.delivery-review-evidence video {
+  width: 100%;
+  aspect-ratio: 16/10;
+  object-fit: cover;
+  border-radius: 7px;
+  background: var(--d-muted-surface);
+}
+.delivery-feedback-label {
+  display: grid;
+  gap: 6px;
+  color: var(--d-text);
+  font-size: 13px;
+  font-weight: 700;
+}
+.delivery-review-confirm {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--ui-warning);
+  border-radius: 10px;
+  background: var(--ui-warning-soft);
+}
+.delivery-review-confirm h4,
+.delivery-review-confirm p {
+  margin: 0;
+}
 @media (max-width: 760px) {
   .delivery-hero {
     display: grid;

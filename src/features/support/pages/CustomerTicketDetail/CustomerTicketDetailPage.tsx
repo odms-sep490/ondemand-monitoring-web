@@ -14,6 +14,7 @@ import { TicketOverview } from './components/TicketOverview'
 import './CustomerTicketDetail.css'
 import { customerTicketDetailMessages } from './CustomerTicketDetailPage.messages'
 import { useTicketDetail } from './hooks/useTicketDetail'
+import { TicketResultReviewCard } from '../../components/TicketResultReviewCard'
 
 export function CustomerTicketDetailPage({ ticketId }: { ticketId: string }) {
   const { t } = useI18n(customerTicketDetailMessages)
@@ -49,6 +50,7 @@ export function CustomerTicketDetailPage({ ticketId }: { ticketId: string }) {
       />
 
       <TicketOverview ticket={ticket} />
+      {ticket.orderId ? <TicketResultReviewCard ticketId={ticket.id} /> : null}
 
       <Card title={t.conversation}>
         <MessageList

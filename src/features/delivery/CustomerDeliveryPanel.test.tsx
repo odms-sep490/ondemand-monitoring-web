@@ -169,8 +169,36 @@ describe('Customer delivery final test payment', () => {
     const review = { ...pending, deliveryStatus: 'CUSTOMER_REVIEW' as const }
     vi.mocked(deliveryApi.get).mockResolvedValue(review)
     vi.mocked(deliveryApi.previews).mockResolvedValue(review)
+    vi.spyOn(deliveryApi, 'getResultReview').mockResolvedValue({
+      reviewRoundId: 'round-1',
+      roundNumber: 1,
+      roundVersion: 3,
+      publishedAt: '2026-10-30T03:00:00Z',
+      checklistRevision: 1,
+      canSubmitRevision: true,
+      canAcceptResult: true,
+      blockedReason: null,
+      existingRequest: null,
+      page: 0,
+      size: 50,
+      totalItems: 1,
+      items: [
+        {
+          roundItemId: 'item-1',
+          orderChecklistItemId: 'check-1',
+          title: 'Roof inspection',
+          description: 'Inspect roof condition',
+          executionSteps: [],
+          inputRequirements: [],
+          expectedOutputs: [],
+          missionId: null,
+          missionCode: null,
+          evidence: [],
+        },
+      ],
+    })
     render(<CustomerDeliveryPanel orderId="o1" />)
-    await screen.findByRole('button', { name: 'Chấp nhận kết quả' })
+    await screen.findByRole('button', { name: 'Chấp nhận toàn bộ kết quả' })
     expect(
       screen.queryByRole('button', { name: 'Thanh toán nhanh (Test)' }),
     ).not.toBeInTheDocument()
