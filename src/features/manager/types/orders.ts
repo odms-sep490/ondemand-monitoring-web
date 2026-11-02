@@ -229,7 +229,6 @@ export type OrderCreateResponse = {
   title: string
   serviceId: string
   serviceName: string
-  serviceBasePriceSnapshot?: number | string | null
   serviceDescription?: string | null
   description: string
   usagePurpose?: string | null
