@@ -2,6 +2,9 @@ import type { WeatherPreflightStatus } from '../types'
 import { StatusBadge } from '../../../../../shared/components/odm/StatusBadge'
 import { statusTone } from '../missionFormat'
 import { WeatherTile } from './WeatherTile'
+import { useI18n } from '../../../../../shared/i18n'
+import { missionDetailPageMessages } from '../MissionDetailPage.messages'
+import { isWeatherCheckFresh } from '../weatherReadiness'
 import {
   CloudOutlined,
   CloudDownloadOutlined,
@@ -13,72 +16,221 @@ import {
 
 export function WeatherCard({
   weather,
+  loading = false,
+  reviewMode = false,
+  canCheckWeather = false,
+  checkingWeather = false,
+  onCheckWeather,
+  canCancelMission = false,
+  onCancelMission,
+  canApproveWeather = false,
+  approvingWeather = false,
+  onApproveWeather,
 }: {
   weather: WeatherPreflightStatus | null
+  loading?: boolean
+  reviewMode?: boolean
+  canCheckWeather?: boolean
+  checkingWeather?: boolean
+  onCheckWeather?: () => void
+  canCancelMission?: boolean
+  onCancelMission?: () => void
+  canApproveWeather?: boolean
+  approvingWeather?: boolean
+  onApproveWeather?: () => void
 }) {
+  const { t } = useI18n(missionDetailPageMessages)
+  const weatherIsFresh = isWeatherCheckFresh(weather)
+  const weatherNeedsRefresh = reviewMode && !weatherIsFresh
+  const weatherIsAccepted = weather?.inspectorAccepted === true
+  const canAccept =
+    canApproveWeather &&
+    weatherIsFresh &&
+    weather?.safeToFly === true &&
+    !weatherIsAccepted
+  const canCheck =
+    canCheckWeather &&
+    (!weatherIsFresh || weather?.safeToFly !== true)
+  const canCancel = canCancelMission && !weatherIsAccepted
+
   return (
     <div className="odm-card">
       <div className="odm-card-header">
         <div>
-          <h2 className="mds-card-heading">Thời tiết bay</h2>
-          {weather && (
-            <div style={{ fontSize: 11.5, color: 'var(--tx3)', marginTop: 1 }}>
-              {weather.summary}
-            </div>
-          )}
+          <h2 className="mds-card-heading">
+            {reviewMode ? t.weatherReviewTitle : t.weatherCardTitle}
+          </h2>
         </div>
-        <StatusBadge tone={statusTone(weather?.status)}>
-          {weather
-            ? weather.safeToFly
-              ? 'An toàn'
-              : weather.status
-            : 'Chưa check'}
+        <StatusBadge
+          tone={
+            loading && !weather
+              ? 'gray'
+              : !weather
+                ? statusTone(undefined)
+              : weatherNeedsRefresh
+                  ? 'yellow'
+                  : weather.safeToFly
+                    ? weatherIsAccepted
+                      ? 'green'
+                      : 'yellow'
+                    : 'red'
+          }
+        >
+          {loading && !weather
+            ? t.weatherLoading
+            : weather
+              ? weatherNeedsRefresh
+                ? t.weatherNeedsRefresh
+                : weather.safeToFly
+                  ? weatherIsAccepted
+                    ? t.weatherAccepted
+                    : canApproveWeather
+                      ? t.weatherAwaitingInspector
+                      : t.weatherSafe
+                  : t.weatherNotSafe
+              : t.weatherNotChecked}
         </StatusBadge>
       </div>
-      <div className="odm-card-body" style={{ padding: '12px 14px' }}>
-        {weather ? (
+      <div className="odm-card-body mds-weather-body">
+        {loading && !weather ? (
+          <div aria-live="polite" role="status" aria-label={t.weatherLoading}>
+            <div className="mds-weather-grid" aria-hidden="true">
+              <WeatherTile
+                label={t.windLabel}
+                value="— / — m/s"
+                icon={<CloudOutlined />}
+              />
+              <WeatherTile
+                label={t.rainLabel}
+                value="— mm/h"
+                icon={<CloudDownloadOutlined />}
+              />
+              <WeatherTile
+                label={t.visibilityLabel}
+                value="— km"
+                icon={<EyeOutlined />}
+              />
+              <WeatherTile
+                label={t.temperatureHumidityLabel}
+                value="—°C · —%"
+                icon={<DashboardOutlined />}
+              />
+            </div>
+          </div>
+        ) : weather ? (
           <>
+            <div className="mds-weather-checked-at">
+              Đã kiểm tra {new Date(weather.checkedAt).toLocaleString('vi-VN', {
+                day: 'numeric',
+                month: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+              })}
+            </div>
             <div className="mds-weather-grid">
               <WeatherTile
-                label="Gió / giật"
+                label={t.windLabel}
                 value={`${weather.windSpeedMps.toFixed(1)} / ${weather.windGustMps.toFixed(1)} m/s`}
                 icon={<CloudOutlined />}
               />
               <WeatherTile
-                label="Mưa"
+                label={t.rainLabel}
                 value={`${weather.precipitationMmH.toFixed(1)} mm/h`}
                 icon={<CloudDownloadOutlined />}
               />
               <WeatherTile
-                label="Tầm nhìn"
+                label={t.visibilityLabel}
                 value={`${weather.visibilityKm.toFixed(1)} km`}
                 icon={<EyeOutlined />}
               />
               <WeatherTile
-                label="Nhiệt / ẩm"
+                label={t.temperatureHumidityLabel}
                 value={`${weather.temperatureC.toFixed(1)}°C · ${weather.humidityPercent.toFixed(0)}%`}
                 icon={<DashboardOutlined />}
               />
             </div>
-            {weather.advisories.length > 0 && (
+            {!weather.safeToFly && !weatherNeedsRefresh && weather.summary && (
+              <div className="mds-weather-summary" role="status">
+                {weather.summary}
+              </div>
+            )}
+            {!weather.safeToFly && !weatherNeedsRefresh && weather.advisories.length > 0 && (
               <div
-                style={{
-                  marginTop: 10,
-                  padding: '7px 10px',
-                  borderRadius: 6,
-                  background: 'var(--yellow-bg)',
-                  color: 'var(--yellow-fg)',
-                  fontSize: 12,
-                  border: '1px solid var(--yellow-dot)',
-                }}
+                className="mds-weather-summary is-warning"
               >
                 {weather.advisories.join(' · ')}
               </div>
             )}
+            {weatherNeedsRefresh ? (
+              <div className="mds-weather-feedback is-warning" role="status">
+                {t.weatherExpired}
+              </div>
+            ) : null}
           </>
         ) : (
-          <div style={{ color: 'var(--tx3)', fontSize: 12.5 }}>
-            Chưa có kết quả check thời tiết.
+          <div>
+            <div className="mds-weather-empty-copy">
+              {t.weatherNotCheckedHint}
+            </div>
+            <div className="mds-weather-grid" aria-hidden="true">
+              <WeatherTile
+                label={t.windLabel}
+                value="— / — m/s"
+                icon={<CloudOutlined />}
+              />
+              <WeatherTile
+                label={t.rainLabel}
+                value="— mm/h"
+                icon={<CloudDownloadOutlined />}
+              />
+              <WeatherTile
+                label={t.visibilityLabel}
+                value="— km"
+                icon={<EyeOutlined />}
+              />
+              <WeatherTile
+                label={t.temperatureHumidityLabel}
+                value="—°C · —%"
+                icon={<DashboardOutlined />}
+              />
+            </div>
+          </div>
+        )}
+        {(canCheck || canAccept || canCancel) && (
+          <div className="mds-weather-approval-row">
+            {canCancel && (
+              <button
+                type="button"
+                className="odm-btn odm-btn-danger-soft mds-weather-cancel"
+                onClick={onCancelMission}
+              >
+                {t.cancelMission}
+              </button>
+            )}
+            {canCheck && (
+              <button
+                type="button"
+                className="odm-btn odm-btn-p mds-weather-approve"
+                disabled={checkingWeather || loading}
+                onClick={onCheckWeather}
+              >
+                {checkingWeather || loading
+                  ? t.weatherLoading
+                  : weather
+                    ? t.refreshWeather
+                    : t.checkWeather}
+              </button>
+            )}
+            {canAccept && (
+              <button
+                type="button"
+                className="odm-btn odm-btn-ok mds-weather-approve"
+                disabled={approvingWeather}
+                onClick={onApproveWeather}
+              >
+                {approvingWeather ? t.acceptingWeather : t.acceptWeather}
+              </button>
+            )}
           </div>
         )}
       </div>

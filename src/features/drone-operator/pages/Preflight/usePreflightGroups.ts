@@ -3,7 +3,6 @@ import { preflightGroups } from './components/PreflightItem'
 import { RUNTIME_KEY_MAP } from './preflightConstants'
 import {
   preflightStateStorageKey,
-  weatherStateStorageKey,
 } from './preflightStorage'
 import { preflightPageMessages } from './PreflightPage.messages'
 import { useI18n } from '../../../../shared/i18n'
@@ -35,9 +34,5 @@ export function usePreflightGroups({
     () => preflightStateStorageKey(missionId, deviceId),
     [deviceId, missionId],
   )
-  const weatherStorageKey = useMemo(
-    () => weatherStateStorageKey(missionId, deviceId),
-    [deviceId, missionId],
-  )
-  return { RUNTIME_GROUPS, ALL_ITEMS, storageKey, weatherStorageKey }
+  return { RUNTIME_GROUPS, ALL_ITEMS, storageKey }
 }

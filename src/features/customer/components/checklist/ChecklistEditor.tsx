@@ -335,10 +335,7 @@ export function ChecklistEditor({
           </div>
           {row.sourceChecklistId ? (
             <div className="checklist-guidance">
-              <ChecklistGuidance
-                guidance={row}
-                summaryLabel={compact ? t.guidanceSummary : undefined}
-              />
+              <ChecklistGuidance guidance={row} />
             </div>
           ) : awaitingManagerQuote(row) ? (
             <div className="checklist-guidance checklist-custom-details">

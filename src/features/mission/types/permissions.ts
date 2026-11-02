@@ -1,10 +1,9 @@
 export type MissionPermissions = {
-  canPrepareSafeStopPostflight?: boolean
-  canTerminateFlight?: boolean
   canAttachChecklistEvidence?: boolean
   canDetachChecklistEvidence?: boolean
   canRespond: boolean
   canStartMission?: boolean
+  canCancelMission?: boolean
   canControlFlight: boolean
   canOperatePayload: boolean
   canInspectDevice: boolean
@@ -13,6 +12,7 @@ export type MissionPermissions = {
   canCompleteMission?: boolean
   canSubmitMissionResult?: boolean
   canExecuteMonitoringChecklist?: boolean
+  canAssessMonitoringChecklist?: boolean
 }
 
 export type MissionAction =
@@ -35,7 +35,6 @@ export function mayPerformMissionAction(
       permissions.canSubmitMissionResult === true
     )
   return (
-    permissions.canControlFlight === true ||
-    permissions.canTerminateFlight === true
+    permissions.canControlFlight === true
   )
 }

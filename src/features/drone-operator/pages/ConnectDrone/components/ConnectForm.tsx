@@ -5,90 +5,33 @@ import { StepTitle } from './StepTitle'
 
 export function ConnectForm({
   state,
-  token,
   gcsId,
-  onTokenChange,
   onGcsChange,
   onConnect,
-  onRetryExpired,
 }: {
   state: ConnectState
-  token: string
   gcsId: string
-  onTokenChange: (v: string) => void
   onGcsChange: (v: string) => void
   onConnect: () => void
-  onRetryExpired: () => void
 }) {
   const { t } = useI18n(connectDronePageMessages)
   const isConnecting = state === 'connecting'
   const isConnected = state === 'connected'
-  const isExpired = state === 'expired'
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+    <section
+      className="connect-drone-form"
+      aria-labelledby="connect-form-title"
+    >
       <div className="odm-card">
-        <div className="odm-card-body" style={{ padding: '16px 18px' }}>
-          <StepTitle n={1} text={t.step1Title} />
-          <div style={{ display: 'flex', gap: 10, alignItems: 'stretch' }}>
-            <input
-              className="odm-input odm-mono"
-              value={token}
-              disabled
-              onChange={(e) => onTokenChange(e.target.value)}
-              aria-label={t.tokenAriaLabel}
-              style={{
-                height: 48,
-                fontSize: 20,
-                fontWeight: 600,
-                letterSpacing: '.08em',
-                textAlign: 'center',
-                flex: 1,
-              }}
-            />
-            <button
-              type="button"
-              className="odm-btn"
-              disabled
-              style={{ height: 48 }}
-            >
-              {t.scanQr}
-            </button>
-          </div>
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginTop: 10,
-              fontSize: 13,
-            }}
-          >
-            <span style={{ color: 'var(--tx3)' }}>{t.droneCodeHint}</span>
-            {isExpired ? (
-              <span style={{ color: 'var(--red-fg)', fontWeight: 700 }}>
-                {t.expiredAt}
-              </span>
-            ) : (
-              <span style={{ color: 'var(--orange-fg)', fontWeight: 700 }}>
-                {t.tokenAfterPreflight}
-              </span>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div className="odm-card" style={{ opacity: isExpired ? 0.55 : 1 }}>
-        <div className="odm-card-body" style={{ padding: '16px 18px' }}>
-          <StepTitle n={2} text={t.step2Title} />
-          <div style={{ display: 'flex', gap: 10 }}>
+        <div className="odm-card-body connect-drone-form__body">
+          <StepTitle id="connect-form-title" n={1} text={t.connectionTitle} />
+          <div className="connect-drone-form__controls">
             <select
-              className="odm-input"
+              className="odm-input connect-drone-form__select"
               aria-label={t.gcsAriaLabel}
               value={gcsId}
-              disabled={isExpired}
               onChange={(e) => onGcsChange(e.target.value)}
-              style={{ flex: 1, height: 44 }}
             >
               {t.gcsOptions.map((opt) => (
                 <option key={opt} value={opt}>
@@ -96,31 +39,20 @@ export function ConnectForm({
                 </option>
               ))}
             </select>
-            {isExpired ? (
+            {isConnected ? (
               <button
                 type="button"
-                className="odm-btn odm-btn-p"
-                onClick={onRetryExpired}
-                style={{ height: 44 }}
-              >
-                {t.requestNewCode}
-              </button>
-            ) : isConnected ? (
-              <button
-                type="button"
-                className="odm-btn"
+                className="odm-btn connect-drone-form__button"
                 disabled
-                style={{ height: 44, minWidth: 150 }}
               >
                 {t.connected}
               </button>
             ) : (
               <button
                 type="button"
-                className="odm-btn odm-btn-p"
+                className="odm-btn odm-btn-p connect-drone-form__button"
                 onClick={onConnect}
                 disabled={isConnecting}
-                style={{ height: 44, minWidth: 150 }}
               >
                 {isConnecting
                   ? t.connecting
@@ -132,7 +64,7 @@ export function ConnectForm({
           </div>
         </div>
       </div>
-      <div style={{ fontSize: 11.5, color: 'var(--tx3)' }}>{t.sessionNote}</div>
-    </div>
+      <p className="connect-drone-form__note">{t.sessionNote}</p>
+    </section>
   )
 }

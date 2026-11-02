@@ -5,7 +5,6 @@ export const checklistMessages = defineMessages({
     title: 'Nội dung giám sát',
     hint: 'Danh sách mặc định của dịch vụ được hiển thị bên dưới. Bạn có thể chỉnh sửa, bỏ mục không cần thiết hoặc thêm nội dung riêng; danh sách được chốt khi gửi yêu cầu.',
     compactHint: 'Chọn hạng mục cần làm; số ảnh/video có thể chỉnh khi sửa.',
-    guidanceSummary: 'Hướng dẫn',
     pricingNotice: 'Thay đổi danh sách có thể làm thay đổi chi phí dự kiến.',
     choose: 'Chọn dịch vụ để xem nội dung giám sát.',
     loading: 'Đang tải nội dung giám sát…',
@@ -152,7 +151,6 @@ export const checklistMessages = defineMessages({
     hint: 'The service defaults are listed below. You can edit them, remove anything you do not need, or add your own; the list is locked when submitted.',
     compactHint:
       'Choose the requirements; adjust image/video counts when editing.',
-    guidanceSummary: 'Guidance',
     pricingNotice:
       'Changing this list may change the cost. A manager will review each requirement and send the final quote for your confirmation.',
     choose: 'Select a service to view monitoring requirements.',

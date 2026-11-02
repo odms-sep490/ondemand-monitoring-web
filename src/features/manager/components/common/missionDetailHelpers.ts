@@ -1,4 +1,5 @@
 import type {
+  MissionResourcePrepareStatus,
   MissionStaffAssignmentResponse,
   PreflightCheckItem,
 } from '../../types/missions'
@@ -97,6 +98,18 @@ export function assignmentTone(
   if (status === 'ACCEPTED') return 'green'
   if (status === 'REJECTED') return 'red'
   return 'amber'
+}
+
+export function missionResourcePrepareLabel(
+  status: MissionResourcePrepareStatus | null | undefined,
+): string {
+  const labels: Record<MissionResourcePrepareStatus, string> = {
+    PLANNING: 'Đang chuẩn bị trước bay',
+    PENDING: 'Đang chờ phản hồi và kiểm tra',
+    READY: 'Sẵn sàng chờ nghiệm thu',
+    CANCELLED: 'Đã hủy',
+  }
+  return status ? labels[status] : 'Chưa xác định'
 }
 
 export type StaffAssignmentGroup = {

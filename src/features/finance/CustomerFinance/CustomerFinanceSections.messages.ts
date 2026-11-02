@@ -72,6 +72,10 @@ export const customerFinanceSectionsMessages = defineMessages({
       CANCELLED: 'Đã hủy',
       REFUNDED: 'Đã hoàn tiền',
     } as Record<string, string>,
+    depositPaymentStatus: {
+      WAITING_DEPOSIT: 'Chờ thanh toán cọc',
+      DEPOSIT_PAID: 'Đã thanh toán cọc',
+    } as Record<string, string>,
   },
   en: {
     estimated: 'Estimated cost',
@@ -138,6 +142,10 @@ export const customerFinanceSectionsMessages = defineMessages({
     priceColumn: 'Amount',
     actionsLabel: 'Deadline and actions',
     summaryLabel: 'Cost summary',
+    depositPaymentStatus: {
+      WAITING_DEPOSIT: 'Deposit pending',
+      DEPOSIT_PAID: 'Deposit paid',
+    } as Record<string, string>,
     adjustment: 'Approved adjustment',
     invoiceStatus: {
       ISSUED: 'Awaiting payment',

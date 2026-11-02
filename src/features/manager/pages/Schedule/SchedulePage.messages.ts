@@ -53,7 +53,7 @@ export const schedulePageMessages = defineMessages({
     customerConfirmed: 'Tôi xác nhận đã liên hệ và được Customer đồng ý lịch mới.',
     customerConfirmationRequired: 'Phải liên hệ và được Customer xác nhận trước khi đổi lịch.',
     cancelPolicyMessage: 'Customer đã chọn hủy yêu cầu khi chuyến bay không thể thực hiện. Hãy dùng quy trình hủy Order.',
-    runtimeStartedMessage: 'Mission đã bắt đầu vận hành nên không thể đổi lịch. Hãy dùng quy trình safe-stop hoặc xử lý sự cố.',
+    runtimeStartedMessage: 'Mission đã bắt đầu vận hành nên không thể đổi lịch. Hãy liên hệ điều phối viên để được hỗ trợ.',
     fallbackLabels: {
       AUTO_RESCHEDULE: 'Tự dời lịch trong khoảng đã yêu cầu',
       CONTACT_CUSTOMER: 'Liên hệ Customer trước khi đổi',
@@ -144,7 +144,7 @@ export const schedulePageMessages = defineMessages({
     customerConfirmed: 'I confirm the customer was contacted and accepted the new schedule.',
     customerConfirmationRequired: 'Contact the customer and obtain confirmation before rescheduling.',
     cancelPolicyMessage: 'The customer selected cancellation when the flight cannot proceed. Use the Order cancellation workflow.',
-    runtimeStartedMessage: 'This mission has started and cannot be rescheduled. Use safe-stop or incident handling.',
+    runtimeStartedMessage: 'This mission has started and cannot be rescheduled. Contact the dispatcher for help.',
     fallbackLabels: {
       AUTO_RESCHEDULE: 'Reschedule automatically inside the requested window',
       CONTACT_CUSTOMER: 'Contact customer before changing',

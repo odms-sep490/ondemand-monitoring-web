@@ -6,7 +6,7 @@ export const missionDetailHelpersMessages = defineMessages({
     minutes: (n: number) => `${n} phút`,
     minutesSeconds: (m: number, s: number) => `${m} phút ${s} giây`,
     checkLabels: {
-      PLANNING: 'Đang lập kế hoạch',
+      PLANNING: 'Đang chuẩn bị trước bay',
       PASSED: 'Đạt',
       STALE: 'Đã quá hạn',
       FAILED: 'Không đạt',
@@ -38,7 +38,7 @@ export const missionDetailHelpersMessages = defineMessages({
     minutes: (n: number) => `${n} min`,
     minutesSeconds: (m: number, s: number) => `${m} min ${s} sec`,
     checkLabels: {
-      PLANNING: 'Planning',
+      PLANNING: 'Preparing for preflight',
       PASSED: 'Passed',
       STALE: 'Stale · cần kiểm tra lại',
       FAILED: 'Failed',

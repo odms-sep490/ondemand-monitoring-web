@@ -12,6 +12,14 @@ export function MissionStatusBadge({ status }: MissionStatusBadgeProps) {
 
   const getBadgeConfig = () => {
     switch (status) {
+      case 'PLANNING':
+      case 'CREATED':
+        return {
+          bg: '#f1f5f9',
+          color: '#475569',
+          label: status === 'PLANNING' ? t.mission.PLANNING : t.mission.CREATED,
+          icon: 'activity' as const,
+        }
       case 'WAITING_DEPOSIT':
         return {
           bg: '#fff7ed',
@@ -28,10 +36,10 @@ export function MissionStatusBadge({ status }: MissionStatusBadgeProps) {
         }
       case 'PENDING_CONFIRMATION':
         return {
-          bg: '#fef3c7',
-          color: '#92400e',
+          bg: '#eff6ff',
+          color: '#1d4ed8',
           label: t.mission.PENDING_CONFIRMATION,
-          icon: 'clock' as const,
+          icon: 'lock' as const,
         }
       case 'WAITING_OPERATOR_ACCEPTANCE':
         return {
@@ -54,41 +62,26 @@ export function MissionStatusBadge({ status }: MissionStatusBadgeProps) {
           label: t.mission.SCHEDULED,
           icon: 'check' as const,
         }
-      case 'CONNECTED':
-        return {
-          bg: '#e0e7ff',
-          color: '#3730a3',
-          label: t.mission.CONNECTED,
-          icon: 'radio' as const,
-        }
-      case 'PREFLIGHT_CHECKING':
-        return {
-          bg: '#fae8ff',
-          color: '#86198f',
-          label: t.mission.PREFLIGHT_CHECKING,
-          icon: 'activity' as const,
-        }
-      case 'READY_TO_FLY':
-        return {
-          bg: '#dcfce7',
-          color: '#15803d',
-          label: t.mission.READY_TO_FLY,
-          icon: 'shield' as const,
-        }
-      case 'IN_FLIGHT':
       case 'IN_PROGRESS':
         return {
           bg: '#0284c7',
           color: '#ffffff',
-          label: t.mission.IN_FLIGHT,
+          label: t.mission.IN_PROGRESS,
           icon: 'route' as const,
         }
-      case 'RETURNING':
+      case 'AWAITING_REVIEW':
         return {
-          bg: '#fed7aa',
-          color: '#c2410c',
-          label: t.mission.RETURNING,
-          icon: 'route' as const,
+          bg: '#dbeafe',
+          color: '#1d4ed8',
+          label: t.mission.AWAITING_REVIEW,
+          icon: 'clock' as const,
+        }
+      case 'PENDING_REVIEW':
+        return {
+          bg: '#dbeafe',
+          color: '#1d4ed8',
+          label: t.mission.PENDING_REVIEW,
+          icon: 'clock' as const,
         }
       case 'COMPLETED':
         return {
@@ -97,15 +90,13 @@ export function MissionStatusBadge({ status }: MissionStatusBadgeProps) {
           label: t.mission.COMPLETED,
           icon: 'check' as const,
         }
-      case 'FAILED_PREFLIGHT':
-      case 'PENDING_APPROVAL':
+      case 'FAILED':
         return {
           bg: '#fee2e2',
           color: '#b91c1c',
-          label: t.mission.FAILED_PREFLIGHT,
+          label: t.mission.FAILED,
           icon: 'x' as const,
         }
-      case 'FAILED':
       case 'CANCELLED':
         return {
           bg: '#f3f4f6',

@@ -52,16 +52,7 @@ export function OrderResourceAssignmentWizard({
         planningApi.getOrderMissions(orderId, signal),
         ordersApi.getOrder(orderId, signal),
       ])
-      const stops = await Promise.all(
-        missions.map(async (mission) => {
-          try {
-            return await planningApi.getSafeStop(mission.id, signal)
-          } catch {
-            return null
-          }
-        }),
-      )
-      return { plan, missions, order, stops }
+      return { plan, missions, order }
     },
     [orderId],
   )
@@ -95,7 +86,6 @@ export function OrderResourceAssignmentWizard({
   function eligible(id: string) {
     const mission = data?.missions.find((m) => m.id === id)
     const scope = data?.plan.missions.find((m) => m.missionId === id)
-    const stop = data?.stops.find((s) => s?.missionId === id)
     return Boolean(
       !query.loading &&
       !query.error &&
@@ -103,10 +93,7 @@ export function OrderResourceAssignmentWizard({
       data?.plan.planStatus === 'FINALIZED' &&
       ['APPROVED', 'IN_PROGRESS'].includes(data.order.status) &&
       (scope?.finalizedPlanRevision ?? 0) > 0 &&
-      mission.status === 'PLANNING' &&
-      stop &&
-      !stop.status &&
-      !stop.requestedAt,
+      mission.status === 'PLANNING',
     )
   }
   async function leave(close = false) {

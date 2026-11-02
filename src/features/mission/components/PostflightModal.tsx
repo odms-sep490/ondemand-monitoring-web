@@ -66,7 +66,7 @@ export function PostflightModal({
               className="eyebrow"
               style={{ margin: '0 0 4px', fontSize: '0.65rem' }}
             >
-              F3.4 POST-FLIGHT INSPECTION
+              {t.eyebrow}
             </p>
             <h3
               style={{

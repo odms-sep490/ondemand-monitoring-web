@@ -659,13 +659,13 @@ registerMockRoutes([
       if (mission.status !== 'PLANNING') {
         return fail(409, 'MISSION_STATUS_INVALID', 'Chỉ được gán resource khi mission ở trạng thái PLANNING')
       }
-      const { deviceId: droneId } = (body ?? {}) as { deviceId?: string }
-      if (!droneId) {
-        return fail(400, 'VALIDATION_ERROR', 'Thiếu droneId', {
-          droneId: 'droneId là bắt buộc',
+      const { deviceId } = (body ?? {}) as { deviceId?: string }
+      if (!deviceId) {
+        return fail(400, 'VALIDATION_ERROR', 'Thiếu deviceId', {
+          deviceId: 'deviceId là bắt buộc',
         })
       }
-      const drone = drones.find((d) => d.id === droneId || d.code === droneId)
+      const drone = drones.find((item) => item.id === deviceId || item.code === deviceId)
       if (!drone) return fail(404, 'NOT_FOUND', 'Không tìm thấy drone')
 
       if (mission.scheduledStartAt && mission.scheduledEndAt) {
@@ -677,15 +677,14 @@ registerMockRoutes([
           return fail(
             409,
             'SCHEDULE_CONFLICT',
-            `Máy chủ từ chối: khung ${conflict.start.slice(11, 16)}–${conflict.end.slice(11, 16)} vừa bị ${conflict.missionCode} chiếm (ràng buộc EXCLUDE trên scheduled_range). Chọn drone khác hoặc đổi giờ mission.`,
+            `Khung giờ ${conflict.start.slice(11, 16)}–${conflict.end.slice(11, 16)} đã được ${conflict.missionCode} sử dụng. Hãy chọn thiết bị khác hoặc đổi lịch.`,
           )
         }
       }
 
       mission.droneId = drone.id
       mission.droneAssignmentId = `mda-${mission.id}-${drone.id}`
-      mission.status = 'PLANNING'
-      return ok(toMissionDto(mission), 'Đã gán Drone thành công')
+      return ok(toMissionDto(mission), 'Đã gán thiết bị thành công')
     },
   },
   {
@@ -714,24 +713,21 @@ registerMockRoutes([
       if (mission.status !== 'PLANNING') {
         return fail(409, 'MISSION_STATUS_INVALID', 'Chỉ được gán resource khi mission ở trạng thái PLANNING')
       }
-      const { staffId: operatorId, assignedRoles } = (body ?? {}) as {
+      const { staffId, assignedRoles } = (body ?? {}) as {
         staffId?: string
         assignedRoles?: string[]
       }
-      if (!operatorId || !assignedRoles?.length) {
-        return fail(400, 'VALIDATION_ERROR', 'Thiếu operatorId', {
-          operatorId: 'staffId và assignedRoles là bắt buộc',
+      if (!staffId || !assignedRoles?.length) {
+        return fail(400, 'VALIDATION_ERROR', 'Thiếu thông tin nhân sự hoặc vai trò', {
+          staffId: 'staffId và assignedRoles là bắt buộc',
         })
       }
-      const operator = operators.find(
-        (o) => o.id === operatorId || o.code === operatorId,
-      )
-      if (!operator) return fail(404, 'NOT_FOUND', 'Không tìm thấy phi công')
+      const operator = operators.find((item) => item.id === staffId || item.code === staffId)
+      if (!operator) return fail(404, 'NOT_FOUND', 'Không tìm thấy nhân sự')
 
       mission.operatorId = operator.id
       mission.operatorAssignmentId = `moa-${mission.id}-${operator.id}`
-      mission.status = 'PLANNING'
-      return ok(toMissionDto(mission), 'Đã gán Operator thành công')
+      return ok(toMissionDto(mission), 'Đã gán nhân sự thành công')
     },
   },
   {
@@ -748,7 +744,7 @@ registerMockRoutes([
       }
       mission.operatorId = null
       mission.operatorAssignmentId = null
-      return ok(toMissionDto(mission), 'Đã gỡ staff khỏi mission')
+      return ok(toMissionDto(mission), 'Đã gỡ nhân sự khỏi mission')
     },
   },
 ])

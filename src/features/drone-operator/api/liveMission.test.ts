@@ -34,10 +34,10 @@ describe('live mission mapping', () => {
     ).toBe('FUTURE_STATUS')
   })
 
-  it('preserves planning statuses instead of showing them as unsupported', () => {
+  it('preserves mission workflow statuses and rejects order-only statuses', () => {
     expect(toOperatorMission({ ...mission, status: 'PLANNING' }).status).toBe('PLANNING')
     expect(toOperatorMission({ ...mission, status: 'READY' }).status).toBe('READY')
-    expect(toOperatorMission({ ...mission, status: 'WAITING_DEPOSIT' }).status).toBe('WAITING_DEPOSIT')
+    expect(toOperatorMission({ ...mission, status: 'WAITING_DEPOSIT' }).status).toBe('UNKNOWN')
   })
   it('keeps the backend ID for API calls and the code for display', () => {
     expect(toOperatorMission(mission).id).toBe(mission.id)

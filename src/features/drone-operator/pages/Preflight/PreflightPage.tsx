@@ -4,11 +4,10 @@ import { missionApi } from '../../../mission/api/missionApi'
 import { flightControlApi } from '../../api/flightControlApi'
 import { useActiveMission } from '../../api/useActiveMission'
 import { formatDeviceLabel } from '../../lib/deviceLabel'
-import { backendPreflightTokenStorageKey } from '../../lib/flightWorkflowStorage'
 import { operatorHref } from '../../routes'
 import { preflightPageMessages } from './PreflightPage.messages'
 import { NO_MISSION_SENTINEL, NO_DRONE_SENTINEL } from './preflightConstants'
-import { isMissionInFlight, demoFlightToken } from './preflightHelpers'
+import { isMissionInFlight } from './preflightHelpers'
 import { PreflightChecklistPanel } from './components/PreflightChecklistPanel'
 
 export function PreflightPage({ missionId }: { missionId?: string }) {
@@ -44,20 +43,15 @@ export function PreflightPage({ missionId }: { missionId?: string }) {
         return
       }
       await flightControlApi.bindSession(mission.missionId, deviceId)
-      const completedPreflight =
-        data?.status === 'READY_TO_FLY'
-          ? null
-          : await missionApi.runPreflightCheck(mission.missionId, deviceId)
-      const tokenValue =
-        completedPreflight?.flightToken?.tokenValue ??
-        window.sessionStorage.getItem(
-          backendPreflightTokenStorageKey(mission.missionId, deviceId),
-        ) ??
-        demoFlightToken(mission.missionId, deviceId)
-      window.sessionStorage.setItem(
-        backendPreflightTokenStorageKey(mission.missionId, deviceId),
-        tokenValue,
+      const deviceAlreadyPassed = data?.deviceAssignments?.some(
+        (assignment) =>
+          assignment.deviceRole === 'MAIN' &&
+          assignment.deviceId === deviceId &&
+          assignment.status === 'READY_TO_FLY',
       )
+      if (!deviceAlreadyPassed) {
+        await missionApi.runPreflightCheck(mission.missionId, deviceId)
+      }
       window.location.hash = operatorHref({
         screen: 'handover',
         missionId: mission.missionId,
@@ -94,8 +88,6 @@ export function PreflightPage({ missionId }: { missionId?: string }) {
             : undefined
         }
         missionStatus={mission.data?.status}
-        latitude={mission.data?.latitude ?? undefined}
-        longitude={mission.data?.longitude ?? undefined}
         onReady={() => {
           void handleContinueToHandover()
         }}

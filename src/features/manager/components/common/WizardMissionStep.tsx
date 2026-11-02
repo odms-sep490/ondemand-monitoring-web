@@ -7,7 +7,7 @@ import { STAFF_ROLE_LABELS } from './missionDetailHelpers'
 import type { ReactElement, Dispatch, SetStateAction } from 'react'
 import type { MissionResponse } from '../../types/missions'
 import type { UseApiQueryState } from '../../../../shared/hooks/useApiQuery'
-import type { ExecutionPlan, SafeStop } from '../../types/planning'
+import type { ExecutionPlan } from '../../types/planning'
 import type { OrderDetail } from '../../types/orders'
 import type { MissionStaffRole } from '../../../mission/types/mission'
 
@@ -50,7 +50,6 @@ export function WizardMissionStep({
     plan: ExecutionPlan
     missions: MissionResponse[]
     order: OrderDetail
-    stops: (SafeStop | null)[]
   }>
   setReviewing: Dispatch<SetStateAction<boolean>>
   updateDraft: (dirty: boolean, saving: boolean) => void

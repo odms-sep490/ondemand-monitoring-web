@@ -14,7 +14,7 @@ import { operatorApi } from '../../../../staff/api/operatorApi'
 import { droneApi } from '../../../../staff/api/droneApi'
 import type { MissionResponse } from '../../../types/missions'
 import type { Mission } from '../../../../mission/types/mission'
-import type { ExecutionPlan, SafeStop } from '../../../types/planning'
+import type { ExecutionPlan } from '../../../types/planning'
 import type { OrderDetail } from '../../../types/orders'
 import { ApiError } from '../../../../../shared/api/httpClient'
 
@@ -61,10 +61,6 @@ beforeEach(() => {
     id: 'o',
     status: 'APPROVED',
   } as OrderDetail)
-  vi.spyOn(planningApi, 'getSafeStop').mockImplementation(
-    async (missionId) =>
-      ({ missionId, status: null, requestedAt: null }) as SafeStop,
-  )
   vi.spyOn(missionApi, 'getMissionById').mockImplementation(
     async (id) =>
       structuredClone(missions.find((m) => m.id === id)!) as unknown as Mission,
@@ -232,14 +228,6 @@ it('localizes partial failure, reloads authoritative state and does not auto ret
   await waitFor(() =>
     expect(planningApi.getOrderMissions).toHaveBeenCalledTimes(2),
   )
-})
-it('fails closed if authoritative safety state cannot be loaded', async () => {
-  vi.mocked(planningApi.getSafeStop).mockRejectedValue(new Error('Unavailable'))
-  render(<OrderResourceAssignmentWizard orderId="o" onClose={vi.fn()} />)
-  await waitFor(() =>
-    expect(screen.getByRole('radio', { name: /M1/ })).toBeDisabled(),
-  )
-  expect(screen.getByRole('button', { name: 'Tiếp theo' })).toBeDisabled()
 })
 it('refuses a Mission read response from a different Order', async () => {
   vi.mocked(missionApi.getMissionById).mockResolvedValue({

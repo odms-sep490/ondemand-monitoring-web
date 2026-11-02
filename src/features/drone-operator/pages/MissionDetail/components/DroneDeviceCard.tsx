@@ -4,6 +4,20 @@ import { StatusBadge } from '../../../../../shared/components/odm/StatusBadge'
 import { InfoRow } from './InfoRow'
 import { RocketOutlined } from '@ant-design/icons'
 
+const DEVICE_ASSIGNMENT_LABEL: Record<string, string> = {
+  ASSIGNED: 'Đã phân công',
+  CONNECTED: 'Đã kết nối GCS',
+  CONNECTION_LOST: 'Mất kết nối',
+  PREFLIGHT_CHECKING: 'Đang kiểm tra trước bay',
+  READY_TO_FLY: 'Sẵn sàng bay',
+  IN_PROGRESS: 'Đang thực hiện',
+  RETURNING: 'Đang trở về',
+  POSTFLIGHT_CHECKING: 'Đang kiểm tra sau bay',
+  COMPLETED: 'Hoàn thành',
+  FAILED: 'Không đạt',
+  RELEASED: 'Đã thu hồi',
+}
+
 // ─── Device card ──────────────────────────────────────────────────────────────
 
 export function DroneDeviceCard({
@@ -21,6 +35,14 @@ export function DroneDeviceCard({
     { icon: 'ID', label: 'Device code', value: mission.deviceCode },
     { icon: 'SN', label: 'Serial', value: mission.deviceSerialNumber },
     { icon: '●', label: 'Trạng thái', value: mission.deviceStatus },
+    {
+      icon: '↗',
+      label: 'Trạng thái phân công',
+      value: mission.deviceAssignmentStatus
+        ? DEVICE_ASSIGNMENT_LABEL[mission.deviceAssignmentStatus] ??
+          mission.deviceAssignmentStatus
+        : null,
+    },
     { icon: 'DR', label: 'Drone code', value: mission.droneCode },
     { icon: 'NM', label: 'Tên drone', value: mission.droneName },
     { icon: 'MD', label: 'Model', value: mission.droneModel },
@@ -53,14 +75,21 @@ export function DroneDeviceCard({
           : `${mission.droneHoursSinceMaintenance} giờ`,
     },
   ].filter((row) => row.value != null && String(row.value).trim() !== '')
-  const compactLabels = new Set(['Device code', 'Serial', 'Trạng thái'])
+  const compactLabels = new Set([
+    'Device code',
+    'Serial',
+    'Trạng thái',
+    'Trạng thái phân công',
+  ])
   const primaryRows = overview
-    ? []
+    ? deviceInfoRows.filter((row) => row.label === 'Trạng thái phân công')
     : compact
       ? deviceInfoRows.filter((row) => compactLabels.has(row.label))
       : deviceInfoRows
   const extraRows = overview
-    ? deviceInfoRows.filter((row) => row.label !== 'Sẵn sàng')
+    ? deviceInfoRows.filter(
+        (row) => row.label !== 'Sẵn sàng' && row.label !== 'Trạng thái phân công',
+      )
     : compact
       ? deviceInfoRows.filter((row) => !compactLabels.has(row.label))
       : []

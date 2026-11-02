@@ -204,7 +204,7 @@ describe('Customer aggregate/report publication', () => {
     expect(screen.getAllByRole('article')).toHaveLength(3)
     expect(
       screen.queryByText(
-        /PENDING_MANAGER_APPROVAL|REJECTED|revision|safe-stop/i,
+        /PENDING_MANAGER_APPROVAL|REJECTED|revision/i,
       ),
     ).not.toBeInTheDocument()
   })

@@ -17,8 +17,8 @@ export function preflightStateStorageKey(
   return `omss.droneOperator.preflightState.${missionId}.${droneLabel}`
 }
 
-export function weatherStateStorageKey(missionId: string, droneLabel: string) {
-  return `omss.droneOperator.weatherState.${missionId}.${droneLabel}`
+export function weatherStateStorageKey(missionId: string, _droneLabel?: string) {
+  return `omss.droneOperator.weatherState.${missionId}`
 }
 
 export function isRuntimeStatus(
@@ -49,7 +49,9 @@ export function isWeatherStatus(
     typeof candidate.visibilityKm === 'number' &&
     typeof candidate.temperatureC === 'number' &&
     typeof candidate.humidityPercent === 'number' &&
-    Array.isArray(candidate.advisories)
+    Array.isArray(candidate.advisories) &&
+    (candidate.inspectorAccepted === undefined ||
+      typeof candidate.inspectorAccepted === 'boolean')
   )
 }
 
@@ -233,10 +235,35 @@ export async function fetchLatestWeatherCheck(
     `${env.apiBaseUrl}/api/weather/pre-device-checks/latest?missionId=${encodeURIComponent(missionId)}`,
     { cache: 'no-store', signal },
   )
-  if (!response.ok) return null
+  if (!response.ok) {
+    throw new Error(`Weather result request failed (${response.status})`)
+  }
   const payload = await response.json()
   const weather = payload?.data ?? payload
   return isWeatherStatus(weather) ? weather : null
+}
+
+export async function acceptWeatherCheck(
+  missionId: string,
+  checkId: string,
+) {
+  const response = await authenticatedFetch(
+    `${env.apiBaseUrl}/api/weather/missions/${encodeURIComponent(missionId)}/checks/${encodeURIComponent(checkId)}/accept`,
+    { method: 'POST' },
+  )
+  const payload = await response.json().catch(() => null)
+  if (!response.ok) {
+    throw new Error(
+      payload?.message ??
+        payload?.error?.message ??
+        'Không thể xác nhận thời tiết. Vui lòng kiểm tra lại kết quả mới nhất.',
+    )
+  }
+  const weather = payload?.data ?? payload
+  if (!isWeatherStatus(weather) || weather.inspectorAccepted !== true) {
+    throw new Error('Kết quả nghiệm thu thời tiết không hợp lệ. Vui lòng tải lại trang.')
+  }
+  return weather
 }
 
 export async function fetchLatestPostflightCheck(
@@ -247,7 +274,9 @@ export async function fetchLatestPostflightCheck(
     `${env.apiBaseUrl}/api/missions/${encodeURIComponent(missionId)}/post-device-checks/current`,
     { cache: 'no-store', signal },
   )
-  if (!response.ok) return null
+  if (!response.ok) {
+    throw new Error(`Postflight result request failed (${response.status})`)
+  }
   const payload = await response.json()
   const postflight = payload?.data ?? payload
   const normalized = normalizePostflightStatus(postflight)

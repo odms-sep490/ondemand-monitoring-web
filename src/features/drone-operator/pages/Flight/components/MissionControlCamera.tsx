@@ -20,7 +20,6 @@ export function MissionControlCamera({
   geofenceAlertActive,
   batteryState,
   batteryDisplay,
-  operationalMessage,
   lastCommand,
   geofenceTone,
   geofenceStatus,
@@ -38,7 +37,6 @@ export function MissionControlCamera({
   geofenceAlertActive: boolean
   batteryState: 'NORMAL' | 'LOW' | 'CRITICAL' | 'EMERGENCY'
   batteryDisplay: string
-  operationalMessage: string | undefined
   lastCommand: string
   geofenceTone: string
   geofenceStatus: GeofenceStatus
@@ -118,7 +116,6 @@ export function MissionControlCamera({
         )}
 
         <CommandStatusBadge
-          operationalMessage={operationalMessage}
           lastCommand={lastCommand}
         />
 

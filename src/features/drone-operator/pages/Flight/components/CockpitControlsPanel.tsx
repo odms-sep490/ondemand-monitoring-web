@@ -1,6 +1,6 @@
+import type { Dispatch, SetStateAction } from 'react'
 import { copy } from './cockpitCopy'
 import { Ico } from './CockpitIcon'
-import type { Dispatch, SetStateAction } from 'react'
 import type { CockpitCommand } from './cockpitTypes'
 
 export function CockpitControlsPanel({
@@ -13,10 +13,7 @@ export function CockpitControlsPanel({
   onFinishFlight,
   finishingFlight,
   canFly,
-  canTerminate,
   language,
-  confirmStop,
-  setConfirmStop,
 }: {
   c: (typeof copy)['vi' | 'en']
   controlOpen: boolean
@@ -34,10 +31,7 @@ export function CockpitControlsPanel({
   onFinishFlight: (() => void) | undefined
   finishingFlight: boolean | undefined
   canFly: boolean
-  canTerminate: boolean
   language: 'vi' | 'en'
-  confirmStop: boolean
-  setConfirmStop: Dispatch<SetStateAction<boolean>>
 }) {
   return (
     <section className="fc-panel">
@@ -74,7 +68,7 @@ export function CockpitControlsPanel({
               <button
                 type="button"
                 className="fc-ctl fc-finish is-success"
-                disabled={busy || finishingFlight || (!canFly && !canTerminate)}
+                disabled={busy || finishingFlight || !canFly}
                 onClick={onFinishFlight}
               >
                 <Ico name="land" size={20} />
@@ -89,25 +83,6 @@ export function CockpitControlsPanel({
               </button>
             ) : null}
           </div>
-          <button
-            type="button"
-            className={`fc-emergency${confirmStop ? ' is-armed' : ''}`}
-            disabled={busy || (!canFly && !canTerminate)}
-            onClick={() => {
-              if (!confirmStop) {
-                setConfirmStop(true)
-                return
-              }
-              setConfirmStop(false)
-              onCommand('emergency_stop')
-            }}
-          >
-            <Ico name="stop" size={30} />
-            <span>
-              <strong>{c.emergency}</strong>
-              <small>{confirmStop ? c.emergencyConfirm : c.emergencySub}</small>
-            </span>
-          </button>
         </>
       ) : null}
     </section>

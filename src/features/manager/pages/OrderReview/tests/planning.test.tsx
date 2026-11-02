@@ -11,12 +11,9 @@ import { ordersApi } from '../../../api/ordersApi'
 import { planningApi } from '../../../api/planningApi'
 import type { MissionResponse } from '../../../types/missions'
 import type { OrderDetail } from '../../../types/orders'
-import type { ExecutionPlan, SafeStop } from '../../../types/planning'
+import type { ExecutionPlan } from '../../../types/planning'
 import { OrderMissionPlanningSection } from '../components/OrderMissionPlanningSection'
-import { SafeStopPanel } from '../../../components/common/SafeStopPanel'
 import { managerHref, parseManagerRoute } from '../../../routes'
-import { missionStatusLabel } from '../../../../../shared/lib/statusTone'
-import type { MissionStatus } from '../../../../../shared/types/domain'
 import { financeApi } from '../../../../finance/api'
 import type { Invoice } from '../../../../finance/types'
 
@@ -46,19 +43,6 @@ const plan: ExecutionPlan = {
     uncoveredItemIds: [],
   },
   blockers: [],
-}
-const stop: SafeStop = {
-  missionId: 'm1',
-  status: null,
-  requestedAt: null,
-  confirmedAt: null,
-  cleanedAt: null,
-  failureReason: null,
-  requiresLanding: false,
-  canRequestSafeStop: true,
-  canConfirmSafeStop: false,
-  canCleanupSafeStop: false,
-  canCancelMission: true,
 }
 beforeEach(() => {
   vi.spyOn(financeApi, 'getManagerInvoice').mockResolvedValue({
@@ -92,7 +76,6 @@ beforeEach(() => {
     revision: 7,
     assignments: [],
   }))
-  vi.spyOn(planningApi, 'getSafeStop').mockResolvedValue(stop)
 })
 afterEach(() => vi.restoreAllMocks())
 describe('Manager multi-Mission planning', () => {
@@ -150,82 +133,6 @@ describe('Manager multi-Mission planning', () => {
       .toBeInTheDocument()
   })
 
-  it.each(['RESOURCE_ASSIGNING', 'IN_FLIGHT', 'COMPLETED'])(
-    'hides all safe-stop presentation for a %s Mission even with action capabilities',
-    async (status) => {
-      vi.mocked(planningApi.getOrderMissions).mockResolvedValue([
-        {
-          id: 'm1',
-          orderId: 'o',
-          missionCode: 'M1',
-          status,
-          deviceName: 'Drone 1',
-          staffAssignments: [],
-        },
-      ] as unknown as MissionResponse[])
-      vi.mocked(planningApi.getSafeStop).mockResolvedValue({
-        ...stop,
-        status: 'REQUESTED',
-        failureReason: 'Technical cleanup error',
-        canRequestSafeStop: true,
-        canConfirmSafeStop: true,
-        canCleanupSafeStop: true,
-        canCancelMission: false,
-      })
-      const request = vi.spyOn(planningApi, 'requestSafeStop')
-      const confirm = vi.spyOn(planningApi, 'confirmSafeStop')
-      const cleanup = vi.spyOn(planningApi, 'cleanupSafeStop')
-      const view = render(<OrderMissionPlanningSection orderId="o" />)
-      await screen.findByRole('link', { name: 'M1' })
-      await waitFor(() =>
-        expect(planningApi.getSafeStop).toHaveBeenCalledTimes(1),
-      )
-      expect(
-        screen.getAllByText(missionStatusLabel[status as MissionStatus]).length,
-      ).toBeGreaterThan(0)
-      expect(screen.getByText(/Drone 1/)).toBeInTheDocument()
-      expect(
-        screen.getByRole('button', { name: 'Tạo thêm nhiệm vụ' }),
-      ).toBeInTheDocument()
-      expect(view.container.querySelector('.odm-planning-stop')).toBeNull()
-      expect(
-        screen.queryByRole('region', { name: /Safe-stop/ }),
-      ).not.toBeInTheDocument()
-      expect(
-        screen.queryByText(
-          /Safe-stop \/ cleanup|Chưa yêu cầu|Technical cleanup error|Backend không tự điều khiển/,
-        ),
-      ).not.toBeInTheDocument()
-      for (const name of [
-        'Làm mới safe-stop',
-        'Yêu cầu dừng an toàn',
-        'Xác nhận đã an toàn',
-        'Giải phóng tài nguyên',
-      ]) {
-        expect(screen.queryByRole('button', { name })).not.toBeInTheDocument()
-      }
-      expect(request).not.toHaveBeenCalled()
-      expect(confirm).not.toHaveBeenCalled()
-      expect(cleanup).not.toHaveBeenCalled()
-    },
-  )
-  it('hides safe-stop loading/error UI and keeps cancellation fail-closed', async () => {
-    vi.mocked(planningApi.getSafeStop).mockRejectedValue(
-      new Error('Safe-stop unavailable'),
-    )
-    render(<OrderMissionPlanningSection orderId="o" />)
-    await screen.findByRole('link', { name: 'M1' })
-    await waitFor(() =>
-      expect(planningApi.getSafeStop).toHaveBeenCalledTimes(3),
-    )
-    expect(
-      screen.queryByText(/Đang tải safe-stop|Safe-stop unavailable/),
-    ).not.toBeInTheDocument()
-    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
-    expect(
-      screen.queryByRole('button', { name: 'Hủy Mission M1' }),
-    ).not.toBeInTheDocument()
-  })
   it('keeps a completed Order Mission card historical with no empty operational block', async () => {
     vi.mocked(ordersApi.getOrder).mockResolvedValue({
       id: 'o',
@@ -335,62 +242,6 @@ describe('Manager multi-Mission planning', () => {
     expect(
       screen.getAllByText(/Được thay thế bởi/).length,
     ).toBeGreaterThanOrEqual(2)
-  })
-  it('does not infer cancellation from READY_FOR_CANCELLATION when the server denies it', async () => {
-    vi.mocked(planningApi.getExecutionPlan).mockResolvedValue({
-      ...plan,
-      planStatus: 'FINALIZED',
-    })
-    vi.mocked(planningApi.getSafeStop).mockResolvedValue({
-      ...stop,
-      status: 'READY_FOR_CANCELLATION',
-      canCancelMission: false,
-    })
-    render(<OrderMissionPlanningSection orderId="o" />)
-    await screen.findByRole('link', { name: 'M1' })
-    await waitFor(() =>
-      expect(planningApi.getSafeStop).toHaveBeenCalledTimes(3),
-    )
-    expect(screen.queryByText('READY_FOR_CANCELLATION')).not.toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: 'Hủy Mission M1' }))
-    expect(
-      screen.queryByRole('button', { name: 'Hủy Mission' }),
-    ).not.toBeInTheDocument()
-  })
-  it('enables actual cancellation only after refreshing an explicit server capability', async () => {
-    vi.mocked(planningApi.getExecutionPlan).mockResolvedValue({
-      ...plan,
-      planStatus: 'FINALIZED',
-    })
-    let permitted = false
-    vi.mocked(planningApi.getSafeStop).mockImplementation(
-      async (missionId) => ({
-        ...stop,
-        missionId,
-        status: 'READY_FOR_CANCELLATION',
-        canRequestSafeStop: false,
-        canCleanupSafeStop: true,
-        canCancelMission: missionId === 'm1' && permitted,
-      }),
-    )
-    const cleanup = vi.spyOn(planningApi, 'cleanupSafeStop')
-    render(<OrderMissionPlanningSection orderId="o" />)
-    await screen.findByRole('link', { name: 'M1' })
-    await waitFor(() =>
-      expect(planningApi.getSafeStop).toHaveBeenCalledTimes(3),
-    )
-    expect(
-      screen.queryByRole('button', { name: 'Giải phóng tài nguyên' }),
-    ).not.toBeInTheDocument()
-    expect(
-      screen.queryByRole('button', { name: 'Hủy Mission' }),
-    ).not.toBeInTheDocument()
-    permitted = true
-    fireEvent.click(screen.getByRole('button', { name: 'Tải lại kế hoạch' }))
-    expect(
-      await screen.findByRole('button', { name: 'Hủy Mission M1' }),
-    ).toBeEnabled()
-    expect(cleanup).not.toHaveBeenCalled()
   })
   it('shows every Mission, exact links, authoritative repeated coverage and second create', async () => {
     render(<OrderMissionPlanningSection orderId="o" />)
@@ -596,60 +447,11 @@ describe('Manager multi-Mission planning', () => {
     }
     expect(parseManagerRoute(managerHref(route))).toEqual(route)
   })
-  it('cancel safe-stop blocker remains visible and does not remove the Mission locally', async () => {
-    vi.mocked(planningApi.getExecutionPlan).mockResolvedValue({
-      ...plan,
-      planStatus: 'FINALIZED',
-    })
-    const safetyCommands = [
-      vi.spyOn(planningApi, 'requestSafeStop'),
-      vi.spyOn(planningApi, 'confirmSafeStop'),
-      vi.spyOn(planningApi, 'cleanupSafeStop'),
-    ]
-    const cancel = vi.spyOn(planningApi, 'cancelMission').mockRejectedValue(
-      new ApiError('Unsafe', {
-        code: 'MISSION_CANCELLATION_REQUIRES_SAFE_STOP',
-        status: 409,
-        method: 'POST',
-        path: '/cancel',
-      }),
-    )
-    render(<OrderMissionPlanningSection orderId="o" />)
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'Hủy Mission M1' }),
-    )
-    fireEvent.change(screen.getByLabelText('Lý do hủy M1'), {
-      target: { value: 'Weather' },
-    })
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Xác nhận hủy nhiệm vụ' }),
-    )
-    fireEvent.click(
-      within(await screen.findByRole('dialog')).getByRole('button', {
-        name: 'Hủy Mission',
-      }),
-    )
-    expect(
-      await screen.findByText(/Mission chưa đủ điều kiện hủy/),
-    ).not.toHaveTextContent('MISSION_CANCELLATION_REQUIRES_SAFE_STOP')
-    expect(screen.queryByText(/Xem bảng safe-stop/)).not.toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'M1' })).toBeInTheDocument()
-    expect(cancel).toHaveBeenCalledWith('m1', {
-      expectedPlanRevision: 7,
-      reason: 'Weather',
-    })
-    expect(cancel).toHaveBeenCalledTimes(1)
-    for (const command of safetyCommands) expect(command).not.toHaveBeenCalled()
-  })
-  it('only offers replacement after actual cancellation, not safe-stop readiness', async () => {
+  it('only offers replacement for missions that were actually cancelled', async () => {
     vi.mocked(planningApi.getOrderMissions).mockResolvedValue([
       { id: 'm1', orderId: 'o', missionCode: 'M1', status: 'CANCELLED' },
       { id: 'm2', orderId: 'o', missionCode: 'M2', status: 'PENDING_REVIEW' },
     ] as MissionResponse[])
-    vi.mocked(planningApi.getSafeStop).mockResolvedValue({
-      ...stop,
-      status: 'READY_FOR_CANCELLATION',
-    })
     render(<OrderMissionPlanningSection orderId="o" />)
     expect(
       await screen.findByRole('button', {
@@ -659,157 +461,5 @@ describe('Manager multi-Mission planning', () => {
     expect(
       screen.queryByRole('button', { name: 'Tạo Nhiệm vụ thay thế cho M2' }),
     ).not.toBeInTheDocument()
-  })
-})
-describe('safe-stop role boundaries', () => {
-  it('reopens a cleaned Mission in the workflow card instead of a second editable cancellation form', async () => {
-    vi.mocked(planningApi.getExecutionPlan).mockResolvedValue({
-      ...plan,
-      planStatus: 'FINALIZED',
-    })
-    vi.mocked(planningApi.getOrderMissions).mockResolvedValue([
-      {
-        id: 'm1',
-        orderId: 'o',
-        missionCode: 'M1',
-        status: 'POSTFLIGHT_CHECKING',
-        staffAssignments: [],
-      },
-    ] as unknown as MissionResponse[])
-    vi.mocked(planningApi.getSafeStop).mockResolvedValue({
-      ...stop,
-      status: 'READY_FOR_CANCELLATION',
-      requestedAt: '2026-10-10T00:00:00Z',
-      confirmedAt: '2026-10-10T01:00:00Z',
-      cleanedAt: '2026-10-10T02:00:00Z',
-      reason: 'Thời tiết xấu',
-      canCleanupSafeStop: true,
-    })
-    render(<OrderMissionPlanningSection orderId="o" />)
-    const trigger = await screen.findByRole('button', {
-      name: 'Hủy Mission M1',
-    })
-    expect(
-      screen.getAllByRole('button', { name: 'Hủy Mission M1' }),
-    ).toHaveLength(1)
-    fireEvent.click(trigger)
-    await screen.findByText('Sẵn sàng hủy')
-    expect(screen.getByRole('button', { name: 'Hủy Mission' })).toBeEnabled()
-    expect(screen.queryByRole('textbox')).not.toBeInTheDocument()
-    expect(
-      screen.queryByRole('button', { name: 'Xác nhận hủy nhiệm vụ' }),
-    ).not.toBeInTheDocument()
-    expect(
-      screen.queryByRole('button', { name: 'Giải phóng tài nguyên' }),
-    ).not.toBeInTheDocument()
-  })
-  it('Manager can request but never confirm crew landing even if capability is true', async () => {
-    vi.mocked(planningApi.getSafeStop).mockResolvedValue({
-      ...stop,
-      canConfirmSafeStop: true,
-      canCancelMission: false,
-    })
-    render(
-      <SafeStopPanel
-        missionId="m1"
-        revision={7}
-        manager
-        onChanged={() => {}}
-      />,
-    )
-    expect(
-      await screen.findByRole('button', { name: 'Yêu cầu dừng an toàn' }),
-    ).toBeInTheDocument()
-    expect(
-      screen.queryByRole('button', { name: 'Xác nhận đã an toàn' }),
-    ).not.toBeInTheDocument()
-    expect(
-      screen.queryByRole('button', { name: 'Giải phóng tài nguyên' }),
-    ).not.toBeInTheDocument()
-  })
-  it('only exposes cleanup from explicit server capability and waits for server state', async () => {
-    vi.mocked(planningApi.getSafeStop).mockResolvedValue({
-      ...stop,
-      status: 'IN_PROGRESS',
-      canCleanupSafeStop: true,
-      canCancelMission: false,
-    })
-    const cleanup = vi
-      .spyOn(planningApi, 'cleanupSafeStop')
-      .mockImplementation(async () => {
-        vi.mocked(planningApi.getSafeStop).mockResolvedValue({
-          ...stop,
-          status: 'READY_FOR_CANCELLATION',
-          cleanedAt: '2026-10-07T00:00:00Z',
-        })
-        return { ...stop, status: 'READY_FOR_CANCELLATION' }
-      })
-    render(<SafeStopPanel missionId="m1" manager onChanged={() => {}} />)
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'Giải phóng tài nguyên' }),
-    )
-    expect(await screen.findByText('Sẵn sàng hủy')).toBeInTheDocument()
-    expect(cleanup).toHaveBeenCalledTimes(1)
-  })
-  it('crew action fails closed without capability', async () => {
-    vi.mocked(planningApi.getSafeStop).mockResolvedValue({
-      ...stop,
-      status: 'REQUESTED',
-      canRequestSafeStop: undefined,
-      canConfirmSafeStop: undefined,
-      canCleanupSafeStop: undefined,
-      canCancelMission: undefined,
-    })
-    render(<SafeStopPanel missionId="m1" onChanged={() => {}} />)
-    await screen.findByText('Đã yêu cầu dừng')
-    expect(
-      screen.queryByRole('button', { name: 'Xác nhận đã an toàn' }),
-    ).not.toBeInTheDocument()
-  })
-  it('Manager actions and cancellation fail closed with an older capability-less response', async () => {
-    vi.mocked(planningApi.getSafeStop).mockResolvedValue({
-      ...stop,
-      canRequestSafeStop: undefined,
-      canConfirmSafeStop: undefined,
-      canCleanupSafeStop: undefined,
-      canCancelMission: undefined,
-    })
-    render(<OrderMissionPlanningSection orderId="o" />)
-    await screen.findByRole('link', { name: 'M1' })
-    await waitFor(() =>
-      expect(planningApi.getSafeStop).toHaveBeenCalledTimes(3),
-    )
-    expect(
-      screen.queryByRole('button', { name: 'Yêu cầu dừng an toàn' }),
-    ).not.toBeInTheDocument()
-    expect(
-      screen.queryByRole('button', { name: 'Giải phóng tài nguyên' }),
-    ).not.toBeInTheDocument()
-    expect(
-      screen.queryByRole('button', { name: 'Hủy Mission M1' }),
-    ).not.toBeInTheDocument()
-  })
-  it('assigned crew with server capability must explicitly attest before confirmation', async () => {
-    vi.mocked(planningApi.getSafeStop).mockResolvedValue({
-      ...stop,
-      status: 'REQUESTED',
-      canConfirmSafeStop: true,
-    })
-    const confirm = vi
-      .spyOn(planningApi, 'confirmSafeStop')
-      .mockResolvedValue({ ...stop, status: 'IN_PROGRESS' })
-    render(<SafeStopPanel missionId="m1" onChanged={() => {}} />)
-    const button = await screen.findByRole('button', {
-      name: 'Xác nhận đã an toàn',
-    })
-    expect(button).toBeDisabled()
-    fireEvent.change(screen.getByLabelText('Ghi nhận an toàn'), {
-      target: { value: 'Landed and disarmed' },
-    })
-    fireEvent.click(screen.getByRole('checkbox'))
-    fireEvent.click(button)
-    await waitFor(() =>
-      expect(confirm).toHaveBeenCalledWith('m1', 'Landed and disarmed'),
-    )
   })
 })

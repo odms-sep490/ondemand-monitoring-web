@@ -204,28 +204,13 @@
 .fc-ctl.is-success { border-color: rgba(34, 197, 94, .55); background: rgba(20, 83, 45, .55); }
 .fc-ctl.is-success svg { color: var(--fc-green); }
 
-.fc-emergency {
-  display: flex; align-items: center; justify-content: center; gap: 14px; margin: 0 10px 10px;
-  padding: 11px; border: 1px solid rgba(248, 113, 113, .6); border-radius: 12px;
-  background: linear-gradient(180deg, #7f1d1d, #5b1414); color: #fee2e2; cursor: pointer; text-align: left;
-  transition: filter .15s;
-}
-.fc-emergency strong { display: block; font-size: 15px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
-.fc-emergency small { color: #fecaca; font-size: 12px; }
-.fc-emergency svg { color: #fca5a5; }
-.fc-emergency:hover:not(:disabled) { filter: brightness(1.15); }
-.fc-emergency.is-armed { background: linear-gradient(180deg, #dc2626, #991b1b); animation: fc-arm .8s ease-in-out infinite alternate; }
-.fc-emergency:disabled { opacity: .5; cursor: not-allowed; }
-
 /* the shared camera + map need these inside the cockpit */
 .fc-root .drone-camera-view { border-radius: 0; }
 .fc-root .satellite-flight-map .leaflet-top.leaflet-right { top: 10px; right: 10px; }
 
 @keyframes fc-pulse { 50% { opacity: .45; } }
-@keyframes fc-arm { to { box-shadow: 0 0 0 4px rgba(248, 113, 113, .35); } }
-
 @media (prefers-reduced-motion: reduce) {
-  .fc-live.is-on::before, .fc-dot.is-live, .fc-emergency.is-armed { animation: none; }
+  .fc-live.is-on::before, .fc-dot.is-live { animation: none; }
 }
 
 @media (max-width: 1280px) {
@@ -296,7 +281,7 @@
 }
 .fc-seg button:hover { color: var(--fc-tx); }
 .fc-seg button.is-active { background: rgba(37, 99, 235, .55); color: #fff; box-shadow: inset 0 0 0 1px rgba(96, 165, 250, .6); }
-.fc-seg button:focus-visible, .fc-icon-btn:focus-visible, .fc-ctl:focus-visible, .fc-ghost:focus-visible, .fc-emergency:focus-visible {
+.fc-seg button:focus-visible, .fc-icon-btn:focus-visible, .fc-ctl:focus-visible, .fc-ghost:focus-visible {
   outline: 2px solid var(--fc-blue); outline-offset: 2px;
 }
 .fc-panel__tools { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }

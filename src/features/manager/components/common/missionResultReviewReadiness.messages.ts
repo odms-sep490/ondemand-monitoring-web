@@ -10,10 +10,12 @@ export const missionResultReviewReadinessMessages = defineMessages({
         'Ảnh/video đang được kiểm tra. Vui lòng chờ trước khi duyệt kết quả.',
       INSUFFICIENT_EVIDENCE:
         'Danh mục kiểm tra chưa đủ bằng chứng. Cần bổ sung trước khi duyệt kết quả.',
+      ASSESSMENT_REQUIRED:
+        'Cần đánh giá các mục trong danh mục kiểm tra trước khi duyệt kết quả.',
       EXECUTION_NOT_TERMINAL:
-        'Danh mục kiểm tra chưa hoàn tất. Cần hoàn tất các mục trước khi duyệt kết quả.',
+        'Cần đánh giá các mục trong danh mục kiểm tra trước khi duyệt kết quả.',
       EXECUTION_NOT_COMPLETED:
-        'Danh mục kiểm tra chưa hoàn tất. Cần hoàn tất các mục trước khi duyệt kết quả.',
+        'Cần đánh giá các mục trong danh mục kiểm tra trước khi duyệt kết quả.',
       UNABLE_REASON_REQUIRED:
         'Cần bổ sung lý do cho mục danh mục kiểm tra chưa thể xác minh.',
       CHECKLIST_INTEGRITY_INVALID:
@@ -49,10 +51,12 @@ export const missionResultReviewReadinessMessages = defineMessages({
         'Media is being checked. Please wait before approving the result.',
       INSUFFICIENT_EVIDENCE:
         'The checklist does not have enough evidence. Add more before approving the result.',
+      ASSESSMENT_REQUIRED:
+        'Assess every checklist item before approving the result.',
       EXECUTION_NOT_TERMINAL:
-        'The checklist is not complete. Complete all items before approving the result.',
+        'Assess every checklist item before approving the result.',
       EXECUTION_NOT_COMPLETED:
-        'The checklist is not complete. Complete all items before approving the result.',
+        'Assess every checklist item before approving the result.',
       UNABLE_REASON_REQUIRED:
         'Add a reason for checklist items that could not be verified.',
       CHECKLIST_INTEGRITY_INVALID:

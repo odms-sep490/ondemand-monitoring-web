@@ -110,7 +110,8 @@ export function useDispatchAssign({
       toast.error(planningError(cause))
       if (resourceAssignmentConflict(cause)) {
         conflictStep.current =
-          cause instanceof ApiError && cause.path.includes('/device-assignments')
+          cause instanceof ApiError &&
+          cause.path.includes('/device-assignments')
             ? 'device'
             : 'staff'
         setActiveStep(conflictStep.current)

@@ -1,10 +1,8 @@
 import { GlassPanel } from './GlassPanel'
 
 export function CommandStatusBadge({
-  operationalMessage,
   lastCommand,
 }: {
-  operationalMessage: string | undefined
   lastCommand: string
 }) {
   return (
@@ -18,7 +16,7 @@ export function CommandStatusBadge({
         fontSize: 11,
       }}
     >
-      {operationalMessage ?? lastCommand}
+      {lastCommand}
     </GlassPanel>
   )
 }

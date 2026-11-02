@@ -43,6 +43,7 @@ export default function OperatorOverview({
   const { t, lang, locale } = useI18n(operatorOverviewMessages)
   const activeMission = allMissions.find(
     (m) =>
+      m.state === 'PLANNING' ||
       m.state === 'WAITING_OPERATOR_ACCEPTANCE' ||
       m.state === 'READY',
   )
@@ -61,6 +62,7 @@ export default function OperatorOverview({
       value: String(
         allMissions.filter(
           (mission) =>
+            mission.state === 'PLANNING' ||
             mission.state === 'WAITING_OPERATOR_ACCEPTANCE' ||
             mission.state === 'READY',
         ).length,

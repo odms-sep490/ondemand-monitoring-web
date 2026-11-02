@@ -36,37 +36,27 @@ export const orderStatusTone: Record<OrderStatus, StatusTone> = {
 
 export const missionStatusTone: Record<MissionStatus, StatusTone> = {
   PLANNING: 'gray',
-  CREATED: 'gray', // brief: CREATED → gray
+  CREATED: 'gray',
   WAITING_DEPOSIT: 'yellow',
   PENDING_PAYMENT: 'yellow',
   PENDING_CONFIRMATION: 'yellow',
-  // mapping by meaning: system is still matching drone/operator, nothing to
-  // act on yet — closer to "waiting" than "in progress".
-  READY: 'green',
   RESOURCE_ASSIGNING: 'yellow',
-  WAITING_OPERATOR_ACCEPTANCE: 'yellow', // brief: ASSIGNED-like → yellow
-  // mapping by meaning: operator accepted, mission is waiting for its
-  // scheduled window — still "waiting", not yet active.
+  WAITING_OPERATOR_ACCEPTANCE: 'yellow',
+  READY: 'blue',
   SCHEDULED: 'yellow',
-  // mapping by meaning: device link established, an active process.
   CONNECTED: 'blue',
-  // mapping by meaning: checklist actively running.
   PREFLIGHT_CHECKING: 'blue',
-  // mapping by meaning: all checks passed — a success state, like AVAILABLE/PASS.
   READY_TO_FLY: 'green',
-  FAILED_PREFLIGHT: 'red', // brief: FAILED-like → red
-  // mapping by meaning: bounced back to the manager queue, waiting on them.
+  FAILED_PREFLIGHT: 'red',
   PENDING_APPROVAL: 'yellow',
-  IN_FLIGHT: 'blue', // brief: IN_FLIGHT → blue
-  IN_PROGRESS: 'blue', // brief: IN_PROGRESS → blue (legacy alias of IN_FLIGHT)
-  // mapping by meaning: drone airborne and moving back to base, active process.
+  IN_FLIGHT: 'blue',
+  IN_PROGRESS: 'blue',
   RETURNING: 'blue',
-  // mapping by meaning: checklist actively running.
   POSTFLIGHT_CHECKING: 'blue',
-  PENDING_REVIEW: 'yellow',
-  COMPLETED: 'green', // brief: COMPLETED → green
-  FAILED: 'red', // brief: FAILED → red
-  // mapping by meaning: terminal, non-error stop, same as OrderStatus.CANCELLED.
+  AWAITING_REVIEW: 'blue',
+  PENDING_REVIEW: 'blue',
+  COMPLETED: 'green',
+  FAILED: 'red',
   CANCELLED: 'gray',
 }
 
@@ -129,25 +119,26 @@ export const orderStatusLabel: Record<OrderStatus, string> = {
 }
 
 export const missionStatusLabel: Record<MissionStatus, string> = {
-  READY: 'Nguồn lực đã sẵn sàng',
-  PLANNING: 'Đang lập kế hoạch',
-  CREATED: 'Mới tạo',
+  PLANNING: 'Đang chuẩn bị trước bay',
+  CREATED: 'Đã tạo mission',
   WAITING_DEPOSIT: 'Chờ thanh toán tiền cọc',
-  PENDING_PAYMENT: 'Chờ thanh toán phần còn lại',
-  PENDING_CONFIRMATION: 'Chờ nhân sự xác nhận',
-  RESOURCE_ASSIGNING: 'Đang gán nguồn lực',
-  WAITING_OPERATOR_ACCEPTANCE: 'Chờ operator nhận',
-  SCHEDULED: 'Đã lên lịch',
-  CONNECTED: 'Đã kết nối',
+  PENDING_PAYMENT: 'Chờ khách hàng thanh toán',
+  PENDING_CONFIRMATION: 'Chờ phi hành đoàn xác nhận',
+  RESOURCE_ASSIGNING: 'Đang phân công nguồn lực',
+  WAITING_OPERATOR_ACCEPTANCE: 'Chờ staff chấp nhận',
+  READY: 'Sẵn sàng chờ nghiệm thu',
+  SCHEDULED: 'Đang chuẩn bị trước bay',
+  CONNECTED: 'Đã kết nối GCS',
   PREFLIGHT_CHECKING: 'Đang kiểm tra trước bay',
-  READY_TO_FLY: 'Sẵn sàng bay',
-  FAILED_PREFLIGHT: 'Kiểm tra trước bay thất bại',
-  PENDING_APPROVAL: 'Chờ quản lý xử lý',
+  READY_TO_FLY: 'Thiết bị sẵn sàng bay',
+  FAILED_PREFLIGHT: 'Kiểm tra trước bay chưa đạt',
+  PENDING_APPROVAL: 'Chờ phê duyệt',
   IN_FLIGHT: 'Đang bay',
-  IN_PROGRESS: 'Đang bay',
-  RETURNING: 'Đang trở về',
+  IN_PROGRESS: 'Đang thực hiện',
+  RETURNING: 'Đang quay về',
   POSTFLIGHT_CHECKING: 'Đang kiểm tra sau bay',
-  PENDING_REVIEW: 'Chờ nghiệm thu',
+  AWAITING_REVIEW: 'Đã gửi quản lý, chờ duyệt',
+  PENDING_REVIEW: 'Đã gửi quản lý, chờ duyệt',
   COMPLETED: 'Hoàn thành',
   FAILED: 'Thất bại',
   CANCELLED: 'Đã huỷ',
@@ -225,25 +216,26 @@ export const orderStatusLabelEn: Record<OrderStatus, string> = {
 }
 
 export const missionStatusLabelEn: Record<MissionStatus, string> = {
-  READY: 'Resources ready',
-  PLANNING: 'Planning',
+  PLANNING: 'Preparing for preflight',
   CREATED: 'Created',
   WAITING_DEPOSIT: 'Waiting for deposit',
-  PENDING_PAYMENT: 'Waiting for final payment',
-  PENDING_CONFIRMATION: 'Waiting for crew confirmation',
+  PENDING_PAYMENT: 'Waiting for customer payment',
+  PENDING_CONFIRMATION: 'Waiting for crew acceptance',
   RESOURCE_ASSIGNING: 'Assigning resources',
-  WAITING_OPERATOR_ACCEPTANCE: 'Waiting for operator',
-  SCHEDULED: 'Scheduled',
-  CONNECTED: 'Connected',
-  PREFLIGHT_CHECKING: 'Preflight check running',
-  READY_TO_FLY: 'Ready to fly',
+  WAITING_OPERATOR_ACCEPTANCE: 'Waiting for staff acceptance',
+  READY: 'Ready for inspector start',
+  SCHEDULED: 'Preparing for preflight',
+  CONNECTED: 'Connected to GCS',
+  PREFLIGHT_CHECKING: 'Running preflight checks',
+  READY_TO_FLY: 'Device ready to fly',
   FAILED_PREFLIGHT: 'Preflight check failed',
-  PENDING_APPROVAL: 'Pending manager review',
+  PENDING_APPROVAL: 'Waiting for approval',
   IN_FLIGHT: 'In flight',
-  IN_PROGRESS: 'In flight',
+  IN_PROGRESS: 'In progress',
   RETURNING: 'Returning',
-  POSTFLIGHT_CHECKING: 'Postflight check running',
-  PENDING_REVIEW: 'Awaiting inspection',
+  POSTFLIGHT_CHECKING: 'Running postflight checks',
+  AWAITING_REVIEW: 'Pending manager approval',
+  PENDING_REVIEW: 'Pending manager approval',
   COMPLETED: 'Completed',
   FAILED: 'Failed',
   CANCELLED: 'Cancelled',

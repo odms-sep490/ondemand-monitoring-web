@@ -1,5 +1,11 @@
 export type MissionDetailTab =
-  'result' | 'media' | 'checklist' | 'route' | 'order' | 'checks'
+  | 'result'
+  | 'media'
+  | 'checklist'
+  | 'route'
+  | 'order'
+  | 'resources'
+  | 'checks'
 
 export type NextStep = {
   tone: 'wait' | 'go' | 'done' | 'bad'

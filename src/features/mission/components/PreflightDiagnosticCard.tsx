@@ -1,4 +1,4 @@
-import type { PreflightCheck, FlightToken } from '../types/mission'
+import type { PreflightCheck } from '../types/mission'
 import { Button } from '../../../shared/components/Button'
 import { Icon } from '../../../shared/components/Icon'
 import { useI18n } from '../../../shared/i18n'
@@ -6,7 +6,6 @@ import { preflightDiagnosticCardMessages } from './PreflightDiagnosticCard.messa
 
 interface PreflightDiagnosticCardProps {
   check?: PreflightCheck | null
-  token?: FlightToken | null
   batteryLevel: number
   gpsSatellites: number
   isConnecting: boolean
@@ -17,7 +16,6 @@ interface PreflightDiagnosticCardProps {
 
 export function PreflightDiagnosticCard({
   check,
-  token,
   batteryLevel,
   gpsSatellites,
   isConnecting,
@@ -25,7 +23,7 @@ export function PreflightDiagnosticCard({
   onConnectGcs,
   isGcsConnected,
 }: PreflightDiagnosticCardProps) {
-  const { t, locale } = useI18n(preflightDiagnosticCardMessages)
+  const { t } = useI18n(preflightDiagnosticCardMessages)
   return (
     <div
       style={{
@@ -53,7 +51,7 @@ export function PreflightDiagnosticCard({
             className="eyebrow"
             style={{ margin: '0 0 4px', fontSize: '0.65rem' }}
           >
-            F3.2 DIGITAL PRE-FLIGHT DIAGNOSTICS GATE
+            {t.eyebrow}
           </p>
           <h3
             style={{
@@ -72,6 +70,7 @@ export function PreflightDiagnosticCard({
           variant="secondary"
           icon="radio"
           onClick={onConnectGcs}
+          disabled={isConnecting || isGcsConnected}
           style={{ minHeight: '40px', fontSize: '0.78rem' }}
         >
           {isGcsConnected ? t.gcsConnected : t.connectGcs}
@@ -256,7 +255,7 @@ export function PreflightDiagnosticCard({
           variant="primary"
           icon="activity"
           onClick={onRunPreflight}
-          disabled={isConnecting}
+          disabled={isConnecting || !isGcsConnected}
           style={{ minHeight: '46px', padding: '0 28px' }}
         >
           {isConnecting ? t.scanning : t.startPreflight}
@@ -292,66 +291,6 @@ export function PreflightDiagnosticCard({
         )}
       </div>
 
-      {/* Issued FlightToken Access Card */}
-      {token && !token.revoked && (
-        <div
-          style={{
-            marginTop: '24px',
-            padding: '20px 24px',
-            borderRadius: '14px',
-            background: 'linear-gradient(135deg, #0f172a 0%, #0369a1 100%)',
-            color: '#ffffff',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            boxShadow: 'var(--shadow-xl)',
-          }}
-        >
-          <div>
-            <span
-              style={{
-                fontSize: '0.65rem',
-                fontFamily: 'var(--mono)',
-                color: '#93c5fd',
-                letterSpacing: '0.12em',
-                fontWeight: 700,
-              }}
-            >
-              {t.tokenIssued}
-            </span>
-            <div
-              style={{
-                fontSize: '1.4rem',
-                fontFamily: 'var(--mono)',
-                fontWeight: 800,
-                letterSpacing: '0.08em',
-                margin: '6px 0 2px',
-              }}
-            >
-              {token.tokenValue}
-            </div>
-            <span style={{ fontSize: '0.68rem', color: '#cbd5e1' }}>
-              {t.tokenValidityPrefix}{' '}
-              {new Date(token.expiresAt).toLocaleTimeString(locale)}
-              {t.tokenValiditySuffix}
-            </span>
-          </div>
-
-          <span
-            style={{
-              padding: '6px 14px',
-              borderRadius: '20px',
-              background: 'rgba(255, 255, 255, 0.18)',
-              backdropFilter: 'blur(4px)',
-              fontSize: '0.75rem',
-              fontWeight: 700,
-              border: '1px solid rgba(255, 255, 255, 0.3)',
-            }}
-          >
-            {t.validReady}
-          </span>
-        </div>
-      )}
     </div>
   )
 }

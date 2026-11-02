@@ -6,6 +6,7 @@ import type {
 import type { MissionMediaProgress, MissionRow } from './types'
 
 const KNOWN: readonly MissionStatus[] = [
+  'PLANNING',
   'CREATED',
   'WAITING_DEPOSIT',
   'PENDING_PAYMENT',
@@ -19,17 +20,19 @@ const KNOWN: readonly MissionStatus[] = [
   'READY_TO_FLY',
   'FAILED_PREFLIGHT',
   'PENDING_APPROVAL',
-  'IN_FLIGHT',
   'IN_PROGRESS',
+  'IN_FLIGHT',
   'RETURNING',
   'POSTFLIGHT_CHECKING',
+  'AWAITING_REVIEW',
+  'PENDING_REVIEW',
   'COMPLETED',
   'FAILED',
   'CANCELLED',
 ]
 
 export function normalizeMissionStatus(value: string | null | undefined): MissionStatus {
-  return KNOWN.includes(value as MissionStatus) ? (value as MissionStatus) : 'CREATED'
+  return KNOWN.includes(value as MissionStatus) ? (value as MissionStatus) : 'PLANNING'
 }
 
 export function toMissionRow(dto: CustomerMissionHistory): MissionRow {

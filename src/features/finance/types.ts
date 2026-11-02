@@ -172,6 +172,8 @@ export type PricingBreakdown = {
   items: PricingBreakdownItem[]
 }
 
+export type DepositStatus = 'WAITING_DEPOSIT' | 'DEPOSIT_PAID'
+
 export type Invoice = {
   id: string
   invoiceNumber: string
@@ -183,6 +185,7 @@ export type Invoice = {
   remainingAmount: number
   status:
     'ISSUED' | 'PARTIALLY_PAID' | 'PAID' | 'OVERDUE' | 'CANCELLED' | 'REFUNDED'
+  depositStatus?: DepositStatus
   issuedAt: string
   finalPaymentAllowed: boolean
   depositExpiresAt?: string | null

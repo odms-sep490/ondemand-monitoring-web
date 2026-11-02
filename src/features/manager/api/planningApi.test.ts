@@ -9,20 +9,8 @@ import { missionsApi } from './missionsApi'
 
 afterEach(resetHttpTransport)
 describe('planning API contracts', () => {
-  it('preserves replacement relations in list/detail and authoritative safe-stop fields', async () => {
+  it('preserves replacement relations in list and detail', async () => {
     const replacement = { id: 'm2', replacesMissionId: 'm1' }
-    const capability = {
-      missionId: 'm2',
-      status: 'IN_PROGRESS',
-      requestedBy: 'manager',
-      reason: 'Weather',
-      confirmedBy: 'pilot',
-      confirmation: 'Landed',
-      canRequestSafeStop: false,
-      canConfirmSafeStop: false,
-      canCleanupSafeStop: true,
-      canCancelMission: false,
-    }
     const transport = vi
       .fn()
       .mockResolvedValueOnce(
@@ -31,13 +19,9 @@ describe('planning API contracts', () => {
       .mockResolvedValueOnce(
         new Response(JSON.stringify({ success: true, data: replacement })),
       )
-      .mockResolvedValueOnce(
-        new Response(JSON.stringify({ success: true, data: capability })),
-      )
     setHttpTransport(transport)
     expect(await planningApi.getOrderMissions('o')).toEqual([replacement])
     expect(await missionsApi.getMissionResponse('m2')).toEqual(replacement)
-    expect(await planningApi.getSafeStop('m2')).toEqual(capability)
     expect(
       transport.mock.calls.every(
         ([, options]) => !options.method || options.method === 'GET',
@@ -67,13 +51,6 @@ describe('planning API contracts', () => {
       expectedPlanRevision: 10,
       reason: 'Cancelled',
     })
-    await planningApi.requestSafeStop('mission-2', {
-      expectedPlanRevision: 10,
-      reason: 'Weather',
-    })
-    await planningApi.getSafeStop('mission-2')
-    await planningApi.confirmSafeStop('mission-2', 'Landed and disarmed')
-    await planningApi.cleanupSafeStop('mission-2')
     const calls = transport.mock.calls
     expect(calls[0][0]).toContain('/api/orders/order-1/missions')
     expect(calls[2][0]).toContain(
@@ -87,12 +64,8 @@ describe('planning API contracts', () => {
       expectedPlanRevision: 9,
       decompositionConfirmed: true,
     })
-    expect(JSON.parse(calls[9][1].body)).toEqual({
-      landedAndDisarmed: true,
-      controlSessionClosed: true,
-      confirmation: 'Landed and disarmed',
-    })
-    expect(calls[10][1].method).toBe('POST')
+    expect(calls[6][0]).toContain('/api/missions/mission-2/cancel')
+    expect(calls[6][1].method).toBe('POST')
   })
   it('propagates revision conflict and never retries mutation automatically', async () => {
     const transport = vi.fn().mockResolvedValue(

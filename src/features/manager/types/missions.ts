@@ -4,7 +4,6 @@
 // `mission_operator_assignment` tables [BRIEF §A6] where they overlap.
 import type { DroneStatus, MissionStatus } from '../../../shared/types/domain'
 import type { WaypointAction } from '../lib/waypoints'
-import type { MissionStopMetadata } from '../../mission/lib/missionOperationalState'
 
 // Re-exported for consumers of BE-aligned mission types that also need
 // DroneStatus (e.g. MissionResponse.droneCode pairs with a drone's status).
@@ -60,7 +59,7 @@ export type MissionMediaRequirement =
  * itself has no matching field — needed by MNG-04/05 but not present on
  * the backend DTO we read.
  */
-export type Mission = MissionStopMetadata & {
+export type Mission = {
   id: string
   orderId: string
   orderCode: string | null
@@ -206,7 +205,7 @@ export type PlanWaypointResponse = {
     | 'RETURN'
 }
 
-export type MissionResponse = MissionStopMetadata & {
+export type MissionResponse = {
   replacesMissionId?: string | null
   id: string
   orderId: string
@@ -291,6 +290,9 @@ export type MissionDeviceAssignmentResponse = {
   checkupStatus: 'PLANNING' | 'PENDING' | 'CHECKING' | 'PASSED' | 'FAILED'
   assignedAt: string | null
 }
+
+export type MissionResourcePrepareStatus =
+  'PLANNING' | 'PENDING' | 'READY' | 'CANCELLED'
 
 export type FlightTokenResponse = {
   id: string
@@ -417,7 +419,6 @@ export type PreflightCheckResponse = {
   storageOk: boolean
   weatherOk: boolean
   weatherNotes: string | null
-  flightToken: FlightTokenResponse | null
   checkedAt: string
 }
 

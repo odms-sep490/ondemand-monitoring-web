@@ -1,6 +1,6 @@
 // Offline mock for `GET /api/weather/forecast` (ApiResponse envelope, same DTO as the BE).
 // Deterministic by hour so every state can be seen without a backend:
-//   07:00-12:59 -> GOOD, 13:00-17:59 -> CAUTION, 18:00+ -> POOR (thunderstorm).
+//   Before 13:00 -> CAUTION (drizzle), 13:00-17:59 -> CAUTION, 18:00+ -> POOR (thunderstorm).
 // A date more than 16 days away answers FORECAST_NOT_AVAILABLE, like the real service.
 import type { WeatherForecast } from '../../features/customer/api/customerApi'
 import { fail, isRealApiRoute, ok, passThrough, registerMockRoutes } from '../mockServer'
@@ -61,8 +61,8 @@ registerMockRoutes([
                 temperatureC: 30, relativeHumidityPercent: 70,
                 precipitationProbabilityPercent: 10, precipitationMm: 0,
                 windSpeedKmh: 8, windGustKmh: 12, cloudCoverPercent: 25,
-                visibilityMeters: 24000, weatherCode: 1, weatherLabel: 'Ít mây',
-                suitability: 'GOOD', warnings: [],
+                visibilityMeters: 24000, weatherCode: 51, weatherLabel: 'Mưa phùn',
+                suitability: 'CAUTION', warnings: ['DRIZZLE'],
               }
       return ok(forecast)
     },

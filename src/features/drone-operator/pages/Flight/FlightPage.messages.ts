@@ -4,7 +4,7 @@ export const flightPageMessages = defineMessages({
   vi: {
     opening: 'Đang mở buồng lái...',
     backToMissions: 'Về Mission của tôi',
-    throughPreflight: 'Qua Preflight',
+    throughPreflight: 'Đến bước kiểm tra trước bay',
     loadMissionFailed: 'Không tải được mission',
     cockpitOpenFailed: 'Không mở được buồng lái',
     backToMission: 'Quay lại Mission',

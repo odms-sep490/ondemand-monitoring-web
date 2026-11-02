@@ -40,6 +40,8 @@ export function ReschedulePanel({
   const { t: fb } = useI18n(managerFeedbackMessages)
   const toast = useToast()
   const finished =
+    mission.status === 'AWAITING_REVIEW' ||
+    mission.status === 'PENDING_REVIEW' ||
     mission.status === 'COMPLETED' ||
     mission.status === 'FAILED' ||
     mission.status === 'CANCELLED'
@@ -62,7 +64,7 @@ export function ReschedulePanel({
   const rescheduleBlocked = fallback === 'CANCEL_ORDER'
   const needsCustomerConfirmation = fallback === 'CONTACT_CUSTOMER'
   const runtimeStarted = Boolean(
-    ['CONNECTED', 'PREFLIGHT_CHECKING', 'READY_TO_FLY', 'IN_FLIGHT', 'IN_PROGRESS', 'RETURNING', 'POSTFLIGHT_CHECKING', 'PENDING_REVIEW', 'COMPLETED', 'FAILED', 'CANCELLED']
+    ['CONNECTED', 'PREFLIGHT_CHECKING', 'READY_TO_FLY', 'IN_FLIGHT', 'IN_PROGRESS', 'RETURNING', 'POSTFLIGHT_CHECKING', 'AWAITING_REVIEW', 'PENDING_REVIEW', 'COMPLETED', 'FAILED', 'CANCELLED']
       .includes(mission.status),
   )
 

@@ -339,7 +339,8 @@ function UploadMediaContent({
         !queue.busy
       }
       canAssess={
-        monitoring.data?.permissions.canInspectDevice === true && !queue.busy
+        monitoring.data?.permissions.canAssessMonitoringChecklist === true &&
+        !queue.busy
       }
       canAttach={monitoring.data?.permissions.canAttachChecklistEvidence}
       canDetach={

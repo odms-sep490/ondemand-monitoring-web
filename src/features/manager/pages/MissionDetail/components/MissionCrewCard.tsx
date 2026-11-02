@@ -17,7 +17,7 @@ import type {
   MissionStaffAssignmentResponse,
 } from '../../../types/missions'
 
-/** A compact mission context row that keeps secondary operational detail available. */
+/** Mission and assigned-resource details shown in their own detail tab. */
 export function MissionCrewCard({
   rows,
   note,
@@ -39,38 +39,12 @@ export function MissionCrewCard({
 }) {
   const { t } = useI18n(missionDetailPageMessages)
   const { t: permit } = useI18n(flightPermitCardMessages)
-  const scheduledStart =
-    rows.find((row) => row.label === t.fields.scheduledStart)?.value ?? '—'
-  const scheduledEnd =
-    rows.find((row) => row.label === t.fields.scheduledEnd)?.value ?? '—'
 
   return (
-    <details className="mgr-md-context">
-      <summary className="mgr-md-context-summary">
-        <span className="mgr-md-context-title">{t.contextCard}</span>
-        <span className="mgr-md-context-meta">
-          <span>
-            {t.fields.schedule}: {scheduledStart} – {scheduledEnd}
-          </span>
-          <span>{deviceLabel}</span>
-          {staff.length > 0 ? (
-            <span>{t.crewAccepted(accepted, staff.length)}</span>
-          ) : null}
-          <StatusBadge
-            tone={
-              permitStatus === 'APPROVED'
-                ? 'success'
-                : permitStatus === 'REJECTED'
-                  ? 'danger'
-                  : 'warning'
-            }
-          >
-            {permit.statuses[permitStatus]}
-          </StatusBadge>
-        </span>
-        <span className="mgr-md-context-chevron" aria-hidden="true" />
-      </summary>
-
+    <section className="odm-or-card mgr-md-context" aria-label={t.contextCard}>
+      <header className="mgr-md-context-heading">
+        <h2 className="mgr-md-context-title">{t.contextCard}</h2>
+      </header>
       <div className="mgr-md-context-body">
         <section className="mgr-md-context-section mgr-md-context-info">
           <h2>{t.infoCard}</h2>
@@ -176,6 +150,6 @@ export function MissionCrewCard({
           </section>
         </div>
       </div>
-    </details>
+    </section>
   )
 }

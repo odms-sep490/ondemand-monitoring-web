@@ -135,15 +135,12 @@ registerMockRoutes([
     handler: ({ params, body }) => {
       const mission = missions.find((m) => m.id === params.id)
       if (!mission) return fail(404, 'NOT_FOUND', 'Mission not found')
-      const { token, gcsId } = (body ?? {}) as {
-        token?: string
+      const { gcsId } = (body ?? {}) as {
         gcsId?: string
       }
-      if (!token) return fail(400, 'TOKEN_REQUIRED', 'flight_token is required')
       if (!gcsId) return fail(400, 'GCS_REQUIRED', 'gcs_identifier is required')
       const connection: FlightConnection = {
         status: 'CONNECTED',
-        token,
         gcsId,
         connectedAt: new Date().toISOString(),
       }

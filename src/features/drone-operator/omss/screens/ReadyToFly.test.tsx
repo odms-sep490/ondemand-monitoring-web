@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { setLanguage } from '../../../../shared/i18n'
 import ReadyToFly from './ReadyToFly'
-import type { Drone, FlightToken, Mission } from '../../types/omss'
+import type { Drone, Mission } from '../../types/omss'
 
 const mission = {
   id: 'MS-1',
@@ -36,28 +36,19 @@ const drone = {
   storageMB: 100,
 } as Drone
 
-const token = {
-  token: 'TOKEN-1',
-  issuedAt: Date.now(),
-  expiresAt: Date.now() + 15 * 60_000,
-  missionId: 'MS-1',
-  droneId: 'DRN-1',
-} as FlightToken
-
 describe('ReadyToFly', () => {
   it('renders Vietnamese text by default', () => {
     render(
       <ReadyToFly
         mission={mission}
         drone={drone}
-        token={token}
         onStart={vi.fn()}
         onAbort={vi.fn()}
       />,
     )
     expect(
       screen.getByText(
-        'Mọi yêu cầu kiểm tra trước bay đã được đáp ứng. Xem lại và bắt đầu nhiệm vụ.',
+        'Precheck và bàn giao đã hoàn tất. Đang chờ staff nghiệm thu bắt đầu Mission.',
       ),
     ).toBeInTheDocument()
   })
@@ -67,7 +58,6 @@ describe('ReadyToFly', () => {
       <ReadyToFly
         mission={mission}
         drone={drone}
-        token={token}
         onStart={vi.fn()}
         onAbort={vi.fn()}
       />,
@@ -75,7 +65,7 @@ describe('ReadyToFly', () => {
     act(() => setLanguage('en'))
     expect(
       screen.getByText(
-        'All pre-flight requirements have been met. Review and start the mission.',
+        'Preflight and handover are complete. Waiting for the inspector to start the mission.',
       ),
     ).toBeInTheDocument()
   })

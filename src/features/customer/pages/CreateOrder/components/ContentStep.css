@@ -271,37 +271,6 @@
   margin-top: 0;
 }
 
-/* Keep the expanded instructions readable against the tinted checklist row. */
-.co-page .co-content-editor .checklist-row.is-compact .odm-cg-body {
-  gap: 8px;
-  padding: 10px 12px;
-  border-left-color: var(--ui-primary);
-  background: color-mix(in srgb, var(--ui-primary) 4%, var(--ui-surface));
-  color: var(--ui-text);
-}
-
-.co-page .co-content-editor .checklist-row.is-compact .odm-cg-body section + section {
-  padding-top: 7px;
-  border-top: 1px solid color-mix(in srgb, var(--ui-border-strong) 65%, transparent);
-}
-
-.co-page .co-content-editor .checklist-row.is-compact .odm-cg-body h4 {
-  margin-bottom: 3px;
-  color: var(--ui-text-2);
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 1.4;
-  opacity: 1;
-}
-
-.co-page .co-content-editor .checklist-row.is-compact .odm-cg-body p,
-.co-page .co-content-editor .checklist-row.is-compact .odm-cg-body ol,
-.co-page .co-content-editor .checklist-row.is-compact .odm-cg-body ul {
-  color: var(--ui-text);
-  font-size: 13px;
-  line-height: 1.55;
-}
-
 .co-page .co-content-editor .checklist-card.is-compact .checklist-row.is-compact {
   min-width: 0;
   padding: 0;

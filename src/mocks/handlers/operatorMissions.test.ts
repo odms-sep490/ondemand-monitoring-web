@@ -78,35 +78,21 @@ describe('POST /api/operator/missions/:id/reject', () => {
 })
 
 describe('POST /api/operator/missions/:id/connect', () => {
-  it('connects with a token and gcs id', async () => {
+  it('connects with a gcs id', async () => {
     const { status, payload } = await call(
       'POST',
       '/api/operator/missions/MSN-2609-0142-1/connect',
-      { token: 'K7F2-9QXM-D3TR', gcsId: 'DJI-RC-PLUS-7A31' },
+      { gcsId: 'DJI-RC-PLUS-7A31' },
     )
     expect(status).toBe(200)
     expect(payload.data.status).toBe('CONNECTED')
     expect(payload.data.connectedAt).toBeTruthy()
   })
 
-  it('requires a token', async () => {
-    const { status } = await call(
-      'POST',
-      '/api/operator/missions/MSN-2609-0142-1/connect',
-      {
-        gcsId: 'DJI-RC-PLUS-7A31',
-      },
-    )
-    expect(status).toBe(400)
-  })
-
   it('requires a gcsId', async () => {
     const { status } = await call(
       'POST',
       '/api/operator/missions/MSN-2609-0142-1/connect',
-      {
-        token: 'K7F2-9QXM-D3TR',
-      },
     )
     expect(status).toBe(400)
   })
@@ -115,10 +101,7 @@ describe('POST /api/operator/missions/:id/connect', () => {
     const { status } = await call(
       'POST',
       '/api/operator/missions/NOPE/connect',
-      {
-        token: 'x',
-        gcsId: 'y',
-      },
+      { gcsId: 'y' },
     )
     expect(status).toBe(404)
   })
@@ -135,7 +118,6 @@ describe('POST /api/operator/missions/:id/handover', () => {
 
   it('confirms handover after a successful connect', async () => {
     await call('POST', '/api/operator/missions/MSN-2609-0142-1/connect', {
-      token: 'K7F2-9QXM-D3TR',
       gcsId: 'DJI-RC-PLUS-7A31',
     })
     const { status, payload } = await call(

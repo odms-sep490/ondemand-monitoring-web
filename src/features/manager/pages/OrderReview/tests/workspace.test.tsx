@@ -150,13 +150,6 @@ beforeEach(() => {
   vi.spyOn(planningApi, 'getOrderMissions').mockImplementation(async () =>
     structuredClone(missions),
   )
-  vi.spyOn(planningApi, 'getSafeStop').mockImplementation(
-    async (missionId) =>
-      ({
-        missionId,
-        canCancelMission: false,
-      }) as Awaited<ReturnType<typeof planningApi.getSafeStop>>,
-  )
   vi.spyOn(planningApi, 'getAssignments').mockImplementation(async (id) => ({
     missionId: id,
     revision,

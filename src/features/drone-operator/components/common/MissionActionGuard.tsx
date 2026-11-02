@@ -85,7 +85,7 @@ export function MissionActionGuard({
         : undefined) ??
       (pilotOnOperatorStep
         ? lang === 'vi'
-          ? 'Bước này dành cho operator kết nối thiết bị, preflight và bàn giao. Pilot tiếp tục ở buồng lái sau khi operator bàn giao.'
+          ? 'Bước này dành cho nhân viên vận hành kết nối thiết bị, kiểm tra trước bay và bàn giao. Phi công tiếp tục ở buồng lái sau khi nhận bàn giao.'
           : 'This step is for the operator to connect the device, run preflight, and hand over. The pilot continues in the cockpit after handover.'
         : lang === 'vi'
           ? 'Bạn chưa được phân công hoặc chưa có quyền thực hiện thao tác này.'

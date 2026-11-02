@@ -89,10 +89,14 @@ export function usePostflightAssessment({
     setError(null)
 
     try {
-      if (activeData?.status === 'RETURNING') {
-        await missionApi.startPostflight(effectiveMissionId).catch(() => {
-          // Proceed if already in postflight checking state
-        })
+      const mainDeviceStatus = activeData?.deviceAssignments?.find(
+        (assignment) => assignment.deviceRole === 'MAIN',
+      )?.status
+      if (
+        mainDeviceStatus === 'RETURNING' ||
+        activeData?.status === 'RETURNING'
+      ) {
+        await missionApi.startPostflight(effectiveMissionId)
       }
 
       const getResult = (key: PostflightItemKey): 'PASS' | 'FAIL' =>

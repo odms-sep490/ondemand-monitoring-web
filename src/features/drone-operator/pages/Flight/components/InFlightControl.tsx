@@ -29,8 +29,6 @@ import { MissionControlCamera } from './MissionControlCamera'
 
 interface Props {
   normalFlightAllowed?: boolean
-  terminationAllowed?: boolean
-  operationalMessage?: string
   mission: Mission
   drone: Drone
   onRTB: () => void
@@ -44,8 +42,6 @@ interface Props {
 
 export default function InFlightControl({
   normalFlightAllowed = false,
-  terminationAllowed = false,
-  operationalMessage,
   mission,
   drone,
   onRTB,
@@ -112,9 +108,7 @@ export default function InFlightControl({
 
   const { sendCommand } = useFlightCommand({
     normalFlightAllowed,
-    terminationAllowed,
     setLastCommand,
-    operationalMessage,
     preflightReady,
     mission,
     controlStatus,
@@ -122,7 +116,6 @@ export default function InFlightControl({
     setBusyCommand,
     drone,
     setIsOnline,
-    onStartFlight,
     onRTB,
     onEmergency,
   })
@@ -184,14 +177,12 @@ export default function InFlightControl({
         mission={mission}
         controlStatus={controlStatus}
         isOnline={isOnline}
-        operationalMessage={operationalMessage}
         lastCommand={lastCommand}
         telemetryBattery={telemetryBattery}
         cameraTelemetry={cameraTelemetry}
         busyCommand={busyCommand}
         normalFlightAllowed={normalFlightAllowed}
         preflightReady={preflightReady}
-        terminationAllowed={terminationAllowed}
         referenceBusy={referenceBusy}
         handleCommand={handleCommand}
         handleReviewMedia={handleReviewMedia}
@@ -260,7 +251,6 @@ export default function InFlightControl({
           geofenceAlertActive={geofenceAlertActive}
           batteryState={batteryState}
           batteryDisplay={batteryDisplay}
-          operationalMessage={operationalMessage}
           lastCommand={lastCommand}
           geofenceTone={geofenceTone}
           geofenceStatus={geofenceStatus}
@@ -298,7 +288,6 @@ export default function InFlightControl({
         >
           <FlightControls
             canFly={normalFlightAllowed && preflightReady}
-            canTerminate={terminationAllowed}
             busyCommand={busyCommand}
             lidarDetailsOpen={lidarDetailsOpen}
             moreOpen={moreOpen}

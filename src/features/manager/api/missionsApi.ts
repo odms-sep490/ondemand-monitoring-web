@@ -33,10 +33,6 @@ export function toMissionCalendarItem(
     flightPermitFileName: source.flightPermitFileName ?? null,
     flightPermitContentType: source.flightPermitContentType ?? null,
     flightPermitDataUrl: source.flightPermitDataUrl ?? null,
-    safeStopStatus: source.safeStopStatus,
-    safeStopRequestedAt: source.safeStopRequestedAt,
-    safeStopConfirmedAt: source.safeStopConfirmedAt,
-    safeStopCleanedAt: source.safeStopCleanedAt,
     droneId: source.droneId ?? source.deviceId ?? null,
     operatorId: source.operatorId,
     droneAssignmentId: null,
@@ -313,14 +309,10 @@ export const missionsApi = {
     })
   },
 
-  /** `POST /api/missions/{id}/start?tokenValue=` [BE]. */
-  startMission(
-    missionId: string,
-    tokenValue: string,
-  ): Promise<MissionResponse> {
-    return apiRequest<MissionResponse>(`/api/missions/${missionId}/start`, {
+  /** `POST /api/missions/{id}/start-operation` [BE]. */
+  startMission(missionId: string): Promise<MissionResponse> {
+    return apiRequest<MissionResponse>(`/api/missions/${missionId}/start-operation`, {
       method: 'POST',
-      query: { tokenValue },
     })
   },
 

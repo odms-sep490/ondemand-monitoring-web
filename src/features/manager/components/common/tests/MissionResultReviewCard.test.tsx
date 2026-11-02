@@ -75,7 +75,7 @@ describe('Mission result review card', () => {
       within(review).getByText('Nhiệm vụ đã hoàn thành'),
     ).toBeInTheDocument()
     expect(
-      within(review).getByText('Danh mục kiểm tra đã sẵn sàng'),
+      within(review).getByText('Danh mục kiểm tra đủ điều kiện gửi kết quả'),
     ).toBeInTheDocument()
     expect(within(review).getByText('Có ảnh/video')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Duyệt kết quả' })).toBeEnabled()
@@ -103,7 +103,7 @@ describe('Mission result review card', () => {
       'Cần duyệt toàn bộ ảnh/video trước khi duyệt kết quả.',
     )
     expect(screen.getByText('Còn ảnh/video chưa được duyệt')).toBeInTheDocument()
-    expect(screen.getByText('Danh mục kiểm tra đã sẵn sàng')).toBeInTheDocument()
+    expect(screen.getByText('Danh mục kiểm tra đủ điều kiện gửi kết quả')).toBeInTheDocument()
     expect(
       screen.getByRole('button', { name: 'Từ chối kết quả' }),
     ).toBeEnabled()

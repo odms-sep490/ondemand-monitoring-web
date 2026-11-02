@@ -306,8 +306,6 @@
 
 .satellite-flight-controls button:hover:not(:disabled) { background: #eff6ff; }
 .satellite-flight-controls button:disabled { opacity: .45; cursor: not-allowed; }
-.satellite-flight-controls button.is-emergency { background: #9f1d29; }
-
 .satellite-flight-controls .satellite-flight-primary-action {
   min-width: min(260px, calc(100vw - 48px));
   padding: 12px 20px;
