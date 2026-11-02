@@ -16,8 +16,6 @@ export const operatorWorkspaceMessages = defineMessages({
       missionAcceptanceFailed: 'Nhận nhiệm vụ thất bại',
       missionRejectionFailed: 'Từ chối nhiệm vụ thất bại',
       gcsConnectionFailed: 'Ghi nhận kết nối GCS thất bại',
-      flightTokenExpired:
-        'Flight token bị thiếu hoặc đã hết hạn. Vui lòng chạy lại kiểm tra trước bay.',
       missionStartFailed: 'Bắt đầu nhiệm vụ thất bại',
       missionDroneChanged:
         'Drone của nhiệm vụ đã thay đổi. Kết nối lại GCS trước khi kiểm tra trước bay.',
@@ -48,8 +46,6 @@ export const operatorWorkspaceMessages = defineMessages({
       missionAcceptanceFailed: 'Mission acceptance failed',
       missionRejectionFailed: 'Mission rejection failed',
       gcsConnectionFailed: 'GCS connection registration failed',
-      flightTokenExpired:
-        'Flight token is missing or expired. Run preflight again.',
       missionStartFailed: 'Mission start failed',
       missionDroneChanged:
         'Mission drone assignment changed. Reconnect GCS before preflight.',

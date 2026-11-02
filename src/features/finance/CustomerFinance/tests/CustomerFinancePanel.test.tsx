@@ -32,6 +32,7 @@ const invoice: Invoice = {
   paidAmount: 0,
   remainingAmount: 5_000_000,
   status: 'ISSUED',
+  depositStatus: 'WAITING_DEPOSIT',
   issuedAt: '2026-10-06T08:00:00Z',
   finalPaymentAllowed: false,
 }

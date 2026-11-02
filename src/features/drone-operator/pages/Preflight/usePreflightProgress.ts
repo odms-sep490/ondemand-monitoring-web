@@ -2,7 +2,6 @@ import { useMemo } from 'react'
 import { mapRuntimeToItems, isMissionInFlight } from './preflightHelpers'
 import type {
   RuntimePreflightStatus,
-  WeatherPreflightStatus,
   PersistedPreflightStatus,
 } from './preflightTypes'
 import type { PreflightItemDef } from './components/PreflightItem'
@@ -10,8 +9,6 @@ import type { PreflightItemDef } from './components/PreflightItem'
 export function usePreflightProgress({
   runtimeStatus,
   ALL_ITEMS,
-  weatherStatus,
-  persistedWeatherPassed,
   persistedPreflightStatus,
   checkId,
   triggering,
@@ -19,8 +16,6 @@ export function usePreflightProgress({
 }: {
   runtimeStatus: RuntimePreflightStatus | null
   ALL_ITEMS: PreflightItemDef[]
-  weatherStatus: WeatherPreflightStatus | null
-  persistedWeatherPassed: boolean
   persistedPreflightStatus: PersistedPreflightStatus | null
   checkId: string | null
   triggering: boolean
@@ -38,12 +33,7 @@ export function usePreflightProgress({
     (item) => itemStates[item.key]?.result === 'fail',
   )
   const runtimeItemsReady = nOk === nTotal && failedItems.length === 0
-  const weatherReady =
-    weatherStatus?.status === 'PASS' ||
-    weatherStatus?.status === 'WARN' ||
-    persistedWeatherPassed
-  const isReady =
-    runtimeItemsReady && weatherReady && persistedPreflightStatus === 'PASSED'
+  const isReady = runtimeItemsReady && persistedPreflightStatus === 'PASSED'
   const progress = runtimeStatus?.progress ?? 0
   // A persisted run is loaded into runtimeStatus when the page opens. It is
   // only a snapshot, not an actively running controller check. Treating every
@@ -55,8 +45,7 @@ export function usePreflightProgress({
   const isAlreadyInFlight = isMissionInFlight(missionStatus)
   const isFailed =
     runtimeStatus?.status === 'FAILED' ||
-    persistedPreflightStatus === 'FAILED' ||
-    weatherStatus?.status === 'FAIL'
+    persistedPreflightStatus === 'FAILED'
   return {
     itemStates,
     nOk,

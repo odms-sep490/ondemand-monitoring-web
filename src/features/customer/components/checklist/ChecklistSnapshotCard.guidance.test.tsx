@@ -28,8 +28,9 @@ describe('published order guidance', () => {
     ])
       expect(screen.getByText(text)).toBeInTheDocument()
     expect(screen.queryByRole('textbox')).toBeNull()
-    expect(container.querySelectorAll('details')).toHaveLength(1)
-    expect(container.querySelector('.odm-cg-static')).not.toBeNull()
+    expect(container.querySelectorAll('details')).toHaveLength(2)
+    expect(container.querySelector('.odm-cg-static')).toBeNull()
+    expect(screen.getByText('Chi tiết thực hiện')).toBeInTheDocument()
   })
 
   it('keeps the custom empty-guidance notice inside the parent accordion', () => {

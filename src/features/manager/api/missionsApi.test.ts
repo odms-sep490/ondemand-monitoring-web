@@ -243,6 +243,6 @@ describe('mission staff assignment contract', () => {
       return Response.json({ success: true, data: { id: 'mission-1' } })
     })
     await missionsApi.assignOperator('mission-1', 'staff-1')
-    expect(submitted).toEqual({ staffId: 'staff-1', assignedRole: 'PILOT' })
+    expect(submitted).toEqual({ staffId: 'staff-1', assignedRoles: ['PILOT'] })
   })
 })

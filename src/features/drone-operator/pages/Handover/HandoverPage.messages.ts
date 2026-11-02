@@ -13,6 +13,8 @@ export const handoverPageMessages = defineMessages({
     noDroneAssignedError: 'Chọn mission đã gán thiết bị trước khi tiếp tục',
     precheckRequiredError:
       'Vui lòng chạy precheck thành công trước khi bàn giao',
+    crewAcceptanceRequired:
+      'Mission chỉ sẵn sàng bàn giao sau khi toàn bộ staff đã chấp nhận.',
     confirmFailed: 'Không xác nhận được cam kết',
     stepTitle: 'Bàn giao quyền điều khiển',
     commitmentTitle: 'Xác nhận bàn giao sau preflight',
@@ -22,7 +24,7 @@ export const handoverPageMessages = defineMessages({
     processing: 'Đang xử lý...',
     confirmHandover: 'Xác nhận bàn giao',
     confirmLockedNote:
-      'Nút xác nhận bị khoá đến khi bạn tick đủ 4 cam kết. Nếu bạn kiêm pilot, hệ thống sẽ chuyển thẳng sang buồng lái sau khi xác nhận.',
+      'Precheck phải đạt và bạn cần tick đủ 4 cam kết. Sau bàn giao, nghiệm thu sẽ bấm Start Mission.',
     connectedAt:
       'Đã kết nối GCS DJI-RC-PLUS-7A31 lúc 13:26:41 · telemetry hoạt động',
     connected: 'Đã kết nối',
@@ -40,6 +42,8 @@ export const handoverPageMessages = defineMessages({
       'Select a mission with an assigned device before continuing',
     precheckRequiredError:
       'Please run the precheck successfully before the handover',
+    crewAcceptanceRequired:
+      'The mission is ready for handover only after every assigned staff member accepts.',
     confirmFailed: 'Could not confirm the commitments',
     stepTitle: 'Control handover',
     commitmentTitle: 'Post-preflight handover confirmation',
@@ -49,7 +53,7 @@ export const handoverPageMessages = defineMessages({
     processing: 'Processing...',
     confirmHandover: 'Confirm handover',
     confirmLockedNote:
-      'The confirm button stays locked until all 4 commitments are checked. If you also have the pilot role, you will go straight to the cockpit after confirmation.',
+      'Preflight must pass and all 4 commitments must be checked. The inspector starts the Mission after handover.',
     connectedAt:
       'Connected to GCS DJI-RC-PLUS-7A31 at 13:26:41 · telemetry active',
     connected: 'Connected',

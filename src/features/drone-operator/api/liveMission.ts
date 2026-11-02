@@ -1,8 +1,33 @@
 import type { Drone, Mission } from '../types/omss'
 import type { OperatorMission, OperatorMissionStatus } from '../types/mission'
-import type { MissionStopMetadata } from '../../mission/lib/missionOperationalState'
+import type { MissionDeviceAssignmentStatus } from '../../mission/types/mission'
 
-export type BackendMission = MissionStopMetadata & {
+const KNOWN_MISSION_STATUSES = new Set([
+  'PLANNING',
+  'PENDING_PAYMENT',
+  'PENDING_CONFIRMATION',
+  'READY',
+  'SCHEDULED',
+  'IN_PROGRESS',
+  'AWAITING_REVIEW',
+  'PENDING_REVIEW',
+  'COMPLETED',
+  'FAILED',
+  'CANCELLED',
+  'CREATED',
+  'RESOURCE_ASSIGNING',
+  'WAITING_OPERATOR_ACCEPTANCE',
+  'CONNECTED',
+  'PREFLIGHT_CHECKING',
+  'READY_TO_FLY',
+  'FAILED_PREFLIGHT',
+  'PENDING_APPROVAL',
+  'IN_FLIGHT',
+  'RETURNING',
+  'POSTFLIGHT_CHECKING',
+])
+
+export type BackendMission = {
   id: string
   missionCode?: string | null
   orderId?: string | null
@@ -35,6 +60,12 @@ export type BackendMission = MissionStopMetadata & {
     assignedRole?:
       'PILOT' | 'OPERATOR' | 'MAINTAINER' | 'INSPECTOR' | string | null
     responseStatus?: 'PENDING' | 'ACCEPTED' | 'REJECTED' | string | null
+  }>
+  deviceAssignments?: Array<{
+    deviceId?: string | null
+    deviceRole?: string | null
+    status?: MissionDeviceAssignmentStatus | null
+    checkupStatus?: string | null
   }>
   latitude?: number | null
   longitude?: number | null
@@ -129,48 +160,23 @@ function localDateAndTime(iso?: string | null) {
   }
 }
 
-function operatorStatus(status: string): OperatorMissionStatus {
-  if (status === 'READY') return 'PENDING'
-  if (status === 'WAITING_OPERATOR_ACCEPTANCE') return 'PENDING'
-  if (
-    status === 'IN_FLIGHT' ||
-    status === 'IN_PROGRESS' ||
-    status === 'RETURNING'
-  )
-    return 'IN_FLIGHT'
-  if (status === 'COMPLETED') return 'COMPLETED'
-  if (status === 'FAILED' || status === 'CANCELLED') return 'FAILED'
-  if (status === 'RESOURCE_ASSIGNING') return 'REJECTED'
-  const remainingStatuses = [
-    'PLANNING',
-    'CREATED',
-    'WAITING_DEPOSIT',
-    'READY',
-    'RESOURCE_ASSIGNING',
-    'SCHEDULED',
-    'CONNECTED',
-    'PREFLIGHT_CHECKING',
-    'READY_TO_FLY',
-    'FAILED_PREFLIGHT',
-    'PENDING_APPROVAL',
-    'POSTFLIGHT_CHECKING',
-    'PENDING_REVIEW',
-  ] as const
-  return remainingStatuses.find((value) => value === status) ?? 'UNKNOWN'
-}
-
-function operatorStatusForAssignment(
-  status: string,
+function operatorStatusForCrewResponse(
+  missionStatus: string,
   responseStatus?: string | null,
 ): OperatorMissionStatus {
-  if (responseStatus === 'ACCEPTED') {
-    return operatorStatus(status) === 'PENDING'
-      ? 'ACCEPTED'
-      : operatorStatus(status)
+  // Payment activates crew acceptance. Keep each operator's response separate
+  // from the mission lifecycle while the mission awaits confirmation.
+  if (
+    missionStatus === 'PENDING_CONFIRMATION' ||
+    missionStatus === 'PLANNING' ||
+    missionStatus === 'READY'
+  ) {
+    if (responseStatus === 'ACCEPTED') return 'ACCEPTED'
+    if (responseStatus === 'REJECTED') return 'REJECTED'
+    if (responseStatus === 'PENDING') return 'PENDING'
   }
-  if (responseStatus === 'REJECTED') return 'REJECTED'
-  if (responseStatus === 'PENDING' && status === 'READY') return 'PENDING'
-  return operatorStatus(status)
+  if (!KNOWN_MISSION_STATUSES.has(missionStatus)) return 'UNKNOWN'
+  return missionStatus as OperatorMissionStatus
 }
 
 export function toOperatorMission(
@@ -194,15 +200,14 @@ export function toOperatorMission(
         (assignment) => assignment.staffId === currentUserId,
       )?.responseStatus
     : undefined
+  const currentMainDevice = source.deviceAssignments?.find(
+    (assignment) => assignment.deviceRole === 'MAIN',
+  )
   return {
     id: source.id,
     missionCode: source.missionCode ?? source.id,
     backendStatus: source.status,
-    safeStopStatus: source.safeStopStatus,
-    safeStopRequestedAt: source.safeStopRequestedAt,
-    safeStopConfirmedAt: source.safeStopConfirmedAt,
-    safeStopCleanedAt: source.safeStopCleanedAt,
-    status: operatorStatusForAssignment(source.status, myResponseStatus),
+    status: operatorStatusForCrewResponse(source.status, myResponseStatus),
     myResponseStatus:
       myResponseStatus === 'ACCEPTED' || myResponseStatus === 'REJECTED'
         ? myResponseStatus
@@ -223,6 +228,10 @@ export function toOperatorMission(
     deviceCode: source.deviceCode ?? null,
     deviceSerialNumber: source.deviceSerialNumber ?? null,
     deviceStatus: source.deviceStatus ?? null,
+    deviceAssignmentStatus: currentMainDevice?.status ?? null,
+    deviceCheckStatus: (currentMainDevice?.checkupStatus as
+      | OperatorMission['deviceCheckStatus']
+      | undefined) ?? null,
     deviceModelCode: source.deviceModelCode ?? null,
     deviceManufacturer: source.deviceManufacturer ?? null,
     droneCode: source.droneCode ?? source.deviceCode ?? source.deviceId ?? null,
@@ -334,7 +343,12 @@ export function toFlightDrone(source: BackendMission): Drone {
     name,
     model: source.deviceModelName ?? 'Assigned mission device',
     serialNumber: source.deviceSerialNumber ?? '',
-    state: source.status === 'IN_FLIGHT' ? 'ACTIVE_MISSION' : 'PREFLIGHT',
+    state:
+      source.deviceStatus === 'ACTIVE_MISSION' ||
+      source.status === 'IN_FLIGHT' ||
+      source.status === 'IN_PROGRESS'
+        ? 'ACTIVE_MISSION'
+        : 'PREFLIGHT',
     battery: 0,
     gpsCount: 0,
     gpsHdop: 0,

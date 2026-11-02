@@ -61,6 +61,7 @@ const invoice: Invoice = {
   paidAmount: 300,
   remainingAmount: 700,
   status: 'PARTIALLY_PAID',
+  depositStatus: 'DEPOSIT_PAID',
   issuedAt: '2026-10-30T03:00:00Z',
   finalPaymentAllowed: true,
 }

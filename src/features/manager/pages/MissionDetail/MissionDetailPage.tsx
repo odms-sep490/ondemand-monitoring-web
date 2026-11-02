@@ -137,17 +137,6 @@ function MissionDetail({ missionId }: { missionId: string }) {
 
       <MissionKpis kpis={kpis} />
 
-      <MissionCrewCard
-        rows={rows}
-        note={note}
-        staff={staff}
-        accepted={accepted}
-        deviceCode={deviceCode}
-        deviceLabel={deviceLabel}
-        permitStatus={mission.flightPermitStatus ?? 'NOT_REQUESTED'}
-        permitNote={mission.flightPermitNote}
-      />
-
       <div className="mgr-md-workbench">
         <MissionDetailTabs
           tabs={tabs}
@@ -198,6 +187,19 @@ function MissionDetail({ missionId }: { missionId: string }) {
                 <MgrEmptyState title={t.loadError} />
               </CardComponent>
             )
+          ) : null}
+
+          {activeTab === 'resources' ? (
+            <MissionCrewCard
+              rows={rows}
+              note={note}
+              staff={staff}
+              accepted={accepted}
+              deviceCode={deviceCode}
+              deviceLabel={deviceLabel}
+              permitStatus={mission.flightPermitStatus ?? 'NOT_REQUESTED'}
+              permitNote={mission.flightPermitNote}
+            />
           ) : null}
 
           {activeTab === 'checks' ? (

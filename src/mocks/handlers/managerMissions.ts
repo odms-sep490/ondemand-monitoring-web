@@ -651,9 +651,8 @@ registerMockRoutes([
       return ok(response)
     },
   },
-  // `/assign-device` is the current BE contract (JSON body); `/assign-drone`
-  // is the legacy query-string form kept for older callers.
-  ...['/api/missions/:id/assign-device', '/api/missions/:id/assign-drone'].map(
+  // Keep the mock aligned with MissionController's resource assignment routes.
+  ...['/api/missions/:id/device-assignments'].map(
     (path) => ({
     method: 'POST' as const,
     path,
@@ -693,8 +692,7 @@ registerMockRoutes([
     },
     }),
   ),
-  // `/assign-staff` is the current BE contract; `/assign-operator` is legacy.
-  ...['/api/missions/:id/assign-staff', '/api/missions/:id/assign-operator'].map(
+  ...['/api/missions/:id/staff-assignments'].map(
     (path) => ({
     method: 'POST' as const,
     path,

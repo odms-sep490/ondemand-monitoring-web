@@ -16,9 +16,7 @@ import type {
 import { Icon } from '../../../../../shared/components/Icon'
 import {
   readStoredPreflightState,
-  readStoredWeatherState,
   fetchPersistedPreflight,
-  fetchLatestWeatherCheck,
   fetchLatestPostflightCheck,
 } from '../checkData'
 import { isAwaitingResponse } from '../missionResponse'
@@ -42,6 +40,8 @@ type MissionTab = 'overview' | 'checklist' | 'checks' | 'media'
 export function MissionDashboard({
   mission,
   submitting,
+  weatherStatus,
+  weatherLoading,
   actionError,
   access,
   responseAccessLoading = false,
@@ -53,10 +53,14 @@ export function MissionDashboard({
   mediaRevision,
   onAccept,
   onStartWorkflow,
+  onAcceptWeather,
+  onCancelMission,
   onOpenReject,
 }: {
   mission: OperatorMission
   submitting: boolean
+  weatherStatus: WeatherPreflightStatus | null
+  weatherLoading: boolean
   actionError: string | null
   access?: MissionPermissions
   responseAccessLoading?: boolean
@@ -68,6 +72,8 @@ export function MissionDashboard({
   mediaRevision: number
   onAccept: () => void
   onStartWorkflow: () => void
+  onAcceptWeather: () => void
+  onCancelMission: () => void
   onOpenReject: () => void
 }) {
   const { t } = useI18n(missionDetailPageMessages)
@@ -75,10 +81,6 @@ export function MissionDashboard({
   const [preflightStatus, setPreflightStatus] =
     useState<RuntimePreflightStatus | null>(() =>
       readStoredPreflightState(mission.id, deviceId),
-    )
-  const [weatherStatus, setWeatherStatus] =
-    useState<WeatherPreflightStatus | null>(() =>
-      readStoredWeatherState(mission.id, deviceId),
     )
   const [postflightStatus, setPostflightStatus] =
     useState<PostflightCheckStatus | null>(null)
@@ -88,7 +90,8 @@ export function MissionDashboard({
     access?.canInspectDevice === true ||
     access?.canUploadMedia === true ||
     mission.status === 'COMPLETED' ||
-    mission.backendStatus === 'PENDING_REVIEW'
+    (mission.backendStatus === 'AWAITING_REVIEW' ||
+      mission.backendStatus === 'PENDING_REVIEW')
   const tabs: Array<{ id: MissionTab; label: string }> = [
     { id: 'overview', label: 'Tổng quan' },
     { id: 'checklist', label: 'Checklist' },
@@ -122,7 +125,6 @@ export function MissionDashboard({
 
   useEffect(() => {
     setPreflightStatus(readStoredPreflightState(mission.id, deviceId))
-    setWeatherStatus(readStoredWeatherState(mission.id, deviceId))
     setPostflightStatus(null)
     const controller = new AbortController()
     fetchPersistedPreflight(mission.id, controller.signal)
@@ -131,13 +133,6 @@ export function MissionDashboard({
       })
       .catch(() => {
         // Local precheck cache is still shown if backend history is unavailable.
-      })
-    fetchLatestWeatherCheck(mission.id, controller.signal)
-      .then((status) => {
-        if (status) setWeatherStatus(status)
-      })
-      .catch(() => {
-        // Local weather cache is still shown if backend history is unavailable.
       })
     fetchLatestPostflightCheck(mission.id, controller.signal)
       .then((status) => {
@@ -241,10 +236,30 @@ export function MissionDashboard({
         mission={mission}
         access={access}
         submitting={submitting}
+        weatherStatus={weatherStatus}
+        weatherLoading={weatherLoading}
         onStartWorkflow={onStartWorkflow}
       />
 
       {resultActions}
+
+      {access?.canStartMission === true ? (
+        <div className="mds-weather-review">
+          <WeatherCard
+            weather={weatherStatus}
+            loading={weatherLoading}
+            reviewMode
+            canCheckWeather
+            checkingWeather={submitting}
+            onCheckWeather={onStartWorkflow}
+            canCancelMission={access?.canCancelMission === true}
+            onCancelMission={onCancelMission}
+            canApproveWeather
+            approvingWeather={submitting}
+            onApproveWeather={onAcceptWeather}
+          />
+        </div>
+      ) : null}
 
       {actionError ? (
         <div
@@ -312,13 +327,15 @@ export function MissionDashboard({
         ) : null}
 
         {tab === 'checks' ? (
-          <div className="mds-tab-grid">
+          <div className="mds-tab-grid mds-checks-grid">
             <div className="mds-col">
               <PrecheckCard
                 preflight={preflightStatus}
                 weather={weatherStatus}
               />
-              <WeatherCard weather={weatherStatus} />
+              {access?.canStartMission !== true ? (
+                <WeatherCard weather={weatherStatus} loading={weatherLoading} />
+              ) : null}
             </div>
             <div className="mds-col">
               <PostcheckCard postflight={postflightStatus} />

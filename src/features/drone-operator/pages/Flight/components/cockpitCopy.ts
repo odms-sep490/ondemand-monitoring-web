@@ -53,9 +53,6 @@ export const copy = {
     landSub: 'Xuống an toàn',
     finishFlight: 'Hoàn thành bay',
     finishFlightSub: 'Chuyển postcheck',
-    emergency: 'Dừng khẩn cấp',
-    emergencySub: 'Ngắt động cơ ngay lập tức',
-    emergencyConfirm: 'Bấm lần nữa để xác nhận',
   },
   en: {
     brand: 'Flight cockpit',
@@ -111,8 +108,5 @@ export const copy = {
     landSub: 'Safe descent',
     finishFlight: 'Finish flight',
     finishFlightSub: 'Move to postcheck',
-    emergency: 'Emergency stop',
-    emergencySub: 'Cut motors immediately',
-    emergencyConfirm: 'Press again to confirm',
   },
 }

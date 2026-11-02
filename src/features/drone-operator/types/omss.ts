@@ -1,5 +1,7 @@
 export type MissionState =
-  | 'WAITING_DEPOSIT'
+  | 'PLANNING'
+  | 'PENDING_PAYMENT'
+  | 'PENDING_CONFIRMATION'
   | 'READY'
   | 'WAITING_OPERATOR_ACCEPTANCE'
   | 'RESOURCE_ASSIGNING'
@@ -66,6 +68,18 @@ export interface Mission {
   state: MissionState
   priority: 'LOW' | 'NORMAL' | 'HIGH' | 'CRITICAL'
   droneId: string
+  deviceAssignmentStatus?:
+    | 'ASSIGNED'
+    | 'CONNECTED'
+    | 'CONNECTION_LOST'
+    | 'PREFLIGHT_CHECKING'
+    | 'READY_TO_FLY'
+    | 'IN_PROGRESS'
+    | 'RETURNING'
+    | 'POSTFLIGHT_CHECKING'
+    | 'COMPLETED'
+    | 'FAILED'
+    | 'RELEASED'
   droneCode?: string
   droneName?: string
   operatorId: string
@@ -107,14 +121,6 @@ export interface MissionRoutePoint {
   altitudeM: number
   speedMps?: number
   reason: string
-}
-
-export interface FlightToken {
-  token: string
-  issuedAt: number
-  expiresAt: number
-  missionId: string
-  droneId: string
 }
 
 export type Role = 'operator' | 'customer' | 'manager' | 'sysop' | 'admin'

@@ -6,6 +6,7 @@ import {
   MANUAL_FALLBACK_PREFLIGHT_KEYS,
   MANUAL_PREFLIGHT_KEYS,
 } from '../preflightConstants'
+import './PreflightChecklist.css'
 
 export function PreflightGroupList({
   RUNTIME_GROUPS,
@@ -25,30 +26,11 @@ export function PreflightGroupList({
   updatingItem: string | null
 }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+    <div className="preflight-group-list">
       {RUNTIME_GROUPS.map((group) => (
-        <div
-          key={group.title}
-          style={{ display: 'flex', flexDirection: 'column', gap: 8 }}
-        >
-          <div
-            style={{
-              fontWeight: 700,
-              fontSize: 12.5,
-              color: 'var(--tx2)',
-              textTransform: 'uppercase',
-              letterSpacing: '.04em',
-            }}
-          >
-            {group.title}
-          </div>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-              gap: 10,
-            }}
-          >
+        <div key={group.title} className="preflight-group-list__group">
+          <div className="preflight-group-list__title">{group.title}</div>
+          <div className="preflight-group-list__items">
             {group.items.map((def) => (
               <RuntimePreflightItemRow
                 key={def.key}

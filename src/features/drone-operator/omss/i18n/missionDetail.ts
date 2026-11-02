@@ -4,6 +4,9 @@ export const missionDetailMessages = defineMessages({
   vi: {
     myMissions: 'Nhiệm vụ của tôi',
     startFlight: 'Bắt đầu bay',
+    startMission: 'Bắt đầu Mission',
+    openCockpit: 'Mở buồng lái',
+    resumePreflight: 'Tiếp tục precheck',
     connectGcs: 'Kết nối GCS',
     reconnectGcs: 'Kết nối lại GCS',
     reject: 'Từ chối',
@@ -57,6 +60,9 @@ export const missionDetailMessages = defineMessages({
   en: {
     myMissions: 'My missions',
     startFlight: 'Start flight',
+    startMission: 'Start Mission',
+    openCockpit: 'Open cockpit',
+    resumePreflight: 'Continue preflight',
     connectGcs: 'Connect GCS',
     reconnectGcs: 'Reconnect GCS',
     reject: 'Reject',

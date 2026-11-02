@@ -14,13 +14,14 @@ export const STATUS_TONE = {
 } as const
 
 export const STATUS_LABEL: Record<string, string> = {
-  PLANNING: 'Đang lập kế hoạch',
+  PLANNING: 'Đang chuẩn bị trước bay',
   CREATED: 'Đã tạo Mission',
-  WAITING_DEPOSIT: 'Chờ xác nhận đặt cọc',
-  READY: 'Sẵn sàng phân công',
+  PENDING_PAYMENT: 'Chờ khách hàng thanh toán',
+  PENDING_CONFIRMATION: 'Chờ phi hành đoàn xác nhận',
+  READY: 'Sẵn sàng chờ nghiệm thu',
   RESOURCE_ASSIGNING: 'Đang phân công nguồn lực',
   WAITING_OPERATOR_ACCEPTANCE: 'Chờ người vận hành xác nhận',
-  SCHEDULED: 'Đã bắt đầu Mission',
+  SCHEDULED: 'Đang chuẩn bị trước bay',
   CONNECTED: 'Đã kết nối thiết bị',
   PREFLIGHT_CHECKING: 'Đang kiểm tra trước bay',
   FAILED_PREFLIGHT: 'Kiểm tra trước bay không đạt',
@@ -28,12 +29,13 @@ export const STATUS_LABEL: Record<string, string> = {
   IN_PROGRESS: 'Đang thực hiện',
   RETURNING: 'Đang trở về',
   POSTFLIGHT_CHECKING: 'Đang kiểm tra sau bay',
-  PENDING_REVIEW: 'Chờ nghiệm thu',
+  AWAITING_REVIEW: 'Đã gửi Manager, chờ duyệt',
+  PENDING_REVIEW: 'Đã gửi Manager, chờ duyệt',
   PENDING_APPROVAL: 'Chờ Manager xử lý',
   CANCELLED: 'Đã hủy',
   UNKNOWN: 'Trạng thái chưa hỗ trợ',
   PENDING: 'Chờ phản hồi',
-  ACCEPTED: 'Đã nhận',
+  ACCEPTED: 'Đã chấp nhận',
   IN_FLIGHT: 'Đang bay',
   COMPLETED: 'Hoàn thành',
   REJECTED: 'Bị từ chối',
@@ -41,7 +43,7 @@ export const STATUS_LABEL: Record<string, string> = {
 }
 
 export const GCS_CONNECTED_STATUSES = new Set([
-  'PENDING_REVIEW',
+  'AWAITING_REVIEW',
   'CONNECTED',
   'PREFLIGHT_CHECKING',
   'READY_TO_FLY',
@@ -53,6 +55,7 @@ export const GCS_CONNECTED_STATUSES = new Set([
 ])
 
 export const INSPECTION_MEDIA_STATUSES = new Set([
+  'AWAITING_REVIEW',
   'PENDING_REVIEW',
   'RETURNING',
   'POSTFLIGHT_CHECKING',

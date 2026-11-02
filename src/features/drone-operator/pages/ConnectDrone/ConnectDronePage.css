@@ -1,0 +1,284 @@
+.connect-drone-page {
+  margin-bottom: 0;
+  overflow: hidden;
+}
+
+.connect-drone-page__body {
+  padding: clamp(1rem, 1rem + 0.3vw, 1.375rem);
+}
+
+.connect-drone-page__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(18rem, 0.85fr);
+  align-items: start;
+  gap: 18px;
+}
+
+.connect-drone-page__primary,
+.connect-status-panel {
+  display: grid;
+  min-width: 0;
+  align-content: start;
+  gap: 14px;
+}
+
+.connect-mission-summary__body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 18px;
+}
+
+.connect-mission-summary__header,
+.connect-status-panel__heading,
+.connect-status-panel__telemetry-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.connect-mission-summary__code {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.connect-mission-summary__title {
+  margin: 0;
+  color: var(--tx);
+  font-size: 16px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.connect-mission-summary__details {
+  display: grid;
+  margin: 0;
+}
+
+.connect-mission-summary__details > div {
+  display: grid;
+  grid-template-columns: minmax(76px, 0.42fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 12px;
+  padding: 8px 0;
+  border-top: 1px solid var(--bd);
+}
+
+.connect-mission-summary__details dt {
+  color: var(--tx3);
+  font-size: 12.5px;
+}
+
+.connect-mission-summary__details dd {
+  min-width: 0;
+  margin: 0;
+  color: var(--tx);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.connect-drone-form {
+  display: grid;
+  min-width: 0;
+  gap: 8px;
+}
+
+.connect-drone-form__body {
+  padding: 18px;
+}
+
+.connect-step-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 12px;
+  color: var(--tx);
+  font-size: 15.5px;
+  line-height: 1.35;
+}
+
+.connect-step-title__number {
+  display: inline-flex;
+  width: 30px;
+  height: 30px;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--inkfg);
+  font-size: 12.5px;
+}
+
+.connect-step-title__text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.connect-drone-form__controls {
+  display: flex;
+  min-width: 0;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.connect-drone-form__select {
+  min-width: 0;
+  height: 44px;
+  flex: 1 1 auto;
+}
+
+.connect-drone-form__button {
+  min-width: 150px;
+  min-height: 44px;
+  white-space: nowrap;
+}
+
+.connect-drone-form__note {
+  margin: 0;
+  color: var(--tx3);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.connect-status-panel__body {
+  padding: 16px 18px;
+}
+
+.connect-status-panel__heading h2 {
+  min-width: 0;
+  margin: 0;
+  color: var(--tx);
+  font-size: 14.5px;
+  line-height: 1.35;
+}
+
+.connect-status-list {
+  display: grid;
+  gap: 6px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.connect-status-item {
+  display: flex;
+  min-height: 36px;
+  align-items: center;
+  gap: 10px;
+  color: var(--tx3);
+}
+
+.connect-status-item__marker {
+  display: inline-flex;
+  width: 28px;
+  height: 28px;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--gray-bg);
+  color: var(--gray-fg);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.connect-status-item__label {
+  min-width: 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.connect-status-item.is-done,
+.connect-status-item.is-active,
+.connect-status-item.is-failed {
+  color: var(--tx);
+}
+
+.connect-status-item.is-done .connect-status-item__marker {
+  background: var(--green-solid);
+  color: var(--green-on);
+}
+
+.connect-status-item.is-active .connect-status-item__marker {
+  background: var(--blue-solid);
+  color: var(--blue-on);
+}
+
+.connect-status-item.is-failed .connect-status-item__marker {
+  background: var(--red-solid);
+  color: var(--red-on);
+}
+
+.connect-status-panel__error,
+.connect-status-panel__telemetry {
+  display: grid;
+  gap: 4px;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.connect-status-panel__error {
+  background: var(--red-bg);
+  color: var(--red-fg);
+}
+
+.connect-status-panel__telemetry {
+  background: var(--green-bg);
+  color: var(--green-fg);
+}
+
+.connect-status-panel__telemetry-heading {
+  font-size: 12.5px;
+}
+
+.connect-status-panel__telemetry p {
+  margin: 0;
+}
+
+.connect-status-panel__action {
+  width: 100%;
+  min-height: 44px;
+  justify-content: center;
+}
+
+@media (max-width: 60rem) {
+  .connect-drone-page__layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 34rem) {
+  .connect-drone-page__body {
+    padding: 14px;
+  }
+
+  .connect-drone-form__body,
+  .connect-status-panel__body,
+  .connect-mission-summary__body {
+    padding: 14px;
+  }
+
+  .connect-drone-form__controls {
+    flex-direction: column;
+  }
+
+  .connect-drone-form__button {
+    width: 100%;
+  }
+
+  .connect-mission-summary__details > div {
+    grid-template-columns: minmax(70px, 0.35fr) minmax(0, 1fr);
+    gap: 8px;
+  }
+}

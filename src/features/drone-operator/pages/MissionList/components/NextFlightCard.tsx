@@ -7,7 +7,6 @@ import {
   railActionFor,
   railStatusTone,
 } from '../missionListHelpers'
-import { missionStopLabel } from '../../../../mission/lib/missionOperationalState'
 import { hasAcknowledgedHandover } from '../../../lib/flightWorkflowStorage'
 import { StatusBadge } from '../../../../../shared/components/odm/StatusBadge'
 import { setActiveMissionId } from '../../../api/liveMission'
@@ -35,7 +34,6 @@ export function NextFlightCard({
   const deviceLabel = formatDeviceLabel(mission)
   const status = latestMissionStatus(mission)
   const statusLabel =
-    missionStopLabel(mission) ??
     (status === 'READY_TO_FLY' && hasAcknowledgedHandover(mission.id)
       ? t.handedOver
       : undefined) ??

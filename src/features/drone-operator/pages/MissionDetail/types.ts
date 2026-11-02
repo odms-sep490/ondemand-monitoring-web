@@ -42,6 +42,9 @@ export type WeatherPreflightStatus = {
   humidityPercent: number
   advisories: string[]
   checkedAt: string
+  inspectorAccepted?: boolean
+  inspectorAcceptedBy?: string | null
+  inspectorAcceptedAt?: string | null
 }
 
 export type StoredWeatherStatus = {

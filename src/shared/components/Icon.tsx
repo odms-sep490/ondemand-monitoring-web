@@ -43,6 +43,7 @@ export type IconName =
   | 'search'
   | 'bell'
   | 'key'
+  | 'link'
 
 type IconProps = SVGProps<SVGSVGElement> & { name: IconName }
 
@@ -270,6 +271,12 @@ export function Icon({ name, ...props }: IconProps) {
       <>
         <circle cx="8" cy="15" r="4" />
         <path d="M11 12l9-9M16 7l3 3" />
+      </>
+    ),
+    link: (
+      <>
+        <path d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.72" />
+        <path d="M14 11a5 5 0 0 0-7.07 0l-3 3A5 5 0 0 0 11 21.07l1.72-1.72" />
       </>
     ),
     google: (

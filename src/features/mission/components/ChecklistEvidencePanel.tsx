@@ -26,9 +26,11 @@ export const evidenceReason: Record<EvidenceBlockingReason, string> = {
   MEDIA_NOT_VALIDATED: 'Media chưa xác thực thành công.',
   MEDIA_APPROVAL_REQUIRED: 'Cần duyệt media trước khi duyệt kết quả.',
   INSUFFICIENT_EVIDENCE: 'Chưa đủ bằng chứng hợp lệ.',
+  ASSESSMENT_REQUIRED: 'Cần đánh giá mục checklist trước khi gửi kết quả.',
   EXECUTION_NOT_COMPLETED:
-    'Checklist item must be marked completed before mission acceptance.',
-  EXECUTION_NOT_TERMINAL: 'Mục checklist chưa kết thúc.',
+    'Cần hoàn tất mục checklist trước khi gửi kết quả.',
+  EXECUTION_NOT_TERMINAL:
+    'Cần chọn trạng thái cuối cùng cho mục checklist trước khi gửi kết quả.',
   UNABLE_REASON_REQUIRED: 'Cần lý do không thể xác minh.',
   CHECKLIST_INTEGRITY_INVALID: 'Checklist không khớp snapshot đơn hàng.',
 }
@@ -74,6 +76,13 @@ const mediaStatusLabel: Record<string, string> = {
   RETRY_REQUIRED: 'Cần upload lại',
   MANUAL_UPLOAD_REQUIRED: 'Chờ upload thủ công',
   REJECTED: 'Bị từ chối',
+}
+
+function evidenceFileLabel(fileName: string, mediaType: string) {
+  const generatedName =
+    /^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{8,12}(?:\.[\da-z]+)?$/i.test(fileName)
+  if (!generatedName) return fileName
+  return mediaType === 'VIDEO' ? 'Video bằng chứng' : 'Ảnh bằng chứng'
 }
 
 export function ChecklistEvidencePanel(
@@ -234,6 +243,30 @@ function MissionEvidencePanel({
   const unableExplanation = item.unableToVerifyReason
     ? `Quy trình ngoại lệ: Miễn nộp bằng chứng do không thể xác minh (Lý do: "${item.unableToVerifyReason}").`
     : 'Quy trình ngoại lệ: Không thể xác minh được miễn đính kèm bằng chứng (bắt buộc phải có lý do giải trình).'
+  const renderBlockingReasons = () =>
+    item.blockingReasons?.map((reason) => {
+      const assessmentOutOfSync =
+        reason === 'ASSESSMENT_REQUIRED' &&
+        item.assessmentStatus !== 'NOT_ASSESSED'
+      if (assessmentOutOfSync) {
+        return (
+          <div key={reason} className="ce-blocker is-sync" role="status">
+            <span>
+              Đánh giá đã được lưu nhưng checklist chưa đồng bộ. Tải lại để cập
+              nhật.
+            </span>
+            <button type="button" onClick={refresh} disabled={busy}>
+              Tải lại
+            </button>
+          </div>
+        )
+      }
+      return (
+        <p key={reason} className="ce-blocker">
+          {evidenceReason[reason]}
+        </p>
+      )
+    })
   const compactBody = (
     <>
       <div className="ce-head">
@@ -249,11 +282,7 @@ function MissionEvidencePanel({
       ) : remaining > 0 ? (
         <p className="ce-remaining">Còn thiếu {remaining} bằng chứng hợp lệ</p>
       ) : null}
-      {item.blockingReasons?.map((reason) => (
-        <p key={reason} className="ce-blocker">
-          {evidenceReason[reason]}
-        </p>
-      ))}
+      {renderBlockingReasons()}
       {links.length > 0 && (
         <ul className="ce-list">
           {links.map((link) => {
@@ -280,7 +309,7 @@ function MissionEvidencePanel({
                 </div>
                 <div className="ce-info">
                   <span className="ce-name" title={link.fileName}>
-                    {link.fileName}
+                    {evidenceFileLabel(link.fileName, link.mediaType)}
                   </span>
                   <span className="ce-meta">
                     {link.mediaType === 'VIDEO' ? 'Video' : 'Ảnh'} •{' '}
@@ -371,11 +400,7 @@ function MissionEvidencePanel({
             have >= configuredRequired && (
               <p className="ce-ok">✓ Đã đủ bằng chứng hợp lệ</p>
             )}
-          {item.blockingReasons?.map((reason) => (
-            <p key={reason} className="ce-blocker">
-              {evidenceReason[reason]}
-            </p>
-          ))}
+          {renderBlockingReasons()}
           <div className="checklist-evidence-grid">
             {item.evidence?.map((link) => (
               <article key={link.evidenceId}>
@@ -406,7 +431,7 @@ function MissionEvidencePanel({
                     className="checklist-evidence-name"
                     title={link.fileName}
                   >
-                    {link.fileName}
+                    {evidenceFileLabel(link.fileName, link.mediaType)}
                   </div>
                   <div className="checklist-candidate-meta">
                     <span>

@@ -3,8 +3,8 @@ import { defineMessages } from '../../../../shared/i18n'
 export const orderQueuePageMessages = defineMessages({
   vi: {
     title: 'Hàng đợi duyệt đơn',
-    summary: (count: number, paid: number) =>
-      `${count} đơn chờ duyệt · ${paid} đơn chờ lập kế hoạch`,
+    summary: (count: number, paid: number, waitingDeposit: number) =>
+      `${count} đơn chờ duyệt · ${paid} đơn chờ lập kế hoạch · ${waitingDeposit} đơn chờ cọc`,
     kpis: {
       pending: 'Chờ duyệt',
       pendingHint: 'Đơn khách mới gửi',
@@ -30,6 +30,8 @@ export const orderQueuePageMessages = defineMessages({
       IN_PROGRESS: 'Đang thực hiện',
       COMPLETED: 'Hoàn tất',
       NEEDS_INFO: 'Cần bổ sung',
+      WAITING_DEPOSIT: 'Chờ cọc',
+      DEPOSIT_PAID: 'Đã cọc',
       CLOSED: 'Từ chối / Hủy',
     } as Record<string, string>,
     columns: {
@@ -40,7 +42,8 @@ export const orderQueuePageMessages = defineMessages({
       status: 'Trạng thái',
       action: 'Thao tác',
     },
-    depositReceived: 'Đã nhận cọc',
+    depositWaiting: 'Chờ cọc',
+    depositPaid: 'Đã cọc',
     resultCount: (shown: number, total: number) => `Hiển thị ${shown}/${total} đơn`,
     review: 'Duyệt',
     plan: 'Lập kế hoạch',
@@ -59,8 +62,8 @@ export const orderQueuePageMessages = defineMessages({
   },
   en: {
     title: 'Order review queue',
-    summary: (count: number, paid: number) =>
-      `${count} pending review · ${paid} ready for planning`,
+    summary: (count: number, paid: number, waitingDeposit: number) =>
+      `${count} pending review · ${paid} ready for planning · ${waitingDeposit} waiting for deposit`,
     kpis: {
       pending: 'Pending review',
       pendingHint: 'Newly submitted orders',
@@ -86,6 +89,8 @@ export const orderQueuePageMessages = defineMessages({
       IN_PROGRESS: 'In progress',
       COMPLETED: 'Completed',
       NEEDS_INFO: 'Needs info',
+      WAITING_DEPOSIT: 'Waiting for deposit',
+      DEPOSIT_PAID: 'Deposit paid',
       CLOSED: 'Rejected / Cancelled',
     } as Record<string, string>,
     columns: {
@@ -96,7 +101,8 @@ export const orderQueuePageMessages = defineMessages({
       status: 'Status',
       action: 'Action',
     },
-    depositReceived: 'Deposit received',
+    depositWaiting: 'Waiting for deposit',
+    depositPaid: 'Deposit paid',
     resultCount: (shown: number, total: number) => `Showing ${shown}/${total} orders`,
     review: 'Review',
     plan: 'Plan execution',

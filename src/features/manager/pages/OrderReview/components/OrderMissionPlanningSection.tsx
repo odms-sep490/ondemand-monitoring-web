@@ -135,7 +135,9 @@ function OrderPlanningWorkspace({
   const isFinalized = data?.plan.planStatus === 'FINALIZED'
   const effective = data?.missions.filter((mission) => mission.status !== 'CANCELLED') ?? []
   const depositPaid = Boolean(
-    data?.invoice && data.invoice.paidAmount >= data.invoice.depositAmount,
+    data?.invoice &&
+      (data.invoice.depositStatus === 'DEPOSIT_PAID' ||
+        data.invoice.paidAmount >= data.invoice.depositAmount),
   )
 
   useEffect(() => {

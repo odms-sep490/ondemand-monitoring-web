@@ -1,9 +1,10 @@
-import type { PreflightItemDef } from './PreflightItem'
-import type { ItemState } from '../preflightTypes'
+import { useState } from 'react'
 import { useI18n } from '../../../../../shared/i18n'
 import { preflightPageMessages } from '../PreflightPage.messages'
 import { statusText } from '../preflightHelpers'
-import { useState } from 'react'
+import type { ItemState } from '../preflightTypes'
+import type { PreflightItemDef } from './PreflightItem'
+import './PreflightChecklist.css'
 
 export function RuntimePreflightItemRow({
   def,
@@ -31,29 +32,17 @@ export function RuntimePreflightItemRow({
   const decided = passed || failed
   const [showFailureReason, setShowFailureReason] = useState(false)
   const [failureReason, setFailureReason] = useState('')
-  const tone = failed
-    ? {
-        label: t.itemFail,
-        bg: 'var(--red-solid)',
-        fg: 'var(--red-on)',
-        border: 'var(--red-solid)',
-      }
+  const resultLabel = failed
+    ? t.itemFail
     : passed
-      ? {
-          label: t.itemPass,
-          bg: 'var(--green-solid)',
-          fg: 'var(--green-on)',
-          border: 'var(--green-solid)',
-        }
-      : {
-          label: checking ? t.itemChecking : t.itemPending,
-          bg: 'var(--sf3)',
-          fg: 'var(--tx2)',
-          border: 'var(--bd2)',
-        }
+      ? t.itemPass
+      : checking
+        ? t.itemChecking
+        : t.itemPending
 
   return (
     <div
+      className={`preflight-item-row${failed ? ' is-failed' : ''}${passed ? ' is-passed' : ''}`}
       style={{
         background: failed ? 'var(--red-bg)' : 'var(--sf)',
         border: `1.5px solid ${
@@ -63,23 +52,11 @@ export function RuntimePreflightItemRow({
         padding: 12,
       }}
     >
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '44px minmax(0, 1fr) auto',
-          alignItems: 'center',
-          gap: 12,
-        }}
-      >
+      <div className="preflight-item-row__main">
         <span
+          className="preflight-item-row__marker"
+          aria-hidden="true"
           style={{
-            width: 40,
-            height: 40,
-            borderRadius: 10,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flex: 'none',
             background: passed
               ? 'var(--green-bg)'
               : failed
@@ -90,136 +67,91 @@ export function RuntimePreflightItemRow({
               : failed
                 ? 'var(--red-on)'
                 : 'var(--tx2)',
-            fontWeight: 700,
           }}
         >
-          {passed
-            ? '✓'
-            : failed
-              ? '✕'
-              : state.status === 'CHECKING'
-                ? '◌'
-                : '•'}
+          {passed ? '✓' : failed ? '✕' : checking ? '◌' : '•'}
         </span>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontWeight: 700, fontSize: 14.5, lineHeight: 1.2 }}>
-            {def.label}
-          </div>
-          <div style={{ fontSize: 11.5, color: 'var(--tx3)' }}>
+
+        <div className="preflight-item-row__content">
+          <div className="preflight-item-row__title">{def.label}</div>
+          <div className="preflight-item-row__detail">
             {def.detail ? `${def.detail} · ` : ''}
             <span className="odm-mono">{def.code}</span>
           </div>
           <div
-            style={{
-              marginTop: 2,
-              fontSize: 11,
-              color: failed ? 'var(--red-fg)' : 'var(--tx3)',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            }}
+            className="preflight-item-row__message"
+            style={{ color: failed ? 'var(--red-fg)' : 'var(--tx3)' }}
             title={statusText(t, state.status, state.message)}
           >
             {statusText(t, state.status, state.message)}
           </div>
         </div>
+
         {manual && !decided ? (
-          <div style={{ display: 'flex', gap: 6, justifySelf: 'end' }}>
+          <div className="preflight-item-row__actions">
             <button
               type="button"
-              className="odm-btn odm-btn-ok"
+              className="odm-btn odm-btn-ok preflight-item-row__decision"
               disabled={updating}
               onClick={() => {
-                void onUpdate(
-                  def.key,
-                  'PASSED',
-                  'Người vận hành xác nhận đạt',
-                )
+                void onUpdate(def.key, 'PASSED', 'Người vận hành xác nhận đạt')
                   .then(() => {
                     setShowFailureReason(false)
                   })
                   .catch(() => undefined)
               }}
-              style={{ minWidth: 72 }}
             >
               {updating ? '...' : 'Đạt'}
             </button>
             <button
               type="button"
-              className="odm-btn odm-btn-rd"
+              className="odm-btn odm-btn-rd preflight-item-row__decision"
+              aria-expanded={showFailureReason}
               disabled={updating}
               onClick={() => setShowFailureReason((value) => !value)}
-              style={{ minWidth: 96 }}
             >
               Không đạt
             </button>
           </div>
         ) : manual ? (
-            <span
-              style={{
-                minWidth: 88,
-                height: 32,
-                padding: '0 12px',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: 999,
-                border: `1px solid ${tone.border}`,
-                background: tone.bg,
-                color: tone.fg,
-                fontSize: 12,
-                fontWeight: 800,
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {tone.label}
-            </span>
+          <span
+            className={`preflight-item-row__result ${failed ? 'is-failed' : 'is-passed'}`}
+          >
+            {resultLabel}
+          </span>
         ) : def.key === 'battery_health' && !decided ? (
           <button
             type="button"
-            className="odm-btn odm-btn-p"
+            className="odm-btn odm-btn-p preflight-item-row__battery-action"
             disabled={updating}
-            onClick={() =>
-              void onRecheck(def.key).catch(() => undefined)
-            }
-            style={{ minWidth: 132 }}
+            onClick={() => void onRecheck(def.key).catch(() => undefined)}
           >
             {updating ? t.itemChecking : t.fetchCurrentBattery}
           </button>
         ) : (
           <span
-            style={{
-              justifySelf: 'end',
-              minWidth: 112,
-              height: 32,
-              padding: '0 12px',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: 999,
-              border: `1px solid ${tone.border}`,
-              background: tone.bg,
-              color: tone.fg,
-              fontSize: 12,
-              fontWeight: 800,
-              whiteSpace: 'nowrap',
-            }}
+            className={`preflight-item-row__result ${
+              failed ? 'is-failed' : passed ? 'is-passed' : 'is-pending'
+            }`}
           >
-            {tone.label}
+            {resultLabel}
           </span>
         )}
       </div>
+
       {manual && !decided && showFailureReason ? (
-        <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+        <div className="preflight-item-row__failure">
           <input
+            id={`preflight-failure-${def.key}`}
             className="odm-input"
+            aria-label={t.failureReasonPlaceholder}
             value={failureReason}
             onChange={(event) => setFailureReason(event.target.value)}
             placeholder={t.failureReasonPlaceholder}
           />
           <button
             type="button"
-            className="odm-btn odm-btn-rd"
+            className="odm-btn odm-btn-rd preflight-item-row__failure-submit"
             disabled={updating || failureReason.trim().length === 0}
             onClick={() =>
               void onUpdate(def.key, 'FAILED', failureReason.trim())

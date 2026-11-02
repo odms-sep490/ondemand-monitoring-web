@@ -33,10 +33,6 @@ export function toMissionCalendarItem(
     flightPermitFileName: source.flightPermitFileName ?? null,
     flightPermitContentType: source.flightPermitContentType ?? null,
     flightPermitDataUrl: source.flightPermitDataUrl ?? null,
-    safeStopStatus: source.safeStopStatus,
-    safeStopRequestedAt: source.safeStopRequestedAt,
-    safeStopConfirmedAt: source.safeStopConfirmedAt,
-    safeStopCleanedAt: source.safeStopCleanedAt,
     droneId: source.droneId ?? source.deviceId ?? null,
     operatorId: source.operatorId,
     droneAssignmentId: null,
@@ -136,25 +132,25 @@ export const missionsApi = {
     )
   },
 
-  /** `POST /api/missions/{id}/assign-device` [BE]. */
+  /** `POST /api/missions/{id}/device-assignments` [BE]. */
   assignDrone(
     missionId: string,
     droneId: string,
     deviceRole: string = 'MAIN',
   ): Promise<Mission> {
-    return apiRequest<Mission>(`/api/missions/${missionId}/assign-device`, {
+    return apiRequest<Mission>(`/api/missions/${missionId}/device-assignments`, {
       method: 'POST',
       body: { deviceId: droneId, deviceRole },
     })
   },
 
-  /** `POST /api/missions/{id}/assign-device` [BE]. */
+  /** `POST /api/missions/{id}/device-assignments` [BE]. */
   assignDevice(
     missionId: string,
     deviceId: string,
     deviceRole: string = 'MAIN',
   ): Promise<Mission> {
-    return apiRequest<Mission>(`/api/missions/${missionId}/assign-device`, {
+    return apiRequest<Mission>(`/api/missions/${missionId}/device-assignments`, {
       method: 'POST',
       body: { deviceId, deviceRole },
     })
@@ -172,27 +168,27 @@ export const missionsApi = {
     })
   },
 
-  /** `POST /api/missions/{id}/assign-staff` [BE]. */
+  /** `POST /api/missions/{id}/staff-assignments` [BE]. */
   assignOperator(
     missionId: string,
     operatorId: string,
     assignedRole: string = 'PILOT',
   ): Promise<Mission> {
-    return apiRequest<Mission>(`/api/missions/${missionId}/assign-staff`, {
+    return apiRequest<Mission>(`/api/missions/${missionId}/staff-assignments`, {
       method: 'POST',
-      body: { staffId: operatorId, assignedRole },
+      body: { staffId: operatorId, assignedRoles: [assignedRole] },
     })
   },
 
-  /** `POST /api/missions/{id}/assign-staff` [BE]. */
+  /** `POST /api/missions/{id}/staff-assignments` [BE]. */
   assignStaff(
     missionId: string,
     staffId: string,
     assignedRole: string = 'PILOT',
   ): Promise<Mission> {
-    return apiRequest<Mission>(`/api/missions/${missionId}/assign-staff`, {
+    return apiRequest<Mission>(`/api/missions/${missionId}/staff-assignments`, {
       method: 'POST',
-      body: { staffId, assignedRole },
+      body: { staffId, assignedRoles: [assignedRole] },
     })
   },
 
@@ -297,14 +293,10 @@ export const missionsApi = {
     })
   },
 
-  /** `POST /api/missions/{id}/start?tokenValue=` [BE]. */
-  startMission(
-    missionId: string,
-    tokenValue: string,
-  ): Promise<MissionResponse> {
-    return apiRequest<MissionResponse>(`/api/missions/${missionId}/start`, {
+  /** `POST /api/missions/{id}/start-operation` [BE]. */
+  startMission(missionId: string): Promise<MissionResponse> {
+    return apiRequest<MissionResponse>(`/api/missions/${missionId}/start-operation`, {
       method: 'POST',
-      query: { tokenValue },
     })
   },
 

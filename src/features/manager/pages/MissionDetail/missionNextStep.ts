@@ -17,7 +17,13 @@ export function missionNextStep(
         detail: n.assignDetail,
       }
     case 'READY':
-    case 'WAITING_OPERATOR_ACCEPTANCE':
+      if (crew > 0 && accepted >= crew) {
+        return {
+          tone: 'wait',
+          title: n.scheduledTitle,
+          detail: n.scheduledDetail,
+        }
+      }
       return {
         tone: 'wait',
         title: n.waitCrewTitle,
@@ -30,17 +36,12 @@ export function missionNextStep(
         title: n.scheduledTitle,
         detail: n.scheduledDetail,
       }
-    case 'FAILED_PREFLIGHT':
-      return {
-        tone: 'bad',
-        title: n.failedPreflightTitle,
-        detail: n.failedPreflightDetail,
-      }
+    case 'AWAITING_REVIEW':
     case 'PENDING_REVIEW':
       return {
-        tone: 'go',
-        title: n.pendingReviewTitle,
-        detail: n.pendingReviewDetail,
+        tone: 'wait',
+        title: n.pendingManagerReviewTitle,
+        detail: n.pendingManagerReviewDetail,
       }
     case 'FAILED':
     case 'CANCELLED':

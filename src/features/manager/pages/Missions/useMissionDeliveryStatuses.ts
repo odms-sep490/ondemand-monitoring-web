@@ -48,7 +48,10 @@ export function useMissionDeliveryStatuses({
 
   useEffect(() => {
     const completed = missions.filter(
-      (mission) => mission.status === 'COMPLETED',
+      (mission) =>
+        mission.status === 'COMPLETED' ||
+        mission.status === 'AWAITING_REVIEW' ||
+        mission.status === 'PENDING_REVIEW',
     )
     if (completed.length === 0) {
       setDeliveryStatuses({})

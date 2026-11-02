@@ -36,36 +36,31 @@ export const orderStatusTone: Record<OrderStatus, StatusTone> = {
 
 export const missionStatusTone: Record<MissionStatus, StatusTone> = {
   PLANNING: 'gray',
-  CREATED: 'gray', // brief: CREATED → gray
-  WAITING_DEPOSIT: 'yellow',
-  // mapping by meaning: system is still matching drone/operator, nothing to
-  // act on yet — closer to "waiting" than "in progress".
+  PENDING_PAYMENT: 'yellow',
+  PENDING_CONFIRMATION: 'yellow',
+  // The team is preparing the assigned device and running preflight checks.
   READY: 'blue',
-  RESOURCE_ASSIGNING: 'yellow',
-  WAITING_OPERATOR_ACCEPTANCE: 'yellow', // brief: ASSIGNED-like → yellow
-  // mapping by meaning: operator accepted, mission is waiting for its
-  // scheduled window — still "waiting", not yet active.
+  // Legacy status from the old schedule step; it still means preflight prep.
   SCHEDULED: 'yellow',
-  // mapping by meaning: device link established, an active process.
-  CONNECTED: 'blue',
-  // mapping by meaning: checklist actively running.
-  PREFLIGHT_CHECKING: 'blue',
-  // mapping by meaning: all checks passed — a success state, like AVAILABLE/PASS.
-  READY_TO_FLY: 'green',
-  FAILED_PREFLIGHT: 'red', // brief: FAILED-like → red
-  // mapping by meaning: bounced back to the manager queue, waiting on them.
-  PENDING_APPROVAL: 'yellow',
-  IN_FLIGHT: 'blue', // brief: IN_FLIGHT → blue
-  IN_PROGRESS: 'blue', // brief: IN_PROGRESS → blue (legacy alias of IN_FLIGHT)
-  // mapping by meaning: drone airborne and moving back to base, active process.
-  RETURNING: 'blue',
-  // mapping by meaning: checklist actively running.
-  POSTFLIGHT_CHECKING: 'blue',
-  PENDING_REVIEW: 'yellow',
+  IN_PROGRESS: 'blue',
+  AWAITING_REVIEW: 'blue',
   COMPLETED: 'green', // brief: COMPLETED → green
   FAILED: 'red', // brief: FAILED → red
   // mapping by meaning: terminal, non-error stop, same as OrderStatus.CANCELLED.
   CANCELLED: 'gray',
+  // Legacy / transition aliases — kept so Record<MissionStatus,…> stays exhaustive:
+  CREATED: 'gray',
+  RESOURCE_ASSIGNING: 'yellow',
+  WAITING_OPERATOR_ACCEPTANCE: 'yellow',
+  CONNECTED: 'blue',
+  PREFLIGHT_CHECKING: 'blue',
+  READY_TO_FLY: 'green',
+  FAILED_PREFLIGHT: 'red',
+  PENDING_APPROVAL: 'yellow',
+  IN_FLIGHT: 'blue',
+  RETURNING: 'blue',
+  POSTFLIGHT_CHECKING: 'blue',
+  PENDING_REVIEW: 'blue',
 }
 
 export const droneStatusTone: Record<DroneStatus, StatusTone> = {
@@ -127,26 +122,29 @@ export const orderStatusLabel: Record<OrderStatus, string> = {
 }
 
 export const missionStatusLabel: Record<MissionStatus, string> = {
-  READY: 'Đã xác nhận; đang chuẩn bị nguồn lực',
-  PLANNING: 'Đang lập kế hoạch',
-  CREATED: 'Mới tạo',
-  WAITING_DEPOSIT: 'Chờ thanh toán tiền cọc',
-  RESOURCE_ASSIGNING: 'Đang gán nguồn lực',
-  WAITING_OPERATOR_ACCEPTANCE: 'Chờ operator nhận',
-  SCHEDULED: 'Đã lên lịch',
-  CONNECTED: 'Đã kết nối',
-  PREFLIGHT_CHECKING: 'Đang kiểm tra trước bay',
-  READY_TO_FLY: 'Sẵn sàng bay',
-  FAILED_PREFLIGHT: 'Kiểm tra trước bay thất bại',
-  PENDING_APPROVAL: 'Chờ quản lý xử lý',
-  IN_FLIGHT: 'Đang bay',
-  IN_PROGRESS: 'Đang bay',
-  RETURNING: 'Đang trở về',
-  POSTFLIGHT_CHECKING: 'Đang kiểm tra sau bay',
-  PENDING_REVIEW: 'Chờ nghiệm thu',
+  READY: 'Sẵn sàng chờ nghiệm thu',
+  PLANNING: 'Đang chuẩn bị trước bay',
+  PENDING_PAYMENT: 'Chờ khách hàng thanh toán',
+  PENDING_CONFIRMATION: 'Chờ phi hành đoàn xác nhận',
+  SCHEDULED: 'Đang chuẩn bị trước bay',
+  IN_PROGRESS: 'Đang thực hiện',
+  AWAITING_REVIEW: 'Đã gửi quản lý, chờ duyệt',
   COMPLETED: 'Hoàn thành',
   FAILED: 'Thất bại',
   CANCELLED: 'Đã huỷ',
+  // Legacy aliases:
+  CREATED: 'Mới tạo',
+  RESOURCE_ASSIGNING: 'Đang phân bổ nguồn lực',
+  WAITING_OPERATOR_ACCEPTANCE: 'Chờ operator chấp nhận',
+  CONNECTED: 'Đã kết nối GCS',
+  PREFLIGHT_CHECKING: 'Đang kiểm tra trước bay',
+  READY_TO_FLY: 'Sẵn sàng bay',
+  FAILED_PREFLIGHT: 'Kiểm tra trước bay thất bại',
+  PENDING_APPROVAL: 'Chờ phê duyệt',
+  IN_FLIGHT: 'Đang bay',
+  RETURNING: 'Đang trở về',
+  POSTFLIGHT_CHECKING: 'Đang kiểm tra sau bay',
+  PENDING_REVIEW: 'Đã gửi quản lý, chờ duyệt',
 }
 
 export const droneStatusLabel: Record<DroneStatus, string> = {
@@ -221,26 +219,29 @@ export const orderStatusLabelEn: Record<OrderStatus, string> = {
 }
 
 export const missionStatusLabelEn: Record<MissionStatus, string> = {
-  READY: 'Confirmed, preparing resources',
-  PLANNING: 'Planning',
-  CREATED: 'Created',
-  WAITING_DEPOSIT: 'Waiting for deposit',
-  RESOURCE_ASSIGNING: 'Assigning resources',
-  WAITING_OPERATOR_ACCEPTANCE: 'Waiting for operator',
-  SCHEDULED: 'Scheduled',
-  CONNECTED: 'Connected',
-  PREFLIGHT_CHECKING: 'Preflight check running',
-  READY_TO_FLY: 'Ready to fly',
-  FAILED_PREFLIGHT: 'Preflight check failed',
-  PENDING_APPROVAL: 'Pending manager review',
-  IN_FLIGHT: 'In flight',
-  IN_PROGRESS: 'In flight',
-  RETURNING: 'Returning',
-  POSTFLIGHT_CHECKING: 'Postflight check running',
-  PENDING_REVIEW: 'Awaiting inspection',
+  READY: 'Ready for inspector start',
+  PLANNING: 'Preparing for preflight',
+  PENDING_PAYMENT: 'Waiting for customer payment',
+  PENDING_CONFIRMATION: 'Waiting for crew acceptance',
+  SCHEDULED: 'Preparing for preflight',
+  IN_PROGRESS: 'In progress',
+  AWAITING_REVIEW: 'Pending manager approval',
   COMPLETED: 'Completed',
   FAILED: 'Failed',
   CANCELLED: 'Cancelled',
+  // Legacy aliases:
+  CREATED: 'Created',
+  RESOURCE_ASSIGNING: 'Assigning resources',
+  WAITING_OPERATOR_ACCEPTANCE: 'Waiting for operator acceptance',
+  CONNECTED: 'GCS connected',
+  PREFLIGHT_CHECKING: 'Preflight check in progress',
+  READY_TO_FLY: 'Ready to fly',
+  FAILED_PREFLIGHT: 'Preflight check failed',
+  PENDING_APPROVAL: 'Pending approval',
+  IN_FLIGHT: 'In flight',
+  RETURNING: 'Returning',
+  POSTFLIGHT_CHECKING: 'Post-flight check in progress',
+  PENDING_REVIEW: 'Pending manager approval',
 }
 
 export const droneStatusLabelEn: Record<DroneStatus, string> = {

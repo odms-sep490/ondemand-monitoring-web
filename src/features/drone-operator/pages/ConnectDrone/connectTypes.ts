@@ -1,2 +1,2 @@
 export type ConnectState =
-  'default' | 'connecting' | 'connected' | 'failed' | 'expired'
+  'default' | 'connecting' | 'connected' | 'failed'

@@ -3,7 +3,7 @@ import { commonMiscMessages } from './commonMisc.messages'
 import type { usePlanningConfirmation } from './usePlanningConfirmation'
 import { OrderMissionsOverview } from './OrderMissionsOverview'
 import type { Dispatch, SetStateAction } from 'react'
-import type { ExecutionPlan, SafeStop } from '../../types/planning'
+import type { ExecutionPlan } from '../../types/planning'
 import type { MissionResponse } from '../../types/missions'
 import type { OrderDetail } from '../../types/orders'
 import type { UseApiQueryState } from '../../../../shared/hooks/useApiQuery'
@@ -26,13 +26,11 @@ export function WizardOverviewStep({
     plan: ExecutionPlan
     missions: MissionResponse[]
     order: OrderDetail
-    stops: (SafeStop | null)[]
   }
   query: UseApiQueryState<{
     plan: ExecutionPlan
     missions: MissionResponse[]
     order: OrderDetail
-    stops: (SafeStop | null)[]
   }>
   setCandidateId: Dispatch<SetStateAction<string | null>>
   setActiveId: Dispatch<SetStateAction<string | null>>

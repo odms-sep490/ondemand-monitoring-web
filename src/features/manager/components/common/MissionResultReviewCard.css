@@ -5,7 +5,7 @@
 
 .mgr-result-review-summary,
 .mgr-result-review-action-section {
-  padding: 22px 24px;
+  padding: 18px 22px;
 }
 
 .mgr-result-review-heading {
@@ -23,30 +23,73 @@
   letter-spacing: -0.025em;
 }
 
+.mgr-result-review-statuses {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+}
+
+.mgr-result-review-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mgr-result-review-status-label {
+  color: var(--mgr-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
 .mgr-result-review-metrics {
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) repeat(2, minmax(0, 1fr));
-  gap: 16px;
-  margin: 20px 0 0;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 16px 0 0;
+}
+
+.mgr-result-review-metrics > div {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--mgr-card-2);
+}
+
+.mgr-result-review-metrics > div > svg {
+  box-sizing: content-box;
+  flex: 0 0 18px;
+  padding: 9px;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--ui-primary) 10%, var(--mgr-card));
+  color: var(--pl-blue-fg);
+}
+
+.mgr-result-review-metrics > div > span {
+  min-width: 0;
 }
 
 .mgr-result-review-metrics dt {
-  margin-bottom: 6px;
+  margin-bottom: 3px;
   color: var(--mgr-muted);
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .mgr-result-review-metrics dd {
   margin: 0;
   color: var(--mgr-text);
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 650;
+  line-height: 1.4;
   overflow-wrap: anywhere;
 }
 
 .mgr-result-review-description {
-  margin: 18px 0 0;
-  font-size: 13px;
+  margin: 14px 0 0;
+  font-size: 14px;
   line-height: 1.6;
   color: var(--mgr-muted);
   overflow-wrap: anywhere;
@@ -54,20 +97,20 @@
 }
 
 .mgr-result-review-readiness {
-  padding: 18px 24px;
+  padding: 16px 22px;
   background: var(--mgr-card-2);
 }
 
 .mgr-result-review-readiness h3 {
   margin: 0 0 12px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--mgr-text);
 }
 
 .mgr-result-review-readiness ul {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px 18px;
   margin: 0;
   padding: 0;
@@ -78,9 +121,10 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.5;
-  color: var(--mgr-muted);
+  color: var(--mgr-text);
+  color: color-mix(in srgb, var(--mgr-muted) 90%, var(--mgr-text));
 }
 
 .mgr-result-review-condition-icon {
@@ -110,7 +154,7 @@
   border-radius: 8px;
   background: var(--pl-amber-bg);
   color: var(--pl-amber-fg);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.6;
 }
 
@@ -122,7 +166,7 @@
   gap: 8px 16px;
   margin-top: 16px;
   color: var(--mgr-muted);
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.5;
 }
 
@@ -150,7 +194,7 @@
 .mgr-result-review-empty {
   margin: 0;
   color: var(--mgr-muted);
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.6;
 }
 
@@ -167,13 +211,13 @@
 
 .mgr-result-review-note-label label {
   color: var(--mgr-text);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 650;
 }
 
 .mgr-result-review-note-label span {
   color: var(--mgr-muted);
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .mgr-result-review-note textarea {
@@ -187,7 +231,7 @@
   background: var(--mgr-card);
   color: var(--mgr-text);
   font: inherit;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.5;
   resize: vertical;
 }
@@ -251,20 +295,11 @@
   }
   .mgr-result-review-metrics {
     grid-template-columns: 1fr;
-    gap: 12px;
-    margin-top: 18px;
+    gap: 8px;
+    margin-top: 14px;
   }
   .mgr-result-review-metrics > div {
-    display: flex;
-    justify-content: space-between;
-    gap: 16px;
-  }
-  .mgr-result-review-metrics dt {
-    margin: 0;
-    flex-shrink: 0;
-  }
-  .mgr-result-review-metrics dd {
-    text-align: right;
+    padding: 8px 10px;
   }
   .mgr-result-review-readiness ul {
     grid-template-columns: 1fr;
@@ -280,6 +315,12 @@
     width: 100%;
     justify-content: center;
     min-height: 42px;
+  }
+}
+
+@media (min-width: 601px) and (max-width: 900px) {
+  .mgr-result-review-readiness ul {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 

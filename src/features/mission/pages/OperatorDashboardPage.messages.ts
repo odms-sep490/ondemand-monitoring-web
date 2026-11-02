@@ -6,6 +6,7 @@ export const operatorDashboardPageMessages = defineMessages({
     cannotConnect: 'Không thể kết nối Backend API',
     errorPrefix: 'Lỗi:',
     missionNotFound: 'Mission M-001 không tồn tại',
+    noDroneAssigned: 'Mission chưa được phân công thiết bị',
     ensureServerPrefix: 'Hãy đảm bảo Spring Boot server đang khởi chạy tại',
     retry: 'Thử lại (Reload)',
     missionTitle: (code: string) => `Nhiệm vụ ${code}`,
@@ -29,7 +30,15 @@ export const operatorDashboardPageMessages = defineMessages({
     rejectMission: 'Từ chối (Reject)',
     replaceDroneStandby: '🔄 Đổi Drone Dự Phòng (Replace Drone)',
     startFlight: 'XÁC NHẬN CẤT CÁNH (START FLIGHT)',
-    openPostflight: 'Mở Kiểm tra Post-flight & Hoàn thành Mission',
+    startMission: 'Bắt đầu Mission',
+    openPostflight: 'Mở kiểm tra sau bay',
+    acceptanceTitle: 'Mission chờ nghiệm thu',
+    acceptanceDescription:
+      'Postcheck đã hoàn tất. Kiểm tra checklist và media, xác nhận hoàn thành rồi gửi Manager.',
+    openAcceptance: 'Mở hồ sơ nghiệm thu',
+    managerReviewTitle: 'Đã gửi kết quả cho Manager',
+    managerReviewDescription:
+      'Kết quả nghiệm thu đang chờ Manager phê duyệt.',
     missionCompletedTitle: (code: string) => `Nhiệm vụ ${code} Đã Hoàn Thành!`,
     missionCompletedDescriptionPrefix:
       'Dữ liệu hình ảnh và nhật ký kiểm tra đã được lưu trữ an toàn. Drone',
@@ -58,6 +67,7 @@ export const operatorDashboardPageMessages = defineMessages({
     cannotConnect: 'Unable to connect to the Backend API',
     errorPrefix: 'Error:',
     missionNotFound: 'Mission M-001 does not exist',
+    noDroneAssigned: 'No device is assigned to this mission',
     ensureServerPrefix: 'Make sure the Spring Boot server is running at',
     retry: 'Retry (Reload)',
     missionTitle: (code: string) => `Mission ${code}`,
@@ -81,7 +91,15 @@ export const operatorDashboardPageMessages = defineMessages({
     rejectMission: 'Reject',
     replaceDroneStandby: '🔄 Swap Standby Drone (Replace Drone)',
     startFlight: 'CONFIRM TAKEOFF (START FLIGHT)',
-    openPostflight: 'Open Post-flight Check & Complete Mission',
+    startMission: 'Start Mission',
+    openPostflight: 'Open post-flight check',
+    acceptanceTitle: 'Mission awaiting inspection',
+    acceptanceDescription:
+      'Postcheck is complete. Review the checklist and media, confirm completion, then send it to the Manager.',
+    openAcceptance: 'Open inspection package',
+    managerReviewTitle: 'Result sent to Manager',
+    managerReviewDescription:
+      'The accepted result is waiting for Manager approval.',
     missionCompletedTitle: (code: string) => `Mission ${code} Completed!`,
     missionCompletedDescriptionPrefix:
       'Imagery and inspection logs have been safely stored. Drone',

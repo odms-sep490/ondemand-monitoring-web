@@ -10,7 +10,6 @@ import type { ExecutionPlan } from '../../../types/planning'
 import { STAFF_ROLE_LABELS } from '../../../components/common/missionDetailHelpers'
 import { OrderIcon } from '../../../components/common/OrderIcon'
 import { planningSchedule } from '../../../components/common/planningSchedule'
-import { missionStopLabel } from '../../../../mission/lib/missionOperationalState'
 import { useI18n } from '../../../../../shared/i18n'
 import { missionPlanningCardMessages } from './MissionPlanningCard.messages'
 import { localizePlanningScopeLabel } from './planningScopeLabel'
@@ -50,8 +49,7 @@ export function MissionPlanningCard({
         <StatusBadge
           tone={toUiTone(missionStatusTone[mission.status] ?? 'gray')}
         >
-          {missionStopLabel(mission) ??
-            missionStatusLabel[mission.status] ??
+          {missionStatusLabel[mission.status] ??
             t.unknownStatus}
         </StatusBadge>
         {scope?.finalizedPlanRevision != null && (

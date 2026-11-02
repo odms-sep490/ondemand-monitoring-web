@@ -18,9 +18,9 @@ export const missionGridCardMessages = defineMessages({
     add: 'Thêm',
     resourcePreparation: 'Trạng thái chuẩn bị nguồn lực',
     resourcePrepLabels: {
-      PLANNING: 'Đang lập kế hoạch',
+      PLANNING: 'Đang chuẩn bị trước bay',
       PENDING: 'Đang chờ phản hồi và kiểm tra',
-      READY: 'Đã sẵn sàng',
+      READY: 'Sẵn sàng chờ nghiệm thu',
       CANCELLED: 'Đã hủy',
       unknown: 'Chưa xác định',
     },
@@ -126,9 +126,9 @@ export const missionGridCardMessages = defineMessages({
     add: 'Add',
     resourcePreparation: 'Resource preparation',
     resourcePrepLabels: {
-      PLANNING: 'Planning',
+      PLANNING: 'Preparing for preflight',
       PENDING: 'Awaiting responses and checks',
-      READY: 'Ready',
+      READY: 'Ready for inspector start',
       CANCELLED: 'Cancelled',
       unknown: 'Unknown',
     },

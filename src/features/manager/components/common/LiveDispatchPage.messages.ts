@@ -134,7 +134,8 @@ export const liveDispatchPageMessages = defineMessages({
     missionStatuses: {
       CREATED: 'Đã tạo',
       RESOURCE_ASSIGNING: 'Đang phân công nguồn lực',
-      READY: 'Chờ đội bay xác nhận',
+      PLANNING: 'Chờ staff và precheck',
+      READY: 'Sẵn sàng chờ nghiệm thu',
       IN_PROGRESS: 'Đang thực hiện',
       COMPLETED: 'Hoàn thành',
       CANCELLED: 'Đã hủy',
@@ -272,7 +273,8 @@ export const liveDispatchPageMessages = defineMessages({
     missionStatuses: {
       CREATED: 'Created',
       RESOURCE_ASSIGNING: 'Assigning resources',
-      READY: 'Confirmed, preparing resources',
+      PLANNING: 'Waiting for staff and preflight',
+      READY: 'Ready for inspector start',
       IN_PROGRESS: 'In progress',
       COMPLETED: 'Completed',
       CANCELLED: 'Cancelled',

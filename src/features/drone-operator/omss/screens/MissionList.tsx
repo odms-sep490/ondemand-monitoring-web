@@ -23,6 +23,7 @@ function fmtDate(iso: string, locale: string) {
 }
 
 const PENDING_STATES = new Set([
+  'PLANNING',
   'READY',
   'WAITING_OPERATOR_ACCEPTANCE',
   'RESOURCE_ASSIGNING',
@@ -38,12 +39,14 @@ export default function MissionList({ missions, onSelect, onScreen }: Props) {
   const { t, locale } = useI18n(missionListMessages)
   const awaiting = missions.filter(
     (m) =>
+      m.state === 'PLANNING' ||
       m.state === 'WAITING_OPERATOR_ACCEPTANCE' ||
       m.state === 'READY',
   ).length
   const scheduledToday = missions.filter(
     (m) =>
       PENDING_STATES.has(m.state) &&
+      m.state !== 'PLANNING' &&
       m.state !== 'WAITING_OPERATOR_ACCEPTANCE' &&
       m.state !== 'READY',
   ).length

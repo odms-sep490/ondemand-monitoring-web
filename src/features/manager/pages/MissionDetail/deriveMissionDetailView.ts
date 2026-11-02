@@ -136,7 +136,7 @@ export function deriveMissionDetailView({
       label: t.kpi.checklist,
       value:
         checklistExecutions.length > 0
-          ? `${compliantCount}/${checklistExecutions.length}`
+          ? t.checklistCompliant(compliantCount, checklistExecutions.length)
           : '—',
     },
   ]
@@ -147,6 +147,7 @@ export function deriveMissionDetailView({
     { id: 'checklist', label: t.tabs.checklist },
     { id: 'route', label: t.tabs.route },
     { id: 'order', label: t.tabs.order },
+    { id: 'resources', label: t.tabs.resources },
     { id: 'checks', label: t.tabs.checks },
   ]
   const waypoints = [...(plan?.waypoints ?? [])].sort(

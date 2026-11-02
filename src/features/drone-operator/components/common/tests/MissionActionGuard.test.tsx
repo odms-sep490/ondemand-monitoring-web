@@ -15,18 +15,6 @@ const permissions: MissionPermissions = {
 afterEach(() => vi.restoreAllMocks())
 
 describe('mission action guard', () => {
-  it('allows stop-only cockpit without allowing connect or preflight', async () => {
-    vi.spyOn(missionApi, 'getPermissions').mockResolvedValue({
-      ...permissions,
-      canTerminateFlight: true,
-    })
-    render(
-      <MissionActionGuard missionId="m1" action="flight">
-        <div>Stop-only cockpit</div>
-      </MissionActionGuard>,
-    )
-    expect(await screen.findByText('Stop-only cockpit')).toBeInTheDocument()
-  })
   it('allows a monitoring actor into the shared media/checklist workspace without granting upload', async () => {
     vi.spyOn(missionApi, 'getPermissions').mockResolvedValue({
       ...permissions,

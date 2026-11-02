@@ -77,11 +77,11 @@ export function ManualCockpitPreflight({
       >
         {submitting
           ? lang === 'en'
-            ? 'Continuing...'
-            : 'Đang qua bước...'
+            ? 'Running preflight...'
+            : 'Đang chạy precheck...'
           : lang === 'en'
-            ? 'Skip to flight'
-            : 'Qua bước này'}
+            ? 'Run precheck and continue to handover'
+            : 'Chạy precheck và tiếp tục bàn giao'}
       </button>
     </div>
   )

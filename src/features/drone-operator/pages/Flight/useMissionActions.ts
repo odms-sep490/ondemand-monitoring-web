@@ -4,7 +4,6 @@ import { navigateOperator } from './navigateOperator'
 import { operatorHref } from '../../routes'
 import { getLanguage, useI18n } from '../../../../shared/i18n'
 import { missionApi } from '../../../mission/api/missionApi'
-import { missionHasSafeStop } from '../../../mission/lib/missionOperationalState'
 import { flightControlApi } from '../../api/flightControlApi'
 import type { FlightCommand, WeatherPreset } from './inFlightTypes'
 import { controlBaseUrl } from './inFlightConstants'
@@ -93,34 +92,11 @@ export function useMissionActions({
     setFinishFlightBusy(true)
     setLastCommand(t.status.finishingFlight)
     try {
-      const current = await missionApi.getMissionById(missionId)
-      const stopping = missionHasSafeStop(current)
-      if (stopping) {
-        const latest = await flightControlApi.status()
-        if (
-          latest.missionId !== missionId ||
-          latest.deviceId !== drone.id ||
-          latest.inAir !== false
-        )
-          throw new Error(
-            'Cần hạ cánh và kiểm tra đúng phiên Mission trước khi kết thúc vận hành.',
-          )
-        if (current.status === 'IN_FLIGHT' || current.status === 'IN_PROGRESS')
-          await missionApi.markReturning(missionId)
-        await flightControlApi.releaseSession(missionId)
-      } else {
-        await missionApi.markReturning(missionId).catch(() => undefined)
-      }
+      await missionApi.markReturning(missionId)
       await missionApi.startPostflight(missionId)
       markActiveMissionFlowStep(missionId, 5)
       setLastCommand(t.status.flightFinished)
-      navigateOperator(
-        operatorHref(
-          stopping
-            ? { screen: 'missionDetail', missionId }
-            : { screen: 'missions' },
-        ),
-      )
+      navigateOperator(operatorHref({ screen: 'postflight', missionId }))
     } catch (error) {
       setLastCommand(
         error instanceof Error ? error.message : t.status.controllerOffline,
@@ -132,8 +108,6 @@ export function useMissionActions({
     finishFlightBusy,
     mission.backendId,
     mission.id,
-    drone.id,
-    onReviewMedia,
     t,
   ])
   const handleReferenceCapture = useCallback(async () => {

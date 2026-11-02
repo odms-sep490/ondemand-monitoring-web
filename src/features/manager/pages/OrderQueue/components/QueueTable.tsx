@@ -13,6 +13,7 @@ import { StatusTag } from '../../../components/common/StatusTag'
 import { formatOrderAge } from '../../../lib/actionItemAge'
 import { localizeTimeslot } from '../../../lib/viLabels'
 import { managerHref } from '../../../routes'
+import type { DepositStatus } from '../../../../finance/types'
 import type { OrderCreateResponse } from '../../../types/orders'
 import { orderQueuePageMessages } from '../OrderQueuePage.messages'
 
@@ -22,11 +23,12 @@ type Props = {
   rows: OrderCreateResponse[]
   total: number
   mode: QueueTableMode
+  depositStatusByOrder?: Record<string, DepositStatus>
   /** True when an APPROVED order already has a live mission. */
   isInProgress?: (order: OrderCreateResponse) => boolean
 }
 
-export function QueueTable({ rows, total, mode, isInProgress }: Props) {
+export function QueueTable({ rows, total, mode, isInProgress, depositStatusByOrder = {} }: Props) {
   const { t, locale, lang } = useI18n(orderQueuePageMessages)
   const now = new Date()
   const labels = lang === 'en' ? orderStatusLabelEn : orderStatusLabel
@@ -36,19 +38,29 @@ export function QueueTable({ rows, total, mode, isInProgress }: Props) {
     {
       title: t.columns.order,
       key: 'order',
-      render: (_, row) => (
-        <span className="mgr-cust">
-          <Avatar size={34} className="mgr-cust-avatar" aria-hidden="true">
-            {row.customerName.trim().charAt(0).toUpperCase()}
-          </Avatar>
-          <span className="mgr-cell-stack">
-            <span className="mgr-code" title={displayOrderCode(row.orderCode, row.id)}>
-              {displayOrderCode(row.orderCode, row.id)}
+      render: (_, row) => {
+        const depositStatus = depositStatusByOrder[row.id]
+        return (
+          <span className="mgr-cust">
+            <Avatar size={34} className="mgr-cust-avatar" aria-hidden="true">
+              {row.customerName.trim().charAt(0).toUpperCase()}
+            </Avatar>
+            <span className="mgr-cell-stack">
+              <span className="mgr-code" title={displayOrderCode(row.orderCode, row.id)}>
+                {displayOrderCode(row.orderCode, row.id)}
+              </span>
+              <span className="mgr-cell-sub">{row.customerName}</span>
+              {depositStatus ? (
+                <span>
+                  <StatusTag tone={depositStatus === 'DEPOSIT_PAID' ? 'success' : 'warning'}>
+                    {depositStatus === 'DEPOSIT_PAID' ? t.depositPaid : t.depositWaiting}
+                  </StatusTag>
+                </span>
+              ) : null}
             </span>
-            <span className="mgr-cell-sub">{row.customerName}</span>
           </span>
-        </span>
-      ),
+        )
+      },
     },
     { title: t.columns.service, dataIndex: 'serviceName', key: 'service', responsive: ['md'] },
     {
@@ -75,9 +87,7 @@ export function QueueTable({ rows, total, mode, isInProgress }: Props) {
       key: 'status',
       render: (_, row) => {
         const running = row.orderStatus === 'APPROVED' && isInProgress?.(row)
-        return mode === 'ready' ? (
-          <StatusTag tone="success">{t.depositReceived}</StatusTag>
-        ) : (
+        return (
           <StatusTag tone={orderStatusTone[row.orderStatus] ?? 'gray'}>
             {running ? t.filters.IN_PROGRESS : (labels[row.orderStatus] ?? row.orderStatus)}
           </StatusTag>

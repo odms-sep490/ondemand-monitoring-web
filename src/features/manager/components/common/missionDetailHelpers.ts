@@ -104,9 +104,9 @@ export function missionResourcePrepareLabel(
   status: MissionResourcePrepareStatus | null | undefined,
 ): string {
   const labels: Record<MissionResourcePrepareStatus, string> = {
-    PLANNING: 'Đang lập kế hoạch',
+    PLANNING: 'Đang chuẩn bị trước bay',
     PENDING: 'Đang chờ phản hồi và kiểm tra',
-    READY: 'Đã sẵn sàng',
+    READY: 'Sẵn sàng chờ nghiệm thu',
     CANCELLED: 'Đã hủy',
   }
   return status ? labels[status] : 'Chưa xác định'

@@ -14,6 +14,7 @@ import type {
   Screen,
   MissionRoutePoint,
 } from '../../types/omss'
+import type { MissionPermissions } from '../../../mission/types/permissions'
 import {
   MissionBadge,
   DroneBadge,
@@ -28,6 +29,8 @@ interface Props {
   onScreen: (s: Screen) => void
   onBack: () => void
   onStartFlight: () => void
+  onStartMission?: () => void
+  permissions?: MissionPermissions | null
 }
 
 function KV({
@@ -446,20 +449,39 @@ export default function MissionDetail({
   onScreen,
   onBack,
   onStartFlight,
+  onStartMission,
+  permissions,
 }: Props) {
   const { t, locale } = useI18n(missionDetailMessages)
   const hasPlan = (mission.routePoints?.length ?? 0) > 0
   const planSummary = mission.planSummary
   const isAcceptable =
-    mission.state === 'WAITING_OPERATOR_ACCEPTANCE' ||
-    mission.state === 'READY'
-  const canStartFlight = hasPlan && mission.state === 'READY_TO_FLY'
-  const canContinueSetup = [
-    'SCHEDULED',
-    'CONNECTED',
-    'PREFLIGHT_CHECKING',
-    'IN_FLIGHT',
-  ].includes(mission.state)
+    permissions?.canRespond === true &&
+    ['PLANNING', 'WAITING_OPERATOR_ACCEPTANCE', 'READY'].includes(
+      mission.state,
+    )
+  const canStartMission =
+    hasPlan &&
+    mission.state === 'READY' &&
+    mission.deviceAssignmentStatus === 'READY_TO_FLY' &&
+    permissions?.canStartMission === true
+  const canOpenCockpit =
+    mission.state === 'IN_FLIGHT' &&
+    mission.deviceAssignmentStatus === 'IN_PROGRESS' &&
+    permissions?.canControlFlight === true
+  const canConnectGcs =
+    (mission.state === 'PLANNING' || mission.state === 'READY') &&
+    permissions?.canOperatePayload === true &&
+    (!mission.deviceAssignmentStatus ||
+      ['ASSIGNED', 'CONNECTION_LOST'].includes(
+        mission.deviceAssignmentStatus,
+      ))
+  const canResumePreflight =
+    (mission.state === 'PLANNING' || mission.state === 'READY') &&
+    permissions?.canOperatePayload === true &&
+    ['CONNECTED', 'PREFLIGHT_CHECKING', 'FAILED'].includes(
+      mission.deviceAssignmentStatus ?? '',
+    )
 
   return (
     <div
@@ -538,7 +560,11 @@ export default function MissionDetail({
             <MissionBadge state={mission.state} />
           </div>
         </div>
-        {(isAcceptable || canStartFlight || canContinueSetup) && (
+        {(isAcceptable ||
+          canStartMission ||
+          canOpenCockpit ||
+          canConnectGcs ||
+          canResumePreflight) && (
           <div
             style={{
               display: 'flex',
@@ -547,7 +573,24 @@ export default function MissionDetail({
               justifyContent: 'flex-end',
             }}
           >
-            {canStartFlight && (
+            {canStartMission && (
+              <button
+                onClick={onStartMission}
+                style={{
+                  padding: '9px 20px',
+                  borderRadius: 8,
+                  border: 'none',
+                  background: '#16a34a',
+                  fontSize: 14,
+                  fontWeight: 700,
+                  color: '#fff',
+                  cursor: 'pointer',
+                }}
+              >
+                {t.startMission}
+              </button>
+            )}
+            {canOpenCockpit && (
               <button
                 onClick={onStartFlight}
                 style={{
@@ -561,10 +604,10 @@ export default function MissionDetail({
                   cursor: 'pointer',
                 }}
               >
-                {t.startFlight}
+                {t.openCockpit}
               </button>
             )}
-            {canContinueSetup && (
+            {canConnectGcs && (
               <button
                 onClick={() => onScreen('gcs-connect')}
                 style={{
@@ -578,7 +621,24 @@ export default function MissionDetail({
                   cursor: 'pointer',
                 }}
               >
-                {mission.state === 'SCHEDULED' ? t.connectGcs : t.reconnectGcs}
+                {t.connectGcs}
+              </button>
+            )}
+            {canResumePreflight && (
+              <button
+                onClick={() => onScreen('preflight')}
+                style={{
+                  padding: '9px 20px',
+                  borderRadius: 8,
+                  border: 'none',
+                  background: 'var(--accent)',
+                  fontSize: 14,
+                  fontWeight: 700,
+                  color: '#fff',
+                  cursor: 'pointer',
+                }}
+              >
+                {t.resumePreflight}
               </button>
             )}
             {isAcceptable && (

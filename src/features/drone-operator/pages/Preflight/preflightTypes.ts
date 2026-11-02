@@ -30,6 +30,8 @@ export type PersistedPreflightCheck = {
   id: string
   status: PersistedPreflightStatus
   progressPercent: number
+  startedAt?: string | null
+  completedAt?: string | null
   items: Array<{
     checkType: string
     checkName: string

@@ -36,7 +36,8 @@ export type MissionCopy = {
 const MISSION_STATUSES: ReadonlySet<string> = new Set([
   'PLANNING',
   'CREATED',
-  'WAITING_DEPOSIT',
+  'PENDING_PAYMENT',
+  'PENDING_CONFIRMATION',
   'READY',
   'RESOURCE_ASSIGNING',
   'WAITING_OPERATOR_ACCEPTANCE',

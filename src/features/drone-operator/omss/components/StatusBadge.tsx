@@ -27,7 +27,9 @@ function Dot({ color }: { color: string }) {
 // accessor (src/shared/lib/statusTone.ts, Phase 1) so this stays in sync
 // with every other screen's mission status colour/label pairing.
 const MISSION_CFG: Record<MissionState, { color: string; dot: string }> = {
-  WAITING_DEPOSIT: { color: 'var(--amber)', dot: 'var(--amber)' },
+  PLANNING: { color: 'var(--blue)', dot: 'var(--blue)' },
+  PENDING_PAYMENT: { color: 'var(--amber)', dot: 'var(--amber)' },
+  PENDING_CONFIRMATION: { color: 'var(--blue)', dot: 'var(--blue)' },
   READY: { color: 'var(--amber)', dot: 'var(--amber)' },
   WAITING_OPERATOR_ACCEPTANCE: { color: 'var(--amber)', dot: 'var(--amber)' },
   RESOURCE_ASSIGNING: { color: 'var(--blue)', dot: 'var(--blue)' },

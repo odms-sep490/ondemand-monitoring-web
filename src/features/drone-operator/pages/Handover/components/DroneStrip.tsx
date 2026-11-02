@@ -1,4 +1,5 @@
 import { useI18n } from '../../../../../shared/i18n'
+import { Icon } from '../../../../../shared/components/Icon'
 import { handoverPageMessages } from '../HandoverPage.messages'
 
 export function DroneStrip({
@@ -10,40 +11,17 @@ export function DroneStrip({
 }) {
   const { t } = useI18n(handoverPageMessages)
   return (
-    <div
-      style={{
-        display: 'flex',
-        gap: 14,
-        alignItems: 'center',
-        padding: '10px 14px',
-        background: 'var(--sf)',
-        border: '1px solid var(--bd)',
-        borderRadius: 12,
-      }}
-    >
-      <span
-        style={{
-          width: 40,
-          height: 40,
-          borderRadius: 10,
-          background: 'var(--sf3)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flex: 'none',
-        }}
-      >
-        🔗
+    <div className="handover-drone-strip">
+      <span className="handover-drone-strip__icon">
+        <Icon name="link" width={18} height={18} />
       </span>
-      <div style={{ flex: 1 }}>
-        <div style={{ fontWeight: 700, fontSize: 15 }}>
+      <div className="handover-drone-strip__main">
+        <div className="handover-drone-strip__title">
           {droneLabel} · {missionLabel}
         </div>
-        <div style={{ color: 'var(--tx3)', fontSize: 12.5 }}>
-          {t.connectedAt}
-        </div>
+        <div className="handover-drone-strip__detail">{t.connectedAt}</div>
       </div>
-      <span className="odm-badge odm-badge-green odm-badge-lg">
+      <span className="odm-badge odm-badge-green odm-badge-lg handover-drone-strip__status">
         <span className="odm-badge-dot" aria-hidden="true" />
         {t.connected}
       </span>

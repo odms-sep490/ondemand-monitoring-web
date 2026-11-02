@@ -23,16 +23,6 @@ export const managerFeedbackMessages = defineMessages({
     rejectResultBody:
       'Kết quả sẽ bị trả lại và nhân sự thực hiện cần chỉnh sửa rồi gửi lại.',
     rejectResultAction: 'Từ chối kết quả',
-    safeStopRequested: 'Đã gửi yêu cầu dừng an toàn.',
-    safeStopConfirmed: 'Đã gửi xác nhận an toàn.',
-    safeStopCleaned: 'Đã giải phóng thiết bị và nhân sự.',
-    requestSafeStopTitle: 'Yêu cầu dừng nhiệm vụ an toàn?',
-    requestSafeStopBody:
-      'Nhiệm vụ sẽ được dừng và nhân sự hiện trường sẽ phải xác nhận an toàn. Thao tác này không thể hoàn tác.',
-    requestSafeStopAction: 'Yêu cầu dừng an toàn',
-    cleanupTitle: 'Giải phóng tài nguyên?',
-    cleanupBody: 'Giải phóng thiết bị và nhân sự của nhiệm vụ này?',
-    cleanupAction: 'Giải phóng tài nguyên',
     missionCreated: 'Đã tạo nhiệm vụ.',
     resourcesAssigned: 'Đã gán thiết bị và nhân sự cho nhiệm vụ.',
     flightPermitSaved: 'Đã cập nhật giấy phép bay.',
@@ -61,16 +51,6 @@ export const managerFeedbackMessages = defineMessages({
     rejectResultBody:
       'The result will be returned and the field crew must fix it and resubmit.',
     rejectResultAction: 'Reject result',
-    safeStopRequested: 'Safe stop requested.',
-    safeStopConfirmed: 'Safety confirmation sent.',
-    safeStopCleaned: 'Devices and crew released.',
-    requestSafeStopTitle: 'Request a safe stop?',
-    requestSafeStopBody:
-      'The Mission will be stopped and the field crew must confirm it is safe. This cannot be undone.',
-    requestSafeStopAction: 'Request safe stop',
-    cleanupTitle: 'Release resources?',
-    cleanupBody: 'Release the devices and crew of this Mission?',
-    cleanupAction: 'Release resources',
     missionCreated: 'Mission created.',
     resourcesAssigned: 'Devices and crew assigned to the Mission.',
     flightPermitSaved: 'Flight permit updated.',

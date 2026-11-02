@@ -4,7 +4,6 @@ import { useI18n } from '../../../../shared/i18n'
 import { missionApi } from '../../../mission/api/missionApi'
 import { useActiveMission } from '../../api/useActiveMission'
 import {
-  backendPreflightTokenStorageKey,
   handoverAcknowledgedStorageKey,
   preflightReadyStorageKey,
 } from '../../lib/flightWorkflowStorage'
@@ -18,6 +17,7 @@ import { DroneStrip } from './components/DroneStrip'
 import { CommitmentsCard } from './components/CommitmentsCard'
 import { AckToggle } from './components/AckToggle'
 import { HandoverActions } from './components/HandoverActions'
+import './HandoverPage.css'
 
 /** OPR-05W — Bàn giao quyền điều khiển: 4 cam kết + tick tổng + xác nhận. */
 export function HandoverPage({ missionId }: { missionId?: string }) {
@@ -39,7 +39,21 @@ export function HandoverPage({ missionId }: { missionId?: string }) {
   const [error, setError] = useState<string | null>(null)
 
   const allChecked = checked.every(Boolean)
-  const canConfirm = allChecked && ack && !submitting
+  const deviceReadyToFly =
+    mission.data?.deviceAssignments?.some(
+      (assignment) =>
+        assignment.deviceRole === 'MAIN' &&
+        assignment.deviceId === mission.data?.deviceId &&
+        assignment.status === 'READY_TO_FLY',
+    ) === true
+  const missionAwaitingHandover =
+    mission.data?.status === 'PENDING_CONFIRMATION'
+  const canConfirm =
+    allChecked &&
+    ack &&
+    deviceReadyToFly &&
+    missionAwaitingHandover &&
+    !submitting
 
   async function handleConfirm() {
     setSubmitting(true)
@@ -49,6 +63,14 @@ export function HandoverPage({ missionId }: { missionId?: string }) {
       const deviceId = data?.deviceId
       if (!mission.missionId || !deviceId)
         throw new Error(t.noDroneAssignedError)
+      if (!missionAwaitingHandover)
+        throw new Error(t.crewAcceptanceRequired)
+      if (!deviceReadyToFly) throw new Error(t.precheckRequiredError)
+
+      await flightControlApi
+        .bindSession(mission.missionId, deviceId)
+        .catch(() => undefined)
+      await missionApi.handoverMyMission(mission.missionId)
       window.sessionStorage.setItem(
         handoverAcknowledgedStorageKey(mission.missionId),
         'true',
@@ -64,35 +86,10 @@ export function HandoverPage({ missionId }: { missionId?: string }) {
         preflightReadyStorageKey(mission.missionId, deviceId),
         'true',
       )
-
-      await flightControlApi
-        .bindSession(mission.missionId, deviceId)
-        .catch(() => undefined)
-      if (data?.status !== 'READY_TO_FLY') {
-        const completedPreflight = await missionApi.runPreflightCheck(
-          mission.missionId,
-          deviceId,
-        )
-        const tokenValue = completedPreflight.flightToken?.tokenValue
-        if (tokenValue) {
-          window.sessionStorage.setItem(
-            backendPreflightTokenStorageKey(mission.missionId, deviceId),
-            tokenValue,
-          )
-        }
-      }
-      await missionApi.handoverMyMission(mission.missionId)
-      const permissions = await missionApi
-        .getPermissions(mission.missionId)
-        .catch(() => null)
-      if (permissions?.canControlFlight) {
-        window.location.hash = operatorHref({
-          screen: 'flight',
-          missionId: mission.missionId,
-        })
-        return
-      }
-      window.location.hash = operatorHref({ screen: 'missions' })
+      window.location.hash = operatorHref({
+        screen: 'missionDetail',
+        missionId: mission.missionId,
+      })
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : t.confirmFailed)
     } finally {
@@ -101,16 +98,16 @@ export function HandoverPage({ missionId }: { missionId?: string }) {
   }
 
   return (
-    <div className="odm-card" style={{ marginBottom: 0 }}>
+    <div className="odm-card handover-page" style={{ marginBottom: 0 }}>
       <FlightStepHeader
         title={t.stepTitle}
         missionId={missionLabel}
         active={4}
       />
-      <div style={{ padding: '18px 22px', maxWidth: 800, margin: '0 auto' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+      <div className="handover-page__content">
+        <div className="handover-page__stack">
           {error && (
-            <p role="alert" style={{ color: 'var(--red-fg)' }}>
+            <p className="handover-page__error" role="alert">
               {error}
             </p>
           )}
@@ -123,36 +120,27 @@ export function HandoverPage({ missionId }: { missionId?: string }) {
             <RevokedBanner onReconfirm={() => setRevoked(false)} />
           ) : (
             <>
-              <div className="odm-card">
+              <section
+                className="odm-card"
+                aria-labelledby="handover-commitments-title"
+              >
                 <CommitmentsCard
                   COMMITMENTS={COMMITMENTS}
                   checked={checked}
                   setChecked={setChecked}
                 />
-              </div>
+              </section>
 
               <button
                 type="button"
                 onClick={() => setAck((v) => !v)}
-                style={{
-                  width: '100%',
-                  textAlign: 'left',
-                  display: 'flex',
-                  gap: 14,
-                  alignItems: 'center',
-                  padding: '14px 16px',
-                  borderRadius: 12,
-                  border: `2px solid ${ack ? 'var(--green-dot)' : 'var(--bd2)'}`,
-                  background: ack ? 'var(--green-bg)' : 'var(--sf)',
-                  cursor: 'pointer',
-                  font: 'inherit',
-                  color: 'inherit',
-                }}
+                className="handover-page__ack"
+                aria-pressed={ack}
               >
                 <AckToggle ack={ack} />
               </button>
 
-              <div style={{ display: 'flex', gap: 12 }}>
+              <div className="handover-page__actions">
                 <HandoverActions
                   mission={mission}
                   canConfirm={canConfirm}
@@ -160,15 +148,7 @@ export function HandoverPage({ missionId }: { missionId?: string }) {
                   submitting={submitting}
                 />
               </div>
-              <div
-                style={{
-                  fontSize: 11.5,
-                  color: 'var(--tx3)',
-                  textAlign: 'center',
-                }}
-              >
-                {t.confirmLockedNote}
-              </div>
+              <div className="handover-page__note">{t.confirmLockedNote}</div>
             </>
           )}
         </div>

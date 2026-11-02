@@ -1,10 +1,5 @@
 import { useCallback } from 'react'
 import type { FlightCommand } from './inFlightTypes'
-import {
-  maySendFlightCommand,
-  missionHasSafeStop,
-  missionMayTerminate,
-} from '../../../mission/lib/missionOperationalState'
 import { missionApi } from '../../../mission/api/missionApi'
 import { getLanguage, useI18n } from '../../../../shared/i18n'
 import { isInsideHcmcServiceArea } from '../../../../shared/lib/serviceArea'
@@ -24,9 +19,7 @@ import type { RestrictedGpsZone } from './gpsRoutePlanner'
 
 export function useFlightCommand({
   normalFlightAllowed,
-  terminationAllowed,
   setLastCommand,
-  operationalMessage,
   preflightReady,
   mission,
   controlStatus,
@@ -34,14 +27,11 @@ export function useFlightCommand({
   setBusyCommand,
   drone,
   setIsOnline,
-  onStartFlight,
   onRTB,
   onEmergency,
 }: {
   normalFlightAllowed: boolean
-  terminationAllowed: boolean
   setLastCommand: Dispatch<SetStateAction<string>>
-  operationalMessage: string | undefined
   preflightReady: boolean
   mission: Mission
   controlStatus: ControlStatus | null
@@ -49,42 +39,29 @@ export function useFlightCommand({
   setBusyCommand: Dispatch<SetStateAction<FlightCommand | null>>
   drone: Drone
   setIsOnline: Dispatch<SetStateAction<boolean>>
-  onStartFlight: (() => Promise<void>) | undefined
   onRTB: () => void
   onEmergency: () => void
 }) {
   const { t } = useI18n(inFlightControlMessages)
   const sendCommand = useCallback(
     async (command: FlightCommand) => {
-      if (
-        !maySendFlightCommand(command, normalFlightAllowed, terminationAllowed)
-      ) {
+      if (!normalFlightAllowed) {
         setLastCommand(
-          operationalMessage ??
-            'Chưa có quyền vận hành Mission. Làm mới trạng thái.',
+          'Chưa có quyền vận hành Mission. Làm mới trạng thái.',
         )
         return
       }
-      if (!preflightReady && !terminationAllowed) {
+      if (!preflightReady) {
         setLastCommand(t.status.preflightRequired)
         return
       }
-      // Recheck exact Mission before dispatch; a cockpit may stay open across a stop request.
+      // Recheck the Mission's current flight-control permission before dispatch.
       try {
         const id = mission.backendId ?? mission.id
-        const [current, access] = await Promise.all([
-          missionApi.getMissionById(id),
-          missionApi.getPermissions(id),
-        ])
-        if (
-          !maySendFlightCommand(
-            command,
-            !missionHasSafeStop(current) && access.canControlFlight,
-            missionMayTerminate(current, access.canTerminateFlight),
-          )
-        ) {
+        const access = await missionApi.getPermissions(id)
+        if (!access.canControlFlight) {
           setLastCommand(
-            'Mission đang dừng hoặc chưa có quyền thực hiện lệnh này.',
+            'Chưa có quyền vận hành Mission. Làm mới trạng thái.',
           )
           return
         }
@@ -263,17 +240,6 @@ export function useFlightCommand({
         )
         setIsOnline(true)
 
-        // Keep the business mission lifecycle in sync with the real flight.
-        // Both a direct takeoff and "Fly to point" begin an actual flight, so
-        // neither command may leave Inspector screens stuck at READY_TO_FLY.
-        if (
-          (command === 'takeoff' || command === 'gps_target_start') &&
-          onStartFlight
-        ) {
-          const latestMission = await missionApi.getMissionById(missionKey)
-          if (latestMission.status === 'READY_TO_FLY') await onStartFlight()
-        }
-
         if (command === 'return_to_base') onRTB()
         if (command === 'emergency_stop') onEmergency()
       } catch (cause) {
@@ -302,10 +268,7 @@ export function useFlightCommand({
       mission.routePoints,
       onEmergency,
       onRTB,
-      onStartFlight,
       normalFlightAllowed,
-      terminationAllowed,
-      operationalMessage,
       preflightReady,
       restrictedGpsZones,
       t,

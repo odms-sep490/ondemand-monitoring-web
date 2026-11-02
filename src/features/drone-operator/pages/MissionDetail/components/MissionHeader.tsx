@@ -1,19 +1,15 @@
 import type { OperatorMission } from '../../../types/mission'
 import type { MissionPermissions } from '../../../../mission/types/permissions'
-import {
-  missionHasSafeStop,
-  missionStopLabel,
-  missionMayTerminate,
-} from '../../../../mission/lib/missionOperationalState'
 import { missionProgressBadge, missionStatusLabel } from '../missionFormat'
-import {
-  GCS_CONNECTED_STATUSES,
-  INSPECTION_MEDIA_STATUSES,
-  STATUS_TONE,
-} from '../missionConstants'
+import { INSPECTION_MEDIA_STATUSES, STATUS_TONE } from '../missionConstants'
 import { operatorHref } from '../../../routes'
 import { StatusBadge } from '../../../../../shared/components/odm/StatusBadge'
 import { Icon } from '../../../../../shared/components/Icon'
+import { useI18n } from '../../../../../shared/i18n'
+import { missionDetailPageMessages } from '../MissionDetailPage.messages'
+import { hasAcknowledgedHandover } from '../../../lib/flightWorkflowStorage'
+import type { WeatherPreflightStatus } from '../types'
+import { isWeatherCheckFresh } from '../weatherReadiness'
 
 // ─── Mission Header ───────────────────────────────────────────────────────────
 
@@ -21,32 +17,62 @@ export function MissionHeader({
   mission,
   access,
   submitting,
+  weatherStatus = null,
+  weatherLoading = false,
   onStartWorkflow,
 }: {
   mission: OperatorMission
   access?: MissionPermissions
   submitting?: boolean
+  weatherStatus?: WeatherPreflightStatus | null
+  weatherLoading?: boolean
   onStartWorkflow?: () => void
 }) {
+  const { t } = useI18n(missionDetailPageMessages)
   const hasAccepted = mission.myResponseStatus === 'ACCEPTED'
-  const stopping = missionHasSafeStop(mission)
-  const progressBadge = stopping
-    ? null
-    : missionProgressBadge(mission.backendStatus)
+  const progressBadge = missionProgressBadge(mission.backendStatus)
   const backendStatus = mission.backendStatus ?? mission.status
+  const missionPreparing =
+    backendStatus === 'PLANNING' ||
+    backendStatus === 'PENDING_CONFIRMATION' ||
+    backendStatus === 'SCHEDULED' ||
+    backendStatus === 'READY'
+  const headerStatus =
+    mission.myResponseStatus === 'ACCEPTED'
+      ? (backendStatus as OperatorMission['status'])
+      : mission.status
+  const deviceState = mission.deviceAssignmentStatus ?? ''
+  const canHandover =
+    backendStatus === 'PENDING_CONFIRMATION' &&
+    deviceState === 'READY_TO_FLY' &&
+    access?.canOperatePayload === true &&
+    !hasAcknowledgedHandover(mission.id)
   const canConnectGcs =
-    !stopping &&
     access?.canOperatePayload === true &&
-    backendStatus === 'SCHEDULED' &&
-    !GCS_CONNECTED_STATUSES.has(backendStatus)
+    missionPreparing &&
+    (!deviceState ||
+      deviceState === 'ASSIGNED' ||
+      deviceState === 'CONNECTION_LOST')
+  const canStartMission =
+    hasAccepted &&
+    backendStatus === 'READY' &&
+    (deviceState === 'READY_TO_FLY' || mission.status === 'READY_TO_FLY') &&
+    access?.canStartMission === true
+  const weatherConditionsReady =
+    isWeatherCheckFresh(weatherStatus) && weatherStatus?.safeToFly === true
+  const weatherIsReady =
+    weatherConditionsReady && weatherStatus?.inspectorAccepted === true
   const canRunPreflight =
-    !stopping &&
     access?.canOperatePayload === true &&
-    ['CONNECTED', 'PREFLIGHT_CHECKING', 'FAILED_PREFLIGHT'].includes(
-      backendStatus,
+    missionPreparing &&
+    ['CONNECTED', 'PREFLIGHT_CHECKING', 'FAILED_PREFLIGHT', 'FAILED'].includes(
+      deviceState || backendStatus,
     )
   const canHandleInspectionMedia =
-    INSPECTION_MEDIA_STATUSES.has(backendStatus) &&
+    (INSPECTION_MEDIA_STATUSES.has(backendStatus) ||
+      (backendStatus === 'IN_PROGRESS' &&
+        (access?.canCompleteMission === true ||
+          access?.canSubmitMissionResult === true))) &&
     (access?.canInspectDevice === true ||
       access?.canCompleteMission === true ||
       access?.canUploadMedia === true)
@@ -71,9 +97,8 @@ export function MissionHeader({
             Mission {mission.missionCode ?? mission.id}
           </span>
         </h1>
-        <StatusBadge tone={STATUS_TONE[mission.status]}>
-          {missionStopLabel(mission) ??
-            missionStatusLabel(mission.backendStatus ?? mission.status)}
+        <StatusBadge tone={STATUS_TONE[headerStatus]} size="lg">
+          {missionStatusLabel(headerStatus)}
         </StatusBadge>
 
         {/* spacer */}
@@ -88,7 +113,7 @@ export function MissionHeader({
         )}
         {access?.canMaintainDevice &&
           ['RETURNING', 'POSTFLIGHT_CHECKING'].includes(
-            mission.backendStatus ?? '',
+            mission.deviceAssignmentStatus ?? '',
           ) && (
             <a
               className="odm-btn"
@@ -114,37 +139,23 @@ export function MissionHeader({
           </StatusBadge>
         ) : null}
         {/* Action permissions come from the backend assignment policy. */}
-        {stopping ? (
-          missionMayTerminate(mission, access?.canTerminateFlight) ? (
-            <a
-              className="odm-btn odm-btn-rd"
-              href={operatorHref({ screen: 'flight', missionId: mission.id })}
-            >
-              Dừng chuyến bay
-            </a>
-          ) : null
-        ) : hasAccepted &&
-          (backendStatus === 'READY' ||
-            backendStatus === 'WAITING_OPERATOR_ACCEPTANCE') ? (
-          access?.canStartMission ? (
+        {canStartMission ? (
+          weatherIsReady ? (
             <button
               type="button"
               className="odm-btn odm-btn-p"
-              disabled={submitting}
+              disabled={submitting || weatherLoading}
               onClick={onStartWorkflow}
             >
-              {submitting ? 'Đang bắt đầu...' : 'Bắt đầu Mission'}
+              {submitting ? 'Đang bắt đầu Mission...' : t.startMission}
             </button>
-          ) : (
-            <StatusBadge tone="green">Đã chấp nhận</StatusBadge>
-          )
-        ) : mission.status === 'PENDING' ? null : mission.backendStatus ===
-            'READY_TO_FLY' && access?.canControlFlight ? (
+          ) : null
+        ) : mission.status === 'PENDING' ? null : canHandover ? (
           <a
-            className="odm-btn odm-btn-p"
-            href={operatorHref({ screen: 'flight', missionId: mission.id })}
+            className="odm-btn odm-btn-ok"
+            href={operatorHref({ screen: 'handover', missionId: mission.id })}
           >
-            Mở buồng lái
+            Bàn giao quyền điều khiển
           </a>
         ) : canConnectGcs ? (
           <a
@@ -154,7 +165,8 @@ export function MissionHeader({
             <Icon name="zap" width={16} height={16} aria-hidden="true" />
             Kết nối GCS
           </a>
-        ) : mission.status === 'IN_FLIGHT' ? (
+        ) : backendStatus === 'IN_PROGRESS' ||
+          mission.status === 'IN_FLIGHT' ? (
           <>
             {access?.canUploadMedia && (
               <a
@@ -178,6 +190,28 @@ export function MissionHeader({
           </>
         ) : null}
       </div>
+      {canStartMission && (
+        <section
+          role="status"
+          aria-label={t.readyForInspectorTitle}
+          className="mds-readiness-strip is-ready"
+        >
+          <div className="mds-readiness-overview">
+            <strong>{t.preflightChecksPassed}</strong>
+            <ul className="mds-readiness-checks">
+              <li aria-label={t.crewAcceptanceComplete}>
+                <span aria-hidden="true">✓</span>{t.crewShortLabel}
+              </li>
+              <li aria-label={t.devicePreflightComplete}>
+                <span aria-hidden="true">✓</span>{t.deviceShortLabel}
+              </li>
+              <li aria-label={t.controlHandoverComplete}>
+                <span aria-hidden="true">✓</span>{t.handoverShortLabel}
+              </li>
+            </ul>
+          </div>
+        </section>
+      )}
     </div>
   )
 }

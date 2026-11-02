@@ -117,12 +117,6 @@ export const managerLibMessages = defineMessages({
           'Kế hoạch đã được thay đổi ở phiên bản khác. Vui lòng tải lại dữ liệu.',
         CHECKLIST_COVERAGE_INCOMPLETE:
           'Còn danh mục kiểm tra chưa được phân công. Kiểm tra các yêu cầu trước khi chốt kế hoạch.',
-        MISSION_CANCELLATION_REQUIRES_SAFE_STOP:
-          'Nhiệm vụ chưa đủ điều kiện hủy. Cần hoàn tất xác nhận an toàn và đóng phiên vận hành trước khi hủy.',
-        MISSION_SAFE_STOP_NOT_READY:
-          'Nhiệm vụ chưa ở trạng thái an toàn để tiếp tục. Làm mới trạng thái hoặc chờ nhân sự vận hành.',
-        MISSION_SAFE_STOP_FAILED:
-          'Dừng an toàn chưa hoàn tất. Làm mới trạng thái và liên hệ nhân sự vận hành.',
         MISSION_RESULT_ALREADY_APPROVED:
           'Kết quả đã được duyệt; không thể hủy lịch sử nhiệm vụ này.',
         RESOURCE_TIME_CONFLICT:
@@ -262,12 +256,6 @@ export const managerLibMessages = defineMessages({
           'The plan was changed in another session. Please reload the data.',
         CHECKLIST_COVERAGE_INCOMPLETE:
           'Some checklists are not assigned yet. Review the requirements before finalizing the plan.',
-        MISSION_CANCELLATION_REQUIRES_SAFE_STOP:
-          'The Mission cannot be cancelled yet. Complete the safety confirmation and close the operation session before cancelling.',
-        MISSION_SAFE_STOP_NOT_READY:
-          'The Mission is not in a safe state to continue. Refresh the status or wait for the operations crew.',
-        MISSION_SAFE_STOP_FAILED:
-          'Safe stop did not complete. Refresh the status and contact the operations crew.',
         MISSION_RESULT_ALREADY_APPROVED:
           'The result has already been approved; this Mission history cannot be cancelled.',
         RESOURCE_TIME_CONFLICT:

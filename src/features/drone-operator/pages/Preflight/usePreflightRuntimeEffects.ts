@@ -26,11 +26,9 @@ export function usePreflightRuntimeEffects({
   setRuntimeStatus,
   setPersistedPreflightId,
   setPersistedPreflightStatus,
-  setPersistedWeatherPassed,
   syncedPersistedItemsRef,
   syncingPersistedItemsRef,
   setBackendPreflightMessage,
-  setWeatherError,
   backendPreflightRegisteredRef,
   validatedStoredCheckRef,
   storageKey,
@@ -53,11 +51,9 @@ export function usePreflightRuntimeEffects({
   setPersistedPreflightStatus: Dispatch<
     SetStateAction<PersistedPreflightStatus | null>
   >
-  setPersistedWeatherPassed: Dispatch<SetStateAction<boolean>>
   syncedPersistedItemsRef: RefObject<Record<string, string>>
   syncingPersistedItemsRef: RefObject<boolean>
   setBackendPreflightMessage: Dispatch<SetStateAction<string | null>>
-  setWeatherError: Dispatch<SetStateAction<string | null>>
   backendPreflightRegisteredRef: RefObject<boolean>
   validatedStoredCheckRef: RefObject<boolean>
   storageKey: string
@@ -108,11 +104,9 @@ export function usePreflightRuntimeEffects({
             setRuntimeStatus(null)
             setPersistedPreflightId(null)
             setPersistedPreflightStatus(null)
-            setPersistedWeatherPassed(false)
             syncedPersistedItemsRef.current = {}
             syncingPersistedItemsRef.current = false
             setBackendPreflightMessage(null)
-            setWeatherError(null)
             backendPreflightRegisteredRef.current = false
             validatedStoredCheckRef.current = false
             clearStoredPreflightState(storageKey)
@@ -130,11 +124,9 @@ export function usePreflightRuntimeEffects({
           setRuntimeStatus(null)
           setPersistedPreflightId(null)
           setPersistedPreflightStatus(null)
-          setPersistedWeatherPassed(false)
           syncedPersistedItemsRef.current = {}
           syncingPersistedItemsRef.current = false
           setBackendPreflightMessage(null)
-          setWeatherError(null)
           backendPreflightRegisteredRef.current = false
           validatedStoredCheckRef.current = false
           clearStoredPreflightState(storageKey)
@@ -165,13 +157,6 @@ export function usePreflightRuntimeEffects({
       const persistedRuntime = runtimeStatusFromPersisted(persisted)
       setPersistedPreflightId(persisted.id)
       setPersistedPreflightStatus(persisted.status)
-      setPersistedWeatherPassed(
-        persisted.items.some(
-          (item) =>
-            item.checkType === 'weather_conditions' &&
-            item.status === 'PASSED',
-        ),
-      )
       setRuntimeStatus((current) => {
         if (current?.checkId === persisted.id) return current
         writeStoredPreflightState(

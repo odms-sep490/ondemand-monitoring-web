@@ -23,6 +23,8 @@ const INVOICE_TONE: Record<
 
 export function InvoiceSummary({ invoice }: { invoice: Invoice }) {
   const { t } = useI18n(customerFinanceSectionsMessages)
+  const depositStatus = invoice.depositStatus ??
+    (invoice.paidAmount >= invoice.depositAmount ? 'DEPOSIT_PAID' : 'WAITING_DEPOSIT')
 
   return (
     <section
@@ -34,6 +36,11 @@ export function InvoiceSummary({ invoice }: { invoice: Invoice }) {
         <StatusTag tone={INVOICE_TONE[invoice.status] ?? 'neutral'}>
           {t.invoiceStatus[invoice.status] ?? pricingLabel(invoice.status)}
         </StatusTag>
+        {invoice.status !== 'CANCELLED' && invoice.status !== 'REFUNDED' ? (
+          <StatusTag tone={depositStatus === 'DEPOSIT_PAID' ? 'success' : 'warning'}>
+            {t.depositPaymentStatus[depositStatus]}
+          </StatusTag>
+        ) : null}
       </div>
       <div className="customer-payment-stats">
         <PaymentStat label={t.total} value={invoice.totalAmount} />

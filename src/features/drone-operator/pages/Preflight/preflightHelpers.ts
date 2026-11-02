@@ -117,7 +117,3 @@ export function isMissionInFlight(status?: string | null) {
     status === 'IN_FLIGHT' || status === 'IN_PROGRESS' || status === 'RETURNING'
   )
 }
-
-export function demoFlightToken(missionId: string, deviceId: string) {
-  return `demo-flight-token:${missionId}:${deviceId}:${Date.now()}`
-}

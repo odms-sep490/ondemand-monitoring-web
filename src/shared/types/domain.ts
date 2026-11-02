@@ -35,26 +35,28 @@ export type OrderStatus =
 
 export type MissionStatus =
   | 'PLANNING'
-  // Legacy values are retained while old mocks/history records are migrated.
-  | 'CREATED'
-  | 'WAITING_DEPOSIT'
+  | 'PENDING_PAYMENT'
+  | 'PENDING_CONFIRMATION'
   | 'READY'
+  | 'SCHEDULED'
+  | 'IN_PROGRESS'
+  | 'AWAITING_REVIEW'
+  | 'PENDING_REVIEW'
+  | 'COMPLETED'
+  | 'FAILED'
+  | 'CANCELLED'
+  // Legacy / transition aliases kept for mock data and component compatibility:
+  | 'CREATED'
   | 'RESOURCE_ASSIGNING'
   | 'WAITING_OPERATOR_ACCEPTANCE'
-  | 'SCHEDULED'
   | 'CONNECTED'
   | 'PREFLIGHT_CHECKING'
   | 'READY_TO_FLY'
   | 'FAILED_PREFLIGHT'
   | 'PENDING_APPROVAL'
   | 'IN_FLIGHT'
-  | 'IN_PROGRESS'
   | 'RETURNING'
   | 'POSTFLIGHT_CHECKING'
-  | 'PENDING_REVIEW'
-  | 'COMPLETED'
-  | 'FAILED'
-  | 'CANCELLED'
 
 export type DroneStatus =
   | 'AVAILABLE'

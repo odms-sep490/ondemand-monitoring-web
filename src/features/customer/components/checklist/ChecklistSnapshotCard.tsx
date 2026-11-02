@@ -388,7 +388,6 @@ export function ChecklistSnapshotCard({
                       <div className="checklist-snapshot-detail">
                         <ChecklistGuidance
                           guidance={item}
-                          collapsible={false}
                           showEmpty={item.sourceType === 'CUSTOMER_CUSTOM'}
                         />
                         {item.evidencePolicyVersion === 3 &&

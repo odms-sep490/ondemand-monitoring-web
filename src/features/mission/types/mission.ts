@@ -1,24 +1,56 @@
 export type MissionStatus =
   | 'PLANNING'
-  | 'CREATED'
-  | 'WAITING_DEPOSIT'
+  | 'PENDING_PAYMENT'
+  | 'PENDING_CONFIRMATION'
   | 'READY'
+  | 'SCHEDULED'
+  | 'IN_PROGRESS'
+  | 'AWAITING_REVIEW'
+  | 'PENDING_REVIEW'
+  | 'COMPLETED'
+  | 'FAILED'
+  | 'CANCELLED'
+  // Legacy / transition aliases kept for mock data and component compatibility:
+  | 'CREATED'
   | 'RESOURCE_ASSIGNING'
   | 'WAITING_OPERATOR_ACCEPTANCE'
-  | 'SCHEDULED'
   | 'CONNECTED'
   | 'PREFLIGHT_CHECKING'
   | 'READY_TO_FLY'
   | 'FAILED_PREFLIGHT'
   | 'PENDING_APPROVAL'
   | 'IN_FLIGHT'
+  | 'RETURNING'
+  | 'POSTFLIGHT_CHECKING'
+
+export type MissionCancellationResponse = {
+  missionId: string
+  status: 'CANCELLED'
+  executionPlanRevision: number
+  cancelledAt: string
+  cancelledBy: string
+  cancellationReason: string
+}
+
+export type MissionDeviceAssignmentStatus =
+  | 'ASSIGNED'
+  | 'CONNECTED'
+  | 'CONNECTION_LOST'
+  | 'PREFLIGHT_CHECKING'
+  | 'READY_TO_FLY'
   | 'IN_PROGRESS'
   | 'RETURNING'
   | 'POSTFLIGHT_CHECKING'
-  | 'PENDING_REVIEW'
   | 'COMPLETED'
   | 'FAILED'
-  | 'CANCELLED'
+  | 'RELEASED'
+
+export type MissionDeviceCheckStatus =
+  | 'PLANNING'
+  | 'PENDING'
+  | 'CHECKING'
+  | 'PASSED'
+  | 'FAILED'
 
 export type MissionResourcePrepareStatus = 'PLANNING' | 'PENDING' | 'READY'
 
@@ -72,10 +104,6 @@ export interface MissionPlan {
 }
 
 export interface Mission {
-  safeStopStatus?: string | null
-  safeStopRequestedAt?: string | null
-  safeStopConfirmedAt?: string | null
-  safeStopCleanedAt?: string | null
   id: string
   orderId?: string
   orderCode?: string | null
@@ -89,6 +117,12 @@ export interface Mission {
   status: MissionStatus
   operatorId?: string
   staffAssignments?: MissionStaffAssignment[]
+  deviceAssignments?: Array<{
+    deviceId: string
+    deviceRole: 'MAIN' | 'BACKUP' | string
+    status: MissionDeviceAssignmentStatus
+    checkupStatus: MissionDeviceCheckStatus
+  }>
   deviceId?: string
   deviceCode?: string
   droneId?: string
@@ -207,19 +241,7 @@ export interface PreflightCheck {
   positioningPassed: boolean
   faultType?: 'BATTERY' | 'HARDWARE' | 'NONE'
   failureReason?: string
-  flightToken?: FlightToken
   notes?: string
-}
-
-export interface FlightToken {
-  id: string
-  tokenValue: string
-  missionId: string
-  deviceCode: string
-  issuedAt: string
-  expiresAt: string
-  usedAt?: string
-  revoked: boolean
 }
 
 export interface DeviceImage {

@@ -43,7 +43,9 @@ export async function fetchCurrentPersistedPreflight(
     `${env.apiBaseUrl}/api/missions/${encodeURIComponent(missionId)}/pre-device-checks/current`,
     { cache: 'no-store', signal },
   )
-  if (!response.ok) return null
+  if (!response.ok) {
+    throw new Error(`Preflight result request failed (${response.status})`)
+  }
   const payload = await response.json()
   const persisted = payload?.data ?? payload
   if (!persisted || typeof persisted.id !== 'string') return null

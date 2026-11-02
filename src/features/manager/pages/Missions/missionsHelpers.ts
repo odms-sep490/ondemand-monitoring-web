@@ -84,20 +84,13 @@ export type MissionGroup =
 
 const GROUPS: Record<MissionGroup, readonly MissionStatus[]> = {
   preparing: [
-    'CREATED',
-    'WAITING_DEPOSIT',
-    'RESOURCE_ASSIGNING',
+    'PENDING_PAYMENT',
+    'PENDING_CONFIRMATION',
     'READY',
-    'WAITING_OPERATOR_ACCEPTANCE',
     'SCHEDULED',
-    'CONNECTED',
-    'PREFLIGHT_CHECKING',
-    'READY_TO_FLY',
-    'FAILED_PREFLIGHT',
-    'PENDING_APPROVAL',
   ],
-  running: ['IN_FLIGHT', 'IN_PROGRESS', 'RETURNING', 'POSTFLIGHT_CHECKING'],
-  review: ['PENDING_REVIEW'],
+  running: ['IN_PROGRESS'],
+  review: ['AWAITING_REVIEW', 'PENDING_REVIEW'],
   completed: ['COMPLETED'],
   failed: ['FAILED', 'CANCELLED'],
 }
