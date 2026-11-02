@@ -2916,11 +2916,11 @@ ul.co-help {
 /* Step 5 is a scheduling form, not a pricing review. Give the editable fields
    the dominant reading width while keeping a compact confirmation rail. */
 .co-grid.is-service.is-schedule {
-  grid-template-columns: minmax(0, 2fr) minmax(300px, 0.72fr);
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 336px);
 }
 
 .co-grid.is-schedule > .co-stack:first-child {
-  max-width: 960px;
+  max-width: none;
 }
 
 .co-grid.is-schedule > .co-summary {
