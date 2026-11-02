@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { useI18n } from '../../../../shared/i18n'
 import { orderMissionsOverviewMessages } from './OrderMissionsOverview.messages'
 import { assignmentReadiness } from '../../lib/assignmentReadiness'
@@ -12,6 +12,7 @@ import type { MissionResponse } from '../../types/missions'
 import { Button } from '../../../../shared/components/ui'
 import { OrderDetailsDrawer } from './OrderDetailsDrawer'
 import type { OrderDetail } from '../../types/orders'
+import { financeApi } from '../../../finance/api'
 
 const ROLES: MissionStaffRole[] = [
   'PILOT',
@@ -48,6 +49,29 @@ export function OrderMissionsOverview({
   mode?: 'preparation' | 'permit'
 }) {
   const { t } = useI18n(orderMissionsOverviewMessages)
+  const [invoicePaid, setInvoicePaid] = useState(false)
+  useEffect(() => {
+    if (mode !== 'permit' || !order?.id) {
+      setInvoicePaid(false)
+      return
+    }
+    const controller = new AbortController()
+    setInvoicePaid(false)
+    financeApi
+      .getManagerInvoice(order.id, controller.signal)
+      .then((invoice) =>
+        {
+          if (!controller.signal.aborted)
+            setInvoicePaid(
+              invoice.status === 'PAID' && invoice.remainingAmount <= 0,
+            )
+        },
+      )
+      .catch(() => {
+        if (!controller.signal.aborted) setInvoicePaid(false)
+      })
+    return () => controller.abort()
+  }, [mode, order?.id])
   const effective = missions.filter((mission) => mission.status !== 'CANCELLED')
   const completeCount = effective.filter(
     (mission) => assignmentReadiness(mission).complete,
@@ -204,6 +228,7 @@ export function OrderMissionsOverview({
                 key={mission.id}
                 mission={mission}
                 onChanged={onReload}
+                paymentComplete={invoicePaid}
               />
             ))
         : null}

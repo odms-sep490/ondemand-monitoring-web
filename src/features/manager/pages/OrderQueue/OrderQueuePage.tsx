@@ -50,16 +50,34 @@ export function OrderQueuePage() {
             const invoice = await financeApi.getManagerInvoice(order.id, signal)
             const depositStatus = invoice.depositStatus ??
               (invoice.paidAmount >= invoice.depositAmount ? 'DEPOSIT_PAID' : 'WAITING_DEPOSIT')
-            return { order, depositStatus }
+            return {
+              order,
+              depositStatus,
+              finalPaymentDue:
+                invoice.finalPaymentAllowed && invoice.remainingAmount > 0,
+            }
           } catch {
             return null
           }
         }),
       )
-    ).filter((row): row is { order: OrderCreateResponse; depositStatus: DepositStatus } => row !== null)
+    ).filter(
+      (
+        row,
+      ): row is {
+        order: OrderCreateResponse
+        depositStatus: DepositStatus
+        finalPaymentDue: boolean
+      } => row !== null,
+    )
     const depositStatusByOrder = Object.fromEntries(
       invoices.map(({ order, depositStatus }) => [order.id, depositStatus]),
     ) as Record<string, DepositStatus>
+    const finalPaymentDueByOrder = Object.fromEntries(
+      invoices
+        .filter(({ finalPaymentDue }) => finalPaymentDue)
+        .map(({ order }) => [order.id, true]),
+    ) as Record<string, boolean>
     const paid = (
       await Promise.all(
         invoices
@@ -74,7 +92,7 @@ export function OrderQueuePage() {
           }),
       )
     ).filter((order): order is OrderCreateResponse => order !== null)
-    return { pending, paid, depositStatusByOrder }
+    return { pending, paid, depositStatusByOrder, finalPaymentDueByOrder }
   }, [])
 
   // Every order, newest first, so an order never "disappears" once it leaves the review queue.
@@ -111,6 +129,7 @@ export function OrderQueuePage() {
   const pendingOrders = query.data?.pending ?? []
   const paidOrders = query.data?.paid ?? []
   const depositStatusByOrder = query.data?.depositStatusByOrder ?? {}
+  const finalPaymentDueByOrder = query.data?.finalPaymentDueByOrder ?? {}
   const allOrders = allQuery.data?.orders
   const started = allQuery.data?.started
 
@@ -201,6 +220,7 @@ export function OrderQueuePage() {
         total={total}
         mode={activeTab}
         depositStatusByOrder={depositStatusByOrder}
+        finalPaymentDueByOrder={finalPaymentDueByOrder}
         isInProgress={(order) => groupOf(order) === 'IN_PROGRESS'}
       />
     )

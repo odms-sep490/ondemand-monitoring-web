@@ -1,5 +1,12 @@
 /* Focused polish for the six-step customer request flow. */
 
+.co-metric-detail {
+  margin-top: 2px;
+  color: var(--ui-text-3);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
 .co-page {
   padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
 }

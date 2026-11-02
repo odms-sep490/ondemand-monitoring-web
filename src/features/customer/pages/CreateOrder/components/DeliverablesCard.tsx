@@ -50,11 +50,13 @@ export function DeliverablesCard({
         <div className="co-two co-mt" aria-label={t.mediaSummary}>
           <Metric
             label={t.requestedPhotos}
-            value={String(mediaTotals.images)}
+            value={mediaTotals.images ? String(mediaTotals.images) : t.notRequested}
+            detail={mediaTotals.images ? t.derivedFromChecklist : undefined}
           />
           <Metric
             label={t.requestedVideos}
-            value={String(mediaTotals.videos)}
+            value={mediaTotals.videos ? String(mediaTotals.videos) : t.notRequested}
+            detail={mediaTotals.videos ? t.derivedFromChecklist : undefined}
           />
         </div>
         {onEditContent ? (

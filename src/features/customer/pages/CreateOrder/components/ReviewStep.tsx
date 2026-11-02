@@ -22,6 +22,7 @@ type Props = {
   update: UpdateField
   service?: ServiceOption
   time?: PreferredTimeOption
+  deliverable?: ServiceDeliverableOption
   deliverables: ServiceDeliverableOption[]
   deliverablesLoading: boolean
   deliverablesError?: unknown
@@ -61,6 +62,7 @@ export function ReviewStep(p: Props) {
           form={p.form}
           service={p.service}
           time={p.time}
+          deliverable={p.deliverable}
           checklistCounts={{
             total: p.packageSelectedCount + p.additionalChecklists.length,
             packageSelected: p.packageSelectedCount,

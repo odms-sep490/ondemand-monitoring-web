@@ -79,12 +79,16 @@ export function RequestSummaryCard(p: Props) {
       ? `${dateFrom} → ${dateTo}`
       : dateFrom
   const timeWindow = p.time ? localizeTimeslot(p.time, lang) : ''
-  const resultQuantity = [
-    p.mediaTotals?.images ? t.quantityUnit('IMAGE', p.mediaTotals.images) : '',
-    p.mediaTotals?.videos ? t.quantityUnit('VIDEO', p.mediaTotals.videos) : '',
-  ]
-    .filter(Boolean)
-    .join(' · ')
+  const resultQuantity = p.mediaTotals
+    ? [
+        p.mediaTotals.images
+          ? t.mediaRequested('IMAGE', p.mediaTotals.images)
+          : t.mediaNotRequested('IMAGE'),
+        p.mediaTotals.videos
+          ? t.mediaRequested('VIDEO', p.mediaTotals.videos)
+          : t.mediaNotRequested('VIDEO'),
+      ]
+    : []
   const usagePurpose =
     form.usagePurpose === 'OTHER'
       ? form.otherUsagePurpose.trim()
@@ -246,7 +250,7 @@ export function RequestSummaryCard(p: Props) {
                 p.deliverable?.deliverableTypeName,
                 lang,
               ) || t.noValue,
-              resultQuantity,
+              ...resultQuantity,
             ].filter(Boolean),
             step: 6 as Step,
           },

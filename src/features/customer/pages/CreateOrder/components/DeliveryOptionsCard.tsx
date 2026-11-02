@@ -30,16 +30,12 @@ export function DeliveryOptionsCard({
   mediaTotals,
 }: Props) {
   const { t } = useI18n(deliveryOptionsCardMessages)
-  // With no media in the checklists there is nothing to derive from, so every format stays a free choice.
-  const hasMedia = mediaTotals.images + mediaTotals.videos > 0
   const derived = (format: (typeof RESULT_FORMATS)[number]) =>
-    !hasMedia
-      ? undefined
-      : format === 'PHOTO'
-        ? mediaTotals.images > 0
-        : format === 'VIDEO'
-          ? mediaTotals.videos > 0
-          : undefined
+    format === 'PHOTO'
+      ? mediaTotals.images > 0
+      : format === 'VIDEO'
+        ? mediaTotals.videos > 0
+        : undefined
 
   // Photo and video are not chosen here: they follow what the checklists ask for. Only the PDF report is optional.
   useEffect(() => {

@@ -15,9 +15,11 @@ import { localizeTimeslot } from '../../lib/viLabels'
 export function FlightPermitCard({
   mission,
   onChanged,
+  paymentComplete = true,
 }: {
   mission: MissionResponse
   onChanged: () => void
+  paymentComplete?: boolean
 }) {
   const { t } = useI18n(flightPermitCardMessages)
   const { t: fb } = useI18n(managerFeedbackMessages)
@@ -73,6 +75,10 @@ export function FlightPermitCard({
 
   async function save(nextStatus: FlightPermitStatus) {
     setError('')
+    if (!paymentComplete) {
+      setError(t.paymentRequired)
+      return
+    }
     if (file && file.size > 5 * 1024 * 1024) {
       setError(t.fileTooLarge)
       return
@@ -112,6 +118,10 @@ export function FlightPermitCard({
 
   async function submitReschedule() {
     setError('')
+    if (!paymentComplete) {
+      setError(t.paymentRequired)
+      return
+    }
     const start = new Date(newStart)
     const end = new Date(newEnd)
     if (!newStart || !newEnd || end <= start) {
@@ -172,6 +182,10 @@ export function FlightPermitCard({
 
   async function submitCancellationProposal() {
     setError('')
+    if (!paymentComplete) {
+      setError(t.paymentRequired)
+      return
+    }
     if (!actionNote.trim()) {
       setError(t.cancellationReasonRequired)
       return
@@ -195,7 +209,8 @@ export function FlightPermitCard({
   }
 
   return (() => {
-    const canEditPermitFile = !cancelled && status !== 'APPROVED'
+    const canEditPermitFile =
+      !cancelled && status !== 'APPROVED' && paymentComplete
 
     return (
       <section
@@ -217,6 +232,11 @@ export function FlightPermitCard({
           {cancelled ? (
             <div className="odm-flight-permit__blocked" role="status">
               <strong>{t.cancelledNotice}</strong>
+            </div>
+          ) : null}
+          {!cancelled && !paymentComplete ? (
+            <div className="odm-flight-permit__blocked" role="status">
+              <strong>{t.paymentRequired}</strong>
             </div>
           ) : null}
           {status === 'REJECTED' && !cancelled ? (
@@ -244,7 +264,7 @@ export function FlightPermitCard({
               value={note}
               maxLength={1000}
               rows={3}
-              disabled={busy || cancelled}
+              disabled={busy || cancelled || !paymentComplete}
               onChange={(event) => setNote(event.target.value)}
               placeholder={t.notePlaceholder}
             />
@@ -256,7 +276,7 @@ export function FlightPermitCard({
                 id={`flight-permit-file-${mission.id}`}
                 type="file"
                 accept="application/pdf,image/*"
-                disabled={busy}
+                disabled={busy || !paymentComplete}
                 aria-label={t.chooseFileAria}
                 style={{ display: 'none' }}
                 onChange={(event) => setFile(event.target.files?.[0] ?? null)}
@@ -265,7 +285,7 @@ export function FlightPermitCard({
                 <div className="odm-flight-permit__dropzone">
                   <FilePickerButton
                     inputId={`flight-permit-file-${mission.id}`}
-                    disabled={busy}
+                    disabled={busy || !paymentComplete}
                     label={t.chooseFile}
                   />
                   <span
@@ -325,13 +345,13 @@ export function FlightPermitCard({
                 <>
                   <Button
                     variant="primary"
-                    disabled={busy}
+                    disabled={busy || !paymentComplete}
                     onClick={() => save('PENDING')}
                   >
                     {t.resubmit}
                   </Button>
                   <Button
-                    disabled={busy}
+                    disabled={busy || !paymentComplete}
                     onClick={() => {
                       setAction('reschedule')
                       setActionNote('')
@@ -341,7 +361,7 @@ export function FlightPermitCard({
                   </Button>
                   <Button
                     className="odm-flight-permit__reject"
-                    disabled={busy}
+                    disabled={busy || !paymentComplete}
                     onClick={() => {
                       setAction('cancel')
                       setActionNote('')
@@ -355,7 +375,7 @@ export function FlightPermitCard({
                 <Button
                   variant="primary"
                   className="odm-flight-permit__save"
-                  disabled={busy}
+                  disabled={busy || !paymentComplete}
                   onClick={() => save('PENDING')}
                 >
                   {t.saveChanges}
@@ -364,7 +384,7 @@ export function FlightPermitCard({
               {status !== 'APPROVED' && status !== 'REJECTED' ? (
                 <Button
                   className="odm-flight-permit__approve"
-                  disabled={busy}
+                  disabled={busy || !paymentComplete}
                   onClick={() => save('APPROVED')}
                 >
                   <svg
@@ -381,7 +401,7 @@ export function FlightPermitCard({
               {status !== 'REJECTED' && status !== 'APPROVED' ? (
                 <Button
                   className="odm-flight-permit__reject"
-                  disabled={busy}
+                  disabled={busy || !paymentComplete}
                   onClick={() => save('REJECTED')}
                 >
                   <svg
@@ -552,7 +572,7 @@ export function FlightPermitCard({
               <div className="odm-flight-permit__actions">
                 <Button
                   variant="primary"
-                  disabled={busy}
+                  disabled={busy || !paymentComplete}
                   onClick={submitReschedule}
                 >
                   {rescheduleScope === 'ORDER_AND_MISSION'
@@ -580,7 +600,7 @@ export function FlightPermitCard({
               <div className="odm-flight-permit__actions">
                 <Button
                   className="odm-flight-permit__reject"
-                  disabled={busy}
+                  disabled={busy || !paymentComplete}
                   onClick={submitCancellationProposal}
                 >
                   {t.submitCancellation}
