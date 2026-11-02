@@ -54,13 +54,6 @@ export function PostflightPage({ missionId }: { missionId?: string }) {
         : Promise.resolve(null),
     [effectiveMissionId],
   )
-  const permissionsQuery = useApiQuery(
-    () =>
-      effectiveMissionId
-        ? missionApi.getPermissions(effectiveMissionId)
-        : Promise.resolve(null),
-    [effectiveMissionId],
-  )
   const missionLabel =
     activeData?.missionCode || effectiveMissionId || t.defaultMissionLabel
   const deviceId = activeData?.deviceId ?? 'DEVICE'
@@ -83,6 +76,15 @@ export function PostflightPage({ missionId }: { missionId?: string }) {
     ticketCreated: boolean
     droneStatus: string
   } | null>(null)
+  const permissionsQuery = useApiQuery(
+    () =>
+      effectiveMissionId
+        ? missionApi.getPermissions(effectiveMissionId)
+        : Promise.resolve(null),
+    // The inspector permission becomes available after postflight persists
+    // actualEndAt, so re-fetch it when this page completes the postflight.
+    [effectiveMissionId, Boolean(completed)],
+  )
 
   const items: PostflightItem[] = useMemo(
     () =>

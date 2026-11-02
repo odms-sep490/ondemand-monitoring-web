@@ -131,10 +131,10 @@ export function MissionResultActions({
           : status === 'COMPLETED'
             ? 'Mission đã được Manager duyệt.'
             : showComplete && !showSubmit && state.canComplete
-              ? 'Postflight hoàn tất. Xác nhận hoàn thành trước khi gửi kết quả cho Manager.'
+              ? 'Kiểm tra sau bay đã hoàn tất. Xác nhận hoàn thành trước khi gửi kết quả cho quản lý.'
               : state.canSubmit
               ? 'Nghiệm thu hoàn tất. Có thể gửi kết quả cho Manager.'
-              : 'Postflight hoàn tất, Mission đang chờ nghiệm thu.'}
+              : 'Kiểm tra sau bay đã hoàn tất, nhiệm vụ đang chờ nghiệm thu.'}
         {state.submitted && (
           <>
             <span>

@@ -33,7 +33,7 @@ export const connectStatusPanelMessages = defineMessages({
     heartbeatTelemetry: 'Heartbeat telemetry',
     telemetrySummary: (satellites: number) =>
       `telemetry_active = TRUE · pin thiết bị 100% · ${satellites} vệ tinh`,
-    continueToPrecheck: 'Tiếp tục: precheck',
+    continueToPrecheck: 'Tiếp tục kiểm tra trước bay',
     backToMission: 'Quay lại mission',
   },
   en: {

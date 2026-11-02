@@ -51,7 +51,7 @@ export function PreflightDiagnosticCard({
             className="eyebrow"
             style={{ margin: '0 0 4px', fontSize: '0.65rem' }}
           >
-            F3.2 DIGITAL PRE-FLIGHT DIAGNOSTICS GATE
+            {t.eyebrow}
           </p>
           <h3
             style={{

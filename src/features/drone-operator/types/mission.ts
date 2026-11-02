@@ -28,11 +28,14 @@ export type OperatorMission = {
   deviceStatus?: string | null
   deviceAssignmentStatus?: MissionDeviceAssignmentStatus | null
   deviceCheckStatus?: MissionDeviceCheckStatus | null
+  acceptedStaffCount?: number
+  assignedStaffCount?: number
   deviceModelCode?: string | null
   deviceManufacturer?: string | null
   droneCode: string | null
   droneName: string | null
   flightStartedAt?: string
+  actualEndAt?: string
   completedAt?: string
   managerSubmissionStatus?:
     'NEEDS_SUBMIT' | 'PENDING_MANAGER' | 'SENT_TO_CUSTOMER'

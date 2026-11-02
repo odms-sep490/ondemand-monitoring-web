@@ -28,6 +28,7 @@ import { ManagerNoteCard } from './ManagerNoteCard'
 import { DroneDeviceCard } from './DroneDeviceCard'
 import { PrecheckCard } from './PrecheckCard'
 import { WeatherCard } from './WeatherCard'
+import { MissionWorkflowProgress } from './MissionWorkflowProgress'
 import { PostcheckCard } from './PostcheckCard'
 import { MissionUploadedMedia } from '../../../../media/components/MissionUploadedMedia'
 import { useI18n } from '../../../../../shared/i18n'
@@ -148,6 +149,11 @@ export function MissionDashboard({
     return (
       <div className="mds-dashboard mds-pending">
         <MissionHeader mission={mission} access={access} />
+        <MissionWorkflowProgress
+          mission={mission}
+          weather={weatherStatus}
+          resultApprovalStatus={resultApprovalStatus}
+        />
         <DecisionSummary mission={mission} />
         <div
           className="mds-action-bar"
@@ -239,6 +245,12 @@ export function MissionDashboard({
         weatherStatus={weatherStatus}
         weatherLoading={weatherLoading}
         onStartWorkflow={onStartWorkflow}
+      />
+
+      <MissionWorkflowProgress
+        mission={mission}
+        weather={weatherStatus}
+        resultApprovalStatus={resultApprovalStatus}
       />
 
       {resultActions}

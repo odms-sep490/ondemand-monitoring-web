@@ -130,8 +130,8 @@ export const missionDetailPageMessages = defineMessages({
           'Gán đủ nhân sự và thiết bị để nhiệm vụ được gửi cho đội bay.',
         waitCrewTitle: 'Đang chờ đội bay xác nhận',
         waitCrewDetail: (accepted: number, crew: number) =>
-          `${accepted}/${crew} nhân sự đã nhận. Operator chạy precheck và bàn giao quyền trước khi nghiệm thu bắt đầu Mission.`,
-        waitCrewDetailNoCrew: 'Tổ bay cần nhận nhiệm vụ, chạy precheck và bàn giao quyền trước khi nghiệm thu bắt đầu Mission.',
+          `${accepted}/${crew} nhân sự đã nhận. Nhân viên vận hành kiểm tra thiết bị trước bay và bàn giao quyền trước khi nghiệm thu bắt đầu nhiệm vụ.`,
+        waitCrewDetailNoCrew: 'Tổ bay cần nhận nhiệm vụ, kiểm tra thiết bị trước bay và bàn giao quyền trước khi nghiệm thu bắt đầu nhiệm vụ.',
         scheduledTitle: 'Đang chuẩn bị trước bay',
         scheduledDetail:
           'Đội bay sẽ kết nối thiết bị và kiểm tra trước chuyến bay.',
@@ -140,7 +140,7 @@ export const missionDetailPageMessages = defineMessages({
           'Xem tab Kiểm tra trước bay, xử lý rồi cho đội bay kiểm tra lại.',
         pendingReviewTitle: 'Chờ nghiệm thu',
         pendingReviewDetail:
-          'Đội nghiệm thu đang kiểm tra postcheck, checklist và bằng chứng của chuyến bay.',
+          'Đội nghiệm thu đang xem kết quả kiểm tra sau bay, danh mục công việc và bằng chứng của chuyến bay.',
         pendingManagerReviewTitle: 'Xem lại kết quả chuyến bay',
         pendingManagerReviewDetail:
           'Kiểm tra ảnh/video và thông tin nghiệm thu, sau đó duyệt hoặc từ chối kết quả.',

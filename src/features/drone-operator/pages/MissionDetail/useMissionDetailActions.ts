@@ -145,7 +145,7 @@ export function useMissionDetailActions({
       setActionError(
         actionErrorMessage(
           error,
-          'Chưa thể bắt đầu Mission. Kiểm tra thiết bị đã đạt precheck và quyền điều khiển đã được bàn giao.',
+          'Chưa thể bắt đầu nhiệm vụ. Hãy bảo đảm thiết bị đã đạt kiểm tra trước bay và quyền điều khiển đã được bàn giao.',
         ),
       )
     } finally {

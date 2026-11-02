@@ -74,8 +74,8 @@ export const helpContentVi: HelpContent = {
     'msn-3': {
       question: 'Điều gì xảy ra nếu nhiệm vụ không qua kiểm tra tiền chuyến?',
       answer:
-        'Khi kiểm tra tiền chuyến thất bại (FAILED_PREFLIGHT), drone bị ảnh hưởng sẽ tự động được đưa vào bảo trì. Người vận hành hệ thống sẽ phân công drone khả dụng khác trong vòng 10 phút hoặc lên lịch lại chuyến bay mà không tính thêm chi phí.',
-      keywords: ['tiền kiểm thất bại', 'lỗi kiểm tra', 'preflight', 'bảo trì', 'thất bại'],
+        'Khi kiểm tra trước bay không đạt (FAILED_PREFLIGHT), thiết bị bị ảnh hưởng sẽ tự động được đưa vào bảo trì. Người vận hành hệ thống sẽ phân công thiết bị khả dụng khác trong vòng 10 phút hoặc lên lịch lại chuyến bay mà không tính thêm chi phí.',
+      keywords: ['kiểm tra trước bay không đạt', 'lỗi kiểm tra', 'bảo trì', 'thất bại'],
     },
     'msn-4': {
       question: 'Tại sao người vận hành dừng hoặc đổi lịch chuyến bay của tôi?',

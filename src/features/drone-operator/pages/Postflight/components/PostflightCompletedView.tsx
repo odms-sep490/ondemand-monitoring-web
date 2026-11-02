@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
 import { missionApi } from '../../../../mission/api/missionApi'
 import { useMissionMonitoring } from '../../../../mission/hooks/useMissionMonitoring'
 import { MonitoringChecklistSection } from '../../../../mission/components/MonitoringChecklistSection'
@@ -40,6 +40,8 @@ export function PostflightCompletedView({
   const [actionError, setActionError] = useState<string | null>(null)
   const [missionCompletedLocally, setMissionCompletedLocally] = useState(false)
   const [submittedLocally, setSubmittedLocally] = useState(false)
+  const [activeReviewTab, setActiveReviewTab] = useState('checklist')
+  const reviewTabRefs = useRef<Array<HTMLButtonElement | null>>([])
 
   const mission = review.data?.mission
   const missionStatus = mission?.status
@@ -64,6 +66,9 @@ export function PostflightCompletedView({
   const checklistRows = monitoring.data?.checklist.executions ?? []
   const checklistPassed = checklistRows.filter(
     (row) => row.assessmentStatus === 'COMPLIANT',
+  ).length
+  const checklistAssessed = checklistRows.filter(
+    (row) => row.assessmentStatus !== 'NOT_ASSESSED',
   ).length
   const checklistAssessmentsComplete = checklistRows.every(
     (row) => row.assessmentStatus !== 'NOT_ASSESSED',
@@ -152,9 +157,9 @@ export function PostflightCompletedView({
         ? [
             `${missionLabel} · ${mission.serviceName || t.reviewService}: ${mission.address || t.reviewLocation}.`,
             `Checklist công trình: ${checklistPassed}/${checklistRows.length} mục phù hợp.`,
-            `Precheck: ${preflightPassed}/${preflightItems.length} mục đạt.`,
+            `Kiểm tra trước bay: ${preflightPassed}/${preflightItems.length} mục đạt.`,
             `Thời tiết: ${weather?.status ?? 'chưa có dữ liệu'}${weather ? `, gió ${weather.windSpeedMps.toFixed(1)}/${weather.windGustMps.toFixed(1)} m/s, mưa ${weather.precipitationMmH.toFixed(1)} mm/h` : ''}.`,
-            `Postcheck: ${postflightPassed}/${postflightItems.length} mục đạt${failedCount ? `, ${failedCount} mục không đạt` : ''}.`,
+            `Kiểm tra sau bay: ${postflightPassed}/${postflightItems.length} mục đạt${failedCount ? `, ${failedCount} mục không đạt` : ''}.`,
             `Media: ${media.length} tệp.`,
           ].join(' ')
         : [
@@ -195,9 +200,9 @@ export function PostflightCompletedView({
           ? [
               notes.trim(),
               `CHECKLIST CÔNG TRÌNH\n${checklistDetails.join('\n')}`,
-              `PRECHECK THIẾT BỊ\n${preflightDetails.join('\n')}`,
+              `KIỂM TRA THIẾT BỊ TRƯỚC BAY\n${preflightDetails.join('\n')}`,
               `THỜI TIẾT\n${weatherDetails}`,
-              `POSTCHECK THIẾT BỊ\n${postflightDetails.join('\n')}`,
+              `KIỂM TRA THIẾT BỊ SAU BAY\n${postflightDetails.join('\n')}`,
               `ẢNH/VIDEO: ${media.length} tệp được đính kèm cùng báo cáo.`,
             ]
           : [
@@ -297,6 +302,75 @@ export function PostflightCompletedView({
   const currentWeather = review.data?.weather
   const postflight = review.data?.postflight
   const preflight = review.data?.preflight
+  const reviewTabPrefix = `postflight-review-${missionId}`
+  const reviewTabs = [
+    {
+      id: 'checklist',
+      label: t.reviewMissionChecklist,
+      summary: monitoring.loading
+        ? t.reviewTabLoading
+        : monitoring.error
+          ? t.reviewTabNoData
+          : checklistRows.length
+            ? t.reviewTabChecklistCount(checklistAssessed, checklistRows.length)
+            : t.reviewTabNoItems,
+    },
+    {
+      id: 'preflight',
+      label: t.reviewPreflight,
+      summary: review.loading
+        ? t.reviewTabLoading
+        : preflight
+          ? preflight.items.length
+            ? t.reviewPassedCount(preflightPassed, preflight.items.length)
+            : t.reviewTabNoItems
+          : t.reviewTabNoData,
+    },
+    {
+      id: 'weather',
+      label: t.reviewWeather,
+      summary: review.loading
+        ? t.reviewTabLoading
+        : currentWeather
+          ? currentWeather.safeToFly ? t.reviewPass : t.reviewWarn
+          : t.reviewTabNoData,
+    },
+    {
+      id: 'postflight',
+      label: t.reviewPostflight,
+      summary: review.loading
+        ? t.reviewTabLoading
+        : postflight
+          ? postflightItems.length
+            ? t.reviewPassedCount(postflightPassed, postflightItems.length)
+            : t.reviewTabNoItems
+          : t.reviewTabNoData,
+    },
+    {
+      id: 'media',
+      label: t.reviewMedia,
+      summary: review.loading
+        ? t.reviewTabLoading
+        : t.reviewTabMediaCount(media.length),
+    },
+  ]
+
+  function handleReviewTabKeyDown(
+    event: KeyboardEvent<HTMLButtonElement>,
+    currentIndex: number,
+  ) {
+    let nextIndex: number | null = null
+    if (event.key === 'ArrowRight') nextIndex = (currentIndex + 1) % reviewTabs.length
+    if (event.key === 'ArrowLeft') nextIndex = (currentIndex - 1 + reviewTabs.length) % reviewTabs.length
+    if (event.key === 'Home') nextIndex = 0
+    if (event.key === 'End') nextIndex = reviewTabs.length - 1
+    if (nextIndex === null) return
+
+    event.preventDefault()
+    const nextTab = reviewTabs[nextIndex]
+    setActiveReviewTab(nextTab.id)
+    reviewTabRefs.current[nextIndex]?.focus()
+  }
 
   return (
     <div className="odm-card postflight-page">
@@ -350,202 +424,251 @@ export function PostflightCompletedView({
 
         {actionError && <div className="postflight-error" role="alert">{actionError}</div>}
 
-        <div className="postflight-review-grid">
-          <MonitoringChecklistSection
-            missionId={missionId}
-            data={monitoring.data?.checklist}
-            loading={monitoring.loading}
-            error={monitoring.error}
-            canExecute={false}
-            canAssess={
-              monitoring.data?.permissions.canAssessMonitoringChecklist === true
-            }
-            resultStatus={monitoring.data?.result?.approvalStatus}
-            resultNote={monitoring.data?.result?.reviewNote}
-            resultKnown={monitoring.data !== undefined}
-            refresh={monitoring.reload}
-            compact
-            compactTitle={t.reviewMissionChecklist}
-            assessmentOnly
-            hideImplementationHints
-          />
+        <div className="postflight-review-workspace">
+          <div className="postflight-review-tabs" role="tablist" aria-label={t.reviewTabsLabel}>
+            {reviewTabs.map((tab, index) => (
+              <button
+                key={tab.id}
+                ref={(element) => { reviewTabRefs.current[index] = element }}
+                id={`${reviewTabPrefix}-tab-${tab.id}`}
+                type="button"
+                role="tab"
+                aria-selected={activeReviewTab === tab.id}
+                aria-controls={`${reviewTabPrefix}-panel-${tab.id}`}
+                tabIndex={activeReviewTab === tab.id ? 0 : -1}
+                onClick={() => setActiveReviewTab(tab.id)}
+                onKeyDown={(event) => handleReviewTabKeyDown(event, index)}
+              >
+                <span>{tab.label}</span>
+                <small>{tab.summary}</small>
+              </button>
+            ))}
+          </div>
 
-          <ReviewSection
-            title={t.reviewPreflight}
-            detail={
-              preflight
-                ? t.reviewPassedCount(preflightPassed, preflight.items.length)
-                : undefined
-            }
+          <div
+            id={`${reviewTabPrefix}-panel-checklist`}
+            className="postflight-review-tab-panel"
+            role="tabpanel"
+            aria-labelledby={`${reviewTabPrefix}-tab-checklist`}
+            tabIndex={0}
+            hidden={activeReviewTab !== 'checklist'}
           >
-            {!preflight ? (
-              <ReviewEmpty>
-                {sectionLoadErrors?.preflight
-                  ? t.reviewPreflightLoadFailed
-                  : t.reviewNoPreflight}
-              </ReviewEmpty>
-            ) : (
-              <>
-                {(preflight.completedAt || preflight.startedAt) && (
-                  <ReviewTimestamp
-                    value={formatDate(preflight.completedAt ?? preflight.startedAt ?? '', lang)}
-                    label={t.reviewCheckedAt}
-                  />
-                )}
-                <ResultList>
-                  {preflight.items.map((item) => (
-                    <ResultLine
-                      key={item.checkType}
-                      title={item.checkName}
-                      detail={item.message ?? undefined}
-                      label={resultStatusLabel(item.status, t)}
-                      tone={item.status === 'PASSED' ? 'pass' : item.status === 'FAILED' ? 'fail' : 'pending'}
-                    />
-                  ))}
-                </ResultList>
-              </>
-            )}
-          </ReviewSection>
+            <MonitoringChecklistSection
+              missionId={missionId}
+              data={monitoring.data?.checklist}
+              loading={monitoring.loading}
+              error={monitoring.error}
+              canExecute={false}
+              canAssess={
+                monitoring.data?.permissions.canAssessMonitoringChecklist === true
+              }
+              resultStatus={monitoring.data?.result?.approvalStatus}
+              resultNote={monitoring.data?.result?.reviewNote}
+              resultKnown={monitoring.data !== undefined}
+              refresh={monitoring.reload}
+              compact
+              compactTitle={t.reviewMissionChecklist}
+              assessmentOnly
+              hideImplementationHints
+            />
+          </div>
 
-          <ReviewSection title={t.reviewWeather} detail={currentWeather?.summary}>
-            {!currentWeather ? (
-              <ReviewEmpty>
-                {sectionLoadErrors?.weather
-                  ? t.reviewWeatherLoadFailed
-                  : t.reviewNoWeather}
-              </ReviewEmpty>
-            ) : (
-              <>
-                <div className="postflight-review-weather-status">
-                  <ResultBadge
-                    label={currentWeather.safeToFly ? t.reviewPass : t.reviewWarn}
-                    tone={currentWeather.safeToFly ? 'pass' : 'warning'}
-                  />
-                  <time>{formatDate(currentWeather.checkedAt, lang)}</time>
-                </div>
-                <div className="postflight-review-weather-grid">
-                  <WeatherMetric label={t.reviewWind} value={`${currentWeather.windSpeedMps.toFixed(1)} / ${currentWeather.windGustMps.toFixed(1)} m/s`} />
-                  <WeatherMetric label={t.reviewRain} value={`${currentWeather.precipitationMmH.toFixed(1)} mm/h`} />
-                  <WeatherMetric label={t.reviewVisibility} value={`${currentWeather.visibilityKm.toFixed(1)} km`} />
-                  <WeatherMetric label={t.reviewTemperature} value={`${currentWeather.temperatureC.toFixed(1)} °C`} />
-                  <WeatherMetric label={t.reviewHumidity} value={`${currentWeather.humidityPercent}%`} />
-                </div>
-                {currentWeather.advisories.length > 0 && (
-                  <ul className="postflight-review-advisories">
-                    {currentWeather.advisories.map((advisory) => <li key={advisory}>{advisory}</li>)}
-                  </ul>
-                )}
-              </>
-            )}
-          </ReviewSection>
-
-          <ReviewSection
-            title={t.reviewPostflight}
-            detail={postflight ? t.reviewPassedCount(postflightPassed, postflightItems.length) : undefined}
+          <div
+            id={`${reviewTabPrefix}-panel-preflight`}
+            className="postflight-review-tab-panel"
+            role="tabpanel"
+            aria-labelledby={`${reviewTabPrefix}-tab-preflight`}
+            tabIndex={0}
+            hidden={activeReviewTab !== 'preflight'}
           >
-            {!postflight ? (
-              <>
+            <ReviewSection
+              title={t.reviewPreflight}
+              detail={preflight ? t.reviewPassedCount(preflightPassed, preflight.items.length) : undefined}
+            >
+              {!preflight ? (
                 <ReviewEmpty>
-                  {sectionLoadErrors?.postflight
-                    ? t.reviewPostflightLoadFailed
-                    : t.reviewNoPostflight}
+                  {sectionLoadErrors?.preflight ? t.reviewPreflightLoadFailed : t.reviewNoPreflight}
                 </ReviewEmpty>
-                {inspectionResults &&
-                  monitoring.data?.permissions.canMaintainDevice === true &&
-                  !isSubmitted && (
-                    <button
-                      type="button"
-                      className="postflight-review-retry"
-                      disabled={busyAction !== null || reviewLoading}
-                      onClick={handleRestorePostflight}
-                    >
-                      {busyAction === 'restore'
-                        ? t.reviewRestoringPostflight
-                        : t.reviewRestorePostflight}
-                    </button>
-                  )}
-              </>
-            ) : (
-              <>
-                <div className="postflight-review-weather-status">
-                  <ResultBadge
-                    label={postflight.overallOk ? t.reviewPass : t.reviewFail}
-                    tone={postflight.overallOk ? 'pass' : 'fail'}
-                  />
-                  <time>{formatDate(postflight.checkedAt, lang)}</time>
-                </div>
-                <ResultList>
-                  {postflightItems.map((item, index) => (
-                    <ResultLine
-                      key={item.checkType ?? index}
-                      title={item.checkName ?? item.checkType ?? `${t.reviewPostflight} ${index + 1}`}
-                      detail={item.message ?? undefined}
-                      label={resultStatusLabel(item.status, t)}
-                      tone={resultTone(item.status)}
+              ) : (
+                <>
+                  {(preflight.completedAt || preflight.startedAt) && (
+                    <ReviewTimestamp
+                      value={formatDate(preflight.completedAt ?? preflight.startedAt ?? '', lang)}
+                      label={t.reviewCheckedAt}
                     />
-                  ))}
-                </ResultList>
-                {typeof postflight.landingBatteryPercent === 'number' && (
-                  <WeatherMetric label={t.landingBattery} value={`${postflight.landingBatteryPercent.toFixed(1)}%`} />
-                )}
-              </>
-            )}
-          </ReviewSection>
+                  )}
+                  <ResultList>
+                    {preflight.items.map((item) => (
+                      <ResultLine
+                        key={item.checkType}
+                        title={item.checkName}
+                        detail={item.message ?? undefined}
+                        label={resultStatusLabel(item.status, t)}
+                        tone={item.status === 'PASSED' ? 'pass' : item.status === 'FAILED' ? 'fail' : 'pending'}
+                      />
+                    ))}
+                  </ResultList>
+                </>
+              )}
+            </ReviewSection>
+          </div>
 
-          {(telemetrySnapshot || notes.trim()) && (
-            <ReviewSection title={t.reviewNotes} className="is-wide">
-              {telemetrySnapshot && (
-                <div className="postflight-review-telemetry">
-                  <WeatherMetric label={t.landingBattery} value={formatMetric(telemetrySnapshot.batteryPercent, '%', 1)} />
-                  <WeatherMetric label={t.altitude} value={formatMetric(telemetrySnapshot.altitudeM, ' m', 1)} />
-                  <WeatherMetric label={t.speed} value={formatMetric(telemetrySnapshot.speedMps, ' m/s', 1)} />
-                  <WeatherMetric label={t.heading} value={formatMetric(telemetrySnapshot.headingDeg, '°', 0)} />
+          <div
+            id={`${reviewTabPrefix}-panel-weather`}
+            className="postflight-review-tab-panel"
+            role="tabpanel"
+            aria-labelledby={`${reviewTabPrefix}-tab-weather`}
+            tabIndex={0}
+            hidden={activeReviewTab !== 'weather'}
+          >
+            <ReviewSection title={t.reviewWeather} detail={currentWeather?.summary}>
+              {!currentWeather ? (
+                <ReviewEmpty>
+                  {sectionLoadErrors?.weather ? t.reviewWeatherLoadFailed : t.reviewNoWeather}
+                </ReviewEmpty>
+              ) : (
+                <>
+                  <div className="postflight-review-weather-status">
+                    <ResultBadge
+                      label={currentWeather.safeToFly ? t.reviewPass : t.reviewWarn}
+                      tone={currentWeather.safeToFly ? 'pass' : 'warning'}
+                    />
+                    <time>{formatDate(currentWeather.checkedAt, lang)}</time>
+                  </div>
+                  <div className="postflight-review-weather-grid">
+                    <WeatherMetric label={t.reviewWind} value={`${currentWeather.windSpeedMps.toFixed(1)} / ${currentWeather.windGustMps.toFixed(1)} m/s`} />
+                    <WeatherMetric label={t.reviewRain} value={`${currentWeather.precipitationMmH.toFixed(1)} mm/h`} />
+                    <WeatherMetric label={t.reviewVisibility} value={`${currentWeather.visibilityKm.toFixed(1)} km`} />
+                    <WeatherMetric label={t.reviewTemperature} value={`${currentWeather.temperatureC.toFixed(1)} °C`} />
+                    <WeatherMetric label={t.reviewHumidity} value={`${currentWeather.humidityPercent}%`} />
+                  </div>
+                  {currentWeather.advisories.length > 0 && (
+                    <ul className="postflight-review-advisories">
+                      {currentWeather.advisories.map((advisory) => <li key={advisory}>{advisory}</li>)}
+                    </ul>
+                  )}
+                </>
+              )}
+            </ReviewSection>
+          </div>
+
+          <div
+            id={`${reviewTabPrefix}-panel-postflight`}
+            className="postflight-review-tab-panel"
+            role="tabpanel"
+            aria-labelledby={`${reviewTabPrefix}-tab-postflight`}
+            tabIndex={0}
+            hidden={activeReviewTab !== 'postflight'}
+          >
+            <ReviewSection
+              title={t.reviewPostflight}
+              detail={postflight ? t.reviewPassedCount(postflightPassed, postflightItems.length) : undefined}
+            >
+              {!postflight ? (
+                <>
+                  <ReviewEmpty>
+                    {sectionLoadErrors?.postflight ? t.reviewPostflightLoadFailed : t.reviewNoPostflight}
+                  </ReviewEmpty>
+                  {inspectionResults &&
+                    monitoring.data?.permissions.canMaintainDevice === true &&
+                    !isSubmitted && (
+                      <button
+                        type="button"
+                        className="postflight-review-retry"
+                        disabled={busyAction !== null || reviewLoading}
+                        onClick={handleRestorePostflight}
+                      >
+                        {busyAction === 'restore' ? t.reviewRestoringPostflight : t.reviewRestorePostflight}
+                      </button>
+                    )}
+                </>
+              ) : (
+                <>
+                  <div className="postflight-review-weather-status">
+                    <ResultBadge
+                      label={postflight.overallOk ? t.reviewPass : t.reviewFail}
+                      tone={postflight.overallOk ? 'pass' : 'fail'}
+                    />
+                    <time>{formatDate(postflight.checkedAt, lang)}</time>
+                  </div>
+                  <ResultList>
+                    {postflightItems.map((item, index) => (
+                      <ResultLine
+                        key={item.checkType ?? index}
+                        title={item.checkName ?? item.checkType ?? `${t.reviewPostflight} ${index + 1}`}
+                        detail={item.message ?? undefined}
+                        label={resultStatusLabel(item.status, t)}
+                        tone={resultTone(item.status)}
+                      />
+                    ))}
+                  </ResultList>
+                  {typeof postflight.landingBatteryPercent === 'number' && (
+                    <WeatherMetric label={t.landingBattery} value={`${postflight.landingBatteryPercent.toFixed(1)}%`} />
+                  )}
+                </>
+              )}
+              {(telemetrySnapshot || notes.trim()) && (
+                <div className="postflight-review-notes-group">
+                  <h3>{t.reviewNotes}</h3>
+                  {telemetrySnapshot && (
+                    <div className="postflight-review-telemetry">
+                      <WeatherMetric label={t.landingBattery} value={formatMetric(telemetrySnapshot.batteryPercent, '%', 1)} />
+                      <WeatherMetric label={t.altitude} value={formatMetric(telemetrySnapshot.altitudeM, ' m', 1)} />
+                      <WeatherMetric label={t.speed} value={formatMetric(telemetrySnapshot.speedMps, ' m/s', 1)} />
+                      <WeatherMetric label={t.heading} value={formatMetric(telemetrySnapshot.headingDeg, '°', 0)} />
+                    </div>
+                  )}
+                  <p className="postflight-review-notes">{notes.trim() || t.reviewNoNotes}</p>
                 </div>
               )}
-              <p className="postflight-review-notes">
-                {notes.trim() || t.reviewNoNotes}
-              </p>
             </ReviewSection>
-          )}
+          </div>
 
-          <ReviewSection className="is-wide" title={t.reviewMedia} detail={`${media.length}`}>
-            {media.length === 0 ? (
-              <ReviewEmpty>
-                {sectionLoadErrors?.media
-                  ? t.reviewMediaLoadFailed
-                  : t.reviewNoMedia}
-              </ReviewEmpty>
-            ) : (
-              <div className="postflight-review-media-grid">
-                {media.map((item) => {
-                  const isVideo =
-                    item.contentType?.startsWith('video/') ||
-                    item.type?.toUpperCase() === 'VIDEO'
-                  const mediaLabel = item.type ?? item.contentType ?? t.reviewMedia
-                  return (
-                    <article className="postflight-review-media-card" key={item.id}>
-                      <a href={item.url} target="_blank" rel="noreferrer">
-                        {isVideo ? (
-                          <video controls preload="none" aria-label={mediaLabel}>
-                            <source src={item.url} type={item.contentType ?? undefined} />
-                          </video>
-                        ) : item.contentType?.startsWith('image/') || item.type?.toUpperCase() === 'IMAGE' ? (
-                          <img src={item.url} alt={`${missionLabel} ${mediaLabel}`} loading="lazy" />
-                        ) : (
-                          <span className="postflight-review-file-placeholder">{mediaLabel}</span>
-                        )}
-                      </a>
-                      <div className="postflight-review-media-caption">
-                        <strong>{mediaLabel}</strong>
-                        <span>{t.reviewMediaStatus}: {item.status ?? t.reviewPending}</span>
-                        {item.capturedAt && <time>{formatDate(item.capturedAt, lang)}</time>}
-                      </div>
-                    </article>
-                  )
-                })}
-              </div>
-            )}
-          </ReviewSection>
+          <div
+            id={`${reviewTabPrefix}-panel-media`}
+            className="postflight-review-tab-panel"
+            role="tabpanel"
+            aria-labelledby={`${reviewTabPrefix}-tab-media`}
+            tabIndex={0}
+            hidden={activeReviewTab !== 'media'}
+          >
+            <ReviewSection title={t.reviewMedia} detail={t.reviewTabMediaCount(media.length)}>
+              {media.length === 0 ? (
+                <ReviewEmpty>
+                  {sectionLoadErrors?.media ? t.reviewMediaLoadFailed : t.reviewNoMedia}
+                </ReviewEmpty>
+              ) : (
+                <div className="postflight-review-media-grid">
+                  {media.map((item) => {
+                    const isVideo =
+                      item.contentType?.startsWith('video/') ||
+                      item.type?.toUpperCase() === 'VIDEO'
+                    const mediaLabel = item.type ?? item.contentType ?? t.reviewMedia
+                    return (
+                      <article className="postflight-review-media-card" key={item.id}>
+                        <a href={item.url} target="_blank" rel="noreferrer">
+                          {isVideo ? (
+                            <video controls preload="none" aria-label={mediaLabel}>
+                              <source src={item.url} type={item.contentType ?? undefined} />
+                            </video>
+                          ) : item.contentType?.startsWith('image/') || item.type?.toUpperCase() === 'IMAGE' ? (
+                            <img src={item.url} alt={`${missionLabel} ${mediaLabel}`} loading="lazy" />
+                          ) : (
+                            <span className="postflight-review-file-placeholder">{mediaLabel}</span>
+                          )}
+                        </a>
+                        <div className="postflight-review-media-caption">
+                          <strong>{mediaLabel}</strong>
+                          <span>{t.reviewMediaStatus}: {item.status ?? t.reviewPending}</span>
+                          {item.capturedAt && <time>{formatDate(item.capturedAt, lang)}</time>}
+                        </div>
+                      </article>
+                    )
+                  })}
+                </div>
+              )}
+            </ReviewSection>
+          </div>
         </div>
 
         <section className="postflight-review-actions" aria-label={t.reviewTitle}>

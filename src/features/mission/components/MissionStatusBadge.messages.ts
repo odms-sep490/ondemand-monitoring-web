@@ -15,7 +15,7 @@ export const missionStatusBadgeMessages = defineMessages({
       AWAITING_REVIEW: 'Đã gửi Manager, chờ duyệt',
       PENDING_REVIEW: 'Đã gửi Manager, chờ duyệt',
       CONNECTED: 'GCS App Connected',
-      PREFLIGHT_CHECKING: 'Đang kiểm tra Preflight',
+      PREFLIGHT_CHECKING: 'Đang kiểm tra trước bay',
       READY_TO_FLY: 'Sẵn sàng cất cánh (Ready)',
       FAILED_PREFLIGHT: 'Kiểm tra trước bay không đạt',
       PENDING_APPROVAL: 'Chờ quản lý phê duyệt',
@@ -27,7 +27,7 @@ export const missionStatusBadgeMessages = defineMessages({
     },
     device: {
       AVAILABLE: 'AVAILABLE (Sẵn sàng)',
-      PREFLIGHT: 'PREFLIGHT (Kiểm tra)',
+      PREFLIGHT: 'Đang kiểm tra trước bay',
       ACTIVE_MISSION: 'ACTIVE MISSION (Đang bay)',
       IDLE_CHARGING: 'CHARGING (Sạc pin)',
       MAINTENANCE: 'MAINTENANCE (Bảo trì)',

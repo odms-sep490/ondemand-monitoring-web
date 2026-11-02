@@ -550,7 +550,7 @@ export function OperatorDashboardPage() {
             <span className="flow-step-number">4</span>
             <div className="flow-step-label">
               <strong>{t.step4Title}</strong>
-              <small>Post-flight Inspection</small>
+              <small>Kiểm tra sau bay</small>
             </div>
           </div>
         </div>

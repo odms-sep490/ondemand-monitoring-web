@@ -13,7 +13,7 @@ import {
   viCheckMessage,
 } from '../../../../../shared/lib/checkText'
 
-// ─── Postcheck card ───────────────────────────────────────────────────────────
+// ─── Thẻ kết quả kiểm tra sau bay ────────────────────────────────────────────
 
 export function PostcheckCard({
   postflight,
@@ -36,7 +36,7 @@ export function PostcheckCard({
   return (
     <div className="odm-card">
       <div className="odm-card-header">
-        <h2 className="mds-card-heading">Kết quả postcheck</h2>
+        <h2 className="mds-card-heading">Kết quả kiểm tra sau bay</h2>
         <StatusBadge
           tone={postflight ? (postflight.overallOk ? 'green' : 'red') : 'gray'}
         >
@@ -44,7 +44,7 @@ export function PostcheckCard({
             ? postflight.overallOk
               ? 'Đạt'
               : 'Cần bảo trì'
-            : 'Chưa postcheck'}
+            : 'Chưa kiểm tra sau bay'}
         </StatusBadge>
       </div>
       <div className="odm-card-body" style={{ padding: '10px 14px' }}>
@@ -240,7 +240,7 @@ export function PostcheckCard({
           </>
         ) : (
           <div style={{ color: 'var(--tx3)', fontSize: 14 }}>
-            Chưa có kết quả postcheck cho mission này.
+            Chưa có kết quả kiểm tra sau bay cho nhiệm vụ này.
           </div>
         )}
       </div>

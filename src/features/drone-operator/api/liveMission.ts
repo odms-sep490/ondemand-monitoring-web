@@ -49,6 +49,8 @@ export type BackendMission = {
   address?: string | null
   scheduledStartAt?: string | null
   scheduledEndAt?: string | null
+  actualStartAt?: string | null
+  actualEndAt?: string | null
   startedAt?: string | null
   completedAt?: string | null
   description?: string | null
@@ -228,6 +230,7 @@ export function toOperatorMission(
   const currentMainDevice = source.deviceAssignments?.find(
     (assignment) => assignment.deviceRole === 'MAIN',
   )
+  const staffAssignments = source.staffAssignments
   return {
     id: source.id,
     missionCode: source.missionCode ?? source.id,
@@ -263,8 +266,13 @@ export function toOperatorMission(
     droneName: source.droneName ?? source.deviceName ?? null,
     droneModel: source.deviceModelName ?? undefined,
     dronePayload: source.devicePayload ?? undefined,
-    flightStartedAt: source.startedAt ?? undefined,
+    flightStartedAt: source.actualStartAt ?? source.startedAt ?? undefined,
+    actualEndAt: source.actualEndAt ?? undefined,
     completedAt: source.completedAt ?? undefined,
+    acceptedStaffCount: staffAssignments?.filter(
+      (assignment) => assignment.responseStatus === 'ACCEPTED',
+    ).length,
+    assignedStaffCount: staffAssignments?.length,
     rejectReason: source.rejectionReason ?? undefined,
     radiusMeters: source.radiusM ?? source.radiusMeters ?? undefined,
     ceilingMeters: source.plan?.maxPlannedAltitudeM ?? undefined,

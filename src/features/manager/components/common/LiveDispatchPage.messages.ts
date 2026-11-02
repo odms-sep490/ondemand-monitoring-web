@@ -137,7 +137,7 @@ export const liveDispatchPageMessages = defineMessages({
       PENDING_PAYMENT: 'Chờ thanh toán phần còn lại',
       PENDING_CONFIRMATION: 'Chờ đội bay xác nhận',
       RESOURCE_ASSIGNING: 'Đang phân công nguồn lực',
-      PLANNING: 'Chờ staff và precheck',
+      PLANNING: 'Chờ nhân sự nhận nhiệm vụ và kiểm tra thiết bị trước bay',
       READY: 'Sẵn sàng chờ nghiệm thu',
       IN_PROGRESS: 'Đang thực hiện',
       COMPLETED: 'Hoàn thành',

@@ -52,7 +52,7 @@ export const copy = {
     land: 'Hạ cánh',
     landSub: 'Xuống an toàn',
     finishFlight: 'Hoàn thành bay',
-    finishFlightSub: 'Chuyển postcheck',
+    finishFlightSub: 'Chuyển sang kiểm tra sau bay',
   },
   en: {
     brand: 'Flight cockpit',

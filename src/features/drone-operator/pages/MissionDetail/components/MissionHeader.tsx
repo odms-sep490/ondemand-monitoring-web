@@ -1,6 +1,6 @@
 import type { OperatorMission } from '../../../types/mission'
 import type { MissionPermissions } from '../../../../mission/types/permissions'
-import { missionProgressBadge, missionStatusLabel } from '../missionFormat'
+import { missionStatusLabel } from '../missionFormat'
 import { INSPECTION_MEDIA_STATUSES, STATUS_TONE } from '../missionConstants'
 import { operatorHref } from '../../../routes'
 import { StatusBadge } from '../../../../../shared/components/odm/StatusBadge'
@@ -30,7 +30,6 @@ export function MissionHeader({
 }) {
   const { t } = useI18n(missionDetailPageMessages)
   const hasAccepted = mission.myResponseStatus === 'ACCEPTED'
-  const progressBadge = missionProgressBadge(mission.backendStatus)
   const backendStatus = mission.backendStatus ?? mission.status
   const missionPreparing =
     backendStatus === 'PLANNING' ||
@@ -76,9 +75,31 @@ export function MissionHeader({
     (access?.canInspectDevice === true ||
       access?.canCompleteMission === true ||
       access?.canUploadMedia === true)
-  const showProgressBadge =
-    progressBadge &&
-    !(access?.canInspectDevice === true || access?.canUploadMedia === true)
+  const responseStatusLabel =
+    backendStatus === 'PENDING_CONFIRMATION' &&
+    mission.myResponseStatus === 'ACCEPTED'
+      ? mission.assignedStaffCount != null &&
+        mission.acceptedStaffCount != null &&
+        mission.acceptedStaffCount < mission.assignedStaffCount
+        ? t.statusWaitingCrew(
+            mission.acceptedStaffCount,
+            mission.assignedStaffCount,
+          )
+        : deviceState === 'READY_TO_FLY'
+          ? t.statusHandover
+          : deviceState === 'PREFLIGHT_CHECKING'
+            ? t.statusPreflight
+            : deviceState === 'CONNECTED'
+              ? t.statusConnected
+              : deviceState === 'FAILED'
+                ? t.statusPreflightFailed
+                : t.statusWaitingConnection
+      : backendStatus === 'IN_PROGRESS' && deviceState === 'RETURNING'
+        ? t.statusReturning
+        : backendStatus === 'IN_PROGRESS' &&
+            deviceState === 'POSTFLIGHT_CHECKING'
+          ? t.statusPostflight
+          : missionStatusLabel(headerStatus)
   return (
     <div className="mds-header">
       {/* Row 1: code + badge + actions */}
@@ -98,7 +119,7 @@ export function MissionHeader({
           </span>
         </h1>
         <StatusBadge tone={STATUS_TONE[headerStatus]} size="lg">
-          {missionStatusLabel(headerStatus)}
+          {responseStatusLabel}
         </StatusBadge>
 
         {/* spacer */}
@@ -133,11 +154,6 @@ export function MissionHeader({
             Mở dữ liệu nghiệm thu
           </a>
         )}
-        {showProgressBadge ? (
-          <StatusBadge tone={progressBadge.tone}>
-            {progressBadge.label}
-          </StatusBadge>
-        ) : null}
         {/* Action permissions come from the backend assignment policy. */}
         {canStartMission ? (
           weatherIsReady ? (
@@ -190,28 +206,6 @@ export function MissionHeader({
           </>
         ) : null}
       </div>
-      {canStartMission && (
-        <section
-          role="status"
-          aria-label={t.readyForInspectorTitle}
-          className="mds-readiness-strip is-ready"
-        >
-          <div className="mds-readiness-overview">
-            <strong>{t.preflightChecksPassed}</strong>
-            <ul className="mds-readiness-checks">
-              <li aria-label={t.crewAcceptanceComplete}>
-                <span aria-hidden="true">✓</span>{t.crewShortLabel}
-              </li>
-              <li aria-label={t.devicePreflightComplete}>
-                <span aria-hidden="true">✓</span>{t.deviceShortLabel}
-              </li>
-              <li aria-label={t.controlHandoverComplete}>
-                <span aria-hidden="true">✓</span>{t.handoverShortLabel}
-              </li>
-            </ul>
-          </div>
-        </section>
-      )}
     </div>
   )
 }

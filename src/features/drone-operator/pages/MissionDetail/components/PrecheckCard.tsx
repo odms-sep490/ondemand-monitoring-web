@@ -10,7 +10,7 @@ import {
   checkLabel,
 } from '../missionFormat'
 
-// ─── Precheck card ────────────────────────────────────────────────────────────
+// ─── Thẻ kết quả kiểm tra trước bay ──────────────────────────────────────────
 
 export function PrecheckCard({
   preflight,
@@ -36,7 +36,7 @@ export function PrecheckCard({
   return (
     <div className="odm-card">
       <div className="odm-card-header">
-        <h2 className="mds-card-heading">Kết quả precheck</h2>
+        <h2 className="mds-card-heading">Kết quả kiểm tra trước bay</h2>
         <StatusBadge tone={statusTone(preflight?.status)}>
           {preflightLabel(preflight?.status)}
         </StatusBadge>
@@ -204,7 +204,7 @@ export function PrecheckCard({
           <>
             <PrecheckWeatherResult weather={weather} />
             <div style={{ color: 'var(--tx3)', fontSize: 14 }}>
-              Chưa có dữ liệu precheck cho mission này.
+              Chưa có dữ liệu kiểm tra trước bay cho nhiệm vụ này.
             </div>
           </>
         )}

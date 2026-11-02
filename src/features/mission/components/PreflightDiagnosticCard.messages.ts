@@ -2,7 +2,8 @@ import { defineMessages } from '../../../shared/i18n'
 
 export const preflightDiagnosticCardMessages = defineMessages({
   vi: {
-    cardTitle: 'Kiểm tra Kỹ thuật KTS (Pre-flight Diagnostic Center)',
+    eyebrow: 'KIỂM TRA THIẾT BỊ TRƯỚC BAY',
+    cardTitle: 'Kiểm tra kỹ thuật thiết bị',
     gcsConnected: 'GCS Connected (PX4)',
     connectGcs: 'Kết nối GCS App',
     batteryLevelLabel: 'MỨC PIN DRONE',
@@ -16,12 +17,13 @@ export const preflightDiagnosticCardMessages = defineMessages({
     calibrated: 'CALIBRATED',
     imuNormal: '✓ IMU Normal State',
     scanning: '⏳ Đang quét Diagnostic...',
-    startPreflight: '⚡ Bắt đầu Kiểm tra Pre-flight',
-    preflightPassed: 'Kiểm tra Pre-flight đã đạt. Mission sẵn sàng bay.',
-    preflightFailedPrefix: 'Pre-flight FAILED',
+    startPreflight: '⚡ Bắt đầu kiểm tra trước bay',
+    preflightPassed: 'Kiểm tra trước bay đạt. Nhiệm vụ sẵn sàng bay.',
+    preflightFailedPrefix: 'Kiểm tra trước bay chưa đạt',
     preflightFailedSuffix: 'Đang chuyển trạng thái tự động...',
   },
   en: {
+    eyebrow: 'DIGITAL PRE-FLIGHT DIAGNOSTICS',
     cardTitle: 'Pre-flight Diagnostic Center',
     gcsConnected: 'GCS Connected (PX4)',
     connectGcs: 'Connect GCS App',

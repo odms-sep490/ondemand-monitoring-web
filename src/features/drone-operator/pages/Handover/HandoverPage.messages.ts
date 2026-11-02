@@ -12,19 +12,19 @@ export const handoverPageMessages = defineMessages({
     noDroneAssigned: 'Chưa gán thiết bị',
     noDroneAssignedError: 'Chọn mission đã gán thiết bị trước khi tiếp tục',
     precheckRequiredError:
-      'Vui lòng chạy precheck thành công trước khi bàn giao',
+      'Vui lòng hoàn tất kiểm tra thiết bị trước bay trước khi bàn giao.',
     crewAcceptanceRequired:
       'Mission chỉ sẵn sàng bàn giao sau khi toàn bộ staff đã chấp nhận.',
     confirmFailed: 'Không xác nhận được cam kết',
     stepTitle: 'Bàn giao quyền điều khiển',
-    commitmentTitle: 'Xác nhận bàn giao sau preflight',
+    commitmentTitle: 'Xác nhận bàn giao sau khi kiểm tra trước bay',
     ackLabel:
-      'Tôi xác nhận preflight đã đạt và bàn giao cho pilot tiếp tục bay',
+      'Tôi xác nhận thiết bị đã đạt kiểm tra trước bay và bàn giao cho phi công tiếp tục bay.',
     back: 'Quay lại',
     processing: 'Đang xử lý...',
     confirmHandover: 'Xác nhận bàn giao',
     confirmLockedNote:
-      'Precheck phải đạt và bạn cần tick đủ 4 cam kết. Sau bàn giao, nghiệm thu sẽ bấm Start Mission.',
+      'Thiết bị phải đạt kiểm tra trước bay và bạn cần xác nhận đủ 4 cam kết. Sau khi bàn giao, nhân sự nghiệm thu sẽ bắt đầu nhiệm vụ.',
     connectedAt:
       'Đã kết nối GCS DJI-RC-PLUS-7A31 lúc 13:26:41 · telemetry hoạt động',
     connected: 'Đã kết nối',

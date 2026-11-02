@@ -214,7 +214,9 @@ function MissionDetailContent({ missionId }: { missionId: string }) {
             canExecute={
               monitoring.data?.permissions.canExecuteMonitoringChecklist
             }
-            canAssess={monitoring.data?.permissions.canInspectDevice === true}
+            canAssess={
+              monitoring.data?.permissions.canAssessMonitoringChecklist === true
+            }
             canAttach={monitoring.data?.permissions.canAttachChecklistEvidence}
             canDetach={monitoring.data?.permissions.canDetachChecklistEvidence}
             resultStatus={resultApprovalStatus}
