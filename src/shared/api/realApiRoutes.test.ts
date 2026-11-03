@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { env } from '../../config/env'
 
 import { matchesRealApiRoute, parseRealApiRoutes } from './realApiRoutes'
 
@@ -36,5 +37,22 @@ describe('matchesRealApiRoute', () => {
   it('trailing wildcard is a prefix match; other paths do not match', () => {
     expect(matchesRealApiRoute(routes, 'GET', '/api/admin/usersX')).toBe(true)
     expect(matchesRealApiRoute(routes, 'GET', '/api/admin/roles')).toBe(false)
+  })
+
+  it('always sends staff license reads and writes to the real backend', () => {
+    const requests = [
+      ['GET', '/api/staff-licenses/users/staff-1'],
+      ['GET', '/api/staff-licenses/license-1'],
+      ['GET', '/api/staff-licenses/license-1/document'],
+      ['POST', '/api/staff-licenses'],
+      ['PUT', '/api/staff-licenses/license-1'],
+      ['POST', '/api/staff-licenses/license-1/verification'],
+      ['POST', '/api/staff-licenses/license-1/revoke'],
+      ['POST', '/api/staff-licenses/license-1/document'],
+    ] as const
+
+    for (const [method, path] of requests) {
+      expect(matchesRealApiRoute(env.realApiRoutes, method, path)).toBe(true)
+    }
   })
 })

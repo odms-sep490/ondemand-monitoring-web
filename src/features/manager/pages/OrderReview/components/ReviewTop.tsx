@@ -17,9 +17,19 @@ import type { OrderDetail } from '../../../types/orders'
 import type { ReviewStep } from '../reviewTypes'
 import type { PlanningWorkflowInfo } from './OrderMissionPlanningSection'
 
-function OrderStatusBadge({ order, lang }: { order: OrderDetail; lang: 'vi' | 'en' }) {
+function OrderStatusBadge({
+  order,
+  lang,
+}: {
+  order: OrderDetail
+  lang: 'vi' | 'en'
+}) {
   return (
-    <StatusTag tone={order.status === 'PENDING' ? 'yellow' : orderStatusTone[order.status]}>
+    <StatusTag
+      tone={
+        order.status === 'PENDING' ? 'yellow' : orderStatusTone[order.status]
+      }
+    >
       {getOrderStatusLabel(order.status, lang)}
     </StatusTag>
   )
@@ -45,8 +55,11 @@ export function ReviewTop({
   ) => void
   goToStep: (step: ReviewStep) => void
   planning: PlanningWorkflowInfo | null
-  onSelectMissionStage?: (stage: import('../../../components/common/workflowModel').MissionStage) => void
-  viewMissionStage?: import('../../../components/common/workflowModel').MissionStage | null
+  onSelectMissionStage?: (
+    stage: import('../../../components/common/workflowModel').MissionStage,
+  ) => void
+  viewMissionStage?:
+    import('../../../components/common/workflowModel').MissionStage | null
 }) {
   const { t, lang } = useI18n(orderReviewPageMessages)
   return (
@@ -73,18 +86,22 @@ export function ReviewTop({
             `${t.pageTitle} · ${order.serviceName}`
           ) : (
             <>
-              <span className="mgr-code">{formatOrderCode(order.code)}</span> · {order.serviceName}
+              <span className="mgr-code">{formatOrderCode(order.code)}</span> ·{' '}
+              {order.serviceName}
             </>
           )
         }
         actions={
           <div className="odm-or-order-page-actions">
-            {!showExecutionPlan ? <OrderStatusBadge order={order} lang={lang} /> : null}
+            {!showExecutionPlan ? (
+              <OrderStatusBadge order={order} lang={lang} />
+            ) : null}
             <OrderDetailsDrawer order={order} />
           </div>
         }
       />
       <WorkflowStepper
+        combineMissionSteps={showExecutionPlan}
         order={{
           progress: stepperProgress,
           viewing: viewStage,
@@ -102,12 +119,31 @@ export function ReviewTop({
         }}
         mission={
           showExecutionPlan && planning?.depositPaid && planning.missions.length
-            ? missionLayer(planning, planning.selectedMissionId, lang, undefined, {
-                onSelect: onSelectMissionStage,
-                viewing: viewMissionStage,
-                selectable: (stage, state) =>
-                  stage === 'permit' ? Boolean(onSelectMissionStage) : state === 'done',
-              })
+            ? missionLayer(
+                planning,
+                planning.missions.find(
+                    (mission) => mission.flightPermitStatus === 'APPROVED',
+                  )?.id ??
+                  planning.selectedMissionId ??
+                  planning.missions[0]?.id ??
+                  null,
+                lang,
+                undefined,
+                {
+                  onSelect: onSelectMissionStage,
+                  viewing: viewMissionStage,
+                  selectable: (stage, state) => {
+                    if (stage === 'permit')
+                      return Boolean(onSelectMissionStage)
+                    if (stage === 'execute')
+                      return (
+                        Boolean(onSelectMissionStage) &&
+                        (state === 'current' || state === 'done')
+                      )
+                    return state === 'done'
+                  },
+                },
+              )
             : undefined
         }
       />

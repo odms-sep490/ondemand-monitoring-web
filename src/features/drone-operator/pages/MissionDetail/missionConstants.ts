@@ -17,7 +17,7 @@ export const STATUS_LABEL: Record<string, string> = {
   PLANNING: 'Đang chuẩn bị trước bay',
   CREATED: 'Đã tạo Mission',
   PENDING_PAYMENT: 'Chờ khách hàng thanh toán',
-  PENDING_CONFIRMATION: 'Chờ phi hành đoàn xác nhận',
+  PENDING_CONFIRMATION: 'Chuẩn bị',
   READY: 'Sẵn sàng chờ nghiệm thu',
   WAITING_DEPOSIT: 'Chờ xác nhận đặt cọc',
   RESOURCE_ASSIGNING: 'Đang phân công nguồn lực',

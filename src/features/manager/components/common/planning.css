@@ -998,33 +998,140 @@
 .odm-mission-execution {
   display: grid;
   min-width: 0;
-  gap: 16px;
+  gap: 12px;
   margin-top: 20px;
   padding-top: 16px;
   border-top: 1px solid var(--bd);
 }
-.odm-mission-execution > .monitoring-checklist {
-  margin: 0;
+.odm-execution-status {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid var(--or-border);
+  border-radius: 12px;
+  background: var(--sf);
 }
-.odm-mission-execution > .mission-media {
+.odm-execution-status__head,
+.odm-execution-status__actions,
+.odm-execution-status__section-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+}
+.odm-execution-status__head h2,
+.odm-execution-status__section-head h3 {
+  margin: 0;
+  letter-spacing: normal;
+}
+.odm-execution-status__eyebrow {
+  margin: 0 0 3px;
+  color: var(--or-primary-fg);
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.odm-execution-status__head h2 {
+  font-size: 20px;
+}
+.odm-execution-status__actions {
+  align-items: center;
+  justify-content: flex-end;
+}
+.odm-execution-status__link {
+  color: var(--or-primary-fg);
+  font-weight: 650;
+  text-underline-offset: 3px;
+}
+.odm-execution-status__link:focus-visible {
+  outline: 2px solid var(--or-primary-fg);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+.odm-execution-status__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.odm-execution-status__card {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--or-border);
+  border-radius: 10px;
+  background: var(--or-tile);
+}
+.odm-execution-status__section-head {
+  align-items: center;
+  margin-bottom: 10px;
+}
+.odm-execution-status__section-head h3 {
+  font-size: 14px;
+}
+.odm-execution-status__section-head p {
+  margin: 3px 0 0;
+  color: var(--or-tx2);
+  font-size: 12px;
+}
+.odm-execution-status__progress {
+  display: block;
+  width: 100%;
+  height: 7px;
+  margin: 0 0 10px;
+  accent-color: var(--or-primary-fg);
+}
+.odm-execution-status .odm-or-crew-list {
   margin-top: 0;
 }
+.odm-execution-status .odm-or-crew-item {
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+.odm-execution-status__badges {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-width: 100%;
+}
+.odm-execution-status__empty {
+  margin: 0;
+  padding: 12px;
+  border-top: 1px solid var(--or-border);
+  color: var(--or-tx2);
+  font-size: 13px;
+}
+@media (max-width: 900px) {
+  .odm-execution-status__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
 @media (max-width: 600px) {
+  .odm-execution-status {
+    padding: 12px;
+  }
+  .odm-execution-status__actions {
+    justify-content: flex-start;
+  }
+  .odm-execution-status__card {
+    padding: 11px;
+  }
+  .odm-execution-status .odm-or-crew-item {
+    align-items: center;
+  }
+  .odm-execution-status__badges {
+    width: 100%;
+    padding-left: 44px;
+    justify-content: flex-start;
+  }
   .odm-planning-complete > :last-child {
     width: 100%;
   }
   .odm-mission-execution {
     gap: 12px;
-  }
-  .odm-mgr .mission-media__header {
-    flex-direction: column;
-    gap: 12px;
-  }
-  .odm-mgr .mission-media__title-row {
-    flex-wrap: wrap;
-  }
-  .odm-mgr .mission-media__refresh {
-    align-self: flex-end;
   }
 }
 @media (min-width: 920px) {

@@ -22,7 +22,22 @@ const mockLatencyMs = import.meta.env.MODE === 'test' ? 0 : 250
 
 // VITE_REAL_API_ROUTES: comma-separated "METHOD /path" patterns that are sent
 // to the real backend even while the mock API is on (hybrid mode).
-const realApiRoutes = parseRealApiRoutes(import.meta.env.VITE_REAL_API_ROUTES)
+const staffLicenseApiRoutes = parseRealApiRoutes(
+  [
+    'GET /api/staff-licenses/users/*',
+    'GET /api/staff-licenses/*',
+    'GET /api/staff-licenses/*/document',
+    'POST /api/staff-licenses',
+    'PUT /api/staff-licenses/*',
+    'POST /api/staff-licenses/*/verification',
+    'POST /api/staff-licenses/*/revoke',
+    'POST /api/staff-licenses/*/document',
+  ].join(','),
+)
+const realApiRoutes = [
+  ...parseRealApiRoutes(import.meta.env.VITE_REAL_API_ROUTES),
+  ...staffLicenseApiRoutes,
+]
 
 export const env = {
   apiBaseUrl: apiBaseUrl ?? 'http://localhost:8080',

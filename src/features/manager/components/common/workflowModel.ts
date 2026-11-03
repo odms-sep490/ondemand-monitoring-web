@@ -7,7 +7,8 @@ import type {
  * Two independent levels of work:
  *  - ORDER stages happen once per Order.
  *  - MISSION stages repeat for every Mission of that Order.
- * They are modelled separately so the UI never draws them as one straight line.
+ * They are modelled separately and can be shown either as separate groups or as
+ * one continuous workflow when the page needs an end-to-end progress view.
  */
 export const ORDER_STAGES = [
   'intake',

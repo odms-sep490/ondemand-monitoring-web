@@ -135,7 +135,7 @@ export const liveDispatchPageMessages = defineMessages({
     missionStatuses: {
       CREATED: 'Đã tạo',
       PENDING_PAYMENT: 'Chờ thanh toán phần còn lại',
-      PENDING_CONFIRMATION: 'Chờ đội bay xác nhận',
+      PENDING_CONFIRMATION: 'Chuẩn bị',
       RESOURCE_ASSIGNING: 'Đang phân công nguồn lực',
       PLANNING: 'Chờ nhân sự nhận nhiệm vụ và kiểm tra thiết bị trước bay',
       READY: 'Sẵn sàng chờ nghiệm thu',
@@ -277,7 +277,7 @@ export const liveDispatchPageMessages = defineMessages({
     missionStatuses: {
       CREATED: 'Created',
       PENDING_PAYMENT: 'Waiting for final payment',
-      PENDING_CONFIRMATION: 'Waiting for crew confirmation',
+      PENDING_CONFIRMATION: 'Preparing',
       RESOURCE_ASSIGNING: 'Assigning resources',
       PLANNING: 'Waiting for staff and preflight',
       READY: 'Ready for inspector start',

@@ -45,8 +45,10 @@ export function getDisplayTitle(order: OrderDetailView, fallbackLabel: string) {
 
   if (isMeaningful) return title
 
-  const code = order.code?.trim()
-  const context = [order.serviceName, order.address, code ? `#${code}` : '']
+  // The order code is already shown with a copy action in the metadata row.
+  // Keep the heading focused on the service and location so long codes do not
+  // create awkward line breaks or duplicate information.
+  const context = [order.serviceName, order.address]
     .map((value) => value?.trim())
     .filter((value): value is string => Boolean(value))
 

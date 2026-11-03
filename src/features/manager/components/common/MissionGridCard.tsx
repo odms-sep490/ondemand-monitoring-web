@@ -1,5 +1,5 @@
 import { CloseOutlined } from '@ant-design/icons'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { OrderChecklistSnapshot, OrderDetail } from '../../types/orders'
 import type { MissionResponse } from '../../types/missions'
 import type { ExecutionPlan } from '../../types/planning'
@@ -28,10 +28,13 @@ import {
   type StaffAssignmentDraft,
 } from './MissionGridAddStaffForm'
 import { MissionGridAddDeviceForm } from './MissionGridAddDeviceForm'
+import { MissionGridFlyingDrone } from './MissionGridDroneSprite'
+import { useDroneAssignmentAnimation } from './useDroneAssignmentAnimation'
 import type { MissionStaffRole } from '../../../mission/types/mission'
 import { useI18n } from '../../../../shared/i18n'
 import { missionGridCardMessages } from './MissionGridCard.messages'
 import './MissionGridCard.css'
+import './MissionGridDroneAssignment.css'
 
 interface MissionGridCardProps {
   mission: MissionResponse
@@ -69,9 +72,20 @@ export function MissionGridCard({
   const isPlanning = mission.status === 'PLANNING'
   const isReady = mission.status === 'READY'
   const isCancelled = mission.status === 'CANCELLED'
+  const cardRef = useRef<HTMLElement>(null)
+  const missionIdRef = useRef(mission.id)
+  missionIdRef.current = mission.id
+  const animation = useDroneAssignmentAnimation(cardRef)
+  const sourceRefs = useRef(new Map<string, HTMLDivElement>())
+  const assignmentAttemptRef = useRef(0)
+  const deviceLoadAttemptRef = useRef(0)
+  const assignmentInProgressRef = useRef(false)
+  const revealTimerRef = useRef<number | null>(null)
 
   const [busy, setBusy] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
+  const [activeDeviceId, setActiveDeviceId] = useState('')
+  const [revealedDeviceId, setRevealedDeviceId] = useState<string | null>(null)
 
   // Add Staff Popover state
   const [showAddStaff, setShowAddStaff] = useState(false)
@@ -86,9 +100,31 @@ export function MissionGridCard({
   // Add Device Popover state
   const [showAddDevice, setShowAddDevice] = useState(false)
   const [availableDrones, setAvailableDrones] = useState<AvailableDrone[]>([])
-  const [selectedDeviceId, setSelectedDeviceId] = useState('')
   const [selectedDeviceRole, setSelectedDeviceRole] = useState('MAIN')
   const [loadingDevices, setLoadingDevices] = useState(false)
+
+  useEffect(() => {
+    return () => {
+      assignmentAttemptRef.current += 1
+      deviceLoadAttemptRef.current += 1
+      assignmentInProgressRef.current = false
+      animation.cancel()
+      if (revealTimerRef.current !== null) {
+        window.clearTimeout(revealTimerRef.current)
+      }
+      sourceRefs.current.clear()
+    }
+  }, [animation.cancel, mission.id])
+
+  useEffect(() => {
+    animation.reset()
+  }, [animation.reset, mission.id])
+
+  useEffect(() => {
+    if (animation.phase !== 'SUCCESS') return
+    const timer = window.setTimeout(() => animation.reset(), 1800)
+    return () => window.clearTimeout(timer)
+  }, [animation.phase, animation.reset])
 
   // Assigned checklists for this mission
   const scope = plan.missions.find((m) => m.missionId === mission.id)
@@ -291,40 +327,109 @@ export function MissionGridCard({
 
   // 3. Open Add Device
   async function handleOpenAddDevice() {
+    const missionId = mission.id
+    const requestId = ++deviceLoadAttemptRef.current
     setShowAddDevice(true)
     setShowAddStaff(false)
-    setSelectedDeviceId('')
     setAvailableDrones([])
     setLoadingDevices(true)
     setErrorMsg('')
     try {
-      const drones = await droneApi.getAvailable(mission.id)
+      const drones = await droneApi.getAvailable(missionId)
+      if (
+        requestId !== deviceLoadAttemptRef.current ||
+        missionId !== missionIdRef.current
+      ) return
       setAvailableDrones(drones)
-      if (drones.length > 0) setSelectedDeviceId(drones[0].id)
     } catch (err: unknown) {
+      if (
+        requestId !== deviceLoadAttemptRef.current ||
+        missionId !== missionIdRef.current
+      ) return
       setErrorMsg(err instanceof Error ? err.message : t.errLoadDevices)
     } finally {
-      setLoadingDevices(false)
+      if (
+        requestId === deviceLoadAttemptRef.current &&
+        missionId === missionIdRef.current
+      ) setLoadingDevices(false)
     }
   }
 
   // Submit Add Device
-  async function handleConfirmAddDevice() {
-    if (!selectedDeviceId || busy) return
+  function handleConfirmAddDevice(deviceId: string) {
+    if (!deviceId || busy || assignmentInProgressRef.current) return
+    const missionId = mission.id
+    const intentId = assignmentAttemptRef.current
     const doAssign = async () => {
+      if (
+        missionId !== missionIdRef.current ||
+        intentId !== assignmentAttemptRef.current
+      ) return
+      if (assignmentInProgressRef.current) return
+      assignmentInProgressRef.current = true
+      const requestId = ++assignmentAttemptRef.current
+      const isCurrentRequest = () =>
+        requestId === assignmentAttemptRef.current &&
+        missionId === missionIdRef.current
       setBusy(true)
+      setActiveDeviceId(deviceId)
+      setErrorMsg('')
+      const requestSettled = { current: false }
       try {
-        await missionsApi.assignDevice(
-          mission.id,
-          selectedDeviceId,
-          selectedDeviceRole,
+        const flight = animation.flyToTarget(
+          sourceRefs.current.get(deviceId) ?? null,
+          animation.targetRef.current,
+          () => {
+            if (isCurrentRequest() && !requestSettled.current) {
+              animation.awaitConfirmation()
+            }
+          },
         )
+        const assignment = missionsApi
+          .assignDevice(missionId, deviceId, selectedDeviceRole)
+          .then(
+            (response) => {
+              requestSettled.current = true
+              return response
+            },
+            (error: unknown) => {
+              requestSettled.current = true
+              throw error
+            },
+          )
+        await Promise.all([assignment, flight])
+        if (!isCurrentRequest()) return
+        await animation.land()
+        if (!isCurrentRequest()) return
+        setRevealedDeviceId(deviceId)
         setShowAddDevice(false)
-        onPlanChanged()
+        try {
+          await onPlanChanged()
+        } catch {
+          // Assignment is already confirmed by the server. Keep the success state;
+          // the parent query owns refresh errors and remains the source of truth.
+        }
+        if (!isCurrentRequest()) return
+        if (revealTimerRef.current !== null) {
+          window.clearTimeout(revealTimerRef.current)
+        }
+        revealTimerRef.current = window.setTimeout(() => {
+          setRevealedDeviceId((current) =>
+            current === deviceId ? null : current,
+          )
+        }, 900)
       } catch (err: unknown) {
+        if (!isCurrentRequest()) return
+        await animation.rollback()
+        if (!isCurrentRequest()) return
         setErrorMsg(err instanceof Error ? err.message : t.errAssignDevice)
       } finally {
-        setBusy(false)
+        if (isCurrentRequest()) {
+          requestSettled.current = true
+          assignmentInProgressRef.current = false
+          setActiveDeviceId('')
+          setBusy(false)
+        }
       }
     }
 
@@ -337,7 +442,7 @@ export function MissionGridCard({
         },
       )
     } else {
-      await doAssign()
+      void doAssign()
     }
   }
 
@@ -415,6 +520,7 @@ export function MissionGridCard({
 
   return (
     <article
+      ref={cardRef}
       className={`odm-mission-grid-card ${cardStatusClass}`}
       aria-label={mission.missionCode}
     >
@@ -601,6 +707,38 @@ export function MissionGridCard({
           )}
         </div>
 
+        <MissionGridDeviceList
+          t={t}
+          devices={currentDevices}
+          canRemove={!isCancelled && !disabled}
+          busy={busy}
+          onRemove={handleRemoveDevice}
+          enteringDeviceId={revealedDeviceId}
+        />
+
+        {!isCancelled && !disabled && currentDevices.length < maxDevices && (
+          <div
+            ref={animation.targetRef}
+            className={`mg-drone-assignment-target${
+              animation.phase !== 'IDLE' &&
+              animation.phase !== 'SUCCESS' &&
+              animation.phase !== 'ERROR'
+                ? ' is-active'
+                : ''
+            }`}
+          >
+            <span className="mg-drone-target-pulse mg-drone-target-pulse--first" />
+            <span className="mg-drone-target-pulse mg-drone-target-pulse--second" />
+            <span className="mg-drone-target-crosshair" aria-hidden="true">
+              <i />
+            </span>
+            <span className="mg-drone-target-copy">
+              <strong>{t.deviceAssignTarget}</strong>
+              <span>{t.deviceAssignTargetHint}</span>
+            </span>
+          </div>
+        )}
+
         {showAddDevice && (
           <MissionGridAddDeviceForm
             t={t}
@@ -608,25 +746,45 @@ export function MissionGridCard({
             busy={busy}
             role={selectedDeviceRole}
             onRoleChange={setSelectedDeviceRole}
-            deviceId={selectedDeviceId}
-            onDeviceChange={setSelectedDeviceId}
             drones={availableDrones}
+            activeDeviceId={activeDeviceId}
             onCancel={() => {
+              deviceLoadAttemptRef.current += 1
               setShowAddDevice(false)
               setErrorMsg('')
             }}
-            onSave={handleConfirmAddDevice}
+            onAssign={handleConfirmAddDevice}
+            onSourceRef={(deviceId, element) => {
+              if (element) sourceRefs.current.set(deviceId, element)
+              else sourceRefs.current.delete(deviceId)
+            }}
           />
         )}
 
-        <MissionGridDeviceList
-          t={t}
-          devices={currentDevices}
-          canRemove={!isCancelled && !disabled}
-          busy={busy}
-          onRemove={handleRemoveDevice}
-        />
+        <p
+          className={`mg-drone-assignment-feedback is-${animation.phase.toLowerCase()}`}
+          role="status"
+          aria-live="polite"
+        >
+          {animation.phase === 'IDLE'
+            ? t.deviceAssignIdle
+            : animation.phase === 'PREPARING'
+              ? t.deviceAssignPreparing
+              : animation.phase === 'FLYING'
+                ? t.deviceAssignFlying
+                : animation.phase === 'AWAITING_CONFIRMATION'
+                  ? t.deviceAssignWaiting
+                  : animation.phase === 'LANDING'
+                    ? t.deviceAssignLanding
+                    : animation.phase === 'SUCCESS'
+                      ? t.deviceAssignSuccess
+                      : animation.phase === 'ROLLING_BACK'
+                        ? t.deviceAssignRollback
+                        : errorMsg || t.errAssignDevice}
+        </p>
       </div>
+
+      <MissionGridFlyingDrone overlayRef={animation.overlayRef} />
 
       {/* Footer / Cancel Button for READY Missions */}
       {isReady && !disabled && (

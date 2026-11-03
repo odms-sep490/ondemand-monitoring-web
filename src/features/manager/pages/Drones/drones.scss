@@ -92,3 +92,14 @@
   font-size: 13px;
   font-weight: 600;
 }
+.mgr-drone-card-photo {
+  overflow: hidden;
+  padding: 0;
+}
+
+.mgr-drone-card-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}

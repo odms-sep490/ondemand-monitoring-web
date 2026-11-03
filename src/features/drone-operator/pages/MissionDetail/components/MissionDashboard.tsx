@@ -153,6 +153,7 @@ export function MissionDashboard({
           mission={mission}
           weather={weatherStatus}
           resultApprovalStatus={resultApprovalStatus}
+          canOperatePayload={access?.canOperatePayload}
         />
         <DecisionSummary mission={mission} />
         <div
@@ -251,6 +252,7 @@ export function MissionDashboard({
         mission={mission}
         weather={weatherStatus}
         resultApprovalStatus={resultApprovalStatus}
+        canOperatePayload={access?.canOperatePayload}
       />
 
       {resultActions}

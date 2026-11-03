@@ -1,249 +1,352 @@
 import { defineMessages } from '../../shared/i18n'
 
-// Every customer-facing string is paired here. Keep IDs and visual data out of
-// localized copy so changing languages never changes request/ticket identity.
+// Landing copy follows the capabilities verified in the order and mission flows.
 export const landingMessages = defineMessages({
   vi: {
     brandName: 'OnDemand Monitor',
     navLinks: [
       { label: 'Quy trình', href: '#how-it-works' },
-      { label: 'Kết quả', href: '#results' },
-      { label: 'Ứng dụng', href: '#industries' },
-      { label: 'Câu hỏi thường gặp', href: '#faq' },
+      { label: 'Ứng dụng', href: '#mission-solar' },
+      { label: 'Kết quả', href: '#mission-results' },
     ],
-    heroChip: 'GIÁM SÁT HIỆN TRƯỜNG THEO YÊU CẦU',
-    heroTitleLines: ['Kiểm tra an toàn hơn.', 'Nắm rõ mọi kết quả.'],
-    heroLede:
-      'Gửi yêu cầu giám sát hiện trường, theo dõi tiến độ và nhận báo cáo kiểm tra trên cùng một hệ thống. Giảm nhu cầu tiếp cận trực tiếp những khu vực khó hoặc nguy hiểm.',
-    workflowSection: {
-      eyebrow: 'Quy trình rõ ràng',
-      title: 'Từ yêu cầu đến báo cáo, trên cùng một hệ thống',
-      copy: 'Bạn luôn biết yêu cầu đang ở bước nào và kết quả được lưu ở đâu.',
-    },
     workflowSteps: [
       {
-        no: '01',
-        title: 'Tạo yêu cầu',
+        no: 'request',
+        title: 'Gửi yêu cầu',
         detail:
-          'Mô tả khu vực, mục tiêu, thời gian mong muốn và nội dung cần kiểm tra.',
+          'Cung cấp dịch vụ, khu vực, thời gian mong muốn và nội dung cần kiểm tra.',
       },
       {
-        no: '02',
-        title: 'Xác nhận phạm vi',
+        no: 'review',
+        title: 'Rà soát phạm vi',
         detail:
-          'Đội ngũ tiếp nhận rà soát thông tin và thống nhất kế hoạch phù hợp.',
+          'Manager xem xét điều kiện và thông tin liên quan trước khi lập kế hoạch.',
       },
       {
-        no: '03',
-        title: 'Theo dõi ticket',
+        no: 'prepare',
+        title: 'Chuẩn bị nhiệm vụ',
         detail:
-          'Cập nhật tiến độ, trao đổi và thông tin cần bổ sung ngay trong ticket.',
+          'Nhân sự kết nối thiết bị, hoàn tất kiểm tra trước bay và bàn giao quyền điều khiển.',
       },
       {
-        no: '04',
-        title: 'Xem báo cáo',
-        detail:
-          'Nhận kết quả, hình ảnh và các phát hiện trong dashboard của bạn.',
+        no: 'results',
+        title: 'Rà soát kết quả',
+        detail: 'Checklist, ảnh/video và hậu kiểm được gửi để Manager xem xét.',
       },
     ],
-    featureSection: {
-      eyebrow: 'Theo dõi minh bạch',
-      title: 'Mỗi yêu cầu có một ticket xuyên suốt',
-      copy: 'Không phải gọi hỏi từng bước. Trạng thái, trao đổi và cập nhật tiến độ được tập trung để khách hàng và đội xử lý cùng nắm thông tin.',
+    hero: {
+      title: 'Theo dõi nhiệm vụ drone, từ yêu cầu đến kết quả',
+      lead: 'OnDemand Monitor kết nối yêu cầu hiện trường với khâu lập kế hoạch, chuẩn bị trước chuyến bay và rà soát kết quả sau chuyến bay.',
+      supporting:
+        'Một quy trình có thể theo dõi cho khách hàng, Manager và nhân sự vận hành.',
+      visualLabel: 'Giao diện minh họa',
+      visualTitle: 'Hồ sơ nhiệm vụ',
+      stages: [
+        'Tiếp nhận yêu cầu',
+        'Lập kế hoạch & phân công',
+        'Kiểm tra trước bay',
+        'Rà soát kết quả',
+      ],
+      animationAlt:
+        'Hoạt ảnh drone bay minh họa cho giao diện OnDemand Monitor.',
+      imageNote:
+        'Hoạt ảnh minh họa, không thể hiện dữ liệu của nhiệm vụ thực tế.',
     },
-    industriesSection: {
-      eyebrow: 'Ứng dụng',
-      title: 'Hỗ trợ kiểm tra nhiều loại hiện trường',
-      mediaNotice: 'Ảnh minh họa bối cảnh sử dụng dịch vụ.',
-      copy: 'Từ hạ tầng đến công trình, quy trình được tổ chức theo nhu cầu thực tế của từng khu vực.',
+    journey: {
+      label: 'Một nhiệm vụ, các mốc rõ ràng',
+      title: 'Theo dõi việc cần làm ở từng giai đoạn',
+      lead: 'Yêu cầu, phân công, kiểm tra trước bay và hồ sơ sau bay được trình bày theo cùng một luồng.',
+      visualLabel: 'Ảnh hiện trường minh họa và tiến trình nhiệm vụ',
+      currentStageLabel: 'Giai đoạn đang xem',
+      imageNote: 'Ảnh chỉ minh họa bối cảnh, không khẳng định phạm vi dịch vụ.',
+      stages: [
+        {
+          id: 'request-review',
+          title: 'Tiếp nhận và rà soát yêu cầu',
+          detail:
+            'Khách hàng gửi dịch vụ, khu vực, thời gian mong muốn và nội dung cần kiểm tra. Manager rà soát phạm vi cùng các điều kiện liên quan.',
+          status: 'Yêu cầu được rà soát',
+          image: '/images/landing/site-construction.jpg',
+          imageAlt: 'Khu vực công trình nhìn từ trên cao, ảnh minh họa.',
+        },
+        {
+          id: 'mission-planning',
+          title: 'Lập kế hoạch và phân công',
+          detail:
+            'Manager tạo nhiệm vụ, gán thiết bị và nhân sự để đội ngũ biết rõ phần việc được giao.',
+          status: 'Nhiệm vụ được chuẩn bị',
+          image: '/images/landing/solar-field.jpg',
+          imageAlt: 'Khu vực trang trại năng lượng mặt trời, ảnh minh họa.',
+        },
+        {
+          id: 'preflight',
+          title: 'Kiểm tra trước bay và bàn giao',
+          detail:
+            'Nhân sự vận hành nhận nhiệm vụ, kết nối GCS và thiết bị, hoàn tất preflight, xem điều kiện thời tiết rồi bàn giao quyền điều khiển.',
+          status: 'Thiết bị được kiểm tra',
+          image: '/images/landing/transmission-tower.jpg',
+          imageAlt: 'Trụ truyền tải điện giữa khu vực cây xanh, ảnh minh họa.',
+        },
+        {
+          id: 'postflight-review',
+          title: 'Thực hiện, hậu kiểm và gửi Manager',
+          detail:
+            'Sau khi nhiệm vụ bắt đầu, nhân sự ghi nhận hậu kiểm, checklist và ảnh/video rồi gửi hồ sơ để Manager xem xét.',
+          status: 'Hồ sơ chờ rà soát',
+          image: '/images/landing/rail-yard.jpg',
+          imageAlt: 'Khu đường ray và nhà ga nhìn từ trên cao, ảnh minh họa.',
+        },
+      ],
     },
-    industries: [
-      {
-        title: 'Công trình xây dựng',
-        detail: 'Theo dõi hiện trạng, tiến độ và các khu vực cần kiểm tra.',
-        location: 'Kiểm tra công trình',
-      },
-      {
-        title: 'Hạ tầng và tiện ích',
-        detail:
-          'Hỗ trợ đánh giá các vị trí khó tiếp cận hoặc cần hạn chế rủi ro.',
-        location: 'Kiểm tra hạ tầng',
-      },
-      {
-        title: 'Khu vực rộng và từ xa',
-        detail:
-          'Thu thập thông tin hiện trường mà không cần bắt đầu bằng việc tiếp cận trực tiếp.',
-        location: 'Giám sát từ xa',
-      },
-    ],
-    faqSection: {
-      eyebrow: 'Câu hỏi thường gặp',
-      title: 'Thông tin bạn cần biết',
-      copy: 'Cần hỗ trợ thêm? Liên hệ support@odms.vn.',
+    capabilities: {
+      label: 'Công cụ gắn với quy trình',
+      title: 'Thông tin quan trọng nằm cùng hồ sơ nhiệm vụ',
+      lead: 'Các bước chuẩn bị và kết quả được ghi nhận để người phụ trách tiếp theo có thể rà soát.',
+      items: [
+        {
+          title: 'Phạm vi và điều kiện',
+          detail:
+            'Thông tin yêu cầu, khu vực bay và hồ sơ liên quan được rà soát trước khi triển khai.',
+        },
+        {
+          title: 'Checklist và thời tiết',
+          detail:
+            'Kết quả preflight cùng thông tin thời tiết hỗ trợ nhân sự đánh giá điều kiện trước chuyến bay.',
+        },
+        {
+          title: 'Bằng chứng và hậu kiểm',
+          detail:
+            'Checklist, ảnh/video và kết quả sau bay được gửi để Manager xem xét.',
+        },
+      ],
     },
-    faqItems: [
-      {
-        question: 'Tôi cần cung cấp gì khi tạo yêu cầu?',
-        answer:
-          'Hãy cung cấp vị trí hoặc khu vực, mục tiêu kiểm tra, thời gian mong muốn và các lưu ý an toàn nếu có. Đội ngũ sẽ trao đổi để làm rõ phạm vi.',
-      },
-      {
-        question: 'Tôi theo dõi tiến độ ở đâu?',
-        answer:
-          'Mỗi yêu cầu có ticket riêng để xem trạng thái và trao đổi. Các yêu cầu và báo cáo đã hoàn tất cũng được tập trung trên dashboard.',
-      },
-      {
-        question: 'Kết quả kiểm tra gồm những gì?',
-        answer:
-          'Tùy phạm vi đã thống nhất, báo cáo có thể gồm tóm tắt, hình ảnh, các phát hiện và ghi chú liên quan.',
-      },
-      {
-        question: 'Có phải mọi lần kiểm tra đều dùng drone?',
-        answer:
-          'Không. Drone là một phương tiện hỗ trợ khi phù hợp với điều kiện và kế hoạch. Phương thức kiểm tra được xác định theo yêu cầu và đánh giá của đội ngũ.',
-      },
-    ],
-    ctaSection: {
-      eyebrow: 'Bắt đầu từ khu vực bạn cần kiểm tra',
-      title: 'Tạo yêu cầu và theo dõi toàn bộ tiến độ tại một nơi.',
+    faq: {
+      title: 'Thông tin cần biết',
+      items: [
+        {
+          question: 'Tôi cần cung cấp gì khi tạo yêu cầu?',
+          answer:
+            'Hãy cung cấp dịch vụ cần thực hiện, vị trí hoặc khu vực, thời gian mong muốn và nội dung cần kiểm tra. Đội ngũ có thể yêu cầu bổ sung thông tin khi rà soát.',
+        },
+        {
+          question: 'Khi nào nhiệm vụ sẵn sàng để bắt đầu?',
+          answer:
+            'Nhân sự vận hành cần hoàn tất kết nối và preflight, đánh giá điều kiện thời tiết, sau đó bàn giao quyền điều khiển. Nghiệm thu chỉ bắt đầu nhiệm vụ khi các điều kiện của quy trình đã đạt.',
+        },
+        {
+          question: 'Ai xem xét kết quả sau chuyến bay?',
+          answer:
+            'Nhân sự gửi checklist, ảnh/video và kết quả hậu kiểm để Manager rà soát trước bước bàn giao kết quả theo quy trình đơn hàng.',
+        },
+        {
+          question: 'Nền tảng có tự động điều khiển drone không?',
+          answer:
+            'Quy trình hiện tại có nhân sự vận hành kết nối GCS/thiết bị, thực hiện kiểm tra trước bay và bàn giao quyền điều khiển. Trang này không mô tả chuyến bay tự động.',
+        },
+      ],
     },
-    footerDescription:
-      'Giám sát và kiểm tra hiện trường theo yêu cầu. Thành phố Hồ Chí Minh, Việt Nam.',
-    footerGroups: [
-      {
-        title: 'Dịch vụ',
-        links: ['Tạo yêu cầu', 'Theo dõi ticket', 'Báo cáo kết quả'],
-      },
-      { title: 'Ứng dụng', links: ['Công trình', 'Hạ tầng', 'Khu vực từ xa'] },
-      {
-        title: 'Hỗ trợ',
-        links: ['Câu hỏi thường gặp', 'support@odms.vn', 'An toàn kiểm tra'],
-      },
-    ],
-    footerCopyright: '© 2026 OnDemand Monitor. Đồ án FA26SE039.',
-    footerLegal: 'Điều khoản sử dụng · Quyền riêng tư',
+    final: {
+      title: 'Bắt đầu bằng khu vực bạn cần giám sát',
+      lead: 'Gửi thông tin yêu cầu để đội ngũ có thể rà soát phạm vi và bước tiếp theo.',
+      imageCreditsTitle: 'Nguồn ảnh minh họa',
+      imageCredits: [
+        {
+          label: 'Hoạt ảnh drone — LottieFiles',
+          href: 'https://app.lottiefiles.com/animation/34c3a645-f17a-4607-bd21-8d43b0644457?channel=web&from=download&panel=embed&source=public-animation',
+        },
+        {
+          label: 'Công trình — NOIRLab/NSF/AURA, CC BY 4.0',
+          href: 'https://commons.wikimedia.org/wiki/File:Giant_Magellan_Telescope_Construction_Site_(GMT_Construction_Site_Aerial_20200226-0599-CC).tif',
+        },
+        {
+          label: 'Trang trại năng lượng — Wikideas1, CC0',
+          href: 'https://commons.wikimedia.org/wiki/File:Solar_farm_in_Wisconsin_01.jpg',
+        },
+        {
+          label: 'Trụ truyền tải — Foto3821, CC0',
+          href: 'https://commons.wikimedia.org/wiki/File:Electric_transmission_power_tower.jpg',
+        },
+        {
+          label: 'Đường ray — Zottelorre, CC0',
+          href: 'https://commons.wikimedia.org/wiki/File:Railway_yard_of_the_Antwerpen-Oost_train_station.jpg',
+        },
+      ],
+      copyright: '© 2026 OnDemand Monitor.',
+    },
   },
   en: {
     brandName: 'OnDemand Monitor',
     navLinks: [
       { label: 'How it works', href: '#how-it-works' },
-      { label: 'Results', href: '#results' },
-      { label: 'Use cases', href: '#industries' },
-      { label: 'FAQ', href: '#faq' },
+      { label: 'Use cases', href: '#mission-solar' },
+      { label: 'Results', href: '#mission-results' },
     ],
-    heroChip: 'ON-DEMAND SITE MONITORING',
-    heroTitleLines: ['Inspect more safely.', 'Know every outcome.'],
-    heroLede:
-      'Request site monitoring, track progress, and review inspection reports in one system. Reduce the need to enter hard-to-reach or hazardous areas in person.',
-    workflowSection: {
-      eyebrow: 'A clear process',
-      title: 'From request to report, in one system',
-      copy: 'Always know where your request stands and where to find its results.',
-    },
     workflowSteps: [
       {
-        no: '01',
-        title: 'Create a request',
+        no: 'request',
+        title: 'Send a request',
         detail:
-          'Describe the site, inspection goal, preferred timing, and what needs to be checked.',
+          'Provide the service, area, preferred timing, and what needs to be checked.',
       },
       {
-        no: '02',
-        title: 'Confirm the scope',
+        no: 'review',
+        title: 'Review the scope',
         detail:
-          'Our team reviews the details and agrees on a suitable inspection plan.',
+          'A Manager reviews requirements and related information before planning.',
       },
       {
-        no: '03',
-        title: 'Track the ticket',
+        no: 'prepare',
+        title: 'Prepare the mission',
         detail:
-          'Follow updates, discuss details, and share requested information in the ticket.',
+          'Staff connect the equipment, complete pre-flight checks, and hand over control.',
       },
       {
-        no: '04',
-        title: 'Review the report',
-        detail: 'Find results, images, and observations in your dashboard.',
+        no: 'results',
+        title: 'Review results',
+        detail:
+          'Checklist items, photos or video, and post-flight records are sent to the Manager.',
       },
     ],
-    featureSection: {
-      eyebrow: 'Transparent tracking',
-      title: 'One ticket follows every request',
-      copy: 'No need to call for every update. Status, discussion, and progress stay together so customers and the operations team share the same context.',
+    hero: {
+      title: 'Track drone missions from request to result',
+      lead: 'OnDemand Monitor connects site requests with planning, pre-flight preparation, and post-flight review.',
+      supporting:
+        'One traceable workflow for customers, Managers, and field staff.',
+      visualLabel: 'Illustrative interface',
+      visualTitle: 'Mission record',
+      stages: [
+        'Request received',
+        'Plan & assign',
+        'Pre-flight check',
+        'Review results',
+      ],
+      animationAlt:
+        'Illustrative drone animation for the OnDemand Monitor interface.',
+      imageNote:
+        'Illustrative animation; it does not show data from a real mission.',
     },
-    industriesSection: {
-      eyebrow: 'Use cases',
-      title: 'Support for a range of inspection sites',
-      mediaNotice: 'Stock imagery illustrating service use cases.',
-      copy: 'From infrastructure to construction, the process is organized around the needs of each site.',
+    journey: {
+      label: 'One mission, clear milestones',
+      title: 'See what happens at each stage',
+      lead: 'Requests, assignments, pre-flight checks, and post-flight records follow one workflow.',
+      visualLabel: 'Illustrative site image and mission progress',
+      currentStageLabel: 'Stage in view',
+      imageNote:
+        'Images illustrate locations; they do not imply service coverage.',
+      stages: [
+        {
+          id: 'request-review',
+          title: 'Receive and review a request',
+          detail:
+            'Customers provide the service, area, preferred timing, and inspection scope. A Manager reviews the scope and related requirements.',
+          status: 'Request under review',
+          image: '/images/landing/site-construction.jpg',
+          imageAlt: 'Construction site viewed from above, illustrative image.',
+        },
+        {
+          id: 'mission-planning',
+          title: 'Plan and assign resources',
+          detail:
+            'A Manager creates the mission and assigns staff and equipment so the team can see its responsibilities.',
+          status: 'Mission being prepared',
+          image: '/images/landing/solar-field.jpg',
+          imageAlt: 'Solar farm, illustrative image.',
+        },
+        {
+          id: 'preflight',
+          title: 'Complete pre-flight checks and handover',
+          detail:
+            'Field staff accept the mission, connect the GCS and device, complete preflight checks, assess weather, and hand over control.',
+          status: 'Equipment checked',
+          image: '/images/landing/transmission-tower.jpg',
+          imageAlt: 'Power transmission tower among trees, illustrative image.',
+        },
+        {
+          id: 'postflight-review',
+          title: 'Fly, complete post-flight checks, and send to Manager',
+          detail:
+            'After the mission starts, staff record post-flight checks, checklist items, and photos or video, then submit the record for Manager review.',
+          status: 'Record awaiting review',
+          image: '/images/landing/rail-yard.jpg',
+          imageAlt:
+            'Railway tracks and station viewed from above, illustrative image.',
+        },
+      ],
     },
-    industries: [
-      {
-        title: 'Construction sites',
-        detail:
-          'Monitor site conditions, progress, and areas that need inspection.',
-        location: 'Site inspection',
-      },
-      {
-        title: 'Infrastructure and utilities',
-        detail:
-          'Assess hard-to-reach locations or areas where exposure should be limited.',
-        location: 'Infrastructure inspection',
-      },
-      {
-        title: 'Large and remote areas',
-        detail:
-          'Gather site information without making direct access the first step.',
-        location: 'Remote monitoring',
-      },
-    ],
-    faqSection: {
-      eyebrow: 'Frequently asked questions',
-      title: 'What you need to know',
-      copy: 'Need more help? Contact support@odms.vn.',
+    capabilities: {
+      label: 'Tools tied to the workflow',
+      title: 'Key information stays with the mission record',
+      lead: 'Preparation and results are recorded so the next person responsible can review them.',
+      items: [
+        {
+          title: 'Scope and conditions',
+          detail:
+            'Request details, flight area, and related documents are reviewed before operations.',
+        },
+        {
+          title: 'Checklist and weather',
+          detail:
+            'Preflight results and weather information help staff assess conditions before flight.',
+        },
+        {
+          title: 'Evidence and post-flight review',
+          detail:
+            'Checklist items, photos or video, and post-flight results are sent for Manager review.',
+        },
+      ],
     },
-    faqItems: [
-      {
-        question: 'What should I include in a request?',
-        answer:
-          'Share the location or area, inspection objective, preferred timing, and any safety considerations. Our team will follow up to clarify the scope.',
-      },
-      {
-        question: 'Where can I track progress?',
-        answer:
-          'Each request has its own ticket for status updates and discussion. Completed requests and reports are also collected in your dashboard.',
-      },
-      {
-        question: 'What is included in an inspection result?',
-        answer:
-          'Depending on the agreed scope, a report may include a summary, images, findings, and relevant notes.',
-      },
-      {
-        question: 'Does every inspection use a drone?',
-        answer:
-          'No. A drone is one supporting tool when it suits the conditions and plan. The inspection method is determined based on the request and the operations team’s assessment.',
-      },
-    ],
-    ctaSection: {
-      eyebrow: 'Start with the site you need inspected',
-      title: 'Create a request and follow its progress in one place.',
+    faq: {
+      title: 'What to know',
+      items: [
+        {
+          question: 'What should I include in a request?',
+          answer:
+            'Provide the service, location or area, preferred timing, and what needs to be checked. The team may request more information during review.',
+        },
+        {
+          question: 'When is a mission ready to start?',
+          answer:
+            'Field staff need to connect the equipment and complete preflight checks, assess weather, and hand over control. Acceptance starts the mission only when the workflow conditions are met.',
+        },
+        {
+          question: 'Who reviews the results after a flight?',
+          answer:
+            'Staff submit checklist items, photos or video, and post-flight results for Manager review before the order’s result handoff.',
+        },
+        {
+          question: 'Does the platform control drones automatically?',
+          answer:
+            'The current workflow has field staff connect the GCS/device, complete pre-flight checks, and hand over control. This page does not describe autonomous flights.',
+        },
+      ],
     },
-    footerDescription:
-      'On-demand site monitoring and inspection. Ho Chi Minh City, Vietnam.',
-    footerGroups: [
-      {
-        title: 'Service',
-        links: ['Create a request', 'Track a ticket', 'Inspection reports'],
-      },
-      {
-        title: 'Use cases',
-        links: ['Construction', 'Infrastructure', 'Remote sites'],
-      },
-      {
-        title: 'Support',
-        links: ['FAQ', 'support@odms.vn', 'Inspection safety'],
-      },
-    ],
-    footerCopyright: '© 2026 OnDemand Monitor. Capstone project FA26SE039.',
-    footerLegal: 'Terms of use · Privacy',
+    final: {
+      title: 'Start with the site you want monitored',
+      lead: 'Send a request so the team can review the scope and next steps.',
+      imageCreditsTitle: 'Illustrative image credits',
+      imageCredits: [
+        {
+          label: 'Drone animation — LottieFiles',
+          href: 'https://app.lottiefiles.com/animation/34c3a645-f17a-4607-bd21-8d43b0644457?channel=web&from=download&panel=embed&source=public-animation',
+        },
+        {
+          label: 'Construction site — NOIRLab/NSF/AURA, CC BY 4.0',
+          href: 'https://commons.wikimedia.org/wiki/File:Giant_Magellan_Telescope_Construction_Site_(GMT_Construction_Site_Aerial_20200226-0599-CC).tif',
+        },
+        {
+          label: 'Solar farm — Wikideas1, CC0',
+          href: 'https://commons.wikimedia.org/wiki/File:Solar_farm_in_Wisconsin_01.jpg',
+        },
+        {
+          label: 'Transmission tower — Foto3821, CC0',
+          href: 'https://commons.wikimedia.org/wiki/File:Electric_transmission_power_tower.jpg',
+        },
+        {
+          label: 'Rail yard — Zottelorre, CC0',
+          href: 'https://commons.wikimedia.org/wiki/File:Railway_yard_of_the_Antwerpen-Oost_train_station.jpg',
+        },
+      ],
+      copyright: '© 2026 OnDemand Monitor.',
+    },
   },
 })

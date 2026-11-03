@@ -23,8 +23,11 @@ const INVOICE_TONE: Record<
 
 export function InvoiceSummary({ invoice }: { invoice: Invoice }) {
   const { t } = useI18n(customerFinanceSectionsMessages)
-  const depositStatus = invoice.depositStatus ??
-    (invoice.paidAmount >= invoice.depositAmount ? 'DEPOSIT_PAID' : 'WAITING_DEPOSIT')
+  const depositStatus =
+    invoice.depositStatus ??
+    (invoice.paidAmount >= invoice.depositAmount
+      ? 'DEPOSIT_PAID'
+      : 'WAITING_DEPOSIT')
 
   return (
     <section
@@ -37,7 +40,9 @@ export function InvoiceSummary({ invoice }: { invoice: Invoice }) {
           {t.invoiceStatus[invoice.status] ?? pricingLabel(invoice.status)}
         </StatusTag>
         {invoice.status !== 'CANCELLED' && invoice.status !== 'REFUNDED' ? (
-          <StatusTag tone={depositStatus === 'DEPOSIT_PAID' ? 'success' : 'warning'}>
+          <StatusTag
+            tone={depositStatus === 'DEPOSIT_PAID' ? 'success' : 'warning'}
+          >
             {t.depositPaymentStatus[depositStatus]}
           </StatusTag>
         ) : null}
@@ -144,6 +149,7 @@ export function InvoiceSection({
                 : t.finalPaymentCountdownLabel
             }
             deadline={invoice.finalPaymentExpiresAt}
+            startAt={invoice.finalPaymentStartedAt}
             deadlineLabel={t.finalPaymentDeadlineAt(
               new Date(invoice.finalPaymentExpiresAt).toLocaleString(locale, {
                 dateStyle: 'short',
@@ -178,8 +184,12 @@ export function InvoiceSection({
           <span>{t.awaitingResourceConfirmation}</span>
         </div>
       ) : invoice.finalPaymentAllowed ? (
-        <div className="customer-deposit-notice is-ready">
-          <b>{t.resourcesAssigned}</b>
+        <div
+          className="customer-deposit-notice is-payment-required"
+          role="status"
+          aria-live="polite"
+        >
+          <b>{t.finalPaymentRequiredTitle}</b>
           <span>{t.finalPaymentRequired}</span>
         </div>
       ) : finalPaymentExpired ? (

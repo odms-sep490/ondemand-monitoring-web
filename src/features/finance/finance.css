@@ -1044,6 +1044,12 @@
   background: var(--ui-success-soft);
   color: var(--ui-success-text);
 }
+.customer-deposit-notice.is-payment-required {
+  padding: 10px 12px;
+  border-color: var(--ui-danger);
+  background: var(--ui-danger-soft);
+  color: var(--ui-danger-text);
+}
 .customer-payment-actions {
   padding: 16px 0 0;
 }

@@ -105,6 +105,25 @@ describe('MissionListTable', () => {
     expect(screen.queryByText('SCHEDULED')).not.toBeInTheDocument()
   })
 
+  it('translates the backend pending confirmation status into Vietnamese', () => {
+    act(() => setLanguage('vi'))
+    render(
+      <MissionListTable
+        missions={[
+          {
+            ...missions[0],
+            status: 'PENDING_CONFIRMATION',
+            backendStatus: 'PENDING_CONFIRMATION',
+          },
+        ]}
+        now={new Date('2026-09-20T00:00:00+07:00')}
+      />,
+    )
+
+    expect(screen.getByText('Chuẩn bị')).toBeInTheDocument()
+    expect(screen.queryByText('PENDING_CONFIRMATION')).not.toBeInTheDocument()
+  })
+
   it('renders english column headers and status label when language is switched', () => {
     render(
       <MissionListTable

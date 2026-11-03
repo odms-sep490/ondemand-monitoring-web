@@ -244,6 +244,12 @@ export type MissionResponse = {
   deviceId?: string | null
   deviceCode?: string | null
   deviceName?: string | null
+  deviceSerialNumber?: string | null
+  deviceStatus?: string | null
+  deviceModelCode?: string | null
+  deviceModelName?: string | null
+  deviceManufacturer?: string | null
+  devicePayload?: string | null
   latitude: number | null
   longitude: number | null
   address: string | null
@@ -281,6 +287,7 @@ export type MissionStaffAssignmentResponse = {
   assignedAt: string | null
   respondedAt: string | null
   declineReason: string | null
+  isCurrent?: boolean | null
 }
 
 export type MissionDeviceAssignmentResponse = {

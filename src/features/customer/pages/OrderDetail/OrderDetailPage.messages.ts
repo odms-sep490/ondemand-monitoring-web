@@ -10,6 +10,7 @@ export const orderDetailPageMessages = defineMessages({
     tabMonitoring: 'Nội dung giám sát',
     tabFinance: 'Báo giá & thanh toán',
     newQuoteApproval: 'Báo giá mới đã được duyệt',
+    newFinalPayment: 'Đã có khoản thanh toán phần còn lại cần xử lý',
     tabSupport: 'Hỗ trợ',
     nextStepTitle: 'Trạng thái và bước tiếp theo',
     nextStepDescription:
@@ -48,6 +49,7 @@ export const orderDetailPageMessages = defineMessages({
     tabMonitoring: 'Monitoring details',
     tabFinance: 'Quote & payment',
     newQuoteApproval: 'A new quote has been approved',
+    newFinalPayment: 'The remaining balance is ready for payment',
     tabSupport: 'Support & FAQ',
     nextStepTitle: 'Status and next step',
     nextStepDescription:

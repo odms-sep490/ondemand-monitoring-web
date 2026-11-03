@@ -14,6 +14,38 @@ import { setLanguage } from '../../../../../shared/i18n'
 import { OrderDetailPage } from '../OrderDetailPage'
 import { ApiError } from '../../../../../shared/api/httpClient'
 import { deliveryApi } from '../../../../delivery/api'
+import { financeApi } from '../../../../finance/api'
+import type { CustomerQuote, Invoice } from '../../../../finance/types'
+
+const payableQuote: CustomerQuote = {
+  id: 'quote-live',
+  orderId: 'cus-ord-003',
+  version: 1,
+  status: 'ACCEPTED_BY_CUSTOMER',
+  estimatedBaseAmount: 5_000_000,
+  approvedAdditionalServiceAmount: 0,
+  finalOrderAmount: 5_000_000,
+  pricingFinalized: true,
+  approvedAt: '2026-11-01T08:00:00Z',
+  acceptedAt: '2026-11-01T09:00:00Z',
+  items: [],
+}
+
+const payableInvoice: Invoice = {
+  id: 'invoice-live',
+  invoiceNumber: 'INV-LIVE',
+  orderId: 'cus-ord-003',
+  quoteId: 'quote-live',
+  totalAmount: 5_000_000,
+  depositAmount: 1_500_000,
+  paidAmount: 1_500_000,
+  remainingAmount: 3_500_000,
+  status: 'PARTIALLY_PAID',
+  depositStatus: 'DEPOSIT_PAID',
+  issuedAt: '2026-11-01T08:00:00Z',
+  finalPaymentAllowed: true,
+  finalPaymentExpiresAt: '2026-11-10T08:00:00Z',
+}
 
 beforeEach(() => {
   resetMockDb()
@@ -119,6 +151,32 @@ describe('OrderDetailPage', () => {
     expect(
       screen.queryByRole('button', { name: 'Huỷ đơn hàng' }),
     ).not.toBeInTheDocument()
+  })
+
+  it('shows a red finance-tab dot until the customer opens the newly payable balance', async () => {
+    vi.spyOn(financeApi, 'getQuote').mockResolvedValue(payableQuote)
+    vi.spyOn(financeApi, 'getInvoice').mockResolvedValue(payableInvoice)
+    const { container } = render(<OrderDetailPage orderId="cus-ord-003" />)
+
+    const financeTab = await screen.findByRole('tab', {
+      name: 'Báo giá & thanh toán',
+    })
+    await waitFor(() =>
+      expect(financeTab.querySelector('.ant-badge-dot')).toBeInTheDocument(),
+    )
+
+    fireEvent.click(financeTab)
+    expect(
+      await screen.findByText('Cần thanh toán phần còn lại'),
+    ).toBeInTheDocument()
+    await waitFor(() =>
+      expect(
+        financeTab.querySelector('.ant-badge-dot'),
+      ).not.toBeInTheDocument(),
+    )
+    expect(
+      container.querySelector('.customer-deposit-notice.is-payment-required'),
+    ).toBeInTheDocument()
   })
 
   it('shows the order code once, in the header, with a copy button', async () => {

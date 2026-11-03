@@ -4,7 +4,7 @@ import type { OrderDetailView } from '../../../lib/orders/types'
 import { getDisplayTitle } from './OrderHeader'
 
 describe('getDisplayTitle', () => {
-  it('builds a title from real order fields when the provided title is one character', () => {
+  it('builds a concise title from service and location without duplicating the order code', () => {
     const order = {
       title: 'f',
       serviceName: 'Giám sát công trình',
@@ -13,7 +13,7 @@ describe('getDisplayTitle', () => {
     } as OrderDetailView
 
     expect(getDisplayTitle(order, 'Chi tiết đơn hàng')).toBe(
-      'Giám sát công trình · Khu công nghiệp · #ORD-123',
+      'Giám sát công trình · Khu công nghiệp',
     )
   })
 

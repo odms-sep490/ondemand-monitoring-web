@@ -1,7 +1,11 @@
 // MNG-09: Drone fleet management page
 import { useMemo, useState } from 'react'
-import { AppstoreOutlined, TableOutlined } from '@ant-design/icons'
-import { Segmented } from 'antd'
+import {
+  AppstoreOutlined,
+  PlusOutlined,
+  TableOutlined,
+} from '@ant-design/icons'
+import { Button, Segmented, Space } from 'antd'
 
 import { CardComponent } from '../../../../shared/components/antd'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
@@ -28,6 +32,7 @@ import { DronesKpis } from './components/DronesKpis'
 import { DronesSkeleton } from './components/DronesSkeleton'
 import { DronesTable } from './components/DronesTable'
 import { StatusChangeModal } from './components/StatusChangeModal'
+import { CreateDroneModal } from './components/CreateDroneModal'
 
 type DronesPageProps = {
   droneId?: string
@@ -41,12 +46,18 @@ export function DronesPage({ droneId: _droneId }: DronesPageProps) {
   const [filter, setFilter] = useState<FilterChip>('ALL')
   const [search, setSearch] = useState('')
   const [view, setView] = useState<ViewMode>('grid')
-  const [changingDrone, setChangingDrone] = useState<DeviceResponse | null>(null)
+  const [changingDrone, setChangingDrone] = useState<DeviceResponse | null>(
+    null,
+  )
+  const [creatingDrone, setCreatingDrone] = useState(false)
   const [drones, setDrones] = useState<DeviceResponse[] | null>(null)
 
   const query = useApiQuery((signal) => dronesApi.listDrones({ signal }), [])
 
-  const allDrones = useMemo(() => drones ?? query.data?.items ?? [], [drones, query.data?.items])
+  const allDrones = useMemo(
+    () => drones ?? query.data?.items ?? [],
+    [drones, query.data?.items],
+  )
   const searched = useMemo(
     () => allDrones.filter((d) => matchesSearch(d, search)),
     [allDrones, search],
@@ -68,11 +79,20 @@ export function DronesPage({ droneId: _droneId }: DronesPageProps) {
     setChangingDrone(null)
   }
 
+  function handleCreated(created: DeviceResponse) {
+    const base = drones ?? query.data?.items ?? []
+    setDrones([created, ...base])
+    setFilter('ALL')
+    setSearch('')
+    setCreatingDrone(false)
+  }
+
   const ready = !query.loading && !query.error
 
   // Hide statuses nobody is in, so the filter row stays short.
   const chipOptions = FILTER_CHIP_VALUES.filter(
-    (chip) => chip === 'ALL' || chip === filter || (statusCounts[chip] ?? 0) > 0,
+    (chip) =>
+      chip === 'ALL' || chip === filter || (statusCounts[chip] ?? 0) > 0,
   ).map((chip) => ({
     value: chip,
     label: chip === 'ALL' ? t.filterAll : getDroneStatusLabel(chip, lang),
@@ -85,15 +105,33 @@ export function DronesPage({ droneId: _droneId }: DronesPageProps) {
         title={t.title}
         description={ready ? t.subtitle(allDrones.length) : undefined}
         actions={
-          <Segmented<ViewMode>
-            aria-label={t.view.aria}
-            value={view}
-            onChange={setView}
-            options={[
-              { value: 'grid', icon: <AppstoreOutlined />, label: t.view.grid },
-              { value: 'table', icon: <TableOutlined />, label: t.view.table },
-            ]}
-          />
+          <Space wrap>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              disabled={!ready}
+              onClick={() => setCreatingDrone(true)}
+            >
+              {t.create}
+            </Button>
+            <Segmented<ViewMode>
+              aria-label={t.view.aria}
+              value={view}
+              onChange={setView}
+              options={[
+                {
+                  value: 'grid',
+                  icon: <AppstoreOutlined />,
+                  label: t.view.grid,
+                },
+                {
+                  value: 'table',
+                  icon: <TableOutlined />,
+                  label: t.view.table,
+                },
+              ]}
+            />
+          </Space>
         }
       />
 
@@ -119,7 +157,11 @@ export function DronesPage({ droneId: _droneId }: DronesPageProps) {
       {query.loading && <DronesSkeleton />}
 
       {!query.loading && !!query.error && (
-        <ErrorState title={t.loadError} error={query.error} onRetry={query.reload} />
+        <ErrorState
+          title={t.loadError}
+          error={query.error}
+          onRetry={query.reload}
+        />
       )}
 
       {ready && visible.length === 0 && (
@@ -129,10 +171,18 @@ export function DronesPage({ droneId: _droneId }: DronesPageProps) {
       )}
 
       {ready && visible.length > 0 && view === 'grid' && (
-        <DroneGrid visible={visible} total={allDrones.length} onChangeStatus={setChangingDrone} />
+        <DroneGrid
+          visible={visible}
+          total={allDrones.length}
+          onChangeStatus={setChangingDrone}
+        />
       )}
       {ready && visible.length > 0 && view === 'table' && (
-        <DronesTable visible={visible} total={allDrones.length} onChangeStatus={setChangingDrone} />
+        <DronesTable
+          visible={visible}
+          total={allDrones.length}
+          onChangeStatus={setChangingDrone}
+        />
       )}
 
       {changingDrone && (
@@ -142,6 +192,13 @@ export function DronesPage({ droneId: _droneId }: DronesPageProps) {
           onChanged={handleChanged}
         />
       )}
+
+      {creatingDrone ? (
+        <CreateDroneModal
+          onClose={() => setCreatingDrone(false)}
+          onCreated={handleCreated}
+        />
+      ) : null}
     </div>
   )
 }

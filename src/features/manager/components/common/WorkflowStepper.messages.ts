@@ -2,8 +2,9 @@ import { defineMessages } from '../../../../shared/i18n'
 
 export const workflowStepperMessages = defineMessages({
   vi: {
-    ariaLabel: 'Quy trình xử lý đơn hàng',
+    ariaLabel: 'Quy trình xử lý đơn hàng và nhiệm vụ',
     orderLayer: 'Đơn hàng',
+    combinedLayer: 'Đơn hàng & nhiệm vụ',
     missionLayer: 'Nhiệm vụ',
     orderStages: {
       intake: { label: 'Tiếp nhận', hint: 'Hồ sơ và vị trí' },
@@ -38,8 +39,9 @@ export const workflowStepperMessages = defineMessages({
     missionNext: 'Nhiệm vụ sau',
   },
   en: {
-    ariaLabel: 'Order workflow',
+    ariaLabel: 'Order and Mission workflow',
     orderLayer: 'Order',
+    combinedLayer: 'Order & Mission',
     missionLayer: 'Missions',
     orderStages: {
       intake: { label: 'Intake', hint: 'Profile and location' },

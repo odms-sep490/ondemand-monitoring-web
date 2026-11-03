@@ -20,14 +20,23 @@ export function DroneCard({ drone, onChangeStatus }: Props) {
   return (
     <CardComponent className="mgr-drone-card">
       <div className="mgr-drone-card-top">
-        <span className="mgr-tile mgr-tone-blue" aria-hidden="true">
-          <RocketOutlined />
+        <span
+          className="mgr-tile mgr-tone-blue mgr-drone-card-photo"
+          aria-hidden="true"
+        >
+          {drone.imageUrl ? (
+            <img src={drone.imageUrl} alt="" />
+          ) : (
+            <RocketOutlined />
+          )}
         </span>
         <div className="mgr-cell-stack mgr-drone-card-id">
           <span className="mgr-code" title={drone.serialNumber}>
             {drone.serialNumber}
           </span>
-          {drone.name ? <span className="mgr-cell-sub">{drone.name}</span> : null}
+          {drone.name ? (
+            <span className="mgr-cell-sub">{drone.name}</span>
+          ) : null}
         </div>
       </div>
       <div className="mgr-drone-card-status">
@@ -40,7 +49,9 @@ export function DroneCard({ drone, onChangeStatus }: Props) {
               <dt>{t.columns.model}</dt>
               <dd>
                 {model.modelName ?? model.code}
-                {model.manufacturer ? <span className="mgr-cell-sub"> · {model.manufacturer}</span> : null}
+                {model.manufacturer ? (
+                  <span className="mgr-cell-sub"> · {model.manufacturer}</span>
+                ) : null}
               </dd>
             </div>
           ) : null}
@@ -53,7 +64,11 @@ export function DroneCard({ drone, onChangeStatus }: Props) {
         </dl>
       ) : null}
       {canChange ? (
-        <Button block className="mgr-drone-card-action" onClick={() => onChangeStatus(drone)}>
+        <Button
+          block
+          className="mgr-drone-card-action"
+          onClick={() => onChangeStatus(drone)}
+        >
           {t.changeStatus}
         </Button>
       ) : null}

@@ -19,6 +19,8 @@ export type OrderRow = {
   createdAt: string | null
   /** Customer-facing finance state, loaded separately for approved orders. */
   depositState?: 'ACTION_REQUIRED' | 'PAID' | 'PAID_IN_FULL'
+  /** Final balance is payable after the mission plan is finalized. */
+  finalPaymentState?: 'ACTION_REQUIRED'
 }
 
 export type DeliverableView = {

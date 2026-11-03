@@ -9,6 +9,8 @@ import type {
 import { Button, useToast } from '../../../../shared/components/ui'
 import { getLanguage, useI18n } from '../../../../shared/i18n'
 import { flightPermitCardMessages } from './FlightPermitCard.messages'
+import { FlightPermitResources } from './FlightPermitResources'
+import { groupStaffAssignments } from './missionDetailHelpers'
 import { managerFeedbackMessages } from '../../feedback.messages'
 import { localizeTimeslot } from '../../lib/viLabels'
 
@@ -27,6 +29,16 @@ export function FlightPermitCard({
   const { t: fb } = useI18n(managerFeedbackMessages)
   const toast = useToast()
   const status = mission.flightPermitStatus ?? 'NOT_REQUESTED'
+  const assignedStaff = groupStaffAssignments(
+    (mission.staffAssignments ?? []).filter(
+      (assignment) => assignment.isCurrent !== false,
+    ),
+  )
+  const acceptedStaffCount = assignedStaff.filter(
+    (assignment) => assignment.responseStatus === 'ACCEPTED',
+  ).length
+  const allStaffAccepted =
+    assignedStaff.length > 0 && acceptedStaffCount === assignedStaff.length
   const cancelled =
     mission.status === 'CANCELLED' || mission.orderStatus === 'CANCELLED'
   const [note, setNote] = useState(mission.flightPermitNote ?? '')
@@ -55,6 +67,7 @@ export function FlightPermitCard({
   const [preferredTimes, setPreferredTimes] = useState<PreferredTimeOption[]>(
     [],
   )
+  const hasSavedPermitFile = Boolean(mission.flightPermitDataUrl?.trim())
   const hasChanges = note !== (mission.flightPermitNote ?? '') || file !== null
   useEffect(() => {
     setNote(mission.flightPermitNote ?? '')
@@ -77,8 +90,20 @@ export function FlightPermitCard({
 
   async function save(nextStatus: FlightPermitStatus) {
     setError('')
+    if (nextStatus === 'APPROVED' && !allStaffAccepted) {
+      setError(t.staffAcceptanceGate(acceptedStaffCount, assignedStaff.length))
+      return
+    }
     if (!paymentComplete) {
       setError(t.paymentRequired)
+      return
+    }
+    if (
+      nextStatus === 'APPROVED' &&
+      !file &&
+      !hasSavedPermitFile
+    ) {
+      setError(t.permitFileRequired)
       return
     }
     if (file && file.size > 5 * 1024 * 1024) {
@@ -212,7 +237,10 @@ export function FlightPermitCard({
 
   return (() => {
     const canEditPermitFile =
-      !readOnly && !cancelled && status !== 'APPROVED' && paymentComplete
+      !readOnly &&
+      !cancelled &&
+      (status !== 'APPROVED' || !hasSavedPermitFile) &&
+      paymentComplete
 
     return (
       <section
@@ -259,84 +287,142 @@ export function FlightPermitCard({
               ) : null}
             </div>
           ) : null}
-          <label className="odm-flight-permit__field">
-            <strong>{t.note}</strong>
-            <textarea
-              className="odm-flight-permit__textarea"
-              value={note}
-              maxLength={1000}
-              rows={3}
-              disabled={busy || cancelled || !paymentComplete}
-              readOnly={readOnly}
-              onChange={(event) => setNote(event.target.value)}
-              placeholder={t.notePlaceholder}
-            />
-          </label>
-          {canEditPermitFile ? (
-            <div className="odm-flight-permit__field">
-              <strong>{t.fileOptional}</strong>
-              <input
-                id={`flight-permit-file-${mission.id}`}
-                type="file"
-                accept="application/pdf,image/*"
-                disabled={busy || !paymentComplete}
-                aria-label={t.chooseFileAria}
-                style={{ display: 'none' }}
-                onChange={(event) => setFile(event.target.files?.[0] ?? null)}
-              />
-              {!mission.flightPermitFileName ? (
-                <div className="odm-flight-permit__dropzone">
-                  <FilePickerButton
-                    inputId={`flight-permit-file-${mission.id}`}
-                    disabled={busy || !paymentComplete}
-                    label={t.chooseFile}
-                  />
-                  <span
-                    className="odm-or-muted odm-flight-permit__file-name"
-                    title={file?.name}
-                  >
-                    {file?.name ?? t.noFileChosen}
-                  </span>
-                </div>
-              ) : null}
+          {!cancelled &&
+          status !== 'APPROVED' &&
+          status !== 'REJECTED' &&
+          !allStaffAccepted ? (
+            <div className="odm-flight-permit__blocked" role="status">
+              <strong>
+                {t.staffAcceptanceGate(acceptedStaffCount, assignedStaff.length)}
+              </strong>
             </div>
           ) : null}
-          {mission.flightPermitFileName ? (
-            <div className="odm-flight-permit__current-file">
-              <span>
-                {t.currentFile}{' '}
-                {mission.flightPermitDataUrl ? (
-                  <a
-                    href={mission.flightPermitDataUrl}
-                    download={mission.flightPermitFileName}
+          <FlightPermitResources mission={mission} />
+          <div className="odm-flight-permit__details-grid">
+            <details className="odm-flight-permit__disclosure">
+              <summary>
+                <span className="odm-flight-permit__disclosure-heading">
+                  <strong>{t.note}</strong>
+                  <span
+                    className="odm-flight-permit__note-preview"
+                    title={note.trim() || t.noteEmpty}
                   >
-                    {mission.flightPermitFileName}
-                  </a>
-                ) : (
-                  mission.flightPermitFileName
-                )}
-              </span>
-              {canEditPermitFile ? (
-                <FilePickerButton
-                  inputId={`flight-permit-file-${mission.id}`}
-                  disabled={busy}
-                  label={t.replaceFile}
-                />
-              ) : null}
-              {file ? (
-                <span
-                  className="odm-flight-permit__file-name"
-                  title={file.name}
-                >
-                  {t.replacementFile} {file.name}
+                    {note.trim() || t.noteEmpty}
+                  </span>
                 </span>
-              ) : null}
-            </div>
-          ) : (
-            <div className="odm-or-muted odm-flight-permit__current-file">
-              {t.noPermitFile}
-            </div>
-          )}
+                <span className="odm-flight-permit__disclosure-action">
+                  <span className="when-closed">{t.openNote}</span>
+                  <span className="when-open">{t.closeNote}</span>
+                  <span className="odm-disclosure-chevron" aria-hidden="true" />
+                </span>
+              </summary>
+              <div className="odm-flight-permit__disclosure-content">
+                <label className="odm-flight-permit__field">
+                  <span className="odm-or-muted">{t.note}</span>
+                  <textarea
+                    className="odm-flight-permit__textarea"
+                    value={note}
+                    maxLength={1000}
+                    rows={3}
+                    disabled={busy || cancelled || !paymentComplete}
+                    readOnly={readOnly}
+                    onChange={(event) => setNote(event.target.value)}
+                    placeholder={t.notePlaceholder}
+                  />
+                </label>
+              </div>
+            </details>
+
+            <details className="odm-flight-permit__disclosure">
+              <summary>
+                <span className="odm-flight-permit__disclosure-heading">
+                  <strong>{t.fileRequiredForApproval}</strong>
+                  <span className="odm-flight-permit__file-summary">
+                    {file?.name || hasSavedPermitFile
+                      ? t.permitFileAvailable
+                      : t.permitFileMissing}
+                  </span>
+                </span>
+                <span className="odm-flight-permit__disclosure-action">
+                  <span className="when-closed">
+                    {mission.flightPermitFileName ? t.openPermitFile : t.uploadPermitFile}
+                  </span>
+                  <span className="when-open">{t.closePermitFile}</span>
+                  <span className="odm-disclosure-chevron" aria-hidden="true" />
+                </span>
+              </summary>
+              <div className="odm-flight-permit__disclosure-content">
+                {canEditPermitFile ? (
+                  <div className="odm-flight-permit__field">
+                    <input
+                      id={`flight-permit-file-${mission.id}`}
+                      type="file"
+                      accept="application/pdf,image/*"
+                      disabled={busy || !paymentComplete}
+                      aria-label={t.chooseFileAria}
+                      aria-required="true"
+                      style={{ display: 'none' }}
+                      onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+                    />
+                    {!mission.flightPermitFileName ? (
+                      <div className="odm-flight-permit__dropzone">
+                        <FilePickerButton
+                          inputId={`flight-permit-file-${mission.id}`}
+                          disabled={busy || !paymentComplete}
+                          label={t.chooseFile}
+                        />
+                        <span
+                          className="odm-or-muted odm-flight-permit__file-name"
+                          title={file?.name}
+                        >
+                          {file?.name ?? t.noFileChosen}
+                        </span>
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
+                {mission.flightPermitFileName ? (
+                  <div className="odm-flight-permit__current-file">
+                    <span>
+                      {t.currentFile}{' '}
+                      {mission.flightPermitDataUrl ? (
+                        <a
+                          href={mission.flightPermitDataUrl}
+                          download={mission.flightPermitFileName}
+                        >
+                          {mission.flightPermitFileName}
+                        </a>
+                      ) : (
+                        mission.flightPermitFileName
+                      )}
+                    </span>
+                    {canEditPermitFile ? (
+                      <FilePickerButton
+                        inputId={`flight-permit-file-${mission.id}`}
+                        disabled={busy}
+                        label={t.replaceFile}
+                      />
+                    ) : null}
+                    {file ? (
+                      <span
+                        className="odm-flight-permit__file-name"
+                        title={file.name}
+                      >
+                        {t.replacementFile} {file.name}
+                      </span>
+                    ) : null}
+                  </div>
+                ) : !canEditPermitFile ? (
+                  <p className="odm-or-muted odm-flight-permit__current-file">
+                    {t.noPermitFile}
+                  </p>
+                ) : null}
+                {!hasSavedPermitFile && !file ? (
+                  <small className="odm-or-muted">{t.permitFileRequired}</small>
+                ) : null}
+              </div>
+            </details>
+          </div>
           {error ? (
             <p role="alert" className="odm-flight-permit__error">
               {error}

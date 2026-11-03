@@ -121,6 +121,17 @@ describe('CustomerFinancePanel', () => {
       })
     const deposit = vi.spyOn(financeApi, 'completeTestDeposit')
     render(<CustomerFinancePanel orderId="order-1" />)
+    expect(
+      await screen.findByText('Cần thanh toán phần còn lại'),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'Quản lý đã phân công nhiệm vụ. Vui lòng thanh toán phần còn lại để tiếp tục.',
+      ),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Thanh toán phần còn lại' }),
+    ).toBeInTheDocument()
     fireEvent.click(
       await screen.findByRole('button', { name: 'Thanh toán nhanh (Test)' }),
     )
@@ -185,7 +196,9 @@ describe('CustomerFinancePanel', () => {
     )
 
     await waitFor(() => expect(complete).toHaveBeenCalledWith('invoice-1'))
-    expect(await screen.findByText('Mission preparation in progress')).toBeInTheDocument()
+    expect(
+      await screen.findByText('Mission preparation in progress'),
+    ).toBeInTheDocument()
     expect(
       screen.queryByRole('button', { name: 'Pay the remaining balance' }),
     ).not.toBeInTheDocument()

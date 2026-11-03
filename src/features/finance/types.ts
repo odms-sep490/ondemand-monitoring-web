@@ -190,6 +190,7 @@ export type Invoice = {
   finalPaymentAllowed: boolean
   depositExpiresAt?: string | null
   finalPaymentExpiresAt?: string | null
+  finalPaymentStartedAt?: string | null
   orderCancellationReason?: 'QUOTATION_EXPIRED' | 'DEPOSIT_PAYMENT_EXPIRED' | 'PERMIT_REJECTED' | null
 }
 

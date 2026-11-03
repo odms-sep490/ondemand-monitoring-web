@@ -31,7 +31,8 @@ export const customerFinanceSectionsMessages = defineMessages({
     depositDeadlineInvalid: 'Chưa có thời hạn đặt cọc hợp lệ.',
     finalPaymentCountdownLabel: 'Còn lại để thanh toán phần còn lại',
     finalPaymentExpired: 'Đã hết hạn thanh toán phần còn lại',
-    finalPaymentDeadlineAt: (value: string) => `Hạn thanh toán phần còn lại: ${value}`,
+    finalPaymentDeadlineAt: (value: string) =>
+      `Hạn thanh toán phần còn lại: ${value}`,
     finalPaymentExpiredBody:
       'Thời hạn thanh toán đã kết thúc. Vui lòng liên hệ quản lý để được hỗ trợ.',
     quoteDeadlineAt: (value: string) => `Hạn chấp nhận: ${value}`,
@@ -49,11 +50,12 @@ export const customerFinanceSectionsMessages = defineMessages({
     missionPreparation: 'Đang chuẩn bị nhiệm vụ',
     missionPreparationBody:
       'Quản lý đang hoàn tất phân công nhân sự và tài nguyên. Số dư còn lại sẽ được mở sau bước này.',
-    resourcesAssigned: 'Tài nguyên nhiệm vụ đã được phân công',
+    finalPaymentRequiredTitle: 'Cần thanh toán phần còn lại',
     finalPaymentRequired:
-      'Vui lòng thanh toán số dư hóa đơn để mở bước xác nhận tài nguyên.',
+      'Quản lý đã phân công nhiệm vụ. Vui lòng thanh toán phần còn lại để tiếp tục.',
     paymentCompleted: 'Đã hoàn tất thanh toán',
-    awaitingResourceConfirmation: 'Đang chờ nhân sự được phân công xác nhận tài nguyên.',
+    awaitingResourceConfirmation:
+      'Đang chờ nhân sự được phân công xác nhận tài nguyên.',
     payDeposit: 'Thanh toán đặt cọc',
     payRemaining: 'Thanh toán phần còn lại',
     contentFallback: 'Nội dung',
@@ -127,9 +129,9 @@ export const customerFinanceSectionsMessages = defineMessages({
     missionPreparation: 'Mission preparation in progress',
     missionPreparationBody:
       'The Manager is completing staff and resource assignments. The remaining balance will be available once this is done.',
-    resourcesAssigned: 'Mission resources assigned',
+    finalPaymentRequiredTitle: 'Remaining balance due',
     finalPaymentRequired:
-      'Final payment required. Pay the remaining invoice balance to open resource confirmation.',
+      'The Manager has assigned the missions. Pay the remaining balance to continue.',
     paymentCompleted: 'Payment completed',
     awaitingResourceConfirmation:
       'Your missions are awaiting confirmation from the assigned staff.',

@@ -30,7 +30,7 @@ export function QuoteGuidance({ quote }: { quote: CustomerQuote }) {
               )?.description ?? t.quoteItem(index + 1)}
             </strong>
             {hasChecklistGuidance(item) ? (
-              <ChecklistGuidance guidance={item} defaultOpen />
+              <ChecklistGuidance guidance={item} />
             ) : (
               <p>{t.empty}</p>
             )}

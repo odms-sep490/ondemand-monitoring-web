@@ -5,6 +5,7 @@ import { useLanguage } from '../../../shared/i18n'
 import { authApi, authSession } from '../../auth/api/authApi'
 import { PasswordField } from '../../auth/components/PasswordField'
 import { getRoleHomePath } from '../../auth/routing'
+import { StaffLicensesSection } from '../../staff/components/StaffLicensesSection'
 import './UserProfilePage.css'
 
 export function UserProfilePage() {
@@ -126,6 +127,9 @@ export function UserProfilePage() {
           </dl>
         )}
       </section>
+      {profile.data?.role === 'STAFF' && profile.data.id ? (
+        <StaffLicensesSection userId={profile.data.id} />
+      ) : null}
       {linked && (
         <p className="user-profile-success" role="status">
           {vi
