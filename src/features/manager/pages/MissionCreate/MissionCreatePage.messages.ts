@@ -2,6 +2,20 @@ import { defineMessages } from '../../../../shared/i18n'
 
 export const missionCreatePageMessages = defineMessages({
   vi: {
+    reworkTitle: 'Tạo nhiệm vụ thực hiện lại',
+    reworkWorkspaceTitle: 'Kế hoạch thực hiện lại',
+    reworkPaymentRequired: 'Cần xác nhận đơn hàng gốc đã thanh toán đầy đủ để lập kế hoạch thực hiện lại. Không phát sinh khoản thanh toán mới.',
+    reworkReadOnly: 'Yêu cầu chỉnh sửa đã kết thúc. Kế hoạch thực hiện lại được hiển thị để tra cứu.',
+    planningTab: 'Lập kế hoạch',
+    permitTab: 'Giấy phép bay',
+    reworkBadge: 'Thực hiện lại',
+    reworkFeedback: 'Xem ảnh và phản hồi trước đó của khách hàng',
+    reworkScopeLabel: (code: string) => `Thực hiện lại theo phiếu ${code}`,
+    reworkDescription: 'Chỉ thực hiện lại các hạng mục đã được duyệt trong phạm vi đơn hàng. Không phát sinh thanh toán lần hai.',
+    reworkScheduleHelp: 'Thống nhất lịch mới với khách hàng. Lịch thực hiện lại độc lập với ngày và khung giờ của đơn hàng ban đầu.',
+    reworkUnavailable: 'Không còn hạng mục đủ điều kiện thực hiện lại. Vui lòng tải lại hoặc trở về kết quả đơn hàng.',
+    reworkFutureRequired: 'Vui lòng chọn thời gian thực hiện lại trong tương lai.',
+    backToResults: 'Về kết quả đơn hàng',
     pageSubtitle:
       'Chọn giờ bay thực tế cho nhiệm vụ rồi chuyển sang bước gán nguồn lực',
     orderSummary: 'Tóm tắt đơn hàng',
@@ -87,6 +101,20 @@ export const missionCreatePageMessages = defineMessages({
     weatherCheckTime: 'Giờ muốn kiểm tra',
   },
   en: {
+    reworkTitle: 'Create rework mission',
+    reworkWorkspaceTitle: 'Rework planning',
+    reworkPaymentRequired: 'The original order must be confirmed as fully paid before rework planning. No new payment is required.',
+    reworkReadOnly: 'This revision case is closed. The rework plan is available for reference.',
+    planningTab: 'Planning',
+    permitTab: 'Flight permits',
+    reworkBadge: 'Rework',
+    reworkFeedback: 'View previous photos and customer feedback',
+    reworkScopeLabel: (code: string) => `Rework for ticket ${code}`,
+    reworkDescription: 'Repeat only the approved checklist items within the order scope. No second payment is required.',
+    reworkScheduleHelp: 'Agree on a new schedule with the customer. Rework dates and times are independent of the original order preferences.',
+    reworkUnavailable: 'No checklist items are eligible for rework. Reload or return to the order results.',
+    reworkFutureRequired: 'Choose a future start time for the rework mission.',
+    backToResults: 'Back to order results',
     pageSubtitle:
       'Pick the actual flight time, then continue to resource assignment',
     orderSummary: 'Order summary',

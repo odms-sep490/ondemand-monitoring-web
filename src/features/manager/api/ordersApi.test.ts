@@ -139,4 +139,14 @@ describe('ordersApi (mock mode)', () => {
       ordersApi.getOrderForMission('ord-2609-0157'),
     ).rejects.toMatchObject({ status: 409 })
   })
+
+  it('allows a completed order only in the rework creation context', async () => {
+    setHttpTransport(async () => new Response(JSON.stringify({ success: true, data: {
+      id: 'completed-order', orderCode: 'ORD-DONE', orderStatus: 'COMPLETED',
+      customerName: 'Customer', serviceName: 'Survey',
+    } }), { status: 200 }))
+    await expect(ordersApi.getOrderForMission('completed-order')).rejects.toMatchObject({ status: 409 })
+    await expect(ordersApi.getOrderForMission('completed-order', undefined, 'REWORK'))
+      .resolves.toMatchObject({ id: 'completed-order', code: 'ORD-DONE' })
+  })
 })

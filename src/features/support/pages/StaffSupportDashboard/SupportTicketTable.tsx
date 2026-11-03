@@ -1,8 +1,13 @@
+import { ticketLabelsMessages } from '../../lib/ticketLabels.messages'
+import { supportTicketSubject } from '../../lib/resultReviewPresentation'
 import { MessageOutlined } from '@ant-design/icons'
 import { Button } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 
-import { CardComponent, TableComponent } from '../../../../shared/components/antd'
+import {
+  CardComponent,
+  TableComponent,
+} from '../../../../shared/components/antd'
 import { useI18n } from '../../../../shared/i18n'
 import { EmptyState } from '../../../manager/components/common/EmptyState'
 import type { SupportTicketDto } from '../../api/supportApi'
@@ -32,6 +37,7 @@ export function SupportTicketTable({
   onSelect,
 }: Props) {
   const { t } = useI18n(staffSupportMessages)
+  const { t: labels } = useI18n(ticketLabelsMessages)
   const columns: ColumnsType<SupportTicketDto> = [
     {
       title: t.table.ticket,
@@ -39,7 +45,9 @@ export function SupportTicketTable({
       render: (_, ticket) => (
         <span className="mgr-cell-stack">
           <span className="mgr-code">{ticket.ticketCode}</span>
-          <span className="mgr-cell-sub sd-subject">{ticket.subject}</span>
+          <span className="mgr-cell-sub sd-subject">
+            {supportTicketSubject(ticket, labels.revisionSubject)}
+          </span>
           <span className="sd-cell-tags">
             <TicketPriorityTag priority={ticket.priority} />
             <TicketStatusTag status={ticket.status} />
@@ -135,7 +143,9 @@ export function SupportTicketTable({
         columns={columns}
         dataSource={rows}
         loading={loading}
-        rowClassName={(ticket) => (selectedId === ticket.id ? 'is-selected' : '')}
+        rowClassName={(ticket) =>
+          selectedId === ticket.id ? 'is-selected' : ''
+        }
         locale={{
           emptyText: loading ? (
             <span />
@@ -145,7 +155,9 @@ export function SupportTicketTable({
         }}
       />
       {!loading && rows.length > 0 ? (
-        <div className="mgr-table-foot">{t.table.count(rows.length, total)}</div>
+        <div className="mgr-table-foot">
+          {t.table.count(rows.length, total)}
+        </div>
       ) : null}
     </CardComponent>
   )

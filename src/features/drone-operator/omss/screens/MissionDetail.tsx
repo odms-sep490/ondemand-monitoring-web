@@ -546,6 +546,20 @@ export default function MissionDetail({
               {mission.title}
             </h1>
             <PriorityBadge priority={mission.priority} />
+            {mission.purpose === 'REWORK' && (
+              <span
+                style={{
+                  borderRadius: 999,
+                  padding: '4px 10px',
+                  background: '#fff7e6',
+                  color: '#ad6800',
+                  fontSize: 12,
+                  fontWeight: 600,
+                }}
+              >
+                {t.reworkPurpose}
+              </span>
+            )}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <span

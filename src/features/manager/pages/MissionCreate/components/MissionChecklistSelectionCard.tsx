@@ -13,6 +13,7 @@ interface MissionChecklistSelectionCardProps {
   onSelectUncovered: () => void
   onDeselectAll: () => void
   error?: string
+  disabled?: boolean
 }
 
 export function MissionChecklistSelectionCard({
@@ -24,6 +25,7 @@ export function MissionChecklistSelectionCard({
   onSelectUncovered,
   onDeselectAll,
   error,
+  disabled = false,
 }: MissionChecklistSelectionCardProps) {
   const { t } = useI18n(missionChecklistSelectionMessages)
   const uncoveredItemIds = plan?.coverage.uncoveredItemIds ?? []
@@ -33,7 +35,7 @@ export function MissionChecklistSelectionCard({
   )
 
   return (
-    <section className="odm-or-card odm-mission-checklist-selection-card">
+    <section className="odm-or-card odm-mission-checklist-selection-card odm-plan-checklists">
       <header className="odm-or-card-head odm-checklist-selection-head">
         <div className="odm-checklist-title-wrap">
           <span className="odm-or-card-title">
@@ -49,6 +51,7 @@ export function MissionChecklistSelectionCard({
             type="button"
             className="odm-btn odm-btn-sm"
             onClick={onSelectAll}
+            disabled={disabled}
             title={t.selectAllTitle}
           >
             {t.selectAll}
@@ -58,6 +61,7 @@ export function MissionChecklistSelectionCard({
               type="button"
               className="odm-btn odm-btn-sm odm-btn-highlight"
               onClick={onSelectUncovered}
+              disabled={disabled}
               title={t.selectUncoveredTitle}
             >
               {t.selectUncovered}
@@ -68,6 +72,7 @@ export function MissionChecklistSelectionCard({
               type="button"
               className="odm-btn odm-btn-sm"
               onClick={onDeselectAll}
+              disabled={disabled}
               title={t.deselectTitle}
             >
               {t.deselect}
@@ -106,6 +111,7 @@ export function MissionChecklistSelectionCard({
                     type="checkbox"
                     className="odm-checklist-checkbox"
                     checked={isChecked}
+                    disabled={disabled}
                     onChange={() => onToggle(item.id)}
                   />
                   <div className="odm-checklist-item-content">

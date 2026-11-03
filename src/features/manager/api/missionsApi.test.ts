@@ -21,6 +21,14 @@ const validRequest: CreateMissionRequest = {
 }
 
 describe('Staff mission response mapping', () => {
+  it('preserves rework provenance for mission list labels and setup eligibility', () => {
+    const item = toMissionCalendarItem({
+      id: 'rework', orderId: 'order', missionCode: 'MS-R', status: 'PLANNING',
+      purpose: 'REWORK', resultRevisionCaseId: 'case-1',
+    } as MissionResponse)
+    expect(item).toMatchObject({ purpose: 'REWORK', resultRevisionCaseId: 'case-1' })
+  })
+
   it('keeps unavailable schedule and assignment details unknown', () => {
     const item = toMissionCalendarItem({
       id: 'mission-1',

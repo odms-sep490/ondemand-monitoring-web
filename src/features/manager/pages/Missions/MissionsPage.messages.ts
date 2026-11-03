@@ -2,6 +2,7 @@ import { defineMessages } from '../../../../shared/i18n'
 
 export const missionsPageMessages = defineMessages({
   vi: {
+    reworkBadge: 'Thực hiện lại',
     statusChips: {
       ALL: 'Tất cả',
       IN_FLIGHT: 'Đang chạy',
@@ -103,6 +104,7 @@ export const missionsPageMessages = defineMessages({
       `${accepted}/${total} đã nhận`,
   },
   en: {
+    reworkBadge: 'Rework',
     statusChips: {
       ALL: 'All',
       IN_FLIGHT: 'Running',

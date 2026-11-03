@@ -328,7 +328,12 @@ export function ChecklistEditor({
                   title={t.remove}
                   onClick={() => checklist.remove(row.key)}
                 >
-                  <Icon name="trash" width={16} height={16} aria-hidden="true" />
+                  <Icon
+                    name="trash"
+                    width={16}
+                    height={16}
+                    aria-hidden="true"
+                  />
                 </button>
               )}
             </div>
@@ -459,9 +464,7 @@ export function ChecklistEditor({
           </>
         }
       >
-        <p className="checklist-hint">
-          {compact ? t.compactHint : t.hint}
-        </p>
+        <p className="checklist-hint">{compact ? t.compactHint : t.hint}</p>
         {ready && !compact && (
           <p className="checklist-pricing-notice">{t.pricingNotice}</p>
         )}
@@ -592,7 +595,7 @@ export function ChecklistEditor({
             </button>
           )}
         </fieldset>
-        {ready && checklist.selectedCount === 0 && (
+        {ready && checklist.selectedCount === 0 && !checklist.validation && (
           <p className="checklist-hint">{t.none}</p>
         )}
         {ready && quote && checklist.serviceId && (

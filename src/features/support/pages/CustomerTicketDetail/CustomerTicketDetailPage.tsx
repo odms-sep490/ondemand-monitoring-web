@@ -4,16 +4,16 @@ import {
   ErrorState,
   LoadingState,
 } from '../../../customer/components/common/StateView'
-import { Card, PageHeader } from '../../../customer/components/common/ui'
+import { PageHeader } from '../../../customer/components/common/ui'
 import { useI18n } from '../../../../shared/i18n'
-import { isTicketFinished } from '../../lib/ticketStatus'
+import { isResultRevisionTicket } from '../../lib/resultReviewPresentation'
 import '../../support.css'
-import { MessageList } from './components/MessageList'
-import { ReplyForm } from './components/ReplyForm'
+import { CustomerTicketConversation } from './components/CustomerTicketConversation'
 import { TicketOverview } from './components/TicketOverview'
 import './CustomerTicketDetail.css'
 import { customerTicketDetailMessages } from './CustomerTicketDetailPage.messages'
 import { useTicketDetail } from './hooks/useTicketDetail'
+import { TicketResultReviewCard } from '../../components/TicketResultReviewCard'
 
 export function CustomerTicketDetailPage({ ticketId }: { ticketId: string }) {
   const { t } = useI18n(customerTicketDetailMessages)
@@ -49,26 +49,15 @@ export function CustomerTicketDetailPage({ ticketId }: { ticketId: string }) {
       />
 
       <TicketOverview ticket={ticket} />
-
-      <Card title={t.conversation}>
-        <MessageList
-          messages={ticket.messages}
-          description={ticket.description}
+      {isResultRevisionTicket(ticket) ? (
+        <TicketResultReviewCard ticketId={ticket.id} />
+      ) : (
+        <CustomerTicketConversation
+          key={ticket.id}
+          ticket={ticket}
+          onReplied={detail.reload}
         />
-        {isTicketFinished(ticket.status) ? (
-          <div className="sp-notice is-success">{t.finished}</div>
-        ) : (
-          <ReplyForm
-            content={detail.replyContent}
-            attachment={detail.replyAttachment}
-            sending={detail.sending}
-            error={detail.sendError}
-            onContent={detail.setReplyContent}
-            onAttachment={detail.setReplyAttachment}
-            onSubmit={detail.sendReply}
-          />
-        )}
-      </Card>
+      )}
     </div>
   )
 }

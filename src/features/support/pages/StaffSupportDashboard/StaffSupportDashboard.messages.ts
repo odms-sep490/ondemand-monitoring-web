@@ -123,6 +123,7 @@ export const staffSupportMessages = defineMessages({
       loadingStaff: 'Đang tải nhân viên...',
       status: 'Trạng thái',
       resolve: 'Đánh dấu đã giải quyết',
+      caseManagedStatus: 'Trạng thái này được cập nhật khi mọi hạng mục trong yêu cầu đã được xử lý.',
     },
     errors: {
       reply: 'Không gửi được phản hồi: ',
@@ -253,6 +254,7 @@ export const staffSupportMessages = defineMessages({
       loadingStaff: 'Loading agents...',
       status: 'Status',
       resolve: 'Mark as resolved',
+      caseManagedStatus: 'This status updates after every checklist item in the request is settled.',
     },
     errors: {
       reply: 'Could not send the reply: ',

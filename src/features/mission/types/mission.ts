@@ -33,6 +33,39 @@ export type MissionCancellationResponse = {
   cancellationReason: string
 }
 
+export type MissionReworkContext = {
+  missionId: string
+  missionCode: string
+  caseId: string
+  checklists: Array<{
+    caseItemId: string
+    orderChecklistItemId: string
+    title: string
+    managerInstructions: string | null
+    guidance: {
+      description: string | null
+      executionSteps: string[]
+      inputRequirements: string[]
+      expectedOutputs: string[]
+    } | null
+    customerFeedback: Array<{
+      roundNumber: number
+      reasonCode: string
+      customerNote: string | null
+      submittedAt: string
+      evidence: Array<{
+        roundEvidenceId: string
+        mediaAssetId: string
+        fileName: string
+        mediaType: string
+        url: string | null
+        urlExpiresAt: string | null
+        unavailableReason: string | null
+      }>
+    }>
+  }>
+}
+
 export type MissionDeviceAssignmentStatus =
   | 'ASSIGNED'
   | 'CONNECTED'
@@ -113,6 +146,8 @@ export interface Mission {
   serviceName?: string | null
   customerName?: string
   missionCode: string
+  purpose?: 'ORIGINAL' | 'REWORK' | string
+  resultRevisionCaseId?: string | null
   status: MissionStatus
   operatorId?: string
   staffAssignments?: MissionStaffAssignment[]

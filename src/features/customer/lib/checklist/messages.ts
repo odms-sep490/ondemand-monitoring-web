@@ -10,7 +10,7 @@ export const checklistMessages = defineMessages({
     loading: 'Đang tải nội dung giám sát…',
     empty:
       'Dịch vụ chưa có nội dung giám sát mặc định. Bạn có thể bổ sung bên dưới.',
-    none: 'Bạn chưa chọn nội dung nào. Yêu cầu sẽ được gửi với danh sách rỗng.',
+    none: 'Vui lòng chọn ít nhất một hạng mục giám sát hoặc thêm yêu cầu bổ sung.',
     add: 'Thêm nội dung',
     edit: 'Sửa',
     selectAll: (n: number) => `Chọn tất cả (${n})`,
@@ -143,8 +143,7 @@ export const checklistMessages = defineMessages({
       'Đơn hàng đang chờ bổ sung thông tin theo yêu cầu của Quản lý · Chỉ xem',
     blockedExecutionStarted:
       'Đã chốt nội dung giám sát khi triển khai · Chỉ xem',
-    requiredMissing:
-      'Không thể bỏ nội dung giám sát bắt buộc của dịch vụ.',
+    requiredMissing: 'Không thể bỏ nội dung giám sát bắt buộc của dịch vụ.',
   },
   en: {
     title: 'Monitoring requirements',
@@ -157,7 +156,7 @@ export const checklistMessages = defineMessages({
     loading: 'Loading monitoring requirements…',
     empty:
       'This service has no default requirements. You can add your own below.',
-    none: 'No requirements selected. This request will be sent with an empty list.',
+    none: 'Select at least one monitoring item or add a custom requirement.',
     add: 'Add requirement',
     edit: 'Edit',
     selectAll: (n: number) => `Select all (${n})`,

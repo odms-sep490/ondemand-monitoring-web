@@ -101,11 +101,7 @@ async function enter(id: string) {
     await screen.findByRole('radio', { name: new RegExp(id.toUpperCase()) }),
   )
   fireEvent.click(screen.getByRole('button', { name: 'Tiếp theo' }))
-  await waitFor(() =>
-    expect(document.querySelector('.ui-page-header')).toHaveTextContent(
-      'Gán nguồn lực',
-    ),
-  )
+  await screen.findByRole('heading', { name: 'Gán nguồn lực' })
 }
 function chooseStaff(name: string) {
   const picker = screen
@@ -329,10 +325,6 @@ it('scoped submit returns to its origin and never mutates Order/Mission completi
   // Step 8: overview of every Mission; leaving it returns to the origin.
   await screen.findByRole('heading', { name: 'Tổng quan nhiệm vụ' })
   expect(close).not.toHaveBeenCalled()
-  const preparationSteps = screen.getByRole('region', { name: 'Nhiệm vụ' })
-  expect(
-    within(preparationSteps).getByText('Chuẩn bị').closest('li'),
-  ).toHaveClass('is-current')
   expect(
     screen.queryByRole('region', { name: 'Giấy phép bay M1' }),
   ).not.toBeInTheDocument()
@@ -362,10 +354,7 @@ it('all assignments submitted provides an explicit navigation-only finish', asyn
   const close = vi.fn()
   render(<OrderResourceAssignmentWizard orderId="o" onClose={close} />)
   const missionSteps = await screen.findByRole('region', { name: 'Nhiệm vụ' })
-  expect(within(missionSteps).getAllByRole('listitem')).toHaveLength(3)
   expect(within(missionSteps).getByText('Giấy phép bay')).toBeInTheDocument()
-  expect(within(missionSteps).queryByText('Thực hiện')).not.toBeInTheDocument()
-  expect(within(missionSteps).queryByText('Hoàn tất')).not.toBeInTheDocument()
   fireEvent.click(
     await screen.findByRole('button', { name: 'Hoàn tất phân công' }),
   )

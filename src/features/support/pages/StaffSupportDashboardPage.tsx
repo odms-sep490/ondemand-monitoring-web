@@ -1,7 +1,7 @@
 import '@ant-design/v5-patch-for-react-19'
 import { ReloadOutlined } from '@ant-design/icons'
 import { Button, ConfigProvider } from 'antd'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { useApiQuery } from '../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../shared/i18n'
@@ -37,7 +37,7 @@ import './StaffSupportDashboard/staffSupportDashboard.scss'
  * drone-operator shell, so it carries its own `.mgr-layout` token scope and
  * antd theme (the manager shell's own provider is simply re-applied).
  */
-export function StaffSupportDashboardPage() {
+export function StaffSupportDashboardPage({ initialTicketId }: { initialTicketId?: string }) {
   const { t } = useI18n(staffSupportMessages)
   const dark = useDocumentDark()
   const themeConfig = useMemo(() => buildManagerTheme(dark), [dark])
@@ -82,6 +82,16 @@ export function StaffSupportDashboardPage() {
   )
 
   const allTickets = query.data || []
+
+  useEffect(() => {
+    if (!initialTicketId) {
+      setSelectedTicket(null)
+      return
+    }
+    const ticket = allTickets.find((item) => item.id === initialTicketId)
+    if (ticket) setSelectedTicket(ticket)
+  }, [allTickets, initialTicketId])
+
   const counts = countQueue(allTickets)
   const insights = computeInsights(allTickets, analyticsQuery.data)
   const filtered = filterTickets(

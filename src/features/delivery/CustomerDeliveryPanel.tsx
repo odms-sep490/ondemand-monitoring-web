@@ -1,10 +1,20 @@
-import { Alert, Button, Empty, Input, Skeleton } from 'antd'
+import {
+  Alert,
+  Button,
+  Empty,
+  Skeleton,
+  Space,
+  Tag,
+  Typography,
+  notification,
+} from 'antd'
 import { useCallback, useEffect, useState } from 'react'
 import { ApiError } from '../../shared/api/httpClient'
-import { Modal } from '../customer/components/common/ui'
 import { useI18n } from '../../shared/i18n'
 import { deliveryApi } from './api'
 import { customerDeliveryPanelMessages } from './customerDeliveryPanel.messages'
+import { CustomerResultReview } from './CustomerResultReview'
+import { DeliveryImagePreview } from './DeliveryImagePreview'
 import { DeliveryProgress, DeliveryStatusPill } from './DeliveryProgress'
 import type { Delivery, DeliveryPanelLoadState } from './types'
 import './delivery.css'
@@ -22,15 +32,62 @@ export function CustomerDeliveryPanel({
   ) => void
 }) {
   const { t } = useI18n(customerDeliveryPanelMessages)
+  const [notificationApi, notificationHolder] = notification.useNotification()
   const [delivery, setDelivery] = useState<Delivery | null>(initialDelivery)
   const [loadState, setLoadState] = useState<DeliveryPanelLoadState>(
     initialDelivery ? 'ready' : 'loading',
   )
-  const [busy, setBusy] = useState(false)
-  const [acceptOpen, setAcceptOpen] = useState(false)
   const [error, setError] = useState<unknown>(null)
-  const [revisionOpen, setRevisionOpen] = useState(false)
-  const [reason, setReason] = useState('')
+  const [submittedTicket, setSubmittedTicket] = useState<{
+    orderId: string
+    id: string
+    code: string
+  } | null>(null)
+
+  const currentTicket =
+    submittedTicket?.orderId === orderId ? submittedTicket : null
+
+  function handleRevisionSubmitted(ticket: { id: string; code: string }) {
+    setSubmittedTicket({ ...ticket, orderId })
+    setDelivery((current) =>
+      current ? { ...current, deliveryStatus: 'REVISION_REQUESTED' } : current,
+    )
+    notificationApi.success({
+      key: `result-revision-${orderId}`,
+      placement: 'topRight',
+      duration: 5,
+      message: t.revisionSentTitle,
+      description: (
+        <a href={`#help/tickets/${encodeURIComponent(ticket.id)}`}>
+          {t.viewSubmittedTicket(ticket.code)}
+        </a>
+      ),
+    })
+  }
+
+  useEffect(() => {
+    if (delivery?.deliveryStatus !== 'REVISION_REQUESTED' || currentTicket)
+      return
+    let cancelled = false
+    // Restore the persistent ticket shortcut without replaying the success toast.
+    void deliveryApi
+      .getResultReview(orderId)
+      .then((review) => {
+        if (!cancelled && review.existingRequest) {
+          setSubmittedTicket({
+            orderId,
+            id: review.existingRequest.ticketId,
+            code: review.existingRequest.ticketCode,
+          })
+        }
+      })
+      .catch(() => {
+        /* Legacy deliveries may not have a structured review round. */
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [orderId, delivery?.deliveryStatus, currentTicket])
 
   const load = useCallback(
     async (showLoading = false) => {
@@ -94,6 +151,7 @@ export function CustomerDeliveryPanel({
         aria-busy={loadState === 'loading'}
         tabIndex={-1}
       >
+        {notificationHolder}
         <header className="delivery-hero">
           <div className="delivery-hero__copy">
             <span className="delivery-eyebrow">{t.eyebrow}</span>
@@ -131,32 +189,6 @@ export function CustomerDeliveryPanel({
     )
   }
 
-  async function accept() {
-    await act(() => deliveryApi.accept(orderId))
-    setAcceptOpen(false)
-  }
-  async function revise() {
-    if (!reason.trim()) {
-      setError(t.reasonRequired)
-      return
-    }
-    await act(() => deliveryApi.requestRevision(orderId, reason.trim(), []))
-    setRevisionOpen(false)
-    setReason('')
-  }
-  async function act(action: () => Promise<Delivery>) {
-    setBusy(true)
-    setError(null)
-    try {
-      setDelivery(await action())
-      await load()
-    } catch (cause) {
-      setError(cause)
-    } finally {
-      setBusy(false)
-    }
-  }
-
   const canReview = delivery.deliveryStatus === 'CUSTOMER_REVIEW'
   return (
     <section
@@ -166,6 +198,7 @@ export function CustomerDeliveryPanel({
       aria-busy={loadState === 'loading'}
       tabIndex={-1}
     >
+      {notificationHolder}
       <header className="delivery-hero">
         <div className="delivery-hero__copy">
           <span className="delivery-eyebrow">{t.eyebrow}</span>
@@ -210,7 +243,10 @@ export function CustomerDeliveryPanel({
                   {asset.type.toUpperCase().includes('VIDEO') ? (
                     <video controls preload="metadata" src={asset.url} />
                   ) : (
-                    <img src={asset.url} alt={asset.fileName} loading="lazy" />
+                    <DeliveryImagePreview
+                      src={asset.url}
+                      fileName={asset.fileName}
+                    />
                   )}
                   <div className="delivery-asset__meta">
                     <strong title={asset.fileName}>{asset.fileName}</strong>
@@ -255,88 +291,13 @@ export function CustomerDeliveryPanel({
             <p>{delivery.deliveryNotes}</p>
           </div>
         ) : null}
+
         {canReview ? (
-          <div className="delivery-review-card">
-            <div>
-              <span className="delivery-review-card__icon" aria-hidden="true">
-                ✓
-              </span>
-              <div>
-                <b>{t.previewReady}</b>
-                <span>{t.previewReadyText}</span>
-              </div>
-            </div>
-            <div className="delivery-actions">
-              <Button onClick={() => setRevisionOpen(true)} disabled={busy}>
-                {t.requestRevision}
-              </Button>
-              <Button
-                type="primary"
-                className="delivery-primary-action"
-                onClick={() => setAcceptOpen(true)}
-                disabled={busy}
-              >
-                {busy ? t.confirming : t.accept}
-              </Button>
-            </div>
-          </div>
-        ) : null}
-        {acceptOpen ? (
-          <Modal
-            title={t.acceptTitle}
-            subtitle={t.acceptSubtitle}
-            icon="shield"
-            width={480}
-            onClose={() => !busy && setAcceptOpen(false)}
-            footer={
-              <>
-                <Button onClick={() => setAcceptOpen(false)} disabled={busy}>
-                  {t.reviewAgain}
-                </Button>
-                <Button
-                  type="primary"
-                  onClick={() => void accept()}
-                  disabled={busy}
-                >
-                  {busy ? t.confirming : t.acceptConfirm}
-                </Button>
-              </>
-            }
-          >
-            <p>{t.acceptBody}</p>
-            {error ? (
-              <Alert type="error" showIcon message={message(error, t)} />
-            ) : null}
-          </Modal>
-        ) : null}
-        {revisionOpen ? (
-          <div className="delivery-revision">
-            <div className="delivery-field-head">
-              <label htmlFor="revision-reason">
-                {t.revisionLabel} <em>*</em>
-              </label>
-              <span>{reason.length}/2000</span>
-            </div>
-            <Input.TextArea
-              id="revision-reason"
-              rows={4}
-              value={reason}
-              onChange={(event) => setReason(event.target.value)}
-              maxLength={2000}
-              placeholder={t.revisionPlaceholder}
-              autoFocus
-            />
-            <div className="delivery-actions">
-              <Button onClick={() => setRevisionOpen(false)}>{t.cancel}</Button>
-              <Button
-                type="primary"
-                disabled={busy || !reason.trim()}
-                onClick={() => void revise()}
-              >
-                {t.sendRequest}
-              </Button>
-            </div>
-          </div>
+          <CustomerResultReview
+            orderId={orderId}
+            onComplete={() => void load()}
+            onSubmitted={handleRevisionSubmitted}
+          />
         ) : null}
 
         {delivery.deliveryStatus === 'PROCESSING' ? (
@@ -349,13 +310,25 @@ export function CustomerDeliveryPanel({
           />
         ) : null}
         {delivery.deliveryStatus === 'REVISION_REQUESTED' ? (
-          <StatusBanner
-            tone="warning"
-            title={t.revisionSentTitle}
-            text={t.revisionSentText}
-          />
+          <div className="delivery-revision-status" role="status">
+            <Space size={[8, 4]} wrap>
+              <Tag color="processing">{t.revisionPending}</Tag>
+              <Typography.Text type="secondary">
+                {t.revisionPendingText}
+              </Typography.Text>
+            </Space>
+            {currentTicket && (
+              <Button
+                type="link"
+                href={`#help/tickets/${encodeURIComponent(currentTicket.id)}`}
+              >
+                {t.viewSubmittedTicket(currentTicket.code)}
+              </Button>
+            )}
+          </div>
         ) : null}
-        {delivery.deliveryStatus === 'READY_FOR_DELIVERY' ||
+        {delivery.deliveryStatus === 'FINAL_PAYMENT_PENDING' ||
+        delivery.deliveryStatus === 'READY_FOR_DELIVERY' ||
         delivery.deliveryStatus === 'PAYMENT_CONFIRMED' ? (
           <StatusBanner
             tone="success"

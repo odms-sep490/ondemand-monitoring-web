@@ -8,6 +8,7 @@ import { useApiQuery } from '../../shared/hooks/useApiQuery'
 import { managerApi } from './api/dashboardApi'
 import { ManagerLayout } from './ManagerLayout'
 import { MissionCreatePage } from './pages/MissionCreate'
+import { ReworkPlanningPage } from './pages/MissionCreate/ReworkPlanningPage'
 import { DashboardPage } from './pages/Dashboard'
 import { MissionDispatchPage } from './pages/MissionDispatch'
 import { DronesPage } from './pages/Drones'
@@ -70,7 +71,10 @@ export function ManagerApp() {
   const hash = useHash()
   const { t } = useI18n(managerLayoutMessages)
   const route = parseManagerRoute(hash)
-  const navCounts = useApiQuery((signal) => managerApi.getDashboard('30D', signal), [])
+  const navCounts = useApiQuery(
+    (signal) => managerApi.getDashboard('30D', signal),
+    [],
+  )
 
   const counts = navCounts.data?.summary
     ? { pendingOrders: navCounts.data.summary.pendingOrderCount }
@@ -100,8 +104,15 @@ function renderScreen(
   if (route.screen === 'orderResults')
     return <OrderResultsPage key={route.orderId} orderId={route.orderId} />
   if (route.screen === 'missionCreate')
-    return (
+    return route.reworkCaseId ? (
+      <ReworkPlanningPage
+        key={`${route.orderId}:${route.reworkCaseId}`}
+        orderId={route.orderId}
+        caseId={route.reworkCaseId}
+      />
+    ) : (
       <MissionCreatePage
+        key={`${route.orderId}:${route.reworkCaseId ?? 'original'}`}
         orderId={route.orderId}
       />
     )
@@ -124,7 +135,8 @@ function renderScreen(
     return <MissionsPage missionId={route.missionId} />
   if (route.screen === 'drones') return <DronesPage droneId={route.droneId} />
   if (route.screen === 'maintenance') return <MaintenancePage />
-  if (route.screen === 'support') return <StaffSupportDashboardPage />
+  if (route.screen === 'support')
+    return <StaffSupportDashboardPage initialTicketId={route.ticketId} />
 
   // route.screen === 'notFound'
   return (

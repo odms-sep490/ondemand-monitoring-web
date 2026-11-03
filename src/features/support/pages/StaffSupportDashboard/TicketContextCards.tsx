@@ -103,8 +103,11 @@ export function TicketControls({
 }: ControlsProps) {
   const { t } = useI18n(staffSupportMessages)
   const statusLabels = t.status as Record<string, string>
+  const resultReviewTicket = ticket.ticketKind === 'RESULT_REVISION'
   const statusOptions: { value: string; label: string; disabled?: boolean }[] =
-    SELECTABLE_STATUSES.map((value) => ({ value, label: statusLabels[value] }))
+    SELECTABLE_STATUSES
+      .filter((value) => !resultReviewTicket || !['RESOLVED', 'CLOSED'].includes(value))
+      .map((value) => ({ value, label: statusLabels[value] }))
   if (!SELECTABLE_STATUSES.some((s) => s === ticket.status)) {
     statusOptions.push({
       value: ticket.status,
@@ -142,14 +145,18 @@ export function TicketControls({
           />
         </label>
 
-        <Button
-          block
-          icon={<CheckOutlined />}
-          className="sd-resolve"
-          onClick={() => onStatus('RESOLVED')}
-        >
-          {t.detail.resolve}
-        </Button>
+        {resultReviewTicket ? (
+          <p className="sd-case-managed-status">{t.detail.caseManagedStatus}</p>
+        ) : (
+          <Button
+            block
+            icon={<CheckOutlined />}
+            className="sd-resolve"
+            onClick={() => onStatus('RESOLVED')}
+          >
+            {t.detail.resolve}
+          </Button>
+        )}
       </div>
     </CardComponent>
   )

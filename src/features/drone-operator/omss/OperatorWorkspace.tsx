@@ -35,6 +35,8 @@ type BackendMission = {
   customerName?: string
   missionCode?: string
   status?: Mission['state'] | 'IN_PROGRESS'
+  purpose?: Mission['purpose']
+  resultRevisionCaseId?: string | null
   operatorId?: string
   deviceId?: string
   deviceCode?: string
@@ -210,6 +212,8 @@ function adaptBackendMission(mission: BackendMission): Mission {
   return {
     id: mission.missionCode ?? mission.id,
     backendId: mission.id,
+    purpose: mission.purpose ?? 'ORIGINAL',
+    resultRevisionCaseId: mission.resultRevisionCaseId ?? null,
     orderRef: mission.orderId ?? '',
     orderTitle: mission.orderTitle,
     title: mission.orderTitle ?? mission.missionCode ?? mission.id,

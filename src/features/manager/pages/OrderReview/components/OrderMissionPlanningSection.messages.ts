@@ -2,6 +2,7 @@ import { defineMessages } from '../../../../../shared/i18n'
 
 export const orderMissionPlanningSectionMessages = defineMessages({
   vi: {
+    backToPlanning: '← Quay lại lập kế hoạch',
     sectionAria: 'Kế hoạch nhiệm vụ của đơn hàng',
     reloadPlan: 'Tải lại kế hoạch',
     loadingPlan: 'Đang tải kế hoạch…',
@@ -12,7 +13,7 @@ export const orderMissionPlanningSectionMessages = defineMessages({
     missionFallback: 'Nhiệm vụ',
     finalizeTitle: 'Chốt kế hoạch?',
     finalizeBody:
-      'Sau khi chốt, các nhiệm vụ sẽ chuyển sang trạng thái sẵn sàng. Mọi thay đổi tài nguyên sau đó sẽ yêu cầu nhập lý do.',
+      'Sau khi chốt, kế hoạch được khóa và bạn sẽ chuyển sang bước cấp phép bay. Hãy kiểm tra lịch, nhân sự và thiết bị trước khi tiếp tục.',
     finalizeAction: 'Chốt kế hoạch',
     finalizeBlockedHint:
       'Cần phân công toàn bộ công việc mới có thể chốt kế hoạch',
@@ -50,6 +51,7 @@ export const orderMissionPlanningSectionMessages = defineMessages({
     uncoveredNote: (n: number) => `Còn ${n} công việc chưa được phân công`,
   },
   en: {
+    backToPlanning: '← Back to planning',
     sectionAria: 'Order mission planning',
     reloadPlan: 'Reload plan',
     loadingPlan: 'Loading plan…',
@@ -60,7 +62,7 @@ export const orderMissionPlanningSectionMessages = defineMessages({
     missionFallback: 'Mission',
     finalizeTitle: 'Finalize the plan?',
     finalizeBody:
-      'Once finalized, the missions move to the ready state. Any later resource change will require a reason.',
+      'Finalizing locks the plan and opens flight permits. Check the schedule, crew and equipment before continuing.',
     finalizeAction: 'Finalize plan',
     finalizeBlockedHint:
       'Every task must be assigned before the plan can be finalized',
@@ -81,14 +83,14 @@ export const orderMissionPlanningSectionMessages = defineMessages({
       'Give it a recognizable name, then check the weather and pick a flight schedule.',
     closeCreateAria: 'Close mission creation form',
     replaceCloseTitle: 'Close the replacement mission form?',
-    replaceDialogAria: (code: string) => `Create replacement mission for ${code}`,
+    replaceDialogAria: (code: string) =>
+      `Create replacement mission for ${code}`,
     replaceHeading: (code: string) => `Create replacement mission for ${code}`,
     replaceSubtitle:
       'Set up the flight schedule, scope and task list again to replace the cancelled mission.',
     closeReplaceAria: 'Close replacement mission form',
     noMissions: 'No missions yet',
-    permitEmptyHint:
-      'Plan and create missions before managing flight permits.',
+    permitEmptyHint: 'Plan and create missions before managing flight permits.',
     planEmptyHint:
       'Use the “Add mission” button above to create the first mission for this order.',
     openChecklist: (uncovered: number) =>

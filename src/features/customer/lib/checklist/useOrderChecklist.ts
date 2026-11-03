@@ -153,7 +153,8 @@ export function useOrderChecklist(
   const rows = current?.rows ?? []
   const selected = rows.filter((row) => row.selected)
   let validation: string | null = null
-  if (selected.length > 100) validation = t.limit
+  if (status === 'ready' && selected.length === 0) validation = t.none
+  else if (selected.length > 100) validation = t.limit
   else if (
     selected.some((row) => {
       const length = normalizeContent(row.content).length

@@ -37,6 +37,7 @@ import { MediaToolbar } from './components/MediaToolbar'
 import { MediaCard } from './components/MediaCard'
 import { MediaFileTable } from './components/MediaFileTable'
 import { PreviewLightbox } from './components/PreviewLightbox'
+import { ReworkMissionContextPanel } from './components/ReworkMissionContextPanel'
 
 export function UploadMediaPage({
   missionId,
@@ -401,6 +402,9 @@ function UploadMediaContent({
           backup={queue.retryBackup}
           onRefresh={refreshWorkspace}
         />
+        {missionId && activeMission.data?.purpose === 'REWORK' && (
+          <ReworkMissionContextPanel missionId={missionId} />
+        )}
         {missionId && (
           <MissionResultActions
             missionId={missionId}
@@ -565,7 +569,7 @@ function UploadMediaContent({
             )}
           </section>
         )}
-        <details className="upload-media-table-wrap">
+        <details className="upload-media-transfer">
           <summary>{t.transferDetails}</summary>
           <UploadMediaBar
             loadedMedia={loadedMedia}
@@ -574,15 +578,12 @@ function UploadMediaContent({
             uploading={uploading}
             validating={validating}
             manual={manual}
-            backRoute={backRoute}
             refreshWorkspace={refreshWorkspace}
             canManageMedia={canManageMedia}
             missionId={missionId}
             isBusy={isBusy || queue.busy}
             setUploadInfo={setUploadInfo}
             approvable={approvable}
-            refresh={refresh}
-            referenceCount={referenceCount}
             setBatchUploading={setBatchUploading}
             approve={approve}
           />
