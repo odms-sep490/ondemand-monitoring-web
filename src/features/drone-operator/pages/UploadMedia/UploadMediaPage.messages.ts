@@ -15,7 +15,7 @@ export const uploadMediaPageMessages = defineMessages({
     autoAttachHint:
       'Chọn “Gắn vào checklist” trên ảnh/video. Hệ thống tự tải và gắn bằng chứng sau khi xác nhận.',
     mediaLibraryFailed: 'Không tải được thư viện media. ',
-    transferDetails: 'Chi tiết upload và khôi phục',
+    transferDetails: 'Trạng thái tải lên và khôi phục',
     queueHint:
       'File chưa xác thực không tính là đủ bằng chứng. Tác vụ được khôi phục khi mở lại; hãy thử lại để tiếp tục.',
     retryTask: 'Thử lại',
@@ -63,7 +63,6 @@ export const uploadMediaPageMessages = defineMessages({
     summaryNote:
       'Bản local vẫn được giữ trên Flight Controller đến khi bạn xóa.',
     mediaLoaded: 'media đã tải lên',
-    uploadedChip: (n: number) => `${n} đã tải lên`,
     pendingChip: (n: number) => `${n} chờ tải lên`,
     uploadingChip: (n: number) => `${n} đang xử lý`,
     validatingChip: (n: number) => `${n} đang xác thực`,
@@ -86,7 +85,6 @@ export const uploadMediaPageMessages = defineMessages({
     viewShort: 'Xem trước',
     openMediaPreview: (name: string) => `Xem trước ${name}`,
     moreActions: 'Thêm thao tác',
-    fileTable: (n: number) => `Danh sách file (${n})`,
     emptyMedia: 'Chưa có media trên thiết bị.',
     emptyMediaHelp:
       'Kết nối Flight Controller hoặc tạo media trong Mission, rồi làm mới danh sách.',
@@ -103,10 +101,6 @@ export const uploadMediaPageMessages = defineMessages({
     manualUpload: 'Tải thủ công từ bản gốc',
     batchUploadComplete:
       'Đã gửi các tệp chờ tải. Trạng thái được cập nhật từ máy chủ.',
-    noPendingUploads: (references: number) =>
-      references > 0
-        ? `Tất cả media đã được lưu (${references} ảnh tham chiếu). Không còn tệp chờ tải.`
-        : 'Không có tệp nào chờ tải lên.',
     backToCockpit: 'Quay lại buồng lái',
     refresh: 'Làm mới',
     uploadAll: 'Tải tất cả lên',
@@ -187,7 +181,6 @@ export const uploadMediaPageMessages = defineMessages({
     summaryNote:
       'The local copy stays on the Flight Controller until you delete it.',
     mediaLoaded: 'media uploaded',
-    uploadedChip: (n: number) => `${n} uploaded`,
     pendingChip: (n: number) => `${n} waiting to upload`,
     uploadingChip: (n: number) => `${n} processing`,
     validatingChip: (n: number) => `${n} validating`,
@@ -210,7 +203,6 @@ export const uploadMediaPageMessages = defineMessages({
     viewShort: 'Preview',
     openMediaPreview: (name: string) => `Preview ${name}`,
     moreActions: 'More actions',
-    fileTable: (n: number) => `File list (${n})`,
     emptyMedia: 'No media on the device yet.',
     emptyMediaHelp:
       'Connect the Flight Controller or create media in the mission, then refresh the list.',
@@ -227,10 +219,6 @@ export const uploadMediaPageMessages = defineMessages({
     manualUpload: 'Upload manually from original',
     batchUploadComplete:
       'Pending files were sent. Status is updated by the server.',
-    noPendingUploads: (references: number) =>
-      references > 0
-        ? `All media is saved (${references} reference images). No files are waiting to upload.`
-        : 'No files are waiting to upload.',
     backToCockpit: 'Back to cockpit',
     refresh: 'Refresh',
     uploadAll: 'Upload all',

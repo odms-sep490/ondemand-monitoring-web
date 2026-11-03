@@ -2,30 +2,25 @@ import { StatusBadge } from '../../../../../shared/components/odm/StatusBadge'
 import { useI18n } from '../../../../../shared/i18n'
 import { operatorHref } from '../../../routes'
 import type { ConnectState } from '../connectTypes'
-import type { BackendMission } from '../../../api/liveMission'
-import { formatDeviceLabel } from '../../../lib/deviceLabel'
 import { connectStatusPanelMessages } from './ConnectStatusPanel.messages'
 
 export function ConnectStatusPanel({
   state,
   error,
-  mission,
+  missionId,
 }: {
   state: ConnectState
   error: string | null
-  mission?: BackendMission
+  missionId?: string
 }) {
-  const { t, locale } = useI18n(connectStatusPanelMessages)
-  const deviceLabel = mission ? formatDeviceLabel(mission) : null
-  const TRACKER_STEPS = t.trackerSteps
+  const { t } = useI18n(connectStatusPanelMessages)
+  const trackerSteps = t.trackerSteps
   const doneCount =
     state === 'connected'
       ? 3
-      : state === 'connecting'
+      : state === 'connecting' || state === 'failed'
         ? 1
-        : state === 'failed'
-          ? 1
-          : 0
+        : 0
   const activeIndex = state === 'connecting' ? 1 : -1
   const failedIndex = state === 'failed' ? 1 : -1
 
@@ -47,211 +42,81 @@ export function ConnectStatusPanel({
           : t.badge.default
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-      <div className="odm-card">
-        <div
-          className="odm-card-body"
-          style={{
-            padding: '14px 16px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 6,
-          }}
-        >
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-            }}
-          >
-            <span
-              className="odm-mono"
-              style={{ fontWeight: 700, fontSize: 13 }}
-            >
-              {mission?.missionCode ?? mission?.id ?? t.noMissionSelected}
-            </span>
-            <StatusBadge tone="green">{t.received}</StatusBadge>
-          </div>
-          <div style={{ fontWeight: 700, fontSize: 15 }}>
-            {mission?.orderTitle ?? t.missionBeingAssigned}
-          </div>
-          <div
-            style={{
-              color: 'var(--tx2)',
-              fontSize: 12.5,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 3,
-            }}
-          >
-            <span>
-              {mission?.scheduledStartAt
-                ? new Date(mission.scheduledStartAt).toLocaleString(locale)
-                : t.noSchedule}
-            </span>
-            <span>{deviceLabel ?? t.noDroneAssigned}</span>
-            <span>{mission?.address ?? t.noAddress}</span>
-          </div>
-        </div>
-      </div>
-
-      {state === 'expired' ? (
-        <div
-          className="odm-card"
-          style={{
-            background: 'var(--red-bg)',
-            borderColor: 'var(--red-dot)',
-            color: 'var(--red-fg)',
-          }}
-        >
-          <div
-            className="odm-card-body"
-            style={{
-              padding: '16px 18px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 6,
-            }}
-          >
-            <div style={{ fontWeight: 700, fontSize: 15 }}>
-              {t.codeExpiredTitle}
-            </div>
-            <div style={{ fontSize: 12.5 }}>{t.codeExpiredBody}</div>
-          </div>
-        </div>
-      ) : (
-        <div className="odm-card">
-          <div className="odm-card-body" style={{ padding: '16px 18px' }}>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
-            >
-              <span style={{ fontWeight: 700, fontSize: 14 }}>
-                {t.connectionStatus}
-              </span>
+    <div className="connect-status-panel">
+      <section
+        className="odm-card connect-status-panel__card"
+        aria-labelledby="connect-status-title"
+      >
+        <div className="odm-card-body connect-status-panel__body">
+          <div className="connect-status-panel__heading">
+            <h2 id="connect-status-title">{t.connectionStatus}</h2>
+            <span role="status" aria-live="polite" aria-atomic="true">
               <StatusBadge tone={badgeTone}>{badgeLabel}</StatusBadge>
-            </div>
-            <div style={{ marginTop: 6 }}>
-              {TRACKER_STEPS.map((label, i) => {
-                const done = i < doneCount
-                const active = i === activeIndex
-                const failedHere = i === failedIndex
-                return (
-                  <div
-                    key={label}
-                    style={{
-                      display: 'flex',
-                      gap: 12,
-                      alignItems: 'flex-start',
-                      padding: '7px 0',
-                    }}
-                  >
-                    <span
-                      style={{
-                        width: 26,
-                        height: 26,
-                        borderRadius: '50%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flex: 'none',
-                        background: failedHere
-                          ? 'var(--red-solid)'
-                          : done
-                            ? 'var(--green-solid)'
-                            : active
-                              ? 'var(--blue-solid)'
-                              : 'var(--gray-bg)',
-                        color: failedHere
-                          ? 'var(--red-on)'
-                          : done
-                            ? 'var(--green-on)'
-                            : active
-                              ? 'var(--blue-on)'
-                              : 'var(--gray-fg)',
-                      }}
-                    >
-                      {failedHere ? '✕' : done ? '✓' : active ? '…' : '○'}
-                    </span>
-                    <div
-                      style={{
-                        fontWeight: 700,
-                        fontSize: 13.5,
-                        color:
-                          done || failedHere || active
-                            ? undefined
-                            : 'var(--tx3)',
-                      }}
-                    >
-                      {label}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-            {state === 'failed' && error ? (
-              <div
-                style={{
-                  marginTop: 8,
-                  padding: '10px 12px',
-                  borderRadius: 10,
-                  background: 'var(--red-bg)',
-                  color: 'var(--red-fg)',
-                }}
-              >
-                <div style={{ fontSize: 11, fontWeight: 600 }}>
-                  disconnect_reason
-                </div>
-                <div style={{ fontWeight: 700, fontSize: 13 }}>{error}</div>
-              </div>
-            ) : null}
-            {state === 'connected' ? (
-              <div
-                style={{
-                  marginTop: 8,
-                  padding: '10px 12px',
-                  borderRadius: 10,
-                  background: 'var(--green-bg)',
-                  color: 'var(--green-fg)',
-                }}
-              >
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    fontWeight: 700,
-                    fontSize: 12.5,
-                  }}
-                >
-                  <span>{t.heartbeatTelemetry}</span>
-                  <span className="odm-mono">10 Hz</span>
-                </div>
-                <div style={{ fontSize: 12, marginTop: 4 }}>
-                  {t.telemetrySummary(18)}
-                </div>
-              </div>
-            ) : null}
+            </span>
           </div>
+
+          <ol className="connect-status-list">
+            {trackerSteps.map((label, index) => {
+              const done = index < doneCount
+              const active = index === activeIndex
+              const failedHere = index === failedIndex
+              const stateLabel = failedHere
+                ? t.stepState.failed
+                : done
+                  ? t.stepState.complete
+                  : active
+                    ? t.stepState.inProgress
+                    : t.stepState.waiting
+
+              return (
+                <li
+                  key={label}
+                  className={`connect-status-item${done ? ' is-done' : ''}${active ? ' is-active' : ''}${failedHere ? ' is-failed' : ''}`}
+                  aria-current={active ? 'step' : undefined}
+                  aria-label={`${label} — ${stateLabel}`}
+                >
+                  <span
+                    className="connect-status-item__marker"
+                    aria-hidden="true"
+                  >
+                    {failedHere ? '×' : done ? '✓' : active ? '…' : '○'}
+                  </span>
+                  <span className="connect-status-item__label">{label}</span>
+                </li>
+              )
+            })}
+          </ol>
+
+          {state === 'failed' && error ? (
+            <div className="connect-status-panel__error" role="alert">
+              <strong>{t.disconnectReason}</strong>
+              <span>{error}</span>
+            </div>
+          ) : null}
+
+          {state === 'connected' ? (
+            <div className="connect-status-panel__telemetry">
+              <div className="connect-status-panel__telemetry-heading">
+                <strong>{t.heartbeatTelemetry}</strong>
+                <span className="odm-mono">10 Hz</span>
+              </div>
+              <p>{t.telemetrySummary(18)}</p>
+            </div>
+          ) : null}
         </div>
-      )}
+      </section>
 
       {state === 'connected' ? (
         <a
-          className="odm-btn odm-btn-p"
-          href={operatorHref({ screen: 'preflight', missionId: mission?.id })}
-          style={{ width: '100%' }}
+          className="odm-btn odm-btn-p connect-status-panel__action"
+          href={operatorHref({ screen: 'preflight', missionId })}
         >
           {t.continueToPrecheck}
         </a>
       ) : (
         <a
-          className="odm-btn"
+          className="odm-btn connect-status-panel__action"
           href={operatorHref({ screen: 'missions' })}
-          style={{ width: '100%' }}
         >
           {t.backToMission}
         </a>

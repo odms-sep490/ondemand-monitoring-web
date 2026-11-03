@@ -102,35 +102,7 @@ describe('InFlightControl', () => {
     expect(screen.getByText('Waiting for PX4 GPS')).toBeInTheDocument()
   })
 
-  it('keeps full cockpit termination accessible during safe-stop without reopening preflight', () => {
-    vi.stubEnv('VITE_FLIGHT_MAP_ONLY', 'false')
-    window.localStorage.removeItem(
-      `omss.droneOperator.preflightReady.${mission.id}.${drone.id}`,
-    )
-    render(
-      <InFlightControl
-        mission={mission}
-        drone={drone}
-        normalFlightAllowed={false}
-        terminationAllowed={true}
-        operationalMessage="Đang dừng an toàn"
-        onRTB={vi.fn()}
-        onEmergency={vi.fn()}
-        autoStartPlan={false}
-        onAutoStartPlanConsumed={vi.fn()}
-      />,
-    )
-    expect(screen.getByText('Đang dừng an toàn')).toBeInTheDocument()
-    expect(screen.queryByText('Kiểm tra thủ công')).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Cất cánh' })).toBeDisabled()
-    expect(screen.getByRole('button', { name: 'Tiến' })).toBeDisabled()
-    expect(screen.getByRole('button', { name: 'Nhiệt TẮT' })).toBeDisabled()
-    expect(screen.getByRole('button', { name: 'Hạ cánh' })).toBeEnabled()
-    expect(screen.getByRole('button', { name: 'Dừng khẩn' })).toBeEnabled()
-    expect(screen.getByRole('button', { name: 'Hoàn thành bay' })).toBeEnabled()
-  })
-
-  it('fails closed in full cockpit when no normal or termination capability is provided', () => {
+  it('fails closed in full cockpit without normal flight permission', () => {
     vi.stubEnv('VITE_FLIGHT_MAP_ONLY', 'false')
     render(
       <InFlightControl
@@ -173,7 +145,6 @@ describe('InFlightControl', () => {
         mission={mission}
         drone={drone}
         normalFlightAllowed={true}
-        terminationAllowed={false}
         onRTB={vi.fn()}
         onEmergency={vi.fn()}
         autoStartPlan={false}

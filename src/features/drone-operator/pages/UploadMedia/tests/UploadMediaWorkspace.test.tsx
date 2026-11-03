@@ -131,6 +131,7 @@ describe('Upload media and monitoring workspace', () => {
     vi.mocked(missionApi.getPermissions).mockResolvedValue({
       ...permissions,
       canInspectDevice: true,
+      canAssessMonitoringChecklist: true,
       canExecuteMonitoringChecklist: false,
     })
     render(<UploadMediaPage missionId="m" />)
@@ -217,8 +218,8 @@ describe('Upload media and monitoring workspace', () => {
     expect(screen.queryByRole('button', { name: 'Tải ảnh lên' })).toBeNull()
     expect(screen.queryByText('Gắn vào checklist')).toBeNull()
     expect(
-      screen.getByRole('progressbar', { name: 'media đã tải lên' }),
-    ).toHaveAttribute('aria-valuenow', '1')
+      screen.queryByRole('progressbar', { name: 'media đã tải lên' }),
+    ).not.toBeInTheDocument()
   })
   it('allows one capture to target multiple historical checklist executions', async () => {
     vi.mocked(missionApi.getPermissions).mockResolvedValue({
@@ -320,10 +321,11 @@ describe('Upload media and monitoring workspace', () => {
     expect(screen.queryByLabelText('Đánh giá nghiệm thu')).toBeNull()
   })
   it('lets only the Inspector edit the acceptance assessment', async () => {
-    active.status = 'IN_FLIGHT'
+    active.status = 'IN_PROGRESS'
     vi.mocked(missionApi.getPermissions).mockResolvedValue({
       ...permissions,
       canInspectDevice: true,
+      canAssessMonitoringChecklist: true,
       canExecuteMonitoringChecklist: false,
       canSubmitMissionResult: false,
     })
@@ -403,6 +405,7 @@ describe('Upload media and monitoring workspace', () => {
   })
 
   it('separates multi-role acceptance from submission and refreshes Mission', async () => {
+    active.status = 'IN_PROGRESS'
     vi.mocked(missionApi.getPermissions).mockResolvedValue({
       ...permissions,
       canCompleteMission: true,

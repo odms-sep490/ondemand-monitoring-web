@@ -78,25 +78,30 @@ export function ChecklistGuidance({
   const body = (
     <div className="odm-cg-body">
       {sections.includes('description') && guidance.description?.trim() ? (
-        <section>
+        <section className="odm-cg-section odm-cg-section-description">
           <h4>{t.description}</h4>
           <p>{guidance.description.trim()}</p>
         </section>
       ) : null}
       {sections.includes('steps') && steps.length > 0 ? (
-        <section>
+        <section className="odm-cg-section odm-cg-section-steps">
           <h4>{t.steps}</h4>
-          <ol>
+          <ol className="odm-cg-steps">
             {steps.map((step, index) => (
-              <li key={`${index}:${step}`}>{step}</li>
+              <li key={`${index}:${step}`}>
+                <span className="odm-cg-step-index" aria-hidden="true">
+                  {index + 1}
+                </span>
+                <span>{step}</span>
+              </li>
             ))}
           </ol>
         </section>
       ) : null}
       {sections.includes('inputs') && inputs.length > 0 ? (
-        <section>
+        <section className="odm-cg-section odm-cg-section-inputs">
           <h4>{t.inputs}</h4>
-          <ul>
+          <ul className="odm-cg-list">
             {inputs.map((item, index) => (
               <li key={`${index}:${item}`}>{item}</li>
             ))}
@@ -104,9 +109,9 @@ export function ChecklistGuidance({
         </section>
       ) : null}
       {sections.includes('outputs') && outputs.length > 0 ? (
-        <section>
+        <section className="odm-cg-section odm-cg-section-outputs">
           <h4>{t.outputs}</h4>
-          <ul>
+          <ul className="odm-cg-list">
             {outputs.map((item, index) => (
               <li key={`${index}:${item}`}>{item}</li>
             ))}

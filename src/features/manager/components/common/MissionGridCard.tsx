@@ -19,7 +19,6 @@ import {
   type AvailableOperator,
 } from '../../../staff/api/operatorApi'
 import { MissionUpdatePanel } from './MissionUpdatePanel'
-import { missionResourcePrepareTone } from './missionDetailHelpers'
 import {
   MissionGridDeviceList,
   MissionGridStaffList,
@@ -140,7 +139,7 @@ export function MissionGridCard({
 
   // 1. Remove Checklist Item (Click [X])
   async function handleRemoveChecklist(itemId: string) {
-    if (disabled || busy || !isPlanning) return
+    if (disabled || busy || !isPlanning || mission.purpose === 'REWORK') return
     const remainingIds = assignedChecklistIds.filter(
       (id: string) => id !== itemId,
     )
@@ -205,14 +204,16 @@ export function MissionGridCard({
       setBusy(true)
       setErrorMsg('')
       const assignedRoleKeys = new Set<string>()
-      for (const assignment of roleRequests) {
+      for (const assignment of assignments) {
         try {
           await missionsApi.assignStaff(
             mission.id,
             assignment.staffId,
-            assignment.role,
+            assignment.roles,
           )
-          assignedRoleKeys.add(`${assignment.staffId}:${assignment.role}`)
+          assignment.roles.forEach((role) => {
+            assignedRoleKeys.add(`${assignment.staffId}:${role}`)
+          })
         } catch (err: unknown) {
           const remainingAssignments = roleRequests.filter(
             (item) => !assignedRoleKeys.has(`${item.staffId}:${item.role}`),
@@ -260,13 +261,13 @@ export function MissionGridCard({
   }
 
   // Remove Staff
-  function handleRemoveStaff(staffId: string, role: string) {
+  function handleRemoveStaff(assignmentId: string) {
     if (disabled || busy) return
-    const doRemove = async (reason?: string) => {
+    const doRemove = async () => {
       setBusy(true)
       setErrorMsg('')
       try {
-        await missionsApi.removeStaff(mission.id, staffId, role, reason)
+        await missionsApi.removeStaff(mission.id, assignmentId)
         onPlanChanged()
       } catch (err: unknown) {
         setErrorMsg(err instanceof Error ? err.message : t.errRemoveStaff)
@@ -279,8 +280,8 @@ export function MissionGridCard({
       onRequestReason(
         t.reasonRemoveStaffTitle,
         t.reasonRemoveStaffHint,
-        async (reason) => {
-          await doRemove(reason)
+        async () => {
+          await doRemove()
         },
       )
     } else {
@@ -341,13 +342,13 @@ export function MissionGridCard({
   }
 
   // Remove Device
-  function handleRemoveDevice(deviceId: string) {
+  function handleRemoveDevice(assignmentId: string) {
     if (disabled || busy) return
-    const doRemove = async (reason?: string) => {
+    const doRemove = async () => {
       setBusy(true)
       setErrorMsg('')
       try {
-        await missionsApi.removeDevice(mission.id, deviceId, reason)
+        await missionsApi.removeDevice(mission.id, assignmentId)
         onPlanChanged()
       } catch (err: unknown) {
         setErrorMsg(err instanceof Error ? err.message : t.errRemoveDevice)
@@ -360,8 +361,8 @@ export function MissionGridCard({
       onRequestReason(
         t.reasonRemoveDeviceTitle,
         t.reasonRemoveDeviceHint,
-        async (reason) => {
-          await doRemove(reason)
+        async () => {
+          await doRemove()
         },
       )
     } else {
@@ -433,22 +434,28 @@ export function MissionGridCard({
           <span>{mission.orderTitle || t.orderScope}</span>
         </div>
         <div className="odm-mcard-inline">
+          {mission.purpose === 'REWORK' && (
+            <StatusBadge tone="warning">{t.rework}</StatusBadge>
+          )}
           <StatusBadge
             tone={toUiTone(missionStatusTone[mission.status] ?? 'gray')}
           >
             {missionStatusLabel[mission.status] ?? mission.status}
           </StatusBadge>
-          {isPlanning && plan.planStatus === 'FINALIZED' && !disabled && (
-            <button
-              type="button"
-              className="odm-btn odm-btn-sm odm-btn-p"
-              disabled={busy}
-              onClick={() => void handleConfirmPlanning()}
-              title={`Xác nhận Mission ${mission.missionCode ?? ''}`}
-            >
-              {busy ? 'Đang xác nhận…' : 'Xác nhận'}
-            </button>
-          )}
+          {isPlanning &&
+            mission.purpose !== 'REWORK' &&
+            plan.planStatus === 'FINALIZED' &&
+            !disabled && (
+              <button
+                type="button"
+                className="odm-btn odm-btn-sm odm-btn-p"
+                disabled={busy}
+                onClick={() => void handleConfirmPlanning()}
+                title={t.confirmMissionTitle(mission.missionCode ?? '')}
+              >
+                {busy ? t.confirmingMission : t.confirmMission}
+              </button>
+            )}
           {isPlanning &&
             !disabled &&
             (onEditMission ? (
@@ -505,7 +512,7 @@ export function MissionGridCard({
             assignedChecklists.map((item) => (
               <div key={item.id} className="odm-mcard-ch-item">
                 <span>{item.content}</span>
-                {isPlanning && (
+                {isPlanning && mission.purpose !== 'REWORK' && (
                   <button
                     type="button"
                     className="odm-mcard-ch-remove"
@@ -528,13 +535,9 @@ export function MissionGridCard({
         <div className="odm-mcard-sec-head">
           <span>{t.resourcePreparation}</span>
           <StatusBadge
-            tone={toUiTone(
-              missionResourcePrepareTone(mission.resourcePrepareStatus),
-            )}
+            tone={toUiTone(missionStatusTone[mission.status] ?? 'gray')}
           >
-            {mission.resourcePrepareStatus
-              ? t.resourcePrepLabels[mission.resourcePrepareStatus]
-              : t.resourcePrepLabels.unknown}
+            {missionStatusLabel[mission.status] ?? mission.status}
           </StatusBadge>
         </div>
         <div className="odm-mcard-sec-head">

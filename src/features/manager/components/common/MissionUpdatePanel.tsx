@@ -66,6 +66,7 @@ export function MissionUpdatePanel({
   const { t } = useI18n(missionCreatePageMessages)
   const { t: reviewT } = useI18n(orderReviewPageMessages)
   const { t: tu } = useI18n(missionUpdatePanelMessages)
+  const rework = mission.purpose === 'REWORK'
   const localizeMediaLabel = (label: string) =>
     humanizeMediaRequirement(label, reviewT)
 
@@ -298,7 +299,7 @@ export function MissionUpdatePanel({
       await missionsApi.updateMission(mission.id, {
         scheduledStartAt: s.toISOString(),
         scheduledEndAt: e.toISOString(),
-        checklistIds: selected,
+        ...(rework ? {} : { checklistIds: selected }),
       })
       closeForm()
       onUpdated()
@@ -430,7 +431,8 @@ export function MissionUpdatePanel({
 
                 <div className="odm-or-grid">
                   <div className="odm-or-col">
-                    <CustomerTimeWindowCard brief={brief} />
+                    {!rework && <CustomerTimeWindowCard brief={brief} />}
+                    {rework && <section className="odm-or-card odm-plan-window"><div className="odm-or-card-body">{t.reworkScheduleHelp}</div></section>}
 
                     <WeatherForecastCard
                       onCreated={() => {}}
@@ -445,7 +447,7 @@ export function MissionUpdatePanel({
 
                     <FlightScheduleCard
                       durationText={durationText}
-                      canFillFromCustomer={Boolean(
+                      canFillFromCustomer={!rework && Boolean(
                         dateRangeFromBrief(brief)[0],
                       )}
                       fillFromCustomer={fillFromCustomer}
@@ -460,6 +462,7 @@ export function MissionUpdatePanel({
                     />
 
                     <MissionChecklistSelectionCard
+                      disabled={rework}
                       items={orderChecklistItems}
                       plan={plan}
                       selectedIds={selected}

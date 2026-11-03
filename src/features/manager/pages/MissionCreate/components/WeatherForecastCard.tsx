@@ -8,6 +8,7 @@ import type { OrderMissionBrief } from '../../../types/orders'
 import type { ForecastRow } from '../createMissionTypes'
 
 export function WeatherForecastCard({
+  customSchedule = false,
   onCreated,
   forecastTime,
   weatherCheckDate,
@@ -17,6 +18,7 @@ export function WeatherForecastCard({
   brief,
   forecastRows,
 }: {
+  customSchedule?: boolean
   onCreated: ((missionId: string) => void) | undefined
   forecastTime: string
   weatherCheckDate: string
@@ -27,12 +29,13 @@ export function WeatherForecastCard({
   forecastRows: ForecastRow[]
 }) {
   const { t } = useI18n(missionCreatePageMessages)
+  const manualWeather = Boolean(onCreated) || customSchedule
   return (
-    <section className="odm-or-card">
+    <section className="odm-or-card odm-plan-weather">
       <header className="odm-or-card-head">
         <span className="odm-or-card-title">
           <OrderIcon name="info" size={18} />
-          {onCreated ? t.weatherCheckTitle : t.weatherForecastTitle}
+          {manualWeather ? t.weatherCheckTitle : t.weatherForecastTitle}
         </span>
         <span className="odm-or-pill odm-or-pill-blue">
           {t.weatherForecastTime(forecastTime)}
@@ -40,9 +43,9 @@ export function WeatherForecastCard({
       </header>
       <div className="odm-or-card-body">
         <p className="odm-or-muted odm-or-hint">
-          {onCreated ? t.weatherCheckHint : t.weatherForecastHint}
+          {manualWeather ? t.weatherCheckHint : t.weatherForecastHint}
         </p>
-        {onCreated ? (
+        {manualWeather ? (
           <div className="odm-weather-check-controls">
             <label className="odm-or-field">
               <span className="odm-or-field-label">{t.weatherCheckDate}</span>
@@ -80,8 +83,8 @@ export function WeatherForecastCard({
                     <div className="odm-or-weather-date">{row.label}</div>
                     <span
                       className="odm-or-weather-badge"
-                      role={onCreated ? 'status' : undefined}
-                      aria-live={onCreated ? 'polite' : undefined}
+                      role={manualWeather ? 'status' : undefined}
+                      aria-live={manualWeather ? 'polite' : undefined}
                     >
                       {row.status === 'ready'
                         ? t.weatherSuitability[

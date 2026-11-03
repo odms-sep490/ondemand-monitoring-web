@@ -62,7 +62,6 @@ export const operatorApi = {
           .then((value) => ({
             canControlFlight: value.canControlFlight,
             canStartMission: value.canStartMission,
-            canTerminateFlight: value.canTerminateFlight,
             canOperatePayload: value.canOperatePayload,
             canInspectDevice: value.canInspectDevice,
             canMaintainDevice: value.canMaintainDevice,
@@ -70,6 +69,7 @@ export const operatorApi = {
             canCompleteMission: value.canCompleteMission,
             canSubmitMissionResult: value.canSubmitMissionResult,
             canExecuteMonitoringChecklist: value.canExecuteMonitoringChecklist,
+            canAssessMonitoringChecklist: value.canAssessMonitoringChecklist,
             canAttachChecklistEvidence: value.canAttachChecklistEvidence,
             canDetachChecklistEvidence: value.canDetachChecklistEvidence,
           }))

@@ -25,7 +25,10 @@ export function missionResultReviewReadiness({
     !loading && !failed && checklist?.missionId === missionId
       ? checklist
       : undefined
-  const missionComplete = missionStatus === 'COMPLETED'
+  const missionComplete =
+    missionStatus === 'COMPLETED' ||
+    missionStatus === 'AWAITING_REVIEW' ||
+    missionStatus === 'PENDING_REVIEW'
   const finalReady = matching?.readyForFinalApproval === true
   const checklistReady = matching?.readyForSubmission === true || finalReady
   const blockers = matching

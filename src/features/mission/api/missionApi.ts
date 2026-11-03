@@ -44,9 +44,18 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
 }
 
 export const missionApi = {
+  getReworkContext: (missionId: string) =>
+    request<import('../types/mission').MissionReworkContext>(
+      `${API_BASE}/missions/${encodeURIComponent(missionId)}/rework-context`,
+    ),
   getPermissions: (missionId: string) =>
     request<import('../types/permissions').MissionPermissions>(
       `${API_BASE}/missions/${encodeURIComponent(missionId)}/permissions`,
+    ),
+  cancelMission: (missionId: string, reason: string) =>
+    request<import('../types/mission').MissionCancellationResponse>(
+      `${API_BASE}/missions/${encodeURIComponent(missionId)}/cancel`,
+      { method: 'POST', body: JSON.stringify({ reason }) },
     ),
   // GET /api/missions?operatorId={id} – list all missions for an operator
   getMissionsByOperator: async (operatorId: string): Promise<Mission[]> => {
@@ -56,8 +65,11 @@ export const missionApi = {
   },
 
   // Query Mission Details
-  getMissionById: async (missionId: string): Promise<Mission> => {
-    return request<Mission>(`${API_BASE}/missions/${missionId}`)
+  getMissionById: async (
+    missionId: string,
+    signal?: AbortSignal,
+  ): Promise<Mission> => {
+    return request<Mission>(`${API_BASE}/missions/${missionId}`, { signal })
   },
 
   getMissionResult: async (
@@ -165,7 +177,7 @@ export const missionApi = {
     let latest: Mission | null = null
     for (const [index, deviceId] of resolvedDeviceIds.entries()) {
       latest = await request<Mission>(
-        `${API_BASE}/missions/${encodeURIComponent(missionId)}/assign-device`,
+        `${API_BASE}/missions/${encodeURIComponent(missionId)}/device-assignments`,
         {
           method: 'POST',
           body: JSON.stringify({
@@ -196,10 +208,10 @@ export const missionApi = {
           : []
       for (const staffId of staffIds) {
         latest = await request<Mission>(
-          `${API_BASE}/missions/${encodeURIComponent(missionId)}/assign-staff`,
+          `${API_BASE}/missions/${encodeURIComponent(missionId)}/staff-assignments`,
           {
             method: 'POST',
-            body: JSON.stringify({ staffId, assignedRole }),
+            body: JSON.stringify({ staffId, assignedRoles: [assignedRole] }),
           },
         )
       }
@@ -212,13 +224,6 @@ export const missionApi = {
     return request<Mission>(
       `${API_BASE}/missions/${encodeURIComponent(missionId)}/accept-current`,
       { method: 'PATCH' },
-    )
-  },
-
-  startMissionWorkflow: async (missionId: string): Promise<Mission> => {
-    return request<Mission>(
-      `${API_BASE}/missions/${encodeURIComponent(missionId)}/start-operation`,
-      { method: 'POST' },
     )
   },
 
@@ -240,7 +245,7 @@ export const missionApi = {
   },
 
   assignDrone: async (missionId: string, droneId: string): Promise<Mission> => {
-    return request<Mission>(`${API_BASE}/missions/${missionId}/assign-device`, {
+    return request<Mission>(`${API_BASE}/missions/${encodeURIComponent(missionId)}/device-assignments`, {
       method: 'POST',
       body: JSON.stringify({ deviceId: droneId, deviceRole: 'MAIN' }),
     })
@@ -250,9 +255,9 @@ export const missionApi = {
     missionId: string,
     operatorId: string,
   ): Promise<Mission> => {
-    return request<Mission>(`${API_BASE}/missions/${missionId}/assign-staff`, {
+    return request<Mission>(`${API_BASE}/missions/${encodeURIComponent(missionId)}/staff-assignments`, {
       method: 'POST',
-      body: JSON.stringify({ staffId: operatorId, assignedRole: 'PILOT' }),
+      body: JSON.stringify({ staffId: operatorId, assignedRoles: ['PILOT'] }),
     })
   },
 
@@ -353,15 +358,9 @@ export const missionApi = {
     )
   },
 
-  // F3.3 Start Mission / Takeoff (POST /api/missions/{id}/start)
-  startMission: async (
-    missionId: string,
-    tokenValue?: string,
-  ): Promise<Mission> => {
-    const query = tokenValue
-      ? `?tokenValue=${encodeURIComponent(tokenValue)}`
-      : ''
-    return request<Mission>(`${API_BASE}/missions/${missionId}/start${query}`, {
+  // Start operation after staff acceptance, preflight, and control handover.
+  startMission: async (missionId: string): Promise<Mission> => {
+    return request<Mission>(`${API_BASE}/missions/${missionId}/start-operation`, {
       method: 'POST',
     })
   },

@@ -1,4 +1,4 @@
-import { Button } from 'antd'
+import { Button, Tag } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 
 import { formatOrderCode } from '../../../components/common/format'
@@ -37,6 +37,7 @@ export function missionsColumns({
       render: (_, m) => (
         <span className="mgr-cell-stack">
           <span className="mgr-code" title={m.missionCode}>{m.missionCode}</span>
+          {m.purpose === 'REWORK' && <Tag color="orange">{t.reworkBadge}</Tag>}
           <a
             className="mgr-cell-sub mgr-order-link"
             href={managerHref({ screen: 'orderReview', orderId: m.orderId })}

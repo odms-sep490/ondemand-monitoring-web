@@ -34,10 +34,10 @@ describe('live mission mapping', () => {
     ).toBe('FUTURE_STATUS')
   })
 
-  it('preserves planning statuses instead of showing them as unsupported', () => {
+  it('preserves mission workflow statuses and rejects order-only statuses', () => {
     expect(toOperatorMission({ ...mission, status: 'PLANNING' }).status).toBe('PLANNING')
     expect(toOperatorMission({ ...mission, status: 'READY' }).status).toBe('READY')
-    expect(toOperatorMission({ ...mission, status: 'WAITING_DEPOSIT' }).status).toBe('WAITING_DEPOSIT')
+    expect(toOperatorMission({ ...mission, status: 'WAITING_DEPOSIT' }).status).toBe('UNKNOWN')
   })
   it('keeps the backend ID for API calls and the code for display', () => {
     expect(toOperatorMission(mission).id).toBe(mission.id)
@@ -84,6 +84,21 @@ describe('live mission mapping', () => {
 
     expect(mapped.myResponseStatus).toBe('PENDING')
     expect(mapped.status).toBe('PENDING')
+  })
+
+  it('shows the Accept action while the mission is pending crew confirmation', () => {
+    const mapped = toOperatorMission(
+      {
+        ...mission,
+        status: 'PENDING_CONFIRMATION',
+        staffAssignments: [{ staffId: 'staff-1', responseStatus: 'PENDING' }],
+      },
+      'staff-1',
+    )
+
+    expect(mapped.myResponseStatus).toBe('PENDING')
+    expect(mapped.status).toBe('PENDING')
+    expect(mapped.backendStatus).toBe('PENDING_CONFIRMATION')
   })
 
   it('maps the manager scheduled end time for operator mission detail', () => {

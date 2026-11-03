@@ -68,7 +68,8 @@ export function ReviewNotice({
     /giấy tờ|ủy quyền|quyền sử dụng/i.test(order.rejectReason),
   )
   const reviewed =
-    rejected || needsInfo || (order.status === 'APPROVED' && order.reviewAt)
+    rejected || needsInfo ||
+    (order.status === 'APPROVED' && order.reviewAt)
   if (!reviewed) return null
 
   async function submitInformation() {

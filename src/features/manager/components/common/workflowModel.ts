@@ -125,19 +125,12 @@ export function missionProgress(
       PLANNING: 'permit',
       CREATED: 'permit',
       WAITING_DEPOSIT: 'permit',
+      PENDING_PAYMENT: 'permit',
+      PENDING_CONFIRMATION: 'permit',
       READY: 'permit',
-      RESOURCE_ASSIGNING: 'permit',
-      WAITING_OPERATOR_ACCEPTANCE: 'permit',
       SCHEDULED: 'permit',
-      CONNECTED: 'permit',
-      PREFLIGHT_CHECKING: 'permit',
-      READY_TO_FLY: 'permit',
-      FAILED_PREFLIGHT: 'permit',
-      PENDING_APPROVAL: 'permit',
-      IN_FLIGHT: 'execute',
       IN_PROGRESS: 'execute',
-      RETURNING: 'execute',
-      POSTFLIGHT_CHECKING: 'execute',
+      AWAITING_REVIEW: 'done',
       PENDING_REVIEW: 'done',
     } as Record<MissionStatus, MissionStage>
   )[status]
@@ -164,6 +157,15 @@ export type MissionBucket = 'finished' | 'active' | 'queued' | 'blocked'
 export function missionBucket(status: MissionStatus): MissionBucket {
   if (status === 'COMPLETED') return 'finished'
   if (status === 'FAILED' || status === 'CANCELLED') return 'blocked'
-  if (['PLANNING', 'CREATED', 'WAITING_DEPOSIT'].includes(status)) return 'queued'
+  if (
+    [
+      'PLANNING',
+      'CREATED',
+      'WAITING_DEPOSIT',
+      'PENDING_PAYMENT',
+      'PENDING_CONFIRMATION',
+    ].includes(status)
+  )
+    return 'queued'
   return 'active'
 }

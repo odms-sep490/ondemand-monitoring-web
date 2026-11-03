@@ -34,14 +34,27 @@ export function MissionDetailHeader({
       description={headline ?? undefined}
       actions={
         <>
-          <Button href={managerHref({ screen: 'orderReview', orderId: mission.orderId })}>
+          <Button
+            href={managerHref(
+              mission.purpose === 'REWORK' && mission.resultRevisionCaseId
+                ? {
+                    screen: 'missionCreate',
+                    orderId: mission.orderId,
+                    reworkCaseId: mission.resultRevisionCaseId,
+                  }
+                : { screen: 'orderReview', orderId: mission.orderId },
+            )}
+          >
             {t.viewOrderPlan}
             <RightOutlined aria-hidden="true" />
           </Button>
           {canSetup ? (
             <Button
               type="primary"
-              href={managerHref({ screen: 'missionSetup', missionId: mission.id })}
+              href={managerHref({
+                screen: 'missionSetup',
+                missionId: mission.id,
+              })}
             >
               {t.continueSetup}
             </Button>

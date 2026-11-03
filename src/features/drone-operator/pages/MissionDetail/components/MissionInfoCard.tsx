@@ -1,7 +1,6 @@
 import type { OperatorMission } from '../../../types/mission'
 import { StatusBadge } from '../../../../../shared/components/odm/StatusBadge'
 import { STATUS_TONE } from '../missionConstants'
-import { missionStopLabel } from '../../../../mission/lib/missionOperationalState'
 import {
   missionStatusLabel,
   formatVnDate,
@@ -82,9 +81,12 @@ export function MissionInfoCard({
               : 'Thông tin nhiệm vụ'}
         </h2>
         {!compact && !overview ? (
-          <StatusBadge tone={STATUS_TONE[mission.status]}>
-            {missionStopLabel(mission) ??
-              missionStatusLabel(mission.backendStatus ?? mission.status)}
+          <StatusBadge
+            tone={STATUS_TONE[
+              (mission.backendStatus ?? mission.status) as OperatorMission['status']
+            ]}
+          >
+            {missionStatusLabel(mission.backendStatus ?? mission.status)}
           </StatusBadge>
         ) : null}
       </div>

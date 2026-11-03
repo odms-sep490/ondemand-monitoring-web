@@ -23,49 +23,6 @@ const missions: OperatorMission[] = [
 ]
 
 describe('MissionListTable', () => {
-  it.each([
-    ['REQUESTED', undefined, undefined, 'Đang dừng an toàn'],
-    ['IN_PROGRESS', 'now', undefined, 'Đã xác nhận an toàn'],
-    ['READY_FOR_CANCELLATION', 'now', 'now', 'Sẵn sàng hủy'],
-    ['FAILED', undefined, undefined, 'Dừng an toàn cần xử lý lại'],
-  ])(
-    'never renders normal ready actions for stop %s, even with stale permissions',
-    (safeStopStatus, safeStopConfirmedAt, safeStopCleanedAt, label) => {
-      render(
-        <MissionListTable
-          now={new Date()}
-          missions={[
-            {
-              ...missions[0],
-              status: 'READY_TO_FLY',
-              backendStatus: 'READY_TO_FLY',
-              safeStopStatus,
-              safeStopConfirmedAt,
-              safeStopCleanedAt,
-              permissions: {
-                canControlFlight: true,
-                canOperatePayload: true,
-                canMaintainDevice: false,
-                canInspectDevice: false,
-                canUploadMedia: false,
-              },
-            },
-          ]}
-        />,
-      )
-      expect(screen.getByText(label)).toBeInTheDocument()
-      expect(screen.queryByText('Sẵn sàng bay')).not.toBeInTheDocument()
-      expect(
-        screen
-          .getAllByRole('link')
-          .some((link) =>
-            /\/(flight|handover|connect|preflight)\//.test(
-              link.getAttribute('href') ?? '',
-            ),
-          ),
-      ).toBe(false)
-    },
-  )
   it('fails closed when permissions cannot be loaded in pending review', () => {
     render(
       <MissionListTable
@@ -144,7 +101,7 @@ describe('MissionListTable', () => {
       />,
     )
 
-    expect(screen.getByText('Đã bắt đầu Mission')).toBeInTheDocument()
+    expect(screen.getByText('Đang chuẩn bị trước bay')).toBeInTheDocument()
     expect(screen.queryByText('SCHEDULED')).not.toBeInTheDocument()
   })
 

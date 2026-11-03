@@ -14,7 +14,7 @@ import { operatorApi } from '../../../../staff/api/operatorApi'
 import { droneApi } from '../../../../staff/api/droneApi'
 import type { MissionResponse } from '../../../types/missions'
 import type { Mission } from '../../../../mission/types/mission'
-import type { ExecutionPlan, SafeStop } from '../../../types/planning'
+import type { ExecutionPlan } from '../../../types/planning'
 import type { OrderDetail } from '../../../types/orders'
 import { ApiError } from '../../../../../shared/api/httpClient'
 
@@ -27,7 +27,7 @@ beforeEach(() => {
         id,
         orderId: 'o',
         missionCode: id.toUpperCase(),
-        status: 'READY',
+        status: 'PLANNING',
         scheduledStartAt: '2026-10-10T03:00:00Z',
         scheduledEndAt: '2026-10-10T04:00:00Z',
         staffAssignments: [],
@@ -61,10 +61,6 @@ beforeEach(() => {
     id: 'o',
     status: 'APPROVED',
   } as OrderDetail)
-  vi.spyOn(planningApi, 'getSafeStop').mockImplementation(
-    async (missionId) =>
-      ({ missionId, status: null, requestedAt: null }) as SafeStop,
-  )
   vi.spyOn(missionApi, 'getMissionById').mockImplementation(
     async (id) =>
       structuredClone(missions.find((m) => m.id === id)!) as unknown as Mission,
@@ -89,7 +85,7 @@ beforeEach(() => {
             assignedRole,
           })),
       ) as unknown as MissionResponse['staffAssignments']
-      mission.status = 'READY'
+      mission.status = 'PLANNING'
       return mission as unknown as Mission
     },
   )
@@ -105,11 +101,7 @@ async function enter(id: string) {
     await screen.findByRole('radio', { name: new RegExp(id.toUpperCase()) }),
   )
   fireEvent.click(screen.getByRole('button', { name: 'Tiếp theo' }))
-  await waitFor(() =>
-    expect(document.querySelector('.ui-page-header')).toHaveTextContent(
-      'Gán nguồn lực',
-    ),
-  )
+  await screen.findByRole('heading', { name: 'Gán nguồn lực' })
 }
 function chooseStaff(name: string) {
   const picker = screen
@@ -233,14 +225,6 @@ it('localizes partial failure, reloads authoritative state and does not auto ret
     expect(planningApi.getOrderMissions).toHaveBeenCalledTimes(2),
   )
 })
-it('fails closed if authoritative safety state cannot be loaded', async () => {
-  vi.mocked(planningApi.getSafeStop).mockRejectedValue(new Error('Unavailable'))
-  render(<OrderResourceAssignmentWizard orderId="o" onClose={vi.fn()} />)
-  await waitFor(() =>
-    expect(screen.getByRole('radio', { name: /M1/ })).toBeDisabled(),
-  )
-  expect(screen.getByRole('button', { name: 'Tiếp theo' })).toBeDisabled()
-})
 it('refuses a Mission read response from a different Order', async () => {
   vi.mocked(missionApi.getMissionById).mockResolvedValue({
     ...missions[0],
@@ -341,10 +325,6 @@ it('scoped submit returns to its origin and never mutates Order/Mission completi
   // Step 8: overview of every Mission; leaving it returns to the origin.
   await screen.findByRole('heading', { name: 'Tổng quan nhiệm vụ' })
   expect(close).not.toHaveBeenCalled()
-  const preparationSteps = screen.getByRole('region', { name: 'Nhiệm vụ' })
-  expect(
-    within(preparationSteps).getByText('Chuẩn bị').closest('li'),
-  ).toHaveClass('is-current')
   expect(
     screen.queryByRole('region', { name: 'Giấy phép bay M1' }),
   ).not.toBeInTheDocument()
@@ -369,15 +349,12 @@ it('all assignments submitted provides an explicit navigation-only finish', asyn
   for (const mission of missions) {
     mission.staffAssignments = crew('s1')
     mission.deviceId = 'd1'
-    mission.status = 'READY'
+    mission.status = 'PLANNING'
   }
   const close = vi.fn()
   render(<OrderResourceAssignmentWizard orderId="o" onClose={close} />)
   const missionSteps = await screen.findByRole('region', { name: 'Nhiệm vụ' })
-  expect(within(missionSteps).getAllByRole('listitem')).toHaveLength(3)
   expect(within(missionSteps).getByText('Giấy phép bay')).toBeInTheDocument()
-  expect(within(missionSteps).queryByText('Thực hiện')).not.toBeInTheDocument()
-  expect(within(missionSteps).queryByText('Hoàn tất')).not.toBeInTheDocument()
   fireEvent.click(
     await screen.findByRole('button', { name: 'Hoàn tất phân công' }),
   )

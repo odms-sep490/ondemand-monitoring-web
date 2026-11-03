@@ -1,6 +1,7 @@
 // MNG-08: Mission detail & result page (opened from the mission list).
 import { useRef, useState } from 'react'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
+import type { MissionChecklistResponse } from '../../../mission/types/checklistExecution'
 import { checklistExecutionApi } from '../../../mission/api/checklistExecutionApi'
 import { Skeleton } from 'antd'
 import { ArrowLeftOutlined } from '@ant-design/icons'
@@ -47,8 +48,18 @@ function MissionDetail({ missionId }: { missionId: string }) {
   const [revision, setRevision] = useState(0)
   const checklist = useApiQuery(
     (signal) =>
-      checklistExecutionApi.getMissionChecklistExecutions(missionId, signal),
-    [missionId, revision],
+      !detail?.mission || detail.mission.status === 'PLANNING'
+        ? Promise.resolve<MissionChecklistResponse>({
+            missionId,
+            legacySnapshot: false,
+            readyForSubmission: false,
+            executions: [],
+          })
+        : checklistExecutionApi.getMissionChecklistExecutions(
+            missionId,
+            signal,
+          ),
+    [missionId, revision, detail?.mission?.status],
   )
   const refreshDetail = () => setRevision((value) => value + 1)
   const [tab, setTab] = useState<MissionDetailTab>('result')
@@ -137,23 +148,8 @@ function MissionDetail({ missionId }: { missionId: string }) {
 
       <MissionKpis kpis={kpis} />
 
-      <MissionCrewCard
-        rows={rows}
-        note={note}
-        staff={staff}
-        accepted={accepted}
-        deviceCode={deviceCode}
-        deviceLabel={deviceLabel}
-        permitStatus={mission.flightPermitStatus ?? 'NOT_REQUESTED'}
-        permitNote={mission.flightPermitNote}
-      />
-
       <div className="mgr-md-workbench">
-        <MissionDetailTabs
-          tabs={tabs}
-          activeTab={activeTab}
-          setTab={setTab}
-        />
+        <MissionDetailTabs tabs={tabs} activeTab={activeTab} setTab={setTab} />
 
         <div
           className="mgr-md-tabpanel"
@@ -200,15 +196,25 @@ function MissionDetail({ missionId }: { missionId: string }) {
             )
           ) : null}
 
+          {activeTab === 'resources' ? (
+            <MissionCrewCard
+              rows={rows}
+              note={note}
+              staff={staff}
+              accepted={accepted}
+              deviceCode={deviceCode}
+              deviceLabel={deviceLabel}
+              permitStatus={mission.flightPermitStatus ?? 'NOT_REQUESTED'}
+              permitNote={mission.flightPermitNote}
+            />
+          ) : null}
+
           {activeTab === 'checks' ? (
             <ChecksTab preflight={preflight} postcheck={postcheck} />
           ) : null}
 
           {isCompleted && resultApproved ? (
-            <div
-              className="mgr-md-delivery"
-              hidden={activeTab !== 'result'}
-            >
+            <div className="mgr-md-delivery" hidden={activeTab !== 'result'}>
               <ManagerDeliveryPanel
                 orderId={mission.orderId}
                 refreshKey={revision}

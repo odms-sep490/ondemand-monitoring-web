@@ -4,12 +4,16 @@ export const missionDetailMessages = defineMessages({
   vi: {
     myMissions: 'Nhiệm vụ của tôi',
     startFlight: 'Bắt đầu bay',
+    startMission: 'Bắt đầu Mission',
+    openCockpit: 'Mở buồng lái',
+    resumePreflight: 'Tiếp tục precheck',
     connectGcs: 'Kết nối GCS',
     reconnectGcs: 'Kết nối lại GCS',
     reject: 'Từ chối',
     acceptMission: 'Chấp nhận nhiệm vụ',
     missionDetails: 'Chi tiết nhiệm vụ',
     assignmentAndParams: 'Thông tin phân công và tham số vận hành',
+    reworkPurpose: 'Nhiệm vụ thực hiện lại',
     fields: {
       customer: 'Khách hàng',
       missionType: 'Loại nhiệm vụ',
@@ -57,12 +61,16 @@ export const missionDetailMessages = defineMessages({
   en: {
     myMissions: 'My missions',
     startFlight: 'Start flight',
+    startMission: 'Start Mission',
+    openCockpit: 'Open cockpit',
+    resumePreflight: 'Continue preflight',
     connectGcs: 'Connect GCS',
     reconnectGcs: 'Reconnect GCS',
     reject: 'Reject',
     acceptMission: 'Accept mission',
     missionDetails: 'Mission details',
     assignmentAndParams: 'Assignment and operational parameters',
+    reworkPurpose: 'Rework mission',
     fields: {
       customer: 'Customer',
       missionType: 'Mission type',

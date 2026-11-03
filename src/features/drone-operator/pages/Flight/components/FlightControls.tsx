@@ -9,7 +9,6 @@ import type {
 import { useRenderDiagnostics } from '../useRenderDiagnostics'
 import { useI18n } from '../../../../../shared/i18n'
 import { inFlightControlMessages } from './InFlightControl.messages'
-import { maySendFlightCommand } from '../../../../mission/lib/missionOperationalState'
 import { buttonStyle } from './flightControlStyles'
 import { Icon } from './Icon'
 import { GlassPanel } from './GlassPanel'
@@ -19,7 +18,6 @@ import { FlightControlTools } from './FlightControlTools'
 
 export const FlightControls = memo(function FlightControls({
   canFly,
-  canTerminate,
   busyCommand,
   lidarDetailsOpen,
   moreOpen,
@@ -34,7 +32,6 @@ export const FlightControls = memo(function FlightControls({
   referenceBusy,
 }: {
   canFly: boolean
-  canTerminate: boolean
   referenceBusy?: boolean
   onReferenceCapture?: () => void
   onFinishFlight?: () => void
@@ -54,8 +51,8 @@ export const FlightControls = memo(function FlightControls({
   const thermalLabel = thermalEnabled
     ? t.toolbar.thermalOn
     : t.toolbar.thermalOff
-  const commandDisabled = (command: FlightCommand) =>
-    busyCommand !== null || !maySendFlightCommand(command, canFly, canTerminate)
+  const commandDisabled = (_command: FlightCommand) =>
+    busyCommand !== null || !canFly
   const controlButton = (item: {
     command: FlightCommand
     labelKey: keyof ControlsText

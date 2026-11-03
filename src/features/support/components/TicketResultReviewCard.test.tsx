@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { setLanguage } from '../../../shared/i18n'
 import { supportApi } from '../api/supportApi'
@@ -52,6 +52,23 @@ afterEach(() => {
 })
 
 describe('TicketResultReviewCard', () => {
+  it('switches interface labels with the language and opens the evidence image', async () => {
+    setLanguage('vi')
+    vi.spyOn(supportApi, 'getResultReview').mockResolvedValue(response)
+    render(<TicketResultReviewCard ticketId="ticket-1" />)
+    expect(await screen.findByText('Chất lượng kém')).toBeInTheDocument()
+    expect(
+      screen.getByText('The image is too blurry to review.'),
+    ).toBeInTheDocument()
+    act(() => setLanguage('en'))
+    expect(screen.getByText('Poor quality')).toBeInTheDocument()
+    expect(screen.queryByText('Chất lượng kém')).not.toBeInTheDocument()
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Enlarge image roof.jpg' }),
+    )
+    expect(await screen.findByRole('dialog')).toBeInTheDocument()
+  })
+
   it('shows submitted general and per-checklist feedback with selected evidence', async () => {
     setLanguage('en')
     vi.spyOn(supportApi, 'getResultReview').mockResolvedValue(response)

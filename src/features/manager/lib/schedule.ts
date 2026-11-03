@@ -1,4 +1,4 @@
-// Pure overlap check reused by the `assign-drone`/`assign-operator` mock
+// Pure overlap check reused by the mission resource-assignment mocks
 // handlers (MNG-05) to reproduce the backend's EXCLUDE constraint on
 // `mission_drone_assignment.scheduled_range` / `mission_operator_assignment`
 // [BRIEF §A6, §C2 "ràng buộc EXCLUDE trên scheduled_range"], and documented

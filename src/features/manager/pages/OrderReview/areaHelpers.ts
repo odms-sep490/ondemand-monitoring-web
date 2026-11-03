@@ -21,7 +21,7 @@ export function areaReviewFromOrder(
   // A customer location correction updates the order after the verdict was
   // recorded. That verdict belongs to the old coordinates and is only history.
   if (
-    order.status === 'PENDING' &&
+    order.status === 'UNDER_REVIEW' &&
     Number.isFinite(reviewedAt) &&
     Number.isFinite(updatedAt) &&
     updatedAt - reviewedAt > 1_000

@@ -1,15 +1,44 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { setLanguage } from '../../shared/i18n'
-import { ApiError } from '../../shared/api/httpClient'
-import { financeApi } from '../finance/api'
 import { deliveryApi } from './api'
 import { CustomerDeliveryPanel } from './CustomerDeliveryPanel'
 import type { Delivery } from './types'
-import type { Invoice, Payment } from '../finance/types'
-import { env } from '../../config/env'
 
-const initialTestPayments = env.testPaymentsEnabled
+const reviewRound = {
+  reviewRoundId: 'round-1',
+  roundNumber: 1,
+  roundVersion: 3,
+  publishedAt: '2026-10-30T03:00:00Z',
+  checklistRevision: 1,
+  canSubmitRevision: true,
+  canAcceptResult: true,
+  blockedReason: null,
+  existingRequest: null,
+  page: 0,
+  size: 100,
+  totalItems: 1,
+  items: [
+    {
+      roundItemId: 'item-1',
+      orderChecklistItemId: 'check-1',
+      title: 'Roof inspection',
+      description: null,
+      executionSteps: [],
+      inputRequirements: [],
+      expectedOutputs: [],
+      missionId: null,
+      missionCode: null,
+      evidence: [],
+    },
+  ],
+}
 
 const pending: Delivery = {
   orderId: 'o1',
@@ -51,121 +80,19 @@ const delivery: Delivery = {
   assets: [],
 }
 
-const invoice: Invoice = {
-  id: 'i1',
-  invoiceNumber: 'INV-1',
-  orderId: 'o1',
-  quoteId: 'q1',
-  totalAmount: 1000,
-  depositAmount: 300,
-  paidAmount: 300,
-  remainingAmount: 700,
-  status: 'PARTIALLY_PAID',
-  issuedAt: '2026-10-30T03:00:00Z',
-  finalPaymentAllowed: true,
-}
-
-const payment: Payment = {
-  id: 'p1',
-  invoiceId: 'i1',
-  paymentCode: 123,
-  type: 'FINAL_PAYMENT',
-  amount: 700,
-  currency: 'VND',
-  status: 'SUCCESS',
-  provider: 'VNPAY',
-  paymentUrl: null,
-  transactionReference: '123',
-  providerTransactionId: 'TEST-123',
-  paidAt: '2026-10-30T03:02:00Z',
-}
-
 beforeEach(() => {
-  Object.defineProperty(env, 'testPaymentsEnabled', {
-    value: true,
-    configurable: true,
-  })
   setLanguage('vi')
   vi.spyOn(deliveryApi, 'get').mockResolvedValue(pending)
   vi.spyOn(deliveryApi, 'previews').mockResolvedValue(pending)
-  vi.spyOn(financeApi, 'getInvoice').mockResolvedValue(invoice)
 })
 
 afterEach(() => {
   vi.restoreAllMocks()
-  Object.defineProperty(env, 'testPaymentsEnabled', {
-    value: initialTestPayments,
-    configurable: true,
-  })
   setLanguage('vi')
 })
 
-describe('Customer delivery final test payment', () => {
-  it('pays the remaining balance without opening VNPAY and refreshes delivery', async () => {
-    const confirmed = {
-      ...pending,
-      deliveryStatus: 'PAYMENT_CONFIRMED' as const,
-      paidAmount: 1000,
-      remainingAmount: 0,
-      invoiceStatus: 'PAID',
-    }
-    const realPayment = vi.spyOn(financeApi, 'createFinalPayment')
-    const complete = vi
-      .spyOn(financeApi, 'completeTestFinal')
-      .mockImplementation(async () => {
-        vi.mocked(deliveryApi.get).mockResolvedValue(confirmed)
-        vi.mocked(deliveryApi.previews).mockResolvedValue(confirmed)
-        return payment
-      })
-    render(<CustomerDeliveryPanel orderId="o1" />)
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'Thanh toán nhanh (Test)' }),
-    )
-    await waitFor(() => expect(complete).toHaveBeenCalledExactlyOnceWith('i1'))
-    expect(
-      await screen.findByText('Thanh toán đã được xác nhận'),
-    ).toBeInTheDocument()
-    expect(realPayment).not.toHaveBeenCalled()
-    expect(
-      screen.queryByRole('button', { name: 'Thanh toán nhanh (Test)' }),
-    ).not.toBeInTheDocument()
-  })
-
-  it('keeps the action available for retry after an API failure', async () => {
-    const complete = vi
-      .spyOn(financeApi, 'completeTestFinal')
-      .mockRejectedValue(
-        new ApiError('Unavailable', {
-          status: 503,
-          method: 'POST',
-          path: '/api/invoices/i1/payments/test-final',
-        }),
-      )
-    render(<CustomerDeliveryPanel orderId="o1" />)
-    const button = await screen.findByRole('button', {
-      name: 'Thanh toán nhanh (Test)',
-    })
-    fireEvent.click(button)
-    await waitFor(() => expect(complete).toHaveBeenCalledOnce())
-    await waitFor(() => expect(button).toBeEnabled())
-    expect(screen.getByRole('alert')).toBeInTheDocument()
-  })
-
-  it('hides the test action when disabled while keeping normal payment available', async () => {
-    Object.defineProperty(env, 'testPaymentsEnabled', {
-      value: false,
-      configurable: true,
-    })
-    render(<CustomerDeliveryPanel orderId="o1" />)
-    expect(
-      await screen.findByRole('button', { name: 'Thanh toán qua VNPAY' }),
-    ).toBeEnabled()
-    expect(
-      screen.queryByRole('button', { name: 'Thanh toán nhanh (Test)' }),
-    ).not.toBeInTheDocument()
-  })
-
-  it('does not offer payment before customer acceptance', async () => {
+describe('Customer delivery payment placement', () => {
+  it('keeps result acceptance available without a payment prompt', async () => {
     const review = { ...pending, deliveryStatus: 'CUSTOMER_REVIEW' as const }
     vi.mocked(deliveryApi.get).mockResolvedValue(review)
     vi.mocked(deliveryApi.previews).mockResolvedValue(review)
@@ -200,12 +127,130 @@ describe('Customer delivery final test payment', () => {
     render(<CustomerDeliveryPanel orderId="o1" />)
     await screen.findByRole('button', { name: 'Chấp nhận toàn bộ kết quả' })
     expect(
-      screen.queryByRole('button', { name: 'Thanh toán nhanh (Test)' }),
+      screen.queryByRole('button', { name: /thanh toán|VNPAY/i }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('shows accepted results without offering another payment', async () => {
+    setLanguage('en')
+    const accepted = {
+      ...pending,
+      deliveryStatus: 'READY_FOR_DELIVERY' as const,
+      invoiceStatus: 'PAID',
+      paidAmount: 1000,
+      remainingAmount: 0,
+    }
+    vi.mocked(deliveryApi.get).mockResolvedValue(accepted)
+    vi.mocked(deliveryApi.previews).mockResolvedValue(accepted)
+    render(<CustomerDeliveryPanel orderId="o1" />)
+
+    expect(
+      await screen.findByText(
+        'The manager is preparing to hand over your original data.',
+      ),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: /pay|VNPAY/i }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Accept all results' }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('keeps legacy accepted results free of payment prompts', async () => {
+    setLanguage('en')
+    render(<CustomerDeliveryPanel orderId="o1" />)
+    expect(
+      await screen.findByText(
+        'The manager is preparing to hand over your original data.',
+      ),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: /pay|VNPAY/i }),
     ).not.toBeInTheDocument()
   })
 })
 
 describe('CustomerDeliveryPanel', () => {
+  it('shows one success notification and a compact persistent ticket status after submitting', async () => {
+    setLanguage('en')
+    const review = { ...pending, deliveryStatus: 'CUSTOMER_REVIEW' as const }
+    const revision = {
+      ...pending,
+      deliveryStatus: 'REVISION_REQUESTED' as const,
+    }
+    vi.mocked(deliveryApi.get).mockResolvedValue(review)
+    vi.mocked(deliveryApi.previews).mockResolvedValue(review)
+    vi.spyOn(deliveryApi, 'getResultReview').mockResolvedValue(reviewRound)
+    vi.spyOn(deliveryApi, 'requestRevision').mockImplementation(async () => {
+      vi.mocked(deliveryApi.get).mockResolvedValue(revision)
+      vi.mocked(deliveryApi.previews).mockResolvedValue(revision)
+      return {
+        revisionRequestId: 'request-1',
+        ticketId: 'ticket-1',
+        ticketCode: 'TKT-1',
+        reviewRoundId: 'round-1',
+        submittedAt: '2026-10-30T04:00:00Z',
+        deliveryStatus: 'REVISION_REQUESTED',
+      }
+    })
+    render(<CustomerDeliveryPanel orderId="o1" />)
+    fireEvent.click(await screen.findByRole('tab', { name: /Roof inspection/ }))
+    fireEvent.click(
+      await screen.findByRole('checkbox', {
+        name: 'Request a revision for this checklist item',
+      }),
+    )
+    fireEvent.change(
+      screen.getByLabelText('Note for this checklist item (required)'),
+      { target: { value: 'Missing images.' } },
+    )
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Send revision request' }),
+    )
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Confirm and send' }),
+    )
+    await screen.findByText('Awaiting manager review')
+    const panel = document.getElementById('customer-delivery-panel')!
+    expect(
+      await within(panel).findByRole('link', { name: 'View ticket TKT-1' }),
+    ).toHaveAttribute('href', '#help/tickets/ticket-1')
+    await waitFor(() =>
+      expect(
+        document.querySelectorAll(
+          '.ant-notification-topRight .ant-notification-notice',
+        ),
+      ).toHaveLength(1),
+    )
+    expect(
+      panel.querySelector('.ant-alert-success, .ant-alert-warning'),
+    ).toBeNull()
+  })
+
+  it('restores the ticket shortcut after reload without showing another success notification', async () => {
+    setLanguage('en')
+    const revision = {
+      ...pending,
+      deliveryStatus: 'REVISION_REQUESTED' as const,
+    }
+    vi.mocked(deliveryApi.get).mockResolvedValue(revision)
+    vi.mocked(deliveryApi.previews).mockResolvedValue(revision)
+    vi.spyOn(deliveryApi, 'getResultReview').mockResolvedValue({
+      ...reviewRound,
+      existingRequest: {
+        revisionRequestId: 'request-1',
+        ticketId: 'ticket-1',
+        ticketCode: 'TKT-1',
+      },
+    })
+    render(<CustomerDeliveryPanel orderId="o1" />)
+    expect(
+      await screen.findByRole('link', { name: 'View ticket TKT-1' }),
+    ).toHaveAttribute('href', '#help/tickets/ticket-1')
+    expect(document.querySelector('.ant-notification-notice')).toBeNull()
+  })
+
   it('shows a retryable error and recovers to a clear empty-assets state', async () => {
     setLanguage('vi')
     const getDelivery = vi

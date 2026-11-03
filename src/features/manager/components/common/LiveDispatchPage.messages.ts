@@ -5,6 +5,7 @@ export const liveDispatchPageMessages = defineMessages({
     selectDroneAndOperator:
       'Cần phân công đủ 4 vai trò và ít nhất 1 thiết bị trước khi phân công.',
     assignFailed: 'Không phân công được nguồn lực',
+    planningOnly: 'Chỉ được gán hoặc gỡ nguồn lực khi Mission ở trạng thái PLANNING.',
     loadingResources: 'Đang tải nguồn lực khả dụng…',
     checkingStaff: 'Đang kiểm tra nhân sự khả dụng...',
     checkingDevices: 'Đang kiểm tra thiết bị khả dụng...',
@@ -133,8 +134,11 @@ export const liveDispatchPageMessages = defineMessages({
     openOrder: 'Xem đơn hàng',
     missionStatuses: {
       CREATED: 'Đã tạo',
+      PENDING_PAYMENT: 'Chờ thanh toán phần còn lại',
+      PENDING_CONFIRMATION: 'Chờ đội bay xác nhận',
       RESOURCE_ASSIGNING: 'Đang phân công nguồn lực',
-      READY: 'Chờ đội bay xác nhận',
+      PLANNING: 'Chờ nhân sự nhận nhiệm vụ và kiểm tra thiết bị trước bay',
+      READY: 'Sẵn sàng chờ nghiệm thu',
       IN_PROGRESS: 'Đang thực hiện',
       COMPLETED: 'Hoàn thành',
       CANCELLED: 'Đã hủy',
@@ -145,6 +149,7 @@ export const liveDispatchPageMessages = defineMessages({
     selectDroneAndOperator:
       'Assign all 4 mission roles and one device before assigning.',
     assignFailed: 'Could not assign the resources',
+    planningOnly: 'Resources can only be assigned or removed while the Mission is PLANNING.',
     loadingResources: 'Loading available resources…',
     checkingStaff: 'Checking available staff...',
     checkingDevices: 'Checking available devices...',
@@ -271,8 +276,11 @@ export const liveDispatchPageMessages = defineMessages({
     openOrder: 'View order',
     missionStatuses: {
       CREATED: 'Created',
+      PENDING_PAYMENT: 'Waiting for final payment',
+      PENDING_CONFIRMATION: 'Waiting for crew confirmation',
       RESOURCE_ASSIGNING: 'Assigning resources',
-      READY: 'Confirmed, preparing resources',
+      PLANNING: 'Waiting for staff and preflight',
+      READY: 'Ready for inspector start',
       IN_PROGRESS: 'In progress',
       COMPLETED: 'Completed',
       CANCELLED: 'Cancelled',

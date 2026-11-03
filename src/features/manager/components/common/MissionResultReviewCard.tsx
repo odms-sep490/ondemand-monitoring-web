@@ -86,17 +86,27 @@ export function MissionResultReviewCard({
         <header className="mgr-result-review-heading">
           <h2 id={headingId}>{t.heading}</h2>
           {matchingResult && (
-            <div className="odm-or-result-line">
-              <span
-                className={`odm-or-pill odm-or-pill-${matchingResult.status === 'COMPLETED' ? 'green' : 'amber'}`}
-              >
-                {t.statusLabels[matchingResult.status] ?? t.unknown}
-              </span>
-              <span
-                className={`odm-or-pill odm-or-pill-${matchingResult.approvalStatus === 'APPROVED' ? 'green' : matchingResult.approvalStatus === 'REJECTED' ? 'red' : 'amber'}`}
-              >
-                {t.approvalLabels[matchingResult.approvalStatus] ?? t.unknown}
-              </span>
+            <div className="mgr-result-review-statuses">
+              <div className="mgr-result-review-status">
+                <span className="mgr-result-review-status-label">
+                  {t.missionStatusCaption}
+                </span>
+                <span
+                  className={`odm-or-pill odm-or-pill-${matchingResult.status === 'COMPLETED' ? 'green' : 'amber'}`}
+                >
+                  {t.statusLabels[matchingResult.status] ?? t.unknown}
+                </span>
+              </div>
+              <div className="mgr-result-review-status">
+                <span className="mgr-result-review-status-label">
+                  {t.approvalStatusCaption}
+                </span>
+                <span
+                  className={`odm-or-pill odm-or-pill-${matchingResult.approvalStatus === 'APPROVED' ? 'green' : matchingResult.approvalStatus === 'REJECTED' ? 'red' : 'amber'}`}
+                >
+                  {t.approvalLabels[matchingResult.approvalStatus] ?? t.unknown}
+                </span>
+              </div>
             </div>
           )}
         </header>
@@ -104,24 +114,33 @@ export function MissionResultReviewCard({
           <>
             <dl className="mgr-result-review-metrics">
               <div>
-                <dt>{t.submittedAt}</dt>
-                <dd>
-                  {matchingResult.approvalStatus === 'DRAFT'
-                    ? t.notSubmitted
-                    : formatDateTime(matchingResult.submittedAt, locale)}
-                </dd>
+                <OrderIcon name="calendar" size={18} />
+                <span>
+                  <dt>{t.submittedAt}</dt>
+                  <dd>
+                    {matchingResult.approvalStatus === 'DRAFT'
+                      ? t.notSubmitted
+                      : formatDateTime(matchingResult.submittedAt, locale)}
+                  </dd>
+                </span>
               </div>
               <div>
-                <dt>{t.duration}</dt>
-                <dd>
-                  {matchingResult.durationSeconds == null
-                    ? t.notRecorded
-                    : formatDuration(matchingResult.durationSeconds)}
-                </dd>
+                <OrderIcon name="clock" size={18} />
+                <span>
+                  <dt>{t.duration}</dt>
+                  <dd>
+                    {matchingResult.durationSeconds == null
+                      ? t.notRecorded
+                      : formatDuration(matchingResult.durationSeconds)}
+                  </dd>
+                </span>
               </div>
               <div>
-                <dt>{t.media}</dt>
-                <dd>{t.mediaCount(mediaCount)}</dd>
+                <OrderIcon name="media" size={18} />
+                <span>
+                  <dt>{t.media}</dt>
+                  <dd>{t.mediaCount(mediaCount)}</dd>
+                </span>
               </div>
             </dl>
             {(matchingResult.summary || matchingResult.notes) && (

@@ -1,10 +1,6 @@
 import { missionStatusTone } from '../../../../shared/lib/statusTone'
 import { missionListTableMessages } from './components/MissionListTable.messages'
 import type { OperatorMission } from '../../types/mission'
-import {
-  missionHasSafeStop,
-  missionMayTerminate,
-} from '../../../mission/lib/missionOperationalState'
 import { operatorHref } from '../../routes'
 import { hasAcknowledgedHandover } from '../../lib/flightWorkflowStorage'
 
@@ -30,37 +26,21 @@ export type Messages = (typeof missionListTableMessages)['vi']
 export function actionFor(mission: OperatorMission, t: Messages) {
   const backendStatus = mission.backendStatus
   const permissions = mission.permissions
-  if (missionHasSafeStop(mission) || backendStatus === 'CANCELLED') {
-    return missionMayTerminate(mission, permissions?.canTerminateFlight)
-      ? {
-          label: 'Dừng chuyến bay',
-          cls: 'odm-btn-rd',
-          href: operatorHref({ screen: 'flight', missionId: mission.id }),
-        }
-      : permissions?.canMaintainDevice &&
-          backendStatus === 'POSTFLIGHT_CHECKING'
-        ? {
-            label: t.action.inspect,
-            cls: '',
-            href: operatorHref({ screen: 'postflight', missionId: mission.id }),
-          }
-        : {
-            label: 'Xem trạng thái dừng',
-            cls: '',
-            href: operatorHref({
-              screen: 'missionDetail',
-              missionId: mission.id,
-            }),
-          }
-  }
-  if (backendStatus === 'PENDING_REVIEW' || backendStatus === 'COMPLETED') {
+  if (
+    backendStatus === 'AWAITING_REVIEW' ||
+    backendStatus === 'PENDING_REVIEW' ||
+    backendStatus === 'COMPLETED'
+  ) {
     return {
       label: t.action.viewResult,
       cls: '',
       href: operatorHref({ screen: 'missionDetail', missionId: mission.id }),
     }
   }
-  if (permissions?.canStartMission && backendStatus === 'SCHEDULED') {
+  if (
+    permissions?.canStartMission &&
+    (backendStatus === 'READY' || backendStatus === 'READY_TO_FLY')
+  ) {
     return {
       label: t.action.startMission,
       cls: 'odm-btn-ok',
@@ -69,7 +49,18 @@ export function actionFor(mission: OperatorMission, t: Messages) {
   }
   if (permissions) {
     if (
-      backendStatus === 'PENDING_REVIEW' &&
+      backendStatus === 'IN_PROGRESS' &&
+      (permissions.canCompleteMission || permissions.canSubmitMissionResult)
+    ) {
+      return {
+        label: t.action.viewResult,
+        cls: 'odm-btn-p',
+        href: operatorHref({ screen: 'missionDetail', missionId: mission.id }),
+      }
+    }
+    if (
+      (backendStatus === 'AWAITING_REVIEW' ||
+        backendStatus === 'PENDING_REVIEW') &&
       (permissions.canCompleteMission ||
         permissions.canSubmitMissionResult ||
         permissions.canExecuteMonitoringChecklist)
@@ -82,7 +73,10 @@ export function actionFor(mission: OperatorMission, t: Messages) {
     }
     if (
       permissions.canMaintainDevice &&
-      (backendStatus === 'RETURNING' || backendStatus === 'POSTFLIGHT_CHECKING')
+      (backendStatus === 'RETURNING' ||
+        backendStatus === 'POSTFLIGHT_CHECKING' ||
+        mission.deviceAssignmentStatus === 'RETURNING' ||
+        mission.deviceAssignmentStatus === 'POSTFLIGHT_CHECKING')
     ) {
       return {
         label: t.action.inspect,
@@ -92,7 +86,9 @@ export function actionFor(mission: OperatorMission, t: Messages) {
     }
     if (
       permissions.canUploadMedia &&
-      (backendStatus === 'PENDING_REVIEW' || backendStatus === 'COMPLETED')
+      (backendStatus === 'AWAITING_REVIEW' ||
+        backendStatus === 'PENDING_REVIEW' ||
+        backendStatus === 'COMPLETED')
     ) {
       return {
         label: t.action.reviewMedia,
@@ -125,7 +121,11 @@ export function actionFor(mission: OperatorMission, t: Messages) {
       }
     }
     if (permissions.canOperatePayload) {
-      if (backendStatus === 'READY_TO_FLY') {
+      const deviceState = mission.deviceAssignmentStatus ?? backendStatus
+      if (
+        backendStatus === 'PENDING_CONFIRMATION' &&
+        deviceState === 'READY_TO_FLY'
+      ) {
         if (hasAcknowledgedHandover(mission.id)) {
           return {
             label: t.action.details,
@@ -143,9 +143,10 @@ export function actionFor(mission: OperatorMission, t: Messages) {
         }
       }
       if (
-        backendStatus === 'CONNECTED' ||
-        backendStatus === 'PREFLIGHT_CHECKING' ||
-        backendStatus === 'FAILED_PREFLIGHT'
+        deviceState === 'CONNECTED' ||
+        deviceState === 'PREFLIGHT_CHECKING' ||
+        deviceState === 'FAILED_PREFLIGHT' ||
+        deviceState === 'FAILED'
       ) {
         return {
           label: t.action.preflight,
@@ -153,7 +154,14 @@ export function actionFor(mission: OperatorMission, t: Messages) {
           href: operatorHref({ screen: 'preflight', missionId: mission.id }),
         }
       }
-      if (backendStatus === 'SCHEDULED') {
+      if (
+        (backendStatus === 'PENDING_CONFIRMATION' ||
+          backendStatus === 'PLANNING' ||
+          backendStatus === 'READY') &&
+        (!mission.deviceAssignmentStatus ||
+          mission.deviceAssignmentStatus === 'ASSIGNED' ||
+          mission.deviceAssignmentStatus === 'CONNECTION_LOST')
+      ) {
         return {
           label: t.action.start,
           cls: 'odm-btn-ok',

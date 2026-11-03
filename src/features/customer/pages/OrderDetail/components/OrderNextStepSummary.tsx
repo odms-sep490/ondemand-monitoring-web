@@ -37,6 +37,8 @@ const MISSION_STATUSES: ReadonlySet<string> = new Set([
   'PLANNING',
   'CREATED',
   'WAITING_DEPOSIT',
+  'PENDING_PAYMENT',
+  'PENDING_CONFIRMATION',
   'READY',
   'RESOURCE_ASSIGNING',
   'WAITING_OPERATOR_ACCEPTANCE',
@@ -233,14 +235,12 @@ function getPrimaryLabel(
   delivery: Delivery | null,
   t: {
     reviewResults: string
-    payFinal: string
     viewFinalResults: string
     viewDeliveryProgress: string
   },
 ) {
   if (!delivery) return t.viewDeliveryProgress
   if (delivery.deliveryStatus === 'CUSTOMER_REVIEW') return t.reviewResults
-  if (delivery.deliveryStatus === 'FINAL_PAYMENT_PENDING') return t.payFinal
   if (delivery.deliveryStatus === 'DELIVERED') return t.viewFinalResults
   return t.viewDeliveryProgress
 }

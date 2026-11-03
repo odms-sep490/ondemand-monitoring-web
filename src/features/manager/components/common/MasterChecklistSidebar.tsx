@@ -29,6 +29,7 @@ export function MasterChecklistSidebar({
   const assignedItemMap = new Map<string, { missionId: string; missionCode: string }>()
   plan.missions.forEach((mScope) => {
     const mission = missions.find((m) => m.id === mScope.missionId)
+    if (mission && ['FAILED', 'CANCELLED'].includes(mission.status)) return
     const missionCode = mission?.missionCode || mScope.scopeLabel || t.fallbackMission
     mScope.checklistItemIds?.forEach((cId: string) => {
       assignedItemMap.set(cId, { missionId: mScope.missionId, missionCode })

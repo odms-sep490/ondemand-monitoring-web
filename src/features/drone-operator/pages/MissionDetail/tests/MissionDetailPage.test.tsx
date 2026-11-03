@@ -145,65 +145,6 @@ describe('MissionDetailScreen', () => {
       screen.queryByRole('link', { name: 'Mở buồng lái' }),
     ).not.toBeInTheDocument()
   })
-  it('historical confirmed ready exposes postflight close-out, never new flight', async () => {
-    vi.spyOn(operatorApi, 'getMission').mockResolvedValue({
-      ...mission,
-      status: 'READY_TO_FLY',
-      backendStatus: 'READY_TO_FLY',
-      safeStopStatus: 'IN_PROGRESS',
-      safeStopConfirmedAt: 'now',
-    })
-    vi.spyOn(missionApi, 'getPermissions').mockResolvedValue({
-      ...noActions,
-      canPrepareSafeStopPostflight: true,
-    })
-    const postflight = vi
-      .spyOn(missionApi, 'startPostflight')
-      .mockResolvedValue({ id: 'm', status: 'POSTFLIGHT_CHECKING' } as Awaited<
-        ReturnType<typeof missionApi.startPostflight>
-      >)
-    render(<MissionDetailPage missionId="m" />)
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'Chuẩn bị kiểm tra sau bay' }),
-    )
-    await waitFor(() => expect(postflight).toHaveBeenCalledWith('m'))
-    expect(
-      screen.queryByRole('link', { name: 'Mở buồng lái' }),
-    ).not.toBeInTheDocument()
-  })
-  it.each([
-    ['REQUESTED', undefined, undefined, 'Đang dừng an toàn'],
-    ['IN_PROGRESS', 'now', undefined, 'Đã xác nhận an toàn'],
-    ['READY_FOR_CANCELLATION', 'now', 'now', 'Sẵn sàng hủy'],
-  ])(
-    'safe-stop %s dominates detail despite stale normal permissions',
-    async (safeStopStatus, safeStopConfirmedAt, safeStopCleanedAt, label) => {
-      vi.spyOn(operatorApi, 'getMission').mockResolvedValue({
-        ...mission,
-        backendStatus: 'READY_TO_FLY',
-        status: 'READY_TO_FLY',
-        safeStopStatus,
-        safeStopConfirmedAt,
-        safeStopCleanedAt,
-      })
-      vi.spyOn(missionApi, 'getPermissions').mockResolvedValue({
-        ...noActions,
-        canControlFlight: true,
-        canOperatePayload: true,
-      })
-      render(<MissionDetailPage missionId="m" />)
-      expect((await screen.findAllByText(label))[0]).toBeInTheDocument()
-      expect(
-        screen.queryByRole('link', { name: 'Mở buồng lái' }),
-      ).not.toBeInTheDocument()
-      expect(
-        screen.queryByRole('link', { name: 'Kết nối GCS' }),
-      ).not.toBeInTheDocument()
-      expect(
-        screen.queryByText('Quy trình: sẵn sàng bàn giao'),
-      ).not.toBeInTheDocument()
-    },
-  )
   it('shows GCS connection before preflight for a scheduled accepted mission', async () => {
     vi.spyOn(operatorApi, 'getMission').mockResolvedValue({
       ...mission,
@@ -478,7 +419,7 @@ describe('MissionDetailScreen', () => {
     expect(screen.queryByText('Mở dữ liệu nghiệm thu')).not.toBeInTheDocument()
   })
 
-  it('hides acceptance data while an accepted Mission is still READY', async () => {
+  it('keeps an accepted mission READY and waits for preflight and handover before Start', async () => {
     vi.spyOn(operatorApi, 'getMission').mockResolvedValue({
       ...mission,
       status: 'ACCEPTED',
@@ -496,8 +437,13 @@ describe('MissionDetailScreen', () => {
     render(<MissionDetailPage missionId="m" />)
 
     expect(
-      await screen.findByRole('button', { name: 'Bắt đầu Mission' }),
-    ).toBeInTheDocument()
+      await screen.findAllByText('Đang chuẩn bị trước bay'),
+    ).not.toHaveLength(0)
+    expect(
+      screen.queryByRole('button', { name: 'Bắt đầu Mission' }),
+    ).not.toBeInTheDocument()
+    expect(screen.queryByText('Đã chấp nhận')).not.toBeInTheDocument()
+    expect(screen.queryByText('Sẵn sàng phân công')).not.toBeInTheDocument()
     expect(screen.queryByText('Mở dữ liệu nghiệm thu')).not.toBeInTheDocument()
   })
 

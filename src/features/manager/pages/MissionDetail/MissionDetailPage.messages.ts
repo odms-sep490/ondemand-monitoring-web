@@ -8,6 +8,7 @@ export const missionDetailPageMessages = defineMessages({
       checklist: 'Danh mục kiểm tra',
       route: 'Bản đồ đường bay',
       order: 'Thông tin đơn hàng',
+      resources: 'Thông tin nguồn lực',
       plan: 'Kế hoạch bay',
       checks: 'Kiểm tra trước bay',
     },
@@ -19,7 +20,7 @@ export const missionDetailPageMessages = defineMessages({
       schedule: 'Lịch bay',
       drone: 'Thiết bị',
       crew: 'Đội bay',
-      checklist: 'Danh mục kiểm tra',
+      checklist: 'Hạng mục đạt yêu cầu',
       media: 'Tệp ảnh/video',
       duration: 'Thời lượng',
       actualDuration: 'Thời lượng thực tế',
@@ -129,17 +130,20 @@ export const missionDetailPageMessages = defineMessages({
           'Gán đủ nhân sự và thiết bị để nhiệm vụ được gửi cho đội bay.',
         waitCrewTitle: 'Đang chờ đội bay xác nhận',
         waitCrewDetail: (accepted: number, crew: number) =>
-          `${accepted}/${crew} nhân sự đã nhận. Nhiệm vụ sẽ được lên lịch khi tất cả xác nhận.`,
-        waitCrewDetailNoCrew: 'Nhiệm vụ sẽ được lên lịch khi nhân sự xác nhận.',
-        scheduledTitle: 'Đã lên lịch',
+          `${accepted}/${crew} nhân sự đã nhận. Nhân viên vận hành kiểm tra thiết bị trước bay và bàn giao quyền trước khi nghiệm thu bắt đầu nhiệm vụ.`,
+        waitCrewDetailNoCrew: 'Tổ bay cần nhận nhiệm vụ, kiểm tra thiết bị trước bay và bàn giao quyền trước khi nghiệm thu bắt đầu nhiệm vụ.',
+        scheduledTitle: 'Đang chuẩn bị trước bay',
         scheduledDetail:
           'Đội bay sẽ kết nối thiết bị và kiểm tra trước chuyến bay.',
         failedPreflightTitle: 'Không đạt kiểm tra trước bay',
         failedPreflightDetail:
           'Xem tab Kiểm tra trước bay, xử lý rồi cho đội bay kiểm tra lại.',
-        pendingReviewTitle: 'Chờ duyệt kết quả',
+        pendingReviewTitle: 'Chờ nghiệm thu',
         pendingReviewDetail:
-          'Xem ảnh/video và danh mục kiểm tra rồi duyệt hoặc yêu cầu bổ sung.',
+          'Đội nghiệm thu đang xem kết quả kiểm tra sau bay, danh mục công việc và bằng chứng của chuyến bay.',
+        pendingManagerReviewTitle: 'Xem lại kết quả chuyến bay',
+        pendingManagerReviewDetail:
+          'Kiểm tra ảnh/video và thông tin nghiệm thu, sau đó duyệt hoặc từ chối kết quả.',
         failedTitle: 'Nhiệm vụ thất bại',
         cancelledTitle: 'Nhiệm vụ đã hủy',
         endedDetail: 'Có thể tạo nhiệm vụ thay thế trong kế hoạch đơn hàng.',
@@ -153,6 +157,7 @@ export const missionDetailPageMessages = defineMessages({
       checklist: 'Checklist',
       route: 'Flight map',
       order: 'Order information',
+      resources: 'Mission resources',
       plan: 'Flight plan',
       checks: 'Preflight checks',
     },
@@ -164,7 +169,7 @@ export const missionDetailPageMessages = defineMessages({
       schedule: 'Schedule',
       drone: 'Device',
       crew: 'Crew',
-      checklist: 'Checklist',
+      checklist: 'Items passed',
       media: 'Media',
       duration: 'Duration',
       actualDuration: 'Actual duration',
@@ -274,18 +279,21 @@ export const missionDetailPageMessages = defineMessages({
           'Assign enough staff and devices so the Mission can be sent to the flight crew.',
         waitCrewTitle: 'Waiting for the flight crew to confirm',
         waitCrewDetail: (accepted: number, crew: number) =>
-          `${accepted}/${crew} staff accepted. The Mission will be scheduled once everyone confirms.`,
+          `${accepted}/${crew} staff accepted. The operator runs preflight and hands over control before the inspector starts the Mission.`,
         waitCrewDetailNoCrew:
-          'The Mission will be scheduled once staff confirm.',
-        scheduledTitle: 'Scheduled',
+          'The crew must accept, run preflight, and hand over control before the inspector starts the Mission.',
+        scheduledTitle: 'Preparing for preflight',
         scheduledDetail:
           'The flight crew will connect the device and run the pre-flight check.',
         failedPreflightTitle: 'Pre-flight check failed',
         failedPreflightDetail:
           'See the Preflight checks tab, fix the issues, then ask the crew to check again.',
-        pendingReviewTitle: 'Awaiting result review',
+        pendingReviewTitle: 'Awaiting inspection',
         pendingReviewDetail:
-          'Review the media and checklist, then approve or request changes.',
+          'The inspection team is reviewing post-flight checks, the checklist, and flight evidence.',
+        pendingManagerReviewTitle: 'Review the flight result',
+        pendingManagerReviewDetail:
+          'Review the photos/videos and mission details, then approve or reject the result.',
         failedTitle: 'Mission failed',
         cancelledTitle: 'Mission cancelled',
         endedDetail: 'A replacement Mission can be created in the Order plan.',

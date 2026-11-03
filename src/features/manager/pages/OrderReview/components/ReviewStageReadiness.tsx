@@ -35,16 +35,17 @@ export function ReviewStageReadiness({
         (criterion.result === 'FAIL' || criterion.result === 'PENDING'),
     ) ?? true
   const nextBlocked =
-    order.status === 'PENDING' &&
-    (readiness?.canApprove !== true ||
-      requiredCriterionBlocked ||
-      localDraftBlocked)
+    readOnly ||
+    (order.status === 'UNDER_REVIEW' &&
+      (readiness?.canApprove !== true ||
+        requiredCriterionBlocked ||
+        localDraftBlocked))
   const failedRequired =
     readiness?.criteria.filter(
       (criterion) => criterion.required && criterion.result === 'FAIL',
     ).length ?? 0
   const nextHint =
-    order.status !== 'PENDING' || !nextBlocked
+    order.status !== 'UNDER_REVIEW' || !nextBlocked
       ? null
       : failedRequired > 0
         ? t.failedBlocked(failedRequired)
@@ -61,7 +62,7 @@ export function ReviewStageReadiness({
           <OrderReadinessCard
             orderId={order.id}
             query={readinessQuery}
-            editable={order.status === 'PENDING'}
+            editable={order.status === 'UNDER_REVIEW'}
             onDecisionDone={() => setNavigateHome(true)}
             onLocalBlockChange={setLocalDraftBlocked}
             actionsHost={decisionHost}

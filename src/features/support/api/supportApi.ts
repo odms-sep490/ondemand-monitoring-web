@@ -10,6 +10,14 @@ export type TicketResultReviewResponse = {
   publishedAt: string
   generalNote: string | null
   submittedAt: string
+  outOfScopeItems?: {
+    caseItemId: string
+    orderChecklistItemId: string
+    title: string
+    explanation: string | null
+    status: string
+    canAcknowledge: boolean
+  }[]
   items: {
     roundItemId: string
     orderChecklistItemId: string
@@ -44,6 +52,7 @@ export type TicketResultReviewResponse = {
 }
 
 export type SupportTicketDto = {
+  ticketKind?: 'GENERAL' | 'RESULT_REVISION'
   id: string
   ticketCode: string
   customerId: string
@@ -158,6 +167,11 @@ export const supportApi = {
     apiRequest<TicketResultReviewResponse>(
       `/api/support/tickets/${encodeURIComponent(ticketId)}/result-review`,
       { signal },
+    ),
+  acknowledgeOutOfScope: (orderId: string, caseItemId: string) =>
+    apiRequest<unknown>(
+      `/api/orders/${encodeURIComponent(orderId)}/result-revision-case/items/${encodeURIComponent(caseItemId)}/acknowledge-out-of-scope`,
+      { method: 'POST' },
     ),
   listTickets: async (
     customerId?: string,

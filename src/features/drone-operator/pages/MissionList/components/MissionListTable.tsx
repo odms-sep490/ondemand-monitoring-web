@@ -6,7 +6,6 @@ import { formatDeadline } from '../../../lib/formatDeadline'
 import { operatorHref } from '../../../routes'
 import type { OperatorMission } from '../../../types/mission'
 import { missionListTableMessages } from './MissionListTable.messages'
-import { missionStopLabel } from '../../../../mission/lib/missionOperationalState'
 import {
   actionFor,
   weekdayDdMm,
@@ -131,8 +130,7 @@ export function MissionListTable({
                       'gray'
                     }
                   >
-                    {missionStopLabel(mission) ??
-                      (t.statusLabel as Record<string, string>)[
+                    {(t.statusLabel as Record<string, string>)[
                         currentStatus
                       ] ??
                       currentStatus}

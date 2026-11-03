@@ -11,6 +11,7 @@ export const staffAssignmentPageMessages = defineMessages({
     chooseAll:
       'Vui lòng chọn thiết bị và PILOT. Các vai trò còn lại là tùy chọn.',
     assignFailed: 'Phân công thất bại',
+    planningOnly: 'Chỉ được phân công resource khi mission ở trạng thái PLANNING.',
     loadingMissions: 'Đang tải mission...',
     noMissions: 'Không có mission nào đang chờ phân công.',
     missionId: 'Mã mission',
@@ -69,6 +70,7 @@ export const staffAssignmentPageMessages = defineMessages({
     chooseAll:
       'Please choose a device and PILOT. Other mission roles are optional.',
     assignFailed: 'Assignment failed',
+    planningOnly: 'Resources can only be assigned while the mission is PLANNING.',
     loadingMissions: 'Loading missions...',
     noMissions: 'No missions waiting for assignment.',
     missionId: 'Mission ID',

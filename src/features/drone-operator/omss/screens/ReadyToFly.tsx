@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useI18n } from '../../../../shared/i18n'
 import { readyToFlyMessages } from '../i18n/readyToFly'
-import type { Mission, Drone, FlightToken } from '../../types/omss'
+import type { Mission, Drone } from '../../types/omss'
 
 interface Props {
   mission: Mission
   drone: Drone
-  token: FlightToken
+  canStartMission?: boolean
   onStart: () => void
   onAbort: () => void
 }
@@ -14,33 +14,19 @@ interface Props {
 export default function ReadyToFly({
   mission,
   drone,
-  token,
+  canStartMission = false,
   onStart,
   onAbort,
 }: Props) {
   const { t } = useI18n(readyToFlyMessages)
-  const [remaining, setRemaining] = useState(
-    Math.max(0, Math.round((token.expiresAt - Date.now()) / 1000)),
-  )
   const [confirmed, setConfirmed] = useState(false)
-
-  useEffect(() => {
-    const id = setInterval(() => setRemaining((r) => Math.max(0, r - 1)), 1000)
-    return () => clearInterval(id)
-  }, [])
-
-  const tokenValid = remaining > 0
-  const urgent = remaining < 120
-  const mm = String(Math.floor(remaining / 60)).padStart(2, '0')
-  const ss = String(remaining % 60).padStart(2, '0')
-  const canStart = tokenValid && confirmed
+  const canStart = confirmed && canStartMission
 
   const CHECKS = [
     { key: 'missionAccepted', label: t.checks.missionAccepted, ok: true },
     { key: 'droneConnected', label: t.checks.droneConnected, ok: true },
     { key: 'preflightPassed', label: t.checks.preflightPassed, ok: true },
     { key: 'handoverCompleted', label: t.checks.handoverCompleted, ok: true },
-    { key: 'tokenValid', label: t.checks.tokenValid, ok: tokenValid },
   ]
 
   return (
@@ -60,7 +46,7 @@ export default function ReadyToFly({
           {t.title}
         </h1>
         <p style={{ fontSize: 14, color: 'var(--text-2)', margin: '0 0 28px' }}>
-          {t.description}
+          {canStartMission ? t.description : t.waitingForInspector}
         </p>
 
         {/* Readiness card */}
@@ -132,62 +118,6 @@ export default function ReadyToFly({
             </div>
           ))}
 
-          {/* Token */}
-          <div
-            style={{
-              marginTop: 18,
-              padding: '14px',
-              background: urgent ? 'var(--red-bg)' : 'var(--surface-2)',
-              borderRadius: 8,
-              border: `1px solid ${urgent ? 'var(--red-border)' : 'var(--border)'}`,
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-            }}
-          >
-            <div>
-              <div
-                style={{
-                  fontSize: 12,
-                  color: 'var(--text-3)',
-                  marginBottom: 3,
-                }}
-              >
-                {t.flightToken}
-              </div>
-              <div
-                style={{
-                  fontSize: 11,
-                  fontFamily: 'var(--font-data)',
-                  color: 'var(--text-3)',
-                }}
-              >
-                {token.token}
-              </div>
-            </div>
-            <div style={{ textAlign: 'right' }}>
-              <div
-                style={{
-                  fontSize: 24,
-                  fontFamily: 'var(--font-data)',
-                  fontWeight: 700,
-                  color: urgent ? 'var(--red)' : 'var(--text)',
-                  lineHeight: 1,
-                }}
-              >
-                {mm}:{ss}
-              </div>
-              <div
-                style={{
-                  fontSize: 11,
-                  color: urgent ? 'var(--red-text)' : 'var(--text-3)',
-                  marginTop: 2,
-                }}
-              >
-                {t.remaining}
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Mission summary */}
@@ -231,61 +161,32 @@ export default function ReadyToFly({
           ))}
         </div>
 
-        {!tokenValid && (
-          <div
+        {canStartMission && (
+          <label
             style={{
-              background: 'var(--red-bg)',
-              border: '1px solid var(--red-border)',
-              borderRadius: 8,
-              padding: '12px 16px',
+              display: 'flex',
+              gap: 10,
+              alignItems: 'flex-start',
+              cursor: 'pointer',
               marginBottom: 16,
+              padding: '12px',
+              background: 'var(--surface)',
+              border: '1px solid var(--border)',
+              borderRadius: 8,
             }}
           >
-            <div
-              style={{
-                fontSize: 14,
-                fontWeight: 600,
-                color: 'var(--red-text)',
-              }}
+            <input
+              type="checkbox"
+              checked={confirmed}
+              onChange={(e) => setConfirmed(e.target.checked)}
+            />
+            <span
+              style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.5 }}
             >
-              {t.tokenExpired}
-            </div>
-            <div
-              style={{
-                fontSize: 13,
-                color: 'var(--red-text)',
-                opacity: 0.8,
-                marginTop: 3,
-              }}
-            >
-              {t.tokenExpiredBody}
-            </div>
-          </div>
+              {t.confirmLabel}
+            </span>
+          </label>
         )}
-
-        <label
-          style={{
-            display: 'flex',
-            gap: 10,
-            alignItems: 'flex-start',
-            cursor: 'pointer',
-            marginBottom: 16,
-            padding: '12px',
-            background: 'var(--surface)',
-            border: '1px solid var(--border)',
-            borderRadius: 8,
-          }}
-        >
-          <input
-            type="checkbox"
-            checked={confirmed}
-            onChange={(e) => setConfirmed(e.target.checked)}
-            disabled={!tokenValid}
-          />
-          <span style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.5 }}>
-            {t.confirmLabel}
-          </span>
-        </label>
 
         <div style={{ display: 'flex', gap: 12 }}>
           <button
@@ -303,23 +204,25 @@ export default function ReadyToFly({
           >
             {t.abort}
           </button>
-          <button
-            onClick={onStart}
-            disabled={!canStart}
-            style={{
-              flex: 1,
-              padding: '11px',
-              borderRadius: 8,
-              border: 'none',
-              background: canStart ? 'var(--accent)' : 'var(--surface-2)',
-              fontSize: 14,
-              fontWeight: 700,
-              color: canStart ? '#fff' : 'var(--text-3)',
-              cursor: canStart ? 'pointer' : 'not-allowed',
-            }}
-          >
-            {t.startMission}
-          </button>
+          {canStartMission && (
+            <button
+              onClick={onStart}
+              disabled={!canStart}
+              style={{
+                flex: 1,
+                padding: '11px',
+                borderRadius: 8,
+                border: 'none',
+                background: canStart ? 'var(--accent)' : 'var(--surface-2)',
+                fontSize: 14,
+                fontWeight: 700,
+                color: canStart ? '#fff' : 'var(--text-3)',
+                cursor: canStart ? 'pointer' : 'not-allowed',
+              }}
+            >
+              {t.startMission}
+            </button>
+          )}
         </div>
       </div>
     </div>

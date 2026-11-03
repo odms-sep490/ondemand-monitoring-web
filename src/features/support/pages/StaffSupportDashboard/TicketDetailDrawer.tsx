@@ -1,3 +1,8 @@
+import { ticketLabelsMessages } from '../../lib/ticketLabels.messages'
+import {
+  isResultRevisionTicket,
+  supportTicketSubject,
+} from '../../lib/resultReviewPresentation'
 import { CloseOutlined, SendOutlined } from '@ant-design/icons'
 import { Button, Drawer, Input } from 'antd'
 
@@ -20,7 +25,7 @@ type Props = {
   onClose: () => void
 }
 
-/** Ticket detail: context + controls + conversation, with the reply form in the footer. */
+/** Result revisions use checklist feedback; general tickets retain their conversation. */
 export function TicketDetailDrawer({
   ticket,
   canManage,
@@ -30,7 +35,9 @@ export function TicketDetailDrawer({
   onClose,
 }: Props) {
   const { t } = useI18n(staffSupportMessages)
+  const { t: labels } = useI18n(ticketLabelsMessages)
   const { replyText, replyAttachment, actionLoading } = actions
+  const isResultRevision = isResultRevisionTicket(ticket)
   return (
     <Drawer
       open
@@ -46,43 +53,49 @@ export function TicketDetailDrawer({
         </span>
       }
       footer={
-        <div className="sd-reply">
-          <Input.TextArea
-            rows={3}
-            value={replyText}
-            onChange={(e) => actions.setReplyText(e.target.value)}
-            placeholder={t.detail.replyPlaceholder}
-            aria-label={t.detail.replyAria}
-          />
-          <div className="sd-reply-row">
-            <Input
-              value={replyAttachment}
-              onChange={(e) => actions.setReplyAttachment(e.target.value)}
-              placeholder={t.detail.attachmentPlaceholder}
-              aria-label={t.detail.attachmentAria}
+        isResultRevision ? null : (
+          <div className="sd-reply">
+            <Input.TextArea
+              rows={3}
+              value={replyText}
+              onChange={(e) => actions.setReplyText(e.target.value)}
+              placeholder={t.detail.replyPlaceholder}
+              aria-label={t.detail.replyAria}
             />
-            <Button
-              type="primary"
-              icon={<SendOutlined />}
-              onClick={actions.sendReply}
-              disabled={actionLoading || !replyText.trim()}
-            >
-              {actionLoading ? t.detail.sending : t.detail.send}
-            </Button>
+            <div className="sd-reply-row">
+              <Input
+                value={replyAttachment}
+                onChange={(e) => actions.setReplyAttachment(e.target.value)}
+                placeholder={t.detail.attachmentPlaceholder}
+                aria-label={t.detail.attachmentAria}
+              />
+              <Button
+                type="primary"
+                icon={<SendOutlined />}
+                onClick={actions.sendReply}
+                disabled={actionLoading || !replyText.trim()}
+              >
+                {actionLoading ? t.detail.sending : t.detail.send}
+              </Button>
+            </div>
           </div>
-        </div>
+        )
       }
     >
       <div className="sd-detail">
-        <h2 className="sd-detail-subject">{ticket.subject}</h2>
-        {ticket.orderId ? (
+        <h2 className="sd-detail-subject">
+          {supportTicketSubject(ticket, labels.revisionSubject)}
+        </h2>
+        {isResultRevision ? (
           <TicketResultReviewCard ticketId={ticket.id} />
         ) : null}
 
-        <section className="sd-detail-section">
-          <h3 className="sd-detail-heading">{t.detail.conversation}</h3>
-          <TicketConversation ticket={ticket} />
-        </section>
+        {!isResultRevision && (
+          <section className="sd-detail-section">
+            <h3 className="sd-detail-heading">{t.detail.conversation}</h3>
+            <TicketConversation ticket={ticket} />
+          </section>
+        )}
 
         <section className="sd-detail-section">
           <h3 className="sd-detail-heading">{t.detail.context}</h3>

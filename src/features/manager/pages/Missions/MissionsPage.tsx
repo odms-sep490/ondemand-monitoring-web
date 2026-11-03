@@ -43,6 +43,7 @@ export function MissionsPage({ missionId }: MissionsListPageProps) {
     { value: 'IN_FLIGHT', label: t.statusChips.IN_FLIGHT },
     { value: 'COMPLETED', label: t.statusChips.COMPLETED },
     { value: 'FAILED', label: t.statusChips.FAILED },
+    { value: 'PLANNING', label: t.statusChips.PLANNING },
     { value: 'CREATED', label: t.statusChips.CREATED },
   ]
 
@@ -153,6 +154,7 @@ export function MissionsPage({ missionId }: MissionsListPageProps) {
             onClose={() => setSelectedMission(null)}
             t={t}
             locale={locale}
+            onResourceChanged={query.reload}
           />
         )}
       </div>

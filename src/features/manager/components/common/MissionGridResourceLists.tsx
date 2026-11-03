@@ -19,7 +19,7 @@ export function MissionGridStaffList({
   staff: MissionStaffAssignmentResponse[]
   canRemove: boolean
   busy: boolean
-  onRemove: (staffId: string, role: string) => void
+  onRemove: (assignmentId: string) => void
 }) {
   const staffGroups = Array.from(
     staff.reduce((groups, assignment) => {
@@ -68,9 +68,7 @@ export function MissionGridStaffList({
                             group.staffName || t.staffUnnamed,
                             roleName,
                           )}
-                          onClick={() =>
-                            onRemove(item.staffId, item.assignedRole)
-                          }
+                          onClick={() => onRemove(item.id)}
                           disabled={busy}
                         >
                           <CloseOutlined aria-hidden="true" />
@@ -99,7 +97,7 @@ export function MissionGridDeviceList({
   devices: MissionDeviceAssignmentResponse[]
   canRemove: boolean
   busy: boolean
-  onRemove: (deviceId: string) => void
+  onRemove: (assignmentId: string) => void
 }) {
   return (
     <div className="odm-mcard-res-list">
@@ -128,7 +126,7 @@ export function MissionGridDeviceList({
                 className="odm-mcard-res-remove"
                 title={t.deviceRemoveTitle}
                 aria-label={t.deviceRemoveTitle}
-                onClick={() => onRemove(dev.deviceId)}
+                onClick={() => onRemove(dev.id)}
                 disabled={busy}
               >
                 <CloseOutlined aria-hidden="true" />

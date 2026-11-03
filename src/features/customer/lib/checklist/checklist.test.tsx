@@ -22,6 +22,7 @@ import { useRequestSubmit } from '../../pages/CustomerCreateRequest/hooks/useReq
 import { useSubmitOrder } from '../../pages/CreateOrder/hooks/useSubmitOrder'
 import { checklistError, isStaleChecklist } from './errors'
 import { useOrderChecklist } from './useOrderChecklist'
+import { useOrderChecklistEdit } from './useOrderChecklistEdit'
 import type { ServiceChecklistItem } from './types'
 import { normalizeContent } from './types'
 import type { CreateOrderPayload } from '../../api/customerApi'
@@ -62,6 +63,25 @@ afterEach(() => {
 })
 
 describe('Order checklist state and editor', () => {
+  it('blocks saving an empty edited checklist and allows a custom-only item', () => {
+    const { result } = renderHook(() => useOrderChecklistEdit(undefined, true))
+    expect(result.current.valid).toBe(false)
+    expect(() => result.current.serializeUpdate()).toThrow()
+    act(() => result.current.add())
+    act(() =>
+      result.current.change(result.current.rows[0].key, {
+        content: 'Custom only',
+      }),
+    )
+    expect(result.current.valid).toBe(true)
+    expect(result.current.serializeUpdate().items).toEqual([
+      expect.objectContaining({ contentOverride: 'Custom only' }),
+    ])
+    act(() => result.current.remove(result.current.rows[0].key))
+    expect(result.current.valid).toBe(false)
+    expect(() => result.current.serializeUpdate()).toThrow()
+  })
+
   it('matches backend Unicode whitespace without stripping BOM content', () => {
     expect(normalizeContent('\u0085 Check\u0085 PPE \u0085')).toBe('Check PPE')
     expect(normalizeContent('\ufeffCheck\ufeff')).toBe('\ufeffCheck\ufeff')
@@ -135,7 +155,7 @@ describe('Order checklist state and editor', () => {
     ])
   })
 
-  it('serializes per-item evidence type/count, validates the 1–50 range, and keeps [] for none', async () => {
+  it('serializes per-item evidence type/count and validates the 1–50 range', async () => {
     vi.spyOn(customerApi, 'getServiceChecklist').mockResolvedValue(template())
     const { result } = renderHook(() => useOrderChecklist('A'))
     await waitFor(() => expect(result.current.valid).toBe(true))
@@ -166,7 +186,7 @@ describe('Order checklist state and editor', () => {
     expect(result.current.valid).toBe(false)
   })
 
-  it('EDIT keeps source/version, REMOVE excludes item, CUSTOM normalizes content; remove all stays []', async () => {
+  it('preserves edited sources and custom content but rejects removing every item', async () => {
     vi.spyOn(customerApi, 'getServiceChecklist').mockResolvedValue(template())
     const { result } = renderHook(() => useOrderChecklist('A'))
     await waitFor(() => expect(result.current.valid).toBe(true))
@@ -195,10 +215,18 @@ describe('Order checklist state and editor', () => {
       result.current.remove(custom)
       result.current.change('link-1', { selected: false })
     })
-    expect(result.current.serialize()).toEqual([])
-    expect(JSON.stringify({ checklistItems: result.current.serialize() })).toBe(
-      '{"checklistItems":[]}',
+    expect(result.current.valid).toBe(false)
+    expect(result.current.validation).toBe(
+      'Vui lòng chọn ít nhất một hạng mục giám sát hoặc thêm yêu cầu bổ sung.',
     )
+    expect(() => result.current.serialize()).toThrow()
+    act(() => result.current.add())
+    const replacement = result.current.rows.at(-1)!.key
+    act(() => result.current.change(replacement, { content: 'Custom only' }))
+    expect(result.current.valid).toBe(true)
+    expect(result.current.serialize()).toEqual([
+      expect.objectContaining({ contentOverride: 'Custom only' }),
+    ])
   })
 
   it('clears edited/custom A items on service switch and ignores late responses', async () => {
@@ -241,8 +269,9 @@ describe('Order checklist state and editor', () => {
     await waitFor(() => expect(result.current.status).toBe('error'))
     expect(result.current.error).not.toContain('technical secret')
     act(() => result.current.reload())
-    await waitFor(() => expect(result.current.valid).toBe(true))
-    expect(result.current.serialize()).toEqual([])
+    await waitFor(() => expect(result.current.status).toBe('ready'))
+    expect(result.current.valid).toBe(false)
+    expect(() => result.current.serialize()).toThrow()
     load.mockResolvedValueOnce([
       {
         ...template()[0],
@@ -269,6 +298,22 @@ describe('Order checklist state and editor', () => {
       for (let i = 0; i < 110; i++) result.current.add()
     })
     expect(result.current.selectedCount).toBe(100)
+  })
+
+  it('shows a single localized validation alert after deselecting every item', async () => {
+    vi.spyOn(customerApi, 'getServiceChecklist').mockResolvedValue(template())
+    function Editor() {
+      return (
+        <ChecklistEditor variant="compact" checklist={useOrderChecklist('A')} />
+      )
+    }
+    render(<Editor />)
+    const selectAll = await screen.findByLabelText('Chọn tất cả (2)')
+    fireEvent.click(selectAll)
+    const message =
+      'Vui lòng chọn ít nhất một hạng mục giám sát hoặc thêm yêu cầu bổ sung.'
+    expect(screen.getByRole('alert')).toHaveTextContent(message)
+    expect(screen.getAllByText(message)).toHaveLength(1)
   })
 
   it('offers explicit stale recovery and discards edits only when customer reloads', async () => {
@@ -336,13 +381,19 @@ describe('Order checklist state and editor', () => {
   it('has one keyboard-accessible edit action per compact row and keeps changes when switching views', async () => {
     vi.spyOn(customerApi, 'getServiceChecklist').mockResolvedValue(template())
     function CompactEditor() {
-      return <ChecklistEditor variant="compact" checklist={useOrderChecklist('A')} />
+      return (
+        <ChecklistEditor variant="compact" checklist={useOrderChecklist('A')} />
+      )
     }
     render(<CompactEditor />)
 
     const edit = await screen.findByRole('button', { name: 'Sửa nội dung 1' })
-    expect(screen.getAllByRole('button', { name: 'Sửa nội dung 1' })).toHaveLength(1)
-    expect(screen.getByRole('checkbox', { name: 'Chọn nội dung 1' })).toBeChecked()
+    expect(
+      screen.getAllByRole('button', { name: 'Sửa nội dung 1' }),
+    ).toHaveLength(1)
+    expect(
+      screen.getByRole('checkbox', { name: 'Chọn nội dung 1' }),
+    ).toBeChecked()
 
     expect(
       screen.getByRole('checkbox', { name: 'Chọn nội dung 1' }),
@@ -351,7 +402,9 @@ describe('Order checklist state and editor', () => {
     fireEvent.click(edit)
     const content = screen.getByLabelText('Nội dung giám sát 1')
     expect(content).toHaveFocus()
-    fireEvent.change(content, { target: { value: 'Updated monitoring content' } })
+    fireEvent.change(content, {
+      target: { value: 'Updated monitoring content' },
+    })
     fireEvent.click(screen.getByRole('button', { name: 'Xong' }))
 
     expect(screen.getByRole('button', { name: 'Sửa nội dung 1' })).toHaveFocus()
@@ -363,9 +416,12 @@ describe('Order checklist state and editor', () => {
       }),
     ).toBeChecked()
 
-    fireEvent.change(screen.getByRole('searchbox', { name: 'Tìm nội dung giám sát' }), {
-      target: { value: 'Updated' },
-    })
+    fireEvent.change(
+      screen.getByRole('searchbox', { name: 'Tìm nội dung giám sát' }),
+      {
+        target: { value: 'Updated' },
+      },
+    )
     expect(screen.getByText('Updated monitoring content')).toBeInTheDocument()
     expect(screen.queryByText('Second')).not.toBeInTheDocument()
   })

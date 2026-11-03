@@ -11,10 +11,14 @@ export function MissionCreateActionBar({
   handleSubmit,
   submitting,
   planQuery,
+  reworkOrderId,
+  blocked = false,
 }: {
   handleSubmit: () => Promise<void>
   submitting: boolean
   planQuery: UseApiQueryState<ExecutionPlan>
+  reworkOrderId?: string
+  blocked?: boolean
 }) {
   const { t } = useI18n(missionCreatePageMessages)
   return (
@@ -26,21 +30,32 @@ export function MissionCreateActionBar({
         <span>{t.actionHint}</span>
       </div>
       <div className="odm-or-actionbar-actions">
-        <Button href={managerHref({ screen: 'orderQueue' })}>
-          {t.backToOrders}
+        <Button
+          href={
+            reworkOrderId
+              ? managerHref({ screen: 'orderResults', orderId: reworkOrderId })
+              : managerHref({ screen: 'orderQueue' })
+          }
+        >
+          {reworkOrderId ? t.backToResults : t.backToOrders}
         </Button>
         <Button
           type="primary"
           htmlType="button"
           onClick={handleSubmit}
           disabled={
+            blocked ||
             submitting ||
             planQuery.loading ||
             Boolean(planQuery.error) ||
             !['DRAFT', 'FINALIZED'].includes(planQuery.data?.planStatus ?? '')
           }
         >
-          {submitting ? t.creating : t.createMission}
+          {submitting
+            ? t.creating
+            : reworkOrderId
+              ? t.reworkTitle
+              : t.createMission}
           <RightOutlined aria-hidden="true" />
         </Button>
       </div>

@@ -99,9 +99,11 @@ export type Quote = {
   approvedByName: string | null
   approvedAt: string | null
   acceptedAt: string | null
+  expiresAt?: string | null
   checklistRevision?: number
   checklistGuidanceSnapshot?: ChecklistGuidanceSnapshot | null
   items: QuoteItem[]
+  orderCancellationReason?: 'QUOTATION_EXPIRED' | 'DEPOSIT_PAYMENT_EXPIRED' | 'PERMIT_REJECTED' | null
   pricingPolicyId?: string
   pricingPolicyVersion?: number
   systemCalculatedAmount?: number
@@ -144,9 +146,11 @@ export type CustomerQuote = {
   pricingFinalized: boolean
   approvedAt: string | null
   acceptedAt: string | null
+  expiresAt?: string | null
   checklistRevision?: number
   checklistGuidanceSnapshot?: ChecklistGuidanceSnapshot | null
   items: QuoteItem[]
+  orderCancellationReason?: 'QUOTATION_EXPIRED' | 'DEPOSIT_PAYMENT_EXPIRED' | 'PERMIT_REJECTED' | null
 }
 
 export type PricingBreakdownItem = {
@@ -168,6 +172,8 @@ export type PricingBreakdown = {
   items: PricingBreakdownItem[]
 }
 
+export type DepositStatus = 'WAITING_DEPOSIT' | 'DEPOSIT_PAID'
+
 export type Invoice = {
   id: string
   invoiceNumber: string
@@ -179,8 +185,12 @@ export type Invoice = {
   remainingAmount: number
   status:
     'ISSUED' | 'PARTIALLY_PAID' | 'PAID' | 'OVERDUE' | 'CANCELLED' | 'REFUNDED'
+  depositStatus?: DepositStatus
   issuedAt: string
   finalPaymentAllowed: boolean
+  depositExpiresAt?: string | null
+  finalPaymentExpiresAt?: string | null
+  orderCancellationReason?: 'QUOTATION_EXPIRED' | 'DEPOSIT_PAYMENT_EXPIRED' | 'PERMIT_REJECTED' | null
 }
 
 export type Payment = {
@@ -191,7 +201,7 @@ export type Payment = {
   amount: number
   currency: 'VND'
   status:
-    'PENDING' | 'PROCESSING' | 'SUCCESS' | 'FAILED' | 'CANCELLED' | 'REFUNDED'
+    'PENDING' | 'PROCESSING' | 'SUCCESS' | 'FAILED' | 'CANCELLED' | 'REFUNDED' | 'REQUIRES_REVIEW'
   provider: 'VNPAY' | 'PAYOS'
   paymentUrl: string | null
   transactionReference: string

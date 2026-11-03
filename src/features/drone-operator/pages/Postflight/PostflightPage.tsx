@@ -6,6 +6,8 @@ import {
 } from '../../../../shared/components/odm/StateView'
 import { useI18n } from '../../../../shared/i18n'
 import { useActiveMission } from '../../api/useActiveMission'
+import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
+import { missionApi } from '../../../mission/api/missionApi'
 import { type FlightControlStatus } from '../../api/flightControlApi'
 import { formatDeviceLabel } from '../../lib/deviceLabel'
 import { postflightSummary } from '../../lib/postflightSummary'
@@ -20,6 +22,7 @@ import {
 } from './postflightHelpers'
 import { usePostflightTelemetry } from './usePostflightTelemetry'
 import { usePostflightAssessment } from './usePostflightAssessment'
+import { fetchLatestPostflightCheck } from '../MissionDetail/checkData'
 import { PostflightCompletedView } from './components/PostflightCompletedView'
 import { PostflightHeader } from './components/PostflightHeader'
 import { PostflightErrorBanner } from './components/PostflightErrorBanner'
@@ -30,6 +33,7 @@ import { PostflightNotes } from './components/PostflightNotes'
 import { MaintenanceBanner } from './components/MaintenanceBanner'
 import { TicketCreatedBanner } from './components/TicketCreatedBanner'
 import { PostflightSubmitButton } from './components/PostflightSubmitButton'
+import './PostflightPage.css'
 
 export function PostflightPage({ missionId }: { missionId?: string }) {
   const { t, lang } = useI18n(postflightPageMessages)
@@ -43,6 +47,13 @@ export function PostflightPage({ missionId }: { missionId?: string }) {
   } = useActiveMission(missionId)
 
   const effectiveMissionId = activeData?.id || activeId || ''
+  const persistedPostflightQuery = useApiQuery(
+    (signal) =>
+      effectiveMissionId
+        ? fetchLatestPostflightCheck(effectiveMissionId, signal)
+        : Promise.resolve(null),
+    [effectiveMissionId],
+  )
   const missionLabel =
     activeData?.missionCode || effectiveMissionId || t.defaultMissionLabel
   const deviceId = activeData?.deviceId ?? 'DEVICE'
@@ -65,6 +76,15 @@ export function PostflightPage({ missionId }: { missionId?: string }) {
     ticketCreated: boolean
     droneStatus: string
   } | null>(null)
+  const permissionsQuery = useApiQuery(
+    () =>
+      effectiveMissionId
+        ? missionApi.getPermissions(effectiveMissionId)
+        : Promise.resolve(null),
+    // The inspector permission becomes available after postflight persists
+    // actualEndAt, so re-fetch it when this page completes the postflight.
+    [effectiveMissionId, Boolean(completed)],
+  )
 
   const items: PostflightItem[] = useMemo(
     () =>
@@ -92,6 +112,22 @@ export function PostflightPage({ missionId }: { missionId?: string }) {
     [results],
   )
   const allAssessed = items.length === ALL_KEYS.length
+  const inspectionResults = useMemo(() => {
+    if (!allAssessed) return null
+    const getResult = (key: (typeof ALL_KEYS)[number]): 'PASS' | 'FAIL' =>
+      results[key] === 'ok' ? 'PASS' : 'FAIL'
+    return {
+      a1: getResult('physical_condition_ok'),
+      a2: getResult('physical_condition_ok'),
+      p1: getResult('motor_ok'),
+      p2: getResult('motor_ok'),
+      e1: getResult('battery_ok'),
+      e4: getResult('battery_ok'),
+      e2: getResult('camera_ok'),
+      e3: getResult('gps_ok'),
+      d1: getResult('communication_ok'),
+    }
+  }, [allAssessed, results])
 
   const { handleSetResult, handlePassAll, handleComplete, handleCreateTicket } =
     usePostflightAssessment({
@@ -114,7 +150,25 @@ export function PostflightPage({ missionId }: { missionId?: string }) {
       setTicketCreated,
     })
 
-  if (loading) return <LoadingState />
+  const completedSummary =
+    completed ??
+    (persistedPostflightQuery.data?.completedAt
+      ? {
+          overallOk: persistedPostflightQuery.data.overallOk,
+          ticketCreated: !persistedPostflightQuery.data.overallOk,
+          droneStatus: persistedPostflightQuery.data.overallOk
+            ? 'AVAILABLE'
+            : 'MAINTENANCE',
+        }
+      : null)
+
+  if (
+    loading ||
+    (!completedSummary &&
+      Boolean(effectiveMissionId) &&
+      persistedPostflightQuery.loading)
+  )
+    return <LoadingState />
 
   if (queryError || !effectiveMissionId) {
     return (
@@ -125,48 +179,65 @@ export function PostflightPage({ missionId }: { missionId?: string }) {
     )
   }
 
-  if (completed) {
+  if (completedSummary) {
+    if (permissionsQuery.loading) return <LoadingState />
+    if (
+      permissionsQuery.error ||
+      permissionsQuery.data?.canAssessMonitoringChecklist !== true
+    ) {
+      return (
+        <EmptyState
+          title={t.reviewInspectorOnlyTitle}
+          description={t.reviewInspectorOnlyDescription}
+        />
+      )
+    }
     return (
       <PostflightCompletedView
+        key={effectiveMissionId}
+        missionId={effectiveMissionId}
         missionLabel={missionLabel}
-        completed={completed}
+        completed={completedSummary}
+        deviceId={deviceId}
         deviceLabel={deviceLabel}
-        failItems={failItems}
+        inspectionResults={inspectionResults}
+        notes={notes}
+        telemetrySnapshot={telemetrySnapshot}
       />
     )
   }
 
   return (
-    <div className="odm-card" style={{ marginBottom: 0 }}>
+    <div className="odm-card postflight-page">
       <PostflightHeader
         missionLabel={missionLabel}
         postflightMissions={postflightMissions}
         effectiveMissionId={effectiveMissionId}
         selectMission={selectMission}
-        deviceLabel={deviceLabel}
       />
 
-      <div style={{ padding: '24px 28px', maxWidth: 880, margin: '0 auto' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div className="postflight-content">
+        <div className="postflight-stack">
           {error && <PostflightErrorBanner error={error} />}
 
-          {telemetrySnapshot && (
-            <TelemetrySummary telemetrySnapshot={telemetrySnapshot} />
-          )}
-
-          {/* Progress Header Card */}
-          <AssessmentProgress
-            failItems={failItems}
-            summary={summary}
-            allAssessed={allAssessed}
-            handlePassAll={handlePassAll}
-          />
+          <div className="postflight-overview">
+            {telemetrySnapshot && (
+              <TelemetrySummary telemetrySnapshot={telemetrySnapshot} />
+            )}
+            <AssessmentProgress
+              failItems={failItems}
+              summary={summary}
+              allAssessed={allAssessed}
+              handlePassAll={handlePassAll}
+            />
+          </div>
 
           {/* Inspection Item Categories */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-            {categories.map((cat) => (
+          <div className="postflight-categories">
+            {categories.map((cat, index) => (
               <InspectionCategory
                 key={cat.title}
+                index={index + 1}
                 cat={cat}
                 results={results}
                 handleSetResult={handleSetResult}
@@ -177,7 +248,7 @@ export function PostflightPage({ missionId }: { missionId?: string }) {
           {/* Notes Section */}
           <PostflightNotes notes={notes} setNotes={setNotes} />
 
-          {/* Maintenance Ticket Alert Banner */}
+          {/* Maintenance status */}
           {failItems.length > 0 ? (
             <MaintenanceBanner
               failItems={failItems}

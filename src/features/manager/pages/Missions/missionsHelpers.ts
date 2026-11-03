@@ -4,6 +4,7 @@ import type {
   MissionStaffAssignmentResponse,
 } from '../../types/missions'
 import { getLanguage } from '../../../../shared/i18n'
+import { groupStaffAssignments } from '../../components/common/missionDetailHelpers'
 import { missionsPageMessages } from './MissionsPage.messages'
 import type { DeliveryStatus, PageMessages } from './missionsTypes'
 
@@ -31,7 +32,7 @@ export function formatScheduled(
 export function formatStaffSummary(
   assignments?: MissionStaffAssignmentResponse[],
 ) {
-  const active = assignments ?? []
+  const active = groupStaffAssignments(assignments ?? [])
   if (active.length === 0) return '—'
   const accepted = active.filter(
     (item) => item.responseStatus === 'ACCEPTED',
@@ -84,11 +85,14 @@ export type MissionGroup =
 
 const GROUPS: Record<MissionGroup, readonly MissionStatus[]> = {
   preparing: [
+    'PLANNING',
     'CREATED',
     'WAITING_DEPOSIT',
+    'PENDING_PAYMENT',
+    'PENDING_CONFIRMATION',
     'RESOURCE_ASSIGNING',
-    'READY',
     'WAITING_OPERATOR_ACCEPTANCE',
+    'READY',
     'SCHEDULED',
     'CONNECTED',
     'PREFLIGHT_CHECKING',
@@ -96,8 +100,8 @@ const GROUPS: Record<MissionGroup, readonly MissionStatus[]> = {
     'FAILED_PREFLIGHT',
     'PENDING_APPROVAL',
   ],
-  running: ['IN_FLIGHT', 'IN_PROGRESS', 'RETURNING', 'POSTFLIGHT_CHECKING'],
-  review: ['PENDING_REVIEW'],
+  running: ['IN_PROGRESS'],
+  review: ['AWAITING_REVIEW', 'PENDING_REVIEW'],
   completed: ['COMPLETED'],
   failed: ['FAILED', 'CANCELLED'],
 }

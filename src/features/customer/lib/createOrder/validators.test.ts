@@ -13,6 +13,7 @@ const msg: ValidationMessages = {
   blockedZone: (n) => `blocked:${n}`,
   serviceId: 'service',
   title: 'title',
+  usagePurpose: 'usagePurpose',
   otherFlightPurpose: 'otherFlightPurpose',
   otherUsagePurpose: 'otherUsagePurpose',
   preferredDateFrom: 'from',
@@ -50,6 +51,7 @@ const withService = {
   accessNotes: 'Cổng chính',
   serviceId: 's',
   title: 't',
+  usagePurpose: 'INTERNAL' as const,
   monitoringRelationship: 'OWNER' as const,
   monitoringAuthorizationConfirmed: true,
   locationStatus: 'confirmed' as const,
@@ -59,10 +61,11 @@ const withService = {
 }
 
 describe('validateStep', () => {
-  it('step 1 requires a service and a title', () => {
+  it('step 1 requires a service, a title and a usage purpose', () => {
     expect(validateStep(1, createDefaultForm(), okLocation, msg)).toEqual({
       serviceId: 'service',
       title: 'title',
+      usagePurpose: 'usagePurpose',
     })
     expect(validateStep(1, withService, okLocation, msg)).toEqual({})
   })

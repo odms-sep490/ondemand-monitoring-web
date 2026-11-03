@@ -163,7 +163,7 @@ export const inFlightControlMessages = defineMessages({
       reviewMedia: 'Xem lại dữ liệu đã chụp',
       review: 'Xem lại',
       finishFlight: 'Hoàn thành bay',
-      finishFlightTitle: 'Cập nhật đã bay xong và chuyển sang postcheck',
+      finishFlightTitle: 'Xác nhận đã bay xong và chuyển sang kiểm tra sau bay',
       more: 'Thêm',
       moreControls: 'Thêm điều khiển',
       sending: 'Đang gửi',
@@ -191,7 +191,7 @@ export const inFlightControlMessages = defineMessages({
       weatherOffline: 'Bộ điều khiển thời tiết ngoại tuyến',
       preflightCompleted: 'Đã hoàn thành kiểm tra trước bay',
       finishingFlight: 'Đang cập nhật hoàn thành bay...',
-      flightFinished: 'Đã cập nhật bay xong - chờ maintainer postcheck',
+      flightFinished: 'Đã xác nhận chuyến bay hoàn tất · chờ kiểm tra sau bay',
     },
     header: {
       live: 'TRỰC TIẾP',

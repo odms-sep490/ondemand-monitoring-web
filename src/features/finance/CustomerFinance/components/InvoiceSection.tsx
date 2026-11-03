@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Button } from 'antd'
 import { useI18n } from '../../../../shared/i18n'
 import { customerFinanceSectionsMessages } from '../CustomerFinanceSections.messages'
@@ -6,6 +7,7 @@ import { StatusTag } from '../../../../shared/components/antd'
 import { PaymentStat } from './PaymentStat'
 import type { Invoice } from '../../types'
 import { env } from '../../../../config/env'
+import { DeadlineCountdown } from './DeadlineCountdown'
 
 const INVOICE_TONE: Record<
   string,
@@ -19,6 +21,37 @@ const INVOICE_TONE: Record<
   REFUNDED: 'neutral',
 }
 
+export function InvoiceSummary({ invoice }: { invoice: Invoice }) {
+  const { t } = useI18n(customerFinanceSectionsMessages)
+  const depositStatus = invoice.depositStatus ??
+    (invoice.paidAmount >= invoice.depositAmount ? 'DEPOSIT_PAID' : 'WAITING_DEPOSIT')
+
+  return (
+    <section
+      className="customer-invoice-summary"
+      aria-label={t.invoice(invoice.invoiceNumber)}
+    >
+      <div className="customer-invoice-summary-title">
+        <h3>{t.invoice(invoice.invoiceNumber)}</h3>
+        <StatusTag tone={INVOICE_TONE[invoice.status] ?? 'neutral'}>
+          {t.invoiceStatus[invoice.status] ?? pricingLabel(invoice.status)}
+        </StatusTag>
+        {invoice.status !== 'CANCELLED' && invoice.status !== 'REFUNDED' ? (
+          <StatusTag tone={depositStatus === 'DEPOSIT_PAID' ? 'success' : 'warning'}>
+            {t.depositPaymentStatus[depositStatus]}
+          </StatusTag>
+        ) : null}
+      </div>
+      <div className="customer-payment-stats">
+        <PaymentStat label={t.total} value={invoice.totalAmount} />
+        <PaymentStat label={t.deposit} value={invoice.depositAmount} />
+        <PaymentStat label={t.paid} value={invoice.paidAmount} />
+        <PaymentStat label={t.remaining} value={invoice.remainingAmount} />
+      </div>
+    </section>
+  )
+}
+
 export function InvoiceSection({
   invoice,
   legalReady,
@@ -27,6 +60,7 @@ export function InvoiceSection({
   completeTestDeposit,
   completeTestFinal,
   testPaymentLabel,
+  refreshExpired,
 }: {
   invoice: Invoice
   legalReady: boolean
@@ -35,38 +69,135 @@ export function InvoiceSection({
   completeTestDeposit: () => Promise<void>
   completeTestFinal: () => Promise<void>
   testPaymentLabel: string
+  refreshExpired?: () => void
 }) {
-  const { t } = useI18n(customerFinanceSectionsMessages)
+  const { t, locale } = useI18n(customerFinanceSectionsMessages)
+  const [expiredDeadlineKey, setExpiredDeadlineKey] = useState<string | null>(
+    null,
+  )
+  const [expiredFinalDeadlineKey, setExpiredFinalDeadlineKey] = useState<
+    string | null
+  >(null)
+  const deadlineKey = `${invoice.id}:${invoice.depositExpiresAt ?? ''}`
+  const depositIssuedAt = Date.parse(invoice.issuedAt)
+  const depositExpiresAt = invoice.depositExpiresAt
+    ? Date.parse(invoice.depositExpiresAt)
+    : Number.NaN
+  const hasValidDepositDeadline = Number.isFinite(depositExpiresAt)
+  const depositReachedDeadline =
+    hasValidDepositDeadline && depositExpiresAt <= Date.now()
+  const depositExpired =
+    invoice.orderCancellationReason === 'DEPOSIT_PAYMENT_EXPIRED' ||
+    invoice.status === 'OVERDUE' ||
+    depositReachedDeadline ||
+    expiredDeadlineKey === deadlineKey
+  const finalDeadlineKey = `${invoice.id}:${invoice.finalPaymentExpiresAt ?? ''}`
+  const finalPaymentDeadline = invoice.finalPaymentExpiresAt
+    ? Date.parse(invoice.finalPaymentExpiresAt)
+    : Number.NaN
+  const hasValidFinalDeadline = Number.isFinite(finalPaymentDeadline)
+  const finalPaymentExpired =
+    invoice.status === 'OVERDUE' ||
+    (hasValidFinalDeadline && finalPaymentDeadline <= Date.now()) ||
+    expiredFinalDeadlineKey === finalDeadlineKey
   return (
-    <div className="customer-invoice">
-      <div className="customer-invoice-title">
-        <div>
-          <h3>{t.invoice(invoice.invoiceNumber)}</h3>
-          <p>{t.depositIpn}</p>
+    <div className="customer-invoice customer-invoice-actions">
+      {invoice.depositExpiresAt &&
+      invoice.paidAmount < invoice.depositAmount ? (
+        hasValidDepositDeadline ? (
+          <DeadlineCountdown
+            expired={depositExpired}
+            label={depositExpired ? t.depositExpired : t.depositCountdownLabel}
+            deadline={invoice.depositExpiresAt}
+            startAt={Number.isFinite(depositIssuedAt) ? invoice.issuedAt : null}
+            deadlineLabel={t.depositDeadlineAt(
+              new Date(invoice.depositExpiresAt).toLocaleString(locale, {
+                dateStyle: 'short',
+                timeStyle: 'medium',
+              }),
+            )}
+            dayLabel={t.dayUnit}
+            hourLabel={t.hourUnit}
+            minuteLabel={t.minuteUnit}
+            secondLabel={t.secondUnit}
+            clockLabel={t.clockLabel}
+            onExpire={() => {
+              setExpiredDeadlineKey(deadlineKey)
+              refreshExpired?.()
+            }}
+          />
+        ) : (
+          <div className="customer-deposit-notice">
+            <b>{t.depositDeadlineInvalid}</b>
+          </div>
+        )
+      ) : null}
+      {invoice.finalPaymentExpiresAt &&
+      invoice.paidAmount >= invoice.depositAmount &&
+      invoice.remainingAmount > 0 ? (
+        hasValidFinalDeadline ? (
+          <DeadlineCountdown
+            expired={finalPaymentExpired}
+            label={
+              finalPaymentExpired
+                ? t.finalPaymentExpired
+                : t.finalPaymentCountdownLabel
+            }
+            deadline={invoice.finalPaymentExpiresAt}
+            deadlineLabel={t.finalPaymentDeadlineAt(
+              new Date(invoice.finalPaymentExpiresAt).toLocaleString(locale, {
+                dateStyle: 'short',
+                timeStyle: 'medium',
+              }),
+            )}
+            dayLabel={t.dayUnit}
+            hourLabel={t.hourUnit}
+            minuteLabel={t.minuteUnit}
+            secondLabel={t.secondUnit}
+            clockLabel={t.clockLabel}
+            onExpire={() => {
+              setExpiredFinalDeadlineKey(finalDeadlineKey)
+              refreshExpired?.()
+            }}
+          />
+        ) : null
+      ) : null}
+      {invoice.orderCancellationReason === 'DEPOSIT_PAYMENT_EXPIRED' ? (
+        <div className="customer-deposit-notice">
+          <b>{t.orderCancelledPaymentTimeout}</b>
         </div>
-        <StatusTag tone={INVOICE_TONE[invoice.status] ?? 'neutral'}>
-          {t.invoiceStatus[invoice.status] ?? pricingLabel(invoice.status)}
-        </StatusTag>
-      </div>
-      <div className="customer-payment-stats">
-        <PaymentStat label={t.total} value={invoice.totalAmount} />
-        <PaymentStat label={t.deposit} value={invoice.depositAmount} />
-        <PaymentStat label={t.paid} value={invoice.paidAmount} />
-        <PaymentStat label={t.remaining} value={invoice.remainingAmount} />
-      </div>
+      ) : null}
       {invoice.paidAmount < invoice.depositAmount ? (
         <div className="customer-deposit-notice">
           <b>{t.awaitingDeposit}</b>
           <span>{t.awaitingDepositBody}</span>
         </div>
-      ) : invoice.status !== 'PAID' ? (
+      ) : invoice.status === 'PAID' ? (
         <div className="customer-deposit-notice is-ready">
-          <b>{t.depositReceived}</b>
-          <span>{t.depositReceivedBody}</span>
+          <b>{t.paymentCompleted}</b>
+          <span>{t.awaitingResourceConfirmation}</span>
         </div>
-      ) : null}
+      ) : invoice.finalPaymentAllowed ? (
+        <div className="customer-deposit-notice is-ready">
+          <b>{t.resourcesAssigned}</b>
+          <span>{t.finalPaymentRequired}</span>
+        </div>
+      ) : finalPaymentExpired ? (
+        <div className="customer-deposit-notice">
+          <b>{t.finalPaymentExpired}</b>
+          <span>{t.finalPaymentExpiredBody}</span>
+        </div>
+      ) : (
+        <div className="customer-deposit-notice">
+          <b>{t.missionPreparation}</b>
+          <span>{t.missionPreparationBody}</span>
+        </div>
+      )}
       <div className="finance-actions customer-payment-actions">
-        {invoice.paidAmount < invoice.depositAmount && legalReady ? (
+        {invoice.paidAmount < invoice.depositAmount &&
+        legalReady &&
+        !depositExpired &&
+        invoice.status !== 'CANCELLED' ? (
           <>
             <Button
               type="primary"
@@ -86,6 +217,7 @@ export function InvoiceSection({
           </>
         ) : null}
         {invoice.finalPaymentAllowed &&
+        !finalPaymentExpired &&
         invoice.paidAmount >= invoice.depositAmount &&
         invoice.remainingAmount > 0 ? (
           <>

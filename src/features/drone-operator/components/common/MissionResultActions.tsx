@@ -13,8 +13,6 @@ export function missionResultActions(
 ) {
   const data = query.data
   const known =
-    !query.loading &&
-    !query.error &&
     data?.checklist.missionId === missionId &&
     (!data.result || data.result.missionId === missionId)
   const submitted =
@@ -23,16 +21,19 @@ export function missionResultActions(
       data.result?.approvalStatus === 'APPROVED')
   const canComplete =
     known &&
-    status === 'PENDING_REVIEW' &&
+    status === 'IN_PROGRESS' &&
     data.permissions.canCompleteMission === true
   const canSubmit =
-    known && data.permissions.canSubmitMissionResult === true && !submitted
+    known &&
+    (status === 'IN_PROGRESS' || status === 'COMPLETED') &&
+    data.permissions.canSubmitMissionResult === true &&
+    !submitted
   const completeReady =
     canComplete && data.checklist.readyForMissionCompletion === true
   const submitReady =
     canSubmit &&
     data.checklist.readyForSubmission === true &&
-    (status === 'COMPLETED' || (status === 'PENDING_REVIEW' && completeReady))
+    (status === 'IN_PROGRESS' || status === 'COMPLETED')
   const remaining =
     data?.checklist.executions.filter(
       (row) => !['COMPLETED', 'UNABLE_TO_VERIFY'].includes(row.executionStatus),
@@ -108,11 +109,16 @@ export function MissionResultActions({
   showSubmit?: boolean
 }) {
   const state = missionResultActions(missionId, status, monitoring)
-  if (!['PENDING_REVIEW', 'COMPLETED'].includes(status ?? '')) return null
+  if (
+    !['AWAITING_REVIEW', 'PENDING_REVIEW', 'COMPLETED'].includes(status ?? '') &&
+    !state.canComplete &&
+    !state.canSubmit
+  )
+    return null
   const reasonId = `result-readiness-${missionId}`
   const submitReason =
-    status !== 'COMPLETED' && !state.completeReady
-      ? 'Cần xác nhận hoàn thành Mission trước khi gửi kết quả.'
+    status !== 'IN_PROGRESS' && status !== 'COMPLETED'
+      ? 'Cần nghiệm thu hoàn thành Mission trước khi gửi kết quả.'
       : state.readinessReason
   return (
     <section
@@ -120,9 +126,15 @@ export function MissionResultActions({
       aria-label="Nghiệm thu và gửi kết quả"
     >
       <div className="staff-result-phase" role="status">
-        {status === 'COMPLETED'
-          ? 'Mission đã được nghiệm thu.'
-          : 'Mission đang chờ nghiệm thu.'}
+        {status === 'AWAITING_REVIEW' || status === 'PENDING_REVIEW'
+          ? 'Kết quả đã gửi Manager, đang chờ duyệt.'
+          : status === 'COMPLETED'
+            ? 'Mission đã được Manager duyệt.'
+            : showComplete && !showSubmit && state.canComplete
+              ? 'Kiểm tra sau bay đã hoàn tất. Xác nhận hoàn thành trước khi gửi kết quả cho quản lý.'
+              : state.canSubmit
+              ? 'Nghiệm thu hoàn tất. Có thể gửi kết quả cho Manager.'
+              : 'Kiểm tra sau bay đã hoàn tất, nhiệm vụ đang chờ nghiệm thu.'}
         {state.submitted && (
           <>
             <span>
@@ -130,7 +142,7 @@ export function MissionResultActions({
                 ? 'Kết quả đã được Manager duyệt.'
                 : 'Kết quả đã được gửi Manager và đang chờ duyệt.'}
             </span>
-            <StatusBadge tone="green">
+            <StatusBadge tone="blue">
               {monitoring.data?.result?.approvalStatus === 'APPROVED'
                 ? 'Đã duyệt'
                 : 'Chờ duyệt'}
@@ -155,7 +167,7 @@ export function MissionResultActions({
           {showSubmit && state.canSubmit && (
             <button
               type="button"
-              className={`odm-btn${status === 'COMPLETED' ? ' odm-btn-p' : ''}`}
+              className={`odm-btn${state.submitReady ? ' odm-btn-p' : ''}`}
               disabled={busy || !state.submitReady}
               aria-describedby={!state.submitReady ? reasonId : undefined}
               onClick={onSubmit}

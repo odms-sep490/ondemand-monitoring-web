@@ -65,7 +65,7 @@
 
 :root .mgr-layout .mgr-md .mgr-md-kpi dt {
   color: var(--mgr-muted);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   line-height: 1.4;
 }
@@ -80,7 +80,7 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Keep schedule, staffing and permit visible at a glance; expand for the full record. */
+/* Resource details live in a dedicated tab to keep the main result view focused. */
 :root .mgr-layout .mgr-md .mgr-md-context {
   min-width: 0;
   overflow: hidden;
@@ -89,59 +89,19 @@
   background: var(--mgr-card);
 }
 
-:root .mgr-layout .mgr-md .mgr-md-context-summary {
-  display: grid;
-  min-height: 64px;
-  grid-template-columns: minmax(190px, 0.75fr) minmax(0, 3fr) 16px;
+:root .mgr-layout .mgr-md .mgr-md-context-heading {
+  display: flex;
+  min-height: 56px;
   align-items: center;
-  gap: 8px 16px;
-  padding: 10px 16px;
-  cursor: pointer;
-  list-style: none;
-}
-
-:root .mgr-layout .mgr-md .mgr-md-context-summary::-webkit-details-marker {
-  display: none;
-}
-
-:root .mgr-layout .mgr-md .mgr-md-context-summary:focus-visible {
-  outline: 2px solid var(--ui-primary);
-  outline-offset: -3px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--mgr-border);
 }
 
 :root .mgr-layout .mgr-md .mgr-md-context-title {
+  margin: 0;
   color: var(--mgr-text);
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 700;
-}
-
-:root .mgr-layout .mgr-md .mgr-md-context-meta {
-  display: flex;
-  min-width: 0;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px 16px;
-  color: var(--mgr-muted);
-  font-size: 12px;
-  line-height: 1.5;
-}
-
-:root .mgr-layout .mgr-md .mgr-md-context-meta > span {
-  overflow-wrap: anywhere;
-}
-
-:root .mgr-layout .mgr-md .mgr-md-context-chevron {
-  width: 9px;
-  height: 9px;
-  justify-self: end;
-  border-right: 1.5px solid var(--mgr-muted);
-  border-bottom: 1.5px solid var(--mgr-muted);
-  transform: rotate(45deg) translateY(-2px);
-  transition: transform 140ms ease;
-}
-
-:root .mgr-layout .mgr-md .mgr-md-context[open] .mgr-md-context-chevron {
-  transform: rotate(225deg) translate(-1px, -1px);
 }
 
 :root .mgr-layout .mgr-md .mgr-md-context-body {
@@ -149,7 +109,6 @@
   grid-template-columns: minmax(0, 1.45fr) minmax(280px, 1fr);
   gap: 20px;
   padding: 18px 16px;
-  border-top: 1px solid var(--mgr-border);
 }
 
 :root .mgr-layout .mgr-md .mgr-md-context-section {
@@ -182,7 +141,7 @@
   gap: 8px;
   padding: 8px 0;
   border-bottom-color: var(--mgr-border);
-  font-size: 12px;
+  font-size: 13px;
 }
 
 :root .mgr-layout .mgr-md .mgr-md-context-kv .mgr-kv-row dt {
@@ -196,7 +155,7 @@
 :root .mgr-layout .mgr-md .mgr-md-context-note {
   margin: 10px 0 0;
   color: var(--mgr-muted);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.55;
   overflow-wrap: anywhere;
 }
@@ -279,7 +238,7 @@
   border-radius: 0;
   background: transparent;
   color: var(--mgr-muted);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   box-shadow: none;
 }
@@ -378,24 +337,8 @@
     font-size: 18px;
   }
 
-  :root .mgr-layout .mgr-md .mgr-md-context-summary {
-    grid-template-columns: minmax(0, 1fr) 16px;
-    gap: 4px 12px;
+  :root .mgr-layout .mgr-md .mgr-md-context-heading {
     padding: 12px;
-  }
-
-  :root .mgr-layout .mgr-md .mgr-md-context-title {
-    grid-column: 1;
-  }
-
-  :root .mgr-layout .mgr-md .mgr-md-context-meta {
-    grid-column: 1;
-    gap: 4px 10px;
-  }
-
-  :root .mgr-layout .mgr-md .mgr-md-context-chevron {
-    grid-column: 2;
-    grid-row: 1 / span 2;
   }
 
   :root .mgr-layout .mgr-md .mgr-md-context-body {
@@ -432,8 +375,3 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  :root .mgr-layout .mgr-md .mgr-md-context-chevron {
-    transition: none;
-  }
-}

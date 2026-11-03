@@ -4,11 +4,6 @@ import { useI18n } from '../../../../shared/i18n'
 import { missionApi } from '../../../mission/api/missionApi'
 import type { MissionPermissions } from '../../../mission/types/permissions'
 import {
-  missionHasSafeStop,
-  missionStopLabel,
-  missionMayTerminate,
-} from '../../../mission/lib/missionOperationalState'
-import {
   getActiveMissionId,
   markActiveMissionFlowStep,
   setActiveMissionId,
@@ -101,14 +96,9 @@ export function FlightPage({
       mission={toFlightMission(mission)}
       drone={toFlightDrone(mission)}
       normalFlightAllowed={
-        !missionHasSafeStop(mission) && permissions?.canControlFlight === true
+        permissions?.canControlFlight === true && mission.status === 'IN_PROGRESS'
       }
-      terminationAllowed={missionMayTerminate(
-        mission,
-        permissions?.canTerminateFlight,
-      )}
-      operationalMessage={missionStopLabel(mission) ?? undefined}
-      autoStartPlan={autoStart && !missionHasSafeStop(mission)}
+      autoStartPlan={autoStart}
       onAutoStartPlanConsumed={() =>
         window.sessionStorage.removeItem('odm.operator.autoStartSimulation')
       }
@@ -123,12 +113,7 @@ export function FlightPage({
       onRTB={() => {
         void missionApi
           .markReturning(mission.id)
-          .then(async (returned) => {
-            if (missionHasSafeStop(mission)) {
-              // RTL is a return command, not evidence that the drone has landed.
-              setMission(returned as BackendMission)
-              return
-            }
+          .then(async () => {
             await missionApi.startPostflight(mission.id)
             setActiveMissionId(mission.id)
             window.location.hash = operatorHref({

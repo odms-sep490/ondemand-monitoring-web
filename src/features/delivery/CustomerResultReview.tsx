@@ -1,14 +1,31 @@
 import { useEffect, useState } from 'react'
-import { Alert, Button, Checkbox, Input, Select, Skeleton } from 'antd'
+import {
+  Alert,
+  Button,
+  Checkbox,
+  Col,
+  Collapse,
+  Form,
+  Input,
+  Row,
+  Select,
+  Skeleton,
+  Space,
+  Tag,
+  Typography,
+} from 'antd'
 import { ApiError } from '../../shared/api/httpClient'
 import { useI18n } from '../../shared/i18n'
 import {
   deliveryApi,
   type ResultReview,
+  type ResultReviewHistory,
   type RevisionReasonCode,
   type RevisionRequestBody,
 } from './api'
 import { customerDeliveryPanelMessages } from './customerDeliveryPanel.messages'
+import { DeliveryImagePreview } from './DeliveryImagePreview'
+import { ChecklistGuidance } from '../../shared/components/ChecklistGuidance'
 
 type Props = {
   orderId: string
@@ -30,6 +47,7 @@ export function CustomerResultReview({
 }: Props) {
   const { t, locale } = useI18n(customerDeliveryPanelMessages)
   const [review, setReview] = useState<ResultReview | null>(null)
+  const [history, setHistory] = useState<ResultReviewHistory | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<unknown>(null)
   const [feedback, setFeedback] = useState<
@@ -51,7 +69,15 @@ export function CustomerResultReview({
     setLoading(true)
     setError(null)
     try {
-      setReview(await deliveryApi.getResultReview(orderId))
+      const [currentResult, historyResult] = await Promise.allSettled([
+        deliveryApi.getResultReview(orderId),
+        deliveryApi.getResultReviewHistory(orderId),
+      ])
+      if (currentResult.status === 'rejected') throw currentResult.reason
+      setReview(currentResult.value)
+      setHistory(
+        historyResult.status === 'fulfilled' ? historyResult.value : null,
+      )
     } catch (cause) {
       setError(cause)
     } finally {
@@ -198,149 +224,225 @@ export function CustomerResultReview({
           }
         />
       )}
-      <div className="delivery-review-items">
-        {review.items.map((item) => {
+      <Collapse
+        accordion
+        className="delivery-review-collapse"
+        expandIconPosition="end"
+        items={review.items.map((item, index) => {
           const value = feedback[item.roundItemId] ?? {
             reasonCode: 'OTHER' as const,
             note: '',
             evidenceIds: [],
           }
-          return (
-            <article className="delivery-review-item" key={item.roundItemId}>
-              <Checkbox
+          const selected = selectedItems.includes(item.roundItemId)
+          return {
+            key: item.roundItemId,
+            label: (
+              <div className="delivery-review-item-heading">
+                <Space size={10}>
+                  <span className="delivery-review-item-number">
+                    {index + 1}
+                  </span>
+                  <Typography.Text strong>{item.title}</Typography.Text>
+                </Space>
+                <Space size={6} wrap>
+                  <Tag>{t.evidenceCount(item.evidence.length)}</Tag>
+                  <Tag color={item.changedInRound ? 'blue' : 'default'}>
+                    {item.changedInRound ? t.changedInRound : t.unchangedInRound}
+                  </Tag>
+                  {selected && <Tag color="warning">{t.requestRevision}</Tag>}
+                </Space>
+              </div>
+            ),
+            children: (
+              <div className="delivery-review-item">
+                <Checkbox
+                  disabled={revisionLocked || item.canRequestRevision === false}
+                  checked={selectedItems.includes(item.roundItemId)}
+                  onChange={(event) =>
+                    setSelectedItems((current) =>
+                      event.target.checked
+                        ? [...current, item.roundItemId]
+                        : current.filter((id) => id !== item.roundItemId),
+                    )
+                  }
+                >
+                  {t.selectChecklistItem}
+                </Checkbox>
+                {item.canRequestRevision === false && (
+                  <Typography.Text type="secondary">
+                    {t.revisionNotAvailable}
+                  </Typography.Text>
+                )}
+                {item.missionCode && (
+                  <Tag>{t.missionCode(item.missionCode)}</Tag>
+                )}
+                <ChecklistGuidance guidance={item} collapsible={false} />
+                <Typography.Text strong>{t.checklistMedia}</Typography.Text>
+                <div className="delivery-review-evidence">
+                  {item.evidence.length === 0 ? (
+                    <p className="delivery-review-media-empty" role="status">
+                      {t.noEvidence}
+                    </p>
+                  ) : (
+                    item.evidence.map((evidence) => (
+                      <article
+                        className="delivery-review-evidence-card"
+                        key={evidence.roundEvidenceId}
+                      >
+                        {!evidence.url ? (
+                          <span className="delivery-review-media-unavailable">
+                            {t.mediaUnavailable}
+                          </span>
+                        ) : evidence.type.toUpperCase().includes('VIDEO') ? (
+                          <video
+                            controls
+                            preload="metadata"
+                            src={evidence.url}
+                          />
+                        ) : (
+                          <DeliveryImagePreview
+                            src={evidence.url}
+                            fileName={evidence.fileName}
+                          />
+                        )}
+                        <Checkbox
+                          disabled={revisionLocked || !selected}
+                          checked={value.evidenceIds.includes(
+                            evidence.roundEvidenceId,
+                          )}
+                          onChange={(event) =>
+                            updateItem(item.roundItemId, {
+                              evidenceIds: event.target.checked
+                                ? [
+                                    ...value.evidenceIds,
+                                    evidence.roundEvidenceId,
+                                  ]
+                                : value.evidenceIds.filter(
+                                    (id) => id !== evidence.roundEvidenceId,
+                                  ),
+                            })
+                          }
+                        >
+                          <Typography.Text
+                            className="delivery-review-file-name"
+                            ellipsis={{ tooltip: evidence.fileName }}
+                          >
+                            {evidence.fileName}
+                          </Typography.Text>
+                        </Checkbox>
+                        <Typography.Text type="secondary">
+                          {formatSize(evidence.size)}
+                        </Typography.Text>
+                        {evidence.downloadable && evidence.url && (
+                          <a href={evidence.url} download={evidence.fileName}>
+                            {t.download}
+                          </a>
+                        )}
+                      </article>
+                    ))
+                  )}
+                </div>
+                {selected && (
+                  <Form
+                    layout="vertical"
+                    component="div"
+                    className="delivery-review-feedback"
+                  >
+                    <Row gutter={[16, 12]}>
+                      <Col xs={24} md={8}>
+                        <Form.Item
+                          label={t.reasonLabel}
+                          htmlFor={`reason-${item.roundItemId}`}
+                        >
+                          <Select
+                            id={`reason-${item.roundItemId}`}
+                            disabled={revisionLocked}
+                            value={value.reasonCode}
+                            onChange={(reasonCode: RevisionReasonCode) =>
+                              updateItem(item.roundItemId, { reasonCode })
+                            }
+                            options={reasonCodes.map((code) => ({
+                              value: code,
+                              label: t.reasonCodes[code],
+                            }))}
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col xs={24} md={16}>
+                        <Form.Item
+                          label={t.itemNote}
+                          htmlFor={`note-${item.roundItemId}`}
+                          required
+                        >
+                          <Input.TextArea
+                            id={`note-${item.roundItemId}`}
+                            disabled={revisionLocked}
+                            autoSize={{ minRows: 2, maxRows: 5 }}
+                            maxLength={2000}
+                            value={value.note}
+                            onChange={(event) =>
+                              updateItem(item.roundItemId, {
+                                note: event.target.value,
+                              })
+                            }
+                            required
+                          />
+                        </Form.Item>
+                      </Col>
+                    </Row>
+                  </Form>
+                )}
+              </div>
+            ),
+          }
+        })}
+      />
+      {history?.rounds.some((round) => round.reviewRoundId !== review.reviewRoundId) ? (
+        <section className="delivery-result-history" aria-label={t.resultHistory}>
+          <Typography.Title level={4}>{t.resultHistory}</Typography.Title>
+          <Collapse
+            className="delivery-review-collapse"
+            items={history.rounds
+              .filter((round) => round.reviewRoundId !== review.reviewRoundId)
+              .map((round) => ({
+                key: round.reviewRoundId,
+                label: <Space><Typography.Text strong>{t.reviewRound(round.roundNumber)}</Typography.Text><Tag>{t.historyStatus(round.status)}</Tag><Typography.Text type="secondary">{t.publishedAt(new Date(round.publishedAt).toLocaleString(locale))}</Typography.Text></Space>,
+                children: <Collapse accordion items={round.items.map((item) => ({
+                  key: `${round.reviewRoundId}:${item.roundItemId}`,
+                  label: <Space><Typography.Text strong>{item.title}</Typography.Text><Tag>{t.evidenceCount(item.evidence.length)}</Tag></Space>,
+                  children: <div className="delivery-review-item"><ChecklistGuidance guidance={item} collapsible={false} /><div className="delivery-review-evidence">{item.evidence.map((evidence) => <article className="delivery-review-evidence-card" key={evidence.roundEvidenceId}>{!evidence.url ? <span className="delivery-review-media-unavailable">{t.mediaUnavailable}</span> : evidence.type.toUpperCase().includes('VIDEO') ? <video controls preload="metadata" src={evidence.url} /> : <DeliveryImagePreview src={evidence.url} fileName={evidence.fileName} />}<Typography.Text className="delivery-review-file-name" ellipsis={{ tooltip: evidence.fileName }}>{evidence.fileName}</Typography.Text></article>)}</div></div>,
+                }))} />,
+              }))}
+          />
+        </section>
+      ) : null}
+      {review.canSubmitRevision &&
+        !review.existingRequest &&
+        selectedItems.length > 0 && (
+          <>
+            <label className="delivery-feedback-label">
+              {t.generalNote}
+              <Input.TextArea
                 disabled={revisionLocked}
-                checked={selectedItems.includes(item.roundItemId)}
-                onChange={(event) =>
-                  setSelectedItems((current) =>
-                    event.target.checked
-                      ? [...current, item.roundItemId]
-                      : current.filter((id) => id !== item.roundItemId),
-                  )
+                rows={2}
+                maxLength={2000}
+                value={generalNote}
+                onChange={(event) => setGeneralNote(event.target.value)}
+              />
+            </label>
+            {selectedItems.length > 0 && (
+              <Button
+                onClick={() => setConfirm('revision')}
+                disabled={
+                  busy || selectedItems.some((id) => !feedback[id]?.note.trim())
                 }
               >
-                {t.selectChecklistItem}
-              </Checkbox>
-              <h4>{item.title}</h4>
-              {item.description && <p>{item.description}</p>}
-              {item.missionCode && (
-                <small>{t.missionCode(item.missionCode)}</small>
-              )}
-              {item.executionSteps.length > 0 && (
-                <p>
-                  <b>{t.executionSteps}</b> {item.executionSteps.join(' · ')}
-                </p>
-              )}
-              {item.inputRequirements.length > 0 && (
-                <p>
-                  <b>{t.inputRequirements}</b>{' '}
-                  {item.inputRequirements.join(' · ')}
-                </p>
-              )}
-              {item.expectedOutputs.length > 0 && (
-                <p>
-                  <b>{t.expectedOutputs}</b> {item.expectedOutputs.join(' · ')}
-                </p>
-              )}
-              <div className="delivery-review-evidence">
-                {item.evidence.length === 0 ? (
-                  <p className="delivery-review-media-empty" role="status">
-                    {t.noEvidence}
-                  </p>
-                ) : item.evidence.map((evidence) => (
-                  <label key={evidence.roundEvidenceId}>
-                    {!evidence.url ? (
-                      <span className="delivery-review-media-unavailable">
-                        {t.mediaUnavailable}
-                      </span>
-                    ) : evidence.type.toUpperCase().includes('VIDEO') ? (
-                      <video controls preload="metadata" src={evidence.url} />
-                    ) : (
-                      <img
-                        src={evidence.url}
-                        alt={evidence.fileName}
-                        loading="lazy"
-                      />
-                    )}
-                    <Checkbox
-                      disabled={revisionLocked}
-                      checked={value.evidenceIds.includes(
-                        evidence.roundEvidenceId,
-                      )}
-                      onChange={(event) =>
-                        updateItem(item.roundItemId, {
-                          evidenceIds: event.target.checked
-                            ? [...value.evidenceIds, evidence.roundEvidenceId]
-                            : value.evidenceIds.filter(
-                                (id) => id !== evidence.roundEvidenceId,
-                              ),
-                        })
-                      }
-                    >
-                      {evidence.fileName} · {formatSize(evidence.size)}
-                    </Checkbox>
-                    {evidence.downloadable && evidence.url && (
-                      <a href={evidence.url} download={evidence.fileName}>
-                        {t.download}
-                      </a>
-                    )}
-                  </label>
-                ))}
-              </div>
-              <label className="delivery-feedback-label">
-                {t.reasonLabel}
-                <Select
-                  disabled={revisionLocked}
-                  value={value.reasonCode}
-                  onChange={(reasonCode: RevisionReasonCode) =>
-                    updateItem(item.roundItemId, { reasonCode })
-                  }
-                  options={reasonCodes.map((code) => ({
-                    value: code,
-                    label: t.reasonCodes[code],
-                  }))}
-                />
-              </label>
-              <label className="delivery-feedback-label">
-                {t.itemNote}
-                <Input.TextArea
-                  disabled={revisionLocked}
-                  rows={2}
-                  maxLength={2000}
-                  value={value.note}
-                  onChange={(event) =>
-                    updateItem(item.roundItemId, { note: event.target.value })
-                  }
-                  required
-                />
-              </label>
-            </article>
-          )
-        })}
-      </div>
-      {review.canSubmitRevision && !review.existingRequest && (
-        <>
-          <label className="delivery-feedback-label">
-            {t.generalNote}
-            <Input.TextArea
-              disabled={revisionLocked}
-              rows={2}
-              maxLength={2000}
-              value={generalNote}
-              onChange={(event) => setGeneralNote(event.target.value)}
-            />
-          </label>
-          {selectedItems.length > 0 && (
-            <Button
-              onClick={() => setConfirm('revision')}
-              disabled={
-                busy || selectedItems.some((id) => !feedback[id]?.note.trim())
-              }
-            >
-              {revisionLocked ? t.retrySubmission : t.sendStructuredRequest}
-            </Button>
-          )}
-        </>
-      )}
+                {revisionLocked ? t.retrySubmission : t.sendStructuredRequest}
+              </Button>
+            )}
+          </>
+        )}
       {review.canAcceptResult && !review.existingRequest && (
         <Button
           type="primary"

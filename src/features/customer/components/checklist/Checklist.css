@@ -345,10 +345,6 @@
 .checklist-snapshot-detail .odm-cg-body {
   max-width: none;
   margin: 0;
-  padding: 14px 16px;
-  border: 0;
-  border-radius: 9px;
-  background: var(--ui-surface-2);
   color: var(--ui-text);
 }
 .checklist-snapshot-included {
@@ -459,9 +455,6 @@
   .checklist-snapshot-detail {
     padding: 0 8px 12px 42px;
   }
-  .checklist-snapshot-detail .odm-cg-body {
-    padding: 12px;
-  }
 }
 @media (prefers-reduced-motion: reduce) {
   .checklist-snapshot-item > details > summary,
@@ -544,7 +537,6 @@
 .checklist-card.is-compact .checklist-row > .checklist-guidance .odm-cg-body {
   max-width: none;
   margin-top: 10px;
-  padding: 14px 16px;
 }
 
 .checklist-card .checklist-row.is-compact.is-selected {
@@ -997,6 +989,9 @@
 .checklist-card .checklist-row.is-removed .checklist-row-price {
   display: none;
 }
+.checklist-quote:not(:empty) {
+  margin-top: 16px;
+}
 .checklist-quote-details {
   border: 1px solid var(--ui-border);
   border-radius: 10px;
@@ -1079,7 +1074,7 @@
 }
 
 .checklist-card.is-compact .checklist-row.is-compact .odm-cg > summary {
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .checklist-card.is-compact .checklist-evidence-summary {

@@ -15,9 +15,11 @@ import { localizeTimeslot } from '../../lib/viLabels'
 export function FlightPermitCard({
   mission,
   onChanged,
+  readOnly = false,
 }: {
   mission: MissionResponse
   onChanged: () => void
+  readOnly?: boolean
 }) {
   const { t } = useI18n(flightPermitCardMessages)
   const { t: fb } = useI18n(managerFeedbackMessages)
@@ -195,7 +197,7 @@ export function FlightPermitCard({
   }
 
   return (() => {
-    const canEditPermitFile = !cancelled && status !== 'APPROVED'
+    const canEditPermitFile = !readOnly && !cancelled && status !== 'APPROVED'
 
     return (
       <section
@@ -245,6 +247,7 @@ export function FlightPermitCard({
               maxLength={1000}
               rows={3}
               disabled={busy || cancelled}
+              readOnly={readOnly}
               onChange={(event) => setNote(event.target.value)}
               placeholder={t.notePlaceholder}
             />
@@ -319,7 +322,7 @@ export function FlightPermitCard({
               {error}
             </p>
           ) : null}
-          {!cancelled ? (
+          {!cancelled && !readOnly ? (
             <div className="odm-flight-permit__actions">
               {status === 'REJECTED' ? (
                 <>
@@ -397,7 +400,7 @@ export function FlightPermitCard({
               ) : null}
             </div>
           ) : null}
-          {!cancelled && action === 'reschedule' ? (
+          {!cancelled && !readOnly && action === 'reschedule' ? (
             <div className="odm-flight-permit__remediation">
               <fieldset className="odm-flight-permit__scope">
                 <legend>{t.rescheduleScope}</legend>
@@ -565,7 +568,7 @@ export function FlightPermitCard({
               </div>
             </div>
           ) : null}
-          {!cancelled && action === 'cancel' ? (
+          {!cancelled && !readOnly && action === 'cancel' ? (
             <div className="odm-flight-permit__remediation odm-flight-permit__remediation--danger">
               <strong>{t.cancellationWarning}</strong>
               <label>

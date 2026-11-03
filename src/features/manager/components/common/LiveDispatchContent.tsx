@@ -124,9 +124,7 @@ export function LiveDispatchContent({
     orderContext &&
     (current.id !== missionId ||
       current.orderId !== orderContext.orderId ||
-      !['RESOURCE_ASSIGNING', 'READY'].includes(
-        current.status,
-      ))
+      current.status !== 'PLANNING')
   )
     return (
       <section className="odm-or-card odm-or-card-body">

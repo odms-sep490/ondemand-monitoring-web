@@ -14,14 +14,12 @@ export function GpsCockpitView({
   mission,
   controlStatus,
   isOnline,
-  operationalMessage,
   lastCommand,
   telemetryBattery,
   cameraTelemetry,
   busyCommand,
   normalFlightAllowed,
   preflightReady,
-  terminationAllowed,
   referenceBusy,
   handleCommand,
   handleReviewMedia,
@@ -37,14 +35,12 @@ export function GpsCockpitView({
   mission: Mission
   controlStatus: ControlStatus | null
   isOnline: boolean
-  operationalMessage: string | undefined
   lastCommand: string
   telemetryBattery: number | null
   cameraTelemetry: DroneCameraTelemetry | null
   busyCommand: FlightCommand | null
   normalFlightAllowed: boolean
   preflightReady: boolean
-  terminationAllowed: boolean
   referenceBusy: boolean
   handleCommand: (command: FlightCommand) => void
   handleReviewMedia: () => void
@@ -89,7 +85,7 @@ export function GpsCockpitView({
       waitingGpsLabel={
         language === 'en' ? 'Waiting for PX4 GPS' : 'Đang chờ GPS từ PX4'
       }
-      statusMessage={operationalMessage ?? lastCommand}
+      statusMessage={lastCommand}
       telemetry={{
         latitude: droneGps?.latitude ?? null,
         longitude: droneGps?.longitude ?? null,
@@ -115,7 +111,6 @@ export function GpsCockpitView({
       }
       busy={busyCommand !== null}
       canFly={normalFlightAllowed && preflightReady}
-      canTerminate={terminationAllowed}
       canFlyToTarget={gpsTargetReady}
       referenceBusy={referenceBusy}
       onCommand={handleCommand}

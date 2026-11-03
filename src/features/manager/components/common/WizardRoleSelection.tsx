@@ -4,7 +4,7 @@ import { planningError } from '../../lib/planningErrors'
 import { assignmentReadiness } from '../../lib/assignmentReadiness'
 import { planningSchedule } from './planningSchedule'
 import type { UseApiQueryState } from '../../../../shared/hooks/useApiQuery'
-import type { ExecutionPlan, SafeStop } from '../../types/planning'
+import type { ExecutionPlan } from '../../types/planning'
 import type { MissionResponse } from '../../types/missions'
 import type { OrderDetail } from '../../types/orders'
 import type { Dispatch, SetStateAction } from 'react'
@@ -24,14 +24,12 @@ export function WizardRoleSelection({
     plan: ExecutionPlan
     missions: MissionResponse[]
     order: OrderDetail
-    stops: (SafeStop | null)[]
   }>
   data:
     | {
         plan: ExecutionPlan
         missions: MissionResponse[]
         order: OrderDetail
-        stops: (SafeStop | null)[]
       }
     | undefined
   eligible: (id: string) => boolean

@@ -21,6 +21,14 @@ const validRequest: CreateMissionRequest = {
 }
 
 describe('Staff mission response mapping', () => {
+  it('preserves rework provenance for mission list labels and setup eligibility', () => {
+    const item = toMissionCalendarItem({
+      id: 'rework', orderId: 'order', missionCode: 'MS-R', status: 'PLANNING',
+      purpose: 'REWORK', resultRevisionCaseId: 'case-1',
+    } as MissionResponse)
+    expect(item).toMatchObject({ purpose: 'REWORK', resultRevisionCaseId: 'case-1' })
+  })
+
   it('keeps unavailable schedule and assignment details unknown', () => {
     const item = toMissionCalendarItem({
       id: 'mission-1',
@@ -95,10 +103,10 @@ describe('missionsApi (mock mode)', () => {
     ).rejects.toMatchObject({ status: 404 })
   })
 
-  it('assignDrone assigns and moves the mission to RESOURCE_ASSIGNING', async () => {
+  it('assignDrone assigns the device while the mission stays in PLANNING', async () => {
     setHttpTransport(mockFetch)
     const mission = await missionsApi.assignDrone('msn-2609-0153-1', 'DRN-01')
-    expect(mission.status).toBe('RESOURCE_ASSIGNING')
+    expect(mission.status).toBe('PLANNING')
     expect(mission.droneId).toBe('drn-01')
   })
 
@@ -120,12 +128,12 @@ describe('missionsApi (mock mode)', () => {
       'msn-2609-0153-1',
       'DRN-01',
     )
-    expect(afterDrone.status).toBe('RESOURCE_ASSIGNING')
+    expect(afterDrone.status).toBe('PLANNING')
     const afterOperator = await missionsApi.assignOperator(
       'msn-2609-0153-1',
       'HT',
     )
-    expect(afterOperator.status).toBe('WAITING_OPERATOR_ACCEPTANCE')
+    expect(afterOperator.status).toBe('PLANNING')
   })
 })
 
@@ -243,6 +251,6 @@ describe('mission staff assignment contract', () => {
       return Response.json({ success: true, data: { id: 'mission-1' } })
     })
     await missionsApi.assignOperator('mission-1', 'staff-1')
-    expect(submitted).toEqual({ staffId: 'staff-1', assignedRole: 'PILOT' })
+    expect(submitted).toEqual({ staffId: 'staff-1', assignedRoles: ['PILOT'] })
   })
 })

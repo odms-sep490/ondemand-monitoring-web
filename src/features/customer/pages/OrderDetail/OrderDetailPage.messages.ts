@@ -9,6 +9,7 @@ export const orderDetailPageMessages = defineMessages({
     tabResults: 'Kết quả bàn giao',
     tabMonitoring: 'Nội dung giám sát',
     tabFinance: 'Báo giá & thanh toán',
+    newQuoteApproval: 'Báo giá mới đã được duyệt',
     tabSupport: 'Hỗ trợ',
     nextStepTitle: 'Trạng thái và bước tiếp theo',
     nextStepDescription:
@@ -34,7 +35,6 @@ export const orderDetailPageMessages = defineMessages({
     missionSummary: (count: number, statuses: string) =>
       `${count} nhiệm vụ · ${statuses}`,
     reviewResults: 'Xem kết quả cần duyệt',
-    payFinal: 'Thanh toán',
     viewFinalResults: 'Xem kết quả cuối cùng',
     viewDeliveryProgress: 'Xem tiến trình bàn giao',
     pageTabs: 'Nội dung chi tiết đơn hàng',
@@ -47,6 +47,7 @@ export const orderDetailPageMessages = defineMessages({
     tabResults: 'Delivered results',
     tabMonitoring: 'Monitoring details',
     tabFinance: 'Quote & payment',
+    newQuoteApproval: 'A new quote has been approved',
     tabSupport: 'Support & FAQ',
     nextStepTitle: 'Status and next step',
     nextStepDescription:
@@ -71,7 +72,6 @@ export const orderDetailPageMessages = defineMessages({
     missionSummary: (count: number, statuses: string) =>
       `${count} missions · ${statuses}`,
     reviewResults: 'Review results',
-    payFinal: 'Go to payment',
     viewFinalResults: 'View final results',
     viewDeliveryProgress: 'View delivery progress',
     pageTabs: 'Order detail sections',

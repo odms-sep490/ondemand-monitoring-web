@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import './FlightCockpit.css'
 import { type CockpitTelemetry, type CockpitCommand } from './cockpitTypes'
 import { copy } from './cockpitCopy'
@@ -23,7 +23,6 @@ type Props = {
   overlay?: ReactNode
   busy: boolean
   canFly: boolean
-  canTerminate?: boolean
   canFlyToTarget: boolean
   /** @deprecated reference-photo button was removed; the Photo control captures instead */
   referenceBusy?: boolean
@@ -53,7 +52,6 @@ export function FlightCockpit(props: Props) {
     busy,
     canFly,
     canFlyToTarget,
-    canTerminate = false,
     onCommand,
     onReview,
     onStartFlight,
@@ -64,15 +62,9 @@ export function FlightCockpit(props: Props) {
   } = props
   const c = copy[language]
   const clock = useFlightClock(tm.inAir)
-  const [confirmStop, setConfirmStop] = useState(false)
   const [layout, setLayout] = useCockpitLayout()
   const [paramsOpen, setParamsOpen] = useState(true)
   const [controlOpen, setControlOpen] = useState(true)
-  useEffect(() => {
-    if (!confirmStop) return
-    const timer = window.setTimeout(() => setConfirmStop(false), 3000)
-    return () => window.clearTimeout(timer)
-  }, [confirmStop])
 
   const battery = tm.batteryPercent
   const batteryTone =
@@ -121,7 +113,7 @@ export function FlightCockpit(props: Props) {
       icon: 'pause',
       label: c.pause,
       sub: c.pauseSub,
-      enabled: canFly || canTerminate,
+      enabled: canFly,
     },
     {
       cmd: 'photo',
@@ -135,7 +127,7 @@ export function FlightCockpit(props: Props) {
       icon: 'rtl',
       label: c.rtl,
       sub: c.rtlSub,
-      enabled: canFly || canTerminate,
+      enabled: canFly,
     },
     {
       cmd: 'land',
@@ -143,7 +135,7 @@ export function FlightCockpit(props: Props) {
       label: c.land,
       sub: c.landSub,
       tone: 'success',
-      enabled: canFly || canTerminate,
+      enabled: canFly,
     },
   ]
 
@@ -210,10 +202,7 @@ export function FlightCockpit(props: Props) {
             onFinishFlight={onFinishFlight}
             finishingFlight={finishingFlight}
             canFly={canFly}
-            canTerminate={canTerminate}
             language={language}
-            confirmStop={confirmStop}
-            setConfirmStop={setConfirmStop}
           />
         </aside>
       </main>

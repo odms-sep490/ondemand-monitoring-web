@@ -4,7 +4,8 @@ export const postflightModalMessages = defineMessages({
   vi: {
     defaultNotes:
       'Drone hoàn thành chuyến bay an toàn, không tổn hại cấu trúc.',
-    title: 'Kiểm tra Sau Chuyến bay (Post-flight)',
+    eyebrow: 'KIỂM TRA SAU BAY',
+    title: 'Kiểm tra sau bay',
     deviceStatusLabel: 'Trạng thái Thiết bị sau Chuyến bay',
     available: '✅ AVAILABLE (Sẵn sàng cho nhiệm vụ tiếp theo)',
     idleCharging: '🔋 IDLE_CHARGING (Đưa vào trạm sạc pin)',
@@ -18,6 +19,7 @@ export const postflightModalMessages = defineMessages({
   en: {
     defaultNotes:
       'The drone completed the flight safely, no structural damage.',
+    eyebrow: 'POST-FLIGHT INSPECTION',
     title: 'Post-flight Inspection',
     deviceStatusLabel: 'Device Status After Flight',
     available: '✅ AVAILABLE (Ready for next mission)',

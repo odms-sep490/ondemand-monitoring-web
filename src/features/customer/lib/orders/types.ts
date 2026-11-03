@@ -18,7 +18,7 @@ export type OrderRow = {
   radiusM: number | null
   createdAt: string | null
   /** Customer-facing finance state, loaded separately for approved orders. */
-  depositState?: 'ACTION_REQUIRED' | 'PAID'
+  depositState?: 'ACTION_REQUIRED' | 'PAID' | 'PAID_IN_FULL'
 }
 
 export type DeliverableView = {
@@ -44,6 +44,7 @@ export type OrderStepKey =
   | 'quote'
   | 'deposit'
   | 'planning'
+  | 'finalPayment'
   | 'inProgress'
   | 'completed'
   | 'rejected'
@@ -124,6 +125,7 @@ export type OrderDetailView = OrderRow & {
 export type OrderStats = {
   total: number
   pending: number
+  underReview?: number
   needsInfo: number
   approved: number
   inProgress: number

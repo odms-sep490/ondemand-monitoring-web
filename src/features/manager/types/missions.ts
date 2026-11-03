@@ -4,7 +4,6 @@
 // `mission_operator_assignment` tables [BRIEF §A6] where they overlap.
 import type { DroneStatus, MissionStatus } from '../../../shared/types/domain'
 import type { WaypointAction } from '../lib/waypoints'
-import type { MissionStopMetadata } from '../../mission/lib/missionOperationalState'
 
 // Re-exported for consumers of BE-aligned mission types that also need
 // DroneStatus (e.g. MissionResponse.droneCode pairs with a drone's status).
@@ -60,13 +59,14 @@ export type MissionMediaRequirement =
  * itself has no matching field — needed by MNG-04/05 but not present on
  * the backend DTO we read.
  */
-export type Mission = MissionStopMetadata & {
+export type Mission = {
+  purpose?: 'ORIGINAL' | 'REWORK'
+  resultRevisionCaseId?: string | null
   id: string
   orderId: string
   orderCode: string | null
   missionCode: string
   status: MissionStatus
-  resourcePrepareStatus?: MissionResourcePrepareStatus
   flightPermitStatus?: FlightPermitStatus | null
   flightPermitNote?: string | null
   flightPermitFileName?: string | null
@@ -116,6 +116,7 @@ export type MissionCalendarItem = Mission & {
   droneName: string | null
   operatorName: string | null
   staffAssignments?: MissionStaffAssignmentResponse[]
+  deviceAssignments?: MissionDeviceAssignmentResponse[]
 }
 
 export type MissionRescheduleReason =
@@ -206,7 +207,9 @@ export type PlanWaypointResponse = {
     | 'RETURN'
 }
 
-export type MissionResponse = MissionStopMetadata & {
+export type MissionResponse = {
+  purpose?: 'ORIGINAL' | 'REWORK'
+  resultRevisionCaseId?: string | null
   replacesMissionId?: string | null
   id: string
   orderId: string
@@ -226,7 +229,6 @@ export type MissionResponse = MissionStopMetadata & {
   customerName: string
   missionCode: string
   status: MissionStatus
-  resourcePrepareStatus?: MissionResourcePrepareStatus
   flightPermitStatus?: FlightPermitStatus | null
   flightPermitNote?: string | null
   flightPermitFileName?: string | null
@@ -421,7 +423,6 @@ export type PreflightCheckResponse = {
   storageOk: boolean
   weatherOk: boolean
   weatherNotes: string | null
-  flightToken: FlightTokenResponse | null
   checkedAt: string
 }
 

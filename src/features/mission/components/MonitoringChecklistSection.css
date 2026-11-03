@@ -83,7 +83,7 @@
   padding: 4px 12px;
   border-radius: 999px;
   background: var(--bg2, #f1f5f9);
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.5;
 }
 .monitoring-notes p.is-warn {
@@ -298,7 +298,7 @@
 }
 .mc-count {
   margin-left: auto;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: #475569;
   font-variant-numeric: tabular-nums;
@@ -309,7 +309,7 @@
 }
 .mc-count small {
   color: #15803d;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
 }
 .mc-progress {
@@ -485,8 +485,8 @@
 }
 .mc-row {
   align-items: flex-start;
-  min-height: 52px;
-  padding: 10px 14px;
+  min-height: 58px;
+  padding: 11px 14px;
 }
 .mc-row .mc-mark,
 .mc-row .mc-chip,
@@ -506,13 +506,18 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
-  line-height: 1.35;
+  line-height: 1.4;
 }
 .mc-sub {
-  font-size: 12px;
+  font-size: 14px;
+  line-height: 1.45;
   color: #64748b;
+}
+.mc-chip {
+  padding: 4px 10px;
+  font-size: 13px;
 }
 .mc-chip.is-pending {
   background: #fff7ed;
@@ -532,7 +537,8 @@
 }
 .mc-detail .monitoring-item p {
   margin: 0;
-  font-size: 12.5px;
+  font-size: 14px;
+  line-height: 1.5;
 }
 .mc-detail .monitoring-item form {
   align-self: stretch;
@@ -543,7 +549,7 @@
   border: 0;
   background: none;
   font: inherit;
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 500;
   color: #2563eb;
   cursor: pointer;
@@ -552,8 +558,8 @@
   text-decoration: underline;
 }
 .mc-updated {
-  font-size: 11.5px;
-  color: #94a3b8;
+  font-size: 13px;
+  color: #64748b;
 }
 @media (max-width: 380px) {
   .mc-detail {
@@ -591,30 +597,27 @@
   grid-column: 1 / -1;
 }
 .mc-fields dt {
-  font-size: 11.5px;
+  font-size: 13px;
   color: #64748b;
 }
 .mc-fields dd {
   margin: 1px 0 0;
-  font-size: 13px;
+  font-size: 14px;
+  line-height: 1.45;
   font-weight: 600;
   color: #0f172a;
   overflow-wrap: anywhere;
 }
-.mc-fields dd.is-empty {
-  font-weight: 400;
-  color: #94a3b8;
-}
 .mc-edit {
   align-self: flex-start;
-  min-height: 32px;
-  padding: 4px 14px;
+  min-height: 44px;
+  padding: 6px 16px;
   border: 1px solid #cbd5e1;
   border-radius: 8px;
   background: #fff;
   color: #2563eb;
   font: inherit;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
 }
@@ -639,18 +642,18 @@
 .mc-form label {
   gap: 6px;
   margin-bottom: 12px;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: #0f172a;
 }
 .mc-form select,
 .mc-form textarea {
   padding: 0 12px;
-  height: 40px;
+  height: 44px;
   border: 1px solid #dce3ec;
   border-radius: 8px;
   background: #fff;
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 400;
 }
 .mc-form textarea {
@@ -662,15 +665,15 @@
 }
 .mc-form .mc-help {
   margin: -6px 0 12px;
-  font-size: 12px;
+  font-size: 13px;
   color: #64748b;
   line-height: 1.4;
 }
 .mc-form .mc-counter {
   display: block;
   margin: -8px 0 12px;
-  font-size: 11.5px;
-  color: #94a3b8;
+  font-size: 13px;
+  color: #64748b;
   text-align: right;
 }
 .mc-form label .mc-counter {
@@ -693,9 +696,17 @@
   background: none;
   color: #64748b;
   font: inherit;
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mc-item,
+  .mc-caret,
+  .mc-progress > span {
+    transition: none;
+  }
 }
 .mc-cancel:hover {
   color: #0f172a;
@@ -740,5 +751,5 @@
 }
 .mc-preview-text small {
   color: #475569;
-  font-size: 12.5px;
+  font-size: 13px;
 }

@@ -6,24 +6,11 @@ export function TelemetryMetric({
   value: string
 }) {
   return (
-    <div style={{ minWidth: 0 }}>
-      <div
-        style={{ fontSize: 11, color: 'var(--tx3, #64748b)', fontWeight: 800 }}
-      >
+    <div className="postflight-metric">
+      <div className="postflight-metric-label">
         {label}
       </div>
-      <div
-        style={{
-          marginTop: 3,
-          fontSize: 17,
-          color: 'var(--tx, #0f172a)',
-          fontWeight: 900,
-          whiteSpace: 'nowrap',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-        }}
-        title={value}
-      >
+      <div className="postflight-metric-value" title={value}>
         {value}
       </div>
     </div>

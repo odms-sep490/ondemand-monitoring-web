@@ -75,6 +75,8 @@ export function OrdersTable({ rows }: { rows: OrderRow[] }) {
           <OrderStatusBadge status={row.status} />
           {row.depositState === 'ACTION_REQUIRED' ? (
             <span className="cus-deposit">{t.paymentRequired}</span>
+          ) : row.depositState === 'PAID_IN_FULL' ? (
+            <span className="cus-deposit-paid">{t.invoicePaidInFull}</span>
           ) : row.depositState === 'PAID' ? (
             <span className="cus-deposit-paid">{t.depositPaid}</span>
           ) : null}

@@ -10,15 +10,12 @@ export function UploadMediaBar({
   uploading,
   validating,
   manual,
-  backRoute,
   refreshWorkspace,
   canManageMedia,
   missionId,
   isBusy,
   setUploadInfo,
   approvable,
-  refresh,
-  referenceCount,
   setBatchUploading,
   approve,
 }: {
@@ -28,17 +25,12 @@ export function UploadMediaBar({
   uploading: number
   validating: number
   manual: number
-  backRoute: string
   refreshWorkspace: (clearError?: boolean) => void
   canManageMedia: boolean
   missionId: string | null
   isBusy: boolean
   setUploadInfo: Dispatch<SetStateAction<string | null>>
   approvable: LocalMedia[]
-  refresh: (
-    options?: { background?: boolean | undefined } | undefined,
-  ) => Promise<void>
-  referenceCount: number
   setBatchUploading: Dispatch<SetStateAction<boolean>>
   approve: (item: LocalMedia, manual?: boolean) => Promise<boolean>
 }) {
@@ -52,11 +44,6 @@ export function UploadMediaBar({
           </strong>
           <span>{t.mediaLoaded}</span>
           <span className="upload-media-chips">
-            {loadedMedia > 0 && (
-              <span className="upload-media-status is-success">
-                {t.uploadedChip(loadedMedia)}
-              </span>
-            )}
             {pendingMedia > 0 && (
               <span className="upload-media-status is-warning">
                 {t.pendingChip(pendingMedia)}
@@ -79,30 +66,28 @@ export function UploadMediaBar({
             )}
           </span>
         </div>
-        <div
-          className="upload-media-progress"
-          role="progressbar"
-          aria-valuemin={0}
-          aria-valuemax={Math.max(totalMedia, 1)}
-          aria-valuenow={Math.min(loadedMedia, Math.max(totalMedia, 1))}
-          aria-valuetext={t.mediaProgress(loadedMedia, totalMedia)}
-          aria-label={t.mediaLoaded}
-        >
-          <span
-            style={{
-              width: totalMedia
-                ? `${Math.round((loadedMedia / totalMedia) * 100)}%`
-                : '0%',
-            }}
-          />
-        </div>
+        {loadedMedia < totalMedia && (
+          <div
+            className="upload-media-progress"
+            role="progressbar"
+            aria-valuemin={0}
+            aria-valuemax={Math.max(totalMedia, 1)}
+            aria-valuenow={Math.min(loadedMedia, Math.max(totalMedia, 1))}
+            aria-valuetext={t.mediaProgress(loadedMedia, totalMedia)}
+            aria-label={t.mediaLoaded}
+          >
+            <span
+              style={{
+                width: totalMedia
+                  ? `${Math.round((loadedMedia / totalMedia) * 100)}%`
+                  : '0%',
+              }}
+            />
+          </div>
+        )}
         <small className="upload-media-bar-note">{t.summaryNote}</small>
       </div>
       <div className="upload-media-bar-actions">
-        <a className="odm-btn upload-media-btn-ghost" href={backRoute}>
-          <span aria-hidden="true">←</span>
-          {t.backToCockpit}
-        </a>
         <button
           type="button"
           className="odm-btn upload-media-btn-ghost"
@@ -113,7 +98,7 @@ export function UploadMediaBar({
           <span aria-hidden="true">↻</span>
           {t.refresh}
         </button>
-        {canManageMedia ? (
+        {canManageMedia && approvable.length > 0 ? (
           <button
             type="button"
             className="odm-btn upload-media-btn-ghost"
@@ -121,11 +106,6 @@ export function UploadMediaBar({
             onClick={() => {
               void (async () => {
                 setUploadInfo(null)
-                if (approvable.length === 0) {
-                  await refresh()
-                  setUploadInfo(t.noPendingUploads(referenceCount))
-                  return
-                }
                 setBatchUploading(true)
                 try {
                   for (const item of approvable) {
@@ -140,11 +120,11 @@ export function UploadMediaBar({
           >
             {t.uploadAll}
           </button>
-        ) : (
+        ) : !canManageMedia ? (
           <span role="status" className="upload-media-viewonly">
             {t.viewOnly}
           </span>
-        )}
+        ) : null}
       </div>
     </div>
   )

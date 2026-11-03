@@ -218,6 +218,7 @@ export function OrderMissionsOverview({
         <Button
           type="button"
           variant="primary"
+          disabled={loading}
           onClick={onDone}
         >
           {doneLabel}

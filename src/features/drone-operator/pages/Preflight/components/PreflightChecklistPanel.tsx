@@ -1,17 +1,12 @@
 import { useState, useRef, useEffect } from 'react'
 import {
   readStoredPreflightState,
-  readStoredWeatherState,
   readStoredPreflightSession,
 } from '../preflightStorage'
 import type {
   RuntimePreflightStatus,
-  WeatherPreflightStatus,
-  WeatherObservationForm,
   PersistedPreflightStatus,
 } from '../preflightTypes'
-import { weatherFormFromStatus } from '../preflightHelpers'
-import { WeatherCheckPanel } from './WeatherCheckPanel'
 import { usePreflightBackendSync } from '../usePreflightBackendSync'
 import { usePreflightActions } from '../usePreflightActions'
 import { usePreflightRuntimeEffects } from '../usePreflightRuntimeEffects'
@@ -23,6 +18,7 @@ import { PreflightSummary } from './PreflightSummary'
 import { PreflightGroupList } from './PreflightGroupList'
 import { controlBaseUrl } from '../preflightConstants'
 import {
+  fetchPersistedPreflight,
   runtimeStatusFromPersisted,
   recheckPersistedPreflightItem,
   updatePersistedPreflightItem,
@@ -34,8 +30,6 @@ export function PreflightChecklistPanel({
   deviceId,
   deviceLabel,
   missionStatus,
-  latitude,
-  longitude,
   onReady,
   embedded = false,
 }: {
@@ -44,25 +38,18 @@ export function PreflightChecklistPanel({
   deviceId: string
   deviceLabel?: string
   missionStatus?: string | null
-  latitude?: number | null
-  longitude?: number | null
   onReady?: () => void
   embedded?: boolean
 }) {
-  const { RUNTIME_GROUPS, ALL_ITEMS, storageKey, weatherStorageKey } =
-    usePreflightGroups({ missionId, deviceId })
+  const { RUNTIME_GROUPS, ALL_ITEMS, storageKey } = usePreflightGroups({
+    missionId,
+    deviceId,
+  })
   const [checkId, setCheckId] = useState<string | null>(null)
   const [runtimeStatus, setRuntimeStatus] =
     useState<RuntimePreflightStatus | null>(() =>
       readStoredPreflightState(storageKey),
     )
-  const [weatherStatus, setWeatherStatus] =
-    useState<WeatherPreflightStatus | null>(() =>
-      readStoredWeatherState(weatherStorageKey),
-    )
-  const [weatherForm, setWeatherForm] = useState<WeatherObservationForm>(() =>
-    weatherFormFromStatus(readStoredWeatherState(weatherStorageKey)),
-  )
   const [error, setError] = useState<string | null>(null)
   const [backendPreflightMessage, setBackendPreflightMessage] = useState<
     string | null
@@ -71,8 +58,6 @@ export function PreflightChecklistPanel({
     useState(false)
   const backendPreflightRegisteredRef = useRef(false)
   const [triggering, setTriggering] = useState(false)
-  const [weatherSuggesting, setWeatherSuggesting] = useState(false)
-  const [weatherError, setWeatherError] = useState<string | null>(null)
   const validatedStoredCheckRef = useRef(false)
   const controllerOfflineMissesRef = useRef(0)
   const [controllerOnline, setControllerOnline] = useState(false)
@@ -84,7 +69,6 @@ export function PreflightChecklistPanel({
   >(null)
   const [persistedPreflightStatus, setPersistedPreflightStatus] =
     useState<PersistedPreflightStatus | null>(null)
-  const [persistedWeatherPassed, setPersistedWeatherPassed] = useState(false)
   const [updatingItem, setUpdatingItem] = useState<string | null>(null)
   const syncedPersistedItemsRef = useRef<Record<string, string>>({})
   const syncingPersistedItemsRef = useRef(false)
@@ -96,12 +80,36 @@ export function PreflightChecklistPanel({
     syncingPersistedItemsRef.current = false
     setPersistedPreflightId(null)
     setPersistedPreflightStatus(null)
-    setPersistedWeatherPassed(false)
-    const storedWeather = readStoredWeatherState(weatherStorageKey)
-    setWeatherStatus(storedWeather)
-    setWeatherForm(weatherFormFromStatus(storedWeather))
     setRuntimeSessionId(readStoredPreflightSession(storageKey))
-  }, [missionId, deviceId, storageKey, weatherStorageKey])
+  }, [missionId, deviceId, storageKey])
+
+  useEffect(() => {
+    if (!persistedPreflightId) return
+    const activePersistedPreflightId = persistedPreflightId
+    let alive = true
+    const controller = new AbortController()
+
+    async function refreshPersistedCheck() {
+      if (updatingItem || syncingPersistedItemsRef.current) return
+      const persisted = await fetchPersistedPreflight(
+        activePersistedPreflightId,
+        controller.signal,
+      ).catch(() => null)
+      if (!alive || !persisted) return
+      const nextRuntimeStatus = runtimeStatusFromPersisted(persisted)
+      setPersistedPreflightStatus(persisted.status)
+      setRuntimeStatus(nextRuntimeStatus)
+    }
+
+    const timer = window.setInterval(() => {
+      void refreshPersistedCheck()
+    }, 5000)
+    return () => {
+      alive = false
+      controller.abort()
+      window.clearInterval(timer)
+    }
+  }, [persistedPreflightId, updatingItem])
 
   const {
     itemStates,
@@ -117,8 +125,6 @@ export function PreflightChecklistPanel({
   } = usePreflightProgress({
     runtimeStatus,
     ALL_ITEMS,
-    weatherStatus,
-    persistedWeatherPassed,
     persistedPreflightStatus,
     checkId,
     triggering,
@@ -135,28 +141,19 @@ export function PreflightChecklistPanel({
     setPersistedPreflightStatus,
   })
 
-  const { handleTriggerCheck, handleWeatherSuggestion } = usePreflightActions({
+  const { handleTriggerCheck } = usePreflightActions({
     setTriggering,
     setError,
     setCheckId,
     setPersistedPreflightId,
     setPersistedPreflightStatus,
-    setPersistedWeatherPassed,
     syncedPersistedItemsRef,
     syncingPersistedItemsRef,
     backendPreflightRegisteredRef,
     missionId,
-    deviceId,
     storageKey,
     setRuntimeStatus,
     ALL_ITEMS,
-    setWeatherSuggesting,
-    setWeatherError,
-    latitude,
-    longitude,
-    setWeatherForm,
-    setWeatherStatus,
-    weatherStorageKey,
   })
 
   async function handleRecheckItem(checkType: string) {
@@ -225,13 +222,6 @@ export function PreflightChecklistPanel({
       )
       setPersistedPreflightStatus(persisted.status)
       setRuntimeStatus(runtimeStatusFromPersisted(persisted))
-      setPersistedWeatherPassed(
-        persisted.items.some(
-          (item) =>
-            item.checkType === 'weather_conditions' &&
-            item.status === 'PASSED',
-        ),
-      )
     } catch (cause) {
       setError(
         cause instanceof Error
@@ -254,11 +244,9 @@ export function PreflightChecklistPanel({
     setRuntimeStatus,
     setPersistedPreflightId,
     setPersistedPreflightStatus,
-    setPersistedWeatherPassed,
     syncedPersistedItemsRef,
     syncingPersistedItemsRef,
     setBackendPreflightMessage,
-    setWeatherError,
     backendPreflightRegisteredRef,
     validatedStoredCheckRef,
     storageKey,
@@ -272,13 +260,10 @@ export function PreflightChecklistPanel({
   })
 
   usePreflightPersistenceEffects({
-    weatherStatus,
-    persistedWeatherPassed,
     runtimeItemsReady,
     persistedPreflightId,
     persistedPreflightStatus,
     setPersistedPreflightStatus,
-    setPersistedWeatherPassed,
     runtimeStatus,
     syncedPersistedItemsRef,
     syncRuntimeStatusToBackend,
@@ -339,17 +324,6 @@ export function PreflightChecklistPanel({
             backendPreflightMessage={backendPreflightMessage}
             backendPreflightRegistering={backendPreflightRegistering}
           />
-          <WeatherCheckPanel
-            status={weatherStatus}
-            form={weatherForm}
-            suggesting={weatherSuggesting}
-            error={weatherError}
-            latitude={latitude}
-            longitude={longitude}
-            onFormChange={setWeatherForm}
-            onSuggest={handleWeatherSuggestion}
-          />
-
           <PreflightGroupList
             RUNTIME_GROUPS={RUNTIME_GROUPS}
             itemStates={itemStates}

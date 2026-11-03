@@ -52,6 +52,25 @@ afterEach(() => {
 })
 
 describe('CustomerResultReview', () => {
+  it('opens evidence for inspection without selecting it as complaint evidence', async () => {
+    setLanguage('en')
+    vi.spyOn(deliveryApi, 'getResultReview').mockResolvedValue(result)
+    render(
+      <CustomerResultReview
+        orderId="order-1"
+        onComplete={() => undefined}
+        onSubmitted={() => undefined}
+      />,
+    )
+    fireEvent.click(await screen.findByRole('tab', { name: /Roof inspection/ }))
+    const evidence = await screen.findByRole('checkbox', { name: /roof.jpg/ })
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Enlarge image roof.jpg' }),
+    )
+    expect(await screen.findByRole('dialog')).toBeInTheDocument()
+    expect(evidence).not.toBeChecked()
+  })
+
   it('keeps the same round-versioned payload and idempotency key after an uncertain retry', async () => {
     setLanguage('en')
     vi.spyOn(deliveryApi, 'getResultReview').mockResolvedValue(result)
@@ -74,6 +93,7 @@ describe('CustomerResultReview', () => {
       />,
     )
 
+    fireEvent.click(await screen.findByRole('tab', { name: /Roof inspection/ }))
     fireEvent.click(
       await screen.findByRole('checkbox', {
         name: 'Request a revision for this checklist item',
@@ -116,5 +136,50 @@ describe('CustomerResultReview', () => {
       ],
     })
     expect(second).toEqual(first)
+  })
+
+  it('starts compact and preserves feedback when switching between checklist panels', async () => {
+    setLanguage('en')
+    vi.spyOn(deliveryApi, 'getResultReview').mockResolvedValue({
+      ...result,
+      totalItems: 2,
+      items: [
+        ...result.items,
+        {
+          ...result.items[0],
+          roundItemId: 'round-item-2',
+          title: 'Facade inspection',
+          evidence: [],
+        },
+      ],
+    })
+    render(
+      <CustomerResultReview
+        orderId="order-1"
+        onComplete={() => undefined}
+        onSubmitted={() => undefined}
+      />,
+    )
+    const roof = await screen.findByRole('tab', { name: /Roof inspection/ })
+    expect(roof).toHaveAttribute('aria-expanded', 'false')
+    expect(
+      screen.queryByRole('textbox', { name: /Note for this checklist/ }),
+    ).not.toBeInTheDocument()
+    fireEvent.click(roof)
+    fireEvent.click(
+      await screen.findByRole('checkbox', {
+        name: 'Request a revision for this checklist item',
+      }),
+    )
+    fireEvent.change(
+      screen.getByLabelText('Note for this checklist item (required)'),
+      { target: { value: 'Please capture again.' } },
+    )
+    fireEvent.click(screen.getByRole('tab', { name: /Facade inspection/ }))
+    expect(roof).toHaveAttribute('aria-expanded', 'false')
+    fireEvent.click(roof)
+    expect(
+      screen.getByLabelText('Note for this checklist item (required)'),
+    ).toHaveValue('Please capture again.')
   })
 })

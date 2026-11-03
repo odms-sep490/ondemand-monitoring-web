@@ -36,6 +36,12 @@ describe('parseManagerRoute', () => {
     })
   })
 
+  it('opens the shared mission creation page with a rework case', () => {
+    const route: ManagerRoute = { screen: 'missionCreate', orderId: 'ORD-1', reworkCaseId: 'CASE-1' }
+    expect(managerHref(route)).toBe('#portal/manager/orders/ORD-1/rework/CASE-1')
+    expect(parseManagerRoute(managerHref(route))).toEqual(route)
+  })
+
   it('parses the dispatch route (MNG-05)', () => {
     expect(parseManagerRoute('#portal/manager/missions/MSN-1/detail')).toEqual({
       screen: 'missionDetail',
@@ -80,6 +86,13 @@ describe('parseManagerRoute', () => {
   it('parses the maintenance route (MNG-10)', () => {
     expect(parseManagerRoute('#portal/manager/maintenance')).toEqual({
       screen: 'maintenance',
+    })
+  })
+
+  it('parses a manager support ticket deep link', () => {
+    expect(parseManagerRoute('#portal/manager/support/tickets/TKT-1')).toEqual({
+      screen: 'support',
+      ticketId: 'TKT-1',
     })
   })
 
@@ -144,6 +157,11 @@ describe('managerHref', () => {
     [{ screen: 'drones' }, '#portal/manager/drones'],
     [{ screen: 'drones', droneId: 'DRN-1' }, '#portal/manager/drones/DRN-1'],
     [{ screen: 'maintenance' }, '#portal/manager/maintenance'],
+    [{ screen: 'support' }, '#portal/manager/support'],
+    [
+      { screen: 'support', ticketId: 'TKT-1' },
+      '#portal/manager/support/tickets/TKT-1',
+    ],
     [{ screen: 'notFound' }, '#portal/manager'],
   ]
 

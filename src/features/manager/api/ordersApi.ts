@@ -87,7 +87,7 @@ function toOrderDetail(order: OrderCreateResponse): OrderDetail {
   return {
     executionPlanRevision: order.executionPlanRevision,
     id: order.id,
-    code: order.id,
+    code: order.orderCode || order.id,
     status: order.orderStatus,
     customer: {
       fullName: order.customerName || order.customerId,
@@ -218,6 +218,13 @@ export const ordersApi = {
     }))
   },
 
+  startReview(id: string): Promise<OrderCreateResponse> {
+    return apiRequest<OrderCreateResponse>(
+      `/api/orders/${encodeURIComponent(id)}/start-review`,
+      { method: 'POST' },
+    )
+  },
+
   /**
    * `GET /api/orders/{id}/resource-preview` — PROPOSED, no source endpoint.
    * `null` for orders without design-sourced preview content.
@@ -290,12 +297,14 @@ export const ordersApi = {
   getOrderForMission(
     id: string,
     signal?: AbortSignal,
+    purpose: 'ORIGINAL' | 'REWORK' = 'ORIGINAL',
   ): Promise<OrderMissionBrief> {
     return this.getOrder(id, signal)
       .then((order) => {
-        if (order.status !== 'APPROVED' && order.status !== 'IN_PROGRESS') {
+        if (purpose === 'REWORK' ? order.status !== 'COMPLETED' : order.status !== 'APPROVED' && order.status !== 'IN_PROGRESS') {
           throw new ApiError('Đơn không còn ở trạng thái đã duyệt.', {
             status: 409,
+            code: 'MISSION_ORDER_STATUS_INVALID',
             method: 'GET',
             path: `/api/orders/${id}`,
           })
@@ -303,7 +312,7 @@ export const ordersApi = {
         return toOrderMissionBrief(order)
       })
       .catch((error) => {
-        if (error instanceof ApiError && error.status === 409) {
+        if (purpose !== 'REWORK' && error instanceof ApiError && error.status === 409 && error.code !== 'MISSION_ORDER_STATUS_INVALID') {
           return apiRequest<OrderMissionBrief>(
             `/api/orders/${id}/mission-brief`,
             {

@@ -729,7 +729,7 @@
 .odm-plan-page.is-embedded
   > .odm-or-grid
   > .odm-or-col:first-child
-  > section:first-child {
+  > .odm-plan-window {
   grid-column: 1 / -1;
   order: 0;
   background: var(--blue-bg, #eff6ff);
@@ -738,7 +738,7 @@
 .odm-plan-page.is-embedded
   > .odm-or-grid
   > .odm-or-col:first-child
-  > section:first-child
+  > .odm-plan-window
   .odm-or-card-body {
   display: flex;
   flex-wrap: wrap;
@@ -748,28 +748,33 @@
 .odm-plan-page.is-embedded
   > .odm-or-grid
   > .odm-or-col:first-child
-  > section:first-child
+  > .odm-plan-window
   .odm-or-muted {
   margin: 0;
 }
 .odm-plan-page.is-embedded
   > .odm-or-grid
   > .odm-or-col:first-child
-  > section:nth-child(2) {
+  > .odm-plan-weather {
   order: 2;
 }
 .odm-plan-page.is-embedded
   > .odm-or-grid
   > .odm-or-col:first-child
-  > section:nth-child(3) {
+  > .odm-plan-schedule {
   order: 1;
 }
 .odm-plan-page.is-embedded
   > .odm-or-grid
   > .odm-or-col:first-child
-  > section:nth-child(4) {
+  > .odm-plan-checklists {
   grid-column: 1 / -1;
   order: 3;
+}
+.odm-plan-page.is-embedded .odm-plan-feedback {
+  grid-column: 1 / -1;
+  order: 4;
+  min-width: 0;
 }
 .odm-plan-page.is-embedded > .odm-or-grid .odm-or-card {
   margin: 0;

@@ -361,6 +361,11 @@
   border-radius: 14px;
   background: var(--d-muted-surface);
 }
+.delivery-draft-status {
+  margin: 0;
+  color: var(--d-muted);
+  font-size: 12px;
+}
 .delivery-field-head {
   display: flex;
   justify-content: space-between;
@@ -596,15 +601,47 @@
   border-radius: 14px;
   background: var(--d-muted-surface);
 }
-.delivery-review-items {
-  display: grid;
-  gap: 14px;
+.delivery-review-item-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+.delivery-review-item-heading .ant-space {
+  min-width: 0;
+}
+.delivery-review-item-number {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  color: var(--ui-primary, #1677ff);
+  background: var(--d-muted-surface);
+  font-size: 12px;
+  font-weight: 600;
+}
+.delivery-review-collapse .ant-collapse-content-box {
+  padding: 16px;
+}
+.delivery-review-feedback .ant-form-item {
+  margin-bottom: 0;
+}
+.delivery-review-evidence-card .ant-checkbox-wrapper {
+  min-width: 0;
+  align-items: start;
+}
+.delivery-review-evidence-card .ant-checkbox-wrapper > span:last-child {
+  min-width: 0;
+  flex: 1;
+}
+.delivery-review-file-name {
+  display: block;
+  max-width: 100%;
 }
 .delivery-review-item {
-  padding: 16px;
-  border: 1px solid var(--d-border);
-  border-radius: 12px;
-  background: var(--d-surface);
+  min-width: 0;
 }
 .delivery-review-item h4,
 .delivery-review-item p {
@@ -631,7 +668,7 @@
   background: var(--d-muted-surface);
   font-size: 13px;
 }
-.delivery-review-evidence label {
+.delivery-review-evidence-card {
   display: grid;
   align-content: start;
   gap: 8px;
@@ -663,8 +700,109 @@
   border-radius: 10px;
   background: var(--ui-warning-soft);
 }
+.delivery-revision-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  padding: 10px 14px;
+  border: 1px solid var(--d-border);
+  border-radius: 10px;
+  background: var(--d-surface);
+}
 .delivery-review-confirm h4,
 .delivery-review-confirm p {
+  margin: 0;
+}
+.delivery-checklist-groups,
+.delivery-revision-case {
+  min-width: 0;
+}
+.delivery-checklist-groups > .ant-collapse,
+.delivery-revision-case > .ant-collapse {
+  display: grid;
+  gap: 10px;
+  border: 0;
+  background: transparent;
+}
+.delivery-checklist-groups .ant-collapse-item,
+.delivery-revision-case .ant-collapse-item {
+  overflow: hidden;
+  border: 1px solid var(--d-border) !important;
+  border-radius: 12px !important;
+  background: var(--d-surface);
+}
+.delivery-checklist-groups .ant-collapse-header,
+.delivery-revision-case .ant-collapse-header {
+  align-items: center !important;
+  padding: 12px 14px !important;
+}
+.delivery-checklist-editor {
+  display: grid;
+  gap: 20px;
+}
+.delivery-checklist-editor .delivery-grid {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 300px));
+}
+.delivery-checklist-editor section {
+  min-width: 0;
+}
+.delivery-checklist-editor h4 {
+  margin: 0 0 10px;
+  color: var(--d-text);
+  font-size: 13px;
+}
+.delivery-current-evidence__actions {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+.delivery-review-item-heading .ant-space {
+  max-width: 100%;
+}
+.delivery-review-item-heading .ant-typography {
+  overflow-wrap: anywhere;
+}
+.delivery-case-feedback {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.delivery-case-feedback article {
+  padding: 10px 12px;
+  border: 1px solid var(--d-border);
+  border-radius: 9px;
+  background: var(--d-muted-surface);
+}
+.delivery-case-feedback p {
+  margin: 7px 0 4px;
+  white-space: pre-wrap;
+}
+.delivery-case-feedback small {
+  color: var(--d-muted);
+}
+.delivery-review-item > .delivery-feedback-label {
+  margin: 12px 0;
+}
+.delivery-rework-create {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid var(--d-border);
+  border-radius: 12px;
+  background: var(--d-muted-surface);
+}
+.delivery-rework-create h5 {
+  margin: 0;
+}
+.delivery-result-history {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+}
+.delivery-result-history h4 {
   margin: 0;
 }
 @media (max-width: 760px) {

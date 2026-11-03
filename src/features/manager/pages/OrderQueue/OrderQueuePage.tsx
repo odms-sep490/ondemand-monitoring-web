@@ -8,6 +8,7 @@ import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
 import { displayOrderCode } from '../../../../shared/lib/orderCode'
 import { financeApi } from '../../../finance/api'
+import type { DepositStatus } from '../../../finance/types'
 import { ordersApi } from '../../api/ordersApi'
 import { planningApi } from '../../api/planningApi'
 import { EmptyState } from '../../components/common/EmptyState'
@@ -42,28 +43,38 @@ export function OrderQueuePage() {
       ordersApi.getQueue(signal),
       ordersApi.getApproved(signal),
     ])
-    const paid = (
+    const invoices = (
       await Promise.all(
         approved.map(async (order) => {
           try {
-            const [invoice, missions] = await Promise.all([
-              financeApi.getManagerInvoice(order.id, signal),
-              planningApi.getOrderMissions(order.id, signal),
-            ])
-            const hasActiveMission = missions.some(
-              (mission) => mission.status !== 'CANCELLED',
-            )
-            return invoice.paidAmount >= invoice.depositAmount &&
-              !hasActiveMission
-              ? order
-              : null
+            const invoice = await financeApi.getManagerInvoice(order.id, signal)
+            const depositStatus = invoice.depositStatus ??
+              (invoice.paidAmount >= invoice.depositAmount ? 'DEPOSIT_PAID' : 'WAITING_DEPOSIT')
+            return { order, depositStatus }
           } catch {
             return null
           }
         }),
       )
+    ).filter((row): row is { order: OrderCreateResponse; depositStatus: DepositStatus } => row !== null)
+    const depositStatusByOrder = Object.fromEntries(
+      invoices.map(({ order, depositStatus }) => [order.id, depositStatus]),
+    ) as Record<string, DepositStatus>
+    const paid = (
+      await Promise.all(
+        invoices
+          .filter(({ depositStatus }) => depositStatus === 'DEPOSIT_PAID')
+          .map(async ({ order }) => {
+            try {
+              const missions = await planningApi.getOrderMissions(order.id, signal)
+              return missions.some((mission) => mission.status !== 'CANCELLED') ? null : order
+            } catch {
+              return null
+            }
+          }),
+      )
     ).filter((order): order is OrderCreateResponse => order !== null)
-    return { pending, paid }
+    return { pending, paid, depositStatusByOrder }
   }, [])
 
   // Every order, newest first, so an order never "disappears" once it leaves the review queue.
@@ -99,6 +110,7 @@ export function OrderQueuePage() {
 
   const pendingOrders = query.data?.pending ?? []
   const paidOrders = query.data?.paid ?? []
+  const depositStatusByOrder = query.data?.depositStatusByOrder ?? {}
   const allOrders = allQuery.data?.orders
   const started = allQuery.data?.started
 
@@ -106,16 +118,13 @@ export function OrderQueuePage() {
     order.orderStatus === 'APPROVED' && started?.has(order.id) ? 'IN_PROGRESS' : order.orderStatus
 
   const kpiExtras = useMemo(() => {
-    if (!allOrders || !started) return { needsInfo: null, waitingDeposit: null }
-    const paidIds = new Set(paidOrders.map((order) => order.id))
+    if (!allOrders || !started || !query.data) return { needsInfo: null, waitingDeposit: null }
     return {
       needsInfo: allOrders.filter((order) => order.orderStatus === 'NEEDS_INFO').length,
-      waitingDeposit: allOrders.filter(
-        (order) =>
-          order.orderStatus === 'APPROVED' && !started.has(order.id) && !paidIds.has(order.id),
-      ).length,
+      waitingDeposit: Object.values(depositStatusByOrder)
+        .filter((status) => status === 'WAITING_DEPOSIT').length,
     }
-  }, [allOrders, started, paidOrders])
+  }, [allOrders, started, depositStatusByOrder, query.data])
 
   if (query.loading) return <QueueSkeleton />
 
@@ -132,11 +141,21 @@ export function OrderQueuePage() {
   }
 
   const activeTab: QueueTableMode =
-    tab ?? (pendingOrders.length > 0 ? 'pending' : paidOrders.length > 0 ? 'ready' : 'pending')
+    tab ?? (pendingOrders.length > 0
+      ? 'pending'
+      : paidOrders.length > 0
+        ? 'ready'
+        : (kpiExtras.waitingDeposit ?? 0) > 0
+          ? 'all'
+          : 'pending')
 
   const filteredAll = (allOrders ?? []).filter((order) =>
     filter === 'ALL'
       ? true
+      : filter === 'WAITING_DEPOSIT' || filter === 'DEPOSIT_PAID'
+        ? filter === 'WAITING_DEPOSIT'
+          ? depositStatusByOrder[order.id] === filter
+          : depositStatusByOrder[order.id] === filter
       : filter === 'CLOSED'
         ? order.orderStatus === 'REJECTED' || order.orderStatus === 'CANCELLED'
         : groupOf(order) === filter,
@@ -181,6 +200,7 @@ export function OrderQueuePage() {
         rows={rows}
         total={total}
         mode={activeTab}
+        depositStatusByOrder={depositStatusByOrder}
         isInProgress={(order) => groupOf(order) === 'IN_PROGRESS'}
       />
     )
@@ -190,7 +210,11 @@ export function OrderQueuePage() {
     <div className="mgr-view">
       <PageHeader
         title={t.title}
-        description={t.summary(pendingOrders.length, paidOrders.length)}
+        description={t.summary(
+          pendingOrders.length,
+          paidOrders.length,
+          kpiExtras.waitingDeposit ?? 0,
+        )}
         actions={
           <>
             {missionsLink}

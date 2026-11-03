@@ -58,16 +58,20 @@ export function MissionSelector({
         } = assignmentReadiness(mission)
         const historical =
           !scope ||
-          ['COMPLETED', 'CANCELLED', 'FAILED'].includes(mission.status)
+          [
+            'AWAITING_REVIEW',
+            'PENDING_REVIEW',
+            'COMPLETED',
+            'CANCELLED',
+            'FAILED',
+          ].includes(mission.status)
         const count = scope?.assignmentCount ?? 0
         const checklistEditable =
           plan.planStatus === 'DRAFT' &&
           mission.status === 'PLANNING'
         const resourcesEditable =
           plan.planStatus === 'FINALIZED' &&
-          ['READY', 'READY'].includes(
-            mission.status,
-          )
+          mission.status === 'PLANNING'
         return (
           <button
             type="button"

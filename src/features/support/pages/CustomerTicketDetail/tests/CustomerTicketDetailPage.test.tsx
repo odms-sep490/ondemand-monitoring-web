@@ -6,6 +6,12 @@ import { setLanguage } from '../../../../../shared/i18n'
 import { supportApi, type SupportTicketDto } from '../../../api/supportApi'
 import { CustomerTicketDetailPage } from '../CustomerTicketDetailPage'
 
+vi.mock('../../../components/TicketResultReviewCard', () => ({
+  TicketResultReviewCard: () => (
+    <div data-testid="result-review">Checklist feedback</div>
+  ),
+}))
+
 const TICKET: SupportTicketDto = {
   id: 'tk-1',
   ticketCode: 'TK-0001',
@@ -39,6 +45,21 @@ afterEach(() => {
 })
 
 describe('CustomerTicketDetailPage', () => {
+  it('keeps only checklist feedback on result revision tickets', async () => {
+    vi.mocked(supportApi.getTicketById).mockResolvedValue({
+      ...TICKET,
+      ticketKind: 'RESULT_REVISION',
+    })
+    render(<CustomerTicketDetailPage ticketId="tk-1" />)
+    expect(await screen.findByTestId('result-review')).toBeInTheDocument()
+    expect(screen.queryByText('Lịch sử trao đổi')).not.toBeInTheDocument()
+    expect(screen.queryByText('Xin chào')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('Phản hồi của bạn')).not.toBeInTheDocument()
+    act(() => setLanguage('en'))
+    expect(screen.queryByText('Conversation')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('Your reply')).not.toBeInTheDocument()
+  })
+
   it('renders the ticket with translated labels', async () => {
     render(<CustomerTicketDetailPage ticketId="tk-1" />)
     expect(await screen.findByText('Hỏi về lịch bay')).toBeInTheDocument()
@@ -52,22 +73,40 @@ describe('CustomerTicketDetailPage', () => {
   })
 
   it('sends a reply and reloads the ticket', async () => {
-    const add = vi.spyOn(supportApi, 'addMessage').mockResolvedValue(TICKET.messages![0])
+    const add = vi
+      .spyOn(supportApi, 'addMessage')
+      .mockResolvedValue(TICKET.messages![0])
     render(<CustomerTicketDetailPage ticketId="tk-1" />)
-    fireEvent.change(await screen.findByLabelText('Phản hồi của bạn'), { target: { value: 'Cảm ơn' } })
+    fireEvent.change(await screen.findByLabelText('Phản hồi của bạn'), {
+      target: { value: 'Cảm ơn' },
+    })
     fireEvent.click(screen.getByRole('button', { name: 'Gửi phản hồi' }))
-    await waitFor(() => expect(add).toHaveBeenCalledWith('tk-1', expect.objectContaining({ content: 'Cảm ơn' })))
-    await waitFor(() => expect(supportApi.getTicketById).toHaveBeenCalledTimes(2))
+    await waitFor(() =>
+      expect(add).toHaveBeenCalledWith(
+        'tk-1',
+        expect.objectContaining({ content: 'Cảm ơn' }),
+      ),
+    )
+    await waitFor(() =>
+      expect(supportApi.getTicketById).toHaveBeenCalledTimes(2),
+    )
   })
 
   it('shows the not-found state when the ticket is missing', async () => {
-    vi.spyOn(supportApi, 'getTicketById').mockResolvedValue(undefined as unknown as SupportTicketDto)
+    vi.spyOn(supportApi, 'getTicketById').mockResolvedValue(
+      undefined as unknown as SupportTicketDto,
+    )
     render(<CustomerTicketDetailPage ticketId="nope" />)
-    expect(await screen.findByText('Yêu cầu không tồn tại hoặc đã bị xóa.')).toBeInTheDocument()
+    expect(
+      await screen.findByText('Yêu cầu không tồn tại hoặc đã bị xóa.'),
+    ).toBeInTheDocument()
   })
 
   it('hides the reply form on a resolved ticket', async () => {
-    vi.spyOn(supportApi, 'getTicketById').mockResolvedValue({ ...TICKET, status: 'RESOLVED' })
+    vi.spyOn(supportApi, 'getTicketById').mockResolvedValue({
+      ...TICKET,
+      status: 'RESOLVED',
+    })
     render(<CustomerTicketDetailPage ticketId="tk-1" />)
     expect(await screen.findByText(/đã được đóng/)).toBeInTheDocument()
     expect(screen.queryByLabelText('Phản hồi của bạn')).not.toBeInTheDocument()

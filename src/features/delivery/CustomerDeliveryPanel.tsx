@@ -1,22 +1,28 @@
-import { Alert, Button, Empty, Progress, Skeleton } from 'antd'
+import {
+  Alert,
+  Button,
+  Empty,
+  Skeleton,
+  Space,
+  Tag,
+  Typography,
+  notification,
+} from 'antd'
 import { useCallback, useEffect, useState } from 'react'
 import { ApiError } from '../../shared/api/httpClient'
 import { useI18n } from '../../shared/i18n'
-import { formatVnd } from '../../shared/lib/formatVnd'
-import { financeApi } from '../finance/api'
 import { deliveryApi } from './api'
 import { customerDeliveryPanelMessages } from './customerDeliveryPanel.messages'
 import { CustomerResultReview } from './CustomerResultReview'
+import { DeliveryImagePreview } from './DeliveryImagePreview'
 import { DeliveryProgress, DeliveryStatusPill } from './DeliveryProgress'
 import type { Delivery, DeliveryPanelLoadState } from './types'
 import './delivery.css'
-import { env } from '../../config/env'
 
 export function CustomerDeliveryPanel({
   orderId,
   initialDelivery = null,
   onStateChange,
-  onFinalPaymentActionChange,
 }: {
   orderId: string
   initialDelivery?: Delivery | null
@@ -24,34 +30,64 @@ export function CustomerDeliveryPanel({
     delivery: Delivery | null,
     state: DeliveryPanelLoadState,
   ) => void
-  onFinalPaymentActionChange?: (action: (() => Promise<void>) | null) => void
 }) {
   const { t } = useI18n(customerDeliveryPanelMessages)
+  const [notificationApi, notificationHolder] = notification.useNotification()
   const [delivery, setDelivery] = useState<Delivery | null>(initialDelivery)
   const [loadState, setLoadState] = useState<DeliveryPanelLoadState>(
     initialDelivery ? 'ready' : 'loading',
   )
-  const [busy, setBusy] = useState(false)
-  const [testPaying, setTestPaying] = useState(false)
   const [error, setError] = useState<unknown>(null)
   const [submittedTicket, setSubmittedTicket] = useState<{
+    orderId: string
     id: string
     code: string
   } | null>(null)
 
-  const payFinal = useCallback(async () => {
-    setBusy(true)
-    setError(null)
-    try {
-      const invoice = await financeApi.getInvoice(orderId)
-      const payment = await financeApi.createFinalPayment(invoice.id)
-      if (!payment.paymentUrl) throw new Error(t.noVnpayUrl)
-      window.location.assign(payment.paymentUrl)
-    } catch (cause) {
-      setError(cause)
-      setBusy(false)
+  const currentTicket =
+    submittedTicket?.orderId === orderId ? submittedTicket : null
+
+  function handleRevisionSubmitted(ticket: { id: string; code: string }) {
+    setSubmittedTicket({ ...ticket, orderId })
+    setDelivery((current) =>
+      current ? { ...current, deliveryStatus: 'REVISION_REQUESTED' } : current,
+    )
+    notificationApi.success({
+      key: `result-revision-${orderId}`,
+      placement: 'topRight',
+      duration: 5,
+      message: t.revisionSentTitle,
+      description: (
+        <a href={`#help/tickets/${encodeURIComponent(ticket.id)}`}>
+          {t.viewSubmittedTicket(ticket.code)}
+        </a>
+      ),
+    })
+  }
+
+  useEffect(() => {
+    if (delivery?.deliveryStatus !== 'REVISION_REQUESTED' || currentTicket)
+      return
+    let cancelled = false
+    // Restore the persistent ticket shortcut without replaying the success toast.
+    void deliveryApi
+      .getResultReview(orderId)
+      .then((review) => {
+        if (!cancelled && review.existingRequest) {
+          setSubmittedTicket({
+            orderId,
+            id: review.existingRequest.ticketId,
+            code: review.existingRequest.ticketCode,
+          })
+        }
+      })
+      .catch(() => {
+        /* Legacy deliveries may not have a structured review round. */
+      })
+    return () => {
+      cancelled = true
     }
-  }, [orderId, t.noVnpayUrl])
+  }, [orderId, delivery?.deliveryStatus, currentTicket])
 
   const load = useCallback(
     async (showLoading = false) => {
@@ -106,13 +142,6 @@ export function CustomerDeliveryPanel({
     onStateChange?.(delivery, loadState)
   }, [delivery, loadState, onStateChange])
 
-  useEffect(() => {
-    onFinalPaymentActionChange?.(
-      delivery?.deliveryStatus === 'FINAL_PAYMENT_PENDING' ? payFinal : null,
-    )
-    return () => onFinalPaymentActionChange?.(null)
-  }, [delivery?.deliveryStatus, onFinalPaymentActionChange, payFinal])
-
   if (!delivery) {
     return (
       <section
@@ -122,6 +151,7 @@ export function CustomerDeliveryPanel({
         aria-busy={loadState === 'loading'}
         tabIndex={-1}
       >
+        {notificationHolder}
         <header className="delivery-hero">
           <div className="delivery-hero__copy">
             <span className="delivery-eyebrow">{t.eyebrow}</span>
@@ -159,31 +189,7 @@ export function CustomerDeliveryPanel({
     )
   }
 
-  async function completeTestFinal() {
-    if (busy) return
-    setBusy(true)
-    setTestPaying(true)
-    setError(null)
-    try {
-      const invoice = await financeApi.getInvoice(orderId)
-      await financeApi.completeTestFinal(invoice.id)
-      await load()
-    } catch (cause) {
-      setError(cause)
-    } finally {
-      setTestPaying(false)
-      setBusy(false)
-    }
-  }
   const canReview = delivery.deliveryStatus === 'CUSTOMER_REVIEW'
-  const paymentPercent =
-    delivery.totalAmount > 0
-      ? Math.min(
-          100,
-          Math.round((delivery.paidAmount / delivery.totalAmount) * 100),
-        )
-      : 0
-
   return (
     <section
       id="customer-delivery-panel"
@@ -192,6 +198,7 @@ export function CustomerDeliveryPanel({
       aria-busy={loadState === 'loading'}
       tabIndex={-1}
     >
+      {notificationHolder}
       <header className="delivery-hero">
         <div className="delivery-hero__copy">
           <span className="delivery-eyebrow">{t.eyebrow}</span>
@@ -236,7 +243,10 @@ export function CustomerDeliveryPanel({
                   {asset.type.toUpperCase().includes('VIDEO') ? (
                     <video controls preload="metadata" src={asset.url} />
                   ) : (
-                    <img src={asset.url} alt={asset.fileName} loading="lazy" />
+                    <DeliveryImagePreview
+                      src={asset.url}
+                      fileName={asset.fileName}
+                    />
                   )}
                   <div className="delivery-asset__meta">
                     <strong title={asset.fileName}>{asset.fileName}</strong>
@@ -281,59 +291,12 @@ export function CustomerDeliveryPanel({
             <p>{delivery.deliveryNotes}</p>
           </div>
         ) : null}
-        <section
-          className="delivery-payment-card"
-          aria-labelledby="payment-summary-title"
-        >
-          <div className="delivery-payment-card__head">
-            <div>
-              <span className="delivery-eyebrow">{t.payment}</span>
-              <h3 id="payment-summary-title">{t.costOverview}</h3>
-            </div>
-            <strong>{paymentPercent}%</strong>
-          </div>
-          <Progress
-            percent={paymentPercent}
-            showInfo={false}
-            aria-label={t.paidPercent(paymentPercent)}
-          />
-          <div className="delivery-payment">
-            <div>
-              <span>{t.total}</span>
-              <strong>{formatVnd(delivery.totalAmount)}</strong>
-            </div>
-            <div>
-              <span>{t.paid}</span>
-              <strong className="is-paid">
-                {formatVnd(delivery.paidAmount)}
-              </strong>
-            </div>
-            <div className="is-remaining">
-              <span>{t.remaining}</span>
-              <strong>{formatVnd(delivery.remainingAmount)}</strong>
-            </div>
-          </div>
-        </section>
 
-        {submittedTicket ? (
-          <Alert
-            type="success"
-            showIcon
-            message={t.revisionSentTitle}
-            description={
-              <a
-                href={`#help/tickets/${encodeURIComponent(submittedTicket.id)}`}
-              >
-                {t.viewSubmittedTicket(submittedTicket.code)}
-              </a>
-            }
-          />
-        ) : null}
         {canReview ? (
           <CustomerResultReview
             orderId={orderId}
             onComplete={() => void load()}
-            onSubmitted={setSubmittedTicket}
+            onSubmitted={handleRevisionSubmitted}
           />
         ) : null}
 
@@ -347,56 +310,30 @@ export function CustomerDeliveryPanel({
           />
         ) : null}
         {delivery.deliveryStatus === 'REVISION_REQUESTED' ? (
-          <StatusBanner
-            tone="warning"
-            title={t.revisionSentTitle}
-            text={t.revisionSentText}
-          />
-        ) : null}
-        {delivery.deliveryStatus === 'FINAL_PAYMENT_PENDING' ? (
-          <div className="delivery-payment-action">
-            <div>
-              <span
-                className="delivery-payment-action__icon"
-                aria-hidden="true"
-              >
-                ₫
-              </span>
-              <div>
-                <b>{t.payToGet}</b>
-                <span>
-                  {t.amountLeft}:{' '}
-                  <strong>{formatVnd(delivery.remainingAmount)}</strong>
-                </span>
-              </div>
-            </div>
-            <div className="delivery-actions">
+          <div className="delivery-revision-status" role="status">
+            <Space size={[8, 4]} wrap>
+              <Tag color="processing">{t.revisionPending}</Tag>
+              <Typography.Text type="secondary">
+                {t.revisionPendingText}
+              </Typography.Text>
+            </Space>
+            {currentTicket && (
               <Button
-                type="primary"
-                className="delivery-primary-action"
-                disabled={busy}
-                onClick={() => void payFinal()}
+                type="link"
+                href={`#help/tickets/${encodeURIComponent(currentTicket.id)}`}
               >
-                {busy && !testPaying ? t.redirecting : t.payVnpay}
+                {t.viewSubmittedTicket(currentTicket.code)}
               </Button>
-              {env.testPaymentsEnabled ? (
-                <Button
-                  disabled={busy}
-                  loading={testPaying}
-                  onClick={() => void completeTestFinal()}
-                >
-                  {t.testPayment}
-                </Button>
-              ) : null}
-            </div>
+            )}
           </div>
         ) : null}
-        {delivery.deliveryStatus === 'READY_FOR_DELIVERY' ||
+        {delivery.deliveryStatus === 'FINAL_PAYMENT_PENDING' ||
+        delivery.deliveryStatus === 'READY_FOR_DELIVERY' ||
         delivery.deliveryStatus === 'PAYMENT_CONFIRMED' ? (
           <StatusBanner
             tone="success"
-            title={t.paymentConfirmedTitle}
-            text={t.paymentConfirmedText}
+            title={t.resultsAcceptedTitle}
+            text={t.resultsAcceptedText}
           />
         ) : null}
         {delivery.deliveryStatus === 'DELIVERED' ? (

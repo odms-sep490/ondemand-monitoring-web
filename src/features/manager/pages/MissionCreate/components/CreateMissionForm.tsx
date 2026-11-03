@@ -31,17 +31,23 @@ import { FlightScheduleCard } from './FlightScheduleCard'
 import { OrderSummaryCard } from './OrderSummaryCard'
 import { MissionCreateActionBar } from './MissionCreateActionBar'
 import { MissionChecklistSelectionCard } from './MissionChecklistSelectionCard'
+import { Alert, Collapse, Tag } from 'antd'
+import type { ResultRevisionCase } from '../../../../delivery/api'
+import { canCreateRework } from '../../../../delivery/reworkPolicy'
+import { TicketResultReviewCard } from '../../../../support/components/TicketResultReviewCard'
 
 export function CreateMissionForm({
   orderId,
   brief,
   now,
   onCreated,
+  reworkCase,
 }: {
   orderId: string
   brief: OrderMissionBrief
   now: Date
   onCreated?: (missionId: string) => void
+  reworkCase?: ResultRevisionCase
 }) {
   const { t } = useI18n(missionCreatePageMessages)
   const { t: reviewT } = useI18n(orderReviewPageMessages)
@@ -52,8 +58,10 @@ export function CreateMissionForm({
 
   const [scheduledStart, setScheduledStart] = useState('')
   const [scheduledEnd, setScheduledEnd] = useState('')
-  const [weatherCheckDate, setWeatherCheckDate] = useState(
-    () => dateRangeFromBrief(brief)[0] ?? '',
+  const [weatherCheckDate, setWeatherCheckDate] = useState(() =>
+    reworkCase
+      ? toLocalInput(now).slice(0, 10)
+      : (dateRangeFromBrief(brief)[0] ?? ''),
   )
   const [weatherCheckTime, setWeatherCheckTime] = useState(() =>
     forecastTimeFromBrief(brief),
@@ -61,7 +69,11 @@ export function CreateMissionForm({
   const [planRevision, setPlanRevision] = useState(
     brief.executionPlanRevision ?? 0,
   )
-  const [scopeLabel, setScopeLabel] = useState('Whole Order scope')
+  const [scopeLabel, setScopeLabel] = useState(() =>
+    reworkCase
+      ? t.reworkScopeLabel(reworkCase.ticketCode)
+      : 'Whole Order scope',
+  )
   const planQuery = useApiQuery(
     (signal) => planningApi.getExecutionPlan(orderId, signal),
     [orderId],
@@ -71,16 +83,28 @@ export function CreateMissionForm({
   }, [planQuery.data])
 
   const checklistItems = useMemo(
-    () => brief.checklistItems ?? [],
-    [brief.checklistItems],
+    () =>
+      (brief.checklistItems ?? []).filter(
+        (item) =>
+          !reworkCase ||
+          reworkCase.items.some(
+            (row) =>
+              row.orderChecklistItemId === item.id && canCreateRework(row),
+          ),
+      ),
+    [brief.checklistItems, reworkCase],
   )
   const uncoveredIds = useMemo(() => {
     if (!planQuery.data) return []
     return planQuery.data.coverage?.uncoveredItemIds ?? []
   }, [planQuery.data])
 
-  const [selectedChecklistIds, setSelectedChecklistIds] = useState<string[]>([])
-  const [hasInitializedChecklist, setHasInitializedChecklist] = useState(false)
+  const [selectedChecklistIds, setSelectedChecklistIds] = useState<string[]>(
+    () => (reworkCase ? checklistItems.map((item) => item.id) : []),
+  )
+  const [hasInitializedChecklist, setHasInitializedChecklist] = useState(
+    Boolean(reworkCase),
+  )
 
   // Start with uncovered items only; already assigned checks require an explicit repeat selection.
   useEffect(() => {
@@ -138,16 +162,15 @@ export function CreateMissionForm({
 
   const forecastDates = useMemo(
     () =>
-      onCreated
+      onCreated || reworkCase
         ? weatherCheckDate
           ? [weatherCheckDate]
           : []
         : dateRangeFromBrief(brief),
-    [brief, onCreated, weatherCheckDate],
+    [brief, onCreated, reworkCase, weatherCheckDate],
   )
-  const forecastTime = onCreated
-    ? weatherCheckTime
-    : forecastTimeFromBrief(brief)
+  const forecastTime =
+    onCreated || reworkCase ? weatherCheckTime : forecastTimeFromBrief(brief)
   const [forecastRows, setForecastRows] = useState<ForecastRow[]>(() =>
     forecastDates.map((date) => ({
       date,
@@ -209,6 +232,7 @@ export function CreateMissionForm({
     onCreated,
     setNavigateTo,
     setPlanRevision,
+    reworkCase,
   })
 
   if (navigateTo) {
@@ -239,7 +263,7 @@ export function CreateMissionForm({
     >
       {!onCreated && (
         <PageHeader
-          title={t.title}
+          title={reworkCase ? t.reworkTitle : t.title}
           description={t.fromOrder(
             formatOrderCode(brief.code),
             brief.serviceName,
@@ -248,7 +272,10 @@ export function CreateMissionForm({
         />
       )}
 
-      {!onCreated && <OrderWorkflowStepper currentStep={5} />}
+      {!onCreated && !reworkCase && <OrderWorkflowStepper currentStep={5} />}
+      {reworkCase && checklistItems.length === 0 && (
+        <Alert type="warning" showIcon message={t.reworkUnavailable} />
+      )}
 
       <PlanningContextCard
         onCreated={onCreated}
@@ -258,13 +285,28 @@ export function CreateMissionForm({
         scopeLabel={scopeLabel}
         setScopeLabel={setScopeLabel}
         submit={submit}
+        isRework={Boolean(reworkCase)}
       />
 
       <div className="odm-or-grid">
         <div className="odm-or-col">
-          <CustomerTimeWindowCard brief={brief} />
+          {!reworkCase && <CustomerTimeWindowCard brief={brief} />}
+          {reworkCase && (
+            <section className="odm-or-card odm-plan-window">
+              <header className="odm-or-card-head">
+                <span className="odm-or-card-title">
+                  <Tag color="orange">{t.reworkBadge}</Tag>
+                  {t.reworkScopeLabel(reworkCase.ticketCode)}
+                </span>
+              </header>
+              <div className="odm-or-card-body">
+                <p className="odm-or-muted">{t.reworkScheduleHelp}</p>
+              </div>
+            </section>
+          )}
 
           <WeatherForecastCard
+            customSchedule={Boolean(reworkCase)}
             onCreated={onCreated}
             forecastTime={forecastTime}
             weatherCheckDate={weatherCheckDate}
@@ -277,7 +319,9 @@ export function CreateMissionForm({
 
           <FlightScheduleCard
             durationText={durationText}
-            canFillFromCustomer={Boolean(dateRangeFromBrief(brief)[0])}
+            canFillFromCustomer={
+              !reworkCase && Boolean(dateRangeFromBrief(brief)[0])
+            }
             fillFromCustomer={fillFromCustomer}
             scheduledStart={scheduledStart}
             setScheduledStart={setScheduledStart}
@@ -289,7 +333,7 @@ export function CreateMissionForm({
 
           <MissionChecklistSelectionCard
             items={checklistItems}
-            plan={planQuery.data ?? null}
+            plan={reworkCase ? null : (planQuery.data ?? null)}
             selectedIds={selectedChecklistIds}
             onToggle={handleToggleChecklist}
             onSelectAll={handleSelectAllChecklist}
@@ -306,6 +350,20 @@ export function CreateMissionForm({
                 : undefined
             }
           />
+          {reworkCase && (
+            <Collapse
+              className="odm-plan-feedback"
+              items={[
+                {
+                  key: 'feedback',
+                  label: t.reworkFeedback,
+                  children: (
+                    <TicketResultReviewCard ticketId={reworkCase.ticketId} />
+                  ),
+                },
+              ]}
+            />
+          )}
         </div>
 
         <div className="odm-or-col">
@@ -321,6 +379,8 @@ export function CreateMissionForm({
         handleSubmit={handleSubmit}
         submitting={submitting}
         planQuery={planQuery}
+        reworkOrderId={reworkCase ? orderId : undefined}
+        blocked={Boolean(reworkCase) && checklistItems.length === 0}
       />
     </div>
   )

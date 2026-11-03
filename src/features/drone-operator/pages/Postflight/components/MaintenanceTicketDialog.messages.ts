@@ -3,7 +3,7 @@ import { defineMessages } from '../../../../../shared/i18n'
 export const maintenanceTicketDialogMessages = defineMessages({
   vi: {
     title: 'Tạo ticket bảo trì',
-    subtitle: 'Thông tin điền sẵn từ postflight. Ghi vào maintenance_ticket.',
+    subtitle: 'Thông tin được điền sẵn từ kết quả kiểm tra sau bay.',
     cancel: 'Huỷ',
     submitting: 'Đang tạo...',
     submit: 'Tạo ticket',

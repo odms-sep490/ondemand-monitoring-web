@@ -12,13 +12,14 @@ import { connectDronePageMessages } from './ConnectDronePage.messages'
 import { DroneChip } from './components/DroneChip'
 import { type ConnectState } from './connectTypes'
 import { ConnectForm } from './components/ConnectForm'
+import { ConnectMissionSummary } from './components/ConnectMissionSummary'
+import './ConnectDronePage.css'
 
-/** OPR-04W — Kết nối thiết bị: token/gcs form + trạng thái kết nối. */
+/** OPR-04W — Kết nối thiết bị và trạng thái kết nối. */
 export function ConnectDronePage({ missionId }: { missionId?: string }) {
   const mission = useActiveMission(missionId)
   const { t } = useI18n(connectDronePageMessages)
   const [state, setState] = useState<ConnectState>('default')
-  const [token, setToken] = useState(t.tokenPlaceholder)
   const [gcsId, setGcsId] = useState(t.gcsOptions[0])
   const [error, setError] = useState<string | null>(null)
   const deviceLabel = mission.data ? formatDeviceLabel(mission.data) : null
@@ -31,7 +32,11 @@ export function ConnectDronePage({ missionId }: { missionId?: string }) {
       const deviceId = data?.deviceId
       if (!mission.missionId || !deviceId) throw new Error(t.noMissionAssigned)
       await flightControlApi.bindSession(mission.missionId, deviceId)
-      if (data?.status === 'SCHEDULED')
+      if (
+        data?.status === 'PENDING_CONFIRMATION' ||
+        data?.status === 'PLANNING' ||
+        data?.status === 'READY'
+      )
         await missionApi.connectGcs(mission.missionId)
       setState('connected')
       window.location.hash = operatorHref({
@@ -45,7 +50,7 @@ export function ConnectDronePage({ missionId }: { missionId?: string }) {
   }
 
   return (
-    <div className="odm-card" style={{ marginBottom: 0 }}>
+    <div className="odm-card connect-drone-page">
       <FlightStepHeader
         title={t.stepTitle}
         missionId={
@@ -54,28 +59,21 @@ export function ConnectDronePage({ missionId }: { missionId?: string }) {
         active={2}
         right={<DroneChip label={deviceLabel ?? t.noDroneAssigned} />}
       />
-      <div style={{ padding: '18px 22px' }}>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'minmax(0,1.25fr) minmax(0,1fr)',
-            gap: 18,
-            alignItems: 'start',
-          }}
-        >
-          <ConnectForm
-            state={state}
-            token={token}
-            gcsId={gcsId}
-            onTokenChange={setToken}
-            onGcsChange={setGcsId}
-            onConnect={handleConnect}
-            onRetryExpired={() => setState('default')}
-          />
+      <div className="connect-drone-page__body">
+        <div className="connect-drone-page__layout">
+          <div className="connect-drone-page__primary">
+            <ConnectMissionSummary mission={mission.data} />
+            <ConnectForm
+              state={state}
+              gcsId={gcsId}
+              onGcsChange={setGcsId}
+              onConnect={handleConnect}
+            />
+          </div>
           <ConnectStatusPanel
             state={state}
             error={error}
-            mission={mission.data}
+            missionId={mission.data?.id}
           />
         </div>
       </div>
