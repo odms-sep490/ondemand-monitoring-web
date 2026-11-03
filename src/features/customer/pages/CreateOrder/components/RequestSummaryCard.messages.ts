@@ -2,8 +2,8 @@ import { defineMessages } from '../../../../../shared/i18n'
 
 export const requestSummaryCardMessages = defineMessages({
   vi: {
-    cardTitle: 'Tóm tắt yêu cầu',
-    cardSubtitle: 'Kiểm tra trước khi gửi.',
+    cardTitle: 'Rà soát yêu cầu',
+    cardSubtitle: 'Thông tin đã chọn ở các bước trước. Chọn Sửa để cập nhật.',
     groupService: 'Dịch vụ',
     groupLocation: 'Khu vực',
     groupContent: 'Nội dung',
@@ -54,10 +54,14 @@ export const requestSummaryCardMessages = defineMessages({
     VIDEO: 'Video',
     quantityUnit: (type: 'IMAGE' | 'VIDEO', count: number) =>
       `${count} ${type === 'IMAGE' ? 'ảnh' : 'video'}`,
+    mediaRequested: (type: 'IMAGE' | 'VIDEO', count: number) =>
+      `${type === 'IMAGE' ? 'Ảnh' : 'Video'}: ${count} · Theo checklist`,
+    mediaNotRequested: (type: 'IMAGE' | 'VIDEO') =>
+      `${type === 'IMAGE' ? 'Ảnh' : 'Video'}: Không yêu cầu`,
   },
   en: {
-    cardTitle: 'Request summary',
-    cardSubtitle: 'Review before submitting.',
+    cardTitle: 'Review request',
+    cardSubtitle: 'Choices from previous steps. Select Edit to make changes.',
     groupService: 'Service',
     groupLocation: 'Area',
     groupContent: 'Content',
@@ -109,5 +113,9 @@ export const requestSummaryCardMessages = defineMessages({
     VIDEO: 'Video',
     quantityUnit: (type: 'IMAGE' | 'VIDEO', count: number) =>
       `${count} ${type === 'IMAGE' ? (count === 1 ? 'photo' : 'photos') : count === 1 ? 'video' : 'videos'}`,
+    mediaRequested: (type: 'IMAGE' | 'VIDEO', count: number) =>
+      `${type === 'IMAGE' ? 'Photos' : 'Video'}: ${count} · From checklist`,
+    mediaNotRequested: (type: 'IMAGE' | 'VIDEO') =>
+      `${type === 'IMAGE' ? 'Photos' : 'Video'}: Not requested`,
   },
 })

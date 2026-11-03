@@ -7,6 +7,7 @@ import { usesMedia, type ChecklistRow } from '../../../lib/checklist/types'
 import { pricingEstimateMessages } from './PricingEstimateCard.messages'
 
 type Props = {
+  variant?: 'default' | 'review'
   estimate: ServicePricingEstimate | null
   loading: boolean
   hasService: boolean
@@ -21,7 +22,10 @@ function requestedMedia(row: ChecklistRow) {
     : { images: row.minimumEvidenceCount, videos: 0 }
 }
 
-function contextualFeeLabel(type: string, t: typeof pricingEstimateMessages.vi) {
+function contextualFeeLabel(
+  type: string,
+  t: typeof pricingEstimateMessages.vi,
+) {
   switch (type) {
     case 'CONTEXT_AREA':
     case 'CONTEXT_EXTRA_AREA':
@@ -41,6 +45,7 @@ function contextualFeeLabel(type: string, t: typeof pricingEstimateMessages.vi) 
 
 /** Pricing estimate from `GET /api/services/pricing-estimate`. */
 export function PricingEstimateCard({
+  variant = 'default',
   estimate,
   loading,
   hasService,
@@ -128,5 +133,13 @@ export function PricingEstimateCard({
       </div>
     )
   }
-  return <Card icon={<DollarOutlined />} title={t.title}>{body}</Card>
+  return (
+    <Card
+      className={`co-pricing-estimate-card${variant === 'review' ? ' is-review' : ''}`}
+      icon={<DollarOutlined />}
+      title={t.title}
+    >
+      {body}
+    </Card>
+  )
 }

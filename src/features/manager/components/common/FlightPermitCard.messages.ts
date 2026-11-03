@@ -14,6 +14,8 @@ export const flightPermitCardMessages = defineMessages({
     title: (code: string) => `Giấy phép bay · ${code}`,
     intro:
       'Nhiệm vụ chỉ được bắt đầu sau khi giấy phép được xác nhận là đã cấp.',
+    paymentRequired:
+      'Chỉ có thể cập nhật giấy phép sau khi khách hàng thanh toán đầy đủ.',
     cancelledNotice:
       'Order hoặc Mission đã hủy. Thông tin giấy phép chỉ được giữ để đối chiếu.',
     note: 'Ghi chú',
@@ -99,6 +101,8 @@ export const flightPermitCardMessages = defineMessages({
     title: (code: string) => `Flight permit · ${code}`,
     intro:
       'The mission can only start after the permit is confirmed as granted.',
+    paymentRequired:
+      'The permit can only be updated after the customer has paid in full.',
     cancelledNotice:
       'The Order or Mission has been cancelled. Permit information is read-only.',
     note: 'Note',

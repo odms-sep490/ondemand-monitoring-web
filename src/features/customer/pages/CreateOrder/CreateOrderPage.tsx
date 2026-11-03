@@ -85,10 +85,13 @@ export function CreateOrderPage() {
   )
 
   return (
-    <div ref={pageRef} className="cus-page co-page">
+    <div
+      ref={pageRef}
+      className={`cus-page co-page${step === 6 ? ' is-review-step' : ''}`}
+    >
       <PageHeader
-        title={t.pageTitle}
-        subtitle={t.pageSubtitle}
+        title={step === 6 ? t.reviewTitle : t.pageTitle}
+        subtitle={step === 6 ? t.reviewSubtitle : t.pageSubtitle}
         actions={
           <Button
             href={customerHref({ screen: 'orders' })}

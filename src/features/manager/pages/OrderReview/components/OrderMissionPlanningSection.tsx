@@ -183,6 +183,9 @@ function OrderPlanningWorkspace({
     (data.invoice.depositStatus === 'DEPOSIT_PAID' ||
       data.invoice.paidAmount >= data.invoice.depositAmount),
   )
+  const paymentComplete = Boolean(
+    data?.invoice?.status === 'PAID' && data.invoice.remainingAmount <= 0,
+  )
 
   useEffect(() => {
     if (!data || !onWorkflowInfo) return
@@ -476,6 +479,7 @@ function OrderPlanningWorkspace({
                           )),
                       )}
                       onChanged={query.reload}
+                      paymentComplete={paymentComplete}
                     />
                   ))}
                 </ShowMoreList>

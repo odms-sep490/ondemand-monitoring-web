@@ -6,6 +6,8 @@ export const createOrderPageMessages = defineMessages({
     pageTitle: 'Tạo yêu cầu giám sát',
     pageSubtitle:
       'Chọn dịch vụ, xác định vùng giám sát, chốt nội dung giám sát, chọn thời gian rồi xác nhận kết quả bàn giao.',
+    reviewTitle: 'Rà soát & gửi yêu cầu',
+    reviewSubtitle: 'Kiểm tra thông tin trước khi gửi.',
     cancel: 'Hủy',
     cancelConfirm:
       'Thoát khỏi trang tạo yêu cầu? Bản nháp của bạn được lưu tự động.',
@@ -84,6 +86,8 @@ export const createOrderPageMessages = defineMessages({
     pageTitle: 'Create Monitoring Request',
     pageSubtitle:
       'Choose a service, define the monitoring area, confirm the monitoring content, pick a schedule, then confirm deliverables.',
+    reviewTitle: 'Review & submit request',
+    reviewSubtitle: 'Check your information before submitting.',
     cancel: 'Cancel',
     cancelConfirm: 'Leave the request page? Your draft is saved automatically.',
     navigationLabel: 'Request navigation',

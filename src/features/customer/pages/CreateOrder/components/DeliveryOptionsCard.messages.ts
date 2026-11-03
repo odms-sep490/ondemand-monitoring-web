@@ -3,9 +3,12 @@ import { defineMessages } from '../../../../../shared/i18n'
 export const deliveryOptionsCardMessages = defineMessages({
   vi: {
     cardTitle: 'Nhận kết quả & cam kết',
+    reviewTitle: 'Kết quả & phương thức nhận',
     cardSubtitle: 'Chọn cách nhận kết quả và xác nhận trước khi gửi.',
     formatsLabel: 'Định dạng kết quả',
-    formatsHint: 'Ảnh và video lấy từ checklist; Báo cáo PDF là tùy chọn.',
+    optionalFormatLabel: 'Định dạng bổ sung',
+    formatsHint:
+      'Ảnh và video tự động theo checklist; chỉ Báo cáo PDF có thể chọn.',
     formats: {
       PHOTO: 'Ảnh',
       VIDEO: 'Video',
@@ -19,7 +22,7 @@ export const deliveryOptionsCardMessages = defineMessages({
     retentionLabel: 'Thời hạn lưu trữ dữ liệu',
     retentionHint: 'Tính từ ngày bàn giao.',
     days: (n: number) => `${n} ngày`,
-    termsHeading: 'Điều khoản và cam kết bảo mật',
+    termsHeading: 'Điều khoản & bảo mật',
     termsRequired: 'Bắt buộc',
     termsLabel:
       'Tôi xác nhận mục đích giám sát và đồng ý với chính sách xử lý dữ liệu.',
@@ -39,11 +42,13 @@ export const deliveryOptionsCardMessages = defineMessages({
   },
   en: {
     cardTitle: 'Result delivery & commitments',
+    reviewTitle: 'Results & delivery method',
     cardSubtitle:
       'Choose how to receive the result and confirm before submitting.',
     formatsLabel: 'Result formats',
+    optionalFormatLabel: 'Additional format',
     formatsHint:
-      'Photos and video follow the checklist; the PDF report is optional.',
+      'Photos and video follow the checklist automatically; only the PDF report is optional.',
     formats: {
       PHOTO: 'Photos',
       VIDEO: 'Video',
@@ -57,7 +62,7 @@ export const deliveryOptionsCardMessages = defineMessages({
     retentionLabel: 'Data retention period',
     retentionHint: 'Counted from the delivery date.',
     days: (n: number) => `${n} days`,
-    termsHeading: 'Terms and security commitment',
+    termsHeading: 'Terms & privacy',
     termsRequired: 'Required',
     termsLabel:
       'I confirm the monitoring purpose and agree to the data processing policy.',
