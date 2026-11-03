@@ -5,6 +5,7 @@ import type {
 } from '../../types/missions'
 import { STAFF_ROLE_LABELS } from './missionDetailHelpers'
 import { missionGridCardMessages } from './MissionGridCard.messages'
+import { MissionGridDroneSprite } from './MissionGridDroneSprite'
 
 type Messages = (typeof missionGridCardMessages)['vi']
 
@@ -92,34 +93,44 @@ export function MissionGridDeviceList({
   canRemove,
   busy,
   onRemove,
+  enteringDeviceId,
 }: {
   t: Messages
   devices: MissionDeviceAssignmentResponse[]
   canRemove: boolean
   busy: boolean
   onRemove: (assignmentId: string) => void
+  enteringDeviceId?: string | null
 }) {
   return (
-    <div className="odm-mcard-res-list">
+    <div className="odm-mcard-res-list mg-assigned-drone-list">
       {devices.length === 0 ? (
         <p className="odm-mission-meta odm-mcard-note">{t.deviceEmpty}</p>
       ) : (
         devices.map((dev, idx) => (
           <div
             key={dev.id || `${dev.deviceId}-${idx}`}
-            className="odm-mcard-res-item"
+            className={`odm-mcard-res-item mg-assigned-drone${
+              enteringDeviceId === dev.deviceId ? ' is-entering' : ''
+            }`}
           >
-            <div>
-              <span className="odm-mcard-res-role">
+            <div className="mg-assigned-drone-icon">
+              <MissionGridDroneSprite size={42} />
+            </div>
+            <div className="mg-assigned-drone-copy">
+              <strong>{dev.deviceName || dev.deviceCode || t.deviceFallback}</strong>
+              <span>
+                {dev.deviceCode || dev.deviceSerialNumber || dev.deviceId}
+                {' · '}
                 {dev.deviceRole === 'SUPPORT'
                   ? t.deviceRoleShortSupport
                   : t.deviceRoleShortMain}
-                :
-              </span>{' '}
-              <strong>
-                {dev.deviceName || dev.deviceCode || t.deviceFallback}
-              </strong>
+              </span>
             </div>
+            <span className="mg-assigned-drone-status">
+              <i aria-hidden="true" />
+              {t.deviceAssignedStatus}
+            </span>
             {canRemove && (
               <button
                 type="button"

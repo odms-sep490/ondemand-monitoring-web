@@ -8,6 +8,7 @@ import {
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { missionsApi } from '../../api/missionsApi'
+import { droneApi } from '../../../staff/api/droneApi'
 import { operatorApi } from '../../../staff/api/operatorApi'
 import type { MissionResponse } from '../../types/missions'
 import type { OrderDetail } from '../../types/orders'
@@ -75,6 +76,38 @@ function renderMissionCard() {
 async function openStaffPicker() {
   fireEvent.click(screen.getByRole('button', { name: '+ Thêm' }))
   return screen.findByRole('group', { name: 'Thêm nhân sự cho nhiệm vụ' })
+}
+
+const availableDrones = [
+  {
+    id: 'drone-1',
+    label: 'DRN-001 (DJI Mavic 3 Enterprise)',
+    status: 'AVAILABLE',
+  },
+  {
+    id: 'drone-2',
+    label: 'DRN-002 (DJI Mavic 3 Enterprise)',
+    status: 'AVAILABLE',
+  },
+]
+
+function setMotionPreferenceForTest(reduced: boolean) {
+  vi.spyOn(window, 'matchMedia').mockImplementation((query) => ({
+    matches: reduced && query.includes('prefers-reduced-motion'),
+    media: query,
+    onchange: null,
+    addListener: () => {},
+    removeListener: () => {},
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    dispatchEvent: () => false,
+  }) as MediaQueryList)
+}
+
+async function openDevicePicker() {
+  vi.spyOn(droneApi, 'getAvailable').mockResolvedValue(availableDrones)
+  fireEvent.click(screen.getByRole('button', { name: /^Thêm$/ }))
+  return screen.findByRole('group', { name: 'Thêm thiết bị cho nhiệm vụ' })
 }
 
 afterEach(() => vi.restoreAllMocks())
@@ -234,5 +267,123 @@ describe('MissionGridCard staff assignment', () => {
       'staff-1',
       ['PILOT', 'OPERATOR', 'MAINTAINER', 'INSPECTOR'],
     )
+  })
+})
+
+describe('MissionGridCard drone assignment animation', () => {
+  it('calls the existing assignment API and shows success only after confirmation', async () => {
+    setMotionPreferenceForTest(true)
+    const onPlanChanged = vi.fn()
+    const assign = vi
+      .spyOn(missionsApi, 'assignDevice')
+      .mockResolvedValue({} as never)
+    render(
+      <MissionGridCard
+        mission={mission}
+        order={{} as OrderDetail}
+        plan={plan}
+        orderChecklistItems={[]}
+        disabled={false}
+        onPlanChanged={onPlanChanged}
+        onRequestReason={vi.fn()}
+      />,
+    )
+
+    const form = await openDevicePicker()
+    expect(within(form).getByText('DRN-001 (DJI Mavic 3 Enterprise)')).toBeInTheDocument()
+    fireEvent.click(
+      within(form).getByRole('button', {
+        name: 'Gán drone: DRN-001 (DJI Mavic 3 Enterprise)',
+      }),
+    )
+
+    expect(await screen.findByText('Gán drone thành công.')).toBeInTheDocument()
+    expect(assign).toHaveBeenCalledTimes(1)
+    expect(assign).toHaveBeenCalledWith('mission-1', 'drone-1', 'MAIN')
+    expect(onPlanChanged).toHaveBeenCalledTimes(1)
+    // The mission prop is authoritative; no card/count is fabricated when the
+    // parent has not yet supplied refreshed assignments.
+    expect(screen.getByText('Thiết bị (0/10)')).toBeInTheDocument()
+    expect(screen.queryByText('DRN-001', { selector: '.mg-assigned-drone-copy span' })).not.toBeInTheDocument()
+  })
+
+  it('keeps the device list unchanged and exposes the server error when assignment fails', async () => {
+    setMotionPreferenceForTest(true)
+    const assign = vi
+      .spyOn(missionsApi, 'assignDevice')
+      .mockRejectedValue(new Error('Drone không còn khả dụng'))
+    renderMissionCard()
+
+    const form = await openDevicePicker()
+    fireEvent.click(
+      within(form).getByRole('button', {
+        name: 'Gán drone: DRN-001 (DJI Mavic 3 Enterprise)',
+      }),
+    )
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Drone không còn khả dụng',
+    )
+    expect(assign).toHaveBeenCalledTimes(1)
+    expect(screen.getByText('Thiết bị (0/10)')).toBeInTheDocument()
+    expect(
+      within(screen.getByRole('group', { name: 'Thêm thiết bị cho nhiệm vụ' }))
+        .getByRole('button', {
+          name: 'Gán drone: DRN-001 (DJI Mavic 3 Enterprise)',
+        }),
+    ).toBeEnabled()
+  })
+
+  it('sends one request when the user double-clicks an assignment action', async () => {
+    setMotionPreferenceForTest(true)
+    let resolveAssignment!: (value: never) => void
+    const assign = vi.spyOn(missionsApi, 'assignDevice').mockReturnValue(
+      new Promise((resolve) => {
+        resolveAssignment = resolve
+      }),
+    )
+    renderMissionCard()
+
+    const form = await openDevicePicker()
+    const button = within(form).getByRole('button', {
+      name: 'Gán drone: DRN-001 (DJI Mavic 3 Enterprise)',
+    })
+    fireEvent.click(button)
+    fireEvent.click(button)
+    expect(assign).toHaveBeenCalledTimes(1)
+    resolveAssignment({} as never)
+
+    expect(await screen.findByText('Gán drone thành công.')).toBeInTheDocument()
+    expect(assign).toHaveBeenCalledTimes(1)
+  })
+
+  it('waits at the target without showing success while the API is still pending', async () => {
+    setMotionPreferenceForTest(false)
+    let resolveAssignment!: (value: never) => void
+    const assign = vi.spyOn(missionsApi, 'assignDevice').mockReturnValue(
+      new Promise((resolve) => {
+        resolveAssignment = resolve
+      }),
+    )
+    renderMissionCard()
+
+    const form = await openDevicePicker()
+    fireEvent.click(
+      within(form).getByRole('button', {
+        name: 'Gán drone: DRN-001 (DJI Mavic 3 Enterprise)',
+      }),
+    )
+
+    expect(
+      await screen.findByText(
+        'Drone đã tới vị trí. Đang xác nhận gán thiết bị…',
+        {},
+        { timeout: 3000 },
+      ),
+    ).toBeInTheDocument()
+    expect(screen.queryByText('Gán drone thành công.')).not.toBeInTheDocument()
+    expect(assign).toHaveBeenCalledTimes(1)
+    resolveAssignment({} as never)
+    expect(await screen.findByText('Gán drone thành công.')).toBeInTheDocument()
   })
 })
