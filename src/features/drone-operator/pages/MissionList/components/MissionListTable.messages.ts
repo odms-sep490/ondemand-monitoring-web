@@ -4,7 +4,7 @@ export const missionListTableMessages = defineMessages({
   vi: {
     statusLabel: {
       PENDING: 'Chờ phản hồi',
-      PENDING_CONFIRMATION: 'Chờ phi hành đoàn xác nhận',
+      PENDING_CONFIRMATION: 'Chuẩn bị',
       PLANNING: 'Đang chuẩn bị trước bay',
       READY: 'Sẵn sàng chờ nghiệm thu',
       ACCEPTED: 'Đã nhận',
@@ -68,7 +68,7 @@ export const missionListTableMessages = defineMessages({
   en: {
     statusLabel: {
       PENDING: 'Awaiting reply',
-      PENDING_CONFIRMATION: 'Waiting for crew acceptance',
+      PENDING_CONFIRMATION: 'Preparing',
       PLANNING: 'Preparing for preflight',
       READY: 'Ready for inspector start',
       ACCEPTED: 'Accepted',

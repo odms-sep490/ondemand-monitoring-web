@@ -111,51 +111,17 @@ export function WorkflowStepper({
         className={`odm-wf-layer${collapseOrder ? ' is-collapsed' : ''}`}
         aria-label={combined ? t.combinedLayer : t.orderLayer}
       >
-        <header className="odm-wf-head">
-          <span className="odm-wf-eyebrow">
-            {combined ? t.combinedLayer : t.orderLayer}
-          </span>
-          {order.statusLabel || orderNote ? (
-            <span className={`odm-wf-chip ${orderTone}`}>
-              {progress.waiting ? <OrderIcon name="clock" size={13} /> : null}
-              {order.statusLabel ?? orderNote}
-            </span>
-          ) : null}
-          {combined &&
-          mission &&
-          mission.index != null &&
-          mission.total != null ? (
-            <strong className="odm-wf-mission-of">
-              {t.missionOf(mission.index, mission.total)}
-            </strong>
-          ) : null}
-          {combined && mission?.code ? (
-            <code className="odm-wf-code">{mission.code}</code>
-          ) : null}
-          {combined && mission?.statusLabel ? (
-            <span className="odm-wf-chip is-current">
-              {mission.statusLabel}
-            </span>
-          ) : null}
-          {combined && mission && (mission.onPrev || mission.onNext) ? (
-            <span className="odm-wf-pager">
-              <Button
-                type="button"
-                disabled={!mission.onPrev}
-                onClick={mission.onPrev}
-              >
-                <ArrowLeftOutlined aria-hidden="true" /> {t.missionPrev}
-              </Button>
-              <Button
-                type="button"
-                disabled={!mission.onNext}
-                onClick={mission.onNext}
-              >
-                {t.missionNext} <ArrowRightOutlined aria-hidden="true" />
-              </Button>
-            </span>
-          ) : null}
-        </header>
+        {!combined ? (
+          <header className="odm-wf-head">
+            <span className="odm-wf-eyebrow">{t.orderLayer}</span>
+            {order.statusLabel || orderNote ? (
+              <span className={`odm-wf-chip ${orderTone}`}>
+                {progress.waiting ? <OrderIcon name="clock" size={13} /> : null}
+                {order.statusLabel ?? orderNote}
+              </span>
+            ) : null}
+          </header>
+        ) : null}
         <ol className="odm-wf-steps" hidden={collapseOrder}>
           {displayStages.map((item, index) => {
             const isOrderStage = item.kind === 'order'
