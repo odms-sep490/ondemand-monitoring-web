@@ -753,3 +753,6 @@
   color: #475569;
   font-size: 13px;
 }
+.mc-list--expanded {
+  margin-top: 16px;
+}

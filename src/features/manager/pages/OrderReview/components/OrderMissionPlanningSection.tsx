@@ -12,6 +12,7 @@ import { MissionGridCard } from '../../../components/common/MissionGridCard'
 import { MissionUpdatePanel } from '../../../components/common/MissionUpdatePanel'
 import { ReasonModal } from '../../../components/common/ReasonModal'
 import { FlightPermitCard } from '../../../components/common/FlightPermitCard'
+import { MissionExecutionPanel } from './MissionExecutionPanel'
 import { MissionCreatePage } from '../../MissionCreate/MissionCreatePage'
 import '../../../components/common/planning.css'
 import { usePlanningConfirmation } from '../../../components/common/usePlanningConfirmation'
@@ -19,7 +20,6 @@ import { financeApi } from '../../../../finance/api'
 import { PlanningPaymentGate } from './PlanningPaymentGate'
 import { PlanningFormModal } from './PlanningFormModal'
 import { PlanningWorkspaceBar } from './PlanningWorkspaceBar'
-import { Button } from '../../../../../shared/components/ui'
 import '../planningLayout.css'
 import { orderMissionPlanningSectionMessages } from './OrderMissionPlanningSection.messages'
 import { useI18n } from '../../../../../shared/i18n'
@@ -47,7 +47,7 @@ export function OrderMissionPlanningSection({
   initialOrder?: OrderDetail
   onAssignResources?: (missionId: string) => void
   onWorkflowInfo?: (info: PlanningWorkflowInfo) => void
-  activeTab?: 'planning' | 'permit'
+  activeTab?: 'planning' | 'permit' | 'execution'
   onBackToPlanning?: () => void
 }) {
   return (
@@ -72,7 +72,7 @@ function OrderPlanningWorkspace({
   orderId: string
   initialOrder?: OrderDetail
   onWorkflowInfo?: (info: PlanningWorkflowInfo) => void
-  activeTab?: 'planning' | 'permit'
+  activeTab?: 'planning' | 'permit' | 'execution'
   onBackToPlanning?: () => void
 }) {
   const { t: ts } = useI18n(orderMissionPlanningSectionMessages)
@@ -331,29 +331,25 @@ function OrderPlanningWorkspace({
               }}
             />
           )}
-          {activeTab === 'permit' ? (
-            /* Permit stage keeps the current branch navigation behavior. */
+          {activeTab === 'execution' ? (
             <div className="odm-flight-permits-container">
-              <div className="odm-flight-permit-actions">
-                <Button
-                  type="button"
-                  size="sm"
-                  onClick={onBackToPlanning}
-                >
-                  ← Quay lại lập kế hoạch
-                </Button>
-                {canAddMission && isFinalized ? (
-                  <Button
-                    type="button"
-                    size="sm"
-                    className="odm-permit-add-mission"
-                    onClick={() => setCreating(true)}
-                    disabled={busy || creating}
-                  >
-                    {ts.addMission}
-                  </Button>
-                ) : null}
-              </div>
+              <ShowMoreList>
+                {effective.map((mission) =>
+                  mission.flightPermitStatus === 'APPROVED' ? (
+                    <MissionExecutionPanel key={mission.id} mission={mission} />
+                  ) : (
+                    <FlightPermitCard
+                      key={mission.id}
+                      mission={mission}
+                      onChanged={query.reload}
+                      paymentComplete={paymentComplete}
+                    />
+                  ),
+                )}
+              </ShowMoreList>
+            </div>
+          ) : activeTab === 'permit' ? (
+            <div className="odm-flight-permits-container">
               {effective.length === 0 ? (
                 <div className="odm-plan-empty">
                   <h3>{ts.noMissions}</h3>

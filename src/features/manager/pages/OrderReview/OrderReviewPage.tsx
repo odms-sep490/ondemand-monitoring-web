@@ -57,8 +57,10 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
   // A completed Order stage reopened read-only; null = the live (current) screen.
   const [viewStage, setViewStage] = useState<OrderStage | null>(null)
   const [planning, setPlanning] = useState<PlanningWorkflowInfo | null>(null)
-  // Track whether viewing 'planning' or 'permit' stage when plan is finalized
-  const [activeWorkflowTab, setActiveWorkflowTab] = useState<'planning' | 'permit'>('planning')
+  // Track the active planning, permit, or execution stage.
+  const [activeWorkflowTab, setActiveWorkflowTab] = useState<
+    'planning' | 'permit' | 'execution'
+  >('planning')
   const pageRef = useRef<HTMLDivElement>(null)
   const [assigningMissionId, setAssigningMissionId] = useState<string | null>(
     null,
@@ -75,12 +77,18 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
     }
   }, [orderQuery.data?.status])
 
-  // When the plan is finalized, automatically default the active workflow tab to 'permit'
+  const hasApprovedPermit = Boolean(
+    planning?.missions.some(
+      (mission) => mission.flightPermitStatus === 'APPROVED',
+    ),
+  )
+
+  // Once any mission's permit is approved, open the execution flow.
   useEffect(() => {
     if (planning?.isFinalized) {
-      setActiveWorkflowTab('permit')
+      setActiveWorkflowTab(hasApprovedPermit ? 'execution' : 'permit')
     }
-  }, [planning?.isFinalized])
+  }, [planning?.isFinalized, hasApprovedPermit])
   if (navigateHome) {
     window.location.hash = managerHref({ screen: 'orderQueue' })
     return null
@@ -197,9 +205,11 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
         planning={planning}
         viewMissionStage={activeWorkflowTab === 'permit' ? 'permit' : null}
         onSelectMissionStage={(stage) => {
-          if (stage === 'permit') {
+          if (stage === 'permit' || stage === 'execute') {
             setViewStage(null)
-            setActiveWorkflowTab('permit')
+            setActiveWorkflowTab(
+              stage === 'permit' ? 'permit' : 'execution',
+            )
             pageRef.current?.scrollIntoView?.({ block: 'start' })
           }
         }}

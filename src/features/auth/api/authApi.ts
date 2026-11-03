@@ -269,6 +269,18 @@ export async function authenticatedFetch(
   init: RequestInit = {},
 ): Promise<Response> {
   const stamp = authSession.capture()
+  const path = new URL(url, env.apiBaseUrl).pathname
+  // Business requests can be started by effects before the router's auth
+  // bootstrap finishes. Wait for the shared restore job so we don't send an
+  // anonymous request and trigger a spurious 401 on every protected endpoint.
+  if (
+    !cookieAuthenticationPaths.has(path) &&
+    authSession.getStatus() === 'loading'
+  ) {
+    await restoreAuthSession()
+    if (!authSession.isCurrent(stamp)) throw sessionChangedError()
+  }
+
   const protection = await csrfHeaders(url, init.method)
   if (!authSession.isCurrent(stamp)) throw sessionChangedError()
   const request = (token?: string) => {
@@ -282,7 +294,7 @@ export async function authenticatedFetch(
   if (!authSession.isCurrent(stamp)) throw sessionChangedError()
   if (response.status !== 401) return response
   if (
-    cookieAuthenticationPaths.has(new URL(url, env.apiBaseUrl).pathname) ||
+    cookieAuthenticationPaths.has(path) ||
     authSession.isLoggedOut()
   )
     return response

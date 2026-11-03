@@ -215,6 +215,419 @@
   margin: 0;
 }
 
+.odm-flight-resources {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  margin: 2px 0 4px;
+}
+
+.odm-flight-resources__title {
+  margin: 0;
+  color: var(--or-tx);
+  font-size: 18px;
+  line-height: 1.35;
+}
+
+.odm-flight-resources__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 16px;
+}
+
+.odm-flight-resources__panel {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--or-border);
+  border-radius: 12px;
+  background: var(--or-card);
+}
+
+.odm-flight-resources__panel-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 54px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--or-border);
+  background: color-mix(in srgb, var(--or-primary) 6%, var(--or-card));
+}
+
+.odm-flight-resources__panel-head h4 {
+  min-width: 0;
+  margin: 0;
+  color: var(--or-tx);
+  font-size: 16px;
+  line-height: 1.35;
+}
+
+.odm-flight-resources__icon,
+.odm-flight-resources__avatar {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #e8f1ff;
+  color: var(--or-primary);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.odm-flight-resources__icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+}
+
+.odm-flight-resources__avatar--device {
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.odm-flight-resources__avatar--device img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.odm-flight-resources__icon--staff {
+  background: #e9f8f0;
+  color: #16834d;
+}
+
+.odm-flight-resources__count {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  min-width: 26px;
+  height: 26px;
+  margin-left: auto;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: #e8f1ff;
+  color: var(--or-primary);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.odm-flight-resources__items {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+}
+
+.odm-flight-resources__device,
+.odm-flight-resources__staff {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  padding: 13px;
+  border: 1px solid var(--or-border);
+  border-radius: 10px;
+  background: var(--or-card);
+}
+
+.odm-flight-resources__resource-head {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
+
+.odm-flight-resources__identity {
+  display: grid;
+  flex: 1;
+  gap: 3px;
+  min-width: 0;
+}
+
+.odm-flight-resources__identity strong {
+  overflow-wrap: anywhere;
+  color: var(--or-tx);
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.odm-flight-resources__identity > span {
+  overflow-wrap: anywhere;
+  color: var(--or-tx2);
+  font-size: 13.5px;
+  line-height: 1.4;
+}
+
+.odm-flight-resources__pill {
+  flex: none;
+  padding: 5px 9px;
+  border: 1px solid #c9dbff;
+  border-radius: 999px;
+  background: #f1f6ff;
+  color: #174ea6;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.odm-flight-resources__facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 14px;
+  margin: 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--or-border);
+}
+
+.odm-flight-resources__facts > div {
+  display: grid;
+  grid-template-columns: minmax(90px, 0.8fr) minmax(0, 1.2fr);
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+  padding: 5px 0;
+}
+
+.odm-flight-resources__facts dt {
+  color: var(--or-tx2);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.odm-flight-resources__facts dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: var(--or-tx);
+  font-size: 13.5px;
+  font-weight: 650;
+  line-height: 1.45;
+}
+
+.odm-flight-resources__facts a {
+  color: var(--or-primary);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.odm-flight-resources__specs {
+  display: grid;
+  gap: 6px;
+  padding: 10px 11px;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--or-primary) 5%, var(--or-card));
+}
+
+.odm-flight-resources__specs h5 {
+  margin: 0;
+  color: var(--or-tx);
+  font-size: 14px;
+}
+
+.odm-flight-resources__facts--specs {
+  padding-top: 6px;
+  border-top: 1px solid color-mix(in srgb, var(--or-border) 70%, transparent);
+}
+
+.odm-flight-resources__empty,
+.odm-flight-resources__hint {
+  margin: 0;
+  padding: 12px 14px;
+  color: var(--or-tx2);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+.odm-flight-resources__disclosure,
+.odm-flight-permit__disclosure {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--or-border);
+  border-radius: 10px;
+  background: var(--or-card);
+}
+
+.odm-flight-resources__disclosure > summary,
+.odm-flight-permit__disclosure > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+  padding: 10px 12px;
+  color: var(--or-tx);
+  background: color-mix(in srgb, var(--or-primary) 5%, var(--or-card));
+  cursor: pointer;
+  list-style: none;
+}
+
+.odm-flight-resources__disclosure > summary::-webkit-details-marker,
+.odm-flight-permit__disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+
+.odm-flight-resources__disclosure > summary:focus-visible,
+.odm-flight-permit__disclosure > summary:focus-visible {
+  position: relative;
+  z-index: 1;
+  outline: 3px solid color-mix(in srgb, var(--or-primary) 30%, transparent);
+  outline-offset: -3px;
+}
+
+.odm-flight-resources__disclosure > summary > strong,
+.odm-flight-permit__disclosure-heading > strong {
+  min-width: 0;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.odm-flight-resources__toggle-label,
+.odm-flight-permit__disclosure-action {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  gap: 8px;
+  color: var(--or-primary);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.odm-flight-resources__disclosure-content,
+.odm-flight-permit__disclosure-content {
+  padding: 12px;
+  border-top: 1px solid var(--or-border);
+  animation: odm-flight-disclosure-in 160ms ease-out;
+}
+
+.odm-flight-resources__license-disclosure .staff-license-summary {
+  margin-top: 0;
+}
+
+.odm-flight-resources__license-disclosure .staff-license-summary__heading {
+  display: none;
+}
+
+.odm-flight-resources__license-disclosure .staff-license-summary__list {
+  margin-top: 0;
+}
+
+.odm-flight-resources__disclosure .when-open,
+.odm-flight-permit__disclosure .when-open {
+  display: none;
+}
+
+.odm-flight-resources__disclosure[open] .when-closed,
+.odm-flight-permit__disclosure[open] .when-closed {
+  display: none;
+}
+
+.odm-flight-resources__disclosure[open] .when-open,
+.odm-flight-permit__disclosure[open] .when-open {
+  display: inline;
+}
+
+.odm-disclosure-chevron {
+  display: inline-block;
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg) translateY(-2px);
+  transition: transform 160ms ease;
+}
+
+.odm-flight-resources__disclosure[open] .odm-disclosure-chevron,
+.odm-flight-permit__disclosure[open] .odm-disclosure-chevron {
+  transform: rotate(225deg) translate(-1px, -1px);
+}
+
+.odm-flight-permit__details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 14px;
+}
+
+.odm-flight-permit__disclosure-heading {
+  display: grid;
+  flex: 1;
+  gap: 3px;
+  min-width: 0;
+}
+
+.odm-flight-permit__note-preview,
+.odm-flight-permit__file-summary {
+  overflow: hidden;
+  color: var(--or-tx2);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+}
+
+.odm-flight-permit__note-preview {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow-wrap: anywhere;
+}
+
+.odm-flight-permit__details-grid .odm-flight-permit__field {
+  gap: 7px;
+}
+
+.odm-flight-permit__details-grid .odm-flight-permit__current-file {
+  margin-top: 0;
+}
+
+@keyframes odm-flight-disclosure-in {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 900px) {
+  .odm-flight-resources__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .odm-flight-resources__grid,
+  .odm-flight-permit__details-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .odm-flight-resources__facts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .odm-flight-resources__resource-head {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .odm-flight-resources__identity {
+    flex-basis: calc(100% - 54px);
+  }
+
+  .odm-flight-resources__pill {
+    margin-left: 51px;
+  }
+
+  .odm-flight-resources__facts > div {
+    grid-template-columns: minmax(98px, 0.7fr) minmax(0, 1.3fr);
+  }
+}
+
 .odm-flight-permit__field {
   display: grid;
   gap: 8px;
@@ -563,6 +976,17 @@
   .odm-flight-permit__actions > * {
     width: 100%;
     justify-content: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .odm-disclosure-chevron {
+    transition: none;
+  }
+
+  .odm-flight-resources__disclosure-content,
+  .odm-flight-permit__disclosure-content {
+    animation: none;
   }
 }
 
@@ -3315,7 +3739,7 @@
   font-size: 11.5px;
 }
 
-/* ---------- Two-level workflow: Order stages, then Mission stages ---------- */
+/* ---------- Order and Mission workflow stages ---------- */
 .odm-wf {
   display: flex;
   flex-direction: column;
@@ -3392,6 +3816,13 @@
   margin: 0;
   padding: 0;
   list-style: none;
+}
+.odm-wf.is-combined .odm-wf-steps {
+  gap: 2px;
+}
+.odm-wf.is-combined .odm-wf-btn {
+  gap: 8px;
+  padding-inline: 6px;
 }
 .odm-wf-step {
   display: flex;

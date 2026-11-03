@@ -67,6 +67,10 @@ export function MissionHeader({
     ['CONNECTED', 'PREFLIGHT_CHECKING', 'FAILED_PREFLIGHT', 'FAILED'].includes(
       deviceState || backendStatus,
     )
+  const crewStillPending =
+    mission.assignedStaffCount != null &&
+    mission.acceptedStaffCount != null &&
+    mission.acceptedStaffCount < mission.assignedStaffCount
   const canHandleInspectionMedia =
     (INSPECTION_MEDIA_STATUSES.has(backendStatus) ||
       (backendStatus === 'IN_PROGRESS' &&
@@ -78,22 +82,30 @@ export function MissionHeader({
   const responseStatusLabel =
     backendStatus === 'PENDING_CONFIRMATION' &&
     mission.myResponseStatus === 'ACCEPTED'
-      ? mission.assignedStaffCount != null &&
-        mission.acceptedStaffCount != null &&
-        mission.acceptedStaffCount < mission.assignedStaffCount
-        ? t.statusWaitingCrew(
-            mission.acceptedStaffCount,
-            mission.assignedStaffCount,
+      ? deviceState === 'READY_TO_FLY' && crewStillPending
+        ? t.statusPreflightReadyWaitingCrew(
+            mission.acceptedStaffCount ?? 0,
+            mission.assignedStaffCount ?? 0,
           )
-        : deviceState === 'READY_TO_FLY'
-          ? t.statusHandover
-          : deviceState === 'PREFLIGHT_CHECKING'
-            ? t.statusPreflight
-            : deviceState === 'CONNECTED'
-              ? t.statusConnected
-              : deviceState === 'FAILED'
-                ? t.statusPreflightFailed
-                : t.statusWaitingConnection
+        : deviceState === 'PREFLIGHT_CHECKING'
+          ? t.statusPreflight
+          : deviceState === 'CONNECTED'
+            ? t.statusConnected
+            : deviceState === 'FAILED'
+              ? t.statusPreflightFailed
+              : crewStillPending && access?.canOperatePayload !== true
+                ? t.statusWaitingCrew(
+                    mission.acceptedStaffCount ?? 0,
+                    mission.assignedStaffCount ?? 0,
+                  )
+                : crewStillPending
+                  ? t.statusOperatorPreflight(
+                      mission.acceptedStaffCount ?? 0,
+                      mission.assignedStaffCount ?? 0,
+                    )
+                  : deviceState === 'READY_TO_FLY'
+                    ? t.statusHandover
+                    : t.statusWaitingConnection
       : backendStatus === 'IN_PROGRESS' && deviceState === 'RETURNING'
         ? t.statusReturning
         : backendStatus === 'IN_PROGRESS' &&

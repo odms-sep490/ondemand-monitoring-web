@@ -41,6 +41,10 @@ export const missionDetailPageMessages = defineMessages({
     startMission: 'Bắt đầu Mission',
     statusWaitingCrew: (accepted: number, total: number) =>
       `Chờ nhân sự chấp nhận · ${accepted}/${total}`,
+    statusOperatorPreflight: (accepted: number, total: number) =>
+      `Operator đã nhận · ${accepted}/${total} staff đã nhận · có thể kết nối và precheck`,
+    statusPreflightReadyWaitingCrew: (accepted: number, total: number) =>
+      `Precheck đạt · chờ staff còn lại chấp nhận · ${accepted}/${total}`,
     statusWaitingConnection: 'Nhân sự đã nhận · chờ kết nối thiết bị',
     statusConnected: 'Thiết bị đã kết nối · chờ kiểm tra trước bay',
     statusPreflight: 'Đang kiểm tra thiết bị trước bay',
@@ -50,7 +54,7 @@ export const missionDetailPageMessages = defineMessages({
     statusPostflight: 'Đang kiểm tra sau bay',
     workflowTitle: 'Tiến trình Mission',
     workflowSteps: [
-      'Nhân sự',
+      'Operator nhận nhiệm vụ',
       'Kết nối & kiểm tra trước bay',
       'Bàn giao',
       'Thời tiết & Start',
@@ -65,7 +69,9 @@ export const missionDetailPageMessages = defineMessages({
     workflowAcceptMission: 'Chấp nhận nhiệm vụ để bắt đầu quy trình.',
     workflowWaitCrew: (accepted: number, total: number) =>
       `${accepted}/${total} nhân sự đã chấp nhận. Chờ toàn bộ đội bay xác nhận.`,
-    workflowConnectDevice: 'Toàn bộ nhân sự đã nhận. Nhân viên vận hành kết nối thiết bị và kiểm tra trước bay.',
+    workflowWaitCrewForHandover: (accepted: number, total: number) =>
+      `Precheck đã đạt. Đang chờ đủ staff chấp nhận (${accepted}/${total}) trước khi bàn giao.`,
+    workflowConnectDevice: 'Operator đã nhận nhiệm vụ. Có thể kết nối thiết bị và precheck ngay; vẫn cần đủ staff chấp nhận trước khi bàn giao.',
     workflowPreflight: 'Thiết bị đã kết nối. Operator đang kiểm tra trước bay.',
     workflowPreflightFailed: 'Kiểm tra trước bay chưa đạt. Nhân viên vận hành cần xử lý lỗi và kiểm tra lại.',
     workflowHandover: 'Kiểm tra trước bay đạt. Nhân viên vận hành bàn giao quyền điều khiển cho nghiệm thu.',
@@ -121,6 +127,10 @@ export const missionDetailPageMessages = defineMessages({
     startMission: 'Start Mission',
     statusWaitingCrew: (accepted: number, total: number) =>
       `Waiting for crew acceptance · ${accepted}/${total}`,
+    statusOperatorPreflight: (accepted: number, total: number) =>
+      `Operator accepted · ${accepted}/${total} staff accepted · device connection and preflight can begin`,
+    statusPreflightReadyWaitingCrew: (accepted: number, total: number) =>
+      `Preflight passed · waiting for the rest of the crew · ${accepted}/${total}`,
     statusWaitingConnection: 'Crew accepted · waiting for device connection',
     statusConnected: 'Device connected · preflight required',
     statusPreflight: 'Device preflight in progress',
@@ -130,7 +140,7 @@ export const missionDetailPageMessages = defineMessages({
     statusPostflight: 'Postflight inspection in progress',
     workflowTitle: 'Mission progress',
     workflowSteps: [
-      'Crew',
+      'Operator accepts',
       'Connect & preflight',
       'Handover',
       'Weather & start',
@@ -145,7 +155,9 @@ export const missionDetailPageMessages = defineMessages({
     workflowAcceptMission: 'Accept the assignment to begin the workflow.',
     workflowWaitCrew: (accepted: number, total: number) =>
       `${accepted}/${total} staff accepted. Waiting for the full crew.`,
-    workflowConnectDevice: 'Crew accepted. The operator connects GCS and runs preflight.',
+    workflowWaitCrewForHandover: (accepted: number, total: number) =>
+      `Preflight passed. Waiting for all staff to accept (${accepted}/${total}) before handover.`,
+    workflowConnectDevice: 'The Operator has accepted. Device connection and preflight can begin now; all staff must still accept before handover.',
     workflowPreflight: 'Device connected. The operator is running preflight.',
     workflowPreflightFailed: 'Preflight did not pass. Resolve the issue and check again.',
     workflowHandover: 'Preflight passed. The operator hands control to the inspector.',

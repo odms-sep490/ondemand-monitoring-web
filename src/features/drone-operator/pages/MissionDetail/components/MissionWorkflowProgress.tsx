@@ -9,12 +9,14 @@ type Props = {
   mission: OperatorMission
   weather: WeatherPreflightStatus | null
   resultApprovalStatus: MissionResultApprovalStatus | null
+  canOperatePayload?: boolean
 }
 
 export function MissionWorkflowProgress({
   mission,
   weather,
   resultApprovalStatus,
+  canOperatePayload = false,
 }: Props) {
   const { t } = useI18n(missionDetailPageMessages)
   const status = mission.backendStatus ?? mission.status
@@ -72,12 +74,20 @@ export function MissionWorkflowProgress({
       detail = t.workflowStartReady
     }
   } else if (status === 'PENDING_CONFIRMATION') {
-    if (!crewAccepted && deviceStatus !== 'READY_TO_FLY') {
+    const devicePassedPreflight = deviceStatus === 'READY_TO_FLY'
+    if (
+      !crewAccepted &&
+      !devicePassedPreflight &&
+      !canOperatePayload
+    ) {
       currentStep = 0
       detail =
         mission.myResponseStatus === 'ACCEPTED'
           ? t.workflowWaitCrew(accepted, total)
           : t.workflowAcceptMission
+    } else if (devicePassedPreflight && !crewAccepted) {
+      currentStep = 2
+      detail = t.workflowWaitCrewForHandover(accepted, total)
     } else if (deviceStatus === 'READY_TO_FLY') {
       currentStep = 2
       detail = t.workflowHandover

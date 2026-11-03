@@ -8,6 +8,7 @@ export const recentOrdersMessages = defineMessages({
     emptyDescription: 'Tạo yêu cầu giám sát đầu tiên của bạn.',
     emptyAction: 'Tạo yêu cầu đầu tiên',
     depositRequired: 'Cần thanh toán cọc',
+    finalPaymentRequired: 'Cần thanh toán phần còn lại',
     columns: { order: 'Đơn hàng', date: 'Thời gian', status: 'Trạng thái' },
   },
   en: {
@@ -17,6 +18,7 @@ export const recentOrdersMessages = defineMessages({
     emptyDescription: 'Create your first monitoring request.',
     emptyAction: 'Create your first request',
     depositRequired: 'Deposit required',
+    finalPaymentRequired: 'Remaining balance due',
     columns: { order: 'Order', date: 'Dates', status: 'Status' },
   },
 })

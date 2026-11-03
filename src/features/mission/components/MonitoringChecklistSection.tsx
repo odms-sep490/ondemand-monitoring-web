@@ -117,6 +117,7 @@ export function MonitoringChecklistSection({
   evidenceDetached,
   compact = false,
   compactTitle,
+  staffNamesById,
   hideImplementationHints = false,
   assessmentOnly = false,
   preview = false,
@@ -148,6 +149,8 @@ export function MonitoringChecklistSection({
   compact?: boolean
   /** Optional heading for a compact checklist embedded in another workflow. */
   compactTitle?: string
+  /** Names used to attribute checklist updates to assigned Mission staff. */
+  staffNamesById?: Record<string, string>
   /** Acceptance view that reviews evidence and edits only the assessment. */
   assessmentOnly?: boolean
   /** Read-only preview shown before the pilot accepts the mission. */
@@ -164,6 +167,11 @@ export function MonitoringChecklistSection({
   const rows = [...(data?.executions ?? [])].sort(
     (a, b) => a.displayOrder - b.displayOrder || a.id.localeCompare(b.id),
   )
+  const firstTodo = rows.find((row) =>
+    assessmentOnly
+      ? row.assessmentStatus === 'NOT_ASSESSED'
+      : !terminal(row.executionStatus),
+  )
   const assessed = rows.filter(
     (row) => row.assessmentStatus !== 'NOT_ASSESSED',
   ).length
@@ -174,11 +182,6 @@ export function MonitoringChecklistSection({
     rows.flatMap((row) => (row.evidence ?? []).map((item) => item.evidenceId)),
   ).size
   if (compact) {
-    const firstTodo = rows.find((row) =>
-      assessmentOnly
-        ? row.assessmentStatus === 'NOT_ASSESSED'
-        : !terminal(row.executionStatus),
-    )
     const progressCount = assessmentOnly ? assessed : done
     const activeId =
       openId && rows.some((row) => row.id === openId) ? openId : null
@@ -264,6 +267,9 @@ export function MonitoringChecklistSection({
           <ol className="mc-list">
             {rows.map((item, index) => {
               const open = item.id === activeId
+              const updatedBy = item.lastModifiedBy
+                ? staffNamesById?.[item.lastModifiedBy]
+                : undefined
               const finished = terminal(item.executionStatus)
               const missing =
                 !assessmentOnly &&
@@ -324,6 +330,9 @@ export function MonitoringChecklistSection({
                     <span className="mc-text">
                       <span className="mc-title">{item.content}</span>
                       <span className="mc-sub">
+                        {assessmentOnly
+                          ? assessments[item.assessmentStatus]
+                          : statuses[item.executionStatus]}{' · '}
                         {evidenceSummary}
                         {item.executionStatus !== 'UNABLE_TO_VERIFY' &&
                           evidenceShortfall(item) > 0 && (
@@ -332,6 +341,10 @@ export function MonitoringChecklistSection({
                         {item.blockingReasons?.includes(
                           'EVIDENCE_TYPE_NOT_ELIGIBLE',
                         ) && ' · sai loại media'}
+                        {updatedBy ? ` · Cập nhật bởi ${updatedBy}` : null}
+                        {item.updatedAt
+                          ? ` · ${formatUpdated(item.updatedAt)}`
+                          : null}
                       </span>
                     </span>
                     {tone === 'is-current' && (
@@ -565,37 +578,125 @@ export function MonitoringChecklistSection({
         </>
       ) : null}
       {data && (
-        <ol className="monitoring-list">
-          {rows.map((item) => (
-            <li key={`evidence:${missionId}:${item.id}`}>
-              <ChecklistExecutionItem
-                key={`${missionId}:${item.id}`}
-                item={item}
-                missionId={missionId}
-                canExecute={canEditExecution}
-                canAssess={canEditAssessment}
-                assessmentOnly={assessmentOnly}
-                completeOnAssessment={assessmentOnly && canAssess}
-                rejected={resultStatus === 'REJECTED'}
-                refresh={refresh}
-              />
-              <ChecklistEvidencePanel
-                missionId={missionId}
-                item={item}
-                canAttach={
-                  canAttach && resultKnown && !locked && !loading && !error
-                }
-                canDetach={
-                  canDetach && resultKnown && !locked && !loading && !error
-                }
-                refresh={refresh}
-                loadCandidates={loadEvidenceCandidates}
-                attachCandidate={attachEvidenceCandidate}
-                attachCandidates={attachEvidenceCandidates}
-                evidenceDetached={evidenceDetached}
-              />
-            </li>
-          ))}
+        <ol className="mc-list mc-list--expanded">
+          {rows.map((item, index) => {
+            const open = item.id === openId
+            const finished = terminal(item.executionStatus)
+            const missing =
+              !assessmentOnly &&
+              item.executionStatus === 'COMPLETED' &&
+              (evidenceShortfall(item) > 0 ||
+                Boolean(
+                  item.blockingReasons?.some((reason) =>
+                    [
+                      'EVIDENCE_TYPE_NOT_ELIGIBLE',
+                      'MEDIA_REJECTED',
+                      'MEDIA_NOT_VALIDATED',
+                      'EVIDENCE_SOURCE_NOT_ELIGIBLE',
+                    ].includes(reason),
+                  ),
+                ))
+            const tone = assessmentOnly
+              ? item.assessmentStatus === 'COMPLIANT'
+                ? 'is-done'
+                : item.assessmentStatus === 'NON_COMPLIANT'
+                  ? 'is-unable'
+                  : item.id === firstTodo?.id
+                    ? 'is-current'
+                    : ''
+              : item.executionStatus === 'UNABLE_TO_VERIFY'
+                ? 'is-unable'
+                : finished
+                  ? missing
+                    ? 'is-missing'
+                    : 'is-done'
+                  : item.id === firstTodo?.id
+                    ? 'is-current'
+                    : ''
+            const evidenceSummary =
+              item.executionStatus === 'UNABLE_TO_VERIFY'
+                ? `${item.eligibleEvidenceCount ?? 0} bằng chứng`
+                : isPerTypeEvidence(item)
+                  ? evidenceCountLabel(item)
+                  : `${evidenceCountLabel(item)} bằng chứng`
+            return (
+              <li
+                key={`evidence:${missionId}:${item.id}`}
+                className={`mc-item ${tone}${open ? ' is-open' : ''}`}
+              >
+                <button
+                  type="button"
+                  className="mc-row"
+                  aria-expanded={open}
+                  onClick={() => setOpenId(open ? null : item.id)}
+                >
+                  <span className="mc-mark" aria-hidden="true">
+                    {tone === 'is-done'
+                      ? '✓'
+                      : tone === 'is-unable'
+                        ? '!'
+                        : index + 1}
+                  </span>
+                  <span className="mc-text">
+                    <span className="mc-title">{item.content}</span>
+                    <span className="mc-sub">
+                      {assessmentOnly
+                        ? assessments[item.assessmentStatus]
+                        : statuses[item.executionStatus]}{' · '}
+                      {evidenceSummary}
+                      {item.executionStatus !== 'UNABLE_TO_VERIFY' &&
+                        evidenceShortfall(item) > 0 &&
+                        ` · thiếu ${evidenceShortfall(item)}`}
+                    </span>
+                  </span>
+                  {tone === 'is-current' && (
+                    <span className="mc-chip is-todo">
+                      {assessmentOnly ? 'Cần đánh giá' : 'Cần làm'}
+                    </span>
+                  )}
+                  {tone === 'is-missing' && (
+                    <span className="mc-chip is-pending">Thiếu bằng chứng</span>
+                  )}
+                  {tone === 'is-unable' && (
+                    <span className="mc-chip is-danger">
+                      {assessmentOnly ? 'Không đạt yêu cầu' : 'Không xác minh'}
+                    </span>
+                  )}
+                  <span className="mc-caret" aria-hidden="true" />
+                </button>
+                {open && (
+                  <div className="mc-detail">
+                    <ChecklistExecutionItem
+                      key={`${missionId}:${item.id}`}
+                      item={item}
+                      missionId={missionId}
+                      canExecute={canEditExecution}
+                      canAssess={canEditAssessment}
+                      assessmentOnly={assessmentOnly}
+                      completeOnAssessment={assessmentOnly && canAssess}
+                      rejected={resultStatus === 'REJECTED'}
+                      refresh={refresh}
+                    />
+                    <ChecklistEvidencePanel
+                      missionId={missionId}
+                      item={item}
+                      canAttach={
+                        canAttach && resultKnown && !locked && !loading && !error
+                      }
+                      canDetach={
+                        canDetach && resultKnown && !locked && !loading && !error
+                      }
+                      refresh={refresh}
+                      loadCandidates={loadEvidenceCandidates}
+                      attachCandidate={attachEvidenceCandidate}
+                      attachCandidates={attachEvidenceCandidates}
+                      evidenceDetached={evidenceDetached}
+                    />
+                  </div>
+                )}
+              </li>
+            )
+          })}
         </ol>
       )}
     </section>
@@ -853,7 +954,7 @@ function ChecklistExecutionItem({
       <h3>{item.content}</h3>
       <ChecklistGuidance
         guidance={item}
-        defaultOpen
+        collapsible={false}
         showEmpty={item.sourceType === 'CUSTOMER_CUSTOM'}
       />
       <div className="monitoring-meta">
