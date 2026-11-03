@@ -237,7 +237,10 @@ export function FlightPermitCard({
 
   return (() => {
     const canEditPermitFile =
-      !cancelled && (status !== 'APPROVED' || !hasSavedPermitFile) && paymentComplete
+      !readOnly &&
+      !cancelled &&
+      (status !== 'APPROVED' || !hasSavedPermitFile) &&
+      paymentComplete
 
     return (
       <section
@@ -322,6 +325,7 @@ export function FlightPermitCard({
                     maxLength={1000}
                     rows={3}
                     disabled={busy || cancelled || !paymentComplete}
+                    readOnly={readOnly}
                     onChange={(event) => setNote(event.target.value)}
                     placeholder={t.notePlaceholder}
                   />
