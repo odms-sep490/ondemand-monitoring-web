@@ -12,6 +12,9 @@ import type { Dispatch, SetStateAction } from 'react'
 import { useToast } from '../../../../shared/components/ui'
 import { useI18n } from '../../../../shared/i18n'
 import { managerFeedbackMessages } from '../../feedback.messages'
+import { useRef } from 'react'
+import { deliveryApi, type ResultRevisionCase } from '../../../delivery/api'
+import { canCreateRework } from '../../../delivery/reworkPolicy'
 
 export function useCreateMissionSubmit({
   submit,
@@ -28,6 +31,7 @@ export function useCreateMissionSubmit({
   onCreated,
   setNavigateTo,
   setPlanRevision,
+  reworkCase,
 }: {
   submit: SubmitState
   planQuery: UseApiQueryState<ExecutionPlan>
@@ -44,9 +48,11 @@ export function useCreateMissionSubmit({
   onCreated: ((missionId: string) => void) | undefined
   setNavigateTo: Dispatch<SetStateAction<string | null>>
   setPlanRevision: Dispatch<SetStateAction<number>>
+  reworkCase?: ResultRevisionCase
 }) {
   const { t: fb } = useI18n(managerFeedbackMessages)
   const toast = useToast()
+  const reworkRequest = useRef<{ fingerprint: string; id: string } | null>(null)
   async function handleSubmit() {
     if (
       submit.kind === 'submitting' ||
@@ -68,11 +74,32 @@ export function useCreateMissionSubmit({
     }
     const startDate = new Date(scheduledStart)
     const endDate = new Date(scheduledEnd)
-    if (endDate <= startDate) {
+    if (
+      !Number.isFinite(startDate.getTime()) ||
+      !Number.isFinite(endDate.getTime()) ||
+      endDate <= startDate
+    ) {
       setSubmit({
         kind: 'validationFailed',
         message: t.validationInvalidRange,
       })
+      return
+    }
+    if (reworkCase && startDate <= new Date()) {
+      setSubmit({ kind: 'validationFailed', message: t.reworkFutureRequired })
+      return
+    }
+    const reworkItems = reworkCase?.items.filter(
+      (item) =>
+        canCreateRework(item) &&
+        selectedChecklistIds.includes(item.orderChecklistItemId),
+    )
+    if (
+      reworkCase &&
+      (!reworkItems?.length ||
+        reworkItems.length !== selectedChecklistIds.length)
+    ) {
+      setSubmit({ kind: 'validationFailed', message: t.reworkUnavailable })
       return
     }
     if (hasChecklistItems && selectedChecklistIds.length === 0) {
@@ -90,12 +117,44 @@ export function useCreateMissionSubmit({
         scheduledEnd: endDate.toISOString(),
         checklistIds: selectedChecklistIds,
       }
-      const mission = planQuery.data?.planStatus === 'FINALIZED'
-        ? await missionsApi.createAdditionalMission(orderId, intent)
-        : await missionsApi.createMission(orderId, intent)
+      let mission: { id: string }
+      if (reworkCase && reworkItems) {
+        const body = {
+          expectedCaseVersion: reworkCase.version,
+          scopeLabel: intent.scopeLabel,
+          scheduledStartAt: intent.scheduledStart,
+          scheduledEndAt: intent.scheduledEnd,
+          caseItemIds: reworkItems.map((item) => item.caseItemId).sort(),
+        }
+        const fingerprint = JSON.stringify([reworkCase.caseId, body])
+        if (reworkRequest.current?.fingerprint !== fingerprint)
+          reworkRequest.current = { fingerprint, id: crypto.randomUUID() }
+        const created = await deliveryApi.managerCreateReworkMission(
+          reworkCase.caseId,
+          {
+            ...body,
+            clientRequestId: reworkRequest.current.id,
+          },
+        )
+        mission = { id: created.missionId }
+      } else {
+        mission =
+          planQuery.data?.planStatus === 'FINALIZED'
+            ? await missionsApi.createAdditionalMission(orderId, intent)
+            : await missionsApi.createMission(orderId, intent)
+      }
       toast.success(fb.missionCreated)
       if (onCreated) onCreated(mission.id)
-      else setNavigateTo(managerHref({ screen: 'orderReview', orderId }))
+      else
+        setNavigateTo(
+          reworkCase
+            ? managerHref({
+                screen: 'missionCreate',
+                orderId,
+                reworkCaseId: reworkCase.caseId,
+              })
+            : managerHref({ screen: 'orderReview', orderId }),
+        )
     } catch (err) {
       if (
         err instanceof ApiError &&

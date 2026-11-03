@@ -59,14 +59,12 @@ export function OrderMissionsOverview({
     setInvoicePaid(false)
     financeApi
       .getManagerInvoice(order.id, controller.signal)
-      .then((invoice) =>
-        {
-          if (!controller.signal.aborted)
-            setInvoicePaid(
-              invoice.status === 'PAID' && invoice.remainingAmount <= 0,
-            )
-        },
-      )
+      .then((invoice) => {
+        if (!controller.signal.aborted)
+          setInvoicePaid(
+            invoice.status === 'PAID' && invoice.remainingAmount <= 0,
+          )
+      })
       .catch(() => {
         if (!controller.signal.aborted) setInvoicePaid(false)
       })
@@ -89,11 +87,7 @@ export function OrderMissionsOverview({
             </div>
             <div className="odm-or-order-page-actions">
               {order ? <OrderDetailsDrawer order={order} /> : null}
-              <Button
-                type="button"
-                disabled={loading}
-                onClick={onReload}
-              >
+              <Button type="button" disabled={loading} onClick={onReload}>
                 {t.reload}
               </Button>
             </div>
@@ -103,117 +97,117 @@ export function OrderMissionsOverview({
       )}
       {mode === 'preparation' ? (
         <section className="odm-or-card" aria-label={t.title}>
-        <header className="odm-or-card-head">
-          <span className="odm-or-card-title">
-            {t.completeCount(completeCount, effective.length)}
-          </span>
-          <span
-            className={`odm-or-pill ${allReady ? 'odm-or-pill-green' : 'odm-or-pill-amber'}`}
-            role="status"
-          >
-            {allReady ? t.ready : t.missingAssignment}
-          </span>
-        </header>
-        <div className="odm-or-card-body">
-          {loading && <p role="status">{t.loading}</p>}
-          <div className="odm-or-overview-grid">
-            {missions.map((mission) => {
-              const readiness = assignmentReadiness(mission)
-              const cancelled = mission.status === 'CANCELLED'
-              const device =
-                mission.deviceCode ||
-                mission.droneCode ||
-                mission.deviceName ||
-                (mission.deviceId || mission.droneId
-                  ? t.assignedDevice
-                  : null)
-              return (
-                <article
-                  key={mission.id}
-                  className={`odm-or-overview-card${
-                    cancelled ? ' is-cancelled' : ''
-                  }`}
-                >
-                  <header>
-                    <strong>{mission.missionCode}</strong>
-                    <span
-                      className={`odm-or-pill ${
-                        readiness.complete
-                          ? 'odm-or-pill-green'
-                          : 'odm-or-pill-amber'
-                      }`}
-                    >
-                      {cancelled
-                        ? t.cancelled
-                        : readiness.complete
-                          ? t.assigned
-                          : (readiness.label ?? mission.status)}
-                    </span>
-                  </header>
-                  {scopeLabels[mission.id] ? (
-                    <p className="odm-or-muted">{scopeLabels[mission.id]}</p>
-                  ) : null}
-                  <dl className="odm-or-overview-list">
-                    <div>
-                      <dt>
-                        <OrderIcon name="calendar" size={16} />
-                        {t.schedule}
-                      </dt>
-                      <dd>
-                        {planningSchedule(
-                          mission.scheduledStartAt,
-                          mission.scheduledEndAt,
-                        )}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt>
-                        <OrderIcon name="drone" size={16} />
-                        {t.device}
-                      </dt>
-                      <dd>{device ?? '—'}</dd>
-                    </div>
-                    {ROLES.map((role) => {
-                      const names = [
-                        ...new Set(
-                          (mission.staffAssignments ?? [])
-                            .filter(
-                              (person) =>
-                                person.assignedRole === role &&
-                                person.responseStatus !== 'REJECTED',
-                            )
-                            .map(
-                              (person) =>
-                                person.staffName ||
-                                person.staffEmail ||
-                                person.staffId,
-                            ),
-                        ),
-                      ]
-                      return (
-                        <div key={role}>
-                          <dt>
-                            <OrderIcon name="user" size={16} />
-                            {STAFF_ROLE_LABELS[role]}
-                          </dt>
-                          <dd>{names.join(', ') || '—'}</dd>
-                        </div>
-                      )
-                    })}
-                  </dl>
-                  {!cancelled && !readiness.complete && onAssignMore ? (
-                    <Button
-                      type="button"
-                      onClick={() => onAssignMore(mission.id)}
-                    >
-                      {t.assignMore}
-                    </Button>
-                  ) : null}
-                </article>
-              )
-            })}
+          <header className="odm-or-card-head">
+            <span className="odm-or-card-title">
+              {t.completeCount(completeCount, effective.length)}
+            </span>
+            <span
+              className={`odm-or-pill ${allReady ? 'odm-or-pill-green' : 'odm-or-pill-amber'}`}
+              role="status"
+            >
+              {allReady ? t.ready : t.missingAssignment}
+            </span>
+          </header>
+          <div className="odm-or-card-body">
+            {loading && <p role="status">{t.loading}</p>}
+            <div className="odm-or-overview-grid">
+              {missions.map((mission) => {
+                const readiness = assignmentReadiness(mission)
+                const cancelled = mission.status === 'CANCELLED'
+                const device =
+                  mission.deviceCode ||
+                  mission.droneCode ||
+                  mission.deviceName ||
+                  (mission.deviceId || mission.droneId
+                    ? t.assignedDevice
+                    : null)
+                return (
+                  <article
+                    key={mission.id}
+                    className={`odm-or-overview-card${
+                      cancelled ? ' is-cancelled' : ''
+                    }`}
+                  >
+                    <header>
+                      <strong>{mission.missionCode}</strong>
+                      <span
+                        className={`odm-or-pill ${
+                          readiness.complete
+                            ? 'odm-or-pill-green'
+                            : 'odm-or-pill-amber'
+                        }`}
+                      >
+                        {cancelled
+                          ? t.cancelled
+                          : readiness.complete
+                            ? t.assigned
+                            : (readiness.label ?? mission.status)}
+                      </span>
+                    </header>
+                    {scopeLabels[mission.id] ? (
+                      <p className="odm-or-muted">{scopeLabels[mission.id]}</p>
+                    ) : null}
+                    <dl className="odm-or-overview-list">
+                      <div>
+                        <dt>
+                          <OrderIcon name="calendar" size={16} />
+                          {t.schedule}
+                        </dt>
+                        <dd>
+                          {planningSchedule(
+                            mission.scheduledStartAt,
+                            mission.scheduledEndAt,
+                          )}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>
+                          <OrderIcon name="drone" size={16} />
+                          {t.device}
+                        </dt>
+                        <dd>{device ?? '—'}</dd>
+                      </div>
+                      {ROLES.map((role) => {
+                        const names = [
+                          ...new Set(
+                            (mission.staffAssignments ?? [])
+                              .filter(
+                                (person) =>
+                                  person.assignedRole === role &&
+                                  person.responseStatus !== 'REJECTED',
+                              )
+                              .map(
+                                (person) =>
+                                  person.staffName ||
+                                  person.staffEmail ||
+                                  person.staffId,
+                              ),
+                          ),
+                        ]
+                        return (
+                          <div key={role}>
+                            <dt>
+                              <OrderIcon name="user" size={16} />
+                              {STAFF_ROLE_LABELS[role]}
+                            </dt>
+                            <dd>{names.join(', ') || '—'}</dd>
+                          </div>
+                        )
+                      })}
+                    </dl>
+                    {!cancelled && !readiness.complete && onAssignMore ? (
+                      <Button
+                        type="button"
+                        onClick={() => onAssignMore(mission.id)}
+                      >
+                        {t.assignMore}
+                      </Button>
+                    ) : null}
+                  </article>
+                )
+              })}
+            </div>
           </div>
-        </div>
         </section>
       ) : null}
       {mode === 'permit'
@@ -243,6 +237,7 @@ export function OrderMissionsOverview({
         <Button
           type="button"
           variant="primary"
+          disabled={loading}
           onClick={onDone}
         >
           {doneLabel}

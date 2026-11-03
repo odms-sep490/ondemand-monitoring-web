@@ -218,3 +218,33 @@ it('reschedules both Order and Mission when the new time is outside the current 
     ),
   )
 })
+
+it('preserves read-only access even after full payment', () => {
+  render(
+    <FlightPermitCard
+      mission={rejectedMission}
+      onChanged={vi.fn()}
+      readOnly
+      paymentComplete
+    />,
+  )
+  expect(screen.getByRole('textbox', { name: 'Ghi chú' })).toHaveAttribute(
+    'readonly',
+  )
+  expect(screen.queryByRole('button')).not.toBeInTheDocument()
+  expect(screen.queryByLabelText('Chọn tệp giấy phép')).not.toBeInTheDocument()
+})
+
+it('blocks permit changes until full payment is confirmed', () => {
+  render(
+    <FlightPermitCard
+      mission={rejectedMission}
+      onChanged={vi.fn()}
+      paymentComplete={false}
+    />,
+  )
+  expect(screen.getByRole('textbox', { name: 'Ghi chú' })).toBeDisabled()
+  expect(screen.queryByLabelText('Chọn tệp giấy phép')).not.toBeInTheDocument()
+  for (const button of screen.getAllByRole('button'))
+    expect(button).toBeDisabled()
+})

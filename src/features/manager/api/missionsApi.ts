@@ -24,6 +24,8 @@ export function toMissionCalendarItem(
 ): MissionCalendarItem {
   return {
     id: source.id,
+    purpose: source.purpose,
+    resultRevisionCaseId: source.resultRevisionCaseId,
     orderId: source.orderId,
     orderCode: source.orderCode ?? null,
     missionCode: source.missionCode,

@@ -1,3 +1,4 @@
+import { supportTicketSubject } from '../../../lib/resultReviewPresentation'
 import { Tag } from 'antd'
 import { useI18n } from '../../../../../shared/i18n'
 import { customerHref } from '../../../../customer/routes'
@@ -23,7 +24,7 @@ export function TicketRow({ ticket }: { ticket: SupportTicketDto }) {
           <Tag>{category}</Tag>
         </div>
         <a className="tl-subject" href={`#help/tickets/${ticket.id}`}>
-          {ticket.subject}
+          {supportTicketSubject(ticket, labels.revisionSubject)}
         </a>
         {(ticket.orderId || ticket.missionId) && (
           <div className="tl-links">

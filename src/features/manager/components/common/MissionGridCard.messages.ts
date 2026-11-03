@@ -2,6 +2,10 @@ import { defineMessages } from '../../../../shared/i18n'
 
 export const missionGridCardMessages = defineMessages({
   vi: {
+    confirmMission: 'Xác nhận',
+    confirmingMission: 'Đang xác nhận…',
+    confirmMissionTitle: (code: string) => `Xác nhận nhiệm vụ ${code}`,
+    rework: 'Thực hiện lại',
     mission: 'Nhiệm vụ',
     orderScope: 'Phạm vi theo đơn',
     replacementTag: '(Nhiệm vụ thay thế)',
@@ -18,7 +22,7 @@ export const missionGridCardMessages = defineMessages({
     add: 'Thêm',
     resourcePreparation: 'Trạng thái chuẩn bị nguồn lực',
     resourcePrepLabels: {
-      PLANNING: 'Đang chuẩn bị trước bay',
+      PLANNING: 'Đang lập kế hoạch',
       PENDING: 'Đang chờ phản hồi và kiểm tra',
       READY: 'Sẵn sàng chờ nghiệm thu',
       CANCELLED: 'Đã hủy',
@@ -124,6 +128,10 @@ export const missionGridCardMessages = defineMessages({
       'Vui lòng nhập lý do hủy nhiệm vụ này. Các công việc sẽ tự động trở về danh sách Chưa phân công:',
   },
   en: {
+    confirmMission: 'Confirm',
+    confirmingMission: 'Confirming…',
+    confirmMissionTitle: (code: string) => `Confirm mission ${code}`,
+    rework: 'Rework',
     mission: 'Mission',
     orderScope: 'Order scope',
     replacementTag: '(Replacement mission)',
@@ -140,7 +148,7 @@ export const missionGridCardMessages = defineMessages({
     add: 'Add',
     resourcePreparation: 'Resource preparation',
     resourcePrepLabels: {
-      PLANNING: 'Preparing for preflight',
+      PLANNING: 'Planning',
       PENDING: 'Awaiting responses and checks',
       READY: 'Ready for inspector start',
       CANCELLED: 'Cancelled',

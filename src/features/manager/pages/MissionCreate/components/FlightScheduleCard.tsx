@@ -28,7 +28,7 @@ export function FlightScheduleCard({
 }) {
   const { t } = useI18n(missionCreatePageMessages)
   return (
-    <section className="odm-or-card">
+    <section className="odm-or-card odm-plan-schedule">
       <header className="odm-or-card-head">
         <span className="odm-or-card-title">
           <OrderIcon name="clock" size={18} />

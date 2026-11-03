@@ -989,6 +989,9 @@
 .checklist-card .checklist-row.is-removed .checklist-row-price {
   display: none;
 }
+.checklist-quote:not(:empty) {
+  margin-top: 16px;
+}
 .checklist-quote-details {
   border: 1px solid var(--ui-border);
   border-radius: 10px;

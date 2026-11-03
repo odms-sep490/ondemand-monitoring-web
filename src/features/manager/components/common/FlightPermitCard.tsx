@@ -17,10 +17,12 @@ import { localizeTimeslot } from '../../lib/viLabels'
 export function FlightPermitCard({
   mission,
   onChanged,
+  readOnly = false,
   paymentComplete = true,
 }: {
   mission: MissionResponse
   onChanged: () => void
+  readOnly?: boolean
   paymentComplete?: boolean
 }) {
   const { t } = useI18n(flightPermitCardMessages)
@@ -422,7 +424,7 @@ export function FlightPermitCard({
               {error}
             </p>
           ) : null}
-          {!cancelled ? (
+          {!cancelled && !readOnly ? (
             <div className="odm-flight-permit__actions">
               {status === 'REJECTED' ? (
                 <>
@@ -500,7 +502,7 @@ export function FlightPermitCard({
               ) : null}
             </div>
           ) : null}
-          {!cancelled && action === 'reschedule' ? (
+          {!cancelled && !readOnly && action === 'reschedule' ? (
             <div className="odm-flight-permit__remediation">
               <fieldset className="odm-flight-permit__scope">
                 <legend>{t.rescheduleScope}</legend>
@@ -668,7 +670,7 @@ export function FlightPermitCard({
               </div>
             </div>
           ) : null}
-          {!cancelled && action === 'cancel' ? (
+          {!cancelled && !readOnly && action === 'cancel' ? (
             <div className="odm-flight-permit__remediation odm-flight-permit__remediation--danger">
               <strong>{t.cancellationWarning}</strong>
               <label>

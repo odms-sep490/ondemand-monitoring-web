@@ -16,6 +16,8 @@ import { planningApi } from '../../../api/planningApi'
 import type { Mission } from '../../../types/missions'
 import type { OrderMissionBrief } from '../../../types/orders'
 import { MissionCreatePage } from '../MissionCreatePage'
+import { deliveryApi, type ResultRevisionCase } from '../../../../delivery/api'
+import { supportApi } from '../../../../support/api/supportApi'
 
 const brief: OrderMissionBrief = {
   id: 'ord-2609-0153',
@@ -91,6 +93,53 @@ afterEach(() => {
 })
 
 describe('CreateMissionPage', () => {
+  it('uses the shared creation form for eligible rework items and opens resource setup', async () => {
+    setLanguage('vi')
+    const plan = await planningApi.getExecutionPlan(brief.id)
+    vi.mocked(planningApi.getExecutionPlan).mockResolvedValue({ ...plan, planStatus: 'FINALIZED' })
+    const item: ResultRevisionCase['items'][number] = {
+      caseItemId: 'case-item', orderChecklistItemId: 'check-1', title: 'Chụp lại khu vực chính',
+      scopeDecision: 'IN_SCOPE', strategy: 'REWORK', status: 'IN_PROGRESS', scopeReason: 'Đúng phạm vi',
+      managerInstructions: 'Chụp lại góc bị thiếu', assignedReworkMissionId: null,
+      assignedReworkMissionStatus: null, version: 2, feedback: [],
+    }
+    vi.spyOn(deliveryApi, 'managerGetRevisionCase').mockResolvedValue({
+      caseId: 'case-1', orderId: brief.id, ticketId: 'ticket-1', ticketCode: 'TKT-1',
+      status: 'OPEN', active: true, version: 3, openedAt: '2026-11-01T00:00:00Z',
+      items: [item, { ...item, caseItemId: 'other-item', orderChecklistItemId: 'check-2', scopeDecision: 'OUT_OF_SCOPE', strategy: 'UNDECIDED' }],
+    })
+    vi.spyOn(supportApi, 'getResultReview').mockResolvedValue({
+      ticketId: 'ticket-1', ticketCode: 'TKT-1', orderId: brief.id, reviewRoundId: 'round-1',
+      roundNumber: 1, roundVersion: 1, publishedAt: '', submittedAt: '', generalNote: null, items: [],
+    })
+    const create = vi.spyOn(deliveryApi, 'managerCreateReworkMission').mockResolvedValue({
+      caseId: 'case-1', missionId: 'rework-1', missionCode: 'MS-REWORK', status: 'PLANNING', checklistCount: 1,
+    })
+    const original = vi.spyOn(missionsApi, 'createMission')
+    const additional = vi.spyOn(missionsApi, 'createAdditionalMission')
+    render(<MissionCreatePage orderId={brief.id} reworkCaseId="case-1" initialBrief={{
+      ...brief, center: null, checklistItems: [
+        { id: 'check-1', content: item.title, sourceChecklistId: null, sourceType: 'CUSTOMER_CUSTOM', displayOrder: 0 },
+        { id: 'check-2', content: 'Không thuộc lần làm lại', sourceChecklistId: null, sourceType: 'CUSTOMER_CUSTOM', displayOrder: 1 },
+      ],
+    }} />)
+    const submit = await screen.findByRole('button', { name: 'Tạo nhiệm vụ thực hiện lại' })
+    await waitFor(() => expect(submit).toBeEnabled())
+    expect(screen.getByText(item.title)).toBeInTheDocument()
+    expect(screen.queryByText('Không thuộc lần làm lại')).not.toBeInTheDocument()
+    expect(screen.queryByText('Khoảng thời gian khách yêu cầu')).not.toBeInTheDocument()
+    fireEvent.change(screen.getByLabelText('Giờ cất cánh'), { target: { value: '2099-11-11T10:00' } })
+    fireEvent.change(screen.getByLabelText('Giờ kết thúc dự kiến'), { target: { value: '2099-11-11T11:00' } })
+    fireEvent.click(submit)
+    await waitFor(() => expect(create).toHaveBeenCalledWith('case-1', expect.objectContaining({
+      expectedCaseVersion: 3, caseItemIds: ['case-item'], clientRequestId: expect.any(String),
+      scheduledStartAt: new Date('2099-11-11T10:00').toISOString(),
+    })))
+    await waitFor(() => expect(window.location.hash).toBe(`#portal/manager/orders/${brief.id}/rework/case-1`))
+    expect(original).not.toHaveBeenCalled()
+    expect(additional).not.toHaveBeenCalled()
+  })
+
   it('associates empty scope validation with the field without creating a Mission', async () => {
     const create = vi.spyOn(missionsApi, 'createMission')
     render(<MissionCreatePage orderId={brief.id} initialBrief={brief} />)

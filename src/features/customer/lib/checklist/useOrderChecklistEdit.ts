@@ -33,10 +33,8 @@ export function snapshotToChecklistRows(
     .map((item) => {
       const includedImageCount = item.includedImageCountSnapshot ?? 0
       const includedVideoCount = item.includedVideoCountSnapshot ?? 0
-      const requestedImageCount =
-        item.requestedImageCount ?? includedImageCount
-      const requestedVideoCount =
-        item.requestedVideoCount ?? includedVideoCount
+      const requestedImageCount = item.requestedImageCount ?? includedImageCount
+      const requestedVideoCount = item.requestedVideoCount ?? includedVideoCount
       const rawType = item.requiredEvidenceType
       const requiredEvidenceType: RequiredEvidenceType =
         !rawType || rawType === 'IMAGE_OR_VIDEO'
@@ -76,9 +74,7 @@ function mergeCatalogMetadata(
 ): ChecklistRow[] {
   const activeTemplate = [...templateItems]
     .filter((item) => item.serviceActive && item.checklistActive)
-    .sort(
-      (a, b) => a.displayOrder - b.displayOrder || a.id.localeCompare(b.id),
-    )
+    .sort((a, b) => a.displayOrder - b.displayOrder || a.id.localeCompare(b.id))
   const templateByChecklistId = new Map(
     activeTemplate.map((item) => [item.checklistId, item]),
   )
@@ -187,7 +183,9 @@ export function useOrderChecklistEdit(
     [order?.checklistItems],
   )
   const [rows, setRows] = useState<ChecklistRow[]>(initialRows)
-  const [status, setStatus] = useState<'idle' | 'loading' | 'ready' | 'error' | 'stale'>('ready')
+  const [status, setStatus] = useState<
+    'idle' | 'loading' | 'ready' | 'error' | 'stale'
+  >('ready')
   const [error, setError] = useState<unknown>(null)
   const [catalogCache, setCatalogCache] = useState<{
     template: ServiceChecklistItem[]
@@ -199,7 +197,13 @@ export function useOrderChecklistEdit(
   // Keep rows synced with order snapshot when not actively editing or when order revision changes
   useEffect(() => {
     if (!enabled) {
-      setRows(mergeCatalogMetadata(initialRows, catalogCache.template, catalogCache.catalog))
+      setRows(
+        mergeCatalogMetadata(
+          initialRows,
+          catalogCache.template,
+          catalogCache.catalog,
+        ),
+      )
       setStatus('ready')
       setError(null)
     }
@@ -240,7 +244,8 @@ export function useOrderChecklistEdit(
 
   const selected = rows.filter((row) => row.selected)
   let validation: string | null = null
-  if (selected.length > 100) validation = t.limit
+  if (status === 'ready' && selected.length === 0) validation = t.none
+  else if (selected.length > 100) validation = t.limit
   else if (
     selected.some((row) => {
       const length = normalizeContent(row.content).length
@@ -317,8 +322,8 @@ export function useOrderChecklistEdit(
       occurrences,
       resultFormats: order.resultFormats,
       permitStatus:
-        (order.permitStatus as 'NONE' | 'HAVE_PERMIT' | 'NEED_SUPPORT' | null) ??
-        undefined,
+        (order.permitStatus as
+          'NONE' | 'HAVE_PERMIT' | 'NEED_SUPPORT' | null) ?? undefined,
     }
   }, [enabled, order])
 
@@ -452,4 +457,3 @@ export function useOrderChecklistEdit(
     },
   }
 }
-

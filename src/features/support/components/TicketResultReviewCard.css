@@ -1,0 +1,42 @@
+.sp-result-review .ant-card-head-title {
+  white-space: normal;
+}
+.sp-result-review__body {
+  width: 100%;
+}
+.sp-result-review__general {
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  border: 1px solid var(--ui-border);
+  border-radius: 10px;
+  background: var(--ui-surface-2);
+}
+.sp-result-review__general .ant-typography:last-child,
+.sp-result-review__note {
+  margin-bottom: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.sp-result-review__media {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
+  gap: 12px;
+  margin-top: 10px;
+}
+.sp-result-review__asset {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--ui-border);
+  border-radius: 10px;
+}
+.sp-result-review__asset img,
+.sp-result-review__asset video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  border-radius: 6px;
+}

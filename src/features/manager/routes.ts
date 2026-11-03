@@ -15,7 +15,7 @@ export type ManagerRoute =
   | { screen: 'dashboard' }
   | { screen: 'orderQueue' }
   | { screen: 'orderReview'; orderId: string }
-  | { screen: 'missionCreate'; orderId: string; replacesMissionId?: string }
+  | { screen: 'missionCreate'; orderId: string; replacesMissionId?: string; reworkCaseId?: string }
   | { screen: 'orderResults'; orderId: string }
   | { screen: 'missionDispatch'; missionId: string }
   | { screen: 'missionSetup'; missionId: string }
@@ -24,7 +24,7 @@ export type ManagerRoute =
   | { screen: 'missions'; missionId?: string }
   | { screen: 'drones'; droneId?: string }
   | { screen: 'maintenance' }
-  | { screen: 'support' }
+  | { screen: 'support'; ticketId?: string }
   | { screen: 'notFound' }
 
 export type ManagerScreen = ManagerRoute['screen']
@@ -54,6 +54,8 @@ export function parseManagerRoute(hash: string): ManagerRoute {
       if (tail.length === 1) return { screen: 'orderReview', orderId: tail[0] }
       if (tail.length === 2 && tail[1] === 'mission')
         return { screen: 'missionCreate', orderId: tail[0] }
+      if (tail.length === 3 && tail[1] === 'rework')
+        return { screen: 'missionCreate', orderId: tail[0], reworkCaseId: tail[2] }
       if (tail.length === 3 && tail[1] === 'replacement')
         return {
           screen: 'missionCreate',
@@ -86,7 +88,10 @@ export function parseManagerRoute(hash: string): ManagerRoute {
         ? { screen: 'maintenance' }
         : { screen: 'notFound' }
     case 'support':
-      return tail.length === 0 ? { screen: 'support' } : { screen: 'notFound' }
+      if (tail.length === 0) return { screen: 'support' }
+      if (tail.length === 2 && tail[0] === 'tickets')
+        return { screen: 'support', ticketId: tail[1] }
+      return { screen: 'notFound' }
     default:
       return { screen: 'notFound' }
   }
@@ -104,6 +109,8 @@ export function managerHref(route: ManagerRoute): string {
     case 'orderResults':
       return `${MANAGER_ROOT}/orders/${route.orderId}/results`
     case 'missionCreate':
+      if (route.reworkCaseId)
+        return `${MANAGER_ROOT}/orders/${encodeURIComponent(route.orderId)}/rework/${encodeURIComponent(route.reworkCaseId)}`
       return route.replacesMissionId
         ? `${MANAGER_ROOT}/orders/${encodeURIComponent(route.orderId)}/replacement/${encodeURIComponent(route.replacesMissionId)}`
         : `${MANAGER_ROOT}/orders/${route.orderId}/mission`
@@ -126,7 +133,9 @@ export function managerHref(route: ManagerRoute): string {
     case 'maintenance':
       return `${MANAGER_ROOT}/maintenance`
     case 'support':
-      return `${MANAGER_ROOT}/support`
+      return route.ticketId
+        ? `${MANAGER_ROOT}/support/tickets/${encodeURIComponent(route.ticketId)}`
+        : `${MANAGER_ROOT}/support`
     case 'notFound':
       return MANAGER_ROOT
   }

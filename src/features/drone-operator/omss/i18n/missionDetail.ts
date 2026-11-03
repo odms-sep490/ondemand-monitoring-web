@@ -13,6 +13,7 @@ export const missionDetailMessages = defineMessages({
     acceptMission: 'Chấp nhận nhiệm vụ',
     missionDetails: 'Chi tiết nhiệm vụ',
     assignmentAndParams: 'Thông tin phân công và tham số vận hành',
+    reworkPurpose: 'Nhiệm vụ thực hiện lại',
     fields: {
       customer: 'Khách hàng',
       missionType: 'Loại nhiệm vụ',
@@ -69,6 +70,7 @@ export const missionDetailMessages = defineMessages({
     acceptMission: 'Accept mission',
     missionDetails: 'Mission details',
     assignmentAndParams: 'Assignment and operational parameters',
+    reworkPurpose: 'Rework mission',
     fields: {
       customer: 'Customer',
       missionType: 'Mission type',

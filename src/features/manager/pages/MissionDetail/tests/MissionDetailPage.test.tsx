@@ -142,8 +142,46 @@ beforeEach(() => {
     ],
   })
 })
-afterEach(() => vi.restoreAllMocks())
+afterEach(() => {
+  vi.restoreAllMocks()
+  window.history.replaceState(null, '', window.location.pathname)
+})
 describe('Manager Mission Detail monitoring review', () => {
+  it.each([
+    {
+      purpose: 'ORIGINAL' as const,
+      caseId: null,
+      route: '#portal/manager/orders/o',
+    },
+    {
+      purpose: 'REWORK' as const,
+      caseId: 'case-1',
+      route: '#portal/manager/orders/o/rework/case-1',
+    },
+  ])(
+    'resumes $purpose planning without querying execution results',
+    async ({ purpose, caseId, route }) => {
+      vi.mocked(missionsApi.getMissionResponse).mockResolvedValue({
+        ...mission,
+        status: 'PLANNING',
+        purpose,
+        resultRevisionCaseId: caseId,
+        staffAssignments: [],
+        deviceAssignments: [],
+      })
+      render(<MissionDetailPage missionId="m" />)
+      await waitFor(() => expect(window.location.hash).toBe(route))
+      expect(
+        checklistExecutionApi.getMissionChecklistExecutions,
+      ).not.toHaveBeenCalled()
+      expect(missionsApi.getMissionResult).not.toHaveBeenCalled()
+      expect(missionsApi.getCurrentPreflight).not.toHaveBeenCalled()
+      expect(missionsApi.getCurrentPostDeviceCheck).not.toHaveBeenCalled()
+      expect(missionsApi.getMissionMedia).not.toHaveBeenCalled()
+      expect(screen.queryByText('Kết quả checklist')).not.toBeInTheDocument()
+    },
+  )
+
   it('opens the media section without changing the active route', async () => {
     render(<MissionDetailPage missionId="m" />)
     const link = await screen.findByRole('button', {
@@ -155,7 +193,9 @@ describe('Manager Mission Detail monitoring review', () => {
       'aria-selected',
       'true',
     )
-    expect(screen.getByRole('region', { name: 'Thư viện ảnh/video' })).toBeVisible()
+    expect(
+      screen.getByRole('region', { name: 'Thư viện ảnh/video' }),
+    ).toBeVisible()
     expect(window.location.hash).toBe(route)
   })
   it('renders per-item historical outcomes read-only', async () => {

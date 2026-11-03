@@ -13,6 +13,8 @@ export type BackendMission = {
   managerEmail?: string | null
   managerPhone?: string | null
   status: string
+  purpose?: 'ORIGINAL' | 'REWORK' | string | null
+  resultRevisionCaseId?: string | null
   operatorId?: string | null
   staffId?: string | null
   droneId?: string | null

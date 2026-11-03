@@ -3,6 +3,7 @@ import { defineMessages } from '../../../shared/i18n'
 /** Labels for the enum values of a support ticket (status, category, priority, sender role). */
 export const ticketLabelsMessages = defineMessages({
   vi: {
+    revisionSubject: 'Yêu cầu chỉnh sửa kết quả',
     status: {
       OPEN: 'Mới mở',
       ASSIGNED: 'Đã phân công',
@@ -30,6 +31,7 @@ export const ticketLabelsMessages = defineMessages({
     },
   },
   en: {
+    revisionSubject: 'Result revision request',
     status: {
       OPEN: 'Open',
       ASSIGNED: 'Assigned',

@@ -119,7 +119,7 @@ export const orderStatusLabel: Record<OrderStatus, string> = {
 }
 
 export const missionStatusLabel: Record<MissionStatus, string> = {
-  PLANNING: 'Đang chuẩn bị trước bay',
+  PLANNING: 'Đang lập kế hoạch',
   CREATED: 'Đã tạo mission',
   WAITING_DEPOSIT: 'Chờ thanh toán tiền cọc',
   PENDING_PAYMENT: 'Chờ khách hàng thanh toán',
@@ -216,7 +216,7 @@ export const orderStatusLabelEn: Record<OrderStatus, string> = {
 }
 
 export const missionStatusLabelEn: Record<MissionStatus, string> = {
-  PLANNING: 'Preparing for preflight',
+  PLANNING: 'Planning',
   CREATED: 'Created',
   WAITING_DEPOSIT: 'Waiting for deposit',
   PENDING_PAYMENT: 'Waiting for customer payment',

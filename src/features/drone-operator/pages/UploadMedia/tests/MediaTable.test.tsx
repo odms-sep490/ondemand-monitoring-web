@@ -1,6 +1,6 @@
 import { act } from 'react'
 import { describe, expect, it, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 
 import { setLanguage } from '../../../../../shared/i18n'
 import { MediaTable } from '../components/MediaTable'
@@ -20,6 +20,20 @@ const files: MediaFile[] = [
 ]
 
 describe('MediaTable', () => {
+  it('keeps recovery available for failed files', () => {
+    const retry = vi.fn()
+    render(
+      <MediaTable
+        files={[{ ...files[0], status: 'FAILED', attempt: 1 }]}
+        retryingId={null}
+        onRetry={retry}
+      />,
+    )
+    expect(screen.getByText('Lần thử: 1/3')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Tải lại' }))
+    expect(retry).toHaveBeenCalledWith('f1')
+  })
+
   it('renders vietnamese column headers and status label', () => {
     render(<MediaTable files={files} retryingId={null} onRetry={vi.fn()} />)
     expect(screen.getByText('Tên tệp')).toBeTruthy()
@@ -35,7 +49,7 @@ describe('MediaTable', () => {
 
   it('renders the vietnamese empty state', () => {
     render(<MediaTable files={[]} retryingId={null} onRetry={vi.fn()} />)
-    expect(screen.getByText('Chưa có media để upload')).toBeTruthy()
+    expect(screen.getByText('Chưa có tệp để tải lên')).toBeTruthy()
   })
 
   it('shows indeterminate transfer feedback instead of inventing a percentage', () => {
@@ -73,9 +87,9 @@ describe('MediaTable', () => {
       />,
     )
 
-    expect(screen.getByText('Chờ Manager duyệt')).toBeTruthy()
-    expect(
-      screen.getByRole('progressbar', { name: 'Tiến trình' }),
-    ).toHaveAttribute('aria-valuenow', '100')
+    expect(screen.getByText('Chờ quản lý duyệt')).toBeTruthy()
+    expect(screen.getByText('Tải lên hoàn tất')).toBeInTheDocument()
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument()
+    expect(screen.queryByText('Lần thử')).not.toBeInTheDocument()
   })
 })

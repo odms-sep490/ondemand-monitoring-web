@@ -44,6 +44,10 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
 }
 
 export const missionApi = {
+  getReworkContext: (missionId: string) =>
+    request<import('../types/mission').MissionReworkContext>(
+      `${API_BASE}/missions/${encodeURIComponent(missionId)}/rework-context`,
+    ),
   getPermissions: (missionId: string) =>
     request<import('../types/permissions').MissionPermissions>(
       `${API_BASE}/missions/${encodeURIComponent(missionId)}/permissions`,

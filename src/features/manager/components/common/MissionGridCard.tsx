@@ -175,7 +175,7 @@ export function MissionGridCard({
 
   // 1. Remove Checklist Item (Click [X])
   async function handleRemoveChecklist(itemId: string) {
-    if (disabled || busy || !isPlanning) return
+    if (disabled || busy || !isPlanning || mission.purpose === 'REWORK') return
     const remainingIds = assignedChecklistIds.filter(
       (id: string) => id !== itemId,
     )
@@ -540,22 +540,28 @@ export function MissionGridCard({
           <span>{mission.orderTitle || t.orderScope}</span>
         </div>
         <div className="odm-mcard-inline">
+          {mission.purpose === 'REWORK' && (
+            <StatusBadge tone="warning">{t.rework}</StatusBadge>
+          )}
           <StatusBadge
             tone={toUiTone(missionStatusTone[mission.status] ?? 'gray')}
           >
             {missionStatusLabel[mission.status] ?? mission.status}
           </StatusBadge>
-          {isPlanning && plan.planStatus === 'FINALIZED' && !disabled && (
-            <button
-              type="button"
-              className="odm-btn odm-btn-sm odm-btn-p"
-              disabled={busy}
-              onClick={() => void handleConfirmPlanning()}
-              title={`Xác nhận Mission ${mission.missionCode ?? ''}`}
-            >
-              {busy ? 'Đang xác nhận…' : 'Xác nhận'}
-            </button>
-          )}
+          {isPlanning &&
+            mission.purpose !== 'REWORK' &&
+            plan.planStatus === 'FINALIZED' &&
+            !disabled && (
+              <button
+                type="button"
+                className="odm-btn odm-btn-sm odm-btn-p"
+                disabled={busy}
+                onClick={() => void handleConfirmPlanning()}
+                title={t.confirmMissionTitle(mission.missionCode ?? '')}
+              >
+                {busy ? t.confirmingMission : t.confirmMission}
+              </button>
+            )}
           {isPlanning &&
             !disabled &&
             (onEditMission ? (
@@ -612,7 +618,7 @@ export function MissionGridCard({
             assignedChecklists.map((item) => (
               <div key={item.id} className="odm-mcard-ch-item">
                 <span>{item.content}</span>
-                {isPlanning && (
+                {isPlanning && mission.purpose !== 'REWORK' && (
                   <button
                     type="button"
                     className="odm-mcard-ch-remove"

@@ -10,6 +10,7 @@ import {
 import '../../../components/layout/mgrLayout.css'
 import { useI18n } from '../../../../../shared/i18n'
 import { missionScopedAssignmentMessages } from './MissionScopedAssignment.messages'
+import { ReworkPlanningPage } from '../../MissionCreate/ReworkPlanningPage'
 
 /** Mission list entry resolves Order context, but never asks to select the known Mission again. */
 export function MissionScopedAssignmentPage({
@@ -33,7 +34,12 @@ export function MissionScopedAssignmentPage({
         <Skeleton variant="block" height={320} />
       </div>
     )
-  if (query.error || query.data?.id !== missionId || !query.data.orderId)
+  if (
+    query.error ||
+    query.data?.id !== missionId ||
+    !query.data.orderId ||
+    (query.data.purpose === 'REWORK' && !query.data.resultRevisionCaseId)
+  )
     return (
       <div className="ui-table-card mgr-page">
         <EmptyState
@@ -46,6 +52,13 @@ export function MissionScopedAssignmentPage({
           }
         />
       </div>
+    )
+  if (query.data.purpose === 'REWORK' && query.data.resultRevisionCaseId)
+    return (
+      <ReworkPlanningPage
+        orderId={query.data.orderId}
+        caseId={query.data.resultRevisionCaseId}
+      />
     )
   return (
     <OrderResourceAssignmentWizard

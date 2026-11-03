@@ -64,6 +64,8 @@ export interface Drone {
 export interface Mission {
   id: string
   backendId?: string
+  purpose?: 'ORIGINAL' | 'REWORK' | string
+  resultRevisionCaseId?: string | null
   orderRef: string
   orderTitle?: string
   title: string

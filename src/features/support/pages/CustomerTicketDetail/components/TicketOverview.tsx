@@ -1,3 +1,4 @@
+import { supportTicketSubject } from '../../../lib/resultReviewPresentation'
 import { Tag } from 'antd'
 import { StatusTag } from '../../../../../shared/components/antd'
 import { Card } from '../../../../customer/components/common/ui'
@@ -29,7 +30,9 @@ export function TicketOverview({ ticket }: { ticket: SupportTicketDto }) {
               {t.priority(priorityLabel)}
             </StatusTag>
           </div>
-          <h2 className="td-subject">{ticket.subject}</h2>
+          <h2 className="td-subject">
+            {supportTicketSubject(ticket, labels.revisionSubject)}
+          </h2>
         </div>
         <div className="sp-muted">
           {t.openedAt(fmtDateTime(ticket.openedAt, locale))}

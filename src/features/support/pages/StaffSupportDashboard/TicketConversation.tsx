@@ -19,12 +19,14 @@ export function TicketConversation({ ticket }: { ticket: SupportTicketDto }) {
       ) : null}
 
       {messages.map((msg) => {
-        const isStaff = msg.senderRole === 'STAFF' || msg.senderRole === 'MANAGER'
+        const isStaff =
+          msg.senderRole === 'STAFF' || msg.senderRole === 'MANAGER'
         return (
           <div key={msg.id} className={`sd-msg${isStaff ? ' is-staff' : ''}`}>
             <div className="sd-msg-meta">
               <b>
-                {msg.senderName} ({labels.senderRole[msg.senderRole] ?? msg.senderRole})
+                {msg.senderName} (
+                {labels.senderRole[msg.senderRole] ?? msg.senderRole})
               </b>
               <span>
                 {new Date(msg.createdAt).toLocaleTimeString(locale, {

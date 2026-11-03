@@ -60,6 +60,8 @@ export type MissionMediaRequirement =
  * the backend DTO we read.
  */
 export type Mission = {
+  purpose?: 'ORIGINAL' | 'REWORK'
+  resultRevisionCaseId?: string | null
   id: string
   orderId: string
   orderCode: string | null
@@ -206,6 +208,8 @@ export type PlanWaypointResponse = {
 }
 
 export type MissionResponse = {
+  purpose?: 'ORIGINAL' | 'REWORK'
+  resultRevisionCaseId?: string | null
   replacesMissionId?: string | null
   id: string
   orderId: string

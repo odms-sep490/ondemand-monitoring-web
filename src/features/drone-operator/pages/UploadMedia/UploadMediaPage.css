@@ -448,12 +448,6 @@
   width: 38%;
   animation: upload-media-indeterminate 1.2s ease-in-out infinite alternate;
 }
-.upload-file-progress-label {
-  margin-top: 4px;
-  color: var(--tx3, #64748b);
-  font-size: 11px;
-  line-height: 1.35;
-}
 @keyframes upload-media-indeterminate {
   from {
     transform: translateX(-20%);
@@ -560,7 +554,7 @@
   .upload-media-empty {
     padding-inline: 14px;
   }
-  .upload-media-table-wrap .odm-card {
+  .upload-media-transfer .ant-table-container {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
@@ -577,25 +571,106 @@
   }
 }
 
-/* ---------- Collapsible file table ---------- */
-.upload-media-table-wrap {
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  background: #fff;
+/* ---------- Transfer diagnostics: one disclosure, one surface ---------- */
+.upload-media-transfer {
   overflow: hidden;
+  border: 1px solid var(--bd, #e2e8f0);
+  border-radius: 12px;
+  background: var(--sf, #fff);
 }
-.upload-media-table-wrap > summary {
-  padding: 14px 20px;
+.upload-media-transfer > summary {
+  padding: 14px 18px;
+  color: var(--tx, #172033);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
 }
-.upload-media-table-wrap .odm-card {
+.upload-media-transfer[open] > summary {
+  border-bottom: 1px solid var(--bd, #e2e8f0);
+}
+.upload-media-transfer .upload-media-bar {
   margin: 0;
+  padding: 14px 18px;
   border: 0;
-  border-top: 1px solid #e2e8f0;
-  border-radius: 0 !important;
-  overflow-x: auto;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+}
+.upload-media-transfer .upload-media-bar-count {
+  font-size: 17px;
+}
+.upload-transfer-table .ant-table {
+  background: transparent;
+}
+.upload-transfer-table .ant-table-cell {
+  padding: 12px 18px !important;
+}
+.upload-transfer-table .ant-table-thead > tr > th {
+  color: var(--tx3, #64748b);
+  font-size: 12px;
+  font-weight: 500;
+}
+.upload-transfer-file {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.upload-transfer-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: var(--sf2, #f1f5f9);
+  color: var(--tx3, #64748b);
+  font-size: 17px;
+}
+.upload-transfer-file-info {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+.upload-transfer-name {
+  overflow-wrap: anywhere;
+  color: var(--tx, #172033);
+  font-size: 13px;
+  font-weight: 500;
+}
+.upload-transfer-meta,
+.upload-transfer-state small {
+  color: var(--tx3, #64748b);
+  font-size: 12px;
+}
+.upload-transfer-state {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+}
+.upload-transfer-state .ant-tag {
+  margin: 0;
+}
+.upload-transfer-state .upload-file-progress {
+  width: 100%;
+  max-width: 160px;
+}
+.upload-transfer-empty {
+  display: grid;
+  gap: 6px;
+  padding: 16px;
+}
+@media (max-width: 640px) {
+  .upload-transfer-table .ant-table-cell {
+    padding: 10px !important;
+  }
+  .upload-transfer-icon {
+    display: none;
+  }
+  .upload-transfer-state {
+    align-items: flex-start;
+    flex-direction: column;
+  }
 }
 
 /* ---------- Lightbox ---------- */
