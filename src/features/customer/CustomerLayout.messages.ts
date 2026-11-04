@@ -12,7 +12,6 @@ export const customerLayoutMessages = defineMessages({
       orders: 'Đơn của tôi',
       createOrder: 'Tạo yêu cầu',
       mediaLibrary: 'Thư viện kết quả',
-      notifications: 'Thông báo',
     },
     groups: {
       monitoring: 'Giám sát',
@@ -41,7 +40,6 @@ export const customerLayoutMessages = defineMessages({
       orders: 'My orders',
       createOrder: 'Create request',
       mediaLibrary: 'Media library',
-      notifications: 'Notifications',
     },
     groups: {
       monitoring: 'Monitoring',

@@ -1,9 +1,9 @@
 import { act } from 'react'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { vi } from 'vitest'
 
-import { customerMediaApi } from './api/customerMediaApi'
+import { parseCustomerRoute } from './routes'
 
 import { resetMockDb } from '../../mocks/db'
 import '../../mocks/index'
@@ -32,10 +32,14 @@ describe('CustomerApp', () => {
     expect((await screen.findAllByText('Overview')).length).toBeGreaterThan(0)
   })
 
-  it('derives the sidebar new-media badge from the BE media notifications', async () => {
-    const spy = vi.spyOn(customerMediaApi, 'listNotifications')
+  it('hides media notifications and resolves old notification bookmarks to the result library', async () => {
     render(<CustomerApp />)
-    await waitFor(() => expect(spy).toHaveBeenCalled())
-    await waitFor(() => expect(document.querySelector('.odm-cus-navc')?.textContent).toBe('3'))
+    await screen.findAllByText('Tổng quan')
+    expect(
+      screen.queryByRole('link', { name: 'Thông báo' }),
+    ).not.toBeInTheDocument()
+    expect(parseCustomerRoute('#portal/customer/notifications')).toEqual({
+      screen: 'mediaLibrary',
+    })
   })
 })

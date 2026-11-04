@@ -1,5 +1,4 @@
 import {
-  BellOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   QuestionCircleOutlined,
@@ -22,7 +21,13 @@ type Props = {
   onToggleTheme: () => void
 }
 
-export function CustomerHeader({ breadcrumb, collapsed, dark, onToggleSider, onToggleTheme }: Props) {
+export function CustomerHeader({
+  breadcrumb,
+  collapsed,
+  dark,
+  onToggleSider,
+  onToggleTheme,
+}: Props) {
   const { t } = useI18n(customerLayoutMessages)
   return (
     <Layout.Header className="mgr-header">
@@ -36,7 +41,11 @@ export function CustomerHeader({ breadcrumb, collapsed, dark, onToggleSider, onT
         />
         <Breadcrumb
           items={[
-            { title: <a href={customerHref({ screen: 'dashboard' })}>{t.customer}</a> },
+            {
+              title: (
+                <a href={customerHref({ screen: 'dashboard' })}>{t.customer}</a>
+              ),
+            },
             { title: breadcrumb },
           ]}
         />
@@ -58,13 +67,6 @@ export function CustomerHeader({ breadcrumb, collapsed, dark, onToggleSider, onT
         >
           <span className="mgr-support-label">{t.helpLink}</span>
         </Button>
-        <a
-          className="mgr-icon-btn"
-          href={customerHref({ screen: 'notifications' })}
-          aria-label={t.navItems.notifications}
-        >
-          <BellOutlined style={{ fontSize: 18, color: 'inherit' }} />
-        </a>
         <LanguageToggle className="mgr-lang-toggle" />
         <Button
           type="text"

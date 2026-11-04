@@ -7,13 +7,12 @@ import { NAV_GROUPS, type CustomerNavItemKey } from './navConfig'
 
 type Props = {
   activeKey: CustomerNavItemKey | null
-  newMediaCount?: number
   /** Icon-rail mode: labels collapse into tooltips. */
   collapsed?: boolean
   onNavigate?: () => void
 }
 
-export function CustomerSiderMenu({ activeKey, newMediaCount, collapsed, onNavigate }: Props) {
+export function CustomerSiderMenu({ activeKey, collapsed, onNavigate }: Props) {
   const { t } = useI18n(customerLayoutMessages)
 
   const items: MenuProps['items'] = NAV_GROUPS.map((group) => ({
@@ -22,7 +21,6 @@ export function CustomerSiderMenu({ activeKey, newMediaCount, collapsed, onNavig
     label: <span className="mgr-menu-group">{t.groups[group.key]}</span>,
     children: group.items.map((item) => {
       const active = item.key === activeKey
-      const count = item.newMediaBadge ? newMediaCount : undefined
       return {
         key: item.key,
         icon: item.icon,
@@ -35,9 +33,6 @@ export function CustomerSiderMenu({ activeKey, newMediaCount, collapsed, onNavig
             onClick={onNavigate}
           >
             <span>{t.navItems[item.key]}</span>
-            {typeof count === 'number' && count > 0 ? (
-              <span className="mgr-menu-count odm-cus-navc">{count}</span>
-            ) : null}
           </a>
         ),
       }

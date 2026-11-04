@@ -9,7 +9,6 @@ import {
   siblings,
   sortNewestFirst,
   toMediaItem,
-  toMediaNotification,
 } from './mapMedia'
 
 const dto = (over = {}) => ({
@@ -28,7 +27,12 @@ const dto = (over = {}) => ({
 
 describe('media mapping', () => {
   it('maps the BE dto and infers the kind from mediaType, then MIME', () => {
-    expect(toMediaItem(dto())).toMatchObject({ id: 'm1', kind: 'image', url: 'https://x/a.jpg', fileSize: 2_500_000 })
+    expect(toMediaItem(dto())).toMatchObject({
+      id: 'm1',
+      kind: 'image',
+      url: 'https://x/a.jpg',
+      fileSize: 2_500_000,
+    })
     expect(mediaKind('VIDEO', undefined)).toBe('video')
     expect(mediaKind('STREAMING', 'video/mp4')).toBe('video')
     expect(mediaKind(undefined, 'application/pdf')).toBe('other')
@@ -36,23 +40,51 @@ describe('media mapping', () => {
 
   it('falls back to the id when the file name is blank and keeps missing fields null', () => {
     const item = toMediaItem({ mediaId: 'm9', missionId: 'ms', fileName: ' ' })
-    expect(item).toMatchObject({ fileName: 'm9', fileSize: null, url: null, capturedAt: null })
-  })
-
-  it('maps notifications', () => {
-    expect(
-      toMediaNotification({ notificationId: 'n1', mediaId: 'm1', missionId: 'ms1', eventType: 'CUSTOMER_MEDIA_AVAILABLE' }),
-    ).toEqual({ id: 'n1', mediaId: 'm1', missionId: 'ms1', eventType: 'CUSTOMER_MEDIA_AVAILABLE', createdAt: null })
+    expect(item).toMatchObject({
+      fileName: 'm9',
+      fileSize: null,
+      url: null,
+      capturedAt: null,
+    })
   })
 
   it('sorts newest first, filters and groups by mission', () => {
-    const a = toMediaItem(dto({ mediaId: 'a', capturedAt: '2026-09-14T10:00:00Z' }))
-    const b = toMediaItem(dto({ mediaId: 'b', capturedAt: '2026-09-14T12:00:00Z', mediaType: 'VIDEO', fileName: 'clip.mp4' }))
-    const c = toMediaItem(dto({ mediaId: 'c', missionId: 'ms2', capturedAt: '2026-09-14T11:00:00Z' }))
+    const a = toMediaItem(
+      dto({ mediaId: 'a', capturedAt: '2026-09-14T10:00:00Z' }),
+    )
+    const b = toMediaItem(
+      dto({
+        mediaId: 'b',
+        capturedAt: '2026-09-14T12:00:00Z',
+        mediaType: 'VIDEO',
+        fileName: 'clip.mp4',
+      }),
+    )
+    const c = toMediaItem(
+      dto({
+        mediaId: 'c',
+        missionId: 'ms2',
+        capturedAt: '2026-09-14T11:00:00Z',
+      }),
+    )
     expect(sortNewestFirst([a, b, c]).map((i) => i.id)).toEqual(['b', 'c', 'a'])
-    expect(filterMedia([a, b, c], { missionId: 'ms1', kind: 'all', query: '' }).map((i) => i.id)).toEqual(['a', 'b'])
-    expect(filterMedia([a, b, c], { missionId: null, kind: 'video', query: '' }).map((i) => i.id)).toEqual(['b'])
-    expect(filterMedia([a, b, c], { missionId: null, kind: 'all', query: 'CLIP' }).map((i) => i.id)).toEqual(['b'])
+    expect(
+      filterMedia([a, b, c], { missionId: 'ms1', kind: 'all', query: '' }).map(
+        (i) => i.id,
+      ),
+    ).toEqual(['a', 'b'])
+    expect(
+      filterMedia([a, b, c], { missionId: null, kind: 'video', query: '' }).map(
+        (i) => i.id,
+      ),
+    ).toEqual(['b'])
+    expect(
+      filterMedia([a, b, c], {
+        missionId: null,
+        kind: 'all',
+        query: 'CLIP',
+      }).map((i) => i.id),
+    ).toEqual(['b'])
     expect(groupByMission([a, b, c], { ms1: 'MSN-1' })).toEqual([
       { missionId: 'ms1', label: 'MSN-1', count: 2 },
       { missionId: 'ms2', label: 'ms2', count: 1 },
