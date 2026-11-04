@@ -1,5 +1,7 @@
 import '@ant-design/v5-patch-for-react-19'
 import { ConfigProvider, Layout } from 'antd'
+import { Lottie } from 'lottie-react'
+import { useReducedMotion } from 'motion/react'
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 
 import { useI18n } from '../../shared/i18n'
@@ -21,6 +23,7 @@ import './manager.css'
 import '../../shared/styles/app-shell/layout.scss'
 import '../../shared/styles/app-shell/popups.scss'
 import { managerLayoutMessages } from './ManagerLayout.messages'
+import droneAnimation from '../landing/assets/drone-animation.json'
 
 export type { ManagerNavCounts }
 
@@ -48,6 +51,7 @@ export function ManagerLayout({
   )
   const [collapsed, setCollapsed] = useState(false)
   const [broken, setBroken] = useState(false)
+  const reduceMotion = useReducedMotion()
   const { t } = useI18n(managerLayoutMessages)
   const themeConfig = useMemo(() => buildManagerTheme(dark), [dark])
 
@@ -62,6 +66,15 @@ export function ManagerLayout({
   return (
     <ConfigProvider theme={themeConfig} getPopupContainer={mgrPopupContainer}>
       <div className="odm odm-mgr mgr-layout">
+        <span className="mgr-flight-decor" aria-hidden="true">
+          <span className="mgr-flight-route" />
+          <Lottie
+            src={droneAnimation}
+            autoplay={!reduceMotion}
+            loop={!reduceMotion}
+            className="mgr-flight-drone"
+          />
+        </span>
         <Layout hasSider className="mgr-shell">
           <Sider
             width={MANAGER_SIDER_WIDTH}

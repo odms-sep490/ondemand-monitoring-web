@@ -337,6 +337,32 @@ $primary: #1565e8;
     background: transparent;
   }
 
+  .mgr-flight-decor {
+    position: fixed;
+    z-index: 4;
+    inset: 64px 0 0 272px;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .mgr-flight-route {
+    position: absolute;
+    inset: 6% 5%;
+    border: 1px dashed rgb(37 99 235 / 12%);
+    border-radius: 50%;
+  }
+
+  .mgr-flight-drone {
+    position: absolute;
+    top: 6%;
+    left: 50%;
+    width: 52px;
+    height: 52px;
+    filter: drop-shadow(0 5px 5px rgb(18 64 125 / 24%));
+    transform: translate(-50%, -50%);
+    animation: mgr-flight-loop 28s linear infinite;
+  }
+
   .mgr-header {
     position: relative;
     z-index: 5;
@@ -560,5 +586,94 @@ $primary: #1565e8;
     .mgr-content {
       padding: 14px 12px 24px;
     }
+
+    .mgr-flight-drone {
+      width: 38px;
+      height: 38px;
+    }
+  }
+}
+
+@media (max-width: 991px) {
+  .mgr-layout .mgr-flight-decor {
+    left: 0;
+  }
+}
+
+.mgr-layout:has(.mgr-sider.is-rail) .mgr-flight-decor {
+  left: 80px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mgr-layout .mgr-flight-drone {
+    animation: none;
+  }
+}
+
+@keyframes mgr-flight-loop {
+  0%,
+  100% {
+    top: 6%;
+    left: 50%;
+  }
+  6.25% {
+    top: 8.7%;
+    left: 66.1%;
+  }
+  12.5% {
+    top: 20.3%;
+    left: 79.7%;
+  }
+  18.75% {
+    top: 33.9%;
+    left: 89%;
+  }
+  25% {
+    top: 50%;
+    left: 95%;
+  }
+  31.25% {
+    top: 66.1%;
+    left: 89%;
+  }
+  37.5% {
+    top: 79.7%;
+    left: 79.7%;
+  }
+  43.75% {
+    top: 91.3%;
+    left: 66.1%;
+  }
+  50% {
+    top: 94%;
+    left: 50%;
+  }
+  56.25% {
+    top: 91.3%;
+    left: 33.9%;
+  }
+  62.5% {
+    top: 79.7%;
+    left: 20.3%;
+  }
+  68.75% {
+    top: 66.1%;
+    left: 11%;
+  }
+  75% {
+    top: 50%;
+    left: 5%;
+  }
+  81.25% {
+    top: 33.9%;
+    left: 11%;
+  }
+  87.5% {
+    top: 20.3%;
+    left: 20.3%;
+  }
+  93.75% {
+    top: 8.7%;
+    left: 33.9%;
   }
 }
