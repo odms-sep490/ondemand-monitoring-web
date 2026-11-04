@@ -6,6 +6,7 @@ export type RoleSidebarItem = {
   key: string
   label: string
   icon: ReactNode
+  className?: string
   href?: string
   active?: boolean
   badge?: ReactNode
@@ -97,7 +98,13 @@ export function RoleSidebar({
                 <div className="app-role-sidebar__items">
                   {group.items.map((item) => {
                     const itemClass =
-                      'app-role-sidebar__item' + (item.active ? ' is-active' : '')
+                      [
+                        'app-role-sidebar__item',
+                        item.className,
+                        item.active ? 'is-active' : undefined,
+                      ]
+                        .filter(Boolean)
+                        .join(' ')
                     const accessibleLabel = collapsed ? item.label : undefined
                     const contents = (
                       <>

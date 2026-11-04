@@ -4,13 +4,41 @@
  */
 
 .odm-opr {
+  --bg: var(--mgr-bg, #f4f7fc);
+  --sf: var(--mgr-card, #fff);
+  --sf2: var(--mgr-card-2, #f6f8fd);
+  --sf3: var(--mgr-card-2, #f6f8fd);
+  --bd: var(--mgr-border, #e6ecf5);
+  --bd2: var(--mgr-border, #e6ecf5);
+  --tx: var(--mgr-text, #0f1b3d);
+  --tx2: var(--mgr-muted, #64748b);
+  --tx3: var(--mgr-muted, #64748b);
+  --surface: var(--mgr-card, #fff);
+  --surface-2: var(--mgr-card-2, #f6f8fd);
+  --border: var(--mgr-border, #e6ecf5);
+  --border-2: var(--mgr-border, #e6ecf5);
+  --text: var(--mgr-text, #0f1b3d);
+  --text-2: var(--mgr-muted, #64748b);
+  --text-3: var(--mgr-muted, #64748b);
+  --ink: var(--mgr-text, #0f1b3d);
+  --inkfg: var(--mgr-muted, #64748b);
+  --accent: #1565e8;
+  --accent-bg: color-mix(in srgb, #1565e8 9%, var(--mgr-card, #fff));
+  --brand-primary: #1565e8;
+  --brand-accent: #1565e8;
+  --bg-subtle: var(--mgr-card-2, #f6f8fd);
+  --amber-fg: #92400e;
+  --font-ui: 'Be Vietnam Pro', 'Inter', system-ui, sans-serif;
+
   position: fixed;
   inset: 0;
   width: 100%;
   height: 100vh;
   height: 100dvh;
   overflow: hidden;
-  background: var(--bg);
+  background: var(--mgr-bg, #f4f7fc);
+  color: var(--mgr-text, #0f1b3d);
+  font-family: 'Be Vietnam Pro', 'Inter', system-ui, sans-serif;
 }
 
 /* ---------- Preflight safety workspace ---------- */
@@ -219,13 +247,14 @@
 /* ---------- Sidebar ---------- */
 
 .odm-opr-side {
-  width: 232px;
-  flex: none;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
-  padding: 12px 10px;
-  background: var(--sf);
-  border-right: 1px solid var(--bd);
+  padding: 0;
+  background: transparent;
   overflow: hidden;
 }
 
@@ -282,32 +311,6 @@
   color: var(--tx3);
   padding: 12px 10px 4px;
   letter-spacing: 0.02em;
-}
-
-.odm-opr-navi {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  height: 36px;
-  padding: 0 10px;
-  border-radius: 8px;
-  color: var(--tx2);
-  font-weight: 500;
-  font-size: 13px;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.odm-opr-navi:hover {
-  background: var(--sf3);
-}
-
-.odm-opr-navi.is-active {
-  background: var(--sidebar-active-bg);
-  color: var(--sidebar-active-tx);
-  font-weight: 600;
-  border-left: 3px solid var(--sidebar-active-border);
-  padding-left: 7px;
 }
 
 .odm-opr-navc {
@@ -388,7 +391,7 @@
 .odm-opr-skip-link {
   position: absolute;
   top: 8px;
-  left: 244px;
+  left: 284px;
   z-index: 1000;
   transform: translateY(calc(-100% - 12px));
   padding: 10px 14px;
@@ -419,91 +422,17 @@
 }
 
 .odm-opr-topbar {
-  height: 56px;
+  height: 64px;
   flex: none;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 0 20px;
-  background: var(--sf);
-  border-bottom: 1px solid var(--bd);
 }
 
 .odm-opr-menu-toggle {
-  display: none;
-  width: 34px;
-  height: 34px;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--tx2);
-  cursor: pointer;
-  align-items: center;
-  justify-content: center;
-  flex: none;
-}
-
-.odm-opr-menu-toggle:hover {
-  background: var(--sf3);
-}
-
-.odm-opr-breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  min-width: 0;
-  flex: 1;
-  font-size: 13px;
-  color: var(--tx3);
-  white-space: nowrap;
-}
-
-.odm-opr-breadcrumb strong {
-  font-weight: 600;
-  color: var(--tx);
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.odm-opr-topbar-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex: none;
-}
-
-.odm-opr-maint-link {
   display: inline-flex;
-  align-items: center;
-  height: 34px;
-  padding: 0 14px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  text-decoration: none;
-  white-space: nowrap;
+  flex: none;
 }
 
 .odm-opr-search {
-  position: relative;
   width: 240px;
-}
-
-.odm-opr-search-icon {
-  position: absolute;
-  left: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  display: inline-flex;
-  color: var(--tx3);
-  pointer-events: none;
-}
-
-.odm-opr-search input {
-  width: 100%;
-  height: 34px;
-  padding-left: 32px;
-  border-radius: 8px;
 }
 
 /* ---------- Content ---------- */
@@ -521,6 +450,11 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+}
+
+.odm-opr.mgr-layout .odm-opr-content--fill {
+  padding: 0;
+  overflow: hidden;
 }
 
 /* ---------- Chip (service label pill) ---------- */
@@ -610,64 +544,29 @@
 
 /* ---------- Tablet / mobile ---------- */
 
-@media (max-width: 1100px) {
-  .odm-opr-search {
-    width: 180px;
+@media (max-width: 1200px) and (min-width: 992px) {
+  .odm-opr.mgr-layout .mgr-search {
+    width: 150px;
+  }
+
+  .odm-opr .mgr-support-btn {
+    width: 40px;
+    padding-inline: 0;
+  }
+
+  .odm-opr .mgr-support-label {
+    display: none;
   }
 }
 
-@media (max-width: 900px) {
-  .odm-opr-skip-link {
+@media (max-width: 991px) {
+  .odm-opr .odm-opr-skip-link {
     left: 12px;
-  }
-
-  .odm-opr-side {
-    position: fixed;
-    inset: 0 auto 0 0;
-    z-index: 60;
-    transform: translateX(-100%);
-    transition: transform 0.2s ease;
-    box-shadow: none;
-  }
-
-  .odm-opr-side.is-open {
-    transform: translateX(0);
-    box-shadow: 0 0 40px rgba(8, 22, 47, 0.25);
-  }
-
-  .odm-opr-scrim {
-    display: block;
-    position: fixed;
-    inset: 0;
-    z-index: 50;
-    border: 0;
-    background: rgba(8, 22, 47, 0.4);
-  }
-
-  .odm-opr-menu-toggle {
-    display: inline-flex;
-  }
-
-  .odm-opr-search,
-  .odm-opr-maint-link {
-    display: none;
-  }
-
-  .odm-opr-topbar {
-    padding: 0 12px;
-  }
-
-  .odm-opr-content {
-    padding: 16px 16px 24px;
-  }
-
-  .odm-opr-content--fill {
-    padding: 0;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .odm-opr-side {
+  .odm-opr .mgr-sider {
     transition: none;
   }
 }
