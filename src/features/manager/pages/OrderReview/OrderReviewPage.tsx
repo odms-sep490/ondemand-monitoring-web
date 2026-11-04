@@ -138,6 +138,7 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
   const waitingForCustomerInfo = order.status === 'NEEDS_INFO'
   const reviewing = !showExecutionPlan || viewStage !== null
   const openStage = (stage: OrderStage) => {
+    if (stage !== 'planning' && planning?.depositPaid) return
     if (stage === 'planning') {
       setViewStage(null)
       setActiveWorkflowTab('planning')

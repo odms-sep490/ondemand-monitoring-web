@@ -62,6 +62,7 @@ export function ReviewTop({
     import('../../../components/common/workflowModel').MissionStage | null
 }) {
   const { t, lang } = useI18n(orderReviewPageMessages)
+
   return (
     <div className="odm-or-review-top">
       <PageHeader
@@ -114,7 +115,8 @@ export function ReviewTop({
           selectable: (stage, state) =>
             stage === 'planning'
               ? Boolean(planning?.isFinalized)
-              : orderStageToReviewStep(stage) !== null &&
+              : !planning?.depositPaid &&
+                orderStageToReviewStep(stage) !== null &&
                 (showExecutionPlan ? state === 'done' : true),
         }}
         mission={
