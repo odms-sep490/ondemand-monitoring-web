@@ -23,15 +23,11 @@ describe('AuthAside', () => {
     ).toBeInTheDocument()
   })
 
-  it('renders the 3 value props as real, readable text', () => {
+  it('does not render the removed feature cards', () => {
     render(<AuthAside />)
-    expect(
-      screen.getByText('Chọn vùng giám sát trên bản đồ'),
-    ).toBeInTheDocument()
-    expect(screen.getByText('AI kiểm tra điều kiện bay')).toBeInTheDocument()
-    expect(
-      screen.getByText('Theo dõi trực tiếp, nhận ảnh và video'),
-    ).toBeInTheDocument()
+    expect(screen.queryByText('Chọn vùng giám sát trên bản đồ')).toBeNull()
+    expect(screen.queryByText('AI kiểm tra điều kiện bay')).toBeNull()
+    expect(screen.queryByText('Theo dõi trực tiếp, nhận ảnh và video')).toBeNull()
   })
 
   it('renders English text when language is switched', () => {
@@ -45,8 +41,6 @@ describe('AuthAside', () => {
     expect(
       screen.getByText('On-demand drone monitoring service'),
     ).toBeInTheDocument()
-    expect(
-      screen.getByText('Choose a monitoring area on the map'),
-    ).toBeInTheDocument()
+    expect(screen.queryByText('Choose a monitoring area on the map')).toBeNull()
   })
 })

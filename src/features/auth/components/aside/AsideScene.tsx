@@ -3,7 +3,6 @@ import { useI18n } from '../../../../shared/i18n'
 import { authAsideMessages } from '../AuthAside.messages'
 import { AsideBackground } from './AsideBackground'
 import { AsideBrandBlock } from './AsideBrandBlock'
-import { AsideFloatCards, type AsideValueProp } from './AsideFloatCards'
 import { AsideHeroCard } from './AsideHeroCard'
 import { AsideSecondaryCard } from './AsideSecondaryCard'
 import { AsideStatusChip } from './AsideStatusChip'
@@ -15,17 +14,13 @@ import { AsideStatusChip } from './AsideStatusChip'
  *  2. a big glass-framed hero photo card with 3D tilt + shine sweep
  *  3. a smaller secondary photo card overlapping its bottom-right corner
  *  4. a live-status glass chip over the hero's top-left corner
- *  5. the brand lockup (top) and value-prop chips (bottom)
+ *  5. the brand lockup (top) and product story (bottom)
  *
  * A subtle mouse-follow parallax nudges layers via `--parallax-x` /
  * `--parallax-y` (see useParallax) — disabled on touch devices and under
  * reduced motion.
  */
-export function AsideScene({
-  valueProps,
-}: {
-  valueProps: readonly AsideValueProp[]
-}) {
+export function AsideScene() {
   const parallaxRef = useParallax<HTMLDivElement>()
   const { t } = useI18n(authAsideMessages)
 
@@ -43,7 +38,6 @@ export function AsideScene({
         <p>{t.heroDescription}</p>
         <span className="odm-aside-story-rule" aria-hidden="true" />
       </div>
-      <AsideFloatCards items={valueProps} />
     </div>
   )
 }

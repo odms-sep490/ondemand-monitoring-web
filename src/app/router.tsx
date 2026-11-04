@@ -1,5 +1,6 @@
 import '../styles/global.css'
 import '../styles/odm.css'
+import '../styles/route-loading.css'
 
 import {
   Fragment,
@@ -76,6 +77,7 @@ const SupportRoutes = lazy(() =>
 const routeMessages = defineMessages({
   vi: {
     loading: 'Đang tải trang…',
+    waiting: 'Vui lòng chờ trong giây lát.',
     restoring: 'Đang khôi phục phiên đăng nhập…',
     unavailable:
       'Chưa thể kiểm tra phiên đăng nhập. Vui lòng kiểm tra kết nối và thử lại.',
@@ -83,6 +85,7 @@ const routeMessages = defineMessages({
   },
   en: {
     loading: 'Loading page…',
+    waiting: 'Please wait a moment.',
     restoring: 'Restoring your session…',
     unavailable:
       'Unable to verify your session. Check your connection and try again.',
@@ -124,10 +127,15 @@ function RoleRoute({
 function SessionFeedback() {
   const { t } = useI18n(routeMessages)
   const { status } = useAuthSession()
+  const unavailable = status === 'unavailable'
+
   return (
-    <div className="route-loading" role="status">
-      <p>{status === 'unavailable' ? t.unavailable : t.restoring}</p>
-      {status === 'unavailable' && (
+    <RouteLoading
+      message={unavailable ? t.unavailable : t.restoring}
+      hint={unavailable ? undefined : t.waiting}
+      busy={!unavailable}
+    >
+      {unavailable && (
         <button
           type="button"
           className="button"
@@ -136,7 +144,79 @@ function SessionFeedback() {
           {t.retry}
         </button>
       )}
-    </div>
+    </RouteLoading>
+  )
+}
+
+function RouteLoading({
+  message,
+  hint,
+  busy = true,
+  children,
+}: {
+  message: string
+  hint?: string
+  busy?: boolean
+  children?: ReactNode
+}) {
+  return (
+    <main className="route-loading">
+      <div className="route-loading__brand">
+        <span className="route-loading__brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" focusable="false">
+            <path d="M9 9l6 5m8-5l-6 5M9 23l6-5m8 5l-6-5" />
+            <circle cx="7" cy="7" r="2.5" />
+            <circle cx="25" cy="7" r="2.5" />
+            <circle cx="7" cy="25" r="2.5" />
+            <circle cx="25" cy="25" r="2.5" />
+            <rect x="13" y="12" width="6" height="8" rx="2" />
+          </svg>
+        </span>
+        <span>OnDemand <strong>Monitor</strong></span>
+      </div>
+
+      <div className="route-loading__center">
+        <div className="route-loading__visual" aria-hidden="true">
+          <span className="route-loading__orbit route-loading__orbit--outer" />
+          <span className="route-loading__orbit route-loading__orbit--inner" />
+          <svg
+            className="route-loading__drone"
+            viewBox="0 0 120 90"
+            focusable="false"
+          >
+            <g className="route-loading__drone-arms">
+              <path d="M29 25l22 15M91 25L69 40M29 65l22-15m40 15L69 50" />
+              <path d="M24 25h10M86 25h10M24 65h10M86 65h10" />
+              <circle cx="24" cy="25" r="8" />
+              <circle cx="96" cy="25" r="8" />
+              <circle cx="24" cy="65" r="8" />
+              <circle cx="96" cy="65" r="8" />
+            </g>
+            <path className="route-loading__drone-body" d="M51 37h18a5 5 0 015 5v6a5 5 0 01-5 5H51a5 5 0 01-5-5v-6a5 5 0 015-5z" />
+            <path d="M53 54v7l-5 4m19-11v7l5 4" />
+            <circle className="route-loading__camera" cx="60" cy="63" r="4" />
+            <circle className="route-loading__camera-core" cx="60" cy="63" r="1.4" />
+          </svg>
+        </div>
+
+        <div
+          className="route-loading__copy"
+          role="status"
+          aria-live="polite"
+          aria-busy={busy}
+        >
+          <p className="route-loading__message">{message}</p>
+          {hint && <p className="route-loading__hint">{hint}</p>}
+        </div>
+
+        {busy && (
+          <div className="route-loading__progress" aria-hidden="true">
+            <span />
+          </div>
+        )}
+        {children && <div className="route-loading__actions">{children}</div>}
+      </div>
+    </main>
   )
 }
 
@@ -144,11 +224,7 @@ function RouteContent({ children }: { children: ReactNode }) {
   const { t } = useI18n(routeMessages)
   return (
     <Suspense
-      fallback={
-        <div className="route-loading" role="status">
-          {t.loading}
-        </div>
-      }
+      fallback={<RouteLoading message={t.loading} hint={t.waiting} />}
     >
       {children}
     </Suspense>

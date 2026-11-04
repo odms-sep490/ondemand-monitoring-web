@@ -1,6 +1,8 @@
 import { useEffect, useState, type ReactNode } from 'react'
 
 import { LanguageToggle } from '../../shared/components/LanguageToggle'
+import { Icon, type IconName } from '../../shared/components/Icon'
+import { RoleSidebar } from '../../shared/components/RoleSidebar'
 import { useI18n } from '../../shared/i18n'
 import { authSession } from '../auth/api/authApi'
 import { LogoutButton } from '../auth/components/LogoutButton'
@@ -10,28 +12,21 @@ import { systemOperatorLayoutMessages } from './SystemOperatorLayout.messages'
 
 type NavKey = keyof (typeof systemOperatorLayoutMessages)['vi']['nav']
 
-const NAV: Array<{ key: NavKey; icon: string; href: string }> = [
-  { key: 'overview', icon: '▦', href: '#portal/staff/technical' },
+const NAV: Array<{ key: NavKey; icon: IconName; href: string }> = [
+  { key: 'overview', icon: 'chart', href: '#portal/staff/technical' },
   {
     key: 'maintenance',
-    icon: '🛠',
+    icon: 'shield',
     href: '#portal/staff/technical/maintenance',
   },
-  { key: 'devices', icon: '◉', href: '#portal/staff/technical/devices' },
-  { key: 'telemetry', icon: '〰', href: '#portal/staff/technical/telemetry' },
-  { key: 'alerts', icon: '🔔', href: '#portal/staff/technical/alerts' },
+  { key: 'devices', icon: 'cpu', href: '#portal/staff/technical/devices' },
+  { key: 'telemetry', icon: 'activity', href: '#portal/staff/technical/telemetry' },
+  { key: 'alerts', icon: 'bell', href: '#portal/staff/technical/alerts' },
 ]
 
 function activeKey(hash: string): NavKey {
   const found = NAV.slice(1).find((item) => hash.startsWith(item.href))
   return found ? found.key : 'overview'
-}
-
-function initialsOf(fullName: string | undefined): string {
-  if (!fullName) return '?'
-  const words = fullName.trim().split(/\s+/)
-  if (words.length === 1) return words[0].slice(0, 2).toUpperCase()
-  return (words[0][0] + words[words.length - 1][0]).toUpperCase()
 }
 
 /** Shell for the System Operator portal — same look as the Operator/Manager portals. */
@@ -66,63 +61,31 @@ export function SystemOperatorLayout({
   return (
     <div className="odm odm-opr">
       <div className="odm-opr-shell">
-        <nav
-          aria-label={t.ariaNav}
-          className={`odm-opr-side${menuOpen ? ' is-open' : ''}`}
-        >
-          <a
-            className="odm-opr-brand"
-            href="#portal/staff/technical"
-            onClick={() => setMenuOpen(false)}
-          >
-            <img
-              src="/images/logo-new.png"
-              alt="OnDemand Monitor"
-              className="odm-opr-brand-mark"
-            />
-            <span className="odm-opr-brand-name">
-              <span className="odm-opr-brand-primary">OnDemand</span>
-              <span className="odm-opr-brand-accent">Monitor</span>
-            </span>
-          </a>
-
-          <div className="odm-opr-nav-scroll">
-            <div className="odm-opr-navg">{t.group}</div>
-            {NAV.map((item) => {
-              const isActive = item.key === active
-              return (
-                <a
-                  key={item.key}
-                  href={item.href}
-                  className={`odm-opr-navi ${isActive ? 'is-active' : ''}`}
-                  aria-current={isActive ? 'page' : undefined}
-                  onClick={() => setMenuOpen(false)}
-                >
-                  <span
-                    aria-hidden="true"
-                    style={{ minWidth: 16, textAlign: 'center' }}
-                  >
-                    {item.icon}
-                  </span>
-                  <span>{t.nav[item.key]}</span>
-                </a>
-              )
-            })}
-          </div>
-
-          <div className="odm-opr-user">
-            <span className="odm-opr-avatar" aria-hidden="true">
-              {initialsOf(user?.fullName)}
-            </span>
-            <span className="odm-opr-user-text">
-              <span className="odm-opr-user-name">
-                {user?.fullName ?? t.userFallback}
-              </span>
-              <span className="odm-opr-user-email">{user?.email ?? ''}</span>
-            </span>
-          </div>
-          <LogoutButton className="odm-opr-logout" />
-        </nav>
+        <aside className={`odm-opr-side${menuOpen ? ' is-open' : ''}`}>
+          <RoleSidebar
+            brandHref="#portal/staff/technical"
+            ariaLabel={t.ariaNav}
+            groups={[
+              {
+                key: 'system-operator',
+                label: t.group,
+                items: NAV.map((item) => ({
+                  key: item.key,
+                  label: t.nav[item.key],
+                  icon: <Icon name={item.icon} aria-hidden="true" />,
+                  href: item.href,
+                  active: item.key === active,
+                  onClick: () => setMenuOpen(false),
+                })),
+              },
+            ]}
+            profile={{
+              name: user?.fullName ?? t.userFallback,
+              description: user?.email,
+            }}
+            footer={<LogoutButton className="odm-opr-logout" />}
+          />
+        </aside>
 
         {menuOpen ? (
           <button

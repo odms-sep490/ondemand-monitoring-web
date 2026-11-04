@@ -3,7 +3,9 @@ import { ConfigProvider, Layout } from 'antd'
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 
 import { mgrPopupContainer } from '../../shared/components/antd'
+import { RoleSidebar } from '../../shared/components/RoleSidebar'
 import { useI18n } from '../../shared/i18n'
+import { authSession } from '../auth/api/authApi'
 import {
   APP_SIDER_RAIL_WIDTH,
   APP_SIDER_WIDTH,
@@ -12,10 +14,9 @@ import {
 import '../../shared/styles/app-shell/layout.scss'
 import '../../shared/styles/app-shell/popups.scss'
 import { CustomerHeader } from './components/layout/CustomerHeader'
-import { CustomerSiderMenu } from './components/layout/CustomerSiderMenu'
-import { CustomerSiderUserCard } from './components/layout/CustomerSiderUserCard'
 import {
   activeNavKey,
+  NAV_GROUPS,
   type CustomerNavItemKey,
 } from './components/layout/navConfig'
 import { customerLayoutMessages } from './CustomerLayout.messages'
@@ -82,29 +83,32 @@ export function CustomerLayout({
             theme={dark ? 'dark' : 'light'}
             className={`mgr-sider ${overlayOpen ? 'is-overlay' : ''} ${rail ? 'is-rail' : ''}`}
           >
-            <a
-              className="mgr-brand"
-              href={customerHref({ screen: 'dashboard' })}
-            >
-              <span className="mgr-brand-tile">
-                <img
-                  src="/images/logo-new.png"
-                  alt="OnDemand Monitor"
-                  className="mgr-brand-mark"
-                />
-              </span>
-              <span className="mgr-brand-name">
-                <span className="mgr-brand-primary">OnDemand</span>
-                <span className="mgr-brand-accent">Monitor</span>
-              </span>
-            </a>
-            <CustomerSiderMenu
-              activeKey={activeKey}
-              newMediaCount={newMediaCount}
+            <RoleSidebar
+              brandHref={customerHref({ screen: 'dashboard' })}
+              ariaLabel={t.nav}
+              groups={NAV_GROUPS.map((group) => ({
+                key: group.key,
+                label: t.groups[group.key],
+                items: group.items.map((item) => ({
+                  key: item.key,
+                  label: t.navItems[item.key],
+                  icon: item.icon,
+                  href: item.href || (item.route ? customerHref(item.route) : '#'),
+                  active: item.key === activeKey,
+                  badge:
+                    item.newMediaBadge && (newMediaCount ?? 0) > 0
+                      ? newMediaCount
+                      : undefined,
+                  onClick: () => broken && setCollapsed(true),
+                })),
+              }))}
+              profile={{
+                name: authSession.getUser()?.fullName ?? t.customer,
+                description: t.customer,
+                href: '#profile',
+              }}
               collapsed={rail}
-              onNavigate={() => broken && setCollapsed(true)}
             />
-            <CustomerSiderUserCard />
           </Sider>
 
           {overlayOpen ? (

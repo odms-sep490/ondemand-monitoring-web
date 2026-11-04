@@ -4,13 +4,15 @@ import { Lottie } from 'lottie-react'
 import { useReducedMotion } from 'motion/react'
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 
+import { RoleSidebar } from '../../shared/components/RoleSidebar'
 import { useI18n } from '../../shared/i18n'
+import { authSession } from '../auth/api/authApi'
 import { managerHref, type ManagerRoute } from './routes'
 import { ManagerHeader } from './components/layout/ManagerHeader'
-import { SiderMenu } from './components/layout/SiderMenu'
-import { SiderUserCard } from './components/layout/SiderUserCard'
+import { ManagerIcon } from './components/common/ManagerIcon'
 import {
   activeNavLabel,
+  NAV_GROUPS,
   type ManagerNavCounts,
 } from './components/layout/navConfig'
 import { mgrPopupContainer } from './components/common/mgrPopupContainer'
@@ -90,29 +92,32 @@ export function ManagerLayout({
             theme={dark ? 'dark' : 'light'}
             className={`mgr-sider ${overlayOpen ? 'is-overlay' : ''} ${rail ? 'is-rail' : ''}`}
           >
-            <a
-              className="mgr-brand"
-              href={managerHref({ screen: 'dashboard' })}
-            >
-              <span className="mgr-brand-tile">
-                <img
-                  src="/images/logo-new.png"
-                  alt="OnDemand Monitor"
-                  className="mgr-brand-mark"
-                />
-              </span>
-              <span className="mgr-brand-name">
-                <span className="mgr-brand-primary">OnDemand</span>
-                <span className="mgr-brand-accent">Monitor</span>
-              </span>
-            </a>
-            <SiderMenu
-              activeLabel={activeNavLabel[route.screen]}
-              counts={counts}
+            <RoleSidebar
+              brandHref={managerHref({ screen: 'dashboard' })}
+              ariaLabel={t.nav}
+              groups={NAV_GROUPS.map((group) => ({
+                key: group.label,
+                label: t.sidebar[group.label],
+                items: group.items.map((item) => {
+                  const count = item.countKey ? counts?.[item.countKey] : undefined
+                  return {
+                    key: item.label,
+                    label: t.sidebar[item.label],
+                    icon: <ManagerIcon name={item.icon} />,
+                    href: item.href || (item.route ? managerHref(item.route) : '#'),
+                    active: item.label === activeNavLabel[route.screen],
+                    badge: count && count > 0 ? count : undefined,
+                    onClick: () => broken && setCollapsed(true),
+                  }
+                }),
+              }))}
+              profile={{
+                name: authSession.getUser()?.fullName ?? t.manager,
+                description: t.manager,
+                href: '#profile',
+              }}
               collapsed={rail}
-              onNavigate={() => broken && setCollapsed(true)}
             />
-            <SiderUserCard />
           </Sider>
 
           {overlayOpen ? (
