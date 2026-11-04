@@ -16,16 +16,6 @@ export type CustomerMediaResponse = {
   downloadUrl?: string | null
 }
 
-/** `CustomerMediaNotificationResponse`. */
-export type CustomerMediaNotificationResponse = {
-  notificationId: string
-  mediaId: string
-  missionId: string
-  /** Currently only `CUSTOMER_MEDIA_AVAILABLE`. */
-  eventType?: string
-  createdAt?: string
-}
-
 /** `PageResponse<T>` as returned by the customer mission media endpoint. */
 export type PageResponse<T> = {
   items: T[]
@@ -51,14 +41,6 @@ export type MediaItem = {
   capturedAt: string | null
   availableAt: string | null
   url: string | null
-}
-
-export type MediaNotification = {
-  id: string
-  mediaId: string
-  missionId: string
-  eventType: string
-  createdAt: string | null
 }
 
 export type MediaMissionGroup = {

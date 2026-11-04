@@ -38,13 +38,11 @@ export function CustomerLayout({
   route,
   breadcrumb,
   activeNavItem,
-  newMediaCount,
   children,
 }: {
   route: CustomerRoute
   breadcrumb: string
   activeNavItem?: CustomerNavItemKey
-  newMediaCount?: number
   children: ReactNode
 }) {
   const [dark, setDark] = useState(
@@ -93,12 +91,9 @@ export function CustomerLayout({
                   key: item.key,
                   label: t.navItems[item.key],
                   icon: item.icon,
-                  href: item.href || (item.route ? customerHref(item.route) : '#'),
+                  href:
+                    item.href || (item.route ? customerHref(item.route) : '#'),
                   active: item.key === activeKey,
-                  badge:
-                    item.newMediaBadge && (newMediaCount ?? 0) > 0
-                      ? newMediaCount
-                      : undefined,
                   onClick: () => broken && setCollapsed(true),
                 })),
               }))}

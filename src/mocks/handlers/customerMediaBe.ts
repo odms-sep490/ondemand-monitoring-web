@@ -1,16 +1,12 @@
 // Mock handlers in the BE DTO shape for the customer's media. Verified
 // against /v3/api-docs (Customer Media):
 //   GET /api/customer/available-media                    -> ApiResponse<CustomerMediaResponse[]>
-//   GET /api/customer/media-notifications                -> ApiResponse<CustomerMediaNotificationResponse[]>
 //   GET /api/customer/missions/{id}/media ?page&size     -> ApiResponse<PageResponse<CustomerMediaResponse>>
 //   GET /api/customer/missions/{id}/media/{mediaId}      -> ApiResponse<CustomerMediaResponse>
 //   GET /api/customer/missions/{id}/media-status         -> ApiResponse<CustomerMissionMediaStatusResponse>
 //   GET /api/media/{mediaId}/download                    -> ApiResponse<CustomerMediaResponse>
 // Only assets that are AVAILABLE are ever returned, like the BE.
-import type {
-  CustomerMediaNotificationResponse,
-  CustomerMediaResponse,
-} from '../../features/customer/lib/media/types'
+import type { CustomerMediaResponse } from '../../features/customer/lib/media/types'
 import seed from '../data/customer-orders.json'
 import { fail, ok, registerMockRoutes } from '../mockServer'
 
@@ -50,11 +46,15 @@ function toDto(m: SeedMedia, index: number): CustomerMediaResponse {
 const available = seedMedia.map(toDto)
 
 /** Mission-history mission that has files still being validated (mock only). */
-const PROCESSING: Record<string, { processingCount: number; rejectedCount: number }> = {
+const PROCESSING: Record<
+  string,
+  { processingCount: number; rejectedCount: number }
+> = {
   'msn-004-1': { processingCount: 1, rejectedCount: 1 },
 }
 
-const forMission = (missionId: string) => available.filter((m) => m.missionId === missionId)
+const forMission = (missionId: string) =>
+  available.filter((m) => m.missionId === missionId)
 
 registerMockRoutes([
   {
@@ -64,26 +64,13 @@ registerMockRoutes([
   },
   {
     method: 'GET',
-    path: '/api/customer/media-notifications',
-    handler: () =>
-      ok<CustomerMediaNotificationResponse[]>(
-        seedMedia
-          .filter((m) => m.isNew)
-          .map((m) => ({
-            notificationId: `ntf-${m.id}`,
-            mediaId: m.id,
-            missionId: m.missionId,
-            eventType: 'CUSTOMER_MEDIA_AVAILABLE',
-            createdAt: new Date(new Date(m.capturedAt).getTime() + 5 * 60_000).toISOString(),
-          })),
-      ),
-  },
-  {
-    method: 'GET',
     path: '/api/customer/missions/:missionId/media',
     handler: ({ params, query }) => {
       const page = Math.max(0, Number(query.get('page') ?? 0) || 0)
-      const size = Math.min(100, Math.max(1, Number(query.get('size') ?? 12) || 12))
+      const size = Math.min(
+        100,
+        Math.max(1, Number(query.get('size') ?? 12) || 12),
+      )
       const all = forMission(params.missionId)
       const totalPages = Math.ceil(all.length / size)
       return ok({
@@ -101,7 +88,9 @@ registerMockRoutes([
     method: 'GET',
     path: '/api/customer/missions/:missionId/media/:mediaId',
     handler: ({ params }) => {
-      const found = forMission(params.missionId).find((m) => m.mediaId === params.mediaId)
+      const found = forMission(params.missionId).find(
+        (m) => m.mediaId === params.mediaId,
+      )
       return found ? ok(found) : fail(404, 'NOT_FOUND', 'Media not found')
     },
   },

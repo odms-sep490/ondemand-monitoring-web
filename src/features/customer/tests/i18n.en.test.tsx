@@ -196,12 +196,6 @@ const ROUTES: Route[] = [
     vi: 'Thông tin lần bay',
     en: 'Mission information',
   },
-  {
-    name: 'Notifications',
-    hash: '#portal/customer/notifications',
-    vi: 'Thông báo',
-    en: 'Notifications',
-  },
   { name: 'NotFound', hash: '#portal/customer/nope', vi: 'Không tìm thấy', en: 'Not found' },
 ]
 
