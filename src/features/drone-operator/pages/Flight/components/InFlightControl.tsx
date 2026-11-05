@@ -171,7 +171,7 @@ export default function InFlightControl({
     setPreflightReady,
   })
 
-  if (import.meta.env.VITE_FLIGHT_MAP_ONLY !== 'false') {
+  if (import.meta.env.VITE_FLIGHT_MAP_ONLY === 'true') {
     return (
       <GpsCockpitView
         mission={mission}

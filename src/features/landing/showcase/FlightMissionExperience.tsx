@@ -5,6 +5,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
 
 import droneAnimation from '../assets/drone-animation.json'
+import { CinematicDroneSequence } from './CinematicDroneSequence'
 import { Icon } from '../../../shared/components/Icon'
 
 gsap.registerPlugin(ScrollTrigger, useGSAP)
@@ -21,12 +22,15 @@ type Chapter = {
 
 type Copy = {
   stateLabel: string
+  disclosure: string
   chapters: Chapter[]
 }
 
 const copyByLanguage: Record<'vi' | 'en', Copy> = {
   vi: {
     stateLabel: 'Tình trạng nhiệm vụ',
+    disclosure:
+      'Hành trình và trạng thái chỉ mang tính minh họa; hình ảnh có thể thuộc các địa điểm khác nhau.',
     chapters: [
       {
         id: 'journey-launch',
@@ -83,12 +87,84 @@ const copyByLanguage: Record<'vi' | 'en', Copy> = {
         position: 'center 52%',
       },
       {
-        id: 'mission-results',
-        eyebrow: 'Rà soát kết quả',
-        title: 'Ảnh, video và checklist|cùng một hồ sơ.',
-        body: 'Bằng chứng và đánh giá được tập hợp để người phụ trách kiểm tra trước khi nghiệm thu.',
-        state: 'Đang gửi dữ liệu',
+        id: 'mission-facility-detail',
+        eyebrow: 'Rà soát khu vực xa',
+        title: 'Mở rộng vùng|quan sát hiện trường.',
+        body: 'Drone tiếp cận khu vực địa hình xa để bổ sung góc nhìn cho hồ sơ khảo sát.',
+        state: 'Đang rà soát khu vực xa',
+        image: '/images/landing/highland-overview.webp',
+        position: 'center 46%',
+      },
+      {
+        id: 'mission-solar-pass',
+        eyebrow: 'Khảo sát bổ sung',
+        title: 'Gom thêm góc nhìn|toàn khu vực.',
+        body: 'Một lượt bay rộng giúp đối chiếu các điểm đã ghi nhận trong cùng hành trình.',
+        state: 'Đang mở rộng khảo sát',
         image: '/images/landing/landscape-1280.webp',
+        position: 'center 52%',
+      },
+      {
+        id: 'mission-overview',
+        eyebrow: 'Kiểm tra trang trại gió',
+        title: 'Theo từng turbine|trên dải gió.',
+        body: 'Drone rà soát các turbine và tuyến tiếp cận trên khu vực rộng.',
+        state: 'Đang kiểm tra turbine gió',
+        image: '/images/landing/wind-farm.webp',
+        position: 'center 50%',
+      },
+      {
+        id: 'mission-site-pass',
+        eyebrow: 'Kiểm tra cầu',
+        title: 'Theo dõi nhịp cầu|từ đầu đến cuối.',
+        body: 'Drone rà soát mặt cầu và các nhịp kết cấu để ghi nhận điểm cần bảo trì.',
+        state: 'Đang kiểm tra cầu',
+        image: '/images/landing/bridge-inspection.webp',
+        position: 'center 50%',
+      },
+      {
+        id: 'mission-network-route',
+        eyebrow: 'Theo tuyến hạ tầng',
+        title: 'Bám dọc hành lang|đường ống dài.',
+        body: 'Drone theo tuyến ống và đường dịch vụ để kiểm tra liên tục qua nhiều vị trí.',
+        state: 'Đang kiểm tra đường ống',
+        image: '/images/landing/pipeline-corridor.webp',
+        position: 'center 48%',
+      },
+      {
+        id: 'mission-remote-area',
+        eyebrow: 'Kiểm tra đập và hồ chứa',
+        title: 'Rà soát thân đập|và tuyến tràn.',
+        body: 'Ghi nhận thân đập, cửa xả và lối tiếp cận quanh hồ chứa.',
+        state: 'Đang kiểm tra công trình thủy điện',
+        image: '/images/landing/hydroelectric-dam.webp',
+        position: 'center 52%',
+      },
+      {
+        id: 'mission-final-sweep',
+        eyebrow: 'Lượt quét cuối',
+        title: 'Rà soát tầng khai thác|và đường nội bộ.',
+        body: 'Đội bay kiểm tra các tầng mỏ và tuyến vận hành trước khi kết thúc khảo sát.',
+        state: 'Đang rà soát khu mỏ',
+        image: '/images/landing/open-pit-quarry.webp',
+        position: 'center 55%',
+      },
+      {
+        id: 'mission-return-route',
+        eyebrow: 'Rời khu công nghiệp',
+        title: 'Khép tuyến kiểm tra|tại cảng hàng hóa.',
+        body: 'Drone hoàn tất lượt ghi hình tại cầu cảng và chuyển sang tuyến trở về.',
+        state: 'Đang hoàn tất kiểm tra cảng',
+        image: '/images/landing/industrial-port.webp',
+        position: 'center 48%',
+      },
+      {
+        id: 'mission-results',
+        eyebrow: 'Đối chiếu kết quả',
+        title: 'Đối chiếu từng đoạn|kè ven biển.',
+        body: 'Ảnh và checklist được rà soát theo từng đoạn đê chắn sóng trước khi bàn giao.',
+        state: 'Đang đối chiếu kết quả',
+        image: '/images/landing/coastal-flood-barrier.webp',
         position: 'center 54%',
       },
       {
@@ -97,13 +173,15 @@ const copyByLanguage: Record<'vi' | 'en', Copy> = {
         title: 'Hạ cánh an toàn.|Sẵn sàng cho lần bay tiếp.',
         body: 'Drone hạ cánh an toàn. Kết quả được gửi để đội ngũ tiếp tục rà soát và bàn giao.',
         state: 'Nhiệm vụ sẵn sàng bàn giao',
-        image: '/images/landing/rail-yard.jpg',
+        image: '/images/landing/landing-apron.webp',
         position: 'center 48%',
       },
     ],
   },
   en: {
     stateLabel: 'Mission status',
+    disclosure:
+      'Illustrative journey and status. Images may show different locations.',
     chapters: [
       {
         id: 'journey-launch',
@@ -160,12 +238,84 @@ const copyByLanguage: Record<'vi' | 'en', Copy> = {
         position: 'center 52%',
       },
       {
+        id: 'mission-facility-detail',
+        eyebrow: 'Remote area review',
+        title: 'Expand the view|across remote terrain.',
+        body: 'The drone reaches a remote landscape to add context to the inspection record.',
+        state: 'Reviewing a remote area',
+        image: '/images/landing/highland-overview.webp',
+        position: 'center 46%',
+      },
+      {
+        id: 'mission-solar-pass',
+        eyebrow: 'Additional survey',
+        title: 'Capture another view|of the full area.',
+        body: 'A broad pass adds context for comparing the locations already recorded.',
+        state: 'Expanding the survey',
+        image: '/images/landing/landscape-1280.webp',
+        position: 'center 52%',
+      },
+      {
+        id: 'mission-overview',
+        eyebrow: 'Wind farm inspection',
+        title: 'Trace each turbine|across the ridge.',
+        body: 'The drone reviews the turbines and access lanes across the wide site.',
+        state: 'Inspecting wind turbines',
+        image: '/images/landing/wind-farm.webp',
+        position: 'center 50%',
+      },
+      {
+        id: 'mission-site-pass',
+        eyebrow: 'Bridge inspection',
+        title: 'Trace the bridge|from end to end.',
+        body: 'The drone reviews the deck and structural spans to flag maintenance points.',
+        state: 'Inspecting the bridge',
+        image: '/images/landing/bridge-inspection.webp',
+        position: 'center 50%',
+      },
+      {
+        id: 'mission-network-route',
+        eyebrow: 'Infrastructure route',
+        title: 'Track the long|pipeline corridor.',
+        body: 'The drone follows the pipeline and service road to inspect multiple locations.',
+        state: 'Inspecting the pipeline',
+        image: '/images/landing/pipeline-corridor.webp',
+        position: 'center 48%',
+      },
+      {
+        id: 'mission-remote-area',
+        eyebrow: 'Dam and reservoir review',
+        title: 'Inspect the dam|and spillway route.',
+        body: 'Record the dam face, spillway, and access points around the reservoir.',
+        state: 'Inspecting the hydro facility',
+        image: '/images/landing/hydroelectric-dam.webp',
+        position: 'center 52%',
+      },
+      {
+        id: 'mission-final-sweep',
+        eyebrow: 'Final survey pass',
+        title: 'Review the quarry|benches and access roads.',
+        body: 'The crew checks the working levels and internal roads before the survey ends.',
+        state: 'Reviewing the quarry',
+        image: '/images/landing/open-pit-quarry.webp',
+        position: 'center 55%',
+      },
+      {
+        id: 'mission-return-route',
+        eyebrow: 'Industrial port',
+        title: 'Close the port survey|before returning.',
+        body: 'The drone completes its dockside pass and starts the route back to base.',
+        state: 'Wrapping up the port review',
+        image: '/images/landing/industrial-port.webp',
+        position: 'center 48%',
+      },
+      {
         id: 'mission-results',
         eyebrow: 'Result review',
-        title: 'Media and checklist|in one record.',
-        body: 'Evidence and assessments are gathered for review before customer handoff.',
-        state: 'Sending results',
-        image: '/images/landing/landscape-1280.webp',
+        title: 'Review each section|of the coastal barrier.',
+        body: 'Photos and checklist items are reviewed by seawall section before handoff.',
+        state: 'Cross-checking results',
+        image: '/images/landing/coastal-flood-barrier.webp',
         position: 'center 54%',
       },
       {
@@ -174,7 +324,7 @@ const copyByLanguage: Record<'vi' | 'en', Copy> = {
         title: 'Land safely.|Ready for the next flight.',
         body: 'The drone lands safely. Results are sent for review and handoff.',
         state: 'Mission ready for handoff',
-        image: '/images/landing/rail-yard.jpg',
+        image: '/images/landing/landing-apron.webp',
         position: 'center 48%',
       },
     ],
@@ -204,9 +354,29 @@ export function FlightMissionExperience({
   const droneRef = useRef<HTMLDivElement>(null)
   const droneFollowRef = useRef<HTMLDivElement>(null)
   const routeRef = useRef<SVGPathElement>(null)
+  const cinematicVideoRef = useRef<HTMLVideoElement | null>(null)
+  const flightProgressRef = useRef(0)
   const [activeChapter, setActiveChapter] = useState(0)
+  const [cinematicReady, setCinematicReady] = useState(false)
   const english = lang === 'en'
   const copy = copyByLanguage[english ? 'en' : 'vi']
+
+  const syncCinematicVideo = (progress: number) => {
+    flightProgressRef.current = progress
+    const video = cinematicVideoRef.current
+    if (!video || video.readyState < 2 || !Number.isFinite(video.duration)) return
+
+    const time = Math.min(
+      progress * video.duration,
+      Math.max(0, video.duration - 1 / 24),
+    )
+    if (Math.abs(video.currentTime - time) > 0.015) video.currentTime = time
+  }
+
+  const handleCinematicReady = (ready: boolean) => {
+    setCinematicReady(ready)
+    if (ready) syncCinematicVideo(flightProgressRef.current)
+  }
 
   useGSAP(
     () => {
@@ -215,188 +385,119 @@ export function FlightMissionExperience({
       const scene = root?.querySelector<HTMLElement>('.lp-flight-scene-stage')
       if (!root || !drone || !scene) return
 
+      const path = routeRef.current
+      const progressFills = Array.from(
+        root.querySelectorAll<HTMLElement>('.lp-journey-progress-fill'),
+      )
+      const reducedMotion = window.matchMedia?.(
+        '(prefers-reduced-motion: reduce)',
+      ).matches
+      const mobile = window.matchMedia?.('(max-width: 700px)').matches ?? false
+      const pathLength = path?.getTotalLength() ?? 0
+
+      const updateProgress = (progress: number) => {
+        const scaledProgress = progress * progressFills.length
+        progressFills.forEach((fill, index) => {
+          const amount = gsap.utils.clamp(0, 1, scaledProgress - index)
+          fill.style.transform = `scaleX(${amount})`
+        })
+      }
+
+      const positionDrone = (progress: number) => {
+        if (!path || !pathLength) return
+        const svg = path.ownerSVGElement
+        const viewBox = svg?.viewBox.baseVal
+        const svgBounds = svg?.getBoundingClientRect()
+        if (
+          !svg ||
+          !viewBox?.width ||
+          !viewBox.height ||
+          !svgBounds?.width ||
+          !svgBounds.height
+        ) {
+          return
+        }
+
+        const point = path.getPointAtLength(
+          pathLength * gsap.utils.clamp(0, 1, progress),
+        )
+        const stageBounds = scene.getBoundingClientRect()
+
+        gsap.set(drone, {
+          x:
+            svgBounds.left +
+            ((point.x - viewBox.x) / viewBox.width) * svgBounds.width -
+            stageBounds.left,
+          y:
+            svgBounds.top +
+            ((point.y - viewBox.y) / viewBox.height) * svgBounds.height -
+            stageBounds.top,
+        })
+      }
+
+      const updateFlight = (progress: number) => {
+        updateProgress(progress)
+        positionDrone(progress)
+        syncCinematicVideo(progress)
+      }
+
+      if (path) {
+        gsap.set(path, {
+          strokeDasharray: pathLength,
+          strokeDashoffset: reducedMotion ? 0 : pathLength,
+        })
+        updateFlight(0)
+      }
+      if (reducedMotion) updateFlight(1 / copy.chapters.length)
+
       root
         .querySelectorAll<HTMLElement>('.lp-journey-chapter')
         .forEach((chapter, index) => {
           ScrollTrigger.create({
             trigger: chapter,
-            start: 'top 62%',
-            end: 'bottom 38%',
-            onEnter: () => setActiveChapter(index),
-            onEnterBack: () => setActiveChapter(index),
+            start: mobile ? 'top 60%' : 'top 62%',
+            end: mobile ? 'bottom 60%' : 'bottom 85%',
+            onEnter: () => {
+              setActiveChapter(index)
+              if (reducedMotion)
+                updateFlight((index + 1) / copy.chapters.length)
+            },
+            onEnterBack: () => {
+              setActiveChapter(index)
+              if (reducedMotion)
+                updateFlight((index + 1) / copy.chapters.length)
+            },
           })
         })
 
-      if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)
-        return
+      if (reducedMotion || !path) return
 
-      const mm = gsap.matchMedia()
-      mm.add(
+      const timeline = gsap.timeline({
+        scrollTrigger: {
+          trigger: root,
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: 0.7,
+          invalidateOnRefresh: true,
+        },
+      })
+
+      timeline.to(
+        path,
         {
-          desktop: '(min-width: 701px)',
-          mobile: '(max-width: 700px)',
+          strokeDashoffset: 0,
+          duration: 1,
+          ease: 'none',
+          onUpdate: () => {
+            const offset = Number(gsap.getProperty(path, 'strokeDashoffset'))
+            const progress = 1 - gsap.utils.clamp(0, pathLength, offset) / pathLength
+            updateFlight(progress)
+          },
         },
-        (context) => {
-          const conditions = context.conditions as {
-            desktop: boolean
-            mobile: boolean
-          }
-          const mobile = conditions.mobile
-          const path = routeRef.current
-          gsap.set(scene, {
-            transformOrigin: mobile ? '58% 38%' : '64% 53%',
-          })
-          if (path) {
-            const length = path.getTotalLength()
-            gsap.set(path, {
-              strokeDasharray: length,
-              strokeDashoffset: length,
-            })
-          }
-
-          const timeline = gsap.timeline({
-            scrollTrigger: {
-              trigger: root,
-              start: 'top top',
-              end: 'bottom bottom',
-              scrub: 0.7,
-              invalidateOnRefresh: true,
-            },
-          })
-
-          timeline
-            .to(
-              scene,
-              {
-                rotationY: mobile ? 1.2 : 3,
-                rotationX: mobile ? -0.6 : -1.2,
-                scale: mobile ? 1.025 : 1.045,
-                duration: 0.22,
-                ease: 'none',
-              },
-              0.08,
-            )
-            .to(
-              scene,
-              {
-                rotationY: mobile ? -1.5 : -4,
-                rotationX: mobile ? 0.8 : 1.8,
-                scale: mobile ? 0.98 : 0.955,
-                x: mobile ? -4 : 18,
-                duration: 0.4,
-                ease: 'none',
-              },
-              0.38,
-            )
-            .to(
-              scene,
-              {
-                rotationY: 0,
-                rotationX: 0,
-                scale: 1,
-                x: 0,
-                duration: 0.2,
-                ease: 'none',
-              },
-              0.78,
-            )
-            .to(
-              drone,
-              {
-                x: mobile ? 36 : 118,
-                y: mobile ? -24 : -64,
-                z: mobile ? 80 : 180,
-                rotationY: 24,
-                rotationZ: -9,
-                scale: mobile ? 0.84 : 0.88,
-                duration: 0.13,
-                ease: 'none',
-              },
-              0.08,
-            )
-            .to(
-              drone,
-              {
-                x: mobile ? -54 : -165,
-                y: mobile ? -46 : -118,
-                z: mobile ? 160 : 260,
-                rotationY: -28,
-                rotationZ: 12,
-                scale: mobile ? 0.74 : 0.72,
-                duration: 0.14,
-                ease: 'none',
-              },
-              0.24,
-            )
-            .to(
-              drone,
-              {
-                x: mobile ? 42 : 142,
-                y: mobile ? 52 : 74,
-                z: mobile ? 220 : 330,
-                rotationY: 33,
-                rotationZ: -14,
-                scale: mobile ? 0.66 : 0.67,
-                duration: 0.14,
-                ease: 'none',
-              },
-              0.41,
-            )
-            .to(
-              drone,
-              {
-                x: mobile ? -44 : -132,
-                y: mobile ? -26 : -50,
-                z: mobile ? 270 : 420,
-                rotationY: -20,
-                rotationZ: 8,
-                scale: mobile ? 0.62 : 0.6,
-                duration: 0.14,
-                ease: 'none',
-              },
-              0.58,
-            )
-            .to(
-              drone,
-              {
-                x: mobile ? 28 : 94,
-                y: mobile ? -48 : -82,
-                z: mobile ? 180 : 280,
-                rotationY: 20,
-                rotationZ: -6,
-                scale: mobile ? 0.76 : 0.76,
-                duration: 0.14,
-                ease: 'none',
-              },
-              0.75,
-            )
-            .to(
-              drone,
-              {
-                x: 0,
-                y: 0,
-                z: 0,
-                rotationY: -10,
-                rotationZ: 0,
-                scale: mobile ? 0.9 : 0.95,
-                duration: 0.1,
-                ease: 'power1.inOut',
-              },
-              0.9,
-            )
-          if (path) {
-            timeline.to(
-              path,
-              { strokeDashoffset: 0, duration: 0.72, ease: 'none' },
-              0.12,
-            )
-          }
-
-          return () => timeline.scrollTrigger?.kill()
-        },
+        0,
       )
 
-      return () => mm.revert()
+      return () => timeline.scrollTrigger?.kill()
     },
     { scope: journeyRef },
   )
@@ -406,6 +507,7 @@ export function FlightMissionExperience({
   useEffect(() => {
     if (
       !pointerFollowEnabled ||
+      window.matchMedia?.('(max-width: 700px)').matches ||
       window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
     ) {
       return
@@ -508,8 +610,6 @@ export function FlightMissionExperience({
     }
   }, [pointerFollowEnabled])
 
-  const activeImage = copy.chapters[activeChapter]?.image
-
   return (
     <section
       className="lp-scroll-journey"
@@ -517,23 +617,25 @@ export function FlightMissionExperience({
       ref={journeyRef}
       data-testid="flight-mission-experience"
       data-active-chapter={activeChapter}
-      data-drone-visible={pointerFollowEnabled}
       aria-label={
         english ? 'Drone mission journey' : 'Hành trình nhiệm vụ drone'
       }
     >
-      <div className="lp-journey-stage" aria-hidden="true">
+      <div
+        className={`lp-journey-stage${cinematicReady ? ' has-cinematic-video' : ''}`}
+        aria-hidden="true"
+      >
         <div className="lp-journey-backdrops">
           {copy.chapters.map((chapter, index) => (
             <div
               key={chapter.id}
-              className={`lp-journey-backdrop${chapter.image === activeImage ? ' is-active' : ''}`}
+              className={`lp-journey-backdrop${index === activeChapter ? ' is-active' : ''}`}
               aria-hidden="true"
             >
               <img
                 src={chapter.image}
                 alt=""
-                loading={index === 0 ? 'eager' : 'lazy'}
+                loading={index < 2 ? 'eager' : 'lazy'}
                 fetchPriority={index === 0 ? 'high' : 'auto'}
                 decoding="async"
                 width="1920"
@@ -543,6 +645,11 @@ export function FlightMissionExperience({
             </div>
           ))}
         </div>
+
+        <CinematicDroneSequence
+          videoRef={cinematicVideoRef}
+          onReady={handleCinematicReady}
+        />
 
         <div className="lp-flight-scene-stage">
           <svg
@@ -584,12 +691,18 @@ export function FlightMissionExperience({
             }
           </span>
         </div>
+        <div className="lp-journey-chapter-index">
+          {String(activeChapter + 1).padStart(2, '0')} /{' '}
+          {String(copy.chapters.length).padStart(2, '0')}
+        </div>
         <div className="lp-journey-progress">
           {copy.chapters.map((chapter, index) => (
             <span
               key={chapter.id}
-              className={index === activeChapter ? 'is-active' : ''}
-            />
+              className={`lp-journey-progress-segment${index === activeChapter ? ' is-active' : ''}${index < activeChapter ? ' is-complete' : ''}`}
+            >
+              <span className="lp-journey-progress-fill" />
+            </span>
           ))}
         </div>
       </div>
@@ -617,6 +730,7 @@ export function FlightMissionExperience({
                       <span>{heroTitleLines[1]}</span>
                     </h1>
                     <p className="lp-journey-lede">{heroLede}</p>
+                    <p className="lp-journey-disclosure">{copy.disclosure}</p>
                     <a className="lp-journey-scroll-cue" href="#mission-deploy">
                       <span>{seeHowItWorks}</span>
                       <Icon name="arrow-down" />
@@ -639,6 +753,20 @@ export function FlightMissionExperience({
                       ))}
                     </h2>
                     <p className="lp-journey-lede">{chapter.body}</p>
+                    {index === 1 && (
+                      <p className="lp-journey-attribution">
+                        {english ? 'Image credit: ' : 'Ảnh: '}
+                        <a
+                          href="https://commons.wikimedia.org/w/index.php?curid=130663927"
+                          target="_blank"
+                          rel="noreferrer"
+                          tabIndex={activeChapter === index ? 0 : -1}
+                        >
+                          “Giant Magellan Telescope Construction Site” —
+                          NOIRLab/NSF/AURA, CC BY 4.0
+                        </a>
+                      </p>
+                    )}
                     {index === copy.chapters.length - 1 && (
                       <a className="lp-journey-cta" href={createRequestTarget}>
                         {createRequestCta}
@@ -648,9 +776,6 @@ export function FlightMissionExperience({
                   </>
                 )}
               </div>
-              <span className="lp-journey-chapter-index" aria-hidden="true">
-                0{index + 1} / 0{copy.chapters.length}
-              </span>
             </article>
           )
         })}

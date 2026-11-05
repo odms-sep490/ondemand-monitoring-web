@@ -91,12 +91,12 @@
 }
 .odm-flight-step.is-current .odm-flight-step-chip {
   padding-right: 10px;
-  background: var(--ink);
-  color: var(--inkfg);
+  background: var(--accent);
+  color: #fff;
 }
 .odm-flight-step.is-current .odm-flight-step-dot {
-  background: var(--inkfg);
-  color: var(--ink);
+  background: #fff;
+  color: var(--accent);
 }
 .odm-flight-step-current-label {
   white-space: nowrap;

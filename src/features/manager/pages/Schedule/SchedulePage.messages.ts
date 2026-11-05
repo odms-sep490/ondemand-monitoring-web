@@ -13,6 +13,7 @@ export const schedulePageMessages = defineMessages({
     ],
     tabCalendar: 'Lịch',
     tabList: 'Danh sách',
+    tabOffice: 'Văn phòng 3D',
     viewWeek: 'Tuần',
     viewDay: 'Ngày',
     prevDay: 'Ngày trước',
@@ -69,8 +70,12 @@ export const schedulePageMessages = defineMessages({
       OTHER: 'Lý do khác',
     },
     weekGridAriaLabel: 'Lịch nhiệm vụ theo tuần',
-    pageAriaLabel: 'Lịch nhiệm vụ',
-    title: 'Lịch nhiệm vụ',
+    pageAriaLabel: 'Văn phòng đội ngũ',
+    title: 'Văn phòng chung',
+    description: 'Theo dõi nhân sự và công việc đang được xử lý trong một không gian chung.',
+    partialDataTitle: 'Một phần dữ liệu chưa tải được',
+    partialDataDescription: 'Thông tin văn phòng vẫn hiển thị; hãy tải lại để cập nhật danh sách nhân sự và nhiệm vụ.',
+    refresh: 'Cập nhật dữ liệu',
     weekCount: (n: number) => `${n} nhiệm vụ trong tuần`,
     legendTitle: 'Chú thích màu',
     legend: {
@@ -91,6 +96,7 @@ export const schedulePageMessages = defineMessages({
     emptyDescription:
       'Nhiệm vụ xuất hiện sau khi đơn được duyệt và tạo nhiệm vụ.',
     backToQueue: 'Về hàng đợi duyệt',
+    officeLoading: 'Đang dựng văn phòng 3D…',
   },
   en: {
     shortDays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as [
@@ -104,6 +110,7 @@ export const schedulePageMessages = defineMessages({
     ],
     tabCalendar: 'Calendar',
     tabList: 'List',
+    tabOffice: '3D office',
     viewWeek: 'Week',
     viewDay: 'Day',
     prevDay: 'Previous day',
@@ -160,8 +167,12 @@ export const schedulePageMessages = defineMessages({
       OTHER: 'Other',
     },
     weekGridAriaLabel: 'Mission schedule by week',
-    pageAriaLabel: 'Mission schedule',
-    title: 'Mission schedule',
+    pageAriaLabel: 'Team office',
+    title: 'Team office',
+    description: 'See the team and active work in one shared office view.',
+    partialDataTitle: 'Some information could not be loaded',
+    partialDataDescription: 'The office remains available. Retry to refresh the staff directory and mission activity.',
+    refresh: 'Refresh data',
     weekCount: (n: number) => `${n} missions this week`,
     legendTitle: 'Colour legend',
     legend: {
@@ -182,5 +193,6 @@ export const schedulePageMessages = defineMessages({
     emptyDescription:
       'Missions appear once an order is approved and a mission is created.',
     backToQueue: 'Back to the review queue',
+    officeLoading: 'Loading the 3D office…',
   },
 })

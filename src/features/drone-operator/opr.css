@@ -41,6 +41,19 @@
   font-family: 'Be Vietnam Pro', 'Inter', system-ui, sans-serif;
 }
 
+/* Keep primary actions in the operator flow aligned with the blue brand accent. */
+.odm-opr .odm-btn.odm-btn-p {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.odm-opr .odm-btn.odm-btn-p:hover:not(:disabled) {
+  background: #0f55cc;
+  border-color: #0f55cc;
+  opacity: 1;
+}
+
 /* ---------- Preflight safety workspace ---------- */
 
 .odm-flight-step-title {
