@@ -9,7 +9,6 @@ import type { ControlStatus, GeofenceStatus } from '../inFlightTypes'
 
 export function MissionControlCamera({
   streamUrl,
-  preflightReady,
   isOnline,
   handleOnline,
   handleOffline,
@@ -26,7 +25,6 @@ export function MissionControlCamera({
   geofenceMessage,
 }: {
   streamUrl: string
-  preflightReady: boolean
   isOnline: boolean
   handleOnline: () => void
   handleOffline: () => void
@@ -68,7 +66,6 @@ export function MissionControlCamera({
       >
         <CameraFeed
           streamUrl={streamUrl}
-          preflightReady={preflightReady}
           isOnline={isOnline}
           onOnline={handleOnline}
           onOffline={handleOffline}

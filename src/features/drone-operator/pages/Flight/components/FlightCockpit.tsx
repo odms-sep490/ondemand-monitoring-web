@@ -2,10 +2,9 @@ import { useState, type ReactNode } from 'react'
 import './FlightCockpit.css'
 import { type CockpitTelemetry, type CockpitCommand } from './cockpitTypes'
 import { copy } from './cockpitCopy'
-import { useFlightClock, useCockpitLayout } from './cockpitHooks'
+import { useFlightClock } from './cockpitHooks'
 import { CockpitHeader } from './CockpitHeader'
 import { CockpitCameraPanel } from './CockpitCameraPanel'
-import { CockpitMapPanel } from './CockpitMapPanel'
 import { CockpitTelemetryPanel } from './CockpitTelemetryPanel'
 import { CockpitControlsPanel } from './CockpitControlsPanel'
 
@@ -19,7 +18,6 @@ type Props = {
   statusMessage: string
   telemetry: CockpitTelemetry
   camera: ReactNode
-  map: ReactNode
   overlay?: ReactNode
   busy: boolean
   canFly: boolean
@@ -47,7 +45,6 @@ export function FlightCockpit(props: Props) {
     statusMessage,
     telemetry: tm,
     camera,
-    map,
     overlay,
     busy,
     canFly,
@@ -62,7 +59,6 @@ export function FlightCockpit(props: Props) {
   } = props
   const c = copy[language]
   const clock = useFlightClock(tm.inAir)
-  const [layout, setLayout] = useCockpitLayout()
   const [paramsOpen, setParamsOpen] = useState(true)
   const [controlOpen, setControlOpen] = useState(true)
 
@@ -156,29 +152,17 @@ export function FlightCockpit(props: Props) {
         language={language}
         busy={busy}
         startingFlight={startingFlight}
-        layout={layout}
-        setLayout={setLayout}
         onReview={onReview}
         toggleFullscreen={toggleFullscreen}
       />
 
-      <main className={`fc-body is-layout-${layout}`}>
+      <main className="fc-body">
         <CockpitCameraPanel
           c={c}
           batteryTone={batteryTone}
           battery={battery}
-          setLayout={setLayout}
-          layout={layout}
           camera={camera}
-        />
-
-        <CockpitMapPanel
-          c={c}
           statusMessage={statusMessage}
-          setLayout={setLayout}
-          layout={layout}
-          map={map}
-          missionLabel={missionLabel}
         />
 
         <aside className="fc-side">

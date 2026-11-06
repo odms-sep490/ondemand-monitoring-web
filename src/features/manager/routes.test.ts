@@ -81,6 +81,15 @@ describe('parseManagerRoute', () => {
       screen: 'drones',
       droneId: 'DRN-1',
     })
+    expect(
+      parseManagerRoute(
+        '#portal/manager/drones?assignmentMissionId=mission-1',
+      ),
+    ).toEqual({
+      screen: 'drones',
+      droneId: undefined,
+      assignmentMissionId: 'mission-1',
+    })
   })
 
   it('parses the maintenance route (MNG-10)', () => {
@@ -156,6 +165,10 @@ describe('managerHref', () => {
     ],
     [{ screen: 'drones' }, '#portal/manager/drones'],
     [{ screen: 'drones', droneId: 'DRN-1' }, '#portal/manager/drones/DRN-1'],
+    [
+      { screen: 'drones', assignmentMissionId: 'mission-1' },
+      '#portal/manager/drones?assignmentMissionId=mission-1',
+    ],
     [{ screen: 'maintenance' }, '#portal/manager/maintenance'],
     [{ screen: 'support' }, '#portal/manager/support'],
     [

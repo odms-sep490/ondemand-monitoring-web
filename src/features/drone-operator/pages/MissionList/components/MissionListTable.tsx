@@ -124,17 +124,42 @@ export function MissionListTable({
                   )}
                 </td>
                 <td>
-                  <StatusBadge
-                    tone={
-                      STATUS_TONE[currentStatus as keyof typeof STATUS_TONE] ??
-                      'gray'
-                    }
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'flex-start',
+                      gap: 5,
+                    }}
                   >
-                    {(t.statusLabel as Record<string, string>)[
+                    <StatusBadge
+                      tone={
+                        STATUS_TONE[
+                          currentStatus as keyof typeof STATUS_TONE
+                        ] ?? 'gray'
+                      }
+                    >
+                      {(t.statusLabel as Record<string, string>)[
                         currentStatus
-                      ] ??
-                      currentStatus}
-                  </StatusBadge>
+                      ] ?? currentStatus}
+                    </StatusBadge>
+                    {mission.deviceReplacementRequested ? (
+                      <span
+                        className="odm-opr-mission-replacement-request"
+                        style={{
+                          color: 'var(--red-fg)',
+                          fontSize: 12,
+                          fontWeight: 600,
+                        }}
+                      >
+                        {t.replacementRequestPending}
+                      </span>
+                    ) : mission.deviceReplacementCompleted ? (
+                      <StatusBadge tone="green">
+                        {t.replacementCompleted}
+                      </StatusBadge>
+                    ) : null}
+                  </div>
                 </td>
                 {showSubmission && (
                   <td>

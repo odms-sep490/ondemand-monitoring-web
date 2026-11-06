@@ -16,6 +16,10 @@ export function PreflightSummary({
   missionId,
   backendPreflightMessage,
   backendPreflightRegistering,
+  replacementRequesting,
+  replacementRequested,
+  replacementRequestError,
+  onRequestDroneReplacement,
 }: {
   nOk: number
   nTotal: number
@@ -31,6 +35,10 @@ export function PreflightSummary({
   missionId: string
   backendPreflightMessage: string | null
   backendPreflightRegistering: boolean
+  replacementRequesting: boolean
+  replacementRequested: boolean
+  replacementRequestError: string | null
+  onRequestDroneReplacement: () => void
 }) {
   return (
     <SummaryBanner
@@ -48,6 +56,10 @@ export function PreflightSummary({
       missionId={missionId}
       backendPreflightMessage={backendPreflightMessage}
       backendPreflightRegistering={backendPreflightRegistering}
+      replacementRequesting={replacementRequesting}
+      replacementRequested={replacementRequested}
+      replacementRequestError={replacementRequestError}
+      onRequestDroneReplacement={onRequestDroneReplacement}
     />
   )
 }

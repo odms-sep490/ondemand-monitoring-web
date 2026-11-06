@@ -1,0 +1,57 @@
+{
+  "asset": "office_environment.glb",
+  "source": "assets/office3d/office_environment.blend",
+  "coordinateSystem": "Three.js X/Y-up/Z coordinates; GLB is exported Y-up",
+  "dimensions": {
+    "width": 17.1,
+    "depth": 14.6,
+    "roomWidth": 4.35,
+    "roomDepth": 3.65
+  },
+  "rooms": [
+    "meeting",
+    "planning",
+    "pantry",
+    "lounge",
+    "dispatch",
+    "inspection",
+    "shared",
+    "technical",
+    "storage"
+  ],
+  "floorNodes": [
+    "ROOM_FLOOR__meeting",
+    "ROOM_FLOOR__planning",
+    "ROOM_FLOOR__pantry",
+    "ROOM_FLOOR__lounge",
+    "ROOM_FLOOR__dispatch",
+    "ROOM_FLOOR__inspection",
+    "ROOM_FLOOR__shared",
+    "ROOM_FLOOR__technical",
+    "ROOM_FLOOR__storage"
+  ],
+  "signAnchors": [
+    "ROOM_SIGN__meeting",
+    "ROOM_SIGN__planning",
+    "ROOM_SIGN__pantry",
+    "ROOM_SIGN__lounge",
+    "ROOM_SIGN__dispatch",
+    "ROOM_SIGN__inspection",
+    "ROOM_SIGN__shared",
+    "ROOM_SIGN__technical",
+    "ROOM_SIGN__storage"
+  ],
+  "workstations": [
+    "WORKSTATION__dispatch__0",
+    "WORKSTATION__dispatch__1",
+    "WORKSTATION__dispatch__2",
+    "WORKSTATION__inspection__0",
+    "WORKSTATION__inspection__1",
+    "WORKSTATION__planning__0",
+    "WORKSTATION__shared__0",
+    "WORKSTATION__shared__1",
+    "WORKSTATION__technical__0",
+    "WORKSTATION__technical__1"
+  ],
+  "visualDisclosure": "Room contents and displays are illustrative; staffing and mission data remain application-driven."
+}

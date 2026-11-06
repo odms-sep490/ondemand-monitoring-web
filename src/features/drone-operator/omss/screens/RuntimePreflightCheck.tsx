@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useI18n } from '../../../../shared/i18n'
 import { runtimePreflightCheckMessages } from '../i18n/runtimePreflightCheck'
+import { humanizePreflightDisplayText } from '../../pages/Preflight/preflightHelpers'
 
 type PreflightItemStatus = 'PENDING' | 'CHECKING' | 'PASS' | 'WARN' | 'FAIL'
 type PreflightOverallStatus = 'CHECKING' | 'READY' | 'FAILED'
@@ -73,7 +74,9 @@ export default function RuntimePreflightCheck({
   const pendingChecks: PreflightItem[] = PENDING_CHECK_KEYS.map(
     ([key, critical]) => ({
       key,
-      name: t.checkNames[key as keyof typeof t.checkNames],
+      name:
+        t.checkNames[key as keyof typeof t.checkNames] ??
+        humanizePreflightDisplayText(key),
       critical,
       status: 'PENDING',
       message: t.pending,
@@ -101,7 +104,9 @@ export default function RuntimePreflightCheck({
       await onReady()
     } catch (cause) {
       setError(
-        cause instanceof Error ? cause.message : t.backendPreflightFailed,
+        humanizePreflightDisplayText(
+          cause instanceof Error ? cause.message : t.backendPreflightFailed,
+        ),
       )
     } finally {
       setSubmitting(false)
@@ -396,7 +401,9 @@ export default function RuntimePreflightCheck({
               >
                 {statusMark(item.status)}
               </span>
-              <strong style={{ fontSize: 12 }}>{item.name}</strong>
+              <strong style={{ fontSize: 12 }}>
+                {humanizePreflightDisplayText(item.name)}
+              </strong>
               <span
                 style={{
                   color: statusColor(item.status),
@@ -407,7 +414,7 @@ export default function RuntimePreflightCheck({
                 {statusLabel(item.status)}
               </span>
               <span style={{ color: '#94a3b8', fontSize: 11 }}>
-                {item.message}
+                {humanizePreflightDisplayText(item.message)}
               </span>
               <span
                 style={{

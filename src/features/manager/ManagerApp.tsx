@@ -130,10 +130,25 @@ function renderScreen(
     )
   if (route.screen === 'missionDetail')
     return <MissionDetailPage missionId={route.missionId} />
-  if (route.screen === 'schedule') return <SchedulePage />
+  if (route.screen === 'schedule')
+    return (
+      <SchedulePage
+        key={route.assignmentMissionId ?? 'office'}
+        assignmentMissionId={route.assignmentMissionId}
+        assignmentCanEdit={route.assignmentCanEdit}
+        assignmentReturnOrderId={route.assignmentReturnOrderId}
+      />
+    )
   if (route.screen === 'missions')
     return <MissionsPage missionId={route.missionId} />
-  if (route.screen === 'drones') return <DronesPage droneId={route.droneId} />
+  if (route.screen === 'drones')
+    return (
+      <DronesPage
+        key={`${route.droneId ?? ''}:${route.assignmentMissionId ?? ''}`}
+        droneId={route.droneId}
+        assignmentMissionId={route.assignmentMissionId}
+      />
+    )
   if (route.screen === 'maintenance') return <MaintenancePage />
   if (route.screen === 'support')
     return <StaffSupportDashboardPage initialTicketId={route.ticketId} />

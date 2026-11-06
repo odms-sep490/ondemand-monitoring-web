@@ -1,0 +1,372 @@
+.mgr-office-assignment-card {
+  overflow: hidden;
+  border-color: #c9dcfb;
+  background: linear-gradient(155deg, #ffffff 0%, #f4f8ff 100%);
+  box-shadow: 0 8px 24px rgb(39 93 163 / 8%);
+}
+
+.mgr-office-assignment-card .mgr-office-rail-title {
+  min-height: 52px;
+  background: rgb(239 246 255 / 72%);
+}
+
+.mgr-office-assignment-body {
+  display: grid;
+  gap: 14px;
+  padding: 12px;
+}
+
+.mgr-office-assignment-context {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  color: #58708f;
+  font-size: 12px;
+}
+
+.mgr-office-assignment-context > strong {
+  overflow: hidden;
+  color: #164f9b;
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mgr-office-assignment-section {
+  display: grid;
+  gap: 9px;
+  min-width: 0;
+}
+
+.mgr-office-assignment-section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: #213d5c;
+  font-size: 12px;
+}
+
+.mgr-office-assignment-section-title > strong {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mgr-office-assignment-section-title > span {
+  color: #7488a2;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.mgr-office-assigned-list,
+.mgr-office-assignment-candidates {
+  display: grid;
+  gap: 7px;
+  max-height: 190px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.mgr-office-assigned-person {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 7px 9px;
+  padding: 8px;
+  border: 1px solid #e2ebf7;
+  border-radius: 11px;
+  background: #fff;
+}
+
+.mgr-office-assigned-person-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.mgr-office-assigned-person-main:focus-visible,
+.mgr-office-assignment-candidate:focus-visible,
+.mgr-office-assigned-role button:focus-visible {
+  outline: 3px solid rgb(37 99 235 / 35%);
+  outline-offset: 2px;
+}
+
+.mgr-office-assignment-avatar {
+  display: inline-grid;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 50%;
+  background: #e8f1ff;
+  color: #2163be;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.mgr-office-assigned-person-copy,
+.mgr-office-assignment-candidate-copy {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.mgr-office-assigned-person-copy strong,
+.mgr-office-assignment-candidate-copy strong {
+  overflow: hidden;
+  color: #163a61;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mgr-office-assigned-person-copy small,
+.mgr-office-assignment-candidate-copy small {
+  overflow: hidden;
+  color: #7588a1;
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mgr-office-assignment-response {
+  justify-self: end;
+  color: #6b7e94;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.mgr-office-assignment-response.is-verified {
+  color: #12804b;
+}
+
+.mgr-office-assignment-response.is-declined {
+  color: #bd3838;
+}
+
+.mgr-office-assigned-roles {
+  display: flex;
+  grid-column: 1 / -1;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding-left: 40px;
+}
+
+.mgr-office-assigned-role {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 23px;
+  padding: 2px 5px 2px 8px;
+  border: 1px solid #d4e4fb;
+  border-radius: 999px;
+  background: #f3f8ff;
+  color: #245b9e;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.mgr-office-assigned-role button {
+  display: inline-grid;
+  width: 17px;
+  height: 17px;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #7188a4;
+  cursor: pointer;
+}
+
+.mgr-office-assigned-role button:hover:not(:disabled) {
+  background: #feecec;
+  color: #bd3838;
+}
+
+.mgr-office-assigned-role button:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+.mgr-office-assignment-candidates {
+  max-height: 154px;
+}
+
+.mgr-office-assignment-candidate {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  padding: 7px;
+  border: 1px solid #e2ebf7;
+  border-radius: 10px;
+  background: #fff;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 140ms ease, background-color 140ms ease;
+}
+
+.mgr-office-assignment-candidate:hover:not(:disabled),
+.mgr-office-assignment-candidate.is-selected {
+  border-color: #77a8ef;
+  background: #eef5ff;
+}
+
+.mgr-office-assignment-candidate:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.mgr-office-assignment-candidate-copy {
+  flex: 1;
+}
+
+.mgr-office-assignment-candidate > .ant-tag {
+  flex: 0 0 auto;
+  margin: 0;
+  font-size: 10px;
+}
+
+.mgr-office-assignment-role-picker {
+  display: grid;
+  gap: 9px;
+  padding: 10px;
+  border: 1px solid #dce8f8;
+  border-radius: 11px;
+  background: #fff;
+}
+
+.mgr-office-assignment-role-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.mgr-office-assignment-role-options .ant-checkbox-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  min-height: 32px;
+  color: #38536f;
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: normal;
+}
+
+.mgr-office-assignment-role-options .ant-checkbox {
+  flex: 0 0 auto;
+  margin-top: 0;
+}
+
+.mgr-office-assignment-muted,
+.mgr-office-assignment-candidate-state {
+  margin: 0;
+  color: #788ba3;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.mgr-office-assignment-candidate-state {
+  padding: 9px 4px;
+}
+
+.mgr-office-assignment-loading {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  color: #788ba3;
+  font-size: 11px;
+}
+
+.mgr-office-assignment-message {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.mgr-office-assignment-message.is-error {
+  color: #bd3838;
+}
+
+.mgr-office-assignment-message.is-success {
+  color: #12804b;
+}
+
+.mgr-office-assignment-card .ant-btn-block {
+  min-height: 38px;
+}
+
+.mgr-office-assignment-card .mgr-office-assignment-return,
+.mgr-office-assignment-card .mgr-office-assignment-return:hover,
+.mgr-office-assignment-card .mgr-office-assignment-return:focus {
+  color: #fff;
+}
+
+@media (max-width: 520px) {
+  .mgr-office-assignment-body {
+    padding: 10px;
+  }
+
+  .mgr-office-assigned-person {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mgr-office-assignment-response {
+    padding-left: 40px;
+    justify-self: start;
+  }
+
+  .mgr-office-assigned-roles {
+    padding-left: 40px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mgr-office-assignment-candidate {
+    transition: none;
+  }
+}
+
+:root[data-theme='dark'] .mgr-office-assignment-card,
+:root[data-theme='dark'] .mgr-office-assigned-person,
+:root[data-theme='dark'] .mgr-office-assignment-candidate,
+:root[data-theme='dark'] .mgr-office-assignment-role-picker {
+  border-color: #2d4059;
+  background: #101b2b;
+}
+
+:root[data-theme='dark'] .mgr-office-assignment-card .mgr-office-rail-title {
+  background: #142238;
+}
+
+:root[data-theme='dark'] .mgr-office-assignment-section-title,
+:root[data-theme='dark'] .mgr-office-assigned-person-copy strong,
+:root[data-theme='dark'] .mgr-office-assignment-candidate-copy strong {
+  color: #d8e6f8;
+}
+
+:root[data-theme='dark'] .mgr-office-assigned-role {
+  border-color: #294466;
+  background: #172a43;
+  color: #a9d0ff;
+}
+
+:root[data-theme='dark'] .mgr-office-assignment-candidate:hover:not(:disabled),
+:root[data-theme='dark'] .mgr-office-assignment-candidate.is-selected {
+  border-color: #508bd6;
+  background: #193252;
+}

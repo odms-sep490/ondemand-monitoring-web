@@ -39,10 +39,16 @@ export type BackendMission = {
     responseStatus?: 'PENDING' | 'ACCEPTED' | 'REJECTED' | string | null
   }>
   deviceAssignments?: Array<{
+    id?: string | null
     deviceId?: string | null
     deviceRole?: string | null
     status?: MissionDeviceAssignmentStatus | null
     checkupStatus?: string | null
+    assignedAt?: string | null
+    replacementCompleted?: boolean | null
+    replacementRequestedAt?: string | null
+    replacementRequestReason?: string | null
+    replacementRequestedBy?: string | null
   }>
   latitude?: number | null
   longitude?: number | null
@@ -262,6 +268,11 @@ export function toOperatorMission(
     deviceCheckStatus: (currentMainDevice?.checkupStatus as
       | OperatorMission['deviceCheckStatus']
       | undefined) ?? null,
+    deviceReplacementCompleted:
+      currentMainDevice?.replacementCompleted ?? false,
+    deviceReplacementRequested: Boolean(
+      currentMainDevice?.replacementRequestedAt,
+    ),
     deviceModelCode: source.deviceModelCode ?? null,
     deviceManufacturer: source.deviceManufacturer ?? null,
     droneCode: source.droneCode ?? source.deviceCode ?? source.deviceId ?? null,

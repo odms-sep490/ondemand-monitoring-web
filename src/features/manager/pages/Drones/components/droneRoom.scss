@@ -1,0 +1,93 @@
+.mgr-office-drone-scene-wrap {
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+  border: 1px solid #d3e3f6;
+  border-radius: 12px;
+  background: #edf5ff;
+}
+
+.mgr-office-drone-scene {
+  width: 100%;
+  height: clamp(320px, 32vw, 460px);
+  overflow: hidden;
+  touch-action: manipulation;
+}
+
+.mgr-office-drone-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.mgr-office-drone-scene-fallback {
+  position: absolute;
+  inset: auto 10px 10px;
+  margin: 0;
+  padding: 8px 10px;
+  border: 1px solid #d3e3f6;
+  border-radius: 8px;
+  background: #fff;
+  color: #38536f;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.mgr-office-drone-scene-status {
+  position: absolute;
+  inset: 12px auto auto 12px;
+  margin: 0;
+  padding: 7px 10px;
+  border: 1px solid #d3e3f6;
+  border-radius: 8px;
+  background: rgb(255 255 255 / 94%);
+  color: #38536f;
+  font-size: 11px;
+  line-height: 1.45;
+  box-shadow: 0 3px 12px rgb(25 61 102 / 10%);
+}
+
+.mgr-office-drone-scene-loading {
+  display: grid;
+  min-height: clamp(320px, 32vw, 460px);
+  place-items: center;
+  padding: 12px;
+  border: 1px solid #d3e3f6;
+  border-radius: 12px;
+  background: #edf5ff;
+  color: #38536f;
+  font-size: 12px;
+}
+
+:root[data-theme='dark'] .mgr-office-drone-scene-wrap,
+:root[data-theme='dark'] .mgr-office-drone-scene-loading {
+  border-color: #2d4768;
+  background: #142238;
+}
+
+:root[data-theme='dark'] .mgr-office-drone-scene-fallback,
+:root[data-theme='dark'] .mgr-office-drone-scene-status {
+  border-color: #2d4768;
+  background: rgb(20 34 56 / 96%);
+  color: #bdd4f1;
+}
+
+@media (max-width: 900px) {
+  .mgr-office-drone-scene {
+    height: clamp(270px, 62vw, 380px);
+  }
+
+  .mgr-office-drone-scene-loading {
+    min-height: clamp(270px, 62vw, 380px);
+  }
+}
+
+@media (max-width: 520px) {
+  .mgr-office-drone-scene {
+    height: 260px;
+  }
+
+  .mgr-office-drone-scene-loading {
+    min-height: 260px;
+  }
+}

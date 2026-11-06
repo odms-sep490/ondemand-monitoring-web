@@ -13,6 +13,9 @@ import { usePreflightRuntimeEffects } from '../usePreflightRuntimeEffects'
 import { usePreflightPersistenceEffects } from '../usePreflightPersistenceEffects'
 import { usePreflightGroups } from '../usePreflightGroups'
 import { usePreflightProgress } from '../usePreflightProgress'
+import { missionApi } from '../../../../mission/api/missionApi'
+import { useI18n } from '../../../../../shared/i18n'
+import { preflightPageMessages } from '../PreflightPage.messages'
 import { PreflightHeader } from './PreflightHeader'
 import { PreflightSummary } from './PreflightSummary'
 import { PreflightGroupList } from './PreflightGroupList'
@@ -28,22 +31,30 @@ export function PreflightChecklistPanel({
   missionId,
   missionLabel,
   deviceId,
+  deviceAssignmentId,
+  deviceAssignedAt,
   deviceLabel,
   missionStatus,
+  replacementRequestPending = false,
   onReady,
   embedded = false,
 }: {
   missionId: string
   missionLabel?: string
   deviceId: string
+  deviceAssignmentId?: string | null
+  deviceAssignedAt?: string | null
   deviceLabel?: string
   missionStatus?: string | null
+  replacementRequestPending?: boolean
   onReady?: () => void
   embedded?: boolean
 }) {
+  const { t } = useI18n(preflightPageMessages)
   const { RUNTIME_GROUPS, ALL_ITEMS, storageKey } = usePreflightGroups({
     missionId,
     deviceId,
+    deviceAssignmentId,
   })
   const [checkId, setCheckId] = useState<string | null>(null)
   const [runtimeStatus, setRuntimeStatus] =
@@ -58,9 +69,41 @@ export function PreflightChecklistPanel({
     useState(false)
   const backendPreflightRegisteredRef = useRef(false)
   const [triggering, setTriggering] = useState(false)
+  const replacementAssignmentKey = [
+    missionId,
+    deviceAssignmentId ?? '',
+    deviceAssignedAt ?? '',
+    deviceId,
+  ].join(':')
+  const [replacementRequestState, setReplacementRequestState] = useState(
+    () => ({
+      assignmentKey: replacementAssignmentKey,
+      requested: replacementRequestPending,
+    }),
+  )
+  const replacementRequested =
+    replacementRequestState.assignmentKey === replacementAssignmentKey
+      ? replacementRequestState.requested
+      : replacementRequestPending
+  const [
+    replacementRequestingAssignmentKey,
+    setReplacementRequestingAssignmentKey,
+  ] = useState<string | null>(null)
+  const replacementRequesting =
+    replacementRequestingAssignmentKey === replacementAssignmentKey
+  const [replacementRequestErrorState, setReplacementRequestErrorState] =
+    useState<{
+      assignmentKey: string
+      message: string
+    } | null>(null)
+  const replacementRequestError =
+    replacementRequestErrorState?.assignmentKey === replacementAssignmentKey
+      ? replacementRequestErrorState.message
+      : null
   const validatedStoredCheckRef = useRef(false)
   const controllerOfflineMissesRef = useRef(0)
   const [controllerOnline, setControllerOnline] = useState(false)
+  const [, setConnectedDeviceId] = useState<string | null>(null)
   const [runtimeSessionId, setRuntimeSessionId] = useState<string | null>(() =>
     readStoredPreflightSession(storageKey),
   )
@@ -76,12 +119,29 @@ export function PreflightChecklistPanel({
   useEffect(() => {
     validatedStoredCheckRef.current = false
     controllerOfflineMissesRef.current = 0
+    setControllerOnline(false)
+    setConnectedDeviceId(null)
     syncedPersistedItemsRef.current = {}
     syncingPersistedItemsRef.current = false
     setPersistedPreflightId(null)
     setPersistedPreflightStatus(null)
     setRuntimeSessionId(readStoredPreflightSession(storageKey))
   }, [missionId, deviceId, storageKey])
+
+  useEffect(() => {
+    setReplacementRequestState((current) => {
+      if (current.assignmentKey !== replacementAssignmentKey) {
+        return {
+          assignmentKey: replacementAssignmentKey,
+          requested: replacementRequestPending,
+        }
+      }
+      if (replacementRequestPending && !current.requested) {
+        return { ...current, requested: true }
+      }
+      return current
+    })
+  }, [replacementAssignmentKey, replacementRequestPending])
 
   useEffect(() => {
     if (!persistedPreflightId) return
@@ -155,6 +215,52 @@ export function PreflightChecklistPanel({
     setRuntimeStatus,
     ALL_ITEMS,
   })
+
+  async function handleRequestDroneReplacement() {
+    if (
+      !isFailed ||
+      failedItems.length === 0 ||
+      replacementRequesting ||
+      replacementRequested
+    )
+      return
+    const assignmentKey = replacementAssignmentKey
+    setReplacementRequestingAssignmentKey(assignmentKey)
+    setReplacementRequestErrorState(null)
+    try {
+      const reason = failedItems
+        .map((item) => item.label)
+        .join(', ')
+        .slice(0, 500)
+      await missionApi.requestDeviceReplacement(missionId, reason)
+      setReplacementRequestState({ assignmentKey, requested: true })
+    } catch (cause) {
+      setReplacementRequestErrorState({
+        assignmentKey,
+        message:
+          cause instanceof Error
+            ? cause.message
+            : t.droneReplacementRequestFailed,
+      })
+    } finally {
+      setReplacementRequestingAssignmentKey((current) =>
+        current === assignmentKey ? null : current,
+      )
+    }
+  }
+
+  useEffect(() => {
+    if (canContinueToHandover) {
+      setReplacementRequestState((current) =>
+        current.assignmentKey === replacementAssignmentKey && current.requested
+          ? { ...current, requested: false }
+          : current,
+      )
+      setReplacementRequestErrorState((current) =>
+        current?.assignmentKey === replacementAssignmentKey ? null : current,
+      )
+    }
+  }, [canContinueToHandover, replacementAssignmentKey])
 
   async function handleRecheckItem(checkType: string) {
     if (!persistedPreflightId || checkType !== 'battery_health') {
@@ -238,6 +344,7 @@ export function PreflightChecklistPanel({
     missionId,
     missionLabel,
     deviceId,
+    deviceAssignedAt,
     controllerOfflineMissesRef,
     setRuntimeSessionId,
     setCheckId,
@@ -251,6 +358,7 @@ export function PreflightChecklistPanel({
     validatedStoredCheckRef,
     storageKey,
     setControllerOnline,
+    setConnectedDeviceId,
     controllerOnline,
     runtimeSessionId,
     checkId,
@@ -323,6 +431,10 @@ export function PreflightChecklistPanel({
             missionId={missionId}
             backendPreflightMessage={backendPreflightMessage}
             backendPreflightRegistering={backendPreflightRegistering}
+            replacementRequesting={replacementRequesting}
+            replacementRequested={replacementRequested}
+            replacementRequestError={replacementRequestError}
+            onRequestDroneReplacement={handleRequestDroneReplacement}
           />
           <PreflightGroupList
             RUNTIME_GROUPS={RUNTIME_GROUPS}
