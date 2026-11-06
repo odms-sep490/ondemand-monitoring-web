@@ -58,10 +58,10 @@ const operators = [
   { id: 'staff-3', fullName: 'Operator Three', email: 'three@example.test' },
 ]
 
-function renderMissionCard() {
+function renderMissionCard(missionOverride = mission) {
   return render(
     <MissionGridCard
-      mission={mission}
+      mission={missionOverride}
       order={{} as OrderDetail}
       plan={plan}
       orderChecklistItems={[]}
@@ -111,6 +111,31 @@ async function openDevicePicker() {
 }
 
 afterEach(() => vi.restoreAllMocks())
+
+describe('MissionGridCard navigation', () => {
+  it('opens Drone Team with the mission selected when the mission has a flight window', () => {
+    renderMissionCard({
+      ...mission,
+      scheduledStartAt: '2026-11-07T08:00:00Z',
+      scheduledEndAt: '2026-11-07T09:00:00Z',
+    })
+
+    expect(
+      screen.getByRole('link', { name: 'Gán trong Đội drone' }),
+    ).toHaveAttribute(
+      'href',
+      '#portal/manager/drones?assignmentMissionId=mission-1',
+    )
+  })
+
+  it('does not show the Drone Team route when the mission is not yet eligible', () => {
+    renderMissionCard()
+
+    expect(
+      screen.queryByRole('link', { name: 'Gán trong Đội drone' }),
+    ).not.toBeInTheDocument()
+  })
+})
 
 describe('MissionGridCard staff assignment', () => {
   it('assigns all four roles to one staff member and batches another person in one save', async () => {

@@ -34,9 +34,9 @@ export const inFlightControlMessages = defineMessages({
     },
     cameraFeed: {
       alt: 'Camera trực tiếp của drone',
-      offlineTitle: 'Bộ điều khiển trực tiếp ngoại tuyến',
+      offlineTitle: 'Camera trực tiếp chưa kết nối',
       offlineBody:
-        'Khởi động terminal điều khiển bay để hiển thị luồng camera.',
+        'Bảng điều khiển vẫn mở. Kết nối camera hoặc bộ điều khiển bay để xem hình trực tiếp.',
     },
     missionProgress: 'Tiến độ Mission',
     map: {
@@ -282,9 +282,9 @@ export const inFlightControlMessages = defineMessages({
     },
     cameraFeed: {
       alt: 'Live drone camera',
-      offlineTitle: 'Live controller offline',
+      offlineTitle: 'Live camera unavailable',
       offlineBody:
-        'Start the flight controller terminal to show the camera stream.',
+        'The dashboard stays available. Connect a camera or flight controller to view live video.',
     },
     missionProgress: 'Mission Progress',
     map: {

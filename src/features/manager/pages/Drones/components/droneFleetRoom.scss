@@ -1,0 +1,885 @@
+.mgr-drone-room-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 350px);
+  align-items: start;
+  gap: 14px;
+  min-width: 0;
+}
+
+.mgr-drone-room-stage,
+.mgr-drone-room-sidebar {
+  min-width: 0;
+  padding: 15px;
+  border: 1px solid #dce8f6;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgb(37 82 133 / 5%);
+}
+
+.mgr-drone-room-stage {
+  display: grid;
+  gap: 11px;
+}
+
+.mgr-drone-room-stage-heading,
+.mgr-drone-room-sidebar-heading,
+.mgr-drone-room-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.mgr-drone-room-stage-heading > div {
+  display: grid;
+  gap: 3px;
+}
+
+.mgr-drone-room-stage-heading h2,
+.mgr-drone-room-sidebar-heading h2 {
+  margin: 0;
+  color: #17365b;
+  font-size: 16px;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+.mgr-drone-room-stage-heading p,
+.mgr-drone-room-footnote {
+  margin: 0;
+  color: #526c89;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.mgr-drone-room-bay-count,
+.mgr-drone-room-sidebar-heading > span {
+  flex: 0 0 auto;
+  padding: 6px 9px;
+  border: 1px solid #d5e5f8;
+  border-radius: 999px;
+  background: #f5f9ff;
+  color: #285f9e;
+  font-size: 10px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.mgr-drone-room-stage .mgr-office-drone-scene {
+  height: clamp(380px, calc(100dvh - 320px), 650px);
+}
+
+.mgr-drone-room-stage .mgr-office-drone-scene-loading {
+  min-height: clamp(380px, calc(100dvh - 320px), 650px);
+}
+
+.mgr-drone-room-device-picker {
+  min-width: 0;
+  border: 1px solid #dce8f6;
+  border-radius: 10px;
+  background: #fbfdff;
+}
+
+.mgr-drone-room-device-picker > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 11px;
+  color: #24578c;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.mgr-drone-room-device-picker > summary::marker {
+  color: #1769e8;
+}
+
+.mgr-drone-room-device-picker > summary::before {
+  flex: 0 0 auto;
+  color: #1769e8;
+  content: '▸';
+  font-size: 12px;
+}
+
+.mgr-drone-room-device-picker[open] > summary::before {
+  content: '▾';
+}
+
+.mgr-drone-room-device-picker > summary:focus-visible {
+  outline: 3px solid rgb(37 99 235 / 35%);
+  outline-offset: 2px;
+}
+
+.mgr-drone-room-device-picker > summary span {
+  flex: 0 0 auto;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: #e8f1ff;
+  color: #1769e8;
+  font-size: 10px;
+}
+
+.mgr-drone-room-device-picker-content {
+  display: grid;
+  gap: 9px;
+  padding: 0 9px 9px;
+}
+
+.mgr-drone-room-sidebar {
+  display: grid;
+  grid-template-rows: none;
+  align-content: start;
+  gap: 11px;
+  height: auto;
+  max-height: none;
+  min-height: 0;
+  overflow: visible;
+}
+
+.mgr-drone-room-sidebar > * {
+  order: 2;
+}
+
+.mgr-drone-room-sidebar > .mgr-drone-room-sidebar-heading {
+  order: 0;
+}
+
+.mgr-drone-room-sidebar > .mgr-drone-room-details {
+  order: 1;
+}
+
+.mgr-drone-room-sidebar-heading {
+  padding-block-end: 9px;
+  border-block-end: 1px solid #e7eef8;
+}
+
+.mgr-drone-room-pagination {
+  min-height: 28px;
+  justify-content: center;
+}
+
+.mgr-drone-room-pagination > span {
+  color: #526c89;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.mgr-drone-room-pagination .ant-btn {
+  min-width: 30px;
+  color: #315d8e;
+}
+
+.mgr-drone-room-device-list {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.mgr-drone-room-device {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  min-width: 0;
+  min-height: 52px;
+  padding: 7px 8px;
+  border: 1px solid #e0eaf7;
+  border-radius: 9px;
+  background: #fff;
+  color: inherit;
+  cursor: pointer;
+  text-align: start;
+  transition: border-color 140ms ease, background-color 140ms ease;
+}
+
+.mgr-drone-room-device:hover,
+.mgr-drone-room-device.is-selected {
+  border-color: #81afea;
+  background: #f0f6ff;
+}
+
+.mgr-drone-room-device:focus-visible {
+  outline: 3px solid rgb(37 99 235 / 35%);
+  outline-offset: 2px;
+}
+
+.mgr-drone-room-device-mark {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 9px;
+  background: #e9f2ff;
+  color: #1768d1;
+  font-size: 16px;
+}
+
+.mgr-drone-room-device-copy {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  gap: 3px;
+}
+
+.mgr-drone-room-device-copy strong,
+.mgr-drone-room-device-copy small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mgr-drone-room-device-copy strong {
+  color: #183c62;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.mgr-drone-room-device-copy small {
+  color: #526c89;
+  font-size: 10px;
+}
+
+.mgr-drone-room-device-status {
+  flex: 0 0 auto;
+  max-width: 98px;
+  overflow: hidden;
+  padding: 4px 7px;
+  border-radius: 999px;
+  background: #e7f1ff;
+  color: #205fba;
+  font-size: 9px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mgr-drone-room-details {
+  display: grid;
+  min-width: 0;
+  max-width: 100%;
+  min-height: auto;
+  gap: 9px;
+  overflow: visible;
+  padding-inline-end: 0;
+  padding-block-start: 12px;
+  border-block-start: 1px solid #e7eef8;
+}
+
+.mgr-drone-room-details > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.mgr-drone-room-details h3 {
+  margin: 0;
+  color: #17365b;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.mgr-drone-room-details > strong {
+  overflow-wrap: anywhere;
+  color: #1c4775;
+  font-size: 12px;
+}
+
+.mgr-drone-room-selected-device {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 9px;
+}
+
+.mgr-drone-room-selected-image,
+.mgr-drone-room-selected-mark {
+  display: grid;
+  width: 56px;
+  height: 56px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid #d9e8fa;
+  border-radius: 10px;
+  background: #eef6ff;
+  color: #1768d1;
+  font-size: 20px;
+}
+
+.mgr-drone-room-selected-image {
+  object-fit: cover;
+}
+
+.mgr-drone-room-selected-copy {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  gap: 4px;
+}
+
+.mgr-drone-room-selected-copy strong,
+.mgr-drone-room-selected-copy small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mgr-drone-room-selected-copy strong {
+  color: #1c4775;
+  font-size: 11px;
+}
+
+.mgr-drone-room-selected-copy small {
+  color: #526c89;
+  font-size: 10px;
+}
+
+.mgr-drone-room-full-details {
+  min-width: 0;
+  border: 1px solid #dce8f6;
+  border-radius: 10px;
+  background: #fbfdff;
+}
+
+.mgr-drone-room-full-details > summary {
+  padding: 10px 11px;
+  color: #24578c;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.mgr-drone-room-full-details > summary::marker {
+  color: #1769e8;
+}
+
+.mgr-drone-room-full-details > summary:focus-visible {
+  outline: 3px solid rgb(37 99 235 / 35%);
+  outline-offset: 2px;
+}
+
+.mgr-drone-room-full-details[open] > summary {
+  border-block-end: 1px solid #e7eef8;
+}
+
+.mgr-drone-room-full-details-content {
+  display: grid;
+  gap: 10px;
+  padding: 10px;
+}
+
+.mgr-drone-room-detail-group {
+  display: grid;
+  min-width: 0;
+  gap: 7px;
+  padding-block-start: 9px;
+  border-block-start: 1px solid #e7eef8;
+}
+
+.mgr-drone-room-details h4 {
+  margin: 0;
+  color: #345d88;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.mgr-drone-room-detail-type {
+  display: grid;
+  gap: 7px;
+}
+
+.mgr-drone-room-detail-type > strong {
+  overflow-wrap: anywhere;
+  color: #1c4775;
+  font-size: 11px;
+}
+
+.mgr-drone-room-detail-empty {
+  margin: 0;
+  color: #526c89;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.mgr-drone-room-details dl {
+  display: grid;
+  min-width: 0;
+  max-width: 100%;
+  gap: 7px;
+  margin: 0;
+}
+
+.mgr-drone-room-details dl > div {
+  display: flex;
+  min-width: 0;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding-block-end: 6px;
+  border-block-end: 1px solid #edf2f8;
+}
+
+.mgr-drone-room-details dt,
+.mgr-drone-room-details dd {
+  margin: 0;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.mgr-drone-room-details dt {
+  flex: 0 1 44%;
+  min-width: 0;
+  color: #526c89;
+}
+
+.mgr-drone-room-details dd {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: #244d78;
+  text-align: end;
+}
+
+.mgr-drone-room-assignment {
+  display: grid;
+  min-width: 0;
+  max-width: 100%;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid #cfe1fb;
+  border-radius: 12px;
+  background: linear-gradient(145deg, #f4f9ff, #fff 76%);
+}
+
+.mgr-drone-room-assignment-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.mgr-drone-room-assignment-heading h4 {
+  color: #174981;
+  font-size: 12px;
+}
+
+.mgr-drone-room-assignment-heading a {
+  flex: 0 0 auto;
+  color: #1769e8;
+  font-size: 10px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.mgr-drone-room-assignment-heading a:hover {
+  text-decoration: underline;
+}
+
+.mgr-drone-room-assignment > label,
+.mgr-drone-room-replace-confirm > label {
+  color: #405d7d;
+  font-size: 10px;
+  font-weight: 650;
+}
+
+.mgr-drone-room-assignment > select {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 36px;
+  padding: 7px 9px;
+  border: 1px solid #d5e3f5;
+  border-radius: 8px;
+  background: #fff;
+  color: #17365b;
+  font: inherit;
+  font-size: 11px;
+}
+
+.mgr-drone-room-assigned-summary {
+  display: grid;
+  gap: 5px;
+  padding: 8px 9px;
+  border-radius: 8px;
+  background: rgb(232 242 255 / 72%);
+  color: #526c89;
+  font-size: 10px;
+}
+
+.mgr-drone-room-assigned-summary > span {
+  font-weight: 700;
+}
+
+.mgr-drone-room-assigned-summary > div {
+  display: grid;
+  gap: 4px;
+}
+
+.mgr-drone-room-assigned-summary strong {
+  color: #1d4f88;
+}
+
+.mgr-drone-room-assignment-message,
+.mgr-drone-room-assignment-feedback,
+.mgr-drone-room-replace-confirm p {
+  margin: 0;
+  color: #687f9c;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.mgr-drone-room-assignment-message.is-available,
+.mgr-drone-room-assignment-feedback.is-success {
+  color: #087c55;
+}
+
+.mgr-drone-room-return-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 8px 12px;
+  border: 1px solid #1769e8;
+  border-radius: 8px;
+  background: #fff;
+  color: #1769e8;
+  font-size: 11px;
+  font-weight: 750;
+  text-align: center;
+  text-decoration: none;
+  transition: background-color 140ms ease, color 140ms ease;
+}
+
+.mgr-drone-room-return-button:hover {
+  background: #eef5ff;
+  color: #0e58c9;
+}
+
+.mgr-drone-room-return-button:focus-visible {
+  outline: 3px solid rgb(37 99 235 / 35%);
+  outline-offset: 2px;
+}
+
+.mgr-drone-room-assignment-feedback.is-error {
+  color: #b42332;
+}
+
+.mgr-drone-room-assignment-error {
+  display: grid;
+  gap: 7px;
+  color: #b42332;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.mgr-drone-room-assignment-error button {
+  justify-self: start;
+  padding: 4px 8px;
+  border: 1px solid #cfe1fb;
+  border-radius: 7px;
+  background: #fff;
+  color: #1769e8;
+  cursor: pointer;
+  font: inherit;
+}
+
+.mgr-drone-room-replace-confirm {
+  display: grid;
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid #f5d79a;
+  border-radius: 8px;
+  background: #fffaf0;
+}
+
+.mgr-drone-room-replace-confirm p {
+  color: #845b12;
+}
+
+.mgr-drone-room-replace-confirm > label {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  cursor: pointer;
+}
+
+.mgr-drone-room-replace-confirm input {
+  margin: 1px 0 0;
+  accent-color: #1769e8;
+}
+
+.mgr-drone-room-assign-button {
+  width: 100%;
+  min-height: 36px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: #1769e8;
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 750;
+  transition: background 150ms ease, transform 150ms ease;
+}
+
+.mgr-drone-room-assign-button:hover:not(:disabled) {
+  background: #0e58c9;
+  transform: translateY(-1px);
+}
+
+.mgr-drone-room-assign-button:disabled {
+  background: #b7c9df;
+  cursor: not-allowed;
+}
+
+.mgr-drone-room-assignment select:focus-visible,
+.mgr-drone-room-assignment button:focus-visible,
+.mgr-drone-room-assignment a:focus-visible,
+.mgr-drone-room-replace-confirm input:focus-visible {
+  outline: 3px solid rgb(23 105 232 / 28%);
+  outline-offset: 2px;
+}
+
+.mgr-drone-room-load-state {
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid #dce8f6;
+  border-radius: 10px;
+  background: #f8fbff;
+}
+
+:root[data-theme='dark'] .mgr-drone-room-stage,
+:root[data-theme='dark'] .mgr-drone-room-sidebar {
+  border-color: #2d4562;
+  background: #111d2d;
+}
+
+:root[data-theme='dark'] .mgr-drone-room-full-details {
+  border-color: #2b4059;
+  background: #111d2d;
+}
+
+:root[data-theme='dark'] .mgr-drone-room-device-picker {
+  border-color: #2b4059;
+  background: #111d2d;
+}
+
+:root[data-theme='dark'] .mgr-drone-room-device-picker > summary {
+  color: #b7d6ff;
+}
+
+:root[data-theme='dark'] .mgr-drone-room-device-picker > summary span {
+  background: #203955;
+  color: #b7d6ff;
+}
+
+:root[data-theme='dark'] .mgr-drone-room-full-details > summary {
+  color: #b7d6ff;
+}
+
+:root[data-theme='dark'] .mgr-drone-room-stage-heading h2,
+:root[data-theme='dark'] .mgr-drone-room-sidebar-heading h2,
+:root[data-theme='dark'] .mgr-drone-room-details h3,
+:root[data-theme='dark'] .mgr-drone-room-details h4 {
+  color: #e5f0ff;
+}
+
+:root[data-theme='dark'] .mgr-drone-room-stage-heading p,
+:root[data-theme='dark'] .mgr-drone-room-footnote,
+:root[data-theme='dark'] .mgr-drone-room-pagination > span,
+:root[data-theme='dark'] .mgr-drone-room-device-copy small,
+:root[data-theme='dark'] .mgr-drone-room-details dt {
+  color: #a9bfd8;
+}
+
+:root[data-theme='dark'] .mgr-drone-room-bay-count,
+:root[data-theme='dark'] .mgr-drone-room-sidebar-heading > span {
+  border-color: #355578;
+  background: #203955;
+  color: #b7d6ff;
+}
+
+:root[data-theme='dark'] .mgr-drone-room-sidebar-heading,
+:root[data-theme='dark'] .mgr-drone-room-details,
+:root[data-theme='dark'] .mgr-drone-room-details dl > div {
+  border-color: #2b4059;
+}
+
+:root[data-theme='dark'] .mgr-drone-room-device {
+  border-color: #2d4059;
+  background: #101b2b;
+  color: #d8e6f8;
+}
+
+:root[data-theme='dark'] .mgr-drone-room-device:hover,
+:root[data-theme='dark'] .mgr-drone-room-device.is-selected {
+  border-color: #508bd6;
+  background: #193252;
+}
+
+:root[data-theme='dark'] .mgr-drone-room-device-copy strong,
+:root[data-theme='dark'] .mgr-drone-room-details > strong,
+:root[data-theme='dark'] .mgr-drone-room-detail-type > strong {
+  color: #d8e6f8;
+}
+
+:root[data-theme='dark'] .mgr-drone-room-detail-image {
+  border-color: #2d4562;
+  background: #142238;
+}
+
+:root[data-theme='dark'] .mgr-drone-room-detail-empty {
+  color: #a9bfd8;
+}
+
+:root[data-theme='dark'] .mgr-drone-room-device-mark {
+  background: #193252;
+  color: #b7d6ff;
+}
+
+:root[data-theme='dark'] .mgr-drone-room-device-status {
+  background: #203955;
+  color: #b7d6ff;
+}
+
+:root[data-theme='dark'] .mgr-drone-room-details dd {
+  color: #c2d9f3;
+}
+
+:root[data-theme='dark'] .mgr-drone-room-load-state {
+  border-color: #2d4562;
+  background: #142238;
+}
+
+:root[data-theme='dark'] .mgr-drone-room-assignment {
+  border-color: #355578;
+  background: linear-gradient(145deg, #172b43, #111d2d 76%);
+}
+
+:root[data-theme='dark'] .mgr-drone-room-assignment-heading h4,
+:root[data-theme='dark'] .mgr-drone-room-assigned-summary strong {
+  color: #c4ddff;
+}
+
+:root[data-theme='dark'] .mgr-drone-room-assignment-heading a {
+  color: #80b5ff;
+}
+
+:root[data-theme='dark'] .mgr-drone-room-assignment > label,
+:root[data-theme='dark'] .mgr-drone-room-assignment-message,
+:root[data-theme='dark'] .mgr-drone-room-assignment-feedback,
+:root[data-theme='dark'] .mgr-drone-room-replace-confirm > label,
+:root[data-theme='dark'] .mgr-drone-room-assigned-summary {
+  color: #a9bfd8;
+}
+
+:root[data-theme='dark'] .mgr-drone-room-assignment > select {
+  border-color: #355578;
+  background: #101b2b;
+  color: #d8e6f8;
+}
+
+:root[data-theme='dark'] .mgr-drone-room-assigned-summary {
+  background: #1b304a;
+}
+
+:root[data-theme='dark'] .mgr-drone-room-assignment-message.is-available,
+:root[data-theme='dark'] .mgr-drone-room-assignment-feedback.is-success {
+  color: #68d3a4;
+}
+
+:root[data-theme='dark'] .mgr-drone-room-assignment-feedback.is-error,
+:root[data-theme='dark'] .mgr-drone-room-assignment-error {
+  color: #ff9aa6;
+}
+
+:root[data-theme='dark'] .mgr-drone-room-assignment-error button {
+  border-color: #355578;
+  background: #152840;
+  color: #9fc7ff;
+}
+
+:root[data-theme='dark'] .mgr-drone-room-replace-confirm {
+  border-color: #705b34;
+  background: #302a1d;
+}
+
+:root[data-theme='dark'] .mgr-drone-room-replace-confirm p {
+  color: #f2d28c;
+}
+
+:root[data-theme='dark'] .mgr-drone-room-assign-button:disabled {
+  background: #354b63;
+  color: #a9bfd8;
+}
+
+:root[data-theme='dark'] .mgr-drone-room-return-button {
+  border-color: #5f9df1;
+  background: #152942;
+  color: #b7d6ff;
+}
+
+:root[data-theme='dark'] .mgr-drone-room-return-button:hover {
+  background: #203955;
+  color: #e5f0ff;
+}
+
+@media (max-width: 1050px) {
+  .mgr-drone-room-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mgr-drone-room-sidebar {
+    grid-template-rows: none;
+    height: auto;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .mgr-drone-room-details {
+    min-height: auto;
+    overflow: visible;
+    padding-inline-end: 0;
+  }
+
+  .mgr-drone-room-stage .mgr-office-drone-scene {
+    height: clamp(360px, 60vw, 560px);
+  }
+
+  .mgr-drone-room-stage .mgr-office-drone-scene-loading {
+    min-height: clamp(360px, 60vw, 560px);
+  }
+
+  .mgr-drone-room-device-list {
+    max-height: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .mgr-drone-room-stage,
+  .mgr-drone-room-sidebar {
+    padding: 11px;
+  }
+
+  .mgr-drone-room-stage .mgr-office-drone-scene {
+    height: 280px;
+  }
+
+  .mgr-drone-room-stage .mgr-office-drone-scene-loading {
+    min-height: 280px;
+  }
+
+  .mgr-drone-room-device-status {
+    max-width: 76px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mgr-drone-room-device {
+    transition: none;
+  }
+}

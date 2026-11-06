@@ -333,6 +333,13 @@ export const missionApi = {
     )
   },
 
+  requestDeviceReplacement: async (missionId: string, reason: string): Promise<Mission> => {
+    return request<Mission>(
+      `${API_BASE}/missions/${encodeURIComponent(missionId)}/device-replacement-requests`,
+      { method: 'POST', body: JSON.stringify({ reason }) },
+    )
+  },
+
   // F3.2 Replace Drone (PATCH /api/missions/{id}/replace-drone)
   replaceDrone: async (
     missionId: string,

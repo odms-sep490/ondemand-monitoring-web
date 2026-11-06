@@ -20,12 +20,18 @@ import { Alert, Button, Empty, Select, Skeleton, Tag, Tooltip } from 'antd'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 import { FBXLoader } from 'three/addons/loaders/FBXLoader.js'
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js'
 
 import type { AvailableOperator } from '../../../../staff/api/operatorApi'
 import { getMissionStatusLabel } from '../../../../../shared/lib/statusTone'
 import type { MissionCalendarItem } from '../../../types/missions'
 import type { MissionStatus } from '../../../../../shared/types/domain'
+import { managerHref } from '../../../routes'
+import { getVisibleMissionStaffAssignments } from '../../../lib/missionStaffAssignments'
+import { StaffMissionActivity } from './StaffMissionActivity'
+import { OfficeMissionAssignmentPanel } from './OfficeMissionAssignmentPanel'
+import { resolveOfficeArea } from './officeBusiness'
 import './office3d.scss'
 
 type OfficePerson = {
@@ -52,7 +58,7 @@ type Room = {
   x: number
   z: number
   rotationY: number
-  kind: 'meeting' | 'dispatch' | 'pantry' | 'planning' | 'lounge' | 'studio' | 'technical' | 'inspection' | 'storage'
+  kind: 'meeting' | 'dispatch' | 'pantry' | 'planning' | 'lounge' | 'shared' | 'technical' | 'inspection' | 'storage'
 }
 
 type OfficeAvatar = {
@@ -94,23 +100,108 @@ type SceneHandle = {
 
 const ROOMS: Room[] = [
   { id: 'meeting', vi: 'Phòng họp', en: 'Meeting room', x: -5.5, z: -4.7, rotationY: 0, kind: 'meeting' },
-  { id: 'dispatch', vi: 'Điều phối bay', en: 'Flight dispatch', x: 0, z: -4.7, rotationY: 0, kind: 'dispatch' },
+  { id: 'planning', vi: 'Văn phòng quản lý', en: 'Manager office', x: 0, z: -4.7, rotationY: 0, kind: 'planning' },
   { id: 'pantry', vi: 'Khu pantry', en: 'Pantry', x: 5.5, z: -4.7, rotationY: 0, kind: 'pantry' },
-  { id: 'planning', vi: 'Văn phòng quản lý', en: 'Manager office', x: -5.5, z: 0, rotationY: Math.PI / 2, kind: 'planning' },
-  { id: 'lounge', vi: 'Sảnh trung tâm', en: 'Central lounge', x: 0, z: 0, rotationY: 0, kind: 'lounge' },
-  { id: 'studio', vi: 'Phòng thiết kế', en: 'Design studio', x: 5.5, z: 0, rotationY: -Math.PI / 2, kind: 'studio' },
-  { id: 'technical', vi: 'Kỹ thuật', en: 'Engineering', x: -5.5, z: 4.7, rotationY: Math.PI, kind: 'technical' },
-  { id: 'inspection', vi: 'Kiểm tra thiết bị', en: 'Device inspection', x: 0, z: 4.7, rotationY: Math.PI, kind: 'inspection' },
+  { id: 'lounge', vi: 'Lập kế hoạch nhiệm vụ', en: 'Mission planning', x: -5.5, z: 0, rotationY: Math.PI / 2, kind: 'lounge' },
+  { id: 'dispatch', vi: 'Trung tâm điều phối bay', en: 'Flight operations center', x: 0, z: 0, rotationY: 0, kind: 'dispatch' },
+  { id: 'inspection', vi: 'Kiểm tra & nghiệm thu', en: 'QA / Inspection', x: 5.5, z: 0, rotationY: -Math.PI / 2, kind: 'inspection' },
+  { id: 'shared', vi: 'Khu làm việc chung', en: 'Shared workspace', x: -5.5, z: 4.7, rotationY: Math.PI, kind: 'shared' },
+  { id: 'technical', vi: 'Khu kỹ thuật & bảo trì', en: 'Technical & maintenance', x: 0, z: 4.7, rotationY: Math.PI, kind: 'technical' },
   { id: 'storage', vi: 'Kho thiết bị', en: 'Equipment storage', x: 5.5, z: 4.7, rotationY: Math.PI, kind: 'storage' },
 ]
 
+const ROOM_FLOOR_COLORS: Record<Room['kind'], string> = {
+  meeting: '#f3f7ff',
+  dispatch: '#e5f0ff',
+  pantry: '#edf5ff',
+  planning: '#f2f7ff',
+  lounge: '#eef5ff',
+  shared: '#f7faff',
+  technical: '#e7f1fb',
+  inspection: '#edf6ff',
+  storage: '#e8f2fb',
+}
+
+const ROOM_BUSINESS_INFO: Record<Room['id'], { vi: string; en: string; roles?: string[] }> = {
+  meeting: {
+    vi: 'Không gian họp chung. Hệ thống hiện không cung cấp lịch hoặc người tham dự trực tiếp.',
+    en: 'Shared meeting space. The system does not provide a live meeting schedule or attendee list.',
+  },
+  dispatch: {
+    vi: 'Khu điều hành bay, gắn với vai trò Phi công và Vận hành từ phân công mission.',
+    en: 'Flight operations, mapped to Pilot and Operator roles on mission assignments.',
+    roles: ['PILOT', 'OPERATOR'],
+  },
+  pantry: {
+    vi: 'Khu sinh hoạt chung. Chuyển động nghỉ giải lao chỉ là mô phỏng hình ảnh.',
+    en: 'Shared break area. Break movement is visual simulation only.',
+  },
+  planning: {
+    vi: 'Khu làm việc của quản lý; nhân sự hiển thị là tài khoản quản lý hiện tại.',
+    en: 'Manager work area; the displayed person is the current manager account.',
+    roles: ['MANAGER'],
+  },
+  lounge: {
+    vi: 'Khu lập kế hoạch minh họa; dữ liệu trên bảng không đại diện cho nhiệm vụ trực tiếp.',
+    en: 'Illustrative planning area; its boards do not represent live mission data.',
+  },
+  shared: {
+    vi: 'Bàn làm việc chung cho nhân sự chưa có vai trò nghiệp vụ được xác nhận trong dữ liệu đang tải.',
+    en: 'Shared desks for staff without a verified operational role in the loaded data.',
+    roles: ['STAFF'],
+  },
+  technical: {
+    vi: 'Khu bảo trì, gắn với vai trò Bảo trì trên các phân công mission đang hoạt động.',
+    en: 'Maintenance area, mapped to Maintainer on active mission assignments.',
+    roles: ['MAINTAINER'],
+  },
+  inspection: {
+    vi: 'Khu kiểm tra thiết bị, gắn với vai trò Nghiệm thu trên phân công mission.',
+    en: 'Equipment inspection area, mapped to Inspector on mission assignments.',
+    roles: ['INSPECTOR'],
+  },
+  storage: {
+    vi: 'Kho minh họa. Tình trạng thiết bị và tồn kho không được cung cấp tại màn hình này.',
+    en: 'Illustrative storage. Equipment condition and inventory are not provided on this screen.',
+  },
+}
+
 const PERSON_COLORS = ['#3978eb', '#16a085', '#9b59b6', '#e18c35', '#1f9b71', '#de6a64', '#3e91b8', '#8b73c7']
+const AVATAR_SHIRT_COLORS = ['#6c9fe8', '#61b49c', '#a48bd0', '#d99a61', '#72b58a', '#d78380', '#64a2bf', '#9885cf']
+const AVATAR_SKIN_TONES = ['#d7a17f', '#c99270', '#e0ad8a', '#c48b69', '#d5a58c', '#bd8464', '#d8a07a', '#cc9878']
+const AVATAR_HAIR_TONES = ['#55443b', '#454047', '#625247', '#414750', '#59483f', '#4b4140', '#5e5047', '#47434a']
+const WORKING_MISSION_STATUSES = new Set<MissionStatus>(['IN_PROGRESS', 'IN_FLIGHT', 'RETURNING'])
 const ROOM_SIZE = { width: 3.48, depth: 2.92 }
 const ROOM_SCALE = 1.25
 const CORRIDOR_X = [-2.8, 2.8] as const
 const CORRIDOR_Z = [-2.4, 2.4] as const
 
 let characterModelsPromise: Promise<[THREE.Group, THREE.Group]> | null = null
+let officeEnvironmentPromise: Promise<THREE.Group> | null = null
+
+function loadOfficeEnvironment() {
+  if (!officeEnvironmentPromise) {
+    const loader = new GLTFLoader()
+    officeEnvironmentPromise = loader
+      .loadAsync(`${import.meta.env.BASE_URL}models/office/office_environment.glb`)
+      .then((gltf) => {
+        const names = new Set<string>()
+        gltf.scene.traverse((object) => names.add(object.name))
+        const missingRooms = ROOMS.filter((room) => !names.has(`ROOM_FLOOR__${room.id}`))
+        const missingWorkstations = ['planning__0', 'dispatch__0', 'inspection__0', 'technical__0', 'shared__0']
+          .filter((anchor) => !names.has(`WORKSTATION__${anchor}`))
+        if (missingRooms.length || missingWorkstations.length) {
+          throw new Error('The office environment asset is missing required room or workstation anchors.')
+        }
+        return gltf.scene
+      })
+      .catch((error: unknown) => {
+        officeEnvironmentPromise = null
+        throw error
+      })
+  }
+  return officeEnvironmentPromise
+}
 
 function loadOfficeCharacters() {
   if (!characterModelsPromise) {
@@ -191,12 +282,43 @@ function createLabel(text: string, background: string, foreground = '#19314f') {
   return sprite
 }
 
+function createRoomLabel(primary: string, secondary: string) {
+  const canvas = document.createElement('canvas')
+  canvas.width = 640
+  canvas.height = 168
+  const context = canvas.getContext('2d')
+  if (!context) return null
+
+  context.clearRect(0, 0, canvas.width, canvas.height)
+  context.fillStyle = '#172f46f2'
+  context.beginPath()
+  context.roundRect(10, 10, 620, 148, 34)
+  context.fill()
+  context.fillStyle = '#ffffff'
+  context.textAlign = 'center'
+  context.textBaseline = 'middle'
+  context.font = '700 40px Inter, Arial, sans-serif'
+  context.fillText(primary, 320, 63, 570)
+  context.fillStyle = '#d9e8f4'
+  context.font = '500 25px Inter, Arial, sans-serif'
+  context.fillText(secondary, 320, 112, 570)
+
+  const texture = new THREE.CanvasTexture(canvas)
+  texture.colorSpace = THREE.SRGBColorSpace
+  const material = new THREE.SpriteMaterial({ map: texture, transparent: true, depthWrite: false })
+  const sprite = new THREE.Sprite(material)
+  sprite.scale.set(1.78, 0.47, 1)
+  sprite.renderOrder = 4
+  return sprite
+}
+
 function makeOfficeScene(
   host: HTMLDivElement,
   people: OfficePerson[],
   lang: string,
   onRoomClick: (roomId: string) => void,
   onPersonClick: (personId: string) => void,
+  sourceEnvironment: THREE.Group,
 ): SceneHandle {
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'low-power' })
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5))
@@ -217,7 +339,7 @@ function makeOfficeScene(
   host.appendChild(renderer.domElement)
 
   const scene = new THREE.Scene()
-  scene.background = new THREE.Color('#eaf3fc')
+  scene.background = new THREE.Color('#f5f9ff')
   const camera = new THREE.OrthographicCamera(-9, 9, 9, -9, 0.1, 100)
   const initialPosition = new THREE.Vector3(18, 21, 24)
   const initialTarget = new THREE.Vector3(0, 0.75, 0)
@@ -242,8 +364,8 @@ function makeOfficeScene(
   controls.maxZoom = 4.2
   controls.screenSpacePanning = true
 
-  scene.add(new THREE.HemisphereLight('#ffffff', '#b7c6d7', 2.35))
-  const keyLight = new THREE.DirectionalLight('#fff4dc', 3.3)
+  scene.add(new THREE.HemisphereLight('#ffffff', '#a5bfdb', 1.5))
+  const keyLight = new THREE.DirectionalLight('#f7fbff', 2.65)
   keyLight.position.set(-8, 15, 10)
   keyLight.castShadow = true
   keyLight.shadow.mapSize.set(1024, 1024)
@@ -253,33 +375,12 @@ function makeOfficeScene(
   keyLight.shadow.camera.bottom = -12
   keyLight.shadow.bias = -0.0002
   scene.add(keyLight)
-  const fillLight = new THREE.DirectionalLight('#cce1ff', 1.3)
+  const fillLight = new THREE.DirectionalLight('#c9ddf5', 1.12)
   fillLight.position.set(9, 7, -8)
   scene.add(fillLight)
 
-  const mats = {
-    platform: new THREE.MeshStandardMaterial({ color: '#263b55', roughness: 0.74 }),
-    floor: new THREE.MeshStandardMaterial({ color: '#f5f7f8', roughness: 0.9 }),
-    floorAlt: new THREE.MeshStandardMaterial({ color: '#e9f1f5', roughness: 0.9 }),
-    wall: new THREE.MeshStandardMaterial({ color: '#fcfdff', roughness: 0.82 }),
-    glass: new THREE.MeshPhysicalMaterial({ color: '#b7d9ef', roughness: 0.28, metalness: 0.08, transparent: true, opacity: 0.32, depthWrite: false }),
-    frame: new THREE.MeshStandardMaterial({ color: '#93adc4', metalness: 0.62, roughness: 0.36 }),
-    trim: new THREE.MeshStandardMaterial({ color: '#d9e6f1', metalness: 0.24, roughness: 0.5 }),
-    wood: new THREE.MeshStandardMaterial({ color: '#c28a5a', roughness: 0.66 }),
-    woodLight: new THREE.MeshStandardMaterial({ color: '#dfb98d', roughness: 0.65 }),
-    navy: new THREE.MeshStandardMaterial({ color: '#34516f', roughness: 0.68 }),
-    chair: new THREE.MeshStandardMaterial({ color: '#527ca4', roughness: 0.6 }),
-    screen: new THREE.MeshStandardMaterial({ color: '#273f56', metalness: 0.1, roughness: 0.28, emissive: '#225873', emissiveIntensity: 0.35 }),
-    plant: new THREE.MeshStandardMaterial({ color: '#3a9b75', roughness: 0.8 }),
-    plantLight: new THREE.MeshStandardMaterial({ color: '#77bd8f', roughness: 0.8 }),
-    pot: new THREE.MeshStandardMaterial({ color: '#e4b38f', roughness: 0.8 }),
-    stone: new THREE.MeshStandardMaterial({ color: '#d6e0e8', roughness: 0.86 }),
-    accentBlue: new THREE.MeshStandardMaterial({ color: '#3980eb', roughness: 0.62 }),
-    white: new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 0.76 }),
-  }
-
   const geometries: THREE.BufferGeometry[] = []
-  const ownedMaterials = new Set<THREE.Material>(Object.values(mats))
+  const ownedMaterials = new Set<THREE.Material>()
   const roomFloors = new Map<string, THREE.Mesh>()
   const staffAnchors = new Map<string, THREE.Vector3>()
   const avatarRoots = new Map<string, THREE.Group>()
@@ -303,257 +404,76 @@ function makeOfficeScene(
     duration: number
   } | null = null
 
-  const addBox = (
-    parent: THREE.Object3D,
-    width: number,
-    height: number,
-    depth: number,
-    x: number,
-    y: number,
-    z: number,
-    material: THREE.Material,
-    options: { cast?: boolean; receive?: boolean; clickData?: Record<string, string> } = {},
-  ) => {
-    const geometry = new THREE.BoxGeometry(width, height, depth)
-    geometries.push(geometry)
-    const mesh = new THREE.Mesh(geometry, material)
-    mesh.position.set(x, y, z)
-    mesh.castShadow = options.cast ?? true
-    mesh.receiveShadow = options.receive ?? true
-    if (options.clickData) {
-      Object.assign(mesh.userData, options.clickData)
-      clickables.push(mesh)
-    }
-    parent.add(mesh)
-    return mesh
-  }
-
-  const addCylinder = (
-    parent: THREE.Object3D,
-    topRadius: number,
-    bottomRadius: number,
-    height: number,
-    x: number,
-    y: number,
-    z: number,
-    material: THREE.Material,
-    segments = 12,
-  ) => {
-    const geometry = new THREE.CylinderGeometry(topRadius, bottomRadius, height, segments)
-    geometries.push(geometry)
-    const mesh = new THREE.Mesh(geometry, material)
-    mesh.position.set(x, y, z)
-    mesh.castShadow = true
-    mesh.receiveShadow = true
-    parent.add(mesh)
-    return mesh
-  }
-
-  const addSphere = (parent: THREE.Object3D, radius: number, x: number, y: number, z: number, material: THREE.Material) => {
-    const geometry = new THREE.SphereGeometry(radius, 14, 10)
-    geometries.push(geometry)
-    const mesh = new THREE.Mesh(geometry, material)
-    mesh.position.set(x, y, z)
-    mesh.castShadow = true
-    parent.add(mesh)
-    return mesh
-  }
-
-  // A two-layer plinth makes the open-top office read as one architectural model.
-  addBox(scene, 17.1, 0.28, 14.6, 0, -0.18, 0, mats.platform)
-  addBox(scene, 16.94, 0.12, 14.42, 0, 0.02, 0, mats.floor)
-  addBox(scene, 16.62, 0.035, 14.08, 0, 0.092, 0, mats.floorAlt, { cast: false })
-  // Thin brass-blue edge detail around the floor slab.
-  addBox(scene, 17.06, 0.045, 0.04, 0, 0.18, 7.22, mats.trim, { cast: false })
-  addBox(scene, 17.06, 0.045, 0.04, 0, 0.18, -7.22, mats.trim, { cast: false })
-  addBox(scene, 0.04, 0.045, 14.45, 8.52, 0.18, 0, mats.trim, { cast: false })
-  addBox(scene, 0.04, 0.045, 14.45, -8.52, 0.18, 0, mats.trim, { cast: false })
-
-  // A quiet inlay marks the clear circulation cross between the room entrances.
-  addBox(scene, 0.08, 0.018, 9.65, -2.8, 0.126, 0, mats.trim, { cast: false })
-  addBox(scene, 0.08, 0.018, 9.65, 2.8, 0.126, 0, mats.trim, { cast: false })
-  addBox(scene, 11.1, 0.018, 0.08, 0, 0.126, -2.4, mats.trim, { cast: false })
-  addBox(scene, 11.1, 0.018, 0.08, 0, 0.126, 2.4, mats.trim, { cast: false })
-
-  const addPlant = (parent: THREE.Object3D, x: number, z: number, scale = 1) => {
-    addCylinder(parent, 0.17 * scale, 0.21 * scale, 0.31 * scale, x, 0.28 * scale, z, mats.pot, 12)
-    addCylinder(parent, 0.2 * scale, 0.2 * scale, 0.035 * scale, x, 0.44 * scale, z, mats.woodLight, 12)
-    addCylinder(parent, 0.025 * scale, 0.035 * scale, 0.36 * scale, x, 0.61 * scale, z, mats.plant, 7)
-    for (const [dx, dz, height] of [[0.12, 0, 0.64], [-0.1, 0.04, 0.72], [0.03, -0.12, 0.69], [-0.07, -0.09, 0.61]] as const) {
-      const leaf = addSphere(parent, 0.15 * scale, x + dx * scale, height * scale, z + dz * scale, mats.plantLight)
-      leaf.scale.set(0.78, 1.18, 0.72)
-    }
-  }
-
-  const addDesk = (parent: THREE.Object3D, x: number, z: number, width = 1.45, depth = 0.72) => {
-    addBox(parent, width, 0.11, depth, x, 0.79, z, mats.wood)
-    for (const dx of [-width / 2 + 0.1, width / 2 - 0.1]) {
-      for (const dz of [-depth / 2 + 0.09, depth / 2 - 0.09]) {
-        addBox(parent, 0.075, 0.73, 0.075, x + dx, 0.4, z + dz, mats.navy)
-      }
-    }
-    addBox(parent, 0.65, 0.39, 0.055, x, 1.06, z - depth * 0.23, mats.navy)
-    addBox(parent, 0.6, 0.32, 0.025, x, 1.065, z - depth * 0.23 - 0.02, mats.screen, { cast: false })
-    addBox(parent, 0.12, 0.12, 0.12, x, 0.88, z - depth * 0.23, mats.frame)
-    addBox(parent, 0.26, 0.035, 0.18, x + width * 0.3, 0.865, z + depth * 0.2, mats.white, { cast: false })
-  }
-
-  const addChair = (parent: THREE.Object3D, x: number, z: number, material = mats.chair, seatTop = 0.55) => {
-    const seatThickness = 0.14
-    const postHeight = seatTop - 0.13
-    addCylinder(parent, 0.28, 0.29, seatThickness, x, seatTop - seatThickness / 2, z, material)
-    addBox(parent, 0.53, 0.54, 0.12, x, seatTop + 0.21, z + 0.2, material)
-    addCylinder(parent, 0.055, 0.07, postHeight, x, postHeight / 2 + 0.01, z, mats.frame, 8)
-    for (const [dx, dz] of [[-0.2, -0.18], [0.2, -0.18], [-0.2, 0.18], [0.2, 0.18]] as const) {
-      addCylinder(parent, 0.035, 0.04, 0.04, x + dx, 0.035, z + dz, mats.navy, 8)
-    }
-  }
-
-  const roomTitle = (room: Room) => (lang === 'en' ? room.en : room.vi)
-
-  for (const [index, room] of ROOMS.entries()) {
-    const group = new THREE.Group()
-    group.position.set(room.x, 0, room.z)
-    group.rotation.y = room.rotationY
-    group.scale.set(ROOM_SCALE, 1, ROOM_SCALE)
-    group.userData.roomId = room.id
-    scene.add(group)
-
-    const floorMaterial = new THREE.MeshStandardMaterial({
-      color: index % 2 === 0 ? '#f6f7f5' : '#eff4f6',
-      roughness: 0.89,
-    })
-    ownedMaterials.add(floorMaterial)
-    const floor = addBox(group, ROOM_SIZE.width, 0.1, ROOM_SIZE.depth, 0, 0.16, 0, floorMaterial, {
-      clickData: { roomId: room.id },
-    })
-    roomFloors.set(room.id, floor)
-
-    // Glass partitions with open doorways keep room boundaries visible without hiding the furniture.
-    addBox(group, ROOM_SIZE.width, 2.02, 0.075, 0, 1.19, -ROOM_SIZE.depth / 2, mats.glass)
-    addBox(group, 0.075, 2.02, ROOM_SIZE.depth, -ROOM_SIZE.width / 2, 1.19, 0, mats.glass)
-    addBox(group, ROOM_SIZE.width, 0.075, 0.075, 0, 2.23, -ROOM_SIZE.depth / 2, mats.frame)
-    addBox(group, 0.075, 0.075, ROOM_SIZE.depth, -ROOM_SIZE.width / 2, 2.23, 0, mats.frame)
-    for (const dx of [-1.05, 0, 1.05]) {
-      addBox(group, 0.045, 2, 0.06, dx, 1.19, -ROOM_SIZE.depth / 2, mats.frame)
-    }
-    addBox(group, 0.06, 2, 0.045, -ROOM_SIZE.width / 2, 1.19, -0.36, mats.frame)
-    // Low front divider and threshold: the open side faces the viewer.
-    addBox(group, 1.2, 0.66, 0.06, -1.14, 0.53, ROOM_SIZE.depth / 2, mats.glass)
-    addBox(group, 1.2, 0.66, 0.06, 1.14, 0.53, ROOM_SIZE.depth / 2, mats.glass)
-    addBox(group, 0.065, 0.69, 0.08, -1.75, 0.54, ROOM_SIZE.depth / 2, mats.frame)
-    addBox(group, 0.065, 0.69, 0.08, 1.75, 0.54, ROOM_SIZE.depth / 2, mats.frame)
-
-    const plaque = createLabel(roomTitle(room), '#ffffffeb')
-    if (plaque) {
-      plaque.position.set(0, 1.84, -ROOM_SIZE.depth / 2 + 0.15)
-      group.add(plaque)
-    }
-
-    if (room.kind === 'meeting') {
-      addBox(group, 1.78, 0.12, 0.82, 0, 0.72, -0.08, mats.woodLight)
-      for (const x of [-0.55, 0.55]) {
-        addBox(group, 0.07, 0.64, 0.07, x, 0.4, -0.08, mats.navy)
-      }
-      for (const [x, z] of [[-0.75, -1.05], [0, -1.05], [0.75, -1.05], [-0.75, 0.9], [0, 0.9], [0.75, 0.9]] as const) {
-        addChair(group, x, z)
-      }
-      addBox(group, 1.04, 0.48, 0.055, 0, 1.08, -1.38, mats.white)
-      addBox(group, 0.84, 0.06, 0.025, 0, 1.14, -1.35, mats.accentBlue)
-    } else if (room.kind === 'pantry') {
-      addBox(group, 1.9, 0.72, 0.42, 0, 0.54, -1.1, mats.woodLight)
-      addBox(group, 2.05, 0.1, 0.53, 0, 0.96, -1.06, mats.white)
-      addBox(group, 0.53, 1.38, 0.58, 1.22, 0.87, -1.02, mats.white)
-      addBox(group, 1.65, 0.1, 0.62, 0.05, 0.82, 0.36, mats.wood)
-      for (const x of [-0.55, 0.1, 0.75]) {
-        addCylinder(group, 0.2, 0.23, 0.12, x, 0.26, 0.77, mats.chair, 12)
-        addCylinder(group, 0.04, 0.05, 0.2, x, 0.16, 0.77, mats.frame, 8)
-      }
-      addPlant(group, -1.2, 0.96, 0.8)
-    } else if (room.kind === 'lounge') {
-      addBox(group, 1.7, 0.15, 0.58, 0, 0.45, 0.88, mats.plant)
-      for (const [x, z] of [[-0.5, 0.7], [0, 1], [0.55, 0.69], [-0.15, 0.55]] as const) {
-        addSphere(group, 0.32, x, 0.69, z, mats.plantLight)
-      }
-      addBox(group, 1.3, 0.28, 0.45, -0.88, 0.48, -0.08, mats.chair)
-      addBox(group, 0.26, 0.52, 0.45, -1.42, 0.6, -0.08, mats.navy)
-      addBox(group, 0.26, 0.52, 0.45, -0.34, 0.6, -0.08, mats.navy)
-      addCylinder(group, 0.35, 0.35, 0.1, 0.92, 0.48, -0.2, mats.woodLight, 24)
-      addCylinder(group, 0.07, 0.08, 0.55, 0.92, 0.22, -0.2, mats.navy, 10)
-      addPlant(group, 1.28, -1.02, 0.88)
-    } else if (room.kind === 'storage') {
-      for (const x of [-1.2, 0, 1.2]) {
-        addBox(group, 0.76, 1.48, 0.37, x, 0.91, -1.05, mats.woodLight)
-        for (const y of [0.55, 0.94, 1.33]) {
-          addBox(group, 0.77, 0.055, 0.4, x, y, -0.83, mats.frame)
-        }
-        for (const y of [0.74, 1.12, 1.52]) {
-          addBox(group, 0.42, 0.22, 0.22, x, y, -0.75, y > 1 ? mats.accentBlue : mats.white)
-        }
-      }
-      addBox(group, 1.75, 0.09, 0.78, 0, 0.74, 0.5, mats.wood)
-      for (const x of [-0.7, 0.7]) addBox(group, 0.08, 0.65, 0.08, x, 0.38, 0.5, mats.navy)
-    } else {
-      const doubleDesk = room.kind === 'technical' || room.kind === 'inspection' || room.kind === 'studio'
-      addDesk(group, doubleDesk ? -0.72 : 0.08, -0.42, doubleDesk ? 1.15 : 1.55)
-      if (doubleDesk) addDesk(group, 0.82, -0.42, 1.15)
-      addChair(group, doubleDesk ? -0.68 : 0.08, 0.73, mats.chair, 0.32)
-      if (doubleDesk) addChair(group, 0.82, 0.73, mats.chair, 0.32)
-      if (room.kind === 'inspection') {
-        addBox(group, 1.85, 0.1, 0.48, 0, 0.66, -1.06, mats.navy)
-        addBox(group, 0.75, 0.52, 0.38, 0.18, 0.98, -1.04, mats.accentBlue)
-        addCylinder(group, 0.26, 0.26, 0.1, -0.83, 0.78, -1.02, mats.woodLight, 16)
-      }
-      if (room.kind === 'technical') {
-        addBox(group, 0.86, 0.92, 0.45, 1.22, 0.66, -1.02, mats.white)
-        for (const y of [0.4, 0.68, 0.96]) addBox(group, 0.88, 0.045, 0.5, 1.22, y, -0.76, mats.frame)
-      }
-      if (room.kind === 'studio') {
-        addBox(group, 0.9, 0.7, 0.055, 1.18, 1.05, -1.36, mats.white)
-        addBox(group, 0.65, 0.31, 0.02, 1.18, 1.06, -1.32, mats.accentBlue, { cast: false })
-      }
-      if (room.kind === 'dispatch') {
-        addDesk(group, -0.93, 0.56, 1.08, 0.58)
-        addChair(group, -0.93, 1.23, mats.chair, 0.32)
-        addBox(group, 0.72, 0.44, 0.055, 0.9, 1.14, -1.36, mats.white)
-        addBox(group, 0.42, 0.24, 0.025, 0.9, 1.15, -1.32, mats.accentBlue, { cast: false })
-      }
-      addPlant(group, -1.27, 0.94, 0.78)
-    }
-
-    // A light floor inset and corner lights help the room grid read at small sizes.
-    addBox(group, 1.5, 0.035, 0.025, 0, 0.225, ROOM_SIZE.depth / 2 - 0.13, mats.trim, { cast: false })
-    addSphere(group, 0.085, -1.45, 2.12, -1.24, mats.white)
-    addSphere(group, 0.055, -1.45, 2.12, -1.24, mats.accentBlue)
-  }
-
-  // Small outdoor planters soften the platform corners and ground the miniature office.
-  for (const [x, z] of [[-8, -6.8], [8, -6.8], [-8, 6.8], [8, 6.8]] as const) {
-    addPlant(scene, x, z, 0.76)
-  }
-
-  const workstations: Array<{ roomId: string; x: number; z: number }> = [
-    { roomId: 'planning', x: 0.08, z: 0.76 },
-    { roomId: 'dispatch', x: -0.93, z: 1.23 },
-    { roomId: 'dispatch', x: 0.08, z: 0.73 },
-    { roomId: 'technical', x: -0.68, z: 0.73 },
-    { roomId: 'inspection', x: 0.82, z: 0.73 },
-    { roomId: 'studio', x: -0.68, z: 0.73 },
-    { roomId: 'technical', x: 0.82, z: 0.73 },
-    { roomId: 'inspection', x: -0.68, z: 0.73 },
-  ]
-  const assignedWorkstations = new Set<number>()
   const roomById = new Map(ROOMS.map((room) => [room.id, room]))
+  const environmentRoot = sourceEnvironment.clone(true)
+  environmentRoot.name = 'office-environment'
+  const workstationAnchors = new Map<string, Array<{ index: number; position: THREE.Vector3 }>>()
+  const roomSignPositions = new Map<string, THREE.Vector3>()
+
+  environmentRoot.updateMatrixWorld(true)
+  environmentRoot.traverse((object) => {
+    if (object instanceof THREE.Mesh) {
+      const firstMaterial = Array.isArray(object.material) ? object.material[0] : object.material
+      const isTransparent = Boolean(firstMaterial?.transparent)
+      object.castShadow = !isTransparent
+      object.receiveShadow = true
+
+      const floorMatch = /^ROOM_FLOOR__(.+)$/.exec(object.name)
+      if (floorMatch) {
+        const room = roomById.get(floorMatch[1])
+        if (room) {
+          const floor = object as THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>
+          const material = floor.material.clone()
+          const baseColor = ROOM_FLOOR_COLORS[room.kind]
+          material.color.set(baseColor)
+          material.roughness = Math.max(material.roughness, 0.72)
+          floor.material = material
+          floor.userData.roomId = room.id
+          floor.userData.baseColor = baseColor
+          roomFloors.set(room.id, floor)
+          ownedMaterials.add(material)
+          clickables.push(floor)
+        }
+      }
+    }
+
+    const workstationMatch = /^WORKSTATION__([^_]+)__(\d+)$/.exec(object.name)
+    if (workstationMatch) {
+      const [, roomId, indexText] = workstationMatch
+      const position = object.getWorldPosition(new THREE.Vector3())
+      const anchors = workstationAnchors.get(roomId) ?? []
+      anchors.push({ index: Number(indexText), position })
+      workstationAnchors.set(roomId, anchors)
+    }
+
+    const signMatch = /^ROOM_SIGN__(.+)$/.exec(object.name)
+    if (signMatch) {
+      roomSignPositions.set(signMatch[1], object.getWorldPosition(new THREE.Vector3()))
+    }
+  })
+
+  scene.add(environmentRoot)
+  for (const room of ROOMS) {
+    const position = roomSignPositions.get(room.id)
+    if (!position) continue
+    const primary = lang === 'en' ? room.en : room.vi
+    const secondary = lang === 'en' ? room.vi : room.en
+    const sign = createRoomLabel(primary, secondary)
+    if (sign) {
+      sign.position.copy(position)
+      scene.add(sign)
+    }
+  }
+
+  const workstations: Array<{ roomId: string; index: number; position: THREE.Vector3 }> = []
+  for (const [roomId, anchors] of workstationAnchors) {
+    anchors.sort((a, b) => a.index - b.index)
+    workstations.push(...anchors.map(({ index, position }) => ({ roomId, index, position })))
+  }
+
+  const assignedWorkstations = new Set<number>()
   const workstationFor = (person: OfficePerson, index: number) => {
-    const preferredRoom = person.isManager
-      ? 'planning'
-      : person.roles.includes('PILOT') || person.roles.includes('OPERATOR')
-        ? 'dispatch'
-        : person.roles.includes('MAINTAINER')
-          ? 'technical'
-          : person.roles.includes('INSPECTOR')
-            ? 'inspection'
-            : null
+    const preferredRoom = resolveOfficeArea(person.isManager, person.roles)
     const preferredIndex = preferredRoom
       ? workstations.findIndex((station, stationIndex) => station.roomId === preferredRoom && !assignedWorkstations.has(stationIndex))
       : -1
@@ -563,14 +483,19 @@ function makeOfficeScene(
         .find((candidate) => !assignedWorkstations.has(candidate)) ?? -1
     }
     if (stationIndex < 0) {
-      const room = roomById.get(preferredRoom ?? 'dispatch') ?? ROOMS[1]
+      const room = roomById.get(preferredRoom) ?? roomById.get('dispatch')!
       const overflow = Math.max(index - workstations.length + 1, 1)
-      return { room, x: ((overflow - 1) % 2 ? 0.85 : -0.85), z: 0.85 + Math.floor((overflow - 1) / 2) * 0.22 }
+      const x = (overflow - 1) % 2 ? 0.85 : -0.85
+      const z = 0.85 + Math.floor((overflow - 1) / 2) * 0.22
+      return { room, x, z, position: roomWorldPosition(room, x, z) }
     }
     assignedWorkstations.add(stationIndex)
     const station = workstations[stationIndex]
-    return { room: roomById.get(station.roomId) ?? ROOMS[1], x: station.x, z: station.z }
+    const room = roomById.get(station.roomId) ?? roomById.get('dispatch')!
+    return { room, x: 0, z: 0, position: station.position.clone() }
   }
+
+
 
   const corridorNodes = [
     { id: 'north-west', x: CORRIDOR_X[0], z: CORRIDOR_Z[0], edges: ['north-east', 'south-west'] },
@@ -608,7 +533,7 @@ function makeOfficeScene(
     }
     const fromDoor = roomDoor(from)
     const toDoor = roomDoor(to)
-    const pantryEntry = (room: Room) => roomWorldPosition(room, -0.95, ROOM_SIZE.depth / 2 - 0.15)
+    const roomThreshold = (room: Room) => roomWorldPosition(room, 0, ROOM_SIZE.depth / 2 - 0.28)
     const lanePoint = (room: Room, door: THREE.Vector3) => room.z !== 0
       ? new THREE.Vector3(door.x, 0, corridorNode(room).z)
       : new THREE.Vector3(corridorNode(room).x, 0, door.z)
@@ -620,15 +545,17 @@ function makeOfficeScene(
     })
     return [
       start.clone(),
-      ...(from.kind === 'pantry' ? [pantryEntry(from)] : []),
+      roomThreshold(from),
       fromDoor,
       from.z !== 0 ? new THREE.Vector3(fromDoor.x, 0, fromLane.z) : new THREE.Vector3(fromLane.x, 0, fromDoor.z),
       fromLane,
-      ...graphPoints.slice(1),
+      // Keep the first corridor node: skipping it creates a diagonal shortcut
+      // from the doorway that cuts across room partitions.
+      ...graphPoints,
       toLane,
       to.z !== 0 ? new THREE.Vector3(toDoor.x, 0, toLane.z) : new THREE.Vector3(toLane.x, 0, toDoor.z),
       toDoor,
-      ...(to.kind === 'pantry' ? [pantryEntry(to)] : []),
+      roomThreshold(to),
       end.clone(),
     ].filter((point, pointIndex, path) => pointIndex === 0 || point.distanceTo(path[pointIndex - 1]) > 0.06)
   }
@@ -648,7 +575,7 @@ function makeOfficeScene(
       const source = stablePersonOffset(person.id, 2) === 0 ? maleModel : femaleModel
       const model = SkeletonUtils.clone(source) as THREE.Group
       const workstation = workstationFor(person, index)
-      const chairSeat = roomWorldPosition(workstation.room, workstation.x, workstation.z)
+      const chairSeat = workstation.position.clone()
       const root = new THREE.Group()
       root.position.copy(chairSeat)
       // FBXLoader converts the Z-up character to Y-up, leaving its front along +Z.
@@ -665,10 +592,21 @@ function makeOfficeScene(
           const clone = material.clone()
           const colored = clone as THREE.Material & { color?: THREE.Color }
           const materialName = material.name.toLowerCase()
-          if (colored.color && (materialName.includes('shirt') || materialName.includes('material'))) {
-            colored.color.set(colorForPerson(person.id))
-          } else if (colored.color && materialName.includes('hair')) {
-            colored.color.set(person.isManager ? '#39485c' : '#354052')
+          if (colored.color) {
+            const paletteIndex = stablePersonOffset(person.id, AVATAR_SKIN_TONES.length)
+            if (materialName.includes('skin')) {
+              colored.color.set(AVATAR_SKIN_TONES[paletteIndex])
+            } else if (materialName.includes('face')) {
+              colored.color.set(AVATAR_SKIN_TONES[paletteIndex]).lerp(new THREE.Color('#fff0df'), 0.14)
+            } else if (materialName.includes('shirt') || materialName.includes('material')) {
+              colored.color.set(AVATAR_SHIRT_COLORS[paletteIndex])
+            } else if (materialName.includes('hair')) {
+              colored.color.set(AVATAR_HAIR_TONES[paletteIndex])
+            } else if (materialName.includes('pants')) {
+              colored.color.set('#526176')
+            } else if (materialName.includes('belt')) {
+              colored.color.set('#75604d')
+            }
           }
           ownedMaterials.add(clone)
           return clone
@@ -696,12 +634,41 @@ function makeOfficeScene(
       halo.position.y = 0.035
       root.add(halo)
 
+      const isWorking = person.missions.some((mission) => WORKING_MISSION_STATUSES.has(mission.status))
+      if (isWorking) {
+        const workingGeometry = new THREE.RingGeometry(0.46, 0.54, 40)
+        geometries.push(workingGeometry)
+        const workingMaterial = new THREE.MeshBasicMaterial({
+          color: '#16a765',
+          transparent: true,
+          opacity: 0.9,
+          side: THREE.DoubleSide,
+          depthWrite: false,
+        })
+        ownedMaterials.add(workingMaterial)
+        const workingIndicator = new THREE.Mesh(workingGeometry, workingMaterial)
+        workingIndicator.name = 'staff-working-indicator'
+        workingIndicator.rotation.x = -Math.PI / 2
+        workingIndicator.position.y = 0.045
+        root.add(workingIndicator)
+      }
+
       const initials = person.name.split(/\s+/).filter(Boolean).slice(-2).map((part) => part[0]).join('').toUpperCase()
       const label = createLabel(`${initials} · ${person.name}`, '#ffffffef', '#19314f')
       if (label) {
         label.position.set(0, 1.78, 0)
         label.scale.set(1.72, 0.48, 1)
         root.add(label)
+      }
+
+      const workLabel = isWorking
+        ? createLabel(lang === 'en' ? '● WORKING' : '● ĐANG LÀM', '#dcfce8', '#087a45')
+        : null
+      if (workLabel) {
+        workLabel.position.set(0, 2.2, 0)
+        workLabel.scale.set(1.12, 0.31, 1)
+        workLabel.renderOrder = 6
+        root.add(workLabel)
       }
 
       const mixer = new THREE.AnimationMixer(model)
@@ -755,8 +722,8 @@ function makeOfficeScene(
         room: workstation.room,
         state: 'sitting',
         stateTime: 0,
-        // Start breaks at staggered times, then keep each work stretch around 2–3 minutes.
-        waitTime: 35 + stablePersonOffset(person.id, 55),
+        // Start the team queue as soon as the scene loads; only one person travels at a time.
+        waitTime: 0,
         path: [],
         pathIndex: 0,
         color: colorForPerson(person.id),
@@ -898,6 +865,7 @@ function makeOfficeScene(
         if (visible) avatar.mixer.update(delta)
         return true
       }
+      if (breakTravelerId === avatar.personId) breakTravelerId = null
       avatar.waitTime -= elapsed
       if (avatar.waitTime <= 0) {
         requestBreakTurn(avatar)
@@ -922,14 +890,13 @@ function makeOfficeScene(
       if (avatar.state === 'walking-to-break') {
         avatar.state = 'on-break'
         avatar.root.rotation.y = pantry.rotationY + Math.PI
-        avatar.waitTime = 14 + stablePersonOffset(avatar.personId, 7)
+        avatar.waitTime = 4 + stablePersonOffset(avatar.personId, 5)
         avatar.stateTime = startAnimation(avatar, avatar.animationKeys.sit ?? '', true)
       } else {
         avatar.root.rotation.y = avatar.room.rotationY + Math.PI
         avatar.state = 'sitting'
         avatar.stateTime = startAnimation(avatar, avatar.animationKeys.sit ?? '', true)
-        avatar.waitTime = 100 + stablePersonOffset(avatar.personId, 80)
-        if (breakTravelerId === avatar.personId) breakTravelerId = null
+        avatar.waitTime = 2 + stablePersonOffset(avatar.personId, 3)
       }
       return true
     }
@@ -1023,7 +990,7 @@ function makeOfficeScene(
     }
     if (!animationsPaused && avatars.size) {
       const nextWake = Math.min(...[...avatars.values()].map((avatar) =>
-        (avatar.state === 'sitting' || avatar.state === 'on-break') && avatar.stateTime <= 0
+        ((avatar.state === 'sitting' || avatar.state === 'on-break') && avatar.stateTime <= 0)
           ? avatar.waitTime
           : Infinity,
       ))
@@ -1054,7 +1021,9 @@ function makeOfficeScene(
   }
   controls.addEventListener('change', onControlsChange)
   renderer.domElement.addEventListener('pointermove', onPointerMove)
+  renderer.domElement.addEventListener('pointerleave', onPointerLeave)
   renderer.domElement.addEventListener('click', onCanvasClick)
+  renderer.domElement.addEventListener('dblclick', onCanvasDoubleClick)
   renderer.domElement.addEventListener('keydown', onCanvasKeyDown)
   const onVisibilityChange = () => {
     previousFrameTime = 0
@@ -1062,13 +1031,74 @@ function makeOfficeScene(
   }
   document.addEventListener('visibilitychange', onVisibilityChange)
 
-  function onPointerMove(event: PointerEvent) {
+  let hoveredRoomId: string | null = null
+  let hoveredStaffId: string | null = null
+
+  function targetAt(clientX: number, clientY: number) {
     const rect = renderer.domElement.getBoundingClientRect()
-    pointer.set(((event.clientX - rect.left) / rect.width) * 2 - 1, -((event.clientY - rect.top) / rect.height) * 2 + 1)
+    if (!rect.width || !rect.height) return null
+    pointer.set(((clientX - rect.left) / rect.width) * 2 - 1, -((clientY - rect.top) / rect.height) * 2 + 1)
     raycaster.setFromCamera(pointer, camera)
-    const hits = raycaster.intersectObjects(clickables, true)
-    const hasTarget = hits.some((hit) => findTarget(hit.object))
-    renderer.domElement.style.cursor = hasTarget ? 'pointer' : 'grab'
+    return raycaster.intersectObjects(clickables, true)
+      .map((hit) => findTarget(hit.object))
+      .find((value) => value !== null) ?? null
+  }
+
+  function setStaffHalo(staffId: string | null, opacity: number) {
+    if (!staffId) return
+    const halo = avatarRoots.get(staffId)?.getObjectByName('staff-selection-halo')
+    if (halo instanceof THREE.Mesh && halo.material instanceof THREE.MeshBasicMaterial) {
+      halo.material.opacity = opacity
+    }
+  }
+
+  function setHoveredTarget(target: { roomId?: string; staffId?: string } | null) {
+    const nextRoomId = target?.roomId ?? null
+    const nextStaffId = target?.staffId ?? null
+    if (nextRoomId === hoveredRoomId && nextStaffId === hoveredStaffId) return
+
+    const selectedStaffId = host.dataset.selectedStaffId ?? null
+    if (hoveredRoomId && hoveredRoomId !== nextRoomId) {
+      const material = roomFloors.get(hoveredRoomId)?.material as THREE.MeshStandardMaterial | undefined
+      material?.emissive.set('#000000')
+      if (material) material.emissiveIntensity = 0
+    }
+    if (nextRoomId) {
+      const material = roomFloors.get(nextRoomId)?.material as THREE.MeshStandardMaterial | undefined
+      material?.emissive.set('#77a8e8')
+      if (material) material.emissiveIntensity = 0.16
+    }
+    if (hoveredStaffId && hoveredStaffId !== nextStaffId) {
+      setStaffHalo(hoveredStaffId, hoveredStaffId === selectedStaffId ? 0.9 : 0.18)
+    }
+    if (nextStaffId) setStaffHalo(nextStaffId, nextStaffId === selectedStaffId ? 0.9 : 0.52)
+
+    hoveredRoomId = nextRoomId
+    hoveredStaffId = nextStaffId
+    host.dataset.hoveredStaffId = nextStaffId ?? ''
+    if (nextStaffId) {
+      const person = people.find((item) => item.id === nextStaffId)
+      renderer.domElement.title = person
+        ? `${person.name} · ${person.roles.filter((role) => role !== 'STAFF').map((role) => roleLabel(role, lang === 'en')).join(' · ') || (lang === 'en' ? 'Staff' : 'Nhân sự')}`
+        : ''
+    } else if (nextRoomId) {
+      const room = roomById.get(nextRoomId)
+      renderer.domElement.title = room ? (lang === 'en' ? room.en : room.vi) : ''
+    } else {
+      renderer.domElement.title = ''
+    }
+    render()
+  }
+
+  function onPointerMove(event: PointerEvent) {
+    const target = targetAt(event.clientX, event.clientY)
+    renderer.domElement.style.cursor = target ? 'pointer' : 'grab'
+    setHoveredTarget(target)
+  }
+
+  function onPointerLeave() {
+    renderer.domElement.style.cursor = 'grab'
+    setHoveredTarget(null)
   }
 
   function findTarget(object: THREE.Object3D): { roomId?: string; staffId?: string } | null {
@@ -1086,14 +1116,20 @@ function makeOfficeScene(
   }
 
   function onCanvasClick(event: MouseEvent) {
-    const rect = renderer.domElement.getBoundingClientRect()
-    pointer.set(((event.clientX - rect.left) / rect.width) * 2 - 1, -((event.clientY - rect.top) / rect.height) * 2 + 1)
-    raycaster.setFromCamera(pointer, camera)
-    const target = raycaster.intersectObjects(clickables, true)
-      .map((hit) => findTarget(hit.object))
-      .find((value) => value !== null)
+    const target = targetAt(event.clientX, event.clientY)
     if (target?.staffId) onPersonClick(target.staffId)
     else if (target?.roomId) onRoomClick(target.roomId)
+  }
+
+  function onCanvasDoubleClick(event: MouseEvent) {
+    const target = targetAt(event.clientX, event.clientY)
+    if (target?.staffId) {
+      onPersonClick(target.staffId)
+      focusPerson(target.staffId)
+    } else if (target?.roomId) {
+      onRoomClick(target.roomId)
+      focusRoom(target.roomId)
+    }
   }
 
   function onCanvasKeyDown(event: KeyboardEvent) {
@@ -1143,7 +1179,10 @@ function makeOfficeScene(
 
   const focusRoom = (roomId: string | null) => {
     if (!roomId) return
-    const target = roomFloors.get(roomId)?.getWorldPosition(new THREE.Vector3())
+    const room = roomById.get(roomId)
+    const target = room
+      ? new THREE.Vector3(room.x, 0, room.z)
+      : roomFloors.get(roomId)?.getWorldPosition(new THREE.Vector3())
     if (target) focusAt(target.add(new THREE.Vector3(0, 0.7, 0)), 1.75)
   }
 
@@ -1206,7 +1245,9 @@ function makeOfficeScene(
       controls.removeEventListener('change', onControlsChange)
       controls.dispose()
       renderer.domElement.removeEventListener('pointermove', onPointerMove)
+      renderer.domElement.removeEventListener('pointerleave', onPointerLeave)
       renderer.domElement.removeEventListener('click', onCanvasClick)
+      renderer.domElement.removeEventListener('dblclick', onCanvasDoubleClick)
       renderer.domElement.removeEventListener('keydown', onCanvasKeyDown)
       document.removeEventListener('visibilitychange', onVisibilityChange)
       for (const avatar of avatars.values()) avatar.mixer.stopAllAction()
@@ -1225,7 +1266,9 @@ function makeOfficeScene(
 }
 
 const ACTIVE_WORK_STATUSES = new Set<MissionStatus>([
+  'WAITING_OPERATOR_ACCEPTANCE',
   'READY',
+  'SCHEDULED',
   'CONNECTED',
   'PREFLIGHT_CHECKING',
   'READY_TO_FLY',
@@ -1241,6 +1284,7 @@ function collectPeople(
   staff: AvailableOperator[],
   missions: MissionCalendarItem[],
   manager: ManagerIdentity | null,
+  includeMissionId?: string,
 ): OfficePerson[] {
   const people = new Map<string, OfficePerson>()
 
@@ -1267,7 +1311,7 @@ function collectPeople(
   }
 
   for (const mission of missions) {
-    if (!ACTIVE_WORK_STATUSES.has(mission.status)) continue
+    if (!ACTIVE_WORK_STATUSES.has(mission.status) && mission.id !== includeMissionId) continue
     const mainDevice =
       mission.deviceAssignments?.find((item) => item.deviceRole === 'MAIN') ??
       mission.deviceAssignments?.[0]
@@ -1277,9 +1321,10 @@ function collectPeople(
       mission.droneName ??
       mission.droneCode ??
       null
-    const assignments = mission.staffAssignments?.filter(
-      (item) => item.isCurrent !== false,
-    ) ?? []
+    const assignments = getVisibleMissionStaffAssignments(
+      mission.status,
+      mission.staffAssignments,
+    )
     const hasPilot = assignments.some(
       (assignment) => assignment.assignedRole === 'PILOT',
     )
@@ -1365,7 +1410,7 @@ function activityFor(
   }
 
   const inFlight = person.missions.find((mission) =>
-    ['IN_PROGRESS', 'IN_FLIGHT', 'RETURNING'].includes(mission.status),
+    WORKING_MISSION_STATUSES.has(mission.status),
   )
   const mission = inFlight ?? person.missions[0]
   if (!mission) {
@@ -1378,9 +1423,7 @@ function activityFor(
     }
   }
 
-  const currentlyWorking = ['IN_PROGRESS', 'IN_FLIGHT', 'RETURNING'].includes(
-    mission.status,
-  )
+  const currentlyWorking = WORKING_MISSION_STATUSES.has(mission.status)
   return {
     label: getMissionStatusLabel(mission.status, lang),
     detail: mission.code + (mission.title ? ' · ' + mission.title : ''),
@@ -1391,12 +1434,26 @@ function activityFor(
 export function Office3DView({
   staff,
   missions,
+  assignmentMissionId,
+  assignmentCanEdit,
+  assignmentReturnOrderId,
+  assignmentMission,
+  assignmentCandidates,
+  assignmentLoading,
+  onAssignmentChanged,
   manager,
   loading,
   lang,
 }: {
   staff: AvailableOperator[]
   missions: MissionCalendarItem[]
+  assignmentMissionId?: string
+  assignmentCanEdit: boolean
+  assignmentReturnOrderId?: string
+  assignmentMission: MissionCalendarItem | null
+  assignmentCandidates: AvailableOperator[]
+  assignmentLoading: boolean
+  onAssignmentChanged: (mission?: MissionCalendarItem) => void
   manager: ManagerIdentity | null
   loading: boolean
   lang: string
@@ -1410,11 +1467,13 @@ export function Office3DView({
   const selectedPersonRef = useRef<string | null>(null)
   const [selectedRoom, setSelectedRoom] = useState<string | null>(null)
   const [selectedPerson, setSelectedPerson] = useState<string | null>(null)
+  const [assignmentSelectedStaffId, setAssignmentSelectedStaffId] = useState<string | null>(null)
+  const [sceneLoading, setSceneLoading] = useState(true)
   const [sceneError, setSceneError] = useState(false)
   const [followPersonId, setFollowPersonId] = useState<string | null>(null)
   const [animationsPaused, setAnimationsPaused] = useState(false)
   const [teamRailVisible, setTeamRailVisible] = useState(true)
-  const [department, setDepartment] = useState<'all' | 'flight' | 'technical' | 'management'>('all')
+  const [department, setDepartment] = useState<'all' | 'flight' | 'technical' | 'management' | 'shared'>('all')
   const [isFullscreen, setIsFullscreen] = useState(false)
   const animationsPausedRef = useRef(animationsPaused)
   const followPersonIdRef = useRef(followPersonId)
@@ -1423,16 +1482,25 @@ export function Office3DView({
     () => missions.filter((mission) => ACTIVE_WORK_STATUSES.has(mission.status)),
     [missions],
   )
+  const peopleMissions = useMemo(() => {
+    if (!assignmentMission) return activeMissions
+    return [
+      ...activeMissions.filter((mission) => mission.id !== assignmentMission.id),
+      assignmentMission,
+    ]
+  }, [activeMissions, assignmentMission])
   const people = useMemo(
-    () => collectPeople(staff, activeMissions, manager),
-    [staff, activeMissions, manager],
+    () => collectPeople(staff, peopleMissions, manager, assignmentMissionId),
+    [staff, peopleMissions, manager, assignmentMissionId],
   )
   const visiblePeople = useMemo(() => people.filter((item) => {
     if (department === 'all') return true
     if (department === 'management') return item.isManager
-    if (department === 'flight') return item.roles.some((role) => ['PILOT', 'OPERATOR'].includes(role))
-    if (department === 'technical') return item.roles.some((role) => ['MAINTAINER', 'INSPECTOR'].includes(role))
-    return true
+    const area = resolveOfficeArea(item.isManager, item.roles)
+    if (department === 'flight') return area === 'dispatch'
+    if (department === 'technical') return area === 'technical' || area === 'inspection'
+    if (department === 'shared') return area === 'shared'
+    return false
   }), [people, department])
   const devices = useMemo(() => {
     const ids = new Set<string>()
@@ -1449,14 +1517,20 @@ export function Office3DView({
 
   const room = ROOMS.find((item) => item.id === selectedRoom)
   const person = people.find((item) => item.id === selectedPerson)
+  const roomInfo = room ? ROOM_BUSINESS_INFO[room.id] : null
+  const roomPeople = room
+    ? people.filter((item) => resolveOfficeArea(item.isManager, item.roles) === room.id)
+    : []
   const onRoomClick = useCallback((id: string) => {
     setSelectedRoom(id)
     setSelectedPerson(null)
+    setAssignmentSelectedStaffId(null)
     setFollowPersonId(null)
     setTeamRailVisible(true)
   }, [])
   const onPersonClick = useCallback((id: string) => {
     setSelectedPerson(id)
+    setAssignmentSelectedStaffId(id)
     setSelectedRoom(null)
     setFollowPersonId(null)
     setTeamRailVisible(true)
@@ -1465,30 +1539,54 @@ export function Office3DView({
   useEffect(() => {
     const host = hostRef.current
     if (!host) return
-    let handle: SceneHandle
-    try {
-      handle = makeOfficeScene(host, visiblePeople, lang, onRoomClick, onPersonClick)
-      sceneRef.current = handle
-      handle.setAnimationsPaused(animationsPausedRef.current)
-      const currentRoom = selectedRoomRef.current
-      for (const [roomId, floor] of handle.roomFloors) {
-        if (roomId === currentRoom) {
-          (floor.material as THREE.MeshStandardMaterial).color.set('#d5e8ff')
-        }
-      }
-      if (currentRoom) handle.focusRoom(currentRoom)
-      if (selectedPersonRef.current) handle.focusPerson(selectedPersonRef.current)
-      if (followPersonIdRef.current) handle.setFollowPerson(followPersonIdRef.current)
-      handle.render()
-      setSceneError(false)
-    } catch {
-      sceneRef.current?.dispose()
-      sceneRef.current = null
+    let cancelled = false
+    let handle: SceneHandle | null = null
+    setSceneLoading(true)
+    setSceneError(false)
+
+    // The 3D canvas is exercised in a real browser; jsdom has no WebGL context.
+    if (import.meta.env.MODE === 'test') {
+      setSceneLoading(false)
       setSceneError(true)
-      return
+      return () => {
+        cancelled = true
+      }
     }
+
+    void loadOfficeEnvironment()
+      .then((environment) => {
+        if (cancelled) return
+        try {
+          handle = makeOfficeScene(host, visiblePeople, lang, onRoomClick, onPersonClick, environment)
+          sceneRef.current = handle
+          handle.setAnimationsPaused(animationsPausedRef.current)
+          const currentRoom = selectedRoomRef.current
+          for (const [roomId, floor] of handle.roomFloors) {
+            if (roomId === currentRoom) {
+              (floor.material as THREE.MeshStandardMaterial).color.set('#d5e8ff')
+            }
+          }
+          if (currentRoom) handle.focusRoom(currentRoom)
+          if (selectedPersonRef.current) handle.focusPerson(selectedPersonRef.current)
+          if (followPersonIdRef.current) handle.setFollowPerson(followPersonIdRef.current)
+          handle.render()
+          setSceneLoading(false)
+        } catch (error) {
+          console.warn('The office scene could not be created.', error)
+          setSceneError(true)
+          setSceneLoading(false)
+        }
+      })
+      .catch((error: unknown) => {
+        if (cancelled) return
+        console.warn('The office environment could not be loaded.', error)
+        setSceneError(true)
+        setSceneLoading(false)
+      })
+
     return () => {
-      handle.dispose()
+      cancelled = true
+      handle?.dispose()
       if (sceneRef.current === handle) sceneRef.current = null
     }
     // The scene is rebuilt when the team data or display language changes.
@@ -1500,8 +1598,7 @@ export function Office3DView({
     if (!handle) return
     for (const [roomId, floor] of handle.roomFloors) {
       const material = floor.material as THREE.MeshStandardMaterial
-      const index = ROOMS.findIndex((item) => item.id === roomId)
-      const base = index % 2 === 0 ? '#f6f7f5' : '#eff4f6'
+      const base = floor.userData.baseColor as string
       material.color.set(roomId === selectedRoom ? '#d5e8ff' : base)
     }
     if (selectedRoom) handle.focusRoom(selectedRoom)
@@ -1510,12 +1607,14 @@ export function Office3DView({
 
   useEffect(() => {
     selectedPersonRef.current = selectedPerson
+    if (hostRef.current) hostRef.current.dataset.selectedStaffId = selectedPerson ?? ''
     const handle = sceneRef.current
     if (!handle) return
     for (const [staffId, root] of handle.avatarRoots) {
       const halo = root.getObjectByName('staff-selection-halo')
       if (halo instanceof THREE.Mesh && halo.material instanceof THREE.MeshBasicMaterial) {
-        halo.material.opacity = staffId === selectedPerson ? 0.9 : 0.18
+        const isHovered = hostRef.current?.dataset.hoveredStaffId === staffId
+        halo.material.opacity = staffId === selectedPerson ? 0.9 : isHovered ? 0.52 : 0.18
       }
     }
     if (selectedPerson) handle.focusPerson(selectedPerson)
@@ -1581,22 +1680,28 @@ export function Office3DView({
         devices: 'Assigned devices',
         workspace: 'Office workspace',
         controls: 'Drag to explore · scroll to zoom · select a person or room',
-        keyboard: 'Keyboard: + / − to zoom, R or Home to reset.',
+        keyboard: 'Click to select · double-click to focus · + / − to zoom · R to reset.',
         note: 'Illustrative office layout · staff and work status come from the system.',
         reset: 'Reset view',
         zoomIn: 'Zoom in',
         zoomOut: 'Zoom out',
         selectedRoom: 'Selected room',
+        chooseArea: 'Choose an area to inspect',
+        focusArea: 'Focus an area',
+        associatedStaff: 'Staff mapped by role',
+        noMappedStaff: 'No matching staff in the current data.',
+        roleScope: 'Business mapping',
         currentWork: 'Current work',
         noCurrentWork: 'No active work is assigned.',
         teamEmpty: 'No staff accounts are available.',
         missionTitle: 'Work in progress',
         missionEmpty: 'There are no active mission tasks right now.',
         device: 'Device',
-        fallback: '3D is unavailable in this browser. Use the team and work panels to review current information.',
+        fallback: 'The office model could not be loaded. Use the team and office area panels to review current information.',
         detail: 'Team member details',
         rooms: 'Office areas',
         loading: 'Loading team information…',
+        sceneLoading: 'Preparing the 3D office…',
         pauseMotion: 'Pause staff movement',
         resumeMotion: 'Resume staff movement',
         follow: 'Follow selected staff',
@@ -1610,7 +1715,8 @@ export function Office3DView({
         flightDepartment: 'Flight operations',
         technicalDepartment: 'Technical & inspection',
         managementDepartment: 'Management',
-        motionDisclosure: 'Staff movement is illustrative; assignments and mission status come from the system.',
+        sharedDepartment: 'Shared workspace',
+        motionDisclosure: 'People, roles and mission statuses come from the system; positions and movement are illustrative.',
       }
     : {
         title: 'Đội ngũ và công việc',
@@ -1621,22 +1727,28 @@ export function Office3DView({
         devices: 'Thiết bị được phân công',
         workspace: 'Không gian làm việc',
         controls: 'Kéo để quan sát · cuộn để thu phóng · chọn nhân sự hoặc khu vực',
-        keyboard: 'Bàn phím: + / − để thu phóng, R hoặc Home để đặt lại góc nhìn.',
+        keyboard: 'Nhấn để chọn · nhấn đúp để tập trung · + / − để thu phóng · R để đặt lại.',
         note: 'Bố trí văn phòng mang tính minh họa · nhân sự và trạng thái công việc lấy từ hệ thống.',
         reset: 'Đặt lại góc nhìn',
         zoomIn: 'Phóng to',
         zoomOut: 'Thu nhỏ',
         selectedRoom: 'Khu vực đang chọn',
+        chooseArea: 'Chọn khu vực cần xem',
+        focusArea: 'Tập trung khu vực',
+        associatedStaff: 'Nhân sự theo vai trò',
+        noMappedStaff: 'Không có nhân sự phù hợp trong dữ liệu hiện tại.',
+        roleScope: 'Phân khu theo nghiệp vụ',
         currentWork: 'Công việc hiện tại',
         noCurrentWork: 'Chưa có công việc đang được giao.',
         teamEmpty: 'Chưa có tài khoản nhân sự đang hoạt động.',
         missionTitle: 'Công việc đang xử lý',
         missionEmpty: 'Hiện chưa có nhiệm vụ nào đang hoạt động.',
         device: 'Thiết bị',
-        fallback: 'Trình duyệt chưa hỗ trợ chế độ 3D. Danh sách đội ngũ và công việc vẫn hiển thị bên cạnh.',
+        fallback: 'Chưa tải được mô hình văn phòng 3D. Bạn vẫn có thể xem đội ngũ và chọn khu vực từ các bảng bên cạnh.',
         detail: 'Thông tin nhân sự',
         rooms: 'Khu vực văn phòng',
         loading: 'Đang tải thông tin đội ngũ…',
+        sceneLoading: 'Đang dựng không gian văn phòng 3D…',
         pauseMotion: 'Tạm dừng chuyển động',
         resumeMotion: 'Tiếp tục chuyển động',
         follow: 'Theo dõi nhân sự đã chọn',
@@ -1650,11 +1762,14 @@ export function Office3DView({
         flightDepartment: 'Điều hành bay',
         technicalDepartment: 'Kỹ thuật & nghiệm thu',
         managementDepartment: 'Quản lý',
-        motionDisclosure: 'Chuyển động nhân sự chỉ mang tính minh họa; nhiệm vụ và trạng thái lấy từ hệ thống.',
+        sharedDepartment: 'Khu làm việc chung',
+        motionDisclosure: 'Nhân sự, vai trò và trạng thái mission lấy từ hệ thống; vị trí và chuyển động chỉ mang tính minh họa.',
       }
 
   const activePeopleCount = people.filter(
-    (item) => !item.isManager && item.missions.length > 0,
+    (item) =>
+      !item.isManager &&
+      item.missions.some((mission) => ACTIVE_WORK_STATUSES.has(mission.status)),
   ).length
 
   const renderMission = (mission: OfficePerson['missions'][number]) => (
@@ -1662,7 +1777,7 @@ export function Office3DView({
       <div className="mgr-office-work-item-top">
         <strong>{mission.code}</strong>
         <span className={'mgr-office-status is-' + (
-          ['IN_PROGRESS', 'IN_FLIGHT', 'RETURNING'].includes(mission.status)
+          WORKING_MISSION_STATUSES.has(mission.status)
             ? 'active'
             : 'preparing'
         )}>
@@ -1680,10 +1795,6 @@ export function Office3DView({
     <section className="mgr-office" aria-label={copy.title}>
       <header className="mgr-office-heading">
         <div>
-          <div className="mgr-office-eyebrow">
-            <span className="mgr-office-live-dot" />
-            {isEnglish ? 'TEAM OVERVIEW' : 'TỔNG QUAN ĐỘI NGŨ'}
-          </div>
           <h2>{copy.title}</h2>
           <p>
             {isEnglish
@@ -1731,12 +1842,22 @@ export function Office3DView({
             </div>
             <div className="mgr-office-camera-controls" aria-label={isEnglish ? 'Office controls' : 'Điều khiển văn phòng'}>
               <Select
+                className="mgr-office-room-select"
+                aria-label={copy.chooseArea}
+                placeholder={copy.focusArea}
+                value={selectedRoom ?? undefined}
+                allowClear
+                onChange={(value: string | undefined) => value ? onRoomClick(value) : setSelectedRoom(null)}
+                options={ROOMS.map((item) => ({ value: item.id, label: isEnglish ? item.en : item.vi }))}
+              />
+              <Select
                 className="mgr-office-department-select"
                 aria-label={copy.department}
                 value={department}
                 onChange={(value) => {
                   setDepartment(value)
                   setSelectedPerson(null)
+                  setSelectedRoom(null)
                   setFollowPersonId(null)
                 }}
                 options={[
@@ -1744,6 +1865,7 @@ export function Office3DView({
                   { value: 'flight', label: copy.flightDepartment },
                   { value: 'technical', label: copy.technicalDepartment },
                   { value: 'management', label: copy.managementDepartment },
+                  { value: 'shared', label: copy.sharedDepartment },
                 ]}
               />
               <Tooltip title={animationsPaused ? copy.resumeMotion : copy.pauseMotion}>
@@ -1784,6 +1906,7 @@ export function Office3DView({
                   onClick={() => {
                     sceneRef.current?.reset()
                     setSelectedPerson(null)
+                    setAssignmentSelectedStaffId(null)
                     setSelectedRoom(null)
                     setFollowPersonId(null)
                   }}
@@ -1800,12 +1923,18 @@ export function Office3DView({
           </div>
           <div className="mgr-office-canvas-wrap">
             <div ref={hostRef} className="mgr-office-canvas-host" />
+            {sceneLoading && !sceneError && (
+              <div className="mgr-office-model-loading" role="status" aria-live="polite">
+                <span className="mgr-office-model-loading-spinner" aria-hidden="true" />
+                <span>{copy.sceneLoading}</span>
+              </div>
+            )}
             <div className="mgr-office-canvas-overlay">
               <span><i className="is-active" />{visiblePeople.length} {copy.people.toLocaleLowerCase(locale)}</span>
               <span>{ROOMS.length} {copy.rooms.toLocaleLowerCase(locale)}</span>
             </div>
             <div className="mgr-office-canvas-caption">
-              <span><i />{isEnglish ? 'System assignment data' : 'Dữ liệu phân công từ hệ thống'}</span>
+              <span><i />{isEnglish ? 'Roles and missions from system data' : 'Vai trò và mission từ dữ liệu hệ thống'}</span>
               <span>{isEnglish ? 'Illustrative layout' : 'Sơ đồ minh họa'}</span>
             </div>
             {sceneError && (
@@ -1833,6 +1962,32 @@ export function Office3DView({
         </section>
 
         {teamRailVisible && <aside className="mgr-office-rail" aria-label={copy.people}>
+          {assignmentMissionId && (
+            <OfficeMissionAssignmentPanel
+              mission={assignmentMission}
+              candidates={assignmentCandidates}
+              loading={assignmentLoading}
+              canEdit={assignmentCanEdit}
+              returnToHref={
+                assignmentReturnOrderId
+                  ? managerHref({
+                      screen: 'orderReview',
+                      orderId: assignmentReturnOrderId,
+                    })
+                  : assignmentMissionId
+                    ? managerHref({
+                        screen: 'missionDetail',
+                        missionId: assignmentMissionId,
+                      })
+                    : undefined
+              }
+              lang={lang}
+              selectedStaffId={assignmentSelectedStaffId}
+              onSelectedStaffChange={setAssignmentSelectedStaffId}
+              onAssignmentChanged={onAssignmentChanged}
+              onStaffFocus={onPersonClick}
+            />
+          )}
           {person ? (
             <section className="mgr-office-rail-card mgr-office-person-detail">
               <div className="mgr-office-rail-title">
@@ -1873,7 +2028,13 @@ export function Office3DView({
                 {person.missions.length === 0 ? (
                   <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={copy.noCurrentWork} />
                 ) : (
-                  person.missions.map(renderMission)
+                  person.missions.map((mission) => (
+                    <StaffMissionActivity
+                      key={mission.id}
+                      mission={mission}
+                      lang={locale}
+                    />
+                  ))
                 )}
               </div>
             </section>
@@ -1893,7 +2054,39 @@ export function Office3DView({
                 </Button>
               </div>
               <strong>{isEnglish ? room.en : room.vi}</strong>
-              <p>{copy.note}</p>
+              <p>{isEnglish ? roomInfo?.en : roomInfo?.vi}</p>
+              {roomInfo?.roles && (
+                <div className="mgr-office-room-role-scope">
+                  <span>{copy.roleScope}</span>
+                  <div className="mgr-office-role-list">
+                    {roomInfo.roles.map((role) => <Tag key={role}>{roleLabel(role, isEnglish)}</Tag>)}
+                  </div>
+                </div>
+              )}
+              <div className="mgr-office-detail-section is-column mgr-office-room-staff">
+                <span>{copy.associatedStaff}</span>
+                {roomPeople.length === 0 ? (
+                  <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={copy.noMappedStaff} />
+                ) : (
+                  <div className="mgr-office-room-people-list">
+                    {roomPeople.map((item) => {
+                      const activity = activityFor(item, isEnglish, locale)
+                      const roleText = item.isManager
+                        ? copy.manager
+                        : item.roles.filter((role) => role !== 'STAFF').map((role) => roleLabel(role, isEnglish)).join(' · ') || roleLabel('STAFF', isEnglish)
+                      return (
+                        <button type="button" key={item.id} onClick={() => onPersonClick(item.id)}>
+                          <span className="mgr-office-room-person-copy">
+                            <strong>{item.name}</strong>
+                            <small>{roleText}</small>
+                          </span>
+                          <span className={'mgr-office-status is-' + activity.tone}>{activity.label}</span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
             </section>
           ) : (
             <section className="mgr-office-rail-card">
@@ -1942,33 +2135,35 @@ export function Office3DView({
             </section>
           )}
 
-          <section className="mgr-office-rail-card mgr-office-work-card">
-            <div className="mgr-office-rail-title">
-              <div>
-                <span className="mgr-office-title-icon is-blue"><SendOutlined /></span>
-                <h3>{copy.missionTitle}</h3>
+          {!person && (
+            <section className="mgr-office-rail-card mgr-office-work-card">
+              <div className="mgr-office-rail-title">
+                <div>
+                  <span className="mgr-office-title-icon is-blue"><SendOutlined /></span>
+                  <h3>{copy.missionTitle}</h3>
+                </div>
+                <Tag>{activeMissions.length}</Tag>
               </div>
-              <Tag>{activeMissions.length}</Tag>
-            </div>
-            {activeMissions.length === 0 ? (
-              <p className="mgr-office-empty-missions">{copy.missionEmpty}</p>
-            ) : (
-              <div className="mgr-office-mission-list">
-                {activeMissions.map((mission) => {
-                  const device = mission.deviceAssignments?.find((item) => item.deviceRole === 'MAIN')
-                    ?? mission.deviceAssignments?.[0]
-                  const work: OfficePerson['missions'][number] = {
-                    id: mission.id,
-                    code: mission.missionCode,
-                    title: mission.serviceLabel || mission.addressText || null,
-                    device: device?.deviceName ?? device?.deviceCode ?? mission.droneName ?? mission.droneCode ?? null,
-                    status: mission.status,
-                  }
-                  return renderMission(work)
-                })}
-              </div>
-            )}
-          </section>
+              {activeMissions.length === 0 ? (
+                <p className="mgr-office-empty-missions">{copy.missionEmpty}</p>
+              ) : (
+                <div className="mgr-office-mission-list">
+                  {activeMissions.map((mission) => {
+                    const device = mission.deviceAssignments?.find((item) => item.deviceRole === 'MAIN')
+                      ?? mission.deviceAssignments?.[0]
+                    const work: OfficePerson['missions'][number] = {
+                      id: mission.id,
+                      code: mission.missionCode,
+                      title: mission.serviceLabel || mission.addressText || null,
+                      device: device?.deviceName ?? device?.deviceCode ?? mission.droneName ?? mission.droneCode ?? null,
+                      status: mission.status,
+                    }
+                    return renderMission(work)
+                  })}
+                </div>
+              )}
+            </section>
+          )}
         </aside>}
       </div>
     </section>

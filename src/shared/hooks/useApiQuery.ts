@@ -16,13 +16,16 @@ export type UseApiQueryState<T> = {
 export function useApiQuery<T>(
   fn: (signal: AbortSignal) => Promise<T>,
   deps: unknown[],
+  isEqual?: (previous: T, next: T) => boolean,
 ): UseApiQueryState<T> {
   const [data, setData] = useState<T | undefined>(undefined)
   const [error, setError] = useState<unknown>(undefined)
   const [loading, setLoading] = useState(true)
   const requestId = useRef(0)
   const fnRef = useRef(fn)
+  const isEqualRef = useRef(isEqual)
   fnRef.current = fn
+  isEqualRef.current = isEqual
 
   const [reloadToken, setReloadToken] = useState(0)
 
@@ -40,7 +43,11 @@ export function useApiQuery<T>(
       .current(controller.signal)
       .then((result) => {
         if (requestId.current !== id) return
-        setData(result)
+        setData((previous) =>
+          previous !== undefined && isEqualRef.current?.(previous, result)
+            ? previous
+            : result,
+        )
         setError(undefined)
       })
       .catch((err: unknown) => {

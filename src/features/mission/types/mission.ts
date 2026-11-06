@@ -156,6 +156,9 @@ export interface Mission {
     deviceRole: 'MAIN' | 'BACKUP' | string
     status: MissionDeviceAssignmentStatus
     checkupStatus: MissionDeviceCheckStatus
+    replacementRequestedAt?: string | null
+    replacementRequestReason?: string | null
+    replacementRequestedBy?: string | null
   }>
   deviceId?: string
   deviceCode?: string

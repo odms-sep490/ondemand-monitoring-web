@@ -3,11 +3,8 @@ import type {
   MissionDeviceAssignmentStatus,
   MissionDeviceCheckStatus,
 } from '../../mission/types/mission'
-export type OperatorMissionStatus = MissionStatus
-  | 'PENDING'
-  | 'ACCEPTED'
-  | 'REJECTED'
-  | 'UNKNOWN'
+export type OperatorMissionStatus =
+  MissionStatus | 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'UNKNOWN'
 
 export type OperatorMission = {
   id: string
@@ -28,6 +25,8 @@ export type OperatorMission = {
   deviceStatus?: string | null
   deviceAssignmentStatus?: MissionDeviceAssignmentStatus | null
   deviceCheckStatus?: MissionDeviceCheckStatus | null
+  deviceReplacementCompleted?: boolean
+  deviceReplacementRequested?: boolean
   acceptedStaffCount?: number
   assignedStaffCount?: number
   deviceModelCode?: string | null

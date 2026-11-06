@@ -1,5 +1,15 @@
 import type { DroneStatus } from '../../../shared/types/domain'
 
+export type DeviceTypeResponse = {
+  id: string
+  code: string
+  name: string
+  description?: string | null
+  createdAt?: string
+  updatedAt?: string
+  version?: number
+}
+
 /** Device model summary nested in `DeviceResponse` [BE `DeviceModelResponse`]. */
 export type DeviceModelResponse = {
   id: string
@@ -7,7 +17,10 @@ export type DeviceModelResponse = {
   modelName: string
   manufacturer: string | null
   specsMetadata?: Record<string, unknown> | null
-  deviceTypes?: Array<{ id: string; code: string; name: string }> | null
+  deviceTypes?: DeviceTypeResponse[] | null
+  createdAt?: string
+  updatedAt?: string
+  version?: number
 }
 
 /** [BE `DeviceResponse`] returned by `GET /api/drones` and `GET /api/drones/{id}`. */

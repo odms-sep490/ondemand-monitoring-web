@@ -1,6 +1,6 @@
 import { act } from 'react'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { render, screen, waitFor, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 
 import {
   resetHttpTransport,
@@ -26,53 +26,49 @@ describe('SchedulePage', () => {
     expect(document.querySelector('[aria-busy="true"]')).toBeTruthy()
   })
 
-  it('renders grid or empty state after data loads', async () => {
+  it('renders the office workspace and fallback areas after data loads', async () => {
     render(<SchedulePage />)
-    await waitFor(() =>
-      expect(document.querySelector('[aria-busy="true"]')).toBeNull(),
+    await screen.findByRole(
+      'heading',
+      { name: 'Đội ngũ và công việc' },
+      { timeout: 12_000 },
     )
-    const grid = document.querySelector(
-      '[aria-label="Lịch nhiệm vụ theo tuần"]',
+    expect(screen.getByRole('region', { name: 'Không gian làm việc' })).toBeTruthy()
+    expect(screen.getByText(/Chưa tải được mô hình văn phòng 3D/)).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Phòng họp' })).toBeTruthy()
+  }, 15_000)
+
+  it('selects an office area from the fallback view', async () => {
+    render(<SchedulePage />)
+    await screen.findByRole(
+      'heading',
+      { name: 'Đội ngũ và công việc' },
+      { timeout: 5_000 },
     )
-    const empty = screen.queryByText(
-      'Chưa có nhiệm vụ được lên lịch trong tuần này',
-    )
-    expect(grid ?? empty).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'Phòng họp' }))
+    expect(screen.getAllByText('Phòng họp').length).toBeGreaterThan(1)
   })
 
-  it('prev/next week buttons are present and clickable', async () => {
+  it('pauses and resumes the illustrative staff movement', async () => {
     render(<SchedulePage />)
-    await waitFor(() =>
-      expect(document.querySelector('[aria-busy="true"]')).toBeNull(),
+    await screen.findByRole(
+      'heading',
+      { name: 'Đội ngũ và công việc' },
+      { timeout: 5_000 },
     )
-    const prevBtn = screen.getByRole('button', { name: 'Tuần trước' })
-    const nextBtn = screen.getByRole('button', { name: 'Tuần sau' })
-    expect(prevBtn).toBeTruthy()
-    expect(nextBtn).toBeTruthy()
-
-    // Navigating to next and back should not crash
-    fireEvent.click(nextBtn)
-    fireEvent.click(prevBtn)
-    expect(screen.getByRole('button', { name: 'Hôm nay' })).toBeTruthy()
-  })
-
-  it('"Hôm nay" button re-renders without crash', async () => {
-    render(<SchedulePage />)
-    await waitFor(() =>
-      expect(document.querySelector('[aria-busy="true"]')).toBeNull(),
-    )
-    fireEvent.click(screen.getByRole('button', { name: 'Tuần sau' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Hôm nay' }))
-    expect(screen.getByRole('button', { name: 'Hôm nay' })).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'Tạm dừng chuyển động' }))
+    expect(screen.getByRole('button', { name: 'Tiếp tục chuyển động' })).toBeTruthy()
   })
 
   it('renders the English title and nav buttons when language is switched', async () => {
     render(<SchedulePage />)
-    await waitFor(() =>
-      expect(document.querySelector('[aria-busy="true"]')).toBeNull(),
+    await screen.findByRole(
+      'heading',
+      { name: 'Đội ngũ và công việc' },
+      { timeout: 5_000 },
     )
     act(() => setLanguage('en'))
-    expect(screen.getByText('Mission schedule')).toBeTruthy()
-    expect(screen.getByRole('button', { name: 'Today' })).toBeTruthy()
+    expect(await screen.findByRole('heading', { name: 'Team and active work' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Meeting room' })).toBeTruthy()
   })
 })

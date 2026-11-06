@@ -10,6 +10,25 @@ import type {
 import type { PreflightItemKey } from '../../types/mission'
 import { RUNTIME_KEY_MAP, ALL_PREFLIGHT_KEYS } from './preflightConstants'
 
+export function humanizePreflightDisplayText(
+  value: string | null | undefined,
+  labels: Record<string, string> = {},
+) {
+  if (!value) return value ?? ''
+
+  const readable = value.replace(/\b[a-z][a-z\d]*(?:_[a-z\d]+)+\b/gi, (key) => {
+    const knownLabel = labels[key.toLowerCase()]
+    if (knownLabel) return knownLabel
+
+    return key
+      .split('_')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ')
+  })
+
+  return readable.replace(/_+/g, ' ')
+}
+
 export function mapRuntimeToItems(checks: RuntimeCheck[]) {
   const mapped: Partial<Record<PreflightItemKey, ItemState>> = {}
 

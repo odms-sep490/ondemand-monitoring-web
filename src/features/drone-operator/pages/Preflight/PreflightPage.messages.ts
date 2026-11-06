@@ -8,18 +8,31 @@ export const preflightPageMessages = defineMessages({
     backendPreflightFailed: 'Kết quả kiểm tra trước bay từ hệ thống chưa đạt',
     confirmPrecheckFailed: 'Không xác nhận được kết quả kiểm tra trước bay',
     loadMissionFailed: 'Không tải được mission',
-    confirmingTelemetry: 'Đang xác nhận dữ liệu thiết bị và kết quả kiểm tra trước bay…',
+    confirmingTelemetry:
+      'Đang xác nhận dữ liệu thiết bị và kết quả kiểm tra trước bay…',
     stepTitle: 'Danh sách kiểm tra trước bay',
     itemsPassed: 'mục đạt',
     passReady: 'PASS · đủ điều kiện cất cánh',
+    passDescription:
+      'Tất cả hạng mục kiểm tra trước bay bắt buộc phải đạt trước khi nhiệm vụ sẵn sàng cất cánh.',
+    airspacePermissionDenied:
+      'Khu vực bay chưa được cấp phép. Vui lòng kiểm tra quyền bay trước khi tiếp tục.',
+    preflightCheckFailed:
+      'Kiểm tra trước bay chưa hoàn tất. Vui lòng kiểm tra quyền bay và thử lại.',
     failBlocked: (items: string) => `FAIL · CHẶN BAY · Không đạt: ${items}`,
-    runningPrecheck: (progress: number) => `Đang kiểm tra thiết bị trước bay... ${progress}%`,
+    runningPrecheck: (progress: number) =>
+      `Đang kiểm tra thiết bị trước bay... ${progress}%`,
     pressTriggerHint: 'Bấm “Bắt đầu kiểm tra” để kiểm tra thiết bị.',
     switchingToReady: 'Đang cập nhật trạng thái thiết bị...',
     continueToHandover: 'Tiếp tục tới bàn giao',
     triggeringAgain: 'Đang kiểm...',
     triggerAgain: 'Kiểm tra lại',
     triggerPrecheck: 'Bắt đầu kiểm tra',
+    requestDroneReplacement: 'Gửi yêu cầu đổi drone',
+    requestingDroneReplacement: 'Đang gửi yêu cầu...',
+    droneReplacementRequestSent: 'Đã gửi yêu cầu đổi drone cho quản lý.',
+    droneReplacementRequestSentShort: 'Đã gửi yêu cầu',
+    droneReplacementRequestFailed: 'Không gửi được yêu cầu đổi drone.',
     weatherTitle: 'Thời tiết bay',
     weatherNotChecked: 'CHƯA GHI NHẬN',
     weatherSummary: (
@@ -80,7 +93,8 @@ export const preflightPageMessages = defineMessages({
       'Mất kết nối khi kiểm tra thiết bị. Bấm “Kiểm tra lại” để thử lần nữa.',
     confirmingBackendPrecheck: 'Đang xác nhận kết quả kiểm tra trước bay…',
     backendSwitchedReady: 'Thiết bị đã đạt trạng thái READY_TO_FLY.',
-    backendPreflightUnconfirmed: 'Không xác nhận được kết quả kiểm tra trước bay.',
+    backendPreflightUnconfirmed:
+      'Không xác nhận được kết quả kiểm tra trước bay.',
     statusNoTrigger: 'Chưa bắt đầu kiểm tra trước bay',
     statusWarnNoBlock: 'Cảnh báo nhưng không chặn bay',
     statusChecking: 'Đang kiểm tra',
@@ -97,6 +111,12 @@ export const preflightPageMessages = defineMessages({
     stepTitle: 'Preflight checklist',
     itemsPassed: 'items passed',
     passReady: 'PASS · cleared for takeoff',
+    passDescription:
+      'Every required pre-flight item must pass before the mission can be marked ready to fly.',
+    airspacePermissionDenied:
+      'Flight permission is missing for this area. Check the airspace permit before continuing.',
+    preflightCheckFailed:
+      'The pre-flight check could not be completed. Check flight permissions and try again.',
     failBlocked: (items: string) => `FAIL · FLIGHT BLOCKED · Failed: ${items}`,
     runningPrecheck: (progress: number) => `Running precheck... ${progress}%`,
     pressTriggerHint: 'Press "Trigger precheck" to call the device check API.',
@@ -105,6 +125,13 @@ export const preflightPageMessages = defineMessages({
     triggeringAgain: 'Triggering...',
     triggerAgain: 'Trigger precheck again',
     triggerPrecheck: 'Trigger precheck',
+    requestDroneReplacement: 'Request a drone replacement',
+    requestingDroneReplacement: 'Sending request...',
+    droneReplacementRequestSent:
+      'Drone replacement request sent to the manager.',
+    droneReplacementRequestSentShort: 'Request sent',
+    droneReplacementRequestFailed:
+      'Could not send the drone replacement request.',
     weatherTitle: 'Flight weather',
     weatherNotChecked: 'NOT RECORDED',
     weatherSummary: (

@@ -46,6 +46,85 @@
   gap: 6px;
 }
 
+.odm-mcard-staff-head {
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.odm-mcard-staff-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.odm-mcard-office-link {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 12px;
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #eff6ff 0%, #f8fbff 100%);
+  color: #1d4ed8;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-decoration: none;
+  text-transform: none;
+  white-space: nowrap;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.odm-mcard-office-link:hover {
+  transform: translateY(-1px);
+  border-color: #60a5fa;
+  background: #eaf3ff;
+  box-shadow: 0 5px 14px rgb(37 99 235 / 12%);
+  color: #1e40af;
+}
+
+.odm-mcard-office-link:focus-visible {
+  outline: 3px solid rgb(59 130 246 / 35%);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .odm-mcard-office-link {
+    transition: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .odm-mcard-staff-head {
+    align-items: flex-start;
+  }
+
+  .odm-mcard-office-link {
+    min-height: 40px;
+    padding-inline: 10px;
+  }
+}
+
+:root[data-theme='dark'] .odm-mcard-office-link {
+  border-color: rgb(96 165 250 / 35%);
+  background: linear-gradient(135deg, rgb(30 64 175 / 24%), rgb(15 23 42 / 60%));
+  color: #bfdbfe;
+}
+
+:root[data-theme='dark'] .odm-mcard-office-link:hover {
+  border-color: #60a5fa;
+  background: rgb(30 64 175 / 32%);
+  color: #dbeafe;
+}
+
 .odm-mcard-stack {
   display: flex;
   flex-direction: column;

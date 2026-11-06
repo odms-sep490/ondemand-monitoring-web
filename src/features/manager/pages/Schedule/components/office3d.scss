@@ -14,22 +14,10 @@
   padding: 22px 24px;
   border: 1px solid #dce7f5;
   border-radius: 20px;
-  background: linear-gradient(112deg, #fff 0%, #f6f9ff 70%, #eef7ff 100%);
+  background: #f5f9ff;
   box-shadow: 0 8px 24px rgb(29 71 122 / 5%);
 }
 
-.mgr-office-eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 6px;
-  color: #42668f;
-  font-size: 11px;
-  font-weight: 750;
-  letter-spacing: 0.1em;
-}
-
-.mgr-office-live-dot,
 .mgr-office-canvas-overlay i,
 .mgr-office-canvas-caption i {
   display: inline-block;
@@ -117,7 +105,7 @@
 .mgr-office-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.75fr) minmax(340px, 0.82fr);
-  align-items: start;
+  align-items: stretch;
   gap: 16px;
   min-width: 0;
 }
@@ -134,6 +122,11 @@
   border-radius: 18px;
   background: #fff;
   box-shadow: 0 8px 24px rgb(29 71 122 / 5%);
+}
+
+.mgr-office-stage-card {
+  display: flex;
+  flex-direction: column;
 }
 
 .mgr-office-stage-card:fullscreen {
@@ -200,11 +193,13 @@
   gap: 7px;
 }
 
-.mgr-office-department-select {
+.mgr-office-department-select,
+.mgr-office-room-select {
   width: 178px;
 }
 
-.mgr-office-department-select .ant-select-selector {
+.mgr-office-department-select .ant-select-selector,
+.mgr-office-room-select .ant-select-selector {
   min-height: 42px;
   border-color: #dbe6f3 !important;
   border-radius: 12px !important;
@@ -228,12 +223,11 @@
 
 .mgr-office-canvas-wrap {
   position: relative;
+  flex: 1 1 auto;
   min-height: 420px;
   height: clamp(440px, 59vh, 720px);
   overflow: hidden;
-  background:
-    radial-gradient(ellipse at 49% 48%, rgb(255 255 255 / 0%) 20%, rgb(224 237 250 / 65%) 100%),
-    linear-gradient(145deg, #f6faff, #e8f2fd 58%, #f0f6fd);
+  background: #edf4fc;
 }
 
 .mgr-office-canvas-host,
@@ -243,6 +237,40 @@
   display: block;
   width: 100%;
   height: 100%;
+}
+
+.mgr-office-model-loading {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 11px;
+  background: linear-gradient(135deg, rgb(232 240 247 / 78%), rgb(246 248 249 / 90%));
+  color: #34536f;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.mgr-office-model-loading-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #b7cde1;
+  border-top-color: #2078d3;
+  border-radius: 50%;
+  animation: office-model-loading-spin 780ms linear infinite;
+}
+
+@keyframes office-model-loading-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mgr-office-model-loading-spinner {
+    animation: none;
+    border-top-color: #2078d3;
+  }
 }
 
 .office3d-canvas {
@@ -322,6 +350,16 @@
   flex-direction: column;
   gap: 14px;
   min-width: 0;
+  max-height: calc(clamp(440px, 59vh, 720px) + 132px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+// Keep each card at its full content height. The rail itself is the scroll
+// container; shrinking its cards clips the lower copy and actions.
+.mgr-office-rail > .mgr-office-rail-card {
+  flex: 0 0 auto;
 }
 
 .mgr-office-rail-title {
@@ -420,7 +458,7 @@
 }
 
 .mgr-office-person-row.is-manager {
-  background: linear-gradient(90deg, #f2f7ff, #fff);
+  background: #f2f7ff;
 }
 
 .mgr-office-avatar {
@@ -641,6 +679,89 @@
   line-height: 1.5;
 }
 
+.mgr-office-room-role-scope {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 16px 14px;
+}
+
+.mgr-office-room-role-scope > span,
+.mgr-office-room-staff > span {
+  color: #183656;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.mgr-office-room-staff {
+  border-bottom: 0;
+}
+
+.mgr-office-room-staff .ant-empty {
+  margin: 2px 0 0;
+}
+
+.mgr-office-room-staff .ant-empty-description {
+  color: #75869a;
+  font-size: 12px;
+}
+
+.mgr-office-room-people-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mgr-office-room-people-list button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
+  padding: 9px 10px;
+  border: 1px solid #e5edf6;
+  border-radius: 10px;
+  background: #fbfdff;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.mgr-office-room-people-list button:hover,
+.mgr-office-room-people-list button:focus-visible {
+  border-color: #b9d3fa;
+  background: #f3f8ff;
+}
+
+.mgr-office-room-people-list button:focus-visible {
+  outline: 2px solid #2878ef;
+  outline-offset: 2px;
+}
+
+.mgr-office-room-person-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.mgr-office-room-person-copy strong,
+.mgr-office-room-person-copy small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mgr-office-room-person-copy strong {
+  color: #183656;
+  font-size: 12px;
+}
+
+.mgr-office-room-person-copy small {
+  color: #75869a;
+  font-size: 11px;
+}
+
 .mgr-office-fallback {
   position: absolute;
   z-index: 2;
@@ -715,6 +836,9 @@
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: start;
+    max-height: none;
+    overflow: visible;
+    scrollbar-gutter: auto;
   }
 }
 
@@ -757,7 +881,8 @@
     gap: 6px;
   }
 
-  .mgr-office-department-select {
+  .mgr-office-department-select,
+  .mgr-office-room-select {
     grid-column: 1 / -1;
     width: 100%;
   }

@@ -156,6 +156,26 @@ describe('MissionListTable', () => {
     ).toBeNull()
   })
 
+  it('shows a new replacement request instead of the prior completed badge', () => {
+    render(
+      <MissionListTable
+        missions={[
+          {
+            ...missions[0],
+            deviceReplacementCompleted: true,
+            deviceReplacementRequested: true,
+          },
+        ]}
+        now={new Date('2026-09-20T00:00:00+07:00')}
+      />,
+    )
+
+    const request = screen.getByText('Yêu cầu đổi drone')
+    expect(request.tagName).toBe('SPAN')
+    expect(request).toHaveStyle({ color: 'var(--red-fg)' })
+    expect(screen.queryByText('Đã đổi drone')).toBeNull()
+  })
+
   it('renders the vietnamese empty state', () => {
     render(<MissionListTable missions={[]} now={new Date()} />)
     expect(screen.getByText('Không có mission')).toBeTruthy()

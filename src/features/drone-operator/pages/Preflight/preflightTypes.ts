@@ -28,6 +28,7 @@ export type PersistedPreflightStatus =
 
 export type PersistedPreflightCheck = {
   id: string
+  deviceId?: string | null
   status: PersistedPreflightStatus
   progressPercent: number
   startedAt?: string | null

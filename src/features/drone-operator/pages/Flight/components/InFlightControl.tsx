@@ -240,7 +240,6 @@ export default function InFlightControl({
       >
         <MissionControlCamera
           streamUrl={streamUrl}
-          preflightReady={preflightReady}
           isOnline={isOnline}
           handleOnline={handleOnline}
           handleOffline={handleOffline}

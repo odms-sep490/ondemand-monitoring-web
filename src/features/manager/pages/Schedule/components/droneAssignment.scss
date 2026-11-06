@@ -1,0 +1,360 @@
+.mgr-office-drone-candidate:focus-visible,
+.mgr-office-drone-pagination .ant-btn:focus-visible {
+  outline: 3px solid rgb(37 99 235 / 35%);
+  outline-offset: 2px;
+}
+
+.mgr-office-drone-assignment {
+  display: grid;
+  gap: 13px;
+  min-width: 0;
+}
+
+.mgr-office-drone-assigned {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding-block-end: 11px;
+  border-block-end: 1px solid #e4edf8;
+}
+
+.mgr-office-drone-assigned-list {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mgr-office-drone-assigned-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  padding: 8px 2px;
+  border-block-start: 1px solid #edf2f9;
+}
+
+.mgr-office-drone-status-dot,
+.mgr-office-drone-candidate-mark {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: #3685e7;
+}
+
+.mgr-office-drone-assigned-copy,
+.mgr-office-drone-candidate-copy {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  gap: 2px;
+}
+
+.mgr-office-drone-assigned-copy strong,
+.mgr-office-drone-candidate-copy strong {
+  overflow: hidden;
+  color: #183c62;
+  font-size: 12px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mgr-office-drone-assigned-copy small,
+.mgr-office-drone-candidate-copy small {
+  overflow: hidden;
+  color: #667f9b;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mgr-office-drone-role-tag {
+  flex: 0 0 auto;
+  padding: 3px 8px;
+  border: 1px solid #d7e6f8;
+  border-radius: 999px;
+  background: #f3f8ff;
+  color: #245b9e;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.mgr-office-drone-role-field {
+  display: grid;
+  gap: 6px;
+  color: #38536f;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.mgr-office-drone-role-field select {
+  width: 100%;
+  min-height: 38px;
+  padding: 7px 10px;
+  border: 1px solid #d7e5f5;
+  border-radius: 9px;
+  background: #fff;
+  color: #193b5f;
+  font: inherit;
+  font-size: 12px;
+}
+
+.mgr-office-drone-role-field select:focus-visible,
+.mgr-office-drone-replace-confirm input:focus-visible {
+  outline: 3px solid rgb(37 99 235 / 30%);
+  outline-offset: 2px;
+}
+
+.mgr-office-drone-replace-confirm {
+  display: grid;
+  gap: 7px;
+  padding: 10px;
+  border: 1px solid #d4e5fb;
+  border-radius: 10px;
+  background: #f4f8fe;
+  color: #38536f;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.mgr-office-drone-replace-confirm p {
+  margin: 0;
+  color: #234e7e;
+  font-weight: 700;
+}
+
+.mgr-office-drone-replace-confirm label {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.mgr-office-drone-replace-confirm input {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+  margin: 0;
+  accent-color: #1768d1;
+}
+
+.mgr-office-drone-picker {
+  display: grid;
+  gap: 9px;
+  min-width: 0;
+}
+
+.mgr-office-drone-picker-content {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(270px, 0.82fr);
+  align-items: start;
+  gap: 16px;
+  min-width: 0;
+}
+
+.mgr-office-drone-scene-column,
+.mgr-office-drone-candidates-column {
+  display: grid;
+  align-content: start;
+  gap: 9px;
+  min-width: 0;
+}
+
+.mgr-office-drone-picker-heading,
+.mgr-office-drone-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.mgr-office-drone-picker-heading strong {
+  color: #213d5c;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.mgr-office-drone-picker-heading > span,
+.mgr-office-drone-pagination > span {
+  flex: 0 0 auto;
+  color: #667f9b;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 650;
+}
+
+.mgr-office-drone-pagination .ant-btn {
+  min-width: 30px;
+  min-height: 28px;
+  color: #315d8e;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.mgr-office-drone-fetch-state,
+.mgr-office-drone-fetch-error {
+  padding: 10px;
+  border: 1px solid #dce8f7;
+  border-radius: 10px;
+  background: #fff;
+  color: #667f9b;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.mgr-office-drone-fetch-state {
+  display: grid;
+  gap: 4px;
+}
+
+.mgr-office-drone-fetch-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: #9e3030;
+}
+
+.mgr-office-drone-fetch-error .ant-btn {
+  flex: 0 0 auto;
+}
+
+.mgr-office-drone-picker-hint {
+  margin: -3px 0 0;
+  color: #667f9b;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.mgr-office-drone-candidate-list {
+  display: grid;
+  gap: 6px;
+  max-height: 360px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-color: #abc8e9 #eef5fd;
+  scrollbar-width: thin;
+}
+
+.mgr-office-drone-candidate {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  padding: 7px 9px;
+  border: 1px solid #e0eaf7;
+  border-radius: 9px;
+  background: #fff;
+  color: inherit;
+  cursor: pointer;
+  text-align: start;
+  transition: border-color 140ms ease, background-color 140ms ease;
+}
+
+.mgr-office-drone-candidate:hover:not(:disabled),
+.mgr-office-drone-candidate.is-selected {
+  border-color: #81afea;
+  background: #f0f6ff;
+}
+
+.mgr-office-drone-candidate:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.mgr-office-drone-candidate.is-selected .mgr-office-drone-candidate-mark {
+  outline: 3px solid #dceaff;
+  background: #1768d1;
+}
+
+.mgr-office-drone-assignment > .ant-btn-block {
+  min-height: 38px;
+}
+
+:root[data-theme='dark'] .mgr-office-assignment-switcher {
+  border-color: #2d4059;
+  background: #142238;
+}
+
+:root[data-theme='dark'] .mgr-office-assignment-tab {
+  color: #a8bbd3;
+}
+
+:root[data-theme='dark'] .mgr-office-assignment-tab.is-active {
+  border-color: #385779;
+  background: #1b304a;
+  color: #b6d7ff;
+}
+
+:root[data-theme='dark'] .mgr-office-drone-assigned {
+  border-color: #2d4059;
+}
+
+:root[data-theme='dark'] .mgr-office-drone-assigned-item,
+:root[data-theme='dark'] .mgr-office-drone-role-field select,
+:root[data-theme='dark'] .mgr-office-drone-candidate {
+  border-color: #2d4059;
+  background: #101b2b;
+  color: #d8e6f8;
+}
+
+:root[data-theme='dark'] .mgr-office-drone-assigned-copy strong,
+:root[data-theme='dark'] .mgr-office-drone-candidate-copy strong,
+:root[data-theme='dark'] .mgr-office-drone-picker-heading strong {
+  color: #d8e6f8;
+}
+
+:root[data-theme='dark'] .mgr-office-drone-assigned-copy small,
+:root[data-theme='dark'] .mgr-office-drone-candidate-copy small,
+:root[data-theme='dark'] .mgr-office-drone-picker-heading > span,
+:root[data-theme='dark'] .mgr-office-drone-pagination > span,
+:root[data-theme='dark'] .mgr-office-drone-picker-hint {
+  color: #9aafc8;
+}
+
+:root[data-theme='dark'] .mgr-office-drone-role-tag,
+:root[data-theme='dark'] .mgr-office-drone-replace-confirm,
+:root[data-theme='dark'] .mgr-office-drone-fetch-state,
+:root[data-theme='dark'] .mgr-office-drone-fetch-error {
+  border-color: #2d4768;
+  background: #142238;
+  color: #bdd4f1;
+}
+
+:root[data-theme='dark'] .mgr-office-drone-replace-confirm p {
+  color: #d2e4fb;
+}
+
+:root[data-theme='dark'] .mgr-office-drone-candidate:hover:not(:disabled),
+:root[data-theme='dark'] .mgr-office-drone-candidate.is-selected {
+  border-color: #508bd6;
+  background: #193252;
+}
+
+@media (max-width: 900px) {
+  .mgr-office-drone-picker-content {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 520px) {
+  .mgr-office-assignment-switcher {
+    margin-inline: 10px;
+  }
+
+  .mgr-office-drone-candidate-list {
+    max-height: 240px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mgr-office-assignment-tab,
+  .mgr-office-drone-candidate {
+    transition: none;
+  }
+}

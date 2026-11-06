@@ -63,6 +63,19 @@ type SeedDrone = {
     code: string
     modelName: string
     manufacturer: string | null
+    specsMetadata?: Record<string, unknown> | null
+    deviceTypes?: Array<{
+      id: string
+      code: string
+      name: string
+      description?: string | null
+      createdAt?: string
+      updatedAt?: string
+      version?: number
+    }> | null
+    createdAt?: string
+    updatedAt?: string
+    version?: number
   }
   dronePayload?: SeedDronePayload
   imageUrl?: string | null
@@ -72,6 +85,17 @@ type SeedDrone = {
 }
 
 const drones = createCollection(dronesSeed.items) as SeedDrone[]
+
+function parseModelSpecifications(value: string): Record<string, unknown> {
+  try {
+    const parsed: unknown = JSON.parse(value)
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+      ? (parsed as Record<string, unknown>)
+      : {}
+  } catch {
+    return {}
+  }
+}
 
 // P6: `GET /api/drones/{id}` [BE] — maps straight to the BE `DroneResponse`
 // DTO shape rather than the MNG-09 display-only `DroneItem` shape.
@@ -84,6 +108,18 @@ function toDroneResponse(d: SeedDrone) {
           code: d.droneModel.modelCode,
           modelName: d.droneModelName ?? d.droneModel.modelCode,
           manufacturer: d.droneModel.manufacturer,
+          specsMetadata: {
+            category: d.droneModel.category,
+            maxFlightTimeMinutes: d.droneModel.maxFlightTimeMinutes,
+            maxTakeoffWeightKg: d.droneModel.maxTakeoffWeightKg,
+            maxFlightAltitudeMeters: d.droneModel.maxFlightAltitudeMeters,
+            maxWindResistanceMetersPerSecond: d.droneModel.maxWindResistanceMetersPerSecond,
+            ipRating: d.droneModel.ipRating,
+            ...parseModelSpecifications(d.droneModel.specsMetadata),
+          },
+          createdAt: d.droneModel.createdAt,
+          updatedAt: d.droneModel.updatedAt,
+          version: d.droneModel.version,
         }
       : null)
   return {

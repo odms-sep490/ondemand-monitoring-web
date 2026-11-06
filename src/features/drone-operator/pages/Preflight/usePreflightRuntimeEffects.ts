@@ -20,6 +20,7 @@ export function usePreflightRuntimeEffects({
   missionId,
   missionLabel,
   deviceId,
+  deviceAssignedAt,
   controllerOfflineMissesRef,
   setRuntimeSessionId,
   setCheckId,
@@ -33,6 +34,7 @@ export function usePreflightRuntimeEffects({
   validatedStoredCheckRef,
   storageKey,
   setControllerOnline,
+  setConnectedDeviceId,
   controllerOnline,
   runtimeSessionId,
   checkId,
@@ -43,6 +45,7 @@ export function usePreflightRuntimeEffects({
   missionId: string
   missionLabel: string | undefined
   deviceId: string
+  deviceAssignedAt?: string | null
   controllerOfflineMissesRef: RefObject<number>
   setRuntimeSessionId: Dispatch<SetStateAction<string | null>>
   setCheckId: Dispatch<SetStateAction<string | null>>
@@ -58,6 +61,7 @@ export function usePreflightRuntimeEffects({
   validatedStoredCheckRef: RefObject<boolean>
   storageKey: string
   setControllerOnline: Dispatch<SetStateAction<boolean>>
+  setConnectedDeviceId: Dispatch<SetStateAction<string | null>>
   controllerOnline: boolean
   runtimeSessionId: string | null
   checkId: string | null
@@ -114,9 +118,11 @@ export function usePreflightRuntimeEffects({
           return nextRuntimeSessionId ?? currentSessionId
         })
         setControllerOnline(true)
+        setConnectedDeviceId(deviceId)
       } catch {
         if (!alive) return
         setControllerOnline(false)
+        setConnectedDeviceId(null)
         controllerOfflineMissesRef.current += 1
         if (controllerOfflineMissesRef.current >= 3) {
           setRuntimeSessionId(null)
@@ -154,6 +160,16 @@ export function usePreflightRuntimeEffects({
         controller.signal,
       ).catch(() => null)
       if (!alive || !persisted) return
+      if (persisted.deviceId && persisted.deviceId !== deviceId) return
+      const assignmentTime = Date.parse(deviceAssignedAt ?? '')
+      const checkTime = Date.parse(persisted.startedAt ?? '')
+      if (
+        Number.isFinite(assignmentTime) &&
+        Number.isFinite(checkTime) &&
+        checkTime < assignmentTime
+      ) {
+        return
+      }
       const persistedRuntime = runtimeStatusFromPersisted(persisted)
       setPersistedPreflightId(persisted.id)
       setPersistedPreflightStatus(persisted.status)
@@ -173,7 +189,7 @@ export function usePreflightRuntimeEffects({
       alive = false
       controller.abort()
     }
-  }, [controllerOnline, missionId, runtimeSessionId, storageKey])
+  }, [controllerOnline, deviceAssignedAt, deviceId, missionId, runtimeSessionId, storageKey])
 
   useEffect(() => {
     if (!checkId) return

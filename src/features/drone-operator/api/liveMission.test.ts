@@ -35,9 +35,15 @@ describe('live mission mapping', () => {
   })
 
   it('preserves mission workflow statuses and rejects order-only statuses', () => {
-    expect(toOperatorMission({ ...mission, status: 'PLANNING' }).status).toBe('PLANNING')
-    expect(toOperatorMission({ ...mission, status: 'READY' }).status).toBe('READY')
-    expect(toOperatorMission({ ...mission, status: 'WAITING_DEPOSIT' }).status).toBe('UNKNOWN')
+    expect(toOperatorMission({ ...mission, status: 'PLANNING' }).status).toBe(
+      'PLANNING',
+    )
+    expect(toOperatorMission({ ...mission, status: 'READY' }).status).toBe(
+      'READY',
+    )
+    expect(
+      toOperatorMission({ ...mission, status: 'WAITING_DEPOSIT' }).status,
+    ).toBe('UNKNOWN')
   })
   it('keeps the backend ID for API calls and the code for display', () => {
     expect(toOperatorMission(mission).id).toBe(mission.id)
@@ -132,5 +138,22 @@ describe('live mission mapping', () => {
     expect(mapped.deviceManufacturer).toBe('OnDemand Monitor')
     expect(mapped.droneModel).toBe('A* Monitoring Drone X1')
     expect(mapped.dronePayload).toBe('4K camera')
+  })
+
+  it('maps a current drone replacement request alongside replacement history', () => {
+    const mapped = toOperatorMission({
+      ...mission,
+      status: 'READY',
+      deviceAssignments: [
+        {
+          deviceRole: 'MAIN',
+          replacementCompleted: true,
+          replacementRequestedAt: '2026-10-06T08:00:00Z',
+        },
+      ],
+    })
+
+    expect(mapped.deviceReplacementCompleted).toBe(true)
+    expect(mapped.deviceReplacementRequested).toBe(true)
   })
 })

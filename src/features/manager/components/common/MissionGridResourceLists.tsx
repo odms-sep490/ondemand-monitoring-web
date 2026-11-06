@@ -12,15 +12,9 @@ type Messages = (typeof missionGridCardMessages)['vi']
 export function MissionGridStaffList({
   t,
   staff,
-  canRemove,
-  busy,
-  onRemove,
 }: {
   t: Messages
   staff: MissionStaffAssignmentResponse[]
-  canRemove: boolean
-  busy: boolean
-  onRemove: (assignmentId: string) => void
 }) {
   const staffGroups = Array.from(
     staff.reduce((groups, assignment) => {
@@ -57,24 +51,6 @@ export function MissionGridStaffList({
                       className="odm-mcard-res-role-chip"
                     >
                       <span>{roleName}</span>
-                      {canRemove && (
-                        <button
-                          type="button"
-                          className="odm-mcard-res-remove"
-                          title={t.staffRemoveRoleTitle(
-                            group.staffName || t.staffUnnamed,
-                            roleName,
-                          )}
-                          aria-label={t.staffRemoveRoleTitle(
-                            group.staffName || t.staffUnnamed,
-                            roleName,
-                          )}
-                          onClick={() => onRemove(item.id)}
-                          disabled={busy}
-                        >
-                          <CloseOutlined aria-hidden="true" />
-                        </button>
-                      )}
                     </span>
                   )
                 })}
