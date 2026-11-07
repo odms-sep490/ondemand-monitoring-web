@@ -28,6 +28,7 @@ export function useMissionDetailActions({
   setResultSubmitting,
   weatherStatus,
   setWeatherStatus,
+  flightPermitNotApprovedMessage,
 }: {
   setActionError: Dispatch<unknown>
   setMediaRevision: Dispatch<SetStateAction<number>>
@@ -54,6 +55,7 @@ export function useMissionDetailActions({
   setResultSubmitting: Dispatch<SetStateAction<boolean>>
   weatherStatus: WeatherPreflightStatus | null
   setWeatherStatus: Dispatch<SetStateAction<WeatherPreflightStatus | null>>
+  flightPermitNotApprovedMessage: string
 }) {
   const refreshWorkspace = (clearError = true) => {
     if (clearError) setActionError(null)
@@ -146,6 +148,7 @@ export function useMissionDetailActions({
         actionErrorMessage(
           error,
           'Chưa thể bắt đầu nhiệm vụ. Hãy bảo đảm thiết bị đã đạt kiểm tra trước bay và quyền điều khiển đã được bàn giao.',
+          flightPermitNotApprovedMessage,
         ),
       )
     } finally {

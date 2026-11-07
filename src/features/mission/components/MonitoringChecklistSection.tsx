@@ -119,6 +119,8 @@ export function MonitoringChecklistSection({
   compactTitle,
   staffNamesById,
   hideImplementationHints = false,
+  hideAssessment = false,
+  completionOnly = false,
   assessmentOnly = false,
   preview = false,
 }: {
@@ -151,6 +153,10 @@ export function MonitoringChecklistSection({
   compactTitle?: string
   /** Names used to attribute checklist updates to assigned Mission staff. */
   staffNamesById?: Record<string, string>
+  /** Hide assessment details and assessment blockers in execution-only views. */
+  hideAssessment?: boolean
+  /** Restrict execution edits to the current status or marking the item complete. */
+  completionOnly?: boolean
   /** Acceptance view that reviews evidence and edits only the assessment. */
   assessmentOnly?: boolean
   /** Read-only preview shown before the pilot accepts the mission. */
@@ -162,7 +168,7 @@ export function MonitoringChecklistSection({
   const canEditExecution =
     canExecute && !assessmentOnly && resultKnown && !locked && !loading && !error
   const canEditAssessment =
-    canAssess && resultKnown && !locked && !loading && !error
+    canAssess && !hideAssessment && resultKnown && !locked && !loading && !error
   const editable = canEditExecution || canEditAssessment
   const rows = [...(data?.executions ?? [])].sort(
     (a, b) => a.displayOrder - b.displayOrder || a.id.localeCompare(b.id),
@@ -181,12 +187,18 @@ export function MonitoringChecklistSection({
   const attachedEvidence = new Set(
     rows.flatMap((row) => (row.evidence ?? []).map((item) => item.evidenceId)),
   ).size
+  const checklistEvidenceReady =
+    data?.checklistEvidenceReady ?? data?.readyForSubmission ?? false
+  const readinessNotMet = data
+    ? hideAssessment
+      ? data.checklistEvidenceReady === false
+      : !data.readyForSubmission
+    : false
   if (compact) {
     const progressCount = assessmentOnly ? assessed : done
     const activeId =
       openId && rows.some((row) => row.id === openId) ? openId : null
-    const canChange =
-      (data?.checklistEvidenceReady ?? data?.readyForSubmission) === true
+    const canChange = checklistEvidenceReady
     return (
       <section
         className="monitoring-checklist odm-card is-compact"
@@ -379,6 +391,8 @@ export function MonitoringChecklistSection({
                         missionId={missionId}
                         canExecute={canEditExecution}
                         canAssess={canEditAssessment}
+                        hideAssessment={hideAssessment}
+                        completionOnly={completionOnly}
                         assessmentOnly={assessmentOnly}
                         completeOnAssessment={assessmentOnly && canAssess}
                         rejected={resultStatus === 'REJECTED'}
@@ -402,6 +416,7 @@ export function MonitoringChecklistSection({
                           !loading &&
                           !error
                         }
+                        hideAssessmentRequirement={hideAssessment}
                         refresh={refresh}
                         loadCandidates={loadEvidenceCandidates}
                         attachCandidate={attachEvidenceCandidate}
@@ -552,7 +567,7 @@ export function MonitoringChecklistSection({
             {resultStatus === 'REJECTED' && resultNote && (
               <p>Nhận xét của manager: {resultNote}</p>
             )}
-            {!data.readyForSubmission && done === rows.length && (
+            {readinessNotMet && done === rows.length && (
               <p role="alert" className="is-warn">
                 Dữ liệu checklist chưa đủ điều kiện theo backend. Hãy làm mới;
                 nếu vẫn chưa sẵn sàng, liên hệ quản trị viên.
@@ -672,6 +687,8 @@ export function MonitoringChecklistSection({
                       missionId={missionId}
                       canExecute={canEditExecution}
                       canAssess={canEditAssessment}
+                      hideAssessment={hideAssessment}
+                      completionOnly={completionOnly}
                       assessmentOnly={assessmentOnly}
                       completeOnAssessment={assessmentOnly && canAssess}
                       rejected={resultStatus === 'REJECTED'}
@@ -686,6 +703,7 @@ export function MonitoringChecklistSection({
                       canDetach={
                         canDetach && resultKnown && !locked && !loading && !error
                       }
+                      hideAssessmentRequirement={hideAssessment}
                       refresh={refresh}
                       loadCandidates={loadEvidenceCandidates}
                       attachCandidate={attachEvidenceCandidate}
@@ -711,6 +729,8 @@ function ChecklistExecutionItem({
   rejected,
   refresh,
   compact = false,
+  hideAssessment = false,
+  completionOnly = false,
   assessmentOnly = false,
   completeOnAssessment = false,
 }: {
@@ -721,6 +741,8 @@ function ChecklistExecutionItem({
   rejected: boolean
   refresh: () => void
   compact?: boolean
+  hideAssessment?: boolean
+  completionOnly?: boolean
   assessmentOnly?: boolean
   completeOnAssessment?: boolean
 }) {
@@ -734,6 +756,12 @@ function ChecklistExecutionItem({
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [conflict, setConflict] = useState(false)
+  const statusOptions = allowedExecutionStatuses(base.executionStatus, rejected)
+  const visibleStatusOptions = completionOnly
+    ? statusOptions.filter(
+        (value) => value === base.executionStatus || value === 'COMPLETED',
+      )
+    : statusOptions
   function reset() {
     setBase(item)
     setStatus(item.executionStatus)
@@ -807,17 +835,19 @@ function ChecklistExecutionItem({
                   <dd>{statuses[item.executionStatus]}</dd>
                 </div>
               )}
-              <div>
-                <dt>Đánh giá</dt>
-                <dd>{assessments[item.assessmentStatus]}</dd>
-              </div>
-              {!assessmentOnly && item.observation && (
+              {!hideAssessment && (
+                <div>
+                  <dt>Đánh giá</dt>
+                  <dd>{assessments[item.assessmentStatus]}</dd>
+                </div>
+              )}
+              {!assessmentOnly && !completionOnly && item.observation && (
                 <div className="is-wide">
                   <dt>Ghi chú</dt>
                   <dd>{item.observation}</dd>
                 </div>
               )}
-              {!assessmentOnly && item.unableToVerifyReason && (
+              {!assessmentOnly && !completionOnly && item.unableToVerifyReason && (
                 <div className="is-wide">
                   <dt>Lý do không thể xác minh</dt>
                   <dd>{item.unableToVerifyReason}</dd>
@@ -833,7 +863,11 @@ function ChecklistExecutionItem({
                   setEditing(true)
                 }}
               >
-                {assessmentOnly ? 'Đánh giá' : 'Chỉnh sửa'}
+                {assessmentOnly
+                  ? 'Đánh giá'
+                  : completionOnly
+                    ? 'Cập nhật trạng thái'
+                    : 'Chỉnh sửa'}
               </button>
             )}
           </>
@@ -857,10 +891,7 @@ function ChecklistExecutionItem({
                         setReason('')
                     }}
                   >
-                    {allowedExecutionStatuses(
-                      base.executionStatus,
-                      rejected,
-                    ).map((value) => (
+                    {visibleStatusOptions.map((value) => (
                       <option key={value} value={value}>
                         {statuses[value]}
                       </option>
@@ -894,7 +925,7 @@ function ChecklistExecutionItem({
                   ⓘ Đánh giá không đạt không tự động làm mission thất bại.
                 </p>
               )}
-              {canExecute && (
+              {canExecute && !completionOnly && (
                 <label>
                   Ghi nhận thực hiện
                   <textarea
@@ -905,12 +936,12 @@ function ChecklistExecutionItem({
                   />
                 </label>
               )}
-              {canExecute && (
+              {canExecute && !completionOnly && (
                 <small className="mc-counter">
                   {observation.length} / 2000
                 </small>
               )}
-              {canExecute && status === 'UNABLE_TO_VERIFY' && (
+              {canExecute && !completionOnly && status === 'UNABLE_TO_VERIFY' && (
                 <label>
                   Lý do không thể xác minh
                   <textarea
@@ -963,7 +994,7 @@ function ChecklistExecutionItem({
             {statuses[item.executionStatus]}
           </span>
         )}
-        {item.assessmentStatus !== 'NOT_ASSESSED' && (
+        {!hideAssessment && item.assessmentStatus !== 'NOT_ASSESSED' && (
           <span className={`is-assess-${item.assessmentStatus.toLowerCase()}`}>
             {assessments[item.assessmentStatus]}
           </span>
@@ -1015,8 +1046,7 @@ function ChecklistExecutionItem({
                     if (event.target.value !== 'UNABLE_TO_VERIFY') setReason('')
                   }}
                 >
-                  {allowedExecutionStatuses(base.executionStatus, rejected).map(
-                    (value) => (
+                  {visibleStatusOptions.map((value) => (
                       <option key={value} value={value}>
                         {statuses[value]}
                       </option>

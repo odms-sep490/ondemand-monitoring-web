@@ -72,7 +72,6 @@ export function MissionResultReviewActions({
       {status === 'REJECTED' && (
         <p>{t.rejectedNotice}</p>
       )}
-      {status === 'APPROVED' && <p>{t.approvedNotice}</p>}
       {error != null && (
         <p className="mgr-result-review-error" role="alert">
           {missionResultReviewErrorMessage(error)}

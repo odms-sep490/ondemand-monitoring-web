@@ -37,7 +37,7 @@ export function ChecklistEvidencePicker({
   const [type, setType] = useState('ALL')
   const [busy, setBusy] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(false)
+  const [error, setError] = useState<'load' | 'attach' | null>(null)
   const [revision, setRevision] = useState(0)
   const loader = useRef(loadCandidates)
   loader.current = loadCandidates
@@ -46,7 +46,7 @@ export function ChecklistEvidencePicker({
     let current = true
     const abort = new AbortController()
     setLoading(true)
-    setError(false)
+    setError(null)
     const request = loader.current
       ? loader.current(page)
       : checklistEvidenceApi.candidates(missionId, page, abort.signal)
@@ -55,7 +55,7 @@ export function ChecklistEvidencePicker({
         if (current) setItems(data)
       })
       .catch(() => {
-        if (current) setError(true)
+        if (current) setError('load')
       })
       .finally(() => {
         if (current) setLoading(false)
@@ -86,13 +86,13 @@ export function ChecklistEvidencePicker({
   )
   async function add() {
     setBusy(true)
-    setError(false)
+    setError(null)
     try {
       await onSelect(Object.values(selected))
       setSelected({})
       onClose()
     } catch {
-      setError(true)
+      setError('attach')
     } finally {
       setBusy(false)
     }
@@ -100,19 +100,32 @@ export function ChecklistEvidencePicker({
   return (
     <Modal
       open={open}
+      className="checklist-evidence-picker-modal"
+      centered
       title={t.pick}
-      onCancel={onClose}
+      onCancel={() => {
+        if (!busy) onClose()
+      }}
+      closable={!busy}
+      keyboard={!busy}
+      maskClosable={!busy}
       width={820}
       footer={
         <Space>
-          <Button onClick={onClose}>{t.cancel}</Button>
+          <Button disabled={busy} onClick={onClose}>
+            {t.cancel}
+          </Button>
           <Button
             type="primary"
-            disabled={!Object.keys(selected).length || loading}
+            disabled={!Object.keys(selected).length || loading || busy}
             loading={busy}
             onClick={() => void add()}
           >
-            {t.selected(Object.keys(selected).length)}
+            {busy
+              ? t.attaching
+              : error === 'attach'
+                ? t.retry
+                : t.selected(Object.keys(selected).length)}
           </Button>
         </Space>
       }
@@ -127,6 +140,7 @@ export function ChecklistEvidencePicker({
         />
         <Select
           aria-label={t.evidence}
+          popupClassName="checklist-evidence-picker-dropdown"
           value={type}
           onChange={setType}
           options={[
@@ -136,7 +150,7 @@ export function ChecklistEvidencePicker({
           ]}
         />
       </Space>
-      {error && (
+      {error === 'load' && (
         <p role="alert">
           {t.error}{' '}
           <Button onClick={() => setRevision((value) => value + 1)}>
@@ -144,6 +158,7 @@ export function ChecklistEvidencePicker({
           </Button>
         </p>
       )}
+      {error === 'attach' && <p role="alert">{t.attachError}</p>}
       {loading ? (
         <Spin tip={t.loading}>
           <div style={{ minHeight: 100 }} />
@@ -168,6 +183,15 @@ export function ChecklistEvidencePicker({
               />
               {item.previewUrl && item.mediaType === 'IMAGE' && (
                 <img src={item.previewUrl} alt="" loading="lazy" />
+              )}
+              {item.previewUrl && item.mediaType === 'VIDEO' && (
+                <video
+                  src={item.previewUrl}
+                  muted
+                  playsInline
+                  preload="metadata"
+                  aria-hidden="true"
+                />
               )}
               <span>
                 {item.fileName}

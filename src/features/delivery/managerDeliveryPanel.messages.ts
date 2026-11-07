@@ -7,7 +7,7 @@ export const managerDeliveryPanelMessages = defineMessages({
     eyebrow: 'Quy trình bàn giao',
     title: 'Gửi kết quả cho khách hàng',
     intro:
-      'Chọn ảnh/video đã nghiệm thu để gửi cho khách hàng xem và xác nhận. Sau khi khách hàng chấp nhận, bạn có thể bàn giao tệp gốc.',
+      'Chọn ảnh/video đã nghiệm thu để khách hàng xác nhận; sau đó bạn có thể gửi tệp gốc.',
     revisionTitle: 'khách hàng yêu cầu chỉnh sửa',
     processingTitle: 'Chưa thể gửi bản xem trước',
     processingText:
@@ -134,7 +134,7 @@ export const managerDeliveryPanelMessages = defineMessages({
     eyebrow: 'Delivery workflow',
     title: 'Send results to the customer',
     intro:
-      'Select the accepted photos/videos to send to the customer for review. After the customer accepts the results, you can deliver the original files.',
+      'Select accepted media for customer review; deliver the original files after approval.',
     revisionTitle: 'The customer requested changes',
     processingTitle: 'Preview cannot be sent yet',
     processingText:

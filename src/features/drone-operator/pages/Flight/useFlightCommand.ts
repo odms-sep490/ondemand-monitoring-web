@@ -4,7 +4,11 @@ import { missionApi } from '../../../mission/api/missionApi'
 import { getLanguage, useI18n } from '../../../../shared/i18n'
 import { isInsideHcmcServiceArea } from '../../../../shared/lib/serviceArea'
 import { buildExecutableFlightRoute } from './gpsRoutePlanner'
-import { toControllerRouteWaypoints } from './planHelpers'
+import {
+  buildConstructionChecklistWaypoints,
+  isConstructionChecklistMission,
+  toControllerRouteWaypoints,
+} from './planHelpers'
 import { flightControlApi } from '../../api/flightControlApi'
 import {
   controlBaseUrl,
@@ -45,9 +49,7 @@ export function useFlightCommand({
   const sendCommand = useCallback(
     async (command: FlightCommand) => {
       if (!normalFlightAllowed) {
-        setLastCommand(
-          'Chưa có quyền vận hành Mission. Làm mới trạng thái.',
-        )
+        setLastCommand('Chưa có quyền vận hành Mission. Làm mới trạng thái.')
         return
       }
       if (!preflightReady) {
@@ -59,9 +61,7 @@ export function useFlightCommand({
         const id = mission.backendId ?? mission.id
         const access = await missionApi.getPermissions(id)
         if (!access.canControlFlight) {
-          setLastCommand(
-            'Chưa có quyền vận hành Mission. Làm mới trạng thái.',
-          )
+          setLastCommand('Chưa có quyền vận hành Mission. Làm mới trạng thái.')
           return
         }
       } catch {
@@ -107,7 +107,23 @@ export function useFlightCommand({
           return
         }
       }
-      const routePoints = (mission.routePoints ?? [])
+      const constructionChecklist = isConstructionChecklistMission(
+        mission.serviceLabel,
+      )
+      const constructionAltitudeM = Math.max(
+        10,
+        Math.min(
+          120,
+          Number.isFinite(mission.maxAltitudeM) && mission.maxAltitudeM > 0
+            ? mission.maxAltitudeM
+            : 32,
+        ),
+      )
+      const routePoints = (
+        command === 'auto_plan_start' && constructionChecklist
+          ? buildConstructionChecklistWaypoints(constructionAltitudeM)
+          : (mission.routePoints ?? [])
+      )
         .slice()
         .sort((a, b) => a.sequence - b.sequence)
       if (command === 'auto_plan_start' && routePoints.length === 0) {
@@ -122,6 +138,7 @@ export function useFlightCommand({
           // mission before the drone is airborne and "Fly to point" never needs a mid-air switch.
           // Photo / video also bind on demand instead of failing when the status poll is stale.
           (command === 'gps_target_start' ||
+            command === 'auto_plan_start' ||
             command === 'takeoff' ||
             command === 'photo' ||
             command === 'video_toggle') &&
@@ -151,13 +168,19 @@ export function useFlightCommand({
             ...(command === 'auto_plan_start'
               ? {
                   missionId: missionKey,
+                  ignoreObstacleSafety: constructionChecklist,
                   waypoints: routePoints.map((point) => ({
                     sequence: point.sequence,
                     simX: point.simX,
                     simY: point.simY,
                     altitudeM: point.altitudeM,
                     speedMps: point.speedMps,
+                    minSpeedMps: point.minSpeedMps,
+                    reachedRadiusM: point.reachedRadiusM,
+                    slowdownRadiusM: point.slowdownRadiusM,
                     reason: point.reason,
+                    yawDeg: point.yawDeg,
+                    mediaActions: point.mediaActions,
                   })),
                 }
               : {}),
@@ -187,7 +210,11 @@ export function useFlightCommand({
         }
         setLastCommand(
           command === 'auto_plan_start'
-            ? t.status.autoPlanStarted(routePoints.length)
+            ? constructionChecklist
+              ? getLanguage() === 'en'
+                ? `Construction checklist automation started at ${constructionAltitudeM.toFixed(0)} m`
+                : `Đã chạy tự động 2 checklist ở độ cao ${constructionAltitudeM.toFixed(0)} m`
+              : t.status.autoPlanStarted(routePoints.length)
             : command === 'gps_target_start'
               ? getLanguage() === 'en'
                 ? 'GPS target flight started'
@@ -223,7 +250,9 @@ export function useFlightCommand({
       mission.id,
       mission.lat,
       mission.lng,
+      mission.maxAltitudeM,
       mission.routePoints,
+      mission.serviceLabel,
       onEmergency,
       onRTB,
       normalFlightAllowed,

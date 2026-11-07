@@ -39,6 +39,7 @@ export const missionDetailPageMessages = defineMessages({
     visibilityLabel: 'Tầm nhìn',
     temperatureHumidityLabel: 'Nhiệt độ / độ ẩm',
     startMission: 'Bắt đầu Mission',
+    flightPermitNotApproved: 'Giấy phép bay chưa được phê duyệt. Vui lòng phê duyệt giấy phép bay trước khi bắt đầu nhiệm vụ.',
     statusWaitingCrew: (accepted: number, total: number) =>
       `Chờ nhân sự chấp nhận · ${accepted}/${total}`,
     statusOperatorPreflight: (accepted: number, total: number) =>
@@ -125,6 +126,7 @@ export const missionDetailPageMessages = defineMessages({
     visibilityLabel: 'Visibility',
     temperatureHumidityLabel: 'Temperature / humidity',
     startMission: 'Start Mission',
+    flightPermitNotApproved: 'The flight permit has not been approved. Approve it before starting the mission.',
     statusWaitingCrew: (accepted: number, total: number) =>
       `Waiting for crew acceptance · ${accepted}/${total}`,
     statusOperatorPreflight: (accepted: number, total: number) =>

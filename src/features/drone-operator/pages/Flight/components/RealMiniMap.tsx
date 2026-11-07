@@ -7,7 +7,12 @@ import {
   worldToViewportPercent,
   SIMULATION_MAP_DEFAULT_CROP,
 } from '../../../../../shared/lib/simulationMapProjection'
-import { statusToSimulationPoint } from '../planHelpers'
+import {
+  buildConstructionChecklistWaypoints,
+  CONSTRUCTION_SITE_CENTER,
+  isConstructionChecklistMission,
+  statusToSimulationPoint,
+} from '../planHelpers'
 import { env } from '../../../../../config/env'
 import { GlassPanel } from './GlassPanel'
 import { MiniMapToolbar } from './MiniMapToolbar'
@@ -44,7 +49,23 @@ export const RealMiniMap = memo(function RealMiniMap({
     ? { x: simPoint[0], y: simPoint[1] }
     : { x: 0, y: 0 }
   const [droneX, droneY] = worldToMinimap(droneWorld.x, droneWorld.y)
-  const routePoints = mission.routePoints ?? []
+  const constructionMission = isConstructionChecklistMission(
+    mission.serviceLabel,
+  )
+  const constructionPlan = constructionMission
+    ? buildConstructionChecklistWaypoints(mission.maxAltitudeM ?? 32)
+    : null
+  const routePoints = constructionPlan
+    ? [
+        ...constructionPlan,
+        {
+          ...constructionPlan[0],
+          id: 'construction-return-home',
+          sequence: constructionPlan.length,
+          reason: 'RETURN',
+        },
+      ]
+    : (mission.routePoints ?? [])
   const routeScreenPoints = routePoints.map((point) => {
     const [x, y] = worldToMinimap(point.simX, point.simY)
     return { ...point, x, y }
@@ -64,15 +85,31 @@ export const RealMiniMap = memo(function RealMiniMap({
           return { x, y }
         })()
       : null
-  const missionTargetPoint = routeTargetPoint ?? orderTargetPoint
+  const missionTargetPoint = constructionMission
+    ? null
+    : (routeTargetPoint ?? orderTargetPoint)
+  const constructionSitePoint = constructionMission
+    ? (() => {
+        const [x, y] = worldToMinimap(
+          CONSTRUCTION_SITE_CENTER.simX,
+          CONSTRUCTION_SITE_CENTER.simY,
+        )
+        return { x, y }
+      })()
+    : null
   const viewWidth = width / zoom
   const viewHeight = height / zoom
-  const viewX = follow
-    ? Math.max(0, Math.min(width - viewWidth, droneX - viewWidth / 2))
-    : (width - viewWidth) / 2
-  const viewY = follow
-    ? Math.max(0, Math.min(height - viewHeight, droneY - viewHeight / 2))
-    : (height - viewHeight) / 2
+  const focusPoint = follow
+    ? { x: droneX, y: droneY }
+    : (constructionSitePoint ?? { x: width / 2, y: height / 2 })
+  const viewX = Math.max(
+    0,
+    Math.min(width - viewWidth, focusPoint.x - viewWidth / 2),
+  )
+  const viewY = Math.max(
+    0,
+    Math.min(height - viewHeight, focusPoint.y - viewHeight / 2),
+  )
   const yaw = status?.yawDeg ?? 0
   const mapImagePath =
     meta?.image ?? '/simulation-viewer/simulation_map_top.png'
@@ -107,6 +144,7 @@ export const RealMiniMap = memo(function RealMiniMap({
         routePath={routePath}
         zoom={zoom}
         missionTargetPoint={missionTargetPoint}
+        constructionSitePoint={constructionSitePoint}
         droneX={droneX}
         droneY={droneY}
         yaw={yaw}

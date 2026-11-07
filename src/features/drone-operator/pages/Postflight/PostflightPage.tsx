@@ -199,7 +199,6 @@ export function PostflightPage({ missionId }: { missionId?: string }) {
         missionLabel={missionLabel}
         completed={completedSummary}
         deviceId={deviceId}
-        deviceLabel={deviceLabel}
         inspectionResults={inspectionResults}
         notes={notes}
         telemetrySnapshot={telemetrySnapshot}

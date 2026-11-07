@@ -13,7 +13,7 @@
 }
 
 .postflight-page .odm-flight-step-title {
-  font-size: 18px;
+  font-size: 17px;
 }
 
 .postflight-header-actions,
@@ -30,7 +30,7 @@
 .postflight-mission-select-label {
   gap: 10px;
   color: var(--tx2, #475569);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   white-space: nowrap;
 }
@@ -45,7 +45,7 @@
   background: var(--sf, #fff);
   color: var(--tx, #0f172a);
   font: inherit;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
 }
 
@@ -94,7 +94,7 @@
 .postflight-metric-label {
   overflow: hidden;
   color: #334155;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 750;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -104,7 +104,7 @@
   overflow: hidden;
   margin-top: 3px;
   color: #0f172a;
-  font-size: 23px;
+  font-size: 21px;
   font-weight: 850;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -134,7 +134,7 @@
 
 .postflight-progress-label {
   color: #475569;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.055em;
   text-transform: uppercase;
@@ -146,7 +146,7 @@
   gap: 7px;
   margin-top: 3px;
   color: #111827;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 850;
   white-space: nowrap;
 }
@@ -156,7 +156,7 @@
   border-radius: 999px;
   background: #10a66a;
   color: #fff;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 800;
 }
 
@@ -203,7 +203,7 @@
   padding: 6px 16px;
   background: linear-gradient(90deg, #e8f0ff 0%, #f2f6ff 100%);
   color: #172033;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 800;
 }
 
@@ -243,13 +243,13 @@
 
 .postflight-row-title {
   color: #151b28;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 750;
 }
 
 .postflight-row-detail {
   color: #475569;
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.5;
 }
 
@@ -267,7 +267,7 @@
   background: #fff;
   color: #182033;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 800;
   white-space: nowrap;
   transition: background-color 140ms ease, border-color 140ms ease,
@@ -548,7 +548,7 @@
 
   .postflight-progress-count {
     flex-wrap: wrap;
-    font-size: 18px;
+    font-size: 17px;
     white-space: normal;
   }
 

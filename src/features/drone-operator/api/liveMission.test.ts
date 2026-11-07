@@ -61,6 +61,16 @@ describe('live mission mapping', () => {
     ).toEqual([1, 2])
   })
 
+  it('uses the order altitude ahead of an older planned altitude', () => {
+    const mapped = toFlightMission({
+      ...mission,
+      altitudeM: 20,
+      plan: { ...mission.plan, maxPlannedAltitudeM: 60 },
+    })
+
+    expect(mapped.maxAltitudeM).toBe(20)
+  })
+
   it('shows an accepted crew assignment as accepted even while other crew are pending', () => {
     const mapped = toOperatorMission(
       {

@@ -17,6 +17,7 @@ export function MiniMapSvg({
   routePath,
   zoom,
   missionTargetPoint,
+  constructionSitePoint,
   droneX,
   droneY,
   yaw,
@@ -55,7 +56,8 @@ export function MiniMapSvg({
     altitudeM: number
     speedMps?: number | undefined
     reason: string
-  }
+  } | null
+  constructionSitePoint: { x: number; y: number } | null
   droneX: number
   droneY: number
   yaw: number
@@ -82,10 +84,10 @@ export function MiniMapSvg({
         y={mapY}
         width={mapWidth}
         height={mapHeight}
-        preserveAspectRatio="xMidYMid slice"
-        opacity=".92"
+        preserveAspectRatio="none"
+        opacity="1"
       />
-      <rect x="0" y="0" width={width} height={height} fill="rgba(2,6,23,.14)" />
+      <rect x="0" y="0" width={width} height={height} fill="rgba(2,6,23,.06)" />
       {routeScreenPoints.length > 1 && (
         <g>
           <path
@@ -175,6 +177,44 @@ export function MiniMapSvg({
             strokeWidth="2"
           >
             {t.map.order}
+          </text>
+        </g>
+      )}
+      {constructionSitePoint && (
+        <g
+          transform={`translate(${constructionSitePoint.x} ${constructionSitePoint.y})`}
+        >
+          <circle
+            r="10"
+            fill="rgba(249,115,22,.25)"
+            stroke="#ffedd5"
+            strokeWidth="1.4"
+          />
+          <circle r="4" fill="#f97316" stroke="#fff" strokeWidth="1.5" />
+          <path
+            d="M0 -13 L3 -8 L-3 -8 Z"
+            fill="#f97316"
+            stroke="#fff"
+            strokeWidth=".8"
+          />
+          <rect
+            x="-24"
+            y="-25"
+            width="48"
+            height="9"
+            rx="3"
+            fill="rgba(15,23,42,.92)"
+            stroke="rgba(255,237,213,.8)"
+            strokeWidth=".5"
+          />
+          <text
+            y="-18.5"
+            fill="#ffedd5"
+            fontSize="5.4"
+            fontWeight="900"
+            textAnchor="middle"
+          >
+            {t.map.constructionSite}
           </text>
         </g>
       )}

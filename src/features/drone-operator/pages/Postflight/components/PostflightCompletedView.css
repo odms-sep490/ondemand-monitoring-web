@@ -78,20 +78,6 @@
   line-height: 1.55;
 }
 
-.postflight-review-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 18px;
-  margin-top: 10px;
-  color: #52627a;
-  font-size: 14px;
-  line-height: 1.45;
-}
-
-.postflight-review-meta b {
-  color: #17253c;
-}
-
 .postflight-review-workspace {
   display: flex;
   min-width: 0;
