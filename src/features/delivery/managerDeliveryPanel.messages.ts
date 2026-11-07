@@ -2,12 +2,14 @@ import { defineMessages } from '../../shared/i18n'
 
 export const managerDeliveryPanelMessages = defineMessages({
   vi: {
+    inspectorPublication:
+      'Nghiệm thu viên chọn media và xác nhận nghiệm thu từng nhiệm vụ. Hệ thống tự gửi kết quả khi tất cả nhiệm vụ của đơn hàng sẵn sàng.',
     loadFailed: 'Không tải được thông tin bàn giao.',
     actionFailed: 'Thao tác thất bại.',
     eyebrow: 'Quy trình bàn giao',
     title: 'Gửi kết quả cho khách hàng',
     intro:
-      'Chọn ảnh/video đã nghiệm thu để gửi cho khách hàng xem và xác nhận. Sau khi khách hàng chấp nhận, bạn có thể bàn giao tệp gốc.',
+      'Theo dõi kết quả nghiệm thu và xử lý yêu cầu chỉnh sửa. Tệp gốc được tự động bàn giao khi khách hàng chấp nhận, đã thanh toán đủ và mọi yêu cầu chỉnh sửa đã giải quyết.',
     revisionTitle: 'khách hàng yêu cầu chỉnh sửa',
     processingTitle: 'Chưa thể gửi bản xem trước',
     processingText:
@@ -35,9 +37,10 @@ export const managerDeliveryPanelMessages = defineMessages({
     acceptedTitle: 'khách hàng đã chấp nhận kết quả',
     acceptedText: 'Kiểm tra trạng thái hóa đơn trước khi bàn giao tệp gốc.',
     paymentConfirmed: 'Sẵn sàng bàn giao',
-    originalsReady: 'Bản gốc đã sẵn sàng để phát hành cho khách hàng.',
+    originalsReady:
+      'Tệp gốc thường được bàn giao tự động. Dùng thao tác khôi phục nếu lần bàn giao trước chưa hoàn tất.',
     delivering: 'Đang bàn giao…',
-    deliverOriginals: 'Bàn giao bản gốc',
+    deliverOriginals: 'Khôi phục bàn giao bản gốc',
     deliveredTitle: 'Bàn giao hoàn tất',
     deliveredText: (n: number) =>
       `${n} tệp gốc đã sẵn sàng cho khách hàng tải xuống.`,
@@ -129,12 +132,14 @@ export const managerDeliveryPanelMessages = defineMessages({
     reloadDraft: 'Tải lại bản mới nhất',
   },
   en: {
+    inspectorPublication:
+      'The inspector selects media and confirms each mission. Results are sent automatically when every mission in the order is ready.',
     loadFailed: 'Could not load delivery information.',
     actionFailed: 'Action failed.',
     eyebrow: 'Delivery workflow',
     title: 'Send results to the customer',
     intro:
-      'Select the accepted photos/videos to send to the customer for review. After the customer accepts the results, you can deliver the original files.',
+      'Track inspection results and handle revision requests. Originals are released automatically after customer acceptance, full payment, and resolution of all revision items.',
     revisionTitle: 'The customer requested changes',
     processingTitle: 'Preview cannot be sent yet',
     processingText:
@@ -163,9 +168,9 @@ export const managerDeliveryPanelMessages = defineMessages({
     acceptedText: 'Check the invoice status before delivering original files.',
     paymentConfirmed: 'Ready for delivery',
     originalsReady:
-      'The original files are ready to be released to the customer.',
+      'Originals are normally released automatically. Use recovery if the previous delivery did not complete.',
     delivering: 'Delivering…',
-    deliverOriginals: 'Deliver originals',
+    deliverOriginals: 'Recover originals delivery',
     deliveredTitle: 'Delivery complete',
     deliveredText: (n: number) =>
       `${n} original file(s) are ready for the customer to download.`,

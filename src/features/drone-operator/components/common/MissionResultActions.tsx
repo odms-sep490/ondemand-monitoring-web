@@ -1,3 +1,6 @@
+import { missionResultActionsMessages } from './MissionResultActions.messages'
+import { getLanguage, useI18n } from '../../../../shared/i18n'
+import { checklistReadyForInspection } from '../../../mission/lib/customerEvidenceSelection'
 import { ApiError } from '../../../../shared/api/httpClient'
 import { StatusBadge } from '../../../../shared/components/odm/StatusBadge'
 import type { useMissionMonitoring } from '../../../mission/hooks/useMissionMonitoring'
@@ -11,8 +14,11 @@ export function missionResultActions(
   status: string | undefined,
   query: Monitoring,
 ) {
+  const t = missionResultActionsMessages[getLanguage()]
   const data = query.data
   const known =
+    !query.loading &&
+    !query.error &&
     data?.checklist.missionId === missionId &&
     (!data.result || data.result.missionId === missionId)
   const submitted =
@@ -27,36 +33,37 @@ export function missionResultActions(
     known &&
     (status === 'IN_PROGRESS' || status === 'COMPLETED') &&
     data.permissions.canSubmitMissionResult === true &&
+    data.permissions.canAssessMonitoringChecklist === true &&
     !submitted
   const completeReady =
     canComplete && data.checklist.readyForMissionCompletion === true
   const submitReady =
     canSubmit &&
-    data.checklist.readyForSubmission === true &&
+    checklistReadyForInspection(data.checklist) &&
     (status === 'IN_PROGRESS' || status === 'COMPLETED')
   const remaining =
     data?.checklist.executions.filter(
       (row) => !['COMPLETED', 'UNABLE_TO_VERIFY'].includes(row.executionStatus),
     ).length ?? 0
   const readinessReason = !known
-    ? 'Đang xác nhận checklist và quyền thao tác.'
+    ? t.verifying
     : remaining > 0
-      ? `Còn ${remaining} mục checklist chưa hoàn tất.`
+      ? t.remaining(remaining)
       : data.checklist.executions.some(
             (row) =>
               row.executionStatus === 'UNABLE_TO_VERIFY' &&
               !row.unableToVerifyReason?.trim(),
           )
-        ? 'Cần bổ sung lý do cho mục không thể xác minh.'
+        ? t.unableReason
         : data.checklist.blockingReasons?.includes(
               'CHECKLIST_INTEGRITY_INVALID',
             )
-          ? 'Checklist chưa được xác nhận. Vui lòng làm mới và kiểm tra lại.'
+          ? t.integrity
           : data.checklist.blockingReasons?.includes('MEDIA_REJECTED')
-            ? 'Có media bằng chứng bị từ chối. Cần bổ sung bằng chứng hợp lệ.'
+            ? t.rejectedMedia
             : data.checklist.blockingReasons?.includes('MEDIA_NOT_VALIDATED')
-              ? 'Media bằng chứng chưa xác thực thành công.'
-              : 'Checklist chưa sẵn sàng hoặc chưa đủ bằng chứng hợp lệ. Kiểm tra các mục và media đã gắn.'
+              ? t.unvalidated
+              : t.notReady
   return {
     known,
     submitted,
@@ -108,9 +115,12 @@ export function MissionResultActions({
   showComplete?: boolean
   showSubmit?: boolean
 }) {
+  const { t } = useI18n(missionResultActionsMessages)
   const state = missionResultActions(missionId, status, monitoring)
   if (
-    !['AWAITING_REVIEW', 'PENDING_REVIEW', 'COMPLETED'].includes(status ?? '') &&
+    !['AWAITING_REVIEW', 'PENDING_REVIEW', 'COMPLETED'].includes(
+      status ?? '',
+    ) &&
     !state.canComplete &&
     !state.canSubmit
   )
@@ -118,34 +128,31 @@ export function MissionResultActions({
   const reasonId = `result-readiness-${missionId}`
   const submitReason =
     status !== 'IN_PROGRESS' && status !== 'COMPLETED'
-      ? 'Cần nghiệm thu hoàn thành Mission trước khi gửi kết quả.'
+      ? t.completeFirst
       : state.readinessReason
   return (
-    <section
-      className="staff-result-actions"
-      aria-label="Nghiệm thu và gửi kết quả"
-    >
+    <section className="staff-result-actions" aria-label={t.section}>
       <div className="staff-result-phase" role="status">
         {status === 'AWAITING_REVIEW' || status === 'PENDING_REVIEW'
-          ? 'Kết quả đã gửi Manager, đang chờ duyệt.'
+          ? t.awaiting
           : status === 'COMPLETED'
-            ? 'Mission đã được Manager duyệt.'
+            ? t.completed
             : showComplete && !showSubmit && state.canComplete
-              ? 'Kiểm tra sau bay đã hoàn tất. Xác nhận hoàn thành trước khi gửi kết quả cho quản lý.'
+              ? t.afterFlight
               : state.canSubmit
-              ? 'Nghiệm thu hoàn tất. Có thể gửi kết quả cho Manager.'
-              : 'Kiểm tra sau bay đã hoàn tất, nhiệm vụ đang chờ nghiệm thu.'}
+                ? t.review
+                : t.waiting}
         {state.submitted && (
           <>
             <span>
               {monitoring.data?.result?.approvalStatus === 'APPROVED'
-                ? 'Kết quả đã được Manager duyệt.'
-                : 'Kết quả đã được gửi Manager và đang chờ duyệt.'}
+                ? t.confirmed
+                : t.awaiting}
             </span>
             <StatusBadge tone="blue">
               {monitoring.data?.result?.approvalStatus === 'APPROVED'
-                ? 'Đã duyệt'
-                : 'Chờ duyệt'}
+                ? t.approved
+                : t.pending}
             </StatusBadge>
           </>
         )}
@@ -161,7 +168,7 @@ export function MissionResultActions({
               aria-describedby={!state.completeReady ? reasonId : undefined}
               onClick={onComplete}
             >
-              Xác nhận hoàn thành Mission
+              {t.complete}
             </button>
           )}
           {showSubmit && state.canSubmit && (
@@ -172,7 +179,7 @@ export function MissionResultActions({
               aria-describedby={!state.submitReady ? reasonId : undefined}
               onClick={onSubmit}
             >
-              Gửi kết quả cho Manager
+              {t.confirm}
             </button>
           )}
         </div>
@@ -185,10 +192,11 @@ export function MissionResultActions({
             : submitReason}
         </p>
       )}
-      {busy && <p role="status">Đang xử lý…</p>}
-      {!state.known && (
-        <p role="status">Đang xác nhận checklist và quyền thao tác.</p>
+      {showSubmit && (
+        <p className="staff-result-reason">{t.automaticPublication}</p>
       )}
+      {busy && <p role="status">{t.busy}</p>}
+      {!state.known && <p role="status">{t.verifying}</p>}
     </section>
   )
 }

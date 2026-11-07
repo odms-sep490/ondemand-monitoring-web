@@ -18,6 +18,7 @@ beforeEach(() => {
     missionId: 'm',
     legacySnapshot: false,
     readyForSubmission: true,
+    readyForFinalApproval: true,
     executions: [],
   })
   vi.spyOn(missionApi, 'getMissionResult').mockResolvedValue(null)
@@ -217,7 +218,7 @@ describe('MissionDetailScreen', () => {
         expect(screen.queryByText('Xác nhận hoàn thành Mission')).toBeNull()
       }
       expect(
-        screen.queryByRole('button', { name: 'Gửi kết quả cho Manager' }),
+        screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
       ).toBeNull()
     },
   )
@@ -242,10 +243,10 @@ describe('MissionDetailScreen', () => {
     })
     render(<MissionDetailPage missionId="m" />)
     expect(
-      await screen.findByText('Chưa sẵn sàng gửi kết quả'),
+      await screen.findByText('Chưa sẵn sàng nghiệm thu'),
     ).toBeInTheDocument()
     expect(
-      screen.queryByRole('button', { name: 'Gửi kết quả cho Manager' }),
+      screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
     ).toBeNull()
   })
   it('keeps mission detail stable on focus and refreshes result status only from the checklist button', async () => {
@@ -277,13 +278,13 @@ describe('MissionDetailScreen', () => {
     })
     act(() => window.dispatchEvent(new Event('focus')))
     expect(
-      screen.queryByRole('button', { name: 'Gửi kết quả cho Manager' }),
+      screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
     ).toBeNull()
 
     fireEvent.click(screen.getByRole('button', { name: /Tải lại/ }))
     await waitFor(() => expect(missionApi.getMissionResult).toHaveBeenCalled())
     expect(
-      screen.queryByRole('button', { name: 'Gửi kết quả cho Manager' }),
+      screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
     ).toBeNull()
   })
   it('moves Inspector completion to the acceptance workspace', async () => {
@@ -315,7 +316,7 @@ describe('MissionDetailScreen', () => {
     expect(complete).not.toHaveBeenCalled()
     expect(submit).not.toHaveBeenCalled()
     expect(
-      screen.queryByRole('button', { name: 'Gửi kết quả cho Manager' }),
+      screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
     ).toBeNull()
   })
 
@@ -327,6 +328,7 @@ describe('MissionDetailScreen', () => {
       legacySnapshot: false,
       executions: [],
       readyForSubmission: true,
+      readyForFinalApproval: true,
       readyForMissionCompletion: true,
       checklistEvidenceReady: true,
     })
@@ -358,7 +360,7 @@ describe('MissionDetailScreen', () => {
     render(<MissionDetailPage missionId="m" />)
     expect(await screen.findByText('Mở dữ liệu nghiệm thu')).toBeInTheDocument()
     expect(
-      screen.queryByRole('button', { name: 'Gửi kết quả cho Manager' }),
+      screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
     ).toBeNull()
     expect(complete).not.toHaveBeenCalled()
     expect(submit).not.toHaveBeenCalled()
@@ -496,7 +498,7 @@ describe('MissionDetailScreen', () => {
       render(<MissionDetailPage missionId="m" />)
       await screen.findByText('Mission đã được nghiệm thu.')
       expect(
-        screen.queryByRole('button', { name: 'Gửi kết quả cho Manager' }),
+        screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
       ).toBeNull()
       expect(submit).not.toHaveBeenCalled()
       expect(complete).not.toHaveBeenCalled()
@@ -520,7 +522,7 @@ describe('MissionDetailScreen', () => {
     render(<MissionDetailPage missionId="m" />)
     await screen.findByText('Mission đã được nghiệm thu.')
     expect(
-      screen.queryByRole('button', { name: 'Gửi kết quả cho Manager' }),
+      screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
     ).toBeNull()
   })
 
@@ -583,15 +585,15 @@ describe('MissionDetailScreen', () => {
     const view = render(<MissionDetailPage missionId="m1" />)
     await screen.findByText('Mission đã được nghiệm thu.')
     expect(
-      screen.queryByRole('button', { name: 'Gửi kết quả cho Manager' }),
+      screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
     ).toBeNull()
     view.rerender(<MissionDetailPage missionId="m2" />)
     expect(
-      screen.queryByRole('button', { name: 'Gửi kết quả cho Manager' }),
+      screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
     ).toBeNull()
     view.rerender(<MissionDetailPage missionId="m1" />)
     expect(
-      screen.queryByRole('button', { name: 'Gửi kết quả cho Manager' }),
+      screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
     ).toBeNull()
     expect(submit).not.toHaveBeenCalled()
   })

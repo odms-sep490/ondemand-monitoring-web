@@ -32,7 +32,6 @@ import { successfullyUploadedStatuses } from './uploadMediaHelpers'
 import { useLocalMediaList } from './useLocalMediaList'
 import { useMediaWorkspace } from './useMediaWorkspace'
 import { UploadMediaBar } from './components/UploadMediaBar'
-import { ManagerContactNotice } from './components/ManagerContactNotice'
 import { MediaToolbar } from './components/MediaToolbar'
 import { MediaCard } from './components/MediaCard'
 import { MediaFileTable } from './components/MediaFileTable'
@@ -157,8 +156,6 @@ function UploadMediaContent({
     manual,
     deviceLabel,
     canManageMedia,
-    inspector,
-    showManagerContact,
     missionStatus,
     actions,
     isBusy,
@@ -326,6 +323,13 @@ function UploadMediaContent({
     await queue.forget(row.id, mediaId)
     refreshWorkspace()
   }
+  const canReviewMedia =
+    actions.known &&
+    monitoring.data?.permissions.canAssessMonitoringChecklist === true &&
+    !(
+      monitoring.data?.result?.approvalStatus === 'APPROVED' &&
+      monitoring.data.result.inspectorConfirmed === true
+    )
   const checklist = missionId ? (
     <MonitoringChecklistSection
       missionId={missionId}
@@ -337,6 +341,10 @@ function UploadMediaContent({
       resultNote={monitoring.data?.result?.reviewNote}
       canExecute={
         monitoring.data?.permissions.canExecuteMonitoringChecklist &&
+        !queue.busy
+      }
+      canSelectForCustomer={
+        monitoring.data?.permissions.canAssessMonitoringChecklist === true &&
         !queue.busy
       }
       canAssess={
@@ -519,8 +527,7 @@ function UploadMediaContent({
                   uploadPc={uploadPc}
                   automaticAttach
                   reviewMedia={
-                    permissions.data?.canInspectDevice ||
-                    permissions.data?.canSubmitMissionResult
+                    canReviewMedia
                       ? async (mediaId) => {
                           if (!missionId) return
                           setBusyId(mediaId)
@@ -598,14 +605,6 @@ function UploadMediaContent({
             />
           )}
         </details>
-        {missionId && !canManageMedia && (
-          <ManagerContactNotice
-            permissions={permissions}
-            inspector={inspector}
-            showManagerContact={showManagerContact}
-            activeMission={activeMission}
-          />
-        )}
       </div>
       {preview && (
         <PreviewLightbox

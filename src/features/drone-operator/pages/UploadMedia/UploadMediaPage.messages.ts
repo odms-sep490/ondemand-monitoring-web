@@ -33,23 +33,7 @@ export const uploadMediaPageMessages = defineMessages({
       FAILED: 'Cần thử lại',
       DONE: 'Đã chuyển file; kiểm tra trạng thái xác thực trong checklist',
     } as Record<string, string>,
-    uploadPermissionNote:
-      'Để tải ảnh lên, bạn cần là Pilot hoặc Inspector đã nhận nhiệm vụ. Bạn vẫn có thể xem media và cập nhật checklist nếu được phân công giám sát.',
-    inspectorContact: 'Liên hệ người nghiệm thu',
-    managerContact: 'Liên hệ Manager',
-    notUpdated: 'Chưa cập nhật',
-    phoneNotUpdated: 'Chưa cập nhật số điện thoại',
-    callInspector: (phone: string) => `Gọi ${phone}`,
-    callManager: (phone: string) => `Gọi ${phone}`,
-    responseStatus: (status?: string | null) =>
-      status === 'ACCEPTED'
-        ? 'Đã nhận nhiệm vụ'
-        : status === 'REJECTED'
-          ? 'Đã từ chối nhiệm vụ'
-          : 'Chờ nhận nhiệm vụ',
-    checkingPermissions: 'Đang xác nhận quyền tải lên…',
-    permissionsUnavailable:
-      'Không tải được quyền tải lên. Bấm Làm mới để thử lại.',
+    uploadPermissionNote: 'Bạn không có quyền tải media lên cho nhiệm vụ này.',
     enlargePreview: 'Xem ảnh lớn',
     closePreview: 'Đóng ảnh',
     openingMission: 'Đang mở mission',
@@ -70,7 +54,7 @@ export const uploadMediaPageMessages = defineMessages({
     mediaProgress: (uploaded: number, total: number) =>
       total ? `Đã tải lên ${uploaded} trên ${total} media` : 'Chưa có media',
     sendBlocked:
-      'Hoàn tất checklist và tải đủ bằng chứng lên trước khi gửi Manager.',
+      'Hoàn tất checklist và tải đủ bằng chứng lên trước khi xác nhận nghiệm thu.',
     mediaList: 'Danh sách media',
     fileCount: (n: number) => `${n} file`,
     sortNewest: 'Mới nhất',
@@ -90,12 +74,12 @@ export const uploadMediaPageMessages = defineMessages({
       'Kết nối Flight Controller hoặc tạo media trong Mission, rồi làm mới danh sách.',
     emptyFilteredMedia: 'Không có media phù hợp với bộ lọc này.',
     showAllMedia: 'Hiện tất cả',
-    managerReviewPending: 'Media đã tải lên và đang chờ Manager duyệt.',
-    managerApproved: 'Manager đã duyệt media này.',
+    managerReviewPending: 'Media đã tải lên và đang chờ nghiệm thu duyệt.',
+    managerApproved: 'Media này đã được duyệt.',
     managerRejected: (reason?: string) =>
       reason
-        ? `Manager đã từ chối media này: ${reason}`
-        : 'Manager đã từ chối media này. Liên hệ Manager để biết thêm.',
+        ? `Media đã bị từ chối: ${reason}`
+        : 'Media đã bị từ chối. Liên hệ nghiệm thu viên để biết thêm.',
     retryUpload: 'Tải lại',
     uploadingNow: 'Đang tải lên…',
     manualUpload: 'Tải thủ công từ bản gốc',
@@ -105,7 +89,7 @@ export const uploadMediaPageMessages = defineMessages({
     refresh: 'Làm mới',
     uploadAll: 'Tải tất cả lên',
     missingChecklistEvidence:
-      'Checklist chưa đủ bằng chứng hợp lệ. Tải media lên trước khi gửi Manager.',
+      'Checklist chưa đủ bằng chứng hợp lệ. Tải media lên trước khi xác nhận nghiệm thu.',
     viewOnly: 'Chỉ xem media',
     loadingMedia: 'Đang tải media…',
     confirmDiscard: (fileName: string) =>
@@ -152,22 +136,7 @@ export const uploadMediaPageMessages = defineMessages({
       DONE: 'File transferred; check validation in the checklist',
     } as Record<string, string>,
     uploadPermissionNote:
-      'Uploading requires an accepted Pilot or Inspector assignment. You can still view media and update the checklist if assigned to monitoring.',
-    inspectorContact: 'Inspector contact',
-    managerContact: 'Manager contact',
-    notUpdated: 'Not updated',
-    phoneNotUpdated: 'Phone number not updated',
-    callInspector: (phone: string) => `Call ${phone}`,
-    callManager: (phone: string) => `Call ${phone}`,
-    responseStatus: (status?: string | null) =>
-      status === 'ACCEPTED'
-        ? 'Assignment accepted'
-        : status === 'REJECTED'
-          ? 'Assignment rejected'
-          : 'Awaiting acceptance',
-    checkingPermissions: 'Checking upload permissions…',
-    permissionsUnavailable:
-      'Could not load upload permissions. Refresh to retry.',
+      'You do not have permission to upload media for this mission.',
     enlargePreview: 'Enlarge image',
     closePreview: 'Close image',
     openingMission: 'Opening mission',
@@ -188,7 +157,7 @@ export const uploadMediaPageMessages = defineMessages({
     mediaProgress: (uploaded: number, total: number) =>
       total ? `${uploaded} of ${total} media uploaded` : 'No media yet',
     sendBlocked:
-      'Complete the checklist and upload enough evidence before sending to the manager.',
+      'Complete the checklist and upload enough evidence before confirming inspection.',
     mediaList: 'Media',
     fileCount: (n: number) => `${n} file(s)`,
     sortNewest: 'Newest',
@@ -208,12 +177,12 @@ export const uploadMediaPageMessages = defineMessages({
       'Connect the Flight Controller or create media in the mission, then refresh the list.',
     emptyFilteredMedia: 'No media match this filter.',
     showAllMedia: 'Show all',
-    managerReviewPending: 'Media uploaded and waiting for Manager review.',
-    managerApproved: 'The Manager approved this media.',
+    managerReviewPending: 'Media uploaded and awaiting inspector review.',
+    managerApproved: 'This media has been approved.',
     managerRejected: (reason?: string) =>
       reason
-        ? `The Manager rejected this media: ${reason}`
-        : 'The Manager rejected this media. Contact them for details.',
+        ? `This media was rejected: ${reason}`
+        : 'This media was rejected. Contact the inspector for details.',
     retryUpload: 'Retry upload',
     uploadingNow: 'Uploading…',
     manualUpload: 'Upload manually from original',
@@ -223,7 +192,7 @@ export const uploadMediaPageMessages = defineMessages({
     refresh: 'Refresh',
     uploadAll: 'Upload all',
     missingChecklistEvidence:
-      'Checklist lacks valid evidence. Upload media before sending to the Manager.',
+      'Checklist lacks valid evidence. Upload media before confirming inspection.',
     viewOnly: 'View only',
     loadingMedia: 'Loading media…',
     confirmDiscard: (fileName: string) =>

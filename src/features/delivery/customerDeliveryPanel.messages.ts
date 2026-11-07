@@ -46,14 +46,14 @@ export const customerDeliveryPanelMessages = defineMessages({
     processingText: 'Trang sẽ tự động cập nhật khi dữ liệu sẵn sàng.',
     managerReviewTitle: 'Nhiệm vụ đã hoàn thành',
     managerReviewText:
-      'Quản lý đang kiểm tra chất lượng dữ liệu trước khi gửi bản xem trước cho bạn.',
+      'Kết quả được tự gửi khi tất cả nhiệm vụ của đơn hàng đã nghiệm thu và sẵn sàng.',
     revisionSentTitle: 'Đã gửi yêu cầu chỉnh sửa',
     revisionPending: 'Chờ quản lý xử lý',
     revisionPendingText: 'Yêu cầu chỉnh sửa đang được xem xét.',
     revisionSentText:
       'Quản lý sẽ cập nhật và gửi lại bản xem trước mới cho bạn.',
     resultsAcceptedTitle: 'Đã chấp nhận kết quả',
-    resultsAcceptedText: 'Quản lý đang chuẩn bị bàn giao dữ liệu gốc cho bạn.',
+    resultsAcceptedText: 'Tệp gốc được tự động bàn giao khi đã thanh toán đủ và mọi yêu cầu chỉnh sửa đã giải quyết.',
     deliveredTitle: 'Bàn giao hoàn tất',
     deliveredText: (n: number) => `${n} tệp gốc đã sẵn sàng để tải xuống.`,
     unknownSize: 'Không rõ dung lượng',
@@ -147,7 +147,7 @@ export const customerDeliveryPanelMessages = defineMessages({
     processingText: 'This page updates automatically when the data is ready.',
     managerReviewTitle: 'Mission completed',
     managerReviewText:
-      'The manager is checking data quality before sending you the preview.',
+      'Results are sent automatically once every mission in the order has passed inspection and is ready.',
     revisionSentTitle: 'Change request sent',
     revisionPending: 'Awaiting manager review',
     revisionPendingText: 'Your revision request is under review.',
@@ -155,7 +155,7 @@ export const customerDeliveryPanelMessages = defineMessages({
       'The manager will update the results and send a new preview.',
     resultsAcceptedTitle: 'Results accepted',
     resultsAcceptedText:
-      'The manager is preparing to hand over your original data.',
+      'Originals are released automatically once payment and all revision items are resolved.',
     deliveredTitle: 'Delivery complete',
     deliveredText: (n: number) => `${n} original files are ready to download.`,
     unknownSize: 'Unknown size',

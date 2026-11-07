@@ -33,4 +33,58 @@ describe('Operational acceptance / business submission endpoint contract', () =>
       expect.objectContaining({ method: 'POST', body: JSON.stringify(body) }),
     )
   })
+  it('bounds generated summaries without truncating the detailed report or splitting Unicode characters', async () => {
+    vi.mocked(authenticatedFetch).mockResolvedValue(
+      new Response(JSON.stringify({ data: {} })),
+    )
+    await missionApi.submitMissionResult('m1', {
+      status: 'COMPLETED',
+      summary: 'x'.repeat(999) + '🚁',
+      notes: 'Detailed report. '.repeat(200),
+    })
+    const body = JSON.parse(
+      vi.mocked(authenticatedFetch).mock.calls[0][1]?.body as string,
+    )
+    expect(body.summary).toHaveLength(999)
+    expect(body.summary).toBe('x'.repeat(999))
+    expect(body.notes).toBe('Detailed report. '.repeat(200))
+  })
+})
+
+describe('Preflight device replacement endpoint contract', () => {
+  it('requests replacement for the exact Mission and returns the updated Mission', async () => {
+    const updated = { id: 'mission/1', status: 'SCHEDULED' }
+    vi.mocked(authenticatedFetch).mockResolvedValue(
+      new Response(JSON.stringify({ data: updated })),
+    )
+    await expect(
+      missionApi.requestDeviceReplacement(
+        'mission/1',
+        'Propeller check failed',
+      ),
+    ).resolves.toEqual(updated)
+    expect(authenticatedFetch).toHaveBeenCalledOnce()
+    expect(authenticatedFetch).toHaveBeenCalledWith(
+      expect.stringMatching(
+        /\/api\/missions\/mission%2F1\/device-replacement-requests$/,
+      ),
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ reason: 'Propeller check failed' }),
+      }),
+    )
+  })
+
+  it('propagates replacement authorization errors without reporting success', async () => {
+    vi.mocked(authenticatedFetch).mockResolvedValue(
+      new Response(
+        JSON.stringify({ code: 'ACCESS_DENIED', message: 'Access denied' }),
+        { status: 403 },
+      ),
+    )
+    await expect(
+      missionApi.requestDeviceReplacement('m1', 'Check failed'),
+    ).rejects.toMatchObject({ code: 'ACCESS_DENIED', status: 403 })
+    expect(authenticatedFetch).toHaveBeenCalledOnce()
+  })
 })

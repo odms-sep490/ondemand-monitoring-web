@@ -127,7 +127,7 @@ beforeEach(() => {
 })
 afterEach(() => vi.restoreAllMocks())
 describe('Upload media and monitoring workspace', () => {
-  it('shows the Manager phone to the Inspector in readonly acceptance mode', async () => {
+  it('keeps readonly acceptance free of the removed contact notice', async () => {
     vi.mocked(missionApi.getPermissions).mockResolvedValue({
       ...permissions,
       canInspectDevice: true,
@@ -136,59 +136,80 @@ describe('Upload media and monitoring workspace', () => {
     })
     render(<UploadMediaPage missionId="m" />)
 
-    expect(await screen.findByText('Liên hệ Manager')).toBeInTheDocument()
-    expect(screen.getByText('Seed Manager 1')).toBeInTheDocument()
-    expect(
-      screen.getByRole('link', { name: 'Gọi 0902000001' }),
-    ).toHaveAttribute('href', 'tel:0902000001')
-    expect(screen.queryByText('Gọi 0901000003')).toBeNull()
+    await screen.findAllByText('capture.jpg')
+    expect(screen.queryByText('Liên hệ Manager')).toBeNull()
+    expect(screen.queryByText('Liên hệ người nghiệm thu')).toBeNull()
+    expect(screen.queryByRole('link', { name: /Gọi 090/ })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Tải tất cả lên' })).toBeNull()
   })
-  it('lets the Inspector approve uploaded Pilot media while the mission is in flight', async () => {
-    active.status = 'IN_FLIGHT'
-    vi.mocked(missionApi.getPermissions).mockResolvedValue({
-      ...permissions,
-      canInspectDevice: true,
-      canAttachChecklistEvidence: true,
-      canExecuteMonitoringChecklist: false,
-    })
-    vi.mocked(operatorMissionMediaApi.list).mockResolvedValue({
-      items: [
-        {
-          mediaId: 'backend-media',
+  it.each([
+    { canAssess: false, canInspect: true, confirmed: false },
+    { canAssess: true, canInspect: false, confirmed: false },
+    { canAssess: true, canInspect: true, confirmed: true },
+  ])(
+    'gates media review by assessment permission and frozen result: $canAssess / $canInspect / $confirmed',
+    async ({ canAssess, canInspect, confirmed }) => {
+      active.status = 'IN_PROGRESS'
+      if (confirmed)
+        vi.mocked(missionApi.getMissionResult).mockResolvedValue({
           missionId: 'm',
-          deviceId: 'd',
-          mediaType: 'IMAGE',
-          status: 'PENDING_MANAGER_APPROVAL',
-          fileName: 'pilot-upload.jpg',
-          contentType: 'image/jpeg',
-          fileSize: 200,
-          capturedAt: '2026-10-05T00:00:00Z',
-          availableAt: null,
-          downloadUrl: '/preview/pilot-upload.jpg',
-        },
-      ],
-      page: 0,
-      totalItems: 1,
-      totalPages: 1,
-      first: true,
-      last: true,
-    })
-    const approve = vi
-      .spyOn(operatorMissionMediaApi, 'approve')
-      .mockResolvedValue({})
+          approvalStatus: 'APPROVED',
+          inspectorConfirmed: true,
+        } as never)
+      vi.mocked(missionApi.getPermissions).mockResolvedValue({
+        ...permissions,
+        canInspectDevice: canInspect,
+        canAssessMonitoringChecklist: canAssess,
+        canAttachChecklistEvidence: true,
+        canExecuteMonitoringChecklist: false,
+      })
+      vi.mocked(operatorMissionMediaApi.list).mockResolvedValue({
+        items: [
+          {
+            mediaId: 'backend-media',
+            missionId: 'm',
+            deviceId: 'd',
+            mediaType: 'IMAGE',
+            status: 'PENDING_MANAGER_APPROVAL',
+            fileName: 'pilot-upload.jpg',
+            contentType: 'image/jpeg',
+            fileSize: 200,
+            capturedAt: '2026-10-05T00:00:00Z',
+            availableAt: null,
+            downloadUrl: '/preview/pilot-upload.jpg',
+          },
+        ],
+        page: 0,
+        totalItems: 1,
+        totalPages: 1,
+        first: true,
+        last: true,
+      })
+      const approve = vi
+        .spyOn(operatorMissionMediaApi, 'approve')
+        .mockResolvedValue({})
 
-    render(<UploadMediaPage missionId="m" />)
+      render(<UploadMediaPage missionId="m" />)
 
-    fireEvent.click(
-      await screen.findByRole('button', {
-        name: 'Duyệt bằng chứng',
-      }),
-    )
-    await waitFor(() =>
-      expect(approve).toHaveBeenCalledWith('m', 'backend-media'),
-    )
-    expect(screen.getByText('Đã duyệt bằng chứng.')).toBeInTheDocument()
-  })
+      await screen.findAllByText('pilot-upload.jpg')
+      if (!canAssess || confirmed) {
+        expect(
+          screen.queryByRole('button', { name: 'Duyệt bằng chứng' }),
+        ).toBeNull()
+        expect(approve).not.toHaveBeenCalled()
+        return
+      }
+      fireEvent.click(
+        await screen.findByRole('button', {
+          name: 'Duyệt bằng chứng',
+        }),
+      )
+      await waitFor(() =>
+        expect(approve).toHaveBeenCalledWith('m', 'backend-media'),
+      )
+      expect(screen.getByText('Đã duyệt bằng chứng.')).toBeInTheDocument()
+    },
+  )
   it('shows rejected media as uploaded, prevents duplicate transfer, and blocks checklist attachment', async () => {
     vi.mocked(missionApi.getPermissions).mockResolvedValue({
       ...permissions,
@@ -212,7 +233,7 @@ describe('Upload media and monitoring workspace', () => {
     expect(await screen.findAllByText('Bị từ chối')).toHaveLength(2)
     expect(
       screen.getByText(
-        'Manager đã từ chối media này. Liên hệ Manager để biết thêm.',
+        'Media đã bị từ chối. Liên hệ nghiệm thu viên để biết thêm.',
       ),
     ).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Tải ảnh lên' })).toBeNull()
@@ -295,6 +316,7 @@ describe('Upload media and monitoring workspace', () => {
       await screen.findByRole('checkbox', { name: /Quan sát hàng rào/ }),
     )
     fireEvent.click(screen.getByRole('button', { name: 'Gắn vào 1 mục' }))
+    // IndexedDB recovery includes a bounded 10-second wait, so the test deadline must cover it.
     await screen.findByRole('button', { name: 'Thử lại' }, { timeout: 10000 })
     expect(attach).toHaveBeenCalledWith('m', 'backend-media', [
       { executionId: 'e', expectedVersion: 4 },
@@ -308,14 +330,21 @@ describe('Upload media and monitoring workspace', () => {
     )
     await waitFor(() => expect(attach).toHaveBeenCalledTimes(2))
     expect(upload).toHaveBeenCalledOnce()
-  })
+  }, 15000)
   it('shows captured images and lets a reporting pilot edit status without assessment', async () => {
     render(<UploadMediaPage missionId="m" mode="checklist" />)
     await screen.findByText('Quan sát hàng rào')
+    fireEvent.click(
+      await screen.findByRole('button', { name: /Quan sát hàng rào/ }),
+    )
     expect(await screen.findByText('Cập nhật mục')).toBeInTheDocument()
     expect(
       screen.getByRole('link', { name: 'Danh sách media' }),
     ).toHaveAttribute('href', '#portal/staff/upload/m')
+    if (!screen.queryByText('Cập nhật mục'))
+      fireEvent.click(
+        await screen.findByRole('button', { name: /Quan sát hàng rào/ }),
+      )
     fireEvent.click(await screen.findByText('Cập nhật mục'))
     expect(screen.getByLabelText('Trạng thái thực hiện')).toBeEnabled()
     expect(screen.queryByLabelText('Đánh giá nghiệm thu')).toBeNull()
@@ -332,6 +361,10 @@ describe('Upload media and monitoring workspace', () => {
 
     render(<UploadMediaPage missionId="m" mode="checklist" />)
 
+    if (!screen.queryByText('Cập nhật mục'))
+      fireEvent.click(
+        await screen.findByRole('button', { name: /Quan sát hàng rào/ }),
+      )
     fireEvent.click(await screen.findByText('Cập nhật mục'))
     expect(screen.queryByLabelText('Trạng thái thực hiện')).toBeNull()
     expect(screen.getByLabelText('Đánh giá nghiệm thu')).toBeEnabled()
@@ -351,11 +384,16 @@ describe('Upload media and monitoring workspace', () => {
           missionId: 'm',
           legacySnapshot: false,
           readyForSubmission: true,
+          readyForFinalApproval: true,
           executions: [],
         })
         return {} as never
       })
     render(<UploadMediaPage missionId="m" mode="checklist" />)
+    if (!screen.queryByText('Cập nhật mục'))
+      fireEvent.click(
+        await screen.findByRole('button', { name: /Quan sát hàng rào/ }),
+      )
     fireEvent.click(await screen.findByText('Cập nhật mục'))
     fireEvent.change(screen.getByLabelText('Trạng thái thực hiện'), {
       target: { value: 'COMPLETED' },
@@ -371,11 +409,9 @@ describe('Upload media and monitoring workspace', () => {
         }),
       ),
     )
-    await waitFor(() =>
-      expect(
-        screen.getByRole('button', { name: 'Gửi kết quả cho Manager' }),
-      ).toBeEnabled(),
-    )
+    expect(
+      screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
+    ).toBeNull()
     expect(active.reload).toHaveBeenCalled()
   })
   it('keeps checklist and media as separate primary pages', async () => {
@@ -410,6 +446,7 @@ describe('Upload media and monitoring workspace', () => {
       ...permissions,
       canCompleteMission: true,
       canSubmitMissionResult: true,
+      canAssessMonitoringChecklist: true,
     })
     vi.mocked(
       checklistExecutionApi.getMissionChecklistExecutions,
@@ -417,6 +454,7 @@ describe('Upload media and monitoring workspace', () => {
       missionId: 'm',
       legacySnapshot: false,
       readyForSubmission: true,
+      readyForFinalApproval: true,
       readyForMissionCompletion: true,
       executions: [],
     })
@@ -427,6 +465,7 @@ describe('Upload media and monitoring workspace', () => {
         vi.mocked(missionApi.getPermissions).mockResolvedValue({
           ...permissions,
           canSubmitMissionResult: true,
+          canAssessMonitoringChecklist: true,
         })
         return {} as never
       })
@@ -443,7 +482,7 @@ describe('Upload media and monitoring workspace', () => {
       })
     render(<UploadMediaPage missionId="m" />)
     expect(
-      await screen.findByRole('button', { name: 'Gửi kết quả cho Manager' }),
+      await screen.findByRole('button', { name: 'Xác nhận nghiệm thu' }),
     ).toBeEnabled()
     fireEvent.click(
       screen.getByRole('button', { name: 'Xác nhận hoàn thành Mission' }),
@@ -452,16 +491,14 @@ describe('Upload media and monitoring workspace', () => {
     expect(submit).not.toHaveBeenCalled()
     await waitFor(() =>
       expect(
-        screen.getByRole('button', { name: 'Gửi kết quả cho Manager' }),
+        screen.getByRole('button', { name: 'Xác nhận nghiệm thu' }),
       ).toBeEnabled(),
     )
     expect(active.reload).toHaveBeenCalled()
     expect(
       screen.queryByRole('button', { name: 'Xác nhận hoàn thành Mission' }),
     ).toBeNull()
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Gửi kết quả cho Manager' }),
-    )
+    fireEvent.click(screen.getByRole('button', { name: 'Xác nhận nghiệm thu' }))
     await waitFor(() =>
       expect(submit).toHaveBeenCalledWith(
         'm',
@@ -470,12 +507,12 @@ describe('Upload media and monitoring workspace', () => {
     )
     await waitFor(() =>
       expect(
-        screen.queryByRole('button', { name: 'Gửi kết quả cho Manager' }),
+        screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
       ).toBeNull(),
     )
     expect(complete).toHaveBeenCalledOnce()
     expect(
-      screen.queryByRole('button', { name: 'Gửi kết quả cho Manager' }),
+      screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
     ).toBeNull()
   })
 
@@ -484,6 +521,7 @@ describe('Upload media and monitoring workspace', () => {
     vi.mocked(missionApi.getPermissions).mockResolvedValue({
       ...permissions,
       canSubmitMissionResult: true,
+      canAssessMonitoringChecklist: true,
     })
     vi.mocked(missionApi.getMissionResult).mockResolvedValue({
       id: 'r',
@@ -492,9 +530,9 @@ describe('Upload media and monitoring workspace', () => {
       approvalStatus: 'PENDING_MANAGER_APPROVAL',
     } as never)
     render(<UploadMediaPage missionId="m" />)
-    await screen.findByText('Kết quả đã được gửi Manager và đang chờ duyệt.')
+    await screen.findByText('Hồ sơ đang chờ xác nhận nghiệm thu.')
     expect(
-      screen.queryByRole('button', { name: 'Gửi kết quả cho Manager' }),
+      screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
     ).toBeNull()
   })
 
@@ -503,11 +541,12 @@ describe('Upload media and monitoring workspace', () => {
     vi.mocked(missionApi.getPermissions).mockResolvedValue({
       ...permissions,
       canSubmitMissionResult: true,
+      canAssessMonitoringChecklist: true,
     })
     const submit = vi.spyOn(missionApi, 'submitMissionResult')
     render(<UploadMediaPage missionId="m" />)
     const button = await screen.findByRole('button', {
-      name: 'Gửi kết quả cho Manager',
+      name: 'Xác nhận nghiệm thu',
     })
     expect(button).toBeDisabled()
     expect(
@@ -522,6 +561,7 @@ describe('Upload media and monitoring workspace', () => {
     vi.mocked(missionApi.getPermissions).mockResolvedValue({
       ...permissions,
       canSubmitMissionResult: true,
+      canAssessMonitoringChecklist: true,
       canAttachChecklistEvidence: true,
     })
     const snapshot =
@@ -544,7 +584,7 @@ describe('Upload media and monitoring workspace', () => {
     const submit = vi.spyOn(missionApi, 'submitMissionResult')
     render(<UploadMediaPage missionId="m" />)
     const button = await screen.findByRole('button', {
-      name: 'Gửi kết quả cho Manager',
+      name: 'Xác nhận nghiệm thu',
     })
     expect(button).toBeDisabled()
     fireEvent.click(button)
@@ -553,11 +593,12 @@ describe('Upload media and monitoring workspace', () => {
     expect(submit).not.toHaveBeenCalled()
   })
 
-  it('submits independently with unapproved media using operational readiness', async () => {
+  it('blocks inspection with unapproved media despite operational readiness', async () => {
     active.status = 'COMPLETED'
     vi.mocked(missionApi.getPermissions).mockResolvedValue({
       ...permissions,
       canSubmitMissionResult: true,
+      canAssessMonitoringChecklist: true,
     })
     vi.mocked(
       checklistExecutionApi.getMissionChecklistExecutions,
@@ -575,17 +616,12 @@ describe('Upload media and monitoring workspace', () => {
       .mockResolvedValue({})
     render(<UploadMediaPage missionId="m" />)
     const button = await screen.findByRole('button', {
-      name: 'Gửi kết quả cho Manager',
+      name: 'Xác nhận nghiệm thu',
     })
-    expect(button).toBeEnabled()
+    expect(button).toBeDisabled()
     fireEvent.click(button)
-    await waitFor(() =>
-      expect(submit).toHaveBeenCalledWith('m', expect.any(Object)),
-    )
+    expect(submit).not.toHaveBeenCalled()
     expect(complete).not.toHaveBeenCalled()
-    expect(
-      screen.getAllByRole('link', { name: 'Quay lại buồng lái' })[0],
-    ).toHaveAttribute('href', '#portal/staff/flight/m')
   })
 
   it('refreshes authoritative state and localizes stale submit errors', async () => {
@@ -593,6 +629,7 @@ describe('Upload media and monitoring workspace', () => {
     vi.mocked(missionApi.getPermissions).mockResolvedValue({
       ...permissions,
       canSubmitMissionResult: true,
+      canAssessMonitoringChecklist: true,
     })
     vi.mocked(
       checklistExecutionApi.getMissionChecklistExecutions,
@@ -600,6 +637,8 @@ describe('Upload media and monitoring workspace', () => {
       missionId: 'm',
       legacySnapshot: false,
       readyForSubmission: true,
+      readyForMissionCompletion: true,
+      readyForFinalApproval: true,
       executions: [],
     })
     vi.spyOn(missionApi, 'submitMissionResult').mockRejectedValue(
@@ -612,7 +651,7 @@ describe('Upload media and monitoring workspace', () => {
     )
     render(<UploadMediaPage missionId="m" />)
     fireEvent.click(
-      await screen.findByRole('button', { name: 'Gửi kết quả cho Manager' }),
+      await screen.findByRole('button', { name: 'Xác nhận nghiệm thu' }),
     )
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'Checklist chưa hoàn tất hoặc chưa đủ bằng chứng hợp lệ.',
@@ -630,9 +669,8 @@ describe('Upload media and monitoring workspace', () => {
     await screen.findByRole('button', { name: 'Tải tất cả lên' })
     vi.mocked(missionApi.getPermissions).mockRejectedValue(new Error('denied'))
     fireEvent.click(screen.getAllByRole('button', { name: 'Làm mới' })[0])
-    await screen.findByText(
-      'Không tải được quyền tải lên. Bấm Làm mới để thử lại.',
-    )
+    await screen.findByText('Chỉ xem media')
+    expect(screen.queryByRole('button', { name: 'Tải tất cả lên' })).toBeNull()
     expect(screen.queryByText('Tải ảnh lên')).toBeNull()
   })
 })
