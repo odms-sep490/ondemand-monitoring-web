@@ -1,3 +1,5 @@
+import { getUploadMediaStatusLabel } from '../../drone-operator/pages/UploadMedia/uploadMediaHelpers'
+import { CustomerEvidenceSelection } from './CustomerEvidenceSelection'
 import { ChecklistEvidencePicker } from './ChecklistEvidencePicker'
 import { useLanguage } from '../../../shared/i18n'
 import { useEffect, useRef, useState } from 'react'
@@ -27,8 +29,7 @@ export const evidenceReason: Record<EvidenceBlockingReason, string> = {
   MEDIA_APPROVAL_REQUIRED: 'Cần duyệt media trước khi duyệt kết quả.',
   INSUFFICIENT_EVIDENCE: 'Chưa đủ bằng chứng hợp lệ.',
   ASSESSMENT_REQUIRED: 'Cần đánh giá mục checklist trước khi gửi kết quả.',
-  EXECUTION_NOT_COMPLETED:
-    'Cần hoàn tất mục checklist trước khi gửi kết quả.',
+  EXECUTION_NOT_COMPLETED: 'Cần hoàn tất mục checklist trước khi gửi kết quả.',
   EXECUTION_NOT_TERMINAL:
     'Cần chọn trạng thái cuối cùng cho mục checklist trước khi gửi kết quả.',
   UNABLE_REASON_REQUIRED: 'Cần lý do không thể xác minh.',
@@ -67,20 +68,12 @@ const sourceLabel: Record<string, string> = {
   SATELLITE_SNAPSHOT: 'Ảnh vệ tinh',
   MANUAL_UPLOAD: 'Upload thủ công',
 }
-const mediaStatusLabel: Record<string, string> = {
-  PENDING_MANAGER_APPROVAL: 'Chờ manager duyệt',
-  AVAILABLE: 'Đã duyệt',
-  VALIDATING: 'Đang xác thực',
-  UPLOADING: 'Đang upload',
-  UPLOAD_PENDING: 'Chờ upload',
-  RETRY_REQUIRED: 'Cần upload lại',
-  MANUAL_UPLOAD_REQUIRED: 'Chờ upload thủ công',
-  REJECTED: 'Bị từ chối',
-}
 
 function evidenceFileLabel(fileName: string, mediaType: string) {
   const generatedName =
-    /^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{8,12}(?:\.[\da-z]+)?$/i.test(fileName)
+    /^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{8,12}(?:\.[\da-z]+)?$/i.test(
+      fileName,
+    )
   if (!generatedName) return fileName
   return mediaType === 'VIDEO' ? 'Video bằng chứng' : 'Ảnh bằng chứng'
 }
@@ -102,6 +95,7 @@ function MissionEvidencePanel({
   canAttach,
   canDetach,
   hideAssessmentRequirement = false,
+  canSelectForCustomer = false,
   refresh,
   loadCandidates,
   attachCandidate,
@@ -114,6 +108,7 @@ function MissionEvidencePanel({
   canAttach: boolean
   canDetach: boolean
   hideAssessmentRequirement?: boolean
+  canSelectForCustomer?: boolean
   refresh: () => void
   loadCandidates?: (page: number) => Promise<EvidenceCandidate[]>
   attachCandidate?: (
@@ -278,34 +273,34 @@ function MissionEvidencePanel({
     })
   const compactBody = (
     <>
-      <div className="ce-head">
-        <div className="ce-title-row">
-          <span className="ce-heading">Bằng chứng</span>
-          <span className="ce-type">
-            {evidenceTypeLabel(item.requiredEvidenceType)}
+      {!canSelectForCustomer && (
+        <div className="ce-head">
+          <div className="ce-title-row">
+            <span className="ce-heading">Bằng chứng</span>
+            <span className="ce-type">
+              {evidenceTypeLabel(item.requiredEvidenceType)}
+            </span>
+          </div>
+          <span className="ce-count">
+            {isPerTypeEvidence(item)
+              ? evidenceCountLabel(item)
+              : `${have} / ${configuredRequired}`}
           </span>
         </div>
-        <span className="ce-count">
-          {isPerTypeEvidence(item)
-            ? evidenceCountLabel(item)
-            : `${have} / ${configuredRequired}`}
-        </span>
-      </div>
+      )}
       {unableToVerify ? (
         <p className="ce-unable-note">{unableExplanation}</p>
       ) : remaining > 0 ? (
         <p className="ce-remaining">Còn thiếu {remaining} bằng chứng hợp lệ</p>
       ) : null}
       {renderBlockingReasons()}
-      {links.length > 0 && (
+      {!canSelectForCustomer && links.length > 0 && (
         <ul className="ce-list">
           {links.map((link) => {
             const status =
               !link.eligibleForOperationalReadiness && link.ineligibilityReason
                 ? evidenceReason[link.ineligibilityReason]
-                : (mediaStatusLabel[link.mediaStatus ?? ''] ??
-                  link.mediaStatus ??
-                  'Legacy')
+                : getUploadMediaStatusLabel(link.mediaStatus ?? 'Legacy', lang)
             const hasMenu = canDetach
             return (
               <li key={link.evidenceId} className="ce-row">
@@ -377,7 +372,8 @@ function MissionEvidencePanel({
           })}
         </ul>
       )}
-      {!unableToVerify &&
+      {!canSelectForCustomer &&
+        !unableToVerify &&
         configuredRequired > 0 &&
         have >= configuredRequired && (
           <p className="ce-ok">✓ Đã đủ bằng chứng</p>
@@ -403,14 +399,26 @@ function MissionEvidencePanel({
       className={`checklist-evidence${compact ? ' is-compact' : ''}`}
       aria-label={`Bằng chứng: ${item.content}`}
     >
+      {canSelectForCustomer && (
+        <CustomerEvidenceSelection
+          key={`${item.id}:${item.version}`}
+          missionId={missionId}
+          item={item}
+          refresh={refresh}
+          mutationBusy={busy}
+          onDetach={canDetach ? detachEvidence : undefined}
+        />
+      )}
       {compact ? (
         compactBody
       ) : (
         <>
-          <strong>
-            Bằng chứng hợp lệ: {have} / {configuredRequired} ·{' '}
-            {evidenceTypeLabel(item.requiredEvidenceType)}
-          </strong>
+          {!canSelectForCustomer && (
+            <strong>
+              Bằng chứng hợp lệ: {have} / {configuredRequired} ·{' '}
+              {evidenceTypeLabel(item.requiredEvidenceType)}
+            </strong>
+          )}
           {unableToVerify && (
             <p className="ce-unable-note">{unableExplanation}</p>
           )}
@@ -419,82 +427,87 @@ function MissionEvidencePanel({
               Còn thiếu {remaining} bằng chứng hợp lệ
             </p>
           )}
-          {!unableToVerify &&
+          {!canSelectForCustomer &&
+            !unableToVerify &&
             configuredRequired > 0 &&
             have >= configuredRequired && (
               <p className="ce-ok">✓ Đã đủ bằng chứng hợp lệ</p>
             )}
           {renderBlockingReasons()}
-          <div className="checklist-evidence-grid">
-            {item.evidence?.map((link) => (
-              <article key={link.evidenceId}>
-                <div className="checklist-evidence-thumb">
-                  {link.previewUrl &&
-                    (link.mediaType === 'VIDEO' ? (
-                      <video
-                        src={link.previewUrl}
-                        controls
-                        preload="metadata"
-                      />
-                    ) : (
-                      <a
-                        href={link.previewUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        <img
+          {!canSelectForCustomer && (
+            <div className="checklist-evidence-grid">
+              {item.evidence?.map((link) => (
+                <article key={link.evidenceId}>
+                  <div className="checklist-evidence-thumb">
+                    {link.previewUrl &&
+                      (link.mediaType === 'VIDEO' ? (
+                        <video
                           src={link.previewUrl}
-                          alt={link.fileName}
-                          loading="lazy"
+                          controls
+                          preload="metadata"
                         />
-                      </a>
-                    ))}
-                </div>
-                <div className="checklist-evidence-main">
-                  <div
-                    className="checklist-evidence-name"
-                    title={link.fileName}
-                  >
-                    {evidenceFileLabel(link.fileName, link.mediaType)}
+                      ) : (
+                        <a
+                          href={link.previewUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <img
+                            src={link.previewUrl}
+                            alt={link.fileName}
+                            loading="lazy"
+                          />
+                        </a>
+                      ))}
                   </div>
-                  <div className="checklist-candidate-meta">
-                    <span>
-                      {sourceLabel[link.sourceType ?? ''] ??
-                        'Nguồn chưa xác định'}
-                    </span>
-                    <span className="checklist-candidate-status">
-                      {mediaStatusLabel[link.mediaStatus ?? ''] ??
-                        'Chưa rõ trạng thái'}
-                    </span>
+                  <div className="checklist-evidence-main">
+                    <div
+                      className="checklist-evidence-name"
+                      title={link.fileName}
+                    >
+                      {evidenceFileLabel(link.fileName, link.mediaType)}
+                    </div>
+                    <div className="checklist-candidate-meta">
+                      <span>
+                        {sourceLabel[link.sourceType ?? ''] ??
+                          'Nguồn chưa xác định'}
+                      </span>
+                      <span className="checklist-candidate-status">
+                        {getUploadMediaStatusLabel(
+                          link.mediaStatus ?? 'Legacy',
+                          lang,
+                        )}
+                      </span>
+                    </div>
+                    <small>
+                      {new Date(link.capturedAt).toLocaleString('vi-VN')}
+                    </small>
+                    <p
+                      className={`checklist-evidence-note${link.eligibleForOperationalReadiness ? ' is-ok' : ''}`}
+                    >
+                      {link.eligibleForOperationalReadiness
+                        ? 'Đủ điều kiện vận hành'
+                        : link.ineligibilityReason
+                          ? evidenceReason[link.ineligibilityReason]
+                          : 'Chưa hợp lệ'}
+                    </p>
+                    <div className="checklist-evidence-actions">
+                      {canDetach && (
+                        <button
+                          type="button"
+                          className="odm-btn"
+                          disabled={busy}
+                          onClick={() => void detachEvidence(link)}
+                        >
+                          Gỡ bằng chứng
+                        </button>
+                      )}
+                    </div>
                   </div>
-                  <small>
-                    {new Date(link.capturedAt).toLocaleString('vi-VN')}
-                  </small>
-                  <p
-                    className={`checklist-evidence-note${link.eligibleForOperationalReadiness ? ' is-ok' : ''}`}
-                  >
-                    {link.eligibleForOperationalReadiness
-                      ? 'Đủ điều kiện vận hành'
-                      : link.ineligibilityReason
-                        ? evidenceReason[link.ineligibilityReason]
-                        : 'Chưa hợp lệ'}
-                  </p>
-                  <div className="checklist-evidence-actions">
-                    {canDetach && (
-                      <button
-                        type="button"
-                        className="odm-btn"
-                        disabled={busy}
-                        onClick={() => void detachEvidence(link)}
-                      >
-                        Gỡ bằng chứng
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
+                </article>
+              ))}
+            </div>
+          )}
           {canAttach && (
             <button
               type="button"
@@ -649,8 +662,10 @@ function MissionEvidencePanel({
                               'Nguồn chưa xác định'}
                           </span>
                           <span className="checklist-candidate-status">
-                            {mediaStatusLabel[media.status ?? ''] ??
-                              'Chưa rõ trạng thái'}
+                            {getUploadMediaStatusLabel(
+                              media.status ?? 'Legacy',
+                              lang,
+                            )}
                           </span>
                         </span>
                         <small>

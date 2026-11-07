@@ -21,6 +21,9 @@ export type MissionChecklistExecution = {
   guidanceReady?: boolean
   executionStatus: ChecklistExecutionStatus
   assessmentStatus: ChecklistAssessmentStatus
+  assessmentNote?: string | null
+  assessedBy?: string | null
+  assessedAt?: string | null
   observation: string | null
   unableToVerifyReason: string | null
   startedAt: string | null
@@ -39,6 +42,9 @@ export type MissionChecklistExecution = {
   eligibleImageCount?: number
   eligibleVideoCount?: number
   evidenceRequirementSatisfied?: boolean
+  readyForFinalApproval?: boolean
+  /** Assigned inspector may correct the selection until the order is published. */
+  customerSelectionEditable?: boolean
   evidenceReady?: boolean
   blockingReasons?: EvidenceBlockingReason[]
   evidence?: MissionChecklistEvidence[]
@@ -82,6 +88,9 @@ export type EvidenceEligibility = {
   ineligibilityReason: EvidenceBlockingReason | null
 }
 export type MissionChecklistEvidence = EvidenceEligibility & {
+  selectedForCustomer?: boolean
+  selectedBy?: string | null
+  selectedAt?: string | null
   evidenceId: string
   mediaId: string
   executionId: string
@@ -115,7 +124,14 @@ export type EvidenceCandidate = EvidenceEligibility & {
   alreadyAttachedExecutionIds: string[]
 }
 
+export type CustomerEvidenceSelectionRequest = {
+  expectedVersion: number
+  evidenceIds: string[]
+  confirmSurplus: boolean
+}
+
 export type ChecklistExecutionUpdateRequest = {
+  assessmentNote?: string | null
   expectedVersion: number
   executionStatus: ChecklistExecutionStatus
   assessmentStatus: ChecklistAssessmentStatus

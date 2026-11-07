@@ -220,7 +220,7 @@ export const deliveryApi = {
     reviewRoundId: string,
     expectedRoundVersion: number,
   ) =>
-    apiRequest<void>(`/api/orders/${enc(orderId)}/result/accept`, {
+    apiRequest<Delivery>(`/api/orders/${enc(orderId)}/result/accept`, {
       method: 'POST',
       body: { expectedReviewRoundId: reviewRoundId, expectedRoundVersion },
     }),

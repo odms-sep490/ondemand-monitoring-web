@@ -186,6 +186,7 @@ export type MissionResultApprovalStatus =
   'DRAFT' | 'PENDING_MANAGER_APPROVAL' | 'APPROVED' | 'REJECTED'
 
 export interface MissionResult {
+  inspectorConfirmed?: boolean
   id: string
   missionId: string
   missionCode: string

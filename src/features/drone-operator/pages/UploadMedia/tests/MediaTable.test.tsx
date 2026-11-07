@@ -87,7 +87,7 @@ describe('MediaTable', () => {
       />,
     )
 
-    expect(screen.getByText('Chờ quản lý duyệt')).toBeTruthy()
+    expect(screen.getByText('Chờ nghiệm thu duyệt')).toBeTruthy()
     expect(screen.getByText('Tải lên hoàn tất')).toBeInTheDocument()
     expect(screen.queryByRole('progressbar')).not.toBeInTheDocument()
     expect(screen.queryByText('Lần thử')).not.toBeInTheDocument()

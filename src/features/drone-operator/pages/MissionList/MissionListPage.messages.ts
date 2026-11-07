@@ -56,8 +56,8 @@ export const missionListPageMessages = defineMessages({
       IN_PROGRESS: 'Đang thực hiện',
       RETURNING: 'Đang quay về',
       POSTFLIGHT_CHECKING: 'Đang kiểm tra sau bay',
-      AWAITING_REVIEW: 'Đã gửi Manager, chờ duyệt',
-      PENDING_REVIEW: 'Đã gửi Manager, chờ duyệt',
+      AWAITING_REVIEW: 'Chờ xác nhận nghiệm thu',
+      PENDING_REVIEW: 'Chờ xác nhận nghiệm thu',
       COMPLETED: 'Hoàn thành',
     },
     timeLeft: (hours: number, minutes: number) =>
@@ -130,8 +130,8 @@ export const missionListPageMessages = defineMessages({
       IN_PROGRESS: 'In progress',
       RETURNING: 'Returning',
       POSTFLIGHT_CHECKING: 'Postcheck',
-      AWAITING_REVIEW: 'Pending manager approval',
-      PENDING_REVIEW: 'Pending manager approval',
+      AWAITING_REVIEW: 'Awaiting inspection',
+      PENDING_REVIEW: 'Awaiting inspection',
       COMPLETED: 'Completed',
     },
     timeLeft: (hours: number, minutes: number) =>

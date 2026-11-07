@@ -73,11 +73,7 @@ function MissionDetailContent({ missionId }: { missionId: string }) {
     ['AWAITING_REVIEW', 'PENDING_REVIEW', 'COMPLETED'].includes(
       missionStatus ?? '',
     )
-  const actions = missionResultActions(
-    missionId,
-    missionStatus,
-    monitoring,
-  )
+  const actions = missionResultActions(missionId, missionStatus, monitoring)
   const [actionError, setActionError] = useState<unknown>(null)
 
   useEffect(() => {
@@ -214,6 +210,9 @@ function MissionDetailContent({ missionId }: { missionId: string }) {
             error={monitoring.data ? undefined : monitoring.error}
             canExecute={
               monitoring.data?.permissions.canExecuteMonitoringChecklist
+            }
+            canSelectForCustomer={
+              monitoring.data?.permissions.canAssessMonitoringChecklist === true
             }
             canAssess={
               monitoring.data?.permissions.canAssessMonitoringChecklist === true

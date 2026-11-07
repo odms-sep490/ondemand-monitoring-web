@@ -146,7 +146,7 @@ describe('Customer delivery payment placement', () => {
 
     expect(
       await screen.findByText(
-        'The manager is preparing to hand over your original data.',
+        'Originals are released automatically once payment and all revision items are resolved.',
       ),
     ).toBeInTheDocument()
     expect(
@@ -162,7 +162,7 @@ describe('Customer delivery payment placement', () => {
     render(<CustomerDeliveryPanel orderId="o1" />)
     expect(
       await screen.findByText(
-        'The manager is preparing to hand over your original data.',
+        'Originals are released automatically once payment and all revision items are resolved.',
       ),
     ).toBeInTheDocument()
     expect(
@@ -172,6 +172,55 @@ describe('Customer delivery payment placement', () => {
 })
 
 describe('CustomerDeliveryPanel', () => {
+  it('loads originals immediately after fully paid acceptance returns DELIVERED', async () => {
+    setLanguage('en')
+    const review = {
+      ...pending,
+      deliveryStatus: 'CUSTOMER_REVIEW' as const,
+      paidAmount: 1000,
+      remainingAmount: 0,
+    }
+    const delivered = {
+      ...review,
+      deliveryStatus: 'DELIVERED' as const,
+      assets: [
+        {
+          id: 'original',
+          type: 'IMAGE',
+          fileName: 'roof.jpg',
+          size: 100,
+          url: 'https://example.test/original',
+          urlExpiresAt: '',
+          downloadable: true,
+        },
+      ],
+    }
+    vi.mocked(deliveryApi.get).mockResolvedValue(review)
+    vi.mocked(deliveryApi.previews).mockResolvedValue(review)
+    vi.spyOn(deliveryApi, 'getResultReview').mockResolvedValue(reviewRound)
+    const originals = vi
+      .spyOn(deliveryApi, 'originals')
+      .mockResolvedValue(delivered)
+    vi.spyOn(deliveryApi, 'accept').mockImplementation(async () => {
+      vi.mocked(deliveryApi.get).mockResolvedValue(delivered)
+      return delivered
+    })
+    render(<CustomerDeliveryPanel orderId="o1" />)
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Accept all results' }),
+    )
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Confirm and send' }),
+    )
+    await waitFor(() => expect(originals).toHaveBeenCalledWith('o1'))
+    expect(
+      await screen.findByRole('link', { name: /Download/ }),
+    ).toHaveAttribute('href', 'https://example.test/original')
+    expect(
+      screen.queryByRole('button', { name: 'Accept all results' }),
+    ).toBeNull()
+  })
+
   it('shows one success notification and a compact persistent ticket status after submitting', async () => {
     setLanguage('en')
     const review = { ...pending, deliveryStatus: 'CUSTOMER_REVIEW' as const }

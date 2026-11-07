@@ -69,7 +69,7 @@ export function PostflightCompletedView({
     (row) => row.assessmentStatus !== 'NOT_ASSESSED',
   ).length
   const checklistAssessmentsComplete = checklistRows.every(
-    (row) => row.assessmentStatus !== 'NOT_ASSESSED',
+    (row) => row.assessmentStatus === 'COMPLIANT',
   )
   const preflightItems = review.data?.preflight?.items ?? []
   const preflightPassed = preflightItems.filter(
@@ -154,7 +154,7 @@ export function PostflightCompletedView({
       const summary = lang === 'vi'
         ? [
             `${missionLabel} · ${mission.serviceName || t.reviewService}: ${mission.address || t.reviewLocation}.`,
-            `Checklist công trình: ${checklistPassed}/${checklistRows.length} mục phù hợp.`,
+            `Checklist công trình: ${checklistPassed}/${checklistRows.length} mục công việc được nghiệm thu.`,
             `Kiểm tra trước bay: ${preflightPassed}/${preflightItems.length} mục đạt.`,
             `Thời tiết: ${weather?.status ?? 'chưa có dữ liệu'}${weather ? `, gió ${weather.windSpeedMps.toFixed(1)}/${weather.windGustMps.toFixed(1)} m/s, mưa ${weather.precipitationMmH.toFixed(1)} mm/h` : ''}.`,
             `Kiểm tra sau bay: ${postflightPassed}/${postflightItems.length} mục đạt${failedCount ? `, ${failedCount} mục không đạt` : ''}.`,
@@ -162,7 +162,7 @@ export function PostflightCompletedView({
           ].join(' ')
         : [
             `${missionLabel} · ${mission.serviceName || t.reviewService}: ${mission.address || t.reviewLocation}.`,
-            `Site checklist: ${checklistPassed}/${checklistRows.length} compliant.`,
+            `Work acceptance checklist: ${checklistPassed}/${checklistRows.length} compliant.`,
             `Precheck: ${preflightPassed}/${preflightItems.length} passed.`,
             `Weather: ${weather?.status ?? 'no data'}${weather ? `, wind ${weather.windSpeedMps.toFixed(1)}/${weather.windGustMps.toFixed(1)} m/s, rain ${weather.precipitationMmH.toFixed(1)} mm/h` : ''}.`,
             `Postcheck: ${postflightPassed}/${postflightItems.length} passed${failedCount ? `, ${failedCount} failed` : ''}.`,
@@ -449,6 +449,7 @@ export function PostflightCompletedView({
               loading={monitoring.loading}
               error={monitoring.error}
               canExecute={false}
+              canSelectForCustomer={monitoring.data?.permissions.canAssessMonitoringChecklist === true}
               canAssess={
                 monitoring.data?.permissions.canAssessMonitoringChecklist === true
               }

@@ -1,4 +1,6 @@
+import { checklistReadyForInspection } from '../lib/customerEvidenceSelection'
 import { useState } from 'react'
+import { useLanguage } from '../../../shared/i18n'
 import {
   evidenceCountLabel,
   evidenceShortfall,
@@ -27,10 +29,20 @@ const statuses: Record<ChecklistExecutionStatus, string> = {
   COMPLETED: 'Đã thực hiện',
   UNABLE_TO_VERIFY: 'Không thể xác minh',
 }
-const assessments: Record<ChecklistAssessmentStatus, string> = {
-  NOT_ASSESSED: 'Chưa đánh giá',
-  COMPLIANT: 'Đạt yêu cầu',
-  NON_COMPLIANT: 'Không đạt yêu cầu',
+const assessmentLabels: Record<
+  'vi' | 'en',
+  Record<ChecklistAssessmentStatus, string>
+> = {
+  vi: {
+    NOT_ASSESSED: 'Chưa đánh giá',
+    COMPLIANT: 'Đạt yêu cầu',
+    NON_COMPLIANT: 'Không đạt yêu cầu',
+  },
+  en: {
+    NOT_ASSESSED: 'Not assessed',
+    COMPLIANT: 'Work accepted',
+    NON_COMPLIANT: 'Needs fixes',
+  },
 }
 /** Time only for today, otherwise day/month + time. */
 function formatUpdated(value: string) {
@@ -105,6 +117,7 @@ export function MonitoringChecklistSection({
   error,
   canExecute = false,
   canAssess = false,
+  canSelectForCustomer = false,
   resultStatus,
   resultNote,
   resultKnown = true,
@@ -131,6 +144,7 @@ export function MonitoringChecklistSection({
   error?: unknown
   canExecute?: boolean
   canAssess?: boolean
+  canSelectForCustomer?: boolean
   resultStatus?: MissionResultApprovalStatus | null
   resultNote?: string | null
   resultKnown?: boolean
@@ -162,13 +176,27 @@ export function MonitoringChecklistSection({
   /** Read-only preview shown before the pilot accepts the mission. */
   preview?: boolean
 }) {
+  const { lang } = useLanguage()
+  const assessments = assessmentLabels[lang]
+  const finalReady = data ? checklistReadyForInspection(data) : false
   const [openId, setOpenId] = useState<string | null>(null)
   const locked =
     resultStatus === 'PENDING_MANAGER_APPROVAL' || resultStatus === 'APPROVED'
   const canEditExecution =
-    canExecute && !assessmentOnly && resultKnown && !locked && !loading && !error
+    canExecute &&
+    !assessmentOnly &&
+    resultKnown &&
+    !locked &&
+    !loading &&
+    !error
   const canEditAssessment =
     canAssess && !hideAssessment && resultKnown && !locked && !loading && !error
+  const canEditCustomerSelection = (item: MissionChecklistExecution) =>
+    resultKnown &&
+    !loading &&
+    !error &&
+    (item.customerSelectionEditable ??
+      (canAssess && canSelectForCustomer && !locked))
   const editable = canEditExecution || canEditAssessment
   const rows = [...(data?.executions ?? [])].sort(
     (a, b) => a.displayOrder - b.displayOrder || a.id.localeCompare(b.id),
@@ -198,7 +226,12 @@ export function MonitoringChecklistSection({
     const progressCount = assessmentOnly ? assessed : done
     const activeId =
       openId && rows.some((row) => row.id === openId) ? openId : null
-    const canChange = checklistEvidenceReady
+    const canChange =
+      canAssess || canSelectForCustomer || assessmentOnly
+        ? finalReady
+        : hideAssessment
+          ? checklistEvidenceReady
+          : data?.readyForSubmission === true
     return (
       <section
         className="monitoring-checklist odm-card is-compact"
@@ -344,7 +377,8 @@ export function MonitoringChecklistSection({
                       <span className="mc-sub">
                         {assessmentOnly
                           ? assessments[item.assessmentStatus]
-                          : statuses[item.executionStatus]}{' · '}
+                          : statuses[item.executionStatus]}
+                        {' · '}
                         {evidenceSummary}
                         {item.executionStatus !== 'UNABLE_TO_VERIFY' &&
                           evidenceShortfall(item) > 0 && (
@@ -394,12 +428,13 @@ export function MonitoringChecklistSection({
                         hideAssessment={hideAssessment}
                         completionOnly={completionOnly}
                         assessmentOnly={assessmentOnly}
-                        completeOnAssessment={assessmentOnly && canAssess}
+                        completeOnAssessment={assessmentOnly && canEditAssessment}
                         rejected={resultStatus === 'REJECTED'}
                         refresh={refresh}
                         compact
                       />
                       <ChecklistEvidencePanel
+                        canSelectForCustomer={canEditCustomerSelection(item)}
                         missionId={missionId}
                         item={item}
                         canAttach={
@@ -521,13 +556,17 @@ export function MonitoringChecklistSection({
       {!loading && !error && data ? (
         <>
           <div
-            className={`monitoring-summary${(data.checklistEvidenceReady ?? data.readyForSubmission) ? ' is-ready' : ''}`}
+            className={`monitoring-summary${finalReady ? ' is-ready' : ''}`}
             role="status"
           >
             <strong>
-              {(data.checklistEvidenceReady ?? data.readyForSubmission)
-                ? 'Sẵn sàng gửi kết quả'
-                : 'Chưa sẵn sàng gửi kết quả'}
+              {lang === 'vi'
+                ? finalReady
+                  ? 'Sẵn sàng nghiệm thu'
+                  : 'Chưa sẵn sàng nghiệm thu'
+                : finalReady
+                  ? 'Ready for inspection'
+                  : 'Not ready for inspection'}
             </strong>
             <span>
               {done} / {rows.length} mục ở trạng thái kết thúc ·{' '}
@@ -555,8 +594,8 @@ export function MonitoringChecklistSection({
                 Trạng thái kết quả:{' '}
                 {
                   {
-                    DRAFT: 'Nháp — chưa gửi manager',
-                    PENDING_MANAGER_APPROVAL: 'Đã gửi manager',
+                    DRAFT: 'Nháp — chưa nghiệm thu',
+                    PENDING_MANAGER_APPROVAL: 'Chờ nghiệm thu',
                     APPROVED: 'Đã duyệt',
                     REJECTED:
                       'Bị từ chối — có thể chỉnh sửa và gửi lại khi có quyền',
@@ -657,7 +696,8 @@ export function MonitoringChecklistSection({
                     <span className="mc-sub">
                       {assessmentOnly
                         ? assessments[item.assessmentStatus]
-                        : statuses[item.executionStatus]}{' · '}
+                        : statuses[item.executionStatus]}
+                      {' · '}
                       {evidenceSummary}
                       {item.executionStatus !== 'UNABLE_TO_VERIFY' &&
                         evidenceShortfall(item) > 0 &&
@@ -690,18 +730,27 @@ export function MonitoringChecklistSection({
                       hideAssessment={hideAssessment}
                       completionOnly={completionOnly}
                       assessmentOnly={assessmentOnly}
-                      completeOnAssessment={assessmentOnly && canAssess}
+                      completeOnAssessment={assessmentOnly && canEditAssessment}
                       rejected={resultStatus === 'REJECTED'}
                       refresh={refresh}
                     />
                     <ChecklistEvidencePanel
+                      canSelectForCustomer={canEditCustomerSelection(item)}
                       missionId={missionId}
                       item={item}
                       canAttach={
-                        canAttach && resultKnown && !locked && !loading && !error
+                        canAttach &&
+                        resultKnown &&
+                        !locked &&
+                        !loading &&
+                        !error
                       }
                       canDetach={
-                        canDetach && resultKnown && !locked && !loading && !error
+                        canDetach &&
+                        resultKnown &&
+                        !locked &&
+                        !loading &&
+                        !error
                       }
                       hideAssessmentRequirement={hideAssessment}
                       refresh={refresh}
@@ -750,6 +799,11 @@ function ChecklistExecutionItem({
   const [editing, setEditing] = useState(false)
   const [base, setBase] = useState(item)
   const [status, setStatus] = useState(item.executionStatus)
+  const { lang } = useLanguage()
+  const assessments = assessmentLabels[lang]
+  const [assessmentNote, setAssessmentNote] = useState(
+    item.assessmentNote ?? '',
+  )
   const [assessment, setAssessment] = useState(item.assessmentStatus)
   const [observation, setObservation] = useState(item.observation ?? '')
   const [reason, setReason] = useState(item.unableToVerifyReason ?? '')
@@ -762,10 +816,33 @@ function ChecklistExecutionItem({
         (value) => value === base.executionStatus || value === 'COMPLETED',
       )
     : statusOptions
+  const assessmentHelp =
+    lang === 'vi'
+      ? 'Nghiệm thu công việc thực hiện, không đánh giá tình trạng công trình. Không đạt yêu cầu nghĩa là cần khắc phục trước khi xác nhận nghiệm thu.'
+      : 'Accept the work performed, rather than assess the facility condition. Non-compliant work needs fixes before inspection can be confirmed.'
+  const noteEditor = canAssess && (
+    <label>
+      {lang === 'vi' ? 'Ghi chú nghiệm thu' : 'Inspection note'}
+      <textarea
+        maxLength={2000}
+        value={assessmentNote}
+        onChange={(event) => setAssessmentNote(event.target.value)}
+      />
+    </label>
+  )
+  const savedNote = item.assessmentNote && (
+    <p>
+      <strong>
+        {lang === 'vi' ? 'Ghi chú nghiệm thu:' : 'Inspection note:'}
+      </strong>{' '}
+      {item.assessmentNote}
+    </p>
+  )
   function reset() {
     setBase(item)
     setStatus(item.executionStatus)
     setAssessment(item.assessmentStatus)
+    setAssessmentNote(item.assessmentNote ?? '')
     setObservation(item.observation ?? '')
     setReason(item.unableToVerifyReason ?? '')
     setConflict(false)
@@ -777,7 +854,11 @@ function ChecklistExecutionItem({
       setError('Vui lòng nhập lý do không thể xác minh.')
       return
     }
-    if (observation.length > 2000 || reason.length > 1000) {
+    if (
+      observation.length > 2000 ||
+      reason.length > 1000 ||
+      assessmentNote.length > 2000
+    ) {
       setError('Ghi nhận tối đa 2000 ký tự; lý do tối đa 1000 ký tự.')
       return
     }
@@ -798,10 +879,9 @@ function ChecklistExecutionItem({
           {
             expectedVersion: base.version,
             executionStatus: canExecute ? status : assessedExecutionStatus,
+            ...(canAssess ? { assessmentNote: assessmentNote.trim() } : {}),
             assessmentStatus: canAssess ? assessment : base.assessmentStatus,
-            observation: canExecute
-              ? observation.trim() || null
-              : base.observation,
+            observation: canExecute ? observation.trim() : base.observation,
             unableToVerifyReason: canExecute
               ? status === 'UNABLE_TO_VERIFY'
                 ? reason.trim()
@@ -814,7 +894,10 @@ function ChecklistExecutionItem({
       refresh()
     } catch (cause) {
       setError(monitoringErrorMessage(cause))
-      if (cause instanceof ApiError && cause.code === 'CONCURRENT_UPDATE')
+      if (
+        cause instanceof ApiError &&
+        (cause.status === 409 || cause.code === 'CONCURRENT_UPDATE')
+      )
         setConflict(true)
       // Never retry a mutation automatically. Refresh authority/versions after any rejected save.
       refresh()
@@ -828,6 +911,7 @@ function ChecklistExecutionItem({
         {error && <p role="alert">{error}</p>}
         {!editing ? (
           <>
+            {!hideAssessment && savedNote}
             <dl className="mc-fields">
               {!assessmentOnly && (
                 <div>
@@ -863,11 +947,17 @@ function ChecklistExecutionItem({
                   setEditing(true)
                 }}
               >
-                {assessmentOnly
-                  ? 'Đánh giá'
-                  : completionOnly
-                    ? 'Cập nhật trạng thái'
-                    : 'Chỉnh sửa'}
+                {lang === 'vi'
+                  ? assessmentOnly
+                    ? 'Đánh giá'
+                    : completionOnly
+                      ? 'Cập nhật trạng thái'
+                      : 'Chỉnh sửa'
+                  : assessmentOnly
+                    ? 'Assess work'
+                    : completionOnly
+                      ? 'Update status'
+                      : 'Edit'}
               </button>
             )}
           </>
@@ -901,7 +991,7 @@ function ChecklistExecutionItem({
               )}
               {canAssess && (
                 <label>
-                  Đánh giá nghiệm thu
+                  {lang === 'vi' ? 'Đánh giá nghiệm thu' : 'Work acceptance'}
                   <select
                     value={assessment}
                     onChange={(event) =>
@@ -920,11 +1010,8 @@ function ChecklistExecutionItem({
                   </select>
                 </label>
               )}
-              {canAssess && (
-                <p className="mc-help">
-                  ⓘ Đánh giá không đạt không tự động làm mission thất bại.
-                </p>
-              )}
+              {canAssess && <p className="mc-help">{assessmentHelp}</p>}
+              {noteEditor}
               {canExecute && !completionOnly && (
                 <label>
                   Ghi nhận thực hiện
@@ -971,7 +1058,7 @@ function ChecklistExecutionItem({
                   type="submit"
                   disabled={conflict || busy}
                 >
-                  Lưu
+                  {lang === 'vi' ? 'Lưu' : 'Save'}
                 </button>
               </div>
             </fieldset>
@@ -1000,12 +1087,13 @@ function ChecklistExecutionItem({
           </span>
         )}
       </div>
-      {item.observation && (
+      {!hideAssessment && savedNote}
+      {!assessmentOnly && !completionOnly && item.observation && (
         <p>
           <strong>Ghi nhận:</strong> {item.observation}
         </p>
       )}
-      {item.unableToVerifyReason && (
+      {!assessmentOnly && !completionOnly && item.unableToVerifyReason && (
         <p>
           <strong>Lý do không thể xác minh:</strong> {item.unableToVerifyReason}
         </p>
@@ -1025,7 +1113,7 @@ function ChecklistExecutionItem({
             setEditing(true)
           }}
         >
-          Cập nhật mục
+          {lang === 'vi' ? 'Cập nhật mục' : 'Edit item'}
         </button>
       )}
       {editing && (
@@ -1036,7 +1124,7 @@ function ChecklistExecutionItem({
           }}
         >
           <fieldset disabled={!editable || busy}>
-            {canExecute && (
+            {canExecute && !completionOnly && (
               <label>
                 Trạng thái thực hiện
                 <select
@@ -1057,7 +1145,7 @@ function ChecklistExecutionItem({
             )}
             {canAssess && (
               <label>
-                Đánh giá nghiệm thu
+                {lang === 'vi' ? 'Đánh giá nghiệm thu' : 'Work acceptance'}
                 <select
                   value={assessment}
                   onChange={(event) =>
@@ -1076,12 +1164,8 @@ function ChecklistExecutionItem({
                 </select>
               </label>
             )}
-            {canAssess && (
-              <small>
-                Không đạt yêu cầu không đồng nghĩa mission thất bại. Chưa đánh
-                giá là lựa chọn hợp lệ.
-              </small>
-            )}
+            {canAssess && <small>{assessmentHelp}</small>}
+            {noteEditor}
             {canExecute && (
               <label>
                 Ghi nhận thực hiện
@@ -1092,8 +1176,8 @@ function ChecklistExecutionItem({
                 />
               </label>
             )}
-            {canExecute && <small>{observation.length} / 2000</small>}
-            {canExecute && status === 'UNABLE_TO_VERIFY' && (
+            {canExecute && !completionOnly && <small>{observation.length} / 2000</small>}
+            {canExecute && !completionOnly && status === 'UNABLE_TO_VERIFY' && (
               <label>
                 Lý do không thể xác minh
                 <textarea
@@ -1116,7 +1200,7 @@ function ChecklistExecutionItem({
                 type="submit"
                 disabled={conflict || busy}
               >
-                Lưu mục
+                {lang === 'vi' ? 'Lưu mục' : 'Save item'}
               </button>
               <button
                 className="odm-btn"

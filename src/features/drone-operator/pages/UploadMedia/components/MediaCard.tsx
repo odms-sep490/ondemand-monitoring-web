@@ -4,7 +4,7 @@ import {
   mediaTypeLabel,
   mediaSourceLabel,
   statusTone,
-  mediaStatusLabel,
+  getUploadMediaStatusLabel,
   successfullyUploadedStatuses,
 } from '../uploadMediaHelpers'
 import { PcBackupPicker } from '../../../../media/components/PcBackupPicker'
@@ -68,7 +68,7 @@ export function MediaCard({
   remotePreviewUrl?: string
   reviewMedia?: (mediaId: string) => Promise<void>
 }) {
-  const { t } = useI18n(uploadMediaPageMessages)
+  const { t, lang } = useI18n(uploadMediaPageMessages)
   return (
     <article
       className={`upload-media-card${isSelected ? ' is-selected' : ''}`}
@@ -117,7 +117,7 @@ export function MediaCard({
           )}
         </div>
         <span className={`upload-media-status ${statusTone(status)}`}>
-          {mediaStatusLabel[status] ?? status}
+          {getUploadMediaStatusLabel(status, lang)}
         </span>
         {status === 'PENDING_MANAGER_APPROVAL' && (
           <p className="upload-media-state-note">{t.managerReviewPending}</p>
