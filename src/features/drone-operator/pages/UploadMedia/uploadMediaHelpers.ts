@@ -40,7 +40,7 @@ export const mediaStatusLabel: Record<string, string> = {
   MANUAL_UPLOAD_REQUIRED: 'Cần tải thủ công',
   UPLOAD_PENDING: 'Chờ tải lên',
   RETRY_REQUIRED: 'Cần tải lại',
-  PENDING_MANAGER_APPROVAL: 'Chờ Manager duyệt',
+  PENDING_MANAGER_APPROVAL: 'Chờ nghiệm thu duyệt',
   AVAILABLE: 'Đã duyệt',
   REJECTED: 'Bị từ chối',
   UPLOADED: 'Đã tải lên',
@@ -56,3 +56,20 @@ export function statusTone(status: string) {
     return 'is-success'
   return ''
 }
+
+const mediaStatusLabelEn: Record<string, string> = {
+  REVIEW_PENDING: 'Pending upload',
+  UPLOADING: 'Uploading',
+  UPLOAD_FAILED: 'Upload failed',
+  VALIDATING: 'Validating',
+  MANUAL_UPLOAD_REQUIRED: 'Manual upload required',
+  UPLOAD_PENDING: 'Pending upload',
+  RETRY_REQUIRED: 'Retry required',
+  PENDING_MANAGER_APPROVAL: 'Awaiting inspector review',
+  AVAILABLE: 'Approved',
+  REJECTED: 'Rejected',
+  UPLOADED: 'Uploaded',
+}
+export const getUploadMediaStatusLabel = (status: string, lang: 'vi' | 'en') =>
+  (lang === 'en' ? mediaStatusLabelEn[status] : mediaStatusLabel[status]) ??
+  status

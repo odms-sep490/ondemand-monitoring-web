@@ -220,7 +220,7 @@ export function useMissionDetailActions({
         `Ngày bay: ${formatVnDate(mission.date)}.`,
         `Vùng giám sát: ${mission.radiusMeters == null ? 'chưa rõ bán kính' : `bán kính ${mission.radiusMeters} m`}.`,
       ].join(' '),
-      notes: 'Kết quả giám sát được gửi cho manager duyệt.',
+      notes: 'Nghiệm thu viên xác nhận kết quả giám sát.',
     } as const
   }
 

@@ -13,6 +13,17 @@ import type { OrderDetail } from '../../../types/orders'
 vi.mock('../../../../media/components/MissionUploadedMedia', () => ({
   MissionUploadedMedia: () => <div>Thư viện media riêng</div>,
 }))
+vi.mock('../../../../delivery/ManagerDeliveryPanel', () => ({
+  ManagerDeliveryPanel: ({
+    allowLegacyPublication,
+  }: {
+    allowLegacyPublication?: boolean
+  }) => (
+    <div data-testid="publication-mode">
+      {allowLegacyPublication ? 'legacy-recovery' : 'automatic'}
+    </div>
+  ),
+}))
 const mission: MissionResponse = {
   id: 'm',
   orderId: 'o',
@@ -147,6 +158,20 @@ afterEach(() => {
   window.history.replaceState(null, '', window.location.pathname)
 })
 describe('Manager Mission Detail monitoring review', () => {
+  it.each([undefined, false, true])(
+    'routes approved inspectorConfirmed=%s to the correct publication mode',
+    async (inspectorConfirmed) => {
+      vi.mocked(missionsApi.getMissionResult).mockResolvedValue({
+        ...result,
+        approvalStatus: 'APPROVED',
+        inspectorConfirmed,
+      })
+      render(<MissionDetailPage missionId="m" />)
+      expect(await screen.findByTestId('publication-mode')).toHaveTextContent(
+        inspectorConfirmed === true ? 'automatic' : 'legacy-recovery',
+      )
+    },
+  )
   it.each([
     {
       purpose: 'ORIGINAL' as const,

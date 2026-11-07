@@ -216,6 +216,10 @@ function MissionDetail({ missionId }: { missionId: string }) {
           {isCompleted && resultApproved ? (
             <div className="mgr-md-delivery" hidden={activeTab !== 'result'}>
               <ManagerDeliveryPanel
+                allowLegacyPublication={
+                  detail.result?.approvalStatus === 'APPROVED' &&
+                  detail.result.inspectorConfirmed !== true
+                }
                 orderId={mission.orderId}
                 refreshKey={revision}
               />

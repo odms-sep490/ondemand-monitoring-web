@@ -704,41 +704,6 @@
     flex-wrap: wrap;
   }
 }
-.upload-media-contact > p {
-  margin: 0;
-}
-
-.upload-media-contact-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid var(--bd, #dbe3ef);
-}
-
-.upload-media-contact-row > div {
-  display: grid;
-  gap: 3px;
-}
-
-.upload-media-contact-row span,
-.upload-media-contact-row small {
-  color: var(--tx3, #64748b);
-}
-
-.upload-media-contact-missing {
-  font-size: 13px;
-}
-
-@media (max-width: 640px) {
-  .upload-media-contact-row {
-    align-items: stretch;
-    flex-direction: column;
-  }
-}
-
 .mission-evidence-nav {
   display: flex;
   align-items: center;

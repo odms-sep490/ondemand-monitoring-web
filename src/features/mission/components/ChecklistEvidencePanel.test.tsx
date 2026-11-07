@@ -90,7 +90,7 @@ describe('Checklist evidence', () => {
     expect(screen.getByAltText('capture.jpg')).toBeInTheDocument()
     expect(screen.getByText(/Camera drone/)).toBeInTheDocument()
     expect(screen.getByText(/Bằng chứng hợp lệ: 1 \/ 1/)).toBeInTheDocument()
-    expect(screen.getByText('Chờ manager duyệt')).toBeInTheDocument()
+    expect(screen.getByText('Chờ nghiệm thu duyệt')).toBeInTheDocument()
     expect(screen.queryByText(/Duyệt media bắt buộc/)).toBeNull()
   })
   it('attaches stable backend media id with expected execution version', async () => {
@@ -280,6 +280,7 @@ describe('Checklist evidence', () => {
       />,
     )
     expect(screen.queryByText('Cập nhật mục')).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: /Historical fence/ }))
     expect(screen.getByText('Thêm bằng chứng từ media Mission')).toBeEnabled()
   })
   it.each(['PENDING_MANAGER_APPROVAL', 'APPROVED'] as const)(
@@ -334,7 +335,7 @@ describe('Evidence picker Mission-scoped loading', () => {
       expect(
         within(screen.getByRole('dialog')).getByText('Gắn media'),
       ).toBeEnabled()
-      expect(screen.getByText('Chờ manager duyệt')).toBeInTheDocument()
+      expect(screen.getByText('Chờ nghiệm thu duyệt')).toBeInTheDocument()
       expect(screen.queryByText('Trang sau')).not.toBeInTheDocument()
     },
   )

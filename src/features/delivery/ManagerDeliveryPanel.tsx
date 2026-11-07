@@ -39,9 +39,11 @@ type DeliveryDraftStatus =
 export function ManagerDeliveryPanel({
   orderId,
   refreshKey = 0,
+  allowLegacyPublication = false,
 }: {
   orderId: string
   refreshKey?: number
+  allowLegacyPublication?: boolean
 }) {
   const { t: fb } = useI18n(managerDeliveryFeedbackMessages)
   const { t } = useI18n(managerDeliveryPanelMessages)
@@ -315,10 +317,13 @@ export function ManagerDeliveryPanel({
     t.draftSaveFailed,
   ])
 
-  const canReleasePreview = [
-    'READY_FOR_MANAGER_REVIEW',
-    'REVISION_REQUESTED',
-  ].includes(delivery?.deliveryStatus ?? '')
+  const canReleasePreview =
+    (allowLegacyPublication ||
+      Boolean(revisionCase) ||
+      checklistDelivery?.currentReviewRoundId != null) &&
+    ['READY_FOR_MANAGER_REVIEW', 'REVISION_REQUESTED'].includes(
+      delivery?.deliveryStatus ?? '',
+    )
   const checklistItems = useMemo(
     () =>
       (checklistDelivery?.checklists ?? []).map((item) => ({
@@ -608,6 +613,13 @@ export function ManagerDeliveryPanel({
       </header>
       <DeliveryProgress status={delivery.deliveryStatus} />
       <div className="delivery-content">
+        {!canReleasePreview &&
+          !allowLegacyPublication &&
+          !revisionCase &&
+          checklistDelivery?.currentReviewRoundId == null && (
+            <Alert type="info" showIcon message={t.inspectorPublication} />
+          )}
+
         {draftStatus === 'stale' ? (
           <Alert
             type="warning"
@@ -783,7 +795,7 @@ export function ManagerDeliveryPanel({
               }
             })}
           />
-          {hasMissingMinimum ? (
+          {canReleasePreview && hasMissingMinimum ? (
             <Alert type="warning" showIcon message={t.selectChecklistMedia} />
           ) : null}
           {canReleasePreview && checklistItems.length > 0 ? (

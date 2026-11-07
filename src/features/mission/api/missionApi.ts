@@ -34,9 +34,15 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
 
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}))
-    throw new ApiError(errorData.message || `HTTP ${res.status}: ${res.statusText}`, {
-      status: res.status, code: errorData.code, method: options?.method ?? 'GET', path: url,
-    })
+    throw new ApiError(
+      errorData.message || `HTTP ${res.status}: ${res.statusText}`,
+      {
+        status: res.status,
+        code: errorData.code,
+        method: options?.method ?? 'GET',
+        path: url,
+      },
+    )
   }
 
   const payload: ApiResponse<T> = await res.json()
@@ -90,9 +96,15 @@ export const missionApi = {
 
     if (!res.ok) {
       const errorData = await res.json().catch(() => ({}))
-      throw new ApiError(errorData.message || `HTTP ${res.status}: ${res.statusText}`, {
-        status: res.status, code: errorData.code, method: 'GET', path: `/api/missions/${missionId}/result`,
-      })
+      throw new ApiError(
+        errorData.message || `HTTP ${res.status}: ${res.statusText}`,
+        {
+          status: res.status,
+          code: errorData.code,
+          method: 'GET',
+          path: `/api/missions/${missionId}/result`,
+        },
+      )
     }
 
     const payload: ApiResponse<MissionResult> = await res.json()
@@ -103,14 +115,18 @@ export const missionApi = {
    * POST /api/missions/{id}/media/capture-reference — the server uses the drone's latest telemetry
    * and Mapillary; the client sends no coordinates.
    */
-  captureReferenceImage: async (missionId: string): Promise<ReferenceCaptureResult> => {
+  captureReferenceImage: async (
+    missionId: string,
+  ): Promise<ReferenceCaptureResult> => {
     const res = await authenticatedFetch(
       `${API_BASE}/missions/${encodeURIComponent(missionId)}/media/capture-reference`,
       { method: 'POST', headers: { 'Content-Type': 'application/json' } },
     )
     if (!res.ok) {
       const errorData = await res.json().catch(() => ({}))
-      throw new Error(errorData.message || `HTTP ${res.status}: ${res.statusText}`)
+      throw new Error(
+        errorData.message || `HTTP ${res.status}: ${res.statusText}`,
+      )
     }
     const payload = (await res.json()) as { data: ReferenceCaptureResult }
     return payload.data
@@ -154,7 +170,14 @@ export const missionApi = {
       `${API_BASE}/missions/${encodeURIComponent(missionId)}/result`,
       {
         method: 'POST',
-        body: JSON.stringify(payload),
+        // Summary is bounded; preserve the full report in notes.
+        body: JSON.stringify({
+          ...payload,
+          summary:
+            payload.summary == null
+              ? payload.summary
+              : payload.summary.slice(0, 1000).replace(/[\uD800-\uDBFF]$/, ''),
+        }),
       },
     )
   },
@@ -245,20 +268,26 @@ export const missionApi = {
   },
 
   assignDrone: async (missionId: string, droneId: string): Promise<Mission> => {
-    return request<Mission>(`${API_BASE}/missions/${encodeURIComponent(missionId)}/device-assignments`, {
-      method: 'POST',
-      body: JSON.stringify({ deviceId: droneId, deviceRole: 'MAIN' }),
-    })
+    return request<Mission>(
+      `${API_BASE}/missions/${encodeURIComponent(missionId)}/device-assignments`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ deviceId: droneId, deviceRole: 'MAIN' }),
+      },
+    )
   },
 
   assignOperator: async (
     missionId: string,
     operatorId: string,
   ): Promise<Mission> => {
-    return request<Mission>(`${API_BASE}/missions/${encodeURIComponent(missionId)}/staff-assignments`, {
-      method: 'POST',
-      body: JSON.stringify({ staffId: operatorId, assignedRoles: ['PILOT'] }),
-    })
+    return request<Mission>(
+      `${API_BASE}/missions/${encodeURIComponent(missionId)}/staff-assignments`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ staffId: operatorId, assignedRoles: ['PILOT'] }),
+      },
+    )
   },
 
   // F3.1 Accept mission (PATCH /api/missions/{id}/accept)
@@ -360,9 +389,12 @@ export const missionApi = {
 
   // Start operation after staff acceptance, preflight, and control handover.
   startMission: async (missionId: string): Promise<Mission> => {
-    return request<Mission>(`${API_BASE}/missions/${missionId}/start-operation`, {
-      method: 'POST',
-    })
+    return request<Mission>(
+      `${API_BASE}/missions/${missionId}/start-operation`,
+      {
+        method: 'POST',
+      },
+    )
   },
 
   // F3.3 Upload Mission Image / Media (POST /api/missions/{id}/media)

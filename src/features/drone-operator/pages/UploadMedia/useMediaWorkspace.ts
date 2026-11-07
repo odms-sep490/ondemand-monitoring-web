@@ -409,10 +409,6 @@ export function useMediaWorkspace({
   // Permissions and the Mission stay usable while a background reload runs; only a failure or a first load removes them.
   const canManageMedia =
     !permissions.error && permissions.data?.canUploadMedia === true
-  const inspector = activeMission.data?.staffAssignments?.find(
-    (assignment) => assignment.assignedRole === 'INSPECTOR',
-  )
-  const showManagerContact = permissions.data?.canInspectDevice === true
   const missionStatus =
     activeMission.error || activeMission.data?.id !== missionId
       ? undefined
@@ -453,7 +449,7 @@ export function useMediaWorkspace({
         `Mission ${mission?.missionCode ?? missionId} đã hoàn thành.`,
         `Thiết bị: ${deviceLabel ?? 'chưa rõ'}.`,
       ].join(' '),
-      notes: 'Kết quả giám sát được gửi cho manager duyệt.',
+      notes: 'Nghiệm thu viên xác nhận kết quả giám sát.',
     }
   }
 
@@ -509,8 +505,6 @@ export function useMediaWorkspace({
     manual,
     deviceLabel,
     canManageMedia,
-    inspector,
-    showManagerContact,
     missionStatus,
     actions,
     isBusy,

@@ -75,9 +75,11 @@ describe('MissionHistoryDetailPage', () => {
   it('keeps the mission visible when only the file list fails, with its own retry', async () => {
     vi.spyOn(customerMediaApi, 'listMissionMedia').mockRejectedValueOnce(new Error('boom'))
     render(<MissionHistoryDetailPage missionId="msn-006-1" />)
-    expect(await screen.findByText('Không tải được danh sách tệp.')).toBeInTheDocument()
+    const fileError = await screen.findByText('Không tải được danh sách tệp.')
+    expect(fileError).toBeInTheDocument()
     expect(screen.getByText('Thông tin lần bay')).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: 'Thử lại' }))
+    // Other independent panels may also expose a retry button.
+    fireEvent.click(within(fileError.closest('[role="alert"]') as HTMLElement).getByRole('button', { name: 'Thử lại' }))
     await waitFor(() => expect(cards()).toHaveLength(12))
   })
 })

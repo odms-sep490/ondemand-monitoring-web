@@ -33,4 +33,20 @@ describe('Operational acceptance / business submission endpoint contract', () =>
       expect.objectContaining({ method: 'POST', body: JSON.stringify(body) }),
     )
   })
+  it('bounds generated summaries without truncating the detailed report or splitting Unicode characters', async () => {
+    vi.mocked(authenticatedFetch).mockResolvedValue(
+      new Response(JSON.stringify({ data: {} })),
+    )
+    await missionApi.submitMissionResult('m1', {
+      status: 'COMPLETED',
+      summary: 'x'.repeat(999) + '🚁',
+      notes: 'Detailed report. '.repeat(200),
+    })
+    const body = JSON.parse(
+      vi.mocked(authenticatedFetch).mock.calls[0][1]?.body as string,
+    )
+    expect(body.summary).toHaveLength(999)
+    expect(body.summary).toBe('x'.repeat(999))
+    expect(body.notes).toBe('Detailed report. '.repeat(200))
+  })
 })

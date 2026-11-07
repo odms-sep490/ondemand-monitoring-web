@@ -34,11 +34,11 @@ export const operatorDashboardPageMessages = defineMessages({
     openPostflight: 'Mở kiểm tra sau bay',
     acceptanceTitle: 'Mission chờ nghiệm thu',
     acceptanceDescription:
-      'Kiểm tra sau bay đã hoàn tất. Rà soát danh mục và ảnh/video, xác nhận hoàn thành rồi gửi quản lý.',
+      'Kiểm tra sau bay đã hoàn tất. Rà soát danh mục và ảnh/video, xác nhận hoàn thành rồi xác nhận nghiệm thu.',
     openAcceptance: 'Mở hồ sơ nghiệm thu',
-    managerReviewTitle: 'Đã gửi kết quả cho Manager',
+    managerReviewTitle: 'Chờ xác nhận nghiệm thu',
     managerReviewDescription:
-      'Kết quả nghiệm thu đang chờ Manager phê duyệt.',
+      'Hồ sơ đang chờ xác nhận nghiệm thu.',
     missionCompletedTitle: (code: string) => `Nhiệm vụ ${code} Đã Hoàn Thành!`,
     missionCompletedDescriptionPrefix:
       'Dữ liệu hình ảnh và nhật ký kiểm tra đã được lưu trữ an toàn. Drone',
@@ -95,11 +95,11 @@ export const operatorDashboardPageMessages = defineMessages({
     openPostflight: 'Open post-flight check',
     acceptanceTitle: 'Mission awaiting inspection',
     acceptanceDescription:
-      'Postcheck is complete. Review the checklist and media, confirm completion, then send it to the Manager.',
+      'Postcheck is complete. Review the checklist and media, confirm completion, then confirm inspection.',
     openAcceptance: 'Open inspection package',
-    managerReviewTitle: 'Result sent to Manager',
+    managerReviewTitle: 'Awaiting inspection',
     managerReviewDescription:
-      'The accepted result is waiting for Manager approval.',
+      'The result is awaiting inspection confirmation.',
     missionCompletedTitle: (code: string) => `Mission ${code} Completed!`,
     missionCompletedDescriptionPrefix:
       'Imagery and inspection logs have been safely stored. Drone',
