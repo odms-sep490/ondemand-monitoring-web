@@ -29,6 +29,15 @@ const statuses: Record<ChecklistExecutionStatus, string> = {
   COMPLETED: 'Đã thực hiện',
   UNABLE_TO_VERIFY: 'Không thể xác minh',
 }
+const executionBadges: Record<
+  ChecklistExecutionStatus,
+  { label: string; className: string }
+> = {
+  PENDING: { label: 'Cần làm', className: 'is-todo' },
+  IN_PROGRESS: { label: 'Đang làm', className: 'is-active' },
+  COMPLETED: { label: 'Hoàn thành', className: 'is-done' },
+  UNABLE_TO_VERIFY: { label: 'Không xác minh', className: 'is-danger' },
+}
 const assessmentLabels: Record<
   'vi' | 'en',
   Record<ChecklistAssessmentStatus, string>
@@ -316,21 +325,6 @@ export function MonitoringChecklistSection({
                 ? staffNamesById?.[item.lastModifiedBy]
                 : undefined
               const finished = terminal(item.executionStatus)
-              const missing =
-                !assessmentOnly &&
-                finished &&
-                item.executionStatus === 'COMPLETED' &&
-                (evidenceShortfall(item) > 0 ||
-                  Boolean(
-                    item.blockingReasons?.some((reason) =>
-                      [
-                        'EVIDENCE_TYPE_NOT_ELIGIBLE',
-                        'MEDIA_REJECTED',
-                        'MEDIA_NOT_VALIDATED',
-                        'EVIDENCE_SOURCE_NOT_ELIGIBLE',
-                      ].includes(reason),
-                    ),
-                  ))
               const tone = assessmentOnly
                 ? item.assessmentStatus === 'COMPLIANT'
                   ? 'is-done'
@@ -342,12 +336,17 @@ export function MonitoringChecklistSection({
                 : item.executionStatus === 'UNABLE_TO_VERIFY'
                   ? 'is-unable'
                   : finished
-                    ? missing
-                      ? 'is-missing'
-                      : 'is-done'
+                    ? 'is-done'
                     : item.id === firstTodo?.id
                       ? 'is-current'
                       : ''
+              const badge = assessmentOnly
+                ? tone === 'is-current'
+                  ? { label: 'Cần đánh giá', className: 'is-todo' }
+                  : tone === 'is-unable'
+                    ? { label: 'Không đạt yêu cầu', className: 'is-danger' }
+                    : null
+                : executionBadges[item.executionStatus]
               const evidenceSummary =
                 item.executionStatus === 'UNABLE_TO_VERIFY'
                   ? `${item.eligibleEvidenceCount ?? 0} bằng chứng`
@@ -393,21 +392,9 @@ export function MonitoringChecklistSection({
                           : null}
                       </span>
                     </span>
-                    {tone === 'is-current' && (
-                      <span className="mc-chip is-todo">
-                        {assessmentOnly ? 'Cần đánh giá' : 'Cần làm'}
-                      </span>
-                    )}
-                    {tone === 'is-missing' && (
-                      <span className="mc-chip is-pending">
-                        Thiếu bằng chứng
-                      </span>
-                    )}
-                    {tone === 'is-unable' && (
-                      <span className="mc-chip is-danger">
-                        {assessmentOnly
-                          ? 'Không đạt yêu cầu'
-                          : 'Không xác minh'}
+                    {badge && (
+                      <span className={`mc-chip ${badge.className}`}>
+                        {badge.label}
                       </span>
                     )}
                     <span className="mc-caret" aria-hidden="true" />
@@ -636,20 +623,6 @@ export function MonitoringChecklistSection({
           {rows.map((item, index) => {
             const open = item.id === openId
             const finished = terminal(item.executionStatus)
-            const missing =
-              !assessmentOnly &&
-              item.executionStatus === 'COMPLETED' &&
-              (evidenceShortfall(item) > 0 ||
-                Boolean(
-                  item.blockingReasons?.some((reason) =>
-                    [
-                      'EVIDENCE_TYPE_NOT_ELIGIBLE',
-                      'MEDIA_REJECTED',
-                      'MEDIA_NOT_VALIDATED',
-                      'EVIDENCE_SOURCE_NOT_ELIGIBLE',
-                    ].includes(reason),
-                  ),
-                ))
             const tone = assessmentOnly
               ? item.assessmentStatus === 'COMPLIANT'
                 ? 'is-done'
@@ -661,12 +634,17 @@ export function MonitoringChecklistSection({
               : item.executionStatus === 'UNABLE_TO_VERIFY'
                 ? 'is-unable'
                 : finished
-                  ? missing
-                    ? 'is-missing'
-                    : 'is-done'
+                  ? 'is-done'
                   : item.id === firstTodo?.id
                     ? 'is-current'
                     : ''
+            const badge = assessmentOnly
+              ? tone === 'is-current'
+                ? { label: 'Cần đánh giá', className: 'is-todo' }
+                : tone === 'is-unable'
+                  ? { label: 'Không đạt yêu cầu', className: 'is-danger' }
+                  : null
+              : executionBadges[item.executionStatus]
             const evidenceSummary =
               item.executionStatus === 'UNABLE_TO_VERIFY'
                 ? `${item.eligibleEvidenceCount ?? 0} bằng chứng`
@@ -704,17 +682,9 @@ export function MonitoringChecklistSection({
                         ` · thiếu ${evidenceShortfall(item)}`}
                     </span>
                   </span>
-                  {tone === 'is-current' && (
-                    <span className="mc-chip is-todo">
-                      {assessmentOnly ? 'Cần đánh giá' : 'Cần làm'}
-                    </span>
-                  )}
-                  {tone === 'is-missing' && (
-                    <span className="mc-chip is-pending">Thiếu bằng chứng</span>
-                  )}
-                  {tone === 'is-unable' && (
-                    <span className="mc-chip is-danger">
-                      {assessmentOnly ? 'Không đạt yêu cầu' : 'Không xác minh'}
+                  {badge && (
+                    <span className={`mc-chip ${badge.className}`}>
+                      {badge.label}
                     </span>
                   )}
                   <span className="mc-caret" aria-hidden="true" />

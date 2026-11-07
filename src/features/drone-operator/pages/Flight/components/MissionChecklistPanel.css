@@ -154,6 +154,16 @@
   color: #fcd34d;
 }
 
+.mission-checklist-surface .mc-chip.is-active {
+  background: #172c47;
+  color: #93c5fd;
+}
+
+.mission-checklist-surface .mc-chip.is-done {
+  background: #123c2a;
+  color: #4ade80;
+}
+
 .mission-checklist-surface .mc-chip.is-pending {
   background: #3a2d0e;
   color: #fbbf24;
