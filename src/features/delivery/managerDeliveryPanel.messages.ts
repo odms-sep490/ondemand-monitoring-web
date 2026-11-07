@@ -9,7 +9,7 @@ export const managerDeliveryPanelMessages = defineMessages({
     eyebrow: 'Quy trình bàn giao',
     title: 'Gửi kết quả cho khách hàng',
     intro:
-      'Theo dõi kết quả nghiệm thu và xử lý yêu cầu chỉnh sửa. Tệp gốc được tự động bàn giao khi khách hàng chấp nhận, đã thanh toán đủ và mọi yêu cầu chỉnh sửa đã giải quyết.',
+      'Chọn kết quả nghiệm thu và xử lý yêu cầu chỉnh sửa; bàn giao tệp gốc sau khi khách chấp nhận, thanh toán đủ và chỉnh sửa hoàn tất.',
     revisionTitle: 'khách hàng yêu cầu chỉnh sửa',
     processingTitle: 'Chưa thể gửi bản xem trước',
     processingText:
@@ -139,7 +139,7 @@ export const managerDeliveryPanelMessages = defineMessages({
     eyebrow: 'Delivery workflow',
     title: 'Send results to the customer',
     intro:
-      'Track inspection results and handle revision requests. Originals are released automatically after customer acceptance, full payment, and resolution of all revision items.',
+      'Select accepted results and handle revision requests; release original files after customer acceptance, full payment, and completed revisions.',
     revisionTitle: 'The customer requested changes',
     processingTitle: 'Preview cannot be sent yet',
     processingText:

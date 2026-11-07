@@ -13,6 +13,8 @@ export type BackendMission = {
   managerEmail?: string | null
   managerPhone?: string | null
   status: string
+  flightPermitStatus?: 'PENDING' | 'APPROVED' | 'REJECTED' | null
+  flightPermitUpdatedAt?: string | null
   purpose?: 'ORIGINAL' | 'REWORK' | string | null
   resultRevisionCaseId?: string | null
   operatorId?: string | null
@@ -54,6 +56,7 @@ export type BackendMission = {
   longitude?: number | null
   radiusM?: number | null
   radiusMeters?: number | null
+  altitudeM?: number | null
   address?: string | null
   scheduledStartAt?: string | null
   scheduledEndAt?: string | null
@@ -243,6 +246,8 @@ export function toOperatorMission(
     id: source.id,
     missionCode: source.missionCode ?? source.id,
     backendStatus: source.status,
+    flightPermitStatus: source.flightPermitStatus ?? null,
+    flightPermitUpdatedAt: source.flightPermitUpdatedAt ?? null,
     status: operatorStatusForCrewResponse(source.status, myResponseStatus),
     myResponseStatus:
       myResponseStatus === 'ACCEPTED' || myResponseStatus === 'REJECTED'
@@ -265,9 +270,9 @@ export function toOperatorMission(
     deviceSerialNumber: source.deviceSerialNumber ?? null,
     deviceStatus: source.deviceStatus ?? null,
     deviceAssignmentStatus: currentMainDevice?.status ?? null,
-    deviceCheckStatus: (currentMainDevice?.checkupStatus as
-      | OperatorMission['deviceCheckStatus']
-      | undefined) ?? null,
+    deviceCheckStatus:
+      (currentMainDevice?.checkupStatus as
+        OperatorMission['deviceCheckStatus'] | undefined) ?? null,
     deviceReplacementCompleted:
       currentMainDevice?.replacementCompleted ?? false,
     deviceReplacementRequested: Boolean(
@@ -357,6 +362,7 @@ export function toFlightMission(source: BackendMission): Mission {
     backendId: source.id,
     orderRef: source.orderId ?? '',
     title: source.orderTitle ?? source.missionCode ?? source.id,
+    serviceLabel: source.serviceName ?? undefined,
     state: source.status as Mission['state'],
     priority: 'NORMAL',
     droneId: source.deviceId ?? source.droneId ?? '',
@@ -371,7 +377,10 @@ export function toFlightMission(source: BackendMission): Mission {
     estimatedMinutes: Math.round((source.plan?.plannedDurationSec ?? 0) / 60),
     distanceKm: (source.plan?.plannedDistanceM ?? 0) / 1000,
     flightPlanId: source.plan?.id ?? '',
-    maxAltitudeM: source.plan?.maxPlannedAltitudeM ?? 0,
+    // The requested order altitude is authoritative for cockpit automation.
+    // Planned altitude is only a fallback for older missions without it.
+    maxAltitudeM:
+      source.altitudeM ?? source.plan?.maxPlannedAltitudeM ?? 32,
     notes: source.description ?? '',
     targetSimX: targetPoint?.simX,
     targetSimY: targetPoint?.simY,

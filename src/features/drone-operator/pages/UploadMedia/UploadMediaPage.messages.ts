@@ -85,7 +85,6 @@ export const uploadMediaPageMessages = defineMessages({
     manualUpload: 'Tải thủ công từ bản gốc',
     batchUploadComplete:
       'Đã gửi các tệp chờ tải. Trạng thái được cập nhật từ máy chủ.',
-    backToCockpit: 'Quay lại buồng lái',
     refresh: 'Làm mới',
     uploadAll: 'Tải tất cả lên',
     missingChecklistEvidence:
@@ -188,7 +187,6 @@ export const uploadMediaPageMessages = defineMessages({
     manualUpload: 'Upload manually from original',
     batchUploadComplete:
       'Pending files were sent. Status is updated by the server.',
-    backToCockpit: 'Back to cockpit',
     refresh: 'Refresh',
     uploadAll: 'Upload all',
     missingChecklistEvidence:

@@ -26,6 +26,9 @@ import { PreflightRequiredNotice } from './PreflightRequiredNotice'
 import { MissionControlFooter } from './MissionControlFooter'
 import { GpsCockpitView } from './GpsCockpitView'
 import { MissionControlCamera } from './MissionControlCamera'
+import { isConstructionChecklistMission } from '../planHelpers'
+import { MissionChecklistPanel } from './MissionChecklistPanel'
+import { MissionCapturedMediaPanel } from './MissionCapturedMediaPanel'
 
 interface Props {
   normalFlightAllowed?: boolean
@@ -68,6 +71,8 @@ export default function InFlightControl({
   const [controlStatus, setControlStatus] = useState<ControlStatus | null>(null)
   const [moreOpen, setMoreOpen] = useState(false)
   const [lidarDetailsOpen, setLidarDetailsOpen] = useState(false)
+  const [missionPanelOpen, setMissionPanelOpen] = useState(false)
+  const [mediaPanelOpen, setMediaPanelOpen] = useState(false)
   const cameraDefaultAppliedRef = useRef(false)
   const [preflightReady, setPreflightReady] = useState(() => {
     if (requiresBackendPreflight) return false
@@ -138,6 +143,27 @@ export default function InFlightControl({
     showBatteryWarning,
     thermalRows,
   } = useFlightTelemetry({ controlStatus })
+  const isConstructionChecklist = isConstructionChecklistMission(
+    mission.serviceLabel,
+  )
+  const autoPlan = controlStatus?.autoPlan
+  const autoPlanStatus = autoPlan?.status?.toUpperCase()
+  const autoPlanProgress =
+    autoPlan?.total && autoPlan.total > 0
+      ? Math.min(
+          100,
+          (Math.max(0, autoPlan.currentIndex ?? 0) / autoPlan.total) * 100,
+        )
+      : null
+  const displayedProgress = isConstructionChecklist
+    ? ['LANDING', 'COMPLETE', 'COMPLETED'].includes(autoPlanStatus ?? '')
+      ? 100
+      : (autoPlanProgress ?? progress)
+    : progress
+  const constructionChecklistAutoPilot =
+    isConstructionChecklist &&
+    (autoPlan?.active === true ||
+      ['RETURNING', 'LANDING'].includes(autoPlanStatus ?? ''))
   const handleOnline = useCallback(() => setIsOnline(true), [])
   const handleOffline = useCallback(() => setIsOnline(false), [])
   const handleToggleMore = useCallback(() => setMoreOpen((value) => !value), [])
@@ -216,7 +242,7 @@ export default function InFlightControl({
       <MissionControlHeader
         drone={drone}
         isOnline={isOnline}
-        progress={progress}
+        progress={displayedProgress}
         elapsed={elapsed}
         remaining={remaining}
       />
@@ -273,7 +299,10 @@ export default function InFlightControl({
             scrollbarGutter: 'stable',
           }}
         >
-          <LidarRadarOverlay status={controlStatus} />
+          <LidarRadarOverlay
+            status={controlStatus}
+            displayOnly={constructionChecklistAutoPilot}
+          />
           <AirPressurePanel status={controlStatus} />
         </section>
 
@@ -302,12 +331,19 @@ export default function InFlightControl({
           />
         </section>
 
-        <MissionControlSide
-          controlStatus={controlStatus}
-          lidarDetailsOpen={lidarDetailsOpen}
-          progress={progress}
-          mission={mission}
-        />
+        {missionPanelOpen ? (
+          <MissionChecklistPanel mission={mission} progress={displayedProgress} />
+        ) : mediaPanelOpen ? (
+          <MissionCapturedMediaPanel mission={mission} />
+        ) : (
+          <MissionControlSide
+            controlStatus={controlStatus}
+            lidarDetailsOpen={lidarDetailsOpen}
+            view="overview"
+            progress={displayedProgress}
+            mission={mission}
+          />
+        )}
 
         {!preflightReady && normalFlightAllowed && (
           <PreflightRequiredNotice
@@ -323,6 +359,20 @@ export default function InFlightControl({
         footerStatusColor={footerStatusColor}
         footerStatusDot={footerStatusDot}
         geofenceMessage={geofenceMessage}
+        missionPanelOpen={missionPanelOpen}
+        mediaPanelOpen={mediaPanelOpen}
+        onShowChecklist={() => {
+          setMissionPanelOpen(true)
+          setMediaPanelOpen(false)
+        }}
+        onShowMedia={() => {
+          setMissionPanelOpen(false)
+          setMediaPanelOpen(true)
+        }}
+        onShowOverview={() => {
+          setMissionPanelOpen(false)
+          setMediaPanelOpen(false)
+        }}
       />
     </div>
   )

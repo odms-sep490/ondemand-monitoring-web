@@ -4,7 +4,10 @@ import { statusTone } from '../missionFormat'
 import { WeatherTile } from './WeatherTile'
 import { useI18n } from '../../../../../shared/i18n'
 import { missionDetailPageMessages } from '../MissionDetailPage.messages'
-import { isWeatherCheckFresh } from '../weatherReadiness'
+import {
+  isWeatherCheckFresh,
+  isWeatherCheckFreshAfterPermit,
+} from '../weatherReadiness'
 import {
   CloudOutlined,
   CloudDownloadOutlined,
@@ -16,6 +19,7 @@ import {
 
 export function WeatherCard({
   weather,
+  weatherNotBefore,
   loading = false,
   reviewMode = false,
   canCheckWeather = false,
@@ -28,6 +32,7 @@ export function WeatherCard({
   onApproveWeather,
 }: {
   weather: WeatherPreflightStatus | null
+  weatherNotBefore?: string | null
   loading?: boolean
   reviewMode?: boolean
   canCheckWeather?: boolean
@@ -40,8 +45,15 @@ export function WeatherCard({
   onApproveWeather?: () => void
 }) {
   const { t } = useI18n(missionDetailPageMessages)
-  const weatherIsFresh = isWeatherCheckFresh(weather)
+  const weatherIsFresh = isWeatherCheckFreshAfterPermit(
+    weather,
+    weatherNotBefore,
+  )
   const weatherNeedsRefresh = reviewMode && !weatherIsFresh
+  const weatherNeedsPostPermitCheck =
+    Boolean(weather && weatherNotBefore) &&
+    isWeatherCheckFresh(weather) &&
+    Date.parse(weather!.checkedAt) <= Date.parse(weatherNotBefore!)
   const weatherIsAccepted = weather?.inspectorAccepted === true
   const canAccept =
     canApproveWeather &&
@@ -163,7 +175,9 @@ export function WeatherCard({
             )}
             {weatherNeedsRefresh ? (
               <div className="mds-weather-feedback is-warning" role="status">
-                {t.weatherExpired}
+                {weatherNeedsPostPermitCheck
+                  ? t.weatherAfterPermitRequired
+                  : t.weatherExpired}
               </div>
             ) : null}
           </>

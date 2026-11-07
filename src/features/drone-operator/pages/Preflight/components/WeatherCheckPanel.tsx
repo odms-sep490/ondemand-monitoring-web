@@ -119,10 +119,15 @@ export function WeatherCheckPanel({
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
           }}
-          title={error ?? status?.advisories.join(' ') ?? undefined}
+          title={
+            error ??
+            (status?.safeToFly ? undefined : status?.advisories.join(' '))
+          }
         >
           {error ?? status?.summary ?? t.weatherHint}
-          {status?.advisories?.[0] ? ` ${status.advisories[0]}` : ''}
+          {!status?.safeToFly && status?.advisories?.[0]
+            ? ` ${status.advisories[0]}`
+            : ''}
         </div>
         <div
           style={{

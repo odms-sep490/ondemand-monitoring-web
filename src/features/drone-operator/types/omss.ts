@@ -69,6 +69,7 @@ export interface Mission {
   orderRef: string
   orderTitle?: string
   title: string
+  serviceLabel?: string
   state: MissionState
   priority: 'LOW' | 'NORMAL' | 'HIGH' | 'CRITICAL'
   droneId: string
@@ -124,7 +125,12 @@ export interface MissionRoutePoint {
   simY: number
   altitudeM: number
   speedMps?: number
+  minSpeedMps?: number
+  reachedRadiusM?: number
+  slowdownRadiusM?: number
   reason: string
+  yawDeg?: number
+  mediaActions?: Array<'photo' | 'video_start' | 'video_stop'>
 }
 
 export type Role = 'operator' | 'customer' | 'manager' | 'sysop' | 'admin'

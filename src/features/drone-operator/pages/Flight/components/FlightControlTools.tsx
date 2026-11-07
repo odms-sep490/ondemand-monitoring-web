@@ -89,7 +89,8 @@ export function FlightControlTools({
         <button
           onClick={onReviewMedia}
           disabled={busyCommand !== null}
-          style={{ ...buttonStyle(), width: 62 }}
+          aria-label={t.toolbar.reviewMedia}
+          style={{ ...buttonStyle(), width: 88 }}
           title={t.toolbar.reviewMedia}
         >
           <Icon name="photo" size={14} />

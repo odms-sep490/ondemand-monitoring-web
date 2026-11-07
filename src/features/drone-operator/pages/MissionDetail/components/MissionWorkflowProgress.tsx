@@ -3,7 +3,7 @@ import type { OperatorMission } from '../../../types/mission'
 import type { WeatherPreflightStatus } from '../types'
 import { useI18n } from '../../../../../shared/i18n'
 import { missionDetailPageMessages } from '../MissionDetailPage.messages'
-import { isWeatherCheckFresh } from '../weatherReadiness'
+import { isWeatherCheckFreshAfterPermit } from '../weatherReadiness'
 
 type Props = {
   mission: OperatorMission
@@ -63,8 +63,17 @@ export function MissionWorkflowProgress({
     }
   } else if (status === 'READY') {
     currentStep = 3
-    const weatherFresh = isWeatherCheckFresh(weather)
-    if (!weatherFresh) {
+    const permitApproved = mission.flightPermitStatus === 'APPROVED'
+    const weatherFresh = isWeatherCheckFreshAfterPermit(
+      weather,
+      mission.flightPermitUpdatedAt,
+    )
+    if (!permitApproved) {
+      detail =
+        mission.flightPermitStatus === 'REJECTED'
+          ? t.workflowPermitRejected
+          : t.workflowPermitApproval
+    } else if (!weatherFresh) {
       detail = t.workflowWeatherCheck
     } else if (weather?.safeToFly !== true) {
       detail = t.workflowWeatherUnsafe

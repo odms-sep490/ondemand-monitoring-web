@@ -492,18 +492,26 @@
 
 /* ---------- Mission work table ---------- */
 
+.odm-opr-mission-table-scroll {
+  max-width: 100%;
+  overscroll-behavior-inline: contain;
+  scrollbar-color: var(--bd) var(--sf2);
+  scrollbar-width: thin;
+}
+
 .odm-opr-mission-table {
-  min-width: 0;
+  min-width: 1240px;
   width: 100%;
-  table-layout: auto;
+  table-layout: fixed;
 }
 
 .odm-opr-mission-code {
-  width: 130px;
+  width: 115px;
 }
 
 .odm-opr-mission-job {
-  min-width: 220px;
+  width: 225px;
+  min-width: 225px;
 }
 .odm-opr-mission-job .odm-opr-chip {
   display: inline-block;
@@ -511,7 +519,7 @@
 }
 
 .odm-opr-mission-time {
-  width: 150px;
+  width: 145px;
 }
 
 .odm-opr-mission-service {
@@ -519,26 +527,40 @@
 }
 
 .odm-opr-mission-device {
-  width: 150px;
-  overflow-wrap: anywhere;
+  width: 165px;
+  white-space: normal;
+  overflow-wrap: normal;
+  line-height: 1.4;
 }
 
 .odm-opr-mission-status {
-  width: 150px;
+  width: 140px;
 }
 
 .odm-opr-mission-deadline {
-  width: 130px;
+  width: 125px;
   white-space: nowrap;
 }
 
 .odm-opr-mission-action {
-  width: 130px;
+  width: 150px;
   text-align: right;
 }
 .odm-opr-mission-table td.odm-opr-mission-action,
 .odm-opr-mission-table td:last-child {
   white-space: nowrap;
+  position: sticky;
+  right: 0;
+  z-index: 1;
+  background: var(--sf, #fff);
+  box-shadow: -10px 0 14px -14px var(--tx3);
+}
+.odm-opr-mission-table th.odm-opr-mission-action {
+  position: sticky;
+  right: 0;
+  z-index: 2;
+  background: var(--sf2);
+  box-shadow: -10px 0 14px -14px var(--tx3);
 }
 
 .odm-opr-mission-title {
@@ -1322,6 +1344,9 @@
 .odm-opr-mission-table th {
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.odm-opr-mission-table td:last-child {
+  overflow: visible;
 }
 .odm-opr-mission-table .odm-opr-mission-job,
 .odm-opr-mission-table td.odm-opr-mission-job {

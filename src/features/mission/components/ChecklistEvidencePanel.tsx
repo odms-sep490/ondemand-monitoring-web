@@ -94,6 +94,7 @@ function MissionEvidencePanel({
   item,
   canAttach,
   canDetach,
+  hideAssessmentRequirement = false,
   canSelectForCustomer = false,
   refresh,
   loadCandidates,
@@ -106,6 +107,7 @@ function MissionEvidencePanel({
   item: MissionChecklistExecution
   canAttach: boolean
   canDetach: boolean
+  hideAssessmentRequirement?: boolean
   canSelectForCustomer?: boolean
   refresh: () => void
   loadCandidates?: (page: number) => Promise<EvidenceCandidate[]>
@@ -239,7 +241,14 @@ function MissionEvidencePanel({
     ? `Quy trình ngoại lệ: Miễn nộp bằng chứng do không thể xác minh (Lý do: "${item.unableToVerifyReason}").`
     : 'Quy trình ngoại lệ: Không thể xác minh được miễn đính kèm bằng chứng (bắt buộc phải có lý do giải trình).'
   const renderBlockingReasons = () =>
-    item.blockingReasons?.map((reason) => {
+    item.blockingReasons
+      ?.filter(
+        (reason) =>
+          (!hideAssessmentRequirement || reason !== 'ASSESSMENT_REQUIRED') &&
+          !(compact && remaining > 0 && reason === 'INSUFFICIENT_EVIDENCE') &&
+          !(compact && links.some((link) => link.ineligibilityReason === reason)),
+      )
+      .map((reason) => {
       const assessmentOutOfSync =
         reason === 'ASSESSMENT_REQUIRED' &&
         item.assessmentStatus !== 'NOT_ASSESSED'
@@ -266,9 +275,12 @@ function MissionEvidencePanel({
     <>
       {!canSelectForCustomer && (
         <div className="ce-head">
-          <span>
-            Bằng chứng · {evidenceTypeLabel(item.requiredEvidenceType)}
-          </span>
+          <div className="ce-title-row">
+            <span className="ce-heading">Bằng chứng</span>
+            <span className="ce-type">
+              {evidenceTypeLabel(item.requiredEvidenceType)}
+            </span>
+          </div>
           <span className="ce-count">
             {isPerTypeEvidence(item)
               ? evidenceCountLabel(item)
@@ -315,9 +327,16 @@ function MissionEvidencePanel({
                       'Unknown/Legacy'}
                   </span>
                   <span
+                    title={status}
                     className={`ce-status${link.eligibleForOperationalReadiness ? '' : ' is-warn'}`}
                   >
-                    {status}
+                    {link.ineligibilityReason === 'MEDIA_NOT_VALIDATED'
+                      ? 'Chưa xác thực'
+                      : link.ineligibilityReason === 'MEDIA_APPROVAL_REQUIRED'
+                        ? 'Chờ duyệt'
+                        : link.ineligibilityReason === 'MEDIA_REJECTED'
+                          ? 'Bị từ chối'
+                          : status}
                   </span>
                 </div>
                 <div className="ce-actions">
@@ -367,7 +386,10 @@ function MissionEvidencePanel({
           disabled={busy}
           onClick={() => void load(0)}
         >
-          + Thêm media
+          <span className="ce-add-icon" aria-hidden="true">
+            +
+          </span>
+          Thêm media
         </button>
       )}
     </>
