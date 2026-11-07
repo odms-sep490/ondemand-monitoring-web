@@ -1,4 +1,7 @@
-import { FilterBar, FilterSegments } from '../../../../../shared/components/antd'
+import { FilterOutlined } from '@ant-design/icons'
+import { Select } from 'antd'
+
+import { FilterBar } from '../../../../../shared/components/antd'
 import { useLanguage, useI18n } from '../../../../../shared/i18n'
 import type { OrderStats } from '../../../lib/orders/types'
 import type { OrderStatus } from '../../../../../shared/types/domain'
@@ -36,11 +39,21 @@ type Props = {
   onQuery: (query: string) => void
 }
 
-/** Status segments (server-side filter) and a client-side search box. */
-export function OrdersToolbar({ status, query, stats, onStatus, onQuery }: Props) {
+/** Server-side status filter and client-side search box. */
+export function OrdersToolbar({
+  status,
+  query,
+  stats,
+  onStatus,
+  onQuery,
+}: Props) {
   const { t } = useI18n(ordersToolbarMessages)
   const { lang } = useLanguage()
-  const options: Array<{ value: OrderStatus | ''; label: string; count?: number }> = [
+  const options: Array<{
+    value: OrderStatus | ''
+    label: string
+    count?: number
+  }> = [
     { value: '', label: t.all, count: stats?.total },
     ...ORDER_FILTERS.map((value) => ({
       value,
@@ -52,11 +65,26 @@ export function OrdersToolbar({ status, query, stats, onStatus, onQuery }: Props
   return (
     <FilterBar
       start={
-        <FilterSegments<string>
-          ariaLabel={t.filterLabel}
-          options={options.map((o) => ({ ...o, value: o.value || 'all' }))}
+        <Select
+          className="cus-orders-status-filter"
+          size="large"
+          aria-label={t.filterLabel}
           value={status || 'all'}
-          onChange={(v) => onStatus(v === 'all' ? '' : (v as OrderStatus))}
+          prefix={<FilterOutlined aria-hidden="true" />}
+          options={options.map((option) => ({
+            value: option.value || 'all',
+            label: (
+              <span className="cus-order-filter-option">
+                <span>{option.label}</span>
+                {option.count !== undefined ? (
+                  <span className="cus-order-filter-count">{option.count}</span>
+                ) : null}
+              </span>
+            ),
+          }))}
+          onChange={(value: string) =>
+            onStatus(value === 'all' ? '' : (value as OrderStatus))
+          }
         />
       }
       search={{

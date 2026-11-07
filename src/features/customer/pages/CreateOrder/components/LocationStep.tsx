@@ -509,20 +509,6 @@ export function LocationStep({ form, errors, update }: Props) {
           />
         </div>
       </div>
-      <section
-        className="co-flight-status"
-        aria-labelledby="co-flight-status-title"
-      >
-        <div>
-          <strong id="co-flight-status-title">{t.flightTitle}</strong>
-          <span className="co-status-neutral">{t.flightNotVerified}</span>
-        </div>
-        <p>{t.flightBody}</p>
-        <a href="https://cambay.mod.gov.vn/" target="_blank" rel="noreferrer">
-          {t.flightLink}
-        </a>
-        <small>{t.flightNote}</small>
-      </section>
     </div>
   )
 }

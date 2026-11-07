@@ -3294,48 +3294,6 @@ ul.co-help {
   background: var(--ui-border);
 }
 
-.co-flight-status {
-  display: grid;
-  gap: 8px;
-  padding: 18px 20px;
-  border: 1px solid var(--ui-border);
-  border-left: 4px solid var(--ui-text-3);
-  border-radius: 10px;
-  background: var(--ui-surface);
-}
-.co-flight-status > div {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 16px;
-  align-items: center;
-  justify-content: space-between;
-}
-.co-flight-status p,
-.co-flight-status small {
-  margin: 0;
-  color: var(--ui-text-2);
-  line-height: 1.5;
-}
-.co-flight-status p {
-  font-size: 14px;
-}
-.co-flight-status small {
-  font-size: 12px;
-}
-.co-flight-status a {
-  width: max-content;
-  color: var(--ui-primary-text);
-  font-weight: 700;
-}
-.co-status-neutral {
-  padding: 4px 8px;
-  border-radius: 4px;
-  background: var(--ui-surface-2);
-  color: var(--ui-text-2);
-  font-size: 12px;
-  font-weight: 700;
-}
-
 @media (max-width: 640px) {
   .co-flow-actions {
     bottom: max(6px, env(safe-area-inset-bottom));

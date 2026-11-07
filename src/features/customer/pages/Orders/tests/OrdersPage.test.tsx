@@ -29,8 +29,10 @@ const makeOrder = (n: number): OrderCreateResponse => ({
   createdAt: `2026-09-${String(n).padStart(2, '0')}T00:00:00Z`,
 })
 
-const nextBtn = () => document.querySelector('.ant-pagination-next') as HTMLElement
-const prevBtn = () => document.querySelector('.ant-pagination-prev') as HTMLElement
+const nextBtn = () =>
+  document.querySelector('.ant-pagination-next') as HTMLElement
+const prevBtn = () =>
+  document.querySelector('.ant-pagination-prev') as HTMLElement
 
 const rowsOf = () =>
   within(screen.getByRole('table')).getAllByRole('row').slice(1)
@@ -96,8 +98,11 @@ describe('OrdersPage', () => {
       'href',
       '#portal/customer/orders/ord-1',
     )
+    fireEvent.mouseDown(
+      screen.getByRole('combobox', { name: 'Lọc theo trạng thái' }),
+    )
     expect(
-      screen.getByRole('button', { name: /^Cần bổ sung thông tin/ }),
+      await screen.findByRole('option', { name: /Cần bổ sung thông tin/ }),
     ).toBeInTheDocument()
   })
 
@@ -105,15 +110,17 @@ describe('OrdersPage', () => {
     const spy = vi.spyOn(customerApi, 'listMyOrders')
     render(<OrdersPage />)
     await screen.findByRole('table')
-    fireEvent.click(screen.getByRole('button', { name: /^Hoàn thành/ }))
+    fireEvent.mouseDown(
+      screen.getByRole('combobox', { name: 'Lọc theo trạng thái' }),
+    )
+    fireEvent.click(await screen.findByRole('option', { name: /Hoàn thành/ }))
     await waitFor(() => expect(rowsOf()).toHaveLength(1))
     expect(spy).toHaveBeenLastCalledWith(
       expect.objectContaining({ status: 'COMPLETED' }),
     )
-    expect(screen.getByRole('button', { name: /^Hoàn thành/ })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    )
+    expect(
+      screen.getByRole('combobox', { name: 'Lọc theo trạng thái' }),
+    ).toHaveTextContent(/Hoàn thành/)
   })
 
   it('searches client-side and shows a filtered empty state that can be cleared', async () => {

@@ -73,7 +73,10 @@ export function QuoteSection({
               className="customer-quote-summary-section"
               aria-label={t.summaryLabel}
             >
-              <h3>{t.summaryLabel}</h3>
+              <h3>
+                <OrderIcon name="stack" size={19} />
+                {t.summaryLabel}
+              </h3>
               <dl className="finance-summary customer-summary">
                 <Summary
                   label={t.estimated}
@@ -99,6 +102,25 @@ export function QuoteSection({
         </div>
 
         <aside className="customer-quote-actions" aria-label={t.actionsLabel}>
+          <section
+            className="customer-quote-progress"
+            aria-label={t.orderProgress}
+          >
+            <div className="customer-quote-progress-visual">
+              <img
+                src="/images/auth-hero-drone.png"
+                alt=""
+                aria-hidden="true"
+              />
+              <div className="customer-quote-progress-title">
+                <span className="customer-quote-progress-icon">
+                  <OrderIcon name="drone" size={19} />
+                </span>
+                <h3>{t.orderProgress}</h3>
+              </div>
+            </div>
+          </section>
+
           {quote.expiresAt &&
           hasValidExpiry &&
           (acceptancePending || quote.status === 'EXPIRED') ? (
@@ -131,7 +153,10 @@ export function QuoteSection({
 
           {quote.status === 'ACCEPTED_BY_CUSTOMER' ? (
             <div className="customer-quote-state is-accepted">
-              <strong>{t.quoteAccepted}</strong>
+              <strong>
+                <OrderIcon name="check" size={16} />
+                {t.quoteAccepted}
+              </strong>
               {quote.acceptedAt ? (
                 <span>
                   {t.acceptedAt(
@@ -150,7 +175,6 @@ export function QuoteSection({
             </div>
           ) : null}
 
-          <p className="co-estimate-notice">{t.estimateNotice}</p>
           {quote.orderCancellationReason === 'QUOTATION_EXPIRED' ? (
             <div className="customer-deposit-notice">
               <b>{t.orderCancelledQuoteTimeout}</b>
