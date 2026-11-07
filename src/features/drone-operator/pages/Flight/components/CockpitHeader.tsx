@@ -1,7 +1,5 @@
 import { copy } from './cockpitCopy'
 import { Ico } from './CockpitIcon'
-import type { CockpitLayout } from './cockpitTypes'
-import type { Dispatch, SetStateAction } from 'react'
 
 export function CockpitHeader({
   c,
@@ -18,8 +16,6 @@ export function CockpitHeader({
   language,
   busy,
   startingFlight,
-  layout,
-  setLayout,
   onReview,
   toggleFullscreen,
 }: {
@@ -37,8 +33,6 @@ export function CockpitHeader({
   language: 'vi' | 'en'
   busy: boolean
   startingFlight: boolean
-  layout: CockpitLayout
-  setLayout: Dispatch<SetStateAction<CockpitLayout>>
   onReview: () => void
   toggleFullscreen: () => void
 }) {
@@ -124,25 +118,6 @@ export function CockpitHeader({
             </span>
           </button>
         ) : null}
-        <div className="fc-seg" role="group" aria-label={c.layout}>
-          {(
-            [
-              ['split', c.layoutSplit],
-              ['camera', c.layoutCamera],
-              ['map', c.layoutMap],
-            ] as const
-          ).map(([key, label]) => (
-            <button
-              key={key}
-              type="button"
-              className={layout === key ? 'is-active' : ''}
-              aria-pressed={layout === key}
-              onClick={() => setLayout(key)}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
         <button
           type="button"
           className="fc-ghost"

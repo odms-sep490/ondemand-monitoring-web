@@ -33,7 +33,6 @@ function renderCockpit(
       statusMessage=""
       telemetry={telemetry}
       camera={<div />}
-      map={<div />}
       busy={false}
       canFly
       canFlyToTarget

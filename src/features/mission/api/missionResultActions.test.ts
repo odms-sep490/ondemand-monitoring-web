@@ -50,3 +50,41 @@ describe('Operational acceptance / business submission endpoint contract', () =>
     expect(body.notes).toBe('Detailed report. '.repeat(200))
   })
 })
+
+describe('Preflight device replacement endpoint contract', () => {
+  it('requests replacement for the exact Mission and returns the updated Mission', async () => {
+    const updated = { id: 'mission/1', status: 'SCHEDULED' }
+    vi.mocked(authenticatedFetch).mockResolvedValue(
+      new Response(JSON.stringify({ data: updated })),
+    )
+    await expect(
+      missionApi.requestDeviceReplacement(
+        'mission/1',
+        'Propeller check failed',
+      ),
+    ).resolves.toEqual(updated)
+    expect(authenticatedFetch).toHaveBeenCalledOnce()
+    expect(authenticatedFetch).toHaveBeenCalledWith(
+      expect.stringMatching(
+        /\/api\/missions\/mission%2F1\/device-replacement-requests$/,
+      ),
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ reason: 'Propeller check failed' }),
+      }),
+    )
+  })
+
+  it('propagates replacement authorization errors without reporting success', async () => {
+    vi.mocked(authenticatedFetch).mockResolvedValue(
+      new Response(
+        JSON.stringify({ code: 'ACCESS_DENIED', message: 'Access denied' }),
+        { status: 403 },
+      ),
+    )
+    await expect(
+      missionApi.requestDeviceReplacement('m1', 'Check failed'),
+    ).rejects.toMatchObject({ code: 'ACCESS_DENIED', status: 403 })
+    expect(authenticatedFetch).toHaveBeenCalledOnce()
+  })
+})

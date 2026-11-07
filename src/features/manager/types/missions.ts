@@ -300,6 +300,9 @@ export type MissionDeviceAssignmentResponse = {
   deviceRole: 'MAIN' | 'SUPPORT'
   checkupStatus: 'PLANNING' | 'PENDING' | 'CHECKING' | 'PASSED' | 'FAILED'
   assignedAt: string | null
+  replacementRequestedAt?: string | null
+  replacementRequestReason?: string | null
+  replacementRequestedBy?: string | null
 }
 
 export type MissionResourcePrepareStatus =

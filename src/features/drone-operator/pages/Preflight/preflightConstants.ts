@@ -23,10 +23,6 @@ export const RUNTIME_KEY_MAP: Record<string, PreflightItemKey> = {
   aircraft_readiness: 'aircraft_readiness',
   monitoring_connection: 'monitoring_connection',
   manual_override: 'manual_override',
-  flight_visibility: 'flight_visibility',
-  takeoff_area: 'takeoff_area',
-  landing_area: 'landing_area',
-  airspace_permission: 'airspace_permission',
 }
 
 export const ALL_PREFLIGHT_KEYS: PreflightItemKey[] = [
@@ -41,10 +37,6 @@ export const ALL_PREFLIGHT_KEYS: PreflightItemKey[] = [
   'aircraft_readiness',
   'monitoring_connection',
   'manual_override',
-  'flight_visibility',
-  'takeoff_area',
-  'landing_area',
-  'airspace_permission',
 ]
 
 export const MANUAL_PREFLIGHT_KEYS = new Set<PreflightItemKey>([
@@ -53,9 +45,6 @@ export const MANUAL_PREFLIGHT_KEYS = new Set<PreflightItemKey>([
   'camera_health',
   'obstacle_sensor_health',
   'manual_override',
-  'flight_visibility',
-  'takeoff_area',
-  'landing_area',
 ])
 
 export const MANUAL_FALLBACK_PREFLIGHT_KEYS = new Set<PreflightItemKey>([

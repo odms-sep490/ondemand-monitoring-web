@@ -54,3 +54,93 @@ it('Mission menu has exact resume links and Order context but no duplicate plann
     screen.queryByText('Đơn đã duyệt — kế hoạch Mission'),
   ).not.toBeInTheDocument()
 })
+
+it('shows a red drone replacement request only for the current drone assignment', async () => {
+  vi.spyOn(missionsApi, 'listMissions').mockResolvedValue({
+    items: [
+      {
+        id: 'm-replaced',
+        orderId: 'o',
+        missionCode: 'MS-REPLACED',
+        orderCode: 'ORD-1',
+        status: 'READY',
+        droneId: 'drone-new',
+        deviceAssignments: [
+          {
+            id: 'old-assignment',
+            deviceId: 'drone-old',
+            deviceCode: 'DRN-OLD',
+            deviceName: 'Old drone',
+            deviceSerialNumber: null,
+            deviceStatus: 'AVAILABLE',
+            deviceRole: 'MAIN',
+            checkupStatus: 'FAILED',
+            assignedAt: '2026-10-01T08:00:00Z',
+            replacementRequestedAt: '2026-10-01T09:00:00Z',
+          },
+          {
+            id: 'current-assignment',
+            deviceId: 'drone-new',
+            deviceCode: 'DRN-NEW',
+            deviceName: 'New drone',
+            deviceSerialNumber: null,
+            deviceStatus: 'AVAILABLE',
+            deviceRole: 'MAIN',
+            checkupStatus: 'PENDING',
+            assignedAt: '2026-10-02T08:00:00Z',
+            replacementRequestedAt: null,
+          },
+        ],
+      },
+      {
+        id: 'm-requested',
+        orderId: 'o',
+        missionCode: 'MS-REQUESTED',
+        orderCode: 'ORD-1',
+        status: 'READY',
+        droneId: 'drone-current',
+        deviceAssignments: [
+          {
+            id: 'prior-assignment',
+            deviceId: 'drone-old',
+            deviceCode: 'DRN-OLD',
+            deviceName: 'Old drone',
+            deviceSerialNumber: null,
+            deviceStatus: 'AVAILABLE',
+            deviceRole: 'MAIN',
+            checkupStatus: 'FAILED',
+            assignedAt: '2026-10-01T08:00:00Z',
+            replacementRequestedAt: '2026-10-01T09:00:00Z',
+          },
+          {
+            id: 'current-request',
+            deviceId: 'drone-current',
+            deviceCode: 'DRN-CURRENT',
+            deviceName: 'Current drone',
+            deviceSerialNumber: null,
+            deviceStatus: 'AVAILABLE',
+            deviceRole: 'MAIN',
+            checkupStatus: 'FAILED',
+            assignedAt: '2026-10-02T08:00:00Z',
+            replacementRequestedAt: '2026-10-02T09:00:00Z',
+          },
+        ],
+      },
+    ] as MissionCalendarItem[],
+  })
+
+  render(<MissionsPage />)
+
+  const replacedRow = (await screen.findByText('MS-REPLACED')).closest('tr')!
+  const requestedRow = screen.getByText('MS-REQUESTED').closest('tr')!
+  expect(
+    within(replacedRow).queryByText('Yêu cầu đổi drone'),
+  ).not.toBeInTheDocument()
+  expect(
+    within(replacedRow).queryByText('Cần thanh toán tiền cọc'),
+  ).not.toBeInTheDocument()
+
+  const requestLabel = within(requestedRow).getByText('Yêu cầu đổi drone')
+  expect(requestLabel.tagName).toBe('SMALL')
+  expect(requestLabel).toHaveStyle({ color: 'var(--red-fg)' })
+})

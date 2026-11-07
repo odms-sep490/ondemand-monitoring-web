@@ -6,7 +6,6 @@ import { isInsideHcmcServiceArea } from '../../../../shared/lib/serviceArea'
 import { buildExecutableFlightRoute } from './gpsRoutePlanner'
 import { toControllerRouteWaypoints } from './planHelpers'
 import { flightControlApi } from '../../api/flightControlApi'
-import { captureSatelliteSnapshot } from './satelliteSnapshot'
 import {
   controlBaseUrl,
   GPS_TARGET_CRUISE_SPEED_MPS,
@@ -135,47 +134,6 @@ export function useFlightCommand({
               : 'Đang kết nối bộ điều khiển drone...',
           )
           await flightControlApi.bindSession(missionKey, drone.id)
-        }
-        if (command === 'photo') {
-          // The cockpit camera is satellite imagery, so capture exactly that view in the browser
-          // and hand it to the controller's local media library for review/upload.
-          const gps = controlStatus?.positionGps
-          if (gps) {
-            const altitudeForView =
-              gps.relativeAltitudeM ?? controlStatus?.altitudeM ?? null
-            const stamp = new Date()
-            const blob = await captureSatelliteSnapshot({
-              latitude: gps.latitude,
-              longitude: gps.longitude,
-              heading: controlStatus?.yawDeg ?? null,
-              altitudeM: altitudeForView,
-              caption: `${gps.latitude.toFixed(5)}, ${gps.longitude.toFixed(5)}  ALT ${altitudeForView === null ? '--' : Math.round(altitudeForView)}m  ${stamp.toLocaleTimeString()}`,
-            })
-            const upload = await fetch(
-              `${controlBaseUrl}/api/media/local/capture`,
-              {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'image/jpeg',
-                  'X-Media-Source-Type': 'SATELLITE_SNAPSHOT',
-                },
-                body: blob,
-              },
-            )
-            if (!upload.ok) {
-              const payload = (await upload.json().catch(() => null)) as {
-                error?: string
-              } | null
-              throw new Error(payload?.error ?? `HTTP ${upload.status}`)
-            }
-            setLastCommand(
-              getLanguage() === 'en'
-                ? 'Photo saved — open Review to approve it'
-                : 'Đã chụp ảnh — bấm Xem lại để duyệt và upload',
-            )
-            setIsOnline(true)
-            return
-          }
         }
         const currentAltitudeM =
           controlStatus?.positionGps?.relativeAltitudeM ??

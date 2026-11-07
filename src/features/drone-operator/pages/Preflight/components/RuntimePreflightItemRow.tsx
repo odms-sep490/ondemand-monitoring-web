@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useI18n } from '../../../../../shared/i18n'
 import { preflightPageMessages } from '../PreflightPage.messages'
-import { statusText } from '../preflightHelpers'
+import { humanizePreflightDisplayText, statusText } from '../preflightHelpers'
 import type { ItemState } from '../preflightTypes'
 import type { PreflightItemDef } from './PreflightItem'
 import './PreflightChecklist.css'
@@ -39,6 +39,10 @@ export function RuntimePreflightItemRow({
       : checking
         ? t.itemChecking
         : t.itemPending
+  const displayMessage = humanizePreflightDisplayText(
+    statusText(t, state.status, state.message),
+    { [def.key.toLowerCase()]: def.label },
+  )
 
   return (
     <div
@@ -74,16 +78,13 @@ export function RuntimePreflightItemRow({
 
         <div className="preflight-item-row__content">
           <div className="preflight-item-row__title">{def.label}</div>
-          <div className="preflight-item-row__detail">
-            {def.detail ? `${def.detail} · ` : ''}
-            <span className="odm-mono">{def.code}</span>
-          </div>
+          <div className="preflight-item-row__detail">{def.detail}</div>
           <div
             className="preflight-item-row__message"
             style={{ color: failed ? 'var(--red-fg)' : 'var(--tx3)' }}
-            title={statusText(t, state.status, state.message)}
+            title={displayMessage}
           >
-            {statusText(t, state.status, state.message)}
+            {displayMessage}
           </div>
         </div>
 

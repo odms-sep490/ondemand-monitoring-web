@@ -20,9 +20,14 @@ export type ManagerRoute =
   | { screen: 'missionDispatch'; missionId: string }
   | { screen: 'missionSetup'; missionId: string }
   | { screen: 'missionDetail'; missionId: string }
-  | { screen: 'schedule' }
+  | {
+      screen: 'schedule'
+      assignmentMissionId?: string
+      assignmentCanEdit?: boolean
+      assignmentReturnOrderId?: string
+    }
   | { screen: 'missions'; missionId?: string }
-  | { screen: 'drones'; droneId?: string }
+  | { screen: 'drones'; droneId?: string; assignmentMissionId?: string }
   | { screen: 'maintenance' }
   | { screen: 'support'; ticketId?: string }
   | { screen: 'notFound' }
@@ -40,8 +45,9 @@ export function parseManagerRoute(hash: string): ManagerRoute {
     return { screen: 'notFound' }
   }
 
-  const rest = hash.slice(MANAGER_ROOT.length)
-  const segments = rest.split('/').filter(Boolean).map(decodeURIComponent)
+  const [pathname, query = ''] = hash.slice(MANAGER_ROOT.length).split('?', 2)
+  const segments = pathname.split('/').filter(Boolean).map(decodeURIComponent)
+  const searchParams = new URLSearchParams(query)
 
   if (segments.length === 0) return { screen: 'dashboard' }
 
@@ -77,10 +83,34 @@ export function parseManagerRoute(hash: string): ManagerRoute {
       return { screen: 'notFound' }
     }
     case 'schedule':
-      return tail.length === 0 ? { screen: 'schedule' } : { screen: 'notFound' }
+      if (tail.length > 0) return { screen: 'notFound' }
+      {
+        const assignmentMissionId =
+          searchParams.get('assignmentMissionId')?.trim() || undefined
+        const assignmentReturnOrderId =
+          searchParams.get('assignmentReturnOrderId')?.trim() || undefined
+        return assignmentMissionId
+          ? {
+              screen: 'schedule',
+              assignmentMissionId,
+              assignmentCanEdit: searchParams.get('assignmentCanEdit') === '1',
+              ...(assignmentReturnOrderId ? { assignmentReturnOrderId } : {}),
+            }
+          : { screen: 'schedule' }
+      }
     case 'drones': {
-      if (tail.length === 0) return { screen: 'drones' }
-      if (tail.length === 1) return { screen: 'drones', droneId: tail[0] }
+      const assignmentMissionId =
+        searchParams.get('assignmentMissionId')?.trim() || undefined
+      if (tail.length === 0)
+        return assignmentMissionId
+          ? { screen: 'drones', droneId: undefined, assignmentMissionId }
+          : { screen: 'drones', droneId: undefined }
+      if (tail.length === 1)
+        return {
+          screen: 'drones',
+          droneId: tail[0],
+          ...(assignmentMissionId ? { assignmentMissionId } : {}),
+        }
       return { screen: 'notFound' }
     }
     case 'maintenance':
@@ -120,16 +150,31 @@ export function managerHref(route: ManagerRoute): string {
       return `${MANAGER_ROOT}/missions/${route.missionId}/setup`
     case 'missionDetail':
       return `${MANAGER_ROOT}/missions/${route.missionId}/detail`
-    case 'schedule':
-      return `${MANAGER_ROOT}/schedule`
+    case 'schedule': {
+      if (!route.assignmentMissionId) return `${MANAGER_ROOT}/schedule`
+      const params = new URLSearchParams({
+        assignmentMissionId: route.assignmentMissionId,
+        assignmentCanEdit: route.assignmentCanEdit ? '1' : '0',
+      })
+      if (route.assignmentReturnOrderId) {
+        params.set('assignmentReturnOrderId', route.assignmentReturnOrderId)
+      }
+      return `${MANAGER_ROOT}/schedule?${params.toString()}`
+    }
     case 'missions':
       return route.missionId
         ? `${MANAGER_ROOT}/missions/${route.missionId}`
         : `${MANAGER_ROOT}/missions`
-    case 'drones':
-      return route.droneId
+    case 'drones': {
+      const path = route.droneId
         ? `${MANAGER_ROOT}/drones/${route.droneId}`
         : `${MANAGER_ROOT}/drones`
+      if (!route.assignmentMissionId) return path
+      const params = new URLSearchParams({
+        assignmentMissionId: route.assignmentMissionId,
+      })
+      return `${path}?${params.toString()}`
+    }
     case 'maintenance':
       return `${MANAGER_ROOT}/maintenance`
     case 'support':

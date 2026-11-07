@@ -152,8 +152,8 @@ export const missionsApi = {
     missionId: string,
     deviceId: string,
     deviceRole: string = 'MAIN',
-  ): Promise<Mission> {
-    return apiRequest<Mission>(`/api/missions/${encodeURIComponent(missionId)}/device-assignments`, {
+  ): Promise<MissionResponse> {
+    return apiRequest<MissionResponse>(`/api/missions/${encodeURIComponent(missionId)}/device-assignments`, {
       method: 'POST',
       body: { deviceId, deviceRole },
     })
@@ -196,16 +196,16 @@ export const missionsApi = {
     missionId: string,
     staffId: string,
     assignedRoles: string[] = ['PILOT'],
-  ): Promise<Mission> {
-    return apiRequest<Mission>(`/api/missions/${encodeURIComponent(missionId)}/staff-assignments`, {
+  ): Promise<MissionResponse> {
+    return apiRequest<MissionResponse>(`/api/missions/${encodeURIComponent(missionId)}/staff-assignments`, {
       method: 'POST',
       body: { staffId, assignedRoles },
     })
   },
 
   /** `DELETE /api/missions/{id}/staff-assignments/{assignmentId}` [BE]. */
-  removeStaff(missionId: string, assignmentId: string): Promise<Mission> {
-    return apiRequest<Mission>(`/api/missions/${encodeURIComponent(missionId)}/staff-assignments/${encodeURIComponent(assignmentId)}`, {
+  removeStaff(missionId: string, assignmentId: string): Promise<MissionResponse> {
+    return apiRequest<MissionResponse>(`/api/missions/${encodeURIComponent(missionId)}/staff-assignments/${encodeURIComponent(assignmentId)}`, {
       method: 'DELETE',
     })
   },

@@ -31,7 +31,7 @@ export function useCockpitAutomation({
 
   useEffect(() => {
     if (!autoStartPlan) return
-    if (import.meta.env.VITE_FLIGHT_MAP_ONLY !== 'false') {
+    if (import.meta.env.VITE_FLIGHT_MAP_ONLY === 'true') {
       setLastCommand(
         getLanguage() === 'en'
           ? 'Legacy simulation waypoints are unavailable in GPS map mode'

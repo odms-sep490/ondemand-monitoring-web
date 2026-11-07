@@ -3,7 +3,6 @@ import { gpsDistanceMeters } from '../gpsRoutePlanner'
 import { getLanguage, useI18n } from '../../../../../shared/i18n'
 import { FlightCockpit } from './FlightCockpit'
 import { DroneCameraView } from './DroneCameraView'
-import { SatelliteFlightMap } from './SatelliteFlightMap'
 import { ManualCockpitPreflight } from './ManualCockpitPreflight'
 import { inFlightControlMessages } from './InFlightControl.messages'
 import type { Mission, Drone } from '../../../types/omss'
@@ -101,13 +100,6 @@ export function GpsCockpitView({
       }}
       camera={
         <DroneCameraView telemetry={cameraTelemetry} language={language} />
-      }
-      map={
-        <SatelliteFlightMap
-          missionId={mission.backendId ?? mission.id}
-          target={target}
-          drone={droneGps}
-        />
       }
       busy={busyCommand !== null}
       canFly={normalFlightAllowed && preflightReady}

@@ -7,8 +7,10 @@ import { isRuntimeStatus } from './preflightHelpers'
 export function preflightStateStorageKey(
   missionId: string,
   droneLabel: string,
+  assignmentId?: string | null,
 ) {
-  return `omss.droneOperator.preflightState.${missionId}.${droneLabel}`
+  const base = `omss.droneOperator.preflightState.${missionId}.${droneLabel}`
+  return assignmentId ? `${base}.${assignmentId}` : base
 }
 
 export function readStoredPreflightState(storageKey: string) {

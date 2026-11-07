@@ -60,6 +60,26 @@ describe('useApiQuery', () => {
     await waitFor(() => expect(fn).toHaveBeenCalledTimes(2))
   })
 
+  it('preserves data identity when refreshed data is equivalent', async () => {
+    const fn = vi.fn(async () => [{ id: 'staff-1', name: 'Pilot' }])
+    const equalById = (
+      previous: Array<{ id: string }>,
+      next: Array<{ id: string }>,
+    ) =>
+      previous.length === next.length &&
+      previous.every((item, index) => item.id === next[index]?.id)
+    const { result } = renderHook(() => useApiQuery(fn, [], equalById))
+
+    await waitFor(() => expect(result.current.loading).toBe(false))
+    const initialData = result.current.data
+
+    act(() => result.current.reload())
+    await waitFor(() => expect(fn).toHaveBeenCalledTimes(2))
+    await waitFor(() => expect(result.current.loading).toBe(false))
+
+    expect(result.current.data).toBe(initialData)
+  })
+
   it('drops a stale response when deps change before the first request resolves', async () => {
     let resolveFirst: (value: string) => void = () => {}
     const first = new Promise<string>((resolve) => {

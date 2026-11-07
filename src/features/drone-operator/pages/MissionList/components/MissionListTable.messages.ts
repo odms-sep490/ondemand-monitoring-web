@@ -24,6 +24,8 @@ export const missionListTableMessages = defineMessages({
       REJECTED: 'Bị từ chối',
       FAILED: 'Không hoàn thành',
     },
+    replacementCompleted: 'Đã đổi drone',
+    replacementRequestPending: 'Yêu cầu đổi drone',
     action: {
       openCockpit: 'Mở buồng lái',
       handover: 'Bàn giao',
@@ -89,6 +91,8 @@ export const missionListTableMessages = defineMessages({
       REJECTED: 'Rejected',
       FAILED: 'Not completed',
     },
+    replacementCompleted: 'Drone replaced',
+    replacementRequestPending: 'Drone replacement requested',
     action: {
       openCockpit: 'Open cockpit',
       handover: 'Handover',

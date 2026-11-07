@@ -237,6 +237,41 @@
   transform: scale(1);
 }
 
+.lp-immersive .lp-cinematic-sequence {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 450ms ease;
+}
+
+.lp-immersive .lp-cinematic-sequence.is-active {
+  opacity: 1;
+}
+
+.lp-immersive .lp-cinematic-sequence video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.lp-immersive .lp-journey-stage.has-cinematic-video .lp-journey-backdrop {
+  transition: none;
+}
+
+.lp-immersive .lp-journey-stage.has-cinematic-video .lp-journey-backdrop img {
+  transition: none;
+}
+
+.lp-immersive .lp-journey-stage.has-cinematic-video .lp-flight-route {
+  visibility: hidden;
+  opacity: 0;
+}
+
 .lp-immersive .lp-journey-atmosphere {
   position: absolute;
   z-index: 2;
@@ -360,16 +395,25 @@
   gap: 8px;
 }
 
-.lp-immersive .lp-journey-progress span {
+.lp-immersive .lp-journey-progress > span {
+  position: relative;
+  overflow: hidden;
   height: 3px;
   border-radius: 9px;
   background: rgb(255 255 255 / 32%);
-  transition: background-color 240ms ease;
 }
 
-.lp-immersive .lp-journey-progress span.is-active {
+.lp-immersive .lp-journey-progress-fill {
+  position: absolute;
+  inset: 0;
   background: var(--lp-blue-light);
   box-shadow: 0 0 13px rgb(95 155 255 / 60%);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+.lp-immersive .lp-journey-progress-segment.is-active {
+  box-shadow: 0 0 13px rgb(95 155 255 / 38%);
 }
 
 .lp-immersive .lp-journey-chapters {
@@ -494,6 +538,27 @@
   font-size: clamp(16px, 1.23vw, 19px);
   font-weight: 480;
   line-height: 1.65;
+}
+
+.lp-immersive .lp-journey-attribution {
+  max-width: 54ch;
+  margin: 10px 0 0;
+  color: rgb(246 249 255 / 66%);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.lp-immersive .lp-journey-attribution a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: rgb(246 249 255 / 52%);
+  text-underline-offset: 2px;
+}
+
+.lp-immersive .lp-journey-attribution a:focus-visible {
+  border-radius: 2px;
+  outline: 2px solid var(--lp-blue-light);
+  outline-offset: 3px;
 }
 
 .lp-immersive .lp-journey-scroll-cue {
@@ -894,7 +959,7 @@
   .lp-immersive .lp-journey-status {
     top: 83px;
     right: 16px;
-    left: 16px;
+    left: auto;
     width: max-content;
     max-width: calc(100% - 88px);
     min-height: 31px;
@@ -2465,7 +2530,7 @@
   height: 88%;
   overflow: visible;
   filter: drop-shadow(0 0 8px rgb(115 171 255 / 85%));
-  transform: translateZ(50px);
+  transform: translateZ(40px);
 }
 
 .lp-immersive .lp-flight-route path {
@@ -2478,25 +2543,16 @@
 .lp-immersive .lp-flight-drone {
   position: absolute;
   z-index: 4;
-  top: 43%;
-  left: 66%;
-  width: clamp(128px, 11.5vw, 205px);
+  top: 0;
+  left: 0;
+  width: clamp(196px, 18vw, 310px);
   aspect-ratio: 1;
   filter: drop-shadow(0 22px 24px rgb(0 0 0 / 58%));
   transform: translate3d(-50%, -50%, 40px);
   transform-style: preserve-3d;
   will-change: transform;
-  visibility: hidden;
-  opacity: 0;
-  transition:
-    opacity 450ms ease,
-    visibility 0s linear 450ms;
-}
-
-.lp-immersive .lp-scroll-journey[data-drone-visible='true'] .lp-flight-drone {
   visibility: visible;
   opacity: 1;
-  transition-delay: 0s;
 }
 
 .lp-immersive .lp-flight-drone-follow {
@@ -2566,26 +2622,41 @@
   color: #fff;
 }
 
+.lp-immersive .lp-journey-disclosure {
+  max-width: 52ch;
+  margin: 12px 0 0;
+  color: rgb(255 255 255 / 70%);
+  font-size: 11px;
+  line-height: 1.5;
+  text-shadow: 0 1px 12px rgb(0 0 0 / 42%);
+}
+
 .lp-immersive .lp-journey-chapter-index {
   z-index: 6;
 }
 
 @media (max-width: 700px) {
+  .lp-immersive .lp-cinematic-sequence {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 100%;
+  }
+
   .lp-immersive .lp-flight-scene-stage {
     perspective-origin: 58% 38%;
   }
 
   .lp-immersive .lp-flight-route {
     top: 8%;
-    left: 20%;
-    width: 86%;
+    left: 6%;
+    width: 78%;
     height: 49%;
   }
 
   .lp-immersive .lp-flight-drone {
-    top: 31%;
-    left: 56%;
-    width: clamp(108px, 32vw, 154px);
+    width: clamp(142px, 40vw, 215px);
   }
 
   .lp-immersive .lp-journey-copy,
@@ -2616,10 +2687,28 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .lp-immersive .lp-cinematic-sequence {
+    transition: none;
+  }
+
+  .lp-immersive .lp-journey-backdrop,
+  .lp-immersive .lp-journey-backdrop img {
+    transition: none;
+  }
+
   .lp-immersive .lp-flight-drone,
   .lp-immersive .lp-flight-drone-follow {
     transition: none;
     will-change: auto;
+  }
+
+    .lp-immersive .lp-journey-progress-fill {
+    transform: scaleX(0) !important;
+  }
+
+  .lp-immersive .lp-journey-progress-segment.is-complete .lp-journey-progress-fill,
+  .lp-immersive .lp-journey-progress-segment.is-active .lp-journey-progress-fill {
+    transform: scaleX(1) !important;
   }
 }
 
@@ -2635,6 +2724,8 @@
   .lp-immersive .lp-journey-chapter:nth-child(even) .lp-journey-copy {
     top: auto;
   }
+
+
 }
 
 /* Landing header refresh */

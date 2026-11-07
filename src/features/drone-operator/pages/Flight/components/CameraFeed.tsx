@@ -1,4 +1,4 @@
-import { memo } from 'react'
+import { memo, useState } from 'react'
 import { useRenderDiagnostics } from '../useRenderDiagnostics'
 import { useI18n } from '../../../../../shared/i18n'
 import { inFlightControlMessages } from './InFlightControl.messages'
@@ -6,36 +6,45 @@ import { GlassPanel } from './GlassPanel'
 
 export const CameraFeed = memo(function CameraFeed({
   streamUrl,
-  preflightReady,
   isOnline,
   onOnline,
   onOffline,
 }: {
   streamUrl: string
-  preflightReady: boolean
   isOnline: boolean
   onOnline: () => void
   onOffline: () => void
 }) {
   useRenderDiagnostics('CameraFeed')
   const { t } = useI18n(inFlightControlMessages)
+  const [failedStreamUrl, setFailedStreamUrl] = useState<string | null>(null)
+  const streamFailed = failedStreamUrl === streamUrl
+  const cameraOffline = streamFailed || !isOnline
   return (
     <>
       <img
         src={streamUrl}
         alt={t.cameraFeed.alt}
-        onLoad={onOnline}
-        onError={onOffline}
+        onLoad={() => {
+          setFailedStreamUrl((failedUrl) =>
+            failedUrl === streamUrl ? null : failedUrl,
+          )
+          onOnline()
+        }}
+        onError={() => {
+          setFailedStreamUrl(streamUrl)
+          onOffline()
+        }}
         style={{
           width: '100%',
           height: '100%',
           objectFit: 'cover',
           objectPosition: 'center center',
-          display: 'block',
+          display: cameraOffline ? 'none' : 'block',
           background: '#020617',
         }}
       />
-      {!isOnline && preflightReady && (
+      {cameraOffline && (
         <div
           style={{
             position: 'absolute',

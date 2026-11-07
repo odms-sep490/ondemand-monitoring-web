@@ -324,6 +324,29 @@ export function DetailPanel({ mission, onClose, t, locale, onResourceChanged }: 
                     </Button>
                   ) : null}
                 </li>
+                {assignment.replacementRequestedAt ? (
+                  <li className="odm-or-crew-item" style={{ display: 'block' }}>
+                    <Alert
+                      type="warning"
+                      showIcon
+                      message={t.assignments.replacementRequested}
+                      description={(
+                        <div>
+                          <div>
+                            {t.assignments.replacementRequestReason}: {assignment.replacementRequestReason || '—'}
+                          </div>
+                          <div>
+                            {t.assignments.replacementRequestedBy}:{' '}
+                            {assignment.replacementRequestedBy
+                              ? staffAssignments.find((staff) => staff.staffId === assignment.replacementRequestedBy)?.staffName
+                                ?? assignment.replacementRequestedBy
+                              : t.assignments.replacementRequesterFallback}
+                          </div>
+                        </div>
+                      )}
+                    />
+                  </li>
+                ) : null}
                 {renderReplacementForm(assignment.id, t.assignments.replaceDevice)}
               </Fragment>
             )) : mission.droneCode ? (

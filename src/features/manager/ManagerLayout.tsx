@@ -68,15 +68,17 @@ export function ManagerLayout({
   return (
     <ConfigProvider theme={themeConfig} getPopupContainer={mgrPopupContainer}>
       <div className="odm odm-mgr mgr-layout">
-        <span className="mgr-flight-decor" aria-hidden="true">
-          <span className="mgr-flight-route" />
-          <Lottie
-            src={droneAnimation}
-            autoplay={!reduceMotion}
-            loop={!reduceMotion}
-            className="mgr-flight-drone"
-          />
-        </span>
+        {route.screen !== 'schedule' ? (
+          <span className="mgr-flight-decor" aria-hidden="true">
+            <span className="mgr-flight-route" />
+            <Lottie
+              src={droneAnimation}
+              autoplay={!reduceMotion}
+              loop={!reduceMotion}
+              className="mgr-flight-drone"
+            />
+          </span>
+        ) : null}
         <Layout hasSider className="mgr-shell">
           <Sider
             width={MANAGER_SIDER_WIDTH}

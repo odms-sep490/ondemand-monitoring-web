@@ -78,14 +78,50 @@ export function missionsColumns({
     {
       title: t.columns.status,
       key: 'status',
-      render: (_, m) => (
-        <span className="mgr-cell-stack">
-          <MissionStatusTag mission={m} />
-          {assignmentReadiness(m).label ? (
-            <small className="mgr-cell-sub">{assignmentReadiness(m).label}</small>
-          ) : null}
-        </span>
-      ),
+      render: (_, m) => {
+        const currentMainDeviceAssignment = m.deviceAssignments
+          ?.filter(
+            (assignment) =>
+              assignment.deviceRole === 'MAIN' &&
+              assignment.deviceId === m.droneId,
+          )
+          .sort(
+            (left, right) =>
+              Date.parse(right.assignedAt ?? '') -
+              Date.parse(left.assignedAt ?? ''),
+          )[0]
+
+        return (
+          <span className="mgr-cell-stack">
+            <MissionStatusTag mission={m} />
+            {currentMainDeviceAssignment?.replacementRequestedAt ? (
+              <small
+                className="mgr-cell-sub"
+                style={{ color: 'var(--red-fg)', fontWeight: 600 }}
+              >
+                {t.assignments.replacementRequestPending}
+              </small>
+            ) : null}
+            {m.staffAssignments?.some(
+              (assignment) =>
+                assignment.isCurrent !== false &&
+                assignment.responseStatus === 'REJECTED',
+            ) ? (
+              <small
+                className="mgr-cell-sub"
+                style={{ color: 'var(--red-fg)', fontWeight: 600 }}
+              >
+                {t.assignments.staffReplacementRequired}
+              </small>
+            ) : null}
+            {assignmentReadiness(m).label ? (
+              <small className="mgr-cell-sub">
+                {assignmentReadiness(m).label}
+              </small>
+            ) : null}
+          </span>
+        )
+      },
     },
     {
       title: t.columns.delivery,
