@@ -16,7 +16,6 @@ import {
 import type { MediaFile } from '../../types/mission'
 import { formatDeviceLabel } from '../../lib/deviceLabel'
 import { missionResultActions } from '../../components/common/MissionResultActions'
-import { operatorHref } from '../../routes'
 import { missionApi } from '../../../mission/api/missionApi'
 import { uploadMediaPageMessages } from './UploadMediaPage.messages'
 import { useI18n } from '../../../../shared/i18n'
@@ -430,14 +429,6 @@ export function useMediaWorkspace({
         (Date.parse(a.capturedAt) || 0) - (Date.parse(b.capturedAt) || 0)
       return sort === 'newest' ? -diff : diff
     })
-  // Upload media is part of the active flight flow, so the back action should
-  // consistently return the operator to the cockpit, including mission-scoped
-  // upload pages.
-  const backRoute = operatorHref({
-    screen: 'flight',
-    missionId: missionId ?? undefined,
-  })
-
   function buildMissionResultPayload() {
     const mission = activeMission.data
     return {
@@ -509,7 +500,6 @@ export function useMediaWorkspace({
     actions,
     isBusy,
     visibleItems,
-    backRoute,
     refreshWorkspace,
     runResultAction,
   }
