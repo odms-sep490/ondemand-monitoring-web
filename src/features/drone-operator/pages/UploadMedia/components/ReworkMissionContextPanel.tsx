@@ -33,21 +33,25 @@ function EvidencePreview({
   evidence: MissionReworkContext['checklists'][number]['customerFeedback'][number]['evidence'][number]
   t: typeof reworkMissionContextMessages.vi
 }) {
+  const isVideo = evidence.mediaType.toUpperCase().includes('VIDEO')
+  const unavailableText = evidence.unavailableReason === 'RETENTION_EXPIRED'
+    ? t.evidenceExpired
+    : evidence.url
+      ? t.evidencePreviewPending
+      : t.evidenceUnavailable
   return (
     <div className="rework-context-evidence" key={evidence.roundEvidenceId}>
-      {evidence.url && evidence.mediaType.toUpperCase().includes('VIDEO') ? (
-        <video controls preload="metadata" src={evidence.url} />
-      ) : evidence.url ? (
+      {isVideo && evidence.previewUrl ? (
+        <video controls preload="none" src={evidence.previewUrl} />
+      ) : !isVideo && evidence.previewUrl ? (
         <Image
-          src={evidence.url}
+          src={evidence.thumbnailUrl ?? evidence.previewUrl}
           alt={evidence.fileName}
-          preview={{ mask: t.viewEvidence }}
+          preview={{ src: evidence.previewUrl, mask: t.viewEvidence }}
         />
       ) : (
         <div className="rework-context-evidence__unavailable">
-          {evidence.unavailableReason === 'RETENTION_EXPIRED'
-            ? t.evidenceExpired
-            : t.evidenceUnavailable}
+          {unavailableText}
         </div>
       )}
       <Typography.Text ellipsis={{ tooltip: evidence.fileName }}>

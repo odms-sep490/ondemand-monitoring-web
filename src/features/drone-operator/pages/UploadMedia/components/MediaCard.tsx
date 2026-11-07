@@ -39,6 +39,7 @@ export function MediaCard({
   detachTarget,
   automaticAttach = false,
   remotePreviewUrl,
+  remoteThumbnailUrl,
   reviewMedia,
 }: {
   item: LocalMedia
@@ -66,6 +67,7 @@ export function MediaCard({
   detachTarget?: (executionId: string, mediaId: string) => Promise<void>
   automaticAttach?: boolean
   remotePreviewUrl?: string
+  remoteThumbnailUrl?: string
   reviewMedia?: (mediaId: string) => Promise<void>
 }) {
   const { t, lang } = useI18n(uploadMediaPageMessages)
@@ -75,15 +77,14 @@ export function MediaCard({
       aria-current={isSelected ? 'true' : undefined}
     >
       <div className="upload-media-thumb">
-        {item.localAvailable === false && !remotePreviewUrl ? (
-          <p className="upload-media-unavailable">
-            Bản gốc trên Flight Controller không khả dụng. Chọn bản sao PC để
-            khôi phục.
-          </p>
+        {item.backendMediaId && !remotePreviewUrl ? (
+          <p className="upload-media-unavailable">{t.previewPending}</p>
+        ) : item.localAvailable === false && !remotePreviewUrl ? (
+          <p className="upload-media-unavailable">{t.localUnavailable}</p>
         ) : item.mediaType === 'IMAGE' ? (
           <img
             src={
-              remotePreviewUrl ?? operatorMediaApi.previewUrl(item.localMediaId)
+              remoteThumbnailUrl ?? remotePreviewUrl ?? operatorMediaApi.previewUrl(item.localMediaId)
             }
             alt={item.fileName}
             className="upload-media-preview"
@@ -94,7 +95,7 @@ export function MediaCard({
               remotePreviewUrl ?? operatorMediaApi.previewUrl(item.localMediaId)
             }
             controls
-            preload="metadata"
+            preload="none"
             className="upload-media-preview"
           />
         )}

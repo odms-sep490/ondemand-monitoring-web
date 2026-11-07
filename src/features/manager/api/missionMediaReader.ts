@@ -28,6 +28,8 @@ function toUploaded(item: MediaResponse): UploadedMissionMedia {
     capturedAt: item.capturedAt ?? null,
     availableAt: null,
     downloadUrl: item.url,
+    thumbnailUrl: item.thumbnailUrl ?? null,
+    previewUrl: item.previewUrl ?? null,
     sourceType: item.sourceType ?? null,
     sourceReferenceId: item.sourceReferenceId ?? null,
     sourceCapturedAt: item.sourceCapturedAt ?? null,

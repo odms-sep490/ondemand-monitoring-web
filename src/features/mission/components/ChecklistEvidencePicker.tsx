@@ -166,8 +166,8 @@ export function ChecklistEvidencePicker({
                 }
                 aria-label={item.fileName}
               />
-              {item.previewUrl && item.mediaType === 'IMAGE' && (
-                <img src={item.previewUrl} alt="" loading="lazy" />
+              {item.thumbnailUrl && item.mediaType === 'IMAGE' && (
+                <img src={item.thumbnailUrl} alt="" loading="lazy" />
               )}
               <span>
                 {item.fileName}

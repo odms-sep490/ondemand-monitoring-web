@@ -23,6 +23,7 @@ export const customerDeliveryPanelMessages = defineMessages({
     noEvidence:
       'Chưa có ảnh hoặc video được công bố cho hạng mục này. Bạn vẫn có thể gửi yêu cầu nếu thiếu bằng chứng.',
     previewNote: 'Bản xem trước · chưa thể tải bản gốc',
+    previewPending: 'Bản xem trước đang được tạo. Vui lòng tải lại sau giây lát.',
     managerNote: 'Ghi chú từ quản lý',
     previewReady: 'Bản xem trước đã sẵn sàng',
     previewReadyText:
@@ -125,6 +126,7 @@ export const customerDeliveryPanelMessages = defineMessages({
     noEvidence:
       'No image or video was published for this checklist item. You can still report missing evidence.',
     previewNote: 'Preview only · original not downloadable yet',
+    previewPending: 'Preview is being prepared. Refresh in a moment.',
     managerNote: 'Note from the manager',
     previewReady: 'Your preview is ready',
     previewReadyText: 'Review the files above and let us know your decision.',

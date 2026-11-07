@@ -8,6 +8,7 @@ export const uploadMediaPageMessages = defineMessages({
     reviewFailed: 'Không duyệt được bằng chứng.',
     localUnavailable:
       'File chưa có trên S3 và không còn bản local. Cần khôi phục bản sao hợp lệ trước khi gắn.',
+    previewPending: 'Bản xem trước đang được tạo từ media đã tải lên.',
     checklistTitle: 'Checklist thực hiện',
     mediaTitle: 'Danh sách media',
     workspaceNav: 'Bằng chứng của mission',
@@ -109,6 +110,7 @@ export const uploadMediaPageMessages = defineMessages({
     reviewFailed: 'Could not approve evidence.',
     localUnavailable:
       'The file is not uploaded and its local copy is unavailable. Restore a valid backup before attaching.',
+    previewPending: 'A preview is being prepared for this uploaded media.',
     checklistTitle: 'Mission checklist',
     mediaTitle: 'Mission media',
     workspaceNav: 'Mission evidence',

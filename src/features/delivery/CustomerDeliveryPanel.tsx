@@ -240,13 +240,18 @@ export function CustomerDeliveryPanel({
             <div className="delivery-grid">
               {delivery.assets.map((asset) => (
                 <article key={asset.id} className="delivery-asset">
-                  {asset.type.toUpperCase().includes('VIDEO') ? (
-                    <video controls preload="metadata" src={asset.url} />
+                  {asset.previewUrl ? (
+                    asset.type.toUpperCase().includes('VIDEO') ? (
+                      <video controls preload="none" src={asset.previewUrl} />
+                    ) : (
+                      <DeliveryImagePreview
+                        src={asset.thumbnailUrl ?? asset.previewUrl}
+                        previewSrc={asset.previewUrl}
+                        fileName={asset.fileName}
+                      />
+                    )
                   ) : (
-                    <DeliveryImagePreview
-                      src={asset.url}
-                      fileName={asset.fileName}
-                    />
+                    <span className="delivery-preview-pending">{t.previewPending}</span>
                   )}
                   <div className="delivery-asset__meta">
                     <strong title={asset.fileName}>{asset.fileName}</strong>
@@ -260,7 +265,7 @@ export function CustomerDeliveryPanel({
                   {asset.downloadable ? (
                     <Button
                       className="delivery-download"
-                      href={asset.url}
+                      href={asset.url ?? undefined}
                       download
                     >
                       {t.download}

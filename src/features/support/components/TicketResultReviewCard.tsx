@@ -217,20 +217,19 @@ export function TicketResultReviewCard({ ticketId }: { ticketId: string }) {
                             className="sp-result-review__asset"
                             key={e.roundEvidenceId}
                           >
-                            {e.url ? (
-                              e.type.toUpperCase().includes('VIDEO') ? (
+                            {e.type.toUpperCase().includes('VIDEO') && e.previewUrl ? (
                                 <video
                                   controls
-                                  preload="metadata"
-                                  src={e.url}
+                                  preload="none"
+                                  src={e.previewUrl}
                                   aria-label={e.fileName}
                                 />
-                              ) : (
+                              ) : e.previewUrl ? (
                                 <DeliveryImagePreview
-                                  src={e.url}
+                                  src={e.thumbnailUrl ?? e.previewUrl}
+                                  previewSrc={e.previewUrl}
                                   fileName={e.fileName}
                                 />
-                              )
                             ) : (
                               <Empty
                                 image={Empty.PRESENTED_IMAGE_SIMPLE}

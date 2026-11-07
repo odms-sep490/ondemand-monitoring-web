@@ -238,6 +238,10 @@ export function useMediaWorkspace({
             item.localAvailable === false
               ? null
               : operatorMediaApi.previewUrl(item.localMediaId),
+          thumbnailUrl:
+            item.localAvailable === false || item.mediaType !== 'IMAGE'
+              ? null
+              : operatorMediaApi.previewUrl(item.localMediaId),
           urlExpiresAt: null,
           alreadyAttachedExecutionIds:
             uploadedCandidates.find(

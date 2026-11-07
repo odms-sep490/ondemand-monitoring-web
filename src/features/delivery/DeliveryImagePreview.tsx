@@ -6,9 +6,11 @@ import { customerDeliveryPanelMessages } from './customerDeliveryPanel.messages'
 
 export function DeliveryImagePreview({
   src,
+  previewSrc,
   fileName,
 }: {
   src: string
+  previewSrc?: string
   fileName: string
 }) {
   const { t } = useI18n(customerDeliveryPanelMessages)
@@ -32,6 +34,7 @@ export function DeliveryImagePreview({
         alt={fileName}
         loading="lazy"
         preview={{
+          src: previewSrc ?? src,
           visible,
           onVisibleChange: setVisible,
           mask: t.zoomImage,

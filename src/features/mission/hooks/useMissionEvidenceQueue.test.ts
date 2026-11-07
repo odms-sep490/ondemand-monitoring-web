@@ -27,7 +27,8 @@ const candidate = (id: string) =>
     mediaId: `local:${id}`,
     fileName: `${id}.jpg`,
     contentType: 'image/jpeg',
-    previewUrl: null,
+    previewUrl: 'https://example.test/preview?signature=private',
+    thumbnailUrl: 'https://example.test/thumbnail?signature=private',
   }) as EvidenceCandidate
 describe('legacy evidence queue', () => {
   it('serializes two selected files against one execution and advances only its own versions', async () => {
@@ -58,6 +59,10 @@ describe('legacy evidence queue', () => {
       [1, 2],
     )
     expect(transfer).toHaveBeenCalledTimes(2)
+    expect(transfer.mock.calls[0][0]).toMatchObject({
+      previewUrl: null,
+      thumbnailUrl: null,
+    })
   })
   it('recovers a lost transfer response without uploading or attaching again', async () => {
     const missionId = crypto.randomUUID()

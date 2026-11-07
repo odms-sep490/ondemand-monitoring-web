@@ -471,6 +471,7 @@ function UploadMediaContent({
                 ...visibleItems.map((item) => ({
                   item,
                   remote: undefined as string | undefined,
+                  thumbnail: undefined as string | undefined,
                 })),
                 ...remoteItems.map((remote) => ({
                   item: {
@@ -488,13 +489,15 @@ function UploadMediaContent({
                     sourceType: remote.sourceType,
                     localAvailable: false,
                   } as LocalMedia,
-                  remote: remote.downloadUrl ?? undefined,
+                  remote: remote.previewUrl ?? undefined,
+                  thumbnail: remote.thumbnailUrl ?? undefined,
                 })),
-              ].map(({ item, remote }) => (
+              ].map(({ item, remote, thumbnail }) => (
                 <MediaCard
                   key={item.localMediaId}
                   item={item}
                   remotePreviewUrl={remote}
+                  remoteThumbnailUrl={thumbnail}
                   setPreview={setPreview}
                   onOpenPreview={(selectedItem) => {
                     setSelectedMediaId(selectedItem.localMediaId)

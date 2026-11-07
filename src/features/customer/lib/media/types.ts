@@ -14,6 +14,8 @@ export type CustomerMediaResponse = {
   availableAt?: string | null
   /** Presigned, short-lived viewing URL. */
   downloadUrl?: string | null
+  thumbnailUrl?: string | null
+  previewUrl?: string | null
 }
 
 /** `PageResponse<T>` as returned by the customer mission media endpoint. */
@@ -41,6 +43,8 @@ export type MediaItem = {
   capturedAt: string | null
   availableAt: string | null
   url: string | null
+  thumbnailUrl?: string | null
+  previewUrl?: string | null
 }
 
 export type MediaMissionGroup = {

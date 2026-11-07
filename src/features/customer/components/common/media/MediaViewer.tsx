@@ -6,7 +6,7 @@ import { mediaViewerMessages } from './MediaViewer.messages'
 /** Image / video player for a media item with a (fresh) viewing URL. */
 export function MediaViewer({ item }: { item: MediaItem }) {
   const { t } = useI18n(mediaViewerMessages)
-  if (!item.url) {
+  if (!item.previewUrl) {
     return (
       <div className="md-viewer" role="status">
         {t.noUrl}
@@ -15,9 +15,9 @@ export function MediaViewer({ item }: { item: MediaItem }) {
   }
   return (
     <div className="md-viewer">
-      {item.kind === 'image' && <img src={item.url} alt={item.fileName} />}
+      {item.kind === 'image' && <img src={item.previewUrl!} alt={item.fileName} />}
       {item.kind === 'video' && (
-        <video src={item.url} controls preload="metadata" aria-label={item.fileName} />
+        <video src={item.previewUrl!} controls preload="none" aria-label={item.fileName} />
       )}
       {item.kind === 'other' && (
         <div>

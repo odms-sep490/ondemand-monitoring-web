@@ -29,12 +29,12 @@ export function MediaCard({ item, missionLabel, onOpen }: Props) {
       type="button"
       className="md-card"
       aria-label={t.open(item.fileName)}
-      disabled={!item.url}
+      disabled={!item.previewUrl}
       onClick={() => onOpen(item)}
     >
       <span className="md-thumb">
-        {item.kind === 'image' && item.url ? (
-          <img src={item.url} alt="" loading="lazy" />
+        {item.kind === 'image' && item.thumbnailUrl ? (
+          <img src={item.thumbnailUrl} alt="" loading="lazy" />
         ) : (
           <Icon name="camera" width={32} height={32} aria-hidden="true" />
         )}
@@ -44,7 +44,7 @@ export function MediaCard({ item, missionLabel, onOpen }: Props) {
         {missionLabel && (
           <span className="md-mission-badge">{missionLabel}</span>
         )}
-        <span className="md-open-label">{item.url ? t.view : t.locked}</span>
+        <span className="md-open-label">{item.previewUrl ? t.view : t.locked}</span>
       </span>
       <span className="md-card-body">
         <span className="md-name" title={item.fileName}>

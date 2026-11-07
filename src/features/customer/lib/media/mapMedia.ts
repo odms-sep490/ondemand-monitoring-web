@@ -33,6 +33,8 @@ export function toMediaItem(dto: CustomerMediaResponse): MediaItem {
     capturedAt: dto.capturedAt ?? null,
     availableAt: dto.availableAt ?? null,
     url: dto.downloadUrl ?? null,
+    thumbnailUrl: dto.thumbnailUrl ?? null,
+    previewUrl: dto.previewUrl ?? null,
   }
 }
 

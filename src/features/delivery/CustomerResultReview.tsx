@@ -290,19 +290,20 @@ export function CustomerResultReview({
                         className="delivery-review-evidence-card"
                         key={evidence.roundEvidenceId}
                       >
-                        {!evidence.url ? (
+                        {!evidence.previewUrl ? (
                           <span className="delivery-review-media-unavailable">
                             {t.mediaUnavailable}
                           </span>
                         ) : evidence.type.toUpperCase().includes('VIDEO') ? (
                           <video
                             controls
-                            preload="metadata"
-                            src={evidence.url}
+                            preload="none"
+                            src={evidence.previewUrl}
                           />
                         ) : (
                           <DeliveryImagePreview
-                            src={evidence.url}
+                            src={evidence.thumbnailUrl ?? evidence.previewUrl}
+                            previewSrc={evidence.previewUrl}
                             fileName={evidence.fileName}
                           />
                         )}
@@ -411,7 +412,31 @@ export function CustomerResultReview({
                 children: <Collapse accordion items={round.items.map((item) => ({
                   key: `${round.reviewRoundId}:${item.roundItemId}`,
                   label: <Space><Typography.Text strong>{item.title}</Typography.Text><Tag>{t.evidenceCount(item.evidence.length)}</Tag></Space>,
-                  children: <div className="delivery-review-item"><ChecklistGuidance guidance={item} collapsible={false} /><div className="delivery-review-evidence">{item.evidence.map((evidence) => <article className="delivery-review-evidence-card" key={evidence.roundEvidenceId}>{!evidence.url ? <span className="delivery-review-media-unavailable">{t.mediaUnavailable}</span> : evidence.type.toUpperCase().includes('VIDEO') ? <video controls preload="metadata" src={evidence.url} /> : <DeliveryImagePreview src={evidence.url} fileName={evidence.fileName} />}<Typography.Text className="delivery-review-file-name" ellipsis={{ tooltip: evidence.fileName }}>{evidence.fileName}</Typography.Text></article>)}</div></div>,
+                  children: (
+                    <div className="delivery-review-item">
+                      <ChecklistGuidance guidance={item} collapsible={false} />
+                      <div className="delivery-review-evidence">
+                        {item.evidence.map((evidence) => (
+                          <article className="delivery-review-evidence-card" key={evidence.roundEvidenceId}>
+                            {!evidence.previewUrl ? (
+                              <span className="delivery-review-media-unavailable">{t.mediaUnavailable}</span>
+                            ) : evidence.type.toUpperCase().includes('VIDEO') ? (
+                              <video controls preload="none" src={evidence.previewUrl} />
+                            ) : (
+                              <DeliveryImagePreview
+                                src={evidence.thumbnailUrl ?? evidence.previewUrl}
+                                previewSrc={evidence.previewUrl}
+                                fileName={evidence.fileName}
+                              />
+                            )}
+                            <Typography.Text className="delivery-review-file-name" ellipsis={{ tooltip: evidence.fileName }}>
+                              {evidence.fileName}
+                            </Typography.Text>
+                          </article>
+                        ))}
+                      </div>
+                    </div>
+                  ),
                 }))} />,
               }))}
           />

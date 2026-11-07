@@ -298,7 +298,7 @@ function MissionEvidencePanel({
                       <video src={link.previewUrl} preload="metadata" />
                     ) : (
                       <img
-                        src={link.previewUrl}
+                        src={link.thumbnailUrl ?? link.previewUrl}
                         alt={link.fileName}
                         loading="lazy"
                       />
@@ -420,7 +420,7 @@ function MissionEvidencePanel({
                     {link.previewUrl &&
                       (link.mediaType === 'VIDEO' ? (
                         <video
-                          src={link.previewUrl}
+                          src={link.thumbnailUrl ?? link.previewUrl}
                           controls
                           preload="metadata"
                         />
@@ -609,14 +609,14 @@ function MissionEvidencePanel({
                         {media.previewUrl ? (
                           media.mediaType === 'VIDEO' ? (
                             <video
-                              src={media.previewUrl}
+                              src={media.thumbnailUrl ?? media.previewUrl}
                               controls
                               preload="metadata"
                               aria-label={`Xem video ${media.fileName}`}
                             />
                           ) : (
                             <img
-                              src={media.previewUrl}
+                              src={media.thumbnailUrl ?? media.previewUrl}
                               alt={`Xem trước ${media.fileName}`}
                               loading="lazy"
                             />

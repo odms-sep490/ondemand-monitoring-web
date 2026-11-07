@@ -106,7 +106,8 @@ export type MissionChecklistEvidence = EvidenceEligibility & {
   capturedAt: string
   sourceCapturedAt: string | null
   validatedAt: string | null
-  previewUrl: string | null
+  previewUrl?: string | null
+  thumbnailUrl?: string | null
   urlExpiresAt: string | null
 }
 export type EvidenceCandidate = EvidenceEligibility & {
@@ -119,7 +120,8 @@ export type EvidenceCandidate = EvidenceEligibility & {
   capturedAt: string
   validatedAt: string | null
   attachable: boolean
-  previewUrl: string | null
+  previewUrl?: string | null
+  thumbnailUrl?: string | null
   urlExpiresAt: string | null
   alreadyAttachedExecutionIds: string[]
 }

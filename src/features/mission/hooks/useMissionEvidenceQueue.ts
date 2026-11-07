@@ -192,7 +192,7 @@ export function useMissionEvidenceQueue(
             ...existing.payload,
             expectedVersion: item.version,
             attachVersion: undefined,
-            candidate: { ...candidate, previewUrl: null, urlExpiresAt: null },
+            candidate: { ...candidate, previewUrl: null, thumbnailUrl: null, urlExpiresAt: null },
           })
           await queue.retry(existing.id)
           continue
@@ -200,7 +200,7 @@ export function useMissionEvidenceQueue(
         await queue.enqueue(`${item.id}:${candidate.mediaId}`, {
           executionId: item.id,
           expectedVersion: item.version,
-          candidate: { ...candidate, previewUrl: null, urlExpiresAt: null },
+          candidate: { ...candidate, previewUrl: null, thumbnailUrl: null, urlExpiresAt: null },
         })
       }
     },

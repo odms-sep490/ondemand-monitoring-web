@@ -9,7 +9,7 @@ import './DeliveryReplacementPicker.css'
 
 function Preview({ asset }: { asset: ChecklistDeliveryAsset }) {
   const { t } = useI18n(managerDeliveryPanelMessages)
-  if (!asset.url)
+  if (!asset.previewUrl)
     return (
       <div className="delivery-replacement-unavailable">
         {t.replacementPreviewUnavailable}
@@ -18,12 +18,16 @@ function Preview({ asset }: { asset: ChecklistDeliveryAsset }) {
   return asset.type.toUpperCase().includes('VIDEO') ? (
     <video
       controls
-      preload="metadata"
-      src={asset.url}
+      preload="none"
+      src={asset.previewUrl}
       aria-label={asset.fileName}
     />
   ) : (
-    <DeliveryImagePreview src={asset.url} fileName={asset.fileName} />
+    <DeliveryImagePreview
+      src={asset.thumbnailUrl ?? asset.previewUrl}
+      previewSrc={asset.previewUrl}
+      fileName={asset.fileName}
+    />
   )
 }
 
@@ -137,7 +141,7 @@ export function DeliveryReplacementPicker({
               <Radio
                 value={asset.mediaAssetId}
                 aria-label={`${t.selectReplacement}: ${asset.fileName}`}
-                disabled={disabled || !!asset.accessReason}
+                disabled={disabled || !!asset.accessReason || !asset.previewUrl}
               >
                 {t.selectReplacement}
               </Radio>

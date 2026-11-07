@@ -190,14 +190,14 @@ export function CustomerEvidenceSelection({
               <button
                 type="button"
                 className="customer-evidence-selection__thumbnail"
-                disabled={!link.previewUrl}
+                disabled={!link.previewUrl && !link.thumbnailUrl}
                 aria-label={
                   vi ? `Xem ${link.fileName}` : `Preview ${link.fileName}`
                 }
                 onClick={() => setPreview(link)}
               >
-                {link.previewUrl && link.mediaType !== 'VIDEO' ? (
-                  <img src={link.previewUrl} alt="" loading="lazy" />
+                {link.thumbnailUrl && link.mediaType !== 'VIDEO' ? (
+                  <img src={link.thumbnailUrl} alt="" loading="lazy" />
                 ) : link.mediaType === 'VIDEO' ? (
                   <PlayCircleOutlined aria-hidden="true" />
                 ) : (
