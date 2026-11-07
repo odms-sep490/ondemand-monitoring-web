@@ -161,6 +161,7 @@ function MissionDetailContent({ missionId }: { missionId: string }) {
     weatherStatus,
     setWeatherStatus,
     flightPermitNotApprovedMessage: t.flightPermitNotApproved,
+    weatherAfterPermitRequiredMessage: t.weatherAfterPermitRequired,
   })
 
   return (

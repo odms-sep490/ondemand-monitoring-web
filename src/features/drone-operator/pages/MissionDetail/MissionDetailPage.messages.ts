@@ -40,6 +40,12 @@ export const missionDetailPageMessages = defineMessages({
     temperatureHumidityLabel: 'Nhiệt độ / độ ẩm',
     startMission: 'Bắt đầu Mission',
     flightPermitNotApproved: 'Giấy phép bay chưa được phê duyệt. Vui lòng phê duyệt giấy phép bay trước khi bắt đầu nhiệm vụ.',
+    flightPermitTitle: 'Giấy phép bay',
+    flightPermitPending: 'Chờ quản lý duyệt giấy phép bay',
+    flightPermitRejected: 'Giấy phép bay bị từ chối',
+    flightPermitPendingHelp: 'Đã bàn giao nhiệm vụ. Chỉ có thể kiểm tra thời tiết sau khi quản lý duyệt giấy phép bay.',
+    flightPermitRejectedHelp: 'Quản lý cần cập nhật giấy phép bay trước khi tiếp tục.',
+    weatherAfterPermitRequired: 'Giấy phép đã được duyệt. Hãy kiểm tra lại thời tiết để tiếp tục.',
     statusWaitingCrew: (accepted: number, total: number) =>
       `Chờ nhân sự chấp nhận · ${accepted}/${total}`,
     statusOperatorPreflight: (accepted: number, total: number) =>
@@ -77,6 +83,8 @@ export const missionDetailPageMessages = defineMessages({
     workflowPreflightFailed: 'Kiểm tra trước bay chưa đạt. Nhân viên vận hành cần xử lý lỗi và kiểm tra lại.',
     workflowHandover: 'Kiểm tra trước bay đạt. Nhân viên vận hành bàn giao quyền điều khiển cho nghiệm thu.',
     workflowWeatherCheck: 'Nghiệm thu xem số liệu thời tiết, xác nhận đạt rồi mới bấm Start.',
+    workflowPermitApproval: 'Đang chờ quản lý duyệt giấy phép bay. Sau khi được duyệt, bạn mới có thể kiểm tra thời tiết và bắt đầu Mission.',
+    workflowPermitRejected: 'Giấy phép bay bị từ chối. Chờ quản lý cập nhật giấy phép trước khi tiếp tục.',
     workflowWeatherApproval: 'Thời tiết an toàn. Chờ nghiệm thu xác nhận đạt trước khi Start.',
     workflowWeatherUnsafe: 'Thời tiết chưa đạt. Chưa thể bắt đầu Mission.',
     workflowStartReady: 'Thời tiết đã được duyệt. Nghiệm thu có thể bấm Start mission.',
@@ -127,6 +135,12 @@ export const missionDetailPageMessages = defineMessages({
     temperatureHumidityLabel: 'Temperature / humidity',
     startMission: 'Start Mission',
     flightPermitNotApproved: 'The flight permit has not been approved. Approve it before starting the mission.',
+    flightPermitTitle: 'Flight permit',
+    flightPermitPending: 'Waiting for flight permit approval',
+    flightPermitRejected: 'Flight permit rejected',
+    flightPermitPendingHelp: 'The mission has been handed over. Weather checks are available after the manager approves the flight permit.',
+    flightPermitRejectedHelp: 'The manager must update the flight permit before this mission can continue.',
+    weatherAfterPermitRequired: 'The permit is approved. Check the weather again to continue.',
     statusWaitingCrew: (accepted: number, total: number) =>
       `Waiting for crew acceptance · ${accepted}/${total}`,
     statusOperatorPreflight: (accepted: number, total: number) =>
@@ -164,6 +178,8 @@ export const missionDetailPageMessages = defineMessages({
     workflowPreflightFailed: 'Preflight did not pass. Resolve the issue and check again.',
     workflowHandover: 'Preflight passed. The operator hands control to the inspector.',
     workflowWeatherCheck: 'The inspector reviews weather and approves it before starting.',
+    workflowPermitApproval: 'Waiting for the manager to approve the flight permit. Weather can be checked and the Mission can start after approval.',
+    workflowPermitRejected: 'The flight permit was rejected. Wait for the manager to update it before continuing.',
     workflowWeatherApproval: 'Weather is safe. Inspector approval is required before start.',
     workflowWeatherUnsafe: 'Weather is unsafe. The Mission cannot start.',
     workflowStartReady: 'Weather approved. The inspector can start the Mission.',

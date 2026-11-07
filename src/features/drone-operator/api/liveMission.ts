@@ -13,6 +13,8 @@ export type BackendMission = {
   managerEmail?: string | null
   managerPhone?: string | null
   status: string
+  flightPermitStatus?: 'PENDING' | 'APPROVED' | 'REJECTED' | null
+  flightPermitUpdatedAt?: string | null
   purpose?: 'ORIGINAL' | 'REWORK' | string | null
   resultRevisionCaseId?: string | null
   operatorId?: string | null
@@ -244,6 +246,8 @@ export function toOperatorMission(
     id: source.id,
     missionCode: source.missionCode ?? source.id,
     backendStatus: source.status,
+    flightPermitStatus: source.flightPermitStatus ?? null,
+    flightPermitUpdatedAt: source.flightPermitUpdatedAt ?? null,
     status: operatorStatusForCrewResponse(source.status, myResponseStatus),
     myResponseStatus:
       myResponseStatus === 'ACCEPTED' || myResponseStatus === 'REJECTED'

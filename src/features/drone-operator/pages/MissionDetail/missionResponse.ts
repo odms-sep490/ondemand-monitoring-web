@@ -14,6 +14,7 @@ export function actionErrorMessage(
   error: unknown,
   fallback: string,
   flightPermitNotApprovedMessage = 'Giấy phép bay chưa được phê duyệt. Vui lòng phê duyệt giấy phép bay trước khi bắt đầu nhiệm vụ.',
+  weatherAfterPermitRequiredMessage = 'Giấy phép bay đã được duyệt. Vui lòng kiểm tra lại thời tiết trước khi bắt đầu nhiệm vụ.',
 ) {
   if (error instanceof ApiError) {
     const normalizedMessage = error.message
@@ -22,10 +23,19 @@ export function actionErrorMessage(
       .toLowerCase()
 
     if (
-      normalizedMessage ===
-      'flight permit must be approved before the mission can start'
+      [
+        'flight permit must be approved before the mission can start',
+        'flight permit must be approved before weather can be checked',
+      ].includes(normalizedMessage)
     ) {
       return flightPermitNotApprovedMessage
+    }
+
+    if (
+      normalizedMessage ===
+      'weather must be checked after the flight permit is approved'
+    ) {
+      return weatherAfterPermitRequiredMessage
     }
 
     if (

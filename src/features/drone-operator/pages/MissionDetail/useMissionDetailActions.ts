@@ -11,7 +11,7 @@ import type { MissionPermissions } from '../../../mission/types/permissions'
 import { authenticatedFetch } from '../../../auth/api/authApi'
 import { env } from '../../../../config/env'
 import type { WeatherPreflightStatus } from './types'
-import { isWeatherCheckFresh } from './weatherReadiness'
+import { isWeatherCheckFreshAfterPermit } from './weatherReadiness'
 import { acceptWeatherCheck } from './checkData'
 
 export function useMissionDetailActions({
@@ -29,6 +29,7 @@ export function useMissionDetailActions({
   weatherStatus,
   setWeatherStatus,
   flightPermitNotApprovedMessage,
+  weatherAfterPermitRequiredMessage,
 }: {
   setActionError: Dispatch<unknown>
   setMediaRevision: Dispatch<SetStateAction<number>>
@@ -56,6 +57,7 @@ export function useMissionDetailActions({
   weatherStatus: WeatherPreflightStatus | null
   setWeatherStatus: Dispatch<SetStateAction<WeatherPreflightStatus | null>>
   flightPermitNotApprovedMessage: string
+  weatherAfterPermitRequiredMessage: string
 }) {
   const refreshWorkspace = (clearError = true) => {
     if (clearError) setActionError(null)
@@ -87,7 +89,13 @@ export function useMissionDetailActions({
     setSubmitting(true)
     setActionError(null)
     try {
-      const weatherIsFresh = isWeatherCheckFresh(weatherStatus)
+      if (mission.flightPermitStatus !== 'APPROVED') {
+        throw new Error(flightPermitNotApprovedMessage)
+      }
+      const weatherIsFresh = isWeatherCheckFreshAfterPermit(
+        weatherStatus,
+        mission.flightPermitUpdatedAt,
+      )
       if (!weatherIsFresh || weatherStatus?.safeToFly !== true) {
         if (
           typeof mission.latitude !== 'number' ||
@@ -149,6 +157,7 @@ export function useMissionDetailActions({
           error,
           'Chưa thể bắt đầu nhiệm vụ. Hãy bảo đảm thiết bị đã đạt kiểm tra trước bay và quyền điều khiển đã được bàn giao.',
           flightPermitNotApprovedMessage,
+          weatherAfterPermitRequiredMessage,
         ),
       )
     } finally {
@@ -159,7 +168,11 @@ export function useMissionDetailActions({
   async function handleAcceptWeather() {
     if (
       !weatherStatus?.id ||
-      !isWeatherCheckFresh(weatherStatus) ||
+      mission.flightPermitStatus !== 'APPROVED' ||
+      !isWeatherCheckFreshAfterPermit(
+        weatherStatus,
+        mission.flightPermitUpdatedAt,
+      ) ||
       weatherStatus.safeToFly !== true
     ) {
       setActionError('Chỉ có thể nghiệm thu kết quả thời tiết an toàn và còn mới trong 15 phút.')

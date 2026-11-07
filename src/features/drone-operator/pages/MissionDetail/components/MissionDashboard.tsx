@@ -33,6 +33,7 @@ import { PostcheckCard } from './PostcheckCard'
 import { MissionUploadedMedia } from '../../../../media/components/MissionUploadedMedia'
 import { useI18n } from '../../../../../shared/i18n'
 import { missionDetailPageMessages } from '../MissionDetailPage.messages'
+import { StatusBadge } from '../../../../../shared/components/odm/StatusBadge'
 
 type MissionTab = 'overview' | 'checklist' | 'checks' | 'media'
 
@@ -93,6 +94,8 @@ export function MissionDashboard({
     mission.status === 'COMPLETED' ||
     (mission.backendStatus === 'AWAITING_REVIEW' ||
       mission.backendStatus === 'PENDING_REVIEW')
+  const flightPermitApproved = mission.flightPermitStatus === 'APPROVED'
+  const flightPermitRejected = mission.flightPermitStatus === 'REJECTED'
   const tabs: Array<{ id: MissionTab; label: string }> = [
     { id: 'overview', label: 'Tổng quan' },
     { id: 'checklist', label: 'Checklist' },
@@ -257,10 +260,11 @@ export function MissionDashboard({
 
       {resultActions}
 
-      {access?.canStartMission === true ? (
+      {access?.canStartMission === true && flightPermitApproved ? (
         <div className="mds-weather-review">
           <WeatherCard
             weather={weatherStatus}
+            weatherNotBefore={mission.flightPermitUpdatedAt}
             loading={weatherLoading}
             reviewMode
             canCheckWeather
@@ -272,6 +276,28 @@ export function MissionDashboard({
             approvingWeather={submitting}
             onApproveWeather={onAcceptWeather}
           />
+        </div>
+      ) : access?.canStartMission === true ? (
+        <div className="mds-weather-review">
+          <section className="odm-card" aria-labelledby="mds-flight-permit-heading">
+            <div className="odm-card-header">
+              <h2 id="mds-flight-permit-heading" className="mds-card-heading">
+                {t.flightPermitTitle}
+              </h2>
+              <StatusBadge tone={flightPermitRejected ? 'red' : 'yellow'}>
+                {flightPermitRejected
+                  ? t.flightPermitRejected
+                  : t.flightPermitPending}
+              </StatusBadge>
+            </div>
+            <div className="odm-card-body">
+              <p role="status" aria-live="polite">
+                {flightPermitRejected
+                  ? t.flightPermitRejectedHelp
+                  : t.flightPermitPendingHelp}
+              </p>
+            </div>
+          </section>
         </div>
       ) : null}
 
@@ -347,8 +373,32 @@ export function MissionDashboard({
                 preflight={preflightStatus}
                 weather={weatherStatus}
               />
-              {access?.canStartMission !== true ? (
-                <WeatherCard weather={weatherStatus} loading={weatherLoading} />
+              {access?.canStartMission !== true && flightPermitApproved ? (
+                <WeatherCard
+                  weather={weatherStatus}
+                  weatherNotBefore={mission.flightPermitUpdatedAt}
+                  loading={weatherLoading}
+                />
+              ) : access?.canStartMission !== true ? (
+                <section className="odm-card" aria-labelledby="mds-flight-permit-checks-heading">
+                  <div className="odm-card-header">
+                    <h2 id="mds-flight-permit-checks-heading" className="mds-card-heading">
+                      {t.flightPermitTitle}
+                    </h2>
+                    <StatusBadge tone={flightPermitRejected ? 'red' : 'yellow'}>
+                      {flightPermitRejected
+                        ? t.flightPermitRejected
+                        : t.flightPermitPending}
+                    </StatusBadge>
+                  </div>
+                  <div className="odm-card-body">
+                    <p role="status">
+                      {flightPermitRejected
+                        ? t.flightPermitRejectedHelp
+                        : t.flightPermitPendingHelp}
+                    </p>
+                  </div>
+                </section>
               ) : null}
             </div>
             <div className="mds-col">

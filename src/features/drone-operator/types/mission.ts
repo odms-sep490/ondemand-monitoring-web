@@ -10,6 +10,8 @@ export type OperatorMission = {
   id: string
   missionCode?: string
   backendStatus?: string
+  flightPermitStatus?: 'PENDING' | 'APPROVED' | 'REJECTED' | null
+  flightPermitUpdatedAt?: string | null
   status: OperatorMissionStatus
   myResponseStatus?: 'PENDING' | 'ACCEPTED' | 'REJECTED'
   title: string

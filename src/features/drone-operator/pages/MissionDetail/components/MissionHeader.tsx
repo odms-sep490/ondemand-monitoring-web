@@ -9,7 +9,7 @@ import { useI18n } from '../../../../../shared/i18n'
 import { missionDetailPageMessages } from '../MissionDetailPage.messages'
 import { hasAcknowledgedHandover } from '../../../lib/flightWorkflowStorage'
 import type { WeatherPreflightStatus } from '../types'
-import { isWeatherCheckFresh } from '../weatherReadiness'
+import { isWeatherCheckFreshAfterPermit } from '../weatherReadiness'
 
 // ─── Mission Header ───────────────────────────────────────────────────────────
 
@@ -56,9 +56,13 @@ export function MissionHeader({
     hasAccepted &&
     backendStatus === 'READY' &&
     (deviceState === 'READY_TO_FLY' || mission.status === 'READY_TO_FLY') &&
+    mission.flightPermitStatus === 'APPROVED' &&
     access?.canStartMission === true
   const weatherConditionsReady =
-    isWeatherCheckFresh(weatherStatus) && weatherStatus?.safeToFly === true
+    isWeatherCheckFreshAfterPermit(
+      weatherStatus,
+      mission.flightPermitUpdatedAt,
+    ) && weatherStatus?.safeToFly === true
   const weatherIsReady =
     weatherConditionsReady && weatherStatus?.inspectorAccepted === true
   const canRunPreflight =
@@ -80,8 +84,12 @@ export function MissionHeader({
       access?.canCompleteMission === true ||
       access?.canUploadMedia === true)
   const responseStatusLabel =
-    backendStatus === 'PENDING_CONFIRMATION' &&
-    mission.myResponseStatus === 'ACCEPTED'
+    backendStatus === 'READY' && mission.flightPermitStatus !== 'APPROVED'
+      ? mission.flightPermitStatus === 'REJECTED'
+        ? t.flightPermitRejected
+        : t.flightPermitPending
+      : backendStatus === 'PENDING_CONFIRMATION' &&
+        mission.myResponseStatus === 'ACCEPTED'
       ? deviceState === 'READY_TO_FLY' && crewStillPending
         ? t.statusPreflightReadyWaitingCrew(
             mission.acceptedStaffCount ?? 0,
