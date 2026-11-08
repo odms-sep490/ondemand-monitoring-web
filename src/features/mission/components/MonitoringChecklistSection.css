@@ -428,6 +428,14 @@
   background: #fef3c7;
   color: #b45309;
 }
+.mc-chip.is-active {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+.mc-chip.is-done {
+  background: #dcfce7;
+  color: #15803d;
+}
 .mc-chip.is-danger {
   background: #fef2f2;
   color: #dc2626;

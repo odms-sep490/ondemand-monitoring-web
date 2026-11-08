@@ -45,8 +45,15 @@ export function MissionListTable({
 
   return (
     <div
-      className="odm-card"
+      className="odm-card odm-opr-mission-table-scroll"
       style={{ borderTop: 0, borderRadius: '0 0 8px 8px', overflowX: 'auto' }}
+      role="region"
+      aria-label={
+        lang === 'vi'
+          ? 'Bảng nhiệm vụ, cuộn ngang để xem đầy đủ thông tin'
+          : 'Mission table, scroll horizontally to see all details'
+      }
+      tabIndex={0}
     >
       <table className="odm-table odm-opr-mission-table">
         <thead>

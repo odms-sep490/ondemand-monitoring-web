@@ -23,8 +23,10 @@ import { LidarRadarSummary } from './LidarRadarSummary'
 
 export const LidarRadarOverlay = memo(function LidarRadarOverlay({
   status,
+  displayOnly = false,
 }: {
   status: ControlStatus | null
+  displayOnly?: boolean
 }) {
   useRenderDiagnostics('LidarRadarOverlay')
   const { t } = useI18n(inFlightControlMessages)
@@ -37,7 +39,9 @@ export const LidarRadarOverlay = memo(function LidarRadarOverlay({
   const severityLabel: Record<LidarSeverity, string> = {
     DANGER: t.lidarRadar.status.danger,
     CAUTION: t.lidarRadar.status.caution,
-    CLEAR: t.lidarRadar.status.clear,
+    CLEAR: displayOnly
+      ? t.lidarRadar.status.displayOnly
+      : t.lidarRadar.status.clear,
     UNKNOWN: t.lidarRadar.status.unknown,
   }
   const lidar = status?.lidar
@@ -72,7 +76,9 @@ export const LidarRadarOverlay = memo(function LidarRadarOverlay({
   ]
   const directionStates: LidarDirectionState[] = rawDirectionStates.map(
     (item) => {
-      const severity = getLidarSeverity(item.value, fresh, maxRange)
+      const severity: LidarSeverity = displayOnly && fresh
+        ? 'CLEAR'
+        : getLidarSeverity(item.value, fresh, maxRange)
       return {
         ...item,
         severity,
@@ -86,20 +92,24 @@ export const LidarRadarOverlay = memo(function LidarRadarOverlay({
     'UNKNOWN',
     'CLEAR',
   ]
-  const panelSeverity = fresh
-    ? (orderedSeverities.find((severity) =>
-        directionStates.some((item) => item.severity === severity),
-      ) ?? 'UNKNOWN')
-    : 'UNKNOWN'
-  const statusLabel = fresh
-    ? panelSeverity === 'DANGER'
-      ? t.lidarRadar.status.danger
-      : panelSeverity === 'CAUTION'
-        ? t.lidarRadar.status.caution
-        : panelSeverity === 'CLEAR'
-          ? t.lidarRadar.status.active
-          : t.lidarRadar.status.unknown
-    : t.lidarRadar.status.stale
+  const panelSeverity: LidarSeverity = !fresh
+    ? 'UNKNOWN'
+    : displayOnly
+      ? 'CLEAR'
+      : (orderedSeverities.find((severity) =>
+          directionStates.some((item) => item.severity === severity),
+        ) ?? 'UNKNOWN')
+  const statusLabel = !fresh
+    ? t.lidarRadar.status.stale
+    : displayOnly
+      ? t.lidarRadar.status.displayOnly
+      : panelSeverity === 'DANGER'
+        ? t.lidarRadar.status.danger
+        : panelSeverity === 'CAUTION'
+          ? t.lidarRadar.status.caution
+          : panelSeverity === 'CLEAR'
+            ? t.lidarRadar.status.active
+            : t.lidarRadar.status.unknown
   const nearestObstacle = directionStates
     .filter(
       (item) =>
@@ -109,7 +119,11 @@ export const LidarRadarOverlay = memo(function LidarRadarOverlay({
     )
     .sort((a, b) => Number(a.value) - Number(b.value))[0]
   const alertStyle = getLidarSeverityStyle(
-    !fresh ? 'UNKNOWN' : (nearestObstacle?.severity ?? 'CLEAR'),
+    !fresh
+      ? 'UNKNOWN'
+      : displayOnly
+        ? 'CLEAR'
+        : (nearestObstacle?.severity ?? 'CLEAR'),
   )
   const panelBorder = getLidarSeverityStyle(panelSeverity)
 
@@ -147,6 +161,7 @@ export const LidarRadarOverlay = memo(function LidarRadarOverlay({
         lidar={lidar}
         nearestObstacle={nearestObstacle}
         directionLabel={directionLabel}
+        displayOnly={displayOnly}
       />
     </GlassPanel>
   )

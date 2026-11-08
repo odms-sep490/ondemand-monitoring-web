@@ -8,14 +8,14 @@ import { UploadMediaPage } from '../UploadMediaPage'
 describe('UploadMediaScreen', () => {
   it('renders vietnamese chrome text', () => {
     render(<UploadMediaPage />)
-    expect(screen.getAllByText('Quay lại buồng lái')[0]).toBeTruthy()
+    expect(screen.queryByText('Quay lại buồng lái')).toBeNull()
     expect(screen.getAllByText('Làm mới')[0]).toBeTruthy()
   })
 
   it('renders english chrome text when language is switched', () => {
     render(<UploadMediaPage />)
     act(() => setLanguage('en'))
-    expect(screen.getAllByText('Back to cockpit')[0]).toBeTruthy()
+    expect(screen.queryByText('Back to cockpit')).toBeNull()
     expect(screen.getAllByText('Refresh')[0]).toBeTruthy()
   })
 })

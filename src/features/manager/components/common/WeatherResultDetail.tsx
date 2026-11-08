@@ -66,7 +66,7 @@ export function WeatherResultDetail({
         </div>
       </dl>
       <p className="odm-or-detail-note">{weather.summary}</p>
-      {weather.advisories?.length ? (
+      {!weather.safeToFly && weather.advisories?.length ? (
         <ul className="odm-or-weather-advisories">
           {weather.advisories.map((item) => (
             <li key={item}>{item}</li>

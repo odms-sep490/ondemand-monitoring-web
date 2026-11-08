@@ -9,6 +9,7 @@ export function LidarRadarSummary({
   lidar,
   nearestObstacle,
   directionLabel,
+  displayOnly,
 }: {
   alertStyle: {
     fill: string
@@ -40,6 +41,7 @@ export function LidarRadarSummary({
     | undefined
   nearestObstacle: LidarDirectionState
   directionLabel: Record<LidarDirection, string>
+  displayOnly?: boolean
 }) {
   const { t } = useI18n(inFlightControlMessages)
   return (
@@ -97,7 +99,9 @@ export function LidarRadarSummary({
                 : t.lidarRadar.noObstacle}
           </strong>
           <span style={{ color: '#cbd5e1', fontSize: 8, lineHeight: 1.15 }}>
-            {nearestObstacle?.severity === 'DANGER'
+            {displayOnly
+              ? t.lidarRadar.displayOnlyNote
+              : nearestObstacle?.severity === 'DANGER'
               ? t.lidarRadar.holdPosition
               : nearestObstacle?.severity === 'CAUTION'
                 ? t.lidarRadar.proceedCaution

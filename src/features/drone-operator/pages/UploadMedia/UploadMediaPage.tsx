@@ -160,7 +160,6 @@ function UploadMediaContent({
     actions,
     isBusy,
     visibleItems,
-    backRoute,
     refreshWorkspace,
     runResultAction,
   } = useMediaWorkspace({
@@ -401,7 +400,6 @@ function UploadMediaContent({
               {t.mediaTitle}
             </a>
           </div>
-          <a href={backRoute}>{t.backToCockpit}</a>
         </nav>
         <QueueStatusPanel
           jobs={queue.jobs}

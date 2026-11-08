@@ -164,6 +164,94 @@ export function useMissionEvidenceQueue(
       stage('VALIDATING')
     }, current)
   }, [accountId, missionId, scope, queue, transfer, backupTransfer])
+  const enqueueSelected = async (
+    item: MissionChecklistExecution,
+    selected: EvidenceCandidate[],
+  ) => {
+    const jobIds: string[] = []
+    for (const candidate of selected) {
+      const key = `${item.id}:${candidate.mediaId}`
+      // Preview URLs expire and can be sensitive; the picker obtains fresh ones.
+      const existing = queue
+        .getSnapshot()
+        .find((job) => job.key === key && job.stage === 'FAILED')
+      if (existing) {
+        await queue.updatePayload(existing.id, {
+          ...existing.payload,
+          expectedVersion: item.version,
+          attachVersion: undefined,
+          candidate: {
+            ...candidate,
+            previewUrl: null,
+            thumbnailUrl: null,
+            urlExpiresAt: null,
+          },
+        })
+        await queue.retry(existing.id)
+      } else {
+        await queue.enqueue(key, {
+          executionId: item.id,
+          expectedVersion: item.version,
+          candidate: {
+            ...candidate,
+            previewUrl: null,
+            thumbnailUrl: null,
+            urlExpiresAt: null,
+          },
+        })
+      }
+
+      const job = queue.getSnapshot().find((entry) => entry.key === key)
+      if (!job) throw new Error('EVIDENCE_JOB_NOT_FOUND')
+      jobIds.push(job.id)
+    }
+    return jobIds
+  }
+  const waitForJobs = (jobIds: string[]) =>
+    new Promise<void>((resolve, reject) => {
+      if (!jobIds.length) {
+        resolve()
+        return
+      }
+      let unsubscribe: () => void = () => {}
+      let settled = false
+      const finish = (error?: Error) => {
+        if (settled) return
+        settled = true
+        unsubscribe()
+        if (error) reject(error)
+        else resolve()
+      }
+      const check = () => {
+        const snapshot = queue.getSnapshot()
+        const selectedJobs = jobIds.map((id) =>
+          snapshot.find((job) => job.id === id),
+        )
+        if (selectedJobs.some((job) => !job)) {
+          finish(new Error('EVIDENCE_JOB_REMOVED'))
+          return
+        }
+        if (
+          !selectedJobs.every((job) =>
+            ['DONE', 'FAILED'].includes(job?.stage ?? ''),
+          )
+        )
+          return
+        const failed = selectedJobs.find((job) => job?.stage === 'FAILED')
+        if (failed) {
+          finish(
+            Object.assign(new Error(failed.errorCode ?? 'UPLOAD_FAILED'), {
+              code: failed.errorCode ?? 'UPLOAD_FAILED',
+            }),
+          )
+          return
+        }
+        if (selectedJobs.every((job) => job?.stage === 'DONE')) finish()
+      }
+      unsubscribe = queue.subscribe(check)
+      // Enqueueing may finish a job before this listener is installed.
+      check()
+    })
   return {
     jobs,
     async forget(executionId: string, mediaId: string) {
@@ -178,31 +266,14 @@ export function useMissionEvidenceQueue(
     busy: jobs.some((job) => !['DONE', 'FAILED'].includes(job.stage)),
     blocked: jobs.some((job) => job.stage !== 'DONE'),
     async add(item: MissionChecklistExecution, selected: EvidenceCandidate[]) {
-      for (const candidate of selected) {
-        // Preview URLs expire and can be sensitive; the picker obtains fresh ones.
-        const existing = queue
-          .getSnapshot()
-          .find(
-            (job) =>
-              job.key === `${item.id}:${candidate.mediaId}` &&
-              job.stage === 'FAILED',
-          )
-        if (existing) {
-          await queue.updatePayload(existing.id, {
-            ...existing.payload,
-            expectedVersion: item.version,
-            attachVersion: undefined,
-            candidate: { ...candidate, previewUrl: null, thumbnailUrl: null, urlExpiresAt: null },
-          })
-          await queue.retry(existing.id)
-          continue
-        }
-        await queue.enqueue(`${item.id}:${candidate.mediaId}`, {
-          executionId: item.id,
-          expectedVersion: item.version,
-          candidate: { ...candidate, previewUrl: null, thumbnailUrl: null, urlExpiresAt: null },
-        })
-      }
+      await enqueueSelected(item, selected)
+    },
+    async addAndWait(
+      item: MissionChecklistExecution,
+      selected: EvidenceCandidate[],
+    ) {
+      const jobIds = await enqueueSelected(item, selected)
+      await waitForJobs(jobIds)
     },
     retry: (id: string) => queue.retry(id),
     retryBackup: (id: string, file: File) => {

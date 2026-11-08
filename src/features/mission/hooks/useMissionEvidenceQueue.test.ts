@@ -31,6 +31,52 @@ const candidate = (id: string) =>
     thumbnailUrl: 'https://example.test/thumbnail?signature=private',
   }) as EvidenceCandidate
 describe('legacy evidence queue', () => {
+  it('waits for attachment and transfer while stripping signed display URLs', async () => {
+    vi.spyOn(
+      checklistExecutionApi,
+      'getMissionChecklistExecutions',
+    ).mockResolvedValue({ executions: [{ id: 'e', evidence: [] }] } as never)
+    const attach = vi.spyOn(checklistEvidenceApi, 'batch').mockResolvedValue([])
+    const transfer = vi.fn<EvidenceTransfer>(async (file, prepared) => {
+      await prepared(file.mediaId.replace('local:', 'backend:'))
+    })
+    const missionId = crypto.randomUUID()
+    const { result } = renderHook(() =>
+      useMissionEvidenceQueue(missionId, transfer),
+    )
+    await act(async () => {
+      await result.current.addAndWait(
+        { id: 'e', version: 1 } as MissionChecklistExecution,
+        [candidate('wait')],
+      )
+    })
+    expect(attach).toHaveBeenCalledOnce()
+    expect(result.current.jobs[0]?.stage).toBe('DONE')
+    expect(transfer.mock.calls[0][0]).toMatchObject({
+      previewUrl: null,
+      thumbnailUrl: null,
+    })
+  })
+
+  it('rejects addAndWait when the transfer fails', async () => {
+    const missionId = crypto.randomUUID()
+    const transfer = vi.fn<EvidenceTransfer>(async () => {
+      throw new Error('transfer failed')
+    })
+    const { result } = renderHook(() =>
+      useMissionEvidenceQueue(missionId, transfer),
+    )
+    await act(async () => {
+      await expect(
+        result.current.addAndWait(
+          { id: 'e', version: 1 } as MissionChecklistExecution,
+          [candidate('failed')],
+        ),
+      ).rejects.toThrow()
+    })
+    expect(result.current.jobs[0]?.stage).toBe('FAILED')
+  })
+
   it('serializes two selected files against one execution and advances only its own versions', async () => {
     vi.spyOn(
       checklistExecutionApi,

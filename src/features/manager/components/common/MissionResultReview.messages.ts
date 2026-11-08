@@ -33,6 +33,7 @@ export const missionResultReviewMessages = defineMessages({
     notRecorded: 'Chưa ghi nhận',
     media: 'Ảnh/video',
     mediaCount: (n: number) => `${n} ảnh/video`,
+    fullSummary: 'Chi tiết kết quả',
     noResult: 'Chưa có kết quả nhiệm vụ được gửi.',
     readinessAria: 'Điều kiện duyệt kết quả',
     readinessTitle: 'Điều kiện duyệt',
@@ -43,7 +44,6 @@ export const missionResultReviewMessages = defineMessages({
     draftNotice: 'Kết quả nháp — chưa được gửi để duyệt.',
     rejectedNotice:
       'Kết quả đã bị từ chối. Nhân sự thực hiện cần chỉnh sửa và gửi lại.',
-    approvedNotice: 'Kết quả đã được duyệt.',
     noteLabel: 'Ghi chú / lý do',
     noteHint: 'Cần khi từ chối, hoặc khi duyệt dù thiếu ảnh/video so với đơn',
     notePlaceholder:
@@ -84,6 +84,7 @@ export const missionResultReviewMessages = defineMessages({
     notRecorded: 'Not recorded',
     media: 'Media',
     mediaCount: (n: number) => `${n} photos/videos`,
+    fullSummary: 'Result details',
     noResult: 'No mission result has been submitted yet.',
     readinessAria: 'Result approval conditions',
     readinessTitle: 'Approval conditions',
@@ -95,7 +96,6 @@ export const missionResultReviewMessages = defineMessages({
     draftNotice: 'Draft result — not yet submitted for review.',
     rejectedNotice:
       'The result was rejected. The assigned staff must revise and resubmit it.',
-    approvedNotice: 'The result has been approved.',
     noteLabel: 'Note / reason',
     noteHint:
       'Required when rejecting, or when approving despite missing photos/videos versus the order',

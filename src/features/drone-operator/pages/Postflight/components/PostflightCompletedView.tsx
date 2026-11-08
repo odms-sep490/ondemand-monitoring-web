@@ -17,7 +17,6 @@ export function PostflightCompletedView({
   missionLabel,
   completed,
   deviceId,
-  deviceLabel,
   inspectionResults,
   notes,
   telemetrySnapshot,
@@ -26,7 +25,6 @@ export function PostflightCompletedView({
   missionLabel: string
   completed: { overallOk: boolean; ticketCreated: boolean; droneStatus: string }
   deviceId: string
-  deviceLabel: string
   inspectionResults: Record<string, 'PASS' | 'FAIL'> | null
   notes: string
   telemetrySnapshot: FlightControlStatus | null
@@ -192,7 +190,9 @@ export function PostflightCompletedView({
         ? [
             `${weather.summary} (${weather.status})`,
             `${lang === 'vi' ? 'Gió' : 'Wind'} ${weather.windSpeedMps.toFixed(1)} m/s; ${lang === 'vi' ? 'giật' : 'gust'} ${weather.windGustMps.toFixed(1)} m/s; ${lang === 'vi' ? 'mưa' : 'rain'} ${weather.precipitationMmH.toFixed(1)} mm/h; ${lang === 'vi' ? 'tầm nhìn' : 'visibility'} ${weather.visibilityKm.toFixed(1)} km; ${weather.temperatureC.toFixed(1)}°C; ${lang === 'vi' ? 'độ ẩm' : 'humidity'} ${weather.humidityPercent}%.`,
-            ...weather.advisories.map((advisory) => `- ${advisory}`),
+            ...(weather.safeToFly
+              ? []
+              : weather.advisories.map((advisory) => `- ${advisory}`)),
           ].join('\n')
         : ''
       const reportNotes = (
@@ -385,16 +385,6 @@ export function PostflightCompletedView({
           <div className="postflight-review-hero-copy">
             <h1>{t.reviewTitle}</h1>
             <p>{t.reviewSubtitle}</p>
-            <div className="postflight-review-meta">
-              <span><b>{missionLabel}</b></span>
-              <span>{t.reviewDevice}: <b>{deviceLabel}</b></span>
-              {mission?.serviceName && (
-                <span>{t.reviewService}: <b>{mission.serviceName}</b></span>
-              )}
-              {mission?.address && (
-                <span>{t.reviewLocation}: <b>{mission.address}</b></span>
-              )}
-            </div>
           </div>
           <div className="postflight-review-status-stack">
             <span
@@ -543,11 +533,14 @@ export function PostflightCompletedView({
                     <WeatherMetric label={t.reviewTemperature} value={`${currentWeather.temperatureC.toFixed(1)} °C`} />
                     <WeatherMetric label={t.reviewHumidity} value={`${currentWeather.humidityPercent}%`} />
                   </div>
-                  {currentWeather.advisories.length > 0 && (
-                    <ul className="postflight-review-advisories">
-                      {currentWeather.advisories.map((advisory) => <li key={advisory}>{advisory}</li>)}
-                    </ul>
-                  )}
+                  {!currentWeather.safeToFly &&
+                    currentWeather.advisories.length > 0 && (
+                      <ul className="postflight-review-advisories">
+                        {currentWeather.advisories.map((advisory) => (
+                          <li key={advisory}>{advisory}</li>
+                        ))}
+                      </ul>
+                    )}
                 </>
               )}
             </ReviewSection>
@@ -685,7 +678,6 @@ export function PostflightCompletedView({
             {isSubmitted ? (
               <>
                 <strong>{managerApproved ? t.reviewApproved : t.reviewSent}</strong>
-                <span>{missionStatus}</span>
               </>
             ) : !isMissionCompleted ? (
               <>
