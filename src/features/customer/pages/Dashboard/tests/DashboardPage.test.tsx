@@ -53,7 +53,7 @@ describe('DashboardPage', () => {
     expect(tableRows(recent)).toHaveLength(5)
     expect(within(recent).getByText('Cần thanh toán cọc')).toBeInTheDocument()
     const breakdown = card('Đơn hàng theo trạng thái')
-    expect(within(breakdown).getAllByRole('listitem')).toHaveLength(6)
+    expect(within(breakdown).getAllByRole('listitem')).toHaveLength(7)
   })
 
   it('lists recent missions from the mission history', async () => {

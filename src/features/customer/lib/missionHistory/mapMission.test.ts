@@ -28,8 +28,8 @@ describe('mission history mapping', () => {
     )
   })
 
-  it('treats an unknown status as CREATED', () => {
-    expect(normalizeMissionStatus('WEIRD')).toBe('CREATED')
+  it('treats an unknown status as PLANNING', () => {
+    expect(normalizeMissionStatus('WEIRD')).toBe('PLANNING')
     expect(normalizeMissionStatus('FAILED')).toBe('FAILED')
   })
 

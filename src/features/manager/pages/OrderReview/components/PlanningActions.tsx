@@ -32,8 +32,8 @@ export function PlanningActions({
   }
   busy: boolean
   saving: boolean
-  creating: {} | null
-  setCreating: Dispatch<SetStateAction<{} | null>>
+  creating: object | null
+  setCreating: Dispatch<SetStateAction<object | null>>
   continueToResourceAssignment: () => Promise<void>
   amending: boolean
   setAmending: Dispatch<SetStateAction<boolean>>

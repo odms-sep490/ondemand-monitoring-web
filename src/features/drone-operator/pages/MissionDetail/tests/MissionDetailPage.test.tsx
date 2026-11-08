@@ -137,8 +137,9 @@ describe('MissionDetailScreen', () => {
     // Deliberately malformed response, outside the typed API contract.
     vi.spyOn(missionApi, 'getPermissions').mockResolvedValue(null as never)
     render(<MissionDetailPage missionId="m" />)
-    expect((await screen.findAllByText('MS-1'))[0]).toBeInTheDocument()
-    await waitFor(() => expect(screen.getByRole('alert')).toBeInTheDocument())
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Mission MS-1' }),
+    ).toBeInTheDocument()
     expect(
       screen.queryByRole('button', { name: 'Hoàn thành Mission' }),
     ).not.toBeInTheDocument()
@@ -160,8 +161,10 @@ describe('MissionDetailScreen', () => {
 
     render(<MissionDetailPage missionId="m" />)
 
-    expect(await screen.findByText('Kết nối GCS')).toBeInTheDocument()
-    expect(screen.queryByText('Kiểm tra thiết bị')).toBeNull()
+    expect(
+      await screen.findByRole('link', { name: 'Kết nối GCS' }),
+    ).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Kiểm tra thiết bị' })).toBeNull()
   })
 
   it.each([
@@ -207,10 +210,11 @@ describe('MissionDetailScreen', () => {
         ],
       })
       render(<MissionDetailPage missionId="m" />)
+      fireEvent.click(await screen.findByRole('tab', { name: 'Checklist' }))
       await screen.findByText('Monitoring lịch sử')
-      if (canExecuteMonitoringChecklist)
-        expect(screen.getByText('Cập nhật mục')).toBeInTheDocument()
-      else expect(screen.queryByText('Cập nhật mục')).toBeNull()
+      // Mission detail only hosts the assessment-only checklist now, so no
+      // actor gets an item-update control here, regardless of permission.
+      expect(screen.queryByText('Cập nhật mục')).toBeNull()
       if (canCompleteMission) {
         expect(
           await screen.findByText('Mở dữ liệu nghiệm thu'),
@@ -242,14 +246,12 @@ describe('MissionDetailScreen', () => {
       executions: [],
     })
     render(<MissionDetailPage missionId="m" />)
-    expect(
-      await screen.findByText('Chưa sẵn sàng nghiệm thu'),
-    ).toBeInTheDocument()
+    expect(await screen.findByText('Mission đã hoàn thành.')).toBeInTheDocument()
     expect(
       screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
     ).toBeNull()
   })
-  it('keeps mission detail stable on focus and refreshes result status only from the checklist button', async () => {
+  it('keeps mission detail stable on focus without re-fetching result status', async () => {
     vi.spyOn(operatorApi, 'getMission').mockResolvedValue({
       ...mission,
       backendStatus: 'COMPLETED',
@@ -269,20 +271,18 @@ describe('MissionDetailScreen', () => {
     }
     vi.mocked(missionApi.getMissionResult).mockResolvedValue(result)
     render(<MissionDetailPage missionId="m" />)
-    await screen.findByText(
-      'Chỉ đọc — kết quả đang chờ duyệt hoặc đã được duyệt.',
-    )
+    fireEvent.click(await screen.findByRole('tab', { name: 'Checklist' }))
+    await screen.findByText('Không có mục checklist giám sát.')
+    const resultCalls = vi.mocked(missionApi.getMissionResult).mock.calls.length
     vi.mocked(missionApi.getMissionResult).mockResolvedValue({
       ...result,
       approvalStatus: 'REJECTED',
     })
     act(() => window.dispatchEvent(new Event('focus')))
-    expect(
-      screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
-    ).toBeNull()
-
-    fireEvent.click(screen.getByRole('button', { name: /Tải lại/ }))
-    await waitFor(() => expect(missionApi.getMissionResult).toHaveBeenCalled())
+    // Focus only reloads the mission itself; result status is not re-fetched.
+    expect(vi.mocked(missionApi.getMissionResult).mock.calls.length).toBe(
+      resultCalls,
+    )
     expect(
       screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
     ).toBeNull()
@@ -421,7 +421,7 @@ describe('MissionDetailScreen', () => {
     expect(screen.queryByText('Mở dữ liệu nghiệm thu')).not.toBeInTheDocument()
   })
 
-  it('keeps an accepted mission READY and waits for preflight and handover before Start', async () => {
+  it('keeps an accepted mission READY and waits for the flight permit before Start', async () => {
     vi.spyOn(operatorApi, 'getMission').mockResolvedValue({
       ...mission,
       status: 'ACCEPTED',
@@ -439,7 +439,7 @@ describe('MissionDetailScreen', () => {
     render(<MissionDetailPage missionId="m" />)
 
     expect(
-      await screen.findAllByText('Đang chuẩn bị trước bay'),
+      await screen.findAllByText('Chờ quản lý duyệt giấy phép bay'),
     ).not.toHaveLength(0)
     expect(
       screen.queryByRole('button', { name: 'Bắt đầu Mission' }),
@@ -496,7 +496,7 @@ describe('MissionDetailScreen', () => {
         .spyOn(missionApi, 'submitMissionResult')
         .mockResolvedValue({} as never)
       render(<MissionDetailPage missionId="m" />)
-      await screen.findByText('Mission đã được nghiệm thu.')
+      await screen.findByText('Mission đã hoàn thành.')
       expect(
         screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
       ).toBeNull()
@@ -520,7 +520,7 @@ describe('MissionDetailScreen', () => {
       canUploadMedia: true,
     })
     render(<MissionDetailPage missionId="m" />)
-    await screen.findByText('Mission đã được nghiệm thu.')
+    await screen.findByText('Mission đã hoàn thành.')
     expect(
       screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
     ).toBeNull()
@@ -583,7 +583,7 @@ describe('MissionDetailScreen', () => {
         return {}
       })
     const view = render(<MissionDetailPage missionId="m1" />)
-    await screen.findByText('Mission đã được nghiệm thu.')
+    await screen.findByText('Mission đã hoàn thành.')
     expect(
       screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
     ).toBeNull()

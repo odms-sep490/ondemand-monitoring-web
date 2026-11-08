@@ -84,7 +84,7 @@ describe('QueuePage', () => {
     vi.mocked(financeApi.getManagerInvoice).mockResolvedValue({ paidAmount: 1_000_000, depositAmount: 1_000_000 } as Invoice)
     render(<OrderQueuePage />)
     expect(await screen.findByRole('button', { name: /Chờ lập kế hoạch/ })).toBeInTheDocument()
-    expect(screen.getByText('Đã nhận cọc')).toBeInTheDocument()
+    expect(screen.getByText('Đã cọc')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Lập kế hoạch' })).toHaveAttribute('href', '#portal/manager/orders/ord-2609-0157')
     expect(screen.queryByText('Không còn đơn chờ duyệt')).not.toBeInTheDocument()
   })
@@ -100,7 +100,7 @@ describe('QueuePage', () => {
     render(<OrderQueuePage />)
 
     expect(await screen.findByText('Không còn đơn chờ duyệt')).toBeInTheDocument()
-    expect(screen.getByText('0 đơn chờ duyệt · 0 đơn chờ lập kế hoạch')).toBeInTheDocument()
+    expect(screen.getByText('0 đơn chờ duyệt · 0 đơn chờ lập kế hoạch · 0 đơn chờ cọc')).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: 'Lập kế hoạch' })).not.toBeInTheDocument()
   })
 
@@ -124,7 +124,7 @@ describe('QueuePage', () => {
     await waitFor(() => screen.getByText('Hàng đợi duyệt đơn'))
     expect(screen.getByText('ORD-2609-0157')).toBeInTheDocument()
     expect(screen.getByText('ORD-2609-0160')).toBeInTheDocument()
-    expect(screen.getByText('2 đơn chờ duyệt · 0 đơn chờ lập kế hoạch')).toBeInTheDocument()
+    expect(screen.getByText('2 đơn chờ duyệt · 0 đơn chờ lập kế hoạch · 0 đơn chờ cọc')).toBeInTheDocument()
   })
 
   it('shows the error state and retries', async () => {
@@ -160,7 +160,7 @@ describe('QueuePage', () => {
 
     act(() => setLanguage('en'))
     expect(screen.getByText('Order review queue')).toBeInTheDocument()
-    expect(screen.getByText('2 pending review · 0 ready for planning')).toBeInTheDocument()
+    expect(screen.getByText('2 pending review · 0 ready for planning · 0 waiting for deposit')).toBeInTheDocument()
   })
 
   it('keeps every order reachable under "Tất cả đơn hàng" with a status filter', async () => {

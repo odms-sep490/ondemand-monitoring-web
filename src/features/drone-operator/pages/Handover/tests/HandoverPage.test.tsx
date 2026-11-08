@@ -33,7 +33,7 @@ describe('HandoverScreen', () => {
     render(<HandoverPage />)
     expect(screen.getByText('Bàn giao quyền điều khiển')).toBeTruthy()
     expect(
-      screen.getByText('Xác nhận bàn giao sau preflight'),
+      screen.getByText('Xác nhận bàn giao sau khi kiểm tra trước bay'),
     ).toBeTruthy()
   })
 
@@ -53,7 +53,7 @@ describe('HandoverScreen', () => {
         id: 'mission-1',
         missionId: 'mission-1',
         missionCode: 'MS-1',
-        status: 'READY',
+        status: 'PENDING_CONFIRMATION',
         deviceId: 'drone-1',
         droneCode: 'DRN-1',
         deviceAssignments: [
@@ -104,7 +104,7 @@ describe('HandoverScreen', () => {
         id: 'mission-1',
         missionId: 'mission-1',
         missionCode: 'MS-1',
-        status: 'READY',
+        status: 'PENDING_CONFIRMATION',
         deviceId: 'drone-1',
         droneCode: 'DRN-1',
         deviceAssignments: [

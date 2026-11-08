@@ -51,7 +51,7 @@ export const FlightControls = memo(function FlightControls({
   const thermalLabel = thermalEnabled
     ? t.toolbar.thermalOn
     : t.toolbar.thermalOff
-  const commandDisabled = (_command: FlightCommand) =>
+  const commandDisabled = () =>
     busyCommand !== null || !canFly
   const controlButton = (item: {
     command: FlightCommand
@@ -72,7 +72,7 @@ export const FlightControls = memo(function FlightControls({
       <button
         key={`${item.command}-${item.labelKey}`}
         onClick={() => onCommand(item.command)}
-        disabled={commandDisabled(item.command)}
+        disabled={commandDisabled()}
         style={{
           ...buttonStyle(
             (isThermal && thermalEnabled) || (isLidar && lidarDetailsOpen)

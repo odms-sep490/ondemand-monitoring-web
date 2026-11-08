@@ -379,7 +379,21 @@ describe('Order checklist state and editor', () => {
   })
 
   it('has one keyboard-accessible edit action per compact row and keeps changes when switching views', async () => {
-    vi.spyOn(customerApi, 'getServiceChecklist').mockResolvedValue(template())
+    // The view/search toolbar only appears for long lists (more than 8 rows).
+    const long: ServiceChecklistItem[] = [
+      ...template(),
+      ...Array.from({ length: 7 }, (_, i) => ({
+        id: `link-${i + 3}`,
+        serviceId: 'A',
+        checklistId: `catalog-${i + 3}`,
+        content: `Extra ${i + 3}`,
+        displayOrder: i + 3,
+        checklistVersion: 1,
+        serviceActive: true,
+        checklistActive: true,
+      })),
+    ]
+    vi.spyOn(customerApi, 'getServiceChecklist').mockResolvedValue(long)
     function CompactEditor() {
       return (
         <ChecklistEditor variant="compact" checklist={useOrderChecklist('A')} />
@@ -387,16 +401,14 @@ describe('Order checklist state and editor', () => {
     }
     render(<CompactEditor />)
 
-    const edit = await screen.findByRole('button', { name: 'Sửa nội dung 1' })
-    expect(
-      screen.getAllByRole('button', { name: 'Sửa nội dung 1' }),
-    ).toHaveLength(1)
-    expect(
-      screen.getByRole('checkbox', { name: 'Chọn nội dung 1' }),
-    ).toBeChecked()
+    const edit = await screen.findByRole('button', { name: 'Sửa: First' })
+    expect(screen.getAllByRole('button', { name: 'Sửa: First' })).toHaveLength(
+      1,
+    )
+    expect(screen.getByRole('checkbox', { name: 'Chọn First' })).toBeChecked()
 
     expect(
-      screen.getByRole('checkbox', { name: 'Chọn nội dung 1' }),
+      screen.getByRole('checkbox', { name: 'Chọn First' }),
     ).toHaveAttribute('aria-describedby', 'checklist-summary-link-1')
 
     fireEvent.click(edit)
@@ -407,12 +419,14 @@ describe('Order checklist state and editor', () => {
     })
     fireEvent.click(screen.getByRole('button', { name: 'Xong' }))
 
-    expect(screen.getByRole('button', { name: 'Sửa nội dung 1' })).toHaveFocus()
+    expect(
+      screen.getByRole('button', { name: 'Sửa: Updated monitoring content' }),
+    ).toHaveFocus()
     fireEvent.click(screen.getByRole('button', { name: 'Dạng nhóm' }))
     expect(screen.getByText('Updated monitoring content')).toBeInTheDocument()
     expect(
       screen.getByRole('checkbox', {
-        name: 'Chọn nội dung 1',
+        name: 'Chọn Updated monitoring content',
       }),
     ).toBeChecked()
 
@@ -625,6 +639,8 @@ it('order detail renders stored snapshot in order, read only, without loading cu
     orderStatus: 'APPROVED',
     serviceId: 'A',
     checklistSnapshotAt: '2026-10-04T00:00:00Z',
+    // The backend locks editing once the snapshot is frozen for this order.
+    canEditChecklist: false,
     checklistItems: [
       {
         id: 's2',
@@ -645,6 +661,8 @@ it('order detail renders stored snapshot in order, read only, without loading cu
     ],
   })
   render(<OrderDetailPage orderId="history" />)
+  // The order detail is tabbed; the checklist snapshot lives in the monitoring tab.
+  fireEvent.click(await screen.findByRole('tab', { name: 'Nội dung giám sát' }))
   const region = await screen.findByRole('region', {
     name: 'Nội dung giám sát',
   })
@@ -652,9 +670,14 @@ it('order detail renders stored snapshot in order, read only, without loading cu
   expect(
     within(region)
       .getAllByRole('listitem')
-      .map((item) => item.querySelector('span')?.textContent),
+      .map(
+        (item) =>
+          item.querySelector('.checklist-snapshot-content')?.textContent,
+      ),
   ).toEqual(['Stored original', 'Stored custom'])
-  expect(within(region).getByText(/2 · Ảnh/)).toBeInTheDocument()
+  expect(
+    within(region).getByRole('group', { name: 'Yêu cầu: 2 ảnh' }),
+  ).toBeInTheDocument()
   expect(within(region).queryByRole('textbox')).not.toBeInTheDocument()
   expect(within(region).queryByRole('button')).not.toBeInTheDocument()
   expect(load).not.toHaveBeenCalled()

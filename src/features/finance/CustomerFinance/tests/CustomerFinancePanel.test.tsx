@@ -241,7 +241,9 @@ describe('CustomerFinancePanel', () => {
     expect(
       container.querySelector('.customer-quote-body > .customer-invoice'),
     ).not.toBeInTheDocument()
-    expect(screen.getByText(/Đặt cọc \(30%\)/)).toBeInTheDocument()
+    expect(
+      screen.getByText(/Tiền cọc 30% cần thanh toán: 1\.500\.000/),
+    ).toBeInTheDocument()
     fireEvent.click(depositButton)
 
     await waitFor(() => expect(createDeposit).toHaveBeenCalledWith('invoice-1'))

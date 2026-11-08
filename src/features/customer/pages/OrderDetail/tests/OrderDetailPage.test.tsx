@@ -222,7 +222,7 @@ describe('OrderDetailPage', () => {
       heading.closest('section, .ant-card') as HTMLElement,
     ).getByRole('list')
     const steps = within(list).getAllByRole('listitem')
-    expect(steps).toHaveLength(7)
+    expect(steps).toHaveLength(8)
     expect(within(steps[0]).getByText('Gửi yêu cầu')).toBeInTheDocument()
     expect(within(steps[1]).getByText('Duyệt đơn')).toBeInTheDocument()
     expect(steps[1]).toHaveAttribute('aria-current', 'step')
@@ -234,7 +234,13 @@ describe('OrderDetailPage', () => {
     expect(
       within(steps[3]).getByText('Thanh toán tiền cọc'),
     ).toBeInTheDocument()
-    expect(steps[6]).toHaveClass('is-upcoming')
+    expect(
+      within(steps[4]).getByText('Lên lịch & phân công'),
+    ).toBeInTheDocument()
+    expect(
+      within(steps[5]).getByText('Thanh toán phần còn lại'),
+    ).toBeInTheDocument()
+    expect(steps[7]).toHaveClass('is-upcoming')
   })
 
   it('ends a rejected order at a failed step with no upcoming steps', async () => {
