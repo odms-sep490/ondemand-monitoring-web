@@ -195,6 +195,7 @@ export function useMediaWorkspace({
           !backendIds.has(item.backendMediaId),
       )
       .map((item) => {
+        const backendCandidate = uploadedCandidates.find((candidate) => candidate.mediaId === item.backendMediaId)
         const status = effectiveStatus(item)
         const sourceEligible =
           item.sourceType === 'DRONE_CAMERA' ||
@@ -233,14 +234,12 @@ export function useMediaWorkspace({
               : attachable
                 ? null
                 : 'EVIDENCE_SOURCE_NOT_ELIGIBLE',
-          previewUrl:
-            item.localAvailable === false
+          previewUrl: backendCandidate?.previewUrl ?? (item.localAvailable === false
               ? null
-              : operatorMediaApi.previewUrl(item.localMediaId),
-          thumbnailUrl:
-            item.localAvailable === false || item.mediaType !== 'IMAGE'
+              : operatorMediaApi.previewUrl(item.localMediaId)),
+          thumbnailUrl: backendCandidate?.thumbnailUrl ?? (item.localAvailable === false || item.mediaType !== 'IMAGE'
               ? null
-              : operatorMediaApi.previewUrl(item.localMediaId),
+              : operatorMediaApi.previewUrl(item.localMediaId)),
           urlExpiresAt: null,
           alreadyAttachedExecutionIds:
             uploadedCandidates.find(

@@ -1,3 +1,4 @@
+import { VideoPoster } from '../../../../../shared/components/media/VideoThumbnail'
 import { useMediaRecovery } from '../../../../../shared/components/media/useMediaRecovery'
 import { Icon } from '../../../../../shared/components/Icon'
 import { useI18n } from '../../../../../shared/i18n'
@@ -51,7 +52,7 @@ export function MediaCard({ item, missionLabel, onOpen }: Props) {
       onClick={() => onOpen(item)}
     >
       <span className="md-thumb">
-        {(item.kind === 'image' || item.kind === 'video') &&
+        {item.kind === 'video' ? <VideoPoster poster={item.thumbnailUrl} /> : item.kind === 'image' &&
         recovery.source &&
         !recovery.failed &&
         !recovery.loading &&

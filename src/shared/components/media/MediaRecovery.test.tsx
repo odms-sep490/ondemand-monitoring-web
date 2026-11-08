@@ -10,6 +10,8 @@ beforeEach(() => {
   api.mockReset()
 })
 afterEach(() => {
+  vi.restoreAllMocks()
+  vi.unstubAllGlobals()
   vi.useRealTimers()
   setLanguage('vi')
 })
@@ -21,6 +23,97 @@ const props = {
 }
 
 describe('media error recovery', () => {
+  it('keeps the poster probe out of delivery card layout', () => {
+    const { container } = render(
+      <article className="delivery-asset">
+        <ResilientMedia
+          {...props}
+          kind="video"
+          poster="https://example.test/poster.jpg"
+        />
+      </article>,
+    )
+    expect(container.querySelectorAll('video')).toHaveLength(1)
+    expect(container.querySelectorAll('img')).toHaveLength(0)
+    expect(screen.getByLabelText('photo.jpg')).toHaveAttribute(
+      'poster',
+      'https://example.test/poster.jpg',
+    )
+  })
+
+  it('keeps non-seekable video usable when no poster exists', () => {
+    render(<ResilientMedia {...props} kind="video" />)
+    const player = screen.getByLabelText('photo.jpg')
+    Object.defineProperty(player, 'duration', { configurable: true, value: 10 })
+    Object.defineProperty(player, 'currentTime', {
+      configurable: true,
+      set: () => {
+        throw new Error('not seekable')
+      },
+    })
+    expect(() => fireEvent.loadedMetadata(player)).not.toThrow()
+    expect(screen.getByRole('button', { name: 'Expand video' })).toBeEnabled()
+  })
+
+  it('hides the native download action and opens a larger video player', async () => {
+    const pause = vi
+      .spyOn(HTMLMediaElement.prototype, 'pause')
+      .mockImplementation(() => {})
+    render(<ResilientMedia {...props} kind="video" />)
+    expect(screen.getByLabelText('photo.jpg')).toHaveAttribute(
+      'controlslist',
+      'nodownload',
+    )
+    expect(screen.getByLabelText('photo.jpg')).toHaveAttribute(
+      'preload',
+      'metadata',
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Expand video' }))
+    expect(await screen.findByRole('dialog')).toBeInTheDocument()
+    expect(
+      screen
+        .getAllByLabelText('photo.jpg')
+        .filter((node) => node.tagName === 'VIDEO'),
+    ).toHaveLength(2)
+    expect(pause).toHaveBeenCalledTimes(1)
+  })
+  it('uses a placeholder until a video without a poster has a displayable frame', () => {
+    const { container } = render(<ResilientMedia {...props} kind="video" />)
+    expect(container.querySelector('.media-video__placeholder')).not.toBeNull()
+    const player = screen.getByLabelText('photo.jpg')
+    Object.defineProperty(player, 'duration', { configurable: true, value: 10 })
+    fireEvent.loadedMetadata(player)
+    expect((player as HTMLVideoElement).currentTime).toBe(0.01)
+    fireEvent.loadedData(player)
+    expect(container.querySelector('.media-video__placeholder')).toBeNull()
+  })
+  it('shows the placeholder when the generated poster fails to load', () => {
+    const probes: HTMLImageElement[] = []
+    vi.stubGlobal('Image', function PosterProbe() {
+      const image = document.createElement('img')
+      probes.push(image)
+      return image
+    })
+    const { container } = render(
+      <ResilientMedia
+        {...props}
+        kind="video"
+        poster="https://example.test/missing-poster"
+      />,
+    )
+    expect(screen.getByLabelText('photo.jpg')).toHaveAttribute(
+      'preload',
+      'none',
+    )
+    fireEvent.error(probes[0])
+    expect(screen.getByLabelText('photo.jpg')).toHaveAttribute(
+      'preload',
+      'metadata',
+    )
+    expect(screen.getByLabelText('photo.jpg')).not.toHaveAttribute('poster')
+    expect(container.querySelector('.media-video__placeholder')).not.toBeNull()
+  })
+
   it('does not time out an image that has already loaded', async () => {
     vi.useFakeTimers()
     render(<ResilientMedia {...props} />)

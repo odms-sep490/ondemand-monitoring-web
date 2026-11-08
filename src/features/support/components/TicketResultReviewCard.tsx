@@ -1,3 +1,4 @@
+import { VideoThumbnail } from '../../../shared/components/media/VideoThumbnail'
 import { useEffect, useState } from 'react'
 import {
   Alert,
@@ -218,12 +219,7 @@ export function TicketResultReviewCard({ ticketId }: { ticketId: string }) {
                             key={e.roundEvidenceId}
                           >
                             {e.type.toUpperCase().includes('VIDEO') && e.previewUrl ? (
-                                <video
-                                  controls
-                                  preload="none"
-                                  src={e.previewUrl}
-                                  aria-label={e.fileName}
-                                />
+                                <VideoThumbnail src={e.previewUrl} poster={e.thumbnailUrl} fileName={e.fileName} fileSize={e.size} fallbackUrl={e.url} />
                               ) : e.previewUrl ? (
                                 <DeliveryImagePreview
                                   src={e.thumbnailUrl ?? e.previewUrl}

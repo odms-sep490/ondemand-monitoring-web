@@ -1,13 +1,14 @@
+import { VideoPoster } from '../../../shared/components/media/VideoThumbnail'
 import { useId, useState } from 'react'
 import { Alert, Button, Checkbox, Empty, Image, Modal, Tag } from 'antd'
 import {
   CheckOutlined,
   PictureOutlined,
-  PlayCircleOutlined,
   SendOutlined,
 } from '@ant-design/icons'
 import { useLanguage } from '../../../shared/i18n'
 import { ApiError } from '../../../shared/api/httpClient'
+import { ResilientMedia } from '../../../shared/components/media/MediaRecovery'
 import { checklistEvidenceApi } from '../api/checklistEvidenceApi'
 import { getUploadMediaStatusLabel } from '../../drone-operator/pages/UploadMedia/uploadMediaHelpers'
 import { customerSelectionProgress } from '../lib/customerEvidenceSelection'
@@ -196,13 +197,7 @@ export function CustomerEvidenceSelection({
                 }
                 onClick={() => setPreview(link)}
               >
-                {link.thumbnailUrl && link.mediaType !== 'VIDEO' ? (
-                  <img src={link.thumbnailUrl} alt="" loading="lazy" />
-                ) : link.mediaType === 'VIDEO' ? (
-                  <PlayCircleOutlined aria-hidden="true" />
-                ) : (
-                  <PictureOutlined aria-hidden="true" />
-                )}
+                <EvidenceThumbnail link={link} />
               </button>
               <div className="customer-evidence-selection__file">
                 <label
@@ -334,11 +329,13 @@ export function CustomerEvidenceSelection({
       >
         {preview?.previewUrl &&
           (preview.mediaType === 'VIDEO' ? (
-            <video
-              className="customer-evidence-selection__video"
+            <ResilientMedia
+              kind="video"
+              expanded
               src={preview.previewUrl}
-              controls
-              preload="metadata"
+              poster={preview.thumbnailUrl}
+              fileName={preview.fileName}
+              fallbackUrl={preview.previewUrl}
             />
           ) : (
             <Image
@@ -351,4 +348,15 @@ export function CustomerEvidenceSelection({
       </Modal>
     </section>
   )
+}
+
+function EvidenceThumbnail({ link }: { link: MissionChecklistEvidence }) {
+  const [failedUrl, setFailedUrl] = useState<string | null>(null)
+  if (link.mediaType === 'VIDEO') return <VideoPoster poster={link.thumbnailUrl} />
+  const src = link.thumbnailUrl ?? link.previewUrl
+  if (src && src !== failedUrl)
+    return (
+      <img src={src} alt="" loading="lazy" onError={() => setFailedUrl(src)} />
+    )
+  return <PictureOutlined aria-hidden="true" />
 }

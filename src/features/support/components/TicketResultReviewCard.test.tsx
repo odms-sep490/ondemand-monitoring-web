@@ -37,6 +37,8 @@ const response = {
           size: 1024,
           capturedAt: '2026-10-30T05:00:00Z',
           url: 'https://example.test/evidence',
+          thumbnailUrl: 'https://example.test/thumbnail.jpg',
+          previewUrl: 'https://example.test/preview.jpg',
           urlExpiresAt: '2026-11-01T05:00:00Z',
           downloadable: true,
           accessReason: null,

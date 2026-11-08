@@ -1,4 +1,4 @@
-import { ResilientMedia } from '../../shared/components/media/MediaRecovery'
+import { VideoThumbnail } from '../../shared/components/media/VideoThumbnail'
 import { useState } from 'react'
 import { Button, Modal, Radio, Typography } from 'antd'
 import { SwapOutlined } from '@ant-design/icons'
@@ -17,7 +17,7 @@ function Preview({ asset }: { asset: ChecklistDeliveryAsset }) {
       </div>
     )
   return asset.type.toUpperCase().includes('VIDEO') ? (
-    <ResilientMedia kind="video" src={asset.previewUrl} poster={asset.thumbnailUrl} fallbackUrl={asset.url} fileName={asset.fileName} fileSize={asset.size} original={asset.previewStatus !== 'READY'} />
+    <VideoThumbnail src={asset.previewUrl} poster={asset.thumbnailUrl} fallbackUrl={asset.url} fileName={asset.fileName} fileSize={asset.size} original={asset.previewStatus !== 'READY'} />
   ) : (
     <DeliveryImagePreview
       src={asset.thumbnailUrl ?? asset.previewUrl}

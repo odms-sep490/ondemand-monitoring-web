@@ -1,3 +1,4 @@
+import { VideoThumbnail } from '../../../../../shared/components/media/VideoThumbnail'
 import { MediaChecklistAttachment } from './MediaChecklistAttachment'
 import { operatorMediaApi } from '../../../../media/api/operatorMediaApi'
 import {
@@ -90,14 +91,7 @@ export function MediaCard({
             className="upload-media-preview"
           />
         ) : (
-          <video
-            src={
-              remotePreviewUrl ?? operatorMediaApi.previewUrl(item.localMediaId)
-            }
-            controls
-            preload="none"
-            className="upload-media-preview"
-          />
+          <VideoThumbnail src={remotePreviewUrl ?? operatorMediaApi.previewUrl(item.localMediaId)} poster={remoteThumbnailUrl} fileName={item.fileName} fileSize={item.fileSize} fallbackUrl={remotePreviewUrl ?? operatorMediaApi.previewUrl(item.localMediaId)} />
         )}
       </div>
       <div className="upload-media-card-body">

@@ -1,4 +1,4 @@
-import { ResilientMedia } from '../../shared/components/media/MediaRecovery'
+import { VideoThumbnail } from '../../shared/components/media/VideoThumbnail'
 import { useEffect, useState } from 'react'
 import {
   Alert,
@@ -304,7 +304,7 @@ export function CustomerResultReview({
                                     : t.mediaUnavailable}
                           </span>
                         ) : evidence.type.toUpperCase().includes('VIDEO') ? (
-                          <ResilientMedia kind="video" poster={evidence.thumbnailUrl} src={evidence.previewUrl} mediaId={evidence.mediaAssetId} fileName={evidence.fileName} fileSize={evidence.size} original={evidence.previewStatus !== 'READY'} />
+                          <VideoThumbnail poster={evidence.thumbnailUrl} src={evidence.previewUrl} mediaId={evidence.mediaAssetId} fileName={evidence.fileName} fileSize={evidence.size} original={evidence.previewStatus !== 'READY'} />
                         ) : (
                           <DeliveryImagePreview
                             src={evidence.thumbnailUrl ?? evidence.previewUrl}
@@ -424,7 +424,7 @@ export function CustomerResultReview({
                             {!evidence.previewUrl ? (
                               <span className="delivery-review-media-unavailable">{t.mediaUnavailable}</span>
                             ) : evidence.type.toUpperCase().includes('VIDEO') ? (
-                              <ResilientMedia kind="video" poster={evidence.thumbnailUrl} src={evidence.previewUrl} mediaId={evidence.mediaAssetId} fileName={evidence.fileName} fileSize={evidence.size} original={evidence.previewStatus !== 'READY'} />
+                              <VideoThumbnail poster={evidence.thumbnailUrl} src={evidence.previewUrl} mediaId={evidence.mediaAssetId} fileName={evidence.fileName} fileSize={evidence.size} original={evidence.previewStatus !== 'READY'} />
                             ) : (
                               <DeliveryImagePreview
                                 src={evidence.thumbnailUrl ?? evidence.previewUrl}

@@ -1,4 +1,4 @@
-import { ResilientMedia } from '../../shared/components/media/MediaRecovery'
+import { VideoThumbnail } from '../../shared/components/media/VideoThumbnail'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Alert,
@@ -1553,7 +1553,7 @@ function MediaPreview({ asset }: { asset: DeliveryAsset }) {
     return <span className="delivery-replacement-unavailable">{t.replacementPreviewUnavailable}</span>
   }
   return asset.type.toUpperCase().includes('VIDEO') ? (
-    <ResilientMedia kind="video" src={asset.previewUrl} poster={asset.thumbnailUrl} fallbackUrl={asset.url} fileName={asset.fileName} fileSize={asset.size} original={asset.previewStatus !== 'READY'} />
+    <VideoThumbnail src={asset.previewUrl} poster={asset.thumbnailUrl} fallbackUrl={asset.url} fileName={asset.fileName} fileSize={asset.size} original={asset.previewStatus !== 'READY'} />
   ) : (
     <DeliveryImagePreview
       src={asset.thumbnailUrl ?? asset.previewUrl}

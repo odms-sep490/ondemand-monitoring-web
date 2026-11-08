@@ -1,4 +1,4 @@
-import { ResilientMedia } from '../../shared/components/media/MediaRecovery'
+import { VideoThumbnail } from '../../shared/components/media/VideoThumbnail'
 import {
   Alert,
   Button,
@@ -260,7 +260,7 @@ export function CustomerDeliveryPanel({
                 <article key={asset.id} className="delivery-asset">
                   {asset.previewUrl ? (
                     asset.type.toUpperCase().includes('VIDEO') ? (
-                      <ResilientMedia kind="video" poster={asset.thumbnailUrl} src={asset.previewUrl} mediaId={asset.id} fileName={asset.fileName} fileSize={asset.size} original={asset.previewStatus !== 'READY'} />
+                      <VideoThumbnail poster={asset.thumbnailUrl} src={asset.previewUrl} mediaId={asset.id} fileName={asset.fileName} fileSize={asset.size} original={asset.previewStatus !== 'READY'} />
                     ) : (
                       <DeliveryImagePreview
                         src={asset.thumbnailUrl ?? asset.previewUrl}

@@ -1,3 +1,4 @@
+import { VideoThumbnail } from '../../../../../shared/components/media/VideoThumbnail'
 import { useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
 import { missionApi } from '../../../../mission/api/missionApi'
 import { useMissionMonitoring } from '../../../../mission/hooks/useMissionMonitoring'
@@ -640,9 +641,7 @@ export function PostflightCompletedView({
                     const mediaLabel = item.type ?? item.contentType ?? t.reviewMedia
                     const previewUrl = item.previewUrl ?? null
                     const mediaPreview = isVideo ? previewUrl ? (
-                      <video controls preload="none" aria-label={mediaLabel}>
-                        <source src={previewUrl} type={item.contentType ?? undefined} />
-                      </video>
+                      <VideoThumbnail src={previewUrl} poster={item.thumbnailUrl} fileName={mediaLabel} />
                     ) : (
                       <span className="postflight-review-file-placeholder">{t.reviewPreviewPending}</span>
                     ) : item.contentType?.startsWith('image/') || item.type?.toUpperCase() === 'IMAGE' ? (
@@ -656,7 +655,7 @@ export function PostflightCompletedView({
                     )
                     return (
                       <article className="postflight-review-media-card" key={item.id}>
-                        {previewUrl ? (
+                        {previewUrl && !isVideo ? (
                           <a href={previewUrl} target="_blank" rel="noreferrer">{mediaPreview}</a>
                         ) : mediaPreview}
                         <div className="postflight-review-media-caption">

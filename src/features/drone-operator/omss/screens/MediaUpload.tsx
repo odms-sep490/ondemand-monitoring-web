@@ -1,3 +1,4 @@
+import { VideoThumbnail } from '../../../../shared/components/media/VideoThumbnail'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   operatorMediaApi,
@@ -190,16 +191,7 @@ export default function MediaUpload({ mission, onDone, onManual }: Props) {
                     }}
                   />
                 ) : (
-                  <video
-                    src={operatorMediaApi.previewUrl(item.localMediaId)}
-                    controls
-                    preload="metadata"
-                    style={{
-                      width: '100%',
-                      aspectRatio: '16 / 9',
-                      background: '#222',
-                    }}
-                  />
+                  <VideoThumbnail src={operatorMediaApi.previewUrl(item.localMediaId)} fileName={item.fileName} fileSize={item.fileSize} fallbackUrl={operatorMediaApi.previewUrl(item.localMediaId)} />
                 )}
                 <div style={{ padding: 16 }}>
                   <strong style={{ overflowWrap: 'anywhere' }}>

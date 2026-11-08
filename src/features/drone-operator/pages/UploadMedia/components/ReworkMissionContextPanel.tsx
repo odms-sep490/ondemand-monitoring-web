@@ -1,3 +1,4 @@
+import { VideoThumbnail } from '../../../../../shared/components/media/VideoThumbnail'
 import {
   Alert,
   Button,
@@ -42,7 +43,7 @@ function EvidencePreview({
   return (
     <div className="rework-context-evidence" key={evidence.roundEvidenceId}>
       {isVideo && evidence.previewUrl ? (
-        <video controls preload="none" src={evidence.previewUrl} />
+        <VideoThumbnail src={evidence.previewUrl} poster={evidence.thumbnailUrl} fileName={evidence.fileName} fallbackUrl={evidence.url} />
       ) : !isVideo && evidence.previewUrl ? (
         <Image
           src={evidence.thumbnailUrl ?? evidence.previewUrl}

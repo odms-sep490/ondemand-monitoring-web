@@ -60,6 +60,68 @@ afterEach(() => {
 })
 
 describe('inspector customer selection', () => {
+  it('renders the video poster in its row and preview without changing selection', async () => {
+    render(
+      <CustomerEvidenceSelection
+        missionId="m"
+        item={{
+          ...item,
+          evidence: [
+            {
+              ...evidence('clip'),
+              mediaType: 'VIDEO',
+              fileName: 'clip.mp4',
+              thumbnailUrl: '/poster.jpg',
+              previewUrl: '/clip.mp4',
+            },
+          ],
+        }}
+        refresh={vi.fn()}
+      />,
+    )
+    const open = screen.getByRole('button', { name: 'Xem clip.mp4' })
+    expect(open.querySelector('img')).toHaveAttribute('src', '/poster.jpg')
+    expect(document.querySelector('video')).toBeNull()
+    fireEvent.click(open)
+    const dialog = await screen.findByRole('dialog')
+    expect(dialog.querySelector('video')).toHaveAttribute(
+      'poster',
+      '/poster.jpg',
+    )
+    expect(dialog.querySelector('video')).toHaveAttribute(
+      'controlslist',
+      'nodownload',
+    )
+    expect(screen.getByRole('checkbox', { name: /clip.mp4/ })).not.toBeChecked()
+  })
+  it('falls back to the video icon on a broken poster and accepts a refreshed poster URL', () => {
+    const clip = {
+      ...evidence('clip'),
+      mediaType: 'VIDEO',
+      fileName: 'clip.mp4',
+      thumbnailUrl: '/broken.jpg',
+      previewUrl: '/clip.mp4',
+    }
+    const { rerender } = render(
+      <CustomerEvidenceSelection
+        missionId="m"
+        item={{ ...item, evidence: [clip] }}
+        refresh={vi.fn()}
+      />,
+    )
+    const open = screen.getByRole('button', { name: 'Xem clip.mp4' })
+    fireEvent.error(open.querySelector('img')!)
+    expect(open.querySelector('img')).toBeNull()
+    expect(open).toBeEnabled()
+    rerender(
+      <CustomerEvidenceSelection
+        missionId="m"
+        item={{ ...item, evidence: [{ ...clip, thumbnailUrl: '/fresh.jpg' }] }}
+        refresh={vi.fn()}
+      />,
+    )
+    expect(open.querySelector('img')).toHaveAttribute('src', '/fresh.jpg')
+  })
   it('requires the explicit selection capability in both evidence layouts', () => {
     const props = {
       missionId: 'm',

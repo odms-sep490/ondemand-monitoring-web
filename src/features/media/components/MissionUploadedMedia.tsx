@@ -1,3 +1,5 @@
+import { ResilientMedia } from '../../../shared/components/media/MediaRecovery'
+import { VideoPoster } from '../../../shared/components/media/VideoThumbnail'
 import { useEffect, useRef, useState } from 'react'
 import { Icon } from '../../../shared/components/Icon'
 import {
@@ -267,13 +269,7 @@ function Gallery({
                     ) : item.mediaType === 'IMAGE' ? (
                       <img src={item.thumbnailUrl ?? item.previewUrl!} alt="" loading="lazy" />
                     ) : (
-                      <span className="mission-media__video-placeholder">
-                        <span
-                          className="mission-media__play"
-                          aria-hidden="true"
-                        />
-                        <span>VIDEO</span>
-                      </span>
+                      <VideoPoster poster={item.thumbnailUrl} />
                     )}
                     <span className="mission-media__type">
                       {isReference(item)
@@ -416,12 +412,7 @@ function Gallery({
                 {selected.mediaType === 'IMAGE' ? (
                   <img src={selected.previewUrl} alt={selected.fileName} />
                 ) : (
-                  <video
-                    key={selected.previewUrl}
-                    src={selected.previewUrl}
-                    controls
-                    preload="metadata"
-                  />
+                  <ResilientMedia kind="video" expanded src={selected.previewUrl} poster={selected.thumbnailUrl} fileName={selected.fileName} fallbackUrl={selected.downloadUrl} />
                 )}
               </div>
               <footer className="mission-media__dialog-footer">

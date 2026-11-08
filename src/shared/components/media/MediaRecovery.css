@@ -20,3 +20,46 @@
   background: transparent;
   cursor: pointer;
 }
+
+.media-video {
+  width: 100%;
+  min-width: 0;
+}
+.media-video__frame {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #111827;
+}
+.media-video .media-video__frame video {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 100px;
+  aspect-ratio: 16 / 9;
+  object-fit: contain;
+  background: transparent;
+}
+.media-video__placeholder {
+  position: absolute;
+  inset: 0 0 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 6px;
+  color: #e2e8f0;
+  pointer-events: none;
+  background: linear-gradient(135deg, #172b4d, #111827);
+  font-size: 12px;
+}
+.media-video__placeholder .anticon {
+  font-size: 28px;
+}
+.media-video .media-video__expand {
+  width: 100%;
+  margin-top: 8px;
+}
+.media-video--expanded .media-video__frame video {
+  max-height: 70vh;
+}

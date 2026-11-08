@@ -1,3 +1,4 @@
+import { VideoThumbnail } from '../../../shared/components/media/VideoThumbnail'
 import { getUploadMediaStatusLabel } from '../../drone-operator/pages/UploadMedia/uploadMediaHelpers'
 import { CustomerEvidenceSelection } from './CustomerEvidenceSelection'
 import { ChecklistEvidencePicker } from './ChecklistEvidencePicker'
@@ -307,7 +308,7 @@ function MissionEvidencePanel({
                 <div className="ce-thumb">
                   {link.previewUrl &&
                     (link.mediaType === 'VIDEO' ? (
-                      <video src={link.previewUrl} preload="metadata" />
+                      <VideoThumbnail src={link.previewUrl} poster={link.thumbnailUrl} fileName={link.fileName} />
                     ) : (
                       <img
                         src={link.thumbnailUrl ?? link.previewUrl}
@@ -441,11 +442,7 @@ function MissionEvidencePanel({
                   <div className="checklist-evidence-thumb">
                     {link.previewUrl &&
                       (link.mediaType === 'VIDEO' ? (
-                        <video
-                          src={link.thumbnailUrl ?? link.previewUrl}
-                          controls
-                          preload="metadata"
-                        />
+                        <VideoThumbnail src={link.previewUrl} poster={link.thumbnailUrl} fileName={link.fileName} />
                       ) : (
                         <a
                           href={link.previewUrl}
@@ -630,12 +627,7 @@ function MissionEvidencePanel({
                       <div className="checklist-candidate-thumb">
                         {media.previewUrl ? (
                           media.mediaType === 'VIDEO' ? (
-                            <video
-                              src={media.thumbnailUrl ?? media.previewUrl}
-                              controls
-                              preload="metadata"
-                              aria-label={`Xem video ${media.fileName}`}
-                            />
+                            <VideoThumbnail src={media.previewUrl} poster={media.thumbnailUrl} fileName={media.fileName} />
                           ) : (
                             <img
                               src={media.thumbnailUrl ?? media.previewUrl}

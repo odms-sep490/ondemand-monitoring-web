@@ -453,11 +453,11 @@ function UploadMediaContent({
               className={`upload-media-grid${view === 'list' ? ' is-list' : ''}`}
             >
               {[
-                ...visibleItems.map((item) => ({
-                  item,
-                  remote: undefined as string | undefined,
-                  thumbnail: undefined as string | undefined,
-                })),
+                ...visibleItems.map((item) => {
+                  const id = item.backendMediaId ?? uploadedMediaIds.current[item.localMediaId]
+                  const remote = (backend.data?.items ?? []).find((media) => media.mediaId === id)
+                  return { item, remote: remote?.previewUrl ?? undefined, thumbnail: remote?.thumbnailUrl ?? undefined }
+                }),
                 ...remoteItems.map((remote) => ({
                   item: {
                     localMediaId: `backend:${remote.mediaId}`,
