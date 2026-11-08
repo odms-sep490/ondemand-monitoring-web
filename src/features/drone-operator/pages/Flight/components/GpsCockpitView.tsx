@@ -27,6 +27,9 @@ export function GpsCockpitView({
   startFlightBusy,
   handleFinishFlight,
   finishFlightBusy,
+  handleRequestMissionFailure,
+  failureRequestBusy,
+  missionFailureRequested,
   canFinishFlight,
   finishFlightBlockedReason,
   handleReferenceCapture,
@@ -50,6 +53,9 @@ export function GpsCockpitView({
   startFlightBusy: boolean
   handleFinishFlight: () => Promise<void>
   finishFlightBusy: boolean
+  handleRequestMissionFailure: () => Promise<void>
+  failureRequestBusy: boolean
+  missionFailureRequested: boolean
   canFinishFlight: boolean
   finishFlightBlockedReason?: string
   handleReferenceCapture: () => Promise<void>
@@ -118,6 +124,9 @@ export function GpsCockpitView({
       finishingFlight={finishFlightBusy}
       canFinishFlight={canFinishFlight}
       finishFlightBlockedReason={finishFlightBlockedReason}
+      onFailMission={handleRequestMissionFailure}
+      failMissionBusy={failureRequestBusy}
+      missionFailureRequested={missionFailureRequested}
       onReferenceCapture={() => void handleReferenceCapture()}
       overlay={
         !preflightReady && normalFlightAllowed ? (

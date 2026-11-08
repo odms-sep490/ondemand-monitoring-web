@@ -42,6 +42,10 @@ export const copy = {
     landSub: 'Xuống an toàn',
     finishFlight: 'Hoàn thành bay',
     finishFlightSub: 'Chuyển sang kiểm tra sau bay',
+    failureAction: 'Không thể tiếp tục',
+    failureRequested: 'Đã ghi nhận rủi ro',
+    failureSub: 'Quay về và kiểm tra sau bay',
+    failureTitle: 'Ghi nhận rủi ro trong lúc bay',
   },
   en: {
     brand: 'Flight cockpit',
@@ -86,5 +90,9 @@ export const copy = {
     landSub: 'Safe descent',
     finishFlight: 'Finish flight',
     finishFlightSub: 'Move to postcheck',
+    failureAction: 'Cannot continue',
+    failureRequested: 'Risk recorded',
+    failureSub: 'Return and complete postflight check',
+    failureTitle: 'Record a risk during flight',
   },
 }

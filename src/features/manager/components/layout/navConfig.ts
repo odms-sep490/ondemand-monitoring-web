@@ -10,13 +10,14 @@ export type NavItem = {
   route?: ManagerRoute
   href?: string
   /** Key into `counts` for the numeric badge, when this item has one. */
-  countKey?: 'pendingOrders'
+  countKey?: 'pendingOrders' | 'pendingMissions'
 }
 
 export type NavGroup = { label: SidebarKey; items: NavItem[] }
 
 export type ManagerNavCounts = {
   pendingOrders?: number
+  pendingMissions?: number
 }
 
 // Groups + items copied from the sidebar markup shared by every MNG-*.dc.html
@@ -31,7 +32,12 @@ export const NAV_GROUPS: NavGroup[] = [
         route: { screen: 'orderQueue' },
         countKey: 'pendingOrders',
       },
-      { label: 'missions', icon: 'mission', route: { screen: 'missions' } },
+      {
+        label: 'missions',
+        icon: 'mission',
+        route: { screen: 'missions' },
+        countKey: 'pendingMissions',
+      },
       { label: 'schedule', icon: 'schedule', route: { screen: 'schedule' } },
     ],
   },

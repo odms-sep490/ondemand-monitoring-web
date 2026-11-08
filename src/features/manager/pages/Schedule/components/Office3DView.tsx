@@ -1436,6 +1436,7 @@ export function Office3DView({
   missions,
   assignmentMissionId,
   assignmentCanEdit,
+  assignmentReplaceStaffId,
   assignmentReturnOrderId,
   assignmentMission,
   assignmentCandidates,
@@ -1449,6 +1450,7 @@ export function Office3DView({
   missions: MissionCalendarItem[]
   assignmentMissionId?: string
   assignmentCanEdit: boolean
+  assignmentReplaceStaffId?: string
   assignmentReturnOrderId?: string
   assignmentMission: MissionCalendarItem | null
   assignmentCandidates: AvailableOperator[]
@@ -1968,6 +1970,7 @@ export function Office3DView({
               candidates={assignmentCandidates}
               loading={assignmentLoading}
               canEdit={assignmentCanEdit}
+              replacementStaffId={assignmentReplaceStaffId}
               returnToHref={
                 assignmentReturnOrderId
                   ? managerHref({

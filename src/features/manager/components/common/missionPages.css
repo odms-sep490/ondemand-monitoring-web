@@ -186,21 +186,6 @@
   color: var(--pl-green-fg);
 }
 
-/* ---- Mission list with side panel: keep device names on one line ---- */
-.mgr-layout .mgr-missions .mgr-list-grid.has-panel .ant-table-wrapper {
-  overflow-x: auto;
-}
-.mgr-layout .mgr-missions .mgr-list-grid.has-panel td {
-  vertical-align: middle;
-}
-.mgr-layout .mgr-missions .mgr-list-grid.has-panel td:nth-child(3) {
-  white-space: nowrap;
-}
-/* With the panel open the table is narrow: drop crew + delivery columns instead of clipping actions */
-.mgr-layout .mgr-missions .mgr-list-grid.has-panel :is(th, td):nth-child(4),
-.mgr-layout .mgr-missions .mgr-list-grid.has-panel :is(th, td):nth-child(6) {
-  display: none;
-}
 .mgr-layout .mgr-missions .ant-table-thead > tr > th {
   white-space: nowrap;
 }

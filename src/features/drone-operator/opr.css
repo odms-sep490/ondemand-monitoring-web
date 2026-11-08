@@ -1325,6 +1325,95 @@
 .mds-pending-grid > * {
   min-width: 0;
 }
+.mds-device-identity {
+  display: grid;
+  grid-template-columns: minmax(88px, 112px) minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+}
+.mds-device-image-frame {
+  position: relative;
+  display: grid;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid var(--bd);
+  border-radius: 10px;
+  background: var(--sf2);
+}
+.mds-device-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 3px;
+  object-fit: contain;
+}
+.mds-device-image-note {
+  position: absolute;
+  right: 5px;
+  bottom: 5px;
+  padding: 2px 5px;
+  border: 1px solid var(--bd);
+  border-radius: 5px;
+  background: var(--sf);
+  color: var(--tx2);
+  font-size: 10px;
+  line-height: 1.2;
+}
+.mds-device-identity-copy {
+  min-width: 0;
+}
+.mds-device-name {
+  margin-bottom: 2px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+.mds-device-subtitle {
+  margin-bottom: 4px;
+  color: var(--tx3);
+  font-size: 12px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+.mds-device-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.mds-device-load-note {
+  margin: 8px 0 0;
+  color: var(--tx3);
+  font-size: 12px;
+}
+.mds-device-load-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 0;
+  color: var(--danger, #b42318);
+  font-size: 12px;
+}
+.mds-device-load-error button {
+  min-height: 32px;
+  padding: 4px 8px;
+  border: 1px solid var(--bd);
+  border-radius: 6px;
+  background: var(--sf);
+  color: var(--accent);
+  cursor: pointer;
+}
+.mds-device-load-error button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.mds-device-load-error button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
 .mds-device-details {
   margin-top: 10px;
   border-top: 1px solid var(--bd);
@@ -1343,6 +1432,12 @@
 }
 .mds-device-details > div {
   padding-bottom: 4px;
+}
+@media (max-width: 480px) {
+  .mds-device-identity {
+    grid-template-columns: 84px minmax(0, 1fr);
+    gap: 10px;
+  }
 }
 .mds-device-primary-rows .mds-info-row:last-child {
   border-bottom: 0;

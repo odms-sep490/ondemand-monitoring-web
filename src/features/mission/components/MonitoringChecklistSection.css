@@ -761,6 +761,12 @@
   color: #475569;
   font-size: 13px;
 }
+.mc-preview-description {
+  color: var(--tx2, #475569);
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
 .mc-list--expanded {
   margin-top: 16px;
 }

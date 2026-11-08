@@ -110,14 +110,8 @@ export function ReviewTop({
             showExecutionPlan
               ? openStage(stage)
               : goToStep(orderStageToReviewStep(stage) ?? 1),
-          // Before approval the three review stages stay freely navigable;
-          // afterwards only completed stages reopen (read-only).
-          selectable: (stage, state) =>
-            stage === 'planning'
-              ? Boolean(planning?.isFinalized)
-              : !planning?.depositPaid &&
-                orderStageToReviewStep(stage) !== null &&
-                (showExecutionPlan ? state === 'done' : true),
+          // Navigate with the actions below.
+          selectable: () => false,
         }}
         mission={
           showExecutionPlan && planning?.depositPaid && planning.missions.length

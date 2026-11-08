@@ -11,32 +11,21 @@ import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
 import { missionsApi } from '../../api/missionsApi'
 import { dedupeById } from '../../lib/dedupeById'
-import type { DeliveryStatus as WorkflowDeliveryStatus } from '../../../delivery/types'
 import { missionsPageMessages } from './MissionsPage.messages'
 import '../../components/layout/mgrLayout.css'
 import '../../manager.css'
 import './missions.scss'
 import '../../components/common/missionPages.css'
-import { type DeliveryStatus, type StatusChip } from './missionsTypes'
-import { DetailPanel } from './components/DetailPanel'
-import { useMissionDeliveryStatuses } from './useMissionDeliveryStatuses'
+import { type StatusChip } from './missionsTypes'
 import { MissionsKpis } from './components/MissionsKpis'
 import { MissionsTable } from './components/MissionsTable'
 import { groupCounts, matchesMissionSearch } from './missionsHelpers'
 
-type MissionsListPageProps = {
-  missionId?: string
-}
+type MissionsListPageProps = { missionId?: string }
 
-export function MissionsPage({ missionId }: MissionsListPageProps) {
+export function MissionsPage(_props: MissionsListPageProps = {}) {
   const { t, locale } = useI18n(missionsPageMessages)
   const [statusFilter, setStatusFilter] = useState<StatusChip>('ALL')
-  const [selectedMission, setSelectedMission] = useState<string | null>(
-    missionId ?? null,
-  )
-  const [deliveryStatuses, setDeliveryStatuses] = useState<
-    Record<string, DeliveryStatus>
-  >({})
 
   const statusChips: Array<{ value: StatusChip; label: string }> = [
     { value: 'ALL', label: t.statusChips.ALL },
@@ -65,18 +54,6 @@ export function MissionsPage({ missionId }: MissionsListPageProps) {
     if (statusFilter === 'ALL' && query.data) setSnapshot(dedupeById(query.data.items))
   }, [statusFilter, query.data])
   const [search, setSearch] = useState('')
-  const selected =
-    missions.find((mission) => mission.id === selectedMission) ?? null
-  const [orderDeliveryStatuses, setOrderDeliveryStatuses] = useState<
-    Record<string, WorkflowDeliveryStatus>
-  >({})
-  useMissionDeliveryStatuses({
-    missions,
-    setOrderDeliveryStatuses,
-    setDeliveryStatuses,
-    missionId,
-    setSelectedMission,
-  })
 
   const snapshotCounts = useMemo(
     () => groupCounts(snapshot ?? missions),
@@ -114,7 +91,7 @@ export function MissionsPage({ missionId }: MissionsListPageProps) {
         }}
       />
 
-      <div className={`mgr-list-grid${selectedMission ? ' has-panel' : ''}`}>
+      <div className="mgr-list-grid">
         <div className="mgr-detail-main">
           {query.loading && (
             <CardComponent aria-busy="true">
@@ -139,28 +116,12 @@ export function MissionsPage({ missionId }: MissionsListPageProps) {
             <MissionsTable
               missions={visible}
               total={missions.length}
-              selectedMission={selectedMission}
-              setSelectedMission={setSelectedMission}
-              deliveryStatuses={deliveryStatuses}
-              orderDeliveryStatuses={orderDeliveryStatuses}
             />
           )}
         </div>
-
-        {selected && (
-          <DetailPanel
-            key={selected.id}
-            mission={selected}
-            onClose={() => setSelectedMission(null)}
-            t={t}
-            locale={locale}
-            onResourceChanged={query.reload}
-          />
-        )}
       </div>
     </div>
   )
 }
 
-// Re-export missionId for ManagerApp
 export type { MissionsListPageProps }

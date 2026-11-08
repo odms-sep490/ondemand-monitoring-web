@@ -1,4 +1,4 @@
-import { Empty, Progress, Timeline } from 'antd'
+import { Progress } from 'antd'
 
 import { CardComponent } from '../../../../../shared/components/antd'
 import { useI18n } from '../../../../../shared/i18n'
@@ -25,7 +25,7 @@ export function ActiveMissionsCard({ missions }: { missions: ActiveMission[] }) 
       }
     >
       {missions.length === 0 ? (
-        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={m.empty} />
+        <p className="mgr-empty-line">{m.empty}</p>
       ) : (
         <ul className="m-0 list-none p-0">
           {missions.slice(0, MAX_MISSIONS).map((mission) => (
@@ -69,11 +69,11 @@ export function PipelineCard({ pipeline }: { pipeline: PricingPipeline }) {
   return (
     <CardComponent className="mgr-pipeline-card" title={p.title}>
       {max === 0 ? (
-        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={p.empty} />
+        <p className="mgr-empty-line">{p.empty}</p>
       ) : (
-        <div className="mgr-pipeline-list">
+        <ol className="mgr-pipeline-list">
           {stages.map((s) => (
-            <div key={s.label}>
+            <li className="mgr-pipeline-stage" key={s.label}>
               <div className="mgr-pipe-row">
                 <span>{s.label}</span>
                 <strong>{s.value}</strong>
@@ -84,9 +84,9 @@ export function PipelineCard({ pipeline }: { pipeline: PricingPipeline }) {
                 size={['100%', 8]}
                 strokeColor={MANAGER_COLORS.primary}
               />
-            </div>
+            </li>
           ))}
-        </div>
+        </ol>
       )}
     </CardComponent>
   )
@@ -97,22 +97,18 @@ export function RecentActivityCard({ activities, className }: { activities: Dash
   return (
     <CardComponent className={className} title={t.activity.title}>
       {activities.length === 0 ? (
-        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t.activity.empty} />
+        <p className="mgr-empty-line">{t.activity.empty}</p>
       ) : (
-        <Timeline
-          items={activities.slice(0, MAX_ACTIVITIES).map((activity) => ({
-            key: activity.id,
-            color: MANAGER_COLORS.primary,
-            children: (
-              <div>
-                <time className="mgr-time" dateTime={activity.occurredAt}>
-                  {formatDashboardDate(activity.occurredAt)}
-                </time>
-                <span className="mgr-timeline-text">{activity.description}</span>
-              </div>
-            ),
-          }))}
-        />
+        <ol className="mgr-activity-list">
+          {activities.slice(0, MAX_ACTIVITIES).map((activity) => (
+            <li key={activity.id}>
+              <time className="mgr-time" dateTime={activity.occurredAt}>
+                {formatDashboardDate(activity.occurredAt)}
+              </time>
+              <span className="mgr-timeline-text">{activity.description}</span>
+            </li>
+          ))}
+        </ol>
       )}
     </CardComponent>
   )

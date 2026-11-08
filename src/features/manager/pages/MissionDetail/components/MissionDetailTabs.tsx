@@ -8,10 +8,12 @@ export function MissionDetailTabs({
   tabs,
   activeTab,
   setTab,
+  resourceUnreadCount = 0,
 }: {
   tabs: { id: MissionDetailTab; label: string }[]
   activeTab: MissionDetailTab
   setTab: Dispatch<SetStateAction<MissionDetailTab>>
+  resourceUnreadCount?: number
 }) {
   const { t } = useI18n(missionDetailPageMessages)
   const selectTab = (id: MissionDetailTab) => {
@@ -55,6 +57,15 @@ export function MissionDetailTabs({
           }}
         >
           {item.label}
+          {item.id === 'resources' && resourceUnreadCount > 0 ? (
+            <span
+              className="mgr-menu-count mgr-md-tab-count"
+              role="status"
+              aria-label={t.unreadResourceEvents(resourceUnreadCount)}
+            >
+              {resourceUnreadCount}
+            </span>
+          ) : null}
         </button>
       ))}
     </div>

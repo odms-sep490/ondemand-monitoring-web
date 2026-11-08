@@ -4,6 +4,7 @@ import { formatOrderCode } from '../../components/common/format'
 import {
   formatDateTime,
   formatDuration,
+  groupStaffAssignments,
 } from '../../components/common/missionDetailHelpers'
 import { missionNextStep } from './missionNextStep'
 import type { MissionDetailTab } from './missionDetailTypes'
@@ -32,7 +33,11 @@ export function deriveMissionDetailView({
   const plan = mission.plan ?? null
   const { preflight, postcheck } = detail
   const staff = mission.staffAssignments ?? []
+  const staffGroups = groupStaffAssignments(staff)
   const accepted = staff.filter((s) => s.responseStatus === 'ACCEPTED').length
+  const acceptedPeople = staffGroups.filter(
+    (group) => group.responseStatus === 'ACCEPTED',
+  ).length
   const canSetup = assignmentReadiness(mission).needsSetup
   const deviceCode =
     mission.deviceCode ??
@@ -115,8 +120,8 @@ export function deriveMissionDetailView({
     {
       label: t.kpi.crew,
       value:
-        staff.length > 0
-          ? t.crewAccepted(accepted, staff.length)
+        staffGroups.length > 0
+          ? t.crewAccepted(acceptedPeople, staffGroups.length)
           : (deviceCode ?? '—'),
     },
     { label: t.kpi.media, value: String(mediaCount) },

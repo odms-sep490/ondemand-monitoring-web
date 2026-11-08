@@ -37,6 +37,8 @@ type BackendMission = {
   status?: Mission['state'] | 'IN_PROGRESS'
   purpose?: Mission['purpose']
   resultRevisionCaseId?: string | null
+  failureRequestedAt?: string | null
+  failureReason?: string | null
   operatorId?: string
   deviceId?: string
   deviceCode?: string
@@ -214,6 +216,8 @@ function adaptBackendMission(mission: BackendMission): Mission {
     backendId: mission.id,
     purpose: mission.purpose ?? 'ORIGINAL',
     resultRevisionCaseId: mission.resultRevisionCaseId ?? null,
+    failureRequestedAt: mission.failureRequestedAt ?? null,
+    failureReason: mission.failureReason ?? null,
     orderRef: mission.orderId ?? '',
     orderTitle: mission.orderTitle,
     title: mission.orderTitle ?? mission.missionCode ?? mission.id,
@@ -702,17 +706,44 @@ export default function OperatorWorkspace() {
     }
   }
 
+  async function finalizeRequestedFailureAfterPostflight(missionId: string) {
+    if (!mission?.failureRequestedAt) return false
+    const latest = await missionApi.getMissionById(missionId)
+    if (!latest.failureRequestedAt) return false
+    const reason = latest.failureReason?.trim() || 'Phát sinh rủi ro trong lúc thực hiện'
+    const failed = await missionApi.failMission(missionId, reason)
+    const failedMission = adaptBackendMission(failed as unknown as BackendMission)
+    setMission(failedMission)
+    setAllMissions((items) =>
+      items.map((item) =>
+        item.backendId === failedMission.backendId ? failedMission : item,
+      ),
+    )
+    setFailReason(reason)
+    setScreen('mission-failed')
+    return true
+  }
+
+  async function handleFailureRequested(reason: string) {
+    if (!mission) return
+    const updated = await missionApi.requestMissionFailure(
+      mission.backendId ?? mission.id,
+      reason,
+    )
+    setMission(adaptBackendMission(updated as unknown as BackendMission))
+    setFailReason(reason)
+  }
+
   async function handleEmergency() {
     if (!mission) return
     const reason = t.failReasons.emergencyStop
     try {
-      const updated = await missionApi.failMission(
+      const updated = await missionApi.requestMissionFailure(
         mission.backendId ?? mission.id,
         reason,
       )
       setMission(adaptBackendMission(updated as unknown as BackendMission))
       setFailReason(reason)
-      setScreen('mission-failed')
     } catch (cause) {
       setMissionsError(
         cause instanceof Error
@@ -737,6 +768,18 @@ export default function OperatorWorkspace() {
     } catch (cause) {
       setMissionsError(
         cause instanceof Error ? cause.message : t.errors.postflightStartFailed,
+      )
+    }
+  }
+
+  async function handleFailureLanded() {
+    if (!mission) return
+    try {
+      await missionApi.markReturning(mission.backendId ?? mission.id)
+      await handleLanded()
+    } catch (cause) {
+      setMissionsError(
+        cause instanceof Error ? cause.message : t.errors.rtbUpdateFailed,
       )
     }
   }
@@ -767,9 +810,16 @@ export default function OperatorWorkspace() {
         ),
       )
       setFlightSessionStarted(false)
+      await missionApi
+        .disconnectGcs(completedMission.backendId ?? completedMission.id, 'POSTFLIGHT_COMPLETED')
+        .catch(() => undefined)
       await flightControlApi
         .releaseSession(completedMission.backendId ?? completedMission.id)
         .catch(() => undefined)
+      const failureFinalized = await finalizeRequestedFailureAfterPostflight(
+        completedMission.backendId ?? completedMission.id,
+      )
+      if (failureFinalized) return
       setScreen('mission-completed')
     } catch (cause) {
       setMissionsError(
@@ -806,12 +856,19 @@ export default function OperatorWorkspace() {
         ),
       )
       setFlightSessionStarted(false)
+      await missionApi
+        .disconnectGcs(completedMission.backendId ?? completedMission.id, 'POSTFLIGHT_COMPLETED')
+        .catch(() => undefined)
       await flightControlApi
         .releaseSession(completedMission.backendId ?? completedMission.id)
         .catch(() => undefined)
       setDrone((current) =>
         current ? { ...current, state: 'MAINTENANCE' } : current,
       )
+      const failureFinalized = await finalizeRequestedFailureAfterPostflight(
+        completedMission.backendId ?? completedMission.id,
+      )
+      if (failureFinalized) return
       setScreen('mission-completed')
     } catch (cause) {
       setMissionsError(
@@ -917,8 +974,14 @@ export default function OperatorWorkspace() {
             <InFlightControl
               mission={displayMission}
               drone={displayDrone}
+              normalFlightAllowed={
+                missionPermissions?.canControlFlight === true &&
+                displayMission.state === 'IN_PROGRESS'
+              }
               onRTB={handleRTB}
               onEmergency={handleEmergency}
+              onFailureRequested={handleFailureRequested}
+              onFailureLanded={handleFailureLanded}
               autoStartPlan={false}
               onAutoStartPlanConsumed={() => undefined}
               onPreflightReady={handleRuntimePreflightReady}
@@ -937,8 +1000,14 @@ export default function OperatorWorkspace() {
             <InFlightControl
               mission={displayMission}
               drone={displayDrone}
+              normalFlightAllowed={
+                missionPermissions?.canControlFlight === true &&
+                displayMission.state === 'IN_PROGRESS'
+              }
               onRTB={handleRTB}
               onEmergency={handleEmergency}
+              onFailureRequested={handleFailureRequested}
+              onFailureLanded={handleFailureLanded}
               autoStartPlan={autoStartPlanRequested}
               onAutoStartPlanConsumed={() => setAutoStartPlanRequested(false)}
               onReviewMedia={() => {

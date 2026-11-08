@@ -498,6 +498,11 @@ export function MonitoringChecklistSection({
                 </span>
                 <span className="mc-preview-text">
                   <strong>{item.content}</strong>
+                  {item.description?.trim() && (
+                    <span className="mc-preview-description">
+                      {item.description}
+                    </span>
+                  )}
                   <small>
                     {statuses[item.executionStatus]} · Bằng chứng tối thiểu:{' '}
                     {item.minimumEvidenceCount ?? 0}

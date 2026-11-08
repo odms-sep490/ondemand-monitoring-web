@@ -4,8 +4,6 @@ import { FileSearchOutlined } from '@ant-design/icons'
 import { Button } from 'antd'
 
 import { CardComponent } from '../../shared/components/antd'
-import { useApiQuery } from '../../shared/hooks/useApiQuery'
-import { managerApi } from './api/dashboardApi'
 import { ManagerLayout } from './ManagerLayout'
 import { MissionCreatePage } from './pages/MissionCreate'
 import { ReworkPlanningPage } from './pages/MissionCreate/ReworkPlanningPage'
@@ -25,6 +23,7 @@ import { useI18n } from '../../shared/i18n'
 import { managerLayoutMessages } from './ManagerLayout.messages'
 import { EmptyState } from './components/common/EmptyState'
 import { ManagerErrorBoundary } from './components/common/ManagerErrorBoundary'
+import { useManagerNavigationNotifications } from './hooks/useManagerNavigationNotifications'
 
 function useHash(): string {
   const [hash, setHash] = useState(() => window.location.hash)
@@ -63,22 +62,18 @@ const breadcrumbKey: Record<
  * every other screen renders a temporary "đang được xây dựng" placeholder
  * that later phases (P4-P8) will replace.
  *
- * Fetches the dashboard once here (rather than inside `DashboardPage`) so
- * the sidebar pending-orders badge stays populated from real API data on
- * every screen, not just the dashboard itself.
+ * Watches pending orders and rejected crew assignments at the app shell so
+ * unread badges stay current on every manager screen.
  */
 export function ManagerApp() {
   const hash = useHash()
   const { t } = useI18n(managerLayoutMessages)
   const route = parseManagerRoute(hash)
-  const navCounts = useApiQuery(
-    (signal) => managerApi.getDashboard('30D', signal),
-    [],
-  )
-
-  const counts = navCounts.data?.summary
-    ? { pendingOrders: navCounts.data.summary.pendingOrderCount }
-    : undefined
+  const notifications = useManagerNavigationNotifications(route)
+  const counts = {
+    pendingOrders: notifications.pendingOrders,
+    pendingMissions: notifications.pendingMissions,
+  }
 
   return (
     <ManagerLayout
@@ -87,7 +82,12 @@ export function ManagerApp() {
       counts={counts}
     >
       <ManagerErrorBoundary resetKey={hash}>
-        {renderScreen(route, t.notFound)}
+        {renderScreen(
+          route,
+          t.notFound,
+          notifications.resourceAlertKeysByMission,
+          notifications.missionsLoaded,
+        )}
       </ManagerErrorBoundary>
     </ManagerLayout>
   )
@@ -96,6 +96,8 @@ export function ManagerApp() {
 function renderScreen(
   route: ManagerRoute,
   notFound: (typeof managerLayoutMessages)['vi']['notFound'],
+  resourceAlertKeysByMission: Record<string, string[]>,
+  resourceAlertsLoaded: boolean,
 ) {
   if (route.screen === 'dashboard') return <DashboardPage />
   if (route.screen === 'orderQueue') return <OrderQueuePage />
@@ -129,13 +131,23 @@ function renderScreen(
       />
     )
   if (route.screen === 'missionDetail')
-    return <MissionDetailPage missionId={route.missionId} />
+    return (
+      <MissionDetailPage
+        missionId={route.missionId}
+        resourceAlertKeys={
+          resourceAlertsLoaded
+            ? resourceAlertKeysByMission[route.missionId] ?? []
+            : undefined
+        }
+      />
+    )
   if (route.screen === 'schedule')
     return (
       <SchedulePage
-        key={route.assignmentMissionId ?? 'office'}
+        key={`${route.assignmentMissionId ?? 'office'}:${route.assignmentReplaceStaffId ?? ''}`}
         assignmentMissionId={route.assignmentMissionId}
         assignmentCanEdit={route.assignmentCanEdit}
+        assignmentReplaceStaffId={route.assignmentReplaceStaffId}
         assignmentReturnOrderId={route.assignmentReturnOrderId}
       />
     )

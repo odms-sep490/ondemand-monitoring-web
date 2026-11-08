@@ -1,5 +1,5 @@
 // MNG-08: Mission detail & result page (opened from the mission list).
-import { useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import type { MissionChecklistResponse } from '../../../mission/types/checklistExecution'
 import { checklistExecutionApi } from '../../../mission/api/checklistExecutionApi'
@@ -10,7 +10,6 @@ import { ErrorState } from '../../components/common/ErrorState'
 import { EmptyState as MgrEmptyState } from '../../components/common/EmptyState'
 import { useI18n } from '../../../../shared/i18n'
 import { OrderAttachmentsCard } from '../../components/common/OrderAttachmentsCard'
-import { OrderChecklistCard } from './components/OrderChecklistCard'
 import { OrderCustomerCard } from '../../components/common/OrderCustomerCard'
 import { OrderCustomerRequestDetails } from '../../components/common/OrderCustomerRequestDetails'
 import { OrderServiceInfo } from '../../components/common/OrderServiceInfo'
@@ -33,14 +32,39 @@ import { MissionDetailTabs } from './components/MissionDetailTabs'
 import { OverviewTab } from './components/OverviewTab'
 import { ChecksTab } from './components/ChecksTab'
 import { MissionCrewCard } from './components/MissionCrewCard'
+import { authSession } from '../../../auth/api/authApi'
+import {
+  staffRejectionEventKeys,
+  useManagerNotificationReadState,
+} from '../../hooks/useManagerNavigationNotifications'
 
-export function MissionDetailPage({ missionId }: { missionId: string }) {
-  return <MissionDetail key={missionId} missionId={missionId} />
+export function MissionDetailPage({
+  missionId,
+  resourceAlertKeys,
+}: {
+  missionId: string
+  resourceAlertKeys?: string[]
+}) {
+  return (
+    <MissionDetail
+      key={missionId}
+      missionId={missionId}
+      resourceAlertKeys={resourceAlertKeys}
+    />
+  )
 }
 
-function MissionDetail({ missionId }: { missionId: string }) {
+function MissionDetail({
+  missionId,
+  resourceAlertKeys,
+}: {
+  missionId: string
+  resourceAlertKeys?: string[]
+}) {
   const { t, locale } = useI18n(missionDetailPageMessages)
   const { t: orderT } = useI18n(orderReviewPageMessages)
+  const managerId = authSession.getUser()?.id ?? 'manager'
+  const { readState, markRead } = useManagerNotificationReadState(managerId)
   const [detail, setDetail] = useState<DetailData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -64,6 +88,26 @@ function MissionDetail({ missionId }: { missionId: string }) {
   const refreshDetail = () => setRevision((value) => value + 1)
   const [tab, setTab] = useState<MissionDetailTab>('result')
   const mediaLibrary = useRef<HTMLElement>(null)
+  const detailResourceEventKeys = useMemo(
+    () =>
+      staffRejectionEventKeys(
+        detail?.mission?.id ?? missionId,
+        detail?.mission?.staffAssignments,
+      ),
+    [detail?.mission?.id, detail?.mission?.staffAssignments, missionId],
+  )
+  const allResourceEventKeys = useMemo(
+    () => resourceAlertKeys ?? detailResourceEventKeys,
+    [detailResourceEventKeys, resourceAlertKeys],
+  )
+  const resourceUnreadCount = allResourceEventKeys.filter(
+    (eventId) => !readState.resources.includes(eventId),
+  ).length
+
+  useEffect(() => {
+    if (tab === 'resources' && allResourceEventKeys.length > 0)
+      markRead('resources', allResourceEventKeys)
+  }, [allResourceEventKeys, markRead, tab])
 
   useMissionDetailLoad({
     setLoading,
@@ -110,7 +154,6 @@ function MissionDetail({ missionId }: { missionId: string }) {
     preflight,
     postcheck,
     staff,
-    accepted,
     canSetup,
     deviceCode,
     deviceLabel,
@@ -149,7 +192,12 @@ function MissionDetail({ missionId }: { missionId: string }) {
       <MissionKpis kpis={kpis} />
 
       <div className="mgr-md-workbench">
-        <MissionDetailTabs tabs={tabs} activeTab={activeTab} setTab={setTab} />
+        <MissionDetailTabs
+          tabs={tabs}
+          activeTab={activeTab}
+          setTab={setTab}
+          resourceUnreadCount={resourceUnreadCount}
+        />
 
         <div
           className="mgr-md-tabpanel"
@@ -186,7 +234,6 @@ function MissionDetail({ missionId }: { missionId: string }) {
                 <OrderServiceInfo order={detail.order} t={orderT} />
                 <OrderCustomerRequestDetails order={detail.order} t={orderT} />
                 <OrderCustomerCard order={detail.order} t={orderT} />
-                <OrderChecklistCard order={detail.order} t={orderT} />
                 <OrderAttachmentsCard order={detail.order} t={orderT} />
               </div>
             ) : (
@@ -201,11 +248,19 @@ function MissionDetail({ missionId }: { missionId: string }) {
               rows={rows}
               note={note}
               staff={staff}
-              accepted={accepted}
               deviceCode={deviceCode}
               deviceLabel={deviceLabel}
               permitStatus={mission.flightPermitStatus ?? 'NOT_REQUESTED'}
               permitNote={mission.flightPermitNote}
+              missionId={mission.id}
+              canReplaceStaff={
+                !['PLANNING', 'CANCELLED', 'FAILED'].includes(mission.status) &&
+                staff.some(
+                  (assignment) =>
+                    assignment.responseStatus === 'REJECTED' &&
+                    assignment.isCurrent !== false,
+                )
+              }
             />
           ) : null}
 

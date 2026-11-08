@@ -17,6 +17,8 @@ export type BackendMission = {
   flightPermitUpdatedAt?: string | null
   purpose?: 'ORIGINAL' | 'REWORK' | string | null
   resultRevisionCaseId?: string | null
+  failureRequestedAt?: string | null
+  failureReason?: string | null
   operatorId?: string | null
   staffId?: string | null
   droneId?: string | null
@@ -364,6 +366,8 @@ export function toFlightMission(source: BackendMission): Mission {
     title: source.orderTitle ?? source.missionCode ?? source.id,
     serviceLabel: source.serviceName ?? undefined,
     state: source.status as Mission['state'],
+    failureRequestedAt: source.failureRequestedAt ?? null,
+    failureReason: source.failureReason ?? null,
     priority: 'NORMAL',
     droneId: source.deviceId ?? source.droneId ?? '',
     droneCode: source.droneCode ?? source.deviceCode ?? undefined,

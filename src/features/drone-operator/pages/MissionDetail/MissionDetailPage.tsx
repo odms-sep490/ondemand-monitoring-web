@@ -235,7 +235,7 @@ function MissionDetailContent({ missionId }: { missionId: string }) {
 
       {showReject ? (
         <RejectDialog
-          missionId={mission.id}
+          missionCode={mission.missionCode}
           submitting={submitting}
           onCancel={() => setShowReject(false)}
           onConfirm={handleReject}

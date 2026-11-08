@@ -486,4 +486,14 @@ export const missionApi = {
       body: JSON.stringify({ reason }),
     })
   },
+
+  requestMissionFailure: async (
+    missionId: string,
+    reason: string,
+  ): Promise<Mission> => {
+    return request<Mission>(
+      `${API_BASE}/missions/${encodeURIComponent(missionId)}/fail-request`,
+      { method: 'POST', body: JSON.stringify({ reason }) },
+    )
+  },
 }

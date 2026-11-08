@@ -95,14 +95,8 @@
 small.mgr-cell-sub { display: block; }
 .mgr-cell-sub a { color: var(--ui-primary); text-decoration: none; }
 
-/* List page with an optional detail side panel */
+/* Mission list page */
 .mgr-list-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--ui-space-4); align-items: start; }
-.mgr-list-grid.has-panel { grid-template-columns: minmax(0, 1fr) minmax(300px, 360px); }
-.mgr-missions-panel { position: sticky; top: var(--ui-space-4); }
-@media (max-width: 1100px) {
-  .mgr-list-grid.has-panel { grid-template-columns: minmax(0, 1fr); }
-  .mgr-missions-panel { position: static; }
-}
 
 /* Small helpers that replace inline styles in the dispatch steps */
 .mgr-stack { display: grid; gap: var(--ui-space-4); }
