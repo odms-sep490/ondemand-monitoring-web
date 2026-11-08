@@ -34,12 +34,24 @@ export function evidenceShortfall(item: Progress): number {
   )
 }
 
-/** Count shown next to a checklist: `3 / 5` for older policies, `ảnh 2/3 · video 0/1` for V3. */
+/** Count shown next to a checklist; omit media types with no count and no requirement. */
 export function evidenceCountLabel(item: Progress): string {
-  if (isPerTypeEvidence(item))
-    return (
-      `ảnh ${item.eligibleImageCount ?? 0}/${item.minimumImageCount ?? 0}` +
-      ` · video ${item.eligibleVideoCount ?? 0}/${item.minimumVideoCount ?? 0}`
-    )
-  return `${item.eligibleEvidenceCount ?? 0}/${item.minimumEvidenceCount ?? 0}`
+  if (isPerTypeEvidence(item)) {
+    const imageCount = item.eligibleImageCount ?? 0
+    const minimumImages = item.minimumImageCount ?? 0
+    const videoCount = item.eligibleVideoCount ?? 0
+    const minimumVideos = item.minimumVideoCount ?? 0
+    const counts = [
+      imageCount !== 0 || minimumImages !== 0
+        ? `ảnh ${imageCount}/${minimumImages}`
+        : '',
+      videoCount !== 0 || minimumVideos !== 0
+        ? `video ${videoCount}/${minimumVideos}`
+        : '',
+    ].filter(Boolean)
+    return counts.join(' · ')
+  }
+  const count = item.eligibleEvidenceCount ?? 0
+  const minimum = item.minimumEvidenceCount ?? 0
+  return count !== 0 || minimum !== 0 ? `${count}/${minimum}` : ''
 }

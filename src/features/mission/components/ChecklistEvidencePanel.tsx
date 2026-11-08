@@ -235,6 +235,11 @@ function MissionEvidencePanel({
   const unableToVerify = item.executionStatus === 'UNABLE_TO_VERIFY'
   const configuredRequired = item.minimumEvidenceCount ?? 0
   const have = item.eligibleEvidenceCount ?? 0
+  const countLabel = isPerTypeEvidence(item)
+    ? evidenceCountLabel(item)
+    : have || configuredRequired
+      ? `${have} / ${configuredRequired}`
+      : ''
   const remaining = evidenceShortfall(item)
   const links = item.evidence ?? []
   const unableExplanation = item.unableToVerifyReason
@@ -281,11 +286,7 @@ function MissionEvidencePanel({
               {evidenceTypeLabel(item.requiredEvidenceType)}
             </span>
           </div>
-          <span className="ce-count">
-            {isPerTypeEvidence(item)
-              ? evidenceCountLabel(item)
-              : `${have} / ${configuredRequired}`}
-          </span>
+          {countLabel ? <span className="ce-count">{countLabel}</span> : null}
         </div>
       )}
       {unableToVerify ? (
@@ -413,7 +414,7 @@ function MissionEvidencePanel({
         compactBody
       ) : (
         <>
-          {!canSelectForCustomer && (
+          {!canSelectForCustomer && (have !== 0 || configuredRequired !== 0) && (
             <strong>
               Bằng chứng hợp lệ: {have} / {configuredRequired} ·{' '}
               {evidenceTypeLabel(item.requiredEvidenceType)}
