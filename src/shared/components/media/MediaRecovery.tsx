@@ -12,6 +12,7 @@ const messages = defineMessages({
     videoPlaceholder: 'Video',
     failed:
       'Không thể hiển thị tệp. Tệp có thể không còn khả dụng hoặc định dạng chưa được trình duyệt hỗ trợ.',
+    processing: 'Bản xem trước đang được xử lý. Vui lòng thử lại sau.',
     retry: 'Thử lại',
     large: 'Bản gốc lớn hơn 20 MB. Chỉ tải khi bạn muốn xem.',
     open: 'Mở bản gốc để xem',
@@ -22,6 +23,7 @@ const messages = defineMessages({
     videoPlaceholder: 'Video',
     failed:
       'Unable to display this file. It may be unavailable or its format may not be supported by your browser.',
+    processing: 'The preview is still being prepared. Please try again shortly.',
     retry: 'Retry',
     large:
       'The original is larger than 20 MB. Load it when you want to view it.',
@@ -41,7 +43,13 @@ export function MediaRecoveryNotice({
       role={recovery.failed ? 'alert' : 'status'}
     >
       <span>
-        {recovery.loading ? t.loading : recovery.paused ? t.large : t.failed}
+        {recovery.loading
+          ? t.loading
+          : recovery.paused
+            ? t.large
+            : recovery.processing
+              ? t.processing
+              : t.failed}
       </span>
       {!recovery.loading && (
         <button
