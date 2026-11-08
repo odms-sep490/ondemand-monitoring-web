@@ -2,37 +2,115 @@
 .mgr-layout .cus-dash {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 18px;
   min-width: 0;
+
+  > .mgr-page-head {
+    align-items: center;
+    padding: 0 2px 18px;
+    border: 0;
+    border-bottom: 1px solid var(--mgr-border);
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .mgr-page-head-title {
+    font-size: 25px;
+    letter-spacing: -0.025em;
+  }
+
+  .mgr-page-head-desc {
+    margin-top: 5px;
+  }
+
+  .mgr-card {
+    border-radius: 14px;
+    box-shadow: none;
+
+    .ant-card-head {
+      min-height: 54px;
+      padding-inline: 18px;
+    }
+
+    .ant-card-body {
+      padding: 12px 18px;
+    }
+  }
+
+  .cus-orders-card .ant-card-body,
+  .cus-missions-card .ant-card-body {
+    padding: 0;
+  }
 
   .cus-kpi-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 16px;
+    align-items: stretch;
+    margin: 0;
+    padding: 15px 2px;
+    border: 1px solid var(--mgr-border);
+    border-radius: 14px;
+    background: var(--mgr-card);
   }
 
   .cus-kpi {
-    display: block;
     min-width: 0;
-    color: inherit;
-    text-decoration: none;
+    padding: 3px 18px;
+    border-inline-end: 1px solid var(--mgr-border);
 
-    &:focus-visible {
-      outline: 2px solid var(--ui-primary);
-      outline-offset: 3px;
-      border-radius: var(--mgr-radius);
+    &:last-child {
+      border-inline-end: 0;
     }
 
-    &:hover .mgr-stat {
-      box-shadow: var(--mgr-shadow-hover);
+    dt {
+      color: var(--mgr-muted);
+      font-size: 12.5px;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
+    dd {
+      margin: 5px 0 0;
+      color: var(--mgr-text);
+      font-size: 25px;
+      font-variant-numeric: tabular-nums;
+      font-weight: 750;
+      letter-spacing: -0.025em;
+      line-height: 1.1;
     }
   }
 
-  .cus-columns {
+  .cus-content-grid {
     display: grid;
-    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
-    gap: 16px;
-    align-items: stretch;
+    grid-template-columns: minmax(0, 1.85fr) minmax(280px, 0.85fr);
+    align-items: start;
+    gap: 18px;
+    min-width: 0;
+  }
+
+  .cus-main-column,
+  .cus-content-fallback {
+    display: grid;
+    align-content: start;
+    gap: 18px;
+    min-width: 0;
+  }
+
+  .cus-missions-empty {
+    padding: 13px 18px;
+    color: var(--mgr-muted);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .mgr-empty {
+    padding: 22px 16px;
+  }
+
+  .cus-status-card .ant-card-body {
+    padding-top: 5px;
+    padding-bottom: 5px;
   }
 
   .cus-skeleton {
@@ -48,8 +126,24 @@
 
   .cus-order-title {
     font-weight: 600;
-    color: var(--mgr-text);
+    color: var(--ui-primary);
     overflow-wrap: anywhere;
+
+    &:hover,
+    &:focus-visible {
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--ui-primary);
+      outline-offset: 3px;
+      border-radius: 2px;
+    }
+  }
+
+  .cus-order-date {
+    display: none;
   }
 
   .cus-breakdown {
@@ -62,7 +156,8 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      padding: 12px 0;
+      min-height: 38px;
+      padding: 7px 0;
       border-bottom: 1px solid var(--mgr-border);
 
       &:last-child {
@@ -70,21 +165,96 @@
       }
     }
 
+    .mgr-status-tag {
+      max-width: calc(100% - 38px);
+      margin: 0;
+      white-space: nowrap;
+    }
+
     strong {
-      font-size: 16px;
+      flex: none;
+      width: 24px;
+      font-size: 15px;
+      font-variant-numeric: tabular-nums;
       color: var(--mgr-text);
+      text-align: right;
     }
   }
 }
 
 @media (max-width: 1100px) {
   .mgr-layout .cus-dash {
-    .cus-kpi-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+    .cus-content-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}
+
+@media (max-width: 767px) {
+  .mgr-layout .cus-dash .cus-order-date {
+    display: block;
+    color: var(--mgr-muted);
+    font-size: 12px;
+    line-height: 1.4;
+  }
+}
+
+@media (max-width: 640px) {
+  .mgr-layout .cus-dash {
+    gap: 14px;
+
+    > .mgr-page-head {
+      align-items: flex-start;
+      gap: 12px;
+      padding-bottom: 14px;
     }
 
-    .cus-columns {
-      grid-template-columns: minmax(0, 1fr);
+    .mgr-page-head-main {
+      flex-basis: 100%;
+    }
+
+    .mgr-page-head-actions {
+      width: 100%;
+
+      > .ant-btn {
+        width: 100%;
+        min-height: 44px;
+      }
+    }
+
+    .cus-kpi-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      padding: 5px 2px;
+    }
+
+    .cus-kpi {
+      padding: 10px 14px;
+
+      &:nth-child(2n) {
+        border-inline-end: 0;
+      }
+
+      &:nth-child(-n + 2) {
+        border-bottom: 1px solid var(--mgr-border);
+      }
+    }
+
+    .cus-breakdown .mgr-status-tag {
+      white-space: normal;
+      line-height: 1.25;
+    }
+
+    .mgr-card .ant-card-head {
+      padding-inline: 15px;
+    }
+
+    .mgr-card .ant-card-body {
+      padding-inline: 15px;
+    }
+
+    .cus-orders-card .ant-card-body,
+    .cus-missions-card .ant-card-body {
+      padding-inline: 0;
     }
   }
 }
@@ -92,5 +262,17 @@
 @media (max-width: 360px) {
   .mgr-layout .cus-dash .cus-kpi-grid {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mgr-layout .cus-dash .cus-kpi {
+    border-inline-end: 0;
+
+    &:nth-child(3) {
+      border-bottom: 1px solid var(--mgr-border);
+    }
+
+    &:nth-child(4) {
+      border-bottom: 0;
+    }
   }
 }

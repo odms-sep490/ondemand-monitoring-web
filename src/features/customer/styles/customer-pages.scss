@@ -318,59 +318,99 @@ $cus-native: ".co-input, .od-additional-info-grid input:not([type='range']), .od
   max-width: none;
 }
 
-/* Compact order totals into one aligned row per card. */
+/* Keep order totals easy to scan with a clear label, icon and value hierarchy. */
 .mgr-layout .ord-page .ord-stats {
-  gap: 12px;
+  gap: 14px;
 }
 
 .mgr-layout .ord-page .ord-stats .mgr-stat {
+  --ord-stat-accent: #2563eb;
+
+  position: relative;
   display: grid;
   min-width: 0;
-  min-height: 86px;
+  min-height: 132px;
   height: auto;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
-  border-radius: 15px;
+  grid-template-columns: minmax(0, 1fr) 42px;
+  grid-template-rows: auto 1fr;
+  align-items: start;
+  gap: 16px 12px;
+  padding: 18px 20px;
+  border-radius: 16px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mgr-layout .ord-page .ord-stats .ord-stat-pending {
+  --ord-stat-accent: #b7791f;
+}
+
+.mgr-layout .ord-page .ord-stats .ord-stat-progress {
+  --ord-stat-accent: #7c3aed;
+}
+
+.mgr-layout .ord-page .ord-stats .ord-stat-completed {
+  --ord-stat-accent: #15803d;
 }
 
 .mgr-layout .ord-page .ord-stats .mgr-stat-top {
-  display: flex;
-  min-width: 0;
-  flex-direction: row;
-  align-items: center;
-  gap: 11px;
-}
-
-.mgr-layout .ord-page .ord-stats .mgr-tile {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  font-size: 18px;
-  box-shadow: 0 4px 10px -5px rgb(20 45 86 / 42%);
+  display: contents;
 }
 
 .mgr-layout .ord-page .ord-stats .mgr-stat-label {
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+  align-self: center;
   color: var(--mgr-muted);
   font-size: 13px;
   font-weight: 650;
-  line-height: 1.3;
+  line-height: 1.35;
+}
+
+.mgr-layout .ord-page .ord-stats .mgr-tile {
+  grid-column: 2;
+  grid-row: 1;
+  width: 42px;
+  height: 42px;
+  border: 1px solid color-mix(in srgb, var(--ord-stat-accent) 20%, transparent);
+  border-radius: 13px;
+  background: color-mix(in srgb, var(--ord-stat-accent) 12%, var(--mgr-bg));
+  color: var(--ord-stat-accent);
+  font-size: 19px;
+  box-shadow: none;
 }
 
 .mgr-layout .ord-page .ord-stats .ant-statistic {
-  min-width: 28px;
-  flex: none;
-  text-align: right;
+  grid-column: 1 / -1;
+  grid-row: 2;
+  align-self: end;
+  min-width: 0;
+  padding-top: 13px;
+  border-top: 1px solid var(--mgr-border);
 }
 
 .mgr-layout .ord-page .ord-stats .ant-statistic-content {
   color: var(--mgr-text);
-  font-size: 30px;
+  font-size: 34px;
   font-variant-numeric: tabular-nums;
-  font-weight: 750;
-  letter-spacing: -0.02em;
+  font-weight: 760;
+  letter-spacing: -0.025em;
   line-height: 1;
+}
+
+.mgr-layout .ord-page .ord-stats .mgr-stat:hover {
+  border-color: color-mix(in srgb, var(--ord-stat-accent) 32%, var(--mgr-border));
+}
+
+@media (max-width: 767px) {
+  .mgr-layout .ord-page .ord-stats {
+    gap: 10px;
+  }
+
+  .mgr-layout .ord-page .ord-stats .mgr-stat {
+    min-height: 118px;
+    padding: 15px 16px;
+  }
 }
 
 .cus-order-filter-option {

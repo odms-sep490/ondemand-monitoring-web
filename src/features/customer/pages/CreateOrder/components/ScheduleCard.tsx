@@ -6,6 +6,7 @@ import { localizeTimeslot } from '../../../lib/i18n/timeslots'
 import type { FormErrors, FormState, UpdateField } from '../../../lib/createOrder/types'
 import { DateEcho } from './DateEcho'
 import { scheduleCardMessages } from './ScheduleCard.messages'
+import { createOrderPageMessages } from '../CreateOrderPage.messages'
 import { todayPlus } from '../../../lib/createOrder/format'
 
 type Props = {
@@ -17,7 +18,14 @@ type Props = {
 
 export function ScheduleCard({ form, errors, update, preferredTimes }: Props) {
   const { t, lang } = useI18n(scheduleCardMessages)
+  const { t: pageT } = useI18n(createOrderPageMessages)
   const earliestFlightDate = todayPlus(7)
+  const dateTooSoon =
+    Boolean(form.preferredDateFrom) &&
+    form.preferredDateFrom < earliestFlightDate
+  const startDateError =
+    errors.preferredDateFrom ??
+    (dateTooSoon ? pageT.validation.preferredDateTooSoon : undefined)
   return (
     <Card icon={<CalendarOutlined />} title={t.cardTitle}>
       <p className="co-hint">{t.dateRangeHint}</p>
@@ -26,11 +34,13 @@ export function ScheduleCard({ form, errors, update, preferredTimes }: Props) {
         <span>{t.advanceNoticeBody}</span>
       </div>
       <div className="co-two co-mt">
-        <FormField id="co-from" label={t.startDate} required error={errors.preferredDateFrom}>
+        <FormField id="co-from" label={t.startDate} required error={startDateError}>
           <input
             id="co-from"
             type="date"
             className="co-input"
+            aria-invalid={Boolean(startDateError)}
+            aria-describedby={startDateError ? 'co-from-error' : undefined}
             min={earliestFlightDate}
             value={form.preferredDateFrom}
             onChange={(e) => update('preferredDateFrom', e.target.value)}
@@ -42,6 +52,8 @@ export function ScheduleCard({ form, errors, update, preferredTimes }: Props) {
             id="co-to"
             type="date"
             className="co-input"
+            aria-invalid={Boolean(errors.preferredDateTo)}
+            aria-describedby={errors.preferredDateTo ? 'co-to-error' : undefined}
             min={form.preferredDateFrom || earliestFlightDate}
             value={form.preferredDateTo}
             onChange={(e) => update('preferredDateTo', e.target.value)}

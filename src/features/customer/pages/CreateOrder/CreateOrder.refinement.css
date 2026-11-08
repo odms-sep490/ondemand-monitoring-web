@@ -8,7 +8,7 @@
 }
 
 .co-page {
-  padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(var(--ui-space-4) + env(safe-area-inset-bottom, 0px));
 }
 
 .co-steps-progress {
@@ -28,18 +28,15 @@
 }
 
 .co-action-dock {
-  position: sticky;
-  bottom: max(8px, env(safe-area-inset-bottom, 0px));
-  z-index: 30;
+  position: static;
   width: min(100%, 1480px);
   margin: 0 auto;
   padding: 12px 16px;
   border: 1px solid var(--ui-border);
   border-radius: 14px;
   background: color-mix(in srgb, var(--ui-surface) 96%, transparent);
-  box-shadow: 0 10px 28px color-mix(in srgb, var(--ui-text) 12%, transparent); /* taste-skill-ignore: lift the sticky action bar above page content */
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--ui-text) 12%, transparent); /* taste-skill-ignore: visually separate the action area from page content */
 }
-
 .co-footer {
   display: flex;
   align-items: center;
@@ -270,7 +267,6 @@
   }
 
   .co-action-dock {
-    bottom: max(6px, env(safe-area-inset-bottom, 0px));
     padding: 9px 10px;
     border-radius: 12px;
   }
@@ -984,20 +980,5 @@
 
   .co-pricing-estimate-card.is-review .co-money-total > span:last-child {
     font-size: 20px;
-  }
-}
-
-/* On the single-column schedule layout the sticky footer can cover the
-   expanded options. Keep navigation in the document flow so every option
-   remains reachable without changing the form's content height. */
-@media (max-width: 1180px), (max-height: 760px) {
-  .co-page:has(.co-schedule-options) .co-action-dock {
-    position: static;
-    width: auto;
-    margin-inline: 0;
-  }
-
-  .co-page:has(.co-schedule-options) {
-    padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px));
   }
 }

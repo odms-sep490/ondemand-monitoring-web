@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-08T01:06:20Z",
+  "title": "Design System: OnDemand Monitor Customer Portal",
+  "extensions": {
+    "colorMeta": {
+      "primary": { "role": "primary", "displayName": "Action Blue", "canonical": "#1565E8", "tonalRamp": ["#102654", "#173D7A", "#2053A3", "#1565E8", "#4B82ED", "#83A9F5", "#BED2FA", "#F4F8FF"] },
+      "canvas": { "role": "neutral", "displayName": "Pale Blue Canvas", "canonical": "#F4F7FC", "tonalRamp": ["#26334B", "#59667C", "#8793A7", "#B4BECE", "#D0D8E4", "#E2E8F1", "#EDF1F7", "#FFFFFF"] },
+      "surface": { "role": "neutral", "displayName": "White Surface", "canonical": "#FFFFFF", "tonalRamp": ["#262A31", "#515862", "#828B98", "#ADB5C0", "#D0D5DD", "#E3E6EB", "#F1F2F5", "#FFFFFF"] },
+      "surface-muted": { "role": "neutral", "displayName": "Quiet Surface", "canonical": "#F6F8FD", "tonalRamp": ["#28354B", "#5D6A80", "#8995AA", "#B6C0D0", "#D4DBE7", "#E5EAF2", "#F0F3F8", "#FFFFFF"] },
+      "border": { "role": "neutral", "displayName": "Cool Border", "canonical": "#E6ECF5", "tonalRamp": ["#202A3B", "#4D5B70", "#7D8AA0", "#ADB8C9", "#CCD5E2", "#E0E6EF", "#EFF2F7", "#FFFFFF"] },
+      "ink": { "role": "neutral", "displayName": "Navy Ink", "canonical": "#0F1B3D", "tonalRamp": ["#101629", "#1C2B4D", "#2C3D66", "#43557C", "#667592", "#92A0B4", "#C2CAD6", "#F1F3F7"] },
+      "muted": { "role": "neutral", "displayName": "Muted Slate", "canonical": "#64748B", "tonalRamp": ["#1C293B", "#34445A", "#4B5D75", "#64748B", "#8391A5", "#AAB4C2", "#D0D6DE", "#F4F6F8"] },
+      "dark-primary": { "role": "primary", "displayName": "Dark Theme Action Blue", "canonical": "#5AA0FF", "tonalRamp": ["#102653", "#17407A", "#245C9F", "#3779C5", "#5AA0FF", "#89BBFF", "#C0DCFF", "#F2F8FF"] },
+      "dark-canvas": { "role": "neutral", "displayName": "Night Canvas", "canonical": "#0B1226", "tonalRamp": ["#090E1B", "#111A2D", "#1C2940", "#30405A", "#50617A", "#7D8BA0", "#B3BDCB", "#F0F3F7"] },
+      "dark-surface": { "role": "neutral", "displayName": "Night Surface", "canonical": "#111B36", "tonalRamp": ["#0A1021", "#151F38", "#24334F", "#3A4B67", "#596A83", "#8491A6", "#B8C1CE", "#F1F3F7"] },
+      "dark-surface-muted": { "role": "neutral", "displayName": "Night Elevated Surface", "canonical": "#16213F", "tonalRamp": ["#0B1122", "#182340", "#293A58", "#405473", "#60718D", "#8D9AB0", "#C0C8D5", "#F2F4F7"] },
+      "dark-border": { "role": "neutral", "displayName": "Night Border", "canonical": "#1F2C4D", "tonalRamp": ["#0A1020", "#151F36", "#243451", "#3C4D6A", "#60718A", "#8B98AB", "#BFC7D2", "#F2F4F7"] },
+      "dark-ink": { "role": "neutral", "displayName": "Night Ink", "canonical": "#E6ECFA", "tonalRamp": ["#182440", "#2E3B59", "#4B5874", "#6E7A94", "#929DB2", "#B4BDCE", "#D2D9E5", "#F8FAFD"] },
+      "dark-muted": { "role": "neutral", "displayName": "Night Muted Slate", "canonical": "#93A1C0", "tonalRamp": ["#17213A", "#2B3855", "#465571", "#63738E", "#8391A9", "#A8B3C5", "#D0D6E1", "#F6F7FA"] }
+    },
+    "typographyMeta": {
+      "headline": { "displayName": "Page Headline", "purpose": "Compact, strong page titles in the customer portal." },
+      "title": { "displayName": "Section Title", "purpose": "Card and section headings." },
+      "body": { "displayName": "Interface Body", "purpose": "Readable customer-facing labels, explanations, and navigation." },
+      "label": { "displayName": "Utility Label", "purpose": "Small field labels and supporting data headings." }
+    },
+    "shadows": [
+      { "name": "panel-resting", "value": "0 1px 2px rgb(15 27 61 / 4%), 0 8px 24px -8px rgb(15 27 61 / 10%)", "purpose": "Subtle separation on shared portal cards outside the flat overview." },
+      { "name": "panel-hover", "value": "0 2px 4px rgb(15 27 61 / 6%), 0 18px 36px -12px rgb(21 101 232 / 28%)", "purpose": "Light hover lift on shared interactive surfaces." },
+      { "name": "mobile-sidebar", "value": "0 0 40px rgb(15 23 42 / 25%)", "purpose": "Separates the temporary mobile sidebar overlay." }
+    ],
+    "breakpoints": [
+      { "name": "wide-to-single-column", "value": "1100px" },
+      { "name": "secondary-table-fields", "value": "767px" },
+      { "name": "mobile-controls-and-kpis", "value": "640px" },
+      { "name": "single-column-kpis", "value": "360px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Use for the main action on a portal screen.",
+      "html": "<button class=\"ds-btn-primary\" type=\"button\">Tạo yêu cầu</button>",
+      "css": ".ds-btn-primary { min-height: 38px; padding: 4px 15px; border: 1px solid #1565E8; border-radius: 10px; background: #1565E8; color: #fff; font: 600 14px/1.5 'Be Vietnam Pro', Inter, system-ui, sans-serif; cursor: pointer; transition: background-color 140ms ease, border-color 140ms ease; } .ds-btn-primary:hover { background: #0958d9; border-color: #0958d9; } .ds-btn-primary:focus-visible { outline: 2px solid #1565E8; outline-offset: 3px; } .ds-btn-primary:active { background: #0b4bbd; }"
+    },
+    {
+      "name": "Default Button",
+      "kind": "button",
+      "refersTo": "button-default",
+      "description": "Use for secondary actions beside a primary action.",
+      "html": "<button class=\"ds-btn-default\" type=\"button\">Xem chi tiết</button>",
+      "css": ".ds-btn-default { min-height: 38px; padding: 4px 15px; border: 1px solid #E6ECF5; border-radius: 10px; background: #fff; color: #0F1B3D; font: 600 14px/1.5 'Be Vietnam Pro', Inter, system-ui, sans-serif; cursor: pointer; transition: border-color 140ms ease, color 140ms ease; } .ds-btn-default:hover { border-color: #1565E8; color: #1565E8; } .ds-btn-default:focus-visible { outline: 2px solid #1565E8; outline-offset: 3px; } .ds-btn-default:active { background: #F6F8FD; }"
+    },
+    {
+      "name": "Search Input",
+      "kind": "input",
+      "refersTo": "search-input",
+      "description": "Use for searching orders, missions, or locations.",
+      "html": "<input class=\"ds-input-search\" type=\"search\" aria-label=\"Tìm đơn, nhiệm vụ\" placeholder=\"Tìm đơn, nhiệm vụ...\" />",
+      "css": ".ds-input-search { width: 100%; height: 38px; padding: 4px 11px; border: 1px solid #E6ECF5; border-radius: 12px; background: #F6F8FD; color: #0F1B3D; font: 400 14px/1.5 'Be Vietnam Pro', Inter, system-ui, sans-serif; } .ds-input-search::placeholder { color: #64748B; } .ds-input-search:focus-visible { border-color: #1565E8; outline: 2px solid rgb(21 101 232 / 18%); outline-offset: 1px; }"
+    },
+    {
+      "name": "Selected Navigation Item",
+      "kind": "nav",
+      "refersTo": "nav-item-selected",
+      "description": "Marks the current section in the customer sidebar.",
+      "html": "<a class=\"ds-nav-selected\" href=\"#orders\" aria-current=\"page\">Đơn của tôi</a>",
+      "css": ".ds-nav-selected { display: flex; min-height: 42px; align-items: center; padding: 0 14px; border-radius: 10px; background: rgba(21, 101, 232, 0.09); color: #1565E8; font: 600 14px/1.4 'Be Vietnam Pro', Inter, system-ui, sans-serif; text-decoration: none; } .ds-nav-selected:hover { background: rgba(21, 101, 232, 0.13); } .ds-nav-selected:focus-visible { outline: 2px solid #1565E8; outline-offset: 2px; }"
+    },
+    {
+      "name": "Status Chip",
+      "kind": "chip",
+      "refersTo": "status-chip",
+      "description": "Pair a concise status label with a soft semantic tint and a leading dot.",
+      "html": "<span class=\"ds-status-chip\"><span class=\"ds-status-dot\" aria-hidden=\"true\"></span>Đang thực hiện</span>",
+      "css": ".ds-status-chip { display: inline-flex; min-height: 24px; align-items: center; gap: 6px; padding: 2px 10px; border-radius: 999px; background: #e6f4ff; color: #1677ff; font: 600 12.5px/1.4 'Be Vietnam Pro', Inter, system-ui, sans-serif; white-space: nowrap; } .ds-status-dot { width: 7px; height: 7px; flex: none; border-radius: 50%; background: currentColor; }"
+    },
+    {
+      "name": "Overview Panel",
+      "kind": "card",
+      "refersTo": "overview-panel",
+      "description": "A flat, bordered section for order or status information on the overview.",
+      "html": "<article class=\"ds-overview-panel\"><h2>Đơn hàng gần đây</h2><p>Theo dõi trạng thái và lịch dự kiến.</p></article>",
+      "css": ".ds-overview-panel { padding: 12px 18px; border: 1px solid #E6ECF5; border-radius: 14px; background: #fff; color: #0F1B3D; } .ds-overview-panel h2 { margin: 0; font: 700 16px/1.4 'Be Vietnam Pro', Inter, system-ui, sans-serif; } .ds-overview-panel p { margin: 8px 0 0; color: #64748B; font: 400 14px/1.5 'Be Vietnam Pro', Inter, system-ui, sans-serif; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Clear Flightline",
+    "overview": "This document describes the customer-facing portal and its shared shell. The visual direction is compact, light, and progress-clear: customers should be able to scan records, read the next step, and move into an order without competing decoration. “The Clear Flightline” names that calm operational clarity, using the supplied product direction and the portal’s drone-monitoring context.\n\nBe Vietnam Pro is the primary face because it is loaded with Vietnamese character support. Navy text, pale blue-gray surroundings, and white work surfaces keep the interface quiet. Blue marks actions and selected navigation; semantic colors stay on status labels and other small signals. Thin borders do most of the separating, with elevation kept light and selective.",
+    "keyCharacteristics": [
+      "Compact, scannable information hierarchy with clear progress cues.",
+      "Blue is reserved for primary actions, links, and selected navigation.",
+      "Pale blue-gray canvas, white surfaces, and fine cool borders.",
+      "Vietnamese and English labels remain readable and allowed to wrap.",
+      "Status colors are muted and attached to labeled statuses."
+    ],
+    "rules": [
+      { "name": "The Clear Flightline Rule", "body": "Give customers a quiet route from the current state to the next useful action.", "section": "overview" },
+      { "name": "The Action Blue Rule", "body": "Keep the primary blue for actions, links, and selection; use semantic color only to clarify status.", "section": "colors" },
+      { "name": "The Wrap-Safe Rule", "body": "Use weight and spacing for hierarchy, and let longer Vietnamese or English text wrap without clipping.", "section": "typography" },
+      { "name": "The Narrow-to-Wide Rule", "body": "Preserve the reading order as columns collapse, and move essential dates into the order details when the table date column disappears.", "section": "layout" },
+      { "name": "The Quiet Boundary Rule", "body": "Let the overview use spacing and a fine border to separate panels; reserve stronger shadows for overlays.", "section": "elevation" },
+      { "name": "The Border-First Rule", "body": "Use soft corners and a light border to define a surface; add another container only when it clarifies a distinct content group.", "section": "shapes" },
+      { "name": "The Labeled State Rule", "body": "Keep status text visible beside its color, and keep actions recognizable through concise labels and familiar button shapes.", "section": "components" },
+      { "name": "The Content Before Chrome Rule", "body": "A count, status, or next step should remain easier to scan than the visual treatment around it.", "section": "do-and-dont" }
+    ],
+    "dos": [
+      "Do use the existing blue primary and pale blue-gray portal neutrals.",
+      "Do keep order counts, status labels, and action controls compact and easy to scan.",
+      "Do use semantic colors with a visible text label and preserve the source-defined light and dark theme values.",
+      "Do allow English and Vietnamese interface copy to wrap without clipping.",
+      "Do retain thin borders as the main separator on the customer overview."
+    ],
+    "donts": [
+      "Don't add a new accent palette or decorative gradients to ordinary customer work surfaces.",
+      "Don't rely on color alone to explain an order or mission status.",
+      "Don't add strong stacked shadows to the customer overview cards.",
+      "Don't use tight fixed-width labels that clip Vietnamese diacritics or longer English copy."
+    ]
+  }
+}
