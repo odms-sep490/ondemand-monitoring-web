@@ -175,6 +175,7 @@ export interface Mission {
   startedAt?: string
   completedAt?: string
   description?: string
+  failureRequestedAt?: string | null
   failureReason?: string
   rejectionReason?: string
   mediaType?: MediaType

@@ -1,4 +1,4 @@
-import { Avatar, Empty, Tag } from 'antd'
+import { Avatar, Tag } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 
 import { CardComponent, TableComponent } from '../../../../../shared/components/antd'
@@ -61,7 +61,7 @@ export function RecentOrdersCard({ orders, className }: { orders: RecentOrder[];
       styles={{ body: { padding: 0 } }}
     >
       {orders.length === 0 ? (
-        <Empty className="py-4" image={Empty.PRESENTED_IMAGE_SIMPLE} description={o.empty} />
+        <p className="mgr-empty-line mgr-orders-empty">{o.empty}</p>
       ) : (
         <TableComponent<RecentOrder>
           rowKey="orderId"

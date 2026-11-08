@@ -66,6 +66,8 @@ export interface Mission {
   backendId?: string
   purpose?: 'ORIGINAL' | 'REWORK' | string
   resultRevisionCaseId?: string | null
+  failureRequestedAt?: string | null
+  failureReason?: string | null
   orderRef: string
   orderTitle?: string
   title: string

@@ -28,6 +28,9 @@ export const FlightControls = memo(function FlightControls({
   onReviewMedia,
   onFinishFlight,
   finishFlightBusy,
+  onFailMission,
+  failMissionBusy,
+  missionFailureRequested,
   canFinishFlight,
   finishFlightBlockedReason,
   onReferenceCapture,
@@ -38,6 +41,9 @@ export const FlightControls = memo(function FlightControls({
   onReferenceCapture?: () => void
   onFinishFlight?: () => void
   finishFlightBusy?: boolean
+  onFailMission?: () => void
+  failMissionBusy?: boolean
+  missionFailureRequested?: boolean
   canFinishFlight: boolean
   finishFlightBlockedReason?: string
   busyCommand: FlightCommand | null
@@ -126,6 +132,9 @@ export const FlightControls = memo(function FlightControls({
         onFinishFlight={onFinishFlight}
         commandDisabled={commandDisabled}
         finishFlightBusy={finishFlightBusy}
+        onFailMission={onFailMission}
+        failMissionBusy={failMissionBusy}
+        missionFailureRequested={missionFailureRequested}
         canFinishFlight={canFinishFlight}
         finishFlightBlockedReason={finishFlightBlockedReason}
         onCommand={onCommand}

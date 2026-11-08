@@ -8,6 +8,7 @@ import { useI18n } from '../../../../shared/i18n'
 import { useActiveMission } from '../../api/useActiveMission'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { missionApi } from '../../../mission/api/missionApi'
+import { operatorHref } from '../../routes'
 import { type FlightControlStatus } from '../../api/flightControlApi'
 import { formatDeviceLabel } from '../../lib/deviceLabel'
 import { postflightSummary } from '../../lib/postflightSummary'
@@ -75,6 +76,7 @@ export function PostflightPage({ missionId }: { missionId?: string }) {
     overallOk: boolean
     ticketCreated: boolean
     droneStatus: string
+    failed?: boolean
   } | null>(null)
   const permissionsQuery = useApiQuery(
     () =>
@@ -159,6 +161,7 @@ export function PostflightPage({ missionId }: { missionId?: string }) {
           droneStatus: persistedPostflightQuery.data.overallOk
             ? 'AVAILABLE'
             : 'MAINTENANCE',
+          failed: activeData?.status === 'FAILED',
         }
       : null)
 
@@ -180,6 +183,22 @@ export function PostflightPage({ missionId }: { missionId?: string }) {
   }
 
   if (completedSummary) {
+    if (completedSummary.failed || activeData?.status === 'FAILED') {
+      return (
+        <EmptyState
+          title={t.missionFailedTitle}
+          description={t.missionFailedDescription}
+          action={
+            <a
+              className="postflight-review-secondary"
+              href={operatorHref({ screen: 'missions' })}
+            >
+              {t.backToMissionList}
+            </a>
+          }
+        />
+      )
+    }
     if (permissionsQuery.loading) return <LoadingState />
     if (
       permissionsQuery.error ||

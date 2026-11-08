@@ -67,6 +67,15 @@ function formatUpdated(value: string) {
 }
 const terminal = (status: ChecklistExecutionStatus) =>
   status === 'COMPLETED' || status === 'UNABLE_TO_VERIFY'
+
+function checklistEvidenceSummary(item: MissionChecklistExecution): string {
+  if (item.executionStatus === 'UNABLE_TO_VERIFY')
+    return `${item.eligibleEvidenceCount ?? 0} bằng chứng`
+
+  const count = evidenceCountLabel(item)
+  return !count || isPerTypeEvidence(item) ? count : `${count} bằng chứng`
+}
+
 export function allowedExecutionStatuses(
   status: ChecklistExecutionStatus,
   rejected: boolean,
@@ -347,12 +356,7 @@ export function MonitoringChecklistSection({
                     ? { label: 'Không đạt yêu cầu', className: 'is-danger' }
                     : null
                 : executionBadges[item.executionStatus]
-              const evidenceSummary =
-                item.executionStatus === 'UNABLE_TO_VERIFY'
-                  ? `${item.eligibleEvidenceCount ?? 0} bằng chứng`
-                  : isPerTypeEvidence(item)
-                    ? evidenceCountLabel(item)
-                    : `${evidenceCountLabel(item)} bằng chứng`
+              const evidenceSummary = checklistEvidenceSummary(item)
               return (
                 <li
                   key={`evidence:${missionId}:${item.id}`}
@@ -377,8 +381,7 @@ export function MonitoringChecklistSection({
                         {assessmentOnly
                           ? assessments[item.assessmentStatus]
                           : statuses[item.executionStatus]}
-                        {' · '}
-                        {evidenceSummary}
+                        {evidenceSummary ? ` · ${evidenceSummary}` : null}
                         {item.executionStatus !== 'UNABLE_TO_VERIFY' &&
                           evidenceShortfall(item) > 0 && (
                             <> · thiếu {evidenceShortfall(item)}</>
@@ -495,6 +498,11 @@ export function MonitoringChecklistSection({
                 </span>
                 <span className="mc-preview-text">
                   <strong>{item.content}</strong>
+                  {item.description?.trim() && (
+                    <span className="mc-preview-description">
+                      {item.description}
+                    </span>
+                  )}
                   <small>
                     {statuses[item.executionStatus]} · Bằng chứng tối thiểu:{' '}
                     {item.minimumEvidenceCount ?? 0}
@@ -645,12 +653,7 @@ export function MonitoringChecklistSection({
                   ? { label: 'Không đạt yêu cầu', className: 'is-danger' }
                   : null
               : executionBadges[item.executionStatus]
-            const evidenceSummary =
-              item.executionStatus === 'UNABLE_TO_VERIFY'
-                ? `${item.eligibleEvidenceCount ?? 0} bằng chứng`
-                : isPerTypeEvidence(item)
-                  ? evidenceCountLabel(item)
-                  : `${evidenceCountLabel(item)} bằng chứng`
+            const evidenceSummary = checklistEvidenceSummary(item)
             return (
               <li
                 key={`evidence:${missionId}:${item.id}`}
@@ -675,8 +678,7 @@ export function MonitoringChecklistSection({
                       {assessmentOnly
                         ? assessments[item.assessmentStatus]
                         : statuses[item.executionStatus]}
-                      {' · '}
-                      {evidenceSummary}
+                      {evidenceSummary ? ` · ${evidenceSummary}` : null}
                       {item.executionStatus !== 'UNABLE_TO_VERIFY' &&
                         evidenceShortfall(item) > 0 &&
                         ` · thiếu ${evidenceShortfall(item)}`}

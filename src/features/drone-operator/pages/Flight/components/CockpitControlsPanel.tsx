@@ -12,6 +12,9 @@ export function CockpitControlsPanel({
   onCommand,
   onFinishFlight,
   finishingFlight,
+  onFailMission,
+  failMissionBusy,
+  missionFailureRequested,
   canFinishFlight,
   finishFlightBlockedReason,
   canFly,
@@ -32,6 +35,9 @@ export function CockpitControlsPanel({
   onCommand: (command: CockpitCommand) => void
   onFinishFlight: (() => void) | undefined
   finishingFlight: boolean | undefined
+  onFailMission?: () => void
+  failMissionBusy?: boolean
+  missionFailureRequested?: boolean
   canFinishFlight: boolean
   finishFlightBlockedReason?: string
   canFly: boolean
@@ -89,6 +95,28 @@ export function CockpitControlsPanel({
                     : c.finishFlight}
                 </strong>
                 <small>{c.finishFlightSub}</small>
+              </button>
+            ) : null}
+            {onFailMission ? (
+              <button
+                type="button"
+                className="fc-ctl is-danger"
+                disabled={busy || failMissionBusy || missionFailureRequested}
+                aria-busy={failMissionBusy}
+                onClick={onFailMission}
+                title={c.failureTitle}
+              >
+                <Ico name="stop" size={20} />
+                <strong>
+                  {failMissionBusy
+                    ? language === 'en'
+                      ? 'Sending...'
+                      : 'Đang gửi...'
+                    : missionFailureRequested
+                      ? c.failureRequested
+                      : c.failureAction}
+                </strong>
+                <small>{c.failureSub}</small>
               </button>
             ) : null}
           </div>

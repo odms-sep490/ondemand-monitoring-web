@@ -1,4 +1,3 @@
-import { Empty } from 'antd'
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 
 import { MANAGER_COLORS } from '../../../../theme/managerTheme'
@@ -22,11 +21,11 @@ type Props = {
 }
 
 export function TrendLineChart({ points, completedLabel, failedLabel, empty, locale, ariaLabel }: Props) {
-  if (!points.length) return <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={empty} />
+  if (!points.length) return <p className="mgr-empty-line">{empty}</p>
   const data = points.map((p) => ({ ...p, label: dateLabel(p.x, locale) }))
   return (
     <div role="img" aria-label={ariaLabel}>
-      <ResponsiveContainer width="100%" height={280}>
+      <ResponsiveContainer width="100%" height={220}>
         <LineChart data={data} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
           <CartesianGrid stroke={GRID_STROKE} strokeDasharray="4 6" vertical={false} />
           <XAxis dataKey="label" tick={AXIS_TICK} axisLine={false} tickLine={false} minTickGap={24} />

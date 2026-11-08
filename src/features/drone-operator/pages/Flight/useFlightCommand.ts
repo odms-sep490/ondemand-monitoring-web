@@ -47,12 +47,17 @@ export function useFlightCommand({
 }) {
   const { t } = useI18n(inFlightControlMessages)
   const sendCommand = useCallback(
-    async (command: FlightCommand) => {
+    async (
+      command: FlightCommand,
+      options?: { emergencyReturn?: boolean },
+    ) => {
       if (!normalFlightAllowed) {
         setLastCommand('Chưa có quyền vận hành Mission. Làm mới trạng thái.')
         return
       }
-      if (!preflightReady) {
+      const isAuthorizedEmergencyReturn =
+        command === 'return_to_base' && options?.emergencyReturn === true
+      if (!preflightReady && !isAuthorizedEmergencyReturn) {
         setLastCommand(t.status.preflightRequired)
         return
       }

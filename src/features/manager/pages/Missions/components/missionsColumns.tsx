@@ -3,23 +3,15 @@ import type { ColumnsType } from 'antd/es/table'
 
 import { formatOrderCode } from '../../../components/common/format'
 import { MissionStatusTag } from '../../../components/common/MissionStatusTag'
-import { StatusTag } from '../../../components/common/StatusTag'
 import { assignmentReadiness } from '../../../lib/assignmentReadiness'
 import { managerHref } from '../../../routes'
 import type { MissionCalendarItem } from '../../../types/missions'
-import {
-  deliveryLabel,
-  deliveryTone,
-  formatScheduled,
-  formatStaffSummary,
-} from '../missionsHelpers'
-import type { DeliveryStatus, PageMessages } from '../missionsTypes'
+import { formatScheduled, formatStaffSummary } from '../missionsHelpers'
+import type { PageMessages } from '../missionsTypes'
 
 type Options = {
   t: PageMessages
   locale: 'vi-VN' | 'en-US'
-  deliveryStatuses: Record<string, DeliveryStatus>
-  orderDeliveryStatuses: Record<string, DeliveryStatus>
 }
 
 const stop = (event: { stopPropagation: () => void }) => event.stopPropagation()
@@ -27,8 +19,6 @@ const stop = (event: { stopPropagation: () => void }) => event.stopPropagation()
 export function missionsColumns({
   t,
   locale,
-  deliveryStatuses,
-  orderDeliveryStatuses,
 }: Options): ColumnsType<MissionCalendarItem> {
   return [
     {
@@ -124,33 +114,16 @@ export function missionsColumns({
       },
     },
     {
-      title: t.columns.delivery,
-      key: 'delivery',
-      responsive: ['xl'],
-      render: (_, m) => {
-        const status = deliveryStatuses[m.id] ?? 'NOT_READY'
-        if (status === 'NOT_READY' && !orderDeliveryStatuses[m.orderId]) {
-          return <span className="mgr-cell-sub">—</span>
-        }
-        return (
-          <span className="mgr-cell-stack">
-            <StatusTag tone={deliveryTone(status)}>{deliveryLabel(status, t)}</StatusTag>
-            {orderDeliveryStatuses[m.orderId] ? (
-              <small className="mgr-cell-sub">
-                {deliveryLabel(orderDeliveryStatuses[m.orderId], t)}
-              </small>
-            ) : null}
-          </span>
-        )
-      },
-    },
-    {
       title: t.columns.action,
       key: 'action',
       align: 'right',
       render: (_, m) => (
         <span className="mgr-row-actions">
-          <Button size="small" href={managerHref({ screen: 'missionDetail', missionId: m.id })} onClick={stop}>
+          <Button
+            size="small"
+            href={managerHref({ screen: 'missionDetail', missionId: m.id })}
+            onClick={stop}
+          >
             {t.view}
           </Button>
           {assignmentReadiness(m).needsSetup ? (

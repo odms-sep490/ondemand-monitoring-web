@@ -10,9 +10,11 @@ export const missionDetailPageMessages = defineMessages({
       order: 'Thông tin đơn hàng',
       resources: 'Thông tin nguồn lực',
       plan: 'Kế hoạch bay',
-      checks: 'Kiểm tra trước bay',
+      checks: 'Kiểm tra trước/sau bay',
     },
     tabsAria: 'Các mục chi tiết nhiệm vụ',
+    unreadResourceEvents: (count: number) => `${count} cập nhật nguồn lực chưa xem`,
+    replaceSpecificStaff: (name: string) => `Thay thế ${name}`,
     contextCard: 'Thông tin nhiệm vụ & nguồn lực',
     permitCard: 'Giấy phép bay',
     kpi: {
@@ -77,6 +79,7 @@ export const missionDetailPageMessages = defineMessages({
     crewEmpty: 'Nhiệm vụ này chưa có thiết bị hoặc nhân sự được gán.',
     crewAccepted: (accepted: number, total: number) =>
       `${accepted}/${total} đã nhận`,
+    replaceDeclinedStaff: 'Thay thế nhân sự đã từ chối',
     noPrecheck: 'Chưa có kết quả kiểm tra trước bay.',
     noPostcheck: 'Chưa có kết quả kiểm tra sau bay.',
     fields: {
@@ -159,9 +162,11 @@ export const missionDetailPageMessages = defineMessages({
       order: 'Order information',
       resources: 'Mission resources',
       plan: 'Flight plan',
-      checks: 'Preflight checks',
+      checks: 'Pre/post-flight checks',
     },
     tabsAria: 'Mission detail sections',
+    unreadResourceEvents: (count: number) => `${count} unread resource update${count === 1 ? '' : 's'}`,
+    replaceSpecificStaff: (name: string) => `Replace ${name}`,
     contextCard: 'Mission & resource details',
     permitCard: 'Flight permit',
     kpi: {
@@ -226,6 +231,7 @@ export const missionDetailPageMessages = defineMessages({
     crewEmpty: 'No device or staff assigned to this mission yet.',
     crewAccepted: (accepted: number, total: number) =>
       `${accepted}/${total} accepted`,
+    replaceDeclinedStaff: 'Replace declined staff',
     noPrecheck: 'No pre-flight check result yet.',
     noPostcheck: 'No post-flight check result yet.',
     fields: {

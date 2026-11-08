@@ -1,0 +1,158 @@
+.odm-reject-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.odm-reject-code {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--bd, #e6ecf5);
+}
+
+.odm-reject-code-label {
+  flex: none;
+  color: var(--tx2, #64748b);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.odm-reject-code-value {
+  min-width: 0;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: var(--accent-bg, rgb(21 101 232 / 9%));
+  color: var(--accent, #1565e8);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.35;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.odm-reject-reasons {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.odm-reject-reasons legend {
+  margin-bottom: 8px;
+  padding: 0;
+  color: var(--tx, #0f1b3d);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.odm-reject-options {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.odm-reject-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  color: var(--tx, #0f1b3d);
+  font-size: 14px;
+  line-height: 1.45;
+  cursor: pointer;
+  transition: background-color 140ms ease, color 140ms ease;
+}
+
+.odm-reject-option:hover {
+  background: var(--sf2, #f6f8fd);
+}
+
+.odm-reject-option.is-selected {
+  background: var(--accent-bg, rgb(21 101 232 / 9%));
+  color: var(--accent, #1565e8);
+  font-weight: 600;
+}
+
+.odm-reject-option:focus-within {
+  outline: 2px solid var(--accent, #1565e8);
+  outline-offset: 1px;
+}
+
+.odm-reject-option input {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--accent, #1565e8);
+}
+
+.odm-reject-reasons:disabled .odm-reject-option {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.odm-reject-notes-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.odm-reject-notes-field .ui-label {
+  color: var(--tx, #0f1b3d);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.odm-reject-notes {
+  width: 100%;
+  min-height: 92px;
+  padding: 10px 12px;
+  border: 1px solid var(--bd, #e6ecf5);
+  border-radius: 10px;
+  background: var(--sf, #fff);
+  color: var(--tx, #0f1b3d);
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.5;
+  resize: vertical;
+  transition: border-color 140ms ease, box-shadow 140ms ease;
+}
+
+.odm-reject-notes::placeholder {
+  color: var(--tx3, #64748b);
+}
+
+.odm-reject-notes:focus-visible {
+  border-color: var(--accent, #1565e8);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-bg, rgb(21 101 232 / 9%));
+}
+
+.odm-reject-notes:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+@media (max-width: 600px) {
+  .odm-reject-dialog {
+    gap: 14px;
+  }
+
+  .odm-reject-option {
+    min-height: 44px;
+    padding-block: 9px;
+    font-size: 15px;
+  }
+
+  .odm-reject-notes {
+    font-size: 16px;
+  }
+}

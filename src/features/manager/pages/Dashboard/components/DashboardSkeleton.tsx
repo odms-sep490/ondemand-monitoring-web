@@ -17,16 +17,12 @@ export function DashboardSkeleton({ t }: { t: PageMessages }) {
           <div key={i} className="mgr-dash-kpi"><Skeleton active paragraph={{ rows: 1 }} /></div>
         ))}
       </div>
-      <div className="mgr-columns">
-        <div className="mgr-stack">
-          <Card className="mgr-card"><Skeleton active paragraph={{ rows: 5 }} /></Card>
-          <Card className="mgr-card"><Skeleton active paragraph={{ rows: 3 }} /></Card>
-        </div>
-        <div className="mgr-stack">
-          <Card className="mgr-card"><Skeleton active paragraph={{ rows: 4 }} /></Card>
-          <Card className="mgr-card"><Skeleton active paragraph={{ rows: 3 }} /></Card>
-          <Card className="mgr-card"><Skeleton active paragraph={{ rows: 3 }} /></Card>
-        </div>
+      <div className="mgr-work-grid">
+        <Card className="mgr-card"><Skeleton active paragraph={{ rows: 3 }} /></Card>
+        <Card className="mgr-card"><Skeleton active paragraph={{ rows: 3 }} /></Card>
+        <Card className="mgr-card mgr-pipeline-card"><Skeleton active paragraph={{ rows: 2 }} /></Card>
+        <Card className="mgr-card"><Skeleton active paragraph={{ rows: 4 }} /></Card>
+        <Card className="mgr-card"><Skeleton active paragraph={{ rows: 3 }} /></Card>
       </div>
       <span className="odm-visually-hidden">{t.loading}</span>
     </div>
