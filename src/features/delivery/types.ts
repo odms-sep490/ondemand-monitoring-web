@@ -19,7 +19,8 @@ export type DeliveryAsset = {
   url: string | null
   thumbnailUrl?: string | null
   previewUrl?: string | null
-  urlExpiresAt: string
+  previewStatus?: 'PENDING' | 'PROCESSING' | 'READY' | 'FAILED' | 'UNSUPPORTED' | null
+  urlExpiresAt: string | null
   downloadable: boolean
 }
 

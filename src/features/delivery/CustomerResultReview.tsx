@@ -1,3 +1,4 @@
+import { ResilientMedia } from '../../shared/components/media/MediaRecovery'
 import { useEffect, useState } from 'react'
 import {
   Alert,
@@ -292,17 +293,24 @@ export function CustomerResultReview({
                       >
                         {!evidence.previewUrl ? (
                           <span className="delivery-review-media-unavailable">
-                            {t.mediaUnavailable}
+                            {evidence.accessReason
+                              ? t.mediaUnavailable
+                              : evidence.previewStatus === 'FAILED'
+                                ? t.previewFailed
+                                : evidence.previewStatus === 'UNSUPPORTED'
+                                  ? t.previewUnsupported
+                                  : evidence.previewStatus === 'PENDING' || evidence.previewStatus === 'PROCESSING'
+                                    ? t.previewPending
+                                    : t.mediaUnavailable}
                           </span>
                         ) : evidence.type.toUpperCase().includes('VIDEO') ? (
-                          <video
-                            controls
-                            preload="none"
-                            src={evidence.previewUrl}
-                          />
+                          <ResilientMedia kind="video" poster={evidence.thumbnailUrl} src={evidence.previewUrl} mediaId={evidence.mediaAssetId} fileName={evidence.fileName} fileSize={evidence.size} original={evidence.previewStatus !== 'READY'} />
                         ) : (
                           <DeliveryImagePreview
                             src={evidence.thumbnailUrl ?? evidence.previewUrl}
+                            mediaId={evidence.mediaAssetId}
+                            fileSize={evidence.size}
+                            original={evidence.previewStatus !== 'READY'}
                             previewSrc={evidence.previewUrl}
                             fileName={evidence.fileName}
                           />
@@ -335,11 +343,6 @@ export function CustomerResultReview({
                         <Typography.Text type="secondary">
                           {formatSize(evidence.size)}
                         </Typography.Text>
-                        {evidence.downloadable && evidence.url && (
-                          <a href={evidence.url} download={evidence.fileName}>
-                            {t.download}
-                          </a>
-                        )}
                       </article>
                     ))
                   )}
@@ -421,10 +424,13 @@ export function CustomerResultReview({
                             {!evidence.previewUrl ? (
                               <span className="delivery-review-media-unavailable">{t.mediaUnavailable}</span>
                             ) : evidence.type.toUpperCase().includes('VIDEO') ? (
-                              <video controls preload="none" src={evidence.previewUrl} />
+                              <ResilientMedia kind="video" poster={evidence.thumbnailUrl} src={evidence.previewUrl} mediaId={evidence.mediaAssetId} fileName={evidence.fileName} fileSize={evidence.size} original={evidence.previewStatus !== 'READY'} />
                             ) : (
                               <DeliveryImagePreview
                                 src={evidence.thumbnailUrl ?? evidence.previewUrl}
+                                mediaId={evidence.mediaAssetId}
+                                fileSize={evidence.size}
+                                original={evidence.previewStatus !== 'READY'}
                                 previewSrc={evidence.previewUrl}
                                 fileName={evidence.fileName}
                               />

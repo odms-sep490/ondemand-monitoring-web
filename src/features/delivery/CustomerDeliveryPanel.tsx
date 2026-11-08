@@ -1,3 +1,4 @@
+import { ResilientMedia } from '../../shared/components/media/MediaRecovery'
 import {
   Alert,
   Button,
@@ -10,6 +11,7 @@ import {
 } from 'antd'
 import { useCallback, useEffect, useState } from 'react'
 import { ApiError } from '../../shared/api/httpClient'
+import { requestOriginalMediaDownload, startOriginalMediaDownload } from '../../shared/api/originalMediaDownload'
 import { useI18n } from '../../shared/i18n'
 import { deliveryApi } from './api'
 import { customerDeliveryPanelMessages } from './customerDeliveryPanel.messages'
@@ -43,6 +45,7 @@ export function CustomerDeliveryPanel({
     id: string
     code: string
   } | null>(null)
+  const [downloadingMediaId, setDownloadingMediaId] = useState<string | null>(null)
 
   const currentTicket =
     submittedTicket?.orderId === orderId ? submittedTicket : null
@@ -63,6 +66,21 @@ export function CustomerDeliveryPanel({
         </a>
       ),
     })
+  }
+
+  async function downloadOriginal(mediaId: string) {
+    setDownloadingMediaId(mediaId)
+    try {
+      const response = await requestOriginalMediaDownload(mediaId)
+      startOriginalMediaDownload(response.downloadUrl)
+    } catch {
+      notificationApi.error({
+        placement: 'topRight',
+        message: t.downloadFailed,
+      })
+    } finally {
+      setDownloadingMediaId(null)
+    }
   }
 
   useEffect(() => {
@@ -242,16 +260,25 @@ export function CustomerDeliveryPanel({
                 <article key={asset.id} className="delivery-asset">
                   {asset.previewUrl ? (
                     asset.type.toUpperCase().includes('VIDEO') ? (
-                      <video controls preload="none" src={asset.previewUrl} />
+                      <ResilientMedia kind="video" poster={asset.thumbnailUrl} src={asset.previewUrl} mediaId={asset.id} fileName={asset.fileName} fileSize={asset.size} original={asset.previewStatus !== 'READY'} />
                     ) : (
                       <DeliveryImagePreview
                         src={asset.thumbnailUrl ?? asset.previewUrl}
+                            mediaId={asset.id}
+                            fileSize={asset.size}
+                            original={asset.previewStatus !== 'READY'}
                         previewSrc={asset.previewUrl}
                         fileName={asset.fileName}
                       />
                     )
                   ) : (
-                    <span className="delivery-preview-pending">{t.previewPending}</span>
+                    <span className="delivery-preview-pending">
+                      {asset.previewStatus === 'FAILED'
+                        ? t.previewFailed
+                        : asset.previewStatus === 'UNSUPPORTED'
+                          ? t.previewUnsupported
+                          : t.previewPending}
+                    </span>
                   )}
                   <div className="delivery-asset__meta">
                     <strong title={asset.fileName}>{asset.fileName}</strong>
@@ -265,8 +292,9 @@ export function CustomerDeliveryPanel({
                   {asset.downloadable ? (
                     <Button
                       className="delivery-download"
-                      href={asset.url ?? undefined}
-                      download
+                      loading={downloadingMediaId === asset.id}
+                      disabled={downloadingMediaId !== null && downloadingMediaId !== asset.id}
+                      onClick={() => void downloadOriginal(asset.id)}
                     >
                       {t.download}
                     </Button>

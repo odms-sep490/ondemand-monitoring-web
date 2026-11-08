@@ -9,6 +9,8 @@ export const mediaPreviewModalMessages = defineMessages({
     next: 'Sau →',
     detail: 'Xem chi tiết',
     download: 'Tải xuống',
+    downloadUnavailable: 'Tệp gốc chỉ tải được sau khi thanh toán đủ và chấp nhận kết quả.',
+    downloadFailed: 'Không thể tải tệp gốc. Vui lòng thử lại.',
   },
   en: {
     loading: 'Getting the viewing link…',
@@ -18,5 +20,7 @@ export const mediaPreviewModalMessages = defineMessages({
     next: 'Next →',
     detail: 'Open details',
     download: 'Download',
+    downloadUnavailable: 'Original media is available after full payment and result acceptance.',
+    downloadFailed: 'Unable to download the original file. Please try again.',
   },
 })

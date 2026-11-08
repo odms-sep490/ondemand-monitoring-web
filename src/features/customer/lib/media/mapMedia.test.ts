@@ -30,7 +30,8 @@ describe('media mapping', () => {
     expect(toMediaItem(dto())).toMatchObject({
       id: 'm1',
       kind: 'image',
-      url: 'https://x/a.jpg',
+      url: null,
+      canDownloadOriginal: false,
       fileSize: 2_500_000,
     })
     expect(mediaKind('VIDEO', undefined)).toBe('video')

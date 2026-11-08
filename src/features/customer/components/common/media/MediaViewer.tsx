@@ -1,3 +1,4 @@
+import { ResilientMedia } from '../../../../../shared/components/media/MediaRecovery'
 import { Icon } from '../../../../../shared/components/Icon'
 import { useI18n } from '../../../../../shared/i18n'
 import type { MediaItem } from '../../../lib/media/types'
@@ -7,17 +8,43 @@ import { mediaViewerMessages } from './MediaViewer.messages'
 export function MediaViewer({ item }: { item: MediaItem }) {
   const { t } = useI18n(mediaViewerMessages)
   if (!item.previewUrl) {
+    const statusMessage =
+      item.derivativeStatus === 'FAILED'
+        ? t.previewFailed
+        : item.derivativeStatus === 'UNSUPPORTED'
+          ? t.previewUnsupported
+          : item.derivativeStatus === 'PENDING' ||
+              item.derivativeStatus === 'PROCESSING'
+            ? t.previewProcessing
+            : t.noUrl
     return (
       <div className="md-viewer" role="status">
-        {t.noUrl}
+        {statusMessage}
       </div>
     )
   }
   return (
     <div className="md-viewer">
-      {item.kind === 'image' && <img src={item.previewUrl!} alt={item.fileName} />}
+      {item.kind === 'image' && (
+        <ResilientMedia
+          kind="image"
+          src={item.previewUrl}
+          mediaId={item.id}
+          fileName={item.fileName}
+          fileSize={item.fileSize}
+          original={item.derivativeStatus !== 'READY'}
+        />
+      )}
       {item.kind === 'video' && (
-        <video src={item.previewUrl!} controls preload="none" aria-label={item.fileName} />
+        <ResilientMedia
+          kind="video"
+          src={item.previewUrl}
+          poster={item.thumbnailUrl}
+          mediaId={item.id}
+          fileName={item.fileName}
+          fileSize={item.fileSize}
+          original={item.derivativeStatus !== 'READY'}
+        />
       )}
       {item.kind === 'other' && (
         <div>

@@ -11,6 +11,7 @@ export type ResultReviewEvidence = {
   url: string | null
   thumbnailUrl?: string | null
   previewUrl?: string | null
+  previewStatus?: 'PENDING' | 'PROCESSING' | 'READY' | 'FAILED' | 'UNSUPPORTED' | null
   urlExpiresAt: string | null
   downloadable: boolean
   accessReason: 'RETENTION_EXPIRED' | 'MEDIA_UNAVAILABLE' | null
@@ -95,6 +96,7 @@ export type RevisionRequestResponse = {
 }
 
 export type ChecklistDeliveryAsset = {
+  previewStatus?: ResultReviewEvidence['previewStatus']
   roundEvidenceId: string | null
   mediaAssetId: string
   type: string

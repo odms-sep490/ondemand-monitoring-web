@@ -5,6 +5,7 @@
 //   GET /api/customer/missions/{id}/media/{mediaId}      -> ApiResponse<CustomerMediaResponse>
 //   GET /api/customer/missions/{id}/media-status         -> ApiResponse<CustomerMissionMediaStatusResponse>
 //   GET /api/media/{mediaId}/download                    -> ApiResponse<CustomerMediaResponse>
+//   POST /api/customer/media/{mediaId}/download-url      -> ApiResponse<OriginalMediaDownloadResponse>
 // Only assets that are AVAILABLE are ever returned, like the BE.
 import type { CustomerMediaResponse } from '../../features/customer/lib/media/types'
 import seed from '../data/customer-orders.json'
@@ -40,6 +41,10 @@ function toDto(m: SeedMedia, index: number): CustomerMediaResponse {
     downloadUrl: video
       ? `https://mock-storage.example/media/${m.id}.mp4?token=mock`
       : placeholder(m.id),
+    thumbnailUrl: placeholder(`${m.id} · thumbnail`),
+    previewUrl: video ? null : placeholder(`${m.id} · preview`),
+    derivativeStatus: video ? 'PROCESSING' : 'READY',
+    canDownloadOriginal: true,
   }
 }
 
@@ -110,6 +115,31 @@ registerMockRoutes([
     handler: ({ params }) => {
       const found = available.find((m) => m.mediaId === params.mediaId)
       return found ? ok(found) : fail(404, 'NOT_FOUND', 'Media not found')
+    },
+  },
+  {
+    method: 'POST',
+    path: '/api/customer/media/:mediaId/view-url',
+    handler: ({ params }) => {
+      const found = available.find((m) => m.mediaId === params.mediaId)
+      return found
+        ? ok({ mediaId: found.mediaId, viewUrl: found.downloadUrl, fileSize: found.fileSize ?? 0, expiresAt: new Date(Date.now() + 900_000).toISOString() })
+        : fail(404, 'NOT_FOUND', 'Media not found')
+    },
+  },
+  {
+    method: 'POST',
+    path: '/api/customer/media/:mediaId/download-url',
+    handler: ({ params }) => {
+      const found = available.find((m) => m.mediaId === params.mediaId)
+      return found
+        ? ok({
+            mediaId: found.mediaId,
+            fileName: found.fileName,
+            downloadUrl: found.downloadUrl,
+            expiresAt: new Date(Date.now() + 15 * 60_000).toISOString(),
+          })
+        : fail(404, 'NOT_FOUND', 'Media not found')
     },
   },
 ])

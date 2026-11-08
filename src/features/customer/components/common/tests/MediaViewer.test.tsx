@@ -17,14 +17,21 @@ const base: MediaItem = {
   capturedAt: null,
   availableAt: null,
   url: 'https://x/a.jpg',
+  previewUrl: 'https://x/preview.jpg',
 }
 
 afterEach(() => act(() => setLanguage('vi')))
 
 describe('MediaViewer', () => {
+  it('renders the authorized original viewing fallback after derivative failure', () => {
+    render(<MediaViewer item={{ ...base, url: null, previewUrl: 'https://x/original-view', derivativeStatus: 'FAILED' }} />)
+    expect(screen.getByRole('img', { name: 'a.jpg' })).toHaveAttribute('src', 'https://x/original-view')
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+  })
+
   it('renders an image, a video player, or a fallback per kind', () => {
     const { rerender } = render(<MediaViewer item={base} />)
-    expect(screen.getByRole('img', { name: 'a.jpg' })).toHaveAttribute('src', 'https://x/a.jpg')
+    expect(screen.getByRole('img', { name: 'a.jpg' })).toHaveAttribute('src', 'https://x/preview.jpg')
     rerender(<MediaViewer item={{ ...base, kind: 'video', fileName: 'v.mp4' }} />)
     expect(screen.getByLabelText('v.mp4').tagName).toBe('VIDEO')
     rerender(<MediaViewer item={{ ...base, kind: 'other' }} />)
@@ -32,7 +39,7 @@ describe('MediaViewer', () => {
   })
 
   it('explains a missing or expired URL in both languages', () => {
-    render(<MediaViewer item={{ ...base, url: null }} />)
+    render(<MediaViewer item={{ ...base, previewUrl: null }} />)
     expect(screen.getByRole('status')).toHaveTextContent('Đường dẫn xem đã hết hạn')
     act(() => setLanguage('en'))
     expect(screen.getByRole('status')).toHaveTextContent('viewing link has expired')
