@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useRef, useState } from 'react'
 import type { Drone, Mission } from '../../../types/omss'
 import { useI18n } from '../../../../../shared/i18n'
+import { useMissionMonitoring } from '../../../../mission/hooks/useMissionMonitoring'
 import { inFlightControlMessages } from './InFlightControl.messages'
 import './SatelliteFlightMap.css'
 import { type FlightCommand, type ControlStatus } from '../inFlightTypes'
@@ -84,6 +85,23 @@ export default function InFlightControl({
   })
   const restrictedZones = useRestrictedZones()
   const restrictedGpsZones = useRestrictedGpsZones()
+  const missionId = mission.backendId ?? mission.id
+  const completionMonitoring = useMissionMonitoring(missionId)
+  const completionChecklist = completionMonitoring.data?.checklist
+  const hasAssignedChecklist =
+    (completionChecklist?.executions.length ?? 0) > 0
+  const canFinishFlight =
+    !completionMonitoring.loading &&
+    !completionMonitoring.error &&
+    hasAssignedChecklist &&
+    completionChecklist?.readyForSubmission === true
+  const finishFlightBlockedReason = !hasAssignedChecklist
+    ? 'Phải gắn checklist trước khi hoàn thành chuyến bay.'
+    : completionMonitoring.loading
+      ? 'Đang kiểm tra trạng thái checklist và evidence.'
+      : completionMonitoring.error
+        ? 'Không thể xác minh checklist. Hãy tải lại và thử lại.'
+        : 'Phải hoàn thành từng mục và tải đủ ảnh evidence bắt buộc.'
 
   const thermalEnabled = controlStatus?.thermalEnabled === true
   const streamUrl = useMemo(
@@ -217,6 +235,8 @@ export default function InFlightControl({
         startFlightBusy={startFlightBusy}
         handleFinishFlight={handleFinishFlight}
         finishFlightBusy={finishFlightBusy}
+        canFinishFlight={canFinishFlight}
+        finishFlightBlockedReason={finishFlightBlockedReason}
         handleReferenceCapture={handleReferenceCapture}
         drone={drone}
         handlePreflightReady={handlePreflightReady}
@@ -326,13 +346,19 @@ export default function InFlightControl({
             onReviewMedia={handleReviewMedia}
             onFinishFlight={handleFinishFlight}
             finishFlightBusy={finishFlightBusy}
+            canFinishFlight={canFinishFlight}
+            finishFlightBlockedReason={finishFlightBlockedReason}
             onReferenceCapture={handleReferenceCapture}
             referenceBusy={referenceBusy}
           />
         </section>
 
         {missionPanelOpen ? (
-          <MissionChecklistPanel mission={mission} progress={displayedProgress} />
+          <MissionChecklistPanel
+            mission={mission}
+            progress={displayedProgress}
+            onChecklistChanged={completionMonitoring.reload}
+          />
         ) : mediaPanelOpen ? (
           <MissionCapturedMediaPanel mission={mission} />
         ) : (

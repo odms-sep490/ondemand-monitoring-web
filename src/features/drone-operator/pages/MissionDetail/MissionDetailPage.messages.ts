@@ -60,16 +60,6 @@ export const missionDetailPageMessages = defineMessages({
     statusReturning: 'Thiết bị đang trở về',
     statusPostflight: 'Đang kiểm tra sau bay',
     workflowTitle: 'Tiến trình Mission',
-    workflowSteps: [
-      'Operator nhận nhiệm vụ',
-      'Kết nối & kiểm tra trước bay',
-      'Bàn giao',
-      'Thời tiết & Start',
-      'Bay & hậu kiểm',
-      'Xác nhận nghiệm thu',
-    ],
-    workflowStep: (current: number, total: number) =>
-      `Bước ${current}/${total}`,
     workflowComplete: 'Mission đã hoàn tất và được nghiệm thu.',
     workflowCancelled: 'Mission đã bị hủy.',
     workflowFailed: 'Mission kết thúc với trạng thái thất bại.',
@@ -155,16 +145,6 @@ export const missionDetailPageMessages = defineMessages({
     statusReturning: 'Device returning',
     statusPostflight: 'Postflight inspection in progress',
     workflowTitle: 'Mission progress',
-    workflowSteps: [
-      'Operator accepts',
-      'Connect & preflight',
-      'Handover',
-      'Weather & start',
-      'Flight & postflight',
-      'Confirm inspection',
-    ],
-    workflowStep: (current: number, total: number) =>
-      `Step ${current}/${total}`,
     workflowComplete: 'Mission completed and inspection confirmed.',
     workflowCancelled: 'Mission was cancelled.',
     workflowFailed: 'Mission ended with a failed status.',

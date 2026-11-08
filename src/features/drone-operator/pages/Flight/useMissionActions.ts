@@ -4,6 +4,7 @@ import { navigateOperator } from './navigateOperator'
 import { operatorHref } from '../../routes'
 import { getLanguage, useI18n } from '../../../../shared/i18n'
 import { missionApi } from '../../../mission/api/missionApi'
+import { checklistExecutionApi } from '../../../mission/api/checklistExecutionApi'
 import { flightControlApi } from '../../api/flightControlApi'
 import type { FlightCommand, WeatherPreset } from './inFlightTypes'
 import { controlBaseUrl } from './inFlightConstants'
@@ -92,6 +93,22 @@ export function useMissionActions({
     setFinishFlightBusy(true)
     setLastCommand(t.status.finishingFlight)
     try {
+      const checklist =
+        await checklistExecutionApi.getMissionChecklistExecutions(missionId)
+      if (checklist.executions.length === 0) {
+        throw new Error(
+          getLanguage() === 'en'
+            ? 'A checklist must be assigned before the flight can be completed.'
+            : 'Phải gắn checklist trước khi có thể hoàn thành chuyến bay.',
+        )
+      }
+      if (!checklist.readyForSubmission) {
+        throw new Error(
+          getLanguage() === 'en'
+            ? 'Complete every checklist item and upload all required evidence before finishing the flight.'
+            : 'Hãy hoàn thành từng mục checklist và tải đủ ảnh evidence bắt buộc trước khi hoàn thành chuyến bay.',
+        )
+      }
       await missionApi.markReturning(missionId)
       await missionApi.startPostflight(missionId)
       markActiveMissionFlowStep(missionId, 5)

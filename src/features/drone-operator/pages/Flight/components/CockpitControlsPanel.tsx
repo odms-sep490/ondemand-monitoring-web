@@ -12,6 +12,8 @@ export function CockpitControlsPanel({
   onCommand,
   onFinishFlight,
   finishingFlight,
+  canFinishFlight,
+  finishFlightBlockedReason,
   canFly,
   language,
 }: {
@@ -30,6 +32,8 @@ export function CockpitControlsPanel({
   onCommand: (command: CockpitCommand) => void
   onFinishFlight: (() => void) | undefined
   finishingFlight: boolean | undefined
+  canFinishFlight: boolean
+  finishFlightBlockedReason?: string
   canFly: boolean
   language: 'vi' | 'en'
 }) {
@@ -68,8 +72,13 @@ export function CockpitControlsPanel({
               <button
                 type="button"
                 className="fc-ctl fc-finish is-success"
-                disabled={busy || finishingFlight || !canFly}
+                disabled={
+                  busy || finishingFlight || !canFly || !canFinishFlight
+                }
                 onClick={onFinishFlight}
+                title={
+                  canFinishFlight ? c.finishFlightSub : finishFlightBlockedReason
+                }
               >
                 <Ico name="land" size={20} />
                 <strong>

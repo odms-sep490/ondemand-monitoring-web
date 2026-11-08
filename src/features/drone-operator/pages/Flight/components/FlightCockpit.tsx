@@ -31,6 +31,8 @@ type Props = {
   startingFlight?: boolean
   onFinishFlight?: () => void
   finishingFlight?: boolean
+  canFinishFlight?: boolean
+  finishFlightBlockedReason?: string
   onReferenceCapture?: () => void
 }
 
@@ -56,6 +58,8 @@ export function FlightCockpit(props: Props) {
     startingFlight = false,
     onFinishFlight,
     finishingFlight,
+    canFinishFlight = false,
+    finishFlightBlockedReason,
   } = props
   const c = copy[language]
   const clock = useFlightClock(tm.inAir)
@@ -185,6 +189,8 @@ export function FlightCockpit(props: Props) {
             onCommand={onCommand}
             onFinishFlight={onFinishFlight}
             finishingFlight={finishingFlight}
+            canFinishFlight={canFinishFlight}
+            finishFlightBlockedReason={finishFlightBlockedReason}
             canFly={canFly}
             language={language}
           />

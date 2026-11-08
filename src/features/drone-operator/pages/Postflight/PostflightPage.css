@@ -467,10 +467,9 @@
     grid-row: 1;
   }
 
-  .postflight-page .odm-flight-stepper {
+  .postflight-page .odm-flight-stepper-wrap {
     grid-column: 1 / -1;
     grid-row: 2;
-    justify-content: flex-start;
   }
 
 }
@@ -484,15 +483,6 @@
 @media (max-width: 900px) {
   .postflight-content {
     padding: 14px 16px 18px;
-  }
-
-  .postflight-page .odm-flight-stepper {
-    min-height: 32px;
-  }
-
-  .postflight-page .odm-flight-step:not(.is-current),
-  .postflight-page .odm-flight-step-connector {
-    display: none;
   }
 
   .postflight-telemetry {
@@ -513,7 +503,7 @@
 
   .postflight-page .odm-flight-step-heading,
   .postflight-page .odm-flight-step-right,
-  .postflight-page .odm-flight-stepper {
+  .postflight-page .odm-flight-stepper-wrap {
     grid-column: 1;
     grid-row: auto;
   }

@@ -94,7 +94,9 @@ function MissionDetailContent({ missionId }: { missionId: string }) {
 
   useEffect(() => {
     const refreshMission = () => {
-      if (!document.hidden) query.reload()
+      if (document.hidden) return
+      query.reload()
+      monitoring.reload()
     }
     const refreshSupportingData = () => {
       if (document.hidden) return
@@ -104,10 +106,12 @@ function MissionDetailContent({ missionId }: { missionId: string }) {
     const missionTimer = window.setInterval(refreshMission, 15_000)
     const supportingTimer = window.setInterval(refreshSupportingData, 30_000)
     window.addEventListener('focus', refreshMission)
+    document.addEventListener('visibilitychange', refreshMission)
     return () => {
       window.clearInterval(missionTimer)
       window.clearInterval(supportingTimer)
       window.removeEventListener('focus', refreshMission)
+      document.removeEventListener('visibilitychange', refreshMission)
     }
   }, [
     missionId,

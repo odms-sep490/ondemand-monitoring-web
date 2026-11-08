@@ -55,9 +55,11 @@ function formatScheduledAt(value: string | undefined, locale: string) {
 export function MissionChecklistPanel({
   mission,
   progress,
+  onChecklistChanged,
 }: {
   mission: Mission
   progress: number
+  onChecklistChanged?: () => void
 }) {
   const { t, locale } = useI18n(inFlightControlMessages)
   const missionId = mission.backendId ?? mission.id
@@ -172,8 +174,14 @@ export function MissionChecklistPanel({
     .map((job) => `${job.id}:${job.stage}`)
     .join('|')
   useEffect(() => {
-    if (finishedEvidenceJobs) void monitoring.reload()
-  }, [finishedEvidenceJobs, monitoring.reload])
+    if (!finishedEvidenceJobs) return
+    void monitoring.reload()
+    onChecklistChanged?.()
+  }, [finishedEvidenceJobs, monitoring.reload, onChecklistChanged])
+  const refreshChecklist = useCallback(() => {
+    monitoring.reload()
+    onChecklistChanged?.()
+  }, [monitoring.reload, onChecklistChanged])
   const visibleEvidenceJobs = evidenceQueue.jobs.filter(
     (job) => job.stage !== 'DONE',
   )
@@ -282,7 +290,7 @@ export function MissionChecklistPanel({
           resultStatus={monitoring.data?.result?.approvalStatus ?? null}
           resultNote={monitoring.data?.result?.reviewNote}
           resultKnown={!monitoring.loading && !monitoring.error}
-          refresh={monitoring.reload}
+          refresh={refreshChecklist}
           loadEvidenceCandidates={loadEvidenceCandidates}
           attachEvidenceCandidates={(items, execution) =>
             evidenceQueue.addAndWait(execution, items)

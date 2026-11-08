@@ -2,46 +2,61 @@ import { useI18n } from '../../../../shared/i18n'
 import { flightStepperMessages } from './FlightStepper.messages'
 import './FlightStepper.css'
 
-/** Stepper header shared by the flight-prep screens (OPR-04/05/06). `active` is the current step index (0-based). */
-export function FlightStepper({ active }: { active: number }) {
+/** The single 8-step Mission progress bar shared by every operator screen. */
+export function FlightStepper({
+  active,
+  completed = false,
+}: {
+  active: number
+  completed?: boolean
+}) {
   const { t } = useI18n(flightStepperMessages)
   const steps = t.steps
   const currentIndex = Math.max(0, Math.min(active, steps.length - 1))
+  const currentStepLabel = completed
+    ? t.finished
+    : t.stepCounter(currentIndex + 1, steps.length, steps[currentIndex].label)
 
   return (
-    <ol className="odm-flight-stepper" aria-label={t.progressName}>
-      {steps.map((step, index) => {
-        const done = index < currentIndex
-        const current = index === currentIndex
-        const state = done ? t.completed : current ? t.current : t.upcoming
-        const accessibleName = `${step.label} — ${state} (${index + 1}/${steps.length})`
+    <div className="odm-flight-stepper-wrap">
+      <ol className="odm-flight-stepper" aria-label={t.progressName}>
+        {steps.map((step, index) => {
+          const done = completed || index < currentIndex
+          const current = !completed && index === currentIndex
+          const state = done ? t.completed : current ? t.current : t.upcoming
+          const accessibleName = `${step.label} — ${state} (${index + 1}/${steps.length})`
 
-        return (
-          <li
-            key={step.key}
-            className={`odm-flight-step${done ? ' is-complete' : ''}${current ? ' is-current' : ''}`}
-            aria-current={current ? 'step' : undefined}
-            aria-label={accessibleName}
-            title={accessibleName}
-            tabIndex={0}
-          >
-            <span className="odm-flight-step-chip">
-              <span className="odm-flight-step-dot" aria-hidden="true">
-                {done ? '✓' : index + 1}
+          return (
+            <li
+              key={step.key}
+              className={`odm-flight-step${done ? ' is-complete' : ''}${current ? ' is-current' : ''}`}
+              aria-current={current ? 'step' : undefined}
+              aria-label={accessibleName}
+              title={accessibleName}
+            >
+              <span className="odm-flight-step-chip" aria-hidden="true">
+                {done ? (
+                  <svg
+                    className="odm-flight-step-check"
+                    viewBox="0 0 16 16"
+                    aria-hidden="true"
+                    focusable="false"
+                  >
+                    <path d="m3 8.5 3.2 3.2L13 4.8" />
+                  </svg>
+                ) : (
+                  index + 1
+                )}
               </span>
-              {current && (
-                <span className="odm-flight-step-current-label">
-                  {t.stepCounter(index + 1, steps.length, step.label)}
-                </span>
-              )}
-            </span>
-            {index < steps.length - 1 && (
-              <span className="odm-flight-step-connector" aria-hidden="true" />
-            )}
-          </li>
-        )
-      })}
-    </ol>
+              <span className="odm-flight-step-label">{step.label}</span>
+            </li>
+          )
+        })}
+      </ol>
+      <p className="odm-flight-stepper-summary" aria-live="polite">
+        {currentStepLabel}
+      </p>
+    </div>
   )
 }
 
