@@ -200,6 +200,15 @@ describe('media error recovery', () => {
     )
     expect(screen.getByRole('button', { name: 'Retry' })).toBeEnabled()
   })
+  it('shows a localized processing message when derivative generation is pending', async () => {
+    api.mockRejectedValue({ code: 'MEDIA_DERIVATIVE_PROCESSING' })
+    render(<ResilientMedia {...props} />)
+    fireEvent.error(screen.getByRole('img'))
+    expect(
+      await screen.findByRole('alert'),
+    ).toHaveTextContent('The preview is still being prepared')
+    expect(screen.getByRole('button', { name: 'Retry' })).toBeEnabled()
+  })
   it('does not load a large original until explicitly requested', async () => {
     render(<ResilientMedia {...props} original fileSize={30 * 1024 * 1024} />)
     expect(screen.queryByRole('img')).toBeNull()

@@ -16,6 +16,7 @@ export function useMediaRecovery(props: MediaRecoveryProps) {
   const [source, setSource] = useState(props.src)
   const [loading, setLoading] = useState(false)
   const [failed, setFailed] = useState(false)
+  const [processing, setProcessing] = useState(false)
   const [paused, setPaused] = useState(
     Boolean(props.original && (props.fileSize ?? 0) > LARGE_FILE),
   )
@@ -39,6 +40,7 @@ export function useMediaRecovery(props: MediaRecoveryProps) {
     setSource(props.src)
     setLoading(false)
     setFailed(false)
+    setProcessing(false)
     setPaused(Boolean(props.original && (props.fileSize ?? 0) > LARGE_FILE))
     attempted.current = false
     alternateAttempted.current = false
@@ -62,6 +64,7 @@ export function useMediaRecovery(props: MediaRecoveryProps) {
     attempted.current = true
     setLoading(true)
     setFailed(false)
+    setProcessing(false)
     try {
       const response = props.mediaId
         ? await apiRequest<{ viewUrl: string; fileSize: number }>(
@@ -75,8 +78,16 @@ export function useMediaRecovery(props: MediaRecoveryProps) {
       if (!response?.viewUrl) throw new Error('No viewing fallback')
       setSource(response.viewUrl)
       setPaused(response.fileSize > LARGE_FILE && !approved.current)
-    } catch {
-      if (token === generation.current) setFailed(true)
+    } catch (error) {
+      if (token === generation.current) {
+        setFailed(true)
+        setProcessing(
+          typeof error === 'object' &&
+            error !== null &&
+            'code' in error &&
+            error.code === 'MEDIA_DERIVATIVE_PROCESSING',
+        )
+      }
     } finally {
       clearTimeout(timeout)
       if (token === generation.current) {
@@ -107,6 +118,7 @@ export function useMediaRecovery(props: MediaRecoveryProps) {
     source,
     loading,
     failed,
+    processing,
     paused,
     onError,
     stopLoad,
