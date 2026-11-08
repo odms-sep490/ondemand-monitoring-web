@@ -48,7 +48,6 @@ export function MissionDashboard({
   access,
   responseAccessLoading = false,
   responseAccessError = false,
-  resultActions,
   monitoringSection,
   resultApprovalStatus,
   refreshWorkspace,
@@ -67,7 +66,6 @@ export function MissionDashboard({
   access?: MissionPermissions
   responseAccessLoading?: boolean
   responseAccessError?: boolean
-  resultActions: ReactNode
   monitoringSection: ReactNode
   resultApprovalStatus: MissionResultApprovalStatus | null
   refreshWorkspace: () => void
@@ -151,7 +149,11 @@ export function MissionDashboard({
   if (isAwaitingResponse(mission)) {
     return (
       <div className="mds-dashboard mds-pending">
-        <MissionHeader mission={mission} access={access} />
+        <MissionHeader
+          mission={mission}
+          access={access}
+          resultApprovalStatus={resultApprovalStatus}
+        />
         <MissionWorkflowProgress
           mission={mission}
           weather={weatherStatus}
@@ -248,6 +250,7 @@ export function MissionDashboard({
         submitting={submitting}
         weatherStatus={weatherStatus}
         weatherLoading={weatherLoading}
+        resultApprovalStatus={resultApprovalStatus}
         onStartWorkflow={onStartWorkflow}
       />
 
@@ -257,8 +260,6 @@ export function MissionDashboard({
         resultApprovalStatus={resultApprovalStatus}
         canOperatePayload={access?.canOperatePayload}
       />
-
-      {resultActions}
 
       {access?.canStartMission === true && flightPermitApproved ? (
         <div className="mds-weather-review">

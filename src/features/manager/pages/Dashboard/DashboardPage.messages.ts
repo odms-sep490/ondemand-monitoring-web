@@ -14,12 +14,14 @@ export const dashboardPageMessages = defineMessages({
       afternoon: 'Chào buổi chiều',
       evening: 'Chào buổi tối',
       summary: (n: number) =>
-        n > 0 ? `Bạn có ${n} yêu cầu đang chờ duyệt hôm nay.` : 'Mọi yêu cầu đã được xử lý. Làm tốt lắm!',
+        n > 0 ? `Có ${n} yêu cầu đang chờ quản lý xem xét.` : 'Hiện không có yêu cầu chờ xem xét.',
+      shortcutsLabel: 'Lối tắt quản lý',
       reviewOrders: 'Duyệt đơn hàng',
       viewMissions: 'Nhiệm vụ',
       viewSchedule: 'Lịch bay',
     },
     kpi: {
+      overviewLabel: 'Chỉ số tổng quan',
       pendingReview: 'Chờ duyệt yêu cầu',
       waitingQuote: 'Chờ báo giá',
       waitingDeposit: 'Chờ đặt cọc',
@@ -63,6 +65,7 @@ export const dashboardPageMessages = defineMessages({
       empty: 'Không có nhiệm vụ đang chạy.',
       viewAll: 'Xem tất cả',
       unassigned: 'Chưa phân công',
+      operatorUnassigned: 'Chưa có người vận hành',
       attention: 'Cần chú ý',
     },
     pipeline: {
@@ -135,12 +138,14 @@ export const dashboardPageMessages = defineMessages({
       afternoon: 'Good afternoon',
       evening: 'Good evening',
       summary: (n: number) =>
-        n > 0 ? `You have ${n} request${n === 1 ? '' : 's'} awaiting review today.` : 'All requests are handled. Great work!',
+        n > 0 ? `${n} request${n === 1 ? '' : 's'} need manager review.` : 'No requests are waiting for review.',
+      shortcutsLabel: 'Manager shortcuts',
       reviewOrders: 'Review orders',
       viewMissions: 'Missions',
       viewSchedule: 'Schedule',
     },
     kpi: {
+      overviewLabel: 'Operational summary',
       pendingReview: 'Orders to review',
       waitingQuote: 'Awaiting quote',
       waitingDeposit: 'Awaiting deposit',
@@ -184,6 +189,7 @@ export const dashboardPageMessages = defineMessages({
       empty: 'No active missions.',
       viewAll: 'View all',
       unassigned: 'Unassigned',
+      operatorUnassigned: 'Operator not assigned',
       attention: 'Needs attention',
     },
     pipeline: {

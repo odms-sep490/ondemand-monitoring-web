@@ -16,6 +16,8 @@ export function FlightControlTools({
   onFinishFlight,
   commandDisabled,
   finishFlightBusy,
+  canFinishFlight,
+  finishFlightBlockedReason,
   onCommand,
   thermalEnabled,
   thermalLabel,
@@ -32,6 +34,8 @@ export function FlightControlTools({
   onFinishFlight: (() => void) | undefined
   commandDisabled: (command: FlightCommand) => boolean
   finishFlightBusy: boolean | undefined
+  canFinishFlight: boolean
+  finishFlightBlockedReason?: string
   onCommand: (command: FlightCommand) => void
   thermalEnabled: boolean
   thermalLabel: string
@@ -123,14 +127,22 @@ export function FlightControlTools({
       {onFinishFlight && (
         <button
           onClick={onFinishFlight}
-          disabled={commandDisabled('return_to_base') || finishFlightBusy}
+          disabled={
+            commandDisabled('return_to_base') ||
+            finishFlightBusy ||
+            !canFinishFlight
+          }
           style={{
             ...buttonStyle(),
             width: 86,
             background: 'rgba(20,83,45,.82)',
             color: '#86efac',
           }}
-          title={t.toolbar.finishFlightTitle}
+          title={
+            canFinishFlight
+              ? t.toolbar.finishFlightTitle
+              : finishFlightBlockedReason
+          }
         >
           <Icon name="check" size={14} />
           <span>

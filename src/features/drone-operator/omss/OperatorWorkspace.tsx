@@ -597,8 +597,12 @@ export default function OperatorWorkspace() {
       )
       setMission(currentMission)
       setMissionPermissions(permissions)
+      const mainDeviceAssignment = current.deviceAssignments?.find(
+        (assignment) => assignment.deviceRole === 'MAIN',
+      )
       if (
         !['IN_PROGRESS', 'IN_FLIGHT'].includes(current.status) ||
+        mainDeviceAssignment?.status !== 'IN_PROGRESS' ||
         !permissions.canControlFlight
       ) {
         throw new Error(t.errors.missionStartFailed)
@@ -751,7 +755,21 @@ export default function OperatorWorkspace() {
         results,
         postflightTelemetry,
       )
-      setMission(adaptBackendMission(updated as unknown as BackendMission))
+      const completedMission = adaptBackendMission(
+        updated as unknown as BackendMission,
+      )
+      setMission(completedMission)
+      setAllMissions((items) =>
+        items.map((item) =>
+          item.backendId === completedMission.backendId
+            ? completedMission
+            : item,
+        ),
+      )
+      setFlightSessionStarted(false)
+      await flightControlApi
+        .releaseSession(completedMission.backendId ?? completedMission.id)
+        .catch(() => undefined)
       setScreen('mission-completed')
     } catch (cause) {
       setMissionsError(
@@ -776,7 +794,21 @@ export default function OperatorWorkspace() {
         results,
         postflightTelemetry,
       )
-      setMission(adaptBackendMission(updated as unknown as BackendMission))
+      const completedMission = adaptBackendMission(
+        updated as unknown as BackendMission,
+      )
+      setMission(completedMission)
+      setAllMissions((items) =>
+        items.map((item) =>
+          item.backendId === completedMission.backendId
+            ? completedMission
+            : item,
+        ),
+      )
+      setFlightSessionStarted(false)
+      await flightControlApi
+        .releaseSession(completedMission.backendId ?? completedMission.id)
+        .catch(() => undefined)
       setDrone((current) =>
         current ? { ...current, state: 'MAINTENANCE' } : current,
       )

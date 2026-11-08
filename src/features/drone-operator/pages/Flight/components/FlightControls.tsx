@@ -28,6 +28,8 @@ export const FlightControls = memo(function FlightControls({
   onReviewMedia,
   onFinishFlight,
   finishFlightBusy,
+  canFinishFlight,
+  finishFlightBlockedReason,
   onReferenceCapture,
   referenceBusy,
 }: {
@@ -36,6 +38,8 @@ export const FlightControls = memo(function FlightControls({
   onReferenceCapture?: () => void
   onFinishFlight?: () => void
   finishFlightBusy?: boolean
+  canFinishFlight: boolean
+  finishFlightBlockedReason?: string
   busyCommand: FlightCommand | null
   lidarDetailsOpen: boolean
   moreOpen: boolean
@@ -122,6 +126,8 @@ export const FlightControls = memo(function FlightControls({
         onFinishFlight={onFinishFlight}
         commandDisabled={commandDisabled}
         finishFlightBusy={finishFlightBusy}
+        canFinishFlight={canFinishFlight}
+        finishFlightBlockedReason={finishFlightBlockedReason}
         onCommand={onCommand}
         thermalEnabled={thermalEnabled}
         thermalLabel={thermalLabel}

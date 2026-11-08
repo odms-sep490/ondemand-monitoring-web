@@ -4,6 +4,7 @@ import type { WeatherPreflightStatus } from '../types'
 import { useI18n } from '../../../../../shared/i18n'
 import { missionDetailPageMessages } from '../MissionDetailPage.messages'
 import { isWeatherCheckFreshAfterPermit } from '../weatherReadiness'
+import { FlightStepper } from '../../../components/common/FlightStepper'
 
 type Props = {
   mission: OperatorMission
@@ -24,7 +25,7 @@ export function MissionWorkflowProgress({
   const accepted = mission.acceptedStaffCount ?? 0
   const total = mission.assignedStaffCount ?? 0
   const crewAccepted = total > 0 && accepted >= total
-  const steps = t.workflowSteps
+  const totalSteps = 8
 
   let currentStep = -1
   let detail = t.workflowTerminal
@@ -35,17 +36,17 @@ export function MissionWorkflowProgress({
   } else if (status === 'FAILED') {
     terminalMessage = t.workflowFailed
   } else if (status === 'COMPLETED' || resultApprovalStatus === 'APPROVED') {
-    currentStep = steps.length
+    currentStep = totalSteps
     detail = t.workflowComplete
   } else if (
     status === 'AWAITING_REVIEW' ||
     status === 'PENDING_REVIEW' ||
     resultApprovalStatus === 'PENDING_MANAGER_APPROVAL'
   ) {
-    currentStep = 5
+    currentStep = 7
     detail = t.workflowManagerReview
   } else if (mission.completedAt) {
-    currentStep = 5
+    currentStep = 7
     detail = t.workflowSubmitResult
   } else if (
     status === 'IN_PROGRESS' ||
@@ -53,16 +54,21 @@ export function MissionWorkflowProgress({
     status === 'RETURNING' ||
     status === 'POSTFLIGHT_CHECKING'
   ) {
-    currentStep = 4
-    if (deviceStatus === 'POSTFLIGHT_CHECKING' || mission.actualEndAt) {
+    if (deviceStatus === 'COMPLETED' || mission.actualEndAt) {
+      currentStep = 7
+      detail = t.workflowSubmitResult
+    } else if (deviceStatus === 'POSTFLIGHT_CHECKING') {
+      currentStep = 6
       detail = t.workflowPostflight
     } else if (deviceStatus === 'RETURNING' || status === 'RETURNING') {
+      currentStep = 5
       detail = t.workflowReturning
     } else {
+      currentStep = 5
       detail = t.workflowFlight
     }
   } else if (status === 'READY') {
-    currentStep = 3
+    currentStep = 4
     const permitApproved = mission.flightPermitStatus === 'APPROVED'
     const weatherFresh = isWeatherCheckFreshAfterPermit(
       weather,
@@ -95,20 +101,23 @@ export function MissionWorkflowProgress({
           ? t.workflowWaitCrew(accepted, total)
           : t.workflowAcceptMission
     } else if (devicePassedPreflight && !crewAccepted) {
-      currentStep = 2
+      currentStep = 4
       detail = t.workflowWaitCrewForHandover(accepted, total)
     } else if (deviceStatus === 'READY_TO_FLY') {
-      currentStep = 2
+      currentStep = 4
       detail = t.workflowHandover
     } else if (deviceStatus === 'CONNECTED' || deviceStatus === 'PREFLIGHT_CHECKING') {
-      currentStep = 1
+      currentStep = 3
       detail = t.workflowPreflight
     } else if (deviceStatus === 'FAILED') {
-      currentStep = 1
+      currentStep = 3
       detail = t.workflowPreflightFailed
+    } else if (crewAccepted) {
+      currentStep = 2
+      detail = t.workflowConnectDevice
     } else {
       currentStep = 1
-      detail = t.workflowConnectDevice
+      detail = t.workflowWaitCrew(accepted, total)
     }
   }
 
@@ -118,48 +127,19 @@ export function MissionWorkflowProgress({
     <section className="mds-workflow-progress" aria-label={t.workflowTitle}>
       <div className="mds-workflow-progress__heading">
         <h2>{t.workflowTitle}</h2>
-        {terminalMessage ? (
-          <strong className="mds-workflow-progress__terminal">
-            {terminalMessage}
-          </strong>
-        ) : currentStep === steps.length ? (
-          <strong className="mds-workflow-progress__complete">
-            {t.workflowComplete}
-          </strong>
-        ) : (
-          <strong aria-live="polite" aria-atomic="true">
-            {t.workflowStep(currentStep + 1, steps.length)} · {steps[currentStep]}
-          </strong>
-        )}
       </div>
-      {!terminalMessage && (
+      {terminalMessage ? (
+        <strong className="mds-workflow-progress__terminal">
+          {terminalMessage}
+        </strong>
+      ) : (
         <>
-          <ol className="mds-workflow-progress__steps">
-            {steps.map((label, index) => {
-              const completed = currentStep === steps.length || index < currentStep
-              const current = index === currentStep
-              return (
-                <li
-                  key={label}
-                  className={[
-                    'mds-workflow-progress__step',
-                    completed ? 'is-complete' : '',
-                    current ? 'is-current' : '',
-                  ]
-                    .filter(Boolean)
-                    .join(' ')}
-                  aria-current={current ? 'step' : undefined}
-                >
-                  <span className="mds-workflow-progress__marker" aria-hidden="true">
-                    {completed ? '✓' : index + 1}
-                  </span>
-                  <span>{label}</span>
-                </li>
-              )
-            })}
-          </ol>
+          <FlightStepper
+            active={Math.min(currentStep, totalSteps - 1)}
+            completed={currentStep === totalSteps}
+          />
           <p className="mds-workflow-progress__detail" role="status">
-            {detail}
+            {currentStep === totalSteps ? t.workflowComplete : detail}
           </p>
         </>
       )}

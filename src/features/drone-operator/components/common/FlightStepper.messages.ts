@@ -16,6 +16,7 @@ export const flightStepperMessages = defineMessages({
     completed: 'Đã hoàn thành',
     current: 'Đang thực hiện',
     upcoming: 'Chưa thực hiện',
+    finished: 'Đã hoàn tất toàn bộ quy trình',
     stepCounter: (step: number, total: number, label: string) =>
       `Bước ${step}/${total} — ${label}`,
   },
@@ -34,6 +35,7 @@ export const flightStepperMessages = defineMessages({
     completed: 'Completed',
     current: 'Current step',
     upcoming: 'Upcoming',
+    finished: 'All steps completed',
     stepCounter: (step: number, total: number, label: string) =>
       `Step ${step} of ${total} — ${label}`,
   },
