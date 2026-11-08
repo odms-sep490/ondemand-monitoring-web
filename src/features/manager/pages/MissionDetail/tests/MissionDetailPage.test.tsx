@@ -225,9 +225,16 @@ describe('Manager Mission Detail monitoring review', () => {
   })
   it('renders per-item historical outcomes read-only', async () => {
     render(<MissionDetailPage missionId="m" />)
-    expect(
-      await screen.findByText('Kiểm tra mái nhà lịch sử'),
-    ).toBeInTheDocument()
+    fireEvent.click(
+      await screen.findByRole('tab', { name: 'Danh mục kiểm tra' }),
+    )
+    const row = await screen.findByRole('button', {
+      name: /Kiểm tra mái nhà lịch sử/,
+    })
+    // Checklist items are an accordion: the historical outcome shows on expand.
+    expect(row).toHaveAttribute('aria-expanded', 'false')
+    fireEvent.click(row)
+    expect(row).toHaveAttribute('aria-expanded', 'true')
     expect(screen.getAllByText(/Không có góc nhìn/).length).toBeGreaterThan(0)
     expect(screen.getByText(/Có cây che/)).toBeInTheDocument()
     expect(screen.queryByText('Cập nhật mục')).toBeNull()

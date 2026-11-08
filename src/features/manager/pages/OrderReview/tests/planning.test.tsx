@@ -133,7 +133,7 @@ describe('Manager multi-Mission planning', () => {
       .toBeInTheDocument()
   })
 
-  it('keeps a completed Order Mission card historical with no empty operational block', async () => {
+  it('keeps a completed Order Mission card historical with no operational actions', async () => {
     vi.mocked(ordersApi.getOrder).mockResolvedValue({
       id: 'o',
       status: 'COMPLETED',
@@ -146,7 +146,8 @@ describe('Manager multi-Mission planning', () => {
         {
           missionId: 'm1',
           scopeLabel: 'Khu A',
-          assignmentCount: 3,
+          assignmentCount: 1,
+          checklistItemIds: ['A'],
           finalizedPlanRevision: 7,
         },
       ],
@@ -160,109 +161,78 @@ describe('Manager multi-Mission planning', () => {
         staffAssignments: [],
       },
     ] as unknown as MissionResponse[])
-    vi.mocked(planningApi.getAssignments).mockResolvedValue({
-      missionId: 'm1',
-      revision: 7,
-      assignments: [
-        {
-          assignmentId: 'a1',
-          orderChecklistItemId: 'A',
-          content: 'Requirement A',
-          sourceType: 'CUSTOMER_CUSTOM',
-          displayOrder: 0,
-          active: true,
-          version: 0,
-        },
-      ],
-    })
-    const view = render(<OrderMissionPlanningSection orderId="o" />)
-    await screen.findByRole('link', { name: 'M1' })
-    expect(screen.getAllByText('Khu A').length).toBeGreaterThan(0)
-    expect(screen.getByText(/Đã chốt tại phiên bản 7/)).toBeInTheDocument()
+    render(<OrderMissionPlanningSection orderId="o" />)
+    const card = await screen.findByRole('article', { name: 'M1' })
+    expect(within(card).getByRole('link', { name: 'M1' })).toHaveAttribute(
+      'href',
+      '#portal/manager/missions/m1/detail',
+    )
+    expect(within(card).getByText('Requirement A')).toBeInTheDocument()
+    // A completed Order is read-only: no editing, removal, confirmation,
+    // cancellation or resource-adding controls on the card, and no plan actions.
+    expect(within(card).queryByRole('button')).not.toBeInTheDocument()
     expect(
-      screen.queryByRole('button', { name: 'Điều chỉnh kế hoạch' }),
+      screen.queryByRole('button', { name: 'Chốt kế hoạch' }),
     ).not.toBeInTheDocument()
     expect(
-      screen.queryByRole('button', { name: 'Hủy Mission M1' }),
+      screen.queryByRole('button', { name: 'Thêm mới nhiệm vụ' }),
     ).not.toBeInTheDocument()
-    const card = view.container.querySelector('.odm-planning-mission')!
-    expect(card.querySelector('.odm-planning-stop')).toBeNull()
-    expect(card.querySelector('details')).not.toBeNull()
     expect(
-      await within(card as HTMLElement).findByText('Requirement A'),
+      within(card).queryByRole('link', { name: /Phân công trong Văn phòng 3D/ }),
+    ).not.toBeInTheDocument()
+    expect(
+      within(card).getByRole('link', { name: /Xem trong Văn phòng 3D/ }),
     ).toBeInTheDocument()
-    expect(
-      within(card as HTMLElement).queryByRole('checkbox'),
-    ).not.toBeInTheDocument()
-    expect(
-      within(card as HTMLElement).getByLabelText('Đã phân công'),
-    ).toBeInTheDocument()
-    expect(
-      screen.getAllByRole('heading', { name: 'Kế hoạch thực thi' }),
-    ).toHaveLength(1)
-    expect(
-      screen.queryByText(/Chỉ đọc —|lặp lại không phải/),
-    ).not.toBeInTheDocument()
   })
-  it('loads persisted replacement chains after remount without creation-session state', async () => {
+  it('shows a cancelled Mission card with its reason and without operational actions', async () => {
     vi.mocked(planningApi.getOrderMissions).mockResolvedValue([
       {
         id: 'm1',
         orderId: 'o',
         missionCode: 'M1',
         status: 'CANCELLED',
-        replacesMissionId: null,
+        failureReason: 'Thời tiết xấu',
       },
-      {
-        id: 'm2',
-        orderId: 'o',
-        missionCode: 'M2',
-        status: 'CANCELLED',
-        replacesMissionId: 'm1',
-      },
-      {
-        id: 'm3',
-        orderId: 'o',
-        missionCode: 'M3',
-        status: 'RESOURCE_ASSIGNING',
-        replacesMissionId: 'm2',
-      },
+      { id: 'm2', orderId: 'o', missionCode: 'M2', status: 'PLANNING' },
     ] as MissionResponse[])
-    const first = render(<OrderMissionPlanningSection orderId="o" />)
-    await screen.findAllByText(/Thay thế cho/)
-    first.unmount()
     render(<OrderMissionPlanningSection orderId="o" />)
-    const relations = await screen.findAllByText(/Thay thế cho/)
+    const cancelled = await screen.findByRole('article', { name: 'M1' })
+    expect(within(cancelled).getByText(/Thời tiết xấu/)).toBeInTheDocument()
     expect(
-      within(relations[0]).getByRole('link', { name: 'M1', hidden: true }),
-    ).toHaveAttribute('href', '#portal/manager/missions/m1/detail')
+      within(cancelled).queryByRole('button', { name: /^Hủy nhiệm vụ/ }),
+    ).not.toBeInTheDocument()
     expect(
-      within(relations[1]).getByRole('link', { name: 'M2', hidden: true }),
-    ).toHaveAttribute('href', '#portal/manager/missions/m2/detail')
+      within(cancelled).queryByRole('button', { name: 'Chỉnh sửa' }),
+    ).not.toBeInTheDocument()
+    // The sibling still-planning Mission keeps its edit action.
     expect(
-      screen.getAllByText(/Được thay thế bởi/).length,
-    ).toBeGreaterThanOrEqual(2)
+      within(screen.getByRole('article', { name: 'M2' })).getByRole('button', {
+        name: 'Chỉnh sửa',
+      }),
+    ).toBeInTheDocument()
   })
-  it('shows every Mission, exact links, authoritative repeated coverage and second create', async () => {
+  it('shows every Mission with exact detail links and the plan actions', async () => {
     render(<OrderMissionPlanningSection orderId="o" />)
-    fireEvent.click(await screen.findByRole('button', { name: /^M3/ }))
     expect(await screen.findByRole('link', { name: 'M3' })).toHaveAttribute(
       'href',
       '#portal/manager/missions/m3/detail',
     )
+    expect(screen.getAllByRole('article')).toHaveLength(3)
     expect(
-      screen.getByRole('button', { name: 'Tạo thêm nhiệm vụ' }),
+      screen.getByRole('button', { name: 'Thêm mới nhiệm vụ' }),
     ).toBeInTheDocument()
-    expect(screen.getByText('Phân công lặp').parentElement).toHaveTextContent(
-      '1',
-    )
     expect(
       screen.getByRole('button', { name: 'Chốt kế hoạch' }),
     ).toBeEnabled()
   })
-  it('does not repeat uncovered items in the summary and refuses to continue', async () => {
+  it('keeps the plan unfinalizable while checklist items are uncovered', async () => {
     vi.mocked(planningApi.getExecutionPlan).mockResolvedValue({
       ...plan,
+      missions: plan.missions.map((m) =>
+        m.missionId === 'm1'
+          ? { ...m, checklistItemIds: ['A', 'B', 'C', 'D'] }
+          : m,
+      ),
       coverage: {
         ...plan.coverage,
         covered: 4,
@@ -271,78 +241,35 @@ describe('Manager multi-Mission planning', () => {
         uncoveredItemIds: ['E'],
       },
     })
-    const onAssign = vi.fn()
     const finalize = vi.spyOn(planningApi, 'finalizeExecutionPlan')
-    render(<OrderMissionPlanningSection orderId="o" onAssignResources={onAssign} />)
-    expect(await screen.findByRole('note')).toHaveTextContent(
-      'Còn 1 checklist chưa gán',
-    )
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'Chốt kế hoạch' }),
-    )
-    expect(await screen.findByRole('alert')).toHaveTextContent(
-      'Còn checklist chưa được gán',
-    )
-    expect(onAssign).not.toHaveBeenCalled()
-    expect(finalize).not.toHaveBeenCalled()
-    expect(
-      screen.queryByRole('list', { name: 'Checklist chưa phủ' }),
-    ).not.toBeInTheDocument()
-  })
-  it('submits split assignments with repeated E across sibling Missions', async () => {
-    const update = vi
-      .spyOn(planningApi, 'updateMissionChecklistAssignments')
-      .mockResolvedValue({ missionId: 'm1', revision: 7, assignments: [] })
     render(<OrderMissionPlanningSection orderId="o" />)
-    for (const [id, indices] of [
-      ['m1', [0, 2, 4]],
-      ['m2', [1, 3, 4]],
-    ] as const) {
-      fireEvent.click(
-        await screen.findByRole('button', {
-          name: new RegExp(`^${id.toUpperCase()}`),
-        }),
-      )
-      const field = await screen.findByRole('group', {
-        name: `Checklist ${id}`,
-      })
-      await waitFor(() =>
-        expect(within(field).getAllByRole('checkbox')[0]).toBeEnabled(),
-      )
-      for (const index of indices)
-        fireEvent.click(within(field).getAllByRole('checkbox')[index])
-      fireEvent.click(
-        within(field.closest('details')!).getByRole('button', {
-          name: 'Lưu phân công',
-        }),
-      )
-      await waitFor(() =>
-        expect(update).toHaveBeenCalledWith(
-          id,
-          7,
-          id === 'm1' ? ['A', 'C', 'E'] : ['B', 'D', 'E'],
-        ),
-      )
-      await waitFor(() =>
-        expect(planningApi.getExecutionPlan).toHaveBeenCalledTimes(
-          id === 'm1' ? 2 : 3,
-        ),
-      )
-      await waitFor(() =>
-        expect(
-          screen.getByRole('button', { name: 'Tải lại kế hoạch' }),
-        ).toBeEnabled(),
-      )
-    }
-    expect(screen.getByText('Phân công lặp').parentElement).toHaveTextContent(
-      '1',
+    expect(
+      await screen.findByText('Còn 1 công việc chưa được phân công'),
+    ).toBeInTheDocument()
+    const finalizeButton = screen.getByRole('button', { name: 'Chốt kế hoạch' })
+    expect(finalizeButton).toBeDisabled()
+    expect(finalizeButton).toHaveAttribute(
+      'title',
+      'Cần phân công toàn bộ công việc mới có thể chốt kế hoạch',
     )
+    fireEvent.click(finalizeButton)
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(finalize).not.toHaveBeenCalled()
+    // The uncovered item is listed once, in the master checklist sidebar.
+    expect(screen.getByText('Chưa phân công (1)')).toBeInTheDocument()
+    expect(screen.getAllByText('Requirement E')).toHaveLength(1)
   })
-  it('keeps unsaved selection after stale conflict, refreshes and does not retry', async () => {
+  it('keeps a Mission checklist when removal fails, shows the error and does not retry', async () => {
+    vi.mocked(planningApi.getExecutionPlan).mockResolvedValue({
+      ...plan,
+      missions: plan.missions.map((m) =>
+        m.missionId === 'm1' ? { ...m, checklistItemIds: ['A', 'B'] } : m,
+      ),
+    })
     const update = vi
       .spyOn(planningApi, 'updateMissionChecklistAssignments')
       .mockRejectedValue(
-        new ApiError('Stale', {
+        new ApiError('Kế hoạch đã được thay đổi', {
           code: 'EXECUTION_PLAN_REVISION_CONFLICT',
           status: 409,
           method: 'PUT',
@@ -350,24 +277,35 @@ describe('Manager multi-Mission planning', () => {
         }),
       )
     render(<OrderMissionPlanningSection orderId="o" />)
-    const field = await screen.findByRole('group', { name: 'Checklist m1' })
-    await waitFor(() =>
-      expect(within(field).getAllByRole('checkbox')[0]).toBeEnabled(),
-    )
-    fireEvent.click(within(field).getAllByRole('checkbox')[0])
+    const card = await screen.findByRole('article', { name: 'M1' })
     fireEvent.click(
-      within(field.closest('details')!).getByRole('button', {
-        name: 'Lưu phân công',
-      }),
+      within(card).getAllByRole('button', { name: /^Gỡ khỏi nhiệm vụ/ })[0],
     )
-    expect(
-      await screen.findByText(/Kế hoạch đã được thay đổi/),
-    ).toBeInTheDocument()
-    expect(within(field).getAllByRole('checkbox')[0]).toBeChecked()
+    expect(await within(card).findByRole('alert')).toHaveTextContent(
+      'Kế hoạch đã được thay đổi',
+    )
+    expect(within(card).getByText('Requirement A')).toBeInTheDocument()
+    expect(within(card).getByText('Requirement B')).toBeInTheDocument()
     expect(update).toHaveBeenCalledTimes(1)
-    expect(update).toHaveBeenCalledWith('m1', 7, ['A'])
+    expect(update).toHaveBeenCalledWith('m1', 7, ['B'])
   })
-  it('finalize refresh locks assignment/create and amendment preserves finalized Missions', async () => {
+  it('refuses to remove the last checklist item of a Mission', async () => {
+    vi.mocked(planningApi.getExecutionPlan).mockResolvedValue({
+      ...plan,
+      missions: plan.missions.map((m) =>
+        m.missionId === 'm1' ? { ...m, checklistItemIds: ['A'] } : m,
+      ),
+    })
+    const update = vi.spyOn(planningApi, 'updateMissionChecklistAssignments')
+    render(<OrderMissionPlanningSection orderId="o" />)
+    const card = await screen.findByRole('article', { name: 'M1' })
+    fireEvent.click(
+      within(card).getByRole('button', { name: /^Gỡ khỏi nhiệm vụ/ }),
+    )
+    expect(await within(card).findByRole('alert')).toBeInTheDocument()
+    expect(update).not.toHaveBeenCalled()
+  })
+  it('finalizing through the confirmation dialog locks the plan for editing', async () => {
     const finalized = {
       ...plan,
       planStatus: 'FINALIZED' as const,
@@ -376,68 +314,31 @@ describe('Manager multi-Mission planning', () => {
     vi.spyOn(planningApi, 'finalizeExecutionPlan').mockImplementation(
       async () => {
         vi.mocked(planningApi.getExecutionPlan).mockResolvedValue(finalized)
-        vi.mocked(planningApi.getOrderMissions).mockResolvedValue(
-          ['m1', 'm2', 'm3'].map(
-            (id) =>
-              ({
-                id,
-                orderId: 'o',
-                missionCode: id.toUpperCase(),
-                status: 'READY',
-                staffAssignments: [],
-              }) as unknown as MissionResponse,
-          ),
-        )
         return finalized
       },
     )
-    vi.spyOn(planningApi, 'amendExecutionPlan').mockImplementation(async () => {
-      vi.mocked(planningApi.getExecutionPlan).mockResolvedValue({
-        ...finalized,
-        planStatus: 'DRAFT',
-      })
-      return {
-        orderId: 'o',
-        executionPlanStatus: 'DRAFT',
-        executionPlanRevision: 7,
-        amendedAt: '',
-        amendmentReason: 'Weather',
-      }
-    })
-    const view = render(
-      <OrderMissionPlanningSection orderId="o" onAssignResources={vi.fn()} />,
-    )
-    fireEvent.click(await screen.findByRole('button', { name: /^M1/ }))
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'Chốt kế hoạch' }),
-    )
-    await waitFor(() => expect(planningApi.finalizeExecutionPlan).toHaveBeenCalled())
-    view.unmount()
     render(<OrderMissionPlanningSection orderId="o" />)
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'Điều chỉnh kế hoạch' }),
-    )
-    expect(
-      screen.queryByRole('button', { name: 'Tạo thêm nhiệm vụ' }),
-    ).not.toBeInTheDocument()
-    fireEvent.change(screen.getByLabelText('Lý do điều chỉnh kế hoạch'), {
-      target: { value: 'Weather' },
-    })
-    fireEvent.click(screen.getByRole('button', { name: 'Xác nhận điều chỉnh' }))
+    await screen.findByRole('article', { name: 'M1' })
+    fireEvent.click(screen.getByRole('button', { name: 'Chốt kế hoạch' }))
     fireEvent.click(
       within(await screen.findByRole('dialog')).getByRole('button', {
-        name: 'Điều chỉnh kế hoạch',
+        name: 'Chốt kế hoạch',
       }),
     )
+    await waitFor(() =>
+      expect(planningApi.finalizeExecutionPlan).toHaveBeenCalledWith('o', 7),
+    )
+    // The finalize action disappears once the refreshed plan is FINALIZED.
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('button', { name: 'Chốt kế hoạch' }),
+      ).not.toBeInTheDocument(),
+    )
+    // Adding a Mission stays available, and each planning Mission can now be confirmed.
     expect(
-      await screen.findByRole('button', { name: 'Tạo thêm nhiệm vụ' }),
+      screen.getByRole('button', { name: 'Thêm mới nhiệm vụ' }),
     ).toBeInTheDocument()
-    expect(
-      screen.getAllByText('Đã chốt tại phiên bản 7', { exact: false }),
-    ).toHaveLength(3)
-    expect(
-      screen.queryByRole('button', { name: 'Lưu phân công' }),
-    ).not.toBeInTheDocument()
+    expect(screen.getAllByRole('button', { name: 'Xác nhận' })).toHaveLength(3)
   })
   it('replacement route retains Order and cancelled original identity', () => {
     const route = {
@@ -447,19 +348,18 @@ describe('Manager multi-Mission planning', () => {
     }
     expect(parseManagerRoute(managerHref(route))).toEqual(route)
   })
-  it('only offers replacement for missions that were actually cancelled', async () => {
+  it('does not request a Mission replacement flow from the planning cards', async () => {
+    // Replacement chains and "replace cancelled Mission" actions no longer have
+    // UI in the Order planning workspace; cancelled Missions are just shown as
+    // cancelled (see the cancelled-card test above).
     vi.mocked(planningApi.getOrderMissions).mockResolvedValue([
       { id: 'm1', orderId: 'o', missionCode: 'M1', status: 'CANCELLED' },
       { id: 'm2', orderId: 'o', missionCode: 'M2', status: 'PENDING_REVIEW' },
     ] as MissionResponse[])
     render(<OrderMissionPlanningSection orderId="o" />)
+    await screen.findByRole('article', { name: 'M1' })
     expect(
-      await screen.findByRole('button', {
-        name: 'Tạo Nhiệm vụ thay thế cho M1',
-      }),
-    ).toBeEnabled()
-    expect(
-      screen.queryByRole('button', { name: 'Tạo Nhiệm vụ thay thế cho M2' }),
+      screen.queryByRole('button', { name: /Tạo Nhiệm vụ thay thế/ }),
     ).not.toBeInTheDocument()
   })
 })

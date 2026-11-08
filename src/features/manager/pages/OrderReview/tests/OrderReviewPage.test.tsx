@@ -102,6 +102,8 @@ function mockPricing() {
 function mockHappyPath() {
   mockPricing()
   vi.spyOn(ordersApi, 'getOrder').mockResolvedValue(order)
+  // Leaving the intake step of a PENDING Order starts the review first.
+  vi.spyOn(ordersApi, 'startReview').mockResolvedValue(undefined as never)
 }
 
 function mockApprovedPlanning() {
@@ -180,14 +182,14 @@ describe('OrderReviewPage', () => {
     fireEvent.click(
       await screen.findByRole('button', { name: 'Duyệt báo giá' }),
     )
-    await screen.findByRole('heading', { name: 'Kế hoạch thực thi', level: 1 })
+    await screen.findByRole('heading', { name: /ORD-2609-0157/, level: 2 })
     expect(window.location.hash).toBe('#portal/manager/orders/' + order.id)
     expect(
       screen.queryByRole('heading', { name: 'Gán nguồn lực' }),
     ).not.toBeInTheDocument()
   })
   it.each(['APPROVED', 'IN_PROGRESS', 'COMPLETED'] as const)(
-    'uses the execution plan as the sole primary heading for %s Orders',
+    'shows the Order code heading for %s Orders',
     async (status) => {
       mockHappyPath()
       vi.mocked(ordersApi.getOrder).mockResolvedValue({ ...order, status })
@@ -210,8 +212,8 @@ describe('OrderReviewPage', () => {
       render(<OrderReviewPage orderId={order.id} />)
       expect(
         await screen.findByRole('heading', {
-          name: 'Kế hoạch thực thi',
-          level: 1,
+          name: /ORD-2609-0157/,
+          level: 2,
         }),
       ).toBeInTheDocument()
       expect(
@@ -224,7 +226,6 @@ describe('OrderReviewPage', () => {
       expect(
         screen.queryByRole('heading', { name: 'Chi tiết đơn hàng' }),
       ).not.toBeInTheDocument()
-      expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
     },
   )
   it('renders FEASIBLE order data', async () => {
@@ -246,7 +247,9 @@ describe('OrderReviewPage', () => {
     expect(screen.queryByText('Địa chỉ khu vực')).not.toBeInTheDocument()
     fireEvent.click(await screen.findByText('Kiểm tra điều kiện'))
 
-    expect(screen.getByText('Địa chỉ khu vực')).toBeInTheDocument()
+    // The review is started (async) before the area step opens.
+    expect(await screen.findByText('Địa chỉ khu vực')).toBeInTheDocument()
+    expect(ordersApi.startReview).toHaveBeenCalledWith(order.id)
     expect(
       within(
         document.querySelector<HTMLElement>('.odm-or-review-stage')!,
@@ -436,8 +439,8 @@ describe('OrderReviewPage', () => {
 
     expect(
       await screen.findByRole('heading', {
-        name: 'Kế hoạch thực thi',
-        level: 1,
+        name: /ORD-2609-0157/,
+        level: 2,
       }),
     ).toBeInTheDocument()
     expect(approveSpy).toHaveBeenCalledExactlyOnceWith(order.id, quote.id)
@@ -463,8 +466,8 @@ describe('OrderReviewPage', () => {
     )
     expect(
       await screen.findByRole('heading', {
-        name: 'Kế hoạch thực thi',
-        level: 1,
+        name: /ORD-2609-0157/,
+        level: 2,
       }),
     ).toBeInTheDocument()
     expect(window.location.hash).toBe('#portal/manager/orders/' + order.id)

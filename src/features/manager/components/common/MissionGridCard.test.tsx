@@ -2,14 +2,12 @@ import {
   fireEvent,
   render,
   screen,
-  waitFor,
   within,
 } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { missionsApi } from '../../api/missionsApi'
 import { droneApi } from '../../../staff/api/droneApi'
-import { operatorApi } from '../../../staff/api/operatorApi'
 import type { MissionResponse } from '../../types/missions'
 import type { OrderDetail } from '../../types/orders'
 import type { ExecutionPlan } from '../../types/planning'
@@ -52,12 +50,6 @@ const plan: ExecutionPlan = {
   blockers: [],
 }
 
-const operators = [
-  { id: 'staff-1', fullName: 'Pilot One', email: 'one@example.test' },
-  { id: 'staff-2', fullName: 'Pilot Two', email: 'two@example.test' },
-  { id: 'staff-3', fullName: 'Operator Three', email: 'three@example.test' },
-]
-
 function renderMissionCard(missionOverride = mission) {
   return render(
     <MissionGridCard
@@ -71,11 +63,6 @@ function renderMissionCard(missionOverride = mission) {
       onEditMission={vi.fn()}
     />,
   )
-}
-
-async function openStaffPicker() {
-  fireEvent.click(screen.getByRole('button', { name: '+ Thêm' }))
-  return screen.findByRole('group', { name: 'Thêm nhân sự cho nhiệm vụ' })
 }
 
 const availableDrones = [
@@ -138,92 +125,48 @@ describe('MissionGridCard navigation', () => {
 })
 
 describe('MissionGridCard staff assignment', () => {
-  it('assigns all four roles to one staff member and batches another person in one save', async () => {
-    vi.spyOn(operatorApi, 'getAvailable').mockResolvedValue(operators)
-    const assign = vi
-      .spyOn(missionsApi, 'assignStaff')
-      .mockResolvedValue({} as never)
+  // Staff assignment moved out of the card into the 3D office workspace; the
+  // card now only hands off to it and lists who is already assigned.
+  it('hands staff assignment off to the 3D office with the mission and order context', () => {
     renderMissionCard()
 
-    const form = await openStaffPicker()
-    fireEvent.click(within(form).getByRole('checkbox', { name: /Pilot One/ }))
-    for (const role of ['Vận hành', 'Bảo trì', 'Nghiệm thu']) {
-      fireEvent.click(within(form).getByRole('checkbox', { name: role }))
-    }
-    fireEvent.click(within(form).getByRole('checkbox', { name: /Pilot Two/ }))
-    fireEvent.click(
-      within(form).getByRole('button', {
-        name: 'Gán 2 người · 5 vai trò',
-      }),
+    const link = screen.getByRole('link', {
+      name: /Phân công trong Văn phòng 3D/,
+    })
+    expect(link).toHaveAttribute(
+      'href',
+      '#portal/manager/schedule?assignmentMissionId=mission-1&assignmentCanEdit=1',
     )
-
-    await waitFor(() => expect(assign).toHaveBeenCalledTimes(2))
-    expect(assign).toHaveBeenNthCalledWith(
-      1,
-      'mission-1',
-      'staff-1',
-      ['PILOT', 'OPERATOR', 'MAINTAINER', 'INSPECTOR'],
-    )
-    expect(assign).toHaveBeenNthCalledWith(2, 'mission-1', 'staff-2', [
-      'PILOT',
-    ])
     expect(
       screen.queryByRole('group', { name: 'Thêm nhân sự cho nhiệm vụ' }),
     ).not.toBeInTheDocument()
   })
 
-  it('keeps an atomic role batch after a failure so the manager can retry', async () => {
-    vi.spyOn(operatorApi, 'getAvailable').mockResolvedValue(operators)
-    const assign = vi
-      .spyOn(missionsApi, 'assignStaff')
-      .mockImplementation(async (_missionId, staffId, roles) => {
-        if (staffId === 'staff-1' && roles?.includes('MAINTAINER')) {
-          throw new Error('Vai trò không còn khả dụng')
-        }
-        return {} as never
-      })
-    renderMissionCard()
-
-    let form = await openStaffPicker()
-    fireEvent.click(within(form).getByRole('checkbox', { name: /Pilot One/ }))
-    for (const role of ['Vận hành', 'Bảo trì', 'Nghiệm thu']) {
-      fireEvent.click(within(form).getByRole('checkbox', { name: role }))
-    }
-    fireEvent.click(
-      within(form).getByRole('button', {
-        name: 'Gán 1 người · 4 vai trò',
-      }),
+  it('offers a read-only 3D office view when the card is disabled', () => {
+    render(
+      <MissionGridCard
+        mission={mission}
+        order={{} as OrderDetail}
+        plan={plan}
+        orderChecklistItems={[]}
+        disabled
+        onPlanChanged={vi.fn()}
+        onRequestReason={vi.fn()}
+        onEditMission={vi.fn()}
+      />,
     )
 
-    expect(await screen.findByRole('alert')).toHaveTextContent(
-      'Vai trò không còn khả dụng',
+    const link = screen.getByRole('link', { name: /Xem trong Văn phòng 3D/ })
+    expect(link).toHaveAttribute(
+      'href',
+      '#portal/manager/schedule?assignmentMissionId=mission-1&assignmentCanEdit=0',
     )
-    form = screen.getByRole('group', { name: 'Thêm nhân sự cho nhiệm vụ' })
     expect(
-      within(form).getByRole('checkbox', { name: /Pilot One/ }),
-    ).toBeChecked()
-    expect(
-      within(form).getByRole('button', { name: 'Gán 1 người · 4 vai trò' }),
-    ).toBeEnabled()
-
-    assign.mockImplementation(async () => ({}) as never)
-    fireEvent.click(
-      within(form).getByRole('button', { name: 'Gán 1 người · 4 vai trò' }),
-    )
-    await waitFor(() => expect(assign).toHaveBeenCalledTimes(2))
-    expect(assign).toHaveBeenNthCalledWith(
-      2,
-      'mission-1',
-      'staff-1',
-      ['PILOT', 'OPERATOR', 'MAINTAINER', 'INSPECTOR'],
-    )
+      screen.queryByRole('link', { name: /Phân công trong Văn phòng 3D/ }),
+    ).not.toBeInTheDocument()
   })
 
-  it('lets an already assigned staff member add missing roles without using another staff slot', async () => {
-    vi.spyOn(operatorApi, 'getAvailable').mockResolvedValue(operators)
-    const assign = vi
-      .spyOn(missionsApi, 'assignStaff')
-      .mockResolvedValue({} as never)
+  it('shows the assigned staff count and members without an inline picker', () => {
     render(
       <MissionGridCard
         mission={
@@ -250,48 +193,8 @@ describe('MissionGridCard staff assignment', () => {
       />,
     )
 
-    const form = await openStaffPicker()
     expect(screen.getByText('Nhân sự (1/10)')).toBeInTheDocument()
-    fireEvent.click(within(form).getByRole('checkbox', { name: /Pilot One/ }))
-    expect(
-      within(form).getByRole('checkbox', { name: /Phi công.*Đã gán/ }),
-    ).toBeChecked()
-    expect(
-      within(form).getByRole('checkbox', { name: 'Vận hành' }),
-    ).toBeChecked()
-    fireEvent.click(
-      within(form).getByRole('button', { name: 'Gán 1 người · 1 vai trò' }),
-    )
-
-    await waitFor(() => expect(assign).toHaveBeenCalledTimes(1))
-    expect(assign).toHaveBeenCalledWith('mission-1', 'staff-1', ['OPERATOR'])
-  })
-
-  it('selects all four roles for one person with one action', async () => {
-    vi.spyOn(operatorApi, 'getAvailable').mockResolvedValue(operators)
-    const assign = vi
-      .spyOn(missionsApi, 'assignStaff')
-      .mockResolvedValue({} as never)
-    renderMissionCard()
-
-    const form = await openStaffPicker()
-    fireEvent.click(within(form).getByRole('checkbox', { name: /Pilot One/ }))
-    fireEvent.click(
-      within(form).getByRole('button', { name: 'Chọn cả 4 vai trò' }),
-    )
-    fireEvent.click(
-      within(form).getByRole('button', {
-        name: 'Gán 1 người · 4 vai trò',
-      }),
-    )
-
-    await waitFor(() => expect(assign).toHaveBeenCalledTimes(1))
-    expect(assign).toHaveBeenNthCalledWith(
-      1,
-      'mission-1',
-      'staff-1',
-      ['PILOT', 'OPERATOR', 'MAINTAINER', 'INSPECTOR'],
-    )
+    expect(screen.getByText(/Pilot One/)).toBeInTheDocument()
   })
 })
 

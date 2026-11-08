@@ -89,7 +89,7 @@ describe('planning product presentation', () => {
       'Drone khảo sát',
     )
     expect(screen.getByRole('region', { name: 'Nhân sự' })).toHaveTextContent(
-      'Phi côngNguyễn Minh',
+      'Nguyễn MinhPhi côngTrần AnNghiệm thu',
     )
     expect(screen.getByText('Nghiệm thu')).toBeInTheDocument()
     expect(screen.queryByText('PILOT')).not.toBeInTheDocument()

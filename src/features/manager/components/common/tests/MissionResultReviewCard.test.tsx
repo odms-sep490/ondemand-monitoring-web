@@ -113,7 +113,7 @@ describe('Mission result review card', () => {
   })
 
   it.each([
-    ['EXECUTION_NOT_TERMINAL', 'Danh mục kiểm tra chưa hoàn tất.'],
+    ['EXECUTION_NOT_TERMINAL', 'Cần đánh giá các mục'],
     ['INSUFFICIENT_EVIDENCE', 'Danh mục kiểm tra chưa đủ bằng chứng.'],
     ['UNABLE_REASON_REQUIRED', 'Cần bổ sung lý do'],
     ['MEDIA_REJECTED', 'Ảnh/video bị từ chối.'],
@@ -158,7 +158,7 @@ describe('Mission result review card', () => {
     expect(screen.getByRole('button', { name: 'Duyệt kết quả' })).toBeDisabled()
   })
   it('requires the existing completed-Mission approval condition', () => {
-    card({ mission: { id: 'm1', status: 'PENDING_REVIEW' } })
+    card({ mission: { id: 'm1', status: 'IN_PROGRESS' } })
     expect(screen.getByRole('button', { name: 'Duyệt kết quả' })).toBeDisabled()
     expect(screen.getByRole('status')).toHaveTextContent(
       'Nhiệm vụ chưa hoàn thành.',
