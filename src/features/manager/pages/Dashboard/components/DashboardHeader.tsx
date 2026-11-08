@@ -2,7 +2,6 @@ import { CalendarOutlined, ReloadOutlined, RocketOutlined, FileSearchOutlined } 
 import { Button, Space } from 'antd'
 
 import { useI18n } from '../../../../../shared/i18n'
-import { authSession } from '../../../../auth/api/authApi'
 import { managerHref } from '../../../routes'
 import { dashboardPageMessages } from '../DashboardPage.messages'
 
@@ -17,18 +16,10 @@ type Props = {
   onRefresh: () => void
 }
 
-function firstName(fullName: string | undefined) {
-  const words = fullName?.trim().split(/\s+/) ?? []
-  return words.length ? words[words.length - 1] : ''
-}
-
-/** Welcome banner: greeting, date, quick actions and the range switcher. */
+/** Compact operations heading with the dashboard's live period controls. */
 export function DashboardHeader({ subtitle, range, pendingCount, onRangeChange, onRefresh }: Props) {
   const { t, locale } = useI18n(dashboardPageMessages)
   const now = new Date()
-  const hour = now.getHours()
-  const greeting = hour < 12 ? t.hero.morning : hour < 18 ? t.hero.afternoon : t.hero.evening
-  const name = firstName(authSession.getUser()?.fullName)
   const today = new Intl.DateTimeFormat(locale, {
     weekday: 'long',
     day: '2-digit',
@@ -37,39 +28,29 @@ export function DashboardHeader({ subtitle, range, pendingCount, onRangeChange, 
   }).format(now)
 
   return (
-    <section className="mgr-hero">
-      <div className="mgr-hero-main">
-        <p className="mgr-hero-date">
-          <CalendarOutlined /> {today}
-        </p>
+    <header className="mgr-dash-header">
+      <div className="mgr-dash-heading">
+        <p className="mgr-dash-date"><CalendarOutlined aria-hidden="true" /> {today}</p>
         <h1 className="mgr-hero-title">{t.title}</h1>
-        <p className="mgr-hero-greet">
-          {greeting}
-          {name ? `, ${name}` : ''}. {t.hero.summary(pendingCount)}
-        </p>
-        <div className="mgr-hero-actions">
+        <p className="mgr-hero-greet">{t.hero.summary(pendingCount)}</p>
+        <nav className="mgr-dash-shortcuts" aria-label={t.hero.shortcutsLabel}>
           <Button
             type="primary"
-            icon={<FileSearchOutlined />}
+            icon={<FileSearchOutlined aria-hidden="true" />}
             href={managerHref({ screen: 'orderQueue' })}
           >
             {t.hero.reviewOrders}
           </Button>
-          <Button
-            icon={<RocketOutlined />}
-            href={managerHref({ screen: 'missions' })}
-          >
+          <Button icon={<RocketOutlined aria-hidden="true" />} href={managerHref({ screen: 'missions' })}>
             {t.hero.viewMissions}
           </Button>
-          <Button
-            icon={<CalendarOutlined />}
-            href={managerHref({ screen: 'schedule' })}
-          >
+          <Button icon={<CalendarOutlined aria-hidden="true" />} href={managerHref({ screen: 'schedule' })}>
             {t.hero.viewSchedule}
           </Button>
-        </div>
+        </nav>
       </div>
-      <div className="mgr-hero-side">
+
+      <div className="mgr-dash-controls">
         <div role="group" aria-label={t.rangeLabel} className="mgr-hero-range">
           <Space.Compact>
             {RANGES.map((value) => (
@@ -84,11 +65,11 @@ export function DashboardHeader({ subtitle, range, pendingCount, onRangeChange, 
             ))}
           </Space.Compact>
         </div>
-        <Button icon={<ReloadOutlined />} onClick={onRefresh}>
+        <Button icon={<ReloadOutlined aria-hidden="true" />} onClick={onRefresh}>
           {t.refresh}
         </Button>
         <p className="mgr-hero-updated">{subtitle}</p>
       </div>
-    </section>
+    </header>
   )
 }

@@ -1,4 +1,3 @@
-import { ClusterOutlined, HistoryOutlined, RocketOutlined } from '@ant-design/icons'
 import { Empty, Progress, Timeline } from 'antd'
 
 import { CardComponent } from '../../../../../shared/components/antd'
@@ -7,7 +6,7 @@ import { managerHref } from '../../../routes'
 import type { ActiveMission, DashboardActivity, PricingPipeline } from '../../../types/dashboard'
 import { dashboardPageMessages } from '../DashboardPage.messages'
 import { formatDashboardDate, statusLabel } from '../dashboardHelpers'
-import { PIPELINE_STROKES, TIMELINE_COLORS } from '../dashboardTone'
+import { MANAGER_COLORS } from '../../../theme/managerTheme'
 
 const MAX_MISSIONS = 6
 const MAX_ACTIVITIES = 8
@@ -17,9 +16,8 @@ export function ActiveMissionsCard({ missions }: { missions: ActiveMission[] }) 
   const m = t.missions
   return (
     <CardComponent
+      className="mgr-active-missions-card"
       title={m.title}
-      icon={<RocketOutlined />}
-      tone="green"
       extra={
         <a className="mgr-card-link" href={managerHref({ screen: 'missions' })}>
           {m.viewAll}
@@ -36,17 +34,18 @@ export function ActiveMissionsCard({ missions }: { missions: ActiveMission[] }) 
                 className="mgr-dash-row mgr-dash-row-link"
                 href={managerHref({ screen: 'missionDetail', missionId: mission.missionId })}
               >
-                <span
-                  className={`mgr-live ${mission.attentionRequired ? 'is-alert' : ''}`}
-                  role="img"
-                  aria-label={mission.attentionRequired ? m.attention : statusLabel(mission.status)}
-                />
+                <span className={`mgr-live ${mission.attentionRequired ? 'is-alert' : ''}`} aria-hidden="true" />
                 <div className="mgr-dash-row-main">
                   <div className="mgr-dash-row-title">{mission.missionCode}</div>
                   <div className="mgr-dash-row-meta">
-                    {formatDashboardDate(mission.scheduledStartAt)} · {mission.droneName ?? m.unassigned}
+                    {formatDashboardDate(mission.scheduledStartAt)}
+                    {' · '}{mission.operatorName ?? m.operatorUnassigned}
+                    {' · '}{mission.droneName ?? m.unassigned}
                   </div>
                 </div>
+                <span className={`mgr-mission-status${mission.attentionRequired ? ' is-alert' : ''}`}>
+                  {mission.attentionRequired ? m.attention : statusLabel(mission.status)}
+                </span>
               </a>
             </li>
           ))}
@@ -68,12 +67,12 @@ export function PipelineCard({ pipeline }: { pipeline: PricingPipeline }) {
   ]
   const max = Math.max(...stages.map((s) => s.value))
   return (
-    <CardComponent title={p.title} icon={<ClusterOutlined />} tone="violet">
+    <CardComponent className="mgr-pipeline-card" title={p.title}>
       {max === 0 ? (
         <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={p.empty} />
       ) : (
-        <div className="flex flex-col gap-3" role="img" aria-label={p.title}>
-          {stages.map((s, i) => (
+        <div className="mgr-pipeline-list">
+          {stages.map((s) => (
             <div key={s.label}>
               <div className="mgr-pipe-row">
                 <span>{s.label}</span>
@@ -83,7 +82,7 @@ export function PipelineCard({ pipeline }: { pipeline: PricingPipeline }) {
                 percent={(s.value / max) * 100}
                 showInfo={false}
                 size={['100%', 8]}
-                strokeColor={PIPELINE_STROKES[i % PIPELINE_STROKES.length]}
+                strokeColor={MANAGER_COLORS.primary}
               />
             </div>
           ))}
@@ -96,14 +95,14 @@ export function PipelineCard({ pipeline }: { pipeline: PricingPipeline }) {
 export function RecentActivityCard({ activities, className }: { activities: DashboardActivity[]; className?: string }) {
   const { t } = useI18n(dashboardPageMessages)
   return (
-    <CardComponent className={className} title={t.activity.title} icon={<HistoryOutlined />} tone="amber">
+    <CardComponent className={className} title={t.activity.title}>
       {activities.length === 0 ? (
         <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t.activity.empty} />
       ) : (
         <Timeline
-          items={activities.slice(0, MAX_ACTIVITIES).map((activity, i) => ({
+          items={activities.slice(0, MAX_ACTIVITIES).map((activity) => ({
             key: activity.id,
-            color: TIMELINE_COLORS[i % TIMELINE_COLORS.length],
+            color: MANAGER_COLORS.primary,
             children: (
               <div>
                 <time className="mgr-time" dateTime={activity.occurredAt}>

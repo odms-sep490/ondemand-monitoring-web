@@ -1,26 +1,33 @@
-import { Card, Col, Row, Skeleton } from 'antd'
+import { Card, Skeleton } from 'antd'
 
 import type { PageMessages } from '../dashboardTypes'
 
 export function DashboardSkeleton({ t }: { t: PageMessages }) {
   return (
     <div className="mgr-dash" aria-busy="true" aria-live="polite">
-      <div className="mgr-hero mgr-hero-skeleton">
-        <Skeleton.Input active style={{ width: 260 }} />
-      </div>
-      <div className="mgr-kpi-grid">
+      <header className="mgr-dash-header mgr-hero-skeleton">
+        <div>
+          <Skeleton.Input active style={{ width: 250 }} />
+          <Skeleton active paragraph={{ rows: 1 }} />
+        </div>
+        <Skeleton.Button active />
+      </header>
+      <div className="mgr-kpi-grid" aria-hidden="true">
         {Array.from({ length: 5 }, (_, i) => (
-          <Card key={i} className="mgr-card"><Skeleton active paragraph={{ rows: 1 }} /></Card>
+          <div key={i} className="mgr-dash-kpi"><Skeleton active paragraph={{ rows: 1 }} /></div>
         ))}
       </div>
-      <Row gutter={[16, 16]}>
-        <Col xs={24} xl={14}>
+      <div className="mgr-columns">
+        <div className="mgr-stack">
           <Card className="mgr-card"><Skeleton active paragraph={{ rows: 5 }} /></Card>
-        </Col>
-        <Col xs={24} xl={10}>
-          <Card className="mgr-card"><Skeleton active paragraph={{ rows: 5 }} /></Card>
-        </Col>
-      </Row>
+          <Card className="mgr-card"><Skeleton active paragraph={{ rows: 3 }} /></Card>
+        </div>
+        <div className="mgr-stack">
+          <Card className="mgr-card"><Skeleton active paragraph={{ rows: 4 }} /></Card>
+          <Card className="mgr-card"><Skeleton active paragraph={{ rows: 3 }} /></Card>
+          <Card className="mgr-card"><Skeleton active paragraph={{ rows: 3 }} /></Card>
+        </div>
+      </div>
       <span className="odm-visually-hidden">{t.loading}</span>
     </div>
   )

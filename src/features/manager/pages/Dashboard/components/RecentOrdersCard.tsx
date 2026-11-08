@@ -1,4 +1,3 @@
-import { ShoppingOutlined } from '@ant-design/icons'
 import { Avatar, Empty, Tag } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 
@@ -58,7 +57,6 @@ export function RecentOrdersCard({ orders, className }: { orders: RecentOrder[];
     <CardComponent
       className={className}
       title={o.title}
-      icon={<ShoppingOutlined />}
       extra={<a className="mgr-card-link" href={managerHref({ screen: 'orderQueue' })}>{o.viewAll}</a>}
       styles={{ body: { padding: 0 } }}
     >

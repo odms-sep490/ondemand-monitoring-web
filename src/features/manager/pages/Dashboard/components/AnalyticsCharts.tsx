@@ -1,4 +1,3 @@
-import { AreaChartOutlined, PieChartOutlined, BarChartOutlined, PercentageOutlined } from '@ant-design/icons'
 import { Button, Col, Empty, Row } from 'antd'
 import { useState } from 'react'
 
@@ -18,9 +17,9 @@ export function AnalyticsCharts({ data }: { data: ManagerDashboardData }) {
   const adj = data.priceAdjustmentSummary
   const adjTotal = adj.approvedAtSystemPrice + adj.adjustedByManager
   return (
-    <section aria-label={c.title} className="flex flex-col gap-3">
-      <div className="flex items-center justify-between">
-        <h2 className="mgr-section-title">{c.title}</h2>
+    <section aria-labelledby="mgr-dashboard-analytics-title" className="mgr-analytics">
+      <div className="mgr-analytics-heading">
+        <h2 className="mgr-section-title" id="mgr-dashboard-analytics-title">{c.title}</h2>
         <Button size="small" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
           {open ? c.collapse : c.expand}
         </Button>
@@ -28,7 +27,7 @@ export function AnalyticsCharts({ data }: { data: ManagerDashboardData }) {
       {open ? (
         <Row gutter={[16, 16]}>
           <Col xs={24} xl={16}>
-            <CardComponent title={c.trendTitle} icon={<AreaChartOutlined />}>
+            <CardComponent title={c.trendTitle}>
               <TrendLineChart
                 points={data.missionTrend.map((p) => ({ x: p.periodStart, completed: p.completed, failed: p.failed }))}
                 completedLabel={c.trendCompleted}
@@ -40,7 +39,7 @@ export function AnalyticsCharts({ data }: { data: ManagerDashboardData }) {
             </CardComponent>
           </Col>
           <Col xs={24} xl={8}>
-            <CardComponent title={c.orderStatusTitle} icon={<PieChartOutlined />} tone="violet">
+            <CardComponent title={c.orderStatusTitle}>
               <DonutChart
                 points={data.orderStatusDistribution.map((p) => ({ label: c.statusLabels[p.key] ?? statusLabel(p.key), value: p.count }))}
                 empty={c.orderStatusEmpty}
@@ -49,7 +48,7 @@ export function AnalyticsCharts({ data }: { data: ManagerDashboardData }) {
             </CardComponent>
           </Col>
           <Col xs={24} xl={12}>
-            <CardComponent title={c.servicesTitle} icon={<BarChartOutlined />} tone="green">
+            <CardComponent title={c.servicesTitle}>
               <BarChartCard
                 points={data.serviceDistribution.map((p) => ({ label: p.serviceName, value: p.count }))}
                 empty={c.servicesEmpty}
@@ -58,7 +57,7 @@ export function AnalyticsCharts({ data }: { data: ManagerDashboardData }) {
             </CardComponent>
           </Col>
           <Col xs={24} xl={12}>
-            <CardComponent title={c.adjustmentTitle} icon={<PercentageOutlined />} tone="amber">
+            <CardComponent title={c.adjustmentTitle}>
               {adjTotal === 0 ? (
                 <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={c.adjustmentEmpty} />
               ) : (
@@ -80,7 +79,7 @@ export function AnalyticsCharts({ data }: { data: ManagerDashboardData }) {
             </CardComponent>
           </Col>
           <Col xs={24} xl={12}>
-            <CardComponent title={c.additionalServicesTitle} icon={<PieChartOutlined />} tone="violet">
+            <CardComponent title={c.additionalServicesTitle}>
               <DonutChart
                 points={data.additionalServiceDistribution.map((p) => ({
                   label: c.statusLabels[p.key] ?? statusLabel(p.key),
@@ -92,7 +91,7 @@ export function AnalyticsCharts({ data }: { data: ManagerDashboardData }) {
             </CardComponent>
           </Col>
           <Col xs={24} xl={12}>
-            <CardComponent title={c.pricingPipelineTitle} icon={<BarChartOutlined />}>
+            <CardComponent title={c.pricingPipelineTitle}>
               <BarChartCard
                 points={[
                   { label: c.pricingReview, value: data.pricingPipeline.pricingReviewCount },
@@ -107,7 +106,7 @@ export function AnalyticsCharts({ data }: { data: ManagerDashboardData }) {
             </CardComponent>
           </Col>
           <Col xs={24}>
-            <CardComponent title={c.missionStatusTitle} icon={<PieChartOutlined />} tone="green">
+            <CardComponent title={c.missionStatusTitle}>
               <DonutChart
                 points={data.missionStatusDistribution.map((p) => ({
                   label: c.statusLabels[p.key] ?? statusLabel(p.key),

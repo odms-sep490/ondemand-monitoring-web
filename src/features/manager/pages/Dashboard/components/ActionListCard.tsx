@@ -1,4 +1,3 @@
-import { ThunderboltOutlined } from '@ant-design/icons'
 import { Badge, Button, Empty, Tag } from 'antd'
 import { useState } from 'react'
 
@@ -28,8 +27,7 @@ export function ActionListCard({ items, generatedAt }: { items: ActionItem[]; ge
   return (
     <CardComponent
       title={a.title}
-      icon={<ThunderboltOutlined />}
-      tone="amber"
+      className="mgr-action-card"
       extra={items.length > 0 ? <Badge count={items.length} color={MANAGER_COLORS.primary} /> : undefined}
     >
       {items.length === 0 ? (
@@ -64,6 +62,7 @@ export function ActionListCard({ items, generatedAt }: { items: ActionItem[]; ge
                     <span className="mgr-prio" style={{ background: PRIORITY_COLOR[item.priority ?? 'MEDIUM'], color: PRIORITY_COLOR[item.priority ?? 'MEDIUM'] }} aria-hidden="true" />
                     <div className="mgr-dash-row-main">
                       <div className="mgr-dash-row-title">{item.title}</div>
+                      {item.description ? <div className="mgr-dash-row-description">{item.description}</div> : null}
                       <div className="mgr-dash-row-meta">
                         {[item.orderCode ?? item.code, formatAge(item.createdAt, generatedAt, locale, t.age.now)].filter(Boolean).join(' · ')}
                       </div>
