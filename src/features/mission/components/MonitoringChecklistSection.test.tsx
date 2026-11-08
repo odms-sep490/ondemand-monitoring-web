@@ -369,7 +369,7 @@ describe('MonitoringChecklistSection', () => {
     },
   )
   it.each([false, true])(
-    'preserves staff execution fields when assessing, compact=%s',
+    'preserves staff observation fields and completes the item when assessing, compact=%s',
     async (compact) => {
       const staffItem = {
         ...item,
@@ -410,7 +410,8 @@ describe('MonitoringChecklistSection', () => {
           'm',
           'e',
           expect.objectContaining({
-            executionStatus: 'IN_PROGRESS',
+            // assessing from the acceptance view completes the execution
+            executionStatus: 'COMPLETED',
             observation: 'Staff observation',
             unableToVerifyReason: 'Staff reason',
             assessmentNote: 'Accepted work',
@@ -581,7 +582,7 @@ describe('MonitoringChecklistSection', () => {
         'm',
         'e',
         expect.objectContaining({
-          executionStatus: 'IN_PROGRESS',
+          executionStatus: 'COMPLETED',
           assessmentStatus: 'NON_COMPLIANT',
           observation: 'Staff observation',
         }),

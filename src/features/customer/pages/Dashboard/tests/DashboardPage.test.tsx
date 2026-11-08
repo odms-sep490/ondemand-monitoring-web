@@ -16,7 +16,7 @@ afterEach(() => {
 })
 
 const stat = (label: string) =>
-  screen.getByText(label, { selector: '.mgr-stat-label' }).closest('.mgr-stat') as HTMLElement
+  screen.getByText(label, { selector: '.cus-kpi dt' }).closest('.cus-kpi') as HTMLElement
 
 const card = (title: string) => screen.getByText(title).closest('.ant-card') as HTMLElement
 
@@ -82,8 +82,9 @@ describe('DashboardPage', () => {
   it('keeps the orders visible when only the missions fail, with its own retry', async () => {
     vi.spyOn(customerMissionHistoryApi, 'list').mockRejectedValueOnce(new Error('boom'))
     render(<DashboardPage />)
+    // Wait for orders first: the missions card remounts into the main grid once they load.
+    expect(await screen.findByText('Tổng số đơn')).toBeInTheDocument()
     expect(await screen.findByText('Không tải được nhiệm vụ gần đây')).toBeInTheDocument()
-    expect(screen.getByText('Tổng số đơn')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Thử lại' }))
     expect(await screen.findByText('MSN-2609-0131-1', { exact: false })).toBeInTheDocument()
   })
