@@ -2,6 +2,7 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { setLanguage } from '../../../../shared/i18n'
 import type { Drone, Mission } from '../../types/omss'
+import type { MissionPermissions } from '../../../mission/types/permissions'
 import MissionDetail from './MissionDetail'
 
 const mission = {
@@ -47,22 +48,35 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
-describe('MissionDetail reconnect action', () => {
-  it('keeps GCS reconnect available for an in-flight mission', () => {
+describe('MissionDetail GCS connect action', () => {
+  const renderDetail = (m: Mission, canOperatePayload: boolean) => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false }))
     const onScreen = vi.fn()
-
     render(
       <MissionDetail
-        mission={mission}
+        mission={m}
         drone={drone}
         onScreen={onScreen}
         onBack={vi.fn()}
         onStartFlight={vi.fn()}
+        permissions={{ canOperatePayload } as MissionPermissions}
       />,
     )
+    return onScreen
+  }
 
-    fireEvent.click(screen.getByRole('button', { name: 'Reconnect GCS' }))
+  it('offers GCS connect for a READY mission when the operator may operate the payload', () => {
+    const onScreen = renderDetail(
+      { ...mission, state: 'READY' } as Mission,
+      true,
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Connect GCS' }))
     expect(onScreen).toHaveBeenCalledWith('gcs-connect')
+  })
+
+  it('does not offer GCS connect or reconnect for an in-flight mission', () => {
+    renderDetail(mission, true)
+    expect(screen.queryByRole('button', { name: 'Connect GCS' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Reconnect GCS' })).toBeNull()
   })
 })
