@@ -392,7 +392,8 @@ describe('ChecklistSnapshotCard', () => {
     ).toBeInTheDocument()
     expect(screen.getByText('Ảnh tổng quan')).toBeInTheDocument()
     expect(screen.getByText(/Đã bao gồm: 10 ảnh · 1 video/)).toBeInTheDocument()
-    expect(details.querySelectorAll('details')).toHaveLength(0)
+    // The shared guidance block is its own collapsible disclosure inside the row.
+    expect(details.querySelectorAll('details')).toHaveLength(1)
   })
 
   it('does not present the request as frozen without a backend snapshot timestamp', () => {

@@ -52,6 +52,9 @@ async function fillService() {
   fireEvent.change(screen.getByLabelText(/Tiêu đề/), {
     target: { value: 'Đơn kiểm thử' },
   })
+  fireEvent.change(screen.getByLabelText(/Kết quả sẽ được dùng để làm gì/), {
+    target: { value: 'INTERNAL' },
+  })
   next('Vị trí & vùng giám sát')
 }
 
@@ -60,7 +63,9 @@ async function fillLocation(onContent?: () => Promise<void> | void) {
     target: { value: 'KCN Long Hậu' },
   })
   fireEvent.click(screen.getByText('Tọa độ nâng cao'))
-  fireEvent.click(await screen.findByRole('button', { name: 'Xác nhận tọa độ này' }))
+  fireEvent.click(
+    await screen.findByRole('button', { name: 'Xác nhận tọa độ này' }),
+  )
   await screen.findByText('Đã xác nhận vị trí')
   next('Nội dung giám sát')
   await onContent?.()
@@ -69,9 +74,15 @@ async function fillLocation(onContent?: () => Promise<void> | void) {
   })
   await waitFor(() => expect(forward).toBeEnabled())
   fireEvent.click(forward)
-  fireEvent.change(screen.getByLabelText(/Người liên hệ/), { target: { value: 'An' } })
-  fireEvent.change(screen.getByLabelText(/Số điện thoại/), { target: { value: '0901234567' } })
-  fireEvent.change(screen.getByLabelText(/Điều kiện ra vào/), { target: { value: 'Cổng chính' } })
+  fireEvent.change(screen.getByLabelText(/Người liên hệ/), {
+    target: { value: 'An' },
+  })
+  fireEvent.change(screen.getByLabelText(/Số điện thoại/), {
+    target: { value: '0901234567' },
+  })
+  fireEvent.change(screen.getByLabelText(/Điều kiện ra vào/), {
+    target: { value: 'Cổng chính' },
+  })
   fireEvent.click(screen.getByLabelText('Chủ sở hữu / Chủ đầu tư'))
   fireEvent.click(
     screen.getByLabelText(/Tôi xác nhận mình có quyền yêu cầu giám sát/),
@@ -85,79 +96,98 @@ async function fillLocation(onContent?: () => Promise<void> | void) {
 }
 
 describe('CreateOrderPage wizard', () => {
-  it.each(['mixed', 'empty'] as const)(
-    'submits the %s checklist through the complete wizard',
-    async (selection) => {
-      vi.spyOn(customerApi, 'getServiceChecklist').mockResolvedValue(
-        ['Keep', 'Edit', 'Remove'].map((content, index) => ({
-          id: `link-${index}`,
-          serviceId: 'svc-construction',
-          checklistId: `catalog-${index}`,
-          checklistVersion: index + 10,
-          displayOrder: index,
-          content,
-          serviceActive: true,
-          checklistActive: true,
-        })),
-      )
-      const create = vi.spyOn(customerApi, 'createOrder')
-      await renderWizard()
-      await fillService()
-      await fillLocation(async () => {
-        await screen.findByLabelText('Chọn nội dung 1')
-        if (selection === 'empty') {
-          for (let index = 1; index <= 3; index++)
-            fireEvent.click(screen.getByLabelText(`Chọn nội dung ${index}`))
-        } else {
-          fireEvent.click(screen.getByLabelText('Sửa nội dung 2'))
-          fireEvent.change(screen.getByLabelText('Nội dung giám sát 2'), {
-            target: { value: 'Edited requirement' },
-          })
-          fireEvent.click(screen.getByLabelText('Chọn nội dung 3'))
-          fireEvent.click(
-            screen.getByRole('button', { name: '+ Thêm nội dung' }),
-          )
-          fireEvent.change(screen.getByLabelText('Nội dung giám sát 4'), {
-            target: { value: 'Custom requirement' },
-          })
-        }
+  const mockThreeItemChecklist = () =>
+    vi.spyOn(customerApi, 'getServiceChecklist').mockResolvedValue(
+      ['Keep', 'Edit', 'Remove'].map((content, index) => ({
+        id: `link-${index}`,
+        serviceId: 'svc-construction',
+        checklistId: `catalog-${index}`,
+        checklistVersion: index + 10,
+        displayOrder: index,
+        content,
+        serviceActive: true,
+        checklistActive: true,
+      })),
+    )
+
+  it('blocks the monitoring-content step when every checklist item is deselected', async () => {
+    mockThreeItemChecklist()
+    const create = vi.spyOn(customerApi, 'createOrder')
+    await renderWizard()
+    await fillService()
+    fireEvent.change(await screen.findByLabelText(/Địa chỉ hoặc khu vực/), {
+      target: { value: 'KCN Long Hậu' },
+    })
+    fireEvent.click(screen.getByText('Tọa độ nâng cao'))
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Xác nhận tọa độ này' }),
+    )
+    await screen.findByText('Đã xác nhận vị trí')
+    next('Nội dung giám sát')
+    await screen.findByLabelText('Chọn Keep')
+    for (const content of ['Keep', 'Edit', 'Remove'])
+      fireEvent.click(screen.getByLabelText(`Chọn ${content}`))
+    expect(
+      screen.getByText(
+        'Vui lòng chọn ít nhất một hạng mục giám sát hoặc thêm yêu cầu bổ sung.',
+      ),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', {
+        name: 'Tiếp tục: Chi tiết & quyền giám sát',
+      }),
+    ).toBeDisabled()
+    expect(create).not.toHaveBeenCalled()
+  })
+
+  it('submits the edited and custom checklist through the complete wizard', async () => {
+    mockThreeItemChecklist()
+    const create = vi.spyOn(customerApi, 'createOrder')
+    await renderWizard()
+    await fillService()
+    await fillLocation(async () => {
+      await screen.findByLabelText('Chọn Keep')
+      fireEvent.click(screen.getByLabelText('Sửa: Edit'))
+      fireEvent.change(screen.getByLabelText('Nội dung giám sát 2'), {
+        target: { value: 'Edited requirement' },
       })
-      next('Kết quả bàn giao & xác nhận')
-      await waitFor(() =>
-        expect(screen.queryByText(/Đang tải kết quả bàn giao/)).toBeNull(),
-      )
-      fireEvent.click(screen.getByLabelText(/Tôi xác nhận mục đích giám sát/))
-      fireEvent.click(screen.getByRole('button', { name: 'Gửi yêu cầu' }))
-      await screen.findByRole('dialog')
-      fireEvent.click(screen.getByRole('button', { name: 'Xác nhận gửi' }))
-      await screen.findByText('Đã tạo yêu cầu')
-      expect(create).toHaveBeenCalledTimes(1)
-      expect(create.mock.calls[0][0].checklistItems).toEqual(
-        selection === 'empty'
-          ? []
-          : [
-              {
-                sourceChecklistId: 'catalog-0',
-                expectedChecklistVersion: 10,
-                minimumEvidenceCount: 1,
-                requiredEvidenceType: 'IMAGE',
-              },
-              {
-                sourceChecklistId: 'catalog-1',
-                expectedChecklistVersion: 11,
-                minimumEvidenceCount: 1,
-                requiredEvidenceType: 'IMAGE',
-                contentOverride: 'Edited requirement',
-              },
-              {
-                contentOverride: 'Custom requirement',
-                minimumEvidenceCount: 1,
-                requiredEvidenceType: 'IMAGE',
-              },
-            ],
-      )
-    },
-  )
+      fireEvent.click(screen.getByLabelText('Chọn Remove'))
+      fireEvent.click(screen.getByRole('button', { name: '+ Thêm nội dung' }))
+      fireEvent.change(screen.getByLabelText('Nội dung giám sát 4'), {
+        target: { value: 'Custom requirement' },
+      })
+    })
+    next('Kết quả bàn giao & xác nhận')
+    await waitFor(() =>
+      expect(screen.queryByText(/Đang tải kết quả bàn giao/)).toBeNull(),
+    )
+    fireEvent.click(screen.getByLabelText(/Tôi xác nhận mục đích giám sát/))
+    fireEvent.click(screen.getByRole('button', { name: 'Gửi yêu cầu' }))
+    await screen.findByRole('dialog')
+    fireEvent.click(screen.getByRole('button', { name: 'Xác nhận gửi' }))
+    await screen.findByText('Đã tạo yêu cầu')
+    expect(create).toHaveBeenCalledTimes(1)
+    expect(create.mock.calls[0][0].checklistItems).toEqual([
+      {
+        sourceChecklistId: 'catalog-0',
+        expectedChecklistVersion: 10,
+        minimumEvidenceCount: 1,
+        requiredEvidenceType: 'IMAGE',
+      },
+      {
+        sourceChecklistId: 'catalog-1',
+        expectedChecklistVersion: 11,
+        minimumEvidenceCount: 1,
+        requiredEvidenceType: 'IMAGE',
+        contentOverride: 'Edited requirement',
+      },
+      {
+        contentOverride: 'Custom requirement',
+        minimumEvidenceCount: 1,
+        requiredEvidenceType: 'IMAGE',
+      },
+    ])
+  })
 
   it('shows services and goal fields on step 1', async () => {
     await renderWizard()
@@ -173,7 +203,9 @@ describe('CreateOrderPage wizard', () => {
     next('Vị trí & vùng giám sát')
     expect(await screen.findByText('Nhập tiêu đề yêu cầu.')).toBeInTheDocument()
     expect(screen.queryByText('Chọn dịch vụ giám sát.')).not.toBeInTheDocument()
-    expect(screen.queryByLabelText(/Địa chỉ hoặc khu vực/)).not.toBeInTheDocument()
+    expect(
+      screen.queryByLabelText(/Địa chỉ hoặc khu vực/),
+    ).not.toBeInTheDocument()
   })
 
   it('requires a service and title when the active catalog is empty', async () => {
@@ -185,21 +217,27 @@ describe('CreateOrderPage wizard', () => {
       await screen.findByText('Chọn dịch vụ giám sát.'),
     ).toBeInTheDocument()
     expect(screen.getByText('Nhập tiêu đề yêu cầu.')).toBeInTheDocument()
-    expect(screen.queryByLabelText(/Địa chỉ hoặc khu vực/)).not.toBeInTheDocument()
+    expect(
+      screen.queryByLabelText(/Địa chỉ hoặc khu vực/),
+    ).not.toBeInTheDocument()
   })
 
   it('shows the real location map on step 2 and requires an address', async () => {
     await renderWizard()
     await fillService()
     expect(
-      await screen.findByRole('application', {
+      await screen.findByRole('region', {
         name: 'Bản đồ chọn vị trí giám sát',
       }),
     ).toBeInTheDocument()
     next('Nội dung giám sát')
+    // With no confirmed location the step reports that it must be confirmed.
     expect(
-      await screen.findByText('Nhập địa chỉ/khu vực cần giám sát.'),
+      await screen.findByText(
+        'Xác nhận lại vị trí để đồng bộ địa chỉ, tọa độ và điểm trên bản đồ.',
+      ),
     ).toBeInTheDocument()
+    expect(screen.getByLabelText(/Địa chỉ hoặc khu vực/)).toBeInTheDocument()
   })
 
   it('continues from location to schedule after a valid address', async () => {
@@ -209,16 +247,22 @@ describe('CreateOrderPage wizard', () => {
     expect(await screen.findByLabelText(/Ngày sớm nhất/)).toBeInTheDocument()
   })
 
-  it('shows the pricing estimate for the chosen service', async () => {
+  it('shows the chosen service price and defers the estimate until the checklist is priced', async () => {
     await renderWizard()
     fireEvent.click(
       await screen.findByRole('button', { name: /Giám sát công trình/ }),
     )
+    // The service price comes from the picker; the estimate card is priced
+    // from the checklist quote (step 3 onwards), so step 1 shows its fallback.
     await waitFor(() =>
       expect(screen.getAllByText(/3\.500\.000/).length).toBeGreaterThanOrEqual(
-        3,
+        1,
       ),
     )
+    expect(screen.getByText('Chi phí dự kiến')).toBeInTheDocument()
+    expect(
+      await screen.findByText(/Chưa lấy được báo giá cho dịch vụ này/),
+    ).toBeInTheDocument()
   })
 
   it('shows a retryable error when deliverable types cannot be loaded', async () => {
@@ -260,7 +304,7 @@ describe('CreateOrderPage wizard', () => {
     )
     fireEvent.click(screen.getByLabelText(/Tôi xác nhận mục đích giám sát/))
 
-    expect(await screen.findByText('Tóm tắt yêu cầu')).toBeInTheDocument()
+    expect(await screen.findByText('Rà soát yêu cầu')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Gửi yêu cầu' }))
 
     const dialog = await screen.findByRole('dialog')
@@ -356,7 +400,9 @@ describe('CreateOrderPage wizard', () => {
     const time = screen.getByLabelText(/Khung giờ/) as HTMLSelectElement
     fireEvent.change(time, { target: { value: '' } })
     fireEvent.click(
-      screen.getByRole('button', { name: 'Tiếp tục: Kết quả bàn giao & xác nhận' }),
+      screen.getByRole('button', {
+        name: 'Tiếp tục: Kết quả bàn giao & xác nhận',
+      }),
     )
     expect(await screen.findByText('Chọn khung giờ.')).toBeInTheDocument()
     expect(screen.queryByText('Kết quả bàn giao')).toBeNull()
@@ -418,7 +464,10 @@ describe('CreateOrderPage wizard', () => {
     fireEvent.click(screen.getByLabelText(/Tôi xác nhận mục đích giám sát/))
     fireEvent.click(await screen.findByRole('button', { name: 'Gửi yêu cầu' }))
     await screen.findByRole('dialog')
-    fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape', keyCode: 27 })
+    fireEvent.keyDown(screen.getByRole('dialog'), {
+      key: 'Escape',
+      keyCode: 27,
+    })
     await waitFor(() =>
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument(),
     )

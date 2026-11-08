@@ -34,6 +34,16 @@ const nextBtn = () =>
 const prevBtn = () =>
   document.querySelector('.ant-pagination-prev') as HTMLElement
 
+// The status filter is an antd Select: the visible options carry no ARIA role
+// (only a hidden listbox mirrors raw values), so options are found by label.
+const openStatusFilter = (label: string) =>
+  fireEvent.mouseDown(screen.getByRole('combobox', { name: label }))
+const filterOption = (name: string) =>
+  screen.findByText(name, {
+    selector:
+      '.ant-select-item-option .cus-order-filter-option > span:first-child',
+  })
+
 const rowsOf = () =>
   within(screen.getByRole('table')).getAllByRole('row').slice(1)
 
@@ -52,9 +62,8 @@ describe('OrdersPage', () => {
     await screen.findByRole('table')
     act(() => setLanguage('en'))
     expect(screen.getByText('My orders')).toBeInTheDocument()
-    expect(
-      screen.getByRole('button', { name: /^Completed/ }),
-    ).toBeInTheDocument()
+    openStatusFilter('Filter by status')
+    expect(await filterOption('Completed')).toBeInTheDocument()
     expect(
       screen.getByRole('columnheader', { name: 'Preferred schedule' }),
     ).toBeInTheDocument()
@@ -98,28 +107,24 @@ describe('OrdersPage', () => {
       'href',
       '#portal/customer/orders/ord-1',
     )
-    fireEvent.mouseDown(
-      screen.getByRole('combobox', { name: 'Lọc theo trạng thái' }),
-    )
-    expect(
-      await screen.findByRole('option', { name: /Cần bổ sung thông tin/ }),
-    ).toBeInTheDocument()
+    openStatusFilter('Lọc theo trạng thái')
+    expect(await filterOption('Cần bổ sung thông tin')).toBeInTheDocument()
   })
 
   it('sends the status filter to the BE', async () => {
     const spy = vi.spyOn(customerApi, 'listMyOrders')
     render(<OrdersPage />)
     await screen.findByRole('table')
-    fireEvent.mouseDown(
-      screen.getByRole('combobox', { name: 'Lọc theo trạng thái' }),
-    )
-    fireEvent.click(await screen.findByRole('option', { name: /Hoàn thành/ }))
+    openStatusFilter('Lọc theo trạng thái')
+    fireEvent.click(await filterOption('Hoàn thành'))
     await waitFor(() => expect(rowsOf()).toHaveLength(1))
     expect(spy).toHaveBeenLastCalledWith(
       expect.objectContaining({ status: 'COMPLETED' }),
     )
     expect(
-      screen.getByRole('combobox', { name: 'Lọc theo trạng thái' }),
+      screen
+        .getByRole('combobox', { name: 'Lọc theo trạng thái' })
+        .closest('.ant-select'),
     ).toHaveTextContent(/Hoàn thành/)
   })
 
@@ -180,7 +185,7 @@ describe('OrdersPage', () => {
     ).toBeInTheDocument()
   })
 
-  it('shows summary stats for the seeded orders and counts on chips without changing their names', async () => {
+  it('shows summary stats for the seeded orders and counts on the status filter options', async () => {
     render(<OrdersPage />)
     await screen.findByRole('table')
     const stats = await waitFor(() => {
@@ -192,16 +197,11 @@ describe('OrdersPage', () => {
       within(stats).getByText('Tổng số đơn').closest('.mgr-stat'),
     ).toHaveTextContent('9')
     expect(stats.querySelectorAll('.mgr-stat')).toHaveLength(4)
-    expect(
-      screen
-        .getByRole('button', { name: /^Hoàn thành/ })
-        .querySelector('.mgr-seg-count'),
-    ).toBeInTheDocument()
-    expect(
-      screen
-        .getByRole('button', { name: /^Tất cả/ })
-        .querySelector('.mgr-seg-count'),
-    ).toHaveTextContent('9')
+    openStatusFilter('Lọc theo trạng thái')
+    const completed = await filterOption('Hoàn thành')
+    expect(completed.nextElementSibling).toHaveClass('cus-order-filter-count')
+    const all = await filterOption('Tất cả trạng thái')
+    expect(all.nextElementSibling).toHaveTextContent('9')
   })
 
   it('hides the pager on a single page', async () => {

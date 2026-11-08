@@ -108,6 +108,7 @@ describe('validateStep', () => {
     expect(validateStep(2, createDefaultForm(), okLocation, msg)).toEqual({
       serviceId: 'service',
       title: 'title',
+      usagePurpose: 'usagePurpose',
       address: 'address',
     })
   })
