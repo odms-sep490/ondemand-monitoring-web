@@ -386,22 +386,11 @@ export function FlightMissionExperience({
       if (!root || !drone || !scene) return
 
       const path = routeRef.current
-      const progressFills = Array.from(
-        root.querySelectorAll<HTMLElement>('.lp-journey-progress-fill'),
-      )
       const reducedMotion = window.matchMedia?.(
         '(prefers-reduced-motion: reduce)',
       ).matches
       const mobile = window.matchMedia?.('(max-width: 700px)').matches ?? false
       const pathLength = path?.getTotalLength() ?? 0
-
-      const updateProgress = (progress: number) => {
-        const scaledProgress = progress * progressFills.length
-        progressFills.forEach((fill, index) => {
-          const amount = gsap.utils.clamp(0, 1, scaledProgress - index)
-          fill.style.transform = `scaleX(${amount})`
-        })
-      }
 
       const positionDrone = (progress: number) => {
         if (!path || !pathLength) return
@@ -436,7 +425,6 @@ export function FlightMissionExperience({
       }
 
       const updateFlight = (progress: number) => {
-        updateProgress(progress)
         positionDrone(progress)
         syncCinematicVideo(progress)
       }
@@ -694,16 +682,6 @@ export function FlightMissionExperience({
         <div className="lp-journey-chapter-index">
           {String(activeChapter + 1).padStart(2, '0')} /{' '}
           {String(copy.chapters.length).padStart(2, '0')}
-        </div>
-        <div className="lp-journey-progress">
-          {copy.chapters.map((chapter, index) => (
-            <span
-              key={chapter.id}
-              className={`lp-journey-progress-segment${index === activeChapter ? ' is-active' : ''}${index < activeChapter ? ' is-complete' : ''}`}
-            >
-              <span className="lp-journey-progress-fill" />
-            </span>
-          ))}
         </div>
       </div>
 
