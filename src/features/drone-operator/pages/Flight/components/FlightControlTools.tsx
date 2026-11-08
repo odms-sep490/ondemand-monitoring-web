@@ -16,6 +16,9 @@ export function FlightControlTools({
   onFinishFlight,
   commandDisabled,
   finishFlightBusy,
+  onFailMission,
+  failMissionBusy,
+  missionFailureRequested,
   canFinishFlight,
   finishFlightBlockedReason,
   onCommand,
@@ -34,6 +37,9 @@ export function FlightControlTools({
   onFinishFlight: (() => void) | undefined
   commandDisabled: (command: FlightCommand) => boolean
   finishFlightBusy: boolean | undefined
+  onFailMission?: () => void
+  failMissionBusy?: boolean
+  missionFailureRequested?: boolean
   canFinishFlight: boolean
   finishFlightBlockedReason?: string
   onCommand: (command: FlightCommand) => void
@@ -147,6 +153,46 @@ export function FlightControlTools({
           <Icon name="check" size={14} />
           <span>
             {finishFlightBusy ? t.toolbar.sending : t.toolbar.finishFlight}
+          </span>
+        </button>
+      )}
+      {onFailMission && (
+        <button
+          type="button"
+          className="mctl-failure-action"
+          onClick={onFailMission}
+          disabled={busyCommand !== null || failMissionBusy || missionFailureRequested}
+          aria-busy={failMissionBusy}
+          style={{
+            ...buttonStyle('danger'),
+            width: 132,
+            height: 38,
+            borderRadius: 10,
+            border: '1px solid rgba(252,165,165,.9)',
+            background:
+              'linear-gradient(180deg, rgba(185,28,28,.96), rgba(127,29,29,.94))',
+            color: '#fff1f2',
+            fontSize: 9,
+            boxShadow:
+              '0 4px 14px rgba(127,29,29,.32), inset 0 1px 0 rgba(255,255,255,.12)',
+            cursor:
+              busyCommand !== null || failMissionBusy || missionFailureRequested
+                ? 'not-allowed'
+                : 'pointer',
+          }}
+          title={
+            missionFailureRequested
+              ? t.toolbar.failureRequested
+              : t.toolbar.failureTitle
+          }
+        >
+          <Icon name="alert" size={14} />
+          <span>
+            {failMissionBusy
+              ? t.toolbar.sending
+              : missionFailureRequested
+                ? t.toolbar.failureRequested
+                : t.toolbar.failureAction}
           </span>
         </button>
       )}

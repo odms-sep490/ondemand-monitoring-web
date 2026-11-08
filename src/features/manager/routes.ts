@@ -24,6 +24,7 @@ export type ManagerRoute =
       screen: 'schedule'
       assignmentMissionId?: string
       assignmentCanEdit?: boolean
+      assignmentReplaceStaffId?: string
       assignmentReturnOrderId?: string
     }
   | { screen: 'missions'; missionId?: string }
@@ -89,11 +90,14 @@ export function parseManagerRoute(hash: string): ManagerRoute {
           searchParams.get('assignmentMissionId')?.trim() || undefined
         const assignmentReturnOrderId =
           searchParams.get('assignmentReturnOrderId')?.trim() || undefined
+        const assignmentReplaceStaffId =
+          searchParams.get('assignmentReplaceStaffId')?.trim() || undefined
         return assignmentMissionId
           ? {
               screen: 'schedule',
               assignmentMissionId,
               assignmentCanEdit: searchParams.get('assignmentCanEdit') === '1',
+              ...(assignmentReplaceStaffId ? { assignmentReplaceStaffId } : {}),
               ...(assignmentReturnOrderId ? { assignmentReturnOrderId } : {}),
             }
           : { screen: 'schedule' }
@@ -158,6 +162,9 @@ export function managerHref(route: ManagerRoute): string {
       })
       if (route.assignmentReturnOrderId) {
         params.set('assignmentReturnOrderId', route.assignmentReturnOrderId)
+      }
+      if (route.assignmentReplaceStaffId) {
+        params.set('assignmentReplaceStaffId', route.assignmentReplaceStaffId)
       }
       return `${MANAGER_ROOT}/schedule?${params.toString()}`
     }

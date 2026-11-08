@@ -32,6 +32,9 @@ type Props = {
   onFinishFlight?: () => void
   finishingFlight?: boolean
   canFinishFlight?: boolean
+  onFailMission?: () => void
+  failMissionBusy?: boolean
+  missionFailureRequested?: boolean
   finishFlightBlockedReason?: string
   onReferenceCapture?: () => void
 }
@@ -59,6 +62,9 @@ export function FlightCockpit(props: Props) {
     onFinishFlight,
     finishingFlight,
     canFinishFlight = false,
+    onFailMission,
+    failMissionBusy = false,
+    missionFailureRequested = false,
     finishFlightBlockedReason,
   } = props
   const c = copy[language]
@@ -190,6 +196,9 @@ export function FlightCockpit(props: Props) {
             onFinishFlight={onFinishFlight}
             finishingFlight={finishingFlight}
             canFinishFlight={canFinishFlight}
+            onFailMission={onFailMission}
+            failMissionBusy={failMissionBusy}
+            missionFailureRequested={missionFailureRequested}
             finishFlightBlockedReason={finishFlightBlockedReason}
             canFly={canFly}
             language={language}

@@ -1,4 +1,4 @@
-import { Badge, Button, Empty, Tag } from 'antd'
+import { Badge, Button, Tag } from 'antd'
 import { useState } from 'react'
 
 import { CardComponent } from '../../../../../shared/components/antd'
@@ -31,7 +31,7 @@ export function ActionListCard({ items, generatedAt }: { items: ActionItem[]; ge
       extra={items.length > 0 ? <Badge count={items.length} color={MANAGER_COLORS.primary} /> : undefined}
     >
       {items.length === 0 ? (
-        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={a.empty} />
+        <p className="mgr-empty-line">{a.empty}</p>
       ) : (
         <>
           {groups.length > 1 ? (

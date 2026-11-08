@@ -33,6 +33,13 @@ const COPY = {
     staff: (count: number) => `${count}/${MAX_STAFF} nhân sự`,
     noStaff: 'Chưa có nhân sự được phân công.',
     assignmentTools: 'Phân công thêm',
+    replacementTitle: 'Thay thế nhân sự',
+    replacementTarget: 'Nhân sự cần thay',
+    replacementTargetMissing: 'Không tìm thấy nhân sự đang từ chối trong nhiệm vụ này.',
+    replacementReason: 'Nhân sự đã từ chối nhiệm vụ',
+    replaceSave: 'Xác nhận thay thế',
+    replacementSuccess: 'Đã thay thế nhân sự. Đang chờ người mới xác nhận.',
+    replacementError: 'Không thể thay thế nhân sự.',
     addStaff: 'Thêm nhân sự',
     closeCandidates: 'Thu gọn',
     returnToMission: 'Quay lại nhiệm vụ',
@@ -75,6 +82,13 @@ const COPY = {
     staff: (count: number) => `${count}/${MAX_STAFF} staff`,
     noStaff: 'No staff assigned yet.',
     assignmentTools: 'Add assignment',
+    replacementTitle: 'Replace staff',
+    replacementTarget: 'Staff being replaced',
+    replacementTargetMissing: 'The declined staff member could not be found on this mission.',
+    replacementReason: 'Staff declined the mission',
+    replaceSave: 'Confirm replacement',
+    replacementSuccess: 'Staff replaced. Waiting for the new staff member to confirm.',
+    replacementError: 'Could not replace this staff member.',
     addStaff: 'Add staff',
     closeCandidates: 'Hide staff picker',
     returnToMission: 'Back to mission',
@@ -123,6 +137,7 @@ export function OfficeMissionAssignmentPanel({
   candidates,
   loading,
   canEdit,
+  replacementStaffId,
   returnToHref,
   lang,
   selectedStaffId,
@@ -134,6 +149,7 @@ export function OfficeMissionAssignmentPanel({
   candidates: AvailableOperator[]
   loading: boolean
   canEdit: boolean
+  replacementStaffId?: string
   returnToHref?: string
   lang: string
   selectedStaffId: string | null
@@ -150,7 +166,10 @@ export function OfficeMissionAssignmentPanel({
     open: getVisibleMissionStaffAssignments(
       mission?.status,
       mission?.staffAssignments,
-    ).length === 0,
+    ).length === 0 ||
+      mission?.staffAssignments?.some(
+        (assignment) => assignment.responseStatus === 'REJECTED',
+      ) === true,
   }))
   const [saving, setSaving] = useState(false)
   const [removingId, setRemovingId] = useState<string | null>(null)
@@ -164,6 +183,46 @@ export function OfficeMissionAssignmentPanel({
       getVisibleMissionStaffAssignments(mission?.status, mission?.staffAssignments),
     [mission?.status, mission?.staffAssignments],
   )
+  const currentDeclinedStaffIds = [
+    ...new Set(
+      (mission?.staffAssignments ?? [])
+        .filter(
+          (assignment) =>
+            assignment.responseStatus === 'REJECTED' &&
+            assignment.isCurrent !== false,
+        )
+        .map((assignment) => assignment.staffId),
+    ),
+  ]
+  const automaticReplacementStaffId =
+    mission &&
+    !['PLANNING', 'CANCELLED', 'FAILED'].includes(mission.status) &&
+    currentDeclinedStaffIds.length === 1
+      ? currentDeclinedStaffIds[0]
+      : undefined
+  const activeReplacementStaffId =
+    replacementStaffId ?? automaticReplacementStaffId
+  const replacementAssignments = useMemo(() => {
+    if (!activeReplacementStaffId) return []
+    const currentAssignments = (mission?.staffAssignments ?? []).filter(
+      (assignment) =>
+        assignment.staffId === activeReplacementStaffId &&
+        assignment.isCurrent !== false,
+    )
+    return currentAssignments.some(
+      (assignment) => assignment.responseStatus === 'REJECTED',
+    )
+      ? currentAssignments
+      : []
+  }, [activeReplacementStaffId, mission?.staffAssignments])
+  const isReplacementMode = Boolean(activeReplacementStaffId)
+  const replacementTargetName =
+    replacementAssignments[0]?.staffName?.trim() ||
+    replacementAssignments[0]?.staffEmail ||
+    (isEnglish ? 'Unknown staff' : 'Chưa rõ tên')
+  const replacementRoles = new Set(
+    replacementAssignments.map((assignment) => assignment.assignedRole),
+  )
   const staffGroups = useMemo(() => {
     const groups = new Map<string, MissionStaffAssignmentResponse[]>()
     assignments.forEach((assignment) => {
@@ -173,6 +232,9 @@ export function OfficeMissionAssignmentPanel({
     })
     return [...groups.entries()]
   }, [assignments])
+  const hasDeclinedStaff = assignments.some(
+    (assignment) => assignment.responseStatus === 'REJECTED',
+  )
   const assignedRoles = useMemo(() => {
     const roles = new Map<string, Set<StaffRole>>()
     assignments.forEach((assignment) => {
@@ -200,6 +262,15 @@ export function OfficeMissionAssignmentPanel({
     setNotice((current) => (current ? '' : current))
   }, [selectedStaffId])
 
+  const previousReplacementMode = useRef(false)
+  useEffect(() => {
+    if (isReplacementMode && !previousReplacementMode.current) {
+      setError('')
+      setNotice('')
+    }
+    previousReplacementMode.current = isReplacementMode
+  }, [isReplacementMode])
+
   useEffect(() => {
     const selectedIsAvailable = candidates.some((staff) => staff.id === selectedStaffId)
     const selectedIsVisible = filteredCandidates.some((staff) => staff.id === selectedStaffId)
@@ -214,13 +285,17 @@ export function OfficeMissionAssignmentPanel({
   const selectedAssignedRoles = selectedStaffId
     ? assignedRoles.get(selectedStaffId) ?? new Set<StaffRole>()
     : new Set<StaffRole>()
-  const staffLimitReached = staffGroups.length >= MAX_STAFF
+  const activeStaffCount = staffGroups.filter(
+    ([, assignments]) =>
+      !assignments.some((assignment) => assignment.responseStatus === 'REJECTED'),
+  ).length
+  const staffLimitReached = activeStaffCount >= MAX_STAFF
   const isEditable = Boolean(canEdit && mission && mission.status !== 'CANCELLED')
   const currentMissionId = mission?.id ?? null
   const assignmentEditorOpen = Boolean(selectedStaffId) || (
     assignmentEditor.missionId === currentMissionId
       ? assignmentEditor.open
-      : staffGroups.length === 0
+      : staffGroups.length === 0 || hasDeclinedStaff
   )
 
   function setAssignmentEditorOpen(open: boolean) {
@@ -241,8 +316,13 @@ export function OfficeMissionAssignmentPanel({
   }
 
   async function saveAssignment() {
-    if (!mission || !selectedStaffId || selectedRoles.length === 0 || saving) {
-      if (selectedRoles.length === 0) setError(copy.selectRole)
+    if (!mission || !selectedStaffId || saving) return
+    if (isReplacementMode && replacementAssignments.length === 0) {
+      setError(copy.replacementTargetMissing)
+      return
+    }
+    if (!isReplacementMode && selectedRoles.length === 0) {
+      setError(copy.selectRole)
       return
     }
 
@@ -250,23 +330,46 @@ export function OfficeMissionAssignmentPanel({
     setError('')
     setNotice('')
     try {
-      const updatedMission = toMissionCalendarItem(
-        await missionsApi.assignStaff(mission.id, selectedStaffId, selectedRoles),
-      )
+      const response = isReplacementMode
+        ? await missionsApi.replaceStaff(
+            mission.id,
+            activeReplacementStaffId!,
+            selectedStaffId,
+            replacementAssignments.find((assignment) => assignment.declineReason?.trim())
+              ?.declineReason?.trim() ?? copy.replacementReason,
+          )
+        : await missionsApi.assignStaff(mission.id, selectedStaffId, selectedRoles)
+      const updatedMission = toMissionCalendarItem(response)
+      const expectedRoles = isReplacementMode
+        ? replacementRoles
+        : new Set(selectedRoles)
       const savedRoles = new Set(
         updatedMission.staffAssignments
-          ?.filter((assignment) => assignment.staffId === selectedStaffId)
+          ?.filter(
+            (assignment) =>
+              assignment.staffId === selectedStaffId &&
+              assignment.isCurrent !== false,
+          )
           .map((assignment) => assignment.assignedRole) ?? [],
       )
-      if (!selectedRoles.every((role) => savedRoles.has(role))) {
+      if (
+        expectedRoles.size === 0 ||
+        [...expectedRoles].some((role) => !savedRoles.has(role))
+      ) {
         throw new Error(copy.missingSavedAssignment)
       }
       preserveNoticeOnSelectionChange.current = true
       setAssignmentEditorOpen(false)
-      setNotice(copy.success)
+      setNotice(isReplacementMode ? copy.replacementSuccess : copy.success)
       onAssignmentChanged(updatedMission)
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : copy.assignError)
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : isReplacementMode
+            ? copy.replacementError
+            : copy.assignError,
+      )
     } finally {
       setSaving(false)
     }
@@ -291,11 +394,14 @@ export function OfficeMissionAssignmentPanel({
   }
 
   return (
-    <section className="mgr-office-rail-card mgr-office-assignment-card" aria-label={copy.title}>
+    <section
+      className="mgr-office-rail-card mgr-office-assignment-card"
+      aria-label={isReplacementMode ? copy.replacementTitle : copy.title}
+    >
       <div className="mgr-office-rail-title">
         <div>
           <span className="mgr-office-title-icon"><ApartmentOutlined /></span>
-          <h3>{copy.title}</h3>
+          <h3>{isReplacementMode ? copy.replacementTitle : copy.title}</h3>
         </div>
         <Tag>{copy.staff(staffGroups.length)}</Tag>
       </div>
@@ -389,7 +495,10 @@ export function OfficeMissionAssignmentPanel({
           {isEditable && (
             <div className="mgr-office-assignment-section">
               <div className="mgr-office-assignment-section-title">
-                <strong><UserAddOutlined aria-hidden="true" /> {copy.assignmentTools}</strong>
+                <strong>
+                  <UserAddOutlined aria-hidden="true" />{' '}
+                  {isReplacementMode ? copy.replacementTitle : copy.assignmentTools}
+                </strong>
                 <Button
                   type="text"
                   size="small"
@@ -400,11 +509,20 @@ export function OfficeMissionAssignmentPanel({
                   onClick={() => setAssignmentEditorOpen(!assignmentEditorOpen)}
                   disabled={saving}
                 >
-                  {assignmentEditorOpen ? copy.closeCandidates : copy.addStaff}
+                  {assignmentEditorOpen
+                    ? copy.closeCandidates
+                    : isReplacementMode
+                      ? copy.replacementTitle
+                      : copy.addStaff}
                 </Button>
               </div>
               {assignmentEditorOpen && (
                 <>
+                  {isReplacementMode && !replacementAssignments.length && (
+                    <p className="mgr-office-assignment-message is-error" role="alert">
+                      {copy.replacementTargetMissing}
+                    </p>
+                  )}
                   {staffLimitReached && !selectedStaffId && (
                     <p className="mgr-office-assignment-muted">{copy.capacity}</p>
                   )}
@@ -430,7 +548,8 @@ export function OfficeMissionAssignmentPanel({
                     <div className="mgr-office-assignment-candidates" role="list" aria-label={copy.candidates}>
                       {filteredCandidates.map((candidate) => {
                         const isAssigned = assignedRoles.has(candidate.id)
-                        const atCapacity = staffLimitReached && !isAssigned
+                        const atCapacity =
+                          staffLimitReached && !isAssigned && !isReplacementMode
                         const isSelected = selectedStaffId === candidate.id
                         return (
                           <button
@@ -458,41 +577,62 @@ export function OfficeMissionAssignmentPanel({
                   {selectedStaff && (
                     <div className="mgr-office-assignment-role-picker">
                       <div className="mgr-office-assignment-section-title">
-                        <strong>{copy.roles}</strong>
-                        <span>{selectedStaff.fullName}</span>
+                        <strong>{isReplacementMode ? copy.replacementTarget : copy.roles}</strong>
+                        <span>
+                          {isReplacementMode
+                            ? `${replacementTargetName} → ${selectedStaff.fullName}`
+                            : selectedStaff.fullName}
+                        </span>
                       </div>
-                      <div className="mgr-office-assignment-role-options">
-                        {STAFF_ROLES.map((role) => {
-                          const assigned = selectedAssignedRoles.has(role)
-                          const checked = assigned || selectedRoles.includes(role)
-                          return (
-                            <Checkbox
-                              key={role}
-                              checked={checked}
-                              disabled={assigned || saving}
-                              onChange={(event) => {
-                                setSelectedRoles((current) =>
-                                  event.target.checked
-                                    ? [...new Set([...current, role])]
-                                    : current.filter((item) => item !== role),
-                                )
-                                setError('')
-                              }}
-                            >
-                              {copy.rolesLabel[role]}{assigned ? ` · ${copy.alreadyAssigned}` : ''}
-                            </Checkbox>
-                          )
-                        })}
-                      </div>
+                      {isReplacementMode ? (
+                        <p className="mgr-office-assignment-muted">
+                          {[...replacementRoles]
+                            .map((role) => copy.rolesLabel[role])
+                            .join(', ')}
+                        </p>
+                      ) : (
+                        <div className="mgr-office-assignment-role-options">
+                          {STAFF_ROLES.map((role) => {
+                            const assigned = selectedAssignedRoles.has(role)
+                            const checked = assigned || selectedRoles.includes(role)
+                            return (
+                              <Checkbox
+                                key={role}
+                                checked={checked}
+                                disabled={assigned || saving}
+                                onChange={(event) => {
+                                  setSelectedRoles((current) =>
+                                    event.target.checked
+                                      ? [...new Set([...current, role])]
+                                      : current.filter((item) => item !== role),
+                                  )
+                                  setError('')
+                                }}
+                              >
+                                {copy.rolesLabel[role]}{assigned ? ` · ${copy.alreadyAssigned}` : ''}
+                              </Checkbox>
+                            )
+                          })}
+                        </div>
+                      )}
                       <Button
                         type="primary"
                         icon={<CheckOutlined aria-hidden="true" />}
                         onClick={() => void saveAssignment()}
                         loading={saving}
-                        disabled={saving || selectedRoles.length === 0}
+                        disabled={
+                          saving ||
+                          (isReplacementMode
+                            ? replacementAssignments.length === 0
+                            : selectedRoles.length === 0)
+                        }
                         block
                       >
-                        {saving ? copy.saving : copy.save}
+                        {saving
+                          ? copy.saving
+                          : isReplacementMode
+                            ? copy.replaceSave
+                            : copy.save}
                       </Button>
                     </div>
                   )}

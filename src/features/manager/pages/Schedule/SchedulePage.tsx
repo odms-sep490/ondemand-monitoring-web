@@ -47,10 +47,12 @@ function sameOperatorRoster(
 export function SchedulePage({
   assignmentMissionId,
   assignmentCanEdit,
+  assignmentReplaceStaffId,
   assignmentReturnOrderId,
 }: {
   assignmentMissionId?: string
   assignmentCanEdit?: boolean
+  assignmentReplaceStaffId?: string
   assignmentReturnOrderId?: string
 }) {
   const { t, lang } = useI18n(schedulePageMessages)
@@ -87,8 +89,36 @@ export function SchedulePage({
     assignmentMissionSnapshot?.id === assignmentMissionId
       ? assignmentMissionSnapshot
       : (assignmentMissionQuery.data ?? null)
+  const declinedStaffIds = new Set(
+    assignmentMission?.staffAssignments
+      ?.filter((assignment) => assignment.responseStatus === 'REJECTED')
+      .map((assignment) => assignment.staffId) ?? [],
+  )
+  const replacementRoles = new Set(
+    assignmentMission?.staffAssignments
+      ?.filter(
+        (assignment) =>
+          assignment.staffId === assignmentReplaceStaffId &&
+          assignment.isCurrent !== false,
+      )
+      .map((assignment) => assignment.assignedRole) ?? [],
+  )
+  const staffAlreadyAssignedForReplacement = new Set(
+    assignmentMission?.staffAssignments
+      ?.filter(
+        (assignment) =>
+          assignment.staffId !== assignmentReplaceStaffId &&
+          assignment.isCurrent !== false &&
+          replacementRoles.has(assignment.assignedRole),
+      )
+      .map((assignment) => assignment.staffId) ?? [],
+  )
   const assignmentCandidates = assignmentMissionId
-    ? (assignmentCandidatesQuery.data ?? [])
+    ? (assignmentCandidatesQuery.data ?? []).filter(
+        (candidate) =>
+          !declinedStaffIds.has(candidate.id) &&
+          !staffAlreadyAssignedForReplacement.has(candidate.id),
+      )
     : (staffQuery.data ?? [])
   const missions = useMemo(() => {
     const listedMissions = missionQuery.data?.items ?? []
@@ -165,6 +195,7 @@ export function SchedulePage({
           missions={missions}
           assignmentMissionId={assignmentMissionId}
           assignmentCanEdit={assignmentCanEdit === true}
+          assignmentReplaceStaffId={assignmentReplaceStaffId}
           assignmentReturnOrderId={assignmentReturnOrderId}
           assignmentMission={assignmentMission}
           assignmentCandidates={assignmentCandidates}

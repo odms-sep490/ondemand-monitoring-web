@@ -1,4 +1,5 @@
-import { Button, Col, Empty, Row } from 'antd'
+import type { ReactNode } from 'react'
+import { Button } from 'antd'
 import { useState } from 'react'
 
 import { CardComponent } from '../../../../../shared/components/antd'
@@ -16,6 +17,106 @@ export function AnalyticsCharts({ data }: { data: ManagerDashboardData }) {
   const [open, setOpen] = useState(true)
   const adj = data.priceAdjustmentSummary
   const adjTotal = adj.approvedAtSystemPrice + adj.adjustedByManager
+  const trendPoints = data.missionTrend.map((p) => ({
+    x: p.periodStart,
+    completed: p.completed,
+    failed: p.failed,
+  }))
+  const orderStatusPoints = data.orderStatusDistribution.map((p) => ({
+    label: c.statusLabels[p.key] ?? statusLabel(p.key),
+    value: p.count,
+  }))
+  const additionalServicePoints = data.additionalServiceDistribution.map((p) => ({
+    label: c.statusLabels[p.key] ?? statusLabel(p.key),
+    value: p.count,
+  }))
+  const missionStatusPoints = data.missionStatusDistribution.map((p) => ({
+    label: c.statusLabels[p.key] ?? statusLabel(p.key),
+    value: p.count,
+  }))
+  const charts: ReactNode[] = []
+
+  if (trendPoints.some((point) => point.completed > 0 || point.failed > 0)) {
+    charts.push(
+      <CardComponent key="mission-trend" title={c.trendTitle}>
+        <TrendLineChart
+          points={trendPoints}
+          completedLabel={c.trendCompleted}
+          failedLabel={c.trendFailed}
+          empty={c.trendEmpty}
+          locale={locale}
+          ariaLabel={c.overTime(c.trendCompleted)}
+        />
+      </CardComponent>,
+    )
+  }
+
+  if (orderStatusPoints.some((point) => point.value > 0)) {
+    charts.push(
+      <CardComponent key="order-status" title={c.orderStatusTitle}>
+        <DonutChart points={orderStatusPoints} empty={c.orderStatusEmpty} ariaLabel={c.totalAria} />
+      </CardComponent>,
+    )
+  }
+
+  if (data.serviceDistribution.some((point) => point.count > 0)) {
+    charts.push(
+      <CardComponent key="services" title={c.servicesTitle}>
+        <BarChartCard
+          points={data.serviceDistribution.map((point) => ({
+            label: point.serviceName,
+            value: point.count,
+          }))}
+          empty={c.servicesEmpty}
+          ariaLabel={c.barAria}
+        />
+      </CardComponent>,
+    )
+  }
+
+  if (adjTotal > 0) {
+    charts.push(
+      <CardComponent key="price-adjustments" title={c.adjustmentTitle}>
+        <BarChartCard
+          points={[
+            { label: c.adjustmentSystem, value: adj.approvedAtSystemPrice },
+            { label: c.adjustmentManager, value: adj.adjustedByManager },
+          ]}
+          empty={c.adjustmentEmpty}
+          ariaLabel={c.barAria}
+        />
+        <div className="mgr-adjust-note">
+          <strong>{Math.round((adj.adjustedByManager * 100) / adjTotal)}%</strong>{' '}
+          {c.adjustmentManager}
+        </div>
+      </CardComponent>,
+    )
+  }
+
+  if (additionalServicePoints.some((point) => point.value > 0)) {
+    charts.push(
+      <CardComponent key="additional-services" title={c.additionalServicesTitle}>
+        <DonutChart
+          points={additionalServicePoints}
+          empty={c.additionalServicesEmpty}
+          ariaLabel={c.totalAria}
+        />
+      </CardComponent>,
+    )
+  }
+
+  if (missionStatusPoints.some((point) => point.value > 0)) {
+    charts.push(
+      <CardComponent key="mission-status" title={c.missionStatusTitle}>
+        <DonutChart
+          points={missionStatusPoints}
+          empty={c.missionStatusEmpty}
+          ariaLabel={c.totalAria}
+        />
+      </CardComponent>,
+    )
+  }
+
   return (
     <section aria-labelledby="mgr-dashboard-analytics-title" className="mgr-analytics">
       <div className="mgr-analytics-heading">
@@ -25,99 +126,13 @@ export function AnalyticsCharts({ data }: { data: ManagerDashboardData }) {
         </Button>
       </div>
       {open ? (
-        <Row gutter={[16, 16]}>
-          <Col xs={24} xl={16}>
-            <CardComponent title={c.trendTitle}>
-              <TrendLineChart
-                points={data.missionTrend.map((p) => ({ x: p.periodStart, completed: p.completed, failed: p.failed }))}
-                completedLabel={c.trendCompleted}
-                failedLabel={c.trendFailed}
-                empty={c.trendEmpty}
-                locale={locale}
-                ariaLabel={c.overTime(c.trendCompleted)}
-              />
-            </CardComponent>
-          </Col>
-          <Col xs={24} xl={8}>
-            <CardComponent title={c.orderStatusTitle}>
-              <DonutChart
-                points={data.orderStatusDistribution.map((p) => ({ label: c.statusLabels[p.key] ?? statusLabel(p.key), value: p.count }))}
-                empty={c.orderStatusEmpty}
-                ariaLabel={c.totalAria}
-              />
-            </CardComponent>
-          </Col>
-          <Col xs={24} xl={12}>
-            <CardComponent title={c.servicesTitle}>
-              <BarChartCard
-                points={data.serviceDistribution.map((p) => ({ label: p.serviceName, value: p.count }))}
-                empty={c.servicesEmpty}
-                ariaLabel={c.barAria}
-              />
-            </CardComponent>
-          </Col>
-          <Col xs={24} xl={12}>
-            <CardComponent title={c.adjustmentTitle}>
-              {adjTotal === 0 ? (
-                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={c.adjustmentEmpty} />
-              ) : (
-                <>
-                  <BarChartCard
-                    points={[
-                      { label: c.adjustmentSystem, value: adj.approvedAtSystemPrice },
-                      { label: c.adjustmentManager, value: adj.adjustedByManager },
-                    ]}
-                    empty={c.adjustmentEmpty}
-                    ariaLabel={c.barAria}
-                  />
-                  <div className="mgr-adjust-note">
-                    <strong>{Math.round((adj.adjustedByManager * 100) / adjTotal)}%</strong>{' '}
-                    {c.adjustmentManager}
-                  </div>
-                </>
-              )}
-            </CardComponent>
-          </Col>
-          <Col xs={24} xl={12}>
-            <CardComponent title={c.additionalServicesTitle}>
-              <DonutChart
-                points={data.additionalServiceDistribution.map((p) => ({
-                  label: c.statusLabels[p.key] ?? statusLabel(p.key),
-                  value: p.count,
-                }))}
-                empty={c.additionalServicesEmpty}
-                ariaLabel={c.totalAria}
-              />
-            </CardComponent>
-          </Col>
-          <Col xs={24} xl={12}>
-            <CardComponent title={c.pricingPipelineTitle}>
-              <BarChartCard
-                points={[
-                  { label: c.pricingReview, value: data.pricingPipeline.pricingReviewCount },
-                  { label: c.quoteReady, value: data.pricingPipeline.quoteReadyCount },
-                  { label: c.waitingCustomer, value: data.pricingPipeline.waitingCustomerCount },
-                  { label: c.waitingDeposit, value: data.pricingPipeline.waitingDepositCount },
-                  { label: c.depositPaid, value: data.pricingPipeline.depositPaidCount },
-                ]}
-                empty={c.pricingPipelineEmpty}
-                ariaLabel={c.barAria}
-              />
-            </CardComponent>
-          </Col>
-          <Col xs={24}>
-            <CardComponent title={c.missionStatusTitle}>
-              <DonutChart
-                points={data.missionStatusDistribution.map((p) => ({
-                  label: c.statusLabels[p.key] ?? statusLabel(p.key),
-                  value: p.count,
-                }))}
-                empty={c.missionStatusEmpty}
-                ariaLabel={c.totalAria}
-              />
-            </CardComponent>
-          </Col>
-        </Row>
+        charts.length > 0 ? (
+          <div className="mgr-analytics-list">
+            {charts}
+          </div>
+        ) : (
+          <p className="mgr-empty-line mgr-analytics-empty">{c.emptySummary}</p>
+        )
       ) : null}
     </section>
   )

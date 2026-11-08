@@ -9,29 +9,31 @@ describe('RejectDialog', () => {
   it('renders vietnamese title and reason options', () => {
     render(
       <RejectDialog
-        missionId="MSN-1"
+        missionCode="MSN-1"
         submitting={false}
         onCancel={vi.fn()}
         onConfirm={vi.fn()}
       />,
     )
-    expect(screen.getByText('Từ chối mission MSN-1')).toBeTruthy()
-    expect(screen.getByText('Trùng lịch cá nhân')).toBeTruthy()
+    expect(screen.getByRole('heading', { name: 'Từ chối nhiệm vụ' })).toBeTruthy()
+    expect(screen.getByText('MSN-1')).toBeTruthy()
+    expect(screen.getByText('Không thể tham gia vào thời gian được phân công')).toBeTruthy()
     expect(screen.getByText('Xác nhận từ chối')).toBeTruthy()
   })
 
   it('renders english text when language is switched', () => {
     render(
       <RejectDialog
-        missionId="MSN-1"
+        missionCode="MSN-1"
         submitting={false}
         onCancel={vi.fn()}
         onConfirm={vi.fn()}
       />,
     )
     act(() => setLanguage('en'))
-    expect(screen.getByText('Reject mission MSN-1')).toBeTruthy()
-    expect(screen.getByText('Personal schedule conflict')).toBeTruthy()
+    expect(screen.getByRole('heading', { name: 'Decline mission' })).toBeTruthy()
+    expect(screen.getByText('MSN-1')).toBeTruthy()
+    expect(screen.getByText('Unavailable at the assigned time')).toBeTruthy()
     expect(screen.getByText('Confirm rejection')).toBeTruthy()
   })
 })
