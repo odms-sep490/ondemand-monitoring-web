@@ -46,7 +46,7 @@ describe('CustomerCreateRequestPage', () => {
 
   it('validates required fields before opening the confirm dialog', async () => {
     render(<CustomerCreateRequestPage />)
-    await screen.findByLabelText(/Địa chỉ\/khu vực/)
+    await screen.findByLabelText(/Địa chỉ hoặc khu vực/)
     fireEvent.click(screen.getByRole('button', { name: 'Gửi yêu cầu' }))
     expect(
       await screen.findByText('Nhập địa chỉ/khu vực cần giám sát.'),

@@ -1,5 +1,3 @@
-import { PieChartOutlined } from '@ant-design/icons'
-
 import { CardComponent } from '../../../../../shared/components/antd'
 import { useI18n } from '../../../../../shared/i18n'
 import type { OrderStats } from '../../../lib/orders/types'
@@ -20,7 +18,7 @@ const ROWS = [
 export function StatusBreakdown({ stats }: { stats: OrderStats }) {
   const { t } = useI18n(statusBreakdownMessages)
   return (
-    <CardComponent title={t.title} icon={<PieChartOutlined />} tone="violet">
+    <CardComponent title={t.title} className="cus-status-card">
       <ul className="cus-breakdown">
         {ROWS.map(([status, key]) => (
           <li key={status}>

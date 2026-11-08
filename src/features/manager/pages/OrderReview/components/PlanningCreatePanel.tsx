@@ -19,7 +19,7 @@ export function PlanningCreatePanel({
   query,
 }: {
   confirmation: ReturnType<typeof usePlanningConfirmation>
-  setCreating: Dispatch<SetStateAction<{} | null>>
+  setCreating: Dispatch<SetStateAction<object | null>>
   orderId: string
   setSelectedId: Dispatch<SetStateAction<string | null>>
   query: UseApiQueryState<{

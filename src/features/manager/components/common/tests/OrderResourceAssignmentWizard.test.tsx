@@ -16,6 +16,7 @@ import type { MissionResponse } from '../../../types/missions'
 import type { Mission } from '../../../../mission/types/mission'
 import type { ExecutionPlan } from '../../../types/planning'
 import type { OrderDetail } from '../../../types/orders'
+import { financeApi } from '../../../../finance/api'
 import { ApiError } from '../../../../../shared/api/httpClient'
 
 let missions: MissionResponse[]
@@ -311,6 +312,11 @@ it.each([
   },
 )
 it('scoped submit returns to its origin and never mutates Order/Mission completion', async () => {
+  // The permit file can only be chosen once the Order invoice is fully paid.
+  vi.spyOn(financeApi, 'getManagerInvoice').mockResolvedValue({
+    status: 'PAID',
+    remainingAmount: 0,
+  } as Awaited<ReturnType<typeof financeApi.getManagerInvoice>>)
   const close = vi.fn()
   render(
     <OrderResourceAssignmentWizard

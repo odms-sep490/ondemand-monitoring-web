@@ -1,8 +1,13 @@
 import { fireEvent, render, screen } from '@testing-library/react'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { authSession } from '../auth/api/authApi'
 import { ManagerLayout } from './ManagerLayout'
+
+// ManagerLayout -> lottie-react -> lottie-web needs a real canvas at import time and crashes under jsdom.
+vi.mock('lottie-react', () => ({
+  Lottie: () => null,
+}))
 
 beforeEach(() => {
   localStorage.setItem('fieldwise.accessToken', 'mock-staff-token')
@@ -36,7 +41,7 @@ describe('ManagerLayout', () => {
     for (const item of [
       'Đơn hàng',
       'Nhiệm vụ',
-      'Lịch nhiệm vụ',
+      'Văn phòng chung',
       'Đội drone',
       'Bảo trì',
     ]) {
@@ -86,7 +91,7 @@ describe('ManagerLayout', () => {
         <div>content</div>
       </ManagerLayout>,
     )
-    expect(screen.getByText('LH')).toBeInTheDocument()
+    expect(screen.getAllByText('LH').length).toBeGreaterThan(0)
     fireEvent.click(screen.getByRole('button', { name: 'Lê Thị Thanh Hằng' }))
     expect(await screen.findByText('hang.le@odms.vn')).toBeInTheDocument()
     expect(screen.getAllByText('Lê Thị Thanh Hằng').length).toBeGreaterThan(0)

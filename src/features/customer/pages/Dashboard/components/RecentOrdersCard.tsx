@@ -1,4 +1,4 @@
-import { PlusOutlined, ShoppingOutlined } from '@ant-design/icons'
+import { PlusOutlined } from '@ant-design/icons'
 import { Button } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 
@@ -30,6 +30,9 @@ export function RecentOrdersCard({ orders }: { orders: OrderRow[] }) {
             {title}
           </a>
           {order.address ? <span className="mgr-cell-sub">{order.address}</span> : null}
+          <span className="cus-order-date">
+            {t.columns.date}: {formatDateRange(order.dateFrom, order.dateTo, locale) ?? '—'}
+          </span>
         </span>
       ),
     },
@@ -62,7 +65,7 @@ export function RecentOrdersCard({ orders }: { orders: OrderRow[] }) {
   return (
     <CardComponent
       title={t.title}
-      icon={<ShoppingOutlined />}
+      className="cus-orders-card"
       extra={
         <a className="mgr-card-link" href={customerHref({ screen: 'orders' })}>
           {t.viewAll}

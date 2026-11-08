@@ -7,11 +7,29 @@ export function toNumber(value: string, fallback: number) {
   return Number.isFinite(parsed) ? parsed : fallback
 }
 
-/** ISO date (yyyy-mm-dd) `days` from today. */
-export function todayPlus(days: number) {
-  const d = new Date()
-  d.setDate(d.getDate() + days)
-  return d.toISOString().slice(0, 10)
+/** ISO calendar date (yyyy-mm-dd) `days` from today in the Vietnam time zone. */
+export function todayPlus(days: number, now = new Date()) {
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Asia/Ho_Chi_Minh',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    })
+      .formatToParts(now)
+      .map(({ type, value }) => [type, value]),
+  )
+  const date = new Date(
+    Date.UTC(
+      Number(parts.year),
+      Number(parts.month) - 1,
+      Number(parts.day) + days,
+    ),
+  )
+  const year = date.getUTCFullYear()
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0')
+  const day = String(date.getUTCDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
 }
 
 export function formatMoney(

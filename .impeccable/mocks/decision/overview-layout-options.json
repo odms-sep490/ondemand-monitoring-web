@@ -1,0 +1,46 @@
+{
+  "title": "Chọn cách sắp xếp Tổng quan",
+  "question": "Bạn muốn khách hàng nhìn thấy đơn hàng và tiến độ theo bố cục nào?",
+  "options": [
+    {
+      "id": "order-focus",
+      "kind": "assigned",
+      "label": "Đơn hàng làm trọng tâm",
+      "kicker": "THE ROLL",
+      "thesis": "Đặt các đơn gần đây ở trung tâm, trạng thái và nhiệm vụ hỗ trợ ở bên cạnh.",
+      "palette": ["#f4f7fc", "#ffffff", "#1677ff", "#0f1b3d"],
+      "materials": ["nền sáng xanh hiện tại", "đường chia mảnh", "màu trạng thái nhẹ"],
+      "viewport": "Bốn chỉ số gọn ở đầu trang; danh sách đơn hàng và nhiệm vụ ở cột chính; số lượng theo trạng thái ở cột phụ.",
+      "risk": "Cột phụ có thể dài hơn danh sách đơn khi có nhiều trạng thái.",
+      "html": ".impeccable/mocks/decision/order-focus.html",
+      "comp": ".impeccable/mocks/decision/order-focus.webp"
+    },
+    {
+      "id": "status-strip",
+      "kind": "dealt",
+      "label": "Trạng thái trước, danh sách sau",
+      "thesis": "Gom bảy trạng thái thành một dải tóm tắt rồi dành toàn bộ chiều rộng cho các đơn.",
+      "palette": ["#f4f7fc", "#ffffff", "#1677ff", "#0f1b3d"],
+      "materials": ["nền sáng xanh hiện tại", "dải trạng thái gọn", "bảng đơn hàng"],
+      "viewport": "Chỉ số tổng quan, dải trạng thái, bảng đơn hàng toàn chiều rộng và khu vực nhiệm vụ ngắn phía dưới.",
+      "risk": "Dải trạng thái cần thu gọn tốt trên màn hình nhỏ.",
+      "html": ".impeccable/mocks/decision/status-strip.html",
+      "comp": ".impeccable/mocks/decision/status-strip.webp"
+    },
+    {
+      "id": "activity-focus",
+      "kind": "dealt",
+      "label": "Dòng hoạt động gần đây",
+      "thesis": "Đưa các cập nhật đơn hàng và nhiệm vụ vào một dòng theo thời gian để dễ biết chuyện gì vừa xảy ra.",
+      "palette": ["#f4f7fc", "#ffffff", "#1677ff", "#0f1b3d"],
+      "materials": ["nền sáng xanh hiện tại", "dòng thời gian rõ nhịp", "trạng thái bằng màu nhẹ"],
+      "viewport": "Tóm tắt số liệu phía trên; dòng hoạt động là vùng chính; số lượng theo trạng thái ở một dải phụ.",
+      "risk": "Đơn hàng và nhiệm vụ có thể khó so sánh nếu đặt chung một danh sách.",
+      "html": ".impeccable/mocks/decision/activity-focus.html",
+      "comp": ".impeccable/mocks/decision/activity-focus.webp"
+    }
+  ],
+  "reroll": { "registers": ["safer", "bolder"] },
+  "buildPath": { "value": "code", "toggle": true },
+  "steer": true
+}

@@ -9,7 +9,7 @@ export const recentOrdersMessages = defineMessages({
     emptyAction: 'Tạo yêu cầu đầu tiên',
     depositRequired: 'Cần thanh toán cọc',
     finalPaymentRequired: 'Cần thanh toán phần còn lại',
-    columns: { order: 'Đơn hàng', date: 'Thời gian', status: 'Trạng thái' },
+    columns: { order: 'Đơn hàng', date: 'Lịch mong muốn', status: 'Trạng thái' },
   },
   en: {
     title: 'Recent orders',
@@ -19,6 +19,6 @@ export const recentOrdersMessages = defineMessages({
     emptyAction: 'Create your first request',
     depositRequired: 'Deposit required',
     finalPaymentRequired: 'Remaining balance due',
-    columns: { order: 'Order', date: 'Dates', status: 'Status' },
+    columns: { order: 'Order', date: 'Requested schedule', status: 'Status' },
   },
 })

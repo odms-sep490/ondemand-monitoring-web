@@ -1,10 +1,3 @@
-import {
-  CheckCircleOutlined,
-  ClockCircleOutlined,
-  RocketOutlined,
-  ShoppingOutlined,
-} from '@ant-design/icons'
-
 import { StatisticComponent } from '../../../../../shared/components/antd'
 import { useI18n, useLanguage } from '../../../../../shared/i18n'
 import { getOrderStatusMeta } from '../../../lib/orderStatus'
@@ -18,19 +11,31 @@ export function OrdersStats({ stats }: { stats: OrderStats }) {
     getOrderStatusMeta(status, lang).label
   return (
     <div className="cus-kpi-grid ord-stats">
-      <StatisticComponent index={0} tone="blue" icon={<ShoppingOutlined />} title={t.total} value={stats.total} />
       <StatisticComponent
+        className="ord-stat-total"
+        index={0}
+        tone="blue"
+        title={t.total}
+        value={stats.total}
+      />
+      <StatisticComponent
+        className="ord-stat-pending"
         index={1}
         tone={stats.pending > 0 ? 'amber' : 'blue'}
-        icon={<ClockCircleOutlined />}
         title={label('PENDING')}
         value={stats.pending}
       />
-      <StatisticComponent index={2} tone="violet" icon={<RocketOutlined />} title={label('IN_PROGRESS')} value={stats.inProgress} />
       <StatisticComponent
+        className="ord-stat-progress"
+        index={2}
+        tone="violet"
+        title={label('IN_PROGRESS')}
+        value={stats.inProgress}
+      />
+      <StatisticComponent
+        className="ord-stat-completed"
         index={3}
         tone={stats.completed > 0 ? 'green' : 'blue'}
-        icon={<CheckCircleOutlined />}
         title={label('COMPLETED')}
         value={stats.completed}
       />

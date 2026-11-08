@@ -16,8 +16,8 @@ describe('active mission selection', () => {
       ),
     ).toEqual({ id: 'm1', status: 'COMPLETED' })
   })
-  it('keeps scheduled missions selectable after the operator accepts them', () => {
-    expect(isSelectableMission('SCHEDULED')).toBe(true)
+  it('does not select SCHEDULED missions until they move past scheduling', () => {
+    expect(isSelectableMission('SCHEDULED')).toBe(false)
   })
 
   it('keeps the mission selectable while moving through connect and preflight', () => {

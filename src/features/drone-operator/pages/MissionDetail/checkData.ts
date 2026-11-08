@@ -17,7 +17,7 @@ export function preflightStateStorageKey(
   return `omss.droneOperator.preflightState.${missionId}.${droneLabel}`
 }
 
-export function weatherStateStorageKey(missionId: string, _droneLabel?: string) {
+export function weatherStateStorageKey(missionId: string) {
   return `omss.droneOperator.weatherState.${missionId}`
 }
 
@@ -164,7 +164,7 @@ export function readStoredWeatherState(
   if (!droneLabel) return null
   try {
     const raw = window.localStorage.getItem(
-      weatherStateStorageKey(missionId, droneLabel),
+      weatherStateStorageKey(missionId),
     )
     if (!raw) return null
     const parsed = JSON.parse(raw) as StoredWeatherStatus

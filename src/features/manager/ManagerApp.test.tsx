@@ -8,6 +8,11 @@ import { ManagerApp } from './ManagerApp'
 import type { OrderMissionBrief } from './types/orders'
 import type { ManagerDashboardResponse } from './types/dashboard'
 
+// ManagerLayout -> lottie-react -> lottie-web needs a real canvas at import time and crashes under jsdom.
+vi.mock('lottie-react', () => ({
+  Lottie: () => null,
+}))
+
 const sampleData: ManagerDashboardResponse = {
   summary: {
     totalOrders: 10,

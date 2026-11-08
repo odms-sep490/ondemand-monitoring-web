@@ -49,6 +49,7 @@ describe('MissionListPage', () => {
           id: 'mission-1',
           missionCode: 'MS-35806',
           backendStatus: 'PREFLIGHT_CHECKING',
+          deviceAssignmentStatus: 'PREFLIGHT_CHECKING',
           status: 'ACCEPTED',
           title: 'Drone inspection',
           location: 'Cần Giuộc, Tây Ninh',
@@ -71,8 +72,8 @@ describe('MissionListPage', () => {
 
     render(<MissionListPage searchQuery="" />)
 
-    expect(await screen.findByText('Đang precheck')).toBeTruthy()
-    expect(screen.getByRole('link', { name: 'Precheck' })).toBeTruthy()
+    expect(await screen.findByText('Đang kiểm tra trước bay')).toBeTruthy()
+    expect(screen.getByRole('link', { name: 'Kiểm tra trước bay' })).toBeTruthy()
     expect(screen.queryByText('Đã nhận')).toBeNull()
     expect(screen.queryByRole('link', { name: 'Xem kết quả' })).toBeNull()
   })

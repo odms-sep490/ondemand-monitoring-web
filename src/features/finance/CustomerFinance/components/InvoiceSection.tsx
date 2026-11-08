@@ -8,6 +8,7 @@ import { PaymentStat } from './PaymentStat'
 import type { Invoice } from '../../types'
 import { env } from '../../../../config/env'
 import { DeadlineCountdown } from './DeadlineCountdown'
+import { formatVnd } from '../../../../shared/lib/formatVnd'
 
 const INVOICE_TONE: Record<
   string,
@@ -36,21 +37,31 @@ export function InvoiceSummary({ invoice }: { invoice: Invoice }) {
     >
       <div className="customer-invoice-summary-title">
         <h3>{t.invoice(invoice.invoiceNumber)}</h3>
-        <StatusTag tone={INVOICE_TONE[invoice.status] ?? 'neutral'}>
-          {t.invoiceStatus[invoice.status] ?? pricingLabel(invoice.status)}
-        </StatusTag>
-        {invoice.status !== 'CANCELLED' && invoice.status !== 'REFUNDED' ? (
-          <StatusTag
-            tone={depositStatus === 'DEPOSIT_PAID' ? 'success' : 'warning'}
-          >
-            {t.depositPaymentStatus[depositStatus]}
+        <div className="customer-invoice-summary-statuses">
+          <StatusTag tone={INVOICE_TONE[invoice.status] ?? 'neutral'}>
+            {t.invoiceStatusLabel}:{' '}
+            {t.invoiceStatus[invoice.status] ?? pricingLabel(invoice.status)}
           </StatusTag>
-        ) : null}
+          {invoice.status !== 'CANCELLED' && invoice.status !== 'REFUNDED' ? (
+            <StatusTag
+              tone={depositStatus === 'DEPOSIT_PAID' ? 'success' : 'warning'}
+            >
+              {t.depositStatusLabel}: {t.depositPaymentStatus[depositStatus]}
+            </StatusTag>
+          ) : null}
+        </div>
       </div>
       <div className="customer-payment-stats">
         <PaymentStat label={t.total} value={invoice.totalAmount} />
-        <PaymentStat label={t.deposit} value={invoice.depositAmount} />
-        <PaymentStat label={t.paid} value={invoice.paidAmount} />
+        <PaymentStat
+          label={t.paid}
+          value={invoice.paidAmount}
+          detail={
+            depositStatus === 'DEPOSIT_PAID'
+              ? t.paidIncludesDeposit(formatVnd(invoice.depositAmount))
+              : t.depositAwaitingPayment(formatVnd(invoice.depositAmount))
+          }
+        />
         <PaymentStat label={t.remaining} value={invoice.remainingAmount} />
       </div>
     </section>

@@ -384,38 +384,6 @@
   box-shadow: 0 0 12px rgb(79 223 164 / 72%);
 }
 
-.lp-immersive .lp-journey-progress {
-  position: absolute;
-  z-index: 5;
-  right: clamp(24px, 5.1vw, 88px);
-  bottom: 25px;
-  left: clamp(24px, 5.1vw, 88px);
-  display: grid;
-  grid-template-columns: repeat(8, minmax(0, 1fr));
-  gap: 8px;
-}
-
-.lp-immersive .lp-journey-progress > span {
-  position: relative;
-  overflow: hidden;
-  height: 3px;
-  border-radius: 9px;
-  background: rgb(255 255 255 / 32%);
-}
-
-.lp-immersive .lp-journey-progress-fill {
-  position: absolute;
-  inset: 0;
-  background: var(--lp-blue-light);
-  box-shadow: 0 0 13px rgb(95 155 255 / 60%);
-  transform: scaleX(0);
-  transform-origin: left center;
-}
-
-.lp-immersive .lp-journey-progress-segment.is-active {
-  box-shadow: 0 0 13px rgb(95 155 255 / 38%);
-}
-
 .lp-immersive .lp-journey-chapters {
   position: relative;
   z-index: 4;
@@ -969,17 +937,6 @@
     letter-spacing: 0.08em;
     text-overflow: ellipsis;
     white-space: nowrap;
-  }
-
-  .lp-immersive .lp-journey-progress {
-    right: 16px;
-    bottom: 12px;
-    left: 16px;
-    gap: 4px;
-  }
-
-  .lp-immersive .lp-journey-progress span {
-    height: 2px;
   }
 
   .lp-immersive .lp-journey-chapters {
@@ -2702,14 +2659,6 @@
     will-change: auto;
   }
 
-    .lp-immersive .lp-journey-progress-fill {
-    transform: scaleX(0) !important;
-  }
-
-  .lp-immersive .lp-journey-progress-segment.is-complete .lp-journey-progress-fill,
-  .lp-immersive .lp-journey-progress-segment.is-active .lp-journey-progress-fill {
-    transform: scaleX(1) !important;
-  }
 }
 
 @media (max-width: 390px) {

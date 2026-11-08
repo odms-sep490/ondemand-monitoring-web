@@ -149,7 +149,10 @@
   font-weight: 500;
   line-height: 1.2;
   text-decoration: none;
-  transition: border-color 0.2s, color 0.2s, background 0.2s;
+  transition:
+    border-color 0.2s,
+    color 0.2s,
+    background 0.2s;
 
   &:hover {
     border-color: var(--ui-primary);
@@ -196,7 +199,8 @@
 }
 
 /* `.odm a { color: inherit }` would otherwise win over antd's zero-specificity link-button colours. */
-.mgr-layout a.ant-btn-color-primary.ant-btn-variant-solid:not(.ant-btn-disabled) {
+.mgr-layout
+  a.ant-btn-color-primary.ant-btn-variant-solid:not(.ant-btn-disabled) {
   color: var(--ui-on-primary);
 }
 
@@ -221,7 +225,7 @@
 }
 
 /* Native form controls look like antd inputs: 38px, 10px radius, border token, primary focus ring. */
-$cus-native: '.co-input, .od-additional-info-grid input:not([type='range']), .od-additional-info-grid select, .od-additional-info-form textarea, .od-inline-edit-field input, .od-inline-edit-field select, .od-inline-edit-field textarea';
+$cus-native: ".co-input, .od-additional-info-grid input:not([type='range']), .od-additional-info-grid select, .od-additional-info-form textarea, .od-inline-edit-field input, .od-inline-edit-field select, .od-inline-edit-field textarea";
 
 .mgr-layout {
   #{$cus-native} {
@@ -255,7 +259,8 @@ $cus-native: '.co-input, .od-additional-info-grid input:not([type='range']), .od
     &:focus-visible {
       outline: none;
       border-color: var(--ui-primary);
-      box-shadow: 0 0 0 2px color-mix(in srgb, var(--ui-primary) 12%, transparent);
+      box-shadow: 0 0 0 2px
+        color-mix(in srgb, var(--ui-primary) 12%, transparent);
     }
 
     &:disabled {
@@ -291,6 +296,161 @@ $cus-native: '.co-input, .od-additional-info-grid input:not([type='range']), .od
 .mgr-layout .cus-page .mgr-filter-bar-search {
   flex: 1 1 320px;
   max-width: 460px;
+}
+
+/* Keep the order status selector beside search instead of wrapping many chips. */
+.mgr-layout .ord-page > .mgr-filter-bar {
+  padding-inline: 8px;
+}
+
+.mgr-layout .ord-page .cus-orders-status-filter {
+  width: 260px;
+  flex: 0 0 260px;
+}
+
+.mgr-layout .ord-page .cus-orders-status-filter .ant-select-selector {
+  height: 42px !important;
+  border-radius: 11px !important;
+}
+
+.mgr-layout .ord-page .mgr-filter-bar-search {
+  flex: 1 1 360px;
+  max-width: none;
+}
+
+/* Keep order totals easy to scan with a clear label, icon and value hierarchy. */
+.mgr-layout .ord-page .ord-stats {
+  gap: 14px;
+}
+
+.mgr-layout .ord-page .ord-stats .mgr-stat {
+  --ord-stat-accent: #2563eb;
+
+  position: relative;
+  display: grid;
+  min-width: 0;
+  min-height: 132px;
+  height: auto;
+  grid-template-columns: minmax(0, 1fr) 42px;
+  grid-template-rows: auto 1fr;
+  align-items: start;
+  gap: 16px 12px;
+  padding: 18px 20px;
+  border-radius: 16px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mgr-layout .ord-page .ord-stats .ord-stat-pending {
+  --ord-stat-accent: #b7791f;
+}
+
+.mgr-layout .ord-page .ord-stats .ord-stat-progress {
+  --ord-stat-accent: #7c3aed;
+}
+
+.mgr-layout .ord-page .ord-stats .ord-stat-completed {
+  --ord-stat-accent: #15803d;
+}
+
+.mgr-layout .ord-page .ord-stats .mgr-stat-top {
+  display: contents;
+}
+
+.mgr-layout .ord-page .ord-stats .mgr-stat-label {
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+  align-self: center;
+  color: var(--mgr-muted);
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+.mgr-layout .ord-page .ord-stats .mgr-tile {
+  grid-column: 2;
+  grid-row: 1;
+  width: 42px;
+  height: 42px;
+  border: 1px solid color-mix(in srgb, var(--ord-stat-accent) 20%, transparent);
+  border-radius: 13px;
+  background: color-mix(in srgb, var(--ord-stat-accent) 12%, var(--mgr-bg));
+  color: var(--ord-stat-accent);
+  font-size: 19px;
+  box-shadow: none;
+}
+
+.mgr-layout .ord-page .ord-stats .ant-statistic {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  align-self: end;
+  min-width: 0;
+  padding-top: 13px;
+  border-top: 1px solid var(--mgr-border);
+}
+
+.mgr-layout .ord-page .ord-stats .ant-statistic-content {
+  color: var(--mgr-text);
+  font-size: 34px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 760;
+  letter-spacing: -0.025em;
+  line-height: 1;
+}
+
+.mgr-layout .ord-page .ord-stats .mgr-stat:hover {
+  border-color: color-mix(in srgb, var(--ord-stat-accent) 32%, var(--mgr-border));
+}
+
+@media (max-width: 767px) {
+  .mgr-layout .ord-page .ord-stats {
+    gap: 10px;
+  }
+
+  .mgr-layout .ord-page .ord-stats .mgr-stat {
+    min-height: 118px;
+    padding: 15px 16px;
+  }
+}
+
+.cus-order-filter-option {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.cus-order-filter-count {
+  display: inline-flex;
+  min-width: 22px;
+  height: 22px;
+  align-items: center;
+  justify-content: center;
+  padding-inline: 6px;
+  border-radius: 999px;
+  background: #edf2f8;
+  color: #52647d;
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.mgr-layout .ord-page .cus-orders-status-filter .cus-order-filter-count {
+  color: #315c9a;
+  background: #e8f1ff;
+}
+
+@media (max-width: 767px) {
+  .mgr-layout .ord-page .cus-orders-status-filter {
+    width: 100%;
+    flex: 1 1 100%;
+  }
+
+  .mgr-layout .ord-page .mgr-filter-bar-search {
+    flex: 1 1 100%;
+    max-width: none;
+  }
 }
 
 /* Long card titles wrap instead of being cut with an ellipsis (phones). */

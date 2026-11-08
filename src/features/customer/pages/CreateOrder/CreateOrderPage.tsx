@@ -26,6 +26,7 @@ import type { Step } from '../../lib/createOrder/types'
 /** Customer wizard: service, location, content, site details, schedule, then confirmation. */
 export function CreateOrderPage() {
   const pageRef = useRef<HTMLDivElement>(null)
+  const confirmTriggerRef = useRef<HTMLElement | null>(null)
   const { t } = useI18n(createOrderPageMessages)
   const { f, meta, wizard, submit, service, time, checklist } =
     useCreateOrderWizard()
@@ -43,6 +44,22 @@ export function CreateOrderPage() {
   const packageSelectedCount = packageChecklists.filter(
     (row) => row.selected,
   ).length
+
+  function openSubmitConfirmation() {
+    const activeElement = document.activeElement
+    confirmTriggerRef.current =
+      activeElement instanceof HTMLElement ? activeElement : null
+    submit.openConfirm()
+  }
+
+  function closeSubmitConfirmation() {
+    if (submit.submitting) return
+    submit.closeConfirm()
+    window.requestAnimationFrame(() => {
+      const trigger = confirmTriggerRef.current
+      if (trigger?.isConnected && !trigger.matches(':disabled')) trigger.focus()
+    })
+  }
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
@@ -79,7 +96,7 @@ export function CreateOrderPage() {
         }
         onBack={wizard.back}
         onNext={wizard.next}
-        onSubmit={submit.openConfirm}
+        onSubmit={openSubmitConfirmation}
       />
     </nav>
   )
@@ -208,7 +225,7 @@ export function CreateOrderPage() {
           submitting={submit.submitting}
           error={f.submitError}
           onConfirm={() => void submit.submit()}
-          onClose={submit.closeConfirm}
+          onClose={closeSubmitConfirmation}
         />
       )}
     </div>

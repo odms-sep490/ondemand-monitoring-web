@@ -13,6 +13,13 @@ import { ordersApi } from '../features/manager/api/ordersApi'
 import type { ManagerDashboardResponse } from '../features/manager/types/dashboard'
 import { Router } from './router'
 
+// lottie-web needs a real canvas 2D context at import time, which jsdom lacks.
+vi.mock('lottie-react', () => ({
+  default: () => null,
+  Lottie: () => null,
+  useLottie: () => ({ View: null }),
+}))
+
 configure({ asyncUtilTimeout: 10000 })
 
 // These tests isolate navigation. The cookie/bootstrap contract is exercised

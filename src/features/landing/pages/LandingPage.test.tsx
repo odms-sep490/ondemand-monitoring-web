@@ -1,6 +1,6 @@
 import { act } from 'react'
 import { fireEvent, render, screen } from '@testing-library/react'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { setLanguage } from '../../../shared/i18n'
 import { LandingPage } from './LandingPage'
@@ -8,6 +8,14 @@ import { LandingPage } from './LandingPage'
 vi.mock('lottie-react', () => ({
   Lottie: () => <div data-testid="drone-lottie" />,
 }))
+
+// jsdom does not implement SVG geometry; the flight scene measures its path.
+beforeAll(() => {
+  Object.defineProperty(window.SVGElement.prototype, 'getTotalLength', {
+    configurable: true,
+    value: () => 100,
+  })
+})
 
 function saveSession(role: 'CUSTOMER' | 'MANAGER') {
   localStorage.setItem('fieldwise.accessToken', 'token.value-123')
@@ -52,12 +60,12 @@ describe('LandingPage', () => {
     expect(document.querySelector('.lp-flight-dock')).not.toBeInTheDocument()
     expect(
       screen.getByRole('heading', {
-        name: 'Sẵn sàng. Bắt đầu hành trình.',
+        name: 'Quét toàn cảnh từng dãy pin.',
       }),
     ).toBeInTheDocument()
     expect(
       screen.getByRole('heading', {
-        name: 'Ảnh, video và checklist cùng một hồ sơ.',
+        name: 'Hạ cánh an toàn. Sẵn sàng cho lần bay tiếp.',
       }),
     ).toBeInTheDocument()
     expect(screen.queryByRole('contentinfo')).not.toBeInTheDocument()

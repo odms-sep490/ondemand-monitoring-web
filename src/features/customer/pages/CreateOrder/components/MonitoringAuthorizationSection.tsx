@@ -116,13 +116,25 @@ export function MonitoringAuthorizationSection({
     >
       <p className="co-authz-intro">{t.intro}</p>
 
-      <fieldset className="co-authz-fieldset">
-        <legend>{t.relationship}</legend>
+      <fieldset
+        className="co-authz-fieldset"
+        aria-invalid={Boolean(errors.monitoringRelationship)}
+      >
+        <legend>
+          {t.relationship} <span aria-hidden="true">*</span>
+        </legend>
         <div className="co-authz-relationships">
           {MONITORING_RELATIONSHIPS.map((relationship) => (
             <Radio
               key={relationship}
               name="monitoring-relationship"
+              required={relationship === MONITORING_RELATIONSHIPS[0]}
+              aria-invalid={Boolean(errors.monitoringRelationship)}
+              aria-describedby={
+                errors.monitoringRelationship
+                  ? 'co-monitoring-relationship-error'
+                  : undefined
+              }
               checked={form.monitoringRelationship === relationship}
               onChange={() => update('monitoringRelationship', relationship)}
             >
@@ -131,7 +143,13 @@ export function MonitoringAuthorizationSection({
           ))}
         </div>
         {errors.monitoringRelationship ? (
-          <div className="ui-field-error">{errors.monitoringRelationship}</div>
+          <div
+            id="co-monitoring-relationship-error"
+            className="ui-field-error"
+            role="alert"
+          >
+            {errors.monitoringRelationship}
+          </div>
         ) : null}
         {form.monitoringRelationship === 'OTHER' ? (
           <label className="co-authz-other">

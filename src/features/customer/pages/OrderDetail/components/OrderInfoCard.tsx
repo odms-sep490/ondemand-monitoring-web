@@ -2,6 +2,7 @@ import { Button } from 'antd'
 import { Children, useState, type ReactNode } from 'react'
 
 import { Card } from '../../../components/common/ui'
+import { OrderStatusBadge } from '../../../components/common/OrderStatusBadge'
 import { useI18n } from '../../../../../shared/i18n'
 import { OrderIcon, type OrderIconName } from '../../../../manager/components/common/OrderIcon'
 import { useTimeslotLabel } from '../../../hooks/usePreferredTimes'
@@ -96,6 +97,10 @@ export function OrderInfoCard({
   const time =
     order.timeName || order.timeId ? timeLabel({ id: order.timeId, name: order.timeName }) : null
   const schedule = formatDateRange(order.dateFrom, order.dateTo, locale)
+  const serviceName = order.serviceName
+    ? localizeServiceName(order.serviceId ?? order.serviceName, lang, order.serviceName)
+    : DASH
+  const preferredSchedule = [schedule, time].filter(Boolean).join(' · ') || DASH
   const coordinates =
     order.latitude != null && order.longitude != null
       ? `${order.latitude}, ${order.longitude}`
@@ -105,19 +110,47 @@ export function OrderInfoCard({
   return (
     <Card title={<CardTitle icon="doc">{t.title}</CardTitle>}>
       <p className="od-info-subtitle">{t.subtitle}</p>
+      <section className="od-order-summary" aria-label={t.summary}>
+        <h3>{t.summary}</h3>
+        <dl>
+          <div className="od-order-summary-item">
+            <dt>{t.service}</dt>
+            <dd>
+              <OrderIcon name="stack" size={15} />
+              {serviceName}
+            </dd>
+          </div>
+          <div className="od-order-summary-item">
+            <dt>{t.address}</dt>
+            <dd>
+              <OrderIcon name="pin" size={15} />
+              {order.address || DASH}
+            </dd>
+          </div>
+          <div className="od-order-summary-item">
+            <dt>{t.schedule}</dt>
+            <dd>
+              <OrderIcon name="calendar" size={15} />
+              {preferredSchedule}
+            </dd>
+          </div>
+          <div className="od-order-summary-item">
+            <dt>{t.currentStatus}</dt>
+            <dd>
+              <OrderStatusBadge status={order.status} />
+            </dd>
+          </div>
+        </dl>
+      </section>
       <div className="od-info-sections">
         <Section icon="doc" title={t.sectionGeneral} wide onSupplement={editable ? () => setEditing('general') : undefined} editor={editing === 'general' ? <OrderSectionEditor section="general" order={order} onCancel={() => setEditing(null)} onSaved={() => { setEditing(null); onUpdated?.() }} /> : undefined}>
           <Field
             icon="stack"
             label={t.service}
-            value={
-              order.serviceName
-                ? localizeServiceName(order.serviceId ?? order.serviceName, lang, order.serviceName)
-                : DASH
-            }
+            value={serviceName}
           />
           {order.createdAt && <Field icon="calendar" label={t.createdAt} value={fmtDateTime(order.createdAt, locale)} />}
-          {(schedule || time) && <Field icon="calendar" label={t.schedule} value={[schedule, time].filter(Boolean).join(' · ')} />}
+          {(schedule || time) && <Field icon="calendar" label={t.schedule} value={preferredSchedule} />}
           {order.resultDeadline && <Field icon="clock" label={t.resultDeadline} value={fmtDate(order.resultDeadline, locale)} />}
           {order.address && <Field icon="pin" label={t.address} value={order.address} />}
         </Section>

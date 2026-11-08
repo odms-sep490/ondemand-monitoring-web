@@ -33,30 +33,40 @@ export function DashboardPage() {
         }
       />
 
-      {orders.loading && !orders.data && (
-        <CardComponent>
-          <Skeleton active paragraph={{ rows: 4 }} />
-        </CardComponent>
-      )}
-      {!orders.data && !orders.loading && (
-        <ErrorState title={t.ordersErrorTitle} error={orders.error} onRetry={orders.reload} />
-      )}
       {orders.data && (
         <>
           <DashboardStats stats={stats} />
-          <div className="cus-columns">
-            <RecentOrdersCard orders={recent} />
+          <div className="cus-content-grid">
+            <div className="cus-main-column">
+              <RecentOrdersCard orders={recent} />
+              <RecentMissionsCard
+                missions={missions.data}
+                loading={missions.loading}
+                error={missions.error}
+                onRetry={missions.reload}
+              />
+            </div>
             <StatusBreakdown stats={stats} />
           </div>
         </>
       )}
-
-      <RecentMissionsCard
-        missions={missions.data}
-        loading={missions.loading}
-        error={missions.error}
-        onRetry={missions.reload}
-      />
+      {!orders.data && (
+        <div className="cus-content-fallback">
+          {orders.loading ? (
+            <CardComponent className="cus-orders-loading">
+              <Skeleton active paragraph={{ rows: 4 }} />
+            </CardComponent>
+          ) : (
+            <ErrorState title={t.ordersErrorTitle} error={orders.error} onRetry={orders.reload} />
+          )}
+          <RecentMissionsCard
+            missions={missions.data}
+            loading={missions.loading}
+            error={missions.error}
+            onRetry={missions.reload}
+          />
+        </div>
+      )}
     </div>
   )
 }

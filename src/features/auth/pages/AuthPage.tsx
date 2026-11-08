@@ -219,7 +219,7 @@ export function AuthPage({
   const subtitle = t.subtitles[mode]
 
   return (
-    <div className="odm odm-auth">
+    <div className="odm odm-auth" data-auth-mode={mode}>
       <a className="skip-link" href="#auth-form">
         {t.skipLink}
       </a>
