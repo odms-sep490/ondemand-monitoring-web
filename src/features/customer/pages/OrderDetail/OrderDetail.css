@@ -1111,6 +1111,10 @@
   .od-tabs .ant-tabs-nav-operations {
     display: none;
   }
+
+  .od-tabs .ant-tabs-ink-bar {
+    display: block;
+  }
 }
 
 /* Balanced two-column sections: equal heights, fixed label column, no overflow */
@@ -1262,5 +1266,310 @@
 @media (max-width: 640px) {
   .od-info-list .od-field {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Order detail: preserve a readable content/timeline split through laptop widths. */
+.od-page .od-order-panel .cus-main-grid {
+  grid-template-columns: minmax(0, 1fr) minmax(290px, 0.38fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.od-page .cus-side {
+  position: sticky;
+  top: 88px;
+  align-self: start;
+}
+
+.od-page .od-order-panel,
+.od-page .od-order-panel .cus-main-grid,
+.od-page .od-order-panel .cus-stack,
+.od-page .od-order-panel .cus-side {
+  min-width: 0;
+}
+
+/* At-a-glance summary reuses the order's existing localized values. */
+.od-order-summary {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  margin-bottom: 20px;
+  padding: 15px 18px;
+  border: 1px solid var(--ui-border);
+  border-radius: 12px;
+  background: var(--ui-surface-2);
+}
+
+.od-order-summary h3 {
+  margin: 0;
+  color: var(--ui-text);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.od-order-summary dl {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px 18px;
+  margin: 0;
+}
+
+.od-order-summary-item {
+  display: grid;
+  align-content: start;
+  gap: 5px;
+  min-width: 0;
+}
+
+.od-order-summary-item dt {
+  color: var(--ui-text-3);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.od-order-summary-item dd {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  margin: 0;
+  color: var(--ui-text);
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.od-order-summary-item dd > svg {
+  flex: none;
+  color: var(--ui-primary);
+}
+
+/* Keep the information groups distinct without nesting a stack of card borders. */
+.od-info-sections {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px 28px;
+  align-items: start;
+}
+
+.od-info-section {
+  min-height: 0;
+  padding: 0 0 16px;
+  border: 0;
+  border-bottom: 1px solid var(--ui-border);
+  border-radius: 0;
+  background: transparent;
+}
+
+.od-info-section:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.od-info-section-title {
+  margin-bottom: 10px;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.od-info-list {
+  gap: 0;
+}
+
+.od-info-list .od-field {
+  grid-template-columns: minmax(110px, 0.72fr) minmax(0, 1.28fr);
+  align-items: start;
+  gap: 6px 16px;
+  padding: 9px 0;
+}
+
+.od-info-list .od-field dt {
+  color: var(--ui-text-3);
+  line-height: 1.45;
+}
+
+.od-info-list .od-field dd {
+  min-width: 0;
+  color: var(--ui-text);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.od-info-section-heading {
+  margin-bottom: 10px;
+}
+
+.od-info-section-title .od-card-icon {
+  width: 30px;
+  height: 30px;
+}
+
+/* Tabs keep the same underline pattern on desktop and become horizontally scrollable on phones. */
+.od-tabs .ant-tabs-tab-active .ant-tabs-tab-btn {
+  font-weight: 700;
+}
+
+.od-tabs .ant-tabs-tab:hover .ant-tabs-tab-btn {
+  color: var(--ui-primary-text);
+}
+
+.od-tabs .ant-tabs-tab-btn:focus-visible {
+  border-radius: 3px;
+  outline: 2px solid var(--ui-primary);
+  outline-offset: 4px;
+}
+
+.od-tabs .ant-tabs-ink-bar {
+  height: 2px;
+  border-radius: 2px;
+  background: var(--ui-primary);
+}
+
+/* Make active progress easy to spot and keep labels/timestamps visually separate. */
+.od-step {
+  padding-bottom: 16px;
+}
+
+.od-step.is-current .od-step-label {
+  color: var(--ui-primary-text);
+  font-weight: 700;
+}
+
+.od-step-label {
+  line-height: 1.4;
+  overflow-wrap: break-word;
+}
+
+.od-step-hint {
+  margin-top: 2px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.od-step-meta,
+.od-step-note {
+  margin-top: 3px;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+@media (max-width: 1100px) {
+  .od-order-summary dl {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .od-info-section.is-wide .od-info-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .od-page .od-order-panel .cus-main-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .od-page .cus-side {
+    position: static;
+  }
+
+  .od-info-sections {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+  }
+
+  .od-info-list .od-field {
+    grid-template-columns: minmax(155px, 0.42fr) minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .od-page {
+    gap: 12px;
+  }
+
+  .od-page .od-order-panel .cus-main-grid {
+    gap: 14px;
+  }
+
+  .od-order-summary {
+    gap: 10px;
+    margin-bottom: 16px;
+    padding: 13px 14px;
+  }
+
+  .od-order-summary dl {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .od-info-section {
+    padding-bottom: 14px;
+  }
+
+  .od-info-list .od-field {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 3px;
+  }
+
+  .od-tabs .ant-tabs-nav {
+    margin-bottom: 12px;
+  }
+
+  .od-tabs .ant-tabs-nav::before {
+    display: block;
+    border-bottom-color: var(--ui-border);
+  }
+
+  .od-tabs .ant-tabs-nav-wrap {
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+    touch-action: pan-x;
+  }
+
+  .od-tabs .ant-tabs-nav-list {
+    width: max-content;
+    min-width: max-content;
+    flex-wrap: nowrap;
+    gap: 18px;
+    transform: none !important;
+  }
+
+  .od-tabs .ant-tabs-tab {
+    min-height: 44px;
+    margin: 0 !important;
+    padding: 0 2px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .od-tabs .ant-tabs-tab-active {
+    border: 0;
+    background: transparent;
+  }
+
+  .od-tabs .ant-tabs-tab-btn {
+    white-space: nowrap;
+  }
+
+  .od-tabs .ant-tabs-nav-operations {
+    display: none;
+  }
+}
+
+@media (max-width: 380px) {
+  .od-info-list .od-field {
+    gap: 2px;
+  }
+
+  .od-info-section-title {
+    gap: 8px;
+    font-size: 14px;
   }
 }

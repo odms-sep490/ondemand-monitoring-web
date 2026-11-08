@@ -174,6 +174,7 @@ export function LocationPanel({
           id="co-radius"
           className="co-range"
           type="range"
+          aria-label={t.radiusInputLabel}
           min={RADIUS_MIN}
           max={RADIUS_MAX}
           step={50}

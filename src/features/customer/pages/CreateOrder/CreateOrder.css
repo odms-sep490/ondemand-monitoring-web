@@ -11,8 +11,7 @@
   width: 100%;
   max-width: 1500px;
   margin-inline: auto;
-  /* Room for the sticky action bar (and the floating assistant on phones) at the end of the page. */
-  padding-bottom: 72px;
+  padding-bottom: var(--ui-space-4);
   color: var(--ui-text);
   font-size: 14px;
   line-height: 1.5;
@@ -2719,6 +2718,9 @@ ul.co-help {
 .co-service-grid .co-service-illustration {
   height: 120px;
   border-radius: 10px;
+}
+.co-service-grid .co-service-illustration:has(.co-service-noimg) {
+  height: 76px;
 }
 .co-service-grid .co-service-image {
   border-radius: 10px;

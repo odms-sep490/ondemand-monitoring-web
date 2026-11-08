@@ -101,6 +101,17 @@ export function ScheduleStep(p: Props) {
               <div className="co-sum-item">
                 <span className="co-sum-icon" aria-hidden="true" />
                 <div className="co-sum-body">
+                  <dt>{t.altitude}</dt>
+                  <dd>
+                    {Number.isFinite(form.altitudeM)
+                      ? `${form.altitudeM} m`
+                      : t.notSelected}
+                  </dd>
+                </div>
+              </div>
+              <div className="co-sum-item">
+                <span className="co-sum-icon" aria-hidden="true" />
+                <div className="co-sum-body">
                   <dt>{t.dates}</dt>
                   <dd>{dates}</dd>
                   {days !== null && <dd className="is-sub">{t.days(days)}</dd>}

@@ -40,7 +40,7 @@ export const createOrderPageMessages = defineMessages({
       otherUsagePurpose: 'Nhập cách bạn sẽ sử dụng kết quả.',
       preferredDateFrom: 'Chọn ngày bắt đầu.',
       preferredDateTooSoon:
-        'Ngày bay sớm nhất phải cách ngày tạo yêu cầu ít nhất 7 ngày để ODMS chuẩn bị thủ tục giấy phép bay.',
+        'Ngày bay sớm nhất phải cách ngày tạo yêu cầu ít nhất 7 ngày để ODMS chuẩn bị thủ tục giấy phép bay. Vui lòng chọn ngày mới để tiếp tục.',
       preferredDateTo: 'Chọn ngày kết thúc.',
       preferredDateOrder: 'Ngày kết thúc phải sau hoặc bằng ngày bắt đầu.',
       preferredTimeId: 'Chọn khung giờ.',
@@ -119,7 +119,7 @@ export const createOrderPageMessages = defineMessages({
       otherUsagePurpose: 'Enter how you will use the results.',
       preferredDateFrom: 'Select a start date.',
       preferredDateTooSoon:
-        'The earliest flight date must be at least 7 days after the request date so ODMS can prepare the flight permit procedures.',
+        'The earliest flight date must be at least 7 days after the request date so ODMS can prepare the flight permit procedures. Choose a later date to continue.',
       preferredDateTo: 'Select an end date.',
       preferredDateOrder: 'End date must be on or after the start date.',
       preferredTimeId: 'Select a time window.',

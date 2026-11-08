@@ -175,18 +175,26 @@ describe('validateStep', () => {
     })
   })
 
-  it('step 5 requires at least 7 days of advance notice', () => {
-    const form = {
-      ...withService,
-      address: 'A',
-      preferredDateFrom: todayPlus(6),
-      preferredDateTo: todayPlus(7),
-      preferredTimeId: 'pt',
-    }
-    expect(validateStep(5, form, okLocation, msg).preferredDateFrom).toBe(
-      'tooSoon',
-    )
-  })
+  it.each([
+    [6, 'tooSoon'],
+    [7, undefined],
+    [8, undefined],
+  ] as const)(
+    'step 5 applies the seven-day boundary to dates %i days away',
+    (daysAway, expectedError) => {
+      const date = todayPlus(daysAway)
+      const form = {
+        ...withService,
+        address: 'A',
+        preferredDateFrom: date,
+        preferredDateTo: date,
+        preferredTimeId: 'pt',
+      }
+      expect(validateStep(5, form, okLocation, msg).preferredDateFrom).toBe(
+        expectedError,
+      )
+    },
+  )
 
   it('step 6 also requires a deliverable and passes for a complete form', () => {
     const base = { ...withService, address: 'A', preferredTimeId: 'pt' }

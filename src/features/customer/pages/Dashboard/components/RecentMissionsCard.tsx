@@ -1,10 +1,8 @@
-import { RocketOutlined } from '@ant-design/icons'
 import { Skeleton } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 
 import {
   CardComponent,
-  EmptyState,
   ErrorState,
   StatusTag,
   TableComponent,
@@ -69,8 +67,7 @@ export function RecentMissionsCard({ missions, loading, error, onRetry }: Props)
   return (
     <CardComponent
       title={t.title}
-      icon={<RocketOutlined />}
-      tone="green"
+      className="cus-missions-card"
       extra={
         <a className="mgr-card-link" href={customerHref({ screen: 'missionHistory' })}>
           {t.viewAll}
@@ -81,7 +78,7 @@ export function RecentMissionsCard({ missions, loading, error, onRetry }: Props)
       {loading && !missions ? (
         <Skeleton active paragraph={{ rows: 3 }} title={false} />
       ) : !missions || missions.length === 0 ? (
-        <EmptyState title={t.empty} />
+        <div className="cus-missions-empty">{t.empty}</div>
       ) : (
         <TableComponent<CustomerMissionHistory>
           rowKey="id"
