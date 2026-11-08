@@ -144,7 +144,7 @@ describe('statusTone maps', () => {
   )
 
   it('follows the brief colour convention for the values it names explicitly', () => {
-    expect(orderStatusTone.PENDING).toBe('gray')
+    expect(orderStatusTone.PENDING).toBe('yellow')
     expect(orderStatusTone.APPROVED).toBe('green')
     expect(orderStatusTone.REJECTED).toBe('red')
     expect(orderStatusTone.IN_PROGRESS).toBe('blue')

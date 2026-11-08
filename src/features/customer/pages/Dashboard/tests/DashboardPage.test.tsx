@@ -83,7 +83,8 @@ describe('DashboardPage', () => {
     vi.spyOn(customerMissionHistoryApi, 'list').mockRejectedValueOnce(new Error('boom'))
     render(<DashboardPage />)
     expect(await screen.findByText('Không tải được nhiệm vụ gần đây')).toBeInTheDocument()
-    expect(screen.getByText('Tổng số đơn')).toBeInTheDocument()
+    // Orders load independently of missions, so wait for them rather than race.
+    expect(await screen.findByText('Tổng số đơn')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Thử lại' }))
     expect(await screen.findByText('MSN-2609-0131-1', { exact: false })).toBeInTheDocument()
   })

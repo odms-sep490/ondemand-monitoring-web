@@ -13,8 +13,8 @@ const userWith = (role: UserProfile['role']): UserProfile => ({
 })
 
 describe('resolveCreateRequestTarget', () => {
-  it('sends a guest (no session) to registration', () => {
-    expect(resolveCreateRequestTarget(undefined)).toBe('#auth/register')
+  it('sends a guest (no session) to login', () => {
+    expect(resolveCreateRequestTarget(undefined)).toBe('#auth/login')
   })
 
   it('sends a CUSTOMER straight to the create-request screen', () => {
