@@ -24,6 +24,9 @@ export default defineConfig({
     testTimeout: 20000,
     exclude: ['**/node_modules/**', '.claude/**', 'e2e/**'],
     env: {
+      // Pin the timezone so date/weekday tests behave the same locally (VN)
+      // and on UTC CI runners.
+      TZ: 'Asia/Ho_Chi_Minh',
       VITE_USE_MOCK_API: 'true',
       VITE_REAL_API_ROUTES: '',
     },
