@@ -1,3 +1,4 @@
+import { VideoThumbnail } from '../../shared/components/media/VideoThumbnail'
 import { useEffect, useState } from 'react'
 import {
   Alert,
@@ -290,19 +291,27 @@ export function CustomerResultReview({
                         className="delivery-review-evidence-card"
                         key={evidence.roundEvidenceId}
                       >
-                        {!evidence.url ? (
+                        {!evidence.previewUrl ? (
                           <span className="delivery-review-media-unavailable">
-                            {t.mediaUnavailable}
+                            {evidence.accessReason
+                              ? t.mediaUnavailable
+                              : evidence.previewStatus === 'FAILED'
+                                ? t.previewFailed
+                                : evidence.previewStatus === 'UNSUPPORTED'
+                                  ? t.previewUnsupported
+                                  : evidence.previewStatus === 'PENDING' || evidence.previewStatus === 'PROCESSING'
+                                    ? t.previewPending
+                                    : t.mediaUnavailable}
                           </span>
                         ) : evidence.type.toUpperCase().includes('VIDEO') ? (
-                          <video
-                            controls
-                            preload="metadata"
-                            src={evidence.url}
-                          />
+                          <VideoThumbnail poster={evidence.thumbnailUrl} src={evidence.previewUrl} mediaId={evidence.mediaAssetId} fileName={evidence.fileName} fileSize={evidence.size} original={evidence.previewStatus !== 'READY'} />
                         ) : (
                           <DeliveryImagePreview
-                            src={evidence.url}
+                            src={evidence.thumbnailUrl ?? evidence.previewUrl}
+                            mediaId={evidence.mediaAssetId}
+                            fileSize={evidence.size}
+                            original={evidence.previewStatus !== 'READY'}
+                            previewSrc={evidence.previewUrl}
                             fileName={evidence.fileName}
                           />
                         )}
@@ -334,11 +343,6 @@ export function CustomerResultReview({
                         <Typography.Text type="secondary">
                           {formatSize(evidence.size)}
                         </Typography.Text>
-                        {evidence.downloadable && evidence.url && (
-                          <a href={evidence.url} download={evidence.fileName}>
-                            {t.download}
-                          </a>
-                        )}
                       </article>
                     ))
                   )}
@@ -411,7 +415,34 @@ export function CustomerResultReview({
                 children: <Collapse accordion items={round.items.map((item) => ({
                   key: `${round.reviewRoundId}:${item.roundItemId}`,
                   label: <Space><Typography.Text strong>{item.title}</Typography.Text><Tag>{t.evidenceCount(item.evidence.length)}</Tag></Space>,
-                  children: <div className="delivery-review-item"><ChecklistGuidance guidance={item} collapsible={false} /><div className="delivery-review-evidence">{item.evidence.map((evidence) => <article className="delivery-review-evidence-card" key={evidence.roundEvidenceId}>{!evidence.url ? <span className="delivery-review-media-unavailable">{t.mediaUnavailable}</span> : evidence.type.toUpperCase().includes('VIDEO') ? <video controls preload="metadata" src={evidence.url} /> : <DeliveryImagePreview src={evidence.url} fileName={evidence.fileName} />}<Typography.Text className="delivery-review-file-name" ellipsis={{ tooltip: evidence.fileName }}>{evidence.fileName}</Typography.Text></article>)}</div></div>,
+                  children: (
+                    <div className="delivery-review-item">
+                      <ChecklistGuidance guidance={item} collapsible={false} />
+                      <div className="delivery-review-evidence">
+                        {item.evidence.map((evidence) => (
+                          <article className="delivery-review-evidence-card" key={evidence.roundEvidenceId}>
+                            {!evidence.previewUrl ? (
+                              <span className="delivery-review-media-unavailable">{t.mediaUnavailable}</span>
+                            ) : evidence.type.toUpperCase().includes('VIDEO') ? (
+                              <VideoThumbnail poster={evidence.thumbnailUrl} src={evidence.previewUrl} mediaId={evidence.mediaAssetId} fileName={evidence.fileName} fileSize={evidence.size} original={evidence.previewStatus !== 'READY'} />
+                            ) : (
+                              <DeliveryImagePreview
+                                src={evidence.thumbnailUrl ?? evidence.previewUrl}
+                                mediaId={evidence.mediaAssetId}
+                                fileSize={evidence.size}
+                                original={evidence.previewStatus !== 'READY'}
+                                previewSrc={evidence.previewUrl}
+                                fileName={evidence.fileName}
+                              />
+                            )}
+                            <Typography.Text className="delivery-review-file-name" ellipsis={{ tooltip: evidence.fileName }}>
+                              {evidence.fileName}
+                            </Typography.Text>
+                          </article>
+                        ))}
+                      </div>
+                    </div>
+                  ),
                 }))} />,
               }))}
           />

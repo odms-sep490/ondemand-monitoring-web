@@ -9,6 +9,9 @@ export type ResultReviewEvidence = {
   size: number
   capturedAt: string | null
   url: string | null
+  thumbnailUrl?: string | null
+  previewUrl?: string | null
+  previewStatus?: 'PENDING' | 'PROCESSING' | 'READY' | 'FAILED' | 'UNSUPPORTED' | null
   urlExpiresAt: string | null
   downloadable: boolean
   accessReason: 'RETENTION_EXPIRED' | 'MEDIA_UNAVAILABLE' | null
@@ -93,6 +96,7 @@ export type RevisionRequestResponse = {
 }
 
 export type ChecklistDeliveryAsset = {
+  previewStatus?: ResultReviewEvidence['previewStatus']
   roundEvidenceId: string | null
   mediaAssetId: string
   type: string
@@ -102,6 +106,8 @@ export type ChecklistDeliveryAsset = {
   missionId: string | null
   missionCode: string | null
   url: string | null
+  thumbnailUrl?: string | null
+  previewUrl?: string | null
   urlExpiresAt: string | null
   accessReason: 'RETENTION_EXPIRED' | 'MEDIA_UNAVAILABLE' | null
   changeType: 'INITIAL' | 'RETAINED' | 'ADDED' | 'REPLACEMENT' | null

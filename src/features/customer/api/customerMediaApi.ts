@@ -37,7 +37,7 @@ export const customerMediaApi = {
       },
     ),
 
-  /** `GET /api/media/{mediaId}/download`: presigned URL when only the media id is known. */
+  /** Legacy metadata endpoint; original downloads use the explicit POST flow. */
   getDownload: (mediaId: string, signal?: AbortSignal) =>
     apiRequest<CustomerMediaResponse>(`/api/media/${enc(mediaId)}/download`, {
       signal,

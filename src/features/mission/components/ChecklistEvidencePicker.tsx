@@ -1,3 +1,4 @@
+import { VideoPoster } from '../../../shared/components/media/VideoThumbnail'
 import { useEffect, useRef, useState } from 'react'
 import { Button, Checkbox, Input, Modal, Select, Space, Spin } from 'antd'
 import { useI18n } from '../../../shared/i18n'
@@ -181,18 +182,10 @@ export function ChecklistEvidencePicker({
                 }
                 aria-label={item.fileName}
               />
-              {item.previewUrl && item.mediaType === 'IMAGE' && (
-                <img src={item.previewUrl} alt="" loading="lazy" />
+              {item.thumbnailUrl && item.mediaType === 'IMAGE' && (
+                <img src={item.thumbnailUrl} alt="" loading="lazy" />
               )}
-              {item.previewUrl && item.mediaType === 'VIDEO' && (
-                <video
-                  src={item.previewUrl}
-                  muted
-                  playsInline
-                  preload="metadata"
-                  aria-hidden="true"
-                />
-              )}
+              {item.mediaType === 'VIDEO' && <VideoPoster poster={item.thumbnailUrl} />}
               <span>
                 {item.fileName}
                 <small>{item.mediaType === 'VIDEO' ? t.video : t.image}</small>

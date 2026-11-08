@@ -19,6 +19,8 @@ export interface UploadedMissionMedia {
   availableAt: string | null
   /** Original URL is withheld until payment and delivery are complete. */
   downloadUrl: string | null
+  thumbnailUrl?: string | null
+  previewUrl?: string | null
   urlExpiresAt?: string
   /** Capture provenance; null/undefined means unknown legacy source. */
   sourceType?: string | null

@@ -1,3 +1,4 @@
+import { VideoThumbnail } from '../../shared/components/media/VideoThumbnail'
 import { useState } from 'react'
 import { Button, Modal, Radio, Typography } from 'antd'
 import { SwapOutlined } from '@ant-design/icons'
@@ -9,21 +10,23 @@ import './DeliveryReplacementPicker.css'
 
 function Preview({ asset }: { asset: ChecklistDeliveryAsset }) {
   const { t } = useI18n(managerDeliveryPanelMessages)
-  if (!asset.url)
+  if (!asset.previewUrl)
     return (
       <div className="delivery-replacement-unavailable">
         {t.replacementPreviewUnavailable}
       </div>
     )
   return asset.type.toUpperCase().includes('VIDEO') ? (
-    <video
-      controls
-      preload="metadata"
-      src={asset.url}
-      aria-label={asset.fileName}
-    />
+    <VideoThumbnail src={asset.previewUrl} poster={asset.thumbnailUrl} fallbackUrl={asset.url} fileName={asset.fileName} fileSize={asset.size} original={asset.previewStatus !== 'READY'} />
   ) : (
-    <DeliveryImagePreview src={asset.url} fileName={asset.fileName} />
+    <DeliveryImagePreview
+      src={asset.thumbnailUrl ?? asset.previewUrl}
+      fallbackUrl={asset.url}
+      fileSize={asset.size}
+      original={asset.previewStatus !== 'READY'}
+      previewSrc={asset.previewUrl}
+      fileName={asset.fileName}
+    />
   )
 }
 
@@ -137,7 +140,7 @@ export function DeliveryReplacementPicker({
               <Radio
                 value={asset.mediaAssetId}
                 aria-label={`${t.selectReplacement}: ${asset.fileName}`}
-                disabled={disabled || !!asset.accessReason}
+                disabled={disabled || !!asset.accessReason || !asset.previewUrl}
               >
                 {t.selectReplacement}
               </Radio>

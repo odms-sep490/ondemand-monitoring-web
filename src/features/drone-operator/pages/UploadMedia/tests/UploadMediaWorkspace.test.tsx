@@ -127,6 +127,17 @@ beforeEach(() => {
 })
 afterEach(() => vi.restoreAllMocks())
 describe('Upload media and monitoring workspace', () => {
+  it('retains the server video poster when the uploaded file is still local', async () => {
+    vi.mocked(missionApi.getPermissions).mockResolvedValue({ ...permissions, canUploadMedia: true })
+    vi.mocked(operatorMediaApi.reviewItems).mockResolvedValue([{ ...media, backendMediaId: 'server-video', mediaType: 'VIDEO', contentType: 'video/mp4', fileName: 'clip.mp4', status: 'AVAILABLE', localAvailable: true }])
+    vi.mocked(operatorMissionMediaApi.list).mockResolvedValue({ items: [{ mediaId: 'server-video', missionId: 'm', deviceId: 'd', mediaType: 'VIDEO', fileName: 'clip.mp4', contentType: 'video/mp4', fileSize: 200, capturedAt: media.capturedAt, availableAt: null, downloadUrl: 'https://example.test/original.mp4', thumbnailUrl: 'https://example.test/poster.jpg', previewUrl: 'https://example.test/preview.mp4', status: 'AVAILABLE', urlExpiresAt: '' }], page: 0, totalItems: 1, totalPages: 1, first: true, last: true })
+    render(<UploadMediaPage missionId="m" />)
+    const open = await screen.findByRole('button', { name: 'Xem video clip.mp4' })
+    expect(open.querySelector('img')).toHaveAttribute('src', 'https://example.test/poster.jpg')
+    expect(document.querySelector('video')).toBeNull()
+    fireEvent.click(open)
+    expect(await screen.findByLabelText('clip.mp4', { selector: 'video' })).toHaveAttribute('src', 'https://example.test/preview.mp4')
+  })
   it('keeps readonly acceptance free of the removed contact notice', async () => {
     vi.mocked(missionApi.getPermissions).mockResolvedValue({
       ...permissions,

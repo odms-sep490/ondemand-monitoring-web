@@ -12,8 +12,12 @@ export type CustomerMediaResponse = {
   fileSize?: number
   capturedAt?: string | null
   availableAt?: string | null
-  /** Presigned, short-lived viewing URL. */
+  /** Legacy field retained for wire compatibility; never use it for preview or download actions. */
   downloadUrl?: string | null
+  thumbnailUrl?: string | null
+  previewUrl?: string | null
+  derivativeStatus?: MediaDerivativeStatus | null
+  canDownloadOriginal?: boolean
 }
 
 /** `PageResponse<T>` as returned by the customer mission media endpoint. */
@@ -28,6 +32,12 @@ export type PageResponse<T> = {
 }
 
 export type MediaKind = 'image' | 'video' | 'other'
+export type MediaDerivativeStatus =
+  | 'PENDING'
+  | 'PROCESSING'
+  | 'READY'
+  | 'FAILED'
+  | 'UNSUPPORTED'
 
 export type MediaItem = {
   sourceType?: string | null
@@ -41,6 +51,10 @@ export type MediaItem = {
   capturedAt: string | null
   availableAt: string | null
   url: string | null
+  thumbnailUrl?: string | null
+  previewUrl?: string | null
+  derivativeStatus?: MediaDerivativeStatus | null
+  canDownloadOriginal?: boolean
 }
 
 export type MediaMissionGroup = {

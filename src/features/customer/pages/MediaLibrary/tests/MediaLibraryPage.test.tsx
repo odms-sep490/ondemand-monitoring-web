@@ -84,7 +84,7 @@ describe('MediaLibraryPage', () => {
     const dialog = await screen.findByRole('dialog')
     await waitFor(() =>
       expect(
-        within(dialog).getByRole('link', { name: 'Tải xuống' }),
+        within(dialog).getByRole('button', { name: 'Tải xuống' }),
       ).toBeInTheDocument(),
     )
     expect(fresh).toHaveBeenCalledTimes(1)

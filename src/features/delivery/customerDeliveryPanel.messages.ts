@@ -19,10 +19,14 @@ export const customerDeliveryPanelMessages = defineMessages({
     checklistMedia: 'Ảnh và video của hạng mục',
     openImage: (name: string) => `Phóng to ảnh ${name}`,
     download: 'Tải bản gốc',
+    downloadFailed: 'Không thể tải tệp gốc. Vui lòng thử lại.',
+    previewFailed: 'Chưa thể tạo bản xem trước cho tệp này.',
+    previewUnsupported: 'Định dạng tệp này chưa được hỗ trợ xem trước.',
     mediaUnavailable: 'Tệp không còn khả dụng',
     noEvidence:
       'Chưa có ảnh hoặc video được công bố cho hạng mục này. Bạn vẫn có thể gửi yêu cầu nếu thiếu bằng chứng.',
     previewNote: 'Bản xem trước · chưa thể tải bản gốc',
+    previewPending: 'Bản xem trước đang được tạo. Vui lòng tải lại sau giây lát.',
     managerNote: 'Ghi chú từ quản lý',
     previewReady: 'Bản xem trước đã sẵn sàng',
     previewReadyText:
@@ -53,7 +57,7 @@ export const customerDeliveryPanelMessages = defineMessages({
     revisionSentText:
       'Quản lý sẽ cập nhật và gửi lại bản xem trước mới cho bạn.',
     resultsAcceptedTitle: 'Đã chấp nhận kết quả',
-    resultsAcceptedText: 'Tệp gốc được tự động bàn giao khi đã thanh toán đủ và mọi yêu cầu chỉnh sửa đã giải quyết.',
+    resultsAcceptedText: 'Tệp gốc sẽ sẵn sàng để tải xuống khi bạn thanh toán đủ và mọi yêu cầu chỉnh sửa đã được xử lý.',
     deliveredTitle: 'Bàn giao hoàn tất',
     deliveredText: (n: number) => `${n} tệp gốc đã sẵn sàng để tải xuống.`,
     unknownSize: 'Không rõ dung lượng',
@@ -121,10 +125,14 @@ export const customerDeliveryPanelMessages = defineMessages({
     checklistMedia: 'Checklist images and videos',
     openImage: (name: string) => `Enlarge image ${name}`,
     download: 'Download original',
+    downloadFailed: 'Unable to download the original file. Please try again.',
+    previewFailed: 'A preview could not be created for this file.',
+    previewUnsupported: 'Preview is not supported for this file format.',
     mediaUnavailable: 'File is no longer available',
     noEvidence:
       'No image or video was published for this checklist item. You can still report missing evidence.',
     previewNote: 'Preview only · original not downloadable yet',
+    previewPending: 'Preview is being prepared. Refresh in a moment.',
     managerNote: 'Note from the manager',
     previewReady: 'Your preview is ready',
     previewReadyText: 'Review the files above and let us know your decision.',
@@ -155,7 +163,7 @@ export const customerDeliveryPanelMessages = defineMessages({
       'The manager will update the results and send a new preview.',
     resultsAcceptedTitle: 'Results accepted',
     resultsAcceptedText:
-      'Originals are released automatically once payment and all revision items are resolved.',
+      'Original files become available to download after full payment and resolution of all revision items.',
     deliveredTitle: 'Delivery complete',
     deliveredText: (n: number) => `${n} original files are ready to download.`,
     unknownSize: 'Unknown size',

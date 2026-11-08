@@ -237,7 +237,7 @@ describe('Checklist evidence', () => {
       'Loại media không phù hợp yêu cầu',
     )
   })
-  it('retains rejected evidence with blocker and supports video', () => {
+  it('retains rejected evidence with blocker and supports video', async () => {
     render(
       <ChecklistEvidencePanel
         {...props}
@@ -259,7 +259,9 @@ describe('Checklist evidence', () => {
     )
     expect(screen.getByText(/Bằng chứng hợp lệ: 0 \/ 1/)).toBeInTheDocument()
     expect(screen.getByText('Media đã bị từ chối.')).toBeInTheDocument()
-    expect(document.querySelector('video')).not.toBeNull()
+    expect(document.querySelector('video')).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: `Xem video ${link.fileName}` }))
+    expect(await screen.findByLabelText(link.fileName, { selector: 'video' })).toHaveAttribute('src', link.previewUrl)
   })
   it('Inspector may attach while execution editing remains read-only', () => {
     render(
@@ -521,8 +523,7 @@ describe('Evidence picker Mission-scoped loading', () => {
     ])
     render(<ChecklistEvidencePanel {...props} item={emptyItem} />)
     open()
-    expect(
-      await screen.findByLabelText('Xem video capture.jpg'),
-    ).toHaveAttribute('src', candidate.previewUrl)
+    fireEvent.click(await screen.findByRole('button', { name: 'Xem video capture.jpg' }))
+    expect(await screen.findByLabelText('capture.jpg', { selector: 'video' })).toHaveAttribute('src', candidate.previewUrl)
   })
 })

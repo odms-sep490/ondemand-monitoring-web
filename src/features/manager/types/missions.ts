@@ -469,6 +469,8 @@ export type MediaResponse = {
     | 'AVAILABLE'
     | 'REJECTED'
   url: string
+  thumbnailUrl?: string | null
+  previewUrl?: string | null
   expiresIn: number
   contentType: string
   fileSize: number

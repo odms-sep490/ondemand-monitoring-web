@@ -43,3 +43,9 @@
   font-size: 13px;
   color: var(--ui-danger-text);
 }
+
+.mdp-download-note {
+  margin: 0;
+  font-size: 13px;
+  color: var(--ui-text-3);
+}

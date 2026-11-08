@@ -16,8 +16,11 @@ export type DeliveryAsset = {
   type: string
   fileName: string
   size: number
-  url: string
-  urlExpiresAt: string
+  url: string | null
+  thumbnailUrl?: string | null
+  previewUrl?: string | null
+  previewStatus?: 'PENDING' | 'PROCESSING' | 'READY' | 'FAILED' | 'UNSUPPORTED' | null
+  urlExpiresAt: string | null
   downloadable: boolean
 }
 

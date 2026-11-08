@@ -59,6 +59,8 @@ export type MissionReworkContext = {
         fileName: string
         mediaType: string
         url: string | null
+        thumbnailUrl: string | null
+        previewUrl: string | null
         urlExpiresAt: string | null
         unavailableReason: string | null
       }>
@@ -217,6 +219,8 @@ export interface MissionResultMedia {
     | 'REJECTED'
     | null
   url: string
+  thumbnailUrl?: string | null
+  previewUrl?: string | null
   expiresIn?: number | null
   contentType?: string | null
   fileSize?: number | null

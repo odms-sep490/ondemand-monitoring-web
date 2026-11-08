@@ -1,5 +1,7 @@
 import { Button } from 'antd'
+import { useState } from 'react'
 import { Modal } from '../ui'
+import { requestOriginalMediaDownload, startOriginalMediaDownload } from '../../../../../shared/api/originalMediaDownload'
 import { useI18n } from '../../../../../shared/i18n'
 import type { MediaItem } from '../../../lib/media/types'
 import { customerHref } from '../../../routes'
@@ -30,6 +32,8 @@ export function MediaPreviewModal({
   const { t } = useI18n(mediaPreviewModalMessages)
   const fresh = useFreshMedia(item.missionId, item.id)
   const shown = fresh.data ?? { ...item, url: null }
+  const [downloading, setDownloading] = useState(false)
+  const [downloadFailed, setDownloadFailed] = useState(false)
 
   return (
     <Modal
@@ -54,18 +58,23 @@ export function MediaPreviewModal({
               {t.detail}
             </Button>
           )}
-          {fresh.data?.url ? (
+          {shown.canDownloadOriginal ? (
             <Button
               type="primary"
-              href={fresh.data.url}
-              download={item.fileName}
-              target="_blank"
-              rel="noopener noreferrer"
+              loading={downloading}
+              onClick={() => {
+                setDownloading(true)
+                setDownloadFailed(false)
+                void requestOriginalMediaDownload(item.id)
+                  .then((download) => startOriginalMediaDownload(download.downloadUrl))
+                  .catch(() => setDownloadFailed(true))
+                  .finally(() => setDownloading(false))
+              }}
             >
               {t.download}
             </Button>
           ) : (
-            <Button type="primary" disabled>
+            <Button type="primary" disabled title={t.downloadUnavailable}>
               {t.download}
             </Button>
           )}
@@ -87,6 +96,8 @@ export function MediaPreviewModal({
           </div>
         )}
         {fresh.data && <MediaViewer item={fresh.data} />}
+        {downloadFailed && <div className="md-preview-error" role="alert">{t.downloadFailed}</div>}
+        {!shown.canDownloadOriginal && <p role="status">{t.downloadUnavailable}</p>}
         <MediaInfoList item={shown} missionLabel={missionLabel} />
       </div>
     </Modal>

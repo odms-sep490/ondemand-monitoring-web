@@ -5,6 +5,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { resetMockDb } from '../../../../../mocks/db'
 import '../../../../../mocks/index'
 import { setLanguage } from '../../../../../shared/i18n'
+import * as originalDownload from '../../../../../shared/api/originalMediaDownload'
 import { customerMediaApi } from '../../../api/customerMediaApi'
 import { MediaDetailPage } from '../MediaDetailPage'
 
@@ -34,11 +35,17 @@ describe('MediaDetailPage', () => {
     expect(await screen.findByText('File information')).toBeInTheDocument()
   })
 
-  it('loads the asset from /api/media/{id}/download with a download link, viewer and mission code', async () => {
+  it('requests an original URL only after the customer clicks download', async () => {
     const [id] = await firstIds()
+    const request = vi.spyOn(originalDownload, 'requestOriginalMediaDownload').mockResolvedValue({ mediaId: id, fileName: 'original.jpg', downloadUrl: 'https://example.test/original', expiresAt: '2030-01-01T00:00:00Z' })
+    const start = vi.spyOn(originalDownload, 'startOriginalMediaDownload').mockImplementation(() => {})
     const spy = vi.spyOn(customerMediaApi, 'getDownload')
     render(<MediaDetailPage mediaId={id} />)
-    expect(await screen.findByRole('link', { name: 'Tải xuống' })).toHaveAttribute('href', expect.stringContaining('data:image/svg+xml'))
+    expect(await screen.findByRole('button', { name: 'Tải ảnh/video gốc' })).toBeEnabled()
+    expect(request).not.toHaveBeenCalled()
+    fireEvent.click(screen.getByRole('button', { name: 'Tải ảnh/video gốc' }))
+    await waitFor(() => expect(request).toHaveBeenCalledWith(id))
+    await waitFor(() => expect(start).toHaveBeenCalledWith('https://example.test/original'))
     expect(spy).toHaveBeenCalledWith(id, expect.any(AbortSignal))
     expect(await screen.findAllByText('MSN-2609-0131-1')).not.toHaveLength(0)
   })

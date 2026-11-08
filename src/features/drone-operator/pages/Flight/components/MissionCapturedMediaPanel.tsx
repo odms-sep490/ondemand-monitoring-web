@@ -1,3 +1,4 @@
+import { VideoThumbnail } from '../../../../../shared/components/media/VideoThumbnail'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useI18n } from '../../../../../shared/i18n'
 import type { Mission } from '../../../types/omss'
@@ -257,14 +258,7 @@ function CapturedMediaCard({
             onError={() => setPreviewFailed(true)}
           />
         ) : (
-          <video
-            src={previewUrl}
-            controls
-            playsInline
-            preload="metadata"
-            aria-label={`${videoLabel}: ${item.fileName}`}
-            onError={() => setPreviewFailed(true)}
-          />
+          <VideoThumbnail src={previewUrl} fileName={`${videoLabel}: ${item.fileName}`} fileSize={item.fileSize} fallbackUrl={previewUrl} />
         )}
       </div>
       <div className="captured-media__details">

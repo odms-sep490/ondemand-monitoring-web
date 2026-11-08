@@ -146,7 +146,7 @@ describe('Customer delivery payment placement', () => {
 
     expect(
       await screen.findByText(
-        'Originals are released automatically once payment and all revision items are resolved.',
+        'Original files become available to download after full payment and resolution of all revision items.',
       ),
     ).toBeInTheDocument()
     expect(
@@ -162,7 +162,7 @@ describe('Customer delivery payment placement', () => {
     render(<CustomerDeliveryPanel orderId="o1" />)
     expect(
       await screen.findByText(
-        'Originals are released automatically once payment and all revision items are resolved.',
+        'Original files become available to download after full payment and resolution of all revision items.',
       ),
     ).toBeInTheDocument()
     expect(
@@ -214,8 +214,8 @@ describe('CustomerDeliveryPanel', () => {
     )
     await waitFor(() => expect(originals).toHaveBeenCalledWith('o1'))
     expect(
-      await screen.findByRole('link', { name: /Download/ }),
-    ).toHaveAttribute('href', 'https://example.test/original')
+      await screen.findByRole('button', { name: /Download/ }),
+    ).toBeEnabled()
     expect(
       screen.queryByRole('button', { name: 'Accept all results' }),
     ).toBeNull()

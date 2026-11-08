@@ -1,3 +1,5 @@
+import { ResilientMedia } from '../../../shared/components/media/MediaRecovery'
+import { VideoPoster } from '../../../shared/components/media/VideoThumbnail'
 import { useEffect, useRef, useState } from 'react'
 import { Icon } from '../../../shared/components/Icon'
 import {
@@ -144,10 +146,10 @@ function Gallery({
     try {
       const fresh = await reader.get(missionId, item.mediaId, abort.signal)
       if (!abort.signal.aborted) {
-        if (fresh.downloadUrl) setSelected(fresh)
+        if (fresh.previewUrl) setSelected(fresh)
         else
           setError(
-            'Bản gốc chưa được bàn giao. Vui lòng xem bản xem trước đã phát hành.',
+            'Bản xem trước đang được tạo. Vui lòng tải lại sau giây lát.',
           )
       }
     } catch {
@@ -256,24 +258,18 @@ function Gallery({
                   <button
                     type="button"
                     className="mission-media__preview"
-                    disabled={opening || !item.downloadUrl}
+                    disabled={opening || !item.previewUrl}
                     aria-label={`Xem ${item.fileName}`}
                     onClick={() => void open(item)}
                   >
-                    {!item.downloadUrl ? (
+                    {!item.previewUrl ? (
                       <span className="mission-media__video-placeholder">
                         Bản gốc chưa được bàn giao
                       </span>
                     ) : item.mediaType === 'IMAGE' ? (
-                      <img src={item.downloadUrl} alt="" loading="lazy" />
+                      <img src={item.thumbnailUrl ?? item.previewUrl!} alt="" loading="lazy" />
                     ) : (
-                      <span className="mission-media__video-placeholder">
-                        <span
-                          className="mission-media__play"
-                          aria-hidden="true"
-                        />
-                        <span>VIDEO</span>
-                      </span>
+                      <VideoPoster poster={item.thumbnailUrl} />
                     )}
                     <span className="mission-media__type">
                       {isReference(item)
@@ -289,7 +285,7 @@ function Gallery({
                                 : 'Video'}
                     </span>
                     <span className="mission-media__open-label">
-                      {item.downloadUrl ? 'Xem media' : 'Chờ bàn giao'}
+                      {item.previewUrl ? 'Xem media' : 'Đang tạo bản xem'}
                     </span>
                   </button>
                   <div className="mission-media__card-body">
@@ -393,7 +389,7 @@ function Gallery({
           aria-label="Xem media"
           className="mission-media__dialog"
         >
-          {selected?.downloadUrl ? (
+          {selected?.previewUrl ? (
             <>
               <header className="mission-media__dialog-header">
                 <div>
@@ -414,14 +410,9 @@ function Gallery({
               {error ? <p role="alert">{error}</p> : null}
               <div className="mission-media__dialog-stage">
                 {selected.mediaType === 'IMAGE' ? (
-                  <img src={selected.downloadUrl} alt={selected.fileName} />
+                  <img src={selected.previewUrl} alt={selected.fileName} />
                 ) : (
-                  <video
-                    key={selected.downloadUrl}
-                    src={selected.downloadUrl}
-                    controls
-                    preload="metadata"
-                  />
+                  <ResilientMedia kind="video" expanded src={selected.previewUrl} poster={selected.thumbnailUrl} fileName={selected.fileName} fallbackUrl={selected.downloadUrl} />
                 )}
               </div>
               <footer className="mission-media__dialog-footer">

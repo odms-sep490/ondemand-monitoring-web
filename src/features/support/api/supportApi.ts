@@ -44,6 +44,8 @@ export type TicketResultReviewResponse = {
       size: number
       capturedAt: string | null
       url: string | null
+      thumbnailUrl?: string | null
+      previewUrl?: string | null
       urlExpiresAt: string | null
       downloadable: boolean
       accessReason: 'RETENTION_EXPIRED' | 'MEDIA_UNAVAILABLE' | null

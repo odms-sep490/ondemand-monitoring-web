@@ -1,3 +1,4 @@
+import { VideoThumbnail } from '../../shared/components/media/VideoThumbnail'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Alert,
@@ -30,6 +31,7 @@ import type { Delivery } from './types'
 import { DeliveryProgress, DeliveryStatusPill } from './DeliveryProgress'
 import type { DeliveryAsset } from './types'
 import { DeliveryReplacementPicker } from './DeliveryReplacementPicker'
+import { DeliveryImagePreview } from './DeliveryImagePreview'
 import './delivery.css'
 
 type ReplacementSelection = Record<string, string>
@@ -1471,6 +1473,9 @@ function toDeliveryAsset(
     fileName: asset.fileName,
     size: asset.size ?? 0,
     url: asset.url ?? '',
+    thumbnailUrl: asset.thumbnailUrl ?? null,
+    previewUrl: asset.previewUrl ?? null,
+    previewStatus: asset.previewStatus ?? null,
     urlExpiresAt: asset.urlExpiresAt ?? '',
     downloadable: false,
   }
@@ -1543,10 +1548,21 @@ async function runAction(
 }
 
 function MediaPreview({ asset }: { asset: DeliveryAsset }) {
+  const { t } = useI18n(managerDeliveryPanelMessages)
+  if (!asset.previewUrl) {
+    return <span className="delivery-replacement-unavailable">{t.replacementPreviewUnavailable}</span>
+  }
   return asset.type.toUpperCase().includes('VIDEO') ? (
-    <video controls preload="metadata" src={asset.url} />
+    <VideoThumbnail src={asset.previewUrl} poster={asset.thumbnailUrl} fallbackUrl={asset.url} fileName={asset.fileName} fileSize={asset.size} original={asset.previewStatus !== 'READY'} />
   ) : (
-    <img src={asset.url} alt={asset.fileName} loading="lazy" />
+    <DeliveryImagePreview
+      src={asset.thumbnailUrl ?? asset.previewUrl}
+      fallbackUrl={asset.url}
+      fileSize={asset.size}
+      original={asset.previewStatus !== 'READY'}
+      previewSrc={asset.previewUrl}
+      fileName={asset.fileName}
+    />
   )
 }
 
