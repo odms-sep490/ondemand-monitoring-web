@@ -281,3 +281,95 @@
 :root[data-theme='dark'] .odm-auth-input-wrap .odm-inp {
   background: rgba(255, 255, 255, 0.07);
 }
+
+/* Keep the login surface inside the viewport instead of scrolling the page. */
+.odm-auth[data-auth-mode='login'] {
+  box-sizing: border-box;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+.odm-auth[data-auth-mode='login'] .odm-auth-aside,
+.odm-auth[data-auth-mode='login'] .odm-aside-scene,
+.odm-auth[data-auth-mode='login'] .odm-auth-main {
+  box-sizing: border-box;
+  height: 100%;
+  min-height: 0;
+}
+
+.odm-auth[data-auth-mode='login'] .odm-auth-main {
+  justify-content: center;
+  overflow: hidden;
+  padding-block: clamp(12px, 3vh, 32px);
+}
+
+@media (max-height: 720px) {
+  .odm-auth[data-auth-mode='login'] .odm-auth-main {
+    padding-block: 10px;
+  }
+
+  .odm-auth[data-auth-mode='login'] .odm-auth-card {
+    padding: 12px 28px;
+  }
+
+  .odm-auth[data-auth-mode='login'] .odm-auth-logo {
+    margin-bottom: 8px;
+  }
+
+  .odm-auth[data-auth-mode='login'] .odm-auth-heading {
+    margin-bottom: 10px;
+  }
+
+  .odm-auth[data-auth-mode='login'] .odm-auth-heading h1 {
+    font-size: 28px;
+  }
+
+  .odm-auth[data-auth-mode='login'] .odm-auth-google,
+  .odm-auth[data-auth-mode='login'] .odm-auth-submit,
+  .odm-auth[data-auth-mode='login'] .odm-auth-input-wrap .odm-inp {
+    height: 44px;
+    min-height: 44px;
+  }
+
+  .odm-auth[data-auth-mode='login'] .odm-auth-divider {
+    margin-block: 8px;
+  }
+
+  .odm-auth[data-auth-mode='login'] .odm-auth-field,
+  .odm-auth[data-auth-mode='login'] .odm-auth-field:has(.has-action) {
+    gap: 5px;
+    margin-bottom: 8px;
+  }
+
+  .odm-auth[data-auth-mode='login'] .odm-auth-row {
+    margin-top: 2px;
+  }
+
+  .odm-auth[data-auth-mode='login'] .odm-auth-submit {
+    margin-top: 8px;
+  }
+
+  .odm-auth[data-auth-mode='login'] .odm-auth-switch {
+    margin-top: 10px;
+    padding-top: 10px;
+  }
+}
+
+@media (max-width: 900px) {
+  .odm-auth[data-auth-mode='login'] .odm-auth-main {
+    padding: 64px 22px 20px;
+  }
+}
+
+@media (max-width: 900px) and (max-height: 720px) {
+  .odm-auth[data-auth-mode='login'] .odm-auth-main {
+    padding: 48px 16px 10px;
+  }
+
+  .odm-auth[data-auth-mode='login'] .odm-auth-card {
+    padding: 12px 20px;
+  }
+}
