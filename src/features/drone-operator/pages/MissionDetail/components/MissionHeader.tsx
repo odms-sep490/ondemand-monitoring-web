@@ -1,7 +1,8 @@
 import type { OperatorMission } from '../../../types/mission'
 import type { MissionPermissions } from '../../../../mission/types/permissions'
+import type { MissionResultApprovalStatus } from '../../../../mission/types/mission'
 import { missionStatusLabel } from '../missionFormat'
-import { INSPECTION_MEDIA_STATUSES, STATUS_TONE } from '../missionConstants'
+import { STATUS_TONE } from '../missionConstants'
 import { operatorHref } from '../../../routes'
 import { StatusBadge } from '../../../../../shared/components/odm/StatusBadge'
 import { Icon } from '../../../../../shared/components/Icon'
@@ -19,6 +20,7 @@ export function MissionHeader({
   submitting,
   weatherStatus = null,
   weatherLoading = false,
+  resultApprovalStatus = null,
   onStartWorkflow,
 }: {
   mission: OperatorMission
@@ -26,6 +28,7 @@ export function MissionHeader({
   submitting?: boolean
   weatherStatus?: WeatherPreflightStatus | null
   weatherLoading?: boolean
+  resultApprovalStatus?: MissionResultApprovalStatus | null
   onStartWorkflow?: () => void
 }) {
   const { t } = useI18n(missionDetailPageMessages)
@@ -75,13 +78,23 @@ export function MissionHeader({
     mission.assignedStaffCount != null &&
     mission.acceptedStaffCount != null &&
     mission.acceptedStaffCount < mission.assignedStaffCount
-  const canHandleInspectionMedia =
-    (INSPECTION_MEDIA_STATUSES.has(backendStatus) ||
-      (backendStatus === 'IN_PROGRESS' &&
-        (access?.canCompleteMission === true ||
-          access?.canSubmitMissionResult === true))) &&
+  const acceptanceStepReached =
+    backendStatus === 'COMPLETED' ||
+    backendStatus === 'AWAITING_REVIEW' ||
+    backendStatus === 'PENDING_REVIEW' ||
+    resultApprovalStatus === 'PENDING_MANAGER_APPROVAL' ||
+    resultApprovalStatus === 'APPROVED' ||
+    Boolean(mission.completedAt) ||
+    ((backendStatus === 'IN_PROGRESS' ||
+      backendStatus === 'IN_FLIGHT' ||
+      backendStatus === 'RETURNING' ||
+      backendStatus === 'POSTFLIGHT_CHECKING') &&
+      (deviceState === 'COMPLETED' || Boolean(mission.actualEndAt)))
+  const canOpenAcceptanceData =
+    acceptanceStepReached &&
     (access?.canInspectDevice === true ||
       access?.canCompleteMission === true ||
+      access?.canSubmitMissionResult === true ||
       access?.canUploadMedia === true)
   const responseStatusLabel =
     backendStatus === 'READY' && mission.flightPermitStatus !== 'APPROVED'
@@ -166,7 +179,7 @@ export function MissionHeader({
               Kiểm tra sau bay
             </a>
           )}
-        {canHandleInspectionMedia && (
+        {canOpenAcceptanceData && (
           <a
             className="odm-btn"
             href={operatorHref({ screen: 'checklist', missionId: mission.id })}
@@ -204,17 +217,6 @@ export function MissionHeader({
         ) : backendStatus === 'IN_PROGRESS' ||
           mission.status === 'IN_FLIGHT' ? (
           <>
-            {access?.canUploadMedia && (
-              <a
-                className="odm-btn"
-                href={operatorHref({
-                  screen: 'checklist',
-                  missionId: mission.id,
-                })}
-              >
-                Review media
-              </a>
-            )}
             {access?.canControlFlight && (
               <a
                 className="odm-btn odm-btn-p"

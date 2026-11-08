@@ -23,7 +23,6 @@ import { FlightStepHeader } from '../../components/common/FlightStepper'
 import { uploadMediaPageMessages } from './UploadMediaPage.messages'
 import { MonitoringChecklistSection } from '../../../mission/components/MonitoringChecklistSection'
 import {
-  MissionResultActions,
   staffResultError,
 } from '../../components/common/MissionResultActions'
 import './UploadMediaPage.css'
@@ -156,12 +155,10 @@ function UploadMediaContent({
     manual,
     deviceLabel,
     canManageMedia,
-    missionStatus,
     actions,
     isBusy,
     visibleItems,
     refreshWorkspace,
-    runResultAction,
   } = useMediaWorkspace({
     missionId,
     setBusyId,
@@ -410,16 +407,6 @@ function UploadMediaContent({
         />
         {missionId && activeMission.data?.purpose === 'REWORK' && (
           <ReworkMissionContextPanel missionId={missionId} />
-        )}
-        {missionId && (
-          <MissionResultActions
-            missionId={missionId}
-            status={missionStatus}
-            monitoring={monitoring}
-            busy={completionSubmitting || isBusy || queue.busy}
-            onComplete={() => void runResultAction('complete')}
-            onSubmit={() => void runResultAction('submit')}
-          />
         )}
         {Boolean(resultError) && (
           <p role="alert" className="upload-media-notice is-danger">

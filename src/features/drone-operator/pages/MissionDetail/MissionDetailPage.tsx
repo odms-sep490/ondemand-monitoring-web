@@ -17,7 +17,6 @@ import { RejectDialog } from './components/RejectDialog'
 import { CancelMissionDialog } from './components/CancelMissionDialog'
 import { missionDetailPageMessages } from './MissionDetailPage.messages'
 import {
-  MissionResultActions,
   missionResultActions,
   staffResultError,
 } from '../../components/common/MissionResultActions'
@@ -68,11 +67,6 @@ function MissionDetailContent({ missionId }: { missionId: string }) {
   const resultApprovalStatus = monitoring.data?.result?.approvalStatus ?? null
   const monitoringKnown = Boolean(monitoring.data)
   const missionStatus = query.data?.backendStatus ?? query.data?.status
-  const completionConfirmed =
-    Boolean(query.data?.completedAt) ||
-    ['AWAITING_REVIEW', 'PENDING_REVIEW', 'COMPLETED'].includes(
-      missionStatus ?? '',
-    )
   const actions = missionResultActions(missionId, missionStatus, monitoring)
   const [actionError, setActionError] = useState<unknown>(null)
 
@@ -148,8 +142,6 @@ function MissionDetailContent({ missionId }: { missionId: string }) {
     handleAcceptWeather,
     handleCancelMission,
     handleReject,
-    handleCompleteMission,
-    handleSubmitResult,
   } = useMissionDetailActions({
     setActionError,
     setMediaRevision,
@@ -194,18 +186,6 @@ function MissionDetailContent({ missionId }: { missionId: string }) {
         }
         responseAccessError={
           !responsePermissions.data && Boolean(responsePermissions.error)
-        }
-        resultActions={
-          <MissionResultActions
-            missionId={missionId}
-            status={mission.backendStatus ?? mission.status}
-            monitoring={monitoring}
-            busy={submitting || resultSubmitting || query.loading}
-            showComplete={!completionConfirmed}
-            showSubmit={actions.canSubmit}
-            onComplete={() => void handleCompleteMission()}
-            onSubmit={() => void handleSubmitResult()}
-          />
         }
         monitoringSection={
           <MonitoringChecklistSection

@@ -48,7 +48,13 @@ export function FlightStepper({
                   index + 1
                 )}
               </span>
-              <span className="odm-flight-step-label">{step.label}</span>
+              <span className="odm-flight-step-copy">
+                <span className="odm-flight-step-label">{step.label}</span>
+                <span className="odm-flight-step-state">{state}</span>
+              </span>
+              {index < steps.length - 1 && (
+                <span className="odm-flight-step-connector" aria-hidden="true" />
+              )}
             </li>
           )
         })}

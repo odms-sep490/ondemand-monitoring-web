@@ -41,47 +41,48 @@
 .odm-flight-stepper-wrap {
   display: grid;
   min-width: 0;
-  gap: 8px;
+  gap: 10px;
 }
 
 .odm-flight-stepper {
-  display: flex;
+  display: grid;
   min-width: 0;
-  overflow: hidden;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
   margin: 0;
   padding: 0;
-  border: 1px solid var(--bd);
-  border-radius: 8px;
-  background: var(--sf3);
   list-style: none;
 }
 
 .odm-flight-step {
-  display: flex;
+  position: relative;
+  z-index: 0;
+  display: grid;
   min-width: 0;
-  min-height: 50px;
-  flex: 1 1 0;
-  align-items: center;
+  grid-template-rows: 32px auto;
+  justify-items: center;
+  align-content: start;
   gap: 7px;
-  padding: 6px 9px;
-  border-right: 1px solid var(--bd);
-  background: var(--sf3);
-  color: var(--tx2);
-}
-
-.odm-flight-step:last-child {
-  border-right: 0;
+  text-align: center;
 }
 
 .odm-flight-step-chip {
+  position: relative;
+  z-index: 2;
   display: inline-grid;
-  width: 20px;
-  flex: 0 0 20px;
+  width: 30px;
+  height: 30px;
   place-items: center;
+  border: 1px solid var(--bd2);
+  border-radius: 50%;
+  background: var(--sf);
   color: var(--tx3);
   font-size: 12px;
   font-weight: 750;
   font-variant-numeric: tabular-nums;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
 }
 
 .odm-flight-step-check {
@@ -95,35 +96,75 @@
   stroke-width: 2;
 }
 
-.odm-flight-step-label {
-  display: -webkit-box;
+.odm-flight-step-copy {
+  display: grid;
   min-width: 0;
-  overflow: hidden;
-  color: inherit;
-  font-size: 11px;
-  font-weight: 600;
-  line-height: 1.3;
-  overflow-wrap: anywhere;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  justify-items: center;
+  gap: 2px;
 }
 
-.odm-flight-step.is-complete {
-  background: var(--green-bg, #ecfdf3);
-  color: var(--green-fg, #087443);
+.odm-flight-step-label,
+.odm-flight-step-state {
+  display: block;
+  max-width: 148px;
+  color: var(--tx2);
+  font-size: 12px;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.odm-flight-step-label {
+  font-weight: 700;
+}
+
+.odm-flight-step-state {
+  color: var(--tx3);
+  font-size: 11px;
 }
 
 .odm-flight-step.is-complete .odm-flight-step-chip {
+  border-color: var(--green-solid, #12b76a);
+  background: var(--green-solid, #12b76a);
+  color: var(--green-on, #fff);
+}
+
+.odm-flight-step.is-complete .odm-flight-step-label {
   color: var(--green-fg, #087443);
 }
 
-.odm-flight-step.is-current {
-  background: var(--accent);
-  color: #fff;
+.odm-flight-step.is-complete .odm-flight-step-state {
+  color: var(--green-fg, #087443);
 }
 
 .odm-flight-step.is-current .odm-flight-step-chip {
+  border-color: var(--accent);
+  background: var(--accent);
   color: #fff;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+.odm-flight-step.is-current .odm-flight-step-label,
+.odm-flight-step.is-current .odm-flight-step-state {
+  color: var(--accent);
+}
+
+.odm-flight-step.is-current .odm-flight-step-label {
+  font-weight: 750;
+}
+
+.odm-flight-step-connector {
+  position: absolute;
+  z-index: 1;
+  top: 14px;
+  left: calc(50% + 17px);
+  width: calc(100% - 34px);
+  height: 2px;
+  border-radius: 2px;
+  background: var(--bd2);
+}
+
+.odm-flight-step.is-complete .odm-flight-step-connector {
+  background: var(--green-solid, #12b76a);
 }
 
 .odm-flight-stepper-summary {
@@ -135,17 +176,13 @@
   line-height: 1.4;
 }
 
-.mds-workflow-progress .odm-flight-stepper {
-  border-radius: 9px;
+.mds-workflow-progress .odm-flight-stepper-wrap {
+  gap: 12px;
 }
 
-.mds-workflow-progress .odm-flight-step {
-  min-height: 54px;
-  padding: 8px 12px;
-}
-
-.mds-workflow-progress .odm-flight-step-label {
-  font-size: 12px;
+.mds-workflow-progress .odm-flight-stepper-summary {
+  color: var(--tx2);
+  font-size: 13px;
 }
 
 @media (max-width: 1200px) {
@@ -163,32 +200,31 @@
 
 @media (max-width: 900px) {
   .odm-flight-step {
-    min-height: 36px;
-    justify-content: center;
-    padding: 5px 2px;
+    grid-template-rows: 28px auto;
+    gap: 5px;
   }
 
   .odm-flight-step-chip {
-    width: auto;
-    flex-basis: auto;
-    font-size: 12px;
+    width: 26px;
+    height: 26px;
   }
 
   .odm-flight-step-label {
+    font-size: 11px;
+  }
+
+  .odm-flight-step-state {
     display: none;
   }
 
-  .odm-flight-stepper-summary {
-    display: block;
-  }
-
-  .mds-workflow-progress .odm-flight-step {
-    min-height: 36px;
-    padding: 5px 2px;
+  .odm-flight-step-connector {
+    top: 12px;
+    left: calc(50% + 15px);
+    width: calc(100% - 30px);
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 640px) {
   .odm-flight-step-header {
     gap: 10px 12px;
     padding: 10px 12px;
@@ -196,6 +232,14 @@
 
   .odm-flight-step-title {
     font-size: 15px;
+  }
+
+  .odm-flight-step-copy {
+    display: none;
+  }
+
+  .odm-flight-stepper-summary {
+    display: block;
   }
 
   .odm-flight-step-right .upload-media-device {
