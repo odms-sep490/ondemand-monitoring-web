@@ -12,10 +12,7 @@ import { flightPermitCardMessages } from '../../../components/common/FlightPermi
 import { missionDetailPageMessages } from '../MissionDetailPage.messages'
 import { useI18n } from '../../../../../shared/i18n'
 import { managerHref } from '../../../routes'
-import {
-  EmptyState,
-  StatusBadge,
-} from '../../../../../shared/components/ui'
+import { EmptyState, StatusBadge } from '../../../../../shared/components/ui'
 import type {
   FlightPermitStatus,
   MissionStaffAssignmentResponse,
@@ -92,7 +89,10 @@ export function MissionCrewCard({
           <section className="mgr-md-context-section">
             <div className="mgr-md-context-section-head">
               <div className="mgr-md-context-section-heading">
-                <span className="mgr-md-context-mark is-small" aria-hidden="true">
+                <span
+                  className="mgr-md-context-mark is-small"
+                  aria-hidden="true"
+                >
                   <OrderIcon name="users" size={18} />
                 </span>
                 <h3>{t.crewCard}</h3>
@@ -101,7 +101,7 @@ export function MissionCrewCard({
                 {canReplaceStaff
                   ? declinedStaffGroups.map((group) => {
                       const name =
-                        group.staffName ?? group.staffEmail ?? group.staffId
+                        group.staffName ?? group.staffEmail ?? t.staffUnknown
                       return (
                         <Button
                           key={group.staffId}
@@ -151,7 +151,8 @@ export function MissionCrewCard({
                   </li>
                 ) : null}
                 {staffGroups.map((group) => {
-                  const name = group.staffName ?? group.staffEmail ?? group.staffId
+                  const name =
+                    group.staffName ?? group.staffEmail ?? t.staffUnknown
                   return (
                     <li key={group.staffId} className="odm-or-crew-item">
                       <span className="odm-or-crew-avatar" aria-hidden="true">
@@ -160,7 +161,10 @@ export function MissionCrewCard({
                       <span className="odm-or-crew-main">
                         <span className="mgr-md-role-list">
                           {group.assignments.map((assignment) => (
-                            <span className="mgr-md-role-chip" key={assignment.id}>
+                            <span
+                              className="mgr-md-role-chip"
+                              key={assignment.id}
+                            >
                               {STAFF_ROLE_LABELS[assignment.assignedRole]}
                             </span>
                           ))}
@@ -189,7 +193,10 @@ export function MissionCrewCard({
           <section className="mgr-md-context-section mgr-md-permit">
             <div className="mgr-md-context-section-head">
               <div className="mgr-md-context-section-heading">
-                <span className="mgr-md-context-mark is-small" aria-hidden="true">
+                <span
+                  className="mgr-md-context-mark is-small"
+                  aria-hidden="true"
+                >
                   <OrderIcon name="file" size={18} />
                 </span>
                 <h3>{t.permitCard}</h3>

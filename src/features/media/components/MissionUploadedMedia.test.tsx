@@ -7,6 +7,7 @@ import {
   waitFor,
 } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { setLanguage } from '../../../shared/i18n'
 import {
   operatorMissionMediaApi,
   type UploadedMissionMedia,
@@ -53,7 +54,15 @@ const page = (items: UploadedMissionMedia[]) => ({
 describe('uploaded mission media gallery', () => {
   it('keeps AVAILABLE metadata visible without exposing an unreleased original', async () => {
     vi.mocked(operatorMissionMediaApi.list).mockResolvedValue(
-      page([{ ...image, status: 'AVAILABLE', downloadUrl: null, thumbnailUrl: null, previewUrl: null }]),
+      page([
+        {
+          ...image,
+          status: 'AVAILABLE',
+          downloadUrl: null,
+          thumbnailUrl: null,
+          previewUrl: null,
+        },
+      ]),
     )
     render(<MissionUploadedMedia missionId="mission" />)
     await screen.findByText('capture.jpg')
@@ -119,12 +128,36 @@ describe('uploaded mission media gallery', () => {
     ).toBeGreaterThan(0)
     expect(screen.queryByText('Camera drone')).toBeNull()
   })
+  it('localizes gallery labels, review status and capture time in English', async () => {
+    setLanguage('en')
+    vi.mocked(operatorMissionMediaApi.list).mockResolvedValue(
+      page([{ ...image, sourceType: 'DRONE_CAMERA' }]),
+    )
+    render(<MissionUploadedMedia missionId="mission" reviewStatus="DRAFT" />)
+
+    expect(
+      await screen.findByRole('region', { name: 'Uploaded mission media' }),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Refresh' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'View capture.jpg' }),
+    ).toBeInTheDocument()
+    expect(screen.getByText('Drone camera')).toBeInTheDocument()
+    expect(
+      screen.getAllByText('Draft result — not sent to manager'),
+    ).toHaveLength(2)
+    expect(screen.getByText(/Sep 27, 2026/)).toBeInTheDocument()
+  })
   beforeEach(() => {
     vi.clearAllMocks()
+    setLanguage('vi')
     HTMLDialogElement.prototype.showModal = vi.fn()
     HTMLDialogElement.prototype.close = vi.fn()
   })
-  afterEach(cleanup)
+  afterEach(() => {
+    cleanup()
+    setLanguage('vi')
+  })
 
   it('loads the selected mission and requests a fresh scoped video URL before playback', async () => {
     vi.mocked(operatorMissionMediaApi.list).mockResolvedValue(

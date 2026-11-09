@@ -183,7 +183,15 @@ export const inFlightControlMessages = defineMessages({
       failureAction: 'Không thể tiếp tục',
       failureTitle: 'Ghi nhận rủi ro và yêu cầu drone quay về',
       failureRequested: 'Đã ghi nhận rủi ro',
-      failureConfirm: 'Xác nhận không thể tiếp tục? Drone sẽ nhận lệnh quay về. Sau khi hạ cánh và hoàn tất kiểm tra sau bay, Mission cùng toàn bộ checklist sẽ được đánh dấu thất bại.',
+      failureConfirm:
+        'Drone sẽ tự quay về điểm cất cánh. Sau khi hạ cánh và động cơ dừng, xác nhận để mở kiểm tra sau bay.',
+      failureReasonLabel: 'Lý do không thể tiếp tục',
+      failureReasonPlaceholder: 'Mô tả sự cố hoặc rủi ro đang gặp phải...',
+      failureReasonRequired: 'Vui lòng nhập lý do trước khi gửi yêu cầu.',
+      failureReasonLimit: 'Tối đa 1000 ký tự.',
+      failureCancel: 'Hủy',
+      failureSubmit: 'Gửi yêu cầu quay về',
+      failureSaving: 'Đang ghi nhận…',
       more: 'Thêm',
       moreControls: 'Thêm điều khiển',
       sending: 'Đang gửi',
@@ -212,7 +220,8 @@ export const inFlightControlMessages = defineMessages({
       preflightCompleted: 'Đã hoàn thành kiểm tra trước bay',
       finishingFlight: 'Đang cập nhật hoàn thành bay...',
       flightFinished: 'Đã xác nhận chuyến bay hoàn tất · chờ kiểm tra sau bay',
-      failurePending: 'Đã ghi nhận rủi ro. Hãy giữ buồng lái mở, đưa drone về và hoàn tất kiểm tra sau bay để chốt Mission cùng toàn bộ checklist là thất bại.',
+      failurePending:
+        'Đã gửi lệnh quay về điểm cất cánh. Giữ buồng lái mở; xác nhận hạ cánh sẽ khả dụng khi hệ thống ghi nhận drone đã chạm đất.',
     },
     header: {
       live: 'TRỰC TIẾP',
@@ -472,7 +481,15 @@ export const inFlightControlMessages = defineMessages({
       failureAction: 'Cannot continue',
       failureTitle: 'Record a risk and command the drone to return',
       failureRequested: 'Risk recorded',
-      failureConfirm: 'Confirm that the mission cannot continue? The drone will receive a return command. After landing and postflight checks, the mission and its entire checklist will be marked failed.',
+      failureConfirm:
+        'The drone will return to its launch point. After it lands and the motors stop, confirm to open the postflight inspection.',
+      failureReasonLabel: 'Why can’t the mission continue?',
+      failureReasonPlaceholder: 'Describe the issue or risk you are facing...',
+      failureReasonRequired: 'Enter a reason before sending the request.',
+      failureReasonLimit: 'Up to 1000 characters.',
+      failureCancel: 'Cancel',
+      failureSubmit: 'Request return',
+      failureSaving: 'Recording…',
       more: 'More',
       moreControls: 'More controls',
       sending: 'Sending',
@@ -500,7 +517,8 @@ export const inFlightControlMessages = defineMessages({
       preflightCompleted: 'Preflight completed',
       finishingFlight: 'Updating flight completion...',
       flightFinished: 'Flight finished - waiting for maintainer postcheck',
-      failurePending: 'The risk is recorded. Keep the cockpit open, return the drone, and complete postflight checks to mark the mission and its entire checklist failed.',
+      failurePending:
+        'Return-to-launch command sent. Keep the cockpit open; landing confirmation will be available when telemetry reports the drone has landed.',
     },
     header: {
       live: 'LIVE',

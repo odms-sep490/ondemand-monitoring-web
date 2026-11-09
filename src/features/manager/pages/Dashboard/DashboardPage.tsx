@@ -6,12 +6,19 @@ import { managerApi } from '../../api/dashboardApi'
 import '../../manager.css'
 import './dashboard.scss'
 import { dashboardPageMessages } from './DashboardPage.messages'
-import { DashboardHeader, type DashboardRange } from './components/DashboardHeader'
+import {
+  DashboardHeader,
+  type DashboardRange,
+} from './components/DashboardHeader'
 import { DashboardSkeleton } from './components/DashboardSkeleton'
 import { KpiRow } from './components/KpiRow'
 import { ActionListCard } from './components/ActionListCard'
 import { RecentOrdersCard } from './components/RecentOrdersCard'
-import { ActiveMissionsCard, PipelineCard, RecentActivityCard } from './components/SideCards'
+import {
+  ActiveMissionsCard,
+  PipelineCard,
+  RecentActivityCard,
+} from './components/SideCards'
 import { AnalyticsCharts } from './components/AnalyticsCharts'
 import { formatDashboardDate } from './dashboardHelpers'
 import type {
@@ -19,7 +26,9 @@ import type {
   ManagerDashboardResponse,
 } from '../../types/dashboard'
 
-function normalizeDashboard(data: ManagerDashboardResponse): ManagerDashboardData {
+function normalizeDashboard(
+  data: ManagerDashboardResponse,
+): ManagerDashboardData {
   return {
     summary: data.summary ?? {
       totalOrders: 0,
@@ -30,11 +39,24 @@ function normalizeDashboard(data: ManagerDashboardResponse): ManagerDashboardDat
       activeMissionCount: data.kpis?.missionsInFlight.count ?? 0,
       attentionRequiredCount: data.kpis?.actionItems.count ?? 0,
     },
-    orderStatusDistribution: Array.isArray(data.orderStatusDistribution) ? data.orderStatusDistribution : [],
-    serviceDistribution: Array.isArray(data.serviceDistribution) ? data.serviceDistribution : [],
-    additionalServiceDistribution: Array.isArray(data.additionalServiceDistribution) ? data.additionalServiceDistribution : [],
-    priceAdjustmentSummary: data.priceAdjustmentSummary ?? { approvedAtSystemPrice: 0, adjustedByManager: 0 },
-    missionStatusDistribution: Array.isArray(data.missionStatusDistribution) ? data.missionStatusDistribution : [],
+    orderStatusDistribution: Array.isArray(data.orderStatusDistribution)
+      ? data.orderStatusDistribution
+      : [],
+    serviceDistribution: Array.isArray(data.serviceDistribution)
+      ? data.serviceDistribution
+      : [],
+    additionalServiceDistribution: Array.isArray(
+      data.additionalServiceDistribution,
+    )
+      ? data.additionalServiceDistribution
+      : [],
+    priceAdjustmentSummary: data.priceAdjustmentSummary ?? {
+      approvedAtSystemPrice: 0,
+      adjustedByManager: 0,
+    },
+    missionStatusDistribution: Array.isArray(data.missionStatusDistribution)
+      ? data.missionStatusDistribution
+      : [],
     missionTrend: Array.isArray(data.missionTrend) ? data.missionTrend : [],
     actionItems: Array.isArray(data.actionItems) ? data.actionItems : [],
     recentOrders: Array.isArray(data.recentOrders) ? data.recentOrders : [],
@@ -53,8 +75,12 @@ function normalizeDashboard(data: ManagerDashboardResponse): ManagerDashboardDat
       completedTodayCount: 0,
       issueCount: 0,
     },
-    activeMissions: Array.isArray(data.activeMissions) ? data.activeMissions : [],
-    recentActivities: Array.isArray(data.recentActivities) ? data.recentActivities : [],
+    activeMissions: Array.isArray(data.activeMissions)
+      ? data.activeMissions
+      : [],
+    recentActivities: Array.isArray(data.recentActivities)
+      ? data.recentActivities
+      : [],
     generatedAt: data.generatedAt ?? new Date().toISOString(),
   }
 }
@@ -62,12 +88,20 @@ function normalizeDashboard(data: ManagerDashboardResponse): ManagerDashboardDat
 export function DashboardPage() {
   const { t } = useI18n(dashboardPageMessages)
   const [range, setRange] = useState<DashboardRange>('30D')
-  const query = useApiQuery((signal) => managerApi.getDashboard(range, signal), [range])
+  const query = useApiQuery(
+    (signal) => managerApi.getDashboard(range, signal),
+    [range],
+  )
 
   if (query.loading) return <DashboardSkeleton t={t} />
   if (query.error) {
     return (
-      <StateView state="error" title={t.loadError} error={query.error} onRetry={query.reload} />
+      <StateView
+        state="error"
+        title={t.loadError}
+        error={query.error}
+        onRetry={query.reload}
+      />
     )
   }
   if (!query.data) return null
@@ -85,19 +119,20 @@ export function DashboardPage() {
 
       <KpiRow data={data} />
 
-      <div className="mgr-work-grid">
-        <ActionListCard items={data.actionItems} generatedAt={data.generatedAt} />
-        <div className="mgr-work-side">
-          <ActiveMissionsCard missions={data.activeMissions} />
-          <PipelineCard pipeline={data.pricingPipeline} />
-        </div>
-        <RecentOrdersCard
-          className="mgr-recent-orders-card"
-          orders={data.recentOrders}
+      <div className="mgr-dash-columns">
+        <ActionListCard
+          items={data.actionItems}
+          generatedAt={data.generatedAt}
         />
+        <ActiveMissionsCard missions={data.activeMissions} />
         <RecentActivityCard
           className="mgr-activity-card"
           activities={data.recentActivities}
+        />
+        <PipelineCard pipeline={data.pricingPipeline} />
+        <RecentOrdersCard
+          className="mgr-recent-orders-card"
+          orders={data.recentOrders}
         />
       </div>
 

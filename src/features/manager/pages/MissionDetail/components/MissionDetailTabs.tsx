@@ -1,8 +1,8 @@
 import { missionDetailPageMessages } from '../MissionDetailPage.messages'
 import { useI18n } from '../../../../../shared/i18n'
+import { useEffect } from 'react'
 import type { MissionDetailTab } from '../missionDetailTypes'
 import '../../../components/layout/mgrLayout.css'
-import type { Dispatch, SetStateAction } from 'react'
 
 export function MissionDetailTabs({
   tabs,
@@ -12,13 +12,20 @@ export function MissionDetailTabs({
 }: {
   tabs: { id: MissionDetailTab; label: string }[]
   activeTab: MissionDetailTab
-  setTab: Dispatch<SetStateAction<MissionDetailTab>>
+  setTab: (tab: MissionDetailTab) => void
   resourceUnreadCount?: number
 }) {
   const { t } = useI18n(missionDetailPageMessages)
+  useEffect(() => {
+    document
+      .getElementById(`mission-detail-tab-${activeTab}`)
+      ?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' })
+  }, [activeTab])
   const selectTab = (id: MissionDetailTab) => {
     setTab(id)
-    document.getElementById(`mission-detail-tab-${id}`)?.focus()
+    const tab = document.getElementById(`mission-detail-tab-${id}`)
+    tab?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' })
+    tab?.focus()
   }
 
   return (
@@ -26,6 +33,7 @@ export function MissionDetailTabs({
       className="mgr-seg mgr-md-tabs"
       role="tablist"
       aria-label={t.tabsAria}
+      aria-orientation="horizontal"
     >
       {tabs.map((item) => (
         <button
@@ -37,7 +45,7 @@ export function MissionDetailTabs({
           aria-controls="mission-detail-panel"
           tabIndex={activeTab === item.id ? 0 : -1}
           className={activeTab === item.id ? 'is-active' : ''}
-          onClick={() => setTab(item.id)}
+          onClick={() => selectTab(item.id)}
           onKeyDown={(event) => {
             const currentIndex = tabs.findIndex((tab) => tab.id === item.id)
             let nextIndex: number | null = null

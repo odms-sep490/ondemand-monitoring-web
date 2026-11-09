@@ -202,7 +202,8 @@ export function PostflightPage({ missionId }: { missionId?: string }) {
     if (permissionsQuery.loading) return <LoadingState />
     if (
       permissionsQuery.error ||
-      permissionsQuery.data?.canAssessMonitoringChecklist !== true
+      (permissionsQuery.data?.canAssessMonitoringChecklist !== true &&
+        permissionsQuery.data?.canConfirmMissionFailure !== true)
     ) {
       return (
         <EmptyState

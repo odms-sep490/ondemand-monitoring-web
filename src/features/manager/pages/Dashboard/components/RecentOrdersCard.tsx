@@ -1,17 +1,32 @@
+import { InboxOutlined } from '@ant-design/icons'
 import { Avatar, Tag } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 
-import { CardComponent, TableComponent } from '../../../../../shared/components/antd'
+import {
+  CardComponent,
+  EmptyState,
+  TableComponent,
+} from '../../../../../shared/components/antd'
 import { useI18n } from '../../../../../shared/i18n'
 import { managerHref } from '../../../routes'
 import type { RecentOrder } from '../../../types/dashboard'
 import { dashboardPageMessages } from '../DashboardPage.messages'
 import { TAG_COLOR } from '../dashboardTone'
-import { formatDashboardDate, orderStatusTone, statusLabel } from '../dashboardHelpers'
+import {
+  formatDashboardDate,
+  orderStatusTone,
+  statusLabel,
+} from '../dashboardHelpers'
 
 const MAX_ROWS = 6
 
-export function RecentOrdersCard({ orders, className }: { orders: RecentOrder[]; className?: string }) {
+export function RecentOrdersCard({
+  orders,
+  className,
+}: {
+  orders: RecentOrder[]
+  className?: string
+}) {
   const { t } = useI18n(dashboardPageMessages)
   const o = t.orders
 
@@ -20,7 +35,12 @@ export function RecentOrdersCard({ orders, className }: { orders: RecentOrder[];
       title: o.code,
       dataIndex: 'orderCode',
       render: (code: string, order) => (
-        <a className="mgr-code" href={managerHref({ screen: 'orderReview', orderId: order.orderId })}>{code}</a>
+        <a
+          className="mgr-code"
+          href={managerHref({ screen: 'orderReview', orderId: order.orderId })}
+        >
+          {code}
+        </a>
       ),
     },
     {
@@ -40,7 +60,11 @@ export function RecentOrdersCard({ orders, className }: { orders: RecentOrder[];
       title: o.status,
       dataIndex: 'status',
       render: (status: string) => (
-        <Tag bordered={false} className="mgr-status-tag" color={TAG_COLOR[orderStatusTone(status)]}>
+        <Tag
+          bordered={false}
+          className="mgr-status-tag"
+          color={TAG_COLOR[orderStatusTone(status)]}
+        >
           <span className="mgr-dot" aria-hidden="true" />
           {t.analytics.statusLabels[status] ?? statusLabel(status)}
         </Tag>
@@ -49,7 +73,11 @@ export function RecentOrdersCard({ orders, className }: { orders: RecentOrder[];
     {
       title: o.created,
       dataIndex: 'createdAt',
-      render: (value: string) => <span className="mgr-muted" style={{ whiteSpace: 'nowrap' }}>{formatDashboardDate(value)}</span>,
+      render: (value: string) => (
+        <span className="mgr-muted" style={{ whiteSpace: 'nowrap' }}>
+          {formatDashboardDate(value)}
+        </span>
+      ),
     },
   ]
 
@@ -57,11 +85,25 @@ export function RecentOrdersCard({ orders, className }: { orders: RecentOrder[];
     <CardComponent
       className={className}
       title={o.title}
-      extra={<a className="mgr-card-link" href={managerHref({ screen: 'orderQueue' })}>{o.viewAll}</a>}
+      icon={<InboxOutlined />}
+      extra={
+        <a
+          className="mgr-card-link"
+          href={managerHref({ screen: 'orderQueue' })}
+        >
+          {o.viewAll}
+        </a>
+      }
       styles={{ body: { padding: 0 } }}
     >
       {orders.length === 0 ? (
-        <p className="mgr-empty-line mgr-orders-empty">{o.empty}</p>
+        <div className="mgr-orders-empty-state" role="status">
+          <EmptyState
+            title={o.empty}
+            description={o.emptyDescription}
+            icon={<InboxOutlined />}
+          />
+        </div>
       ) : (
         <TableComponent<RecentOrder>
           rowKey="orderId"

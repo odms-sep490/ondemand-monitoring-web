@@ -17,6 +17,8 @@ export const flightStepperMessages = defineMessages({
     current: 'Đang thực hiện',
     upcoming: 'Chưa thực hiện',
     finished: 'Đã hoàn tất toàn bộ quy trình',
+    failed: 'Đã thất bại',
+    failedSummary: 'Quy trình đã kết thúc do nhiệm vụ thất bại',
     stepCounter: (step: number, total: number, label: string) =>
       `Bước ${step}/${total} — ${label}`,
   },
@@ -36,6 +38,8 @@ export const flightStepperMessages = defineMessages({
     current: 'Current step',
     upcoming: 'Upcoming',
     finished: 'All steps completed',
+    failed: 'Failed',
+    failedSummary: 'Workflow ended because the mission failed',
     stepCounter: (step: number, total: number, label: string) =>
       `Step ${step} of ${total} — ${label}`,
   },

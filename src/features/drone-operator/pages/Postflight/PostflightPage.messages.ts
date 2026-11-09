@@ -134,6 +134,17 @@ export const postflightPageMessages = defineMessages({
     reviewNotAssessed: 'Chưa đánh giá',
     reviewMissionComplete: 'Xác nhận hoàn thành nhiệm vụ',
     reviewCompleting: 'Đang xác nhận…',
+    reviewMissionFailed: 'Xác nhận nhiệm vụ thất bại',
+    reviewFailureWaitingConfirmation:
+      'Postcheck đã xong. Vui lòng xác nhận nhiệm vụ thất bại để hoàn tất nghiệm thu.',
+    reviewFailureWaitingPermission:
+      'Chờ nghiệm thu viên được giao xác nhận nhiệm vụ thất bại.',
+    reviewFailureConfirmButton: 'Xác nhận nhiệm vụ thất bại',
+    reviewFailureConfirming: 'Đang xác nhận thất bại…',
+    reviewFailureConfirmed:
+      'Đã xác nhận nhiệm vụ thất bại sau khi hoàn tất kiểm tra sau bay.',
+    reviewFailureDefaultReason:
+      'Nhiệm vụ được xác nhận thất bại sau kiểm tra sau bay.',
     reviewSendManager: 'Xác nhận nghiệm thu',
     reviewSending: 'Đang xác nhận…',
     reviewWaitingPermission:
@@ -318,6 +329,17 @@ export const postflightPageMessages = defineMessages({
     reviewNotAssessed: 'Not assessed',
     reviewMissionComplete: 'Confirm mission completion',
     reviewCompleting: 'Confirming…',
+    reviewMissionFailed: 'Confirm mission failure',
+    reviewFailureWaitingConfirmation:
+      'Postcheck is complete. Confirm the mission failure to finish acceptance.',
+    reviewFailureWaitingPermission:
+      'Waiting for the assigned inspector to confirm the mission failure.',
+    reviewFailureConfirmButton: 'Confirm mission failure',
+    reviewFailureConfirming: 'Confirming failure…',
+    reviewFailureConfirmed:
+      'Mission failure confirmed after postflight inspection.',
+    reviewFailureDefaultReason:
+      'Mission failure confirmed after postflight inspection.',
     reviewSendManager: 'Confirm inspection',
     reviewSending: 'Confirming inspection…',
     reviewWaitingPermission:

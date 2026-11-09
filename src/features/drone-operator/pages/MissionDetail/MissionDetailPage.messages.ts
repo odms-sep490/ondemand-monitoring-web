@@ -68,7 +68,6 @@ export const missionDetailPageMessages = defineMessages({
       `${accepted}/${total} nhân sự đã chấp nhận. Chờ toàn bộ đội bay xác nhận.`,
     workflowWaitCrewForHandover: (accepted: number, total: number) =>
       `Precheck đã đạt. Đang chờ đủ staff chấp nhận (${accepted}/${total}) trước khi bàn giao.`,
-    workflowConnectDevice: 'Operator đã nhận nhiệm vụ. Có thể kết nối thiết bị và precheck ngay; vẫn cần đủ staff chấp nhận trước khi bàn giao.',
     workflowPreflight: 'Thiết bị đã kết nối. Operator đang kiểm tra trước bay.',
     workflowPreflightFailed: 'Kiểm tra trước bay chưa đạt. Nhân viên vận hành cần xử lý lỗi và kiểm tra lại.',
     workflowHandover: 'Kiểm tra trước bay đạt. Nhân viên vận hành bàn giao quyền điều khiển cho nghiệm thu.',
@@ -153,7 +152,6 @@ export const missionDetailPageMessages = defineMessages({
       `${accepted}/${total} staff accepted. Waiting for the full crew.`,
     workflowWaitCrewForHandover: (accepted: number, total: number) =>
       `Preflight passed. Waiting for all staff to accept (${accepted}/${total}) before handover.`,
-    workflowConnectDevice: 'The Operator has accepted. Device connection and preflight can begin now; all staff must still accept before handover.',
     workflowPreflight: 'Device connected. The operator is running preflight.',
     workflowPreflightFailed: 'Preflight did not pass. Resolve the issue and check again.',
     workflowHandover: 'Preflight passed. The operator hands control to the inspector.',

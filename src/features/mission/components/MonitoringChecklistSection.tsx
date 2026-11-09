@@ -1,6 +1,6 @@
 import { checklistReadyForInspection } from '../lib/customerEvidenceSelection'
 import { useState } from 'react'
-import { useLanguage } from '../../../shared/i18n'
+import { getLanguage, useLanguage } from '../../../shared/i18n'
 import {
   evidenceCountLabel,
   evidenceShortfall,
@@ -23,20 +23,39 @@ import {
   evidenceReason,
 } from './ChecklistEvidencePanel'
 
-const statuses: Record<ChecklistExecutionStatus, string> = {
-  PENDING: 'Chưa thực hiện',
-  IN_PROGRESS: 'Đang thực hiện',
-  COMPLETED: 'Đã thực hiện',
-  UNABLE_TO_VERIFY: 'Không thể xác minh',
+const statuses: Record<
+  'vi' | 'en',
+  Record<ChecklistExecutionStatus, string>
+> = {
+  vi: {
+    PENDING: 'Chưa thực hiện',
+    IN_PROGRESS: 'Đang thực hiện',
+    COMPLETED: 'Đã thực hiện',
+    UNABLE_TO_VERIFY: 'Không thể xác minh',
+  },
+  en: {
+    PENDING: 'Not started',
+    IN_PROGRESS: 'In progress',
+    COMPLETED: 'Completed',
+    UNABLE_TO_VERIFY: 'Unable to verify',
+  },
 }
 const executionBadges: Record<
-  ChecklistExecutionStatus,
-  { label: string; className: string }
+  'vi' | 'en',
+  Record<ChecklistExecutionStatus, { label: string; className: string }>
 > = {
-  PENDING: { label: 'Cần làm', className: 'is-todo' },
-  IN_PROGRESS: { label: 'Đang làm', className: 'is-active' },
-  COMPLETED: { label: 'Hoàn thành', className: 'is-done' },
-  UNABLE_TO_VERIFY: { label: 'Không xác minh', className: 'is-danger' },
+  vi: {
+    PENDING: { label: 'Cần làm', className: 'is-todo' },
+    IN_PROGRESS: { label: 'Đang làm', className: 'is-active' },
+    COMPLETED: { label: 'Hoàn thành', className: 'is-done' },
+    UNABLE_TO_VERIFY: { label: 'Không xác minh', className: 'is-danger' },
+  },
+  en: {
+    PENDING: { label: 'To do', className: 'is-todo' },
+    IN_PROGRESS: { label: 'In progress', className: 'is-active' },
+    COMPLETED: { label: 'Completed', className: 'is-done' },
+    UNABLE_TO_VERIFY: { label: 'Unable to verify', className: 'is-danger' },
+  },
 }
 const assessmentLabels: Record<
   'vi' | 'en',
@@ -57,14 +76,19 @@ const assessmentLabels: Record<
 function formatUpdated(value: string) {
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return ''
-  const time = date.toLocaleTimeString('vi-VN', {
+  const locale = getLanguage() === 'vi' ? 'vi-VN' : 'en-US'
+  const time = date.toLocaleTimeString(locale, {
     hour: '2-digit',
     minute: '2-digit',
   })
   return date.toDateString() === new Date().toDateString()
     ? time
-    : `${date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })} ${time}`
+    : `${date.toLocaleDateString(locale, { day: '2-digit', month: '2-digit' })} ${time}`
 }
+const statusLabel = (status: ChecklistExecutionStatus) =>
+  statuses[getLanguage()][status]
+const executionBadge = (status: ChecklistExecutionStatus) =>
+  executionBadges[getLanguage()][status]
 const terminal = (status: ChecklistExecutionStatus) =>
   status === 'COMPLETED' || status === 'UNABLE_TO_VERIFY'
 
@@ -355,7 +379,7 @@ export function MonitoringChecklistSection({
                   : tone === 'is-unable'
                     ? { label: 'Không đạt yêu cầu', className: 'is-danger' }
                     : null
-                : executionBadges[item.executionStatus]
+                : executionBadge(item.executionStatus)
               const evidenceSummary = checklistEvidenceSummary(item)
               return (
                 <li
@@ -380,7 +404,7 @@ export function MonitoringChecklistSection({
                       <span className="mc-sub">
                         {assessmentOnly
                           ? assessments[item.assessmentStatus]
-                          : statuses[item.executionStatus]}
+                          : statusLabel(item.executionStatus)}
                         {evidenceSummary ? ` · ${evidenceSummary}` : null}
                         {item.executionStatus !== 'UNABLE_TO_VERIFY' &&
                           evidenceShortfall(item) > 0 && (
@@ -389,7 +413,9 @@ export function MonitoringChecklistSection({
                         {item.blockingReasons?.includes(
                           'EVIDENCE_TYPE_NOT_ELIGIBLE',
                         ) && ' · sai loại media'}
-                        {updatedBy ? ` · Cập nhật bởi ${updatedBy}` : null}
+                        {updatedBy
+                          ? ` · ${lang === 'vi' ? 'Cập nhật bởi' : 'Updated by'} ${updatedBy}`
+                          : null}
                         {item.updatedAt
                           ? ` · ${formatUpdated(item.updatedAt)}`
                           : null}
@@ -418,7 +444,9 @@ export function MonitoringChecklistSection({
                         hideAssessment={hideAssessment}
                         completionOnly={completionOnly}
                         assessmentOnly={assessmentOnly}
-                        completeOnAssessment={assessmentOnly && canEditAssessment}
+                        completeOnAssessment={
+                          assessmentOnly && canEditAssessment
+                        }
                         rejected={resultStatus === 'REJECTED'}
                         refresh={refresh}
                         compact
@@ -451,7 +479,8 @@ export function MonitoringChecklistSection({
                       />
                       {item.updatedAt && (
                         <small className="mc-updated">
-                          Cập nhật {formatUpdated(item.updatedAt)}
+                          {lang === 'vi' ? 'Cập nhật' : 'Updated'}{' '}
+                          {formatUpdated(item.updatedAt)}
                         </small>
                       )}
                     </div>
@@ -504,7 +533,10 @@ export function MonitoringChecklistSection({
                     </span>
                   )}
                   <small>
-                    {statuses[item.executionStatus]} · Bằng chứng tối thiểu:{' '}
+                    {statusLabel(item.executionStatus)} ·{' '}
+                    {lang === 'vi'
+                      ? 'Bằng chứng tối thiểu:'
+                      : 'Minimum evidence:'}{' '}
                     {item.minimumEvidenceCount ?? 0}
                   </small>
                 </span>
@@ -652,7 +684,7 @@ export function MonitoringChecklistSection({
                 : tone === 'is-unable'
                   ? { label: 'Không đạt yêu cầu', className: 'is-danger' }
                   : null
-              : executionBadges[item.executionStatus]
+              : executionBadge(item.executionStatus)
             const evidenceSummary = checklistEvidenceSummary(item)
             return (
               <li
@@ -677,7 +709,7 @@ export function MonitoringChecklistSection({
                     <span className="mc-sub">
                       {assessmentOnly
                         ? assessments[item.assessmentStatus]
-                        : statuses[item.executionStatus]}
+                        : statusLabel(item.executionStatus)}
                       {evidenceSummary ? ` · ${evidenceSummary}` : null}
                       {item.executionStatus !== 'UNABLE_TO_VERIFY' &&
                         evidenceShortfall(item) > 0 &&
@@ -888,7 +920,7 @@ function ChecklistExecutionItem({
               {!assessmentOnly && (
                 <div>
                   <dt>Trạng thái</dt>
-                  <dd>{statuses[item.executionStatus]}</dd>
+                  <dd>{statusLabel(item.executionStatus)}</dd>
                 </div>
               )}
               {!hideAssessment && (
@@ -903,12 +935,14 @@ function ChecklistExecutionItem({
                   <dd>{item.observation}</dd>
                 </div>
               )}
-              {!assessmentOnly && !completionOnly && item.unableToVerifyReason && (
-                <div className="is-wide">
-                  <dt>Lý do không thể xác minh</dt>
-                  <dd>{item.unableToVerifyReason}</dd>
-                </div>
-              )}
+              {!assessmentOnly &&
+                !completionOnly &&
+                item.unableToVerifyReason && (
+                  <div className="is-wide">
+                    <dt>Lý do không thể xác minh</dt>
+                    <dd>{item.unableToVerifyReason}</dd>
+                  </div>
+                )}
             </dl>
             {editable && (
               <button
@@ -955,7 +989,7 @@ function ChecklistExecutionItem({
                   >
                     {visibleStatusOptions.map((value) => (
                       <option key={value} value={value}>
-                        {statuses[value]}
+                        {statusLabel(value)}
                       </option>
                     ))}
                   </select>
@@ -1000,18 +1034,20 @@ function ChecklistExecutionItem({
                   {observation.length} / 2000
                 </small>
               )}
-              {canExecute && !completionOnly && status === 'UNABLE_TO_VERIFY' && (
-                <label>
-                  Lý do không thể xác minh
-                  <textarea
-                    aria-label="Lý do không thể xác minh"
-                    maxLength={1000}
-                    value={reason}
-                    onChange={(event) => setReason(event.target.value)}
-                  />
-                  <small className="mc-counter">{reason.length} / 1000</small>
-                </label>
-              )}
+              {canExecute &&
+                !completionOnly &&
+                status === 'UNABLE_TO_VERIFY' && (
+                  <label>
+                    Lý do không thể xác minh
+                    <textarea
+                      aria-label="Lý do không thể xác minh"
+                      maxLength={1000}
+                      value={reason}
+                      onChange={(event) => setReason(event.target.value)}
+                    />
+                    <small className="mc-counter">{reason.length} / 1000</small>
+                  </label>
+                )}
               {conflict && (
                 <button type="button" className="odm-btn" onClick={reset}>
                   Dùng dữ liệu mới (bỏ chỉnh sửa chưa lưu)
@@ -1050,7 +1086,7 @@ function ChecklistExecutionItem({
       <div className="monitoring-meta">
         {!assessmentOnly && (
           <span className={`is-exec-${item.executionStatus.toLowerCase()}`}>
-            {statuses[item.executionStatus]}
+            {statusLabel(item.executionStatus)}
           </span>
         )}
         {!hideAssessment && item.assessmentStatus !== 'NOT_ASSESSED' && (
@@ -1072,7 +1108,8 @@ function ChecklistExecutionItem({
       )}
       {item.updatedAt && (
         <small>
-          Cập nhật: {new Date(item.updatedAt).toLocaleString('vi-VN')}
+          {lang === 'vi' ? 'Cập nhật' : 'Updated'}:{' '}
+          {formatUpdated(item.updatedAt)}
         </small>
       )}
       {error && <p role="alert">{error}</p>}
@@ -1107,11 +1144,10 @@ function ChecklistExecutionItem({
                   }}
                 >
                   {visibleStatusOptions.map((value) => (
-                      <option key={value} value={value}>
-                        {statuses[value]}
-                      </option>
-                    ),
-                  )}
+                    <option key={value} value={value}>
+                      {statusLabel(value)}
+                    </option>
+                  ))}
                 </select>
               </label>
             )}
@@ -1148,7 +1184,9 @@ function ChecklistExecutionItem({
                 />
               </label>
             )}
-            {canExecute && !completionOnly && <small>{observation.length} / 2000</small>}
+            {canExecute && !completionOnly && (
+              <small>{observation.length} / 2000</small>
+            )}
             {canExecute && !completionOnly && status === 'UNABLE_TO_VERIFY' && (
               <label>
                 Lý do không thể xác minh

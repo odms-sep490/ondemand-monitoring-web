@@ -252,31 +252,33 @@ function MissionEvidencePanel({
         (reason) =>
           (!hideAssessmentRequirement || reason !== 'ASSESSMENT_REQUIRED') &&
           !(compact && remaining > 0 && reason === 'INSUFFICIENT_EVIDENCE') &&
-          !(compact && links.some((link) => link.ineligibilityReason === reason)),
+          !(
+            compact && links.some((link) => link.ineligibilityReason === reason)
+          ),
       )
       .map((reason) => {
-      const assessmentOutOfSync =
-        reason === 'ASSESSMENT_REQUIRED' &&
-        item.assessmentStatus !== 'NOT_ASSESSED'
-      if (assessmentOutOfSync) {
+        const assessmentOutOfSync =
+          reason === 'ASSESSMENT_REQUIRED' &&
+          item.assessmentStatus !== 'NOT_ASSESSED'
+        if (assessmentOutOfSync) {
+          return (
+            <div key={reason} className="ce-blocker is-sync" role="status">
+              <span>
+                Đánh giá đã được lưu nhưng checklist chưa đồng bộ. Tải lại để
+                cập nhật.
+              </span>
+              <button type="button" onClick={refresh} disabled={busy}>
+                Tải lại
+              </button>
+            </div>
+          )
+        }
         return (
-          <div key={reason} className="ce-blocker is-sync" role="status">
-            <span>
-              Đánh giá đã được lưu nhưng checklist chưa đồng bộ. Tải lại để cập
-              nhật.
-            </span>
-            <button type="button" onClick={refresh} disabled={busy}>
-              Tải lại
-            </button>
-          </div>
+          <p key={reason} className="ce-blocker">
+            {evidenceReason[reason]}
+          </p>
         )
-      }
-      return (
-        <p key={reason} className="ce-blocker">
-          {evidenceReason[reason]}
-        </p>
-      )
-    })
+      })
   const compactBody = (
     <>
       {!canSelectForCustomer && (
@@ -309,7 +311,11 @@ function MissionEvidencePanel({
                 <div className="ce-thumb">
                   {link.previewUrl &&
                     (link.mediaType === 'VIDEO' ? (
-                      <VideoThumbnail src={link.previewUrl} poster={link.thumbnailUrl} fileName={link.fileName} />
+                      <VideoThumbnail
+                        src={link.previewUrl}
+                        poster={link.thumbnailUrl}
+                        fileName={link.fileName}
+                      />
                     ) : (
                       <img
                         src={link.thumbnailUrl ?? link.previewUrl}
@@ -415,12 +421,13 @@ function MissionEvidencePanel({
         compactBody
       ) : (
         <>
-          {!canSelectForCustomer && (have !== 0 || configuredRequired !== 0) && (
-            <strong>
-              Bằng chứng hợp lệ: {have} / {configuredRequired} ·{' '}
-              {evidenceTypeLabel(item.requiredEvidenceType)}
-            </strong>
-          )}
+          {!canSelectForCustomer &&
+            (have !== 0 || configuredRequired !== 0) && (
+              <strong>
+                Bằng chứng hợp lệ: {have} / {configuredRequired} ·{' '}
+                {evidenceTypeLabel(item.requiredEvidenceType)}
+              </strong>
+            )}
           {unableToVerify && (
             <p className="ce-unable-note">{unableExplanation}</p>
           )}
@@ -443,7 +450,11 @@ function MissionEvidencePanel({
                   <div className="checklist-evidence-thumb">
                     {link.previewUrl &&
                       (link.mediaType === 'VIDEO' ? (
-                        <VideoThumbnail src={link.previewUrl} poster={link.thumbnailUrl} fileName={link.fileName} />
+                        <VideoThumbnail
+                          src={link.previewUrl}
+                          poster={link.thumbnailUrl}
+                          fileName={link.fileName}
+                        />
                       ) : (
                         <a
                           href={link.previewUrl}
@@ -478,7 +489,9 @@ function MissionEvidencePanel({
                       </span>
                     </div>
                     <small>
-                      {new Date(link.capturedAt).toLocaleString('vi-VN')}
+                      {new Date(link.capturedAt).toLocaleString(
+                        lang === 'vi' ? 'vi-VN' : 'en-US',
+                      )}
                     </small>
                     <p
                       className={`checklist-evidence-note${link.eligibleForOperationalReadiness ? ' is-ok' : ''}`}
@@ -628,7 +641,11 @@ function MissionEvidencePanel({
                       <div className="checklist-candidate-thumb">
                         {media.previewUrl ? (
                           media.mediaType === 'VIDEO' ? (
-                            <VideoThumbnail src={media.previewUrl} poster={media.thumbnailUrl} fileName={media.fileName} />
+                            <VideoThumbnail
+                              src={media.previewUrl}
+                              poster={media.thumbnailUrl}
+                              fileName={media.fileName}
+                            />
                           ) : (
                             <img
                               src={media.thumbnailUrl ?? media.previewUrl}
@@ -665,7 +682,9 @@ function MissionEvidencePanel({
                           {media.mediaType === 'VIDEO' ? 'Video' : 'Ảnh'}
                         </small>
                         <small className="checklist-candidate-time">
-                          {new Date(media.capturedAt).toLocaleString('vi-VN')}
+                          {new Date(media.capturedAt).toLocaleString(
+                            lang === 'vi' ? 'vi-VN' : 'en-US',
+                          )}
                         </small>
                         {!matchesEvidenceType(
                           item.requiredEvidenceType,

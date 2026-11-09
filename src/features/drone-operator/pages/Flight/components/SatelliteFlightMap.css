@@ -1026,3 +1026,61 @@
 .camera-hud__crosshair::before,
 .camera-hud__crosshair::after { background: rgba(74, 222, 128, .95); }
 .camera-hud__credit { left: auto; right: 22px; bottom: 2px; transform: none; }
+
+.mission-cockpit-dialog-theme {
+  display: contents;
+  --ui-surface: #0b1220;
+  --ui-surface-2: #111827;
+  --ui-border: rgba(148, 163, 184, .24);
+  --ui-border-strong: rgba(148, 163, 184, .42);
+  --ui-text: #fff;
+  --ui-text-2: #fff;
+  --ui-text-3: #fff;
+  --ui-primary: #3b82f6;
+  --ui-danger: #ef4444;
+  --ui-overlay: rgba(2, 6, 23, .82);
+}
+
+.mission-cockpit-dialog-theme .ui-modal-overlay {
+  z-index: 1200;
+}
+
+.mission-cockpit-dialog-theme .ui-modal-title {
+  color: #fff;
+}
+
+.mission-failure-dialog-theme .mission-failure-reason-input {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 104px;
+  resize: vertical;
+  border: 1px solid rgba(148, 163, 184, .35);
+  border-radius: 9px;
+  padding: 10px 12px;
+  background: #080f1c;
+  color: #fff;
+  font: inherit;
+  line-height: 1.5;
+}
+
+.mission-failure-dialog-theme .mission-failure-reason-input::placeholder {
+  color: #94a3b8;
+}
+
+.mission-failure-dialog-theme .mission-failure-reason-input:focus-visible {
+  border-color: #60a5fa;
+  outline: 3px solid rgba(59, 130, 246, .3);
+  outline-offset: 1px;
+}
+
+.mission-failure-dialog-theme .mission-failure-reason-limit {
+  margin: 6px 0 0;
+  color: #fff;
+  font-size: 12px;
+}
+
+.mission-landing-confirm-error {
+  margin-bottom: 0;
+  color: #fca5a5;
+}

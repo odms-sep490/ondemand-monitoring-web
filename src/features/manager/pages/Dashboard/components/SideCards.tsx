@@ -1,6 +1,7 @@
+import { BarChartOutlined, HistoryOutlined, RocketOutlined } from '@ant-design/icons'
 import { Progress } from 'antd'
 
-import { CardComponent } from '../../../../../shared/components/antd'
+import { CardComponent, EmptyState } from '../../../../../shared/components/antd'
 import { useI18n } from '../../../../../shared/i18n'
 import { managerHref } from '../../../routes'
 import type { ActiveMission, DashboardActivity, PricingPipeline } from '../../../types/dashboard'
@@ -18,6 +19,7 @@ export function ActiveMissionsCard({ missions }: { missions: ActiveMission[] }) 
     <CardComponent
       className="mgr-active-missions-card"
       title={m.title}
+      icon={<RocketOutlined />}
       extra={
         <a className="mgr-card-link" href={managerHref({ screen: 'missions' })}>
           {m.viewAll}
@@ -25,7 +27,9 @@ export function ActiveMissionsCard({ missions }: { missions: ActiveMission[] }) 
       }
     >
       {missions.length === 0 ? (
-        <p className="mgr-empty-line">{m.empty}</p>
+        <div className="mgr-empty-fill mgr-empty-fill-compact">
+          <EmptyState title={m.empty} description={m.emptyDescription} icon={<RocketOutlined />} />
+        </div>
       ) : (
         <ul className="m-0 list-none p-0">
           {missions.slice(0, MAX_MISSIONS).map((mission) => (
@@ -67,27 +71,23 @@ export function PipelineCard({ pipeline }: { pipeline: PricingPipeline }) {
   ]
   const max = Math.max(...stages.map((s) => s.value))
   return (
-    <CardComponent className="mgr-pipeline-card" title={p.title}>
-      {max === 0 ? (
-        <p className="mgr-empty-line">{p.empty}</p>
-      ) : (
-        <ol className="mgr-pipeline-list">
-          {stages.map((s) => (
-            <li className="mgr-pipeline-stage" key={s.label}>
-              <div className="mgr-pipe-row">
-                <span>{s.label}</span>
-                <strong>{s.value}</strong>
-              </div>
-              <Progress
-                percent={(s.value / max) * 100}
-                showInfo={false}
-                size={['100%', 8]}
-                strokeColor={MANAGER_COLORS.primary}
-              />
-            </li>
-          ))}
-        </ol>
-      )}
+    <CardComponent className="mgr-pipeline-card" title={p.title} icon={<BarChartOutlined />}>
+      <ol className="mgr-pipeline-list">
+        {stages.map((s) => (
+          <li className="mgr-pipeline-stage" key={s.label}>
+            <div className="mgr-pipe-row">
+              <span>{s.label}</span>
+              <strong>{s.value}</strong>
+            </div>
+            <Progress
+              percent={max > 0 ? (s.value / max) * 100 : 0}
+              showInfo={false}
+              size={['100%', 8]}
+              strokeColor={MANAGER_COLORS.primary}
+            />
+          </li>
+        ))}
+      </ol>
     </CardComponent>
   )
 }
@@ -95,9 +95,12 @@ export function PipelineCard({ pipeline }: { pipeline: PricingPipeline }) {
 export function RecentActivityCard({ activities, className }: { activities: DashboardActivity[]; className?: string }) {
   const { t } = useI18n(dashboardPageMessages)
   return (
-    <CardComponent className={className} title={t.activity.title}>
+    <CardComponent className={className} title={t.activity.title} icon={<HistoryOutlined />}>
       {activities.length === 0 ? (
-        <p className="mgr-empty-line">{t.activity.empty}</p>
+        <p className="mgr-activity-empty" role="status">
+          <HistoryOutlined aria-hidden="true" />
+          {t.activity.empty}
+        </p>
       ) : (
         <ol className="mgr-activity-list">
           {activities.slice(0, MAX_ACTIVITIES).map((activity) => (

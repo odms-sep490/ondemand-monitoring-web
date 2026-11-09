@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { MissionSatelliteMap } from './MissionSatelliteMap'
 import { formatNumber } from '../../../components/common/missionDetailHelpers'
 import { waypointReasonLabel } from './MissionRouteMap'
@@ -45,6 +46,14 @@ export function ActiveMissionOverview({
   missionId: string
 }) {
   const { t, locale } = useI18n(missionDetailPageMessages)
+  const [mediaVisited, setMediaVisited] = useState(activeTab === 'media')
+  useEffect(() => {
+    if (activeTab === 'media') setMediaVisited(true)
+  }, [activeTab])
+  const mediaCount =
+    detail.result?.mediaCount ??
+    detail.result?.mediaFiles?.length ??
+    detail.media.length
   return (
     <div className={`odm-md-sections is-${activeTab}`}>
       <section
@@ -75,35 +84,16 @@ export function ActiveMissionOverview({
               <dd>{formatNumber(plan?.maxPlannedAltitudeM, ' m')}</dd>
             </div>
           </dl>
-          <ul className="odm-rm-key">
-            <li>
-              <i className="is-home" />
-              {t.map.home}
-            </li>
-            <li>
-              <i className="is-line" />
-              {t.map.route}
-            </li>
-            <li>
-              <i className="is-wp" />
-              {t.map.waypoint}
-            </li>
-            <li>
-              <i className="is-target" />
-              {t.map.target}
-            </li>
-          </ul>
+          <p className="odm-rm-caption">
+            {waypoints.length > 0
+              ? t.map.routeReferenceNote
+              : t.map.noRouteData}
+          </p>
           {waypoints.length > 0 ? (
             <ul className="odm-rm-wps mgr-scroll-list">
-              {waypoints.map((point, index) => (
+              {waypoints.map((point) => (
                 <li key={point.id}>
-                  <b>
-                    {index === 0
-                      ? 'H'
-                      : index === waypoints.length - 1
-                        ? 'T'
-                        : point.sequence}
-                  </b>
+                  <b>{point.sequence}</b>
                   <strong>{waypointReasonLabel(point.reason)}</strong>
                   <span>{formatNumber(point.altitudeM, ' m')}</span>
                 </li>
@@ -121,7 +111,7 @@ export function ActiveMissionOverview({
           checklistLoading={checklist.loading}
           checklistFailed={!!checklist.error}
           refreshing={loading}
-          mediaCount={detail.media.length}
+          mediaCount={mediaCount}
           locale={locale}
           onReviewed={refreshDetail}
           onViewMedia={() => onTabChange('media')}
@@ -157,20 +147,22 @@ export function ActiveMissionOverview({
           }
         />
       </div>
-      <section
-        ref={mediaLibrary}
-        tabIndex={-1}
-        className="odm-md-panel is-media"
-        hidden={activeTab !== 'media'}
-        aria-label={t.extra.mediaLibrary}
-      >
-        <MissionUploadedMedia
-          missionId={mission.id}
-          missionStatus={mission.status}
-          reader={staffMissionMediaReader}
-          reviewStatus={detail.result?.approvalStatus ?? null}
-        />
-      </section>
+      {mediaVisited ? (
+        <section
+          ref={mediaLibrary}
+          tabIndex={-1}
+          className="odm-md-panel is-media"
+          hidden={activeTab !== 'media'}
+          aria-label={t.extra.mediaLibrary}
+        >
+          <MissionUploadedMedia
+            missionId={mission.id}
+            missionStatus={mission.status}
+            reader={staffMissionMediaReader}
+            reviewStatus={detail.result?.approvalStatus ?? null}
+          />
+        </section>
+      ) : null}
     </div>
   )
 }

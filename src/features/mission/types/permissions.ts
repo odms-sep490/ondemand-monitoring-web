@@ -10,6 +10,7 @@ export type MissionPermissions = {
   canMaintainDevice: boolean
   canUploadMedia: boolean
   canCompleteMission?: boolean
+  canConfirmMissionFailure?: boolean
   canSubmitMissionResult?: boolean
   canExecuteMonitoringChecklist?: boolean
   canAssessMonitoringChecklist?: boolean

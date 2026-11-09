@@ -64,12 +64,11 @@ export function useMissionDetailLoad({
           )
           return
         }
-        const [preflight, postcheck, result, media, weather] =
+        const [preflight, postcheck, result, weather] =
           await Promise.allSettled([
             missionsApi.getCurrentPreflight(missionId, abort.signal),
             missionsApi.getCurrentPostDeviceCheck(missionId, abort.signal),
             missionsApi.getMissionResult(missionId, abort.signal),
-            missionsApi.getMissionMedia(missionId, abort.signal),
             missionsApi.getLatestWeatherCheck(missionId, abort.signal),
           ])
         if (abort.signal.aborted) return
@@ -82,9 +81,8 @@ export function useMissionDetailLoad({
             unwrapSettled(result)?.missionId === missionId
               ? unwrapSettled(result)
               : null,
-          media: (unwrapSettled(media) ?? []).filter(
-            (item) => item.missionId === missionId,
-          ),
+          // Media is loaded by the gallery only after its tab is first opened.
+          media: [],
           weather: unwrapSettled(weather),
         })
         loadedMissionRef.current = missionId
@@ -110,16 +108,13 @@ export function useMissionDetailLoad({
   }, [missionId, revision, t.loadError])
 
   // Completed missions may no longer carry `droneCode`; resolve the device
-  // from the post-check, then from the drone that captured the media.
+  // from the mission assignment or its post-flight check without loading media.
   const droneIdForLookup =
     detail &&
     !detail.mission?.droneCode &&
     !detail.mission?.deviceCode &&
     !detail.postcheck?.deviceCode
-      ? (detail.mission?.deviceId ??
-        detail.mission?.droneId ??
-        detail.media[0]?.droneId ??
-        null)
+      ? (detail.mission?.deviceId ?? detail.mission?.droneId ?? null)
       : null
   useEffect(() => {
     if (!droneIdForLookup) {

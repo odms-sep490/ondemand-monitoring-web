@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Button, FormField, Modal } from '../../../../../shared/components/ui'
 import type { Drone, Mission } from '../../../types/omss'
 import { getLanguage, useI18n } from '../../../../../shared/i18n'
 import { useMissionMonitoring } from '../../../../mission/hooks/useMissionMonitoring'
@@ -75,6 +76,9 @@ export default function InFlightControl({
     Boolean(mission.failureRequestedAt),
   )
   const [failureRequestBusy, setFailureRequestBusy] = useState(false)
+  const [failureDialogOpen, setFailureDialogOpen] = useState(false)
+  const [failureReason, setFailureReason] = useState('')
+  const [failureDialogError, setFailureDialogError] = useState('')
   const [startFlightBusy, setStartFlightBusy] = useState(false)
   const [streamRevision, setStreamRevision] = useState(0)
   const [controlStatus, setControlStatus] = useState<ControlStatus | null>(null)
@@ -229,72 +233,160 @@ export default function InFlightControl({
     setPreflightReady,
   })
 
+  const closeFailureDialog = useCallback(() => {
+    if (failureRequestBusy) return
+    setFailureDialogOpen(false)
+    setFailureReason('')
+    setFailureDialogError('')
+  }, [failureRequestBusy])
+
   const handleRequestMissionFailure = useCallback(async () => {
     if (!onFailureRequested || failureRequestBusy || missionFailureRequested) return
-    if (!window.confirm(t.toolbar.failureConfirm)) return
+    setFailureReason('')
+    setFailureDialogError('')
+    setFailureDialogOpen(true)
+  }, [failureRequestBusy, missionFailureRequested, onFailureRequested])
+
+  const handleConfirmMissionFailure = useCallback(async () => {
+    if (!onFailureRequested || failureRequestBusy || missionFailureRequested) return
+    const reason = failureReason.trim()
+    if (!reason) {
+      setFailureDialogError(t.toolbar.failureReasonRequired)
+      return
+    }
+
     setFailureRequestBusy(true)
-    const reason =
-      getLanguage() === 'en'
-        ? 'Operational risk during flight'
-        : 'Phát sinh rủi ro trong lúc thực hiện'
+    setFailureDialogError('')
+    let requestSaved = false
     try {
       const wasAirborne = controlStatus?.inAir === true
       await onFailureRequested(reason, wasAirborne)
+      requestSaved = true
       setMissionFailureRequested(true)
       setLastCommand(t.status.failurePending)
+      setFailureDialogOpen(false)
+      setFailureReason('')
       if (wasAirborne) {
         await sendCommand('return_to_base', { emergencyReturn: true })
       }
     } catch (cause) {
-      setLastCommand(
+      const message =
         cause instanceof Error
           ? cause.message
           : getLanguage() === 'en'
             ? 'Could not record the mission failure request'
-            : 'Không thể ghi nhận yêu cầu thất bại của Mission',
-      )
+            : 'Không thể ghi nhận yêu cầu thất bại của Mission'
+      setLastCommand(message)
+      if (!requestSaved) setFailureDialogError(message)
     } finally {
       setFailureRequestBusy(false)
     }
   }, [
+    failureReason,
     failureRequestBusy,
     missionFailureRequested,
     controlStatus?.inAir,
     onFailureRequested,
     sendCommand,
     t.status.failurePending,
-    t.toolbar.failureConfirm,
+    t.toolbar.failureReasonRequired,
   ])
+
+  const failureDialog = failureDialogOpen ? (
+    <div className="mission-cockpit-dialog-theme mission-failure-dialog-theme">
+      <Modal
+        title={t.toolbar.failureTitle}
+        tone="danger"
+        icon="shield"
+        width={520}
+        onClose={closeFailureDialog}
+        footer={
+          <>
+            <Button
+              variant="ghost"
+              onClick={closeFailureDialog}
+              disabled={failureRequestBusy}
+            >
+              {t.toolbar.failureCancel}
+            </Button>
+            <Button
+              variant="danger"
+              icon="shield"
+              onClick={() => void handleConfirmMissionFailure()}
+              loading={failureRequestBusy}
+            >
+              {failureRequestBusy
+                ? t.toolbar.failureSaving
+                : t.toolbar.failureSubmit}
+            </Button>
+          </>
+        }
+      >
+        <p>{t.toolbar.failureConfirm}</p>
+        <FormField
+          id="mission-failure-reason"
+          label={t.toolbar.failureReasonLabel}
+          required
+          error={failureDialogError || undefined}
+        >
+          <textarea
+            id="mission-failure-reason"
+            className="mission-failure-reason-input"
+            rows={4}
+            maxLength={1000}
+            autoFocus
+            value={failureReason}
+            placeholder={t.toolbar.failureReasonPlaceholder}
+            disabled={failureRequestBusy}
+            aria-invalid={Boolean(failureDialogError)}
+            aria-describedby={
+              failureDialogError ? 'mission-failure-reason-error' : undefined
+            }
+            onChange={(event) => {
+              setFailureReason(event.target.value)
+              if (failureDialogError) setFailureDialogError('')
+            }}
+          />
+        </FormField>
+        <p className="mission-failure-reason-limit">
+          {t.toolbar.failureReasonLimit}
+        </p>
+      </Modal>
+    </div>
+  ) : null
 
   if (import.meta.env.VITE_FLIGHT_MAP_ONLY === 'true') {
     return (
-      <GpsCockpitView
-        mission={mission}
-        controlStatus={controlStatus}
-        isOnline={isOnline}
-        lastCommand={lastCommand}
-        telemetryBattery={telemetryBattery}
-        cameraTelemetry={cameraTelemetry}
-        busyCommand={busyCommand}
-        normalFlightAllowed={normalFlightAllowed}
-        preflightReady={preflightReady}
-        referenceBusy={referenceBusy}
-        handleCommand={handleCommand}
-        handleReviewMedia={handleReviewMedia}
-        onStartFlight={onStartFlight}
-        handleStartFlight={handleStartFlight}
-        startFlightBusy={startFlightBusy}
-        handleFinishFlight={handleFinishFlight}
-        finishFlightBusy={finishFlightBusy}
-        handleRequestMissionFailure={handleRequestMissionFailure}
-        failureRequestBusy={failureRequestBusy}
-        missionFailureRequested={missionFailureRequested}
-        canFinishFlight={canFinishFlight}
-        finishFlightBlockedReason={finishFlightBlockedReason}
-        handleReferenceCapture={handleReferenceCapture}
-        drone={drone}
-        handlePreflightReady={handlePreflightReady}
-      />
+      <>
+        <GpsCockpitView
+          mission={mission}
+          controlStatus={controlStatus}
+          isOnline={isOnline}
+          lastCommand={lastCommand}
+          telemetryBattery={telemetryBattery}
+          cameraTelemetry={cameraTelemetry}
+          busyCommand={busyCommand}
+          normalFlightAllowed={normalFlightAllowed}
+          preflightReady={preflightReady}
+          referenceBusy={referenceBusy}
+          handleCommand={handleCommand}
+          handleReviewMedia={handleReviewMedia}
+          onStartFlight={onStartFlight}
+          handleStartFlight={handleStartFlight}
+          startFlightBusy={startFlightBusy}
+          handleFinishFlight={handleFinishFlight}
+          finishFlightBusy={finishFlightBusy}
+          handleRequestMissionFailure={handleRequestMissionFailure}
+          failureRequestBusy={failureRequestBusy}
+          missionFailureRequested={missionFailureRequested}
+          canFinishFlight={canFinishFlight}
+          finishFlightBlockedReason={finishFlightBlockedReason}
+          handleReferenceCapture={handleReferenceCapture}
+          drone={drone}
+          handlePreflightReady={handlePreflightReady}
+        />
+        {failureDialog}
+      </>
     )
   }
 
@@ -407,9 +499,10 @@ export default function InFlightControl({
               }}
             >
               {t.status.failurePending}
-                {onFailureLanded && controlStatus?.inAir !== true && (
+                {onFailureLanded && (
                   <button
                     type="button"
+                    disabled={controlStatus?.inAir !== false}
                     onClick={onFailureLanded}
                     style={{
                       marginLeft: 12,
@@ -420,12 +513,22 @@ export default function InFlightControl({
                       background: 'rgba(127,29,29,.8)',
                       color: '#fff1f2',
                       fontWeight: 800,
-                      cursor: 'pointer',
+                      cursor:
+                        controlStatus?.inAir === false ? 'pointer' : 'not-allowed',
+                      opacity: controlStatus?.inAir === false ? 1 : 0.72,
                     }}
                   >
-                    {getLanguage() === 'en'
-                      ? 'Confirm landed'
-                      : 'Xác nhận đã hạ cánh'}
+                    {controlStatus?.inAir === false
+                      ? getLanguage() === 'en'
+                        ? 'Confirm landed'
+                        : 'Xác nhận đã hạ cánh'
+                      : controlStatus?.inAir === true
+                        ? getLanguage() === 'en'
+                          ? 'Waiting for landing…'
+                          : 'Đang chờ drone hạ cánh…'
+                        : getLanguage() === 'en'
+                          ? 'Waiting for landing status…'
+                          : 'Đang chờ trạng thái hạ cánh…'}
                   </button>
                 )}
             </div>
@@ -499,6 +602,7 @@ export default function InFlightControl({
           setMediaPanelOpen(false)
         }}
       />
+      {failureDialog}
     </div>
   )
 }

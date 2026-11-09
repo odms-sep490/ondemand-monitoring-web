@@ -63,6 +63,7 @@ type Room = {
 
 type OfficeAvatar = {
   personId: string
+  personName: string
   root: THREE.Group
   mixer: THREE.AnimationMixer
   actions: Map<string, THREE.AnimationAction>
@@ -77,6 +78,11 @@ type OfficeAvatar = {
   color: string
   halo: THREE.Mesh<THREE.RingGeometry, THREE.MeshBasicMaterial>
   label: THREE.Sprite | null
+  isWorking: boolean
+  workingIndicator: THREE.Mesh | null
+  workingGeometry: THREE.RingGeometry | null
+  workingMaterial: THREE.MeshBasicMaterial | null
+  workLabel: THREE.Sprite | null
   currentAction: THREE.AnimationAction | null
   animationKeys: { idle?: string; walk?: string; sit?: string; stand?: string }
 }
@@ -89,6 +95,7 @@ type SceneHandle = {
   roomFloors: Map<string, THREE.Mesh>
   staffAnchors: Map<string, THREE.Vector3>
   avatarRoots: Map<string, THREE.Group>
+  updatePeople: (people: OfficePerson[]) => void
   render: () => void
   reset: () => void
   focusPerson: (personId: string | null) => void
@@ -379,12 +386,15 @@ function makeOfficeScene(
   fillLight.position.set(9, 7, -8)
   scene.add(fillLight)
 
-  const geometries: THREE.BufferGeometry[] = []
+  const geometries = new Set<THREE.BufferGeometry>()
   const ownedMaterials = new Set<THREE.Material>()
   const roomFloors = new Map<string, THREE.Mesh>()
   const staffAnchors = new Map<string, THREE.Vector3>()
   const avatarRoots = new Map<string, THREE.Group>()
   const avatars = new Map<string, OfficeAvatar>()
+  let currentPeople = new Map<string, OfficePerson>(
+    people.map((person) => [person.id, person] as const),
+  )
   const clickables: THREE.Object3D[] = []
   let disposed = false
   let animationFrame = 0
@@ -405,6 +415,100 @@ function makeOfficeScene(
   } | null = null
 
   const roomById = new Map(ROOMS.map((room) => [room.id, room]))
+
+  const disposeSprite = (sprite: THREE.Sprite) => {
+    sprite.material.map?.dispose()
+    sprite.material.dispose()
+  }
+
+  const updateAvatarLabel = (avatar: OfficeAvatar, name: string) => {
+    if (avatar.personName === name) return
+    if (avatar.label) {
+      avatar.root.remove(avatar.label)
+      disposeSprite(avatar.label)
+    }
+    const initials = name.split(/\s+/).filter(Boolean).slice(-2).map((part) => part[0]).join('').toUpperCase()
+    const label = createLabel(`${initials} · ${name}`, '#ffffffef', '#19314f')
+    if (label) {
+      label.position.set(0, 1.78, 0)
+      label.scale.set(1.72, 0.48, 1)
+      avatar.root.add(label)
+    }
+    avatar.label = label
+    avatar.personName = name
+  }
+
+  const updateAvatarWorkingStatus = (avatar: OfficeAvatar, isWorking: boolean) => {
+    if (avatar.isWorking === isWorking) return
+    if (isWorking) {
+      const geometry = new THREE.RingGeometry(0.46, 0.54, 40)
+      const material = new THREE.MeshBasicMaterial({
+        color: '#16a765',
+        transparent: true,
+        opacity: 0.9,
+        side: THREE.DoubleSide,
+        depthWrite: false,
+      })
+      const indicator = new THREE.Mesh(geometry, material)
+      indicator.name = 'staff-working-indicator'
+      indicator.rotation.x = -Math.PI / 2
+      indicator.position.y = 0.045
+      avatar.root.add(indicator)
+      geometries.add(geometry)
+      ownedMaterials.add(material)
+
+      const workLabel = createLabel(lang === 'en' ? '● WORKING' : '● ĐANG LÀM', '#dcfce8', '#087a45')
+      if (workLabel) {
+        workLabel.position.set(0, 2.2, 0)
+        workLabel.scale.set(1.12, 0.31, 1)
+        workLabel.renderOrder = 6
+        avatar.root.add(workLabel)
+      }
+      avatar.workingGeometry = geometry
+      avatar.workingMaterial = material
+      avatar.workingIndicator = indicator
+      avatar.workLabel = workLabel
+      avatar.isWorking = true
+      return
+    }
+
+    if (avatar.workingIndicator) avatar.root.remove(avatar.workingIndicator)
+    if (avatar.workingGeometry) {
+      geometries.delete(avatar.workingGeometry)
+      avatar.workingGeometry.dispose()
+    }
+    if (avatar.workingMaterial) {
+      ownedMaterials.delete(avatar.workingMaterial)
+      avatar.workingMaterial.dispose()
+    }
+    if (avatar.workLabel) {
+      avatar.root.remove(avatar.workLabel)
+      disposeSprite(avatar.workLabel)
+    }
+    avatar.workingGeometry = null
+    avatar.workingMaterial = null
+    avatar.workingIndicator = null
+    avatar.workLabel = null
+    avatar.isWorking = false
+  }
+
+  const updatePeople = (nextPeople: OfficePerson[]) => {
+    currentPeople = new Map<string, OfficePerson>(
+      nextPeople.map((person) => [person.id, person] as const),
+    )
+    for (const person of nextPeople) {
+      const avatar = avatars.get(person.id)
+      if (!avatar) continue
+      updateAvatarLabel(avatar, person.name)
+      updateAvatarWorkingStatus(
+        avatar,
+        person.missions.some((mission) => WORKING_MISSION_STATUSES.has(mission.status)),
+      )
+    }
+    render()
+    scheduleAnimationFrame()
+  }
+
   const environmentRoot = sourceEnvironment.clone(true)
   environmentRoot.name = 'office-environment'
   const workstationAnchors = new Map<string, Array<{ index: number; position: THREE.Vector3 }>>()
@@ -570,7 +674,7 @@ function makeOfficeScene(
 
   void loadOfficeCharacters().then(([maleModel, femaleModel]) => {
     if (disposed) return
-    people.forEach((person, index) => {
+    ;[...currentPeople.values()].forEach((person, index) => {
       // Keep the illustrative character stable when people are filtered or re-ordered.
       const source = stablePersonOffset(person.id, 2) === 0 ? maleModel : femaleModel
       const model = SkeletonUtils.clone(source) as THREE.Group
@@ -625,7 +729,7 @@ function makeOfficeScene(
       root.add(model)
 
       const haloGeometry = new THREE.RingGeometry(0.35, 0.42, 40)
-      geometries.push(haloGeometry)
+      geometries.add(haloGeometry)
       const haloMaterial = new THREE.MeshBasicMaterial({ color: colorForPerson(person.id), transparent: true, opacity: 0.18, side: THREE.DoubleSide })
       ownedMaterials.add(haloMaterial)
       const halo = new THREE.Mesh(haloGeometry, haloMaterial)
@@ -634,41 +738,12 @@ function makeOfficeScene(
       halo.position.y = 0.035
       root.add(halo)
 
-      const isWorking = person.missions.some((mission) => WORKING_MISSION_STATUSES.has(mission.status))
-      if (isWorking) {
-        const workingGeometry = new THREE.RingGeometry(0.46, 0.54, 40)
-        geometries.push(workingGeometry)
-        const workingMaterial = new THREE.MeshBasicMaterial({
-          color: '#16a765',
-          transparent: true,
-          opacity: 0.9,
-          side: THREE.DoubleSide,
-          depthWrite: false,
-        })
-        ownedMaterials.add(workingMaterial)
-        const workingIndicator = new THREE.Mesh(workingGeometry, workingMaterial)
-        workingIndicator.name = 'staff-working-indicator'
-        workingIndicator.rotation.x = -Math.PI / 2
-        workingIndicator.position.y = 0.045
-        root.add(workingIndicator)
-      }
-
       const initials = person.name.split(/\s+/).filter(Boolean).slice(-2).map((part) => part[0]).join('').toUpperCase()
       const label = createLabel(`${initials} · ${person.name}`, '#ffffffef', '#19314f')
       if (label) {
         label.position.set(0, 1.78, 0)
         label.scale.set(1.72, 0.48, 1)
         root.add(label)
-      }
-
-      const workLabel = isWorking
-        ? createLabel(lang === 'en' ? '● WORKING' : '● ĐANG LÀM', '#dcfce8', '#087a45')
-        : null
-      if (workLabel) {
-        workLabel.position.set(0, 2.2, 0)
-        workLabel.scale.set(1.12, 0.31, 1)
-        workLabel.renderOrder = 6
-        root.add(workLabel)
       }
 
       const mixer = new THREE.AnimationMixer(model)
@@ -714,6 +789,7 @@ function makeOfficeScene(
       const seat = root.position.clone()
       const avatar: OfficeAvatar = {
         personId: person.id,
+        personName: person.name,
         root,
         mixer,
         actions,
@@ -729,6 +805,11 @@ function makeOfficeScene(
         color: colorForPerson(person.id),
         halo,
         label,
+        isWorking: false,
+        workingIndicator: null,
+        workingGeometry: null,
+        workingMaterial: null,
+        workLabel: null,
         currentAction: null,
         animationKeys: {
           idle: selectedClips.idle ? 'idle' : undefined,
@@ -741,6 +822,10 @@ function makeOfficeScene(
       avatarRoots.set(person.id, root)
       staffAnchors.set(person.id, root.position.clone())
       clickables.push(root)
+      updateAvatarWorkingStatus(
+        avatar,
+        person.missions.some((mission) => WORKING_MISSION_STATUSES.has(mission.status)),
+      )
       if (sitting) {
         avatar.currentAction = sitting
         avatar.stateTime = 0
@@ -1077,7 +1162,7 @@ function makeOfficeScene(
     hoveredStaffId = nextStaffId
     host.dataset.hoveredStaffId = nextStaffId ?? ''
     if (nextStaffId) {
-      const person = people.find((item) => item.id === nextStaffId)
+      const person = currentPeople.get(nextStaffId)
       renderer.domElement.title = person
         ? `${person.name} · ${person.roles.filter((role) => role !== 'STAFF').map((role) => roleLabel(role, lang === 'en')).join(' · ') || (lang === 'en' ? 'Staff' : 'Nhân sự')}`
         : ''
@@ -1231,6 +1316,7 @@ function makeOfficeScene(
     roomFloors,
     staffAnchors,
     avatarRoots,
+    updatePeople,
     render,
     reset,
     focusPerson,
@@ -1504,6 +1590,9 @@ export function Office3DView({
     if (department === 'shared') return area === 'shared'
     return false
   }), [people, department])
+  const visiblePeopleKey = visiblePeople.map((item) => item.id).sort().join('\u0000')
+  const visiblePeopleRef = useRef(visiblePeople)
+  visiblePeopleRef.current = visiblePeople
   const devices = useMemo(() => {
     const ids = new Set<string>()
     for (const mission of activeMissions) {
@@ -1559,7 +1648,7 @@ export function Office3DView({
       .then((environment) => {
         if (cancelled) return
         try {
-          handle = makeOfficeScene(host, visiblePeople, lang, onRoomClick, onPersonClick, environment)
+          handle = makeOfficeScene(host, visiblePeopleRef.current, lang, onRoomClick, onPersonClick, environment)
           sceneRef.current = handle
           handle.setAnimationsPaused(animationsPausedRef.current)
           const currentRoom = selectedRoomRef.current
@@ -1591,8 +1680,13 @@ export function Office3DView({
       handle?.dispose()
       if (sceneRef.current === handle) sceneRef.current = null
     }
-    // The scene is rebuilt when the team data or display language changes.
-  }, [visiblePeople, lang, onRoomClick, onPersonClick])
+    // Keep the expensive 3D scene stable when assignments only change staff details.
+    // Rebuild only when the visible roster or display language changes.
+  }, [visiblePeopleKey, lang, onRoomClick, onPersonClick])
+
+  useEffect(() => {
+    sceneRef.current?.updatePeople(visiblePeople)
+  }, [visiblePeople])
 
   useEffect(() => {
     selectedRoomRef.current = selectedRoom
@@ -1622,7 +1716,7 @@ export function Office3DView({
     if (selectedPerson) handle.focusPerson(selectedPerson)
     else handle.setFollowPerson(null)
     handle.render()
-  }, [selectedPerson, people])
+  }, [selectedPerson])
 
   useEffect(() => {
     animationsPausedRef.current = animationsPaused

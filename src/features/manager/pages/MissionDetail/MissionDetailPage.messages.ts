@@ -6,14 +6,15 @@ export const missionDetailPageMessages = defineMessages({
       result: 'Kết quả nhiệm vụ',
       media: 'Ảnh & video',
       checklist: 'Danh mục kiểm tra',
-      route: 'Bản đồ đường bay',
+      route: 'Vị trí & tuyến kế hoạch',
       order: 'Thông tin đơn hàng',
       resources: 'Thông tin nguồn lực',
       plan: 'Kế hoạch bay',
       checks: 'Kiểm tra trước/sau bay',
     },
     tabsAria: 'Các mục chi tiết nhiệm vụ',
-    unreadResourceEvents: (count: number) => `${count} cập nhật nguồn lực chưa xem`,
+    unreadResourceEvents: (count: number) =>
+      `${count} cập nhật nguồn lực chưa xem`,
     replaceSpecificStaff: (name: string) => `Thay thế ${name}`,
     contextCard: 'Thông tin nhiệm vụ & nguồn lực',
     permitCard: 'Giấy phép bay',
@@ -29,8 +30,8 @@ export const missionDetailPageMessages = defineMessages({
       plannedDuration: 'Thời lượng dự kiến',
     },
     map: {
-      title: 'Bản đồ nhiệm vụ',
-      route: 'Đường bay',
+      title: 'Vị trí & tuyến kế hoạch',
+      route: 'Tuyến kế hoạch (tham chiếu)',
       waypoint: 'Điểm bay',
       target: 'Điểm giám sát',
       empty: 'Chưa có điểm bay tự động',
@@ -38,6 +39,10 @@ export const missionDetailPageMessages = defineMessages({
       distance: 'Quãng đường',
       altitude: 'Độ cao tối đa',
       home: 'Điểm xuất phát (H)',
+      routeReferenceNote:
+        'Các điểm dưới đây thuộc kế hoạch bay; chưa có dữ liệu GPS về đường bay thực tế.',
+      noRouteData:
+        'Bản đồ chỉ hiển thị vị trí nhiệm vụ. Chưa có dữ liệu tuyến bay thực tế.',
     },
     waypoints: {
       title: 'Danh sách điểm bay',
@@ -80,8 +85,11 @@ export const missionDetailPageMessages = defineMessages({
     crewAccepted: (accepted: number, total: number) =>
       `${accepted}/${total} đã nhận`,
     replaceDeclinedStaff: 'Thay thế nhân sự đã từ chối',
-    noPrecheck: 'Chưa có kết quả kiểm tra trước bay.',
-    noPostcheck: 'Chưa có kết quả kiểm tra sau bay.',
+    precheckNotStarted: 'Chưa đến bước kiểm tra trước bay.',
+    precheckMissing: 'Chưa ghi nhận kết quả kiểm tra trước bay.',
+    postcheckNotDue: 'Chưa đến bước kiểm tra sau bay.',
+    postcheckMissing: 'Chưa ghi nhận kết quả kiểm tra sau bay.',
+    staffUnknown: 'Chưa có tên nhân sự',
     fields: {
       customer: 'Khách hàng',
       order: 'Đơn hàng',
@@ -118,7 +126,7 @@ export const missionDetailPageMessages = defineMessages({
       startPoint: 'Điểm xuất phát',
       targetPoint: 'Điểm giám sát',
       targetChip: 'ĐIỂM GIÁM SÁT',
-      routeChip: 'Đường bay: Điểm xuất phát → điểm giám sát',
+      routeChip: 'Tuyến kế hoạch; chưa có dữ liệu đường bay GPS thực tế',
       radiusChip: 'Bán kính giám sát:',
       noCoordinates: 'Chưa có tọa độ nhiệm vụ',
       wpDefault: 'Điểm bay',
@@ -131,16 +139,38 @@ export const missionDetailPageMessages = defineMessages({
         assignTitle: 'Cần phân công nguồn lực',
         assignDetail:
           'Gán đủ nhân sự và thiết bị để nhiệm vụ được gửi cho đội bay.',
+        awaitingOrderTitle: 'Đang chờ đơn hàng sẵn sàng',
+        awaitingOrderDetail:
+          'Cần hoàn tất xác nhận và thanh toán đơn hàng trước khi tiếp tục chuẩn bị nhiệm vụ.',
         waitCrewTitle: 'Đang chờ đội bay xác nhận',
         waitCrewDetail: (accepted: number, crew: number) =>
           `${accepted}/${crew} nhân sự đã nhận. Nhân viên vận hành kiểm tra thiết bị trước bay và bàn giao quyền trước khi nghiệm thu bắt đầu nhiệm vụ.`,
-        waitCrewDetailNoCrew: 'Tổ bay cần nhận nhiệm vụ, kiểm tra thiết bị trước bay và bàn giao quyền trước khi nghiệm thu bắt đầu nhiệm vụ.',
+        waitCrewDetailNoCrew:
+          'Tổ bay cần nhận nhiệm vụ, kiểm tra thiết bị trước bay và bàn giao quyền trước khi nghiệm thu bắt đầu nhiệm vụ.',
         scheduledTitle: 'Đang chuẩn bị trước bay',
         scheduledDetail:
           'Đội bay sẽ kết nối thiết bị và kiểm tra trước chuyến bay.',
+        connectionTitle: 'Đang chờ kiểm tra thiết bị',
+        connectionDetail:
+          'Thiết bị đã kết nối. Nhân sự vận hành cần hoàn tất kiểm tra trước bay và bàn giao.',
+        preflightTitle: 'Đang kiểm tra trước bay',
+        preflightDetail:
+          'Nhân sự vận hành đang kiểm tra thiết bị và điều kiện an toàn trước khi cất cánh.',
+        readyFlightTitle: 'Đã sẵn sàng bay',
+        readyFlightDetail:
+          'Chờ phi công bắt đầu chuyến bay theo kế hoạch đã duyệt.',
+        flightTitle: 'Chuyến bay đang được thực hiện',
+        flightDetail:
+          'Theo dõi tiến trình bay và chờ đội bay hoàn tất kiểm tra sau bay.',
+        postflightTitle: 'Đang kiểm tra sau bay',
+        postflightDetail:
+          'Đội bay cần hoàn tất checklist và tải đủ bằng chứng trước khi gửi nghiệm thu.',
         failedPreflightTitle: 'Không đạt kiểm tra trước bay',
         failedPreflightDetail:
           'Xem tab Kiểm tra trước bay, xử lý rồi cho đội bay kiểm tra lại.',
+        completedTitle: 'Nhiệm vụ đã hoàn thành',
+        completedDetail:
+          'Kết quả và bằng chứng đã được ghi nhận cho nhiệm vụ này.',
         pendingReviewTitle: 'Chờ nghiệm thu',
         pendingReviewDetail:
           'Đội nghiệm thu đang xem kết quả kiểm tra sau bay, danh mục công việc và bằng chứng của chuyến bay.',
@@ -158,14 +188,15 @@ export const missionDetailPageMessages = defineMessages({
       result: 'Mission result',
       media: 'Photos & videos',
       checklist: 'Checklist',
-      route: 'Flight map',
+      route: 'Location & planned route',
       order: 'Order information',
       resources: 'Mission resources',
       plan: 'Flight plan',
       checks: 'Pre/post-flight checks',
     },
     tabsAria: 'Mission detail sections',
-    unreadResourceEvents: (count: number) => `${count} unread resource update${count === 1 ? '' : 's'}`,
+    unreadResourceEvents: (count: number) =>
+      `${count} unread resource update${count === 1 ? '' : 's'}`,
     replaceSpecificStaff: (name: string) => `Replace ${name}`,
     contextCard: 'Mission & resource details',
     permitCard: 'Flight permit',
@@ -181,8 +212,8 @@ export const missionDetailPageMessages = defineMessages({
       plannedDuration: 'Planned duration',
     },
     map: {
-      title: 'Mission map',
-      route: 'Flight route',
+      title: 'Mission location & planned route',
+      route: 'Planned route (reference)',
       waypoint: 'Waypoint',
       target: 'Monitoring point',
       empty: 'No automatic waypoints yet',
@@ -190,6 +221,10 @@ export const missionDetailPageMessages = defineMessages({
       distance: 'Distance',
       altitude: 'Max altitude',
       home: 'Start point (H)',
+      routeReferenceNote:
+        'These points belong to the flight plan; live GPS flight-path data is not available.',
+      noRouteData:
+        'The map shows the mission location only. No flight-path data is available.',
     },
     waypoints: {
       title: 'Waypoints',
@@ -232,8 +267,11 @@ export const missionDetailPageMessages = defineMessages({
     crewAccepted: (accepted: number, total: number) =>
       `${accepted}/${total} accepted`,
     replaceDeclinedStaff: 'Replace declined staff',
-    noPrecheck: 'No pre-flight check result yet.',
-    noPostcheck: 'No post-flight check result yet.',
+    precheckNotStarted: 'Pre-flight checks have not started yet.',
+    precheckMissing: 'No pre-flight check result has been recorded.',
+    postcheckNotDue: 'Post-flight checks are not due yet.',
+    postcheckMissing: 'No post-flight check result has been recorded.',
+    staffUnknown: 'Staff name unavailable',
     fields: {
       customer: 'Customer',
       order: 'Order',
@@ -270,7 +308,7 @@ export const missionDetailPageMessages = defineMessages({
       startPoint: 'Start point',
       targetPoint: 'Monitoring point',
       targetChip: 'MONITORING POINT',
-      routeChip: 'Flight path: HOME → monitoring point',
+      routeChip: 'Planned route; no actual GPS flight-path data',
       radiusChip: 'Monitoring radius:',
       noCoordinates: 'No mission coordinates yet',
       wpDefault: 'Waypoint',
@@ -283,6 +321,9 @@ export const missionDetailPageMessages = defineMessages({
         assignTitle: 'Resources need to be assigned',
         assignDetail:
           'Assign enough staff and devices so the Mission can be sent to the flight crew.',
+        awaitingOrderTitle: 'Waiting for the order to be ready',
+        awaitingOrderDetail:
+          'Order confirmation and payment must be completed before Mission preparation can continue.',
         waitCrewTitle: 'Waiting for the flight crew to confirm',
         waitCrewDetail: (accepted: number, crew: number) =>
           `${accepted}/${crew} staff accepted. The operator runs preflight and hands over control before the inspector starts the Mission.`,
@@ -291,9 +332,27 @@ export const missionDetailPageMessages = defineMessages({
         scheduledTitle: 'Preparing for preflight',
         scheduledDetail:
           'The flight crew will connect the device and run the pre-flight check.',
+        connectionTitle: 'Waiting for pre-flight checks',
+        connectionDetail:
+          'The device is connected. Operations staff must finish pre-flight checks and hand over control.',
+        preflightTitle: 'Pre-flight checks in progress',
+        preflightDetail:
+          'Operations staff are checking the device and safety conditions before take-off.',
+        readyFlightTitle: 'Ready to fly',
+        readyFlightDetail:
+          'Waiting for the pilot to start the approved flight plan.',
+        flightTitle: 'Mission flight in progress',
+        flightDetail:
+          'Monitor the flight and wait for the crew to finish post-flight checks.',
+        postflightTitle: 'Post-flight checks in progress',
+        postflightDetail:
+          'The crew must finish the checklist and upload the required evidence before review.',
         failedPreflightTitle: 'Pre-flight check failed',
         failedPreflightDetail:
           'See the Preflight checks tab, fix the issues, then ask the crew to check again.',
+        completedTitle: 'Mission completed',
+        completedDetail:
+          'The result and evidence for this Mission have been recorded.',
         pendingReviewTitle: 'Awaiting inspection',
         pendingReviewDetail:
           'The inspection team is reviewing post-flight checks, the checklist, and flight evidence.',

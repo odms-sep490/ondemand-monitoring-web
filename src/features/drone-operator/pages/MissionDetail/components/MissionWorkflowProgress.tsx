@@ -28,7 +28,7 @@ export function MissionWorkflowProgress({
   const totalSteps = 8
 
   let currentStep = -1
-  let detail = t.workflowTerminal
+  let detail: string | null = t.workflowTerminal
   let terminalMessage: string | null = null
 
   if (status === 'CANCELLED') {
@@ -114,7 +114,7 @@ export function MissionWorkflowProgress({
       detail = t.workflowPreflightFailed
     } else if (crewAccepted) {
       currentStep = 2
-      detail = t.workflowConnectDevice
+      detail = null
     } else {
       currentStep = 1
       detail = t.workflowWaitCrew(accepted, total)
@@ -138,9 +138,11 @@ export function MissionWorkflowProgress({
             active={Math.min(currentStep, totalSteps - 1)}
             completed={currentStep === totalSteps}
           />
-          <p className="mds-workflow-progress__detail" role="status">
-            {currentStep === totalSteps ? t.workflowComplete : detail}
-          </p>
+          {detail === null ? null : (
+            <p className="mds-workflow-progress__detail" role="status">
+              {currentStep === totalSteps ? t.workflowComplete : detail}
+            </p>
+          )}
         </>
       )}
     </section>

@@ -26,17 +26,28 @@ export function AnalyticsCharts({ data }: { data: ManagerDashboardData }) {
     label: c.statusLabels[p.key] ?? statusLabel(p.key),
     value: p.count,
   }))
-  const additionalServicePoints = data.additionalServiceDistribution.map((p) => ({
-    label: c.statusLabels[p.key] ?? statusLabel(p.key),
-    value: p.count,
-  }))
+  const additionalServicePoints = data.additionalServiceDistribution.map(
+    (p) => ({
+      label: c.statusLabels[p.key] ?? statusLabel(p.key),
+      value: p.count,
+    }),
+  )
   const missionStatusPoints = data.missionStatusDistribution.map((p) => ({
     label: c.statusLabels[p.key] ?? statusLabel(p.key),
     value: p.count,
   }))
   const charts: ReactNode[] = []
+  const hasTrendData = trendPoints.some(
+    (point) => point.completed > 0 || point.failed > 0,
+  )
+  const hasOrderStatusData = orderStatusPoints.some((point) => point.value > 0)
+  const servicePoints = data.serviceDistribution.map((point) => ({
+    label: point.serviceName,
+    value: point.count,
+  }))
+  const hasServiceData = servicePoints.some((point) => point.value > 0)
 
-  if (trendPoints.some((point) => point.completed > 0 || point.failed > 0)) {
+  if (hasTrendData) {
     charts.push(
       <CardComponent key="mission-trend" title={c.trendTitle}>
         <TrendLineChart
@@ -51,22 +62,23 @@ export function AnalyticsCharts({ data }: { data: ManagerDashboardData }) {
     )
   }
 
-  if (orderStatusPoints.some((point) => point.value > 0)) {
+  if (hasOrderStatusData) {
     charts.push(
       <CardComponent key="order-status" title={c.orderStatusTitle}>
-        <DonutChart points={orderStatusPoints} empty={c.orderStatusEmpty} ariaLabel={c.totalAria} />
+        <DonutChart
+          points={orderStatusPoints}
+          empty={c.orderStatusEmpty}
+          ariaLabel={c.totalAria}
+        />
       </CardComponent>,
     )
   }
 
-  if (data.serviceDistribution.some((point) => point.count > 0)) {
+  if (hasServiceData) {
     charts.push(
       <CardComponent key="services" title={c.servicesTitle}>
         <BarChartCard
-          points={data.serviceDistribution.map((point) => ({
-            label: point.serviceName,
-            value: point.count,
-          }))}
+          points={servicePoints}
           empty={c.servicesEmpty}
           ariaLabel={c.barAria}
         />
@@ -86,7 +98,9 @@ export function AnalyticsCharts({ data }: { data: ManagerDashboardData }) {
           ariaLabel={c.barAria}
         />
         <div className="mgr-adjust-note">
-          <strong>{Math.round((adj.adjustedByManager * 100) / adjTotal)}%</strong>{' '}
+          <strong>
+            {Math.round((adj.adjustedByManager * 100) / adjTotal)}%
+          </strong>{' '}
           {c.adjustmentManager}
         </div>
       </CardComponent>,
@@ -95,7 +109,10 @@ export function AnalyticsCharts({ data }: { data: ManagerDashboardData }) {
 
   if (additionalServicePoints.some((point) => point.value > 0)) {
     charts.push(
-      <CardComponent key="additional-services" title={c.additionalServicesTitle}>
+      <CardComponent
+        key="additional-services"
+        title={c.additionalServicesTitle}
+      >
         <DonutChart
           points={additionalServicePoints}
           empty={c.additionalServicesEmpty}
@@ -118,18 +135,25 @@ export function AnalyticsCharts({ data }: { data: ManagerDashboardData }) {
   }
 
   return (
-    <section aria-labelledby="mgr-dashboard-analytics-title" className="mgr-analytics">
+    <section
+      aria-labelledby="mgr-dashboard-analytics-title"
+      className="mgr-analytics"
+    >
       <div className="mgr-analytics-heading">
-        <h2 className="mgr-section-title" id="mgr-dashboard-analytics-title">{c.title}</h2>
-        <Button size="small" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
+        <h2 className="mgr-section-title" id="mgr-dashboard-analytics-title">
+          {c.title}
+        </h2>
+        <Button
+          size="small"
+          aria-expanded={open}
+          onClick={() => setOpen((v) => !v)}
+        >
           {open ? c.collapse : c.expand}
         </Button>
       </div>
       {open ? (
         charts.length > 0 ? (
-          <div className="mgr-analytics-list">
-            {charts}
-          </div>
+          <div className="mgr-analytics-list">{charts}</div>
         ) : (
           <p className="mgr-empty-line mgr-analytics-empty">{c.emptySummary}</p>
         )

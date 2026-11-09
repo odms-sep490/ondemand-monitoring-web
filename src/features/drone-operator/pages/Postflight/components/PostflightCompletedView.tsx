@@ -35,15 +35,22 @@ export function PostflightCompletedView({
   const monitoring = useMissionMonitoring(missionId, undefined, {
     autoRefresh: false,
   })
-  const [busyAction, setBusyAction] = useState<'complete' | 'send' | 'restore' | null>(null)
+  const [busyAction, setBusyAction] = useState<'complete' | 'send' | 'restore' | 'fail' | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
   const [missionCompletedLocally, setMissionCompletedLocally] = useState(false)
+  const [failureConfirmedLocally, setFailureConfirmedLocally] = useState(false)
   const [submittedLocally, setSubmittedLocally] = useState(false)
   const [activeReviewTab, setActiveReviewTab] = useState('checklist')
   const reviewTabRefs = useRef<Array<HTMLButtonElement | null>>([])
 
   const mission = review.data?.mission
   const missionStatus = mission?.status
+  const failureConfirmed = failureConfirmedLocally || missionStatus === 'FAILED'
+  const awaitingFailureAcceptance =
+    Boolean(mission?.failureRequestedAt) && !failureConfirmed
+  const canConfirmFailure =
+    awaitingFailureAcceptance &&
+    monitoring.data?.permissions.canConfirmMissionFailure === true
   const resultState = missionResultActions(
     missionId,
     missionStatus,
@@ -128,6 +135,26 @@ export function PostflightCompletedView({
     try {
       await missionApi.completeMission(missionId)
       setMissionCompletedLocally(true)
+      review.reload()
+      monitoring.reload()
+    } catch (error) {
+      setActionError(staffResultError(error))
+    } finally {
+      setBusyAction(null)
+    }
+  }
+
+  async function handleConfirmMissionFailure() {
+    if (!mission || !canConfirmFailure || busyAction) return
+
+    setBusyAction('fail')
+    setActionError(null)
+    try {
+      await missionApi.failMission(
+        missionId,
+        mission.failureReason?.trim() || t.reviewFailureDefaultReason,
+      )
+      setFailureConfirmedLocally(true)
       review.reload()
       monitoring.reload()
     } catch (error) {
@@ -276,6 +303,7 @@ export function PostflightCompletedView({
           title={t.completedStepTitle}
           missionId={missionLabel}
           active={7}
+          failed={failureConfirmed}
         />
         <div className="postflight-review-state" role="status" aria-live="polite">
           <span className="postflight-review-spinner" aria-hidden="true" />
@@ -285,7 +313,8 @@ export function PostflightCompletedView({
     )
   }
 
-  const canComplete = resultState.canComplete && !isMissionCompleted
+  const canComplete =
+    resultState.canComplete && !isMissionCompleted && !awaitingFailureAcceptance
   const completionReady =
     resultState.completeReady &&
     monitoring.data?.checklist.readyForSubmission === true &&
@@ -379,6 +408,7 @@ export function PostflightCompletedView({
         title={t.completedStepTitle}
         missionId={missionLabel}
         active={7}
+        failed={failureConfirmed}
       />
 
       <div className="postflight-content postflight-review-content">
@@ -674,7 +704,21 @@ export function PostflightCompletedView({
 
         <section className="postflight-review-actions" aria-label={t.reviewTitle}>
           <div className="postflight-review-action-copy" aria-live="polite">
-            {isSubmitted ? (
+            {failureConfirmed ? (
+              <>
+                <strong>{t.reviewMissionFailed}</strong>
+                <span>{t.reviewFailureConfirmed}</span>
+              </>
+            ) : awaitingFailureAcceptance ? (
+              <>
+                <strong>{t.reviewMissionFailed}</strong>
+                <span>
+                  {canConfirmFailure
+                    ? t.reviewFailureWaitingConfirmation
+                    : t.reviewFailureWaitingPermission}
+                </span>
+              </>
+            ) : isSubmitted ? (
               <>
                 <strong>{managerApproved ? t.reviewApproved : t.reviewSent}</strong>
               </>
@@ -687,9 +731,9 @@ export function PostflightCompletedView({
                       ? t.reviewSubtitle
                       : !checklistAssessmentsComplete
                         ? t.reviewWaitingAssessment
-                      : !reviewDataReady || reviewError
-                        ? t.reviewAllDataRequired
-                        : resultState.readinessReason || t.reviewWaitingChecklist
+                        : !reviewDataReady || reviewError
+                          ? t.reviewAllDataRequired
+                          : resultState.readinessReason || t.reviewWaitingChecklist
                     : t.reviewWaitingPermission}
                 </span>
               </>
@@ -702,12 +746,24 @@ export function PostflightCompletedView({
                       ? t.reviewSubtitle
                       : !checklistAssessmentsComplete
                         ? t.reviewWaitingAssessment
-                      : t.reviewAllDataRequired
+                        : t.reviewAllDataRequired
                     : resultState.readinessReason || t.reviewWaitingChecklist}
                 </span>
               </>
             )}
           </div>
+          {awaitingFailureAcceptance && canConfirmFailure && (
+            <button
+              type="button"
+              className="postflight-review-primary"
+              disabled={busyAction !== null || reviewLoading}
+              onClick={handleConfirmMissionFailure}
+            >
+              {busyAction === 'fail'
+                ? t.reviewFailureConfirming
+                : t.reviewFailureConfirmButton}
+            </button>
+          )}
           {!isSubmitted && canComplete && (
             <button
               type="button"

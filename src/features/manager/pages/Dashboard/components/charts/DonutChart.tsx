@@ -13,6 +13,25 @@ export function DonutChart({ points, empty, ariaLabel }: Props) {
   const data = points.filter((p) => p.value > 0)
   const total = data.reduce((sum, p) => sum + p.value, 0)
   if (!total) return <p className="mgr-empty-line">{empty}</p>
+  if (data.length === 1) {
+    const point = data[0]
+    return (
+      <div
+        className="mgr-single-chart"
+        role="img"
+        aria-label={`${ariaLabel(total)}. ${point.label}: ${point.value}`}
+      >
+        <div className="mgr-single-chart-label">
+          <span className="mgr-tooltip-dot" style={{ background: CHART_COLORS[0] }} />
+          <span>{point.label}</span>
+          <strong>{point.value}</strong>
+        </div>
+        <span className="mgr-single-chart-track" aria-hidden="true">
+          <span style={{ width: '100%', background: CHART_COLORS[0] }} />
+        </span>
+      </div>
+    )
+  }
   return (
     <div className="mgr-donut-layout" role="img" aria-label={ariaLabel(total)}>
       <div className="mgr-donut">

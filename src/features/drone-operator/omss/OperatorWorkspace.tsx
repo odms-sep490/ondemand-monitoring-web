@@ -706,24 +706,6 @@ export default function OperatorWorkspace() {
     }
   }
 
-  async function finalizeRequestedFailureAfterPostflight(missionId: string) {
-    if (!mission?.failureRequestedAt) return false
-    const latest = await missionApi.getMissionById(missionId)
-    if (!latest.failureRequestedAt) return false
-    const reason = latest.failureReason?.trim() || 'Phát sinh rủi ro trong lúc thực hiện'
-    const failed = await missionApi.failMission(missionId, reason)
-    const failedMission = adaptBackendMission(failed as unknown as BackendMission)
-    setMission(failedMission)
-    setAllMissions((items) =>
-      items.map((item) =>
-        item.backendId === failedMission.backendId ? failedMission : item,
-      ),
-    )
-    setFailReason(reason)
-    setScreen('mission-failed')
-    return true
-  }
-
   async function handleFailureRequested(reason: string) {
     if (!mission) return
     const updated = await missionApi.requestMissionFailure(
@@ -816,10 +798,13 @@ export default function OperatorWorkspace() {
       await flightControlApi
         .releaseSession(completedMission.backendId ?? completedMission.id)
         .catch(() => undefined)
-      const failureFinalized = await finalizeRequestedFailureAfterPostflight(
-        completedMission.backendId ?? completedMission.id,
-      )
-      if (failureFinalized) return
+      if (completedMission.failureRequestedAt) {
+        window.location.hash = operatorHref({
+          screen: 'postflight',
+          missionId: completedMission.backendId ?? completedMission.id,
+        })
+        return
+      }
       setScreen('mission-completed')
     } catch (cause) {
       setMissionsError(
@@ -865,10 +850,13 @@ export default function OperatorWorkspace() {
       setDrone((current) =>
         current ? { ...current, state: 'MAINTENANCE' } : current,
       )
-      const failureFinalized = await finalizeRequestedFailureAfterPostflight(
-        completedMission.backendId ?? completedMission.id,
-      )
-      if (failureFinalized) return
+      if (completedMission.failureRequestedAt) {
+        window.location.hash = operatorHref({
+          screen: 'postflight',
+          missionId: completedMission.backendId ?? completedMission.id,
+        })
+        return
+      }
       setScreen('mission-completed')
     } catch (cause) {
       setMissionsError(

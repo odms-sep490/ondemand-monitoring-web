@@ -2,7 +2,6 @@ import { useEffect, useRef } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
-import { HCMC_SERVICE_CENTER } from '../../../../../shared/lib/serviceArea'
 import { useI18n } from '../../../../../shared/i18n'
 import { missionDetailPageMessages } from '../MissionDetailPage.messages'
 
@@ -58,10 +57,7 @@ export function MissionSatelliteMap({
 }) {
   const container = useRef<HTMLDivElement>(null)
   const map = useRef<L.Map | null>(null)
-  const homeMarker = useRef<L.Marker | null>(null)
   const targetMarker = useRef<L.Marker | null>(null)
-  const routeLine = useRef<L.Polyline | null>(null)
-  const targetPin = useRef<L.Marker | null>(null)
   const { t } = useI18n(missionDetailPageMessages)
   const x = t.extra
   const circle = useRef<L.Circle | null>(null)
@@ -73,19 +69,20 @@ export function MissionSatelliteMap({
     : null
   const targetLat = target?.latitude
   const targetLon = target?.longitude
-  const homePoint = HCMC_SERVICE_CENTER
 
   useEffect(() => {
-    if (import.meta.env.MODE === 'test' || !visible) return
+    if (
+      import.meta.env.MODE === 'test' ||
+      !visible ||
+      targetLat == null ||
+      targetLon == null
+    )
+      return
     if (!container.current || map.current) return
-    const initialCenter: L.LatLngExpression = target
-      ? [target.latitude, target.longitude]
-      : [homePoint.latitude, homePoint.longitude]
     const instance = L.map(container.current, {
       zoomControl: true,
       attributionControl: true,
-    }).setView(initialCenter, target ? 16 : 11)
-    // The route/target chips sit in the top corners; keep the zoom buttons clear of them.
+    }).setView([targetLat, targetLon], 16)
     instance.zoomControl.setPosition('bottomright')
 
     L.tileLayer(
@@ -120,42 +117,15 @@ export function MissionSatelliteMap({
       resizeObserver?.disconnect()
       instance.remove()
       map.current = null
-      homeMarker.current = null
       targetMarker.current = null
-      routeLine.current = null
-      targetPin.current = null
       circle.current = null
     }
-  }, [homePoint.latitude, homePoint.longitude, targetLat, targetLon, visible])
+  }, [targetLat, targetLon, visible])
 
   useEffect(() => {
-    if (!map.current) return
-    const home: L.LatLngExpression = [homePoint.latitude, homePoint.longitude]
+    if (!map.current || targetLat == null || targetLon == null) return
 
-    if (!target) {
-      map.current.setView(home, 11)
-      return
-    }
-
-    const targetLatLng: L.LatLngExpression = [target.latitude, target.longitude]
-    // The visual line is informational only.
-    const route = [homePoint, target]
-    const routeLatLngs = route.map(
-      (routePoint) =>
-        [routePoint.latitude, routePoint.longitude] as L.LatLngExpression,
-    )
-    const routeColor = '#2563eb'
-
-    if (homeMarker.current) {
-      homeMarker.current.setLatLng(home).setTooltipContent(x.startPoint)
-    } else {
-      homeMarker.current = L.marker(home, {
-        icon: routeMarkerIcon('HOME', '#16a34a'),
-        keyboard: false,
-      })
-        .addTo(map.current)
-        .bindTooltip(x.startPoint)
-    }
+    const targetLatLng: L.LatLngExpression = [targetLat, targetLon]
 
     if (targetMarker.current) {
       targetMarker.current
@@ -166,27 +136,6 @@ export function MissionSatelliteMap({
         icon: routeMarkerIcon('TARGET', '#dc2626'),
         keyboard: false,
       })
-        .addTo(map.current)
-        .bindTooltip(x.targetPoint)
-    }
-
-    if (routeLine.current) {
-      routeLine.current.setLatLngs(routeLatLngs).setStyle({ color: routeColor })
-    } else {
-      routeLine.current = L.polyline(routeLatLngs, {
-        color: routeColor,
-        weight: 4,
-        opacity: 0.95,
-        dashArray: '8 8',
-        lineCap: 'round',
-        lineJoin: 'round',
-      }).addTo(map.current)
-    }
-
-    if (targetPin.current) {
-      targetPin.current.setLatLng(targetLatLng).setTooltipContent(x.targetPoint)
-    } else {
-      targetPin.current = L.marker(targetLatLng)
         .addTo(map.current)
         .bindTooltip(x.targetPoint)
     }
@@ -208,11 +157,27 @@ export function MissionSatelliteMap({
       circle.current = null
     }
 
-    const bounds = L.latLngBounds([home, targetLatLng])
-    if (circle.current) bounds.extend(circle.current.getBounds())
-    if (routeLine.current) bounds.extend(routeLine.current.getBounds())
-    map.current.fitBounds(bounds, { padding: [36, 36], maxZoom: 16 })
-  }, [homePoint, radiusMeters, targetLat, targetLon, x])
+    if (circle.current) {
+      map.current.fitBounds(circle.current.getBounds(), {
+        padding: [36, 36],
+        maxZoom: 16,
+      })
+    } else {
+      map.current.setView(targetLatLng, 16)
+    }
+  }, [radiusMeters, targetLat, targetLon, x])
+
+  if (!target) {
+    return (
+      <div
+        className="odm-rm-satellite is-empty"
+        role="img"
+        aria-label={x.satelliteAria}
+      >
+        <p>{x.noCoordinates}</p>
+      </div>
+    )
+  }
 
   return (
     <div
@@ -221,21 +186,15 @@ export function MissionSatelliteMap({
       aria-label={x.satelliteAria}
     >
       <div ref={container} className="odm-rm-leaflet" />
-      {target ? (
-        <div className="odm-rm-chip odm-rm-chip-target">
-          {x.targetChip} · {target.latitude.toFixed(6)},{' '}
-          {target.longitude.toFixed(6)}
-        </div>
-      ) : null}
-      {target ? (
-        <div className="odm-rm-chip odm-rm-chip-route">{x.routeChip}</div>
-      ) : null}
+      <div className="odm-rm-chip odm-rm-chip-target">
+        {x.targetChip} · {target.latitude.toFixed(6)},{' '}
+        {target.longitude.toFixed(6)}
+      </div>
       {radiusMeters ? (
         <div className="odm-rm-chip odm-rm-chip-radius">
           {x.radiusChip} {Math.round(radiusMeters)} m
         </div>
       ) : null}
-      {!target ? <div className="odm-rm-empty">{x.noCoordinates}</div> : null}
     </div>
   )
 }

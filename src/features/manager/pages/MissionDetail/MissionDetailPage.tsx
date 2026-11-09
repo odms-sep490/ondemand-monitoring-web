@@ -1,5 +1,5 @@
 // MNG-08: Mission detail & result page (opened from the mission list).
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import type { MissionChecklistResponse } from '../../../mission/types/checklistExecution'
 import { checklistExecutionApi } from '../../../mission/api/checklistExecutionApi'
@@ -27,7 +27,6 @@ import { useMissionDetailLoad } from './useMissionDetailLoad'
 import { deriveMissionDetailView } from './deriveMissionDetailView'
 import { MissionDetailHeader } from './components/MissionDetailHeader'
 import { MissionNextStep } from './components/MissionNextStep'
-import { MissionKpis } from './components/MissionKpis'
 import { MissionDetailTabs } from './components/MissionDetailTabs'
 import { OverviewTab } from './components/OverviewTab'
 import { ChecksTab } from './components/ChecksTab'
@@ -52,6 +51,24 @@ export function MissionDetailPage({
       resourceAlertKeys={resourceAlertKeys}
     />
   )
+}
+
+const missionDetailTabs: readonly MissionDetailTab[] = [
+  'result',
+  'media',
+  'checklist',
+  'route',
+  'order',
+  'resources',
+  'checks',
+]
+
+function readMissionDetailTab(hash: string): MissionDetailTab {
+  const query = hash.split('?')[1] ?? ''
+  const requestedTab = new URLSearchParams(query).get('tab')
+  return missionDetailTabs.includes(requestedTab as MissionDetailTab)
+    ? (requestedTab as MissionDetailTab)
+    : 'result'
 }
 
 function MissionDetail({
@@ -86,8 +103,30 @@ function MissionDetail({
     [missionId, revision, detail?.mission?.status],
   )
   const refreshDetail = () => setRevision((value) => value + 1)
-  const [tab, setTab] = useState<MissionDetailTab>('result')
+  const [tab, setTab] = useState<MissionDetailTab>(() =>
+    readMissionDetailTab(window.location.hash),
+  )
   const mediaLibrary = useRef<HTMLElement>(null)
+  const selectTab = useCallback(
+    (nextTab: MissionDetailTab) => {
+      setTab(nextTab)
+      const [path] = window.location.hash.split('?')
+      const nextHash = `${path || managerHref({ screen: 'missionDetail', missionId })}?tab=${encodeURIComponent(nextTab)}`
+      if (window.location.hash !== nextHash) window.location.hash = nextHash
+    },
+    [missionId],
+  )
+
+  useEffect(() => {
+    const syncTabFromLocation = () =>
+      setTab(readMissionDetailTab(window.location.hash))
+    window.addEventListener('hashchange', syncTabFromLocation)
+    window.addEventListener('popstate', syncTabFromLocation)
+    return () => {
+      window.removeEventListener('hashchange', syncTabFromLocation)
+      window.removeEventListener('popstate', syncTabFromLocation)
+    }
+  }, [])
   const detailResourceEventKeys = useMemo(
     () =>
       staffRejectionEventKeys(
@@ -158,7 +197,6 @@ function MissionDetail({
     deviceCode,
     deviceLabel,
     rows,
-    kpis,
     nextStep,
     isCompleted,
     resultApproved,
@@ -187,15 +225,15 @@ function MissionDetail({
         canSetup={canSetup}
       />
 
-      {nextStep ? <MissionNextStep nextStep={nextStep} /> : null}
-
-      <MissionKpis kpis={kpis} />
+      {nextStep && mission.status !== 'FAILED' ? (
+        <MissionNextStep nextStep={nextStep} />
+      ) : null}
 
       <div className="mgr-md-workbench">
         <MissionDetailTabs
           tabs={tabs}
           activeTab={activeTab}
-          setTab={setTab}
+          setTab={selectTab}
           resourceUnreadCount={resourceUnreadCount}
         />
 
@@ -206,12 +244,17 @@ function MissionDetail({
           aria-labelledby={`mission-detail-tab-${activeTab}`}
           tabIndex={0}
         >
-          {(
-            ['result', 'media', 'checklist', 'route'] as MissionDetailTab[]
-          ).includes(activeTab) ? (
+          <div
+            className="mgr-md-overview"
+            hidden={
+              !(
+                ['result', 'media', 'checklist', 'route'] as MissionDetailTab[]
+              ).includes(activeTab)
+            }
+          >
             <OverviewTab
               activeTab={activeTab}
-              onTabChange={setTab}
+              onTabChange={selectTab}
               isCompleted={isCompleted}
               mission={mission}
               detail={detail}
@@ -226,14 +269,20 @@ function MissionDetail({
               waypoints={waypoints}
               plan={plan}
             />
-          ) : null}
+          </div>
 
           {activeTab === 'order' ? (
             detail.order ? (
-              <div className="odm-or-order-review-stack">
-                <OrderServiceInfo order={detail.order} t={orderT} />
-                <OrderCustomerRequestDetails order={detail.order} t={orderT} />
-                <OrderCustomerCard order={detail.order} t={orderT} />
+              <div className="mgr-md-order-layout">
+                <div className="mgr-md-order-grid">
+                  <div className="mgr-md-order-column">
+                    <OrderServiceInfo order={detail.order} t={orderT} />
+                    <OrderCustomerCard order={detail.order} t={orderT} />
+                  </div>
+                  <div className="mgr-md-order-column">
+                    <OrderCustomerRequestDetails order={detail.order} t={orderT} />
+                  </div>
+                </div>
                 <OrderAttachmentsCard order={detail.order} t={orderT} />
               </div>
             ) : (
@@ -265,7 +314,11 @@ function MissionDetail({
           ) : null}
 
           {activeTab === 'checks' ? (
-            <ChecksTab preflight={preflight} postcheck={postcheck} />
+            <ChecksTab
+              preflight={preflight}
+              postcheck={postcheck}
+              missionStatus={mission.status}
+            />
           ) : null}
 
           {isCompleted && resultApproved ? (

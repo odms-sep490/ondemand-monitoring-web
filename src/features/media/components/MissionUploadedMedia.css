@@ -447,6 +447,16 @@
   .mission-media__open-label {
     transition: none;
   }
+
+  .mission-media__card:hover,
+  .mission-media__card:hover .mission-media__preview img,
+  .mission-media__open-label {
+    transform: none;
+  }
+
+  .mission-media__spinner {
+    animation: none;
+  }
 }
 
 .mission-media__reference {

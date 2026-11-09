@@ -374,7 +374,7 @@ export function DroneDeviceCard({
           </div>
         ) : null}
         {hasDeviceDetails ? (
-          <details className="mds-device-details" open={overview}>
+          <details className="mds-device-details">
             <summary>
               {overview ? 'Thông số kỹ thuật' : 'Thông số và mã định danh khác'}
             </summary>

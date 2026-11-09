@@ -67,6 +67,7 @@ export const operatorApi = {
             canMaintainDevice: value.canMaintainDevice,
             canUploadMedia: value.canUploadMedia,
             canCompleteMission: value.canCompleteMission,
+            canConfirmMissionFailure: value.canConfirmMissionFailure,
             canSubmitMissionResult: value.canSubmitMissionResult,
             canExecuteMonitoringChecklist: value.canExecuteMonitoringChecklist,
             canAssessMonitoringChecklist: value.canAssessMonitoringChecklist,

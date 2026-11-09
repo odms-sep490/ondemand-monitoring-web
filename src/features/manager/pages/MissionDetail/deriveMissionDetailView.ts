@@ -103,7 +103,7 @@ export function deriveMissionDetailView({
   const mediaCount =
     detail.result?.mediaCount ??
     detail.result?.mediaFiles?.length ??
-    detail.media.length
+    (detail.media.length > 0 ? detail.media.length : null)
   /** What the manager can do about this Mission right now. */
   const nextStep = missionNextStep(mission.status, accepted, staff.length)
   const isCompleted = mission.status === 'COMPLETED'
@@ -124,7 +124,10 @@ export function deriveMissionDetailView({
           ? t.crewAccepted(acceptedPeople, staffGroups.length)
           : (deviceCode ?? '—'),
     },
-    { label: t.kpi.media, value: String(mediaCount) },
+    {
+      label: t.kpi.media,
+      value: mediaCount == null ? '—' : String(mediaCount),
+    },
     detail.result?.durationSeconds != null
       ? {
           label: t.kpi.actualDuration,

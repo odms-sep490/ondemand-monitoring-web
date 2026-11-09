@@ -47,10 +47,7 @@ export function useFlightCommand({
 }) {
   const { t } = useI18n(inFlightControlMessages)
   const sendCommand = useCallback(
-    async (
-      command: FlightCommand,
-      options?: { emergencyReturn?: boolean },
-    ) => {
+    async (command: FlightCommand, options?: { emergencyReturn?: boolean }) => {
       if (!normalFlightAllowed) {
         setLastCommand('Chưa có quyền vận hành Mission. Làm mới trạng thái.')
         return
@@ -226,7 +223,11 @@ export function useFlightCommand({
                 : 'Đã bắt đầu bay tới mục tiêu GPS'
               : command === 'camera_front'
                 ? t.status.cameraReset
-                : t.status.commandSent(command.replaceAll('_', ' ')),
+                : command === 'return_to_base'
+                  ? getLanguage() === 'en'
+                    ? 'Returning to the launch point'
+                    : 'Đang quay về điểm cất cánh'
+                  : t.status.commandSent(command.replaceAll('_', ' ')),
         )
         setIsOnline(true)
 

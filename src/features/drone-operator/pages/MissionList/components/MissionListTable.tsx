@@ -170,20 +170,22 @@ export function MissionListTable({
                 </td>
                 {showSubmission && (
                   <td>
-                    {mission.status === 'COMPLETED' ||
-                    mission.status === 'FAILED' ? (
+                    {currentStatus === 'COMPLETED' ||
+                    currentStatus === 'FAILED' ? (
                       <StatusBadge
                         tone={
-                          MANAGER_SUBMISSION_TONE[
-                            mission.managerSubmissionStatus ?? 'NEEDS_SUBMIT'
-                          ]
+                          currentStatus === 'FAILED'
+                            ? 'red'
+                            : MANAGER_SUBMISSION_TONE[
+                                mission.managerSubmissionStatus ?? 'NEEDS_SUBMIT'
+                              ]
                         }
                       >
-                        {
-                          t.managerSubmissionLabel[
-                            mission.managerSubmissionStatus ?? 'NEEDS_SUBMIT'
-                          ]
-                        }
+                        {currentStatus === 'FAILED'
+                          ? t.managerSubmissionLabel.FAILED
+                          : t.managerSubmissionLabel[
+                              mission.managerSubmissionStatus ?? 'NEEDS_SUBMIT'
+                            ]}
                       </StatusBadge>
                     ) : (
                       <span style={{ color: 'var(--tx3)' }}>—</span>

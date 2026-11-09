@@ -16,11 +16,22 @@ const sampleData: ManagerDashboardData = {
     activeMissionCount: 8,
     attentionRequiredCount: 3,
   },
-  orderStatusDistribution: [{ key: 'PENDING', count: 12 }, { key: 'COMPLETED', count: 30 }],
-  serviceDistribution: [{ serviceId: 'service-1', serviceName: 'Giám sát công trình', count: 18 }],
-  additionalServiceDistribution: [{ key: 'NEEDS_MANAGER_REVIEW', count: 5 }, { key: 'ADJUSTED_AND_APPROVED', count: 2 }],
+  orderStatusDistribution: [
+    { key: 'PENDING', count: 12 },
+    { key: 'COMPLETED', count: 30 },
+  ],
+  serviceDistribution: [
+    { serviceId: 'service-1', serviceName: 'Giám sát công trình', count: 18 },
+  ],
+  additionalServiceDistribution: [
+    { key: 'NEEDS_MANAGER_REVIEW', count: 5 },
+    { key: 'ADJUSTED_AND_APPROVED', count: 2 },
+  ],
   priceAdjustmentSummary: { approvedAtSystemPrice: 6, adjustedByManager: 2 },
-  missionStatusDistribution: [{ key: 'SCHEDULED', count: 4 }, { key: 'COMPLETED', count: 12 }],
+  missionStatusDistribution: [
+    { key: 'SCHEDULED', count: 4 },
+    { key: 'COMPLETED', count: 12 },
+  ],
   missionTrend: [{ periodStart: '2026-10-22', completed: 3, failed: 1 }],
   actionItems: [
     {
@@ -101,30 +112,55 @@ describe('DashboardPage', () => {
     vi.spyOn(managerApi, 'getDashboard').mockResolvedValue(sampleData)
     render(<DashboardPage />)
     expect(screen.getByText('Đang tải bảng điều khiển…')).toBeInTheDocument()
-    expect(await screen.findByRole('heading', { name: 'Bảng điều khiển quản lý' })).toBeInTheDocument()
-    expect(screen.getByText('Dịch vụ bổ sung chờ duyệt giá')).toBeInTheDocument()
+    expect(
+      await screen.findByRole('heading', { name: 'Bảng điều khiển quản lý' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText('Dịch vụ bổ sung chờ duyệt giá'),
+    ).toBeInTheDocument()
   })
 
   it('renders all KPI values and useful navigation', async () => {
     vi.spyOn(managerApi, 'getDashboard').mockResolvedValue(sampleData)
     render(<DashboardPage />)
     await screen.findByRole('heading', { name: 'Bảng điều khiển quản lý' })
-    expect(screen.getByRole('link', { name: /Chờ duyệt yêu cầu/ })).toHaveAttribute('href', '#portal/manager/orders')
-    expect(screen.getByRole('link', { name: /Nhiệm vụ đang chạy.*8/ })).toHaveAttribute('href', '#portal/manager/missions')
-    expect(screen.getByRole('link', { name: /Hoàn thành trong kỳ/ })).toHaveAttribute('href', '#portal/manager/missions')
-    expect(screen.getByRole('link', { name: 'Duyệt giá' })).toHaveAttribute('href', '#portal/manager/orders/order-1')
-    expect(screen.getByRole('link', { name: 'ORD-2026-00124' })).toHaveAttribute('href', '#portal/manager/orders/order-1')
-    expect(screen.getAllByRole('link', { name: 'Xem tất cả' })[0]).toHaveAttribute('href', '#portal/manager/orders')
+    expect(
+      screen.getByRole('link', { name: /Chờ duyệt yêu cầu/ }),
+    ).toHaveAttribute('href', '#portal/manager/orders')
+    expect(
+      screen.getByRole('link', { name: /Nhiệm vụ đang chạy.*8/ }),
+    ).toHaveAttribute('href', '#portal/manager/missions')
+    expect(
+      screen.getByRole('link', { name: /Hoàn thành trong kỳ/ }),
+    ).toHaveAttribute('href', '#portal/manager/missions')
+    expect(screen.getByRole('link', { name: 'Duyệt giá' })).toHaveAttribute(
+      'href',
+      '#portal/manager/orders/order-1',
+    )
+    expect(
+      screen.getByRole('link', { name: 'ORD-2026-00124' }),
+    ).toHaveAttribute('href', '#portal/manager/orders/order-1')
+    expect(
+      screen
+        .getAllByRole('link', { name: 'Xem tất cả' })
+        .some((link) => link.getAttribute('href') === '#portal/manager/orders'),
+    ).toBe(true)
   })
 
   it('reloads period analytics when the date-range preset changes', async () => {
-    const getDashboard = vi.spyOn(managerApi, 'getDashboard').mockResolvedValue(sampleData)
+    const getDashboard = vi
+      .spyOn(managerApi, 'getDashboard')
+      .mockResolvedValue(sampleData)
     render(<DashboardPage />)
     await screen.findByRole('heading', { name: 'Trạng thái đơn' })
     expect(getDashboard).toHaveBeenCalledWith('30D', expect.any(AbortSignal))
     fireEvent.click(screen.getByRole('button', { name: '7 ngày' }))
-    await waitFor(() => expect(getDashboard).toHaveBeenCalledWith('7D', expect.any(AbortSignal)))
-    expect(screen.getByRole('heading', { name: 'Nhiệm vụ theo thời gian' })).toBeInTheDocument()
+    await waitFor(() =>
+      expect(getDashboard).toHaveBeenCalledWith('7D', expect.any(AbortSignal)),
+    )
+    expect(
+      screen.getByRole('heading', { name: 'Nhiệm vụ theo thời gian' }),
+    ).toBeInTheDocument()
   })
 
   it('renders null assignments safely and all operational sections', async () => {
@@ -132,19 +168,49 @@ describe('DashboardPage', () => {
     render(<DashboardPage />)
     await screen.findByRole('heading', { name: 'Bảng điều khiển quản lý' })
     expect(screen.getByText(/Chưa phân công/)).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Tiến trình báo giá' })).toBeInTheDocument()
-    expect(screen.getByText('Đặt cọc cho ORD-2026-00124 đã thành công')).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: 'Tiến trình báo giá' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText('Đặt cọc cho ORD-2026-00124 đã thành công'),
+    ).toBeInTheDocument()
+  })
+
+  it('places dashboard widgets in a balanced two-column grid', async () => {
+    vi.spyOn(managerApi, 'getDashboard').mockResolvedValue(sampleData)
+    render(<DashboardPage />)
+    await screen.findByRole('heading', { name: 'Bảng điều khiển quản lý' })
+
+    const layout = document.querySelector('.mgr-dash-columns')
+    expect(layout?.children).toHaveLength(5)
+    expect(layout?.children[0]).toHaveClass('mgr-action-card')
+    expect(layout?.children[1]).toHaveClass('mgr-active-missions-card')
+    expect(layout?.children[2]).toHaveClass('mgr-activity-card')
+    expect(layout?.children[3]).toHaveClass('mgr-pipeline-card')
+    expect(layout?.children[4]).toHaveClass('mgr-recent-orders-card')
+    expect(document.querySelector('.mgr-analytics')).toBeInTheDocument()
   })
 
   it('shows a retryable error state', async () => {
-    const getDashboard = vi.spyOn(managerApi, 'getDashboard')
-      .mockRejectedValueOnce(new ApiError('Lỗi', { status: 500, method: 'GET', path: '/api/manager/dashboard' }))
+    const getDashboard = vi
+      .spyOn(managerApi, 'getDashboard')
+      .mockRejectedValueOnce(
+        new ApiError('Lỗi', {
+          status: 500,
+          method: 'GET',
+          path: '/api/manager/dashboard',
+        }),
+      )
       .mockResolvedValueOnce(sampleData)
     render(<DashboardPage />)
-    expect(await screen.findByText('Không thể tải dữ liệu bảng điều khiển.')).toBeInTheDocument()
+    expect(
+      await screen.findByText('Không thể tải dữ liệu bảng điều khiển.'),
+    ).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Thử lại' }))
     await waitFor(() => expect(getDashboard).toHaveBeenCalledTimes(2))
-    expect(await screen.findByRole('heading', { name: 'Bảng điều khiển quản lý' })).toBeInTheDocument()
+    expect(
+      await screen.findByRole('heading', { name: 'Bảng điều khiển quản lý' }),
+    ).toBeInTheDocument()
   })
 
   it('renders professional empty states', async () => {
@@ -157,6 +223,10 @@ describe('DashboardPage', () => {
       orderStatusDistribution: [],
       serviceDistribution: [],
       additionalServiceDistribution: [],
+      priceAdjustmentSummary: {
+        approvedAtSystemPrice: 0,
+        adjustedByManager: 0,
+      },
       missionStatusDistribution: [],
       missionTrend: [],
     })
@@ -165,7 +235,161 @@ describe('DashboardPage', () => {
     expect(screen.getByText('Không có việc nào cần xử lý.')).toBeInTheDocument()
     expect(screen.getByText('Không có nhiệm vụ đang chạy.')).toBeInTheDocument()
     expect(screen.getByText('Chưa có đơn gần đây.')).toBeInTheDocument()
-    expect(screen.getByText('Chưa có đơn trong kỳ này.')).toBeInTheDocument()
-    expect(screen.getByText('Chưa có nhiệm vụ trong kỳ này.')).toBeInTheDocument()
+    expect(document.querySelector('.mgr-orders-empty-state')).toHaveAttribute(
+      'role',
+      'status',
+    )
+    expect(
+      document.querySelector('.mgr-recent-orders-card .ant-table'),
+    ).toBeNull()
+    expect(
+      screen.getByText('Chưa có dữ liệu phân tích trong khoảng thời gian này.'),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('heading', { name: 'Nhiệm vụ theo thời gian' }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('heading', { name: 'Trạng thái đơn' }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('keeps one-order dashboards compact when missions and activity are empty', async () => {
+    const customerName =
+      'Công ty khảo sát địa hình và giám sát công trình miền Tây rất dài'
+    vi.spyOn(managerApi, 'getDashboard').mockResolvedValue({
+      ...sampleData,
+      actionItems: [],
+      recentOrders: [{ ...sampleData.recentOrders[0], customerName }],
+      activeMissions: [],
+      recentActivities: [],
+      orderStatusDistribution: [{ key: 'PENDING', count: 1 }],
+      serviceDistribution: [
+        {
+          serviceId: 'service-one',
+          serviceName: 'Giám sát công trình',
+          count: 1,
+        },
+      ],
+      additionalServiceDistribution: [],
+      missionStatusDistribution: [],
+      missionTrend: [{ periodStart: '2026-10-22', completed: 1, failed: 0 }],
+      priceAdjustmentSummary: {
+        approvedAtSystemPrice: 0,
+        adjustedByManager: 0,
+      },
+      pricingPipeline: {
+        pricingReviewCount: 0,
+        quoteReadyCount: 0,
+        waitingCustomerCount: 0,
+        waitingDepositCount: 0,
+        depositPaidCount: 0,
+      },
+    })
+
+    render(<DashboardPage />)
+
+    expect(await screen.findByText(customerName)).toBeInTheDocument()
+    expect(screen.getByText('Không có nhiệm vụ đang chạy.')).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent('Chưa có hoạt động')
+    expect(document.querySelectorAll('.mgr-single-chart')).toHaveLength(2)
+    expect(document.querySelector('.mgr-single-trend')).toBeInTheDocument()
+    expect(document.querySelectorAll('.ant-table-row')).toHaveLength(1)
+  })
+
+  it('shows a running mission beside its order when activity is empty', async () => {
+    vi.spyOn(managerApi, 'getDashboard').mockResolvedValue({
+      ...sampleData,
+      recentActivities: [],
+    })
+    render(<DashboardPage />)
+
+    expect(await screen.findByText('MIS-001')).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent('Chưa có hoạt động')
+    expect(document.querySelectorAll('.ant-table-row')).toHaveLength(1)
+  })
+
+  it('caps recent lists while preserving long text when data is uneven', async () => {
+    const longCustomerName =
+      'Công ty TNHH tư vấn, khảo sát và giám sát xây dựng khu vực phía Tây'
+    const longActionTitle =
+      'Yêu cầu cần đối chiếu phạm vi khảo sát và lịch bay trước khi duyệt'
+    const order = sampleData.recentOrders[0]
+    const activity = sampleData.recentActivities[0]
+    const recentOrders = Array.from({ length: 10 }, (_, index) => ({
+      ...order,
+      orderId: `order-${index + 1}`,
+      orderCode: `ORD-2026-${String(index + 1).padStart(5, '0')}`,
+      customerName: index === 0 ? longCustomerName : `Khách hàng ${index + 1}`,
+    }))
+    const recentActivities = Array.from({ length: 2 }, (_, index) => ({
+      ...activity,
+      id: `activity-${index + 1}`,
+      description: `Hoạt động ${index + 1}`,
+    }))
+
+    vi.spyOn(managerApi, 'getDashboard').mockResolvedValue({
+      ...sampleData,
+      actionItems: [{ ...sampleData.actionItems[0], title: longActionTitle }],
+      recentOrders,
+      recentActivities,
+    })
+    render(<DashboardPage />)
+
+    expect(await screen.findByText(longCustomerName)).toBeInTheDocument()
+    expect(screen.getByText(longActionTitle)).toBeInTheDocument()
+    expect(document.querySelectorAll('.ant-table-row')).toHaveLength(6)
+    expect(document.querySelectorAll('.mgr-activity-list > li')).toHaveLength(2)
+  })
+
+  it('caps long dashboard lists and lets managers expand all action items', async () => {
+    const order = sampleData.recentOrders[0]
+    const mission = sampleData.activeMissions[0]
+    const activity = sampleData.recentActivities[0]
+    const action = sampleData.actionItems[0]
+    vi.spyOn(managerApi, 'getDashboard').mockResolvedValue({
+      ...sampleData,
+      actionItems: Array.from({ length: 12 }, (_, index) => ({
+        ...action,
+        id: `action-${index + 1}`,
+        title: `Việc cần xử lý ${index + 1}`,
+      })),
+      recentOrders: Array.from({ length: 10 }, (_, index) => ({
+        ...order,
+        orderId: `order-${index + 1}`,
+        orderCode: `ORD-${index + 1}`,
+      })),
+      activeMissions: Array.from({ length: 9 }, (_, index) => ({
+        ...mission,
+        missionId: `mission-${index + 1}`,
+        missionCode: `MS-${index + 1}`,
+      })),
+      recentActivities: Array.from({ length: 12 }, (_, index) => ({
+        ...activity,
+        id: `activity-${index + 1}`,
+        description: `Hoạt động ${index + 1}`,
+      })),
+    })
+
+    render(<DashboardPage />)
+
+    expect(await screen.findByText('Việc cần xử lý 1')).toBeInTheDocument()
+    expect(
+      document.querySelectorAll('.mgr-action-card .mgr-dash-row'),
+    ).toHaveLength(6)
+    expect(
+      document.querySelectorAll('.mgr-active-missions-card .mgr-dash-row'),
+    ).toHaveLength(6)
+    expect(document.querySelectorAll('.ant-table-row')).toHaveLength(6)
+    expect(document.querySelectorAll('.mgr-activity-list > li')).toHaveLength(8)
+
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Xem tất cả 6 việc còn lại' }),
+    )
+    expect(
+      document.querySelectorAll('.mgr-action-card .mgr-dash-row'),
+    ).toHaveLength(12)
+    expect(
+      document.querySelector('.mgr-action-card .mgr-action-more'),
+    ).toHaveAttribute('aria-expanded', 'true')
   })
 })

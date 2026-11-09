@@ -152,6 +152,21 @@
   font-weight: 750;
 }
 
+.odm-flight-step.is-failed .odm-flight-step-chip {
+  border-color: var(--red-solid, #d92d20);
+  background: var(--red-solid, #d92d20);
+  color: var(--red-on, #fff);
+}
+
+.odm-flight-step.is-failed .odm-flight-step-label,
+.odm-flight-step.is-failed .odm-flight-step-state {
+  color: var(--red-fg, #b42318);
+}
+
+.odm-flight-step.is-failed .odm-flight-step-label {
+  font-weight: 750;
+}
+
 .odm-flight-step-connector {
   position: absolute;
   z-index: 1;

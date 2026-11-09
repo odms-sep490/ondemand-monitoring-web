@@ -124,15 +124,30 @@ export type StaffAssignmentGroup = {
 export function groupStaffAssignments(
   assignments: MissionStaffAssignmentResponse[] = [],
 ): StaffAssignmentGroup[] {
-  const groups = new Map<string, MissionStaffAssignmentResponse[]>()
+  const groups: MissionStaffAssignmentResponse[][] = []
   for (const assignment of assignments) {
-    const key = assignment.staffId || assignment.staffEmail || assignment.id
-    const existing = groups.get(key)
-    if (existing) existing.push(assignment)
-    else groups.set(key, [assignment])
+    const email = assignment.staffEmail?.trim().toLocaleLowerCase()
+    const matchingGroups = groups.filter((rows) =>
+      rows.some((row) => {
+        const rowEmail = row.staffEmail?.trim().toLocaleLowerCase()
+        return (
+          (!!assignment.staffId && row.staffId === assignment.staffId) ||
+          (!!email && !!rowEmail && rowEmail === email)
+        )
+      }),
+    )
+    if (matchingGroups.length === 0) {
+      groups.push([assignment])
+      continue
+    }
+    const [primary, ...duplicates] = matchingGroups
+    primary.push(assignment, ...duplicates.flat())
+    for (const duplicate of duplicates) {
+      groups.splice(groups.indexOf(duplicate), 1)
+    }
   }
 
-  return [...groups.entries()].map(([staffId, rows]) => {
+  return groups.map((rows) => {
     const statuses = new Set(rows.map((row) => row.responseStatus))
     const responseStatus = statuses.has('REJECTED')
       ? 'REJECTED'
@@ -142,7 +157,7 @@ export function groupStaffAssignments(
           ? 'PLANNING'
           : 'ACCEPTED'
     return {
-      staffId,
+      staffId: rows.find((row) => row.staffId)?.staffId ?? rows[0].id,
       staffName: rows.find((row) => row.staffName)?.staffName ?? null,
       staffEmail: rows.find((row) => row.staffEmail)?.staffEmail ?? null,
       assignments: rows,

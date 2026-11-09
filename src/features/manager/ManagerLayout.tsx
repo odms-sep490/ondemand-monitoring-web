@@ -68,7 +68,7 @@ export function ManagerLayout({
   return (
     <ConfigProvider theme={themeConfig} getPopupContainer={mgrPopupContainer}>
       <div className="odm odm-mgr mgr-layout">
-        {route.screen !== 'schedule' ? (
+        {route.screen !== 'schedule' && route.screen !== 'missionDetail' ? (
           <span className="mgr-flight-decor" aria-hidden="true">
             <span className="mgr-flight-route" />
             <Lottie
@@ -101,12 +101,15 @@ export function ManagerLayout({
                 key: group.label,
                 label: t.sidebar[group.label],
                 items: group.items.map((item) => {
-                  const count = item.countKey ? counts?.[item.countKey] : undefined
+                  const count = item.countKey
+                    ? counts?.[item.countKey]
+                    : undefined
                   return {
                     key: item.label,
                     label: t.sidebar[item.label],
                     icon: <ManagerIcon name={item.icon} />,
-                    href: item.href || (item.route ? managerHref(item.route) : '#'),
+                    href:
+                      item.href || (item.route ? managerHref(item.route) : '#'),
                     active: item.label === activeNavLabel[route.screen],
                     badge: count && count > 0 ? count : undefined,
                     onClick: () => broken && setCollapsed(true),
@@ -140,7 +143,9 @@ export function ManagerLayout({
               onToggleSider={() => setCollapsed((v) => !v)}
               onToggleTheme={() => setDark((v) => !v)}
             />
-            <Content className="mgr-content odm-mgr-content">{children}</Content>
+            <Content className="mgr-content odm-mgr-content">
+              {children}
+            </Content>
           </Layout>
         </Layout>
       </div>

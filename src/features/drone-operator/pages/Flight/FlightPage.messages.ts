@@ -11,7 +11,13 @@ export const flightPageMessages = defineMessages({
     noDroneTitle: 'Mission chưa có thiết bị',
     noDroneMessage:
       'Mission này chưa được gán thiết bị nên chưa thể mở buồng lái. Hãy quay lại danh sách mission hoặc yêu cầu quản lý gán thiết bị trước.',
-    rtbFailed: 'Không chuyển được mission sang RETURNING',
+    rtbFailed: 'Không chuyển được nhiệm vụ sang trạng thái Đang trở về',
+    landingConfirmTitle: 'Xác nhận đã hạ cánh',
+    landingConfirm:
+      'Drone đã hạ cánh và động cơ đã dừng?',
+    landingConfirmSubmit: 'Xác nhận hạ cánh',
+    landingConfirmSaving: 'Đang xác nhận…',
+    landingConfirmError: 'Không thể xác nhận hạ cánh. Vui lòng thử lại.',
     emergencyPrompt: 'Lý do kết thúc khẩn cấp',
     emergencyUpdateFailed: 'Không cập nhật được mission',
   },
@@ -26,6 +32,12 @@ export const flightPageMessages = defineMessages({
     noDroneMessage:
       'This mission has no device assigned yet, so the cockpit cannot open. Go back to the mission list or ask a manager to assign a device first.',
     rtbFailed: 'Could not move the mission to RETURNING',
+    landingConfirmTitle: 'Confirm landing',
+    landingConfirm:
+      'Has the drone landed and stopped its motors?',
+    landingConfirmSubmit: 'Confirm landed',
+    landingConfirmSaving: 'Confirming…',
+    landingConfirmError: 'Could not confirm landing. Please try again.',
     emergencyPrompt: 'Reason for emergency termination',
     emergencyUpdateFailed: 'Could not update the mission',
   },
