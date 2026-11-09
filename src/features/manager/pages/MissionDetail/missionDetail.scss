@@ -1,0 +1,453 @@
+@use '../../styles/mission-area';
+
+:root .mgr-layout .mgr-md {
+  @include mission-area.mission-area;
+}
+
+:root .mgr-layout .mgr-md.mgr-view {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1600px;
+  gap: 14px;
+  padding: 12px;
+  border: 1px solid var(--mgr-border);
+  border-radius: 16px;
+  background: var(--mgr-card);
+  box-shadow: none;
+}
+
+:root .mgr-layout .mgr-md .mgr-page-head {
+  padding: 10px 8px 16px;
+  border: 0;
+  border-bottom: 1px solid var(--mgr-border);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+:root .mgr-layout .mgr-md .mgr-page-head-title {
+  font-size: 22px;
+}
+
+:root .mgr-layout .mgr-md .mgr-page-head-desc {
+  margin-top: 5px;
+}
+
+:root .mgr-layout .mgr-md .odm-md-next,
+:root .mgr-layout .mgr-md .odm-or-card,
+:root .mgr-layout .mgr-md .ui-card {
+  box-shadow: none;
+}
+
+/* Four useful figures in one quiet strip, not four competing cards. */
+:root .mgr-layout .mgr-md .mgr-md-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--mgr-border);
+  border-radius: 12px;
+  background: var(--mgr-card-2);
+}
+
+:root .mgr-layout .mgr-md .mgr-md-kpi {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  padding: 12px 16px;
+}
+
+:root .mgr-layout .mgr-md .mgr-md-kpi + .mgr-md-kpi {
+  border-left: 1px solid var(--mgr-border);
+}
+
+:root .mgr-layout .mgr-md .mgr-md-kpi dt {
+  color: var(--mgr-muted);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+:root .mgr-layout .mgr-md .mgr-md-kpi dd {
+  margin: 0;
+  color: var(--mgr-text);
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Resource details live in a dedicated tab to keep the main result view focused. */
+:root .mgr-layout .mgr-md .mgr-md-context {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--mgr-border);
+  border-radius: 12px;
+  background: var(--mgr-card);
+}
+
+:root .mgr-layout .mgr-md .mgr-md-context-heading {
+  display: flex;
+  min-height: 68px;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--mgr-border);
+}
+
+:root .mgr-layout .mgr-md .mgr-md-context-title {
+  margin: 0;
+  color: var(--mgr-text);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+:root .mgr-layout .mgr-md .mgr-md-context-mark {
+  display: grid;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--ant-color-primary, #1565e8) 12%, var(--mgr-border));
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--ant-color-primary, #1565e8) 8%, var(--mgr-card));
+  color: var(--ant-color-primary, #1565e8);
+}
+
+:root .mgr-layout .mgr-md .mgr-md-context-mark.is-small {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+}
+
+:root .mgr-layout .mgr-md .mgr-md-context-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(280px, 1fr);
+  gap: 14px;
+  padding: 14px;
+  background: var(--mgr-card-2);
+}
+
+:root .mgr-layout .mgr-md .mgr-md-context-section {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--mgr-border);
+  border-radius: 14px;
+  background: var(--mgr-card);
+}
+
+:root .mgr-layout .mgr-md .mgr-md-context-section-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  margin-bottom: 12px;
+}
+
+:root .mgr-layout .mgr-md .mgr-md-context-section-head .mgr-md-context-section-heading {
+  margin-bottom: 0;
+}
+
+:root .mgr-layout .mgr-md .mgr-md-context-section h2,
+:root .mgr-layout .mgr-md .mgr-md-context-section h3 {
+  margin: 0;
+  color: var(--mgr-text);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+:root .mgr-layout .mgr-md .mgr-md-context-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+:root .mgr-layout .mgr-md .mgr-md-context-head-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+:root .mgr-layout .mgr-md .mgr-md-context-kv {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 20px;
+  margin: 0;
+}
+
+:root .mgr-layout .mgr-md .mgr-md-context-kv .mgr-kv-row {
+  min-width: 0;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom-color: var(--mgr-border);
+  font-size: 13px;
+}
+
+:root .mgr-layout .mgr-md .mgr-md-context-kv .mgr-kv-row dt {
+  flex-basis: 42%;
+}
+
+:root .mgr-layout .mgr-md .mgr-md-context-kv .mgr-kv-row dd {
+  flex-basis: 58%;
+}
+
+:root .mgr-layout .mgr-md .mgr-md-context-note {
+  margin: 10px 0 0;
+  color: var(--mgr-muted);
+  font-size: 13px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+:root .mgr-layout .mgr-md .mgr-md-context-note strong {
+  color: var(--mgr-text);
+}
+
+:root .mgr-layout .mgr-md .mgr-md-context-support {
+  display: grid;
+  min-width: 0;
+  align-content: start;
+  gap: 12px;
+}
+
+:root .mgr-layout .mgr-md .mgr-plan-progress {
+  display: block;
+  width: 100%;
+  height: 5px;
+  margin: 0 0 12px;
+  accent-color: #16844a;
+}
+
+:root .mgr-layout .mgr-md .mgr-md-crew-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+  margin-top: 0;
+}
+
+:root .mgr-layout .mgr-md .mgr-md-crew-list .odm-or-crew-item {
+  min-width: 0;
+  min-height: 88px;
+  align-items: flex-start;
+  padding: 10px;
+  border: 1px solid var(--mgr-border);
+  border-radius: 12px;
+  background: var(--mgr-card-2);
+}
+
+:root .mgr-layout .mgr-md .mgr-md-crew-list .mgr-md-device-item {
+  border-color: var(--pl-green-bd);
+  background: var(--pl-green-bg);
+}
+
+:root .mgr-layout .mgr-md .mgr-md-role-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+:root .mgr-layout .mgr-md .mgr-md-role-chip {
+  display: inline-flex;
+  max-width: 100%;
+  padding: 2px 7px;
+  border: 1px solid var(--mgr-border);
+  border-radius: 999px;
+  background: var(--mgr-card);
+  color: var(--mgr-muted);
+  font-size: 11px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+:root .mgr-layout .mgr-md .mgr-md-crew-list .odm-or-pill {
+  max-width: 100%;
+  white-space: normal;
+  text-align: center;
+}
+
+:root .mgr-layout .mgr-md .mgr-md-permit {
+  padding: 14px 16px;
+}
+
+/* The selected section now owns the full available width. */
+:root .mgr-layout .mgr-md .mgr-md-workbench {
+  display: grid;
+  min-width: 0;
+  gap: 14px;
+}
+
+:root .mgr-layout .mgr-md .mgr-md-tabs.mgr-seg {
+  display: flex;
+  width: 100%;
+  max-width: 100%;
+  min-height: 48px;
+  align-items: stretch;
+  gap: 4px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid var(--mgr-border);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  scrollbar-width: thin;
+}
+
+:root .mgr-layout .mgr-md .mgr-md-tabs.mgr-seg button {
+  position: relative;
+  flex: 0 0 auto;
+  min-height: 48px;
+  height: auto;
+  padding: 0 14px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: var(--mgr-muted);
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: none;
+}
+
+:root .mgr-layout .mgr-md .mgr-md-tabs.mgr-seg button:hover {
+  color: var(--mgr-text);
+}
+
+:root .mgr-layout .mgr-md .mgr-md-tabs.mgr-seg button.is-active {
+  border-bottom-color: var(--ui-primary);
+  background: transparent;
+  color: var(--mgr-text);
+  box-shadow: none;
+}
+
+:root .mgr-layout .mgr-md .mgr-md-tabs.mgr-seg .mgr-md-tab-count {
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+:root .mgr-layout .mgr-md .mgr-md-tabs.mgr-seg button:focus-visible {
+  z-index: 1;
+  outline: 2px solid var(--ui-primary);
+  outline-offset: -3px;
+  box-shadow: none;
+}
+
+:root .mgr-layout .mgr-md .mgr-md-tabpanel {
+  min-width: 0;
+  outline: none;
+}
+
+:root .mgr-layout .mgr-md .mgr-md-tabpanel:focus-visible {
+  outline: 2px solid var(--ui-primary);
+  outline-offset: 3px;
+}
+
+:root .mgr-layout .mgr-md .mgr-md-tabpanel > [hidden] {
+  display: none !important;
+}
+
+:root .mgr-layout .mgr-md .mgr-md-delivery {
+  margin-top: 14px;
+}
+
+@media (max-width: 900px) {
+  :root .mgr-layout .mgr-md .mgr-md-context-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  :root .mgr-layout .mgr-md.mgr-view {
+    gap: 10px;
+    padding: 8px;
+    border-radius: 12px;
+  }
+
+  :root .mgr-layout .mgr-md .mgr-page-head {
+    gap: 10px;
+    padding: 6px 4px 12px;
+  }
+
+  :root .mgr-layout .mgr-md .mgr-page-head-title {
+    font-size: 19px;
+  }
+
+  :root .mgr-layout .mgr-md .mgr-md-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  :root .mgr-layout .mgr-md .mgr-md-kpi {
+    padding: 10px 12px;
+  }
+
+  :root .mgr-layout .mgr-md .mgr-md-kpi + .mgr-md-kpi {
+    border-left: 0;
+  }
+
+  :root .mgr-layout .mgr-md .mgr-md-kpi:nth-child(even) {
+    border-left: 1px solid var(--mgr-border);
+  }
+
+  :root .mgr-layout .mgr-md .mgr-md-kpi:nth-child(n + 3) {
+    border-top: 1px solid var(--mgr-border);
+  }
+
+  :root .mgr-layout .mgr-md .mgr-md-kpi dd {
+    font-size: 18px;
+  }
+
+  :root .mgr-layout .mgr-md .mgr-md-context-heading {
+    min-height: 60px;
+    padding: 10px 12px;
+  }
+
+  :root .mgr-layout .mgr-md .mgr-md-context-mark {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+  }
+
+  :root .mgr-layout .mgr-md .mgr-md-context-body {
+    gap: 10px;
+    padding: 10px;
+  }
+
+  :root .mgr-layout .mgr-md .mgr-md-context-section {
+    padding: 12px;
+  }
+
+  :root .mgr-layout .mgr-md .mgr-md-context-kv {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  :root .mgr-layout .mgr-md .mgr-md-context-support {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  :root .mgr-layout .mgr-md .mgr-md-permit {
+    padding: 12px;
+  }
+
+  :root .mgr-layout .mgr-md .mgr-md-crew-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  :root .mgr-layout .mgr-md .mgr-md-tabs.mgr-seg {
+    min-height: 46px;
+  }
+
+  :root .mgr-layout .mgr-md .mgr-md-tabs.mgr-seg button {
+    min-height: 46px;
+    padding: 0 12px;
+  }
+}
+

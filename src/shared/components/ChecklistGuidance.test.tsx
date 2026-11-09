@@ -18,15 +18,21 @@ describe('ChecklistGuidance', () => {
   it('renders every section, keeping the step order and dropping blank lines', () => {
     render(<ChecklistGuidance guidance={guidance} defaultOpen />)
     expect(screen.getByText('Phạm vi kiểm tra mái')).toBeInTheDocument()
-    const steps = screen.getAllByRole('listitem').map((li) => li.textContent)
-    expect(steps.slice(0, 2)).toEqual(['Bay lưới song song', 'Chụp cận'])
+    const items = screen.getAllByRole('listitem')
+    expect(items).toHaveLength(4)
+    expect(items[0]).toHaveTextContent('Bay lưới song song')
+    expect(items[1]).toHaveTextContent('Chụp cận')
     expect(screen.getByText('Đầu vào cần có')).toBeInTheDocument()
     expect(screen.getByText('Ảnh toàn mái')).toBeInTheDocument()
   })
 
   it('shows only the requested sections', () => {
     render(
-      <ChecklistGuidance guidance={guidance} sections={['description', 'outputs']} defaultOpen />,
+      <ChecklistGuidance
+        guidance={guidance}
+        sections={['description', 'outputs']}
+        defaultOpen
+      />,
     )
     expect(screen.getByText('Phạm vi kiểm tra mái')).toBeInTheDocument()
     expect(screen.queryByText('Bay lưới song song')).toBeNull()
@@ -35,7 +41,13 @@ describe('ChecklistGuidance', () => {
 
   it('renders nothing when there is no guidance', () => {
     const { container } = render(
-      <ChecklistGuidance guidance={{ description: '  ', executionSteps: [], inputRequirements: null }} />,
+      <ChecklistGuidance
+        guidance={{
+          description: '  ',
+          executionSteps: [],
+          inputRequirements: null,
+        }}
+      />,
     )
     expect(container).toBeEmptyDOMElement()
     expect(hasChecklistGuidance(undefined)).toBe(false)

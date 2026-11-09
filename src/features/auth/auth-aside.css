@@ -446,97 +446,11 @@
   }
 }
 
-/* ---------- Glass value-prop chips ---------- */
-.odm-aside-cards {
-  position: relative;
-  z-index: 3;
-  list-style: none;
-  margin: 0;
-  padding: 0 32px 32px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  max-width: 340px;
-  z-index: 4;
-  transform: translate3d(
-    calc(var(--parallax-x) * 6px),
-    calc(var(--parallax-y) * 6px),
-    0
-  );
-}
-
-.odm-aside-card {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  box-shadow: 0 8px 24px rgba(4, 12, 32, 0.18);
-  animation:
-    odm-aside-fade-in 0.6s ease both,
-    odm-aside-float 5s ease-in-out infinite;
-  transition:
-    transform 0.2s ease-out,
-    box-shadow 0.2s ease-out,
-    background 0.2s ease-out;
-}
-
-.odm-aside-card:hover {
-  transform: translateY(-4px);
-  background: rgba(255, 255, 255, 0.16);
-  box-shadow:
-    0 12px 28px rgba(4, 12, 32, 0.25),
-    0 0 20px rgba(56, 182, 255, 0.3);
-}
-
-.odm-aside-card-icon {
-  flex: none;
-  display: inline-flex;
-  width: 30px;
-  height: 30px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  background: rgba(56, 182, 255, 0.22);
-  color: #eaf4ff;
-}
-
-.odm-aside-card-icon svg {
-  width: 16px;
-  height: 16px;
-}
-
-.odm-aside-card-text {
-  color: #f2f7ff;
-  font-size: 13px;
-  font-weight: 500;
-  line-height: 1.4;
-}
-
-@keyframes odm-aside-float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-6px);
-  }
-}
-
 /* ---------- Reduced motion: freeze everything ---------- */
 @media (prefers-reduced-motion: reduce) {
   .odm-aside-aurora,
   .odm-aside-grid,
   .odm-aside-particle,
-  .odm-aside-card,
   .odm-aside-brand img,
   .odm-aside-brand-title,
   .odm-aside-brand-title--shimmer,
@@ -565,7 +479,6 @@
 
   .odm-aside-scene,
   .odm-aside-brand,
-  .odm-aside-cards,
   .odm-aside-aurora,
   .odm-aside-hero,
   .odm-aside-hero-frame {
@@ -625,47 +538,6 @@
     display: none;
   }
 
-  .odm-aside-cards {
-    left: 40px;
-    right: 40px;
-    bottom: 28px;
-    max-width: none;
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px;
-    padding: 0;
-    transform: none;
-  }
-
-  .odm-aside-card {
-    min-height: 56px;
-    padding: 10px 12px;
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    border-radius: 8px;
-    background: rgba(5, 27, 63, 0.34);
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    box-shadow: none;
-    animation: odm-aside-fade-in 0.35s ease both;
-  }
-
-  .odm-aside-card:hover {
-    transform: none;
-    background: rgba(5, 27, 63, 0.48);
-    box-shadow: none;
-  }
-
-  .odm-aside-card-icon {
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
-    background: rgba(255, 255, 255, 0.1);
-  }
-
-  .odm-aside-card-text {
-    font-size: 12px;
-    line-height: 1.35;
-  }
 }
 
 @media (min-width: 901px) and (max-width: 1280px) {
@@ -677,8 +549,4 @@
     width: 88%;
   }
 
-  .odm-aside-cards {
-    left: 24px;
-    right: 24px;
-  }
 }

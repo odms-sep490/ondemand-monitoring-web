@@ -1,8 +1,12 @@
+import { CheckOutlined } from '@ant-design/icons'
 import type { OrderReviewMessages } from '../OrderReviewPage.messages'
 import type { ApproveResult } from '../approvalTypes'
 import { useState, useRef } from 'react'
 import { ordersApi } from '../../../api/ordersApi'
 import { OrderIcon } from '../../../components/common/OrderIcon'
+import { Button, Modal, useToast } from '../../../../../shared/components/ui'
+import { useI18n } from '../../../../../shared/i18n'
+import { managerFeedbackMessages } from '../../../feedback.messages'
 
 export function ApproveButton({
   orderId,
@@ -13,6 +17,8 @@ export function ApproveButton({
   t: OrderReviewMessages
   onApproved: (result: ApproveResult) => void
 }) {
+  const { t: fb } = useI18n(managerFeedbackMessages)
+  const toast = useToast()
   const [busy, setBusy] = useState(false)
   const [confirming, setConfirming] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -25,9 +31,11 @@ export function ApproveButton({
     setError(null)
     try {
       const result = await ordersApi.approve(orderId)
+      toast.success(fb.orderApproved)
       onApproved(result)
     } catch {
       setError(t.approveFailed)
+      toast.error(t.approveFailed)
       setBusy(false)
       approveInFlightRef.current = false
     }
@@ -35,52 +43,50 @@ export function ApproveButton({
 
   return (
     <>
-      <button
+      <Button
         type="button"
-        className="odm-or-btn odm-or-btn-primary"
+        variant="primary"
         onClick={() => setConfirming(true)}
         disabled={busy}
       >
         <OrderIcon name="check" size={16} />
         {t.approveAndCreateMission}
         <OrderIcon name="chevron-right" size={16} />
-      </button>
+      </Button>
       {confirming ? (
-        <div className="odm-mgr-modal-overlay">
-          <div className="odm-mgr-modal-dialog" role="dialog" aria-modal="true">
-            <div className="odm-mgr-modal-head">
-              <div>
-                <div className="odm-mgr-modal-title">{t.approveTitle}</div>
-                <div className="odm-mgr-review-hint">{t.approveHint}</div>
-              </div>
-            </div>
-            <div className="odm-mgr-modal-body">
-              {t.approveChecklist.map((item) => (
-                <div key={item} style={{ fontSize: 13, lineHeight: 1.7 }}>
-                  ✓ {item}
-                </div>
-              ))}
-            </div>
-            <div className="odm-mgr-modal-footer">
-              <button
-                type="button"
-                className="odm-btn"
+        <Modal
+          title={t.approveTitle}
+          subtitle={t.approveHint}
+          icon="check"
+          tone="success"
+          onClose={() => {
+            if (!busy) setConfirming(false)
+          }}
+          footer={
+            <>
+              <Button
+                variant="ghost"
                 onClick={() => setConfirming(false)}
                 disabled={busy}
               >
                 {t.approveCancel}
-              </button>
-              <button
-                type="button"
-                className="odm-btn odm-btn-ok"
+              </Button>
+              <Button
+                variant="primary"
                 onClick={handleApprove}
-                disabled={busy}
+                loading={busy}
               >
                 {busy ? t.approving : t.approveContinue}
-              </button>
+              </Button>
+            </>
+          }
+        >
+          {t.approveChecklist.map((item) => (
+            <div key={item} style={{ fontSize: 13, lineHeight: 1.7 }}>
+              <CheckOutlined aria-hidden="true" /> {item}
             </div>
-          </div>
-        </div>
+          ))}
+        </Modal>
       ) : null}
       {error ? <span className="odm-or-note-error">{error}</span> : null}
     </>

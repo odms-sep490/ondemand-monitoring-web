@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react'
+
 export function WeatherTile({
   label,
   value,
@@ -5,22 +7,16 @@ export function WeatherTile({
 }: {
   label: string
   value: string
-  icon: string
+  icon: ReactNode
 }) {
   return (
     <div
       className="mds-weather-tile"
-      style={{
-        padding: '10px 12px',
-        borderRadius: 8,
-        border: '1px solid var(--bd)',
-        background: 'var(--sf2)',
-      }}
     >
-      <div style={{ fontSize: 18, marginBottom: 4 }}>{icon}</div>
-      <div style={{ fontSize: 11, color: 'var(--tx3)', marginBottom: 3 }}>
-        {label}
+      <div className="mds-weather-icon" aria-hidden="true">
+        {icon}
       </div>
+      <div className="mds-weather-label">{label}</div>
       <div className="mds-weather-value">{value}</div>
     </div>
   )

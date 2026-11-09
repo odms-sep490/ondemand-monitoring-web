@@ -1,8 +1,8 @@
 // Maps every backend/brief status enum to one of the 6 status-colour tones
 // from [BRIEF Phần B "Quy ước hiển thị trạng thái"]:
-//   gray   = nháp / chưa xử lý       (DRAFT, PENDING, CREATED)
-//   yellow = đang chờ người khác     (SUBMITTED, UNDER_REVIEW, ASSIGNED)
-//   blue   = đang diễn ra            (IN_PROGRESS, IN_FLIGHT, UPLOADING, LIVE)
+//   gray   = nháp / chưa xử lý       (DRAFT, CREATED)
+//   yellow = đang chờ người khác     (SUBMITTED, PENDING, ASSIGNED)
+//   blue   = đang diễn ra            (UNDER_REVIEW, IN_PROGRESS, IN_FLIGHT, UPLOADING, LIVE)
 //   green  = thành công              (APPROVED, COMPLETED, AVAILABLE, PASS)
 //   orange = cảnh báo                (WARNING, RISKY, MANUAL_REQUIRED, MAINTENANCE)
 //   red    = lỗi / từ chối           (REJECTED, FAILED, VALIDATION_FAILED, BLOCKER)
@@ -11,9 +11,7 @@
 // (see inline comments) and called out in evd/P0-mock-api-foundation.md.
 import type { Language } from '../i18n/languageStore'
 import type {
-  AiVerdict,
   DroneStatus,
-  FindingSeverity,
   MediaStatus,
   MissionStatus,
   OrderStatus,
@@ -24,9 +22,9 @@ import type {
 
 export const orderStatusTone: Record<OrderStatus, StatusTone> = {
   DRAFT: 'gray',
-  AI_ANALYZED: 'blue',
   SUBMITTED: 'yellow',
-  PENDING: 'gray',
+  PENDING: 'yellow',
+  UNDER_REVIEW: 'blue',
   NEEDS_INFO: 'orange',
   APPROVED: 'green',
   SCHEDULED: 'blue',
@@ -38,36 +36,27 @@ export const orderStatusTone: Record<OrderStatus, StatusTone> = {
 
 export const missionStatusTone: Record<MissionStatus, StatusTone> = {
   PLANNING: 'gray',
-  CREATED: 'gray', // brief: CREATED → gray
+  CREATED: 'gray',
   WAITING_DEPOSIT: 'yellow',
-  // mapping by meaning: system is still matching drone/operator, nothing to
-  // act on yet — closer to "waiting" than "in progress".
-  READY: 'blue',
+  PENDING_PAYMENT: 'yellow',
+  PENDING_CONFIRMATION: 'yellow',
   RESOURCE_ASSIGNING: 'yellow',
-  WAITING_CREW_CONFIRMATION: 'yellow',
-  WAITING_OPERATOR_ACCEPTANCE: 'yellow', // brief: ASSIGNED-like → yellow
-  // mapping by meaning: operator accepted, mission is waiting for its
-  // scheduled window — still "waiting", not yet active.
+  WAITING_OPERATOR_ACCEPTANCE: 'yellow',
+  READY: 'blue',
   SCHEDULED: 'yellow',
-  // mapping by meaning: device link established, an active process.
   CONNECTED: 'blue',
-  // mapping by meaning: checklist actively running.
   PREFLIGHT_CHECKING: 'blue',
-  // mapping by meaning: all checks passed — a success state, like AVAILABLE/PASS.
   READY_TO_FLY: 'green',
-  FAILED_PREFLIGHT: 'red', // brief: FAILED-like → red
-  // mapping by meaning: bounced back to the manager queue, waiting on them.
+  FAILED_PREFLIGHT: 'red',
   PENDING_APPROVAL: 'yellow',
-  IN_FLIGHT: 'blue', // brief: IN_FLIGHT → blue
-  IN_PROGRESS: 'blue', // brief: IN_PROGRESS → blue (legacy alias of IN_FLIGHT)
-  // mapping by meaning: drone airborne and moving back to base, active process.
+  IN_FLIGHT: 'blue',
+  IN_PROGRESS: 'blue',
   RETURNING: 'blue',
-  // mapping by meaning: checklist actively running.
   POSTFLIGHT_CHECKING: 'blue',
-  PENDING_REVIEW: 'yellow',
-  COMPLETED: 'green', // brief: COMPLETED → green
-  FAILED: 'red', // brief: FAILED → red
-  // mapping by meaning: terminal, non-error stop, same as OrderStatus.CANCELLED.
+  AWAITING_REVIEW: 'blue',
+  PENDING_REVIEW: 'blue',
+  COMPLETED: 'green',
+  FAILED: 'red',
   CANCELLED: 'gray',
 }
 
@@ -92,23 +81,9 @@ export const droneStatusTone: Record<DroneStatus, StatusTone> = {
   OFFLINE: 'gray',
 }
 
-export const aiVerdictTone: Record<AiVerdict, StatusTone> = {
-  FEASIBLE: 'green', // meaning: success, matches APPROVED/PASS family
-  RISKY: 'orange', // brief: RISKY → orange
-  // mapping by meaning: engine recommends rejecting, matches REJECTED/FAILED family.
-  INFEASIBLE: 'red',
-}
-
-export const findingSeverityTone: Record<FindingSeverity, StatusTone> = {
-  // mapping by meaning: informational note, lowest severity, neutral.
-  INFO: 'gray',
-  WARNING: 'orange', // brief: WARNING → orange
-  BLOCKER: 'red', // brief: BLOCKER → red
-}
-
 export const ticketSeverityTone: Record<TicketSeverity, StatusTone> = {
   // mapping by meaning: 4-step severity scale, spread across the tone ramp
-  // the same way FindingSeverity (INFO/WARNING/BLOCKER) does.
+  // across the four severity levels.
   LOW: 'gray',
   MEDIUM: 'yellow',
   HIGH: 'orange',
@@ -131,9 +106,9 @@ export const mediaStatusTone: Record<MediaStatus, StatusTone> = {
 
 export const orderStatusLabel: Record<OrderStatus, string> = {
   DRAFT: 'Nháp',
-  AI_ANALYZED: 'Đã phân tích AI',
   SUBMITTED: 'Đã gửi duyệt',
   PENDING: 'Chờ duyệt',
+  UNDER_REVIEW: 'Đang duyệt',
   NEEDS_INFO: 'Đang chờ khách bổ sung',
   APPROVED: 'Đã duyệt',
   SCHEDULED: 'Đã lên lịch',
@@ -145,23 +120,25 @@ export const orderStatusLabel: Record<OrderStatus, string> = {
 
 export const missionStatusLabel: Record<MissionStatus, string> = {
   PLANNING: 'Đang lập kế hoạch',
-  CREATED: 'Mới tạo',
+  CREATED: 'Đã tạo mission',
   WAITING_DEPOSIT: 'Chờ thanh toán tiền cọc',
-  READY: 'Sẵn sàng phân công',
-  RESOURCE_ASSIGNING: 'Đang gán nguồn lực',
-  WAITING_CREW_CONFIRMATION: 'Chờ đội bay xác nhận',
-  WAITING_OPERATOR_ACCEPTANCE: 'Chờ operator nhận',
-  SCHEDULED: 'Đã lên lịch',
-  CONNECTED: 'Đã kết nối',
+  PENDING_PAYMENT: 'Chờ khách hàng thanh toán',
+  PENDING_CONFIRMATION: 'Chuẩn bị',
+  RESOURCE_ASSIGNING: 'Đang phân công nguồn lực',
+  WAITING_OPERATOR_ACCEPTANCE: 'Chờ staff chấp nhận',
+  READY: 'Sẵn sàng chờ nghiệm thu',
+  SCHEDULED: 'Đang chuẩn bị trước bay',
+  CONNECTED: 'Đã kết nối GCS',
   PREFLIGHT_CHECKING: 'Đang kiểm tra trước bay',
-  READY_TO_FLY: 'Sẵn sàng bay',
-  FAILED_PREFLIGHT: 'Kiểm tra trước bay thất bại',
-  PENDING_APPROVAL: 'Chờ Manager xử lý',
+  READY_TO_FLY: 'Thiết bị sẵn sàng bay',
+  FAILED_PREFLIGHT: 'Kiểm tra trước bay chưa đạt',
+  PENDING_APPROVAL: 'Chờ phê duyệt',
   IN_FLIGHT: 'Đang bay',
-  IN_PROGRESS: 'Đang bay',
-  RETURNING: 'Đang trở về',
+  IN_PROGRESS: 'Đang thực hiện',
+  RETURNING: 'Đang quay về',
   POSTFLIGHT_CHECKING: 'Đang kiểm tra sau bay',
-  PENDING_REVIEW: 'Chờ nghiệm thu',
+  AWAITING_REVIEW: 'Đã gửi quản lý, chờ duyệt',
+  PENDING_REVIEW: 'Đã gửi quản lý, chờ duyệt',
   COMPLETED: 'Hoàn thành',
   FAILED: 'Thất bại',
   CANCELLED: 'Đã huỷ',
@@ -179,18 +156,6 @@ export const droneStatusLabel: Record<DroneStatus, string> = {
   MAINTENANCE: 'Bảo trì',
   OUT_OF_SERVICE: 'Ngừng dùng',
   OFFLINE: 'Mất kết nối',
-}
-
-export const aiVerdictLabel: Record<AiVerdict, string> = {
-  FEASIBLE: 'Khả thi',
-  RISKY: 'Rủi ro',
-  INFEASIBLE: 'Không khả thi',
-}
-
-export const findingSeverityLabel: Record<FindingSeverity, string> = {
-  INFO: 'Thông tin',
-  WARNING: 'Cảnh báo',
-  BLOCKER: 'Chặn',
 }
 
 export const ticketSeverityLabel: Record<TicketSeverity, string> = {
@@ -238,9 +203,9 @@ export const mediaStatusLabel: Record<MediaStatus, string> = {
 
 export const orderStatusLabelEn: Record<OrderStatus, string> = {
   DRAFT: 'Draft',
-  AI_ANALYZED: 'AI analyzed',
   SUBMITTED: 'Submitted',
-  PENDING: 'Pending',
+  PENDING: 'Waiting for review',
+  UNDER_REVIEW: 'Under review',
   NEEDS_INFO: 'Waiting for customer information',
   APPROVED: 'Approved',
   SCHEDULED: 'Scheduled',
@@ -254,21 +219,23 @@ export const missionStatusLabelEn: Record<MissionStatus, string> = {
   PLANNING: 'Planning',
   CREATED: 'Created',
   WAITING_DEPOSIT: 'Waiting for deposit',
-  READY: 'Ready for assignment',
+  PENDING_PAYMENT: 'Waiting for customer payment',
+  PENDING_CONFIRMATION: 'Preparing',
   RESOURCE_ASSIGNING: 'Assigning resources',
-  WAITING_CREW_CONFIRMATION: 'Waiting for crew confirmation',
-  WAITING_OPERATOR_ACCEPTANCE: 'Waiting for operator',
-  SCHEDULED: 'Scheduled',
-  CONNECTED: 'Connected',
-  PREFLIGHT_CHECKING: 'Preflight check running',
-  READY_TO_FLY: 'Ready to fly',
+  WAITING_OPERATOR_ACCEPTANCE: 'Waiting for staff acceptance',
+  READY: 'Ready for inspector start',
+  SCHEDULED: 'Preparing for preflight',
+  CONNECTED: 'Connected to GCS',
+  PREFLIGHT_CHECKING: 'Running preflight checks',
+  READY_TO_FLY: 'Device ready to fly',
   FAILED_PREFLIGHT: 'Preflight check failed',
-  PENDING_APPROVAL: 'Pending manager review',
+  PENDING_APPROVAL: 'Waiting for approval',
   IN_FLIGHT: 'In flight',
-  IN_PROGRESS: 'In flight',
+  IN_PROGRESS: 'In progress',
   RETURNING: 'Returning',
-  POSTFLIGHT_CHECKING: 'Postflight check running',
-  PENDING_REVIEW: 'Awaiting inspection',
+  POSTFLIGHT_CHECKING: 'Running postflight checks',
+  AWAITING_REVIEW: 'Pending manager approval',
+  PENDING_REVIEW: 'Pending manager approval',
   COMPLETED: 'Completed',
   FAILED: 'Failed',
   CANCELLED: 'Cancelled',
@@ -286,18 +253,6 @@ export const droneStatusLabelEn: Record<DroneStatus, string> = {
   MAINTENANCE: 'Maintenance',
   OUT_OF_SERVICE: 'Out of service',
   OFFLINE: 'Offline',
-}
-
-export const aiVerdictLabelEn: Record<AiVerdict, string> = {
-  FEASIBLE: 'Feasible',
-  RISKY: 'Risky',
-  INFEASIBLE: 'Infeasible',
-}
-
-export const findingSeverityLabelEn: Record<FindingSeverity, string> = {
-  INFO: 'Info',
-  WARNING: 'Warning',
-  BLOCKER: 'Blocker',
 }
 
 export const ticketSeverityLabelEn: Record<TicketSeverity, string> = {
@@ -336,9 +291,11 @@ export function getMissionStatusLabel(
   status: MissionStatus,
   lang: Language,
 ): string {
-  return lang === 'en'
-    ? missionStatusLabelEn[status]
-    : missionStatusLabel[status]
+  return (
+    (lang === 'en'
+      ? missionStatusLabelEn[status]
+      : missionStatusLabel[status]) ?? status
+  )
 }
 
 export function getDroneStatusLabel(
@@ -346,19 +303,6 @@ export function getDroneStatusLabel(
   lang: Language,
 ): string {
   return lang === 'en' ? droneStatusLabelEn[status] : droneStatusLabel[status]
-}
-
-export function getAiVerdictLabel(status: AiVerdict, lang: Language): string {
-  return lang === 'en' ? aiVerdictLabelEn[status] : aiVerdictLabel[status]
-}
-
-export function getFindingSeverityLabel(
-  status: FindingSeverity,
-  lang: Language,
-): string {
-  return lang === 'en'
-    ? findingSeverityLabelEn[status]
-    : findingSeverityLabel[status]
 }
 
 export function getTicketSeverityLabel(

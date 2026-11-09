@@ -1,0 +1,77 @@
+/* Order planning workspace layout. Tokens only (--ui-*). */
+
+.mgr-plan.odm-planning { margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--ui-space-4); min-width: 0; }
+.mgr-plan .odm-plan-header { padding: 0; }
+.mgr-plan > .odm-plan-header { padding: 0; }
+.mgr-plan .ui-card { margin-bottom: 0; }
+.mgr-plan-loading { display: flex; flex-direction: column; gap: var(--ui-space-2); }
+
+/* Coverage */
+.mgr-plan-coverage { display: flex; flex-direction: column; gap: var(--ui-space-3); }
+.mgr-plan-progress {
+  appearance: none; -webkit-appearance: none; width: 100%; height: 8px; border: 0; border-radius: 4px;
+  background: var(--ui-surface-2); overflow: hidden;
+}
+.mgr-plan-progress::-webkit-progress-bar { background: var(--ui-surface-2); border-radius: 4px; }
+.mgr-plan-progress::-webkit-progress-value { background: var(--ui-primary); border-radius: 4px; }
+.mgr-plan-progress::-moz-progress-bar { background: var(--ui-primary); border-radius: 4px; }
+.mgr-plan-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: var(--ui-space-3); margin: 0; }
+.mgr-plan-metrics > div { padding: var(--ui-space-2) var(--ui-space-3); border: 1px solid var(--ui-border); border-radius: var(--ui-radius-sm); background: var(--ui-surface); }
+.mgr-plan-metrics dd { margin: 0; font-size: 20px; font-weight: 700; color: var(--ui-text); }
+.mgr-plan-metrics dt { font-size: 12px; color: var(--ui-text-3); }
+
+/* Deposit gate banner */
+.mgr-plan-gate { align-items: flex-start; }
+.mgr-plan-gate-text { display: flex; flex-direction: column; gap: var(--ui-space-1); min-width: 0; flex: 1 1 280px; font-weight: 400; }
+.mgr-plan-gate-text strong { font-weight: 700; }
+.mgr-plan-gate .mgr-plan-progress { background: var(--ui-surface); max-width: 360px; }
+.mgr-plan-gate .mgr-plan-progress::-webkit-progress-value { background: var(--ui-warning); }
+.mgr-plan-gate .mgr-plan-progress::-moz-progress-bar { background: var(--ui-warning); }
+
+/* Mission cards in a grid, detail panel underneath */
+.mgr-plan .odm-planning-workspace { display: flex; flex-direction: column; gap: var(--ui-space-4); margin-top: 0; }
+.mgr-plan .odm-workspace-selector {
+  position: static; max-height: none; overflow: visible;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--ui-space-3);
+}
+.mgr-plan .odm-workspace-choice {
+  border-color: var(--ui-border); background: var(--ui-surface); color: var(--ui-text);
+  border-radius: var(--ui-radius-lg); box-shadow: var(--ui-shadow-1), var(--ui-shadow-inset-top);
+  transition: box-shadow var(--ui-dur-fast) var(--ui-ease), border-color var(--ui-dur-fast) var(--ui-ease);
+}
+.mgr-plan .odm-workspace-choice:hover:not(:disabled) { box-shadow: var(--ui-shadow-2); }
+.mgr-plan .odm-workspace-choice.is-selected {
+  border-color: var(--ui-primary); background: var(--ui-primary-soft); box-shadow: var(--ui-shadow-2);
+}
+.mgr-plan .odm-workspace-choice-action { color: var(--ui-primary-text); border-top-color: var(--ui-border); }
+.mgr-plan .odm-workspace-choice .odm-workspace-readiness .is-ready { background: var(--ui-success-soft); color: var(--ui-success-text); }
+.mgr-plan .odm-workspace-choice .odm-workspace-readiness .is-missing { background: var(--ui-warning-soft); color: var(--ui-warning-text); }
+.mgr-plan .odm-workspace-rank { color: var(--ui-text-2); }
+.mgr-plan .odm-workspace-panels { min-width: 0; }
+
+/* Sticky bottom action bar (finalize / amend / assign) */
+.mgr-actionbar {
+  position: sticky; bottom: var(--ui-space-3); z-index: 5; justify-content: flex-end;
+  padding: var(--ui-space-3) var(--ui-space-4); border: 1px solid var(--ui-border); border-radius: var(--ui-radius-lg);
+  background: var(--ui-surface); box-shadow: var(--ui-shadow-3), var(--ui-shadow-inset-top);
+}
+.mgr-actionbar .odm-planning-next-resource { margin-left: 0; }
+.mgr-actionbar .odm-planning-next-hint { margin-left: 0; margin-right: auto; color: var(--ui-warning-text); }
+
+.mgr-plan-create .ui-card-body > section { display: flex; flex-direction: column; gap: var(--ui-space-3); }
+.mgr-plan .odm-plan-empty { padding: 0; }
+.mgr-plan .odm-planning-notice, .mgr-plan .odm-planning-complete {
+  margin: 0; padding: var(--ui-space-3) var(--ui-space-4); border-radius: var(--ui-radius-lg);
+  background: var(--ui-primary-soft); color: var(--ui-primary-text); font-size: 13px;
+}
+.mgr-plan .odm-planning-complete { display: flex; align-items: center; justify-content: space-between; gap: var(--ui-space-3); flex-wrap: wrap; background: var(--ui-success-soft); color: var(--ui-success-text); }
+
+/* Planning workspace: same 16px rhythm and side/main split as the mission detail page. */
+.mgr-plan .odm-planning-split-layout { margin-top: 0; gap: var(--ui-space-4); grid-template-columns: minmax(280px, 340px) minmax(0, 1fr); }
+.mgr-plan .odm-planning-split-layout.is-collapsed { grid-template-columns: minmax(0, 1fr); }
+.mgr-plan .odm-missions-workspace-panel { gap: var(--ui-space-4); min-width: 0; }
+.mgr-plan .odm-workspace-topbar { padding: var(--ui-space-3) var(--ui-space-4); border-radius: var(--mgr-radius); }
+.mgr-plan .odm-master-checklist-sidebar { border-radius: var(--mgr-radius); }
+@media (max-width: 1024px) {
+  .mgr-plan .odm-planning-split-layout { grid-template-columns: minmax(0, 1fr); }
+}

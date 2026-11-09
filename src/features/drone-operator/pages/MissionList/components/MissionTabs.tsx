@@ -10,7 +10,6 @@ import type {
   OperatorMissionPermissions,
   OperatorMissionPlanSummary,
 } from '../../../types/mission'
-import type { MissionStopMetadata } from '../../../../mission/lib/missionOperationalState'
 
 export function MissionTabs({
   tab,
@@ -25,7 +24,7 @@ export function MissionTabs({
   counts: { pending: number; upcoming: number; history: number }
   tabItems: OperatorMission[]
   now: Date
-  allMissions: (MissionStopMetadata & {
+  allMissions: {
     id: string
     missionCode?: string | undefined
     backendStatus?: string | undefined
@@ -76,7 +75,7 @@ export function MissionTabs({
     droneReadinessPct?: number | undefined
     droneHoursSinceMaintenance?: number | undefined
     planSummary?: OperatorMissionPlanSummary | undefined
-  })[]
+  }[]
 }) {
   const { t } = useI18n(missionListPageMessages)
   return (

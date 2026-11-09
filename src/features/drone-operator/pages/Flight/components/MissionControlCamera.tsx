@@ -9,7 +9,6 @@ import type { ControlStatus, GeofenceStatus } from '../inFlightTypes'
 
 export function MissionControlCamera({
   streamUrl,
-  preflightReady,
   isOnline,
   handleOnline,
   handleOffline,
@@ -20,14 +19,12 @@ export function MissionControlCamera({
   geofenceAlertActive,
   batteryState,
   batteryDisplay,
-  operationalMessage,
   lastCommand,
   geofenceTone,
   geofenceStatus,
   geofenceMessage,
 }: {
   streamUrl: string
-  preflightReady: boolean
   isOnline: boolean
   handleOnline: () => void
   handleOffline: () => void
@@ -38,7 +35,6 @@ export function MissionControlCamera({
   geofenceAlertActive: boolean
   batteryState: 'NORMAL' | 'LOW' | 'CRITICAL' | 'EMERGENCY'
   batteryDisplay: string
-  operationalMessage: string | undefined
   lastCommand: string
   geofenceTone: string
   geofenceStatus: GeofenceStatus
@@ -70,7 +66,6 @@ export function MissionControlCamera({
       >
         <CameraFeed
           streamUrl={streamUrl}
-          preflightReady={preflightReady}
           isOnline={isOnline}
           onOnline={handleOnline}
           onOffline={handleOffline}
@@ -118,7 +113,6 @@ export function MissionControlCamera({
         )}
 
         <CommandStatusBadge
-          operationalMessage={operationalMessage}
           lastCommand={lastCommand}
         />
 

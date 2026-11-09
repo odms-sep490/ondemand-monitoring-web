@@ -6,26 +6,7 @@
 // Vietnamese) so existing callers/tests are unaffected. `formatDateTime`
 // is the new lang-aware variant used by `DashboardPage`.
 import type { Language } from '../../../shared/i18n'
-
-const VN_WEEKDAY_NAMES = [
-  'Chủ Nhật',
-  'Thứ Hai',
-  'Thứ Ba',
-  'Thứ Tư',
-  'Thứ Năm',
-  'Thứ Sáu',
-  'Thứ Bảy',
-] as const
-
-const EN_WEEKDAY_NAMES = [
-  'Sunday',
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday',
-  'Friday',
-  'Saturday',
-] as const
+import { managerLibMessages } from './lib.messages'
 
 function pad2(value: number): string {
   return value.toString().padStart(2, '0')
@@ -47,9 +28,9 @@ export function formatDateTime(date: Date, lang: Language): string {
   const hours = pad2(date.getHours())
   const minutes = pad2(date.getMinutes())
   if (lang === 'en') {
-    const weekday = EN_WEEKDAY_NAMES[date.getDay()]
+    const weekday = managerLibMessages.en.weekdays[date.getDay()]
     return `${weekday}, ${month}/${day}/${year} · ${hours}:${minutes}`
   }
-  const weekday = VN_WEEKDAY_NAMES[date.getDay()]
+  const weekday = managerLibMessages.vi.weekdays[date.getDay()]
   return `${weekday}, ${day}/${month}/${year} · ${hours}:${minutes}`
 }

@@ -28,12 +28,16 @@ const image: UploadedMissionMedia = {
   capturedAt: '2026-09-27T00:00:00Z',
   availableAt: null,
   downloadUrl: 'https://example.test/image',
+  thumbnailUrl: 'https://example.test/thumb.jpg',
+  previewUrl: 'https://example.test/image-preview',
   urlExpiresAt: '2026-09-27T01:00:00Z',
 }
 const video = {
   ...image,
   mediaId: 'video',
   mediaType: 'VIDEO',
+  thumbnailUrl: 'https://example.test/poster.jpg',
+  previewUrl: 'https://example.test/video-preview.mp4',
   fileName: 'clip.mp4',
   contentType: 'video/mp4',
 }
@@ -49,7 +53,7 @@ const page = (items: UploadedMissionMedia[]) => ({
 describe('uploaded mission media gallery', () => {
   it('keeps AVAILABLE metadata visible without exposing an unreleased original', async () => {
     vi.mocked(operatorMissionMediaApi.list).mockResolvedValue(
-      page([{ ...image, status: 'AVAILABLE', downloadUrl: null }]),
+      page([{ ...image, status: 'AVAILABLE', downloadUrl: null, thumbnailUrl: null, previewUrl: null }]),
     )
     render(<MissionUploadedMedia missionId="mission" />)
     await screen.findByText('capture.jpg')
@@ -128,7 +132,8 @@ describe('uploaded mission media gallery', () => {
     )
     vi.mocked(operatorMissionMediaApi.get).mockResolvedValue({
       ...video,
-      downloadUrl: 'https://example.test/fresh',
+      downloadUrl: 'https://example.test/original',
+      previewUrl: 'https://example.test/fresh',
     })
     const { container } = render(<MissionUploadedMedia missionId="mission" />)
     await screen.findByText('capture.jpg')
@@ -153,7 +158,7 @@ describe('uploaded mission media gallery', () => {
   it('shows an empty state rather than local files', async () => {
     vi.mocked(operatorMissionMediaApi.list).mockResolvedValue(page([]))
     render(<MissionUploadedMedia missionId="mission" />)
-    await screen.findByText('Chưa có ảnh/video được tải lên cho Mission này.')
+    await screen.findByText('Chưa có ảnh/video được tải lên cho nhiệm vụ này.')
   })
 
   it('shows errors and supports retry', async () => {
@@ -161,10 +166,10 @@ describe('uploaded mission media gallery', () => {
       .mockRejectedValueOnce(new Error('Access denied'))
       .mockResolvedValue(page([]))
     render(<MissionUploadedMedia missionId="mission" />)
-    await screen.findByText('Không thể tải ảnh/video của Mission này.')
+    await screen.findByText('Không thể tải ảnh/video của nhiệm vụ này.')
     expect(screen.queryByText('Access denied')).toBeNull()
     fireEvent.click(screen.getByText('Thử lại'))
-    await screen.findByText('Chưa có ảnh/video được tải lên cho Mission này.')
+    await screen.findByText('Chưa có ảnh/video được tải lên cho nhiệm vụ này.')
   })
 
   it('resets gallery when switching missions', async () => {
@@ -174,7 +179,7 @@ describe('uploaded mission media gallery', () => {
     const view = render(<MissionUploadedMedia missionId="mission" />)
     await screen.findByText('capture.jpg')
     view.rerender(<MissionUploadedMedia missionId="other" />)
-    await screen.findByText('Chưa có ảnh/video được tải lên cho Mission này.')
+    await screen.findByText('Chưa có ảnh/video được tải lên cho nhiệm vụ này.')
     expect(screen.queryByText('capture.jpg')).toBeNull()
   })
 })

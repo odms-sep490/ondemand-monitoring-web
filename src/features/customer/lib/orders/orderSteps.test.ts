@@ -19,6 +19,7 @@ describe('buildOrderSteps', () => {
       'quote:upcoming',
       'deposit:upcoming',
       'planning:upcoming',
+      'finalPayment:upcoming',
       'inProgress:upcoming',
       'completed:upcoming',
     ])
@@ -31,6 +32,7 @@ describe('buildOrderSteps', () => {
       'quote:upcoming',
       'deposit:upcoming',
       'planning:upcoming',
+      'finalPayment:upcoming',
       'inProgress:upcoming',
       'completed:upcoming',
     ])
@@ -43,6 +45,7 @@ describe('buildOrderSteps', () => {
       'quote:current',
       'deposit:upcoming',
       'planning:upcoming',
+      'finalPayment:upcoming',
       'inProgress:upcoming',
       'completed:upcoming',
     ])
@@ -55,25 +58,25 @@ describe('buildOrderSteps', () => {
     })
     expect(states(steps)).toEqual([
       'submitted:done', 'approved:done', 'quote:done', 'deposit:current',
-      'planning:upcoming', 'inProgress:upcoming', 'completed:upcoming',
+      'planning:upcoming', 'finalPayment:upcoming', 'inProgress:upcoming', 'completed:upcoming',
     ])
   })
 
   it('IN_PROGRESS: in progress is current and takes its date from the status event', () => {
     const steps = buildOrderSteps('IN_PROGRESS', [created, approved, status('IN_PROGRESS', '2026-09-30T01:00:00Z')])
-    expect(states(steps)).toEqual(['submitted:done', 'approved:done', 'quote:done', 'deposit:done', 'planning:done', 'inProgress:current', 'completed:upcoming'])
-    expect(steps[5].at).toBe('2026-09-30T01:00:00Z')
+    expect(states(steps)).toEqual(['submitted:done', 'approved:done', 'quote:done', 'deposit:done', 'planning:done', 'finalPayment:done', 'inProgress:current', 'completed:upcoming'])
+    expect(steps[6].at).toBe('2026-09-30T01:00:00Z')
   })
 
-  it('marks planning done when the manager scheduled and assigned the mission', () => {
+  it('marks planning done and waits for the final payment once the manager scheduled and assigned the mission', () => {
     const steps = buildOrderSteps('APPROVED', [created, approved], {
       quote: { status: 'ACCEPTED_BY_CUSTOMER', approvedAt: null, acceptedAt: '2026-09-29T02:00:00Z' },
       invoice: { depositAmount: 1_000_000, paidAmount: 1_000_000, issuedAt: '2026-09-29T03:00:00Z' },
-    }, [{ status: 'WAITING_CREW_CONFIRMATION', scheduledStartAt: '2026-10-21T01:00:00Z' }])
+    }, [{ status: 'READY', scheduledStartAt: '2026-10-21T01:00:00Z' }])
 
     expect(states(steps)).toEqual([
       'submitted:done', 'approved:done', 'quote:done', 'deposit:done',
-      'planning:done', 'inProgress:current', 'completed:upcoming',
+      'planning:done', 'finalPayment:current', 'inProgress:upcoming', 'completed:upcoming',
     ])
     expect(steps[4].at).toBe('2026-10-21T01:00:00Z')
   })
@@ -89,9 +92,9 @@ describe('buildOrderSteps', () => {
 
   it('COMPLETED: all done, and a step without an event gets no date', () => {
     const steps = buildOrderSteps('COMPLETED', [created, approved, status('COMPLETED', '2026-10-01T01:00:00Z')])
-    expect(states(steps)).toEqual(['submitted:done', 'approved:done', 'quote:done', 'deposit:done', 'planning:done', 'inProgress:done', 'completed:done'])
-    expect(steps[5].at).toBeNull()
-    expect(steps[6].at).toBe('2026-10-01T01:00:00Z')
+    expect(states(steps)).toEqual(['submitted:done', 'approved:done', 'quote:done', 'deposit:done', 'planning:done', 'finalPayment:done', 'inProgress:done', 'completed:done'])
+    expect(steps[6].at).toBeNull()
+    expect(steps[7].at).toBe('2026-10-01T01:00:00Z')
   })
 
   it('REJECTED: submitted done then a failed terminal step with the review info, nothing upcoming', () => {

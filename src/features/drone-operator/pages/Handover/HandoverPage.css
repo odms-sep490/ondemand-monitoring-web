@@ -1,0 +1,232 @@
+.handover-page__content {
+  width: min(100%, 800px);
+  margin-inline: auto;
+  padding: 18px 22px;
+}
+
+.handover-page__stack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.handover-page__error {
+  margin: 0;
+  color: var(--red-fg);
+}
+
+.handover-commitments {
+  padding: 18px 22px;
+}
+
+.handover-commitments__title {
+  margin-bottom: 12px;
+  margin-top: 0;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.handover-commitments__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.handover-commitments__label {
+  display: flex;
+  min-height: 48px;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: var(--tx);
+  cursor: pointer;
+  font-size: 13.5px;
+  line-height: 1.5;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease;
+}
+
+.handover-commitments__label:hover {
+  background: var(--sf2);
+}
+
+.handover-commitments__label.is-checked {
+  border-color: color-mix(in srgb, var(--green-dot) 45%, var(--bd));
+  background: color-mix(in srgb, var(--green-bg) 58%, var(--sf));
+}
+
+.handover-commitments__label:focus-within {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.handover-commitments__label input {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  margin: 0;
+  accent-color: var(--green-solid);
+}
+
+.handover-drone-strip {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px;
+  border: 1px solid var(--bd);
+  border-radius: 12px;
+  background: var(--sf);
+}
+
+.handover-drone-strip__icon {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--sf3);
+  color: var(--tx2);
+}
+
+.handover-drone-strip__main {
+  min-width: 0;
+  flex: 1;
+}
+
+.handover-drone-strip__title {
+  overflow-wrap: anywhere;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.handover-drone-strip__detail {
+  color: var(--tx3);
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.handover-drone-strip__status {
+  flex: none;
+  white-space: nowrap;
+}
+
+.handover-page__ack {
+  display: flex;
+  width: 100%;
+  min-height: 58px;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  border: 2px solid var(--bd2);
+  border-radius: 12px;
+  background: var(--sf);
+  color: var(--tx);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease;
+}
+
+.handover-page__ack:hover {
+  background: var(--sf2);
+}
+
+.handover-page__ack[aria-pressed='true'] {
+  border-color: var(--green-dot);
+  background: var(--green-bg);
+}
+
+.handover-page__ack:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.handover-ack__indicator {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  flex: none;
+  place-items: center;
+  border: 2px solid var(--bd2);
+  border-radius: 8px;
+  color: var(--green-on);
+}
+
+.handover-page__ack[aria-pressed='true'] .handover-ack__indicator {
+  border-color: var(--green-solid);
+  background: var(--green-solid);
+}
+
+.handover-ack__label {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.handover-page__actions {
+  display: flex;
+  gap: 12px;
+}
+
+.handover-page__actions > * {
+  min-height: 44px;
+}
+
+.handover-page__note {
+  color: var(--tx3);
+  font-size: 11.5px;
+  line-height: 1.45;
+  text-align: center;
+}
+
+@media (max-width: 560px) {
+  .handover-page__content {
+    padding: 14px;
+  }
+
+  .handover-commitments {
+    padding: 16px 14px;
+  }
+
+  .handover-page__actions {
+    flex-direction: column;
+  }
+
+  .handover-page__actions > * {
+    width: 100%;
+    min-width: 0 !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .handover-drone-strip {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .handover-drone-strip__main {
+    flex-basis: calc(100% - 54px);
+  }
+
+  .handover-drone-strip__status {
+    margin-left: 50px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .handover-commitments__label,
+  .handover-page__ack {
+    transition: none;
+  }
+}

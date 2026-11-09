@@ -57,7 +57,7 @@
 }
 .odm-or-readiness-list > li {
   display: grid;
-  grid-template-columns: 10px minmax(0, 1fr) auto;
+  grid-template-columns: 10px minmax(0, 1fr);
   align-items: start;
   gap: 10px;
   padding: 9px 0;
@@ -129,7 +129,7 @@
 }
 .odm-or-readiness-guidance {
   margin-top: 5px !important;
-  color: #9a6700 !important;
+  color: var(--pl-amber-fg) !important;
   font-size: 11.5px !important;
 }
 .odm-or-readiness-note {
@@ -152,15 +152,21 @@
   gap: 10px;
   margin-top: 12px;
 }
-.odm-or-readiness-list .odm-btn {
+.odm-or-readiness-list :is(.odm-btn, .ui-btn) {
   margin-top: 6px;
+}
+.odm-or-readiness-list > li > .odm-or-readiness-choices {
+  grid-column: 2;
+  justify-self: start;
 }
 .odm-or-readiness-choices {
   display: inline-flex;
-  border: 1px solid #cbd5e1;
+  flex-wrap: wrap;
+  max-width: 100%;
+  border: 1px solid var(--pl-border-strong);
   border-radius: 8px;
   overflow: hidden;
-  background: #f8fafc;
+  background: var(--mgr-card-2);
   box-shadow: 0 1px 2px rgb(15 23 42 / 8%);
 }
 .odm-or-readiness-choices button {
@@ -188,7 +194,7 @@
   opacity: 0.6;
 }
 .odm-or-readiness-choices button:not(:disabled):hover {
-  background: #eef4ff;
+  background: var(--pl-blue-bg);
   color: var(--or-primary-fg, #1d4ed8);
 }
 .odm-or-readiness-choices button:not(:disabled):active {
@@ -222,8 +228,8 @@
   margin: 0 16px 12px;
   padding: 8px 12px;
   border-radius: 8px;
-  background: #fef2f2;
-  color: #991b1b;
+  background: var(--pl-red-bg);
+  color: var(--pl-red-fg);
   font-size: 13px;
 }
 .odm-or-readiness-blocking {
@@ -275,7 +281,7 @@
   padding: 8px 10px;
   border: 1px solid var(--or-border, #d8dee9);
   border-radius: 8px;
-  background: #f8fafc;
+  background: var(--mgr-card-2);
   cursor: pointer;
 }
 .odm-or-supplement-options input {
@@ -304,11 +310,11 @@
     align-items: flex-end;
     flex-direction: column;
   }
-  .odm-or-readiness-list > li {
-    grid-template-columns: 10px minmax(0, 1fr);
-  }
-  .odm-or-readiness-list > li > em,
-  .odm-or-readiness-choices {
-    grid-column: 2;
-  }
+}
+
+.mgr-decision-host:empty {
+  display: none;
+}
+.mgr-decision-host .mgr-decision-actions {
+  margin: 0 0 12px;
 }

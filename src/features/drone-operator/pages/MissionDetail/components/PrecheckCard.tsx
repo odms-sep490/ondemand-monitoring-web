@@ -1,5 +1,6 @@
 import type { RuntimePreflightStatus, WeatherPreflightStatus } from '../types'
 import { useState } from 'react'
+import { PrecheckWeatherResult } from './PrecheckWeatherResult'
 import { StatusBadge } from '../../../../../shared/components/odm/StatusBadge'
 import {
   statusTone,
@@ -8,16 +9,15 @@ import {
   preflightCheckName,
   checkLabel,
 } from '../missionFormat'
-import { PrecheckWeatherResult } from './PrecheckWeatherResult'
 
-// ─── Precheck card ────────────────────────────────────────────────────────────
+// ─── Thẻ kết quả kiểm tra trước bay ──────────────────────────────────────────
 
 export function PrecheckCard({
   preflight,
-  weather,
+  weather = null,
 }: {
   preflight: RuntimePreflightStatus | null
-  weather: WeatherPreflightStatus | null
+  weather?: WeatherPreflightStatus | null
 }) {
   const [expanded, setExpanded] = useState(false)
   const passCount =
@@ -36,7 +36,7 @@ export function PrecheckCard({
   return (
     <div className="odm-card">
       <div className="odm-card-header">
-        <span style={{ fontWeight: 700 }}>Kết quả precheck</span>
+        <h2 className="mds-card-heading">Kết quả kiểm tra trước bay</h2>
         <StatusBadge tone={statusTone(preflight?.status)}>
           {preflightLabel(preflight?.status)}
         </StatusBadge>
@@ -49,7 +49,7 @@ export function PrecheckCard({
               style={{
                 display: 'flex',
                 justifyContent: 'space-between',
-                fontSize: 11.5,
+                fontSize: 14,
                 color: 'var(--tx3)',
                 marginBottom: 4,
               }}
@@ -58,7 +58,7 @@ export function PrecheckCard({
               <span
                 style={{
                   fontFamily: 'IBM Plex Mono, monospace',
-                  fontSize: 10.5,
+                  fontSize: 12.5,
                   color: 'var(--tx2)',
                   maxWidth: 170,
                   overflow: 'hidden',
@@ -73,7 +73,7 @@ export function PrecheckCard({
               style={{
                 display: 'flex',
                 justifyContent: 'space-between',
-                fontSize: 11.5,
+                fontSize: 14,
                 color: 'var(--tx3)',
                 marginBottom: 10,
               }}
@@ -84,8 +84,6 @@ export function PrecheckCard({
                 {failCount ? ` · ${failCount} lỗi` : ''}
               </span>
             </div>
-
-            <PrecheckWeatherResult weather={weather} />
 
             {/* Check items */}
             <div
@@ -105,14 +103,14 @@ export function PrecheckCard({
                       gridTemplateColumns: '18px 1fr auto',
                       gap: 6,
                       alignItems: 'center',
-                      padding: '7px 10px',
+                      padding: '9px 12px',
                       borderBottom:
                         idx < visibleChecks.length - 1
                           ? '1px solid var(--bd)'
                           : 'none',
                       background:
                         item.status === 'FAIL' ? 'var(--red-bg)' : '#fff',
-                      fontSize: 12,
+                      fontSize: 14,
                     }}
                   >
                     <span
@@ -122,7 +120,7 @@ export function PrecheckCard({
                           item.status === 'FAIL'
                             ? 'var(--red-fg)'
                             : 'var(--green-fg)',
-                        fontSize: 13,
+                        fontSize: 15,
                       }}
                     >
                       {item.status === 'FAIL'
@@ -135,6 +133,7 @@ export function PrecheckCard({
                       <div
                         style={{
                           fontWeight: 600,
+                          fontSize: 14,
                           color:
                             item.status === 'FAIL'
                               ? 'var(--red-fg)'
@@ -146,16 +145,13 @@ export function PrecheckCard({
                       {message && (
                         <div
                           style={{
-                            fontSize: 11,
+                            fontSize: 13,
                             color:
                               item.status === 'FAIL'
                                 ? 'var(--red-fg)'
                                 : 'var(--tx3)',
-                            marginTop: 1,
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                            maxWidth: 140,
+                            marginTop: 2,
+                            lineHeight: 1.4,
                           }}
                           title={message}
                         >
@@ -166,7 +162,7 @@ export function PrecheckCard({
                     <span
                       style={{
                         fontWeight: 700,
-                        fontSize: 11.5,
+                        fontSize: 14,
                         color:
                           item.status === 'FAIL'
                             ? 'var(--red-fg)'
@@ -189,7 +185,7 @@ export function PrecheckCard({
                   marginTop: 8,
                   width: '100%',
                   padding: '5px 0',
-                  fontSize: 12,
+                  fontSize: 14,
                   fontWeight: 600,
                   color: 'var(--blue-dot)',
                   background: 'none',
@@ -207,8 +203,8 @@ export function PrecheckCard({
         ) : (
           <>
             <PrecheckWeatherResult weather={weather} />
-            <div style={{ color: 'var(--tx3)', fontSize: 12.5 }}>
-              Chưa có dữ liệu precheck cho mission này.
+            <div style={{ color: 'var(--tx3)', fontSize: 14 }}>
+              Chưa có dữ liệu kiểm tra trước bay cho nhiệm vụ này.
             </div>
           </>
         )}

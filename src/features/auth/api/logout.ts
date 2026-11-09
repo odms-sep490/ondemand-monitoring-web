@@ -3,15 +3,18 @@
 // screen even if the API call fails (expired token, offline, etc).
 
 import { authApi, authSession } from './authApi'
+import { withAuthLock } from './authSession'
 
 export async function logout() {
   const token = authSession.getAccessToken()
+  authSession.clear()
+  const stamp = authSession.capture()
+  window.location.hash = '#auth/login'
   try {
-    if (token) await authApi.logout(token)
+    await withAuthLock(async () => {
+      if (authSession.isCurrent(stamp)) await authApi.logout(token)
+    })
   } catch {
-    // Ignore: the user is signing out either way — see finally below.
-  } finally {
-    authSession.clear()
-    window.location.hash = '#auth/login'
+    // The shared logout marker prevents cookie bootstrap after an offline logout.
   }
 }

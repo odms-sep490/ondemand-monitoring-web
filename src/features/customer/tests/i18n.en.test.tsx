@@ -13,9 +13,23 @@ import {
 } from '../lib/i18n/catalogNames'
 import { translatedServiceNames } from '../lib/i18n/serviceNames'
 import { Router } from '../../../app/router'
+import { authSession } from '../../auth/api/authApi'
 import { supportApi, type SupportTicketDto } from '../../support/api/supportApi'
 import { CustomerApp } from '../CustomerApp'
 import { CustomerCreateRequestPage } from '../pages/CustomerCreateRequest'
+
+// The app router pulls in ManagerLayout -> lottie-react -> lottie-web, which
+// needs a real canvas at import time and crashes under jsdom.
+vi.mock('lottie-react', () => ({
+  Lottie: () => null,
+}))
+
+// The support routes sit behind AuthRoute. Like router.test.tsx, isolate
+// navigation from the cookie/bootstrap flow and set the session by hand.
+vi.mock('../../auth/api/authApi', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../auth/api/authApi')>()),
+  startAuthSession: () => () => {},
+}))
 
 /**
  * Regression guard: after switching to English, no Vietnamese diacritic may
@@ -106,6 +120,8 @@ function visibleStrings(): string[] {
     if (text) out.push(text)
   }
   document.querySelectorAll('*').forEach((el) => {
+    // Decorative icons (aria-hidden) carry library names such as aria-label="filter".
+    if (el.closest('[aria-hidden="true"]')) return
     for (const attr of ['aria-label', 'title', 'placeholder', 'alt']) {
       const v = el.getAttribute(attr)
       if (v) out.push(`[${attr}] ${v}`)
@@ -118,6 +134,8 @@ function visibleStrings(): string[] {
 function viLines(): string[] {
   return visibleStrings()
     .map(stripSeed)
+    // The language switch names Vietnamese in Vietnamese on purpose.
+    .filter((text) => text !== '[aria-label] Tiếng Việt')
     .filter((text) => VI_CHARS.test(text))
     .map((text) => text.trim().slice(0, 140))
 }
@@ -164,12 +182,6 @@ const ROUTES: Route[] = [
     en: 'Choose a monitoring service',
   },
   {
-    name: 'Analysis',
-    hash: '#portal/customer/orders/cus-ord-002/analysis',
-    vi: 'Phân tích AI',
-    en: 'AI analysis',
-  },
-  {
     name: 'Live',
     hash: '#portal/customer/orders/cus-ord-001/live',
     vi: 'Giám sát trực tiếp',
@@ -191,7 +203,7 @@ const ROUTES: Route[] = [
   {
     name: 'MissionHistory',
     hash: '#portal/customer/mission-history',
-    vi: 'Lịch sử mission',
+    vi: 'Lịch sử nhiệm vụ',
     en: 'Mission history',
   },
   {
@@ -199,12 +211,6 @@ const ROUTES: Route[] = [
     hash: '#portal/customer/mission-history/msn-006-1',
     vi: 'Thông tin lần bay',
     en: 'Mission information',
-  },
-  {
-    name: 'Notifications',
-    hash: '#portal/customer/notifications',
-    vi: 'Thông báo',
-    en: 'Notifications',
   },
   { name: 'NotFound', hash: '#portal/customer/nope', vi: 'Không tìm thấy', en: 'Not found' },
 ]
@@ -278,24 +284,37 @@ describe('Customer portal i18n (vi -> en)', () => {
     render(<CustomerApp />)
     act(() => setLanguage('en'))
 
-    // Step 1: select a service and provide a title.
+    // Step 1: select a service, provide a title and say how the results are used.
     fireEvent.click(await screen.findByRole('button', { name: /Construction monitoring/ }))
     fireEvent.change(screen.getByLabelText(/Title/), { target: { value: 'Đơn kiểm thử' } })
-    fireEvent.click(screen.getByRole('button', { name: /^Continue:/ }))
+    fireEvent.change(screen.getByLabelText(/How will the results be used/), {
+      target: { value: 'INTERNAL' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: /Continue: Location & monitoring area/ }))
     await settled()
     expect(viLines()).toEqual([])
 
-    // Step 2: the current service checklist is ready before moving to location.
-    const locationNext = await screen.findByRole('button', { name: /Continue: Location & monitoring area/ })
-    await waitFor(() => expect(locationNext).toBeEnabled())
-    fireEvent.click(locationNext)
-
-    // Step 3: location is now the active wizard step.
-    fireEvent.change(await screen.findByLabelText(/Address\/area/), {
+    // Step 2: location. The address is typed and the coordinates are confirmed.
+    fireEvent.change(await screen.findByLabelText(/Address or area/), {
       target: { value: 'KCN Long Hậu' },
     })
+    fireEvent.click(screen.getByText('Advanced coordinates'))
+    fireEvent.click(await screen.findByRole('button', { name: 'Confirm these coordinates' }))
+    await screen.findByText('Location confirmed')
     await settled()
     expect(viLines()).toEqual([])
+    fireEvent.click(screen.getByRole('button', { name: /Continue: Monitoring content/ }))
+
+    // Step 3: the current service checklist must be ready before moving on.
+    const siteNext = await screen.findByRole('button', {
+      name: /Continue: Site details & authorization/,
+    })
+    await waitFor(() => expect(siteNext).toBeEnabled())
+    await settled()
+    expect(viLines()).toEqual([])
+    fireEvent.click(siteNext)
+
+    // Step 4: site details.
     // The right-to-monitor declaration is required before moving on.
     fireEvent.change(screen.getByLabelText(/Contact person/), { target: { value: 'An' } })
     fireEvent.change(screen.getByLabelText(/Phone number/), { target: { value: '0901234567' } })
@@ -312,7 +331,7 @@ describe('Customer portal i18n (vi -> en)', () => {
     await waitFor(() => expect(time.options.length).toBeGreaterThan(1))
     fireEvent.change(time, { target: { value: time.options[1].value } })
     fireEvent.click(screen.getByRole('button', { name: /^Continue:/ }))
-    await screen.findByText('Result formats')
+    await screen.findByText('Review request')
     await settled()
     expect(viLines()).toEqual([])
 
@@ -404,6 +423,7 @@ describe('Support pages i18n (vi -> en)', () => {
       'fieldwise.user',
       JSON.stringify({ id: 'u-1', fullName: 'Customer', email: 'c@example.com', role: 'CUSTOMER' }),
     )
+    authSession.setStatus('authenticated')
     vi.spyOn(supportApi, 'listTickets').mockResolvedValue([TICKET])
     vi.spyOn(supportApi, 'getTicketById').mockResolvedValue(TICKET)
     vi.spyOn(supportApi, 'getFaqArticles').mockResolvedValue([])
@@ -411,7 +431,11 @@ describe('Support pages i18n (vi -> en)', () => {
     vi.spyOn(supportApi, 'createTicket').mockResolvedValue({ ...TICKET, id: 'tk-2', ticketCode: 'TK-0002', status: 'OPEN' })
   })
   afterEach(() => {
+    // Unmount before resetting the hash so the router never re-renders the
+    // landing page (GSAP / SVG path APIs jsdom lacks) while still mounted.
+    cleanup()
     vi.restoreAllMocks()
+    authSession.clear()
     window.location.hash = ''
   })
 
@@ -491,7 +515,9 @@ describe('Support pages i18n (vi -> en)', () => {
     render(<CustomerApp />)
     await screen.findAllByText('Chi tiết đơn hàng', { exact: false })
     act(() => setLanguage('en'))
-    fireEvent.click(await screen.findByRole('button', { name: /Why is my order still pending approval\?/ }))
+    // The help widget lives in the order's support tab.
+    fireEvent.click(await screen.findByRole('tab', { name: 'Support & FAQ' }))
+    fireEvent.click(await screen.findByRole('button', { name: /Why is my monitoring request still pending approval\?/ }))
     fireEvent.click(screen.getByRole('button', { name: /^Create a ticket for/ }))
     await screen.findByRole('dialog')
     await settled()

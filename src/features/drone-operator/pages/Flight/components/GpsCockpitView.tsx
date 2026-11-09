@@ -3,7 +3,6 @@ import { gpsDistanceMeters } from '../gpsRoutePlanner'
 import { getLanguage, useI18n } from '../../../../../shared/i18n'
 import { FlightCockpit } from './FlightCockpit'
 import { DroneCameraView } from './DroneCameraView'
-import { SatelliteFlightMap } from './SatelliteFlightMap'
 import { ManualCockpitPreflight } from './ManualCockpitPreflight'
 import { inFlightControlMessages } from './InFlightControl.messages'
 import type { Mission, Drone } from '../../../types/omss'
@@ -14,14 +13,12 @@ export function GpsCockpitView({
   mission,
   controlStatus,
   isOnline,
-  operationalMessage,
   lastCommand,
   telemetryBattery,
   cameraTelemetry,
   busyCommand,
   normalFlightAllowed,
   preflightReady,
-  terminationAllowed,
   referenceBusy,
   handleCommand,
   handleReviewMedia,
@@ -30,6 +27,11 @@ export function GpsCockpitView({
   startFlightBusy,
   handleFinishFlight,
   finishFlightBusy,
+  handleRequestMissionFailure,
+  failureRequestBusy,
+  missionFailureRequested,
+  canFinishFlight,
+  finishFlightBlockedReason,
   handleReferenceCapture,
   drone,
   handlePreflightReady,
@@ -37,14 +39,12 @@ export function GpsCockpitView({
   mission: Mission
   controlStatus: ControlStatus | null
   isOnline: boolean
-  operationalMessage: string | undefined
   lastCommand: string
   telemetryBattery: number | null
   cameraTelemetry: DroneCameraTelemetry | null
   busyCommand: FlightCommand | null
   normalFlightAllowed: boolean
   preflightReady: boolean
-  terminationAllowed: boolean
   referenceBusy: boolean
   handleCommand: (command: FlightCommand) => void
   handleReviewMedia: () => void
@@ -53,6 +53,11 @@ export function GpsCockpitView({
   startFlightBusy: boolean
   handleFinishFlight: () => Promise<void>
   finishFlightBusy: boolean
+  handleRequestMissionFailure: () => Promise<void>
+  failureRequestBusy: boolean
+  missionFailureRequested: boolean
+  canFinishFlight: boolean
+  finishFlightBlockedReason?: string
   handleReferenceCapture: () => Promise<void>
   drone: Drone
   handlePreflightReady: () => Promise<void>
@@ -89,7 +94,7 @@ export function GpsCockpitView({
       waitingGpsLabel={
         language === 'en' ? 'Waiting for PX4 GPS' : 'Đang chờ GPS từ PX4'
       }
-      statusMessage={operationalMessage ?? lastCommand}
+      statusMessage={lastCommand}
       telemetry={{
         latitude: droneGps?.latitude ?? null,
         longitude: droneGps?.longitude ?? null,
@@ -106,16 +111,8 @@ export function GpsCockpitView({
       camera={
         <DroneCameraView telemetry={cameraTelemetry} language={language} />
       }
-      map={
-        <SatelliteFlightMap
-          missionId={mission.backendId ?? mission.id}
-          target={target}
-          drone={droneGps}
-        />
-      }
       busy={busyCommand !== null}
       canFly={normalFlightAllowed && preflightReady}
-      canTerminate={terminationAllowed}
       canFlyToTarget={gpsTargetReady}
       referenceBusy={referenceBusy}
       onCommand={handleCommand}
@@ -125,6 +122,11 @@ export function GpsCockpitView({
       startingFlight={startFlightBusy}
       onFinishFlight={handleFinishFlight}
       finishingFlight={finishFlightBusy}
+      canFinishFlight={canFinishFlight}
+      finishFlightBlockedReason={finishFlightBlockedReason}
+      onFailMission={handleRequestMissionFailure}
+      failMissionBusy={failureRequestBusy}
+      missionFailureRequested={missionFailureRequested}
       onReferenceCapture={() => void handleReferenceCapture()}
       overlay={
         !preflightReady && normalFlightAllowed ? (

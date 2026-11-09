@@ -1,4 +1,5 @@
-import { Card, FormField } from '../../../../../shared/components/ui'
+import { FormOutlined } from '@ant-design/icons'
+import { Card, FormField } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import type { FormErrors, FormState, UpdateField } from '../../../lib/createOrder/types'
 import { requestBasicsMessages } from './RequestBasicsCard.messages'
@@ -9,7 +10,7 @@ type Props = { form: FormState; errors: FormErrors; update: UpdateField }
 export function RequestBasicsCard({ form, errors, update }: Props) {
   const { t } = useI18n(requestBasicsMessages)
   return (
-    <Card title={t.cardTitle}>
+    <Card icon={<FormOutlined />} title={t.cardTitle}>
       <FormField id="co-title" label={t.titleLabel} required error={errors.title}>
         <input
           id="co-title"

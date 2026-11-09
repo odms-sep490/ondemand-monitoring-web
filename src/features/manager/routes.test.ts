@@ -22,11 +22,24 @@ describe('parseManagerRoute', () => {
     })
   })
 
+  it('parses the completed order results route', () => {
+    expect(parseManagerRoute('#portal/manager/orders/ORD-1/results')).toEqual({
+      screen: 'orderResults',
+      orderId: 'ORD-1',
+    })
+  })
+
   it('parses the create-mission route (MNG-04)', () => {
     expect(parseManagerRoute('#portal/manager/orders/ORD-1/mission')).toEqual({
       screen: 'missionCreate',
       orderId: 'ORD-1',
     })
+  })
+
+  it('opens the shared mission creation page with a rework case', () => {
+    const route: ManagerRoute = { screen: 'missionCreate', orderId: 'ORD-1', reworkCaseId: 'CASE-1' }
+    expect(managerHref(route)).toBe('#portal/manager/orders/ORD-1/rework/CASE-1')
+    expect(parseManagerRoute(managerHref(route))).toEqual(route)
   })
 
   it('parses the dispatch route (MNG-05)', () => {
@@ -45,17 +58,6 @@ describe('parseManagerRoute', () => {
   it('parses the schedule route (MNG-06)', () => {
     expect(parseManagerRoute('#portal/manager/schedule')).toEqual({
       screen: 'schedule',
-    })
-  })
-
-  it('parses the live-monitoring routes (MNG-07), with and without missionId', () => {
-    expect(parseManagerRoute('#portal/manager/live')).toEqual({
-      screen: 'live',
-      missionId: undefined,
-    })
-    expect(parseManagerRoute('#portal/manager/live/MSN-1')).toEqual({
-      screen: 'live',
-      missionId: 'MSN-1',
     })
   })
 
@@ -79,6 +81,15 @@ describe('parseManagerRoute', () => {
       screen: 'drones',
       droneId: 'DRN-1',
     })
+    expect(
+      parseManagerRoute(
+        '#portal/manager/drones?assignmentMissionId=mission-1',
+      ),
+    ).toEqual({
+      screen: 'drones',
+      droneId: undefined,
+      assignmentMissionId: 'mission-1',
+    })
   })
 
   it('parses the maintenance route (MNG-10)', () => {
@@ -87,15 +98,10 @@ describe('parseManagerRoute', () => {
     })
   })
 
-  it('parses the media route (MNG-11)', () => {
-    expect(parseManagerRoute('#portal/manager/media')).toEqual({
-      screen: 'media',
-    })
-  })
-
-  it('parses the reports route (MNG-12)', () => {
-    expect(parseManagerRoute('#portal/manager/reports')).toEqual({
-      screen: 'reports',
+  it('parses a manager support ticket deep link', () => {
+    expect(parseManagerRoute('#portal/manager/support/tickets/TKT-1')).toEqual({
+      screen: 'support',
+      ticketId: 'TKT-1',
     })
   })
 
@@ -119,9 +125,6 @@ describe('parseManagerRoute', () => {
     expect(parseManagerRoute('#portal/manager/missions/MSN-1/extra')).toEqual({
       screen: 'notFound',
     })
-    expect(parseManagerRoute('#portal/manager/live/MSN-1/extra')).toEqual({
-      screen: 'notFound',
-    })
     expect(parseManagerRoute('#portal/manager/drones/DRN-1/extra')).toEqual({
       screen: 'notFound',
     })
@@ -129,12 +132,6 @@ describe('parseManagerRoute', () => {
       screen: 'notFound',
     })
     expect(parseManagerRoute('#portal/manager/maintenance/extra')).toEqual({
-      screen: 'notFound',
-    })
-    expect(parseManagerRoute('#portal/manager/media/extra')).toEqual({
-      screen: 'notFound',
-    })
-    expect(parseManagerRoute('#portal/manager/reports/extra')).toEqual({
       screen: 'notFound',
     })
   })
@@ -149,6 +146,10 @@ describe('managerHref', () => {
       '#portal/manager/orders/ORD-1',
     ],
     [
+      { screen: 'orderResults', orderId: 'ORD-1' },
+      '#portal/manager/orders/ORD-1/results',
+    ],
+    [
       { screen: 'missionCreate', orderId: 'ORD-1' },
       '#portal/manager/orders/ORD-1/mission',
     ],
@@ -157,8 +158,6 @@ describe('managerHref', () => {
       '#portal/manager/missions/MSN-1/dispatch',
     ],
     [{ screen: 'schedule' }, '#portal/manager/schedule'],
-    [{ screen: 'live' }, '#portal/manager/live'],
-    [{ screen: 'live', missionId: 'MSN-1' }, '#portal/manager/live/MSN-1'],
     [{ screen: 'missions' }, '#portal/manager/missions'],
     [
       { screen: 'missions', missionId: 'MSN-1' },
@@ -166,9 +165,16 @@ describe('managerHref', () => {
     ],
     [{ screen: 'drones' }, '#portal/manager/drones'],
     [{ screen: 'drones', droneId: 'DRN-1' }, '#portal/manager/drones/DRN-1'],
+    [
+      { screen: 'drones', assignmentMissionId: 'mission-1' },
+      '#portal/manager/drones?assignmentMissionId=mission-1',
+    ],
     [{ screen: 'maintenance' }, '#portal/manager/maintenance'],
-    [{ screen: 'media' }, '#portal/manager/media'],
-    [{ screen: 'reports' }, '#portal/manager/reports'],
+    [{ screen: 'support' }, '#portal/manager/support'],
+    [
+      { screen: 'support', ticketId: 'TKT-1' },
+      '#portal/manager/support/tickets/TKT-1',
+    ],
     [{ screen: 'notFound' }, '#portal/manager'],
   ]
 

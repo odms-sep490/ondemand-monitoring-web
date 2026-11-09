@@ -1,48 +1,25 @@
+import { CardComponent, TableComponent } from '../../../../../shared/components/antd'
+import { useI18n } from '../../../../../shared/i18n'
 import type { MissionCalendarItem } from '../../../types/missions'
-import type { Dispatch, SetStateAction } from 'react'
-import type { DeliveryStatus } from '../missionsTypes'
-import { MissionRow } from './MissionRow'
+import { missionsPageMessages } from '../MissionsPage.messages'
+import { missionsColumns } from './missionsColumns'
 
 export function MissionsTable({
-  columns,
   missions,
-  selectedMission,
-  setSelectedMission,
-  deliveryStatuses,
-  orderDeliveryStatuses,
+  total,
 }: {
-  columns: string[]
   missions: MissionCalendarItem[]
-  selectedMission: string | null
-  setSelectedMission: Dispatch<SetStateAction<string | null>>
-  deliveryStatuses: Record<string, DeliveryStatus>
-  orderDeliveryStatuses: Record<string, DeliveryStatus>
+  total: number
 }) {
+  const { t, locale } = useI18n(missionsPageMessages)
   return (
-    <section className="odm-or-card odm-or-table-card">
-      <div className="odm-or-table-scroll">
-        <table className="odm-or-table">
-          <thead>
-            <tr>
-              {columns.map((label, index) => (
-                <th key={index}>{label}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {missions.map((m) => (
-              <MissionRow
-                key={m.id}
-                selectedMission={selectedMission}
-                m={m}
-                setSelectedMission={setSelectedMission}
-                deliveryStatuses={deliveryStatuses}
-                orderDeliveryStatuses={orderDeliveryStatuses}
-              />
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </section>
+    <CardComponent styles={{ body: { padding: 0 } }}>
+      <TableComponent<MissionCalendarItem>
+        rowKey="id"
+        columns={missionsColumns({ t, locale })}
+        dataSource={missions}
+      />
+      <div className="mgr-table-foot">{t.resultCount(missions.length, total)}</div>
+    </CardComponent>
   )
 }

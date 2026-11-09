@@ -1,7 +1,13 @@
 import type {
+  MissionResourcePrepareStatus,
   MissionStaffAssignmentResponse,
   PreflightCheckItem,
 } from '../../types/missions'
+import type { StatusTone } from '../../../../shared/types/domain'
+import { getLanguage } from '../../../../shared/i18n'
+import { missionDetailHelpersMessages } from './missionDetailHelpers.messages'
+
+const msgs = () => missionDetailHelpersMessages[getLanguage()]
 
 export function formatDateTime(
   value: string | null | undefined,
@@ -24,15 +30,17 @@ export function formatDateTime(
 
 export function formatNumber(value: number | null | undefined, suffix = '') {
   if (value === null || value === undefined || Number.isNaN(value)) return '—'
-  return `${new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 1 }).format(value)}${suffix}`
+  return `${new Intl.NumberFormat(getLanguage() === 'en' ? 'en-US' : 'vi-VN', { maximumFractionDigits: 1 }).format(value)}${suffix}`
 }
 
 export function formatDuration(seconds: number | null | undefined) {
   if (seconds === null || seconds === undefined) return '—'
-  if (seconds < 60) return `${Math.round(seconds)} giây`
+  if (seconds < 60) return msgs().seconds(Math.round(seconds))
   const minutes = Math.floor(seconds / 60)
   const rest = Math.round(seconds % 60)
-  return rest > 0 ? `${minutes} phút ${rest} giây` : `${minutes} phút`
+  return rest > 0
+    ? msgs().minutesSeconds(minutes, rest)
+    : msgs().minutes(minutes)
 }
 
 export function checkTone(status: string | null | undefined) {
@@ -44,19 +52,7 @@ export function checkTone(status: string | null | undefined) {
 }
 
 export function checkLabel(status: string | null | undefined) {
-  const labels: Record<string, string> = {
-    PASSED: 'Đạt',
-    FAILED: 'Không đạt',
-    PENDING: 'Chờ kiểm tra',
-    CHECKING: 'Đang kiểm tra',
-    CANCELLED: 'Đã hủy',
-    COMPLETED: 'Hoàn thành',
-    IN_PROGRESS: 'Đang xử lý',
-    DRAFT: 'Nháp',
-    PENDING_MANAGER_APPROVAL: 'Chờ duyệt',
-    APPROVED: 'Đã duyệt',
-    REJECTED: 'Từ chối',
-  }
+  const labels = msgs().checkLabels
   return status ? (labels[status] ?? status) : '—'
 }
 
@@ -64,19 +60,36 @@ export const STAFF_ROLE_LABELS: Record<
   MissionStaffAssignmentResponse['assignedRole'],
   string
 > = {
-  PILOT: 'Phi công',
-  OPERATOR: 'Vận hành',
-  MAINTAINER: 'Bảo trì',
-  INSPECTOR: 'Nghiệm thu',
+  get PILOT() {
+    return msgs().staffRoles.PILOT
+  },
+  get OPERATOR() {
+    return msgs().staffRoles.OPERATOR
+  },
+  get MAINTAINER() {
+    return msgs().staffRoles.MAINTAINER
+  },
+  get INSPECTOR() {
+    return msgs().staffRoles.INSPECTOR
+  },
 }
 
 export const STAFF_RESPONSE_LABELS: Record<
   MissionStaffAssignmentResponse['responseStatus'],
   string
 > = {
-  PENDING: 'Chờ phản hồi',
-  ACCEPTED: 'Đã chấp nhận',
-  REJECTED: 'Đã từ chối',
+  get PLANNING() {
+    return msgs().staffResponses.PLANNING
+  },
+  get PENDING() {
+    return msgs().staffResponses.PENDING
+  },
+  get ACCEPTED() {
+    return msgs().staffResponses.ACCEPTED
+  },
+  get REJECTED() {
+    return msgs().staffResponses.REJECTED
+  },
 }
 
 export function assignmentTone(
@@ -85,6 +98,76 @@ export function assignmentTone(
   if (status === 'ACCEPTED') return 'green'
   if (status === 'REJECTED') return 'red'
   return 'amber'
+}
+
+export function missionResourcePrepareLabel(
+  status: MissionResourcePrepareStatus | null | undefined,
+): string {
+  const labels: Record<MissionResourcePrepareStatus, string> = {
+    PLANNING: 'Đang chuẩn bị trước bay',
+    PENDING: 'Đang chờ phản hồi và kiểm tra',
+    READY: 'Sẵn sàng chờ nghiệm thu',
+    CANCELLED: 'Đã hủy',
+  }
+  return status ? labels[status] : 'Chưa xác định'
+}
+
+export type StaffAssignmentGroup = {
+  staffId: string
+  staffName: string | null
+  staffEmail: string | null
+  assignments: MissionStaffAssignmentResponse[]
+  responseStatus: MissionStaffAssignmentResponse['responseStatus']
+}
+
+/** Groups role-level persistence rows into one presentation item per staff. */
+export function groupStaffAssignments(
+  assignments: MissionStaffAssignmentResponse[] = [],
+): StaffAssignmentGroup[] {
+  const groups = new Map<string, MissionStaffAssignmentResponse[]>()
+  for (const assignment of assignments) {
+    const key = assignment.staffId || assignment.staffEmail || assignment.id
+    const existing = groups.get(key)
+    if (existing) existing.push(assignment)
+    else groups.set(key, [assignment])
+  }
+
+  return [...groups.entries()].map(([staffId, rows]) => {
+    const statuses = new Set(rows.map((row) => row.responseStatus))
+    const responseStatus = statuses.has('REJECTED')
+      ? 'REJECTED'
+      : statuses.has('PENDING')
+        ? 'PENDING'
+        : statuses.has('PLANNING')
+          ? 'PLANNING'
+          : 'ACCEPTED'
+    return {
+      staffId,
+      staffName: rows.find((row) => row.staffName)?.staffName ?? null,
+      staffEmail: rows.find((row) => row.staffEmail)?.staffEmail ?? null,
+      assignments: rows,
+      responseStatus,
+    }
+  })
+}
+
+export function staffAssignmentStatusTone(
+  status: MissionStaffAssignmentResponse['responseStatus'],
+): StatusTone {
+  if (status === 'ACCEPTED') return 'green'
+  if (status === 'REJECTED') return 'red'
+  if (status === 'PENDING') return 'yellow'
+  return 'gray'
+}
+
+export function deviceAssignmentStatusTone(
+  status: string | null | undefined,
+): StatusTone {
+  if (status === 'PASSED') return 'green'
+  if (status === 'FAILED') return 'red'
+  if (status === 'CHECKING') return 'blue'
+  if (status === 'PENDING') return 'yellow'
+  return 'gray'
 }
 
 export function initialsOf(name: string): string {

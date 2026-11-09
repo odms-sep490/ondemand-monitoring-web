@@ -1,17 +1,15 @@
 import { useCallback } from 'react'
 import type { FlightCommand } from './inFlightTypes'
-import {
-  maySendFlightCommand,
-  missionHasSafeStop,
-  missionMayTerminate,
-} from '../../../mission/lib/missionOperationalState'
 import { missionApi } from '../../../mission/api/missionApi'
 import { getLanguage, useI18n } from '../../../../shared/i18n'
 import { isInsideHcmcServiceArea } from '../../../../shared/lib/serviceArea'
 import { buildExecutableFlightRoute } from './gpsRoutePlanner'
-import { toControllerRouteWaypoints } from './planHelpers'
+import {
+  buildConstructionChecklistWaypoints,
+  isConstructionChecklistMission,
+  toControllerRouteWaypoints,
+} from './planHelpers'
 import { flightControlApi } from '../../api/flightControlApi'
-import { captureSatelliteSnapshot } from './satelliteSnapshot'
 import {
   controlBaseUrl,
   GPS_TARGET_CRUISE_SPEED_MPS,
@@ -24,9 +22,7 @@ import type { RestrictedGpsZone } from './gpsRoutePlanner'
 
 export function useFlightCommand({
   normalFlightAllowed,
-  terminationAllowed,
   setLastCommand,
-  operationalMessage,
   preflightReady,
   mission,
   controlStatus,
@@ -34,14 +30,11 @@ export function useFlightCommand({
   setBusyCommand,
   drone,
   setIsOnline,
-  onStartFlight,
   onRTB,
   onEmergency,
 }: {
   normalFlightAllowed: boolean
-  terminationAllowed: boolean
   setLastCommand: Dispatch<SetStateAction<string>>
-  operationalMessage: string | undefined
   preflightReady: boolean
   mission: Mission
   controlStatus: ControlStatus | null
@@ -49,43 +42,31 @@ export function useFlightCommand({
   setBusyCommand: Dispatch<SetStateAction<FlightCommand | null>>
   drone: Drone
   setIsOnline: Dispatch<SetStateAction<boolean>>
-  onStartFlight: (() => Promise<void>) | undefined
   onRTB: () => void
   onEmergency: () => void
 }) {
   const { t } = useI18n(inFlightControlMessages)
   const sendCommand = useCallback(
-    async (command: FlightCommand) => {
-      if (
-        !maySendFlightCommand(command, normalFlightAllowed, terminationAllowed)
-      ) {
-        setLastCommand(
-          operationalMessage ??
-            'Chưa có quyền vận hành Mission. Làm mới trạng thái.',
-        )
+    async (
+      command: FlightCommand,
+      options?: { emergencyReturn?: boolean },
+    ) => {
+      if (!normalFlightAllowed) {
+        setLastCommand('Chưa có quyền vận hành Mission. Làm mới trạng thái.')
         return
       }
-      if (!preflightReady && !terminationAllowed) {
+      const isAuthorizedEmergencyReturn =
+        command === 'return_to_base' && options?.emergencyReturn === true
+      if (!preflightReady && !isAuthorizedEmergencyReturn) {
         setLastCommand(t.status.preflightRequired)
         return
       }
-      // Recheck exact Mission before dispatch; a cockpit may stay open across a stop request.
+      // Recheck the Mission's current flight-control permission before dispatch.
       try {
         const id = mission.backendId ?? mission.id
-        const [current, access] = await Promise.all([
-          missionApi.getMissionById(id),
-          missionApi.getPermissions(id),
-        ])
-        if (
-          !maySendFlightCommand(
-            command,
-            !missionHasSafeStop(current) && access.canControlFlight,
-            missionMayTerminate(current, access.canTerminateFlight),
-          )
-        ) {
-          setLastCommand(
-            'Mission đang dừng hoặc chưa có quyền thực hiện lệnh này.',
-          )
+        const access = await missionApi.getPermissions(id)
+        if (!access.canControlFlight) {
+          setLastCommand('Chưa có quyền vận hành Mission. Làm mới trạng thái.')
           return
         }
       } catch {
@@ -131,7 +112,23 @@ export function useFlightCommand({
           return
         }
       }
-      const routePoints = (mission.routePoints ?? [])
+      const constructionChecklist = isConstructionChecklistMission(
+        mission.serviceLabel,
+      )
+      const constructionAltitudeM = Math.max(
+        10,
+        Math.min(
+          120,
+          Number.isFinite(mission.maxAltitudeM) && mission.maxAltitudeM > 0
+            ? mission.maxAltitudeM
+            : 32,
+        ),
+      )
+      const routePoints = (
+        command === 'auto_plan_start' && constructionChecklist
+          ? buildConstructionChecklistWaypoints(constructionAltitudeM)
+          : (mission.routePoints ?? [])
+      )
         .slice()
         .sort((a, b) => a.sequence - b.sequence)
       if (command === 'auto_plan_start' && routePoints.length === 0) {
@@ -146,6 +143,7 @@ export function useFlightCommand({
           // mission before the drone is airborne and "Fly to point" never needs a mid-air switch.
           // Photo / video also bind on demand instead of failing when the status poll is stale.
           (command === 'gps_target_start' ||
+            command === 'auto_plan_start' ||
             command === 'takeoff' ||
             command === 'photo' ||
             command === 'video_toggle') &&
@@ -158,47 +156,6 @@ export function useFlightCommand({
               : 'Đang kết nối bộ điều khiển drone...',
           )
           await flightControlApi.bindSession(missionKey, drone.id)
-        }
-        if (command === 'photo') {
-          // The cockpit camera is satellite imagery, so capture exactly that view in the browser
-          // and hand it to the controller's local media library for review/upload.
-          const gps = controlStatus?.positionGps
-          if (gps) {
-            const altitudeForView =
-              gps.relativeAltitudeM ?? controlStatus?.altitudeM ?? null
-            const stamp = new Date()
-            const blob = await captureSatelliteSnapshot({
-              latitude: gps.latitude,
-              longitude: gps.longitude,
-              heading: controlStatus?.yawDeg ?? null,
-              altitudeM: altitudeForView,
-              caption: `${gps.latitude.toFixed(5)}, ${gps.longitude.toFixed(5)}  ALT ${altitudeForView === null ? '--' : Math.round(altitudeForView)}m  ${stamp.toLocaleTimeString()}`,
-            })
-            const upload = await fetch(
-              `${controlBaseUrl}/api/media/local/capture`,
-              {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'image/jpeg',
-                  'X-Media-Source-Type': 'SATELLITE_SNAPSHOT',
-                },
-                body: blob,
-              },
-            )
-            if (!upload.ok) {
-              const payload = (await upload.json().catch(() => null)) as {
-                error?: string
-              } | null
-              throw new Error(payload?.error ?? `HTTP ${upload.status}`)
-            }
-            setLastCommand(
-              getLanguage() === 'en'
-                ? 'Photo saved — open Review to approve it'
-                : 'Đã chụp ảnh — bấm Xem lại để duyệt và upload',
-            )
-            setIsOnline(true)
-            return
-          }
         }
         const currentAltitudeM =
           controlStatus?.positionGps?.relativeAltitudeM ??
@@ -216,13 +173,19 @@ export function useFlightCommand({
             ...(command === 'auto_plan_start'
               ? {
                   missionId: missionKey,
+                  ignoreObstacleSafety: constructionChecklist,
                   waypoints: routePoints.map((point) => ({
                     sequence: point.sequence,
                     simX: point.simX,
                     simY: point.simY,
                     altitudeM: point.altitudeM,
                     speedMps: point.speedMps,
+                    minSpeedMps: point.minSpeedMps,
+                    reachedRadiusM: point.reachedRadiusM,
+                    slowdownRadiusM: point.slowdownRadiusM,
                     reason: point.reason,
+                    yawDeg: point.yawDeg,
+                    mediaActions: point.mediaActions,
                   })),
                 }
               : {}),
@@ -252,7 +215,11 @@ export function useFlightCommand({
         }
         setLastCommand(
           command === 'auto_plan_start'
-            ? t.status.autoPlanStarted(routePoints.length)
+            ? constructionChecklist
+              ? getLanguage() === 'en'
+                ? `Construction checklist automation started at ${constructionAltitudeM.toFixed(0)} m`
+                : `Đã chạy tự động 2 checklist ở độ cao ${constructionAltitudeM.toFixed(0)} m`
+              : t.status.autoPlanStarted(routePoints.length)
             : command === 'gps_target_start'
               ? getLanguage() === 'en'
                 ? 'GPS target flight started'
@@ -262,17 +229,6 @@ export function useFlightCommand({
                 : t.status.commandSent(command.replaceAll('_', ' ')),
         )
         setIsOnline(true)
-
-        // Keep the business mission lifecycle in sync with the real flight.
-        // Both a direct takeoff and "Fly to point" begin an actual flight, so
-        // neither command may leave Inspector screens stuck at READY_TO_FLY.
-        if (
-          (command === 'takeoff' || command === 'gps_target_start') &&
-          onStartFlight
-        ) {
-          const latestMission = await missionApi.getMissionById(missionKey)
-          if (latestMission.status === 'READY_TO_FLY') await onStartFlight()
-        }
 
         if (command === 'return_to_base') onRTB()
         if (command === 'emergency_stop') onEmergency()
@@ -299,13 +255,12 @@ export function useFlightCommand({
       mission.id,
       mission.lat,
       mission.lng,
+      mission.maxAltitudeM,
       mission.routePoints,
+      mission.serviceLabel,
       onEmergency,
       onRTB,
-      onStartFlight,
       normalFlightAllowed,
-      terminationAllowed,
-      operationalMessage,
       preflightReady,
       restrictedGpsZones,
       t,

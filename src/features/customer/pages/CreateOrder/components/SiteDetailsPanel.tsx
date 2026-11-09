@@ -1,6 +1,7 @@
+import { ControlOutlined } from '@ant-design/icons'
 import { useState, type ReactNode } from 'react'
 
-import { Card, FormField } from '../../../../../shared/components/ui'
+import { Card, FormField } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import type { ParsedArea } from '../../../lib/createOrder/areaFile'
 import type {
@@ -72,7 +73,11 @@ export function SiteDetailsPanel({ form, errors, update }: Props) {
   }
 
   return (
-    <Card title={t.cardTitle}>
+    <Card
+      icon={<ControlOutlined />}
+      title={t.cardTitle}
+      className="co-site-details-card"
+    >
       <div className="co-two">
         <FormField
           id="co-altitude"
@@ -170,7 +175,7 @@ export function SiteDetailsPanel({ form, errors, update }: Props) {
             <textarea
               id="co-access-notes"
               className="co-input"
-              rows={3}
+              rows={2}
               maxLength={ACCESS_NOTES_MAX}
               value={form.accessNotes}
               placeholder={t.accessNotesPlaceholder}

@@ -4,7 +4,7 @@ import { navigateOperator } from './navigateOperator'
 import { operatorHref } from '../../routes'
 import { getLanguage, useI18n } from '../../../../shared/i18n'
 import { missionApi } from '../../../mission/api/missionApi'
-import { missionHasSafeStop } from '../../../mission/lib/missionOperationalState'
+import { checklistExecutionApi } from '../../../mission/api/checklistExecutionApi'
 import { flightControlApi } from '../../api/flightControlApi'
 import type { FlightCommand, WeatherPreset } from './inFlightTypes'
 import { controlBaseUrl } from './inFlightConstants'
@@ -62,7 +62,7 @@ export function useMissionActions({
       onReviewMedia()
       return
     }
-    navigateOperator(operatorHref({ screen: 'upload', missionId }))
+    navigateOperator(operatorHref({ screen: 'checklist', missionId }))
   }, [mission.backendId, mission.id, onReviewMedia])
   const handleStartFlight = useCallback(async () => {
     if (!onStartFlight || startFlightBusy) return
@@ -93,34 +93,27 @@ export function useMissionActions({
     setFinishFlightBusy(true)
     setLastCommand(t.status.finishingFlight)
     try {
-      const current = await missionApi.getMissionById(missionId)
-      const stopping = missionHasSafeStop(current)
-      if (stopping) {
-        const latest = await flightControlApi.status()
-        if (
-          latest.missionId !== missionId ||
-          latest.deviceId !== drone.id ||
-          latest.inAir !== false
+      const checklist =
+        await checklistExecutionApi.getMissionChecklistExecutions(missionId)
+      if (checklist.executions.length === 0) {
+        throw new Error(
+          getLanguage() === 'en'
+            ? 'A checklist must be assigned before the flight can be completed.'
+            : 'Phải gắn checklist trước khi có thể hoàn thành chuyến bay.',
         )
-          throw new Error(
-            'Cần hạ cánh và kiểm tra đúng phiên Mission trước khi kết thúc vận hành.',
-          )
-        if (current.status === 'IN_FLIGHT' || current.status === 'IN_PROGRESS')
-          await missionApi.markReturning(missionId)
-        await flightControlApi.releaseSession(missionId)
-      } else {
-        await missionApi.markReturning(missionId).catch(() => undefined)
       }
+      if (!checklist.readyForSubmission) {
+        throw new Error(
+          getLanguage() === 'en'
+            ? 'Complete every checklist item and upload all required evidence before finishing the flight.'
+            : 'Hãy hoàn thành từng mục checklist và tải đủ ảnh evidence bắt buộc trước khi hoàn thành chuyến bay.',
+        )
+      }
+      await missionApi.markReturning(missionId)
       await missionApi.startPostflight(missionId)
       markActiveMissionFlowStep(missionId, 5)
       setLastCommand(t.status.flightFinished)
-      navigateOperator(
-        operatorHref(
-          stopping
-            ? { screen: 'missionDetail', missionId }
-            : { screen: 'missions' },
-        ),
-      )
+      navigateOperator(operatorHref({ screen: 'postflight', missionId }))
     } catch (error) {
       setLastCommand(
         error instanceof Error ? error.message : t.status.controllerOffline,
@@ -132,8 +125,6 @@ export function useMissionActions({
     finishFlightBusy,
     mission.backendId,
     mission.id,
-    drone.id,
-    onReviewMedia,
     t,
   ])
   const handleReferenceCapture = useCallback(async () => {

@@ -5,6 +5,7 @@
 // `createCollection(missionsSeed.missions)` — two separate collections
 // seeded from the same JSON file would silently diverge.
 import type { MissionStatus } from '../../shared/types/domain'
+import type { MissionRescheduleReason } from '../../features/manager/types/missions'
 import { createCollection } from '../db'
 import missionsSeed from '../data/missions.json'
 import calendarSeed from '../data/missions-calendar.json'
@@ -46,6 +47,10 @@ export type StoredMission = {
   operatorAssignmentId: string | null
   scheduledStartAt: string | null
   scheduledEndAt: string | null
+  lastRescheduleReason?: MissionRescheduleReason | null
+  lastRescheduleNote?: string | null
+  lastRescheduledAt?: string | null
+  scheduleRevision?: number
   addressText: string | null
   centerLat: number | null
   centerLon: number | null

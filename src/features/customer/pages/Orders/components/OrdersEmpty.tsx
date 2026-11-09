@@ -1,5 +1,7 @@
-import { Icon } from '../../../../../shared/components/Icon'
-import { EmptyState } from '../../../../../shared/components/ui'
+import { PlusOutlined } from '@ant-design/icons'
+import { Button } from 'antd'
+
+import { EmptyState } from '../../../components/common/StateView'
 import { useI18n } from '../../../../../shared/i18n'
 import { customerHref } from '../../../routes'
 import { ordersEmptyMessages } from './OrdersEmpty.messages'
@@ -14,14 +16,11 @@ export function OrdersEmpty({ filtered, onClear }: Props) {
       description={filtered ? t.emptyFiltered : t.emptyAll}
       action={
         filtered ? (
-          <button type="button" className="odm-btn ord-btn is-outline" onClick={onClear}>
-            {t.clearFilters}
-          </button>
+          <Button onClick={onClear}>{t.clearFilters}</Button>
         ) : (
-          <a className="odm-btn odm-btn-p ord-btn" href={customerHref({ screen: 'createOrder' })}>
-            <Icon name="plus" width={16} height={16} aria-hidden="true" />
+          <Button type="primary" icon={<PlusOutlined aria-hidden="true" />} href={customerHref({ screen: 'createOrder' })}>
             {t.createFirst}
-          </a>
+          </Button>
         )
       }
     />

@@ -64,6 +64,24 @@ describe('maintenanceApi.listTickets', () => {
   })
 })
 
+describe('maintenanceApi.listAssignableStaff', () => {
+  it('reads GET /api/operators/available', async () => {
+    let path = ''
+    setHttpTransport(async (input) => {
+      path = new URL(input).pathname
+      return Response.json({
+        success: true,
+        data: [{ id: 's1', fullName: 'Staff One', email: 'one@odms.vn' }],
+      })
+    })
+    const staff = await maintenanceApi.listAssignableStaff()
+    expect(path).toBe('/api/operators/available')
+    expect(staff).toEqual([
+      { id: 's1', fullName: 'Staff One', email: 'one@odms.vn' },
+    ])
+  })
+})
+
 describe('maintenanceApi maintenance workflow contract', () => {
   it('assigns through the backend route and sends staffId', async () => {
     let request: { url: string; method?: string; body?: string } | undefined

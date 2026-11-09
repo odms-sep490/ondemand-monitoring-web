@@ -90,13 +90,6 @@ export function isUsablePostflightTelemetry(
   )
 }
 
-export function removeStorageByPrefix(storage: Storage, prefix: string) {
-  for (let index = storage.length - 1; index >= 0; index -= 1) {
-    const key = storage.key(index)
-    if (key?.startsWith(prefix)) storage.removeItem(key)
-  }
-}
-
 export function clearCompletedMissionState(
   missionId: string,
   missionLabel: string,
@@ -107,10 +100,6 @@ export function clearCompletedMissionState(
     `fieldwise.operator.handoverAcknowledged.${missionId}`,
   )
   window.sessionStorage.removeItem('odm.operator.autoStartSimulation')
-  removeStorageByPrefix(
-    window.sessionStorage,
-    `omss.droneOperator.backendPreflightToken.${missionId}.`,
-  )
   window.localStorage.removeItem(
     `omss.droneOperator.preflightReady.${missionLabel}.${deviceId}`,
   )

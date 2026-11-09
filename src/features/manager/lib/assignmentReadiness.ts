@@ -1,4 +1,6 @@
+import { getLanguage } from '../../../shared/i18n'
 import type { MissionStaffRole } from '../../mission/types/mission'
+import { managerLibMessages } from './lib.messages'
 
 export const requiredAssignmentRoles: MissionStaffRole[] = [
   'PILOT',
@@ -29,29 +31,27 @@ export function assignmentReadiness(mission: AssignmentSnapshot) {
       ),
   )
   const device = Boolean(mission.deviceId || mission.droneId)
-  const setupState = [
-    'RESOURCE_ASSIGNING',
-    'WAITING_CREW_CONFIRMATION',
-  ].includes(mission.status)
+  const setupState = ['PLANNING', 'READY'].includes(mission.status)
   const submitted =
     mission.status !== 'RESOURCE_ASSIGNING' && mission.status !== 'CREATED'
   const complete = !missingRoles.length && device && submitted
   const step = missingRoles.length ? 'staff' : !device ? 'device' : 'confirm'
+  const t = managerLibMessages[getLanguage()].readiness
   const label = !setupState
     ? null
     : missingRoles.length
-      ? 'Thiếu nhân sự'
+      ? t.missingStaff
       : !device
-        ? 'Chưa gán thiết bị'
+        ? t.noDevice
         : !submitted
-          ? 'Chờ xác nhận phân công'
-          : 'Đã phân công nguồn lực'
+          ? t.awaitingConfirm
+          : t.assigned
   return {
     missingRoles,
     device,
     complete,
     step,
     label,
-    needsSetup: setupState && !complete,
+    needsSetup: mission.status === 'PLANNING' && !complete,
   } as const
 }

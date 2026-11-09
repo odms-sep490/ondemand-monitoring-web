@@ -28,8 +28,11 @@ export type PersistedPreflightStatus =
 
 export type PersistedPreflightCheck = {
   id: string
+  deviceId?: string | null
   status: PersistedPreflightStatus
   progressPercent: number
+  startedAt?: string | null
+  completedAt?: string | null
   items: Array<{
     checkType: string
     checkName: string
@@ -42,6 +45,7 @@ export type PersistedPreflightCheck = {
 export type PersistedPreflightUpdate = {
   status: PersistedPreflightItemStatus
   message: string
+  measuredValue?: string
 }
 
 export type StoredPreflightStatus = {

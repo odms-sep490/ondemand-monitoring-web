@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import type { NavId, Screen, Role } from '../../types/omss'
 import { authApi, authSession } from '../../../auth/api/authApi'
 import { LanguageToggle } from '../../../../shared/components/LanguageToggle'
+import { RoleSidebar } from '../../../../shared/components/RoleSidebar'
 import { useI18n } from '../../../../shared/i18n'
 import { sidebarMessages } from './Sidebar.messages'
 
@@ -165,96 +166,54 @@ export default function Sidebar({ role, active, onChange, alerts }: Props) {
     }
   }
 
+  const user = authSession.getUser()
+
   return (
     <aside className="portal-sidebar">
-      {/* Brand — identical to PortalLayout */}
-      <a className="portal-brand" href="#portal/staff">
-        <span className="brand-mark" aria-hidden="true">
-          <span />
-        </span>
-        <span>FIELDWISE</span>
-      </a>
-      <div className="portal-role-label">{roleLabel}</div>
-
-      {/* Nav */}
-      <nav className="portal-nav" aria-label={t.nav}>
-        {nav.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => onChange(item.id, item.screen)}
-            className={`portal-nav-btn${active === item.id ? ' portal-nav-btn--active' : ''}`}
-            style={{
-              position: 'relative',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 10,
-              width: '100%',
-              padding: '8px 12px',
-              borderRadius: 8,
-              border: 'none',
-              cursor: 'pointer',
-              textAlign: 'left',
-              background:
-                active === item.id ? 'var(--accent-bg)' : 'transparent',
-              color: active === item.id ? 'var(--accent)' : 'var(--text-2)',
-              fontFamily: 'var(--font-ui)',
-              fontSize: 14,
-              fontWeight: active === item.id ? 600 : 400,
-              transition: 'background .1s, color .1s',
-            }}
-          >
-            <span
-              style={{
-                color: active === item.id ? 'var(--accent)' : 'var(--text-3)',
-                display: 'flex',
-                flexShrink: 0,
-              }}
+      <RoleSidebar
+        brandHref="#portal/staff"
+        ariaLabel={t.nav}
+        groups={[
+          {
+            key: role,
+            label: roleLabel,
+            items: nav.map((item) => ({
+              key: item.id,
+              label: navLabels[item.labelKey],
+              icon: item.icon,
+              active: active === item.id,
+              badge:
+                item.id === 'notifications' && alerts > 0 ? alerts : undefined,
+              onClick: () => onChange(item.id, item.screen),
+            })),
+          },
+        ]}
+        profile={{
+          name: user?.fullName ?? roleLabel,
+          description: roleLabel,
+        }}
+        footer={
+          <>
+            <LanguageToggle className="portal-utility-button" />
+            <button
+              type="button"
+              className="portal-utility-button"
+              onClick={() => setDark(!dark)}
             >
-              {item.icon}
-            </span>
-            <span style={{ flex: 1 }}>{navLabels[item.labelKey]}</span>
-            {item.id === 'notifications' && alerts > 0 ? (
-              <span
-                style={{
-                  width: 18,
-                  height: 18,
-                  borderRadius: '50%',
-                  background: 'var(--red)',
-                  color: '#fff',
-                  fontSize: 10,
-                  fontWeight: 700,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                {alerts}
-              </span>
-            ) : null}
-          </button>
-        ))}
-      </nav>
-
-      {/* Footer — identical to PortalLayout */}
-      <div className="portal-sidebar-footer">
-        <LanguageToggle className="portal-utility-button" />
-        <button
-          type="button"
-          className="portal-utility-button"
-          onClick={() => setDark(!dark)}
-        >
-          {dark ? <SunIcon /> : <MoonIcon />}
-          <span>{dark ? t.lightMode : t.darkMode}</span>
-        </button>
-        <button
-          type="button"
-          className="portal-utility-button"
-          onClick={logout}
-        >
-          <ArrowLeftIcon />
-          <span>{t.signOut}</span>
-        </button>
-      </div>
+              {dark ? <SunIcon /> : <MoonIcon />}
+              <span>{dark ? t.lightMode : t.darkMode}</span>
+            </button>
+            <button
+              type="button"
+              className="portal-utility-button"
+              onClick={logout}
+            >
+              <ArrowLeftIcon />
+              <span>{t.signOut}</span>
+            </button>
+          </>
+        }
+      />
     </aside>
   )
 }

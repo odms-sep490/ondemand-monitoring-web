@@ -8,6 +8,7 @@ import type { OrderMissionBrief } from '../../../types/orders'
 import type { ForecastRow } from '../createMissionTypes'
 
 export function WeatherForecastCard({
+  customSchedule = false,
   onCreated,
   forecastTime,
   weatherCheckDate,
@@ -17,6 +18,7 @@ export function WeatherForecastCard({
   brief,
   forecastRows,
 }: {
+  customSchedule?: boolean
   onCreated: ((missionId: string) => void) | undefined
   forecastTime: string
   weatherCheckDate: string
@@ -27,14 +29,13 @@ export function WeatherForecastCard({
   forecastRows: ForecastRow[]
 }) {
   const { t } = useI18n(missionCreatePageMessages)
+  const manualWeather = Boolean(onCreated) || customSchedule
   return (
-    <section className="odm-or-card">
+    <section className="odm-or-card odm-plan-weather">
       <header className="odm-or-card-head">
         <span className="odm-or-card-title">
           <OrderIcon name="info" size={18} />
-          {onCreated
-            ? 'Kiểm tra thời tiết theo lịch bay'
-            : t.weatherForecastTitle}
+          {manualWeather ? t.weatherCheckTitle : t.weatherForecastTitle}
         </span>
         <span className="odm-or-pill odm-or-pill-blue">
           {t.weatherForecastTime(forecastTime)}
@@ -42,14 +43,12 @@ export function WeatherForecastCard({
       </header>
       <div className="odm-or-card-body">
         <p className="odm-or-muted odm-or-hint">
-          {onCreated
-            ? 'Chọn một ngày và giờ bất kỳ để kiểm tra trước khi quyết định lịch bay.'
-            : t.weatherForecastHint}
+          {manualWeather ? t.weatherCheckHint : t.weatherForecastHint}
         </p>
-        {onCreated ? (
+        {manualWeather ? (
           <div className="odm-weather-check-controls">
             <label className="odm-or-field">
-              <span className="odm-or-field-label">Ngày muốn kiểm tra</span>
+              <span className="odm-or-field-label">{t.weatherCheckDate}</span>
               <input
                 className="odm-or-input"
                 type="date"
@@ -58,7 +57,7 @@ export function WeatherForecastCard({
               />
             </label>
             <label className="odm-or-field">
-              <span className="odm-or-field-label">Giờ muốn kiểm tra</span>
+              <span className="odm-or-field-label">{t.weatherCheckTime}</span>
               <input
                 className="odm-or-input"
                 type="time"
@@ -82,7 +81,11 @@ export function WeatherForecastCard({
                 <div className="odm-or-weather-main">
                   <div className="odm-or-weather-top">
                     <div className="odm-or-weather-date">{row.label}</div>
-                    <span className="odm-or-weather-badge">
+                    <span
+                      className="odm-or-weather-badge"
+                      role={manualWeather ? 'status' : undefined}
+                      aria-live={manualWeather ? 'polite' : undefined}
+                    >
                       {row.status === 'ready'
                         ? t.weatherSuitability[
                             row.forecast.suitability ?? 'GOOD'

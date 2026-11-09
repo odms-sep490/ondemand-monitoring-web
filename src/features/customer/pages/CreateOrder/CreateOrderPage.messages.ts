@@ -6,9 +6,12 @@ export const createOrderPageMessages = defineMessages({
     pageTitle: 'Tạo yêu cầu giám sát',
     pageSubtitle:
       'Chọn dịch vụ, xác định vùng giám sát, chốt nội dung giám sát, chọn thời gian rồi xác nhận kết quả bàn giao.',
+    reviewTitle: 'Rà soát & gửi yêu cầu',
+    reviewSubtitle: 'Kiểm tra thông tin trước khi gửi.',
     cancel: 'Hủy',
     cancelConfirm:
       'Thoát khỏi trang tạo yêu cầu? Bản nháp của bạn được lưu tự động.',
+    navigationLabel: 'Điều hướng tạo yêu cầu',
     blockedChecklist: 'Hãy sửa nội dung giám sát chưa hợp lệ để tiếp tục.',
     blockedLoading: 'Đang tải dữ liệu…',
     stepLabels: {
@@ -32,11 +35,12 @@ export const createOrderPageMessages = defineMessages({
         `Vùng giám sát chạm vùng cấm: ${zoneNames}. Vui lòng chọn điểm hoặc giảm bán kính.`,
       serviceId: 'Chọn dịch vụ giám sát.',
       title: 'Nhập tiêu đề yêu cầu.',
+      usagePurpose: 'Chọn cách sử dụng kết quả.',
       otherFlightPurpose: 'Nhập mục đích chuyến bay cụ thể.',
       otherUsagePurpose: 'Nhập cách bạn sẽ sử dụng kết quả.',
       preferredDateFrom: 'Chọn ngày bắt đầu.',
       preferredDateTooSoon:
-        'Ngày bay sớm nhất phải cách ngày tạo yêu cầu ít nhất 7 ngày để ODMS chuẩn bị thủ tục giấy phép bay.',
+        'Ngày bay sớm nhất phải cách ngày tạo yêu cầu ít nhất 7 ngày để ODMS chuẩn bị thủ tục giấy phép bay. Vui lòng chọn ngày mới để tiếp tục.',
       preferredDateTo: 'Chọn ngày kết thúc.',
       preferredDateOrder: 'Ngày kết thúc phải sau hoặc bằng ngày bắt đầu.',
       preferredTimeId: 'Chọn khung giờ.',
@@ -82,8 +86,11 @@ export const createOrderPageMessages = defineMessages({
     pageTitle: 'Create Monitoring Request',
     pageSubtitle:
       'Choose a service, define the monitoring area, confirm the monitoring content, pick a schedule, then confirm deliverables.',
+    reviewTitle: 'Review & submit request',
+    reviewSubtitle: 'Check your information before submitting.',
     cancel: 'Cancel',
     cancelConfirm: 'Leave the request page? Your draft is saved automatically.',
+    navigationLabel: 'Request navigation',
     blockedChecklist: 'Fix the invalid monitoring content to continue.',
     blockedLoading: 'Loading data…',
     stepLabels: {
@@ -107,11 +114,12 @@ export const createOrderPageMessages = defineMessages({
         `The monitoring area touches a no-fly zone: ${zoneNames}. Please pick another point or reduce the radius.`,
       serviceId: 'Select a monitoring service.',
       title: 'Enter a request title.',
+      usagePurpose: 'Select how you will use the results.',
       otherFlightPurpose: 'Enter the specific flight purpose.',
       otherUsagePurpose: 'Enter how you will use the results.',
       preferredDateFrom: 'Select a start date.',
       preferredDateTooSoon:
-        'The earliest flight date must be at least 7 days after the request date so ODMS can prepare the flight permit procedures.',
+        'The earliest flight date must be at least 7 days after the request date so ODMS can prepare the flight permit procedures. Choose a later date to continue.',
       preferredDateTo: 'Select an end date.',
       preferredDateOrder: 'End date must be on or after the start date.',
       preferredTimeId: 'Select a time window.',

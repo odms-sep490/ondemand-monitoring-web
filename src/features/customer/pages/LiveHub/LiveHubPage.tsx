@@ -1,5 +1,8 @@
-import { ErrorState, LoadingState } from '../../../../shared/components/odm/StateView'
-import { EmptyState, PageHeader } from '../../../../shared/components/ui'
+import { Button } from 'antd'
+
+import { usePagedGrid } from '../../../../shared/components/antd'
+import { EmptyState, ErrorState, LoadingState } from '../../components/common/StateView'
+import { PageHeader } from '../../components/common/ui'
 import { useI18n } from '../../../../shared/i18n'
 import { customerHref } from '../../routes'
 import { LiveOrderCard } from './components/LiveOrderCard'
@@ -11,9 +14,10 @@ import { liveHubPageMessages } from './LiveHubPage.messages'
 export function LiveHubPage() {
   const { t } = useI18n(liveHubPageMessages)
   const { data, loading, error, reload } = useLiveOrders()
+  const { pageItems, pager } = usePagedGrid(data ?? [], 'live-orders')
 
   return (
-    <div className="lh-page">
+    <div className="cus-page lh-page">
       <PageHeader title={t.title} subtitle={t.subtitle} />
       {loading && !data && <LoadingState />}
       {!data && !loading && <ErrorState title={t.errorTitle} error={error} onRetry={reload} />}
@@ -22,20 +26,21 @@ export function LiveHubPage() {
           title={t.noSessionTitle}
           description={t.noSessionDescription}
           action={
-            <a className="odm-btn odm-btn-gh" href={customerHref({ screen: 'orders' })}>
-              {t.viewOrders}
-            </a>
+            <Button href={customerHref({ screen: 'orders' })}>{t.viewOrders}</Button>
           }
         />
       )}
       {data && data.length > 0 && (
-        <ul className="lh-list">
-          {data.map((order) => (
-            <li key={order.id}>
-              <LiveOrderCard order={order} />
-            </li>
-          ))}
-        </ul>
+        <>
+          <ul className="lh-list cus-card-grid">
+            {pageItems.map((order) => (
+              <li key={order.id}>
+                <LiveOrderCard order={order} />
+              </li>
+            ))}
+          </ul>
+          {pager}
+        </>
       )}
     </div>
   )

@@ -1,20 +1,27 @@
 // MNG-08: Mission detail & result page (opened from the mission list).
-import { useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
+import type { MissionChecklistResponse } from '../../../mission/types/checklistExecution'
 import { checklistExecutionApi } from '../../../mission/api/checklistExecutionApi'
-import { StateView } from '../../../../shared/components/odm/StateView'
+import { Skeleton } from 'antd'
+import { ArrowLeftOutlined } from '@ant-design/icons'
+import { CardComponent } from '../../../../shared/components/antd'
+import { ErrorState } from '../../components/common/ErrorState'
+import { EmptyState as MgrEmptyState } from '../../components/common/EmptyState'
 import { useI18n } from '../../../../shared/i18n'
 import { OrderAttachmentsCard } from '../../components/common/OrderAttachmentsCard'
-import { OrderChecklistCard } from './components/OrderChecklistCard'
 import { OrderCustomerCard } from '../../components/common/OrderCustomerCard'
 import { OrderCustomerRequestDetails } from '../../components/common/OrderCustomerRequestDetails'
 import { OrderServiceInfo } from '../../components/common/OrderServiceInfo'
 import { type DetailData } from '../../components/common/missionDetailTypes'
-import { OrderIcon } from '../../components/common/OrderIcon'
 import { managerHref } from '../../routes'
+import { ManagerDeliveryPanel } from '../../../delivery/ManagerDeliveryPanel'
+import '../../components/layout/mgrLayout.css'
 import { missionDetailPageMessages } from './MissionDetailPage.messages'
 import { orderReviewPageMessages } from '../OrderReview/OrderReviewPage.messages'
 import '../../manager.css'
+import '../../components/common/missionPages.css'
+import './missionDetail.scss'
 import { type MissionDetailTab } from './missionDetailTypes'
 import { useMissionDetailLoad } from './useMissionDetailLoad'
 import { deriveMissionDetailView } from './deriveMissionDetailView'
@@ -25,14 +32,39 @@ import { MissionDetailTabs } from './components/MissionDetailTabs'
 import { OverviewTab } from './components/OverviewTab'
 import { ChecksTab } from './components/ChecksTab'
 import { MissionCrewCard } from './components/MissionCrewCard'
+import { authSession } from '../../../auth/api/authApi'
+import {
+  staffRejectionEventKeys,
+  useManagerNotificationReadState,
+} from '../../hooks/useManagerNavigationNotifications'
 
-export function MissionDetailPage({ missionId }: { missionId: string }) {
-  return <MissionDetail key={missionId} missionId={missionId} />
+export function MissionDetailPage({
+  missionId,
+  resourceAlertKeys,
+}: {
+  missionId: string
+  resourceAlertKeys?: string[]
+}) {
+  return (
+    <MissionDetail
+      key={missionId}
+      missionId={missionId}
+      resourceAlertKeys={resourceAlertKeys}
+    />
+  )
 }
 
-function MissionDetail({ missionId }: { missionId: string }) {
+function MissionDetail({
+  missionId,
+  resourceAlertKeys,
+}: {
+  missionId: string
+  resourceAlertKeys?: string[]
+}) {
   const { t, locale } = useI18n(missionDetailPageMessages)
   const { t: orderT } = useI18n(orderReviewPageMessages)
+  const managerId = authSession.getUser()?.id ?? 'manager'
+  const { readState, markRead } = useManagerNotificationReadState(managerId)
   const [detail, setDetail] = useState<DetailData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -40,12 +72,42 @@ function MissionDetail({ missionId }: { missionId: string }) {
   const [revision, setRevision] = useState(0)
   const checklist = useApiQuery(
     (signal) =>
-      checklistExecutionApi.getMissionChecklistExecutions(missionId, signal),
-    [missionId, revision],
+      !detail?.mission || detail.mission.status === 'PLANNING'
+        ? Promise.resolve<MissionChecklistResponse>({
+            missionId,
+            legacySnapshot: false,
+            readyForSubmission: false,
+            executions: [],
+          })
+        : checklistExecutionApi.getMissionChecklistExecutions(
+            missionId,
+            signal,
+          ),
+    [missionId, revision, detail?.mission?.status],
   )
   const refreshDetail = () => setRevision((value) => value + 1)
   const [tab, setTab] = useState<MissionDetailTab>('result')
   const mediaLibrary = useRef<HTMLElement>(null)
+  const detailResourceEventKeys = useMemo(
+    () =>
+      staffRejectionEventKeys(
+        detail?.mission?.id ?? missionId,
+        detail?.mission?.staffAssignments,
+      ),
+    [detail?.mission?.id, detail?.mission?.staffAssignments, missionId],
+  )
+  const allResourceEventKeys = useMemo(
+    () => resourceAlertKeys ?? detailResourceEventKeys,
+    [detailResourceEventKeys, resourceAlertKeys],
+  )
+  const resourceUnreadCount = allResourceEventKeys.filter(
+    (eventId) => !readState.resources.includes(eventId),
+  ).length
+
+  useEffect(() => {
+    if (tab === 'resources' && allResourceEventKeys.length > 0)
+      markRead('resources', allResourceEventKeys)
+  }, [allResourceEventKeys, markRead, tab])
 
   useMissionDetailLoad({
     setLoading,
@@ -58,17 +120,21 @@ function MissionDetail({ missionId }: { missionId: string }) {
   })
 
   const backLink = (
-    <a className="odm-or-back" href={managerHref({ screen: 'missions' })}>
-      <OrderIcon name="arrow-right" size={14} />
-      {t.back}
+    <a className="mgr-back-link" href={managerHref({ screen: 'missions' })}>
+      <ArrowLeftOutlined aria-hidden="true" /> {t.back}
     </a>
   )
 
   if (loading && (!detail || detail.mission?.id !== missionId)) {
     return (
-      <div className="odm-or" aria-busy="true">
+      <div className="odm-or mgr-view mgr-md" aria-busy="true">
         {backLink}
-        <span className="odm-sk" style={{ width: '100%', height: 320 }} />
+        <CardComponent>
+          <Skeleton active paragraph={{ rows: 1 }} />
+        </CardComponent>
+        <CardComponent>
+          <Skeleton active paragraph={{ rows: 6 }} />
+        </CardComponent>
       </div>
     )
   }
@@ -76,15 +142,9 @@ function MissionDetail({ missionId }: { missionId: string }) {
   const mission = detail?.mission
   if (error || !mission || !detail) {
     return (
-      <div className="odm-or">
+      <div className="odm-or mgr-view mgr-md">
         {backLink}
-        <section className="odm-or-card">
-          <StateView
-            state="error"
-            title={t.loadError}
-            error={error ?? undefined}
-          />
-        </section>
+        <ErrorState title={t.loadError} description={error ?? undefined} />
       </div>
     )
   }
@@ -94,7 +154,6 @@ function MissionDetail({ missionId }: { missionId: string }) {
     preflight,
     postcheck,
     staff,
-    accepted,
     canSetup,
     deviceCode,
     deviceLabel,
@@ -121,8 +180,7 @@ function MissionDetail({ missionId }: { missionId: string }) {
   })
 
   return (
-    <div className="odm-or">
-      {backLink}
+    <div className="odm-or mgr-view mgr-md">
       <MissionDetailHeader
         mission={mission}
         headline={headline}
@@ -133,17 +191,24 @@ function MissionDetail({ missionId }: { missionId: string }) {
 
       <MissionKpis kpis={kpis} />
 
-      <div className="odm-or-md-grid">
-        <div className="odm-or-col">
-          <MissionDetailTabs
-            tabs={tabs}
-            activeTab={activeTab}
-            setTab={setTab}
-          />
+      <div className="mgr-md-workbench">
+        <MissionDetailTabs
+          tabs={tabs}
+          activeTab={activeTab}
+          setTab={setTab}
+          resourceUnreadCount={resourceUnreadCount}
+        />
 
-          {(['result', 'media', 'checklist', 'route'] as MissionDetailTab[]).includes(
-            activeTab,
-          ) ? (
+        <div
+          className="mgr-md-tabpanel"
+          role="tabpanel"
+          id="mission-detail-panel"
+          aria-labelledby={`mission-detail-tab-${activeTab}`}
+          tabIndex={0}
+        >
+          {(
+            ['result', 'media', 'checklist', 'route'] as MissionDetailTab[]
+          ).includes(activeTab) ? (
             <OverviewTab
               activeTab={activeTab}
               onTabChange={setTab}
@@ -155,7 +220,6 @@ function MissionDetail({ missionId }: { missionId: string }) {
               refreshDetail={refreshDetail}
               mediaLibrary={mediaLibrary}
               resultApproved={resultApproved}
-              revision={revision}
               checklistExecutions={checklistExecutions}
               compliantCount={compliantCount}
               missionId={missionId}
@@ -170,31 +234,53 @@ function MissionDetail({ missionId }: { missionId: string }) {
                 <OrderServiceInfo order={detail.order} t={orderT} />
                 <OrderCustomerRequestDetails order={detail.order} t={orderT} />
                 <OrderCustomerCard order={detail.order} t={orderT} />
-                <OrderChecklistCard order={detail.order} t={orderT} />
                 <OrderAttachmentsCard order={detail.order} t={orderT} />
               </div>
             ) : (
-              <section className="odm-or-card">
-                <div className="odm-or-card-body odm-or-empty">
-                  {t.loadError}
-                </div>
-              </section>
+              <CardComponent>
+                <MgrEmptyState title={t.loadError} />
+              </CardComponent>
             )
+          ) : null}
+
+          {activeTab === 'resources' ? (
+            <MissionCrewCard
+              rows={rows}
+              note={note}
+              staff={staff}
+              deviceCode={deviceCode}
+              deviceLabel={deviceLabel}
+              permitStatus={mission.flightPermitStatus ?? 'NOT_REQUESTED'}
+              permitNote={mission.flightPermitNote}
+              missionId={mission.id}
+              canReplaceStaff={
+                !['PLANNING', 'CANCELLED', 'FAILED'].includes(mission.status) &&
+                staff.some(
+                  (assignment) =>
+                    assignment.responseStatus === 'REJECTED' &&
+                    assignment.isCurrent !== false,
+                )
+              }
+            />
           ) : null}
 
           {activeTab === 'checks' ? (
             <ChecksTab preflight={preflight} postcheck={postcheck} />
           ) : null}
-        </div>
 
-        <MissionCrewCard
-          rows={rows}
-          note={note}
-          staff={staff}
-          accepted={accepted}
-          deviceCode={deviceCode}
-          deviceLabel={deviceLabel}
-        />
+          {isCompleted && resultApproved ? (
+            <div className="mgr-md-delivery" hidden={activeTab !== 'result'}>
+              <ManagerDeliveryPanel
+                allowLegacyPublication={
+                  detail.result?.approvalStatus === 'APPROVED' &&
+                  detail.result.inspectorConfirmed !== true
+                }
+                orderId={mission.orderId}
+                refreshKey={revision}
+              />
+            </div>
+          ) : null}
+        </div>
       </div>
     </div>
   )

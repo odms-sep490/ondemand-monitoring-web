@@ -5,7 +5,7 @@ import { BrandMark } from './BrandMark'
 export function AuthLogo() {
   const { t } = useI18n(authLogoMessages)
   return (
-    <a className="odm-auth-logo" href="#" aria-label={t.homeAriaLabel}>
+    <a className="odm-auth-logo" href="#top" aria-label={t.homeAriaLabel}>
       <BrandMark />
       <span className="odm-auth-brand-name">
         <span className="odm-auth-brand-primary">OnDemand</span>

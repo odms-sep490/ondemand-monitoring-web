@@ -7,7 +7,8 @@ import type {
  * Two independent levels of work:
  *  - ORDER stages happen once per Order.
  *  - MISSION stages repeat for every Mission of that Order.
- * They are modelled separately so the UI never draws them as one straight line.
+ * They are modelled separately and can be shown either as separate groups or as
+ * one continuous workflow when the page needs an end-to-end progress view.
  */
 export const ORDER_STAGES = [
   'intake',
@@ -125,20 +126,12 @@ export function missionProgress(
       PLANNING: 'permit',
       CREATED: 'permit',
       WAITING_DEPOSIT: 'permit',
+      PENDING_PAYMENT: 'permit',
+      PENDING_CONFIRMATION: 'permit',
       READY: 'permit',
-      RESOURCE_ASSIGNING: 'permit',
-      WAITING_CREW_CONFIRMATION: 'permit',
-      WAITING_OPERATOR_ACCEPTANCE: 'permit',
       SCHEDULED: 'permit',
-      CONNECTED: 'permit',
-      PREFLIGHT_CHECKING: 'permit',
-      READY_TO_FLY: 'permit',
-      FAILED_PREFLIGHT: 'permit',
-      PENDING_APPROVAL: 'permit',
-      IN_FLIGHT: 'execute',
       IN_PROGRESS: 'execute',
-      RETURNING: 'execute',
-      POSTFLIGHT_CHECKING: 'execute',
+      AWAITING_REVIEW: 'done',
       PENDING_REVIEW: 'done',
     } as Record<MissionStatus, MissionStage>
   )[status]
@@ -165,6 +158,15 @@ export type MissionBucket = 'finished' | 'active' | 'queued' | 'blocked'
 export function missionBucket(status: MissionStatus): MissionBucket {
   if (status === 'COMPLETED') return 'finished'
   if (status === 'FAILED' || status === 'CANCELLED') return 'blocked'
-  if (['PLANNING', 'CREATED', 'WAITING_DEPOSIT'].includes(status)) return 'queued'
+  if (
+    [
+      'PLANNING',
+      'CREATED',
+      'WAITING_DEPOSIT',
+      'PENDING_PAYMENT',
+      'PENDING_CONFIRMATION',
+    ].includes(status)
+  )
+    return 'queued'
   return 'active'
 }

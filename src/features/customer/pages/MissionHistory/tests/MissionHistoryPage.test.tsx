@@ -45,12 +45,12 @@ describe('MissionHistoryPage', () => {
   it('lists the BE missions with status badges and links to the detail page', async () => {
     render(<MissionHistoryPage />)
     const row = (await screen.findByText('MSN-2609-0131-1')).closest('tr') as HTMLElement
-    expect(within(row).getByText('Hoàn thành', { selector: '.ui-badge' })).toBeInTheDocument()
+    expect(within(row).getByText('Hoàn thành', { selector: '.mgr-status-tag' })).toBeInTheDocument()
     expect(within(row).getByRole('link', { name: 'Xem chi tiết và kết quả' })).toHaveAttribute(
       'href',
       '#portal/customer/mission-history/msn-006-1',
     )
-    expect(screen.getByText('Thất bại', { selector: '.ui-badge' })).toBeInTheDocument()
+    expect(screen.getByText('Thất bại', { selector: '.mgr-status-tag' })).toBeInTheDocument()
     expect(screen.getByText('3 lần bay')).toBeInTheDocument()
   })
 

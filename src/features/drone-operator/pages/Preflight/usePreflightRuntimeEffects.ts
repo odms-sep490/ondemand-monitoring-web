@@ -20,21 +20,21 @@ export function usePreflightRuntimeEffects({
   missionId,
   missionLabel,
   deviceId,
+  deviceAssignedAt,
   controllerOfflineMissesRef,
   setRuntimeSessionId,
   setCheckId,
   setRuntimeStatus,
   setPersistedPreflightId,
   setPersistedPreflightStatus,
-  setPersistedWeatherPassed,
   syncedPersistedItemsRef,
   syncingPersistedItemsRef,
   setBackendPreflightMessage,
-  setWeatherError,
   backendPreflightRegisteredRef,
   validatedStoredCheckRef,
   storageKey,
   setControllerOnline,
+  setConnectedDeviceId,
   controllerOnline,
   runtimeSessionId,
   checkId,
@@ -45,6 +45,7 @@ export function usePreflightRuntimeEffects({
   missionId: string
   missionLabel: string | undefined
   deviceId: string
+  deviceAssignedAt?: string | null
   controllerOfflineMissesRef: RefObject<number>
   setRuntimeSessionId: Dispatch<SetStateAction<string | null>>
   setCheckId: Dispatch<SetStateAction<string | null>>
@@ -53,15 +54,14 @@ export function usePreflightRuntimeEffects({
   setPersistedPreflightStatus: Dispatch<
     SetStateAction<PersistedPreflightStatus | null>
   >
-  setPersistedWeatherPassed: Dispatch<SetStateAction<boolean>>
   syncedPersistedItemsRef: RefObject<Record<string, string>>
   syncingPersistedItemsRef: RefObject<boolean>
   setBackendPreflightMessage: Dispatch<SetStateAction<string | null>>
-  setWeatherError: Dispatch<SetStateAction<string | null>>
   backendPreflightRegisteredRef: RefObject<boolean>
   validatedStoredCheckRef: RefObject<boolean>
   storageKey: string
   setControllerOnline: Dispatch<SetStateAction<boolean>>
+  setConnectedDeviceId: Dispatch<SetStateAction<string | null>>
   controllerOnline: boolean
   runtimeSessionId: string | null
   checkId: string | null
@@ -108,11 +108,9 @@ export function usePreflightRuntimeEffects({
             setRuntimeStatus(null)
             setPersistedPreflightId(null)
             setPersistedPreflightStatus(null)
-            setPersistedWeatherPassed(false)
             syncedPersistedItemsRef.current = {}
             syncingPersistedItemsRef.current = false
             setBackendPreflightMessage(null)
-            setWeatherError(null)
             backendPreflightRegisteredRef.current = false
             validatedStoredCheckRef.current = false
             clearStoredPreflightState(storageKey)
@@ -120,9 +118,11 @@ export function usePreflightRuntimeEffects({
           return nextRuntimeSessionId ?? currentSessionId
         })
         setControllerOnline(true)
+        setConnectedDeviceId(deviceId)
       } catch {
         if (!alive) return
         setControllerOnline(false)
+        setConnectedDeviceId(null)
         controllerOfflineMissesRef.current += 1
         if (controllerOfflineMissesRef.current >= 3) {
           setRuntimeSessionId(null)
@@ -130,11 +130,9 @@ export function usePreflightRuntimeEffects({
           setRuntimeStatus(null)
           setPersistedPreflightId(null)
           setPersistedPreflightStatus(null)
-          setPersistedWeatherPassed(false)
           syncedPersistedItemsRef.current = {}
           syncingPersistedItemsRef.current = false
           setBackendPreflightMessage(null)
-          setWeatherError(null)
           backendPreflightRegisteredRef.current = false
           validatedStoredCheckRef.current = false
           clearStoredPreflightState(storageKey)
@@ -162,14 +160,19 @@ export function usePreflightRuntimeEffects({
         controller.signal,
       ).catch(() => null)
       if (!alive || !persisted) return
+      if (persisted.deviceId && persisted.deviceId !== deviceId) return
+      const assignmentTime = Date.parse(deviceAssignedAt ?? '')
+      const checkTime = Date.parse(persisted.startedAt ?? '')
+      if (
+        Number.isFinite(assignmentTime) &&
+        Number.isFinite(checkTime) &&
+        checkTime < assignmentTime
+      ) {
+        return
+      }
       const persistedRuntime = runtimeStatusFromPersisted(persisted)
       setPersistedPreflightId(persisted.id)
       setPersistedPreflightStatus(persisted.status)
-      setPersistedWeatherPassed(
-        persisted.items.some(
-          (item) => item.checkType === 'WEATHER' && item.status === 'PASSED',
-        ),
-      )
       setRuntimeStatus((current) => {
         if (current?.checkId === persisted.id) return current
         writeStoredPreflightState(
@@ -186,7 +189,7 @@ export function usePreflightRuntimeEffects({
       alive = false
       controller.abort()
     }
-  }, [controllerOnline, missionId, runtimeSessionId, storageKey])
+  }, [controllerOnline, deviceAssignedAt, deviceId, missionId, runtimeSessionId, storageKey])
 
   useEffect(() => {
     if (!checkId) return

@@ -29,7 +29,7 @@ const mission = {
   id: 'm1',
   orderId: 'o',
   missionCode: 'M1',
-  status: 'RESOURCE_ASSIGNING',
+  status: 'PLANNING',
   scheduledStartAt: '2026-10-10T03:00:00Z',
   scheduledEndAt: '2026-10-10T04:00:00Z',
 } as Mission
@@ -88,7 +88,7 @@ it('refreshes staff conflict, removes only unavailable selections and returns to
       status: 409,
       code: 'RESOURCE_TIME_CONFLICT',
       method: 'POST',
-      path: '/api/missions/m1/assign-staff',
+      path: '/api/missions/m1/staff-assignments',
     }),
   )
   render(<LiveDispatchPage missionId="m1" orderContext={context()} />)
@@ -117,7 +117,7 @@ it('refreshes device conflict, retains valid devices/crew and returns to device'
       status: 409,
       code: 'RESOURCE_TIME_CONFLICT',
       method: 'POST',
-      path: '/api/missions/m1/assign-device',
+      path: '/api/missions/m1/device-assignments',
     }),
   )
   render(<LiveDispatchPage missionId="m1" orderContext={context()} />)
@@ -149,7 +149,7 @@ it('keeps the exact failed device step even when another staff option also becam
       status: 409,
       code: 'RESOURCE_TIME_CONFLICT',
       method: 'POST',
-      path: '/api/missions/m1/assign-device',
+      path: '/api/missions/m1/device-assignments',
     }),
   )
   render(<LiveDispatchPage missionId="m1" orderContext={context()} />)
@@ -187,12 +187,12 @@ it('shows explanatory loading and empty states without stale options', async () 
   resolve([])
   expect(
     await screen.findByText(
-      'Không có nhân sự phù hợp trong khung giờ Mission này.',
+      'Không có nhân sự phù hợp trong khung giờ nhiệm vụ này.',
     ),
   ).toBeInTheDocument()
   fireEvent.click(screen.getByRole('button', { name: 'Tiếp theo' }))
   expect(
-    screen.getByText('Không có thiết bị khả dụng trong khung giờ Mission này.'),
+    screen.getByText('Không có thiết bị khả dụng trong khung giờ nhiệm vụ này.'),
   ).toBeInTheDocument()
 })
 
@@ -273,7 +273,7 @@ it('switching Mission clears local selection and cannot publish a late sibling r
   fireEvent.click(screen.getByLabelText('Chọn nhân sự cho Phi công'))
   const picker = screen
     .getByPlaceholderText('Tìm theo tên hoặc email...')
-    .closest('div[style*="position: absolute"]')!
+    .closest('.mgr-pk-panel')!
   expect(
     within(picker as HTMLElement).getByRole('button', {
       name: /Sibling staff/,
@@ -291,7 +291,7 @@ it('does not issue availability queries without a valid persisted interval', asy
   })
   render(<LiveDispatchPage missionId="m1" />)
   expect(
-    await screen.findByText(/Cần có lịch bắt đầu và kết thúc Mission hợp lệ/),
+    await screen.findByText(/Cần có lịch bắt đầu và kết thúc nhiệm vụ hợp lệ/),
   ).toBeInTheDocument()
   expect(droneApi.getAvailable).not.toHaveBeenCalled()
   expect(operatorApi.getAvailable).not.toHaveBeenCalled()

@@ -1,10 +1,10 @@
+import { Button } from 'antd'
 import { useEffect, useState } from 'react'
 
-import { EmptyState } from '../../shared/components/odm/StateView'
+import { EmptyState } from './components/common/StateView'
 import { useI18n } from '../../shared/i18n'
 import { customerAppMessages } from './CustomerApp.messages'
 import { CustomerLayout } from './CustomerLayout'
-import { useNewMediaCount } from './hooks/useNewMediaCount'
 import { CreateOrderPage } from './pages/CreateOrder'
 import { DashboardPage } from './pages/Dashboard'
 import { LivePage } from './pages/Live'
@@ -12,7 +12,6 @@ import { LiveHubPage } from './pages/LiveHub'
 import { MediaDetailPage } from './pages/MediaDetail'
 import { MediaLibraryPage } from './pages/MediaLibrary'
 import { MediaPage } from './pages/Media'
-import { NotificationsPage } from './pages/Notifications'
 import { OrderDetailPage } from './pages/OrderDetail'
 import { OrdersPage } from './pages/Orders'
 import { MissionHistoryPage } from './pages/MissionHistory'
@@ -35,14 +34,8 @@ export function CustomerApp() {
   const route = parseCustomerRoute(hash)
   const { t } = useI18n(customerAppMessages)
 
-  const newMediaCount = useNewMediaCount()
-
   return (
-    <CustomerLayout
-      route={route}
-      breadcrumb={t.breadcrumb[route.screen]}
-      newMediaCount={newMediaCount}
-    >
+    <CustomerLayout route={route} breadcrumb={t.breadcrumb[route.screen]}>
       {renderScreen(route, t)}
     </CustomerLayout>
   )
@@ -73,19 +66,15 @@ function renderScreen(
   if (route.screen === 'mediaLibrary') return <MediaLibraryPage />
   if (route.screen === 'mediaDetail')
     return <MediaDetailPage mediaId={route.mediaId} />
-  if (route.screen === 'notifications') return <NotificationsPage />
 
   return (
     <EmptyState
       title={t.notFoundTitle}
       description={t.notFoundDescription}
       action={
-        <a
-          className="odm-btn odm-btn-p"
-          href={customerHref({ screen: 'dashboard' })}
-        >
+        <Button type="primary" href={customerHref({ screen: 'dashboard' })}>
           {t.backToDashboard}
-        </a>
+        </Button>
       }
     />
   )

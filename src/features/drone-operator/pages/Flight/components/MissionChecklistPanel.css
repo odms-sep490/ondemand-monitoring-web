@@ -1,0 +1,633 @@
+.mission-checklist-surface {
+  min-width: 0;
+  min-height: 0;
+  max-height: calc(100vh - 160px);
+  border: 1px solid rgba(71, 85, 105, 0.55);
+  border-radius: 14px;
+  background: #070e1b;
+  color: #e5edf8;
+  --bg: #0d1727;
+  --bd: #26364b;
+  --sf2: #111d2e;
+  --tx: #e5edf8;
+  --tx3: #9aabc0;
+  --ui-surface: #0d1727;
+  --ui-text: #e5edf8;
+  --ui-text-2: #a7b7ca;
+  --ui-border: #2a3a50;
+  --ui-primary: #60a5fa;
+  --ui-primary-text: #dbeafe;
+  --ui-primary-soft: #172c47;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(96, 165, 250, 0.45) rgba(2, 6, 23, 0.4);
+}
+
+.mission-checklist-surface::-webkit-scrollbar {
+  width: 7px;
+}
+
+.mission-checklist-surface::-webkit-scrollbar-track {
+  background: rgba(2, 6, 23, 0.4);
+  border-radius: 999px;
+}
+
+.mission-checklist-surface::-webkit-scrollbar-thumb {
+  background: rgba(96, 165, 250, 0.45);
+  border: 2px solid #070e1b;
+  border-radius: 999px;
+}
+
+.mission-checklist-surface::-webkit-scrollbar-thumb:hover {
+  background: rgba(96, 165, 250, 0.7);
+}
+
+.mission-checklist-surface .monitoring-checklist.is-compact {
+  padding: 12px;
+  border-radius: 14px;
+  background: transparent;
+  color: #e5edf8;
+}
+
+.mission-checklist-surface .monitoring-checklist.is-compact header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+.mission-checklist-surface .monitoring-checklist.is-compact h2 {
+  color: #e5edf8;
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.mission-checklist-surface .mc-count {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 3px 8px;
+  margin: 0;
+  color: #bac8d9;
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.35;
+  text-align: left;
+}
+
+.mission-checklist-surface .mc-count small {
+  color: #4ade80;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.mission-checklist-surface .mc-progress {
+  height: 4px;
+  margin-bottom: 10px;
+  background: #1e293b;
+}
+
+.mission-checklist-surface .mc-progress > span {
+  background: #22c55e;
+}
+
+.mission-checklist-surface .mc-list {
+  gap: 6px;
+}
+
+.mission-checklist-surface .mc-item {
+  border-color: #26364b;
+  border-radius: 11px;
+  background: #0c1625;
+}
+
+.mission-checklist-surface .mc-item.is-open {
+  border-color: #365579;
+  background: #101d2e;
+}
+
+.mission-checklist-surface .mc-row {
+  min-height: 48px;
+  gap: 8px;
+  padding: 9px 10px;
+  color: #e5edf8;
+}
+
+.mission-checklist-surface .mc-row:hover {
+  background: #142338;
+}
+
+.mission-checklist-surface .mc-row:focus-visible {
+  box-shadow: inset 0 0 0 2px #60a5fa;
+}
+
+.mission-checklist-surface .mc-mark {
+  width: 22px;
+  height: 22px;
+  background: #1e293b;
+  color: #cbd5e1;
+}
+
+.mission-checklist-surface .mc-title {
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.mission-checklist-surface .mc-sub {
+  color: #9aabc0;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.mission-checklist-surface .mc-chip {
+  padding: 3px 7px;
+  font-size: 10px;
+}
+
+.mission-checklist-surface .mc-chip.is-todo {
+  background: #3a2d0e;
+  color: #fcd34d;
+}
+
+.mission-checklist-surface .mc-chip.is-active {
+  background: #172c47;
+  color: #93c5fd;
+}
+
+.mission-checklist-surface .mc-chip.is-done {
+  background: #123c2a;
+  color: #4ade80;
+}
+
+.mission-checklist-surface .mc-chip.is-pending {
+  background: #3a2d0e;
+  color: #fbbf24;
+}
+
+.mission-checklist-surface .mc-chip.is-danger {
+  background: #451a22;
+  color: #fda4af;
+}
+
+.mission-checklist-surface .mc-detail {
+  gap: 8px;
+  padding: 0 9px 10px 40px;
+}
+
+.mission-checklist-surface .mc-fields dt,
+.mission-checklist-surface .mc-fields dd {
+  font-size: 12px;
+}
+
+.mission-checklist-surface .mc-fields dt {
+  color: #a7b7ca;
+}
+
+.mission-checklist-surface .mc-fields dd {
+  color: #e5edf8;
+}
+
+.mission-checklist-surface .mc-edit {
+  min-height: 38px;
+  border: 1px solid #315a83;
+  border-radius: 9px;
+  background: #10243b;
+  color: #bfdbfe;
+  font-weight: 650;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s,
+    transform 0.15s;
+}
+
+.mission-checklist-surface .mc-edit:hover {
+  transform: translateY(-1px);
+  border-color: #60a5fa;
+  background: #153251;
+}
+
+.mission-checklist-surface .mc-form label {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 58%);
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+  color: #cbd5e1;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.mission-checklist-surface .mc-form select,
+.mission-checklist-surface .mc-form textarea {
+  border-color: #34465e;
+  background: #0b1422;
+  color: #f1f5f9;
+  color-scheme: dark;
+}
+
+.mission-checklist-surface .mc-form select {
+  min-width: 0;
+  height: 38px;
+  cursor: pointer;
+}
+
+.mission-checklist-surface .mc-form select option {
+  background: #0d1727;
+  color: #f1f5f9;
+}
+
+.mission-checklist-surface .mc-form select:focus-visible,
+.mission-checklist-surface .mc-form textarea:focus-visible {
+  outline: 2px solid #60a5fa;
+  outline-offset: 2px;
+  border-color: #60a5fa;
+}
+
+.mission-checklist-surface .mc-form-actions {
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.mission-checklist-surface .mc-form-actions .mc-cancel,
+.mission-checklist-surface .mc-form-actions .odm-btn.odm-btn-p {
+  min-height: 34px;
+  padding-inline: 14px;
+}
+
+.mission-checklist-surface .mc-form-actions .mc-cancel {
+  min-width: 74px;
+  border: 1px solid #34465e;
+  border-radius: 8px;
+  color: #cbd5e1;
+  background: #111d2e;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s;
+}
+
+.mission-checklist-surface .mc-form-actions .mc-cancel:hover:not(:disabled) {
+  border-color: #526b89;
+  background: #19283b;
+}
+
+.mission-checklist-surface .mc-form-actions .odm-btn.odm-btn-p {
+  min-width: 86px;
+  border-color: #2563eb;
+  border-radius: 8px;
+  color: #fff;
+  background: #2563eb;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.24);
+  transition:
+    background-color 0.15s,
+    border-color 0.15s,
+    box-shadow 0.15s,
+    transform 0.15s;
+}
+
+.mission-checklist-surface .mc-form-actions .odm-btn.odm-btn-p:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: #3b82f6;
+  background: #1d4ed8;
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.34);
+}
+
+.mission-checklist-surface .mc-form-actions button:focus-visible,
+.mission-checklist-surface .mc-edit:focus-visible {
+  outline: 2px solid #93c5fd;
+  outline-offset: 2px;
+}
+
+.mission-checklist-surface .checklist-evidence.is-compact > button.ce-add {
+  min-height: 38px;
+  height: auto;
+  border: 1px solid #2a3a50;
+  border-radius: 8px;
+  color: #dbeafe;
+  background: #0b1422;
+  font-weight: 650;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.025);
+  transition:
+    border-color 0.15s,
+    color 0.15s,
+    background-color 0.15s,
+    box-shadow 0.15s,
+    transform 0.15s;
+}
+
+.mission-checklist-surface .checklist-evidence.is-compact > button.ce-add .ce-add-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  background: #2563eb;
+  color: #fff;
+}
+
+.mission-checklist-surface .checklist-evidence.is-compact > button.ce-add:hover:not(:disabled) {
+  border-color: #60a5fa;
+  color: #fff;
+  background: #111d2e;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.mission-checklist-surface .checklist-evidence.is-compact > button.ce-add:focus-visible {
+  outline: 2px solid #93c5fd;
+  outline-offset: 2px;
+}
+
+.mission-checklist-surface .checklist-evidence.is-compact > button.ce-add:disabled {
+  border-color: #2a3a50;
+  color: #8193aa;
+  background: #111d2e;
+  box-shadow: none;
+}
+
+.mission-checklist-surface .checklist-evidence.is-compact > button.ce-add:disabled .ce-add-icon {
+  background: #26364b;
+  color: #9aabc0;
+}
+
+.mission-checklist-upload-status {
+  display: grid;
+  gap: 6px;
+  margin: 0 12px 12px;
+}
+
+.mission-checklist-upload-status > div {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px 10px;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid #315a83;
+  border-radius: 9px;
+  background: #10243b;
+  color: #bfdbfe;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.mission-checklist-upload-status > div.is-error {
+  border-color: #7f3342;
+  background: #2b1822;
+  color: #fecdd3;
+}
+
+.mission-checklist-upload-status > div > span {
+  flex: 1 1 150px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.mission-checklist-upload-status > div strong {
+  color: #f8fafc;
+}
+
+.mission-checklist-upload-status > div > a {
+  color: #93c5fd;
+  font-weight: 650;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.mission-checklist-upload-status > div > .odm-btn {
+  min-height: 30px;
+  border-color: #45678c;
+  color: #dbeafe;
+  background: #162a40;
+}
+
+.mission-checklist-upload-status > div > .odm-btn:hover {
+  border-color: #60a5fa;
+  background: #1b3657;
+}
+
+.mission-checklist-upload-status > div > :focus-visible {
+  outline: 2px solid #93c5fd;
+  outline-offset: 2px;
+}
+
+.mission-checklist-surface .mc-note {
+  border: 1px solid #26364b;
+  background: #101d2e;
+  color: #bac8d9;
+}
+
+.mission-checklist-surface .mc-note.is-warn {
+  border-color: #60491a;
+  background: #2b220f;
+  color: #fcd34d;
+}
+
+.mission-checklist-surface .mc-note.is-danger {
+  border-color: #6b2732;
+  background: #2c151b;
+  color: #fda4af;
+}
+
+.mission-checklist-surface .odm-cg {
+  border-color: #2a3a50;
+  background: #0d1727;
+  color: #e5edf8;
+  font-size: 12px;
+}
+
+.mission-checklist-surface .odm-cg > summary {
+  min-height: 38px;
+  gap: 8px;
+  padding: 8px 10px;
+  background: #142338;
+  color: #dbeafe;
+  font-size: 12px;
+}
+
+.mission-checklist-surface .odm-cg > summary:hover {
+  background: #192d46;
+}
+
+.mission-checklist-surface .odm-cg-body {
+  gap: 7px;
+  padding: 8px;
+  background: #0d1727;
+}
+
+.mission-checklist-surface .odm-cg-section {
+  padding: 9px 10px;
+  border-color: #2a3a50;
+  background: #111d2e;
+}
+
+.mission-checklist-surface .odm-cg-section-description {
+  border-inline-start-width: 1px;
+  padding-inline-start: 10px;
+}
+
+.mission-checklist-surface .odm-cg-section h4 {
+  color: #a7b7ca;
+  font-size: 10px;
+}
+
+.mission-checklist-surface .odm-cg-section p,
+.mission-checklist-surface .odm-cg-section ol,
+.mission-checklist-surface .odm-cg-section ul {
+  color: #e5edf8;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.mission-checklist-surface .odm-cg-step-index {
+  background: #1b3657;
+  color: #bfdbfe;
+}
+
+.mission-checklist-surface .checklist-evidence.is-compact {
+  gap: 5px;
+  margin-top: 2px;
+  padding: 8px;
+  border: 1px solid #1f2d3e;
+  border-radius: 9px;
+  background: #070e1b;
+  color: #e5edf8;
+}
+
+.mission-checklist-surface .checklist-evidence.is-compact .ce-head {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 3px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #1e293b;
+  font-size: 11px;
+}
+
+.mission-checklist-surface .checklist-evidence.is-compact .ce-title-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+.mission-checklist-surface .checklist-evidence.is-compact .ce-heading {
+  color: #e5edf8;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.mission-checklist-surface .checklist-evidence.is-compact .ce-type {
+  padding: 2px 6px;
+  border: 1px solid #26364b;
+  border-radius: 999px;
+  background: #0d1727;
+  color: #9aabc0;
+  font-size: 9px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.mission-checklist-surface .checklist-evidence.is-compact .ce-count {
+  display: block;
+  min-width: 0;
+  color: #cbd5e1;
+  font-size: 10px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.mission-checklist-surface .ce-meta,
+.mission-checklist-surface .ce-name {
+  color: #d5dfeb;
+}
+
+.mission-checklist-surface .checklist-evidence.is-compact .ce-remaining,
+.mission-checklist-surface .checklist-evidence.is-compact .ce-blocker {
+  margin: 0;
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+.mission-checklist-surface .checklist-evidence.is-compact .ce-remaining {
+  padding: 4px 7px;
+  border: 1px solid #60491a;
+  border-radius: 7px;
+  background: #2b220f;
+  color: #f59e0b;
+}
+
+.mission-checklist-surface .ce-row {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 0;
+  border-color: #26364b;
+}
+
+.mission-checklist-surface .ce-thumb {
+  width: 44px;
+  height: 44px;
+  background: #1e293b;
+}
+
+.mission-checklist-surface .ce-info {
+  gap: 2px;
+}
+
+.mission-checklist-surface .ce-name {
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+.mission-checklist-surface .ce-status {
+  align-self: flex-start;
+  max-width: 100%;
+  padding: 1px 7px;
+  overflow: hidden;
+  border: 1px solid #315a83;
+  border-radius: 999px;
+  background: #10243b;
+  color: #93c5fd;
+  font-size: 10px;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mission-checklist-surface .ce-status.is-warn {
+  border-color: #634719;
+  background: #2b220f;
+  color: #fbbf24;
+}
+
+.mission-checklist-surface .mc-updated {
+  color: #9aabc0;
+  margin-top: 1px;
+  font-size: 10px;
+}
+
+@media (max-width: 640px) {
+  .mission-checklist-surface .monitoring-checklist.is-compact {
+    padding: 10px;
+  }
+
+  .mission-checklist-surface .mc-row {
+    padding: 8px;
+  }
+
+  .mission-checklist-surface .mc-detail {
+    padding-inline-start: 38px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mission-checklist-surface .mc-edit,
+  .mission-checklist-surface .mc-form-actions .odm-btn.odm-btn-p,
+  .mission-checklist-surface .checklist-evidence.is-compact > button.ce-add {
+    transition: none;
+  }
+}

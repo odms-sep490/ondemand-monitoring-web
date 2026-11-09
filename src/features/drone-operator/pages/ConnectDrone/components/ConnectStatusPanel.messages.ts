@@ -13,10 +13,17 @@ export const connectStatusPanelMessages = defineMessages({
     noSchedule: 'Chưa có lịch bay',
     noDroneAssigned: 'Chưa gán thiết bị',
     noAddress: 'Chưa có địa chỉ',
-    codeExpiredTitle: 'Mã kết nối đã hết hạn',
-    codeExpiredBody:
-      'Mã flight_token chỉ có hiệu lực 10 phút. Yêu cầu quản lý cấp mã mới rồi nhập lại.',
+    scheduleLabel: 'Lịch bay',
+    deviceFieldLabel: 'Thiết bị',
+    locationFieldLabel: 'Địa điểm',
     connectionStatus: 'Trạng thái kết nối',
+    disconnectReason: 'Lý do mất kết nối',
+    stepState: {
+      complete: 'Đã hoàn tất',
+      inProgress: 'Đang xử lý',
+      failed: 'Thất bại',
+      waiting: 'Đang chờ',
+    },
     badge: {
       connected: 'Đã kết nối',
       connecting: 'Đang kết nối',
@@ -26,7 +33,7 @@ export const connectStatusPanelMessages = defineMessages({
     heartbeatTelemetry: 'Heartbeat telemetry',
     telemetrySummary: (satellites: number) =>
       `telemetry_active = TRUE · pin thiết bị 100% · ${satellites} vệ tinh`,
-    continueToPrecheck: 'Tiếp tục: precheck',
+    continueToPrecheck: 'Tiếp tục kiểm tra trước bay',
     backToMission: 'Quay lại mission',
   },
   en: {
@@ -41,10 +48,17 @@ export const connectStatusPanelMessages = defineMessages({
     noSchedule: 'No flight schedule yet',
     noDroneAssigned: 'No device assigned',
     noAddress: 'No address yet',
-    codeExpiredTitle: 'Connection code expired',
-    codeExpiredBody:
-      'The flight_token code is valid for 10 minutes only. Ask a manager to issue a new one and enter it again.',
+    scheduleLabel: 'Flight time',
+    deviceFieldLabel: 'Device',
+    locationFieldLabel: 'Location',
     connectionStatus: 'Connection status',
+    disconnectReason: 'Connection failure reason',
+    stepState: {
+      complete: 'Completed',
+      inProgress: 'In progress',
+      failed: 'Failed',
+      waiting: 'Waiting',
+    },
     badge: {
       connected: 'Connected',
       connecting: 'Connecting',

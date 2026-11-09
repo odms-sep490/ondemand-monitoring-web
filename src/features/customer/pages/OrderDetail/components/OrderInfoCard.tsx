@@ -1,6 +1,8 @@
-import { useState, type ReactNode } from 'react'
+import { Button } from 'antd'
+import { Children, useState, type ReactNode } from 'react'
 
-import { Card } from '../../../../../shared/components/ui'
+import { Card } from '../../../components/common/ui'
+import { OrderStatusBadge } from '../../../components/common/OrderStatusBadge'
 import { useI18n } from '../../../../../shared/i18n'
 import { OrderIcon, type OrderIconName } from '../../../../manager/components/common/OrderIcon'
 import { useTimeslotLabel } from '../../../hooks/usePreferredTimes'
@@ -13,22 +15,6 @@ import { orderInfoCardMessages } from './OrderInfoCard.messages'
 import { OrderSectionEditor, type EditableOrderSection } from './OrderSectionEditor'
 
 const DASH = '—'
-
-const LABELS: Record<string, string> = {
-  INTERNAL: 'Nội bộ', LEGAL: 'Pháp lý', PARTNER_REPORT: 'Báo cáo cho đối tác', OTHER: 'Khác',
-  SURVEY_MONITORING: 'Đo đạc, khảo sát, giám sát từ trên cao', AGRICULTURE: 'Phục vụ nông nghiệp',
-  CONSTRUCTION_MONITORING: 'Giám sát tiến độ công trình', INDUSTRIAL_INSPECTION: 'Kiểm tra nhà xưởng',
-  AREA_MONITORING: 'Giám sát khu vực', FOREST_MONITORING: 'Giám sát tài nguyên rừng',
-  NORMAL: 'Bình thường', HIGH: 'Cao', URGENT: 'Khẩn cấp', NONE: 'Không có',
-  HAVE_PERMIT: 'Đã có giấy phép', NEED_SUPPORT: 'Cần hỗ trợ xin phép',
-  WEEKLY: 'Hằng tuần', MONTHLY: 'Hằng tháng', AUTO_RESCHEDULE: 'Tự dời lịch',
-  CONTACT_CUSTOMER: 'Liên hệ khách trước', CANCEL_ORDER: 'Huỷ yêu cầu',
-  OWNER: 'Chủ sở hữu / Chủ đầu tư', AUTHORIZED_PERSON: 'Người được ủy quyền',
-  CONTRACTOR: 'Nhà thầu / Đơn vị thi công', MANAGER_OR_SUPERVISOR: 'Đơn vị quản lý / Tư vấn giám sát',
-  PHOTO: 'Ảnh', IMAGE: 'Ảnh', VIDEO: 'Video', PDF_REPORT: 'Báo cáo PDF', DOWNLOAD: 'Tải về', EMAIL: 'Email', API: 'API',
-}
-const label = (value: string | null) => value ? (LABELS[value] ?? value) : DASH
-const join = (values: string[]) => values.length ? values.map((value) => LABELS[value] ?? value).join(', ') : DASH
 
 function Field({
   icon,
@@ -72,6 +58,7 @@ function Section({
   children: ReactNode
 }) {
   const { t } = useI18n(orderInfoCardMessages)
+  const empty = Children.toArray(children).length === 0
   return (
     <section className={wide ? 'od-info-section is-wide' : 'od-info-section'}>
       <div className="od-info-section-heading">
@@ -82,12 +69,12 @@ function Section({
           {title}
         </h3>
         {onSupplement ? (
-          <button type="button" className="od-info-edit" onClick={onSupplement}>
+          <Button type="link" size="small" className="od-info-edit" onClick={onSupplement}>
             {t.edit}
-          </button>
+          </Button>
         ) : null}
       </div>
-      <dl className="od-info-list">{children}</dl>
+      {empty ? <p className="od-hint od-info-empty">{t.noInfo}</p> : <dl className="od-info-list">{children}</dl>}
       {editor}
     </section>
   )
@@ -105,9 +92,15 @@ export function OrderInfoCard({
   const [editing, setEditing] = useState<EditableOrderSection | null>(null)
   const { t, locale, lang } = useI18n(orderInfoCardMessages)
   const timeLabel = useTimeslotLabel()
+  const label = (value: string | null) => (value ? (t.values[value] ?? value) : DASH)
+  const join = (values: string[]) => (values.length ? values.map((value) => t.values[value] ?? value).join(', ') : DASH)
   const time =
     order.timeName || order.timeId ? timeLabel({ id: order.timeId, name: order.timeName }) : null
   const schedule = formatDateRange(order.dateFrom, order.dateTo, locale)
+  const serviceName = order.serviceName
+    ? localizeServiceName(order.serviceId ?? order.serviceName, lang, order.serviceName)
+    : DASH
+  const preferredSchedule = [schedule, time].filter(Boolean).join(' · ') || DASH
   const coordinates =
     order.latitude != null && order.longitude != null
       ? `${order.latitude}, ${order.longitude}`
@@ -117,19 +110,47 @@ export function OrderInfoCard({
   return (
     <Card title={<CardTitle icon="doc">{t.title}</CardTitle>}>
       <p className="od-info-subtitle">{t.subtitle}</p>
+      <section className="od-order-summary" aria-label={t.summary}>
+        <h3>{t.summary}</h3>
+        <dl>
+          <div className="od-order-summary-item">
+            <dt>{t.service}</dt>
+            <dd>
+              <OrderIcon name="stack" size={15} />
+              {serviceName}
+            </dd>
+          </div>
+          <div className="od-order-summary-item">
+            <dt>{t.address}</dt>
+            <dd>
+              <OrderIcon name="pin" size={15} />
+              {order.address || DASH}
+            </dd>
+          </div>
+          <div className="od-order-summary-item">
+            <dt>{t.schedule}</dt>
+            <dd>
+              <OrderIcon name="calendar" size={15} />
+              {preferredSchedule}
+            </dd>
+          </div>
+          <div className="od-order-summary-item">
+            <dt>{t.currentStatus}</dt>
+            <dd>
+              <OrderStatusBadge status={order.status} />
+            </dd>
+          </div>
+        </dl>
+      </section>
       <div className="od-info-sections">
         <Section icon="doc" title={t.sectionGeneral} wide onSupplement={editable ? () => setEditing('general') : undefined} editor={editing === 'general' ? <OrderSectionEditor section="general" order={order} onCancel={() => setEditing(null)} onSaved={() => { setEditing(null); onUpdated?.() }} /> : undefined}>
           <Field
             icon="stack"
             label={t.service}
-            value={
-              order.serviceName
-                ? localizeServiceName(order.serviceId ?? order.serviceName, lang, order.serviceName)
-                : DASH
-            }
+            value={serviceName}
           />
           {order.createdAt && <Field icon="calendar" label={t.createdAt} value={fmtDateTime(order.createdAt, locale)} />}
-          {(schedule || time) && <Field icon="calendar" label={t.schedule} value={[schedule, time].filter(Boolean).join(' · ')} />}
+          {(schedule || time) && <Field icon="calendar" label={t.schedule} value={preferredSchedule} />}
           {order.resultDeadline && <Field icon="clock" label={t.resultDeadline} value={fmtDate(order.resultDeadline, locale)} />}
           {order.address && <Field icon="pin" label={t.address} value={order.address} />}
         </Section>

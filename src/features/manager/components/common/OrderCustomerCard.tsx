@@ -17,9 +17,11 @@ function initialsOf(fullName: string): string {
 export function OrderCustomerCard({
   order,
   t,
+  hideEmpty = false,
 }: {
   order: OrderDetail
   t: OrderReviewMessages
+  hideEmpty?: boolean
 }) {
   const { customer } = order
   const hasCompany = Boolean(customer.companyName?.trim())
@@ -56,6 +58,7 @@ export function OrderCustomerCard({
       empty: t.noCustomerAddress,
     },
   ]
+  const visibleRows = hideEmpty ? rows.filter((row) => row.value) : rows
 
   return (
     <section className="odm-or-card">
@@ -79,17 +82,22 @@ export function OrderCustomerCard({
             ) : null}
           </div>
         </div>
-        <ul className="odm-or-contact">
-          {rows.map((row) => (
-            <li key={row.label} className={row.value ? undefined : 'is-empty'}>
-              <OrderIcon name={row.icon} size={16} />
-              <span>
-                <small>{row.label}</small>
-                {row.value || row.empty}
-              </span>
-            </li>
-          ))}
-        </ul>
+        {visibleRows.length > 0 ? (
+          <ul className="odm-or-contact">
+            {visibleRows.map((row) => (
+              <li
+                key={row.label}
+                className={row.value ? undefined : 'is-empty'}
+              >
+                <OrderIcon name={row.icon} size={16} />
+                <span>
+                  <small>{row.label}</small>
+                  {row.value || row.empty}
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : null}
       </div>
     </section>
   )

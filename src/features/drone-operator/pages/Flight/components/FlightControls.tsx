@@ -9,7 +9,6 @@ import type {
 import { useRenderDiagnostics } from '../useRenderDiagnostics'
 import { useI18n } from '../../../../../shared/i18n'
 import { inFlightControlMessages } from './InFlightControl.messages'
-import { maySendFlightCommand } from '../../../../mission/lib/missionOperationalState'
 import { buttonStyle } from './flightControlStyles'
 import { Icon } from './Icon'
 import { GlassPanel } from './GlassPanel'
@@ -19,7 +18,6 @@ import { FlightControlTools } from './FlightControlTools'
 
 export const FlightControls = memo(function FlightControls({
   canFly,
-  canTerminate,
   busyCommand,
   lidarDetailsOpen,
   moreOpen,
@@ -30,15 +28,24 @@ export const FlightControls = memo(function FlightControls({
   onReviewMedia,
   onFinishFlight,
   finishFlightBusy,
+  onFailMission,
+  failMissionBusy,
+  missionFailureRequested,
+  canFinishFlight,
+  finishFlightBlockedReason,
   onReferenceCapture,
   referenceBusy,
 }: {
   canFly: boolean
-  canTerminate: boolean
   referenceBusy?: boolean
   onReferenceCapture?: () => void
   onFinishFlight?: () => void
   finishFlightBusy?: boolean
+  onFailMission?: () => void
+  failMissionBusy?: boolean
+  missionFailureRequested?: boolean
+  canFinishFlight: boolean
+  finishFlightBlockedReason?: string
   busyCommand: FlightCommand | null
   lidarDetailsOpen: boolean
   moreOpen: boolean
@@ -54,8 +61,8 @@ export const FlightControls = memo(function FlightControls({
   const thermalLabel = thermalEnabled
     ? t.toolbar.thermalOn
     : t.toolbar.thermalOff
-  const commandDisabled = (command: FlightCommand) =>
-    busyCommand !== null || !maySendFlightCommand(command, canFly, canTerminate)
+  const commandDisabled = () =>
+    busyCommand !== null || !canFly
   const controlButton = (item: {
     command: FlightCommand
     labelKey: keyof ControlsText
@@ -75,7 +82,7 @@ export const FlightControls = memo(function FlightControls({
       <button
         key={`${item.command}-${item.labelKey}`}
         onClick={() => onCommand(item.command)}
-        disabled={commandDisabled(item.command)}
+        disabled={commandDisabled()}
         style={{
           ...buttonStyle(
             (isThermal && thermalEnabled) || (isLidar && lidarDetailsOpen)
@@ -125,6 +132,11 @@ export const FlightControls = memo(function FlightControls({
         onFinishFlight={onFinishFlight}
         commandDisabled={commandDisabled}
         finishFlightBusy={finishFlightBusy}
+        onFailMission={onFailMission}
+        failMissionBusy={failMissionBusy}
+        missionFailureRequested={missionFailureRequested}
+        canFinishFlight={canFinishFlight}
+        finishFlightBlockedReason={finishFlightBlockedReason}
         onCommand={onCommand}
         thermalEnabled={thermalEnabled}
         thermalLabel={thermalLabel}

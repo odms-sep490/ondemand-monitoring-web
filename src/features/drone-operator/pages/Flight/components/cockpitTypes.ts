@@ -22,5 +22,3 @@ export type CockpitTelemetry = {
   baseDistanceKm: number | null
   targetDistanceKm: number | null
 }
-
-export type CockpitLayout = 'split' | 'camera' | 'map'

@@ -1,4 +1,6 @@
-import { EmptyState } from '../../../../../shared/components/ui'
+import { Button } from 'antd'
+
+import { EmptyState } from '../../../components/common/StateView'
 import { useI18n } from '../../../../../shared/i18n'
 import { libraryEmptyMessages } from './LibraryEmpty.messages'
 
@@ -10,13 +12,7 @@ export function LibraryEmpty({ filtered, onClear }: Props) {
     <EmptyState
       title={t.title}
       description={filtered ? t.filtered : t.none}
-      action={
-        filtered ? (
-          <button type="button" className="odm-btn odm-btn-gh" onClick={onClear}>
-            {t.clear}
-          </button>
-        ) : undefined
-      }
+      action={filtered ? <Button onClick={onClear}>{t.clear}</Button> : undefined}
     />
   )
 }

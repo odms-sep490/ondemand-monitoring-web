@@ -4,6 +4,7 @@ import {
   OrderIcon,
   type OrderIconName,
 } from '../../../components/common/OrderIcon'
+import { orderServiceBannerMessages } from './OrderServiceBanner.messages'
 import './OrderServiceBanner.css'
 
 export type OrderServiceBannerProps = {
@@ -30,27 +31,12 @@ function clean(value: string | null | undefined) {
   return trimmed ? trimmed : null
 }
 
-const VI_TERMS: Record<string, string> = {
-  PHOTO: 'Ảnh',
-  PHOTOS: 'Ảnh',
-  IMAGE: 'Ảnh',
-  IMAGES: 'Ảnh',
-  VIDEO: 'Video',
-  VIDEOS: 'Video',
-  REPORT: 'Báo cáo',
-  STREAMING: 'Phát trực tiếp',
-  LIVESTREAM: 'Phát trực tiếp',
-  ORTHOMOSAIC: 'Bản đồ trực giao',
-  MODEL3D: 'Mô hình 3D',
-  THERMAL: 'Ảnh nhiệt',
-}
-
 /** Backend deliverable names can be raw enum-like tokens (e.g. "PHOTO"). */
 function localizeLabel(label: string, locale: 'vi-VN' | 'en-US') {
-  if (locale !== 'vi-VN') return label
+  const terms = orderServiceBannerMessages[locale === 'vi-VN' ? 'vi' : 'en'].terms
   return label.replace(
     /[A-Za-z0-9]+/g,
-    (word) => VI_TERMS[word.toUpperCase()] ?? word,
+    (word) => terms[word.toUpperCase()] ?? word,
   )
 }
 

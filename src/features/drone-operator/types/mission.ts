@@ -1,12 +1,17 @@
-import type { MissionStatus } from '../../mission/types/mission'
-import type { MissionStopMetadata } from '../../mission/lib/missionOperationalState'
+import type {
+  MissionStatus,
+  MissionDeviceAssignmentStatus,
+  MissionDeviceCheckStatus,
+} from '../../mission/types/mission'
 export type OperatorMissionStatus =
   MissionStatus | 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'UNKNOWN'
 
-export type OperatorMission = MissionStopMetadata & {
+export type OperatorMission = {
   id: string
   missionCode?: string
   backendStatus?: string
+  flightPermitStatus?: 'PENDING' | 'APPROVED' | 'REJECTED' | null
+  flightPermitUpdatedAt?: string | null
   status: OperatorMissionStatus
   myResponseStatus?: 'PENDING' | 'ACCEPTED' | 'REJECTED'
   title: string
@@ -20,11 +25,18 @@ export type OperatorMission = MissionStopMetadata & {
   deviceCode?: string | null
   deviceSerialNumber?: string | null
   deviceStatus?: string | null
+  deviceAssignmentStatus?: MissionDeviceAssignmentStatus | null
+  deviceCheckStatus?: MissionDeviceCheckStatus | null
+  deviceReplacementCompleted?: boolean
+  deviceReplacementRequested?: boolean
+  acceptedStaffCount?: number
+  assignedStaffCount?: number
   deviceModelCode?: string | null
   deviceManufacturer?: string | null
   droneCode: string | null
   droneName: string | null
   flightStartedAt?: string
+  actualEndAt?: string
   completedAt?: string
   managerSubmissionStatus?:
     'NEEDS_SUBMIT' | 'PENDING_MANAGER' | 'SENT_TO_CUSTOMER'
@@ -57,12 +69,12 @@ export type OperatorMission = MissionStopMetadata & {
 }
 
 export type OperatorMissionPermissions = {
-  canTerminateFlight?: boolean
   canAttachChecklistEvidence?: boolean
   canDetachChecklistEvidence?: boolean
   canCompleteMission?: boolean
   canSubmitMissionResult?: boolean
   canExecuteMonitoringChecklist?: boolean
+  canAssessMonitoringChecklist?: boolean
   canControlFlight: boolean
   canStartMission?: boolean
   canOperatePayload: boolean
@@ -108,7 +120,6 @@ export type OperatorMissionTab = 'pending' | 'upcoming' | 'history'
 
 export type FlightConnection = {
   status: 'CONNECTING' | 'CONNECTED' | 'FAILED'
-  token: string
   gcsId: string
   connectedAt: string
   disconnectReason?: string
@@ -137,7 +148,14 @@ export type PreflightRecord = {
 export type MediaFileType = 'PHOTO' | 'VIDEO'
 
 export type MediaFileStatus =
-  'UPLOADED' | 'UPLOADING' | 'FAILED' | 'PENDING_UPLOAD'
+  | 'UPLOADED'
+  | 'UPLOADING'
+  | 'FAILED'
+  | 'PENDING_UPLOAD'
+  | 'VALIDATING'
+  | 'PENDING_MANAGER_APPROVAL'
+  | 'AVAILABLE'
+  | 'REJECTED'
 
 export type MediaFile = {
   id: string

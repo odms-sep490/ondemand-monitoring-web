@@ -1,10 +1,20 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { Button } from '../../../../shared/components/ui'
+import { useI18n } from '../../../../shared/i18n'
+import { commonMiscMessages } from './commonMisc.messages'
 import { Modal } from '../../../../shared/components/ui/Modal'
 
-type Confirmation = { title: string; body: string; action?: string }
+type Confirmation = {
+  title: string
+  body: string
+  action?: string
+  /** `danger` styles the dialog and confirm button for destructive actions. */
+  tone?: 'warning' | 'danger'
+}
 
 /** Reuses the app dialog/focus trap. Resolve cancellation on unmount; no native browser UI. */
 export function usePlanningConfirmation() {
+  const { t } = useI18n(commonMiscMessages)
   const [question, setQuestion] = useState<Confirmation | null>(null)
   const resolve = useRef<((accepted: boolean) => void) | null>(null)
   const confirm = useCallback(
@@ -35,24 +45,19 @@ export function usePlanningConfirmation() {
   const dialog = question ? (
     <Modal
       title={question.title}
-      tone="warning"
+      tone={question.tone ?? 'warning'}
       onClose={() => answer(false)}
       footer={
         <>
-          <button
-            type="button"
-            className="odm-btn"
-            onClick={() => answer(false)}
-          >
-            Hủy
-          </button>
-          <button
-            type="button"
-            className="odm-btn odm-btn-p"
+          <Button variant="ghost" onClick={() => answer(false)}>
+            {t.cancel}
+          </Button>
+          <Button
+            variant={question.tone === 'danger' ? 'danger' : 'primary'}
             onClick={() => answer(true)}
           >
-            {question.action ?? 'Xác nhận'}
-          </button>
+            {question.action ?? t.confirm}
+          </Button>
         </>
       }
     >

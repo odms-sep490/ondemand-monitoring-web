@@ -3,6 +3,8 @@
 @import 'tailwindcss/theme.css' layer(theme);
 @import 'tailwindcss/utilities.css' source(none);
 @source '../features/landing/';
+@source '../features/manager/';
+@source '../shared/components/antd/';
 
 :root {
   --navy-950: #020617;
@@ -1714,4 +1716,20 @@ h2 span {
   .odm-lang-toggle button {
     padding: 5px 8px;
   }
+}
+
+/* Manager area design tokens (Tailwind utilities: bg-brand, text-secondary,
+   text-warning, text-danger, text-thirdly, shadow-card). `brand` replaces the
+   reference project's green `primary`; the name `primary` is already taken by
+   the landing `--color-primary` CSS variable. */
+@theme {
+  --color-brand: #1565e8;
+  --color-secondary: #0958d9;
+  --color-warning: #f59e0b;
+  --color-danger: #dc2626;
+  --color-thirdly: #8b5cf6;
+  --font-finlandica: 'Finlandica', sans-serif;
+  --shadow-card:
+    rgba(14, 30, 37, 0.12) 0px 2px 4px 0px,
+    rgba(14, 30, 37, 0.32) 0px 2px 16px 0px;
 }

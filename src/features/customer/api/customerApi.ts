@@ -6,13 +6,9 @@ import { normalizeStatus } from '../lib/orders/mapOrder'
 import type { OrderCreateResponse } from './orderApi'
 import type {
   ChecklistInput,
+  ChecklistUpdatePayload,
   ServiceChecklistItem,
 } from '../lib/checklist/types'
-
-export type FindingDecision = {
-  findingId: string
-  state: 'ACCEPTED' | 'IGNORED'
-}
 
 export type CreateOrderPayload = {
   checklistItems?: ChecklistInput[] | null
@@ -63,7 +59,7 @@ export type ServicePricingEstimate = {
   serviceId: string
   servicePrice: number
   additionalRequirements: Array<{
-    type: 'AI_IMAGE_ANALYSIS' | string
+    type: string
     description: string
     additionalPrice: number
   }>
@@ -227,6 +223,8 @@ export type ServiceDeliverableOption = {
 
 const BACKEND_ORDER_STATUSES = new Set<OrderStatus>([
   'PENDING',
+  'UNDER_REVIEW',
+  'NEEDS_INFO',
   'APPROVED',
   'REJECTED',
   'IN_PROGRESS',
@@ -340,18 +338,22 @@ export const customerApi = {
       signal,
     }),
 
-  getPricingEstimate: (
-    serviceId: string,
-    params: { aiImageAnalysis?: boolean; signal?: AbortSignal } = {},
-  ) =>
+  getPricingEstimate: (serviceId: string, signal?: AbortSignal) =>
     apiRequest<ServicePricingEstimate>('/api/services/pricing-estimate', {
-      query: {
-        serviceId,
-        aiImageAnalysis: Boolean(params.aiImageAnalysis),
-      },
-      signal: params.signal,
+      query: { serviceId },
+      signal,
     }),
 
+
+  /** `PUT /api/orders/{id}/checklist` [BE] `OrderChecklistUpdateRequest` -> `OrderCreateResponse`. */
+  updateOrderChecklist: (orderId: string, payload: ChecklistUpdatePayload) =>
+    apiRequest<OrderCreateResponse>(
+      `/api/orders/${encodeURIComponent(orderId)}/checklist`,
+      {
+        method: 'PUT',
+        body: payload,
+      },
+    ),
 
   /** `POST /api/orders` [BE] `OrderCreateRequest` -> `OrderCreateResponse`. */
   createOrder: (payload: CreateOrderPayload) =>
@@ -361,17 +363,4 @@ export const customerApi = {
     }),
 
 
-  /** Mock only: the BE has no endpoint to accept a finding suggestion. */
-  applyFindingSuggestion: (orderId: string, findingId: string) =>
-    apiRequest<FindingDecision>(
-      `/api/customer/orders/${encodeURIComponent(orderId)}/analysis/findings/${encodeURIComponent(findingId)}/apply`,
-      { method: 'POST' },
-    ),
-
-  /** Mock only: the BE has no endpoint to ignore a finding suggestion. */
-  ignoreFinding: (orderId: string, findingId: string) =>
-    apiRequest<FindingDecision>(
-      `/api/customer/orders/${encodeURIComponent(orderId)}/analysis/findings/${encodeURIComponent(findingId)}/ignore`,
-      { method: 'POST' },
-    ),
 }

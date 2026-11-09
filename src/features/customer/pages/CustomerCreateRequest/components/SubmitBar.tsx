@@ -1,3 +1,5 @@
+import { Button } from 'antd'
+
 import { useI18n } from '../../../../../shared/i18n'
 import { customerHref } from '../../../routes'
 import { submitBarMessages } from './SubmitBar.messages'
@@ -14,13 +16,11 @@ export function SubmitBar({ error, disabled, onSubmit }: Props) {
         </div>
       )}
       <div className="co-footer">
-        <a className="odm-btn odm-btn-gh" href={customerHref({ screen: 'orders' })}>
-          {t.cancel}
-        </a>
+        <Button href={customerHref({ screen: 'orders' })}>{t.cancel}</Button>
         <div className="co-footer-spacer" />
-        <button type="button" className="odm-btn odm-btn-p" disabled={disabled} onClick={onSubmit}>
+        <Button type="primary" disabled={disabled} onClick={onSubmit}>
           {t.submit}
-        </button>
+        </Button>
       </div>
     </>
   )

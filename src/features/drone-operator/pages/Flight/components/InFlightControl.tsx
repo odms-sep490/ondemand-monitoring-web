@@ -1,6 +1,7 @@
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { Drone, Mission } from '../../../types/omss'
-import { useI18n } from '../../../../../shared/i18n'
+import { getLanguage, useI18n } from '../../../../../shared/i18n'
+import { useMissionMonitoring } from '../../../../mission/hooks/useMissionMonitoring'
 import { inFlightControlMessages } from './InFlightControl.messages'
 import './SatelliteFlightMap.css'
 import { type FlightCommand, type ControlStatus } from '../inFlightTypes'
@@ -26,11 +27,12 @@ import { PreflightRequiredNotice } from './PreflightRequiredNotice'
 import { MissionControlFooter } from './MissionControlFooter'
 import { GpsCockpitView } from './GpsCockpitView'
 import { MissionControlCamera } from './MissionControlCamera'
+import { isConstructionChecklistMission } from '../planHelpers'
+import { MissionChecklistPanel } from './MissionChecklistPanel'
+import { MissionCapturedMediaPanel } from './MissionCapturedMediaPanel'
 
 interface Props {
   normalFlightAllowed?: boolean
-  terminationAllowed?: boolean
-  operationalMessage?: string
   mission: Mission
   drone: Drone
   onRTB: () => void
@@ -40,12 +42,12 @@ interface Props {
   onPreflightReady?: () => Promise<void>
   onReviewMedia?: () => void
   onStartFlight?: () => Promise<void>
+  onFailureRequested?: (reason: string, wasAirborne: boolean) => Promise<void>
+  onFailureLanded?: () => void
 }
 
 export default function InFlightControl({
   normalFlightAllowed = false,
-  terminationAllowed = false,
-  operationalMessage,
   mission,
   drone,
   onRTB,
@@ -55,6 +57,8 @@ export default function InFlightControl({
   onPreflightReady,
   onReviewMedia,
   onStartFlight,
+  onFailureRequested,
+  onFailureLanded,
 }: Props) {
   const { t } = useI18n(inFlightControlMessages)
   const preflightStorageKey = `omss.droneOperator.preflightReady.${mission.id}.${drone.id}`
@@ -67,11 +71,17 @@ export default function InFlightControl({
   const [referenceBusy, setReferenceBusy] = useState(false)
   const referenceBusyRef = useRef(false)
   const [finishFlightBusy, setFinishFlightBusy] = useState(false)
+  const [missionFailureRequested, setMissionFailureRequested] = useState(
+    Boolean(mission.failureRequestedAt),
+  )
+  const [failureRequestBusy, setFailureRequestBusy] = useState(false)
   const [startFlightBusy, setStartFlightBusy] = useState(false)
   const [streamRevision, setStreamRevision] = useState(0)
   const [controlStatus, setControlStatus] = useState<ControlStatus | null>(null)
   const [moreOpen, setMoreOpen] = useState(false)
   const [lidarDetailsOpen, setLidarDetailsOpen] = useState(false)
+  const [missionPanelOpen, setMissionPanelOpen] = useState(false)
+  const [mediaPanelOpen, setMediaPanelOpen] = useState(false)
   const cameraDefaultAppliedRef = useRef(false)
   const [preflightReady, setPreflightReady] = useState(() => {
     if (requiresBackendPreflight) return false
@@ -83,6 +93,29 @@ export default function InFlightControl({
   })
   const restrictedZones = useRestrictedZones()
   const restrictedGpsZones = useRestrictedGpsZones()
+  const missionId = mission.backendId ?? mission.id
+  useEffect(() => {
+    if (mission.failureRequestedAt) setMissionFailureRequested(true)
+  }, [mission.failureRequestedAt])
+  const completionMonitoring = useMissionMonitoring(missionId)
+  const completionChecklist = completionMonitoring.data?.checklist
+  const hasAssignedChecklist =
+    (completionChecklist?.executions.length ?? 0) > 0
+  const canFinishFlight =
+    !missionFailureRequested &&
+    !completionMonitoring.loading &&
+    !completionMonitoring.error &&
+    hasAssignedChecklist &&
+    completionChecklist?.readyForSubmission === true
+  const finishFlightBlockedReason = missionFailureRequested
+    ? t.status.failurePending
+    : !hasAssignedChecklist
+    ? 'Phải gắn checklist trước khi hoàn thành chuyến bay.'
+    : completionMonitoring.loading
+      ? 'Đang kiểm tra trạng thái checklist và evidence.'
+      : completionMonitoring.error
+        ? 'Không thể xác minh checklist. Hãy tải lại và thử lại.'
+        : 'Phải hoàn thành từng mục và tải đủ ảnh evidence bắt buộc.'
 
   const thermalEnabled = controlStatus?.thermalEnabled === true
   const streamUrl = useMemo(
@@ -112,9 +145,7 @@ export default function InFlightControl({
 
   const { sendCommand } = useFlightCommand({
     normalFlightAllowed,
-    terminationAllowed,
     setLastCommand,
-    operationalMessage,
     preflightReady,
     mission,
     controlStatus,
@@ -122,7 +153,6 @@ export default function InFlightControl({
     setBusyCommand,
     drone,
     setIsOnline,
-    onStartFlight,
     onRTB,
     onEmergency,
   })
@@ -145,6 +175,27 @@ export default function InFlightControl({
     showBatteryWarning,
     thermalRows,
   } = useFlightTelemetry({ controlStatus })
+  const isConstructionChecklist = isConstructionChecklistMission(
+    mission.serviceLabel,
+  )
+  const autoPlan = controlStatus?.autoPlan
+  const autoPlanStatus = autoPlan?.status?.toUpperCase()
+  const autoPlanProgress =
+    autoPlan?.total && autoPlan.total > 0
+      ? Math.min(
+          100,
+          (Math.max(0, autoPlan.currentIndex ?? 0) / autoPlan.total) * 100,
+        )
+      : null
+  const displayedProgress = isConstructionChecklist
+    ? ['LANDING', 'COMPLETE', 'COMPLETED'].includes(autoPlanStatus ?? '')
+      ? 100
+      : (autoPlanProgress ?? progress)
+    : progress
+  const constructionChecklistAutoPilot =
+    isConstructionChecklist &&
+    (autoPlan?.active === true ||
+      ['RETURNING', 'LANDING'].includes(autoPlanStatus ?? ''))
   const handleOnline = useCallback(() => setIsOnline(true), [])
   const handleOffline = useCallback(() => setIsOnline(false), [])
   const handleToggleMore = useCallback(() => setMoreOpen((value) => !value), [])
@@ -178,20 +229,55 @@ export default function InFlightControl({
     setPreflightReady,
   })
 
-  if (import.meta.env.VITE_FLIGHT_MAP_ONLY !== 'false') {
+  const handleRequestMissionFailure = useCallback(async () => {
+    if (!onFailureRequested || failureRequestBusy || missionFailureRequested) return
+    if (!window.confirm(t.toolbar.failureConfirm)) return
+    setFailureRequestBusy(true)
+    const reason =
+      getLanguage() === 'en'
+        ? 'Operational risk during flight'
+        : 'Phát sinh rủi ro trong lúc thực hiện'
+    try {
+      const wasAirborne = controlStatus?.inAir === true
+      await onFailureRequested(reason, wasAirborne)
+      setMissionFailureRequested(true)
+      setLastCommand(t.status.failurePending)
+      if (wasAirborne) {
+        await sendCommand('return_to_base', { emergencyReturn: true })
+      }
+    } catch (cause) {
+      setLastCommand(
+        cause instanceof Error
+          ? cause.message
+          : getLanguage() === 'en'
+            ? 'Could not record the mission failure request'
+            : 'Không thể ghi nhận yêu cầu thất bại của Mission',
+      )
+    } finally {
+      setFailureRequestBusy(false)
+    }
+  }, [
+    failureRequestBusy,
+    missionFailureRequested,
+    controlStatus?.inAir,
+    onFailureRequested,
+    sendCommand,
+    t.status.failurePending,
+    t.toolbar.failureConfirm,
+  ])
+
+  if (import.meta.env.VITE_FLIGHT_MAP_ONLY === 'true') {
     return (
       <GpsCockpitView
         mission={mission}
         controlStatus={controlStatus}
         isOnline={isOnline}
-        operationalMessage={operationalMessage}
         lastCommand={lastCommand}
         telemetryBattery={telemetryBattery}
         cameraTelemetry={cameraTelemetry}
         busyCommand={busyCommand}
         normalFlightAllowed={normalFlightAllowed}
         preflightReady={preflightReady}
-        terminationAllowed={terminationAllowed}
         referenceBusy={referenceBusy}
         handleCommand={handleCommand}
         handleReviewMedia={handleReviewMedia}
@@ -200,6 +286,11 @@ export default function InFlightControl({
         startFlightBusy={startFlightBusy}
         handleFinishFlight={handleFinishFlight}
         finishFlightBusy={finishFlightBusy}
+        handleRequestMissionFailure={handleRequestMissionFailure}
+        failureRequestBusy={failureRequestBusy}
+        missionFailureRequested={missionFailureRequested}
+        canFinishFlight={canFinishFlight}
+        finishFlightBlockedReason={finishFlightBlockedReason}
         handleReferenceCapture={handleReferenceCapture}
         drone={drone}
         handlePreflightReady={handlePreflightReady}
@@ -225,7 +316,7 @@ export default function InFlightControl({
       <MissionControlHeader
         drone={drone}
         isOnline={isOnline}
-        progress={progress}
+        progress={displayedProgress}
         elapsed={elapsed}
         remaining={remaining}
       />
@@ -249,7 +340,6 @@ export default function InFlightControl({
       >
         <MissionControlCamera
           streamUrl={streamUrl}
-          preflightReady={preflightReady}
           isOnline={isOnline}
           handleOnline={handleOnline}
           handleOffline={handleOffline}
@@ -260,7 +350,6 @@ export default function InFlightControl({
           geofenceAlertActive={geofenceAlertActive}
           batteryState={batteryState}
           batteryDisplay={batteryDisplay}
-          operationalMessage={operationalMessage}
           lastCommand={lastCommand}
           geofenceTone={geofenceTone}
           geofenceStatus={geofenceStatus}
@@ -284,7 +373,10 @@ export default function InFlightControl({
             scrollbarGutter: 'stable',
           }}
         >
-          <LidarRadarOverlay status={controlStatus} />
+          <LidarRadarOverlay
+            status={controlStatus}
+            displayOnly={constructionChecklistAutoPilot}
+          />
           <AirPressurePanel status={controlStatus} />
         </section>
 
@@ -294,11 +386,52 @@ export default function InFlightControl({
             gridColumn: '1 / 3',
             minWidth: 0,
             overflow: 'visible',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 8,
           }}
         >
+          {missionFailureRequested && (
+            <div
+              role="status"
+              aria-live="polite"
+              style={{
+                border: '1px solid rgba(248,113,113,.65)',
+                borderRadius: 10,
+                padding: '8px 12px',
+                background: 'rgba(127,29,29,.48)',
+                color: '#fee2e2',
+                fontSize: 12,
+                fontWeight: 700,
+                lineHeight: 1.45,
+              }}
+            >
+              {t.status.failurePending}
+                {onFailureLanded && controlStatus?.inAir !== true && (
+                  <button
+                    type="button"
+                    onClick={onFailureLanded}
+                    style={{
+                      marginLeft: 12,
+                      minHeight: 30,
+                      border: '1px solid rgba(254,226,226,.65)',
+                      borderRadius: 7,
+                      padding: '4px 10px',
+                      background: 'rgba(127,29,29,.8)',
+                      color: '#fff1f2',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {getLanguage() === 'en'
+                      ? 'Confirm landed'
+                      : 'Xác nhận đã hạ cánh'}
+                  </button>
+                )}
+            </div>
+          )}
           <FlightControls
             canFly={normalFlightAllowed && preflightReady}
-            canTerminate={terminationAllowed}
             busyCommand={busyCommand}
             lidarDetailsOpen={lidarDetailsOpen}
             moreOpen={moreOpen}
@@ -309,17 +442,33 @@ export default function InFlightControl({
             onReviewMedia={handleReviewMedia}
             onFinishFlight={handleFinishFlight}
             finishFlightBusy={finishFlightBusy}
+            onFailMission={handleRequestMissionFailure}
+            failMissionBusy={failureRequestBusy}
+            missionFailureRequested={missionFailureRequested}
+            canFinishFlight={canFinishFlight}
+            finishFlightBlockedReason={finishFlightBlockedReason}
             onReferenceCapture={handleReferenceCapture}
             referenceBusy={referenceBusy}
           />
         </section>
 
-        <MissionControlSide
-          controlStatus={controlStatus}
-          lidarDetailsOpen={lidarDetailsOpen}
-          progress={progress}
-          mission={mission}
-        />
+        {missionPanelOpen ? (
+          <MissionChecklistPanel
+            mission={mission}
+            progress={displayedProgress}
+            onChecklistChanged={completionMonitoring.reload}
+          />
+        ) : mediaPanelOpen ? (
+          <MissionCapturedMediaPanel mission={mission} />
+        ) : (
+          <MissionControlSide
+            controlStatus={controlStatus}
+            lidarDetailsOpen={lidarDetailsOpen}
+            view="overview"
+            progress={displayedProgress}
+            mission={mission}
+          />
+        )}
 
         {!preflightReady && normalFlightAllowed && (
           <PreflightRequiredNotice
@@ -335,6 +484,20 @@ export default function InFlightControl({
         footerStatusColor={footerStatusColor}
         footerStatusDot={footerStatusDot}
         geofenceMessage={geofenceMessage}
+        missionPanelOpen={missionPanelOpen}
+        mediaPanelOpen={mediaPanelOpen}
+        onShowChecklist={() => {
+          setMissionPanelOpen(true)
+          setMediaPanelOpen(false)
+        }}
+        onShowMedia={() => {
+          setMissionPanelOpen(false)
+          setMediaPanelOpen(true)
+        }}
+        onShowOverview={() => {
+          setMissionPanelOpen(false)
+          setMediaPanelOpen(false)
+        }}
       />
     </div>
   )

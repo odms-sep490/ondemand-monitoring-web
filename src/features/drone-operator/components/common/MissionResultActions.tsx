@@ -1,3 +1,6 @@
+import { missionResultActionsMessages } from './MissionResultActions.messages'
+import { getLanguage, useI18n } from '../../../../shared/i18n'
+import { checklistReadyForInspection } from '../../../mission/lib/customerEvidenceSelection'
 import { ApiError } from '../../../../shared/api/httpClient'
 import { StatusBadge } from '../../../../shared/components/odm/StatusBadge'
 import type { useMissionMonitoring } from '../../../mission/hooks/useMissionMonitoring'
@@ -11,6 +14,7 @@ export function missionResultActions(
   status: string | undefined,
   query: Monitoring,
 ) {
+  const t = missionResultActionsMessages[getLanguage()]
   const data = query.data
   const known =
     !query.loading &&
@@ -23,39 +27,43 @@ export function missionResultActions(
       data.result?.approvalStatus === 'APPROVED')
   const canComplete =
     known &&
-    status === 'PENDING_REVIEW' &&
+    status === 'IN_PROGRESS' &&
     data.permissions.canCompleteMission === true
   const canSubmit =
-    known && data.permissions.canSubmitMissionResult === true && !submitted
+    known &&
+    (status === 'IN_PROGRESS' || status === 'COMPLETED') &&
+    data.permissions.canSubmitMissionResult === true &&
+    data.permissions.canAssessMonitoringChecklist === true &&
+    !submitted
   const completeReady =
     canComplete && data.checklist.readyForMissionCompletion === true
   const submitReady =
     canSubmit &&
-    data.checklist.readyForSubmission === true &&
-    (status === 'COMPLETED' || (status === 'PENDING_REVIEW' && completeReady))
+    checklistReadyForInspection(data.checklist) &&
+    (status === 'IN_PROGRESS' || status === 'COMPLETED')
   const remaining =
     data?.checklist.executions.filter(
       (row) => !['COMPLETED', 'UNABLE_TO_VERIFY'].includes(row.executionStatus),
     ).length ?? 0
   const readinessReason = !known
-    ? 'Đang xác nhận checklist và quyền thao tác.'
+    ? t.verifying
     : remaining > 0
-      ? `Còn ${remaining} mục checklist chưa hoàn tất.`
+      ? t.remaining(remaining)
       : data.checklist.executions.some(
             (row) =>
               row.executionStatus === 'UNABLE_TO_VERIFY' &&
               !row.unableToVerifyReason?.trim(),
           )
-        ? 'Cần bổ sung lý do cho mục không thể xác minh.'
+        ? t.unableReason
         : data.checklist.blockingReasons?.includes(
               'CHECKLIST_INTEGRITY_INVALID',
             )
-          ? 'Checklist chưa được xác nhận. Vui lòng làm mới và kiểm tra lại.'
+          ? t.integrity
           : data.checklist.blockingReasons?.includes('MEDIA_REJECTED')
-            ? 'Có media bằng chứng bị từ chối. Cần bổ sung bằng chứng hợp lệ.'
+            ? t.rejectedMedia
             : data.checklist.blockingReasons?.includes('MEDIA_NOT_VALIDATED')
-              ? 'Media bằng chứng chưa xác thực thành công.'
-              : 'Checklist chưa sẵn sàng hoặc chưa đủ bằng chứng hợp lệ. Kiểm tra các mục và media đã gắn.'
+              ? t.unvalidated
+              : t.notReady
   return {
     known,
     submitted,
@@ -96,6 +104,7 @@ export function MissionResultActions({
   onComplete,
   onSubmit,
   showComplete = true,
+  showSubmit = true,
 }: {
   missionId: string
   status?: string
@@ -104,39 +113,52 @@ export function MissionResultActions({
   onComplete: () => void
   onSubmit: () => void
   showComplete?: boolean
+  showSubmit?: boolean
 }) {
+  const { t } = useI18n(missionResultActionsMessages)
   const state = missionResultActions(missionId, status, monitoring)
-  if (!['PENDING_REVIEW', 'COMPLETED'].includes(status ?? '')) return null
+  if (
+    !['AWAITING_REVIEW', 'PENDING_REVIEW', 'COMPLETED'].includes(
+      status ?? '',
+    ) &&
+    !state.canComplete &&
+    !state.canSubmit
+  )
+    return null
   const reasonId = `result-readiness-${missionId}`
   const submitReason =
-    status !== 'COMPLETED' && !state.completeReady
-      ? 'Cần xác nhận hoàn thành Mission trước khi gửi kết quả.'
+    status !== 'IN_PROGRESS' && status !== 'COMPLETED'
+      ? t.completeFirst
       : state.readinessReason
   return (
-    <section
-      className="staff-result-actions"
-      aria-label="Nghiệm thu và gửi kết quả"
-    >
+    <section className="staff-result-actions" aria-label={t.section}>
       <div className="staff-result-phase" role="status">
-        {status === 'COMPLETED'
-          ? 'Mission đã được nghiệm thu.'
-          : 'Mission đang chờ nghiệm thu.'}
+        {status === 'AWAITING_REVIEW' || status === 'PENDING_REVIEW'
+          ? t.awaiting
+          : status === 'COMPLETED'
+            ? t.completed
+            : showComplete && !showSubmit && state.canComplete
+              ? t.afterFlight
+              : state.canSubmit
+                ? t.review
+                : t.waiting}
         {state.submitted && (
           <>
             <span>
               {monitoring.data?.result?.approvalStatus === 'APPROVED'
-                ? 'Kết quả đã được Manager duyệt.'
-                : 'Kết quả đã được gửi Manager và đang chờ duyệt.'}
+                ? t.confirmed
+                : t.awaiting}
             </span>
-            <StatusBadge tone="green">
+            <StatusBadge tone="blue">
               {monitoring.data?.result?.approvalStatus === 'APPROVED'
-                ? 'Đã duyệt'
-                : 'Chờ duyệt'}
+                ? t.approved
+                : t.pending}
             </StatusBadge>
           </>
         )}
       </div>
-      {((showComplete && state.canComplete) || state.canSubmit) && (
+      {((showComplete && state.canComplete) ||
+        (showSubmit && state.canSubmit)) && (
         <div className="staff-result-buttons">
           {showComplete && state.canComplete && (
             <button
@@ -146,23 +168,23 @@ export function MissionResultActions({
               aria-describedby={!state.completeReady ? reasonId : undefined}
               onClick={onComplete}
             >
-              Xác nhận hoàn thành Mission
+              {t.complete}
             </button>
           )}
-          {state.canSubmit && (
+          {showSubmit && state.canSubmit && (
             <button
               type="button"
-              className={`odm-btn${status === 'COMPLETED' ? ' odm-btn-p' : ''}`}
+              className={`odm-btn${state.submitReady ? ' odm-btn-p' : ''}`}
               disabled={busy || !state.submitReady}
               aria-describedby={!state.submitReady ? reasonId : undefined}
               onClick={onSubmit}
             >
-              Gửi kết quả cho Manager
+              {t.confirm}
             </button>
           )}
         </div>
       )}
-      {((state.canSubmit && !state.submitReady) ||
+      {((showSubmit && state.canSubmit && !state.submitReady) ||
         (showComplete && state.canComplete && !state.completeReady)) && (
         <p id={reasonId} className="staff-result-reason">
           {showComplete && state.canComplete && !state.completeReady
@@ -170,10 +192,11 @@ export function MissionResultActions({
             : submitReason}
         </p>
       )}
-      {busy && <p role="status">Đang xử lý…</p>}
-      {!state.known && (
-        <p role="status">Đang xác nhận checklist và quyền thao tác.</p>
+      {showSubmit && (
+        <p className="staff-result-reason">{t.automaticPublication}</p>
       )}
+      {busy && <p role="status">{t.busy}</p>}
+      {!state.known && <p role="status">{t.verifying}</p>}
     </section>
   )
 }

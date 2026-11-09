@@ -1,20 +1,16 @@
 import type {
   StoredPreflightStatus,
   RuntimePreflightStatus,
-  StoredWeatherStatus,
-  WeatherPreflightStatus,
 } from './preflightTypes'
-import { isRuntimeStatus, isWeatherStatus } from './preflightHelpers'
+import { isRuntimeStatus } from './preflightHelpers'
 
 export function preflightStateStorageKey(
   missionId: string,
   droneLabel: string,
+  assignmentId?: string | null,
 ) {
-  return `omss.droneOperator.preflightState.${missionId}.${droneLabel}`
-}
-
-export function weatherStateStorageKey(missionId: string, droneLabel: string) {
-  return `omss.droneOperator.weatherState.${missionId}.${droneLabel}`
+  const base = `omss.droneOperator.preflightState.${missionId}.${droneLabel}`
+  return assignmentId ? `${base}.${assignmentId}` : base
 }
 
 export function readStoredPreflightState(storageKey: string) {
@@ -70,31 +66,3 @@ export function clearStoredPreflightState(storageKey: string) {
   }
 }
 
-export function readStoredWeatherState(storageKey: string) {
-  try {
-    const raw = window.localStorage.getItem(storageKey)
-    if (!raw) return null
-    const parsed = JSON.parse(raw) as StoredWeatherStatus
-    if (!isWeatherStatus(parsed.status)) return null
-    return parsed.status
-  } catch {
-    return null
-  }
-}
-
-export function writeStoredWeatherState(
-  storageKey: string,
-  status: WeatherPreflightStatus,
-) {
-  try {
-    window.localStorage.setItem(
-      storageKey,
-      JSON.stringify({
-        savedAt: Date.now(),
-        status,
-      } satisfies StoredWeatherStatus),
-    )
-  } catch {
-    // Weather check still works if storage is unavailable.
-  }
-}

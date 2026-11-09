@@ -1,6 +1,10 @@
+import { FileDoneOutlined, ProfileOutlined, UnorderedListOutlined } from '@ant-design/icons'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
-import { StatusBadge } from '../../../../shared/components/odm/StatusBadge'
+import { ReloadOutlined } from '@ant-design/icons'
+import { Button, Skeleton } from 'antd'
+
+import { CardComponent, PageHeader, StatusTag } from '../../../../shared/components/antd'
 import { getMissionStatusMeta } from '../../lib/orderStatus'
 import { customerMissionReportApi } from '../../api/customerMissionReportApi'
 import { customerHref } from '../../routes'
@@ -73,43 +77,62 @@ export function CustomerMissionReportContent({
     return `${date(first)} · ${time(first)}${last ? (date(first) === date(last) ? `–${time(last)}` : ` → ${date(last)} · ${time(last)}`) : ''}`
   }
   return (
-    <div className="cr-report">
-      <a
-        className="cr-back"
-        href={customerHref({ screen: 'orderDetail', orderId })}
-      >
-        <span aria-hidden="true">← </span>
-        {t.back}
-      </a>
-      <header className="cr-heading cr-report-header">
-        <div>
-          <h1>{t.report}</h1>
+    <div className="cus-page cr-report">
+      {showMedia ? (
+        <PageHeader
+          crumb={
+            <a className="cus-back" href={customerHref({ screen: 'orderDetail', orderId })}>
+              <span aria-hidden="true">← </span>
+              {t.back}
+            </a>
+          }
+          title={t.report}
+          description={
+            report ? (
+              <span className="cr-report-identity">
+                <span className="odm-mono">{report.mission.missionCode}</span>
+                {status && <StatusTag tone={status.tone}>{status.label}</StatusTag>}
+                {report.mission.scopeLabel && <span>{report.mission.scopeLabel}</span>}
+              </span>
+            ) : undefined
+          }
+          actions={
+            <Button icon={<ReloadOutlined aria-hidden="true" aria-label={undefined} />} disabled={query.loading} onClick={query.reload}>
+              {t.refresh}
+            </Button>
+          }
+        />
+      ) : (
+        <div className="cr-embedded-head">
+          <h2 className="cr-embedded-title">{t.report}</h2>
           {report && (
-            <div className="cr-report-identity">
+            <span className="cr-report-identity">
               <span className="odm-mono">{report.mission.missionCode}</span>
-              {status && (
-                <StatusBadge tone={status.tone}>{status.label}</StatusBadge>
-              )}
-              {report.mission.scopeLabel && (
-                <span>{report.mission.scopeLabel}</span>
-              )}
-            </div>
+              {status && <StatusTag tone={status.tone}>{status.label}</StatusTag>}
+            </span>
           )}
+          <Button
+            className="cr-embedded-refresh"
+            size="small"
+            disabled={query.loading}
+            onClick={query.reload}
+          >
+            {t.refresh}
+          </Button>
         </div>
-        <button
-          className="odm-btn odm-btn-gh"
-          disabled={query.loading}
-          onClick={query.reload}
-        >
-          {t.refresh}
-        </button>
-      </header>
-      {query.loading && <p role="status">{t.loading}</p>}
-      {query.error ? <p role="alert">{t.error}</p> : null}
+      )}
+      {query.loading && (
+        <CardComponent role="status">
+          <Skeleton active paragraph={{ rows: 3 }} />
+          <span className="odm-visually-hidden">{t.loading}</span>
+        </CardComponent>
+      )}
+      {query.error ? (
+        <CardComponent role="alert">{t.error}</CardComponent>
+      ) : null}
       {report && (
         <>
-          <section className="cr-section cr-overview" aria-label={t.overview}>
-            <h2>{t.overview}</h2>
+          <CardComponent className="cr-overview" icon={<ProfileOutlined />} title={t.overview} role="region" aria-label={t.overview}>
             <dl className="cr-summary-grid">
               <div>
                 <dt>{t.scope}</dt>
@@ -175,7 +198,7 @@ export function CustomerMissionReportContent({
                     </a>
                   </p>
                 ))}
-          </section>
+          </CardComponent>
           <section
             className={`cr-publication ${published ? 'is-published' : ''}`}
             role="status"
@@ -196,14 +219,12 @@ export function CustomerMissionReportContent({
           </section>
           {published && report.result ? (
             <>
-              <section className="cr-section">
-                <h2>{t.monitoringResult}</h2>
+              <CardComponent icon={<FileDoneOutlined />} title={t.monitoringResult}>
                 <p className="cr-copy">
                   {report.result.summary || t.noSummary}
                 </p>
-              </section>
-              <section className="cr-section" aria-label={t.checklist}>
-                <h2>{t.checklist}</h2>
+              </CardComponent>
+              <CardComponent icon={<UnorderedListOutlined />} title={t.checklist} role="region" aria-label={t.checklist}>
                 {report.checklistItems.length === 0 ? (
                   <p>{t.emptyChecklist}</p>
                 ) : (
@@ -250,7 +271,7 @@ export function CustomerMissionReportContent({
                       ))}
                   </ol>
                 )}
-              </section>
+              </CardComponent>
             </>
           ) : null}
           {showMedia && (

@@ -64,12 +64,6 @@ export const MissionInfoPanel = memo(function MissionInfoPanel({
             mono: false,
           },
           {
-            id: 'order',
-            label: t.missionInfo.order,
-            value: mission.orderRef,
-            mono: false,
-          },
-          {
             id: 'progress',
             label: t.missionInfo.progress,
             value: `${progress.toFixed(1)}%`,

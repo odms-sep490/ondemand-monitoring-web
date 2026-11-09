@@ -7,8 +7,7 @@
 // Screen -> design code:
 //  dashboard        MNG-01   orderQueue      MNG-02   orderReview   MNG-03
 //  missionCreate    MNG-04   missionDispatch MNG-05   schedule      MNG-06
-//  live             MNG-07   missions        MNG-08   drones        MNG-09
-//  maintenance      MNG-10   media           MNG-11   reports       MNG-12
+//  missions         MNG-08   drones          MNG-09   maintenance   MNG-10
 
 export const MANAGER_ROOT = '#portal/manager'
 
@@ -16,41 +15,26 @@ export type ManagerRoute =
   | { screen: 'dashboard' }
   | { screen: 'orderQueue' }
   | { screen: 'orderReview'; orderId: string }
-  | { screen: 'missionCreate'; orderId: string; replacesMissionId?: string }
+  | { screen: 'missionCreate'; orderId: string; replacesMissionId?: string; reworkCaseId?: string }
+  | { screen: 'orderResults'; orderId: string }
   | { screen: 'missionDispatch'; missionId: string }
   | { screen: 'missionSetup'; missionId: string }
   | { screen: 'missionDetail'; missionId: string }
-  | { screen: 'schedule' }
-  | { screen: 'live'; missionId?: string }
+  | {
+      screen: 'schedule'
+      assignmentMissionId?: string
+      assignmentCanEdit?: boolean
+      assignmentReplaceStaffId?: string
+      assignmentReturnOrderId?: string
+    }
   | { screen: 'missions'; missionId?: string }
-  | { screen: 'drones'; droneId?: string }
+  | { screen: 'drones'; droneId?: string; assignmentMissionId?: string }
   | { screen: 'maintenance' }
-  | { screen: 'media' }
-  | { screen: 'reports' }
-  | { screen: 'support' }
+  | { screen: 'support'; ticketId?: string }
   | { screen: 'notFound' }
 
 export type ManagerScreen = ManagerRoute['screen']
 
-/** Design artboard code for each screen, used by the "under construction" placeholder. */
-export const managerScreenCode: Record<ManagerScreen, string> = {
-  dashboard: 'MNG-01',
-  orderQueue: 'MNG-02',
-  orderReview: 'MNG-03',
-  missionCreate: 'MNG-04',
-  missionDispatch: 'MNG-05',
-  missionSetup: 'MNG-05',
-  missionDetail: 'MNG-08',
-  schedule: 'MNG-06',
-  live: 'MNG-07',
-  missions: 'MNG-08',
-  drones: 'MNG-09',
-  maintenance: 'MNG-10',
-  media: 'MNG-11',
-  reports: 'MNG-12',
-  support: 'MNG-SUP',
-  notFound: '',
-}
 
 /**
  * Parses a `window.location.hash`-style string into a `ManagerRoute`. Any
@@ -62,8 +46,9 @@ export function parseManagerRoute(hash: string): ManagerRoute {
     return { screen: 'notFound' }
   }
 
-  const rest = hash.slice(MANAGER_ROOT.length)
-  const segments = rest.split('/').filter(Boolean).map(decodeURIComponent)
+  const [pathname, query = ''] = hash.slice(MANAGER_ROOT.length).split('?', 2)
+  const segments = pathname.split('/').filter(Boolean).map(decodeURIComponent)
+  const searchParams = new URLSearchParams(query)
 
   if (segments.length === 0) return { screen: 'dashboard' }
 
@@ -71,11 +56,19 @@ export function parseManagerRoute(hash: string): ManagerRoute {
 
   switch (head) {
     case 'orders': {
+      if (tail.length === 2 && tail[1] === 'results')
+        return { screen: 'orderResults', orderId: tail[0] }
       if (tail.length === 1) return { screen: 'orderReview', orderId: tail[0] }
       if (tail.length === 2 && tail[1] === 'mission')
         return { screen: 'missionCreate', orderId: tail[0] }
+      if (tail.length === 3 && tail[1] === 'rework')
+        return { screen: 'missionCreate', orderId: tail[0], reworkCaseId: tail[2] }
       if (tail.length === 3 && tail[1] === 'replacement')
-        return { screen: 'missionCreate', orderId: tail[0], replacesMissionId: tail[2] }
+        return {
+          screen: 'missionCreate',
+          orderId: tail[0],
+          replacesMissionId: tail[2],
+        }
       if (tail.length === 0) return { screen: 'orderQueue' }
       return { screen: 'notFound' }
     }
@@ -91,27 +84,48 @@ export function parseManagerRoute(hash: string): ManagerRoute {
       return { screen: 'notFound' }
     }
     case 'schedule':
-      return tail.length === 0 ? { screen: 'schedule' } : { screen: 'notFound' }
-    case 'live': {
-      if (tail.length === 0) return { screen: 'live' }
-      if (tail.length === 1) return { screen: 'live', missionId: tail[0] }
-      return { screen: 'notFound' }
-    }
+      if (tail.length > 0) return { screen: 'notFound' }
+      {
+        const assignmentMissionId =
+          searchParams.get('assignmentMissionId')?.trim() || undefined
+        const assignmentReturnOrderId =
+          searchParams.get('assignmentReturnOrderId')?.trim() || undefined
+        const assignmentReplaceStaffId =
+          searchParams.get('assignmentReplaceStaffId')?.trim() || undefined
+        return assignmentMissionId
+          ? {
+              screen: 'schedule',
+              assignmentMissionId,
+              assignmentCanEdit: searchParams.get('assignmentCanEdit') === '1',
+              ...(assignmentReplaceStaffId ? { assignmentReplaceStaffId } : {}),
+              ...(assignmentReturnOrderId ? { assignmentReturnOrderId } : {}),
+            }
+          : { screen: 'schedule' }
+      }
     case 'drones': {
-      if (tail.length === 0) return { screen: 'drones' }
-      if (tail.length === 1) return { screen: 'drones', droneId: tail[0] }
+      const assignmentMissionId =
+        searchParams.get('assignmentMissionId')?.trim() || undefined
+      if (tail.length === 0)
+        return assignmentMissionId
+          ? { screen: 'drones', droneId: undefined, assignmentMissionId }
+          : { screen: 'drones', droneId: undefined }
+      if (tail.length === 1)
+        return {
+          screen: 'drones',
+          droneId: tail[0],
+          ...(assignmentMissionId ? { assignmentMissionId } : {}),
+        }
       return { screen: 'notFound' }
     }
     case 'maintenance':
       return tail.length === 0
         ? { screen: 'maintenance' }
         : { screen: 'notFound' }
-    case 'media':
-      return tail.length === 0 ? { screen: 'media' } : { screen: 'notFound' }
-    case 'reports':
-      return tail.length === 0 ? { screen: 'reports' } : { screen: 'notFound' }
     case 'support':
-      return tail.length === 0 ? { screen: 'support' } : { screen: 'notFound' }
+      if (tail.length === 0) return { screen: 'support' }
+      if (tail.length === 2 && tail[0] === 'tickets')
+        return { screen: 'support', ticketId: tail[1] }
+      return { screen: 'notFound' }
     default:
       return { screen: 'notFound' }
   }
@@ -126,7 +140,11 @@ export function managerHref(route: ManagerRoute): string {
       return `${MANAGER_ROOT}/orders`
     case 'orderReview':
       return `${MANAGER_ROOT}/orders/${route.orderId}`
+    case 'orderResults':
+      return `${MANAGER_ROOT}/orders/${route.orderId}/results`
     case 'missionCreate':
+      if (route.reworkCaseId)
+        return `${MANAGER_ROOT}/orders/${encodeURIComponent(route.orderId)}/rework/${encodeURIComponent(route.reworkCaseId)}`
       return route.replacesMissionId
         ? `${MANAGER_ROOT}/orders/${encodeURIComponent(route.orderId)}/replacement/${encodeURIComponent(route.replacesMissionId)}`
         : `${MANAGER_ROOT}/orders/${route.orderId}/mission`
@@ -136,28 +154,40 @@ export function managerHref(route: ManagerRoute): string {
       return `${MANAGER_ROOT}/missions/${route.missionId}/setup`
     case 'missionDetail':
       return `${MANAGER_ROOT}/missions/${route.missionId}/detail`
-    case 'schedule':
-      return `${MANAGER_ROOT}/schedule`
-    case 'live':
-      return route.missionId
-        ? `${MANAGER_ROOT}/live/${route.missionId}`
-        : `${MANAGER_ROOT}/live`
+    case 'schedule': {
+      if (!route.assignmentMissionId) return `${MANAGER_ROOT}/schedule`
+      const params = new URLSearchParams({
+        assignmentMissionId: route.assignmentMissionId,
+        assignmentCanEdit: route.assignmentCanEdit ? '1' : '0',
+      })
+      if (route.assignmentReturnOrderId) {
+        params.set('assignmentReturnOrderId', route.assignmentReturnOrderId)
+      }
+      if (route.assignmentReplaceStaffId) {
+        params.set('assignmentReplaceStaffId', route.assignmentReplaceStaffId)
+      }
+      return `${MANAGER_ROOT}/schedule?${params.toString()}`
+    }
     case 'missions':
       return route.missionId
         ? `${MANAGER_ROOT}/missions/${route.missionId}`
         : `${MANAGER_ROOT}/missions`
-    case 'drones':
-      return route.droneId
+    case 'drones': {
+      const path = route.droneId
         ? `${MANAGER_ROOT}/drones/${route.droneId}`
         : `${MANAGER_ROOT}/drones`
+      if (!route.assignmentMissionId) return path
+      const params = new URLSearchParams({
+        assignmentMissionId: route.assignmentMissionId,
+      })
+      return `${path}?${params.toString()}`
+    }
     case 'maintenance':
       return `${MANAGER_ROOT}/maintenance`
-    case 'media':
-      return `${MANAGER_ROOT}/media`
-    case 'reports':
-      return `${MANAGER_ROOT}/reports`
     case 'support':
-      return `${MANAGER_ROOT}/support`
+      return route.ticketId
+        ? `${MANAGER_ROOT}/support/tickets/${encodeURIComponent(route.ticketId)}`
+        : `${MANAGER_ROOT}/support`
     case 'notFound':
       return MANAGER_ROOT
   }

@@ -1,39 +1,25 @@
+import { Skeleton } from 'antd'
+
+import { CardComponent } from '../../../../../shared/components/antd'
 import { useI18n } from '../../../../../shared/i18n'
+import { PageHeader } from '../../../components/common/PageHeader'
 import { orderQueuePageMessages } from '../OrderQueuePage.messages'
 
 export function QueueSkeleton() {
   const { t } = useI18n(orderQueuePageMessages)
   return (
-    <div className="odm-mgr-dash" aria-busy="true" aria-live="polite">
-      <div className="odm-mgr-dash-head">
-        <span className="odm-sk" style={{ width: 220, height: 24 }} />
-      </div>
-      <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+    <div className="mgr-view" aria-busy="true" aria-live="polite">
+      <PageHeader title={t.title} />
+      <div className="mgr-kpi-strip">
         {Array.from({ length: 4 }, (_, i) => (
-          <span
-            key={i}
-            className="odm-sk"
-            style={{ width: 90, height: 28, borderRadius: 14 }}
-          />
+          <CardComponent key={i}>
+            <Skeleton active paragraph={{ rows: 1 }} />
+          </CardComponent>
         ))}
       </div>
-      <div
-        className="odm-card"
-        style={{
-          padding: 16,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 10,
-        }}
-      >
-        {Array.from({ length: 6 }, (_, i) => (
-          <span
-            key={i}
-            className="odm-sk"
-            style={{ width: '100%', height: 42 }}
-          />
-        ))}
-      </div>
+      <CardComponent>
+        <Skeleton active paragraph={{ rows: 5 }} />
+      </CardComponent>
       <span className="odm-visually-hidden">{t.loading}</span>
     </div>
   )

@@ -1,6 +1,8 @@
+import { Button, Skeleton, Tag } from 'antd'
+import { AppstoreOutlined } from '@ant-design/icons'
 import { useState } from 'react'
 
-import { Card, EmptyState } from '../../../../../shared/components/ui'
+import { Card, EmptyState } from '../../../components/common/ui'
 import { Icon } from '../../../../../shared/components/Icon'
 import { useI18n } from '../../../../../shared/i18n'
 import type { ServiceOption } from '../../../api/customerApi'
@@ -45,7 +47,6 @@ type Props = {
   services: ServiceOption[]
   loading: boolean
   selectedId: string
-  suggested?: ServiceOption
   error?: string
   onSelect: (serviceId: string) => void
 }
@@ -54,7 +55,6 @@ export function ServicePicker({
   services,
   loading,
   selectedId,
-  suggested,
   error,
   onSelect,
 }: Props) {
@@ -79,6 +79,7 @@ export function ServicePicker({
 
   return (
     <Card
+      icon={<AppstoreOutlined />}
       title={t.cardTitle}
       className="co-service-card"
       actions={
@@ -95,40 +96,16 @@ export function ServicePicker({
       }
     >
       <p className="co-service-lead">{t.cardHint}</p>
-      {suggested && (
-        <div className="co-suggest">
-          <strong>{t.aiSuggested}</strong>
-          <div className="co-hint">{t.aiSuggestedHint}</div>
-          <div className="co-service">
-            <span className="co-service-illustration">
-              <ServiceImage
-                imageUrl={suggested.imageUrl}
-                fallbackImageUrl={suggested.fallbackImageUrl}
-                noImage={t.noImage}
-              />
-            </span>
-            <div className="co-service-name">
-              {localizeServiceName(suggested.id, lang, suggested.name)}
-            </div>
-            <div className="co-service-desc">
-              {suggested.description || t.defaultDescription}
-            </div>
-            <strong>{formatMoney(suggested.defaultPrice ?? suggested.basePrice, locale)}</strong>
-            <button
-              type="button"
-              className="odm-btn odm-btn-sm"
-              onClick={() => onSelect(suggested.id)}
-            >
-              {selectedId === suggested.id ? t.selectedNow : t.pickSuggestion}
-            </button>
-          </div>
-        </div>
-      )}
       <div className="co-row-between co-mt">
         <strong>{t.allServices}</strong>
         <span className="co-hint">{t.serviceCount(services.length)}</span>
       </div>
-      {loading && <p className="co-hint co-mt">{t.loading}</p>}
+      {loading && (
+        <div className="co-mt" role="status" aria-busy="true">
+          <Skeleton active paragraph={{ rows: 3 }} title={false} />
+          <span className="odm-visually-hidden">{t.loading}</span>
+        </div>
+      )}
       {!loading && services.length === 0 && (
         <EmptyState title={t.emptyTitle} description={t.emptyDescription} />
       )}
@@ -140,7 +117,6 @@ export function ServicePicker({
           const cls = [
             'co-service',
             selectedId === service.id ? 'is-active' : '',
-            suggested?.id === service.id ? 'is-suggested' : '',
           ].join(' ')
           return (
             <button
@@ -172,7 +148,9 @@ export function ServicePicker({
                 )}
               </span>
               {selectedId === service.id && (
-                <span className="co-service-selected">{t.selectedBadge}</span>
+                <Tag color="processing" bordered={false} className="co-service-selected">
+                  {t.selectedBadge}
+                </Tag>
               )}
               <span className="co-service-name">
                 {localizeServiceName(service.id, lang, service.name)}
@@ -186,22 +164,14 @@ export function ServicePicker({
         })}
       </div>
       {hiddenCount > 0 && (
-        <button
-          type="button"
-          className="co-service-more"
-          onClick={() => setExpanded(true)}
-        >
+        <Button className="co-service-more" onClick={() => setExpanded(true)}>
           {t.showMore(hiddenCount)}
-        </button>
+        </Button>
       )}
       {showAll && !needle && !selectedHidden && visible.length > SERVICE_LIMIT && (
-        <button
-          type="button"
-          className="co-service-more"
-          onClick={() => setExpanded(false)}
-        >
+        <Button className="co-service-more" onClick={() => setExpanded(false)}>
           {t.showLess}
-        </button>
+        </Button>
       )}
       {error &&<div className="ui-field-error">{error}</div>}
     </Card>

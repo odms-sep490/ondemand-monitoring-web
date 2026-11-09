@@ -5,24 +5,28 @@ export const liveDispatchPageMessages = defineMessages({
     selectDroneAndOperator:
       'Cần phân công đủ 4 vai trò và ít nhất 1 thiết bị trước khi phân công.',
     assignFailed: 'Không phân công được nguồn lực',
+    planningOnly: 'Chỉ được gán hoặc gỡ nguồn lực khi Mission ở trạng thái PLANNING.',
     loadingResources: 'Đang tải nguồn lực khả dụng…',
     checkingStaff: 'Đang kiểm tra nhân sự khả dụng...',
     checkingDevices: 'Đang kiểm tra thiết bị khả dụng...',
     staffAvailabilityHint:
-      'Chỉ hiển thị nhân sự khả dụng trong thời gian thực hiện Mission.',
+      'Chỉ hiển thị nhân sự khả dụng trong thời gian thực hiện nhiệm vụ.',
     deviceAvailabilityHint:
-      'Chỉ hiển thị thiết bị khả dụng trong thời gian thực hiện Mission.',
+      'Chỉ hiển thị thiết bị khả dụng trong thời gian thực hiện nhiệm vụ.',
     staffAvailabilityChanged:
-      'Nhân sự không còn khả dụng trong khung giờ Mission này. Danh sách đã được cập nhật; các lựa chọn còn hợp lệ được giữ nguyên.',
+      'Nhân sự không còn khả dụng trong khung giờ nhiệm vụ này. Danh sách đã được cập nhật; các lựa chọn còn hợp lệ được giữ nguyên.',
     deviceAvailabilityChanged:
-      'Thiết bị không còn khả dụng trong khung giờ Mission này. Danh sách đã được cập nhật; các lựa chọn còn hợp lệ được giữ nguyên.',
+      'Thiết bị không còn khả dụng trong khung giờ nhiệm vụ này. Danh sách đã được cập nhật; các lựa chọn còn hợp lệ được giữ nguyên.',
     resourceAvailabilityChanged:
       'Nguồn lực đã không còn khả dụng trong khung giờ này. Danh sách đã được cập nhật. Vui lòng chọn lại.',
     scheduleRequired:
-      'Cần có lịch bắt đầu và kết thúc Mission hợp lệ để kiểm tra nguồn lực.',
+      'Cần có lịch bắt đầu và kết thúc nhiệm vụ hợp lệ để kiểm tra nguồn lực.',
     loadError: 'Không tải được dữ liệu phân công',
     title: 'Phân công nguồn lực',
     createMissionTitle: 'Gán nguồn lực',
+    sideMission: 'Nhiệm vụ',
+    sideSelection: 'Lựa chọn hiện tại',
+    sideActions: 'Thao tác',
     createMissionSubtitle:
       'Chọn nhân sự, thiết bị và xác nhận phân công cho nhiệm vụ',
     missionSummary: (_code: string, order: string) =>
@@ -67,12 +71,6 @@ export const liveDispatchPageMessages = defineMessages({
       MAINTAINER: 'Bảo trì',
       INSPECTOR: 'Nghiệm thu',
     },
-    roleIcons: {
-      PILOT: '✈',
-      OPERATOR: '⌁',
-      MAINTAINER: '🔧',
-      INSPECTOR: '✓',
-    },
     roleDescriptions: {
       PILOT: 'Điều khiển bay',
       OPERATOR: 'Kết nối thiết bị và kiểm tra trước bay',
@@ -101,11 +99,11 @@ export const liveDispatchPageMessages = defineMessages({
     chooseDroneAria: 'Chọn thiết bị',
     chooseDroneOption: 'Chọn thiết bị',
     noAvailableDrones:
-      'Không có thiết bị khả dụng trong khung giờ Mission này.',
+      'Không có thiết bị khả dụng trong khung giờ nhiệm vụ này.',
     chooseOperatorAria: (role: string) => `Chọn nhân sự cho ${role}`,
     chooseOperatorOption: 'Chọn nhân sự',
     noAvailableOperators:
-      'Không có nhân sự phù hợp trong khung giờ Mission này.',
+      'Không có nhân sự phù hợp trong khung giờ nhiệm vụ này.',
     footerHint:
       'Hệ thống sẽ khóa lịch nhân sự, gán thiết bị và chuyển nhiệm vụ sang bước chờ đội bay xác nhận.',
     orderFooterHint: 'Thông tin đơn hàng đã được duyệt, chỉ để đối chiếu.',
@@ -136,9 +134,11 @@ export const liveDispatchPageMessages = defineMessages({
     openOrder: 'Xem đơn hàng',
     missionStatuses: {
       CREATED: 'Đã tạo',
+      PENDING_PAYMENT: 'Chờ thanh toán phần còn lại',
+      PENDING_CONFIRMATION: 'Chuẩn bị',
       RESOURCE_ASSIGNING: 'Đang phân công nguồn lực',
-      WAITING_CREW_CONFIRMATION: 'Chờ đội bay xác nhận',
-      READY: 'Sẵn sàng bay',
+      PLANNING: 'Chờ nhân sự nhận nhiệm vụ và kiểm tra thiết bị trước bay',
+      READY: 'Sẵn sàng chờ nghiệm thu',
       IN_PROGRESS: 'Đang thực hiện',
       COMPLETED: 'Hoàn thành',
       CANCELLED: 'Đã hủy',
@@ -149,6 +149,7 @@ export const liveDispatchPageMessages = defineMessages({
     selectDroneAndOperator:
       'Assign all 4 mission roles and one device before assigning.',
     assignFailed: 'Could not assign the resources',
+    planningOnly: 'Resources can only be assigned or removed while the Mission is PLANNING.',
     loadingResources: 'Loading available resources…',
     checkingStaff: 'Checking available staff...',
     checkingDevices: 'Checking available devices...',
@@ -167,6 +168,9 @@ export const liveDispatchPageMessages = defineMessages({
     loadError: 'Could not load the assignment data',
     title: 'Resource assignment',
     createMissionTitle: 'Assign resources',
+    sideMission: 'Mission',
+    sideSelection: 'Current selection',
+    sideActions: 'Actions',
     createMissionSubtitle: 'Assign resources and configure the mission',
     missionSummary: (_code: string, order: string) =>
       `Order to operate · ${order}`,
@@ -209,12 +213,6 @@ export const liveDispatchPageMessages = defineMessages({
       OPERATOR: 'Operator',
       MAINTAINER: 'Maintainer',
       INSPECTOR: 'Inspector',
-    },
-    roleIcons: {
-      PILOT: '✈',
-      OPERATOR: '⌁',
-      MAINTAINER: '🔧',
-      INSPECTOR: '✓',
     },
     roleDescriptions: {
       PILOT: 'Flight control',
@@ -278,9 +276,11 @@ export const liveDispatchPageMessages = defineMessages({
     openOrder: 'View order',
     missionStatuses: {
       CREATED: 'Created',
+      PENDING_PAYMENT: 'Waiting for final payment',
+      PENDING_CONFIRMATION: 'Preparing',
       RESOURCE_ASSIGNING: 'Assigning resources',
-      WAITING_CREW_CONFIRMATION: 'Waiting for crew confirmation',
-      READY: 'Ready',
+      PLANNING: 'Waiting for staff and preflight',
+      READY: 'Ready for inspector start',
       IN_PROGRESS: 'In progress',
       COMPLETED: 'Completed',
       CANCELLED: 'Cancelled',

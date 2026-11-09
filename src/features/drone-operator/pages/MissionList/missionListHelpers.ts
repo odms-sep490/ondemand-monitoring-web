@@ -1,13 +1,11 @@
 import type { OperatorMission } from '../../types/mission'
 import type { Messages } from './missionListTypes'
-import {
-  missionHasSafeStop,
-  missionMayTerminate,
-} from '../../../mission/lib/missionOperationalState'
 import { operatorHref } from '../../routes'
 import { hasAcknowledgedHandover } from '../../lib/flightWorkflowStorage'
 
 export const ACTIVE_RAIL_STATUSES = new Set([
+  'PLANNING',
+  'PENDING_CONFIRMATION',
   'CONNECTED',
   'PREFLIGHT_CHECKING',
   'FAILED_PREFLIGHT',
@@ -16,6 +14,7 @@ export const ACTIVE_RAIL_STATUSES = new Set([
   'IN_PROGRESS',
   'RETURNING',
   'POSTFLIGHT_CHECKING',
+  'AWAITING_REVIEW',
   'PENDING_REVIEW',
 ])
 
@@ -31,7 +30,11 @@ export function isRailMission(
   const status = latestMissionStatus(mission)
   if (ACTIVE_RAIL_STATUSES.has(status)) return true
   if (status === 'COMPLETED' || mission.status === 'COMPLETED') return false
-  if (mission.status !== 'ACCEPTED' && status !== 'SCHEDULED') return false
+  if (
+    mission.status !== 'ACCEPTED' &&
+    status !== 'PLANNING' &&
+    status !== 'READY'
+  ) return false
   return start.getTime() > now.getTime()
 }
 
@@ -41,7 +44,13 @@ export function railMissionPriority(status: string) {
 }
 
 export function railStatusTone(status: string) {
-  if (status === 'PENDING_REVIEW' || status === 'READY_TO_FLY') return 'blue'
+  if (
+    status === 'AWAITING_REVIEW' ||
+    status === 'PENDING_REVIEW' ||
+    status === 'READY_TO_FLY' ||
+    status === 'PENDING_CONFIRMATION'
+  )
+    return 'blue'
   if (status === 'FAILED_PREFLIGHT') return 'red'
   if (
     status === 'IN_FLIGHT' ||
@@ -57,20 +66,11 @@ export function railStatusTone(status: string) {
 export function railActionFor(mission: OperatorMission, t: Messages) {
   const status = latestMissionStatus(mission)
   const permissions = mission.permissions
-  if (missionHasSafeStop(mission)) {
-    return {
-      label: missionMayTerminate(mission, permissions?.canTerminateFlight)
-        ? 'Dừng chuyến bay'
-        : 'Xem trạng thái dừng',
-      href: operatorHref({
-        screen: missionMayTerminate(mission, permissions?.canTerminateFlight)
-          ? 'flight'
-          : 'missionDetail',
-        missionId: mission.id,
-      }),
-    }
-  }
-  if (status === 'PENDING_REVIEW' || status === 'COMPLETED') {
+  if (
+    status === 'AWAITING_REVIEW' ||
+    status === 'PENDING_REVIEW' ||
+    status === 'COMPLETED'
+  ) {
     return {
       label: t.viewResult,
       href: operatorHref({ screen: 'missionDetail', missionId: mission.id }),
@@ -78,7 +78,10 @@ export function railActionFor(mission: OperatorMission, t: Messages) {
   }
   if (
     permissions?.canMaintainDevice &&
-    (status === 'RETURNING' || status === 'POSTFLIGHT_CHECKING')
+    (status === 'RETURNING' ||
+      status === 'POSTFLIGHT_CHECKING' ||
+      mission.deviceAssignmentStatus === 'RETURNING' ||
+      mission.deviceAssignmentStatus === 'POSTFLIGHT_CHECKING')
   ) {
     return {
       label: t.inspect,
@@ -86,17 +89,29 @@ export function railActionFor(mission: OperatorMission, t: Messages) {
     }
   }
   if (
-    status === 'PENDING_REVIEW' &&
+    (status === 'AWAITING_REVIEW' || status === 'PENDING_REVIEW') &&
     (permissions?.canUploadMedia ||
       permissions?.canCompleteMission ||
       permissions?.canExecuteMonitoringChecklist)
   ) {
     return {
       label: t.reviewMedia,
-      href: operatorHref({ screen: 'upload', missionId: mission.id }),
+      href: operatorHref({ screen: 'checklist', missionId: mission.id }),
     }
   }
-  if (permissions?.canStartMission && status === 'SCHEDULED') {
+  if (
+    status === 'IN_PROGRESS' &&
+    (permissions?.canCompleteMission || permissions?.canSubmitMissionResult)
+  ) {
+    return {
+      label: t.reviewMedia,
+      href: operatorHref({ screen: 'checklist', missionId: mission.id }),
+    }
+  }
+  if (
+    permissions?.canStartMission &&
+    (status === 'READY' || status === 'READY_TO_FLY')
+  ) {
     return {
       label: t.startMission,
       href: operatorHref({ screen: 'missionDetail', missionId: mission.id }),
@@ -113,7 +128,11 @@ export function railActionFor(mission: OperatorMission, t: Messages) {
       href: operatorHref({ screen: 'flight', missionId: mission.id }),
     }
   }
-  if (permissions?.canOperatePayload && status === 'READY_TO_FLY') {
+  if (
+    permissions?.canOperatePayload &&
+    status === 'PENDING_CONFIRMATION' &&
+    (mission.deviceAssignmentStatus ?? status) === 'READY_TO_FLY'
+  ) {
     if (hasAcknowledgedHandover(mission.id)) {
       return {
         label: t.details,
@@ -127,16 +146,25 @@ export function railActionFor(mission: OperatorMission, t: Messages) {
   }
   if (
     permissions?.canOperatePayload &&
-    (status === 'CONNECTED' ||
-      status === 'PREFLIGHT_CHECKING' ||
-      status === 'FAILED_PREFLIGHT')
+    (mission.deviceAssignmentStatus === 'CONNECTED' ||
+      mission.deviceAssignmentStatus === 'PREFLIGHT_CHECKING' ||
+      mission.deviceAssignmentStatus === 'FAILED')
   ) {
     return {
       label: t.precheck,
       href: operatorHref({ screen: 'preflight', missionId: mission.id }),
     }
   }
-  if (permissions?.canOperatePayload && status === 'SCHEDULED') {
+  if (
+    permissions?.canOperatePayload &&
+    (status === 'PENDING_CONFIRMATION' ||
+      status === 'PLANNING' ||
+      status === 'READY' ||
+      status === 'ACCEPTED') &&
+    (!mission.deviceAssignmentStatus ||
+      mission.deviceAssignmentStatus === 'ASSIGNED' ||
+      mission.deviceAssignmentStatus === 'CONNECTION_LOST')
+  ) {
     return {
       label: t.connect,
       href: operatorHref({ screen: 'connect', missionId: mission.id }),

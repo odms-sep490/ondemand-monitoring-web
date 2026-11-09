@@ -6,7 +6,6 @@ import { formatDeadline } from '../../../lib/formatDeadline'
 import { operatorHref } from '../../../routes'
 import type { OperatorMission } from '../../../types/mission'
 import { missionListTableMessages } from './MissionListTable.messages'
-import { missionStopLabel } from '../../../../mission/lib/missionOperationalState'
 import {
   actionFor,
   weekdayDdMm,
@@ -46,8 +45,15 @@ export function MissionListTable({
 
   return (
     <div
-      className="odm-card"
+      className="odm-card odm-opr-mission-table-scroll"
       style={{ borderTop: 0, borderRadius: '0 0 8px 8px', overflowX: 'auto' }}
+      role="region"
+      aria-label={
+        lang === 'vi'
+          ? 'Bảng nhiệm vụ, cuộn ngang để xem đầy đủ thông tin'
+          : 'Mission table, scroll horizontally to see all details'
+      }
+      tabIndex={0}
     >
       <table className="odm-table odm-opr-mission-table">
         <thead>
@@ -68,6 +74,7 @@ export function MissionListTable({
         </thead>
         <tbody>
           {missions.map((mission) => {
+            const currentStatus = mission.backendStatus ?? mission.status
             const baseAction = actionFor(mission, t)
             const action =
               mission.status === 'PENDING' &&
@@ -124,18 +131,42 @@ export function MissionListTable({
                   )}
                 </td>
                 <td>
-                  <StatusBadge tone={STATUS_TONE[mission.status]}>
-                    {missionStopLabel(mission) ??
-                      (mission.backendStatus === 'PENDING_REVIEW'
-                        ? lang === 'vi'
-                          ? 'Chờ nghiệm thu'
-                          : 'Awaiting review'
-                        : ((t.statusLabel as Record<string, string>)[
-                            mission.status
-                          ] ??
-                          mission.backendStatus ??
-                          mission.status))}
-                  </StatusBadge>
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'flex-start',
+                      gap: 5,
+                    }}
+                  >
+                    <StatusBadge
+                      tone={
+                        STATUS_TONE[
+                          currentStatus as keyof typeof STATUS_TONE
+                        ] ?? 'gray'
+                      }
+                    >
+                      {(t.statusLabel as Record<string, string>)[
+                        currentStatus
+                      ] ?? currentStatus}
+                    </StatusBadge>
+                    {mission.deviceReplacementRequested ? (
+                      <span
+                        className="odm-opr-mission-replacement-request"
+                        style={{
+                          color: 'var(--red-fg)',
+                          fontSize: 12,
+                          fontWeight: 600,
+                        }}
+                      >
+                        {t.replacementRequestPending}
+                      </span>
+                    ) : mission.deviceReplacementCompleted ? (
+                      <StatusBadge tone="green">
+                        {t.replacementCompleted}
+                      </StatusBadge>
+                    ) : null}
+                  </div>
                 </td>
                 {showSubmission && (
                   <td>

@@ -13,47 +13,18 @@ export function CommitmentsCard({
 }) {
   const { t } = useI18n(handoverPageMessages)
   return (
-    <div className="odm-card-body" style={{ padding: '18px 22px' }}>
-      <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 4 }}>
+    <div className="odm-card-body handover-commitments">
+      <h2
+        id="handover-commitments-title"
+        className="handover-commitments__title"
+      >
         {t.commitmentTitle}
-      </div>
-      <div
-        className="odm-mono"
-        style={{
-          fontSize: 11.5,
-          color: 'var(--tx3)',
-          marginBottom: 12,
-        }}
-      >
-        control_handover.acknowledgement_text
-      </div>
-      <ol
-        style={{
-          margin: 0,
-          padding: 0,
-          listStyle: 'none',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 10,
-        }}
-      >
+      </h2>
+      <ol className="handover-commitments__list">
         {COMMITMENTS.map((text, i) => (
-          <li
-            key={i}
-            style={{
-              display: 'flex',
-              gap: 12,
-              fontSize: 13.5,
-              lineHeight: 1.5,
-            }}
-          >
+          <li key={i}>
             <label
-              style={{
-                display: 'flex',
-                gap: 12,
-                cursor: 'pointer',
-                width: '100%',
-              }}
+              className={`handover-commitments__label${checked[i] ? ' is-checked' : ''}`}
             >
               <input
                 type="checkbox"
@@ -63,7 +34,6 @@ export function CommitmentsCard({
                   next[i] = e.target.checked
                   setChecked(next)
                 }}
-                style={{ marginTop: 2, flex: 'none' }}
               />
               <span>{text}</span>
             </label>

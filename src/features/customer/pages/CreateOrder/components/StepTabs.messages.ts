@@ -4,6 +4,11 @@ export const stepTabsMessages = defineMessages({
   vi: {
     ariaLabel: 'Các bước tạo yêu cầu',
     progress: (step: number, total: number) => `Bước ${step} / ${total}`,
+    stepState: {
+      complete: 'đã hoàn tất',
+      current: 'đang thực hiện',
+      upcoming: 'chưa thực hiện',
+    },
     shortTitles: {
       1: 'Dịch vụ',
       2: 'Khu vực',
@@ -24,6 +29,11 @@ export const stepTabsMessages = defineMessages({
   en: {
     ariaLabel: 'Request creation steps',
     progress: (step: number, total: number) => `Step ${step} of ${total}`,
+    stepState: {
+      complete: 'completed',
+      current: 'in progress',
+      upcoming: 'not started',
+    },
     shortTitles: {
       1: 'Service',
       2: 'Area',

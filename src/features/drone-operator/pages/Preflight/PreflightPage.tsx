@@ -4,18 +4,53 @@ import { missionApi } from '../../../mission/api/missionApi'
 import { flightControlApi } from '../../api/flightControlApi'
 import { useActiveMission } from '../../api/useActiveMission'
 import { formatDeviceLabel } from '../../lib/deviceLabel'
-import { backendPreflightTokenStorageKey } from '../../lib/flightWorkflowStorage'
 import { operatorHref } from '../../routes'
 import { preflightPageMessages } from './PreflightPage.messages'
 import { NO_MISSION_SENTINEL, NO_DRONE_SENTINEL } from './preflightConstants'
-import { isMissionInFlight, demoFlightToken } from './preflightHelpers'
+import {
+  humanizePreflightDisplayText,
+  isMissionInFlight,
+} from './preflightHelpers'
 import { PreflightChecklistPanel } from './components/PreflightChecklistPanel'
+
+type PreflightErrorCopy = Pick<
+  (typeof preflightPageMessages)['vi'],
+  'airspacePermissionDenied' | 'preflightCheckFailed'
+>
+
+export function friendlyPreflightErrorMessage(
+  message: string,
+  t: PreflightErrorCopy,
+) {
+  if (/airspace_permission/i.test(message)) return t.airspacePermissionDenied
+  if (/digital pre-device check failed|fault classified:/i.test(message))
+    return t.preflightCheckFailed
+  return humanizePreflightDisplayText(message)
+}
 
 export function PreflightPage({ missionId }: { missionId?: string }) {
   const mission = useActiveMission(missionId)
   const { t } = useI18n(preflightPageMessages)
   const [startError, setStartError] = useState<string | null>(null)
   const [starting, setStarting] = useState(false)
+  const currentDeviceAssignment = mission.data?.deviceAssignments
+    ?.filter(
+      (assignment) =>
+        assignment.deviceRole === 'MAIN' &&
+        assignment.deviceId === mission.data?.deviceId,
+    )
+    .sort(
+      (left, right) =>
+        Date.parse(right.assignedAt ?? '') - Date.parse(left.assignedAt ?? ''),
+    )[0]
+  const preflightAssignmentKey =
+    [
+      currentDeviceAssignment?.id,
+      currentDeviceAssignment?.assignedAt,
+      mission.data?.deviceId,
+    ]
+      .filter(Boolean)
+      .join(':') || 'unassigned'
 
   async function handleContinueToHandover() {
     const data = mission.data
@@ -44,31 +79,29 @@ export function PreflightPage({ missionId }: { missionId?: string }) {
         return
       }
       await flightControlApi.bindSession(mission.missionId, deviceId)
-      const completedPreflight =
-        data?.status === 'READY_TO_FLY'
-          ? null
-          : await missionApi.runPreflightCheck(mission.missionId, deviceId)
-      const tokenValue =
-        completedPreflight?.flightToken?.tokenValue ??
-        window.sessionStorage.getItem(
-          backendPreflightTokenStorageKey(mission.missionId, deviceId),
-        ) ??
-        demoFlightToken(mission.missionId, deviceId)
-      window.sessionStorage.setItem(
-        backendPreflightTokenStorageKey(mission.missionId, deviceId),
-        tokenValue,
+      const deviceAlreadyPassed = data?.deviceAssignments?.some(
+        (assignment) =>
+          assignment.deviceRole === 'MAIN' &&
+          assignment.deviceId === deviceId &&
+          assignment.status === 'READY_TO_FLY',
       )
+      if (!deviceAlreadyPassed) {
+        await missionApi.runPreflightCheck(mission.missionId, deviceId)
+      }
       window.location.hash = operatorHref({
         screen: 'handover',
         missionId: mission.missionId,
       })
     } catch (cause) {
-      setStartError(
-        cause instanceof Error ? cause.message : t.confirmPrecheckFailed,
-      )
+      setStartError(friendlyPreflightError(cause, t.confirmPrecheckFailed))
     } finally {
       setStarting(false)
     }
+  }
+
+  function friendlyPreflightError(cause: unknown, fallback: string) {
+    const message = cause instanceof Error ? cause.message : ''
+    return message ? friendlyPreflightErrorMessage(message, t) : fallback
   }
 
   return (
@@ -77,25 +110,29 @@ export function PreflightPage({ missionId }: { missionId?: string }) {
         <p role="alert" style={{ color: 'var(--red-fg)' }}>
           {startError ??
             (mission.error instanceof Error
-              ? mission.error.message
+              ? friendlyPreflightError(mission.error, t.loadMissionFailed)
               : t.loadMissionFailed)}
         </p>
       )}
       {starting && <p>{t.confirmingTelemetry}</p>}
       <PreflightChecklistPanel
+        key={`${mission.missionId ?? 'no-mission'}:${preflightAssignmentKey}`}
         missionId={mission.missionId ?? NO_MISSION_SENTINEL}
         missionLabel={
           mission.data?.missionCode ?? mission.missionId ?? t.noMissionSelected
         }
         deviceId={mission.data?.deviceId ?? NO_DRONE_SENTINEL}
+        deviceAssignmentId={currentDeviceAssignment?.id}
+        deviceAssignedAt={currentDeviceAssignment?.assignedAt}
         deviceLabel={
           mission.data
             ? (formatDeviceLabel(mission.data) ?? undefined)
             : undefined
         }
         missionStatus={mission.data?.status}
-        latitude={mission.data?.latitude ?? undefined}
-        longitude={mission.data?.longitude ?? undefined}
+        replacementRequestPending={Boolean(
+          currentDeviceAssignment?.replacementRequestedAt,
+        )}
         onReady={() => {
           void handleContinueToHandover()
         }}

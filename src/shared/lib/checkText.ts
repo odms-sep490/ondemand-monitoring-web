@@ -25,9 +25,9 @@ const NAMES: Record<string, string> = {
 }
 
 const MESSAGES: Array<[string, string]> = [
-  ['post-flight inspection passed', 'Kiểm tra sau chuyến bay đạt'],
-  ['post-flight inspection failed', 'Kiểm tra sau chuyến bay không đạt'],
-  ['post-flight inspection warning', 'Kiểm tra sau chuyến bay cần lưu ý'],
+  ['post-flight inspection passed', 'Kiểm tra sau bay đạt'],
+  ['post-flight inspection failed', 'Kiểm tra sau bay chưa đạt'],
+  ['post-flight inspection warning', 'Kiểm tra sau bay cần lưu ý'],
   ['required components', 'Đã tải đủ thành phần cần thiết'],
   ['fresh scan received', 'Đã nhận dữ liệu quét mới'],
   ['ready for takeoff', 'Sẵn sàng cất cánh'],

@@ -149,6 +149,12 @@ export type MapMeta = {
   maxX: number
   minY: number
   maxY: number
+  imageBounds?: {
+    minX: number
+    maxX: number
+    minY: number
+    maxY: number
+  }
 }
 
 export type ZonePayload = {

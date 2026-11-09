@@ -1,0 +1,61 @@
+import { defineMessages } from '../../shared/i18n'
+
+/** Toast and confirm-dialog copy shared across the Manager portal. */
+export const managerFeedbackMessages = defineMessages({
+  vi: {
+    orderApproved: 'Đã duyệt đơn.',
+    orderRejected: 'Đã từ chối đơn.',
+    infoRequested: 'Đã gửi yêu cầu bổ sung cho khách hàng.',
+    areaReviewSaved: 'Đã lưu đánh giá khu vực bay.',
+    readinessSaved: 'Đã lưu tiêu chí.',
+    rejectOrderTitle: 'Từ chối đơn?',
+    rejectOrderBody:
+      'Đơn sẽ bị từ chối và khách hàng sẽ nhận được lý do. Thao tác này không thể hoàn tác.',
+    rejectOrderAction: 'Từ chối đơn',
+    planFinalized: 'Kế hoạch đã được chốt.',
+    planUpdated: 'Đã cập nhật kế hoạch.',
+    missionCancelled: 'Đã hủy nhiệm vụ.',
+    paymentRefreshed: 'Đã cập nhật trạng thái đặt cọc.',
+    checklistAssignmentSaved: 'Đã lưu phân công danh mục kiểm tra.',
+    resultApproved: 'Đã duyệt kết quả nhiệm vụ.',
+    resultRejected: 'Đã từ chối kết quả nhiệm vụ.',
+    rejectResultTitle: 'Từ chối kết quả?',
+    rejectResultBody:
+      'Kết quả sẽ bị trả lại và nhân sự thực hiện cần chỉnh sửa rồi gửi lại.',
+    rejectResultAction: 'Từ chối kết quả',
+    missionCreated: 'Đã tạo nhiệm vụ.',
+    resourcesAssigned: 'Đã gán thiết bị và nhân sự cho nhiệm vụ.',
+    flightPermitSaved: 'Đã cập nhật giấy phép bay.',
+    missionRescheduled: 'Đã dời lịch nhiệm vụ.',
+    droneUpdated: 'Đã cập nhật trạng thái drone.',
+    technicianAssigned: 'Đã gán người vận hành hệ thống cho phiếu bảo trì.',
+  },
+  en: {
+    orderApproved: 'Order approved.',
+    orderRejected: 'Order rejected.',
+    infoRequested: 'Information request sent to the customer.',
+    areaReviewSaved: 'Flight area review saved.',
+    readinessSaved: 'Criterion saved.',
+    rejectOrderTitle: 'Reject this order?',
+    rejectOrderBody:
+      'The order will be rejected and the customer will receive the reason. This cannot be undone.',
+    rejectOrderAction: 'Reject order',
+    planFinalized: 'Plan finalized.',
+    planUpdated: 'Plan updated.',
+    missionCancelled: 'Mission cancelled.',
+    paymentRefreshed: 'Deposit status updated.',
+    checklistAssignmentSaved: 'Checklist assignment saved.',
+    resultApproved: 'Mission result approved.',
+    resultRejected: 'Mission result rejected.',
+    rejectResultTitle: 'Reject this result?',
+    rejectResultBody:
+      'The result will be returned and the field crew must fix it and resubmit.',
+    rejectResultAction: 'Reject result',
+    missionCreated: 'Mission created.',
+    resourcesAssigned: 'Devices and crew assigned to the Mission.',
+    flightPermitSaved: 'Flight permit updated.',
+    missionRescheduled: 'Mission rescheduled.',
+    droneUpdated: 'Drone status updated.',
+    technicianAssigned: 'Operator assigned to the maintenance ticket.',
+  },
+})

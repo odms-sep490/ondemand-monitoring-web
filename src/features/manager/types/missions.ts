@@ -4,7 +4,6 @@
 // `mission_operator_assignment` tables [BRIEF §A6] where they overlap.
 import type { DroneStatus, MissionStatus } from '../../../shared/types/domain'
 import type { WaypointAction } from '../lib/waypoints'
-import type { MissionStopMetadata } from '../../mission/lib/missionOperationalState'
 
 // Re-exported for consumers of BE-aligned mission types that also need
 // DroneStatus (e.g. MissionResponse.droneCode pairs with a drone's status).
@@ -60,7 +59,9 @@ export type MissionMediaRequirement =
  * itself has no matching field — needed by MNG-04/05 but not present on
  * the backend DTO we read.
  */
-export type Mission = MissionStopMetadata & {
+export type Mission = {
+  purpose?: 'ORIGINAL' | 'REWORK'
+  resultRevisionCaseId?: string | null
   id: string
   orderId: string
   orderCode: string | null
@@ -71,7 +72,8 @@ export type Mission = MissionStopMetadata & {
   flightPermitFileName?: string | null
   flightPermitContentType?: string | null
   flightPermitDataUrl?: string | null
-  attemptNumber: number | null
+  flightPermitResourceHoldUntil?: string | null
+  flightPermitResourcesReleasedAt?: string | null
   droneId: string | null
   operatorId: string | null
   /** PROPOSED — id of the current `mission_drone_assignment` row, needed for release. */
@@ -80,13 +82,24 @@ export type Mission = MissionStopMetadata & {
   operatorAssignmentId: string | null
   scheduledStartAt: string | null
   scheduledEndAt: string | null
+  orderPreferredDateFrom?: string | null
+  orderPreferredDateTo?: string | null
+  orderPreferredTimeName?: string | null
+  orderPreferredTimeId?: string | null
+  orderPreferredTimeStart?: string | null
+  orderPreferredTimeEnd?: string | null
+  orderWeatherFallback?:
+    'AUTO_RESCHEDULE' | 'CONTACT_CUSTOMER' | 'CANCEL_ORDER' | null
+  lastRescheduleReason?: MissionRescheduleReason | null
+  lastRescheduleNote?: string | null
+  lastRescheduledAt?: string | null
+  scheduleRevision?: number
   addressText: string | null
   centerLat: number | null
   centerLon: number | null
   radiusM: number | null
   /** PROPOSED — `flight_plan.mission_id` requires a required sensor per media_requirement; brief has no single field, MNG-05 renders one value. */
   requiredSensor: string | null
-  nearestBase: string | null
   mediaRequirements: MissionMediaRequirement[]
   flightPlan: FlightPlan | null
   waypoints: MissionWaypoint[]
@@ -103,72 +116,36 @@ export type MissionCalendarItem = Mission & {
   droneName: string | null
   operatorName: string | null
   staffAssignments?: MissionStaffAssignmentResponse[]
+  deviceAssignments?: MissionDeviceAssignmentResponse[]
 }
 
-/** Body of `PATCH /api/missions/{id}/schedule` [ĐỀ XUẤT]. */
+export type MissionRescheduleReason =
+  | 'WEATHER_UNSAFE'
+  | 'FLIGHT_PERMISSION_DELAY'
+  | 'RESOURCE_UNAVAILABLE'
+  | 'EQUIPMENT_ISSUE'
+  | 'SITE_ACCESS_BLOCKED'
+  | 'CUSTOMER_REQUEST'
+  | 'OTHER'
+
+/** Body of `PATCH /api/missions/{id}/schedule` [BE]. */
 export type PatchScheduleRequest = {
-  scheduledStart: string
-  scheduledEnd: string
+  scheduledStartAt: string
+  scheduledEndAt: string
+  reason: MissionRescheduleReason
+  note?: string
+  customerConfirmed: boolean
+  scope?: 'MISSION_ONLY' | 'ORDER_AND_MISSION'
+  orderPreferredDateFrom?: string
+  orderPreferredDateTo?: string
+  orderPreferredTimeId?: string
 }
 
-/** Active incident, returned inside `GET /api/missions/{id}/live` [ĐỀ XUẤT]. */
-export type MissionIncident = {
+export type PreferredTimeOption = {
   id: string
-  type: string
-  description: string
-  reportedAt: string
-}
-
-/**
- * PROPOSED — livestream session state, nested in `LiveTelemetry`.
- * Fields come from brief's `live_stream_session` mention; WebRTC spike
- * is out-of-scope per evd/00-PLAN.md §8.
- */
-export type LivestreamState = {
-  sessionId: string
-  /** null until a real WebRTC/RTSP URL is available. */
-  playbackUrl: string | null
-  isLive: boolean
-}
-
-/**
- * `GET /api/missions/{id}/live` response [BRIEF C4].
- * Polling endpoint; field names follow the design's data labels from
- * evd/design/MNG-07.dc.html verbatim.
- */
-export type LiveTelemetry = {
-  missionStatus: MissionStatus
-  /** null when drone not assigned or telemetry unavailable. */
-  droneStatus: string | null
-  droneCode: string | null
-  droneName: string | null
-  operatorName: string | null
-  /** Battery percentage 0–100; null when no telemetry. */
-  batteryPct: number | null
-  /** Seconds in flight; null when not in-flight. */
-  flightTimeSec: number | null
-  latitude: number | null
-  longitude: number | null
-  /** Altitude in metres ASL; null when no telemetry. */
-  altitudeM: number | null
-  /** Speed in m/s; null when no telemetry. */
-  speedMs: number | null
-  /** Signal strength in dBm; PROPOSED. */
-  signalDbm: number | null
-  /** GPS satellite count; null when no telemetry. */
-  satelliteCount: number | null
-  connectionStatus: string | null
-  telemetryActive: boolean
-  lastTelemetryAt: string | null
-  activeIncidents: MissionIncident[]
-  /** null when no livestream session exists. PROPOSED — see LivestreamState. */
-  livestream: LivestreamState | null
-}
-
-/** Body of `POST /api/missions/{id}/incidents` [ĐỀ XUẤT]. */
-export type CreateIncidentRequest = {
-  type: string
-  description: string
+  name: string
+  startTime: string
+  endTime: string
 }
 
 /** Body of `POST /api/missions/{id}/cancel` [ĐỀ XUẤT]. */
@@ -183,101 +160,6 @@ export type CreateMissionRequest = {
   scheduledStart: string
   scheduledEnd: string
   checklistIds: string[]
-}
-
-export type ResourceCandidateBase = {
-  score: number
-  /** (AI diễn giải, điểm số do hệ thống tính) [TK MNG-05]. */
-  reason: string
-}
-
-export type DroneCandidate = ResourceCandidateBase & {
-  code: string
-  name: string
-  serialNumber: string
-  droneModelName: string
-  batteryPct: number
-  distanceKm: number
-  enduranceMarginPct: number
-  payload: string
-  hoursSinceMaintenance: number
-}
-
-export type OperatorCandidate = ResourceCandidateBase & {
-  code: string
-  fullName: string
-  licenseClass: string
-  licenseNumber: string
-  licenseExpiry: string
-  missionsWithModel: number
-  successRatePct: number
-  acceptanceRatePct: number
-  missionsThisWeek: number
-}
-
-export type RejectedDrone = { code: string; reason: string }
-export type RejectedOperator = { name: string; reason: string }
-
-export type AlternativeSlot = {
-  priority: number
-  label: string
-  dateLabel: string
-  windowLabel: string
-  eligibleDroneCount: number
-  eligibleOperatorCount: number
-}
-
-export type TimelineBooking = {
-  missionCode: string
-  start: string | null
-  end: string | null
-  conflict: boolean
-}
-
-export type TimelineResource = {
-  code: string
-  name: string
-  kind: 'DRONE' | 'OPERATOR'
-  rejected: boolean
-  rejectedReason: string | null
-  bookings: TimelineBooking[]
-}
-
-/**
- * `GET /api/missions/{id}/resource-suggestions` [BRIEF C4]. `feasible:
- * false` mirrors the MNG-05 "không đủ nguồn lực" state — `topDrones`/
- * `topOperators` are then empty and `alternatives` lists replacement dates.
- */
-export type ResourceSuggestions = {
-  feasible: boolean
-  missionCode: string
-  attemptNumber: number
-  scheduledStart: string
-  scheduledEnd: string
-  addressText: string | null
-  centerLat: number | null
-  centerLon: number | null
-  radiusM: number | null
-  mediaSummary: string | null
-  requiredDurationLabel: string | null
-  requiredSensor: string | null
-  nearestBase: string | null
-  eligibleDroneCount: number
-  eligibleOperatorCount: number
-  topDrones: DroneCandidate[]
-  topOperators: OperatorCandidate[]
-  rejected: {
-    drones: RejectedDrone[]
-    operators: RejectedOperator[]
-  }
-  explanation: string
-  timeline: {
-    date: string
-    windowStart: string
-    windowEnd: string
-    resources: TimelineResource[]
-  }
-  alternatives: AlternativeSlot[]
 }
 
 export type MissionPlanResponse = {
@@ -325,15 +207,24 @@ export type PlanWaypointResponse = {
     | 'RETURN'
 }
 
-export type MissionResponse = MissionStopMetadata & {
+export type MissionResponse = {
+  purpose?: 'ORIGINAL' | 'REWORK'
+  resultRevisionCaseId?: string | null
   replacesMissionId?: string | null
   id: string
   orderId: string
   orderCode?: string | null
+  orderStatus?: string | null
   orderTitle: string
+  scopeLabel?: string | null
   orderPreferredDateFrom?: string | null
   orderPreferredDateTo?: string | null
   orderPreferredTimeName?: string | null
+  orderPreferredTimeId?: string | null
+  orderPreferredTimeStart?: string | null
+  orderPreferredTimeEnd?: string | null
+  orderWeatherFallback?:
+    'AUTO_RESCHEDULE' | 'CONTACT_CUSTOMER' | 'CANCEL_ORDER' | null
   serviceName?: string | null
   customerName: string
   missionCode: string
@@ -343,6 +234,8 @@ export type MissionResponse = MissionStopMetadata & {
   flightPermitFileName?: string | null
   flightPermitContentType?: string | null
   flightPermitDataUrl?: string | null
+  flightPermitResourceHoldUntil?: string | null
+  flightPermitResourcesReleasedAt?: string | null
   operatorId: string | null
   staffAssignments?: MissionStaffAssignmentResponse[]
   deviceAssignments?: MissionDeviceAssignmentResponse[]
@@ -351,11 +244,21 @@ export type MissionResponse = MissionStopMetadata & {
   deviceId?: string | null
   deviceCode?: string | null
   deviceName?: string | null
+  deviceSerialNumber?: string | null
+  deviceStatus?: string | null
+  deviceModelCode?: string | null
+  deviceModelName?: string | null
+  deviceManufacturer?: string | null
+  devicePayload?: string | null
   latitude: number | null
   longitude: number | null
   address: string | null
   scheduledStartAt: string | null
   scheduledEndAt?: string | null
+  lastRescheduleReason?: MissionRescheduleReason | null
+  lastRescheduleNote?: string | null
+  lastRescheduledAt?: string | null
+  scheduleRevision?: number
   startedAt: string | null
   completedAt: string | null
   actualStartAt?: string | null
@@ -380,10 +283,11 @@ export type MissionStaffAssignmentResponse = {
   staffEmail: string | null
   staffPhone: string | null
   assignedRole: 'PILOT' | 'OPERATOR' | 'MAINTAINER' | 'INSPECTOR'
-  responseStatus: 'PENDING' | 'ACCEPTED' | 'REJECTED'
+  responseStatus: 'PLANNING' | 'PENDING' | 'ACCEPTED' | 'REJECTED'
   assignedAt: string | null
   respondedAt: string | null
   declineReason: string | null
+  isCurrent?: boolean | null
 }
 
 export type MissionDeviceAssignmentResponse = {
@@ -394,9 +298,15 @@ export type MissionDeviceAssignmentResponse = {
   deviceSerialNumber: string | null
   deviceStatus: string | null
   deviceRole: 'MAIN' | 'SUPPORT'
-  checkupStatus: 'PENDING' | 'PASSED' | 'FAILED' | 'SKIPPED'
+  checkupStatus: 'PLANNING' | 'PENDING' | 'CHECKING' | 'PASSED' | 'FAILED'
   assignedAt: string | null
+  replacementRequestedAt?: string | null
+  replacementRequestReason?: string | null
+  replacementRequestedBy?: string | null
 }
+
+export type MissionResourcePrepareStatus =
+  'PLANNING' | 'PENDING' | 'READY' | 'CANCELLED'
 
 export type FlightTokenResponse = {
   id: string
@@ -411,7 +321,7 @@ export type FlightTokenResponse = {
 }
 
 export type PreflightCheckItemStatus =
-  'PENDING' | 'CHECKING' | 'PASSED' | 'FAILED'
+  'PENDING' | 'CHECKING' | 'PASSED' | 'FAILED' | 'STALE'
 export type PreflightCheckItemLevel = 'CRITICAL' | 'WARNING' | 'INFO'
 
 export type PreflightCheckItem = {
@@ -474,6 +384,7 @@ export type MissionResultApprovalStatus =
   'DRAFT' | 'PENDING_MANAGER_APPROVAL' | 'APPROVED' | 'REJECTED'
 
 export type MissionResultResponse = {
+  inspectorConfirmed?: boolean
   id: string
   missionId: string
   missionCode: string
@@ -523,7 +434,6 @@ export type PreflightCheckResponse = {
   storageOk: boolean
   weatherOk: boolean
   weatherNotes: string | null
-  flightToken: FlightTokenResponse | null
   checkedAt: string
 }
 
@@ -559,6 +469,8 @@ export type MediaResponse = {
     | 'AVAILABLE'
     | 'REJECTED'
   url: string
+  thumbnailUrl?: string | null
+  previewUrl?: string | null
   expiresIn: number
   contentType: string
   fileSize: number
@@ -569,20 +481,6 @@ export type MediaResponse = {
   captureLatitude?: number | null
   captureLongitude?: number | null
   sourceDistanceMeters?: number | null
-}
-
-/** Body of `PATCH /api/missions/{id}/postflight-status` [BE]. */
-export type PostFlightStatusRequest = {
-  newDroneStatus: DroneStatus
-  notes: string
-}
-
-/** Body of `POST /api/weather/preflight-check` [BE]. */
-export type WeatherPreflightCheckRequest = {
-  missionId: string
-  droneCode: string
-  latitude: number
-  longitude: number
 }
 
 /** `POST /api/weather/preflight-check` [BE] response. */

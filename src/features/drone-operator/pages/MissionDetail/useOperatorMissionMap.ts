@@ -5,10 +5,12 @@ import { missionTargetGps, routeMarkerIcon } from './missionGeo'
 import type { GpsPoint } from './types'
 import { HCMC_SERVICE_CENTER } from '../../../../shared/lib/serviceArea'
 
-export function useOperatorMissionMap(mission: OperatorMission) {
+export function useOperatorMissionMap(
+  mission: OperatorMission,
+  viewMode: 'area' | 'route' = 'area',
+) {
   const container = useRef<HTMLDivElement>(null)
   const map = useRef<L.Map | null>(null)
-  const marker = useRef<L.Marker | null>(null)
   const circle = useRef<L.Circle | null>(null)
   const homeMarker = useRef<L.Marker | null>(null)
   const targetMarker = useRef<L.Marker | null>(null)
@@ -29,9 +31,16 @@ export function useOperatorMissionMap(mission: OperatorMission) {
       ? [target.latitude, target.longitude]
       : [HCMC_SERVICE_CENTER.latitude, HCMC_SERVICE_CENTER.longitude]
     const instance = L.map(container.current, {
-      zoomControl: true,
+      zoomControl: false,
       attributionControl: true,
     }).setView(initialCenter, target ? 16 : 11)
+
+    L.control
+      .zoom({
+        zoomInTitle: 'Phóng to bản đồ',
+        zoomOutTitle: 'Thu nhỏ bản đồ',
+      })
+      .addTo(instance)
 
     L.tileLayer(
       'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
@@ -43,11 +52,18 @@ export function useOperatorMissionMap(mission: OperatorMission) {
     ).addTo(instance)
 
     map.current = instance
-    window.setTimeout(() => instance.invalidateSize(), 0)
+    const resizeObserver = new ResizeObserver(() => {
+      instance.invalidateSize({ pan: false })
+    })
+    resizeObserver.observe(container.current)
+    const frame = window.requestAnimationFrame(() => {
+      instance.invalidateSize({ pan: false })
+    })
     return () => {
+      resizeObserver.disconnect()
+      window.cancelAnimationFrame(frame)
       instance.remove()
       map.current = null
-      marker.current = null
       circle.current = null
       homeMarker.current = null
       targetMarker.current = null
@@ -77,7 +93,9 @@ export function useOperatorMissionMap(mission: OperatorMission) {
     } else {
       homeMarker.current = L.marker(home, {
         icon: routeMarkerIcon('HOME', '#16a34a'),
-        keyboard: false,
+        keyboard: true,
+        title: 'Điểm xuất phát HOME',
+        alt: 'Điểm xuất phát HOME',
       })
         .addTo(map.current)
         .bindTooltip('Điểm xuất phát')
@@ -88,7 +106,9 @@ export function useOperatorMissionMap(mission: OperatorMission) {
     } else {
       targetMarker.current = L.marker(point, {
         icon: routeMarkerIcon('TARGET', '#dc2626'),
-        keyboard: false,
+        keyboard: true,
+        title: 'Điểm giám sát',
+        alt: 'Điểm giám sát',
       })
         .addTo(map.current)
         .bindTooltip('Điểm giám sát')
@@ -107,13 +127,7 @@ export function useOperatorMissionMap(mission: OperatorMission) {
       }).addTo(map.current)
     }
 
-    if (marker.current) {
-      marker.current.setLatLng(point)
-    } else {
-      marker.current = L.marker(point)
-        .addTo(map.current)
-        .bindTooltip('Điểm giám sát')
-    }
+    targetMarker.current.addTo(map.current)
 
     if (mission.radiusMeters && mission.radiusMeters > 0) {
       if (circle.current) {
@@ -132,11 +146,29 @@ export function useOperatorMissionMap(mission: OperatorMission) {
       circle.current = null
     }
 
-    const bounds = L.latLngBounds([home, point])
-    if (circle.current) bounds.extend(circle.current.getBounds())
-    if (routeLine.current) bounds.extend(routeLine.current.getBounds())
-    map.current.fitBounds(bounds, { padding: [36, 36], maxZoom: 16 })
-  }, [targetLat, targetLon, mission.radiusMeters])
+    if (viewMode === 'route') {
+      homeMarker.current.addTo(map.current)
+      routeLine.current.addTo(map.current)
+      const routeBounds = L.latLngBounds([home, point])
+      if (circle.current) routeBounds.extend(circle.current.getBounds())
+      map.current.fitBounds(routeBounds, {
+        paddingTopLeft: [40, 40],
+        paddingBottomRight: [40, 40],
+        maxZoom: 15,
+      })
+    } else {
+      homeMarker.current.remove()
+      routeLine.current.remove()
+      if (circle.current) {
+        map.current.fitBounds(circle.current.getBounds(), {
+          padding: [52, 52],
+          maxZoom: 16,
+        })
+      } else {
+        map.current.setView(point, 16)
+      }
+    }
+  }, [targetLat, targetLon, mission.radiusMeters, viewMode])
 
   return { container, target }
 }

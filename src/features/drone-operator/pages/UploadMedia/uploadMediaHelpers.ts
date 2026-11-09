@@ -1,4 +1,13 @@
-export const finishedUploadStatuses = new Set([
+/** Transfer is complete once the server has accepted/stored the file, even if review later rejects it. */
+export const successfullyUploadedStatuses = new Set([
+  'VALIDATING',
+  'PENDING_MANAGER_APPROVAL',
+  'AVAILABLE',
+  'REJECTED',
+])
+
+/** Only these states can be used as checklist evidence. */
+export const evidenceEligibleUploadStatuses = new Set([
   'PENDING_MANAGER_APPROVAL',
   'AVAILABLE',
 ])
@@ -8,6 +17,7 @@ export const visibleAfterControllerDropStatuses = new Set([
   'VALIDATING',
   'PENDING_MANAGER_APPROVAL',
   'AVAILABLE',
+  'REJECTED',
 ])
 
 export const mediaTypeLabel: Record<string, string> = {
@@ -23,16 +33,17 @@ export const mediaSourceLabel: Record<string, string> = {
 }
 
 export const mediaStatusLabel: Record<string, string> = {
-  REVIEW_PENDING: 'Chờ duyệt',
-  UPLOADING: 'Đang upload',
-  UPLOAD_FAILED: 'Upload thất bại',
+  REVIEW_PENDING: 'Chờ tải lên',
+  UPLOADING: 'Đang tải lên',
+  UPLOAD_FAILED: 'Tải lên thất bại',
   VALIDATING: 'Đang xác thực',
-  MANUAL_UPLOAD_REQUIRED: 'Cần upload thủ công',
-  UPLOAD_PENDING: 'Chờ upload',
-  RETRY_REQUIRED: 'Cần thử lại',
-  PENDING_MANAGER_APPROVAL: 'Chờ manager duyệt',
+  MANUAL_UPLOAD_REQUIRED: 'Cần tải thủ công',
+  UPLOAD_PENDING: 'Chờ tải lên',
+  RETRY_REQUIRED: 'Cần tải lại',
+  PENDING_MANAGER_APPROVAL: 'Chờ nghiệm thu duyệt',
   AVAILABLE: 'Đã duyệt',
-  UPLOADED: 'Đã upload',
+  REJECTED: 'Bị từ chối',
+  UPLOADED: 'Đã tải lên',
 }
 
 /** Existing upload layout backed by the selected mission's local media. */
@@ -45,3 +56,20 @@ export function statusTone(status: string) {
     return 'is-success'
   return ''
 }
+
+const mediaStatusLabelEn: Record<string, string> = {
+  REVIEW_PENDING: 'Pending upload',
+  UPLOADING: 'Uploading',
+  UPLOAD_FAILED: 'Upload failed',
+  VALIDATING: 'Validating',
+  MANUAL_UPLOAD_REQUIRED: 'Manual upload required',
+  UPLOAD_PENDING: 'Pending upload',
+  RETRY_REQUIRED: 'Retry required',
+  PENDING_MANAGER_APPROVAL: 'Awaiting inspector review',
+  AVAILABLE: 'Approved',
+  REJECTED: 'Rejected',
+  UPLOADED: 'Uploaded',
+}
+export const getUploadMediaStatusLabel = (status: string, lang: 'vi' | 'en') =>
+  (lang === 'en' ? mediaStatusLabelEn[status] : mediaStatusLabel[status]) ??
+  status

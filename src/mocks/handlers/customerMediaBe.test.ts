@@ -5,7 +5,9 @@ import { mockFetch } from '../mockServer'
 import '../index'
 
 async function call(path: string) {
-  const response = await mockFetch(`${env.apiBaseUrl}${path}`, { method: 'GET' })
+  const response = await mockFetch(`${env.apiBaseUrl}${path}`, {
+    method: 'GET',
+  })
   return { status: response.status, payload: await response.json() }
 }
 
@@ -27,23 +29,22 @@ describe('customer media (BE shape)', () => {
     )
   })
 
-  it('lists media notifications with the CUSTOMER_MEDIA_AVAILABLE event', async () => {
-    const { payload } = await call('/api/customer/media-notifications')
-    expect(payload.data.length).toBeGreaterThan(0)
-    expect(payload.data[0]).toEqual(
-      expect.objectContaining({
-        notificationId: expect.any(String),
-        eventType: 'CUSTOMER_MEDIA_AVAILABLE',
-        missionId: expect.any(String),
-      }),
-    )
-  })
-
   it('pages the media of a mission', async () => {
-    const first = await call('/api/customer/missions/msn-006-1/media?page=0&size=12')
-    expect(first.payload.data).toMatchObject({ page: 0, size: 12, totalItems: 15, totalPages: 2, first: true, last: false })
+    const first = await call(
+      '/api/customer/missions/msn-006-1/media?page=0&size=12',
+    )
+    expect(first.payload.data).toMatchObject({
+      page: 0,
+      size: 12,
+      totalItems: 15,
+      totalPages: 2,
+      first: true,
+      last: false,
+    })
     expect(first.payload.data.items).toHaveLength(12)
-    const second = await call('/api/customer/missions/msn-006-1/media?page=1&size=12')
+    const second = await call(
+      '/api/customer/missions/msn-006-1/media?page=1&size=12',
+    )
     expect(second.payload.data.items).toHaveLength(3)
     expect(second.payload.data.last).toBe(true)
   })
@@ -51,18 +52,29 @@ describe('customer media (BE shape)', () => {
   it('returns one mission media item and 404 for a foreign one', async () => {
     const list = await call('/api/customer/available-media')
     const item = list.payload.data[0]
-    const found = await call(`/api/customer/missions/${item.missionId}/media/${item.mediaId}`)
+    const found = await call(
+      `/api/customer/missions/${item.missionId}/media/${item.mediaId}`,
+    )
     expect(found.payload.data.mediaId).toBe(item.mediaId)
-    expect((await call(`/api/customer/missions/msn-004-1/media/${item.mediaId}`)).status).toBe(404)
+    expect(
+      (await call(`/api/customer/missions/msn-004-1/media/${item.mediaId}`))
+        .status,
+    ).toBe(404)
   })
 
   it('reports the media status counts', async () => {
-    expect((await call('/api/customer/missions/msn-006-1/media-status')).payload.data).toEqual({
+    expect(
+      (await call('/api/customer/missions/msn-006-1/media-status')).payload
+        .data,
+    ).toEqual({
       availableCount: 15,
       processingCount: 0,
       rejectedCount: 0,
     })
-    expect((await call('/api/customer/missions/msn-004-1/media-status')).payload.data).toEqual({
+    expect(
+      (await call('/api/customer/missions/msn-004-1/media-status')).payload
+        .data,
+    ).toEqual({
       availableCount: 3,
       processingCount: 1,
       rejectedCount: 1,
@@ -71,7 +83,9 @@ describe('customer media (BE shape)', () => {
 
   it('serves a fresh URL from /api/media/{id}/download', async () => {
     const list = await call('/api/customer/available-media')
-    const { payload } = await call(`/api/media/${list.payload.data[1].mediaId}/download`)
+    const { payload } = await call(
+      `/api/media/${list.payload.data[1].mediaId}/download`,
+    )
     expect(payload.data.downloadUrl).toBeTruthy()
     expect((await call('/api/media/nope/download')).status).toBe(404)
   })

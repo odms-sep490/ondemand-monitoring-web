@@ -1,6 +1,12 @@
+import { SearchOutlined } from '@ant-design/icons'
+import { Button, Collapse, Input } from 'antd'
 import { useState } from 'react'
 
-import { Card, EmptyState, PageHeader } from '../../../../shared/components/ui'
+import {
+  Card,
+  EmptyState,
+  PageHeader,
+} from '../../../customer/components/common/ui'
 import { useI18n } from '../../../../shared/i18n'
 import { authSession } from '../../../auth/api/authApi'
 import { CUSTOMER_ROOT } from '../../../customer/routes'
@@ -9,7 +15,7 @@ import { CreateTicketModal } from '../../components/CreateTicketModal'
 import { getFaqArticles, getPopularTopics } from '../../data/helpArticles'
 import { recordArticleVote } from '../../utils/faqAnalytics'
 import '../../support.css'
-import { FaqItem } from './components/FaqItem'
+import { FaqItem, FaqQuestion } from './components/FaqItem'
 import { TopicGrid } from './components/TopicGrid'
 import './HelpCenterHome.css'
 import { helpCenterHomeMessages } from './HelpCenterHomePage.messages'
@@ -18,17 +24,31 @@ import { useHelpArticles } from './hooks/useHelpArticles'
 /** Customer help center: search, popular topics and the FAQ list. */
 export function HelpCenterHomePage() {
   const { t, lang } = useI18n(helpCenterHomeMessages)
-  const { articles, searchQuery, setSearchQuery, selectedCategory, setSelectedCategory } =
-    useHelpArticles()
-  const [expandedArticleId, setExpandedArticleId] = useState<string | null>(null)
-  const [feedbackState, setFeedbackState] = useState<Record<string, 'YES' | 'NO'>>({})
+  const {
+    articles,
+    searchQuery,
+    setSearchQuery,
+    selectedCategory,
+    setSelectedCategory,
+  } = useHelpArticles()
+  const [expandedArticleId, setExpandedArticleId] = useState<string | null>(
+    null,
+  )
+  const [feedbackState, setFeedbackState] = useState<
+    Record<string, 'YES' | 'NO'>
+  >({})
   const [showCreateTicketModal, setShowCreateTicketModal] = useState(false)
 
-  const selectedTopic = getPopularTopics(lang).find((topic) => topic.id === selectedCategory)
+  const selectedTopic = getPopularTopics(lang).find(
+    (topic) => topic.id === selectedCategory,
+  )
 
   function handleFeedback(articleId: string, helpful: boolean) {
     recordArticleVote(articleId, helpful)
-    setFeedbackState((prev) => ({ ...prev, [articleId]: helpful ? 'YES' : 'NO' }))
+    setFeedbackState((prev) => ({
+      ...prev,
+      [articleId]: helpful ? 'YES' : 'NO',
+    }))
 
     // Analytics always use the Vietnamese question so staff reports stay consistent.
     const target = getFaqArticles('vi').find((a) => a.id === articleId)
@@ -40,7 +60,9 @@ export function HelpCenterHomePage() {
         customerId: authSession.getUser()?.id,
         isHelpful: helpful,
       })
-      .catch((err) => console.error('Error recording backend FAQ feedback:', err))
+      .catch((err) =>
+        console.error('Error recording backend FAQ feedback:', err),
+      )
   }
 
   return (
@@ -51,12 +73,13 @@ export function HelpCenterHomePage() {
         subtitle={t.subtitle}
         actions={
           <>
-            <a className="odm-btn odm-btn-gh" href="#help/tickets">
-              {t.myTickets}
-            </a>
-            <button type="button" className="odm-btn odm-btn-p" onClick={() => setShowCreateTicketModal(true)}>
+            <Button href="#help/tickets">{t.myTickets}</Button>
+            <Button
+              type="primary"
+              onClick={() => setShowCreateTicketModal(true)}
+            >
               {t.createTicket}
-            </button>
+            </Button>
           </>
         }
       />
@@ -65,24 +88,18 @@ export function HelpCenterHomePage() {
         <div className="hc-hero">
           <span className="hc-eyebrow">{t.eyebrow}</span>
           <div className="hc-search">
-            <input
-              className="sp-input"
+            <Input
+              size="large"
+              allowClear={{
+                clearIcon: <span aria-label={t.clearSearch}>✕</span>,
+              }}
+              prefix={<SearchOutlined aria-hidden="true" />}
               type="search"
               aria-label={t.searchLabel}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={t.searchPlaceholder}
             />
-            {searchQuery && (
-              <button
-                type="button"
-                className="hc-search-clear"
-                aria-label={t.clearSearch}
-                onClick={() => setSearchQuery('')}
-              >
-                ✕
-              </button>
-            )}
           </div>
         </div>
       </Card>
@@ -92,12 +109,14 @@ export function HelpCenterHomePage() {
       <section>
         <div className="hc-faq-head">
           <h2 className="hc-section-title">
-            {selectedTopic ? t.faqTitleFiltered(selectedTopic.title) : t.faqTitle}
+            {selectedTopic
+              ? t.faqTitleFiltered(selectedTopic.title)
+              : t.faqTitle}
           </h2>
           {selectedCategory !== 'ALL' && (
-            <button type="button" className="odm-btn odm-btn-gh" onClick={() => setSelectedCategory('ALL')}>
+            <Button onClick={() => setSelectedCategory('ALL')}>
               {t.clearFilter} ✕
-            </button>
+            </Button>
           )}
         </div>
 
@@ -107,26 +126,37 @@ export function HelpCenterHomePage() {
               title={t.emptyTitle}
               description={t.emptyDescription(searchQuery)}
               action={
-                <button type="button" className="odm-btn odm-btn-p" onClick={() => setShowCreateTicketModal(true)}>
+                <Button
+                  type="primary"
+                  onClick={() => setShowCreateTicketModal(true)}
+                >
                   {t.contactSupport}
-                </button>
+                </Button>
               }
             />
           </Card>
         ) : (
-          <ul className="hc-faq-list">
-            {articles.map((article) => (
-              <FaqItem
-                key={article.id}
-                article={article}
-                expanded={expandedArticleId === article.id}
-                feedback={feedbackState[article.id]}
-                onToggle={() => setExpandedArticleId(expandedArticleId === article.id ? null : article.id)}
-                onFeedback={(helpful) => handleFeedback(article.id, helpful)}
-                onCreateTicket={() => setShowCreateTicketModal(true)}
-              />
-            ))}
-          </ul>
+          <Collapse
+            className="hc-faq-list"
+            activeKey={expandedArticleId ? [expandedArticleId] : []}
+            onChange={(key) => {
+              const keys = Array.isArray(key) ? key : [key]
+              const next = keys.find((k) => String(k) !== expandedArticleId)
+              setExpandedArticleId(next ? String(next) : null)
+            }}
+            items={articles.map((article) => ({
+              key: article.id,
+              label: <FaqQuestion article={article} />,
+              children: (
+                <FaqItem
+                  article={article}
+                  feedback={feedbackState[article.id]}
+                  onFeedback={(helpful) => handleFeedback(article.id, helpful)}
+                  onCreateTicket={() => setShowCreateTicketModal(true)}
+                />
+              ),
+            }))}
+          />
         )}
       </section>
 

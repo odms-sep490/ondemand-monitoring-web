@@ -3,6 +3,7 @@ import { useMemo } from 'react'
 import { useApiQuery } from '../../../../../shared/hooks/useApiQuery'
 import { customerApi } from '../../../api/customerApi'
 import { customerMissionHistoryApi } from '../../../api/customerMissionHistoryApi'
+import { loadFinalPaymentState } from '../../../lib/orders/loadFinalPaymentState'
 import { toOrderRow } from '../../../lib/orders/mapOrder'
 import { computeOrderStats, recentOrders } from '../../../lib/orders/orderStats'
 
@@ -15,8 +16,13 @@ export const RECENT_LIMIT = 5
  */
 export function useDashboardData() {
   const orders = useApiQuery(
-    (signal) =>
-      customerApi.listMyOrders({ signal }).then((rows) => rows.map(toOrderRow)),
+    async (signal) => {
+      const rows = (await customerApi.listMyOrders({ signal })).map(toOrderRow)
+      const recentIds = new Set(
+        recentOrders(rows, RECENT_LIMIT).map((order) => order.id),
+      )
+      return loadFinalPaymentState(rows, signal, recentIds)
+    },
     [],
   )
   const missions = useApiQuery(

@@ -1,0 +1,21 @@
+@use '../../styles/legacy';
+
+:root .mgr-layout .mgr-schedule {
+  @include legacy.mgr-legacy-tokens;
+
+  width: 100%;
+  max-width: 1760px;
+}
+
+.mgr-office-page-alert {
+  margin-bottom: 16px;
+  border-radius: 14px;
+}
+
+.mgr-office-page-loading {
+  min-height: 480px;
+  padding: 28px;
+  border: 1px solid #dce7f5;
+  border-radius: 20px;
+  background: #fff;
+}

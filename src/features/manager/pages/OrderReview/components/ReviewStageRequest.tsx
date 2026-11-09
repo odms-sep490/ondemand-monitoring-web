@@ -1,13 +1,10 @@
 import { ReadOnlyScope } from './ReadOnlyScope'
-import { OrderServiceInfo } from '../../../components/common/OrderServiceInfo'
 import { OrderCustomerRequestDetails } from '../../../components/common/OrderCustomerRequestDetails'
-import { OrderStatusCard } from './OrderStatusCard'
-import { OrderCustomerCard } from '../../../components/common/OrderCustomerCard'
-import { OrderAttachmentsCard } from '../../../components/common/OrderAttachmentsCard'
-import { InternalNoteCard } from './InternalNoteCard'
 import { ReviewStageActions } from './ReviewStageActions'
+import { OrderLocationCard } from './OrderLocationCard'
 import { orderReviewPageMessages } from '../OrderReviewPage.messages'
 import { useI18n } from '../../../../../shared/i18n'
+import { reviewStageRequestMessages } from './ReviewStageRequest.messages'
 import type { OrderDetail } from '../../../types/orders'
 import type { ReviewStep } from '../reviewTypes'
 
@@ -15,33 +12,29 @@ export function ReviewStageRequest({
   readOnly,
   order,
   goToStep,
+  startingReview,
+  startReviewError,
 }: {
   readOnly: boolean
   order: OrderDetail
-  goToStep: (step: ReviewStep) => void
+  goToStep: (step: ReviewStep) => void | Promise<void>
+  startingReview: boolean
+  startReviewError: string | null
 }) {
-  const { t, locale } = useI18n(orderReviewPageMessages)
+  const { t } = useI18n(orderReviewPageMessages)
+  const { t: tr } = useI18n(reviewStageRequestMessages)
   return (
-    <div className="odm-or-review-stage" aria-label="Thông tin đơn">
+    <div className="odm-or-review-stage" aria-label={tr.orderInfo}>
       <ReadOnlyScope on={readOnly}>
-        <section className="odm-or-grid odm-or-review-summary">
-          <div className="odm-or-col">
-            <OrderServiceInfo order={order} t={t} hideService />
-            <OrderCustomerRequestDetails order={order} t={t} />
-          </div>
-          <div className="odm-or-col odm-or-summary-side">
-            <OrderStatusCard order={order} t={t} locale={locale} />
-            <OrderCustomerCard order={order} t={t} />
-          </div>
-        </section>
-        <section className="odm-or-grid odm-or-review-more">
-          <div className="odm-or-col">
-            <OrderAttachmentsCard order={order} t={t} />
-            <InternalNoteCard orderId={order.id} t={t} locale={locale} />
-          </div>
-        </section>
+        <OrderLocationCard order={order} t={t} overview />
+        <OrderCustomerRequestDetails order={order} t={t} />
       </ReadOnlyScope>
-      <ReviewStageActions step={1} onNext={() => goToStep(2)} />
+      <ReviewStageActions
+        step={1}
+        onNext={() => void goToStep(2)}
+        nextDisabled={startingReview || readOnly}
+        hint={startReviewError}
+      />
     </div>
   )
 }

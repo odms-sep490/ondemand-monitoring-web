@@ -1,6 +1,7 @@
 import { apiRequest } from '../../shared/api/httpClient'
 import type {
   ChecklistReviewStatus,
+  ChecklistGuidanceRequest,
   Invoice,
   Payment,
   PricingChecklistItem,
@@ -18,11 +19,24 @@ export const financeApi = {
   reviewChecklist: (
     orderId: string,
     itemId: string,
-    body: { status: ChecklistReviewStatus; managerNote: string | null },
+    body: {
+      status: ChecklistReviewStatus
+      managerNote: string | null
+      expectedChecklistRevision?: number | null
+    },
   ) =>
     apiRequest<PricingChecklistItem>(
       `/api/manager/orders/${encodeURIComponent(orderId)}/checklist-items/${encodeURIComponent(itemId)}`,
       { method: 'PATCH', body },
+    ),
+  saveChecklistGuidance: (
+    orderId: string,
+    itemId: string,
+    body: ChecklistGuidanceRequest,
+  ) =>
+    apiRequest<PricingChecklistItem>(
+      `/api/manager/orders/${encodeURIComponent(orderId)}/checklist-items/${encodeURIComponent(itemId)}/guidance`,
+      { method: 'PUT', body },
     ),
   saveDraft: (
     orderId: string,
@@ -37,6 +51,7 @@ export const financeApi = {
         'DISCOUNT' | 'PROMOTION' | 'COMPENSATION' | 'GOODWILL' | 'CORRECTION'
       expectedPricingRevision?: number | null
       expectedPolicyVersion?: number | null
+      expectedChecklistRevision?: number | null
     },
   ) =>
     apiRequest<Quote>(
@@ -96,6 +111,11 @@ export const financeApi = {
       {
         method: 'POST',
       },
+    ),
+  completeTestFinal: (invoiceId: string) =>
+    apiRequest<Payment>(
+      `/api/invoices/${encodeURIComponent(invoiceId)}/payments/test-final`,
+      { method: 'POST' },
     ),
   getPaymentByReference: (transactionReference: string, signal?: AbortSignal) =>
     apiRequest<Payment>(

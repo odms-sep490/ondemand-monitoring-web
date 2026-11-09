@@ -1,4 +1,6 @@
-import { StatCard } from '../../../../../shared/components/ui'
+import { CheckCircleOutlined, CloseCircleOutlined, SyncOutlined } from '@ant-design/icons'
+
+import { StatCard } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import type { MissionMediaProgress } from '../../../lib/missionHistory/types'
 import { mediaProgressPanelMessages } from './MediaProgressPanel.messages'
@@ -9,13 +11,15 @@ export function MediaProgressPanel({ progress }: { progress: MissionMediaProgres
   return (
     <div className="mhd-progress">
       <div className="mhd-stats">
-        <StatCard label={t.available} value={progress.available} tone="success" />
+        <StatCard label={t.available} value={progress.available} tone="success" icon={<CheckCircleOutlined />} />
         <StatCard
+          icon={<SyncOutlined />}
           label={t.processing}
           value={progress.processing}
           tone={progress.processing > 0 ? 'warning' : 'default'}
         />
         <StatCard
+          icon={<CloseCircleOutlined />}
           label={t.rejected}
           value={progress.rejected}
           tone={progress.rejected > 0 ? 'danger' : 'default'}

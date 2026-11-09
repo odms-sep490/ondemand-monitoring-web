@@ -6,6 +6,7 @@ import {
 } from '../../../../shared/components/odm/StateView'
 import { useI18n } from '../../../../shared/i18n'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
+import { ApiError } from '../../../../shared/api/httpClient'
 import { missionApi } from '../../../mission/api/missionApi'
 import { useMissionMonitoring } from '../../../mission/hooks/useMissionMonitoring'
 import { MonitoringChecklistSection } from '../../../mission/components/MonitoringChecklistSection'
@@ -13,17 +14,17 @@ import { operatorApi } from '../../api/operatorApi'
 import { setActiveMissionId } from '../../api/liveMission'
 import { operatorHref } from '../../routes'
 import { RejectDialog } from './components/RejectDialog'
+import { CancelMissionDialog } from './components/CancelMissionDialog'
 import { missionDetailPageMessages } from './MissionDetailPage.messages'
-import { SafeStopPanel } from '../../../manager/components/common/SafeStopPanel'
-import '../../../manager/components/common/planning.css'
 import {
-  MissionResultActions,
   missionResultActions,
   staffResultError,
 } from '../../components/common/MissionResultActions'
 import { isAwaitingResponse } from './missionResponse'
 import { MissionDashboard } from './components/MissionDashboard'
 import { useMissionDetailActions } from './useMissionDetailActions'
+import { fetchLatestWeatherCheck } from './checkData'
+import type { WeatherPreflightStatus } from './types'
 
 // ─── Main screen ─────────────────────────────────────────────────────────────
 
@@ -38,20 +39,35 @@ function MissionDetailContent({ missionId }: { missionId: string }) {
     [missionId],
   )
   const [showReject, setShowReject] = useState(false)
+  const [showCancelMission, setShowCancelMission] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [resultSubmitting, setResultSubmitting] = useState(false)
   const [mediaRevision, setMediaRevision] = useState(0)
+  const [weatherStatus, setWeatherStatus] =
+    useState<WeatherPreflightStatus | null>(null)
+  const [weatherLoading, setWeatherLoading] = useState(true)
   const monitoring = useMissionMonitoring(missionId, undefined, {
     autoRefresh: false,
   })
+  const awaitingResponse = Boolean(query.data && isAwaitingResponse(query.data))
+  // Accept/reject only depends on assignment permissions, not post-flight data.
+  const responsePermissions = useApiQuery(async () => {
+    if (!awaitingResponse) return undefined
+    const permissions = await missionApi.getPermissions(missionId)
+    if (!permissions || typeof permissions.canRespond !== 'boolean') {
+      throw new ApiError('Mission permissions unavailable', {
+        code: 'MISSION_PERMISSIONS_UNAVAILABLE',
+        status: 503,
+        method: 'GET',
+        path: `/api/missions/${missionId}/permissions`,
+      })
+    }
+    return permissions
+  }, [missionId, awaitingResponse])
   const resultApprovalStatus = monitoring.data?.result?.approvalStatus ?? null
-  const monitoringKnown =
-    !monitoring.loading && !monitoring.error && Boolean(monitoring.data)
-  const actions = missionResultActions(
-    missionId,
-    query.data?.backendStatus ?? query.data?.status,
-    monitoring,
-  )
+  const monitoringKnown = Boolean(monitoring.data)
+  const missionStatus = query.data?.backendStatus ?? query.data?.status
+  const actions = missionResultActions(missionId, missionStatus, monitoring)
   const [actionError, setActionError] = useState<unknown>(null)
 
   useEffect(() => {
@@ -59,15 +75,48 @@ function MissionDetailContent({ missionId }: { missionId: string }) {
   }, [missionId])
 
   useEffect(() => {
-    const timer = window.setInterval(() => {
+    const controller = new AbortController()
+    setWeatherLoading(true)
+    fetchLatestWeatherCheck(missionId, controller.signal)
+      .then(setWeatherStatus)
+      .catch(() => setWeatherStatus(null))
+      .finally(() => {
+        if (!controller.signal.aborted) setWeatherLoading(false)
+      })
+    return () => controller.abort()
+  }, [missionId])
+
+  useEffect(() => {
+    const refreshMission = () => {
+      if (document.hidden) return
       query.reload()
       monitoring.reload()
-    }, 5_000)
-    return () => window.clearInterval(timer)
-  }, [missionId, monitoring.reload, query.reload])
+    }
+    const refreshSupportingData = () => {
+      if (document.hidden) return
+      monitoring.reload()
+      if (awaitingResponse) responsePermissions.reload()
+    }
+    const missionTimer = window.setInterval(refreshMission, 15_000)
+    const supportingTimer = window.setInterval(refreshSupportingData, 30_000)
+    window.addEventListener('focus', refreshMission)
+    document.addEventListener('visibilitychange', refreshMission)
+    return () => {
+      window.clearInterval(missionTimer)
+      window.clearInterval(supportingTimer)
+      window.removeEventListener('focus', refreshMission)
+      document.removeEventListener('visibilitychange', refreshMission)
+    }
+  }, [
+    missionId,
+    monitoring.reload,
+    query.reload,
+    responsePermissions.reload,
+    awaitingResponse,
+  ])
 
   if (query.loading && !query.data) return <LoadingState />
-  if (query.error || !query.data || query.data.id !== missionId) {
+  if (!query.data || query.data.id !== missionId) {
     return (
       <EmptyState
         title={t.errorTitle}
@@ -85,13 +134,14 @@ function MissionDetailContent({ missionId }: { missionId: string }) {
   }
 
   const mission = query.data
+  const checklistPreview = isAwaitingResponse(mission)
   const {
     refreshWorkspace,
     handleAccept,
     handleStartWorkflow,
+    handleAcceptWeather,
+    handleCancelMission,
     handleReject,
-    handleCompleteMission,
-    handleSubmitResult,
   } = useMissionDetailActions({
     setActionError,
     setMediaRevision,
@@ -104,6 +154,10 @@ function MissionDetailContent({ missionId }: { missionId: string }) {
     submitting,
     resultSubmitting,
     setResultSubmitting,
+    weatherStatus,
+    setWeatherStatus,
+    flightPermitNotApprovedMessage: t.flightPermitNotApproved,
+    weatherAfterPermitRequiredMessage: t.weatherAfterPermitRequired,
   })
 
   return (
@@ -111,6 +165,8 @@ function MissionDetailContent({ missionId }: { missionId: string }) {
       <MissionDashboard
         mission={mission}
         submitting={submitting}
+        weatherStatus={weatherStatus}
+        weatherLoading={weatherLoading}
         actionError={
           actionError
             ? typeof actionError === 'string'
@@ -118,35 +174,44 @@ function MissionDetailContent({ missionId }: { missionId: string }) {
               : staffResultError(actionError)
             : null
         }
-        access={actions.known ? monitoring.data?.permissions : undefined}
-        resultActions={
-          <MissionResultActions
-            missionId={missionId}
-            status={mission.backendStatus ?? mission.status}
-            monitoring={monitoring}
-            busy={submitting || resultSubmitting || query.loading}
-            showComplete={false}
-            onComplete={() => void handleCompleteMission()}
-            onSubmit={() => void handleSubmitResult()}
-          />
+        access={
+          awaitingResponse
+            ? responsePermissions.data
+            : actions.known
+              ? monitoring.data?.permissions
+              : undefined
+        }
+        responseAccessLoading={
+          !responsePermissions.data && responsePermissions.loading
+        }
+        responseAccessError={
+          !responsePermissions.data && Boolean(responsePermissions.error)
         }
         monitoringSection={
           <MonitoringChecklistSection
             missionId={mission.id}
             data={monitoring.data?.checklist}
-            loading={monitoring.loading}
-            error={monitoring.error}
+            loading={monitoring.loading && !monitoring.data}
+            error={monitoring.data ? undefined : monitoring.error}
             canExecute={
               monitoring.data?.permissions.canExecuteMonitoringChecklist
             }
-            canAssess={monitoring.data?.permissions.canInspectDevice === true}
+            canSelectForCustomer={
+              monitoring.data?.permissions.canAssessMonitoringChecklist === true
+            }
+            canAssess={
+              monitoring.data?.permissions.canAssessMonitoringChecklist === true
+            }
             canAttach={monitoring.data?.permissions.canAttachChecklistEvidence}
             canDetach={monitoring.data?.permissions.canDetachChecklistEvidence}
             resultStatus={resultApprovalStatus}
             resultNote={monitoring.data?.result?.reviewNote}
             resultKnown={monitoringKnown}
             refresh={refreshWorkspace}
-            preview={isAwaitingResponse(mission)}
+            compact={!checklistPreview}
+            compactTitle={checklistPreview ? undefined : 'Đánh giá checklist'}
+            assessmentOnly={!checklistPreview}
+            preview={checklistPreview}
           />
         }
         resultApprovalStatus={resultApprovalStatus}
@@ -154,50 +219,23 @@ function MissionDetailContent({ missionId }: { missionId: string }) {
         mediaRevision={mediaRevision}
         onAccept={handleAccept}
         onStartWorkflow={handleStartWorkflow}
+        onAcceptWeather={handleAcceptWeather}
+        onCancelMission={() => setShowCancelMission(true)}
         onOpenReject={() => setShowReject(true)}
       />
 
-      {!isAwaitingResponse(mission) &&
-        actions.known &&
-        monitoring.data?.permissions.canPrepareSafeStopPostflight === true && (
-          <div className="odm-card">
-            <p>
-              Mission đã xác nhận an toàn nhưng chưa hoàn tất kiểm tra sau bay.
-              Quyền bay vẫn bị khóa.
-            </p>
-            <button
-              type="button"
-              className="odm-btn"
-              disabled={submitting}
-              onClick={async () => {
-                setSubmitting(true)
-                setActionError(null)
-                try {
-                  await missionApi.startPostflight(mission.id)
-                } catch (error) {
-                  setActionError(error)
-                } finally {
-                  refreshWorkspace(false)
-                  setSubmitting(false)
-                }
-              }}
-            >
-              Chuẩn bị kiểm tra sau bay
-            </button>
-          </div>
-        )}
-      <SafeStopPanel
-        key={mission.id}
-        missionId={mission.id}
-        onChanged={() => {
-          query.reload()
-          monitoring.reload()
-        }}
-      />
+      {showCancelMission && (
+        <CancelMissionDialog
+          missionCode={mission.missionCode ?? mission.id}
+          busy={submitting}
+          onClose={() => setShowCancelMission(false)}
+          onConfirm={handleCancelMission}
+        />
+      )}
 
       {showReject ? (
         <RejectDialog
-          missionId={mission.id}
+          missionCode={mission.missionCode}
           submitting={submitting}
           onCancel={() => setShowReject(false)}
           onConfirm={handleReject}

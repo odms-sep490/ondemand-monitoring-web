@@ -1,94 +1,107 @@
+import {
+  BellOutlined,
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
+  SearchOutlined,
+  ToolOutlined,
+} from '@ant-design/icons'
+import { Badge, Breadcrumb, Button, Input, Layout } from 'antd'
+
+import { Icon } from '../../shared/components/Icon'
 import { LanguageToggle } from '../../shared/components/LanguageToggle'
+import { PortalUserMenu } from '../../shared/components/portal/PortalUserMenu'
 import { useI18n } from '../../shared/i18n'
 import { operatorHref } from './routes'
 import { operatorTopbarMessages } from './OperatorTopbar.messages'
 
 export function OperatorTopbar({
   breadcrumb,
+  collapsed,
   dark,
+  notificationCount,
   onToggleDark,
+  onToggleNavigation,
   searchQuery,
   onSearchChange,
-  onOpenMenu,
 }: {
   breadcrumb: string
+  collapsed: boolean
   dark: boolean
+  notificationCount?: number
   onToggleDark: () => void
+  onToggleNavigation: () => void
   searchQuery: string
   onSearchChange: (value: string) => void
-  onOpenMenu?: () => void
 }) {
   const { t } = useI18n(operatorTopbarMessages)
   return (
-    <header className="odm-opr-topbar">
-      <button
-        type="button"
-        className="odm-opr-menu-toggle"
-        aria-label={t.openMenu}
-        onClick={onOpenMenu}
-      >
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={1.8}
-          strokeLinecap="round"
-          aria-hidden="true"
-        >
-          <path d="M4 7h16M4 12h16M4 17h16" />
-        </svg>
-      </button>
-
-      <div className="odm-opr-breadcrumb">
-        <span>{t.pilotLabel}</span>
-        <span aria-hidden="true">›</span>
-        <strong>{breadcrumb}</strong>
+    <Layout.Header className="mgr-header odm-opr-topbar">
+      <div className="mgr-header-left">
+        <Button
+          type="text"
+          className="mgr-icon-btn odm-opr-menu-toggle"
+          icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+          aria-label={collapsed ? t.openMenu : t.closeMenu}
+          aria-controls="operator-navigation"
+          aria-expanded={!collapsed}
+          onClick={onToggleNavigation}
+        />
+        <Breadcrumb
+          className="odm-opr-breadcrumb"
+          items={[
+            {
+              title: (
+                <a href={operatorHref({ screen: 'missions' })}>
+                  {t.pilotLabel}
+                </a>
+              ),
+            },
+            { title: <strong>{breadcrumb}</strong> },
+          ]}
+        />
       </div>
 
-      <div className="odm-opr-topbar-actions">
-        <a
+      <div className="mgr-header-right">
+        <Input
+          className="mgr-search odm-opr-search"
+          allowClear
+          prefix={<SearchOutlined />}
+          placeholder={t.searchPlaceholder}
+          aria-label={t.search}
+          value={searchQuery}
+          onChange={(event) => onSearchChange(event.target.value)}
+        />
+        <Button
           href={operatorHref({ screen: 'maintenance' })}
-          className="odm-btn odm-opr-maint-link"
+          type="default"
+          className="mgr-support-btn"
+          icon={<ToolOutlined />}
+          aria-label={t.maintenanceLink}
         >
-          {t.maintenanceLink}
+          <span className="mgr-support-label">{t.maintenanceLink}</span>
+        </Button>
+        <a
+          className="mgr-icon-btn"
+          href={operatorHref({ screen: 'notifications' })}
+          aria-label={t.notifications}
+        >
+          <Badge count={notificationCount ?? 0} size="small" overflowCount={99}>
+            <BellOutlined style={{ fontSize: 18, color: 'inherit' }} />
+          </Badge>
         </a>
-
-        <div className="odm-opr-search">
-          <span className="odm-opr-search-icon" aria-hidden="true">
-            <svg
-              width="15"
-              height="15"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={1.8}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <circle cx="11" cy="11" r="6.5" />
-              <path d="M20 20l-4.2-4.2" />
-            </svg>
-          </span>
-          <input
-            className="odm-inp"
-            aria-label={t.search}
-            placeholder={t.searchPlaceholder}
-            value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
-          />
-        </div>
-        <LanguageToggle />
-        <button
-          type="button"
-          className="odm-btn odm-btn-gh odm-btn-ic1"
+        <LanguageToggle className="mgr-lang-toggle" />
+        <Button
+          type="text"
+          className="mgr-icon-btn"
           aria-label={t.toggleTheme}
           onClick={onToggleDark}
-        >
-          {dark ? '☀' : '☾'}
-        </button>
+          icon={<Icon name={dark ? 'sun' : 'moon'} width={18} height={18} />}
+        />
+        <PortalUserMenu
+          fallbackName={t.pilotLabel}
+          profileHref={operatorHref({ screen: 'profile' })}
+        />
       </div>
-    </header>
+    </Layout.Header>
   )
 }

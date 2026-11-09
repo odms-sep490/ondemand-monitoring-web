@@ -1,4 +1,4 @@
-import { localizeMediaType } from '../../lib/viLabels'
+import { localizeMediaLabel } from '../../lib/viLabels'
 import type { OrderReviewMessages } from '../../pages/OrderReview/OrderReviewPage.messages'
 
 export function formatVn(iso: string, locale: 'vi-VN' | 'en-US'): string {
@@ -16,10 +16,7 @@ export function formatVn(iso: string, locale: 'vi-VN' | 'en-US'): string {
 }
 
 function localizeTokens(text: string): string {
-  return text
-    .split(' · ')
-    .map((token) => localizeMediaType(token))
-    .join(' · ')
+  return localizeMediaLabel(text)
 }
 
 export function humanizeMediaRequirement(

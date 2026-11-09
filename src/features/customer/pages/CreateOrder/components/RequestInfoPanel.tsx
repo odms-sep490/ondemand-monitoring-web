@@ -1,4 +1,6 @@
-import { Card, FormField } from '../../../../../shared/components/ui'
+import { FormOutlined } from '@ant-design/icons'
+import { InnerCollapse } from '../../../components/common/InnerCollapse'
+import { Card, FormField } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import {
   type FlightPurpose,
@@ -31,7 +33,7 @@ export function RequestInfoPanel({ form, errors, update }: Props) {
   const { t } = useI18n(requestInfoPanelMessages)
 
   return (
-    <Card title={t.cardTitle}>
+    <Card icon={<FormOutlined />} title={t.cardTitle}>
       <FormField
         id="co-title"
         label={t.titleLabel}
@@ -84,11 +86,20 @@ export function RequestInfoPanel({ form, errors, update }: Props) {
         ) : null}
       </div>
       <div className="co-mt">
-        <FormField id="co-purpose" label={t.purposeLabel}>
+        <FormField
+          id="co-purpose"
+          label={t.purposeLabel}
+          required
+          error={errors.usagePurpose}
+        >
           <select
             id="co-purpose"
             className="co-input"
             value={form.usagePurpose}
+            aria-invalid={Boolean(errors.usagePurpose)}
+            aria-describedby={
+              errors.usagePurpose ? 'co-purpose-error' : undefined
+            }
             onChange={(e) =>
               update('usagePurpose', e.target.value as UsagePurpose)
             }
@@ -121,8 +132,7 @@ export function RequestInfoPanel({ form, errors, update }: Props) {
           </div>
         ) : null}
       </div>
-      <details className="co-optional-details">
-        <summary>{t.optionalDetails}</summary>
+      <InnerCollapse className="co-optional-details" title={t.optionalDetails}>
         <div className="co-optional-details-body">
           <FormField id="co-desc" label={t.descriptionLabel}>
             <textarea
@@ -140,7 +150,7 @@ export function RequestInfoPanel({ form, errors, update }: Props) {
           </div>
           <AttachmentsField attachments={form.attachments} update={update} />
         </div>
-      </details>
+      </InnerCollapse>
     </Card>
   )
 }

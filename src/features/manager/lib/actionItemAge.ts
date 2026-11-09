@@ -8,6 +8,7 @@
 // every existing call site/test keeps working unchanged) and renders the
 // English wording when `lang === 'en'`.
 import type { Language } from '../../../shared/i18n'
+import { managerLibMessages } from './lib.messages'
 
 const MINUTE_MS = 60_000
 const HOUR_MS = 60 * MINUTE_MS
@@ -33,14 +34,10 @@ export function formatOrderAge(
   const hours = Math.floor(
     (now.getTime() - new Date(submittedAtIso).getTime()) / HOUR_MS,
   )
-  if (lang === 'en') {
-    return hours >= overdueHours
-      ? `${hours}h · over ${overdueHours}h`
-      : `${hours}h`
-  }
+  const t = managerLibMessages[lang].age
   return hours >= overdueHours
-    ? `${hours} giờ · quá ${overdueHours}h`
-    : `${hours} giờ`
+    ? t.orderOverdue(hours, overdueHours)
+    : t.orderHours(hours)
 }
 
 /**
@@ -59,12 +56,10 @@ export function formatMissionCountdown(
   const abs = Math.abs(totalMinutes)
   const hours = Math.floor(abs / 60)
   const minutes = abs % 60
-  if (lang === 'en') {
-    const label = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`
-    return late ? `${label} late` : `In ${label}`
-  }
-  const label = hours > 0 ? `${hours} giờ ${minutes} phút` : `${minutes} phút`
-  return late ? `Trễ ${label}` : `Còn ${label}`
+  const t = managerLibMessages[lang].age
+  const label =
+    hours > 0 ? t.hoursMinutes(hours, minutes) : t.minutesOnly(minutes)
+  return late ? t.late(label) : t.remaining(label)
 }
 
 /** Maintenance ticket open duration, e.g. "Mở 6 ngày". */
@@ -76,7 +71,7 @@ export function formatTicketAge(
   const days = Math.floor(
     (now.getTime() - new Date(openedAtIso).getTime()) / DAY_MS,
   )
-  return lang === 'en' ? `Open ${days} days` : `Mở ${days} ngày`
+  return managerLibMessages[lang].age.ticketOpen(days)
 }
 
 /**
@@ -91,18 +86,12 @@ export function formatMinutesAgo(
   lang: Language = 'vi',
 ): string {
   const minutes = diffMinutes(now, createdAtIso)
-  if (lang === 'en') {
-    if (minutes < 60) return `${minutes} min ago`
-    const hours = Math.floor(minutes / 60)
-    if (hours < 24) return `${hours}h ago`
-    const days = Math.floor(hours / 24)
-    return `${days}d ago`
-  }
-  if (minutes < 60) return `${minutes} phút trước`
+  const t = managerLibMessages[lang].age
+  if (minutes < 60) return t.minutesAgo(minutes)
   const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours} giờ trước`
+  if (hours < 24) return t.hoursAgo(hours)
   const days = Math.floor(hours / 24)
-  return `${days} ngày trước`
+  return t.daysAgo(days)
 }
 
 /**
@@ -116,16 +105,11 @@ export function formatFlightMinutes(
   lang: Language = 'vi',
 ): string {
   const minutes = diffMinutes(now, startedAtIso)
-  if (lang === 'en') {
-    if (minutes < 60) return `Flying ${minutes} min`
-    const hours = Math.floor(minutes / 60)
-    const remainderMinutes = minutes % 60
-    return `Flying ${hours}h ${remainderMinutes}m`
-  }
-  if (minutes < 60) return `Bay ${minutes} phút`
+  const t = managerLibMessages[lang].age
+  if (minutes < 60) return t.flyingMinutes(minutes)
   const hours = Math.floor(minutes / 60)
   const remainderMinutes = minutes % 60
-  return `Bay ${hours} giờ ${remainderMinutes} phút`
+  return t.flyingHoursMinutes(hours, remainderMinutes)
 }
 
 function pad2(value: number): string {

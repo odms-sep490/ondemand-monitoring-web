@@ -4,6 +4,7 @@ import { OrderIcon } from '../../../components/common/OrderIcon'
 import { DecisionModal } from './DecisionModal'
 import { type ApproveResult, type ModalKind } from '../approvalTypes'
 import { ApproveButton } from './ApproveButton'
+import { Button } from '../../../../../shared/components/ui'
 
 /**
  * Sticky bottom action bar for the order review step: request more info,
@@ -36,22 +37,21 @@ export function OrderApprovalActions({
           <span>{t.actionHintNext}</span>
         </div>
         <div className="odm-or-actionbar-actions">
-          <button
+          <Button
             type="button"
-            className="odm-or-btn odm-or-btn-amber"
             onClick={() => setModal('info')}
           >
             <OrderIcon name="alert" size={16} />
             {t.requestInfo}
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
-            className="odm-or-btn odm-or-btn-red"
+            variant="danger"
             onClick={() => setModal('reject')}
           >
             <OrderIcon name="x" size={16} />
             {t.reject}
-          </button>
+          </Button>
           {showApprove ? (
             <ApproveButton orderId={orderId} t={t} onApproved={onApproved} />
           ) : null}

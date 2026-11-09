@@ -18,6 +18,7 @@ beforeEach(() => {
     missionId: 'm',
     legacySnapshot: false,
     readyForSubmission: true,
+    readyForFinalApproval: true,
     executions: [],
   })
   vi.spyOn(missionApi, 'getMissionResult').mockResolvedValue(null)
@@ -53,13 +54,92 @@ const noActions = {
 // it rejects in this test environment and the screen settles on its
 // bilingual "mission not found" error state.
 describe('MissionDetailScreen', () => {
+  it.each(['checklist', 'result'])(
+    'accepts a pending assignment when unrelated %s data fails to load',
+    async (failedResource) => {
+      vi.spyOn(operatorApi, 'getMission').mockResolvedValue({
+        ...mission,
+        status: 'PENDING',
+        backendStatus: 'READY',
+        myResponseStatus: 'PENDING',
+      })
+      vi.spyOn(missionApi, 'getPermissions').mockResolvedValue({
+        ...noActions,
+        canRespond: true,
+      })
+      if (failedResource === 'checklist') {
+        vi.mocked(
+          checklistExecutionApi.getMissionChecklistExecutions,
+        ).mockRejectedValue(new Error('Checklist service unavailable'))
+      } else {
+        vi.mocked(missionApi.getMissionResult).mockRejectedValue(
+          new Error('Result service unavailable'),
+        )
+      }
+      const accept = vi
+        .spyOn(operatorApi, 'acceptMission')
+        .mockResolvedValue({} as never)
+      render(<MissionDetailPage missionId="m" />)
+      const button = await screen.findByRole('button', {
+        name: /Chấp nhận nhiệm vụ/,
+      })
+      await waitFor(() => expect(button).toBeEnabled())
+      fireEvent.click(button)
+      await waitFor(() => expect(accept).toHaveBeenCalledExactlyOnceWith('m'))
+    },
+  )
+
+  it('keeps acceptance locked and reports a permission load failure truthfully', async () => {
+    vi.spyOn(operatorApi, 'getMission').mockResolvedValue({
+      ...mission,
+      status: 'PENDING',
+      backendStatus: 'READY',
+      myResponseStatus: 'PENDING',
+    })
+    vi.spyOn(missionApi, 'getPermissions').mockRejectedValue(
+      new Error('Permissions unavailable'),
+    )
+    const accept = vi.spyOn(operatorApi, 'acceptMission')
+    render(<MissionDetailPage missionId="m" />)
+    expect(
+      await screen.findByText(
+        'Không tải được quyền nhận nhiệm vụ. Hệ thống sẽ tự thử lại.',
+      ),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: /Chấp nhận nhiệm vụ/ }),
+    ).toBeDisabled()
+    expect(
+      screen.queryByText('Bạn chưa có quyền phản hồi nhiệm vụ này.'),
+    ).not.toBeInTheDocument()
+    expect(accept).not.toHaveBeenCalled()
+  })
+
+  it('does not accept an assignment when the backend denies the capability', async () => {
+    vi.spyOn(operatorApi, 'getMission').mockResolvedValue({
+      ...mission,
+      status: 'PENDING',
+      backendStatus: 'READY',
+      myResponseStatus: 'PENDING',
+    })
+    vi.spyOn(missionApi, 'getPermissions').mockResolvedValue(noActions)
+    render(<MissionDetailPage missionId="m" />)
+    expect(
+      await screen.findByText('Bạn chưa có quyền phản hồi nhiệm vụ này.'),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: /Chấp nhận nhiệm vụ/ }),
+    ).toBeDisabled()
+  })
+
   it('missing permission response keeps legacy detail readable without granting actions', async () => {
     vi.spyOn(operatorApi, 'getMission').mockResolvedValue(mission)
     // Deliberately malformed response, outside the typed API contract.
     vi.spyOn(missionApi, 'getPermissions').mockResolvedValue(null as never)
     render(<MissionDetailPage missionId="m" />)
-    expect((await screen.findAllByText('MS-1'))[0]).toBeInTheDocument()
-    await waitFor(() => expect(screen.getByRole('alert')).toBeInTheDocument())
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Mission MS-1' }),
+    ).toBeInTheDocument()
     expect(
       screen.queryByRole('button', { name: 'Hoàn thành Mission' }),
     ).not.toBeInTheDocument()
@@ -67,65 +147,6 @@ describe('MissionDetailScreen', () => {
       screen.queryByRole('link', { name: 'Mở buồng lái' }),
     ).not.toBeInTheDocument()
   })
-  it('historical confirmed ready exposes postflight close-out, never new flight', async () => {
-    vi.spyOn(operatorApi, 'getMission').mockResolvedValue({
-      ...mission,
-      status: 'READY_TO_FLY',
-      backendStatus: 'READY_TO_FLY',
-      safeStopStatus: 'IN_PROGRESS',
-      safeStopConfirmedAt: 'now',
-    })
-    vi.spyOn(missionApi, 'getPermissions').mockResolvedValue({
-      ...noActions,
-      canPrepareSafeStopPostflight: true,
-    })
-    const postflight = vi
-      .spyOn(missionApi, 'startPostflight')
-      .mockResolvedValue({ id: 'm', status: 'POSTFLIGHT_CHECKING' } as Awaited<
-        ReturnType<typeof missionApi.startPostflight>
-      >)
-    render(<MissionDetailPage missionId="m" />)
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'Chuẩn bị kiểm tra sau bay' }),
-    )
-    await waitFor(() => expect(postflight).toHaveBeenCalledWith('m'))
-    expect(
-      screen.queryByRole('link', { name: 'Mở buồng lái' }),
-    ).not.toBeInTheDocument()
-  })
-  it.each([
-    ['REQUESTED', undefined, undefined, 'Đang dừng an toàn'],
-    ['IN_PROGRESS', 'now', undefined, 'Đã xác nhận an toàn'],
-    ['READY_FOR_CANCELLATION', 'now', 'now', 'Sẵn sàng hủy'],
-  ])(
-    'safe-stop %s dominates detail despite stale normal permissions',
-    async (safeStopStatus, safeStopConfirmedAt, safeStopCleanedAt, label) => {
-      vi.spyOn(operatorApi, 'getMission').mockResolvedValue({
-        ...mission,
-        backendStatus: 'READY_TO_FLY',
-        status: 'READY_TO_FLY',
-        safeStopStatus,
-        safeStopConfirmedAt,
-        safeStopCleanedAt,
-      })
-      vi.spyOn(missionApi, 'getPermissions').mockResolvedValue({
-        ...noActions,
-        canControlFlight: true,
-        canOperatePayload: true,
-      })
-      render(<MissionDetailPage missionId="m" />)
-      expect((await screen.findAllByText(label))[0]).toBeInTheDocument()
-      expect(
-        screen.queryByRole('link', { name: 'Mở buồng lái' }),
-      ).not.toBeInTheDocument()
-      expect(
-        screen.queryByRole('link', { name: 'Kết nối GCS' }),
-      ).not.toBeInTheDocument()
-      expect(
-        screen.queryByText('Quy trình: sẵn sàng bàn giao'),
-      ).not.toBeInTheDocument()
-    },
-  )
   it('shows GCS connection before preflight for a scheduled accepted mission', async () => {
     vi.spyOn(operatorApi, 'getMission').mockResolvedValue({
       ...mission,
@@ -140,8 +161,10 @@ describe('MissionDetailScreen', () => {
 
     render(<MissionDetailPage missionId="m" />)
 
-    expect(await screen.findByText('Kết nối GCS')).toBeInTheDocument()
-    expect(screen.queryByText('Kiểm tra thiết bị')).toBeNull()
+    expect(
+      await screen.findByRole('link', { name: 'Kết nối GCS' }),
+    ).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Kiểm tra thiết bị' })).toBeNull()
   })
 
   it.each([
@@ -187,16 +210,19 @@ describe('MissionDetailScreen', () => {
         ],
       })
       render(<MissionDetailPage missionId="m" />)
+      fireEvent.click(await screen.findByRole('tab', { name: 'Checklist' }))
       await screen.findByText('Monitoring lịch sử')
-      if (canExecuteMonitoringChecklist)
-        expect(screen.getByText('Cập nhật mục')).toBeInTheDocument()
-      else expect(screen.queryByText('Cập nhật mục')).toBeNull()
+      // Mission detail only hosts the assessment-only checklist now, so no
+      // actor gets an item-update control here, regardless of permission.
+      expect(screen.queryByText('Cập nhật mục')).toBeNull()
       if (canCompleteMission) {
-        expect(await screen.findByText('Mở dữ liệu nghiệm thu')).toBeInTheDocument()
+        expect(
+          await screen.findByText('Mở dữ liệu nghiệm thu'),
+        ).toBeInTheDocument()
         expect(screen.queryByText('Xác nhận hoàn thành Mission')).toBeNull()
       }
       expect(
-        screen.queryByRole('button', { name: 'Gửi kết quả cho Manager' }),
+        screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
       ).toBeNull()
     },
   )
@@ -220,14 +246,12 @@ describe('MissionDetailScreen', () => {
       executions: [],
     })
     render(<MissionDetailPage missionId="m" />)
+    expect(await screen.findByText('Mission đã hoàn thành.')).toBeInTheDocument()
     expect(
-      await screen.findByText('Chưa sẵn sàng gửi kết quả'),
-    ).toBeInTheDocument()
-    expect(
-      await screen.findByRole('button', { name: 'Gửi kết quả cho Manager' }),
-    ).toBeDisabled()
+      screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
+    ).toBeNull()
   })
-  it('keeps mission detail stable on focus and refreshes result status only from the checklist button', async () => {
+  it('keeps mission detail stable on focus without re-fetching result status', async () => {
     vi.spyOn(operatorApi, 'getMission').mockResolvedValue({
       ...mission,
       backendStatus: 'COMPLETED',
@@ -247,24 +271,21 @@ describe('MissionDetailScreen', () => {
     }
     vi.mocked(missionApi.getMissionResult).mockResolvedValue(result)
     render(<MissionDetailPage missionId="m" />)
-    await screen.findByText(
-      'Chỉ đọc — kết quả đang chờ duyệt hoặc đã được duyệt.',
-    )
+    fireEvent.click(await screen.findByRole('tab', { name: 'Checklist' }))
+    await screen.findByText('Không có mục checklist giám sát.')
+    const resultCalls = vi.mocked(missionApi.getMissionResult).mock.calls.length
     vi.mocked(missionApi.getMissionResult).mockResolvedValue({
       ...result,
       approvalStatus: 'REJECTED',
     })
     act(() => window.dispatchEvent(new Event('focus')))
-    expect(
-      screen.queryByRole('button', { name: 'Gửi kết quả cho Manager' }),
-    ).toBeNull()
-
-    fireEvent.click(screen.getByRole('button', { name: /Tải lại/ }))
-    await waitFor(() =>
-      expect(
-        screen.getByRole('button', { name: 'Gửi kết quả cho Manager' }),
-      ).toBeEnabled(),
+    // Focus only reloads the mission itself; result status is not re-fetched.
+    expect(vi.mocked(missionApi.getMissionResult).mock.calls.length).toBe(
+      resultCalls,
     )
+    expect(
+      screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
+    ).toBeNull()
   })
   it('moves Inspector completion to the acceptance workspace', async () => {
     vi.mocked(
@@ -295,11 +316,11 @@ describe('MissionDetailScreen', () => {
     expect(complete).not.toHaveBeenCalled()
     expect(submit).not.toHaveBeenCalled()
     expect(
-      screen.queryByRole('button', { name: 'Gửi kết quả cho Manager' }),
+      screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
     ).toBeNull()
   })
 
-  it('lets a multi-role staff complete and submit in one action', async () => {
+  it('keeps result submission inside the acceptance workspace for multi-role staff', async () => {
     vi.mocked(
       checklistExecutionApi.getMissionChecklistExecutions,
     ).mockResolvedValue({
@@ -307,6 +328,7 @@ describe('MissionDetailScreen', () => {
       legacySnapshot: false,
       executions: [],
       readyForSubmission: true,
+      readyForFinalApproval: true,
       readyForMissionCompletion: true,
       checklistEvidenceReady: true,
     })
@@ -336,20 +358,12 @@ describe('MissionDetailScreen', () => {
       .mockResolvedValue({} as never)
 
     render(<MissionDetailPage missionId="m" />)
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'Gửi kết quả cho Manager' }),
-    )
-
-    await waitFor(() => expect(complete).toHaveBeenCalledWith('m'))
-    await waitFor(() =>
-      expect(submit).toHaveBeenCalledWith(
-        'm',
-        expect.objectContaining({
-          notes: 'Kết quả giám sát được gửi cho manager duyệt.',
-          status: 'COMPLETED',
-        }),
-      ),
-    )
+    expect(await screen.findByText('Mở dữ liệu nghiệm thu')).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
+    ).toBeNull()
+    expect(complete).not.toHaveBeenCalled()
+    expect(submit).not.toHaveBeenCalled()
   })
 
   it('shows "Kết nối GCS" right after accepting, without a reload', async () => {
@@ -379,13 +393,60 @@ describe('MissionDetailScreen', () => {
     })
 
     render(<MissionDetailPage missionId="m" />)
-    fireEvent.click(
-      await screen.findByRole('button', { name: /Chấp nhận nhiệm vụ/ }),
-    )
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Mission MS-1' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', {
+        level: 2,
+        name: 'Thông tin để quyết định',
+      }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('region', { name: 'Bản đồ vệ tinh nhiệm vụ' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: 'Thông tin bổ sung' }),
+    ).toBeInTheDocument()
+    expect(screen.queryByText('Ngày bay')).not.toBeInTheDocument()
+    const acceptButton = await screen.findByRole('button', {
+      name: /Chấp nhận nhiệm vụ/,
+    })
+    await waitFor(() => expect(acceptButton).toBeEnabled())
+    fireEvent.click(acceptButton)
 
     expect(
       await screen.findByRole('link', { name: 'Kết nối GCS' }),
     ).toBeInTheDocument()
+    expect(screen.queryByText('Mở dữ liệu nghiệm thu')).not.toBeInTheDocument()
+  })
+
+  it('keeps an accepted mission READY and waits for the flight permit before Start', async () => {
+    vi.spyOn(operatorApi, 'getMission').mockResolvedValue({
+      ...mission,
+      status: 'ACCEPTED',
+      backendStatus: 'READY',
+      myResponseStatus: 'ACCEPTED',
+    })
+    vi.spyOn(missionApi, 'getPermissions').mockResolvedValue({
+      ...noActions,
+      canCompleteMission: true,
+      canInspectDevice: true,
+      canUploadMedia: true,
+      canStartMission: true,
+    })
+
+    render(<MissionDetailPage missionId="m" />)
+
+    expect(
+      await screen.findAllByText('Chờ quản lý duyệt giấy phép bay'),
+    ).not.toHaveLength(0)
+    expect(
+      screen.queryByRole('button', { name: 'Bắt đầu Mission' }),
+    ).not.toBeInTheDocument()
+    expect(screen.queryByText('Đã chấp nhận')).not.toBeInTheDocument()
+    expect(screen.queryByText('Sẵn sàng phân công')).not.toBeInTheDocument()
+    expect(screen.queryByText('Mở dữ liệu nghiệm thu')).not.toBeInTheDocument()
   })
 
   it('does not show the removed completion button before evidence readiness', async () => {
@@ -415,7 +476,7 @@ describe('MissionDetailScreen', () => {
   })
 
   it.each(['OPERATOR', 'PILOT fallback'])(
-    '%s submits using backend capability, not upload permission',
+    '%s submits only from the acceptance workspace',
     async () => {
       vi.spyOn(operatorApi, 'getMission').mockResolvedValue({
         ...mission,
@@ -435,12 +496,11 @@ describe('MissionDetailScreen', () => {
         .spyOn(missionApi, 'submitMissionResult')
         .mockResolvedValue({} as never)
       render(<MissionDetailPage missionId="m" />)
-      fireEvent.click(
-        await screen.findByRole('button', { name: 'Gửi kết quả cho Manager' }),
-      )
-      await waitFor(() =>
-        expect(submit).toHaveBeenCalledWith('m', expect.any(Object)),
-      )
+      await screen.findByText('Mission đã hoàn thành.')
+      expect(
+        screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
+      ).toBeNull()
+      expect(submit).not.toHaveBeenCalled()
       expect(complete).not.toHaveBeenCalled()
       expect(
         screen.queryByRole('button', { name: 'Xác nhận hoàn thành Mission' }),
@@ -460,13 +520,13 @@ describe('MissionDetailScreen', () => {
       canUploadMedia: true,
     })
     render(<MissionDetailPage missionId="m" />)
-    await screen.findByText('Mở dữ liệu nghiệm thu')
+    await screen.findByText('Mission đã hoàn thành.')
     expect(
-      screen.queryByRole('button', { name: 'Gửi kết quả cho Manager' }),
+      screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
     ).toBeNull()
   })
 
-  it('lets the inspector view Pilot media while the mission is ready to fly', async () => {
+  it('hides the acceptance workspace while the mission is ready to fly', async () => {
     vi.spyOn(operatorApi, 'getMission').mockResolvedValue({
       ...mission,
       status: 'READY_TO_FLY',
@@ -479,8 +539,10 @@ describe('MissionDetailScreen', () => {
 
     render(<MissionDetailPage missionId="m" />)
 
-    expect(await screen.findByText('Mở dữ liệu nghiệm thu')).toBeInTheDocument()
-    expect(screen.getByRole('tab', { name: 'Ảnh & video' })).toBeInTheDocument()
+    expect(
+      await screen.findByRole('tab', { name: 'Ảnh & video' }),
+    ).toBeInTheDocument()
+    expect(screen.queryByText('Mở dữ liệu nghiệm thu')).not.toBeInTheDocument()
     expect(
       screen.queryByRole('button', { name: 'Xác nhận hoàn thành Mission' }),
     ).toBeNull()
@@ -521,27 +583,19 @@ describe('MissionDetailScreen', () => {
         return {}
       })
     const view = render(<MissionDetailPage missionId="m1" />)
-    const first = await screen.findByRole('button', {
-      name: 'Gửi kết quả cho Manager',
-    })
-    expect(first).toBeEnabled()
+    await screen.findByText('Mission đã hoàn thành.')
+    expect(
+      screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
+    ).toBeNull()
     view.rerender(<MissionDetailPage missionId="m2" />)
     expect(
-      await screen.findByRole('button', { name: 'Gửi kết quả cho Manager' }),
-    ).toBeDisabled()
+      screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
+    ).toBeNull()
     view.rerender(<MissionDetailPage missionId="m1" />)
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'Gửi kết quả cho Manager' }),
-    )
-    await waitFor(() =>
-      expect(submit).toHaveBeenCalledWith('m1', expect.any(Object)),
-    )
-    await waitFor(() =>
-      expect(
-        screen.queryByRole('button', { name: 'Gửi kết quả cho Manager' }),
-      ).toBeNull(),
-    )
-    expect(submit).toHaveBeenCalledOnce()
+    expect(
+      screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
+    ).toBeNull()
+    expect(submit).not.toHaveBeenCalled()
   })
   it('renders the vietnamese error state', async () => {
     vi.spyOn(operatorApi, 'getMission').mockRejectedValue(

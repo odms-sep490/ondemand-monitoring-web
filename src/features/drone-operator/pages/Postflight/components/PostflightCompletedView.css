@@ -1,0 +1,691 @@
+.postflight-review-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 1480px;
+  margin-inline: auto;
+}
+
+.postflight-review-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+  padding: 18px 22px;
+  border: 1px solid #cbdcfb;
+  border-radius: 14px;
+  background: #f1f6ff;
+}
+
+.postflight-review-hero-copy {
+  min-width: 0;
+}
+
+.postflight-review-status-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.postflight-review-status,
+.postflight-review-manager-status {
+  display: inline-flex;
+  min-height: 30px;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 11px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.postflight-review-status.is-pass {
+  border-color: #a7e3bd;
+  background: #eaf9f0;
+  color: #137244;
+}
+
+.postflight-review-status.is-warning {
+  border-color: #f4d08b;
+  background: #fff8e8;
+  color: #8a4b08;
+}
+
+.postflight-review-manager-status {
+  flex: none;
+  border-color: #bfdbfe;
+  background: #eaf3ff;
+  color: #174bb5;
+}
+
+.postflight-review-hero h1 {
+  margin: 0 0 4px;
+  color: #13233d;
+  font-size: clamp(23px, 2vw, 30px);
+  line-height: 1.2;
+}
+
+.postflight-review-hero p {
+  max-width: 760px;
+  margin: 0;
+  color: #51627b;
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.postflight-review-workspace {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.postflight-review-tabs {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  align-items: stretch;
+  border-bottom: 1px solid #d9e1ed;
+}
+
+.postflight-review-tabs [role='tab'] {
+  display: flex;
+  min-width: 0;
+  min-height: 60px;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 3px;
+  padding: 9px 12px 8px;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  color: #43536c;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  transition: color 140ms ease, background-color 140ms ease, border-color 140ms ease;
+}
+
+.postflight-review-tabs [role='tab']:hover {
+  background: #f5f8fc;
+  color: #174bb5;
+}
+
+.postflight-review-tabs [role='tab'][aria-selected='true'] {
+  border-bottom-color: #1765e8;
+  color: #124eaf;
+  font-weight: 750;
+}
+
+.postflight-review-tabs [role='tab'] > span {
+  overflow-wrap: anywhere;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.postflight-review-tabs [role='tab'] > small {
+  color: #5b6a80;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.postflight-review-tabs [role='tab'][aria-selected='true'] > small {
+  color: #315987;
+}
+
+.postflight-review-tabs [role='tab']:focus-visible,
+.postflight-review-tab-panel:focus-visible {
+  position: relative;
+  z-index: 1;
+  outline: 3px solid #1765e8;
+  outline-offset: -3px;
+}
+
+.postflight-review-tab-panel {
+  min-width: 0;
+}
+
+.postflight-review-tab-panel[hidden] {
+  display: none;
+}
+
+.postflight-review-section {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid #d9e1ed;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.postflight-review-section > header {
+  display: flex;
+  min-height: 54px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 1px solid #e4eaf2;
+  background: #fbfcfe;
+}
+
+.postflight-review-section > header h2 {
+  min-width: 0;
+  margin: 0;
+  color: #14233b;
+  font-size: 17px;
+  line-height: 1.35;
+}
+
+.postflight-review-section > header > span {
+  min-width: 0;
+  max-width: 58%;
+  color: #52627a;
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1.4;
+  text-align: end;
+  overflow-wrap: anywhere;
+}
+
+.postflight-review-grid .mc-count {
+  font-size: 14px;
+}
+
+.postflight-review-grid .mc-count small {
+  font-size: 12px;
+}
+
+.postflight-review-section-body {
+  min-width: 0;
+  padding: 14px 16px 16px;
+}
+
+.postflight-review-checklist {
+  display: flex;
+  flex-direction: column;
+}
+
+.postflight-review-checklist-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 4px;
+  border-bottom: 1px solid #e8edf4;
+}
+
+.postflight-review-checklist-row:first-child {
+  padding-top: 2px;
+}
+
+.postflight-review-checklist-row:last-child {
+  padding-bottom: 2px;
+  border-bottom: 0;
+}
+
+.postflight-review-row-copy {
+  min-width: 0;
+}
+
+.postflight-review-row-copy h3 {
+  margin: 0;
+  color: #1c2c45;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.postflight-review-row-copy p,
+.postflight-review-result-line p {
+  margin: 4px 0 0;
+  color: #5b6a80;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.postflight-review-observation {
+  padding-inline-start: 10px;
+  border-inline-start: 2px solid #b9c9df;
+}
+
+.postflight-review-evidence-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 9px;
+}
+
+.postflight-review-evidence {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border: 1px solid #dce5f0;
+  border-radius: 8px;
+  color: #2453a5;
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.postflight-review-evidence:hover {
+  border-color: #90b4f4;
+  background: #f3f7ff;
+}
+
+.postflight-review-evidence img {
+  width: 32px;
+  height: 28px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.postflight-review-muted,
+.postflight-review-empty {
+  color: #63728a;
+  font-size: 14px;
+}
+
+.postflight-review-empty {
+  margin: 2px 0;
+  line-height: 1.5;
+}
+
+.postflight-review-result-list {
+  display: flex;
+  flex-direction: column;
+  margin-top: 9px;
+}
+
+.postflight-review-result-line {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #edf0f5;
+}
+
+.postflight-review-result-line:last-child {
+  border-bottom: 0;
+}
+
+.postflight-review-result-line > div {
+  min-width: 0;
+}
+
+.postflight-review-result-line strong {
+  color: #21314a;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.postflight-review-badge {
+  display: inline-flex;
+  min-height: 26px;
+  flex: none;
+  align-items: center;
+  padding: 3px 9px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.postflight-review-badge.is-pass {
+  border-color: #a7e3bd;
+  background: #eaf9f0;
+  color: #137244;
+}
+
+.postflight-review-badge.is-fail {
+  border-color: #fecaca;
+  background: #fff1f2;
+  color: #b42332;
+}
+
+.postflight-review-badge.is-warning {
+  border-color: #f4d08b;
+  background: #fff8e8;
+  color: #8a4b08;
+}
+
+.postflight-review-badge.is-pending {
+  border-color: #d8dee8;
+  background: #f2f4f7;
+  color: #59677c;
+}
+
+.postflight-review-timestamp,
+.postflight-review-weather-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: #5d6d84;
+  font-size: 13px;
+}
+
+.postflight-review-timestamp strong {
+  color: #23344d;
+}
+
+.postflight-review-weather-status time {
+  text-align: end;
+}
+
+.postflight-review-weather-grid,
+.postflight-review-telemetry {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+  margin-top: 12px;
+}
+
+.postflight-review-weather-metric {
+  display: flex;
+  min-width: 0;
+  min-height: 62px;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid #e0e7f0;
+  border-radius: 9px;
+  background: #f8fafc;
+}
+
+.postflight-review-weather-metric span {
+  color: #5c6d85;
+  font-size: 13px;
+}
+
+.postflight-review-weather-metric strong {
+  overflow-wrap: anywhere;
+  color: #17253c;
+  font-size: 16px;
+}
+
+.postflight-review-advisories {
+  margin: 12px 0 0;
+  padding-inline-start: 20px;
+  color: #704c1b;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.postflight-review-notes {
+  margin: 12px 0 0;
+  color: #34445d;
+  font-size: 14px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.postflight-review-notes-group {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid #e4eaf2;
+}
+
+.postflight-review-notes-group h3 {
+  margin: 0;
+  color: #21314a;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.postflight-review-media-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 210px), 1fr));
+  gap: 12px;
+}
+
+.postflight-review-media-card {
+  overflow: hidden;
+  border: 1px solid #dce4ee;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.postflight-review-media-card > a {
+  display: grid;
+  min-height: 150px;
+  place-items: center;
+  background: #f1f5f9;
+  color: #315aa1;
+  text-decoration: none;
+}
+
+.postflight-review-media-card img,
+.postflight-review-media-card video {
+  display: block;
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+.postflight-review-file-placeholder {
+  padding: 18px;
+  font-size: 14px;
+  font-weight: 750;
+}
+
+.postflight-review-media-caption {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  color: #53637b;
+  font-size: 13px;
+}
+
+.postflight-review-media-caption strong {
+  color: #1f3049;
+  font-size: 14px;
+}
+
+.postflight-review-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 18px;
+  border: 1px solid #cfdae8;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.postflight-review-action-copy {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  color: #596a83;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.postflight-review-action-copy strong {
+  color: #1b2c45;
+  font-size: 16px;
+}
+
+.postflight-review-primary,
+.postflight-review-secondary,
+.postflight-review-retry {
+  display: inline-flex;
+  min-height: 44px;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  border: 1px solid #cbd6e4;
+  border-radius: 9px;
+  background: #fff;
+  color: #18345d;
+  cursor: pointer;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.postflight-review-primary {
+  min-width: 210px;
+  border-color: #145bd7;
+  background: #1765e8;
+  color: #fff;
+}
+
+.postflight-review-primary:hover:not(:disabled) {
+  border-color: #0f4db4;
+  background: #1457cb;
+}
+
+.postflight-review-secondary:hover,
+.postflight-review-retry:hover {
+  border-color: #9bb5da;
+  background: #f5f8fd;
+}
+
+.postflight-review-primary:disabled {
+  border-color: #aab5c5;
+  background: #aab5c5;
+  cursor: not-allowed;
+}
+
+.postflight-review-primary:focus-visible,
+.postflight-review-secondary:focus-visible,
+.postflight-review-retry:focus-visible,
+.postflight-review-evidence:focus-visible,
+.postflight-review-media-card > a:focus-visible {
+  outline: 3px solid #7fb0ff;
+  outline-offset: 2px;
+}
+
+.postflight-review-state {
+  display: flex;
+  min-height: 240px;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #465974;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.postflight-review-spinner {
+  width: 22px;
+  height: 22px;
+  border: 3px solid #c9d7eb;
+  border-top-color: #1765e8;
+  border-radius: 50%;
+  animation: postflight-review-spin 0.8s linear infinite;
+}
+
+.postflight-review-retry {
+  min-height: 36px;
+  margin-inline-start: 12px;
+  font-size: 13px;
+}
+
+@keyframes postflight-review-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 900px) {
+  .postflight-review-hero {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .postflight-review-status-stack {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .postflight-review-tabs {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .postflight-review-actions {
+    align-items: stretch;
+    flex-wrap: wrap;
+  }
+
+  .postflight-review-action-copy {
+    flex-basis: 100%;
+  }
+
+  .postflight-review-section > header {
+    flex-wrap: wrap;
+  }
+
+  .postflight-review-section > header > span {
+    max-width: 100%;
+    text-align: start;
+  }
+}
+
+@media (max-width: 600px) {
+  .postflight-review-hero {
+    padding: 16px;
+  }
+
+  .postflight-review-status-stack {
+    align-items: flex-start;
+  }
+
+  .postflight-review-section > header {
+    align-items: flex-start;
+  }
+
+  .postflight-review-tabs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .postflight-review-tabs [role='tab'] {
+    min-height: 56px;
+    padding-inline: 9px;
+  }
+
+  .postflight-review-checklist-row {
+    flex-direction: column;
+  }
+
+  .postflight-review-weather-grid,
+  .postflight-review-telemetry {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .postflight-review-actions {
+    flex-direction: column;
+  }
+
+  .postflight-review-primary,
+  .postflight-review-secondary {
+    width: 100%;
+  }
+
+  .postflight-review-spinner {
+    animation-duration: 1.1s;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .postflight-review-spinner {
+    animation: none;
+    border-top-color: #c9d7eb;
+    border-inline-end-color: #1765e8;
+  }
+}

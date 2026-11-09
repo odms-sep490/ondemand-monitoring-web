@@ -4,6 +4,7 @@ import { inFlightControlMessages } from './components/InFlightControl.messages'
 import type { RefObject, Dispatch, SetStateAction } from 'react'
 import type { FlightCommand } from './inFlightTypes'
 import type { Mission } from '../../types/omss'
+import { isConstructionChecklistMission } from './planHelpers'
 
 export function useCockpitAutomation({
   preflightReady,
@@ -31,7 +32,7 @@ export function useCockpitAutomation({
 
   useEffect(() => {
     if (!autoStartPlan) return
-    if (import.meta.env.VITE_FLIGHT_MAP_ONLY !== 'false') {
+    if (import.meta.env.VITE_FLIGHT_MAP_ONLY === 'true') {
       setLastCommand(
         getLanguage() === 'en'
           ? 'Legacy simulation waypoints are unavailable in GPS map mode'
@@ -41,7 +42,10 @@ export function useCockpitAutomation({
       return
     }
     if (!preflightReady) return
-    if ((mission.routePoints?.length ?? 0) === 0) {
+    if (
+      (mission.routePoints?.length ?? 0) === 0 &&
+      !isConstructionChecklistMission(mission.serviceLabel)
+    ) {
       setLastCommand(t.status.noWaypoints)
       onAutoStartPlanConsumed()
       return
@@ -51,6 +55,7 @@ export function useCockpitAutomation({
   }, [
     autoStartPlan,
     mission.routePoints,
+    mission.serviceLabel,
     onAutoStartPlanConsumed,
     preflightReady,
     sendCommand,

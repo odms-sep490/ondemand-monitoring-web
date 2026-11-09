@@ -1,20 +1,18 @@
+import { Button, Table, Tag } from 'antd'
+import { FileImageOutlined, VideoCameraOutlined } from '@ant-design/icons'
 import { useI18n } from '../../../../../shared/i18n'
-import { StatusBadge } from '../../../../../shared/components/odm/StatusBadge'
 import type { MediaFile, MediaFileStatus } from '../../../types/mission'
 import { mediaTableMessages } from './MediaTable.messages'
 
-const STATUS_TONE: Record<MediaFileStatus, 'gray' | 'blue' | 'green' | 'red'> =
-  {
-    UPLOADED: 'green',
-    UPLOADING: 'blue',
-    FAILED: 'red',
-    PENDING_UPLOAD: 'gray',
-  }
-
-function formatSize(bytes: number): string {
-  const mb = bytes / 1_000_000
-  if (mb >= 1000) return `${(mb / 1000).toFixed(1).replace('.', ',')} GB`
-  return `${mb.toFixed(1).replace('.', ',')} MB`
+const STATUS_TONE: Record<MediaFileStatus, string> = {
+  UPLOADED: 'success',
+  UPLOADING: 'processing',
+  FAILED: 'error',
+  PENDING_UPLOAD: 'default',
+  VALIDATING: 'processing',
+  PENDING_MANAGER_APPROVAL: 'processing',
+  AVAILABLE: 'success',
+  REJECTED: 'error',
 }
 
 export function MediaTable({
@@ -26,115 +24,99 @@ export function MediaTable({
   retryingId: string | null
   onRetry?: (fileId: string) => void
 }) {
-  const { t } = useI18n(mediaTableMessages)
-  if (files.length === 0) {
-    return (
-      <div
-        className="odm-card"
-        style={{ borderTop: 0, borderRadius: '0 0 8px 8px' }}
-      >
-        <div
-          className="odm-card-body"
-          style={{ padding: '48px 24px', textAlign: 'center' }}
-        >
-          <div style={{ fontWeight: 600, marginBottom: 6 }}>{t.emptyTitle}</div>
-          <div style={{ color: 'var(--tx3)' }}>{t.emptyBody}</div>
-        </div>
-      </div>
-    )
+  const { t, locale } = useI18n(mediaTableMessages)
+  const formatSize = (bytes: number) => {
+    const unit =
+      bytes >= 1_000_000_000 ? 'GB' : bytes >= 1_000_000 ? 'MB' : 'KB'
+    const divisor =
+      unit === 'GB' ? 1_000_000_000 : unit === 'MB' ? 1_000_000 : 1000
+    return `${new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format(bytes / divisor)} ${unit}`
   }
-
   return (
-    <div
-      className="odm-card"
-      style={{ borderTop: 0, borderRadius: '0 0 8px 8px' }}
-    >
-      <table className="odm-table">
-        <thead>
-          <tr>
-            <th>{t.columns.name}</th>
-            <th style={{ width: 90 }}>{t.columns.type}</th>
-            <th style={{ width: 100 }}>{t.columns.size}</th>
-            <th style={{ width: 160 }}>{t.columns.progress}</th>
-            <th style={{ width: 90 }}>{t.columns.attempt}</th>
-            <th style={{ width: 190 }}>{t.columns.status}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {files.map((file) => (
-            <tr key={file.id}>
-              <td>
-                <span className="odm-mono" style={{ fontWeight: 600 }}>
+    <Table<MediaFile>
+      className="upload-transfer-table"
+      rowKey="id"
+      size="small"
+      pagination={false}
+      dataSource={files}
+      locale={{
+        emptyText: (
+          <div className="upload-transfer-empty">
+            <strong>{t.emptyTitle}</strong>
+            <span>{t.emptyBody}</span>
+          </div>
+        ),
+      }}
+      columns={[
+        {
+          title: t.columns.name,
+          key: 'name',
+          render: (_, file) => (
+            <div className="upload-transfer-file">
+              <span className="upload-transfer-icon" aria-hidden="true">
+                {file.type === 'VIDEO' ? (
+                  <VideoCameraOutlined />
+                ) : (
+                  <FileImageOutlined />
+                )}
+              </span>
+              <div className="upload-transfer-file-info">
+                <span className="upload-transfer-name" title={file.name}>
                   {file.name}
                 </span>
-              </td>
-              <td>
-                <StatusBadge tone={file.type === 'VIDEO' ? 'blue' : 'gray'}>
-                  {file.type}
-                </StatusBadge>
-              </td>
-              <td className="odm-tn">{formatSize(file.sizeBytes)}</td>
-              <td>
+                <span className="upload-transfer-meta">
+                  {t.typeLabel[file.type]} · {formatSize(file.sizeBytes)}
+                </span>
+              </div>
+            </div>
+          ),
+        },
+        {
+          title: t.columns.status,
+          key: 'status',
+          width: '34%',
+          render: (_, file) => (
+            <div className="upload-transfer-state">
+              <Tag color={STATUS_TONE[file.status]}>
+                {file.validationPending || file.status === 'VALIDATING'
+                  ? t.validating
+                  : t.statusLabel[file.status]}
+              </Tag>
+              {file.status === 'UPLOADING' && (
                 <div
-                  style={{
-                    height: 8,
-                    borderRadius: 4,
-                    background: 'var(--sf3)',
-                    overflow: 'hidden',
-                  }}
+                  className="upload-file-progress is-indeterminate"
+                  role="progressbar"
+                  aria-label={
+                    file.validationPending ? t.validating : t.uploading
+                  }
                 >
-                  <div
-                    style={{
-                      height: '100%',
-                      width: `${file.progressPct}%`,
-                      background:
-                        file.status === 'FAILED'
-                          ? 'var(--red-dot)'
-                          : 'var(--blue-dot)',
-                      borderRadius: 4,
-                    }}
-                  />
+                  <span />
                 </div>
-                <div
-                  className="odm-tn"
-                  style={{ fontSize: 11, color: 'var(--tx3)', marginTop: 2 }}
-                >
-                  {file.progressPct}%
-                </div>
-              </td>
-              <td className="odm-mono">
-                {file.attempt > 0 ? `${file.attempt}/${file.maxAttempts}` : '—'}
-              </td>
-              <td>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <StatusBadge tone={STATUS_TONE[file.status]}>
-                    {file.validationPending
-                      ? t.validating
-                      : t.statusLabel[file.status]}
-                  </StatusBadge>
-                  {file.manualTaskCreated ? (
-                    <span style={{ fontSize: 11, color: 'var(--tx3)' }}>
-                      {t.manualTaskCreated}
-                    </span>
-                  ) : null}
-                  {onRetry &&
-                  file.status === 'FAILED' &&
-                  file.attempt < file.maxAttempts ? (
-                    <button
-                      type="button"
-                      className="odm-btn odm-btn-sm"
-                      disabled={retryingId === file.id}
-                      onClick={() => onRetry(file.id)}
-                    >
-                      {retryingId === file.id ? t.retrying : t.retry}
-                    </button>
-                  ) : null}
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+              )}
+              {file.status === 'PENDING_MANAGER_APPROVAL' && (
+                <small>{t.uploadComplete}</small>
+              )}
+              {file.manualTaskCreated && <small>{t.manualTaskCreated}</small>}
+              {(file.status === 'FAILED' || file.attempt > 1) && (
+                <small>
+                  {t.columns.attempt}: {file.attempt}/{file.maxAttempts}
+                </small>
+              )}
+              {onRetry &&
+                file.status === 'FAILED' &&
+                file.attempt < file.maxAttempts && (
+                  <Button
+                    size="small"
+                    loading={retryingId === file.id}
+                    onClick={() => onRetry(file.id)}
+                  >
+                    {retryingId === file.id ? t.retrying : t.retry}
+                  </Button>
+                )}
+            </div>
+          ),
+        },
+      ]}
+    />
   )
 }

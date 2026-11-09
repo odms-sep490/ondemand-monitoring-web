@@ -10,25 +10,19 @@ import {
 } from './preflightConstants'
 import { writeStoredPreflightState } from './preflightStorage'
 import { missionApi } from '../../../mission/api/missionApi'
-import { backendPreflightTokenStorageKey } from '../../lib/flightWorkflowStorage'
-import { demoFlightToken } from './preflightHelpers'
 import { preflightPageMessages } from './PreflightPage.messages'
 import { useI18n } from '../../../../shared/i18n'
 import type {
-  WeatherPreflightStatus,
   PersistedPreflightStatus,
   RuntimePreflightStatus,
 } from './preflightTypes'
 import type { Dispatch, SetStateAction, RefObject } from 'react'
 
 export function usePreflightPersistenceEffects({
-  weatherStatus,
-  persistedWeatherPassed,
   runtimeItemsReady,
   persistedPreflightId,
   persistedPreflightStatus,
   setPersistedPreflightStatus,
-  setPersistedWeatherPassed,
   runtimeStatus,
   syncedPersistedItemsRef,
   syncRuntimeStatusToBackend,
@@ -47,15 +41,12 @@ export function usePreflightPersistenceEffects({
   setBackendPreflightRegistering,
   setBackendPreflightMessage,
 }: {
-  weatherStatus: WeatherPreflightStatus | null
-  persistedWeatherPassed: boolean
   runtimeItemsReady: boolean
   persistedPreflightId: string | null
   persistedPreflightStatus: PersistedPreflightStatus | null
   setPersistedPreflightStatus: Dispatch<
     SetStateAction<PersistedPreflightStatus | null>
   >
-  setPersistedWeatherPassed: Dispatch<SetStateAction<boolean>>
   runtimeStatus: RuntimePreflightStatus | null
   syncedPersistedItemsRef: RefObject<Record<string, string>>
   syncRuntimeStatusToBackend: (
@@ -79,11 +70,8 @@ export function usePreflightPersistenceEffects({
 }) {
   const { t } = useI18n(preflightPageMessages)
   useEffect(() => {
-    const weatherPassed =
-      weatherStatus?.safeToFly === true || persistedWeatherPassed
     if (
       !runtimeItemsReady ||
-      !weatherPassed ||
       !persistedPreflightId ||
       persistedPreflightStatus !== 'CHECKING'
     ) {
@@ -102,12 +90,6 @@ export function usePreflightPersistenceEffects({
       if (!alive || !persisted || persisted.id !== activePersistedId) return
 
       setPersistedPreflightStatus(persisted.status)
-      setPersistedWeatherPassed(
-        persisted.items.some(
-          (item) => item.checkType === 'WEATHER' && item.status === 'PASSED',
-        ),
-      )
-
       if (runtimeStatus) {
         let hasBackendLag = false
         for (const check of runtimeStatus.checks) {
@@ -139,10 +121,8 @@ export function usePreflightPersistenceEffects({
   }, [
     persistedPreflightId,
     persistedPreflightStatus,
-    persistedWeatherPassed,
     runtimeItemsReady,
     runtimeStatus,
-    weatherStatus?.safeToFly,
   ])
 
   useEffect(() => {
@@ -210,14 +190,9 @@ export function usePreflightPersistenceEffects({
       setBackendPreflightMessage(t.switchingToReady)
       try {
         if (!alive) return
-        const completedPreflight = await missionApi.runPreflightCheck(
+        await missionApi.runPreflightCheck(
           missionId,
           deviceId,
-        )
-        window.sessionStorage.setItem(
-          backendPreflightTokenStorageKey(missionId, deviceId),
-          completedPreflight.flightToken?.tokenValue ??
-            demoFlightToken(missionId, deviceId),
         )
         setBackendPreflightMessage(t.backendSwitchedReady)
       } catch (cause) {

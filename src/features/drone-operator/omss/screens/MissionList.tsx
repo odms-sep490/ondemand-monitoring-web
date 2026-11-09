@@ -23,7 +23,12 @@ function fmtDate(iso: string, locale: string) {
 }
 
 const PENDING_STATES = new Set([
-  'WAITING_CREW_CONFIRMATION',
+  'PLANNING',
+  'CREATED',
+  'WAITING_DEPOSIT',
+  'PENDING_PAYMENT',
+  'PENDING_CONFIRMATION',
+  'READY',
   'WAITING_OPERATOR_ACCEPTANCE',
   'RESOURCE_ASSIGNING',
   'SCHEDULED',
@@ -38,14 +43,19 @@ export default function MissionList({ missions, onSelect, onScreen }: Props) {
   const { t, locale } = useI18n(missionListMessages)
   const awaiting = missions.filter(
     (m) =>
+      m.state === 'PLANNING' ||
       m.state === 'WAITING_OPERATOR_ACCEPTANCE' ||
-      m.state === 'WAITING_CREW_CONFIRMATION',
+      m.state === 'PENDING_CONFIRMATION',
   ).length
   const scheduledToday = missions.filter(
     (m) =>
       PENDING_STATES.has(m.state) &&
+      m.state !== 'PLANNING' &&
+      m.state !== 'CREATED' &&
+      m.state !== 'WAITING_DEPOSIT' &&
+      m.state !== 'PENDING_PAYMENT' &&
       m.state !== 'WAITING_OPERATOR_ACCEPTANCE' &&
-      m.state !== 'WAITING_CREW_CONFIRMATION',
+      m.state !== 'PENDING_CONFIRMATION',
   ).length
   const inFlight = missions.filter(
     (m) => m.state === 'IN_FLIGHT' || m.state === 'RETURNING',

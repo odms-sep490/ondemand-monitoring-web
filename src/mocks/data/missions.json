@@ -1,12 +1,12 @@
 {
-  "_note": "Mock collection for missions. Started (P4) as the record POST /api/orders/{id}/approve [BE] creates; extended (P5) with the flight_plan/waypoint/media/assignment fields MNG-04/05 need [BRIEF §A6]. `msn-2609-0153-1` is the seeded demo mission for ORD-2609-0153 (Trần Thị Thu Hà · Kiểm tra nhiệt mái nhà xưởng KCN Hiệp Phước), copied from evd/design/MNG-05.dc.html's default state: it already carries the schedule + flight plan a completed MNG-04 run would have attached, status CREATED (no drone/operator assigned yet) so MNG-05's default state renders directly against it. `waypoints` is left empty — the design never renders a waypoint table for this already-approved mission, so there is no source for real coordinates here (CreateMissionPage generates its own preview waypoints client-side for orders that don't have a plan yet). Reset by resetMockDb(). P6 addition: each mission also carries the BE `MissionResponse` fields (orderTitle, customerName, droneCode, latitude, longitude, address, startedAt, completedAt, description, failureReason, rejectionReason, mediaType, plan, preflightRetryCount, preflightPassed, preflightFaultType, preflightFailureReason, preflightCheckedAt) alongside the pre-existing P4/P5 fields above.",
+  "_note": "Mock collection for missions. Started (P4) as the record POST /api/orders/{id}/approve [BE] creates; extended (P5) with the flight_plan/waypoint/media/assignment fields MNG-04/05 need [BRIEF §A6]. `msn-2609-0153-1` is the seeded demo mission for ORD-2609-0153 (Trần Thị Thu Hà · Kiểm tra nhiệt mái nhà xưởng KCN Hiệp Phước), copied from evd/design/MNG-05.dc.html's default state: it already carries the schedule + flight plan a completed MNG-04 run would have attached, status PLANNING (no drone/operator assigned yet) so MNG-05's default state renders directly against it. `waypoints` is left empty — the design never renders a waypoint table for this already-approved mission, so there is no source for real coordinates here (CreateMissionPage generates its own preview waypoints client-side for orders that don't have a plan yet). Reset by resetMockDb(). P6 addition: each mission also carries the BE `MissionResponse` fields (orderTitle, customerName, droneCode, latitude, longitude, address, startedAt, completedAt, description, failureReason, rejectionReason, mediaType, plan, preflightRetryCount, preflightPassed, preflightFaultType, preflightFailureReason, preflightCheckedAt) alongside the pre-existing P4/P5 fields above.",
   "missions": [
     {
       "id": "msn-2609-0153-1",
       "orderId": "ord-2609-0153",
       "orderCode": "ORD-2609-0153",
       "missionCode": "MSN-2609-0153-1",
-      "status": "CREATED",
+      "status": "PLANNING",
       "attemptNumber": 1,
       "droneId": null,
       "operatorId": null,

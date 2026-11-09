@@ -3,8 +3,8 @@
 // [BE] .../order/enums/OrderStatus.java
 // [BE] .../mission/enums/MissionStatus.java
 // [BE] .../drone/enums/DroneStatus.java
-// [BRIEF] evd/design/FA26SE039_Design_Brief.md §A4 (ai_analysis_session,
-//   feasibility_rule), §A5 (maintenance_ticket.severity), §A8 (media_asset.media_status)
+// [BRIEF] evd/design/FA26SE039_Design_Brief.md §A5 (maintenance_ticket.severity),
+//   §A8 (media_asset.media_status)
 
 /** One of the 6 status-colour tones from [BRIEF Phần B]. */
 export type StatusTone = 'gray' | 'yellow' | 'blue' | 'green' | 'orange' | 'red'
@@ -22,9 +22,9 @@ export type RequiredEvidenceType =
 
 export type OrderStatus =
   | 'DRAFT'
-  | 'AI_ANALYZED'
   | 'SUBMITTED'
   | 'PENDING'
+  | 'UNDER_REVIEW'
   | 'NEEDS_INFO'
   | 'APPROVED'
   | 'SCHEDULED'
@@ -38,24 +38,28 @@ export type MissionStatus =
   // Legacy values are retained while old mocks/history records are migrated.
   | 'CREATED'
   | 'WAITING_DEPOSIT'
+  | 'PENDING_PAYMENT'
+  | 'PENDING_CONFIRMATION'
   | 'READY'
-  | 'RESOURCE_ASSIGNING'
-  | 'WAITING_CREW_CONFIRMATION'
-  | 'WAITING_OPERATOR_ACCEPTANCE'
   | 'SCHEDULED'
+  | 'IN_PROGRESS'
+  | 'AWAITING_REVIEW'
+  | 'PENDING_REVIEW'
+  | 'COMPLETED'
+  | 'FAILED'
+  | 'CANCELLED'
+  // Legacy / transition aliases kept for mock data and component compatibility:
+  | 'CREATED'
+  | 'RESOURCE_ASSIGNING'
+  | 'WAITING_OPERATOR_ACCEPTANCE'
   | 'CONNECTED'
   | 'PREFLIGHT_CHECKING'
   | 'READY_TO_FLY'
   | 'FAILED_PREFLIGHT'
   | 'PENDING_APPROVAL'
   | 'IN_FLIGHT'
-  | 'IN_PROGRESS'
   | 'RETURNING'
   | 'POSTFLIGHT_CHECKING'
-  | 'PENDING_REVIEW'
-  | 'COMPLETED'
-  | 'FAILED'
-  | 'CANCELLED'
 
 export type DroneStatus =
   | 'AVAILABLE'
@@ -69,12 +73,6 @@ export type DroneStatus =
   | 'MAINTENANCE'
   | 'OUT_OF_SERVICE'
   | 'OFFLINE'
-
-/** `ai_analysis_session.overall_verdict` [BRIEF A4] */
-export type AiVerdict = 'FEASIBLE' | 'RISKY' | 'INFEASIBLE'
-
-/** `feasibility_rule.severity` / `ai_finding.severity` [BRIEF A4] */
-export type FindingSeverity = 'INFO' | 'WARNING' | 'BLOCKER'
 
 /** `maintenance_ticket.status` [TK] */
 export type TicketStatus = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED'

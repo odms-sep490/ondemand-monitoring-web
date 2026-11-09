@@ -10,12 +10,15 @@ import {
 
 export function isSelectableMission(status?: string | null) {
   return (
+    status === 'PLANNING' ||
+    status === 'PENDING_CONFIRMATION' ||
+    status === 'AWAITING_REVIEW' ||
     status === 'PENDING_REVIEW' ||
     status === 'POSTFLIGHT_CHECKING' ||
     status === 'RETURNING' ||
     status === 'IN_FLIGHT' ||
     status === 'IN_PROGRESS' ||
-    status === 'SCHEDULED' ||
+    status === 'READY' ||
     status === 'CONNECTED' ||
     status === 'PREFLIGHT_CHECKING' ||
     status === 'READY_TO_FLY' ||
@@ -27,12 +30,22 @@ function hasAssignedDevice(mission?: BackendMission) {
   return Boolean(mission?.deviceId)
 }
 
-function isPostflightReviewMission(status?: string | null) {
+function isPostflightReviewMission(mission?: BackendMission) {
+  const status = mission?.status
   return (
+    status === 'AWAITING_REVIEW' ||
     status === 'PENDING_REVIEW' ||
     status === 'POSTFLIGHT_CHECKING' ||
     status === 'RETURNING' ||
-    status === 'COMPLETED'
+    status === 'COMPLETED' ||
+    (status === 'IN_PROGRESS' &&
+      mission?.deviceAssignments?.some(
+        (assignment) =>
+          assignment.deviceRole === 'MAIN' &&
+          ['RETURNING', 'POSTFLIGHT_CHECKING', 'COMPLETED'].includes(
+            assignment.status ?? '',
+          ),
+      ) === true)
   )
 }
 
@@ -70,7 +83,7 @@ export function useActiveMission(paramMissionId?: string) {
 
   // Candidate missions that can resume or review the postflight handoff.
   const postflightMissions = allMissions.filter((m) =>
-    isPostflightReviewMission(m.status),
+    isPostflightReviewMission(m),
   )
   const activeMissions = allMissions.filter((m) =>
     isSelectableMission(m.status),
@@ -90,7 +103,7 @@ export function useActiveMission(paramMissionId?: string) {
     allMissions.some(
       (m) =>
         m.id === selectedId &&
-        (isSelectableMission(m.status) || isPostflightReviewMission(m.status)),
+        (isSelectableMission(m.status) || isPostflightReviewMission(m)),
     )
   ) {
     targetId = selectedId

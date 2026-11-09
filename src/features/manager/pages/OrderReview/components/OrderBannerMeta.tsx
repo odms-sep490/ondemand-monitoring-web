@@ -16,13 +16,14 @@ export function OrderBannerMeta({
   locale: 'vi-VN' | 'en-US'
 }) {
   const pending = order.status === 'PENDING'
+  const underReview = order.status === 'UNDER_REVIEW'
   return (
     <>
       <span className="odm-osb-code">{formatOrderCode(order.code)}</span>
       <StatusBadge
         tone={toUiTone(pending ? 'yellow' : orderStatusTone[order.status])}
       >
-        {pending ? <OrderIcon name="clock" size={13} /> : null}
+        {pending || underReview ? <OrderIcon name="clock" size={13} /> : null}
         {getOrderStatusLabel(order.status, locale === 'en-US' ? 'en' : 'vi')}
       </StatusBadge>
     </>

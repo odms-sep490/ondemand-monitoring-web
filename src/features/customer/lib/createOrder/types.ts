@@ -7,7 +7,7 @@ export type LocationStatus =
   'unconfirmed' | 'resolving' | 'confirmed' | 'stale' | 'error'
 export type LocationSource = 'search' | 'map' | 'gps' | 'file' | 'restored' | ''
 
-export type AiScore = {
+export type ReadinessScore = {
   score: number
   level: 'good' | 'warn' | 'bad'
   notes: string[]

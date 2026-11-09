@@ -1,4 +1,4 @@
-import { Card } from '../../../../../shared/components/ui'
+import { Card } from '../../../components/common/ui'
 import { useI18n, useLanguage } from '../../../../../shared/i18n'
 import type { OrderStatus } from '../../../../../shared/types/domain'
 import { OrderIcon, type OrderIconName } from '../../../../manager/components/common/OrderIcon'
@@ -34,6 +34,7 @@ export function OrderTimeline({ status, events, finance, missions = [] }: { stat
     quote: t.stepQuote,
     deposit: t.stepDeposit,
     planning: t.stepPlanning,
+    finalPayment: t.stepFinalPayment,
     inProgress: t.stepMonitoring,
     completed: t.stepCompleted,
     rejected: '',
@@ -49,6 +50,17 @@ export function OrderTimeline({ status, events, finance, missions = [] }: { stat
     if (step.key === 'quote') return t.hintQuote
     if (step.key === 'deposit') return t.hintDeposit
     if (step.key === 'planning') return t.hintPlanning
+    if (step.key === 'finalPayment') {
+      const remaining = finance?.invoice?.remainingAmount ?? 0
+      const amount = new Intl.NumberFormat(locale, {
+        style: 'currency',
+        currency: 'VND',
+        maximumFractionDigits: 0,
+      }).format(remaining)
+      return finance?.invoice?.finalPaymentAllowed
+        ? t.hintFinalPayment(amount)
+        : t.hintFinalPaymentWaiting
+    }
     return status === 'IN_PROGRESS' ? t.hintRunning : t.hintWaiting
   }
 

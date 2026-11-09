@@ -1,22 +1,26 @@
 import type { OperatorMission } from '../../../types/mission'
 import type { MissionPermissions } from '../../../../mission/types/permissions'
-import { type ReactNode, useState, useEffect } from 'react'
+import {
+  type KeyboardEvent,
+  type ReactNode,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import type { MissionResultApprovalStatus } from '../../../../mission/types/mission'
 import type {
   RuntimePreflightStatus,
   WeatherPreflightStatus,
   PostflightCheckStatus,
 } from '../types'
+import { Icon } from '../../../../../shared/components/Icon'
 import {
   readStoredPreflightState,
-  readStoredWeatherState,
   fetchPersistedPreflight,
-  fetchLatestWeatherCheck,
   fetchLatestPostflightCheck,
 } from '../checkData'
 import { isAwaitingResponse } from '../missionResponse'
 import { MissionHeader } from './MissionHeader'
-import { formatVnDate, locationLabel } from '../missionFormat'
 import { DecisionSummary } from './DecisionSummary'
 import { MissionMapCard } from './MissionMapCard'
 import { MissionInfoCard } from './MissionInfoCard'
@@ -24,66 +28,105 @@ import { ManagerNoteCard } from './ManagerNoteCard'
 import { DroneDeviceCard } from './DroneDeviceCard'
 import { PrecheckCard } from './PrecheckCard'
 import { WeatherCard } from './WeatherCard'
+import { MissionWorkflowProgress } from './MissionWorkflowProgress'
 import { PostcheckCard } from './PostcheckCard'
 import { MissionUploadedMedia } from '../../../../media/components/MissionUploadedMedia'
+import { useI18n } from '../../../../../shared/i18n'
+import { missionDetailPageMessages } from '../MissionDetailPage.messages'
+import { StatusBadge } from '../../../../../shared/components/odm/StatusBadge'
+
+type MissionTab = 'overview' | 'checklist' | 'checks' | 'media'
 
 // ─── Dashboard shell ──────────────────────────────────────────────────────────
 
 export function MissionDashboard({
   mission,
   submitting,
+  weatherStatus,
+  weatherLoading,
   actionError,
   access,
-  resultActions,
+  responseAccessLoading = false,
+  responseAccessError = false,
   monitoringSection,
   resultApprovalStatus,
   refreshWorkspace,
   mediaRevision,
   onAccept,
   onStartWorkflow,
+  onAcceptWeather,
+  onCancelMission,
   onOpenReject,
 }: {
   mission: OperatorMission
   submitting: boolean
+  weatherStatus: WeatherPreflightStatus | null
+  weatherLoading: boolean
   actionError: string | null
   access?: MissionPermissions
-  resultActions: ReactNode
+  responseAccessLoading?: boolean
+  responseAccessError?: boolean
   monitoringSection: ReactNode
   resultApprovalStatus: MissionResultApprovalStatus | null
   refreshWorkspace: () => void
   mediaRevision: number
   onAccept: () => void
   onStartWorkflow: () => void
+  onAcceptWeather: () => void
+  onCancelMission: () => void
   onOpenReject: () => void
 }) {
+  const { t } = useI18n(missionDetailPageMessages)
   const deviceId = mission.deviceId
   const [preflightStatus, setPreflightStatus] =
     useState<RuntimePreflightStatus | null>(() =>
       readStoredPreflightState(mission.id, deviceId),
     )
-  const [weatherStatus, setWeatherStatus] =
-    useState<WeatherPreflightStatus | null>(() =>
-      readStoredWeatherState(mission.id, deviceId),
-    )
   const [postflightStatus, setPostflightStatus] =
     useState<PostflightCheckStatus | null>(null)
-  const [tab, setTab] = useState<'overview' | 'checks' | 'media'>('overview')
+  const [tab, setTab] = useState<MissionTab>('overview')
+  const tabButtonRefs = useRef<Array<HTMLButtonElement | null>>([])
   const canViewMissionMedia =
     access?.canInspectDevice === true ||
     access?.canUploadMedia === true ||
     mission.status === 'COMPLETED' ||
-    mission.backendStatus === 'PENDING_REVIEW'
-  const tabs: Array<{ id: 'overview' | 'checks' | 'media'; label: string }> = [
+    (mission.backendStatus === 'AWAITING_REVIEW' ||
+      mission.backendStatus === 'PENDING_REVIEW')
+  const flightPermitApproved = mission.flightPermitStatus === 'APPROVED'
+  const flightPermitRejected = mission.flightPermitStatus === 'REJECTED'
+  const tabs: Array<{ id: MissionTab; label: string }> = [
     { id: 'overview', label: 'Tổng quan' },
-    { id: 'checks', label: 'Kết quả kiểm tra thiết bị' },
+    { id: 'checklist', label: 'Checklist' },
+    { id: 'checks', label: 'Kiểm tra thiết bị' },
     ...(canViewMissionMedia
       ? [{ id: 'media' as const, label: 'Ảnh & video' }]
       : []),
   ]
 
   useEffect(() => {
+    if (!canViewMissionMedia && tab === 'media') setTab('overview')
+  }, [canViewMissionMedia, tab])
+
+  const handleTabKeyDown = (
+    event: KeyboardEvent<HTMLButtonElement>,
+    index: number,
+  ) => {
+    let nextIndex: number | null = null
+    if (event.key === 'ArrowRight') nextIndex = (index + 1) % tabs.length
+    if (event.key === 'ArrowLeft')
+      nextIndex = (index - 1 + tabs.length) % tabs.length
+    if (event.key === 'Home') nextIndex = 0
+    if (event.key === 'End') nextIndex = tabs.length - 1
+    if (nextIndex == null) return
+
+    event.preventDefault()
+    const nextTab = tabs[nextIndex]
+    setTab(nextTab.id)
+    tabButtonRefs.current[nextIndex]?.focus()
+  }
+
+  useEffect(() => {
     setPreflightStatus(readStoredPreflightState(mission.id, deviceId))
-    setWeatherStatus(readStoredWeatherState(mission.id, deviceId))
     setPostflightStatus(null)
     const controller = new AbortController()
     fetchPersistedPreflight(mission.id, controller.signal)
@@ -92,13 +135,6 @@ export function MissionDashboard({
       })
       .catch(() => {
         // Local precheck cache is still shown if backend history is unavailable.
-      })
-    fetchLatestWeatherCheck(mission.id, controller.signal)
-      .then((status) => {
-        if (status) setWeatherStatus(status)
-      })
-      .catch(() => {
-        // Local weather cache is still shown if backend history is unavailable.
       })
     fetchLatestPostflightCheck(mission.id, controller.signal)
       .then((status) => {
@@ -112,29 +148,36 @@ export function MissionDashboard({
 
   if (isAwaitingResponse(mission)) {
     return (
-      <div className="mds-pending">
-        <MissionHeader mission={mission} access={access} />
-        <p className="mds-meta-line">
-          {[
-            mission.serviceLabel,
-            [formatVnDate(mission.date), mission.startTime]
-              .filter(Boolean)
-              .join(' · '),
-            locationLabel(mission.location),
-          ]
-            .filter(Boolean)
-            .join(' · ')}
-        </p>
+      <div className="mds-dashboard mds-pending">
+        <MissionHeader
+          mission={mission}
+          access={access}
+          resultApprovalStatus={resultApprovalStatus}
+        />
+        <MissionWorkflowProgress
+          mission={mission}
+          weather={weatherStatus}
+          resultApprovalStatus={resultApprovalStatus}
+          canOperatePayload={access?.canOperatePayload}
+        />
         <DecisionSummary mission={mission} />
         <div
           className="mds-action-bar"
-          role="region"
-          aria-label="Phản hồi nhiệm vụ"
+          role="group"
+          aria-labelledby="mission-response-heading"
         >
           <div className="mds-action-bar-text">
-            Bạn có muốn nhận nhiệm vụ này?
-            {!access?.canRespond && (
-              <small>Bạn chưa có quyền phản hồi nhiệm vụ này.</small>
+            <h2 id="mission-response-heading" className="mds-card-heading">
+              Bạn có muốn nhận nhiệm vụ này?
+            </h2>
+            {access?.canRespond !== true && (
+              <small>
+                {responseAccessLoading
+                  ? t.responseAccessLoading
+                  : responseAccessError
+                    ? t.responseAccessError
+                    : t.responseAccessDenied}
+              </small>
             )}
           </div>
           <div className="mds-action-bar-buttons">
@@ -142,7 +185,7 @@ export function MissionDashboard({
               type="button"
               className="odm-btn odm-btn-rd"
               onClick={onOpenReject}
-              disabled={submitting || !access?.canRespond}
+              disabled={submitting || access?.canRespond !== true}
             >
               Từ chối
             </button>
@@ -150,9 +193,9 @@ export function MissionDashboard({
               type="button"
               className="odm-btn odm-btn-p"
               onClick={onAccept}
-              disabled={submitting || !access?.canRespond}
+              disabled={submitting || access?.canRespond !== true}
             >
-              {submitting ? 'Đang xử lý...' : '✓ Chấp nhận nhiệm vụ'}
+              {submitting ? 'Đang xử lý...' : 'Chấp nhận nhiệm vụ'}
             </button>
           </div>
         </div>
@@ -172,41 +215,92 @@ export function MissionDashboard({
             {actionError}
           </div>
         ) : null}
-        <MissionMapCard mission={mission} />
-        <div className="mds-tab-grid" style={{ marginTop: 16 }}>
-          <div className="mds-col">
-            <MissionInfoCard mission={mission} />
+        <div className="mds-pending-grid">
+          <div className="mds-col mds-pending-primary">
+            <MissionMapCard mission={mission} />
+            <details className="odm-card mds-pending-checklist">
+              <summary>
+                <span>Checklist thực hiện</span>
+                <small>
+                  <Icon name="lock" width={14} height={14} aria-hidden="true" />
+                  Checklist chỉ đọc trước khi nhận nhiệm vụ. Bấm để xem trước.
+                </small>
+              </summary>
+              <div className="mds-pending-checklist-body">
+                {monitoringSection}
+              </div>
+            </details>
+          </div>
+          <div className="mds-col mds-pending-secondary">
+            <MissionInfoCard mission={mission} compact />
+            <DroneDeviceCard mission={mission} compact />
             {mission.managerNote ? <ManagerNoteCard mission={mission} /> : null}
           </div>
-          <div className="mds-col">
-            <DroneDeviceCard mission={mission} />
-          </div>
         </div>
-        <details className="odm-card mds-pending-checklist">
-          <summary>
-            Checklist thực hiện
-            <small>
-              🔒 Checklist sẽ được mở sau khi bạn chấp nhận nhiệm vụ. Bấm để xem
-              trước.
-            </small>
-          </summary>
-          <div className="mds-pending-checklist-body">{monitoringSection}</div>
-        </details>
       </div>
     )
   }
 
   return (
-    <div>
+    <div className="mds-dashboard">
       {/* ── Header ── */}
       <MissionHeader
         mission={mission}
         access={access}
         submitting={submitting}
+        weatherStatus={weatherStatus}
+        weatherLoading={weatherLoading}
+        resultApprovalStatus={resultApprovalStatus}
         onStartWorkflow={onStartWorkflow}
       />
 
-      {resultActions}
+      <MissionWorkflowProgress
+        mission={mission}
+        weather={weatherStatus}
+        resultApprovalStatus={resultApprovalStatus}
+        canOperatePayload={access?.canOperatePayload}
+      />
+
+      {access?.canStartMission === true && flightPermitApproved ? (
+        <div className="mds-weather-review">
+          <WeatherCard
+            weather={weatherStatus}
+            weatherNotBefore={mission.flightPermitUpdatedAt}
+            loading={weatherLoading}
+            reviewMode
+            canCheckWeather
+            checkingWeather={submitting}
+            onCheckWeather={onStartWorkflow}
+            canCancelMission={access?.canCancelMission === true}
+            onCancelMission={onCancelMission}
+            canApproveWeather
+            approvingWeather={submitting}
+            onApproveWeather={onAcceptWeather}
+          />
+        </div>
+      ) : access?.canStartMission === true ? (
+        <div className="mds-weather-review">
+          <section className="odm-card" aria-labelledby="mds-flight-permit-heading">
+            <div className="odm-card-header">
+              <h2 id="mds-flight-permit-heading" className="mds-card-heading">
+                {t.flightPermitTitle}
+              </h2>
+              <StatusBadge tone={flightPermitRejected ? 'red' : 'yellow'}>
+                {flightPermitRejected
+                  ? t.flightPermitRejected
+                  : t.flightPermitPending}
+              </StatusBadge>
+            </div>
+            <div className="odm-card-body">
+              <p role="status" aria-live="polite">
+                {flightPermitRejected
+                  ? t.flightPermitRejectedHelp
+                  : t.flightPermitPendingHelp}
+              </p>
+            </div>
+          </section>
+        </div>
+      ) : null}
 
       {actionError ? (
         <div
@@ -225,55 +319,104 @@ export function MissionDashboard({
         </div>
       ) : null}
 
-      <div className="mds-tabs" role="tablist">
-        {tabs.map((t) => (
+      <div className="mds-tabs" role="tablist" aria-label="Nội dung nhiệm vụ">
+        {tabs.map((t, index) => (
           <button
             key={t.id}
+            ref={(node) => {
+              tabButtonRefs.current[index] = node
+            }}
             type="button"
             role="tab"
+            id={`mds-tab-${t.id}`}
+            aria-controls="mds-tab-panel"
             aria-selected={tab === t.id}
+            tabIndex={tab === t.id ? 0 : -1}
             className={`mds-tab${tab === t.id ? ' is-active' : ''}`}
             onClick={() => setTab(t.id)}
+            onKeyDown={(event) => handleTabKeyDown(event, index)}
           >
             {t.label}
           </button>
         ))}
       </div>
 
-      {tab === 'overview' ? (
-        <div className="mds-tab-grid">
-          <div className="mds-col">
-            <MissionMapCard mission={mission} />
-            {monitoringSection}
+      <div
+        className="mds-tab-panel"
+        id="mds-tab-panel"
+        role="tabpanel"
+        aria-labelledby={`mds-tab-${tab}`}
+        tabIndex={0}
+      >
+        {tab === 'overview' ? (
+          <div className="mds-tab-grid">
+            <div className="mds-col">
+              <MissionMapCard mission={mission} />
+            </div>
+            <div className="mds-col mds-sticky-col">
+              <MissionInfoCard mission={mission} overview />
+              <DroneDeviceCard mission={mission} overview />
+              {mission.managerNote ? (
+                <ManagerNoteCard mission={mission} />
+              ) : null}
+            </div>
           </div>
-          <div className="mds-col mds-sticky-col">
-            <MissionInfoCard mission={mission} />
-            <DroneDeviceCard mission={mission} />
-            {mission.managerNote ? <ManagerNoteCard mission={mission} /> : null}
-          </div>
-        </div>
-      ) : null}
+        ) : null}
 
-      {tab === 'checks' ? (
-        <div className="mds-tab-grid">
-          <div className="mds-col">
-            <PrecheckCard preflight={preflightStatus} weather={weatherStatus} />
-            <WeatherCard weather={weatherStatus} />
-          </div>
-          <div className="mds-col">
-            <PostcheckCard postflight={postflightStatus} />
-          </div>
-        </div>
-      ) : null}
+        {tab === 'checklist' ? (
+          <div className="mds-checklist-panel">{monitoringSection}</div>
+        ) : null}
 
-      {tab === 'media' && canViewMissionMedia ? (
-        <MissionUploadedMedia
-          missionId={mission.id}
-          reviewStatus={resultApprovalStatus}
-          onChanged={refreshWorkspace}
-          refreshKey={mediaRevision}
-        />
-      ) : null}
+        {tab === 'checks' ? (
+          <div className="mds-tab-grid mds-checks-grid">
+            <div className="mds-col">
+              <PrecheckCard
+                preflight={preflightStatus}
+                weather={weatherStatus}
+              />
+              {access?.canStartMission !== true && flightPermitApproved ? (
+                <WeatherCard
+                  weather={weatherStatus}
+                  weatherNotBefore={mission.flightPermitUpdatedAt}
+                  loading={weatherLoading}
+                />
+              ) : access?.canStartMission !== true ? (
+                <section className="odm-card" aria-labelledby="mds-flight-permit-checks-heading">
+                  <div className="odm-card-header">
+                    <h2 id="mds-flight-permit-checks-heading" className="mds-card-heading">
+                      {t.flightPermitTitle}
+                    </h2>
+                    <StatusBadge tone={flightPermitRejected ? 'red' : 'yellow'}>
+                      {flightPermitRejected
+                        ? t.flightPermitRejected
+                        : t.flightPermitPending}
+                    </StatusBadge>
+                  </div>
+                  <div className="odm-card-body">
+                    <p role="status">
+                      {flightPermitRejected
+                        ? t.flightPermitRejectedHelp
+                        : t.flightPermitPendingHelp}
+                    </p>
+                  </div>
+                </section>
+              ) : null}
+            </div>
+            <div className="mds-col">
+              <PostcheckCard postflight={postflightStatus} />
+            </div>
+          </div>
+        ) : null}
+
+        {tab === 'media' && canViewMissionMedia ? (
+          <MissionUploadedMedia
+            missionId={mission.id}
+            reviewStatus={resultApprovalStatus}
+            onChanged={refreshWorkspace}
+            refreshKey={mediaRevision}
+          />
+        ) : null}
+      </div>
     </div>
   )
 }

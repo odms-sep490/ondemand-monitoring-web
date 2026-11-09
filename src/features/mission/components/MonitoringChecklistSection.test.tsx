@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   fireEvent,
-  render,
+  render as renderView,
   screen,
   waitFor,
   within,
@@ -17,6 +17,15 @@ import type {
   MissionChecklistExecution,
   MissionChecklistResponse,
 } from '../types/checklistExecution'
+
+const render: typeof renderView = ((...args: Parameters<typeof renderView>) => {
+  const view = renderView(...args)
+  const first = view.container.querySelector<HTMLButtonElement>(
+    '.mc-row[aria-expanded="false"]',
+  )
+  if (first) fireEvent.click(first)
+  return view
+}) as typeof renderView
 
 const item: MissionChecklistExecution = {
   id: 'e',
@@ -52,6 +61,37 @@ const props = {
 afterEach(() => vi.restoreAllMocks())
 
 describe('MonitoringChecklistSection', () => {
+  it('renders all accepted guidance sections from the mission response without edit controls', () => {
+    render(
+      <MonitoringChecklistSection
+        {...props}
+        canExecute={false}
+        data={{
+          ...data,
+          executions: [
+            {
+              ...item,
+              sourceType: 'CUSTOMER_CUSTOM',
+              guidanceVersion: 4,
+              description: 'Accepted scope',
+              executionSteps: ['Accepted steps'],
+              inputRequirements: ['Accepted inputs'],
+              expectedOutputs: ['Accepted outputs'],
+            },
+          ],
+        }}
+      />,
+    )
+    for (const text of [
+      'Accepted scope',
+      'Accepted steps',
+      'Accepted inputs',
+      'Accepted outputs',
+    ])
+      expect(screen.getByText(text)).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Soạn hướng dẫn' })).toBeNull()
+  })
+
   it.each([401, 403, 404, 409, 500])(
     'localizes API failure %s without showing diagnostics',
     (status) => {
@@ -171,7 +211,7 @@ describe('MonitoringChecklistSection', () => {
       />,
     )
     expect(
-      screen.getByText(/1\/3.*Chỉ video.*còn thiếu 2.*cần đúng loại media/),
+      screen.getByText(/Còn thiếu 2 bằng chứng hợp lệ/),
     ).toBeInTheDocument()
     expect(
       within(screen.getByLabelText('Bằng chứng: Yêu cầu lịch sử')).getByText(
@@ -179,6 +219,212 @@ describe('MonitoringChecklistSection', () => {
       ),
     ).toBeInTheDocument()
   })
+  it.each([false, true])(
+    'does not expose selection to operators or implicit viewers, compact=%s',
+    (compact) => {
+      const view = render(
+        <MonitoringChecklistSection
+          {...props}
+          compact={compact}
+          canAssess={false}
+          canSelectForCustomer
+        />,
+      )
+      expect(
+        screen.queryByRole('button', { name: 'Lưu lựa chọn gửi khách hàng' }),
+      ).toBeNull()
+      view.rerender(
+        <MonitoringChecklistSection {...props} compact={compact} canAssess />,
+      )
+      expect(
+        screen.queryByRole('button', { name: 'Lưu lựa chọn gửi khách hàng' }),
+      ).toBeNull()
+    },
+  )
+  describe.each([false, true])(
+    'customer selection capability, compact=%s',
+    (compact) => {
+      const selectionButton = () =>
+        screen.queryByRole('button', { name: 'Lưu lựa chọn gửi khách hàng' })
+      it('allows reserve correction on an approved unpublished result without unlocking assessment or staff fields', () => {
+        render(
+          <MonitoringChecklistSection
+            {...props}
+            compact={compact}
+            resultStatus="APPROVED"
+            canAssess
+            canSelectForCustomer
+            canAttach
+            canDetach
+            data={{
+              ...data,
+              executions: [
+                {
+                  ...item,
+                  customerSelectionEditable: true,
+                  evidencePolicyVersion: 3,
+                  minimumImageCount: 1,
+                  minimumVideoCount: 0,
+                },
+              ],
+            }}
+          />,
+        )
+        expect(selectionButton()).toBeInTheDocument()
+        expect(selectionButton()).toBeDisabled()
+        expect(
+          screen.queryByRole('button', { name: 'Cập nhật mục' }),
+        ).toBeNull()
+        expect(screen.queryByRole('button', { name: 'Chỉnh sửa' })).toBeNull()
+        expect(screen.queryByRole('button', { name: 'Đánh giá' })).toBeNull()
+        expect(
+          screen.queryByRole('button', {
+            name: /Thêm media|Thêm bằng chứng từ media Mission/,
+          }),
+        ).toBeNull()
+        expect(screen.queryByLabelText('Đánh giá nghiệm thu')).toBeNull()
+        expect(screen.queryByLabelText('Trạng thái thực hiện')).toBeNull()
+      })
+      it('trusts the assigned-inspector item capability even when result-level editing permissions are locked', () => {
+        render(
+          <MonitoringChecklistSection
+            {...props}
+            compact={compact}
+            resultStatus="APPROVED"
+            canAssess={false}
+            canSelectForCustomer={false}
+            data={{
+              ...data,
+              executions: [{ ...item, customerSelectionEditable: true }],
+            }}
+          />,
+        )
+        expect(selectionButton()).toBeInTheDocument()
+        expect(screen.queryByLabelText('Đánh giá nghiệm thu')).toBeNull()
+      })
+      it.each(['DRAFT', 'APPROVED'] as const)(
+        'hides explicit false capability for %s, including published results',
+        (resultStatus) => {
+          render(
+            <MonitoringChecklistSection
+              {...props}
+              compact={compact}
+              resultStatus={resultStatus}
+              canAssess
+              canSelectForCustomer
+              data={{
+                ...data,
+                executions: [{ ...item, customerSelectionEditable: false }],
+              }}
+            />,
+          )
+          expect(selectionButton()).toBeNull()
+        },
+      )
+      it('uses the normal unlocked inspector fallback only when the item capability is absent', () => {
+        const view = render(
+          <MonitoringChecklistSection
+            {...props}
+            compact={compact}
+            canAssess
+            canSelectForCustomer
+          />,
+        )
+        expect(selectionButton()).toBeInTheDocument()
+        view.rerender(
+          <MonitoringChecklistSection
+            {...props}
+            compact={compact}
+            resultStatus="APPROVED"
+            canAssess
+            canSelectForCustomer
+          />,
+        )
+        expect(selectionButton()).toBeNull()
+      })
+      it.each([
+        { resultKnown: false },
+        { loading: true },
+        { error: new Error('reload failed') },
+      ])(
+        'does not expose stale capability during unknown/error/loading state %j',
+        (state) => {
+          render(
+            <MonitoringChecklistSection
+              {...props}
+              {...state}
+              compact={compact}
+              resultStatus="APPROVED"
+              canAssess
+              canSelectForCustomer
+              data={{
+                ...data,
+                executions: [{ ...item, customerSelectionEditable: true }],
+              }}
+            />,
+          )
+          expect(selectionButton()).toBeNull()
+        },
+      )
+    },
+  )
+  it.each([false, true])(
+    'preserves staff observation fields and completes the item when assessing, compact=%s',
+    async (compact) => {
+      const staffItem = {
+        ...item,
+        executionStatus: 'IN_PROGRESS' as const,
+        observation: 'Staff observation',
+        unableToVerifyReason: 'Staff reason',
+      }
+      const save = vi
+        .spyOn(checklistExecutionApi, 'updateMissionChecklistExecution')
+        .mockResolvedValue({ ...staffItem, version: 8 })
+      render(
+        <MonitoringChecklistSection
+          {...props}
+          compact={compact}
+          assessmentOnly
+          canAssess
+          canSelectForCustomer
+          canExecute={false}
+          data={{ ...data, executions: [staffItem] }}
+        />,
+      )
+      fireEvent.click(
+        screen.getByRole('button', {
+          name: compact ? 'Đánh giá' : 'Cập nhật mục',
+        }),
+      )
+      fireEvent.change(screen.getByLabelText('Đánh giá nghiệm thu'), {
+        target: { value: 'COMPLIANT' },
+      })
+      fireEvent.change(screen.getByLabelText('Ghi chú nghiệm thu'), {
+        target: { value: '  Accepted work  ' },
+      })
+      fireEvent.click(
+        screen.getByRole('button', { name: compact ? 'Lưu' : 'Lưu mục' }),
+      )
+      await waitFor(() =>
+        expect(save).toHaveBeenCalledWith(
+          'm',
+          'e',
+          expect.objectContaining({
+            // assessing from the acceptance view completes the execution
+            executionStatus: 'COMPLETED',
+            observation: 'Staff observation',
+            unableToVerifyReason: 'Staff reason',
+            assessmentNote: 'Accepted work',
+            assessmentStatus: 'COMPLIANT',
+            expectedVersion: 7,
+          }),
+        ),
+      )
+      expect(
+        screen.getByRole('button', { name: 'Lưu lựa chọn gửi khách hàng' }),
+      ).toBeInTheDocument()
+    },
+  )
   it('renders historical content in displayOrder including assessment, notes and reason', () => {
     render(
       <MonitoringChecklistSection
@@ -208,14 +454,16 @@ describe('MonitoringChecklistSection', () => {
       />,
     )
     expect(
-      screen
-        .getAllByRole('heading', { level: 3 })
-        .map((node) => node.textContent),
+      Array.from(document.querySelectorAll('.mc-title')).map(
+        (node) => node.textContent,
+      ),
     ).toEqual(['Yêu cầu lịch sử', 'Thứ hai', 'Thứ ba'])
-    expect(screen.getByText('Không đạt yêu cầu')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /Thứ hai/ }))
+    expect(screen.getAllByText('Không đạt yêu cầu').length).toBeGreaterThan(0)
     expect(screen.getByText(/Vết nứt/)).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /Thứ ba/ }))
     expect(screen.getAllByText(/Bị che khuất/).length).toBeGreaterThan(0)
-    expect(screen.getByText('Chưa sẵn sàng gửi kết quả')).toBeInTheDocument()
+    expect(screen.getByText('Chưa sẵn sàng nghiệm thu')).toBeInTheDocument()
   })
   it.each(['IN_PROGRESS', 'COMPLETED'] as const)(
     'saves PENDING → %s with expectedVersion and optional assessment',
@@ -234,14 +482,38 @@ describe('MonitoringChecklistSection', () => {
           expectedVersion: 7,
           executionStatus,
           assessmentStatus: 'NOT_ASSESSED',
-          observation: null,
+          observation: '',
           unableToVerifyReason: null,
         }),
       )
       expect(props.refresh).toHaveBeenCalled()
     },
   )
-  it('allows IN_PROGRESS → COMPLETED with NON_COMPLIANT and trimmed observation', async () => {
+  it('allows a dual-role staff member to finish reporting outside assessment-only mode', async () => {
+    const save = vi
+      .spyOn(checklistExecutionApi, 'updateMissionChecklistExecution')
+      .mockResolvedValue({ ...item, version: 8 })
+    render(<MonitoringChecklistSection {...props} canAssess />)
+    fireEvent.click(screen.getByText('Cập nhật mục'))
+    fireEvent.change(screen.getByLabelText('Trạng thái thực hiện'), {
+      target: { value: 'COMPLETED' },
+    })
+    fireEvent.change(screen.getByLabelText('Ghi nhận thực hiện'), {
+      target: { value: 'Reported by assigned operator' },
+    })
+    fireEvent.click(screen.getByText('Lưu mục'))
+    await waitFor(() =>
+      expect(save).toHaveBeenCalledWith(
+        'm',
+        'e',
+        expect.objectContaining({
+          executionStatus: 'COMPLETED',
+          observation: 'Reported by assigned operator',
+        }),
+      ),
+    )
+  })
+  it('uses explicit blank strings to clear owned notes instead of preserving old server values', async () => {
     const save = vi
       .spyOn(checklistExecutionApi, 'updateMissionChecklistExecution')
       .mockResolvedValue({ ...item, version: 8 })
@@ -251,19 +523,58 @@ describe('MonitoringChecklistSection', () => {
         canAssess
         data={{
           ...data,
-          executions: [{ ...item, executionStatus: 'IN_PROGRESS' }],
+          executions: [
+            {
+              ...item,
+              observation: 'Old staff note',
+              assessmentNote: 'Old inspection note',
+            },
+          ],
         }}
       />,
     )
     fireEvent.click(screen.getByText('Cập nhật mục'))
-    fireEvent.change(screen.getByLabelText('Trạng thái thực hiện'), {
-      target: { value: 'COMPLETED' },
+    fireEvent.change(screen.getByLabelText('Ghi nhận thực hiện'), {
+      target: { value: '' },
     })
+    fireEvent.change(screen.getByLabelText('Ghi chú nghiệm thu'), {
+      target: { value: '' },
+    })
+    fireEvent.click(screen.getByText('Lưu mục'))
+    await waitFor(() =>
+      expect(save).toHaveBeenCalledWith(
+        'm',
+        'e',
+        expect.objectContaining({ observation: '', assessmentNote: '' }),
+      ),
+    )
+  })
+  it('keeps staff fields read-only in the inspector assessment view even with execution permission', async () => {
+    const save = vi
+      .spyOn(checklistExecutionApi, 'updateMissionChecklistExecution')
+      .mockResolvedValue({ ...item, version: 8 })
+    render(
+      <MonitoringChecklistSection
+        {...props}
+        canAssess
+        assessmentOnly
+        data={{
+          ...data,
+          executions: [
+            {
+              ...item,
+              executionStatus: 'IN_PROGRESS',
+              observation: 'Staff observation',
+            },
+          ],
+        }}
+      />,
+    )
+    fireEvent.click(screen.getByText('Cập nhật mục'))
+    expect(screen.queryByLabelText('Trạng thái thực hiện')).toBeNull()
+    expect(screen.queryByLabelText('Ghi nhận thực hiện')).toBeNull()
     fireEvent.change(screen.getByLabelText('Đánh giá nghiệm thu'), {
       target: { value: 'NON_COMPLIANT' },
-    })
-    fireEvent.change(screen.getByLabelText('Ghi nhận thực hiện'), {
-      target: { value: '  vết nứt  ' },
     })
     fireEvent.click(screen.getByText('Lưu mục'))
     await waitFor(() =>
@@ -273,7 +584,7 @@ describe('MonitoringChecklistSection', () => {
         expect.objectContaining({
           executionStatus: 'COMPLETED',
           assessmentStatus: 'NON_COMPLIANT',
-          observation: 'vết nứt',
+          observation: 'Staff observation',
         }),
       ),
     )
@@ -343,7 +654,9 @@ describe('MonitoringChecklistSection', () => {
     fireEvent.click(
       screen.getByText('Dùng dữ liệu mới (bỏ chỉnh sửa chưa lưu)'),
     )
-    expect(screen.getByLabelText('Ghi nhận thực hiện')).toHaveValue('Mới từ server')
+    expect(screen.getByLabelText('Ghi nhận thực hiện')).toHaveValue(
+      'Mới từ server',
+    )
   })
   it.each(['DRAFT', 'REJECTED'] as const)(
     '%s allows capability-driven editing',
@@ -372,7 +685,7 @@ describe('MonitoringChecklistSection', () => {
     expect(screen.queryByText('Cập nhật mục')).toBeNull()
   })
   it.each([false, true])(
-    'handles empty/legacy=%s and trusts backend readiness',
+    'keeps empty/legacy=%s unready without authoritative final readiness',
     (legacySnapshot) => {
       render(
         <MonitoringChecklistSection
@@ -388,7 +701,7 @@ describe('MonitoringChecklistSection', () => {
       expect(
         screen.getByText('Không có mục checklist giám sát.'),
       ).toBeInTheDocument()
-      expect(screen.getByText('Sẵn sàng gửi kết quả')).toBeInTheDocument()
+      expect(screen.getByText('Chưa sẵn sàng nghiệm thu')).toBeInTheDocument()
     },
   )
   it('restricts reverse transitions except rejected terminal items', () => {

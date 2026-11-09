@@ -6,12 +6,19 @@ export const flightStepperMessages = defineMessages({
       { key: 'accept', label: 'Nhận' },
       { key: 'ready', label: 'Sẵn sàng' },
       { key: 'connect', label: 'Kết nối' },
-      { key: 'preflight', label: 'Preflight' },
+      { key: 'preflight', label: 'Kiểm tra trước bay' },
       { key: 'handover', label: 'Bàn giao' },
       { key: 'flight', label: 'Bay' },
-      { key: 'postflight', label: 'Postcheck' },
+      { key: 'postflight', label: 'Kiểm tra sau bay' },
       { key: 'upload', label: 'Nghiệm thu' },
     ],
+    progressName: 'Tiến trình chuyến bay',
+    completed: 'Đã hoàn thành',
+    current: 'Đang thực hiện',
+    upcoming: 'Chưa thực hiện',
+    finished: 'Đã hoàn tất toàn bộ quy trình',
+    stepCounter: (step: number, total: number, label: string) =>
+      `Bước ${step}/${total} — ${label}`,
   },
   en: {
     steps: [
@@ -24,5 +31,12 @@ export const flightStepperMessages = defineMessages({
       { key: 'postflight', label: 'Postflight check' },
       { key: 'upload', label: 'Review' },
     ],
+    progressName: 'Flight progress',
+    completed: 'Completed',
+    current: 'Current step',
+    upcoming: 'Upcoming',
+    finished: 'All steps completed',
+    stepCounter: (step: number, total: number, label: string) =>
+      `Step ${step} of ${total} — ${label}`,
   },
 })

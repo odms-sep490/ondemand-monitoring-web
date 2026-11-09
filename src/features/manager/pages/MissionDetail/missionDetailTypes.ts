@@ -4,6 +4,7 @@ export type MissionDetailTab =
   | 'checklist'
   | 'route'
   | 'order'
+  | 'resources'
   | 'checks'
 
 export type NextStep = {

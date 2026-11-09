@@ -13,6 +13,7 @@ const msg: ValidationMessages = {
   blockedZone: (n) => `blocked:${n}`,
   serviceId: 'service',
   title: 'title',
+  usagePurpose: 'usagePurpose',
   otherFlightPurpose: 'otherFlightPurpose',
   otherUsagePurpose: 'otherUsagePurpose',
   preferredDateFrom: 'from',
@@ -50,6 +51,7 @@ const withService = {
   accessNotes: 'Cổng chính',
   serviceId: 's',
   title: 't',
+  usagePurpose: 'INTERNAL' as const,
   monitoringRelationship: 'OWNER' as const,
   monitoringAuthorizationConfirmed: true,
   locationStatus: 'confirmed' as const,
@@ -59,10 +61,11 @@ const withService = {
 }
 
 describe('validateStep', () => {
-  it('step 1 requires a service and a title', () => {
+  it('step 1 requires a service, a title and a usage purpose', () => {
     expect(validateStep(1, createDefaultForm(), okLocation, msg)).toEqual({
       serviceId: 'service',
       title: 'title',
+      usagePurpose: 'usagePurpose',
     })
     expect(validateStep(1, withService, okLocation, msg)).toEqual({})
   })
@@ -105,6 +108,7 @@ describe('validateStep', () => {
     expect(validateStep(2, createDefaultForm(), okLocation, msg)).toEqual({
       serviceId: 'service',
       title: 'title',
+      usagePurpose: 'usagePurpose',
       address: 'address',
     })
   })
@@ -171,18 +175,26 @@ describe('validateStep', () => {
     })
   })
 
-  it('step 5 requires at least 7 days of advance notice', () => {
-    const form = {
-      ...withService,
-      address: 'A',
-      preferredDateFrom: todayPlus(6),
-      preferredDateTo: todayPlus(7),
-      preferredTimeId: 'pt',
-    }
-    expect(validateStep(5, form, okLocation, msg).preferredDateFrom).toBe(
-      'tooSoon',
-    )
-  })
+  it.each([
+    [6, 'tooSoon'],
+    [7, undefined],
+    [8, undefined],
+  ] as const)(
+    'step 5 applies the seven-day boundary to dates %i days away',
+    (daysAway, expectedError) => {
+      const date = todayPlus(daysAway)
+      const form = {
+        ...withService,
+        address: 'A',
+        preferredDateFrom: date,
+        preferredDateTo: date,
+        preferredTimeId: 'pt',
+      }
+      expect(validateStep(5, form, okLocation, msg).preferredDateFrom).toBe(
+        expectedError,
+      )
+    },
+  )
 
   it('step 6 also requires a deliverable and passes for a complete form', () => {
     const base = { ...withService, address: 'A', preferredTimeId: 'pt' }

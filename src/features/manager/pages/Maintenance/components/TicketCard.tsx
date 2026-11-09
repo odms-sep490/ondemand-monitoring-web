@@ -1,14 +1,17 @@
-import type { MaintenanceTicket } from '../../../types/maintenance'
+import { CheckOutlined } from '@ant-design/icons'
+import { Button, Popover } from 'antd'
+import { useState } from 'react'
+import type { KeyboardEvent } from 'react'
+
 import { useI18n } from '../../../../../shared/i18n'
-import { maintenancePageMessages } from '../MaintenancePage.messages'
-import type { TicketSeverity } from '../../../../../shared/types/domain'
-import { formatAge } from '../maintenanceHelpers'
+import { getTicketSeverityLabel } from '../../../../../shared/lib/statusTone'
+import { mgrPopupContainer } from '../../../components/common/mgrPopupContainer'
 import { formatTicketTitle } from '../../../lib/ticketText'
-import { StatusBadge } from '../../../../../shared/components/odm/StatusBadge'
-import {
-  ticketSeverityTone,
-  getTicketSeverityLabel,
-} from '../../../../../shared/lib/statusTone'
+import type { MaintenanceTicket } from '../../../types/maintenance'
+import { formatAge } from '../maintenanceHelpers'
+import { maintenancePageMessages } from '../MaintenancePage.messages'
+import { TicketDetailContent } from './DetailPanel'
+import { TicketSeverityTag } from './TicketTags'
 
 export type TicketCardProps = {
   ticket: MaintenanceTicket
@@ -17,187 +20,94 @@ export type TicketCardProps = {
   selected: boolean
 }
 
-export function TicketCard({
-  ticket,
-  onSelect,
-  onAssignClick,
-  selected,
-}: TicketCardProps) {
+export function TicketCard({ ticket, onSelect, onAssignClick, selected }: TicketCardProps) {
   const { t, lang } = useI18n(maintenancePageMessages)
-  const priorityBorderColor: Record<TicketSeverity, string> = {
-    CRITICAL: '#ef4444',
-    HIGH: '#f97316',
-    MEDIUM: '#eab308',
-    LOW: '#94a3b8',
+  const [hoverOpen, setHoverOpen] = useState(false)
+  const open = ticket.status === 'OPEN' || ticket.status === 'IN_PROGRESS'
+
+  function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.target === event.currentTarget && (event.key === 'Enter' || event.key === ' ')) {
+      event.preventDefault()
+      setHoverOpen(false)
+      onSelect(ticket)
+    }
   }
 
-  return (
+  const card = (
     <div
-      className="odm-card"
-      style={{
-        padding: 16,
-        borderRadius: 12,
-        cursor: 'pointer',
-        borderLeft: `4px solid ${priorityBorderColor[ticket.priority]}`,
-        background: selected ? '#f8fafc' : '#ffffff',
-        boxShadow: selected
-          ? '0 0 0 2px #2563eb'
-          : '0 1px 3px rgba(0,0,0,0.06)',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 10,
-        transition: 'all 0.15s ease',
+      className={`mgr-ticket-card${selected ? ' is-selected' : ''}`}
+      tabIndex={0}
+      aria-label={`${ticket.code} · ${getTicketSeverityLabel(ticket.priority, lang)}`}
+      onClick={() => {
+        setHoverOpen(false)
+        onSelect(ticket)
       }}
-      onClick={() => onSelect(ticket)}
+      onKeyDown={handleKeyDown}
     >
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        <span
-          className="odm-mono"
-          style={{ fontSize: 12, fontWeight: 700, color: '#64748b' }}
-        >
-          {ticket.code}
-        </span>
-        <span style={{ fontSize: 11.5, color: '#94a3b8' }}>
-          {formatAge(ticket.openedAt, t.age)}
-        </span>
+      <div className="mgr-ticket-card-top">
+        <span className="mgr-code mgr-ticket-card-code">{ticket.code}</span>
+        <span className="mgr-ticket-card-age">{formatAge(ticket.openedAt, t.age)}</span>
       </div>
 
-      <div
-        style={{
-          fontWeight: 700,
-          fontSize: 14,
-          lineHeight: 1.35,
-          color: '#0f172a',
-          overflowWrap: 'anywhere',
-        }}
-      >
-        {formatTicketTitle(ticket.title)}
+      <div className="mgr-ticket-card-title">{formatTicketTitle(ticket.title)}</div>
+
+      <div className="mgr-ticket-card-tags">
+        <TicketSeverityTag severity={ticket.priority} />
+        <span className="mgr-ticket-drone">{ticket.droneCode}</span>
       </div>
 
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: 6,
-          alignItems: 'center',
-        }}
-      >
-        <StatusBadge tone={ticketSeverityTone[ticket.priority]}>
-          {getTicketSeverityLabel(ticket.priority, lang)}
-        </StatusBadge>
-        <span
-          style={{
-            fontSize: 12,
-            padding: '2px 8px',
-            borderRadius: 6,
-            background: '#f1f5f9',
-            color: '#475569',
-            fontWeight: 600,
-          }}
-        >
-          {ticket.droneCode}
-        </span>
-      </div>
-
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginTop: 2,
-          fontSize: 12,
-        }}
-      >
+      <div className={`mgr-ticket-op ${ticket.assignedTo ? 'is-ok' : 'is-warn'}`}>
+        <span className="mgr-ticket-op-dot" aria-hidden="true" />
         {ticket.assignedTo ? (
-          <div
-            style={{
-              color: '#059669',
-              fontWeight: 600,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-            }}
-          >
-            <span
-              style={{
-                width: 6,
-                height: 6,
-                borderRadius: '50%',
-                background: '#10b981',
-                display: 'inline-block',
-              }}
-            />
-            <span>
-              {t.card.operatorLabel}
-              <b>{ticket.assignedTo}</b>
-            </span>
-          </div>
+          <span>
+            {t.card.operatorLabel}
+            <b>{ticket.assignedTo}</b>
+          </span>
         ) : (
-          <div
-            style={{
-              color: '#d97706',
-              fontWeight: 600,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-            }}
-          >
-            <span
-              style={{
-                width: 6,
-                height: 6,
-                borderRadius: '50%',
-                background: '#f59e0b',
-                display: 'inline-block',
-              }}
-            />
-            <span>{t.card.unassigned}</span>
-          </div>
+          <span>{t.card.unassigned}</span>
         )}
       </div>
 
-      {(ticket.status === 'OPEN' || ticket.status === 'IN_PROGRESS') && (
-        <button
-          type="button"
-          className="odm-btn odm-btn-p"
-          style={{
-            fontSize: 12.5,
-            marginTop: 4,
-            fontWeight: 600,
-            padding: '7px 12px',
-            borderRadius: 8,
-          }}
-          onClick={(e) => {
-            e.stopPropagation()
+      {open && (
+        <Button
+          type="primary"
+          size="small"
+          block
+          className="mgr-ticket-card-action"
+          aria-label={ticket.assignedTo ? t.card.changeOperatorFull : t.card.assignOperatorFull}
+          onClick={(event) => {
+            event.stopPropagation()
             onAssignClick(ticket)
           }}
         >
           {ticket.assignedTo ? t.card.changeOperator : t.card.assignOperator}
-        </button>
+        </Button>
       )}
 
       {ticket.status === 'RESOLVED' && (
-        <div
-          style={{
-            fontSize: 12,
-            color: '#059669',
-            fontWeight: 600,
-            background: '#f0fdf4',
-            padding: '5px 10px',
-            borderRadius: 6,
-            textAlign: 'center',
-            marginTop: 2,
-          }}
-        >
-          {t.card.resolved}
+        <div className="mgr-ticket-done">
+          <CheckOutlined aria-hidden="true" /> {t.card.resolved}
         </div>
       )}
     </div>
+  )
+
+  return (
+    <Popover
+      content={<TicketDetailContent ticket={ticket} preview />}
+      trigger={['hover', 'focus']}
+      placement="rightTop"
+      mouseEnterDelay={0.3}
+      mouseLeaveDelay={0.05}
+      open={hoverOpen}
+      onOpenChange={setHoverOpen}
+      getPopupContainer={mgrPopupContainer}
+      rootClassName="mgr-ticket-pop"
+      destroyOnHidden
+      arrow={false}
+      autoAdjustOverflow
+    >
+      {card}
+    </Popover>
   )
 }

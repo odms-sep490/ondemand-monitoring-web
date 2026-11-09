@@ -1,3 +1,4 @@
+import { Alert, Button, Input } from 'antd'
 import type { FormEvent } from 'react'
 
 import { useI18n } from '../../../../../shared/i18n'
@@ -13,12 +14,19 @@ type Props = {
   onSubmit: (e: FormEvent) => void
 }
 
-export function ReplyForm({ content, attachment, sending, error, onContent, onAttachment, onSubmit }: Props) {
+export function ReplyForm({
+  content,
+  attachment,
+  sending,
+  error,
+  onContent,
+  onAttachment,
+  onSubmit,
+}: Props) {
   const { t } = useI18n(customerTicketDetailMessages)
   return (
     <form className="td-reply" onSubmit={onSubmit}>
-      <textarea
-        className="sp-input"
+      <Input.TextArea
         rows={3}
         aria-label={t.replyLabel}
         value={content}
@@ -26,21 +34,22 @@ export function ReplyForm({ content, attachment, sending, error, onContent, onAt
         placeholder={t.replyPlaceholder}
       />
       <div className="td-reply-row">
-        <input
-          className="sp-input"
+        <Input
           aria-label={t.attachmentLabel}
           value={attachment}
           onChange={(e) => onAttachment(e.target.value)}
           placeholder={t.attachmentPlaceholder}
         />
-        <button type="submit" className="odm-btn odm-btn-p" disabled={sending || !content.trim()}>
+        <Button
+          htmlType="submit"
+          type="primary"
+          disabled={sending || !content.trim()}
+        >
           {sending ? t.sending : t.send}
-        </button>
+        </Button>
       </div>
       {error !== null && (
-        <div className="sp-field-error" role="alert">
-          {error || t.sendFailed}
-        </div>
+        <Alert type="error" showIcon message={error || t.sendFailed} />
       )}
     </form>
   )

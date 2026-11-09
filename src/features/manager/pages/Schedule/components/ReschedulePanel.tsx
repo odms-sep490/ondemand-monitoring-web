@@ -1,12 +1,16 @@
-import type { MissionCalendarItem } from '../../../types/missions'
-import type { PageMessages } from '../scheduleTypes'
-import { missionStatusTone } from '../../../../../shared/lib/statusTone'
+import { CloseOutlined } from '@ant-design/icons'
+import { Button, Checkbox, Input, Select } from 'antd'
 import { useState } from 'react'
+import type { MissionCalendarItem, MissionRescheduleReason } from '../../../types/missions'
+import type { PageMessages } from '../scheduleTypes'
 import { missionsApi } from '../../../api/missionsApi'
 import { ApiError } from '../../../../../shared/api/httpClient'
-import { StatusBadge } from '../../../../../shared/components/odm/StatusBadge'
+import { CardComponent } from '../../../../../shared/components/antd'
+import { MissionStatusTag } from '../../../components/common/MissionStatusTag'
 import { managerHref } from '../../../routes'
-import { env } from '../../../../../config/env'
+import { useI18n } from '../../../../../shared/i18n'
+import { managerFeedbackMessages } from '../../../feedback.messages'
+import { useToast } from '../../../../../shared/components/ui'
 
 // ── ReschedulePanel ────────────────────────────────────────────────────────
 
@@ -18,6 +22,14 @@ export type ReschedulePanelProps = {
   locale: 'vi-VN' | 'en-US'
 }
 
+function toLocalDateTimeInput(value: string | null | undefined) {
+  if (!value) return ''
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return ''
+  const offset = date.getTimezoneOffset() * 60_000
+  return new Date(date.getTime() - offset).toISOString().slice(0, 16)
+}
+
 export function ReschedulePanel({
   mission,
   onClose,
@@ -25,17 +37,36 @@ export function ReschedulePanel({
   t,
   locale,
 }: ReschedulePanelProps) {
-  const tone = missionStatusTone[mission.status] ?? 'gray'
+  const { t: fb } = useI18n(managerFeedbackMessages)
+  const toast = useToast()
+  const finished =
+    mission.status === 'AWAITING_REVIEW' ||
+    mission.status === 'PENDING_REVIEW' ||
+    mission.status === 'COMPLETED' ||
+    mission.status === 'FAILED' ||
+    mission.status === 'CANCELLED'
+  const subtitle = mission.serviceLabel ?? mission.addressText
 
   const [reschedule, setReschedule] = useState(false)
   const [newStart, setNewStart] = useState(
-    mission.scheduledStartAt?.slice(0, 16) ?? '',
+    toLocalDateTimeInput(mission.scheduledStartAt),
   )
   const [newEnd, setNewEnd] = useState(
-    mission.scheduledEndAt?.slice(0, 16) ?? '',
+    toLocalDateTimeInput(mission.scheduledEndAt),
   )
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
+  const [reason, setReason] = useState<MissionRescheduleReason>('WEATHER_UNSAFE')
+  const [note, setNote] = useState('')
+  const [customerConfirmed, setCustomerConfirmed] = useState(false)
+
+  const fallback = mission.orderWeatherFallback ?? 'CONTACT_CUSTOMER'
+  const rescheduleBlocked = fallback === 'CANCEL_ORDER'
+  const needsCustomerConfirmation = fallback === 'CONTACT_CUSTOMER'
+  const runtimeStarted = Boolean(
+    ['CONNECTED', 'PREFLIGHT_CHECKING', 'READY_TO_FLY', 'IN_FLIGHT', 'IN_PROGRESS', 'RETURNING', 'POSTFLIGHT_CHECKING', 'AWAITING_REVIEW', 'PENDING_REVIEW', 'COMPLETED', 'FAILED', 'CANCELLED']
+      .includes(mission.status),
+  )
 
   const handleSave = async () => {
     if (!newStart || !newEnd) {
@@ -46,201 +77,213 @@ export function ReschedulePanel({
       setSaveError(t.validationOrder)
       return
     }
+    if (needsCustomerConfirmation && !customerConfirmed) {
+      setSaveError(t.customerConfirmationRequired)
+      return
+    }
+    if (rescheduleBlocked) {
+      setSaveError(t.cancelPolicyMessage)
+      return
+    }
     setSaving(true)
     setSaveError(null)
     try {
       const updated = await missionsApi.patchSchedule(mission.id, {
-        scheduledStart: newStart + ':00+07:00',
-        scheduledEnd: newEnd + ':00+07:00',
+        scheduledStartAt: new Date(newStart).toISOString(),
+        scheduledEndAt: new Date(newEnd).toISOString(),
+        reason,
+        note: note.trim() || undefined,
+        customerConfirmed,
       })
-      onRescheduled({ ...mission, ...updated })
+      // Merge only the fields a reschedule changes; the response lacks
+      // radiusM, mediaRequirements and flightPlan, so a full spread would wipe them.
+      onRescheduled({
+        ...mission,
+        scheduledStartAt: updated.scheduledStartAt ?? mission.scheduledStartAt,
+        scheduledEndAt: updated.scheduledEndAt ?? mission.scheduledEndAt,
+        ...(updated.status ? { status: updated.status } : {}),
+      })
+      toast.success(fb.missionRescheduled)
     } catch (err) {
-      if (err instanceof ApiError) {
-        setSaveError(err.message ?? t.rescheduleFailed)
-      } else {
-        setSaveError(t.unknownError)
-      }
+      const failure =
+        err instanceof ApiError
+          ? (err.message ?? t.rescheduleFailed)
+          : t.unknownError
+      setSaveError(failure)
+      toast.error(failure)
     } finally {
       setSaving(false)
     }
   }
 
+  const timeText = mission.scheduledStartAt
+    ? `${new Date(mission.scheduledStartAt).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })}${mission.scheduledEndAt ? ` → ${new Date(mission.scheduledEndAt).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })}` : t.noEndTime}`
+    : '—'
+  const rows: Array<[string, string]> = [
+    [
+      t.drone,
+      mission.droneCode
+        ? `${mission.droneCode}${mission.droneName ? ` · ${mission.droneName}` : ''}`
+        : t.notAssigned,
+    ],
+    [t.pilot, mission.operatorName ?? t.notAssigned],
+    [t.schedule, timeText],
+  ]
+  if (mission.addressText) rows.push([t.location, mission.addressText])
+  rows.push([
+    t.customerWindow,
+    `${mission.orderPreferredDateFrom ?? '—'} → ${mission.orderPreferredDateTo ?? '—'}${mission.orderPreferredTimeName ? ` · ${mission.orderPreferredTimeName}` : ''}`,
+  ])
+  rows.push([t.customerFallback, t.fallbackLabels[fallback]])
+
   return (
-    <div
-      className="odm-sched-panel"
+    <aside
+      className="mgr-sched-panel"
       role="complementary"
       aria-label={t.missionDetail}
     >
-      {/* Header */}
-      <div className="odm-sched-panel-head">
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div
-            style={{
-              fontFamily: 'var(--font-mono)',
-              fontSize: 12,
-              color: 'var(--tx3)',
-            }}
-          >
-            {mission.missionCode}
-          </div>
-          <div
-            style={{
-              fontWeight: 600,
-              fontSize: 14,
-              marginTop: 2,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {mission.serviceLabel ?? mission.addressText ?? '—'}
-          </div>
-        </div>
-        <button
-          type="button"
-          className="odm-btn"
-          style={{ flex: 'none' }}
-          onClick={onClose}
-          aria-label={t.closeDetail}
-        >
-          ✕
-        </button>
-      </div>
-
-      {/* Status badge + dispatch shortcut */}
-      <div
-        style={{
-          padding: '8px 16px 0',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-          flexWrap: 'wrap',
-        }}
+      <CardComponent
+        title={
+          <span className="mgr-sched-panel-title">
+            <span className="mgr-code">{mission.missionCode}</span>
+            {subtitle ? <span className="mgr-sched-panel-sub">{subtitle}</span> : null}
+          </span>
+        }
+        extra={
+          <Button
+            type="text"
+            className="mgr-icon-btn"
+            icon={<CloseOutlined aria-hidden="true" />}
+            onClick={onClose}
+            aria-label={t.closeDetail}
+          />
+        }
       >
-        <StatusBadge kind="mission" status={mission.status} tone={tone} />
-        {(mission.status === 'CREATED' ||
-          mission.status === 'RESOURCE_ASSIGNING') && (
-          <a
-            href={managerHref({
-              screen: 'missionDispatch',
-              missionId: mission.id,
-            })}
-            className="odm-btn odm-btn-p odm-btn-sm"
-          >
-            {t.assignResources}
-          </a>
-        )}
-      </div>
-
-      {/* Mission info */}
-      <dl className="odm-sched-panel-dl">
-        <dt>{t.drone}</dt>
-        <dd>
-          {mission.droneCode
-            ? `${mission.droneCode}${mission.droneName ? ` · ${mission.droneName}` : ''}`
-            : t.notAssigned}
-        </dd>
-        <dt>{t.pilot}</dt>
-        <dd>{mission.operatorName ?? t.notAssigned}</dd>
-        <dt>{t.schedule}</dt>
-        <dd>
-          {mission.scheduledStartAt
-            ? `${new Date(mission.scheduledStartAt).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })}${mission.scheduledEndAt ? ` → ${new Date(mission.scheduledEndAt).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })}` : t.noEndTime}`
-            : '—'}
-        </dd>
-        {mission.addressText && (
-          <>
-            <dt>{t.location}</dt>
-            <dd>{mission.addressText}</dd>
-          </>
-        )}
-      </dl>
-
-      {/* Reschedule section */}
-      {!reschedule ? (
-        <div style={{ padding: '0 16px 16px' }}>
-          <button
-            type="button"
-            className="odm-btn"
-            disabled={!env.useMockApi && import.meta.env.MODE !== 'test'}
-            title={
-              !env.useMockApi && import.meta.env.MODE !== 'test'
-                ? t.backendNotSupported
-                : undefined
-            }
-            onClick={() => setReschedule(true)}
-          >
-            {t.reschedule}
-          </button>
-        </div>
-      ) : (
-        <div
-          style={{
-            padding: '0 16px 16px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 8,
-          }}
-        >
-          <div style={{ fontSize: 13, fontWeight: 600 }}>
-            {t.rescheduleTitle}
-          </div>
-          <label style={{ fontSize: 12, color: 'var(--tx2)' }}>
-            {t.start}
-            <input
-              type="datetime-local"
-              className="odm-inp"
-              value={newStart}
-              onChange={(e) => setNewStart(e.target.value)}
-              style={{ display: 'block', marginTop: 4, width: '100%' }}
-            />
-          </label>
-          <label style={{ fontSize: 12, color: 'var(--tx2)' }}>
-            {t.end}
-            <input
-              type="datetime-local"
-              className="odm-inp"
-              value={newEnd}
-              onChange={(e) => setNewEnd(e.target.value)}
-              style={{ display: 'block', marginTop: 4, width: '100%' }}
-            />
-          </label>
-          {saveError && (
-            <div
-              style={{
-                fontSize: 12,
-                color: 'var(--red-fg)',
-                background: 'var(--red-bg)',
-                borderRadius: 6,
-                padding: '6px 10px',
-              }}
-              role="alert"
+        <div className="mgr-badge-row">
+          <MissionStatusTag mission={mission} />
+          {(mission.status === 'CREATED' ||
+            mission.status === 'RESOURCE_ASSIGNING') && (
+            <Button
+              type="primary"
+              size="small"
+              href={managerHref({
+                screen: 'missionDispatch',
+                missionId: mission.id,
+              })}
             >
-              {saveError}
-            </div>
+              {t.assignResources}
+            </Button>
           )}
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button
-              type="button"
-              className="odm-btn odm-btn-p"
-              disabled={saving}
-              onClick={handleSave}
-            >
-              {saving ? t.saving : t.save}
-            </button>
-            <button
-              type="button"
-              className="odm-btn"
-              onClick={() => {
-                setReschedule(false)
-                setSaveError(null)
-              }}
-            >
-              {t.cancel}
-            </button>
-          </div>
         </div>
+        <dl className="mgr-kv">
+          {rows.map(([label, value]) => (
+            <div className="mgr-kv-row" key={label}>
+              <dt>{label}</dt>
+              <dd>{value}</dd>
+            </div>
+          ))}
+        </dl>
+      </CardComponent>
+
+      {mission.lastRescheduledAt ? (
+        <CardComponent title={t.lastReschedule}>
+          <div>
+            {new Date(mission.lastRescheduledAt).toLocaleString(locale)}
+            {mission.lastRescheduleReason
+              ? ` · ${t.reasonLabels[mission.lastRescheduleReason]}`
+              : ''}
+          </div>
+          {mission.lastRescheduleNote ? <div>{mission.lastRescheduleNote}</div> : null}
+        </CardComponent>
+      ) : null}
+
+      {!finished && (rescheduleBlocked || runtimeStarted) ? (
+        <div className="mgr-form-error" role="alert">
+          {runtimeStarted ? t.runtimeStartedMessage : t.cancelPolicyMessage}
+        </div>
+      ) : null}
+
+      {finished ? null : !reschedule ? (
+        <Button
+          block
+          disabled={rescheduleBlocked || runtimeStarted}
+          onClick={() => setReschedule(true)}
+        >
+          {t.reschedule}
+        </Button>
+      ) : (
+        <CardComponent title={t.rescheduleTitle}>
+          <div className="mgr-form">
+            <label className="mgr-field">
+              <span>{t.start}</span>
+              <Input
+                type="datetime-local"
+                value={newStart}
+                onChange={(e) => setNewStart(e.target.value)}
+              />
+            </label>
+            <label className="mgr-field">
+              <span>{t.end}</span>
+              <Input
+                type="datetime-local"
+                value={newEnd}
+                onChange={(e) => setNewEnd(e.target.value)}
+              />
+            </label>
+            <label className="mgr-field">
+              <span>{t.reason}</span>
+              <Select
+                value={reason}
+                onChange={(value: MissionRescheduleReason) => setReason(value)}
+                options={Object.entries(t.reasonLabels).map(([value, label]) => ({
+                  value,
+                  label,
+                }))}
+              />
+            </label>
+            <label className="mgr-field">
+              <span>{t.note}</span>
+              <Input.TextArea
+                value={note}
+                maxLength={1000}
+                rows={3}
+                onChange={(e) => setNote(e.target.value)}
+              />
+            </label>
+            {needsCustomerConfirmation && (
+              <Checkbox
+                checked={customerConfirmed}
+                onChange={(e) => setCustomerConfirmed(e.target.checked)}
+              >
+                {t.customerConfirmed}
+              </Checkbox>
+            )}
+            {saveError && (
+              <div className="mgr-form-error" role="alert">
+                {saveError}
+              </div>
+            )}
+            <div className="mgr-actions">
+              <Button
+                type="primary"
+                loading={saving}
+                disabled={saving}
+                onClick={handleSave}
+              >
+                {saving ? t.saving : t.save}
+              </Button>
+              <Button
+                onClick={() => {
+                  setReschedule(false)
+                  setSaveError(null)
+                }}
+              >
+                {t.cancel}
+              </Button>
+            </div>
+          </div>
+        </CardComponent>
       )}
-    </div>
+    </aside>
   )
 }

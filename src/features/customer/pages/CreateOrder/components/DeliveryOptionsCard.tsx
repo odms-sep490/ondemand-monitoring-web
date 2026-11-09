@@ -1,5 +1,8 @@
+import { Checkbox } from 'antd'
+import { SendOutlined } from '@ant-design/icons'
+import type { ReactNode } from 'react'
 import { useEffect } from 'react'
-import { Card, FormField } from '../../../../../shared/components/ui'
+import { Card, FormField } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import {
   DELIVERY_METHODS,
@@ -9,6 +12,7 @@ import {
   type FormState,
   type UpdateField,
 } from '../../../lib/createOrder/types'
+import { AgreementSection } from './AgreementSection'
 import { deliveryOptionsCardMessages } from './DeliveryOptionsCard.messages'
 
 type Props = {
@@ -17,26 +21,28 @@ type Props = {
   update: UpdateField
   /** Images and videos requested in the checklists; they decide the PHOTO and VIDEO result formats. */
   mediaTotals: { images: number; videos: number }
+  /** The compact review uses the media summary as a slot and separates consent. */
+  variant?: 'default' | 'review'
+  children?: ReactNode
 }
 
-/** Step 5: result formats, delivery method, retention period, terms acceptance. */
+/** Result formats, delivery method and retention period. */
 export function DeliveryOptionsCard({
   form,
   errors,
   update,
   mediaTotals,
+  variant = 'default',
+  children,
 }: Props) {
   const { t } = useI18n(deliveryOptionsCardMessages)
-  // With no media in the checklists there is nothing to derive from, so every format stays a free choice.
-  const hasMedia = mediaTotals.images + mediaTotals.videos > 0
+  const isReview = variant === 'review'
   const derived = (format: (typeof RESULT_FORMATS)[number]) =>
-    !hasMedia
-      ? undefined
-      : format === 'PHOTO'
-        ? mediaTotals.images > 0
-        : format === 'VIDEO'
-          ? mediaTotals.videos > 0
-          : undefined
+    format === 'PHOTO'
+      ? mediaTotals.images > 0
+      : format === 'VIDEO'
+        ? mediaTotals.videos > 0
+        : undefined
 
   // Photo and video are not chosen here: they follow what the checklists ask for. Only the PDF report is optional.
   useEffect(() => {
@@ -60,52 +66,68 @@ export function DeliveryOptionsCard({
   }
 
   return (
-    <Card title={t.cardTitle}>
-      <p className="co-hint co-card-sub">{t.cardSubtitle}</p>
+    <Card
+      className={`co-delivery-options-card${isReview ? ' is-review' : ''}`}
+      icon={<SendOutlined />}
+      title={isReview ? t.reviewTitle : t.cardTitle}
+    >
+      {!isReview && <p className="co-hint co-card-sub">{t.cardSubtitle}</p>}
+      {children}
 
-      <FormField
-        id="co-result-formats"
-        label={t.formatsLabel}
-        required
-        error={errors.resultFormats}
+      <div
+        className={isReview ? 'co-review-delivery-field is-format' : undefined}
       >
-        <div className="co-chip-group" role="group" aria-label={t.formatsLabel}>
-          {RESULT_FORMATS.map((format) => (
-            <label
-              key={format}
-              className={`co-chip-option${form.resultFormats.includes(format) ? ' is-on' : ''}`}
-            >
-              <input
-                type="checkbox"
+        <FormField
+          id="co-result-formats"
+          label={isReview ? t.optionalFormatLabel : t.formatsLabel}
+          required={!isReview}
+          error={errors.resultFormats}
+        >
+          <div
+            className="co-chip-group"
+            role="group"
+            aria-label={t.formatsLabel}
+          >
+            {RESULT_FORMATS.filter(
+              (format) => !isReview || format === 'PDF_REPORT',
+            ).map((format) => (
+              <Checkbox
+                key={format}
+                className={`co-chip-option${form.resultFormats.includes(format) ? ' is-on' : ''}`}
                 name="resultFormats"
                 checked={form.resultFormats.includes(format)}
-                disabled={derived(format) !== undefined}
+                disabled={!isReview && derived(format) !== undefined}
                 aria-invalid={Boolean(errors.resultFormats)}
                 onChange={() =>
                   update('resultFormats', toggle(form.resultFormats, format))
                 }
-              />
-              <span>{t.formats[format]}</span>
-            </label>
-          ))}
-        </div>
-        <p className="co-hint">{t.formatsHint}</p>
-      </FormField>
+              >
+                {t.formats[format]}
+              </Checkbox>
+            ))}
+          </div>
+          {!isReview && <p className="co-hint">{t.formatsHint}</p>}
+        </FormField>
+      </div>
 
-      <FormField
-        id="co-delivery-methods"
-        label={t.methodsLabel}
-        required
-        error={errors.deliveryMethods}
+      <div
+        className={isReview ? 'co-review-delivery-field is-method' : undefined}
       >
-        <div className="co-chip-group" role="group" aria-label={t.methodsLabel}>
-          {DELIVERY_METHODS.map((method) => (
-            <label
-              key={method}
-              className={`co-chip-option${form.deliveryMethods.includes(method) ? ' is-on' : ''}`}
-            >
-              <input
-                type="checkbox"
+        <FormField
+          id="co-delivery-methods"
+          label={t.methodsLabel}
+          required
+          error={errors.deliveryMethods}
+        >
+          <div
+            className="co-chip-group"
+            role="group"
+            aria-label={t.methodsLabel}
+          >
+            {DELIVERY_METHODS.map((method) => (
+              <Checkbox
+                key={method}
+                className={`co-chip-option${form.deliveryMethods.includes(method) ? ' is-on' : ''}`}
                 name="deliveryMethods"
                 checked={form.deliveryMethods.includes(method)}
                 aria-invalid={Boolean(errors.deliveryMethods)}
@@ -115,88 +137,44 @@ export function DeliveryOptionsCard({
                     toggle(form.deliveryMethods, method),
                   )
                 }
-              />
-              <span>{t.methods[method]}</span>
-            </label>
-          ))}
-        </div>
-      </FormField>
-
-      <FormField id="co-retention" label={t.retentionLabel}>
-        <select
-          id="co-retention"
-          className="co-input"
-          value={form.dataRetentionDays}
-          onChange={(event) =>
-            update(
-              'dataRetentionDays',
-              Number(event.target.value) as FormState['dataRetentionDays'],
-            )
-          }
-        >
-          {RETENTION_DAYS.map((days) => (
-            <option key={days} value={days}>
-              {t.days(days)}
-            </option>
-          ))}
-        </select>
-        <p className="co-hint">{t.retentionHint}</p>
-      </FormField>
-
-      <div className="co-terms co-terms-important">
-        <div className="co-terms-head">
-          <svg
-            className="co-terms-icon"
-            width="22"
-            height="22"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.9"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z" />
-            <path d="M12 8.5v4M12 15.5h.01" />
-          </svg>
-          <div className="co-terms-title">{t.termsHeading}</div>
-          <span className="co-terms-badge">{t.termsRequired}</span>
-        </div>
-        <label
-          className={`co-check co-terms-check${errors.termsAccepted ? ' has-error' : ''}`}
-        >
-          <input
-            type="checkbox"
-            name="termsAccepted"
-            checked={form.termsAccepted}
-            aria-invalid={Boolean(errors.termsAccepted)}
-            aria-describedby={
-              errors.termsAccepted ? 'co-terms-error' : 'co-terms-privacy'
-            }
-            onChange={(event) => update('termsAccepted', event.target.checked)}
-          />
-          <span className="co-terms-check-copy">
-            <strong>{t.termsLabel}</strong>
-            <small id="co-terms-privacy">{t.termsPrivacyNotice}</small>
-          </span>
-        </label>
-        {errors.termsAccepted && (
-          <div id="co-terms-error" className="ui-field-error" role="alert">
-            {errors.termsAccepted}
+              >
+                {t.methods[method]}
+              </Checkbox>
+            ))}
           </div>
-        )}
-        <details className="co-terms-details">
-          <summary>{t.commitmentsToggle}</summary>
-          <ul className="co-terms-list">
-            <li>{t.commitmentUse}</li>
-            <li>{t.commitmentRetention}</li>
-            <li>{t.commitmentResponsibility}</li>
-            <li>{t.commitmentPermit}</li>
-            <li className="is-key">{t.commitmentPrivacy}</li>
-          </ul>
-        </details>
+        </FormField>
       </div>
+
+      <div
+        className={
+          isReview ? 'co-review-delivery-field is-retention' : undefined
+        }
+      >
+        <FormField id="co-retention" label={t.retentionLabel}>
+          <select
+            id="co-retention"
+            className="co-input"
+            value={form.dataRetentionDays}
+            onChange={(event) =>
+              update(
+                'dataRetentionDays',
+                Number(event.target.value) as FormState['dataRetentionDays'],
+              )
+            }
+          >
+            {RETENTION_DAYS.map((days) => (
+              <option key={days} value={days}>
+                {t.days(days)}
+              </option>
+            ))}
+          </select>
+          {!isReview && <p className="co-hint">{t.retentionHint}</p>}
+        </FormField>
+      </div>
+
+      {!isReview && (
+        <AgreementSection form={form} errors={errors} update={update} />
+      )}
     </Card>
   )
 }

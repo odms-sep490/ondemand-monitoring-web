@@ -10,6 +10,7 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+.codegraph/
 test-results/
 .agents/
 .taste-skill/
@@ -31,3 +32,7 @@ test-results/
 evd/
 evd/
 .env.example
+
+document/
+
+*.tsbuildinfo

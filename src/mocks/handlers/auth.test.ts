@@ -159,7 +159,7 @@ describe('POST /api/v1/auth/refresh', () => {
 
     expect(response.status).toBe(200)
     expect(payload.data.accessToken).toBe('mock-customer-token')
-    expect(payload.data.user.email).toBe('bao.le@logisticscatlai.vn')
+    expect(payload.data.user).toBeUndefined()
   })
 
   it('passes through when there is no mock session cookie', async () => {

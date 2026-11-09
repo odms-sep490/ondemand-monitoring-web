@@ -89,7 +89,7 @@ describe('planning product presentation', () => {
       'Drone khảo sát',
     )
     expect(screen.getByRole('region', { name: 'Nhân sự' })).toHaveTextContent(
-      'Phi côngNguyễn Minh',
+      'Nguyễn MinhPhi côngTrần AnNghiệm thu',
     )
     expect(screen.getByText('Nghiệm thu')).toBeInTheDocument()
     expect(screen.queryByText('PILOT')).not.toBeInTheDocument()
@@ -112,7 +112,7 @@ describe('planning product presentation', () => {
       path: '/test',
     })
     expect(planningError(error)).toBe(
-      'Order chưa ở trạng thái cho phép chốt kế hoạch.',
+      'Đơn hàng chưa ở trạng thái cho phép chốt kế hoạch.',
     )
     expect(error.code).toBe('ORDER_NOT_APPROVED')
     expect(

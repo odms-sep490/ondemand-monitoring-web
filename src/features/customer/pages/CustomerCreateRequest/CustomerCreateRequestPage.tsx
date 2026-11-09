@@ -1,8 +1,7 @@
-import {
-  ErrorState,
-  LoadingState,
-} from '../../../../shared/components/odm/StateView'
-import { PortalLayout } from '../../../../shared/components/portal/PortalLayout'
+import { ErrorState, LoadingState } from '../../components/common/StateView'
+import { PageHeader } from '../../components/common/ui'
+import { CustomerLayout } from '../../CustomerLayout'
+import { customerAppMessages } from '../../CustomerApp.messages'
 import { useI18n } from '../../../../shared/i18n'
 import { ConfirmSubmitModal } from '../CreateOrder/components/ConfirmSubmitModal'
 import { CreatedSuccess } from '../CreateOrder/components/CreatedSuccess'
@@ -27,6 +26,7 @@ import { selectionEstimate } from '../../lib/checklist/selectionEstimate'
  */
 export function CustomerCreateRequestPage() {
   const { t } = useI18n(customerCreateRequestPageMessages)
+  const { t: appT } = useI18n(customerAppMessages)
   const r = useCreateRequest()
   const { form, errors, update, meta, submit } = r
   const estimate = selectionEstimate(
@@ -36,18 +36,26 @@ export function CustomerCreateRequestPage() {
   const additionalChecklists = r.checklist.rows.filter(
     (row) => row.selected && row.packageItem === false,
   )
-  const packageChecklists = r.checklist.rows.filter((row) => row.packageItem === true)
-  const packageSelectedCount = packageChecklists.filter((row) => row.selected).length
+  const packageChecklists = r.checklist.rows.filter(
+    (row) => row.packageItem === true,
+  )
+  const packageSelectedCount = packageChecklists.filter(
+    (row) => row.selected,
+  ).length
 
   return (
-    <PortalLayout role="CUSTOMER" title={t.pageTitle} subtitle={t.pageSubtitle}>
+    <CustomerLayout
+      route={{ screen: 'createOrder' }}
+      breadcrumb={appT.breadcrumb.createOrder}
+    >
       {submit.createdId ? (
         <CreatedSuccess
           orderId={submit.createdId}
           orderCode={submit.createdCode}
         />
       ) : (
-        <div className="co-page">
+        <div className="cus-page co-page">
+          <PageHeader title={t.pageTitle} subtitle={t.pageSubtitle} />
           {meta.loading && !meta.services.length && <LoadingState />}
           {Boolean(meta.error) && (
             <ErrorState
@@ -115,7 +123,6 @@ export function CustomerCreateRequestPage() {
               estimate={estimate}
               loading={r.checklist.quote.loading}
               hasService={Boolean(r.service)}
-              aiAnalysisRequested={false}
               additionalChecklists={additionalChecklists}
             />
           </div>
@@ -145,6 +152,6 @@ export function CustomerCreateRequestPage() {
           )}
         </div>
       )}
-    </PortalLayout>
+    </CustomerLayout>
   )
 }

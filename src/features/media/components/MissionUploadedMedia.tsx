@@ -1,3 +1,5 @@
+import { ResilientMedia } from '../../../shared/components/media/MediaRecovery'
+import { VideoPoster } from '../../../shared/components/media/VideoThumbnail'
 import { useEffect, useRef, useState } from 'react'
 import { Icon } from '../../../shared/components/Icon'
 import {
@@ -122,7 +124,7 @@ function Gallery({
       })
       .catch(() => {
         if (abort.signal.aborted) return
-        setError('Không thể tải ảnh/video của Mission này.')
+        setError('Không thể tải ảnh/video của nhiệm vụ này.')
       })
       .finally(() => {
         if (!abort.signal.aborted) setLoading(false)
@@ -144,15 +146,15 @@ function Gallery({
     try {
       const fresh = await reader.get(missionId, item.mediaId, abort.signal)
       if (!abort.signal.aborted) {
-        if (fresh.downloadUrl) setSelected(fresh)
+        if (fresh.previewUrl) setSelected(fresh)
         else
           setError(
-            'Bản gốc chưa được bàn giao. Vui lòng xem bản xem trước đã phát hành.',
+            'Bản xem trước đang được tạo. Vui lòng tải lại sau giây lát.',
           )
       }
     } catch {
       if (!abort.signal.aborted)
-        setError('Không thể mở ảnh/video của Mission này. Vui lòng thử lại.')
+        setError('Không thể mở ảnh/video của nhiệm vụ này. Vui lòng thử lại.')
     } finally {
       if (!abort.signal.aborted) setOpening(false)
     }
@@ -184,7 +186,7 @@ function Gallery({
               ) : null}
             </div>
             <p>
-              Ảnh/video của Mission. Mở từng tệp để xem và kiểm tra kết quả.
+              Ảnh/video của nhiệm vụ. Mở từng tệp để xem và kiểm tra kết quả.
             </p>
           </div>
           <button
@@ -239,12 +241,12 @@ function Gallery({
               {[
                 'CREATED',
                 'RESOURCE_ASSIGNING',
-                'WAITING_CREW_CONFIRMATION',
+                'READY',
                 'SCHEDULED',
                 'READY_TO_FLY',
               ].includes(missionStatus ?? '')
                 ? 'Media sẽ xuất hiện sau khi Mission được thực hiện và dữ liệu được tải lên.'
-                : 'Chưa có ảnh/video được tải lên cho Mission này.'}
+                : 'Chưa có ảnh/video được tải lên cho nhiệm vụ này.'}
             </span>
           </div>
         ) : null}
@@ -256,24 +258,18 @@ function Gallery({
                   <button
                     type="button"
                     className="mission-media__preview"
-                    disabled={opening || !item.downloadUrl}
+                    disabled={opening || !item.previewUrl}
                     aria-label={`Xem ${item.fileName}`}
                     onClick={() => void open(item)}
                   >
-                    {!item.downloadUrl ? (
+                    {!item.previewUrl ? (
                       <span className="mission-media__video-placeholder">
                         Bản gốc chưa được bàn giao
                       </span>
                     ) : item.mediaType === 'IMAGE' ? (
-                      <img src={item.downloadUrl} alt="" loading="lazy" />
+                      <img src={item.thumbnailUrl ?? item.previewUrl!} alt="" loading="lazy" />
                     ) : (
-                      <span className="mission-media__video-placeholder">
-                        <span
-                          className="mission-media__play"
-                          aria-hidden="true"
-                        />
-                        <span>VIDEO</span>
-                      </span>
+                      <VideoPoster poster={item.thumbnailUrl} />
                     )}
                     <span className="mission-media__type">
                       {isReference(item)
@@ -289,7 +285,7 @@ function Gallery({
                                 : 'Video'}
                     </span>
                     <span className="mission-media__open-label">
-                      {item.downloadUrl ? 'Xem media' : 'Chờ bàn giao'}
+                      {item.previewUrl ? 'Xem media' : 'Đang tạo bản xem'}
                     </span>
                   </button>
                   <div className="mission-media__card-body">
@@ -393,7 +389,7 @@ function Gallery({
           aria-label="Xem media"
           className="mission-media__dialog"
         >
-          {selected?.downloadUrl ? (
+          {selected?.previewUrl ? (
             <>
               <header className="mission-media__dialog-header">
                 <div>
@@ -414,14 +410,9 @@ function Gallery({
               {error ? <p role="alert">{error}</p> : null}
               <div className="mission-media__dialog-stage">
                 {selected.mediaType === 'IMAGE' ? (
-                  <img src={selected.downloadUrl} alt={selected.fileName} />
+                  <img src={selected.previewUrl} alt={selected.fileName} />
                 ) : (
-                  <video
-                    key={selected.downloadUrl}
-                    src={selected.downloadUrl}
-                    controls
-                    preload="metadata"
-                  />
+                  <ResilientMedia kind="video" expanded src={selected.previewUrl} poster={selected.thumbnailUrl} fileName={selected.fileName} fallbackUrl={selected.downloadUrl} />
                 )}
               </div>
               <footer className="mission-media__dialog-footer">
@@ -447,7 +438,7 @@ function reviewStatusText(status: MissionMediaReviewStatus) {
   if (status === 'DRAFT') return 'Kết quả nháp — chưa gửi manager'
   if (status === 'APPROVED') return 'Đã nghiệm thu'
   if (status === 'REJECTED') return 'Bị từ chối'
-  return 'Chờ manager nghiệm thu'
+  return 'Chờ quản lý nghiệm thu'
 }
 
 function ReviewStatusBadge({

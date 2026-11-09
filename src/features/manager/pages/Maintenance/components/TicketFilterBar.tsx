@@ -1,7 +1,23 @@
-import { maintenancePageMessages } from '../MaintenancePage.messages'
-import { useI18n } from '../../../../../shared/i18n'
+import { Select } from 'antd'
 import type { Dispatch, SetStateAction } from 'react'
 
+import { useI18n } from '../../../../../shared/i18n'
+import { getTicketSeverityLabel } from '../../../../../shared/lib/statusTone'
+import { FilterBar } from '../../../components/common/FilterBar'
+import { mgrPopupContainer } from '../../../components/common/mgrPopupContainer'
+import { SEVERITIES } from '../maintenanceHelpers'
+import { maintenancePageMessages } from '../MaintenancePage.messages'
+
+type Props = {
+  searchQuery: string
+  setSearchQuery: Dispatch<SetStateAction<string>>
+  priorityFilter: string
+  setPriorityFilter: Dispatch<SetStateAction<string>>
+  assignedFilter: string
+  setAssignedFilter: Dispatch<SetStateAction<string>>
+}
+
+/** Search box on the left, labelled priority and assignment selects on the right. */
 export function TicketFilterBar({
   searchQuery,
   setSearchQuery,
@@ -9,75 +25,56 @@ export function TicketFilterBar({
   setPriorityFilter,
   assignedFilter,
   setAssignedFilter,
-}: {
-  searchQuery: string
-  setSearchQuery: Dispatch<SetStateAction<string>>
-  priorityFilter: string
-  setPriorityFilter: Dispatch<SetStateAction<string>>
-  assignedFilter: string
-  setAssignedFilter: Dispatch<SetStateAction<string>>
-}) {
-  const { t } = useI18n(maintenancePageMessages)
+}: Props) {
+  const { t, lang } = useI18n(maintenancePageMessages)
   return (
-    <div
-      style={{
-        display: 'flex',
-        gap: 12,
-        alignItems: 'center',
-        marginBottom: 16,
-        background: '#ffffff',
-        padding: '10px 16px',
-        borderRadius: 12,
-        border: '1px solid #e2e8f0',
+    <FilterBar
+      search={{
+        value: searchQuery,
+        onChange: setSearchQuery,
+        placeholder: t.page.searchPlaceholder,
+        ariaLabel: t.page.searchAria,
       }}
-    >
-      <div style={{ flex: 1 }}>
-        <input
-          className="odm-input"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder={t.page.searchPlaceholder}
-          style={{
-            width: '100%',
-            height: 38,
-            borderRadius: 8,
-            paddingLeft: 12,
-            fontSize: 13,
-          }}
-        />
-      </div>
-
-      <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-        <span style={{ fontSize: 13, color: '#64748b' }}>
-          {t.page.priorityLabel}
-        </span>
-        <select
-          className="odm-input"
-          value={priorityFilter}
-          onChange={(e) => setPriorityFilter(e.target.value)}
-          style={{ height: 38, borderRadius: 8, fontSize: 13 }}
-        >
-          <option value="ALL">{t.page.priorityAll}</option>
-          <option value="CRITICAL">Critical</option>
-          <option value="HIGH">High</option>
-          <option value="MEDIUM">Medium</option>
-          <option value="LOW">Low</option>
-        </select>
-
-        <span style={{ fontSize: 13, color: '#64748b' }}>
-          {t.page.assignedLabel}
-        </span>
-        <select
-          className="odm-input"
-          value={assignedFilter}
-          onChange={(e) => setAssignedFilter(e.target.value)}
-          style={{ height: 38, borderRadius: 8, fontSize: 13 }}
-        >
-          <option value="ALL">{t.page.assignedAll}</option>
-          <option value="UNASSIGNED">{t.page.assignedUnassigned}</option>
-          <option value="ASSIGNED">{t.page.assignedAssigned}</option>
-        </select>
-      </div>
-    </div>
+      end={
+        <div className="mgr-maint-selects">
+          <label className="mgr-maint-select">
+            <span className="mgr-maint-select-label">
+              {t.page.priorityLabel}
+            </span>
+            <Select
+              aria-label={t.page.priorityAria}
+              value={priorityFilter}
+              onChange={setPriorityFilter}
+              getPopupContainer={mgrPopupContainer}
+              popupMatchSelectWidth={false}
+              options={[
+                { value: 'ALL', label: t.page.priorityAll },
+                ...[...SEVERITIES].reverse().map((severity) => ({
+                  value: severity,
+                  label: getTicketSeverityLabel(severity, lang),
+                })),
+              ]}
+            />
+          </label>
+          <label className="mgr-maint-select">
+            <span className="mgr-maint-select-label">
+              {t.page.assignedLabel}
+            </span>
+            <Select
+              aria-label={t.page.assignedAria}
+              value={assignedFilter}
+              onChange={setAssignedFilter}
+              getPopupContainer={mgrPopupContainer}
+              popupMatchSelectWidth={false}
+              options={[
+                { value: 'ALL', label: t.page.assignedAll },
+                { value: 'UNASSIGNED', label: t.page.assignedUnassigned },
+                { value: 'ASSIGNED', label: t.page.assignedAssigned },
+              ]}
+            />
+          </label>
+        </div>
+      }
+    />
   )
 }

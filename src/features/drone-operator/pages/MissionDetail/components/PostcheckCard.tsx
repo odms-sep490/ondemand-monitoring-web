@@ -13,7 +13,7 @@ import {
   viCheckMessage,
 } from '../../../../../shared/lib/checkText'
 
-// ─── Postcheck card ───────────────────────────────────────────────────────────
+// ─── Thẻ kết quả kiểm tra sau bay ────────────────────────────────────────────
 
 export function PostcheckCard({
   postflight,
@@ -36,7 +36,7 @@ export function PostcheckCard({
   return (
     <div className="odm-card">
       <div className="odm-card-header">
-        <span style={{ fontWeight: 700 }}>Kết quả postcheck</span>
+        <h2 className="mds-card-heading">Kết quả kiểm tra sau bay</h2>
         <StatusBadge
           tone={postflight ? (postflight.overallOk ? 'green' : 'red') : 'gray'}
         >
@@ -44,7 +44,7 @@ export function PostcheckCard({
             ? postflight.overallOk
               ? 'Đạt'
               : 'Cần bảo trì'
-            : 'Chưa postcheck'}
+            : 'Chưa kiểm tra sau bay'}
         </StatusBadge>
       </div>
       <div className="odm-card-body" style={{ padding: '10px 14px' }}>
@@ -55,8 +55,8 @@ export function PostcheckCard({
               style={{
                 display: 'grid',
                 gridTemplateColumns: '1fr 1fr',
-                gap: 7,
-                marginBottom: 10,
+                gap: 9,
+                marginBottom: 12,
               }}
             >
               <PostMetric
@@ -112,13 +112,13 @@ export function PostcheckCard({
                         gridTemplateColumns: '18px 1fr auto',
                         gap: 6,
                         alignItems: 'center',
-                        padding: '7px 10px',
+                        padding: '9px 12px',
                         borderBottom:
                           idx < itemChecks.length - 1
                             ? '1px solid var(--bd)'
                             : 'none',
                         background: isFail ? 'var(--red-bg)' : '#fff',
-                        fontSize: 12,
+                        fontSize: 14,
                       }}
                     >
                       <span
@@ -129,7 +129,7 @@ export function PostcheckCard({
                             : isWarn
                               ? 'var(--yellow-fg)'
                               : 'var(--green-fg)',
-                          fontSize: 13,
+                          fontSize: 15,
                         }}
                       >
                         {isFail ? '✗' : isWarn ? '!' : '✓'}
@@ -138,6 +138,7 @@ export function PostcheckCard({
                         <div
                           style={{
                             fontWeight: 600,
+                            fontSize: 14,
                             color: isFail ? 'var(--red-fg)' : 'var(--tx)',
                           }}
                         >
@@ -146,7 +147,7 @@ export function PostcheckCard({
                         {item.message && (
                           <div
                             style={{
-                              fontSize: 11,
+                              fontSize: 13,
                               color: isFail ? 'var(--red-fg)' : 'var(--tx3)',
                               marginTop: 1,
                               lineHeight: 1.35,
@@ -159,7 +160,7 @@ export function PostcheckCard({
                       <span
                         style={{
                           fontWeight: 700,
-                          fontSize: 11.5,
+                          fontSize: 14,
                           color: isFail
                             ? 'var(--red-fg)'
                             : isWarn
@@ -178,8 +179,8 @@ export function PostcheckCard({
               <div
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(3, 1fr)',
-                  gap: 5,
+                  gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                  gap: 8,
                 }}
               >
                 {checks.map(([label, value]) => (
@@ -190,12 +191,12 @@ export function PostcheckCard({
                       justifyContent: 'space-between',
                       alignItems: 'center',
                       gap: 4,
-                      padding: '6px 8px',
+                      padding: '8px 10px',
                       borderRadius: 7,
                       border: '1px solid var(--bd)',
                       background:
                         value === false ? 'var(--red-bg)' : 'var(--sf2)',
-                      fontSize: 11.5,
+                      fontSize: 13.5,
                     }}
                   >
                     <span style={{ color: 'var(--tx3)' }}>{label}</span>
@@ -224,7 +225,7 @@ export function PostcheckCard({
                     ? 'var(--sf2)'
                     : 'var(--red-bg)',
                   color: postflight.overallOk ? 'var(--tx2)' : 'var(--red-fg)',
-                  fontSize: 12,
+                  fontSize: 14,
                   lineHeight: 1.45,
                 }}
               >
@@ -238,8 +239,8 @@ export function PostcheckCard({
             )}
           </>
         ) : (
-          <div style={{ color: 'var(--tx3)', fontSize: 12.5 }}>
-            Chưa có kết quả postcheck cho mission này.
+          <div style={{ color: 'var(--tx3)', fontSize: 14 }}>
+            Chưa có kết quả kiểm tra sau bay cho nhiệm vụ này.
           </div>
         )}
       </div>

@@ -17,12 +17,10 @@ export const confirmSubmitModalMessages = defineMessages({
     deliveryMethods: 'Cách nhận',
     retention: 'Thời hạn lưu trữ',
     retentionDays: (days: number) => `${days} ngày`,
-    aiAnalysis: 'Phân tích hình ảnh bằng AI',
-    aiYes: 'Có (tính thêm phí)',
     priceNotePending:
-      'Chi phí chưa gồm các nội dung bạn tự thêm đang chờ Manager báo giá; Manager sẽ gửi báo giá cuối cùng để bạn xác nhận.',
+      'Chi phí chưa gồm các nội dung bạn tự thêm đang chờ quản lý báo giá; quản lý sẽ gửi báo giá cuối cùng để bạn xác nhận.',
     priceNote:
-      'Đây là chi phí dự kiến. Manager sẽ xem xét và gửi báo giá cuối cùng để bạn xác nhận trước khi thanh toán.',
+      'Đây là chi phí dự kiến. Quản lý sẽ xem xét và gửi báo giá cuối cùng để bạn xác nhận trước khi thanh toán.',
     service: 'Dịch vụ',
     location: 'Địa điểm',
     dates: 'Ngày bay mong muốn',
@@ -54,8 +52,6 @@ export const confirmSubmitModalMessages = defineMessages({
     deliveryMethods: 'Delivery',
     retention: 'Data retention',
     retentionDays: (days: number) => `${days} days`,
-    aiAnalysis: 'AI image analysis',
-    aiYes: 'Yes (extra fee)',
     priceNotePending:
       'The cost excludes items you added that are awaiting a Manager quote; the Manager will send the final quote for you to confirm.',
     priceNote:

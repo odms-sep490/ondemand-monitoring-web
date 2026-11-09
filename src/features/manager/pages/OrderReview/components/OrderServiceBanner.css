@@ -179,3 +179,51 @@
     font-size: 21px;
   }
 }
+
+/* ---------- Dark theme: dark overlay over the image, light text ---------- */
+:root[data-theme='dark'] .odm-osb {
+  background-color: #0f1a33;
+  border-color: var(--mgr-border, #1f2c4d);
+  color: #e6ecfa;
+}
+
+:root[data-theme='dark'] .odm-osb-bg {
+  background:
+    linear-gradient(90deg, rgba(11, 18, 38, 0.92) 0%, rgba(11, 18, 38, 0.78) 50%, rgba(11, 18, 38, 0.6) 100%),
+    url('/images/order-banner.png') center / cover no-repeat,
+    linear-gradient(180deg, #14213f 0%, #0b1226 100%);
+}
+
+:root[data-theme='dark'] .odm-osb-eyebrow {
+  color: #93c5fd;
+}
+
+:root[data-theme='dark'] .odm-osb-title,
+:root[data-theme='dark'] .odm-osb-code {
+  color: #f1f5ff;
+}
+
+:root[data-theme='dark'] .odm-osb-desc {
+  color: #b8c4de;
+}
+
+:root[data-theme='dark'] .odm-osb-tag {
+  border-color: rgba(147, 197, 253, 0.35);
+  background: rgba(59, 130, 246, 0.18);
+  box-shadow: none;
+  color: #bfdbfe;
+}
+
+:root[data-theme='dark'] .odm-osb-step {
+  background: rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+}
+
+@media (max-width: 639px) {
+  :root[data-theme='dark'] .odm-osb-bg {
+    background:
+      linear-gradient(180deg, rgba(11, 18, 38, 0.9) 0%, rgba(11, 18, 38, 0.75) 100%),
+      url('/images/order-banner.png') center / cover no-repeat,
+      linear-gradient(180deg, #14213f 0%, #0b1226 100%);
+  }
+}

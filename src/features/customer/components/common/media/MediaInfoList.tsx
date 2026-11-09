@@ -1,3 +1,5 @@
+import { Descriptions } from 'antd'
+
 import { useI18n } from '../../../../../shared/i18n'
 import { fmtDateTime } from '../../../lib/orderStatus'
 import { formatBytes } from '../../../lib/media/mapMedia'
@@ -21,13 +23,13 @@ export function MediaInfoList({ item, missionLabel }: Props) {
     [t.device, item.deviceId ?? ui.unknown],
   ]
   return (
-    <dl className="md-info">
-      {rows.map(([label, value]) => (
-        <div key={label}>
-          <dt>{label}</dt>
-          <dd>{value}</dd>
-        </div>
-      ))}
-    </dl>
+    <Descriptions
+      className="md-info"
+      size="small"
+      column={{ xs: 1, sm: 2 }}
+      layout="vertical"
+      colon={false}
+      items={rows.map(([label, value]) => ({ key: label, label, children: value }))}
+    />
   )
 }

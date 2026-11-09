@@ -1,3 +1,4 @@
+import { CloseOutlined, EditOutlined } from '@ant-design/icons'
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { missionsApi } from '../../api/missionsApi'
 import { customerApi } from '../../../customer/api/customerApi'
@@ -7,6 +8,8 @@ import { missionCreatePageMessages } from '../../pages/MissionCreate/MissionCrea
 import { orderReviewPageMessages } from '../../pages/OrderReview/OrderReviewPage.messages'
 import { humanizeMediaRequirement } from './format'
 import { OrderIcon } from './OrderIcon'
+import { missionUpdatePanelMessages } from './MissionUpdatePanel.messages'
+import './MissionGridCard.css'
 import {
   dateRangeFromBrief,
   forecastTimeFromBrief,
@@ -19,10 +22,17 @@ import { WeatherForecastCard } from '../../pages/MissionCreate/components/Weathe
 import { FlightScheduleCard } from '../../pages/MissionCreate/components/FlightScheduleCard'
 import { OrderSummaryCard } from '../../pages/MissionCreate/components/OrderSummaryCard'
 import { MissionChecklistSelectionCard } from '../../pages/MissionCreate/components/MissionChecklistSelectionCard'
-import type { OrderChecklistSnapshot, OrderDetail, OrderMissionBrief } from '../../types/orders'
+import type {
+  OrderChecklistSnapshot,
+  OrderDetail,
+  OrderMissionBrief,
+} from '../../types/orders'
 import type { ExecutionPlan } from '../../types/planning'
 import type { MissionResponse } from '../../types/missions'
-import type { ForecastRow, SubmitState } from '../../pages/MissionCreate/createMissionTypes'
+import type {
+  ForecastRow,
+  SubmitState,
+} from '../../pages/MissionCreate/createMissionTypes'
 
 function parseToLocal(iso?: string | null): string {
   if (!iso) return ''
@@ -55,6 +65,8 @@ export function MissionUpdatePanel({
 }: MissionUpdatePanelProps) {
   const { t } = useI18n(missionCreatePageMessages)
   const { t: reviewT } = useI18n(orderReviewPageMessages)
+  const { t: tu } = useI18n(missionUpdatePanelMessages)
+  const rework = mission.purpose === 'REWORK'
   const localizeMediaLabel = (label: string) =>
     humanizeMediaRequirement(label, reviewT)
 
@@ -118,7 +130,9 @@ export function MissionUpdatePanel({
       const d = new Date(mission.scheduledStartAt)
       if (!Number.isNaN(d.getTime())) {
         const p = (n: number) => String(n).padStart(2, '0')
-        setWeatherCheckDate(`${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`)
+        setWeatherCheckDate(
+          `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`,
+        )
         setWeatherCheckTime(`${p(d.getHours())}:${p(d.getMinutes())}`)
       }
     } else {
@@ -127,7 +141,12 @@ export function MissionUpdatePanel({
       setWeatherCheckTime(forecastTimeFromBrief(brief))
     }
     setSubmit({ kind: 'idle' })
-  }, [mission.scheduledStartAt, mission.scheduledEndAt, initialAssignedIds, brief])
+  }, [
+    mission.scheduledStartAt,
+    mission.scheduledEndAt,
+    initialAssignedIds,
+    brief,
+  ])
 
   // Sync initial data when modal opens
   useEffect(() => {
@@ -181,14 +200,27 @@ export function MissionUpdatePanel({
         if (cancelled) return
         setForecastRows([
           forecast.status === 'AVAILABLE'
-            ? { date: weatherCheckDate, label: formatDateLabel(weatherCheckDate), status: 'ready', forecast }
-            : { date: weatherCheckDate, label: formatDateLabel(weatherCheckDate), status: 'unavailable' },
+            ? {
+                date: weatherCheckDate,
+                label: formatDateLabel(weatherCheckDate),
+                status: 'ready',
+                forecast,
+              }
+            : {
+                date: weatherCheckDate,
+                label: formatDateLabel(weatherCheckDate),
+                status: 'unavailable',
+              },
         ])
       })
       .catch(() => {
         if (cancelled) return
         setForecastRows([
-          { date: weatherCheckDate, label: formatDateLabel(weatherCheckDate), status: 'error' },
+          {
+            date: weatherCheckDate,
+            label: formatDateLabel(weatherCheckDate),
+            status: 'error',
+          },
         ])
       })
     return () => {
@@ -214,11 +246,11 @@ export function MissionUpdatePanel({
 
   const handleSelectUncoveredChecklist = () => {
     const uncoveredIds = plan.coverage.uncoveredItemIds ?? []
-    const combined = Array.from(new Set([...initialAssignedIds, ...uncoveredIds]))
+    const combined = Array.from(
+      new Set([...initialAssignedIds, ...uncoveredIds]),
+    )
     setSelected(
-      combined.length > 0
-        ? combined
-        : orderChecklistItems.map((i) => i.id),
+      combined.length > 0 ? combined : orderChecklistItems.map((i) => i.id),
     )
     if (submit.kind === 'validationFailed') {
       setSubmit({ kind: 'idle' })
@@ -258,7 +290,7 @@ export function MissionUpdatePanel({
     if (orderChecklistItems.length > 0 && selected.length === 0) {
       setSubmit({
         kind: 'validationFailed',
-        message: 'Vui lòng chọn ít nhất một hạng mục checklist cho Mission.',
+        message: tu.needChecklist,
       })
       return
     }
@@ -267,7 +299,7 @@ export function MissionUpdatePanel({
       await missionsApi.updateMission(mission.id, {
         scheduledStartAt: s.toISOString(),
         scheduledEndAt: e.toISOString(),
-        checklistIds: selected,
+        ...(rework ? {} : { checklistIds: selected }),
       })
       closeForm()
       onUpdated()
@@ -297,9 +329,9 @@ export function MissionUpdatePanel({
           className="odm-btn odm-btn-sm"
           disabled={disabled}
           onClick={openForm}
-          title={`Chỉnh sửa Mission ${mission.missionCode ?? ''}`}
+          title={tu.editTitle(mission.missionCode ?? '')}
         >
-          ✎ Chỉnh sửa
+          <EditOutlined aria-hidden="true" /> {tu.edit}
         </button>
       )}
 
@@ -313,7 +345,7 @@ export function MissionUpdatePanel({
           }}
           role="dialog"
           aria-modal="true"
-          aria-label={`Chỉnh sửa Mission ${mission.missionCode ?? ''}`}
+          aria-label={tu.editTitle(mission.missionCode ?? '')}
         >
           <div
             className="odm-planning-modal-dialog"
@@ -321,22 +353,20 @@ export function MissionUpdatePanel({
           >
             <header className="odm-planning-create-head">
               <span className="odm-planning-create-icon" aria-hidden="true">
-                ✎
+                <EditOutlined />
               </span>
               <div>
-                <h3>Chỉnh sửa Mission {mission.missionCode}</h3>
-                <p>
-                  Kiểm tra thời tiết, chọn lịch bay và phân bổ checklist cho nhiệm vụ.
-                </p>
+                <h3>{tu.heading(mission.missionCode ?? '')}</h3>
+                <p>{tu.subtitle}</p>
               </div>
               <button
                 className="odm-planning-create-close"
                 type="button"
-                aria-label="Đóng form chỉnh sửa Mission"
-                title="Đóng form"
+                aria-label={tu.closeAria}
+                title={tu.closeTitle}
                 onClick={closeForm}
               >
-                ×
+                <CloseOutlined aria-hidden="true" />
               </button>
             </header>
 
@@ -344,23 +374,27 @@ export function MissionUpdatePanel({
               <div className="odm-or odm-plan-page is-embedded">
                 <section
                   className="odm-or-card odm-plan-create"
-                  aria-label="Mission planning context"
+                  aria-label={tu.contextAria}
                 >
                   <div className="odm-plan-create-body">
                     <div className="odm-plan-create-grid">
                       <div className="odm-plan-form">
-                        <h3>Phạm vi công việc của Mission</h3>
+                        <h3>{tu.scopeHeading}</h3>
                         <p className="odm-plan-description">
-                          Đang cập nhật lịch thực hiện và danh sách checklist phân bổ cho nhiệm vụ này.
+                          {tu.scopeDescription}
                         </p>
                         <div className="odm-or-field">
                           <span className="odm-or-field-label">
-                            Mô tả phạm vi công việc
+                            {tu.scopeFieldLabel}
                           </span>
                           <input
                             className="odm-or-input"
                             readOnly
-                            value={mission.scopeLabel || mission.orderTitle || 'Toàn bộ phạm vi của đơn hàng'}
+                            value={
+                              mission.scopeLabel ||
+                              mission.orderTitle ||
+                              tu.scopeFallback
+                            }
                           />
                         </div>
                       </div>
@@ -370,12 +404,25 @@ export function MissionUpdatePanel({
                       >
                         <h3 id="mission-geography-title">
                           <OrderIcon name="info" size={18} />
-                          Thông tin kế hoạch
+                          {tu.planInfo}
                         </h3>
                         <ul>
-                          <li>Mã đơn hàng: <strong>{brief.code}</strong></li>
-                          <li>Trạng thái kế hoạch: <strong>{plan.planStatus} (Phiên bản #{plan.revision})</strong></li>
-                          <li>Vị trí: <strong>{brief.addressText || 'Theo đơn hàng'}</strong></li>
+                          <li>
+                            {tu.orderCode} <strong>{brief.code}</strong>
+                          </li>
+                          <li>
+                            {tu.planStatus}{' '}
+                            <strong>
+                              {plan.planStatus} ({tu.planVersion(plan.revision)}
+                              )
+                            </strong>
+                          </li>
+                          <li>
+                            {tu.location}{' '}
+                            <strong>
+                              {brief.addressText || tu.locationFallback}
+                            </strong>
+                          </li>
                         </ul>
                       </aside>
                     </div>
@@ -384,7 +431,8 @@ export function MissionUpdatePanel({
 
                 <div className="odm-or-grid">
                   <div className="odm-or-col">
-                    <CustomerTimeWindowCard brief={brief} />
+                    {!rework && <CustomerTimeWindowCard brief={brief} />}
+                    {rework && <section className="odm-or-card odm-plan-window"><div className="odm-or-card-body">{t.reworkScheduleHelp}</div></section>}
 
                     <WeatherForecastCard
                       onCreated={() => {}}
@@ -399,17 +447,22 @@ export function MissionUpdatePanel({
 
                     <FlightScheduleCard
                       durationText={durationText}
-                      forecastRows={forecastRows}
+                      canFillFromCustomer={!rework && Boolean(
+                        dateRangeFromBrief(brief)[0],
+                      )}
                       fillFromCustomer={fillFromCustomer}
                       scheduledStart={scheduledStart}
                       setScheduledStart={setScheduledStart}
                       scheduledEnd={scheduledEnd}
                       setScheduledEnd={setScheduledEnd}
                       submit={submit}
-                      scopeLabel={mission.scopeLabel || mission.missionCode || ''}
+                      scopeLabel={
+                        mission.scopeLabel || mission.missionCode || ''
+                      }
                     />
 
                     <MissionChecklistSelectionCard
+                      disabled={rework}
                       items={orderChecklistItems}
                       plan={plan}
                       selectedIds={selected}
@@ -418,7 +471,8 @@ export function MissionUpdatePanel({
                       onSelectUncovered={handleSelectUncoveredChecklist}
                       onDeselectAll={handleDeselectAllChecklist}
                       error={
-                        submit.kind === 'validationFailed' && selected.length === 0
+                        submit.kind === 'validationFailed' &&
+                        selected.length === 0
                           ? submit.message
                           : undefined
                       }
@@ -441,9 +495,11 @@ export function MissionUpdatePanel({
                     </span>
                     <span>
                       {submit.kind === 'validationFailed' ? (
-                        <strong style={{ color: '#dc2626' }}>{submit.message}</strong>
+                        <strong className="odm-mcard-error-text">
+                          {submit.message}
+                        </strong>
                       ) : (
-                        'Kiểm tra lại lịch bay và phân bổ checklist trước khi lưu thay đổi.'
+                        tu.actionHint
                       )}
                     </span>
                   </div>
@@ -454,7 +510,7 @@ export function MissionUpdatePanel({
                       disabled={submitting}
                       onClick={closeForm}
                     >
-                      Hủy
+                      {tu.cancel}
                     </button>
                     <button
                       type="button"
@@ -462,7 +518,7 @@ export function MissionUpdatePanel({
                       disabled={submitting}
                       onClick={() => void handleSubmit()}
                     >
-                      {submitting ? 'Đang lưu…' : 'Lưu thay đổi'}
+                      {submitting ? tu.saving : tu.save}
                       <OrderIcon name="chevron-right" size={16} />
                     </button>
                   </div>
@@ -475,4 +531,3 @@ export function MissionUpdatePanel({
     </>
   )
 }
-

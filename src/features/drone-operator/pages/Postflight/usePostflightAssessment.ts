@@ -52,6 +52,7 @@ export function usePostflightAssessment({
       overallOk: boolean
       ticketCreated: boolean
       droneStatus: string
+      failed?: boolean
     } | null>
   >
   setTicketSubmitting: Dispatch<SetStateAction<boolean>>
@@ -89,10 +90,14 @@ export function usePostflightAssessment({
     setError(null)
 
     try {
-      if (activeData?.status === 'RETURNING') {
-        await missionApi.startPostflight(effectiveMissionId).catch(() => {
-          // Proceed if already in postflight checking state
-        })
+      const mainDeviceStatus = activeData?.deviceAssignments?.find(
+        (assignment) => assignment.deviceRole === 'MAIN',
+      )?.status
+      if (
+        mainDeviceStatus === 'RETURNING' ||
+        activeData?.status === 'RETURNING'
+      ) {
+        await missionApi.startPostflight(effectiveMissionId)
       }
 
       const getResult = (key: PostflightItemKey): 'PASS' | 'FAIL' =>
@@ -132,12 +137,23 @@ export function usePostflightAssessment({
       await flightControlApi.releaseSession(effectiveMissionId).catch(() => {
         // Controller may be offline after landing; local cleanup still allows the operator flow to reset.
       })
+      const latestMission = await missionApi
+        .getMissionById(effectiveMissionId)
+        .catch(() => activeData)
+      const failureReason = latestMission?.failureRequestedAt
+        ? latestMission.failureReason?.trim() ||
+          'Phát sinh rủi ro trong lúc thực hiện'
+        : null
+      if (failureReason) {
+        await missionApi.failMission(effectiveMissionId, failureReason)
+      }
       clearCompletedMissionState(effectiveMissionId, missionLabel, deviceId)
 
       setCompleted({
-        overallOk: !hasFailures,
+        overallOk: !hasFailures && !failureReason,
         ticketCreated: hasFailures,
         droneStatus: targetDroneStatus,
+        failed: Boolean(failureReason),
       })
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : t.saveFailed)

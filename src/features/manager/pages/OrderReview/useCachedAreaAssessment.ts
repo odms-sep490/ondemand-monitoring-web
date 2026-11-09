@@ -2,47 +2,19 @@ import {
   type FlightAreaAssessment,
   customerApi,
 } from '../../../customer/api/customerApi'
+import type { ManagerAreaAssessment } from './areaTypes'
 import { useState, useRef, useCallback, useEffect } from 'react'
 
-export const assessmentCache = new Map<string, FlightAreaAssessment>()
+export const assessmentCache = new Map<string, ManagerAreaAssessment>()
 
 function normalizeAreaAssessment(
   result: FlightAreaAssessment,
-): FlightAreaAssessment {
-  const ministry = result.ministryFlightBan?.available
-    ? result.ministryFlightBan
-    : undefined
-  const hasMinistryConflict = Boolean(
-    ministry &&
-    (ministry.violatedZones.length > 0 ||
-      (ministry.violatedAreaSquareMeters ?? 0) > 0),
-  )
-
+): ManagerAreaAssessment {
   return {
     location: result.location,
-    elevation: result.elevation ?? { available: false },
-    restrictedZones: result.restrictedZones ?? {
-      dataAvailable: false,
-      pointInsideRestrictedZone: false,
-      monitoringAreaIntersectsRestrictedZone: false,
-      affectedZones: [],
-    },
-    osmContext: result.osmContext ?? {
-      available: false,
-      buildingCount: 0,
-      towerCount: 0,
-      mastCount: 0,
-      powerTowerCount: 0,
-      aerodromeNearby: false,
-      helipadNearby: false,
-      importantFeatures: [],
-    },
-    ministryFlightBan: ministry,
-    assessment: result.assessment ?? {
-      level: hasMinistryConflict ? 'HIGH_RISK' : 'NEEDS_REVIEW',
-      findings: [],
-      disclaimer: '',
-    },
+    ministryFlightBan: result.ministryFlightBan?.available
+      ? result.ministryFlightBan
+      : undefined,
   }
 }
 
@@ -62,7 +34,7 @@ export function useCachedAreaAssessment({
       ? null
       : `${latitude}:${longitude}:${radiusM}:${altitudeM ?? ''}`
   const cached = cacheKey ? assessmentCache.get(cacheKey) : undefined
-  const [data, setData] = useState<FlightAreaAssessment | null | undefined>(
+  const [data, setData] = useState<ManagerAreaAssessment | null | undefined>(
     cached,
   )
   const [error, setError] = useState<unknown>()

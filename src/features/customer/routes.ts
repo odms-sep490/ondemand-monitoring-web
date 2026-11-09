@@ -13,7 +13,6 @@ export type CustomerRoute =
   | { screen: 'mediaLibrary' }
   | { screen: 'mediaDetail'; mediaId: string }
   | { screen: 'media'; orderId: string }
-  | { screen: 'notifications' }
   | { screen: 'notFound' }
 
 export type CustomerScreen = CustomerRoute['screen']
@@ -56,7 +55,9 @@ export function parseCustomerRoute(hash: string): CustomerRoute {
       return { screen: 'notFound' }
     }
     case 'notifications':
-      return { screen: 'notifications' }
+      return tail.length === 0
+        ? { screen: 'mediaLibrary' }
+        : { screen: 'notFound' }
     default:
       return { screen: 'notFound' }
   }
@@ -88,8 +89,6 @@ export function customerHref(route: CustomerRoute): string {
       return `${CUSTOMER_ROOT}/media/${route.mediaId}`
     case 'media':
       return `${CUSTOMER_ROOT}/orders/${route.orderId}/media`
-    case 'notifications':
-      return `${CUSTOMER_ROOT}/notifications`
     case 'notFound':
       return CUSTOMER_ROOT
   }

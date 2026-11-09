@@ -1,22 +1,19 @@
 import { copy } from './cockpitCopy'
 import { Ico } from './CockpitIcon'
-import type { Dispatch, SetStateAction, ReactNode } from 'react'
-import type { CockpitLayout } from './cockpitTypes'
+import type { ReactNode } from 'react'
 
 export function CockpitCameraPanel({
   c,
   batteryTone,
   battery,
-  setLayout,
-  layout,
   camera,
+  statusMessage,
 }: {
   c: (typeof copy)['vi' | 'en']
   batteryTone: 'ok' | 'low' | 'mid'
   battery: number | null
-  setLayout: Dispatch<SetStateAction<CockpitLayout>>
-  layout: CockpitLayout
   camera: ReactNode
+  statusMessage: string
 }) {
   return (
     <section className="fc-panel fc-camera">
@@ -30,18 +27,16 @@ export function CockpitCameraPanel({
             <Ico name="battery" size={14} />{' '}
             {battery === null ? '--' : `${Math.round(battery)}%`}
           </span>
-          <button
-            type="button"
-            className="fc-icon-btn is-sm"
-            onClick={() => setLayout(layout === 'camera' ? 'split' : 'camera')}
-            aria-label={layout === 'camera' ? c.shrink : c.enlarge}
-            title={layout === 'camera' ? c.shrink : c.enlarge}
-          >
-            <Ico name="expand" size={15} />
-          </button>
         </span>
       </header>
-      <div className="fc-camera__body">{camera}</div>
+      <div className="fc-camera__body">
+        {camera}
+        {statusMessage ? (
+          <div className="fc-command-feedback" role="status">
+            {statusMessage}
+          </div>
+        ) : null}
+      </div>
     </section>
   )
 }

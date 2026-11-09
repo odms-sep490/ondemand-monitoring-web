@@ -1,3 +1,4 @@
+import { Button } from 'antd'
 import { formatVnd } from '../../../../shared/lib/formatVnd'
 import type { Payment } from '../../types'
 
@@ -63,26 +64,14 @@ export function PaymentResultCard({
       ) : null}
       <div className="payment-result-actions">
         {!success && !checking ? (
-          <button
-            className="odm-btn odm-btn-p"
-            type="button"
-            onClick={() => void check()}
-          >
+          <Button type="primary" onClick={() => void check()}>
             Làm mới trạng thái
-          </button>
+          </Button>
         ) : null}
         {cancelled && payment && !success ? (
-          <button
-            className="odm-btn"
-            type="button"
-            onClick={() => void retryPayment()}
-          >
-            Thử lại
-          </button>
+          <Button onClick={() => void retryPayment()}>Thử lại</Button>
         ) : null}
-        <a className="odm-btn" href="#portal/customer/orders">
-          Về danh sách đơn
-        </a>
+        <Button href="#portal/customer/orders">Về danh sách đơn</Button>
       </div>
     </section>
   )

@@ -1,3 +1,4 @@
+import { ArrowLeftOutlined, ArrowRightOutlined } from '@ant-design/icons'
 import type { ReactNode } from 'react'
 
 import { useI18n } from '../../../../shared/i18n'
@@ -15,6 +16,7 @@ import {
 } from './workflowModel'
 import { workflowStepperMessages } from './WorkflowStepper.messages'
 import '../../manager.css'
+import { Button } from '../../../../shared/components/ui'
 
 export type WorkflowOrderLayer = {
   progress: OrderProgress
@@ -41,6 +43,10 @@ export type WorkflowMissionLayer = {
   viewing?: MissionStage | null
 }
 
+type DisplayStage =
+  | { kind: 'order'; stage: OrderStage }
+  | { kind: 'mission'; stage: MissionStage }
+
 function StateIcon({ state, number }: { state: StageState; number: number }) {
   if (state === 'done') return <OrderIcon name="check" size={15} />
   if (state === 'waiting') return <OrderIcon name="clock" size={15} />
@@ -49,19 +55,21 @@ function StateIcon({ state, number }: { state: StageState; number: number }) {
 }
 
 /**
- * Two-level workflow header. The Order level is one row; the Mission level is a
- * separate row with its own "Mission x / y" context. They are never joined into
- * a single numbered line.
+ * Order and Mission progress can be shown as separate rows or as one numbered
+ * sequence when a page needs a single end-to-end workflow.
  */
 export function WorkflowStepper({
   order,
   mission,
   compactOrder = false,
+  combineMissionSteps = false,
 }: {
   order: WorkflowOrderLayer
   mission?: WorkflowMissionLayer
   /** When the Order phase is complete, show it as one slim line instead of five finished steps. */
   compactOrder?: boolean
+  /** Append the Mission permit and execution stages as steps 6 and 7. */
+  combineMissionSteps?: boolean
 }) {
   const { t } = useI18n(workflowStepperMessages)
   const { progress } = order
@@ -84,31 +92,73 @@ export function WorkflowStepper({
 
   const collapseOrder =
     compactOrder && progress.current === 'complete' && !progress.terminal
+  const combined = combineMissionSteps
+  const displayStages: DisplayStage[] = [
+    ...ORDER_STAGES.map((stage) => ({ kind: 'order' as const, stage })),
+    ...(combined
+      ? MISSION_PLANNING_STAGES.map((stage) => ({
+          kind: 'mission' as const,
+          stage,
+        }))
+      : []),
+  ]
   return (
-    <nav className="odm-or-card odm-wf" aria-label={t.ariaLabel}>
+    <nav
+      className={`odm-or-card odm-wf${combined ? ' is-combined' : ''}`}
+      aria-label={combined ? t.combinedLayer : t.ariaLabel}
+    >
       <section
         className={`odm-wf-layer${collapseOrder ? ' is-collapsed' : ''}`}
-        aria-label={t.orderLayer}
+        aria-label={combined ? t.combinedLayer : t.orderLayer}
       >
-        <header className="odm-wf-head">
-          <span className="odm-wf-eyebrow">{t.orderLayer}</span>
-          {order.statusLabel || orderNote ? (
-            <span className={`odm-wf-chip ${orderTone}`}>
-              {progress.waiting ? <OrderIcon name="clock" size={13} /> : null}
-              {order.statusLabel ?? orderNote}
-            </span>
-          ) : null}
-        </header>
+        {!combined ? (
+          <header className="odm-wf-head">
+            <span className="odm-wf-eyebrow">{t.orderLayer}</span>
+            {order.statusLabel || orderNote ? (
+              <span className={`odm-wf-chip ${orderTone}`}>
+                {progress.waiting ? <OrderIcon name="clock" size={13} /> : null}
+                {order.statusLabel ?? orderNote}
+              </span>
+            ) : null}
+          </header>
+        ) : null}
         <ol className="odm-wf-steps" hidden={collapseOrder}>
-          {ORDER_STAGES.map((stage, index) => {
-            const state = orderStageState(stage, progress)
-            const copy = t.orderStages[stage]
-            const viewing = order.viewing === stage
-            const clickable =
-              Boolean(order.onSelect) &&
-              (order.selectable
-                ? order.selectable(stage, state)
-                : state === 'done')
+          {displayStages.map((item, index) => {
+            const isOrderStage = item.kind === 'order'
+            const stage = item.stage
+            const missionStageAvailable =
+              progress.current === 'complete' && !progress.terminal
+            const state: StageState = isOrderStage
+              ? orderStageState(stage as OrderStage, progress)
+              : progress.terminal
+                ? 'blocked'
+                : missionStageAvailable && mission?.progress
+                  ? missionStageState(stage as MissionStage, mission.progress)
+                  : 'upcoming'
+            const copy = isOrderStage
+              ? t.orderStages[stage as OrderStage]
+              : t.missionStages[stage as MissionStage]
+            const viewing = isOrderStage
+              ? order.viewing === stage
+              : mission?.viewing === stage
+            const clickable = isOrderStage
+              ? Boolean(
+                  order.onSelect &&
+                  (order.selectable
+                    ? order.selectable(stage as OrderStage, state)
+                    : state === 'done'),
+                )
+              : Boolean(
+                  missionStageAvailable &&
+                  mission?.onSelect &&
+                  (mission.selectable
+                    ? mission.selectable(stage as MissionStage, state)
+                    : state === 'current' || state === 'done'),
+                )
+            const selectStage = () => {
+              if (isOrderStage) order.onSelect?.(stage as OrderStage)
+              else mission?.onSelect?.(stage as MissionStage)
+            }
             const body = (
               <>
                 <span className="odm-wf-dot">
@@ -128,7 +178,7 @@ export function WorkflowStepper({
             )
             return (
               <li
-                key={stage}
+                key={`${item.kind}-${stage}`}
                 className={`odm-wf-step is-${state}${viewing ? ' is-viewing' : ''}`}
               >
                 {clickable ? (
@@ -139,7 +189,7 @@ export function WorkflowStepper({
                     aria-current={
                       viewing || state === 'current' ? 'step' : undefined
                     }
-                    onClick={() => order.onSelect?.(stage)}
+                    onClick={selectStage}
                   >
                     {body}
                   </button>
@@ -165,9 +215,10 @@ export function WorkflowStepper({
             {t.waitingDepositNote}
           </p>
         ) : null}
+        {combined ? mission?.detail : null}
       </section>
 
-      {mission ? (
+      {mission && !combined ? (
         <section
           className="odm-wf-layer is-mission"
           aria-label={t.missionLayer}
@@ -189,22 +240,20 @@ export function WorkflowStepper({
             ) : null}
             {mission.onPrev || mission.onNext ? (
               <span className="odm-wf-pager">
-                <button
+                <Button
                   type="button"
-                  className="odm-btn"
                   disabled={!mission.onPrev}
                   onClick={mission.onPrev}
                 >
-                  ← {t.missionPrev}
-                </button>
-                <button
+                  <ArrowLeftOutlined aria-hidden="true" /> {t.missionPrev}
+                </Button>
+                <Button
                   type="button"
-                  className="odm-btn"
                   disabled={!mission.onNext}
                   onClick={mission.onNext}
                 >
-                  {t.missionNext} →
-                </button>
+                  {t.missionNext} <ArrowRightOutlined aria-hidden="true" />
+                </Button>
               </span>
             ) : null}
           </header>
@@ -216,9 +265,9 @@ export function WorkflowStepper({
               const copy = t.missionStages[stage]
               const clickable = Boolean(
                 mission.onSelect &&
-                  (mission.selectable
-                    ? mission.selectable(stage, state)
-                    : state === 'current' || state === 'done'),
+                (mission.selectable
+                  ? mission.selectable(stage, state)
+                  : state === 'current' || state === 'done'),
               )
               const body = (
                 <>
@@ -244,7 +293,9 @@ export function WorkflowStepper({
                       type="button"
                       className="odm-wf-btn"
                       title={copy.label}
-                      aria-current={isViewing || state === 'current' ? 'step' : undefined}
+                      aria-current={
+                        isViewing || state === 'current' ? 'step' : undefined
+                      }
                       onClick={() => mission.onSelect?.(stage)}
                     >
                       {body}

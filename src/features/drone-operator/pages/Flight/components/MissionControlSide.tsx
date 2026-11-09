@@ -10,11 +10,13 @@ export function MissionControlSide({
   lidarDetailsOpen,
   progress,
   mission,
+  view = 'overview',
 }: {
   controlStatus: ControlStatus | null
   lidarDetailsOpen: boolean
   progress: number
   mission: Mission
+  view?: 'overview' | 'minimap'
 }) {
   return (
     <aside
@@ -35,13 +37,17 @@ export function MissionControlSide({
         scrollbarGutter: 'stable',
       }}
     >
-      <TelemetryPanel status={controlStatus} />
-      {lidarDetailsOpen && <LidarDetailPanel status={controlStatus} />}
-      <MissionInfoPanel
-        status={controlStatus}
-        progress={progress}
-        mission={mission}
-      />
+      {view === 'overview' && (
+        <>
+          <TelemetryPanel status={controlStatus} />
+          {lidarDetailsOpen && <LidarDetailPanel status={controlStatus} />}
+          <MissionInfoPanel
+            status={controlStatus}
+            progress={progress}
+            mission={mission}
+          />
+        </>
+      )}
       <RealMiniMap status={controlStatus} mission={mission} />
     </aside>
   )

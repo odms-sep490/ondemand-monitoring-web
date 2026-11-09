@@ -1,3 +1,5 @@
+import { getLanguage } from '../i18n'
+
 const descriptions: Record<string, string> = {
   'Default pricing policy': 'Chính sách giá mặc định',
   'Distance up to 5 km': 'Quãng đường đến 5 km',
@@ -24,7 +26,6 @@ const descriptions: Record<string, string> = {
   '4K video per requested clip': 'Mỗi video 4K theo yêu cầu',
   'Thermal output': 'Dữ liệu ảnh nhiệt',
   'Multispectral output': 'Dữ liệu đa phổ',
-  'AI analysis report': 'Báo cáo phân tích bằng AI',
   'Base custom operation assessment': 'Chi phí cơ sở cho công việc tùy chỉnh',
   'Custom work assessment': 'Đánh giá công việc tùy chỉnh',
   'Pilot resource': 'Nhân sự điều khiển',
@@ -103,7 +104,6 @@ const labels: Record<string, string> = {
   '4K_VIDEO': 'Video 4K',
   THERMAL: 'Ảnh nhiệt',
   MULTISPECTRAL: 'Ảnh đa phổ',
-  AI_REPORT: 'Báo cáo phân tích AI',
   CUSTOM_BASE: 'Chi phí cơ sở',
   PILOT: 'Nhân sự điều khiển',
   DRONE: 'Thiết bị bay',
@@ -122,7 +122,16 @@ export function pricingLabel(value: string | null | undefined) {
   return labels[value] ?? value.replaceAll('_', ' ').toLocaleLowerCase('vi-VN')
 }
 
+/** English display text for engine descriptions; unknown English text passes through. */
+const descriptionsEn: Record<string, string> = {
+  'Video theo yêu cầu': 'Requested video output',
+}
+
 export function pricingDescription(value: string | null | undefined) {
+  if (getLanguage() === 'en') {
+    if (!value) return 'Pricing item'
+    return descriptionsEn[value] ?? value
+  }
   if (!value) return 'Nội dung tính giá'
   return descriptions[value] ?? value
 }

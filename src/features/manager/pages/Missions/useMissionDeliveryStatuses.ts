@@ -10,16 +10,12 @@ export function useMissionDeliveryStatuses({
   missions,
   setOrderDeliveryStatuses,
   setDeliveryStatuses,
-  missionId,
-  setSelectedMission,
 }: {
   missions: MissionCalendarItem[]
   setOrderDeliveryStatuses: Dispatch<
     SetStateAction<Record<string, WorkflowDeliveryStatus>>
   >
   setDeliveryStatuses: Dispatch<SetStateAction<Record<string, DeliveryStatus>>>
-  missionId: string | undefined
-  setSelectedMission: Dispatch<SetStateAction<string | null>>
 }) {
   useEffect(() => {
     let cancelled = false
@@ -48,7 +44,10 @@ export function useMissionDeliveryStatuses({
 
   useEffect(() => {
     const completed = missions.filter(
-      (mission) => mission.status === 'COMPLETED',
+      (mission) =>
+        mission.status === 'COMPLETED' ||
+        mission.status === 'AWAITING_REVIEW' ||
+        mission.status === 'PENDING_REVIEW',
     )
     if (completed.length === 0) {
       setDeliveryStatuses({})
@@ -95,10 +94,4 @@ export function useMissionDeliveryStatuses({
       cancelled = true
     }
   }, [missions])
-
-  useEffect(() => {
-    if (missionId && missions.length > 0) {
-      setSelectedMission(missionId)
-    }
-  }, [missionId, missions])
 }

@@ -27,10 +27,8 @@ export function DispatchReviewStep({
           {t.readyToAssign}
         </span>
       </header>
-      <div className="odm-or-card-body" style={{ display: 'grid', gap: 16 }}>
-        <p className="odm-or-muted" style={{ margin: 0 }}>
-          {t.confirmBody}
-        </p>
+      <div className="odm-or-card-body mgr-stack">
+        <p className="odm-or-muted mgr-flush">{t.confirmBody}</p>
         <dl className="odm-or-summary-list">
           <div>
             <dt>

@@ -2,8 +2,12 @@
 // etc) for every test file, per vite.config.ts `test.setupFiles`.
 import '@testing-library/jest-dom/vitest'
 
-import { cleanup } from '@testing-library/react'
+import { cleanup, configure } from '@testing-library/react'
 import { afterEach } from 'vitest'
+
+// findBy*/waitFor default to 1s, which flakes when the full suite runs in
+// parallel on a busy CI runner. Give async queries more headroom.
+configure({ asyncUtilTimeout: 5000 })
 
 import { setLanguage } from '../shared/i18n/languageStore'
 
@@ -35,5 +39,20 @@ if (typeof window !== 'undefined' && !window.matchMedia) {
     addEventListener: () => {},
     removeEventListener: () => {},
     dispatchEvent: () => false,
+  })
+}
+
+// jsdom does not implement ResizeObserver, which recharts' ResponsiveContainer
+// (and some antd internals) rely on.
+if (typeof window !== 'undefined' && !('ResizeObserver' in window)) {
+  class ResizeObserverStub {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  }
+  Object.defineProperty(window, 'ResizeObserver', {
+    configurable: true,
+    writable: true,
+    value: ResizeObserverStub,
   })
 }

@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import type {
   Mission,
   PreflightCheck,
-  FlightToken,
   DeviceStatus,
 } from '../types/mission'
 import { missionApi } from '../api/missionApi'
@@ -12,15 +11,17 @@ import {
 } from '../components/MissionStatusBadge'
 import { PreflightDiagnosticCard } from '../components/PreflightDiagnosticCard'
 import { FlightTelemetryHUD } from '../components/FlightTelemetryHUD'
-import { PostflightModal } from '../components/PostflightModal'
 import { Button } from '../../../shared/components/Button'
 import { Icon } from '../../../shared/components/Icon'
 import { LanguageToggle } from '../../../shared/components/LanguageToggle'
 import { useI18n } from '../../../shared/i18n'
 import { operatorDashboardPageMessages } from './OperatorDashboardPage.messages'
+import type { MissionPermissions } from '../types/permissions'
+import { operatorHref } from '../../drone-operator/routes'
+import { flightControlApi } from '../../drone-operator/api/flightControlApi'
 
 const STEP_BY_STATUS: Record<string, number> = {
-  WAITING_CREW_CONFIRMATION: 1,
+  READY: 1,
   WAITING_OPERATOR_ACCEPTANCE: 1,
   SCHEDULED: 2,
   CONNECTED: 2,
@@ -32,6 +33,8 @@ const STEP_BY_STATUS: Record<string, number> = {
   IN_PROGRESS: 3,
   RETURNING: 3,
   POSTFLIGHT_CHECKING: 4,
+  AWAITING_REVIEW: 4,
+  PENDING_REVIEW: 4,
   COMPLETED: 4,
 }
 
@@ -106,6 +109,7 @@ function PlanMetric({ label, value }: { label: string; value: string }) {
 export function OperatorDashboardPage() {
   const { t, lang } = useI18n(operatorDashboardPageMessages)
   const [mission, setMission] = useState<Mission | null>(null)
+  const [permissions, setPermissions] = useState<MissionPermissions | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -113,12 +117,10 @@ export function OperatorDashboardPage() {
   const [preflightCheck, setPreflightCheck] = useState<PreflightCheck | null>(
     null,
   )
-  const [flightToken, setFlightToken] = useState<FlightToken | null>(null)
   const [isGcsConnected, setIsGcsConnected] = useState(false)
   const [isAccepting, setIsAccepting] = useState(false)
   const [isConnecting, setIsConnecting] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
-  const [isPostflightOpen, setIsPostflightOpen] = useState(false)
   const [rejectReason, setRejectReason] = useState('')
   const [showRejectModal, setShowRejectModal] = useState(false)
   const [showReplaceModal, setShowReplaceModal] = useState(false)
@@ -136,6 +138,10 @@ export function OperatorDashboardPage() {
       .getMissionById('M-001')
       .then((fetched) => {
         setMission(fetched)
+        void missionApi
+          .getPermissions(fetched.id)
+          .then(setPermissions)
+          .catch(() => setPermissions(null))
       })
       .catch((err) => {
         setError((err as Error).message)
@@ -239,14 +245,49 @@ export function OperatorDashboardPage() {
     )
   }
 
-  const currentStep = STEP_BY_STATUS[mission.status] ?? 1
+  const mainDeviceAssignment = mission.deviceAssignments?.find(
+    (assignment) => assignment.deviceRole === 'MAIN',
+  )
+  const deviceAssignmentStatus = mainDeviceAssignment?.status
+  const deviceReadyToFly = deviceAssignmentStatus === 'READY_TO_FLY'
+  const deviceReturningOrPostflight = [
+    'RETURNING',
+    'POSTFLIGHT_CHECKING',
+  ].includes(deviceAssignmentStatus ?? '')
+  const deviceConnected = [
+    'CONNECTED',
+    'CONNECTION_LOST',
+    'PREFLIGHT_CHECKING',
+    'READY_TO_FLY',
+    'FAILED',
+  ].includes(deviceAssignmentStatus ?? '')
+  const currentStep = [
+    'CONNECTED',
+    'PREFLIGHT_CHECKING',
+    'READY_TO_FLY',
+    'FAILED',
+  ].includes(deviceAssignmentStatus ?? '')
+    ? 2
+    : deviceReturningOrPostflight
+      ? 4
+      : (STEP_BY_STATUS[mission.status] ?? 1)
   const plan = mission.plan
   const planIsFeasible = plan?.feasibilityStatus === 'FEASIBLE'
   const canEnterPreflight =
-    (mission.status === 'SCHEDULED' ||
-      mission.status === 'CONNECTED' ||
-      mission.status === 'READY_TO_FLY') &&
+    (mission.status === 'PENDING_CONFIRMATION' || mission.status === 'READY') &&
+    permissions?.canOperatePayload === true &&
     planIsFeasible
+  const canHandoverControl =
+    mission.status === 'PENDING_CONFIRMATION' &&
+    permissions?.canOperatePayload === true &&
+    deviceReadyToFly
+  const canStartMission =
+    mission.status === 'READY' &&
+    deviceReadyToFly &&
+    permissions?.canStartMission === true
+  const gcsConnected =
+    deviceAssignmentStatus !== 'CONNECTION_LOST' &&
+    (isGcsConnected || deviceConnected)
 
   // ---------------------------------------------------------------------------
   // Flow 3 Pure Backend API Handlers (No Demo Fallbacks)
@@ -260,6 +301,9 @@ export function OperatorDashboardPage() {
         mission.operatorId || 'OP-001',
       )
       setMission(updated)
+      setPermissions(
+        await missionApi.getPermissions(updated.id).catch(() => null),
+      )
     } catch (err) {
       alert(`${t.apiAcceptError} ${(err as Error).message}`)
     } finally {
@@ -284,6 +328,8 @@ export function OperatorDashboardPage() {
   const handleConnectGcs = async () => {
     setIsConnecting(true)
     try {
+      if (!mission.deviceId) throw new Error(t.noDroneAssigned)
+      await flightControlApi.bindSession(mission.id, mission.deviceId)
       const updated = await missionApi.connectGcs(mission.id)
       setMission(updated)
       setIsGcsConnected(true)
@@ -300,17 +346,17 @@ export function OperatorDashboardPage() {
     try {
       const check = await missionApi.runPreflightCheck(
         mission.id,
-        mission.deviceCode || 'DRONE-01',
+        mission.deviceId || mission.droneId || 'DRONE-01',
       )
       setPreflightCheck(check)
 
       // Refresh mission state from backend
       const updated = await missionApi.getMissionById(mission.id)
       setMission(updated)
+      setPermissions(
+        await missionApi.getPermissions(updated.id).catch(() => null),
+      )
 
-      if (check.overallPassed && check.flightToken) {
-        setFlightToken(check.flightToken)
-      }
     } catch (err) {
       alert(`${t.apiPreflightError} ${(err as Error).message}`)
     } finally {
@@ -324,7 +370,6 @@ export function OperatorDashboardPage() {
       setMission(updated)
       setDeviceStatus('PREFLIGHT')
       setPreflightCheck(null)
-      setFlightToken(null)
       setShowReplaceModal(false)
     } catch (err) {
       alert(`${t.apiReplaceDroneError} ${(err as Error).message}`)
@@ -333,12 +378,12 @@ export function OperatorDashboardPage() {
 
   const handleStartMission = async () => {
     try {
-      const updated = await missionApi.startMission(
-        mission.id,
-        flightToken?.tokenValue,
-      )
+      const updated = await missionApi.startMission(mission.id)
       setMission(updated)
       setDeviceStatus('ACTIVE_MISSION')
+      setPermissions(
+        await missionApi.getPermissions(updated.id).catch(() => null),
+      )
     } catch (err) {
       alert(`${t.apiStartMissionError} ${(err as Error).message}`)
     }
@@ -369,20 +414,13 @@ export function OperatorDashboardPage() {
     }
   }
 
-  const handlePostflightSubmit = async (
-    status: DeviceStatus,
-    notes: string,
-  ) => {
+  const handleOpenPostflight = async () => {
     try {
-      const updated = await missionApi.postFlightStatus(
-        mission.id,
-        mission.deviceCode || 'DRONE-01',
-        status,
-        notes,
-      )
-      setMission(updated)
-      setDeviceStatus(status)
-      setIsPostflightOpen(false)
+      await missionApi.startPostflight(mission.id)
+      window.location.hash = operatorHref({
+        screen: 'postflight',
+        missionId: mission.id,
+      })
     } catch (err) {
       alert(`${t.apiPostflightError} ${(err as Error).message}`)
     }
@@ -512,7 +550,7 @@ export function OperatorDashboardPage() {
             <span className="flow-step-number">4</span>
             <div className="flow-step-label">
               <strong>{t.step4Title}</strong>
-              <small>Post-flight Inspection</small>
+              <small>Kiểm tra sau bay</small>
             </div>
           </div>
         </div>
@@ -604,8 +642,7 @@ export function OperatorDashboardPage() {
         {/* ------------------------------------------------------------------ */}
         {/* PHASE 1: ACCEPTANCE GATE (F3.1) */}
         {/* ------------------------------------------------------------------ */}
-        {(mission.status === 'WAITING_OPERATOR_ACCEPTANCE' ||
-          mission.status === 'WAITING_CREW_CONFIRMATION') && (
+        {permissions?.canRespond === true && (
           <div
             className="card"
             style={{ padding: '32px', marginBottom: '32px' }}
@@ -751,21 +788,52 @@ export function OperatorDashboardPage() {
           </div>
         )}
 
+        {mission.status === 'IN_PROGRESS' &&
+          (permissions?.canCompleteMission || permissions?.canSubmitMissionResult) && (
+            <div style={{ marginBottom: '32px' }}>
+            <div className="operator-hero">
+              <h2>{t.acceptanceTitle}</h2>
+              <p className="section-copy">{t.acceptanceDescription}</p>
+              <Button
+                variant="primary"
+                onClick={() => {
+                  window.location.hash = operatorHref({
+                    screen: 'checklist',
+                    missionId: mission.id,
+                  })
+                }}
+              >
+                {t.openAcceptance}
+              </Button>
+            </div>
+            </div>
+          )}
+
+        {(mission.status === 'AWAITING_REVIEW' || mission.status === 'PENDING_REVIEW') && (
+          <div style={{ marginBottom: '32px' }}>
+            <div className="operator-hero">
+              <h2>{t.managerReviewTitle}</h2>
+              <p className="section-copy">{t.managerReviewDescription}</p>
+            </div>
+          </div>
+        )}
+
         {/* ------------------------------------------------------------------ */}
         {/* PHASE 2 & 3: GCS CONNECT & PREFLIGHT DIAGNOSTICS (F3.2) */}
         {/* ------------------------------------------------------------------ */}
-        {(canEnterPreflight || mission.status === 'PENDING_APPROVAL') && (
+        {(canEnterPreflight || canHandoverControl || canStartMission) && (
           <div style={{ marginBottom: '32px' }}>
-            <PreflightDiagnosticCard
-              check={preflightCheck}
-              token={flightToken}
-              batteryLevel={batteryLevel}
-              gpsSatellites={gpsSatellites}
-              isConnecting={isConnecting}
-              onRunPreflight={handleRunPreflight}
-              onConnectGcs={handleConnectGcs}
-              isGcsConnected={isGcsConnected || mission.status !== 'SCHEDULED'}
-            />
+            {canEnterPreflight && (
+              <PreflightDiagnosticCard
+                check={preflightCheck}
+                batteryLevel={batteryLevel}
+                gpsSatellites={gpsSatellites}
+                isConnecting={isConnecting}
+                onRunPreflight={handleRunPreflight}
+                onConnectGcs={handleConnectGcs}
+                isGcsConnected={gcsConnected}
+              />
+            )}
 
             <div
               style={{
@@ -776,17 +844,23 @@ export function OperatorDashboardPage() {
                 flexWrap: 'wrap',
               }}
             >
-              {mission.status === 'PENDING_APPROVAL' && (
+              {canHandoverControl && (
                 <Button
                   variant="secondary"
-                  icon="route"
-                  onClick={() => setShowReplaceModal(true)}
+                  icon="check"
+                  onClick={() => {
+                    window.location.hash = operatorHref({
+                      screen: 'handover',
+                      missionId: mission.id,
+                    })
+                  }}
+                  style={{ minHeight: '52px', padding: '0 28px' }}
                 >
-                  {t.replaceDroneStandby}
+                  Bàn giao quyền điều khiển
                 </Button>
               )}
 
-              {mission.status === 'READY_TO_FLY' && (
+              {canStartMission && (
                 <Button
                   variant="primary"
                   icon="arrow-up-right"
@@ -800,7 +874,7 @@ export function OperatorDashboardPage() {
                     boxShadow: '0 10px 25px rgba(21, 128, 61, 0.3)',
                   }}
                 >
-                  {t.startFlight}
+                  {t.startMission}
                 </Button>
               )}
             </div>
@@ -811,8 +885,9 @@ export function OperatorDashboardPage() {
         {/* PHASE 4: LIVE FLIGHT EXECUTION (F3.3) */}
         {/* ------------------------------------------------------------------ */}
         {(mission.status === 'IN_FLIGHT' ||
-          mission.status === 'IN_PROGRESS' ||
-          mission.status === 'RETURNING') && (
+          (mission.status === 'IN_PROGRESS' && deviceAssignmentStatus !== 'COMPLETED') ||
+          mission.status === 'RETURNING' ||
+          deviceAssignmentStatus === 'RETURNING') && (
           <div style={{ marginBottom: '32px' }}>
             <FlightTelemetryHUD
               deviceCode={mission.deviceCode || 'DRONE-01'}
@@ -822,12 +897,13 @@ export function OperatorDashboardPage() {
               isUploading={isUploading}
             />
 
-            {mission.status === 'RETURNING' && (
+            {(deviceAssignmentStatus === 'RETURNING' ||
+              deviceAssignmentStatus === 'POSTFLIGHT_CHECKING') && (
               <div style={{ marginTop: '24px', textAlign: 'right' }}>
                 <Button
                   variant="primary"
                   icon="clipboard"
-                  onClick={() => setIsPostflightOpen(true)}
+                  onClick={() => void handleOpenPostflight()}
                   style={{ padding: '0 32px' }}
                 >
                   {t.openPostflight}
@@ -1034,12 +1110,6 @@ export function OperatorDashboardPage() {
           </div>
         )}
 
-        <PostflightModal
-          isOpen={isPostflightOpen}
-          onClose={() => setIsPostflightOpen(false)}
-          onSubmit={handlePostflightSubmit}
-          isSubmitting={isConnecting}
-        />
       </div>
     </div>
   )

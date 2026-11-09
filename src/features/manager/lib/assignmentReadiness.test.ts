@@ -3,7 +3,7 @@ import {
   assignmentReadiness,
   requiredAssignmentRoles,
 } from './assignmentReadiness'
-import { finalizeError } from './planningErrors'
+import { finalizeError, planningBlocker } from './planningErrors'
 import { ApiError } from '../../../shared/api/httpClient'
 const crew = requiredAssignmentRoles.map((assignedRole) => ({
   staffId: assignedRole,
@@ -13,21 +13,21 @@ const crew = requiredAssignmentRoles.map((assignedRole) => ({
 it('distinguishes submission from crew acceptance and excludes rejected assignments', () => {
   expect(
     assignmentReadiness({
-      status: 'RESOURCE_ASSIGNING',
+      status: 'PLANNING',
       deviceId: 'd',
       staffAssignments: crew,
     }),
-  ).toMatchObject({ step: 'confirm', complete: false, needsSetup: true })
+  ).toMatchObject({ step: 'confirm', complete: true, needsSetup: false })
   expect(
     assignmentReadiness({
-      status: 'WAITING_CREW_CONFIRMATION',
+      status: 'READY',
       deviceId: 'd',
       staffAssignments: crew,
     }),
   ).toMatchObject({ complete: true, needsSetup: false })
   expect(
     assignmentReadiness({
-      status: 'WAITING_CREW_CONFIRMATION',
+      status: 'READY',
       deviceId: 'd',
       staffAssignments: crew.map((person, i) =>
         i === 0 ? { ...person, responseStatus: 'REJECTED' } : person,
@@ -41,8 +41,8 @@ it.each([
     'EXECUTION_PLAN_REVISION_CONFLICT',
     'Kế hoạch đã được thay đổi ở phiên bản khác. Vui lòng tải lại dữ liệu.',
   ],
-  ['ORDER_NOT_APPROVED', 'Order chưa ở trạng thái cho phép chốt kế hoạch.'],
-  ['UNKNOWN_RAW_CODE', 'Không thể chốt kế hoạch. Vui lòng thử lại.'],
+  ['ORDER_NOT_APPROVED', 'Đơn hàng chưa ở trạng thái cho phép chốt kế hoạch.'],
+  ['UNKNOWN_RAW_CODE', planningBlocker('UNKNOWN_RAW_CODE')],
 ])(
   'localizes finalize error %s but preserves diagnostic code',
   (code, message) => {
@@ -55,3 +55,15 @@ it.each([
     expect(error.code).toBe(code)
   },
 )
+
+it('preserves the detailed API validation message when finalizing a plan', () => {
+  const error = new ApiError('Mission m-123 requires PILOT, OPERATOR, MAINTAINER and INSPECTOR', {
+    code: 'INVALID_REQUEST',
+    method: 'POST',
+    path: '/finalize',
+  })
+
+  expect(finalizeError(error)).toBe(
+    'Mission m-123 requires PILOT, OPERATOR, MAINTAINER and INSPECTOR',
+  )
+})

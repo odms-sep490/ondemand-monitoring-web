@@ -1,4 +1,7 @@
-import { Modal } from '../../../../../shared/components/ui'
+import { Button } from 'antd'
+import { useState } from 'react'
+import { Modal } from '../ui'
+import { requestOriginalMediaDownload, startOriginalMediaDownload } from '../../../../../shared/api/originalMediaDownload'
 import { useI18n } from '../../../../../shared/i18n'
 import type { MediaItem } from '../../../lib/media/types'
 import { customerHref } from '../../../routes'
@@ -29,6 +32,8 @@ export function MediaPreviewModal({
   const { t } = useI18n(mediaPreviewModalMessages)
   const fresh = useFreshMedia(item.missionId, item.id)
   const shown = fresh.data ?? { ...item, url: null }
+  const [downloading, setDownloading] = useState(false)
+  const [downloadFailed, setDownloadFailed] = useState(false)
 
   return (
     <Modal
@@ -39,35 +44,39 @@ export function MediaPreviewModal({
       onClose={onClose}
       footer={
         <>
-          <button type="button" className="odm-btn odm-btn-gh" disabled={!onPrev} onClick={onPrev}>
+          <Button disabled={!onPrev} onClick={onPrev}>
             {t.prev}
-          </button>
-          <button type="button" className="odm-btn odm-btn-gh" disabled={!onNext} onClick={onNext}>
+          </Button>
+          <Button disabled={!onNext} onClick={onNext}>
             {t.next}
-          </button>
+          </Button>
           <span className="md-footer-spacer" />
           {showDetailLink && (
-            <a
-              className="odm-btn odm-btn-gh"
+            <Button
               href={customerHref({ screen: 'mediaDetail', mediaId: item.id })}
             >
               {t.detail}
-            </a>
+            </Button>
           )}
-          {fresh.data?.url ? (
-            <a
-              className="odm-btn odm-btn-p"
-              href={fresh.data.url}
-              download={item.fileName}
-              target="_blank"
-              rel="noopener noreferrer"
+          {shown.canDownloadOriginal ? (
+            <Button
+              type="primary"
+              loading={downloading}
+              onClick={() => {
+                setDownloading(true)
+                setDownloadFailed(false)
+                void requestOriginalMediaDownload(item.id)
+                  .then((download) => startOriginalMediaDownload(download.downloadUrl))
+                  .catch(() => setDownloadFailed(true))
+                  .finally(() => setDownloading(false))
+              }}
             >
               {t.download}
-            </a>
+            </Button>
           ) : (
-            <button type="button" className="odm-btn odm-btn-p" disabled>
+            <Button type="primary" disabled title={t.downloadUnavailable}>
               {t.download}
-            </button>
+            </Button>
           )}
         </>
       }
@@ -81,12 +90,14 @@ export function MediaPreviewModal({
         {fresh.error !== undefined && !fresh.data && (
           <div className="md-preview-error" role="alert">
             <span>{t.error}</span>
-            <button type="button" className="odm-btn odm-btn-gh odm-btn-sm" onClick={fresh.reload}>
+            <Button size="small" onClick={fresh.reload}>
               {t.retry}
-            </button>
+            </Button>
           </div>
         )}
         {fresh.data && <MediaViewer item={fresh.data} />}
+        {downloadFailed && <div className="md-preview-error" role="alert">{t.downloadFailed}</div>}
+        {!shown.canDownloadOriginal && <p role="status">{t.downloadUnavailable}</p>}
         <MediaInfoList item={shown} missionLabel={missionLabel} />
       </div>
     </Modal>

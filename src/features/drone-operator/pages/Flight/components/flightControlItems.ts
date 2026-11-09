@@ -20,12 +20,6 @@ export const flightControls: {
     tone: 'amber',
   },
   { command: 'land', labelKey: 'land', icon: 'land' },
-  {
-    command: 'emergency_stop',
-    labelKey: 'eStop',
-    icon: 'alert',
-    tone: 'danger',
-  },
 ]
 
 export const movementControls: {

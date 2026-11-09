@@ -1,4 +1,4 @@
-import { StatusBadge } from '../../../../../shared/components/ui'
+import { Tag } from 'antd'
 import { useI18n } from '../../../../../shared/i18n'
 import { getPopularTopics } from '../../../data/helpArticles'
 import { helpCenterHomeMessages } from '../HelpCenterHomePage.messages'
@@ -26,7 +26,7 @@ export function TopicGrid({ selected, onSelect }: Props) {
             >
               <div className="hc-topic-head">
                 <span className="hc-topic-name">{topic.title}</span>
-                <StatusBadge tone="neutral">{t.articleCount(topic.articleCount)}</StatusBadge>
+                <Tag className="hc-topic-count">{t.articleCount(topic.articleCount)}</Tag>
               </div>
               <p className="hc-topic-desc">{topic.description}</p>
             </button>

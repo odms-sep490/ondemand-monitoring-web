@@ -1,9 +1,12 @@
+import { PageHeader } from '../../../../../shared/components/ui'
 import { WorkflowStepper } from '../../../components/common/WorkflowStepper'
 import { missionLayer } from '../reviewHelpers'
 import { orderDeliverableLabels } from './OrderServiceBanner'
 import { OrderResourceAssignmentWizard } from '../../../components/common/OrderResourceAssignmentWizard'
 import { orderReviewPageMessages } from '../OrderReviewPage.messages'
 import { useI18n } from '../../../../../shared/i18n'
+import { assignmentWizardViewMessages } from './AssignmentWizardView.messages'
+import { OrderDetailsDrawer } from '../../../components/common/OrderDetailsDrawer'
 import type { PlanningWorkflowInfo } from './OrderMissionPlanningSection'
 import type { UseApiQueryState } from '../../../../../shared/hooks/useApiQuery'
 import type { OrderDetail } from '../../../types/orders'
@@ -29,15 +32,15 @@ export function AssignmentWizardView({
   setAssigningMissionId: Dispatch<SetStateAction<string | null>>
 }) {
   const { t, locale, lang } = useI18n(orderReviewPageMessages)
+  const { t: tw } = useI18n(assignmentWizardViewMessages)
   return (
     <div className="odm-or odm-or-review-page">
       <div className="odm-or-review-top">
-        <div className="odm-or-pagehead">
-          <h1 className="odm-or-title">Chi tiết đơn hàng</h1>
-          <p className="odm-or-subtitle">
-            Gán nhân sự và thiết bị cho Mission đã lên lịch
-          </p>
-        </div>
+        <PageHeader
+          title={tw.title}
+          subtitle={tw.subtitle}
+          actions={<OrderDetailsDrawer order={orderData} />}
+        />
         <WorkflowStepper
           compactOrder
           order={{
@@ -70,7 +73,7 @@ export function AssignmentWizardView({
             : assigningMissionId
         }
         embedded
-        returnLabel="Hoàn tất phân công"
+        returnLabel={tw.finishAssignment}
         onStepChange={setAssignStep}
         onClose={() => {
           setAssigningMissionId(null)

@@ -1,43 +1,52 @@
-import type { PreflightItemDef } from './PreflightItem'
-import type { ItemState } from '../preflightTypes'
+import { useState } from 'react'
 import { useI18n } from '../../../../../shared/i18n'
 import { preflightPageMessages } from '../PreflightPage.messages'
-import { statusText } from '../preflightHelpers'
+import { humanizePreflightDisplayText, statusText } from '../preflightHelpers'
+import type { ItemState } from '../preflightTypes'
+import type { PreflightItemDef } from './PreflightItem'
+import './PreflightChecklist.css'
 
 export function RuntimePreflightItemRow({
   def,
   state,
+  manual,
+  updating,
+  onUpdate,
+  onRecheck,
 }: {
   def: PreflightItemDef
   state: ItemState
+  manual: boolean
+  updating: boolean
+  onUpdate: (
+    checkType: string,
+    status: 'PASSED' | 'FAILED',
+    message: string,
+  ) => Promise<void>
+  onRecheck: (checkType: string) => Promise<void>
 }) {
   const { t } = useI18n(preflightPageMessages)
   const failed = state.result === 'fail'
   const passed = state.result === 'ok'
   const checking = state.status === 'CHECKING'
-  const tone = failed
-    ? {
-        label: t.itemFail,
-        bg: 'var(--red-solid)',
-        fg: 'var(--red-on)',
-        border: 'var(--red-solid)',
-      }
+  const decided = passed || failed
+  const [showFailureReason, setShowFailureReason] = useState(false)
+  const [failureReason, setFailureReason] = useState('')
+  const resultLabel = failed
+    ? t.itemFail
     : passed
-      ? {
-          label: t.itemPass,
-          bg: 'var(--green-solid)',
-          fg: 'var(--green-on)',
-          border: 'var(--green-solid)',
-        }
-      : {
-          label: checking ? t.itemChecking : t.itemPending,
-          bg: 'var(--sf3)',
-          fg: 'var(--tx2)',
-          border: 'var(--bd2)',
-        }
+      ? t.itemPass
+      : checking
+        ? t.itemChecking
+        : t.itemPending
+  const displayMessage = humanizePreflightDisplayText(
+    statusText(t, state.status, state.message),
+    { [def.key.toLowerCase()]: def.label },
+  )
 
   return (
     <div
+      className={`preflight-item-row${failed ? ' is-failed' : ''}${passed ? ' is-passed' : ''}`}
       style={{
         background: failed ? 'var(--red-bg)' : 'var(--sf)',
         border: `1.5px solid ${
@@ -47,23 +56,11 @@ export function RuntimePreflightItemRow({
         padding: 12,
       }}
     >
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '44px minmax(0, 1fr) 104px',
-          alignItems: 'center',
-          gap: 12,
-        }}
-      >
+      <div className="preflight-item-row__main">
         <span
+          className="preflight-item-row__marker"
+          aria-hidden="true"
           style={{
-            width: 40,
-            height: 40,
-            borderRadius: 10,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flex: 'none',
             background: passed
               ? 'var(--green-bg)'
               : failed
@@ -74,59 +71,102 @@ export function RuntimePreflightItemRow({
               : failed
                 ? 'var(--red-on)'
                 : 'var(--tx2)',
-            fontWeight: 700,
           }}
         >
-          {passed
-            ? '✓'
-            : failed
-              ? '✕'
-              : state.status === 'CHECKING'
-                ? '◌'
-                : '•'}
+          {passed ? '✓' : failed ? '✕' : checking ? '◌' : '•'}
         </span>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontWeight: 700, fontSize: 14.5, lineHeight: 1.2 }}>
-            {def.label}
-          </div>
-          <div style={{ fontSize: 11.5, color: 'var(--tx3)' }}>
-            {def.detail ? `${def.detail} · ` : ''}
-            <span className="odm-mono">{def.code}</span>
-          </div>
+
+        <div className="preflight-item-row__content">
+          <div className="preflight-item-row__title">{def.label}</div>
+          <div className="preflight-item-row__detail">{def.detail}</div>
           <div
-            style={{
-              marginTop: 2,
-              fontSize: 11,
-              color: failed ? 'var(--red-fg)' : 'var(--tx3)',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            }}
-            title={statusText(t, state.status, state.message)}
+            className="preflight-item-row__message"
+            style={{ color: failed ? 'var(--red-fg)' : 'var(--tx3)' }}
+            title={displayMessage}
           >
-            {statusText(t, state.status, state.message)}
+            {displayMessage}
           </div>
         </div>
-        <span
-          style={{
-            justifySelf: 'end',
-            minWidth: 94,
-            height: 32,
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderRadius: 8,
-            border: `1px solid ${tone.border}`,
-            background: tone.bg,
-            color: tone.fg,
-            fontSize: 12,
-            fontWeight: 800,
-            whiteSpace: 'nowrap',
-          }}
-        >
-          {tone.label}
-        </span>
+
+        {manual && !decided ? (
+          <div className="preflight-item-row__actions">
+            <button
+              type="button"
+              className="odm-btn odm-btn-ok preflight-item-row__decision"
+              disabled={updating}
+              onClick={() => {
+                void onUpdate(def.key, 'PASSED', 'Người vận hành xác nhận đạt')
+                  .then(() => {
+                    setShowFailureReason(false)
+                  })
+                  .catch(() => undefined)
+              }}
+            >
+              {updating ? '...' : 'Đạt'}
+            </button>
+            <button
+              type="button"
+              className="odm-btn odm-btn-rd preflight-item-row__decision"
+              aria-expanded={showFailureReason}
+              disabled={updating}
+              onClick={() => setShowFailureReason((value) => !value)}
+            >
+              Không đạt
+            </button>
+          </div>
+        ) : manual ? (
+          <span
+            className={`preflight-item-row__result ${failed ? 'is-failed' : 'is-passed'}`}
+          >
+            {resultLabel}
+          </span>
+        ) : def.key === 'battery_health' && !decided ? (
+          <button
+            type="button"
+            className="odm-btn odm-btn-p preflight-item-row__battery-action"
+            disabled={updating}
+            onClick={() => void onRecheck(def.key).catch(() => undefined)}
+          >
+            {updating ? t.itemChecking : t.fetchCurrentBattery}
+          </button>
+        ) : (
+          <span
+            className={`preflight-item-row__result ${
+              failed ? 'is-failed' : passed ? 'is-passed' : 'is-pending'
+            }`}
+          >
+            {resultLabel}
+          </span>
+        )}
       </div>
+
+      {manual && !decided && showFailureReason ? (
+        <div className="preflight-item-row__failure">
+          <input
+            id={`preflight-failure-${def.key}`}
+            className="odm-input"
+            aria-label={t.failureReasonPlaceholder}
+            value={failureReason}
+            onChange={(event) => setFailureReason(event.target.value)}
+            placeholder={t.failureReasonPlaceholder}
+          />
+          <button
+            type="button"
+            className="odm-btn odm-btn-rd preflight-item-row__failure-submit"
+            disabled={updating || failureReason.trim().length === 0}
+            onClick={() =>
+              void onUpdate(def.key, 'FAILED', failureReason.trim())
+                .then(() => {
+                  setShowFailureReason(false)
+                  setFailureReason('')
+                })
+                .catch(() => undefined)
+            }
+          >
+            {t.confirmFailure}
+          </button>
+        </div>
+      ) : null}
     </div>
   )
 }

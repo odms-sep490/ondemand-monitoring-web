@@ -1,12 +1,14 @@
-import { ErrorState, LoadingState } from '../../../../shared/components/odm/StateView'
-import { PageHeader } from '../../../../shared/components/ui'
+import { PlusOutlined } from '@ant-design/icons'
+import { Button, Skeleton } from 'antd'
+
+import { CardComponent, ErrorState, PageHeader } from '../../../../shared/components/antd'
 import { useI18n } from '../../../../shared/i18n'
 import { customerHref } from '../../routes'
 import { DashboardStats } from './components/DashboardStats'
 import { RecentMissionsCard } from './components/RecentMissionsCard'
 import { RecentOrdersCard } from './components/RecentOrdersCard'
 import { StatusBreakdown } from './components/StatusBreakdown'
-import './Dashboard.css'
+import './dashboard.scss'
 import { dashboardPageMessages } from './DashboardPage.messages'
 import { useDashboardData } from './hooks/useDashboardData'
 
@@ -16,37 +18,55 @@ export function DashboardPage() {
   const { orders, missions, stats, recent } = useDashboardData()
 
   return (
-    <div className="dash-page">
+    <div className="cus-dash">
       <PageHeader
         title={t.title}
-        subtitle={t.subtitle}
+        description={t.subtitle}
         actions={
-          <a className="odm-btn odm-btn-p" href={customerHref({ screen: 'createOrder' })}>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            href={customerHref({ screen: 'createOrder' })}
+          >
             {t.createOrder}
-          </a>
+          </Button>
         }
       />
 
-      {orders.loading && !orders.data && <LoadingState />}
-      {!orders.data && !orders.loading && (
-        <ErrorState title={t.ordersErrorTitle} error={orders.error} onRetry={orders.reload} />
-      )}
       {orders.data && (
         <>
           <DashboardStats stats={stats} />
-          <div className="dash-grid">
-            <RecentOrdersCard orders={recent} />
+          <div className="cus-content-grid">
+            <div className="cus-main-column">
+              <RecentOrdersCard orders={recent} />
+              <RecentMissionsCard
+                missions={missions.data}
+                loading={missions.loading}
+                error={missions.error}
+                onRetry={missions.reload}
+              />
+            </div>
             <StatusBreakdown stats={stats} />
           </div>
         </>
       )}
-
-      <RecentMissionsCard
-        missions={missions.data}
-        loading={missions.loading}
-        error={missions.error}
-        onRetry={missions.reload}
-      />
+      {!orders.data && (
+        <div className="cus-content-fallback">
+          {orders.loading ? (
+            <CardComponent className="cus-orders-loading">
+              <Skeleton active paragraph={{ rows: 4 }} />
+            </CardComponent>
+          ) : (
+            <ErrorState title={t.ordersErrorTitle} error={orders.error} onRetry={orders.reload} />
+          )}
+          <RecentMissionsCard
+            missions={missions.data}
+            loading={missions.loading}
+            error={missions.error}
+            onRetry={missions.reload}
+          />
+        </div>
+      )}
     </div>
   )
 }

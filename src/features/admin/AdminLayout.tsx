@@ -4,6 +4,7 @@ import { authSession } from '../auth/api/authApi'
 import { LogoutButton } from '../auth/components/LogoutButton'
 import { Icon, type IconName } from '../../shared/components/Icon'
 import { LanguageToggle } from '../../shared/components/LanguageToggle'
+import { RoleSidebar } from '../../shared/components/RoleSidebar'
 import { useI18n } from '../../shared/i18n'
 import { adminHref, type AdminRoute, type AdminScreen } from './routes'
 import { adminLayoutMessages } from './AdminLayout.messages'
@@ -37,13 +38,6 @@ const activeNavKey: Record<AdminScreen, NavItemKey | null> = {
   notFound: null,
 }
 
-function initialsOf(name: string | undefined): string {
-  if (!name) return '?'
-  const words = name.trim().split(/\s+/)
-  if (words.length === 1) return words[0].slice(0, 2).toUpperCase()
-  return (words[0][0] + words[words.length - 1][0]).toUpperCase()
-}
-
 export function AdminLayout({
   route,
   breadcrumb,
@@ -71,64 +65,42 @@ export function AdminLayout({
   return (
     <div className="odm odm-adm">
       <div className="odm-adm-shell">
-        <nav
-          aria-label={t.nav}
-          className={`odm-adm-side ${menuOpen ? 'is-open' : ''}`}
-        >
-          <a className="odm-adm-brand" href={adminHref({ screen: 'accounts' })}>
-            <img
-              src="/images/logo-new.png"
-              alt="OnDemand Monitor"
-              className="odm-adm-brand-mark"
-            />
-            <span className="odm-adm-brand-name">
-              <span className="odm-adm-brand-primary">OnDemand</span>
-              <span className="odm-adm-brand-accent">Monitor</span>
-            </span>
-          </a>
-
-          <div className="odm-adm-nav-scroll">
-            <div className="odm-adm-navg">{t.menu}</div>
-            {NAV_ITEMS.map((item) => {
-              const isActive = item.key === activeKey
-              const badge =
-                item.key === 'accounts' && (pendingCount ?? 0) > 0
-                  ? pendingCount
-                  : undefined
-              return (
-                <a
-                  key={item.key}
-                  href={adminHref(item.route)}
-                  className={`odm-adm-navi ${isActive ? 'is-active' : ''}`}
-                  aria-current={isActive ? 'page' : undefined}
-                  onClick={() => setMenuOpen(false)}
-                >
-                  <Icon
-                    name={item.icon}
-                    width={18}
-                    height={18}
-                    aria-hidden="true"
-                  />
-                  <span>{t.navItems[item.key]}</span>
-                  {badge ? <span className="odm-adm-navc">{badge}</span> : null}
-                </a>
-              )
-            })}
-          </div>
-
-          <div className="odm-adm-user">
-            <span className="odm-adm-avatar" aria-hidden="true">
-              {initialsOf(user?.fullName)}
-            </span>
-            <span className="odm-adm-user-text">
-              <span className="odm-adm-user-name">
-                {user?.fullName ?? t.admin}
-              </span>
-              <span className="odm-adm-user-email">{user?.email ?? ''}</span>
-            </span>
-          </div>
-          <LogoutButton className="odm-adm-logout" />
-        </nav>
+        <aside className={`odm-adm-side ${menuOpen ? 'is-open' : ''}`}>
+          <RoleSidebar
+            brandHref={adminHref({ screen: 'accounts' })}
+            ariaLabel={t.nav}
+            groups={[
+              {
+                key: 'admin-menu',
+                label: t.menu,
+                items: NAV_ITEMS.map((item) => ({
+                  key: item.key,
+                  label: t.navItems[item.key],
+                  icon: (
+                    <Icon
+                      name={item.icon}
+                      width={18}
+                      height={18}
+                      aria-hidden="true"
+                    />
+                  ),
+                  href: adminHref(item.route),
+                  active: item.key === activeKey,
+                  badge:
+                    item.key === 'accounts' && (pendingCount ?? 0) > 0
+                      ? pendingCount
+                      : undefined,
+                  onClick: () => setMenuOpen(false),
+                })),
+              },
+            ]}
+            profile={{
+              name: user?.fullName ?? t.admin,
+              description: user?.email,
+            }}
+            footer={<LogoutButton className="odm-adm-logout" />}
+          />
+        </aside>
 
         {menuOpen ? (
           <button

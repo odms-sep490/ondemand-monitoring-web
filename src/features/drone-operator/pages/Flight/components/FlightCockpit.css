@@ -1,4 +1,4 @@
-/* ===== Flight cockpit (map-only GPS mode) ===== */
+/* ===== Flight cockpit ===== */
 .fc-root {
   --fc-bg: #050b16;
   --fc-panel: #0a1424;
@@ -85,19 +85,15 @@
 /* body grid */
 .fc-body {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) clamp(300px, 22vw, 380px);
-  grid-template-rows: minmax(0, 1.1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) clamp(320px, 24vw, 400px);
+  grid-template-rows: minmax(0, 1fr);
   gap: 10px;
   padding: 10px;
   min-height: 0;
-  transition: grid-template-rows .25s ease;
 }
-.fc-body.is-layout-camera { grid-template-rows: minmax(0, 2.6fr) minmax(0, 1fr); }
-.fc-body.is-layout-map { grid-template-rows: minmax(0, 1fr) minmax(0, 2.6fr); }
 .fc-camera { grid-column: 1; grid-row: 1; }
-.fc-map { grid-column: 1; grid-row: 2; }
 .fc-side {
-  grid-column: 2; grid-row: 1 / 3; display: flex; flex-direction: column; gap: 10px;
+  grid-column: 2; grid-row: 1; display: flex; flex-direction: column; gap: 10px;
   min-height: 0; overflow-y: auto; scrollbar-width: thin; gap: 10px; scrollbar-color: #334155 transparent;
 }
 
@@ -128,31 +124,15 @@
 .fc-badge.is-mid { color: var(--fc-amber); }
 .fc-badge.is-low { color: var(--fc-red); }
 
-.fc-status-msg {
-  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  color: #93c5fd; font-size: 12.5px;
-}
-
 /* camera */
 .fc-camera__body { position: relative; flex: 1; min-height: 0; }
 .fc-camera__body > .drone-camera-view { position: absolute; inset: 0; }
-
-/* map */
-.fc-map__body { position: relative; flex: 1; min-height: 0; }
-.fc-map__body .satellite-flight-map { position: absolute; inset: 0; }
-.fc-legend {
-  position: absolute; z-index: 900; left: 12px; bottom: 12px; display: grid; gap: 5px;
-  padding: 10px 12px; border: 1px solid var(--fc-line-2); border-radius: 10px;
-  background: rgba(5, 11, 22, .82); backdrop-filter: blur(6px); font-size: 12px; pointer-events: none;
+.fc-command-feedback {
+  position: absolute; z-index: 5; right: 12px; bottom: 12px; max-width: min(80%, 360px);
+  overflow: hidden; padding: 8px 12px; border: 1px solid var(--fc-line-2); border-radius: 10px;
+  background: rgba(5, 11, 22, .82); color: #bfdbfe; font-size: 12.5px;
+  text-overflow: ellipsis; white-space: nowrap; pointer-events: none;
 }
-.fc-legend strong { margin-bottom: 2px; font-size: 12.5px; }
-.fc-legend span { display: flex; align-items: center; gap: 8px; color: #cbd5e1; }
-.fc-legend__line { width: 22px; height: 0; border-top: 2.5px dashed; }
-.fc-legend__line.is-route { border-color: #60a5fa; }
-.fc-legend__line.is-zone { border-color: #ef4444; }
-.fc-legend__dot { width: 11px; height: 11px; border-radius: 50%; border: 2px solid #fff; }
-.fc-legend__dot.is-drone { background: #1565e8; }
-.fc-legend__dot.is-target { background: #ef4444; }
 
 /* instruments */
 .fc-instruments { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px 10px 2px; }
@@ -203,29 +183,33 @@
 .fc-ctl.is-primary svg, .fc-ctl.is-primary small { color: #dbeafe; }
 .fc-ctl.is-success { border-color: rgba(34, 197, 94, .55); background: rgba(20, 83, 45, .55); }
 .fc-ctl.is-success svg { color: var(--fc-green); }
-
-.fc-emergency {
-  display: flex; align-items: center; justify-content: center; gap: 14px; margin: 0 10px 10px;
-  padding: 11px; border: 1px solid rgba(248, 113, 113, .6); border-radius: 12px;
-  background: linear-gradient(180deg, #7f1d1d, #5b1414); color: #fee2e2; cursor: pointer; text-align: left;
-  transition: filter .15s;
+.fc-ctl.is-danger {
+  border-color: rgba(248, 113, 113, .82);
+  background: linear-gradient(180deg, rgba(153, 27, 27, .76), rgba(127, 29, 29, .58));
+  color: #fff1f2;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), 0 4px 14px rgba(127, 29, 29, .22);
 }
-.fc-emergency strong { display: block; font-size: 15px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
-.fc-emergency small { color: #fecaca; font-size: 12px; }
-.fc-emergency svg { color: #fca5a5; }
-.fc-emergency:hover:not(:disabled) { filter: brightness(1.15); }
-.fc-emergency.is-armed { background: linear-gradient(180deg, #dc2626, #991b1b); animation: fc-arm .8s ease-in-out infinite alternate; }
-.fc-emergency:disabled { opacity: .5; cursor: not-allowed; }
+.fc-ctl.is-danger svg, .fc-ctl.is-danger small { color: #fecaca; }
+.fc-ctl.is-danger:hover:not(:disabled) {
+  border-color: rgba(252, 165, 165, .95);
+  background: linear-gradient(180deg, rgba(185, 28, 28, .88), rgba(153, 27, 27, .72));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .1), 0 6px 18px rgba(127, 29, 29, .3);
+}
+.fc-ctl.is-danger:focus-visible { outline-color: #fca5a5; }
+.mctl-failure-action {
+  transition: filter .15s ease, transform .15s ease, box-shadow .15s ease;
+}
+.mctl-failure-action:hover:not(:disabled) { filter: brightness(1.1); transform: translateY(-1px); }
+.mctl-failure-action:active:not(:disabled) { filter: brightness(.97); transform: translateY(0); }
+.mctl-failure-action:focus-visible { outline: 2px solid #fca5a5; outline-offset: 2px; }
+.mctl-failure-action:disabled { opacity: .58; }
 
-/* the shared camera + map need these inside the cockpit */
+/* Camera fills the cockpit stage edge to edge. */
 .fc-root .drone-camera-view { border-radius: 0; }
-.fc-root .satellite-flight-map .leaflet-top.leaflet-right { top: 10px; right: 10px; }
 
 @keyframes fc-pulse { 50% { opacity: .45; } }
-@keyframes fc-arm { to { box-shadow: 0 0 0 4px rgba(248, 113, 113, .35); } }
-
 @media (prefers-reduced-motion: reduce) {
-  .fc-live.is-on::before, .fc-dot.is-live, .fc-emergency.is-armed { animation: none; }
+  .fc-live.is-on::before, .fc-dot.is-live { animation: none; }
 }
 
 @media (max-width: 1280px) {
@@ -236,9 +220,8 @@
   .fc-root { height: auto; min-height: 100vh; overflow: visible; }
   .fc-header { flex-wrap: wrap; }
   .fc-body { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; }
-  .fc-camera, .fc-map, .fc-side { grid-column: 1; grid-row: auto; }
+  .fc-camera, .fc-side { grid-column: 1; grid-row: auto; }
   .fc-camera { height: 56vw; min-height: 260px; }
-  .fc-map { height: 60vw; min-height: 300px; }
   .fc-side { overflow: visible; }
 }
 
@@ -249,7 +232,7 @@
   .fc-stat strong { font-size: 17px; }
 }
 
-.fc-map__body, .fc-camera__body { isolation: isolate; }
+.fc-camera__body { isolation: isolate; }
 .fc-root > .satellite-flight-preflight { z-index: 2000; }
 
 .fc-start-flight {
@@ -287,86 +270,22 @@
 .fc-start-flight--header strong,
 .fc-start-flight--header small { white-space: nowrap; }
 
-/* layout switcher + panel tools */
-.fc-seg { display: inline-flex; padding: 3px; gap: 2px; border: 1px solid var(--fc-line-2); border-radius: 10px; background: rgba(15, 23, 42, .7); }
-.fc-seg button {
-  height: 30px; padding: 0 11px; border: 0; border-radius: 7px; background: transparent;
-  color: var(--fc-tx2); font-size: 12.5px; font-weight: 700; cursor: pointer; white-space: nowrap;
-  transition: background .15s, color .15s;
-}
-.fc-seg button:hover { color: var(--fc-tx); }
-.fc-seg button.is-active { background: rgba(37, 99, 235, .55); color: #fff; box-shadow: inset 0 0 0 1px rgba(96, 165, 250, .6); }
-.fc-seg button:focus-visible, .fc-icon-btn:focus-visible, .fc-ctl:focus-visible, .fc-ghost:focus-visible, .fc-emergency:focus-visible {
+/* panel tools */
+.fc-icon-btn:focus-visible, .fc-ctl:focus-visible, .fc-ghost:focus-visible {
   outline: 2px solid var(--fc-blue); outline-offset: 2px;
 }
 .fc-panel__tools { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
-.fc-icon-btn.is-sm { width: 28px; height: 28px; border-radius: 8px; }
 
-@media (max-width: 1280px) {
-  .fc-seg button { padding: 0 8px; font-size: 12px; }
-}
 @media (max-width: 1060px) {
-  .fc-seg { display: none; }
-  .fc-panel__tools .fc-icon-btn { display: none; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .fc-body { transition: none; }
+  .fc-panel__tools { gap: 6px; }
 }
 
 
-/* ===== Reference layout: big stage + picture-in-picture, collapsible side ===== */
-.fc-body {
-  grid-template-columns: minmax(0, 1fr) clamp(320px, 24vw, 400px);
-  grid-template-rows: minmax(0, 1fr);
-}
-.fc-camera, .fc-map { grid-column: 1; grid-row: 1; }
-.fc-side { grid-row: 1; }
-
-/* the stage (large) */
-.fc-body.is-layout-split .fc-camera,
-.fc-body.is-layout-camera .fc-camera,
-.fc-body.is-layout-map .fc-map {
+/* Camera stage + flight data and controls */
+.fc-camera {
   z-index: 1;
   border-color: rgba(56, 189, 248, .45);
   box-shadow: 0 0 0 1px rgba(56, 189, 248, .12), 0 14px 34px rgba(0, 0, 0, .35);
-}
-/* the inset */
-.fc-body.is-layout-split .fc-map,
-.fc-body.is-layout-camera .fc-map,
-.fc-body.is-layout-map .fc-camera {
-  z-index: 3;
-  align-self: end;
-  justify-self: end;
-  width: min(440px, 42%);
-  height: min(320px, 46%);
-  margin: 0 14px 14px 0;
-  border-color: rgba(56, 189, 248, .55);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, .55);
-}
-.fc-body.is-layout-camera .fc-map {
-  width: min(280px, 28%);
-  height: min(200px, 30%);
-}
-/* stage panels drop their header; the layout switcher in the top bar replaces it */
-.fc-body.is-layout-split .fc-camera > .fc-panel__head,
-.fc-body.is-layout-camera .fc-camera > .fc-panel__head,
-.fc-body.is-layout-map .fc-map > .fc-panel__head {
-  display: none;
-}
-.fc-body.is-layout-map .fc-map .fc-legend,
-.fc-body.is-layout-camera .fc-map .fc-legend {
-  transform-origin: left bottom;
-}
-.fc-body.is-layout-camera .fc-map .fc-legend { display: none; }
-
-/* header: separate layout buttons */
-.fc-seg { padding: 0; gap: 6px; border: 0; background: transparent; }
-.fc-seg button {
-  height: 38px; padding: 0 14px; border: 1px solid var(--fc-line-2); border-radius: 10px;
-  background: rgba(15, 23, 42, .7); color: var(--fc-tx); font-size: 13px;
-}
-.fc-seg button.is-active {
-  background: #1d4ed8; border-color: rgba(96, 165, 250, .8); box-shadow: none;
 }
 
 /* collapsible side panels */
@@ -399,16 +318,6 @@
 
 @media (max-width: 1060px) {
   .fc-body { grid-template-columns: minmax(0, 1fr); }
-  .fc-camera, .fc-map { grid-row: auto; }
-  .fc-body.is-layout-split .fc-map,
-  .fc-body.is-layout-camera .fc-map,
-  .fc-body.is-layout-map .fc-camera {
-    width: auto; height: 60vw; min-height: 300px; margin: 0; align-self: stretch; justify-self: stretch;
-  }
+  .fc-camera, .fc-side { grid-row: auto; }
   .fc-body .fc-panel__head { display: flex !important; }
-  .fc-seg { display: none; }
-}
-.fc-body.is-layout-camera, .fc-body.is-layout-map { grid-template-rows: minmax(0, 1fr); }
-@media (max-width: 1060px) {
-  .fc-body.is-layout-camera, .fc-body.is-layout-map { grid-template-rows: none; }
 }

@@ -2,7 +2,6 @@ import { ApiError, apiRequest } from '../../../shared/api/httpClient'
 import { readOrderChecklistSnapshot } from '../lib/orderChecklistSnapshot'
 import type {
   ApprovalRequest,
-  OrderAnalysis,
   OrderCreateResponse,
   OrderDetail,
   OrderInternalNote,
@@ -49,7 +48,10 @@ function radiusFromDeliverables(order: OrderCreateResponse) {
 }
 
 function attachmentsFromDeliverables(order: OrderCreateResponse) {
-  const files = new Map<string, NonNullable<OrderDetail['attachments']>[number]>()
+  const files = new Map<
+    string,
+    NonNullable<OrderDetail['attachments']>[number]
+  >()
   for (const deliverable of order.deliverables ?? []) {
     const requirement = deliverable.requirement
     if (!requirement) continue
@@ -66,7 +68,9 @@ function attachmentsFromDeliverables(order: OrderCreateResponse) {
         files.set(`${name}:${url}`, {
           name,
           sizeLabel:
-            sizeBytes == null ? 'Không rõ dung lượng' : `${(sizeBytes / 1_000_000).toFixed(2)} MB`,
+            sizeBytes == null
+              ? 'Không rõ dung lượng'
+              : `${(sizeBytes / 1_000_000).toFixed(2)} MB`,
           mimeType:
             typeof file.contentType === 'string'
               ? file.contentType
@@ -83,7 +87,7 @@ function toOrderDetail(order: OrderCreateResponse): OrderDetail {
   return {
     executionPlanRevision: order.executionPlanRevision,
     id: order.id,
-    code: order.id,
+    code: order.orderCode || order.id,
     status: order.orderStatus,
     customer: {
       fullName: order.customerName || order.customerId,
@@ -187,7 +191,10 @@ export const ordersApi = {
   },
 
   /** `GET /api/orders/managed?status=` [BE]: every order, newest first. */
-  getManaged(status?: string, signal?: AbortSignal): Promise<OrderCreateResponse[]> {
+  getManaged(
+    status?: string,
+    signal?: AbortSignal,
+  ): Promise<OrderCreateResponse[]> {
     return apiRequest<OrderCreateResponse[]>('/api/orders/managed', {
       query: status ? { status } : undefined,
       signal,
@@ -211,11 +218,11 @@ export const ordersApi = {
     }))
   },
 
-  /** `GET /api/orders/{id}/analysis/latest` [BRIEF C4]. */
-  getLatestAnalysis(id: string, signal?: AbortSignal): Promise<OrderAnalysis> {
-    return apiRequest<OrderAnalysis>(`/api/orders/${id}/analysis/latest`, {
-      signal,
-    })
+  startReview(id: string): Promise<OrderCreateResponse> {
+    return apiRequest<OrderCreateResponse>(
+      `/api/orders/${encodeURIComponent(id)}/start-review`,
+      { method: 'POST' },
+    )
   },
 
   /**
@@ -261,6 +268,16 @@ export const ordersApi = {
     )
   },
 
+  cancelAfterPermitRejection(
+    id: string,
+    reason: string,
+  ): Promise<OrderCreateResponse> {
+    return apiRequest<OrderCreateResponse>(
+      `/api/orders/${encodeURIComponent(id)}/permit-cancellation`,
+      { method: 'POST', body: { reason } },
+    )
+  },
+
   /** `POST /api/orders/{id}/approve` [BE] — approves only; staff schedules the mission later. */
   approve(id: string): Promise<OrderCreateResponse | void> {
     return apiRequest<OrderCreateResponse | void>(`/api/orders/${id}/approve`, {
@@ -280,12 +297,14 @@ export const ordersApi = {
   getOrderForMission(
     id: string,
     signal?: AbortSignal,
+    purpose: 'ORIGINAL' | 'REWORK' = 'ORIGINAL',
   ): Promise<OrderMissionBrief> {
     return this.getOrder(id, signal)
       .then((order) => {
-        if (order.status !== 'APPROVED' && order.status !== 'IN_PROGRESS') {
+        if (purpose === 'REWORK' ? order.status !== 'COMPLETED' : order.status !== 'APPROVED' && order.status !== 'IN_PROGRESS') {
           throw new ApiError('Đơn không còn ở trạng thái đã duyệt.', {
             status: 409,
+            code: 'MISSION_ORDER_STATUS_INVALID',
             method: 'GET',
             path: `/api/orders/${id}`,
           })
@@ -293,7 +312,7 @@ export const ordersApi = {
         return toOrderMissionBrief(order)
       })
       .catch((error) => {
-        if (error instanceof ApiError && error.status === 409) {
+        if (purpose !== 'REWORK' && error instanceof ApiError && error.status === 409 && error.code !== 'MISSION_ORDER_STATUS_INVALID') {
           return apiRequest<OrderMissionBrief>(
             `/api/orders/${id}/mission-brief`,
             {

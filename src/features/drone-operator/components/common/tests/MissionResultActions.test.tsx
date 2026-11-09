@@ -20,6 +20,7 @@ const query = (
       missionId: 'm1',
       legacySnapshot: false,
       readyForSubmission: true,
+      readyForFinalApproval: true,
       readyForMissionCompletion: true,
       executions: [],
     },
@@ -33,62 +34,59 @@ const query = (
       canUploadMedia: false,
       canCompleteMission: complete,
       canSubmitMissionResult: submit,
+      canAssessMonitoringChecklist: submit,
     },
   },
 })
 
 describe('Exact Mission result actions', () => {
   it.each([
-    ['Pilot with usable Operator', false, false],
-    ['Pilot fallback', false, true],
-    ['Operator', false, true],
-    ['Maintainer', false, false],
-    ['Inspector', true, false],
+    ['Pilot fallback', false, false],
+    ['Operator', false, false],
+    ['Inspector', true, true],
     ['multi-role', true, true],
-  ])(
-    '%s follows distinct capabilities rather than generic STAFF',
-    (_, complete, submit) => {
-      const onComplete = vi.fn(),
-        onSubmit = vi.fn()
-      render(
-        <MissionResultActions
-          missionId="m1"
-          status="PENDING_REVIEW"
-          monitoring={query(Boolean(complete), Boolean(submit))}
-          busy={false}
-          onComplete={onComplete}
-          onSubmit={onSubmit}
-        />,
+  ])('%s follows inspector capabilities', (_, complete, submit) => {
+    const onComplete = vi.fn(),
+      onSubmit = vi.fn()
+    render(
+      <MissionResultActions
+        missionId="m1"
+        status="IN_PROGRESS"
+        monitoring={query(complete, submit)}
+        busy={false}
+        onComplete={onComplete}
+        onSubmit={onSubmit}
+      />,
+    )
+    expect(
+      Boolean(
+        screen.queryByRole('button', { name: 'Xác nhận hoàn thành Mission' }),
+      ),
+    ).toBe(complete)
+    expect(
+      Boolean(screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' })),
+    ).toBe(submit)
+    if (submit) {
+      fireEvent.click(
+        screen.getByRole('button', { name: 'Xác nhận nghiệm thu' }),
       )
-      expect(
-        Boolean(screen.queryByRole('button', { name: 'Xác nhận hoàn thành Mission' })),
-      ).toBe(Boolean(complete))
-      expect(
-        Boolean(
-          screen.queryByRole('button', { name: 'Gửi kết quả cho Manager' }),
-        ),
-      ).toBe(Boolean(submit))
-      if (submit) {
-        const button = screen.getByRole('button', {
-          name: 'Gửi kết quả cho Manager',
-        })
-        if (complete) expect(button).toBeEnabled()
-        else expect(button).toBeDisabled()
-        fireEvent.click(button)
-        expect(onSubmit).toHaveBeenCalledTimes(complete ? 1 : 0)
-      }
-      if (complete) {
-        fireEvent.click(
-          screen.getByRole('button', { name: 'Xác nhận hoàn thành Mission' }),
-        )
-        expect(onComplete).toHaveBeenCalledOnce()
-        expect(onSubmit).toHaveBeenCalledTimes(submit ? 1 : 0)
-      }
-    },
-  )
-  it('uses submission readiness, not final media approval, including empty checklist', () => {
+      expect(onSubmit).toHaveBeenCalledOnce()
+    }
+  })
+  it('does not give an operator stale submit permission inspector controls', () => {
+    const monitoring = query(false, true)
+    monitoring.data!.permissions.canAssessMonitoringChecklist = false
+    expect(missionResultActions('m1', 'COMPLETED', monitoring).canSubmit).toBe(
+      false,
+    )
+  })
+  it('uses final approval readiness even when submission readiness is true', () => {
     const monitoring = query(false, true)
     monitoring.data!.checklist.readyForFinalApproval = false
+    expect(
+      missionResultActions('m1', 'COMPLETED', monitoring).submitReady,
+    ).toBe(false)
+    monitoring.data!.checklist.readyForFinalApproval = true
     expect(
       missionResultActions('m1', 'COMPLETED', monitoring).submitReady,
     ).toBe(true)
@@ -125,7 +123,7 @@ describe('Exact Mission result actions', () => {
     const view = render(
       <MissionResultActions
         missionId="m1"
-        status="PENDING_REVIEW"
+        status="IN_PROGRESS"
         monitoring={monitoring}
         busy
         onComplete={onComplete}
@@ -155,9 +153,9 @@ describe('Exact Mission result actions', () => {
       screen.queryByRole('button', { name: 'Xác nhận hoàn thành Mission' }),
     ).toBeNull()
     expect(
-      screen.queryByRole('button', { name: 'Gửi kết quả cho Manager' }),
+      screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
     ).toBeNull()
-    expect(screen.getByText('Chờ duyệt')).toBeInTheDocument()
+    expect(screen.getByText('Chờ nghiệm thu')).toBeInTheDocument()
   })
   it('explains wrong evidence type and insufficient evidence from backend blockers', () => {
     expect(

@@ -27,7 +27,7 @@
   background: #0b1f44;
 }
 
-/* The aside's animated scene (background, drone, radar, cards, brand) is
+/* The aside's animated scene (background, drone, and brand) is
    implemented as inline SVG + CSS in aside/AsideScene.tsx and styled in
    auth-aside.css, imported by AuthAside.tsx. */
 

@@ -1,10 +1,12 @@
+import { VideoThumbnail } from '../../../../../shared/components/media/VideoThumbnail'
+import { MediaChecklistAttachment } from './MediaChecklistAttachment'
 import { operatorMediaApi } from '../../../../media/api/operatorMediaApi'
 import {
   mediaTypeLabel,
   mediaSourceLabel,
   statusTone,
-  mediaStatusLabel,
-  finishedUploadStatuses,
+  getUploadMediaStatusLabel,
+  successfullyUploadedStatuses,
 } from '../uploadMediaHelpers'
 import { PcBackupPicker } from '../../../../media/components/PcBackupPicker'
 import { uploadMediaPageMessages } from '../UploadMediaPage.messages'
@@ -19,6 +21,8 @@ import type { MissionPermissions } from '../../../../mission/types/permissions'
 export function MediaCard({
   item,
   setPreview,
+  onOpenPreview,
+  isSelected,
   status,
   canManageMedia,
   isBusy,
@@ -28,16 +32,21 @@ export function MediaCard({
   canDiscard,
   discard,
   monitoring,
-  targetCount,
   selectedTargets,
   setSelectedTargets,
-  setBusyId,
-  attachSelected,
   attachFailures,
   uploadPc,
+  attachTargets,
+  detachTarget,
+  automaticAttach = false,
+  remotePreviewUrl,
+  remoteThumbnailUrl,
+  reviewMedia,
 }: {
   item: LocalMedia
-  setPreview: Dispatch<SetStateAction<LocalMedia | null>>
+  setPreview?: (item: LocalMedia) => void
+  onOpenPreview?: (item: LocalMedia) => void
+  isSelected?: boolean
   status: string
   canManageMedia: boolean
   isBusy: boolean
@@ -51,47 +60,38 @@ export function MediaCard({
     result: MissionResult | null
     permissions: MissionPermissions
   }>
-  targetCount: number
   selectedTargets: Record<string, string[]>
   setSelectedTargets: Dispatch<SetStateAction<Record<string, string[]>>>
-  setBusyId: Dispatch<SetStateAction<string | null>>
-  attachSelected: (item: LocalMedia, mediaId: string) => Promise<void>
   attachFailures: Record<string, string>
   uploadPc: (item: LocalMedia, file: File) => Promise<void>
+  attachTargets?: (item: LocalMedia, ids: string[]) => Promise<void>
+  detachTarget?: (executionId: string, mediaId: string) => Promise<void>
+  automaticAttach?: boolean
+  remotePreviewUrl?: string
+  remoteThumbnailUrl?: string
+  reviewMedia?: (mediaId: string) => Promise<void>
 }) {
-  const { t } = useI18n(uploadMediaPageMessages)
+  const { t, lang } = useI18n(uploadMediaPageMessages)
   return (
-    <article className="upload-media-card">
+    <article
+      className={`upload-media-card${isSelected ? ' is-selected' : ''}`}
+      aria-current={isSelected ? 'true' : undefined}
+    >
       <div className="upload-media-thumb">
-        {item.localAvailable === false ? (
-          <p className="upload-media-unavailable">
-            Bản gốc trên Flight Controller không khả dụng. Chọn bản sao PC để
-            khôi phục.
-          </p>
+        {item.backendMediaId && !remotePreviewUrl ? (
+          <p className="upload-media-unavailable">{t.previewPending}</p>
+        ) : item.localAvailable === false && !remotePreviewUrl ? (
+          <p className="upload-media-unavailable">{t.localUnavailable}</p>
         ) : item.mediaType === 'IMAGE' ? (
           <img
-            src={operatorMediaApi.previewUrl(item.localMediaId)}
+            src={
+              remoteThumbnailUrl ?? remotePreviewUrl ?? operatorMediaApi.previewUrl(item.localMediaId)
+            }
             alt={item.fileName}
             className="upload-media-preview"
           />
         ) : (
-          <video
-            src={operatorMediaApi.previewUrl(item.localMediaId)}
-            controls
-            preload="metadata"
-            className="upload-media-preview"
-          />
-        )}
-        {item.mediaType === 'IMAGE' && item.localAvailable !== false && (
-          <button
-            type="button"
-            className="upload-media-expand"
-            aria-hidden="true"
-            tabIndex={-1}
-            onClick={() => setPreview(item)}
-          >
-            ⛶
-          </button>
+          <VideoThumbnail src={remotePreviewUrl ?? operatorMediaApi.previewUrl(item.localMediaId)} poster={remoteThumbnailUrl} fileName={item.fileName} fileSize={item.fileSize} fallbackUrl={remotePreviewUrl ?? operatorMediaApi.previewUrl(item.localMediaId)} />
         )}
       </div>
       <div className="upload-media-card-body">
@@ -112,14 +112,37 @@ export function MediaCard({
           )}
         </div>
         <span className={`upload-media-status ${statusTone(status)}`}>
-          {mediaStatusLabel[status] ?? status}
+          {getUploadMediaStatusLabel(status, lang)}
         </span>
+        {status === 'PENDING_MANAGER_APPROVAL' && (
+          <p className="upload-media-state-note">{t.managerReviewPending}</p>
+        )}
+        {status === 'AVAILABLE' && (
+          <p className="upload-media-state-note">{t.managerApproved}</p>
+        )}
+        {status === 'REJECTED' && (
+          <p className="upload-media-state-note is-danger" role="status">
+            {t.managerRejected(item.reason)}
+          </p>
+        )}
         {item.previewError && (
           <p role="alert" className="upload-media-notice is-danger">
             {item.previewError}
           </p>
         )}
         <div className="upload-media-actions">
+          {reviewMedia &&
+            item.backendMediaId &&
+            status === 'PENDING_MANAGER_APPROVAL' && (
+              <button
+                type="button"
+                className="odm-btn odm-btn-p"
+                disabled={isBusy}
+                onClick={() => void reviewMedia(item.backendMediaId!)}
+              >
+                {t.approveEvidence}
+              </button>
+            )}
           {canManageMedia && status === 'MANUAL_UPLOAD_REQUIRED' && (
             <button
               type="button"
@@ -127,29 +150,47 @@ export function MediaCard({
               disabled={isBusy || item.localAvailable === false}
               onClick={() => void approve(item, true)}
             >
-              Upload thủ công từ bản gốc
+              {t.manualUpload}
             </button>
           )}
-          {canManageMedia && (
-            <button
-              type="button"
-              className="odm-btn odm-btn-p"
-              disabled={isBusy || !canApprove || item.localAvailable === false}
-              onClick={() => void approve(item)}
-            >
-              {busyId === item.localMediaId ? t.processing : t.approveUpload}
-            </button>
-          )}
-          {item.mediaType === 'IMAGE' && item.localAvailable !== false && (
-            <button
-              type="button"
-              className="odm-btn"
-              onClick={() => setPreview(item)}
-            >
-              <span aria-hidden="true">{t.viewShort}</span>
-              <span className="upload-media-sr">{t.enlargePreview}</span>
-            </button>
-          )}
+          {canManageMedia &&
+            (!automaticAttach ||
+              ['UPLOAD_FAILED', 'RETRY_REQUIRED'].includes(status)) && (
+              <button
+                type="button"
+                className="odm-btn odm-btn-p"
+                disabled={
+                  isBusy || !canApprove || item.localAvailable === false
+                }
+                onClick={() => void approve(item)}
+              >
+                {busyId === item.localMediaId
+                  ? t.uploadingNow
+                  : ['UPLOAD_FAILED', 'RETRY_REQUIRED'].includes(status)
+                    ? t.retryUpload
+                    : t.approveUpload}
+              </button>
+            )}
+          {item.mediaType === 'IMAGE' &&
+            (item.localAvailable !== false || remotePreviewUrl) && (
+              <button
+                type="button"
+                className="odm-btn"
+                aria-label={t.openMediaPreview(item.fileName)}
+                onClick={() =>
+                  remotePreviewUrl
+                    ? window.open(
+                        remotePreviewUrl,
+                        '_blank',
+                        'noopener,noreferrer',
+                      )
+                    : (onOpenPreview ?? setPreview)?.(item)
+                }
+              >
+                <span aria-hidden="true">{t.viewShort}</span>
+                <span className="upload-media-sr">{t.enlargePreview}</span>
+              </button>
+            )}
           {canManageMedia && (
             <details className="upload-media-more">
               <summary aria-label={t.moreActions} title={t.moreActions}>
@@ -162,7 +203,7 @@ export function MediaCard({
                   disabled={isBusy || !canDiscard}
                   onClick={() => void discard(item)}
                 >
-                  {finishedUploadStatuses.has(status)
+                  {successfullyUploadedStatuses.has(status)
                     ? t.deleteLocal
                     : t.discard}
                 </button>
@@ -170,67 +211,35 @@ export function MediaCard({
             </details>
           )}
         </div>
-        {monitoring.data?.permissions.canAttachChecklistEvidence === true &&
+        {status !== 'REJECTED' &&
+          monitoring.data?.permissions.canAttachChecklistEvidence === true &&
           !monitoring.loading &&
           !monitoring.error && (
-            <details
-              className="upload-media-attach-wrap"
-              open={targetCount > 0}
-            >
-              <summary>
-                {t.attachToChecklist}
-                {targetCount > 0 && (
-                  <span className="upload-media-chip">
-                    {t.attachSelected(targetCount)}
-                  </span>
-                )}
-              </summary>
-              <fieldset disabled={isBusy} className="upload-media-attach">
-                {monitoring.data.checklist.executions.map((execution) => (
-                  <label key={execution.id} className="upload-media-attach-row">
-                    <input
-                      type="checkbox"
-                      checked={(
-                        selectedTargets[item.localMediaId] ?? []
-                      ).includes(execution.id)}
-                      onChange={(event) =>
-                        setSelectedTargets((previous) => {
-                          const current = previous[item.localMediaId] ?? []
-                          return {
-                            ...previous,
-                            [item.localMediaId]: event.target.checked
-                              ? [...current, execution.id]
-                              : current.filter((id) => id !== execution.id),
-                          }
-                        })
-                      }
-                    />
-                    <span>{execution.content}</span>
-                    <em>
-                      {execution.eligibleEvidenceCount ?? 0}/
-                      {execution.minimumEvidenceCount ?? 0}
-                    </em>
-                  </label>
-                ))}
-                {item.backendMediaId && (
-                  <button
-                    type="button"
-                    className="odm-btn upload-media-attach-button"
-                    disabled={isBusy || !targetCount}
-                    onClick={() => {
-                      const mediaId = item.backendMediaId
-                      if (!mediaId) return
-                      setBusyId(item.localMediaId)
-                      void attachSelected(item, mediaId).finally(() =>
-                        setBusyId(null),
-                      )
-                    }}
-                  >
-                    Gắn bằng chứng — không upload lại
-                  </button>
-                )}
-              </fieldset>
-            </details>
+            <MediaChecklistAttachment
+              fileName={item.fileName}
+              mediaId={item.backendMediaId}
+              mediaType={item.mediaType}
+              executions={monitoring.data.checklist.executions}
+              selectedIds={selectedTargets[item.localMediaId] ?? []}
+              disabled={isBusy || monitoring.loading}
+              autoUpload={automaticAttach}
+              onDetach={
+                detachTarget && item.backendMediaId
+                  ? (executionId) =>
+                      detachTarget(executionId, item.backendMediaId!)
+                  : undefined
+              }
+              onSave={async (ids) => {
+                setSelectedTargets((previous) => ({
+                  ...previous,
+                  [item.localMediaId]: ids,
+                }))
+                if (attachTargets) {
+                  await attachTargets(item, ids)
+                }
+                return true
+              }}
+            />
           )}
         {attachFailures[item.localMediaId] && (
           <p role="alert" className="upload-media-notice is-danger">

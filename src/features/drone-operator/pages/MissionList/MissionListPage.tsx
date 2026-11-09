@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   EmptyState,
   LoadingState,
@@ -31,6 +31,27 @@ export function MissionListPage({ searchQuery }: { searchQuery: string }) {
   )
 
   const allMissions = missionsQuery.data?.items ?? []
+  const hasMissionsAwaitingFinalPayment = allMissions.some(
+    (mission) => (mission.backendStatus ?? mission.status) === 'PENDING_PAYMENT',
+  )
+
+  useEffect(() => {
+    if (!hasMissionsAwaitingFinalPayment) return undefined
+
+    const refreshWhenVisible = () => {
+      if (!document.hidden) missionsQuery.reload()
+    }
+    window.addEventListener('focus', refreshWhenVisible)
+    document.addEventListener('visibilitychange', refreshWhenVisible)
+    const timer = window.setInterval(refreshWhenVisible, 30_000)
+
+    return () => {
+      window.clearInterval(timer)
+      window.removeEventListener('focus', refreshWhenVisible)
+      document.removeEventListener('visibilitychange', refreshWhenVisible)
+    }
+  }, [hasMissionsAwaitingFinalPayment, missionsQuery.reload])
+
   const filtered = useMemo(
     () => filterMissions(allMissions, searchQuery),
     [allMissions, searchQuery],

@@ -4,13 +4,13 @@ export function MissionKpis({
   kpis: { label: string; value: string }[]
 }) {
   return (
-    <div className="odm-or-md-kpis">
+    <dl className="mgr-md-kpis">
       {kpis.map((item) => (
-        <div key={item.label} className="odm-or-md-kpi">
-          <span>{item.label}</span>
-          <strong title={item.value}>{item.value}</strong>
+        <div className="mgr-md-kpi" key={item.label}>
+          <dt>{item.label}</dt>
+          <dd>{item.value}</dd>
         </div>
       ))}
-    </div>
+    </dl>
   )
 }

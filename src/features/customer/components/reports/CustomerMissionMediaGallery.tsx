@@ -1,7 +1,10 @@
+import { PictureOutlined } from '@ant-design/icons'
+import { Button } from 'antd'
 import { useState } from 'react'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
 import { customerMediaApi } from '../../api/customerMediaApi'
+import { CardComponent } from '../../../../shared/components/antd'
 import { MediaGrid, MediaPreviewModal } from '../common/media'
 import { Pager } from '../common/Pager'
 import { toMediaItem } from '../../lib/media/mapMedia'
@@ -34,25 +37,29 @@ export function CustomerMissionMediaGallery({
     [missionId, page],
   )
   return (
-    <section className="cr-section cr-gallery" aria-label={t.media}>
-      <div className="cr-heading">
-        <h2>
-          {t.media}
+    <CardComponent
+      className="cr-gallery cr-gallery-card"
+      role="region"
+      aria-label={t.media}
+      icon={<PictureOutlined />}
+      title={t.media}
+      extra={
+        <span className="cr-gallery-extra">
           {!query.loading && !query.error && query.data ? (
             <span className="cr-media-count">{query.data.totalItems}</span>
           ) : null}
-        </h2>
-        <button
-          className="odm-btn odm-btn-gh"
-          disabled={query.loading}
-          onClick={() => {
-            setPreview(null)
-            query.reload()
-          }}
-        >
-          {t.retry}
-        </button>
-      </div>
+          <Button
+            disabled={query.loading}
+            onClick={() => {
+              setPreview(null)
+              query.reload()
+            }}
+          >
+            {t.retry}
+          </Button>
+        </span>
+      }
+    >
       {query.loading && <p role="status">{t.loading}</p>}
       {query.error ? (
         <p role="alert">{t.error}</p>
@@ -75,7 +82,7 @@ export function CustomerMissionMediaGallery({
                 page={query.data.page}
                 totalPages={query.data.totalPages}
                 totalItems={query.data.totalItems}
-                unit={t.media}
+                unit={t.files}
                 onPage={(p) => {
                   setPreview(null)
                   setPage(p)
@@ -93,6 +100,6 @@ export function CustomerMissionMediaGallery({
           showDetailLink={false}
         />
       )}
-    </section>
+    </CardComponent>
   )
 }

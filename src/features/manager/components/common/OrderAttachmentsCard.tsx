@@ -1,6 +1,7 @@
 import type { OrderDetail } from '../../types/orders'
 import type { OrderReviewMessages } from '../../pages/OrderReview/OrderReviewPage.messages'
 import { OrderIcon } from './OrderIcon'
+import { Button } from '../../../../shared/components/ui'
 
 export function OrderAttachmentsCard({
   order,
@@ -35,9 +36,9 @@ export function OrderAttachmentsCard({
                   {att.sizeLabel} · {att.mimeType}
                 </div>
               </div>
-              <a className="odm-btn odm-btn-sm" href={att.url}>
+              <Button size="sm" href={att.url}>
                 {t.download}
-              </a>
+              </Button>
             </div>
           ))}
         </div>

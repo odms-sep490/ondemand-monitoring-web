@@ -1,8 +1,11 @@
+import { CloseOutlined } from '@ant-design/icons'
+import { StaffRoleIcon } from './StaffRoleIcon'
 import type { Mission } from '../../../mission/types/mission'
 import { OrderIcon } from './OrderIcon'
 import { missionRoles } from './liveDispatchConstants'
 import { StaffCombobox } from './StaffCombobox'
 import { liveDispatchPageMessages } from './LiveDispatchPage.messages'
+import { commonMiscMessages } from './commonMisc.messages'
 import { useI18n } from '../../../../shared/i18n'
 import type { MissionStaffRole } from '../../../mission/types/mission'
 import type { Dispatch, SetStateAction } from 'react'
@@ -34,6 +37,7 @@ export function DispatchStaffStep({
   selectedStaffIds: string[]
 }) {
   const { t } = useI18n(liveDispatchPageMessages)
+  const { t: m } = useI18n(commonMiscMessages)
   return (
     <section className="odm-or-card">
       <header className="odm-or-card-head">
@@ -47,14 +51,14 @@ export function DispatchStaffStep({
           {missingRoles === 0 ? t.rolesComplete : t.rolesMissing(missingRoles)}
         </span>
       </header>
-      <div className="odm-or-card-body" style={{ display: 'grid', gap: 14 }}>
+      <div className="odm-or-card-body mgr-stack">
         {current && (
           <p className="odm-assign-mission">
             <strong>{current.missionCode}</strong>
             <span>{scheduleText}</span>
           </p>
         )}
-        <p className="odm-or-muted" style={{ margin: 0 }}>
+        <p className="odm-or-muted mgr-flush">
           {t.roleHelp} {t.staffAvailabilityHint}
         </p>
         <div className="odm-or-role-grid">
@@ -67,7 +71,7 @@ export function DispatchStaffStep({
               >
                 <span className="odm-or-role-head">
                   <span>
-                    {t.roleIcons[role]} {t.roles[role]}
+                    <StaffRoleIcon role={role} /> {t.roles[role]}
                   </span>
                   {selected.length > 0 && (
                     <span className="odm-or-role-check">
@@ -75,7 +79,7 @@ export function DispatchStaffStep({
                     </span>
                   )}
                 </span>
-                <span className="odm-or-muted" style={{ fontSize: 12 }}>
+                <span className="odm-or-muted mgr-small">
                   {t.roleDescriptions[role]}
                 </span>
                 {selected.length > 0 &&
@@ -99,7 +103,7 @@ export function DispatchStaffStep({
                         setError(null)
                       }}
                     >
-                      Dùng người này cho các vai trò còn trống
+                      {m.useForEmptyRoles}
                     </button>
                   )}
                 <StaffCombobox
@@ -162,7 +166,7 @@ export function DispatchStaffStep({
                       }
                       aria-label={`${t.clearStaff} ${staff.fullName}`}
                     >
-                      ×
+                      <CloseOutlined aria-hidden="true" />
                     </button>
                   </span>
                 )

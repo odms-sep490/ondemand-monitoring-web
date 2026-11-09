@@ -34,9 +34,15 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
 
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}))
-    throw new ApiError(errorData.message || `HTTP ${res.status}: ${res.statusText}`, {
-      status: res.status, code: errorData.code, method: options?.method ?? 'GET', path: url,
-    })
+    throw new ApiError(
+      errorData.message || `HTTP ${res.status}: ${res.statusText}`,
+      {
+        status: res.status,
+        code: errorData.code,
+        method: options?.method ?? 'GET',
+        path: url,
+      },
+    )
   }
 
   const payload: ApiResponse<T> = await res.json()
@@ -44,9 +50,18 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
 }
 
 export const missionApi = {
+  getReworkContext: (missionId: string) =>
+    request<import('../types/mission').MissionReworkContext>(
+      `${API_BASE}/missions/${encodeURIComponent(missionId)}/rework-context`,
+    ),
   getPermissions: (missionId: string) =>
     request<import('../types/permissions').MissionPermissions>(
       `${API_BASE}/missions/${encodeURIComponent(missionId)}/permissions`,
+    ),
+  cancelMission: (missionId: string, reason: string) =>
+    request<import('../types/mission').MissionCancellationResponse>(
+      `${API_BASE}/missions/${encodeURIComponent(missionId)}/cancel`,
+      { method: 'POST', body: JSON.stringify({ reason }) },
     ),
   // GET /api/missions?operatorId={id} – list all missions for an operator
   getMissionsByOperator: async (operatorId: string): Promise<Mission[]> => {
@@ -56,8 +71,11 @@ export const missionApi = {
   },
 
   // Query Mission Details
-  getMissionById: async (missionId: string): Promise<Mission> => {
-    return request<Mission>(`${API_BASE}/missions/${missionId}`)
+  getMissionById: async (
+    missionId: string,
+    signal?: AbortSignal,
+  ): Promise<Mission> => {
+    return request<Mission>(`${API_BASE}/missions/${missionId}`, { signal })
   },
 
   getMissionResult: async (
@@ -78,9 +96,15 @@ export const missionApi = {
 
     if (!res.ok) {
       const errorData = await res.json().catch(() => ({}))
-      throw new ApiError(errorData.message || `HTTP ${res.status}: ${res.statusText}`, {
-        status: res.status, code: errorData.code, method: 'GET', path: `/api/missions/${missionId}/result`,
-      })
+      throw new ApiError(
+        errorData.message || `HTTP ${res.status}: ${res.statusText}`,
+        {
+          status: res.status,
+          code: errorData.code,
+          method: 'GET',
+          path: `/api/missions/${missionId}/result`,
+        },
+      )
     }
 
     const payload: ApiResponse<MissionResult> = await res.json()
@@ -91,14 +115,18 @@ export const missionApi = {
    * POST /api/missions/{id}/media/capture-reference — the server uses the drone's latest telemetry
    * and Mapillary; the client sends no coordinates.
    */
-  captureReferenceImage: async (missionId: string): Promise<ReferenceCaptureResult> => {
+  captureReferenceImage: async (
+    missionId: string,
+  ): Promise<ReferenceCaptureResult> => {
     const res = await authenticatedFetch(
       `${API_BASE}/missions/${encodeURIComponent(missionId)}/media/capture-reference`,
       { method: 'POST', headers: { 'Content-Type': 'application/json' } },
     )
     if (!res.ok) {
       const errorData = await res.json().catch(() => ({}))
-      throw new Error(errorData.message || `HTTP ${res.status}: ${res.statusText}`)
+      throw new Error(
+        errorData.message || `HTTP ${res.status}: ${res.statusText}`,
+      )
     }
     const payload = (await res.json()) as { data: ReferenceCaptureResult }
     return payload.data
@@ -142,7 +170,14 @@ export const missionApi = {
       `${API_BASE}/missions/${encodeURIComponent(missionId)}/result`,
       {
         method: 'POST',
-        body: JSON.stringify(payload),
+        // Summary is bounded; preserve the full report in notes.
+        body: JSON.stringify({
+          ...payload,
+          summary:
+            payload.summary == null
+              ? payload.summary
+              : payload.summary.slice(0, 1000).replace(/[\uD800-\uDBFF]$/, ''),
+        }),
       },
     )
   },
@@ -165,7 +200,7 @@ export const missionApi = {
     let latest: Mission | null = null
     for (const [index, deviceId] of resolvedDeviceIds.entries()) {
       latest = await request<Mission>(
-        `${API_BASE}/missions/${encodeURIComponent(missionId)}/assign-device`,
+        `${API_BASE}/missions/${encodeURIComponent(missionId)}/device-assignments`,
         {
           method: 'POST',
           body: JSON.stringify({
@@ -196,10 +231,10 @@ export const missionApi = {
           : []
       for (const staffId of staffIds) {
         latest = await request<Mission>(
-          `${API_BASE}/missions/${encodeURIComponent(missionId)}/assign-staff`,
+          `${API_BASE}/missions/${encodeURIComponent(missionId)}/staff-assignments`,
           {
             method: 'POST',
-            body: JSON.stringify({ staffId, assignedRole }),
+            body: JSON.stringify({ staffId, assignedRoles: [assignedRole] }),
           },
         )
       }
@@ -212,13 +247,6 @@ export const missionApi = {
     return request<Mission>(
       `${API_BASE}/missions/${encodeURIComponent(missionId)}/accept-current`,
       { method: 'PATCH' },
-    )
-  },
-
-  startMissionWorkflow: async (missionId: string): Promise<Mission> => {
-    return request<Mission>(
-      `${API_BASE}/missions/${encodeURIComponent(missionId)}/start-operation`,
-      { method: 'POST' },
     )
   },
 
@@ -240,20 +268,26 @@ export const missionApi = {
   },
 
   assignDrone: async (missionId: string, droneId: string): Promise<Mission> => {
-    return request<Mission>(`${API_BASE}/missions/${missionId}/assign-device`, {
-      method: 'POST',
-      body: JSON.stringify({ deviceId: droneId, deviceRole: 'MAIN' }),
-    })
+    return request<Mission>(
+      `${API_BASE}/missions/${encodeURIComponent(missionId)}/device-assignments`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ deviceId: droneId, deviceRole: 'MAIN' }),
+      },
+    )
   },
 
   assignOperator: async (
     missionId: string,
     operatorId: string,
   ): Promise<Mission> => {
-    return request<Mission>(`${API_BASE}/missions/${missionId}/assign-staff`, {
-      method: 'POST',
-      body: JSON.stringify({ staffId: operatorId, assignedRole: 'PILOT' }),
-    })
+    return request<Mission>(
+      `${API_BASE}/missions/${encodeURIComponent(missionId)}/staff-assignments`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ staffId: operatorId, assignedRoles: ['PILOT'] }),
+      },
+    )
   },
 
   // F3.1 Accept mission (PATCH /api/missions/{id}/accept)
@@ -328,6 +362,16 @@ export const missionApi = {
     )
   },
 
+  requestDeviceReplacement: async (
+    missionId: string,
+    reason: string,
+  ): Promise<Mission> => {
+    return request<Mission>(
+      `${API_BASE}/missions/${encodeURIComponent(missionId)}/device-replacement-requests`,
+      { method: 'POST', body: JSON.stringify({ reason }) },
+    )
+  },
+
   // F3.2 Replace Drone (PATCH /api/missions/{id}/replace-drone)
   replaceDrone: async (
     missionId: string,
@@ -353,17 +397,14 @@ export const missionApi = {
     )
   },
 
-  // F3.3 Start Mission / Takeoff (POST /api/missions/{id}/start)
-  startMission: async (
-    missionId: string,
-    tokenValue?: string,
-  ): Promise<Mission> => {
-    const query = tokenValue
-      ? `?tokenValue=${encodeURIComponent(tokenValue)}`
-      : ''
-    return request<Mission>(`${API_BASE}/missions/${missionId}/start${query}`, {
-      method: 'POST',
-    })
+  // Start operation after staff acceptance, preflight, and control handover.
+  startMission: async (missionId: string): Promise<Mission> => {
+    return request<Mission>(
+      `${API_BASE}/missions/${missionId}/start-operation`,
+      {
+        method: 'POST',
+      },
+    )
   },
 
   // F3.3 Upload Mission Image / Media (POST /api/missions/{id}/media)
@@ -444,5 +485,15 @@ export const missionApi = {
       method: 'POST',
       body: JSON.stringify({ reason }),
     })
+  },
+
+  requestMissionFailure: async (
+    missionId: string,
+    reason: string,
+  ): Promise<Mission> => {
+    return request<Mission>(
+      `${API_BASE}/missions/${encodeURIComponent(missionId)}/fail-request`,
+      { method: 'POST', body: JSON.stringify({ reason }) },
+    )
   },
 }

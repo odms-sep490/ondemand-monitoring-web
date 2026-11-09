@@ -3,6 +3,8 @@ import type {
   PersistedPostDeviceCheckResponse,
   PreflightCheckItem,
 } from '../../types/missions'
+import { useI18n } from '../../../../shared/i18n'
+import { detailPanelsMessages } from './detailPanels.messages'
 import { MetricTile } from './MetricTile'
 import {
   formatNumber,
@@ -19,8 +21,9 @@ export function PlanDetail({
   postcheck?: PersistedPostDeviceCheckResponse | null
   precheckItems?: PreflightCheckItem[] | null
 }) {
+  const { t } = useI18n(detailPanelsMessages)
   if (!plan) {
-    return <div className="odm-or-empty">Chưa có kế hoạch bay.</div>
+    return <div className="odm-or-empty">{t.noPlan}</div>
   }
   const estimatedUsedPercent =
     plan.estimatedBatteryUsedPercent ??
@@ -33,21 +36,21 @@ export function PlanDetail({
     null
   return (
     <div className="odm-or-detail-grid">
-      <MetricTile label="Thuật toán" value={plan.planningAlgorithm} />
+      <MetricTile label={t.algorithm} value={plan.planningAlgorithm} />
       <MetricTile
-        label="Quãng đường"
+        label={t.distance}
         value={formatNumber(plan.plannedDistanceM, ' m')}
       />
       <MetricTile
-        label="Thời lượng"
+        label={t.duration}
         value={formatDuration(plan.plannedDurationSec)}
       />
       <MetricTile
-        label="Năng lượng"
+        label={t.energy}
         value={formatNumber(plan.estimatedEnergyMah, ' mAh')}
       />
       <MetricTile
-        label="Pin trước bay"
+        label={t.batteryBefore}
         value={formatNumber(
           plan.availableBatteryPercentAtPlanning ??
             batteryFromPrecheck(precheckItems),
@@ -55,15 +58,15 @@ export function PlanDetail({
         )}
       />
       <MetricTile
-        label="Pin dùng dự kiến"
+        label={t.batteryUsed}
         value={formatNumber(estimatedUsedPercent, '%')}
       />
       <MetricTile
-        label="Pin còn lại"
+        label={t.batteryRemaining}
         value={formatNumber(remainingBattery, '%')}
       />
       <MetricTile
-        label="Độ cao tối đa"
+        label={t.maxAltitude}
         value={formatNumber(plan.maxPlannedAltitudeM, ' m')}
       />
       <MetricTile label="Waypoint" value={plan.waypoints?.length ?? 0} />

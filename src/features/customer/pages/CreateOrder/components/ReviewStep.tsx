@@ -1,5 +1,3 @@
-import type { ReactNode } from 'react'
-
 import type {
   PreferredTimeOption,
   ServiceDeliverableOption,
@@ -13,6 +11,7 @@ import type {
   UpdateField,
 } from '../../../lib/createOrder/types'
 import type { ChecklistRow } from '../../../lib/checklist/types'
+import { AgreementSection } from './AgreementSection'
 import { DeliverablesCard } from './DeliverablesCard'
 import { DeliveryOptionsCard } from './DeliveryOptionsCard'
 import { PricingEstimateCard } from './PricingEstimateCard'
@@ -24,7 +23,6 @@ type Props = {
   update: UpdateField
   service?: ServiceOption
   time?: PreferredTimeOption
-  deliverable?: ServiceDeliverableOption
   deliverables: ServiceDeliverableOption[]
   deliverablesLoading: boolean
   deliverablesError?: unknown
@@ -37,53 +35,56 @@ type Props = {
   packageCount: number
   /** Jump back to an earlier step from the summary. */
   onEdit: (step: Step) => void
-  /** Wizard actions, rendered at the bottom of the sticky summary panel. */
-  footer?: ReactNode
 }
 
-/** Step 6: choose delivery options, review the request and submit. */
+/** Step 6: review the request, choose delivery options and submit. */
 export function ReviewStep(p: Props) {
   return (
-    <div className="co-grid is-review">
-      <div className="co-stack co-review-form">
-        <DeliverablesCard
-          deliverables={p.deliverables}
-          loading={p.deliverablesLoading}
-          error={p.deliverablesError}
-          onRetry={p.reloadDeliverables}
-          mediaTotals={p.mediaTotals}
-        />
+    <div className="co-grid is-review co-review-layout">
+      <RequestSummaryCard
+        variant="review"
+        form={p.form}
+        service={p.service}
+        time={p.time}
+        checklistCounts={{
+          total: p.packageSelectedCount + p.additionalChecklists.length,
+          packageSelected: p.packageSelectedCount,
+          packageTotal: p.packageCount,
+          additional: p.additionalChecklists.length,
+        }}
+        onEdit={p.onEdit}
+      />
+      <div className="co-review-financial-grid">
         <DeliveryOptionsCard
+          variant="review"
           form={p.form}
           errors={p.errors}
           update={p.update}
           mediaTotals={p.mediaTotals}
-        />
-      </div>
-      <aside className="co-stack co-summary is-tall co-review-summary">
-        <RequestSummaryCard
-          mediaTotals={p.mediaTotals}
-          form={p.form}
-          service={p.service}
-          time={p.time}
-          deliverable={p.deliverable}
-          checklistCounts={{
-            total: p.packageSelectedCount + p.additionalChecklists.length,
-            packageSelected: p.packageSelectedCount,
-            packageTotal: p.packageCount,
-            additional: p.additionalChecklists.length,
-          }}
-          onEdit={p.onEdit}
-        />
+        >
+          <DeliverablesCard
+            variant="inline"
+            deliverables={p.deliverables}
+            loading={p.deliverablesLoading}
+            error={p.deliverablesError}
+            onRetry={p.reloadDeliverables}
+            mediaTotals={p.mediaTotals}
+          />
+        </DeliveryOptionsCard>
         <PricingEstimateCard
+          variant="review"
           estimate={p.pricingEstimate}
           loading={p.pricingLoading}
           hasService={Boolean(p.service)}
-          aiAnalysisRequested={false}
           additionalChecklists={p.additionalChecklists}
         />
-        {p.footer && <div className="co-summary-cta">{p.footer}</div>}
-      </aside>
+      </div>
+      <AgreementSection
+        variant="review"
+        form={p.form}
+        errors={p.errors}
+        update={p.update}
+      />
     </div>
   )
 }

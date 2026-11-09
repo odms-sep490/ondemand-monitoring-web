@@ -3,6 +3,8 @@ import type {
   UploadedMissionMedia,
   UploadedMissionMediaPage,
 } from '../../media/types/missionMedia'
+import { getLanguage } from '../../../shared/i18n'
+import { managerLibMessages } from '../lib/lib.messages'
 import type { MediaResponse } from '../types/missions'
 import { missionsApi } from './missionsApi'
 
@@ -26,6 +28,8 @@ function toUploaded(item: MediaResponse): UploadedMissionMedia {
     capturedAt: item.capturedAt ?? null,
     availableAt: null,
     downloadUrl: item.url,
+    thumbnailUrl: item.thumbnailUrl ?? null,
+    previewUrl: item.previewUrl ?? null,
     sourceType: item.sourceType ?? null,
     sourceReferenceId: item.sourceReferenceId ?? null,
     sourceCapturedAt: item.sourceCapturedAt ?? null,
@@ -69,7 +73,7 @@ export const staffMissionMediaReader: MissionMediaReader = {
     const found = all.find(
       (item) => item.id === mediaId && item.missionId === missionId,
     )
-    if (!found) throw new Error('Không tìm thấy media.')
+    if (!found) throw new Error(managerLibMessages[getLanguage()].api.mediaNotFound)
     return toUploaded(found)
   },
 }

@@ -1,16 +1,20 @@
+import { Button } from 'antd'
 import { useEffect, useState } from 'react'
 
 import { env } from '../../../../../config/env'
 import { apiRequest } from '../../../../../shared/api/httpClient'
+import { useI18n } from '../../../../../shared/i18n'
 import { buildCoverageArea } from '../../../lib/createOrder/payload'
 import type { OrderDetailView } from '../../../lib/orders/types'
 import { RealLocationMap } from '../../CreateOrder/components/LocationStep'
 import '../../CreateOrder/CreateOrder.css'
+import { locationCorrectionFormMessages } from './LocationCorrectionForm.messages'
 
 export function LocationCorrectionForm({ order, onSaved }: {
   order: OrderDetailView
   onSaved: () => void
 }) {
+  const { t } = useI18n(locationCorrectionFormMessages)
   const [address, setAddress] = useState(order.address ?? '')
   const [latitude, setLatitude] = useState(String(order.latitude ?? ''))
   const [longitude, setLongitude] = useState(String(order.longitude ?? ''))
@@ -41,7 +45,7 @@ export function LocationCorrectionForm({ order, onSaved }: {
       Math.abs(nextLatitude) > 90 ||
       Math.abs(nextLongitude) > 180
     ) {
-      setError('Điểm vừa chọn nằm ngoài phạm vi bản đồ hợp lệ. Vui lòng chọn lại.')
+      setError(t.outOfRange)
       return
     }
     setLatitude(nextLatitude.toFixed(7))
@@ -63,15 +67,15 @@ export function LocationCorrectionForm({ order, onSaved }: {
         data?: { displayName?: string }
       } | null
       if (!response.ok || payload?.success === false) {
-        throw new Error(payload?.message ?? 'Không tìm được địa chỉ tại vị trí này.')
+        throw new Error(payload?.message ?? t.notFound)
       }
       const nextAddress = payload?.data?.displayName?.trim()
       if (nextAddress) setAddress(nextAddress)
     } catch (cause) {
       setError(
         cause instanceof Error
-          ? `${cause.message} Bạn vẫn có thể nhập địa chỉ thủ công.`
-          : 'Không thể tìm địa chỉ. Bạn vẫn có thể nhập thủ công.',
+          ? `${cause.message} ${t.manualHint}`
+          : t.lookupFailed,
       )
     } finally {
       setLocating(false)
@@ -95,36 +99,36 @@ export function LocationCorrectionForm({ order, onSaved }: {
       })
       onSaved()
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'Không thể cập nhật khu vực.')
+      setError(cause instanceof Error ? cause.message : t.updateFailed)
       setBusy(false)
     }
   }
 
   return (
     <div className="od-additional-info-form od-additional-info-target">
-      <strong>Cập nhật khu vực giám sát</strong>
-      <p>Bấm vào bản đồ để chọn lại vị trí. Chỉ khu vực hiện tại của đơn sẽ được thay đổi.</p>
+      <strong>{t.heading}</strong>
+      <p>{t.intro}</p>
       {mapReady ? (
         <RealLocationMap
           latitude={latitude}
           longitude={longitude}
           radiusM={Number.isFinite(radius) ? radius : 300}
-          label="Bản đồ chọn lại khu vực giám sát"
-          labels={{ street: 'Bản đồ', satellite: 'Vệ tinh' }}
+          label={t.mapLabel}
+          labels={{ street: t.street, satellite: t.satellite }}
           onPick={(nextLatitude, nextLongitude) => {
             void pickLocation(nextLatitude, nextLongitude)
           }}
         />
       ) : (
-        <div className="od-location-map-loading">Đang mở bản đồ…</div>
+        <div className="od-location-map-loading">{t.openingMap}</div>
       )}
-      {locating ? <small>Đang tìm địa chỉ tại vị trí mới…</small> : null}
+      {locating ? <small>{t.locating}</small> : null}
       <div className="od-additional-info-grid">
-        <label className="is-wide"><span>Địa chỉ khu vực</span><input value={address} onChange={(e) => setAddress(e.target.value)} /></label>
-        <label><span>Vĩ độ</span><input inputMode="decimal" value={latitude} onChange={(e) => setLatitude(e.target.value)} /></label>
-        <label><span>Kinh độ</span><input inputMode="decimal" value={longitude} onChange={(e) => setLongitude(e.target.value)} /></label>
+        <label className="is-wide"><span>{t.address}</span><input value={address} onChange={(e) => setAddress(e.target.value)} /></label>
+        <label><span>{t.lat}</span><input inputMode="decimal" value={latitude} onChange={(e) => setLatitude(e.target.value)} /></label>
+        <label><span>{t.lon}</span><input inputMode="decimal" value={longitude} onChange={(e) => setLongitude(e.target.value)} /></label>
         <label className="is-wide od-radius-control">
-          <span>Bán kính giám sát: {Number.isFinite(radius) ? radius : 0} m</span>
+          <span>{t.radius(Number.isFinite(radius) ? radius : 0)}</span>
           <div className="od-radius-inputs">
             <input
               type="range"
@@ -132,7 +136,7 @@ export function LocationCorrectionForm({ order, onSaved }: {
               max="5000"
               step="50"
               value={Number.isFinite(radius) ? Math.min(5000, Math.max(50, radius)) : 300}
-              aria-label="Kéo để chọn bán kính giám sát"
+              aria-label={t.radiusSlider}
               onChange={(e) => setRadiusM(e.target.value)}
             />
             <input
@@ -142,16 +146,16 @@ export function LocationCorrectionForm({ order, onSaved }: {
               max="5000"
               step="50"
               value={radiusM}
-              aria-label="Bán kính giám sát theo mét"
+              aria-label={t.radiusMeters}
               onChange={(e) => setRadiusM(e.target.value)}
             />
           </div>
-          <small><span>50 m</span><span>5.000 m</span></small>
+          <small><span>50 m</span><span>{t.max}</span></small>
         </label>
       </div>
-      <button type="button" className="odm-btn odm-btn-ok" disabled={busy || !valid} onClick={() => void save()}>
-        {busy ? 'Đang gửi…' : 'Cập nhật khu vực và gửi lại'}
-      </button>
+      <Button type="primary" disabled={busy || !valid} onClick={() => void save()}>
+        {busy ? t.sending : t.submit}
+      </Button>
       {error ? <span role="alert">{error}</span> : null}
     </div>
   )

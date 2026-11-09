@@ -1,3 +1,5 @@
+import { Button } from 'antd'
+
 import { useI18n } from '../../../../../shared/i18n'
 import type { MediaItem } from '../../../lib/media/types'
 import { customerHref } from '../../../routes'
@@ -9,16 +11,9 @@ export function SiblingNav({ prev, next }: Props) {
   const { t } = useI18n(siblingNavMessages)
   const link = (target: MediaItem | null, label: string) =>
     target ? (
-      <a
-        className="odm-btn odm-btn-gh"
-        href={customerHref({ screen: 'mediaDetail', mediaId: target.id })}
-      >
-        {label}
-      </a>
+      <Button href={customerHref({ screen: 'mediaDetail', mediaId: target.id })}>{label}</Button>
     ) : (
-      <button type="button" className="odm-btn odm-btn-gh" disabled>
-        {label}
-      </button>
+      <Button disabled>{label}</Button>
     )
   return (
     <nav className="mdp-nav" aria-label={t.label}>

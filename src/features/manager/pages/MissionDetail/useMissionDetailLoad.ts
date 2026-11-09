@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { managerHref } from '../../routes'
 import { missionsApi } from '../../api/missionsApi'
 import { unwrapSettled } from '../../components/common/missionDetailHelpers'
 import { ordersApi } from '../../api/ordersApi'
@@ -31,21 +32,47 @@ export function useMissionDetailLoad({
     const abort = new AbortController()
     if (loadedMissionRef.current !== missionId) setLoading(true)
     setError(null)
-    Promise.allSettled([
-      missionsApi.getMissionResponse(missionId, abort.signal),
-      missionsApi.getCurrentPreflight(missionId, abort.signal),
-      missionsApi.getCurrentPostDeviceCheck(missionId, abort.signal),
-      missionsApi.getMissionResult(missionId, abort.signal),
-      missionsApi.getMissionMedia(missionId, abort.signal),
-      missionsApi.getLatestWeatherCheck(missionId, abort.signal),
-    ])
-      .then(([mission, preflight, postcheck, result, media, weather]) => {
+    let openingPlanning = false
+    missionsApi
+      .getMissionResponse(missionId, abort.signal)
+      .then(async (fullMission) => {
         if (abort.signal.aborted) return
-        const fullMission = unwrapSettled(mission)
         if (!fullMission || fullMission.id !== missionId) {
           setError(t.loadError)
           return
         }
+        // Executions and results do not exist until planning is confirmed.
+        if (fullMission.status === 'PLANNING') {
+          if (
+            fullMission.purpose === 'REWORK' &&
+            !fullMission.resultRevisionCaseId
+          ) {
+            setError(t.loadError)
+            return
+          }
+          openingPlanning = true
+          window.location.replace(
+            managerHref(
+              fullMission.purpose === 'REWORK'
+                ? {
+                    screen: 'missionCreate',
+                    orderId: fullMission.orderId,
+                    reworkCaseId: fullMission.resultRevisionCaseId!,
+                  }
+                : { screen: 'orderReview', orderId: fullMission.orderId },
+            ),
+          )
+          return
+        }
+        const [preflight, postcheck, result, media, weather] =
+          await Promise.allSettled([
+            missionsApi.getCurrentPreflight(missionId, abort.signal),
+            missionsApi.getCurrentPostDeviceCheck(missionId, abort.signal),
+            missionsApi.getMissionResult(missionId, abort.signal),
+            missionsApi.getMissionMedia(missionId, abort.signal),
+            missionsApi.getLatestWeatherCheck(missionId, abort.signal),
+          ])
+        if (abort.signal.aborted) return
         setDetail({
           mission: fullMission,
           order: null,
@@ -73,8 +100,11 @@ export function useMissionDetailLoad({
           })
           .catch(() => undefined)
       })
+      .catch(() => {
+        if (!abort.signal.aborted) setError(t.loadError)
+      })
       .finally(() => {
-        if (!abort.signal.aborted) setLoading(false)
+        if (!abort.signal.aborted && !openingPlanning) setLoading(false)
       })
     return () => abort.abort()
   }, [missionId, revision, t.loadError])

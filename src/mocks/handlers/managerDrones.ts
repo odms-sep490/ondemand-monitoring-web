@@ -3,7 +3,7 @@
 //   PATCH  /api/drones/{id}/status               [ĐỀ XUẤT]
 import type { DroneStatus } from '../../shared/types/domain'
 import { createCollection } from '../db'
-import { fail, ok, registerMockRoutes } from '../mockServer'
+import { created, fail, ok, registerMockRoutes } from '../mockServer'
 import dronesSeed from '../data/drones.json'
 
 type SeedDroneModel = {
@@ -58,7 +58,27 @@ type SeedDrone = {
   // pre-existing MNG-09 display fields above (see
   // features/manager/types/drones.ts `DroneResponse`).
   droneModel?: SeedDroneModel
+  deviceModel?: {
+    id: string
+    code: string
+    modelName: string
+    manufacturer: string | null
+    specsMetadata?: Record<string, unknown> | null
+    deviceTypes?: Array<{
+      id: string
+      code: string
+      name: string
+      description?: string | null
+      createdAt?: string
+      updatedAt?: string
+      version?: number
+    }> | null
+    createdAt?: string
+    updatedAt?: string
+    version?: number
+  }
   dronePayload?: SeedDronePayload
+  imageUrl?: string | null
   createdAt?: string
   updatedAt?: string
   version?: number
@@ -66,12 +86,48 @@ type SeedDrone = {
 
 const drones = createCollection(dronesSeed.items) as SeedDrone[]
 
+function parseModelSpecifications(value: string): Record<string, unknown> {
+  try {
+    const parsed: unknown = JSON.parse(value)
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+      ? (parsed as Record<string, unknown>)
+      : {}
+  } catch {
+    return {}
+  }
+}
+
 // P6: `GET /api/drones/{id}` [BE] — maps straight to the BE `DroneResponse`
 // DTO shape rather than the MNG-09 display-only `DroneItem` shape.
 function toDroneResponse(d: SeedDrone) {
+  const model =
+    d.deviceModel ??
+    (d.droneModel
+      ? {
+          id: d.droneModel.id,
+          code: d.droneModel.modelCode,
+          modelName: d.droneModelName ?? d.droneModel.modelCode,
+          manufacturer: d.droneModel.manufacturer,
+          specsMetadata: {
+            category: d.droneModel.category,
+            maxFlightTimeMinutes: d.droneModel.maxFlightTimeMinutes,
+            maxTakeoffWeightKg: d.droneModel.maxTakeoffWeightKg,
+            maxFlightAltitudeMeters: d.droneModel.maxFlightAltitudeMeters,
+            maxWindResistanceMetersPerSecond: d.droneModel.maxWindResistanceMetersPerSecond,
+            ipRating: d.droneModel.ipRating,
+            ...parseModelSpecifications(d.droneModel.specsMetadata),
+          },
+          createdAt: d.droneModel.createdAt,
+          updatedAt: d.droneModel.updatedAt,
+          version: d.droneModel.version,
+        }
+      : null)
   return {
     id: d.id,
     serialNumber: d.serialNumber ?? '',
+    name: d.name,
+    deviceModel: model,
+    imageUrl: d.imageUrl ?? null,
     droneModel: d.droneModel ?? null,
     dronePayload: d.dronePayload ?? null,
     status: d.status,
@@ -79,6 +135,93 @@ function toDroneResponse(d: SeedDrone) {
     updatedAt: d.updatedAt ?? '',
     version: d.version ?? 1,
   }
+}
+
+function listDeviceModels() {
+  const models = new Map<
+    string,
+    NonNullable<ReturnType<typeof toDroneResponse>['deviceModel']>
+  >()
+  for (const drone of drones) {
+    const model = toDroneResponse(drone).deviceModel
+    if (model) models.set(model.id, model)
+  }
+  const items = [...models.values()]
+  return ok({
+    items,
+    page: 0,
+    size: items.length,
+    totalItems: items.length,
+    totalPages: items.length ? 1 : 0,
+    first: true,
+    last: true,
+  })
+}
+
+async function createDevice(body: unknown) {
+  let request: { serialNumber?: string; name?: string; modelId?: string } = {}
+  let imageUrl: string | null = null
+  if (body instanceof FormData) {
+    const devicePart = body.get('device')
+    if (devicePart instanceof Blob) {
+      try {
+        request = JSON.parse(await devicePart.text()) as typeof request
+      } catch {
+        return fail(400, 'VALIDATION_ERROR', 'Thông tin thiết bị không hợp lệ')
+      }
+    }
+    const image = body.get('file')
+    if (
+      image instanceof Blob &&
+      image.size > 0 &&
+      typeof URL.createObjectURL === 'function'
+    ) {
+      imageUrl = URL.createObjectURL(image)
+    }
+  } else if (body && typeof body === 'object') {
+    request = body as typeof request
+  }
+
+  if (
+    !request.serialNumber?.trim() ||
+    !request.name?.trim() ||
+    !request.modelId
+  ) {
+    return fail(400, 'VALIDATION_ERROR', 'Vui lòng nhập đủ thông tin thiết bị')
+  }
+  if (drones.some((drone) => drone.serialNumber === request.serialNumber)) {
+    return fail(409, 'DEVICE_SERIAL_NUMBER_EXISTS', 'Số serial đã tồn tại')
+  }
+
+  const modelDrone = drones.find(
+    (drone) => drone.droneModel?.id === request.modelId,
+  )
+  if (!modelDrone?.droneModel)
+    return fail(404, 'DEVICE_MODEL_NOT_FOUND', 'Không tìm thấy mẫu thiết bị')
+
+  const now = new Date().toISOString()
+  const model = toDroneResponse(modelDrone).deviceModel
+  const device: SeedDrone = {
+    id: `mock-device-${Date.now()}`,
+    code: `DRN-${String(drones.length + 1).padStart(3, '0')}`,
+    name: request.name.trim(),
+    serialNumber: request.serialNumber.trim(),
+    droneModelName: modelDrone.droneModelName,
+    droneModel: modelDrone.droneModel,
+    deviceModel: model ?? undefined,
+    imageUrl,
+    status: 'AVAILABLE',
+    baseStation: null,
+    batteryPct: null,
+    hoursSinceMaintenance: null,
+    payload: null,
+    lastSeenAt: null,
+    createdAt: now,
+    updatedAt: now,
+    version: 1,
+  }
+  drones.unshift(device)
+  return created(toDroneResponse(device), 'Đã tạo thiết bị')
 }
 
 // Valid status transitions [ĐỀ XUẤT per MNG-09 design context]
@@ -109,6 +252,21 @@ function toDroneItem(d: SeedDrone) {
 }
 
 registerMockRoutes([
+  {
+    method: 'GET',
+    path: '/api/device-models',
+    handler: () => listDeviceModels(),
+  },
+  {
+    method: 'POST',
+    path: '/api/drones',
+    handler: ({ body }) => createDevice(body),
+  },
+  {
+    method: 'POST',
+    path: '/api/drones/with-image',
+    handler: ({ body }) => createDevice(body),
+  },
   // ── MNG-09: list drones [BE DroneController] ───────────────────────────
   {
     method: 'GET',

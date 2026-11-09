@@ -23,49 +23,6 @@ const missions: OperatorMission[] = [
 ]
 
 describe('MissionListTable', () => {
-  it.each([
-    ['REQUESTED', undefined, undefined, 'Đang dừng an toàn'],
-    ['IN_PROGRESS', 'now', undefined, 'Đã xác nhận an toàn'],
-    ['READY_FOR_CANCELLATION', 'now', 'now', 'Sẵn sàng hủy'],
-    ['FAILED', undefined, undefined, 'Dừng an toàn cần xử lý lại'],
-  ])(
-    'never renders normal ready actions for stop %s, even with stale permissions',
-    (safeStopStatus, safeStopConfirmedAt, safeStopCleanedAt, label) => {
-      render(
-        <MissionListTable
-          now={new Date()}
-          missions={[
-            {
-              ...missions[0],
-              status: 'READY_TO_FLY',
-              backendStatus: 'READY_TO_FLY',
-              safeStopStatus,
-              safeStopConfirmedAt,
-              safeStopCleanedAt,
-              permissions: {
-                canControlFlight: true,
-                canOperatePayload: true,
-                canMaintainDevice: false,
-                canInspectDevice: false,
-                canUploadMedia: false,
-              },
-            },
-          ]}
-        />,
-      )
-      expect(screen.getByText(label)).toBeInTheDocument()
-      expect(screen.queryByText('Sẵn sàng bay')).not.toBeInTheDocument()
-      expect(
-        screen
-          .getAllByRole('link')
-          .some((link) =>
-            /\/(flight|handover|connect|preflight)\//.test(
-              link.getAttribute('href') ?? '',
-            ),
-          ),
-      ).toBe(false)
-    },
-  )
   it('fails closed when permissions cannot be loaded in pending review', () => {
     render(
       <MissionListTable
@@ -130,6 +87,43 @@ describe('MissionListTable', () => {
     expect(screen.getByText('Không phân công')).toBeTruthy()
   })
 
+  it('uses backend lifecycle status instead of exposing raw SCHEDULED', () => {
+    render(
+      <MissionListTable
+        missions={[
+          {
+            ...missions[0],
+            status: 'ACCEPTED',
+            backendStatus: 'SCHEDULED',
+          },
+        ]}
+        now={new Date('2026-09-20T00:00:00+07:00')}
+      />,
+    )
+
+    expect(screen.getByText('Đang chuẩn bị trước bay')).toBeInTheDocument()
+    expect(screen.queryByText('SCHEDULED')).not.toBeInTheDocument()
+  })
+
+  it('translates the backend pending confirmation status into Vietnamese', () => {
+    act(() => setLanguage('vi'))
+    render(
+      <MissionListTable
+        missions={[
+          {
+            ...missions[0],
+            status: 'PENDING_CONFIRMATION',
+            backendStatus: 'PENDING_CONFIRMATION',
+          },
+        ]}
+        now={new Date('2026-09-20T00:00:00+07:00')}
+      />,
+    )
+
+    expect(screen.getByText('Chuẩn bị')).toBeInTheDocument()
+    expect(screen.queryByText('PENDING_CONFIRMATION')).not.toBeInTheDocument()
+  })
+
   it('renders english column headers and status label when language is switched', () => {
     render(
       <MissionListTable
@@ -160,6 +154,26 @@ describe('MissionListTable', () => {
     expect(
       screen.queryByText('390b6b53-00a1-446c-abb2-93d8ffcd6454'),
     ).toBeNull()
+  })
+
+  it('shows a new replacement request instead of the prior completed badge', () => {
+    render(
+      <MissionListTable
+        missions={[
+          {
+            ...missions[0],
+            deviceReplacementCompleted: true,
+            deviceReplacementRequested: true,
+          },
+        ]}
+        now={new Date('2026-09-20T00:00:00+07:00')}
+      />,
+    )
+
+    const request = screen.getByText('Yêu cầu đổi drone')
+    expect(request.tagName).toBe('SPAN')
+    expect(request).toHaveStyle({ color: 'var(--red-fg)' })
+    expect(screen.queryByText('Đã đổi drone')).toBeNull()
   })
 
   it('renders the vietnamese empty state', () => {

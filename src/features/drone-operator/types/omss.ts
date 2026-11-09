@@ -1,6 +1,10 @@
 export type MissionState =
+  | 'PLANNING'
+  | 'CREATED'
   | 'WAITING_DEPOSIT'
-  | 'WAITING_CREW_CONFIRMATION'
+  | 'PENDING_PAYMENT'
+  | 'PENDING_CONFIRMATION'
+  | 'READY'
   | 'WAITING_OPERATOR_ACCEPTANCE'
   | 'RESOURCE_ASSIGNING'
   | 'SCHEDULED'
@@ -60,12 +64,29 @@ export interface Drone {
 export interface Mission {
   id: string
   backendId?: string
+  purpose?: 'ORIGINAL' | 'REWORK' | string
+  resultRevisionCaseId?: string | null
+  failureRequestedAt?: string | null
+  failureReason?: string | null
   orderRef: string
   orderTitle?: string
   title: string
+  serviceLabel?: string
   state: MissionState
   priority: 'LOW' | 'NORMAL' | 'HIGH' | 'CRITICAL'
   droneId: string
+  deviceAssignmentStatus?:
+    | 'ASSIGNED'
+    | 'CONNECTED'
+    | 'CONNECTION_LOST'
+    | 'PREFLIGHT_CHECKING'
+    | 'READY_TO_FLY'
+    | 'IN_PROGRESS'
+    | 'RETURNING'
+    | 'POSTFLIGHT_CHECKING'
+    | 'COMPLETED'
+    | 'FAILED'
+    | 'RELEASED'
   droneCode?: string
   droneName?: string
   operatorId: string
@@ -106,15 +127,12 @@ export interface MissionRoutePoint {
   simY: number
   altitudeM: number
   speedMps?: number
+  minSpeedMps?: number
+  reachedRadiusM?: number
+  slowdownRadiusM?: number
   reason: string
-}
-
-export interface FlightToken {
-  token: string
-  issuedAt: number
-  expiresAt: number
-  missionId: string
-  droneId: string
+  yawDeg?: number
+  mediaActions?: Array<'photo' | 'video_start' | 'video_stop'>
 }
 
 export type Role = 'operator' | 'customer' | 'manager' | 'sysop' | 'admin'

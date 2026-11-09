@@ -1,11 +1,10 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import './FlightCockpit.css'
 import { type CockpitTelemetry, type CockpitCommand } from './cockpitTypes'
 import { copy } from './cockpitCopy'
-import { useFlightClock, useCockpitLayout } from './cockpitHooks'
+import { useFlightClock } from './cockpitHooks'
 import { CockpitHeader } from './CockpitHeader'
 import { CockpitCameraPanel } from './CockpitCameraPanel'
-import { CockpitMapPanel } from './CockpitMapPanel'
 import { CockpitTelemetryPanel } from './CockpitTelemetryPanel'
 import { CockpitControlsPanel } from './CockpitControlsPanel'
 
@@ -19,11 +18,9 @@ type Props = {
   statusMessage: string
   telemetry: CockpitTelemetry
   camera: ReactNode
-  map: ReactNode
   overlay?: ReactNode
   busy: boolean
   canFly: boolean
-  canTerminate?: boolean
   canFlyToTarget: boolean
   /** @deprecated reference-photo button was removed; the Photo control captures instead */
   referenceBusy?: boolean
@@ -34,6 +31,11 @@ type Props = {
   startingFlight?: boolean
   onFinishFlight?: () => void
   finishingFlight?: boolean
+  canFinishFlight?: boolean
+  onFailMission?: () => void
+  failMissionBusy?: boolean
+  missionFailureRequested?: boolean
+  finishFlightBlockedReason?: string
   onReferenceCapture?: () => void
 }
 
@@ -48,12 +50,10 @@ export function FlightCockpit(props: Props) {
     statusMessage,
     telemetry: tm,
     camera,
-    map,
     overlay,
     busy,
     canFly,
     canFlyToTarget,
-    canTerminate = false,
     onCommand,
     onReview,
     onStartFlight,
@@ -61,18 +61,16 @@ export function FlightCockpit(props: Props) {
     startingFlight = false,
     onFinishFlight,
     finishingFlight,
+    canFinishFlight = false,
+    onFailMission,
+    failMissionBusy = false,
+    missionFailureRequested = false,
+    finishFlightBlockedReason,
   } = props
   const c = copy[language]
   const clock = useFlightClock(tm.inAir)
-  const [confirmStop, setConfirmStop] = useState(false)
-  const [layout, setLayout] = useCockpitLayout()
   const [paramsOpen, setParamsOpen] = useState(true)
   const [controlOpen, setControlOpen] = useState(true)
-  useEffect(() => {
-    if (!confirmStop) return
-    const timer = window.setTimeout(() => setConfirmStop(false), 3000)
-    return () => window.clearTimeout(timer)
-  }, [confirmStop])
 
   const battery = tm.batteryPercent
   const batteryTone =
@@ -121,7 +119,7 @@ export function FlightCockpit(props: Props) {
       icon: 'pause',
       label: c.pause,
       sub: c.pauseSub,
-      enabled: canFly || canTerminate,
+      enabled: canFly,
     },
     {
       cmd: 'photo',
@@ -135,7 +133,7 @@ export function FlightCockpit(props: Props) {
       icon: 'rtl',
       label: c.rtl,
       sub: c.rtlSub,
-      enabled: canFly || canTerminate,
+      enabled: canFly,
     },
     {
       cmd: 'land',
@@ -143,7 +141,7 @@ export function FlightCockpit(props: Props) {
       label: c.land,
       sub: c.landSub,
       tone: 'success',
-      enabled: canFly || canTerminate,
+      enabled: canFly,
     },
   ]
 
@@ -164,29 +162,17 @@ export function FlightCockpit(props: Props) {
         language={language}
         busy={busy}
         startingFlight={startingFlight}
-        layout={layout}
-        setLayout={setLayout}
         onReview={onReview}
         toggleFullscreen={toggleFullscreen}
       />
 
-      <main className={`fc-body is-layout-${layout}`}>
+      <main className="fc-body">
         <CockpitCameraPanel
           c={c}
           batteryTone={batteryTone}
           battery={battery}
-          setLayout={setLayout}
-          layout={layout}
           camera={camera}
-        />
-
-        <CockpitMapPanel
-          c={c}
           statusMessage={statusMessage}
-          setLayout={setLayout}
-          layout={layout}
-          map={map}
-          missionLabel={missionLabel}
         />
 
         <aside className="fc-side">
@@ -209,11 +195,13 @@ export function FlightCockpit(props: Props) {
             onCommand={onCommand}
             onFinishFlight={onFinishFlight}
             finishingFlight={finishingFlight}
+            canFinishFlight={canFinishFlight}
+            onFailMission={onFailMission}
+            failMissionBusy={failMissionBusy}
+            missionFailureRequested={missionFailureRequested}
+            finishFlightBlockedReason={finishFlightBlockedReason}
             canFly={canFly}
-            canTerminate={canTerminate}
             language={language}
-            confirmStop={confirmStop}
-            setConfirmStop={setConfirmStop}
           />
         </aside>
       </main>

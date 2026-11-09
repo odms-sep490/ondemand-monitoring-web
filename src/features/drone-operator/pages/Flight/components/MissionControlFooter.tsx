@@ -1,21 +1,29 @@
-import { navigateOperator } from '../navigateOperator'
-import { operatorHref } from '../../../routes'
 import { inFlightControlMessages } from './InFlightControl.messages'
 import { useI18n } from '../../../../../shared/i18n'
 import type { Mission } from '../../../types/omss'
 
 export function MissionControlFooter({
-  mission,
   footerStatusColor,
   footerStatusDot,
   geofenceMessage,
+  missionPanelOpen = false,
+  mediaPanelOpen = false,
+  onShowChecklist,
+  onShowMedia,
+  onShowOverview,
 }: {
   mission: Mission
   footerStatusColor: string
   footerStatusDot: string
   geofenceMessage: string
+  missionPanelOpen?: boolean
+  mediaPanelOpen?: boolean
+  onShowChecklist?: () => void
+  onShowMedia?: () => void
+  onShowOverview?: () => void
 }) {
   const { t } = useI18n(inFlightControlMessages)
+  const overviewActive = !missionPanelOpen && !mediaPanelOpen
   return (
     <footer
       style={{
@@ -29,76 +37,58 @@ export function MissionControlFooter({
     >
       <button
         type="button"
-        onClick={() => {
-          if (window.history.length > 1) {
-            window.history.back()
-            return
-          }
-          navigateOperator(operatorHref({ screen: 'missions' }))
-        }}
+        onClick={onShowChecklist}
+        aria-pressed={missionPanelOpen}
         style={{
           height: 28,
           padding: '0 12px',
           borderRadius: 9,
-          border: '1px solid rgba(148,163,184,.2)',
-          background: 'rgba(15,23,42,.72)',
-          color: '#dbeafe',
+          border: '1px solid transparent',
+          background: missionPanelOpen ? 'rgba(37,99,235,.2)' : 'transparent',
+          color: missionPanelOpen ? '#bfdbfe' : '#94a3b8',
           fontSize: 12,
-          fontWeight: 850,
+          fontWeight: 800,
           cursor: 'pointer',
         }}
-        title={t.footer.back}
       >
-        {t.footer.backLabel}
+        {t.footer.checklist}
       </button>
-      {[
-        {
-          id: 'overview',
-          label: t.footer.overview,
-          href: operatorHref({ screen: 'missions' }),
-        },
-        {
-          id: 'missions',
-          label: t.footer.missions,
-          href: operatorHref({ screen: 'missions' }),
-        },
-        {
-          id: 'detail',
-          label: t.footer.detail,
-          href: operatorHref({
-            screen: 'missionDetail',
-            missionId: mission.backendId ?? mission.id,
-          }),
-        },
-        {
-          id: 'gcsConnect',
-          label: t.footer.gcsConnect,
-          href: operatorHref({
-            screen: 'connect',
-            missionId: mission.backendId ?? mission.id,
-          }),
-          active: true,
-        },
-      ].map((item) => (
-        <button
-          key={item.id}
-          type="button"
-          onClick={() => navigateOperator(item.href)}
-          style={{
-            height: 28,
-            padding: '0 12px',
-            borderRadius: 9,
-            border: '1px solid transparent',
-            background: item.active ? 'rgba(37,99,235,.2)' : 'transparent',
-            color: item.active ? '#bfdbfe' : '#94a3b8',
-            fontSize: 12,
-            fontWeight: 800,
-            cursor: 'pointer',
-          }}
-        >
-          {item.label}
-        </button>
-      ))}
+      <button
+        type="button"
+        onClick={onShowMedia}
+        aria-pressed={mediaPanelOpen}
+        style={{
+          height: 28,
+          padding: '0 12px',
+          borderRadius: 9,
+          border: '1px solid transparent',
+          background: mediaPanelOpen ? 'rgba(37,99,235,.2)' : 'transparent',
+          color: mediaPanelOpen ? '#bfdbfe' : '#94a3b8',
+          fontSize: 12,
+          fontWeight: 800,
+          cursor: 'pointer',
+        }}
+      >
+        {t.footer.media}
+      </button>
+      <button
+        type="button"
+        onClick={onShowOverview}
+        aria-pressed={overviewActive}
+        style={{
+          height: 28,
+          padding: '0 12px',
+          borderRadius: 9,
+          border: '1px solid transparent',
+          background: overviewActive ? 'rgba(37,99,235,.2)' : 'transparent',
+          color: overviewActive ? '#bfdbfe' : '#94a3b8',
+          fontSize: 12,
+          fontWeight: 800,
+          cursor: 'pointer',
+        }}
+      >
+        {t.footer.overview}
+      </button>
       <div
         style={{
           marginLeft: 'auto',

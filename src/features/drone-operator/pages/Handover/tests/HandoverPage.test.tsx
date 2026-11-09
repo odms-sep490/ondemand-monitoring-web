@@ -33,7 +33,7 @@ describe('HandoverScreen', () => {
     render(<HandoverPage />)
     expect(screen.getByText('Bàn giao quyền điều khiển')).toBeTruthy()
     expect(
-      screen.getByText('Xác nhận bàn giao sau preflight'),
+      screen.getByText('Xác nhận bàn giao sau khi kiểm tra trước bay'),
     ).toBeTruthy()
   })
 
@@ -46,16 +46,19 @@ describe('HandoverScreen', () => {
     ).toBeTruthy()
   })
 
-  it('sends a multi-role staff member straight to flight after handover', async () => {
+  it('returns to mission detail after handover so the inspector can start it', async () => {
     window.location.hash = '#portal/staff/handover/mission-1'
     vi.mocked(useActiveMission).mockReturnValue({
       data: {
         id: 'mission-1',
         missionId: 'mission-1',
         missionCode: 'MS-1',
-        status: 'READY_TO_FLY',
+        status: 'PENDING_CONFIRMATION',
         deviceId: 'drone-1',
         droneCode: 'DRN-1',
+        deviceAssignments: [
+          { deviceId: 'drone-1', deviceRole: 'MAIN', status: 'READY_TO_FLY' },
+        ],
       },
       missionId: 'mission-1',
       loading: false,
@@ -89,21 +92,24 @@ describe('HandoverScreen', () => {
     )
 
     await waitFor(() =>
-      expect(window.location.hash).toBe('#portal/staff/flight/mission-1'),
+      expect(window.location.hash).toBe('#portal/staff/missions/mission-1'),
     )
     expect(missionApi.handoverMyMission).toHaveBeenCalledWith('mission-1')
   })
 
-  it('returns an operator-only staff member to the mission list after handover', async () => {
+  it('returns operator-only staff to mission detail after handover', async () => {
     window.location.hash = '#portal/staff/handover/mission-1'
     vi.mocked(useActiveMission).mockReturnValue({
       data: {
         id: 'mission-1',
         missionId: 'mission-1',
         missionCode: 'MS-1',
-        status: 'READY_TO_FLY',
+        status: 'PENDING_CONFIRMATION',
         deviceId: 'drone-1',
         droneCode: 'DRN-1',
+        deviceAssignments: [
+          { deviceId: 'drone-1', deviceRole: 'MAIN', status: 'READY_TO_FLY' },
+        ],
       },
       missionId: 'mission-1',
       loading: false,
@@ -134,7 +140,7 @@ describe('HandoverScreen', () => {
     )
 
     await waitFor(() =>
-      expect(window.location.hash).toBe('#portal/staff/missions'),
+      expect(window.location.hash).toBe('#portal/staff/missions/mission-1'),
     )
   })
 })

@@ -113,7 +113,7 @@ describe('Customer aggregate/report publication', () => {
       'Scope m1',
     )
     expect(
-      screen.getByText('Bạn có thể xem đầy đủ kết quả và media của Mission.'),
+      screen.getByText('Bạn có thể xem đầy đủ kết quả và media của nhiệm vụ.'),
     ).toBeInTheDocument()
     expect(screen.getAllByText('Trạng thái')).toHaveLength(3)
     expect(screen.queryByRole('checkbox')).toBeNull()
@@ -181,7 +181,9 @@ describe('Customer aggregate/report publication', () => {
       await screen.findByText('Monitoring has not been scheduled yet.'),
     ).toBeInTheDocument()
     expect(screen.queryByText('Total sessions')).not.toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Retry' })).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Retry' }),
+    ).not.toBeInTheDocument()
   })
   it('renders three exact Mission links and uses public availability', async () => {
     vi.mocked(customerMissionReportApi.list).mockResolvedValue([
@@ -202,7 +204,7 @@ describe('Customer aggregate/report publication', () => {
     expect(screen.getAllByRole('article')).toHaveLength(3)
     expect(
       screen.queryByText(
-        /PENDING_MANAGER_APPROVAL|REJECTED|revision|safe-stop/i,
+        /PENDING_MANAGER_APPROVAL|REJECTED|revision/i,
       ),
     ).not.toBeInTheDocument()
   })
@@ -221,12 +223,22 @@ describe('Customer aggregate/report publication', () => {
         mission('m2', status === 'COMPLETED'),
       ])
       render(<OrderDetailPage orderId="o" />)
+      if (status === 'COMPLETED') {
+        expect(
+          await screen.findByText('Completed', {
+            selector: '.od-next-step__item dd',
+          }),
+        ).toBeInTheDocument()
+      }
+      fireEvent.click(
+        await screen.findByRole('tab', { name: 'Monitoring details' }),
+      )
       await screen.findByRole('link', { name: 'View report M1' })
       const header = document.querySelector('.od-header') ?? document.body
       expect(
         within(header as HTMLElement).getByText(
-          status === 'COMPLETED' ? 'Completed' : 'In progress',
-          { selector: '.ui-badge' },
+          status === 'COMPLETED' ? 'Mission completed' : 'In progress',
+          { selector: '.mgr-status-tag' },
         ),
       ).toBeInTheDocument()
       expect(screen.queryByText('Order completed')).not.toBeInTheDocument()

@@ -99,7 +99,7 @@ describe('OrderReadinessCard', () => {
       screen.queryByText('Hạn nhận kết quả rất sát ngày thực hiện'),
     ).not.toBeInTheDocument()
     expect(screen.getByRole('status')).toHaveTextContent(
-      'Còn 1 mục manager cần xác nhận',
+      'Còn 1 mục quản lý cần xác nhận',
     )
   })
 

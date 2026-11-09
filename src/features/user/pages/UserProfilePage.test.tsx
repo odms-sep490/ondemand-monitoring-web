@@ -3,6 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { userProfileApi, type CurrentUserProfile } from '../api/userProfileApi'
 import { authApi } from '../../auth/api/authApi'
 import { setLanguage } from '../../../shared/i18n'
+import { staffLicenseApi } from '../../staff/api/staffLicenseApi'
 import { UserProfilePage } from './UserProfilePage'
 
 const user: CurrentUserProfile = {
@@ -13,7 +14,10 @@ const user: CurrentUserProfile = {
   linkedProviders: ['LOCAL'],
 }
 
-beforeEach(() => setLanguage('vi'))
+beforeEach(() => {
+  setLanguage('vi')
+  vi.spyOn(staffLicenseApi, 'list').mockResolvedValue([])
+})
 afterEach(() => vi.restoreAllMocks())
 
 describe('profile local password setup', () => {

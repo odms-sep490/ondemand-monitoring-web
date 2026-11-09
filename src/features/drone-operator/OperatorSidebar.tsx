@@ -1,5 +1,18 @@
+import {
+  BellOutlined,
+  CalendarOutlined,
+  CustomerServiceOutlined,
+  DashboardOutlined,
+  DesktopOutlined,
+  EnvironmentOutlined,
+  IdcardOutlined,
+  RocketOutlined,
+  ToolOutlined,
+} from '@ant-design/icons'
+import type { ReactNode } from 'react'
+
 import { authSession } from '../auth/api/authApi'
-import { LogoutButton } from '../auth/components/LogoutButton'
+import { RoleSidebar } from '../../shared/components/RoleSidebar'
 import { useI18n } from '../../shared/i18n'
 import type { Language } from '../../shared/i18n/languageStore'
 import { operatorHref, type OperatorRoute, type OperatorScreen } from './routes'
@@ -10,7 +23,7 @@ type Messages = (typeof operatorSidebarMessages)['vi']
 type NavItem = {
   screen: OperatorScreen
   labelKey: keyof Messages['nav']
-  icon: string
+  icon: ReactNode
   route: OperatorRoute
   badge?: number
 }
@@ -27,20 +40,20 @@ function buildGroups(
         {
           screen: 'missions',
           labelKey: 'missions',
-          icon: '✈',
+          icon: <RocketOutlined />,
           route: { screen: 'missions' },
           badge: pendingCount,
         },
         {
           screen: 'support',
           labelKey: 'support',
-          icon: '☏',
+          icon: <CustomerServiceOutlined />,
           route: { screen: 'support' },
         },
         {
           screen: 'availability',
           labelKey: 'availability',
-          icon: '🗓',
+          icon: <CalendarOutlined />,
           route: { screen: 'availability' },
         },
       ],
@@ -51,19 +64,19 @@ function buildGroups(
         {
           screen: 'technical',
           labelKey: 'technical',
-          icon: '▦',
+          icon: <DashboardOutlined />,
           route: { screen: 'technical' },
         },
         {
           screen: 'devices',
           labelKey: 'devices',
-          icon: '◉',
+          icon: <DesktopOutlined />,
           route: { screen: 'devices' },
         },
         {
           screen: 'maintenance',
           labelKey: 'maintenance',
-          icon: '🛠',
+          icon: <ToolOutlined />,
           route: { screen: 'maintenance' },
         },
       ],
@@ -74,7 +87,7 @@ function buildGroups(
         {
           screen: 'zoneMap',
           labelKey: 'zoneMap',
-          icon: '⛶',
+          icon: <EnvironmentOutlined />,
           route: { screen: 'zoneMap' },
         },
       ],
@@ -85,14 +98,14 @@ function buildGroups(
         {
           screen: 'notifications',
           labelKey: 'notifications',
-          icon: '🔔',
+          icon: <BellOutlined />,
           route: { screen: 'notifications' },
           badge: notificationCount,
         },
         {
           screen: 'profile',
           labelKey: 'profile',
-          icon: '◉',
+          icon: <IdcardOutlined />,
           route: { screen: 'profile' },
         },
       ],
@@ -111,6 +124,7 @@ const activeNavScreen: Record<OperatorScreen, OperatorScreen | null> = {
   preflight: null,
   flight: null,
   upload: null,
+  checklist: null,
   postflight: null,
   technical: 'technical',
   devices: 'devices',
@@ -130,24 +144,17 @@ export function operatorActiveLabel(
   return operatorSidebarMessages[lang].activeScreen[screen]
 }
 
-function initialsOf(fullName: string | undefined): string {
-  if (!fullName) return '?'
-  const words = fullName.trim().split(/\s+/)
-  if (words.length === 1) return words[0].slice(0, 2).toUpperCase()
-  return (words[0][0] + words[words.length - 1][0]).toUpperCase()
-}
-
 export function OperatorSidebar({
   route,
   pendingCount = 0,
   notificationCount = 0,
-  open = false,
+  collapsed = false,
   onNavigate,
 }: {
   route: OperatorRoute
   pendingCount?: number
   notificationCount?: number
-  open?: boolean
+  collapsed?: boolean
   onNavigate?: () => void
 }) {
   const user = authSession.getUser()
@@ -156,69 +163,32 @@ export function OperatorSidebar({
   const groups = buildGroups(pendingCount, notificationCount)
 
   return (
-    <nav
-      aria-label={t.ariaNav}
-      className={`odm-opr-side${open ? ' is-open' : ''}`}
-    >
-      <a
-        className="odm-opr-brand"
-        href={operatorHref({ screen: 'missions' })}
-        onClick={onNavigate}
-      >
-        <img
-          src="/images/logo-new.png"
-          alt="OnDemand Monitor"
-          className="odm-opr-brand-mark"
-        />
-        <span className="odm-opr-brand-name">
-          <span className="odm-opr-brand-primary">OnDemand</span>
-          <span className="odm-opr-brand-accent">Monitor</span>
-        </span>
-      </a>
-
-      <div className="odm-opr-nav-scroll">
-        {groups.map((group) => (
-          <div key={group.labelKey}>
-            <div className="odm-opr-navg">{t.groups[group.labelKey]}</div>
-            {group.items.map((item) => {
-              const isActive = item.screen === activeScreen
-              return (
-                <a
-                  key={item.screen}
-                  href={operatorHref(item.route)}
-                  className={`odm-opr-navi ${isActive ? 'is-active' : ''}`}
-                  aria-current={isActive ? 'page' : undefined}
-                  onClick={onNavigate}
-                >
-                  <span
-                    aria-hidden="true"
-                    style={{ minWidth: 16, textAlign: 'center' }}
-                  >
-                    {item.icon}
-                  </span>
-                  <span>{t.nav[item.labelKey]}</span>
-                  {item.badge ? (
-                    <span className="odm-opr-navc">{item.badge}</span>
-                  ) : null}
-                </a>
-              )
-            })}
-          </div>
-        ))}
-      </div>
-
-      <div className="odm-opr-user">
-        <span className="odm-opr-avatar" aria-hidden="true">
-          {initialsOf(user?.fullName)}
-        </span>
-        <span className="odm-opr-user-text">
-          <span className="odm-opr-user-name">
-            {user?.fullName ?? t.pilotFallback}
-          </span>
-          <span className="odm-opr-user-email">{user?.email ?? ''}</span>
-        </span>
-      </div>
-      <LogoutButton className="odm-opr-logout" />
-    </nav>
+    <div className="odm-opr-side">
+      <RoleSidebar
+        brandHref={operatorHref({ screen: 'missions' })}
+        ariaLabel={t.ariaNav}
+        collapsed={collapsed}
+        groups={groups.map((group) => ({
+          key: group.labelKey,
+          label: t.groups[group.labelKey],
+          items: group.items.map((item) => ({
+            key: item.screen,
+            label: t.nav[item.labelKey],
+            icon: item.icon,
+            className: 'odm-opr-navi',
+            href: operatorHref(item.route),
+            active: item.screen === activeScreen,
+            badge: item.badge,
+            onClick: onNavigate,
+          })),
+        }))}
+        profile={{
+          name: user?.fullName ?? t.pilotFallback,
+          description: t.pilotFallback,
+          href: operatorHref({ screen: 'profile' }),
+        }}
+        onBrandClick={onNavigate}
+      />
+    </div>
   )
 }

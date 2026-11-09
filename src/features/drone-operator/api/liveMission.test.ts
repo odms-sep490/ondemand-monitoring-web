@@ -33,6 +33,21 @@ describe('live mission mapping', () => {
       toOperatorMission({ ...mission, status: 'FUTURE_STATUS' }).backendStatus,
     ).toBe('FUTURE_STATUS')
   })
+
+  it('preserves known workflow statuses and maps unrecognised ones to UNKNOWN', () => {
+    expect(toOperatorMission({ ...mission, status: 'PLANNING' }).status).toBe(
+      'PLANNING',
+    )
+    expect(toOperatorMission({ ...mission, status: 'READY' }).status).toBe(
+      'READY',
+    )
+    expect(
+      toOperatorMission({ ...mission, status: 'WAITING_DEPOSIT' }).status,
+    ).toBe('WAITING_DEPOSIT')
+    expect(
+      toOperatorMission({ ...mission, status: 'NOT_A_STATUS' }).status,
+    ).toBe('UNKNOWN')
+  })
   it('keeps the backend ID for API calls and the code for display', () => {
     expect(toOperatorMission(mission).id).toBe(mission.id)
     expect(toOperatorMission(mission).missionCode).toBe(mission.missionCode)
@@ -49,11 +64,21 @@ describe('live mission mapping', () => {
     ).toEqual([1, 2])
   })
 
+  it('uses the order altitude ahead of an older planned altitude', () => {
+    const mapped = toFlightMission({
+      ...mission,
+      altitudeM: 20,
+      plan: { ...mission.plan, maxPlannedAltitudeM: 60 },
+    })
+
+    expect(mapped.maxAltitudeM).toBe(20)
+  })
+
   it('shows an accepted crew assignment as accepted even while other crew are pending', () => {
     const mapped = toOperatorMission(
       {
         ...mission,
-        status: 'WAITING_CREW_CONFIRMATION',
+        status: 'READY',
         staffAssignments: [
           { staffId: 'staff-1', responseStatus: 'ACCEPTED' },
           { staffId: 'staff-2', responseStatus: 'PENDING' },
@@ -64,6 +89,35 @@ describe('live mission mapping', () => {
 
     expect(mapped.myResponseStatus).toBe('ACCEPTED')
     expect(mapped.status).toBe('ACCEPTED')
+  })
+
+  it('keeps the Accept action for legacy READY missions with a pending assignment', () => {
+    const mapped = toOperatorMission(
+      {
+        ...mission,
+        status: 'READY',
+        staffAssignments: [{ staffId: 'staff-1', responseStatus: 'PENDING' }],
+      },
+      'staff-1',
+    )
+
+    expect(mapped.myResponseStatus).toBe('PENDING')
+    expect(mapped.status).toBe('PENDING')
+  })
+
+  it('shows the Accept action while the mission is pending crew confirmation', () => {
+    const mapped = toOperatorMission(
+      {
+        ...mission,
+        status: 'PENDING_CONFIRMATION',
+        staffAssignments: [{ staffId: 'staff-1', responseStatus: 'PENDING' }],
+      },
+      'staff-1',
+    )
+
+    expect(mapped.myResponseStatus).toBe('PENDING')
+    expect(mapped.status).toBe('PENDING')
+    expect(mapped.backendStatus).toBe('PENDING_CONFIRMATION')
   })
 
   it('maps the manager scheduled end time for operator mission detail', () => {
@@ -97,5 +151,22 @@ describe('live mission mapping', () => {
     expect(mapped.deviceManufacturer).toBe('OnDemand Monitor')
     expect(mapped.droneModel).toBe('A* Monitoring Drone X1')
     expect(mapped.dronePayload).toBe('4K camera')
+  })
+
+  it('maps a current drone replacement request alongside replacement history', () => {
+    const mapped = toOperatorMission({
+      ...mission,
+      status: 'READY',
+      deviceAssignments: [
+        {
+          deviceRole: 'MAIN',
+          replacementCompleted: true,
+          replacementRequestedAt: '2026-10-06T08:00:00Z',
+        },
+      ],
+    })
+
+    expect(mapped.deviceReplacementCompleted).toBe(true)
+    expect(mapped.deviceReplacementRequested).toBe(true)
   })
 })

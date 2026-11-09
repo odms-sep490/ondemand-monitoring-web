@@ -1,12 +1,13 @@
-import { Card } from '../../../../../shared/components/ui'
+import { SafetyCertificateOutlined } from '@ant-design/icons'
+import { Card } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
-import type { AiScore } from '../../../lib/createOrder/types'
+import type { ReadinessScore } from '../../../lib/createOrder/types'
 import { readinessScoreCardMessages } from './ReadinessScoreCard.messages'
 
-export function ReadinessScoreCard({ score }: { score: AiScore }) {
+export function ReadinessScoreCard({ score }: { score: ReadinessScore }) {
   const { t } = useI18n(readinessScoreCardMessages)
   return (
-    <Card title={t.cardTitle}>
+    <Card icon={<SafetyCertificateOutlined />} title={t.cardTitle}>
       <div className="co-score">
         <div className={`co-score-value is-${score.level}`}>{score.score}</div>
         <div>

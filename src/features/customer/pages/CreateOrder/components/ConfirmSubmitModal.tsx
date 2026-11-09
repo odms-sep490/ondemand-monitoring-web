@@ -1,4 +1,5 @@
-import { Modal } from '../../../../../shared/components/ui'
+import { Button } from 'antd'
+import { Modal } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import type {
   PreferredTimeOption,
@@ -21,7 +22,6 @@ type Props = {
   checklistCount?: number
   mediaTotals?: { images: number; videos: number }
   time?: PreferredTimeOption
-  aiAnalysisRequested?: boolean
   submitting: boolean
   error: string | null
   onConfirm: () => void
@@ -37,12 +37,12 @@ export function ConfirmSubmitModal(p: Props) {
 
   const footer = (
     <>
-      <button type="button" className="odm-btn odm-btn-gh" onClick={p.onClose} disabled={p.submitting}>
+      <Button onClick={p.onClose} disabled={p.submitting}>
         {t.back}
-      </button>
-      <button type="button" className="odm-btn odm-btn-p" onClick={p.onConfirm} disabled={p.submitting}>
+      </Button>
+      <Button type="primary" onClick={p.onConfirm} disabled={p.submitting}>
         {p.submitting ? t.submitting : t.confirm}
-      </button>
+      </Button>
     </>
   )
 
@@ -105,12 +105,6 @@ export function ConfirmSubmitModal(p: Props) {
         <dd>{form.deliveryMethods.map((method) => d.methods[method]).join(', ') || '—'}</dd>
         <dt>{t.retention}</dt>
         <dd>{t.retentionDays(form.dataRetentionDays)}</dd>
-        {p.aiAnalysisRequested && (
-          <>
-            <dt>{t.aiAnalysis}</dt>
-            <dd>{t.aiYes}</dd>
-          </>
-        )}
       </dl>
       <div className="co-confirm-total co-row-between">
         <span>{t.total}</span>

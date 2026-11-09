@@ -1,39 +1,181 @@
 .odm-cg {
-  margin-top: 6px;
-  font-size: 13px;
-  color: inherit;
+  container-type: inline-size;
+  width: 100%;
+  min-width: 0;
+  margin-top: 8px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--ui-primary) 22%, var(--ui-border));
+  border-radius: 12px;
+  background: var(--ui-surface);
+  color: var(--ui-text);
+  font-size: 14px;
 }
+
 .odm-cg > summary {
+  display: flex;
+  min-height: 44px;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  background: color-mix(in srgb, var(--ui-primary) 8%, var(--ui-surface));
+  color: var(--ui-primary-text);
   cursor: pointer;
-  color: #1d4ed8;
-  font-weight: 600;
-  width: fit-content;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.4;
+  list-style: none;
 }
+
+.odm-cg > summary::-webkit-details-marker {
+  display: none;
+}
+
+.odm-cg > summary::after {
+  width: 9px;
+  height: 9px;
+  flex: 0 0 9px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  content: '';
+  transform: rotate(45deg) translateY(-2px);
+  transition: transform var(--ui-dur-fast) ease;
+}
+
+.odm-cg[open] > summary::after {
+  transform: rotate(225deg) translate(-1px, -1px);
+}
+
+.odm-cg > summary:hover {
+  background: color-mix(in srgb, var(--ui-primary) 12%, var(--ui-surface));
+}
+
+.odm-cg > summary:focus-visible {
+  position: relative;
+  z-index: 1;
+  outline: 3px solid var(--ui-primary);
+  outline-offset: -3px;
+}
+
 .odm-cg-body {
   display: grid;
-  gap: 10px;
-  margin-top: 8px;
-  padding: 10px 12px;
-  border-left: 3px solid #bfdbfe;
-  background: rgba(59, 130, 246, 0.05);
-  border-radius: 0 8px 8px 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  min-width: 0;
+  padding: 14px;
+  background: var(--ui-surface);
 }
-.odm-cg-body h4 {
-  margin: 0 0 2px;
+
+.odm-cg-section {
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--ui-border);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--ui-primary) 4%, var(--ui-surface));
+}
+
+.odm-cg-section-description {
+  border-inline-start: 3px solid
+    color-mix(in srgb, var(--ui-primary) 38%, var(--ui-border));
+  padding-inline-start: 12px;
+}
+
+.odm-cg-section:only-child {
+  grid-column: 1 / -1;
+}
+
+.odm-cg-section h4 {
+  margin: 0 0 6px;
+  color: var(--ui-text-2);
   font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.035em;
+  line-height: 1.4;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  opacity: 0.7;
 }
-.odm-cg-body p,
-.odm-cg-body ol,
-.odm-cg-body ul {
+
+.odm-cg-section p,
+.odm-cg-section ol,
+.odm-cg-section ul {
   margin: 0;
+  color: var(--ui-text);
+  font-size: 14px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
 }
-.odm-cg-body ol,
-.odm-cg-body ul {
-  padding-left: 20px;
+
+.odm-cg-steps,
+.odm-cg-list {
+  display: grid;
+  gap: 6px;
+  padding: 0;
+  list-style: none;
 }
-.odm-cg-body li + li {
-  margin-top: 2px;
+
+.odm-cg-steps li {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  align-items: start;
+  gap: 9px;
+}
+
+.odm-cg-step-index {
+  display: inline-grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  border-radius: 6px;
+  background: var(--ui-primary-soft);
+  color: var(--ui-primary-text);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.odm-cg-list li {
+  display: grid;
+  grid-template-columns: 8px minmax(0, 1fr);
+  align-items: start;
+  gap: 8px;
+}
+
+.odm-cg-list li::before {
+  width: 6px;
+  height: 6px;
+  margin-top: 8px;
+  border-radius: 50%;
+  background: var(--ui-primary);
+  content: '';
+}
+
+.odm-cg-empty {
+  margin: 0;
+  color: var(--ui-text-2);
+  font-size: 13px;
+}
+
+.odm-cg-static {
+  margin-top: 0;
+  overflow: visible;
+  border: 0;
+  background: transparent;
+}
+
+.odm-cg-static .odm-cg-body {
+  padding: 0;
+}
+
+@container (max-width: 680px) {
+  .odm-cg-body {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    padding: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .odm-cg > summary::after {
+    transition-duration: 1ms;
+  }
 }

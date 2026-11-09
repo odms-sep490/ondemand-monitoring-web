@@ -2,45 +2,13 @@ import type {
   CreateOrderPayload,
   GeoJsonPolygon,
   ServiceDeliverableOption,
-  ServicePricingEstimate,
 } from '../../api/customerApi'
-import type { ChecklistInput } from '../checklist/types'
 import { toNumber, truncateText } from './format'
-import type { AiScore, FormState } from './types'
+import type { ReadinessScore, FormState } from './types'
 
 export const ORDER_TITLE_MAX_LENGTH = 255
 export const DEFAULT_LATITUDE = 10.6402
 export const DEFAULT_LONGITUDE = 106.6912
-
-/**
- * Backend-facing copy (stored in the order requirement / description). It is
- * data sent to the BE and the operator, not UI chrome, so it stays Vietnamese
- * regardless of the UI language.
- */
-export const AI_IMAGE_ANALYSIS_DESCRIPTION =
-  'Yêu cầu bổ sung: sử dụng AI phân tích hình ảnh để hỗ trợ phát hiện và đánh dấu các dấu hiệu bất thường.'
-const AI_IMAGE_ANALYSIS_REQUIREMENT =
-  'AI phân tích hình ảnh để hỗ trợ phát hiện và đánh dấu các dấu hiệu bất thường.'
-
-export function withAdditionalRequirementChecklist(
-  checklistItems: ChecklistInput[],
-  aiAnalysisRequested: boolean,
-): ChecklistInput[] {
-  if (!aiAnalysisRequested) return checklistItems
-  const alreadyIncluded = checklistItems.some(
-    (item) => item.contentOverride?.trim() === AI_IMAGE_ANALYSIS_REQUIREMENT,
-  )
-  return alreadyIncluded
-    ? checklistItems
-    : [
-        ...checklistItems,
-        {
-          contentOverride: AI_IMAGE_ANALYSIS_REQUIREMENT,
-          minimumEvidenceCount: 1,
-          requiredEvidenceType: 'IMAGE',
-        },
-      ]
-}
 
 /** Estimated monitored area in hectares (string, 1 decimal). */
 export function calcArea(radiusM: number) {
@@ -91,46 +59,16 @@ export function buildCoverageArea(
   return { type: 'Polygon', coordinates: [ring] }
 }
 
-/** Adds or removes the AI-analysis add-on sentence in the description. */
-export function syncAiAddonDescription(
-  description: string,
-  requested: boolean,
-): string {
-  const hasAddon = description.includes(AI_IMAGE_ANALYSIS_DESCRIPTION)
-  if (requested && !hasAddon) {
-    return [description.trim(), AI_IMAGE_ANALYSIS_DESCRIPTION]
-      .filter(Boolean)
-      .join('\n')
-  }
-  if (!requested && hasAddon) {
-    return description
-      .replace(AI_IMAGE_ANALYSIS_DESCRIPTION, '')
-      .replace(/\n{3,}/g, '\n\n')
-      .trim()
-  }
-  return description
-}
-
-export function aiAddonPrice(estimate: ServicePricingEstimate | null) {
-  return (
-    estimate?.additionalRequirements.find(
-      (item) => item.type === 'AI_IMAGE_ANALYSIS',
-    )?.additionalPrice ?? 0
-  )
-}
-
 /** `POST /api/orders` body (BE `OrderCreateRequest`). */
 export function buildOrderPayload(input: {
   form: FormState
-  score: AiScore
-  aiAnalysisRequested: boolean
-  pricingEstimate: ServicePricingEstimate | null
+  score: ReadinessScore
   /** Media counted from the selected checklists; replaces the manual media type and quantity. */
   mediaTotals?: { images: number; videos: number }
   /** The service's deliverable types; used to give each requested media type its own deliverable. */
   deliverableOptions?: ServiceDeliverableOption[]
 }): CreateOrderPayload {
-  const { form, aiAnalysisRequested } = input
+  const { form } = input
   const totals = input.mediaTotals
   const mediaType: 'IMAGE' | 'VIDEO' = totals
     ? totals.videos > 0 && totals.images === 0
@@ -174,16 +112,6 @@ export function buildOrderPayload(input: {
         ? form.otherMonitoringRelationship.trim()
         : undefined,
     readinessScore: input.score.score,
-    aiAnalysisRequested,
-    additionalRequirements: aiAnalysisRequested
-      ? [
-          {
-            type: 'AI_IMAGE_ANALYSIS',
-            description: AI_IMAGE_ANALYSIS_REQUIREMENT,
-            additionalPrice: aiAddonPrice(input.pricingEstimate),
-          },
-        ]
-      : [],
   }
   const deliverableEntries = buildDeliverables({
     fallbackTypeId: form.deliverableTypeId,

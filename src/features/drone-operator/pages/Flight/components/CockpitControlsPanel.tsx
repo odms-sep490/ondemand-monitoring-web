@@ -1,6 +1,6 @@
+import type { Dispatch, SetStateAction } from 'react'
 import { copy } from './cockpitCopy'
 import { Ico } from './CockpitIcon'
-import type { Dispatch, SetStateAction } from 'react'
 import type { CockpitCommand } from './cockpitTypes'
 
 export function CockpitControlsPanel({
@@ -12,11 +12,13 @@ export function CockpitControlsPanel({
   onCommand,
   onFinishFlight,
   finishingFlight,
+  onFailMission,
+  failMissionBusy,
+  missionFailureRequested,
+  canFinishFlight,
+  finishFlightBlockedReason,
   canFly,
-  canTerminate,
   language,
-  confirmStop,
-  setConfirmStop,
 }: {
   c: (typeof copy)['vi' | 'en']
   controlOpen: boolean
@@ -33,11 +35,13 @@ export function CockpitControlsPanel({
   onCommand: (command: CockpitCommand) => void
   onFinishFlight: (() => void) | undefined
   finishingFlight: boolean | undefined
+  onFailMission?: () => void
+  failMissionBusy?: boolean
+  missionFailureRequested?: boolean
+  canFinishFlight: boolean
+  finishFlightBlockedReason?: string
   canFly: boolean
-  canTerminate: boolean
   language: 'vi' | 'en'
-  confirmStop: boolean
-  setConfirmStop: Dispatch<SetStateAction<boolean>>
 }) {
   return (
     <section className="fc-panel">
@@ -74,8 +78,13 @@ export function CockpitControlsPanel({
               <button
                 type="button"
                 className="fc-ctl fc-finish is-success"
-                disabled={busy || finishingFlight || (!canFly && !canTerminate)}
+                disabled={
+                  busy || finishingFlight || !canFly || !canFinishFlight
+                }
                 onClick={onFinishFlight}
+                title={
+                  canFinishFlight ? c.finishFlightSub : finishFlightBlockedReason
+                }
               >
                 <Ico name="land" size={20} />
                 <strong>
@@ -88,26 +97,29 @@ export function CockpitControlsPanel({
                 <small>{c.finishFlightSub}</small>
               </button>
             ) : null}
+            {onFailMission ? (
+              <button
+                type="button"
+                className="fc-ctl is-danger"
+                disabled={busy || failMissionBusy || missionFailureRequested}
+                aria-busy={failMissionBusy}
+                onClick={onFailMission}
+                title={c.failureTitle}
+              >
+                <Ico name="stop" size={20} />
+                <strong>
+                  {failMissionBusy
+                    ? language === 'en'
+                      ? 'Sending...'
+                      : 'Đang gửi...'
+                    : missionFailureRequested
+                      ? c.failureRequested
+                      : c.failureAction}
+                </strong>
+                <small>{c.failureSub}</small>
+              </button>
+            ) : null}
           </div>
-          <button
-            type="button"
-            className={`fc-emergency${confirmStop ? ' is-armed' : ''}`}
-            disabled={busy || (!canFly && !canTerminate)}
-            onClick={() => {
-              if (!confirmStop) {
-                setConfirmStop(true)
-                return
-              }
-              setConfirmStop(false)
-              onCommand('emergency_stop')
-            }}
-          >
-            <Ico name="stop" size={30} />
-            <span>
-              <strong>{c.emergency}</strong>
-              <small>{confirmStop ? c.emergencyConfirm : c.emergencySub}</small>
-            </span>
-          </button>
         </>
       ) : null}
     </section>

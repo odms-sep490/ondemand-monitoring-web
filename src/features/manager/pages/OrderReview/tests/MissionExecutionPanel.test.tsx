@@ -1,119 +1,105 @@
-import { act, render, screen, waitFor } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { afterEach, expect, it, vi } from 'vitest'
 import { MissionExecutionPanel } from '../components/MissionExecutionPanel'
 import { missionsApi } from '../../../api/missionsApi'
 import { checklistExecutionApi } from '../../../../mission/api/checklistExecutionApi'
-import type { MissionResponse, MediaResponse } from '../../../types/missions'
-import type { MissionChecklistResponse } from '../../../../mission/types/checklistExecution'
+import type {
+  MissionResponse,
+  MissionStaffAssignmentResponse,
+} from '../../../types/missions'
 
 afterEach(() => vi.restoreAllMocks())
-const mission = (id: string) =>
+
+// The Order-level execution panel is now a compact progress/resources summary:
+// it renders the Mission it is given and no longer loads checklist or media
+// (those live on the Mission detail page, reached through the link).
+const staff = (
+  id: string,
+  staffName: string,
+  assignedRole: MissionStaffAssignmentResponse['assignedRole'],
+  responseStatus: MissionStaffAssignmentResponse['responseStatus'],
+) =>
+  ({
+    id: `${id}-${assignedRole}`,
+    staffId: id,
+    staffName,
+    staffEmail: null,
+    assignedRole,
+    responseStatus,
+  }) as MissionStaffAssignmentResponse
+
+const mission = (id: string, overrides: Partial<MissionResponse> = {}) =>
   ({
     id,
     missionCode: id.toUpperCase(),
-    status: 'RESOURCE_ASSIGNING',
-  }) as MissionResponse
-const checklist = (id: string): MissionChecklistResponse => ({
-  missionId: id,
-  legacySnapshot: false,
-  readyForSubmission: false,
-  executions: [
-    {
-      id: id + '-execution',
-      orderChecklistItemId: id + '-snapshot',
-      displayOrder: 0,
-      sourceType: 'CUSTOMER_CUSTOM',
-      observation: null,
-      unableToVerifyReason: null,
-      startedAt: null,
-      completedAt: null,
-      lastModifiedBy: null,
-      createdAt: '2026-10-12T00:00:00Z',
-      updatedAt: null,
-      version: 0,
-      content: `Checklist riêng ${id}`,
-      executionStatus: 'PENDING',
-      assessmentStatus: 'NOT_ASSESSED',
-      evidence: [],
-    },
-  ],
-})
-it('drops late M1 checklist and media after switching to M2', async () => {
-  let resolveM1!: (data: MissionChecklistResponse) => void
-  vi.spyOn(
-    checklistExecutionApi,
-    'getMissionChecklistExecutions',
-  ).mockImplementation(async (id) =>
-    id === 'm1'
-      ? new Promise((resolve) => {
-          resolveM1 = resolve
-        })
-      : checklist(id),
-  )
-  vi.spyOn(missionsApi, 'getMissionResult').mockResolvedValue(null)
-  vi.spyOn(missionsApi, 'getMissionMedia').mockResolvedValue([])
+    status: 'PLANNING',
+    deviceAssignments: [],
+    staffAssignments: [],
+    ...overrides,
+  }) as unknown as MissionResponse
+
+it('shows only the selected Mission after switching from M1 to M2', () => {
   const view = render(
-    <MissionExecutionPanel key="m1" mission={mission('m1')} />,
+    <MissionExecutionPanel
+      key="m1"
+      mission={mission('m1', {
+        staffAssignments: [staff('s1', 'Nhân sự M1', 'PILOT', 'ACCEPTED')],
+      })}
+    />,
   )
-  await waitFor(() => expect(resolveM1).toBeTypeOf('function'))
-  view.rerender(<MissionExecutionPanel key="m2" mission={mission('m2')} />)
-  await screen.findByText('Checklist riêng m2')
-  await act(async () => resolveM1(checklist('m1')))
-  expect(screen.queryByText('Checklist riêng m1')).not.toBeInTheDocument()
-  expect(screen.getByText('Checklist riêng m2')).toBeInTheDocument()
-  expect(await screen.findByText('Chưa có ảnh/video')).toBeInTheDocument()
-  expect(
-    screen.getByText(
-      'Media sẽ xuất hiện sau khi Mission được thực hiện và dữ liệu được tải lên.',
-    ),
-  ).toBeInTheDocument()
-})
-it('localizes media failures and never exposes a JS exception', async () => {
-  vi.spyOn(
-    checklistExecutionApi,
-    'getMissionChecklistExecutions',
-  ).mockResolvedValue(checklist('m1'))
-  vi.spyOn(missionsApi, 'getMissionResult').mockResolvedValue(null)
-  vi.spyOn(missionsApi, 'getMissionMedia').mockRejectedValue(
-    new Error("Cannot read properties of undefined (reading 'mediaFiles')"),
+  expect(screen.getByRole('heading', { name: 'M1' })).toBeInTheDocument()
+  expect(screen.getByText('Nhân sự M1')).toBeInTheDocument()
+
+  view.rerender(
+    <MissionExecutionPanel
+      key="m2"
+      mission={mission('m2', {
+        staffAssignments: [staff('s2', 'Nhân sự M2', 'OPERATOR', 'PENDING')],
+      })}
+    />,
   )
-  render(<MissionExecutionPanel mission={mission('m1')} />)
-  await screen.findByText('Không thể tải ảnh/video của Mission này.')
-  expect(screen.queryByText(/Cannot read properties/)).not.toBeInTheDocument()
-  expect(screen.getByRole('button', { name: 'Thử lại' })).toBeInTheDocument()
+  expect(screen.getByRole('heading', { name: 'M2' })).toBeInTheDocument()
+  expect(screen.getByText('Nhân sự M2')).toBeInTheDocument()
+  expect(screen.queryByText('Nhân sự M1')).not.toBeInTheDocument()
+  expect(screen.getByRole('link', { name: 'Mở chi tiết Mission' })).toHaveAttribute(
+    'href',
+    '#portal/manager/missions/m2/detail',
+  )
 })
 
-it('late M1 gallery response cannot replace the selected M2 gallery', async () => {
-  let resolveMedia!: (data: MediaResponse[]) => void
-  const media = (id: string) =>
-    [
-      {
-        id: id + '-photo',
-        missionId: id,
-        contentType: 'image/png',
-        fileSize: 100,
-        url: '/fixture.png',
-      },
-    ] as MediaResponse[]
-  vi.spyOn(
+it('summarizes staff confirmation and assigned devices without loading checklist or media', () => {
+  const getChecklist = vi.spyOn(
     checklistExecutionApi,
     'getMissionChecklistExecutions',
-  ).mockImplementation(async (id) => checklist(id))
-  vi.spyOn(missionsApi, 'getMissionResult').mockResolvedValue(null)
-  vi.spyOn(missionsApi, 'getMissionMedia').mockImplementation(async (id) =>
-    id === 'm1'
-      ? new Promise((resolve) => {
-          resolveMedia = resolve
-        })
-      : media(id),
   )
-  const view = render(
-    <MissionExecutionPanel key="m1" mission={mission('m1')} />,
+  const getMedia = vi.spyOn(missionsApi, 'getMissionMedia')
+  const getResult = vi.spyOn(missionsApi, 'getMissionResult')
+  render(
+    <MissionExecutionPanel
+      mission={mission('m1', {
+        staffAssignments: [
+          staff('s1', 'Nguyễn Minh', 'PILOT', 'ACCEPTED'),
+          staff('s2', 'Trần An', 'INSPECTOR', 'PENDING'),
+        ],
+        deviceName: 'Drone khảo sát',
+        deviceCode: 'DRN-0052',
+      })}
+    />,
   )
-  await waitFor(() => expect(resolveMedia).toBeTypeOf('function'))
-  view.rerender(<MissionExecutionPanel key="m2" mission={mission('m2')} />)
-  await screen.findByText('image-m2-photo.png')
-  await act(async () => resolveMedia(media('m1')))
-  expect(screen.queryByText('image-m1-photo.png')).not.toBeInTheDocument()
-  expect(screen.getByText('image-m2-photo.png')).toBeInTheDocument()
+
+  expect(screen.getByText('1/2 nhân sự đã xác nhận')).toBeInTheDocument()
+  expect(screen.getByText('Nguyễn Minh')).toBeInTheDocument()
+  expect(screen.getByText('Trần An')).toBeInTheDocument()
+  expect(screen.getByText('1 thiết bị được phân công')).toBeInTheDocument()
+  expect(screen.getByText('Drone khảo sát')).toBeInTheDocument()
+  expect(getChecklist).not.toHaveBeenCalled()
+  expect(getMedia).not.toHaveBeenCalled()
+  expect(getResult).not.toHaveBeenCalled()
+})
+
+it('shows an explicit not-assigned state when a Mission has no resources', () => {
+  render(<MissionExecutionPanel mission={mission('m1')} />)
+
+  expect(screen.getByText('0 thiết bị được phân công')).toBeInTheDocument()
+  expect(screen.getAllByText('Chưa được phân công')).toHaveLength(3)
 })

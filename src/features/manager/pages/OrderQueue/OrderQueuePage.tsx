@@ -1,50 +1,119 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
-import { StateView } from '../../../../shared/components/odm/StateView'
+import { Button, Skeleton } from 'antd'
+import { ReloadOutlined, RocketOutlined } from '@ant-design/icons'
+
+import { CardComponent } from '../../../../shared/components/antd'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
 import { displayOrderCode } from '../../../../shared/lib/orderCode'
-import type { OrderCreateResponse } from '../../types/orders'
-import { ordersApi } from '../../api/ordersApi'
-import { localizeTimeslot } from '../../lib/viLabels'
-import { managerHref } from '../../routes'
-import { orderQueuePageMessages } from './OrderQueuePage.messages'
 import { financeApi } from '../../../finance/api'
+import type { DepositStatus } from '../../../finance/types'
+import { ordersApi } from '../../api/ordersApi'
 import { planningApi } from '../../api/planningApi'
-import '../../manager.css'
-import { QueueHeader } from './components/QueueHeader'
+import { EmptyState } from '../../components/common/EmptyState'
+import { ErrorState } from '../../components/common/ErrorState'
+import { FilterBar, FilterSegments } from '../../components/common/FilterBar'
+import { PageHeader } from '../../components/common/PageHeader'
+import { managerHref } from '../../routes'
+import type { OrderCreateResponse } from '../../types/orders'
+import { QueueKpis } from './components/QueueKpis'
 import { QueueSkeleton } from './components/QueueSkeleton'
-import { AllOrdersSection } from './components/AllOrdersSection'
+import { QueueTable, type QueueTableMode } from './components/QueueTable'
+import { orderQueuePageMessages } from './OrderQueuePage.messages'
+import { ALL_FILTERS } from './queueHelpers'
+
+function matchesSearch(order: OrderCreateResponse, search: string): boolean {
+  const needle = search.trim().toLowerCase()
+  if (!needle) return true
+  return [displayOrderCode(order.orderCode, order.id), order.customerName, order.serviceName]
+    .join(' ')
+    .toLowerCase()
+    .includes(needle)
+}
 
 export function OrderQueuePage() {
-  const { t, locale } = useI18n(orderQueuePageMessages)
+  const { t } = useI18n(orderQueuePageMessages)
+  const [tab, setTab] = useState<QueueTableMode | null>(null)
+  const [filter, setFilter] = useState<(typeof ALL_FILTERS)[number]>('ALL')
+  const [search, setSearch] = useState('')
+
   const query = useApiQuery(async (signal) => {
     const [pending, approved] = await Promise.all([
       ordersApi.getQueue(signal),
       ordersApi.getApproved(signal),
     ])
-    const paid = (
+    const invoices = (
       await Promise.all(
         approved.map(async (order) => {
           try {
-            const [invoice, missions] = await Promise.all([
-              financeApi.getManagerInvoice(order.id, signal),
-              planningApi.getOrderMissions(order.id, signal),
-            ])
-            const hasActiveMission = missions.some(
-              (mission) => mission.status !== 'CANCELLED',
-            )
-            return invoice.paidAmount >= invoice.depositAmount &&
-              !hasActiveMission
-              ? order
-              : null
+            const invoice = await financeApi.getManagerInvoice(order.id, signal)
+            const depositStatus = invoice.depositStatus ??
+              (invoice.paidAmount >= invoice.depositAmount ? 'DEPOSIT_PAID' : 'WAITING_DEPOSIT')
+            return {
+              order,
+              depositStatus,
+              finalPaymentDue:
+                invoice.finalPaymentAllowed && invoice.remainingAmount > 0,
+            }
           } catch {
             return null
           }
         }),
       )
+    ).filter(
+      (
+        row,
+      ): row is {
+        order: OrderCreateResponse
+        depositStatus: DepositStatus
+        finalPaymentDue: boolean
+      } => row !== null,
+    )
+    const depositStatusByOrder = Object.fromEntries(
+      invoices.map(({ order, depositStatus }) => [order.id, depositStatus]),
+    ) as Record<string, DepositStatus>
+    const finalPaymentDueByOrder = Object.fromEntries(
+      invoices
+        .filter(({ finalPaymentDue }) => finalPaymentDue)
+        .map(({ order }) => [order.id, true]),
+    ) as Record<string, boolean>
+    const paid = (
+      await Promise.all(
+        invoices
+          .filter(({ depositStatus }) => depositStatus === 'DEPOSIT_PAID')
+          .map(async ({ order }) => {
+            try {
+              const missions = await planningApi.getOrderMissions(order.id, signal)
+              return missions.some((mission) => mission.status !== 'CANCELLED') ? null : order
+            } catch {
+              return null
+            }
+          }),
+      )
     ).filter((order): order is OrderCreateResponse => order !== null)
-    return { pending, paid }
+    return { pending, paid, depositStatusByOrder, finalPaymentDueByOrder }
+  }, [])
+
+  // Every order, newest first, so an order never "disappears" once it leaves the review queue.
+  const allQuery = useApiQuery(async (signal) => {
+    const orders = await ordersApi.getManaged(undefined, signal)
+    // An approved order stays APPROVED until its work is done; it is "in progress" once it has a live Mission.
+    const started = new Set<string>()
+    await Promise.all(
+      orders
+        .filter((order) => order.orderStatus === 'APPROVED')
+        .map(async (order) => {
+          try {
+            const missions = await planningApi.getOrderMissions(order.id, signal)
+            if (missions.some((mission) => mission.status !== 'CANCELLED'))
+              started.add(order.id)
+          } catch {
+            /* keep it under "Đã duyệt" */
+          }
+        }),
+    )
+    return { orders, started }
   }, [])
 
   useEffect(() => {
@@ -57,179 +126,164 @@ export function OrderQueuePage() {
     }
   }, [query.reload])
 
+  const pendingOrders = query.data?.pending ?? []
+  const paidOrders = query.data?.paid ?? []
+  const depositStatusByOrder = query.data?.depositStatusByOrder ?? {}
+  const finalPaymentDueByOrder = query.data?.finalPaymentDueByOrder ?? {}
+  const allOrders = allQuery.data?.orders
+  const started = allQuery.data?.started
+
+  const groupOf = (order: OrderCreateResponse) =>
+    order.orderStatus === 'APPROVED' && started?.has(order.id) ? 'IN_PROGRESS' : order.orderStatus
+
+  const kpiExtras = useMemo(() => {
+    if (!allOrders || !started || !query.data) return { needsInfo: null, waitingDeposit: null }
+    return {
+      needsInfo: allOrders.filter((order) => order.orderStatus === 'NEEDS_INFO').length,
+      waitingDeposit: Object.values(depositStatusByOrder)
+        .filter((status) => status === 'WAITING_DEPOSIT').length,
+    }
+  }, [allOrders, started, depositStatusByOrder, query.data])
+
   if (query.loading) return <QueueSkeleton />
 
   if (query.error) {
     return (
-      <div className="odm-mgr-dash">
-        <QueueHeader onRefresh={query.reload} t={t} />
-        <StateView
-          state="error"
-          title={t.loadError}
-          error={query.error}
-          onRetry={query.reload}
+      <div className="mgr-view">
+        <PageHeader
+          title={t.title}
+          actions={<Button icon={<ReloadOutlined aria-hidden="true" />} onClick={query.reload}>{t.refresh}</Button>}
         />
+        <ErrorState title={t.loadError} error={query.error} onRetry={query.reload} />
       </div>
     )
   }
 
-  const data = query.data?.pending ?? []
-  const paidOrders = query.data?.paid ?? []
+  const activeTab: QueueTableMode =
+    tab ?? (pendingOrders.length > 0
+      ? 'pending'
+      : paidOrders.length > 0
+        ? 'ready'
+        : (kpiExtras.waitingDeposit ?? 0) > 0
+          ? 'all'
+          : 'pending')
+
+  const filteredAll = (allOrders ?? []).filter((order) =>
+    filter === 'ALL'
+      ? true
+      : filter === 'WAITING_DEPOSIT' || filter === 'DEPOSIT_PAID'
+        ? filter === 'WAITING_DEPOSIT'
+          ? depositStatusByOrder[order.id] === filter
+          : depositStatusByOrder[order.id] === filter
+      : filter === 'CLOSED'
+        ? order.orderStatus === 'REJECTED' || order.orderStatus === 'CANCELLED'
+        : groupOf(order) === filter,
+  )
+  const source =
+    activeTab === 'pending' ? pendingOrders : activeTab === 'ready' ? paidOrders : filteredAll
+  const total = activeTab === 'all' ? (allOrders ?? []).length : source.length
+  const rows = source.filter((order) => matchesSearch(order, search))
+
+  const missionsLink = (
+    <Button icon={<RocketOutlined aria-hidden="true" />} href={managerHref({ screen: 'missions' })}>
+      {t.viewMissions}
+    </Button>
+  )
+
+  let body
+  if (activeTab === 'all' && allQuery.loading) {
+    body = (
+      <CardComponent>
+        <Skeleton active paragraph={{ rows: 5 }} />
+      </CardComponent>
+    )
+  } else if (activeTab === 'all' && allQuery.error) {
+    body = <ErrorState title={t.allLoadError} error={allQuery.error} onRetry={allQuery.reload} />
+  } else if (rows.length === 0) {
+    const empty =
+      search.trim() && source.length > 0
+        ? { title: t.emptySearch }
+        : activeTab === 'pending'
+          ? { title: t.emptyTitle, description: t.emptyDescription, action: missionsLink }
+          : activeTab === 'ready'
+            ? { title: t.emptyReady }
+            : { title: t.emptyAll }
+    body = (
+      <CardComponent>
+        <EmptyState {...empty} />
+      </CardComponent>
+    )
+  } else {
+    body = (
+      <QueueTable
+        rows={rows}
+        total={total}
+        mode={activeTab}
+        depositStatusByOrder={depositStatusByOrder}
+        finalPaymentDueByOrder={finalPaymentDueByOrder}
+        isInProgress={(order) => groupOf(order) === 'IN_PROGRESS'}
+      />
+    )
+  }
 
   return (
-    <div className="odm-mgr-dash">
-      <div className="odm-mgr-dash-head">
-        <div>
-          <h1 className="odm-mgr-dash-title">{t.title}</h1>
-          <div className="odm-mgr-dash-date">
-            {t.summary(data.length, paidOrders.length)}
-          </div>
-        </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <a
-            className="odm-btn odm-btn-p"
-            href={managerHref({ screen: 'missions' })}
-            style={{ textDecoration: 'none' }}
-          >
-            {t.viewMissions}
-          </a>
-          <button type="button" className="odm-btn" onClick={query.reload}>
-            {t.refresh}
-          </button>
-        </div>
-      </div>
+    <div className="mgr-view">
+      <PageHeader
+        title={t.title}
+        description={t.summary(
+          pendingOrders.length,
+          paidOrders.length,
+          kpiExtras.waitingDeposit ?? 0,
+        )}
+        actions={
+          <>
+            {missionsLink}
+            <Button icon={<ReloadOutlined aria-hidden="true" />} onClick={query.reload}>
+              {t.refresh}
+            </Button>
+          </>
+        }
+      />
 
-      {paidOrders.length > 0 ? (
-        <section className="odm-card odm-paid-orders" aria-label={t.paid.title}>
-          <div className="odm-paid-orders-head">
-            <div>
-              <h2>{t.paid.title}</h2>
-              <p>{t.paid.description}</p>
-            </div>
-            <span>{t.paid.count(paidOrders.length)}</span>
-          </div>
-          <div className="odm-mgr-queue-table-wrap">
-            <table className="odm-table">
-              <thead>
-                <tr>
-                  <th>{t.columns.orderCode}</th>
-                  <th>{t.columns.customer}</th>
-                  <th>{t.columns.service}</th>
-                  <th>{t.columns.preferredDate}</th>
-                  <th>{t.paid.status}</th>
-                  <th />
-                </tr>
-              </thead>
-              <tbody>
-                {paidOrders.map((row) => (
-                  <tr key={row.id}>
-                    <td>
-                      <span className="odm-mono" style={{ fontWeight: 600 }}>
-                        {displayOrderCode(row.orderCode, row.id)}
-                      </span>
-                    </td>
-                    <td>
-                      <div style={{ fontWeight: 600 }}>{row.customerName}</div>
-                    </td>
-                    <td>{row.serviceName}</td>
-                    <td>
-                      <span className="odm-tn">
-                        {new Date(row.preferredDateFrom).toLocaleDateString(
-                          locale,
-                        )}{' '}
-                        · {localizeTimeslot(row.preferredTimeName)}
-                      </span>
-                    </td>
-                    <td>
-                      <span className="odm-paid-badge">
-                        {t.paid.depositReceived}
-                      </span>
-                    </td>
-                    <td style={{ textAlign: 'right' }}>
-                      <a
-                        className="odm-btn odm-btn-p odm-btn-sm"
-                        href={managerHref({
-                          screen: 'orderReview',
-                          orderId: row.id,
-                        })}
-                      >
-                        {t.paid.action}
-                      </a>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      ) : null}
+      <QueueKpis
+        pending={pendingOrders.length}
+        ready={paidOrders.length}
+        needsInfo={kpiExtras.needsInfo}
+        waitingDeposit={kpiExtras.waitingDeposit}
+      />
 
-      {data.length === 0 && paidOrders.length === 0 ? (
-        <StateView
-          state="empty"
-          title={t.emptyTitle}
-          description={t.emptyDescription}
-          action={
-            <a
-              className="odm-btn odm-btn-p"
-              href={managerHref({ screen: 'missions' })}
-              style={{ textDecoration: 'none' }}
-            >
-              {t.viewMissions}
-            </a>
-          }
-        />
-      ) : data.length > 0 ? (
-        <div className="odm-card odm-mgr-queue-table-wrap">
-          <table className="odm-table">
-            <thead>
-              <tr>
-                <th>{t.columns.orderCode}</th>
-                <th>{t.columns.customer}</th>
-                <th>{t.columns.service}</th>
-                <th>{t.columns.preferredDate}</th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((row: OrderCreateResponse) => (
-                <tr key={row.id}>
-                  <td>
-                    <span className="odm-mono" style={{ fontWeight: 600 }}>
-                      {displayOrderCode(row.orderCode, row.id)}
-                    </span>
-                  </td>
-                  <td>
-                    <div style={{ fontWeight: 600 }}>{row.customerName}</div>
-                  </td>
-                  <td>{row.serviceName}</td>
-                  <td>
-                    <span className="odm-tn">
-                      {new Date(row.preferredDateFrom).toLocaleDateString(
-                        locale,
-                      )}{' '}
-                      · {localizeTimeslot(row.preferredTimeName)}
-                    </span>
-                  </td>
-                  <td style={{ textAlign: 'right' }}>
-                    <a
-                      className="odm-btn odm-btn-p odm-btn-sm"
-                      href={managerHref({
-                        screen: 'orderReview',
-                        orderId: row.id,
-                      })}
-                    >
-                      {t.review}
-                    </a>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : null}
+      <FilterBar
+        start={
+          <FilterSegments<QueueTableMode>
+            ariaLabel={t.tabs.aria}
+            value={activeTab}
+            onChange={setTab}
+            options={[
+              { value: 'pending', label: t.tabs.pending, count: pendingOrders.length },
+              { value: 'ready', label: t.tabs.ready, count: paidOrders.length },
+              { value: 'all', label: t.tabs.all, count: allOrders?.length },
+            ]}
+          />
+        }
+        search={{
+          value: search,
+          onChange: setSearch,
+          placeholder: t.searchPlaceholder,
+          ariaLabel: t.searchAria,
+        }}
+        end={
+          activeTab === 'all' ? (
+            <FilterSegments
+              ariaLabel={t.filtersAria}
+              value={filter}
+              onChange={setFilter}
+              options={ALL_FILTERS.map((value) => ({ value, label: t.filters[value] }))}
+            />
+          ) : null
+        }
+      />
 
-      <AllOrdersSection />
+      {body}
     </div>
   )
 }

@@ -1,7 +1,15 @@
+import { Button } from 'antd'
 import { useState } from 'react'
 
-import { ErrorState, LoadingState } from '../../../../shared/components/odm/StateView'
-import { Card, EmptyState, PageHeader } from '../../../../shared/components/ui'
+import {
+  ErrorState,
+  LoadingState,
+} from '../../../customer/components/common/StateView'
+import {
+  Card,
+  EmptyState,
+  PageHeader,
+} from '../../../customer/components/common/ui'
 import { useI18n } from '../../../../shared/i18n'
 import { CreateTicketModal } from '../../components/CreateTicketModal'
 import { ticketLabelsMessages } from '../../lib/ticketLabels.messages'
@@ -12,7 +20,12 @@ import { customerTicketsListMessages } from './CustomerTicketsListPage.messages'
 import { useTicketsList } from './hooks/useTicketsList'
 
 /** Status values the customer can filter by. */
-const FILTERS = ['OPEN', 'IN_PROGRESS', 'WAITING_FOR_CUSTOMER', 'RESOLVED'] as const
+const FILTERS = [
+  'OPEN',
+  'IN_PROGRESS',
+  'WAITING_FOR_CUSTOMER',
+  'RESOLVED',
+] as const
 
 export function CustomerTicketsListPage() {
   const { t } = useI18n(customerTicketsListMessages)
@@ -27,9 +40,9 @@ export function CustomerTicketsListPage() {
         title={t.title}
         subtitle={t.subtitle}
         actions={
-          <button type="button" className="odm-btn odm-btn-p" onClick={() => setShowCreateModal(true)}>
+          <Button type="primary" onClick={() => setShowCreateModal(true)}>
             {t.create}
-          </button>
+          </Button>
         }
       />
 
@@ -58,7 +71,11 @@ export function CustomerTicketsListPage() {
 
       {list.loading && !list.loaded && <LoadingState />}
       {!list.loaded && !list.loading && (
-        <ErrorState title={t.errorTitle} error={list.error} onRetry={list.reload} />
+        <ErrorState
+          title={t.errorTitle}
+          error={list.error}
+          onRetry={list.reload}
+        />
       )}
       {list.loaded && list.tickets.length === 0 && (
         <Card>
@@ -66,9 +83,9 @@ export function CustomerTicketsListPage() {
             title={t.emptyTitle}
             description={t.emptyDescription}
             action={
-              <button type="button" className="odm-btn odm-btn-p" onClick={() => setShowCreateModal(true)}>
+              <Button type="primary" onClick={() => setShowCreateModal(true)}>
                 {t.emptyAction}
-              </button>
+              </Button>
             }
           />
         </Card>
@@ -82,7 +99,10 @@ export function CustomerTicketsListPage() {
       )}
 
       {showCreateModal && (
-        <CreateTicketModal onClose={() => setShowCreateModal(false)} onSuccess={() => list.reload()} />
+        <CreateTicketModal
+          onClose={() => setShowCreateModal(false)}
+          onSuccess={() => list.reload()}
+        />
       )}
     </div>
   )

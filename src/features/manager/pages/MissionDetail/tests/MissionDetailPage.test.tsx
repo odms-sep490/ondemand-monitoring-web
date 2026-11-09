@@ -4,11 +4,25 @@ import { missionsApi } from '../../../api/missionsApi'
 import { ordersApi } from '../../../api/ordersApi'
 import { checklistExecutionApi } from '../../../../mission/api/checklistExecutionApi'
 import { MissionDetailPage } from '../MissionDetailPage'
-import type { MissionResponse, MissionResultResponse } from '../../../types/missions'
+import type {
+  MissionResponse,
+  MissionResultResponse,
+} from '../../../types/missions'
 import type { OrderDetail } from '../../../types/orders'
 
 vi.mock('../../../../media/components/MissionUploadedMedia', () => ({
   MissionUploadedMedia: () => <div>Thư viện media riêng</div>,
+}))
+vi.mock('../../../../delivery/ManagerDeliveryPanel', () => ({
+  ManagerDeliveryPanel: ({
+    allowLegacyPublication,
+  }: {
+    allowLegacyPublication?: boolean
+  }) => (
+    <div data-testid="publication-mode">
+      {allowLegacyPublication ? 'legacy-recovery' : 'automatic'}
+    </div>
+  ),
 }))
 const mission: MissionResponse = {
   id: 'm',
@@ -80,7 +94,6 @@ beforeEach(() => {
     addressText: 'Đường Long Hậu',
     center: { lat: 10.63, lon: 106.69 },
     radiusM: 300,
-    nearestBase: null,
     mediaRequirements: null,
     purpose: null,
     attachments: null,
@@ -140,12 +153,64 @@ beforeEach(() => {
     ],
   })
 })
-afterEach(() => vi.restoreAllMocks())
+afterEach(() => {
+  vi.restoreAllMocks()
+  window.history.replaceState(null, '', window.location.pathname)
+})
 describe('Manager Mission Detail monitoring review', () => {
+  it.each([undefined, false, true])(
+    'routes approved inspectorConfirmed=%s to the correct publication mode',
+    async (inspectorConfirmed) => {
+      vi.mocked(missionsApi.getMissionResult).mockResolvedValue({
+        ...result,
+        approvalStatus: 'APPROVED',
+        inspectorConfirmed,
+      })
+      render(<MissionDetailPage missionId="m" />)
+      expect(await screen.findByTestId('publication-mode')).toHaveTextContent(
+        inspectorConfirmed === true ? 'automatic' : 'legacy-recovery',
+      )
+    },
+  )
+  it.each([
+    {
+      purpose: 'ORIGINAL' as const,
+      caseId: null,
+      route: '#portal/manager/orders/o',
+    },
+    {
+      purpose: 'REWORK' as const,
+      caseId: 'case-1',
+      route: '#portal/manager/orders/o/rework/case-1',
+    },
+  ])(
+    'resumes $purpose planning without querying execution results',
+    async ({ purpose, caseId, route }) => {
+      vi.mocked(missionsApi.getMissionResponse).mockResolvedValue({
+        ...mission,
+        status: 'PLANNING',
+        purpose,
+        resultRevisionCaseId: caseId,
+        staffAssignments: [],
+        deviceAssignments: [],
+      })
+      render(<MissionDetailPage missionId="m" />)
+      await waitFor(() => expect(window.location.hash).toBe(route))
+      expect(
+        checklistExecutionApi.getMissionChecklistExecutions,
+      ).not.toHaveBeenCalled()
+      expect(missionsApi.getMissionResult).not.toHaveBeenCalled()
+      expect(missionsApi.getCurrentPreflight).not.toHaveBeenCalled()
+      expect(missionsApi.getCurrentPostDeviceCheck).not.toHaveBeenCalled()
+      expect(missionsApi.getMissionMedia).not.toHaveBeenCalled()
+      expect(screen.queryByText('Kết quả checklist')).not.toBeInTheDocument()
+    },
+  )
+
   it('opens the media section without changing the active route', async () => {
     render(<MissionDetailPage missionId="m" />)
     const link = await screen.findByRole('button', {
-      name: 'Xem thư viện media',
+      name: 'Xem thư viện ảnh/video',
     })
     const route = window.location.hash
     fireEvent.click(link)
@@ -153,14 +218,23 @@ describe('Manager Mission Detail monitoring review', () => {
       'aria-selected',
       'true',
     )
-    expect(screen.getByRole('region', { name: 'Thư viện media' })).toBeVisible()
+    expect(
+      screen.getByRole('region', { name: 'Thư viện ảnh/video' }),
+    ).toBeVisible()
     expect(window.location.hash).toBe(route)
   })
   it('renders per-item historical outcomes read-only', async () => {
     render(<MissionDetailPage missionId="m" />)
-    expect(
-      await screen.findByText('Kiểm tra mái nhà lịch sử'),
-    ).toBeInTheDocument()
+    fireEvent.click(
+      await screen.findByRole('tab', { name: 'Danh mục kiểm tra' }),
+    )
+    const row = await screen.findByRole('button', {
+      name: /Kiểm tra mái nhà lịch sử/,
+    })
+    // Checklist items are an accordion: the historical outcome shows on expand.
+    expect(row).toHaveAttribute('aria-expanded', 'false')
+    fireEvent.click(row)
+    expect(row).toHaveAttribute('aria-expanded', 'true')
     expect(screen.getAllByText(/Không có góc nhìn/).length).toBeGreaterThan(0)
     expect(screen.getByText(/Có cây che/)).toBeInTheDocument()
     expect(screen.queryByText('Cập nhật mục')).toBeNull()
@@ -175,7 +249,7 @@ describe('Manager Mission Detail monitoring review', () => {
     )
     expect(
       screen.getByRole('application', {
-        name: 'Bản đồ vệ tinh mission',
+        name: 'Bản đồ vệ tinh nhiệm vụ',
       }),
     ).toBeInTheDocument()
     expect(screen.getByText(/ĐIỂM GIÁM SÁT/)).toBeInTheDocument()
@@ -195,7 +269,7 @@ describe('Manager Mission Detail monitoring review', () => {
     await screen.findByRole('tab', { name: 'Kết quả nhiệm vụ' })
     expect(screen.queryByRole('tab', { name: 'Kế hoạch bay' })).toBeNull()
     expect(
-      screen.getByRole('tab', { name: 'Kết quả check' }),
+      screen.getByRole('tab', { name: 'Kiểm tra trước bay' }),
     ).toBeInTheDocument()
   })
   it('does not show weather on manager mission detail', async () => {
@@ -203,7 +277,7 @@ describe('Manager Mission Detail monitoring review', () => {
 
     await screen.findByRole('heading', { name: 'Kết quả nhiệm vụ' })
     expect(screen.queryByText('Kết quả thời tiết')).not.toBeInTheDocument()
-    fireEvent.click(screen.getByRole('tab', { name: 'Kết quả check' }))
+    fireEvent.click(screen.getByRole('tab', { name: 'Kiểm tra trước bay' }))
     expect(screen.queryByText('Kết quả thời tiết')).not.toBeInTheDocument()
     expect(
       screen.queryByText('Thời tiết phù hợp để cất cánh.'),

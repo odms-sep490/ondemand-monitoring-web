@@ -11,7 +11,7 @@
   min-width: 0;
 }
 .checklist-evidence > strong {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
 }
 /* Blocking reasons render as compact pills next to the counter, not stacked paragraphs. */
@@ -21,7 +21,7 @@
   border-radius: 999px;
   background: #fef3c7;
   color: #92400e;
-  font-size: 12px;
+  font-size: 13px;
 }
 .checklist-evidence > p[role='alert'] {
   background: #fee2e2;
@@ -43,9 +43,10 @@
 .checklist-evidence small {
   display: block;
   color: var(--tx3, #64748b);
+  font-size: 13px;
 }
 .checklist-evidence p {
-  font-size: 12px;
+  font-size: 13px;
 }
 
 /* ---------- Attached evidence: one compact row per file ---------- */
@@ -96,7 +97,7 @@
 }
 .checklist-evidence-name {
   font-family: var(--font-mono, monospace);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -110,7 +111,7 @@
   border-radius: 999px;
   background: #fef3c7;
   color: #92400e;
-  font-size: 11.5px;
+  font-size: 13px;
   line-height: 1.45;
 }
 .checklist-evidence-note.is-ok {
@@ -126,9 +127,9 @@
   display: none;
 }
 .checklist-evidence-actions .odm-btn {
-  min-height: 28px;
+  min-height: 36px;
   padding: 2px 10px;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 /* ---------- "Add media" is a dashed drop-zone style button ---------- */
@@ -142,7 +143,7 @@
   border-radius: 10px;
   background: #f8fbff;
   color: #1d4ed8;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
 }
 .checklist-evidence > .checklist-evidence-add::before {
@@ -202,7 +203,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 12.5px;
+  font-size: 13px;
   color: var(--tx3, #64748b);
 }
 .checklist-picker-close {
@@ -371,16 +372,55 @@
 }
 .ce-unable-note {
   margin: 0;
-  padding: 4px 10px;
-  border-radius: 6px;
-  background: #f1f5f9;
-  color: #475569;
-  font-size: 12px;
-  border-left: 3px solid #64748b;
+  padding: 8px 12px;
+  border: 1px solid #fde68a;
+  border-radius: 8px;
+  background: #fffbeb;
+  color: #92400e;
+  font-size: 14px;
+  line-height: 1.45;
   font-weight: 500;
 }
 .ce-blocker {
   color: #92400e;
+}
+.ce-blocker.is-sync {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  padding: 8px 10px;
+  border: 1px solid #fcd34d;
+  border-radius: 8px;
+  background: #fffbeb;
+  color: #78350f;
+  font-size: 14px;
+  line-height: 1.45;
+}
+.ce-blocker.is-sync span {
+  flex: 1 1 260px;
+  min-width: 0;
+}
+.ce-blocker.is-sync button {
+  flex: none;
+  min-height: 36px;
+  padding: 4px 12px;
+  border: 1px solid #d97706;
+  border-radius: 7px;
+  background: #fff;
+  color: #78350f;
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+}
+.ce-blocker.is-sync button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+.ce-blocker.is-sync button:focus-visible {
+  outline: 2px solid #1d4ed8;
+  outline-offset: 2px;
 }
 .ce-list {
   list-style: none;
@@ -506,20 +546,18 @@
 .ce-menu button:hover:not(:disabled) {
   background: #f1f5f9;
 }
-.ce-ok,
-.ce-hint {
+.ce-ok {
   margin: 0;
   font-size: 12px;
   line-height: 1.45;
-}
-.ce-ok {
   color: #16a34a;
   font-weight: 500;
 }
-.ce-hint {
-  color: #64748b;
-}
 .ce-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   height: 40px;
   border: 1px dashed #cbd5e1;
   border-radius: 10px;
@@ -532,7 +570,21 @@
   transition:
     border-color 0.15s,
     color 0.15s,
-    background-color 0.15s;
+    background-color 0.15s,
+    box-shadow 0.15s,
+    transform 0.15s;
+}
+.ce-add-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 18px;
+  line-height: 1;
+  font-weight: 600;
 }
 .ce-add:hover:not(:disabled) {
   border-color: #2563eb;
@@ -562,9 +614,6 @@
 .checklist-evidence.is-compact > p.ce-ok {
   color: #16a34a;
 }
-.checklist-evidence.is-compact > p.ce-hint {
-  color: #64748b;
-}
 .checklist-evidence.is-compact > button.ce-add {
   flex: none;
   width: 100%;
@@ -572,4 +621,309 @@
 }
 .checklist-evidence.is-compact > button.ce-add:hover:not(:disabled) {
   color: #2563eb;
+}
+
+
+/* ---------- Multi-select Ant Design evidence picker (ChecklistEvidencePicker) ---------- */
+.checklist-evidence-picker {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  margin: 14px 0;
+  max-height: min(52dvh, 460px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 2px;
+}
+.checklist-evidence-picker > p {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 16px 0;
+  color: var(--tx3, #64748b);
+  text-align: center;
+}
+.checklist-evidence-picker-row {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--bd, #e2e8f0);
+  border-radius: 10px;
+  background: var(--bg, #fff);
+  min-width: 0;
+  overflow: hidden;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.15s ease;
+}
+.checklist-evidence-picker-row:hover {
+  border-color: #93c5fd;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
+}
+.checklist-evidence-picker-row:has(.ant-checkbox-checked) {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+.checklist-evidence-picker-row:has(.ant-checkbox-disabled) {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.checklist-evidence-picker-row > .ant-checkbox-wrapper {
+  align-self: flex-start;
+}
+.checklist-evidence-picker-row > img,
+.checklist-evidence-picker-row > video {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  aspect-ratio: 16 / 10;
+  height: auto;
+  max-height: 140px;
+  object-fit: cover;
+  border-radius: 8px;
+  background: #0f172a;
+}
+.checklist-evidence-picker-row > span:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  font-family: var(--font-mono, monospace);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--tx, #0f172a);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.checklist-evidence-picker-row > span:last-child small {
+  font-family: var(--sans, system-ui, sans-serif);
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--tx3, #64748b);
+}
+
+/* Dark cockpit theme for the evidence picker modal and its controls. */
+.ant-modal.checklist-evidence-picker-modal .ant-modal-content,
+.checklist-evidence-picker-modal .ant-modal-content {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100dvh - 28px);
+  overflow: hidden;
+  border: 1px solid #26364b !important;
+  border-radius: 14px !important;
+  background: #070e1b !important;
+  color: #e5edf8 !important;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.52) !important;
+}
+
+.ant-modal.checklist-evidence-picker-modal .ant-modal-header,
+.checklist-evidence-picker-modal .ant-modal-header,
+.ant-modal.checklist-evidence-picker-modal .ant-modal-footer,
+.checklist-evidence-picker-modal .ant-modal-footer {
+  border-color: #1f2d3e !important;
+  background: #070e1b !important;
+}
+
+.ant-modal.checklist-evidence-picker-modal .ant-modal-header,
+.checklist-evidence-picker-modal .ant-modal-header {
+  flex: 0 0 auto;
+  margin-bottom: 0 !important;
+  padding: 20px 24px 12px !important;
+}
+
+.ant-modal.checklist-evidence-picker-modal .ant-modal-body,
+.checklist-evidence-picker-modal .ant-modal-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 12px 24px 16px !important;
+  color: #cbd5e1 !important;
+}
+
+.ant-modal.checklist-evidence-picker-modal .ant-modal-footer,
+.checklist-evidence-picker-modal .ant-modal-footer {
+  flex: 0 0 auto;
+  padding: 12px 24px 18px !important;
+}
+
+.ant-modal.checklist-evidence-picker-modal .ant-modal-title,
+.checklist-evidence-picker-modal .ant-modal-title {
+  color: #f1f5f9 !important;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.ant-modal.checklist-evidence-picker-modal .ant-modal-close,
+.checklist-evidence-picker-modal .ant-modal-close {
+  color: #9aabc0 !important;
+}
+
+.ant-modal.checklist-evidence-picker-modal .ant-modal-close:hover,
+.checklist-evidence-picker-modal .ant-modal-close:hover {
+  color: #f1f5f9 !important;
+  background: #142338 !important;
+}
+
+.checklist-evidence-picker-modal .ant-modal-body > p {
+  margin: 0 0 14px;
+  color: #a7b7ca !important;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.checklist-evidence-picker-modal .ant-input,
+.checklist-evidence-picker-modal .ant-select-selector {
+  border-color: #34465e !important;
+  border-radius: 8px !important;
+  background: #0b1422 !important;
+  color: #e5edf8 !important;
+  box-shadow: none !important;
+}
+
+.checklist-evidence-picker-modal .ant-input {
+  min-height: 38px;
+}
+
+.checklist-evidence-picker-modal .ant-input::placeholder {
+  color: #71839a !important;
+}
+
+.checklist-evidence-picker-modal .ant-select-selection-item,
+.checklist-evidence-picker-modal .ant-select-arrow {
+  color: #e5edf8 !important;
+}
+
+.checklist-evidence-picker-modal .ant-input:hover,
+.checklist-evidence-picker-modal .ant-select:hover .ant-select-selector {
+  border-color: #52739b !important;
+}
+
+.checklist-evidence-picker-modal .ant-input:focus,
+.checklist-evidence-picker-modal .ant-input-focused,
+.checklist-evidence-picker-modal .ant-select-focused .ant-select-selector {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.18) !important;
+}
+
+.checklist-evidence-picker-dropdown {
+  border: 1px solid #26364b !important;
+  border-radius: 9px !important;
+  background: #0d1727 !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.42) !important;
+}
+
+.checklist-evidence-picker-dropdown .ant-select-item {
+  color: #cbd5e1 !important;
+}
+
+.checklist-evidence-picker-dropdown .ant-select-item-option-active,
+.checklist-evidence-picker-dropdown .ant-select-item-option-selected {
+  background: #172c47 !important;
+  color: #eff6ff !important;
+}
+
+.checklist-evidence-picker-modal .ant-btn {
+  min-height: 36px;
+  border-color: #34465e !important;
+  border-radius: 8px !important;
+  background: #0d1727 !important;
+  color: #cbd5e1 !important;
+  box-shadow: none !important;
+}
+
+.checklist-evidence-picker-modal .ant-btn:hover:not(:disabled) {
+  border-color: #60a5fa !important;
+  background: #142338 !important;
+  color: #eff6ff !important;
+}
+
+.checklist-evidence-picker-modal .ant-btn-primary {
+  border-color: #2563eb !important;
+  background: #2563eb !important;
+  color: #fff !important;
+}
+
+.checklist-evidence-picker-modal .ant-btn-primary:hover:not(:disabled) {
+  border-color: #3b82f6 !important;
+  background: #1d4ed8 !important;
+}
+
+.checklist-evidence-picker-modal .ant-btn:disabled {
+  border-color: #26364b !important;
+  background: #111d2e !important;
+  color: #71839a !important;
+}
+
+.checklist-evidence-picker-modal .ant-checkbox .ant-checkbox-inner {
+  border-color: #52657e !important;
+  background: #0b1422 !important;
+}
+
+.checklist-evidence-picker-modal .ant-checkbox-checked .ant-checkbox-inner {
+  border-color: #2563eb !important;
+  background: #2563eb !important;
+}
+
+.checklist-evidence-picker-modal .checklist-evidence-picker {
+  max-height: min(40dvh, 360px);
+  scrollbar-color: #34465e #070e1b;
+}
+
+.checklist-evidence-picker-modal .checklist-evidence-picker > p {
+  color: #9aabc0 !important;
+}
+
+.checklist-evidence-picker-modal .checklist-evidence-picker-row {
+  border-color: #26364b !important;
+  background: #0b1422 !important;
+}
+
+.checklist-evidence-picker-modal .checklist-evidence-picker-row:hover {
+  border-color: #52739b !important;
+  background: #101d2e !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.checklist-evidence-picker-modal .checklist-evidence-picker-row:has(.ant-checkbox-checked) {
+  border-color: #3b82f6 !important;
+  background: #10233b !important;
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.2);
+}
+
+.checklist-evidence-picker-modal .checklist-evidence-picker-row > span:last-child {
+  color: #e5edf8 !important;
+}
+
+.checklist-evidence-picker-modal .checklist-evidence-picker-row > span:last-child small {
+  color: #94a7be !important;
+}
+
+.checklist-evidence-picker-modal :focus-visible {
+  outline-color: #93c5fd;
+}
+
+@media (max-width: 600px) {
+  .ant-modal.checklist-evidence-picker-modal .ant-modal-header,
+  .checklist-evidence-picker-modal .ant-modal-header {
+    padding: 16px 16px 10px !important;
+  }
+
+  .ant-modal.checklist-evidence-picker-modal .ant-modal-body,
+  .checklist-evidence-picker-modal .ant-modal-body {
+    padding: 10px 16px 12px !important;
+  }
+
+  .ant-modal.checklist-evidence-picker-modal .ant-modal-footer,
+  .checklist-evidence-picker-modal .ant-modal-footer {
+    padding: 10px 16px 14px !important;
+  }
+
+  .checklist-evidence-picker {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 8px;
+  }
 }

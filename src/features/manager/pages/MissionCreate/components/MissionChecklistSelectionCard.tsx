@@ -1,6 +1,8 @@
 import type { OrderChecklistSnapshot } from '../../../types/orders'
 import type { ExecutionPlan } from '../../../types/planning'
 import { OrderIcon } from '../../../components/common/OrderIcon'
+import { useI18n } from '../../../../../shared/i18n'
+import { missionChecklistSelectionMessages } from './MissionChecklistSelectionCard.messages'
 
 interface MissionChecklistSelectionCardProps {
   items: OrderChecklistSnapshot[]
@@ -11,6 +13,7 @@ interface MissionChecklistSelectionCardProps {
   onSelectUncovered: () => void
   onDeselectAll: () => void
   error?: string
+  disabled?: boolean
 }
 
 export function MissionChecklistSelectionCard({
@@ -22,22 +25,25 @@ export function MissionChecklistSelectionCard({
   onSelectUncovered,
   onDeselectAll,
   error,
+  disabled = false,
 }: MissionChecklistSelectionCardProps) {
+  const { t } = useI18n(missionChecklistSelectionMessages)
   const uncoveredItemIds = plan?.coverage.uncoveredItemIds ?? []
-  const hasUncovered = items.some((item) =>
-    uncoveredItemIds.includes(item.id),
+  const hasUncovered = items.some((item) => uncoveredItemIds.includes(item.id))
+  const showRepeatHint = Boolean(
+    plan && items.length > 0 && !hasUncovered && selectedIds.length === 0,
   )
 
   return (
-    <section className="odm-or-card odm-mission-checklist-selection-card">
+    <section className="odm-or-card odm-mission-checklist-selection-card odm-plan-checklists">
       <header className="odm-or-card-head odm-checklist-selection-head">
         <div className="odm-checklist-title-wrap">
           <span className="odm-or-card-title">
             <OrderIcon name="check" size={18} />
-            Hạng mục kiểm tra của Mission (Checklist) *
+            {t.title}
           </span>
           <span className="odm-checklist-count-badge">
-            Đã chọn {selectedIds.length}/{items.length} mục
+            {t.selectedCount(selectedIds.length, items.length)}
           </span>
         </div>
         <div className="odm-checklist-quick-actions">
@@ -45,18 +51,20 @@ export function MissionChecklistSelectionCard({
             type="button"
             className="odm-btn odm-btn-sm"
             onClick={onSelectAll}
-            title="Chọn tất cả các mục"
+            disabled={disabled}
+            title={t.selectAllTitle}
           >
-            Chọn tất cả
+            {t.selectAll}
           </button>
           {hasUncovered && (
             <button
               type="button"
               className="odm-btn odm-btn-sm odm-btn-highlight"
               onClick={onSelectUncovered}
-              title="Chỉ chọn các mục chưa gán cho Mission nào"
+              disabled={disabled}
+              title={t.selectUncoveredTitle}
             >
-              Chọn các mục chưa gán
+              {t.selectUncovered}
             </button>
           )}
           {selectedIds.length > 0 && (
@@ -64,25 +72,30 @@ export function MissionChecklistSelectionCard({
               type="button"
               className="odm-btn odm-btn-sm"
               onClick={onDeselectAll}
-              title="Bỏ chọn toàn bộ"
+              disabled={disabled}
+              title={t.deselectTitle}
             >
-              Bỏ chọn
+              {t.deselect}
             </button>
           )}
         </div>
       </header>
 
       <div className="odm-or-card-body odm-checklist-selection-body">
+        {showRepeatHint && (
+          <p className="odm-checklist-repeat-hint" role="note">
+            {t.allAssignedHint}
+          </p>
+        )}
         {items.length === 0 ? (
           <div className="odm-checklist-empty-note">
-            <p>Đơn hàng này chưa có danh mục checklist nào từ hệ thống.</p>
+            <p>{t.empty}</p>
           </div>
         ) : (
-          <div className="odm-checklist-items-grid">
+          <div className="odm-checklist-items-grid mgr-scroll-list">
             {items.map((item) => {
               const isChecked = selectedIds.includes(item.id)
-              const isUncovered =
-                !plan || uncoveredItemIds.includes(item.id)
+              const isUncovered = !plan || uncoveredItemIds.includes(item.id)
               const assignedMission = plan?.missions.find((m) =>
                 m.checklistItemIds?.includes(item.id),
               )
@@ -98,6 +111,7 @@ export function MissionChecklistSelectionCard({
                     type="checkbox"
                     className="odm-checklist-checkbox"
                     checked={isChecked}
+                    disabled={disabled}
                     onChange={() => onToggle(item.id)}
                   />
                   <div className="odm-checklist-item-content">
@@ -108,17 +122,19 @@ export function MissionChecklistSelectionCard({
                       <div className="odm-checklist-badges">
                         {isUncovered ? (
                           <span className="odm-badge odm-badge-uncovered">
-                            Chưa gán
+                            {t.uncovered}
                           </span>
                         ) : (
                           <span className="odm-badge odm-badge-assigned">
-                            Đã gán: {assignedMission?.scopeLabel || 'Mission khác'}
+                            {t.assigned(
+                              assignedMission?.scopeLabel || t.otherMission,
+                            )}
                           </span>
                         )}
                         <span className="odm-badge odm-badge-source">
                           {item.sourceType === 'SERVICE_TEMPLATE'
-                            ? 'Mặc định gói'
-                            : 'Khách yêu cầu thêm'}
+                            ? t.sourceTemplate
+                            : t.sourceCustom}
                         </span>
                       </div>
                     </div>
@@ -132,21 +148,24 @@ export function MissionChecklistSelectionCard({
                     <div className="odm-checklist-item-meta">
                       {item.requiredEvidenceType && (
                         <span>
-                          Loại tư liệu:{' '}
-                          <strong>{item.requiredEvidenceType}</strong>
+                          {t.evidenceType}{' '}
+                          <strong>
+                            {t.evidenceTypes[item.requiredEvidenceType] ??
+                              item.requiredEvidenceType}
+                          </strong>
                         </span>
                       )}
                       {item.minimumEvidenceCount !== undefined &&
                         item.minimumEvidenceCount > 0 && (
                           <span>
-                            · Tối thiểu {item.minimumEvidenceCount} tư liệu
+                            · {t.minEvidence(item.minimumEvidenceCount)}
                           </span>
                         )}
                       {(item.minimumImageCount ?? 0) > 0 && (
-                        <span>· {item.minimumImageCount} ảnh</span>
+                        <span>· {t.images(item.minimumImageCount ?? 0)}</span>
                       )}
                       {(item.minimumVideoCount ?? 0) > 0 && (
-                        <span>· {item.minimumVideoCount} video</span>
+                        <span>· {t.videos(item.minimumVideoCount ?? 0)}</span>
                       )}
                     </div>
                   </div>

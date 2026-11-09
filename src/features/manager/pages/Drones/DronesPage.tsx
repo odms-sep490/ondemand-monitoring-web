@@ -1,101 +1,118 @@
-// MNG-09: Drone fleet management page
-import { useState } from 'react'
-import { StateView } from '../../../../shared/components/odm/StateView'
+// MNG-09: 3D drone room and mission assignment workspace.
+import { useEffect, useState } from 'react'
+import { PlusOutlined } from '@ant-design/icons'
+import { Button, Space } from 'antd'
+
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
 import { dronesApi } from '../../api/dronesApi'
-import type { DroneResponse } from '../../types/drones'
+import { managerHref } from '../../routes'
+import { PageHeader } from '../../components/common/PageHeader'
+import type { DeviceResponse } from '../../types/drones'
 import { dronesPageMessages } from './DronesPage.messages'
 import '../../manager.css'
-import { type FilterChip, matchesFilter } from './droneHelpers'
+import './drones.scss'
+import './components/droneFleetRoom.scss'
+import { DroneFleetRoom } from './components/DroneFleetRoom'
 import { StatusChangeModal } from './components/StatusChangeModal'
-import { DronesStats } from './components/DronesStats'
-import { DroneFilterChips } from './components/DroneFilterChips'
-import { DronesTable } from './components/DronesTable'
+import { CreateDroneModal } from './components/CreateDroneModal'
 
 type DronesPageProps = {
   droneId?: string
+  assignmentMissionId?: string
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function DronesPage({ droneId: _droneId }: DronesPageProps) {
+export function DronesPage({ droneId, assignmentMissionId }: DronesPageProps) {
   const { t } = useI18n(dronesPageMessages)
-  const [filter, setFilter] = useState<FilterChip>('ALL')
-  const [changingDrone, setChangingDrone] = useState<DroneResponse | null>(null)
-  const [drones, setDrones] = useState<DroneResponse[] | null>(null)
+  const [activeAssignmentMissionId, setActiveAssignmentMissionId] =
+    useState(assignmentMissionId)
+  const [changingDrone, setChangingDrone] = useState<DeviceResponse | null>(
+    null,
+  )
+  const [creatingDrone, setCreatingDrone] = useState(false)
+  const [drones, setDrones] = useState<DeviceResponse[] | null>(null)
 
   const query = useApiQuery((signal) => dronesApi.listDrones({ signal }), [])
-
   const allDrones = drones ?? query.data?.items ?? []
-  const visible = allDrones.filter((d) => matchesFilter(d, filter))
 
-  const counts = {
-    available: allDrones.filter((d) => d.status === 'AVAILABLE').length,
-    flying: allDrones.filter(
-      (d) =>
-        d.status === 'IN_MISSION' ||
-        d.status === 'RESERVED' ||
-        d.status === 'RETURNING',
-    ).length,
-    maintenance: allDrones.filter((d) => d.status === 'MAINTENANCE').length,
-    outOfService: allDrones.filter((d) => d.status === 'OUT_OF_SERVICE').length,
+  useEffect(() => {
+    setActiveAssignmentMissionId(assignmentMissionId)
+  }, [assignmentMissionId])
+
+  function handleAssignmentMissionChange(missionId?: string) {
+    setActiveAssignmentMissionId(missionId)
+    window.history.replaceState(
+      window.history.state,
+      '',
+      managerHref({
+        screen: 'drones',
+        ...(droneId ? { droneId } : {}),
+        ...(missionId ? { assignmentMissionId: missionId } : {}),
+      }),
+    )
   }
 
-  function handleChanged(updated: DroneResponse) {
+  function handleAssignmentChanged() {
+    setDrones(null)
+    query.reload()
+  }
+
+  function handleChanged(updated: DeviceResponse) {
     const base = drones ?? query.data?.items ?? []
-    setDrones(base.map((d) => (d.id === updated.id ? updated : d)))
+    setDrones(base.map((drone) => (drone.id === updated.id ? updated : drone)))
     setChangingDrone(null)
   }
 
+  function handleCreated(created: DeviceResponse) {
+    const base = drones ?? query.data?.items ?? []
+    setDrones([created, ...base])
+    setCreatingDrone(false)
+  }
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      {/* Header */}
-      <div className="odm-mgr-dash-head">
-        <div>
-          <h1 className="odm-mgr-dash-title">{t.title}</h1>
-          {!query.loading && !query.error && (
-            <div className="odm-mgr-dash-date" style={{ fontSize: 13 }}>
-              {t.summary(
-                counts.available,
-                counts.flying,
-                counts.maintenance,
-                counts.outOfService,
-              )}
-            </div>
-          )}
-        </div>
-      </div>
+    <div className="mgr-view mgr-drones">
+      <PageHeader
+        title={t.workspace.room}
+        description={t.workspace.roomDescription}
+        actions={
+          <Space wrap>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              disabled={query.loading || Boolean(query.error)}
+              onClick={() => setCreatingDrone(true)}
+            >
+              {t.create}
+            </Button>
+          </Space>
+        }
+      />
 
-      {/* Filter chips */}
-      <DronesStats filter={filter} setFilter={setFilter} />
+      <DroneFleetRoom
+        drones={allDrones}
+        loading={query.loading}
+        error={query.error}
+        onRetry={query.reload}
+        onChangeStatus={setChangingDrone}
+        initialDroneId={droneId}
+        assignmentMissionId={activeAssignmentMissionId}
+        returnMissionId={assignmentMissionId}
+        onMissionChange={handleAssignmentMissionChange}
+        onAssignmentChanged={handleAssignmentChanged}
+      />
 
-      {/* Content */}
-      {query.loading && (
-        <div style={{ padding: 40, textAlign: 'center' }} aria-busy="true">
-          <div className="odm-sk" style={{ height: 300, borderRadius: 8 }} />
-        </div>
-      )}
-
-      {!query.loading && !!query.error && <DroneFilterChips query={query} />}
-
-      {!query.loading && !query.error && visible.length === 0 && (
-        <StateView
-          state="empty"
-          title={t.emptyTitle}
-          description={t.emptyDescription}
-        />
-      )}
-
-      {!query.loading && !query.error && visible.length > 0 && (
-        <DronesTable visible={visible} setChangingDrone={setChangingDrone} />
-      )}
-
-      {/* Status change modal */}
       {changingDrone && (
         <StatusChangeModal
           drone={changingDrone}
           onClose={() => setChangingDrone(null)}
           onChanged={handleChanged}
+        />
+      )}
+
+      {creatingDrone && (
+        <CreateDroneModal
+          onClose={() => setCreatingDrone(false)}
+          onCreated={handleCreated}
         />
       )}
     </div>

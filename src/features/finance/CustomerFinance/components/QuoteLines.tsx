@@ -1,3 +1,5 @@
+import { useI18n } from '../../../../shared/i18n'
+import { customerFinanceSectionsMessages } from '../CustomerFinanceSections.messages'
 import type { CustomerQuote } from '../../types'
 import { pricingDescription } from '../../../../shared/lib/pricingPresentation'
 import { formatVnd } from '../../../../shared/lib/formatVnd'
@@ -5,6 +7,7 @@ import { lineText } from '../customerFinanceHelpers'
 
 /** Quote lines grouped per checklist (heading + subtotal), then the order-level lines. */
 export function QuoteLines({ items }: { items: CustomerQuote['items'] }) {
+  const { t } = useI18n(customerFinanceSectionsMessages)
   const lines = items.filter((item) => item.type !== 'ADJUSTMENT')
   const groups = new Map<string, CustomerQuote['items']>()
   const orderLevel: CustomerQuote['items'] = []
@@ -24,40 +27,49 @@ export function QuoteLines({ items }: { items: CustomerQuote['items'] }) {
     <div className="customer-quote-groups">
       {[...groups.entries()].map(([id, rows]) => {
         const name =
-          pricingDescription(rows[0].description).split(' · ')[0] || 'Nội dung'
+          pricingDescription(rows[0].description).split(' · ')[0] || t.contentFallback
         return (
-          <section key={id} className="customer-quote-group">
-            <header>
+          <details key={id} className="customer-quote-group">
+            <summary>
               <strong title={name}>{name}</strong>
               <b>{formatVnd(sum(rows))}</b>
-            </header>
+              <span className="customer-quote-detail-label">{t.priceDetails}</span>
+            </summary>
             <ul>
               {rows.map((row) => (
                 <li key={row.id}>
-                  <span>{lineText(row, name)}</span>
+                  <span>{lineText(row, name, t.adjustment)}</span>
                   <span>{formatVnd(row.amount)}</span>
                 </li>
               ))}
             </ul>
-          </section>
+          </details>
         )
       })}
-      {orderLevel.length > 0 && (
-        <section className="customer-quote-group">
-          <header>
-            <strong>Theo đơn hàng</strong>
+      {orderLevel.length === 1 ? (
+        <div className="customer-quote-group customer-quote-group--static">
+          <div className="customer-quote-group-summary">
+            <strong>{lineText(orderLevel[0], undefined, t.adjustment)}</strong>
+            <b>{formatVnd(orderLevel[0].amount)}</b>
+          </div>
+        </div>
+      ) : orderLevel.length > 1 ? (
+        <details className="customer-quote-group">
+          <summary>
+            <strong>{t.perOrder}</strong>
             <b>{formatVnd(sum(orderLevel))}</b>
-          </header>
+            <span className="customer-quote-detail-label">{t.priceDetails}</span>
+          </summary>
           <ul>
             {orderLevel.map((row) => (
               <li key={row.id}>
-                <span>{lineText(row)}</span>
+                <span>{lineText(row, undefined, t.adjustment)}</span>
                 <span>{formatVnd(row.amount)}</span>
               </li>
             ))}
           </ul>
-        </section>
-      )}
+        </details>
+      ) : null}
     </div>
   )
 }

@@ -1,18 +1,57 @@
 import type { OperatorMission } from '../../types/mission'
-import { missionHasSafeStop } from '../../../mission/lib/missionOperationalState'
+import { ApiError } from '../../../../shared/api/httpClient'
 import { monitoringErrorMessage } from '../../../mission/components/MonitoringChecklistSection'
 
 /** Pilot has not answered yet: the screen's job is to support Accept/Reject. */
 export function isAwaitingResponse(mission: OperatorMission) {
   return (
     mission.status === 'PENDING' &&
-    mission.myResponseStatus !== 'ACCEPTED' &&
-    !missionHasSafeStop(mission)
+    mission.myResponseStatus !== 'ACCEPTED'
   )
 }
 
-export function actionErrorMessage(error: unknown, fallback: string) {
-  return error instanceof Error && error.message
-    ? monitoringErrorMessage(error)
-    : fallback
+export function actionErrorMessage(
+  error: unknown,
+  fallback: string,
+  flightPermitNotApprovedMessage = 'Giấy phép bay chưa được phê duyệt. Vui lòng phê duyệt giấy phép bay trước khi bắt đầu nhiệm vụ.',
+  weatherAfterPermitRequiredMessage = 'Giấy phép bay đã được duyệt. Vui lòng kiểm tra lại thời tiết trước khi bắt đầu nhiệm vụ.',
+) {
+  if (error instanceof ApiError) {
+    const normalizedMessage = error.message
+      .trim()
+      .replace(/[.!?]+$/, '')
+      .toLowerCase()
+
+    if (
+      [
+        'flight permit must be approved before the mission can start',
+        'flight permit must be approved before weather can be checked',
+      ].includes(normalizedMessage)
+    ) {
+      return flightPermitNotApprovedMessage
+    }
+
+    if (
+      normalizedMessage ===
+      'weather must be checked after the flight permit is approved'
+    ) {
+      return weatherAfterPermitRequiredMessage
+    }
+
+    if (
+      error.code === 'MISSION_PERMISSIONS_UNAVAILABLE' ||
+      [401, 403, 404, 409].includes(error.status ?? -1)
+    ) {
+      return monitoringErrorMessage(error)
+    }
+
+    if (error.code === 'NETWORK_ERROR' || (error.status ?? 0) >= 500) {
+      return fallback
+    }
+
+    return error.message || fallback
+  }
+
+  if (error instanceof TypeError) return fallback
+  return error instanceof Error && error.message ? error.message : fallback
 }

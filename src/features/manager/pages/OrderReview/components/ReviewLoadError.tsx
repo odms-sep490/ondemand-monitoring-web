@@ -1,7 +1,12 @@
-import { ReviewBreadcrumbHeader } from './ReviewBreadcrumbHeader'
+import { ArrowLeftOutlined } from '@ant-design/icons'
+import { Button } from 'antd'
+
+import { useI18n } from '../../../../../shared/i18n'
+import { displayOrderCode } from '../../../../../shared/lib/orderCode'
+import { ErrorState } from '../../../components/common/ErrorState'
+import { PageHeader } from '../../../components/common/PageHeader'
 import { managerHref } from '../../../routes'
 import { orderReviewPageMessages } from '../OrderReviewPage.messages'
-import { useI18n } from '../../../../../shared/i18n'
 
 export function ReviewLoadError({
   orderId,
@@ -12,25 +17,25 @@ export function ReviewLoadError({
 }) {
   const { t } = useI18n(orderReviewPageMessages)
   return (
-    <div className="odm-mgr-dash">
-      <ReviewBreadcrumbHeader orderId={orderId} t={t} />
-      <div className="odm-card">
-        <div className="odm-mgr-review-error">
-          <div className="odm-mgr-review-error-icon" aria-hidden="true">
-            !
-          </div>
-          <div style={{ fontSize: 15, fontWeight: 600 }}>{t.loadError}</div>
-          <div style={{ color: 'var(--tx3)', maxWidth: 420, lineHeight: 1.5 }}>
-            {is409 ? t.error409 : t.errorGeneric}
-          </div>
-          <a
-            className="odm-btn odm-btn-p"
-            href={managerHref({ screen: 'orderQueue' })}
-          >
-            {t.backToQueue}
+    <div className="mgr-view">
+      <PageHeader
+        crumb={
+          <a href={managerHref({ screen: 'orderQueue' })}>
+            <ArrowLeftOutlined aria-hidden="true" /> {t.backToOrders}
           </a>
-        </div>
-      </div>
+        }
+        title={t.pageTitle}
+        description={displayOrderCode(null, orderId)}
+      />
+      <ErrorState
+        title={t.loadError}
+        description={is409 ? t.error409 : t.errorGeneric}
+        action={
+          <Button type="primary" href={managerHref({ screen: 'orderQueue' })}>
+            {t.backToQueue}
+          </Button>
+        }
+      />
     </div>
   )
 }

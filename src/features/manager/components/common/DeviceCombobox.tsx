@@ -1,4 +1,5 @@
 import type { AvailableDrone } from '../../../staff/api/droneApi'
+import './pickers.css'
 import { liveDispatchPageMessages } from './LiveDispatchPage.messages'
 import { useState, useRef, useMemo, useEffect, type KeyboardEvent } from 'react'
 import { DeviceSelectedTrigger } from './DeviceSelectedTrigger'
@@ -96,10 +97,7 @@ export function DeviceCombobox({
   }
 
   return (
-    <div
-      ref={rootRef}
-      style={{ position: 'relative', display: 'grid', gap: 10 }}
-    >
+    <div ref={rootRef} className="mgr-pk">
       {selectedDevices.length > 0 ? (
         <DeviceSelectedTrigger
           triggerRef={triggerRef}

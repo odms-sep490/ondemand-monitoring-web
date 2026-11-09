@@ -14,9 +14,16 @@ export type MissionChecklistExecution = {
   inputRequirements?: string[] | null
   expectedOutputs?: string[] | null
   displayOrder: number
-  sourceType: 'SERVICE_TEMPLATE' | 'CUSTOMER_CUSTOM'
+  sourceType: 'SERVICE_TEMPLATE' | 'CUSTOMER_SELECTED' | 'CUSTOMER_CUSTOM'
+  checklistRevision?: number
+  guidanceVersion?: number
+  guidanceConfirmedVersion?: number | null
+  guidanceReady?: boolean
   executionStatus: ChecklistExecutionStatus
   assessmentStatus: ChecklistAssessmentStatus
+  assessmentNote?: string | null
+  assessedBy?: string | null
+  assessedAt?: string | null
   observation: string | null
   unableToVerifyReason: string | null
   startedAt: string | null
@@ -35,6 +42,9 @@ export type MissionChecklistExecution = {
   eligibleImageCount?: number
   eligibleVideoCount?: number
   evidenceRequirementSatisfied?: boolean
+  readyForFinalApproval?: boolean
+  /** Assigned inspector may correct the selection until the order is published. */
+  customerSelectionEditable?: boolean
   evidenceReady?: boolean
   blockingReasons?: EvidenceBlockingReason[]
   evidence?: MissionChecklistEvidence[]
@@ -58,6 +68,7 @@ export type EvidenceBlockingReason =
   | 'MEDIA_NOT_VALIDATED'
   | 'MEDIA_APPROVAL_REQUIRED'
   | 'INSUFFICIENT_EVIDENCE'
+  | 'ASSESSMENT_REQUIRED'
   | 'EXECUTION_NOT_TERMINAL'
   | 'EXECUTION_NOT_COMPLETED'
   | 'UNABLE_REASON_REQUIRED'
@@ -77,6 +88,9 @@ export type EvidenceEligibility = {
   ineligibilityReason: EvidenceBlockingReason | null
 }
 export type MissionChecklistEvidence = EvidenceEligibility & {
+  selectedForCustomer?: boolean
+  selectedBy?: string | null
+  selectedAt?: string | null
   evidenceId: string
   mediaId: string
   executionId: string
@@ -92,7 +106,8 @@ export type MissionChecklistEvidence = EvidenceEligibility & {
   capturedAt: string
   sourceCapturedAt: string | null
   validatedAt: string | null
-  previewUrl: string | null
+  previewUrl?: string | null
+  thumbnailUrl?: string | null
   urlExpiresAt: string | null
 }
 export type EvidenceCandidate = EvidenceEligibility & {
@@ -105,12 +120,20 @@ export type EvidenceCandidate = EvidenceEligibility & {
   capturedAt: string
   validatedAt: string | null
   attachable: boolean
-  previewUrl: string | null
+  previewUrl?: string | null
+  thumbnailUrl?: string | null
   urlExpiresAt: string | null
   alreadyAttachedExecutionIds: string[]
 }
 
+export type CustomerEvidenceSelectionRequest = {
+  expectedVersion: number
+  evidenceIds: string[]
+  confirmSurplus: boolean
+}
+
 export type ChecklistExecutionUpdateRequest = {
+  assessmentNote?: string | null
   expectedVersion: number
   executionStatus: ChecklistExecutionStatus
   assessmentStatus: ChecklistAssessmentStatus

@@ -36,7 +36,12 @@ const paths: Record<ManagerIconName, ReactNode> = {
       <path d="M5 10v10h5v-6h4v6h5V10" />
     </>
   ),
-  'order-queue': <path d="M5 12.5 9.5 17 19 7.5" />,
+  'order-queue': (
+    <>
+      <path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z" />
+      <path d="M14 3v5h5M9 13h6M9 17h6" />
+    </>
+  ),
   mission: (
     <>
       <path d="M12 3l9 5-9 5-9-5z" />

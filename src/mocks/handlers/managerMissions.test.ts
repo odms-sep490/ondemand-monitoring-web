@@ -173,21 +173,23 @@ describe('GET /api/missions/{id}/resource-suggestions', () => {
   })
 })
 
-describe('POST /api/missions/{id}/assign-drone', () => {
-  it('assigns and moves the mission to RESOURCE_ASSIGNING', async () => {
+describe('POST /api/missions/{id}/device-assignments', () => {
+  it('assigns the device while keeping the mission in planning', async () => {
     const { status, payload } = await call(
       'POST',
-      '/api/missions/msn-2609-0153-1/assign-drone?droneId=DRN-01',
+      '/api/missions/msn-2609-0153-1/device-assignments',
+      { deviceId: 'DRN-01', deviceRole: 'MAIN' },
     )
     expect(status).toBe(200)
-    expect(payload.data.status).toBe('RESOURCE_ASSIGNING')
+    expect(payload.data.status).toBe('PLANNING')
     expect(payload.data.droneId).toBe('drn-01')
   })
 
   it('409s SCHEDULE_CONFLICT for DRN-04 against MSN-2609-0150-1', async () => {
     const { status, payload } = await call(
       'POST',
-      '/api/missions/msn-2609-0153-1/assign-drone?droneId=DRN-04',
+      '/api/missions/msn-2609-0153-1/device-assignments',
+      { deviceId: 'DRN-04', deviceRole: 'MAIN' },
     )
     expect(status).toBe(409)
     expect(payload.code).toBe('SCHEDULE_CONFLICT')
@@ -197,7 +199,7 @@ describe('POST /api/missions/{id}/assign-drone', () => {
   it('400s when droneId is missing', async () => {
     const { status } = await call(
       'POST',
-      '/api/missions/msn-2609-0153-1/assign-drone',
+      '/api/missions/msn-2609-0153-1/device-assignments',
     )
     expect(status).toBe(400)
   })
@@ -205,30 +207,33 @@ describe('POST /api/missions/{id}/assign-drone', () => {
   it('404s for an unknown drone', async () => {
     const { status } = await call(
       'POST',
-      '/api/missions/msn-2609-0153-1/assign-drone?droneId=DRN-99',
+      '/api/missions/msn-2609-0153-1/device-assignments',
+      { deviceId: 'DRN-99', deviceRole: 'MAIN' },
     )
     expect(status).toBe(404)
   })
 })
 
-describe('POST /api/missions/{id}/assign-operator', () => {
-  it('assigns and, after a drone is already set, reaches WAITING_OPERATOR_ACCEPTANCE', async () => {
+describe('POST /api/missions/{id}/staff-assignments', () => {
+  it('assigns the staff while keeping the mission in planning', async () => {
     await call(
       'POST',
-      '/api/missions/msn-2609-0153-1/assign-drone?droneId=DRN-01',
+      '/api/missions/msn-2609-0153-1/device-assignments',
+      { deviceId: 'DRN-01', deviceRole: 'MAIN' },
     )
     const { status, payload } = await call(
       'POST',
-      '/api/missions/msn-2609-0153-1/assign-operator?operatorId=HT',
+      '/api/missions/msn-2609-0153-1/staff-assignments',
+      { staffId: 'HT', assignedRoles: ['PILOT'] },
     )
     expect(status).toBe(200)
-    expect(payload.data.status).toBe('WAITING_OPERATOR_ACCEPTANCE')
+    expect(payload.data.status).toBe('PLANNING')
   })
 
   it('400s when operatorId is missing', async () => {
     const { status } = await call(
       'POST',
-      '/api/missions/msn-2609-0153-1/assign-operator',
+      '/api/missions/msn-2609-0153-1/staff-assignments',
     )
     expect(status).toBe(400)
   })
@@ -236,47 +241,47 @@ describe('POST /api/missions/{id}/assign-operator', () => {
   it('404s for an unknown operator', async () => {
     const { status } = await call(
       'POST',
-      '/api/missions/msn-2609-0153-1/assign-operator?operatorId=ZZ',
+      '/api/missions/msn-2609-0153-1/staff-assignments',
+      { staffId: 'ZZ', assignedRoles: ['PILOT'] },
     )
     expect(status).toBe(404)
   })
 })
 
-describe('POST /api/missions/{id}/assignments/{aid}/release', () => {
-  it('400s when releaseReason is blank', async () => {
+describe('DELETE /api/missions/{id}/device-assignments/{assignmentId}', () => {
+  it('removes the device assignment without a reason body', async () => {
     await call(
       'POST',
-      '/api/missions/msn-2609-0153-1/assign-drone?droneId=DRN-01',
+      '/api/missions/msn-2609-0153-1/device-assignments',
+      { deviceId: 'DRN-01', deviceRole: 'MAIN' },
     )
     const { status, payload } = await call(
-      'POST',
-      '/api/missions/msn-2609-0153-1/assignments/mda-msn-2609-0153-1-drn-01/release',
-      { releaseReason: '' },
-    )
-    expect(status).toBe(400)
-    expect(payload.errors.releaseReason).toBeDefined()
-  })
-
-  it('releases the drone assignment and returns the mission to CREATED', async () => {
-    await call(
-      'POST',
-      '/api/missions/msn-2609-0153-1/assign-drone?droneId=DRN-01',
-    )
-    const { status, payload } = await call(
-      'POST',
-      '/api/missions/msn-2609-0153-1/assignments/mda-msn-2609-0153-1-drn-01/release',
-      { releaseReason: 'Drone bị gọi bảo trì khẩn' },
+      'DELETE',
+      '/api/missions/msn-2609-0153-1/device-assignments/mda-msn-2609-0153-1-drn-01',
     )
     expect(status).toBe(200)
-    expect(payload.data.status).toBe('CREATED')
+    expect(payload.data.droneId).toBeNull()
+  })
+
+  it('keeps the mission in PLANNING after removal', async () => {
+    await call(
+      'POST',
+      '/api/missions/msn-2609-0153-1/device-assignments',
+      { deviceId: 'DRN-01', deviceRole: 'MAIN' },
+    )
+    const { status, payload } = await call(
+      'DELETE',
+      '/api/missions/msn-2609-0153-1/device-assignments/mda-msn-2609-0153-1-drn-01',
+    )
+    expect(status).toBe(200)
+    expect(payload.data.status).toBe('PLANNING')
     expect(payload.data.droneId).toBeNull()
   })
 
   it('404s for an assignment id that does not belong to the mission', async () => {
     const { status } = await call(
-      'POST',
-      '/api/missions/msn-2609-0153-1/assignments/not-a-real-id/release',
-      { releaseReason: 'x' },
+      'DELETE',
+      '/api/missions/msn-2609-0153-1/device-assignments/not-a-real-id',
     )
     expect(status).toBe(404)
   })
@@ -334,12 +339,29 @@ describe('PATCH /api/missions/{id}/schedule', () => {
       'PATCH',
       '/api/missions/msn-2609-0153-1/schedule',
       {
-        scheduledStart: '2026-09-26T10:00:00+07:00',
-        scheduledEnd: '2026-09-26T11:30:00+07:00',
+        scheduledStartAt: '2026-09-26T10:00:00+07:00',
+        scheduledEndAt: '2026-09-26T11:30:00+07:00',
+        reason: 'CUSTOMER_REQUEST',
+        note: 'Customer asked to move the flight',
       },
     )
     expect(status).toBe(200)
     expect(payload.data.scheduledStartAt).toBe('2026-09-26T10:00:00+07:00')
+    expect(payload.data.scheduledEndAt).toBe('2026-09-26T11:30:00+07:00')
+    expect(payload.data.lastRescheduleReason).toBe('CUSTOMER_REQUEST')
+    expect(payload.data.scheduleRevision).toBe(1)
+  })
+
+  it('400s when the reschedule reason is missing', async () => {
+    const { status } = await call(
+      'PATCH',
+      '/api/missions/msn-2609-0153-1/schedule',
+      {
+        scheduledStartAt: '2026-09-26T10:00:00+07:00',
+        scheduledEndAt: '2026-09-26T11:30:00+07:00',
+      },
+    )
+    expect(status).toBe(400)
   })
 })
 

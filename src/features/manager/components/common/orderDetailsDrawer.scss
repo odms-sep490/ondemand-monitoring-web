@@ -1,0 +1,40 @@
+.mgr-order-details-drawer {
+  .ant-drawer-body {
+    padding: 16px 20px 24px;
+  }
+
+  .mgr-order-details-title {
+    display: inline-flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    small {
+      color: var(--mgr-muted);
+      font-size: 13px;
+      font-weight: 500;
+    }
+  }
+
+  .mgr-order-detail-drawer-content {
+    display: grid;
+    gap: 14px;
+
+    > .odm-or-card {
+      min-width: 0;
+      margin: 0;
+    }
+
+    .odm-or-svc-grid.has-no-time {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}
+
+.odm-or-order-page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}

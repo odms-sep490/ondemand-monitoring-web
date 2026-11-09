@@ -1,0 +1,5 @@
+@use '../../styles/mission-area';
+
+:root .mgr-layout .mgr-mc {
+  @include mission-area.mission-area;
+}

@@ -1,3 +1,5 @@
+import { useI18n } from '../../../../shared/i18n'
+import { commonMiscMessages } from './commonMisc.messages'
 import type { usePlanningConfirmation } from './usePlanningConfirmation'
 import { LiveDispatchPage } from './LiveDispatchPage'
 import { assignmentReadiness } from '../../lib/assignmentReadiness'
@@ -5,7 +7,7 @@ import { STAFF_ROLE_LABELS } from './missionDetailHelpers'
 import type { ReactElement, Dispatch, SetStateAction } from 'react'
 import type { MissionResponse } from '../../types/missions'
 import type { UseApiQueryState } from '../../../../shared/hooks/useApiQuery'
-import type { ExecutionPlan, SafeStop } from '../../types/planning'
+import type { ExecutionPlan } from '../../types/planning'
 import type { OrderDetail } from '../../types/orders'
 import type { MissionStaffRole } from '../../../mission/types/mission'
 
@@ -48,13 +50,13 @@ export function WizardMissionStep({
     plan: ExecutionPlan
     missions: MissionResponse[]
     order: OrderDetail
-    stops: (SafeStop | null)[]
   }>
   setReviewing: Dispatch<SetStateAction<boolean>>
   updateDraft: (dirty: boolean, saving: boolean) => void
   deviceId: string | null
   initialStaff: Partial<Record<MissionStaffRole, string[]>>
 }) {
+  const { t } = useI18n(commonMiscMessages)
   return (
     <>
       {confirmation.dialog}
@@ -63,6 +65,7 @@ export function WizardMissionStep({
         missionId={current.id}
         orderContext={{
           orderId,
+          order: query.data?.order,
           embeddedInOrderReview: embedded,
           missionScoped: Boolean(initialMissionId),
           returnLabel,
@@ -109,7 +112,7 @@ export function WizardMissionStep({
                     current.deviceCode ||
                     current.droneCode ||
                     current.deviceName ||
-                    'Thiết bị đã phân công',
+                    t.assignedDevice,
                 },
               ]
             : [],

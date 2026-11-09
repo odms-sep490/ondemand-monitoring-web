@@ -3,7 +3,10 @@ import type { SupportMessageDto } from '../../../api/supportApi'
 import { ticketLabelsMessages } from '../../../lib/ticketLabels.messages'
 import { customerTicketDetailMessages } from '../CustomerTicketDetailPage.messages'
 
-type Props = { messages: SupportMessageDto[] | undefined; description: string | undefined }
+type Props = {
+  messages: SupportMessageDto[] | undefined
+  description: string | undefined
+}
 
 export function MessageList({ messages, description }: Props) {
   const { t, locale } = useI18n(customerTicketDetailMessages)
@@ -18,13 +21,19 @@ export function MessageList({ messages, description }: Props) {
       {messages.map((msg) => {
         const role = labels.senderRole[msg.senderRole] ?? msg.senderRole
         return (
-          <li key={msg.id} className={`td-msg${msg.senderRole === 'CUSTOMER' ? ' is-mine' : ''}`}>
+          <li
+            key={msg.id}
+            className={`td-msg${msg.senderRole === 'CUSTOMER' ? ' is-mine' : ''}`}
+          >
             <div className="td-msg-meta">
               <span className="td-msg-author">
                 {msg.senderName} ({role})
               </span>
               <span>
-                {new Date(msg.createdAt).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })}
+                {new Date(msg.createdAt).toLocaleTimeString(locale, {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}
               </span>
             </div>
             <div className="td-bubble">

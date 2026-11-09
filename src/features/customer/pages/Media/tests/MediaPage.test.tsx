@@ -32,7 +32,12 @@ describe('MediaPage', () => {
     render(<MediaPage orderId="cus-ord-006" />)
     expect(await screen.findByText('MSN-2609-0131-1')).toBeInTheDocument()
     await waitFor(() =>
-      expect(screen.getAllByRole('button', { name: /^Xem / })).toHaveLength(15),
+      expect(screen.getAllByRole('button', { name: /^Xem / })).toHaveLength(12),
+    )
+    // The remaining 3 files are on page 2 of the section grid (12 per page).
+    fireEvent.click(document.querySelector('.ant-pagination-item-2') as HTMLElement)
+    await waitFor(() =>
+      expect(screen.getAllByRole('button', { name: /^Xem / })).toHaveLength(3),
     )
   })
 

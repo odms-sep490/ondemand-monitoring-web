@@ -5,21 +5,34 @@ export const preflightPageMessages = defineMessages({
     noMissionSelected: 'Chưa chọn mission',
     noDroneAssigned: 'Chưa gán thiết bị',
     noDroneAssignedError: 'Mission chưa được gán thiết bị',
-    backendPreflightFailed: 'Backend preflight không đạt',
-    confirmPrecheckFailed: 'Không xác nhận được precheck',
+    backendPreflightFailed: 'Kết quả kiểm tra trước bay từ hệ thống chưa đạt',
+    confirmPrecheckFailed: 'Không xác nhận được kết quả kiểm tra trước bay',
     loadMissionFailed: 'Không tải được mission',
-    confirmingTelemetry: 'Đang xác nhận telemetry, precheck và flight token…',
-    stepTitle: 'Preflight checklist',
+    confirmingTelemetry:
+      'Đang xác nhận dữ liệu thiết bị và kết quả kiểm tra trước bay…',
+    stepTitle: 'Danh sách kiểm tra trước bay',
     itemsPassed: 'mục đạt',
     passReady: 'PASS · đủ điều kiện cất cánh',
+    passDescription:
+      'Tất cả hạng mục kiểm tra trước bay bắt buộc phải đạt trước khi nhiệm vụ sẵn sàng cất cánh.',
+    airspacePermissionDenied:
+      'Khu vực bay chưa được cấp phép. Vui lòng kiểm tra quyền bay trước khi tiếp tục.',
+    preflightCheckFailed:
+      'Kiểm tra trước bay chưa hoàn tất. Vui lòng kiểm tra quyền bay và thử lại.',
     failBlocked: (items: string) => `FAIL · CHẶN BAY · Không đạt: ${items}`,
-    runningPrecheck: (progress: number) => `Đang chạy precheck... ${progress}%`,
-    pressTriggerHint: 'Bấm Trigger precheck để gọi API kiểm tra thiết bị.',
-    switchingToReady: 'Đang đổi READY_TO_FLY...',
+    runningPrecheck: (progress: number) =>
+      `Đang kiểm tra thiết bị trước bay... ${progress}%`,
+    pressTriggerHint: 'Bấm “Bắt đầu kiểm tra” để kiểm tra thiết bị.',
+    switchingToReady: 'Đang cập nhật trạng thái thiết bị...',
     continueToHandover: 'Tiếp tục tới bàn giao',
     triggeringAgain: 'Đang kiểm...',
     triggerAgain: 'Kiểm tra lại',
     triggerPrecheck: 'Bắt đầu kiểm tra',
+    requestDroneReplacement: 'Gửi yêu cầu đổi drone',
+    requestingDroneReplacement: 'Đang gửi yêu cầu...',
+    droneReplacementRequestSent: 'Đã gửi yêu cầu đổi drone cho quản lý.',
+    droneReplacementRequestSentShort: 'Đã gửi yêu cầu',
+    droneReplacementRequestFailed: 'Không gửi được yêu cầu đổi drone.',
     weatherTitle: 'Thời tiết bay',
     weatherNotChecked: 'CHƯA GHI NHẬN',
     weatherSummary: (
@@ -69,16 +82,20 @@ export const preflightPageMessages = defineMessages({
     itemPass: 'Đạt',
     itemChecking: 'Đang kiểm',
     itemPending: 'Chờ kiểm',
+    fetchCurrentBattery: 'Lấy pin hiện tại',
+    failureReasonPlaceholder: 'Nhập lý do không đạt',
+    confirmFailure: 'Xác nhận',
     triggerFailed:
-      'Không gọi được API trigger precheck. Hãy mở Drone Stack rồi bấm Trigger lại.',
+      'Không thể bắt đầu kiểm tra thiết bị. Hãy mở Drone Stack rồi thử lại.',
     weatherApiFailed:
       'Không lưu được biên bản thời tiết. Kiểm tra dữ liệu rồi thử lại.',
     precheckConnectionLost:
-      'Mất kết nối precheck API. Bấm Trigger precheck để chạy lại.',
-    confirmingBackendPrecheck: 'Đang xác nhận precheck với backend...',
-    backendSwitchedReady: 'Backend đã đổi mission sang READY_TO_FLY.',
-    backendPreflightUnconfirmed: 'Không xác nhận được backend preflight.',
-    statusNoTrigger: 'Chưa trigger precheck',
+      'Mất kết nối khi kiểm tra thiết bị. Bấm “Kiểm tra lại” để thử lần nữa.',
+    confirmingBackendPrecheck: 'Đang xác nhận kết quả kiểm tra trước bay…',
+    backendSwitchedReady: 'Thiết bị đã đạt trạng thái READY_TO_FLY.',
+    backendPreflightUnconfirmed:
+      'Không xác nhận được kết quả kiểm tra trước bay.',
+    statusNoTrigger: 'Chưa bắt đầu kiểm tra trước bay',
     statusWarnNoBlock: 'Cảnh báo nhưng không chặn bay',
     statusChecking: 'Đang kiểm tra',
     statusWaiting: 'Đang chờ',
@@ -90,18 +107,31 @@ export const preflightPageMessages = defineMessages({
     backendPreflightFailed: 'Backend preflight failed',
     confirmPrecheckFailed: 'Could not confirm the precheck',
     loadMissionFailed: 'Could not load the mission',
-    confirmingTelemetry: 'Confirming telemetry, precheck, and flight token…',
+    confirmingTelemetry: 'Confirming telemetry and precheck…',
     stepTitle: 'Preflight checklist',
     itemsPassed: 'items passed',
     passReady: 'PASS · cleared for takeoff',
+    passDescription:
+      'Every required pre-flight item must pass before the mission can be marked ready to fly.',
+    airspacePermissionDenied:
+      'Flight permission is missing for this area. Check the airspace permit before continuing.',
+    preflightCheckFailed:
+      'The pre-flight check could not be completed. Check flight permissions and try again.',
     failBlocked: (items: string) => `FAIL · FLIGHT BLOCKED · Failed: ${items}`,
     runningPrecheck: (progress: number) => `Running precheck... ${progress}%`,
     pressTriggerHint: 'Press "Trigger precheck" to call the device check API.',
-    switchingToReady: 'Switching to READY_TO_FLY...',
+    switchingToReady: 'Updating the device status...',
     continueToHandover: 'Continue to handover',
     triggeringAgain: 'Triggering...',
     triggerAgain: 'Trigger precheck again',
     triggerPrecheck: 'Trigger precheck',
+    requestDroneReplacement: 'Request a drone replacement',
+    requestingDroneReplacement: 'Sending request...',
+    droneReplacementRequestSent:
+      'Drone replacement request sent to the manager.',
+    droneReplacementRequestSentShort: 'Request sent',
+    droneReplacementRequestFailed:
+      'Could not send the drone replacement request.',
     weatherTitle: 'Flight weather',
     weatherNotChecked: 'NOT RECORDED',
     weatherSummary: (
@@ -152,6 +182,9 @@ export const preflightPageMessages = defineMessages({
     itemPass: 'Passed',
     itemChecking: 'Checking',
     itemPending: 'Pending',
+    fetchCurrentBattery: 'Get current battery',
+    failureReasonPlaceholder: 'Enter the failure reason',
+    confirmFailure: 'Confirm',
     triggerFailed:
       'Could not call the trigger precheck API. Open Drone Stack and trigger again.',
     weatherApiFailed:
@@ -159,7 +192,7 @@ export const preflightPageMessages = defineMessages({
     precheckConnectionLost:
       'Lost connection to the precheck API. Press "Trigger precheck" to run it again.',
     confirmingBackendPrecheck: 'Confirming the precheck with the backend...',
-    backendSwitchedReady: 'The backend switched the mission to READY_TO_FLY.',
+    backendSwitchedReady: 'The device reached READY_TO_FLY.',
     backendPreflightUnconfirmed: 'Could not confirm the backend preflight.',
     statusNoTrigger: 'Precheck not triggered yet',
     statusWarnNoBlock: 'Warning, but does not block the flight',

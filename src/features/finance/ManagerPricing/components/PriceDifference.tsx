@@ -1,4 +1,6 @@
 import { formatVnd } from '../../../../shared/lib/formatVnd'
+import { useI18n } from '../../../../shared/i18n'
+import { pricingMessages } from '../pricing.messages'
 
 export function PriceDifference({
   system,
@@ -10,6 +12,7 @@ export function PriceDifference({
   /** Prices the Manager may approve; null when the policy limits are unknown. */
   range: { min: number; max: number } | null
 }) {
+  const { t, locale } = useI18n(pricingMessages)
   const difference = proposed - system
   const percent = system === 0 ? null : (difference / system) * 100
   const sign = difference > 0 ? '+' : ''
@@ -20,11 +23,12 @@ export function PriceDifference({
   return (
     <>
       <small className={difference === 0 ? '' : 'finance-price-difference'}>
-        Chênh lệch: {sign}
+        {t.differenceLabel}
+        {sign}
         {formatVnd(difference)}
         {percent == null
           ? ''
-          : ` (${percent > 0 ? '+' : ''}${percent.toLocaleString('vi-VN', {
+          : ` (${percent > 0 ? '+' : ''}${percent.toLocaleString(locale, {
               maximumFractionDigits: 4,
             })}%)`}
       </small>
@@ -33,7 +37,7 @@ export function PriceDifference({
           className={outside ? 'finance-range is-out' : 'finance-range'}
           role={outside ? 'alert' : undefined}
         >
-          {outside ? 'Ngoài khoảng cho phép: ' : 'Được duyệt: '}
+          {outside ? t.outsideRange : t.allowedRange}
           {formatVnd(range.min)} – {formatVnd(range.max)}
         </small>
       )}

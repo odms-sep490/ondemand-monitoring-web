@@ -1,13 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { useI18n } from '../../../../shared/i18n'
 import { missionApi } from '../../../mission/api/missionApi'
+import { flightControlApi } from '../../api/flightControlApi'
 import type { MissionPermissions } from '../../../mission/types/permissions'
-import {
-  missionHasSafeStop,
-  missionStopLabel,
-  missionMayTerminate,
-} from '../../../mission/lib/missionOperationalState'
 import {
   getActiveMissionId,
   markActiveMissionFlowStep,
@@ -35,12 +31,28 @@ export function FlightPage({
   const [permissions, setPermissions] = useState<MissionPermissions | null>(
     null,
   )
+  const loadedMissionIdRef = useRef<string | null>(null)
+  const failureRequestedRef = useRef(false)
+  const failureWasAirborneRef = useRef(false)
+  const manualLandingConfirmedRef = useRef(false)
+  const postflightStartedRef = useRef(false)
+  const pageActiveRef = useRef(true)
   const autoStart =
     window.sessionStorage.getItem('odm.operator.autoStartSimulation') === 'true'
   const { t } = useI18n(flightPageMessages)
 
   useEffect(() => {
+    pageActiveRef.current = true
+    return () => {
+      pageActiveRef.current = false
+    }
+  }, [])
+
+  useEffect(() => {
     if (!missionId) return
+    if (loadedMissionIdRef.current !== missionId) {
+      loadedMissionIdRef.current = null
+    }
     let active = true
     let timer: number | undefined
     const refresh = async () => {
@@ -50,12 +62,15 @@ export function FlightPage({
           missionApi.getPermissions(missionId),
         ])
         if (active) {
+          loadedMissionIdRef.current = missionId
           setMission(result as BackendMission)
+          if ((result as BackendMission).failureRequestedAt)
+            failureRequestedRef.current = true
           setPermissions(access)
           setError(null)
         }
       } catch {
-        if (active) {
+        if (active && loadedMissionIdRef.current !== missionId) {
           setPermissions(null)
           setError(t.loadMissionFailed)
         }
@@ -69,6 +84,35 @@ export function FlightPage({
       window.clearTimeout(timer)
     }
   }, [missionId, t.loadMissionFailed])
+
+  const startPostflight = useCallback(async () => {
+    if (!missionId || !pageActiveRef.current || postflightStartedRef.current) return
+    postflightStartedRef.current = true
+    try {
+      await missionApi.startPostflight(missionId)
+      setActiveMissionId(missionId)
+      window.location.hash = operatorHref({ screen: 'postflight', missionId })
+    } catch (cause) {
+      postflightStartedRef.current = false
+      window.alert(cause instanceof Error ? cause.message : t.rtbFailed)
+    }
+  }, [missionId, t.rtbFailed])
+
+  const handleFailureLanded = useCallback(() => {
+    if (!failureRequestedRef.current || !missionId) return
+    const message =
+      window.navigator.language.toLowerCase().startsWith('vi')
+        ? 'Xác nhận drone đã hạ cánh hoàn toàn và động cơ đã dừng? Hệ thống sẽ mở kiểm tra sau bay.'
+        : 'Confirm the drone has fully landed and the motors have stopped? Postflight inspection will open.'
+    if (!window.confirm(message)) return
+    manualLandingConfirmedRef.current = true
+    void missionApi
+      .markReturning(missionId)
+      .then(startPostflight)
+      .catch((cause) =>
+        window.alert(cause instanceof Error ? cause.message : t.rtbFailed),
+      )
+  }, [missionId, startPostflight, t.rtbFailed])
 
   if (!missionId) {
     return <FlightOpeningShell />
@@ -101,14 +145,9 @@ export function FlightPage({
       mission={toFlightMission(mission)}
       drone={toFlightDrone(mission)}
       normalFlightAllowed={
-        !missionHasSafeStop(mission) && permissions?.canControlFlight === true
+        permissions?.canControlFlight === true && mission.status === 'IN_PROGRESS'
       }
-      terminationAllowed={missionMayTerminate(
-        mission,
-        permissions?.canTerminateFlight,
-      )}
-      operationalMessage={missionStopLabel(mission) ?? undefined}
-      autoStartPlan={autoStart && !missionHasSafeStop(mission)}
+      autoStartPlan={autoStart}
       onAutoStartPlanConsumed={() =>
         window.sessionStorage.removeItem('odm.operator.autoStartSimulation')
       }
@@ -116,37 +155,70 @@ export function FlightPage({
         setActiveMissionId(mission.id)
         markActiveMissionFlowStep(mission.id, 5)
         window.location.hash = operatorHref({
-          screen: 'upload',
+          screen: 'checklist',
           missionId: mission.id,
         })
       }}
-      onRTB={() => {
-        void missionApi
-          .markReturning(mission.id)
-          .then(async (returned) => {
-            if (missionHasSafeStop(mission)) {
-              // RTL is a return command, not evidence that the drone has landed.
-              setMission(returned as BackendMission)
-              return
+      onFailureRequested={async (reason, wasAirborne) => {
+        const updated = await missionApi.requestMissionFailure(mission.id, reason)
+        failureRequestedRef.current = true
+        failureWasAirborneRef.current = wasAirborne
+        setMission((current) =>
+          current
+            ? { ...current, ...(updated as unknown as BackendMission) }
+            : current,
+        )
+      }}
+      onFailureLanded={handleFailureLanded}
+      onRTB={async () => {
+        try {
+          await missionApi.markReturning(mission.id)
+          if (failureRequestedRef.current) {
+            while (
+              pageActiveRef.current &&
+              !manualLandingConfirmedRef.current &&
+              !postflightStartedRef.current
+            ) {
+              const status = await flightControlApi.status().catch(() => null)
+              const controllerMatches =
+                !status?.missionId || status.missionId === mission.id
+              if (status?.online && controllerMatches && status.inAir === true)
+                failureWasAirborneRef.current = true
+              if (
+                failureWasAirborneRef.current &&
+                status?.online &&
+                controllerMatches &&
+                status.inAir === false
+              )
+                break
+              await new Promise<void>((resolve) =>
+                window.setTimeout(resolve, 1200),
+              )
             }
-            await missionApi.startPostflight(mission.id)
-            setActiveMissionId(mission.id)
-            window.location.hash = operatorHref({
-              screen: 'postflight',
-              missionId: mission.id,
-            })
-          })
-          .catch((cause) =>
-            setError(cause instanceof Error ? cause.message : t.rtbFailed),
-          )
+          }
+          if (!pageActiveRef.current) return
+          await startPostflight()
+        } catch (cause) {
+          window.alert(cause instanceof Error ? cause.message : t.rtbFailed)
+        }
       }}
       onEmergency={() => {
-        const reason = window.prompt(t.emergencyPrompt)
-        if (!reason?.trim()) return
+        const reason =
+          window.navigator.language.toLowerCase().startsWith('vi')
+            ? 'Dừng khẩn cấp khi đang thực hiện'
+            : 'Emergency stop during flight'
         void missionApi
-          .failMission(mission.id, reason.trim())
+          .requestMissionFailure(mission.id, reason)
+          .then((updated) => {
+            failureRequestedRef.current = true
+            setMission((current) =>
+              current
+                ? { ...current, ...(updated as unknown as BackendMission) }
+                : current,
+            )
+          })
           .catch((cause) =>
-            setError(
+            window.alert(
               cause instanceof Error ? cause.message : t.emergencyUpdateFailed,
             ),
           )

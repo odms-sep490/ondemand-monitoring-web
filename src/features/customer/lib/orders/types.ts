@@ -18,7 +18,9 @@ export type OrderRow = {
   radiusM: number | null
   createdAt: string | null
   /** Customer-facing finance state, loaded separately for approved orders. */
-  depositState?: 'ACTION_REQUIRED' | 'PAID'
+  depositState?: 'ACTION_REQUIRED' | 'PAID' | 'PAID_IN_FULL'
+  /** Final balance is payable after the mission plan is finalized. */
+  finalPaymentState?: 'ACTION_REQUIRED'
 }
 
 export type DeliverableView = {
@@ -27,7 +29,6 @@ export type DeliverableView = {
   format: string | null
   /** Scalar requirement entries (key, display value) worth showing. */
   requirements: Array<{ key: string; value: string }>
-  aiAnalysisRequested: boolean
 }
 
 export type OrderTimelineEvent = {
@@ -45,6 +46,7 @@ export type OrderStepKey =
   | 'quote'
   | 'deposit'
   | 'planning'
+  | 'finalPayment'
   | 'inProgress'
   | 'completed'
   | 'rejected'
@@ -68,6 +70,10 @@ export type OrderDetailView = OrderRow & {
     'NOT_REVIEWED' | 'NOT_REQUIRED' | 'PENDING_PERMIT' | 'APPROVED' | 'REJECTED'
   checklistItems?: ChecklistSnapshot[]
   checklistSnapshotAt?: string | null
+  checklistRevision: number
+  canEditChecklist: boolean
+  checklistEditBlockedReason: string | null
+  coverageArea: Record<string, unknown> | null
   description: string | null
   usagePurpose: string | null
   flightPurpose: string | null
@@ -121,6 +127,7 @@ export type OrderDetailView = OrderRow & {
 export type OrderStats = {
   total: number
   pending: number
+  underReview?: number
   needsInfo: number
   approved: number
   inProgress: number

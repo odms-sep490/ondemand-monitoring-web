@@ -1,12 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
 import {
-  aiVerdictLabel,
-  aiVerdictTone,
   droneStatusLabel,
   droneStatusTone,
-  findingSeverityLabel,
-  findingSeverityTone,
   getDroneStatusLabel,
   getMediaStatusLabel,
   getMissionStatusLabel,
@@ -22,9 +18,7 @@ import {
   ticketSeverityTone,
 } from './statusTone'
 import type {
-  AiVerdict,
   DroneStatus,
-  FindingSeverity,
   MediaStatus,
   MissionStatus,
   OrderStatus,
@@ -54,7 +48,12 @@ const ORDER_STATUSES: OrderStatus[] = [
 ]
 
 const MISSION_STATUSES: MissionStatus[] = [
+  'PLANNING',
   'CREATED',
+  'WAITING_DEPOSIT',
+  'PENDING_PAYMENT',
+  'PENDING_CONFIRMATION',
+  'READY',
   'RESOURCE_ASSIGNING',
   'WAITING_OPERATOR_ACCEPTANCE',
   'SCHEDULED',
@@ -86,8 +85,6 @@ const DRONE_STATUSES: DroneStatus[] = [
   'OFFLINE',
 ]
 
-const AI_VERDICTS: AiVerdict[] = ['FEASIBLE', 'RISKY', 'INFEASIBLE']
-const FINDING_SEVERITIES: FindingSeverity[] = ['INFO', 'WARNING', 'BLOCKER']
 const TICKET_SEVERITIES: TicketSeverity[] = [
   'LOW',
   'MEDIUM',
@@ -130,22 +127,6 @@ describe('statusTone maps', () => {
     },
   )
 
-  it.each(AI_VERDICTS)(
-    'maps AiVerdict.%s to a valid tone + label',
-    (verdict) => {
-      expect(VALID_TONES).toContain(aiVerdictTone[verdict])
-      expect(aiVerdictLabel[verdict]).toBeTruthy()
-    },
-  )
-
-  it.each(FINDING_SEVERITIES)(
-    'maps FindingSeverity.%s to a valid tone + label',
-    (severity) => {
-      expect(VALID_TONES).toContain(findingSeverityTone[severity])
-      expect(findingSeverityLabel[severity]).toBeTruthy()
-    },
-  )
-
   it.each(TICKET_SEVERITIES)(
     'maps TicketSeverity.%s to a valid tone + label',
     (severity) => {
@@ -163,7 +144,7 @@ describe('statusTone maps', () => {
   )
 
   it('follows the brief colour convention for the values it names explicitly', () => {
-    expect(orderStatusTone.PENDING).toBe('gray')
+    expect(orderStatusTone.PENDING).toBe('yellow')
     expect(orderStatusTone.APPROVED).toBe('green')
     expect(orderStatusTone.REJECTED).toBe('red')
     expect(orderStatusTone.IN_PROGRESS).toBe('blue')
@@ -177,9 +158,6 @@ describe('statusTone maps', () => {
     expect(droneStatusTone.AVAILABLE).toBe('green')
     expect(droneStatusTone.MAINTENANCE).toBe('orange')
 
-    expect(aiVerdictTone.RISKY).toBe('orange')
-    expect(findingSeverityTone.WARNING).toBe('orange')
-    expect(findingSeverityTone.BLOCKER).toBe('red')
     expect(mediaStatusTone.MANUAL_REQUIRED).toBe('orange')
     expect(mediaStatusTone.VALIDATION_FAILED).toBe('red')
     expect(mediaStatusTone.UPLOADING).toBe('blue')

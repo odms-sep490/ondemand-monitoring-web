@@ -1,3 +1,5 @@
+import { supportTicketSubject } from '../../../lib/resultReviewPresentation'
+import { Tag } from 'antd'
 import { useI18n } from '../../../../../shared/i18n'
 import { customerHref } from '../../../../customer/routes'
 import { fmtDate } from '../../../../customer/lib/orderStatus'
@@ -9,7 +11,9 @@ import { customerTicketsListMessages } from '../CustomerTicketsListPage.messages
 export function TicketRow({ ticket }: { ticket: SupportTicketDto }) {
   const { t, locale } = useI18n(customerTicketsListMessages)
   const { t: labels } = useI18n(ticketLabelsMessages)
-  const category = labels.category[ticket.category as keyof typeof labels.category] ?? ticket.category
+  const category =
+    labels.category[ticket.category as keyof typeof labels.category] ??
+    ticket.category
 
   return (
     <li className="tl-row">
@@ -17,30 +21,36 @@ export function TicketRow({ ticket }: { ticket: SupportTicketDto }) {
         <div className="tl-head">
           <span className="sp-mono">{ticket.ticketCode}</span>
           <TicketStatusBadge status={ticket.status} />
-          <span className="sp-chip">{category}</span>
+          <Tag>{category}</Tag>
         </div>
         <a className="tl-subject" href={`#help/tickets/${ticket.id}`}>
-          {ticket.subject}
+          {supportTicketSubject(ticket, labels.revisionSubject)}
         </a>
         {(ticket.orderId || ticket.missionId) && (
           <div className="tl-links">
             {ticket.orderId && (
-                <a
-                  className="sp-link-chip"
-                  href={customerHref({ screen: 'orderDetail', orderId: ticket.orderId })}
-                  title={t.viewOrderTitle}
-                >
-                  {t.viewOrder}
-                </a>
+              <a
+                className="sp-link-chip"
+                href={customerHref({
+                  screen: 'orderDetail',
+                  orderId: ticket.orderId,
+                })}
+                title={t.viewOrderTitle}
+              >
+                {t.viewOrder}
+              </a>
             )}
             {ticket.missionId && (
-                <a
-                  className="sp-link-chip is-green"
-                  href={customerHref({ screen: 'live', orderId: ticket.orderId || ticket.missionId })}
-                  title={t.viewMissionTitle}
-                >
-                  {t.viewMission}
-                </a>
+              <a
+                className="sp-link-chip is-green"
+                href={customerHref({
+                  screen: 'live',
+                  orderId: ticket.orderId || ticket.missionId,
+                })}
+                title={t.viewMissionTitle}
+              >
+                {t.viewMission}
+              </a>
             )}
           </div>
         )}

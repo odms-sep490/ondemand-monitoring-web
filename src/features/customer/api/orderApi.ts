@@ -81,6 +81,9 @@ export type OrderDeliverableResponse = {
 export type OrderCreateResponse = {
   checklistItems?: ChecklistSnapshot[]
   checklistSnapshotAt?: string | null
+  checklistRevision?: number
+  canEditChecklist?: boolean
+  checklistEditBlockedReason?: string | null
   id: string
   orderCode?: string | null
   customerId: string
@@ -89,7 +92,6 @@ export type OrderCreateResponse = {
   title?: string
   serviceId?: string
   serviceName?: string
-  serviceBasePriceSnapshot?: number
   description?: string
   usagePurpose?: string
   flightPurpose?: string
@@ -130,6 +132,7 @@ export type OrderCreateResponse = {
   orderStatus?: string
   legalReviewStatus?: 'NOT_REVIEWED' | 'NOT_REQUIRED' | 'PENDING_PERMIT' | 'APPROVED' | 'REJECTED'
   depositSatisfied?: boolean | null
+  invoicePaidInFull?: boolean | null
   rejectReason?: string
   requestedUpdateScope?: 'LOCATION' | 'ADDITIONAL_INFORMATION'
   reviewById?: string

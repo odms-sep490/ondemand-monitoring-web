@@ -1,5 +1,11 @@
+import { ArrowLeftOutlined } from '@ant-design/icons'
+import { Skeleton } from 'antd'
+
+import { CardComponent } from '../../../../../shared/components/antd'
+import { PageHeader } from '../../../components/common/PageHeader'
+import { managerHref } from '../../../routes'
+import '../../../components/layout/mgrLayout.css'
 import type { PageMessages } from '../reviewTypes'
-import { ReviewBreadcrumbHeader } from './ReviewBreadcrumbHeader'
 
 export function ReviewSkeleton({
   orderId,
@@ -9,18 +15,32 @@ export function ReviewSkeleton({
   t: PageMessages
 }) {
   return (
-    <div className="odm-or" aria-busy="true" aria-live="polite">
-      <ReviewBreadcrumbHeader orderId={orderId} t={t} />
-      <span className="odm-sk" style={{ width: '100%', height: 68 }} />
-      <div className="odm-or-grid">
-        <div className="odm-or-col">
-          <span className="odm-sk" style={{ width: '100%', height: 400 }} />
-          <span className="odm-sk" style={{ width: '100%', height: 220 }} />
+    <div className="odm-or mgr-view mgr-or" aria-busy="true" aria-live="polite">
+      <PageHeader
+        crumb={
+          <a href={managerHref({ screen: 'orderQueue' })}>
+            <ArrowLeftOutlined aria-hidden="true" /> {t.backToOrders}
+          </a>
+        }
+        title={t.pageTitle}
+        description={orderId}
+      />
+      <CardComponent>
+        <Skeleton active paragraph={{ rows: 1 }} />
+      </CardComponent>
+      <div className="mgr-detail-grid">
+        <div className="mgr-detail-main">
+          <CardComponent>
+            <Skeleton active paragraph={{ rows: 6 }} />
+          </CardComponent>
         </div>
-        <div className="odm-or-col">
-          <span className="odm-sk" style={{ width: '100%', height: 170 }} />
-          <span className="odm-sk" style={{ width: '100%', height: 150 }} />
-          <span className="odm-sk" style={{ width: '100%', height: 150 }} />
+        <div className="mgr-detail-side">
+          <CardComponent>
+            <Skeleton active paragraph={{ rows: 3 }} />
+          </CardComponent>
+          <CardComponent>
+            <Skeleton active paragraph={{ rows: 2 }} />
+          </CardComponent>
         </div>
       </div>
       <span className="odm-visually-hidden">{t.loading}</span>

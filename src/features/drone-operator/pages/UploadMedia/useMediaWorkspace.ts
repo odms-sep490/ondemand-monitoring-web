@@ -2,23 +2,25 @@ import {
   type LocalMedia,
   operatorMediaApi,
 } from '../../../media/api/operatorMediaApi'
+import { resolveUploadState } from '../../../media/upload/resolveUploadState'
 import { checklistExecutionApi } from '../../../mission/api/checklistExecutionApi'
 import { checklistEvidenceApi } from '../../../mission/api/checklistEvidenceApi'
 import type {
   EvidenceCandidate,
-  MissionChecklistExecution,
+  MissionChecklistResponse,
 } from '../../../mission/types/checklistExecution'
-import { finishedUploadStatuses } from './uploadMediaHelpers'
+import {
+  evidenceEligibleUploadStatuses,
+  successfullyUploadedStatuses,
+} from './uploadMediaHelpers'
 import type { MediaFile } from '../../types/mission'
 import { formatDeviceLabel } from '../../lib/deviceLabel'
 import { missionResultActions } from '../../components/common/MissionResultActions'
-import { operatorHref } from '../../routes'
 import { missionApi } from '../../../mission/api/missionApi'
 import { uploadMediaPageMessages } from './UploadMediaPage.messages'
 import { useI18n } from '../../../../shared/i18n'
 import type { Dispatch, SetStateAction, RefObject } from 'react'
 import type { UseApiQueryState } from '../../../../shared/hooks/useApiQuery'
-import type { MissionChecklistResponse } from '../../../mission/types/checklistExecution'
 import type { MissionResult } from '../../../mission/types/mission'
 import type { MissionPermissions } from '../../../mission/types/permissions'
 import type { BackendMission } from '../../api/liveMission'
@@ -130,9 +132,13 @@ export function useMediaWorkspace({
     }
   }
 
-  async function attachSelected(item: LocalMedia, mediaId: string) {
-    const ids = selectedTargets[item.localMediaId] ?? []
-    if (!missionId || ids.length === 0) return
+  async function attachSelected(
+    item: LocalMedia,
+    mediaId: string,
+    explicitTargets?: string[],
+  ) {
+    const ids = explicitTargets ?? selectedTargets[item.localMediaId] ?? []
+    if (!missionId || ids.length === 0) return true
     try {
       // Fetch fresh package/versions for an explicit attach retry, never re-transfer the file.
       const latest =
@@ -148,12 +154,14 @@ export function useMediaWorkspace({
         delete next[item.localMediaId]
         return next
       })
+      return true
     } catch (cause) {
       setAttachFailures((previous) => ({
         ...previous,
         [item.localMediaId]:
           cause instanceof Error ? cause.message : 'Không gắn được bằng chứng.',
       }))
+      return false
     } finally {
       refreshWorkspace()
     }
@@ -161,9 +169,18 @@ export function useMediaWorkspace({
 
   async function loadEvidenceCandidates(page: number) {
     if (!missionId) return []
-    const uploadedCandidates = await checklistEvidenceApi.candidates(
-      missionId,
-      page,
+    const uploadedCandidates = (
+      await checklistEvidenceApi.candidates(missionId, page)
+    ).map((candidate) =>
+      candidate.status === 'REJECTED'
+        ? {
+            ...candidate,
+            attachable: false,
+            eligibleForOperationalReadiness: false,
+            eligibleForFinalApproval: false,
+            ineligibilityReason: 'MEDIA_REJECTED' as const,
+          }
+        : candidate,
     )
     if (page > 0) return uploadedCandidates
 
@@ -172,15 +189,21 @@ export function useMediaWorkspace({
     )
     const localCandidates: EvidenceCandidate[] = itemsRef.current
       .filter(
-        (item) => !item.backendMediaId || !backendIds.has(item.backendMediaId),
+        (item) =>
+          (canManageMedia && item.localAvailable !== false) ||
+          !item.backendMediaId ||
+          !backendIds.has(item.backendMediaId),
       )
       .map((item) => {
+        const backendCandidate = uploadedCandidates.find((candidate) => candidate.mediaId === item.backendMediaId)
         const status = effectiveStatus(item)
         const sourceEligible =
           item.sourceType === 'DRONE_CAMERA' ||
-          item.sourceType === 'SATELLITE_SNAPSHOT'
+          item.sourceType === 'SATELLITE_SNAPSHOT' ||
+          item.sourceType === 'MANUAL_UPLOAD'
         const attachable =
           canManageMedia &&
+          status !== 'REJECTED' &&
           item.localAvailable !== false &&
           sourceEligible &&
           (item.mediaType === 'IMAGE' || item.mediaType === 'VIDEO')
@@ -189,86 +212,52 @@ export function useMediaWorkspace({
           fileName: item.fileName,
           mediaType: item.mediaType,
           contentType: item.contentType,
-          status: finishedUploadStatuses.has(status)
-            ? status === 'AVAILABLE'
-              ? 'AVAILABLE'
-              : 'PENDING_MANAGER_APPROVAL'
-            : status === 'VALIDATING'
-              ? 'VALIDATING'
-              : 'UPLOAD_PENDING',
+          status:
+            status === 'REJECTED'
+              ? 'REJECTED'
+              : evidenceEligibleUploadStatuses.has(status)
+                ? status === 'AVAILABLE'
+                  ? 'AVAILABLE'
+                  : 'PENDING_MANAGER_APPROVAL'
+                : status === 'VALIDATING' || status === 'UPLOADING'
+                  ? 'VALIDATING'
+                  : 'UPLOAD_PENDING',
           sourceType: item.sourceType ?? null,
           capturedAt: item.capturedAt,
           validatedAt: null,
           attachable,
           eligibleForOperationalReadiness: false,
           eligibleForFinalApproval: false,
-          ineligibilityReason: attachable
-            ? null
-            : 'EVIDENCE_SOURCE_NOT_ELIGIBLE',
-          previewUrl:
-            item.localAvailable === false
+          ineligibilityReason:
+            status === 'REJECTED'
+              ? 'MEDIA_REJECTED'
+              : attachable
+                ? null
+                : 'EVIDENCE_SOURCE_NOT_ELIGIBLE',
+          previewUrl: backendCandidate?.previewUrl ?? (item.localAvailable === false
               ? null
-              : operatorMediaApi.previewUrl(item.localMediaId),
+              : operatorMediaApi.previewUrl(item.localMediaId)),
+          thumbnailUrl: backendCandidate?.thumbnailUrl ?? (item.localAvailable === false || item.mediaType !== 'IMAGE'
+              ? null
+              : operatorMediaApi.previewUrl(item.localMediaId)),
           urlExpiresAt: null,
-          alreadyAttachedExecutionIds: [],
+          alreadyAttachedExecutionIds:
+            uploadedCandidates.find(
+              (candidate) => candidate.mediaId === item.backendMediaId,
+            )?.alreadyAttachedExecutionIds ?? [],
         }
       })
-    return [...localCandidates, ...uploadedCandidates]
-  }
-
-  async function attachEvidenceCandidate(
-    candidate: EvidenceCandidate,
-    execution: MissionChecklistExecution,
-  ) {
-    if (!missionId) return
-    let mediaId = candidate.mediaId
-
-    if (candidate.mediaId.startsWith('local:')) {
-      const localId = candidate.mediaId.slice('local:'.length)
-      const item = itemsRef.current.find(
-        (entry) => entry.localMediaId === localId,
-      )
-      if (!item) throw new Error('Media local không còn khả dụng.')
-
-      mediaId = item.backendMediaId ?? ''
-      if (!mediaId) {
-        setBusyId(item.localMediaId)
-        mediaId = await operatorMediaApi.upload({ ...item, missionId }, false)
-        uploadedMediaIds.current[item.localMediaId] = mediaId
-        setItems((previous) => {
-          const next = previous.map((entry) =>
-            entry.localMediaId === item.localMediaId
-              ? {
-                  ...entry,
-                  backendMediaId: mediaId,
-                  status: 'VALIDATING' as const,
-                }
-              : entry,
-          )
-          itemsRef.current = next
-          return next
-        })
-      }
-    }
-
-    try {
-      const latest =
-        await checklistExecutionApi.getMissionChecklistExecutions(missionId)
-      const current = latest.executions.find((item) => item.id === execution.id)
-      if (!current)
-        throw new Error('Mục checklist không còn thuộc Mission này.')
-      await checklistEvidenceApi.attach(
-        missionId,
-        current.id,
-        mediaId,
-        current.version,
-      )
-      setChecklistRevision((value) => value + 1)
-      monitoring.reload()
-      await refresh()
-    } finally {
-      setBusyId(null)
-    }
+    const localBackendIds = new Set(
+      itemsRef.current
+        .filter((item) => canManageMedia && item.localAvailable !== false)
+        .map((item) => item.backendMediaId),
+    )
+    return [
+      ...localCandidates,
+      ...uploadedCandidates.filter(
+        (item) => !localBackendIds.has(item.mediaId),
+      ),
+    ]
   }
 
   async function discard(item: LocalMedia) {
@@ -282,6 +271,67 @@ export function useMediaWorkspace({
       setError(cause instanceof Error ? cause.message : t.deleteFailed)
     } finally {
       setBusyId(null)
+    }
+  }
+
+  async function transferEvidenceCandidate(
+    candidate: EvidenceCandidate,
+    onPrepared: (mediaId: string) => Promise<void>,
+  ) {
+    if (!missionId || !permissions.data?.canUploadMedia)
+      throw new Error('MEDIA_UPLOAD_NOT_ALLOWED')
+    const item = itemsRef.current.find(
+      (entry) =>
+        `local:${entry.localMediaId}` === candidate.mediaId ||
+        entry.backendMediaId === candidate.mediaId,
+    )
+    if (!item || item.localAvailable === false)
+      throw new Error('LOCAL_MEDIA_UNAVAILABLE')
+    try {
+      await operatorMediaApi.upload(
+        { ...item, missionId },
+        false,
+        async (id) => {
+          uploadedMediaIds.current[item.localMediaId] = id
+          setItems((previous) => {
+            const next = previous.map((entry) =>
+              entry.localMediaId === item.localMediaId
+                ? { ...entry, backendMediaId: id }
+                : entry,
+            )
+            itemsRef.current = next
+            return next
+          })
+          await onPrepared(id)
+        },
+      )
+    } finally {
+      refreshWorkspace()
+    }
+  }
+
+  async function transferEvidenceBackup(
+    candidate: EvidenceCandidate,
+    file: File,
+    onPrepared: (mediaId: string) => Promise<void>,
+  ) {
+    if (!missionId || !permissions.data?.canUploadMedia)
+      throw new Error('MEDIA_UPLOAD_NOT_ALLOWED')
+    const latest = await operatorMediaApi.reviewItems(missionId)
+    const item = latest.find(
+      (entry) =>
+        `local:${entry.localMediaId}` === candidate.mediaId ||
+        entry.backendMediaId === candidate.mediaId,
+    )
+    if (!item) throw new Error('LOCAL_MEDIA_UNAVAILABLE')
+    try {
+      await operatorMediaApi.uploadPcBackup(
+        { ...item, missionId },
+        file,
+        onPrepared,
+      )
+    } finally {
+      refreshWorkspace()
     }
   }
 
@@ -306,48 +356,54 @@ export function useMediaWorkspace({
   }
 
   const effectiveStatus = (item: LocalMedia) =>
-    (item.backendMediaId && statuses[item.backendMediaId]) || item.status
+    resolveUploadState(
+      item.status,
+      item.backendMediaId ? statuses[item.backendMediaId] : undefined,
+    )
   const approvable = items.filter(
     (item) =>
       item.localAvailable !== false &&
-      ['REVIEW_PENDING', 'UPLOAD_FAILED', 'RETRY_REQUIRED'].includes(
-        effectiveStatus(item),
-      ),
+      [
+        'REVIEW_PENDING',
+        'UPLOAD_FAILED',
+        'RETRY_REQUIRED',
+        'UPLOAD_PENDING',
+      ].includes(effectiveStatus(item)),
   )
   const files: MediaFile[] = items.map((item) => {
     const status = effectiveStatus(item)
-    const uploadFinished = finishedUploadStatuses.has(status)
+    const uploadFinished = successfullyUploadedStatuses.has(status)
+    const transferring = busyId === item.localMediaId
     return {
       id: item.localMediaId,
       name: item.fileName,
       type: item.mediaType === 'IMAGE' ? 'PHOTO' : 'VIDEO',
       sizeBytes: item.fileSize,
-      progressPct: uploadFinished
-        ? 100
-        : status === 'VALIDATING'
-          ? 90
-          : status === 'UPLOADING'
-            ? 50
-            : 0,
+      // The API exposes state transitions, not byte-level transfer progress.
+      progressPct: uploadFinished ? 100 : 0,
       attempt: item.backendMediaId
         ? (attemptNumbers[item.backendMediaId] ?? 0)
         : 0,
       maxAttempts: 3,
-      status: uploadFinished
-        ? 'UPLOADED'
-        : status === 'UPLOADING' || status === 'VALIDATING'
+      status:
+        transferring || status === 'UPLOADING'
           ? 'UPLOADING'
           : status === 'UPLOAD_FAILED' ||
               status === 'RETRY_REQUIRED' ||
               status === 'MANUAL_UPLOAD_REQUIRED'
             ? 'FAILED'
-            : 'PENDING_UPLOAD',
+            : uploadFinished
+              ? (status as MediaFile['status'])
+              : 'PENDING_UPLOAD',
       manualTaskCreated: status === 'MANUAL_UPLOAD_REQUIRED',
       validationPending: status === 'VALIDATING',
     }
   })
-  const uploaded = files.filter((item) => item.status === 'UPLOADED').length
+  const uploaded = files.filter((item) =>
+    successfullyUploadedStatuses.has(item.status),
+  ).length
   const uploading = files.filter((item) => item.status === 'UPLOADING').length
+  const validating = files.filter((item) => item.status === 'VALIDATING').length
   const manual = files.filter((item) => item.manualTaskCreated).length
   const deviceLabel = activeMission.data
     ? formatDeviceLabel(activeMission.data)
@@ -355,10 +411,6 @@ export function useMediaWorkspace({
   // Permissions and the Mission stay usable while a background reload runs; only a failure or a first load removes them.
   const canManageMedia =
     !permissions.error && permissions.data?.canUploadMedia === true
-  const inspector = activeMission.data?.staffAssignments?.find(
-    (assignment) => assignment.assignedRole === 'INSPECTOR',
-  )
-  const showManagerContact = permissions.data?.canInspectDevice === true
   const missionStatus =
     activeMission.error || activeMission.data?.id !== missionId
       ? undefined
@@ -372,7 +424,7 @@ export function useMediaWorkspace({
   const visibleItems = items
     .filter((item) => {
       if (filter === 'all') return true
-      const done = finishedUploadStatuses.has(effectiveStatus(item))
+      const done = successfullyUploadedStatuses.has(effectiveStatus(item))
       return filter === 'uploaded' ? done : !done
     })
     .sort((a, b) => {
@@ -380,14 +432,6 @@ export function useMediaWorkspace({
         (Date.parse(a.capturedAt) || 0) - (Date.parse(b.capturedAt) || 0)
       return sort === 'newest' ? -diff : diff
     })
-  // Upload media is part of the active flight flow, so the back action should
-  // consistently return the operator to the cockpit, including mission-scoped
-  // upload pages.
-  const backRoute = operatorHref({
-    screen: 'flight',
-    missionId: missionId ?? undefined,
-  })
-
   function buildMissionResultPayload() {
     const mission = activeMission.data
     return {
@@ -399,7 +443,7 @@ export function useMediaWorkspace({
         `Mission ${mission?.missionCode ?? missionId} đã hoàn thành.`,
         `Thiết bị: ${deviceLabel ?? 'chưa rõ'}.`,
       ].join(' '),
-      notes: 'Kết quả giám sát được gửi cho manager duyệt.',
+      notes: 'Nghiệm thu viên xác nhận kết quả giám sát.',
     }
   }
 
@@ -440,10 +484,10 @@ export function useMediaWorkspace({
     }
   }
   return {
+    transferEvidenceCandidate,
+    transferEvidenceBackup,
     approve,
-    attachSelected,
     loadEvidenceCandidates,
-    attachEvidenceCandidate,
     discard,
     uploadPc,
     effectiveStatus,
@@ -451,16 +495,14 @@ export function useMediaWorkspace({
     files,
     uploaded,
     uploading,
+    validating,
     manual,
     deviceLabel,
     canManageMedia,
-    inspector,
-    showManagerContact,
     missionStatus,
     actions,
     isBusy,
     visibleItems,
-    backRoute,
     refreshWorkspace,
     runResultAction,
   }

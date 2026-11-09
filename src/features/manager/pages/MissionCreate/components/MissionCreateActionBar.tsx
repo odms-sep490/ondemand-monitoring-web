@@ -1,26 +1,24 @@
 import { OrderIcon } from '../../../components/common/OrderIcon'
 import { managerHref } from '../../../routes'
-import { Button } from '../../../../../shared/components/Button'
 import { missionCreatePageMessages } from '../MissionCreatePage.messages'
 import { useI18n } from '../../../../../shared/i18n'
 import type { UseApiQueryState } from '../../../../../shared/hooks/useApiQuery'
 import type { ExecutionPlan } from '../../../types/planning'
-import type { MissionResponse } from '../../../types/missions'
+import { Button } from 'antd'
+import { RightOutlined } from '@ant-design/icons'
 
 export function MissionCreateActionBar({
   handleSubmit,
   submitting,
   planQuery,
-  replacementQuery,
-  replacesMissionId,
-  orderId,
+  reworkOrderId,
+  blocked = false,
 }: {
   handleSubmit: () => Promise<void>
   submitting: boolean
   planQuery: UseApiQueryState<ExecutionPlan>
-  replacementQuery: UseApiQueryState<MissionResponse | null>
-  replacesMissionId: string | undefined
-  orderId: string
+  reworkOrderId?: string
+  blocked?: boolean
 }) {
   const { t } = useI18n(missionCreatePageMessages)
   return (
@@ -32,33 +30,33 @@ export function MissionCreateActionBar({
         <span>{t.actionHint}</span>
       </div>
       <div className="odm-or-actionbar-actions">
-        <a
-          className="odm-or-btn odm-or-btn-ghost"
-          href={managerHref({ screen: 'orderQueue' })}
-        >
-          {t.backToOrders}
-        </a>
         <Button
-          type="button"
-          className="odm-or-btn odm-or-btn-primary"
+          href={
+            reworkOrderId
+              ? managerHref({ screen: 'orderResults', orderId: reworkOrderId })
+              : managerHref({ screen: 'orderQueue' })
+          }
+        >
+          {reworkOrderId ? t.backToResults : t.backToOrders}
+        </Button>
+        <Button
+          type="primary"
+          htmlType="button"
           onClick={handleSubmit}
           disabled={
+            blocked ||
             submitting ||
             planQuery.loading ||
             Boolean(planQuery.error) ||
-            (planQuery.data?.planStatus !== 'DRAFT' &&
-              !(replacesMissionId && planQuery.data?.planStatus === 'FINALIZED')) ||
-            replacementQuery.loading ||
-            Boolean(replacementQuery.error) ||
-            Boolean(
-              replacesMissionId &&
-              (replacementQuery.data?.status !== 'CANCELLED' ||
-                replacementQuery.data.orderId !== orderId),
-            )
+            !['DRAFT', 'FINALIZED'].includes(planQuery.data?.planStatus ?? '')
           }
         >
-          {submitting ? t.creating : t.createMission}
-          <OrderIcon name="chevron-right" size={16} />
+          {submitting
+            ? t.creating
+            : reworkOrderId
+              ? t.reworkTitle
+              : t.createMission}
+          <RightOutlined aria-hidden="true" />
         </Button>
       </div>
     </div>

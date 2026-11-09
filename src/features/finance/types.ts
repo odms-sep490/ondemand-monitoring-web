@@ -1,7 +1,35 @@
+import type { ChecklistGuidanceData } from '../../shared/components/ChecklistGuidance'
+
+export type ChecklistGuidanceSnapshot = {
+  schemaVersion: 1
+  items: Array<
+    ChecklistGuidanceData & {
+      itemId: string
+      checklistRevision: number
+      guidanceVersion: number
+    }
+  >
+}
+
+export type ChecklistGuidanceRequest = {
+  expectedChecklistRevision: number
+  expectedGuidanceVersion: number
+  description: string | null
+  executionSteps: string[]
+  inputRequirements: string[]
+  expectedOutputs: string[]
+  confirm: boolean
+}
+
 export type ChecklistReviewStatus =
   'PENDING' | 'INCLUDED' | 'ADDITIONAL' | 'DUPLICATE' | 'REJECTED'
 
-export type PricingChecklistItem = {
+export type PricingChecklistItem = ChecklistGuidanceData & {
+  guidanceVersion?: number
+  guidanceConfirmedVersion?: number | null
+  guidanceReady?: boolean
+  canEditGuidance?: boolean
+  guidanceBlockedReason?: string | null
   id: string
   sourceChecklistId: string | null
   content: string
@@ -20,6 +48,9 @@ export type PricingChecklistItem = {
   requestedImageCount?: number
   requestedVideoCount?: number
   difficultySnapshot?: 'BASIC' | 'MEDIUM' | 'HARD' | 'VERY_HARD'
+  checklistRevision?: number
+  required?: boolean
+  sourceChecklistVersion?: number | null
 }
 
 export type PricingCategory =
@@ -68,7 +99,11 @@ export type Quote = {
   approvedByName: string | null
   approvedAt: string | null
   acceptedAt: string | null
+  expiresAt?: string | null
+  checklistRevision?: number
+  checklistGuidanceSnapshot?: ChecklistGuidanceSnapshot | null
   items: QuoteItem[]
+  orderCancellationReason?: 'QUOTATION_EXPIRED' | 'DEPOSIT_PAYMENT_EXPIRED' | 'PERMIT_REJECTED' | null
   pricingPolicyId?: string
   pricingPolicyVersion?: number
   systemCalculatedAmount?: number
@@ -111,7 +146,11 @@ export type CustomerQuote = {
   pricingFinalized: boolean
   approvedAt: string | null
   acceptedAt: string | null
+  expiresAt?: string | null
+  checklistRevision?: number
+  checklistGuidanceSnapshot?: ChecklistGuidanceSnapshot | null
   items: QuoteItem[]
+  orderCancellationReason?: 'QUOTATION_EXPIRED' | 'DEPOSIT_PAYMENT_EXPIRED' | 'PERMIT_REJECTED' | null
 }
 
 export type PricingBreakdownItem = {
@@ -133,6 +172,8 @@ export type PricingBreakdown = {
   items: PricingBreakdownItem[]
 }
 
+export type DepositStatus = 'WAITING_DEPOSIT' | 'DEPOSIT_PAID'
+
 export type Invoice = {
   id: string
   invoiceNumber: string
@@ -144,8 +185,13 @@ export type Invoice = {
   remainingAmount: number
   status:
     'ISSUED' | 'PARTIALLY_PAID' | 'PAID' | 'OVERDUE' | 'CANCELLED' | 'REFUNDED'
+  depositStatus?: DepositStatus
   issuedAt: string
   finalPaymentAllowed: boolean
+  depositExpiresAt?: string | null
+  finalPaymentExpiresAt?: string | null
+  finalPaymentStartedAt?: string | null
+  orderCancellationReason?: 'QUOTATION_EXPIRED' | 'DEPOSIT_PAYMENT_EXPIRED' | 'PERMIT_REJECTED' | null
 }
 
 export type Payment = {
@@ -156,7 +202,7 @@ export type Payment = {
   amount: number
   currency: 'VND'
   status:
-    'PENDING' | 'PROCESSING' | 'SUCCESS' | 'FAILED' | 'CANCELLED' | 'REFUNDED'
+    'PENDING' | 'PROCESSING' | 'SUCCESS' | 'FAILED' | 'CANCELLED' | 'REFUNDED' | 'REQUIRES_REVIEW'
   provider: 'VNPAY' | 'PAYOS'
   paymentUrl: string | null
   transactionReference: string
@@ -177,4 +223,5 @@ export type PricingReview = {
   currentManagerId?: string
   managerMaxDiscountPercent?: number | null
   managerMaxMarkupPercent?: number | null
+  checklistRevision?: number
 }

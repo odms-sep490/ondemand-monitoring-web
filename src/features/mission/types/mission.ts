@@ -2,24 +2,91 @@ export type MissionStatus =
   | 'PLANNING'
   | 'CREATED'
   | 'WAITING_DEPOSIT'
+  | 'PENDING_PAYMENT'
+  | 'PENDING_CONFIRMATION'
   | 'READY'
-  | 'RESOURCE_ASSIGNING'
-  | 'WAITING_CREW_CONFIRMATION'
-  | 'WAITING_OPERATOR_ACCEPTANCE'
   | 'SCHEDULED'
+  | 'IN_PROGRESS'
+  | 'AWAITING_REVIEW'
+  | 'PENDING_REVIEW'
+  | 'COMPLETED'
+  | 'FAILED'
+  | 'CANCELLED'
+  // Legacy / transition aliases kept for mock data and component compatibility:
+  | 'RESOURCE_ASSIGNING'
+  | 'WAITING_OPERATOR_ACCEPTANCE'
   | 'CONNECTED'
   | 'PREFLIGHT_CHECKING'
   | 'READY_TO_FLY'
   | 'FAILED_PREFLIGHT'
   | 'PENDING_APPROVAL'
   | 'IN_FLIGHT'
+  | 'RETURNING'
+  | 'POSTFLIGHT_CHECKING'
+
+export type MissionCancellationResponse = {
+  missionId: string
+  status: 'CANCELLED'
+  executionPlanRevision: number
+  cancelledAt: string
+  cancelledBy: string
+  cancellationReason: string
+}
+
+export type MissionReworkContext = {
+  missionId: string
+  missionCode: string
+  caseId: string
+  checklists: Array<{
+    caseItemId: string
+    orderChecklistItemId: string
+    title: string
+    managerInstructions: string | null
+    guidance: {
+      description: string | null
+      executionSteps: string[]
+      inputRequirements: string[]
+      expectedOutputs: string[]
+    } | null
+    customerFeedback: Array<{
+      roundNumber: number
+      reasonCode: string
+      customerNote: string | null
+      submittedAt: string
+      evidence: Array<{
+        roundEvidenceId: string
+        mediaAssetId: string
+        fileName: string
+        mediaType: string
+        url: string | null
+        thumbnailUrl: string | null
+        previewUrl: string | null
+        urlExpiresAt: string | null
+        unavailableReason: string | null
+      }>
+    }>
+  }>
+}
+
+export type MissionDeviceAssignmentStatus =
+  | 'ASSIGNED'
+  | 'CONNECTED'
+  | 'CONNECTION_LOST'
+  | 'PREFLIGHT_CHECKING'
+  | 'READY_TO_FLY'
   | 'IN_PROGRESS'
   | 'RETURNING'
   | 'POSTFLIGHT_CHECKING'
-  | 'PENDING_REVIEW'
   | 'COMPLETED'
   | 'FAILED'
-  | 'CANCELLED'
+  | 'RELEASED'
+
+export type MissionDeviceCheckStatus =
+  | 'PLANNING'
+  | 'PENDING'
+  | 'CHECKING'
+  | 'PASSED'
+  | 'FAILED'
 
 export type DeviceStatus =
   | 'AVAILABLE'
@@ -71,10 +138,6 @@ export interface MissionPlan {
 }
 
 export interface Mission {
-  safeStopStatus?: string | null
-  safeStopRequestedAt?: string | null
-  safeStopConfirmedAt?: string | null
-  safeStopCleanedAt?: string | null
   id: string
   orderId?: string
   orderCode?: string | null
@@ -85,9 +148,20 @@ export interface Mission {
   serviceName?: string | null
   customerName?: string
   missionCode: string
+  purpose?: 'ORIGINAL' | 'REWORK' | string
+  resultRevisionCaseId?: string | null
   status: MissionStatus
   operatorId?: string
   staffAssignments?: MissionStaffAssignment[]
+  deviceAssignments?: Array<{
+    deviceId: string
+    deviceRole: 'MAIN' | 'BACKUP' | string
+    status: MissionDeviceAssignmentStatus
+    checkupStatus: MissionDeviceCheckStatus
+    replacementRequestedAt?: string | null
+    replacementRequestReason?: string | null
+    replacementRequestedBy?: string | null
+  }>
   deviceId?: string
   deviceCode?: string
   droneId?: string
@@ -101,6 +175,7 @@ export interface Mission {
   startedAt?: string
   completedAt?: string
   description?: string
+  failureRequestedAt?: string | null
   failureReason?: string
   rejectionReason?: string
   mediaType?: MediaType
@@ -114,6 +189,7 @@ export type MissionResultApprovalStatus =
   'DRAFT' | 'PENDING_MANAGER_APPROVAL' | 'APPROVED' | 'REJECTED'
 
 export interface MissionResult {
+  inspectorConfirmed?: boolean
   id: string
   missionId: string
   missionCode: string
@@ -143,6 +219,8 @@ export interface MissionResultMedia {
     | 'REJECTED'
     | null
   url: string
+  thumbnailUrl?: string | null
+  previewUrl?: string | null
   expiresIn?: number | null
   contentType?: string | null
   fileSize?: number | null
@@ -206,19 +284,7 @@ export interface PreflightCheck {
   positioningPassed: boolean
   faultType?: 'BATTERY' | 'HARDWARE' | 'NONE'
   failureReason?: string
-  flightToken?: FlightToken
   notes?: string
-}
-
-export interface FlightToken {
-  id: string
-  tokenValue: string
-  missionId: string
-  deviceCode: string
-  issuedAt: string
-  expiresAt: string
-  usedAt?: string
-  revoked: boolean
 }
 
 export interface DeviceImage {

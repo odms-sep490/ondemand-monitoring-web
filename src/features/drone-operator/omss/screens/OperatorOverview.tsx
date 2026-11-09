@@ -43,8 +43,9 @@ export default function OperatorOverview({
   const { t, lang, locale } = useI18n(operatorOverviewMessages)
   const activeMission = allMissions.find(
     (m) =>
+      m.state === 'PLANNING' ||
       m.state === 'WAITING_OPERATOR_ACCEPTANCE' ||
-      m.state === 'WAITING_CREW_CONFIRMATION',
+      m.state === 'READY',
   )
   const assignedMission = allMissions.find(
     (mission) => mission.droneId && !TERMINAL_STATES.has(mission.state),
@@ -61,8 +62,9 @@ export default function OperatorOverview({
       value: String(
         allMissions.filter(
           (mission) =>
+            mission.state === 'PLANNING' ||
             mission.state === 'WAITING_OPERATOR_ACCEPTANCE' ||
-            mission.state === 'WAITING_CREW_CONFIRMATION',
+            mission.state === 'READY',
         ).length,
       ),
       sub: t.stats.awaitingAcceptanceSub,

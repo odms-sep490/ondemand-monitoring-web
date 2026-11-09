@@ -47,6 +47,8 @@ export function SocialCallbackPage() {
     }
 
     const codeState = storageKey ? sessionStorage.getItem(storageKey) : null
+    const rememberMe =
+      sessionStorage.getItem('fieldwise.google.rememberMe') === 'true'
     const alreadyAuthenticated = Boolean(authSession.getAccessToken())
 
     if (
@@ -69,9 +71,10 @@ export function SocialCallbackPage() {
         redirectUri,
         intent: 'LOGIN_OR_REGISTER',
         provider: 'GOOGLE',
+        rememberMe,
       })
       .then((response) => {
-        authSession.save(response, true)
+        sessionStorage.removeItem('fieldwise.google.rememberMe')
         if (storageKey) sessionStorage.setItem(storageKey, 'done')
         setUserName(response.user?.fullName)
         setUserRole(response.user?.role)

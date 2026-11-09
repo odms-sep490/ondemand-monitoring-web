@@ -1,11 +1,9 @@
 import type {
-  CustomerMediaNotificationResponse,
   CustomerMediaResponse,
   MediaFilter,
   MediaItem,
   MediaKind,
   MediaMissionGroup,
-  MediaNotification,
 } from './types'
 
 /** BE `mediaType` is IMAGE | VIDEO | STREAMING; fall back to the MIME type. */
@@ -34,19 +32,12 @@ export function toMediaItem(dto: CustomerMediaResponse): MediaItem {
     fileSize: dto.fileSize ?? null,
     capturedAt: dto.capturedAt ?? null,
     availableAt: dto.availableAt ?? null,
-    url: dto.downloadUrl ?? null,
-  }
-}
-
-export function toMediaNotification(
-  dto: CustomerMediaNotificationResponse,
-): MediaNotification {
-  return {
-    id: dto.notificationId,
-    mediaId: dto.mediaId,
-    missionId: dto.missionId,
-    eventType: dto.eventType ?? '',
-    createdAt: dto.createdAt ?? null,
+    // Viewing URLs may fall back to originals. Official download URLs are requested separately.
+    url: null,
+    thumbnailUrl: dto.thumbnailUrl ?? null,
+    previewUrl: dto.previewUrl ?? null,
+    derivativeStatus: dto.derivativeStatus ?? null,
+    canDownloadOriginal: dto.canDownloadOriginal ?? false,
   }
 }
 

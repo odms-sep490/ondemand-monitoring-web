@@ -1,4 +1,4 @@
-import { Card } from '../../../../../shared/components/ui'
+import { Card } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import type { OrderDetailView } from '../../../lib/orders/types'
 import { localizeDeliverableName } from '../../../lib/i18n/catalogNames'
@@ -59,7 +59,6 @@ export function DeliverablesCard({ order }: { order: OrderDetailView }) {
                   </div>
                 ))}
               </dl>
-              {item.aiAnalysisRequested && <p className="od-hint">{t.aiAnalysis}</p>}
             </li>
           ))}
         </ul>
