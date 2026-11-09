@@ -227,7 +227,7 @@ describe('validateStep', () => {
     })
   })
 
-  it('step 6 requires a result format, a delivery method and accepted terms', () => {
+  it('step 6 relies on automatic delivery defaults and still requires accepted terms', () => {
     const base = {
       ...withService,
       address: 'A',
@@ -249,7 +249,7 @@ describe('validateStep', () => {
         okLocation,
         msg,
       ),
-    ).toEqual({ resultFormats: 'formats', deliveryMethods: 'methods' })
+    ).toEqual({})
   })
 
   it('step 4 validates altitude, length and contact phone', () => {

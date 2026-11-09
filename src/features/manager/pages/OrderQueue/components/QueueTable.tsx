@@ -117,6 +117,7 @@ export function QueueTable({
         <Button
           size="small"
           type={mode === 'all' ? 'default' : 'primary'}
+          style={mode === 'all' ? undefined : { color: '#fff' }}
           href={managerHref({
             screen: row.orderStatus === 'COMPLETED' ? 'orderResults' : 'orderReview',
             orderId: row.id,

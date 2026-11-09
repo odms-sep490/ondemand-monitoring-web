@@ -356,14 +356,6 @@
   margin-inline: auto;
 }
 
-.co-review-financial-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  align-items: stretch;
-  gap: 20px;
-  min-width: 0;
-}
-
 .co-review-layout > * {
   min-width: 0;
 }
@@ -374,11 +366,6 @@
   border-radius: 12px;
   background: var(--ui-surface);
   box-shadow: none; /* taste-skill-ignore: keep review cards flat */
-}
-
-.co-review-financial-grid > .ant-card {
-  height: 100%;
-  min-width: 0;
 }
 
 .co-review-layout .ant-card-head {
@@ -887,10 +874,6 @@
     align-items: start;
   }
 
-  .co-review-financial-grid {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 16px;
-  }
 }
 
 @media (max-width: 900px) {

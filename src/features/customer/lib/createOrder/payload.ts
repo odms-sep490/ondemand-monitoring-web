@@ -83,6 +83,12 @@ export function buildOrderPayload(input: {
   const latitude = toNumber(form.latitude, DEFAULT_LATITUDE)
   const longitude = toNumber(form.longitude, DEFAULT_LONGITUDE)
   const lengthM = toNumber(form.estimatedLengthM, 0)
+  const resultFormats = totals
+    ? [
+        ...(totals.images > 0 ? ['PHOTO'] : []),
+        ...(totals.videos > 0 ? ['VIDEO'] : []),
+      ]
+    : form.resultFormats.filter((format) => format !== 'PDF_REPORT')
   const detail = {
     radiusM: form.radiusM,
     estimatedAreaHa: Number(calcArea(form.radiusM)),
@@ -159,9 +165,9 @@ export function buildOrderPayload(input: {
       form.recurrenceType === 'NONE' ? undefined : form.recurrenceOccurrences,
     weatherFallback: form.weatherFallback,
     resultDeadline: form.resultDeadline || undefined,
-    resultFormats: form.resultFormats,
-    deliveryMethods: form.deliveryMethods,
-    dataRetentionDays: form.dataRetentionDays,
+    resultFormats,
+    deliveryMethods: ['DOWNLOAD'],
+    dataRetentionDays: 30,
     termsAccepted: form.termsAccepted,
     deliverables: deliverableEntries,
   }

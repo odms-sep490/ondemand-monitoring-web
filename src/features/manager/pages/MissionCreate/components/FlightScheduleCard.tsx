@@ -26,7 +26,7 @@ export function FlightScheduleCard({
   submit: SubmitState
   scopeLabel: string
 }) {
-  const { t } = useI18n(missionCreatePageMessages)
+  const { t, locale } = useI18n(missionCreatePageMessages)
   return (
     <section className="odm-or-card odm-plan-schedule">
       <header className="odm-or-card-head">
@@ -56,6 +56,7 @@ export function FlightScheduleCard({
             <span className="odm-or-field-label">{t.start}</span>
             <input
               className="odm-or-input"
+              lang={locale}
               type="datetime-local"
               value={scheduledStart}
               onChange={(e) => setScheduledStart(e.target.value)}
@@ -65,6 +66,7 @@ export function FlightScheduleCard({
             <span className="odm-or-field-label">{t.end}</span>
             <input
               className="odm-or-input"
+              lang={locale}
               type="datetime-local"
               min={scheduledStart || undefined}
               value={scheduledEnd}

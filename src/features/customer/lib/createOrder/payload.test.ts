@@ -63,6 +63,9 @@ describe('buildOrderPayload', () => {
       serviceId: 'svc-1',
       preferredTimeId: 'pt-1',
       description: undefined,
+      resultFormats: ['PHOTO'],
+      deliveryMethods: ['DOWNLOAD'],
+      dataRetentionDays: 30,
     })
     expect(payload.deliverables).toHaveLength(1)
     expect(payload.deliverables[0].deliverableTypeId).toBe('dt-1')
@@ -77,6 +80,25 @@ describe('buildOrderPayload', () => {
           dataUrl: 'data:image/jpeg;base64,abc',
         },
       ],
+    })
+  })
+
+  it('uses checklist media and fixed delivery defaults instead of saved options', () => {
+    const payload = buildOrderPayload({
+      form: {
+        ...form,
+        resultFormats: ['PDF_REPORT'],
+        deliveryMethods: ['EMAIL'],
+        dataRetentionDays: 365,
+      },
+      score,
+      mediaTotals: { images: 4, videos: 1 },
+    })
+
+    expect(payload).toMatchObject({
+      resultFormats: ['PHOTO', 'VIDEO'],
+      deliveryMethods: ['DOWNLOAD'],
+      dataRetentionDays: 30,
     })
   })
 

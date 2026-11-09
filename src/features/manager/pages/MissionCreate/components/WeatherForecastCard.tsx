@@ -28,7 +28,7 @@ export function WeatherForecastCard({
   brief: OrderMissionBrief
   forecastRows: ForecastRow[]
 }) {
-  const { t } = useI18n(missionCreatePageMessages)
+  const { t, locale } = useI18n(missionCreatePageMessages)
   const manualWeather = Boolean(onCreated) || customSchedule
   return (
     <section className="odm-or-card odm-plan-weather">
@@ -51,6 +51,7 @@ export function WeatherForecastCard({
               <span className="odm-or-field-label">{t.weatherCheckDate}</span>
               <input
                 className="odm-or-input"
+                lang={locale}
                 type="date"
                 value={weatherCheckDate}
                 onChange={(event) => setWeatherCheckDate(event.target.value)}
@@ -60,6 +61,7 @@ export function WeatherForecastCard({
               <span className="odm-or-field-label">{t.weatherCheckTime}</span>
               <input
                 className="odm-or-input"
+                lang={locale}
                 type="time"
                 value={weatherCheckTime}
                 onChange={(event) => setWeatherCheckTime(event.target.value)}

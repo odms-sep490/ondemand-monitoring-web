@@ -12,8 +12,6 @@ import type {
 } from '../../../lib/createOrder/types'
 import type { ChecklistRow } from '../../../lib/checklist/types'
 import { AgreementSection } from './AgreementSection'
-import { DeliverablesCard } from './DeliverablesCard'
-import { DeliveryOptionsCard } from './DeliveryOptionsCard'
 import { PricingEstimateCard } from './PricingEstimateCard'
 import { RequestSummaryCard } from './RequestSummaryCard'
 
@@ -37,7 +35,7 @@ type Props = {
   onEdit: (step: Step) => void
 }
 
-/** Step 6: review the request, choose delivery options and submit. */
+/** Step 6: review the request and submit. */
 export function ReviewStep(p: Props) {
   return (
     <div className="co-grid is-review co-review-layout">
@@ -54,31 +52,13 @@ export function ReviewStep(p: Props) {
         }}
         onEdit={p.onEdit}
       />
-      <div className="co-review-financial-grid">
-        <DeliveryOptionsCard
-          variant="review"
-          form={p.form}
-          errors={p.errors}
-          update={p.update}
-          mediaTotals={p.mediaTotals}
-        >
-          <DeliverablesCard
-            variant="inline"
-            deliverables={p.deliverables}
-            loading={p.deliverablesLoading}
-            error={p.deliverablesError}
-            onRetry={p.reloadDeliverables}
-            mediaTotals={p.mediaTotals}
-          />
-        </DeliveryOptionsCard>
-        <PricingEstimateCard
-          variant="review"
-          estimate={p.pricingEstimate}
-          loading={p.pricingLoading}
-          hasService={Boolean(p.service)}
-          additionalChecklists={p.additionalChecklists}
-        />
-      </div>
+      <PricingEstimateCard
+        variant="review"
+        estimate={p.pricingEstimate}
+        loading={p.pricingLoading}
+        hasService={Boolean(p.service)}
+        additionalChecklists={p.additionalChecklists}
+      />
       <AgreementSection
         variant="review"
         form={p.form}

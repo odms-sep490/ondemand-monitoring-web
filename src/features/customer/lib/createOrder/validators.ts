@@ -203,10 +203,6 @@ export function validateStep(
     if (!form.deliverableTypeId) {
       errors.deliverableTypeId = msg.deliverableTypeId
     }
-    if (form.resultFormats.length === 0)
-      errors.resultFormats = msg.resultFormats
-    if (form.deliveryMethods.length === 0)
-      errors.deliveryMethods = msg.deliveryMethods
     if (!form.termsAccepted) errors.termsAccepted = msg.termsAccepted
   }
   return errors

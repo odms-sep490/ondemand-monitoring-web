@@ -78,6 +78,7 @@ export const missionCreatePageMessages = defineMessages({
       POOR: 'Không thuận lợi',
     } as Record<string, string>,
     flightSchedule: 'Lịch bay thực tế do nhân sự chọn',
+    wholeOrderScope: 'Toàn bộ phạm vi đơn hàng',
     flightScheduleHint:
       'Chọn giờ bay cụ thể cho nhiệm vụ. Hệ thống không tự lấy thời gian từ đơn hàng.',
     start: 'Giờ cất cánh',
@@ -178,6 +179,7 @@ export const missionCreatePageMessages = defineMessages({
       POOR: 'Poor',
     } as Record<string, string>,
     flightSchedule: 'Actual flight schedule selected by staff',
+    wholeOrderScope: 'Entire order scope',
     flightScheduleHint:
       'Choose the concrete mission flight time. The system does not copy the order time automatically.',
     start: 'Takeoff time',
