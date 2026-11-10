@@ -745,6 +745,11 @@ function ScopedManagerDeliveryPanel({
               const caseItem = revisionCase?.items.find(
                 (row) => row.orderChecklistItemId === item.orderChecklistItemId,
               )
+              const customerFeedback = caseItem?.feedback ?? []
+              const flaggedMediaCount = customerFeedback.reduce(
+                (count, feedback) => count + (feedback.evidence?.length ?? 0),
+                0,
+              )
               const blockedByCase =
                 !!revisionCase &&
                 (!caseItem ||
@@ -783,6 +788,11 @@ function ScopedManagerDeliveryPanel({
                               counts.videos,
                             )}
                       </Tag>
+                      {customerFeedback.length > 0 ? (
+                        <Tag color={flaggedMediaCount > 0 ? 'orange' : 'default'}>
+                          {t.customerFlaggedCount(flaggedMediaCount)}
+                        </Tag>
+                      ) : null}
                       <Tag color={valid ? 'green' : 'warning'}>
                         {t.minRequirement(
                           item.minimumImageCount,
@@ -795,46 +805,58 @@ function ScopedManagerDeliveryPanel({
                   </div>
                 ),
                 children: (
-                  <ChecklistEditor
-                    item={item}
-                    editable={editable}
-                    additions={additions[item.orderChecklistItemId] ?? []}
-                    removed={removed[item.orderChecklistItemId] ?? []}
-                    replacements={replacements[item.orderChecklistItemId] ?? {}}
-                    disabled={
-                      !canReleasePreview ||
-                      busy ||
-                      blockedByCase ||
-                      draftStatus === 'stale' ||
-                      draftStatus === 'conflict'
-                    }
-                    onAdd={(ids) => {
-                      markDraftChanged()
-                      setAdditions((value) => ({
-                        ...value,
-                        [item.orderChecklistItemId]: ids,
-                      }))
-                    }}
-                    onRemove={(ids) => {
-                      markDraftChanged()
-                      setRemoved((value) => ({
-                        ...value,
-                        [item.orderChecklistItemId]: ids,
-                      }))
-                    }}
-                    onReplace={(value) => {
-                      markDraftChanged()
-                      setReplacements((current) => ({
-                        ...current,
-                        [item.orderChecklistItemId]: value,
-                      }))
-                    }}
-                    rework={
-                      caseItem?.strategy === 'REWORK' &&
-                      caseItem.status === 'IN_PROGRESS'
-                    }
-                    messages={t}
-                  />
+                  <div className="delivery-checklist-editor">
+                    <CustomerReviewEvidence
+                      feedback={customerFeedback}
+                      title={t.flaggedMedia}
+                      noEvidence={t.noFlaggedMedia}
+                      unavailable={t.flaggedMediaExpired}
+                      previewUnavailable={t.replacementPreviewUnavailable}
+                      roundLabel={t.feedbackRound}
+                      reasonLabel={t.reasonCode}
+                      reasonCodes={reviewLabels.reasonCodes}
+                    />
+                    <ChecklistEditor
+                      item={item}
+                      editable={editable}
+                      additions={additions[item.orderChecklistItemId] ?? []}
+                      removed={removed[item.orderChecklistItemId] ?? []}
+                      replacements={replacements[item.orderChecklistItemId] ?? {}}
+                      disabled={
+                        !canReleasePreview ||
+                        busy ||
+                        blockedByCase ||
+                        draftStatus === 'stale' ||
+                        draftStatus === 'conflict'
+                      }
+                      onAdd={(ids) => {
+                        markDraftChanged()
+                        setAdditions((value) => ({
+                          ...value,
+                          [item.orderChecklistItemId]: ids,
+                        }))
+                      }}
+                      onRemove={(ids) => {
+                        markDraftChanged()
+                        setRemoved((value) => ({
+                          ...value,
+                          [item.orderChecklistItemId]: ids,
+                        }))
+                      }}
+                      onReplace={(value) => {
+                        markDraftChanged()
+                        setReplacements((current) => ({
+                          ...current,
+                          [item.orderChecklistItemId]: value,
+                        }))
+                      }}
+                      rework={
+                        caseItem?.strategy === 'REWORK' &&
+                        caseItem.status === 'IN_PROGRESS'
+                      }
+                      messages={t}
+                    />
+                  </div>
                 ),
               }
             })}
@@ -1659,6 +1681,72 @@ function MediaPreview({ asset }: { asset: DeliveryAsset }) {
       previewSrc={asset.previewUrl}
       fileName={asset.fileName}
     />
+  )
+}
+
+function CustomerReviewEvidence({
+  feedback,
+  title,
+  noEvidence,
+  unavailable,
+  previewUnavailable,
+  roundLabel,
+  reasonLabel,
+  reasonCodes,
+}: {
+  feedback: ResultRevisionCase['items'][number]['feedback']
+  title: string
+  noEvidence: string
+  unavailable: string
+  previewUnavailable: string
+  roundLabel: (round: number) => string
+  reasonLabel: string
+  reasonCodes: Record<string, string>
+}) {
+  if (!feedback.length) return null
+
+  return (
+    <section className="delivery-checklist-customer-review">
+      <Typography.Text strong>{title}</Typography.Text>
+      {feedback.map((entry) => (
+        <article key={entry.requestId}>
+          <Space wrap>
+            <Tag>{roundLabel(entry.roundNumber)}</Tag>
+            <Tag>
+              {reasonLabel} · {reasonCodes[entry.reasonCode] ?? entry.reasonCode}
+            </Tag>
+          </Space>
+          {entry.customerNote ? <p>{entry.customerNote}</p> : null}
+          {(entry.evidence ?? []).length > 0 ? (
+            <div className="delivery-feedback-evidence-grid">
+              {(entry.evidence ?? []).map((evidence) => (
+                <div
+                  className="delivery-feedback-evidence-card"
+                  key={evidence.roundEvidenceId}
+                >
+                  {evidence.accessReason ? (
+                    <Typography.Text type="secondary">
+                      {evidence.accessReason === 'RETENTION_EXPIRED'
+                        ? unavailable
+                        : previewUnavailable}
+                    </Typography.Text>
+                  ) : (
+                    <MediaPreview
+                      asset={{ ...evidence, id: evidence.mediaAssetId }}
+                    />
+                  )}
+                  <Typography.Text ellipsis={{ tooltip: evidence.fileName }}>
+                    {evidence.fileName}
+                  </Typography.Text>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <Typography.Text type="secondary">{noEvidence}</Typography.Text>
+          )}
+        </article>
+      ))}
+    </section>
   )
 }
 

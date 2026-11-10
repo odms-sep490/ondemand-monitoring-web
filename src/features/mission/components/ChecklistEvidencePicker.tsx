@@ -182,8 +182,11 @@ export function ChecklistEvidencePicker({
                 }
                 aria-label={item.fileName}
               />
-              {item.thumbnailUrl && item.mediaType === 'IMAGE' && (
-                <img src={item.thumbnailUrl} alt="" loading="lazy" />
+              {item.mediaType === 'IMAGE' && (
+                <EvidenceImagePreview
+                  candidate={item}
+                  unavailableLabel={t.previewUnavailable}
+                />
               )}
               {item.mediaType === 'VIDEO' && <VideoPoster poster={item.thumbnailUrl} />}
               <span>
@@ -209,5 +212,44 @@ export function ChecklistEvidencePicker({
         </Button>
       </Space>
     </Modal>
+  )
+}
+
+function EvidenceImagePreview({
+  candidate,
+  unavailableLabel,
+}: {
+  candidate: EvidenceCandidate
+  unavailableLabel: string
+}) {
+  const sources = [...new Set([candidate.thumbnailUrl, candidate.previewUrl])]
+    .filter((source): source is string => Boolean(source))
+  const [failedSources, setFailedSources] = useState<string[]>([])
+  const currentSource = sources.find((source) => !failedSources.includes(source))
+
+  useEffect(() => {
+    setFailedSources([])
+  }, [candidate.thumbnailUrl, candidate.previewUrl])
+
+  if (!currentSource) {
+    return (
+      <span className="checklist-evidence-picker-image-fallback" role="img" aria-label={unavailableLabel}>
+        {unavailableLabel}
+      </span>
+    )
+  }
+
+  return (
+    <img
+      src={currentSource}
+      alt={candidate.fileName}
+      loading="lazy"
+      decoding="async"
+      onError={() =>
+        setFailedSources((failed) =>
+          failed.includes(currentSource) ? failed : [...failed, currentSource],
+        )
+      }
+    />
   )
 }

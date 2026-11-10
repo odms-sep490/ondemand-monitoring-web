@@ -686,6 +686,20 @@
   border-radius: 8px;
   background: #0f172a;
 }
+.checklist-evidence-picker-image-fallback {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  max-height: 140px;
+  padding: 12px;
+  box-sizing: border-box;
+  border-radius: 8px;
+  background: #111d2e;
+  color: #94a7be;
+  font-size: 12px;
+  text-align: center;
+}
 .checklist-evidence-picker-row > span:last-child {
   display: flex;
   flex-direction: column;
