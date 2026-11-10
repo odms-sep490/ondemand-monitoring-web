@@ -22,16 +22,17 @@ describe('drone operator routes', () => {
       missionId: 'active',
     })
   })
-  it('carries the selected mission through flight workflow steps', () => {
+  it('routes legacy connection links directly to preflight', () => {
     const missionId = '2bf1ecfd-d903-4c31-b53a-f673ed648830'
 
     expect(operatorHref({ screen: 'connect', missionId })).toBe(
-      `#portal/staff/connect/${missionId}`,
+      `#portal/staff/preflight/${missionId}`,
     )
     expect(parseOperatorRoute(`#portal/staff/connect/${missionId}`)).toEqual({
-      screen: 'connect',
+      screen: 'preflight',
       missionId,
     })
+    expect(operatorFlowStep('connect')).toBe(operatorFlowStep('preflight'))
     expect(parseOperatorRoute(`#portal/staff/preflight/${missionId}`)).toEqual({
       screen: 'preflight',
       missionId,

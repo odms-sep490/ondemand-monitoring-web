@@ -58,7 +58,6 @@ export function WeatherCard({
   const canAccept =
     canApproveWeather &&
     weatherIsFresh &&
-    weather?.safeToFly === true &&
     !weatherIsAccepted
   const canCheck =
     canCheckWeather &&
@@ -173,6 +172,11 @@ export function WeatherCard({
                 {weather.advisories.join(' · ')}
               </div>
             )}
+            {weatherIsAccepted && !weather.safeToFly ? (
+              <div className="mds-weather-summary" role="status">
+                {t.weatherDecisionAccepted}
+              </div>
+            ) : null}
             {weatherNeedsRefresh ? (
               <div className="mds-weather-feedback is-warning" role="status">
                 {weatherNeedsPostPermitCheck

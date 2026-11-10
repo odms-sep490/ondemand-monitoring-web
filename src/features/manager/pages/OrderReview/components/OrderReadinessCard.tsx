@@ -93,13 +93,16 @@ export function OrderReadinessCard({
     )
   }
 
-  const auto = readiness.criteria.filter(
+  const activeCriteria = readiness.criteria.filter(
+    (criterion) => criterion.code !== 'CAPABILITY',
+  )
+  const auto = activeCriteria.filter(
     (c) =>
       c.type === 'AUTO' &&
       c.code !== 'CHECKLIST_REVIEWED' &&
       c.code !== 'SCHEDULE_DATE',
   )
-  const manual = readiness.criteria.filter(
+  const manual = activeCriteria.filter(
     (c) =>
       c.type === 'MANUAL' &&
       c.code !== 'SURVEY_NEEDED' &&
@@ -147,7 +150,7 @@ export function OrderReadinessCard({
     }
   }
 
-  const failedRequired = readiness.criteria.filter((criterion) => {
+  const failedRequired = activeCriteria.filter((criterion) => {
     const effectiveResult =
       drafts[criterion.code]?.result ??
       selectedResults[criterion.code] ??

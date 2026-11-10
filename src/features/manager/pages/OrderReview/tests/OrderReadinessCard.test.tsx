@@ -17,7 +17,7 @@ const readiness: OrderReadiness = {
   orderId: 'o1',
   canApprove: false,
   recommendation: 'COMPLETE_REVIEW',
-  blockingReasons: ['Năng lực thực hiện: manager chưa xác nhận'],
+  blockingReasons: ['Quyền truy cập hiện trường: manager chưa xác nhận'],
   criteria: [
     {
       code: 'SERVICE_AREA',
@@ -44,10 +44,10 @@ const readiness: OrderReadiness = {
       decidedAt: null,
     },
     {
-      code: 'CAPABILITY',
+      code: 'SITE_ACCESS',
       type: 'MANUAL',
-      title: 'Năng lực thực hiện',
-      description: 'Công ty đủ thiết bị',
+      title: 'Quyền truy cập hiện trường',
+      description: 'Khách hàng có quyền sử dụng khu vực',
       required: true,
       result: 'PENDING',
       reason: null,
@@ -93,7 +93,7 @@ describe('OrderReadinessCard', () => {
     expect(
       screen.getByText('Vị trí nằm trong vùng phục vụ'),
     ).toBeInTheDocument()
-    expect(screen.getByText('Năng lực thực hiện')).toBeInTheDocument()
+    expect(screen.getByText('Quyền truy cập hiện trường')).toBeInTheDocument()
     expect(screen.queryByText('Thời gian thực hiện')).not.toBeInTheDocument()
     expect(
       screen.queryByText('Hạn nhận kết quả rất sát ngày thực hiện'),
@@ -114,7 +114,7 @@ describe('OrderReadinessCard', () => {
       screen.getByRole('button', { name: 'Đang lưu…', pressed: true }),
     ).toBeDisabled()
     await waitFor(() =>
-      expect(readinessApi.answer).toHaveBeenCalledWith('o1', 'CAPABILITY', {
+      expect(readinessApi.answer).toHaveBeenCalledWith('o1', 'SITE_ACCESS', {
         result: 'PASS',
         note: null,
       }),
@@ -141,15 +141,18 @@ describe('OrderReadinessCard', () => {
     expect(reject).toBeEnabled()
     const save = screen.getByRole('button', { name: 'Lưu' })
     expect(save).toBeDisabled()
-    fireEvent.change(screen.getByLabelText('Ghi chú: Năng lực thực hiện'), {
-      target: { value: 'Không có drone ảnh nhiệt' },
-    })
+    fireEvent.change(
+      screen.getByLabelText('Ghi chú: Quyền truy cập hiện trường'),
+      {
+        target: { value: 'Chưa xác nhận quyền truy cập hiện trường' },
+      },
+    )
     expect(save).toBeEnabled()
     fireEvent.click(save)
     await waitFor(() =>
-      expect(readinessApi.answer).toHaveBeenCalledWith('o1', 'CAPABILITY', {
+      expect(readinessApi.answer).toHaveBeenCalledWith('o1', 'SITE_ACCESS', {
         result: 'FAIL',
-        note: 'Không có drone ảnh nhiệt',
+        note: 'Chưa xác nhận quyền truy cập hiện trường',
       }),
     )
     expect(ordersApi.submitApproval).not.toHaveBeenCalled()
@@ -159,16 +162,7 @@ describe('OrderReadinessCard', () => {
     renderCard(true, undefined, {
       ...readiness,
       blockingReasons: ['Quyền truy cập hiện trường: manager chưa xác nhận'],
-      criteria: readiness.criteria.map((criterion) =>
-        criterion.code === 'CAPABILITY'
-          ? {
-              ...criterion,
-              code: 'SITE_ACCESS',
-              title: 'Quyền truy cập hiện trường',
-              description: 'Khách hàng có quyền sử dụng khu vực',
-            }
-          : criterion,
-      ),
+      criteria: readiness.criteria,
     })
     fireEvent.click(
       screen.getByRole('button', {

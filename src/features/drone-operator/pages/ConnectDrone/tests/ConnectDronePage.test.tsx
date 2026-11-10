@@ -5,19 +5,22 @@ import { render, screen } from '@testing-library/react'
 import { setLanguage } from '../../../../../shared/i18n'
 import { ConnectDronePage } from '../ConnectDronePage'
 
-// No mission id / mock server needed: the step header and form chrome
-// render synchronously before the (unmocked) mission fetch settles.
+// Legacy connection routes should render the preflight checklist directly.
 describe('ConnectDroneScreen', () => {
-  it('renders vietnamese chrome text', () => {
+  it('opens the preflight step directly in Vietnamese', () => {
     render(<ConnectDronePage />)
-    expect(screen.getByText('Kết nối thiết bị')).toBeTruthy()
-    expect(screen.getByText('Kết nối Flight Controller')).toBeTruthy()
+    expect(
+      screen.getByRole('heading', { name: 'Danh sách kiểm tra trước bay' }),
+    ).toBeTruthy()
+    expect(screen.queryByText('Kết nối Flight Controller')).toBeNull()
   })
 
-  it('renders english chrome text when language is switched', () => {
+  it('opens the preflight step directly in English', () => {
     render(<ConnectDronePage />)
     act(() => setLanguage('en'))
-    expect(screen.getByText('Connect device')).toBeTruthy()
-    expect(screen.getByText('Connect Flight Controller')).toBeTruthy()
+    expect(
+      screen.getByRole('heading', { name: 'Preflight checklist' }),
+    ).toBeTruthy()
+    expect(screen.queryByText('Connect Flight Controller')).toBeNull()
   })
 })

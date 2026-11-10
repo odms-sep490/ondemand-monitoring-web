@@ -96,7 +96,7 @@ export function useMissionDetailActions({
         weatherStatus,
         mission.flightPermitUpdatedAt,
       )
-      if (!weatherIsFresh || weatherStatus?.safeToFly !== true) {
+      if (!weatherIsFresh) {
         if (
           typeof mission.latitude !== 'number' ||
           typeof mission.longitude !== 'number' ||
@@ -137,17 +137,11 @@ export function useMissionDetailActions({
         }
         setWeatherStatus(weather as WeatherPreflightStatus)
         void monitoring.reload()
-        if (weather.safeToFly !== true) {
-          return
-        }
-        // Let the inspector review the measured conditions before starting.
+        // Let the assigned crew member review the measured conditions before starting.
         return
       }
-      if (weatherStatus?.safeToFly !== true) {
-        throw new Error(weatherStatus?.summary || 'Thời tiết hiện tại chưa an toàn để bắt đầu Mission.')
-      }
-      if (weatherStatus.inspectorAccepted !== true) {
-        throw new Error('Nghiệm thu cần bấm Đạt sau khi xem kết quả thời tiết trước khi bắt đầu Mission.')
+      if (weatherStatus?.inspectorAccepted !== true) {
+        throw new Error('Người phụ trách cần xác nhận quyết định thời tiết trước khi bắt đầu Mission.')
       }
       await missionApi.startMission(mission.id)
       refreshWorkspace(false)
@@ -172,10 +166,9 @@ export function useMissionDetailActions({
       !isWeatherCheckFreshAfterPermit(
         weatherStatus,
         mission.flightPermitUpdatedAt,
-      ) ||
-      weatherStatus.safeToFly !== true
+      )
     ) {
-      setActionError('Chỉ có thể nghiệm thu kết quả thời tiết an toàn và còn mới trong 15 phút.')
+      setActionError('Chỉ có thể xác nhận quyết định khi thời tiết được kiểm tra lại sau khi cấp phép và còn mới trong 15 phút.')
       return
     }
     setSubmitting(true)
@@ -186,7 +179,7 @@ export function useMissionDetailActions({
       void monitoring.reload()
     } catch (error) {
       setActionError(
-        actionErrorMessage(error, 'Không thể xác nhận thời tiết đạt. Vui lòng thử lại.'),
+        actionErrorMessage(error, 'Không thể lưu quyết định thời tiết. Vui lòng thử lại.'),
       )
     } finally {
       setSubmitting(false)

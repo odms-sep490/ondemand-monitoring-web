@@ -31,6 +31,7 @@ export function runtimeStatusFromPersisted(
             : item.status,
       message: item.message ?? '',
       critical: item.checkLevel === 'CRITICAL',
+      measuredValue: item.measuredValue,
     })),
   }
 }

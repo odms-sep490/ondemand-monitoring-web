@@ -302,7 +302,7 @@ export function PostflightCompletedView({
         <FlightStepHeader
           title={t.completedStepTitle}
           missionId={missionLabel}
-          active={7}
+          active={6}
           failed={failureConfirmed}
         />
         <div className="postflight-review-state" role="status" aria-live="polite">
@@ -407,7 +407,7 @@ export function PostflightCompletedView({
       <FlightStepHeader
         title={t.completedStepTitle}
         missionId={missionLabel}
-        active={7}
+        active={6}
         failed={failureConfirmed}
       />
 

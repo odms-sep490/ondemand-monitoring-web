@@ -8,7 +8,6 @@ import {
   preflightReadyStorageKey,
 } from '../../lib/flightWorkflowStorage'
 import { formatDeviceLabel } from '../../lib/deviceLabel'
-import { flightControlApi } from '../../api/flightControlApi'
 import { operatorHref } from '../../routes'
 import { FlightStepHeader } from '../../components/common/FlightStepper'
 import { RevokedBanner } from './components/HandoverBanners'
@@ -67,9 +66,6 @@ export function HandoverPage({ missionId }: { missionId?: string }) {
         throw new Error(t.crewAcceptanceRequired)
       if (!deviceReadyToFly) throw new Error(t.precheckRequiredError)
 
-      await flightControlApi
-        .bindSession(mission.missionId, deviceId)
-        .catch(() => undefined)
       await missionApi.handoverMyMission(mission.missionId)
       window.sessionStorage.setItem(
         handoverAcknowledgedStorageKey(mission.missionId),
@@ -102,7 +98,7 @@ export function HandoverPage({ missionId }: { missionId?: string }) {
       <FlightStepHeader
         title={t.stepTitle}
         missionId={missionLabel}
-        active={4}
+        active={3}
       />
       <div className="handover-page__content">
         <div className="handover-page__stack">

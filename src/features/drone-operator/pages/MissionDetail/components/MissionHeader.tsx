@@ -5,7 +5,6 @@ import { missionStatusLabel } from '../missionFormat'
 import { STATUS_TONE } from '../missionConstants'
 import { operatorHref } from '../../../routes'
 import { StatusBadge } from '../../../../../shared/components/odm/StatusBadge'
-import { Icon } from '../../../../../shared/components/Icon'
 import { useI18n } from '../../../../../shared/i18n'
 import { missionDetailPageMessages } from '../MissionDetailPage.messages'
 import { hasAcknowledgedHandover } from '../../../lib/flightWorkflowStorage'
@@ -49,12 +48,6 @@ export function MissionHeader({
     deviceState === 'READY_TO_FLY' &&
     access?.canOperatePayload === true &&
     !hasAcknowledgedHandover(mission.id)
-  const canConnectGcs =
-    access?.canOperatePayload === true &&
-    missionPreparing &&
-    (!deviceState ||
-      deviceState === 'ASSIGNED' ||
-      deviceState === 'CONNECTION_LOST')
   const canStartMission =
     hasAccepted &&
     backendStatus === 'READY' &&
@@ -71,9 +64,14 @@ export function MissionHeader({
   const canRunPreflight =
     access?.canOperatePayload === true &&
     missionPreparing &&
-    ['CONNECTED', 'PREFLIGHT_CHECKING', 'FAILED_PREFLIGHT', 'FAILED'].includes(
-      deviceState || backendStatus,
-    )
+    [
+      'ASSIGNED',
+      'CONNECTION_LOST',
+      'CONNECTED',
+      'PREFLIGHT_CHECKING',
+      'FAILED_PREFLIGHT',
+      'FAILED',
+    ].includes(deviceState || backendStatus)
   const crewStillPending =
     mission.assignedStaffCount != null &&
     mission.acceptedStaffCount != null &&
@@ -162,7 +160,7 @@ export function MissionHeader({
             className="odm-btn"
             href={operatorHref({ screen: 'preflight', missionId: mission.id })}
           >
-            Kiểm tra thiết bị
+            Kiểm tra trước bay
           </a>
         )}
         {access?.canMaintainDevice &&
@@ -205,14 +203,6 @@ export function MissionHeader({
             href={operatorHref({ screen: 'handover', missionId: mission.id })}
           >
             Bàn giao quyền điều khiển
-          </a>
-        ) : canConnectGcs ? (
-          <a
-            className="odm-btn odm-btn-p mds-cta"
-            href={operatorHref({ screen: 'connect', missionId: mission.id })}
-          >
-            <Icon name="zap" width={16} height={16} aria-hidden="true" />
-            Kết nối GCS
           </a>
         ) : backendStatus === 'IN_PROGRESS' ||
           mission.status === 'IN_FLIGHT' ? (

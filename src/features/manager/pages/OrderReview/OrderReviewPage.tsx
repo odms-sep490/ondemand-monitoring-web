@@ -188,7 +188,11 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
       : null
   const pendingRequired =
     readiness?.criteria.filter(
-      (c) => c.type === 'MANUAL' && c.required && c.result === 'PENDING',
+      (c) =>
+        c.code !== 'CAPABILITY' &&
+        c.type === 'MANUAL' &&
+        c.required &&
+        c.result === 'PENDING',
     ).length ?? 0
 
   return (

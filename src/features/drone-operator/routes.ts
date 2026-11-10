@@ -24,7 +24,6 @@ export type OperatorScreen = OperatorRoute['screen']
 
 export const OPERATOR_FLOW_SCREENS = [
   'missionDetail',
-  'connect',
   'preflight',
   'handover',
   'flight',
@@ -37,6 +36,8 @@ type OperatorFlowScreen = (typeof OPERATOR_FLOW_SCREENS)[number]
 
 export function operatorFlowStep(screen: OperatorScreen): number | null {
   if (screen === 'checklist') return OPERATOR_FLOW_SCREENS.indexOf('upload')
+  // Keep old `/connect` links working by treating them as the preflight step.
+  if (screen === 'connect') return OPERATOR_FLOW_SCREENS.indexOf('preflight')
   const index = (OPERATOR_FLOW_SCREENS as readonly string[]).indexOf(screen)
   return index >= 0 ? index : null
 }
@@ -88,7 +89,7 @@ export function parseOperatorRoute(hash: string): OperatorRoute {
     case 'availability':
       return { screen: 'availability' }
     case 'connect':
-      return { screen: 'connect', missionId: tail[0] }
+      return { screen: 'preflight', missionId: tail[0] }
     case 'handover':
       return { screen: 'handover', missionId: tail[0] }
     case 'preflight':
@@ -132,8 +133,8 @@ export function operatorHref(route: OperatorRoute): string {
       return `${OPERATOR_ROOT}/availability`
     case 'connect':
       return route.missionId
-        ? `${OPERATOR_ROOT}/connect/${encodeURIComponent(route.missionId)}`
-        : `${OPERATOR_ROOT}/connect`
+        ? `${OPERATOR_ROOT}/preflight/${encodeURIComponent(route.missionId)}`
+        : `${OPERATOR_ROOT}/preflight`
     case 'handover':
       return route.missionId
         ? `${OPERATOR_ROOT}/handover/${encodeURIComponent(route.missionId)}`

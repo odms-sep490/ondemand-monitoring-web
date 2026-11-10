@@ -12,7 +12,6 @@ export function PreflightGroupList({
   RUNTIME_GROUPS,
   itemStates,
   onUpdateItem,
-  onRecheckItem,
   updatingItem,
 }: {
   RUNTIME_GROUPS: { items: PreflightItemDef[]; title: string }[]
@@ -21,8 +20,8 @@ export function PreflightGroupList({
     checkType: string,
     status: 'PASSED' | 'FAILED',
     message: string,
+    measuredValue?: string,
   ) => Promise<void>
-  onRecheckItem: (checkType: string) => Promise<void>
   updatingItem: string | null
 }) {
   return (
@@ -43,7 +42,6 @@ export function PreflightGroupList({
                 }
                 updating={updatingItem === def.key}
                 onUpdate={onUpdateItem}
-                onRecheck={onRecheckItem}
               />
             ))}
           </div>

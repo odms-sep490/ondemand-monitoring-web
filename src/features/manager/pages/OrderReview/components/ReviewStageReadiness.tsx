@@ -31,6 +31,7 @@ export function ReviewStageReadiness({
   const requiredCriterionBlocked =
     readiness?.criteria.some(
       (criterion) =>
+        criterion.code !== 'CAPABILITY' &&
         criterion.required &&
         (criterion.result === 'FAIL' || criterion.result === 'PENDING'),
     ) ?? true
@@ -42,7 +43,10 @@ export function ReviewStageReadiness({
         localDraftBlocked))
   const failedRequired =
     readiness?.criteria.filter(
-      (criterion) => criterion.required && criterion.result === 'FAIL',
+      (criterion) =>
+        criterion.code !== 'CAPABILITY' &&
+        criterion.required &&
+        criterion.result === 'FAIL',
     ).length ?? 0
   const nextHint =
     order.status !== 'UNDER_REVIEW' || !nextBlocked

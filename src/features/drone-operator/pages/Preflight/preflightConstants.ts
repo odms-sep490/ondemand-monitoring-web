@@ -40,10 +40,16 @@ export const ALL_PREFLIGHT_KEYS: PreflightItemKey[] = [
 ]
 
 export const MANUAL_PREFLIGHT_KEYS = new Set<PreflightItemKey>([
+  'battery_health',
   'propeller_inspection',
   'airframe_inspection',
   'camera_health',
   'obstacle_sensor_health',
+  'aircraft_connection',
+  'command_link',
+  'flight_controller',
+  'aircraft_readiness',
+  'monitoring_connection',
   'manual_override',
 ])
 

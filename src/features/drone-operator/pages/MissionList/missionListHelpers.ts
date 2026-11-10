@@ -166,8 +166,8 @@ export function railActionFor(mission: OperatorMission, t: Messages) {
       mission.deviceAssignmentStatus === 'CONNECTION_LOST')
   ) {
     return {
-      label: t.connect,
-      href: operatorHref({ screen: 'connect', missionId: mission.id }),
+      label: t.precheck,
+      href: operatorHref({ screen: 'preflight', missionId: mission.id }),
     }
   }
   return {

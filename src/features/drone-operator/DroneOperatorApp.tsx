@@ -18,7 +18,6 @@ import { MissionDetailPage } from './pages/MissionDetail'
 import { MissionListPage } from './pages/MissionList'
 import { PlaceholderPage } from './components/common/PlaceholderPage'
 import { AvailabilityPage } from './pages/Availability'
-import { ConnectDronePage } from './pages/ConnectDrone'
 import { HandoverPage } from './pages/Handover'
 import { PostflightPage } from './pages/Postflight'
 import { PreflightPage } from './pages/Preflight'
@@ -116,14 +115,14 @@ function renderScreen(
   if (route.screen === 'missionDetail')
     return <MissionDetailPage missionId={route.missionId} />
   if (route.screen === 'availability') return <AvailabilityPage />
-  if (route.screen === 'connect')
+  if (route.screen === 'connect' || route.screen === 'preflight')
     return (
       <MissionActionGuard
         key={`${route.missionId}:${route.screen}`}
         missionId={route.missionId}
-        action="connect"
+        action="preflight"
       >
-        <ConnectDronePage missionId={route.missionId} />
+        <PreflightPage missionId={route.missionId} />
       </MissionActionGuard>
     )
   if (route.screen === 'handover')
@@ -134,16 +133,6 @@ function renderScreen(
         action="handover"
       >
         <HandoverPage missionId={route.missionId} />
-      </MissionActionGuard>
-    )
-  if (route.screen === 'preflight')
-    return (
-      <MissionActionGuard
-        key={`${route.missionId}:${route.screen}`}
-        missionId={route.missionId}
-        action="preflight"
-      >
-        <PreflightPage missionId={route.missionId} />
       </MissionActionGuard>
     )
   if (route.screen === 'upload' || route.screen === 'checklist')

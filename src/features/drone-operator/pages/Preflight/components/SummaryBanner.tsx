@@ -231,16 +231,7 @@ export function SummaryBanner({
         >
           {triggering ? t.triggeringAgain : t.triggerPrecheck}
         </button>
-      ) : (
-        <button
-          type="button"
-          className="odm-btn"
-          disabled
-          style={{ minWidth: 220 }}
-        >
-          {t.continueToHandover}
-        </button>
-      )}
+      ) : null}
     </div>
   )
 }

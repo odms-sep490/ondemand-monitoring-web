@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useI18n } from '../../../../../shared/i18n'
 import { preflightPageMessages } from '../PreflightPage.messages'
 import { humanizePreflightDisplayText, statusText } from '../preflightHelpers'
@@ -12,7 +12,6 @@ export function RuntimePreflightItemRow({
   manual,
   updating,
   onUpdate,
-  onRecheck,
 }: {
   def: PreflightItemDef
   state: ItemState
@@ -22,8 +21,8 @@ export function RuntimePreflightItemRow({
     checkType: string,
     status: 'PASSED' | 'FAILED',
     message: string,
+    measuredValue?: string,
   ) => Promise<void>
-  onRecheck: (checkType: string) => Promise<void>
 }) {
   const { t } = useI18n(preflightPageMessages)
   const failed = state.result === 'fail'
@@ -32,6 +31,13 @@ export function RuntimePreflightItemRow({
   const decided = passed || failed
   const [showFailureReason, setShowFailureReason] = useState(false)
   const [failureReason, setFailureReason] = useState('')
+  const [batteryPercent, setBatteryPercent] = useState(
+    state.measuredValue?.replace('%', '') ?? '',
+  )
+  const [batteryError, setBatteryError] = useState<string | null>(null)
+  useEffect(() => {
+    setBatteryPercent(state.measuredValue?.replace('%', '') ?? '')
+  }, [state.measuredValue])
   const resultLabel = failed
     ? t.itemFail
     : passed
@@ -88,7 +94,58 @@ export function RuntimePreflightItemRow({
           </div>
         </div>
 
-        {manual && !decided ? (
+        {def.key === 'battery_health' && manual && !decided ? (
+          <div className="preflight-item-row__battery-entry">
+            <label htmlFor="preflight-battery-percent">
+              {t.batteryPercent}
+            </label>
+            <div className="preflight-item-row__battery-controls">
+              <input
+                id="preflight-battery-percent"
+                className="odm-input"
+                type="number"
+                inputMode="decimal"
+                min={0}
+                max={100}
+                step="any"
+                value={batteryPercent}
+                aria-label={t.batteryPercent}
+                placeholder={t.batteryPercentPlaceholder}
+                disabled={updating}
+                onChange={(event) => {
+                  setBatteryPercent(event.target.value)
+                  setBatteryError(null)
+                }}
+              />
+              <button
+                type="button"
+                className="odm-btn odm-btn-p preflight-item-row__battery-action"
+                disabled={updating || batteryPercent.trim().length === 0}
+                onClick={() => {
+                  const value = Number(batteryPercent)
+                  if (!Number.isFinite(value) || value < 0 || value > 100) {
+                    setBatteryError(t.batteryPercentInvalid)
+                    return
+                  }
+                  setBatteryError(null)
+                  void onUpdate(
+                    def.key,
+                    'PASSED',
+                    'Người vận hành nhập mức pin thủ công',
+                    String(value),
+                  ).catch(() => undefined)
+                }}
+              >
+                {updating ? t.itemChecking : t.recordBattery}
+              </button>
+            </div>
+            {batteryError ? (
+              <span className="preflight-item-row__battery-error" role="alert">
+                {batteryError}
+              </span>
+            ) : null}
+          </div>
+        ) : manual && !decided ? (
           <div className="preflight-item-row__actions">
             <button
               type="button"
@@ -118,17 +175,10 @@ export function RuntimePreflightItemRow({
           <span
             className={`preflight-item-row__result ${failed ? 'is-failed' : 'is-passed'}`}
           >
-            {resultLabel}
+            {def.key === 'battery_health' && state.measuredValue
+              ? `${resultLabel} · ${state.measuredValue}`
+              : resultLabel}
           </span>
-        ) : def.key === 'battery_health' && !decided ? (
-          <button
-            type="button"
-            className="odm-btn odm-btn-p preflight-item-row__battery-action"
-            disabled={updating}
-            onClick={() => void onRecheck(def.key).catch(() => undefined)}
-          >
-            {updating ? t.itemChecking : t.fetchCurrentBattery}
-          </button>
         ) : (
           <span
             className={`preflight-item-row__result ${

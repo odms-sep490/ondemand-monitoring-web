@@ -53,6 +53,7 @@ export function mapRuntimeToItems(checks: RuntimeCheck[]) {
         result,
         status: check.status,
         message: check.message,
+        measuredValue: check.measuredValue,
       }
     }
   }
