@@ -38,8 +38,7 @@
     }
   }
 
-  .cus-orders-card .ant-card-body,
-  .cus-missions-card .ant-card-body {
+  .cus-orders-card .ant-card-body {
     padding: 0;
   }
 
@@ -95,13 +94,6 @@
     align-content: start;
     gap: 18px;
     min-width: 0;
-  }
-
-  .cus-missions-empty {
-    padding: 13px 18px;
-    color: var(--mgr-muted);
-    font-size: 13px;
-    line-height: 1.5;
   }
 
   .mgr-empty {
@@ -252,8 +244,7 @@
       padding-inline: 15px;
     }
 
-    .cus-orders-card .ant-card-body,
-    .cus-missions-card .ant-card-body {
+    .cus-orders-card .ant-card-body {
       padding-inline: 0;
     }
   }

@@ -5,17 +5,16 @@ import { CardComponent, ErrorState, PageHeader } from '../../../../shared/compon
 import { useI18n } from '../../../../shared/i18n'
 import { customerHref } from '../../routes'
 import { DashboardStats } from './components/DashboardStats'
-import { RecentMissionsCard } from './components/RecentMissionsCard'
 import { RecentOrdersCard } from './components/RecentOrdersCard'
 import { StatusBreakdown } from './components/StatusBreakdown'
 import './dashboard.scss'
 import { dashboardPageMessages } from './DashboardPage.messages'
 import { useDashboardData } from './hooks/useDashboardData'
 
-/** Customer overview computed client-side from the orders and mission history. */
+/** Customer overview computed client-side from the customer's orders. */
 export function DashboardPage() {
   const { t } = useI18n(dashboardPageMessages)
-  const { orders, missions, stats, recent } = useDashboardData()
+  const { orders, stats, recent } = useDashboardData()
 
   return (
     <div className="cus-dash">
@@ -39,12 +38,6 @@ export function DashboardPage() {
           <div className="cus-content-grid">
             <div className="cus-main-column">
               <RecentOrdersCard orders={recent} />
-              <RecentMissionsCard
-                missions={missions.data}
-                loading={missions.loading}
-                error={missions.error}
-                onRetry={missions.reload}
-              />
             </div>
             <StatusBreakdown stats={stats} />
           </div>
@@ -59,12 +52,6 @@ export function DashboardPage() {
           ) : (
             <ErrorState title={t.ordersErrorTitle} error={orders.error} onRetry={orders.reload} />
           )}
-          <RecentMissionsCard
-            missions={missions.data}
-            loading={missions.loading}
-            error={missions.error}
-            onRetry={missions.reload}
-          />
         </div>
       )}
     </div>
