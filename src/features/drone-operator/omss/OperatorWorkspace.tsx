@@ -382,6 +382,13 @@ export default function OperatorWorkspace() {
   const displayDrone = drone
 
   function goScreen(s: Screen) {
+    if (s === 'preflight' && mission) {
+      window.location.hash = operatorHref({
+        screen: 'preflight',
+        missionId: mission.backendId ?? mission.id,
+      })
+      return
+    }
     if (s === 'in-flight' && !flightSessionStarted) {
       setScreen('mission-detail')
       setNavId('my-missions')
@@ -467,7 +474,10 @@ export default function OperatorWorkspace() {
           item.backendId === accepted.backendId ? accepted : item,
         ),
       )
-      setScreen('gcs-connect')
+      window.location.hash = operatorHref({
+        screen: 'preflight',
+        missionId: accepted.backendId ?? accepted.id,
+      })
     } catch (cause) {
       setMissionsError(
         cause instanceof Error
@@ -525,7 +535,10 @@ export default function OperatorWorkspace() {
             .catch(() => null),
         )
       }
-      setScreen('preflight')
+      window.location.hash = operatorHref({
+        screen: 'preflight',
+        missionId: mission.backendId ?? mission.id,
+      })
     } catch (cause) {
       setMissionsError(
         cause instanceof Error ? cause.message : t.errors.gcsConnectionFailed,
@@ -621,73 +634,6 @@ export default function OperatorWorkspace() {
       setMissionsError(
         cause instanceof Error ? cause.message : t.errors.missionStartFailed,
       )
-    }
-  }
-
-  async function handleRuntimePreflightReady() {
-    if (!mission || !drone) return
-    const missionId = mission.backendId ?? mission.id
-    try {
-      const controlStatus = await flightControlApi.status()
-      if (
-        controlStatus.missionId !== missionId ||
-        controlStatus.deviceId !== drone.id
-      ) {
-        await flightControlApi.bindSession(missionId, drone.id)
-      }
-
-      const deadline = Date.now() + 20_000
-      while (true) {
-        const telemetry = await missionApi.getTelemetryReadiness(missionId)
-        if (telemetry.deviceId !== drone.id) {
-          throw new Error(t.errors.missionDroneChanged)
-        }
-        if (telemetry.ready) break
-        if (Date.now() >= deadline) {
-          throw new Error(t.errors.telemetryTimeout)
-        }
-        await new Promise((resolve) => window.setTimeout(resolve, 1000))
-      }
-
-      const permissions = await missionApi.getPermissions(missionId)
-      if (!permissions.canOperatePayload) {
-        throw new Error(t.errors.preflightRegistrationFailed)
-      }
-      const latest = await missionApi.getMissionById(missionId)
-      const mainAssignment = latest.deviceAssignments?.find(
-        (assignment) =>
-          assignment.deviceRole === 'MAIN' &&
-          assignment.deviceId === drone.id,
-      )
-      if (mainAssignment?.status !== 'READY_TO_FLY') {
-        await missionApi.runPreflightCheck(missionId, drone.id)
-      }
-      const checkedMission = await missionApi.getMissionById(missionId)
-      const checkedAssignment = checkedMission.deviceAssignments?.find(
-        (assignment) =>
-          assignment.deviceRole === 'MAIN' &&
-          assignment.deviceId === drone.id,
-      )
-      if (checkedAssignment?.status !== 'READY_TO_FLY') {
-        throw new Error(t.errors.preflightRegistrationFailed)
-      }
-      const updatedMission = adaptBackendMission(
-        checkedMission as unknown as BackendMission,
-      )
-      setMission(updatedMission)
-      setMissionPermissions(
-        await missionApi
-          .getPermissions(updatedMission.backendId ?? updatedMission.id)
-          .catch(() => null),
-      )
-      window.location.hash = operatorHref({ screen: 'handover', missionId })
-    } catch (cause) {
-      const message =
-        cause instanceof Error
-          ? cause.message
-          : t.errors.preflightRegistrationFailed
-      setMissionsError(message)
-      throw new Error(message, { cause })
     }
   }
 
@@ -958,30 +904,18 @@ export default function OperatorWorkspace() {
               onBack={() => setScreen('mission-detail')}
             />
           )}
-          {screen === 'preflight' && displayMission && displayDrone && (
-            <InFlightControl
-              mission={displayMission}
-              drone={displayDrone}
-              normalFlightAllowed={
-                missionPermissions?.canControlFlight === true &&
-                displayMission.state === 'IN_PROGRESS'
-              }
-              onRTB={handleRTB}
-              onEmergency={handleEmergency}
-              onFailureRequested={handleFailureRequested}
-              onFailureLanded={handleFailureLanded}
-              autoStartPlan={false}
-              onAutoStartPlanConsumed={() => undefined}
-              onPreflightReady={handleRuntimePreflightReady}
-            />
-          )}
           {screen === 'ready-to-fly' && displayMission && displayDrone && (
               <ReadyToFly
                 mission={displayMission}
                 drone={displayDrone}
                 canStartMission={missionPermissions?.canStartMission === true}
                 onStart={handleStartMission}
-                onAbort={() => setScreen('preflight')}
+                onAbort={() => {
+                  window.location.hash = operatorHref({
+                    screen: 'preflight',
+                    missionId: displayMission.backendId ?? displayMission.id,
+                  })
+                }}
               />
           )}
           {screen === 'in-flight' && displayMission && displayDrone && (
