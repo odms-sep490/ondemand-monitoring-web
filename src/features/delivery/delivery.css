@@ -782,6 +782,33 @@
 .delivery-case-feedback small {
   color: var(--d-muted);
 }
+.delivery-feedback-evidence {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+.delivery-feedback-evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 180px), 1fr));
+  gap: 12px;
+}
+.delivery-feedback-evidence-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  max-width: 240px;
+}
+.delivery-feedback-evidence-card .delivery-image-preview,
+.delivery-feedback-evidence-card .media-video-thumbnail {
+  width: 100%;
+}
+.delivery-feedback-evidence-card .ant-image-img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 8px;
+}
 .delivery-review-item > .delivery-feedback-label {
   margin: 12px 0;
 }

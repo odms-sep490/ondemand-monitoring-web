@@ -37,6 +37,8 @@ const result = {
           size: 2048,
           capturedAt: '2026-10-29T00:00:00Z',
           url: 'https://example.test/signed',
+          thumbnailUrl: 'https://example.test/thumb.jpg',
+          previewUrl: 'https://example.test/preview.jpg',
           urlExpiresAt: '2026-11-01T00:00:00Z',
           downloadable: true,
           accessReason: null,
@@ -52,6 +54,40 @@ afterEach(() => {
 })
 
 describe('CustomerResultReview', () => {
+  it('accepts only the round belonging to the selected Mission', async () => {
+    setLanguage('en')
+    vi.spyOn(deliveryApi, 'getResultReview').mockResolvedValue(result)
+    const accept = vi
+      .spyOn(deliveryApi, 'accept')
+      .mockResolvedValue(undefined as never)
+    const onComplete = vi.fn()
+    render(
+      <CustomerResultReview
+        orderId="order-1"
+        missionId="mission-1"
+        onComplete={onComplete}
+        onSubmitted={() => undefined}
+      />,
+    )
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: 'Accept this mission’s results',
+      }),
+    )
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Confirm and send' }),
+    )
+    await waitFor(() =>
+      expect(accept).toHaveBeenCalledWith('order-1', 'round-1', 7),
+    )
+    expect(deliveryApi.getResultReview).toHaveBeenCalledWith(
+      'order-1',
+      undefined,
+      'mission-1',
+    )
+    await waitFor(() => expect(onComplete).toHaveBeenCalled())
+  })
+
   it('opens evidence for inspection without selecting it as complaint evidence', async () => {
     setLanguage('en')
     vi.spyOn(deliveryApi, 'getResultReview').mockResolvedValue(result)

@@ -330,6 +330,7 @@ function MissionDetail({
                 }
                 orderId={mission.orderId}
                 refreshKey={revision}
+                initialMissionId={mission.id}
               />
             </div>
           ) : null}

@@ -11,7 +11,8 @@ export type ResultReviewEvidence = {
   url: string | null
   thumbnailUrl?: string | null
   previewUrl?: string | null
-  previewStatus?: 'PENDING' | 'PROCESSING' | 'READY' | 'FAILED' | 'UNSUPPORTED' | null
+  previewStatus?:
+    'PENDING' | 'PROCESSING' | 'READY' | 'FAILED' | 'UNSUPPORTED' | null
   urlExpiresAt: string | null
   downloadable: boolean
   accessReason: 'RETENTION_EXPIRED' | 'MEDIA_UNAVAILABLE' | null
@@ -158,6 +159,7 @@ export type ResultRevisionCase = {
       reasonCode: RevisionReasonCode
       customerNote: string
       submittedAt: string
+      evidence?: ResultReviewEvidence[]
     }[]
   }[]
 }
@@ -198,27 +200,70 @@ export type ChecklistDeliveryDraft = {
 
 const enc = encodeURIComponent
 
+export type MissionDeliverySummary = {
+  missionId: string
+  missionCode: string
+  status: Delivery['deliveryStatus']
+  relatedMissionIds?: string[]
+}
+
+function scopedPath(path: string, missionId?: string) {
+  return missionId
+    ? `${path}${path.includes('?') ? '&' : '?'}missionId=${enc(missionId)}`
+    : path
+}
+
 export const deliveryApi = {
-  get: (orderId: string, signal?: AbortSignal) =>
-    apiRequest<Delivery>(`/api/orders/${enc(orderId)}/delivery`, { signal }),
-  previews: (orderId: string, signal?: AbortSignal) =>
-    apiRequest<Delivery>(`/api/orders/${enc(orderId)}/deliverables/preview`, {
-      signal,
-    }),
-  originals: (orderId: string, signal?: AbortSignal) =>
-    apiRequest<Delivery>(`/api/orders/${enc(orderId)}/deliverables`, {
-      signal,
-    }),
-  getResultReview: (orderId: string, signal?: AbortSignal) =>
-    apiRequest<ResultReview>(
-      `/api/orders/${enc(orderId)}/result-review?size=100`,
+  missionDeliveries: (orderId: string, manager = false, signal?: AbortSignal) =>
+    apiRequest<MissionDeliverySummary[]>(
+      manager
+        ? `/api/manager/orders/${enc(orderId)}/delivery/missions`
+        : `/api/orders/${enc(orderId)}/mission-deliveries`,
+      { signal },
+    ),
+  get: (orderId: string, signal?: AbortSignal, missionId?: string) =>
+    apiRequest<Delivery>(
+      scopedPath(`/api/orders/${enc(orderId)}/delivery`, missionId),
+      { signal },
+    ),
+  previews: (orderId: string, signal?: AbortSignal, missionId?: string) =>
+    apiRequest<Delivery>(
+      scopedPath(`/api/orders/${enc(orderId)}/deliverables/preview`, missionId),
       {
         signal,
       },
     ),
-  getResultReviewHistory: (orderId: string, signal?: AbortSignal) =>
+  originals: (orderId: string, signal?: AbortSignal, missionId?: string) =>
+    apiRequest<Delivery>(
+      scopedPath(`/api/orders/${enc(orderId)}/deliverables`, missionId),
+      {
+        signal,
+      },
+    ),
+  getResultReview: (
+    orderId: string,
+    signal?: AbortSignal,
+    missionId?: string,
+  ) =>
+    apiRequest<ResultReview>(
+      scopedPath(
+        `/api/orders/${enc(orderId)}/result-review?size=100`,
+        missionId,
+      ),
+      {
+        signal,
+      },
+    ),
+  getResultReviewHistory: (
+    orderId: string,
+    signal?: AbortSignal,
+    missionId?: string,
+  ) =>
     apiRequest<ResultReviewHistory>(
-      `/api/orders/${enc(orderId)}/result-review/history?page=0&size=20`,
+      scopedPath(
+        `/api/orders/${enc(orderId)}/result-review/history?page=0&size=20`,
+        missionId,
+      ),
       { signal },
     ),
   accept: (
@@ -238,18 +283,35 @@ export const deliveryApi = {
         body,
       },
     ),
-  managerGet: (orderId: string, signal?: AbortSignal) =>
-    apiRequest<Delivery>(`/api/manager/orders/${enc(orderId)}/delivery`, {
-      signal,
-    }),
-  managerGetChecklists: (orderId: string, signal?: AbortSignal) =>
+  managerGet: (orderId: string, signal?: AbortSignal, missionId?: string) =>
+    apiRequest<Delivery>(
+      scopedPath(`/api/manager/orders/${enc(orderId)}/delivery`, missionId),
+      {
+        signal,
+      },
+    ),
+  managerGetChecklists: (
+    orderId: string,
+    signal?: AbortSignal,
+    missionId?: string,
+  ) =>
     apiRequest<ManagerChecklistDelivery>(
-      `/api/manager/orders/${enc(orderId)}/delivery/checklists`,
+      scopedPath(
+        `/api/manager/orders/${enc(orderId)}/delivery/checklists`,
+        missionId,
+      ),
       { signal },
     ),
-  managerGetChecklistDraft: (orderId: string, signal?: AbortSignal) =>
+  managerGetChecklistDraft: (
+    orderId: string,
+    signal?: AbortSignal,
+    missionId?: string,
+  ) =>
     apiRequest<ChecklistDeliveryDraft>(
-      `/api/manager/orders/${enc(orderId)}/delivery/draft`,
+      scopedPath(
+        `/api/manager/orders/${enc(orderId)}/delivery/draft`,
+        missionId,
+      ),
       { signal },
     ),
   managerSaveChecklistDraft: (
@@ -258,14 +320,25 @@ export const deliveryApi = {
       ChecklistDeliveryDraft,
       'orderId' | 'updatedAt' | 'stale' | 'version'
     > & { expectedDraftVersion: number },
+    missionId?: string,
   ) =>
     apiRequest<ChecklistDeliveryDraft>(
-      `/api/manager/orders/${enc(orderId)}/delivery/draft`,
+      scopedPath(
+        `/api/manager/orders/${enc(orderId)}/delivery/draft`,
+        missionId,
+      ),
       { method: 'PUT', body },
     ),
-  managerClearChecklistDraft: (orderId: string, expectedDraftVersion: number) =>
+  managerClearChecklistDraft: (
+    orderId: string,
+    expectedDraftVersion: number,
+    missionId?: string,
+  ) =>
     apiRequest<void>(
-      `/api/manager/orders/${enc(orderId)}/delivery/draft?expectedDraftVersion=${expectedDraftVersion}`,
+      scopedPath(
+        `/api/manager/orders/${enc(orderId)}/delivery/draft?expectedDraftVersion=${expectedDraftVersion}`,
+        missionId,
+      ),
       {
         method: 'DELETE',
       },
@@ -273,9 +346,13 @@ export const deliveryApi = {
   managerPublishChecklists: (
     orderId: string,
     body: ChecklistDeliveryPublishBody,
+    missionId?: string,
   ) =>
     apiRequest<Delivery>(
-      `/api/manager/orders/${enc(orderId)}/delivery/checklists/publish`,
+      scopedPath(
+        `/api/manager/orders/${enc(orderId)}/delivery/checklists/publish`,
+        missionId,
+      ),
       { method: 'POST', body },
     ),
   managerGetRevisionCase: (orderId: string, signal?: AbortSignal) =>
@@ -344,9 +421,12 @@ export const deliveryApi = {
         body: { mediaAssetIds, notes: notes || null },
       },
     ),
-  releaseOriginals: (orderId: string) =>
+  releaseOriginals: (orderId: string, missionId?: string) =>
     apiRequest<Delivery>(
-      `/api/manager/orders/${enc(orderId)}/delivery/release-originals`,
+      scopedPath(
+        `/api/manager/orders/${enc(orderId)}/delivery/release-originals`,
+        missionId,
+      ),
       { method: 'POST' },
     ),
 }
