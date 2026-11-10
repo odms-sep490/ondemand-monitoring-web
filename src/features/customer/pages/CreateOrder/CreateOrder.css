@@ -378,6 +378,41 @@
   overflow-wrap: anywhere;
 }
 
+.co-confirm-body {
+  max-height: min(64vh, 560px);
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+}
+
+.co-confirm-body:focus-visible {
+  outline: 2px solid var(--ui-primary);
+  outline-offset: 2px;
+  border-radius: var(--ui-radius-sm);
+}
+
+.co-confirm-request {
+  padding: var(--ui-space-3);
+  border-radius: var(--ui-radius-sm);
+  background: var(--ui-surface-2);
+}
+
+.co-confirm-request__label {
+  display: block;
+  color: var(--ui-text-3);
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+
+.co-confirm-request__value {
+  display: block;
+  margin-top: 4px;
+  color: var(--ui-text);
+  font-size: 16px;
+  line-height: 1.4;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
 .co-metric {
   padding: var(--ui-space-3);
   border-radius: var(--ui-radius-sm);
@@ -398,7 +433,7 @@
 
 .co-rows {
   display: grid;
-  grid-template-columns: minmax(110px, 170px) minmax(0, 1fr);
+  grid-template-columns: minmax(120px, 190px) minmax(0, 1fr);
   gap: var(--ui-space-2) var(--ui-space-4);
   margin: 0;
   font-size: 13px;
@@ -425,6 +460,12 @@
   }
   .co-rows dd {
     margin-bottom: var(--ui-space-2);
+  }
+}
+
+@media (max-width: 600px) {
+  .co-confirm-body {
+    max-height: min(62vh, calc(92vh - 180px));
   }
 }
 

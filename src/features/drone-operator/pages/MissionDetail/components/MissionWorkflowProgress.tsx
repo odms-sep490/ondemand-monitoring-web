@@ -81,10 +81,11 @@ export function MissionWorkflowProgress({
           : t.workflowPermitApproval
     } else if (!weatherFresh) {
       detail = t.workflowWeatherCheck
-    } else if (weather?.safeToFly !== true) {
-      detail = t.workflowWeatherUnsafe
-    } else if (weather.inspectorAccepted !== true) {
-      detail = t.workflowWeatherApproval
+    } else if (weather?.inspectorAccepted !== true) {
+      detail =
+        weather?.safeToFly !== true
+          ? t.workflowWeatherUnsafe
+          : t.workflowWeatherApproval
     } else {
       detail = t.workflowStartReady
     }
