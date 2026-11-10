@@ -215,7 +215,7 @@ function OrderPlanningWorkspace({
     Boolean(
       data &&
       (reworkCaseId
-        ? data.order.status === 'COMPLETED' &&
+        ? ['IN_PROGRESS', 'COMPLETED'].includes(data.order.status) &&
           data.revisionCase?.active &&
           data.revisionCase.status === 'OPEN' &&
           data.invoice?.status === 'PAID' &&

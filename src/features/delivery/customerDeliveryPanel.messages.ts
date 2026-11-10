@@ -50,7 +50,7 @@ export const customerDeliveryPanelMessages = defineMessages({
     processingText: 'Trang sẽ tự động cập nhật khi dữ liệu sẵn sàng.',
     managerReviewTitle: 'Nhiệm vụ đã hoàn thành',
     managerReviewText:
-      'Kết quả được tự gửi khi tất cả nhiệm vụ của đơn hàng đã nghiệm thu và sẵn sàng.',
+      'Kết quả của từng nhiệm vụ được tự gửi ngay sau khi nghiệm thu, không cần chờ các nhiệm vụ khác.',
     revisionSentTitle: 'Đã gửi yêu cầu chỉnh sửa',
     revisionPending: 'Chờ quản lý xử lý',
     revisionPendingText: 'Yêu cầu chỉnh sửa đang được xem xét.',
@@ -88,6 +88,9 @@ export const customerDeliveryPanelMessages = defineMessages({
     },
     sendStructuredRequest: 'Gửi yêu cầu chỉnh sửa',
     acceptAll: 'Chấp nhận toàn bộ kết quả',
+    acceptMission: 'Chấp nhận kết quả nhiệm vụ này',
+    acceptMissionTitle: 'Chấp nhận kết quả nhiệm vụ này?',
+    acceptMissionBody: 'Bạn xác nhận kết quả trong đợt này của nhiệm vụ đang xem. Các nhiệm vụ khác được duyệt riêng.',
     acceptAllConfirmTitle: 'Xác nhận chấp nhận toàn bộ?',
     acceptAllConfirmBody:
       'Hành động này xác nhận bạn chấp nhận tất cả kết quả trong đợt này.',
@@ -155,7 +158,7 @@ export const customerDeliveryPanelMessages = defineMessages({
     processingText: 'This page updates automatically when the data is ready.',
     managerReviewTitle: 'Mission completed',
     managerReviewText:
-      'Results are sent automatically once every mission in the order has passed inspection and is ready.',
+      'Results are sent automatically after each mission passes inspection, without waiting for other missions.',
     revisionSentTitle: 'Change request sent',
     revisionPending: 'Awaiting manager review',
     revisionPendingText: 'Your revision request is under review.',
@@ -194,6 +197,9 @@ export const customerDeliveryPanelMessages = defineMessages({
     },
     sendStructuredRequest: 'Send revision request',
     acceptAll: 'Accept all results',
+    acceptMission: 'Accept this mission’s results',
+    acceptMissionTitle: 'Accept this mission’s results?',
+    acceptMissionBody: 'This accepts the current round for this mission. Other missions are reviewed separately.',
     acceptAllConfirmTitle: 'Accept all results?',
     acceptAllConfirmBody:
       'This confirms that you accept every result in this round.',

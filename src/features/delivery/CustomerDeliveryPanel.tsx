@@ -11,7 +11,10 @@ import {
 } from 'antd'
 import { useCallback, useEffect, useState } from 'react'
 import { ApiError } from '../../shared/api/httpClient'
-import { requestOriginalMediaDownload, startOriginalMediaDownload } from '../../shared/api/originalMediaDownload'
+import {
+  requestOriginalMediaDownload,
+  startOriginalMediaDownload,
+} from '../../shared/api/originalMediaDownload'
 import { useI18n } from '../../shared/i18n'
 import { deliveryApi } from './api'
 import { customerDeliveryPanelMessages } from './customerDeliveryPanel.messages'
@@ -20,13 +23,43 @@ import { DeliveryImagePreview } from './DeliveryImagePreview'
 import { DeliveryProgress, DeliveryStatusPill } from './DeliveryProgress'
 import type { Delivery, DeliveryPanelLoadState } from './types'
 import './delivery.css'
+import { MissionDeliveryTabs } from './MissionDeliveryTabs'
 
-export function CustomerDeliveryPanel({
+type CustomerDeliveryPanelProps = {
+  orderId: string
+  initialDelivery?: Delivery | null
+  initialMissionId?: string
+  onStateChange?: (
+    delivery: Delivery | null,
+    state: DeliveryPanelLoadState,
+  ) => void
+}
+
+export function CustomerDeliveryPanel(props: CustomerDeliveryPanelProps) {
+  return (
+    <MissionDeliveryTabs
+      orderId={props.orderId}
+      initialMissionId={props.initialMissionId}
+    >
+      {(missionId) => (
+        <ScopedCustomerDeliveryPanel
+          {...props}
+          missionId={missionId}
+          initialDelivery={missionId ? null : props.initialDelivery}
+        />
+      )}
+    </MissionDeliveryTabs>
+  )
+}
+
+function ScopedCustomerDeliveryPanel({
   orderId,
   initialDelivery = null,
   onStateChange,
+  missionId,
 }: {
   orderId: string
+  missionId?: string
   initialDelivery?: Delivery | null
   onStateChange?: (
     delivery: Delivery | null,
@@ -45,7 +78,9 @@ export function CustomerDeliveryPanel({
     id: string
     code: string
   } | null>(null)
-  const [downloadingMediaId, setDownloadingMediaId] = useState<string | null>(null)
+  const [downloadingMediaId, setDownloadingMediaId] = useState<string | null>(
+    null,
+  )
 
   const currentTicket =
     submittedTicket?.orderId === orderId ? submittedTicket : null
@@ -89,7 +124,7 @@ export function CustomerDeliveryPanel({
     let cancelled = false
     // Restore the persistent ticket shortcut without replaying the success toast.
     void deliveryApi
-      .getResultReview(orderId)
+      .getResultReview(orderId, undefined, missionId)
       .then((review) => {
         if (!cancelled && review.existingRequest) {
           setSubmittedTicket({
@@ -105,7 +140,7 @@ export function CustomerDeliveryPanel({
     return () => {
       cancelled = true
     }
-  }, [orderId, delivery?.deliveryStatus, currentTicket])
+  }, [orderId, missionId, delivery?.deliveryStatus, currentTicket])
 
   const load = useCallback(
     async (showLoading = false) => {
@@ -114,13 +149,17 @@ export function CustomerDeliveryPanel({
         setError(null)
       }
       try {
-        const summary = await deliveryApi.get(orderId)
+        const summary = await deliveryApi.get(orderId, undefined, missionId)
         let detailed = summary
         try {
           if (summary.deliveryStatus === 'DELIVERED') {
-            detailed = await deliveryApi.originals(orderId)
+            detailed = await deliveryApi.originals(
+              orderId,
+              undefined,
+              missionId,
+            )
           } else if (summary.previewReleasedAt) {
-            detailed = await deliveryApi.previews(orderId)
+            detailed = await deliveryApi.previews(orderId, undefined, missionId)
           }
         } catch (cause) {
           // Keep the real summary status visible if the optional asset endpoint
@@ -141,7 +180,7 @@ export function CustomerDeliveryPanel({
         setError(cause)
       }
     },
-    [orderId],
+    [orderId, missionId],
   )
 
   useEffect(() => {
@@ -157,8 +196,22 @@ export function CustomerDeliveryPanel({
   }, [load])
 
   useEffect(() => {
-    onStateChange?.(delivery, loadState)
-  }, [delivery, loadState, onStateChange])
+    if (!onStateChange) return
+    if (!missionId) {
+      onStateChange(delivery, loadState)
+      return
+    }
+    const controller = new AbortController()
+    void deliveryApi.get(orderId, controller.signal).then(
+      (summary) => {
+        if (!controller.signal.aborted) onStateChange(summary, 'ready')
+      },
+      () => {
+        if (!controller.signal.aborted) onStateChange(null, 'error')
+      },
+    )
+    return () => controller.abort()
+  }, [delivery, loadState, onStateChange, orderId, missionId])
 
   if (!delivery) {
     return (
@@ -260,13 +313,20 @@ export function CustomerDeliveryPanel({
                 <article key={asset.id} className="delivery-asset">
                   {asset.previewUrl ? (
                     asset.type.toUpperCase().includes('VIDEO') ? (
-                      <VideoThumbnail poster={asset.thumbnailUrl} src={asset.previewUrl} mediaId={asset.id} fileName={asset.fileName} fileSize={asset.size} original={asset.previewStatus !== 'READY'} />
+                      <VideoThumbnail
+                        poster={asset.thumbnailUrl}
+                        src={asset.previewUrl}
+                        mediaId={asset.id}
+                        fileName={asset.fileName}
+                        fileSize={asset.size}
+                        original={asset.previewStatus !== 'READY'}
+                      />
                     ) : (
                       <DeliveryImagePreview
                         src={asset.thumbnailUrl ?? asset.previewUrl}
-                            mediaId={asset.id}
-                            fileSize={asset.size}
-                            original={asset.previewStatus !== 'READY'}
+                        mediaId={asset.id}
+                        fileSize={asset.size}
+                        original={asset.previewStatus !== 'READY'}
                         previewSrc={asset.previewUrl}
                         fileName={asset.fileName}
                       />
@@ -293,7 +353,10 @@ export function CustomerDeliveryPanel({
                     <Button
                       className="delivery-download"
                       loading={downloadingMediaId === asset.id}
-                      disabled={downloadingMediaId !== null && downloadingMediaId !== asset.id}
+                      disabled={
+                        downloadingMediaId !== null &&
+                        downloadingMediaId !== asset.id
+                      }
                       onClick={() => void downloadOriginal(asset.id)}
                     >
                       {t.download}
@@ -328,6 +391,7 @@ export function CustomerDeliveryPanel({
         {canReview ? (
           <CustomerResultReview
             orderId={orderId}
+            missionId={missionId}
             onComplete={() => void load()}
             onSubmitted={handleRevisionSubmitted}
           />

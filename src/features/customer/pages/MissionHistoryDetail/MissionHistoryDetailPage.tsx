@@ -63,7 +63,7 @@ function Detail({ missionId }: { missionId: string }) {
         </div>
         <div className="cus-side">
           <MissionInfoCard mission={mission} />
-          <CustomerDeliveryPanel orderId={mission.orderId} />
+          <CustomerDeliveryPanel orderId={mission.orderId} initialMissionId={mission.id} />
         </div>
       </div>
     </div>

@@ -19,6 +19,7 @@ export type TicketResultReviewResponse = {
     canAcknowledge: boolean
   }[]
   items: {
+    roundNumber?: number
     roundItemId: string
     orderChecklistItemId: string
     title: string
