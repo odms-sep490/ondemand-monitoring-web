@@ -3,7 +3,7 @@ import { defineMessages } from '../../shared/i18n'
 export const managerDeliveryPanelMessages = defineMessages({
   vi: {
     inspectorPublication:
-      'Nghiệm thu viên chọn media và xác nhận nghiệm thu từng nhiệm vụ. Hệ thống tự gửi kết quả khi tất cả nhiệm vụ của đơn hàng sẵn sàng.',
+      'Nghiệm thu viên chọn media và xác nhận nghiệm thu từng nhiệm vụ. Kết quả được tự gửi ngay cho từng nhiệm vụ đã nghiệm thu.',
     loadFailed: 'Không tải được thông tin bàn giao.',
     actionFailed: 'Thao tác thất bại.',
     eyebrow: 'Quy trình bàn giao',
@@ -118,6 +118,10 @@ export const managerDeliveryPanelMessages = defineMessages({
       'Thống nhất lịch thực hiện lại với khách hàng trước khi tạo nhiệm vụ. Chọn thời gian trong tương lai, bắt đầu và kết thúc trong cùng ngày. Lịch này độc lập với ngày và khung giờ mong muốn của đơn hàng ban đầu.',
     noRevisionCase: 'Không có yêu cầu chỉnh sửa đang mở.',
     feedbackNote: 'Ghi chú khách hàng',
+    feedbackRound: (round: number) => `Đợt kết quả ${round}`,
+    flaggedMedia: 'Ảnh/video khách hàng đã đánh dấu',
+    noFlaggedMedia: 'Khách hàng phản ánh hạng mục, không đánh dấu ảnh/video cụ thể.',
+    flaggedMediaExpired: 'Ảnh/video đã hết thời hạn lưu trữ.',
     reasonCode: 'Lý do',
     loadCaseFailed: 'Không tải được thông tin yêu cầu chỉnh sửa.',
     draftSaving: 'Đang lưu bản nháp bàn giao…',
@@ -133,7 +137,7 @@ export const managerDeliveryPanelMessages = defineMessages({
   },
   en: {
     inspectorPublication:
-      'The inspector selects media and confirms each mission. Results are sent automatically when every mission in the order is ready.',
+      'The inspector selects media and confirms each mission. Results are sent automatically after each mission passes inspection.',
     loadFailed: 'Could not load delivery information.',
     actionFailed: 'Action failed.',
     eyebrow: 'Delivery workflow',
@@ -249,6 +253,10 @@ export const managerDeliveryPanelMessages = defineMessages({
       'Agree on a new schedule with the customer before creating the mission. Choose a future start and end on the same day. This schedule is independent of the original order’s preferred dates and time slot.',
     noRevisionCase: 'There is no open revision request.',
     feedbackNote: 'Customer note',
+    feedbackRound: (round: number) => `Result round ${round}`,
+    flaggedMedia: 'Media flagged by the customer',
+    noFlaggedMedia: 'The customer reported this checklist without flagging specific media.',
+    flaggedMediaExpired: 'This media has reached the end of its retention period.',
     reasonCode: 'Reason',
     loadCaseFailed: 'Could not load revision request details.',
     draftSaving: 'Saving delivery draft…',

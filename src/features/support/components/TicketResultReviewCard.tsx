@@ -43,7 +43,8 @@ const messages = defineMessages({
     error: 'Không tải được kết quả đánh giá.',
     noOrder: 'Phiếu này không liên kết với kết quả đơn hàng.',
     scopeResponseTitle: 'Phản hồi về phạm vi yêu cầu',
-    scopeWaiting: 'Quản lý cho biết hạng mục này nằm ngoài phạm vi đơn hàng. Vui lòng xem lý do bên dưới.',
+    scopeWaiting:
+      'Quản lý cho biết hạng mục này nằm ngoài phạm vi đơn hàng. Vui lòng xem lý do bên dưới.',
     scopeAcknowledged: 'Bạn đã xác nhận đã nhận phản hồi này.',
     acknowledge: 'Tôi đã nhận phản hồi',
     acknowledgeFailed: 'Không xác nhận được phản hồi. Vui lòng thử lại.',
@@ -71,7 +72,8 @@ const messages = defineMessages({
     error: 'Could not load the result review.',
     noOrder: 'This ticket is not linked to an order result.',
     scopeResponseTitle: 'Scope decision',
-    scopeWaiting: 'The manager marked this checklist item as outside the order scope. Please review the explanation below.',
+    scopeWaiting:
+      'The manager marked this checklist item as outside the order scope. Please review the explanation below.',
     scopeAcknowledged: 'You confirmed that you received this response.',
     acknowledge: 'I received this response',
     acknowledgeFailed: 'Could not acknowledge the response. Please retry.',
@@ -174,6 +176,10 @@ export function TicketResultReviewCard({ ticketId }: { ticketId: string }) {
               label: (
                 <Space wrap>
                   <Typography.Text strong>{item.title}</Typography.Text>
+                  {item.roundNumber != null && (
+                    <Tag>{t.round(item.roundNumber)}</Tag>
+                  )}
+                  {item.missionCode && <Tag>{item.missionCode}</Tag>}
                   <Tag>{t.fileCount(selectedEvidence.length)}</Tag>
                 </Space>
               ),
@@ -218,14 +224,21 @@ export function TicketResultReviewCard({ ticketId }: { ticketId: string }) {
                             className="sp-result-review__asset"
                             key={e.roundEvidenceId}
                           >
-                            {e.type.toUpperCase().includes('VIDEO') && e.previewUrl ? (
-                                <VideoThumbnail src={e.previewUrl} poster={e.thumbnailUrl} fileName={e.fileName} fileSize={e.size} fallbackUrl={e.url} />
-                              ) : e.previewUrl ? (
-                                <DeliveryImagePreview
-                                  src={e.thumbnailUrl ?? e.previewUrl}
-                                  previewSrc={e.previewUrl}
-                                  fileName={e.fileName}
-                                />
+                            {e.type.toUpperCase().includes('VIDEO') &&
+                            e.previewUrl ? (
+                              <VideoThumbnail
+                                src={e.previewUrl}
+                                poster={e.thumbnailUrl}
+                                fileName={e.fileName}
+                                fileSize={e.size}
+                                fallbackUrl={e.url}
+                              />
+                            ) : e.previewUrl ? (
+                              <DeliveryImagePreview
+                                src={e.thumbnailUrl ?? e.previewUrl}
+                                previewSrc={e.previewUrl}
+                                fileName={e.fileName}
+                              />
                             ) : (
                               <Empty
                                 image={Empty.PRESENTED_IMAGE_SIMPLE}
@@ -261,12 +274,19 @@ export function TicketResultReviewCard({ ticketId }: { ticketId: string }) {
         />
       ) : null}
       {(data.outOfScopeItems ?? []).length > 0 && (
-        <section className="sp-result-review__scope" aria-label={t.scopeResponseTitle}>
+        <section
+          className="sp-result-review__scope"
+          aria-label={t.scopeResponseTitle}
+        >
           <Typography.Title level={5}>{t.scopeResponseTitle}</Typography.Title>
           {(data.outOfScopeItems ?? []).map((item) => (
             <Alert
               key={item.caseItemId}
-              type={item.status === 'OUT_OF_SCOPE_ACKNOWLEDGED' ? 'success' : 'warning'}
+              type={
+                item.status === 'OUT_OF_SCOPE_ACKNOWLEDGED'
+                  ? 'success'
+                  : 'warning'
+              }
               showIcon
               message={item.title}
               description={

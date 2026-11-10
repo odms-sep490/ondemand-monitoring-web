@@ -30,6 +30,7 @@ import { ChecklistGuidance } from '../../shared/components/ChecklistGuidance'
 
 type Props = {
   orderId: string
+  missionId?: string
   onComplete: () => void
   onSubmitted: (ticket: { id: string; code: string }) => void
 }
@@ -43,6 +44,7 @@ const reasonCodes: RevisionReasonCode[] = [
 
 export function CustomerResultReview({
   orderId,
+  missionId,
   onComplete,
   onSubmitted,
 }: Props) {
@@ -71,8 +73,8 @@ export function CustomerResultReview({
     setError(null)
     try {
       const [currentResult, historyResult] = await Promise.allSettled([
-        deliveryApi.getResultReview(orderId),
-        deliveryApi.getResultReviewHistory(orderId),
+        deliveryApi.getResultReview(orderId, undefined, missionId),
+        deliveryApi.getResultReviewHistory(orderId, undefined, missionId),
       ])
       if (currentResult.status === 'rejected') throw currentResult.reason
       setReview(currentResult.value)
@@ -87,7 +89,7 @@ export function CustomerResultReview({
   }
   useEffect(() => {
     void load()
-  }, [orderId])
+  }, [orderId, missionId])
 
   function updateItem(
     id: string,
@@ -249,7 +251,9 @@ export function CustomerResultReview({
                 <Space size={6} wrap>
                   <Tag>{t.evidenceCount(item.evidence.length)}</Tag>
                   <Tag color={item.changedInRound ? 'blue' : 'default'}>
-                    {item.changedInRound ? t.changedInRound : t.unchangedInRound}
+                    {item.changedInRound
+                      ? t.changedInRound
+                      : t.unchangedInRound}
                   </Tag>
                   {selected && <Tag color="warning">{t.requestRevision}</Tag>}
                 </Space>
@@ -299,12 +303,20 @@ export function CustomerResultReview({
                                 ? t.previewFailed
                                 : evidence.previewStatus === 'UNSUPPORTED'
                                   ? t.previewUnsupported
-                                  : evidence.previewStatus === 'PENDING' || evidence.previewStatus === 'PROCESSING'
+                                  : evidence.previewStatus === 'PENDING' ||
+                                      evidence.previewStatus === 'PROCESSING'
                                     ? t.previewPending
                                     : t.mediaUnavailable}
                           </span>
                         ) : evidence.type.toUpperCase().includes('VIDEO') ? (
-                          <VideoThumbnail poster={evidence.thumbnailUrl} src={evidence.previewUrl} mediaId={evidence.mediaAssetId} fileName={evidence.fileName} fileSize={evidence.size} original={evidence.previewStatus !== 'READY'} />
+                          <VideoThumbnail
+                            poster={evidence.thumbnailUrl}
+                            src={evidence.previewUrl}
+                            mediaId={evidence.mediaAssetId}
+                            fileName={evidence.fileName}
+                            fileSize={evidence.size}
+                            original={evidence.previewStatus !== 'READY'}
+                          />
                         ) : (
                           <DeliveryImagePreview
                             src={evidence.thumbnailUrl ?? evidence.previewUrl}
@@ -402,8 +414,13 @@ export function CustomerResultReview({
           }
         })}
       />
-      {history?.rounds.some((round) => round.reviewRoundId !== review.reviewRoundId) ? (
-        <section className="delivery-result-history" aria-label={t.resultHistory}>
+      {history?.rounds.some(
+        (round) => round.reviewRoundId !== review.reviewRoundId,
+      ) ? (
+        <section
+          className="delivery-result-history"
+          aria-label={t.resultHistory}
+        >
           <Typography.Title level={4}>{t.resultHistory}</Typography.Title>
           <Collapse
             className="delivery-review-collapse"
@@ -411,39 +428,88 @@ export function CustomerResultReview({
               .filter((round) => round.reviewRoundId !== review.reviewRoundId)
               .map((round) => ({
                 key: round.reviewRoundId,
-                label: <Space><Typography.Text strong>{t.reviewRound(round.roundNumber)}</Typography.Text><Tag>{t.historyStatus(round.status)}</Tag><Typography.Text type="secondary">{t.publishedAt(new Date(round.publishedAt).toLocaleString(locale))}</Typography.Text></Space>,
-                children: <Collapse accordion items={round.items.map((item) => ({
-                  key: `${round.reviewRoundId}:${item.roundItemId}`,
-                  label: <Space><Typography.Text strong>{item.title}</Typography.Text><Tag>{t.evidenceCount(item.evidence.length)}</Tag></Space>,
-                  children: (
-                    <div className="delivery-review-item">
-                      <ChecklistGuidance guidance={item} collapsible={false} />
-                      <div className="delivery-review-evidence">
-                        {item.evidence.map((evidence) => (
-                          <article className="delivery-review-evidence-card" key={evidence.roundEvidenceId}>
-                            {!evidence.previewUrl ? (
-                              <span className="delivery-review-media-unavailable">{t.mediaUnavailable}</span>
-                            ) : evidence.type.toUpperCase().includes('VIDEO') ? (
-                              <VideoThumbnail poster={evidence.thumbnailUrl} src={evidence.previewUrl} mediaId={evidence.mediaAssetId} fileName={evidence.fileName} fileSize={evidence.size} original={evidence.previewStatus !== 'READY'} />
-                            ) : (
-                              <DeliveryImagePreview
-                                src={evidence.thumbnailUrl ?? evidence.previewUrl}
-                                mediaId={evidence.mediaAssetId}
-                                fileSize={evidence.size}
-                                original={evidence.previewStatus !== 'READY'}
-                                previewSrc={evidence.previewUrl}
-                                fileName={evidence.fileName}
-                              />
-                            )}
-                            <Typography.Text className="delivery-review-file-name" ellipsis={{ tooltip: evidence.fileName }}>
-                              {evidence.fileName}
-                            </Typography.Text>
-                          </article>
-                        ))}
-                      </div>
-                    </div>
-                  ),
-                }))} />,
+                label: (
+                  <Space>
+                    <Typography.Text strong>
+                      {t.reviewRound(round.roundNumber)}
+                    </Typography.Text>
+                    <Tag>{t.historyStatus(round.status)}</Tag>
+                    <Typography.Text type="secondary">
+                      {t.publishedAt(
+                        new Date(round.publishedAt).toLocaleString(locale),
+                      )}
+                    </Typography.Text>
+                  </Space>
+                ),
+                children: (
+                  <Collapse
+                    accordion
+                    items={round.items.map((item) => ({
+                      key: `${round.reviewRoundId}:${item.roundItemId}`,
+                      label: (
+                        <Space>
+                          <Typography.Text strong>{item.title}</Typography.Text>
+                          <Tag>{t.evidenceCount(item.evidence.length)}</Tag>
+                        </Space>
+                      ),
+                      children: (
+                        <div className="delivery-review-item">
+                          <ChecklistGuidance
+                            guidance={item}
+                            collapsible={false}
+                          />
+                          <div className="delivery-review-evidence">
+                            {item.evidence.map((evidence) => (
+                              <article
+                                className="delivery-review-evidence-card"
+                                key={evidence.roundEvidenceId}
+                              >
+                                {!evidence.previewUrl ? (
+                                  <span className="delivery-review-media-unavailable">
+                                    {t.mediaUnavailable}
+                                  </span>
+                                ) : evidence.type
+                                    .toUpperCase()
+                                    .includes('VIDEO') ? (
+                                  <VideoThumbnail
+                                    poster={evidence.thumbnailUrl}
+                                    src={evidence.previewUrl}
+                                    mediaId={evidence.mediaAssetId}
+                                    fileName={evidence.fileName}
+                                    fileSize={evidence.size}
+                                    original={
+                                      evidence.previewStatus !== 'READY'
+                                    }
+                                  />
+                                ) : (
+                                  <DeliveryImagePreview
+                                    src={
+                                      evidence.thumbnailUrl ??
+                                      evidence.previewUrl
+                                    }
+                                    mediaId={evidence.mediaAssetId}
+                                    fileSize={evidence.size}
+                                    original={
+                                      evidence.previewStatus !== 'READY'
+                                    }
+                                    previewSrc={evidence.previewUrl}
+                                    fileName={evidence.fileName}
+                                  />
+                                )}
+                                <Typography.Text
+                                  className="delivery-review-file-name"
+                                  ellipsis={{ tooltip: evidence.fileName }}
+                                >
+                                  {evidence.fileName}
+                                </Typography.Text>
+                              </article>
+                            ))}
+                          </div>
+                        </div>
+                      ),
+                    }))}
+                  />
+                ),
               }))}
           />
         </section>
@@ -480,7 +546,7 @@ export function CustomerResultReview({
           onClick={() => setConfirm('accept')}
           disabled={busy || revisionLocked}
         >
-          {t.acceptAll}
+          {missionId ? t.acceptMission : t.acceptAll}
         </Button>
       )}
       {confirm && (
@@ -491,12 +557,16 @@ export function CustomerResultReview({
         >
           <h4 id="review-confirm-title">
             {confirm === 'accept'
-              ? t.acceptAllConfirmTitle
+              ? missionId
+                ? t.acceptMissionTitle
+                : t.acceptAllConfirmTitle
               : t.revisionConfirmTitle}
           </h4>
           <p>
             {confirm === 'accept'
-              ? t.acceptAllConfirmBody
+              ? missionId
+                ? t.acceptMissionBody
+                : t.acceptAllConfirmBody
               : t.revisionConfirmBody}
           </p>
           <div className="delivery-actions">

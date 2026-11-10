@@ -211,63 +211,76 @@ it('preserves original planning after the deposit without requiring the final ba
   expect(deliveryApi.managerGetRevisionCase).not.toHaveBeenCalled()
 })
 
-it('uses the latest split workspace and creates a rework card in place through its shared modal', async () => {
-  const create = vi
-    .spyOn(deliveryApi, 'managerCreateReworkMission')
-    .mockImplementation(async () => {
-      missions.push(reworkMission())
-      assignments['rework-1'] = ['A', 'B']
-      revisionCase.items
-        .filter((item) => item.strategy === 'REWORK')
-        .forEach((item) => {
-          item.assignedReworkMissionId = 'rework-1'
-          item.assignedReworkMissionStatus = 'PLANNING'
-        })
-      return {
-        caseId: 'case',
-        missionId: 'rework-1',
-        missionCode: 'MS-REWORK',
-        status: 'PLANNING',
-        checklistCount: 2,
-      }
+it.each(['IN_PROGRESS', 'COMPLETED'] as const)(
+  'creates rework in the shared workspace while the Order is %s',
+  async (status) => {
+    vi.mocked(ordersApi.getOrder).mockResolvedValue({
+      id: 'order',
+      status,
+      checklistItems,
+      customer: { fullName: 'Customer' },
+    } as OrderDetail)
+    const create = vi
+      .spyOn(deliveryApi, 'managerCreateReworkMission')
+      .mockImplementation(async () => {
+        missions.push(reworkMission())
+        assignments['rework-1'] = ['A', 'B']
+        revisionCase.items
+          .filter((item) => item.strategy === 'REWORK')
+          .forEach((item) => {
+            item.assignedReworkMissionId = 'rework-1'
+            item.assignedReworkMissionStatus = 'PLANNING'
+          })
+        return {
+          caseId: 'case',
+          missionId: 'rework-1',
+          missionCode: 'MS-REWORK',
+          status: 'PLANNING',
+          checklistCount: 2,
+        }
+      })
+    const finalizeOriginal = vi.spyOn(planningApi, 'finalizeExecutionPlan')
+    const createOriginal = vi.spyOn(missionsApi, 'createMission')
+    render(<ReworkPlanningPage orderId="order" caseId="case" />)
+    const sidebar = await screen.findByRole('complementary')
+    expect(within(sidebar).getByText('Công việc A')).toBeInTheDocument()
+    expect(within(sidebar).getByText('Công việc B')).toBeInTheDocument()
+    expect(within(sidebar).queryByText('Công việc C')).not.toBeInTheDocument()
+    expect(screen.queryByText('MS-ORIGINAL')).not.toBeInTheDocument()
+    expect(
+      screen.queryByText(/Đang chờ khách hàng thanh toán đặt cọc/),
+    ).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /Thêm mới nhiệm vụ/ }))
+    const dialog = await screen.findByRole('dialog', {
+      name: 'Tạo nhiệm vụ thực hiện lại',
     })
-  const finalizeOriginal = vi.spyOn(planningApi, 'finalizeExecutionPlan')
-  const createOriginal = vi.spyOn(missionsApi, 'createMission')
-  render(<ReworkPlanningPage orderId="order" caseId="case" />)
-  const sidebar = await screen.findByRole('complementary')
-  expect(within(sidebar).getByText('Công việc A')).toBeInTheDocument()
-  expect(within(sidebar).getByText('Công việc B')).toBeInTheDocument()
-  expect(within(sidebar).queryByText('Công việc C')).not.toBeInTheDocument()
-  expect(screen.queryByText('MS-ORIGINAL')).not.toBeInTheDocument()
-  expect(
-    screen.queryByText(/Đang chờ khách hàng thanh toán đặt cọc/),
-  ).not.toBeInTheDocument()
-  fireEvent.click(screen.getByRole('button', { name: /Thêm mới nhiệm vụ/ }))
-  const dialog = await screen.findByRole('dialog', {
-    name: 'Tạo nhiệm vụ thực hiện lại',
-  })
-  await waitFor(() =>
-    expect(dialog.querySelector('.odm-plan-page')).toHaveClass('is-embedded'),
-  )
-  fireEvent.change(within(dialog).getByLabelText('Giờ cất cánh'), {
-    target: { value: '2099-11-11T10:00' },
-  })
-  fireEvent.change(within(dialog).getByLabelText('Giờ kết thúc dự kiến'), {
-    target: { value: '2099-11-11T11:00' },
-  })
-  fireEvent.click(
-    within(dialog).getByRole('button', { name: 'Tạo nhiệm vụ thực hiện lại' }),
-  )
-  await screen.findByRole('article', { name: 'MS-REWORK' })
-  expect(create).toHaveBeenCalledWith(
-    'case',
-    expect.objectContaining({ caseItemIds: ['case-A', 'case-B'] }),
-  )
-  expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-  expect(window.location.hash).toBe('#portal/manager/orders/order/rework/case')
-  expect(finalizeOriginal).not.toHaveBeenCalled()
-  expect(createOriginal).not.toHaveBeenCalled()
-})
+    await waitFor(() =>
+      expect(dialog.querySelector('.odm-plan-page')).toHaveClass('is-embedded'),
+    )
+    fireEvent.change(within(dialog).getByLabelText('Giờ cất cánh'), {
+      target: { value: '2099-11-11T10:00' },
+    })
+    fireEvent.change(within(dialog).getByLabelText('Giờ kết thúc dự kiến'), {
+      target: { value: '2099-11-11T11:00' },
+    })
+    fireEvent.click(
+      within(dialog).getByRole('button', {
+        name: 'Tạo nhiệm vụ thực hiện lại',
+      }),
+    )
+    await screen.findByRole('article', { name: 'MS-REWORK' })
+    expect(create).toHaveBeenCalledWith(
+      'case',
+      expect.objectContaining({ caseItemIds: ['case-A', 'case-B'] }),
+    )
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(window.location.hash).toBe(
+      '#portal/manager/orders/order/rework/case',
+    )
+    expect(finalizeOriginal).not.toHaveBeenCalled()
+    expect(createOriginal).not.toHaveBeenCalled()
+  },
+)
 
 it('finalizes the complete rework plan and automatically opens flight permits', async () => {
   missions.push(reworkMission())

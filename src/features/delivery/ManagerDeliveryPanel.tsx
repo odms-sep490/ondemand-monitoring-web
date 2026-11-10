@@ -33,18 +33,41 @@ import type { DeliveryAsset } from './types'
 import { DeliveryReplacementPicker } from './DeliveryReplacementPicker'
 import { DeliveryImagePreview } from './DeliveryImagePreview'
 import './delivery.css'
+import { MissionDeliveryTabs } from './MissionDeliveryTabs'
 
 type ReplacementSelection = Record<string, string>
 type DeliveryDraftStatus =
   'idle' | 'saving' | 'saved' | 'error' | 'stale' | 'conflict'
 
-export function ManagerDeliveryPanel({
+type ManagerDeliveryPanelProps = {
+  orderId: string
+  refreshKey?: number
+  allowLegacyPublication?: boolean
+  initialMissionId?: string
+}
+export function ManagerDeliveryPanel(props: ManagerDeliveryPanelProps) {
+  return (
+    <MissionDeliveryTabs
+      orderId={props.orderId}
+      manager
+      initialMissionId={props.initialMissionId}
+    >
+      {(missionId) => (
+        <ScopedManagerDeliveryPanel {...props} missionId={missionId} />
+      )}
+    </MissionDeliveryTabs>
+  )
+}
+
+function ScopedManagerDeliveryPanel({
   orderId,
   refreshKey = 0,
   allowLegacyPublication = false,
+  missionId,
 }: {
   orderId: string
   refreshKey?: number
+  missionId?: string
   allowLegacyPublication?: boolean
 }) {
   const { t: fb } = useI18n(managerDeliveryFeedbackMessages)
@@ -101,10 +124,10 @@ export function ManagerDeliveryPanel({
     setError(null)
     const [deliveryResult, checklistResult, caseResult, draftResult] =
       await Promise.allSettled([
-        deliveryApi.managerGet(orderId),
-        deliveryApi.managerGetChecklists(orderId),
+        deliveryApi.managerGet(orderId, undefined, missionId),
+        deliveryApi.managerGetChecklists(orderId, undefined, missionId),
         deliveryApi.managerGetRevisionCase(orderId),
-        deliveryApi.managerGetChecklistDraft(orderId),
+        deliveryApi.managerGetChecklistDraft(orderId, undefined, missionId),
       ])
     let loadError: string | null = null
     if (deliveryResult.status === 'fulfilled') setDelivery(deliveryResult.value)
@@ -227,7 +250,7 @@ export function ManagerDeliveryPanel({
           : t.loadFailed
     }
     setError(loadError)
-  }, [orderId, refreshKey, t.loadFailed])
+  }, [orderId, missionId, refreshKey, t.loadFailed])
 
   useEffect(() => {
     void load()
@@ -262,14 +285,18 @@ export function ManagerDeliveryPanel({
         .catch(() => undefined)
         .then(async () => {
           try {
-            const saved = await deliveryApi.managerSaveChecklistDraft(orderId, {
-              expectedDraftVersion: draftVersionRef.current,
-              caseId: revisionCase?.caseId ?? null,
-              baseReviewRoundId: checklistDelivery.currentReviewRoundId,
-              expectedDeliveryVersion: checklistDelivery.deliveryVersion,
-              notes,
-              checklists: operations,
-            })
+            const saved = await deliveryApi.managerSaveChecklistDraft(
+              orderId,
+              {
+                expectedDraftVersion: draftVersionRef.current,
+                caseId: revisionCase?.caseId ?? null,
+                baseReviewRoundId: checklistDelivery.currentReviewRoundId,
+                expectedDeliveryVersion: checklistDelivery.deliveryVersion,
+                notes,
+                checklists: operations,
+              },
+              missionId,
+            )
             draftVersionRef.current = saved.version
             setDeliveryDraft(saved)
             if (draftChangeRevisionRef.current === changeRevision) {
@@ -326,6 +353,16 @@ export function ManagerDeliveryPanel({
     ['READY_FOR_MANAGER_REVIEW', 'REVISION_REQUESTED'].includes(
       delivery?.deliveryStatus ?? '',
     )
+  const scopedCaseItems = useMemo(() => {
+    if (!missionId) return revisionCase?.items ?? []
+    const checklistIds = new Set(
+      checklistDelivery?.checklists.map((item) => item.orderChecklistItemId),
+    )
+    return (revisionCase?.items ?? []).filter((item) =>
+      checklistIds.has(item.orderChecklistItemId),
+    )
+  }, [missionId, revisionCase, checklistDelivery])
+
   const checklistItems = useMemo(
     () =>
       (checklistDelivery?.checklists ?? []).map((item) => ({
@@ -429,7 +466,11 @@ export function ManagerDeliveryPanel({
     setBusy(true)
     setError(null)
     try {
-      const result = await deliveryApi.managerPublishChecklists(orderId, body)
+      const result = await deliveryApi.managerPublishChecklists(
+        orderId,
+        body,
+        missionId,
+      )
       if (draftTimerRef.current) clearTimeout(draftTimerRef.current)
       setDelivery(result)
       setDeliveryDraft(null)
@@ -550,6 +591,7 @@ export function ManagerDeliveryPanel({
       await deliveryApi.managerClearChecklistDraft(
         orderId,
         deliveryDraft?.version ?? draftVersionRef.current,
+        missionId,
       )
       setDeliveryDraft(null)
       draftVersionRef.current = 0
@@ -881,7 +923,7 @@ export function ManagerDeliveryPanel({
             </div>
             <Collapse
               className="delivery-review-collapse"
-              items={revisionCase.items.map((item, index) => {
+              items={scopedCaseItems.map((item, index) => {
                 const draft = decisionDrafts[item.caseItemId] ?? {
                   scope: 'IN_SCOPE' as const,
                   strategy: 'UNDECIDED' as const,
@@ -926,6 +968,7 @@ export function ManagerDeliveryPanel({
                       <div className="delivery-case-feedback">
                         {item.feedback.map((feedback) => (
                           <article key={feedback.requestId}>
+                            <Tag>{t.feedbackRound(feedback.roundNumber)}</Tag>
                             <Tag>
                               {t.reasonCode} ·{' '}
                               {reviewLabels.reasonCodes[feedback.reasonCode]}
@@ -934,6 +977,48 @@ export function ManagerDeliveryPanel({
                             <small>
                               {new Date(feedback.submittedAt).toLocaleString()}
                             </small>
+                            <div className="delivery-feedback-evidence">
+                              <Typography.Text strong>
+                                {t.flaggedMedia}
+                              </Typography.Text>
+                              {(feedback.evidence ?? []).length > 0 ? (
+                                <div className="delivery-feedback-evidence-grid">
+                                  {(feedback.evidence ?? []).map((evidence) => (
+                                    <div
+                                      className="delivery-feedback-evidence-card"
+                                      key={evidence.roundEvidenceId}
+                                    >
+                                      {evidence.accessReason ? (
+                                        <Typography.Text type="secondary">
+                                          {evidence.accessReason ===
+                                          'RETENTION_EXPIRED'
+                                            ? t.flaggedMediaExpired
+                                            : t.replacementPreviewUnavailable}
+                                        </Typography.Text>
+                                      ) : (
+                                        <MediaPreview
+                                          asset={{
+                                            ...evidence,
+                                            id: evidence.mediaAssetId,
+                                          }}
+                                        />
+                                      )}
+                                      <Typography.Text
+                                        ellipsis={{
+                                          tooltip: evidence.fileName,
+                                        }}
+                                      >
+                                        {evidence.fileName}
+                                      </Typography.Text>
+                                    </div>
+                                  ))}
+                                </div>
+                              ) : (
+                                <Typography.Text type="secondary">
+                                  {t.noFlaggedMedia}
+                                </Typography.Text>
+                              )}
+                            </div>
                           </article>
                         ))}
                       </div>
@@ -1104,7 +1189,7 @@ export function ManagerDeliveryPanel({
                 }
               })}
             />
-            {revisionCase.items.some(canCreateRework) ? (
+            {scopedCaseItems.some(canCreateRework) ? (
               <div className="delivery-rework-create">
                 <Typography.Title level={5}>{t.reworkMission}</Typography.Title>
                 <Typography.Paragraph type="secondary">
@@ -1162,7 +1247,7 @@ export function ManagerDeliveryPanel({
                 })
                 if (ok)
                   await runAction(
-                    () => deliveryApi.releaseOriginals(orderId),
+                    () => deliveryApi.releaseOriginals(orderId, missionId),
                     fb.originalsReleased,
                     setDelivery,
                     setError,
@@ -1550,10 +1635,21 @@ async function runAction(
 function MediaPreview({ asset }: { asset: DeliveryAsset }) {
   const { t } = useI18n(managerDeliveryPanelMessages)
   if (!asset.previewUrl) {
-    return <span className="delivery-replacement-unavailable">{t.replacementPreviewUnavailable}</span>
+    return (
+      <span className="delivery-replacement-unavailable">
+        {t.replacementPreviewUnavailable}
+      </span>
+    )
   }
   return asset.type.toUpperCase().includes('VIDEO') ? (
-    <VideoThumbnail src={asset.previewUrl} poster={asset.thumbnailUrl} fallbackUrl={asset.url} fileName={asset.fileName} fileSize={asset.size} original={asset.previewStatus !== 'READY'} />
+    <VideoThumbnail
+      src={asset.previewUrl}
+      poster={asset.thumbnailUrl}
+      fallbackUrl={asset.url}
+      fileName={asset.fileName}
+      fileSize={asset.size}
+      original={asset.previewStatus !== 'READY'}
+    />
   ) : (
     <DeliveryImagePreview
       src={asset.thumbnailUrl ?? asset.previewUrl}
