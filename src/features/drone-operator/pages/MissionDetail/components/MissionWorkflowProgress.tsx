@@ -25,7 +25,7 @@ export function MissionWorkflowProgress({
   const accepted = mission.acceptedStaffCount ?? 0
   const total = mission.assignedStaffCount ?? 0
   const crewAccepted = total > 0 && accepted >= total
-  const totalSteps = 8
+  const totalSteps = 7
 
   let currentStep = -1
   let detail: string | null = t.workflowTerminal
@@ -43,10 +43,10 @@ export function MissionWorkflowProgress({
     status === 'PENDING_REVIEW' ||
     resultApprovalStatus === 'PENDING_MANAGER_APPROVAL'
   ) {
-    currentStep = 7
+    currentStep = 6
     detail = t.workflowManagerReview
   } else if (mission.completedAt) {
-    currentStep = 7
+    currentStep = 6
     detail = t.workflowSubmitResult
   } else if (
     status === 'IN_PROGRESS' ||
@@ -55,20 +55,20 @@ export function MissionWorkflowProgress({
     status === 'POSTFLIGHT_CHECKING'
   ) {
     if (deviceStatus === 'COMPLETED' || mission.actualEndAt) {
-      currentStep = 7
+      currentStep = 6
       detail = t.workflowSubmitResult
     } else if (deviceStatus === 'POSTFLIGHT_CHECKING') {
-      currentStep = 6
+      currentStep = 5
       detail = t.workflowPostflight
     } else if (deviceStatus === 'RETURNING' || status === 'RETURNING') {
-      currentStep = 5
+      currentStep = 4
       detail = t.workflowReturning
     } else {
-      currentStep = 5
+      currentStep = 4
       detail = t.workflowFlight
     }
   } else if (status === 'READY') {
-    currentStep = 4
+    currentStep = 3
     const permitApproved = mission.flightPermitStatus === 'APPROVED'
     const weatherFresh = isWeatherCheckFreshAfterPermit(
       weather,
@@ -101,16 +101,21 @@ export function MissionWorkflowProgress({
           ? t.workflowWaitCrew(accepted, total)
           : t.workflowAcceptMission
     } else if (devicePassedPreflight && !crewAccepted) {
-      currentStep = 4
+      currentStep = 3
       detail = t.workflowWaitCrewForHandover(accepted, total)
     } else if (deviceStatus === 'READY_TO_FLY') {
-      currentStep = 4
-      detail = t.workflowHandover
-    } else if (deviceStatus === 'CONNECTED' || deviceStatus === 'PREFLIGHT_CHECKING') {
       currentStep = 3
+      detail = t.workflowHandover
+    } else if (
+      deviceStatus === 'ASSIGNED' ||
+      deviceStatus === 'CONNECTION_LOST' ||
+      deviceStatus === 'CONNECTED' ||
+      deviceStatus === 'PREFLIGHT_CHECKING'
+    ) {
+      currentStep = 2
       detail = t.workflowPreflight
     } else if (deviceStatus === 'FAILED') {
-      currentStep = 3
+      currentStep = 2
       detail = t.workflowPreflightFailed
     } else if (crewAccepted) {
       currentStep = 2

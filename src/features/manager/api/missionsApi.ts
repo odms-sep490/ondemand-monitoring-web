@@ -179,6 +179,17 @@ export const missionsApi = {
     )
   },
 
+  /** `DELETE /api/missions/{id}/device-replacement-requests/{assignmentId}` [BE]. */
+  cancelDeviceReplacementRequest(
+    missionId: string,
+    assignmentId: string,
+  ): Promise<MissionResponse> {
+    return apiRequest<MissionResponse>(
+      `/api/missions/${encodeURIComponent(missionId)}/device-replacement-requests/${encodeURIComponent(assignmentId)}`,
+      { method: 'DELETE' },
+    )
+  },
+
   /** `POST /api/missions/{id}/staff-assignments` [BE]. */
   assignOperator(
     missionId: string,

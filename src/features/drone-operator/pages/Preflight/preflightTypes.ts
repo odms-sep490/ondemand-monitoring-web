@@ -11,6 +11,7 @@ export type RuntimeCheck = {
   status: RuntimeStatus
   message: string
   critical: boolean
+  measuredValue?: string | null
 }
 
 export type RuntimePreflightStatus = {
@@ -28,6 +29,7 @@ export type PersistedPreflightStatus =
 
 export type PersistedPreflightCheck = {
   id: string
+  deviceAssignmentId?: string | null
   deviceId?: string | null
   status: PersistedPreflightStatus
   progressPercent: number
@@ -39,6 +41,7 @@ export type PersistedPreflightCheck = {
     status: PersistedPreflightItemStatus
     checkLevel: 'CRITICAL' | 'WARNING' | 'INFO'
     message?: string | null
+    measuredValue?: string | null
   }>
 }
 
@@ -95,6 +98,7 @@ export type ItemState = {
   result: PreflightItemResult | null
   detail?: string
   message?: string
+  measuredValue?: string | null
   status?: RuntimeStatus
 }
 

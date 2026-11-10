@@ -129,6 +129,8 @@ export function DetailPanel({ mission, onClose, t, locale, onResourceChanged }: 
   const [replacementLoading, setReplacementLoading] = useState(false)
   const [replacementBusy, setReplacementBusy] = useState(false)
   const [replacementError, setReplacementError] = useState('')
+  const [cancelingReplacementRequestId, setCancelingReplacementRequestId] =
+    useState<string | null>(null)
   const rows: Array<{ label: string; value: string }> = []
   if (mission.orderCode) rows.push({ label: t.fields.order, value: formatOrderCode(mission.orderCode) })
   if (mission.serviceLabel) rows.push({ label: t.fields.service, value: mission.serviceLabel })
@@ -146,6 +148,8 @@ export function DetailPanel({ mission, onClose, t, locale, onResourceChanged }: 
   const accepted = staffGroups.filter((item) => item.responseStatus === 'ACCEPTED').length
   const canReplaceResources =
     ['PENDING_PAYMENT', 'PENDING_CONFIRMATION', 'READY'].includes(mission.status)
+  const canCancelReplacementRequest =
+    ['PENDING_CONFIRMATION', 'READY'].includes(mission.status)
 
   async function openDeviceReplacement(assignment: MissionDeviceAssignmentResponse) {
     setReplacementTarget({ kind: 'DEVICE', targetId: assignment.id })
@@ -218,6 +222,23 @@ export function DetailPanel({ mission, onClose, t, locale, onResourceChanged }: 
       setReplacementError(error instanceof Error ? error.message : t.assignments.replacementError)
     } finally {
       setReplacementBusy(false)
+    }
+  }
+
+  async function cancelDeviceReplacementRequest(assignmentId: string) {
+    setCancelingReplacementRequestId(assignmentId)
+    try {
+      await missionsApi.cancelDeviceReplacementRequest(mission.id, assignmentId)
+      message.success(t.assignments.replacementRequestCancelled)
+      onResourceChanged()
+    } catch (error) {
+      message.error(
+        error instanceof Error
+          ? error.message
+          : t.assignments.replacementRequestCancelError,
+      )
+    } finally {
+      setCancelingReplacementRequestId(null)
     }
   }
 
@@ -342,6 +363,19 @@ export function DetailPanel({ mission, onClose, t, locale, onResourceChanged }: 
                                 ?? assignment.replacementRequestedBy
                               : t.assignments.replacementRequesterFallback}
                           </div>
+                        <div>{t.assignments.replacementRequestNote}</div>
+                        {canCancelReplacementRequest ? (
+                          <Button
+                            type="link"
+                            size="small"
+                            danger
+                            loading={cancelingReplacementRequestId === assignment.id}
+                            disabled={replacementBusy || Boolean(cancelingReplacementRequestId)}
+                            onClick={() => void cancelDeviceReplacementRequest(assignment.id)}
+                          >
+                            {t.assignments.cancelReplacementRequest}
+                          </Button>
+                        ) : null}
                         </div>
                       )}
                     />

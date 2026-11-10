@@ -368,7 +368,7 @@ function UploadMediaContent({
         title={mode === 'checklist' ? t.checklistTitle : t.mediaTitle}
         missionId={missionLabel}
         idTitle={missionId ?? undefined}
-        active={7}
+        active={6}
         right={
           <span className="upload-media-device">{deviceLabel ?? '—'}</span>
         }

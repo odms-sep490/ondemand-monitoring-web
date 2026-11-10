@@ -15,7 +15,7 @@ export const missionDetailPageMessages = defineMessages({
     deviceShortLabel: 'Thiết bị',
     handoverShortLabel: 'Bàn giao',
     crewAcceptanceComplete: 'Toàn bộ staff đã chấp nhận nhiệm vụ',
-    devicePreflightComplete: 'Thiết bị đã kết nối và kiểm tra trước bay đạt',
+    devicePreflightComplete: 'Thiết bị đã được kiểm tra trước bay và đạt',
     controlHandoverComplete: 'Operator đã bàn giao quyền điều khiển',
     checkWeather: 'Kiểm tra thời tiết',
     refreshWeather: 'Kiểm tra lại thời tiết',
@@ -49,11 +49,11 @@ export const missionDetailPageMessages = defineMessages({
     statusWaitingCrew: (accepted: number, total: number) =>
       `Chờ nhân sự chấp nhận · ${accepted}/${total}`,
     statusOperatorPreflight: (accepted: number, total: number) =>
-      `Operator đã nhận · ${accepted}/${total} staff đã nhận · có thể kết nối và precheck`,
+      `Operator đã nhận · ${accepted}/${total} staff đã nhận · có thể kiểm tra trước bay`,
     statusPreflightReadyWaitingCrew: (accepted: number, total: number) =>
       `Precheck đạt · chờ staff còn lại chấp nhận · ${accepted}/${total}`,
-    statusWaitingConnection: 'Nhân sự đã nhận · chờ kết nối thiết bị',
-    statusConnected: 'Thiết bị đã kết nối · chờ kiểm tra trước bay',
+    statusWaitingConnection: 'Nhân sự đã nhận · chờ kiểm tra trước bay',
+    statusConnected: 'Thiết bị đã gán · chờ kiểm tra trước bay',
     statusPreflight: 'Đang kiểm tra thiết bị trước bay',
     statusPreflightFailed: 'Kiểm tra thiết bị trước bay chưa đạt',
     statusHandover: 'Thiết bị đạt · chờ bàn giao',
@@ -68,7 +68,7 @@ export const missionDetailPageMessages = defineMessages({
       `${accepted}/${total} nhân sự đã chấp nhận. Chờ toàn bộ đội bay xác nhận.`,
     workflowWaitCrewForHandover: (accepted: number, total: number) =>
       `Precheck đã đạt. Đang chờ đủ staff chấp nhận (${accepted}/${total}) trước khi bàn giao.`,
-    workflowPreflight: 'Thiết bị đã kết nối. Operator đang kiểm tra trước bay.',
+    workflowPreflight: 'Operator đang hoàn tất các mục kiểm tra trước bay.',
     workflowPreflightFailed: 'Kiểm tra trước bay chưa đạt. Nhân viên vận hành cần xử lý lỗi và kiểm tra lại.',
     workflowHandover: 'Kiểm tra trước bay đạt. Nhân viên vận hành bàn giao quyền điều khiển cho nghiệm thu.',
     workflowWeatherCheck: 'Nghiệm thu xem số liệu thời tiết, xác nhận đạt rồi mới bấm Start.',
@@ -99,7 +99,7 @@ export const missionDetailPageMessages = defineMessages({
     deviceShortLabel: 'Device',
     handoverShortLabel: 'Handover',
     crewAcceptanceComplete: 'All assigned staff accepted the mission',
-    devicePreflightComplete: 'Device connected and preflight passed',
+    devicePreflightComplete: 'Device passed the preflight inspection',
     controlHandoverComplete: 'Operator handed over control',
     checkWeather: 'Check weather',
     refreshWeather: 'Check weather again',
@@ -133,11 +133,11 @@ export const missionDetailPageMessages = defineMessages({
     statusWaitingCrew: (accepted: number, total: number) =>
       `Waiting for crew acceptance · ${accepted}/${total}`,
     statusOperatorPreflight: (accepted: number, total: number) =>
-      `Operator accepted · ${accepted}/${total} staff accepted · device connection and preflight can begin`,
+      `Operator accepted · ${accepted}/${total} staff accepted · preflight inspection can begin`,
     statusPreflightReadyWaitingCrew: (accepted: number, total: number) =>
       `Preflight passed · waiting for the rest of the crew · ${accepted}/${total}`,
-    statusWaitingConnection: 'Crew accepted · waiting for device connection',
-    statusConnected: 'Device connected · preflight required',
+    statusWaitingConnection: 'Crew accepted · waiting for preflight inspection',
+    statusConnected: 'Device assigned · preflight inspection required',
     statusPreflight: 'Device preflight in progress',
     statusPreflightFailed: 'Device preflight did not pass',
     statusHandover: 'Device ready · waiting for handover',
@@ -152,7 +152,7 @@ export const missionDetailPageMessages = defineMessages({
       `${accepted}/${total} staff accepted. Waiting for the full crew.`,
     workflowWaitCrewForHandover: (accepted: number, total: number) =>
       `Preflight passed. Waiting for all staff to accept (${accepted}/${total}) before handover.`,
-    workflowPreflight: 'Device connected. The operator is running preflight.',
+    workflowPreflight: 'The operator is completing preflight checks.',
     workflowPreflightFailed: 'Preflight did not pass. Resolve the issue and check again.',
     workflowHandover: 'Preflight passed. The operator hands control to the inspector.',
     workflowWeatherCheck: 'The inspector reviews weather and approves it before starting.',

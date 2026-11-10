@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useI18n } from '../../../../shared/i18n'
 import { missionApi } from '../../../mission/api/missionApi'
-import { flightControlApi } from '../../api/flightControlApi'
 import { useActiveMission } from '../../api/useActiveMission'
 import { formatDeviceLabel } from '../../lib/deviceLabel'
 import { operatorHref } from '../../routes'
@@ -78,16 +77,15 @@ export function PreflightPage({ missionId }: { missionId?: string }) {
         })
         return
       }
-      await flightControlApi.bindSession(mission.missionId, deviceId)
-      const deviceAlreadyPassed = data?.deviceAssignments?.some(
+      const latestMission = await missionApi.getMissionById(mission.missionId)
+      const deviceAlreadyPassed = latestMission.deviceAssignments?.some(
         (assignment) =>
           assignment.deviceRole === 'MAIN' &&
           assignment.deviceId === deviceId &&
           assignment.status === 'READY_TO_FLY',
       )
-      if (!deviceAlreadyPassed) {
-        await missionApi.runPreflightCheck(mission.missionId, deviceId)
-      }
+      if (!deviceAlreadyPassed)
+        throw new Error(t.backendPreflightUnconfirmed)
       window.location.hash = operatorHref({
         screen: 'handover',
         missionId: mission.missionId,
@@ -133,6 +131,7 @@ export function PreflightPage({ missionId }: { missionId?: string }) {
         replacementRequestPending={Boolean(
           currentDeviceAssignment?.replacementRequestedAt,
         )}
+        manualOnly
         onReady={() => {
           void handleContinueToHandover()
         }}

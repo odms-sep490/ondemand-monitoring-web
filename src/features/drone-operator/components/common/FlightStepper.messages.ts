@@ -5,7 +5,6 @@ export const flightStepperMessages = defineMessages({
     steps: [
       { key: 'accept', label: 'Nhận' },
       { key: 'ready', label: 'Sẵn sàng' },
-      { key: 'connect', label: 'Kết nối' },
       { key: 'preflight', label: 'Kiểm tra trước bay' },
       { key: 'handover', label: 'Bàn giao' },
       { key: 'flight', label: 'Bay' },
@@ -26,7 +25,6 @@ export const flightStepperMessages = defineMessages({
     steps: [
       { key: 'accept', label: 'Accept' },
       { key: 'ready', label: 'Ready' },
-      { key: 'connect', label: 'Connect' },
       { key: 'preflight', label: 'Preflight' },
       { key: 'handover', label: 'Handover' },
       { key: 'flight', label: 'Flight' },

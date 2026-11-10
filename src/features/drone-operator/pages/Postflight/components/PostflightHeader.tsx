@@ -20,7 +20,7 @@ export function PostflightHeader({
     <FlightStepHeader
       title={t.stepTitle}
       missionId={missionLabel}
-      active={6}
+      active={5}
       right={
         <div className="postflight-header-actions">
           {postflightMissions.length > 0 && (

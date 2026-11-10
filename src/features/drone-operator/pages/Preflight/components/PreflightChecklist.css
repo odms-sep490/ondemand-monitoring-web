@@ -120,6 +120,35 @@
   white-space: nowrap;
 }
 
+.preflight-item-row__battery-entry {
+  display: grid;
+  width: min(260px, 100%);
+  gap: 5px;
+  justify-self: end;
+  color: var(--tx3);
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.preflight-item-row__battery-controls {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.preflight-item-row__battery-controls .odm-input {
+  flex: 1 1 0%;
+  width: 1%;
+  min-width: 0;
+  height: 36px;
+  padding-block: 5px;
+}
+
+.preflight-item-row__battery-error {
+  color: var(--red-fg);
+  font-size: 11px;
+}
+
 .preflight-item-row__failure {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -377,7 +406,8 @@
   }
 
   .preflight-item-row__result,
-  .preflight-item-row__battery-action {
+  .preflight-item-row__battery-action,
+  .preflight-item-row__battery-entry {
     grid-column: 2;
     justify-self: start;
     margin-top: 4px;
@@ -387,6 +417,10 @@
     max-width: 100%;
     min-width: 0;
     white-space: normal;
+  }
+
+  .preflight-item-row__battery-entry {
+    width: 100%;
   }
 
   .preflight-item-row__failure {

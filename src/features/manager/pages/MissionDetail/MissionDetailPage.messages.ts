@@ -149,10 +149,10 @@ export const missionDetailPageMessages = defineMessages({
           'Tổ bay cần nhận nhiệm vụ, kiểm tra thiết bị trước bay và bàn giao quyền trước khi nghiệm thu bắt đầu nhiệm vụ.',
         scheduledTitle: 'Đang chuẩn bị trước bay',
         scheduledDetail:
-          'Đội bay sẽ kết nối thiết bị và kiểm tra trước chuyến bay.',
+          'Đội bay kiểm tra thiết bị thực tế theo checklist trước chuyến bay.',
         connectionTitle: 'Đang chờ kiểm tra thiết bị',
         connectionDetail:
-          'Thiết bị đã kết nối. Nhân sự vận hành cần hoàn tất kiểm tra trước bay và bàn giao.',
+          'Nhân sự vận hành cần hoàn tất checklist trước bay và bàn giao.',
         preflightTitle: 'Đang kiểm tra trước bay',
         preflightDetail:
           'Nhân sự vận hành đang kiểm tra thiết bị và điều kiện an toàn trước khi cất cánh.',
@@ -331,10 +331,10 @@ export const missionDetailPageMessages = defineMessages({
           'The crew must accept, run preflight, and hand over control before the inspector starts the Mission.',
         scheduledTitle: 'Preparing for preflight',
         scheduledDetail:
-          'The flight crew will connect the device and run the pre-flight check.',
+          'The flight crew inspects the physical device using the preflight checklist.',
         connectionTitle: 'Waiting for pre-flight checks',
         connectionDetail:
-          'The device is connected. Operations staff must finish pre-flight checks and hand over control.',
+          'Operations staff must finish the preflight checklist and hand over control.',
         preflightTitle: 'Pre-flight checks in progress',
         preflightDetail:
           'Operations staff are checking the device and safety conditions before take-off.',

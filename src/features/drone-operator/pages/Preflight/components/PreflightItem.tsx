@@ -31,8 +31,8 @@ export function preflightGroups(
           'battery_health',
           text('Pin máy bay', 'Aircraft battery'),
           text(
-            'Dung lượng và tình trạng pin theo dữ liệu thiết bị',
-            'Battery level and condition from device telemetry',
+            'Nhập mức pin trên thiết bị; hệ thống sẽ đối chiếu ngưỡng tối thiểu của model (0–100%)',
+            'Enter the battery level shown on the device; the system checks the model minimum (0–100%)',
           ),
         ),
         item(
@@ -76,37 +76,40 @@ export function preflightGroups(
           'aircraft_connection',
           text('Kết nối máy bay', 'Aircraft connection'),
           text(
-            'Kết nối đang hoạt động và telemetry còn mới',
-            'Connection is active and telemetry is current',
+            'Người vận hành xác nhận thiết bị đã bật và sẵn sàng kết nối',
+            'Operator confirms the aircraft is powered on and ready to connect',
           ),
         ),
         item(
           'command_link',
           text('Tín hiệu điều khiển', 'Command link'),
           text(
-            'Chất lượng đường truyền lệnh điều khiển',
-            'Command-link signal quality',
+            'Người vận hành xác nhận đường truyền điều khiển',
+            'Operator confirms the command link',
           ),
         ),
         item(
           'flight_controller',
           text('Bộ điều khiển máy bay', 'Flight controller'),
-          text('Tình trạng bộ điều khiển bay', 'Flight-controller condition'),
+          text(
+            'Người vận hành xác nhận bộ điều khiển bay sẵn sàng',
+            'Operator confirms the flight controller is ready',
+          ),
         ),
         item(
           'aircraft_readiness',
           text('Trạng thái sẵn sàng bay', 'Aircraft readiness'),
           text(
-            'Khả năng sẵn sàng bay do thiết bị xác nhận',
-            'Readiness confirmed by the aircraft',
+            'Người vận hành xác nhận thiết bị sẵn sàng bay',
+            'Operator confirms the aircraft is ready for flight',
           ),
         ),
         item(
           'monitoring_connection',
           text('Kết nối giám sát', 'Monitoring connection'),
           text(
-            'Dữ liệu giám sát được cập nhật liên tục',
-            'Monitoring data updates continuously',
+            'Người vận hành xác nhận hệ thống giám sát sẵn sàng',
+            'Operator confirms the monitoring system is ready',
           ),
         ),
         item(

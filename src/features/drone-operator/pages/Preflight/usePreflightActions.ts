@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { clearStoredPreflightState } from './preflightStorage'
 import {
   NO_MISSION_SENTINEL,
@@ -42,7 +43,11 @@ export function usePreflightActions({
   ALL_ITEMS: PreflightItemDef[]
 }) {
   const { t } = useI18n(preflightPageMessages)
+  const startingPreflightRef = useRef(false)
+
   async function handleTriggerCheck() {
+    if (startingPreflightRef.current) return
+    startingPreflightRef.current = true
     setTriggering(true)
     setError(null)
     setCheckId(null)
@@ -80,6 +85,7 @@ export function usePreflightActions({
       setRuntimeStatus(null)
       setError(t.triggerFailed)
     } finally {
+      startingPreflightRef.current = false
       setTriggering(false)
     }
   }

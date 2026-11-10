@@ -20,7 +20,6 @@ describe('RuntimePreflightItemRow', () => {
         manual={false}
         updating={false}
         onUpdate={vi.fn()}
-        onRecheck={vi.fn()}
       />,
     )
 
