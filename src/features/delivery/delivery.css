@@ -809,6 +809,28 @@
   object-fit: cover;
   border-radius: 8px;
 }
+.delivery-checklist-editor {
+  display: grid;
+  gap: 14px;
+}
+.delivery-checklist-customer-review {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #f5c27a;
+  border-radius: 10px;
+  background: #fffbeb;
+}
+.delivery-checklist-customer-review > article {
+  display: grid;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid #f3d7aa;
+}
+.delivery-checklist-customer-review > article p {
+  margin: 0;
+  color: #475569;
+}
 .delivery-review-item > .delivery-feedback-label {
   margin: 12px 0;
 }
