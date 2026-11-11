@@ -1,14 +1,24 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import '@ant-design/v5-patch-for-react-19'
+import { ConfigProvider, Layout } from 'antd'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 
-import { LanguageToggle } from '../../shared/components/LanguageToggle'
+import { mgrPopupContainer } from '../../shared/components/antd'
 import { Icon, type IconName } from '../../shared/components/Icon'
 import { RoleSidebar } from '../../shared/components/RoleSidebar'
 import { useI18n } from '../../shared/i18n'
+import {
+  APP_SIDER_RAIL_WIDTH,
+  APP_SIDER_WIDTH,
+  buildAppTheme,
+} from '../../shared/theme/appTheme'
+import '../../shared/styles/app-shell/layout.scss'
+import '../../shared/styles/app-shell/popups.scss'
 import { authSession } from '../auth/api/authApi'
-import { LogoutButton } from '../auth/components/LogoutButton'
-import '../drone-operator/opr.css'
+import { SystemOperatorHeader } from './components/layout/SystemOperatorHeader'
 import './sysop.css'
 import { systemOperatorLayoutMessages } from './SystemOperatorLayout.messages'
+
+const { Sider, Content } = Layout
 
 type NavKey = keyof (typeof systemOperatorLayoutMessages)['vi']['nav']
 
@@ -29,7 +39,7 @@ function activeKey(hash: string): NavKey {
   return found ? found.key : 'overview'
 }
 
-/** Shell for the System Operator portal — same look as the Operator/Manager portals. */
+/** Shell for the System Operator portal — same look as the customer portal. */
 export function SystemOperatorLayout({
   title,
   subtitle,
@@ -44,9 +54,11 @@ export function SystemOperatorLayout({
   const [dark, setDark] = useState(
     () => document.documentElement.dataset.theme === 'dark',
   )
-  const [menuOpen, setMenuOpen] = useState(false)
+  const [collapsed, setCollapsed] = useState(false)
+  const [broken, setBroken] = useState(false)
   const user = authSession.getUser()
   const active = activeKey(hash)
+  const themeConfig = useMemo(() => buildAppTheme(dark), [dark])
 
   useEffect(() => {
     const onHash = () => setHash(window.location.hash)
@@ -58,93 +70,92 @@ export function SystemOperatorLayout({
     document.documentElement.dataset.theme = dark ? 'dark' : 'light'
   }, [dark])
 
+  const overlayOpen = broken && !collapsed
+  // Desktop collapse keeps an icon rail; below the breakpoint the sider hides entirely.
+  const rail = collapsed && !broken
+
   return (
-    <div className="odm odm-opr">
-      <div className="odm-opr-shell">
-        <aside className={`odm-opr-side${menuOpen ? ' is-open' : ''}`}>
-          <RoleSidebar
-            brandHref="#portal/staff/technical"
-            ariaLabel={t.ariaNav}
-            groups={[
-              {
-                key: 'system-operator',
-                label: t.group,
-                items: NAV.map((item) => ({
-                  key: item.key,
-                  label: t.nav[item.key],
-                  icon: <Icon name={item.icon} aria-hidden="true" />,
-                  href: item.href,
-                  active: item.key === active,
-                  onClick: () => setMenuOpen(false),
-                })),
-              },
-            ]}
-            profile={{
-              name: user?.fullName ?? t.userFallback,
-              description: user?.email,
+    <ConfigProvider theme={themeConfig} getPopupContainer={mgrPopupContainer}>
+      <div className="odm odm-sysop mgr-layout">
+        <Layout hasSider className="mgr-shell">
+          <Sider
+            width={APP_SIDER_WIDTH}
+            collapsedWidth={broken ? 0 : APP_SIDER_RAIL_WIDTH}
+            breakpoint="lg"
+            trigger={null}
+            collapsible
+            collapsed={collapsed}
+            style={broken && collapsed ? { transition: 'none' } : undefined}
+            onBreakpoint={(isBroken) => {
+              setBroken(isBroken)
+              setCollapsed(isBroken)
             }}
-            footer={<LogoutButton className="odm-opr-logout" />}
-          />
-        </aside>
+            theme={dark ? 'dark' : 'light'}
+            className={`mgr-sider ${overlayOpen ? 'is-overlay' : ''} ${rail ? 'is-rail' : ''}`}
+          >
+            <RoleSidebar
+              brandHref="#portal/staff/technical"
+              ariaLabel={t.ariaNav}
+              groups={[
+                {
+                  key: 'system-operator',
+                  label: t.group,
+                  items: NAV.map((item) => ({
+                    key: item.key,
+                    label: t.nav[item.key],
+                    icon: (
+                      <Icon
+                        name={item.icon}
+                        width={18}
+                        height={18}
+                        aria-hidden="true"
+                      />
+                    ),
+                    href: item.href,
+                    active: item.key === active,
+                    onClick: () => broken && setCollapsed(true),
+                  })),
+                },
+              ]}
+              profile={{
+                name: user?.fullName ?? t.userFallback,
+                description: user?.email,
+              }}
+              collapsed={rail}
+            />
+          </Sider>
 
-        {menuOpen ? (
-          <button
-            type="button"
-            className="odm-opr-scrim"
-            aria-label={t.closeMenu}
-            onClick={() => setMenuOpen(false)}
-          />
-        ) : null}
-
-        <div className="odm-opr-main">
-          <header className="odm-opr-topbar">
+          {overlayOpen ? (
             <button
               type="button"
-              className="odm-opr-menu-toggle"
-              aria-label={t.openMenu}
-              onClick={() => setMenuOpen(true)}
-            >
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={1.8}
-                strokeLinecap="round"
-                aria-hidden="true"
-              >
-                <path d="M4 7h16M4 12h16M4 17h16" />
-              </svg>
-            </button>
-            <div className="odm-opr-breadcrumb">
-              <span>{t.roleLabel}</span>
-              <span aria-hidden="true">›</span>
-              <strong>{t.nav[active]}</strong>
-            </div>
-            <div className="odm-opr-topbar-actions">
-              <LanguageToggle />
-              <button
-                type="button"
-                className="odm-btn odm-btn-gh odm-btn-ic1"
-                aria-label={t.toggleTheme}
-                onClick={() => setDark((v) => !v)}
-              >
-                {dark ? '☀' : '☾'}
-              </button>
-            </div>
-          </header>
-          <main className="odm-opr-content">
-            {title ? (
-              <div className="odm-sysop-pagehead">
-                <h1>{title}</h1>
-                {subtitle ? <p>{subtitle}</p> : null}
+              className="mgr-scrim"
+              aria-label={t.closeMenu}
+              onClick={() => setCollapsed(true)}
+            />
+          ) : null}
+
+          <Layout className="mgr-main">
+            <SystemOperatorHeader
+              breadcrumb={t.nav[active]}
+              collapsed={collapsed}
+              dark={dark}
+              onToggleSider={() => setCollapsed((v) => !v)}
+              onToggleTheme={() => setDark((v) => !v)}
+            />
+            <Content className="mgr-content">
+              <div className="odm-sysop-content-inner">
+                {title ? (
+                  <div className="odm-sysop-pagehead">
+                    <h1>{title}</h1>
+                    {subtitle ? <p>{subtitle}</p> : null}
+                  </div>
+                ) : null}
+                {children}
               </div>
-            ) : null}
-            {children}
-          </main>
-        </div>
+            </Content>
+          </Layout>
+        </Layout>
       </div>
-    </div>
+    </ConfigProvider>
   )
 }
