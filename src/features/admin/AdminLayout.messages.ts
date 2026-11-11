@@ -17,7 +17,6 @@ export const adminLayoutMessages = defineMessages({
     search: 'Tìm kiếm',
     searchPlaceholder: 'Tìm mã đơn, mission, drone...',
     toggleTheme: 'Đổi giao diện sáng / tối',
-    notifications: 'Thông báo',
     admin: 'Admin',
   },
   en: {
@@ -36,7 +35,6 @@ export const adminLayoutMessages = defineMessages({
     search: 'Search',
     searchPlaceholder: 'Search order, mission, drone id...',
     toggleTheme: 'Switch to light / dark theme',
-    notifications: 'Notifications',
     admin: 'Admin',
   },
 })
