@@ -1673,3 +1673,200 @@
     align-self: flex-start;
   }
 }
+
+/* =========================================================================
+   Responsive layer (desktop >= 1200, tablet 768-1199, mobile 360-767)
+   Mirrors the customer portal breakpoints. Scoped under .odm-adm.
+   ========================================================================= */
+
+.odm-adm .odm-adm-content-inner,
+.odm-adm .odm-adm-content-inner > * {
+  min-width: 0;
+}
+
+/* Tablet and below: KPI grids go 4 -> 2, two-column layouts stack. */
+@media (max-width: 1199px) {
+  .odm-adm .adm-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .odm-adm .adm-grid-wide,
+  .odm-adm .adm-section-grid,
+  .odm-adm .pricing-basic-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Wide tables keep a readable width and scroll inside .ui-table-scroll. */
+  .odm-adm .odm-adm-table {
+    min-width: 720px;
+  }
+
+  .odm-adm .odm-adm-table th,
+  .odm-adm .odm-adm-table td {
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+
+  .odm-adm .odm-adm-table td .adm-cell-email,
+  .odm-adm .odm-adm-table td .adm-wrap {
+    overflow-wrap: anywhere;
+  }
+
+  .odm-adm .ui-table-scroll {
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .odm-adm .adm-grid,
+  .odm-adm .adm-form-pair,
+  .odm-adm .adm-fields,
+  .odm-adm .adm-choice-grid,
+  .odm-adm .pricing-customer-added-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .odm-adm .adm-detail-meta {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+  }
+
+  .odm-adm .adm-detail-meta dd {
+    margin-bottom: var(--adm-space-2);
+  }
+
+  /* Page header: title first, actions wrap full width. */
+  .odm-adm .ui-page-header-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .odm-adm .ui-page-header-text {
+    flex: 0 0 auto;
+  }
+
+  .odm-adm .ui-page-actions {
+    width: 100%;
+  }
+
+  .odm-adm .ui-page-actions > * {
+    flex: 1 1 100%;
+  }
+
+  .odm-adm .adm-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .odm-adm .adm-toolbar > * {
+    min-width: 0;
+  }
+
+  /* Filter bars: every control spans the row. */
+  .odm-adm .odm-adm-filter-row,
+  .odm-adm .odm-adm-account-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .odm-adm .odm-adm-account-search,
+  .odm-adm .odm-adm-account-select,
+  .odm-adm .odm-adm-filter-row > *,
+  .odm-adm .odm-adm-account-filters > * {
+    flex: 1 1 auto;
+    width: 100%;
+    max-width: none;
+  }
+
+  /* Touch targets >= 40px. */
+  .odm-adm .odm-btn,
+  .odm-adm .ui-btn,
+  .odm-adm .odm-inp,
+  .odm-adm select,
+  .odm-adm input:not([type='checkbox']):not([type='radio']):not([type='range']),
+  .odm-adm .adm-tab,
+  .odm-adm .adm-pager button {
+    min-height: 40px;
+  }
+
+  .odm-adm .odm-btn.odm-btn-sm,
+  .odm-adm .odm-btn.odm-btn-ic1,
+  .odm-adm .adm-action-btn,
+  .odm-adm .odm-dialog-close {
+    min-width: 40px;
+    min-height: 40px;
+  }
+
+  .odm-adm .adm-row-actions {
+    justify-content: flex-start;
+  }
+
+  .odm-adm .adm-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    scrollbar-width: none;
+  }
+
+  .odm-adm .adm-tab {
+    flex: none;
+  }
+
+  .odm-adm .adm-pager {
+    flex-wrap: wrap;
+    gap: var(--adm-space-2);
+    justify-content: center;
+  }
+
+  /* Dialogs fit the viewport and scroll their body. */
+  .odm-adm .odm-dialog-backdrop {
+    padding: var(--adm-space-4);
+    align-items: center;
+  }
+
+  .odm-adm .odm-dialog {
+    max-width: calc(100vw - 32px);
+    max-height: calc(100dvh - 32px);
+  }
+
+  .odm-adm .odm-dialog-header,
+  .odm-adm .odm-dialog-body,
+  .odm-adm .odm-dialog-footer {
+    padding-left: var(--adm-space-4);
+    padding-right: var(--adm-space-4);
+  }
+
+  .odm-adm .odm-dialog-footer > .odm-btn,
+  .odm-adm .ui-modal-footer > * {
+    flex: 1 1 100%;
+  }
+
+  .odm-adm .adm-weight-row {
+    flex-wrap: wrap;
+  }
+
+  .odm-adm .adm-service-image,
+  .odm-adm .adm-json-block {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 767px) {
+  .odm-adm .mgr-header .mgr-icon-btn {
+    min-width: 40px;
+    min-height: 40px;
+  }
+
+  .odm-adm .mgr-lang-toggle button {
+    min-height: 36px;
+    min-width: 40px;
+  }
+
+  .odm-adm .adm-list-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+  }
+}
