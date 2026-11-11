@@ -67,10 +67,6 @@ export function OrderCustomerRequestDetails({
 
   const scopeFacts: DetailItem[] = [
     {
-      label: t.usagePurpose,
-      value: text(order.usagePurpose),
-    },
-    {
       label: t.flightPurpose,
       value: text(order.flightPurpose),
     },

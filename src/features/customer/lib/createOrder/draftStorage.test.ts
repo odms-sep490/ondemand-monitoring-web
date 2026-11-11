@@ -54,6 +54,28 @@ describe('create-order location draft', () => {
     })
   })
 
+  it('restores a confirmed coordinate-only location without inventing an address', () => {
+    const form = {
+      ...createDefaultForm(),
+      address: '',
+      normalizedAddress: '',
+      locationStatus: 'confirmed' as const,
+      locationSource: 'map' as const,
+      locationConfirmedAt: '2026-10-21T00:00:00.000Z',
+    }
+    window.localStorage.setItem(
+      CREATE_ORDER_DRAFT_STORAGE_KEY,
+      JSON.stringify({ step: 2, form }),
+    )
+
+    expect(readStoredDraft()?.form).toMatchObject({
+      address: '',
+      normalizedAddress: '',
+      locationStatus: 'confirmed',
+      locationSource: 'map',
+    })
+  })
+
   it('replaces old delivery preferences with the current defaults', () => {
     const form = {
       ...createDefaultForm(),

@@ -1,5 +1,5 @@
 import { Button, Skeleton, Tag } from 'antd'
-import { AppstoreOutlined } from '@ant-design/icons'
+import { AppstoreOutlined, TagOutlined } from '@ant-design/icons'
 import { useState } from 'react'
 
 import { Card, EmptyState } from '../../../components/common/ui'
@@ -10,8 +10,24 @@ import { localizeServiceName } from '../../../lib/i18n/serviceNames'
 import { servicePickerMessages } from './ServicePicker.messages'
 import { formatMoney } from '../../../lib/createOrder/format'
 
-/** Services shown before "show more": two rows of the 3-column grid. */
+/** Services shown before "show more" in the request form. */
 const SERVICE_LIMIT = 6
+
+function serviceFallbackImage(service: ServiceOption, localizedName: string) {
+  const details = `${localizedName} ${service.name} ${service.description ?? ''}`.toLowerCase()
+
+  if (/warehouse|factory|industrial|construction|building|nhà xưởng|nhà máy|công trình|xưởng/.test(details)) {
+    return '/images/landing/construction-640.webp'
+  }
+  if (/forest|woodland|lâm nghiệp|rừng/.test(details)) {
+    return '/images/landing/highland-overview.webp'
+  }
+  if (/area|region|urban|khu vực|khu dân cư|đô thị/.test(details)) {
+    return '/images/landing/infrastructure-640.webp'
+  }
+
+  return undefined
+}
 
 function ServiceImage({
   imageUrl,
@@ -114,6 +130,7 @@ export function ServicePicker({
       )}
       <div className="co-service-grid co-mt">
         {shown.map((service) => {
+          const localizedName = localizeServiceName(service.id, lang, service.name)
           const cls = [
             'co-service',
             selectedId === service.id ? 'is-active' : '',
@@ -129,7 +146,9 @@ export function ServicePicker({
               <span className="co-service-illustration">
                 <ServiceImage
                   imageUrl={service.imageUrl}
-                  fallbackImageUrl={service.fallbackImageUrl}
+                  fallbackImageUrl={
+                    service.fallbackImageUrl ?? serviceFallbackImage(service, localizedName)
+                  }
                   noImage={t.noImage}
                 />
                 {selectedId === service.id && (
@@ -153,12 +172,15 @@ export function ServicePicker({
                 </Tag>
               )}
               <span className="co-service-name">
-                {localizeServiceName(service.id, lang, service.name)}
+                {localizedName}
               </span>
               <span className="co-service-desc">
                 {service.description || t.defaultDescription}
               </span>
-              <strong>{formatMoney(service.defaultPrice ?? service.basePrice, locale)}</strong>
+              <strong>
+                <TagOutlined aria-hidden="true" />
+                {formatMoney(service.defaultPrice ?? service.basePrice, locale)}
+              </strong>
             </button>
           )
         })}

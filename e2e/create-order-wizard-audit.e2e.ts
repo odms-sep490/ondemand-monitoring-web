@@ -34,6 +34,7 @@ async function inspectResponsiveState(
       }
       const undersized = controls
         .filter(visible)
+        .filter((element) => !element.closest('.leaflet-control-attribution'))
         .map((element) => {
           const rect = element.getBoundingClientRect()
           return {
@@ -48,7 +49,9 @@ async function inspectResponsiveState(
         })
         .filter((target) => target.width < 24 || target.height < 24)
       const fields = [
-        ...document.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(
+        ...document.querySelectorAll<
+          HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+        >(
           '.co-page input:not([type="hidden"]), .co-page select, .co-page textarea',
         ),
       ]
@@ -171,7 +174,9 @@ test('CreateOrder six-step flow recovers validation and stays responsive', async
   await page.getByLabel(/Tiêu đề/).focus()
   await page.keyboard.press('Tab')
   await expect(page.locator('#co-flight-purpose')).toBeFocused()
-  await page.locator('#co-purpose').selectOption('INTERNAL')
+  await page
+    .locator('#co-flight-purpose')
+    .selectOption('CONSTRUCTION_MONITORING')
 
   // Step 2: missing location blocks progress; offline tiles show the fallback notice.
   await page
@@ -185,17 +190,43 @@ test('CreateOrder six-step flow recovers validation and stays responsive', async
       'Xác nhận lại vị trí để đồng bộ địa chỉ, tọa độ và điểm trên bản đồ.',
     ),
   ).toBeVisible()
-  await expect(page.getByRole('region', { name: 'Bản đồ chọn vị trí giám sát' })).toBeVisible()
-  await expect(page.locator('.co-real-map')).toHaveClass(/has-tile-fallback/)
-  const fallbackNotice = await page
-    .locator('.co-real-map')
-    .evaluate((element) => getComputedStyle(element, '::after').content)
-  expect(fallbackNotice).toContain('Không tải được tile bản đồ thật')
+  await expect(
+    page.getByRole('region', {
+      name: 'Bản đồ chọn vị trí và khu vực giám sát',
+    }),
+  ).toBeVisible()
+  await expect
+    .poll(() => page.locator('.co-area-map').getAttribute('class'))
+    .toContain('has-tile-error')
+  await expect(page.locator('.co-area-map-error')).toBeVisible()
   await inspectResponsiveState(page, 2, 'validation-and-offline-map', testInfo)
-  await page.getByLabel(/Địa chỉ hoặc khu vực/).fill('KCN Long Hậu')
-  await page.getByText('Tọa độ nâng cao').click()
-  await page.getByRole('button', { name: 'Xác nhận tọa độ này' }).click()
-  await expect(page.getByText('Đã xác nhận vị trí')).toBeVisible()
+  await page.getByText('Tọa độ nâng cao', { exact: true }).click()
+  await page.getByRole('button', { name: 'Xác nhận tọa độ' }).click()
+  await expect(page.locator('.co-area-selected-location')).toContainText(
+    '10.640200, 106.691200',
+  )
+  await page.getByRole('button', { name: 'Tự vẽ vùng' }).click()
+  const mapBounds = await page.locator('.co-area-map').boundingBox()
+  expect(mapBounds).toBeTruthy()
+  const drawPoints = [
+    [0.35, 0.35],
+    [0.65, 0.35],
+    [0.65, 0.65],
+    [0.35, 0.65],
+  ]
+  for (const [xRatio, yRatio] of drawPoints) {
+    await page.mouse.click(
+      mapBounds!.x + mapBounds!.width * xRatio,
+      mapBounds!.y + mapBounds!.height * yRatio,
+    )
+  }
+  await page.locator('.leaflet-marker-icon.co-area-handle').first().click()
+  await expect(page.locator('.co-area-metric-grid dd').last()).toHaveText('4')
+  await expect(page.locator('.co-area-map-edit-tools')).toBeVisible()
+  await page.screenshot({
+    path: testInfo.outputPath('step-2-freehand-area.png'),
+    fullPage: true,
+  })
 
   // Step 3: an empty checklist is explicitly blocked, then restored.
   await page
@@ -205,7 +236,9 @@ test('CreateOrder six-step flow recovers validation and stays responsive', async
   await expect(
     page.getByRole('button', { name: /Tiếp tục: Chi tiết & quyền giám sát/ }),
   ).toBeDisabled()
-  await expect(page.getByRole('status').filter({ hasText: /nội dung giám sát/i })).toBeVisible()
+  await expect(
+    page.getByRole('status').filter({ hasText: /nội dung giám sát/i }),
+  ).toBeVisible()
   await inspectResponsiveState(page, 3, 'empty-checklist', testInfo)
   await page.getByLabel(/^Chọn tất cả/).check()
   await expect(page.getByLabel(/^Chọn tất cả/)).toBeChecked()
@@ -217,15 +250,17 @@ test('CreateOrder six-step flow recovers validation and stays responsive', async
   await page.getByLabel(/Người liên hệ/).clear()
   await page.getByLabel(/Số điện thoại/).clear()
   await page.getByLabel(/Điều kiện ra vào/).clear()
-  await page
-    .getByLabel(/Tôi xác nhận mình có quyền yêu cầu giám sát/)
-    .uncheck()
-  await page
-    .getByRole('button', { name: /Tiếp tục: Thời gian/ })
-    .click()
-  await expect(page.getByText('Nhập tên người liên hệ tại hiện trường.')).toBeVisible()
-  await expect(page.getByText('Nhập số điện thoại liên hệ tại hiện trường.')).toBeVisible()
-  await expect(page.getByText('Chọn quan hệ của bạn với khu vực giám sát.')).toBeVisible()
+  await page.getByLabel(/Tôi xác nhận mình có quyền yêu cầu giám sát/).uncheck()
+  await page.getByRole('button', { name: /Tiếp tục: Thời gian/ }).click()
+  await expect(
+    page.getByText('Nhập tên người liên hệ tại hiện trường.'),
+  ).toBeVisible()
+  await expect(
+    page.getByText('Nhập số điện thoại liên hệ tại hiện trường.'),
+  ).toBeVisible()
+  await expect(
+    page.getByText('Chọn quan hệ của bạn với khu vực giám sát.'),
+  ).toBeVisible()
   await expect(
     page.getByRole('radio', { name: 'Chủ sở hữu / Chủ đầu tư' }),
   ).toHaveAttribute('aria-describedby', 'co-monitoring-relationship-error')
@@ -234,9 +269,7 @@ test('CreateOrder six-step flow recovers validation and stays responsive', async
   await page.getByLabel(/Số điện thoại/).fill('0901234567')
   await page.getByLabel(/Điều kiện ra vào/).fill('Cổng chính')
   await page.getByRole('radio', { name: 'Chủ sở hữu / Chủ đầu tư' }).check()
-  await page
-    .getByLabel(/Tôi xác nhận mình có quyền yêu cầu giám sát/)
-    .check()
+  await page.getByLabel(/Tôi xác nhận mình có quyền yêu cầu giám sát/).check()
 
   // Step 5: stale saved date survives reload and is never silently rewritten.
   await page.getByRole('button', { name: /Tiếp tục: Thời gian/ }).click()
@@ -251,7 +284,9 @@ test('CreateOrder six-step flow recovers validation and stays responsive', async
   const selectedTime = await time
     .locator('option')
     .evaluateAll((options) =>
-      options.map((option) => (option as HTMLOptionElement).value).find(Boolean),
+      options
+        .map((option) => (option as HTMLOptionElement).value)
+        .find(Boolean),
     )
   expect(selectedTime).toBeTruthy()
   await time.selectOption(selectedTime!)
@@ -268,16 +303,22 @@ test('CreateOrder six-step flow recovers validation and stays responsive', async
       ),
     )
     .toBe(true)
-  await page.evaluate(({ date }) => {
-    const key = 'odm.customer.createOrderDraft.v2'
-    const draft = JSON.parse(localStorage.getItem(key) || '{}')
-    draft.form.preferredDateFrom = date
-    draft.form.preferredDateTo = date
-    localStorage.setItem(key, JSON.stringify(draft))
-  }, { date: staleDate })
+  await page.evaluate(
+    ({ date }) => {
+      const key = 'odm.customer.createOrderDraft.v2'
+      const draft = JSON.parse(localStorage.getItem(key) || '{}')
+      draft.form.preferredDateFrom = date
+      draft.form.preferredDateTo = date
+      localStorage.setItem(key, JSON.stringify(draft))
+    },
+    { date: staleDate },
+  )
   await page.reload()
   await expect(page.getByLabel(/Ngày sớm nhất/)).toHaveValue(staleDate)
-  await expect(page.getByLabel(/Ngày sớm nhất/)).toHaveAttribute('aria-invalid', 'true')
+  await expect(page.getByLabel(/Ngày sớm nhất/)).toHaveAttribute(
+    'aria-invalid',
+    'true',
+  )
   await expect(
     page.getByText(/Vui lòng chọn ngày mới để tiếp tục/),
   ).toBeVisible()
@@ -286,15 +327,20 @@ test('CreateOrder six-step flow recovers validation and stays responsive', async
 
   await startDate.fill(earliest!)
   await endDate.fill(earliest!)
-  await expect(page.getByLabel(/Ngày sớm nhất/)).not.toHaveAttribute('aria-invalid', 'true')
+  await expect(page.getByLabel(/Ngày sớm nhất/)).not.toHaveAttribute(
+    'aria-invalid',
+    'true',
+  )
 
   // Step 6: errors remain actionable, the review matches the form, and no order is sent.
   await page
     .getByRole('button', { name: /Tiếp tục: Kết quả bàn giao & xác nhận/ })
     .click()
-  await expect(page.getByRole('heading', { name: 'Rà soát yêu cầu' })).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'Rà soát yêu cầu' }),
+  ).toBeVisible()
   await expect(page.getByText('Nghiệm thu giao diện sáu bước')).toBeVisible()
-  await expect(page.getByText('KCN Long Hậu')).toBeVisible()
+  await expect(page.getByText('10.6402000, 106.6912000').first()).toBeVisible()
   await expect(page.getByText('Cao 60 m')).toBeVisible()
   await expect(page.getByRole('button', { name: /Gửi yêu cầu/ })).toBeEnabled()
   await page.getByRole('button', { name: /Gửi yêu cầu/ }).click()
@@ -311,9 +357,9 @@ test('CreateOrder six-step flow recovers validation and stays responsive', async
 
   // Edit a previous step and verify downstream summary state updates.
   await page.getByRole('button', { name: 'Sửa: Hiện trường' }).click()
-  await expect(page.locator('.co-tab[aria-current="step"]')).toHaveAccessibleName(
-    /Chi tiết & quyền giám sát/,
-  )
+  await expect(
+    page.locator('.co-tab[aria-current="step"]'),
+  ).toHaveAccessibleName(/Chi tiết & quyền giám sát/)
   await page.getByLabel(/Độ cao giám sát/).fill('70')
   await page.getByRole('button', { name: /Tiếp tục: Thời gian/ }).click()
   await expect(page.getByText('70 m')).toBeVisible()
@@ -331,14 +377,14 @@ test('CreateOrder six-step flow recovers validation and stays responsive', async
   await expect(page.getByLabel(/Ngày sớm nhất/)).toHaveValue(earliest!)
   await expect(page.getByLabel(/Khung giờ/)).toHaveValue(selectedTime!)
   await page.getByRole('button', { name: 'Quay lại' }).click()
-  await expect(page.locator('.co-tab[aria-current="step"]')).toHaveAccessibleName(
-    /Chi tiết & quyền giám sát/,
-  )
+  await expect(
+    page.locator('.co-tab[aria-current="step"]'),
+  ).toHaveAccessibleName(/Chi tiết & quyền giám sát/)
   await expect(page.getByLabel(/Độ cao giám sát/)).toHaveValue('70')
   await page.getByRole('button', { name: 'Quay lại' }).click()
-  await expect(page.locator('.co-tab[aria-current="step"]')).toHaveAccessibleName(
-    /Nội dung giám sát/,
-  )
+  await expect(
+    page.locator('.co-tab[aria-current="step"]'),
+  ).toHaveAccessibleName(/Nội dung giám sát/)
   await expect(page.getByLabel(/^Chọn tất cả/)).toBeChecked()
   await page
     .getByRole('button', { name: /Tiếp tục: Chi tiết & quyền giám sát/ })

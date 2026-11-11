@@ -1,8 +1,9 @@
 import { Button } from 'antd'
-import { useEffect, useRef } from 'react'
+import { BorderOutlined, EnvironmentOutlined } from '@ant-design/icons'
+import { useEffect, useRef, useState } from 'react'
 
 import { ErrorState, LoadingState } from '../../components/common/StateView'
-import { PageHeader } from '../../components/common/ui'
+import { Modal, PageHeader } from '../../components/common/ui'
 import { useI18n } from '../../../../shared/i18n'
 import { customerHref } from '../../routes'
 import { ConfirmSubmitModal } from './components/ConfirmSubmitModal'
@@ -21,12 +22,19 @@ import './CreateOrder.refinement.css'
 import { useCreateOrderWizard } from './hooks/useCreateOrderWizard'
 import { ChecklistEditor } from '../../components/checklist/ChecklistEditor'
 import { selectionEstimate } from '../../lib/checklist/selectionEstimate'
+import {
+  coverageAreaMetrics,
+  formatAreaM2,
+  isValidCoverageArea,
+} from '../../lib/createOrder/coverageGeometry'
 import type { Step } from '../../lib/createOrder/types'
 
 /** Customer wizard: service, location, content, site details, schedule, then confirmation. */
 export function CreateOrderPage() {
   const pageRef = useRef<HTMLDivElement>(null)
   const confirmTriggerRef = useRef<HTMLElement | null>(null)
+  const leaveTriggerRef = useRef<HTMLButtonElement | null>(null)
+  const [leaveConfirmOpen, setLeaveConfirmOpen] = useState(false)
   const { t } = useI18n(createOrderPageMessages)
   const { f, meta, wizard, submit, service, time, checklist } =
     useCreateOrderWizard()
@@ -44,6 +52,32 @@ export function CreateOrderPage() {
   const packageSelectedCount = packageChecklists.filter(
     (row) => row.selected,
   ).length
+  const areaMetrics = isValidCoverageArea(form.coverageArea)
+    ? coverageAreaMetrics(form.coverageArea)
+    : null
+  const areaLocationSummary =
+    form.locationStatus === 'confirmed' && form.locationConfirmedAt
+      ? form.normalizedAddress.trim() ||
+        `${Number(form.latitude).toFixed(6)}, ${Number(form.longitude).toFixed(6)}`
+      : ''
+  const stepTwoSummary = step === 2 && (
+    <div className="co-area-footer-summary" aria-label={t.areaSummaryLabel}>
+      {areaLocationSummary && (
+        <span className="co-area-footer-chip">
+          <EnvironmentOutlined aria-hidden="true" />
+          <span>{areaLocationSummary}</span>
+        </span>
+      )}
+      {areaMetrics && (
+        <span className="co-area-footer-chip">
+          <BorderOutlined aria-hidden="true" />
+          <span>
+            {t.areaSummaryValue} {formatAreaM2(areaMetrics.areaM2)}
+          </span>
+        </span>
+      )}
+    </div>
+  )
 
   function openSubmitConfirmation() {
     const activeElement = document.activeElement
@@ -59,6 +93,25 @@ export function CreateOrderPage() {
       const trigger = confirmTriggerRef.current
       if (trigger?.isConnected && !trigger.matches(':disabled')) trigger.focus()
     })
+  }
+
+  function openLeaveConfirmation() {
+    const activeElement = document.activeElement
+    leaveTriggerRef.current =
+      activeElement instanceof HTMLButtonElement ? activeElement : null
+    setLeaveConfirmOpen(true)
+  }
+
+  function closeLeaveConfirmation() {
+    setLeaveConfirmOpen(false)
+    window.requestAnimationFrame(() => {
+      const trigger = leaveTriggerRef.current
+      if (trigger?.isConnected && !trigger.disabled) trigger.focus()
+    })
+  }
+
+  function leaveCreateOrder() {
+    window.location.hash = customerHref({ screen: 'orders' })
   }
 
   useEffect(() => {
@@ -94,6 +147,7 @@ export function CreateOrderPage() {
               ? t.blockedLoading
               : null
         }
+        summary={stepTwoSummary}
         onBack={wizard.back}
         onNext={wizard.next}
         onSubmit={openSubmitConfirmation}
@@ -106,20 +160,20 @@ export function CreateOrderPage() {
       ref={pageRef}
       className={`cus-page co-page${step === 6 ? ' is-review-step' : ''}`}
     >
-      <PageHeader
-        title={step === 6 ? t.reviewTitle : t.pageTitle}
-        subtitle={step === 6 ? t.reviewSubtitle : t.pageSubtitle}
-        actions={
-          <Button
-            href={customerHref({ screen: 'orders' })}
-            onClick={(event) => {
-              if (!window.confirm(t.cancelConfirm)) event.preventDefault()
-            }}
-          >
-            {t.cancel}
-          </Button>
-        }
-      />
+      <div className="co-create-hero">
+        <PageHeader
+          title={step === 6 ? t.reviewTitle : t.pageTitle}
+          subtitle={step === 6 ? t.reviewSubtitle : t.pageSubtitle}
+          actions={
+            <Button
+              disabled={submit.submitting}
+              onClick={openLeaveConfirmation}
+            >
+              {t.cancel}
+            </Button>
+          }
+        />
+      </div>
       <StepTabs
         step={step}
         reached={wizard.reached}
@@ -227,6 +281,29 @@ export function CreateOrderPage() {
           onConfirm={() => void submit.submit()}
           onClose={closeSubmitConfirmation}
         />
+      )}
+
+      {leaveConfirmOpen && (
+        <Modal
+          title={t.leaveConfirmTitle}
+          subtitle={t.leaveConfirmSubtitle}
+          width={440}
+          onClose={closeLeaveConfirmation}
+          footer={
+            <>
+              <Button onClick={closeLeaveConfirmation}>
+                {t.stayOnRequest}
+              </Button>
+              <Button type="primary" onClick={leaveCreateOrder}>
+                {t.leaveRequest}
+              </Button>
+            </>
+          }
+        >
+          <p className="co-notice is-info" role="note">
+            {t.leaveConfirmBody}
+          </p>
+        </Modal>
       )}
     </div>
   )

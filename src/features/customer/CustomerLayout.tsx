@@ -65,67 +65,70 @@ export function CustomerLayout({
   return (
     <ConfigProvider theme={themeConfig} getPopupContainer={mgrPopupContainer}>
       <div className="odm odm-cus mgr-layout">
-        <Layout hasSider className="mgr-shell">
-          <Sider
-            width={APP_SIDER_WIDTH}
-            collapsedWidth={broken ? 0 : APP_SIDER_RAIL_WIDTH}
-            breakpoint="lg"
-            trigger={null}
-            collapsible
+        <Layout className="mgr-shell cus-shell">
+          <CustomerHeader
+            breadcrumb={breadcrumb}
             collapsed={collapsed}
-            style={broken && collapsed ? { transition: 'none' } : undefined}
-            onBreakpoint={(isBroken) => {
-              setBroken(isBroken)
-              setCollapsed(isBroken)
-            }}
-            theme={dark ? 'dark' : 'light'}
-            className={`mgr-sider ${overlayOpen ? 'is-overlay' : ''} ${rail ? 'is-rail' : ''}`}
-          >
-            <RoleSidebar
-              brandHref={customerHref({ screen: 'dashboard' })}
-              ariaLabel={t.nav}
-              groups={NAV_GROUPS.map((group) => ({
-                key: group.key,
-                label: t.groups[group.key],
-                items: group.items.map((item) => ({
-                  key: item.key,
-                  label: t.navItems[item.key],
-                  icon: item.icon,
-                  href:
-                    item.href || (item.route ? customerHref(item.route) : '#'),
-                  active: item.key === activeKey,
-                  onClick: () => broken && setCollapsed(true),
-                })),
-              }))}
-              profile={{
-                name: authSession.getUser()?.fullName ?? t.customer,
-                description: t.customer,
-                href: '#profile',
-              }}
-              collapsed={rail}
-            />
-          </Sider>
-
-          {overlayOpen ? (
-            <button
-              type="button"
-              className="mgr-scrim"
-              aria-label={t.closeNav}
-              onClick={() => setCollapsed(true)}
-            />
-          ) : null}
-
-          <Layout className="mgr-main">
-            <CustomerHeader
-              breadcrumb={breadcrumb}
+            dark={dark}
+            onToggleSider={() => setCollapsed((v) => !v)}
+            onToggleTheme={() => setDark((v) => !v)}
+          />
+          <Layout hasSider className="cus-shell-body">
+            <Sider
+              width={APP_SIDER_WIDTH}
+              collapsedWidth={broken ? 0 : APP_SIDER_RAIL_WIDTH}
+              breakpoint="lg"
+              trigger={null}
+              collapsible
               collapsed={collapsed}
-              dark={dark}
-              onToggleSider={() => setCollapsed((v) => !v)}
-              onToggleTheme={() => setDark((v) => !v)}
-            />
-            <Content className="mgr-content">
-              <div className="odm-cus-content-inner">{children}</div>
-            </Content>
+              style={broken && collapsed ? { transition: 'none' } : undefined}
+              onBreakpoint={(isBroken) => {
+                setBroken(isBroken)
+                setCollapsed(isBroken)
+              }}
+              theme={dark ? 'dark' : 'light'}
+              className={`mgr-sider ${overlayOpen ? 'is-overlay' : ''} ${rail ? 'is-rail' : ''}`}
+            >
+              <RoleSidebar
+                brandHref={customerHref({ screen: 'dashboard' })}
+                ariaLabel={t.nav}
+                groups={NAV_GROUPS.map((group) => ({
+                  key: group.key,
+                  label: t.groups[group.key],
+                  items: group.items.map((item) => ({
+                    key: item.key,
+                    label: t.navItems[item.key],
+                    icon: item.icon,
+                    href:
+                      item.href ||
+                      (item.route ? customerHref(item.route) : '#'),
+                    active: item.key === activeKey,
+                    onClick: () => broken && setCollapsed(true),
+                  })),
+                }))}
+                profile={{
+                  name: authSession.getUser()?.fullName ?? t.customer,
+                  description: t.customer,
+                  href: '#profile',
+                }}
+                collapsed={rail}
+              />
+            </Sider>
+
+            {overlayOpen ? (
+              <button
+                type="button"
+                className="mgr-scrim"
+                aria-label={t.closeNav}
+                onClick={() => setCollapsed(true)}
+              />
+            ) : null}
+
+            <Layout className="mgr-main">
+              <Content className="mgr-content">
+                <div className="odm-cus-content-inner">{children}</div>
+              </Content>
+            </Layout>
           </Layout>
         </Layout>
       </div>

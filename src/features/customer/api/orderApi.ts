@@ -93,7 +93,6 @@ export type OrderCreateResponse = {
   serviceId?: string
   serviceName?: string
   description?: string
-  usagePurpose?: string
   flightPurpose?: string
   altitudeM?: number
   estimatedLengthM?: number

@@ -1,10 +1,15 @@
 import { PlusOutlined } from '@ant-design/icons'
 import { Button, Skeleton } from 'antd'
 
-import { CardComponent, ErrorState, PageHeader } from '../../../../shared/components/antd'
+import {
+  CardComponent,
+  ErrorState,
+  PageHeader,
+} from '../../../../shared/components/antd'
 import { useI18n } from '../../../../shared/i18n'
 import { customerHref } from '../../routes'
 import { DashboardStats } from './components/DashboardStats'
+import { DashboardHighlights } from './components/DashboardHighlights'
 import { RecentOrdersCard } from './components/RecentOrdersCard'
 import { StatusBreakdown } from './components/StatusBreakdown'
 import './dashboard.scss'
@@ -14,7 +19,8 @@ import { useDashboardData } from './hooks/useDashboardData'
 /** Customer overview computed client-side from the customer's orders. */
 export function DashboardPage() {
   const { t } = useI18n(dashboardPageMessages)
-  const { orders, stats, recent } = useDashboardData()
+  const { orders, stats, recent, missionData, missionDataLoading } =
+    useDashboardData()
 
   return (
     <div className="cus-dash">
@@ -35,6 +41,12 @@ export function DashboardPage() {
       {orders.data && (
         <>
           <DashboardStats stats={stats} />
+          <DashboardHighlights
+            orders={orders.data}
+            missionData={missionData.data}
+            missionLoading={missionDataLoading}
+            onRetry={missionData.reload}
+          />
           <div className="cus-content-grid">
             <div className="cus-main-column">
               <RecentOrdersCard orders={recent} />
@@ -50,7 +62,11 @@ export function DashboardPage() {
               <Skeleton active paragraph={{ rows: 4 }} />
             </CardComponent>
           ) : (
-            <ErrorState title={t.ordersErrorTitle} error={orders.error} onRetry={orders.reload} />
+            <ErrorState
+              title={t.ordersErrorTitle}
+              error={orders.error}
+              onRetry={orders.reload}
+            />
           )}
         </div>
       )}

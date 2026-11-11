@@ -102,7 +102,6 @@ export type OrderDetail = {
   attachments: OrderAttachment[] | null
   title?: string | null
   description?: string | null
-  usagePurpose?: string | null
   flightPurpose?: string | null
   altitudeM?: number | null
   estimatedLengthM?: number | null
@@ -231,7 +230,6 @@ export type OrderCreateResponse = {
   serviceName: string
   serviceDescription?: string | null
   description: string
-  usagePurpose?: string | null
   flightPurpose?: string | null
   altitudeM?: number | null
   estimatedLengthM?: number | null

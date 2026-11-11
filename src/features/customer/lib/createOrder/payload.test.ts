@@ -1,11 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
 import { createDefaultForm } from './draftStorage'
-import {
-  buildCoverageArea,
-  buildOrderPayload,
-  calcArea,
-} from './payload'
+import { rectangleCoverageArea } from './coverageGeometry'
+import { buildCoverageArea, buildOrderPayload, calcArea } from './payload'
 import { truncateText } from './format'
 
 describe('buildCoverageArea', () => {
@@ -51,6 +48,23 @@ describe('buildOrderPayload', () => {
     ],
   }
   const score = { score: 90, level: 'good' as const, notes: [] }
+
+  it('sends the selected custom coverage polygon without replacing it with a circle', () => {
+    const area = rectangleCoverageArea([106.69, 10.64], [106.692, 10.642])
+    const payload = buildOrderPayload({
+      form: {
+        ...form,
+        coverageAreaShape: 'FREEHAND',
+        coverageArea: area,
+      },
+      score,
+    })
+
+    expect(payload.coverageArea).toEqual(area)
+    expect(payload.deliverables[0].requirement).toMatchObject({
+      coverageAreaShape: 'FREEHAND',
+    })
+  })
 
   it('maps the form to the BE OrderCreateRequest shape', () => {
     const payload = buildOrderPayload({
@@ -122,8 +136,6 @@ describe('buildOrderPayload', () => {
         ...form,
         flightPurpose: 'OTHER',
         otherFlightPurpose: 'Bay kiểm kê mái pin mặt trời',
-        usagePurpose: 'OTHER',
-        otherUsagePurpose: 'Đào tạo nội bộ',
         monitoringRelationship: 'OTHER',
         otherMonitoringRelationship: 'Đơn vị bảo trì hệ thống',
       },
@@ -132,12 +144,10 @@ describe('buildOrderPayload', () => {
 
     expect(payload).toMatchObject({
       flightPurpose: 'OTHER',
-      usagePurpose: 'OTHER',
       monitoringRelationship: 'OTHER',
     })
     expect(payload.deliverables[0].requirement).toMatchObject({
       otherFlightPurpose: 'Bay kiểm kê mái pin mặt trời',
-      otherUsagePurpose: 'Đào tạo nội bộ',
       otherMonitoringRelationship: 'Đơn vị bảo trì hệ thống',
     })
   })
@@ -175,5 +185,4 @@ describe('buildOrderPayload', () => {
       resultDeadline: '2026-10-20',
     })
   })
-
 })

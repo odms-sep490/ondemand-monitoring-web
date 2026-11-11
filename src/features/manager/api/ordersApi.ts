@@ -122,7 +122,6 @@ function toOrderDetail(order: OrderCreateResponse): OrderDetail {
     attachments: attachmentsFromDeliverables(order),
     title: order.title,
     description: order.description,
-    usagePurpose: order.usagePurpose ?? null,
     flightPurpose: order.flightPurpose ?? null,
     altitudeM: order.altitudeM ?? null,
     estimatedLengthM: order.estimatedLengthM ?? null,

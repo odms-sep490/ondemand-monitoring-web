@@ -11,6 +11,11 @@ import type {
 import { localizeServiceName } from '../../../lib/i18n/serviceNames'
 import { localizeDeliverableName } from '../../../lib/i18n/catalogNames'
 import { localizeTimeslot } from '../../../lib/i18n/timeslots'
+import {
+  coverageAreaMetrics,
+  formatAreaM2,
+  formatLengthM,
+} from '../../../lib/createOrder/coverageGeometry'
 import { calcArea } from '../../../lib/createOrder/payload'
 import type { FormState, Step } from '../../../lib/createOrder/types'
 import { requestInfoPanelMessages } from './RequestInfoPanel.messages'
@@ -100,22 +105,33 @@ export function RequestSummaryCard(p: Props) {
           : t.mediaNotRequested('VIDEO'),
       ]
     : []
-  const usagePurpose =
-    form.usagePurpose === 'OTHER'
-      ? form.otherUsagePurpose.trim()
-      : form.usagePurpose
-        ? info.purposes[form.usagePurpose]
-        : ''
   const flightPurpose =
     form.flightPurpose === 'OTHER'
       ? form.otherFlightPurpose.trim()
-      : info.flightPurposes[form.flightPurpose]
+      : form.flightPurpose
+        ? info.flightPurposes[form.flightPurpose]
+        : ''
   const relationship =
     form.monitoringRelationship === 'OTHER'
       ? form.otherMonitoringRelationship.trim()
       : form.monitoringRelationship
         ? authorization.relationships[form.monitoringRelationship]
         : ''
+  const locationSummary =
+    form.address.trim() ||
+    (form.latitude.trim() && form.longitude.trim()
+      ? `${form.latitude}, ${form.longitude}`
+      : t.noAddress)
+  const areaMetrics = coverageAreaMetrics(form.coverageArea)
+  const areaSummary = areaMetrics
+    ? [
+        ...(form.coverageAreaShape === 'CIRCLE'
+          ? [`${t.radius} ${form.radiusM} m`]
+          : []),
+        formatAreaM2(areaMetrics.areaM2),
+        `${t.perimeter} ${formatLengthM(areaMetrics.perimeterM)}`,
+      ].join(' · ')
+    : `${t.radius} ${form.radiusM} m · ${calcArea(form.radiusM)} ha`
 
   const items: Item[] = [
     {
@@ -126,7 +142,6 @@ export function RequestSummaryCard(p: Props) {
         p.service
           ? localizeServiceName(p.service.id, lang, p.service.name)
           : t.noValue,
-        usagePurpose,
       ].filter(Boolean),
       step: 1,
     },
@@ -156,7 +171,7 @@ export function RequestSummaryCard(p: Props) {
       key: 'location',
       icon: 'map-pin',
       label: t.location,
-      lines: [form.address || t.noAddress],
+      lines: [locationSummary],
       clamp: true,
       step: 2,
     },
@@ -164,7 +179,7 @@ export function RequestSummaryCard(p: Props) {
       key: 'area',
       icon: 'radio',
       label: t.area,
-      lines: [`${t.radius} ${form.radiusM} m · ${calcArea(form.radiusM)} ha`],
+      lines: [areaSummary],
       step: 2,
     },
     {
@@ -312,7 +327,7 @@ export function RequestSummaryCard(p: Props) {
       primary: p.service
         ? localizeServiceName(p.service.id, lang, p.service.name)
         : t.noValue,
-      secondary: [flightPurpose, usagePurpose].filter(Boolean).join(' · '),
+      secondary: flightPurpose,
       detail: form.attachments.length
         ? t.attachmentCount(form.attachments.length)
         : undefined,
@@ -321,8 +336,8 @@ export function RequestSummaryCard(p: Props) {
       step: 2,
       label: t.groupLocation,
       icon: 'map-pin',
-      primary: form.address || t.noAddress,
-      secondary: `${t.radius} ${form.radiusM} m · ${calcArea(form.radiusM)} ha`,
+      primary: locationSummary,
+      secondary: areaSummary,
     },
     {
       step: 3,

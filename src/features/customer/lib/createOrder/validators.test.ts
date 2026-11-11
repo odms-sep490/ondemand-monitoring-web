@@ -3,19 +3,33 @@ import { describe, expect, it } from 'vitest'
 import { createDefaultForm } from './draftStorage'
 import { todayPlus } from './format'
 import { validateStep, type ValidationMessages } from './validators'
+import type { CoverageAreaGeometry } from './types'
+
+const validCoverageArea: CoverageAreaGeometry = {
+  type: 'Polygon' as const,
+  coordinates: [
+    [
+      [106.69, 10.639],
+      [106.692, 10.639],
+      [106.692, 10.641],
+      [106.69, 10.641],
+      [106.69, 10.639],
+    ],
+  ],
+}
 
 const msg: ValidationMessages = {
   address: 'address',
   latitude: 'latitude',
   longitude: 'longitude',
   locationUnconfirmed: 'locationUnconfirmed',
+  coverageArea: 'coverageArea',
   outsideZone: 'outside',
   blockedZone: (n) => `blocked:${n}`,
   serviceId: 'service',
   title: 'title',
-  usagePurpose: 'usagePurpose',
+  flightPurpose: 'flightPurpose',
   otherFlightPurpose: 'otherFlightPurpose',
-  otherUsagePurpose: 'otherUsagePurpose',
   preferredDateFrom: 'from',
   preferredDateTooSoon: 'tooSoon',
   preferredDateTo: 'to',
@@ -51,21 +65,21 @@ const withService = {
   accessNotes: 'Cổng chính',
   serviceId: 's',
   title: 't',
-  usagePurpose: 'INTERNAL' as const,
   monitoringRelationship: 'OWNER' as const,
   monitoringAuthorizationConfirmed: true,
   locationStatus: 'confirmed' as const,
   normalizedAddress: 'A',
   locationSource: 'search' as const,
   locationConfirmedAt: '2026-10-21T00:00:00.000Z',
+  coverageAreaShape: 'POLYGON' as const,
+  coverageArea: validCoverageArea,
 }
 
 describe('validateStep', () => {
-  it('step 1 requires a service, a title and a usage purpose', () => {
+  it('step 1 requires a service and a title', () => {
     expect(validateStep(1, createDefaultForm(), okLocation, msg)).toEqual({
       serviceId: 'service',
       title: 'title',
-      usagePurpose: 'usagePurpose',
     })
     expect(validateStep(1, withService, okLocation, msg)).toEqual({})
   })
@@ -77,14 +91,12 @@ describe('validateStep', () => {
         {
           ...withService,
           flightPurpose: 'OTHER',
-          usagePurpose: 'OTHER',
         },
         okLocation,
         msg,
       ),
     ).toMatchObject({
       otherFlightPurpose: 'otherFlightPurpose',
-      otherUsagePurpose: 'otherUsagePurpose',
     })
 
     expect(
@@ -101,22 +113,41 @@ describe('validateStep', () => {
     ).toBe('otherMonitoringRelationship')
   })
 
-  it('step 2 requires an address', () => {
-    expect(validateStep(2, withService, okLocation, msg)).toEqual({
-      address: 'address',
-    })
+  it('step 2 accepts a confirmed coordinate-only location and requires a valid area', () => {
+    expect(validateStep(2, withService, okLocation, msg)).toEqual({})
     expect(validateStep(2, createDefaultForm(), okLocation, msg)).toEqual({
       serviceId: 'service',
       title: 'title',
-      usagePurpose: 'usagePurpose',
-      address: 'address',
+      address: 'locationUnconfirmed',
+      coverageArea: 'coverageArea',
     })
   })
 
   it('step 3 remains cumulative after the monitoring-content step', () => {
-    expect(validateStep(3, withService, okLocation, msg)).toEqual({
-      address: 'address',
-    })
+    expect(validateStep(3, withService, okLocation, msg)).toEqual({})
+  })
+
+  it('rejects an invalid or self-intersecting coverage polygon', () => {
+    const selfIntersecting: CoverageAreaGeometry = {
+      type: 'Polygon' as const,
+      coordinates: [
+        [
+          [106.69, 10.64],
+          [106.692, 10.642],
+          [106.692, 10.64],
+          [106.69, 10.642],
+          [106.69, 10.64],
+        ],
+      ],
+    }
+    expect(
+      validateStep(
+        2,
+        { ...withService, coverageArea: selfIntersecting },
+        okLocation,
+        msg,
+      ).coverageArea,
+    ).toBe('coverageArea')
   })
 
   it('step 2 rejects an address or GPS edit that has not been reconfirmed', () => {

@@ -26,7 +26,6 @@ export type CreateOrderPayload = {
   recurrenceOccurrences?: number
   weatherFallback?: string
   resultDeadline?: string
-  usagePurpose?: string
   flightPurpose?: string
   altitudeM?: number
   estimatedLengthM?: number
