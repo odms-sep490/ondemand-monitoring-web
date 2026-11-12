@@ -13,9 +13,9 @@
   justify-content: space-between;
   gap: 12px;
   padding: 12px 16px;
-  border: 1px solid #cbdcfb;
+  border: 1px solid color-mix(in srgb, var(--ui-primary) 35%, var(--mgr-border));
   border-radius: 14px;
-  background: #f1f6ff;
+  background: var(--ui-primary-soft);
 }
 
 .postflight-review-hero-copy {
@@ -47,27 +47,27 @@
 }
 
 .postflight-review-status.is-pass {
-  border-color: #a7e3bd;
-  background: #eaf9f0;
-  color: #137244;
+  border-color: color-mix(in srgb, var(--ui-success) 35%, var(--mgr-border));
+  background: var(--ui-success-soft);
+  color: var(--ui-success-text);
 }
 
 .postflight-review-status.is-warning {
-  border-color: #f4d08b;
-  background: #fff8e8;
-  color: #8a4b08;
+  border-color: color-mix(in srgb, var(--ui-warning) 40%, var(--mgr-border));
+  background: var(--ui-warning-soft);
+  color: var(--ui-warning-text);
 }
 
 .postflight-review-manager-status {
   flex: none;
-  border-color: #bfdbfe;
-  background: #eaf3ff;
-  color: #174bb5;
+  border-color: color-mix(in srgb, var(--ui-primary) 30%, var(--mgr-border));
+  background: var(--ui-primary-soft);
+  color: var(--ui-primary-text);
 }
 
 .postflight-review-hero h1 {
   margin: 0 0 3px;
-  color: #13233d;
+  color: var(--ui-primary-text);
   font-size: clamp(20px, 1.6vw, 23px);
   line-height: 1.2;
 }
@@ -75,7 +75,7 @@
 .postflight-review-hero p {
   max-width: 560px;
   margin: 0;
-  color: #51627b;
+  color: var(--mgr-muted);
   font-size: 13px;
   line-height: 1.45;
 }
@@ -91,7 +91,7 @@
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   align-items: stretch;
-  border-bottom: 1px solid #d9e1ed;
+  border-bottom: 1px solid var(--mgr-border);
 }
 
 .postflight-review-tabs [role='tab'] {
@@ -106,7 +106,7 @@
   border: 0;
   border-bottom: 2px solid transparent;
   background: transparent;
-  color: #43536c;
+  color: var(--mgr-muted);
   cursor: pointer;
   font: inherit;
   text-align: left;
@@ -114,13 +114,13 @@
 }
 
 .postflight-review-tabs [role='tab']:hover {
-  background: #f5f8fc;
-  color: #174bb5;
+  background: var(--ui-primary-soft);
+  color: var(--ui-primary-text);
 }
 
 .postflight-review-tabs [role='tab'][aria-selected='true'] {
-  border-bottom-color: #1765e8;
-  color: #124eaf;
+  border-bottom-color: var(--ui-primary);
+  color: var(--ui-primary-text);
   font-weight: 750;
 }
 
@@ -131,21 +131,21 @@
 }
 
 .postflight-review-tabs [role='tab'] > small {
-  color: #5b6a80;
+  color: var(--mgr-muted);
   font-size: 12px;
   font-weight: 600;
   line-height: 1.35;
 }
 
 .postflight-review-tabs [role='tab'][aria-selected='true'] > small {
-  color: #315987;
+  color: var(--ui-primary-text);
 }
 
 .postflight-review-tabs [role='tab']:focus-visible,
 .postflight-review-tab-panel:focus-visible {
   position: relative;
   z-index: 1;
-  outline: 3px solid #1765e8;
+  outline: 3px solid var(--ui-primary);
   outline-offset: -3px;
 }
 
@@ -160,9 +160,9 @@
 .postflight-review-section {
   min-width: 0;
   overflow: hidden;
-  border: 1px solid #d9e1ed;
+  border: 1px solid var(--mgr-border);
   border-radius: 12px;
-  background: #fff;
+  background: var(--mgr-card);
 }
 
 .postflight-review-section > header {
@@ -172,14 +172,14 @@
   justify-content: space-between;
   gap: 12px;
   padding: 8px 14px;
-  border-bottom: 1px solid #e4eaf2;
-  background: #fbfcfe;
+  border-bottom: 1px solid var(--mgr-border);
+  background: var(--mgr-card);
 }
 
 .postflight-review-section > header h2 {
   min-width: 0;
   margin: 0;
-  color: #14233b;
+  color: var(--ui-primary-text);
   font-size: 17px;
   line-height: 1.35;
 }
@@ -187,7 +187,7 @@
 .postflight-review-section > header > span {
   min-width: 0;
   max-width: 58%;
-  color: #52627a;
+  color: var(--mgr-muted);
   font-size: 13px;
   font-weight: 750;
   line-height: 1.4;
@@ -219,7 +219,7 @@
   justify-content: space-between;
   gap: 16px;
   padding: 14px 4px;
-  border-bottom: 1px solid #e8edf4;
+  border-bottom: 1px solid var(--mgr-border);
 }
 
 .postflight-review-checklist-row:first-child {
@@ -237,7 +237,7 @@
 
 .postflight-review-row-copy h3 {
   margin: 0;
-  color: #1c2c45;
+  color: var(--mgr-text);
   font-size: 15px;
   line-height: 1.4;
 }
@@ -245,14 +245,14 @@
 .postflight-review-row-copy p,
 .postflight-review-result-line p {
   margin: 4px 0 0;
-  color: #5b6a80;
+  color: var(--mgr-muted);
   font-size: 14px;
   line-height: 1.5;
 }
 
 .postflight-review-observation {
   padding-inline-start: 10px;
-  border-inline-start: 2px solid #b9c9df;
+  border-inline-start: 2px solid var(--mgr-border);
 }
 
 .postflight-review-evidence-links {
@@ -268,16 +268,16 @@
   align-items: center;
   gap: 8px;
   padding: 4px 8px;
-  border: 1px solid #dce5f0;
+  border: 1px solid var(--mgr-border);
   border-radius: 8px;
-  color: #2453a5;
+  color: var(--ui-primary-text);
   font-size: 13px;
   text-decoration: none;
 }
 
 .postflight-review-evidence:hover {
-  border-color: #90b4f4;
-  background: #f3f7ff;
+  border-color: color-mix(in srgb, var(--ui-primary) 35%, var(--mgr-border));
+  background: var(--mgr-card-2);
 }
 
 .postflight-review-evidence img {
@@ -289,7 +289,7 @@
 
 .postflight-review-muted,
 .postflight-review-empty {
-  color: #63728a;
+  color: var(--mgr-muted);
   font-size: 14px;
 }
 
@@ -310,7 +310,7 @@
   justify-content: space-between;
   gap: 12px;
   padding: 8px 0;
-  border-bottom: 1px solid #edf0f5;
+  border-bottom: 1px solid var(--mgr-border);
 }
 
 .postflight-review-result-line:last-child {
@@ -322,7 +322,7 @@
 }
 
 .postflight-review-result-line strong {
-  color: #21314a;
+  color: var(--mgr-text);
   font-size: 14px;
   line-height: 1.45;
 }
@@ -341,27 +341,27 @@
 }
 
 .postflight-review-badge.is-pass {
-  border-color: #a7e3bd;
-  background: #eaf9f0;
-  color: #137244;
+  border-color: color-mix(in srgb, var(--ui-success) 35%, var(--mgr-border));
+  background: var(--ui-success-soft);
+  color: var(--ui-success-text);
 }
 
 .postflight-review-badge.is-fail {
-  border-color: #fecaca;
-  background: #fff1f2;
-  color: #b42332;
+  border-color: color-mix(in srgb, var(--ui-danger) 30%, var(--mgr-border));
+  background: var(--ui-danger-soft);
+  color: var(--ui-danger-text);
 }
 
 .postflight-review-badge.is-warning {
-  border-color: #f4d08b;
-  background: #fff8e8;
-  color: #8a4b08;
+  border-color: color-mix(in srgb, var(--ui-warning) 40%, var(--mgr-border));
+  background: var(--ui-warning-soft);
+  color: var(--ui-warning-text);
 }
 
 .postflight-review-badge.is-pending {
-  border-color: #d8dee8;
-  background: #f2f4f7;
-  color: #59677c;
+  border-color: var(--mgr-border);
+  background: var(--mgr-card-2);
+  color: var(--mgr-muted);
 }
 
 .postflight-review-timestamp,
@@ -370,12 +370,12 @@
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  color: #5d6d84;
+  color: var(--mgr-muted);
   font-size: 13px;
 }
 
 .postflight-review-timestamp strong {
-  color: #23344d;
+  color: var(--mgr-text);
 }
 
 .postflight-review-weather-status time {
@@ -398,33 +398,33 @@
   justify-content: center;
   gap: 4px;
   padding: 10px 12px;
-  border: 1px solid #e0e7f0;
+  border: 1px solid var(--mgr-border);
   border-radius: 9px;
-  background: #f8fafc;
+  background: var(--mgr-card-2);
 }
 
 .postflight-review-weather-metric span {
-  color: #5c6d85;
+  color: var(--mgr-muted);
   font-size: 13px;
 }
 
 .postflight-review-weather-metric strong {
   overflow-wrap: anywhere;
-  color: #17253c;
+  color: var(--mgr-text);
   font-size: 16px;
 }
 
 .postflight-review-advisories {
   margin: 12px 0 0;
   padding-inline-start: 20px;
-  color: #704c1b;
+  color: var(--ui-warning-text);
   font-size: 14px;
   line-height: 1.5;
 }
 
 .postflight-review-notes {
   margin: 12px 0 0;
-  color: #34445d;
+  color: var(--mgr-text);
   font-size: 14px;
   line-height: 1.55;
   white-space: pre-wrap;
@@ -433,12 +433,12 @@
 .postflight-review-notes-group {
   margin-top: 18px;
   padding-top: 16px;
-  border-top: 1px solid #e4eaf2;
+  border-top: 1px solid var(--mgr-border);
 }
 
 .postflight-review-notes-group h3 {
   margin: 0;
-  color: #21314a;
+  color: var(--mgr-text);
   font-size: 15px;
   line-height: 1.4;
 }
@@ -451,17 +451,17 @@
 
 .postflight-review-media-card {
   overflow: hidden;
-  border: 1px solid #dce4ee;
+  border: 1px solid var(--mgr-border);
   border-radius: 10px;
-  background: #fff;
+  background: var(--mgr-card);
 }
 
 .postflight-review-media-card > a {
   display: grid;
   min-height: 150px;
   place-items: center;
-  background: #f1f5f9;
-  color: #315aa1;
+  background: var(--mgr-card-2);
+  color: var(--ui-primary-text);
   text-decoration: none;
 }
 
@@ -484,12 +484,12 @@
   flex-direction: column;
   gap: 4px;
   padding: 10px 12px;
-  color: #53637b;
+  color: var(--mgr-muted);
   font-size: 13px;
 }
 
 .postflight-review-media-caption strong {
-  color: #1f3049;
+  color: var(--mgr-text);
   font-size: 14px;
 }
 
@@ -499,9 +499,9 @@
   justify-content: flex-end;
   gap: 8px;
   padding: 12px 14px;
-  border: 1px solid #cfdae8;
+  border: 1px solid var(--mgr-border);
   border-radius: 12px;
-  background: #fff;
+  background: var(--mgr-card);
 }
 
 .postflight-review-action-copy {
@@ -510,13 +510,13 @@
   flex: 1;
   flex-direction: column;
   gap: 2px;
-  color: #596a83;
+  color: var(--mgr-muted);
   font-size: 13px;
   line-height: 1.4;
 }
 
 .postflight-review-action-copy strong {
-  color: #1b2c45;
+  color: var(--mgr-text);
   font-size: 15px;
 }
 
@@ -529,10 +529,10 @@
   align-items: center;
   justify-content: center;
   padding: 0 16px;
-  border: 1px solid #cbd6e4;
+  border: 1px solid var(--mgr-border);
   border-radius: 9px;
-  background: #fff;
-  color: #18345d;
+  background: var(--mgr-card);
+  color: var(--ui-primary-text);
   cursor: pointer;
   font: inherit;
   font-size: 14px;
@@ -542,25 +542,25 @@
 
 .postflight-review-primary {
   min-width: 176px;
-  border-color: #145bd7;
-  background: #1765e8;
-  color: #fff;
+  border-color: var(--ui-primary);
+  background: var(--ui-primary);
+  color: var(--ui-on-primary);
 }
 
 .postflight-review-primary:hover:not(:disabled) {
-  border-color: #0f4db4;
-  background: #1457cb;
+  border-color: var(--ui-primary);
+  background: var(--ui-primary);
 }
 
 .postflight-review-secondary:hover,
 .postflight-review-retry:hover {
-  border-color: #9bb5da;
-  background: #f5f8fd;
+  border-color: color-mix(in srgb, var(--ui-primary) 35%, var(--mgr-border));
+  background: var(--ui-primary-soft);
 }
 
 .postflight-review-primary:disabled {
-  border-color: #aab5c5;
-  background: #aab5c5;
+  border-color: var(--mgr-border);
+  background: var(--mgr-border);
   cursor: not-allowed;
 }
 
@@ -569,7 +569,7 @@
 .postflight-review-retry:focus-visible,
 .postflight-review-evidence:focus-visible,
 .postflight-review-media-card > a:focus-visible {
-  outline: 3px solid #7fb0ff;
+  outline: 3px solid color-mix(in srgb, var(--ui-primary) 35%, var(--mgr-border));
   outline-offset: 2px;
 }
 
@@ -579,7 +579,7 @@
   align-items: center;
   justify-content: center;
   gap: 12px;
-  color: #465974;
+  color: var(--mgr-muted);
   font-size: 16px;
   font-weight: 700;
 }
@@ -587,8 +587,8 @@
 .postflight-review-spinner {
   width: 22px;
   height: 22px;
-  border: 3px solid #c9d7eb;
-  border-top-color: #1765e8;
+  border: 3px solid color-mix(in srgb, var(--ui-primary) 35%, var(--mgr-border));
+  border-top-color: var(--ui-primary);
   border-radius: 50%;
   animation: postflight-review-spin 0.8s linear infinite;
 }
@@ -687,7 +687,7 @@
 @media (prefers-reduced-motion: reduce) {
   .postflight-review-spinner {
     animation: none;
-    border-top-color: #c9d7eb;
-    border-inline-end-color: #1765e8;
+    border-top-color: color-mix(in srgb, var(--ui-primary) 35%, var(--mgr-border));
+    border-inline-end-color: var(--ui-primary);
   }
 }

@@ -184,6 +184,8 @@ export function useMissionEvidenceQueue(
             ...candidate,
             previewUrl: null,
             thumbnailUrl: null,
+            localPreviewUrl: null,
+            localThumbnailUrl: null,
             urlExpiresAt: null,
           },
         })
@@ -196,6 +198,8 @@ export function useMissionEvidenceQueue(
             ...candidate,
             previewUrl: null,
             thumbnailUrl: null,
+            localPreviewUrl: null,
+            localThumbnailUrl: null,
             urlExpiresAt: null,
           },
         })

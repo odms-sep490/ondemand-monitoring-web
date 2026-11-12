@@ -6,7 +6,7 @@ import {
   customerMissionReportApi,
   type CustomerMissionSummary,
 } from '../../../api/customerMissionReportApi'
-import { loadFinalPaymentState } from '../../../lib/orders/loadFinalPaymentState'
+import { loadMissionPaymentState } from '../../../lib/orders/loadMissionPaymentState'
 import { toOrderRow } from '../../../lib/orders/mapOrder'
 import type { OrderRow } from '../../../lib/orders/types'
 import { computeOrderStats, recentOrders } from '../../../lib/orders/orderStats'
@@ -41,13 +41,16 @@ function missionOrders(orders: OrderRow[] | undefined) {
  * `GET /api/orders/mine`.
  */
 export function useDashboardData() {
-  const orders = useApiQuery(async (signal) => {
-    const rows = (await customerApi.listMyOrders({ signal })).map(toOrderRow)
-    const recentIds = new Set(
-      recentOrders(rows, RECENT_LIMIT).map((order) => order.id),
-    )
-    return loadFinalPaymentState(rows, signal, recentIds)
-  }, [])
+  const orders = useApiQuery(
+    async (signal) => {
+      const rows = (await customerApi.listMyOrders({ signal })).map(toOrderRow)
+      const recentIds = new Set(
+        recentOrders(rows, RECENT_LIMIT).map((order) => order.id),
+      )
+      return loadMissionPaymentState(rows, signal, recentIds)
+    },
+    [],
+  )
   const stats = useMemo(
     () => computeOrderStats(orders.data ?? []),
     [orders.data],

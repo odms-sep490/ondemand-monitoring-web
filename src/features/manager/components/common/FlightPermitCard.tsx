@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { missionsApi } from '../../api/missionsApi'
-import { ordersApi } from '../../api/ordersApi'
+import { ApiError } from '../../../../shared/api/httpClient'
+import { refundApi, type RefundResponse } from '../../../finance/refundApi'
 import type {
   FlightPermitStatus,
   MissionResponse,
@@ -18,17 +19,23 @@ export function FlightPermitCard({
   mission,
   onChanged,
   readOnly = false,
-  paymentComplete = true,
+  depositPaid = false,
+  orderPermitRejected = false,
+  refundEligible,
 }: {
   mission: MissionResponse
   onChanged: () => void
   readOnly?: boolean
-  paymentComplete?: boolean
+  depositPaid?: boolean
+  orderPermitRejected?: boolean
+  refundEligible?: boolean
 }) {
   const { t } = useI18n(flightPermitCardMessages)
   const { t: fb } = useI18n(managerFeedbackMessages)
   const toast = useToast()
   const status = mission.flightPermitStatus ?? 'NOT_REQUESTED'
+  const canRequestDepositRefund = refundEligible ??
+    ((status === 'REJECTED' || orderPermitRejected) && depositPaid)
   const assignedStaff = groupStaffAssignments(
     (mission.staffAssignments ?? []).filter(
       (assignment) => assignment.isCurrent !== false,
@@ -45,7 +52,10 @@ export function FlightPermitCard({
   const [file, setFile] = useState<File | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
-  const [action, setAction] = useState<'reschedule' | 'cancel' | null>(null)
+  const [action, setAction] = useState<'reschedule' | 'refund' | null>(null)
+  const [refund, setRefund] = useState<RefundResponse | null>(null)
+  const [refundLoaded, setRefundLoaded] = useState(false)
+  const [refundLoadError, setRefundLoadError] = useState(false)
   const [newStart, setNewStart] = useState(
     toLocalInput(mission.scheduledStartAt),
   )
@@ -75,6 +85,28 @@ export function FlightPermitCard({
   }, [mission.id, mission.flightPermitNote])
 
   useEffect(() => {
+    const controller = new AbortController()
+    setRefund(null)
+    setRefundLoaded(false)
+    setRefundLoadError(false)
+    refundApi
+      .getManagerOrderRefund(mission.orderId, controller.signal)
+      .then((value) => {
+        if (!controller.signal.aborted) setRefund(value)
+      })
+      .catch((cause) => {
+        if (controller.signal.aborted) return
+        setRefund(null)
+        if (!(cause instanceof ApiError && cause.status === 404))
+          setRefundLoadError(true)
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setRefundLoaded(true)
+      })
+    return () => controller.abort()
+  }, [mission.orderId])
+
+  useEffect(() => {
     if (action !== 'reschedule' || rescheduleScope !== 'ORDER_AND_MISSION')
       return
     const controller = new AbortController()
@@ -94,15 +126,11 @@ export function FlightPermitCard({
       setError(t.staffAcceptanceGate(acceptedStaffCount, assignedStaff.length))
       return
     }
-    if (!paymentComplete) {
-      setError(t.paymentRequired)
+    if (!depositPaid) {
+      setError(t.permitDepositRequired)
       return
     }
-    if (
-      nextStatus === 'APPROVED' &&
-      !file &&
-      !hasSavedPermitFile
-    ) {
+    if (nextStatus === 'APPROVED' && !file && !hasSavedPermitFile) {
       setError(t.permitFileRequired)
       return
     }
@@ -145,8 +173,8 @@ export function FlightPermitCard({
 
   async function submitReschedule() {
     setError('')
-    if (!paymentComplete) {
-      setError(t.paymentRequired)
+    if (!depositPaid) {
+      setError(t.permitDepositRequired)
       return
     }
     const start = new Date(newStart)
@@ -207,23 +235,24 @@ export function FlightPermitCard({
     }
   }
 
-  async function submitCancellationProposal() {
+  async function submitRefundRequest() {
     setError('')
-    if (!paymentComplete) {
-      setError(t.paymentRequired)
+    if (!depositPaid) {
+      setError(t.depositRequired)
       return
     }
     if (!actionNote.trim()) {
-      setError(t.cancellationReasonRequired)
+      setError(t.refundReasonRequired)
       return
     }
     setBusy(true)
     try {
-      await ordersApi.cancelAfterPermitRejection(
+      const created = await refundApi.requestForOrder(
         mission.orderId,
         actionNote.trim(),
       )
-      toast.success(t.cancellationProposed)
+      setRefund(created)
+      toast.success(t.refundRequested)
       setAction(null)
       onChanged()
     } catch (cause) {
@@ -236,11 +265,14 @@ export function FlightPermitCard({
   }
 
   return (() => {
+    const refundHold = refund != null &&
+      ['REQUESTED', 'PROCESSING', 'COMPLETED'].includes(refund.status)
     const canEditPermitFile =
       !readOnly &&
       !cancelled &&
+      !refundHold &&
       (status !== 'APPROVED' || !hasSavedPermitFile) &&
-      paymentComplete
+      depositPaid
 
     return (
       <section
@@ -264,9 +296,24 @@ export function FlightPermitCard({
               <strong>{t.cancelledNotice}</strong>
             </div>
           ) : null}
-          {!cancelled && !paymentComplete ? (
+          {refund ? (
             <div className="odm-flight-permit__blocked" role="status">
-              <strong>{t.paymentRequired}</strong>
+              <strong>{t.refundStatus[refund.status]}</strong>
+              <span>
+                {t.refundAmount(
+                  refund.refundedAmount || refund.refundableAmount,
+                )}
+              </span>
+            </div>
+          ) : null}
+          {refundLoadError ? (
+            <p role="alert" className="odm-flight-permit__error">
+              {t.refundStatusLoadError}
+            </p>
+          ) : null}
+          {!cancelled && !depositPaid ? (
+            <div className="odm-flight-permit__blocked" role="status">
+              <strong>{t.permitDepositRequired}</strong>
             </div>
           ) : null}
           {status === 'REJECTED' && !cancelled ? (
@@ -293,7 +340,10 @@ export function FlightPermitCard({
           !allStaffAccepted ? (
             <div className="odm-flight-permit__blocked" role="status">
               <strong>
-                {t.staffAcceptanceGate(acceptedStaffCount, assignedStaff.length)}
+                {t.staffAcceptanceGate(
+                  acceptedStaffCount,
+                  assignedStaff.length,
+                )}
               </strong>
             </div>
           ) : null}
@@ -324,7 +374,7 @@ export function FlightPermitCard({
                     value={note}
                     maxLength={1000}
                     rows={3}
-                    disabled={busy || cancelled || !paymentComplete}
+                    disabled={busy || cancelled || !depositPaid}
                     readOnly={readOnly}
                     onChange={(event) => setNote(event.target.value)}
                     placeholder={t.notePlaceholder}
@@ -345,7 +395,9 @@ export function FlightPermitCard({
                 </span>
                 <span className="odm-flight-permit__disclosure-action">
                   <span className="when-closed">
-                    {mission.flightPermitFileName ? t.openPermitFile : t.uploadPermitFile}
+                    {mission.flightPermitFileName
+                      ? t.openPermitFile
+                      : t.uploadPermitFile}
                   </span>
                   <span className="when-open">{t.closePermitFile}</span>
                   <span className="odm-disclosure-chevron" aria-hidden="true" />
@@ -358,17 +410,19 @@ export function FlightPermitCard({
                       id={`flight-permit-file-${mission.id}`}
                       type="file"
                       accept="application/pdf,image/*"
-                      disabled={busy || !paymentComplete}
+                      disabled={busy || !depositPaid}
                       aria-label={t.chooseFileAria}
                       aria-required="true"
                       style={{ display: 'none' }}
-                      onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+                      onChange={(event) =>
+                        setFile(event.target.files?.[0] ?? null)
+                      }
                     />
                     {!mission.flightPermitFileName ? (
                       <div className="odm-flight-permit__dropzone">
                         <FilePickerButton
                           inputId={`flight-permit-file-${mission.id}`}
-                          disabled={busy || !paymentComplete}
+                          disabled={busy || !depositPaid}
                           label={t.chooseFile}
                         />
                         <span
@@ -428,19 +482,19 @@ export function FlightPermitCard({
               {error}
             </p>
           ) : null}
-          {!cancelled && !readOnly ? (
+          {!cancelled && !refundHold && !readOnly ? (
             <div className="odm-flight-permit__actions">
               {status === 'REJECTED' ? (
                 <>
                   <Button
                     variant="primary"
-                    disabled={busy || !paymentComplete}
+                    disabled={busy || !depositPaid || refundHold}
                     onClick={() => save('PENDING')}
                   >
                     {t.resubmit}
                   </Button>
                   <Button
-                    disabled={busy || !paymentComplete}
+                    disabled={busy || !depositPaid || refundHold}
                     onClick={() => {
                       setAction('reschedule')
                       setActionNote('')
@@ -448,23 +502,25 @@ export function FlightPermitCard({
                   >
                     {t.reschedule}
                   </Button>
-                  <Button
-                    className="odm-flight-permit__reject"
-                    disabled={busy || !paymentComplete}
-                    onClick={() => {
-                      setAction('cancel')
-                      setActionNote('')
-                    }}
-                  >
-                    {t.proposeCancellation}
-                  </Button>
                 </>
+              ) : null}
+              {!refund && canRequestDepositRefund && refundLoaded && !refundLoadError ? (
+                <Button
+                  className="odm-flight-permit__reject"
+                  disabled={busy}
+                  onClick={() => {
+                    setAction('refund')
+                    setActionNote('')
+                  }}
+                >
+                  {t.requestRefund}
+                </Button>
               ) : null}
               {hasChanges && status !== 'REJECTED' ? (
                 <Button
                   variant="primary"
                   className="odm-flight-permit__save"
-                  disabled={busy || !paymentComplete}
+                  disabled={busy || !depositPaid || refundHold}
                   onClick={() => save('PENDING')}
                 >
                   {t.saveChanges}
@@ -473,7 +529,7 @@ export function FlightPermitCard({
               {status !== 'APPROVED' && status !== 'REJECTED' ? (
                 <Button
                   className="odm-flight-permit__approve"
-                  disabled={busy || !paymentComplete}
+                  disabled={busy || !depositPaid || Boolean(refund)}
                   onClick={() => save('APPROVED')}
                 >
                   <svg
@@ -490,7 +546,7 @@ export function FlightPermitCard({
               {status !== 'REJECTED' && status !== 'APPROVED' ? (
                 <Button
                   className="odm-flight-permit__reject"
-                  disabled={busy || !paymentComplete}
+                  disabled={busy || !depositPaid || Boolean(refund)}
                   onClick={() => save('REJECTED')}
                 >
                   <svg
@@ -661,7 +717,7 @@ export function FlightPermitCard({
               <div className="odm-flight-permit__actions">
                 <Button
                   variant="primary"
-                  disabled={busy || !paymentComplete}
+                  disabled={busy || !depositPaid}
                   onClick={submitReschedule}
                 >
                   {rescheduleScope === 'ORDER_AND_MISSION'
@@ -674,29 +730,39 @@ export function FlightPermitCard({
               </div>
             </div>
           ) : null}
-          {!cancelled && !readOnly && action === 'cancel' ? (
+          {!cancelled && !refundHold && !refund && !readOnly && action === 'refund' ? (
             <div className="odm-flight-permit__remediation odm-flight-permit__remediation--danger">
-              <strong>{t.cancellationWarning}</strong>
-              <label>
-                {t.cancellationReason}
-                <textarea
-                  rows={3}
-                  maxLength={1000}
-                  value={actionNote}
-                  onChange={(e) => setActionNote(e.target.value)}
-                />
-              </label>
-              <div className="odm-flight-permit__actions">
-                <Button
-                  className="odm-flight-permit__reject"
-                  disabled={busy || !paymentComplete}
-                  onClick={submitCancellationProposal}
-                >
-                  {t.submitCancellation}
-                </Button>
-                <Button disabled={busy} onClick={() => setAction(null)}>
-                  {t.close}
-                </Button>
+              <div
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby={`refund-title-${mission.id}`}
+              >
+                <strong id={`refund-title-${mission.id}`}>
+                  {t.refundDialogTitle}
+                </strong>
+                <p>{t.refundOrder(mission.orderCode ?? mission.orderId)}</p>
+                <p>{t.refundWarning}</p>
+                <label>
+                  {t.refundReason}
+                  <textarea
+                    rows={3}
+                    maxLength={2000}
+                    value={actionNote}
+                    onChange={(e) => setActionNote(e.target.value)}
+                  />
+                </label>
+                <div className="odm-flight-permit__actions">
+                  <Button
+                    className="odm-flight-permit__reject"
+                    disabled={busy || !actionNote.trim()}
+                    onClick={submitRefundRequest}
+                  >
+                    {busy ? t.requestingRefund : t.submitRefundRequest}
+                  </Button>
+                  <Button disabled={busy} onClick={() => setAction(null)}>
+                    {t.cancel}
+                  </Button>
+                </div>
               </div>
             </div>
           ) : null}

@@ -1,3 +1,4 @@
+import type { EvidenceCandidateLoader } from '../types/checklistExecution'
 import { checklistReadyForInspection } from '../lib/customerEvidenceSelection'
 import { useState } from 'react'
 import { getLanguage, useLanguage } from '../../../shared/i18n'
@@ -193,7 +194,7 @@ export function MonitoringChecklistSection({
   refresh: () => void
   canAttach?: boolean
   canDetach?: boolean
-  loadEvidenceCandidates?: (page: number) => Promise<EvidenceCandidate[]>
+  loadEvidenceCandidates?: EvidenceCandidateLoader
   attachEvidenceCandidate?: (
     media: EvidenceCandidate,
     item: MissionChecklistExecution,

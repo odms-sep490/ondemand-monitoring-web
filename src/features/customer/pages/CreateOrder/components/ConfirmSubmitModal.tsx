@@ -11,6 +11,7 @@ import { formatMoney } from '../../../lib/createOrder/format'
 import { calcArea } from '../../../lib/createOrder/payload'
 import { localizeTimeslot } from '../../../lib/i18n/timeslots'
 import { localizeServiceName } from '../../../lib/i18n/serviceNames'
+import { resultFormatsFromMediaTotals } from '../../../lib/checklist/types'
 import type { FormState } from '../../../lib/createOrder/types'
 import { confirmSubmitModalMessages } from './ConfirmSubmitModal.messages'
 import { deliveryOptionsCardMessages } from './DeliveryOptionsCard.messages'
@@ -35,6 +36,9 @@ export function ConfirmSubmitModal(p: Props) {
   const { t: d } = useI18n(deliveryOptionsCardMessages)
   const media = p.mediaTotals
   const { form } = p
+  const resultFormats = media
+    ? resultFormatsFromMediaTotals(media)
+    : form.resultFormats
   const dateFrom = formatIsoDate(form.preferredDateFrom, lang)
   const dateTo = formatIsoDate(form.preferredDateTo, lang)
   const preferredDates =
@@ -123,7 +127,7 @@ export function ConfirmSubmitModal(p: Props) {
             </>
           )}
           <dt>{t.resultFormats}</dt>
-          <dd>{form.resultFormats.map((format) => d.formats[format]).join(', ') || '—'}</dd>
+          <dd>{resultFormats.map((format) => d.formats[format]).join(', ') || '—'}</dd>
           <dt>{t.deliveryMethods}</dt>
           <dd>{form.deliveryMethods.map((method) => d.methods[method]).join(', ') || '—'}</dd>
           <dt>{t.retention}</dt>

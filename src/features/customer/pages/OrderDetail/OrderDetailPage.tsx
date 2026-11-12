@@ -8,7 +8,6 @@ import { ContextAwareHelpWidget } from '../../../support/components/ContextAware
 import { deliveryProgressMessages } from '../../../delivery/deliveryProgress.messages'
 import { CustomerDeliveryPanel } from '../../../delivery/CustomerDeliveryPanel'
 import type { Delivery, DeliveryPanelLoadState } from '../../../delivery/types'
-import type { Invoice } from '../../../finance/types'
 import {
   CustomerFinancePanel,
   type CustomerFinanceState,
@@ -43,7 +42,6 @@ type CustomerOrderEvent = {
   eventType: string
   orderId: string
   quoteId?: string | null
-  invoiceId?: string | null
   occurredAt?: string
 }
 
@@ -62,31 +60,6 @@ function getSeenQuoteId(orderId: string) {
 function markQuoteAsSeen(orderId: string, quoteId: string) {
   try {
     window.localStorage.setItem(quoteSeenStorageKey(orderId), quoteId)
-  } catch {
-    // The live session still clears the badge when browser storage is unavailable.
-  }
-}
-
-function finalPaymentSeenStorageKey(orderId: string) {
-  return `customer-order-final-payment-seen:${orderId}`
-}
-
-function finalPaymentToken(invoice: Invoice | null) {
-  if (!invoice?.finalPaymentAllowed || invoice.remainingAmount <= 0) return null
-  return `${invoice.id}:${invoice.finalPaymentExpiresAt ?? 'available'}`
-}
-
-function getSeenFinalPaymentToken(orderId: string) {
-  try {
-    return window.localStorage.getItem(finalPaymentSeenStorageKey(orderId))
-  } catch {
-    return null
-  }
-}
-
-function markFinalPaymentAsSeen(orderId: string, token: string) {
-  try {
-    window.localStorage.setItem(finalPaymentSeenStorageKey(orderId), token)
   } catch {
     // The live session still clears the badge when browser storage is unavailable.
   }
@@ -113,9 +86,6 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
   })
   const [financeRefreshVersion, setFinanceRefreshVersion] = useState(0)
   const [unreadQuoteId, setUnreadQuoteId] = useState<string | null>(null)
-  const [unreadFinalPaymentToken, setUnreadFinalPaymentToken] = useState<
-    string | null
-  >(null)
   const [selectedTab, setSelectedTab] = useState<{
     orderId: string
     tab: DetailTab
@@ -183,10 +153,6 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
           return
         }
 
-        if (event.eventType === 'FINAL_PAYMENT_REQUIRED' && event.invoiceId) {
-          setFinanceRefreshVersion((version) => version + 1)
-          detail.reload()
-        }
       })
     }
 
@@ -203,37 +169,11 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
     else setUnreadQuoteId(quote.id)
   }, [finance.quote?.id, finance.quote?.status, orderId])
 
-  useEffect(() => {
-    const token = finalPaymentToken(finance.invoice)
-    if (!token) {
-      setUnreadFinalPaymentToken(null)
-      return
-    }
-    if (selectedTab?.orderId === orderId && selectedTab.tab === 'finance') {
-      markFinalPaymentAsSeen(orderId, token)
-      setUnreadFinalPaymentToken(null)
-      return
-    }
-    setUnreadFinalPaymentToken(
-      getSeenFinalPaymentToken(orderId) === token ? null : token,
-    )
-  }, [
-    finance.invoice?.id,
-    finance.invoice?.finalPaymentAllowed,
-    finance.invoice?.finalPaymentExpiresAt,
-    finance.invoice?.remainingAmount,
-    orderId,
-    selectedTab,
-  ])
-
   const acknowledgeQuote = useCallback(() => {
     const quoteId = finance.quote?.id ?? unreadQuoteId
     if (quoteId) markQuoteAsSeen(orderId, quoteId)
     setUnreadQuoteId(null)
-    const paymentToken = finalPaymentToken(finance.invoice)
-    if (paymentToken) markFinalPaymentAsSeen(orderId, paymentToken)
-    setUnreadFinalPaymentToken(null)
-  }, [finance.invoice, finance.quote?.id, orderId, unreadQuoteId])
+  }, [finance.quote?.id, orderId, unreadQuoteId])
 
   const handleTabChange = useCallback(
     (key: string) => {
@@ -438,14 +378,10 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
             label: (
               <span className="od-finance-tab-label">
                 {t.tabFinance}
-                {unreadQuoteId || unreadFinalPaymentToken ? (
+                {unreadQuoteId ? (
                   <Badge
                     dot
-                    title={
-                      unreadFinalPaymentToken
-                        ? t.newFinalPayment
-                        : t.newQuoteApproval
-                    }
+                    title={t.newQuoteApproval}
                   />
                 ) : null}
               </span>

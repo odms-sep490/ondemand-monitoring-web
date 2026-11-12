@@ -109,7 +109,7 @@ export function PrecheckCard({
                           ? '1px solid var(--bd)'
                           : 'none',
                       background:
-                        item.status === 'FAIL' ? 'var(--red-bg)' : '#fff',
+                        item.status === 'FAIL' ? 'var(--red-bg)' : 'var(--sf)',
                       fontSize: 14,
                     }}
                   >

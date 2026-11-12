@@ -74,16 +74,14 @@ export function InvoiceSection({
   busy,
   pay,
   completeTestDeposit,
-  completeTestFinal,
   testPaymentLabel,
   refreshExpired,
 }: {
   invoice: Invoice
   legalReady: boolean
   busy: boolean
-  pay: (type: 'deposit' | 'final') => Promise<void>
+  pay: (type: 'deposit') => Promise<void>
   completeTestDeposit: () => Promise<void>
-  completeTestFinal: () => Promise<void>
   testPaymentLabel: string
   refreshExpired?: () => void
 }) {
@@ -91,9 +89,6 @@ export function InvoiceSection({
   const [expiredDeadlineKey, setExpiredDeadlineKey] = useState<string | null>(
     null,
   )
-  const [expiredFinalDeadlineKey, setExpiredFinalDeadlineKey] = useState<
-    string | null
-  >(null)
   const deadlineKey = `${invoice.id}:${invoice.depositExpiresAt ?? ''}`
   const depositIssuedAt = Date.parse(invoice.issuedAt)
   const depositExpiresAt = invoice.depositExpiresAt
@@ -107,15 +102,6 @@ export function InvoiceSection({
     invoice.status === 'OVERDUE' ||
     depositReachedDeadline ||
     expiredDeadlineKey === deadlineKey
-  const finalDeadlineKey = `${invoice.id}:${invoice.finalPaymentExpiresAt ?? ''}`
-  const finalPaymentDeadline = invoice.finalPaymentExpiresAt
-    ? Date.parse(invoice.finalPaymentExpiresAt)
-    : Number.NaN
-  const hasValidFinalDeadline = Number.isFinite(finalPaymentDeadline)
-  const finalPaymentExpired =
-    invoice.status === 'OVERDUE' ||
-    (hasValidFinalDeadline && finalPaymentDeadline <= Date.now()) ||
-    expiredFinalDeadlineKey === finalDeadlineKey
   return (
     <div className="customer-invoice customer-invoice-actions">
       {invoice.depositExpiresAt &&
@@ -148,37 +134,6 @@ export function InvoiceSection({
           </div>
         )
       ) : null}
-      {invoice.finalPaymentExpiresAt &&
-      invoice.paidAmount >= invoice.depositAmount &&
-      invoice.remainingAmount > 0 ? (
-        hasValidFinalDeadline ? (
-          <DeadlineCountdown
-            expired={finalPaymentExpired}
-            label={
-              finalPaymentExpired
-                ? t.finalPaymentExpired
-                : t.finalPaymentCountdownLabel
-            }
-            deadline={invoice.finalPaymentExpiresAt}
-            startAt={invoice.finalPaymentStartedAt}
-            deadlineLabel={t.finalPaymentDeadlineAt(
-              new Date(invoice.finalPaymentExpiresAt).toLocaleString(locale, {
-                dateStyle: 'short',
-                timeStyle: 'medium',
-              }),
-            )}
-            dayLabel={t.dayUnit}
-            hourLabel={t.hourUnit}
-            minuteLabel={t.minuteUnit}
-            secondLabel={t.secondUnit}
-            clockLabel={t.clockLabel}
-            onExpire={() => {
-              setExpiredFinalDeadlineKey(finalDeadlineKey)
-              refreshExpired?.()
-            }}
-          />
-        ) : null
-      ) : null}
       {invoice.orderCancellationReason === 'DEPOSIT_PAYMENT_EXPIRED' ? (
         <div className="customer-deposit-notice">
           <b>{t.orderCancelledPaymentTimeout}</b>
@@ -193,20 +148,6 @@ export function InvoiceSection({
         <div className="customer-deposit-notice is-ready">
           <b>{t.paymentCompleted}</b>
           <span>{t.awaitingResourceConfirmation}</span>
-        </div>
-      ) : invoice.finalPaymentAllowed ? (
-        <div
-          className="customer-deposit-notice is-payment-required"
-          role="status"
-          aria-live="polite"
-        >
-          <b>{t.finalPaymentRequiredTitle}</b>
-          <span>{t.finalPaymentRequired}</span>
-        </div>
-      ) : finalPaymentExpired ? (
-        <div className="customer-deposit-notice">
-          <b>{t.finalPaymentExpired}</b>
-          <span>{t.finalPaymentExpiredBody}</span>
         </div>
       ) : (
         <div className="customer-deposit-notice">
@@ -232,25 +173,6 @@ export function InvoiceSection({
                 disabled={busy}
                 onClick={() => void completeTestDeposit()}
               >
-                {testPaymentLabel}
-              </Button>
-            ) : null}
-          </>
-        ) : null}
-        {invoice.finalPaymentAllowed &&
-        !finalPaymentExpired &&
-        invoice.paidAmount >= invoice.depositAmount &&
-        invoice.remainingAmount > 0 ? (
-          <>
-            <Button
-              type="primary"
-              disabled={busy}
-              onClick={() => void pay('final')}
-            >
-              {t.payRemaining}
-            </Button>
-            {env.testPaymentsEnabled ? (
-              <Button disabled={busy} onClick={() => void completeTestFinal()}>
                 {testPaymentLabel}
               </Button>
             ) : null}

@@ -43,7 +43,7 @@ export type UpdateWeightsPayload = {
 export type OrderExpirationSettings = {
   quotationAcceptanceTimeoutHours: number
   depositPaymentTimeoutHours: number
-  finalPaymentTimeoutHours: number
+  missionPaymentTimeoutHours: number
   updatedBy: string
   updatedAt: string | null
 }
@@ -53,7 +53,7 @@ export type OrderExpirationSettingAudit = {
   settingName:
     | 'quotationAcceptanceTimeoutHours'
     | 'depositPaymentTimeoutHours'
-    | 'finalPaymentTimeoutHours'
+    | 'missionPaymentTimeoutHours'
   previousValue: number
   newValue: number
   actor: string
@@ -64,7 +64,7 @@ export type UpdateOrderExpirationSettingsPayload = Pick<
   OrderExpirationSettings,
   | 'quotationAcceptanceTimeoutHours'
   | 'depositPaymentTimeoutHours'
-  | 'finalPaymentTimeoutHours'
+  | 'missionPaymentTimeoutHours'
 >
 
 export type CreateNoFlyZonePayload = Omit<NoFlyZone, 'id'>

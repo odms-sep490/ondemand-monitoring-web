@@ -103,4 +103,27 @@ describe('useApiQuery', () => {
     await new Promise((resolve) => setTimeout(resolve, 0))
     expect(result.current.data).toBe('second')
   })
+
+  it('does not set state after unmount when the request resolves late', async () => {
+    let resolve!: (value: string) => void
+    const fn = vi.fn(
+      () =>
+        new Promise<string>((res) => {
+          resolve = res
+        }),
+    )
+    const { result, unmount } = renderHook(() => useApiQuery(fn, []))
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    unmount()
+    await act(async () => {
+      resolve('late')
+      await Promise.resolve()
+    })
+
+    expect(result.current.data).toBeUndefined()
+    expect(result.current.loading).toBe(true)
+    expect(errorSpy).not.toHaveBeenCalled()
+    errorSpy.mockRestore()
+  })
 })

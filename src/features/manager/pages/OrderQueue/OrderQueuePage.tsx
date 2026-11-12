@@ -47,14 +47,18 @@ export function OrderQueuePage() {
       await Promise.all(
         approved.map(async (order) => {
           try {
-            const invoice = await financeApi.getManagerInvoice(order.id, signal)
+            const [invoice, allocation] = await Promise.all([
+              financeApi.getManagerInvoice(order.id, signal),
+              financeApi.getManagerMissionPaymentAllocations(order.id, signal).catch(() => null),
+            ])
             const depositStatus = invoice.depositStatus ??
               (invoice.paidAmount >= invoice.depositAmount ? 'DEPOSIT_PAID' : 'WAITING_DEPOSIT')
             return {
               order,
               depositStatus,
-              finalPaymentDue:
-                invoice.finalPaymentAllowed && invoice.remainingAmount > 0,
+              missionPaymentDue: Boolean(allocation?.milestones.some((milestone) =>
+                ['UNPAID', 'PENDING', 'EXPIRED'].includes(milestone.status),
+              )),
             }
           } catch {
             return null
@@ -67,15 +71,15 @@ export function OrderQueuePage() {
       ): row is {
         order: OrderCreateResponse
         depositStatus: DepositStatus
-        finalPaymentDue: boolean
+        missionPaymentDue: boolean
       } => row !== null,
     )
     const depositStatusByOrder = Object.fromEntries(
       invoices.map(({ order, depositStatus }) => [order.id, depositStatus]),
     ) as Record<string, DepositStatus>
-    const finalPaymentDueByOrder = Object.fromEntries(
+    const missionPaymentDueByOrder = Object.fromEntries(
       invoices
-        .filter(({ finalPaymentDue }) => finalPaymentDue)
+        .filter(({ missionPaymentDue }) => missionPaymentDue)
         .map(({ order }) => [order.id, true]),
     ) as Record<string, boolean>
     const paid = (
@@ -92,7 +96,7 @@ export function OrderQueuePage() {
           }),
       )
     ).filter((order): order is OrderCreateResponse => order !== null)
-    return { pending, paid, depositStatusByOrder, finalPaymentDueByOrder }
+    return { pending, paid, depositStatusByOrder, missionPaymentDueByOrder }
   }, [])
 
   // Every order, newest first, so an order never "disappears" once it leaves the review queue.
@@ -127,7 +131,7 @@ export function OrderQueuePage() {
   const pendingOrders = query.data?.pending ?? []
   const paidOrders = query.data?.paid ?? []
   const depositStatusByOrder = query.data?.depositStatusByOrder ?? {}
-  const finalPaymentDueByOrder = query.data?.finalPaymentDueByOrder ?? {}
+  const missionPaymentDueByOrder = query.data?.missionPaymentDueByOrder ?? {}
   const allOrders = allQuery.data?.orders
   const started = allQuery.data?.started
 
@@ -214,7 +218,7 @@ export function OrderQueuePage() {
         total={total}
         mode={activeTab}
         depositStatusByOrder={depositStatusByOrder}
-        finalPaymentDueByOrder={finalPaymentDueByOrder}
+        missionPaymentDueByOrder={missionPaymentDueByOrder}
         isInProgress={(order) => groupOf(order) === 'IN_PROGRESS'}
       />
     )

@@ -3,7 +3,7 @@
   "orderExpirationSettings": {
     "quotationAcceptanceTimeoutHours": 48,
     "depositPaymentTimeoutHours": 24,
-    "finalPaymentTimeoutHours": 24,
+    "missionPaymentTimeoutHours": 24,
     "updatedBy": "system",
     "updatedAt": null
   },

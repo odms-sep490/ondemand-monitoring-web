@@ -30,7 +30,7 @@ export function MissionListTable({
     return (
       <div
         className="odm-card"
-        style={{ borderTop: 0, borderRadius: '0 0 8px 8px' }}
+        style={{ borderTop: 0, borderRadius: '0 0 var(--mgr-radius) var(--mgr-radius)' }}
       >
         <div
           className="odm-card-body"
@@ -46,7 +46,7 @@ export function MissionListTable({
   return (
     <div
       className="odm-card odm-opr-mission-table-scroll"
-      style={{ borderTop: 0, borderRadius: '0 0 8px 8px', overflowX: 'auto' }}
+      style={{ borderTop: 0, borderRadius: '0 0 var(--mgr-radius) var(--mgr-radius)', overflowX: 'auto' }}
       role="region"
       aria-label={
         lang === 'vi'

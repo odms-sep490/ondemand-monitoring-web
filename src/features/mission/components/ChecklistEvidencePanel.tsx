@@ -1,3 +1,4 @@
+import { evidenceCandidatePage } from '../lib/evidenceCandidatePage'
 import { VideoThumbnail } from '../../../shared/components/media/VideoThumbnail'
 import { getUploadMediaStatusLabel } from '../../drone-operator/pages/UploadMedia/uploadMediaHelpers'
 import { CustomerEvidenceSelection } from './CustomerEvidenceSelection'
@@ -16,6 +17,7 @@ import { checklistEvidenceApi } from '../api/checklistEvidenceApi'
 import type {
   EvidenceBlockingReason,
   EvidenceCandidate,
+  EvidenceCandidateLoader,
   MissionChecklistExecution,
 } from '../types/checklistExecution'
 import './ChecklistEvidencePanel.css'
@@ -111,7 +113,7 @@ function MissionEvidencePanel({
   hideAssessmentRequirement?: boolean
   canSelectForCustomer?: boolean
   refresh: () => void
-  loadCandidates?: (page: number) => Promise<EvidenceCandidate[]>
+  loadCandidates?: EvidenceCandidateLoader
   attachCandidate?: (
     media: EvidenceCandidate,
     item: MissionChecklistExecution,
@@ -147,6 +149,7 @@ function MissionEvidencePanel({
     })
   }
   const [candidates, setCandidates] = useState<EvidenceCandidate[] | null>(null)
+  const [hasMoreCandidates, setHasMoreCandidates] = useState(false)
   const [page, setPage] = useState(0)
   const [query, setQuery] = useState('')
   const [busy, setBusy] = useState(false)
@@ -205,12 +208,12 @@ function MissionEvidencePanel({
     setPage(nextPage)
     try {
       const result = await (loadCandidates
-        ? loadCandidates(nextPage)
+        ? loadCandidates(nextPage, abort.signal)
         : checklistEvidenceApi.candidates(missionId, nextPage, abort.signal))
       if (abort.signal.aborted || request.current.number !== number) return
-      if (!Array.isArray(result))
-        throw new Error('Invalid evidence candidate response')
-      setCandidates(result)
+      const loaded = evidenceCandidatePage(result)
+      setCandidates(loaded.items)
+      setHasMoreCandidates(loaded.hasMore)
       setPage(nextPage)
     } catch (cause) {
       if (!abort.signal.aborted && request.current.number === number)
@@ -232,7 +235,7 @@ function MissionEvidencePanel({
     media.alreadyAttachedExecutionIds.includes(item.id) ||
     Boolean(item.evidence?.some((link) => link.mediaId === media.mediaId))
   const allAttached = eligible.length > 0 && eligible.every(attached)
-  const hasNext = (candidates?.length ?? 0) >= 50
+  const hasNext = hasMoreCandidates
   const unableToVerify = item.executionStatus === 'UNABLE_TO_VERIFY'
   const configuredRequired = item.minimumEvidenceCount ?? 0
   const have = item.eligibleEvidenceCount ?? 0

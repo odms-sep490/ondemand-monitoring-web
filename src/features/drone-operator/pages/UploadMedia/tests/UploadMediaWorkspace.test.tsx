@@ -2,6 +2,8 @@ import 'fake-indexeddb/auto'
 import { authSession } from '../../../../auth/api/authSession'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
+  act,
+  cleanup,
   fireEvent,
   render as renderComponent,
   screen,
@@ -124,18 +126,104 @@ beforeEach(() => {
     ],
   })
 })
-afterEach(() => vi.restoreAllMocks())
+afterEach(async () => {
+  // Let in-flight requests settle, then unmount, so nothing resolves after
+  // the jsdom environment is torn down.
+  await act(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 0))
+  })
+  cleanup()
+  vi.restoreAllMocks()
+})
 describe('Upload media and monitoring workspace', () => {
-  it('retains the server video poster when the uploaded file is still local', async () => {
-    vi.mocked(missionApi.getPermissions).mockResolvedValue({ ...permissions, canUploadMedia: true })
-    vi.mocked(operatorMediaApi.reviewItems).mockResolvedValue([{ ...media, backendMediaId: 'server-video', mediaType: 'VIDEO', contentType: 'video/mp4', fileName: 'clip.mp4', status: 'AVAILABLE', localAvailable: true }])
-    vi.mocked(operatorMissionMediaApi.list).mockResolvedValue({ items: [{ mediaId: 'server-video', missionId: 'm', deviceId: 'd', mediaType: 'VIDEO', fileName: 'clip.mp4', contentType: 'video/mp4', fileSize: 200, capturedAt: media.capturedAt, availableAt: null, downloadUrl: 'https://example.test/original.mp4', thumbnailUrl: 'https://example.test/poster.jpg', previewUrl: 'https://example.test/preview.mp4', status: 'AVAILABLE', urlExpiresAt: '' }], page: 0, totalItems: 1, totalPages: 1, first: true, last: true })
+  it('lets Staff add a drone capture from the SD card inside the Mission media workspace', async () => {
+    vi.mocked(missionApi.getPermissions).mockResolvedValue({
+      ...permissions,
+      canUploadMedia: true,
+    })
+    const uploadStaffFile = vi
+      .spyOn(operatorMediaApi, 'uploadStaffFile')
+      .mockResolvedValue('staff-media-1')
     render(<UploadMediaPage missionId="m" />)
-    const open = await screen.findByRole('button', { name: 'Xem video clip.mp4' })
-    expect(open.querySelector('img')).toHaveAttribute('src', 'https://example.test/poster.jpg')
+
+    const picker = await screen.findByLabelText(
+      'Thêm ảnh/video từ thẻ nhớ drone',
+    )
+    fireEvent.change(picker, {
+      target: {
+        files: [new File(['drone capture'], 'capture.jpg', { type: 'image/jpeg' })],
+      },
+    })
+
+    fireEvent.change(await screen.findByLabelText('Thời gian chụp/quay — giờ Việt Nam (UTC+7): capture.jpg'), { target: { value: '2026-10-05T07:00' } })
+    fireEvent.change(screen.getByLabelText('Lý do xác nhận hoặc điều chỉnh thời gian: capture.jpg'), { target: { value: 'Xác nhận từ nhật ký drone' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Tải lên các tệp đã xác nhận' }))
+    await waitFor(() =>
+      expect(uploadStaffFile).toHaveBeenCalledWith(
+        'm',
+        'd',
+        expect.any(File),
+        '2026-10-05T00:00:00.000Z',
+        expect.any(Function),
+        expect.objectContaining({ captureTimeSource: 'STAFF_CONFIRMED' }),
+      ),
+    )
+  })
+
+  it('retains the server video poster when the uploaded file is still local', async () => {
+    vi.mocked(missionApi.getPermissions).mockResolvedValue({
+      ...permissions,
+      canUploadMedia: true,
+    })
+    vi.mocked(operatorMediaApi.reviewItems).mockResolvedValue([
+      {
+        ...media,
+        backendMediaId: 'server-video',
+        mediaType: 'VIDEO',
+        contentType: 'video/mp4',
+        fileName: 'clip.mp4',
+        status: 'AVAILABLE',
+        localAvailable: true,
+      },
+    ])
+    vi.mocked(operatorMissionMediaApi.list).mockResolvedValue({
+      items: [
+        {
+          mediaId: 'server-video',
+          missionId: 'm',
+          deviceId: 'd',
+          mediaType: 'VIDEO',
+          fileName: 'clip.mp4',
+          contentType: 'video/mp4',
+          fileSize: 200,
+          capturedAt: media.capturedAt,
+          availableAt: null,
+          downloadUrl: 'https://example.test/original.mp4',
+          thumbnailUrl: 'https://example.test/poster.jpg',
+          previewUrl: 'https://example.test/preview.mp4',
+          status: 'AVAILABLE',
+          urlExpiresAt: '',
+        },
+      ],
+      page: 0,
+      totalItems: 1,
+      totalPages: 1,
+      first: true,
+      last: true,
+    })
+    render(<UploadMediaPage missionId="m" />)
+    const open = await screen.findByRole('button', {
+      name: 'Xem video clip.mp4',
+    })
+    expect(open.querySelector('img')).toHaveAttribute(
+      'src',
+      'https://example.test/poster.jpg',
+    )
     expect(document.querySelector('video')).toBeNull()
     fireEvent.click(open)
-    expect(await screen.findByLabelText('clip.mp4', { selector: 'video' })).toHaveAttribute('src', 'https://example.test/preview.mp4')
+    expect(
+      await screen.findByLabelText('clip.mp4', { selector: 'video' }),
+    ).toHaveAttribute('src', 'https://example.test/preview.mp4')
   })
   it('keeps readonly acceptance free of the removed contact notice', async () => {
     vi.mocked(missionApi.getPermissions).mockResolvedValue({

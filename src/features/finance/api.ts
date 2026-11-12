@@ -8,6 +8,7 @@ import type {
   PricingReview,
   Quote,
   CustomerQuote,
+  MissionPaymentAllocation,
 } from './types'
 
 export const financeApi = {
@@ -93,6 +94,34 @@ export const financeApi = {
       `/api/manager/orders/${encodeURIComponent(orderId)}/invoice`,
       { signal },
     ),
+  getManagerMissionPaymentAllocations: (orderId: string, signal?: AbortSignal) =>
+    apiRequest<MissionPaymentAllocation>(
+      `/api/manager/orders/${encodeURIComponent(orderId)}/mission-payment-milestones`,
+      { signal },
+    ),
+  configureManagerMissionPaymentAllocations: (
+    orderId: string,
+    allocations: Array<{ missionId: string; amount: number }>,
+  ) =>
+    apiRequest<MissionPaymentAllocation>(
+      `/api/manager/orders/${encodeURIComponent(orderId)}/mission-payment-milestones`,
+      { method: 'PUT', body: { allocations } },
+    ),
+  getCustomerMissionPaymentAllocations: (orderId: string, signal?: AbortSignal) =>
+    apiRequest<MissionPaymentAllocation>(
+      `/api/orders/${encodeURIComponent(orderId)}/mission-payment-milestones`,
+      { signal },
+    ),
+  createMissionPayment: (milestoneId: string) =>
+    apiRequest<Payment>(
+      `/api/mission-payment-milestones/${encodeURIComponent(milestoneId)}/payments`,
+      { method: 'POST' },
+    ),
+  completeTestMissionPayment: (milestoneId: string) =>
+    apiRequest<Payment>(
+      `/api/mission-payment-milestones/${encodeURIComponent(milestoneId)}/payments/test`,
+      { method: 'POST' },
+    ),
   createDeposit: (invoiceId: string) =>
     apiRequest<Payment>(
       `/api/invoices/${encodeURIComponent(invoiceId)}/payments/deposit`,
@@ -104,23 +133,6 @@ export const financeApi = {
     apiRequest<Payment>(
       `/api/invoices/${encodeURIComponent(invoiceId)}/payments/test-deposit`,
       { method: 'POST' },
-    ),
-  createFinalPayment: (invoiceId: string) =>
-    apiRequest<Payment>(
-      `/api/invoices/${encodeURIComponent(invoiceId)}/payments/final`,
-      {
-        method: 'POST',
-      },
-    ),
-  completeTestFinal: (invoiceId: string) =>
-    apiRequest<Payment>(
-      `/api/invoices/${encodeURIComponent(invoiceId)}/payments/test-final`,
-      { method: 'POST' },
-    ),
-  getPaymentByReference: (transactionReference: string, signal?: AbortSignal) =>
-    apiRequest<Payment>(
-      `/api/payments/by-reference/${encodeURIComponent(transactionReference)}`,
-      { signal },
     ),
   refreshPaymentByReference: (transactionReference: string) =>
     apiRequest<Payment>(

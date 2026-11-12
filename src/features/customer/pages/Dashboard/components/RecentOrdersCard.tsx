@@ -42,7 +42,7 @@ export function RecentOrdersCard({ orders }: { orders: OrderRow[] }) {
   }
 
   const nextStepFor = (order: OrderRow) => {
-    if (order.finalPaymentState === 'ACTION_REQUIRED') return t.finalPaymentRequired
+    if (order.missionPaymentState === 'ACTION_REQUIRED') return t.missionPaymentRequired
     if (order.depositState === 'ACTION_REQUIRED') return t.depositRequired
 
     switch (order.status) {
@@ -71,7 +71,7 @@ export function RecentOrdersCard({ orders }: { orders: OrderRow[] }) {
   }
 
   const actionFor = (order: OrderRow) => {
-    if (order.finalPaymentState === 'ACTION_REQUIRED') return t.actions.payRemaining
+    if (order.missionPaymentState === 'ACTION_REQUIRED') return t.actions.payMission
     if (order.depositState === 'ACTION_REQUIRED') return t.actions.payDeposit
     if (order.status === 'NEEDS_INFO') return t.actions.addInformation
     if (order.status === 'DRAFT') return t.actions.continue
@@ -137,7 +137,7 @@ export function RecentOrdersCard({ orders }: { orders: OrderRow[] }) {
         const requiresAction =
           order.status === 'NEEDS_INFO' ||
           order.depositState === 'ACTION_REQUIRED' ||
-          order.finalPaymentState === 'ACTION_REQUIRED'
+          order.missionPaymentState === 'ACTION_REQUIRED'
         const actionLabel = actionFor(order)
 
         return (
