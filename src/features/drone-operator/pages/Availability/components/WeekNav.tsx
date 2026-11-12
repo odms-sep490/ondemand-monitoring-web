@@ -1,7 +1,7 @@
 import { useI18n } from '../../../../../shared/i18n'
 import { availabilityPageMessages } from '../AvailabilityPage.messages'
 
-const fmt = (iso: string) => `${iso.slice(8)}/${iso.slice(5, 7)}/${iso.slice(0, 4)}`
+const fmt = (iso: string) => `${iso.slice(8)}/${iso.slice(5, 7)}`
 
 export function WeekNav({
   weekStart,
@@ -25,7 +25,7 @@ export function WeekNav({
       >
         ‹
       </button>
-      <span style={{ fontWeight: 600, fontSize: 13.5 }}>
+      <span className="odm-opr-week-label">
         {t.weekLabel(fmt(weekStart), fmt(weekEnd))}
       </span>
       <button

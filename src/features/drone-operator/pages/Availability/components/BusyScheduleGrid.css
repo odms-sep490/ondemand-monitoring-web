@@ -1,56 +1,297 @@
-.odm-busy-grid-wrap {
-  overflow-x: auto;
+/* Layout: grid card + summary side by side from 1200px, stacked below. */
+.odm-avail-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+@media (min-width: 1200px) {
+  .odm-avail-layout {
+    grid-template-columns: minmax(0, 1fr) 320px;
+  }
 }
 
+.odm-avail-grid-card .ant-card-body {
+  padding: 14px 16px;
+}
+.odm-avail-summary .ant-card-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Header actions: week nav + quota chip */
+.odm-opr-week-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.odm-opr-week-label {
+  font-weight: 600;
+  font-size: 13.5px;
+  min-width: 96px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.odm-avail-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 600;
+  background: var(--mgr-card-2);
+  border: 1px solid var(--mgr-border);
+  color: var(--mgr-text);
+}
+.odm-avail-chip.is-full {
+  background: var(--red-bg);
+  color: var(--red-fg);
+  border-color: var(--red-dot);
+}
+.odm-avail-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Desktop grid */
 .odm-busy-grid {
   border-collapse: separate;
-  border-spacing: 6px;
+  border-spacing: 5px;
   width: 100%;
-  min-width: 640px;
+  table-layout: fixed;
 }
-
+.odm-busy-grid thead td,
+.odm-busy-grid .odm-busy-rowhead {
+  width: 76px;
+}
 .odm-busy-grid th {
-  font-size: 12px;
+  color: var(--mgr-muted);
   font-weight: 600;
-  color: var(--tx2);
-  padding: 6px;
+}
+.odm-busy-grid thead th {
+  padding: 6px 2px;
+  border-radius: 8px;
   text-align: center;
 }
-
-.odm-busy-grid tbody th {
+.odm-busy-dow {
+  display: block;
+  font-size: 12px;
+  color: var(--mgr-text);
+}
+.odm-busy-date {
+  display: block;
+  font-size: 11.5px;
+  color: var(--mgr-muted);
+  font-variant-numeric: tabular-nums;
+}
+.odm-busy-grid thead th.is-today,
+.odm-busy-day.is-today .odm-busy-day-head {
+  background: var(--ui-primary, #2563eb);
+}
+.is-today > .odm-busy-dow,
+.is-today .odm-busy-dow,
+.is-today .odm-busy-date {
+  color: #fff;
+}
+.odm-busy-grid td.is-today {
+  background: color-mix(in srgb, var(--ui-primary, #2563eb) 7%, transparent);
+  border-radius: 8px;
+}
+.odm-busy-rowhead {
   text-align: left;
   white-space: nowrap;
-  color: var(--tx3);
+}
+.odm-busy-session {
+  display: block;
+  font-size: 13px;
+  color: var(--mgr-text);
+}
+.odm-busy-range {
+  display: block;
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
 }
 
+/* Cells */
 .odm-busy-cell {
   width: 100%;
-  height: 48px;
+  height: 40px;
   border-radius: 8px;
-  border: 1px solid var(--bd);
+  border: 1px solid transparent;
   font-size: 12.5px;
   font-weight: 600;
   cursor: pointer;
   background: var(--green-bg);
   color: var(--green-fg);
   transition: filter 0.12s;
+  font-family: inherit;
 }
-
 .odm-busy-cell.is-busy {
   background: var(--red-bg);
   color: var(--red-fg);
   border-color: var(--red-dot);
 }
-
 .odm-busy-cell:hover:not(:disabled) {
   filter: brightness(0.96);
 }
-
+.odm-busy-cell:focus-visible {
+  outline: 2px solid var(--ui-primary, #2563eb);
+  outline-offset: 1px;
+}
 .odm-busy-cell:disabled {
   cursor: not-allowed;
-  opacity: 0.55;
+  opacity: 0.6;
+}
+.odm-busy-cell.is-past.is-free {
+  background: var(--mgr-card-2);
+  color: var(--mgr-muted);
+  border-color: var(--mgr-border);
+}
+.odm-busy-cell-name {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  opacity: 0.85;
 }
 
-.odm-busy-cell.is-past.is-free {
-  background: var(--sf2);
+/* Phone day list */
+.odm-busy-days {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.odm-busy-day {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  gap: 8px;
+  align-items: stretch;
+}
+.odm-busy-day-head {
+  border-radius: 8px;
+  background: var(--mgr-card-2);
+  border: 1px solid var(--mgr-border);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 4px 0;
+}
+.odm-busy-day.is-today .odm-busy-day-head {
+  border-color: transparent;
+}
+.odm-busy-day-cells {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+.odm-busy-day-cells .odm-busy-cell {
+  height: 46px;
+  padding: 2px;
+}
+
+/* Summary */
+.odm-avail-quota-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--mgr-text);
+}
+.odm-avail-bar {
+  margin-top: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--mgr-card-2);
+  border: 1px solid var(--mgr-border);
+  overflow: hidden;
+}
+.odm-avail-bar span {
+  display: block;
+  height: 100%;
+  background: var(--ui-primary, #2563eb);
+  border-radius: 999px;
+}
+.odm-avail-bar.is-full span {
+  background: var(--red-dot);
+}
+.odm-avail-full {
+  margin: 6px 0 0;
+  font-size: 12.5px;
+  color: var(--red-fg);
+}
+.odm-avail-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-size: 12.5px;
+  color: var(--mgr-muted);
+}
+.odm-avail-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.odm-avail-legend i {
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+  border: 1px solid var(--mgr-border);
+}
+.odm-avail-legend .is-free { background: var(--green-bg); border-color: var(--green-dot); }
+.odm-avail-legend .is-busy { background: var(--red-bg); border-color: var(--red-dot); }
+.odm-avail-legend .is-past { background: var(--mgr-card-2); }
+.odm-avail-sub {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--mgr-text);
+}
+.odm-avail-empty,
+.odm-avail-hint {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--mgr-muted);
+}
+.odm-avail-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.odm-avail-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--mgr-border);
+  border-radius: 8px;
+  background: var(--mgr-card-2);
+}
+.odm-avail-item-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  font-size: 12.5px;
+  color: var(--mgr-muted);
+}
+.odm-avail-item-main strong {
+  color: var(--mgr-text);
+  font-size: 13px;
+}
+.odm-avail-item-main em {
+  font-style: normal;
+  overflow-wrap: anywhere;
 }

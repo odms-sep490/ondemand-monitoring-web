@@ -148,4 +148,51 @@ describe('AvailabilityPage', () => {
     expect(await screen.findByText('Availability')).toBeTruthy()
     expect(screen.getByTestId('cell-2026-09-22|MORNING').textContent).toBe('Busy')
   })
+
+  it('lists this week busy sessions in the summary and cancels from there', async () => {
+    vi.spyOn(busyScheduleApi, 'getMyWeek')
+      .mockResolvedValueOnce(week([busyTuesday]))
+      .mockResolvedValue(week([]))
+    const remove = vi.spyOn(busyScheduleApi, 'remove').mockResolvedValue(null)
+    render(<AvailabilityPage />)
+    await screen.findByTestId('cell-2026-09-22|MORNING')
+    expect(screen.getByRole('progressbar').getAttribute('aria-valuenow')).toBe('1')
+    fireEvent.click(screen.getByRole('button', { name: 'Hủy bận 22/09 Sáng' }))
+    await waitFor(() => expect(remove).toHaveBeenCalledWith('b1'))
+    expect(await screen.findByText(/rảnh cả tuần/)).toBeTruthy()
+  })
+
+  it('marks today in the grid and labels cells for assistive tech', async () => {
+    vi.spyOn(busyScheduleApi, 'getMyWeek').mockResolvedValue(week([busyTuesday]))
+    render(<AvailabilityPage />)
+    const cell = await screen.findByTestId('cell-2026-09-22|MORNING')
+    expect(cell.getAttribute('aria-label')).toBe('T3 22/09, Sáng: Bận')
+    expect(document.querySelector('th[aria-current="date"]')?.textContent).toContain('21/09')
+    expect(screen.getByTestId('cell-2026-09-21|MORNING').getAttribute('aria-label')).toBe(
+      'T2 21/09, Sáng: Đã qua',
+    )
+  })
+
+  it('renders a per-day list instead of the table on phone widths', async () => {
+    vi.stubGlobal('matchMedia', (query: string) => ({
+      matches: true,
+      media: query,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    }))
+    try {
+      vi.spyOn(busyScheduleApi, 'getMyWeek').mockResolvedValue(week([busyTuesday]))
+      const create = vi.spyOn(busyScheduleApi, 'create').mockResolvedValue(busyTuesday)
+      render(<AvailabilityPage />)
+      await screen.findByTestId('cell-2026-09-22|MORNING')
+      expect(document.querySelector('table')).toBeNull()
+      expect(document.querySelectorAll('.odm-busy-day')).toHaveLength(7)
+      fireEvent.click(screen.getByTestId('cell-2026-09-23|EVENING'))
+      await waitFor(() =>
+        expect(create).toHaveBeenCalledWith({ date: '2026-09-23', session: 'EVENING' }),
+      )
+    } finally {
+      vi.unstubAllGlobals()
+    }
+  })
 })
