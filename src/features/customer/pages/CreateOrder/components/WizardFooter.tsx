@@ -1,4 +1,5 @@
 import { Button } from 'antd'
+import type { ReactNode } from 'react'
 
 import { useI18n } from '../../../../../shared/i18n'
 import type { Step } from '../../../lib/createOrder/types'
@@ -12,6 +13,7 @@ type Props = {
   nextDisabled?: boolean
   /** Why the primary button is disabled; shown right next to it. */
   blockedReason?: string | null
+  summary?: ReactNode
   onBack: () => void
   onNext: () => void
   onSubmit: () => void
@@ -24,6 +26,7 @@ export function WizardFooter({
   submitting = false,
   nextDisabled = false,
   blockedReason = null,
+  summary,
   onBack,
   onNext,
   onSubmit,
@@ -32,6 +35,7 @@ export function WizardFooter({
   return (
     <div className="co-footer">
       <div className="co-footer-meta">
+        {summary}
         <span className="co-draft-note">{t.draftNote}</span>
         {blockedReason && (
           <span className="co-footer-blocked" role="status">

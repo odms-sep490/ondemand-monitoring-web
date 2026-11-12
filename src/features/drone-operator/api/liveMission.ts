@@ -1,6 +1,7 @@
 import type { Drone, Mission } from '../types/omss'
 import type { OperatorMission, OperatorMissionStatus } from '../types/mission'
 import type { MissionDeviceAssignmentStatus } from '../../mission/types/mission'
+import type { GeoJsonPolygon } from '../../../shared/types/geo'
 
 export type BackendMission = {
   id: string
@@ -58,6 +59,7 @@ export type BackendMission = {
   longitude?: number | null
   radiusM?: number | null
   radiusMeters?: number | null
+  coverageArea?: GeoJsonPolygon | null
   altitudeM?: number | null
   address?: string | null
   scheduledStartAt?: string | null
@@ -295,6 +297,7 @@ export function toOperatorMission(
     assignedStaffCount: staffAssignments?.length,
     rejectReason: source.rejectionReason ?? undefined,
     radiusMeters: source.radiusM ?? source.radiusMeters ?? undefined,
+    coverageArea: source.coverageArea ?? null,
     ceilingMeters: source.plan?.maxPlannedAltitudeM ?? undefined,
     latitude: source.latitude,
     longitude: source.longitude,

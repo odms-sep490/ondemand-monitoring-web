@@ -275,31 +275,25 @@
   }
 }
 
-/* Optional request details stay available without making the first step feel
-   like a second full form. */
-.co-optional-details {
+/* Keep the optional uploads available without hiding the request description. */
+.co-attachment-details {
   margin-top: 12px;
 }
-.co-optional-details > summary {
-  padding: 14px 0 2px;
+.co-attachment-details .ant-collapse-header {
   color: var(--ui-text-2);
   font-size: 13px;
   font-weight: 600;
-  cursor: pointer;
 }
-.co-optional-details[open] > summary {
+.co-attachment-details .ant-collapse-item-active > .ant-collapse-header {
   color: var(--ui-text);
 }
-.co-optional-details-body {
+.co-attachment-details-body {
   display: grid;
   gap: 12px;
   padding-top: 12px;
 }
-.co-optional-details-body .ui-form-field {
+.co-attachment-details-body .ui-form-field {
   margin-bottom: 0;
-}
-.co-optional-details-body textarea.co-input {
-  min-height: 84px;
 }
 
 /* ---------- Notices, blocks, metrics ---------- */

@@ -113,6 +113,7 @@ function toOrderDetail(order: OrderCreateResponse): OrderDetail {
         ? { lat: order.latitude, lon: order.longitude }
         : null,
     radiusM: order.radiusM ?? radiusFromDeliverables(order),
+    coverageArea: order.coverageArea ?? null,
     nearestBase: null,
     mediaRequirements:
       order.deliverables?.map((item) => ({
@@ -122,7 +123,6 @@ function toOrderDetail(order: OrderCreateResponse): OrderDetail {
     attachments: attachmentsFromDeliverables(order),
     title: order.title,
     description: order.description,
-    usagePurpose: order.usagePurpose ?? null,
     flightPurpose: order.flightPurpose ?? null,
     altitudeM: order.altitudeM ?? null,
     estimatedLengthM: order.estimatedLengthM ?? null,
@@ -176,6 +176,7 @@ function toOrderMissionBrief(order: OrderDetail): OrderMissionBrief {
     addressText: order.addressText,
     center: order.center,
     radiusM: order.radiusM,
+    coverageArea: order.coverageArea,
     nearestBase: order.nearestBase,
     mediaRequirements: order.mediaRequirements,
   }

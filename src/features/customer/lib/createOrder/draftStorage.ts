@@ -12,10 +12,8 @@ export const CREATE_ORDER_DRAFT_STORAGE_KEY = 'odm.customer.createOrderDraft.v2'
 export function createDefaultForm(): FormState {
   return {
     title: '',
-    usagePurpose: '',
     flightPurpose: 'SURVEY_MONITORING',
     otherFlightPurpose: '',
-    otherUsagePurpose: '',
     description: '',
     address: '',
     normalizedAddress: '',
@@ -25,6 +23,9 @@ export function createDefaultForm(): FormState {
     locationSource: '',
     locationConfirmedAt: '',
     radiusM: 300,
+    coverageAreaShape: '',
+    coverageArea: null,
+    coverageAreaCenter: null,
     monitoringRelationship: '',
     otherMonitoringRelationship: '',
     monitoringAuthorizationConfirmed: false,
@@ -87,7 +88,6 @@ export function readStoredDraft(): StoredCreateOrderDraft | null {
             ? 'SURVEY_MONITORING'
             : (draft.form.flightPurpose ?? 'SURVEY_MONITORING'),
         otherFlightPurpose: draft.form.otherFlightPurpose ?? '',
-        otherUsagePurpose: draft.form.otherUsagePurpose ?? '',
         permitExpiresOn: draft.form.permitExpiresOn ?? '',
         permitDocuments: draft.form.permitDocuments ?? [],
         monitoringRelationship: draft.form.monitoringRelationship ?? '',
@@ -101,7 +101,10 @@ export function readStoredDraft(): StoredCreateOrderDraft | null {
         locationStatus:
           draft.form.locationStatus === 'confirmed' &&
           Boolean(draft.form.locationConfirmedAt) &&
-          Boolean(draft.form.normalizedAddress)
+          Number.isFinite(Number(draft.form.latitude)) &&
+          Math.abs(Number(draft.form.latitude)) <= 90 &&
+          Number.isFinite(Number(draft.form.longitude)) &&
+          Math.abs(Number(draft.form.longitude)) <= 180
             ? 'confirmed'
             : 'unconfirmed',
         locationSource:
@@ -109,6 +112,9 @@ export function readStoredDraft(): StoredCreateOrderDraft | null {
             ? (draft.form.locationSource ?? 'restored')
             : '',
         locationConfirmedAt: draft.form.locationConfirmedAt ?? '',
+        coverageAreaShape: draft.form.coverageAreaShape ?? '',
+        coverageArea: draft.form.coverageArea ?? null,
+        coverageAreaCenter: draft.form.coverageAreaCenter ?? null,
         resultFormats: draft.form.resultFormats.filter((value) =>
           RESULT_FORMATS.includes(value as ResultFormat),
         ) as ResultFormat[],

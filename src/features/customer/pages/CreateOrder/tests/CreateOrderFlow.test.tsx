@@ -52,8 +52,8 @@ async function fillService() {
   fireEvent.change(screen.getByLabelText(/Tiêu đề/), {
     target: { value: 'Đơn kiểm thử' },
   })
-  fireEvent.change(screen.getByLabelText(/Kết quả sẽ được dùng/), {
-    target: { value: 'INTERNAL' },
+  fireEvent.change(screen.getByLabelText(/Mục đích chuyến bay/), {
+    target: { value: 'CONSTRUCTION_MONITORING' },
   })
   next('Vị trí & vùng giám sát')
 }
@@ -61,15 +61,39 @@ async function fillService() {
 async function fillLocation(
   onContent?: () => Promise<void> | void,
   allowBlockedChecklist = false,
+  shape: 'Tự vẽ vùng' | 'Đa giác' = 'Tự vẽ vùng',
 ) {
-  fireEvent.change(await screen.findByLabelText(/Địa chỉ hoặc khu vực/), {
-    target: { value: 'KCN Long Hậu' },
-  })
   fireEvent.click(screen.getByText('Tọa độ nâng cao'))
   fireEvent.click(
-    await screen.findByRole('button', { name: 'Xác nhận tọa độ này' }),
+    await screen.findByRole('button', { name: 'Xác nhận tọa độ' }),
   )
-  await screen.findByText('Đã xác nhận vị trí')
+  await screen.findByText('Đã chọn')
+  fireEvent.click(screen.getByRole('button', { name: shape }))
+  const map = screen.getByRole('region', {
+    name: 'Bản đồ chọn vị trí và khu vực giám sát',
+  })
+  Object.defineProperty(map, 'clientWidth', {
+    configurable: true,
+    value: 800,
+  })
+  Object.defineProperty(map, 'clientHeight', {
+    configurable: true,
+    value: 500,
+  })
+  map.getBoundingClientRect = () => new DOMRect(0, 0, 800, 500)
+  fireEvent(window, new Event('resize'))
+  for (const [x, y] of [
+    [280, 175],
+    [520, 175],
+    [520, 325],
+    [280, 325],
+    [280, 175],
+  ]) {
+    fireEvent.click(map, { clientX: x, clientY: y })
+  }
+  await waitFor(() =>
+    expect(screen.getByText('Số đỉnh').parentElement).toHaveTextContent('4'),
+  )
   next('Nội dung giám sát')
   await onContent?.()
   const forward = await screen.findByRole('button', {
@@ -185,7 +209,7 @@ describe('CreateOrderPage wizard', () => {
     20_000,
   )
 
-  it('shows services and goal fields on step 1', async () => {
+  it('shows services and the request title on step 1', async () => {
     await renderWizard()
     expect(
       await screen.findByRole('button', { name: /Giám sát công trình/ }),
@@ -196,9 +220,6 @@ describe('CreateOrderPage wizard', () => {
   it('blocks step 1 without a title when the catalog selects its default service', async () => {
     await renderWizard()
     await screen.findByRole('button', { name: /Giám sát công trình/ })
-    fireEvent.change(screen.getByLabelText(/Kết quả sẽ được dùng/), {
-      target: { value: 'INTERNAL' },
-    })
     next('Vị trí & vùng giám sát')
     expect(await screen.findByText('Nhập tiêu đề yêu cầu.')).toBeInTheDocument()
     expect(screen.queryByText('Chọn dịch vụ giám sát.')).not.toBeInTheDocument()
@@ -221,16 +242,16 @@ describe('CreateOrderPage wizard', () => {
     ).not.toBeInTheDocument()
   })
 
-  it('shows the real location map on step 2 and requires an address', async () => {
+  it('shows the shared map and requires a confirmed location and coverage area', async () => {
     await renderWizard()
     await fillService()
     expect(
       await screen.findByRole('region', {
-        name: 'Bản đồ chọn vị trí giám sát',
+        name: 'Bản đồ chọn vị trí và khu vực giám sát',
       }),
     ).toBeInTheDocument()
     next('Nội dung giám sát')
-    // With no confirmed location the step reports that it must be confirmed.
+    // The address can be omitted, but the location must be confirmed.
     expect(
       await screen.findByText(
         'Xác nhận lại vị trí để đồng bộ địa chỉ, tọa độ và điểm trên bản đồ.',
@@ -239,10 +260,17 @@ describe('CreateOrderPage wizard', () => {
     expect(screen.getByLabelText(/Địa chỉ hoặc khu vực/)).toBeInTheDocument()
   })
 
-  it('continues from location to schedule after a valid address', async () => {
+  it('continues from location to schedule after a valid coordinate and custom area', async () => {
     await renderWizard()
     await fillService()
     await fillLocation()
+    expect(await screen.findByLabelText(/Ngày sớm nhất/)).toBeInTheDocument()
+  })
+
+  it('draws a suggested polygon by tapping points and closing the first point', async () => {
+    await renderWizard()
+    await fillService()
+    await fillLocation(undefined, false, 'Đa giác')
     expect(await screen.findByLabelText(/Ngày sớm nhất/)).toBeInTheDocument()
   })
 

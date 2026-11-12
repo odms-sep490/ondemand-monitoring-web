@@ -1,11 +1,10 @@
 import {
-  BellOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   SearchOutlined,
   ToolOutlined,
 } from '@ant-design/icons'
-import { Badge, Breadcrumb, Button, Input, Layout } from 'antd'
+import { Breadcrumb, Button, Input, Layout } from 'antd'
 
 import { Icon } from '../../shared/components/Icon'
 import { LanguageToggle } from '../../shared/components/LanguageToggle'
@@ -13,12 +12,12 @@ import { PortalUserMenu } from '../../shared/components/portal/PortalUserMenu'
 import { useI18n } from '../../shared/i18n'
 import { operatorHref } from './routes'
 import { operatorTopbarMessages } from './OperatorTopbar.messages'
+import { NotificationBell } from '../notifications/NotificationBell'
 
 export function OperatorTopbar({
   breadcrumb,
   collapsed,
   dark,
-  notificationCount,
   onToggleDark,
   onToggleNavigation,
   searchQuery,
@@ -27,7 +26,6 @@ export function OperatorTopbar({
   breadcrumb: string
   collapsed: boolean
   dark: boolean
-  notificationCount?: number
   onToggleDark: () => void
   onToggleNavigation: () => void
   searchQuery: string
@@ -80,15 +78,7 @@ export function OperatorTopbar({
         >
           <span className="mgr-support-label">{t.maintenanceLink}</span>
         </Button>
-        <a
-          className="mgr-icon-btn"
-          href={operatorHref({ screen: 'notifications' })}
-          aria-label={t.notifications}
-        >
-          <Badge count={notificationCount ?? 0} size="small" overflowCount={99}>
-            <BellOutlined style={{ fontSize: 18, color: 'inherit' }} />
-          </Badge>
-        </a>
+        <NotificationBell role="STAFF" />
         <LanguageToggle className="mgr-lang-toggle" />
         <Button
           type="text"

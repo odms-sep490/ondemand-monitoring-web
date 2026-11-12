@@ -146,7 +146,6 @@ export type Screen =
   | 'mission-list'
   | 'mission-detail'
   | 'accept-reject'
-  | 'gcs-connect'
   | 'preflight'
   | 'preflight-failure'
   | 'drone-replacement'

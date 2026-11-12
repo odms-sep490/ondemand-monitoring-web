@@ -17,6 +17,7 @@ import { OrdersPage } from './pages/Orders'
 import { MissionHistoryPage } from './pages/MissionHistory'
 import { MissionHistoryDetailPage } from './pages/MissionHistoryDetail'
 import { CustomerMissionReportPage } from './components/reports/CustomerMissionReportPage'
+import { NotificationsPage } from '../notifications/NotificationsPage'
 import { customerHref, parseCustomerRoute, type CustomerRoute } from './routes'
 
 function useHash(): string {
@@ -66,6 +67,8 @@ function renderScreen(
   if (route.screen === 'mediaLibrary') return <MediaLibraryPage />
   if (route.screen === 'mediaDetail')
     return <MediaDetailPage mediaId={route.mediaId} />
+  if (route.screen === 'notifications')
+    return <NotificationsPage role="CUSTOMER" />
 
   return (
     <EmptyState

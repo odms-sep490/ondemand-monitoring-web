@@ -129,11 +129,6 @@ export function usePostflightAssessment({
         telemetrySnapshot,
       )
 
-      await missionApi
-        .disconnectGcs(effectiveMissionId, 'POSTFLIGHT_COMPLETED')
-        .catch(() => {
-          // Postcheck is complete; local cleanup must still happen even if the session was already closed.
-        })
       await flightControlApi.releaseSession(effectiveMissionId).catch(() => {
         // Controller may be offline after landing; local cleanup still allows the operator flow to reset.
       })

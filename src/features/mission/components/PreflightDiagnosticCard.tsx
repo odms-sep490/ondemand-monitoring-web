@@ -8,20 +8,18 @@ interface PreflightDiagnosticCardProps {
   check?: PreflightCheck | null
   batteryLevel: number
   gpsSatellites: number
-  isConnecting: boolean
+  isChecking: boolean
   onRunPreflight: () => void
-  onConnectGcs: () => void
-  isGcsConnected: boolean
+  hasAssignedDevice: boolean
 }
 
 export function PreflightDiagnosticCard({
   check,
   batteryLevel,
   gpsSatellites,
-  isConnecting,
+  isChecking,
   onRunPreflight,
-  onConnectGcs,
-  isGcsConnected,
+  hasAssignedDevice,
 }: PreflightDiagnosticCardProps) {
   const { t } = useI18n(preflightDiagnosticCardMessages)
   return (
@@ -66,15 +64,6 @@ export function PreflightDiagnosticCard({
           </h3>
         </div>
 
-        <Button
-          variant="secondary"
-          icon="radio"
-          onClick={onConnectGcs}
-          disabled={isConnecting || isGcsConnected}
-          style={{ minHeight: '40px', fontSize: '0.78rem' }}
-        >
-          {isGcsConnected ? t.gcsConnected : t.connectGcs}
-        </Button>
       </div>
 
       {/* Diagnostics Telemetry Grid */}
@@ -255,10 +244,10 @@ export function PreflightDiagnosticCard({
           variant="primary"
           icon="activity"
           onClick={onRunPreflight}
-          disabled={isConnecting || !isGcsConnected}
+          disabled={isChecking || !hasAssignedDevice}
           style={{ minHeight: '46px', padding: '0 28px' }}
         >
-          {isConnecting ? t.scanning : t.startPreflight}
+          {isChecking ? t.scanning : t.startPreflight}
         </Button>
 
         {check && (

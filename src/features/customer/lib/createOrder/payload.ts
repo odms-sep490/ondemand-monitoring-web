@@ -5,6 +5,7 @@ import type {
 } from '../../api/customerApi'
 import { toNumber, truncateText } from './format'
 import type { ReadinessScore, FormState } from './types'
+import { coverageAreaMetrics } from './coverageGeometry'
 
 export const ORDER_TITLE_MAX_LENGTH = 255
 export const DEFAULT_LATITUDE = 10.6402
@@ -19,21 +20,21 @@ export function calcArea(radiusM: number) {
 export function pricingAreaHa(form: FormState): number | undefined {
   const latitude = Number(form.latitude)
   const longitude = Number(form.longitude)
+  const areaM2 = coverageAreaMetrics(form.coverageArea)?.areaM2
   if (
     form.locationStatus !== 'confirmed' ||
     !form.locationConfirmedAt ||
-    !form.normalizedAddress.trim() ||
     !form.latitude.trim() ||
     !form.longitude.trim() ||
     !Number.isFinite(latitude) ||
     !Number.isFinite(longitude) ||
     Math.abs(latitude) > 90 ||
     Math.abs(longitude) > 180 ||
-    !Number.isFinite(form.radiusM) ||
-    form.radiusM <= 0
+    !areaM2 ||
+    areaM2 <= 0
   )
     return undefined
-  const areaHa = Number(calcArea(form.radiusM))
+  const areaHa = areaM2 / 10_000
   return areaHa > 0 ? areaHa : undefined
 }
 
@@ -89,9 +90,14 @@ export function buildOrderPayload(input: {
         ...(totals.videos > 0 ? ['VIDEO'] : []),
       ]
     : form.resultFormats.filter((format) => format !== 'PDF_REPORT')
+  const coverageMetrics = coverageAreaMetrics(form.coverageArea)
   const detail = {
     radiusM: form.radiusM,
-    estimatedAreaHa: Number(calcArea(form.radiusM)),
+    coverageAreaShape: form.coverageAreaShape,
+    coverageAreaCenter: form.coverageAreaCenter,
+    estimatedAreaHa: coverageMetrics
+      ? Number((coverageMetrics.areaM2 / 10_000).toFixed(4))
+      : undefined,
     areaFiles: form.areaFiles.map((file) => ({
       id: file.id,
       fileName: file.fileName,
@@ -106,13 +112,10 @@ export function buildOrderPayload(input: {
       sizeBytes: attachment.sizeBytes,
       dataUrl: attachment.dataUrl,
     })),
-    usagePurpose: form.usagePurpose || undefined,
     otherFlightPurpose:
       form.flightPurpose === 'OTHER'
         ? form.otherFlightPurpose.trim()
         : undefined,
-    otherUsagePurpose:
-      form.usagePurpose === 'OTHER' ? form.otherUsagePurpose.trim() : undefined,
     otherMonitoringRelationship:
       form.monitoringRelationship === 'OTHER'
         ? form.otherMonitoringRelationship.trim()
@@ -131,7 +134,6 @@ export function buildOrderPayload(input: {
     title: truncateText(form.title, ORDER_TITLE_MAX_LENGTH),
     description: form.description.trim() || undefined,
     serviceId: form.serviceId,
-    usagePurpose: form.usagePurpose || undefined,
     flightPurpose: form.flightPurpose,
     address: form.address.trim(),
     longitude,
@@ -156,7 +158,10 @@ export function buildOrderPayload(input: {
             notes: document.notes.trim() || undefined,
           }))
         : undefined,
-    coverageArea: buildCoverageArea(longitude, latitude, form.radiusM),
+    // Keep the backend contract as GeoJSON Polygon. Rectangles and circles are
+    // represented by closed Polygon rings, just like user-drawn polygons.
+    coverageArea:
+      form.coverageArea ?? buildCoverageArea(longitude, latitude, form.radiusM),
     preferredDateFrom: form.preferredDateFrom,
     preferredDateTo: form.preferredDateTo,
     preferredTimeId: form.preferredTimeId,

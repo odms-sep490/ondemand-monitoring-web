@@ -139,7 +139,6 @@ export function ManagerLayout({
               breadcrumb={breadcrumb}
               collapsed={collapsed}
               dark={dark}
-              pendingOrders={counts?.pendingOrders}
               onToggleSider={() => setCollapsed((v) => !v)}
               onToggleTheme={() => setDark((v) => !v)}
             />

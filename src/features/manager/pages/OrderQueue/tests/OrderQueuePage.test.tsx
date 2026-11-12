@@ -73,6 +73,7 @@ afterEach(() => {
 
 beforeEach(() => {
   vi.spyOn(ordersApi, 'getApproved').mockResolvedValue([])
+  vi.spyOn(ordersApi, 'getManaged').mockResolvedValue([])
   vi.spyOn(financeApi, 'getManagerInvoice').mockRejectedValue(new Error('No invoice'))
   vi.spyOn(planningApi, 'getOrderMissions').mockResolvedValue([])
 })
@@ -124,7 +125,26 @@ describe('QueuePage', () => {
     await waitFor(() => screen.getByText('Hàng đợi duyệt đơn'))
     expect(screen.getByText('ORD-2609-0157')).toBeInTheDocument()
     expect(screen.getByText('ORD-2609-0160')).toBeInTheDocument()
+    expect(screen.queryByRole('columnheader', { name: 'Đã chờ' })).not.toBeInTheDocument()
     expect(screen.getByText('2 đơn chờ duyệt · 0 đơn chờ lập kế hoạch · 0 đơn chờ cọc')).toBeInTheDocument()
+  })
+
+  it('keeps loaded queue rows visible while refreshing', async () => {
+    let resolveRefresh!: (value: OrderCreateResponse[]) => void
+    const getQueue = vi
+      .spyOn(ordersApi, 'getQueue')
+      .mockResolvedValueOnce(rows)
+      .mockImplementationOnce(
+        () => new Promise((resolve) => { resolveRefresh = resolve }),
+      )
+    render(<OrderQueuePage />)
+
+    expect(await screen.findByText('ORD-2609-0157')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Làm mới' }))
+    await waitFor(() => expect(getQueue).toHaveBeenCalledTimes(2))
+
+    expect(screen.getByText('ORD-2609-0157')).toBeInTheDocument()
+    await act(async () => resolveRefresh(rows))
   })
 
   it('shows the error state and retries', async () => {

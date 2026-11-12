@@ -1,5 +1,11 @@
 import { act } from 'react'
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { resetMockDb } from '../../../mocks/db'
@@ -45,7 +51,11 @@ const VI_CHARS =
  * plus the mock catalog names. UI copy is never added here.
  */
 /** Seed fields the FE localizes (service and timeslot names): never allowlisted. */
-const TRANSLATED_SEED_KEYS = new Set(['serviceNames', 'serviceName', 'preferredTimeName'])
+const TRANSLATED_SEED_KEYS = new Set([
+  'serviceNames',
+  'serviceName',
+  'preferredTimeName',
+])
 
 function collectSeedStrings(value: unknown, out: Set<string>) {
   if (typeof value === 'string') {
@@ -77,12 +87,20 @@ function collectHandlerStrings(out: Set<string>) {
 /** Service and preferred-time names from the seed orders and the mock catalog. */
 function translatedCatalogNames(): Set<string> {
   const names = new Set<string>()
-  const orders = (customerSeed as { orders?: Array<Record<string, unknown>> }).orders ?? []
+  const orders =
+    (customerSeed as { orders?: Array<Record<string, unknown>> }).orders ?? []
   for (const order of orders) {
-    for (const s of (order.serviceNames as string[] | undefined) ?? []) names.add(s)
-    if (typeof order.preferredTimeName === 'string') names.add(order.preferredTimeName)
+    for (const s of (order.serviceNames as string[] | undefined) ?? [])
+      names.add(s)
+    if (typeof order.preferredTimeName === 'string')
+      names.add(order.preferredTimeName)
   }
-  for (const s of [...translatedServiceNames(), ...translatedDeliverableNames(), ...translatedCategoryNames()]) names.add(s)
+  for (const s of [
+    ...translatedServiceNames(),
+    ...translatedDeliverableNames(),
+    ...translatedCategoryNames(),
+  ])
+    names.add(s)
   for (const s of ['Buổi sáng', 'Buổi chiều', 'Buổi tối']) names.add(s)
   return names
 }
@@ -90,17 +108,17 @@ let seedCache: string[] | undefined
 function seedStrings(): string[] {
   if (seedCache) return seedCache
   seedCache = (() => {
-  // Text this test types into the form itself.
-  const set = new Set<string>(['KCN Long Hậu', 'Đơn kiểm thử'])
-  collectSeedStrings(customerSeed, set)
-  collectSeedStrings(TICKET, set)
-  // Service and timeslot names are translated by the FE, so they must NOT be
-  // allowlisted: seeing one in English mode is a failure.
-  const handlerStrings = new Set<string>()
-  collectHandlerStrings(handlerStrings)
-  for (const name of translatedCatalogNames()) handlerStrings.delete(name)
-  handlerStrings.forEach((v) => set.add(v))
-  return [...set].sort((x, y) => y.length - x.length)
+    // Text this test types into the form itself.
+    const set = new Set<string>(['KCN Long Hậu', 'Đơn kiểm thử'])
+    collectSeedStrings(customerSeed, set)
+    collectSeedStrings(TICKET, set)
+    // Service and timeslot names are translated by the FE, so they must NOT be
+    // allowlisted: seeing one in English mode is a failure.
+    const handlerStrings = new Set<string>()
+    collectHandlerStrings(handlerStrings)
+    for (const name of translatedCatalogNames()) handlerStrings.delete(name)
+    handlerStrings.forEach((v) => set.add(v))
+    return [...set].sort((x, y) => y.length - x.length)
   })()
   return seedCache
 }
@@ -132,12 +150,14 @@ function visibleStrings(): string[] {
 
 /** Text left over after removing seed data that still has diacritics. */
 function viLines(): string[] {
-  return visibleStrings()
-    .map(stripSeed)
-    // The language switch names Vietnamese in Vietnamese on purpose.
-    .filter((text) => text !== '[aria-label] Tiếng Việt')
-    .filter((text) => VI_CHARS.test(text))
-    .map((text) => text.trim().slice(0, 140))
+  return (
+    visibleStrings()
+      .map(stripSeed)
+      // The language switch names Vietnamese in Vietnamese on purpose.
+      .filter((text) => text !== '[aria-label] Tiếng Việt')
+      .filter((text) => VI_CHARS.test(text))
+      .map((text) => text.trim().slice(0, 140))
+  )
 }
 
 async function settled() {
@@ -154,6 +174,10 @@ beforeEach(() => {
   resetMockDb()
   localStorage.clear()
   setLanguage('vi')
+  Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
+    configurable: true,
+    value: vi.fn(),
+  })
   vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')))
 })
 afterEach(() => {
@@ -167,8 +191,18 @@ afterEach(() => {
 type Route = { name: string; hash: string; vi: string; en: string }
 
 const ROUTES: Route[] = [
-  { name: 'Dashboard', hash: '#portal/customer', vi: 'Đơn hàng gần đây', en: 'Recent orders' },
-  { name: 'Orders', hash: '#portal/customer/orders', vi: 'Đơn của tôi', en: 'My orders' },
+  {
+    name: 'Dashboard',
+    hash: '#portal/customer',
+    vi: 'Đơn hàng gần đây',
+    en: 'Recent orders',
+  },
+  {
+    name: 'Orders',
+    hash: '#portal/customer/orders',
+    vi: 'Đơn của tôi',
+    en: 'My orders',
+  },
   {
     name: 'OrderDetail',
     hash: '#portal/customer/orders/cus-ord-003',
@@ -187,7 +221,12 @@ const ROUTES: Route[] = [
     vi: 'Giám sát trực tiếp',
     en: 'Live monitoring',
   },
-  { name: 'LiveHub', hash: '#portal/customer/live', vi: 'Xem trực tiếp', en: 'Live view' },
+  {
+    name: 'LiveHub',
+    hash: '#portal/customer/live',
+    vi: 'Xem trực tiếp',
+    en: 'Live view',
+  },
   {
     name: 'Media (order)',
     hash: '#portal/customer/orders/cus-ord-006/media',
@@ -212,7 +251,12 @@ const ROUTES: Route[] = [
     vi: 'Thông tin lần bay',
     en: 'Mission information',
   },
-  { name: 'NotFound', hash: '#portal/customer/nope', vi: 'Không tìm thấy', en: 'Not found' },
+  {
+    name: 'NotFound',
+    hash: '#portal/customer/nope',
+    vi: 'Không tìm thấy',
+    en: 'Not found',
+  },
 ]
 
 /** Common English UI words that must not show up when the language is Vietnamese. */
@@ -224,32 +268,43 @@ const EN_ALLOWED = ['mission', 'Mission', 'order', 'Order', 'Hue']
 function enLines(): string[] {
   return visibleStrings()
     .map(stripSeed)
-    .map((text) => EN_ALLOWED.reduce((acc, word) => acc.split(word).join(''), text))
+    .map((text) =>
+      EN_ALLOWED.reduce((acc, word) => acc.split(word).join(''), text),
+    )
     .filter((text) => !VI_CHARS.test(text) && EN_UI_WORDS.test(text))
     .map((text) => text.trim().slice(0, 140))
 }
 
 describe('Customer portal i18n (vi -> en)', () => {
-  it.each(ROUTES)('$name has no Vietnamese left after switching to English', async (route) => {
-    window.location.hash = route.hash
-    render(<CustomerApp />)
-    // Reverse check: in Vietnamese the main labels are Vietnamese.
-    expect((await screen.findAllByText(route.vi, { exact: false })).length).toBeGreaterThan(0)
-    await settled()
+  it.each(ROUTES)(
+    '$name has no Vietnamese left after switching to English',
+    async (route) => {
+      window.location.hash = route.hash
+      render(<CustomerApp />)
+      // Reverse check: in Vietnamese the main labels are Vietnamese.
+      expect(
+        (await screen.findAllByText(route.vi, { exact: false })).length,
+      ).toBeGreaterThan(0)
+      await settled()
 
-    act(() => setLanguage('en'))
-    expect((await screen.findAllByText(route.en, { exact: false })).length).toBeGreaterThan(0)
-    await settled()
+      act(() => setLanguage('en'))
+      expect(
+        (await screen.findAllByText(route.en, { exact: false })).length,
+      ).toBeGreaterThan(0)
+      await settled()
 
-    expect(viLines()).toEqual([])
-  })
+      expect(viLines()).toEqual([])
+    },
+  )
 
   it.each(ROUTES.filter((r) => r.name !== 'NotFound'))(
     '$name shows no English UI words in Vietnamese',
     async (route) => {
       window.location.hash = route.hash
       render(<CustomerApp />)
-      expect((await screen.findAllByText(route.vi, { exact: false })).length).toBeGreaterThan(0)
+      expect(
+        (await screen.findAllByText(route.vi, { exact: false })).length,
+      ).toBeGreaterThan(0)
       await settled()
       expect(enLines()).toEqual([])
     },
@@ -273,7 +328,9 @@ describe('Customer portal i18n (vi -> en)', () => {
     await settled()
     act(() => setLanguage('en'))
     await settled()
-    const chatbotToggle = document.querySelector('.odm-chatbot-fab, [class*="chatbot"] button')
+    const chatbotToggle = document.querySelector(
+      '.odm-chatbot-fab, [class*="chatbot"] button',
+    )
     if (chatbotToggle) fireEvent.click(chatbotToggle)
     expect(viLines()).toEqual([])
     expect(screen.getAllByText('Overview').length).toBeGreaterThan(0)
@@ -284,26 +341,65 @@ describe('Customer portal i18n (vi -> en)', () => {
     render(<CustomerApp />)
     act(() => setLanguage('en'))
 
-    // Step 1: select a service, provide a title and say how the results are used.
-    fireEvent.click(await screen.findByRole('button', { name: /Construction monitoring/ }))
-    fireEvent.change(screen.getByLabelText(/Title/), { target: { value: 'Đơn kiểm thử' } })
-    fireEvent.change(screen.getByLabelText(/How will the results be used/), {
-      target: { value: 'INTERNAL' },
+    // Step 1: select a service and provide a title.
+    fireEvent.click(
+      await screen.findByRole('button', { name: /Construction monitoring/ }),
+    )
+    fireEvent.change(screen.getByLabelText(/Title/), {
+      target: { value: 'Đơn kiểm thử' },
     })
-    fireEvent.click(screen.getByRole('button', { name: /Continue: Location & monitoring area/ }))
+    fireEvent.change(screen.getByLabelText(/Purpose of the flight/), {
+      target: { value: 'CONSTRUCTION_MONITORING' },
+    })
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: /Continue: Location & monitoring area/,
+      }),
+    )
     await settled()
     expect(viLines()).toEqual([])
 
-    // Step 2: location. The address is typed and the coordinates are confirmed.
-    fireEvent.change(await screen.findByLabelText(/Address or area/), {
-      target: { value: 'KCN Long Hậu' },
-    })
+    // Step 2: confirm coordinates, then draw a custom monitoring boundary.
     fireEvent.click(screen.getByText('Advanced coordinates'))
-    fireEvent.click(await screen.findByRole('button', { name: 'Confirm these coordinates' }))
+    fireEvent.change(await screen.findByLabelText('Latitude'), {
+      target: { value: '10.642938' },
+    })
+    fireEvent.change(screen.getByLabelText('Longitude'), {
+      target: { value: '106.6958033' },
+    })
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Confirm coordinates' }),
+    )
     await screen.findByText('Location confirmed')
+    fireEvent.click(screen.getByRole('button', { name: 'Draw area' }))
+    const map = screen.getByRole('region', {
+      name: 'Location and monitoring area map',
+    })
+    Object.defineProperty(map, 'clientWidth', {
+      configurable: true,
+      value: 800,
+    })
+    Object.defineProperty(map, 'clientHeight', {
+      configurable: true,
+      value: 500,
+    })
+    map.getBoundingClientRect = () => new DOMRect(0, 0, 800, 500)
+    fireEvent(window, new Event('resize'))
+    for (const [x, y] of [
+      [280, 175],
+      [520, 175],
+      [520, 325],
+      [280, 325],
+      [280, 175],
+    ]) {
+      fireEvent.click(map, { clientX: x, clientY: y })
+    }
+    await screen.findByText('4', { selector: 'dd' })
     await settled()
     expect(viLines()).toEqual([])
-    fireEvent.click(screen.getByRole('button', { name: /Continue: Monitoring content/ }))
+    fireEvent.click(
+      screen.getByRole('button', { name: /Continue: Monitoring content/ }),
+    )
 
     // Step 3: the current service checklist must be ready before moving on.
     const siteNext = await screen.findByRole('button', {
@@ -316,9 +412,15 @@ describe('Customer portal i18n (vi -> en)', () => {
 
     // Step 4: site details.
     // The right-to-monitor declaration is required before moving on.
-    fireEvent.change(screen.getByLabelText(/Contact person/), { target: { value: 'An' } })
-    fireEvent.change(screen.getByLabelText(/Phone number/), { target: { value: '0901234567' } })
-    fireEvent.change(screen.getByLabelText(/Access conditions/), { target: { value: 'Main gate' } })
+    fireEvent.change(screen.getByLabelText(/Contact person/), {
+      target: { value: 'An' },
+    })
+    fireEvent.change(screen.getByLabelText(/Phone number/), {
+      target: { value: '0901234567' },
+    })
+    fireEvent.change(screen.getByLabelText(/Access conditions/), {
+      target: { value: 'Main gate' },
+    })
     fireEvent.click(screen.getByLabelText('Owner / Investor'))
     fireEvent.click(screen.getByLabelText(/I confirm that I am entitled/))
     fireEvent.click(screen.getByRole('button', { name: /^Continue:/ }))
@@ -327,7 +429,9 @@ describe('Customer portal i18n (vi -> en)', () => {
     expect(viLines()).toEqual([])
 
     // Step 4: choose a time window to reach the deliverables/review step.
-    const time = screen.getByLabelText(/Preferred time window/) as HTMLSelectElement
+    const time = screen.getByLabelText(
+      /Preferred time window/,
+    ) as HTMLSelectElement
     await waitFor(() => expect(time.options.length).toBeGreaterThan(1))
     fireEvent.change(time, { target: { value: time.options[1].value } })
     fireEvent.click(screen.getByRole('button', { name: /^Continue:/ }))
@@ -337,7 +441,9 @@ describe('Customer portal i18n (vi -> en)', () => {
 
     // Step 5 and the confirmation dialog.
     fireEvent.click(screen.getByLabelText(/I confirm the monitoring purpose/))
-    fireEvent.click(await screen.findByRole('button', { name: 'Submit request' }))
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Submit request' }),
+    )
     await screen.findByRole('dialog')
     await settled()
     expect(viLines()).toEqual([])
@@ -348,7 +454,9 @@ describe('Customer portal i18n (vi -> en)', () => {
     expect(await screen.findByText('Tạo yêu cầu giám sát')).toBeInTheDocument()
     await settled()
     act(() => setLanguage('en'))
-    expect(await screen.findByText('Create Monitoring Request')).toBeInTheDocument()
+    expect(
+      await screen.findByText('Create Monitoring Request'),
+    ).toBeInTheDocument()
     await settled()
     fireEvent.click(screen.getByRole('button', { name: 'Submit request' }))
     await settled()
@@ -421,14 +529,24 @@ describe('Support pages i18n (vi -> en)', () => {
     localStorage.setItem('fieldwise.accessToken', 'mock-customer-token')
     localStorage.setItem(
       'fieldwise.user',
-      JSON.stringify({ id: 'u-1', fullName: 'Customer', email: 'c@example.com', role: 'CUSTOMER' }),
+      JSON.stringify({
+        id: 'u-1',
+        fullName: 'Customer',
+        email: 'c@example.com',
+        role: 'CUSTOMER',
+      }),
     )
     authSession.setStatus('authenticated')
     vi.spyOn(supportApi, 'listTickets').mockResolvedValue([TICKET])
     vi.spyOn(supportApi, 'getTicketById').mockResolvedValue(TICKET)
     vi.spyOn(supportApi, 'getFaqArticles').mockResolvedValue([])
     vi.spyOn(supportApi, 'recordFaqFeedback').mockResolvedValue(undefined)
-    vi.spyOn(supportApi, 'createTicket').mockResolvedValue({ ...TICKET, id: 'tk-2', ticketCode: 'TK-0002', status: 'OPEN' })
+    vi.spyOn(supportApi, 'createTicket').mockResolvedValue({
+      ...TICKET,
+      id: 'tk-2',
+      ticketCode: 'TK-0002',
+      status: 'OPEN',
+    })
   })
   afterEach(() => {
     // Unmount before resetting the hash so the router never re-renders the
@@ -439,30 +557,43 @@ describe('Support pages i18n (vi -> en)', () => {
     window.location.hash = ''
   })
 
-  it.each(SUPPORT_ROUTES)('$name has no Vietnamese left after switching to English', async (route) => {
-    window.location.hash = route.hash
-    render(<Router />)
-    expect((await screen.findAllByText(route.vi, { exact: false })).length).toBeGreaterThan(0)
-    await settled()
-    expect(enLines()).toEqual([])
+  it.each(SUPPORT_ROUTES)(
+    '$name has no Vietnamese left after switching to English',
+    async (route) => {
+      window.location.hash = route.hash
+      render(<Router />)
+      expect(
+        (await screen.findAllByText(route.vi, { exact: false })).length,
+      ).toBeGreaterThan(0)
+      await settled()
+      expect(enLines()).toEqual([])
 
-    act(() => setLanguage('en'))
-    expect((await screen.findAllByText(route.en, { exact: false })).length).toBeGreaterThan(0)
-    await settled()
-    expect(viLines()).toEqual([])
-  })
+      act(() => setLanguage('en'))
+      expect(
+        (await screen.findAllByText(route.en, { exact: false })).length,
+      ).toBeGreaterThan(0)
+      await settled()
+      expect(viLines()).toEqual([])
+    },
+  )
 
   it('help center: FAQ answers, feedback and empty search are English', async () => {
     window.location.hash = '#help'
     render(<Router />)
     await screen.findByText('Chúng tôi có thể hỗ trợ bạn như thế nào?')
     act(() => setLanguage('en'))
-    fireEvent.click(await screen.findByRole('button', { name: /Why is my monitoring request still pending approval\?/ }))
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: /Why is my monitoring request still pending approval\?/,
+      }),
+    )
     fireEvent.click(await screen.findByRole('button', { name: 'No' }))
     await settled()
     expect(viLines()).toEqual([])
 
-    fireEvent.change(screen.getByLabelText('Search for answers'), { target: { value: 'zzzzqqqq' } })
+    fireEvent.change(screen.getByLabelText('Search for answers'), {
+      target: { value: 'zzzzqqqq' },
+    })
     expect(await screen.findByText('No articles found')).toBeInTheDocument()
     expect(viLines()).toEqual([])
 
@@ -477,18 +608,26 @@ describe('Support pages i18n (vi -> en)', () => {
     render(<Router />)
     await screen.findAllByText('Yêu cầu hỗ trợ của tôi')
     act(() => setLanguage('en'))
-    fireEvent.click(await screen.findByRole('button', { name: '+ New support ticket' }))
+    fireEvent.click(
+      await screen.findByRole('button', { name: '+ New support ticket' }),
+    )
     await screen.findByRole('dialog')
     await settled()
     expect(viLines()).toEqual([])
 
     fireEvent.click(screen.getByRole('button', { name: 'Submit ticket' }))
-    expect(await screen.findByText('Please enter a subject for your ticket.')).toBeInTheDocument()
+    expect(
+      await screen.findByText('Please enter a subject for your ticket.'),
+    ).toBeInTheDocument()
     expect(viLines()).toEqual([])
 
-    fireEvent.change(screen.getByLabelText(/Subject/), { target: { value: 'Need help' } })
+    fireEvent.change(screen.getByLabelText(/Subject/), {
+      target: { value: 'Need help' },
+    })
     fireEvent.click(screen.getByRole('button', { name: 'Submit ticket' }))
-    expect(await screen.findByText('Your support ticket has been created')).toBeInTheDocument()
+    expect(
+      await screen.findByText('Your support ticket has been created'),
+    ).toBeInTheDocument()
     expect(viLines()).toEqual([])
   })
 
@@ -498,12 +637,19 @@ describe('Support pages i18n (vi -> en)', () => {
     render(<Router />)
     await screen.findByText('Lịch sử trao đổi')
     act(() => setLanguage('en'))
-    fireEvent.change(await screen.findByLabelText('Your reply'), { target: { value: 'Thanks' } })
+    fireEvent.change(await screen.findByLabelText('Your reply'), {
+      target: { value: 'Thanks' },
+    })
     fireEvent.click(screen.getByRole('button', { name: 'Send reply' }))
-    expect(await screen.findByText('Could not send your reply.')).toBeInTheDocument()
+    expect(
+      await screen.findByText('Could not send your reply.'),
+    ).toBeInTheDocument()
     expect(viLines()).toEqual([])
 
-    vi.spyOn(supportApi, 'getTicketById').mockResolvedValue({ ...TICKET, status: 'RESOLVED' })
+    vi.spyOn(supportApi, 'getTicketById').mockResolvedValue({
+      ...TICKET,
+      status: 'RESOLVED',
+    })
     cleanup()
     render(<Router />)
     expect(await screen.findByText(/This ticket is closed/)).toBeInTheDocument()
@@ -517,8 +663,14 @@ describe('Support pages i18n (vi -> en)', () => {
     act(() => setLanguage('en'))
     // The help widget lives in the order's support tab.
     fireEvent.click(await screen.findByRole('tab', { name: 'Support & FAQ' }))
-    fireEvent.click(await screen.findByRole('button', { name: /Why is my monitoring request still pending approval\?/ }))
-    fireEvent.click(screen.getByRole('button', { name: /^Create a ticket for/ }))
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: /Why is my monitoring request still pending approval\?/,
+      }),
+    )
+    fireEvent.click(
+      screen.getByRole('button', { name: /^Create a ticket for/ }),
+    )
     await screen.findByRole('dialog')
     await settled()
     expect(viLines()).toEqual([])

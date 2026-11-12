@@ -469,17 +469,10 @@ export default function MissionDetail({
     mission.state === 'IN_FLIGHT' &&
     mission.deviceAssignmentStatus === 'IN_PROGRESS' &&
     permissions?.canControlFlight === true
-  const canConnectGcs =
+  const canStartPreflight =
     (mission.state === 'PLANNING' || mission.state === 'READY') &&
     permissions?.canOperatePayload === true &&
-    (!mission.deviceAssignmentStatus ||
-      ['ASSIGNED', 'CONNECTION_LOST'].includes(
-        mission.deviceAssignmentStatus,
-      ))
-  const canResumePreflight =
-    (mission.state === 'PLANNING' || mission.state === 'READY') &&
-    permissions?.canOperatePayload === true &&
-    ['CONNECTED', 'PREFLIGHT_CHECKING', 'FAILED'].includes(
+    ['ASSIGNED', 'CONNECTED', 'CONNECTION_LOST', 'PREFLIGHT_CHECKING', 'FAILED'].includes(
       mission.deviceAssignmentStatus ?? '',
     )
 
@@ -577,8 +570,7 @@ export default function MissionDetail({
         {(isAcceptable ||
           canStartMission ||
           canOpenCockpit ||
-          canConnectGcs ||
-          canResumePreflight) && (
+          canStartPreflight) && (
           <div
             style={{
               display: 'flex',
@@ -621,24 +613,7 @@ export default function MissionDetail({
                 {t.openCockpit}
               </button>
             )}
-            {canConnectGcs && (
-              <button
-                onClick={() => onScreen('gcs-connect')}
-                style={{
-                  padding: '9px 20px',
-                  borderRadius: 8,
-                  border: 'none',
-                  background: 'var(--accent)',
-                  fontSize: 14,
-                  fontWeight: 700,
-                  color: '#fff',
-                  cursor: 'pointer',
-                }}
-              >
-                {t.connectGcs}
-              </button>
-            )}
-            {canResumePreflight && (
+            {canStartPreflight && (
               <button
                 onClick={() => onScreen('preflight')}
                 style={{
@@ -652,7 +627,7 @@ export default function MissionDetail({
                   cursor: 'pointer',
                 }}
               >
-                {t.resumePreflight}
+                {t.startPreflight}
               </button>
             )}
             {isAcceptable && (

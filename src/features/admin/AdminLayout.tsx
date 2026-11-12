@@ -1,14 +1,25 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import '@ant-design/v5-patch-for-react-19'
+import { ConfigProvider, Layout } from 'antd'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 
 import { authSession } from '../auth/api/authApi'
-import { LogoutButton } from '../auth/components/LogoutButton'
+import { mgrPopupContainer } from '../../shared/components/antd'
 import { Icon, type IconName } from '../../shared/components/Icon'
-import { LanguageToggle } from '../../shared/components/LanguageToggle'
 import { RoleSidebar } from '../../shared/components/RoleSidebar'
 import { useI18n } from '../../shared/i18n'
+import {
+  APP_SIDER_RAIL_WIDTH,
+  APP_SIDER_WIDTH,
+  buildAppTheme,
+} from '../../shared/theme/appTheme'
+import '../../shared/styles/app-shell/layout.scss'
+import '../../shared/styles/app-shell/popups.scss'
+import { AdminHeader } from './components/layout/AdminHeader'
 import { adminHref, type AdminRoute, type AdminScreen } from './routes'
 import { adminLayoutMessages } from './AdminLayout.messages'
 import './admin.css'
+
+const { Sider, Content } = Layout
 
 type NavItemKey = keyof typeof adminLayoutMessages.vi.navItems
 
@@ -52,114 +63,99 @@ export function AdminLayout({
   const [dark, setDark] = useState(
     () => document.documentElement.dataset.theme === 'dark',
   )
-  const [menuOpen, setMenuOpen] = useState(false)
+  const [collapsed, setCollapsed] = useState(false)
+  const [broken, setBroken] = useState(false)
   const user = authSession.getUser()
   const { t } = useI18n(adminLayoutMessages)
+  const themeConfig = useMemo(() => buildAppTheme(dark), [dark])
 
   useEffect(() => {
     document.documentElement.dataset.theme = dark ? 'dark' : 'light'
   }, [dark])
 
   const activeKey = activeNavKey[route.screen]
+  const overlayOpen = broken && !collapsed
+  // Desktop collapse keeps an icon rail; below the breakpoint the sider hides entirely.
+  const rail = collapsed && !broken
 
   return (
-    <div className="odm odm-adm">
-      <div className="odm-adm-shell">
-        <aside className={`odm-adm-side ${menuOpen ? 'is-open' : ''}`}>
-          <RoleSidebar
-            brandHref={adminHref({ screen: 'accounts' })}
-            ariaLabel={t.nav}
-            groups={[
-              {
-                key: 'admin-menu',
-                label: t.menu,
-                items: NAV_ITEMS.map((item) => ({
-                  key: item.key,
-                  label: t.navItems[item.key],
-                  icon: (
-                    <Icon
-                      name={item.icon}
-                      width={18}
-                      height={18}
-                      aria-hidden="true"
-                    />
-                  ),
-                  href: adminHref(item.route),
-                  active: item.key === activeKey,
-                  badge:
-                    item.key === 'accounts' && (pendingCount ?? 0) > 0
-                      ? pendingCount
-                      : undefined,
-                  onClick: () => setMenuOpen(false),
-                })),
-              },
-            ]}
-            profile={{
-              name: user?.fullName ?? t.admin,
-              description: user?.email,
+    <ConfigProvider theme={themeConfig} getPopupContainer={mgrPopupContainer}>
+      <div className="odm odm-adm mgr-layout">
+        <Layout hasSider className="mgr-shell">
+          <Sider
+            width={APP_SIDER_WIDTH}
+            collapsedWidth={broken ? 0 : APP_SIDER_RAIL_WIDTH}
+            breakpoint="lg"
+            trigger={null}
+            collapsible
+            collapsed={collapsed}
+            style={broken && collapsed ? { transition: 'none' } : undefined}
+            onBreakpoint={(isBroken) => {
+              setBroken(isBroken)
+              setCollapsed(isBroken)
             }}
-            footer={<LogoutButton className="odm-adm-logout" />}
-          />
-        </aside>
+            theme={dark ? 'dark' : 'light'}
+            className={`mgr-sider ${overlayOpen ? 'is-overlay' : ''} ${rail ? 'is-rail' : ''}`}
+          >
+            <RoleSidebar
+              brandHref={adminHref({ screen: 'accounts' })}
+              ariaLabel={t.nav}
+              groups={[
+                {
+                  key: 'admin-menu',
+                  label: t.menu,
+                  items: NAV_ITEMS.map((item) => ({
+                    key: item.key,
+                    label: t.navItems[item.key],
+                    icon: (
+                      <Icon
+                        name={item.icon}
+                        width={18}
+                        height={18}
+                        aria-hidden="true"
+                      />
+                    ),
+                    href: adminHref(item.route),
+                    active: item.key === activeKey,
+                    badge:
+                      item.key === 'accounts' && (pendingCount ?? 0) > 0
+                        ? pendingCount
+                        : undefined,
+                    onClick: () => broken && setCollapsed(true),
+                  })),
+                },
+              ]}
+              profile={{
+                name: user?.fullName ?? t.admin,
+                description: user?.email,
+              }}
+              collapsed={rail}
+            />
+          </Sider>
 
-        {menuOpen ? (
-          <button
-            type="button"
-            className="odm-adm-scrim"
-            aria-label={t.closeNav}
-            onClick={() => setMenuOpen(false)}
-          />
-        ) : null}
+          {overlayOpen ? (
+            <button
+              type="button"
+              className="mgr-scrim"
+              aria-label={t.closeNav}
+              onClick={() => setCollapsed(true)}
+            />
+          ) : null}
 
-        <div className="odm-adm-main">
-          <header className="odm-adm-topbar">
-            <button
-              type="button"
-              className="odm-adm-menu-toggle"
-              aria-label={t.openNav}
-              onClick={() => setMenuOpen(true)}
-            >
-              ☰
-            </button>
-            <div className="odm-adm-breadcrumb">{breadcrumb}</div>
-            <div className="odm-adm-topbar-spacer" />
-            <div className="odm-adm-search">
-              <Icon
-                name="search"
-                width={15}
-                height={15}
-                className="odm-adm-search-icon"
-              />
-              <input
-                className="odm-inp odm-adm-search-input"
-                type="search"
-                aria-label={t.search}
-                placeholder={t.searchPlaceholder}
-              />
-            </div>
-            <LanguageToggle />
-            <button
-              type="button"
-              className="odm-btn odm-btn-gh odm-btn-ic1"
-              aria-label={t.toggleTheme}
-              onClick={() => setDark((v) => !v)}
-            >
-              {dark ? '☀' : '☾'}
-            </button>
-            <button
-              type="button"
-              className="odm-btn odm-btn-gh odm-btn-ic1 odm-adm-bell"
-              aria-label={t.notifications}
-            >
-              <Icon name="bell" width={17} height={17} />
-              <span className="odm-adm-bell-dot" aria-hidden="true" />
-            </button>
-          </header>
-          <main className="odm-adm-content">
-            <div className="odm-adm-content-inner">{children}</div>
-          </main>
-        </div>
+          <Layout className="mgr-main">
+            <AdminHeader
+              breadcrumb={breadcrumb}
+              collapsed={collapsed}
+              dark={dark}
+              onToggleSider={() => setCollapsed((v) => !v)}
+              onToggleTheme={() => setDark((v) => !v)}
+            />
+            <Content className="mgr-content">
+              <div className="odm-adm-content-inner">{children}</div>
+            </Content>
+          </Layout>
+        </Layout>
       </div>
-    </div>
+    </ConfigProvider>
   )
 }

@@ -10,6 +10,7 @@ import {
   createDefaultForm,
 } from '../../../lib/createOrder/draftStorage'
 import { pricingAreaHa } from '../../../lib/createOrder/payload'
+import { circleCoverageArea } from '../../../lib/createOrder/coverageGeometry'
 import { useCreateOrderWizard } from './useCreateOrderWizard'
 
 function quote(areaHa?: number): ServicePricePreview {
@@ -31,6 +32,17 @@ function quote(areaHa?: number): ServicePricePreview {
     warnings: [],
     quotePending: false,
     addOns: [],
+  }
+}
+
+function circleArea(areaHa: number) {
+  const radiusM = Math.sqrt((areaHa * 10_000) / Math.PI)
+  const center: [number, number] = [106.6912, 10.6402]
+  return {
+    radiusM,
+    coverageAreaShape: 'CIRCLE' as const,
+    coverageAreaCenter: center,
+    coverageArea: circleCoverageArea(center, radiusM),
   }
 }
 
@@ -85,7 +97,7 @@ describe('area availability in the customer wizard', () => {
         locationStatus: 'confirmed',
         locationConfirmedAt: '2026-10-24T00:00:00Z',
         normalizedAddress: 'Confirmed site',
-        radiusM: Math.sqrt((30 * 10000) / Math.PI),
+        ...circleArea(30),
       }))
     })
     expect(result.current.checklist.quote.preview?.total).toBe(3_500_000)
@@ -96,7 +108,7 @@ describe('area availability in the customer wizard', () => {
     await waitFor(() =>
       expect(result.current.checklist.quote.preview?.total).toBe(3_700_000),
     )
-    expect(requests.mock.lastCall?.[3]?.areaHa).toBe(30)
+    expect(requests.mock.lastCall?.[3]?.areaHa).toBeCloseTo(30, 0)
 
     act(() => result.current.f.setStep(2))
     expect(result.current.checklist.quote.preview).toBeNull()
@@ -104,7 +116,10 @@ describe('area availability in the customer wizard', () => {
       expect(result.current.checklist.quote.preview?.total).toBe(3_500_000),
     )
     act(() =>
-      result.current.f.update('radiusM', Math.sqrt((50 * 10000) / Math.PI)),
+      result.current.f.setForm((current) => ({
+        ...current,
+        ...circleArea(50),
+      })),
     )
     expect(requests.mock.lastCall?.[3]).not.toHaveProperty('areaHa')
     act(() => result.current.f.setStep(3))
@@ -112,7 +127,7 @@ describe('area availability in the customer wizard', () => {
     await waitFor(() =>
       expect(result.current.checklist.quote.preview?.total).toBe(3_900_000),
     )
-    expect(requests.mock.lastCall?.[3]?.areaHa).toBe(50)
+    expect(requests.mock.lastCall?.[3]?.areaHa).toBeCloseTo(50, 0)
 
     act(() => result.current.f.update('locationStatus', 'unconfirmed'))
     expect(result.current.checklist.quote.preview).toBeNull()

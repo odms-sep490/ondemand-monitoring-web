@@ -71,7 +71,7 @@ export function useMissionDetailActions({
     setActionError(null)
     try {
       await operatorApi.acceptMission(mission.id)
-      // Permissions (for example "operate payload" -> Connect GCS) come from the monitoring call, so reload it too.
+      // Refresh mission permissions after acceptance so the pre-flight actions update.
       refreshWorkspace(false)
     } catch (error) {
       setActionError(

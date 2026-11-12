@@ -156,7 +156,6 @@ export function OrderInfoCard({
         </Section>
         <Section icon="drone" title={t.sectionScope} onSupplement={editable ? () => setEditing('scope') : undefined} editor={editing === 'scope' ? <OrderSectionEditor section="scope" order={order} onCancel={() => setEditing(null)} onSaved={() => { setEditing(null); onUpdated?.() }} /> : undefined}>
           {order.flightPurpose && <Field icon="target" label={t.flightPurpose} value={label(order.flightPurpose)} />}
-          {order.usagePurpose && <Field icon="tag" label={t.usagePurpose} value={label(order.usagePurpose)} />}
           {coordinates !== DASH && <Field icon="locate" label={t.coordinates} value={coordinates} num />}
           {order.radiusM != null && <Field icon="target" label={t.radius} value={`${order.radiusM} m`} num />}
           {order.altitudeM != null && <Field icon="altitude" label={t.altitude} value={`${order.altitudeM} m`} num />}

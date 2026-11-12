@@ -1,41 +1,417 @@
-/* System Operator portal — page content, built on the shared odm-opr shell */
-.odm-sysop-pagehead { margin: 0 0 18px; }
-.odm-sysop-pagehead h1 { margin: 0; font-size: 22px; font-weight: 700; color: var(--tx, #0f172a); }
-.odm-sysop-pagehead p { margin: 4px 0 0; font-size: 13px; color: var(--tx3, #64748b); max-width: 760px; }
-
-.odm-sysop-hero {
-  display: flex; align-items: center; justify-content: space-between; gap: 20px;
-  padding: 22px 24px; margin-bottom: 16px; border-radius: 16px;
-  background: linear-gradient(135deg, #eef4ff 0%, #f8fbff 100%);
-  border: 1px solid #dbe6fb;
+/*
+ * System Operator portal — page content inside the customer-style shell.
+ * The overview/devices bodies also render inside the staff OperatorLayout
+ * (both shells are `.mgr-layout`), so content classes are scoped under
+ * `.mgr-layout`; shell-level rules stay under `.odm-sysop`.
+ * Colours come from the shared `--mgr-*` tokens (light + dark).
+ */
+.mgr-layout {
+  --sys-primary: #1565e8;
+  --sys-ok-bg: rgb(22 163 74 / 12%);
+  --sys-ok: #16a34a;
+  --sys-warn-bg: rgb(217 119 6 / 14%);
+  --sys-warn: #b45309;
+  --sys-bad-bg: rgb(220 38 38 / 12%);
+  --sys-bad: #dc2626;
+  --sys-info-bg: rgb(21 101 232 / 12%);
 }
-.odm-sysop-hero-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #1767ff; margin: 0 0 6px; }
-.odm-sysop-hero h2 { margin: 0 0 6px; font-size: 20px; line-height: 1.3; color: #0f172a; }
-.odm-sysop-hero p { margin: 0; font-size: 13px; color: #475569; max-width: 620px; }
-.odm-sysop-hero .odm-btn { flex: none; white-space: nowrap; }
 
-.odm-sysop-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
-.odm-sysop-metric { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 16px; display: grid; gap: 4px; }
-.odm-sysop-metric-icon { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: #eaf1ff; color: #1767ff; margin-bottom: 6px; }
-.odm-sysop-metric span { font-size: 12.5px; color: #64748b; }
-.odm-sysop-metric strong { font-size: 26px; line-height: 1.1; color: #0f172a; }
-.odm-sysop-metric small { font-size: 12px; color: #94a3b8; }
+:root[data-theme='dark'] .mgr-layout {
+  --sys-ok: #4ade80;
+  --sys-warn: #fbbf24;
+  --sys-bad: #f87171;
+}
 
-.odm-sysop-lower { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 12px; }
-.odm-sysop-panel { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 18px; }
-.odm-sysop-panel h2 { margin: 0 0 12px; font-size: 15px; color: #0f172a; }
-.odm-sysop-panel .odm-sysop-hero-eyebrow { margin-bottom: 4px; }
-.odm-sysop-panel p { margin: 0; font-size: 13px; color: #475569; }
-.odm-sysop-activity { display: grid; gap: 10px; }
-.odm-sysop-activity-item { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border: 1px solid #eef2f7; border-radius: 10px; background: #f8fafc; }
-.odm-sysop-activity-item i { width: 8px; height: 8px; margin-top: 6px; border-radius: 50%; background: #cbd5e1; flex: none; }
-.odm-sysop-activity-item i.is-active { background: #1767ff; }
-.odm-sysop-activity-item strong { display: block; font-size: 13px; color: #0f172a; }
-.odm-sysop-activity-item small { font-size: 11.5px; color: #94a3b8; }
+.odm-sysop .odm-sysop-content-inner {
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  min-width: 0;
+}
 
-@media (max-width: 1100px) { .odm-sysop-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.odm-sysop .odm-sysop-content-inner > * {
+  min-width: 0;
+}
+
+/* Embedded legacy pages (maintenance) stay inside the viewport. */
+.odm-sysop .odm-sysop-content-inner img,
+.odm-sysop .odm-sysop-content-inner table {
+  max-width: 100%;
+}
+
+.odm-sysop .odm-sysop-pagehead {
+  margin: 0 0 18px;
+}
+
+.odm-sysop .odm-sysop-pagehead h1 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--mgr-text);
+  overflow-wrap: anywhere;
+}
+
+.odm-sysop .odm-sysop-pagehead p {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--mgr-muted);
+  max-width: 760px;
+}
+
+/* ---------- Hero ---------- */
+.mgr-layout .odm-sysop-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 22px 24px;
+  margin-bottom: 16px;
+  border-radius: var(--mgr-radius);
+  background: var(--mgr-hero-bg);
+  border: 1px solid var(--mgr-border);
+  box-shadow: var(--mgr-shadow);
+}
+
+.mgr-layout .odm-sysop-hero-eyebrow {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sys-primary);
+}
+
+.mgr-layout .odm-sysop-hero h2 {
+  margin: 0 0 6px;
+  font-size: 20px;
+  line-height: 1.3;
+  color: var(--mgr-text);
+}
+
+.mgr-layout .odm-sysop-hero p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--mgr-muted);
+  max-width: 620px;
+}
+
+.mgr-layout .odm-sysop-hero .odm-btn {
+  flex: none;
+  white-space: nowrap;
+  min-height: 40px;
+}
+
+/* ---------- Metrics ---------- */
+.mgr-layout .odm-sysop-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.mgr-layout .odm-sysop-metric {
+  display: grid;
+  gap: 4px;
+  padding: 16px;
+  background: var(--mgr-card);
+  border: 1px solid var(--mgr-border);
+  border-radius: var(--mgr-radius);
+  box-shadow: var(--mgr-shadow);
+}
+
+.mgr-layout .odm-sysop-metric-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  margin-bottom: 6px;
+  border-radius: 10px;
+  background: var(--sys-info-bg);
+  color: var(--sys-primary);
+}
+
+.mgr-layout .odm-sysop-metric span {
+  font-size: 12.5px;
+  color: var(--mgr-muted);
+}
+
+.mgr-layout .odm-sysop-metric strong {
+  font-size: 26px;
+  line-height: 1.1;
+  color: var(--mgr-text);
+}
+
+.mgr-layout .odm-sysop-metric small {
+  font-size: 12px;
+  color: var(--mgr-muted);
+}
+
+/* ---------- Panels ---------- */
+.mgr-layout .odm-sysop-lower {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 12px;
+}
+
+.mgr-layout .odm-sysop-panel {
+  padding: 18px;
+  background: var(--mgr-card);
+  border: 1px solid var(--mgr-border);
+  border-radius: var(--mgr-radius);
+  box-shadow: var(--mgr-shadow);
+}
+
+.mgr-layout .odm-sysop-panel h2 {
+  margin: 0 0 12px;
+  font-size: 15px;
+  color: var(--mgr-text);
+}
+
+.mgr-layout .odm-sysop-panel .odm-sysop-hero-eyebrow {
+  margin-bottom: 4px;
+}
+
+.mgr-layout .odm-sysop-panel p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--mgr-muted);
+}
+
+.mgr-layout .odm-sysop-activity {
+  display: grid;
+  gap: 10px;
+}
+
+.mgr-layout .odm-sysop-activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--mgr-border);
+  border-radius: 12px;
+  background: var(--mgr-card-2);
+}
+
+.mgr-layout .odm-sysop-activity-item i {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  margin-top: 6px;
+  border-radius: 50%;
+  background: var(--mgr-border);
+}
+
+.mgr-layout .odm-sysop-activity-item i.is-active {
+  background: var(--sys-primary);
+}
+
+.mgr-layout .odm-sysop-activity-item strong {
+  display: block;
+  font-size: 13px;
+  color: var(--mgr-text);
+  overflow-wrap: anywhere;
+}
+
+.mgr-layout .odm-sysop-activity-item small {
+  font-size: 11.5px;
+  color: var(--mgr-muted);
+}
+
+/* ---------- Devices ---------- */
+.mgr-layout .sys-devices-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 20px 24px;
+  border-radius: var(--mgr-radius);
+  background: var(--mgr-hero-bg);
+  border: 1px solid var(--mgr-border);
+  box-shadow: var(--mgr-shadow);
+}
+
+.mgr-layout .sys-devices-banner h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--mgr-text);
+}
+
+.mgr-layout .sys-devices-banner p {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--mgr-muted);
+}
+
+.mgr-layout .sys-devices-filter {
+  min-height: 40px;
+  max-width: 100%;
+  padding: 0 12px;
+  border: 1px solid var(--mgr-border);
+  border-radius: 10px;
+  background: var(--mgr-card);
+  color: var(--mgr-text);
+  font-size: 13px;
+}
+
+.mgr-layout .sys-devices-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
+  gap: 16px;
+}
+
+.mgr-layout .sys-device {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid var(--mgr-border);
+  border-radius: var(--mgr-radius);
+  background: var(--mgr-card);
+  box-shadow: var(--mgr-shadow);
+}
+
+.mgr-layout .sys-device-top,
+.mgr-layout .sys-device-foot,
+.mgr-layout .sys-meter-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.mgr-layout .sys-device-code {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--mgr-text);
+  overflow-wrap: anywhere;
+}
+
+.mgr-layout .sys-device-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--mgr-text);
+}
+
+.mgr-layout .sys-device-model {
+  font-size: 12.5px;
+  color: var(--mgr-muted);
+}
+
+.mgr-layout .sys-badge {
+  flex: none;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.mgr-layout .sys-badge.is-available { background: var(--sys-ok-bg); color: var(--sys-ok); }
+.mgr-layout .sys-badge.is-idle_charging { background: var(--sys-warn-bg); color: var(--sys-warn); }
+.mgr-layout .sys-badge.is-maintenance { background: var(--sys-bad-bg); color: var(--sys-bad); }
+.mgr-layout .sys-badge.is-in_flight { background: var(--sys-info-bg); color: var(--sys-primary); }
+
+.mgr-layout .sys-meters {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--mgr-card-2);
+}
+
+.mgr-layout .sys-meter-row {
+  margin-bottom: 4px;
+  font-size: 12px;
+  color: var(--mgr-muted);
+}
+
+.mgr-layout .sys-meter-row b { font-weight: 700; color: var(--sys-ok); }
+.mgr-layout .sys-meter-row b.is-low { color: var(--sys-bad); }
+.mgr-layout .sys-meter-row b.is-signal { color: var(--sys-primary); }
+
+.mgr-layout .sys-meter {
+  height: 6px;
+  overflow: hidden;
+  border-radius: 4px;
+  background: var(--mgr-border);
+}
+
+.mgr-layout .sys-meter > span {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: var(--sys-ok);
+}
+
+.mgr-layout .sys-meter > span.is-low { background: var(--sys-bad); }
+.mgr-layout .sys-meter > span.is-signal { background: var(--sys-primary); }
+
+.mgr-layout .sys-device-foot {
+  flex-wrap: wrap;
+  padding-top: 10px;
+  border-top: 1px solid var(--mgr-border);
+  font-size: 12px;
+  color: var(--mgr-muted);
+}
+
+.mgr-layout .sys-device-foot a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  color: var(--sys-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* ---------- Dark-mode fixes for shared legacy controls ---------- */
+.odm-sysop .odm-input,
+.odm-sysop select.odm-input {
+  background: var(--mgr-card);
+  color: var(--mgr-text);
+  border-color: var(--mgr-border);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1199px) {
+  .mgr-layout .odm-sysop-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 800px) {
-  .odm-sysop-hero { flex-direction: column; align-items: flex-start; }
-  .odm-sysop-lower { grid-template-columns: minmax(0, 1fr); }
+  .mgr-layout .odm-sysop-hero {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .mgr-layout .odm-sysop-lower {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
-@media (max-width: 520px) { .odm-sysop-metrics { grid-template-columns: minmax(0, 1fr); } }
+
+@media (max-width: 767px) {
+  .odm-sysop .odm-sysop-pagehead h1 { font-size: 19px; }
+
+  .mgr-layout .sys-devices-banner {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 16px;
+  }
+
+  .mgr-layout .sys-devices-filter { width: 100%; }
+  .odm-sysop .odm-btn { min-height: 40px; }
+  .odm-sysop table { display: block; max-width: 100%; overflow-x: auto; }
+}
+
+@media (max-width: 520px) {
+  .mgr-layout .odm-sysop-metrics {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mgr-layout .odm-sysop-hero { padding: 16px; }
+  .mgr-layout .odm-sysop-hero .odm-btn { width: 100%; white-space: normal; }
+}
