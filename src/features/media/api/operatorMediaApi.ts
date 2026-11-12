@@ -1,6 +1,9 @@
+import { resolveStaffUploadIntent } from '../upload/staffUploadIntent'
+import { ApiError } from '../../../shared/api/httpClient'
+import type { CaptureTimeDeclaration } from '../capture/captureTime'
 import { env } from '../../../config/env'
 import { authenticatedFetch } from '../../auth/api/authApi'
-import { transferPcBackup, verifyPcBackup } from './pcMediaTransfer'
+import { hashMediaFile, transferPcBackup, verifyPcBackup } from './pcMediaTransfer'
 import {
   flushPendingFailureEvents,
   newEventId,
@@ -21,7 +24,17 @@ export type LocalMedia = {
   fileSize: number
   checksumSha256: string
   capturedAt: string
-  sourceType?: 'DRONE_CAMERA' | 'SATELLITE_SNAPSHOT' | 'MANUAL_UPLOAD' | null
+  captureTimeSource?: string | null
+  captureTimeZone?: string | null
+  sourceType?: string | null
+  uploadChannel?: 'FLIGHT_CONTROLLER' | 'STAFF_FILE' | null
+  attemptNumber?: number
+  previewUrl?: string | null
+  thumbnailUrl?: string | null
+  localPreviewUrl?: string | null
+  localThumbnailUrl?: string | null
+  failureCode?: string | null
+  failureMessage?: string | null
   status:
     | 'REVIEW_PENDING'
     | 'UPLOADING'
@@ -33,7 +46,10 @@ export type LocalMedia = {
     | 'PENDING_MANAGER_APPROVAL'
     | 'AVAILABLE'
     | 'REJECTED'
+    | 'REMOVED'
   previewError?: string
+  version?: number
+  staffCreated?: boolean
   backendMediaId?: string
   manualTaskId?: string
   reason?: string
@@ -51,6 +67,9 @@ type UploadPlan = {
   partCount: number
   attemptNumber: number
   manualTaskId?: string
+  uploadChannel?: 'FLIGHT_CONTROLLER' | 'STAFF_FILE' | null
+  failureCode?: string | null
+  failureMessage?: string | null
 }
 
 class RetryableTransferError extends Error {}
@@ -102,6 +121,12 @@ const terminalUploadedStatuses = new Set([
   'VALIDATING',
   'PENDING_MANAGER_APPROVAL',
 ])
+function sameContentScope(left: LocalMedia, right: LocalMedia): boolean {
+  return left.missionId === right.missionId && left.deviceId === right.deviceId &&
+    Boolean(left.checksumSha256) && left.checksumSha256.toLowerCase() === right.checksumSha256.toLowerCase() &&
+    left.fileSize === right.fileSize && left.contentType === right.contentType && left.mediaType === right.mediaType
+}
+
 const referenceKey = (item: Pick<LocalMedia, 'missionId' | 'localMediaId'>) =>
   `odms.media-upload:${item.missionId}:${item.localMediaId}`
 
@@ -126,7 +151,7 @@ async function backend<T>(
   })
   const payload = await response.json().catch(() => undefined)
   if (!response.ok || !payload?.success) {
-    throw new Error(payload?.message ?? `Backend HTTP ${response.status}`)
+    throw new ApiError(payload?.message ?? `Backend HTTP ${response.status}`, { status: response.status, code: payload?.code, method, path })
   }
   return payload.data as T
 }
@@ -158,6 +183,9 @@ export const operatorMediaApi = {
   previewUrl(id: string) {
     return `${controllerUrl}/api/media/local/${encodeURIComponent(id)}/preview`
   },
+  thumbnailUrl(id: string) {
+    return `${controllerUrl}/api/media/local/${encodeURIComponent(id)}/thumbnail`
+  },
   async list(
     missionId: string,
     missionAliases: string[] = [],
@@ -180,6 +208,10 @@ export const operatorMediaApi = {
       .map((item) => ({
         ...item,
         backendMediaId: item.backendMediaId ?? storedMediaId(item),
+        localPreviewUrl: item.uploadChannel !== 'STAFF_FILE' && item.localAvailable !== false
+          ? operatorMediaApi.previewUrl(item.localMediaId) : null,
+        localThumbnailUrl: item.mediaType === 'VIDEO' && item.uploadChannel !== 'STAFF_FILE' && item.localAvailable !== false
+          ? operatorMediaApi.thumbnailUrl(item.localMediaId) : null,
       }))
   },
   async manualTasks(missionId: string) {
@@ -191,30 +223,82 @@ export const operatorMediaApi = {
       return []
     }
   },
+  async workspaceLibrary(missionId: string): Promise<LocalMedia[]> {
+    const collected: LocalMedia[] = []
+    for (let page = 0; ; page++) {
+      const response = await backend<{
+        items: Array<{
+          mediaId: string; version?: number; staffCreated?: boolean; missionId: string; deviceId: string
+          mediaType: 'IMAGE' | 'VIDEO'; sourceType?: string | null
+          fileName: string; contentType: string; fileSize: number; capturedAt: string
+          captureTimeSource?: string | null; captureTimeZone?: string | null
+          status: LocalMedia['status']; localMediaId?: string | null
+          checksumSha256?: string | null; uploadChannel?: LocalMedia['uploadChannel']
+          attemptNumber?: number | null; failureCode?: string | null
+          failureMessage?: string | null; manualTaskId?: string | null
+          previewUrl?: string | null; thumbnailUrl?: string | null
+        }>
+        totalPages: number
+      }>(`/operator/missions/${encodeURIComponent(missionId)}/media/media-library?page=${page}&size=100`)
+      collected.push(...response.items.map((item) => ({
+        localMediaId: item.localMediaId ?? `backend:${item.mediaId}`,
+        backendMediaId: item.mediaId,
+        version: item.version,
+        staffCreated: item.staffCreated,
+        missionId: item.missionId,
+        deviceId: item.deviceId,
+        mediaType: item.mediaType,
+        sourceType: item.sourceType,
+        fileName: item.fileName,
+        contentType: item.contentType,
+        fileSize: item.fileSize,
+        checksumSha256: item.checksumSha256 ?? '',
+        capturedAt: item.capturedAt,
+        captureTimeSource: item.captureTimeSource,
+        captureTimeZone: item.captureTimeZone,
+        status: item.status,
+        uploadChannel: item.uploadChannel,
+        attemptNumber: item.attemptNumber ?? undefined,
+        failureCode: item.failureCode,
+        failureMessage: item.failureMessage,
+        manualTaskId: item.manualTaskId ?? undefined,
+        previewUrl: item.previewUrl,
+        thumbnailUrl: item.thumbnailUrl,
+        localAvailable: false,
+      })))
+      if (page + 1 >= response.totalPages) break
+    }
+    return collected
+  },
   async reviewItems(
     missionId: string,
     missionAliases: string[] = [],
   ): Promise<LocalMedia[]> {
-    const [local, tasks] = await Promise.all([
-      operatorMediaApi
-        .list(missionId, missionAliases)
-        .catch(() => [] as LocalMedia[]),
-      operatorMediaApi.manualTasks(missionId),
+    const [local, library] = await Promise.all([
+      operatorMediaApi.list(missionId, missionAliases).catch(() => [] as LocalMedia[]),
+      operatorMediaApi.workspaceLibrary(missionId),
     ])
-    const merged = new Map(
-      local.map((item) => [
-        item.localMediaId,
-        { ...item, localAvailable: true },
-      ]),
-    )
-    for (const task of tasks) {
-      merged.set(task.localMediaId, {
-        ...merged.get(task.localMediaId),
-        ...task,
-        localAvailable: merged.has(task.localMediaId),
-      })
-    }
-    return [...merged.values()]
+    const localById = new Map(local.map((item) => [item.localMediaId, item]))
+    const merged = library.map((item) => {
+      const localItem = localById.get(item.localMediaId) ?? local.find((capture) =>
+        capture.backendMediaId === item.backendMediaId && sameContentScope(capture, item),
+      )
+      return localItem
+        ? { ...item, ...localItem, backendMediaId: item.backendMediaId, status: item.status,
+            manualTaskId: item.manualTaskId, previewUrl: item.previewUrl,
+            thumbnailUrl: item.thumbnailUrl, uploadChannel: item.uploadChannel,
+            version: item.version, staffCreated: item.staffCreated,
+            localAvailable: true }
+        : item
+    })
+    const known = new Set(merged.map((item) => item.localMediaId))
+    const registered = new Map(library.map((item) => [item.backendMediaId, item]))
+    return [...merged, ...local.filter((item) => {
+      if (known.has(item.localMediaId)) return false
+      const existing = item.backendMediaId ? registered.get(item.backendMediaId) : undefined
+      // Keep every file in the local manifest, but show one card per resolved asset.
+      return !existing || !sameContentScope(item, existing)
+    })]
   },
   async uploadPcBackup(
     item: LocalMedia,
@@ -247,28 +331,40 @@ export const operatorMediaApi = {
           backend<UploadPlan>(`${attemptPath}/parts/${partNumber}/url`, 'POST'),
         )
       } catch (error) {
-        const result = await backend<UploadPlan>(
-          `${attemptPath}/failures`,
-          'POST',
-          {
-            code: 'PC_TRANSFER_FAILED',
-            message:
-              error instanceof Error
-                ? error.message.slice(0, 400)
-                : 'PC transfer failed',
-          },
-        )
-        if (terminalUploadedStatuses.has(result.status)) return plan.mediaId
+        const event = {
+          eventId: newEventId(), missionId: item.missionId, mediaId: plan.mediaId,
+          attemptId: plan.attemptId, attemptNumber: plan.attemptNumber,
+          localMediaId: item.localMediaId, category: 'TRANSFER_FAILED' as const,
+          occurredAt: new Date().toISOString(), code: 'STAFF_FILE_TRANSFER_FAILED',
+          message: error instanceof Error ? error.message.slice(0, 400) : 'Staff file transfer failed',
+          checksumSha256,
+        }
+        await recordUploadFailure(event)
+        try {
+          await reportJournaledFailure(event, attemptPath)
+        } catch {
+          throw new Error('Không gửi được báo cáo lỗi; sự kiện đã lưu để gửi lại khi có mạng.', { cause: error })
+        }
         throw error
       }
-      // An ambiguous completion response is not a failed transfer; retain this attempt for recovery.
-      await backend(
-        plan.uploadMethod === 'MULTIPART'
-          ? `${attemptPath}/complete-multipart`
-          : `${attemptPath}/uploaded`,
-        'POST',
-        plan.uploadMethod === 'MULTIPART' ? { parts } : undefined,
-      )
+      // An ambiguous completion response is not a failed transfer; retain it for reconciliation.
+      try {
+        await backend(
+          plan.uploadMethod === 'MULTIPART' ? `${attemptPath}/complete-multipart` : `${attemptPath}/uploaded`,
+          'POST', plan.uploadMethod === 'MULTIPART' ? { parts } : undefined,
+        )
+      } catch (ackError) {
+        const event = {
+          eventId: newEventId(), missionId: item.missionId, mediaId: plan.mediaId,
+          attemptId: plan.attemptId, attemptNumber: plan.attemptNumber,
+          localMediaId: item.localMediaId, category: 'TRANSFER_ACK_LOST' as const,
+          occurredAt: new Date().toISOString(), code: 'TRANSFER_ACK_LOST',
+          message: ackError instanceof Error ? ackError.message.slice(0, 400) : 'Acknowledgement lost',
+          checksumSha256,
+        }
+        await recordUploadFailure(event)
+        await flushPendingFailureEvents().catch(() => 0)
+      }
       return plan.mediaId
     })()
     activeUploads.set(key, operation)
@@ -277,6 +373,90 @@ export const operatorMediaApi = {
     } finally {
       activeUploads.delete(key)
     }
+  },
+  async uploadStaffFile(
+    missionId: string,
+    deviceId: string,
+    file: File,
+    capturedAt: string,
+    onPrepared?: (mediaId: string, item: LocalMedia) => Promise<void>,
+    declaration: CaptureTimeDeclaration = { captureTimeSource: 'STAFF_CONFIRMED', captureTimeZone: 'Asia/Ho_Chi_Minh', captureTimeConfirmationReason: 'Staff confirmed capture time' },
+    uploadIntentId?: string,
+  ): Promise<string> {
+    if (!capturedAt || !Number.isFinite(Date.parse(capturedAt))) {
+      throw new Error('Vui lòng xác nhận thời gian chụp/quay của tệp.')
+    }
+    const contentType = file.type || (
+      /\.png$/i.test(file.name) ? 'image/png' : /\.mp4$/i.test(file.name) ? 'video/mp4' : 'image/jpeg'
+    )
+    if (!['image/jpeg', 'image/png', 'video/mp4'].includes(contentType)) {
+      throw new Error('Chỉ hỗ trợ ảnh JPEG/PNG và video MP4 được chụp bằng drone.')
+    }
+    if (file.size <= 0) throw new Error('Tệp không có dữ liệu.')
+    const mediaType = contentType === 'video/mp4' ? 'VIDEO' : 'IMAGE'
+    const checksumSha256 = await hashMediaFile(file)
+    const localMediaId = `staff-${resolveStaffUploadIntent(file, uploadIntentId)}`
+    const item: LocalMedia = {
+      localMediaId, missionId, deviceId, mediaType, fileName: file.name,
+      contentType, fileSize: file.size, checksumSha256,
+      capturedAt: new Date(capturedAt).toISOString(),
+      sourceType: 'DRONE_CAMERA', uploadChannel: 'STAFF_FILE', status: 'UPLOAD_PENDING', localAvailable: false,
+    }
+    const key = `staff:${missionId}:${deviceId}:${checksumSha256}`
+    if (activeUploads.has(key)) throw new Error('Tệp này đang được tải lên.')
+    const operation = (async () => {
+      const plan = await backend<UploadPlan>(
+        `/missions/${encodeURIComponent(missionId)}/staff-media-uploads`,
+        'POST',
+        { deviceId, localMediaId, mediaType, fileName: file.name, contentType,
+          fileSize: file.size, checksumSha256, capturedAt: item.capturedAt, sourceType: 'DRONE_CAMERA', ...declaration },
+      )
+      await onPrepared?.(plan.mediaId, { ...item, backendMediaId: plan.mediaId, status: plan.status as LocalMedia['status'] })
+      if (terminalUploadedStatuses.has(plan.status)) return plan.mediaId
+      if (!plan.attemptId || !plan.uploadMethod) throw new Error('Không có phiên tải lên hợp lệ từ Backend.')
+      const attemptPath = `/media/${encodeURIComponent(plan.mediaId)}/upload-attempts/${encodeURIComponent(plan.attemptId)}`
+      let parts: Array<{ partNumber: number; eTag: string }>
+      try {
+        parts = await transferPcBackup(file, plan, (partNumber) =>
+          backend<UploadPlan>(`${attemptPath}/parts/${partNumber}/url`, 'POST'),
+        )
+      } catch (cause) {
+        const event = {
+          eventId: newEventId(), missionId, mediaId: plan.mediaId, attemptId: plan.attemptId,
+          attemptNumber: plan.attemptNumber, localMediaId, category: 'TRANSFER_FAILED' as const,
+          occurredAt: new Date().toISOString(), code: 'STAFF_FILE_TRANSFER_FAILED',
+          message: cause instanceof Error ? cause.message.slice(0, 400) : 'Staff file transfer failed',
+          checksumSha256,
+        }
+        await recordUploadFailure(event)
+        try { await reportJournaledFailure(event, attemptPath) }
+        catch { throw new Error('Không gửi được báo cáo lỗi; sự kiện đã lưu để gửi lại khi có mạng.', { cause }) }
+        throw cause
+      }
+      try {
+        await backend(plan.uploadMethod === 'MULTIPART' ? `${attemptPath}/complete-multipart` : `${attemptPath}/uploaded`,
+          'POST', plan.uploadMethod === 'MULTIPART' ? { parts } : undefined)
+      } catch (cause) {
+        const event = {
+          eventId: newEventId(), missionId, mediaId: plan.mediaId, attemptId: plan.attemptId,
+          attemptNumber: plan.attemptNumber, localMediaId, category: 'TRANSFER_ACK_LOST' as const,
+          occurredAt: new Date().toISOString(), code: 'TRANSFER_ACK_LOST',
+          message: cause instanceof Error ? cause.message.slice(0, 400) : 'Acknowledgement lost',
+          checksumSha256,
+        }
+        await recordUploadFailure(event)
+        await flushPendingFailureEvents().catch(() => 0)
+      }
+      return plan.mediaId
+    })()
+    activeUploads.set(key, operation)
+    try { return await operation } finally { activeUploads.delete(key) }
+  },
+  removeStaffMedia(missionId: string, mediaId: string, expectedVersion: number, reason: string) {
+    return backend<{ mediaId: string; removed: boolean; cleanupScheduled: boolean }>(
+      `/operator/missions/${encodeURIComponent(missionId)}/media/${encodeURIComponent(mediaId)}/removal`,
+      'POST', { expectedVersion, reason },
+    )
   },
   discard(id: string) {
     return controller(
@@ -329,9 +509,12 @@ export const operatorMediaApi = {
     manual: boolean,
     onPrepared?: (mediaId: string) => Promise<void>,
   ): Promise<string> {
+    if (item.sourceType && item.sourceType !== 'DRONE_CAMERA') {
+      throw new Error('Tệp mới phải có nguồn capture từ camera của drone.')
+    }
     const missionId = encodeURIComponent(item.missionId)
     const preparePath = `/missions/${missionId}/media-uploads`
-    let plan = await backend<UploadPlan>(preparePath, 'POST', {
+    const metadata = {
       deviceId: item.deviceId,
       localMediaId: item.localMediaId,
       mediaType: item.mediaType,
@@ -340,8 +523,39 @@ export const operatorMediaApi = {
       fileSize: item.fileSize,
       checksumSha256: item.checksumSha256,
       capturedAt: item.capturedAt,
-      sourceType: item.sourceType ?? null,
-    })
+      sourceType: 'DRONE_CAMERA',
+    }
+    let plan: UploadPlan
+    try {
+      plan = await backend<UploadPlan>(preparePath, 'POST', metadata)
+    } catch (error) {
+      if (!(error instanceof ApiError) || error.status !== 409 || error.code !== 'MEDIA_DUPLICATE_CONTENT')
+        throw error
+      // Resolve only through the authorized exact-Mission library. Names and capture
+      // timestamps are not content identity, and a checksum alone is not permission.
+      const matches = (await operatorMediaApi.workspaceLibrary(item.missionId)).filter((existing) =>
+        sameContentScope(existing, item) && existing.sourceType === 'DRONE_CAMERA' &&
+        existing.status !== 'REMOVED' && existing.status !== 'REJECTED' && existing.backendMediaId,
+      )
+      if (matches.length !== 1) throw error
+      const existing = matches[0]
+      plan = await operatorMediaApi.status(existing.backendMediaId!)
+      if (plan.mediaId !== existing.backendMediaId)
+        throw new Error('Không xác định được media trùng trong Mission. Hãy làm mới thư viện.', { cause: error })
+      if (!terminalUploadedStatuses.has(plan.status)) {
+        if (existing.uploadChannel !== 'FLIGHT_CONTROLLER') {
+          throw new Error('Ảnh này đã có trong thư viện. Hãy tiếp tục upload hoặc khôi phục tại media hiện có.', { cause: error })
+        }
+        // Replay the original registration to resume its attempt; retain its capture
+        // metadata and channel, while transferring the identical local bytes.
+        plan = await backend<UploadPlan>(preparePath, 'POST', {
+          ...metadata, localMediaId: existing.localMediaId,
+          capturedAt: existing.capturedAt,
+        })
+        if (plan.mediaId !== existing.backendMediaId)
+          throw new Error('Media đã thay đổi. Hãy làm mới thư viện trước khi thử lại.', { cause: error })
+      }
+    }
     // Persist only the correlation ID, never credentials or signed URLs.
     try {
       window.localStorage.setItem(referenceKey(item), plan.mediaId)

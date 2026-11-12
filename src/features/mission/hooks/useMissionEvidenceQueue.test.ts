@@ -152,3 +152,18 @@ describe('legacy evidence queue', () => {
     expect(attach).toHaveBeenCalledOnce()
   })
 })
+
+
+it('attaches an uploaded manual asset without invoking any local upload', async () => {
+  vi.spyOn(checklistExecutionApi, 'getMissionChecklistExecutions').mockResolvedValue({ executions: [{ id: 'e', evidence: [] }] } as never)
+  const attach = vi.spyOn(checklistEvidenceApi, 'batch').mockResolvedValue([])
+  const localTransfer = vi.fn<EvidenceTransfer>()
+  const upload = vi.spyOn(operatorMediaApi, 'upload')
+  const missionId = crypto.randomUUID()
+  const { result } = renderHook(() => useMissionEvidenceQueue(missionId, localTransfer))
+  const manual = { ...candidate('manual'), mediaId: 'uploaded-manual', status: 'AVAILABLE' } as EvidenceCandidate
+  await act(async () => result.current.addAndWait({ id: 'e', version: 1 } as MissionChecklistExecution, [manual]))
+  expect(attach).toHaveBeenCalledWith(missionId, 'uploaded-manual', [{ executionId: 'e', expectedVersion: 1 }])
+  expect(localTransfer).not.toHaveBeenCalled()
+  expect(upload).not.toHaveBeenCalled()
+})

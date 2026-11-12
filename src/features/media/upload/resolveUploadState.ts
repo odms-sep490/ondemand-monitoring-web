@@ -3,6 +3,7 @@ export function resolveUploadState(local: string, backend?: string): string {
   if (
     backend &&
     [
+      'REMOVED',
       'AVAILABLE',
       'PENDING_MANAGER_APPROVAL',
       'VALIDATING',

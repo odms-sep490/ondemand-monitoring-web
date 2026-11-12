@@ -1,3 +1,5 @@
+import { MediaRemovalAction } from '../../../../media/components/MediaRemovalAction'
+import { captureTimeValidationMessage } from '../../../../media/capture/captureTime'
 import { VideoThumbnail } from '../../../../../shared/components/media/VideoThumbnail'
 import { MediaChecklistAttachment } from './MediaChecklistAttachment'
 import { operatorMediaApi } from '../../../../media/api/operatorMediaApi'
@@ -42,7 +44,11 @@ export function MediaCard({
   remotePreviewUrl,
   remoteThumbnailUrl,
   reviewMedia,
+  onMediaRemoved,
+  canRemoveMedia = false,
 }: {
+  onMediaRemoved?: (mediaId: string) => void
+  canRemoveMedia?: boolean
   item: LocalMedia
   setPreview?: (item: LocalMedia) => void
   onOpenPreview?: (item: LocalMedia) => void
@@ -102,6 +108,12 @@ export function MediaCard({
           <span>{mediaTypeLabel[item.mediaType] ?? item.mediaType}</span>
           <span aria-hidden="true">•</span>
           <span>{(item.fileSize / 1_000_000).toFixed(2)} MB</span>
+          {item.uploadChannel && (
+            <>
+              <span aria-hidden="true">•</span>
+              <span>{item.uploadChannel === 'STAFF_FILE' ? t.staffFileChannel : t.flightControllerChannel}</span>
+            </>
+          )}
           {item.sourceType && (
             <>
               <span aria-hidden="true">•</span>
@@ -125,12 +137,22 @@ export function MediaCard({
             {t.managerRejected(item.reason)}
           </p>
         )}
+        {item.captureTimeSource && <p className="upload-media-state-note">
+          {new Intl.DateTimeFormat(lang === 'vi' ? 'vi-VN' : 'en-GB', { timeZone: 'Asia/Ho_Chi_Minh', dateStyle: 'short', timeStyle: 'medium' }).format(new Date(item.capturedAt))} · UTC+7
+          {' · '}{item.captureTimeSource === 'METADATA' ? t.metadataCaptureTime : t.staffCaptureTime}
+        </p>}
         {item.previewError && (
           <p role="alert" className="upload-media-notice is-danger">
             {item.previewError}
           </p>
         )}
+        {['MANUAL_UPLOAD_REQUIRED', 'RETRY_REQUIRED'].includes(status) && item.failureMessage && (
+          <p role="status" className="upload-media-state-note is-danger">
+            {t.staffUploadFailure(captureTimeValidationMessage(item.failureMessage, lang))}
+          </p>
+        )}
         <div className="upload-media-actions">
+          {onMediaRemoved && <MediaRemovalAction item={item} canRemove={canRemoveMedia} disabled={isBusy} onRemoved={onMediaRemoved} />}
           {reviewMedia &&
             item.backendMediaId &&
             status === 'PENDING_MANAGER_APPROVAL' && (
@@ -143,7 +165,7 @@ export function MediaCard({
                 {t.approveEvidence}
               </button>
             )}
-          {canManageMedia && status === 'MANUAL_UPLOAD_REQUIRED' && (
+          {canManageMedia && item.uploadChannel !== 'STAFF_FILE' && status === 'MANUAL_UPLOAD_REQUIRED' && (
             <button
               type="button"
               className="odm-btn odm-btn-p"
@@ -153,7 +175,7 @@ export function MediaCard({
               {t.manualUpload}
             </button>
           )}
-          {canManageMedia &&
+          {canManageMedia && item.uploadChannel !== 'STAFF_FILE' &&
             (!automaticAttach ||
               ['UPLOAD_FAILED', 'RETRY_REQUIRED'].includes(status)) && (
               <button
@@ -191,7 +213,7 @@ export function MediaCard({
                 <span className="upload-media-sr">{t.enlargePreview}</span>
               </button>
             )}
-          {canManageMedia && (
+          {canManageMedia && item.uploadChannel !== 'STAFF_FILE' && (
             <details className="upload-media-more">
               <summary aria-label={t.moreActions} title={t.moreActions}>
                 ⋮
