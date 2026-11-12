@@ -1,4 +1,5 @@
 import {
+  DownOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   SearchOutlined,
@@ -33,8 +34,21 @@ export function OperatorTopbar({
 }) {
   const { t } = useI18n(operatorTopbarMessages)
   return (
-    <Layout.Header className="mgr-header odm-opr-topbar">
-      <div className="mgr-header-left">
+    <Layout.Header className="mgr-header cus-header-bar odm-opr-topbar">
+      <a
+        className={`cus-header-brand${collapsed ? ' is-collapsed' : ''}`}
+        href={operatorHref({ screen: 'missions' })}
+        aria-label="OnDemand Monitor"
+      >
+        <span className="cus-header-brand-mark">
+          <img src="/images/logo-new.png" alt="" />
+        </span>
+        <span className="cus-header-brand-name" aria-hidden="true">
+          <span>OnDemand</span>
+          <strong>Monitor</strong>
+        </span>
+      </a>
+      <div className="cus-header-nav">
         <Button
           type="text"
           className="mgr-icon-btn odm-opr-menu-toggle"
@@ -45,7 +59,7 @@ export function OperatorTopbar({
           onClick={onToggleNavigation}
         />
         <Breadcrumb
-          className="odm-opr-breadcrumb"
+          className="cus-header-breadcrumb odm-opr-breadcrumb"
           items={[
             {
               title: (
@@ -59,16 +73,17 @@ export function OperatorTopbar({
         />
       </div>
 
-      <div className="mgr-header-right">
+      <div className="cus-header-actions">
         <Input
           className="mgr-search odm-opr-search"
           allowClear
-          prefix={<SearchOutlined />}
+          prefix={<SearchOutlined aria-hidden="true" aria-label={undefined} />}
           placeholder={t.searchPlaceholder}
           aria-label={t.search}
           value={searchQuery}
           onChange={(event) => onSearchChange(event.target.value)}
         />
+        <span className="cus-header-divider" aria-hidden="true" />
         <Button
           href={operatorHref({ screen: 'maintenance' })}
           type="default"
@@ -78,7 +93,10 @@ export function OperatorTopbar({
         >
           <span className="mgr-support-label">{t.maintenanceLink}</span>
         </Button>
-        <NotificationBell role="STAFF" />
+        <NotificationBell
+          role="STAFF"
+          className="cus-header-notifications"
+        />
         <LanguageToggle className="mgr-lang-toggle" />
         <Button
           type="text"
@@ -87,10 +105,13 @@ export function OperatorTopbar({
           onClick={onToggleDark}
           icon={<Icon name={dark ? 'sun' : 'moon'} width={18} height={18} />}
         />
-        <PortalUserMenu
-          fallbackName={t.pilotLabel}
-          profileHref={operatorHref({ screen: 'profile' })}
-        />
+        <div className="cus-header-user">
+          <PortalUserMenu
+            fallbackName={t.pilotLabel}
+            profileHref={operatorHref({ screen: 'profile' })}
+          />
+          <DownOutlined aria-hidden="true" />
+        </div>
       </div>
     </Layout.Header>
   )

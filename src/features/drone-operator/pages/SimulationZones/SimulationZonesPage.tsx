@@ -45,7 +45,7 @@ export default function SimulationZones() {
           width: '100%',
           minHeight: 0,
           border: 'none',
-          background: '#eef2f6',
+          background: 'var(--mgr-card-2)',
         }}
       />
     </div>

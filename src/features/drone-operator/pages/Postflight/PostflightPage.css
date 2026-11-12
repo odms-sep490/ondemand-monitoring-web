@@ -29,7 +29,7 @@
 
 .postflight-mission-select-label {
   gap: 10px;
-  color: var(--tx2, #475569);
+  color: var(--tx2, var(--mgr-muted));
   font-size: 13px;
   font-weight: 700;
   white-space: nowrap;
@@ -40,10 +40,10 @@
   min-width: 220px;
   height: 38px;
   padding: 0 12px;
-  border: 1px solid var(--bd, #cbd5e1);
+  border: 1px solid var(--bd, var(--bd2));
   border-radius: 8px;
-  background: var(--sf, #fff);
-  color: var(--tx, #0f172a);
+  background: var(--sf, var(--mgr-card));
+  color: var(--tx, var(--mgr-text));
   font: inherit;
   font-size: 13px;
   font-weight: 700;
@@ -86,14 +86,14 @@
   justify-content: center;
   min-height: 78px;
   padding: 12px 16px;
-  border: 1px solid #dbe6fb;
+  border: 1px solid color-mix(in srgb, var(--ui-primary) 35%, var(--mgr-border));
   border-radius: 11px;
-  background: #f0f5ff;
+  background: var(--ui-primary-soft);
 }
 
 .postflight-metric-label {
   overflow: hidden;
-  color: #334155;
+  color: var(--tx2);
   font-size: 13px;
   font-weight: 750;
   text-overflow: ellipsis;
@@ -103,7 +103,7 @@
 .postflight-metric-value {
   overflow: hidden;
   margin-top: 3px;
-  color: #0f172a;
+  color: var(--mgr-text);
   font-size: 21px;
   font-weight: 850;
   text-overflow: ellipsis;
@@ -118,14 +118,14 @@
   justify-content: space-between;
   gap: 10px;
   padding: 10px 12px;
-  border: 1px solid #dce4f2;
+  border: 1px solid color-mix(in srgb, var(--ui-primary) 35%, var(--mgr-border));
   border-radius: 12px;
-  background: #fff;
+  background: var(--mgr-card);
 }
 
 .postflight-progress.has-failures {
-  border-color: #fecaca;
-  background: #fff7f7;
+  border-color: color-mix(in srgb, var(--ui-danger) 30%, var(--mgr-border));
+  background: var(--ui-danger-soft);
 }
 
 .postflight-progress-copy {
@@ -133,7 +133,7 @@
 }
 
 .postflight-progress-label {
-  color: #475569;
+  color: var(--mgr-muted);
   font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.055em;
@@ -145,7 +145,7 @@
   align-items: center;
   gap: 7px;
   margin-top: 3px;
-  color: #111827;
+  color: var(--mgr-text);
   font-size: 18px;
   font-weight: 850;
   white-space: nowrap;
@@ -154,14 +154,14 @@
 .postflight-progress-badge {
   padding: 3px 9px;
   border-radius: 999px;
-  background: #10a66a;
-  color: #fff;
+  background: var(--ui-success);
+  color: var(--ui-on-primary);
   font-size: 11px;
   font-weight: 800;
 }
 
 .postflight-progress-badge.is-fail {
-  background: #dc2626;
+  background: var(--ui-danger);
 }
 
 .postflight-pass-all {
@@ -170,9 +170,9 @@
   padding: 0 12px;
   border: 0;
   border-radius: 8px;
-  background: #078b55;
-  box-shadow: 0 2px 7px rgba(5, 150, 105, 0.2);
-  color: #fff;
+  background: color-mix(in srgb, var(--ui-success) 92%, #000);
+  box-shadow: var(--mgr-shadow);
+  color: var(--ui-on-primary);
   cursor: pointer;
   font-size: 13px;
   font-weight: 800;
@@ -180,7 +180,7 @@
 }
 
 .postflight-pass-all:hover {
-  background: #067447;
+  background: color-mix(in srgb, var(--ui-success) 82%, #000);
 }
 
 .postflight-categories {
@@ -189,9 +189,9 @@
 
 .postflight-category {
   overflow: hidden;
-  border: 1px solid #d5dfef;
+  border: 1px solid var(--mgr-border);
   border-radius: 10px;
-  background: #fff;
+  background: var(--mgr-card);
 }
 
 .postflight-category-heading {
@@ -201,8 +201,8 @@
   gap: 8px;
   margin: 0;
   padding: 6px 16px;
-  background: linear-gradient(90deg, #e8f0ff 0%, #f2f6ff 100%);
-  color: #172033;
+  background: linear-gradient(90deg, var(--ui-primary-soft) 0%, var(--mgr-card-2) 100%);
+  color: var(--mgr-text);
   font-size: 15px;
   font-weight: 800;
 }
@@ -218,7 +218,7 @@
   gap: 18px;
   min-height: 56px;
   padding: 8px 0;
-  border-bottom: 1px solid #e7ebf2;
+  border-bottom: 1px solid var(--mgr-border);
 }
 
 .postflight-row:last-child {
@@ -227,14 +227,14 @@
 
 .postflight-row.is-ok {
   border-radius: 7px;
-  background: #f3fbf6;
-  box-shadow: inset 0 0 0 1px #bfe8ce;
+  background: var(--ui-success-soft);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ui-success) 30%, var(--mgr-border));
 }
 
 .postflight-row.is-fail {
   border-radius: 7px;
-  background: #fff5f5;
-  box-shadow: inset 0 0 0 1px #fecaca;
+  background: var(--ui-danger-soft);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ui-danger) 30%, var(--mgr-border));
 }
 
 .postflight-row-copy {
@@ -242,13 +242,13 @@
 }
 
 .postflight-row-title {
-  color: #151b28;
+  color: var(--mgr-text);
   font-size: 15px;
   font-weight: 750;
 }
 
 .postflight-row-detail {
-  color: #475569;
+  color: var(--mgr-muted);
   font-size: 13px;
   line-height: 1.5;
 }
@@ -262,10 +262,10 @@
   min-width: 104px;
   min-height: 40px;
   padding: 6px 14px;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--bd2);
   border-radius: 8px;
-  background: #fff;
-  color: #182033;
+  background: var(--mgr-card);
+  color: var(--mgr-text);
   cursor: pointer;
   font-size: 13px;
   font-weight: 800;
@@ -275,45 +275,45 @@
 }
 
 .postflight-choice:hover {
-  border-color: #94a3b8;
-  background: #f8fafc;
+  border-color: var(--mgr-border);
+  background: var(--mgr-card-2);
 }
 
 .postflight-choice.is-pass.is-selected {
-  border-color: #0ba56d;
-  background: #0ba56d;
-  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.22);
-  color: #fff;
+  border-color: var(--ui-success);
+  background: var(--ui-success);
+  box-shadow: var(--mgr-shadow);
+  color: var(--ui-on-primary);
 }
 
 .postflight-choice.is-fail.is-selected {
-  border-color: #dc3d3d;
-  background: #dc3d3d;
-  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.2);
-  color: #fff;
+  border-color: var(--ui-danger);
+  background: var(--ui-danger);
+  box-shadow: var(--mgr-shadow);
+  color: var(--ui-on-primary);
 }
 
 .postflight-choice:focus-visible,
 .postflight-pass-all:focus-visible,
 .postflight-complete-button:focus-visible,
 .postflight-maintenance-button:focus-visible {
-  outline: 3px solid rgba(37, 99, 235, 0.4);
+  outline: 3px solid color-mix(in srgb, var(--ui-primary) 40%, transparent);
   outline-offset: 2px;
 }
 
 .postflight-notes {
   overflow: hidden;
-  border: 1px solid #d5dfef;
+  border: 1px solid var(--mgr-border);
   border-radius: 10px;
-  background: #fff;
+  background: var(--mgr-card);
 }
 
 .postflight-notes-heading {
   min-height: 40px;
   margin: 0;
   padding: 7px 16px;
-  background: linear-gradient(90deg, #e8f0ff 0%, #f2f6ff 100%);
-  color: #172033;
+  background: linear-gradient(90deg, var(--ui-primary-soft) 0%, var(--mgr-card-2) 100%);
+  color: var(--mgr-text);
   font-size: 16px;
   font-weight: 800;
 }
@@ -328,23 +328,23 @@
   min-height: 82px;
   resize: vertical;
   padding: 10px 12px;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--bd2);
   border-radius: 8px;
-  background: #fff;
-  color: #172033;
+  background: var(--mgr-card);
+  color: var(--mgr-text);
   font: inherit;
   font-size: 15px;
 }
 
 .postflight-notes-input::placeholder {
-  color: #64748b;
+  color: var(--mgr-muted);
   font-style: italic;
 }
 
 .postflight-notes-input:focus-visible,
 .postflight-mission-select:focus-visible {
-  border-color: #3478ef;
-  outline: 3px solid rgba(37, 99, 235, 0.16);
+  border-color: var(--ui-primary);
+  outline: 3px solid color-mix(in srgb, var(--ui-primary) 16%, transparent);
   outline-offset: 1px;
 }
 
@@ -363,9 +363,9 @@
 }
 
 .postflight-success-banner {
-  border: 1px solid #66d69a;
-  background: #ecfff3;
-  color: #08733f;
+  border: 1px solid color-mix(in srgb, var(--ui-success) 35%, var(--mgr-border));
+  background: var(--ui-success-soft);
+  color: var(--ui-success-text);
 }
 
 .postflight-success-dot {
@@ -373,15 +373,15 @@
   height: 13px;
   flex: none;
   border-radius: 50%;
-  background: #25b767;
-  box-shadow: 0 0 0 3px rgba(37, 183, 103, 0.13);
+  background: var(--ui-success);
+  box-shadow: var(--mgr-shadow);
 }
 
 .postflight-maintenance-banner {
   justify-content: space-between;
-  border: 1px solid #f4c36e;
-  background: #fff8e8;
-  color: #78350f;
+  border: 1px solid color-mix(in srgb, var(--ui-warning) 35%, var(--mgr-border));
+  background: var(--ui-warning-soft);
+  color: var(--ui-warning-text);
 }
 
 .postflight-maintenance-copy {
@@ -389,14 +389,14 @@
 }
 
 .postflight-maintenance-title {
-  color: #92400e;
+  color: var(--ui-warning-text);
   font-size: 16px;
   font-weight: 850;
 }
 
 .postflight-maintenance-description {
   margin-top: 3px;
-  color: #78350f;
+  color: var(--ui-warning-text);
   font-size: 14px;
   line-height: 1.5;
 }
@@ -407,17 +407,17 @@
   padding: 0 13px;
   border: 0;
   border-radius: 8px;
-  background: #e99312;
-  color: #fff;
+  background: var(--ui-warning);
+  color: var(--ui-on-primary);
   cursor: pointer;
   font-size: 14px;
   font-weight: 800;
 }
 
 .postflight-error {
-  border: 1px solid #fca5a5;
-  background: #fef2f2;
-  color: #b91c1c;
+  border: 1px solid color-mix(in srgb, var(--ui-danger) 45%, var(--mgr-border));
+  background: var(--ui-danger-soft);
+  color: var(--ui-danger-text);
 }
 
 .postflight-submit {
@@ -432,21 +432,21 @@
   padding: 0 22px;
   border: 0;
   border-radius: 9px;
-  background: linear-gradient(105deg, #0754df, #1268f4);
-  box-shadow: 0 3px 10px rgba(37, 99, 235, 0.22);
-  color: #fff;
+  background: linear-gradient(105deg, var(--ui-primary), var(--ui-primary));
+  box-shadow: var(--mgr-shadow);
+  color: var(--ui-on-primary);
   cursor: pointer;
   font-size: 16px;
   font-weight: 800;
 }
 
 .postflight-complete-button.has-failures {
-  background: linear-gradient(105deg, #e38b0b, #f4a313);
-  box-shadow: 0 3px 10px rgba(217, 119, 6, 0.2);
+  background: linear-gradient(105deg, var(--ui-warning), var(--ui-warning));
+  box-shadow: var(--mgr-shadow);
 }
 
 .postflight-complete-button:disabled {
-  background: #94a3b8;
+  background: var(--mgr-border);
   box-shadow: none;
   cursor: not-allowed;
 }

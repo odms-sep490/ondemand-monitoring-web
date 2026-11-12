@@ -9,16 +9,16 @@ export function MaintenanceEmpty() {
       style={{
         padding: '48px 24px',
         textAlign: 'center',
-        color: '#94a3b8',
+        color: 'var(--mgr-muted)',
         borderRadius: 14,
-        border: '1px solid #e2e8f0',
+        border: '1px solid var(--mgr-border)',
       }}
     >
       <h3
         style={{
           margin: 0,
           fontSize: 15,
-          color: '#1e293b',
+          color: 'var(--mgr-text)',
           fontWeight: 600,
         }}
       >

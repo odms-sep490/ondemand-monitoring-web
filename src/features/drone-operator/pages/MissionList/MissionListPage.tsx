@@ -102,7 +102,7 @@ export function MissionListPage({ searchQuery }: { searchQuery: string }) {
   if (!profile || !kpis) return null
 
   return (
-    <div>
+    <div className="odm-opr-page">
       <MissionListHeader profile={profile} now={now} />
 
       {profile.certExpiry && <CertExpiryBanner profile={profile} kpis={kpis} />}

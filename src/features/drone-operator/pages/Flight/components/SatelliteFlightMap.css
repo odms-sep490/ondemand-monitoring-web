@@ -339,11 +339,11 @@
   width: min(520px, calc(100vw - 32px));
   margin: 8vh auto 0;
   padding: 22px;
-  border: 1px solid #dbe3ef;
-  border-radius: 14px;
-  background: #fff;
-  box-shadow: 0 24px 70px rgba(15, 23, 42, .18);
-  color: #0f172a;
+  border: 1px solid var(--mgr-border);
+  border-radius: var(--mgr-radius);
+  background: var(--mgr-card);
+  box-shadow: var(--mgr-shadow);
+  color: var(--mgr-text);
 }
 
 .satellite-manual-preflight__header {
@@ -352,14 +352,14 @@
   justify-content: space-between;
   gap: 16px;
   padding-bottom: 16px;
-  border-bottom: 1px solid #e5eaf2;
+  border-bottom: 1px solid var(--mgr-border);
 }
 
 .satellite-manual-preflight__header p {
   margin: 0 0 6px;
-  color: #1565e8;
+  color: var(--ui-primary);
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: .08em;
   text-transform: uppercase;
 }
@@ -373,7 +373,7 @@
 .satellite-manual-preflight__header span {
   display: block;
   margin-top: 6px;
-  color: #64748b;
+  color: var(--mgr-muted);
   font-weight: 700;
 }
 
@@ -384,8 +384,8 @@
   display: grid;
   place-items: center;
   border-radius: 999px;
-  background: #eaf2ff;
-  color: #1565e8;
+  background: var(--ui-primary-soft);
+  color: var(--ui-primary);
   font-size: 15px;
 }
 
@@ -401,23 +401,23 @@
   gap: 12px;
   min-height: 54px;
   padding: 12px 14px;
-  border: 1px solid #dbe3ef;
+  border: 1px solid var(--mgr-border);
   border-radius: 10px;
-  background: #f8fafc;
-  font-weight: 800;
+  background: var(--mgr-card-2);
+  font-weight: 700;
   cursor: pointer;
 }
 
 .satellite-manual-preflight__item:has(input:checked) {
-  border-color: #22c55e;
-  background: #ecfdf3;
-  color: #166534;
+  border-color: var(--ui-success);
+  background: var(--ui-success-soft);
+  color: var(--ui-success-text);
 }
 
 .satellite-manual-preflight__item input {
   width: 22px;
   height: 22px;
-  accent-color: #1565e8;
+  accent-color: var(--ui-primary);
 }
 
 .satellite-manual-preflight__button {
@@ -425,15 +425,15 @@
   min-height: 52px;
   border: 0;
   border-radius: 10px;
-  background: #1565e8;
-  color: #fff;
+  background: var(--ui-primary);
+  color: var(--ui-on-primary);
   font-size: 16px;
-  font-weight: 900;
+  font-weight: 700;
   cursor: pointer;
 }
 
 .satellite-manual-preflight__button:disabled {
-  background: #cbd5e1;
+  background: var(--mgr-border);
   cursor: not-allowed;
 }
 

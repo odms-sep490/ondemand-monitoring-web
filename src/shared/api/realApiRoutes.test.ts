@@ -72,6 +72,21 @@ describe('matchesRealApiRoute', () => {
     }
   })
 
+  it('always sends busy schedule reads and writes to the real backend', () => {
+    const requests = [
+      ['GET', '/api/busy-schedules/me'],
+      ['GET', '/api/busy-schedules/users/staff-1'],
+      ['GET', '/api/busy-schedules/busy-1'],
+      ['POST', '/api/busy-schedules'],
+      ['PUT', '/api/busy-schedules/busy-1'],
+      ['DELETE', '/api/busy-schedules/busy-1'],
+    ] as const
+
+    for (const [method, path] of requests) {
+      expect(matchesRealApiRoute(env.realApiRoutes, method, path)).toBe(true)
+    }
+  })
+
   it('always sends notification feeds to the real backend', () => {
     expect(
       matchesRealApiRoute(env.realApiRoutes, 'GET', '/api/notifications'),

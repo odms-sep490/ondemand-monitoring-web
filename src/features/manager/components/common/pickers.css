@@ -358,3 +358,10 @@
 .mgr-layout .odm-or-device-box .mgr-block-note {
   margin: 0;
 }
+
+.mgr-layout .mgr-pk-option.is-unavailable,
+.mgr-layout .mgr-pk-option.is-unavailable:hover {
+  cursor: not-allowed;
+  opacity: 0.6;
+  background: transparent;
+}

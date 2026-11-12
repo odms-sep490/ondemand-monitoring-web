@@ -37,9 +37,20 @@ const staffLicenseApiRoutes = parseRealApiRoutes(
     'POST /api/staff-licenses/*/document',
   ].join(','),
 )
+const busyScheduleApiRoutes = parseRealApiRoutes(
+  [
+    'GET /api/busy-schedules/me',
+    'GET /api/busy-schedules/users/*',
+    'GET /api/busy-schedules/*',
+    'POST /api/busy-schedules',
+    'PUT /api/busy-schedules/*',
+    'DELETE /api/busy-schedules/*',
+  ].join(','),
+)
 const realApiRoutes = [
   ...parseRealApiRoutes(import.meta.env.VITE_REAL_API_ROUTES),
   ...staffLicenseApiRoutes,
+  ...busyScheduleApiRoutes,
   ...notificationApiRoutes,
 ]
 

@@ -1,7 +1,7 @@
 .rework-context-panel {
   margin-bottom: 16px;
   min-width: 0;
-  color: var(--ui-text, #172033);
+  color: var(--ui-text, var(--mgr-text));
 }
 .rework-context-panel > .ant-card {
   border-radius: 12px;
@@ -14,12 +14,12 @@
 }
 .rework-context-intro {
   margin: 0 0 16px;
-  color: var(--ui-text-2, #64748b);
+  color: var(--ui-text-2, var(--mgr-muted));
   font-size: 13px;
   line-height: 1.6;
 }
 .rework-context-checklists {
-  background: var(--ui-surface, #fff);
+  background: var(--ui-surface, var(--mgr-card));
 }
 .rework-context-checklists > .ant-collapse-item > .ant-collapse-header {
   align-items: center;
@@ -40,8 +40,8 @@
   flex: 0 0 28px;
   height: 28px;
   border-radius: 8px;
-  background: var(--ui-primary-soft, #eff6ff);
-  color: var(--ui-primary-text, #1d4ed8);
+  background: var(--ui-primary-soft, var(--ui-primary-soft));
+  color: var(--ui-primary-text, var(--ui-primary-text));
   font-size: 13px;
 }
 .rework-context-content {
@@ -50,13 +50,13 @@
 }
 .rework-context-instructions {
   padding: 12px 14px;
-  border-inline-start: 3px solid var(--ui-primary, #1677ff);
+  border-inline-start: 3px solid var(--ui-primary, var(--ui-primary));
   border-radius: 0 8px 8px 0;
-  background: var(--ui-primary-soft, #eff6ff);
+  background: var(--ui-primary-soft, var(--ui-primary-soft));
   font-size: 13px;
 }
 .rework-context-instructions strong {
-  color: var(--ui-primary-text, #1d4ed8);
+  color: var(--ui-primary-text, var(--ui-primary-text));
 }
 .rework-context-instructions p,
 .rework-context-customer-note {
@@ -80,9 +80,9 @@
   align-items: flex-start;
   gap: 16px;
   padding: 14px;
-  border: 1px solid var(--ui-border, #e2e8f0);
+  border: 1px solid var(--ui-border, var(--mgr-border));
   border-radius: 10px;
-  background: var(--ui-surface, #fff);
+  background: var(--ui-surface, var(--mgr-card));
 }
 .rework-context-feedback-main {
   flex: 1 1 240px;
@@ -93,7 +93,7 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 6px 10px;
-  color: var(--ui-text-2, #64748b);
+  color: var(--ui-text-2, var(--mgr-muted));
   font-size: 12px;
 }
 .rework-context-feedback-meta .ant-tag {
@@ -120,7 +120,7 @@
   width: 100%;
   height: 104px;
   border-radius: 8px;
-  background: var(--ui-surface-2, #f1f5f9);
+  background: var(--ui-surface-2, var(--mgr-card-2));
   overflow: hidden;
 }
 .rework-context-evidence .ant-image img {
@@ -133,7 +133,7 @@
 }
 .rework-context-evidence .ant-typography {
   font-size: 12px;
-  color: var(--ui-text-2, #64748b);
+  color: var(--ui-text-2, var(--mgr-muted));
 }
 .rework-context-evidence__unavailable {
   display: grid;
@@ -141,7 +141,7 @@
   padding: 8px;
   font-size: 12px;
   text-align: center;
-  color: var(--ui-text-2, #64748b);
+  color: var(--ui-text-2, var(--mgr-muted));
 }
 .rework-context-content > .odm-cg {
   margin-top: 0;

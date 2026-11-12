@@ -3,32 +3,82 @@
  * `.odm-opr`. Mirrors the Staff / Customer shell so every portal feels alike.
  */
 
-.odm-opr {
+/*
+ * Staff portal tokens. The legacy `.odm` palette is re-pointed at the customer shell
+ * tokens (--mgr-*, --ui-*), including dark mode: the selector list below repeats the
+ * element so it also beats `:root[data-theme='dark'] .odm`.
+ */
+.odm-opr,
+:root[data-theme='dark'] .odm-opr {
   --bg: var(--mgr-bg, #f4f7fc);
   --sf: var(--mgr-card, #fff);
   --sf2: var(--mgr-card-2, #f6f8fd);
   --sf3: var(--mgr-card-2, #f6f8fd);
   --bd: var(--mgr-border, #e6ecf5);
-  --bd2: var(--mgr-border, #e6ecf5);
+  --bd2: color-mix(in srgb, var(--mgr-muted) 35%, var(--mgr-border));
   --tx: var(--mgr-text, #0f1b3d);
-  --tx2: var(--mgr-muted, #64748b);
+  --tx2: color-mix(in srgb, var(--mgr-text) 78%, var(--mgr-card));
   --tx3: var(--mgr-muted, #64748b);
   --surface: var(--mgr-card, #fff);
   --surface-2: var(--mgr-card-2, #f6f8fd);
   --border: var(--mgr-border, #e6ecf5);
-  --border-2: var(--mgr-border, #e6ecf5);
+  --border-2: var(--bd2);
   --text: var(--mgr-text, #0f1b3d);
-  --text-2: var(--mgr-muted, #64748b);
+  --text-2: var(--tx2);
   --text-3: var(--mgr-muted, #64748b);
-  --ink: var(--mgr-text, #0f1b3d);
-  --inkfg: var(--mgr-muted, #64748b);
-  --accent: #1565e8;
-  --accent-bg: color-mix(in srgb, #1565e8 9%, var(--mgr-card, #fff));
-  --brand-primary: #1565e8;
-  --brand-accent: #1565e8;
+  --ink: var(--ui-primary);
+  --inkfg: var(--ui-on-primary);
+  --sel: var(--ui-primary-soft);
+  --focus: var(--ui-primary);
+  --accent: var(--ui-primary);
+  --accent-bg: color-mix(in srgb, var(--ui-primary) 9%, var(--mgr-card, #fff));
+  --brand-primary: var(--ui-primary);
+  --brand-accent: var(--ui-primary);
   --bg-subtle: var(--mgr-card-2, #f6f8fd);
-  --amber-fg: #92400e;
+  --amber-fg: var(--ui-warning-text);
   --font-ui: 'Be Vietnam Pro', 'Inter', system-ui, sans-serif;
+
+  /* Status palette: same tones as the customer StatusTag / antd Tag presets. */
+  --gray-bg: var(--mgr-card-2);
+  --gray-fg: var(--mgr-muted);
+  --gray-dot: var(--mgr-muted);
+  --gray-solid: var(--mgr-muted);
+  --gray-on: var(--mgr-card);
+  --blue-bg: var(--ui-primary-soft);
+  --blue-fg: var(--ui-primary-text);
+  --blue-dot: var(--ui-primary);
+  --blue-solid: var(--ui-primary);
+  --blue-on: var(--ui-on-primary);
+  --green-bg: var(--ui-success-soft);
+  --green-fg: var(--ui-success-text);
+  --green-dot: var(--ui-success);
+  --green-solid: var(--ui-success);
+  --green-on: var(--ui-on-primary);
+  --yellow-bg: var(--ui-warning-soft);
+  --yellow-fg: var(--ui-warning-text);
+  --yellow-dot: var(--ui-warning);
+  --yellow-solid: var(--ui-warning);
+  --yellow-on: var(--ui-on-primary);
+  --orange-bg: var(--ui-warning-soft);
+  --orange-fg: var(--ui-warning-text);
+  --orange-dot: var(--ui-warning);
+  --orange-solid: var(--ui-warning);
+  --orange-on: var(--ui-on-primary);
+  --red-bg: var(--ui-danger-soft);
+  --red-fg: var(--ui-danger-text);
+  --red-dot: var(--ui-danger);
+  --red-solid: var(--ui-danger);
+  --red-on: var(--ui-on-primary);
+
+  /* Surfaces / shape shared with the customer pages. */
+  --ui-bg: var(--mgr-bg);
+  --ui-surface: var(--mgr-card);
+  --ui-surface-2: var(--mgr-card-2);
+  --ui-border: var(--mgr-border);
+  --ui-radius-sm: 8px;
+  --ui-radius-md: 10px;
+  --ui-radius-lg: 16px;
+  --ui-shadow-1: var(--mgr-shadow);
 
   position: fixed;
   inset: 0;
@@ -36,22 +86,111 @@
   height: 100vh;
   height: 100dvh;
   overflow: hidden;
-  background: var(--mgr-bg, #f4f7fc);
-  color: var(--mgr-text, #0f1b3d);
-  font-family: 'Be Vietnam Pro', 'Inter', system-ui, sans-serif;
+  background: var(--mgr-bg, var(--mgr-bg));
+  color: var(--mgr-text, var(--mgr-text));
+  font-family: var(--font-ui);
 }
 
-/* Keep primary actions in the operator flow aligned with the blue brand accent. */
-.odm-opr .odm-btn.odm-btn-p {
-  background: var(--accent);
-  color: #fff;
-  border-color: var(--accent);
+/* Reference codes follow the customer pages: same font, tabular digits. */
+.odm-opr .odm-mono {
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
 }
 
-.odm-opr .odm-btn.odm-btn-p:hover:not(:disabled) {
-  background: #0f55cc;
-  border-color: #0f55cc;
-  opacity: 1;
+/* ---------- Customer-portal parity for the legacy odm-* primitives ---------- */
+
+.odm-opr :where(button, input, select, textarea, .odm-badge, .odm-inp, .odm-table, .odm-card) {
+  font-family: inherit;
+}
+
+.odm-opr .odm-card {
+  border: 1px solid var(--mgr-border);
+  border-radius: var(--mgr-radius);
+  background: var(--mgr-card);
+  box-shadow: var(--mgr-shadow);
+}
+
+.odm-opr .odm-card-header {
+  min-height: 52px;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--mgr-border);
+  font-size: 15.5px;
+  font-weight: 700;
+}
+
+.odm-opr .odm-card-body {
+  padding: 16px 20px;
+}
+
+.odm-opr .odm-table th {
+  padding: 12px 14px;
+  background: var(--mgr-card-2);
+  color: var(--mgr-muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.odm-opr .odm-table td {
+  padding: 14px;
+  font-size: 13.5px;
+}
+
+.odm-opr .odm-badge {
+  height: 24px;
+  padding: 0 10px 0 8px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.odm-opr-content .odm-inp,
+.odm-opr-content
+  :is(
+    input:not(
+        [class*='ant-'],
+        [type='checkbox'],
+        [type='radio'],
+        [type='range'],
+        [type='file'],
+        [type='hidden'],
+        [type='button'],
+        [type='submit']
+      ),
+    select:not([class*='ant-']),
+    textarea:not([class*='ant-'])
+  ) {
+  min-height: 38px;
+  border: 1px solid var(--bd2);
+  border-radius: 10px;
+  background: var(--mgr-card);
+  color: var(--mgr-text);
+  font-size: 14px;
+}
+
+.odm-opr-content :is(input, select, textarea):not([class*='ant-']):focus-visible {
+  border-color: var(--ui-primary);
+  outline: none;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--ui-primary) 18%, transparent);
+}
+
+.odm-opr :is(input, textarea)::placeholder {
+  color: var(--mgr-muted);
+}
+
+/* Mission list: rail drops under the table before the table gets squeezed. */
+.odm-opr-mission-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 16px;
+  align-items: start;
+  margin-top: 16px;
+}
+
+@media (max-width: 1439px) {
+  .odm-opr-mission-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 /* ---------- Preflight safety workspace ---------- */
@@ -251,12 +390,6 @@
   }
 }
 
-.odm-opr-shell {
-  display: flex;
-  width: 100%;
-  height: 100%;
-}
-
 /* ---------- Sidebar ---------- */
 
 .odm-opr-side {
@@ -271,136 +404,6 @@
   overflow: hidden;
 }
 
-.odm-opr-brand {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 10px;
-  padding: 6px 6px 16px;
-  text-decoration: none;
-  color: var(--tx);
-}
-
-.odm-opr-brand-mark {
-  width: 54px;
-  height: 54px;
-  border-radius: 0;
-  object-fit: contain;
-  object-position: left center;
-  flex: none;
-}
-
-.odm-opr-brand-name {
-  display: flex;
-  flex-direction: column;
-  color: var(--brand-primary);
-  font-size: 20px;
-  font-weight: 900;
-  line-height: 0.95;
-}
-
-.odm-opr-brand-primary {
-  color: var(--brand-primary);
-}
-
-.odm-opr-brand-accent {
-  color: var(--brand-accent);
-  -webkit-text-fill-color: var(--brand-accent);
-  font-size: 1.22em;
-}
-
-.odm-opr-nav-scroll {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  flex: 1;
-  min-height: 0;
-  overflow: auto;
-}
-
-.odm-opr-navg {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--tx3);
-  padding: 12px 10px 4px;
-  letter-spacing: 0.02em;
-}
-
-.odm-opr-navc {
-  margin-left: auto;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 5px;
-  border-radius: 9px;
-  background: var(--ink);
-  color: var(--inkfg);
-  font-size: 11px;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.odm-opr-user {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  padding: 10px 6px 2px;
-  border-top: 1px solid var(--bd);
-  margin-top: 8px;
-}
-
-.odm-opr-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: var(--sf3);
-  border: 1px solid var(--bd);
-  color: var(--tx2);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: 600;
-  flex: none;
-}
-
-.odm-opr-user-text {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  min-width: 0;
-  flex: 1;
-  line-height: 1.25;
-}
-
-.odm-opr-user-name {
-  font-size: 12.5px;
-  font-weight: 600;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.odm-opr-user-email {
-  font-size: 11px;
-  color: var(--tx3);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.odm-opr-logout {
-  width: 100%;
-  justify-content: flex-start;
-  margin-top: 4px;
-  border-color: transparent;
-}
-
-.odm-opr-scrim {
-  display: none;
-}
-
 .odm-opr-skip-link {
   position: absolute;
   top: 8px;
@@ -408,19 +411,19 @@
   z-index: 1000;
   transform: translateY(calc(-100% - 12px));
   padding: 10px 14px;
-  border: 2px solid var(--focus, #1767ff);
+  border: 2px solid var(--focus, var(--ui-primary));
   border-radius: 8px;
-  background: var(--sf, #fff);
-  color: var(--tx, #0f172a);
+  background: var(--sf, var(--mgr-card));
+  color: var(--tx, var(--mgr-text));
   font-size: 14px;
   font-weight: 700;
   text-decoration: none;
-  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.16);
+  box-shadow: var(--mgr-shadow);
 }
 
 .odm-opr-skip-link:focus-visible {
   transform: translateY(0);
-  outline: 3px solid var(--focus, #1767ff);
+  outline: 3px solid var(--focus, var(--ui-primary));
   outline-offset: 2px;
 }
 
@@ -434,40 +437,36 @@
   overflow: hidden;
 }
 
-.odm-opr-topbar {
-  height: 64px;
-  flex: none;
-}
-
-.odm-opr-menu-toggle {
-  display: inline-flex;
-  flex: none;
-}
-
-.odm-opr-search {
-  width: 240px;
-}
-
 /* ---------- Content ---------- */
 
 .odm-opr-content {
   flex: 1;
   min-height: 0;
   min-width: 0;
-  padding: 24px 28px 32px;
   overflow: auto;
 }
 
-.odm-opr-content--fill {
+/* Same centred 1600px content column as the customer portal. */
+.odm-opr-content-inner {
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  min-width: 0;
+}
+
+.odm-opr.mgr-layout .odm-opr-content--fill {
   padding: 0;
   overflow: hidden;
   display: flex;
   flex-direction: column;
 }
 
-.odm-opr.mgr-layout .odm-opr-content--fill {
-  padding: 0;
-  overflow: hidden;
+.odm-opr-content-inner--fill {
+  max-width: none;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ---------- Chip (service label pill) ---------- */
@@ -552,7 +551,7 @@
   position: sticky;
   right: 0;
   z-index: 1;
-  background: var(--sf, #fff);
+  background: var(--sf, var(--mgr-card));
   box-shadow: -10px 0 14px -14px var(--tx3);
 }
 .odm-opr-mission-table th.odm-opr-mission-action {
@@ -578,21 +577,6 @@
 }
 
 /* ---------- Tablet / mobile ---------- */
-
-@media (max-width: 1200px) and (min-width: 992px) {
-  .odm-opr.mgr-layout .mgr-search {
-    width: 150px;
-  }
-
-  .odm-opr .mgr-support-btn {
-    width: 40px;
-    padding-inline: 0;
-  }
-
-  .odm-opr .mgr-support-label {
-    display: none;
-  }
-}
 
 @media (max-width: 991px) {
   .odm-opr .odm-opr-skip-link {
@@ -633,7 +617,6 @@
 }
 .mds-title .odm-mono {
   font: inherit;
-  font-family: 'IBM Plex Mono', ui-monospace, monospace;
   letter-spacing: 0.01em;
 }
 .mds-header-row > .odm-badge {
@@ -654,7 +637,7 @@
   min-height: 44px;
   padding: 0 20px;
   font-weight: 600;
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.28);
+  box-shadow: var(--mgr-shadow);
 }
 @media (max-width: 640px) {
   .mds-header-row .mds-cta {
@@ -685,7 +668,7 @@
   position: relative;
   height: clamp(360px, 27vw, 420px);
   overflow: hidden;
-  background: #111827;
+  background: var(--mgr-card-2);
 }
 
 .mds-map-card {
@@ -731,14 +714,14 @@
 }
 
 .mds-map-mode:hover:not(:disabled) {
-  border-color: var(--blue-dot, #1767ff);
-  color: var(--blue-dot, #1767ff);
+  border-color: var(--blue-dot, var(--ui-primary));
+  color: var(--blue-dot, var(--ui-primary));
 }
 
 .mds-map-mode.is-active {
-  border-color: var(--blue-dot, #1767ff);
-  background: var(--blue-bg, #eff6ff);
-  color: var(--blue-fg, #1d4ed8);
+  border-color: var(--blue-dot, var(--ui-primary));
+  background: var(--blue-bg, var(--ui-primary-soft));
+  color: var(--blue-fg, var(--ui-primary-text));
 }
 
 .mds-map-mode:disabled {
@@ -760,7 +743,7 @@
   max-width: calc(50% - 18px);
   padding: 8px 10px;
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.12);
+  box-shadow: var(--mgr-shadow);
   font-size: 12.5px;
   font-weight: 700;
   line-height: 1.35;
@@ -769,15 +752,15 @@
 
 .mds-map-radius {
   left: 10px;
-  background: rgba(255, 255, 255, 0.96);
+  background: color-mix(in srgb, var(--mgr-card) 96%, transparent);
   color: var(--tx);
 }
 
 .mds-map-restriction {
   right: 10px;
-  border: 1px solid rgba(239, 68, 68, 0.35);
-  background: rgba(254, 242, 242, 0.96);
-  color: #991b1b;
+  border: 1px solid color-mix(in srgb, var(--ui-danger) 35%, var(--mgr-border));
+  background: color-mix(in srgb, var(--ui-danger-soft) 96%, transparent);
+  color: var(--ui-danger-text);
   text-align: right;
 }
 
@@ -793,7 +776,7 @@
 .mds-map-viewport .leaflet-control-zoom a:focus-visible {
   position: relative;
   z-index: 2;
-  outline: 3px solid var(--focus, #1767ff);
+  outline: 3px solid var(--focus, var(--ui-primary));
   outline-offset: 2px;
 }
 
@@ -983,10 +966,10 @@
   justify-content: space-between;
   gap: 14px 24px;
   flex-wrap: wrap;
-  border: 1px solid #f5c36a;
+  border: 1px solid color-mix(in srgb, var(--ui-warning) 35%, var(--mgr-border));
   border-radius: 10px;
-  background: #fff9ed;
-  color: #75430a;
+  background: var(--ui-warning-soft);
+  color: var(--ui-warning-text);
 }
 
 .mds-readiness-strip.is-ready {
@@ -1022,9 +1005,9 @@
   padding: 4px 10px;
   align-items: center;
   gap: 6px;
-  border: 1px solid rgba(22, 129, 80, 0.2);
+  border: 1px solid color-mix(in srgb, var(--ui-success) 25%, var(--mgr-border));
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.76);
+  background: color-mix(in srgb, var(--mgr-card) 76%, transparent);
   color: var(--green-fg);
   font-size: 14px;
   font-weight: 700;
@@ -1041,8 +1024,8 @@
   padding: 16px 18px 14px;
   border: 1px solid var(--bd);
   border-radius: 12px;
-  background: var(--surface, #fff);
-  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.04);
+  background: var(--surface, var(--mgr-card));
+  box-shadow: var(--mgr-shadow);
 }
 
 .mds-workflow-progress__heading {
@@ -1064,10 +1047,10 @@
 .mds-workflow-progress__terminal {
   display: inline-flex;
   padding: 8px 11px;
-  border: 1px solid color-mix(in srgb, var(--red-fg, #b42318) 25%, transparent);
+  border: 1px solid color-mix(in srgb, var(--red-fg, var(--ui-danger)) 25%, transparent);
   border-radius: 8px;
-  background: color-mix(in srgb, var(--red-fg, #b42318) 6%, transparent);
-  color: var(--red-fg, #b42318);
+  background: color-mix(in srgb, var(--red-fg, var(--ui-danger)) 6%, transparent);
+  color: var(--red-fg, var(--ui-danger-text));
   font-size: 14px;
 }
 
@@ -1173,7 +1156,7 @@
 }
 
 .mds-dashboard :is(a, button, summary, [tabindex]):focus-visible {
-  outline: 3px solid var(--focus, #1767ff);
+  outline: 3px solid var(--focus, var(--ui-primary));
   outline-offset: 3px;
 }
 
@@ -1185,7 +1168,7 @@
   margin: 0 0 16px;
   overflow-x: auto;
   border-radius: 12px;
-  background: #f1f5f9;
+  background: var(--mgr-card-2);
 }
 
 .mds-tab {
@@ -1194,7 +1177,7 @@
   border: 0;
   border-radius: 9px;
   background: transparent;
-  color: #475569;
+  color: var(--mgr-muted);
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
@@ -1202,9 +1185,9 @@
 }
 
 .mds-tab.is-active {
-  background: #fff;
-  color: #1767ff;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
+  background: var(--mgr-card);
+  color: var(--ui-primary);
+  box-shadow: var(--mgr-shadow);
 }
 
 .mds-tab-grid {
@@ -1230,7 +1213,7 @@
   min-width: 0;
 }
 .mds-tab-panel:focus-visible {
-  outline: 3px solid var(--focus, #1767ff);
+  outline: 3px solid var(--focus, var(--ui-primary));
   outline-offset: 3px;
   border-radius: 10px;
 }
@@ -1288,7 +1271,7 @@
 }
 .mds-meta-line {
   margin: 0 0 12px 2px;
-  color: var(--tx2, #334155);
+  color: var(--tx2, var(--tx2));
   font-size: 13.5px;
 }
 .mds-decision {
@@ -1306,14 +1289,14 @@
   gap: 7px;
   font-size: 13px;
   font-weight: 600;
-  color: var(--tx2, #475569);
+  color: var(--tx2, var(--mgr-muted));
 }
 .mds-decision-item dd {
   margin: 2px 0 0;
   font-size: 14.5px;
   line-height: 1.45;
   font-weight: 600;
-  color: var(--tx, #0f172a);
+  color: var(--tx, var(--mgr-text));
   overflow-wrap: anywhere;
 }
 .mds-pending-grid {
@@ -1394,7 +1377,7 @@
   justify-content: space-between;
   gap: 8px;
   padding: 4px 0;
-  color: var(--danger, #b42318);
+  color: var(--danger, var(--ui-danger-text));
   font-size: 12px;
 }
 .mds-device-load-error button {
@@ -1417,7 +1400,7 @@
 .mds-device-details {
   margin-top: 10px;
   border-top: 1px solid var(--bd);
-  color: var(--tx2, #475569);
+  color: var(--tx2, var(--mgr-muted));
 }
 .mds-device-details summary {
   min-height: 40px;
@@ -1427,7 +1410,7 @@
   font-weight: 600;
 }
 .mds-device-details summary:focus-visible {
-  outline: 2px solid #1767ff;
+  outline: 2px solid var(--ui-primary);
   outline-offset: 2px;
 }
 .mds-device-details > div {
@@ -1469,7 +1452,7 @@
   align-items: center;
   min-height: 24px;
   margin-bottom: 6px;
-  color: var(--blue-dot, #1767ff);
+  color: var(--blue-dot, var(--ui-primary));
   font-size: 20px;
 }
 .mds-weather-icon svg {
@@ -1488,7 +1471,7 @@
   overflow-wrap: anywhere;
 }
 .mds-pending-checklist summary:focus-visible {
-  outline: 2px solid #1767ff;
+  outline: 2px solid var(--ui-primary);
   outline-offset: -2px;
 }
 .mds-pending-checklist summary small {
@@ -1497,7 +1480,7 @@
   gap: 6px;
   margin-top: 2px;
   font-weight: 400;
-  color: var(--tx2, #475569);
+  color: var(--tx2, var(--mgr-muted));
   font-size: 13px;
   line-height: 1.45;
 }
@@ -1507,23 +1490,23 @@
 .mds-action-bar {
   position: static;
   margin-bottom: 16px;
-  border-color: #b9ccf5 !important;
-  background: #f3f7ff !important;
+  border-color: color-mix(in srgb, var(--ui-primary) 35%, var(--mgr-border)) !important;
+  background: var(--mgr-card-2) !important;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 12px;
   margin-top: 16px;
   padding: 12px 16px;
-  border: 1px solid var(--bd, #e2e8f0);
+  border: 1px solid var(--bd, var(--mgr-border));
   border-radius: 12px;
-  background: #fff;
-  box-shadow: 0 -4px 16px rgba(15, 23, 42, 0.08);
+  background: var(--mgr-card);
+  box-shadow: var(--mgr-shadow);
 }
 .mds-action-bar-text {
   min-width: 0;
   font-weight: 600;
-  color: var(--tx, #0f172a);
+  color: var(--tx, var(--mgr-text));
 }
 .mds-action-bar-text .mds-card-heading {
   font-size: 16px;
@@ -1531,7 +1514,7 @@
 .mds-action-bar-text small {
   display: block;
   font-weight: 400;
-  color: var(--tx2, #475569);
+  color: var(--tx2, var(--mgr-muted));
 }
 .mds-action-bar-buttons {
   display: flex;
@@ -1552,7 +1535,7 @@
   font-weight: 700;
 }
 .mds-action-bar .odm-btn:focus-visible {
-  outline: 2px solid #1767ff;
+  outline: 2px solid var(--ui-primary);
   outline-offset: 2px;
 }
 .mds-action-bar .odm-btn:disabled {
@@ -1610,5 +1593,70 @@
   .mds-header-row .mds-cta {
     flex: 1 1 100%;
     justify-content: center;
+  }
+}
+
+/* Top-level page column: same 20px rhythm as the customer pages (.cus-page). */
+.odm-opr-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+.odm-opr-page > * {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.odm-opr-week-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Flight workspace has no shell; the frame scrolls for the pre-cockpit steps. */
+.odm-opr.odm-opr-flight {
+  overflow: auto;
+}
+
+.odm-opr :is(input[type='checkbox'], input[type='radio']) {
+  accent-color: var(--ui-primary);
+}
+
+/* Staff header carries a longer breadcrumb than the customer one: icon-only maintenance button. */
+@media (max-width: 1439px) {
+  .odm-opr .cus-header-actions .mgr-support-label {
+    display: none;
+  }
+
+  .odm-opr .cus-header-actions .mgr-support-btn {
+    width: 42px;
+    padding-inline: 0;
+  }
+}
+
+.odm-opr-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 1100px) {
+  .odm-opr-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 420px) {
+  .odm-opr-kpi-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Phone header: the maintenance shortcut lives in the sidebar, keep room for the menu + breadcrumb. */
+@media (max-width: 640px) {
+  .odm-opr .cus-header-actions .mgr-support-btn {
+    display: none;
   }
 }

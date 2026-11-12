@@ -10,6 +10,7 @@ import { useI18n } from '../../../../shared/i18n'
 import type { MissionStaffRole } from '../../../mission/types/mission'
 import type { Dispatch, SetStateAction } from 'react'
 import type { AvailableOperator } from '../../../staff/api/operatorApi'
+import type { UnavailableOperator } from './dispatchUnavailableStaff'
 
 export function DispatchStaffStep({
   missingRoles,
@@ -31,7 +32,11 @@ export function DispatchStaffStep({
     SetStateAction<Partial<Record<MissionStaffRole, string[]>>>
   >
   setError: Dispatch<SetStateAction<string | null>>
-  operators: { data: AvailableOperator[] | undefined; reload: () => void }
+  operators: {
+    data: AvailableOperator[] | undefined
+    unavailable?: UnavailableOperator[]
+    reload: () => void
+  }
   openStaffRole: MissionStaffRole | null
   setOpenStaffRole: Dispatch<SetStateAction<MissionStaffRole | null>>
   selectedStaffIds: string[]
@@ -109,6 +114,7 @@ export function DispatchStaffStep({
                 <StaffCombobox
                   role={role}
                   staff={operators.data ?? []}
+                  unavailable={operators.unavailable ?? []}
                   selectedIds={selected}
                   staffByRole={staffByRole}
                   open={openStaffRole === role}
