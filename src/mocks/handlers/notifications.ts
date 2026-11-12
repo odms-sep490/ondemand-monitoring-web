@@ -173,11 +173,9 @@ function feedFor(user: MockUser): AppNotification[] {
       ...listBeOrders(),
     ] as unknown as OrderLike[]
     const orderItems = orders
-      .filter((order) =>
-        ['PENDING', 'UNDER_REVIEW', 'NEEDS_INFO'].includes(
-          order.orderStatus ?? order.status ?? '',
-        ),
-      )
+      // Pending orders need manager action; review and information-request
+      // statuses are shown only to the customer who owns the order.
+      .filter((order) => (order.orderStatus ?? order.status) === 'PENDING')
       .map(orderNotification)
       .filter((item): item is AppNotification => item !== undefined)
     const missionItems = (managerMissions as unknown as MissionLike[]).flatMap(

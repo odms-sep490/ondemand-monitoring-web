@@ -13,13 +13,7 @@ export function KpiRow({
 }) {
   const { t } = useI18n(missionListPageMessages)
   return (
-    <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
-        gap: 14,
-      }}
-    >
+    <div className="odm-opr-kpi-grid">
       <KpiCard
         dotColor="var(--yellow-dot)"
         label={t.kpi.pending}

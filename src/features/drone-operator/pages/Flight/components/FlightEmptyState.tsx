@@ -16,7 +16,11 @@ export function FlightEmptyState({
   primaryHref?: string
 }) {
   const accent =
-    tone === 'error' ? '#dc2626' : tone === 'loading' ? '#2563eb' : '#16a34a'
+    tone === 'error'
+      ? 'var(--ui-danger)'
+      : tone === 'loading'
+        ? 'var(--ui-primary)'
+        : 'var(--ui-success)'
   const { t } = useI18n(flightPageMessages)
   const resolvedPrimaryLabel = primaryLabel ?? t.backToMissions
 
@@ -27,17 +31,16 @@ export function FlightEmptyState({
         display: 'grid',
         placeItems: 'center',
         padding: 24,
-        background:
-          'radial-gradient(circle at 18% 12%, rgba(37,99,235,.13), transparent 32%), radial-gradient(circle at 82% 20%, rgba(22,163,74,.12), transparent 30%), #f3f6fb',
+        background: 'var(--mgr-bg)',
       }}
     >
       <section
         style={{
           width: 'min(100%, 560px)',
-          background: '#fff',
-          border: '1px solid #d9e2ef',
-          borderRadius: 18,
-          boxShadow: '0 24px 70px rgba(15,23,42,.12)',
+          background: 'var(--mgr-card)',
+          border: '1px solid var(--mgr-border)',
+          borderRadius: 'var(--mgr-radius)',
+          boxShadow: 'var(--mgr-shadow)',
           padding: '34px 36px',
           textAlign: 'center',
         }}
@@ -51,8 +54,8 @@ export function FlightEmptyState({
             display: 'grid',
             placeItems: 'center',
             color: accent,
-            background: `${accent}18`,
-            border: `1px solid ${accent}35`,
+            background: `color-mix(in srgb, ${accent} 12%, transparent)`,
+            border: `1px solid color-mix(in srgb, ${accent} 25%, transparent)`,
             fontSize: 32,
             fontWeight: 900,
           }}
@@ -61,7 +64,7 @@ export function FlightEmptyState({
           {tone === 'loading' ? '…' : tone === 'error' ? '!' : '◎'}
         </div>
         <h1
-          style={{ margin: 0, fontSize: 28, lineHeight: 1.1, color: '#07142b' }}
+          style={{ margin: 0, fontSize: 28, lineHeight: 1.1, color: 'var(--mgr-text)' }}
         >
           {title}
         </h1>
@@ -69,7 +72,7 @@ export function FlightEmptyState({
           style={{
             margin: '12px auto 0',
             maxWidth: 430,
-            color: '#53627a',
+            color: 'var(--mgr-muted)',
             fontSize: 15,
             lineHeight: 1.6,
           }}
@@ -94,8 +97,8 @@ export function FlightEmptyState({
               justifyContent: 'center',
               padding: '0 18px',
               borderRadius: 10,
-              background: '#1f6feb',
-              color: '#fff',
+              background: 'var(--ui-primary)',
+              color: 'var(--ui-on-primary)',
               fontWeight: 800,
               textDecoration: 'none',
               boxShadow: '0 12px 28px rgba(31,111,235,.24)',
@@ -112,9 +115,9 @@ export function FlightEmptyState({
               justifyContent: 'center',
               padding: '0 18px',
               borderRadius: 10,
-              background: '#fff',
-              color: '#1f3151',
-              border: '1px solid #c8d4e6',
+              background: 'var(--mgr-card)',
+              color: 'var(--mgr-text)',
+              border: '1px solid var(--mgr-border)',
               fontWeight: 800,
               textDecoration: 'none',
             }}

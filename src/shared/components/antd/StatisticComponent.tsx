@@ -1,5 +1,6 @@
 import { Statistic, type StatisticProps } from 'antd'
-import { motion, useReducedMotion } from 'motion/react'
+import { domAnimation, LazyMotion, useReducedMotion } from 'motion/react'
+import { div as MotionDiv } from 'motion/react-m'
 import type { ReactNode } from 'react'
 
 import { Sparkline } from './Sparkline'
@@ -33,28 +34,42 @@ export function StatisticComponent({
 }: Props) {
   const reduce = useReducedMotion()
   return (
-    <motion.div
-      className={`mgr-card mgr-stat ${className}`.trim()}
-      initial={reduce ? false : { opacity: 0, y: 14 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: reduce ? 0 : index * 0.07, ease: 'easeOut' }}
-      whileHover={reduce ? undefined : { y: -4 }}
-    >
-      <div className="mgr-stat-top">
-        {icon ? (
-          <span className={`mgr-tile mgr-tone-${tone}`} aria-hidden="true">
-            {icon}
-          </span>
-        ) : null}
-        <div className="mgr-stat-label">{title}</div>
-      </div>
-      <Statistic {...props} />
-      {hint || (spark && spark.length > 1) ? (
-        <div className="mgr-stat-bottom">
-          {hint ? <span className={`mgr-chip mgr-chip-${hintTone ?? tone}`}>{hint}</span> : <span />}
-          {spark && spark.length > 1 ? <Sparkline values={spark} tone={tone} /> : null}
+    <LazyMotion features={domAnimation} strict>
+      <MotionDiv
+        className={`mgr-card mgr-stat ${className}`.trim()}
+        initial={reduce ? false : { opacity: 0, y: 14 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{
+          duration: 0.4,
+          delay: reduce ? 0 : index * 0.07,
+          ease: 'easeOut',
+        }}
+        whileHover={reduce ? undefined : { y: -4 }}
+      >
+        <div className="mgr-stat-top">
+          {icon ? (
+            <span className={`mgr-tile mgr-tone-${tone}`} aria-hidden="true">
+              {icon}
+            </span>
+          ) : null}
+          <div className="mgr-stat-label">{title}</div>
         </div>
-      ) : null}
-    </motion.div>
+        <Statistic {...props} />
+        {hint || (spark && spark.length > 1) ? (
+          <div className="mgr-stat-bottom">
+            {hint ? (
+              <span className={`mgr-chip mgr-chip-${hintTone ?? tone}`}>
+                {hint}
+              </span>
+            ) : (
+              <span />
+            )}
+            {spark && spark.length > 1 ? (
+              <Sparkline values={spark} tone={tone} />
+            ) : null}
+          </div>
+        ) : null}
+      </MotionDiv>
+    </LazyMotion>
   )
 }

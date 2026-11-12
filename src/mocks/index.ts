@@ -3,6 +3,7 @@
 // every handler module below and registers their routes exactly once.
 
 import './handlers/auth'
+import './handlers/operatorMyMissions'
 import './handlers/managerDashboard'
 import './handlers/customerOrdersBe'
 import './handlers/customerMissionHistoryBe'
@@ -21,7 +22,6 @@ import './handlers/catalogBe'
 import './handlers/adminConfig'
 import './handlers/adminAuditLog'
 import './handlers/operatorMissions'
-import './handlers/operatorAvailability'
 import './handlers/notifications'
 
 export { mockFetch } from './mockServer'

@@ -1,5 +1,6 @@
 import type { MissionStaffRole } from '../../../mission/types/mission'
 import type { AvailableOperator } from '../../../staff/api/operatorApi'
+import type { UnavailableOperator } from './dispatchUnavailableStaff'
 import './pickers.css'
 import { liveDispatchPageMessages } from './LiveDispatchPage.messages'
 import { useState, useRef, useMemo, useEffect, type KeyboardEvent } from 'react'
@@ -10,6 +11,7 @@ import { StaffPickerPanel } from './StaffPickerPanel'
 export function StaffCombobox({
   role,
   staff,
+  unavailable = [],
   selectedIds,
   staffByRole,
   open,
@@ -21,6 +23,7 @@ export function StaffCombobox({
 }: {
   role: MissionStaffRole
   staff: AvailableOperator[]
+  unavailable?: UnavailableOperator[]
   selectedIds: string[]
   staffByRole: Partial<Record<MissionStaffRole, string[]>>
   open: boolean
@@ -58,6 +61,15 @@ export function StaffCombobox({
       return haystack.includes(keyword)
     })
   }, [query, staff])
+
+  const filteredUnavailable = useMemo(() => {
+    const keyword = query.trim().toLowerCase()
+    return unavailable.filter(
+      (item) =>
+        !keyword ||
+        `${item.fullName} ${item.email}`.toLowerCase().includes(keyword),
+    )
+  }, [query, unavailable])
 
   useEffect(() => {
     if (!open) return
@@ -140,6 +152,7 @@ export function StaffCombobox({
           setActiveIndex={setActiveIndex}
           handleKeyDown={handleKeyDown}
           filtered={filtered}
+          unavailable={filteredUnavailable}
           selectedRoleByStaff={selectedRoleByStaff}
           selectedIds={selectedIds}
           activeIndex={activeIndex}

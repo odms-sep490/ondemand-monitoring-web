@@ -1,0 +1,56 @@
+.odm-busy-grid-wrap {
+  overflow-x: auto;
+}
+
+.odm-busy-grid {
+  border-collapse: separate;
+  border-spacing: 6px;
+  width: 100%;
+  min-width: 640px;
+}
+
+.odm-busy-grid th {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--tx2);
+  padding: 6px;
+  text-align: center;
+}
+
+.odm-busy-grid tbody th {
+  text-align: left;
+  white-space: nowrap;
+  color: var(--tx3);
+}
+
+.odm-busy-cell {
+  width: 100%;
+  height: 48px;
+  border-radius: 8px;
+  border: 1px solid var(--bd);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--green-bg);
+  color: var(--green-fg);
+  transition: filter 0.12s;
+}
+
+.odm-busy-cell.is-busy {
+  background: var(--red-bg);
+  color: var(--red-fg);
+  border-color: var(--red-dot);
+}
+
+.odm-busy-cell:hover:not(:disabled) {
+  filter: brightness(0.96);
+}
+
+.odm-busy-cell:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.odm-busy-cell.is-past.is-free {
+  background: var(--sf2);
+}

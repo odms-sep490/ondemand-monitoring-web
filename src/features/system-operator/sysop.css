@@ -6,7 +6,7 @@
  * Colours come from the shared `--mgr-*` tokens (light + dark).
  */
 .mgr-layout {
-  --sys-primary: #1565e8;
+  --sys-primary: var(--ui-primary);
   --sys-ok-bg: rgb(22 163 74 / 12%);
   --sys-ok: #16a34a;
   --sys-warn-bg: rgb(217 119 6 / 14%);

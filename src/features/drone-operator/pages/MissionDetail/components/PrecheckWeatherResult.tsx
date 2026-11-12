@@ -29,7 +29,7 @@ export function PrecheckWeatherResult({
             ? 'var(--red-bg)'
             : weather?.status === 'WARN'
               ? 'var(--yellow-bg)'
-              : '#fff',
+              : 'var(--sf)',
         fontSize: 12,
       }}
     >

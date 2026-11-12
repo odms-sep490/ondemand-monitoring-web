@@ -106,7 +106,7 @@ describe('OrderReadinessCard', () => {
   it('saves a passing answer immediately and reloads', async () => {
     const query = renderCard()
     const passButton = screen.getByRole('button', {
-      name: 'Đạt',
+      name: 'Đã liên hệ, đồng ý',
       pressed: false,
     })
     fireEvent.click(passButton)
@@ -125,7 +125,7 @@ describe('OrderReadinessCard', () => {
   it('requires a reason before saving a failing answer', async () => {
     const onLocalBlockChange = vi.fn()
     renderCard(true, onLocalBlockChange)
-    fireEvent.click(screen.getByRole('button', { name: 'Không đạt' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Chưa liên hệ được / không đồng ý' }))
     await waitFor(() =>
       expect(onLocalBlockChange).toHaveBeenLastCalledWith(true),
     )
@@ -136,8 +136,8 @@ describe('OrderReadinessCard', () => {
     expect(screen.queryByRole('radio')).not.toBeInTheDocument()
     const reject = screen.getByRole('button', { name: 'Từ chối đơn' })
     expect(
-      screen.queryByRole('button', { name: 'Yêu cầu bổ sung' }),
-    ).not.toBeInTheDocument()
+      screen.getByRole('button', { name: 'Yêu cầu bổ sung' }),
+    ).toBeInTheDocument()
     expect(reject).toBeEnabled()
     const save = screen.getByRole('button', { name: 'Lưu' })
     expect(save).toBeDisabled()
@@ -244,13 +244,13 @@ describe('OrderReadinessCard', () => {
       recommendation: 'APPROVE',
     })
 
-    fireEvent.click(screen.getByRole('button', { name: 'Không đạt' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Chưa liên hệ được / không đồng ý' }))
 
     expect(screen.getByRole('button', { name: 'Từ chối đơn' })).toBeVisible()
   })
 
   it('is read-only once the order is no longer pending', () => {
     renderCard(false)
-    expect(screen.getByRole('button', { name: 'Đạt' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Đã liên hệ, đồng ý' })).toBeDisabled()
   })
 })

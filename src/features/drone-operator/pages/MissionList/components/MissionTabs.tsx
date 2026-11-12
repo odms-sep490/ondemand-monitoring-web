@@ -79,15 +79,7 @@ export function MissionTabs({
 }) {
   const { t } = useI18n(missionListPageMessages)
   return (
-    <div
-      style={{
-        marginTop: 16,
-        display: 'grid',
-        gridTemplateColumns: 'minmax(0, 1fr) 320px',
-        gap: 16,
-        alignItems: 'start',
-      }}
-    >
+    <div className="odm-opr-mission-layout">
       <div>
         <div
           role="tablist"
@@ -96,7 +88,7 @@ export function MissionTabs({
             gap: 2,
             background: 'var(--sf)',
             border: '1px solid var(--bd)',
-            borderRadius: '8px 8px 0 0',
+            borderRadius: 'var(--mgr-radius) var(--mgr-radius) 0 0',
             padding: '0 8px',
           }}
         >

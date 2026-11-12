@@ -1,8 +1,14 @@
 import '@ant-design/v5-patch-for-react-19'
 import { ConfigProvider, Layout } from 'antd'
-import { Lottie } from 'lottie-react'
 import { useReducedMotion } from 'motion/react'
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react'
 
 import { RoleSidebar } from '../../shared/components/RoleSidebar'
 import { useI18n } from '../../shared/i18n'
@@ -25,7 +31,10 @@ import './manager.css'
 import '../../shared/styles/app-shell/layout.scss'
 import '../../shared/styles/app-shell/popups.scss'
 import { managerLayoutMessages } from './ManagerLayout.messages'
-import droneAnimation from '../landing/assets/drone-animation.json'
+
+// lottie-web + the animation JSON are ~140 KB gzip of purely decorative code;
+// load them after the shell paints instead of blocking the manager portal.
+const FlightDrone = lazy(() => import('./components/layout/FlightDrone'))
 
 export type { ManagerNavCounts }
 
@@ -71,12 +80,9 @@ export function ManagerLayout({
         {route.screen !== 'schedule' && route.screen !== 'missionDetail' ? (
           <span className="mgr-flight-decor" aria-hidden="true">
             <span className="mgr-flight-route" />
-            <Lottie
-              src={droneAnimation}
-              autoplay={!reduceMotion}
-              loop={!reduceMotion}
-              className="mgr-flight-drone"
-            />
+            <Suspense fallback={null}>
+              <FlightDrone animate={!reduceMotion} />
+            </Suspense>
           </span>
         ) : null}
         <Layout hasSider className="mgr-shell">
