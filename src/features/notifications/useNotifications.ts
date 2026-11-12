@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { authSession } from '../auth/api/authApi'
 import { useApiQuery } from '../../shared/hooks/useApiQuery'
 import { notificationApi } from './notificationApi'
+import { subscribeNotificationRefresh } from './notificationRealtime'
 import type { NotificationFeed } from './types'
 import {
   persistReadNotificationIds,
@@ -22,11 +23,29 @@ export function useNotifications() {
     [userId],
   )
   const [readIds, setReadIds] = useState(() => readNotificationIds(userId))
+  const [realtimeItems, setRealtimeItems] = useState<NotificationFeed['items']>(
+    [],
+  )
   const feed: NotificationFeed | undefined =
     query.data?.ownerId === userId ? query.data.feed : undefined
+  const items = useMemo(() => {
+    const merged = new Map(
+      (feed?.items ?? []).map((notification) => [
+        notification.id,
+        notification,
+      ]),
+    )
+    realtimeItems.forEach((notification) =>
+      merged.set(notification.id, notification),
+    )
+    return [...merged.values()].sort(
+      (left, right) => Date.parse(right.createdAt) - Date.parse(left.createdAt),
+    )
+  }, [feed?.items, realtimeItems])
 
   useEffect(() => {
     setReadIds(readNotificationIds(userId))
+    setRealtimeItems([])
     return subscribeReadNotificationIds(() => {
       setReadIds(readNotificationIds(userId))
     })
@@ -48,6 +67,20 @@ export function useNotifications() {
     }
   }, [query.reload, userId])
 
+  useEffect(() => {
+    if (!userId) return
+    return subscribeNotificationRefresh((notification, replay) => {
+      if (notification) {
+        setRealtimeItems((current) => {
+          const next = new Map(current.map((item) => [item.id, item]))
+          next.set(notification.id, notification)
+          return [...next.values()].slice(-50)
+        })
+      }
+      if (!replay) query.reload()
+    })
+  }, [query.reload, userId])
+
   const markRead = useCallback(
     (id: string) => {
       const next = new Set(readNotificationIds(userId))
@@ -60,18 +93,18 @@ export function useNotifications() {
 
   const markAllRead = useCallback(() => {
     const next = new Set(readIds)
-    for (const notification of feed?.items ?? []) next.add(notification.id)
+    for (const notification of items) next.add(notification.id)
     persistReadNotificationIds(userId, next)
     setReadIds(next)
-  }, [feed?.items, readIds, userId])
+  }, [items, readIds, userId])
 
   const unreadCount = useMemo(
-    () => (feed?.items ?? []).filter((item) => !readIds.has(item.id)).length,
-    [feed?.items, readIds],
+    () => items.filter((item) => !readIds.has(item.id)).length,
+    [items, readIds],
   )
 
   return {
-    items: feed?.items ?? [],
+    items,
     readIds,
     loading: query.loading,
     error: query.error,

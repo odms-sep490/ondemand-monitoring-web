@@ -164,7 +164,8 @@ function renderScreen(
       />
     )
   if (route.screen === 'maintenance') return <MaintenancePage />
-  if (route.screen === 'notifications') return <NotificationsPage />
+  if (route.screen === 'notifications')
+    return <NotificationsPage role="MANAGER" />
   if (route.screen === 'support')
     return <StaffSupportDashboardPage initialTicketId={route.ticketId} />
 

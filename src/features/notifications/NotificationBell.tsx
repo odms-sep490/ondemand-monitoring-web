@@ -7,6 +7,7 @@ import { useI18n } from '../../shared/i18n'
 import { NotificationItem } from './NotificationItems'
 import { notificationsHref } from './routes'
 import { notificationsMessages } from './notifications.messages'
+import type { NotificationRole } from './types'
 import { useNotifications } from './useNotifications'
 import './notifications.css'
 
@@ -14,7 +15,7 @@ export function NotificationBell({
   role,
   className = '',
 }: {
-  role: 'CUSTOMER' | 'STAFF' | 'MANAGER'
+  role: NotificationRole
   className?: string
 }) {
   const popoverId = 'odm-notification-popover'
@@ -24,6 +25,7 @@ export function NotificationBell({
   const [position, setPosition] = useState({ top: 0, left: 12 })
   const triggerRef = useRef<HTMLButtonElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
+  const restoreFocusOnClose = useRef(false)
 
   const updatePosition = useCallback(() => {
     const rect = triggerRef.current?.getBoundingClientRect()
@@ -44,9 +46,16 @@ export function NotificationBell({
   }, [])
 
   const close = useCallback((restoreFocus = false) => {
+    restoreFocusOnClose.current = restoreFocus
     setOpen(false)
-    if (restoreFocus) requestAnimationFrame(() => triggerRef.current?.focus())
   }, [])
+
+  useEffect(() => {
+    if (!open && restoreFocusOnClose.current) {
+      restoreFocusOnClose.current = false
+      triggerRef.current?.focus()
+    }
+  }, [open])
 
   useEffect(() => {
     if (!open) return

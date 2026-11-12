@@ -6,7 +6,8 @@ import type { AppNotification } from './types'
 
 export function notificationsHref(role: UserRole): string | undefined {
   if (role === 'CUSTOMER') return customerHref({ screen: 'notifications' })
-  if (role === 'MANAGER') return managerHref({ screen: 'notifications' })
+  if (role === 'MANAGER' || role === 'ADMIN')
+    return managerHref({ screen: 'notifications' })
   if (role === 'STAFF') return operatorHref({ screen: 'notifications' })
   return undefined
 }
@@ -15,13 +16,13 @@ export function notificationHref(
   notification: AppNotification,
   role: UserRole,
 ): string | undefined {
-  if (notification.type === 'ORDER_CREATED') {
+  if (notification.type.startsWith('ORDER_')) {
     if (role === 'CUSTOMER')
       return customerHref({
         screen: 'orderDetail',
         orderId: notification.entityId,
       })
-    if (role === 'MANAGER')
+    if (role === 'MANAGER' || role === 'ADMIN')
       return managerHref({
         screen: 'orderReview',
         orderId: notification.entityId,

@@ -12,6 +12,15 @@ import type { AppNotification } from './types'
 
 const iconByType = {
   ORDER_CREATED: CalendarOutlined,
+  ORDER_UNDER_REVIEW: FileTextOutlined,
+  ORDER_NEEDS_INFO: AlertOutlined,
+  ORDER_APPROVED: CheckCircleOutlined,
+  ORDER_REJECTED: AlertOutlined,
+  ORDER_IN_PROGRESS: CalendarOutlined,
+  ORDER_COMPLETED: CheckCircleOutlined,
+  ORDER_CANCELLED: AlertOutlined,
+  ORDER_QUOTE_APPROVED: CheckCircleOutlined,
+  ORDER_FINAL_PAYMENT_REQUIRED: AlertOutlined,
   MISSION_ASSIGNED: TeamOutlined,
   MISSION_COMPLETED: CheckCircleOutlined,
   MISSION_REVIEW_REQUIRED: FileTextOutlined,
@@ -26,6 +35,18 @@ export function notificationCopy(
   const reference = notification.reference || notification.entityId
   const copy = {
     ORDER_CREATED: [t.orderTitle, t.orderDescription],
+    ORDER_UNDER_REVIEW: [t.orderReviewTitle, t.orderReviewDescription],
+    ORDER_NEEDS_INFO: [t.orderInfoTitle, t.orderInfoDescription],
+    ORDER_APPROVED: [t.orderApprovedTitle, t.orderApprovedDescription],
+    ORDER_REJECTED: [t.orderRejectedTitle, t.orderRejectedDescription],
+    ORDER_IN_PROGRESS: [t.orderStartedTitle, t.orderStartedDescription],
+    ORDER_COMPLETED: [t.orderCompletedTitle, t.orderCompletedDescription],
+    ORDER_CANCELLED: [t.orderCancelledTitle, t.orderCancelledDescription],
+    ORDER_QUOTE_APPROVED: [t.quoteApprovedTitle, t.quoteApprovedDescription],
+    ORDER_FINAL_PAYMENT_REQUIRED: [
+      t.finalPaymentTitle,
+      t.finalPaymentDescription,
+    ],
     MISSION_ASSIGNED: [t.assignedTitle, t.assignedDescription],
     MISSION_COMPLETED: [t.completedTitle, t.completedDescription],
     MISSION_REVIEW_REQUIRED: [t.reviewTitle, t.reviewDescription],

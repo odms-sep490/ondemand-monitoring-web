@@ -3,14 +3,11 @@ import { Button } from 'antd'
 import { useI18n } from '../../shared/i18n'
 import { notificationsMessages } from './notifications.messages'
 import { NotificationItem } from './NotificationItems'
+import type { NotificationRole } from './types'
 import { useNotifications } from './useNotifications'
 import './notifications.css'
 
-export function NotificationsPage({
-  role,
-}: {
-  role: 'CUSTOMER' | 'STAFF' | 'MANAGER'
-}) {
+export function NotificationsPage({ role }: { role: NotificationRole }) {
   const { t } = useI18n(notificationsMessages)
   const notifications = useNotifications()
 

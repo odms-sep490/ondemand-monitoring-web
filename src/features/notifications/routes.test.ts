@@ -39,6 +39,30 @@ describe('notification routes', () => {
     })
   })
 
+  it.each([
+    'ORDER_CREATED',
+    'ORDER_UNDER_REVIEW',
+    'ORDER_NEEDS_INFO',
+    'ORDER_APPROVED',
+    'ORDER_REJECTED',
+    'ORDER_IN_PROGRESS',
+    'ORDER_COMPLETED',
+    'ORDER_CANCELLED',
+    'ORDER_QUOTE_APPROVED',
+    'ORDER_FINAL_PAYMENT_REQUIRED',
+  ] as const)(
+    'routes %s to the related order for customer and admin',
+    (type) => {
+      const notification = { ...orderNotification, type }
+      expect(
+        parseCustomerRoute(notificationHref(notification, 'CUSTOMER')!),
+      ).toEqual({ screen: 'orderDetail', orderId: 'order-1' })
+      expect(
+        parseManagerRoute(notificationHref(notification, 'ADMIN')!),
+      ).toEqual({ screen: 'orderReview', orderId: 'order-1' })
+    },
+  )
+
   it('maps mission notifications to the existing detail route for each role', () => {
     expect(
       parseCustomerRoute(notificationHref(missionNotification, 'CUSTOMER')!),
@@ -68,6 +92,9 @@ describe('notification routes', () => {
       screen: 'notifications',
     })
     expect(parseOperatorRoute(notificationsHref('STAFF')!)).toEqual({
+      screen: 'notifications',
+    })
+    expect(parseManagerRoute(notificationsHref('ADMIN')!)).toEqual({
       screen: 'notifications',
     })
   })

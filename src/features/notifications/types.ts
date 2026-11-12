@@ -2,6 +2,15 @@ import type { UserRole } from '../auth/types'
 
 export type NotificationType =
   | 'ORDER_CREATED'
+  | 'ORDER_UNDER_REVIEW'
+  | 'ORDER_NEEDS_INFO'
+  | 'ORDER_APPROVED'
+  | 'ORDER_REJECTED'
+  | 'ORDER_IN_PROGRESS'
+  | 'ORDER_COMPLETED'
+  | 'ORDER_CANCELLED'
+  | 'ORDER_QUOTE_APPROVED'
+  | 'ORDER_FINAL_PAYMENT_REQUIRED'
   | 'MISSION_ASSIGNED'
   | 'MISSION_COMPLETED'
   | 'MISSION_REVIEW_REQUIRED'
@@ -21,5 +30,5 @@ export type NotificationFeed = { items: AppNotification[] }
 
 export type NotificationRole = Extract<
   UserRole,
-  'CUSTOMER' | 'STAFF' | 'MANAGER'
+  'CUSTOMER' | 'STAFF' | 'MANAGER' | 'ADMIN'
 >
