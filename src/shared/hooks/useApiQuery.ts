@@ -61,6 +61,9 @@ export function useApiQuery<T>(
       })
 
     return () => {
+      // Invalidate this request so late results never reach setState after
+      // unmount or after deps changed.
+      if (requestId.current === id) requestId.current++
       controller.abort()
     }
     // deps is caller-controlled (mirrors useEffect's own contract); this
