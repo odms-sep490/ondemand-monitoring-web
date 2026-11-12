@@ -361,7 +361,7 @@ export type PostDeviceCheckItem = {
 export type PersistedPostDeviceCheckResponse = {
   id: string
   missionId: string
-  deviceConnectionId: string | null
+  deviceAssignmentId: string | null
   deviceId: string | null
   deviceCode: string | null
   deviceName: string | null

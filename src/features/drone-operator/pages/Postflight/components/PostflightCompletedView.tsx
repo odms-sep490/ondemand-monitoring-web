@@ -336,7 +336,7 @@ export function PostflightCompletedView({
   const reviewTabs = [
     {
       id: 'checklist',
-      label: t.reviewMissionChecklist,
+      label: t.reviewTabChecklist,
       summary: monitoring.loading
         ? t.reviewTabLoading
         : monitoring.error
@@ -347,12 +347,12 @@ export function PostflightCompletedView({
     },
     {
       id: 'preflight',
-      label: t.reviewPreflight,
+      label: t.reviewTabPreflight,
       summary: review.loading
         ? t.reviewTabLoading
         : preflight
           ? preflight.items.length
-            ? t.reviewPassedCount(preflightPassed, preflight.items.length)
+            ? t.reviewTabPassedCount(preflightPassed, preflight.items.length)
             : t.reviewTabNoItems
           : t.reviewTabNoData,
     },
@@ -367,12 +367,12 @@ export function PostflightCompletedView({
     },
     {
       id: 'postflight',
-      label: t.reviewPostflight,
+      label: t.reviewTabPostflight,
       summary: review.loading
         ? t.reviewTabLoading
         : postflight
           ? postflightItems.length
-            ? t.reviewPassedCount(postflightPassed, postflightItems.length)
+            ? t.reviewTabPassedCount(postflightPassed, postflightItems.length)
             : t.reviewTabNoItems
           : t.reviewTabNoData,
     },
@@ -423,7 +423,7 @@ export function PostflightCompletedView({
                 completed.overallOk ? ' is-pass' : ' is-warning'
               }`}
             >
-              {t.reviewPostflight}:{' '}
+              {t.reviewTabPostflight} ·{' '}
               {completed.overallOk ? t.allPassed : t.someFailed(failedCount || 1)}
             </span>
             {isSubmitted && (
@@ -725,30 +725,30 @@ export function PostflightCompletedView({
             ) : !isMissionCompleted ? (
               <>
                 <strong>{t.reviewMissionComplete}</strong>
-                <span>
-                  {canComplete
-                    ? completionReady
-                      ? t.reviewSubtitle
-                      : !checklistAssessmentsComplete
+                {!completionReady && (
+                  <span>
+                    {canComplete
+                      ? !checklistAssessmentsComplete
                         ? t.reviewWaitingAssessment
                         : !reviewDataReady || reviewError
                           ? t.reviewAllDataRequired
                           : resultState.readinessReason || t.reviewWaitingChecklist
-                    : t.reviewWaitingPermission}
-                </span>
+                      : t.reviewWaitingPermission}
+                  </span>
+                )}
               </>
             ) : (
               <>
                 <strong>{t.reviewSendManager}</strong>
-                <span>
-                  {resultState.submitReady
-                    ? sendReady
-                      ? t.reviewSubtitle
-                      : !checklistAssessmentsComplete
+                {!sendReady && (
+                  <span>
+                    {resultState.submitReady
+                      ? !checklistAssessmentsComplete
                         ? t.reviewWaitingAssessment
                         : t.reviewAllDataRequired
-                    : resultState.readinessReason || t.reviewWaitingChecklist}
-                </span>
+                      : resultState.readinessReason || t.reviewWaitingChecklist}
+                  </span>
+                )}
               </>
             )}
           </div>

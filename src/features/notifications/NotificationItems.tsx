@@ -2,6 +2,7 @@ import {
   AlertOutlined,
   CalendarOutlined,
   CheckCircleOutlined,
+  DollarCircleOutlined,
   FileTextOutlined,
   TeamOutlined,
 } from '@ant-design/icons'
@@ -19,9 +20,11 @@ const iconByType = {
   ORDER_IN_PROGRESS: CalendarOutlined,
   ORDER_COMPLETED: CheckCircleOutlined,
   ORDER_CANCELLED: AlertOutlined,
+  ORDER_DEPOSIT_PAID: DollarCircleOutlined,
   ORDER_QUOTE_APPROVED: CheckCircleOutlined,
   ORDER_FINAL_PAYMENT_REQUIRED: AlertOutlined,
   MISSION_ASSIGNED: TeamOutlined,
+  MISSION_STAFF_ACCEPTED: CheckCircleOutlined,
   MISSION_COMPLETED: CheckCircleOutlined,
   MISSION_REVIEW_REQUIRED: FileTextOutlined,
   MISSION_WARNING: AlertOutlined,
@@ -42,12 +45,17 @@ export function notificationCopy(
     ORDER_IN_PROGRESS: [t.orderStartedTitle, t.orderStartedDescription],
     ORDER_COMPLETED: [t.orderCompletedTitle, t.orderCompletedDescription],
     ORDER_CANCELLED: [t.orderCancelledTitle, t.orderCancelledDescription],
+    ORDER_DEPOSIT_PAID: [t.depositPaidTitle, t.depositPaidDescription],
     ORDER_QUOTE_APPROVED: [t.quoteApprovedTitle, t.quoteApprovedDescription],
     ORDER_FINAL_PAYMENT_REQUIRED: [
       t.finalPaymentTitle,
       t.finalPaymentDescription,
     ],
     MISSION_ASSIGNED: [t.assignedTitle, t.assignedDescription],
+    MISSION_STAFF_ACCEPTED: [
+      t.staffAcceptedTitle,
+      t.staffAcceptedDescription,
+    ],
     MISSION_COMPLETED: [t.completedTitle, t.completedDescription],
     MISSION_REVIEW_REQUIRED: [t.reviewTitle, t.reviewDescription],
     MISSION_WARNING: [t.warningTitle, t.warningDescription],
@@ -55,7 +63,9 @@ export function notificationCopy(
   }[notification.type]
   return {
     title: copy[0],
-    description: copy[1].replace('{reference}', reference),
+    description: copy[1]
+      .replace('{reference}', reference)
+      .replace('{actor}', notification.actorName || t.staffFallback),
   }
 }
 

@@ -38,7 +38,7 @@ export function notificationHref(
       missionId: notification.entityId,
     })
   }
-  if (role === 'MANAGER') {
+  if (role === 'MANAGER' || role === 'ADMIN') {
     return managerHref({
       screen: 'missionDetail',
       missionId: notification.entityId,

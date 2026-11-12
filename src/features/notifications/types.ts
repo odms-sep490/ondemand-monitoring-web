@@ -9,9 +9,11 @@ export type NotificationType =
   | 'ORDER_IN_PROGRESS'
   | 'ORDER_COMPLETED'
   | 'ORDER_CANCELLED'
+  | 'ORDER_DEPOSIT_PAID'
   | 'ORDER_QUOTE_APPROVED'
   | 'ORDER_FINAL_PAYMENT_REQUIRED'
   | 'MISSION_ASSIGNED'
+  | 'MISSION_STAFF_ACCEPTED'
   | 'MISSION_COMPLETED'
   | 'MISSION_REVIEW_REQUIRED'
   | 'MISSION_WARNING'
@@ -24,6 +26,7 @@ export type AppNotification = {
   relatedEntityId?: string
   reference: string
   createdAt: string
+  actorName?: string | null
 }
 
 export type NotificationFeed = { items: AppNotification[] }

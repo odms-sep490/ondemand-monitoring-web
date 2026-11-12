@@ -45,6 +45,14 @@ type MissionLike = {
   updatedAt?: string | null
   completedAt?: string | null
   flightStartedAt?: string | null
+  staffAssignments?: {
+    id: string
+    staffId?: string | null
+    staffName?: string | null
+    responseStatus?: string | null
+    respondedAt?: string | null
+    isCurrent?: boolean | null
+  }[]
 }
 
 function orderNotification(order: OrderLike): AppNotification | undefined {
@@ -117,6 +125,36 @@ function missionNotification(
   }
 }
 
+function acceptedStaffNotifications(mission: MissionLike): AppNotification[] {
+  const notifications = new Map<string, AppNotification>()
+  for (const assignment of mission.staffAssignments ?? []) {
+    if (
+      assignment.responseStatus !== 'ACCEPTED' ||
+      assignment.isCurrent === false
+    ) {
+      continue
+    }
+    const acceptedAt =
+      assignment.respondedAt ??
+      mission.updatedAt ??
+      mission.createdAt ??
+      new Date().toISOString()
+    const staffId = assignment.staffId ?? assignment.staffName ?? assignment.id
+    const id = `mission-staff-accepted:${mission.id}:${staffId}:${acceptedAt}`
+    if (notifications.has(id)) continue
+    notifications.set(id, {
+      id,
+      type: 'MISSION_STAFF_ACCEPTED',
+      entityId: mission.id,
+      relatedEntityId: mission.orderId,
+      reference: mission.missionCode ?? mission.id,
+      createdAt: acceptedAt,
+      actorName: assignment.staffName,
+    })
+  }
+  return [...notifications.values()]
+}
+
 function feedFor(user: MockUser): AppNotification[] {
   if (user.role === 'CUSTOMER') {
     const orders = [
@@ -142,9 +180,12 @@ function feedFor(user: MockUser): AppNotification[] {
       )
       .map(orderNotification)
       .filter((item): item is AppNotification => item !== undefined)
-    const missionItems = (managerMissions as unknown as MissionLike[])
-      .map((mission) => missionNotification(mission, managerRole))
-      .filter((item): item is AppNotification => item !== undefined)
+    const missionItems = (managerMissions as unknown as MissionLike[]).flatMap(
+      (mission) => [
+        ...acceptedStaffNotifications(mission),
+        missionNotification(mission, managerRole),
+      ].filter((item): item is AppNotification => item !== undefined),
+    )
     return [...orderItems, ...missionItems]
   }
 

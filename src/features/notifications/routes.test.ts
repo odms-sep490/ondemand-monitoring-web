@@ -48,6 +48,7 @@ describe('notification routes', () => {
     'ORDER_IN_PROGRESS',
     'ORDER_COMPLETED',
     'ORDER_CANCELLED',
+    'ORDER_DEPOSIT_PAID',
     'ORDER_QUOTE_APPROVED',
     'ORDER_FINAL_PAYMENT_REQUIRED',
   ] as const)(

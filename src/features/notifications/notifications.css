@@ -119,6 +119,14 @@
   background: #e3f7f3;
   color: #00a985;
 }
+.odm-notification-item-icon.is-mission_staff_accepted {
+  background: #e3f7f3;
+  color: #078653;
+}
+.odm-notification-item-icon.is-order_deposit_paid {
+  background: #e3f7f3;
+  color: #078653;
+}
 .odm-notification-item-icon.is-mission_warning {
   background: #fff1df;
   color: #dd7a00;
