@@ -22,7 +22,6 @@ import './handlers/catalogBe'
 import './handlers/adminConfig'
 import './handlers/adminAuditLog'
 import './handlers/operatorMissions'
-import './handlers/operatorAvailability'
 import './handlers/notifications'
 
 export { mockFetch } from './mockServer'

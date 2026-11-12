@@ -1,38 +1,11 @@
 import { authSession } from '../../auth/api/authApi'
 import { missionApi } from '../../mission/api/missionApi'
 import { toOperatorMission, type BackendMission } from './liveMission'
-import type { AvailabilityStatus } from '../lib/availabilitySlots'
 import type {
   OperatorMission,
   OperatorMissionTab,
   OperatorProfile,
 } from '../types/mission'
-
-const availabilityStorageKey = (week: string) =>
-  `omss.operator.availability.${week}`
-
-function readAvailability(week: string): Record<string, AvailabilityStatus> {
-  if (typeof window === 'undefined') return {}
-  const raw = window.localStorage.getItem(availabilityStorageKey(week))
-  if (!raw) return {}
-  try {
-    const parsed = JSON.parse(raw)
-    return parsed && typeof parsed === 'object' ? parsed : {}
-  } catch {
-    return {}
-  }
-}
-
-function writeAvailability(
-  week: string,
-  slots: Record<string, AvailabilityStatus>,
-) {
-  if (typeof window === 'undefined') return
-  window.localStorage.setItem(
-    availabilityStorageKey(week),
-    JSON.stringify(slots),
-  )
-}
 
 export const operatorApi = {
   getProfile: async (_signal?: AbortSignal): Promise<OperatorProfile> => {
@@ -141,18 +114,4 @@ export const operatorApi = {
       )) as unknown as BackendMission,
       authSession.getUser()?.id,
     )),
-
-  getAvailability: async (week: string, signal?: AbortSignal) => {
-    if (signal?.aborted) throw new DOMException('Aborted', 'AbortError')
-    return { week, slots: readAvailability(week) }
-  },
-
-  saveAvailability: (
-    body: { week: string; slots: Record<string, AvailabilityStatus> },
-    signal?: AbortSignal,
-  ) => {
-    if (signal?.aborted) throw new DOMException('Aborted', 'AbortError')
-    writeAvailability(body.week, body.slots)
-    return Promise.resolve(body)
-  },
 }
