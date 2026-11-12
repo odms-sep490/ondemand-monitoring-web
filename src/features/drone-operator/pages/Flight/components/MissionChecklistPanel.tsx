@@ -1,28 +1,19 @@
-import { withStaffLocalPreviews } from '../../../../media/upload/staffEvidencePresentation'
+import { loadStaffEvidenceCandidates } from '../../../../media/upload/loadStaffEvidenceCandidates'
 import { useCallback, useEffect, useMemo } from 'react'
 import type { Mission } from '../../../types/omss'
 import { useI18n } from '../../../../../shared/i18n'
 import { useMissionMonitoring } from '../../../../mission/hooks/useMissionMonitoring'
 import { MonitoringChecklistSection } from '../../../../mission/components/MonitoringChecklistSection'
 import { useMissionEvidenceQueue } from '../../../../mission/hooks/useMissionEvidenceQueue'
-import { checklistEvidenceApi } from '../../../../mission/api/checklistEvidenceApi'
 import { operatorMediaApi } from '../../../../media/api/operatorMediaApi'
 import type {
   EvidenceCandidate,
-  EvidenceMediaStatus,
+  EvidenceCandidateLoader,
 } from '../../../../mission/types/checklistExecution'
 import { operatorHref } from '../../../routes'
 import { inFlightControlMessages } from './InFlightControl.messages'
 import { GlassPanel } from './GlassPanel'
 import './MissionChecklistPanel.css'
-
-const evidenceUploadStatus = (
-  status: string,
-): EvidenceMediaStatus => {
-  if (status === 'REVIEW_PENDING') return 'UPLOAD_PENDING'
-  if (status === 'UPLOAD_FAILED') return 'RETRY_REQUIRED'
-  return status as EvidenceMediaStatus
-}
 
 const evidenceQueueStageLabel: Record<string, string> = {
   QUEUED: 'Đang chờ tải lên',
@@ -70,7 +61,8 @@ export function MissionChecklistPanel({
   )
   const monitoring = useMissionMonitoring(missionId)
   const canUploadMedia =
-    monitoring.data?.permissions.canUploadMedia === true
+    !monitoring.error && monitoring.data?.checklist.missionId === missionId &&
+    monitoring.data.permissions.canUploadMedia === true
   const transferLocalEvidence = useCallback(
     async (
       candidate: EvidenceCandidate,
@@ -93,79 +85,11 @@ export function MissionChecklistPanel({
     missionId,
     canUploadMedia ? transferLocalEvidence : undefined,
   )
-  const loadEvidenceCandidates = useCallback(
-    async (page: number): Promise<EvidenceCandidate[]> => {
-      const [uploadedCandidates, localMedia] = await Promise.all([
-        checklistEvidenceApi.candidates(missionId, page),
-        operatorMediaApi.reviewItems(missionId, missionAliases).catch(() => []),
-      ])
-      if (page > 0) return withStaffLocalPreviews(uploadedCandidates, localMedia, missionId)
-
-      const uploadedIds = new Set(
-        uploadedCandidates.map((candidate) => candidate.mediaId),
-      )
-      const localCandidates = localMedia
-        .filter(
-          (media) =>
-            media.localAvailable !== false &&
-            (!media.backendMediaId || !uploadedIds.has(media.backendMediaId)),
-        )
-        .sort(
-          (a, b) =>
-            new Date(b.capturedAt).getTime() -
-            new Date(a.capturedAt).getTime(),
-        )
-        .map((media): EvidenceCandidate => {
-          const sourceEligible =
-            media.sourceType === 'DRONE_CAMERA' ||
-            media.sourceType === 'SATELLITE_SNAPSHOT' ||
-            media.sourceType === 'MANUAL_UPLOAD'
-          const attachable =
-            canUploadMedia &&
-            sourceEligible &&
-            media.status !== 'REJECTED' &&
-            media.localAvailable !== false
-          const backendCandidate = uploadedCandidates.find(
-            (candidate) => candidate.mediaId === media.backendMediaId,
-          )
-          const alreadyAttachedExecutionIds =
-            backendCandidate?.alreadyAttachedExecutionIds ??
-            (monitoring.data?.checklist.executions ?? [])
-              .filter((execution) =>
-                execution.evidence?.some(
-                  (evidence) => evidence.mediaId === media.backendMediaId,
-                ),
-              )
-              .map((execution) => execution.id)
-          return {
-            mediaId: `local:${media.localMediaId}`,
-            fileName: media.fileName,
-            mediaType: media.mediaType,
-            contentType: media.contentType,
-            status: evidenceUploadStatus(media.status),
-            sourceType: media.sourceType ?? null,
-            capturedAt: media.capturedAt,
-            validatedAt: null,
-            localThumbnailUrl: media.localThumbnailUrl,
-            attachable,
-            eligibleForOperationalReadiness: false,
-            eligibleForFinalApproval: false,
-            ineligibilityReason:
-              media.status === 'REJECTED'
-                ? 'MEDIA_REJECTED'
-                : attachable
-                  ? null
-                  : 'EVIDENCE_SOURCE_NOT_ELIGIBLE',
-            previewUrl:
-              media.localAvailable === false
-                ? null
-                : operatorMediaApi.previewUrl(media.localMediaId),
-            urlExpiresAt: null,
-            alreadyAttachedExecutionIds,
-          }
-        })
-      return [...localCandidates, ...withStaffLocalPreviews(uploadedCandidates, localMedia, missionId)]
-    },
+  const loadEvidenceCandidates = useCallback<EvidenceCandidateLoader>(
+    (page, signal) => loadStaffEvidenceCandidates({
+      missionId, missionAliases, page, signal, canUploadMedia,
+      executions: monitoring.data?.checklist.executions ?? [],
+    }),
     [canUploadMedia, missionAliases, missionId, monitoring.data?.checklist],
   )
   const finishedEvidenceJobs = evidenceQueue.jobs

@@ -1,9 +1,10 @@
+import { evidenceCandidatePage } from '../lib/evidenceCandidatePage'
 import { VideoPoster } from '../../../shared/components/media/VideoThumbnail'
 import { useEffect, useRef, useState } from 'react'
 import { Button, Checkbox, Input, Modal, Select, Space, Spin } from 'antd'
 import { useI18n } from '../../../shared/i18n'
 import { checklistEvidenceApi } from '../api/checklistEvidenceApi'
-import type { EvidenceCandidate } from '../types/checklistExecution'
+import type { EvidenceCandidate, EvidenceCandidateLoader, EvidenceCandidatePage } from '../types/checklistExecution'
 import { checklistEvidencePickerMessages } from './ChecklistEvidencePicker.messages'
 import './ChecklistEvidencePanel.css'
 
@@ -23,7 +24,7 @@ export function ChecklistEvidencePicker({
   requiredType?: string
   executionId?: string
   alreadyAttached?: string[]
-  loadCandidates?: (page: number) => Promise<EvidenceCandidate[]>
+  loadCandidates?: EvidenceCandidateLoader
   onClose: () => void
   onSelect: (items: EvidenceCandidate[]) => Promise<void>
   allowManualBackup?: boolean
@@ -39,24 +40,42 @@ export function ChecklistEvidencePicker({
   const [busy, setBusy] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<'load' | 'attach' | null>(null)
+  const [unavailableSources, setUnavailableSources] = useState<EvidenceCandidatePage['unavailableSources']>([])
+  const [hasMore, setHasMore] = useState(false)
   const [revision, setRevision] = useState(0)
   const loader = useRef(loadCandidates)
   loader.current = loadCandidates
+  useEffect(() => {
+    setSelected({})
+    setPage(0)
+  }, [missionId])
   useEffect(() => {
     if (!open) return
     let current = true
     const abort = new AbortController()
     setLoading(true)
+    setItems([])
+    setUnavailableSources([])
+    setHasMore(false)
     setError(null)
     const request = loader.current
-      ? loader.current(page)
+      ? loader.current(page, abort.signal)
       : checklistEvidenceApi.candidates(missionId, page, abort.signal)
     void request
       .then((data) => {
-        if (current) setItems(data)
+        if (current) {
+          const loaded = evidenceCandidatePage(data)
+          setItems(loaded.items)
+          setUnavailableSources(loaded.unavailableSources)
+          setHasMore(loaded.hasMore)
+        }
       })
       .catch(() => {
-        if (current) setError('load')
+        if (current) {
+          setItems([])
+          setSelected({})
+          setError('load')
+        }
       })
       .finally(() => {
         if (current) setLoading(false)
@@ -118,7 +137,7 @@ export function ChecklistEvidencePicker({
           </Button>
           <Button
             type="primary"
-            disabled={!Object.keys(selected).length || loading || busy}
+            disabled={!Object.keys(selected).length || loading || busy || error === 'load'}
             loading={busy}
             onClick={() => void add()}
           >
@@ -159,6 +178,14 @@ export function ChecklistEvidencePicker({
           </Button>
         </p>
       )}
+      {unavailableSources.length > 0 && (
+        <div role="status">
+          {unavailableSources.map((source) => (
+            <p key={source}>{source === 'uploaded' ? t.uploadedUnavailable : t.localUnavailable}</p>
+          ))}
+          <Button disabled={loading || busy} onClick={() => setRevision((value) => value + 1)}>{t.retry}</Button>
+        </div>
+      )}
       {error === 'attach' && <p role="alert">{t.attachError}</p>}
       {loading ? (
         <Spin tip={t.loading}>
@@ -166,7 +193,7 @@ export function ChecklistEvidencePicker({
         </Spin>
       ) : (
         <div className="checklist-evidence-picker">
-          {!filtered.length && <p>{t.empty}</p>}
+          {!filtered.length && error !== 'load' && <p>{t.empty}</p>}
           {filtered.map((item) => (
             <label key={item.mediaId} className="checklist-evidence-picker-row">
               <Checkbox
@@ -199,13 +226,13 @@ export function ChecklistEvidencePicker({
       )}
       <Space>
         <Button
-          disabled={!page || loading}
+          disabled={!page || loading || busy}
           onClick={() => setPage((value) => value - 1)}
         >
           {t.previous}
         </Button>
         <Button
-          disabled={items.length < 50 || loading}
+          disabled={!hasMore || loading || busy}
           onClick={() => setPage((value) => value + 1)}
         >
           {t.more}
@@ -226,10 +253,6 @@ function EvidenceImagePreview({
     .filter((source): source is string => Boolean(source))
   const [failedSources, setFailedSources] = useState<string[]>([])
   const currentSource = sources.find((source) => !failedSources.includes(source))
-
-  useEffect(() => {
-    setFailedSources([])
-  }, [candidate.localPreviewUrl, candidate.thumbnailUrl, candidate.previewUrl])
 
   if (!currentSource) {
     return (
