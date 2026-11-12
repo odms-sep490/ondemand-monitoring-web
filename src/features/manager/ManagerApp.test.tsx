@@ -1,5 +1,13 @@
-import { render, screen, waitFor } from '@testing-library/react'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { configure, render, screen, waitFor } from '@testing-library/react'
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest'
 
 import { authSession } from '../auth/api/authApi'
 import { managerApi } from './api/dashboardApi'
@@ -12,6 +20,9 @@ import type { ManagerDashboardResponse } from './types/dashboard'
 vi.mock('lottie-react', () => ({
   Lottie: () => null,
 }))
+
+// Lazy pages plus a loaded CI box can push renders past the 5s default; stay under the 20s test timeout.
+configure({ asyncUtilTimeout: 15_000 })
 
 const sampleData: ManagerDashboardResponse = {
   summary: {
@@ -72,6 +83,12 @@ afterEach(() => {
 })
 
 describe('ManagerApp', () => {
+  // Pages are lazy-loaded; transforming their module graphs is slow when many
+  // test files run in parallel, so do it outside any single test's budget.
+  beforeAll(async () => {
+    await Promise.all([import('./pages/Dashboard'), import('./pages/OrderQueue'), import('./pages/MissionCreate'), import('./pages/MissionDispatch')])
+  }, 120_000)
+
   it('renders the Dashboard (MNG-01) for #portal/manager', async () => {
     vi.spyOn(managerApi, 'getDashboard').mockResolvedValue(sampleData)
     window.location.hash = '#portal/manager'
@@ -139,8 +156,10 @@ describe('ManagerApp', () => {
     window.location.hash = '#portal/manager/missions/msn-2609-0153-1/dispatch'
     render(<ManagerApp />)
 
-    await waitFor(() =>
-      expect(screen.getByText('Đang tải phân công…')).toBeInTheDocument(),
+    await waitFor(
+      () =>
+        expect(screen.getByText('Đang tải phân công…')).toBeInTheDocument(),
+      { timeout: 15000 },
     )
   })
 

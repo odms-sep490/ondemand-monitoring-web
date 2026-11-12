@@ -11,7 +11,6 @@ import {
   type ReactNode,
 } from 'react'
 
-import { LandingPage } from '../features/landing/pages/LandingPage'
 import {
   restoreAuthSession,
   startAuthSession,
@@ -22,6 +21,11 @@ import type { UserRole } from '../features/auth/types'
 import { useI18n } from '../shared/i18n'
 import { defineMessages } from '../shared/i18n'
 
+const LandingPage = lazy(() =>
+  import('../features/landing/pages/LandingPage').then((m) => ({
+    default: m.LandingPage,
+  })),
+)
 const AuthPage = lazy(() =>
   import('../features/auth/pages/AuthPage').then((m) => ({
     default: m.AuthPage,
@@ -396,5 +400,9 @@ function Routes() {
       </RoleRoute>
     )
 
-  return <LandingPage />
+  return (
+    <RouteContent>
+      <LandingPage />
+    </RouteContent>
+  )
 }

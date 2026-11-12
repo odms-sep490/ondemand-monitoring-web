@@ -170,7 +170,12 @@ describe('Router - manager routes (#portal/manager*)', () => {
 
   // Transforming the Manager module graph is slow when many test files run in parallel; do it outside any single test's budget.
   beforeAll(async () => {
-    await import('../features/manager/ManagerApp')
+    await Promise.all([
+      import('../features/manager/ManagerApp'),
+      // Manager pages are lazy-loaded; warm the ones these tests render.
+      import('../features/manager/pages/Dashboard'),
+      import('../features/manager/pages/OrderQueue'),
+    ])
   }, 120_000)
 
   beforeEach(() => {
