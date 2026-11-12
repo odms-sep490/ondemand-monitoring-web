@@ -24,7 +24,7 @@ import { groupCounts, matchesMissionSearch } from './missionsHelpers'
 type MissionsListPageProps = { missionId?: string }
 
 export function MissionsPage(_props: MissionsListPageProps = {}) {
-  const { t, locale } = useI18n(missionsPageMessages)
+  const { t } = useI18n(missionsPageMessages)
   const [statusFilter, setStatusFilter] = useState<StatusChip>('ALL')
 
   const statusChips: Array<{ value: StatusChip; label: string }> = [
