@@ -119,6 +119,12 @@ const terminalUploadedStatuses = new Set([
   'VALIDATING',
   'PENDING_MANAGER_APPROVAL',
 ])
+function sameContentScope(left: LocalMedia, right: LocalMedia): boolean {
+  return left.missionId === right.missionId && left.deviceId === right.deviceId &&
+    Boolean(left.checksumSha256) && left.checksumSha256.toLowerCase() === right.checksumSha256.toLowerCase() &&
+    left.fileSize === right.fileSize && left.contentType === right.contentType && left.mediaType === right.mediaType
+}
+
 const referenceKey = (item: Pick<LocalMedia, 'missionId' | 'localMediaId'>) =>
   `odms.media-upload:${item.missionId}:${item.localMediaId}`
 
@@ -265,7 +271,9 @@ export const operatorMediaApi = {
     ])
     const localById = new Map(local.map((item) => [item.localMediaId, item]))
     const merged = library.map((item) => {
-      const localItem = localById.get(item.localMediaId)
+      const localItem = localById.get(item.localMediaId) ?? local.find((capture) =>
+        capture.backendMediaId === item.backendMediaId && sameContentScope(capture, item),
+      )
       return localItem
         ? { ...item, ...localItem, backendMediaId: item.backendMediaId, status: item.status,
             manualTaskId: item.manualTaskId, previewUrl: item.previewUrl,
@@ -275,7 +283,13 @@ export const operatorMediaApi = {
         : item
     })
     const known = new Set(merged.map((item) => item.localMediaId))
-    return [...merged, ...local.filter((item) => !known.has(item.localMediaId))]
+    const registered = new Map(library.map((item) => [item.backendMediaId, item]))
+    return [...merged, ...local.filter((item) => {
+      if (known.has(item.localMediaId)) return false
+      const existing = item.backendMediaId ? registered.get(item.backendMediaId) : undefined
+      // Keep every file in the local manifest, but show one card per resolved asset.
+      return !existing || !sameContentScope(item, existing)
+    })]
   },
   async uploadPcBackup(
     item: LocalMedia,
@@ -502,7 +516,37 @@ export const operatorMediaApi = {
       capturedAt: item.capturedAt,
       sourceType: 'DRONE_CAMERA',
     }
-    let plan = await backend<UploadPlan>(preparePath, 'POST', metadata)
+    let plan: UploadPlan
+    try {
+      plan = await backend<UploadPlan>(preparePath, 'POST', metadata)
+    } catch (error) {
+      if (!(error instanceof ApiError) || error.status !== 409 || error.code !== 'MEDIA_DUPLICATE_CONTENT')
+        throw error
+      // Resolve only through the authorized exact-Mission library. Names and capture
+      // timestamps are not content identity, and a checksum alone is not permission.
+      const matches = (await operatorMediaApi.workspaceLibrary(item.missionId)).filter((existing) =>
+        sameContentScope(existing, item) && existing.sourceType === 'DRONE_CAMERA' &&
+        existing.status !== 'REMOVED' && existing.status !== 'REJECTED' && existing.backendMediaId,
+      )
+      if (matches.length !== 1) throw error
+      const existing = matches[0]
+      plan = await operatorMediaApi.status(existing.backendMediaId!)
+      if (plan.mediaId !== existing.backendMediaId)
+        throw new Error('Không xác định được media trùng trong Mission. Hãy làm mới thư viện.', { cause: error })
+      if (!terminalUploadedStatuses.has(plan.status)) {
+        if (existing.uploadChannel !== 'FLIGHT_CONTROLLER') {
+          throw new Error('Ảnh này đã có trong thư viện. Hãy tiếp tục upload hoặc khôi phục tại media hiện có.', { cause: error })
+        }
+        // Replay the original registration to resume its attempt; retain its capture
+        // metadata and channel, while transferring the identical local bytes.
+        plan = await backend<UploadPlan>(preparePath, 'POST', {
+          ...metadata, localMediaId: existing.localMediaId,
+          capturedAt: existing.capturedAt,
+        })
+        if (plan.mediaId !== existing.backendMediaId)
+          throw new Error('Media đã thay đổi. Hãy làm mới thư viện trước khi thử lại.', { cause: error })
+      }
+    }
     // Persist only the correlation ID, never credentials or signed URLs.
     try {
       window.localStorage.setItem(referenceKey(item), plan.mediaId)

@@ -426,3 +426,118 @@ describe('Staff upload identity after removal', () => {
     expect(bodies[0].localMediaId).not.toContain(bodies[0].checksumSha256)
   })
 })
+
+
+describe('local captures with identical content', () => {
+  const duplicate = () => Promise.resolve(new Response(JSON.stringify({
+    success: false, code: 'MEDIA_DUPLICATE_CONTENT', message: 'Duplicate content',
+  }), { status: 409 }))
+  const libraryItem = (overrides: Partial<LocalMedia> = {}) => ({
+    ...item, localMediaId: 'original-capture', backendMediaId: undefined,
+    mediaId: 'existing-media', sourceType: 'DRONE_CAMERA',
+    uploadChannel: 'FLIGHT_CONTROLLER', status: 'AVAILABLE', ...overrides,
+  })
+  const setupDuplicate = (rows: unknown[], state: string, replayState = state) => {
+    let registrations = 0
+    vi.mocked(authenticatedFetch).mockImplementation((url) => {
+      const path = String(url)
+      if (path.includes('/media-library?')) return response({ items: rows, totalPages: 1 })
+      if (path.endsWith('/upload-status')) return response({ ...plan(state), mediaId: 'existing-media' })
+      if (path.endsWith('/uploaded')) return response(null)
+      if (path.endsWith('/upload-attempts')) return response({ ...plan('UPLOAD_PENDING'), mediaId: 'existing-media' })
+      registrations++
+      return registrations === 1 ? duplicate() : response({ ...plan(replayState), mediaId: 'existing-media' })
+    })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({ parts: [] }), { status: 200 })))
+  }
+
+  it.each(['AVAILABLE', 'VALIDATING', 'PENDING_MANAGER_APPROVAL'])(
+    'reuses %s media identity for evidence without another transfer', async (state) => {
+      setupDuplicate([libraryItem()], state)
+      const attach = vi.fn().mockResolvedValue(undefined)
+      await expect(operatorMediaApi.upload(item, false, attach)).resolves.toBe('existing-media')
+      expect(attach).toHaveBeenCalledExactlyOnceWith('existing-media')
+      expect(fetch).not.toHaveBeenCalled()
+      expect(localStorage.getItem('odms.media-upload:mission:capture')).toBe('existing-media')
+      expect(vi.mocked(authenticatedFetch).mock.calls.filter(([url]) => String(url).endsWith('/media-uploads'))).toHaveLength(1)
+    },
+  )
+
+  it('resumes the original FC registration instead of creating another asset', async () => {
+    setupDuplicate([libraryItem({ capturedAt: '2026-09-25T23:59:59Z' })], 'UPLOAD_PENDING')
+    await expect(operatorMediaApi.upload(item)).resolves.toBe('existing-media')
+    const registrations = vi.mocked(authenticatedFetch).mock.calls.filter(([url]) => String(url).endsWith('/media-uploads'))
+    expect(registrations).toHaveLength(2)
+    expect(JSON.parse(String(registrations[1][1]?.body))).toMatchObject({
+      localMediaId: 'original-capture', capturedAt: '2026-09-25T23:59:59Z', checksumSha256: item.checksumSha256,
+    })
+    expect(fetch).toHaveBeenCalledWith(expect.stringContaining('/local/capture/transfer'), expect.anything())
+  })
+
+  it('retries a failed FC asset using its existing identity', async () => {
+    setupDuplicate([libraryItem()], 'RETRY_REQUIRED')
+    await expect(operatorMediaApi.upload(item)).resolves.toBe('existing-media')
+    expect(authenticatedFetch).toHaveBeenCalledWith(expect.stringContaining('/media/existing-media/upload-attempts'), expect.objectContaining({ method: 'POST' }))
+  })
+
+  it('preserves manual escalation and never automatically transfers it', async () => {
+    setupDuplicate([libraryItem()], 'MANUAL_UPLOAD_REQUIRED')
+    await expect(operatorMediaApi.upload(item)).rejects.toMatchObject({ code: 'MANUAL_UPLOAD_REQUIRED' })
+    expect(fetch).not.toHaveBeenCalled()
+  })
+
+  it('does not turn a Staff-file failure into an automatic FC attempt', async () => {
+    setupDuplicate([libraryItem({ uploadChannel: 'STAFF_FILE' })], 'MANUAL_UPLOAD_REQUIRED')
+    await expect(operatorMediaApi.upload(item)).rejects.toThrow('media hiện có')
+    expect(fetch).not.toHaveBeenCalled()
+    expect(vi.mocked(authenticatedFetch).mock.calls.filter(([url]) => String(url).endsWith('/media-uploads'))).toHaveLength(1)
+  })
+
+  it.each([
+    { missionId: 'sibling-mission' }, { deviceId: 'other-device' },
+    { checksumSha256: 'b'.repeat(64) }, { fileSize: 101 },
+    { contentType: 'image/png' }, { mediaType: 'VIDEO' as const },
+    { status: 'REMOVED' as const }, { status: 'REJECTED' as const },
+  ])('does not reuse incompatible or removed media: %j', async (overrides) => {
+    setupDuplicate([libraryItem(overrides)], 'AVAILABLE')
+    const attach = vi.fn()
+    await expect(operatorMediaApi.upload(item, false, attach)).rejects.toMatchObject({ code: 'MEDIA_DUPLICATE_CONTENT' })
+    expect(attach).not.toHaveBeenCalled()
+    expect(fetch).not.toHaveBeenCalled()
+  })
+
+  it('fails closed if historical data has more than one matching asset', async () => {
+    setupDuplicate([libraryItem(), { ...libraryItem(), mediaId: 'other-media' }], 'AVAILABLE')
+    await expect(operatorMediaApi.upload(item)).rejects.toMatchObject({ code: 'MEDIA_DUPLICATE_CONTENT' })
+    expect(fetch).not.toHaveBeenCalled()
+  })
+
+  it('does not resolve permission errors as duplicates', async () => {
+    vi.mocked(authenticatedFetch).mockResolvedValue(new Response(JSON.stringify({ success: false, code: 'FORBIDDEN', message: 'Forbidden' }), { status: 403 }))
+    await expect(operatorMediaApi.upload(item)).rejects.toMatchObject({ status: 403 })
+    expect(authenticatedFetch).toHaveBeenCalledOnce()
+  })
+})
+
+
+describe('resolved local capture aliases in the Mission library', () => {
+  it.each([true, false])('shows a resolved asset once, with the canonical file present: %s', async (canonicalPresent) => {
+    const canonical: LocalMedia = { ...item, localMediaId: 'canonical', backendMediaId: 'existing-media' }
+    const alias: LocalMedia = { ...item, localMediaId: 'alias', backendMediaId: 'existing-media' }
+    const local = canonicalPresent ? [canonical, alias] : [alias]
+    const list = vi.spyOn(operatorMediaApi, 'list').mockResolvedValue(local)
+    const library = vi.spyOn(operatorMediaApi, 'workspaceLibrary').mockResolvedValue([
+      { ...canonical, status: 'AVAILABLE', localAvailable: false, version: 4 },
+    ])
+    try {
+      const result = await operatorMediaApi.reviewItems('mission')
+      expect(result).toHaveLength(1)
+      expect(result[0]).toMatchObject({ backendMediaId: 'existing-media', status: 'AVAILABLE', localAvailable: true, version: 4 })
+      expect(local).toHaveLength(canonicalPresent ? 2 : 1)
+      expect(alias.localMediaId).toBe('alias')
+    } finally {
+      list.mockRestore()
+      library.mockRestore()
+    }
+  })
+})
