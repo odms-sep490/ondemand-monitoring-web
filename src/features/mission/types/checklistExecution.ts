@@ -122,6 +122,9 @@ export type EvidenceCandidate = EvidenceEligibility & {
   attachable: boolean
   previewUrl?: string | null
   thumbnailUrl?: string | null
+  /** Staff-only presentation sources; never used as evidence identity. */
+  localPreviewUrl?: string | null
+  localThumbnailUrl?: string | null
   urlExpiresAt: string | null
   alreadyAttachedExecutionIds: string[]
 }

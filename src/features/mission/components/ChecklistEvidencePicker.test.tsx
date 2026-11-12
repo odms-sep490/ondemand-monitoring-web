@@ -71,3 +71,27 @@ describe('multi-select evidence picker', () => {
     expect(screen.getByRole('checkbox', { name: 'image.jpg' })).toBeChecked()
   })
 })
+
+
+it('prefers a Staff local image and falls back to the backend thumbnail', async () => {
+  const image = { ...candidate('local-image'), localPreviewUrl: 'http://localhost:8090/local.jpg',
+    thumbnailUrl: 'https://media.test/thumb.jpg', previewUrl: 'https://media.test/image.jpg' }
+  render(<ChecklistEvidencePicker missionId="mission" open onClose={vi.fn()} onSelect={vi.fn()} loadCandidates={async () => [image]} />)
+  const preview = await screen.findByRole('img', { name: image.fileName })
+  expect(preview).toHaveAttribute('src', image.localPreviewUrl)
+  fireEvent.error(preview)
+  expect(preview).toHaveAttribute('src', image.thumbnailUrl)
+  fireEvent.error(preview)
+  expect(preview).toHaveAttribute('src', image.previewUrl)
+})
+
+it('uses the local video JPEG poster without mounting a video decoder in the picker', async () => {
+  const video = { ...candidate('video-local'), mediaType: 'VIDEO', fileName: 'clip.mp4',
+    localThumbnailUrl: 'http://localhost:8090/video/thumbnail', thumbnailUrl: 'https://media.test/video.jpg' }
+  const { container } = render(<ChecklistEvidencePicker missionId="mission" open onClose={vi.fn()} onSelect={vi.fn()} loadCandidates={async () => [video]} />)
+  const preview = await screen.findByRole('img', { name: video.fileName })
+  expect(preview).toHaveAttribute('src', video.localThumbnailUrl)
+  fireEvent.error(preview)
+  expect(preview).toHaveAttribute('src', video.thumbnailUrl)
+  expect(container.querySelector('video')).toBeNull()
+})

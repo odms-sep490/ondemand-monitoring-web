@@ -67,3 +67,16 @@ describe('video thumbnails', () => {
     expect(api).not.toHaveBeenCalled()
   })
 })
+
+
+it('falls back from a local video poster to the backend poster without loading video', () => {
+  const local = 'http://localhost:8090/api/media/local/video/thumbnail'
+  const { container } = render(<VideoThumbnail {...props} poster={local} fallbackPoster={props.poster} />)
+  expect(container.querySelector('img')).toHaveAttribute('src', local)
+  fireEvent.error(container.querySelector('img')!)
+  expect(container.querySelector('img')).toHaveAttribute('src', props.poster)
+  expect(container.querySelector('video')).toBeNull()
+  fireEvent.error(container.querySelector('img')!)
+  expect(container.querySelector('img')).toBeNull()
+  expect(container.querySelector('video')).toBeNull()
+})

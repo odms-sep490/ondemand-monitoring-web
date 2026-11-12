@@ -541,3 +541,18 @@ describe('resolved local capture aliases in the Mission library', () => {
     }
   })
 })
+
+
+it('adds local video display endpoints only for accessible FC captures in the requested Mission', async () => {
+  const video = { ...item, localMediaId: 'local-video', mediaType: 'VIDEO', uploadChannel: 'FLIGHT_CONTROLLER' }
+  const manual = { ...video, localMediaId: 'manual', uploadChannel: 'STAFF_FILE' }
+  vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({ media: [video, manual,
+    { ...video, missionId: 'other-mission', localMediaId: 'other' },
+  ] }), { status: 200 })))
+  const result = await operatorMediaApi.list('mission')
+  expect(result).toHaveLength(2)
+  expect(result[0].localPreviewUrl).toBe(operatorMediaApi.previewUrl('local-video'))
+  expect(result[0].localThumbnailUrl).toBe(operatorMediaApi.thumbnailUrl('local-video'))
+  expect(result[1].localPreviewUrl).toBeNull()
+  expect(result[1].localThumbnailUrl).toBeNull()
+})

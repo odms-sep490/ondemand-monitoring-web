@@ -1,3 +1,4 @@
+import { withStaffLocalPreviews } from '../../../../media/upload/staffEvidencePresentation'
 import { useCallback, useEffect, useMemo } from 'react'
 import type { Mission } from '../../../types/omss'
 import { useI18n } from '../../../../../shared/i18n'
@@ -96,13 +97,9 @@ export function MissionChecklistPanel({
     async (page: number): Promise<EvidenceCandidate[]> => {
       const [uploadedCandidates, localMedia] = await Promise.all([
         checklistEvidenceApi.candidates(missionId, page),
-        page === 0
-          ? operatorMediaApi
-              .list(missionId, missionAliases)
-              .catch(() => [])
-          : Promise.resolve([]),
+        operatorMediaApi.reviewItems(missionId, missionAliases).catch(() => []),
       ])
-      if (page > 0) return uploadedCandidates
+      if (page > 0) return withStaffLocalPreviews(uploadedCandidates, localMedia, missionId)
 
       const uploadedIds = new Set(
         uploadedCandidates.map((candidate) => candidate.mediaId),
@@ -110,7 +107,8 @@ export function MissionChecklistPanel({
       const localCandidates = localMedia
         .filter(
           (media) =>
-            !media.backendMediaId || !uploadedIds.has(media.backendMediaId),
+            media.localAvailable !== false &&
+            (!media.backendMediaId || !uploadedIds.has(media.backendMediaId)),
         )
         .sort(
           (a, b) =>
@@ -148,6 +146,7 @@ export function MissionChecklistPanel({
             sourceType: media.sourceType ?? null,
             capturedAt: media.capturedAt,
             validatedAt: null,
+            localThumbnailUrl: media.localThumbnailUrl,
             attachable,
             eligibleForOperationalReadiness: false,
             eligibleForFinalApproval: false,
@@ -165,7 +164,7 @@ export function MissionChecklistPanel({
             alreadyAttachedExecutionIds,
           }
         })
-      return [...localCandidates, ...uploadedCandidates]
+      return [...localCandidates, ...withStaffLocalPreviews(uploadedCandidates, localMedia, missionId)]
     },
     [canUploadMedia, missionAliases, missionId, monitoring.data?.checklist],
   )

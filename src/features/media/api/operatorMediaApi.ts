@@ -31,6 +31,8 @@ export type LocalMedia = {
   attemptNumber?: number
   previewUrl?: string | null
   thumbnailUrl?: string | null
+  localPreviewUrl?: string | null
+  localThumbnailUrl?: string | null
   failureCode?: string | null
   failureMessage?: string | null
   status:
@@ -181,6 +183,9 @@ export const operatorMediaApi = {
   previewUrl(id: string) {
     return `${controllerUrl}/api/media/local/${encodeURIComponent(id)}/preview`
   },
+  thumbnailUrl(id: string) {
+    return `${controllerUrl}/api/media/local/${encodeURIComponent(id)}/thumbnail`
+  },
   async list(
     missionId: string,
     missionAliases: string[] = [],
@@ -203,6 +208,10 @@ export const operatorMediaApi = {
       .map((item) => ({
         ...item,
         backendMediaId: item.backendMediaId ?? storedMediaId(item),
+        localPreviewUrl: item.uploadChannel !== 'STAFF_FILE' && item.localAvailable !== false
+          ? operatorMediaApi.previewUrl(item.localMediaId) : null,
+        localThumbnailUrl: item.mediaType === 'VIDEO' && item.uploadChannel !== 'STAFF_FILE' && item.localAvailable !== false
+          ? operatorMediaApi.thumbnailUrl(item.localMediaId) : null,
       }))
   },
   async manualTasks(missionId: string) {

@@ -79,3 +79,30 @@ describe('Cockpit shared Mission library', () => {
     expect(screen.getByText('second.jpg')).toBeInTheDocument()
   })
 })
+
+
+it('prefers local FC images and falls back to the remote thumbnail if local is unavailable', async () => {
+  vi.mocked(operatorMediaApi.reviewItems).mockResolvedValue([{ ...media('exact-uuid', 'local-drone.jpg'),
+    uploadChannel: 'FLIGHT_CONTROLLER', localAvailable: true,
+    localPreviewUrl: 'http://localhost:8090/local-drone/preview',
+    previewUrl: 'https://media.test/original-preview',
+  }])
+  render(<MissionCapturedMediaPanel mission={mission} />)
+  await screen.findByText('local-drone.jpg')
+  const image = screen.getByRole('img')
+  expect(image).toHaveAttribute('src', 'http://localhost:8090/local-drone/preview')
+  fireEvent.error(image)
+  expect(image).toHaveAttribute('src', 'https://media.test/thumbnail')
+})
+
+it('renders a local video poster without loading a decoder in the Mission gallery', async () => {
+  vi.mocked(operatorMediaApi.reviewItems).mockResolvedValue([{ ...media('exact-uuid', 'local-drone.mp4'),
+    mediaType: 'VIDEO', uploadChannel: 'FLIGHT_CONTROLLER', localAvailable: true,
+    localPreviewUrl: 'http://localhost:8090/local-drone/preview',
+    localThumbnailUrl: 'http://localhost:8090/local-drone/thumbnail',
+  }])
+  render(<MissionCapturedMediaPanel mission={mission} />)
+  await screen.findByText('local-drone.mp4')
+  expect(screen.getByRole('img', { name: 'Video: local-drone.mp4' })).toHaveAttribute('src', 'http://localhost:8090/local-drone/thumbnail')
+  expect(document.querySelector('video')).toBeNull()
+})

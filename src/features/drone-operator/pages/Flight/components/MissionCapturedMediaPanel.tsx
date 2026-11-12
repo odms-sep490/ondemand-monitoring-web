@@ -274,14 +274,17 @@ function CapturedMediaCard({
   videoLabel: string
   previewFailedLabel: string
 }) {
-  const [previewFailed, setPreviewFailed] = useState(false)
+  const [failedSources, setFailedSources] = useState<string[]>([])
   const isImage = item.mediaType === 'IMAGE'
-  const previewUrl =
-    item.localAvailable === false
-      ? item.mediaType === 'IMAGE'
-        ? (item.thumbnailUrl ?? item.previewUrl ?? undefined)
-        : (item.previewUrl ?? undefined)
-      : operatorMediaApi.previewUrl(item.localMediaId)
+  const hasLocal = item.localAvailable !== false && item.uploadChannel !== 'STAFF_FILE'
+  const localPreview = hasLocal
+    ? item.localPreviewUrl ?? operatorMediaApi.previewUrl(item.localMediaId) : undefined
+  const imageSources = [localPreview, item.thumbnailUrl, item.previewUrl]
+  const previewUrl = isImage
+    ? imageSources.find((url) => url && !failedSources.includes(url))
+    : localPreview ?? item.previewUrl ?? undefined
+  const poster = !isImage && hasLocal
+    ? item.localThumbnailUrl ?? operatorMediaApi.thumbnailUrl(item.localMediaId) : item.thumbnailUrl
 
   const isVietnamese = locale.startsWith('vi')
   const uploadLabel = {
@@ -303,7 +306,7 @@ function CapturedMediaCard({
   return (
     <article className="captured-media__card">
       <div className="captured-media__preview">
-        {previewFailed || !previewUrl ? (
+        {!previewUrl ? (
           <div className="captured-media__preview-failed">
             {previewFailedLabel}
           </div>
@@ -312,14 +315,16 @@ function CapturedMediaCard({
             src={previewUrl}
             alt={`${imageLabel}: ${item.fileName}`}
             loading="lazy"
-            onError={() => setPreviewFailed(true)}
+            onError={() => setFailedSources((previous) => [...previous, previewUrl!])}
           />
         ) : (
           <VideoThumbnail
             src={previewUrl}
             fileName={`${videoLabel}: ${item.fileName}`}
             fileSize={item.fileSize}
-            fallbackUrl={previewUrl}
+            poster={poster}
+            fallbackPoster={item.thumbnailUrl}
+            fallbackUrl={item.previewUrl ?? previewUrl}
           />
         )}
       </div>

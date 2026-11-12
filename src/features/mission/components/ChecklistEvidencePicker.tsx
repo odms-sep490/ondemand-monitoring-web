@@ -188,7 +188,7 @@ export function ChecklistEvidencePicker({
                   unavailableLabel={t.previewUnavailable}
                 />
               )}
-              {item.mediaType === 'VIDEO' && <VideoPoster poster={item.thumbnailUrl} />}
+              {item.mediaType === 'VIDEO' && <VideoPoster poster={item.localThumbnailUrl ?? item.thumbnailUrl} fallbackPoster={item.thumbnailUrl} fileName={item.fileName} />}
               <span>
                 {item.fileName}
                 <small>{item.mediaType === 'VIDEO' ? t.video : t.image}</small>
@@ -222,14 +222,14 @@ function EvidenceImagePreview({
   candidate: EvidenceCandidate
   unavailableLabel: string
 }) {
-  const sources = [...new Set([candidate.thumbnailUrl, candidate.previewUrl])]
+  const sources = [...new Set([candidate.localPreviewUrl, candidate.thumbnailUrl, candidate.previewUrl])]
     .filter((source): source is string => Boolean(source))
   const [failedSources, setFailedSources] = useState<string[]>([])
   const currentSource = sources.find((source) => !failedSources.includes(source))
 
   useEffect(() => {
     setFailedSources([])
-  }, [candidate.thumbnailUrl, candidate.previewUrl])
+  }, [candidate.localPreviewUrl, candidate.thumbnailUrl, candidate.previewUrl])
 
   if (!currentSource) {
     return (
