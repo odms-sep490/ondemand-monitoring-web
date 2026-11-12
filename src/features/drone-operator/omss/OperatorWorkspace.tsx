@@ -924,7 +924,7 @@ export default function OperatorWorkspace() {
               drone={displayDrone}
               normalFlightAllowed={
                 missionPermissions?.canControlFlight === true &&
-                displayMission.state === 'IN_PROGRESS'
+                displayMission.state === 'IN_FLIGHT'
               }
               onRTB={handleRTB}
               onEmergency={handleEmergency}

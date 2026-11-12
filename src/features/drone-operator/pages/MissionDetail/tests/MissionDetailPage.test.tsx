@@ -147,12 +147,13 @@ describe('MissionDetailScreen', () => {
       screen.queryByRole('link', { name: 'Mở buồng lái' }),
     ).not.toBeInTheDocument()
   })
-  it('shows GCS connection before preflight for a scheduled accepted mission', async () => {
+  it('goes straight to the preflight inspection for a scheduled accepted mission', async () => {
     vi.spyOn(operatorApi, 'getMission').mockResolvedValue({
       ...mission,
       backendStatus: 'SCHEDULED',
       status: 'SCHEDULED',
       myResponseStatus: 'ACCEPTED',
+      deviceAssignmentStatus: 'ASSIGNED',
     })
     vi.spyOn(missionApi, 'getPermissions').mockResolvedValue({
       ...noActions,
@@ -162,9 +163,10 @@ describe('MissionDetailScreen', () => {
     render(<MissionDetailPage missionId="m" />)
 
     expect(
-      await screen.findByRole('link', { name: 'Kết nối GCS' }),
+      await screen.findByRole('link', { name: 'Kiểm tra trước bay' }),
     ).toBeInTheDocument()
-    expect(screen.queryByRole('link', { name: 'Kiểm tra thiết bị' })).toBeNull()
+    // The separate GCS connection step was removed from the mission flow.
+    expect(screen.queryByRole('link', { name: 'Kết nối GCS' })).toBeNull()
   })
 
   it.each([
@@ -246,12 +248,16 @@ describe('MissionDetailScreen', () => {
       executions: [],
     })
     render(<MissionDetailPage missionId="m" />)
-    expect(await screen.findByText('Mission đã hoàn thành.')).toBeInTheDocument()
+    // Mission detail no longer hosts result actions; it links to the acceptance
+    // workspace instead.
+    expect(
+      await screen.findByRole('link', { name: 'Mở dữ liệu nghiệm thu' }),
+    ).toBeInTheDocument()
     expect(
       screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
     ).toBeNull()
   })
-  it('keeps mission detail stable on focus without re-fetching result status', async () => {
+  it('refreshes result status on focus without exposing a submit action', async () => {
     vi.spyOn(operatorApi, 'getMission').mockResolvedValue({
       ...mission,
       backendStatus: 'COMPLETED',
@@ -279,9 +285,11 @@ describe('MissionDetailScreen', () => {
       approvalStatus: 'REJECTED',
     })
     act(() => window.dispatchEvent(new Event('focus')))
-    // Focus only reloads the mission itself; result status is not re-fetched.
-    expect(vi.mocked(missionApi.getMissionResult).mock.calls.length).toBe(
-      resultCalls,
+    // Focus reloads the mission and its monitoring/result data.
+    await waitFor(() =>
+      expect(
+        vi.mocked(missionApi.getMissionResult).mock.calls.length,
+      ).toBeGreaterThan(resultCalls),
     )
     expect(
       screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
@@ -366,7 +374,7 @@ describe('MissionDetailScreen', () => {
     expect(submit).not.toHaveBeenCalled()
   })
 
-  it('shows "Kết nối GCS" right after accepting, without a reload', async () => {
+  it('shows the preflight action right after accepting, without a reload', async () => {
     const pending = {
       ...mission,
       status: 'PENDING' as const,
@@ -384,6 +392,7 @@ describe('MissionDetailScreen', () => {
         status: 'ACCEPTED',
         backendStatus: 'SCHEDULED',
         myResponseStatus: 'ACCEPTED',
+        deviceAssignmentStatus: 'ASSIGNED',
       } as never)
       vi.mocked(missionApi.getPermissions).mockResolvedValue({
         ...noActions,
@@ -416,7 +425,7 @@ describe('MissionDetailScreen', () => {
     fireEvent.click(acceptButton)
 
     expect(
-      await screen.findByRole('link', { name: 'Kết nối GCS' }),
+      await screen.findByRole('link', { name: 'Kiểm tra trước bay' }),
     ).toBeInTheDocument()
     expect(screen.queryByText('Mở dữ liệu nghiệm thu')).not.toBeInTheDocument()
   })
@@ -496,7 +505,7 @@ describe('MissionDetailScreen', () => {
         .spyOn(missionApi, 'submitMissionResult')
         .mockResolvedValue({} as never)
       render(<MissionDetailPage missionId="m" />)
-      await screen.findByText('Mission đã hoàn thành.')
+      await screen.findByRole('link', { name: 'Mở dữ liệu nghiệm thu' })
       expect(
         screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
       ).toBeNull()
@@ -520,7 +529,7 @@ describe('MissionDetailScreen', () => {
       canUploadMedia: true,
     })
     render(<MissionDetailPage missionId="m" />)
-    await screen.findByText('Mission đã hoàn thành.')
+    await screen.findByRole('link', { name: 'Mở dữ liệu nghiệm thu' })
     expect(
       screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
     ).toBeNull()
@@ -583,7 +592,7 @@ describe('MissionDetailScreen', () => {
         return {}
       })
     const view = render(<MissionDetailPage missionId="m1" />)
-    await screen.findByText('Mission đã hoàn thành.')
+    await screen.findByRole('link', { name: 'Mở dữ liệu nghiệm thu' })
     expect(
       screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
     ).toBeNull()

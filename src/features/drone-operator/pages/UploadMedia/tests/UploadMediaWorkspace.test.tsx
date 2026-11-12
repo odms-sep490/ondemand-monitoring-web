@@ -18,7 +18,6 @@ import {
 } from '../../../../media/api/operatorMediaApi'
 import { operatorMissionMediaApi } from '../../../../media/api/operatorMissionMediaApi'
 import { flightControlApi } from '../../../api/flightControlApi'
-import { ApiError } from '../../../../../shared/api/httpClient'
 import { checklistEvidenceApi } from '../../../../mission/api/checklistEvidenceApi'
 
 const render = (ui: ReactNode) =>
@@ -451,7 +450,15 @@ describe('Upload media and monitoring workspace', () => {
     expect(screen.queryByText(/Đã gửi các tệp chờ tải/)).toBeNull()
   })
 
-  it('separates multi-role acceptance from submission and refreshes Mission', async () => {
+  // Completion and result submission moved to the postflight review step; the
+  // media workspace must never expose or trigger them (gating logic is covered
+  // in MissionResultActions.test.tsx).
+  const resultControls = () => [
+    screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
+    screen.queryByRole('button', { name: 'Xác nhận hoàn thành Mission' }),
+  ]
+
+  it('does not offer completion or submission to a multi-role actor', async () => {
     active.status = 'IN_PROGRESS'
     vi.mocked(missionApi.getPermissions).mockResolvedValue({
       ...permissions,
@@ -469,65 +476,16 @@ describe('Upload media and monitoring workspace', () => {
       readyForMissionCompletion: true,
       executions: [],
     })
-    const complete = vi
-      .spyOn(missionApi, 'completeMission')
-      .mockImplementation(async () => {
-        active.status = 'COMPLETED'
-        vi.mocked(missionApi.getPermissions).mockResolvedValue({
-          ...permissions,
-          canSubmitMissionResult: true,
-          canAssessMonitoringChecklist: true,
-        })
-        return {} as never
-      })
-    const submit = vi
-      .spyOn(missionApi, 'submitMissionResult')
-      .mockImplementation(async () => {
-        vi.mocked(missionApi.getMissionResult).mockResolvedValue({
-          id: 'r',
-          missionId: 'm',
-          status: 'COMPLETED',
-          approvalStatus: 'PENDING_MANAGER_APPROVAL',
-        } as never)
-        return {} as never
-      })
+    const complete = vi.spyOn(missionApi, 'completeMission')
+    const submit = vi.spyOn(missionApi, 'submitMissionResult')
     render(<UploadMediaPage missionId="m" />)
-    expect(
-      await screen.findByRole('button', { name: 'Xác nhận nghiệm thu' }),
-    ).toBeEnabled()
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Xác nhận hoàn thành Mission' }),
-    )
-    await waitFor(() => expect(complete).toHaveBeenCalledWith('m'))
+    await screen.findByAltText('capture.jpg')
+    expect(resultControls()).toEqual([null, null])
+    expect(complete).not.toHaveBeenCalled()
     expect(submit).not.toHaveBeenCalled()
-    await waitFor(() =>
-      expect(
-        screen.getByRole('button', { name: 'Xác nhận nghiệm thu' }),
-      ).toBeEnabled(),
-    )
-    expect(active.reload).toHaveBeenCalled()
-    expect(
-      screen.queryByRole('button', { name: 'Xác nhận hoàn thành Mission' }),
-    ).toBeNull()
-    fireEvent.click(screen.getByRole('button', { name: 'Xác nhận nghiệm thu' }))
-    await waitFor(() =>
-      expect(submit).toHaveBeenCalledWith(
-        'm',
-        expect.objectContaining({ status: 'COMPLETED' }),
-      ),
-    )
-    await waitFor(() =>
-      expect(
-        screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
-      ).toBeNull(),
-    )
-    expect(complete).toHaveBeenCalledOnce()
-    expect(
-      screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
-    ).toBeNull()
   })
 
-  it('shows pending result without a duplicate submit action', async () => {
+  it('shows no submit action when a result is already pending approval', async () => {
     active.status = 'COMPLETED'
     vi.mocked(missionApi.getPermissions).mockResolvedValue({
       ...permissions,
@@ -541,13 +499,11 @@ describe('Upload media and monitoring workspace', () => {
       approvalStatus: 'PENDING_MANAGER_APPROVAL',
     } as never)
     render(<UploadMediaPage missionId="m" />)
-    await screen.findByText('Hồ sơ đang chờ xác nhận nghiệm thu.')
-    expect(
-      screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
-    ).toBeNull()
+    await screen.findByAltText('capture.jpg')
+    expect(resultControls()).toEqual([null, null])
   })
 
-  it('blocks known-incomplete checklist with a localized count and no submit', async () => {
+  it('never submits with an incomplete checklist', async () => {
     active.status = 'COMPLETED'
     vi.mocked(missionApi.getPermissions).mockResolvedValue({
       ...permissions,
@@ -556,18 +512,12 @@ describe('Upload media and monitoring workspace', () => {
     })
     const submit = vi.spyOn(missionApi, 'submitMissionResult')
     render(<UploadMediaPage missionId="m" />)
-    const button = await screen.findByRole('button', {
-      name: 'Xác nhận nghiệm thu',
-    })
-    expect(button).toBeDisabled()
-    expect(
-      screen.getByText('Còn 1 mục checklist chưa hoàn tất.'),
-    ).toBeInTheDocument()
-    fireEvent.click(button)
+    await screen.findByAltText('capture.jpg')
+    expect(resultControls()).toEqual([null, null])
     expect(submit).not.toHaveBeenCalled()
   })
 
-  it('does not implicitly attach evidence, complete or submit from an unready final action', async () => {
+  it('does not implicitly attach evidence, complete or submit', async () => {
     active.status = 'COMPLETED'
     vi.mocked(missionApi.getPermissions).mockResolvedValue({
       ...permissions,
@@ -594,17 +544,14 @@ describe('Upload media and monitoring workspace', () => {
     const complete = vi.spyOn(missionApi, 'completeMission')
     const submit = vi.spyOn(missionApi, 'submitMissionResult')
     render(<UploadMediaPage missionId="m" />)
-    const button = await screen.findByRole('button', {
-      name: 'Xác nhận nghiệm thu',
-    })
-    expect(button).toBeDisabled()
-    fireEvent.click(button)
+    await screen.findByAltText('capture.jpg')
+    expect(resultControls()).toEqual([null, null])
     expect(attach).not.toHaveBeenCalled()
     expect(complete).not.toHaveBeenCalled()
     expect(submit).not.toHaveBeenCalled()
   })
 
-  it('blocks inspection with unapproved media despite operational readiness', async () => {
+  it('does not submit with unapproved media despite operational readiness', async () => {
     active.status = 'COMPLETED'
     vi.mocked(missionApi.getPermissions).mockResolvedValue({
       ...permissions,
@@ -622,53 +569,12 @@ describe('Upload media and monitoring workspace', () => {
       blockingReasons: ['MEDIA_APPROVAL_REQUIRED'],
     })
     const complete = vi.spyOn(missionApi, 'completeMission')
-    const submit = vi
-      .spyOn(missionApi, 'submitMissionResult')
-      .mockResolvedValue({})
+    const submit = vi.spyOn(missionApi, 'submitMissionResult')
     render(<UploadMediaPage missionId="m" />)
-    const button = await screen.findByRole('button', {
-      name: 'Xác nhận nghiệm thu',
-    })
-    expect(button).toBeDisabled()
-    fireEvent.click(button)
+    await screen.findByAltText('capture.jpg')
+    expect(resultControls()).toEqual([null, null])
     expect(submit).not.toHaveBeenCalled()
     expect(complete).not.toHaveBeenCalled()
-  })
-
-  it('refreshes authoritative state and localizes stale submit errors', async () => {
-    active.status = 'COMPLETED'
-    vi.mocked(missionApi.getPermissions).mockResolvedValue({
-      ...permissions,
-      canSubmitMissionResult: true,
-      canAssessMonitoringChecklist: true,
-    })
-    vi.mocked(
-      checklistExecutionApi.getMissionChecklistExecutions,
-    ).mockResolvedValue({
-      missionId: 'm',
-      legacySnapshot: false,
-      readyForSubmission: true,
-      readyForMissionCompletion: true,
-      readyForFinalApproval: true,
-      executions: [],
-    })
-    vi.spyOn(missionApi, 'submitMissionResult').mockRejectedValue(
-      new ApiError('Monitoring checklist is not ready for result submission', {
-        code: 'CHECKLIST_NOT_READY',
-        status: 409,
-        method: 'POST',
-        path: '/result',
-      }),
-    )
-    render(<UploadMediaPage missionId="m" />)
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'Xác nhận nghiệm thu' }),
-    )
-    expect(await screen.findByRole('alert')).toHaveTextContent(
-      'Checklist chưa hoàn tất hoặc chưa đủ bằng chứng hợp lệ.',
-    )
-    expect(screen.queryByText(/Monitoring checklist/)).toBeNull()
-    expect(active.reload).toHaveBeenCalled()
   })
 
   it('refreshes permissions and fails closed after a permission fetch failure', async () => {
