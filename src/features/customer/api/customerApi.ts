@@ -9,6 +9,9 @@ import type {
   ChecklistUpdatePayload,
   ServiceChecklistItem,
 } from '../lib/checklist/types'
+import type { GeoJsonPolygon as SharedGeoJsonPolygon } from '../../../shared/types/geo'
+
+export type GeoJsonPolygon = SharedGeoJsonPolygon
 
 export type CreateOrderPayload = {
   checklistItems?: ChecklistInput[] | null
@@ -66,11 +69,6 @@ export type ServicePricingEstimate = {
   quotePending?: boolean
   /** Visits of a repeating order; the figures already include them. */
   occurrences?: number
-}
-
-export type GeoJsonPolygon = {
-  type: 'Polygon'
-  coordinates: number[][][]
 }
 
 export type ServiceOption = {

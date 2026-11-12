@@ -8,17 +8,17 @@ import { orderQueuePageMessages } from '../OrderQueuePage.messages'
 export function QueueSkeleton() {
   const { t } = useI18n(orderQueuePageMessages)
   return (
-    <div className="mgr-view" aria-busy="true" aria-live="polite">
+    <div className="mgr-view mgr-order-queue" aria-busy="true" aria-live="polite">
       <PageHeader title={t.title} />
       <div className="mgr-kpi-strip">
         {Array.from({ length: 4 }, (_, i) => (
           <CardComponent key={i}>
-            <Skeleton active paragraph={{ rows: 1 }} />
+            <Skeleton paragraph={{ rows: 1 }} />
           </CardComponent>
         ))}
       </div>
       <CardComponent>
-        <Skeleton active paragraph={{ rows: 5 }} />
+        <Skeleton paragraph={{ rows: 5 }} />
       </CardComponent>
       <span className="odm-visually-hidden">{t.loading}</span>
     </div>

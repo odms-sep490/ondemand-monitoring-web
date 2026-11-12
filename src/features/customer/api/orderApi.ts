@@ -112,7 +112,7 @@ export type OrderCreateResponse = {
   longitude?: number
   latitude?: number
   radiusM?: number
-  coverageArea?: Record<string, unknown>
+  coverageArea?: Record<string, unknown> | null
   preferredDateFrom?: string
   preferredDateTo?: string
   preferredTimeId?: string

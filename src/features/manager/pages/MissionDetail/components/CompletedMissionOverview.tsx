@@ -193,6 +193,8 @@ export function CompletedMissionOverview({
             missionId={mission.id}
             latitude={mission.latitude}
             longitude={mission.longitude}
+            radiusMeters={mission.radiusM}
+            coverageArea={mission.coverageArea}
             visible={activeTab === 'route'}
           />
         </div>

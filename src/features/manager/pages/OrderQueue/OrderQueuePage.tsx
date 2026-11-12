@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 
-import { Button, Skeleton } from 'antd'
+import { Alert, Button, Skeleton } from 'antd'
 import { ReloadOutlined, RocketOutlined } from '@ant-design/icons'
 
 import { CardComponent } from '../../../../shared/components/antd'
@@ -119,10 +119,8 @@ export function OrderQueuePage() {
   useEffect(() => {
     const refresh = () => query.reload()
     window.addEventListener('focus', refresh)
-    const interval = window.setInterval(refresh, 15_000)
     return () => {
       window.removeEventListener('focus', refresh)
-      window.clearInterval(interval)
     }
   }, [query.reload])
 
@@ -145,11 +143,11 @@ export function OrderQueuePage() {
     }
   }, [allOrders, started, depositStatusByOrder, query.data])
 
-  if (query.loading) return <QueueSkeleton />
+  if (query.loading && query.data === undefined) return <QueueSkeleton />
 
-  if (query.error) {
+  if (query.error && query.data === undefined) {
     return (
-      <div className="mgr-view">
+      <div className="mgr-view mgr-order-queue">
         <PageHeader
           title={t.title}
           actions={<Button icon={<ReloadOutlined aria-hidden="true" />} onClick={query.reload}>{t.refresh}</Button>}
@@ -172,11 +170,7 @@ export function OrderQueuePage() {
     filter === 'ALL'
       ? true
       : filter === 'WAITING_DEPOSIT' || filter === 'DEPOSIT_PAID'
-        ? filter === 'WAITING_DEPOSIT'
-          ? depositStatusByOrder[order.id] === filter
-          : depositStatusByOrder[order.id] === filter
-      : filter === 'CLOSED'
-        ? order.orderStatus === 'REJECTED' || order.orderStatus === 'CANCELLED'
+        ? depositStatusByOrder[order.id] === filter
         : groupOf(order) === filter,
   )
   const source =
@@ -227,7 +221,7 @@ export function OrderQueuePage() {
   }
 
   return (
-    <div className="mgr-view">
+    <div className="mgr-view mgr-order-queue">
       <PageHeader
         title={t.title}
         description={t.summary(
@@ -238,12 +232,20 @@ export function OrderQueuePage() {
         actions={
           <>
             {missionsLink}
-            <Button icon={<ReloadOutlined aria-hidden="true" />} onClick={query.reload}>
+            <Button
+              icon={<ReloadOutlined aria-hidden="true" />}
+              loading={query.loading}
+              onClick={query.reload}
+            >
               {t.refresh}
             </Button>
           </>
         }
       />
+
+      {query.error ? (
+        <Alert type="warning" showIcon message={t.refreshError} />
+      ) : null}
 
       <QueueKpis
         pending={pendingOrders.length}
@@ -273,12 +275,14 @@ export function OrderQueuePage() {
         }}
         end={
           activeTab === 'all' ? (
-            <FilterSegments
-              ariaLabel={t.filtersAria}
-              value={filter}
-              onChange={setFilter}
-              options={ALL_FILTERS.map((value) => ({ value, label: t.filters[value] }))}
-            />
+            <div className="mgr-order-status-scroll" role="region" aria-label={t.filtersAria}>
+              <FilterSegments
+                ariaLabel={t.filtersAria}
+                value={filter}
+                onChange={setFilter}
+                options={ALL_FILTERS.map((value) => ({ value, label: t.filters[value] }))}
+              />
+            </div>
           ) : null
         }
       />
