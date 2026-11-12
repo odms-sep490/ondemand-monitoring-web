@@ -1,3 +1,4 @@
+import { MissionStaffMediaImport } from './MissionStaffMediaImport'
 import { VideoThumbnail } from '../../../../../shared/components/media/VideoThumbnail'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useI18n } from '../../../../../shared/i18n'
@@ -26,11 +27,19 @@ function formatCapturedAt(value: string, locale: string) {
 }
 
 export function MissionCapturedMediaPanel({ mission }: { mission: Mission }) {
+  return (
+    <MissionCapturedMediaContent
+      key={mission.backendId ?? mission.id}
+      mission={mission}
+    />
+  )
+}
+
+function MissionCapturedMediaContent({ mission }: { mission: Mission }) {
   const { t, locale } = useI18n(inFlightControlMessages)
   const missionId = mission.backendId ?? mission.id
   const missionAliases = useMemo(
-    () =>
-      mission.id !== missionId ? [mission.id] : [],
+    () => (mission.id !== missionId ? [mission.id] : []),
     [mission.id, missionId],
   )
   const [items, setItems] = useState<LocalMedia[]>([])
@@ -53,7 +62,10 @@ export function MissionCapturedMediaPanel({ mission }: { mission: Mission }) {
       setRefreshing(true)
 
       try {
-        const media = await operatorMediaApi.list(missionId, missionAliases)
+        const media = await operatorMediaApi.reviewItems(
+          missionId,
+          missionAliases,
+        )
         if (requestGeneration.current !== generation) return
         setItems(
           media
@@ -143,6 +155,12 @@ export function MissionCapturedMediaPanel({ mission }: { mission: Mission }) {
         </button>
       </header>
 
+      <MissionStaffMediaImport
+        key={missionId}
+        missionId={missionId}
+        missionStatus={mission.state}
+        onUploaded={() => setReloadKey((key) => key + 1)}
+      />
       <div
         className="captured-media__filters"
         role="group"
@@ -193,7 +211,13 @@ export function MissionCapturedMediaPanel({ mission }: { mission: Mission }) {
                 strokeWidth="1.7"
                 strokeLinejoin="round"
               />
-              <circle cx="12" cy="13" r="3.4" stroke="currentColor" strokeWidth="1.7" />
+              <circle
+                cx="12"
+                cy="13"
+                r="3.4"
+                stroke="currentColor"
+                strokeWidth="1.7"
+              />
             </svg>
           </span>
           <strong>{t.mediaPanel.empty}</strong>
@@ -241,12 +265,34 @@ function CapturedMediaCard({
 }) {
   const [previewFailed, setPreviewFailed] = useState(false)
   const isImage = item.mediaType === 'IMAGE'
-  const previewUrl = operatorMediaApi.previewUrl(item.localMediaId)
+  const previewUrl =
+    item.localAvailable === false
+      ? item.mediaType === 'IMAGE'
+        ? (item.thumbnailUrl ?? item.previewUrl ?? undefined)
+        : (item.previewUrl ?? undefined)
+      : operatorMediaApi.previewUrl(item.localMediaId)
+
+  const isVietnamese = locale.startsWith('vi')
+  const uploadLabel = {
+    UPLOAD_PENDING: isVietnamese ? 'Chờ tải lên' : 'Upload pending',
+    UPLOADING: isVietnamese ? 'Đang tải lên' : 'Uploading',
+    VALIDATING: isVietnamese ? 'Đang xác thực' : 'Validating',
+    AVAILABLE: isVietnamese ? 'Đã xác thực' : 'Validated',
+    UPLOAD_FAILED: isVietnamese ? 'Tải lên thất bại' : 'Upload failed',
+    RETRY_REQUIRED: isVietnamese ? 'Cần tải lại' : 'Upload required',
+    MANUAL_UPLOAD_REQUIRED: isVietnamese
+      ? 'Cần tải thủ công'
+      : 'Manual upload required',
+    REJECTED: isVietnamese ? 'Không hợp lệ' : 'Rejected',
+    PENDING_MANAGER_APPROVAL: isVietnamese ? 'Chờ duyệt' : 'Awaiting review',
+    REVIEW_PENDING: isVietnamese ? 'Chưa tải lên' : 'Not uploaded',
+    REMOVED: isVietnamese ? 'Đã gỡ' : 'Removed',
+  }[item.status]
 
   return (
     <article className="captured-media__card">
       <div className="captured-media__preview">
-        {previewFailed ? (
+        {previewFailed || !previewUrl ? (
           <div className="captured-media__preview-failed">
             {previewFailedLabel}
           </div>
@@ -258,19 +304,33 @@ function CapturedMediaCard({
             onError={() => setPreviewFailed(true)}
           />
         ) : (
-          <VideoThumbnail src={previewUrl} fileName={`${videoLabel}: ${item.fileName}`} fileSize={item.fileSize} fallbackUrl={previewUrl} />
+          <VideoThumbnail
+            src={previewUrl}
+            fileName={`${videoLabel}: ${item.fileName}`}
+            fileSize={item.fileSize}
+            fallbackUrl={previewUrl}
+          />
         )}
       </div>
       <div className="captured-media__details">
         <span className="captured-media__type">
           {isImage ? imageLabel : videoLabel}
         </span>
+        {item.uploadChannel === 'STAFF_FILE' && (
+          <span className="captured-media__source">
+            {isVietnamese ? 'Thủ công' : 'Manual'}
+          </span>
+        )}
         <strong className="captured-media__filename" title={item.fileName}>
           {item.fileName}
         </strong>
         <span className="captured-media__meta">
-          {formatCapturedAt(item.capturedAt, locale)} · {formatFileSize(item.fileSize)}
+          {formatCapturedAt(item.capturedAt, locale)} ·{' '}
+          {formatFileSize(item.fileSize)}
         </span>
+        {uploadLabel && (
+          <span className="captured-media__state">{uploadLabel}</span>
+        )}
       </div>
     </article>
   )

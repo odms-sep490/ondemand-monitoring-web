@@ -127,6 +127,40 @@ beforeEach(() => {
 })
 afterEach(() => vi.restoreAllMocks())
 describe('Upload media and monitoring workspace', () => {
+  it('lets Staff add a drone capture from the SD card inside the Mission media workspace', async () => {
+    vi.mocked(missionApi.getPermissions).mockResolvedValue({
+      ...permissions,
+      canUploadMedia: true,
+    })
+    const uploadStaffFile = vi
+      .spyOn(operatorMediaApi, 'uploadStaffFile')
+      .mockResolvedValue('staff-media-1')
+    render(<UploadMediaPage missionId="m" />)
+
+    const picker = await screen.findByLabelText(
+      'Thêm ảnh/video từ thẻ nhớ drone',
+    )
+    fireEvent.change(picker, {
+      target: {
+        files: [new File(['drone capture'], 'capture.jpg', { type: 'image/jpeg' })],
+      },
+    })
+
+    fireEvent.change(await screen.findByLabelText('Thời gian chụp/quay — giờ Việt Nam (UTC+7): capture.jpg'), { target: { value: '2026-10-05T07:00' } })
+    fireEvent.change(screen.getByLabelText('Lý do xác nhận hoặc điều chỉnh thời gian: capture.jpg'), { target: { value: 'Xác nhận từ nhật ký drone' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Tải lên các tệp đã xác nhận' }))
+    await waitFor(() =>
+      expect(uploadStaffFile).toHaveBeenCalledWith(
+        'm',
+        'd',
+        expect.any(File),
+        '2026-10-05T00:00:00.000Z',
+        expect.any(Function),
+        expect.objectContaining({ captureTimeSource: 'STAFF_CONFIRMED' }),
+      ),
+    )
+  })
+
   it('retains the server video poster when the uploaded file is still local', async () => {
     vi.mocked(missionApi.getPermissions).mockResolvedValue({ ...permissions, canUploadMedia: true })
     vi.mocked(operatorMediaApi.reviewItems).mockResolvedValue([{ ...media, backendMediaId: 'server-video', mediaType: 'VIDEO', contentType: 'video/mp4', fileName: 'clip.mp4', status: 'AVAILABLE', localAvailable: true }])

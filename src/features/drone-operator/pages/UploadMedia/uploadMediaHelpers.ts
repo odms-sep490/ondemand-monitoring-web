@@ -43,6 +43,7 @@ export const mediaStatusLabel: Record<string, string> = {
   PENDING_MANAGER_APPROVAL: 'Chờ nghiệm thu duyệt',
   AVAILABLE: 'Đã duyệt',
   REJECTED: 'Bị từ chối',
+  REMOVED: 'Đã gỡ',
   UPLOADED: 'Đã tải lên',
 }
 
@@ -68,6 +69,7 @@ const mediaStatusLabelEn: Record<string, string> = {
   PENDING_MANAGER_APPROVAL: 'Awaiting inspector review',
   AVAILABLE: 'Approved',
   REJECTED: 'Rejected',
+  REMOVED: 'Removed',
   UPLOADED: 'Uploaded',
 }
 export const getUploadMediaStatusLabel = (status: string, lang: 'vi' | 'en') =>

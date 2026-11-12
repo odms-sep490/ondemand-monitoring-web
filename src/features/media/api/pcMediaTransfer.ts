@@ -8,16 +8,20 @@ export type PcUploadPlan = SignedUpload & {
 }
 
 /** Read in bounded chunks rather than retaining a whole video in browser memory. */
-export async function verifyPcBackup(file: File, original: OriginalMetadata): Promise<string> {
-  if (file.size !== original.fileSize || (file.type && file.type !== original.contentType)) {
-    throw new Error('File phải có cùng kích thước và loại với bản gốc.')
-  }
+export async function hashMediaFile(file: File): Promise<string> {
   const hash = sha256.create()
   const chunkSize = 1024 * 1024
   for (let offset = 0; offset < file.size; offset += chunkSize) {
     hash.update(new Uint8Array(await file.slice(offset, offset + chunkSize).arrayBuffer()))
   }
-  const checksum = bytesToHex(hash.digest())
+  return bytesToHex(hash.digest())
+}
+
+export async function verifyPcBackup(file: File, original: OriginalMetadata): Promise<string> {
+  if (file.size !== original.fileSize || (file.type && file.type !== original.contentType)) {
+    throw new Error('File phải có cùng kích thước và loại với bản gốc.')
+  }
+  const checksum = await hashMediaFile(file)
   if (checksum.toLowerCase() !== original.checksumSha256.toLowerCase()) {
     throw new Error('SHA-256 không khớp bản gốc. Không thể dùng file khác để khôi phục media này.')
   }

@@ -55,24 +55,99 @@ describe('operator media retry workflow', () => {
     expect(controller).not.toHaveBeenCalled()
     expect(authenticatedFetch).toHaveBeenCalledOnce()
   })
-  it('propagates satellite provenance and leaves unknown legacy capture unclassified', async () => {
-    vi.mocked(authenticatedFetch).mockImplementation(() =>
-      response(plan('AVAILABLE')),
+  it('restricts new captures to drone-camera provenance and preserves legacy source values only as read data', async () => {
+    vi.mocked(authenticatedFetch).mockImplementation((url) =>
+      String(url).endsWith('/uploaded')
+        ? response(null)
+        : response(plan('UPLOAD_PENDING')),
     )
-    await operatorMediaApi.transfer(
-      { ...item, sourceType: 'SATELLITE_SNAPSHOT' },
-      false,
-    )
-    let body = JSON.parse(
-      String(vi.mocked(authenticatedFetch).mock.calls[0][1]?.body),
-    )
-    expect(body.sourceType).toBe('SATELLITE_SNAPSHOT')
-    vi.clearAllMocks()
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(
+      new Response(null, { status: 200 }),
+    ))
+    await expect(operatorMediaApi.transfer(
+      { ...item, sourceType: 'SATELLITE_SNAPSHOT' }, false,
+    )).rejects.toThrow('camera của drone')
+    expect(authenticatedFetch).not.toHaveBeenCalled()
     await operatorMediaApi.transfer(item, false)
-    body = JSON.parse(
+    const body = JSON.parse(
       String(vi.mocked(authenticatedFetch).mock.calls[0][1]?.body),
     )
-    expect(body.sourceType).toBeNull()
+    expect(body.sourceType).toBe('DRONE_CAMERA')
+  })
+
+  it('loads the persisted Mission library including failed Staff attempts and channel metadata', async () => {
+    vi.mocked(authenticatedFetch).mockResolvedValue(await response({
+      items: [{
+        mediaId: 'media-1', missionId: 'mission', deviceId: 'device-0050',
+        mediaType: 'IMAGE', sourceType: 'DRONE_CAMERA', fileName: 'capture.jpg',
+        contentType: 'image/jpeg', fileSize: 100, capturedAt: '2026-09-26T00:00:00Z',
+        status: 'MANUAL_UPLOAD_REQUIRED', localMediaId: 'staff-a', checksumSha256: 'a'.repeat(64),
+        uploadChannel: 'STAFF_FILE', attemptNumber: 1, failureCode: 'TRANSFER_FAILED',
+        failureMessage: 'Connection lost', manualTaskId: 'task-1',
+    }], totalPages: 1,
+    }))
+    const result = await operatorMediaApi.workspaceLibrary('mission')
+    expect(String(vi.mocked(authenticatedFetch).mock.calls[0][0])).toContain(
+      '/operator/missions/mission/media/media-library?page=0&size=100',
+    )
+    expect(result).toHaveLength(1)
+    expect(result[0]).toMatchObject({
+      backendMediaId: 'media-1', localMediaId: 'staff-a', status: 'MANUAL_UPLOAD_REQUIRED',
+      uploadChannel: 'STAFF_FILE', attemptNumber: 1, manualTaskId: 'task-1',
+    })
+  })
+
+  it('uploads a newly selected drone file directly to S3 with no automatic retry', async () => {
+    const file = new File(['drone-photo'], 'flight.jpg', { type: 'image/jpeg', lastModified: Date.now() })
+    vi.mocked(authenticatedFetch).mockImplementation((url) =>
+      String(url).endsWith('/staff-media-uploads')
+        ? response({ ...plan('UPLOAD_PENDING'), uploadMethod: 'PUT', uploadUrl: 'https://s3.test/object', uploadHeaders: {} })
+        : response(null),
+    )
+    const transfer = vi.fn().mockResolvedValue({ ok: true, status: 200, headers: new Headers() })
+    vi.stubGlobal('fetch', transfer)
+    const prepared = vi.fn()
+
+    const mediaId = await operatorMediaApi.uploadStaffFile('mission', 'device-0050', file, '2026-09-26T00:00:00Z', prepared)
+
+    expect(mediaId).toBe('media')
+    expect(prepared).toHaveBeenCalledOnce()
+    expect(transfer).toHaveBeenCalledOnce()
+    expect(transfer.mock.calls[0][0]).toBe('https://s3.test/object')
+    expect(transfer.mock.calls[0][1]).toMatchObject({ method: 'PUT', credentials: 'omit' })
+    const prepareCall = vi.mocked(authenticatedFetch).mock.calls[0]
+    expect(String(prepareCall[0])).toContain('/staff-media-uploads')
+    expect(JSON.parse(String(prepareCall[1]?.body))).toMatchObject({
+      deviceId: 'device-0050', sourceType: 'DRONE_CAMERA', mediaType: 'IMAGE', capturedAt: '2026-09-26T00:00:00.000Z',
+    })
+    expect(String(vi.mocked(authenticatedFetch).mock.calls[1][0])).toContain('/uploaded')
+  })
+
+  it('requires a confirmed capture time instead of using file modification time', async () => {
+    const file = new File(['photo'], 'flight.jpg', { type: 'image/jpeg', lastModified: Date.now() });
+    await expect(operatorMediaApi.uploadStaffFile('mission', 'device-0050', file, ''))
+      .rejects.toThrow('thời gian chụp');
+    expect(authenticatedFetch).not.toHaveBeenCalled();
+  })
+
+  it('records one failed Staff transfer and does not retry it automatically', async () => {
+    const file = new File(['drone-photo'], 'flight.jpg', { type: 'image/jpeg', lastModified: Date.now() })
+    vi.mocked(authenticatedFetch).mockImplementation((url) =>
+      String(url).endsWith('/staff-media-uploads')
+        ? response({ ...plan('UPLOAD_PENDING'), attemptNumber: 1 })
+        : response({ durablyAccepted: true, mediaId: 'media', status: 'MANUAL_UPLOAD_REQUIRED' }),
+    )
+    const transfer = vi.fn().mockRejectedValue(new Error('Network unavailable'))
+    vi.stubGlobal('fetch', transfer)
+
+    await expect(operatorMediaApi.uploadStaffFile('mission', 'device-0050', file, '2026-09-26T00:00:00Z'))
+      .rejects.toThrow('Network unavailable')
+
+    expect(transfer).toHaveBeenCalledOnce()
+    expect(vi.mocked(authenticatedFetch).mock.calls.map(([url]) => String(url))).toEqual([
+      expect.stringContaining('/staff-media-uploads'),
+      expect.stringContaining('/failures'),
+    ])
   })
   beforeEach(async () => {
     vi.clearAllMocks()
@@ -102,6 +177,7 @@ describe('operator media retry workflow', () => {
     vi.mocked(authenticatedFetch).mockImplementation(() =>
       response(plan('MANUAL_UPLOAD_REQUIRED')),
     )
+    vi.mocked(authenticatedFetch).mockClear()
     await expect(operatorMediaApi.upload(item)).rejects.toThrow(
       'upload thủ công',
     )
@@ -301,18 +377,52 @@ describe('operator media retry workflow', () => {
       vi.fn().mockRejectedValue(new Error('Controller offline')),
     )
     vi.mocked(authenticatedFetch).mockImplementation(() =>
-      response([
-        {
+      response({ items: [{
           ...item,
-          backendMediaId: 'media',
+          mediaId: 'media',
+          missionId: 'mission',
+          deviceId: 'device-0050',
+          mediaType: 'IMAGE',
+          fileName: 'capture.jpg',
+          contentType: 'image/jpeg',
+          fileSize: 100,
+          capturedAt: '2026-09-26T00:00:00Z',
           manualTaskId: 'task',
           status: 'MANUAL_UPLOAD_REQUIRED',
-        },
-      ]),
+        }], totalPages: 1 }),
     )
     const result = await operatorMediaApi.reviewItems('mission')
     expect(result).toHaveLength(1)
     expect(result[0].localAvailable).toBe(false)
     expect(result[0].manualTaskId).toBe('task')
+  })
+})
+
+
+describe('Staff media removal API contract', () => {
+  it('posts the exact Mission/media identity, expected version and reason', async () => {
+    vi.mocked(authenticatedFetch).mockResolvedValue(new Response(JSON.stringify({success:true,data:{mediaId:'media-1',removed:true,cleanupScheduled:true}}),{status:200}))
+    await operatorMediaApi.removeStaffMedia('exact-mission','media-1',4,'Chọn nhầm')
+    expect(authenticatedFetch).toHaveBeenLastCalledWith(expect.stringContaining('/api/operator/missions/exact-mission/media/media-1/removal'),expect.objectContaining({method:'POST',body:JSON.stringify({expectedVersion:4,reason:'Chọn nhầm'})}))
+  })
+})
+
+
+describe('Staff upload identity after removal', () => {
+  it('uses a stable intent for retries and a new intent for explicit reselection without changing the checksum', async () => {
+    vi.mocked(authenticatedFetch).mockImplementation((_url, options) => {
+      const body = JSON.parse(String(options?.body))
+      return response({ ...plan('AVAILABLE'), mediaId: body.localMediaId })
+    })
+    const file = new File(['same drone capture'], 'same.jpg', { type: 'image/jpeg' })
+    const time = '2026-11-10T01:00:00Z'
+    const declaration = { captureTimeSource: 'METADATA' as const, captureTimeZone: 'UTC' }
+    const first = await operatorMediaApi.uploadStaffFile('mission', 'device', file, time, undefined, declaration, 'selection-a')
+    const retry = await operatorMediaApi.uploadStaffFile('mission', 'device', file, time, undefined, declaration, 'selection-a')
+    const replacement = await operatorMediaApi.uploadStaffFile('mission', 'device', file, time, undefined, declaration, 'selection-b')
+    const bodies = vi.mocked(authenticatedFetch).mock.calls.map(([, options]) => JSON.parse(String(options?.body)))
+    expect(first).toBe('staff-selection-a'); expect(retry).toBe(first); expect(replacement).toBe('staff-selection-b')
+    expect(bodies[0].checksumSha256).toBe(bodies[2].checksumSha256)
+    expect(bodies[0].localMediaId).not.toContain(bodies[0].checksumSha256)
   })
 })
