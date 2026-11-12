@@ -49,7 +49,7 @@ describe('CustomerCreateRequestPage', () => {
     await screen.findByLabelText(/Địa chỉ hoặc khu vực/)
     fireEvent.click(screen.getByRole('button', { name: 'Gửi yêu cầu' }))
     expect(
-      await screen.findByText('Nhập địa chỉ/khu vực cần giám sát.'),
+      await screen.findByText('Xác nhận lại vị trí để đồng bộ địa chỉ, tọa độ và điểm trên bản đồ.'),
     ).toBeInTheDocument()
     expect(screen.getByText('Nhập tiêu đề yêu cầu.')).toBeInTheDocument()
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()

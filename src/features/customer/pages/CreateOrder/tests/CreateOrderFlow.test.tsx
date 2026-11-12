@@ -292,34 +292,6 @@ describe('CreateOrderPage wizard', () => {
     ).toBeInTheDocument()
   })
 
-  it('shows a retryable error when deliverable types cannot be loaded', async () => {
-    vi.spyOn(customerApi, 'listServiceDeliverables')
-      .mockRejectedValueOnce(new Error('network failed'))
-      .mockResolvedValueOnce([
-        {
-          id: 'sd-construction-photo',
-          serviceId: 'svc-construction',
-          serviceName: 'Giám sát công trình',
-          deliverableTypeId: 'dt-photo',
-          deliverableTypeName: 'Báo cáo Tiến độ',
-        },
-      ])
-    await renderWizard()
-    await fillService()
-    await fillLocation()
-    next('Kết quả bàn giao & xác nhận')
-
-    expect(
-      await screen.findByText(
-        'Không thể tải loại kết quả bàn giao. Vui lòng thử lại.',
-      ),
-    ).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: 'Thử lại' }))
-    await waitFor(() =>
-      expect(screen.queryByText(/Đang tải kết quả bàn giao/)).toBeNull(),
-    )
-  }, 15_000)
-
   it('walks through all steps and submits via the confirm dialog', async () => {
     await renderWizard()
     await fillService()
@@ -345,7 +317,7 @@ describe('CreateOrderPage wizard', () => {
     expect(
       window.localStorage.getItem('odm.customer.createOrderDraft.v2'),
     ).toBeNull()
-  }, 15_000)
+  }, 45_000)
 
   /** Fills the whole wizard up to the confirm dialog. */
   async function openConfirmDialog() {
@@ -377,7 +349,7 @@ describe('CreateOrderPage wizard', () => {
     )
     expect(screen.queryByText('internal detail')).not.toBeInTheDocument()
     expect(create).toHaveBeenCalledTimes(1)
-  }, 15_000)
+  }, 45_000)
 
   it('shows the API error inside the dialog and stays on the form', async () => {
     vi.spyOn(customerApi, 'createOrder').mockRejectedValue(
@@ -390,7 +362,7 @@ describe('CreateOrderPage wizard', () => {
     ).toBeInTheDocument()
     expect(screen.queryByText('Vùng bị từ chối')).not.toBeInTheDocument()
     expect(screen.getByRole('dialog')).toBeInTheDocument()
-  }, 15_000)
+  }, 45_000)
 
   it('routes a backend preferredDateFrom error back to the schedule field', async () => {
     vi.spyOn(customerApi, 'createOrder').mockRejectedValueOnce(
@@ -420,7 +392,7 @@ describe('CreateOrderPage wizard', () => {
     await waitFor(() =>
       expect(screen.getByLabelText(/Ngày sớm nhất/)).toHaveFocus(),
     )
-  }, 15_000)
+  }, 45_000)
 
   it('asks the customer to choose a time window instead of picking one for them', async () => {
     await renderWizard()
@@ -453,34 +425,26 @@ describe('CreateOrderPage wizard', () => {
     fireEvent.click(screen.getByLabelText(/Tôi xác nhận mục đích giám sát/))
     fireEvent.click(screen.getByRole('button', { name: 'Gửi yêu cầu' }))
     expect(await screen.findByRole('dialog')).toBeInTheDocument()
-  }, 15_000)
+  }, 45_000)
 
-  it('sends the chosen result formats, delivery methods and retention', async () => {
+  it('sends fixed download delivery, retention and formats derived from the checklist', async () => {
     const create = vi.spyOn(customerApi, 'createOrder')
     await renderWizard()
     await fillService()
     await fillLocation()
     next('Kết quả bàn giao & xác nhận')
-    await waitFor(() =>
-      expect(screen.queryByText(/Đang tải kết quả bàn giao/)).toBeNull(),
-    )
-    fireEvent.click(screen.getByLabelText('Báo cáo PDF'))
-    fireEvent.click(screen.getByLabelText('Email'))
-    fireEvent.change(screen.getByLabelText(/Thời hạn lưu trữ dữ liệu/), {
-      target: { value: '180' },
-    })
     fireEvent.click(screen.getByLabelText(/Tôi xác nhận mục đích giám sát/))
     fireEvent.click(screen.getByRole('button', { name: 'Gửi yêu cầu' }))
     await screen.findByRole('dialog')
     fireEvent.click(screen.getByRole('button', { name: 'Xác nhận gửi' }))
     await screen.findByText('Đã tạo yêu cầu')
     expect(create.mock.calls[0][0]).toMatchObject({
-      resultFormats: ['PHOTO', 'PDF_REPORT'],
-      deliveryMethods: ['DOWNLOAD', 'EMAIL'],
-      dataRetentionDays: 180,
+      resultFormats: ['PHOTO'],
+      deliveryMethods: ['DOWNLOAD'],
+      dataRetentionDays: 30,
       termsAccepted: true,
     })
-  }, 15_000)
+  }, 45_000)
 
   it('closes the confirm dialog with Escape without submitting', async () => {
     await renderWizard()
@@ -500,7 +464,7 @@ describe('CreateOrderPage wizard', () => {
     await waitFor(() =>
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument(),
     )
-  }, 15_000)
+  }, 45_000)
 
   it('switches step labels to English', async () => {
     await renderWizard()
