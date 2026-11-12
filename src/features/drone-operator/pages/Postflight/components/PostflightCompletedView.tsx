@@ -62,6 +62,11 @@ export function PostflightCompletedView({
     submittedLocally ||
     resultState.submitted ||
     monitoring.data?.result?.approvalStatus === 'PENDING_MANAGER_APPROVAL'
+  const acceptanceConfirmed =
+    !failureConfirmed && (isSubmitted || managerApproved)
+  const acceptanceProgressLabel = acceptanceConfirmed
+    ? t.reviewStepComplete
+    : undefined
   const isMissionCompleted =
     missionCompletedLocally ||
     Boolean(mission?.completedAt) ||
@@ -409,6 +414,8 @@ export function PostflightCompletedView({
         missionId={missionLabel}
         active={6}
         failed={failureConfirmed}
+        completed={acceptanceConfirmed}
+        completedLabel={acceptanceProgressLabel}
       />
 
       <div className="postflight-content postflight-review-content">
@@ -703,55 +710,53 @@ export function PostflightCompletedView({
         </div>
 
         <section className="postflight-review-actions" aria-label={t.reviewTitle}>
-          <div className="postflight-review-action-copy" aria-live="polite">
-            {failureConfirmed ? (
-              <>
-                <strong>{t.reviewMissionFailed}</strong>
-                <span>{t.reviewFailureConfirmed}</span>
-              </>
-            ) : awaitingFailureAcceptance ? (
-              <>
-                <strong>{t.reviewMissionFailed}</strong>
-                <span>
-                  {canConfirmFailure
-                    ? t.reviewFailureWaitingConfirmation
-                    : t.reviewFailureWaitingPermission}
-                </span>
-              </>
-            ) : isSubmitted ? (
-              <>
-                <strong>{managerApproved ? t.reviewApproved : t.reviewSent}</strong>
-              </>
-            ) : !isMissionCompleted ? (
-              <>
-                <strong>{t.reviewMissionComplete}</strong>
-                {!completionReady && (
+          {(!isSubmitted || failureConfirmed || awaitingFailureAcceptance) && (
+            <div className="postflight-review-action-copy" aria-live="polite">
+              {failureConfirmed ? (
+                <>
+                  <strong>{t.reviewMissionFailed}</strong>
+                  <span>{t.reviewFailureConfirmed}</span>
+                </>
+              ) : awaitingFailureAcceptance ? (
+                <>
+                  <strong>{t.reviewMissionFailed}</strong>
                   <span>
-                    {canComplete
-                      ? !checklistAssessmentsComplete
-                        ? t.reviewWaitingAssessment
-                        : !reviewDataReady || reviewError
-                          ? t.reviewAllDataRequired
-                          : resultState.readinessReason || t.reviewWaitingChecklist
-                      : t.reviewWaitingPermission}
+                    {canConfirmFailure
+                      ? t.reviewFailureWaitingConfirmation
+                      : t.reviewFailureWaitingPermission}
                   </span>
-                )}
-              </>
-            ) : (
-              <>
-                <strong>{t.reviewSendManager}</strong>
-                {!sendReady && (
-                  <span>
-                    {resultState.submitReady
-                      ? !checklistAssessmentsComplete
-                        ? t.reviewWaitingAssessment
-                        : t.reviewAllDataRequired
-                      : resultState.readinessReason || t.reviewWaitingChecklist}
-                  </span>
-                )}
-              </>
-            )}
-          </div>
+                </>
+              ) : !isMissionCompleted ? (
+                <>
+                  <strong>{t.reviewMissionComplete}</strong>
+                  {!completionReady && (
+                    <span>
+                      {canComplete
+                        ? !checklistAssessmentsComplete
+                          ? t.reviewWaitingAssessment
+                          : !reviewDataReady || reviewError
+                            ? t.reviewAllDataRequired
+                            : resultState.readinessReason || t.reviewWaitingChecklist
+                        : t.reviewWaitingPermission}
+                    </span>
+                  )}
+                </>
+              ) : (
+                <>
+                  <strong>{t.reviewSendManager}</strong>
+                  {!sendReady && (
+                    <span>
+                      {resultState.submitReady
+                        ? !checklistAssessmentsComplete
+                          ? t.reviewWaitingAssessment
+                          : t.reviewAllDataRequired
+                        : resultState.readinessReason || t.reviewWaitingChecklist}
+                    </span>
+                  )}
+                </>
+              )}
+            </div>
+          )}
           {awaitingFailureAcceptance && canConfirmFailure && (
             <button
               type="button"
