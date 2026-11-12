@@ -3,6 +3,7 @@ import type {
   MissionDeviceAssignmentStatus,
   MissionDeviceCheckStatus,
 } from '../../mission/types/mission'
+import type { GeoJsonPolygon } from '../../../shared/types/geo'
 export type OperatorMissionStatus =
   MissionStatus | 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'UNKNOWN'
 
@@ -49,6 +50,7 @@ export type OperatorMission = {
   managerPhone?: string
   respondBy?: string
   radiusMeters?: number
+  coverageArea?: GeoJsonPolygon | null
   ceilingMeters?: number
   latitude?: number | null
   longitude?: number | null

@@ -99,7 +99,6 @@ export function OperatorLayout({
               breadcrumb={operatorActiveLabel(route.screen, lang)}
               collapsed={collapsed}
               dark={dark}
-              notificationCount={notificationCount}
               onToggleNavigation={() => setCollapsed((value) => !value)}
               onToggleDark={() => setDark((value) => !value)}
               searchQuery={searchQuery}

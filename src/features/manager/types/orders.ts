@@ -96,6 +96,7 @@ export type OrderDetail = {
   addressText: string | null
   center: { lat: number; lon: number } | null
   radiusM: number | null
+  coverageArea?: Record<string, unknown> | null
   nearestBase?: string | null
   mediaRequirements: OrderMediaRequirement[] | null
   purpose: string | null
@@ -188,6 +189,7 @@ export type OrderMissionBrief = {
   addressText: string | null
   center: { lat: number; lon: number } | null
   radiusM: number | null
+  coverageArea?: Record<string, unknown> | null
   nearestBase?: string | null
   mediaRequirements: OrderMediaRequirement[] | null
 }

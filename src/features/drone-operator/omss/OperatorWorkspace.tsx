@@ -16,7 +16,6 @@ import OperatorOverview from './screens/OperatorOverview'
 import MissionList from './screens/MissionList'
 import MissionDetail from './screens/MissionDetail'
 import AcceptReject from './screens/AcceptReject'
-import GCSConnection from './screens/GCSConnection'
 import ReadyToFly from './screens/ReadyToFly'
 import InFlightControl from '../pages/Flight/components/InFlightControl'
 import ReturnToBase from './screens/ReturnToBase'
@@ -46,6 +45,9 @@ type BackendMission = {
   droneName?: string
   droneId?: string
   deviceAssignments?: Array<{
+    deviceId?: string
+    deviceCode?: string
+    deviceName?: string
     deviceRole?: string
     status?: Mission['deviceAssignmentStatus']
   }>
@@ -226,10 +228,10 @@ function adaptBackendMission(mission: BackendMission): Mission {
         ? 'IN_FLIGHT'
         : mission.status ?? 'RESOURCE_ASSIGNING',
     priority: 'NORMAL',
-    droneId: mission.deviceId ?? mission.droneId ?? '',
+    droneId: mainDeviceAssignment?.deviceId ?? '',
     deviceAssignmentStatus: mainDeviceAssignment?.status,
-    droneCode: mission.droneCode ?? mission.deviceCode,
-    droneName: mission.droneName,
+    droneCode: mainDeviceAssignment?.deviceCode ?? mission.droneCode ?? mission.deviceCode,
+    droneName: mainDeviceAssignment?.deviceName ?? mission.droneName,
     operatorId: mission.operatorId ?? '',
     customer: mission.customerName ?? '',
     location: mission.address ?? '',
@@ -508,43 +510,6 @@ export default function OperatorWorkspace() {
     }
   }
 
-  async function handleGCSConnected() {
-    if (!mission) return
-    try {
-      if (mission.state === 'IN_FLIGHT') {
-        await handleOpenCockpit()
-        return
-      }
-      if (
-        (mission.state === 'PLANNING' || mission.state === 'READY') &&
-        (!mission.deviceAssignmentStatus ||
-          ['ASSIGNED', 'CONNECTION_LOST'].includes(
-            mission.deviceAssignmentStatus,
-          ))
-      ) {
-        const updated = await missionApi.connectGcs(
-          mission.backendId ?? mission.id,
-        )
-        const connected = adaptBackendMission(
-          updated as unknown as BackendMission,
-        )
-        setMission(connected)
-        setMissionPermissions(
-          await missionApi
-            .getPermissions(connected.backendId ?? connected.id)
-            .catch(() => null),
-        )
-      }
-      window.location.hash = operatorHref({
-        screen: 'preflight',
-        missionId: mission.backendId ?? mission.id,
-      })
-    } catch (cause) {
-      setMissionsError(
-        cause instanceof Error ? cause.message : t.errors.gcsConnectionFailed,
-      )
-    }
-  }
   async function handleStartMission() {
     if (!mission) return
     try {
@@ -738,9 +703,6 @@ export default function OperatorWorkspace() {
         ),
       )
       setFlightSessionStarted(false)
-      await missionApi
-        .disconnectGcs(completedMission.backendId ?? completedMission.id, 'POSTFLIGHT_COMPLETED')
-        .catch(() => undefined)
       await flightControlApi
         .releaseSession(completedMission.backendId ?? completedMission.id)
         .catch(() => undefined)
@@ -787,9 +749,6 @@ export default function OperatorWorkspace() {
         ),
       )
       setFlightSessionStarted(false)
-      await missionApi
-        .disconnectGcs(completedMission.backendId ?? completedMission.id, 'POSTFLIGHT_COMPLETED')
-        .catch(() => undefined)
       await flightControlApi
         .releaseSession(completedMission.backendId ?? completedMission.id)
         .catch(() => undefined)
@@ -896,14 +855,6 @@ export default function OperatorWorkspace() {
               onBack={() => setScreen('mission-detail')}
             />
           )}
-          {screen === 'gcs-connect' && displayMission && displayDrone && (
-            <GCSConnection
-              mission={displayMission}
-              drone={displayDrone}
-              onConnected={handleGCSConnected}
-              onBack={() => setScreen('mission-detail')}
-            />
-          )}
           {screen === 'ready-to-fly' && displayMission && displayDrone && (
               <ReadyToFly
                 mission={displayMission}
@@ -924,7 +875,7 @@ export default function OperatorWorkspace() {
               drone={displayDrone}
               normalFlightAllowed={
                 missionPermissions?.canControlFlight === true &&
-                displayMission.state === 'IN_PROGRESS'
+                displayMission.state === 'IN_FLIGHT'
               }
               onRTB={handleRTB}
               onEmergency={handleEmergency}

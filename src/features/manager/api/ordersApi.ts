@@ -113,6 +113,7 @@ function toOrderDetail(order: OrderCreateResponse): OrderDetail {
         ? { lat: order.latitude, lon: order.longitude }
         : null,
     radiusM: order.radiusM ?? radiusFromDeliverables(order),
+    coverageArea: order.coverageArea ?? null,
     nearestBase: null,
     mediaRequirements:
       order.deliverables?.map((item) => ({
@@ -175,6 +176,7 @@ function toOrderMissionBrief(order: OrderDetail): OrderMissionBrief {
     addressText: order.addressText,
     center: order.center,
     radiusM: order.radiusM,
+    coverageArea: order.coverageArea,
     nearestBase: order.nearestBase,
     mediaRequirements: order.mediaRequirements,
   }

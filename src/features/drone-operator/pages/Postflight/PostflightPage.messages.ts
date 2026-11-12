@@ -85,18 +85,23 @@ export const postflightPageMessages = defineMessages({
     reviewInspectorOnlyDescription:
       'Trang rà soát kết quả chỉ dành cho nhân sự được giao vai trò nghiệm thu của mission này.',
     reviewSubtitle:
-      'Rà soát danh mục công trình, kiểm tra trước bay, thời tiết, kiểm tra sau bay và ảnh/video trước khi xác nhận nghiệm thu.',
+      'Kiểm tra checklist, thời tiết và media trước khi nghiệm thu.',
     reviewMissionChecklist: 'Danh mục công trình',
+    reviewTabChecklist: 'Công trình',
     reviewMissionInfo: 'Thông tin nhiệm vụ',
     reviewPreflight: 'Kiểm tra trước bay',
+    reviewTabPreflight: 'Trước bay',
     reviewWeather: 'Thời tiết',
     reviewPostflight: 'Kiểm tra sau bay',
+    reviewTabPostflight: 'Sau bay',
     reviewMedia: 'Ảnh & video',
     reviewTabLoading: 'Đang tải',
     reviewTabNoItems: 'Chưa có mục',
     reviewTabNoData: 'Chưa có dữ liệu',
     reviewTabChecklistCount: (assessed: number, total: number) =>
-      `${assessed}/${total} mục đã đánh giá`,
+      `${assessed}/${total} đánh giá`,
+    reviewTabPassedCount: (passed: number, total: number) =>
+      `${passed}/${total} đạt`,
     reviewTabMediaCount: (count: number) => `${count} tệp`,
     reviewLoading: 'Đang tải kết quả nhiệm vụ…',
     reviewLoadFailed: 'Không tải được một số kết quả bắt buộc của nhiệm vụ.',
@@ -107,7 +112,7 @@ export const postflightPageMessages = defineMessages({
     reviewPostflightLoadFailed: 'Không thể tải kết quả kiểm tra sau bay.',
     reviewMediaLoadFailed: 'Không thể tải ảnh/video nhiệm vụ.',
     reviewAllDataRequired:
-      'Cần tải đủ kết quả kiểm tra trước bay, thời tiết và kiểm tra sau bay trước khi xác nhận nghiệm thu.',
+      'Thiếu dữ liệu kiểm tra bắt buộc.',
     reviewRetry: 'Tải lại kết quả',
     reviewNoChecklist: 'Nhiệm vụ chưa có danh mục công trình.',
     reviewNoPreflight: 'Không tìm thấy kết quả kiểm tra trước bay đã lưu.',
@@ -132,7 +137,7 @@ export const postflightPageMessages = defineMessages({
     reviewNonCompliant: 'Cần khắc phục',
     reviewUnable: 'Không thể xác minh',
     reviewNotAssessed: 'Chưa đánh giá',
-    reviewMissionComplete: 'Xác nhận hoàn thành nhiệm vụ',
+    reviewMissionComplete: 'Hoàn thành nhiệm vụ',
     reviewCompleting: 'Đang xác nhận…',
     reviewMissionFailed: 'Xác nhận nhiệm vụ thất bại',
     reviewFailureWaitingConfirmation:
@@ -148,10 +153,10 @@ export const postflightPageMessages = defineMessages({
     reviewSendManager: 'Xác nhận nghiệm thu',
     reviewSending: 'Đang xác nhận…',
     reviewWaitingPermission:
-      'Chờ nghiệm thu viên được giao xác nhận hoàn thành nhiệm vụ.',
-    reviewWaitingChecklist: 'Hoàn tất checklist và bằng chứng trước khi gửi.',
+      'Chờ nghiệm thu viên được giao.',
+    reviewWaitingChecklist: 'Hoàn tất checklist và bằng chứng.',
     reviewWaitingAssessment:
-      'Nghiệm thu công việc đạt yêu cầu cho tất cả hạng mục và chọn đủ media gửi khách hàng. Mục không đạt cần khắc phục.',
+      'Đánh giá đủ checklist và chọn media gửi khách.',
     reviewRestorePostflight: 'Lưu lại kết quả kiểm tra sau bay hiện có',
     reviewRestoringPostflight: 'Đang lưu lại kết quả kiểm tra sau bay…',
     reviewSent: 'Đã xác nhận nghiệm thu · đang chờ duyệt',
@@ -280,18 +285,23 @@ export const postflightPageMessages = defineMessages({
     reviewInspectorOnlyDescription:
       'The result review page is available only to the staff member assigned as inspector for this mission.',
     reviewSubtitle:
-      'Review the checklist, preflight, weather, postflight, and photos/videos before confirming inspection.',
+      'Review the checklist, weather, and media before acceptance.',
     reviewMissionChecklist: 'Work acceptance checklist',
+    reviewTabChecklist: 'Site checklist',
     reviewMissionInfo: 'Mission details',
     reviewPreflight: 'Device precheck',
+    reviewTabPreflight: 'Preflight',
     reviewWeather: 'Preflight weather',
     reviewPostflight: 'Device postcheck',
+    reviewTabPostflight: 'Postflight',
     reviewMedia: 'Mission photos and videos',
     reviewTabLoading: 'Loading',
     reviewTabNoItems: 'No items',
     reviewTabNoData: 'No data',
     reviewTabChecklistCount: (assessed: number, total: number) =>
       `${assessed}/${total} assessed`,
+    reviewTabPassedCount: (passed: number, total: number) =>
+      `${passed}/${total} passed`,
     reviewTabMediaCount: (count: number) => `${count} files`,
     reviewLoading: 'Loading mission results…',
     reviewLoadFailed: 'Some required mission results could not be loaded.',
@@ -302,7 +312,7 @@ export const postflightPageMessages = defineMessages({
     reviewPostflightLoadFailed: 'Could not load the postcheck result.',
     reviewMediaLoadFailed: 'Could not load mission photos/videos.',
     reviewAllDataRequired:
-      'Precheck, weather, and postcheck results must be available before confirming inspection.',
+      'Required inspection data is missing.',
     reviewRetry: 'Reload results',
     reviewNoChecklist: 'This mission has no site checklist.',
     reviewNoPreflight: 'No saved precheck result was found.',
@@ -327,7 +337,7 @@ export const postflightPageMessages = defineMessages({
     reviewNonCompliant: 'Non-compliant',
     reviewUnable: 'Unable to verify',
     reviewNotAssessed: 'Not assessed',
-    reviewMissionComplete: 'Confirm mission completion',
+    reviewMissionComplete: 'Complete mission',
     reviewCompleting: 'Confirming…',
     reviewMissionFailed: 'Confirm mission failure',
     reviewFailureWaitingConfirmation:
@@ -343,10 +353,10 @@ export const postflightPageMessages = defineMessages({
     reviewSendManager: 'Confirm inspection',
     reviewSending: 'Confirming inspection…',
     reviewWaitingPermission:
-      'Waiting for the assigned inspector to confirm mission completion.',
-    reviewWaitingChecklist: 'Complete the checklist and evidence before sending.',
+      'Waiting for the assigned inspector.',
+    reviewWaitingChecklist: 'Complete the checklist and evidence.',
     reviewWaitingAssessment:
-      'Accept compliant work for every checklist item and select the required customer media. Non-compliant work needs fixes.',
+      'Assess all checklist items and select customer media.',
     reviewRestorePostflight: 'Save the existing postcheck results again',
     reviewRestoringPostflight: 'Saving postcheck results again…',
     reviewSent: 'Awaiting inspection confirmation',

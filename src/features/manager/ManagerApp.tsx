@@ -24,6 +24,7 @@ import { managerLayoutMessages } from './ManagerLayout.messages'
 import { EmptyState } from './components/common/EmptyState'
 import { ManagerErrorBoundary } from './components/common/ManagerErrorBoundary'
 import { useManagerNavigationNotifications } from './hooks/useManagerNavigationNotifications'
+import { NotificationsPage } from '../notifications/NotificationsPage'
 
 function useHash(): string {
   const [hash, setHash] = useState(() => window.location.hash)
@@ -51,6 +52,7 @@ const breadcrumbKey: Record<
   missions: 'missions',
   drones: 'drones',
   maintenance: 'maintenance',
+  notifications: 'notifications',
   support: 'support',
   notFound: 'notFound',
 }
@@ -162,6 +164,8 @@ function renderScreen(
       />
     )
   if (route.screen === 'maintenance') return <MaintenancePage />
+  if (route.screen === 'notifications')
+    return <NotificationsPage role="MANAGER" />
   if (route.screen === 'support')
     return <StaffSupportDashboardPage initialTicketId={route.ticketId} />
 

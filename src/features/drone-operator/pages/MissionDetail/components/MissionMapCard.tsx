@@ -6,7 +6,7 @@ export function MissionMapCard({ mission }: { mission: OperatorMission }) {
   const [viewMode, setViewMode] = useState<'area' | 'route'>('area')
   const { container, target } = useOperatorMissionMap(mission, viewMode)
   const accessibleMapDescription = target
-    ? `Điểm giám sát tại ${target.latitude.toFixed(6)}, ${target.longitude.toFixed(6)}. ${mission.radiusMeters ? `Vùng giám sát bán kính ${Math.round(mission.radiusMeters)} mét.` : ''} ${viewMode === 'route' ? 'Bản đồ hiển thị tuyến tham chiếu từ HOME đến điểm giám sát.' : 'Bản đồ tập trung vào vùng giám sát.'}`
+    ? `Điểm giám sát tại ${target.latitude.toFixed(6)}, ${target.longitude.toFixed(6)}. ${mission.coverageArea ? 'Bản đồ hiển thị ranh giới vùng do khách hàng vẽ.' : mission.radiusMeters ? `Vùng giám sát bán kính ${Math.round(mission.radiusMeters)} mét.` : ''} ${viewMode === 'route' ? 'Bản đồ hiển thị tuyến tham chiếu từ HOME đến điểm giám sát.' : 'Bản đồ tập trung vào vùng giám sát.'}`
     : 'Chưa có tọa độ hợp lệ để hiển thị điểm giám sát.'
 
   return (

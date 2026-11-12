@@ -1,4 +1,7 @@
-import { parseRealApiRoutes } from '../shared/api/realApiRoutes'
+import {
+  notificationApiRoutes,
+  parseRealApiRoutes,
+} from '../shared/api/realApiRoutes'
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
 const cognitoDomain = import.meta.env.VITE_AWS_COGNITO_DOMAIN
@@ -37,6 +40,7 @@ const staffLicenseApiRoutes = parseRealApiRoutes(
 const realApiRoutes = [
   ...parseRealApiRoutes(import.meta.env.VITE_REAL_API_ROUTES),
   ...staffLicenseApiRoutes,
+  ...notificationApiRoutes,
 ]
 
 export const env = {

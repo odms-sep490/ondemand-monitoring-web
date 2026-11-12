@@ -32,14 +32,17 @@ describe('CustomerApp', () => {
     expect((await screen.findAllByText('Overview')).length).toBeGreaterThan(0)
   })
 
-  it('hides media notifications and resolves old notification bookmarks to the result library', async () => {
+  it('routes the customer notification bookmark to the notification center', async () => {
+    window.location.hash = '#portal/customer/notifications'
     render(<CustomerApp />)
-    await screen.findAllByText('Tổng quan')
     expect(
-      screen.queryByRole('link', { name: 'Thông báo' }),
-    ).not.toBeInTheDocument()
+      await screen.findByRole('heading', { name: 'Thông báo' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Thông báo' }),
+    ).toBeInTheDocument()
     expect(parseCustomerRoute('#portal/customer/notifications')).toEqual({
-      screen: 'mediaLibrary',
+      screen: 'notifications',
     })
   })
 })

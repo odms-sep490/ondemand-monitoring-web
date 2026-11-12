@@ -320,23 +320,6 @@ export const missionApi = {
     )
   },
 
-  // F3.2 Connect GCS (POST /api/missions/{id}/connect)
-  connectGcs: async (missionId: string): Promise<Mission> => {
-    return request<Mission>(`${API_BASE}/missions/${missionId}/connect`, {
-      method: 'POST',
-    })
-  },
-
-  disconnectGcs: async (
-    missionId: string,
-    reason = 'MISSION_COMPLETED',
-  ): Promise<Mission> => {
-    return request<Mission>(
-      `${API_BASE}/missions/${encodeURIComponent(missionId)}/disconnect?reason=${encodeURIComponent(reason)}`,
-      { method: 'POST' },
-    )
-  },
-
   getTelemetryReadiness: async (
     missionId: string,
   ): Promise<{

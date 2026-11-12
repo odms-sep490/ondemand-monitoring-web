@@ -17,6 +17,7 @@ export type AuditEntry = {
 
 export type AuditLogFilters = {
   actorId?: string
+  actorQuery?: string
   action?: AuditAction
   entityType?: string
   from?: string
