@@ -4,7 +4,7 @@ export const orderInfoCardMessages = defineMessages({
   vi: {
     noInfo: 'Chưa có thông tin',
     values: {
-      INTERNAL: 'Nội bộ', LEGAL: 'Pháp lý', PARTNER_REPORT: 'Báo cáo cho đối tác', OTHER: 'Khác',
+      OTHER: 'Khác',
       SURVEY_MONITORING: 'Đo đạc, khảo sát, giám sát từ trên cao', AGRICULTURE: 'Phục vụ nông nghiệp',
       CONSTRUCTION_MONITORING: 'Giám sát tiến độ công trình', INDUSTRIAL_INSPECTION: 'Kiểm tra nhà xưởng',
       AREA_MONITORING: 'Giám sát khu vực', FOREST_MONITORING: 'Giám sát tài nguyên rừng',
@@ -30,7 +30,7 @@ export const orderInfoCardMessages = defineMessages({
     service: 'Dịch vụ',
     schedule: 'Ngày mong muốn',
     description: 'Mô tả thêm',
-    usagePurpose: 'Mục đích sử dụng', flightPurpose: 'Mục đích bay',
+    flightPurpose: 'Mục đích bay',
     altitude: 'Độ cao giám sát mong muốn', estimatedLength: 'Chiều dài ước tính', resultDeadline: 'Hạn nhận kết quả',
     recurrence: 'Lịch lặp', weatherFallback: 'Phương án khi có sự cố',
     siteContact: 'Liên hệ hiện trường', accessNotes: 'Điều kiện ra vào',
@@ -46,7 +46,7 @@ export const orderInfoCardMessages = defineMessages({
   en: {
     noInfo: 'No information yet',
     values: {
-      INTERNAL: 'Internal', LEGAL: 'Legal', PARTNER_REPORT: 'Partner report', OTHER: 'Other',
+      OTHER: 'Other',
       SURVEY_MONITORING: 'Aerial surveying, mapping and monitoring', AGRICULTURE: 'Agriculture',
       CONSTRUCTION_MONITORING: 'Construction progress monitoring', INDUSTRIAL_INSPECTION: 'Factory inspection',
       AREA_MONITORING: 'Area monitoring', FOREST_MONITORING: 'Forest resource monitoring',
@@ -72,7 +72,7 @@ export const orderInfoCardMessages = defineMessages({
     service: 'Service',
     schedule: 'Preferred dates',
     description: 'Additional description',
-    usagePurpose: 'Usage purpose', flightPurpose: 'Flight purpose',
+    flightPurpose: 'Flight purpose',
     altitude: 'Flight altitude', estimatedLength: 'Estimated length', resultDeadline: 'Result deadline',
     recurrence: 'Recurrence', weatherFallback: 'Incident fallback',
     siteContact: 'On-site contact', accessNotes: 'Access conditions',

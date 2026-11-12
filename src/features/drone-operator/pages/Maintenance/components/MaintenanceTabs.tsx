@@ -22,7 +22,7 @@ export function MaintenanceTabs({
       style={{
         display: 'flex',
         gap: 12,
-        borderBottom: '1px solid #e2e8f0',
+        borderBottom: '1px solid var(--mgr-border)',
         marginBottom: 20,
       }}
     >
@@ -35,10 +35,10 @@ export function MaintenanceTabs({
           border: 'none',
           borderBottom:
             activeTab === 'MY_TICKETS'
-              ? '2px solid #2563eb'
+              ? '2px solid var(--ui-primary)'
               : '2px solid transparent',
           fontWeight: activeTab === 'MY_TICKETS' ? 700 : 500,
-          color: activeTab === 'MY_TICKETS' ? '#2563eb' : '#64748b',
+          color: activeTab === 'MY_TICKETS' ? 'var(--ui-primary)' : 'var(--mgr-muted)',
           cursor: 'pointer',
           fontSize: 13.5,
           transition: 'all 0.15s ease',
@@ -55,10 +55,10 @@ export function MaintenanceTabs({
           border: 'none',
           borderBottom:
             activeTab === 'ALL_ACTIVE'
-              ? '2px solid #2563eb'
+              ? '2px solid var(--ui-primary)'
               : '2px solid transparent',
           fontWeight: activeTab === 'ALL_ACTIVE' ? 700 : 500,
-          color: activeTab === 'ALL_ACTIVE' ? '#2563eb' : '#64748b',
+          color: activeTab === 'ALL_ACTIVE' ? 'var(--ui-primary)' : 'var(--mgr-muted)',
           cursor: 'pointer',
           fontSize: 13.5,
         }}
@@ -79,10 +79,10 @@ export function MaintenanceTabs({
           border: 'none',
           borderBottom:
             activeTab === 'RESOLVED'
-              ? '2px solid #2563eb'
+              ? '2px solid var(--ui-primary)'
               : '2px solid transparent',
           fontWeight: activeTab === 'RESOLVED' ? 700 : 500,
-          color: activeTab === 'RESOLVED' ? '#2563eb' : '#64748b',
+          color: activeTab === 'RESOLVED' ? 'var(--ui-primary)' : 'var(--mgr-muted)',
           cursor: 'pointer',
           fontSize: 13.5,
         }}

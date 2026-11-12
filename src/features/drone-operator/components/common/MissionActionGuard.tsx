@@ -144,18 +144,18 @@ function GuardStateCard({
   const color =
     tone === 'amber'
       ? {
-          bg: '#fff7ed',
-          border: '#fed7aa',
-          strong: '#9a3412',
-          soft: '#c2410c',
-          chipBg: '#ffedd5',
+          bg: 'var(--ui-warning-soft)',
+          border: 'color-mix(in srgb, var(--ui-warning) 35%, var(--mgr-border))',
+          strong: 'var(--ui-warning-text)',
+          soft: 'var(--ui-warning-text)',
+          chipBg: 'var(--ui-warning-soft)',
         }
       : {
-          bg: '#eff6ff',
-          border: '#bfdbfe',
-          strong: '#1d4ed8',
-          soft: '#2563eb',
-          chipBg: '#dbeafe',
+          bg: 'var(--ui-primary-soft)',
+          border: 'color-mix(in srgb, var(--ui-primary) 30%, var(--mgr-border))',
+          strong: 'var(--ui-primary-text)',
+          soft: 'var(--ui-primary)',
+          chipBg: 'var(--ui-primary-soft)',
         }
 
   return (
@@ -173,8 +173,8 @@ function GuardStateCard({
           width: 'min(560px, 100%)',
           borderRadius: 14,
           border: `1px solid ${color.border}`,
-          background: '#fff',
-          boxShadow: '0 18px 50px rgba(15, 23, 42, .08)',
+          background: 'var(--mgr-card)',
+          boxShadow: 'var(--mgr-shadow)',
           overflow: 'hidden',
         }}
       >

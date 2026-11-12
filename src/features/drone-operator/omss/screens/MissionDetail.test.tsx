@@ -10,6 +10,7 @@ const mission = {
   orderRef: 'ORD-1',
   title: '5243523',
   state: 'IN_FLIGHT',
+  deviceAssignmentStatus: 'ASSIGNED',
   priority: 'NORMAL',
   customer: 'Seed Customer',
   droneId: 'DRN-0048',
@@ -48,7 +49,7 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
-describe('MissionDetail GCS connect action', () => {
+describe('MissionDetail pre-flight action', () => {
   const renderDetail = (m: Mission, canOperatePayload: boolean) => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false }))
     const onScreen = vi.fn()
@@ -65,18 +66,17 @@ describe('MissionDetail GCS connect action', () => {
     return onScreen
   }
 
-  it('offers GCS connect for a READY mission when the operator may operate the payload', () => {
+  it('offers the pre-flight check for a READY mission when the operator may operate the payload', () => {
     const onScreen = renderDetail(
       { ...mission, state: 'READY' } as Mission,
       true,
     )
-    fireEvent.click(screen.getByRole('button', { name: 'Connect GCS' }))
-    expect(onScreen).toHaveBeenCalledWith('gcs-connect')
+    fireEvent.click(screen.getByRole('button', { name: 'Run pre-flight check' }))
+    expect(onScreen).toHaveBeenCalledWith('preflight')
   })
 
-  it('does not offer GCS connect or reconnect for an in-flight mission', () => {
+  it('does not offer pre-flight for an in-flight mission', () => {
     renderDetail(mission, true)
-    expect(screen.queryByRole('button', { name: 'Connect GCS' })).toBeNull()
-    expect(screen.queryByRole('button', { name: 'Reconnect GCS' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Run pre-flight check' })).toBeNull()
   })
 })

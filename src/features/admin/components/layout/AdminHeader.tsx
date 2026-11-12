@@ -11,6 +11,7 @@ import { useI18n } from '../../../../shared/i18n'
 import { adminLayoutMessages } from '../../AdminLayout.messages'
 import { adminHref } from '../../routes'
 import { AdminUserMenu } from './AdminUserMenu'
+import { NotificationBell } from '../../../notifications/NotificationBell'
 
 type Props = {
   breadcrumb: string
@@ -41,9 +42,7 @@ export function AdminHeader({
         <Breadcrumb
           items={[
             {
-              title: (
-                <a href={adminHref({ screen: 'accounts' })}>{t.admin}</a>
-              ),
+              title: <a href={adminHref({ screen: 'accounts' })}>{t.admin}</a>,
             },
             { title: breadcrumb },
           ]}
@@ -58,6 +57,7 @@ export function AdminHeader({
           aria-label={t.search}
         />
         <LanguageToggle className="mgr-lang-toggle" />
+        <NotificationBell role="ADMIN" />
         <Button
           type="text"
           className="mgr-icon-btn"

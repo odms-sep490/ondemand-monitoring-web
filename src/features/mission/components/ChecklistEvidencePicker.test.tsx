@@ -71,3 +71,78 @@ describe('multi-select evidence picker', () => {
     expect(screen.getByRole('checkbox', { name: 'image.jpg' })).toBeChecked()
   })
 })
+
+
+it('prefers a Staff local image and falls back to the backend thumbnail', async () => {
+  const image = { ...candidate('local-image'), localPreviewUrl: 'http://localhost:8090/local.jpg',
+    thumbnailUrl: 'https://media.test/thumb.jpg', previewUrl: 'https://media.test/image.jpg' }
+  render(<ChecklistEvidencePicker missionId="mission" open onClose={vi.fn()} onSelect={vi.fn()} loadCandidates={async () => [image]} />)
+  const preview = await screen.findByRole('img', { name: image.fileName })
+  expect(preview).toHaveAttribute('src', image.localPreviewUrl)
+  fireEvent.error(preview)
+  expect(preview).toHaveAttribute('src', image.thumbnailUrl)
+  fireEvent.error(preview)
+  expect(preview).toHaveAttribute('src', image.previewUrl)
+})
+
+it('uses the local video JPEG poster without mounting a video decoder in the picker', async () => {
+  const video = { ...candidate('video-local'), mediaType: 'VIDEO', fileName: 'clip.mp4',
+    localThumbnailUrl: 'http://localhost:8090/video/thumbnail', thumbnailUrl: 'https://media.test/video.jpg' }
+  const { container } = render(<ChecklistEvidencePicker missionId="mission" open onClose={vi.fn()} onSelect={vi.fn()} loadCandidates={async () => [video]} />)
+  const preview = await screen.findByRole('img', { name: video.fileName })
+  expect(preview).toHaveAttribute('src', video.localThumbnailUrl)
+  fireEvent.error(preview)
+  expect(preview).toHaveAttribute('src', video.thumbnailUrl)
+  expect(container.querySelector('video')).toBeNull()
+})
+
+
+it('shows local files and a retryable source warning when uploaded media is unavailable', async () => {
+  const local = { ...candidate('local:capture'), fileName: 'captured.jpg', status: 'UPLOAD_PENDING' as const }
+  const load = vi.fn().mockResolvedValueOnce({ items: [local], unavailableSources: ['uploaded'], hasMore: false })
+    .mockResolvedValueOnce({ items: [local, candidate('uploaded-manual')], unavailableSources: [], hasMore: false })
+  const select = vi.fn().mockResolvedValue(undefined)
+  render(<ChecklistEvidencePicker missionId="mission" open onClose={vi.fn()} onSelect={select} loadCandidates={load} />)
+  const checkbox = await screen.findByRole('checkbox', { name: 'captured.jpg' })
+  expect(screen.getByText(/Chưa tải được media từ hệ thống/)).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Trang sau' })).toBeDisabled()
+  expect(select).not.toHaveBeenCalled()
+  fireEvent.click(checkbox)
+  fireEvent.click(screen.getByRole('button', { name: 'Thử lại' }))
+  await screen.findByRole('checkbox', { name: 'uploaded-manual.jpg' })
+  expect(screen.queryByText(/Chưa tải được media từ hệ thống/)).toBeNull()
+  expect(screen.getByRole('checkbox', { name: 'captured.jpg' })).toBeChecked()
+  fireEvent.click(screen.getByRole('button', { name: 'Gắn 1 file' }))
+  await waitFor(() => expect(select).toHaveBeenCalledWith([local]))
+})
+
+it('keeps uploaded files selectable when only the FC library is unavailable', async () => {
+  const uploaded = candidate('manual')
+  render(<ChecklistEvidencePicker missionId="mission" open onClose={vi.fn()} onSelect={vi.fn()}
+    loadCandidates={async () => ({ items: [uploaded], unavailableSources: ['local'], hasMore: false })} />)
+  expect(await screen.findByRole('checkbox', { name: 'manual.jpg' })).toBeEnabled()
+  expect(screen.getByText(/Chưa kết nối được thư viện Flight Controller/)).toBeInTheDocument()
+})
+
+it('clears stale candidates and selection when a retry is denied', async () => {
+  const load = vi.fn().mockResolvedValueOnce({ items: [candidate('local:a')], unavailableSources: ['uploaded'], hasMore: false })
+    .mockRejectedValueOnce(new Error('Denied'))
+  render(<ChecklistEvidencePicker missionId="mission" open onClose={vi.fn()} onSelect={vi.fn()} loadCandidates={load} />)
+  fireEvent.click(await screen.findByRole('checkbox', { name: 'local:a.jpg' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Thử lại' }))
+  await screen.findByRole('alert')
+  expect(screen.queryByRole('checkbox')).toBeNull()
+  expect(screen.getByRole('button', { name: 'Gắn 0 file' })).toBeDisabled()
+  expect(screen.queryByText('Không có media phù hợp.')).toBeNull()
+})
+
+it('does not expose selection from the previous Mission while the next one loads', async () => {
+  const load = vi.fn().mockResolvedValue([candidate('old')])
+  const { rerender } = render(<ChecklistEvidencePicker missionId="old" open onClose={vi.fn()} onSelect={vi.fn()} loadCandidates={load} />)
+  fireEvent.click(await screen.findByRole('checkbox', { name: 'old.jpg' }))
+  const next = vi.fn().mockResolvedValue([candidate('new')])
+  rerender(<ChecklistEvidencePicker missionId="new" open onClose={vi.fn()} onSelect={vi.fn()} loadCandidates={next} />)
+  await screen.findByRole('checkbox', { name: 'new.jpg' })
+  expect(screen.queryByRole('checkbox', { name: 'old.jpg' })).toBeNull()
+  expect(screen.getByRole('button', { name: 'Gắn 0 file' })).toBeDisabled()
+})

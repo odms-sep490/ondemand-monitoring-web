@@ -43,7 +43,7 @@ export function WeatherField({
             border: '1px solid var(--bd)',
             borderRadius: 8,
             padding: suffix ? '0 48px 0 10px' : '0 10px',
-            background: '#fff',
+            background: 'var(--mgr-card)',
             color: 'var(--tx)',
             boxSizing: 'border-box',
           }}

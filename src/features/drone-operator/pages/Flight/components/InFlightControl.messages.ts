@@ -501,7 +501,7 @@ export const inFlightControlMessages = defineMessages({
       waitingController: 'Waiting for controller',
       preflightRequired: 'Preflight required',
       controllerNotBound:
-        'Flight Controller is not bound to this mission. Reconnect GCS before capturing media.',
+        'Flight Controller is not bound to this mission. Rebind the flight controller session before capturing media.',
       noWaypoints: 'No mission plan waypoints',
       autoPlanStarted: (count: number) => `Auto plan started (${count} points)`,
       cameraReset: 'Camera reset to 0° FPV',

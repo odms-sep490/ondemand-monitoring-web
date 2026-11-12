@@ -2,6 +2,10 @@ import { useEffect, useRef } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
+import {
+  coverageAreaToLatLngRings,
+} from '../../../../../shared/lib/coverageArea'
+import type { GeoJsonPolygon } from '../../../../../shared/types/geo'
 import { useI18n } from '../../../../../shared/i18n'
 import { missionDetailPageMessages } from '../MissionDetailPage.messages'
 
@@ -47,12 +51,14 @@ export function MissionSatelliteMap({
   latitude,
   longitude,
   radiusMeters,
+  coverageArea,
   visible,
 }: {
   missionId: string
   latitude: number | null
   longitude: number | null
   radiusMeters?: number | null
+  coverageArea?: GeoJsonPolygon | null
   visible: boolean
 }) {
   const container = useRef<HTMLDivElement>(null)
@@ -61,6 +67,7 @@ export function MissionSatelliteMap({
   const { t } = useI18n(missionDetailPageMessages)
   const x = t.extra
   const circle = useRef<L.Circle | null>(null)
+  const polygon = useRef<L.Polygon | null>(null)
   const target = validGps({
     latitude: latitude ?? Number.NaN,
     longitude: longitude ?? Number.NaN,
@@ -119,6 +126,7 @@ export function MissionSatelliteMap({
       map.current = null
       targetMarker.current = null
       circle.current = null
+      polygon.current = null
     }
   }, [targetLat, targetLon, visible])
 
@@ -140,32 +148,55 @@ export function MissionSatelliteMap({
         .bindTooltip(x.targetPoint)
     }
 
-    if (radiusMeters && radiusMeters > 0) {
+    const areaRings = coverageAreaToLatLngRings(coverageArea)
+    if (areaRings) {
       if (circle.current) {
-        circle.current.setLatLng(targetLatLng).setRadius(radiusMeters)
+        circle.current.remove()
+        circle.current = null
+      }
+      if (polygon.current) {
+        polygon.current.setLatLngs(areaRings)
       } else {
-        circle.current = L.circle(targetLatLng, {
-          radius: radiusMeters,
+        polygon.current = L.polygon(areaRings, {
           color: '#16a34a',
           fillColor: '#22c55e',
           fillOpacity: 0.16,
           weight: 2,
         }).addTo(map.current)
       }
-    } else if (circle.current) {
-      circle.current.remove()
-      circle.current = null
+    } else {
+      if (polygon.current) {
+        polygon.current.remove()
+        polygon.current = null
+      }
+      if (radiusMeters && radiusMeters > 0) {
+        if (circle.current) {
+          circle.current.setLatLng(targetLatLng).setRadius(radiusMeters)
+        } else {
+          circle.current = L.circle(targetLatLng, {
+            radius: radiusMeters,
+            color: '#16a34a',
+            fillColor: '#22c55e',
+            fillOpacity: 0.16,
+            weight: 2,
+          }).addTo(map.current)
+        }
+      } else if (circle.current) {
+        circle.current.remove()
+        circle.current = null
+      }
     }
 
-    if (circle.current) {
-      map.current.fitBounds(circle.current.getBounds(), {
+    const areaBounds = polygon.current?.getBounds() ?? circle.current?.getBounds()
+    if (areaBounds?.isValid()) {
+      map.current.fitBounds(areaBounds, {
         padding: [36, 36],
         maxZoom: 16,
       })
     } else {
       map.current.setView(targetLatLng, 16)
     }
-  }, [radiusMeters, targetLat, targetLon, x])
+  }, [coverageArea, radiusMeters, targetLat, targetLon, x])
 
   if (!target) {
     return (
@@ -190,7 +221,7 @@ export function MissionSatelliteMap({
         {x.targetChip} · {target.latitude.toFixed(6)},{' '}
         {target.longitude.toFixed(6)}
       </div>
-      {radiusMeters ? (
+      {radiusMeters && !coverageAreaToLatLngRings(coverageArea) ? (
         <div className="odm-rm-chip odm-rm-chip-radius">
           {x.radiusChip} {Math.round(radiusMeters)} m
         </div>

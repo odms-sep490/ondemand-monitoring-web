@@ -2,6 +2,10 @@ import { useEffect, useRef, type ReactNode } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
+import {
+  coverageAreaSquareMeters,
+  coverageAreaToLatLngRings,
+} from '../../../../../shared/lib/coverageArea'
 import { hcmcServicePolygonLatLngs } from '../../../../../shared/lib/serviceArea'
 import type { OrderDetail } from '../../../types/orders'
 import type { OrderReviewMessages } from '../OrderReviewPage.messages'
@@ -18,6 +22,7 @@ function useLeafletOrderMap(order: OrderDetail, showServiceArea: boolean) {
   const map = useRef<L.Map | null>(null)
   const marker = useRef<L.Marker | null>(null)
   const circle = useRef<L.Circle | null>(null)
+  const polygon = useRef<L.Polygon | null>(null)
   const resolved = resolveOrderGpsCenter(order.center)
   const centerLat = resolved?.center.lat
   const centerLon = resolved?.center.lon
@@ -61,6 +66,7 @@ function useLeafletOrderMap(order: OrderDetail, showServiceArea: boolean) {
       map.current = null
       marker.current = null
       circle.current = null
+      polygon.current = null
     }
   }, [centerLat, centerLon, showServiceArea])
 
@@ -77,24 +83,51 @@ function useLeafletOrderMap(order: OrderDetail, showServiceArea: boolean) {
         .addTo(map.current)
         .bindTooltip('GPS target')
     }
-    if (order.radiusM != null) {
+    const areaRings = coverageAreaToLatLngRings(order.coverageArea)
+    if (areaRings) {
       if (circle.current) {
-        circle.current.setLatLng(target).setRadius(order.radiusM)
+        circle.current.remove()
+        circle.current = null
+      }
+      if (polygon.current) {
+        polygon.current.setLatLngs(areaRings)
       } else {
-        circle.current = L.circle(target, {
-          radius: order.radiusM,
+        polygon.current = L.polygon(areaRings, {
           color: '#1677ff',
-          fillColor: '#1677ff',
+          fillColor: '#4096ff',
           fillOpacity: 0.16,
           weight: 2,
         }).addTo(map.current)
       }
-    } else if (circle.current) {
-      circle.current.remove()
-      circle.current = null
+    } else {
+      if (polygon.current) {
+        polygon.current.remove()
+        polygon.current = null
+      }
+      if (order.radiusM != null) {
+        if (circle.current) {
+          circle.current.setLatLng(target).setRadius(order.radiusM)
+        } else {
+          circle.current = L.circle(target, {
+            radius: order.radiusM,
+            color: '#1677ff',
+            fillColor: '#1677ff',
+            fillOpacity: 0.16,
+            weight: 2,
+          }).addTo(map.current)
+        }
+      } else if (circle.current) {
+        circle.current.remove()
+        circle.current = null
+      }
     }
-    map.current.setView(target, 16)
-  }, [centerLat, centerLon, order.radiusM])
+    const bounds = polygon.current?.getBounds() ?? circle.current?.getBounds()
+    if (bounds?.isValid()) {
+      map.current.fitBounds(bounds, { padding: [24, 24], maxZoom: 16 })
+    } else {
+      map.current.setView(target, 16)
+    }
+  }, [centerLat, centerLon, order.coverageArea, order.radiusM])
 
   return container
 }
@@ -157,7 +190,11 @@ export function OrderLocationCard({
     }, 0)
   }
 
-  const areaHa = estimatedAreaHa(order.radiusM)
+  const drawnAreaM2 = coverageAreaSquareMeters(order.coverageArea)
+  const hasDrawnArea = drawnAreaM2 != null
+  const areaHa = hasDrawnArea
+    ? Number((drawnAreaM2 / 10_000).toFixed(2))
+    : estimatedAreaHa(order.radiusM)
   const openButton = (
     <Button type="button" onClick={toggleFullscreen}>
       {t.openInMap}
@@ -216,10 +253,12 @@ export function OrderLocationCard({
                   : '—'}
               </dd>
             </div>
-            <div className="odm-or-location-metric">
-              <dt>{t.monitoringRadius}</dt>
-              <dd>{order.radiusM != null ? `${order.radiusM} m` : '—'}</dd>
-            </div>
+            {!hasDrawnArea ? (
+              <div className="odm-or-location-metric">
+                <dt>{t.monitoringRadius}</dt>
+                <dd>{order.radiusM != null ? `${order.radiusM} m` : '—'}</dd>
+              </div>
+            ) : null}
             <div className="odm-or-location-metric">
               <dt>{t.estimatedArea}</dt>
               <dd>{areaHa != null ? `${areaHa} ha` : '—'}</dd>
@@ -250,15 +289,17 @@ export function OrderLocationCard({
           </div>
         ) : null}
 
-        {order.radiusM != null ? (
+        {hasDrawnArea || order.radiusM != null ? (
           <div className="odm-or-map-overlay">
             <span className="odm-or-map-overlay-icon">
               <OrderIcon name="radius" size={18} />
             </span>
             <span>
-              <span className="odm-or-map-overlay-line">
-                {t.monitoringRadius}: <b>{order.radiusM} m</b>
-              </span>
+              {!hasDrawnArea && order.radiusM != null ? (
+                <span className="odm-or-map-overlay-line">
+                  {t.monitoringRadius}: <b>{order.radiusM} m</b>
+                </span>
+              ) : null}
               {areaHa != null ? (
                 <span className="odm-or-map-overlay-line is-muted">
                   {t.estimatedArea}: {areaHa} ha

@@ -1,4 +1,7 @@
-import { parseRealApiRoutes } from '../shared/api/realApiRoutes'
+import {
+  notificationApiRoutes,
+  parseRealApiRoutes,
+} from '../shared/api/realApiRoutes'
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
 const cognitoDomain = import.meta.env.VITE_AWS_COGNITO_DOMAIN
@@ -49,10 +52,22 @@ const depositRefundApiRoutes = parseRealApiRoutes(
     'GET /api/deposit-refunds/*/receipts/*/access',
   ].join(','),
 )
+const busyScheduleApiRoutes = parseRealApiRoutes(
+  [
+    'GET /api/busy-schedules/me',
+    'GET /api/busy-schedules/users/*',
+    'GET /api/busy-schedules/*',
+    'POST /api/busy-schedules',
+    'PUT /api/busy-schedules/*',
+    'DELETE /api/busy-schedules/*',
+  ].join(','),
+)
 const realApiRoutes = [
   ...parseRealApiRoutes(import.meta.env.VITE_REAL_API_ROUTES),
   ...staffLicenseApiRoutes,
   ...depositRefundApiRoutes,
+  ...busyScheduleApiRoutes,
+  ...notificationApiRoutes,
 ]
 
 export const env = {

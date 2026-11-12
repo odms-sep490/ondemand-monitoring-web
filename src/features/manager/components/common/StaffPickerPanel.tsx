@@ -8,6 +8,8 @@ import { usePickerPlacement } from './usePickerPlacement'
 import type { RefObject, Dispatch, SetStateAction } from 'react'
 import type { AvailableOperator } from '../../../staff/api/operatorApi'
 import type { MissionStaffRole } from '../../../mission/types/mission'
+import { UnavailableStaffOptions } from './UnavailableStaffOptions'
+import type { UnavailableOperator } from './dispatchUnavailableStaff'
 import './pickers.css'
 
 export function StaffPickerPanel({
@@ -18,6 +20,7 @@ export function StaffPickerPanel({
   setActiveIndex,
   handleKeyDown,
   filtered,
+  unavailable,
   selectedRoleByStaff,
   selectedIds,
   activeIndex,
@@ -30,6 +33,7 @@ export function StaffPickerPanel({
   setActiveIndex: Dispatch<SetStateAction<number>>
   handleKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void
   filtered: AvailableOperator[]
+  unavailable: UnavailableOperator[]
   selectedRoleByStaff: Map<string, MissionStaffRole[]>
   selectedIds: string[]
   activeIndex: number
@@ -55,7 +59,7 @@ export function StaffPickerPanel({
         <span className="mgr-pk-chip">{t.availableFilter}</span>
       </div>
       <div className="mgr-pk-list">
-        {filtered.length === 0 ? (
+        {filtered.length === 0 && unavailable.length === 0 ? (
           <div className="mgr-pk-empty">{t.noStaffFound}</div>
         ) : (
           filtered.map((item, index) => {
@@ -90,6 +94,7 @@ export function StaffPickerPanel({
             )
           })
         )}
+        <UnavailableStaffOptions items={unavailable} />
       </div>
     </div>
   )

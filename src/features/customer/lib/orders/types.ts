@@ -14,6 +14,8 @@ export type OrderRow = {
   timeName: string | null
   serviceId: string | null
   serviceName: string | null
+  recurrenceType?: 'NONE' | 'WEEKLY' | 'MONTHLY' | null
+  recurrenceOccurrences?: number | null
   status: OrderStatus
   radiusM: number | null
   createdAt: string | null
@@ -75,7 +77,6 @@ export type OrderDetailView = OrderRow & {
   checklistEditBlockedReason: string | null
   coverageArea: Record<string, unknown> | null
   description: string | null
-  usagePurpose: string | null
   flightPurpose: string | null
   altitudeM: number | null
   estimatedLengthM: number | null

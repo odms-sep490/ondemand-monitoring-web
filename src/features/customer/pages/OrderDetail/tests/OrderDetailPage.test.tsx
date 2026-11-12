@@ -50,6 +50,8 @@ const payableInvoice: Invoice = {
 beforeEach(() => {
   resetMockDb()
   setLanguage('vi')
+  // The mock transport has no per-mission delivery list; an order without missions falls back to the single panel.
+  vi.spyOn(deliveryApi, 'missionDeliveries').mockResolvedValue([])
 })
 afterEach(() => {
   resetMockDb()

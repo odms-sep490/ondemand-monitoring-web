@@ -96,13 +96,13 @@ export type OrderDetail = {
   addressText: string | null
   center: { lat: number; lon: number } | null
   radiusM: number | null
+  coverageArea?: Record<string, unknown> | null
   nearestBase?: string | null
   mediaRequirements: OrderMediaRequirement[] | null
   purpose: string | null
   attachments: OrderAttachment[] | null
   title?: string | null
   description?: string | null
-  usagePurpose?: string | null
   flightPurpose?: string | null
   altitudeM?: number | null
   estimatedLengthM?: number | null
@@ -189,6 +189,7 @@ export type OrderMissionBrief = {
   addressText: string | null
   center: { lat: number; lon: number } | null
   radiusM: number | null
+  coverageArea?: Record<string, unknown> | null
   nearestBase?: string | null
   mediaRequirements: OrderMediaRequirement[] | null
 }
@@ -231,7 +232,6 @@ export type OrderCreateResponse = {
   serviceName: string
   serviceDescription?: string | null
   description: string
-  usagePurpose?: string | null
   flightPurpose?: string | null
   altitudeM?: number | null
   estimatedLengthM?: number | null

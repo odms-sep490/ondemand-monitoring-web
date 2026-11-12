@@ -189,7 +189,7 @@ describe('CreateMissionPage', () => {
         screen.getByRole('heading', { name: 'Order execution plan' }),
       ).toBeInTheDocument()
       expect(screen.getByLabelText(/Mission name \/ work scope/)).toHaveValue(
-        'Entire Order scope',
+        'Entire order scope',
       )
     } finally {
       setLanguage('vi')
@@ -424,7 +424,7 @@ describe('CreateMissionPage', () => {
       expect(missionsApi.createMission).toHaveBeenCalledWith(
         'ord-2609-0153',
         expect.objectContaining({
-          scopeLabel: 'Whole Order scope',
+          scopeLabel: 'Toàn bộ phạm vi đơn hàng',
           scheduledStart: '2026-09-24T01:00:00.000Z',
           scheduledEnd: '2026-09-24T02:30:00.000Z',
         }),

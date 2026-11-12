@@ -23,8 +23,10 @@ import { groupCounts, matchesMissionSearch } from './missionsHelpers'
 
 type MissionsListPageProps = { missionId?: string }
 
+// missionId is accepted for route compatibility but the list page does not use it yet.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function MissionsPage(_props: MissionsListPageProps = {}) {
-  const { t, locale } = useI18n(missionsPageMessages)
+  const { t } = useI18n(missionsPageMessages)
   const [statusFilter, setStatusFilter] = useState<StatusChip>('ALL')
 
   const statusChips: Array<{ value: StatusChip; label: string }> = [

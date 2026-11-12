@@ -1,3 +1,4 @@
+import { StaffMediaImportPanel } from './components/StaffMediaImportPanel'
 import { useEffect, useRef, useState } from 'react'
 
 import { useI18n } from '../../../../shared/i18n'
@@ -146,6 +147,7 @@ function UploadMediaContent({
     loadEvidenceCandidates,
     discard,
     uploadPc,
+    uploadStaffFiles,
     effectiveStatus,
     approvable,
     files,
@@ -173,6 +175,7 @@ function UploadMediaContent({
     monitoring,
     refresh,
     batchUploading,
+    setBatchUploading,
     statuses,
     items,
     attemptNumbers,
@@ -433,6 +436,12 @@ function UploadMediaContent({
               view={view}
               setView={setView}
             />
+            {canManageMedia && activeMission.data?.deviceId && (
+              <StaffMediaImportPanel disabled={isBusy || queue.busy}
+                flightStart={activeMission.data.actualStartAt ?? activeMission.data.scheduledStartAt}
+                flightEnd={activeMission.data.actualEndAt ?? activeMission.data.scheduledEndAt}
+                onUpload={uploadStaffFiles} />
+            )}
             {loading && <p role="status">{t.loadingMedia}</p>}
             {Boolean(backend.error) && (
               <p role="alert">
@@ -456,7 +465,11 @@ function UploadMediaContent({
                 ...visibleItems.map((item) => {
                   const id = item.backendMediaId ?? uploadedMediaIds.current[item.localMediaId]
                   const remote = (backend.data?.items ?? []).find((media) => media.mediaId === id)
-                  return { item, remote: remote?.previewUrl ?? undefined, thumbnail: remote?.thumbnailUrl ?? undefined }
+                  return {
+                    item,
+                    remote: remote?.previewUrl ?? item.previewUrl ?? undefined,
+                    thumbnail: remote?.thumbnailUrl ?? item.thumbnailUrl ?? undefined,
+                  }
                 }),
                 ...remoteItems.map((remote) => ({
                   item: {
@@ -481,6 +494,15 @@ function UploadMediaContent({
                 <MediaCard
                   key={item.localMediaId}
                   item={item}
+                  canRemoveMedia={canManageMedia}
+                  onMediaRemoved={(mediaId) => {
+                    const remaining = itemsRef.current.filter(entry => entry.backendMediaId !== mediaId)
+                    itemsRef.current = remaining
+                    setItems(remaining)
+                    setPreview(null)
+                    refreshWorkspace()
+                    backend.reload()
+                  }}
                   remotePreviewUrl={remote}
                   remoteThumbnailUrl={thumbnail}
                   setPreview={setPreview}

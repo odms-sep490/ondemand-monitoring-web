@@ -120,6 +120,8 @@ export const managerLibMessages = defineMessages({
           'Kết quả đã được duyệt; không thể hủy lịch sử nhiệm vụ này.',
         RESOURCE_TIME_CONFLICT:
           'Tài nguyên bị trùng lịch. Chọn tài nguyên hoặc thời gian khác và tải lại danh sách khả dụng.',
+        STAFF_BUSY_IN_SLOT:
+          'Nhân sự đã đăng ký bận trong khung giờ của nhiệm vụ. Tải lại danh sách khả dụng và chọn nhân sự khác.',
         RESOURCE_ALREADY_RESERVED:
           'Tài nguyên đã được giữ. Tải lại danh sách khả dụng và chọn tài nguyên khác.',
         SCHEDULE_CONFLICT:
@@ -258,6 +260,8 @@ export const managerLibMessages = defineMessages({
           'The result has already been approved; this Mission history cannot be cancelled.',
         RESOURCE_TIME_CONFLICT:
           'The resource has a scheduling conflict. Choose another resource or time and reload the available list.',
+        STAFF_BUSY_IN_SLOT:
+          'This staff member registered as busy during the mission window. Reload the available list and choose someone else.',
         RESOURCE_ALREADY_RESERVED:
           'The resource is already reserved. Reload the available list and choose another resource.',
         SCHEDULE_CONFLICT:

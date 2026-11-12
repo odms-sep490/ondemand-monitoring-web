@@ -9,11 +9,16 @@ export const createOrderPageMessages = defineMessages({
     reviewTitle: 'Rà soát & gửi yêu cầu',
     reviewSubtitle: 'Kiểm tra thông tin trước khi gửi.',
     cancel: 'Hủy',
-    cancelConfirm:
-      'Thoát khỏi trang tạo yêu cầu? Bản nháp của bạn được lưu tự động.',
+    leaveConfirmTitle: 'Rời trang tạo yêu cầu?',
+    leaveConfirmSubtitle: 'Bản nháp của bạn được lưu tự động.',
+    leaveConfirmBody: 'Bạn có thể quay lại và tiếp tục chỉnh sửa bản nháp sau.',
+    stayOnRequest: 'Tiếp tục tạo yêu cầu',
+    leaveRequest: 'Rời trang',
     navigationLabel: 'Điều hướng tạo yêu cầu',
     blockedChecklist: 'Hãy sửa nội dung giám sát chưa hợp lệ để tiếp tục.',
     blockedLoading: 'Đang tải dữ liệu…',
+    areaSummaryLabel: 'Tóm tắt vị trí và vùng giám sát',
+    areaSummaryValue: 'Khu vực:',
     stepLabels: {
       1: 'Dịch vụ & mục tiêu',
       2: 'Vị trí & vùng giám sát',
@@ -25,6 +30,7 @@ export const createOrderPageMessages = defineMessages({
     metaErrorTitle: 'Không tải được dữ liệu tạo yêu cầu',
     validation: {
       address: 'Nhập địa chỉ/khu vực cần giám sát.',
+      coverageArea: 'INVALID_COVERAGE_AREA',
       latitude: 'Latitude không hợp lệ.',
       longitude: 'Longitude không hợp lệ.',
       locationUnconfirmed:
@@ -35,9 +41,8 @@ export const createOrderPageMessages = defineMessages({
         `Vùng giám sát chạm vùng cấm: ${zoneNames}. Vui lòng chọn điểm hoặc giảm bán kính.`,
       serviceId: 'Chọn dịch vụ giám sát.',
       title: 'Nhập tiêu đề yêu cầu.',
-      usagePurpose: 'Chọn cách sử dụng kết quả.',
+      flightPurpose: 'Chọn mục đích chuyến bay.',
       otherFlightPurpose: 'Nhập mục đích chuyến bay cụ thể.',
-      otherUsagePurpose: 'Nhập cách bạn sẽ sử dụng kết quả.',
       preferredDateFrom: 'Chọn ngày bắt đầu.',
       preferredDateTooSoon:
         'Ngày bay sớm nhất phải cách ngày tạo yêu cầu ít nhất 7 ngày để ODMS chuẩn bị thủ tục giấy phép bay. Vui lòng chọn ngày mới để tiếp tục.',
@@ -89,10 +94,16 @@ export const createOrderPageMessages = defineMessages({
     reviewTitle: 'Review & submit request',
     reviewSubtitle: 'Check your information before submitting.',
     cancel: 'Cancel',
-    cancelConfirm: 'Leave the request page? Your draft is saved automatically.',
+    leaveConfirmTitle: 'Leave the request page?',
+    leaveConfirmSubtitle: 'Your draft is saved automatically.',
+    leaveConfirmBody: 'You can return later and continue editing your draft.',
+    stayOnRequest: 'Continue creating request',
+    leaveRequest: 'Leave page',
     navigationLabel: 'Request navigation',
     blockedChecklist: 'Fix the invalid monitoring content to continue.',
     blockedLoading: 'Loading data…',
+    areaSummaryLabel: 'Location and monitoring area summary',
+    areaSummaryValue: 'Area:',
     stepLabels: {
       1: 'Service & target',
       2: 'Location & monitoring area',
@@ -104,6 +115,7 @@ export const createOrderPageMessages = defineMessages({
     metaErrorTitle: 'Unable to load data for creating this request',
     validation: {
       address: 'Enter the address/area to monitor.',
+      coverageArea: 'INVALID_COVERAGE_AREA',
       latitude: 'Invalid latitude.',
       longitude: 'Invalid longitude.',
       locationUnconfirmed:
@@ -114,9 +126,8 @@ export const createOrderPageMessages = defineMessages({
         `The monitoring area touches a no-fly zone: ${zoneNames}. Please pick another point or reduce the radius.`,
       serviceId: 'Select a monitoring service.',
       title: 'Enter a request title.',
-      usagePurpose: 'Select how you will use the results.',
+      flightPurpose: 'Select a flight purpose.',
       otherFlightPurpose: 'Enter the specific flight purpose.',
-      otherUsagePurpose: 'Enter how you will use the results.',
       preferredDateFrom: 'Select a start date.',
       preferredDateTooSoon:
         'The earliest flight date must be at least 7 days after the request date so ODMS can prepare the flight permit procedures. Choose a later date to continue.',

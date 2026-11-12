@@ -2,6 +2,10 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
+import {
+  coverageAreaSquareMeters,
+  coverageAreaToLatLngRings,
+} from '../../../../../shared/lib/coverageArea'
 import { useApiQuery } from '../../../../../shared/hooks/useApiQuery'
 import { useLanguage } from '../../../../../shared/i18n'
 import { customerApi } from '../../../api/customerApi'
@@ -64,14 +68,26 @@ function ReadonlyOrderMap({
         { position: 'topright', collapsed: false },
       )
       .addTo(map)
-    const radius = Math.max(order.radiusM ?? 0, 1)
-    const area = L.circle(center, {
-      radius,
-      color: '#1677ff',
-      weight: 2,
-      fillColor: '#4096ff',
-      fillOpacity: 0.16,
-    }).addTo(map)
+    const areaRings = coverageAreaToLatLngRings(order.coverageArea)
+    let areaBounds: L.LatLngBounds | null = null
+    if (areaRings) {
+      const polygon = L.polygon(areaRings, {
+        color: '#1677ff',
+        weight: 2,
+        fillColor: '#4096ff',
+        fillOpacity: 0.16,
+      }).addTo(map)
+      areaBounds = polygon.getBounds()
+    } else {
+      const circle = L.circle(center, {
+        radius: Math.max(order.radiusM ?? 0, 1),
+        color: '#1677ff',
+        weight: 2,
+        fillColor: '#4096ff',
+        fillOpacity: 0.16,
+      }).addTo(map)
+      if (order.radiusM) areaBounds = circle.getBounds()
+    }
     L.circleMarker(center, {
       radius: 7,
       color: '#fff',
@@ -79,8 +95,8 @@ function ReadonlyOrderMap({
       fillColor: '#0958d9',
       fillOpacity: 1,
     }).addTo(map)
-    if (order.radiusM)
-      map.fitBounds(area.getBounds(), { padding: [28, 28], maxZoom: 16 })
+    if (areaBounds?.isValid())
+      map.fitBounds(areaBounds, { padding: [28, 28], maxZoom: 16 })
     window.setTimeout(() => map.invalidateSize(), 0)
     return (): void => {
       map.remove()
@@ -91,6 +107,7 @@ function ReadonlyOrderMap({
     order.latitude,
     order.longitude,
     order.radiusM,
+    order.coverageArea,
   ])
 
   return (
@@ -119,6 +136,7 @@ export function OrderOverviewVisualCard({ order }: { order: OrderDetailView }) {
     [services.data, order.serviceId],
   )
   const [failed, setFailed] = useState<string[]>([])
+  const drawnAreaM2 = coverageAreaSquareMeters(order.coverageArea)
   const image = [service?.imageUrl, service?.fallbackImageUrl].find(
     (value): value is string => Boolean(value) && !failed.includes(value!),
   )
@@ -171,7 +189,11 @@ export function OrderOverviewVisualCard({ order }: { order: OrderDetailView }) {
             {order.address || (en ? 'Monitoring location' : 'Vị trí giám sát')}
           </strong>
           <span>
-            {order.radiusM != null
+            {drawnAreaM2 != null
+              ? en
+                ? `Customer-drawn area ${drawnAreaM2 >= 10_000 ? `${(drawnAreaM2 / 10_000).toFixed(2)} ha` : `${Math.round(drawnAreaM2).toLocaleString()} m²`}`
+                : `Diện tích khách vẽ ${drawnAreaM2 >= 10_000 ? `${(drawnAreaM2 / 10_000).toFixed(2)} ha` : `${Math.round(drawnAreaM2).toLocaleString()} m²`}`
+              : order.radiusM != null
               ? en
                 ? `Radius ${order.radiusM} m`
                 : `Phạm vi ${order.radiusM} m`

@@ -2,14 +2,16 @@ import { useI18n } from '../../../../shared/i18n'
 import { flightStepperMessages } from './FlightStepper.messages'
 import './FlightStepper.css'
 
-/** The single 8-step Mission progress bar shared by every operator screen. */
+/** The shared mission progress bar used by every operator screen. */
 export function FlightStepper({
   active,
   completed = false,
+  completedLabel,
   failed = false,
 }: {
   active: number
   completed?: boolean
+  completedLabel?: string
   failed?: boolean
 }) {
   const { t } = useI18n(flightStepperMessages)
@@ -18,7 +20,7 @@ export function FlightStepper({
   const currentStepLabel = failed
     ? t.failedSummary
     : completed
-      ? t.finished
+      ? (completedLabel ?? t.finished)
       : t.stepCounter(currentIndex + 1, steps.length, steps[currentIndex].label)
 
   return (
@@ -84,6 +86,8 @@ export function FlightStepHeader({
   title,
   missionId,
   active,
+  completed = false,
+  completedLabel,
   failed = false,
   right,
   idTitle,
@@ -91,6 +95,8 @@ export function FlightStepHeader({
   title: string
   missionId: string
   active: number
+  completed?: boolean
+  completedLabel?: string
   /** Marks the active terminal step as a failed workflow, not an in-progress step. */
   failed?: boolean
   right?: React.ReactNode
@@ -105,7 +111,12 @@ export function FlightStepHeader({
           {missionId}
         </div>
       </div>
-      <FlightStepper active={active} failed={failed} />
+      <FlightStepper
+        active={active}
+        completed={completed}
+        completedLabel={completedLabel}
+        failed={failed}
+      />
       <div className="odm-flight-step-right">
         {right ?? <span aria-hidden="true" />}
       </div>

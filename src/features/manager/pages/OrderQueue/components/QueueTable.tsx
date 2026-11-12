@@ -1,4 +1,4 @@
-import { Avatar, Button } from 'antd'
+import { Button } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 
 import { CardComponent, TableComponent } from '../../../../../shared/components/antd'
@@ -10,7 +10,6 @@ import {
   orderStatusTone,
 } from '../../../../../shared/lib/statusTone'
 import { StatusTag } from '../../../components/common/StatusTag'
-import { formatOrderAge } from '../../../lib/actionItemAge'
 import { localizeTimeslot } from '../../../lib/viLabels'
 import { managerHref } from '../../../routes'
 import type { DepositStatus } from '../../../../finance/types'
@@ -38,7 +37,6 @@ export function QueueTable({
   missionPaymentDueByOrder = {},
 }: Props) {
   const { t, locale, lang } = useI18n(orderQueuePageMessages)
-  const now = new Date()
   const labels = lang === 'en' ? orderStatusLabelEn : orderStatusLabel
   const actionLabel = mode === 'pending' ? t.review : mode === 'ready' ? t.plan : t.view
 
@@ -49,23 +47,18 @@ export function QueueTable({
       render: (_, row) => {
         const depositStatus = depositStatusByOrder[row.id]
         return (
-          <span className="mgr-cust">
-            <Avatar size={34} className="mgr-cust-avatar" aria-hidden="true">
-              {row.customerName.trim().charAt(0).toUpperCase()}
-            </Avatar>
-            <span className="mgr-cell-stack">
-              <span className="mgr-code" title={displayOrderCode(row.orderCode, row.id)}>
-                {displayOrderCode(row.orderCode, row.id)}
-              </span>
-              <span className="mgr-cell-sub">{row.customerName}</span>
-              {depositStatus ? (
-                <span>
-                  <StatusTag tone={depositStatus === 'DEPOSIT_PAID' ? 'success' : 'warning'}>
-                    {depositStatus === 'DEPOSIT_PAID' ? t.depositPaid : t.depositWaiting}
-                  </StatusTag>
-                </span>
-              ) : null}
+          <span className="mgr-cell-stack">
+            <span className="mgr-code" title={displayOrderCode(row.orderCode, row.id)}>
+              {displayOrderCode(row.orderCode, row.id)}
             </span>
+            <span className="mgr-cell-sub">{row.customerName}</span>
+            {depositStatus ? (
+              <span>
+                <StatusTag tone={depositStatus === 'DEPOSIT_PAID' ? 'success' : 'warning'}>
+                  {depositStatus === 'DEPOSIT_PAID' ? t.depositPaid : t.depositWaiting}
+                </StatusTag>
+              </span>
+            ) : null}
           </span>
         )
       },
@@ -80,14 +73,6 @@ export function QueueTable({
           <span>{new Date(row.preferredDateFrom).toLocaleDateString(locale)}</span>
           <span className="mgr-cell-sub">{localizeTimeslot(row.preferredTimeName)}</span>
         </span>
-      ),
-    },
-    {
-      title: t.columns.waiting,
-      key: 'waiting',
-      responsive: ['md'],
-      render: (_, row) => (
-        <span className="mgr-cell-sub mgr-nowrap">{formatOrderAge(now, row.createdAt, 24, lang)}</span>
       ),
     },
     {
@@ -115,6 +100,7 @@ export function QueueTable({
       align: 'right',
       render: (_, row) => (
         <Button
+          className="mgr-queue-row-action"
           size="small"
           type={mode === 'all' ? 'default' : 'primary'}
           style={mode === 'all' ? undefined : { color: '#fff' }}

@@ -36,21 +36,21 @@ export function WeatherCheckPanel({
   const bg = failed
     ? 'var(--red-bg)'
     : warned
-      ? '#fff7ed'
+      ? 'var(--yellow-bg)'
       : passed
         ? 'var(--green-bg)'
         : 'var(--sf)'
   const border = failed
     ? 'var(--red-dot)'
     : warned
-      ? '#f59e0b'
+      ? 'var(--yellow-dot)'
       : passed
         ? 'var(--green-dot)'
         : 'var(--bd)'
   const fg = failed
     ? 'var(--red-fg)'
     : warned
-      ? '#92400e'
+      ? 'var(--yellow-fg)'
       : passed
         ? 'var(--green-fg)'
         : 'var(--tx)'
@@ -90,9 +90,9 @@ export function WeatherCheckPanel({
                 : failed
                   ? 'var(--red-solid)'
                   : warned
-                    ? '#f59e0b'
+                    ? 'var(--yellow-solid)'
                     : 'var(--sf3)',
-              color: passed || failed || warned ? '#fff' : 'var(--tx2)',
+              color: passed || failed || warned ? 'var(--ui-on-primary)' : 'var(--tx2)',
               fontSize: 11,
               fontWeight: 800,
             }}
@@ -154,7 +154,7 @@ export function WeatherCheckPanel({
             disabled={suggesting}
             style={{
               minWidth: 210,
-              background: '#fff',
+              background: 'var(--mgr-card)',
               color: 'var(--blue-dot)',
               border: '1px solid var(--blue-dot)',
             }}
@@ -251,7 +251,7 @@ export function WeatherCheckPanel({
               border: '1px solid var(--bd)',
               borderRadius: 8,
               padding: '0 10px',
-              background: '#fff',
+              background: 'var(--mgr-card)',
               color: 'var(--tx)',
               fontWeight: 700,
             }}
