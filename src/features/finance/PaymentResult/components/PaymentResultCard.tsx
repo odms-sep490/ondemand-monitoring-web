@@ -19,6 +19,13 @@ export function PaymentResultCard({
   check: () => Promise<void>
   retryPayment: () => Promise<void>
 }) {
+  const canRetry = Boolean(
+    cancelled &&
+      payment &&
+      !success &&
+      (payment.type === 'DEPOSIT' || payment.type === 'MISSION_PAYMENT') &&
+      (payment.status === 'FAILED' || payment.status === 'CANCELLED'),
+  )
   return (
     <section className="payment-result-card" aria-live="polite">
       <div
@@ -40,7 +47,9 @@ export function PaymentResultCard({
         {success
           ? payment?.type === 'DEPOSIT'
             ? 'Tiền đặt cọc đã được ghi nhận. Kế hoạch thực hiện đang được chuẩn bị.'
-            : 'Thanh toán đã hoàn tất. Đang chờ quản lý bàn giao dữ liệu.'
+            : payment?.type === 'MISSION_PAYMENT'
+              ? 'Khoản thanh toán Mission đã được ghi nhận. Các Mission còn lại vẫn thanh toán riêng theo tiến độ bàn giao.'
+              : 'Thanh toán đã hoàn tất. Đang chờ quản lý bàn giao dữ liệu.'
           : cancelled
             ? 'Chưa có khoản thu nào được xác nhận từ lần quay lại này.'
             : 'Hệ thống đang xác minh trạng thái giao dịch với VNPAY.'}
@@ -68,7 +77,7 @@ export function PaymentResultCard({
             Làm mới trạng thái
           </Button>
         ) : null}
-        {cancelled && payment && !success ? (
+        {canRetry ? (
           <Button onClick={() => void retryPayment()}>Thử lại</Button>
         ) : null}
         <Button href="#portal/customer/orders">Về danh sách đơn</Button>

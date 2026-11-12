@@ -11,6 +11,7 @@ import type {
 import { localizeServiceName } from '../../../lib/i18n/serviceNames'
 import { localizeDeliverableName } from '../../../lib/i18n/catalogNames'
 import { localizeTimeslot } from '../../../lib/i18n/timeslots'
+import { resultFormatsFromMediaTotals } from '../../../lib/checklist/types'
 import {
   coverageAreaMetrics,
   formatAreaM2,
@@ -87,6 +88,9 @@ export function RequestSummaryCard(p: Props) {
   const { t: info } = useI18n(requestInfoPanelMessages)
   const { t: authorization } = useI18n(monitoringAuthorizationMessages)
   const { form } = p
+  const resultFormats = p.mediaTotals
+    ? resultFormatsFromMediaTotals(p.mediaTotals)
+    : form.resultFormats
   const dateFrom = formatDate(form.preferredDateFrom, lang)
   const dateTo = formatDate(form.preferredDateTo, lang)
   const dates = !dateFrom
@@ -285,7 +289,7 @@ export function RequestSummaryCard(p: Props) {
             icon: 'mail' as const,
             label: t.delivery,
             lines: [
-              form.resultFormats
+              resultFormats
                 .map((format) => delivery.formats[format])
                 .join(', '),
               form.deliveryMethods

@@ -98,8 +98,7 @@ export const managerLibMessages = defineMessages({
         ORDER_NOT_APPROVED: 'Đơn hàng chưa ở trạng thái cho phép chốt kế hoạch.',
         INVOICE_NOT_PAYABLE:
           'Khách hàng cần chấp nhận báo giá trước khi tạo nhiệm vụ.',
-        FINAL_PAYMENT_REQUIRED:
-          'Khách hàng cần thanh toán đủ trước khi nhận bản gốc.',
+        MISSION_PAYMENT_REQUIRED: 'Mỗi khoản thanh toán nhiệm vụ cần được xác nhận trước khi bàn giao dữ liệu gốc.',
         DELIVERABLE_NOT_RELEASED: 'Bản gốc chưa được bàn giao cho khách hàng.',
         NO_EFFECTIVE_MISSIONS:
           'Thêm ít nhất một nhiệm vụ vào kế hoạch trước khi chốt.',
@@ -239,8 +238,7 @@ export const managerLibMessages = defineMessages({
         ORDER_NOT_APPROVED: 'The order is not in a state that allows finalizing the plan.',
         INVOICE_NOT_PAYABLE:
           'The customer must accept the quote before a Mission can be created.',
-        FINAL_PAYMENT_REQUIRED:
-          'The customer must pay in full before receiving the original files.',
+        MISSION_PAYMENT_REQUIRED: 'Each Mission payment must be confirmed before the original files are handed over.',
         DELIVERABLE_NOT_RELEASED:
           'The original files have not been handed over to the customer.',
         NO_EFFECTIVE_MISSIONS:

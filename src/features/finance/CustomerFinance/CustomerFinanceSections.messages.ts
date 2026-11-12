@@ -28,12 +28,6 @@ export const customerFinanceSectionsMessages = defineMessages({
     depositCountdownLabel: 'Còn lại để đặt cọc',
     depositExpired: 'Đã hết hạn đặt cọc',
     depositDeadlineInvalid: 'Chưa có thời hạn đặt cọc hợp lệ.',
-    finalPaymentCountdownLabel: 'Còn lại để thanh toán phần còn lại',
-    finalPaymentExpired: 'Đã hết hạn thanh toán phần còn lại',
-    finalPaymentDeadlineAt: (value: string) =>
-      `Hạn thanh toán phần còn lại: ${value}`,
-    finalPaymentExpiredBody:
-      'Thời hạn thanh toán đã kết thúc. Vui lòng liên hệ quản lý để được hỗ trợ.',
     quoteDeadlineAt: (value: string) => `Hạn chấp nhận: ${value}`,
     depositDeadlineAt: (value: string) => `Hạn cọc: ${value}`,
     orderCancelledQuoteTimeout: 'Đơn hàng đã bị hủy do báo giá hết hạn.',
@@ -50,15 +44,11 @@ export const customerFinanceSectionsMessages = defineMessages({
       'Quản lý có thể bắt đầu chuẩn bị nhiệm vụ sau khi xác nhận khoản cọc.',
     missionPreparation: 'Đang chuẩn bị nhiệm vụ',
     missionPreparationBody:
-      'Quản lý đang hoàn tất phân công nhân sự và tài nguyên. Số dư còn lại sẽ được mở sau bước này.',
-    finalPaymentRequiredTitle: 'Cần thanh toán phần còn lại',
-    finalPaymentRequired:
-      'Quản lý đã phân công nhiệm vụ. Vui lòng thanh toán phần còn lại để tiếp tục.',
+      'Các khoản thanh toán theo nhiệm vụ sẽ xuất hiện riêng sau khi từng nhiệm vụ được bàn giao.',
     paymentCompleted: 'Đã hoàn tất thanh toán',
     awaitingResourceConfirmation:
       'Đang chờ nhân sự được phân công xác nhận tài nguyên.',
     payDeposit: 'Thanh toán đặt cọc',
-    payRemaining: 'Thanh toán phần còn lại',
     contentFallback: 'Nội dung',
     perOrder: 'Theo đơn hàng',
     priceDetails: 'Chi tiết giá',
@@ -111,11 +101,6 @@ export const customerFinanceSectionsMessages = defineMessages({
     depositCountdownLabel: 'Time left to pay deposit',
     depositExpired: 'Deposit deadline passed',
     depositDeadlineInvalid: 'No valid deposit deadline is available.',
-    finalPaymentCountdownLabel: 'Time left to pay the remaining balance',
-    finalPaymentExpired: 'Final payment deadline passed',
-    finalPaymentDeadlineAt: (value: string) => `Final payment due: ${value}`,
-    finalPaymentExpiredBody:
-      'The payment window has ended. Contact the manager for help.',
     quoteDeadlineAt: (value: string) => `Accept by: ${value}`,
     depositDeadlineAt: (value: string) => `Due: ${value}`,
     orderCancelledQuoteTimeout:
@@ -133,15 +118,11 @@ export const customerFinanceSectionsMessages = defineMessages({
       'The Manager can begin mission preparation once the deposit is confirmed.',
     missionPreparation: 'Mission preparation in progress',
     missionPreparationBody:
-      'The Manager is completing staff and resource assignments. The remaining balance will be available once this is done.',
-    finalPaymentRequiredTitle: 'Remaining balance due',
-    finalPaymentRequired:
-      'The Manager has assigned the missions. Pay the remaining balance to continue.',
+      'Mission payment items will appear separately after each Mission is handed over.',
     paymentCompleted: 'Payment completed',
     awaitingResourceConfirmation:
       'Your missions are awaiting confirmation from the assigned staff.',
     payDeposit: 'Pay deposit',
-    payRemaining: 'Pay the remaining balance',
     contentFallback: 'Content',
     perOrder: 'Per order',
     priceDetails: 'Price details',

@@ -36,7 +36,7 @@ function actionFor(
   order: OrderRow,
   t: (typeof dashboardHighlightsMessages)['vi'],
 ) {
-  if (order.finalPaymentState === 'ACTION_REQUIRED') return t.actionFinalPayment
+  if (order.missionPaymentState === 'ACTION_REQUIRED') return t.actionMissionPayment
   if (order.depositState === 'ACTION_REQUIRED') return t.actionDeposit
   if (order.status === 'NEEDS_INFO') return t.actionNeedsInfo
   return t.actionDraft
@@ -49,7 +49,7 @@ function actionOrders(orders: OrderRow[]) {
         order.status === 'DRAFT' ||
         order.status === 'NEEDS_INFO' ||
         order.depositState === 'ACTION_REQUIRED' ||
-        order.finalPaymentState === 'ACTION_REQUIRED',
+        order.missionPaymentState === 'ACTION_REQUIRED',
     )
     .slice(0, DISPLAY_LIMIT)
 }

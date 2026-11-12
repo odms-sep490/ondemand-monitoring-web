@@ -5,13 +5,16 @@ import { useCallback, useEffect, useState } from 'react'
 import { useI18n } from '../../../shared/i18n'
 import { financeApi } from '../api'
 import { customerFinancePanelMessages } from './CustomerFinancePanel.messages'
-import type { CustomerQuote, Invoice } from '../types'
+import type { CustomerQuote, Invoice, MissionPaymentAllocation } from '../types'
 import '../finance.css'
 import { CardComponent } from '../../../shared/components/antd'
 import { OrderIcon } from '../../manager/components/common/OrderIcon'
 import { isNotFound, messageOf } from './customerFinanceHelpers'
 import { QuoteSection } from './components/QuoteSection'
 import { InvoiceSection, InvoiceSummary } from './components/InvoiceSection'
+import { RefundStatusSection } from './components/RefundStatusSection'
+import { refundApi, type RefundResponse } from '../refundApi'
+import { MissionPaymentMilestonesSection } from './components/MissionPaymentMilestonesSection'
 
 export type CustomerFinanceState = {
   quote: CustomerQuote | null
@@ -41,6 +44,12 @@ export function CustomerFinancePanel({
   const [quoteStale, setQuoteStale] = useState(false)
   const [quote, setQuote] = useState<CustomerQuote | null>(null)
   const [invoice, setInvoice] = useState<Invoice | null>(null)
+  const [refund, setRefund] = useState<RefundResponse | null>(null)
+  const [missionPayments, setMissionPayments] = useState<MissionPaymentAllocation | null>(null)
+  const [missionPaymentsLoading, setMissionPaymentsLoading] = useState(false)
+  const [missionPaymentsError, setMissionPaymentsError] = useState<string | null>(null)
+  const [refundLoading, setRefundLoading] = useState(true)
+  const [refundError, setRefundError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -49,9 +58,12 @@ export function CustomerFinancePanel({
     setLoading(true)
     setQuoteStale(false)
     setError(null)
-    const [quoteResult, invoiceResult] = await Promise.allSettled([
+    setRefundLoading(true)
+    setRefundError(null)
+    const [quoteResult, invoiceResult, refundResult] = await Promise.allSettled([
       financeApi.getQuote(orderId),
       financeApi.getInvoice(orderId),
+      refundApi.getCustomerOrderRefund(orderId),
     ])
     if (quoteResult.status === 'fulfilled') setQuote(quoteResult.value)
     else if (isNotFound(quoteResult.reason)) setQuote(null)
@@ -62,6 +74,32 @@ export function CustomerFinancePanel({
     if (invoiceResult.status === 'fulfilled') setInvoice(invoiceResult.value)
     else if (isNotFound(invoiceResult.reason)) setInvoice(null)
     else setError(messageOf(invoiceResult.reason, t))
+    if (invoiceResult.status === 'fulfilled') {
+      setMissionPaymentsLoading(true)
+      setMissionPaymentsError(null)
+      try {
+        setMissionPayments(await financeApi.getCustomerMissionPaymentAllocations(orderId))
+      } catch (cause) {
+        if (isNotFound(cause)) setMissionPayments(null)
+        else {
+          setMissionPayments(null)
+          setMissionPaymentsError(messageOf(cause, t))
+        }
+      } finally {
+        setMissionPaymentsLoading(false)
+      }
+    } else {
+      setMissionPayments(null)
+      setMissionPaymentsLoading(false)
+      setMissionPaymentsError(null)
+    }
+    if (refundResult.status === 'fulfilled') setRefund(refundResult.value)
+    else if (isNotFound(refundResult.reason)) setRefund(null)
+    else {
+      setRefund(null)
+      setRefundError(messageOf(refundResult.reason, t))
+    }
+    setRefundLoading(false)
     setLoading(false)
   }, [orderId, refreshKey, t])
 
@@ -88,15 +126,12 @@ export function CustomerFinancePanel({
     }
   }
 
-  async function pay(type: 'deposit' | 'final') {
+  async function pay(_type: 'deposit') {
     if (!invoice) return
     setBusy(true)
     setError(null)
     try {
-      const payment =
-        type === 'deposit'
-          ? await financeApi.createDeposit(invoice.id)
-          : await financeApi.createFinalPayment(invoice.id)
+      const payment = await financeApi.createDeposit(invoice.id)
       if (!payment.paymentUrl) throw new Error(t.missingPaymentUrl)
       window.location.assign(payment.paymentUrl)
     } catch (cause) {
@@ -105,13 +140,38 @@ export function CustomerFinancePanel({
     }
   }
 
-  async function completeTestPayment(type: 'deposit' | 'final') {
+  async function completeTestPayment() {
     if (!invoice) return
     setBusy(true)
     setError(null)
     try {
-      if (type === 'deposit') await financeApi.completeTestDeposit(invoice.id)
-      else await financeApi.completeTestFinal(invoice.id)
+      await financeApi.completeTestDeposit(invoice.id)
+      await load()
+    } catch (cause) {
+      setError(messageOf(cause, t))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function payMission(milestoneId: string) {
+    setBusy(true)
+    setError(null)
+    try {
+      const payment = await financeApi.createMissionPayment(milestoneId)
+      if (!payment.paymentUrl) throw new Error(t.missingPaymentUrl)
+      window.location.assign(payment.paymentUrl)
+    } catch (cause) {
+      setError(messageOf(cause, t))
+      setBusy(false)
+    }
+  }
+
+  async function completeTestMission(milestoneId: string) {
+    setBusy(true)
+    setError(null)
+    try {
+      await financeApi.completeTestMissionPayment(milestoneId)
       await load()
     } catch (cause) {
       setError(messageOf(cause, t))
@@ -130,8 +190,7 @@ export function CustomerFinancePanel({
       legalReady={legalReady}
       busy={busy}
       pay={pay}
-      completeTestDeposit={() => completeTestPayment('deposit')}
-      completeTestFinal={() => completeTestPayment('final')}
+      completeTestDeposit={completeTestPayment}
       testPaymentLabel={t.testPayment}
       refreshExpired={() => void load()}
     />
@@ -139,6 +198,8 @@ export function CustomerFinancePanel({
 
   if (loading && !quote && !invoice)
     return (
+      <>
+      <RefundStatusSection refund={refund} loading={refundLoading} error={refundError} />
       <CardComponent
         className="customer-finance-card"
         title={t.title}
@@ -146,9 +207,12 @@ export function CustomerFinancePanel({
       >
         <p className="customer-finance-desc">{t.loading}</p>
       </CardComponent>
+      </>
     )
   if (!quote && !invoice && !error)
     return (
+      <>
+      <RefundStatusSection refund={refund} loading={refundLoading} error={refundError} />
       <CardComponent
         className="customer-finance-card"
         title={t.title}
@@ -156,9 +220,12 @@ export function CustomerFinancePanel({
       >
         <p className="customer-finance-desc">{t.noFinancialData}</p>
       </CardComponent>
+      </>
     )
 
   return (
+    <>
+    <RefundStatusSection refund={refund} loading={refundLoading} error={refundError} />
     <CardComponent
       className="customer-finance-card"
       title={t.title}
@@ -207,5 +274,16 @@ export function CustomerFinancePanel({
         />
       ) : null}
     </CardComponent>
+    {invoice ? (
+      <MissionPaymentMilestonesSection
+        allocation={missionPayments}
+        loading={missionPaymentsLoading}
+        error={missionPaymentsError}
+        busy={busy}
+        onPay={(milestoneId) => void payMission(milestoneId)}
+        onTestPay={(milestoneId) => void completeTestMission(milestoneId)}
+      />
+    ) : null}
+    </>
   )
 }

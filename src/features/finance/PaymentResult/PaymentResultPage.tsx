@@ -26,9 +26,7 @@ export function PaymentResultPage({
     try {
       // The refresh endpoint performs a signed server-to-server QueryDR call.
       // Browser return parameters are never used as proof of payment.
-      const current = cancelled
-        ? await financeApi.getPaymentByReference(transactionReference)
-        : await financeApi.refreshPaymentByReference(transactionReference)
+      const current = await financeApi.refreshPaymentByReference(transactionReference)
       setPayment(current)
       const stillProcessing =
         current.status === 'PENDING' || current.status === 'PROCESSING'
@@ -56,10 +54,17 @@ export function PaymentResultPage({
     setChecking(true)
     setError(null)
     try {
-      const next =
-        payment.type === 'FINAL_PAYMENT'
-          ? await financeApi.createFinalPayment(payment.invoiceId)
-          : await financeApi.createDeposit(payment.invoiceId)
+      const next = payment.type === 'MISSION_PAYMENT'
+        ? payment.missionPaymentMilestoneId
+          ? await financeApi.createMissionPayment(payment.missionPaymentMilestoneId)
+          : null
+        : payment.type === 'DEPOSIT'
+          ? await financeApi.createDeposit(payment.invoiceId)
+          : null
+      if (payment.type !== 'DEPOSIT' && payment.type !== 'MISSION_PAYMENT') {
+        throw new Error('This legacy payment cannot be retried. Contact the Manager for help.')
+      }
+      if (!next) throw new Error('Không tìm thấy khoản thanh toán Mission để thử lại.')
       if (next.paymentUrl) window.location.assign(next.paymentUrl)
     } catch (cause) {
       setChecking(false)

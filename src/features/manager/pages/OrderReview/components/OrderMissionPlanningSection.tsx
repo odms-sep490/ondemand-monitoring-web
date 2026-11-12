@@ -29,6 +29,7 @@ import { canCreateRework } from '../../../../delivery/reworkPolicy'
 import { reworkPlanningWorkspace } from '../../../lib/reworkPlanningWorkspace'
 import { TicketResultReviewCard } from '../../../../support/components/TicketResultReviewCard'
 import { missionCreatePageMessages } from '../../MissionCreate/MissionCreatePage.messages'
+import { MissionPaymentAllocationPanel } from './MissionPaymentAllocationPanel'
 
 export type PlanningWorkflowInfo = {
   depositPaid: boolean
@@ -96,7 +97,7 @@ function OrderPlanningWorkspace({
 
   const query = useApiQuery(
     async (signal) => {
-      const [plan, missions, order, invoice, revisionCase] = await Promise.all([
+      const [plan, missions, order, invoice, revisionCase, paymentAllocation] = await Promise.all([
         planningApi.getExecutionPlan(orderId, signal),
         planningApi.getOrderMissions(orderId, signal),
         initialOrderRef.current ?? ordersApi.getOrder(orderId, signal),
@@ -104,6 +105,9 @@ function OrderPlanningWorkspace({
         reworkCaseId
           ? deliveryApi.managerGetRevisionCase(orderId, signal)
           : Promise.resolve(null),
+        reworkCaseId
+          ? Promise.resolve(null)
+          : financeApi.getManagerMissionPaymentAllocations(orderId, signal).catch(() => null),
       ])
       if (!signal.aborted) initialOrderRef.current = undefined
       if (reworkCaseId) {
@@ -133,9 +137,10 @@ function OrderPlanningWorkspace({
           ),
           invoice,
           revisionCase,
+          paymentAllocation,
         }
       }
-      return { plan, missions, order, invoice, revisionCase: null }
+      return { plan, missions, order, invoice, revisionCase: null, paymentAllocation }
     },
     [orderId, reworkCaseId],
   )
@@ -180,11 +185,9 @@ function OrderPlanningWorkspace({
     data?.missions.filter((mission) => mission.status !== 'CANCELLED') ?? []
   const depositPaid = Boolean(
     data?.invoice &&
+    !['CANCELLED', 'REFUNDED', 'OVERDUE'].includes(data.invoice.status) &&
     (data.invoice.depositStatus === 'DEPOSIT_PAID' ||
       data.invoice.paidAmount >= data.invoice.depositAmount),
-  )
-  const paymentComplete = Boolean(
-    data?.invoice?.status === 'PAID' && data.invoice.remainingAmount <= 0,
   )
 
   useEffect(() => {
@@ -218,8 +221,7 @@ function OrderPlanningWorkspace({
         ? ['IN_PROGRESS', 'COMPLETED'].includes(data.order.status) &&
           data.revisionCase?.active &&
           data.revisionCase.status === 'OPEN' &&
-          data.invoice?.status === 'PAID' &&
-          data.invoice.remainingAmount === 0
+          depositPaid
         : depositPaid &&
           ['APPROVED', 'IN_PROGRESS'].includes(data.order.status)),
     )
@@ -387,17 +389,6 @@ function OrderPlanningWorkspace({
               data={data}
             />
           ) : null}
-          {!reworkCaseId &&
-          data.invoice?.finalPaymentAllowed &&
-          data.invoice.remainingAmount > 0 ? (
-            <div className="mgr-banner mgr-plan-gate" role="status">
-              <div className="mgr-plan-gate-text">
-                <strong>{ts.awaitingFinalPayment}</strong>
-                <span>{ts.awaitingFinalPaymentBody}</span>
-              </div>
-            </div>
-          ) : null}
-
           {/* Create Mission Modal Popup */}
           {creating && (
             <PlanningFormModal
@@ -445,14 +436,24 @@ function OrderPlanningWorkspace({
             <div className="odm-flight-permits-container">
               <ShowMoreList>
                 {effective.map((mission) =>
-                  mission.flightPermitStatus === 'APPROVED' ? (
+                  mission.flightPermitStatus === 'APPROVED' &&
+                  data.order.legalReviewStatus !== 'REJECTED' ? (
                     <MissionExecutionPanel key={mission.id} mission={mission} />
                   ) : (
                     <FlightPermitCard
                       key={mission.id}
                       mission={mission}
                       onChanged={query.reload}
-                      paymentComplete={paymentComplete}
+                      depositPaid={depositPaid}
+                      orderPermitRejected={
+                        data.order.legalReviewStatus === 'REJECTED'
+                      }
+                      refundEligible={Boolean(
+                        data.order.status === 'APPROVED' &&
+                          data.order.legalReviewStatus === 'REJECTED' &&
+                          mission.flightPermitStatus === 'REJECTED' &&
+                          depositPaid,
+                      )}
                     />
                   ),
                 )}
@@ -479,7 +480,16 @@ function OrderPlanningWorkspace({
                           )),
                       )}
                       onChanged={query.reload}
-                      paymentComplete={paymentComplete}
+                      depositPaid={depositPaid}
+                      orderPermitRejected={
+                        data.order.legalReviewStatus === 'REJECTED'
+                      }
+                      refundEligible={Boolean(
+                        data.order.status === 'APPROVED' &&
+                          data.order.legalReviewStatus === 'REJECTED' &&
+                          mission.flightPermitStatus === 'REJECTED' &&
+                          depositPaid,
+                      )}
                     />
                   ))}
                 </ShowMoreList>
@@ -549,6 +559,18 @@ function OrderPlanningWorkspace({
               </div>
             </div>
           )}
+          {!reworkCaseId &&
+          activeTab === 'planning' &&
+          data.invoice &&
+          data.plan.planStatus === 'FINALIZED' ? (
+            <MissionPaymentAllocationPanel
+              orderId={orderId}
+              invoice={data.invoice}
+              missions={data.missions}
+              allocation={data.paymentAllocation}
+              onSaved={query.reload}
+            />
+          ) : null}
         </>
       )}
     </section>
