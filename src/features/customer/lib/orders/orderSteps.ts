@@ -20,7 +20,6 @@ export type OrderFinanceProgress = {
     paidAmount: number
     remainingAmount?: number
     status?: string
-    finalPaymentAllowed?: boolean
     issuedAt: string
   } | null
 }
@@ -123,8 +122,7 @@ export function buildOrderSteps(
     (mission) => Boolean(mission.scheduledStartAt) && PLANNING_COMPLETED_STATUSES.has(mission.status),
   )
   if (planningCompleted && status !== 'COMPLETED') {
-    const finalPaid = status === 'IN_PROGRESS'
-      || Boolean(finance?.invoice?.status === 'PAID')
+    const finalPaid = Boolean(finance?.invoice?.status === 'PAID')
       || (finance?.invoice?.remainingAmount != null && finance.invoice.remainingAmount <= 0)
     current = finalPaid ? 6 : 5
   }

@@ -5,6 +5,7 @@ import type {
 } from '../../api/customerApi'
 import { toNumber, truncateText } from './format'
 import type { ReadinessScore, FormState } from './types'
+import { resultFormatsFromMediaTotals } from '../checklist/types'
 
 export const ORDER_TITLE_MAX_LENGTH = 255
 export const DEFAULT_LATITUDE = 10.6402
@@ -84,10 +85,7 @@ export function buildOrderPayload(input: {
   const longitude = toNumber(form.longitude, DEFAULT_LONGITUDE)
   const lengthM = toNumber(form.estimatedLengthM, 0)
   const resultFormats = totals
-    ? [
-        ...(totals.images > 0 ? ['PHOTO'] : []),
-        ...(totals.videos > 0 ? ['VIDEO'] : []),
-      ]
+    ? resultFormatsFromMediaTotals(totals)
     : form.resultFormats.filter((format) => format !== 'PDF_REPORT')
   const detail = {
     radiusM: form.radiusM,

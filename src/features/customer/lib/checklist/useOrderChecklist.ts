@@ -10,6 +10,7 @@ import {
   evidenceTypeFor,
   mediaTotals,
   normalizeContent,
+  resultFormatsFromMediaTotals,
   serializeChecklist,
   usesMedia,
   type ChecklistRow,
@@ -223,7 +224,12 @@ export function useOrderChecklist(
             : {}),
         }))
       : null
-  const quote = useChecklistQuote(serviceId, quoteItems, pricingContext)
+  const selectedMediaTotals = mediaTotals(rows)
+  const quote = useChecklistQuote(serviceId, quoteItems, {
+    ...(pricingContext ?? {}),
+    // Keep the preview inputs identical to the formats buildOrderPayload persists.
+    resultFormats: resultFormatsFromMediaTotals(selectedMediaTotals),
+  })
 
   function change(
     key: string,
@@ -259,7 +265,7 @@ export function useOrderChecklist(
     serviceId,
     selectedCount: selected.length,
     /** Images and videos requested across the selected checklists. */
-    mediaTotals: mediaTotals(rows),
+    mediaTotals: selectedMediaTotals,
     /** Rows the customer can actually see and pick from (package rows plus anything selected or added). */
     totalCount: rows.filter((row) => row.packageItem !== false || row.selected)
       .length,

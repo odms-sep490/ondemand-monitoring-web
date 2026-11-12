@@ -4,7 +4,7 @@ export const missionCreatePageMessages = defineMessages({
   vi: {
     reworkTitle: 'Tạo nhiệm vụ thực hiện lại',
     reworkWorkspaceTitle: 'Kế hoạch thực hiện lại',
-    reworkPaymentRequired: 'Cần xác nhận đơn hàng gốc đã thanh toán đầy đủ để lập kế hoạch thực hiện lại. Không phát sinh khoản thanh toán mới.',
+    reworkPaymentRequired: 'Cần xác nhận đã thanh toán tiền cọc của đơn hàng gốc để lập kế hoạch thực hiện lại. Không phát sinh khoản thanh toán mới.',
     reworkReadOnly: 'Yêu cầu chỉnh sửa đã kết thúc. Kế hoạch thực hiện lại được hiển thị để tra cứu.',
     planningTab: 'Lập kế hoạch',
     permitTab: 'Giấy phép bay',
@@ -104,7 +104,7 @@ export const missionCreatePageMessages = defineMessages({
   en: {
     reworkTitle: 'Create rework mission',
     reworkWorkspaceTitle: 'Rework planning',
-    reworkPaymentRequired: 'The original order must be confirmed as fully paid before rework planning. No new payment is required.',
+    reworkPaymentRequired: 'The original order Deposit must be confirmed before rework planning. No new payment is required.',
     reworkReadOnly: 'This revision case is closed. The rework plan is available for reference.',
     planningTab: 'Planning',
     permitTab: 'Flight permits',

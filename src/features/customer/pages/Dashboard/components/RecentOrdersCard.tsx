@@ -52,8 +52,8 @@ export function RecentOrdersCard({ orders }: { orders: OrderRow[] }) {
       render: (_, order) => (
         <span className="mgr-cell-stack">
           <OrderStatusTag status={order.status} />
-          {order.finalPaymentState === 'ACTION_REQUIRED' ? (
-            <span className="cus-deposit">{t.finalPaymentRequired}</span>
+          {order.missionPaymentState === 'ACTION_REQUIRED' ? (
+            <span className="cus-deposit">{t.missionPaymentRequired}</span>
           ) : order.depositState === 'ACTION_REQUIRED' ? (
             <span className="cus-deposit">{t.depositRequired}</span>
           ) : null}

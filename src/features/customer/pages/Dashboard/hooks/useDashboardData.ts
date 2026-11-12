@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 
 import { useApiQuery } from '../../../../../shared/hooks/useApiQuery'
 import { customerApi } from '../../../api/customerApi'
-import { loadFinalPaymentState } from '../../../lib/orders/loadFinalPaymentState'
+import { loadMissionPaymentState } from '../../../lib/orders/loadMissionPaymentState'
 import { toOrderRow } from '../../../lib/orders/mapOrder'
 import { computeOrderStats, recentOrders } from '../../../lib/orders/orderStats'
 
@@ -19,7 +19,7 @@ export function useDashboardData() {
       const recentIds = new Set(
         recentOrders(rows, RECENT_LIMIT).map((order) => order.id),
       )
-      return loadFinalPaymentState(rows, signal, recentIds)
+      return loadMissionPaymentState(rows, signal, recentIds)
     },
     [],
   )

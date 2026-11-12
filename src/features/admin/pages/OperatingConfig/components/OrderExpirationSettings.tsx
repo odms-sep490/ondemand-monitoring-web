@@ -27,11 +27,11 @@ export function OrderExpirationSettings() {
   )
   const [quotationHours, setQuotationHours] = useState('')
   const [depositHours, setDepositHours] = useState('')
-  const [finalPaymentHours, setFinalPaymentHours] = useState('')
+  const [missionPaymentHours, setMissionPaymentHours] = useState('')
   const [savedValues, setSavedValues] = useState<{
     quotation: number
     deposit: number
-    finalPayment: number
+    missionPayment: number
   } | null>(null)
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
@@ -43,11 +43,11 @@ export function OrderExpirationSettings() {
       String(settingsQuery.data.quotationAcceptanceTimeoutHours),
     )
     setDepositHours(String(settingsQuery.data.depositPaymentTimeoutHours))
-    setFinalPaymentHours(String(settingsQuery.data.finalPaymentTimeoutHours))
+    setMissionPaymentHours(String(settingsQuery.data.missionPaymentTimeoutHours))
     setSavedValues({
       quotation: settingsQuery.data.quotationAcceptanceTimeoutHours,
       deposit: settingsQuery.data.depositPaymentTimeoutHours,
-      finalPayment: settingsQuery.data.finalPaymentTimeoutHours,
+      missionPayment: settingsQuery.data.missionPaymentTimeoutHours,
     })
   }, [settingsQuery.data])
 
@@ -59,7 +59,7 @@ export function OrderExpirationSettings() {
 
   const quotationValue = Number(quotationHours)
   const depositValue = Number(depositHours)
-  const finalPaymentValue = Number(finalPaymentHours)
+  const missionPaymentValue = Number(missionPaymentHours)
   const valid = (text: string, value: number) =>
     /^\d+$/.test(text) &&
     Number.isInteger(value) &&
@@ -74,16 +74,16 @@ export function OrderExpirationSettings() {
   }
   const quotationError = fieldError(quotationHours, quotationValue)
   const depositError = fieldError(depositHours, depositValue)
-  const finalPaymentError = fieldError(finalPaymentHours, finalPaymentValue)
+  const missionPaymentError = fieldError(missionPaymentHours, missionPaymentValue)
   const hasChanges =
     savedValues !== null &&
     (quotationValue !== savedValues.quotation ||
       depositValue !== savedValues.deposit ||
-      finalPaymentValue !== savedValues.finalPayment)
+      missionPaymentValue !== savedValues.missionPayment)
   const canSave =
     valid(quotationHours, quotationValue) &&
     valid(depositHours, depositValue) &&
-    valid(finalPaymentHours, finalPaymentValue) &&
+    valid(missionPaymentHours, missionPaymentValue) &&
     hasChanges &&
     !busy
 
@@ -97,15 +97,15 @@ export function OrderExpirationSettings() {
       const updated = await adminApi.updateOrderExpirationSettings({
         quotationAcceptanceTimeoutHours: quotationValue,
         depositPaymentTimeoutHours: depositValue,
-        finalPaymentTimeoutHours: finalPaymentValue,
+        missionPaymentTimeoutHours: missionPaymentValue,
       })
       setQuotationHours(String(updated.quotationAcceptanceTimeoutHours))
       setDepositHours(String(updated.depositPaymentTimeoutHours))
-      setFinalPaymentHours(String(updated.finalPaymentTimeoutHours))
+      setMissionPaymentHours(String(updated.missionPaymentTimeoutHours))
       setSavedValues({
         quotation: updated.quotationAcceptanceTimeoutHours,
         deposit: updated.depositPaymentTimeoutHours,
-        finalPayment: updated.finalPaymentTimeoutHours,
+        missionPayment: updated.missionPaymentTimeoutHours,
       })
       setMessage(t.saved)
       settingsQuery.reload()
@@ -120,7 +120,7 @@ export function OrderExpirationSettings() {
   const settingLabel = (name: OrderExpirationSettingAudit['settingName']) => {
     if (name === 'quotationAcceptanceTimeoutHours') return t.quotation
     if (name === 'depositPaymentTimeoutHours') return t.deposit
-    return t.finalPayment
+    return t.missionPayment
   }
   const changedAt = (audit: OrderExpirationSettingAudit) =>
     new Date(audit.changedAt).toLocaleString(locale)
@@ -269,13 +269,13 @@ export function OrderExpirationSettings() {
             error: depositError,
           })}
           {renderTimeoutField({
-            id: 'final-payment-timeout',
+            id: 'mission-payment-timeout',
             icon: 'clock',
-            label: t.finalPayment,
-            description: t.finalPaymentHint,
-            value: finalPaymentHours,
-            onChange: setFinalPaymentHours,
-            error: finalPaymentError,
+            label: t.missionPayment,
+            description: t.missionPaymentHint,
+            value: missionPaymentHours,
+            onChange: setMissionPaymentHours,
+            error: missionPaymentError,
           })}
         </div>
 

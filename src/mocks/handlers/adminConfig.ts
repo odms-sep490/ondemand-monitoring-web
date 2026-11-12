@@ -18,7 +18,7 @@ type ZoneSeed = (typeof seedData.noFlyZones)[number]
 type ExpirationSettingsSeed = {
   quotationAcceptanceTimeoutHours: number
   depositPaymentTimeoutHours: number
-  finalPaymentTimeoutHours: number
+  missionPaymentTimeoutHours: number
   updatedBy: string
   updatedAt: string | null
 }
@@ -28,7 +28,7 @@ type ExpirationAuditSeed = {
   settingName:
     | 'quotationAcceptanceTimeoutHours'
     | 'depositPaymentTimeoutHours'
-    | 'finalPaymentTimeoutHours'
+    | 'missionPaymentTimeoutHours'
   previousValue: number
   newValue: number
   actor: string
@@ -64,7 +64,7 @@ registerMockRoutes([
       if (
         !validHours(payload.quotationAcceptanceTimeoutHours) ||
         !validHours(payload.depositPaymentTimeoutHours) ||
-        !validHours(payload.finalPaymentTimeoutHours)
+        !validHours(payload.missionPaymentTimeoutHours)
       )
         return fail(400, 'VALIDATION_ERROR', 'Timeout must be an integer from 1 to 8760 hours.')
 
@@ -73,7 +73,7 @@ registerMockRoutes([
       for (const field of [
         'quotationAcceptanceTimeoutHours',
         'depositPaymentTimeoutHours',
-        'finalPaymentTimeoutHours',
+        'missionPaymentTimeoutHours',
       ] as const) {
         const previousValue = expirationSettings[field]
         const newValue = payload[field] as number
@@ -91,8 +91,8 @@ registerMockRoutes([
         payload.quotationAcceptanceTimeoutHours as number
       expirationSettings.depositPaymentTimeoutHours =
         payload.depositPaymentTimeoutHours as number
-      expirationSettings.finalPaymentTimeoutHours =
-        payload.finalPaymentTimeoutHours as number
+      expirationSettings.missionPaymentTimeoutHours =
+        payload.missionPaymentTimeoutHours as number
       expirationSettings.updatedBy = actor
       expirationSettings.updatedAt = changedAt
       return ok({ ...expirationSettings }, 'Expiration settings updated')

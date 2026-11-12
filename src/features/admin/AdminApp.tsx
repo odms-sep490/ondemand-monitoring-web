@@ -25,6 +25,7 @@ import { ChecklistCatalogPage } from './pages/Checklists/ChecklistCatalogPage'
 import { ServiceChecklistPage } from './pages/Checklists/ServiceChecklistPage'
 import { OperatingConfigPage } from './pages/OperatingConfig'
 import { AuditLogPage } from './pages/AuditLog'
+import { RefundManagementPage } from './pages/Refunds'
 import type { AdminRoute } from './routes'
 
 function renderScreen(route: AdminRoute, notFoundText: string) {
@@ -49,6 +50,8 @@ function renderScreen(route: AdminRoute, notFoundText: string) {
       return <OperatingConfigPage />
     case 'auditLog':
       return <AuditLogPage />
+    case 'refunds':
+      return <RefundManagementPage />
     default:
       return (
         <div style={{ padding: 40, textAlign: 'center', color: 'var(--tx3)' }}>

@@ -160,6 +160,17 @@ export function mediaTotals(rows: ChecklistRow[]): {
   return { images, videos }
 }
 
+/** Result formats that the customer requests are derived from selected checklist media. */
+export function resultFormatsFromMediaTotals(totals: {
+  images: number
+  videos: number
+}): ('PHOTO' | 'VIDEO')[] {
+  const formats: ('PHOTO' | 'VIDEO')[] = []
+  if (totals.images > 0) formats.push('PHOTO')
+  if (totals.videos > 0) formats.push('VIDEO')
+  return formats
+}
+
 /** The evidence types a customer can choose. IMAGE_OR_VIDEO is legacy and never offered. */
 export const EVIDENCE_TYPES = ['IMAGE', 'VIDEO', 'IMAGE_AND_VIDEO'] as const
 

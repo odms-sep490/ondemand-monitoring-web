@@ -187,9 +187,12 @@ export type Invoice = {
     'ISSUED' | 'PARTIALLY_PAID' | 'PAID' | 'OVERDUE' | 'CANCELLED' | 'REFUNDED'
   depositStatus?: DepositStatus
   issuedAt: string
-  finalPaymentAllowed: boolean
+  /** @deprecated Legacy response field; mission milestones now control post-deposit payments. */
+  finalPaymentAllowed?: boolean
   depositExpiresAt?: string | null
+  /** @deprecated Legacy response field retained for stored response compatibility. */
   finalPaymentExpiresAt?: string | null
+  /** @deprecated Legacy response field retained for stored response compatibility. */
   finalPaymentStartedAt?: string | null
   orderCancellationReason?: 'QUOTATION_EXPIRED' | 'DEPOSIT_PAYMENT_EXPIRED' | 'PERMIT_REJECTED' | null
 }
@@ -198,7 +201,8 @@ export type Payment = {
   id: string
   invoiceId: string
   paymentCode: number
-  type: 'DEPOSIT' | 'FINAL_PAYMENT' | 'REFUND'
+  type: 'DEPOSIT' | 'FINAL_PAYMENT' | 'MISSION_PAYMENT' | 'REFUND'
+  missionPaymentMilestoneId?: string | null
   amount: number
   currency: 'VND'
   status:
@@ -208,6 +212,35 @@ export type Payment = {
   transactionReference: string
   providerTransactionId: string | null
   paidAt: string | null
+}
+
+export type MissionPaymentMilestoneStatus =
+  | 'NOT_YET_DUE'
+  | 'UNPAID'
+  | 'PENDING'
+  | 'EXPIRED'
+  | 'PAID'
+  | 'CANCELLED'
+
+export type MissionPaymentMilestone = {
+  id: string
+  missionId: string
+  missionCode: string
+  scopeLabel: string | null
+  amount: number
+  currency: 'VND'
+  status: MissionPaymentMilestoneStatus
+  handedOverAt: string | null
+  paymentExpiresAt: string | null
+  payments: Payment[]
+}
+
+export type MissionPaymentAllocation = {
+  invoiceId: string
+  allocationTargetAmount: number
+  allocatedAmount: number
+  allocationComplete: boolean
+  milestones: MissionPaymentMilestone[]
 }
 
 export type PricingReview = {

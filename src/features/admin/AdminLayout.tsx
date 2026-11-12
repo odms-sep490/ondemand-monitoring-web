@@ -32,6 +32,7 @@ const NAV_ITEMS: NavItem[] = [
   { key: 'checklists', icon: 'clipboard', route: { screen: 'checklists' } },
   { key: 'operatingConfig', icon: 'cpu', route: { screen: 'operatingConfig' } },
   { key: 'auditLog', icon: 'file-text', route: { screen: 'auditLog' } },
+  { key: 'refunds', icon: 'file-text', route: { screen: 'refunds' } },
 ]
 
 // Which nav item highlights as active for each parsed screen.
@@ -46,6 +47,7 @@ const activeNavKey: Record<AdminScreen, NavItemKey | null> = {
   serviceChecklists: 'catalog',
   operatingConfig: 'operatingConfig',
   auditLog: 'auditLog',
+  refunds: 'refunds',
   notFound: null,
 }
 

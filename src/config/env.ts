@@ -34,9 +34,25 @@ const staffLicenseApiRoutes = parseRealApiRoutes(
     'POST /api/staff-licenses/*/document',
   ].join(','),
 )
+const depositRefundApiRoutes = parseRealApiRoutes(
+  [
+    'POST /api/manager/orders/*/deposit-refunds',
+    'GET /api/manager/orders/*/deposit-refund',
+    'GET /api/orders/*/deposit-refund',
+    'GET /api/admin/deposit-refunds*',
+    'POST /api/admin/deposit-refunds/*/processing',
+    'POST /api/admin/deposit-refunds/*/reject',
+    'POST /api/admin/deposit-refunds/*/cancel',
+    'POST /api/admin/deposit-refunds/*/attempts',
+    'POST /api/admin/deposit-refunds/*/attempts/*/receipts',
+    'POST /api/admin/deposit-refunds/*/confirm',
+    'GET /api/deposit-refunds/*/receipts/*/access',
+  ].join(','),
+)
 const realApiRoutes = [
   ...parseRealApiRoutes(import.meta.env.VITE_REAL_API_ROUTES),
   ...staffLicenseApiRoutes,
+  ...depositRefundApiRoutes,
 ]
 
 export const env = {
@@ -48,5 +64,6 @@ export const env = {
   mockLatencyMs,
   realApiRoutes,
   testPaymentsEnabled:
-    import.meta.env.DEV && import.meta.env.VITE_ENABLE_TEST_PAYMENT !== 'false',
+    (import.meta.env.DEV || import.meta.env.MODE === 'test') &&
+    import.meta.env.VITE_ENABLE_TEST_PAYMENT === 'true',
 } as const

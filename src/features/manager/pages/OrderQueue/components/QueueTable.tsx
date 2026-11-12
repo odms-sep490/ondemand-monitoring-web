@@ -24,7 +24,7 @@ type Props = {
   total: number
   mode: QueueTableMode
   depositStatusByOrder?: Record<string, DepositStatus>
-  finalPaymentDueByOrder?: Record<string, boolean>
+  missionPaymentDueByOrder?: Record<string, boolean>
   /** True when an APPROVED order already has a live mission. */
   isInProgress?: (order: OrderCreateResponse) => boolean
 }
@@ -35,7 +35,7 @@ export function QueueTable({
   mode,
   isInProgress,
   depositStatusByOrder = {},
-  finalPaymentDueByOrder = {},
+  missionPaymentDueByOrder = {},
 }: Props) {
   const { t, locale, lang } = useI18n(orderQueuePageMessages)
   const now = new Date()
@@ -95,13 +95,13 @@ export function QueueTable({
       key: 'status',
       render: (_, row) => {
         const running = row.orderStatus === 'APPROVED' && isInProgress?.(row)
-        const finalPaymentDue = finalPaymentDueByOrder[row.id]
+        const missionPaymentDue = missionPaymentDueByOrder[row.id]
         return (
           <StatusTag
-            tone={finalPaymentDue ? 'warning' : orderStatusTone[row.orderStatus] ?? 'gray'}
+            tone={missionPaymentDue ? 'warning' : orderStatusTone[row.orderStatus] ?? 'gray'}
           >
-            {finalPaymentDue
-              ? t.finalPaymentDue
+            {missionPaymentDue
+              ? t.missionPaymentDue
               : running
                 ? t.filters.IN_PROGRESS
                 : (labels[row.orderStatus] ?? row.orderStatus)}

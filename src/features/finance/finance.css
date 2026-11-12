@@ -2242,3 +2242,318 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+.customer-refund-card {
+  margin: 0 0 16px;
+  padding: 18px 20px;
+  border: 1px solid var(--line, #dce3eb);
+  border-radius: 14px;
+  background: var(--surface, #fff);
+  color: var(--tx, #17212f);
+}
+
+.mission-payment-card,
+.mission-allocation-card {
+  margin: 16px 0;
+  padding: 18px 20px;
+  border: 1px solid var(--ui-border, #dce3eb);
+  border-radius: 14px;
+  background: var(--ui-surface, #fff);
+  color: var(--ui-text, #172033);
+}
+
+.mission-payment-card__heading,
+.mission-allocation-card > header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px 20px;
+  margin-bottom: 12px;
+}
+
+.mission-payment-card__heading h3,
+.mission-allocation-card h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.mission-payment-card__heading p,
+.mission-allocation-card header p {
+  max-width: 720px;
+  margin: 5px 0 0;
+  color: var(--ui-text-3, #667085);
+  font-size: 13px;
+}
+
+.mission-payment-card__total,
+.mission-allocation-card__totals {
+  color: var(--ui-text-2, #42536c);
+  font-variant-numeric: tabular-nums;
+}
+
+.mission-allocation-card__totals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+}
+
+.mission-allocation-card__totals span {
+  display: grid;
+  gap: 4px;
+  color: var(--ui-text-3, #667085);
+  font-size: 12px;
+}
+
+.mission-allocation-card__totals strong {
+  color: var(--ui-text, #172033);
+  font-size: 14px;
+}
+
+.mission-payment-card__empty {
+  margin: 0;
+  color: var(--ui-text-3, #667085);
+}
+
+.mission-payment-list,
+.mission-allocation-list {
+  display: grid;
+  gap: 10px;
+}
+
+.mission-payment-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px 18px;
+  padding: 14px;
+  border: 1px solid var(--ui-border, #e3e9f2);
+  border-radius: 11px;
+  background: var(--ui-surface-subtle, #f8faff);
+}
+
+.mission-payment-item__title,
+.mission-payment-item__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.mission-payment-item__title > div,
+.mission-allocation-row__mission {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.mission-payment-item__title span,
+.mission-allocation-row__mission span {
+  color: var(--ui-text-3, #667085);
+  font-size: 12px;
+}
+
+.mission-payment-item__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 28px;
+  margin: 10px 0 0;
+}
+
+.mission-payment-item__facts div {
+  display: grid;
+  gap: 3px;
+}
+
+.mission-payment-item__facts dt {
+  color: var(--ui-text-3, #667085);
+  font-size: 11px;
+}
+
+.mission-payment-item__facts dd {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.mission-payment-item__history {
+  grid-column: 1 / -1;
+  padding-top: 10px;
+  border-top: 1px solid var(--ui-border, #e3e9f2);
+}
+
+.mission-payment-item__history > strong {
+  font-size: 12px;
+}
+
+.mission-payment-item__history ul {
+  display: grid;
+  gap: 6px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mission-payment-item__history li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px 10px;
+  color: var(--ui-text-2, #42536c);
+  font-size: 12px;
+}
+
+.mission-payment-item__history li > span {
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.mission-payment-item__history li small {
+  overflow-wrap: anywhere;
+  color: var(--ui-text-3, #667085);
+}
+
+.mission-payment-item__history p {
+  margin: 6px 0 0;
+  color: var(--ui-text-3, #667085);
+  font-size: 12px;
+}
+
+.mission-allocation-card {
+  margin-top: 18px;
+}
+
+.mission-allocation-row {
+  display: grid;
+  grid-template-columns: minmax(160px, 1fr) auto minmax(200px, 260px);
+  align-items: center;
+  gap: 12px 18px;
+  padding: 12px;
+  border: 1px solid var(--ui-border, #e3e9f2);
+  border-radius: 10px;
+  background: var(--ui-surface, #fff);
+}
+
+.mission-allocation-row label {
+  display: grid;
+  gap: 5px;
+  color: var(--ui-text-2, #42536c);
+  font-size: 12px;
+}
+
+.mission-allocation-row input {
+  width: 100%;
+  min-height: 36px;
+  box-sizing: border-box;
+  padding: 7px 9px;
+  border: 1px solid var(--ui-border, #dce3eb);
+  border-radius: 7px;
+  background: var(--ui-surface, #fff);
+  color: var(--ui-text, #172033);
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
+.mission-allocation-card > footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+@media (max-width: 640px) {
+  .mission-payment-card,
+  .mission-allocation-card {
+    padding: 14px;
+  }
+
+  .mission-payment-item {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mission-payment-item__actions {
+    justify-content: flex-start;
+  }
+
+  .mission-allocation-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .mission-allocation-row label {
+    grid-column: 1 / -1;
+  }
+}
+
+.customer-refund-card__heading,
+.customer-refund-card__attempt {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.customer-refund-card__eyebrow {
+  color: var(--tx3, #687589);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.customer-refund-card h3,
+.customer-refund-card h4 {
+  margin: 4px 0 10px;
+}
+
+.customer-refund-card__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin: 12px 0;
+}
+
+.customer-refund-card__facts div,
+.customer-refund-card__attempt > div:first-child {
+  display: grid;
+  gap: 4px;
+}
+
+.customer-refund-card__facts dt {
+  color: var(--tx3, #687589);
+  font-size: 12px;
+}
+
+.customer-refund-card__facts dd {
+  margin: 0;
+  font-weight: 650;
+}
+
+.customer-refund-card__reason {
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--surface-subtle, #f5f7fa);
+}
+
+.customer-refund-card__attempts {
+  margin-top: 16px;
+}
+
+.customer-refund-card__attempt {
+  padding: 12px 0;
+  border-top: 1px solid var(--line, #dce3eb);
+}
+
+.customer-refund-card__attempt span {
+  color: var(--tx2, #4e5a6b);
+  font-size: 13px;
+}
+
+.customer-refund-card__receipts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+@media (max-width: 640px) {
+  .customer-refund-card__attempt {
+    flex-direction: column;
+  }
+}
