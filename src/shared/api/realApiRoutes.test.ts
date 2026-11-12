@@ -23,16 +23,32 @@ describe('matchesRealApiRoute', () => {
     expect(matchesRealApiRoute(routes, 'GET', '/api/admin/users/u1')).toBe(true)
   })
   it('matches single-segment wildcard only', () => {
-    expect(matchesRealApiRoute(routes, 'PATCH', '/api/admin/users/u1/status')).toBe(true)
-    expect(matchesRealApiRoute(routes, 'PATCH', '/api/admin/users/status')).toBe(false)
-    expect(matchesRealApiRoute(routes, 'PATCH', '/api/admin/users/a/b/status')).toBe(false)
+    expect(
+      matchesRealApiRoute(routes, 'PATCH', '/api/admin/users/u1/status'),
+    ).toBe(true)
+    expect(
+      matchesRealApiRoute(routes, 'PATCH', '/api/admin/users/status'),
+    ).toBe(false)
+    expect(
+      matchesRealApiRoute(routes, 'PATCH', '/api/admin/users/a/b/status'),
+    ).toBe(false)
   })
   it('requires method and exact path when no wildcard', () => {
-    expect(matchesRealApiRoute(routes, 'POST', '/api/admin/accounts')).toBe(true)
-    expect(matchesRealApiRoute(routes, 'post', '/api/admin/accounts')).toBe(true)
-    expect(matchesRealApiRoute(routes, 'GET', '/api/admin/accounts')).toBe(false)
-    expect(matchesRealApiRoute(routes, 'POST', '/api/admin/accounts/x')).toBe(false)
-    expect(matchesRealApiRoute(routes, 'DELETE', '/api/admin/users/u1')).toBe(false)
+    expect(matchesRealApiRoute(routes, 'POST', '/api/admin/accounts')).toBe(
+      true,
+    )
+    expect(matchesRealApiRoute(routes, 'post', '/api/admin/accounts')).toBe(
+      true,
+    )
+    expect(matchesRealApiRoute(routes, 'GET', '/api/admin/accounts')).toBe(
+      false,
+    )
+    expect(matchesRealApiRoute(routes, 'POST', '/api/admin/accounts/x')).toBe(
+      false,
+    )
+    expect(matchesRealApiRoute(routes, 'DELETE', '/api/admin/users/u1')).toBe(
+      false,
+    )
   })
   it('trailing wildcard is a prefix match; other paths do not match', () => {
     expect(matchesRealApiRoute(routes, 'GET', '/api/admin/usersX')).toBe(true)
@@ -54,5 +70,11 @@ describe('matchesRealApiRoute', () => {
     for (const [method, path] of requests) {
       expect(matchesRealApiRoute(env.realApiRoutes, method, path)).toBe(true)
     }
+  })
+
+  it('always sends notification feeds to the real backend', () => {
+    expect(
+      matchesRealApiRoute(env.realApiRoutes, 'GET', '/api/notifications'),
+    ).toBe(true)
   })
 })

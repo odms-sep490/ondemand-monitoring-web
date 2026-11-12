@@ -7,6 +7,10 @@
 
 export type RealApiRoute = { method: string; pattern: string }
 
+export const notificationApiRoutes: RealApiRoute[] = [
+  { method: 'GET', pattern: '/api/notifications' },
+]
+
 export function parseRealApiRoutes(raw: string | undefined): RealApiRoute[] {
   if (!raw) return []
   const routes: RealApiRoute[] = []

@@ -30,6 +30,7 @@ export type ManagerRoute =
   | { screen: 'missions'; missionId?: string }
   | { screen: 'drones'; droneId?: string; assignmentMissionId?: string }
   | { screen: 'maintenance' }
+  | { screen: 'notifications' }
   | { screen: 'support'; ticketId?: string }
   | { screen: 'notFound' }
 
@@ -121,6 +122,10 @@ export function parseManagerRoute(hash: string): ManagerRoute {
       return tail.length === 0
         ? { screen: 'maintenance' }
         : { screen: 'notFound' }
+    case 'notifications':
+      return tail.length === 0
+        ? { screen: 'notifications' }
+        : { screen: 'notFound' }
     case 'support':
       if (tail.length === 0) return { screen: 'support' }
       if (tail.length === 2 && tail[0] === 'tickets')
@@ -184,6 +189,8 @@ export function managerHref(route: ManagerRoute): string {
     }
     case 'maintenance':
       return `${MANAGER_ROOT}/maintenance`
+    case 'notifications':
+      return `${MANAGER_ROOT}/notifications`
     case 'support':
       return route.ticketId
         ? `${MANAGER_ROOT}/support/tickets/${encodeURIComponent(route.ticketId)}`

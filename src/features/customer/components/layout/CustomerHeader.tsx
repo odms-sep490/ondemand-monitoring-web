@@ -1,5 +1,4 @@
 import {
-  BellOutlined,
   DownOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -14,6 +13,7 @@ import { useI18n } from '../../../../shared/i18n'
 import { customerLayoutMessages } from '../../CustomerLayout.messages'
 import { customerHref } from '../../routes'
 import { CustomerUserMenu } from './CustomerUserMenu'
+import { NotificationBell } from '../../../notifications/NotificationBell'
 
 type Props = {
   breadcrumb: string
@@ -84,13 +84,9 @@ export function CustomerHeader({
         >
           <span className="mgr-support-label">{t.headerHelp}</span>
         </Button>
-        <Button
-          href={customerHref({ screen: 'orders' })}
-          type="text"
-          className="mgr-icon-btn cus-header-notifications"
-          aria-label={t.orderUpdates}
-          title={t.orderUpdates}
-          icon={<BellOutlined aria-hidden="true" />}
+        <NotificationBell
+          role="CUSTOMER"
+          className="cus-header-notifications"
         />
         <LanguageToggle className="mgr-lang-toggle" />
         <Button

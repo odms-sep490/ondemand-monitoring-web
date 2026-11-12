@@ -80,5 +80,6 @@ export const activeNavKey: Record<CustomerScreen, CustomerNavItemKey | null> = {
   media: 'mediaLibrary',
   mediaLibrary: 'mediaLibrary',
   mediaDetail: 'mediaLibrary',
+  notifications: null,
   notFound: null,
 }

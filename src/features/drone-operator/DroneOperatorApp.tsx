@@ -36,6 +36,8 @@ import {
   markActiveMissionFlowStep,
   setActiveMissionId,
 } from './api/liveMission'
+import { NotificationsPage } from '../notifications/NotificationsPage'
+import { useNotifications } from '../notifications/useNotifications'
 
 function useHash(): string {
   const [hash, setHash] = useState(() => window.location.hash)
@@ -75,6 +77,7 @@ export function DroneOperatorApp() {
     'pending',
     now,
   ).length
+  const notificationFeed = useNotifications()
 
   if (guardedRoute) return null
 
@@ -95,7 +98,7 @@ export function DroneOperatorApp() {
     <OperatorLayout
       route={route}
       pendingCount={pendingCount}
-      notificationCount={2}
+      notificationCount={notificationFeed.unreadCount}
       searchQuery={searchQuery}
       onSearchChange={setSearchQuery}
       fillContent={route.screen === 'zoneMap'}
@@ -164,6 +167,8 @@ function renderScreen(
   if (route.screen === 'devices') return <SystemOperatorDevicesScreen />
   if (route.screen === 'maintenance') return <MaintenancePage />
   if (route.screen === 'zoneMap') return <SimulationZonesScreen />
+  if (route.screen === 'notifications')
+    return <NotificationsPage role="STAFF" />
   return (
     <PlaceholderPage
       title={
