@@ -5,7 +5,7 @@
   gap: 12px 20px;
   padding: 14px 16px;
   margin: 12px 0;
-  background: var(--sf, #fff);
+  background: var(--sf, var(--mgr-card));
   border-radius: 10px;
 }
 .staff-result-phase {
@@ -28,7 +28,7 @@
 .staff-result-reason {
   flex-basis: 100%;
   margin: 0;
-  color: var(--amber-fg, #92400e);
+  color: var(--amber-fg, var(--ui-warning-text));
   font-size: 13px;
 }
 @media (max-width: 640px) {

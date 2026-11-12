@@ -1,4 +1,7 @@
+import { Button } from 'antd'
 import { useMemo, useState } from 'react'
+
+import { PageHeader } from '../../../../shared/components/antd'
 
 import {
   EmptyState,
@@ -109,40 +112,36 @@ export function AvailabilityPage() {
   const dirty = localSlots !== null
 
   return (
-    <div>
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 12,
-          marginBottom: 14,
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <button
-            type="button"
-            className="odm-btn odm-btn-sm"
-            aria-label={t.prevWeek}
+    <div className="odm-opr-page">
+      <PageHeader
+        title={t.pageTitle}
+        description={t.pageSubtitle}
+        actions={
+          <Button
+            type="primary"
+            onClick={handleSave}
+            disabled={saving || !dirty}
           >
-            ‹
-          </button>
-          <span style={{ fontWeight: 600, fontSize: 13.5 }}>{t.weekLabel}</span>
-          <button
-            type="button"
-            className="odm-btn odm-btn-sm"
-            aria-label={t.nextWeek}
-          >
-            ›
-          </button>
-        </div>
+            {saving ? t.saving : t.saveChanges}
+          </Button>
+        }
+      />
+
+      <div className="odm-opr-week-nav">
         <button
           type="button"
-          className="odm-btn odm-btn-p"
-          onClick={handleSave}
-          disabled={saving || !dirty}
+          className="odm-btn odm-btn-sm"
+          aria-label={t.prevWeek}
         >
-          {saving ? t.saving : t.saveChanges}
+          ‹
+        </button>
+        <span style={{ fontWeight: 600, fontSize: 13.5 }}>{t.weekLabel}</span>
+        <button
+          type="button"
+          className="odm-btn odm-btn-sm"
+          aria-label={t.nextWeek}
+        >
+          ›
         </button>
       </div>
 

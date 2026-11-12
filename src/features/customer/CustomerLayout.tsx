@@ -22,6 +22,8 @@ import {
 import { customerLayoutMessages } from './CustomerLayout.messages'
 import { customerHref, type CustomerRoute } from './routes'
 import './customer.css'
+import '../../shared/styles/app-shell/topbar-shell.css'
+import '../../shared/styles/app-shell/legacy-kit.scss'
 import './styles/customer-pages.scss'
 
 export type { CustomerNavItemKey }

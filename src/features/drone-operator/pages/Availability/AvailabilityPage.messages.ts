@@ -2,6 +2,8 @@ import { defineMessages } from '../../../../shared/i18n'
 
 export const availabilityPageMessages = defineMessages({
   vi: {
+    pageTitle: 'Lịch rảnh',
+    pageSubtitle: 'Khai báo khung giờ bạn có thể nhận mission trong tuần.',
     modeLabel: { AVAILABLE: 'Rảnh', BUSY: 'Bận', OFF: 'Nghỉ' },
     loadFailedTitle: 'Không tải được lịch rảnh',
     loadFailedDesc: 'Mất kết nối hoặc máy chủ đang bận.',
@@ -25,6 +27,8 @@ export const availabilityPageMessages = defineMessages({
     ],
   },
   en: {
+    pageTitle: 'Availability',
+    pageSubtitle: 'Declare the time slots you can take missions in this week.',
     modeLabel: { AVAILABLE: 'Available', BUSY: 'Busy', OFF: 'Off' },
     loadFailedTitle: 'Could not load availability',
     loadFailedDesc: 'Connection lost or the server is busy.',

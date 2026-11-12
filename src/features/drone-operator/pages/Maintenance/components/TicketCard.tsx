@@ -21,13 +21,13 @@ export function TicketCard({
       style={{
         padding: 18,
         borderRadius: 12,
-        border: '1px solid #e2e8f0',
+        border: '1px solid var(--mgr-border)',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
         gap: 12,
-        background: '#ffffff',
-        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
+        background: 'var(--mgr-card)',
+        boxShadow: 'var(--mgr-shadow)',
       }}
     >
       <div>
@@ -46,8 +46,8 @@ export function TicketCard({
               fontWeight: 700,
               padding: '2px 8px',
               borderRadius: 6,
-              background: '#f1f5f9',
-              color: '#334155',
+              background: 'var(--mgr-card-2)',
+              color: 'var(--tx2)',
             }}
           >
             {ticket.ticketCode}
@@ -60,13 +60,13 @@ export function TicketCard({
               borderRadius: 6,
               background:
                 ticket.severity === 'HIGH' || ticket.severity === 'CRITICAL'
-                  ? '#fef2f2'
-                  : '#fefce8',
+                  ? 'var(--ui-danger-soft)'
+                  : 'var(--ui-warning-soft)',
               color:
                 ticket.severity === 'HIGH' || ticket.severity === 'CRITICAL'
-                  ? '#ef4444'
-                  : '#b45309',
-              border: `1px solid ${ticket.severity === 'HIGH' || ticket.severity === 'CRITICAL' ? '#fecaca' : '#fef08a'}`,
+                  ? 'var(--ui-danger-text)'
+                  : 'var(--ui-warning-text)',
+              border: `1px solid ${ticket.severity === 'HIGH' || ticket.severity === 'CRITICAL' ? 'var(--ui-danger)' : 'var(--ui-warning)'}`,
             }}
           >
             {ticket.severity || 'MEDIUM'}
@@ -78,7 +78,7 @@ export function TicketCard({
             margin: '0 0 8px',
             fontSize: 15,
             fontWeight: 700,
-            color: '#0f172a',
+            color: 'var(--mgr-text)',
           }}
         >
           {formatTicketTitle(
@@ -89,7 +89,7 @@ export function TicketCard({
         <div
           style={{
             fontSize: 13,
-            color: '#475569',
+            color: 'var(--mgr-muted)',
             display: 'flex',
             flexDirection: 'column',
             gap: 6,
@@ -105,15 +105,15 @@ export function TicketCard({
           {ticket.resolutionNotes && (
             <div
               style={{
-                background: '#f8fafc',
+                background: 'var(--mgr-card-2)',
                 padding: '8px 10px',
                 borderRadius: 8,
                 marginTop: 4,
                 fontSize: 12.5,
-                border: '1px solid #e2e8f0',
+                border: '1px solid var(--mgr-border)',
               }}
             >
-              <b style={{ color: '#334155' }}>{t.reportLabel}</b>{' '}
+              <b style={{ color: 'var(--tx2)' }}>{t.reportLabel}</b>{' '}
               {ticket.resolutionNotes}
             </div>
           )}
@@ -125,11 +125,11 @@ export function TicketCard({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          borderTop: '1px solid #f1f5f9',
+          borderTop: '1px solid var(--mgr-border)',
           paddingTop: 12,
         }}
       >
-        <span style={{ fontSize: 12, color: '#94a3b8' }}>
+        <span style={{ fontSize: 12, color: 'var(--mgr-muted)' }}>
           {ticket.openedAt
             ? new Date(ticket.openedAt).toLocaleDateString(locale)
             : ''}
@@ -140,7 +140,7 @@ export function TicketCard({
             style={{
               fontSize: 12.5,
               fontWeight: 600,
-              color: '#059669',
+              color: 'var(--ui-success-text)',
               display: 'flex',
               alignItems: 'center',
               gap: 6,
@@ -151,7 +151,7 @@ export function TicketCard({
                 width: 6,
                 height: 6,
                 borderRadius: '50%',
-                background: '#10b981',
+                background: 'var(--ui-success)',
                 display: 'inline-block',
               }}
             />

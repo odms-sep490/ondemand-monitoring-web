@@ -32,7 +32,7 @@ export function ResolveModal({
       style={{
         position: 'fixed',
         inset: 0,
-        background: 'rgba(15, 23, 42, 0.5)',
+        background: 'var(--ui-overlay)',
         backdropFilter: 'blur(4px)',
         display: 'flex',
         alignItems: 'center',
@@ -47,7 +47,7 @@ export function ResolveModal({
           padding: 24,
           width: 500,
           borderRadius: 16,
-          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+          boxShadow: 'var(--mgr-shadow)',
         }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -64,7 +64,7 @@ export function ResolveModal({
               margin: 0,
               fontSize: 17,
               fontWeight: 700,
-              color: '#0f172a',
+              color: 'var(--mgr-text)',
             }}
           >
             {t.modalTitle}
@@ -81,11 +81,11 @@ export function ResolveModal({
 
         <div
           style={{
-            background: '#f8fafc',
+            background: 'var(--mgr-card-2)',
             padding: 12,
             borderRadius: 8,
             marginBottom: 16,
-            border: '1px solid #e2e8f0',
+            border: '1px solid var(--mgr-border)',
             fontSize: 13,
           }}
         >
@@ -95,7 +95,7 @@ export function ResolveModal({
             {t.modalDronePrefix} <b>{maintenanceDeviceLabel(selectedTicket)}</b>
           </div>
           <div
-            style={{ color: '#64748b', marginTop: 2, whiteSpace: 'pre-line' }}
+            style={{ color: 'var(--mgr-muted)', marginTop: 2, whiteSpace: 'pre-line' }}
           >
             {formatTicketDescription(selectedTicket.description ?? '')}
           </div>
@@ -107,7 +107,7 @@ export function ResolveModal({
               style={{
                 fontSize: 13,
                 fontWeight: 600,
-                color: '#334155',
+                color: 'var(--tx2)',
                 display: 'block',
                 marginBottom: 6,
               }}
@@ -134,7 +134,7 @@ export function ResolveModal({
               style={{
                 fontSize: 13,
                 fontWeight: 600,
-                color: '#334155',
+                color: 'var(--tx2)',
                 display: 'block',
                 marginBottom: 6,
               }}
@@ -166,7 +166,7 @@ export function ResolveModal({
           </div>
 
           {error && (
-            <div style={{ color: '#ef4444', fontSize: 13, fontWeight: 600 }}>
+            <div style={{ color: 'var(--ui-danger)', fontSize: 13, fontWeight: 600 }}>
               {error}
             </div>
           )}

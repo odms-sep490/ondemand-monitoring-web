@@ -1,0 +1,126 @@
+/*
+ * Legacy `.odm-*` building blocks (buttons, headings) in the antd / Manager look.
+ * Shared by every portal that renders inside `.mgr-layout` (Customer, Staff).
+ */
+
+/* Legacy .odm-btn buttons inside customer pages follow the antd button look. */
+.mgr-layout .odm-btn {
+  height: 32px;
+  padding: 0 15px;
+  border: 1px solid var(--mgr-border);
+  border-radius: 8px;
+  background: var(--mgr-card);
+  color: var(--mgr-text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.2;
+  text-decoration: none;
+  transition:
+    border-color 0.2s,
+    color 0.2s,
+    background 0.2s;
+
+  &:hover {
+    border-color: var(--ui-primary);
+    color: var(--ui-primary);
+    background: var(--mgr-card);
+  }
+
+  &.odm-btn-p {
+    border-color: var(--ui-primary);
+    background: var(--ui-primary);
+    color: var(--ui-on-primary);
+    box-shadow: 0 2px 0 color-mix(in srgb, var(--ui-primary) 10%, transparent);
+
+    &:hover {
+      opacity: 0.9;
+      color: var(--ui-on-primary);
+      background: var(--ui-primary);
+    }
+  }
+
+  /* Semantic solid variants keep their tone (preflight pass/fail, destructive, warning). */
+  &.odm-btn-ok,
+  &.odm-btn-rd,
+  &.odm-btn-yl,
+  &.odm-btn-or,
+  &.odm-btn-bl {
+    &:hover {
+      opacity: 0.9;
+    }
+  }
+
+  &.odm-btn-ok,
+  &.odm-btn-ok:hover {
+    border-color: var(--green-solid);
+    background: var(--green-solid);
+    color: var(--green-on);
+  }
+
+  &.odm-btn-rd,
+  &.odm-btn-rd:hover {
+    border-color: var(--red-solid);
+    background: var(--red-solid);
+    color: var(--red-on);
+  }
+
+  &.odm-btn-yl,
+  &.odm-btn-yl:hover {
+    border-color: var(--yellow-solid);
+    background: var(--yellow-solid);
+    color: var(--yellow-on);
+  }
+
+  &.odm-btn-or,
+  &.odm-btn-or:hover {
+    border-color: var(--orange-solid);
+    background: var(--orange-solid);
+    color: var(--orange-on);
+  }
+
+  &.odm-btn-bl,
+  &.odm-btn-bl:hover {
+    border-color: var(--blue-solid);
+    background: var(--blue-solid);
+    color: var(--blue-on);
+  }
+
+  &.odm-btn-gh {
+    border-color: transparent;
+    background: transparent;
+  }
+
+  &.odm-btn-sm {
+    height: 24px;
+    padding: 0 7px;
+    font-size: 13px;
+    border-radius: 6px;
+  }
+
+  &.odm-btn-lg {
+    height: 40px;
+    padding: 0 18px;
+    font-size: 15px;
+  }
+
+  &.odm-btn-xl {
+    height: 48px;
+    padding: 0 24px;
+    font-size: 16px;
+  }
+}
+
+/* `.odm a { color: inherit }` would otherwise win over antd's zero-specificity link-button colours. */
+.mgr-layout
+  a.ant-btn-color-primary.ant-btn-variant-solid:not(.ant-btn-disabled) {
+  color: var(--ui-on-primary);
+}
+
+/* Global h1/h2 negative letter-spacing glues Vietnamese words together. */
+.mgr-layout h1,
+.mgr-layout h2,
+.mgr-layout h3 {
+  letter-spacing: 0;
+  word-spacing: normal;
+}

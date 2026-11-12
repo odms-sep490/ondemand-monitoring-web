@@ -3,6 +3,7 @@
 // every handler module below and registers their routes exactly once.
 
 import './handlers/auth'
+import './handlers/operatorMyMissions'
 import './handlers/managerDashboard'
 import './handlers/customerOrdersBe'
 import './handlers/customerMissionHistoryBe'
