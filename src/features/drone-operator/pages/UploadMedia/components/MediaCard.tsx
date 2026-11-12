@@ -1,3 +1,4 @@
+import { MediaRemovalAction } from '../../../../media/components/MediaRemovalAction'
 import { captureTimeValidationMessage } from '../../../../media/capture/captureTime'
 import { VideoThumbnail } from '../../../../../shared/components/media/VideoThumbnail'
 import { MediaChecklistAttachment } from './MediaChecklistAttachment'
@@ -43,7 +44,11 @@ export function MediaCard({
   remotePreviewUrl,
   remoteThumbnailUrl,
   reviewMedia,
+  onMediaRemoved,
+  canRemoveMedia = false,
 }: {
+  onMediaRemoved?: (mediaId: string) => void
+  canRemoveMedia?: boolean
   item: LocalMedia
   setPreview?: (item: LocalMedia) => void
   onOpenPreview?: (item: LocalMedia) => void
@@ -147,6 +152,7 @@ export function MediaCard({
           </p>
         )}
         <div className="upload-media-actions">
+          {onMediaRemoved && <MediaRemovalAction item={item} canRemove={canRemoveMedia} disabled={isBusy} onRemoved={onMediaRemoved} />}
           {reviewMedia &&
             item.backendMediaId &&
             status === 'PENDING_MANAGER_APPROVAL' && (

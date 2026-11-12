@@ -1,3 +1,6 @@
+import { MediaRemovalAction } from '../../../../media/components/MediaRemovalAction'
+import { useApiQuery } from '../../../../../shared/hooks/useApiQuery'
+import { missionApi } from '../../../../mission/api/missionApi'
 import { MissionStaffMediaImport } from './MissionStaffMediaImport'
 import { VideoThumbnail } from '../../../../../shared/components/media/VideoThumbnail'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -42,6 +45,8 @@ function MissionCapturedMediaContent({ mission }: { mission: Mission }) {
     () => (mission.id !== missionId ? [mission.id] : []),
     [mission.id, missionId],
   )
+  const permissions = useApiQuery(() => missionApi.getPermissions(missionId), [missionId, mission.state])
+  const canRemove = !permissions.loading && !permissions.error && permissions.data?.canUploadMedia === true
   const [items, setItems] = useState<LocalMedia[]>([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
@@ -232,6 +237,8 @@ function MissionCapturedMediaContent({ mission }: { mission: Mission }) {
             <CapturedMediaCard
               key={item.localMediaId}
               item={item}
+              canRemove={canRemove}
+              onRemoved={() => setReloadKey(key => key + 1)}
               locale={locale}
               imageLabel={t.mediaPanel.image}
               videoLabel={t.mediaPanel.video}
@@ -252,12 +259,16 @@ function MissionCapturedMediaContent({ mission }: { mission: Mission }) {
 
 function CapturedMediaCard({
   item,
+  canRemove,
+  onRemoved,
   locale,
   imageLabel,
   videoLabel,
   previewFailedLabel,
 }: {
   item: LocalMedia
+  canRemove: boolean
+  onRemoved: () => void
   locale: string
   imageLabel: string
   videoLabel: string
@@ -331,6 +342,7 @@ function CapturedMediaCard({
         {uploadLabel && (
           <span className="captured-media__state">{uploadLabel}</span>
         )}
+        <MediaRemovalAction item={item} canRemove={canRemove} onRemoved={onRemoved} theme="dark" />
       </div>
     </article>
   )

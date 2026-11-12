@@ -494,6 +494,15 @@ function UploadMediaContent({
                 <MediaCard
                   key={item.localMediaId}
                   item={item}
+                  canRemoveMedia={canManageMedia}
+                  onMediaRemoved={(mediaId) => {
+                    const remaining = itemsRef.current.filter(entry => entry.backendMediaId !== mediaId)
+                    itemsRef.current = remaining
+                    setItems(remaining)
+                    setPreview(null)
+                    refreshWorkspace()
+                    backend.reload()
+                  }}
                   remotePreviewUrl={remote}
                   remoteThumbnailUrl={thumbnail}
                   setPreview={setPreview}
