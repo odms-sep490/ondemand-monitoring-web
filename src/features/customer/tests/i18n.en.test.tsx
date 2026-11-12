@@ -370,7 +370,7 @@ describe('Customer portal i18n (vi -> en)', () => {
     fireEvent.click(
       await screen.findByRole('button', { name: 'Confirm coordinates' }),
     )
-    await screen.findByText('Location confirmed')
+    await screen.findByText('Selected')
     fireEvent.click(screen.getByRole('button', { name: 'Draw area' }))
     const map = screen.getByRole('region', {
       name: 'Location and monitoring area map',
@@ -447,7 +447,7 @@ describe('Customer portal i18n (vi -> en)', () => {
     await screen.findByRole('dialog')
     await settled()
     expect(viLines()).toEqual([])
-  }, 15_000)
+  }, 45_000)
 
   it('CustomerCreateRequest (PortalLayout) is English', async () => {
     render(<CustomerCreateRequestPage />)

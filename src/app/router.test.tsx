@@ -5,7 +5,7 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { authSession } from '../features/auth/api/authApi'
 import { managerApi } from '../features/manager/api/dashboardApi'
@@ -167,6 +167,11 @@ describe('Router - manager routes (#portal/manager*)', () => {
     recentActivities: [],
     generatedAt: '2026-10-22T00:00:00Z',
   }
+
+  // Transforming the Manager module graph is slow when many test files run in parallel; do it outside any single test's budget.
+  beforeAll(async () => {
+    await import('../features/manager/ManagerApp')
+  }, 120_000)
 
   beforeEach(() => {
     localStorage.setItem('fieldwise.accessToken', 'mock.staff.token')
