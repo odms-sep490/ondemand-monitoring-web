@@ -46,6 +46,10 @@ export type BackendMission = {
   deviceAssignments?: Array<{
     id?: string | null
     deviceId?: string | null
+    deviceCode?: string | null
+    deviceName?: string | null
+    deviceSerialNumber?: string | null
+    deviceStatus?: string | null
     deviceRole?: string | null
     status?: MissionDeviceAssignmentStatus | null
     checkupStatus?: string | null
@@ -269,6 +273,17 @@ export function toOperatorMission(
     managerName: source.managerName ?? undefined,
     managerEmail: source.managerEmail ?? undefined,
     managerPhone: source.managerPhone ?? undefined,
+    deviceAssignments: source.deviceAssignments?.map((assignment) => ({
+      id: assignment.id,
+      deviceId: assignment.deviceId,
+      deviceCode: assignment.deviceCode,
+      deviceName: assignment.deviceName,
+      deviceSerialNumber: assignment.deviceSerialNumber,
+      deviceStatus: assignment.deviceStatus,
+      deviceRole: assignment.deviceRole,
+      status: assignment.status,
+      checkupStatus: assignment.checkupStatus,
+    })),
     deviceId: source.deviceId ?? source.droneId ?? null,
     deviceCode: source.deviceCode ?? null,
     deviceSerialNumber: source.deviceSerialNumber ?? null,

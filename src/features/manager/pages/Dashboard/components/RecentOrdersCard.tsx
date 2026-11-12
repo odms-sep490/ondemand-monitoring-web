@@ -1,4 +1,3 @@
-import { InboxOutlined } from '@ant-design/icons'
 import { Avatar, Tag } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 
@@ -22,9 +21,11 @@ const MAX_ROWS = 6
 
 export function RecentOrdersCard({
   orders,
+  ordersAvailable,
   className,
 }: {
   orders: RecentOrder[]
+  ordersAvailable: boolean
   className?: string
 }) {
   const { t } = useI18n(dashboardPageMessages)
@@ -85,7 +86,6 @@ export function RecentOrdersCard({
     <CardComponent
       className={className}
       title={o.title}
-      icon={<InboxOutlined />}
       extra={
         <a
           className="mgr-card-link"
@@ -96,12 +96,15 @@ export function RecentOrdersCard({
       }
       styles={{ body: { padding: 0 } }}
     >
-      {orders.length === 0 ? (
+      {!ordersAvailable ? (
+        <div className="mgr-orders-empty-state" role="status">
+          <EmptyState title={o.unavailable} />
+        </div>
+      ) : orders.length === 0 ? (
         <div className="mgr-orders-empty-state" role="status">
           <EmptyState
             title={o.empty}
             description={o.emptyDescription}
-            icon={<InboxOutlined />}
           />
         </div>
       ) : (

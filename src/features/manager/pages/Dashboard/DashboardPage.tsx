@@ -12,14 +12,15 @@ import {
 } from './components/DashboardHeader'
 import { DashboardSkeleton } from './components/DashboardSkeleton'
 import { KpiRow } from './components/KpiRow'
+import type { DashboardKpiAvailability } from './components/KpiRow'
 import { ActionListCard } from './components/ActionListCard'
 import { RecentOrdersCard } from './components/RecentOrdersCard'
 import {
-  ActiveMissionsCard,
+  MissionStatusCard,
   PipelineCard,
   RecentActivityCard,
 } from './components/SideCards'
-import { AnalyticsCharts } from './components/AnalyticsCharts'
+import { AnalyticsCharts, MissionTrendCard } from './components/AnalyticsCharts'
 import { formatDashboardDate } from './dashboardHelpers'
 import type {
   ManagerDashboardData,
@@ -35,8 +36,11 @@ function normalizeDashboard(
       totalQuoteValue: 0,
       pendingOrderCount: data.kpis?.pendingOrders.count ?? 0,
       pendingAdditionalChecklistCount: 0,
-      waitingDepositCount: 0,
-      activeMissionCount: data.kpis?.missionsInFlight.count ?? 0,
+      waitingDepositCount: data.pricingPipeline?.waitingDepositCount ?? 0,
+      activeMissionCount:
+        data.kpis?.missionsInFlight?.count ??
+        data.missionOverview?.inFlightCount ??
+        0,
       attentionRequiredCount: data.kpis?.actionItems.count ?? 0,
     },
     orderStatusDistribution: Array.isArray(data.orderStatusDistribution)
@@ -106,37 +110,74 @@ export function DashboardPage() {
   }
   if (!query.data) return null
 
-  const data = normalizeDashboard(query.data)
+  const response = query.data
+  const data = normalizeDashboard(response)
+  const availability: DashboardKpiAvailability = {
+    pendingReview:
+      response.summary !== undefined || response.kpis?.pendingOrders !== undefined,
+    waitingQuote: response.pricingPipeline !== undefined,
+    waitingDeposit:
+      response.summary !== undefined || response.pricingPipeline !== undefined,
+    activeMissions:
+      response.summary !== undefined ||
+      response.kpis?.missionsInFlight !== undefined ||
+      response.missionOverview !== undefined,
+    completed: response.missionTrend !== undefined,
+  }
   return (
     <div className="mgr-dash">
       <DashboardHeader
         subtitle={`${t.generatedAt}: ${formatDashboardDate(data.generatedAt)}`}
         range={range}
         pendingCount={data.summary.pendingOrderCount}
+        pendingCountAvailable={availability.pendingReview}
         onRangeChange={setRange}
         onRefresh={query.reload}
       />
 
-      <KpiRow data={data} />
+      <KpiRow data={data} availability={availability} />
 
       <div className="mgr-dash-columns">
         <ActionListCard
           items={data.actionItems}
+          itemsAvailable={response.actionItems !== undefined}
           generatedAt={data.generatedAt}
         />
-        <ActiveMissionsCard missions={data.activeMissions} />
-        <RecentActivityCard
-          className="mgr-activity-card"
-          activities={data.recentActivities}
+        <MissionStatusCard
+          overview={data.missionOverview}
+          overviewAvailable={response.missionOverview !== undefined}
+          missions={data.activeMissions}
+          missionsAvailable={response.activeMissions !== undefined}
         />
-        <PipelineCard pipeline={data.pricingPipeline} />
+        <MissionTrendCard
+          data={data}
+          available={response.missionTrend !== undefined}
+        />
         <RecentOrdersCard
           className="mgr-recent-orders-card"
           orders={data.recentOrders}
+          ordersAvailable={response.recentOrders !== undefined}
+        />
+        <PipelineCard
+          pipeline={data.pricingPipeline}
+          available={response.pricingPipeline !== undefined}
+        />
+        <RecentActivityCard
+          className="mgr-activity-card"
+          activities={data.recentActivities}
+          activitiesAvailable={response.recentActivities !== undefined}
+        />
+        <AnalyticsCharts
+          data={data}
+          available={
+            response.orderStatusDistribution !== undefined ||
+            response.serviceDistribution !== undefined ||
+            response.additionalServiceDistribution !== undefined ||
+            response.priceAdjustmentSummary !== undefined ||
+            response.missionStatusDistribution !== undefined
+          }
         />
       </div>
-
-      <AnalyticsCharts data={data} />
     </div>
   )
 }

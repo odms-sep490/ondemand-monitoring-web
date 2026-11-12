@@ -140,6 +140,14 @@ export function MissionGridCard({
             },
           ]
         : []
+  const assignedDeviceIds = new Set(
+    currentDevices
+      .map((assignment) => assignment.deviceId)
+      .filter((deviceId): deviceId is string => Boolean(deviceId)),
+  )
+  const assignableDrones = availableDrones.filter(
+    (drone) => !assignedDeviceIds.has(drone.id),
+  )
   const maxStaff = 10
   const maxDevices = 10
 
@@ -592,7 +600,7 @@ export function MissionGridCard({
             busy={busy}
             role={selectedDeviceRole}
             onRoleChange={setSelectedDeviceRole}
-            drones={availableDrones}
+            drones={assignableDrones}
             activeDeviceId={activeDeviceId}
             onCancel={() => {
               deviceLoadAttemptRef.current += 1

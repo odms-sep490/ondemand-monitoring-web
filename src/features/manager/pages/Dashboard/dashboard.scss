@@ -1034,3 +1034,399 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Dashboard refresh: branded banner, compact KPIs and a balanced data grid. */
+.mgr-layout .mgr-dash {
+  gap: 16px;
+
+  .mgr-dash-header {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    min-height: 156px;
+    padding: 22px 24px;
+    border: 1px solid #cfe0f6;
+    border-radius: 14px;
+    background: #eaf3ff;
+    box-shadow: none;
+  }
+
+  .mgr-dash-header::before {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    background: rgb(255 255 255 / 62%);
+    content: '';
+    pointer-events: none;
+  }
+
+  .mgr-dash-banner-art {
+    position: absolute;
+    z-index: -2;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 57%;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .mgr-dash-heading,
+  .mgr-dash-controls {
+    position: relative;
+    z-index: 1;
+  }
+
+  .mgr-dash-date {
+    margin-bottom: 6px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .mgr-hero-title {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+  }
+
+  .mgr-hero-greet {
+    max-width: 58ch;
+    margin: 5px 0 12px;
+    font-size: 13px;
+  }
+
+  .mgr-dash-shortcuts {
+    gap: 7px;
+  }
+
+  .mgr-dash-shortcuts .ant-btn,
+  .mgr-dash-controls > .ant-btn {
+    min-height: 38px;
+    font-weight: 600;
+  }
+
+  .mgr-dash-controls {
+    align-content: center;
+    gap: 8px;
+  }
+
+  .mgr-dash-controls .mgr-hero-updated {
+    color: #475569;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .mgr-kpi-grid {
+    gap: 12px;
+  }
+
+  .mgr-dash-kpi {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 8px;
+    min-height: 96px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    box-shadow: none;
+  }
+
+  .mgr-kpi-copy {
+    flex: initial;
+    gap: 7px;
+  }
+
+  .mgr-kpi-label {
+    color: var(--mgr-muted);
+    font-size: 12.5px;
+    font-weight: 600;
+  }
+
+  .mgr-kpi-value {
+    font-size: 27px;
+    line-height: 1;
+  }
+
+  .mgr-dash-columns {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    align-items: start;
+    gap: 16px;
+  }
+
+  .mgr-dash-columns > .mgr-action-card {
+    grid-column: span 5;
+  }
+
+  .mgr-dash-columns > .mgr-mission-status-card {
+    grid-column: span 3;
+  }
+
+  .mgr-dash-columns > .mgr-mission-trend-card {
+    grid-column: span 4;
+  }
+
+  .mgr-dash-columns > .mgr-recent-orders-card {
+    grid-column: span 7;
+  }
+
+  .mgr-dash-columns > .mgr-pipeline-card {
+    grid-column: span 5;
+  }
+
+  .mgr-dash-columns > .mgr-activity-card,
+  .mgr-dash-columns > .mgr-analytics {
+    grid-column: span 6;
+  }
+
+  .mgr-mission-overview-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 14px;
+    margin: 0;
+  }
+
+  .mgr-mission-overview-item {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    min-width: 0;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--mgr-border);
+
+    dt {
+      min-width: 0;
+      color: var(--mgr-muted);
+      font-size: 11.5px;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    dd {
+      flex: none;
+      margin: 0;
+      color: var(--mgr-text);
+      font-size: 15px;
+      font-variant-numeric: tabular-nums;
+      font-weight: 700;
+    }
+  }
+
+  .mgr-mission-active-list {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--mgr-border);
+
+    h4 {
+      margin: 0 0 6px;
+      color: var(--mgr-text);
+      font-size: 11.5px;
+      font-weight: 650;
+    }
+
+    ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    li + li {
+      border-top: 1px solid var(--mgr-border);
+    }
+  }
+
+  .mgr-mission-active-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-width: 0;
+    padding: 7px 0;
+    color: inherit;
+    text-decoration: none;
+
+    &:hover .mgr-mission-active-copy strong {
+      color: var(--dash-accent);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--dash-accent);
+      outline-offset: 2px;
+    }
+  }
+
+  .mgr-mission-active-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+
+    strong {
+      overflow: hidden;
+      color: var(--mgr-text);
+      font-size: 11.5px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    span {
+      overflow: hidden;
+      color: var(--mgr-muted);
+      font-size: 10.5px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  .mgr-mission-active-empty,
+  .mgr-data-unavailable,
+  .mgr-pipeline-empty,
+  .mgr-chart-empty {
+    margin: 0;
+    color: var(--mgr-muted);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .mgr-mission-active-empty {
+    padding: 6px 0 2px;
+  }
+
+  .mgr-pipeline-empty,
+  .mgr-data-unavailable,
+  .mgr-chart-empty {
+    padding: 10px 0;
+  }
+
+  .mgr-mission-trend-card .ant-card-body {
+    min-height: 180px;
+  }
+
+  .mgr-analytics {
+    min-width: 0;
+  }
+
+  .mgr-analytics-heading {
+    align-items: center;
+    min-height: 40px;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--mgr-border);
+  }
+
+  .mgr-analytics-heading .mgr-section-title {
+    font-size: 17px;
+  }
+
+  .mgr-analytics-list {
+    gap: 12px;
+  }
+
+  .mgr-analytics-empty {
+    padding: 14px 16px;
+    background: var(--mgr-card);
+  }
+}
+
+@container manager-dashboard (max-width: 1100px) {
+  .mgr-layout .mgr-dash {
+    .mgr-dash-columns {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .mgr-dash-columns > .mgr-action-card,
+    .mgr-dash-columns > .mgr-mission-status-card,
+    .mgr-dash-columns > .mgr-mission-trend-card,
+    .mgr-dash-columns > .mgr-recent-orders-card,
+    .mgr-dash-columns > .mgr-pipeline-card,
+    .mgr-dash-columns > .mgr-activity-card,
+    .mgr-dash-columns > .mgr-analytics {
+      grid-column: auto;
+    }
+  }
+}
+
+@container manager-dashboard (max-width: 820px) {
+  .mgr-layout .mgr-dash {
+    .mgr-kpi-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .mgr-dash-kpi {
+      grid-column: auto;
+    }
+
+    .mgr-dash-kpi:nth-last-child(2),
+    .mgr-dash-kpi:last-child {
+      grid-column: auto;
+    }
+
+    .mgr-analytics-list {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}
+
+@container manager-dashboard (max-width: 560px) {
+  .mgr-layout .mgr-dash {
+    .mgr-dash-header {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 14px;
+      padding: 18px;
+    }
+
+    .mgr-dash-banner-art {
+      object-position: 60% center;
+      opacity: 0.72;
+    }
+
+    .mgr-hero-title {
+      font-size: 22px;
+    }
+
+    .mgr-dash-shortcuts {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+
+      .ant-btn:first-child {
+        grid-column: 1 / -1;
+      }
+    }
+
+    .mgr-dash-controls {
+      justify-content: space-between;
+    }
+
+    .mgr-dash-controls .mgr-hero-updated {
+      text-align: left;
+    }
+
+    .mgr-dash-columns {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .mgr-dash-columns > .mgr-action-card,
+    .mgr-dash-columns > .mgr-mission-status-card,
+    .mgr-dash-columns > .mgr-mission-trend-card,
+    .mgr-dash-columns > .mgr-recent-orders-card,
+    .mgr-dash-columns > .mgr-pipeline-card,
+    .mgr-dash-columns > .mgr-activity-card,
+    .mgr-dash-columns > .mgr-analytics {
+      grid-column: 1 / -1;
+    }
+
+    .mgr-kpi-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .mgr-dash-kpi {
+      min-height: 78px;
+    }
+
+    .mgr-dash-controls .ant-btn,
+    .mgr-dash-shortcuts .ant-btn {
+      min-height: 42px;
+    }
+  }
+}

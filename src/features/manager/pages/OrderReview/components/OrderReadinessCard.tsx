@@ -15,11 +15,7 @@ import {
   type FailureAction,
   type SupplementRequest,
 } from '../readinessTypes'
-import {
-  recommendationText,
-  riskLevelOptions,
-  answerOptions,
-} from '../readinessHelpers'
+import { recommendationText, answerOptions } from '../readinessHelpers'
 import { ReadinessSummary } from './ReadinessSummary'
 import { ReadinessCriterionRow } from './ReadinessCriterionRow'
 import { ReadinessBlockingNotice } from './ReadinessBlockingNotice'
@@ -94,7 +90,8 @@ export function OrderReadinessCard({
   }
 
   const activeCriteria = readiness.criteria.filter(
-    (criterion) => criterion.code !== 'CAPABILITY',
+    (criterion) =>
+      criterion.code !== 'CAPABILITY' && criterion.code !== 'RISK_LEVEL',
   )
   const auto = activeCriteria.filter(
     (c) =>
@@ -271,8 +268,6 @@ export function OrderReadinessCard({
           </h3>
           <ul className="odm-or-readiness-list">
             {manual.map((c) => {
-              const options =
-                c.code === 'RISK_LEVEL' ? riskLevelOptions : answerOptions
               const draft = drafts[c.code]
               const current =
                 draft?.result ??
@@ -292,7 +287,7 @@ export function OrderReadinessCard({
                   setDrafts={setDrafts}
                   savingCode={savingCode}
                   save={save}
-                  options={options}
+                  options={answerOptions}
                   choose={choose}
                 />
               )
