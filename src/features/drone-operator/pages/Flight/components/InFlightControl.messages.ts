@@ -44,7 +44,7 @@ export const inFlightControlMessages = defineMessages({
       zoomOut: 'Thu nhỏ',
       zoomIn: 'Phóng to',
       order: 'ĐƠN HÀNG',
-      constructionSite: 'CÔNG TRÌNH',
+      constructionSite: 'NHÀ VĂN HÓA SINH VIÊN',
       north: 'B',
     },
     telemetry: {
@@ -342,7 +342,7 @@ export const inFlightControlMessages = defineMessages({
       zoomOut: 'Zoom out',
       zoomIn: 'Zoom in',
       order: 'ORDER',
-      constructionSite: 'BUILDING SITE',
+      constructionSite: 'STUDENT CULTURE HOUSE',
       north: 'N',
     },
     telemetry: {

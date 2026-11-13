@@ -73,16 +73,16 @@ export function planHeadingLabel(
 // The exported GLB also contains cranes and scattered site props; orbiting its
 // full bounds made the checklist route unnecessarily far from the buildings.
 export const CONSTRUCTION_SITE_BOUNDS = {
-  minX: 189.875,
-  maxX: 265.875,
-  minY: -46.37732,
-  maxY: -16.37732,
+  minX: 152.38,
+  maxX: 303.37,
+  minY: -105.89,
+  maxY: 53.11,
 } as const
 export const CONSTRUCTION_SITE_CENTER = {
   simX: (CONSTRUCTION_SITE_BOUNDS.minX + CONSTRUCTION_SITE_BOUNDS.maxX) / 2,
   simY: (CONSTRUCTION_SITE_BOUNDS.minY + CONSTRUCTION_SITE_BOUNDS.maxY) / 2,
 } as const
-const CONSTRUCTION_ORBIT_MARGIN_M = 5
+const CONSTRUCTION_ORBIT_MARGIN_M = 8
 const CONSTRUCTION_DEMO_SPEED_MPS = 20
 const CONSTRUCTION_DEMO_MIN_SPEED_MPS = 4
 const CONSTRUCTION_WAYPOINT_RADIUS_M = 1.5
@@ -132,6 +132,10 @@ export function buildConstructionChecklistWaypoints(
     ...(mediaActions ? { mediaActions } : {}),
   })
 
+  const faceBuilding = (x: number, y: number) =>
+    (Math.atan2(CONSTRUCTION_SITE_CENTER.simX - x, CONSTRUCTION_SITE_CENTER.simY - y) *
+      180 / Math.PI + 360) % 360
+
   const homeWaypoint: MissionRoutePoint = {
     ...waypoint('construction-home', 0, px4HomeSimX, px4HomeSimY, 'START'),
     altitudeM: 0,
@@ -147,7 +151,7 @@ export function buildConstructionChecklistWaypoints(
       westX,
       southY,
       'CHECKLIST_PHOTO_SOUTH_WEST',
-      45,
+      faceBuilding(westX, southY),
       ['video_start', 'photo'],
     ),
     waypoint(
@@ -156,7 +160,7 @@ export function buildConstructionChecklistWaypoints(
       westX,
       northY,
       'CHECKLIST_PHOTO_NORTH_WEST',
-      135,
+      faceBuilding(westX, northY),
       ['photo'],
     ),
     waypoint(
@@ -165,7 +169,7 @@ export function buildConstructionChecklistWaypoints(
       eastX,
       northY,
       'CHECKLIST_PHOTO_NORTH_EAST',
-      225,
+      faceBuilding(eastX, northY),
       ['photo'],
     ),
     waypoint(
@@ -174,7 +178,7 @@ export function buildConstructionChecklistWaypoints(
       eastX,
       southY,
       'CHECKLIST_PHOTO_SOUTH_EAST',
-      315,
+      faceBuilding(eastX, southY),
       ['photo'],
     ),
     waypoint(
@@ -183,7 +187,7 @@ export function buildConstructionChecklistWaypoints(
       westX,
       southY,
       'CHECKLIST_VIDEO_COMPLETE',
-      45,
+      faceBuilding(westX, southY),
       ['video_stop'],
     ),
     {
@@ -194,7 +198,8 @@ export function buildConstructionChecklistWaypoints(
         px4HomeSimY,
         'RETURN',
       ),
-      altitudeM: Math.min(10, altitudeM),
+      // Stay at survey altitude on the return leg. The controller lands at home.
+      altitudeM,
       reachedRadiusM: 8,
       slowdownRadiusM: 40,
     },
