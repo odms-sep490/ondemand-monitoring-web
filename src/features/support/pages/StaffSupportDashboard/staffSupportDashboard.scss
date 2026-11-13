@@ -162,7 +162,7 @@
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
-    max-width: 320px;
+    max-width: 240px;
     overflow: hidden;
     overflow-wrap: anywhere;
   }
@@ -401,6 +401,13 @@
       flex: 1 1 200px;
       min-width: 0;
     }
+  }
+}
+
+/* The row action keeps its aria-label; below 1440px the icon alone keeps the action column inside the card. */
+@media (max-width: 1439px) {
+  .mgr-layout.sd-embed .sd-btn-label {
+    display: none;
   }
 }
 

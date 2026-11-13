@@ -1870,3 +1870,55 @@
     min-height: 40px;
   }
 }
+
+/* ---------- Cross-portal consistency (match the Manager / Customer / Staff skin) ----------
+ * Same banner, card, table header, legacy button and input shape as the other
+ * portals. Scoped under .odm-adm; tokens (--mgr-*) come from the shared
+ * .mgr-layout root that AdminLayout also renders.
+ */
+.odm-adm .app-page-banner {
+  padding: 20px 24px;
+  border-radius: 20px;
+  box-shadow: var(--mgr-shadow);
+}
+
+.odm-adm .ui-card {
+  border-color: var(--mgr-border);
+  border-radius: var(--mgr-radius);
+  box-shadow: var(--mgr-shadow);
+}
+
+.odm-adm .odm-adm-table th,
+.odm-adm .adm-services-table th,
+.odm-adm .checklist-table th {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--mgr-muted);
+  background: var(--mgr-card-2);
+  border-bottom-color: var(--mgr-border);
+}
+
+.odm-adm .odm-btn {
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.odm-adm .odm-btn.odm-btn-sm {
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.odm-adm .odm-inp:not(.oc-expiration__input),
+.odm-adm select,
+.odm-adm textarea {
+  border-radius: 10px;
+}
+
+@media (max-width: 575px) {
+  .odm-adm .app-page-banner {
+    padding: 16px;
+  }
+}

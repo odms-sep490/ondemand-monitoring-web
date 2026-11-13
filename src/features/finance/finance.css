@@ -3294,3 +3294,26 @@
 :root[data-theme='dark'] .customer-deadline-countdown.is-expired .customer-deadline-clock-pin {
   fill: var(--ui-danger);
 }
+
+/* Quote lines: one fixed money column so amounts line up with the header and
+   with rows that have no "price details" link (the static video row). */
+@media (min-width: 561px) {
+  .mgr-layout .customer-quote-table-head,
+  .mgr-layout .customer-quote-group > summary,
+  .mgr-layout .customer-quote-group-summary {
+    grid-template-columns: minmax(0, 1fr) 112px 96px;
+  }
+  .mgr-layout .customer-quote-table-head span:nth-child(2) {
+    min-width: 0;
+  }
+  .mgr-layout .customer-quote-group > summary b,
+  .mgr-layout .customer-quote-group-summary b {
+    grid-column: 2;
+    min-width: 0;
+    text-align: right;
+  }
+  .mgr-layout .customer-quote-group > summary .customer-quote-detail-label {
+    grid-column: 3;
+    text-align: right;
+  }
+}

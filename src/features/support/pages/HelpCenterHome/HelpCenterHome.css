@@ -64,7 +64,7 @@
   margin: 0 0 var(--ui-space-3);
   font-size: 16px;
   font-weight: 700;
-  color: var(--ui-text);
+  color: var(--mgr-text, var(--ui-text));
 }
 
 .hc-topics {
@@ -77,17 +77,25 @@
   display: block;
   width: 100%;
   padding: var(--ui-space-4);
-  border: 1px solid var(--ui-border);
-  border-radius: var(--ui-radius-lg);
-  background: var(--ui-surface);
+  border: 1px solid var(--mgr-border, var(--ui-border));
+  border-radius: var(--mgr-radius, 16px);
+  background: var(--mgr-card, var(--ui-surface));
+  box-shadow: var(--mgr-shadow, var(--ui-shadow));
   color: inherit;
   font: inherit;
   text-align: left;
   cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .hc-topic:hover {
-  border-color: var(--ui-border-strong);
+  border-color: var(--ui-primary);
+  box-shadow: var(--mgr-shadow-hover, var(--mgr-shadow, var(--ui-shadow)));
+}
+
+.hc-topic:focus-visible {
+  outline: 2px solid var(--ui-primary);
+  outline-offset: 2px;
 }
 
 .hc-topic.is-selected {
@@ -130,9 +138,11 @@
 }
 
 .hc-faq-list.ant-collapse {
-  background: var(--ui-surface);
-  border-color: var(--ui-border);
-  border-radius: var(--ui-radius-lg);
+  overflow: hidden;
+  background: var(--mgr-card, var(--ui-surface));
+  border-color: var(--mgr-border, var(--ui-border));
+  border-radius: var(--mgr-radius, 16px);
+  box-shadow: var(--mgr-shadow, var(--ui-shadow));
 }
 
 .hc-faq-list.ant-collapse > .ant-collapse-item {
@@ -207,4 +217,18 @@
   flex: none;
   margin: 0;
   white-space: nowrap;
+}
+
+@media (max-width: 575px) {
+  .hc-topics {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .hc-faq-head .ant-btn {
+    width: 100%;
+  }
+
+  .hc-feedback-actions {
+    width: 100%;
+  }
 }
