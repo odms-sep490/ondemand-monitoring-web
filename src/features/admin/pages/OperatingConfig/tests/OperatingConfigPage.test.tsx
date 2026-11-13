@@ -95,16 +95,22 @@ describe('OperatingConfigPage', () => {
       name: 'Thời hạn khách hàng chấp nhận báo giá',
     })
     const save = screen.getByRole('button', { name: 'Lưu thời hạn' })
+    // Wait for the loaded value so the settings effect cannot overwrite the edit.
+    await waitFor(() => expect(quoteTimeout).not.toHaveValue(null))
 
     fireEvent.change(quoteTimeout, { target: { value: '0' } })
     expect(save).toBeDisabled()
-    expect(await screen.findByRole('alert')).toHaveTextContent(
-      'Thời hạn phải lớn hơn 0.',
+    await waitFor(() =>
+      expect(screen.getByRole('alert')).toHaveTextContent(
+        'Thời hạn phải lớn hơn 0.',
+      ),
     )
     fireEvent.change(quoteTimeout, { target: { value: '8761' } })
     expect(save).toBeDisabled()
-    expect(screen.getByRole('alert')).toHaveTextContent(
-      'Thời hạn không được vượt quá 8.760 giờ.',
+    await waitFor(() =>
+      expect(screen.getByRole('alert')).toHaveTextContent(
+        'Thời hạn không được vượt quá 8.760 giờ.',
+      ),
     )
     expect(update).not.toHaveBeenCalled()
   })
