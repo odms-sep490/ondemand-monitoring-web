@@ -215,9 +215,10 @@ export function runtimeStatusFromPersisted(persisted: {
 export async function fetchPersistedPreflight(
   missionId: string,
   signal?: AbortSignal,
+  deviceId?: string,
 ) {
   const response = await authenticatedFetch(
-    `${env.apiBaseUrl}/api/missions/${encodeURIComponent(missionId)}/pre-device-checks/current`,
+    `${env.apiBaseUrl}/api/missions/${encodeURIComponent(missionId)}/pre-device-checks/current${deviceId ? `?deviceId=${encodeURIComponent(deviceId)}` : ''}`,
     { cache: 'no-store', signal },
   )
   if (!response.ok) return null

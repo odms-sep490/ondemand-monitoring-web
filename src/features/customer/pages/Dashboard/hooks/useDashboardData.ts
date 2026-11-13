@@ -1,3 +1,4 @@
+import { deliveryApi } from '../../../../delivery/api'
 import { useMemo } from 'react'
 
 import { useApiQuery } from '../../../../../shared/hooks/useApiQuery'
@@ -22,6 +23,7 @@ export type DashboardMissionItem = {
 export type DashboardMissionData = {
   items: DashboardMissionItem[]
   orderIds: string[]
+  reviewOrders?: OrderRow[]
   unavailableOrderCount: number
 }
 
@@ -72,7 +74,17 @@ export function useDashboardData() {
         })),
       )
 
+      const deliveries = await Promise.allSettled(
+        eligibleMissionOrders.map(async (order) => ({
+          order,
+          delivery: await deliveryApi.get(order.id, signal),
+        })),
+      )
       return {
+        reviewOrders: deliveries.flatMap((result) =>
+          result.status === 'fulfilled' && result.value.delivery.deliveryStatus === 'CUSTOMER_REVIEW'
+            ? [result.value.order] : [],
+        ),
         orderIds: eligibleMissionOrders.map((order) => order.id),
         items: results.flatMap((result) =>
           result.status === 'fulfilled'
