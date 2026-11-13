@@ -2,7 +2,9 @@ import '../styles/global.css'
 import '../styles/odm.css'
 import '../styles/route-loading.css'
 
+import { Button } from 'antd'
 import {
+  Component,
   Fragment,
   lazy,
   Suspense,
@@ -12,11 +14,12 @@ import {
 } from 'react'
 
 import {
+  authSession,
   restoreAuthSession,
   startAuthSession,
 } from '../features/auth/api/authApi'
 import { useAuthSession } from '../features/auth/hooks/useAuthSession'
-import { getRoleHomePath } from '../features/auth/routing'
+import { getRoleHomePath, rememberProtectedRoute, redirectToRoleHome } from '../features/auth/routing'
 import type { UserRole } from '../features/auth/types'
 import { useI18n } from '../shared/i18n'
 import { defineMessages } from '../shared/i18n'
@@ -86,6 +89,8 @@ const routeMessages = defineMessages({
     unavailable:
       'Chưa thể kiểm tra phiên đăng nhập. Vui lòng kiểm tra kết nối và thử lại.',
     retry: 'Thử lại',
+    routeError: 'Không thể hiển thị trang này',
+    routeErrorHint: 'Đã xảy ra lỗi khi tải nội dung. Hãy thử tải lại trang.',
   },
   en: {
     loading: 'Loading page…',
@@ -94,6 +99,8 @@ const routeMessages = defineMessages({
     unavailable:
       'Unable to verify your session. Check your connection and try again.',
     retry: 'Try again',
+    routeError: 'This page could not be displayed',
+    routeErrorHint: 'An error occurred while loading this page. Try reloading.',
   },
 })
 
@@ -123,7 +130,11 @@ function RoleRoute({
         ? getRoleHomePath(user.role)
         : null
   useEffect(() => {
-    if (redirectTo) redirectHash(redirectTo)
+    if (redirectTo) {
+      if (redirectTo === '#auth/login' && !authSession.isLoggedOut())
+        rememberProtectedRoute(window.location.hash)
+      redirectHash(redirectTo)
+    }
   }, [redirectTo])
   return pending ? <SessionFeedback /> : redirectTo ? null : children
 }
@@ -227,12 +238,49 @@ function RouteLoading({
 function RouteContent({ children }: { children: ReactNode }) {
   const { t } = useI18n(routeMessages)
   return (
-    <Suspense
-      fallback={<RouteLoading message={t.loading} hint={t.waiting} />}
+    <RouteErrorBoundary
+      fallback={(error) => (
+        <RouteLoading
+          message={t.routeError}
+          hint={
+            import.meta.env.DEV && error.message
+              ? `${t.routeErrorHint} (${error.message}${error.stack?.split('\n')[1] ? ` · ${error.stack.split('\n')[1].trim()}` : ''})`
+              : t.routeErrorHint
+          }
+          busy={false}
+        >
+          <Button type="primary" onClick={() => window.location.reload()}>
+            {t.retry}
+          </Button>
+        </RouteLoading>
+      )}
     >
-      {children}
-    </Suspense>
+      <Suspense fallback={<RouteLoading message={t.loading} hint={t.waiting} />}>
+        {children}
+      </Suspense>
+    </RouteErrorBoundary>
   )
+}
+
+class RouteErrorBoundary extends Component<{
+  children: ReactNode
+  fallback: (error: Error) => ReactNode
+}, { error: Error | null }> {
+  state: { error: Error | null } = { error: null }
+
+  static getDerivedStateFromError(error: Error) {
+    return { error }
+  }
+
+  componentDidCatch(error: Error) {
+    console.error('Route failed to render', error)
+  }
+
+  render() {
+    return this.state.error
+      ? this.props.fallback(this.state.error)
+      : this.props.children
+  }
 }
 
 function AuthRoute({ children }: { children: ReactNode }) {
@@ -275,7 +323,7 @@ function Routes() {
 
   useEffect(() => {
     if (hash === '#auth/login' && status === 'authenticated' && currentRole) {
-      redirectHash(getRoleHomePath(currentRole))
+      redirectToRoleHome(currentRole)
     }
   }, [hash, status, currentRole])
 

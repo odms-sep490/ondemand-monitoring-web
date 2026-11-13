@@ -1236,7 +1236,8 @@ function ScopedManagerDeliveryPanel({
         {delivery.deliveryStatus === 'CUSTOMER_REVIEW' ? (
           <StatusBanner title={t.sentTitle} text={t.sentText} />
         ) : null}
-        {delivery.deliveryStatus === 'FINAL_PAYMENT_PENDING' ? (
+        {delivery.deliveryStatus === 'AWAITING_MISSION_PAYMENT' ||
+        delivery.deliveryStatus === 'FINAL_PAYMENT_PENDING' ? (
           <StatusBanner
             tone="warning"
             title={t.acceptedTitle}

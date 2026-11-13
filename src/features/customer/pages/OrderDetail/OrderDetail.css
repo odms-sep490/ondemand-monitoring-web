@@ -1573,3 +1573,97 @@
     font-size: 14px;
   }
 }
+
+/* Customer order workspace */
+.od-page .od-tabs .ant-tabs-nav {
+  margin-bottom: 16px;
+  padding: 4px 8px;
+  border: 1px solid var(--ui-border);
+  border-radius: 14px;
+  background: var(--ui-surface);
+}
+
+.od-page .od-tabs .ant-tabs-nav::before {
+  display: none;
+}
+
+.od-page .od-tabs .ant-tabs-tab {
+  min-height: 44px;
+  padding-inline: 12px;
+}
+
+.od-page .od-tabs .ant-tabs-nav-list {
+  gap: 6px;
+}
+
+.od-page .od-tabs .ant-tabs-tab + .ant-tabs-tab {
+  margin-inline-start: 0;
+}
+
+.od-order-panel .od-info-section {
+  padding: clamp(12px, 2vw, 20px);
+  border: 1px solid var(--ui-border);
+  border-radius: 12px;
+}
+
+.od-order-panel .od-info-section:last-child {
+  border-bottom: 1px solid var(--ui-border);
+}
+
+.od-order-panel .od-info-sections {
+  gap: 12px;
+}
+
+.od-order-panel .od-field dd,
+.od-order-panel .od-step-note,
+.od-monitoring-panel .checklist-snapshot-content,
+.od-finance-panel .mission-payment-item__facts dd {
+  overflow-wrap: anywhere;
+}
+
+.od-monitoring-panel .checklist-snapshot-item {
+  padding-block: 4px;
+}
+
+.od-monitoring-panel .checklist-snapshot-item summary {
+  min-height: 44px;
+}
+
+.od-results-panel .delivery-grid {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 210px), 1fr));
+}
+
+.od-results-panel .delivery-asset {
+  min-width: 0;
+}
+
+.od-results-panel .delivery-content > .delivery-status-first {
+  margin-bottom: 4px;
+}
+
+.od-finance-panel {
+  display: grid;
+  gap: 16px;
+}
+
+.od-finance-panel > *,
+.od-finance-panel .customer-quote-layout > *,
+.od-finance-panel .mission-payment-item__facts > * {
+  min-width: 0;
+}
+
+.od-finance-panel .customer-payment-stats,
+.od-finance-panel .mission-payment-item__facts {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 640px) {
+  .od-page .od-tabs .ant-tabs-tab {
+    padding-inline: 8px;
+  }
+
+  .od-finance-panel .customer-invoice-summary .customer-payment-stats,
+  .od-finance-panel .mission-payment-item__facts {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 132px), 1fr));
+  }
+}

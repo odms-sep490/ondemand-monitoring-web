@@ -8,6 +8,7 @@ export const customerDeliveryPanelMessages = defineMessages({
     originals: 'Dữ liệu gốc',
     previews: 'Bản xem trước',
     filesReady: (n: number) => `${n} tệp · Sẵn sàng tải xuống`,
+    previewCount: (n: number) => `${n} tệp xem trước`,
     filesCheck: (n: number) =>
       `${n} tệp · Vui lòng kiểm tra trước khi xác nhận`,
     badgeOriginal: 'Bản gốc',
@@ -118,6 +119,7 @@ export const customerDeliveryPanelMessages = defineMessages({
     originals: 'Original data',
     previews: 'Previews',
     filesReady: (n: number) => `${n} files · Ready to download`,
+    previewCount: (n: number) => `${n} preview files`,
     filesCheck: (n: number) => `${n} files · Please review before confirming`,
     badgeOriginal: 'Original',
     badgePreview: 'Preview',

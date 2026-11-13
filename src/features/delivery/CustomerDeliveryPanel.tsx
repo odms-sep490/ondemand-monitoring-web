@@ -282,6 +282,18 @@ function ScopedCustomerDeliveryPanel({
       </header>
       <DeliveryProgress status={delivery.deliveryStatus} />
       <div className="delivery-content">
+        {delivery.deliveryStatus === 'AWAITING_MISSION_PAYMENT' ||
+        delivery.deliveryStatus === 'FINAL_PAYMENT_PENDING' ||
+        delivery.deliveryStatus === 'READY_FOR_DELIVERY' ||
+        delivery.deliveryStatus === 'PAYMENT_CONFIRMED' ? (
+          <div className="delivery-status-first">
+            <StatusBanner
+              tone="success"
+              title={t.resultsAcceptedTitle}
+              text={t.resultsAcceptedText}
+            />
+          </div>
+        ) : null}
         {delivery.assets.length > 0 ? (
           <section
             className="delivery-section"
@@ -297,7 +309,9 @@ function ScopedCustomerDeliveryPanel({
                 <p>
                   {delivery.deliveryStatus === 'DELIVERED'
                     ? t.filesReady(delivery.assets.length)
-                    : t.filesCheck(delivery.assets.length)}
+                    : canReview
+                      ? t.filesCheck(delivery.assets.length)
+                      : t.previewCount(delivery.assets.length)}
                 </p>
               </div>
               <span
@@ -423,15 +437,6 @@ function ScopedCustomerDeliveryPanel({
               </Button>
             )}
           </div>
-        ) : null}
-        {delivery.deliveryStatus === 'FINAL_PAYMENT_PENDING' ||
-        delivery.deliveryStatus === 'READY_FOR_DELIVERY' ||
-        delivery.deliveryStatus === 'PAYMENT_CONFIRMED' ? (
-          <StatusBanner
-            tone="success"
-            title={t.resultsAcceptedTitle}
-            text={t.resultsAcceptedText}
-          />
         ) : null}
         {delivery.deliveryStatus === 'DELIVERED' ? (
           <StatusBanner

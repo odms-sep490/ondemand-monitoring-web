@@ -309,7 +309,8 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
         status={order.status}
         statusLabel={
           cachedDelivery?.delivery
-            ? deliveryT.status[cachedDelivery.delivery.deliveryStatus]
+            ? deliveryT.status[cachedDelivery.delivery.deliveryStatus] ??
+              deliveryT.unknownStatus
             : getOrderStatusMeta(order.status, lang).label
         }
         deliveryStatus={cachedDelivery?.delivery?.deliveryStatus}

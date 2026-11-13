@@ -97,8 +97,9 @@ function ReadonlyOrderMap({
     }).addTo(map)
     if (areaBounds?.isValid())
       map.fitBounds(areaBounds, { padding: [28, 28], maxZoom: 16 })
-    window.setTimeout(() => map.invalidateSize(), 0)
+    const resizeTimer = window.setTimeout(() => map.invalidateSize(), 0)
     return (): void => {
+      window.clearTimeout(resizeTimer)
       map.remove()
     }
   }, [

@@ -1,7 +1,7 @@
 import { Button } from 'antd'
 import { lazy, Suspense, useEffect, useState } from 'react'
 
-import { EmptyState } from './components/common/StateView'
+import { EmptyState, LoadingState } from './components/common/StateView'
 import { useI18n } from '../../shared/i18n'
 import { customerAppMessages } from './CustomerApp.messages'
 import { CustomerLayout } from './CustomerLayout'
@@ -64,7 +64,7 @@ export function CustomerApp() {
 
   return (
     <CustomerLayout route={route} breadcrumb={t.breadcrumb[route.screen]}>
-      <Suspense fallback={null}>{renderScreen(route, t)}</Suspense>
+      <Suspense fallback={<LoadingState />}>{renderScreen(route, t)}</Suspense>
     </CustomerLayout>
   )
 }

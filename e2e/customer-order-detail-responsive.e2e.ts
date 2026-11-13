@@ -85,6 +85,28 @@ test('customer order detail stays usable without horizontal overflow at the supp
       }),
     )
   })
+  const orderApi = '**/api/orders/cus-ord-006'
+  await page.route(`${orderApi}/mission-deliveries`, (route) =>
+    route.fulfill({ json: { success: true, data: [] } }),
+  )
+  await page.route(`${orderApi}/delivery`, (route) =>
+    route.fulfill({
+      json: {
+        success: true,
+        data: {
+          orderId: 'cus-ord-006',
+          deliveryStatus: 'AWAITING_MISSION_PAYMENT',
+          missionStatus: 'COMPLETED',
+          orderStatus: 'COMPLETED',
+          invoiceStatus: 'PARTIALLY_PAID',
+          totalAmount: 1000000,
+          paidAmount: 500000,
+          remainingAmount: 500000,
+          assets: [],
+        },
+      },
+    }),
+  )
   await page.goto('/#portal/customer/orders/cus-ord-006')
   const resultsTab = page.getByRole('tab', { name: 'Kết quả bàn giao' })
   await expect(resultsTab).toHaveAttribute('aria-selected', 'true', {
@@ -137,6 +159,16 @@ test('customer order detail stays usable without horizontal overflow at the supp
     await assertNoHorizontalOverflow(page, width, 'monitoring')
   }
 
+  for (const tabName of ['Thông tin đơn', 'Báo giá & thanh toán']) {
+    await page.getByRole('tab', { name: tabName }).click()
+    await expect(page.getByRole('tabpanel', { name: tabName })).toBeVisible()
+    for (const width of widths) {
+      await page.setViewportSize({ width, height: 844 })
+      await assertNoHorizontalOverflow(page, width, tabName)
+    }
+  }
+
+  await monitoringTab.click()
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.screenshot({
     path: 'test-results/customer-order-detail-monitoring-1440.png',

@@ -7,6 +7,7 @@ import { withAuthLock } from './authSession'
 
 export async function logout() {
   const token = authSession.getAccessToken()
+  window.sessionStorage.removeItem('auth:return-to')
   authSession.clear()
   const stamp = authSession.capture()
   window.location.hash = '#auth/login'

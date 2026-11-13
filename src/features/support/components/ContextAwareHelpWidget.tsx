@@ -129,6 +129,7 @@ function getOrderFaqIds(
       case 'CUSTOMER_REVIEW':
       case 'REVISION_REQUESTED':
         return ['res-1', 'res-2']
+      case 'AWAITING_MISSION_PAYMENT':
       case 'FINAL_PAYMENT_PENDING':
         // No payment-specific FAQ exists in the current help center.
         return []
