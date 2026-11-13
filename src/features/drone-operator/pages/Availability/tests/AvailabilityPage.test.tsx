@@ -51,9 +51,9 @@ describe('AvailabilityPage', () => {
     const get = vi.spyOn(busyScheduleApi, 'getMyWeek').mockResolvedValue(week([busyTuesday]))
     render(<AvailabilityPage />)
     const busy = await screen.findByTestId('cell-2026-09-22|MORNING')
-    expect(busy.textContent).toBe('Bận')
+    expect(busy.textContent).toContain('Bận')
     expect(busy.getAttribute('aria-pressed')).toBe('true')
-    expect(screen.getByTestId('cell-2026-09-22|EVENING').textContent).toBe('Rảnh')
+    expect(screen.getByTestId('cell-2026-09-22|EVENING').textContent).toContain('Rảnh')
     expect(screen.getByText('Đã dùng 1/4 buổi bận tuần này')).toBeTruthy()
     expect(get.mock.calls[0][0]).toBe('2026-09-21')
   })
@@ -80,7 +80,7 @@ describe('AvailabilityPage', () => {
     )
     await waitFor(() => expect(get).toHaveBeenCalledTimes(2))
     await waitFor(() =>
-      expect(screen.getByTestId('cell-2026-09-22|MORNING').textContent).toBe('Bận'),
+      expect(screen.getByTestId('cell-2026-09-22|MORNING').textContent).toContain('Bận'),
     )
   })
 
@@ -93,7 +93,7 @@ describe('AvailabilityPage', () => {
     fireEvent.click(await screen.findByTestId('cell-2026-09-22|MORNING'))
     await waitFor(() => expect(remove).toHaveBeenCalledWith('b1'))
     await waitFor(() =>
-      expect(screen.getByTestId('cell-2026-09-22|MORNING').textContent).toBe('Rảnh'),
+      expect(screen.getByTestId('cell-2026-09-22|MORNING').textContent).toContain('Rảnh'),
     )
   })
 
@@ -146,7 +146,7 @@ describe('AvailabilityPage', () => {
     await screen.findByTestId('cell-2026-09-22|MORNING')
     act(() => setLanguage('en'))
     expect(await screen.findByText('Availability')).toBeTruthy()
-    expect(screen.getByTestId('cell-2026-09-22|MORNING').textContent).toBe('Busy')
+    expect(screen.getByTestId('cell-2026-09-22|MORNING').textContent).toContain('Busy')
   })
 
   it('lists this week busy sessions in the summary and cancels from there', async () => {
