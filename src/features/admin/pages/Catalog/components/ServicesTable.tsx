@@ -21,7 +21,7 @@ export function ServicesTable({
       <thead>
         <tr>
           <th>{t.service}</th>
-          <th>{t.basePrice}</th>
+          <th className="adm-text-right">{t.basePrice}</th>
           <th>{t.status}</th>
           <th>{t.updated}</th>
           <th className="adm-text-right">{t.actions}</th>
@@ -46,7 +46,7 @@ export function ServicesTable({
                 </div>
               )}
             </td>
-            <td className="adm-cell-mono adm-strong">{s.priceSource === 'UNPRICED' ? t.unpriced : formatVnd(s.defaultPrice ?? s.basePrice)}</td>
+            <td className="adm-cell-mono adm-strong adm-money-cell">{s.priceSource === 'UNPRICED' ? t.unpriced : formatVnd(s.defaultPrice ?? s.basePrice)}</td>
             <td>
               <StatusBadge tone={s.isActive ? 'success' : 'neutral'}>
                 {s.isActive ? t.active : t.inactive}

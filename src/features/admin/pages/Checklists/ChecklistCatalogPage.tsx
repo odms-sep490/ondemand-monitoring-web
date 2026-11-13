@@ -125,7 +125,7 @@ export function ChecklistCatalogPage() {
                   <tr>
                     <th>{t.content}</th>
                     <th>{t.filter}</th>
-                    <th>{t.priceColumn}</th>
+                    <th className="adm-text-right">{t.priceColumn}</th>
                     <th>{t.usage}</th>
                     <th>{t.updated}</th>
                     <th>{t.actions}</th>
@@ -144,7 +144,7 @@ export function ChecklistCatalogPage() {
                           {row.isActive ? t.active : t.inactive}
                         </StatusBadge>
                       </td>
-                      <td className="adm-cell-mono">
+                      <td className="adm-cell-mono adm-money-cell">
                         {formatVnd(row.basePrice ?? 0)}
                         <br />
                         {row.includedImageCount ?? 0} {t.imagesShort} ·{' '}
