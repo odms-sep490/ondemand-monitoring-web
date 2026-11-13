@@ -433,7 +433,7 @@ export function MonitoringChecklistSection({
                     <div className="mc-detail">
                       <ChecklistGuidance
                         guidance={item}
-                        defaultOpen
+                        defaultOpen={!assessmentOnly}
                         showEmpty={item.sourceType === 'CUSTOMER_CUSTOM'}
                       />
                       <ChecklistExecutionItem

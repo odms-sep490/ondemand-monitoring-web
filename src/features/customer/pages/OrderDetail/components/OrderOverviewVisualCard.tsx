@@ -137,7 +137,30 @@ export function OrderOverviewVisualCard({ order }: { order: OrderDetailView }) {
   )
   const [failed, setFailed] = useState<string[]>([])
   const drawnAreaM2 = coverageAreaSquareMeters(order.coverageArea)
-  const image = [service?.imageUrl, service?.fallbackImageUrl].find(
+  const serviceNames = [order.serviceName, service?.name]
+  const isConstructionService =
+    order.serviceId === 'svc-construction' ||
+    service?.id === 'svc-construction' ||
+    serviceNames.some((name) => {
+      const normalized = name
+        ?.normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/đ/g, 'd')
+        .toLowerCase()
+
+      return Boolean(
+        normalized?.includes('giam sat cong trinh') ||
+          normalized?.includes('construction'),
+      )
+    })
+  const imageCandidates = [
+    service?.imageUrl,
+    service?.fallbackImageUrl,
+    ...(isConstructionService
+      ? ['/images/landing/construction-640.webp']
+      : []),
+  ]
+  const image = imageCandidates.find(
     (value): value is string => Boolean(value) && !failed.includes(value!),
   )
   const serviceName = localizeServiceName(
@@ -158,7 +181,11 @@ export function OrderOverviewVisualCard({ order }: { order: OrderDetailView }) {
           <img
             src={image}
             alt=""
-            onError={() => setFailed((items) => [...items, image])}
+            onError={() =>
+              setFailed((items) =>
+                items.includes(image) ? items : [...items, image],
+              )
+            }
           />
         ) : (
           <div className="od-service-placeholder" aria-hidden="true">

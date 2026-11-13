@@ -126,7 +126,6 @@ export function missionProgress(
       PLANNING: 'permit',
       CREATED: 'permit',
       WAITING_DEPOSIT: 'permit',
-      PENDING_PAYMENT: 'permit',
       PENDING_CONFIRMATION: 'permit',
       READY: 'permit',
       SCHEDULED: 'permit',
@@ -163,7 +162,6 @@ export function missionBucket(status: MissionStatus): MissionBucket {
       'PLANNING',
       'CREATED',
       'WAITING_DEPOSIT',
-      'PENDING_PAYMENT',
       'PENDING_CONFIRMATION',
     ].includes(status)
   )

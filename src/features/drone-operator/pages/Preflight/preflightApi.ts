@@ -39,9 +39,10 @@ export function runtimeStatusFromPersisted(
 export async function fetchCurrentPersistedPreflight(
   missionId: string,
   signal?: AbortSignal,
+  deviceId?: string,
 ) {
   const response = await authenticatedFetch(
-    `${env.apiBaseUrl}/api/missions/${encodeURIComponent(missionId)}/pre-device-checks/current`,
+    `${env.apiBaseUrl}/api/missions/${encodeURIComponent(missionId)}/pre-device-checks/current${deviceId ? `?deviceId=${encodeURIComponent(deviceId)}` : ''}`,
     { cache: 'no-store', signal },
   )
   if (!response.ok) {
@@ -53,13 +54,14 @@ export async function fetchCurrentPersistedPreflight(
   return persisted as PersistedPreflightCheck
 }
 
-export async function startPersistedPreflight(missionId: string) {
+export async function startPersistedPreflight(missionId: string, deviceId?: string) {
   const response = await authenticatedFetch(
-    `${env.apiBaseUrl}/api/missions/${encodeURIComponent(missionId)}/pre-device-checks`,
+    `${env.apiBaseUrl}/api/missions/${encodeURIComponent(missionId)}/pre-device-checks${deviceId ? `?deviceId=${encodeURIComponent(deviceId)}` : ''}`,
     { method: 'POST' },
   )
   if (!response.ok) {
-    throw new Error(`Start preflight ${response.status}`)
+    const error = await response.json().catch(() => null)
+    throw new Error(error?.message ?? error?.error?.message ?? `Start preflight ${response.status}`)
   }
   const payload = await response.json()
   const persisted = payload?.data ?? payload

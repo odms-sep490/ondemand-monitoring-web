@@ -691,3 +691,106 @@
     border-inline-end-color: var(--ui-primary);
   }
 }
+
+.postflight-reviewed-devices {
+  padding: 10px 16px;
+  border: 1px solid var(--mgr-border);
+  border-radius: 12px;
+  background: var(--mgr-card);
+}
+
+.postflight-reviewed-devices summary {
+  width: fit-content;
+  padding-block: 4px;
+  color: var(--mgr-text);
+  font-size: 13px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.postflight-reviewed-devices .preflight-device-picker {
+  margin-top: 10px;
+}
+
+.postflight-workspace .postflight-acceptance > .odm-flight-step-header {
+  min-height: 0;
+  row-gap: 10px;
+  padding-block: 14px;
+}
+
+.postflight-acceptance .odm-flight-step.is-complete .odm-flight-step-state {
+  display: none;
+}
+
+.postflight-acceptance .postflight-review-hero {
+  padding: 0 0 4px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.postflight-acceptance .postflight-review-tabs {
+  gap: 4px;
+}
+
+.postflight-acceptance .postflight-review-tabs [aria-selected='true'] {
+  border-radius: 8px 8px 0 0;
+  background: var(--ui-primary-soft);
+}
+
+@media (max-width: 48rem) {
+  .postflight-acceptance .postflight-review-status-stack {
+    justify-content: flex-start;
+  }
+}
+
+.postflight-acceptance .postflight-review-content { max-width: 1200px; gap: 16px; }
+.postflight-acceptance .postflight-review-tabs { gap: 6px; padding: 4px; border: 0; border-radius: 12px; background: var(--mgr-card-2); }
+.postflight-acceptance .postflight-review-tabs [role='tab'] { border: 1px solid transparent; border-radius: 8px; }
+.postflight-acceptance .postflight-review-tabs [aria-selected='true'] { border-color: var(--mgr-border); border-radius: 8px; background: var(--mgr-card); }
+.postflight-device-result { cursor: pointer; }
+.postflight-device-result:focus-visible, .postflight-device-results summary:focus-visible { outline: 2px solid var(--ui-primary); outline-offset: 2px; }
+.postflight-device-results { display: grid; gap: 8px; }
+.postflight-device-results details { padding: 8px 12px; border: 1px solid var(--mgr-border); border-radius: 10px; }
+.postflight-device-results summary { min-height: 36px; cursor: pointer; }
+.postflight-device-results summary strong { margin-inline: 6px 12px; }
+.postflight-acceptance .postflight-review-actions { border-color: var(--mgr-border); background: var(--mgr-card-2); }
+
+.postflight-acceptance .mc-detail {
+  background: var(--mgr-card);
+}
+
+.postflight-acceptance .customer-evidence-selection {
+  padding: 12px;
+  border-radius: 10px;
+}
+
+.postflight-acceptance .customer-evidence-selection__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 310px), 1fr));
+  gap: 8px;
+}
+
+.postflight-acceptance .customer-evidence-selection__row {
+  min-width: 0;
+  padding: 8px;
+}
+
+.postflight-acceptance .customer-evidence-selection__file {
+  min-width: 0;
+}
+
+.postflight-acceptance .customer-evidence-selection__file > label {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.postflight-acceptance .postflight-review-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+}
+
+.postflight-workspace .postflight-acceptance { overflow: visible; }

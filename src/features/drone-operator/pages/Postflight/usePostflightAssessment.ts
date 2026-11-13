@@ -15,6 +15,7 @@ import type { BackendMission } from '../../api/liveMission'
 import type { FlightControlStatus } from '../../api/flightControlApi'
 
 export function usePostflightAssessment({
+  onSaved,
   setResults,
   effectiveMissionId,
   setError,
@@ -33,6 +34,7 @@ export function usePostflightAssessment({
   setShowTicketDialog,
   setTicketCreated,
 }: {
+  onSaved?: () => Promise<boolean>
   setResults: Dispatch<
     SetStateAction<Partial<Record<PostflightItemKey, PreflightItemResult>>>
   >
@@ -126,8 +128,10 @@ export function usePostflightAssessment({
         targetDroneStatus,
         notes,
         inspectionResults,
-        telemetrySnapshot,
+        deviceId === activeData?.deviceId ? telemetrySnapshot : null,
       )
+
+      if (onSaved && !(await onSaved())) return
 
       await flightControlApi.releaseSession(effectiveMissionId).catch(() => {
         // Controller may be offline after landing; local cleanup still allows the operator flow to reset.

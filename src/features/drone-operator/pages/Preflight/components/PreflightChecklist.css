@@ -419,3 +419,62 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* Fleet selection and checklist density follow the shared portal surfaces. */
+.preflight-workspace { display: grid; gap: 16px; min-width: 0; }
+.preflight-device-picker { background: var(--sf); border: 1px solid var(--bd); border-radius: 14px; padding: 20px; }
+.preflight-device-picker__heading { display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+.preflight-device-picker h1 { margin: 0; font-size: 22px; line-height: 1.35; font-weight: 750; color: var(--tx); }
+.preflight-device-picker p { margin: 6px 0 0; color: var(--tx2); font-size: 13px; line-height: 1.5; }
+.preflight-fleet-progress { display: grid; gap: 2px; text-align: right; flex-shrink: 0; color: var(--tx2); font-size: 12px; }
+.preflight-fleet-progress strong { color: var(--tx); font-size: 24px; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.preflight-fleet-progress strong span { color: var(--tx2); font-size: 18px; font-weight: 500; }
+.preflight-fleet-progress.is-complete strong { color: var(--green-fg); }
+.preflight-fleet-track { height: 4px; background: var(--sf3); border-radius: 4px; margin: 16px 0; overflow: hidden; }
+.preflight-fleet-track > span { display: block; height: 100%; background: var(--green-solid); }
+.preflight-device-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 10px; }
+.preflight-device-option { display: flex; align-items: center; gap: 12px; min-height: 72px; padding: 12px 14px; border: 1px solid var(--bd); border-radius: 10px; background: var(--sf); color: var(--tx); text-align: left; font: inherit; cursor: pointer; min-width: 0; }
+.preflight-device-option:hover { background: var(--sf3); }
+.preflight-device-option.is-selected { border-color: var(--blue, #2563eb); background: color-mix(in srgb, #2563eb 6%, var(--sf)); }
+.preflight-device-option:focus-visible, .preflight-workspace button:focus-visible { outline: 2px solid #2563eb; outline-offset: 3px; }
+.preflight-device-option__number { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0; background: var(--sf3); color: var(--tx2); font-size: 13px; font-weight: 700; }
+.preflight-device-option.is-selected .preflight-device-option__number { background: #2563eb; color: #fff; }
+.preflight-device-option__copy { display: grid; gap: 4px; min-width: 0; flex: 1; }
+.preflight-device-option__copy strong { font-size: 14px; overflow-wrap: anywhere; }
+.preflight-device-option__copy > span { font-size: 12px; color: var(--tx2); }
+.preflight-device-option__status { font-size: 12px; font-weight: 600; color: var(--tx2); white-space: nowrap; }
+.preflight-device-option.is-passed .preflight-device-option__status { color: var(--green-fg); }
+.preflight-workspace .preflight-group-list { gap: 24px; }
+.preflight-workspace .preflight-group-list__title { font-size: 13px; text-transform: none; letter-spacing: normal; color: var(--tx); }
+.preflight-workspace .preflight-item-row { border-width: 1px !important; border-color: var(--bd) !important; padding: 14px !important; }
+.preflight-workspace .preflight-item-row.is-failed { border-color: var(--red-dot) !important; }
+.preflight-workspace .preflight-item-row__main { grid-template-columns: 32px minmax(0, 1fr) auto; gap: 10px; }
+.preflight-workspace .preflight-item-row__marker { width: 30px; height: 30px; border-radius: 8px; }
+.preflight-workspace .preflight-item-row__title { font-size: 14px; line-height: 1.4; }
+.preflight-workspace .preflight-item-row__detail, .preflight-workspace .preflight-item-row__message { font-size: 12px; line-height: 1.5; color: var(--tx2); }
+.preflight-workspace .preflight-item-row__message { white-space: normal; }
+.preflight-workspace .preflight-item-row__actions { grid-template-columns: repeat(2, 84px); gap: 6px; }
+.preflight-workspace .preflight-item-row__decision { min-width: 0; width: 84px; height: 36px; font-size: 12px; border: 1px solid var(--bd); }
+.preflight-workspace .preflight-item-row__decision.odm-btn-ok { background: var(--sf); color: var(--green-fg); }
+.preflight-workspace .preflight-item-row__decision.odm-btn-rd { background: var(--sf); color: var(--red-fg); }
+.preflight-workspace .preflight-item-row__decision:hover { background: var(--sf3); }
+.preflight-workspace .preflight-item-row__result { width: auto; min-width: 72px; height: 30px; padding-inline: 12px; border: 0; font-weight: 650; }
+.preflight-workspace .preflight-item-row__result.is-passed { background: var(--green-bg); color: var(--green-fg); }
+.preflight-workspace .preflight-summary-banner { background-image: none !important; border: 1px solid var(--bd) !important; border-radius: 12px !important; min-height: 80px; grid-template-columns: 150px minmax(0, 1fr) auto; gap: 16px !important; padding: 16px !important; }
+.preflight-workspace .preflight-summary-banner__title { font-size: 17px; }
+.preflight-workspace .preflight-summary-banner__description { font-size: 12px; line-height: 1.5; }
+.preflight-workspace .preflight-summary-banner__check { width: 36px; height: 36px; border-radius: 10px; }
+@media (max-width: 1280px) {
+  .preflight-workspace .preflight-item-row__actions, .preflight-workspace .preflight-item-row__battery-entry { grid-column: 2 / -1; justify-self: stretch; margin-top: 8px; }
+  .preflight-workspace .preflight-item-row__battery-entry { width: 100%; max-width: 300px; }
+}
+@media (max-width: 768px) {
+  .preflight-device-picker { padding: 16px; }
+  .preflight-device-picker h1 { font-size: 20px; }
+  .preflight-workspace .preflight-group-list__items { grid-template-columns: minmax(0, 1fr); }
+  .preflight-workspace .preflight-summary-banner { grid-template-columns: minmax(0, 1fr); }
+  .preflight-workspace .preflight-item-row__actions { display: flex; }
+  .preflight-workspace .preflight-item-row__decision { flex: 1; max-width: 160px; min-height: 40px; }
+  .preflight-workspace .preflight-summary-banner__button { width: 100%; justify-content: center; }
+}
+@media (prefers-reduced-motion: reduce) { .preflight-workspace * { scroll-behavior: auto; } }

@@ -172,7 +172,6 @@ function operatorStatus(status: string): OperatorMissionStatus {
     'PLANNING',
     'CREATED',
     'WAITING_DEPOSIT',
-    'PENDING_PAYMENT',
     'PENDING_CONFIRMATION',
     'READY',
     'RESOURCE_ASSIGNING',
@@ -212,7 +211,6 @@ function operatorStatusForCrewResponse(
 ): OperatorMissionStatus {
   const awaitingCrew = new Set([
     'PLANNING',
-    'PENDING_PAYMENT',
     'PENDING_CONFIRMATION',
     'READY',
     'WAITING_OPERATOR_ACCEPTANCE',

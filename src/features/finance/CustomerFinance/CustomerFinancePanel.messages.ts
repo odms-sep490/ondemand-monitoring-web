@@ -12,6 +12,9 @@ export const customerFinancePanelMessages = defineMessages({
     missingPaymentUrl: 'Cổng thanh toán chưa trả về đường dẫn thanh toán.',
     loadError: 'Không thể tải dữ liệu tài chính.',
     testPayment: 'Thanh toán nhanh (Test)',
+    testPaymentDisabled:
+      'Backend đang tắt thanh toán test. Hãy chạy backend với profile demo.',
+    testPaymentFailed: 'Thanh toán test thất bại',
     quoteVersion: (version: number) => `Báo giá v${version}`,
     apiErrors: {
       INVOICE_ALREADY_PAID: 'Hóa đơn này đã được thanh toán đầy đủ.',
@@ -33,6 +36,9 @@ export const customerFinancePanelMessages = defineMessages({
     missingPaymentUrl: 'The payment gateway did not return a checkout URL.',
     loadError: 'Unable to load financial information.',
     testPayment: 'Quick payment (Test)',
+    testPaymentDisabled:
+      'Test payments are disabled by the backend. Run the backend with the demo profile.',
+    testPaymentFailed: 'Test payment failed',
     quoteVersion: (version: number) => `Quote v${version}`,
     apiErrors: {
       INVOICE_ALREADY_PAID: 'This invoice has already been paid in full.',

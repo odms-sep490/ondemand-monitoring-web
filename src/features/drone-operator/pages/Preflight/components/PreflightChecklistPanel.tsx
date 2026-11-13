@@ -36,6 +36,8 @@ export function PreflightChecklistPanel({
   deviceLabel,
   missionStatus,
   replacementRequestPending = false,
+  onStatusChange,
+  readyActionLabel,
   onReady,
   embedded = false,
   manualOnly = false,
@@ -48,6 +50,8 @@ export function PreflightChecklistPanel({
   deviceLabel?: string
   missionStatus?: string | null
   replacementRequestPending?: boolean
+  onStatusChange?: (passed: boolean) => void
+  readyActionLabel?: string
   onReady?: () => void
   embedded?: boolean
   manualOnly?: boolean
@@ -114,6 +118,9 @@ export function PreflightChecklistPanel({
   >(null)
   const [persistedPreflightStatus, setPersistedPreflightStatus] =
     useState<PersistedPreflightStatus | null>(null)
+  useEffect(() => {
+    if (persistedPreflightStatus) onStatusChange?.(persistedPreflightStatus === 'PASSED')
+  }, [persistedPreflightStatus, onStatusChange])
   const [updatingItem, setUpdatingItem] = useState<string | null>(null)
   const syncedPersistedItemsRef = useRef<Record<string, string>>({})
   const syncingPersistedItemsRef = useRef(false)
@@ -144,7 +151,7 @@ export function PreflightChecklistPanel({
     const controller = new AbortController()
     const assignmentTime = Date.parse(deviceAssignedAt ?? '')
 
-    void fetchCurrentPersistedPreflight(missionId, controller.signal)
+    void fetchCurrentPersistedPreflight(missionId, controller.signal, deviceId)
       .then((persisted) => {
         if (!alive || !persisted) return
         if (persisted.deviceId && persisted.deviceId !== deviceId) return
@@ -249,6 +256,7 @@ export function PreflightChecklistPanel({
   })
 
   const { handleTriggerCheck } = usePreflightActions({
+    deviceId,
     setTriggering,
     setError,
     setCheckId,
@@ -430,6 +438,7 @@ export function PreflightChecklistPanel({
             hasTriggered={hasTriggered}
             triggering={triggering}
             handleTriggerCheck={handleTriggerCheck}
+            readyActionLabel={readyActionLabel}
             onReady={onReady}
             missionId={missionId}
             backendPreflightMessage={backendPreflightMessage}
