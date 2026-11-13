@@ -203,7 +203,7 @@ describe('Router - manager routes (#portal/manager*)', () => {
     render(<Router />)
 
     await waitFor(() =>
-      expect(screen.getByRole('heading', { name: 'Bảng điều khiển quản lý' })).toBeInTheDocument(),
+      expect(screen.getByRole('heading', { name: 'Tổng quan điều hành' })).toBeInTheDocument(),
     )
   })
   it('allows authenticated Admin into Manager planning without granting crew authority', async () => {
@@ -216,7 +216,7 @@ describe('Router - manager routes (#portal/manager*)', () => {
     window.location.hash = '#portal/manager'
     render(<Router />)
     await waitFor(() =>
-      expect(screen.getByRole('heading', { name: 'Bảng điều khiển quản lý' })).toBeInTheDocument(),
+      expect(screen.getByRole('heading', { name: 'Tổng quan điều hành' })).toBeInTheDocument(),
     )
   })
 

@@ -77,7 +77,7 @@ describe('OperatingConfigPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Lưu thời hạn' }))
 
     expect(await screen.findByRole('status')).toHaveTextContent(
-      'Đã cập nhật thời hạn hết hạn.',
+      'Đã cập nhật thời hạn.',
     )
     await waitFor(() =>
       expect(screen.getAllByText('Admin Mock')).toHaveLength(2),

@@ -47,7 +47,7 @@ describe('SummaryBanner', () => {
     })
 
     expect(screen.getByText('7/9')).toBeTruthy()
-    expect(screen.getByText('PASS · đủ điều kiện cất cánh')).toBeTruthy()
+    expect(screen.getByText('ĐẠT · đủ điều kiện cất cánh')).toBeTruthy()
     expect(
       screen.getByText(
         'Tất cả hạng mục kiểm tra trước bay bắt buộc phải đạt trước khi nhiệm vụ sẵn sàng cất cánh.',

@@ -6,5 +6,5 @@ export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
   prettier,
-  { ignores: ['dist', 'coverage', '.agents'] },
+  { ignores: ['dist', 'coverage', '.agents', 'evd'] },
 )

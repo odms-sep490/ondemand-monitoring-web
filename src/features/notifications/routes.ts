@@ -33,10 +33,14 @@ export function notificationHref(
   if (notification.type === 'SYSTEM_UPDATE') return notificationsHref(role)
 
   if (role === 'CUSTOMER') {
-    return customerHref({
-      screen: 'missionHistoryDetail',
-      missionId: notification.entityId,
-    })
+    // The customer mission-history screens were removed; open the parent
+    // Order instead, or fall back to the notification center.
+    return notification.relatedEntityId
+      ? customerHref({
+          screen: 'orderDetail',
+          orderId: notification.relatedEntityId,
+        })
+      : notificationsHref(role)
   }
   if (role === 'MANAGER' || role === 'ADMIN') {
     return managerHref({

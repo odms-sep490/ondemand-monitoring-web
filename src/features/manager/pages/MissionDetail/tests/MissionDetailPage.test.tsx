@@ -254,8 +254,9 @@ describe('Manager Mission Detail monitoring review', () => {
     fireEvent.click(
       await screen.findByRole('tab', { name: 'Kiểm tra trước/sau bay' }),
     )
+    // Checks are now loaded per device, so the empty states appear after load.
     expect(
-      screen.getByText('Chưa đến bước kiểm tra trước bay.'),
+      await screen.findByText('Chưa đến bước kiểm tra trước bay.'),
     ).toBeInTheDocument()
     expect(
       screen.getByText('Chưa đến bước kiểm tra sau bay.'),
@@ -298,6 +299,11 @@ describe('Manager Mission Detail monitoring review', () => {
       latitude: null,
       longitude: null,
     })
+    // The map now prefers the source Order's GPS, so it must be missing too.
+    vi.spyOn(ordersApi, 'getOrder').mockResolvedValue({
+      ...(await ordersApi.getOrder('o')),
+      center: null,
+    })
     const { container } = render(<MissionDetailPage missionId="m" />)
     fireEvent.click(
       await screen.findByRole('tab', { name: 'Vị trí & tuyến kế hoạch' }),
@@ -325,16 +331,18 @@ describe('Manager Mission Detail monitoring review', () => {
       screen.getByRole('tab', { name: 'Kiểm tra trước/sau bay' }),
     ).toBeInTheDocument()
   })
-  it('does not show weather on manager mission detail', async () => {
+  it('shows the weather result only inside the checks tab', async () => {
     render(<MissionDetailPage missionId="m" />)
 
     await screen.findByRole('heading', { name: 'Kết quả nhiệm vụ' })
     expect(screen.queryByText('Kết quả thời tiết')).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('tab', { name: 'Kiểm tra trước/sau bay' }))
-    expect(screen.queryByText('Kết quả thời tiết')).not.toBeInTheDocument()
     expect(
-      screen.queryByText('Thời tiết phù hợp để cất cánh.'),
-    ).not.toBeInTheDocument()
+      await screen.findByRole('heading', { name: 'Kết quả thời tiết' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText('Thời tiết phù hợp để cất cánh.'),
+    ).toBeInTheDocument()
   })
   it.each(['DRAFT', 'REJECTED', 'APPROVED'] as const)(
     '%s cannot be approved/rejected',

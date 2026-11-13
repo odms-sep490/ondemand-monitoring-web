@@ -166,6 +166,8 @@ describe('Upload media and monitoring workspace', () => {
         '2026-10-05T00:00:00.000Z',
         expect.any(Function),
         expect.objectContaining({ captureTimeSource: 'STAFF_CONFIRMED' }),
+        // Idempotency key generated per selected file (uploadIntentId).
+        expect.any(String),
       ),
     )
   })

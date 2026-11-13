@@ -39,7 +39,7 @@ it('keeps a rejected permit separate from order rejection and exposes remediatio
     />,
   )
 
-  expect(screen.getByText('Mission đang bị khóa thực thi')).toBeInTheDocument()
+  expect(screen.getByText('Nhiệm vụ đang bị khóa thực thi')).toBeInTheDocument()
   expect(
     screen.getByRole('button', { name: 'Bổ sung & gửi duyệt lại' }),
   ).toBeInTheDocument()
@@ -213,18 +213,18 @@ it('shows the order preferred schedule before rescheduling', () => {
   fireEvent.click(screen.getByRole('button', { name: 'Đề nghị dời lịch' }))
 
   expect(screen.getByText('Lịch khách hàng mong muốn')).toBeInTheDocument()
-  expect(screen.getByText('Lịch Mission hiện tại')).toBeInTheDocument()
+  expect(screen.getByText('Lịch nhiệm vụ hiện tại')).toBeInTheDocument()
   expect(screen.getByText('10/11/2026 – 12/11/2026')).toBeInTheDocument()
   expect(screen.getByText('Buổi sáng (08:00 – 11:00)')).toBeInTheDocument()
-  expect(screen.getByRole('radio', { name: /Chỉ dời Mission/ })).toBeChecked()
+  expect(screen.getByRole('radio', { name: /Chỉ dời nhiệm vụ/ })).toBeChecked()
   expect(
-    screen.getByText('Cập nhật lịch thực hiện mới của Mission'),
+    screen.getByText('Cập nhật lịch thực hiện mới của nhiệm vụ'),
   ).toBeInTheDocument()
   expect(
-    screen.queryByText('Bước 2 · Cập nhật lịch thực hiện mới của Mission'),
+    screen.queryByText('Bước 2 · Cập nhật lịch thực hiện mới của nhiệm vụ'),
   ).not.toBeInTheDocument()
   expect(
-    screen.getByRole('radio', { name: /Dời lịch Order và Mission/ }),
+    screen.getByRole('radio', { name: /Dời lịch đơn hàng và nhiệm vụ/ }),
   ).toBeInTheDocument()
 })
 
@@ -249,19 +249,19 @@ it('reschedules both Order and Mission when the new time is outside the current 
   )
   fireEvent.click(screen.getByRole('button', { name: 'Đề nghị dời lịch' }))
   fireEvent.click(
-    screen.getByRole('radio', { name: /Dời lịch Order và Mission/ }),
+    screen.getByRole('radio', { name: /Dời lịch đơn hàng và nhiệm vụ/ }),
   )
   expect(
-    await screen.findByText('Bước 1 · Cập nhật lịch mong muốn mới của Order'),
+    await screen.findByText('Bước 1 · Cập nhật lịch mong muốn mới của đơn hàng'),
   ).toBeInTheDocument()
   expect(screen.getByRole('option', { name: /Buổi sáng/ })).toBeInTheDocument()
   expect(
-    screen.getByText('Bước 2 · Cập nhật lịch thực hiện mới của Mission'),
+    screen.getByText('Bước 2 · Cập nhật lịch thực hiện mới của nhiệm vụ'),
   ).toBeInTheDocument()
-  fireEvent.change(screen.getByLabelText('Order mong muốn từ ngày'), {
+  fireEvent.change(screen.getByLabelText('Đơn hàng mong muốn từ ngày'), {
     target: { value: '2026-11-15' },
   })
-  fireEvent.change(screen.getByLabelText('Order mong muốn đến ngày'), {
+  fireEvent.change(screen.getByLabelText('Đơn hàng mong muốn đến ngày'), {
     target: { value: '2026-11-20' },
   })
   fireEvent.change(screen.getByLabelText('Khung giờ mong muốn mới'), {
@@ -277,7 +277,7 @@ it('reschedules both Order and Mission when the new time is outside the current 
     screen.getByRole('checkbox', { name: /khách hàng đồng ý lịch mới/ }),
   )
   fireEvent.click(
-    screen.getByRole('button', { name: 'Xác nhận dời Order & Mission' }),
+    screen.getByRole('button', { name: 'Xác nhận dời đơn hàng & nhiệm vụ' }),
   )
 
   await waitFor(() =>

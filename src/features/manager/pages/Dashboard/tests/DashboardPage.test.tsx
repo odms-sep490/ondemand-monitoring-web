@@ -116,7 +116,7 @@ describe('DashboardPage', () => {
     render(<DashboardPage />)
     expect(screen.getByText('Đang tải bảng điều khiển…')).toBeInTheDocument()
     expect(
-      await screen.findByRole('heading', { name: 'Bảng điều khiển quản lý' }),
+      await screen.findByRole('heading', { name: 'Tổng quan điều hành' }),
     ).toBeInTheDocument()
     expect(
       screen.getByText('Dịch vụ bổ sung chờ duyệt giá'),
@@ -126,15 +126,15 @@ describe('DashboardPage', () => {
   it('renders all KPI values and useful navigation', async () => {
     vi.spyOn(managerApi, 'getDashboard').mockResolvedValue(sampleData)
     render(<DashboardPage />)
-    await screen.findByRole('heading', { name: 'Bảng điều khiển quản lý' })
+    await screen.findByRole('heading', { name: 'Tổng quan điều hành' })
     expect(
-      screen.getByRole('link', { name: /Chờ duyệt yêu cầu/ }),
+      screen.getByRole('link', { name: /Chờ duyệt/ }),
     ).toHaveAttribute('href', '#portal/manager/orders')
     expect(
-      screen.getByRole('link', { name: /Nhiệm vụ đang chạy.*8/ }),
+      screen.getByRole('link', { name: /Đang thực hiện.*8/ }),
     ).toHaveAttribute('href', '#portal/manager/missions')
     expect(
-      screen.getByRole('link', { name: /Hoàn thành trong kỳ/ }),
+      screen.getByRole('link', { name: /Đã hoàn thành/ }),
     ).toHaveAttribute('href', '#portal/manager/missions')
     expect(screen.getByRole('link', { name: 'Duyệt giá' })).toHaveAttribute(
       'href',
@@ -169,7 +169,7 @@ describe('DashboardPage', () => {
   it('renders null assignments safely and all operational sections', async () => {
     vi.spyOn(managerApi, 'getDashboard').mockResolvedValue(sampleData)
     render(<DashboardPage />)
-    await screen.findByRole('heading', { name: 'Bảng điều khiển quản lý' })
+    await screen.findByRole('heading', { name: 'Tổng quan điều hành' })
     expect(screen.getByText(/Chưa phân công/)).toBeInTheDocument()
     expect(
       screen.getByRole('heading', { name: 'Tiến trình báo giá' }),
@@ -182,7 +182,7 @@ describe('DashboardPage', () => {
   it('places dashboard widgets in a balanced two-column grid', async () => {
     vi.spyOn(managerApi, 'getDashboard').mockResolvedValue(sampleData)
     render(<DashboardPage />)
-    await screen.findByRole('heading', { name: 'Bảng điều khiển quản lý' })
+    await screen.findByRole('heading', { name: 'Tổng quan điều hành' })
 
     const layout = document.querySelector('.mgr-dash-columns')
     expect(layout?.children).toHaveLength(7)
@@ -205,7 +205,7 @@ describe('DashboardPage', () => {
     })
 
     render(<DashboardPage />)
-    await screen.findByRole('heading', { name: 'Bảng điều khiển quản lý' })
+    await screen.findByRole('heading', { name: 'Tổng quan điều hành' })
 
     expect(screen.getByText('Đang duyệt')).toBeInTheDocument()
   })
@@ -228,7 +228,7 @@ describe('DashboardPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Thử lại' }))
     await waitFor(() => expect(getDashboard).toHaveBeenCalledTimes(2))
     expect(
-      await screen.findByRole('heading', { name: 'Bảng điều khiển quản lý' }),
+      await screen.findByRole('heading', { name: 'Tổng quan điều hành' }),
     ).toBeInTheDocument()
   })
 
@@ -250,8 +250,8 @@ describe('DashboardPage', () => {
       missionTrend: [],
     })
     render(<DashboardPage />)
-    await screen.findByRole('heading', { name: 'Bảng điều khiển quản lý' })
-    expect(screen.getByText('Không có việc nào cần xử lý.')).toBeInTheDocument()
+    await screen.findByRole('heading', { name: 'Tổng quan điều hành' })
+    expect(screen.getByText('Đã xử lý hết công việc.')).toBeInTheDocument()
     expect(screen.getByText('Không có nhiệm vụ đang chạy.')).toBeInTheDocument()
     expect(screen.getByText('Chưa có đơn gần đây.')).toBeInTheDocument()
     expect(document.querySelector('.mgr-orders-empty-state')).toHaveAttribute(
@@ -285,11 +285,11 @@ describe('DashboardPage', () => {
     } satisfies ManagerDashboardResponse)
 
     render(<DashboardPage />)
-    await screen.findByRole('heading', { name: 'Bảng điều khiển quản lý' })
+    await screen.findByRole('heading', { name: 'Tổng quan điều hành' })
 
     expect(
       screen.getByRole('link', {
-        name: 'Chờ duyệt yêu cầu: Chưa có dữ liệu',
+        name: 'Chờ duyệt: Chưa có dữ liệu',
       }),
     ).toBeInTheDocument()
     expect(

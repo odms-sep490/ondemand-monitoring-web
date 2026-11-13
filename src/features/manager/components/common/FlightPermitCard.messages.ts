@@ -89,7 +89,7 @@ export const flightPermitCardMessages = defineMessages({
     permitDepositRequired:
       'Cần thanh toán tiền đặt cọc trước khi cập nhật giấy phép bay.',
     cancelledNotice:
-      'đơn hàng hoặc nhiệm vụ đã hủy. Thông tin giấy phép chỉ được giữ để đối chiếu.',
+      'Đơn hàng hoặc nhiệm vụ đã hủy. Thông tin giấy phép chỉ được giữ để đối chiếu.',
     note: 'Ghi chú',
     noteEmpty: 'Chưa có ghi chú',
     openNote: 'Mở ghi chú',
@@ -116,7 +116,7 @@ export const flightPermitCardMessages = defineMessages({
     rejectionReasonRequired: 'Vui lòng nhập lý do giấy phép bị từ chối.',
     resubmitRequired:
       'Vui lòng bổ sung file hoặc ghi chú khắc phục trước khi gửi lại.',
-    rejectedTitle: 'nhiệm vụ đang bị khóa thực thi',
+    rejectedTitle: 'Nhiệm vụ đang bị khóa thực thi',
     rejectedBody:
       'Giấy phép bị từ chối không làm đơn hàng bị từ chối. Lịch hiện tại vẫn được giữ trong thời hạn xử lý.',
     holdUntil: (value: string) =>
@@ -128,7 +128,7 @@ export const flightPermitCardMessages = defineMessages({
     proposeCancellation: 'Hủy đơn hàng',
     requestRefund: 'Yêu cầu hoàn tiền cọc',
     refundDialogTitle: 'Yêu cầu hoàn tiền đặt cọc?',
-    refundOrder: (code: string) => `đơn hàng: ${code}`,
+    refundOrder: (code: string) => `Đơn hàng: ${code}`,
     refundWarning: 'Gửi yêu cầu sẽ khóa việc tiếp tục thực hiện đơn hàng và nhiệm vụ để quản trị viên xử lý hoàn tiền.',
     refundReason: 'Lý do yêu cầu hoàn tiền',
     refundReasonRequired: 'Vui lòng nhập lý do yêu cầu hoàn tiền.',
@@ -140,7 +140,7 @@ export const flightPermitCardMessages = defineMessages({
     refundStatusLoadError: 'Không thể kiểm tra trạng thái hoàn tiền. Hãy tải lại trước khi tiếp tục.',
     refundStatus: {
       REQUESTED: 'Đã gửi yêu cầu hoàn tiền đặt cọc',
-      PROCESSING: 'quản trị viên đang xử lý hoàn tiền đặt cọc',
+      PROCESSING: 'Quản trị viên đang xử lý hoàn tiền đặt cọc',
       COMPLETED: 'Đã hoàn tiền đặt cọc',
       REJECTED: 'Yêu cầu hoàn tiền bị từ chối',
       CANCELLED: 'Đã hủy xử lý hoàn tiền',
@@ -164,8 +164,8 @@ export const flightPermitCardMessages = defineMessages({
     orderScheduleStep: 'Bước 1 · Cập nhật lịch mong muốn mới của đơn hàng',
     missionScheduleStep: 'Bước 2 · Cập nhật lịch thực hiện mới của nhiệm vụ',
     missionScheduleOnly: 'Cập nhật lịch thực hiện mới của nhiệm vụ',
-    newOrderDateFrom: 'đơn hàng mong muốn từ ngày',
-    newOrderDateTo: 'đơn hàng mong muốn đến ngày',
+    newOrderDateFrom: 'Đơn hàng mong muốn từ ngày',
+    newOrderDateTo: 'Đơn hàng mong muốn đến ngày',
     newOrderTime: 'Khung giờ mong muốn mới',
     selectPreferredTime: 'Chọn khung giờ',
     orderScheduleRequired:
