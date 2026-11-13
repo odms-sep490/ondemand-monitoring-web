@@ -20,7 +20,7 @@ export function StatusBreakdown({ stats }: { stats: OrderStats }) {
   return (
     <CardComponent title={t.title} className="cus-status-card">
       <ul className="cus-breakdown">
-        {ROWS.filter(([, key]) => stats[key] > 0).map(([status, key]) => (
+        {ROWS.filter(([, key]) => (stats[key] ?? 0) > 0).map(([status, key]) => (
           <li key={status}>
             <OrderStatusTag status={status} />
             <strong>{stats[key]}</strong>
