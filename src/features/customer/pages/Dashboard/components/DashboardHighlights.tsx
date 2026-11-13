@@ -7,7 +7,6 @@ import { Button, Skeleton, Tag } from 'antd'
 
 import {
   CardComponent,
-  EmptyState,
 } from '../../../../../shared/components/antd'
 import { useI18n } from '../../../../../shared/i18n'
 import { getMissionStatusLabel } from '../../../../../shared/lib/statusTone'
@@ -72,7 +71,9 @@ export function DashboardHighlights({
   onRetry: () => void
 }) {
   const { t, locale, lang } = useI18n(dashboardHighlightsMessages)
-  const actions = actionOrders(orders)
+  const reviews = missionData?.reviewOrders ?? []
+  const reviewIds = new Set(reviews.map((order) => order.id))
+  const actions = [...reviews, ...actionOrders(orders).filter((order) => !reviewIds.has(order.id))].slice(0, DISPLAY_LIMIT)
   const now = Date.now()
   const upcoming = (missionData?.items ?? [])
     .filter(({ mission }) => {
@@ -112,7 +113,7 @@ export function DashboardHighlights({
         icon={<BellOutlined />}
       >
         {actions.length === 0 ? (
-          <EmptyState title={t.actionsEmpty} />
+          <p className="cus-highlight-empty" role="status">{t.actionsEmpty}</p>
         ) : (
           <ul className="cus-highlight-list">
             {actions.map((order) => (
@@ -139,7 +140,7 @@ export function DashboardHighlights({
                     orderId: order.id,
                   })}
                 >
-                  {actionFor(order, t)}
+                  {reviewIds.has(order.id) ? t.actionReviewResult : actionFor(order, t)}
                 </Button>
               </li>
             ))}
@@ -158,7 +159,7 @@ export function DashboardHighlights({
             <span className="odm-visually-hidden">{t.loading}</span>
           </div>
         ) : upcoming.length === 0 ? (
-          <EmptyState title={t.upcomingEmpty} />
+          <p className="cus-highlight-empty" role="status">{t.upcomingEmpty}</p>
         ) : (
           <ul className="cus-highlight-list">
             {upcoming.map(({ order, mission }) => (
@@ -214,7 +215,7 @@ export function DashboardHighlights({
             <span className="odm-visually-hidden">{t.loading}</span>
           </div>
         ) : results.length === 0 ? (
-          <EmptyState title={t.resultsEmpty} />
+          <p className="cus-highlight-empty" role="status">{t.resultsEmpty}</p>
         ) : (
           <ul className="cus-highlight-list">
             {results.map(({ order, mission }) => (

@@ -44,31 +44,7 @@ export function PrecheckCard({
       <div className="odm-card-body" style={{ padding: '10px 14px' }}>
         {preflight ? (
           <>
-            {/* Meta rows */}
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                fontSize: 14,
-                color: 'var(--tx3)',
-                marginBottom: 4,
-              }}
-            >
-              <span># Mã check</span>
-              <span
-                style={{
-                  fontFamily: 'IBM Plex Mono, monospace',
-                  fontSize: 12.5,
-                  color: 'var(--tx2)',
-                  maxWidth: 170,
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                {preflight.checkId}
-              </span>
-            </div>
+
             <div
               style={{
                 display: 'flex',

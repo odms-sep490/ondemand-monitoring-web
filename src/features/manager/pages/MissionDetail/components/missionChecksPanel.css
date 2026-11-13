@@ -47,3 +47,10 @@
 .mgr-check-items-disclosure summary { width: fit-content; cursor: pointer; color: var(--ui-primary-text, #0b3fa8); font-size: 14px; font-weight: 600; padding: 8px 0; }
 .mgr-check-items-disclosure summary:focus-visible { outline: 2px solid var(--ui-primary, #1565e8); outline-offset: 3px; border-radius: 8px; }
 .mgr-check-items-disclosure[open] summary { margin-bottom: 8px; }
+
+.mgr-check-workspace { grid-template-columns: minmax(0, 1fr); }
+.mgr-check-device-picker { display: flex; flex-wrap: wrap; gap: 10px; }
+.mgr-check-device-picker button { flex: 0 1 250px; padding: 12px 16px; }
+:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-md-checks-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 20px; }
+:root .mgr-layout .mgr-md .mgr-mission-checks .odm-or-check-list { grid-template-columns: minmax(0, 1fr); }
+@media (max-width: 900px) { :root .mgr-layout .mgr-md .mgr-mission-checks .mgr-md-checks-grid { grid-template-columns: minmax(0, 1fr); } }

@@ -8,10 +8,8 @@ import {
 } from '../../../../shared/components/antd'
 import { useI18n } from '../../../../shared/i18n'
 import { customerHref } from '../../routes'
-import { DashboardStats } from './components/DashboardStats'
+import { DashboardExperience } from './components/DashboardExperience'
 import { DashboardHighlights } from './components/DashboardHighlights'
-import { RecentOrdersCard } from './components/RecentOrdersCard'
-import { StatusBreakdown } from './components/StatusBreakdown'
 import './dashboard.scss'
 import { dashboardPageMessages } from './DashboardPage.messages'
 import { useDashboardData } from './hooks/useDashboardData'
@@ -19,7 +17,7 @@ import { useDashboardData } from './hooks/useDashboardData'
 /** Customer overview computed client-side from the customer's orders. */
 export function DashboardPage() {
   const { t } = useI18n(dashboardPageMessages)
-  const { orders, stats, recent, missionData, missionDataLoading } =
+  const { orders, missionData, missionDataLoading } =
     useDashboardData()
 
   return (
@@ -28,6 +26,8 @@ export function DashboardPage() {
         title={t.title}
         description={t.subtitle}
         actions={
+          <div className="cus-overview-actions">
+          <Button href={customerHref({ screen: 'orders' })}>{t.myOrders}</Button>
           <Button
             type="primary"
             icon={<PlusOutlined />}
@@ -35,24 +35,19 @@ export function DashboardPage() {
           >
             {t.createOrder}
           </Button>
+          </div>
         }
       />
 
       {orders.data && (
         <>
-          <DashboardStats stats={stats} />
+          <DashboardExperience data={missionData.data} loading={missionDataLoading} />
           <DashboardHighlights
             orders={orders.data}
             missionData={missionData.data}
             missionLoading={missionDataLoading}
             onRetry={missionData.reload}
           />
-          <div className="cus-content-grid">
-            <div className="cus-main-column">
-              <RecentOrdersCard orders={recent} />
-            </div>
-            <StatusBreakdown stats={stats} />
-          </div>
         </>
       )}
       {!orders.data && (
@@ -73,3 +68,4 @@ export function DashboardPage() {
     </div>
   )
 }
+

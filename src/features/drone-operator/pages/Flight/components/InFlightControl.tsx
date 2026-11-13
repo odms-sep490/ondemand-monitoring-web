@@ -64,6 +64,7 @@ export default function InFlightControl({
   const { t } = useI18n(inFlightControlMessages)
   const preflightStorageKey = `omss.droneOperator.preflightReady.${mission.id}.${drone.id}`
   const requiresBackendPreflight = Boolean(onPreflightReady)
+  const missionFlightStarted = ['IN_PROGRESS', 'IN_FLIGHT', 'RETURNING'].includes(String(mission.state))
   const [elapsed, setElapsed] = useState(5)
   const [progress, setProgress] = useState(18.2)
   const [isOnline, setIsOnline] = useState(false)
@@ -88,6 +89,7 @@ export default function InFlightControl({
   const [mediaPanelOpen, setMediaPanelOpen] = useState(false)
   const cameraDefaultAppliedRef = useRef(false)
   const [preflightReady, setPreflightReady] = useState(() => {
+    if (missionFlightStarted) return true
     if (requiresBackendPreflight) return false
     try {
       return window.localStorage.getItem(preflightStorageKey) === 'true'
@@ -138,6 +140,7 @@ export default function InFlightControl({
   } = useGeofence({ controlStatus, restrictedZones })
 
   usePreflightReadyStorage({
+    missionFlightStarted,
     requiresBackendPreflight,
     setPreflightReady,
     preflightStorageKey,

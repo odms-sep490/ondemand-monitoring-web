@@ -132,7 +132,7 @@ export function MissionHeader({
           ? t.statusPostflight
           : missionStatusLabel(headerStatus)
   return (
-    <div className="mds-header">
+    <div className="mds-header mds-mission-banner">
       {/* Row 1: code + badge + actions */}
       <div className="mds-header-row">
         <a

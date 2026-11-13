@@ -11,6 +11,7 @@ export function OrderHeader({ order }: { order: OrderDetailView }) {
   const { t } = useI18n(orderHeaderMessages)
   const title = getDisplayTitle(order, t.orderTitleFallback)
   return (
+    <div className="od-order-banner">
     <PageHeader
       back={
         <a className="cus-back" href={customerHref({ screen: 'orders' })}>
@@ -35,6 +36,7 @@ export function OrderHeader({ order }: { order: OrderDetailView }) {
         </span>
       }
     />
+    </div>
   )
 }
 

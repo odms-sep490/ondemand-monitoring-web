@@ -1667,3 +1667,15 @@
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 132px), 1fr));
   }
 }
+
+.od-order-banner {
+  overflow: hidden;
+  border: 1px solid #d6e6fb;
+  border-radius: 16px;
+  background: linear-gradient(90deg, rgba(240,247,255,.85), rgba(240,247,255,.25) 60%, transparent), url('/images/order-banner.png') center / cover no-repeat, #eaf3ff;
+}
+.od-order-banner > * { background: transparent !important; border: 0; box-shadow: none; min-height: 150px; padding: 24px; }
+.od-order-banner h1 { color: #0f2747; }
+@media (max-width: 700px) { .od-order-banner > * { padding: 18px 16px; min-height: 140px; } }
+[data-theme='dark'] .od-order-banner { background: linear-gradient(90deg, rgba(11,25,46,.9), rgba(11,25,46,.5)), url('/images/order-banner.png') center / cover no-repeat, #10243d; border-color: #28405d; }
+[data-theme='dark'] .od-order-banner h1 { color: #e6ecfa; }

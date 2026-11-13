@@ -1,3 +1,4 @@
+import '../pageBanner.css'
 import type { ReactNode } from 'react'
 
 type Props = {
@@ -11,7 +12,7 @@ type Props = {
 
 export function PageHeader({ title, subtitle, actions, back }: Props) {
   return (
-    <header className="ui-page-header">
+    <header className="ui-page-header app-page-banner">
       {back ? <div className="ui-page-back">{back}</div> : null}
       <div className="ui-page-header-row">
         <div className="ui-page-header-text">

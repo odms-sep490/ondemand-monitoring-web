@@ -77,7 +77,11 @@ export function MissionDashboard({
   onOpenReject: () => void
 }) {
   const { t } = useI18n(missionDetailPageMessages)
-  const deviceId = mission.deviceId
+  const devices = (mission.deviceAssignments ?? []).filter((device) => device.deviceId)
+  const [selectedDeviceId, setSelectedDeviceId] = useState('')
+  const deviceId = devices.some((device) => device.deviceId === selectedDeviceId)
+    ? selectedDeviceId
+    : devices[0]?.deviceId ?? mission.deviceId
   const [preflightStatus, setPreflightStatus] =
     useState<RuntimePreflightStatus | null>(() =>
       readStoredPreflightState(mission.id, deviceId),
@@ -129,14 +133,14 @@ export function MissionDashboard({
     setPreflightStatus(readStoredPreflightState(mission.id, deviceId))
     setPostflightStatus(null)
     const controller = new AbortController()
-    fetchPersistedPreflight(mission.id, controller.signal)
+    fetchPersistedPreflight(mission.id, controller.signal, deviceId ?? undefined)
       .then((status) => {
         if (status) setPreflightStatus(status)
       })
       .catch(() => {
         // Local precheck cache is still shown if backend history is unavailable.
       })
-    fetchLatestPostflightCheck(mission.id, controller.signal)
+    fetchLatestPostflightCheck(mission.id, controller.signal, deviceId ?? undefined)
       .then((status) => {
         setPostflightStatus(status)
       })
@@ -349,16 +353,18 @@ export function MissionDashboard({
         tabIndex={0}
       >
         {tab === 'overview' ? (
-          <div className="mds-tab-grid">
+          <div className="mds-tab-grid mds-overview-grid">
             <div className="mds-col">
               <MissionMapCard mission={mission} />
             </div>
             <div className="mds-col mds-sticky-col">
               <MissionInfoCard mission={mission} overview />
-              <DroneDeviceCard mission={mission} overview />
               {mission.managerNote ? (
                 <ManagerNoteCard mission={mission} />
               ) : null}
+            </div>
+            <div className="mds-overview-device">
+              <DroneDeviceCard mission={mission} overview />
             </div>
           </div>
         ) : null}
@@ -368,6 +374,15 @@ export function MissionDashboard({
         ) : null}
 
         {tab === 'checks' ? (
+          <div className="mds-device-checks">
+            {devices.length > 0 && <div className="mds-device-selector" role="group" aria-label="Chọn thiết bị">
+              {devices.map((device) => <button type="button" key={device.deviceId}
+                aria-pressed={deviceId === device.deviceId}
+                onClick={() => setSelectedDeviceId(device.deviceId!)}>
+                <strong>{device.deviceCode || device.deviceSerialNumber || 'Drone'}</strong>
+                <span>{device.deviceName}</span>
+              </button>)}
+            </div>}
           <div className="mds-tab-grid mds-checks-grid">
             <div className="mds-col">
               <PrecheckCard
@@ -405,6 +420,7 @@ export function MissionDashboard({
             <div className="mds-col">
               <PostcheckCard postflight={postflightStatus} />
             </div>
+          </div>
           </div>
         ) : null}
 
