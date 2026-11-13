@@ -381,7 +381,7 @@ describe('Customer aggregate/report publication', () => {
     await screen.findByRole('alert')
     expect(screen.queryByText('sibling.jpg')).not.toBeInTheDocument()
   })
-  it('retains the legacy missionId history route and roundtrips the new Order/Mission report route', () => {
+  it('blocks the legacy history route and roundtrips the Order/Mission report route', () => {
     const route = {
       screen: 'missionReport' as const,
       orderId: 'o/a',
@@ -389,8 +389,7 @@ describe('Customer aggregate/report publication', () => {
     }
     expect(parseCustomerRoute(customerHref(route))).toEqual(route)
     expect(parseCustomerRoute('#portal/customer/mission-history/m1')).toEqual({
-      screen: 'missionHistoryDetail',
-      missionId: 'm1',
+      screen: 'notFound',
     })
   })
   it('retries a read error and updates Vietnamese/English report labels', async () => {

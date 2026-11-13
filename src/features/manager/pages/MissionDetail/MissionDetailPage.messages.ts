@@ -16,7 +16,7 @@ export const missionDetailPageMessages = defineMessages({
     unreadResourceEvents: (count: number) =>
       `${count} cập nhật nguồn lực chưa xem`,
     replaceSpecificStaff: (name: string) => `Thay thế ${name}`,
-    contextCard: 'Thông tin nhiệm vụ & nguồn lực',
+    contextCard: 'Nguồn lực nhiệm vụ',
     permitCard: 'Giấy phép bay',
     kpi: {
       customer: 'Khách hàng',
@@ -80,7 +80,16 @@ export const missionDetailPageMessages = defineMessages({
     infoCard: 'Thông tin nhiệm vụ',
     crewCard: 'Phân công nguồn lực',
     notes: 'Ghi chú',
-    crewDevice: 'Thiết bị',
+    crewDevice: 'Thiết bị bay',
+    deviceMain: 'Thiết bị chính',
+    deviceSupport: 'Thiết bị hỗ trợ',
+    deviceUnknown: 'Thiết bị chưa có tên',
+    checksByDevice: 'Kiểm tra theo thiết bị',
+    selectDevice: 'Chọn thiết bị bay',
+    deviceCount: (count: number) => `${count} thiết bị bay`,
+    checksLoading: 'Đang tải kết quả kiểm tra…',
+    checksLoadError: 'Không tải được kết quả kiểm tra.',
+    checksRetry: 'Thử lại',
     crewEmpty: 'Nhiệm vụ này chưa có thiết bị hoặc nhân sự được gán.',
     crewAccepted: (accepted: number, total: number) =>
       `${accepted}/${total} đã nhận`,
@@ -104,6 +113,7 @@ export const missionDetailPageMessages = defineMessages({
       mediaType: 'Loại ảnh/video',
       failure: 'Lý do lỗi',
     },
+    checkItemsDetails: (count: number) => `Xem chi tiết ${count} mục kiểm tra`,
     totalChecks: 'Tổng số kiểm tra',
     passed: 'Đạt',
     failed: 'Lỗi',
@@ -149,10 +159,10 @@ export const missionDetailPageMessages = defineMessages({
           'Tổ bay cần nhận nhiệm vụ, kiểm tra thiết bị trước bay và bàn giao quyền trước khi nghiệm thu bắt đầu nhiệm vụ.',
         scheduledTitle: 'Đang chuẩn bị trước bay',
         scheduledDetail:
-          'Đội bay kiểm tra thiết bị thực tế theo checklist trước chuyến bay.',
+          'Đội bay kiểm tra thiết bị thực tế theo danh mục kiểm tra trước chuyến bay.',
         connectionTitle: 'Đang chờ kiểm tra thiết bị',
         connectionDetail:
-          'Nhân sự vận hành cần hoàn tất checklist trước bay và bàn giao.',
+          'Nhân sự vận hành cần hoàn tất danh mục kiểm tra trước bay và bàn giao.',
         preflightTitle: 'Đang kiểm tra trước bay',
         preflightDetail:
           'Nhân sự vận hành đang kiểm tra thiết bị và điều kiện an toàn trước khi cất cánh.',
@@ -164,7 +174,7 @@ export const missionDetailPageMessages = defineMessages({
           'Theo dõi tiến trình bay và chờ đội bay hoàn tất kiểm tra sau bay.',
         postflightTitle: 'Đang kiểm tra sau bay',
         postflightDetail:
-          'Đội bay cần hoàn tất checklist và tải đủ bằng chứng trước khi gửi nghiệm thu.',
+          'Đội bay cần hoàn tất danh mục kiểm tra và tải đủ bằng chứng trước khi gửi nghiệm thu.',
         failedPreflightTitle: 'Không đạt kiểm tra trước bay',
         failedPreflightDetail:
           'Xem tab Kiểm tra trước bay, xử lý rồi cho đội bay kiểm tra lại.',
@@ -198,7 +208,7 @@ export const missionDetailPageMessages = defineMessages({
     unreadResourceEvents: (count: number) =>
       `${count} unread resource update${count === 1 ? '' : 's'}`,
     replaceSpecificStaff: (name: string) => `Replace ${name}`,
-    contextCard: 'Mission & resource details',
+    contextCard: 'Mission resources',
     permitCard: 'Flight permit',
     kpi: {
       customer: 'Customer',
@@ -263,6 +273,15 @@ export const missionDetailPageMessages = defineMessages({
     crewCard: 'Resource assignment',
     notes: 'Notes',
     crewDevice: 'Device',
+    deviceMain: 'Main device',
+    deviceSupport: 'Support device',
+    deviceUnknown: 'Unnamed device',
+    checksByDevice: 'Checks by device',
+    selectDevice: 'Select device',
+    deviceCount: (count: number) => `${count} devices`,
+    checksLoading: 'Loading checks…',
+    checksLoadError: 'Unable to load checks.',
+    checksRetry: 'Retry',
     crewEmpty: 'No device or staff assigned to this mission yet.',
     crewAccepted: (accepted: number, total: number) =>
       `${accepted}/${total} accepted`,
@@ -286,6 +305,7 @@ export const missionDetailPageMessages = defineMessages({
       mediaType: 'Media type',
       failure: 'Failure reason',
     },
+    checkItemsDetails: (count: number) => `View ${count} check items`,
     totalChecks: 'Total checks',
     passed: 'Passed',
     failed: 'Failed',

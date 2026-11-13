@@ -32,9 +32,6 @@ export function parseCustomerRoute(hash: string): CustomerRoute {
 
   switch (head) {
     case 'mission-history':
-      if (tail.length === 0) return { screen: 'missionHistory' }
-      if (tail.length === 1)
-        return { screen: 'missionHistoryDetail', missionId: tail[0] }
       return { screen: 'notFound' }
     case 'orders': {
       if (tail.length === 0) return { screen: 'orders' }

@@ -1,0 +1,46 @@
+/* Scoped resource layout: keep people separate from the device grid. */
+:root .mgr-layout .mgr-md .mgr-md-resources {
+  --resource-border: var(--ui-border, #e5e7eb);
+  --resource-text: var(--ui-text, #111827);
+  --resource-muted: var(--ui-text-2, #4b5563);
+}
+:root .mgr-layout .mgr-md .mgr-md-resources .mgr-md-context-heading { min-height: 56px; padding: 12px 20px; }
+:root .mgr-layout .mgr-md .mgr-md-resources .mgr-md-context-heading > .mgr-md-context-mark { display: none; }
+:root .mgr-layout .mgr-md .mgr-md-resources .mgr-md-context-body {
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  padding: 20px;
+  gap: 24px;
+  background: var(--ui-surface, #fff);
+}
+:root .mgr-layout .mgr-md .mgr-md-resources .mgr-md-context-section {
+  padding: 0; border: 0; border-radius: 0; background: transparent;
+}
+:root .mgr-layout .mgr-md .mgr-md-resources .mgr-md-context-section-heading { margin-bottom: 16px; }
+:root .mgr-layout .mgr-md .mgr-md-resources .mgr-md-context-section h3 { font-size: 16px; }
+:root .mgr-layout .mgr-md .mgr-md-resources .mgr-md-context-note { margin-top: 20px; color: var(--resource-muted); font-size: 14px; }
+:root .mgr-layout .mgr-md .mgr-md-resources .mgr-md-context-support { gap: 24px; }
+:root .mgr-layout .mgr-md .mgr-md-resources .mgr-plan-progress { height: 4px; margin-bottom: 16px; }
+:root .mgr-layout .mgr-md .mgr-md-resources .mgr-md-crew-list { gap: 12px; padding: 0; margin: 0; list-style: none; }
+:root .mgr-layout .mgr-md .mgr-md-resources .mgr-md-crew-list .odm-or-crew-item {
+  align-items: center; min-height: 100px; padding: 14px; gap: 12px;
+  background: var(--ui-surface, #fff); border: 1px solid var(--resource-border); border-radius: 12px;
+}
+:root .mgr-layout .mgr-md .mgr-md-resources .mgr-md-device-item img { width: 64px; height: 56px; flex-shrink: 0; object-fit: contain; border-radius: 8px; }
+:root .mgr-layout .mgr-md .mgr-md-resources .odm-or-crew-main { min-width: 0; flex: 1; }
+:root .mgr-layout .mgr-md .mgr-md-resources .odm-or-crew-main strong { font-size: 14px; line-height: 1.5; color: var(--resource-text); }
+:root .mgr-layout .mgr-md .mgr-md-resources .odm-or-crew-main small { font-size: 12px; color: var(--resource-muted); overflow-wrap: anywhere; }
+:root .mgr-layout .mgr-md .mgr-md-resources .mgr-md-staff-item { grid-column: 1 / -1; }
+:root .mgr-layout .mgr-md .mgr-md-resources .mgr-md-role-list { margin: 8px 0 4px; gap: 6px; }
+:root .mgr-layout .mgr-md .mgr-md-resources .mgr-md-role-chip { font-size: 12px; white-space: nowrap; background: var(--ui-surface-2, #f3f4f6); color: var(--resource-muted); }
+:root .mgr-layout .mgr-md .mgr-md-resources .mgr-md-permit { border-top: 1px solid var(--resource-border); padding-top: 20px; }
+:root .mgr-layout .mgr-md .mgr-md-resources .mgr-md-permit .mgr-md-context-section-head { margin-bottom: 0; flex-wrap: wrap; }
+@media (max-width: 1100px) {
+  :root .mgr-layout .mgr-md .mgr-md-resources .mgr-md-context-body { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  :root .mgr-layout .mgr-md .mgr-md-resources .mgr-md-context-body { padding: 16px; gap: 20px; }
+  :root .mgr-layout .mgr-md .mgr-md-resources .mgr-md-crew-list { grid-template-columns: 1fr; }
+  :root .mgr-layout .mgr-md .mgr-md-resources .mgr-md-staff-item { flex-wrap: wrap; }
+  :root .mgr-layout .mgr-md .mgr-md-resources .mgr-md-staff-item > .odm-or-pill { margin-left: 44px; }
+}

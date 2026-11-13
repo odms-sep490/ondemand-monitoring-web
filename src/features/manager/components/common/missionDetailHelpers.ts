@@ -44,9 +44,9 @@ export function formatDuration(seconds: number | null | undefined) {
 }
 
 export function checkTone(status: string | null | undefined) {
-  if (status === 'PASSED' || status === 'APPROVED' || status === 'COMPLETED')
+  if (status === 'PASS' || status === 'PASSED' || status === 'APPROVED' || status === 'COMPLETED')
     return 'green'
-  if (status === 'FAILED' || status === 'REJECTED') return 'red'
+  if (status === 'FAIL' || status === 'FAILED' || status === 'REJECTED') return 'red'
   if (status === 'CHECKING' || status === 'IN_PROGRESS') return 'blue'
   return 'amber'
 }

@@ -4,7 +4,6 @@ import {
 } from '../../components/common/StateView'
 import { PageHeader } from '../../components/common/ui'
 import { useI18n } from '../../../../shared/i18n'
-import { CustomerDeliveryPanel } from '../../../delivery/CustomerDeliveryPanel'
 import { MissionStatusBadge } from '../../components/common/MissionStatusBadge'
 import { customerHref } from '../../routes'
 import { MissionInfoCard } from './components/MissionInfoCard'
@@ -51,20 +50,19 @@ function Detail({ missionId }: { missionId: string }) {
         }
         subtitle={mission.code}
       />
-      <div className="cus-main-grid">
+      <div className="mhd-content">
         <div className="cus-stack">
+          <MissionInfoCard mission={mission} />
           <CustomerMissionReportContent
             key={mission.id}
             orderId={mission.orderId}
             missionId={mission.id}
             showMedia={false}
+            historyView
           />
           <MissionResults detail={detail} missionCode={mission.code} />
         </div>
-        <div className="cus-side">
-          <MissionInfoCard mission={mission} />
-          <CustomerDeliveryPanel orderId={mission.orderId} initialMissionId={mission.id} />
-        </div>
+
       </div>
     </div>
   )

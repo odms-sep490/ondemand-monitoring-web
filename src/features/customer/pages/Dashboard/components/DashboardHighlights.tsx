@@ -202,7 +202,7 @@ export function DashboardHighlights({
         extra={
           <a
             className="mgr-card-link"
-            href={customerHref({ screen: 'missionHistory' })}
+            href={customerHref({ screen: 'orders' })}
           >
             {t.viewHistory}
           </a>
@@ -222,8 +222,8 @@ export function DashboardHighlights({
                 <div className="cus-highlight-copy">
                   <a
                     href={customerHref({
-                      screen: 'missionHistoryDetail',
-                      missionId: mission.missionId,
+                      screen: 'orderDetail',
+                      orderId: order.id,
                     })}
                   >
                     {mission.missionCode}
@@ -237,8 +237,8 @@ export function DashboardHighlights({
                   type="link"
                   size="small"
                   href={customerHref({
-                    screen: 'missionHistoryDetail',
-                    missionId: mission.missionId,
+                    screen: 'orderDetail',
+                    orderId: order.id,
                   })}
                 >
                   {t.viewResult}

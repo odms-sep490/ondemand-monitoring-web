@@ -29,7 +29,8 @@ import { MissionDetailHeader } from './components/MissionDetailHeader'
 import { MissionNextStep } from './components/MissionNextStep'
 import { MissionDetailTabs } from './components/MissionDetailTabs'
 import { OverviewTab } from './components/OverviewTab'
-import { ChecksTab } from './components/ChecksTab'
+import './components/missionOrderLayout.css'
+import { MissionChecksPanel } from './components/MissionChecksPanel'
 import { MissionCrewCard } from './components/MissionCrewCard'
 import { authSession } from '../../../auth/api/authApi'
 import {
@@ -196,12 +197,10 @@ function MissionDetail({
     canSetup,
     deviceCode,
     deviceLabel,
-    rows,
     nextStep,
     isCompleted,
     resultApproved,
     headline,
-    note,
     checklistExecutions,
     compliantCount,
     activeTab,
@@ -274,14 +273,10 @@ function MissionDetail({
           {activeTab === 'order' ? (
             detail.order ? (
               <div className="mgr-md-order-layout">
-                <div className="mgr-md-order-grid">
-                  <div className="mgr-md-order-column">
-                    <OrderServiceInfo order={detail.order} t={orderT} />
-                    <OrderCustomerCard order={detail.order} t={orderT} />
-                  </div>
-                  <div className="mgr-md-order-column">
-                    <OrderCustomerRequestDetails order={detail.order} t={orderT} />
-                  </div>
+                <OrderServiceInfo order={detail.order} t={orderT} />
+                <div className="mgr-md-order-grid mgr-md-plan-grid">
+                  <OrderCustomerRequestDetails order={detail.order} t={orderT} />
+                  <OrderCustomerCard order={detail.order} t={orderT} />
                 </div>
                 <OrderAttachmentsCard order={detail.order} t={orderT} />
               </div>
@@ -294,11 +289,10 @@ function MissionDetail({
 
           {activeTab === 'resources' ? (
             <MissionCrewCard
-              rows={rows}
-              note={note}
               staff={staff}
               deviceCode={deviceCode}
               deviceLabel={deviceLabel}
+              deviceAssignments={mission.deviceAssignments}
               permitStatus={mission.flightPermitStatus ?? 'NOT_REQUESTED'}
               permitNote={mission.flightPermitNote}
               missionId={mission.id}
@@ -314,10 +308,12 @@ function MissionDetail({
           ) : null}
 
           {activeTab === 'checks' ? (
-            <ChecksTab
+            <MissionChecksPanel
+              key={mission.id}
+              mission={mission}
+              weather={detail.weather}
               preflight={preflight}
               postcheck={postcheck}
-              missionStatus={mission.status}
             />
           ) : null}
 

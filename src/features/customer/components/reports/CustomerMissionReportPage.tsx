@@ -32,10 +32,12 @@ export function CustomerMissionReportContent({
   orderId,
   missionId,
   showMedia = true,
+  historyView = false,
 }: {
   orderId: string
   missionId: string
   showMedia?: boolean
+  historyView?: boolean
 }) {
   const { t, locale } = useI18n(customerReportMessages)
   const query = useApiQuery(
@@ -77,7 +79,7 @@ export function CustomerMissionReportContent({
     return `${date(first)} · ${time(first)}${last ? (date(first) === date(last) ? `–${time(last)}` : ` → ${date(last)} · ${time(last)}`) : ''}`
   }
   return (
-    <div className="cus-page cr-report">
+    <div className={`cus-page cr-report ${historyView ? 'cr-history-report' : ''}`}>
       {showMedia ? (
         <PageHeader
           crumb={
@@ -102,7 +104,7 @@ export function CustomerMissionReportContent({
             </Button>
           }
         />
-      ) : (
+      ) : !historyView ? (
         <div className="cr-embedded-head">
           <h2 className="cr-embedded-title">{t.report}</h2>
           {report && (
@@ -120,7 +122,7 @@ export function CustomerMissionReportContent({
             {t.refresh}
           </Button>
         </div>
-      )}
+      ) : null}
       {query.loading && (
         <CardComponent role="status">
           <Skeleton active paragraph={{ rows: 3 }} />
@@ -132,7 +134,7 @@ export function CustomerMissionReportContent({
       ) : null}
       {report && (
         <>
-          <CardComponent className="cr-overview" icon={<ProfileOutlined />} title={t.overview} role="region" aria-label={t.overview}>
+          {!historyView && <CardComponent className="cr-overview" icon={<ProfileOutlined />} title={t.overview} role="region" aria-label={t.overview}>
             <dl className="cr-summary-grid">
               <div>
                 <dt>{t.scope}</dt>
@@ -198,8 +200,8 @@ export function CustomerMissionReportContent({
                     </a>
                   </p>
                 ))}
-          </CardComponent>
-          <section
+          </CardComponent>}
+          {(!historyView || !published) && <section
             className={`cr-publication ${published ? 'is-published' : ''}`}
             role="status"
           >
@@ -216,14 +218,14 @@ export function CustomerMissionReportContent({
                   : t.publicationPendingNote}
               </p>
             </div>
-          </section>
+          </section>}
           {published && report.result ? (
             <>
-              <CardComponent icon={<FileDoneOutlined />} title={t.monitoringResult}>
+              {!historyView && <CardComponent icon={<FileDoneOutlined />} title={t.monitoringResult}>
                 <p className="cr-copy">
                   {report.result.summary || t.noSummary}
                 </p>
-              </CardComponent>
+              </CardComponent>}
               <CardComponent icon={<UnorderedListOutlined />} title={t.checklist} role="region" aria-label={t.checklist}>
                 {report.checklistItems.length === 0 ? (
                   <p>{t.emptyChecklist}</p>

@@ -647,15 +647,15 @@ function ScopedManagerDeliveryPanel({
       className="odm-or-card delivery-shell delivery-manager"
       aria-labelledby="manager-delivery-title"
     >
+      <div className="delivery-manager-overview">
       <header className="delivery-hero">
         <div className="delivery-hero__copy">
-          <span className="delivery-eyebrow">{t.eyebrow}</span>
           <h2 id="manager-delivery-title">{t.title}</h2>
-          <p>{t.intro}</p>
         </div>
         <DeliveryStatusPill status={delivery.deliveryStatus} />
       </header>
       <DeliveryProgress status={delivery.deliveryStatus} />
+      </div>
       <div className="delivery-content">
         {!canReleasePreview &&
           !allowLegacyPublication &&

@@ -1,0 +1,49 @@
+.mgr-mission-checks { display: grid; gap: 20px; min-width: 0; }
+.mgr-check-weather, .mgr-check-devices { padding: 20px; border: 1px solid var(--ui-border, #e5e7eb); border-radius: 12px; background: var(--ui-surface, #fff); }
+.mgr-mission-checks h2 { margin: 0 0 16px; font-size: 16px; color: var(--ui-text, #111827); }
+.mgr-check-weather > .odm-or-detail-stack { gap: 16px; }
+.mgr-check-weather .odm-or-kv { display: grid; grid-template-columns: minmax(180px, 1.4fr) repeat(6, minmax(0, 1fr)); gap: 16px; margin: 0; }
+.mgr-check-weather .odm-or-kv > div { display: block; padding: 0; border: 0; }
+.mgr-check-weather .odm-or-kv dt { font-size: 13px; color: var(--ui-text-2, #4b5563); }
+.mgr-check-weather .odm-or-kv dd { margin: 6px 0 0; text-align: left; font-size: 14px; line-height: 1.5; }
+.mgr-check-weather .odm-or-detail-note { margin: 0; font-size: 13px; }
+.mgr-check-device-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 4px; }
+.mgr-check-device-heading > span { font-size: 13px; color: var(--ui-text-2, #4b5563); }
+.mgr-check-workspace { display: grid; grid-template-columns: minmax(200px, 240px) minmax(0, 1fr); gap: 24px; align-items: start; }
+.mgr-check-device-picker { display: grid; gap: 10px; }
+.mgr-check-device-picker button { display: grid; gap: 6px; min-width: 0; width: 100%; padding: 14px 16px; border: 1px solid var(--ui-border, #e5e7eb); border-radius: 10px; background: var(--ui-surface, #fff); color: var(--ui-text, #111827); text-align: left; font: inherit; font-size: 14px; cursor: pointer; }
+.mgr-check-device-picker button span { font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; }
+.mgr-check-device-picker button:hover { border-color: var(--ui-primary, #1565e8); }
+.mgr-check-device-picker button[aria-pressed=true] { border-color: var(--ui-primary, #1565e8); background: var(--ui-primary-soft, #eef4ff); }
+.mgr-check-device-picker button:focus-visible { outline: 2px solid var(--ui-primary, #1565e8); outline-offset: 3px; }
+.mgr-check-device-results { min-width: 0; }
+:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-md-checks { border: 0; box-shadow: none; }
+:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-md-checks-grid { grid-template-columns: minmax(0, 1fr); padding: 0; gap: 20px; }
+:root .mgr-layout .mgr-md .mgr-mission-checks .odm-or-check-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; max-height: none; overflow: visible; }
+:root .mgr-layout .mgr-md .mgr-mission-checks .odm-or-detail-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 1100px) {
+  .mgr-check-weather .odm-or-kv { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .mgr-check-workspace { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr); gap: 16px; }
+  :root .mgr-layout .mgr-md .mgr-mission-checks .odm-or-check-list { grid-template-columns: 1fr; }
+}
+@media (max-width: 700px) {
+  .mgr-check-workspace { grid-template-columns: 1fr; }
+  .mgr-check-device-picker { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .mgr-check-weather .odm-or-kv { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .mgr-check-weather, .mgr-check-devices { padding: 16px; }
+  :root .mgr-layout .mgr-md .mgr-mission-checks .odm-or-detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 400px) { .mgr-check-device-picker { grid-template-columns: 1fr; } }
+
+.mgr-check-workspace.is-no-devices { grid-template-columns: minmax(0, 1fr); }
+
+:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-check-compact-metrics {
+  display: flex; flex-wrap: wrap; gap: 16px 28px;
+}
+:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-check-compact-metrics .odm-or-detail-metric {
+  min-width: 100px; padding: 0; border: 0; border-radius: 0; background: transparent;
+}
+.mgr-check-items-disclosure { min-width: 0; }
+.mgr-check-items-disclosure summary { width: fit-content; cursor: pointer; color: var(--ui-primary-text, #0b3fa8); font-size: 14px; font-weight: 600; padding: 8px 0; }
+.mgr-check-items-disclosure summary:focus-visible { outline: 2px solid var(--ui-primary, #1565e8); outline-offset: 3px; border-radius: 8px; }
+.mgr-check-items-disclosure[open] summary { margin-bottom: 8px; }

@@ -7,7 +7,7 @@ import type {
 import { useI18n } from '../../../../shared/i18n'
 import { missionResultReviewMessages } from './MissionResultReview.messages'
 import { OrderIcon } from './OrderIcon'
-import { formatDateTime, formatDuration } from './missionDetailHelpers'
+import { formatDateTime } from './missionDetailHelpers'
 import { MissionResultReviewActions } from './MissionResultReviewActions'
 import { missionResultReviewReadiness } from './missionResultReviewReadiness'
 import './MissionResultReviewCard.css'
@@ -121,34 +121,7 @@ export function MissionResultReviewCard({
                   : formatDateTime(matchingResult.submittedAt, locale)}
               </strong>
             </div>
-            <details className="mgr-result-review-details">
-              <summary>{t.fullSummary}</summary>
-              <dl className="mgr-result-review-metrics">
-                <div>
-                  <OrderIcon name="clock" size={18} />
-                  <span>
-                    <dt>{t.duration}</dt>
-                    <dd>
-                      {matchingResult.durationSeconds == null
-                        ? t.notRecorded
-                        : formatDuration(matchingResult.durationSeconds)}
-                    </dd>
-                  </span>
-                </div>
-                <div>
-                  <OrderIcon name="media" size={18} />
-                  <span>
-                    <dt>{t.media}</dt>
-                    <dd>{t.mediaCount(mediaCount)}</dd>
-                  </span>
-                </div>
-              </dl>
-              {(matchingResult.summary || matchingResult.notes) && (
-                <p className="mgr-result-review-description">
-                  {matchingResult.summary || matchingResult.notes}
-                </p>
-              )}
-            </details>
+
           </>
         ) : (
           <p className="mgr-result-review-empty">
@@ -205,7 +178,7 @@ export function MissionResultReviewCard({
           </div>
         </section>
       )}
-      {matchingResult && (
+      {matchingResult && matchingResult.approvalStatus !== 'APPROVED' && (
         <div className="mgr-result-review-action-section">
           {matchingResult.approvalStatus === 'REJECTED' &&
             matchingResult.reviewNote && (

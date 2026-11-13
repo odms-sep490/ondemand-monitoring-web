@@ -410,9 +410,10 @@ export const missionsApi = {
   getCurrentPreflight(
     missionId: string,
     signal?: AbortSignal,
+    deviceId?: string,
   ): Promise<PersistedPreflightCheckResponse> {
     return apiRequest<PersistedPreflightCheckResponse>(
-      `/api/missions/${missionId}/pre-device-checks/current`,
+      `/api/missions/${missionId}/pre-device-checks/current${deviceId ? `?deviceId=${encodeURIComponent(deviceId)}` : ''}`,
       { signal },
     )
   },
@@ -421,9 +422,10 @@ export const missionsApi = {
   getCurrentPostDeviceCheck(
     missionId: string,
     signal?: AbortSignal,
+    deviceId?: string,
   ): Promise<PersistedPostDeviceCheckResponse> {
     return apiRequest<PersistedPostDeviceCheckResponse>(
-      `/api/missions/${missionId}/post-device-checks/current`,
+      `/api/missions/${missionId}/post-device-checks/current${deviceId ? `?deviceId=${encodeURIComponent(deviceId)}` : ''}`,
       { signal },
     )
   },

@@ -65,7 +65,7 @@ export function ChecksTab({
           >
             {preflight ? (
               <div className="odm-or-detail-stack">
-                <div className="odm-or-detail-grid">
+                <div className="odm-or-detail-grid mgr-check-compact-metrics">
                   <MetricTile
                     label={t.totalChecks}
                     value={preflight.totalChecks}
@@ -77,7 +77,10 @@ export function ChecksTab({
                     value={formatNumber(preflight.progressPercent, '%')}
                   />
                 </div>
-                <CheckItemsList items={preflight.items} />
+                <details className="mgr-check-items-disclosure" key={preflight.id} open={preflight.failedChecks > 0}>
+                  <summary>{t.checkItemsDetails(preflight.items.length)}</summary>
+                  <CheckItemsList items={preflight.items} />
+                </details>
               </div>
             ) : (
               <div className="odm-or-empty" role="status">
@@ -93,7 +96,7 @@ export function ChecksTab({
           >
             {postcheck ? (
               <div className="odm-or-detail-stack">
-                <div className="odm-or-detail-grid">
+                <div className="odm-or-detail-grid mgr-check-compact-metrics">
                   <MetricTile label={t.device} value={postcheck.deviceCode} />
                   <MetricTile
                     label={t.batteryLeft}
@@ -110,7 +113,10 @@ export function ChecksTab({
                   <MetricTile label={t.passed} value={postcheck.passedChecks} />
                   <MetricTile label={t.failed} value={postcheck.failedChecks} />
                 </div>
-                <CheckItemsList items={postcheck.items} />
+                <details className="mgr-check-items-disclosure" key={postcheck.id} open={postcheck.failedChecks > 0}>
+                  <summary>{t.checkItemsDetails(postcheck.items.length)}</summary>
+                  <CheckItemsList items={postcheck.items} />
+                </details>
               </div>
             ) : (
               <div className="odm-or-empty" role="status">

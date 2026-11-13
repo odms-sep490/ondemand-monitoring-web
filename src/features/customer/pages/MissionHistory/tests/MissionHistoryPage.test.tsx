@@ -8,6 +8,7 @@ import { setLanguage } from '../../../../../shared/i18n'
 import { customerMissionHistoryApi } from '../../../api/customerMissionHistoryApi'
 import { customerHref, parseCustomerRoute } from '../../../routes'
 import { MissionHistoryPage } from '../MissionHistoryPage'
+import { NAV_GROUPS } from '../../../components/layout/navConfig'
 
 beforeEach(() => resetMockDb())
 afterEach(() => {
@@ -26,13 +27,14 @@ const page = (over = {}) => ({
 })
 
 describe('MissionHistoryPage', () => {
-  it('supports the history list and detail routes', () => {
+  it('blocks the history list and detail routes', () => {
+    expect(NAV_GROUPS.flatMap((group) => group.items).some((item) => item.key === 'missionHistory')).toBe(false)
     expect(parseCustomerRoute(customerHref({ screen: 'missionHistory' }))).toEqual({
-      screen: 'missionHistory',
+      screen: 'notFound',
     })
     expect(
       parseCustomerRoute(customerHref({ screen: 'missionHistoryDetail', missionId: 'mission' })),
-    ).toEqual({ screen: 'missionHistoryDetail', missionId: 'mission' })
+    ).toEqual({ screen: 'notFound' })
   })
 
   it('renders the Vietnamese and English titles', async () => {

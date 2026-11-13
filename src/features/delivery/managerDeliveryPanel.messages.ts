@@ -7,9 +7,9 @@ export const managerDeliveryPanelMessages = defineMessages({
     loadFailed: 'Không tải được thông tin bàn giao.',
     actionFailed: 'Thao tác thất bại.',
     eyebrow: 'Quy trình bàn giao',
-    title: 'Gửi kết quả cho khách hàng',
+    title: 'Bàn giao kết quả',
     intro:
-      'Chọn kết quả nghiệm thu và xử lý yêu cầu chỉnh sửa; bàn giao tệp gốc sau khi khách chấp nhận, thanh toán đủ và chỉnh sửa hoàn tất.',
+      'Khách xem kết quả, xác nhận và thanh toán để nhận tệp gốc.',
     revisionTitle: 'khách hàng yêu cầu chỉnh sửa',
     processingTitle: 'Chưa thể gửi bản xem trước',
     processingText:

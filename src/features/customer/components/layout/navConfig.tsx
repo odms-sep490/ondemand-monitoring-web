@@ -1,7 +1,6 @@
 import {
   CameraOutlined,
   FileTextOutlined,
-  HistoryOutlined,
   HomeOutlined,
   PlusCircleOutlined,
   QuestionCircleOutlined,
@@ -44,11 +43,6 @@ export const NAV_GROUPS: NavGroup[] = [
         key: 'createOrder',
         icon: <PlusCircleOutlined />,
         route: { screen: 'createOrder' },
-      },
-      {
-        key: 'missionHistory',
-        icon: <HistoryOutlined />,
-        route: { screen: 'missionHistory' },
       },
       {
         key: 'mediaLibrary',

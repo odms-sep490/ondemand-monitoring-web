@@ -930,3 +930,41 @@
     transition: none;
   }
 }
+
+/* Compact manager handoff workspace. */
+.delivery-manager .delivery-hero {
+  padding: 18px 20px;
+  align-items: center;
+  gap: 16px;
+  background: var(--d-surface);
+}
+.delivery-manager .delivery-hero h2 { font-size: 19px; line-height: 1.4; }
+.delivery-manager .delivery-hero p { margin-top: 4px; font-size: 13px; max-width: 60ch; }
+.delivery-manager .delivery-progress { padding: 16px 20px; background: var(--d-surface); }
+.delivery-manager .delivery-content { padding: 18px 20px; }
+.delivery-manager .delivery-status::before { box-shadow: none; }
+@media (max-width: 640px) {
+  .delivery-manager .delivery-hero { align-items: flex-start; flex-direction: column; padding: 16px; }
+  .delivery-manager .delivery-content { padding: 16px; }
+}
+
+/* Manager handoff: a heading row followed by a quiet horizontal workflow. */
+.delivery-manager-overview { border-bottom: 1px solid var(--d-border); background: var(--d-surface); }
+.delivery-manager-overview .delivery-hero { padding: 20px 24px 16px; border: 0; background: transparent; align-items: center; justify-content: space-between; gap: 16px; }
+.delivery-manager-overview .delivery-progress { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 16px 24px; margin: 0; border: 0; border-top: 1px solid var(--d-border); background: var(--d-muted-surface); }
+.delivery-manager-overview .delivery-progress > li { display: flex; flex-direction: row; justify-content: flex-start; align-items: center; gap: 10px; text-align: left; }
+.delivery-manager-overview .delivery-progress > li::after { display: none; }
+.delivery-manager-overview .delivery-progress__marker { width: 28px; height: 28px; flex: 0 0 28px; font-size: 13px; }
+.delivery-manager-overview .delivery-progress__label { text-align: left; font-size: 14px; }
+.delivery-manager .delivery-content { padding: 24px; }
+.delivery-manager .delivery-section__head { margin-bottom: 20px; }
+.delivery-manager .delivery-section__head h3 { font-size: 16px; }
+.delivery-manager .delivery-review-item-heading { gap: 12px; }
+.delivery-manager .delivery-review-item-heading .ant-tag { font-size: 13px; margin-inline-end: 0; }
+.delivery-manager .delivery-banner { padding: 16px; border-radius: 10px; }
+@media (max-width: 640px) {
+  .delivery-manager-overview .delivery-hero { padding: 16px; align-items: flex-start; flex-direction: column; }
+  .delivery-manager-overview .delivery-progress { grid-template-columns: 1fr; padding: 16px; gap: 12px; }
+  .delivery-manager .delivery-content { padding: 16px; }
+  .delivery-manager .delivery-review-item-heading { align-items: flex-start; flex-direction: column; }
+}

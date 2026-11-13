@@ -59,7 +59,7 @@ export const flightPermitCardMessages = defineMessages({
     staffAcceptanceGate: (accepted: number, total: number) =>
       total === 0
         ? 'Chưa có nhân sự được phân công. Hãy phân công nhân sự trước khi xác nhận giấy phép bay.'
-        : `Mới có ${accepted}/${total} nhân sự chấp nhận Mission. Cần toàn bộ nhân sự được gán chấp nhận trước khi xác nhận giấy phép bay.`,
+        : `Mới có ${accepted}/${total} nhân sự chấp nhận nhiệm vụ. Cần toàn bộ nhân sự được gán chấp nhận trước khi xác nhận giấy phép bay.`,
     staffId: 'Mã nhân sự',
     phone: 'Điện thoại',
     email: 'Email',
@@ -89,7 +89,7 @@ export const flightPermitCardMessages = defineMessages({
     permitDepositRequired:
       'Cần thanh toán tiền đặt cọc trước khi cập nhật giấy phép bay.',
     cancelledNotice:
-      'Order hoặc Mission đã hủy. Thông tin giấy phép chỉ được giữ để đối chiếu.',
+      'đơn hàng hoặc nhiệm vụ đã hủy. Thông tin giấy phép chỉ được giữ để đối chiếu.',
     note: 'Ghi chú',
     noteEmpty: 'Chưa có ghi chú',
     openNote: 'Mở ghi chú',
@@ -116,20 +116,20 @@ export const flightPermitCardMessages = defineMessages({
     rejectionReasonRequired: 'Vui lòng nhập lý do giấy phép bị từ chối.',
     resubmitRequired:
       'Vui lòng bổ sung file hoặc ghi chú khắc phục trước khi gửi lại.',
-    rejectedTitle: 'Mission đang bị khóa thực thi',
+    rejectedTitle: 'nhiệm vụ đang bị khóa thực thi',
     rejectedBody:
-      'Giấy phép bị từ chối không làm Order bị từ chối. Lịch hiện tại vẫn được giữ trong thời hạn xử lý.',
+      'Giấy phép bị từ chối không làm đơn hàng bị từ chối. Lịch hiện tại vẫn được giữ trong thời hạn xử lý.',
     holdUntil: (value: string) =>
-      `Giữ tài nguyên đến ${value}. Sau thời điểm này hệ thống có thể giải phóng lịch drone và nhân sự.`,
+      `Giữ tài nguyên đến ${value}. Sau thời điểm này hệ thống có thể giải phóng lịch thiết bị bay và nhân sự.`,
     resourcesReleased:
       'Tài nguyên đã được giải phóng do hết thời hạn giữ. Cần phân công lại trước khi tiếp tục.',
     resubmit: 'Bổ sung & gửi duyệt lại',
     reschedule: 'Đề nghị dời lịch',
-    proposeCancellation: 'Hủy Order',
+    proposeCancellation: 'Hủy đơn hàng',
     requestRefund: 'Yêu cầu hoàn tiền cọc',
     refundDialogTitle: 'Yêu cầu hoàn tiền đặt cọc?',
-    refundOrder: (code: string) => `Order: ${code}`,
-    refundWarning: 'Gửi yêu cầu sẽ khóa việc tiếp tục thực hiện Order và Mission để ADMIN xử lý hoàn tiền.',
+    refundOrder: (code: string) => `đơn hàng: ${code}`,
+    refundWarning: 'Gửi yêu cầu sẽ khóa việc tiếp tục thực hiện đơn hàng và nhiệm vụ để quản trị viên xử lý hoàn tiền.',
     refundReason: 'Lý do yêu cầu hoàn tiền',
     refundReasonRequired: 'Vui lòng nhập lý do yêu cầu hoàn tiền.',
     submitRefundRequest: 'Gửi yêu cầu hoàn tiền',
@@ -140,7 +140,7 @@ export const flightPermitCardMessages = defineMessages({
     refundStatusLoadError: 'Không thể kiểm tra trạng thái hoàn tiền. Hãy tải lại trước khi tiếp tục.',
     refundStatus: {
       REQUESTED: 'Đã gửi yêu cầu hoàn tiền đặt cọc',
-      PROCESSING: 'ADMIN đang xử lý hoàn tiền đặt cọc',
+      PROCESSING: 'quản trị viên đang xử lý hoàn tiền đặt cọc',
       COMPLETED: 'Đã hoàn tiền đặt cọc',
       REJECTED: 'Yêu cầu hoàn tiền bị từ chối',
       CANCELLED: 'Đã hủy xử lý hoàn tiền',
@@ -149,36 +149,36 @@ export const flightPermitCardMessages = defineMessages({
     newStart: 'Bắt đầu mới',
     newEnd: 'Kết thúc mới',
     preferredScheduleTitle: 'Lịch khách hàng mong muốn',
-    currentMissionScheduleTitle: 'Lịch Mission hiện tại',
+    currentMissionScheduleTitle: 'Lịch nhiệm vụ hiện tại',
     preferredDate: 'Khoảng ngày',
     preferredTime: 'Khung giờ',
     preferredScheduleMissing: 'Chưa có thông tin',
     rescheduleScope: 'Phạm vi dời lịch',
-    missionOnly: 'Chỉ dời Mission',
+    missionOnly: 'Chỉ dời nhiệm vụ',
     missionOnlyHelp:
       'Lịch mới phải nằm trong khoảng ngày và khung giờ khách hàng đang mong muốn.',
-    orderAndMission: 'Dời lịch Order và Mission',
+    orderAndMission: 'Dời lịch đơn hàng và nhiệm vụ',
     orderAndMissionHelp:
-      'Dùng khi lịch mới vượt ngoài thời gian mong muốn hiện tại. Khoảng ngày và khung giờ của Order sẽ được cập nhật theo lịch mới đã thống nhất.',
-    confirmOrderAndMissionReschedule: 'Xác nhận dời Order & Mission',
-    orderScheduleStep: 'Bước 1 · Cập nhật lịch mong muốn mới của Order',
-    missionScheduleStep: 'Bước 2 · Cập nhật lịch thực hiện mới của Mission',
-    missionScheduleOnly: 'Cập nhật lịch thực hiện mới của Mission',
-    newOrderDateFrom: 'Order mong muốn từ ngày',
-    newOrderDateTo: 'Order mong muốn đến ngày',
+      'Dùng khi lịch mới vượt ngoài thời gian mong muốn hiện tại. Khoảng ngày và khung giờ của đơn hàng sẽ được cập nhật theo lịch mới đã thống nhất.',
+    confirmOrderAndMissionReschedule: 'Xác nhận dời đơn hàng & nhiệm vụ',
+    orderScheduleStep: 'Bước 1 · Cập nhật lịch mong muốn mới của đơn hàng',
+    missionScheduleStep: 'Bước 2 · Cập nhật lịch thực hiện mới của nhiệm vụ',
+    missionScheduleOnly: 'Cập nhật lịch thực hiện mới của nhiệm vụ',
+    newOrderDateFrom: 'đơn hàng mong muốn từ ngày',
+    newOrderDateTo: 'đơn hàng mong muốn đến ngày',
     newOrderTime: 'Khung giờ mong muốn mới',
     selectPreferredTime: 'Chọn khung giờ',
     orderScheduleRequired:
-      'Vui lòng nhập đủ khoảng ngày và khung giờ mới của Order.',
+      'Vui lòng nhập đủ khoảng ngày và khung giờ mới của đơn hàng.',
     invalidOrderDateRange:
       'Ngày kết thúc mong muốn phải từ ngày bắt đầu trở đi.',
     missionOutsideOrderRange:
-      'Ngày thực hiện Mission phải nằm trong khoảng ngày mong muốn mới của Order.',
+      'Ngày thực hiện nhiệm vụ phải nằm trong khoảng ngày mong muốn mới của đơn hàng.',
     customerConfirmed: 'Đã liên hệ và khách hàng đồng ý lịch mới',
     rescheduleNote: 'Lý do / nội dung đã thống nhất',
     confirmReschedule: 'Xác nhận dời lịch',
     close: 'Đóng',
-    rescheduled: 'Đã cập nhật lịch mission.',
+    rescheduled: 'Đã cập nhật lịch nhiệm vụ.',
     invalidSchedule: 'Thời gian kết thúc phải sau thời gian bắt đầu.',
     customerConfirmationRequired:
       'Cần xác nhận đã thống nhất lịch mới với khách hàng.',

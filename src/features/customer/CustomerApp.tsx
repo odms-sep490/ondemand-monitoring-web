@@ -34,12 +34,6 @@ const OrderDetailPage = lazy(() =>
 const OrdersPage = lazy(() =>
   import('./pages/Orders').then((m) => ({ default: m.OrdersPage })),
 )
-const MissionHistoryPage = lazy(() =>
-  import('./pages/MissionHistory').then((m) => ({ default: m.MissionHistoryPage })),
-)
-const MissionHistoryDetailPage = lazy(() =>
-  import('./pages/MissionHistoryDetail').then((m) => ({ default: m.MissionHistoryDetailPage })),
-)
 const CustomerMissionReportPage = lazy(() =>
   import('./components/reports/CustomerMissionReportPage').then((m) => ({ default: m.CustomerMissionReportPage })),
 )
@@ -73,7 +67,6 @@ function renderScreen(
   route: CustomerRoute,
   t: (typeof customerAppMessages)['vi'],
 ) {
-  if (route.screen === 'missionHistory') return <MissionHistoryPage />
   if (route.screen === 'missionReport')
     return (
       <CustomerMissionReportPage
@@ -81,8 +74,6 @@ function renderScreen(
         missionId={route.missionId}
       />
     )
-  if (route.screen === 'missionHistoryDetail')
-    return <MissionHistoryDetailPage missionId={route.missionId} />
   if (route.screen === 'dashboard') return <DashboardPage />
   if (route.screen === 'orders') return <OrdersPage />
   if (route.screen === 'createOrder') return <CreateOrderPage />

@@ -71,14 +71,14 @@ export function MissionDeliveryTabs({
       )?.missionId ?? rows[0].missionId)
   return (
     <section aria-label={t.title}>
-      <Tabs
+      {rows.length > 1 && <Tabs
         activeKey={current}
         onChange={setSelected}
         items={rows.map((row) => ({
           key: row.missionId,
           label: row.missionCode,
         }))}
-      />
+      />}
       <div key={`${orderId}:${current}`}>{children(current)}</div>
     </section>
   )

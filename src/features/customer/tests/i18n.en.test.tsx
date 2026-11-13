@@ -242,14 +242,14 @@ const ROUTES: Route[] = [
   {
     name: 'MissionHistory',
     hash: '#portal/customer/mission-history',
-    vi: 'Lịch sử nhiệm vụ',
-    en: 'Mission history',
+    vi: 'Không tìm thấy',
+    en: 'Not found',
   },
   {
     name: 'MissionHistoryDetail',
     hash: '#portal/customer/mission-history/msn-006-1',
-    vi: 'Thông tin lần bay',
-    en: 'Mission information',
+    vi: 'Không tìm thấy',
+    en: 'Not found',
   },
   {
     name: 'NotFound',

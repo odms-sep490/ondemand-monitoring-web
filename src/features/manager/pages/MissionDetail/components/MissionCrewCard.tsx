@@ -1,3 +1,7 @@
+import { useEffect, useState } from 'react'
+import './missionCrewCard.css'
+import { dronesApi } from '../../../api/dronesApi'
+import type { MissionDeviceAssignmentResponse } from '../../../types/missions'
 import { Button } from 'antd'
 
 import { OrderIcon } from '../../../components/common/OrderIcon'
@@ -18,22 +22,20 @@ import type {
   MissionStaffAssignmentResponse,
 } from '../../../types/missions'
 
-/** Mission and assigned-resource details shown in their own detail tab. */
+/** Assigned drones, crew, and flight permit; order facts remain in the order tab. */
 export function MissionCrewCard({
-  rows,
-  note,
   staff,
   deviceCode,
   deviceLabel,
+  deviceAssignments = [],
   permitStatus,
   permitNote,
   missionId,
   canReplaceStaff,
 }: {
-  rows: { label: string; value: string }[]
-  note: string | null
   staff: MissionStaffAssignmentResponse[]
   deviceCode: string | null
+  deviceAssignments?: MissionDeviceAssignmentResponse[]
   deviceLabel: string
   permitStatus: FlightPermitStatus
   permitNote?: string | null
@@ -42,6 +44,21 @@ export function MissionCrewCard({
 }) {
   const { t } = useI18n(missionDetailPageMessages)
   const { t: permit } = useI18n(flightPermitCardMessages)
+  const [images, setImages] = useState<Record<string, string>>({})
+  const deviceIds = deviceAssignments.map((device) => device.deviceId).join('|')
+  useEffect(() => {
+    const controller = new AbortController()
+    setImages({})
+    void Promise.all([...new Set(deviceIds.split('|').filter(Boolean))].map(async (id) => {
+      try {
+        const device = await dronesApi.getDrone(id, controller.signal)
+        return [id, device.imageUrl ?? ''] as const
+      } catch { return [id, ''] as const }
+    })).then((entries) => {
+      if (!controller.signal.aborted) setImages(Object.fromEntries(entries))
+    })
+    return () => controller.abort()
+  }, [deviceIds])
   const staffGroups = groupStaffAssignments(staff)
   const declinedStaffGroups = staffGroups.filter((group) =>
     group.assignments.some(
@@ -55,7 +72,7 @@ export function MissionCrewCard({
   ).length
 
   return (
-    <section className="odm-or-card mgr-md-context" aria-label={t.contextCard}>
+    <section className="odm-or-card mgr-md-context mgr-md-resources" aria-label={t.contextCard}>
       <header className="mgr-md-context-heading">
         <span className="mgr-md-context-mark" aria-hidden="true">
           <OrderIcon name="stack" size={22} />
@@ -63,28 +80,6 @@ export function MissionCrewCard({
         <h2 className="mgr-md-context-title">{t.contextCard}</h2>
       </header>
       <div className="mgr-md-context-body">
-        <section className="mgr-md-context-section mgr-md-context-info">
-          <div className="mgr-md-context-section-heading">
-            <span className="mgr-md-context-mark is-small" aria-hidden="true">
-              <OrderIcon name="doc" size={18} />
-            </span>
-            <h3>{t.infoCard}</h3>
-          </div>
-          <dl className="mgr-md-context-kv">
-            {rows.map((row) => (
-              <div className="mgr-kv-row" key={row.label}>
-                <dt>{row.label}</dt>
-                <dd>{row.value}</dd>
-              </div>
-            ))}
-          </dl>
-          {note ? (
-            <p className="mgr-md-context-note">
-              <strong>{t.notes}:</strong> {note}
-            </p>
-          ) : null}
-        </section>
-
         <div className="mgr-md-context-support">
           <section className="mgr-md-context-section">
             <div className="mgr-md-context-section-head">
@@ -137,9 +132,27 @@ export function MissionCrewCard({
                 aria-label={t.crewAccepted(acceptedPeople, staffGroups.length)}
               />
             ) : null}
-            {deviceCode || staffGroups.length > 0 ? (
+            {deviceAssignments.length > 0 || deviceCode || staffGroups.length > 0 ? (
               <ul className="odm-or-crew-list mgr-md-crew-list">
-                {deviceCode ? (
+                {deviceAssignments.map((device) => (
+                  <li key={device.id} className="odm-or-crew-item mgr-md-device-item">
+                    <img
+                      src={images[device.deviceId] || '/images/auth-hero-drone.png'}
+                      alt={device.deviceName || device.deviceCode || t.deviceUnknown}
+                      width={72} height={56}
+                      onError={(event) => {
+                        event.currentTarget.onerror = null
+                        event.currentTarget.src = '/images/auth-hero-drone.png'
+                      }}
+                    />
+                    <span className="odm-or-crew-main">
+                      <span className="odm-or-crew-role">{device.deviceRole === 'SUPPORT' ? t.deviceSupport : t.deviceMain}</span>
+                      <strong>{device.deviceName || device.deviceCode || t.deviceUnknown}</strong>
+                      <small>{device.deviceCode || device.deviceSerialNumber}</small>
+                    </span>
+                  </li>
+                ))}
+                {deviceAssignments.length === 0 && deviceCode ? (
                   <li className="odm-or-crew-item mgr-md-device-item">
                     <span className="odm-or-crew-avatar is-device">
                       <OrderIcon name="drone" size={16} />
@@ -154,11 +167,12 @@ export function MissionCrewCard({
                   const name =
                     group.staffName ?? group.staffEmail ?? t.staffUnknown
                   return (
-                    <li key={group.staffId} className="odm-or-crew-item">
+                    <li key={group.staffId} className="odm-or-crew-item mgr-md-staff-item">
                       <span className="odm-or-crew-avatar" aria-hidden="true">
                         {initialsOf(name)}
                       </span>
                       <span className="odm-or-crew-main">
+                        <strong>{name}</strong>
                         <span className="mgr-md-role-list">
                           {group.assignments.map((assignment) => (
                             <span
@@ -169,7 +183,6 @@ export function MissionCrewCard({
                             </span>
                           ))}
                         </span>
-                        <strong>{name}</strong>
                         {group.staffEmail && group.staffName ? (
                           <small>{group.staffEmail}</small>
                         ) : null}

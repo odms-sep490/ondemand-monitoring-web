@@ -191,6 +191,7 @@ export function CompletedMissionOverview({
         <div className="odm-rm-stage">
           <MissionSatelliteMap
             missionId={mission.id}
+            order={detail.order}
             latitude={mission.latitude}
             longitude={mission.longitude}
             radiusMeters={mission.radiusM}
@@ -200,6 +201,9 @@ export function CompletedMissionOverview({
         </div>
         <div className="odm-rm-side">
           <h3>{t.map.title}</h3>
+          {detail.order?.addressText && (
+            <p className="odm-or-detail-note">{detail.order.addressText}</p>
+          )}
           <dl className="odm-or-kv">
             <div>
               <dt>{t.map.waypoint}</dt>

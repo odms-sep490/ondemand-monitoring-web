@@ -13,9 +13,7 @@ export function MissionInfoCard({ mission }: { mission: MissionRow }) {
   const when = (iso: string | null) => (iso ? fmtDateTime(iso, locale) : DASH)
   const rows: Array<[string, string]> = [
     [t.address, mission.address ?? DASH],
-    [t.scheduledStart, when(mission.scheduledStartAt)],
-    [t.scheduledEnd, when(mission.scheduledEndAt)],
-    [t.started, when(mission.startedAt)],
+    ...(mission.startedAt ? [[t.started, when(mission.startedAt)] as [string, string]] : []),
     [t.completed, when(mission.completedAt)],
   ]
   return (
@@ -36,7 +34,7 @@ export function MissionInfoCard({ mission }: { mission: MissionRow }) {
           </div>
         ))}
       </dl>
-      {mission.description && <p className="mhd-desc">{mission.description}</p>}
+
     </Card>
   )
 }
