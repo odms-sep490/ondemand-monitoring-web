@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { act } from '@testing-library/react'
+import { env } from '../../../../config/env'
 import { setLanguage } from '../../../../shared/i18n'
 import { ApiError } from '../../../../shared/api/httpClient'
 import { financeApi } from '../../api'
@@ -210,6 +211,8 @@ describe('CustomerFinancePanel', () => {
   })
 
   it('completes a deposit immediately with the development test button', async () => {
+    // The quick-pay button only renders when VITE_ENABLE_TEST_PAYMENT is on.
+    vi.spyOn(env, 'testPaymentsEnabled', 'get').mockReturnValue(true)
     act(() => setLanguage('en'))
     vi.spyOn(financeApi, 'getQuote').mockResolvedValue(quote)
     vi.spyOn(financeApi, 'getInvoice')

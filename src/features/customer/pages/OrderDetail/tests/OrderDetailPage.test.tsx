@@ -155,10 +155,15 @@ describe('OrderDetailPage', () => {
     ).not.toBeInTheDocument()
   })
 
-  it('shows a red finance-tab dot until the customer opens the newly payable balance', async () => {
-    vi.spyOn(financeApi, 'getQuote').mockResolvedValue(payableQuote)
+  it('shows a red finance-tab dot until the customer opens the newly approved quote', async () => {
+    // The final-payment dot was removed (payments are now per mission); the quote-approval dot remains.
+    vi.spyOn(financeApi, 'getQuote').mockResolvedValue({
+      ...payableQuote,
+      status: 'APPROVED',
+      acceptedAt: null,
+    })
     vi.spyOn(financeApi, 'getInvoice').mockResolvedValue(payableInvoice)
-    const { container } = render(<OrderDetailPage orderId="cus-ord-003" />)
+    render(<OrderDetailPage orderId="cus-ord-003" />)
 
     const financeTab = await screen.findByRole('tab', {
       name: 'Báo giá & thanh toán',
@@ -168,17 +173,11 @@ describe('OrderDetailPage', () => {
     )
 
     fireEvent.click(financeTab)
-    expect(
-      await screen.findByText('Cần thanh toán phần còn lại'),
-    ).toBeInTheDocument()
     await waitFor(() =>
       expect(
         financeTab.querySelector('.ant-badge-dot'),
       ).not.toBeInTheDocument(),
     )
-    expect(
-      container.querySelector('.customer-deposit-notice.is-payment-required'),
-    ).toBeInTheDocument()
   })
 
   it('shows the order code once, in the header, with a copy button', async () => {
@@ -240,7 +239,7 @@ describe('OrderDetailPage', () => {
       within(steps[4]).getByText('Lên lịch & phân công'),
     ).toBeInTheDocument()
     expect(
-      within(steps[5]).getByText('Thanh toán phần còn lại'),
+      within(steps[5]).getByText('Thanh toán theo nhiệm vụ'),
     ).toBeInTheDocument()
     expect(steps[7]).toHaveClass('is-upcoming')
   })

@@ -1,17 +1,18 @@
-import { Alert, Button, Tag } from 'antd'
+import { Alert, Button, Skeleton } from 'antd'
+import { StatusTag } from '../../../../shared/components/antd'
 import { useI18n } from '../../../../shared/i18n'
 import { formatVnd } from '../../../../shared/lib/formatVnd'
 import type { MissionPaymentAllocation, MissionPaymentMilestone } from '../../types'
 import { env } from '../../../../config/env'
 import { missionPaymentMilestoneMessages } from './MissionPaymentMilestonesSection.messages'
 
-const tone: Record<string, string> = {
-  NOT_YET_DUE: 'default',
-  UNPAID: 'orange',
-  PENDING: 'processing',
-  EXPIRED: 'red',
-  PAID: 'green',
-  CANCELLED: 'default',
+const tone: Record<string, 'success' | 'warning' | 'danger' | 'info' | 'neutral'> = {
+  NOT_YET_DUE: 'neutral',
+  UNPAID: 'warning',
+  PENDING: 'info',
+  EXPIRED: 'danger',
+  PAID: 'success',
+  CANCELLED: 'neutral',
 }
 
 export function MissionPaymentMilestonesSection({
@@ -45,7 +46,11 @@ export function MissionPaymentMilestonesSection({
           </strong>
         ) : null}
       </header>
-      {loading ? <p role="status">…</p> : null}
+      {loading ? (
+        <div role="status" aria-busy="true">
+          <Skeleton active paragraph={{ rows: 2 }} />
+        </div>
+      ) : null}
       {error ? <Alert type="error" showIcon message={error} /> : null}
       {allocation && !allocation.allocationComplete ? (
         <Alert type="warning" showIcon message={t.allocationIncomplete} />
@@ -106,14 +111,14 @@ function MissionPaymentItem({
             <strong>{milestone.scopeLabel?.trim() || milestone.missionCode || t.missionFallback}</strong>
             <span>{milestone.missionCode}</span>
           </div>
-          <Tag color={tone[milestone.status] ?? 'default'}>
+          <StatusTag tone={tone[milestone.status] ?? 'neutral'}>
             {t.status[milestone.status] ?? milestone.status}
-          </Tag>
+          </StatusTag>
         </div>
         <dl className="mission-payment-item__facts">
           <div>
             <dt>{t.amount}</dt>
-            <dd>{formatVnd(milestone.amount)}</dd>
+            <dd className="is-money">{formatVnd(milestone.amount)}</dd>
           </div>
           <div>
             <dt>{date ? t.handedOver : t.notHandedOver}</dt>
@@ -149,9 +154,19 @@ function MissionPaymentItem({
             {milestone.payments.map((payment) => (
               <li key={payment.id}>
                 <span>{formatVnd(payment.amount)}</span>
-                <Tag color={payment.status === 'SUCCESS' ? 'green' : payment.status === 'FAILED' ? 'red' : 'default'}>
+                <StatusTag
+                  tone={
+                    payment.status === 'SUCCESS'
+                      ? 'success'
+                      : payment.status === 'FAILED' || payment.status === 'CANCELLED'
+                        ? 'danger'
+                        : payment.status === 'PENDING' || payment.status === 'PROCESSING'
+                          ? 'info'
+                          : 'neutral'
+                  }
+                >
                   {t.paymentStatus[payment.status] ?? payment.status}
-                </Tag>
+                </StatusTag>
                 {payment.paidAt ? <time dateTime={payment.paidAt}>{new Date(payment.paidAt).toLocaleString(locale)}</time> : null}
                 <small>{payment.transactionReference}</small>
               </li>

@@ -82,7 +82,7 @@ export function PostflightPage({ missionId }: { missionId?: string }) {
           <span className="preflight-device-option__status">{isDone(a.deviceId!) ? 'Đã kiểm tra' : 'Cần kiểm tra'}</span>
         </button>)}
       </nav>
-      {checks.error && <p role="alert">Không tải được kết quả kiểm tra. <button type="button" className="odm-btn" onClick={() => setRevision(v => v + 1)}>Thử lại</button></p>}
+      {checks.error ? <p role="alert">Không tải được kết quả kiểm tra. <button type="button" className="odm-btn" onClick={() => setRevision(v => v + 1)}>Thử lại</button></p> : null}
     </section>
   )
   return <div className="postflight-workspace">

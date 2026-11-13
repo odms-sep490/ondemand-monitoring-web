@@ -1,19 +1,24 @@
+/* Tokens fall back to the legacy --bd/--tx3 so Admin pages keep working. */
 .price-bd {
   display: grid;
   gap: 12px;
+  font-variant-numeric: tabular-nums;
 }
 .price-bd-policy,
 .price-bd-hint,
 .price-bd-media,
 .price-bd-empty {
   margin: 0;
-  color: var(--tx3);
+  color: var(--mgr-muted, var(--tx3));
   font-size: 12px;
+  line-height: 1.5;
 }
 .price-bd-warning {
-  border: 1px solid var(--bd);
-  border-left: 3px solid var(--rd, #c0392b);
-  border-radius: 8px;
+  border: 1px solid var(--mgr-border, var(--bd));
+  border-left: 3px solid var(--ui-danger, var(--rd, #c0392b));
+  border-radius: 12px;
+  background: var(--ui-danger-soft, transparent);
+  color: var(--ui-danger-text, inherit);
   padding: 10px 12px;
   font-size: 13px;
 }
@@ -26,16 +31,27 @@
   justify-content: space-between;
   gap: 16px;
   align-items: baseline;
+  color: var(--mgr-text, inherit);
+}
+.price-bd-row strong {
+  text-align: right;
+  white-space: nowrap;
 }
 .price-bd-total {
-  border-top: 1px solid var(--bd);
+  border-top: 1px solid var(--mgr-border, var(--bd));
   padding-top: 10px;
   font-size: 15px;
 }
+.price-bd-total strong {
+  color: var(--ui-primary-text, inherit);
+  font-size: 18px;
+  font-weight: 800;
+}
 .price-bd-checklist {
-  border: 1px solid var(--bd);
-  border-radius: 8px;
-  padding: 10px 12px;
+  border: 1px solid var(--mgr-border, var(--bd));
+  border-radius: 12px;
+  background: var(--mgr-card, transparent);
+  padding: 12px 14px;
   overflow-x: auto;
 }
 .price-bd-checklist header {
@@ -45,17 +61,18 @@
   align-items: baseline;
 }
 .price-bd-profile {
-  color: var(--tx3);
+  color: var(--mgr-muted, var(--tx3));
   font-size: 12px;
 }
 .price-bd-tag {
   font-size: 11px;
-  border: 1px solid var(--bd);
+  border: 1px solid var(--mgr-border, var(--bd));
   border-radius: 999px;
   padding: 0 8px;
 }
 .price-bd-checklist table {
   width: 100%;
+  min-width: 320px;
   border-collapse: collapse;
   margin-top: 8px;
   font-size: 13px;
@@ -63,7 +80,12 @@
 .price-bd-checklist th,
 .price-bd-checklist td {
   text-align: right;
-  padding: 4px 6px;
+  padding: 5px 6px;
+}
+.price-bd-checklist thead th {
+  color: var(--mgr-muted, var(--tx3));
+  font-size: 12px;
+  font-weight: 600;
 }
 .price-bd-checklist th:first-child,
 .price-bd-checklist td:first-child {
@@ -71,6 +93,6 @@
 }
 .price-bd-checklist tfoot th,
 .price-bd-checklist tfoot td {
-  border-top: 1px solid var(--bd);
-  font-weight: 600;
+  border-top: 1px solid var(--mgr-border, var(--bd));
+  font-weight: 700;
 }

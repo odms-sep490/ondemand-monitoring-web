@@ -1,4 +1,4 @@
-﻿import { act, fireEvent, render, screen, within } from '@testing-library/react'
+﻿import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import {
@@ -240,16 +240,22 @@ describe('RefundManagementPage', () => {
 
   it('requires receipt evidence before offering refund confirmation', async () => {
     render(<RefundManagementPage />)
-    expect(await screen.findByText('Successful external refund')).toBeInTheDocument()
+    expect(await screen.findByText('Successful refund transaction recorded')).toBeInTheDocument()
     expect(
       screen.queryByRole('button', { name: 'Confirm refund' }),
     ).not.toBeInTheDocument()
 
     const file = new File(['receipt'], 'receipt.png', { type: 'image/png' })
-    fireEvent.change(screen.getByLabelText('Refund receipt/confirmation'), {
-      target: { files: [file] },
+    // Selecting a refund clears chosen files, so re-select until the initial
+    // auto-selection has settled and the preview stays rendered.
+    await waitFor(() => {
+      if (!screen.queryByAltText('receipt.png')) {
+        fireEvent.change(screen.getByLabelText(/Choose refund receipt images/), {
+          target: { files: [file] },
+        })
+      }
+      expect(screen.getByAltText('receipt.png')).toBeInTheDocument()
     })
-    expect(await screen.findByAltText('receipt.png')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Upload evidence' }))
 
     const confirm = await screen.findByRole('button', {
@@ -262,7 +268,7 @@ describe('RefundManagementPage', () => {
     )
 
     expect(
-      await screen.findByText('This completed refund cannot be changed.'),
+      await screen.findByText('This completed refund record cannot be changed.'),
     ).toBeInTheDocument()
     expect(
       calls.indexOf(
@@ -362,7 +368,7 @@ describe('RefundManagementPage', () => {
       screen.getByRole('button', { name: 'Save transaction result' }),
     )
 
-    expect(await screen.findByText('Successful external refund')).toBeInTheDocument()
+    expect(await screen.findByText('Successful refund transaction recorded')).toBeInTheDocument()
     expect(refund.attempts).toHaveLength(3)
     expect(refund.attempts[0].failureReason).toBe('Bank declined the transfer.')
     expect(refund.attempts[1].failureReason).toBe(

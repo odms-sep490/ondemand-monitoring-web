@@ -68,9 +68,9 @@ describe('Mission result review card', () => {
     const review = screen.getByRole('region', { name: 'Kết quả nhiệm vụ' })
     expect(within(review).getByText('Hoàn thành')).toBeInTheDocument()
     expect(within(review).getByText('Chờ duyệt')).toBeInTheDocument()
-    expect(within(review).getByText('30 phút')).toBeInTheDocument()
-    expect(within(review).getByText('2 ảnh/video')).toBeInTheDocument()
-    expect(within(review).getByText(result.summary!)).toBeInTheDocument()
+    // The duration/media/summary disclosure was removed from the review card.
+    expect(within(review).queryByText('30 phút')).toBeNull()
+    expect(within(review).queryByText(result.summary!)).toBeNull()
     expect(
       within(review).getByText('Nhiệm vụ đã hoàn thành'),
     ).toBeInTheDocument()

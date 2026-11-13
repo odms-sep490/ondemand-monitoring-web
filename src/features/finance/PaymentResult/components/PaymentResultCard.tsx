@@ -1,4 +1,10 @@
 import { Button } from 'antd'
+import {
+  CheckCircleFilled,
+  ClockCircleFilled,
+  CloseCircleFilled,
+  LoadingOutlined,
+} from '@ant-design/icons'
 import { formatVnd } from '../../../../shared/lib/formatVnd'
 import type { Payment } from '../../types'
 
@@ -29,10 +35,18 @@ export function PaymentResultCard({
   return (
     <section className="payment-result-card" aria-live="polite">
       <div
-        className={`payment-result-icon ${success ? 'is-success' : cancelled ? 'is-cancelled' : ''}`}
+        className={`payment-result-icon ${success ? 'is-success' : cancelled ? 'is-cancelled' : checking ? 'is-checking' : 'is-pending'}`}
         aria-hidden="true"
       >
-        {success ? '✓' : cancelled ? '×' : '…'}
+        {success ? (
+          <CheckCircleFilled />
+        ) : cancelled ? (
+          <CloseCircleFilled />
+        ) : checking ? (
+          <LoadingOutlined spin />
+        ) : (
+          <ClockCircleFilled />
+        )}
       </div>
       <h1>
         {success
@@ -58,11 +72,11 @@ export function PaymentResultCard({
         <dl className="payment-result-detail">
           <div>
             <dt>Mã thanh toán</dt>
-            <dd>{payment.transactionReference}</dd>
+            <dd className="is-ref">{payment.transactionReference}</dd>
           </div>
           <div>
             <dt>Số tiền</dt>
-            <dd>{formatVnd(payment.amount)}</dd>
+            <dd className="is-amount">{formatVnd(payment.amount)}</dd>
           </div>
         </dl>
       ) : null}
@@ -73,14 +87,21 @@ export function PaymentResultCard({
       ) : null}
       <div className="payment-result-actions">
         {!success && !checking ? (
-          <Button type="primary" onClick={() => void check()}>
+          <Button type={canRetry ? 'default' : 'primary'} onClick={() => void check()}>
             Làm mới trạng thái
           </Button>
         ) : null}
         {canRetry ? (
-          <Button onClick={() => void retryPayment()}>Thử lại</Button>
+          <Button type="primary" onClick={() => void retryPayment()}>
+            Thử lại
+          </Button>
         ) : null}
-        <Button href="#portal/customer/orders">Về danh sách đơn</Button>
+        <Button
+          type={success ? 'primary' : 'default'}
+          href="#portal/customer/orders"
+        >
+          Về danh sách đơn
+        </Button>
       </div>
     </section>
   )
