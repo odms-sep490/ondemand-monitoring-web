@@ -3,7 +3,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 20px;
-  align-items: start;
+  align-items: stretch;
 }
 @media (min-width: 1200px) {
   .odm-avail-layout {
@@ -11,8 +11,19 @@
   }
 }
 
+.odm-avail-layout > .odm-avail-grid-card {
+  align-self: stretch;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
 .odm-avail-grid-card .ant-card-body {
-  padding: 14px 16px;
+  padding: 14px 12px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 .odm-avail-summary .ant-card-body {
   padding: 16px;
@@ -62,13 +73,22 @@
 /* Desktop grid */
 .odm-busy-grid {
   border-collapse: separate;
-  border-spacing: 5px;
+  border-spacing: 4px;
   width: 100%;
   table-layout: fixed;
+  flex: 1;
+  height: 100%;
+}
+.odm-busy-grid tbody td {
+  height: 72px;
+  padding: 0;
+}
+.odm-busy-grid thead tr {
+  height: 1px;
 }
 .odm-busy-grid thead td,
 .odm-busy-grid .odm-busy-rowhead {
-  width: 76px;
+  width: 60px;
 }
 .odm-busy-grid th {
   color: var(--mgr-muted);
@@ -100,8 +120,10 @@
   color: #fff;
 }
 .odm-busy-grid td.is-today {
-  background: color-mix(in srgb, var(--ui-primary, #2563eb) 7%, transparent);
-  border-radius: 8px;
+  background: color-mix(in srgb, var(--ui-primary, #2563eb) 9%, transparent);
+  border-radius: 10px;
+  outline: 1px solid color-mix(in srgb, var(--ui-primary, #2563eb) 30%, transparent);
+  outline-offset: 2px;
 }
 .odm-busy-rowhead {
   text-align: left;
@@ -121,16 +143,25 @@
 /* Cells */
 .odm-busy-cell {
   width: 100%;
-  height: 40px;
-  border-radius: 8px;
+  height: 100%;
+  min-height: 72px;
+  border-radius: 10px;
   border: 1px solid transparent;
   font-size: 12.5px;
   font-weight: 600;
   cursor: pointer;
   background: var(--green-bg);
   color: var(--green-fg);
-  transition: filter 0.12s;
+  transition: filter 0.12s, box-shadow 0.12s, transform 0.12s;
   font-family: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 8px 6px;
+  text-align: left;
+  min-width: 0;
 }
 .odm-busy-cell.is-busy {
   background: var(--red-bg);
@@ -139,10 +170,12 @@
 }
 .odm-busy-cell:hover:not(:disabled) {
   filter: brightness(0.96);
+  box-shadow: 0 2px 8px color-mix(in srgb, currentColor 22%, transparent);
+  transform: translateY(-1px);
 }
 .odm-busy-cell:focus-visible {
   outline: 2px solid var(--ui-primary, #2563eb);
-  outline-offset: 1px;
+  outline-offset: 2px;
 }
 .odm-busy-cell:disabled {
   cursor: not-allowed;
@@ -153,11 +186,81 @@
   color: var(--mgr-muted);
   border-color: var(--mgr-border);
 }
+.odm-busy-cell-meta {
+  display: none;
+  font-size: 11.5px;
+  font-weight: 500;
+  opacity: 0.85;
+  font-variant-numeric: tabular-nums;
+  max-width: 100%;
+  line-height: 1.25;
+}
+.odm-busy-cell-meta span:first-child {
+  font-weight: 600;
+}
+.odm-busy-cell-meta span:last-child {
+  opacity: 0.8;
+}
+.odm-busy-cell-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: auto;
+  font-size: 12.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.odm-busy-cell-icon {
+  flex: none;
+}
+.odm-busy-cell-note {
+  display: none;
+  font-size: 11.5px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--mgr-text);
+  opacity: 0.85;
+  max-width: 100%;
+  overflow: hidden;
+  display: none;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow-wrap: anywhere;
+}
 .odm-busy-cell-name {
   display: block;
   font-size: 11px;
   font-weight: 500;
   opacity: 0.85;
+}
+@media (min-width: 768px) {
+  .odm-busy-cell-note {
+    display: -webkit-box;
+  }
+}
+@media (min-width: 1024px) {
+  .odm-busy-cell-meta {
+    display: flex;
+    flex-direction: column;
+  }
+}
+@media (min-width: 1200px) {
+  .odm-busy-grid tbody td {
+    height: 104px;
+  }
+  .odm-busy-cell {
+    min-height: 100px;
+    padding: 10px 8px;
+  }
+  .odm-busy-cell-note {
+    -webkit-line-clamp: 2;
+  }
+}
+@media (max-width: 1199px) {
+  .odm-busy-cell-note {
+    -webkit-line-clamp: 1;
+  }
 }
 
 /* Phone day list */
@@ -194,8 +297,17 @@
   gap: 6px;
 }
 .odm-busy-day-cells .odm-busy-cell {
-  height: 46px;
-  padding: 2px;
+  min-height: 56px;
+  padding: 6px 4px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.odm-busy-day-cells .odm-busy-cell-state {
+  margin-top: 0;
+}
+.odm-busy-day-cells .odm-busy-cell-icon {
+  display: none;
 }
 
 /* Summary */
@@ -294,4 +406,11 @@
 .odm-avail-item-main em {
   font-style: normal;
   overflow-wrap: anywhere;
+}
+
+/* Narrow cells: drop the icon on past cells so "Đã qua" never clips. */
+@media (max-width: 1439px) {
+  .odm-busy-grid .odm-busy-cell.is-past .odm-busy-cell-icon {
+    display: none;
+  }
 }
