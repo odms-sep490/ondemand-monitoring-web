@@ -2,7 +2,6 @@ export type MissionState =
   | 'PLANNING'
   | 'CREATED'
   | 'WAITING_DEPOSIT'
-  | 'PENDING_PAYMENT'
   | 'PENDING_CONFIRMATION'
   | 'READY'
   | 'WAITING_OPERATOR_ACCEPTANCE'

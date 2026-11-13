@@ -114,7 +114,7 @@ describe('Manager multi-Mission planning', () => {
             id,
             orderId: 'o',
             missionCode: id.toUpperCase(),
-            status: 'PENDING_PAYMENT',
+            status: 'PENDING_CONFIRMATION',
             staffAssignments: [],
           }) as unknown as MissionResponse,
       ),

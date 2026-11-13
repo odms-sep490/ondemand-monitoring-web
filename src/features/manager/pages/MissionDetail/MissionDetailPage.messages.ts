@@ -141,7 +141,7 @@ export const missionDetailPageMessages = defineMessages({
           'Gán đủ nhân sự và thiết bị để nhiệm vụ được gửi cho đội bay.',
         awaitingOrderTitle: 'Đang chờ đơn hàng sẵn sàng',
         awaitingOrderDetail:
-          'Cần hoàn tất xác nhận và thanh toán đơn hàng trước khi tiếp tục chuẩn bị nhiệm vụ.',
+          'Đơn hàng cần được duyệt và thanh toán đủ tiền cọc trước khi quản lý chốt kế hoạch.',
         waitCrewTitle: 'Đang chờ đội bay xác nhận',
         waitCrewDetail: (accepted: number, crew: number) =>
           `${accepted}/${crew} nhân sự đã nhận. Nhân viên vận hành kiểm tra thiết bị trước bay và bàn giao quyền trước khi nghiệm thu bắt đầu nhiệm vụ.`,
@@ -323,7 +323,7 @@ export const missionDetailPageMessages = defineMessages({
           'Assign enough staff and devices so the Mission can be sent to the flight crew.',
         awaitingOrderTitle: 'Waiting for the order to be ready',
         awaitingOrderDetail:
-          'Order confirmation and payment must be completed before Mission preparation can continue.',
+          'The order must be approved and the deposit paid before the manager can finalize the plan.',
         waitCrewTitle: 'Waiting for the flight crew to confirm',
         waitCrewDetail: (accepted: number, crew: number) =>
           `${accepted}/${crew} staff accepted. The operator runs preflight and hands over control before the inspector starts the Mission.`,

@@ -30,7 +30,6 @@ export type OrderMissionProgress = {
 }
 
 const PLANNING_COMPLETED_STATUSES = new Set<MissionStatus>([
-  'PENDING_PAYMENT',
   'PENDING_CONFIRMATION',
   'READY',
   'SCHEDULED',

@@ -16,6 +16,7 @@ export function SummaryBanner({
   hasTriggered,
   triggering,
   onTrigger,
+  readyActionLabel,
   onReady,
   missionId,
   backendPreflightRegistering,
@@ -34,6 +35,7 @@ export function SummaryBanner({
   hasTriggered: boolean
   triggering: boolean
   onTrigger: () => void
+  readyActionLabel?: string
   onReady?: () => void
   missionId: string
   backendPreflightMessage?: string | null
@@ -43,7 +45,7 @@ export function SummaryBanner({
   replacementRequestError: string | null
   onRequestDroneReplacement: () => void
 }) {
-  const { t } = useI18n(preflightPageMessages)
+  const { t, lang } = useI18n(preflightPageMessages)
   const bg = isFailed
     ? 'var(--red-bg)'
     : isReady
@@ -101,7 +103,7 @@ export function SummaryBanner({
       >
         {isReady ? (
           <div>
-            <div className="preflight-summary-banner__title">{t.passReady}</div>
+            <div className="preflight-summary-banner__title">{readyActionLabel && readyActionLabel !== t.continueToHandover ? (lang === 'vi' ? 'Thiết bị này đã đạt kiểm tra' : 'This drone passed inspection') : t.passReady}</div>
             <div className="preflight-summary-banner__description">
               {t.passDescription}
             </div>
@@ -151,7 +153,7 @@ export function SummaryBanner({
             </svg>
             {backendPreflightRegistering
               ? t.switchingToReady
-              : t.continueToHandover}
+              : (readyActionLabel ?? t.continueToHandover)}
             {!backendPreflightRegistering && (
               <svg
                 className="preflight-summary-banner__arrow"

@@ -134,8 +134,7 @@ export const liveDispatchPageMessages = defineMessages({
     openOrder: 'Xem đơn hàng',
     missionStatuses: {
       CREATED: 'Đã tạo',
-      PENDING_PAYMENT: 'Chờ thanh toán phần còn lại',
-      PENDING_CONFIRMATION: 'Chuẩn bị',
+      PENDING_CONFIRMATION: 'Chờ staff & kiểm tra drone',
       RESOURCE_ASSIGNING: 'Đang phân công nguồn lực',
       PLANNING: 'Chờ nhân sự nhận nhiệm vụ và kiểm tra thiết bị trước bay',
       READY: 'Sẵn sàng chờ nghiệm thu',
@@ -276,8 +275,7 @@ export const liveDispatchPageMessages = defineMessages({
     openOrder: 'View order',
     missionStatuses: {
       CREATED: 'Created',
-      PENDING_PAYMENT: 'Waiting for final payment',
-      PENDING_CONFIRMATION: 'Preparing',
+      PENDING_CONFIRMATION: 'Awaiting staff and drone checks',
       RESOURCE_ASSIGNING: 'Assigning resources',
       PLANNING: 'Waiting for staff and preflight',
       READY: 'Ready for inspector start',

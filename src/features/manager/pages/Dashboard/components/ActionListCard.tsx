@@ -1,4 +1,3 @@
-import { CheckSquareOutlined, FileSearchOutlined } from '@ant-design/icons'
 import { Badge, Button, Tag } from 'antd'
 import { useState } from 'react'
 
@@ -28,9 +27,11 @@ const PRIORITY_COLOR = {
 
 export function ActionListCard({
   items,
+  itemsAvailable,
   generatedAt,
 }: {
   items: ActionItem[]
+  itemsAvailable: boolean
   generatedAt: string
 }) {
   const { t, locale } = useI18n(dashboardPageMessages)
@@ -58,18 +59,20 @@ export function ActionListCard({
   return (
     <CardComponent
       title={a.title}
-      icon={<CheckSquareOutlined />}
       className="mgr-action-card"
       extra={
         <Badge count={items.length} showZero color={MANAGER_COLORS.primary} />
       }
     >
-      {items.length === 0 ? (
+      {!itemsAvailable ? (
+        <div className="mgr-empty-fill">
+          <EmptyState title={a.unavailable} />
+        </div>
+      ) : items.length === 0 ? (
         <div className="mgr-empty-fill">
           <EmptyState
             title={a.empty}
             description={a.emptyDescription}
-            icon={<FileSearchOutlined />}
           />
         </div>
       ) : (

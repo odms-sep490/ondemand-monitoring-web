@@ -132,6 +132,47 @@ const DEVICE_ASSIGNMENT_LABEL: Record<string, string> = {
 
 const DEVICE_STATUS_LABEL: Record<string, string> = {
   AVAILABLE: 'Sẵn sàng',
+  RESERVED: 'Đã đặt cho nhiệm vụ',
+  PREFLIGHT: 'Đang kiểm tra trước bay',
+  IN_MISSION: 'Đang bay',
+  ACTIVE_MISSION: 'Đang bay',
+  RETURNING: 'Đang trở về',
+  CHARGING: 'Đang sạc',
+  IDLE_CHARGING: 'Chờ sạc',
+  MAINTENANCE: 'Đang bảo trì',
+  OUT_OF_SERVICE: 'Ngừng hoạt động',
+  OFFLINE: 'Mất kết nối',
+}
+
+const DEVICE_ROLE_LABEL: Record<string, string> = {
+  MAIN: 'Chính · MAIN',
+  SUPPORT: 'Hỗ trợ · SUPPORT',
+}
+
+function assignmentTone(status?: string | null) {
+  if (status === 'FAILED' || status === 'CONNECTION_LOST') return 'red'
+  if (status === 'READY_TO_FLY' || status === 'COMPLETED') return 'green'
+  if (status === 'CONNECTED' || status === 'IN_PROGRESS' || status === 'RETURNING')
+    return 'blue'
+  if (status === 'PREFLIGHT_CHECKING' || status === 'POSTFLIGHT_CHECKING')
+    return 'orange'
+  return 'gray'
+}
+
+function checkupTone(status?: string | null) {
+  if (status === 'PASSED') return 'green'
+  if (status === 'FAILED') return 'red'
+  if (status === 'CHECKING') return 'blue'
+  if (status === 'PENDING') return 'yellow'
+  return 'gray'
+}
+
+const DEVICE_CHECK_LABEL: Record<string, string> = {
+  PLANNING: 'Chưa kiểm tra',
+  PENDING: 'Chờ kiểm tra',
+  CHECKING: 'Đang kiểm tra',
+  PASSED: 'Đạt kiểm tra',
+  FAILED: 'Không đạt kiểm tra',
 }
 
 // ─── Device card ──────────────────────────────────────────────────────────────
@@ -146,12 +187,14 @@ export function DroneDeviceCard({
   overview?: boolean
 }) {
   const droneLabel = formatDeviceLabel(mission) ?? 'Chưa gán thiết bị'
+  const assignedDevices = mission.deviceAssignments ?? []
+  const showAssignedDevices = assignedDevices.length > 1
   const deviceProfileQuery = useApiQuery(
     (signal) =>
-      mission.deviceId
+      mission.deviceId && !showAssignedDevices
         ? dronesApi.getDrone(mission.deviceId, signal)
         : Promise.resolve(null),
-    [mission.deviceId],
+    [mission.deviceId, showAssignedDevices],
   )
   const deviceProfile: DeviceResponse | null = deviceProfileQuery.data ?? null
   const droneModel =
@@ -265,6 +308,7 @@ export function DroneDeviceCard({
       <div className="odm-card-header">
         <h2 id="mission-device-heading" className="mds-card-heading">
           {overview ? 'Thiết bị' : 'Thông tin thiết bị'}
+          {showAssignedDevices ? ` (${assignedDevices.length})` : ''}
         </h2>
       </div>
       <div
@@ -273,6 +317,64 @@ export function DroneDeviceCard({
         }
         style={{ padding: '10px 14px' }}
       >
+        {showAssignedDevices ? (
+          <div className="mds-assigned-device-list" aria-label="Drone được phân công">
+            {assignedDevices.map((assignment, index) => {
+              const deviceName =
+                assignment.deviceName ||
+                assignment.deviceCode ||
+                assignment.deviceSerialNumber ||
+                assignment.deviceId ||
+                'Drone'
+              const role = assignment.deviceRole ?? 'MAIN'
+              const deviceStatus = assignment.deviceStatus
+              const checkupStatus = assignment.checkupStatus
+
+              return (
+                <div
+                  className="mds-assigned-device"
+                  key={assignment.id ?? assignment.deviceId ?? `${role}-${index}`}
+                >
+                  <div className="mds-assigned-device-image">
+                    <img src={FALLBACK_DRONE_IMAGE} alt="" aria-hidden="true" />
+                  </div>
+                  <div className="mds-assigned-device-content">
+                    <div className="mds-assigned-device-heading">
+                      <strong>{deviceName}</strong>
+                      <StatusBadge tone={role === 'SUPPORT' ? 'blue' : 'green'}>
+                        {DEVICE_ROLE_LABEL[role] ?? role}
+                      </StatusBadge>
+                    </div>
+                    <div className="mds-assigned-device-identifiers">
+                      {assignment.deviceCode && <span>{assignment.deviceCode}</span>}
+                      {assignment.deviceSerialNumber && (
+                        <span>SN {assignment.deviceSerialNumber}</span>
+                      )}
+                    </div>
+                    <div className="mds-assigned-device-statuses">
+                      {deviceStatus && (
+                        <StatusBadge tone={deviceStatus === 'AVAILABLE' ? 'green' : 'gray'}>
+                          {DEVICE_STATUS_LABEL[deviceStatus] ?? deviceStatus}
+                        </StatusBadge>
+                      )}
+                      {assignment.status && (
+                        <StatusBadge tone={assignmentTone(assignment.status)}>
+                          {DEVICE_ASSIGNMENT_LABEL[assignment.status] ?? assignment.status}
+                        </StatusBadge>
+                      )}
+                      {checkupStatus && (
+                        <StatusBadge tone={checkupTone(checkupStatus)}>
+                          {DEVICE_CHECK_LABEL[checkupStatus] ?? checkupStatus}
+                        </StatusBadge>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        ) : (
+          <>
         <div className="mds-device-identity">
           <div className="mds-device-image-frame">
             <img
@@ -398,6 +500,8 @@ export function DroneDeviceCard({
             </div>
           </details>
         ) : null}
+          </>
+        )}
       </div>
     </section>
   )

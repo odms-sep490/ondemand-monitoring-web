@@ -1361,6 +1361,66 @@
   line-height: 1.35;
   overflow-wrap: anywhere;
 }
+.mds-assigned-device-list {
+  display: grid;
+  gap: 8px;
+}
+.mds-assigned-device {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 9px;
+  border: 1px solid var(--bd);
+  border-radius: 10px;
+  background: var(--sf, #fff);
+}
+.mds-assigned-device-image {
+  display: grid;
+  width: 56px;
+  height: 48px;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+  background: var(--sf2);
+}
+.mds-assigned-device-image img {
+  width: 100%;
+  height: 100%;
+  padding: 3px;
+  object-fit: contain;
+}
+.mds-assigned-device-content,
+.mds-assigned-device-heading {
+  min-width: 0;
+}
+.mds-assigned-device-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.mds-assigned-device-heading > strong {
+  overflow-wrap: anywhere;
+  font-size: 13px;
+  line-height: 1.35;
+}
+.mds-assigned-device-identifiers,
+.mds-assigned-device-statuses {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px 8px;
+  margin-top: 5px;
+  color: var(--tx3);
+  font-size: 11.5px;
+  overflow-wrap: anywhere;
+}
+.mds-assigned-device-statuses {
+  margin-top: 6px;
+}
 .mds-device-status {
   display: flex;
   align-items: center;
@@ -1420,6 +1480,18 @@
   .mds-device-identity {
     grid-template-columns: 84px minmax(0, 1fr);
     gap: 10px;
+  }
+  .mds-assigned-device {
+    grid-template-columns: 48px minmax(0, 1fr);
+    gap: 8px;
+    padding: 8px;
+  }
+  .mds-assigned-device-image {
+    width: 48px;
+    height: 44px;
+  }
+  .mds-assigned-device-heading {
+    align-items: flex-start;
   }
 }
 .mds-device-primary-rows .mds-info-row:last-child {

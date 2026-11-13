@@ -10,13 +10,21 @@ import { operatorHref } from '../../../routes'
 import { useI18n } from '../../../../../shared/i18n'
 import { postflightPageMessages } from '../PostflightPage.messages'
 import { usePostflightReviewData } from '../usePostflightReviewData'
+import type { PostflightCheckStatus } from '../../MissionDetail/types'
 import { formatMetric } from '../postflightHelpers'
 import './PostflightCompletedView.css'
+
+export type DevicePostflightResult = {
+  id: string
+  label: string
+  check?: PostflightCheckStatus | null
+}
 
 export function PostflightCompletedView({
   missionId,
   missionLabel,
   completed,
+  deviceChecks = [],
   deviceId,
   inspectionResults,
   notes,
@@ -25,6 +33,7 @@ export function PostflightCompletedView({
   missionId: string
   missionLabel: string
   completed: { overallOk: boolean; ticketCreated: boolean; droneStatus: string }
+  deviceChecks?: DevicePostflightResult[]
   deviceId: string
   inspectionResults: Record<string, 'PASS' | 'FAIL'> | null
   notes: string
@@ -303,7 +312,7 @@ export function PostflightCompletedView({
 
   if (reviewLoading && !review.data && !monitoring.data) {
     return (
-      <div className="odm-card postflight-page">
+      <div className="odm-card postflight-page postflight-acceptance">
         <FlightStepHeader
           title={t.completedStepTitle}
           missionId={missionLabel}
@@ -373,7 +382,9 @@ export function PostflightCompletedView({
     {
       id: 'postflight',
       label: t.reviewTabPostflight,
-      summary: review.loading
+      summary: deviceChecks.length > 0
+        ? (lang === 'vi' ? `${deviceChecks.length} thiết bị` : `${deviceChecks.length} devices`)
+        : review.loading
         ? t.reviewTabLoading
         : postflight
           ? postflightItems.length
@@ -408,7 +419,7 @@ export function PostflightCompletedView({
   }
 
   return (
-    <div className="odm-card postflight-page">
+    <div className="odm-card postflight-page postflight-acceptance">
       <FlightStepHeader
         title={t.completedStepTitle}
         missionId={missionLabel}
@@ -421,18 +432,19 @@ export function PostflightCompletedView({
       <div className="postflight-content postflight-review-content">
         <section className="postflight-review-hero">
           <div className="postflight-review-hero-copy">
-            <h1>{t.reviewTitle}</h1>
             <p>{t.reviewSubtitle}</p>
           </div>
           <div className="postflight-review-status-stack">
-            <span
-              className={`postflight-review-status${
-                completed.overallOk ? ' is-pass' : ' is-warning'
-              }`}
-            >
-              {t.reviewTabPostflight} ·{' '}
-              {completed.overallOk ? t.allPassed : t.someFailed(failedCount || 1)}
-            </span>
+            {deviceChecks.map(({ id, label, check }) => (
+              <button type="button" key={id}
+                className={`postflight-device-result postflight-review-status ${!check?.completedAt ? '' : check.overallOk ? 'is-pass' : 'is-warning'}`}
+                onClick={() => {
+                  setActiveReviewTab('postflight')
+                  reviewTabRefs.current[3]?.focus()
+                }}>
+                {label} · {check?.completedAt ? (check.overallOk ? t.reviewPass : t.reviewFail) : t.reviewTabNoData}
+              </button>
+            ))}
             {isSubmitted && (
               <span className="postflight-review-manager-status" role="status">
                 {managerApproved ? t.reviewApproved : t.reviewSent}
@@ -594,9 +606,34 @@ export function PostflightCompletedView({
           >
             <ReviewSection
               title={t.reviewPostflight}
-              detail={postflight ? t.reviewPassedCount(postflightPassed, postflightItems.length) : undefined}
+              detail={!deviceChecks.length && postflight ? t.reviewPassedCount(postflightPassed, postflightItems.length) : undefined}
             >
-              {!postflight ? (
+              {deviceChecks.length > 0 ? (
+                <div className="postflight-device-results">
+                  {deviceChecks.map(({ id, label, check }) => (
+                    <details key={id}>
+                      <summary>
+                        <strong>{label}</strong>
+                        {check?.completedAt && (
+                          <ResultBadge label={check.overallOk ? t.reviewPass : t.reviewFail}
+                            tone={check.overallOk ? 'pass' : 'fail'} />
+                        )}
+                      </summary>
+                      {check?.completedAt ? (
+                        <ResultList>
+                          {(check.items ?? []).map((item, index) => (
+                            <ResultLine key={item.checkType ?? index}
+                              title={item.checkName ?? item.checkType ?? `${index + 1}`}
+                              detail={item.message ?? undefined}
+                              label={resultStatusLabel(item.status, t)}
+                              tone={resultTone(item.status)} />
+                          ))}
+                        </ResultList>
+                      ) : <ReviewEmpty>{t.reviewNoPostflight}</ReviewEmpty>}
+                    </details>
+                  ))}
+                </div>
+              ) : !postflight ? (
                 <>
                   <ReviewEmpty>
                     {sectionLoadErrors?.postflight ? t.reviewPostflightLoadFailed : t.reviewNoPostflight}

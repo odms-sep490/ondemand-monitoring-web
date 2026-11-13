@@ -40,17 +40,6 @@ export const recommendationText: Record<ReadinessRecommendation, string> = {
 
 export const answerOptions: Answer[] = ['PASS', 'FAIL']
 
-export const riskLevelOptions: Answer[] = ['PASS', 'WARN', 'FAIL']
-
-export const contextualAnswerLabels: Record<string, Record<Answer, string>> = {
-  get RISK_LEVEL() {
-    return rm().riskLevel
-  },
-  get SITE_ACCESS() {
-    return rm().siteAccess
-  },
-}
-
 export const failNotePlaceholders: Record<string, string> = {
   get SITE_ACCESS() {
     return rm().siteAccessFailNote

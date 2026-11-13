@@ -574,3 +574,54 @@
     width: 100%;
   }
 }
+
+/* Compact postflight workspace, shared with the preflight device picker. */
+.postflight-workspace { display: grid; gap: 16px; min-width: 0; }
+.postflight-workspace .postflight-page { border-radius: 14px; box-shadow: none; }
+.postflight-workspace .postflight-content { box-sizing: border-box; padding: 20px; }
+.postflight-workspace .postflight-stack { gap: 20px; }
+.postflight-selected-device { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.postflight-selected-device strong { font-size: 16px; color: var(--tx); }
+.postflight-selected-device span { color: var(--tx2); font-size: 12px; }
+.postflight-workspace .postflight-overview { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.postflight-workspace .postflight-telemetry { gap: 0; border: 1px solid var(--bd); border-radius: 10px; overflow: hidden; }
+.postflight-workspace .postflight-metric { border: 0; border-radius: 0; background: var(--sf3); min-height: 64px; padding: 10px 16px; }
+.postflight-workspace .postflight-metric + .postflight-metric { border-left: 1px solid var(--bd); }
+.postflight-workspace .postflight-metric-label { font-size: 12px; font-weight: 500; color: var(--tx2); }
+.postflight-workspace .postflight-metric-value { font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--tx); }
+.postflight-workspace .postflight-progress { border: 1px solid var(--bd); background: var(--sf); padding: 14px 16px; border-radius: 10px; }
+.postflight-workspace .postflight-progress-label { font-size: 12px; letter-spacing: normal; text-transform: none; font-weight: 500; }
+.postflight-workspace .postflight-progress-count { font-size: 16px; font-weight: 700; flex-wrap: wrap; white-space: normal; }
+.postflight-workspace .postflight-pass-all { border: 1px solid var(--bd); background: var(--sf); color: var(--tx); border-radius: 8px; min-height: 38px; font-size: 12px; font-weight: 600; padding: 8px 12px; }
+.postflight-workspace .postflight-pass-all:hover { background: var(--sf3); }
+.postflight-workspace .postflight-categories { gap: 24px; }
+.postflight-workspace .postflight-category { border: 0; border-radius: 0; background: transparent; }
+.postflight-workspace .postflight-category-heading { background: transparent; min-height: 0; padding: 0 0 10px; font-size: 14px; line-height: 1.5; font-weight: 700; }
+.postflight-workspace .postflight-category-items { padding: 0; border-block: 1px solid var(--bd); }
+.postflight-workspace .postflight-row { grid-template-columns: minmax(0, 1fr) auto; gap: 20px; padding: 14px 12px; min-height: 72px; box-sizing: border-box; }
+.postflight-workspace .postflight-row-copy { display: grid; gap: 4px; min-width: 0; }
+.postflight-workspace .postflight-row-title { font-size: 14px; line-height: 1.4; font-weight: 650; }
+.postflight-workspace .postflight-row-detail { font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; }
+.postflight-workspace .postflight-row.is-ok { background: transparent; box-shadow: none; }
+.postflight-workspace .postflight-row.is-fail { box-shadow: none; background: var(--ui-danger-soft); }
+.postflight-workspace .postflight-choices { gap: 6px; }
+.postflight-workspace .postflight-choice { min-width: 88px; min-height: 38px; font-size: 12px; font-weight: 600; padding: 8px 12px; }
+.postflight-workspace .postflight-choice.is-selected { box-shadow: none; }
+.postflight-workspace .postflight-choice.is-pass.is-selected { background: var(--green-bg); color: var(--green-fg); border-color: var(--green-fg); }
+.postflight-workspace .postflight-choice.is-fail.is-selected { background: var(--red-bg); color: var(--red-fg); border-color: var(--red-fg); }
+.postflight-workspace .postflight-notes { border: 1px solid var(--bd); border-radius: 10px; }
+.postflight-workspace .postflight-notes-heading { background: var(--sf); font-size: 14px; font-weight: 650; }
+.postflight-workspace .postflight-mission-select { width: min(300px, 100%); min-width: 0; font-weight: 500; }
+.postflight-workspace .postflight-mission-select-label { flex-wrap: wrap; white-space: normal; }
+.postflight-workspace button:focus-visible, .postflight-workspace select:focus-visible, .postflight-workspace textarea:focus-visible { outline: 2px solid #2563eb; outline-offset: 3px; }
+@media (max-width: 768px) {
+  .postflight-workspace .postflight-content { padding: 16px; }
+  .postflight-workspace .postflight-telemetry { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .postflight-workspace .postflight-metric:nth-child(3) { border-left: 0; }
+  .postflight-workspace .postflight-metric:nth-child(n+3) { border-top: 1px solid var(--bd); }
+  .postflight-workspace .postflight-row { grid-template-columns: minmax(0, 1fr); gap: 12px; padding-inline: 0; }
+  .postflight-workspace .postflight-choice { flex: 1; min-height: 42px; }
+  .postflight-workspace .postflight-choices { width: 100%; }
+  .postflight-workspace .postflight-progress { align-items: flex-start; }
+  .postflight-workspace .postflight-page > .odm-flight-step-header { padding-inline: 16px; }
+}

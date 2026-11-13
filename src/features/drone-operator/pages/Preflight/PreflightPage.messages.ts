@@ -2,37 +2,37 @@ import { defineMessages } from '../../../../shared/i18n'
 
 export const preflightPageMessages = defineMessages({
   vi: {
-    noMissionSelected: 'Chưa chọn mission',
+    noMissionSelected: 'Chưa chọn nhiệm vụ',
     noDroneAssigned: 'Chưa gán thiết bị',
-    noDroneAssignedError: 'Mission chưa được gán thiết bị',
+    noDroneAssignedError: 'Nhiệm vụ chưa được gán thiết bị',
     backendPreflightFailed: 'Kết quả kiểm tra trước bay từ hệ thống chưa đạt',
     confirmPrecheckFailed: 'Không xác nhận được kết quả kiểm tra trước bay',
-    loadMissionFailed: 'Không tải được mission',
+    loadMissionFailed: 'Không tải được nhiệm vụ',
     confirmingTelemetry:
       'Đang xác nhận kết quả kiểm tra trước bay…',
     stepTitle: 'Danh sách kiểm tra trước bay',
     itemsPassed: 'mục đạt',
-    passReady: 'PASS · đủ điều kiện cất cánh',
+    passReady: 'ĐẠT · đủ điều kiện cất cánh',
     passDescription:
       'Tất cả hạng mục kiểm tra trước bay bắt buộc phải đạt trước khi nhiệm vụ sẵn sàng cất cánh.',
     airspacePermissionDenied:
       'Khu vực bay chưa được cấp phép. Vui lòng kiểm tra quyền bay trước khi tiếp tục.',
     preflightCheckFailed:
       'Kiểm tra trước bay chưa hoàn tất. Vui lòng kiểm tra quyền bay và thử lại.',
-    failBlocked: (items: string) => `FAIL · CHẶN BAY · Không đạt: ${items}`,
+    failBlocked: (items: string) => `KHÔNG ĐẠT · CHẶN BAY · Không đạt: ${items}`,
     runningPrecheck: (progress: number) =>
-      `Checklist đã bắt đầu · Đã ghi nhận ${progress}% hạng mục.`,
+      `Danh sách kiểm tra đã bắt đầu · Đã ghi nhận ${progress}% hạng mục.`,
     pressTriggerHint: 'Bấm “Bắt đầu kiểm tra” để kiểm tra thiết bị.',
     switchingToReady: 'Đang cập nhật trạng thái thiết bị...',
     continueToHandover: 'Tiếp tục tới bàn giao',
-    triggeringAgain: 'Đang khởi tạo checklist...',
+    triggeringAgain: 'Đang khởi tạo danh sách kiểm tra...',
     triggerAgain: 'Kiểm tra lại',
     triggerPrecheck: 'Bắt đầu kiểm tra',
-    requestDroneReplacement: 'Gửi yêu cầu đổi drone',
+    requestDroneReplacement: 'Gửi yêu cầu đổi thiết bị bay',
     requestingDroneReplacement: 'Đang gửi yêu cầu...',
-    droneReplacementRequestSent: 'Đã gửi yêu cầu đổi drone cho quản lý.',
+    droneReplacementRequestSent: 'Đã gửi yêu cầu đổi thiết bị bay cho quản lý.',
     droneReplacementRequestSentShort: 'Đã gửi yêu cầu',
-    droneReplacementRequestFailed: 'Không gửi được yêu cầu đổi drone.',
+    droneReplacementRequestFailed: 'Không gửi được yêu cầu đổi thiết bị bay.',
     weatherTitle: 'Thời tiết bay',
     weatherNotChecked: 'CHƯA GHI NHẬN',
     weatherSummary: (
@@ -43,16 +43,16 @@ export const preflightPageMessages = defineMessages({
     ) =>
       `Gió ${wind} m/s · Giật ${gust} m/s · Mưa ${rain} mm/h · Tầm nhìn ${visibility} km`,
     weatherHint:
-      'Hệ thống có thể lấy thời tiết hiện tại theo tọa độ mission; operator đối chiếu ngoài đời rồi xác nhận biên bản.',
+      'Hệ thống có thể lấy thời tiết hiện tại theo tọa độ nhiệm vụ; người vận hành đối chiếu ngoài đời rồi xác nhận biên bản.',
     weatherSuggest: 'Lấy thời tiết hiện tại',
     weatherSuggesting: 'Đang lấy thời tiết...',
-    weatherForecastApplied: 'Đã lấy thời tiết hiện tại theo tọa độ mission',
+    weatherForecastApplied: 'Đã lấy thời tiết hiện tại theo tọa độ nhiệm vụ',
     weatherForecastUnavailable:
-      'Chưa lấy được gợi ý thời tiết theo tọa độ. Operator có thể nhập từ nguồn quan trắc khác.',
+      'Chưa lấy được gợi ý thời tiết theo tọa độ. Người vận hành có thể nhập từ nguồn quan trắc khác.',
     weatherCoordinateHint: (lat: string, lon: string) =>
-      `Tọa độ mission: ${lat}, ${lon}. Dữ liệu hiện tại chỉ hỗ trợ quyết định, không thay thế xác nhận của operator.`,
+      `Tọa độ nhiệm vụ: ${lat}, ${lon}. Dữ liệu hiện tại chỉ hỗ trợ quyết định, không thay thế xác nhận của người vận hành.`,
     weatherNoCoordinates:
-      'Mission chưa có latitude/longitude nên không thể lấy gợi ý tự động.',
+      'Nhiệm vụ chưa có vĩ độ/kinh độ nên không thể lấy gợi ý tự động.',
     weatherSaving: 'Đang lưu...',
     weatherUpdate: 'Cập nhật biên bản',
     weatherRecord: 'Ghi nhận thời tiết',
@@ -65,7 +65,7 @@ export const preflightPageMessages = defineMessages({
     weatherVisibility: 'Tầm nhìn',
     weatherTemperature: 'Nhiệt độ',
     weatherHumidity: 'Độ ẩm',
-    weatherDecision: 'Kết luận của operator',
+    weatherDecision: 'Kết luận của người vận hành',
     weatherDecisionPass: 'An toàn để bay',
     weatherDecisionWarn: 'Cảnh báo, vẫn cho phép bay',
     weatherDecisionFail: 'Không an toàn, chặn bay',
@@ -74,7 +74,7 @@ export const preflightPageMessages = defineMessages({
       'VD: trời quang, gió ổn định; đã đối chiếu khu vực bay...',
     weatherManualSafe: 'Thời tiết ngoài đời phù hợp để bay.',
     weatherManualCaution:
-      'Có yếu tố cần chú ý, operator xác nhận vẫn bay được.',
+      'Có yếu tố cần chú ý, người vận hành xác nhận vẫn bay được.',
     weatherManualUnsafe: 'Thời tiết ngoài đời không an toàn để bay.',
     weatherManualMissing:
       'Nhập đầy đủ nguồn kiểm tra, thời điểm và các chỉ số thời tiết trước khi lưu.',
@@ -97,7 +97,7 @@ export const preflightPageMessages = defineMessages({
     precheckConnectionLost:
       'Không tải được kết quả kiểm tra trước bay. Vui lòng thử lại.',
     confirmingBackendPrecheck: 'Đang xác nhận kết quả kiểm tra trước bay…',
-    backendSwitchedReady: 'Thiết bị đã đạt trạng thái READY_TO_FLY.',
+    backendSwitchedReady: 'Thiết bị đã sẵn sàng bay.',
     backendPreflightUnconfirmed:
       'Không xác nhận được kết quả kiểm tra trước bay.',
     statusNoTrigger: 'Chưa bắt đầu kiểm tra trước bay',

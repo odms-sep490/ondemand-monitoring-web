@@ -19,12 +19,17 @@ export function missionNextStep(
       }
     case 'CREATED':
     case 'WAITING_DEPOSIT':
-    case 'PENDING_PAYMENT':
-    case 'PENDING_CONFIRMATION':
       return {
         tone: 'wait',
         title: n.awaitingOrderTitle,
         detail: n.awaitingOrderDetail,
+      }
+    case 'PENDING_CONFIRMATION':
+      return {
+        tone: 'wait',
+        title: n.waitCrewTitle,
+        detail:
+          crew > 0 ? n.waitCrewDetail(accepted, crew) : n.waitCrewDetailNoCrew,
       }
     case 'READY':
     case 'WAITING_OPERATOR_ACCEPTANCE':

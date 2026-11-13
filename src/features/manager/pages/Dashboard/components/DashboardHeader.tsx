@@ -1,4 +1,4 @@
-import { CalendarOutlined, ReloadOutlined, RocketOutlined, FileSearchOutlined } from '@ant-design/icons'
+import { ReloadOutlined } from '@ant-design/icons'
 import { Button, Space } from 'antd'
 
 import { useI18n } from '../../../../../shared/i18n'
@@ -12,12 +12,13 @@ type Props = {
   subtitle: string
   range: DashboardRange
   pendingCount: number
+  pendingCountAvailable: boolean
   onRangeChange: (range: DashboardRange) => void
   onRefresh: () => void
 }
 
 /** Compact operations heading with the dashboard's live period controls. */
-export function DashboardHeader({ subtitle, range, pendingCount, onRangeChange, onRefresh }: Props) {
+export function DashboardHeader({ subtitle, range, pendingCount, pendingCountAvailable, onRangeChange, onRefresh }: Props) {
   const { t, locale } = useI18n(dashboardPageMessages)
   const now = new Date()
   const today = new Intl.DateTimeFormat(locale, {
@@ -29,22 +30,32 @@ export function DashboardHeader({ subtitle, range, pendingCount, onRangeChange, 
 
   return (
     <header className="mgr-dash-header">
+      <img
+        className="mgr-dash-banner-art"
+        src="/images/manager-order-banner.png"
+        alt=""
+        aria-hidden="true"
+        draggable={false}
+      />
       <div className="mgr-dash-heading">
-        <p className="mgr-dash-date"><CalendarOutlined aria-hidden="true" /> {today}</p>
+        <p className="mgr-dash-date">{today}</p>
         <h1 className="mgr-hero-title">{t.title}</h1>
-        <p className="mgr-hero-greet">{t.hero.summary(pendingCount)}</p>
+        <p className="mgr-hero-greet">
+          {pendingCountAvailable
+            ? t.hero.summary(pendingCount)
+            : t.hero.summaryUnavailable}
+        </p>
         <nav className="mgr-dash-shortcuts" aria-label={t.hero.shortcutsLabel}>
           <Button
             type="primary"
-            icon={<FileSearchOutlined aria-hidden="true" />}
             href={managerHref({ screen: 'orderQueue' })}
           >
             {t.hero.reviewOrders}
           </Button>
-          <Button icon={<RocketOutlined aria-hidden="true" />} href={managerHref({ screen: 'missions' })}>
+          <Button href={managerHref({ screen: 'missions' })}>
             {t.hero.viewMissions}
           </Button>
-          <Button icon={<CalendarOutlined aria-hidden="true" />} href={managerHref({ screen: 'schedule' })}>
+          <Button href={managerHref({ screen: 'schedule' })}>
             {t.hero.viewSchedule}
           </Button>
         </nav>

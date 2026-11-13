@@ -10,7 +10,7 @@ const mission = {
   missionCode: 'MS-101',
   scopeLabel: 'Khu vực nhà xưởng',
   purpose: 'ORIGINAL',
-  status: 'PENDING_PAYMENT',
+  status: 'PENDING_CONFIRMATION',
 } as MissionResponse
 
 afterEach(() => {

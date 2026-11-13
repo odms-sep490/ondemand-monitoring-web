@@ -38,7 +38,7 @@ export function MissionPaymentAllocationPanel({
     return Number.isSafeInteger(parsed) && parsed > 0 ? sum + parsed : sum
   }, 0)
   const locked = originalMissions.some((mission) =>
-    !['PLANNING', 'PENDING_PAYMENT'].includes(mission.status),
+    !['PLANNING', 'PENDING_CONFIRMATION'].includes(mission.status),
   ) || existing.some((milestone) =>
     milestone.handedOverAt != null || milestone.status !== 'NOT_YET_DUE' || milestone.payments.length > 0,
   )

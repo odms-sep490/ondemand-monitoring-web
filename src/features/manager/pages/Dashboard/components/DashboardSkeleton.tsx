@@ -15,7 +15,6 @@ export function DashboardSkeleton({ t }: { t: PageMessages }) {
       <div className="mgr-kpi-grid" aria-hidden="true">
         {Array.from({ length: 5 }, (_, i) => (
           <div key={i} className="mgr-dash-kpi mgr-dash-kpi-loading">
-            <Skeleton.Avatar active shape="square" size={48} />
             <div className="mgr-kpi-skeleton-copy">
               <Skeleton.Input
                 active
@@ -39,22 +38,16 @@ export function DashboardSkeleton({ t }: { t: PageMessages }) {
           <Skeleton active paragraph={{ rows: 3 }} />
         </Card>
         <Card
-          className="mgr-card mgr-active-missions-card"
-          title={<Skeleton.Input active size="small" style={{ width: 168 }} />}
-        >
-          <Skeleton active paragraph={{ rows: 2 }} />
-        </Card>
-        <Card
-          className="mgr-card mgr-activity-card"
+          className="mgr-card mgr-mission-status-card"
           title={<Skeleton.Input active size="small" style={{ width: 150 }} />}
         >
-          <Skeleton active paragraph={{ rows: 3 }} />
+          <Skeleton active paragraph={{ rows: 4 }} />
         </Card>
         <Card
-          className="mgr-card mgr-pipeline-card"
-          title={<Skeleton.Input active size="small" style={{ width: 132 }} />}
+          className="mgr-card mgr-mission-trend-card"
+          title={<Skeleton.Input active size="small" style={{ width: 170 }} />}
         >
-          <Skeleton active paragraph={{ rows: 2 }} />
+          <Skeleton active paragraph={{ rows: 5 }} />
         </Card>
         <Card
           className="mgr-card mgr-recent-orders-card"
@@ -62,20 +55,32 @@ export function DashboardSkeleton({ t }: { t: PageMessages }) {
         >
           <Skeleton active paragraph={{ rows: 4 }} />
         </Card>
+        <Card
+          className="mgr-card mgr-pipeline-card"
+          title={<Skeleton.Input active size="small" style={{ width: 132 }} />}
+        >
+          <Skeleton active paragraph={{ rows: 3 }} />
+        </Card>
+        <Card
+          className="mgr-card mgr-activity-card"
+          title={<Skeleton.Input active size="small" style={{ width: 150 }} />}
+        >
+          <Skeleton active paragraph={{ rows: 3 }} />
+        </Card>
+        <section className="mgr-analytics" aria-hidden="true">
+          <div className="mgr-analytics-heading">
+            <Skeleton.Input active size="small" style={{ width: 148 }} />
+          </div>
+          <div className="mgr-analytics-list">
+            <Card className="mgr-card">
+              <Skeleton active paragraph={{ rows: 3 }} />
+            </Card>
+            <Card className="mgr-card">
+              <Skeleton active paragraph={{ rows: 3 }} />
+            </Card>
+          </div>
+        </section>
       </div>
-      <section className="mgr-analytics" aria-hidden="true">
-        <div className="mgr-analytics-heading">
-          <Skeleton.Input active size="small" style={{ width: 110 }} />
-        </div>
-        <div className="mgr-analytics-list">
-          <Card className="mgr-card">
-            <Skeleton active paragraph={{ rows: 3 }} />
-          </Card>
-          <Card className="mgr-card">
-            <Skeleton active paragraph={{ rows: 3 }} />
-          </Card>
-        </div>
-      </section>
       <span className="odm-visually-hidden">{t.loading}</span>
     </div>
   )

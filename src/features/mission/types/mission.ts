@@ -4,7 +4,6 @@ export type MissionStatus =
   | 'PLANNING'
   | 'CREATED'
   | 'WAITING_DEPOSIT'
-  | 'PENDING_PAYMENT'
   | 'PENDING_CONFIRMATION'
   | 'READY'
   | 'SCHEDULED'

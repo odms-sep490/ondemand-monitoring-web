@@ -26,7 +26,6 @@ const PENDING_STATES = new Set([
   'PLANNING',
   'CREATED',
   'WAITING_DEPOSIT',
-  'PENDING_PAYMENT',
   'PENDING_CONFIRMATION',
   'READY',
   'WAITING_OPERATOR_ACCEPTANCE',
@@ -53,7 +52,6 @@ export default function MissionList({ missions, onSelect, onScreen }: Props) {
       m.state !== 'PLANNING' &&
       m.state !== 'CREATED' &&
       m.state !== 'WAITING_DEPOSIT' &&
-      m.state !== 'PENDING_PAYMENT' &&
       m.state !== 'WAITING_OPERATOR_ACCEPTANCE' &&
       m.state !== 'PENDING_CONFIRMATION',
   ).length

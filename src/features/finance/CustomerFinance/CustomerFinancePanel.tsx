@@ -148,7 +148,7 @@ export function CustomerFinancePanel({
       await financeApi.completeTestDeposit(invoice.id)
       await load()
     } catch (cause) {
-      setError(messageOf(cause, t))
+      setError(testPaymentErrorMessage(cause))
     } finally {
       setBusy(false)
     }
@@ -174,10 +174,23 @@ export function CustomerFinancePanel({
       await financeApi.completeTestMissionPayment(milestoneId)
       await load()
     } catch (cause) {
-      setError(messageOf(cause, t))
+      setError(testPaymentErrorMessage(cause))
     } finally {
       setBusy(false)
     }
+  }
+
+  function testPaymentErrorMessage(cause: unknown) {
+    if (cause instanceof ApiError) {
+      if (
+        cause.code === 'INVALID_REQUEST' &&
+        cause.message.toLowerCase().includes('test payment is disabled')
+      ) {
+        return t.testPaymentDisabled
+      }
+      return `${t.testPaymentFailed}: ${cause.message}`
+    }
+    return messageOf(cause, t)
   }
 
   const invoiceSummaryContent = invoice ? (

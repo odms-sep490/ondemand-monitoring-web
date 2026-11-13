@@ -3,7 +3,10 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { ApiError } from '../../../../../shared/api/httpClient'
 import { managerApi } from '../../../api/dashboardApi'
-import type { ManagerDashboardData } from '../../../types/dashboard'
+import type {
+  ManagerDashboardData,
+  ManagerDashboardResponse,
+} from '../../../types/dashboard'
 import { DashboardPage } from '../DashboardPage'
 
 const sampleData: ManagerDashboardData = {
@@ -182,13 +185,29 @@ describe('DashboardPage', () => {
     await screen.findByRole('heading', { name: 'Bảng điều khiển quản lý' })
 
     const layout = document.querySelector('.mgr-dash-columns')
-    expect(layout?.children).toHaveLength(5)
+    expect(layout?.children).toHaveLength(7)
     expect(layout?.children[0]).toHaveClass('mgr-action-card')
-    expect(layout?.children[1]).toHaveClass('mgr-active-missions-card')
-    expect(layout?.children[2]).toHaveClass('mgr-activity-card')
-    expect(layout?.children[3]).toHaveClass('mgr-pipeline-card')
-    expect(layout?.children[4]).toHaveClass('mgr-recent-orders-card')
+    expect(layout?.children[1]).toHaveClass('mgr-mission-status-card')
+    expect(layout?.children[2]).toHaveClass('mgr-mission-trend-card')
+    expect(layout?.children[3]).toHaveClass('mgr-recent-orders-card')
+    expect(layout?.children[4]).toHaveClass('mgr-pipeline-card')
+    expect(layout?.children[5]).toHaveClass('mgr-activity-card')
+    expect(layout?.children[6]).toHaveClass('mgr-analytics')
     expect(document.querySelector('.mgr-analytics')).toBeInTheDocument()
+  })
+
+  it('shows the Vietnamese label for an order under review', async () => {
+    vi.spyOn(managerApi, 'getDashboard').mockResolvedValue({
+      ...sampleData,
+      recentOrders: [
+        { ...sampleData.recentOrders[0], status: 'UNDER_REVIEW' },
+      ],
+    })
+
+    render(<DashboardPage />)
+    await screen.findByRole('heading', { name: 'Bảng điều khiển quản lý' })
+
+    expect(screen.getByText('Đang duyệt')).toBeInTheDocument()
   })
 
   it('shows a retryable error state', async () => {
@@ -246,11 +265,57 @@ describe('DashboardPage', () => {
       screen.getByText('Chưa có dữ liệu phân tích trong khoảng thời gian này.'),
     ).toBeInTheDocument()
     expect(
-      screen.queryByRole('heading', { name: 'Nhiệm vụ theo thời gian' }),
-    ).not.toBeInTheDocument()
+      screen.getByRole('heading', { name: 'Nhiệm vụ theo thời gian' }),
+    ).toBeInTheDocument()
+    expect(screen.getByText('Chưa có nhiệm vụ trong kỳ này.')).toBeInTheDocument()
     expect(
       screen.queryByRole('heading', { name: 'Trạng thái đơn' }),
     ).not.toBeInTheDocument()
+  })
+
+  it('distinguishes omitted dashboard fields from real zero values', async () => {
+    vi.spyOn(managerApi, 'getDashboard').mockResolvedValue({
+      pricingPipeline: {
+        pricingReviewCount: 0,
+        quoteReadyCount: 0,
+        waitingCustomerCount: 0,
+        waitingDepositCount: 0,
+        depositPaidCount: 0,
+      },
+    } satisfies ManagerDashboardResponse)
+
+    render(<DashboardPage />)
+    await screen.findByRole('heading', { name: 'Bảng điều khiển quản lý' })
+
+    expect(
+      screen.getByRole('link', {
+        name: 'Chờ duyệt yêu cầu: Chưa có dữ liệu',
+      }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('link', { name: 'Chờ báo giá: 0' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText('Số liệu yêu cầu chờ xem xét chưa sẵn sàng.'),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText('Chưa tải được danh sách việc cần làm.'),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText('Chưa tải được danh sách đơn hàng.'),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText('Chưa tải được hoạt động gần đây.'),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText('Chưa có dữ liệu báo giá.'),
+    ).toBeInTheDocument()
+    expect(document.querySelector('.mgr-chart-empty')).toHaveTextContent(
+      'Chưa tải được dữ liệu phân tích.',
+    )
+    expect(document.querySelector('.mgr-analytics-empty')).toHaveTextContent(
+      'Chưa tải được dữ liệu phân tích.',
+    )
   })
 
   it('keeps one-order dashboards compact when missions and activity are empty', async () => {
@@ -290,7 +355,9 @@ describe('DashboardPage', () => {
 
     expect(await screen.findByText(customerName)).toBeInTheDocument()
     expect(screen.getByText('Không có nhiệm vụ đang chạy.')).toBeInTheDocument()
-    expect(screen.getByRole('status')).toHaveTextContent('Chưa có hoạt động')
+    expect(document.querySelector('.mgr-activity-empty')).toHaveTextContent(
+      'Chưa có hoạt động',
+    )
     expect(document.querySelectorAll('.mgr-single-chart')).toHaveLength(2)
     expect(document.querySelector('.mgr-single-trend')).toBeInTheDocument()
     expect(document.querySelectorAll('.ant-table-row')).toHaveLength(1)
@@ -304,7 +371,9 @@ describe('DashboardPage', () => {
     render(<DashboardPage />)
 
     expect(await screen.findByText('MIS-001')).toBeInTheDocument()
-    expect(screen.getByRole('status')).toHaveTextContent('Chưa có hoạt động')
+    expect(document.querySelector('.mgr-activity-empty')).toHaveTextContent(
+      'Chưa có hoạt động',
+    )
     expect(document.querySelectorAll('.ant-table-row')).toHaveLength(1)
   })
 
@@ -377,8 +446,10 @@ describe('DashboardPage', () => {
       document.querySelectorAll('.mgr-action-card .mgr-dash-row'),
     ).toHaveLength(6)
     expect(
-      document.querySelectorAll('.mgr-active-missions-card .mgr-dash-row'),
-    ).toHaveLength(6)
+      document.querySelectorAll(
+        '.mgr-mission-status-card .mgr-mission-active-row',
+      ),
+    ).toHaveLength(2)
     expect(document.querySelectorAll('.ant-table-row')).toHaveLength(6)
     expect(document.querySelectorAll('.mgr-activity-list > li')).toHaveLength(8)
 

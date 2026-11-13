@@ -147,7 +147,7 @@ export function DetailPanel({ mission, onClose, t, locale, onResourceChanged }: 
   const hasAssignedResources = Boolean(mission.droneCode) || deviceAssignments.length > 0 || staffAssignments.length > 0
   const accepted = staffGroups.filter((item) => item.responseStatus === 'ACCEPTED').length
   const canReplaceResources =
-    ['PENDING_PAYMENT', 'PENDING_CONFIRMATION', 'READY'].includes(mission.status)
+    ['PENDING_CONFIRMATION', 'READY'].includes(mission.status)
   const canCancelReplacementRequest =
     ['PENDING_CONFIRMATION', 'READY'].includes(mission.status)
 
