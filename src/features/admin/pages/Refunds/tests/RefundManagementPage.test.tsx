@@ -1,4 +1,4 @@
-﻿import { act, fireEvent, render, screen, within } from '@testing-library/react'
+﻿import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import {
@@ -246,10 +246,16 @@ describe('RefundManagementPage', () => {
     ).not.toBeInTheDocument()
 
     const file = new File(['receipt'], 'receipt.png', { type: 'image/png' })
-    fireEvent.change(screen.getByLabelText(/Choose refund receipt images/), {
-      target: { files: [file] },
+    // Selecting a refund clears chosen files, so re-select until the initial
+    // auto-selection has settled and the preview stays rendered.
+    await waitFor(() => {
+      if (!screen.queryByAltText('receipt.png')) {
+        fireEvent.change(screen.getByLabelText(/Choose refund receipt images/), {
+          target: { files: [file] },
+        })
+      }
+      expect(screen.getByAltText('receipt.png')).toBeInTheDocument()
     })
-    expect(await screen.findByAltText('receipt.png')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Upload evidence' }))
 
     const confirm = await screen.findByRole('button', {
