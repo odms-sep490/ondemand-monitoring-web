@@ -2,7 +2,7 @@ import { defineMessages } from '../../../../shared/i18n'
 
 export const dashboardPageMessages = defineMessages({
   vi: {
-    title: 'Bảng điều khiển quản lý',
+    title: 'Tổng quan điều hành',
     generatedAt: 'Cập nhật',
     refresh: 'Làm mới',
     loadError: 'Không thể tải dữ liệu bảng điều khiển.',
@@ -15,8 +15,8 @@ export const dashboardPageMessages = defineMessages({
       evening: 'Chào buổi tối',
       summary: (n: number) =>
         n > 0
-          ? `Có ${n} yêu cầu đang chờ quản lý xem xét.`
-          : 'Hiện không có yêu cầu chờ xem xét.',
+          ? `${n} yêu cầu chờ duyệt.`
+          : 'Đã xử lý hết yêu cầu chờ duyệt.',
       summaryUnavailable: 'Số liệu yêu cầu chờ xem xét chưa sẵn sàng.',
       shortcutsLabel: 'Lối tắt quản lý',
       reviewOrders: 'Duyệt đơn hàng',
@@ -25,21 +25,21 @@ export const dashboardPageMessages = defineMessages({
     },
     kpi: {
       overviewLabel: 'Chỉ số tổng quan',
-      pendingReview: 'Chờ duyệt yêu cầu',
+      pendingReview: 'Chờ duyệt',
       waitingQuote: 'Chờ báo giá',
       waitingDeposit: 'Chờ đặt cọc',
       waitingDepositHint: (n: number) => `${n} đã cọc, sẵn sàng lập kế hoạch`,
-      activeMissions: 'Nhiệm vụ đang chạy',
+      activeMissions: 'Đang thực hiện',
       attentionHint: (n: number) => `${n} cần chú ý`,
-      completed: 'Hoàn thành trong kỳ',
+      completed: 'Đã hoàn thành',
       completedHint: (n: number) => `${n} thất bại`,
       unavailable: 'Chưa có dữ liệu',
     },
     actions: {
       title: 'Việc cần làm',
-      empty: 'Không có việc nào cần xử lý.',
+      empty: 'Đã xử lý hết công việc.',
       emptyDescription:
-        'Khi có yêu cầu mới hoặc cần xử lý, danh sách sẽ hiển thị tại đây.',
+        'Yêu cầu mới sẽ xuất hiện tại đây.',
       unavailable: 'Chưa tải được danh sách việc cần làm.',
       all: 'Tất cả',
       showMore: (count: number) => `Xem tất cả ${count} việc còn lại`,
