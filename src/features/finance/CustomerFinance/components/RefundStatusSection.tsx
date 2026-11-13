@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Alert, Button, Tag } from 'antd'
+import { Alert, Button, Skeleton } from 'antd'
+import { StatusTag } from '../../../../shared/components/antd'
 import { getLanguage, useI18n } from '../../../../shared/i18n'
 import { refundApi, type RefundResponse } from '../../refundApi'
 import { refundStatusSectionMessages } from './RefundStatusSection.messages'
@@ -17,7 +18,8 @@ export function RefundStatusSection({
   if (loading) {
     return (
       <section className="customer-refund-card" aria-busy="true">
-        {t.loading}
+        <span className="sr-only">{t.loading}</span>
+        <Skeleton active title={{ width: '30%' }} paragraph={{ rows: 2 }} />
       </section>
     )
   }
@@ -31,9 +33,19 @@ export function RefundStatusSection({
           <h3>{t.title}</h3>
         </div>
         {refund ? (
-          <Tag color={refund.status === 'COMPLETED' ? 'green' : ['REJECTED', 'CANCELLED'].includes(refund.status) ? 'red' : 'gold'}>
+          <StatusTag
+            tone={
+              refund.status === 'COMPLETED'
+                ? 'success'
+                : ['REJECTED', 'CANCELLED'].includes(refund.status)
+                  ? 'danger'
+                  : refund.status === 'PROCESSING'
+                    ? 'info'
+                    : 'warning'
+            }
+          >
             {t.status[refund.status]}
-          </Tag>
+          </StatusTag>
         ) : null}
       </div>
       {error ? <Alert type="error" showIcon message={error} /> : null}
@@ -42,7 +54,7 @@ export function RefundStatusSection({
           <dl className="customer-refund-card__facts">
             <div>
               <dt>{t.amount}</dt>
-              <dd>{money(refund.refundedAmount || refund.refundableAmount)}</dd>
+              <dd className="is-money">{money(refund.refundedAmount || refund.refundableAmount)}</dd>
             </div>
             <div>
               <dt>{t.requested}</dt>

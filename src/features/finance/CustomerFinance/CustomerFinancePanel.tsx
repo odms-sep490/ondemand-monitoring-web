@@ -1,4 +1,4 @@
-import { Alert, Button } from 'antd'
+import { Alert, Button, Skeleton } from 'antd'
 import { ApiError } from '../../../shared/api/httpClient'
 import { guidanceMessages } from '../ManagerPricing/guidance.messages'
 import { useCallback, useEffect, useState } from 'react'
@@ -7,7 +7,7 @@ import { financeApi } from '../api'
 import { customerFinancePanelMessages } from './CustomerFinancePanel.messages'
 import type { CustomerQuote, Invoice, MissionPaymentAllocation } from '../types'
 import '../finance.css'
-import { CardComponent } from '../../../shared/components/antd'
+import { CardComponent, EmptyState } from '../../../shared/components/antd'
 import { OrderIcon } from '../../manager/components/common/OrderIcon'
 import { isNotFound, messageOf } from './customerFinanceHelpers'
 import { QuoteSection } from './components/QuoteSection'
@@ -171,6 +171,8 @@ export function CustomerFinancePanel({
     }
   }
 
+  // The payment type is part of InvoiceSection's onPay contract; only deposits exist today.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async function pay(_type: 'deposit') {
     if (!invoice) return
     setBusy(true)
@@ -263,7 +265,10 @@ export function CustomerFinancePanel({
         title={t.title}
         icon={<OrderIcon name="tag" size={16} />}
       >
-        <p className="customer-finance-desc">{t.loading}</p>
+        <div className="customer-finance-skeleton" role="status" aria-busy="true">
+          <p className="customer-finance-desc">{t.loading}</p>
+          <Skeleton active title={{ width: '40%' }} paragraph={{ rows: 4 }} />
+        </div>
       </CardComponent>
       </>
     )
@@ -276,7 +281,11 @@ export function CustomerFinancePanel({
         title={t.title}
         icon={<OrderIcon name="tag" size={16} />}
       >
-        <p className="customer-finance-desc">{t.noFinancialData}</p>
+        <EmptyState
+          icon={<OrderIcon name="tag" size={20} />}
+          title={t.noFinancialData}
+          description={t.noFinancialDataHint}
+        />
       </CardComponent>
       </>
     )
@@ -329,6 +338,11 @@ export function CustomerFinancePanel({
           type="error"
           showIcon
           message={error}
+          action={
+            <Button size="small" disabled={busy || loading} onClick={() => void load()}>
+              {t.retry}
+            </Button>
+          }
         />
       ) : null}
     </CardComponent>
