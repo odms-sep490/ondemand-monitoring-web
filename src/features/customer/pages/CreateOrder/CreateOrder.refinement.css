@@ -1974,3 +1974,73 @@
     min-height: 42px;
   }
 }
+
+/* ==========================================================================
+   Pricing polish: theme-aware text on cards (antd default text colour is
+   dark and leaked into dark mode), money right-aligned with tabular digits,
+   total emphasised, notices on token palette.
+   ========================================================================== */
+.co-page .ant-card,
+.co-page .ant-card-body,
+.co-page .ui-label,
+.co-page .ui-form-field {
+  color: var(--ui-text);
+}
+.co-pricing-estimate-card:not(.is-review) .co-money {
+  gap: 0;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.co-pricing-estimate-card:not(.is-review) .co-money-row {
+  align-items: baseline;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--ui-border);
+}
+.co-pricing-estimate-card:not(.is-review) .co-money-row > span:first-child {
+  color: var(--ui-text-2);
+}
+.co-pricing-estimate-card:not(.is-review) .co-money-row > strong {
+  flex: 0 0 auto;
+  color: var(--ui-text);
+  font-weight: 650;
+  text-align: right;
+  white-space: nowrap;
+}
+.co-pricing-estimate-card:not(.is-review) .co-money-total {
+  margin-top: 10px;
+  padding: 12px 14px;
+  border: 1px solid color-mix(in srgb, var(--ui-primary) 28%, var(--ui-border));
+  border-radius: 12px;
+  background: var(--ui-primary-soft);
+  color: var(--ui-primary-text);
+  font-size: 15px;
+  font-weight: 700;
+}
+.co-pricing-estimate-card:not(.is-review) .co-money-total > span:last-child {
+  color: var(--ui-primary-text);
+  font-size: 22px;
+  font-weight: 800;
+  text-align: right;
+  white-space: nowrap;
+}
+.co-pricing-estimate-card .co-price-section {
+  padding-top: 10px;
+}
+.co-pricing-estimate-card .co-price-section h3 {
+  margin: 0;
+  color: var(--ui-text);
+  font-size: 13px;
+  font-weight: 700;
+}
+.co-pricing-estimate-card .co-estimate-notice {
+  border-radius: 8px;
+  line-height: 1.5;
+}
+.co-additional-services .co-additional-status {
+  white-space: nowrap;
+}
+@media (max-width: 480px) {
+  .co-pricing-estimate-card:not(.is-review) .co-money-total > span:last-child {
+    font-size: 20px;
+  }
+}
