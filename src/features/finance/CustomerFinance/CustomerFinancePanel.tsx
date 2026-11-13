@@ -25,12 +25,14 @@ export type CustomerFinanceState = {
 export function CustomerFinancePanel({
   orderId,
   legalStatus,
+  active = false,
   onStateChange,
   refreshKey,
 }: {
   orderId: string
   legalStatus?:
     'NOT_REVIEWED' | 'NOT_REQUIRED' | 'PENDING_PERMIT' | 'APPROVED' | 'REJECTED'
+  active?: boolean
   onStateChange?: (state: CustomerFinanceState) => void
   refreshKey?: number | string
 }) {
@@ -53,6 +55,26 @@ export function CustomerFinancePanel({
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  const refreshMissionPayments = useCallback(async (signal?: AbortSignal) => {
+    try {
+      const allocation = await financeApi.getCustomerMissionPaymentAllocations(
+        orderId,
+        signal,
+      )
+      if (signal?.aborted) return
+      setMissionPayments(allocation)
+      setMissionPaymentsError(null)
+    } catch (cause) {
+      if (signal?.aborted) return
+      if (isNotFound(cause)) {
+        setMissionPayments(null)
+        setMissionPaymentsError(null)
+      } else {
+        setMissionPaymentsError(messageOf(cause, t))
+      }
+    }
+  }, [orderId, t])
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -106,6 +128,29 @@ export function CustomerFinancePanel({
   useEffect(() => {
     void load()
   }, [load])
+
+  useEffect(() => {
+    if (!active || !invoice) return
+
+    const controller = new AbortController()
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === 'visible') {
+        void refreshMissionPayments(controller.signal)
+      }
+    }
+
+    refreshWhenVisible()
+    const intervalId = window.setInterval(refreshWhenVisible, 15_000)
+    window.addEventListener('focus', refreshWhenVisible)
+    document.addEventListener('visibilitychange', refreshWhenVisible)
+
+    return () => {
+      controller.abort()
+      window.clearInterval(intervalId)
+      window.removeEventListener('focus', refreshWhenVisible)
+      document.removeEventListener('visibilitychange', refreshWhenVisible)
+    }
+  }, [active, invoice, refreshMissionPayments])
 
   useEffect(() => {
     onStateChange?.({ quote, invoice, loading })

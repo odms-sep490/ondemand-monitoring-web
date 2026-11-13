@@ -296,6 +296,7 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
       <CustomerFinancePanel
         orderId={order.id}
         legalStatus={order.legalReviewStatus}
+        active={activeTab === 'finance'}
         onStateChange={updateFinance}
         refreshKey={`${order.status}:${order.checklistRevision}:${financeRefreshVersion}`}
       />
