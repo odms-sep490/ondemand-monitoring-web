@@ -2425,7 +2425,7 @@
 
 .mission-allocation-row {
   display: grid;
-  grid-template-columns: minmax(160px, 1fr) auto minmax(200px, 260px);
+  grid-template-columns: minmax(160px, 1fr) auto minmax(180px, 240px);
   align-items: center;
   gap: 12px 18px;
   padding: 12px;
@@ -2434,30 +2434,25 @@
   background: var(--ui-surface, #fff);
 }
 
-.mission-allocation-row label {
+.mission-allocation-row__amount {
   display: grid;
   gap: 5px;
+  justify-items: end;
   color: var(--ui-text-2, #42536c);
   font-size: 12px;
 }
 
-.mission-allocation-row input {
-  width: 100%;
-  min-height: 36px;
-  box-sizing: border-box;
-  padding: 7px 9px;
-  border: 1px solid var(--ui-border, #dce3eb);
-  border-radius: 7px;
-  background: var(--ui-surface, #fff);
+.mission-allocation-row__amount strong {
   color: var(--ui-text, #172033);
-  font: inherit;
+  font-size: 15px;
   font-variant-numeric: tabular-nums;
 }
 
-.mission-allocation-card > footer {
+.mission-allocation-card__loading {
   display: flex;
-  justify-content: flex-end;
-  margin-top: 12px;
+  align-items: center;
+  gap: 8px;
+  color: var(--ui-text-3, #667085);
 }
 
 @media (max-width: 640px) {
@@ -2478,8 +2473,9 @@
     grid-template-columns: minmax(0, 1fr) auto;
   }
 
-  .mission-allocation-row label {
+  .mission-allocation-row__amount {
     grid-column: 1 / -1;
+    justify-items: start;
   }
 }
 

@@ -107,6 +107,11 @@ export const financeApi = {
       `/api/manager/orders/${encodeURIComponent(orderId)}/mission-payment-milestones`,
       { method: 'PUT', body: { allocations } },
     ),
+  calculateManagerMissionPaymentAllocations: (orderId: string) =>
+    apiRequest<MissionPaymentAllocation>(
+      `/api/manager/orders/${encodeURIComponent(orderId)}/mission-payment-milestones/auto-calculate`,
+      { method: 'POST' },
+    ),
   getCustomerMissionPaymentAllocations: (orderId: string, signal?: AbortSignal) =>
     apiRequest<MissionPaymentAllocation>(
       `/api/orders/${encodeURIComponent(orderId)}/mission-payment-milestones`,

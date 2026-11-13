@@ -566,9 +566,7 @@ function OrderPlanningWorkspace({
             <MissionPaymentAllocationPanel
               orderId={orderId}
               invoice={data.invoice}
-              missions={data.missions}
               allocation={data.paymentAllocation}
-              onSaved={query.reload}
             />
           ) : null}
         </>
