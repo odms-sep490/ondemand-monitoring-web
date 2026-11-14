@@ -7,11 +7,11 @@
 
   > .mgr-page-head {
     align-items: center;
-    padding: 0 2px 18px;
-    border: 0;
-    border-bottom: 1px solid var(--mgr-border);
-    border-radius: 0;
-    background: transparent;
+    padding: 24px;
+    min-height: 150px;
+    border: 1px solid #d6e6fb;
+    border-radius: 16px;
+    background: linear-gradient(90deg, rgba(240,247,255,.92), rgba(240,247,255,.55) 52%, rgba(240,247,255,.1)), url('/images/order-banner.png') center / cover no-repeat, #eaf3ff;
     box-shadow: none;
   }
 
@@ -328,7 +328,8 @@
     > .mgr-page-head {
       align-items: flex-start;
       gap: 12px;
-      padding-bottom: 14px;
+      padding: 18px 16px;
+      min-height: 130px;
     }
 
     .mgr-page-head-main {
@@ -406,3 +407,54 @@
     }
   }
 }
+
+[data-theme='dark'] .mgr-layout .cus-dash > .mgr-page-head {
+  background: linear-gradient(90deg, rgba(11,25,46,.94), rgba(11,25,46,.65)), url('/images/order-banner.png') center / cover no-repeat, #10243d;
+  border-color: #28405d;
+}
+
+
+/* One order workspace with a compact next-step rail. */
+.mgr-layout .cus-dash {
+  gap: 20px;
+  .cus-main-column { display: grid; gap: 16px; min-width: 0; }
+  .cus-highlights { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .cus-highlight-card { min-height: 0; height: auto; grid-column: auto; }
+  .cus-highlight-card .ant-card-head { min-height: 48px; padding-inline: 16px; }
+  .cus-highlight-card .ant-card-head-title { font-size: 14px; }
+  .cus-highlight-card .ant-card-body { padding: 10px 16px; }
+  .cus-highlight-empty { margin: 0; padding: 8px 0; color: var(--mgr-text-2, #52637b); font-size: 13px; font-weight: 400; line-height: 1.6; }
+  .cus-highlight-list li { display: flex; flex-wrap: wrap; gap: 6px 12px; padding: 10px 0; }
+  .cus-highlight-copy { flex: 1 1 160px; min-width: 0; }
+  .cus-highlight-copy > span { font-size: 12px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .cus-kpi-grid { border-radius: 12px; overflow: hidden; }
+  .cus-kpi { min-height: 88px; padding: 16px 20px; }
+  .cus-kpi dt { font-size: 13px; color: var(--mgr-text-2, #52637b); }
+  .cus-kpi dd { margin-top: 8px; font-size: 28px; line-height: 1.2; font-variant-numeric: tabular-nums; }
+  .cus-orders-card .ant-table-thead > tr > th { font-size: 12px; font-weight: 600; }
+  .cus-orders-card .ant-table-tbody > tr > td { padding: 16px; vertical-align: top; }
+  .cus-order-title { font-size: 14px; font-weight: 650; }
+  .cus-order-status .ant-tag { width: fit-content; }
+  .cus-order-next-step { max-width: 240px; font-size: 12px; line-height: 1.5; }
+  .cus-status-card .cus-breakdown { display: flex; flex-wrap: wrap; gap: 8px 24px; }
+  .cus-status-card .cus-breakdown li { display: flex; align-items: center; gap: 16px; padding: 4px 0; border: 0; }
+  .cus-status-card .ant-card-head { min-height: 44px; }
+  .cus-status-card .ant-card-body { padding: 10px 18px; }
+}
+@media (max-width: 1150px) {
+  .mgr-layout .cus-dash .cus-highlights { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 750px) {
+  .mgr-layout .cus-dash .cus-highlights { grid-template-columns: minmax(0, 1fr); }
+  .mgr-layout .cus-dash .cus-kpi { padding: 14px; }
+  .mgr-layout .cus-dash .cus-kpi dd { font-size: 24px; }
+}
+
+/* Overview focuses on next actions, flights and results. Orders live in My Orders. */
+.mgr-layout .cus-dash > .cus-highlights { grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; }
+@media (max-width: 1000px) { .mgr-layout .cus-dash > .cus-highlights { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 650px) { .mgr-layout .cus-dash > .cus-highlights { grid-template-columns: minmax(0, 1fr); } }
+
+.cus-overview-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+@media (max-width: 640px) { .cus-overview-actions { width: 100%; } .cus-overview-actions > a { flex: 1 1 150px; } }
+

@@ -1516,3 +1516,101 @@
     .mgr-dash-controls .mgr-hero-updated { flex-basis: 100%; }
   }
 }
+
+/* ==========================================================================
+   Polish: theme-safe hero (the white veil made dark mode unreadable), 16px
+   cards with --mgr-shadow, tile-style KPIs, tables scroll inside their card.
+   ========================================================================== */
+:root .mgr-layout .mgr-dash {
+  .mgr-dash-header {
+    border-color: var(--mgr-border);
+    border-radius: var(--mgr-radius, 16px);
+    background: linear-gradient(180deg, var(--mgr-hero-bg), var(--mgr-card));
+    box-shadow: var(--mgr-shadow);
+  }
+  .mgr-dash-header::before {
+    background: none;
+  }
+  .mgr-hero-title {
+    color: var(--mgr-text);
+  }
+  .mgr-dash-date,
+  .mgr-hero-greet,
+  .mgr-dash-controls .mgr-hero-updated {
+    color: var(--mgr-muted);
+  }
+
+  .mgr-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    border: 0;
+    border-radius: 0;
+    overflow: visible;
+    background: transparent;
+  }
+  .mgr-dash-kpi {
+    border: 1px solid var(--mgr-border);
+    border-radius: var(--mgr-radius, 16px);
+    background: var(--mgr-card);
+    box-shadow: var(--mgr-shadow);
+    min-height: 96px;
+  }
+  .mgr-dash-kpi:last-child {
+    grid-column: auto;
+    border-bottom: 1px solid var(--mgr-border);
+  }
+  .mgr-kpi-label {
+    color: var(--mgr-muted);
+    white-space: nowrap;
+  }
+  .mgr-kpi-value {
+    color: var(--mgr-text);
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .mgr-dash-columns > .ant-card,
+  .mgr-dash-columns .mgr-card {
+    border: 1px solid var(--mgr-border);
+    border-radius: var(--mgr-radius, 16px);
+    background: var(--mgr-card);
+    box-shadow: var(--mgr-shadow);
+  }
+  .mgr-dash-columns .ant-card-head {
+    border-bottom-color: var(--mgr-border);
+    color: var(--mgr-text);
+  }
+  .mgr-dash-columns .ant-card-head-title {
+    color: var(--mgr-text);
+  }
+  .mgr-status-tag {
+    white-space: nowrap;
+  }
+  .mgr-recent-orders-card .ant-table-wrapper {
+    overflow-x: auto;
+  }
+  .mgr-recent-orders-card .ant-table {
+    min-width: 480px;
+  }
+  .mgr-recent-orders-card .ant-table-tbody > tr > td,
+  .mgr-recent-orders-card .ant-table-thead > tr > th {
+    background: transparent;
+    color: var(--mgr-text);
+    border-bottom-color: var(--mgr-border);
+  }
+}
+@media (max-width: 560px) {
+  :root .mgr-layout .mgr-dash {
+    .mgr-kpi-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .mgr-dash-kpi:last-child {
+      grid-column: 1 / -1;
+    }
+    .mgr-dash-shortcuts .ant-btn,
+    .mgr-dash-shortcuts a {
+      flex: 1 1 100%;
+    }
+  }
+}

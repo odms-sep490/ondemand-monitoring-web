@@ -95,7 +95,7 @@ describe('ManagerApp', () => {
     render(<ManagerApp />)
 
     await waitFor(() =>
-      expect(screen.getByRole('heading', { name: 'Bảng điều khiển quản lý' })).toBeInTheDocument(),
+      expect(screen.getByRole('heading', { name: 'Tổng quan điều hành' })).toBeInTheDocument(),
     )
   })
 

@@ -339,16 +339,16 @@
   padding: 8px 14px;
   font: inherit;
   font-weight: 600;
-  color: #64748b;
+  color: var(--ui-text-3);
   cursor: pointer;
   white-space: nowrap;
 }
 .checklist-tab:hover {
-  color: #1d4ed8;
+  color: var(--ui-primary-text);
 }
 .checklist-tab.is-active {
-  color: #1d4ed8;
-  border-bottom-color: #1d4ed8;
+  color: var(--ui-primary-text);
+  border-bottom-color: var(--ui-primary-text);
 }
 .checklist-form-actions {
   display: flex;
@@ -364,9 +364,9 @@
   background: var(--odm-surface, #fff);
 }
 .checklist-banner.is-warning {
-  background: #fff7df;
-  border-color: #f0c36a;
-  color: #805100;
+  background: var(--ui-warning-soft);
+  border-color: var(--ui-warning);
+  color: var(--ui-warning-text);
   display: grid;
   gap: 8px;
 }
@@ -425,12 +425,12 @@
   font-weight: 600;
 }
 .checklist-history-changes del {
-  color: #b91c1c;
+  color: var(--ui-danger-text);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
 .checklist-history-changes ins {
-  color: #166534;
+  color: var(--ui-success-text);
   text-decoration: none;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
@@ -533,8 +533,8 @@
 .checklist-section input.odm-inp,
 .checklist-section select.odm-inp,
 .checklist-section textarea.odm-inp {
-  border: 1px solid #94a3b8;
-  background: #fff;
+  border: 1px solid var(--ui-border-strong);
+  background: var(--ui-surface);
   padding: 8px 10px;
   font-size: 14px;
   box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.06);
@@ -542,7 +542,7 @@
 .checklist-section textarea.odm-inp:focus,
 .checklist-section input.odm-inp:focus,
 .checklist-section select.odm-inp:focus {
-  border-color: #1d4ed8;
+  border-color: var(--ui-primary-text);
   box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.15);
 }
 .checklist-section textarea#checklist-content {
@@ -577,4 +577,83 @@
   .checklist-content-grid > .is-half {
     grid-column: 1 / -1;
   }
+}
+
+/* ---- polish: align with customer/manager card language ---- */
+.checklist-table tbody tr:hover,
+.checklist-table tbody tr:hover td {
+  background: var(--ui-surface-2);
+}
+.checklist-table .adm-money-cell {
+  line-height: 1.55;
+  font-size: 13px;
+}
+.checklist-table .checklist-actions {
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+.checklist-toolbar {
+  padding: 16px 20px;
+}
+.checklist-toolbar select {
+  flex: 0 1 210px;
+  min-width: 160px;
+}
+@media (max-width: 720px) {
+  .checklist-toolbar select,
+  .checklist-toolbar .odm-btn {
+    flex: 1 1 100%;
+    max-width: none;
+    width: 100%;
+    min-height: 44px;
+  }
+  .checklist-table .checklist-actions {
+    flex-wrap: wrap;
+  }
+}
+
+.odm-adm .odm-adm-table td.adm-money-cell {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ui-text);
+  text-align: right;
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+.odm-adm .checklist-table td:nth-child(n + 2) {
+  overflow-wrap: normal;
+}
+.odm-adm .checklist-table td:nth-child(2),
+.odm-adm .checklist-table td:nth-child(n + 4) {
+  white-space: nowrap;
+}
+.checklist-table {
+  min-width: 960px;
+}
+.checklist-table .odm-btn {
+  white-space: nowrap;
+}
+.checklist-table {
+  min-width: 1040px;
+}
+.checklist-table {
+  min-width: 0;
+}
+.odm-adm .checklist-table td:nth-child(5) {
+  white-space: normal;
+  min-width: 96px;
+}
+.checklist-table .checklist-content-cell {
+  min-width: 200px;
+}
+.checklist-table .checklist-actions {
+  flex-wrap: wrap;
+  max-width: 190px;
+  margin-left: auto;
+}
+.checklist-table th,
+.checklist-table td {
+  padding-left: 12px;
+  padding-right: 12px;
 }

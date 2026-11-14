@@ -938,3 +938,25 @@
     outline-offset: 2px;
   }
 }
+
+/* Pricing / quote stage polish: breathing room, 16px cards, full-width actions on phones. */
+:root .mgr-layout .odm-or-pricing-stage {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+
+  .odm-or-review-section {
+    min-width: 0;
+  }
+}
+@media (max-width: 560px) {
+  :root .mgr-layout .odm-or-pricing-stage .odm-or-actionbar-actions {
+    flex-direction: column;
+    align-items: stretch;
+
+    > * {
+      width: 100%;
+    }
+  }
+}

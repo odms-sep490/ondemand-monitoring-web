@@ -3,6 +3,7 @@ import { defineMessages } from '../../../../../shared/i18n'
 export const dashboardHighlightsMessages = defineMessages({
   vi: {
     actionsTitle: 'Cần bạn xử lý',
+    actionReviewResult: 'Duyệt kết quả',
     actionsEmpty: 'Hiện không có việc nào cần xử lý.',
     actionDraft: 'Hoàn tất đơn nháp',
     actionNeedsInfo: 'Bổ sung thông tin',
@@ -21,6 +22,7 @@ export const dashboardHighlightsMessages = defineMessages({
   },
   en: {
     actionsTitle: 'Needs your attention',
+    actionReviewResult: 'Review results',
     actionsEmpty: 'There is nothing you need to do right now.',
     actionDraft: 'Finish draft order',
     actionNeedsInfo: 'Provide more information',

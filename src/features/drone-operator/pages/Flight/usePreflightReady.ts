@@ -3,14 +3,20 @@ import type { Dispatch, SetStateAction } from 'react'
 
 export function usePreflightReadyStorage({
   requiresBackendPreflight,
+  missionFlightStarted = false,
   setPreflightReady,
   preflightStorageKey,
 }: {
+  missionFlightStarted?: boolean
   requiresBackendPreflight: boolean
   setPreflightReady: Dispatch<SetStateAction<boolean>>
   preflightStorageKey: string
 }) {
   useEffect(() => {
+    if (missionFlightStarted) {
+      setPreflightReady(true)
+      return
+    }
     if (requiresBackendPreflight) {
       setPreflightReady(false)
       return
@@ -22,5 +28,5 @@ export function usePreflightReadyStorage({
     } catch {
       setPreflightReady(false)
     }
-  }, [preflightStorageKey, requiresBackendPreflight])
+  }, [preflightStorageKey, requiresBackendPreflight, missionFlightStarted])
 }

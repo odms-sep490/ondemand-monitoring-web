@@ -64,13 +64,21 @@ describe('notification routes', () => {
     },
   )
 
-  it('maps mission notifications to the existing detail route for each role', () => {
+  it('maps mission notifications to an implemented route for each role', () => {
     expect(
       parseCustomerRoute(notificationHref(missionNotification, 'CUSTOMER')!),
     ).toEqual({
-      screen: 'missionHistoryDetail',
-      missionId: 'mission-1',
+      screen: 'orderDetail',
+      orderId: 'order-1',
     })
+    expect(
+      parseCustomerRoute(
+        notificationHref(
+          { ...missionNotification, relatedEntityId: undefined },
+          'CUSTOMER',
+        )!,
+      ),
+    ).toEqual({ screen: 'notifications' })
     expect(
       parseManagerRoute(notificationHref(missionNotification, 'MANAGER')!),
     ).toEqual({

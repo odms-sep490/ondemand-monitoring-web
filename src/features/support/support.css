@@ -9,10 +9,10 @@
 
 .sp-input {
   width: 100%;
-  min-height: 36px;
+  min-height: 38px;
   padding: 0 var(--ui-space-3);
   border: 1px solid var(--ui-border-strong);
-  border-radius: 8px;
+  border-radius: 10px;
   background: var(--ui-surface);
   color: var(--ui-text);
   font: inherit;
@@ -73,7 +73,7 @@ textarea.sp-input {
 .sp-notice {
   padding: var(--ui-space-3) var(--ui-space-4);
   border: 1px solid var(--ui-border);
-  border-radius: var(--ui-radius-lg);
+  border-radius: 12px;
   font-size: 13.5px;
   overflow-wrap: anywhere;
 }
@@ -94,4 +94,17 @@ textarea.sp-input {
   color: var(--ui-danger-text);
   font-size: 13px;
   font-weight: 600;
+}
+
+/* Page header actions stack full width on phones, like the other portals. */
+@media (max-width: 575px) {
+  .sp-page .mgr-page-head-actions {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .sp-page .mgr-page-head-actions .ant-btn {
+    width: 100%;
+  }
 }

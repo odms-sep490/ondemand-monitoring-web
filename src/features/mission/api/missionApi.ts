@@ -8,7 +8,6 @@ import type {
   DeviceImage,
   DeviceStatus,
 } from '../types/mission'
-import type { FlightControlStatus } from '../../drone-operator/api/flightControlApi'
 
 import { env } from '../../../config/env'
 import { ApiError } from '../../../shared/api/httpClient'
@@ -438,7 +437,7 @@ export const missionApi = {
     newDeviceStatus: DeviceStatus,
     notes: string,
     inspectionResults?: Record<string, 'PASS' | 'WARN' | 'FAIL'>,
-    telemetrySnapshot?: FlightControlStatus | null,
+    telemetrySnapshot?: { batteryPercent?: number } | null,
   ): Promise<Mission> => {
     return request<Mission>(
       `${API_BASE}/missions/${missionId}/postflight-status?deviceId=${encodeURIComponent(

@@ -120,7 +120,7 @@ describe('MissionListTable', () => {
       />,
     )
 
-    expect(screen.getByText('Chuẩn bị')).toBeInTheDocument()
+    expect(screen.getByText('Chờ xác nhận')).toBeInTheDocument()
     expect(screen.queryByText('PENDING_CONFIRMATION')).not.toBeInTheDocument()
   })
 
