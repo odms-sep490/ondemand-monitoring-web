@@ -1,3 +1,4 @@
+import { OrderContractPanel } from '../../contract/OrderContractPanel'
 import { Alert, Button, Skeleton } from 'antd'
 import { ApiError } from '../../../shared/api/httpClient'
 import { guidanceMessages } from '../ManagerPricing/guidance.messages'
@@ -174,7 +175,7 @@ export function CustomerFinancePanel({
   // The payment type is part of InvoiceSection's onPay contract; only deposits exist today.
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async function pay(_type: 'deposit') {
-    if (!invoice) return
+    if (!invoice || (invoice.contractRequired && !invoice.contractConfirmedAt)) return
     setBusy(true)
     setError(null)
     try {
@@ -188,7 +189,7 @@ export function CustomerFinancePanel({
   }
 
   async function completeTestPayment() {
-    if (!invoice) return
+    if (!invoice || (invoice.contractRequired && !invoice.contractConfirmedAt)) return
     setBusy(true)
     setError(null)
     try {
@@ -245,6 +246,14 @@ export function CustomerFinancePanel({
   ) : null
 
   const invoiceContent = invoice ? (
+    <>
+      {invoice.contractRequired && (
+        <OrderContractPanel
+          orderId={orderId}
+          mode="customer"
+          onConfirmed={invoice.contractConfirmedAt ? undefined : () => void load()}
+        />
+      )}
     <InvoiceSection
       invoice={invoice}
       legalReady={legalReady}
@@ -254,6 +263,7 @@ export function CustomerFinancePanel({
       testPaymentLabel={t.testPayment}
       refreshExpired={() => void load()}
     />
+    </>
   ) : null
 
   if (loading && !quote && !invoice)

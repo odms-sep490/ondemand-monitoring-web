@@ -1,3 +1,4 @@
+import { OrderContractPanel } from '../../../../contract/OrderContractPanel'
 import type { ExecutionPlan } from '../../../types/planning'
 import type { MissionResponse } from '../../../types/missions'
 import type { OrderDetail } from '../../../types/orders'
@@ -22,40 +23,51 @@ export function PlanningPaymentGate({
   }
 }) {
   const { t, locale } = useI18n(planningPaymentGateMessages)
+  const waitingContract =
+    data.invoice?.contractRequired && !data.invoice.contractConfirmedAt
   return (
-    <div className="mgr-banner mgr-plan-gate" role="status">
-      <div className="mgr-plan-gate-text">
-        <strong>{t.waiting}</strong>
-        <span>{t.unlockNote}</span>
-        {data.invoice ? (
-          <>
-            <progress
-              className="mgr-plan-progress"
-              max={Math.max(data.invoice.depositAmount, 1)}
-              value={Math.min(
-                data.invoice.paidAmount,
-                Math.max(data.invoice.depositAmount, 1),
-              )}
-              aria-label={t.waiting}
-            />
-            <span>
-              {t.paid(
-                data.invoice.paidAmount.toLocaleString(locale),
-                data.invoice.depositAmount.toLocaleString(locale),
-              )}
-            </span>
-          </>
-        ) : (
-          <span>{t.notAccepted}</span>
-        )}
+    <>
+      {data.invoice?.contractRequired && (
+        <OrderContractPanel
+          orderId={data.order.id}
+          mode="manager"
+          onConfirmed={waitingContract ? () => void checkPayment() : undefined}
+        />
+      )}
+      <div className="mgr-banner mgr-plan-gate" role="status">
+        <div className="mgr-plan-gate-text">
+          <strong>{waitingContract ? t.waitingContract : t.waiting}</strong>
+          <span>{waitingContract ? t.contractNote : t.unlockNote}</span>
+          {data.invoice ? (
+            <>
+              <progress
+                className="mgr-plan-progress"
+                max={Math.max(data.invoice.depositAmount, 1)}
+                value={Math.min(
+                  data.invoice.paidAmount,
+                  Math.max(data.invoice.depositAmount, 1),
+                )}
+                aria-label={t.waiting}
+              />
+              <span>
+                {t.paid(
+                  data.invoice.paidAmount.toLocaleString(locale),
+                  data.invoice.depositAmount.toLocaleString(locale),
+                )}
+              </span>
+            </>
+          ) : (
+            <span>{t.notAccepted}</span>
+          )}
+        </div>
+        <Button
+          type="button"
+          disabled={checkingPayment}
+          onClick={() => void checkPayment()}
+        >
+          {checkingPayment ? t.checking : t.checkPayment}
+        </Button>
       </div>
-      <Button
-        type="button"
-        disabled={checkingPayment}
-        onClick={() => void checkPayment()}
-      >
-        {checkingPayment ? t.checking : t.checkPayment}
-      </Button>
-    </div>
+    </>
   )
 }
