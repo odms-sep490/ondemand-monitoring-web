@@ -51,6 +51,21 @@ export function isInsideHcmcServiceArea(point: GpsPoint) {
   return isPointInPolygon(point, HCMC_SERVICE_POLYGON)
 }
 
+export function isLocationInsideCoverageArea(point: GpsPoint, area: { coordinates: number[][][] } | null) {
+  const ring = area?.coordinates[0]
+  if (!isValidGps(point) || !ring || ring.length < 4) return false
+  const polygon = ring.map(([longitude, latitude]) => ({ longitude, latitude }))
+  if (isPointInPolygon(point, polygon)) return true
+  return polygon.some((a, index) => {
+    const b = polygon[(index + 1) % polygon.length]
+    const cross = (point.longitude - a.longitude) * (b.latitude - a.latitude) -
+      (point.latitude - a.latitude) * (b.longitude - a.longitude)
+    return Math.abs(cross) < 1e-12 &&
+      point.longitude >= Math.min(a.longitude, b.longitude) && point.longitude <= Math.max(a.longitude, b.longitude) &&
+      point.latitude >= Math.min(a.latitude, b.latitude) && point.latitude <= Math.max(a.latitude, b.latitude)
+  })
+}
+
 export function hcmcServicePolygonLatLngs() {
   return HCMC_SERVICE_POLYGON.map((point) => [point.latitude, point.longitude] as [number, number])
 }

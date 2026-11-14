@@ -25,15 +25,17 @@ export function missionNextStep(
         detail: n.awaitingOrderDetail,
       }
     case 'PENDING_CONFIRMATION':
+      if (crew === 0) return { tone: 'go', title: n.assignTitle, detail: n.assignDetail }
+      if (accepted >= crew) return null
       return {
         tone: 'wait',
         title: n.waitCrewTitle,
-        detail:
-          crew > 0 ? n.waitCrewDetail(accepted, crew) : n.waitCrewDetailNoCrew,
+        detail: n.waitCrewDetail(accepted, crew),
       }
     case 'READY':
     case 'WAITING_OPERATOR_ACCEPTANCE':
-      if (crew > 0 && accepted >= crew) {
+      if (crew === 0) return { tone: 'go', title: n.assignTitle, detail: n.assignDetail }
+      if (accepted >= crew) {
         return {
           tone: 'wait',
           title: n.scheduledTitle,
@@ -43,8 +45,7 @@ export function missionNextStep(
       return {
         tone: 'wait',
         title: n.waitCrewTitle,
-        detail:
-          crew > 0 ? n.waitCrewDetail(accepted, crew) : n.waitCrewDetailNoCrew,
+        detail: n.waitCrewDetail(accepted, crew),
       }
     case 'SCHEDULED':
       return {

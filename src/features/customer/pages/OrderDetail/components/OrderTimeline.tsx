@@ -57,7 +57,7 @@ export function OrderTimeline({ status, events, finance, missions = [] }: { stat
   }
 
   return (
-    <Card title={<CardTitle icon="clock">{t.title}</CardTitle>}>
+    <Card className="od-timeline-card" title={<CardTitle icon="clock">{t.title}</CardTitle>}>
       <ol className="od-steps">
         {steps.map((step) => {
           const icon = MARKER_ICON[step.state]

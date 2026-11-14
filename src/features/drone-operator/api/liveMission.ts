@@ -34,6 +34,7 @@ export type BackendMission = {
   devicePayload?: string | null
   droneCode?: string | null
   droneName?: string | null
+  declinedAssignmentHistory?: boolean
   staffAssignments?: Array<{
     staffId?: string | null
     staffName?: string | null
@@ -239,7 +240,9 @@ export function toOperatorMission(
         ).toISOString()
       : null)
   const end = localDateAndTime(endSource)
-  const myResponseStatus = currentUserId
+  const myResponseStatus = source.declinedAssignmentHistory
+    ? 'REJECTED'
+    : currentUserId
     ? source.staffAssignments?.find(
         (assignment) => assignment.staffId === currentUserId,
       )?.responseStatus

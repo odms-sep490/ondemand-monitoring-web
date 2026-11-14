@@ -9,7 +9,7 @@ export const missionDetailPageMessages = defineMessages({
       route: 'Vị trí',
       order: 'Thông tin đơn hàng',
       resources: 'Thông tin nguồn lực',
-      plan: 'Kế hoạch đã lên',
+      plan: 'Kế hoạch & giấy phép',
       checks: 'Kiểm tra trước/sau bay',
     },
     tabsAria: 'Các mục chi tiết nhiệm vụ',
@@ -94,6 +94,10 @@ export const missionDetailPageMessages = defineMessages({
     crewAccepted: (accepted: number, total: number) =>
       `${accepted}/${total} đã nhận`,
     replaceDeclinedStaff: 'Thay thế nhân sự đã từ chối',
+    replaceDrone: 'Thay drone',
+    droneReplacementRequested: 'Có yêu cầu thay drone',
+    replacementRequiredTitle: 'Nguồn lực cần thay thế',
+    manageResources: 'Xử lý thay thế',
     precheckNotStarted: 'Chưa đến bước kiểm tra trước bay.',
     precheckMissing: 'Chưa ghi nhận kết quả kiểm tra trước bay.',
     postcheckNotDue: 'Chưa đến bước kiểm tra sau bay.',
@@ -111,7 +115,8 @@ export const missionDetailPageMessages = defineMessages({
       address: 'Địa chỉ',
       coordinates: 'Tọa độ',
       mediaType: 'Loại ảnh/video',
-      failure: 'Lý do lỗi',
+      failure: 'Lý do nhiệm vụ thất bại',
+      failureNotRecorded: 'Chưa ghi nhận lý do thất bại.',
     },
     checkItemsDetails: (count: number) => `Xem chi tiết ${count} mục kiểm tra`,
     totalChecks: 'Tổng số kiểm tra',
@@ -156,9 +161,7 @@ export const missionDetailPageMessages = defineMessages({
           'Đơn hàng cần được duyệt và thanh toán đủ tiền cọc trước khi quản lý chốt kế hoạch.',
         waitCrewTitle: 'Đang chờ đội bay xác nhận',
         waitCrewDetail: (accepted: number, crew: number) =>
-          `${accepted}/${crew} nhân sự đã nhận. Nhân viên vận hành kiểm tra thiết bị trước bay và bàn giao quyền trước khi nghiệm thu bắt đầu nhiệm vụ.`,
-        waitCrewDetailNoCrew:
-          'Tổ bay cần nhận nhiệm vụ, kiểm tra thiết bị trước bay và bàn giao quyền trước khi nghiệm thu bắt đầu nhiệm vụ.',
+          `${accepted}/${crew} nhân sự đã nhận.`,
         scheduledTitle: 'Đang chuẩn bị trước bay',
         scheduledDetail:
           'Đội bay kiểm tra thiết bị thực tế theo danh mục kiểm tra trước chuyến bay.',
@@ -203,7 +206,7 @@ export const missionDetailPageMessages = defineMessages({
       route: 'Location',
       order: 'Order information',
       resources: 'Mission resources',
-      plan: 'Flight plan',
+      plan: 'Plan & flight permit',
       checks: 'Pre/post-flight checks',
     },
     tabsAria: 'Mission detail sections',
@@ -288,6 +291,10 @@ export const missionDetailPageMessages = defineMessages({
     crewAccepted: (accepted: number, total: number) =>
       `${accepted}/${total} accepted`,
     replaceDeclinedStaff: 'Replace declined staff',
+    replaceDrone: 'Replace drone',
+    droneReplacementRequested: 'Drone replacement requested',
+    replacementRequiredTitle: 'Resource replacement required',
+    manageResources: 'Manage replacements',
     precheckNotStarted: 'Pre-flight checks have not started yet.',
     precheckMissing: 'No pre-flight check result has been recorded.',
     postcheckNotDue: 'Post-flight checks are not due yet.',
@@ -305,7 +312,8 @@ export const missionDetailPageMessages = defineMessages({
       address: 'Address',
       coordinates: 'Coordinates',
       mediaType: 'Media type',
-      failure: 'Failure reason',
+      failure: 'Mission failure reason',
+      failureNotRecorded: 'No failure reason was recorded.',
     },
     checkItemsDetails: (count: number) => `View ${count} check items`,
     totalChecks: 'Total checks',
@@ -350,9 +358,7 @@ export const missionDetailPageMessages = defineMessages({
           'The order must be approved and the deposit paid before the manager can finalize the plan.',
         waitCrewTitle: 'Waiting for the flight crew to confirm',
         waitCrewDetail: (accepted: number, crew: number) =>
-          `${accepted}/${crew} staff accepted. The operator runs preflight and hands over control before the inspector starts the Mission.`,
-        waitCrewDetailNoCrew:
-          'The crew must accept, run preflight, and hand over control before the inspector starts the Mission.',
+          `${accepted}/${crew} staff accepted.`,
         scheduledTitle: 'Preparing for preflight',
         scheduledDetail:
           'The flight crew inspects the physical device using the preflight checklist.',

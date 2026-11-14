@@ -347,10 +347,11 @@ export const missionApi = {
   requestDeviceReplacement: async (
     missionId: string,
     reason: string,
+    deviceAssignmentId?: string | null,
   ): Promise<Mission> => {
     return request<Mission>(
       `${API_BASE}/missions/${encodeURIComponent(missionId)}/device-replacement-requests`,
-      { method: 'POST', body: JSON.stringify({ reason }) },
+      { method: 'POST', body: JSON.stringify({ reason, deviceAssignmentId }) },
     )
   },
 

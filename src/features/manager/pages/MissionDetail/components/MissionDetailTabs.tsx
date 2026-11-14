@@ -65,7 +65,7 @@ export function MissionDetailTabs({
           }}
         >
           {item.label}
-          {item.id === 'resources' && resourceUnreadCount > 0 ? (
+          {item.id === 'plan' && resourceUnreadCount > 0 ? (
             <span
               className="mgr-menu-count mgr-md-tab-count"
               role="status"

@@ -36,7 +36,7 @@ export function OrderAttachmentsCard({
                   {att.sizeLabel} · {att.mimeType}
                 </div>
               </div>
-              <Button size="sm" href={att.url}>
+              <Button size="sm" href={att.url} download={att.name}>
                 {t.download}
               </Button>
             </div>

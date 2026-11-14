@@ -306,6 +306,7 @@ export type MissionDeviceAssignmentResponse = {
   replacementRequestedAt?: string | null
   replacementRequestReason?: string | null
   replacementRequestedBy?: string | null
+  replacementCompleted?: boolean
 }
 
 export type MissionResourcePrepareStatus =

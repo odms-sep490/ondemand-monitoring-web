@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import type { MissionChecklistResponse } from '../../../mission/types/checklistExecution'
 import { checklistExecutionApi } from '../../../mission/api/checklistExecutionApi'
-import { Skeleton } from 'antd'
+import { Alert, Button, Skeleton } from 'antd'
 import { ArrowLeftOutlined } from '@ant-design/icons'
 import { CardComponent } from '../../../../shared/components/antd'
 import { ErrorState } from '../../components/common/ErrorState'
@@ -138,7 +138,7 @@ function MissionDetail({
   ).length
 
   useEffect(() => {
-    if (tab === 'resources' && allResourceEventKeys.length > 0)
+    if ((tab === 'plan' || tab === 'resources') && allResourceEventKeys.length > 0)
       markRead('resources', allResourceEventKeys)
   }, [allResourceEventKeys, markRead, tab])
 
@@ -206,6 +206,16 @@ function MissionDetail({
     tab,
   })
 
+  const needsResourceReplacement =
+    ['PENDING_CONFIRMATION', 'READY'].includes(mission.status) && (
+      (mission.staffAssignments ?? []).some(
+        assignment => assignment.isCurrent !== false && assignment.responseStatus === 'REJECTED',
+      ) ||
+      (mission.deviceAssignments ?? []).some(
+        assignment => assignment.replacementRequestedAt && !assignment.replacementCompleted,
+      )
+    )
+
   return (
     <div className="odm-or mgr-view mgr-md">
       <MissionDetailHeader
@@ -213,10 +223,35 @@ function MissionDetail({
         headline={headline}
         canSetup={canSetup}
       />
-
-      {nextStep && !['FAILED', 'COMPLETED'].includes(mission.status) ? (
+      {needsResourceReplacement ? (
+        <Alert
+          type="warning"
+          showIcon
+          message={t.replacementRequiredTitle}
+          action={
+            <Button type="primary" style={{ color: '#fff' }} onClick={() => selectTab('plan')}>
+              {t.manageResources}
+            </Button>
+          }
+        />
+      ) : nextStep && !['FAILED', 'COMPLETED'].includes(mission.status) ? (
         <MissionNextStep nextStep={nextStep} />
       ) : null}
+
+      {mission.status === 'FAILED' && (
+        <Alert
+          type="error"
+          showIcon
+          message={t.fields.failure}
+          description={
+            <div style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>
+              {mission.failureReason?.trim() ||
+                mission.rejectionReason?.trim() ||
+                t.fields.failureNotRecorded}
+            </div>
+          }
+        />
+      )}
 
       <div className="mgr-md-workbench">
         <MissionDetailTabs
@@ -260,7 +295,7 @@ function MissionDetail({
             />
           </div>
 
-          {activeTab === 'plan' && <MissionPlanPanel mission={mission} />}
+          {activeTab === 'plan' && <MissionPlanPanel mission={mission} onUpdated={refreshDetail} />}
 
           {activeTab === 'checks' ? (
             <MissionChecksPanel

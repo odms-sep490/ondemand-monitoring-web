@@ -1,5 +1,5 @@
 import { Button } from 'antd'
-import { MockDataBadge, Modal } from '../../../components/common/ui'
+import { Modal } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import { cancelOrderModalMessages } from './CancelOrderModal.messages'
 
@@ -11,7 +11,7 @@ type Props = {
   onClose: () => void
 }
 
-/** Danger confirmation for the (mock-only) cancel action. */
+/** Confirms cancellation before manager review begins. */
 export function CancelOrderModal({ orderTitle, cancelling, error, onConfirm, onClose }: Props) {
   const { t } = useI18n(cancelOrderModalMessages)
 
@@ -37,7 +37,6 @@ export function CancelOrderModal({ orderTitle, cancelling, error, onConfirm, onC
       footer={footer}
     >
       <p className="od-modal-text">{t.body(orderTitle)}</p>
-      <MockDataBadge />
       {error && (
         <div className="od-notice is-danger" role="alert">
           {error}

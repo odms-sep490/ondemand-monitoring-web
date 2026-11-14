@@ -17,11 +17,13 @@ export function MissionListTable({
   missions,
   now,
   showSubmission = true,
+  showDeadline = true,
 }: {
   missions: OperatorMission[]
   now: Date
   /** The "sent to manager" column only matters once a Mission is finished. */
   showSubmission?: boolean
+  showDeadline?: boolean
 }) {
   const { t, lang, locale } = useI18n(missionListTableMessages)
   const today = now.toISOString().slice(0, 10)
@@ -68,14 +70,17 @@ export function MissionListTable({
                 {t.columns.managerSubmission}
               </th>
             )}
-            <th className="odm-opr-mission-deadline">{t.columns.deadline}</th>
+            {showDeadline && <th className="odm-opr-mission-deadline">{t.columns.deadline}</th>}
             <th className="odm-opr-mission-action" />
           </tr>
         </thead>
         <tbody>
           {missions.map((mission) => {
-            const currentStatus = mission.backendStatus ?? mission.status
-            const baseAction = actionFor(mission, t)
+            const declined = mission.status === 'REJECTED'
+            const currentStatus = declined ? mission.status : mission.backendStatus ?? mission.status
+            const baseAction = declined
+              ? { label: t.action.details, cls: '', href: operatorHref({ screen: 'missionDetail', missionId: mission.id }) }
+              : actionFor(mission, t)
             const action =
               mission.status === 'PENDING' &&
               baseAction.label === t.action.details
@@ -150,7 +155,7 @@ export function MissionListTable({
                         currentStatus
                       ] ?? currentStatus}
                     </StatusBadge>
-                    {mission.deviceReplacementRequested ? (
+                    {!declined && mission.deviceReplacementRequested ? (
                       <span
                         className="odm-opr-mission-replacement-request"
                         style={{
@@ -161,7 +166,7 @@ export function MissionListTable({
                       >
                         {t.replacementRequestPending}
                       </span>
-                    ) : mission.deviceReplacementCompleted ? (
+                    ) : !declined && mission.deviceReplacementCompleted ? (
                       <StatusBadge tone="green">
                         {t.replacementCompleted}
                       </StatusBadge>
@@ -192,11 +197,13 @@ export function MissionListTable({
                     )}
                   </td>
                 )}
-                <td>
-                  <span className="odm-tn" style={{ fontWeight: 500 }}>
-                    {formatDeadline(mission, now, lang)}
-                  </span>
-                </td>
+                {showDeadline && (
+                  <td>
+                    <span className="odm-tn" style={{ fontWeight: 500 }}>
+                      {declined ? '—' : formatDeadline(mission, now, lang)}
+                    </span>
+                  </td>
+                )}
                 <td style={{ textAlign: 'right' }}>
                   {action ? (
                     <a

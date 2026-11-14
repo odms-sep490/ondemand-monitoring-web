@@ -33,7 +33,7 @@ export function deriveMissionDetailView({
   const plan = mission.plan ?? null
   const { preflight, postcheck } = detail
   const staff = mission.staffAssignments ?? []
-  const staffGroups = groupStaffAssignments(staff)
+  const staffGroups = groupStaffAssignments(staff.filter(assignment => assignment.isCurrent !== false))
   const accepted = staff.filter((s) => s.responseStatus === 'ACCEPTED').length
   const acceptedPeople = staffGroups.filter(
     (group) => group.responseStatus === 'ACCEPTED',
@@ -105,7 +105,7 @@ export function deriveMissionDetailView({
     detail.result?.mediaFiles?.length ??
     (detail.media.length > 0 ? detail.media.length : null)
   /** What the manager can do about this Mission right now. */
-  const nextStep = missionNextStep(mission.status, accepted, staff.length)
+  const nextStep = missionNextStep(mission.status, acceptedPeople, staffGroups.length)
   const isCompleted = mission.status === 'COMPLETED'
   const resultApproved = detail.result?.approvalStatus === 'APPROVED'
   const meaningfulText = (value: string | null | undefined) =>

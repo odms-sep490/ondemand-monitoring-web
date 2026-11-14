@@ -22,6 +22,7 @@ export function FlightPermitCard({
   depositPaid = false,
   orderPermitRejected = false,
   refundEligible,
+  showResources = true,
 }: {
   mission: MissionResponse
   onChanged: () => void
@@ -29,6 +30,7 @@ export function FlightPermitCard({
   depositPaid?: boolean
   orderPermitRejected?: boolean
   refundEligible?: boolean
+  showResources?: boolean
 }) {
   const { t } = useI18n(flightPermitCardMessages)
   const { t: fb } = useI18n(managerFeedbackMessages)
@@ -347,7 +349,7 @@ export function FlightPermitCard({
               </strong>
             </div>
           ) : null}
-          <FlightPermitResources mission={mission} />
+          {showResources && <FlightPermitResources mission={mission} />}
           <div className="odm-flight-permit__details-grid">
             <details className="odm-flight-permit__disclosure">
               <summary>

@@ -3317,3 +3317,107 @@
     text-align: right;
   }
 }
+
+
+/* Manager request review */
+.mgr-layout .finance-workspace .finance-requirement {
+  align-items: start;
+  padding-block: 14px;
+}
+
+.finance-workspace .finance-requirement-main {
+  overflow-wrap: anywhere;
+}
+
+.finance-workspace .finance-guidance-status {
+  flex-wrap: wrap;
+  white-space: normal !important;
+}
+
+.finance-workspace .finance-status-select {
+  display: grid;
+  gap: 5px;
+}
+
+.finance-workspace .finance-classify-label,
+.finance-workspace .finance-note small {
+  color: var(--mgr-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.finance-workspace .finance-status-select select {
+  width: 100%;
+  min-width: 0;
+}
+
+.finance-workspace .finance-requirement.is-note-open .finance-note {
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px;
+  background: var(--mgr-card-2);
+  border: 1px solid var(--mgr-border);
+  border-radius: 10px;
+}
+
+.finance-workspace .finance-note label {
+  font-weight: 650;
+}
+
+.mgr-layout .finance-workspace .finance-item-price > small {
+  line-height: 1.4;
+  overflow-wrap: normal;
+}
+
+:root .mgr-layout .finance-workspace .finance-quote .finance-summary .is-total {
+  display: grid;
+  gap: 4px;
+}
+
+:root .mgr-layout .finance-workspace .finance-quote .finance-summary .is-total dd {
+  text-align: start;
+  overflow-wrap: anywhere;
+  font-size: clamp(20px, 2vw, 28px);
+}
+
+
+.finance-workspace .is-customer-custom .finance-guidance-status {
+  justify-content: space-between;
+  gap: 8px;
+  margin-block: 8px 6px;
+  padding: 8px 12px;
+  border: 1px solid var(--mgr-border);
+  border-radius: 10px;
+  background: var(--mgr-card-2);
+}
+
+.finance-workspace .is-customer-custom .finance-guidance-status .ant-btn {
+  min-height: 32px;
+}
+
+.finance-workspace .finance-system-price {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 2px 6px;
+}
+
+.finance-workspace .finance-system-price strong {
+  white-space: nowrap;
+}
+
+:root .mgr-layout .finance-workspace .is-customer-custom .finance-item-price {
+  text-align: start;
+}
+
+.finance-workspace .is-customer-custom .finance-item-price input {
+  min-height: 40px;
+}
+
+@container (min-width: 901px) {
+  .finance-workspace .finance-table-head,
+  .finance-workspace .finance-requirement {
+    grid-template-columns: 44px minmax(0, 1fr) minmax(130px, 0.48fr)
+      minmax(170px, 0.5fr) minmax(92px, 0.23fr) 40px;
+  }
+}

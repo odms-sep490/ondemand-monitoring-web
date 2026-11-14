@@ -31,6 +31,7 @@ export const createOrderPageMessages = defineMessages({
     validation: {
       address: 'Nhập địa chỉ/khu vực cần giám sát.',
       coverageArea: 'INVALID_COVERAGE_AREA',
+      locationOutsideCoverage: 'Vùng khoanh phải bao quanh điểm giám sát đã chọn. Hãy di chuyển hoặc vẽ lại vùng.',
       latitude: 'Latitude không hợp lệ.',
       longitude: 'Longitude không hợp lệ.',
       locationUnconfirmed:
@@ -116,6 +117,7 @@ export const createOrderPageMessages = defineMessages({
     validation: {
       address: 'Enter the address/area to monitor.',
       coverageArea: 'INVALID_COVERAGE_AREA',
+      locationOutsideCoverage: 'The drawn area must contain the selected monitoring point. Move or redraw the area.',
       latitude: 'Invalid latitude.',
       longitude: 'Invalid longitude.',
       locationUnconfirmed:

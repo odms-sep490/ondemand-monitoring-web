@@ -12,38 +12,33 @@ import {
   assignmentTone,
   STAFF_RESPONSE_LABELS,
 } from '../../../components/common/missionDetailHelpers'
-import { flightPermitCardMessages } from '../../../components/common/FlightPermitCard.messages'
 import { missionDetailPageMessages } from '../MissionDetailPage.messages'
 import { useI18n } from '../../../../../shared/i18n'
 import { managerHref } from '../../../routes'
-import { EmptyState, StatusBadge } from '../../../../../shared/components/ui'
+import { EmptyState } from '../../../../../shared/components/ui'
 import type {
-  FlightPermitStatus,
   MissionStaffAssignmentResponse,
 } from '../../../types/missions'
 
-/** Assigned drones, crew, and flight permit; order facts remain in the order tab. */
+/** Assigned drones and crew; order facts remain in the order tab. */
 export function MissionCrewCard({
   staff,
   deviceCode,
   deviceLabel,
   deviceAssignments = [],
-  permitStatus,
-  permitNote,
   missionId,
   canReplaceStaff,
+  onReplaceDevice,
 }: {
   staff: MissionStaffAssignmentResponse[]
   deviceCode: string | null
   deviceAssignments?: MissionDeviceAssignmentResponse[]
   deviceLabel: string
-  permitStatus: FlightPermitStatus
-  permitNote?: string | null
   missionId: string
   canReplaceStaff: boolean
+  onReplaceDevice?: (assignment: MissionDeviceAssignmentResponse) => void
 }) {
   const { t } = useI18n(missionDetailPageMessages)
-  const { t: permit } = useI18n(flightPermitCardMessages)
   const [images, setImages] = useState<Record<string, string>>({})
   const deviceIds = deviceAssignments.map((device) => device.deviceId).join('|')
   useEffect(() => {
@@ -93,30 +88,6 @@ export function MissionCrewCard({
                 <h3>{t.crewCard}</h3>
               </div>
               <div className="mgr-md-context-head-actions">
-                {canReplaceStaff
-                  ? declinedStaffGroups.map((group) => {
-                      const name =
-                        group.staffName ?? group.staffEmail ?? t.staffUnknown
-                      return (
-                        <Button
-                          key={group.staffId}
-                          type="primary"
-                          size="small"
-                          style={{ color: '#fff' }}
-                          href={managerHref({
-                            screen: 'schedule',
-                            assignmentMissionId: missionId,
-                            assignmentCanEdit: true,
-                            assignmentReplaceStaffId: group.staffId,
-                          })}
-                        >
-                          {declinedStaffGroups.length === 1
-                            ? t.replaceDeclinedStaff
-                            : t.replaceSpecificStaff(name)}
-                        </Button>
-                      )
-                    })
-                  : null}
                 {staffGroups.length > 0 ? (
                   <span className="odm-or-crew-count">
                     {t.crewAccepted(acceptedPeople, staffGroups.length)}
@@ -149,7 +120,9 @@ export function MissionCrewCard({
                       <span className="odm-or-crew-role">{device.deviceRole === 'SUPPORT' ? t.deviceSupport : t.deviceMain}</span>
                       <strong>{device.deviceName || device.deviceCode || t.deviceUnknown}</strong>
                       <small>{device.deviceCode || device.deviceSerialNumber}</small>
+                      {device.replacementRequestedAt && !device.replacementCompleted && <small style={{ color: 'var(--ui-danger-text, #b42318)' }}>{device.replacementRequestReason || t.droneReplacementRequested}</small>}
                     </span>
+                    {onReplaceDevice && device.replacementRequestedAt && !device.replacementCompleted && <Button onClick={() => onReplaceDevice(device)}>{t.replaceDrone}</Button>}
                   </li>
                 ))}
                 {deviceAssignments.length === 0 && deviceCode ? (
@@ -186,6 +159,7 @@ export function MissionCrewCard({
                         {group.staffEmail && group.staffName ? (
                           <small>{group.staffEmail}</small>
                         ) : null}
+                        {group.responseStatus === 'REJECTED' && <small style={{ color: 'var(--ui-danger-text, #b42318)' }}>{group.assignments.find(a => a.declineReason)?.declineReason}</small>}
                       </span>
                       <span
                         className={`odm-or-pill odm-or-pill-${assignmentTone(
@@ -194,6 +168,21 @@ export function MissionCrewCard({
                       >
                         {STAFF_RESPONSE_LABELS[group.responseStatus]}
                       </span>
+                      {canReplaceStaff && declinedStaffGroups.includes(group) ? (
+                        <Button
+                          type="primary"
+                          href={managerHref({
+                            screen: 'schedule',
+                            assignmentMissionId: missionId,
+                            assignmentCanEdit: true,
+                            assignmentReplaceStaffId: group.staffId,
+                          })}
+                        >
+                          {declinedStaffGroups.length === 1
+                            ? t.replaceDeclinedStaff
+                            : t.replaceSpecificStaff(name)}
+                        </Button>
+                      ) : null}
                     </li>
                   )
                 })}
@@ -203,33 +192,6 @@ export function MissionCrewCard({
             )}
           </section>
 
-          <section className="mgr-md-context-section mgr-md-permit">
-            <div className="mgr-md-context-section-head">
-              <div className="mgr-md-context-section-heading">
-                <span
-                  className="mgr-md-context-mark is-small"
-                  aria-hidden="true"
-                >
-                  <OrderIcon name="file" size={18} />
-                </span>
-                <h3>{t.permitCard}</h3>
-              </div>
-              <StatusBadge
-                tone={
-                  permitStatus === 'APPROVED'
-                    ? 'success'
-                    : permitStatus === 'REJECTED'
-                      ? 'danger'
-                      : 'warning'
-                }
-              >
-                {permit.statuses[permitStatus]}
-              </StatusBadge>
-            </div>
-            {permitNote ? (
-              <p className="mgr-md-context-note">{permitNote}</p>
-            ) : null}
-          </section>
         </div>
       </div>
     </section>
