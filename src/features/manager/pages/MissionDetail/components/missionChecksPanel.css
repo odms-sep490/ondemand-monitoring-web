@@ -54,3 +54,22 @@
 :root .mgr-layout .mgr-md .mgr-mission-checks .mgr-md-checks-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 20px; }
 :root .mgr-layout .mgr-md .mgr-mission-checks .odm-or-check-list { grid-template-columns: minmax(0, 1fr); }
 @media (max-width: 900px) { :root .mgr-layout .mgr-md .mgr-mission-checks .mgr-md-checks-grid { grid-template-columns: minmax(0, 1fr); } }
+
+/* Keep both phases aligned, with stable rows instead of wrapping metrics. */
+:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-md-checks-grid { align-items: stretch; }
+:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-md-check-column { display: flex; min-width: 0; }
+:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-md-check-column > .odm-or-detail-section { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-md-check-column .odm-or-detail-stack { display: flex; flex-direction: column; flex: 1; gap: 16px; }
+:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-check-compact-metrics,
+:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-check-device-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-check-times { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; padding-top: 16px; border-top: 1px solid var(--ui-border, #e5e7eb); }
+:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-md-check-column .odm-or-detail-metric { min-width: 0; padding: 0; border: 0; border-radius: 0; background: transparent; }
+:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-md-check-column .odm-or-detail-metric strong { overflow-wrap: anywhere; }
+:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-check-items-disclosure { margin-top: auto; }
+@media (max-width: 600px) {
+  :root .mgr-layout .mgr-md .mgr-mission-checks .mgr-check-compact-metrics,
+  :root .mgr-layout .mgr-md .mgr-mission-checks .mgr-check-device-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 400px) {
+  :root .mgr-layout .mgr-md .mgr-mission-checks .mgr-check-times { grid-template-columns: minmax(0, 1fr); }
+}

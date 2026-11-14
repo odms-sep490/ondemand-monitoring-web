@@ -131,12 +131,13 @@ export function OrderQueuePage() {
   const pendingOrders = query.data?.pending ?? []
   const paidOrders = query.data?.paid ?? []
   const depositStatusByOrder = query.data?.depositStatusByOrder ?? {}
-  const missionPaymentDueByOrder = query.data?.missionPaymentDueByOrder ?? {}
   const allOrders = allQuery.data?.orders
   const started = allQuery.data?.started
 
   const groupOf = (order: OrderCreateResponse) =>
-    order.orderStatus === 'APPROVED' && started?.has(order.id) ? 'IN_PROGRESS' : order.orderStatus
+    ['DRAFT', 'SUBMITTED', 'PENDING', 'UNDER_REVIEW'].includes(order.orderStatus)
+      ? 'PENDING'
+      : order.orderStatus
 
   const kpiExtras = useMemo(() => {
     if (!allOrders || !started || !query.data) return { needsInfo: null, waitingDeposit: null }
@@ -173,9 +174,7 @@ export function OrderQueuePage() {
   const filteredAll = (allOrders ?? []).filter((order) =>
     filter === 'ALL'
       ? true
-      : filter === 'WAITING_DEPOSIT' || filter === 'DEPOSIT_PAID'
-        ? depositStatusByOrder[order.id] === filter
-        : groupOf(order) === filter,
+      : groupOf(order) === filter,
   )
   const source =
     activeTab === 'pending' ? pendingOrders : activeTab === 'ready' ? paidOrders : filteredAll
@@ -218,8 +217,6 @@ export function OrderQueuePage() {
         total={total}
         mode={activeTab}
         depositStatusByOrder={depositStatusByOrder}
-        missionPaymentDueByOrder={missionPaymentDueByOrder}
-        isInProgress={(order) => groupOf(order) === 'IN_PROGRESS'}
       />
     )
   }

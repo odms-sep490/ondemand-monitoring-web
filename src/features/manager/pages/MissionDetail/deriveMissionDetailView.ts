@@ -148,14 +148,13 @@ export function deriveMissionDetailView({
           : '—',
     },
   ]
-  const activeTab: MissionDetailTab = tab
+  const activeTab: MissionDetailTab = tab === 'resources' ? 'plan' : tab
   const tabs: Array<{ id: MissionDetailTab; label: string }> = [
     { id: 'result', label: t.tabs.result },
     { id: 'media', label: t.tabs.media },
     { id: 'checklist', label: t.tabs.checklist },
     { id: 'route', label: t.tabs.route },
-    { id: 'order', label: t.tabs.order },
-    { id: 'resources', label: t.tabs.resources },
+    { id: 'plan', label: t.tabs.plan },
     { id: 'checks', label: t.tabs.checks },
   ]
   const waypoints = [...(plan?.waypoints ?? [])].sort(

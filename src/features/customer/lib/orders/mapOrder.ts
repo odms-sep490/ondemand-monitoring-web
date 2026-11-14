@@ -196,7 +196,6 @@ export function toOrderDetail(order: OrderCreateResponse): OrderDetailView {
     deliveryMethods: order.deliveryMethods ?? [],
     dataRetentionDays: orNull(order.dataRetentionDays),
     termsAcceptedAt: orNull(order.termsAcceptedAt),
-    termsVersion: orNull(order.termsVersion),
     executionPlanRevision: orNull(order.executionPlanRevision),
     executionPlanStatus: orNull(order.executionPlanStatus),
     checklistItems: order.checklistItems ?? [],

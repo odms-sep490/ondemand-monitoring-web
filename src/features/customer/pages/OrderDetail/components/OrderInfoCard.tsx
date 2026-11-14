@@ -180,10 +180,10 @@ export function OrderInfoCard({
           {order.resultFormats.length > 0 && <Field icon="media" label={t.resultFormats} value={join(order.resultFormats)} />}
           {order.deliveryMethods.length > 0 && <Field icon="download" label={t.deliveryMethods} value={join(order.deliveryMethods)} />}
           {order.dataRetentionDays != null && <Field icon="clock" label={t.retention} value={t.days(order.dataRetentionDays)} />}
-          {order.termsAcceptedAt && <Field icon="check" label={t.terms} value={`${fmtDateTime(order.termsAcceptedAt, locale)}${order.termsVersion ? ` · ${t.termsVersion(order.termsVersion)}` : ''}`} />}
+          {order.termsAcceptedAt && <Field icon="check" label={t.terms} value={fmtDateTime(order.termsAcceptedAt, locale)} />}
         </Section>
         {order.description && (
-          <Section icon="file" title={t.description} onSupplement={editable ? () => setEditing('description') : undefined} editor={editing === 'description' ? <OrderSectionEditor section="description" order={order} onCancel={() => setEditing(null)} onSaved={() => { setEditing(null); onUpdated?.() }} /> : undefined}>
+          <Section wide icon="file" title={t.description} onSupplement={editable ? () => setEditing('description') : undefined} editor={editing === 'description' ? <OrderSectionEditor section="description" order={order} onCancel={() => setEditing(null)} onSaved={() => { setEditing(null); onUpdated?.() }} /> : undefined}>
             <p className="od-desc-text">{order.description}</p>
           </Section>
         )}

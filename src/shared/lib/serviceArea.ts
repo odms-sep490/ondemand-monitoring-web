@@ -54,3 +54,41 @@ export function isInsideHcmcServiceArea(point: GpsPoint) {
 export function hcmcServicePolygonLatLngs() {
   return HCMC_SERVICE_POLYGON.map((point) => [point.latitude, point.longitude] as [number, number])
 }
+
+/** Checks the whole drawn boundary, including edges crossing a concave service boundary. */
+export function isCoverageInsideHcmcServiceArea(area: { coordinates: number[][][] } | null) {
+  const ring = area?.coordinates[0]
+  if (!ring || ring.length < 4) return false
+  const boundary = HCMC_SERVICE_POLYGON
+  const cross = (ax: number, ay: number, bx: number, by: number) => ax * by - ay * bx
+  const covered = (x: number, y: number) => {
+    if (isInsideHcmcServiceArea({ longitude: x, latitude: y })) return true
+    return boundary.some((a, i) => {
+      const b = boundary[(i + 1) % boundary.length]
+      return Math.abs(cross(x - a.longitude, y - a.latitude, b.longitude - a.longitude, b.latitude - a.latitude)) < 1e-10 &&
+        x >= Math.min(a.longitude, b.longitude) - 1e-10 && x <= Math.max(a.longitude, b.longitude) + 1e-10 &&
+        y >= Math.min(a.latitude, b.latitude) - 1e-10 && y <= Math.max(a.latitude, b.latitude) + 1e-10
+    })
+  }
+  return ring.every((a, index) => {
+    const b = ring[(index + 1) % ring.length]
+    if (!covered(a[0], a[1])) return false
+    const dx = b[0] - a[0], dy = b[1] - a[1]
+    const cuts = [0, 1]
+    boundary.forEach((c, i) => {
+      const d = boundary[(i + 1) % boundary.length]
+      const ex = d.longitude - c.longitude, ey = d.latitude - c.latitude
+      const denominator = cross(dx, dy, ex, ey)
+      if (Math.abs(denominator) < 1e-12) return
+      const qx = c.longitude - a[0], qy = c.latitude - a[1]
+      const t = cross(qx, qy, ex, ey) / denominator
+      const u = cross(qx, qy, dx, dy) / denominator
+      if (t > 0 && t < 1 && u >= 0 && u <= 1) cuts.push(t)
+    })
+    cuts.sort((x, y) => x - y)
+    return cuts.slice(1).every((end, i) => {
+      const t = (cuts[i] + end) / 2
+      return covered(a[0] + dx * t, a[1] + dy * t)
+    })
+  })
+}

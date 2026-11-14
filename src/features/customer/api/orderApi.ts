@@ -125,7 +125,6 @@ export type OrderCreateResponse = {
   deliveryMethods?: string[]
   dataRetentionDays?: number
   termsAcceptedAt?: string
-  termsVersion?: string
   executionPlanRevision?: number
   executionPlanStatus?: string
   orderStatus?: string

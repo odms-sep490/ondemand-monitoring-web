@@ -4,15 +4,17 @@ import type {
 } from '../../types/missions'
 import { useI18n } from '../../../../shared/i18n'
 import { commonMiscMessages } from './commonMisc.messages'
-import { checkTone, checkLabel } from './missionDetailHelpers'
+import { checkTone, checkLabel, formatDateTime } from './missionDetailHelpers'
 import { viCheckName, viCheckMessage } from '../../../../shared/lib/checkText'
 
 export function CheckItemsList({
   items,
+  showCheckedAt = false,
 }: {
+  showCheckedAt?: boolean
   items: Array<PreflightCheckItem | PostDeviceCheckItem>
 }) {
-  const { t } = useI18n(commonMiscMessages)
+  const { t, locale } = useI18n(commonMiscMessages)
   if (!items || items.length === 0) {
     return <div className="odm-or-empty">{t.noCheckItems}</div>
   }
@@ -28,6 +30,9 @@ export function CheckItemsList({
             <strong>{viCheckName(item.checkName)}</strong>
             {item.message ? (
               <small>{viCheckMessage(item.message)}</small>
+            ) : null}
+            {showCheckedAt && item.checkedAt ? (
+              <small><time dateTime={item.checkedAt}>{formatDateTime(item.checkedAt, locale)}</time></small>
             ) : null}
           </span>
           <span className={`odm-or-pill odm-or-pill-${checkTone(item.status)}`}>

@@ -2,6 +2,8 @@ import { defineMessages } from '../../../../shared/i18n'
 
 export const orderCustomerRequestDetailsMessages = defineMessages({
   vi: {
+    viewTerms: 'Xem lại điều khoản',
+    closeTerms: 'Đóng',
     times: (n: number) => `${n} lần`,
     siteRelationship: 'Quan hệ với hiện trường',
     monitoringAuthorization: 'Xác nhận quyền giám sát',
@@ -17,7 +19,6 @@ export const orderCustomerRequestDetailsMessages = defineMessages({
     days: (n: number) => `${n} ngày`,
     submittedAt: 'Khách gửi yêu cầu lúc',
     termsAcceptedAt: 'Khách đồng ý điều khoản lúc',
-    termsVersion: 'Phiên bản điều khoản',
     scopeSection: 'Mục đích & thông số bay',
     siteSection: 'Thông tin hiện trường',
     permitSection: 'Quyền & giấy phép',
@@ -26,6 +27,8 @@ export const orderCustomerRequestDetailsMessages = defineMessages({
     termsSection: 'Xác nhận gửi yêu cầu',
   },
   en: {
+    viewTerms: 'Review terms',
+    closeTerms: 'Close',
     times: (n: number) => `${n} times`,
     siteRelationship: 'Relationship to the site',
     monitoringAuthorization: 'Monitoring authorization confirmed',
@@ -41,7 +44,6 @@ export const orderCustomerRequestDetailsMessages = defineMessages({
     days: (n: number) => `${n} days`,
     submittedAt: 'Customer submitted request at',
     termsAcceptedAt: 'Customer accepted terms at',
-    termsVersion: 'Terms version',
     scopeSection: 'Purpose & flight parameters',
     siteSection: 'Site information',
     permitSection: 'Authorization & permits',

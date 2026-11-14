@@ -28,6 +28,9 @@ const ServiceChecklistPage = lazy(() =>
 const OperatingConfigPage = lazy(() =>
   import('./pages/OperatingConfig').then((m) => ({ default: m.OperatingConfigPage })),
 )
+const OrderCriteriaPage = lazy(() =>
+  import('./pages/OperatingConfig/components/OrderCriteriaTab').then((m) => ({ default: m.OrderCriteriaTab })),
+)
 const AuditLogPage = lazy(() =>
   import('./pages/AuditLog').then((m) => ({ default: m.AuditLogPage })),
 )
@@ -69,6 +72,8 @@ function renderScreen(route: AdminRoute, notFoundText: string) {
       return <ServiceChecklistPage serviceId={route.serviceId} />
     case 'operatingConfig':
       return <OperatingConfigPage />
+    case 'orderCriteria':
+      return <OrderCriteriaPage />
     case 'auditLog':
       return <AuditLogPage />
     case 'refunds':

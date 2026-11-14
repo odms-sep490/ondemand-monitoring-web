@@ -6,10 +6,10 @@ export const missionDetailPageMessages = defineMessages({
       result: 'Kết quả nhiệm vụ',
       media: 'Ảnh & video',
       checklist: 'Danh mục kiểm tra',
-      route: 'Vị trí & tuyến kế hoạch',
+      route: 'Vị trí',
       order: 'Thông tin đơn hàng',
       resources: 'Thông tin nguồn lực',
-      plan: 'Kế hoạch bay',
+      plan: 'Kế hoạch đã lên',
       checks: 'Kiểm tra trước/sau bay',
     },
     tabsAria: 'Các mục chi tiết nhiệm vụ',
@@ -30,7 +30,7 @@ export const missionDetailPageMessages = defineMessages({
       plannedDuration: 'Thời lượng dự kiến',
     },
     map: {
-      title: 'Vị trí & tuyến kế hoạch',
+      title: 'Vị trí',
       route: 'Tuyến kế hoạch (tham chiếu)',
       waypoint: 'Điểm bay',
       target: 'Điểm giám sát',
@@ -127,6 +127,8 @@ export const missionDetailPageMessages = defineMessages({
       critical: 'Nguy cấp',
       emergency: 'Khẩn cấp',
     },
+    checkStartedAt: 'Bắt đầu kiểm tra',
+    checkCompletedAt: 'Hoàn tất kiểm tra',
     checkedAt: 'Thời điểm kiểm tra',
     extra: {
       checklistLoadError:
@@ -198,7 +200,7 @@ export const missionDetailPageMessages = defineMessages({
       result: 'Mission result',
       media: 'Photos & videos',
       checklist: 'Checklist',
-      route: 'Location & planned route',
+      route: 'Location',
       order: 'Order information',
       resources: 'Mission resources',
       plan: 'Flight plan',
@@ -222,7 +224,7 @@ export const missionDetailPageMessages = defineMessages({
       plannedDuration: 'Planned duration',
     },
     map: {
-      title: 'Mission location & planned route',
+      title: 'Location',
       route: 'Planned route (reference)',
       waypoint: 'Waypoint',
       target: 'Monitoring point',
@@ -319,6 +321,8 @@ export const missionDetailPageMessages = defineMessages({
       critical: 'Critical',
       emergency: 'Emergency',
     },
+    checkStartedAt: 'Check started at',
+    checkCompletedAt: 'Check completed at',
     checkedAt: 'Checked at',
     extra: {
       checklistLoadError:

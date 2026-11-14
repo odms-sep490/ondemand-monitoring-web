@@ -1,5 +1,5 @@
 import { Button } from 'antd'
-import { ArrowLeftOutlined, RightOutlined } from '@ant-design/icons'
+import { ArrowLeftOutlined } from '@ant-design/icons'
 
 import { MissionStatusTag } from '../../../components/common/MissionStatusTag'
 import { PageHeader } from '../../../components/common/PageHeader'
@@ -34,20 +34,6 @@ export function MissionDetailHeader({
       description={headline ?? undefined}
       actions={
         <>
-          <Button
-            href={managerHref(
-              mission.purpose === 'REWORK' && mission.resultRevisionCaseId
-                ? {
-                    screen: 'missionCreate',
-                    orderId: mission.orderId,
-                    reworkCaseId: mission.resultRevisionCaseId,
-                  }
-                : { screen: 'orderReview', orderId: mission.orderId },
-            )}
-          >
-            {t.viewOrderPlan}
-            <RightOutlined aria-hidden="true" />
-          </Button>
           {canSetup ? (
             <Button
               type="primary"

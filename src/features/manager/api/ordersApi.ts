@@ -148,7 +148,6 @@ function toOrderDetail(order: OrderCreateResponse): OrderDetail {
     deliveryMethods: order.deliveryMethods ?? null,
     dataRetentionDays: order.dataRetentionDays ?? null,
     termsAcceptedAt: order.termsAcceptedAt ?? null,
-    termsVersion: order.termsVersion ?? null,
     deliverables: order.deliverables ?? null,
     legalReviewStatus: order.legalReviewStatus ?? 'NOT_REVIEWED',
     flightAreaReviewReason: order.flightAreaReviewReason ?? null,

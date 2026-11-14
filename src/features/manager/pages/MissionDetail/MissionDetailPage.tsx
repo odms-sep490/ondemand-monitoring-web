@@ -7,18 +7,12 @@ import { Skeleton } from 'antd'
 import { ArrowLeftOutlined } from '@ant-design/icons'
 import { CardComponent } from '../../../../shared/components/antd'
 import { ErrorState } from '../../components/common/ErrorState'
-import { EmptyState as MgrEmptyState } from '../../components/common/EmptyState'
 import { useI18n } from '../../../../shared/i18n'
-import { OrderAttachmentsCard } from '../../components/common/OrderAttachmentsCard'
-import { OrderCustomerCard } from '../../components/common/OrderCustomerCard'
-import { OrderCustomerRequestDetails } from '../../components/common/OrderCustomerRequestDetails'
-import { OrderServiceInfo } from '../../components/common/OrderServiceInfo'
 import { type DetailData } from '../../components/common/missionDetailTypes'
 import { managerHref } from '../../routes'
 import { ManagerDeliveryPanel } from '../../../delivery/ManagerDeliveryPanel'
 import '../../components/layout/mgrLayout.css'
 import { missionDetailPageMessages } from './MissionDetailPage.messages'
-import { orderReviewPageMessages } from '../OrderReview/OrderReviewPage.messages'
 import '../../manager.css'
 import '../../components/common/missionPages.css'
 import './missionDetail.scss'
@@ -26,12 +20,12 @@ import { type MissionDetailTab } from './missionDetailTypes'
 import { useMissionDetailLoad } from './useMissionDetailLoad'
 import { deriveMissionDetailView } from './deriveMissionDetailView'
 import { MissionDetailHeader } from './components/MissionDetailHeader'
+import { MissionPlanPanel } from './components/MissionPlanPanel'
 import { MissionNextStep } from './components/MissionNextStep'
 import { MissionDetailTabs } from './components/MissionDetailTabs'
 import { OverviewTab } from './components/OverviewTab'
 import './components/missionOrderLayout.css'
 import { MissionChecksPanel } from './components/MissionChecksPanel'
-import { MissionCrewCard } from './components/MissionCrewCard'
 import { authSession } from '../../../auth/api/authApi'
 import {
   staffRejectionEventKeys,
@@ -59,7 +53,7 @@ const missionDetailTabs: readonly MissionDetailTab[] = [
   'media',
   'checklist',
   'route',
-  'order',
+  'plan',
   'resources',
   'checks',
 ]
@@ -80,7 +74,6 @@ function MissionDetail({
   resourceAlertKeys?: string[]
 }) {
   const { t, locale } = useI18n(missionDetailPageMessages)
-  const { t: orderT } = useI18n(orderReviewPageMessages)
   const managerId = authSession.getUser()?.id ?? 'manager'
   const { readState, markRead } = useManagerNotificationReadState(managerId)
   const [detail, setDetail] = useState<DetailData | null>(null)
@@ -193,10 +186,7 @@ function MissionDetail({
     plan,
     preflight,
     postcheck,
-    staff,
     canSetup,
-    deviceCode,
-    deviceLabel,
     nextStep,
     isCompleted,
     resultApproved,
@@ -224,7 +214,7 @@ function MissionDetail({
         canSetup={canSetup}
       />
 
-      {nextStep && mission.status !== 'FAILED' ? (
+      {nextStep && !['FAILED', 'COMPLETED'].includes(mission.status) ? (
         <MissionNextStep nextStep={nextStep} />
       ) : null}
 
@@ -270,42 +260,7 @@ function MissionDetail({
             />
           </div>
 
-          {activeTab === 'order' ? (
-            detail.order ? (
-              <div className="mgr-md-order-layout">
-                <OrderServiceInfo order={detail.order} t={orderT} />
-                <div className="mgr-md-order-grid mgr-md-plan-grid">
-                  <OrderCustomerRequestDetails order={detail.order} t={orderT} />
-                  <OrderCustomerCard order={detail.order} t={orderT} />
-                </div>
-                <OrderAttachmentsCard order={detail.order} t={orderT} />
-              </div>
-            ) : (
-              <CardComponent>
-                <MgrEmptyState title={t.loadError} />
-              </CardComponent>
-            )
-          ) : null}
-
-          {activeTab === 'resources' ? (
-            <MissionCrewCard
-              staff={staff}
-              deviceCode={deviceCode}
-              deviceLabel={deviceLabel}
-              deviceAssignments={mission.deviceAssignments}
-              permitStatus={mission.flightPermitStatus ?? 'NOT_REQUESTED'}
-              permitNote={mission.flightPermitNote}
-              missionId={mission.id}
-              canReplaceStaff={
-                !['PLANNING', 'CANCELLED', 'FAILED'].includes(mission.status) &&
-                staff.some(
-                  (assignment) =>
-                    assignment.responseStatus === 'REJECTED' &&
-                    assignment.isCurrent !== false,
-                )
-              }
-            />
-          ) : null}
+          {activeTab === 'plan' && <MissionPlanPanel mission={mission} />}
 
           {activeTab === 'checks' ? (
             <MissionChecksPanel

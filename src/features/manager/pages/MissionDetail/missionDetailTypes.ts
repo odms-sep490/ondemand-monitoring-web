@@ -3,7 +3,7 @@ export type MissionDetailTab =
   | 'media'
   | 'checklist'
   | 'route'
-  | 'order'
+  | 'plan'
   | 'resources'
   | 'checks'
 

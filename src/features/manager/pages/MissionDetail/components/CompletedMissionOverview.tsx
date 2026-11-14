@@ -5,8 +5,6 @@ import { staffMissionMediaReader } from '../../../api/missionMediaReader'
 import { ChecklistEmptyNote } from './ChecklistEmptyNote'
 import { MonitoringChecklistSection } from '../../../../mission/components/MonitoringChecklistSection'
 import { MissionSatelliteMap } from './MissionSatelliteMap'
-import { formatNumber } from '../../../components/common/missionDetailHelpers'
-import { waypointReasonLabel } from './MissionRouteMap'
 import { missionDetailPageMessages } from '../MissionDetailPage.messages'
 import { useI18n } from '../../../../../shared/i18n'
 import type {
@@ -37,8 +35,6 @@ export function CompletedMissionOverview({
   checklistExecutions,
   compliantCount,
   missionId,
-  waypoints,
-  plan,
 }: {
   activeTab: MissionDetailTab
   onTabChange: (tab: MissionDetailTab) => void
@@ -204,36 +200,6 @@ export function CompletedMissionOverview({
           {detail.order?.addressText && (
             <p className="odm-or-detail-note">{detail.order.addressText}</p>
           )}
-          <dl className="odm-or-kv">
-            <div>
-              <dt>{t.map.waypoint}</dt>
-              <dd>{waypoints.length}</dd>
-            </div>
-            <div>
-              <dt>{t.map.distance}</dt>
-              <dd>{formatNumber(plan?.plannedDistanceM, ' m')}</dd>
-            </div>
-            <div>
-              <dt>{t.map.altitude}</dt>
-              <dd>{formatNumber(plan?.maxPlannedAltitudeM, ' m')}</dd>
-            </div>
-          </dl>
-          <p className="odm-rm-caption">
-            {waypoints.length > 0
-              ? t.map.routeReferenceNote
-              : t.map.noRouteData}
-          </p>
-          {waypoints.length > 0 ? (
-            <ul className="odm-rm-wps mgr-scroll-list">
-              {waypoints.map((point) => (
-                <li key={point.id}>
-                  <b>{point.sequence}</b>
-                  <strong>{waypointReasonLabel(point.reason)}</strong>
-                  <span>{formatNumber(point.altitudeM, ' m')}</span>
-                </li>
-              ))}
-            </ul>
-          ) : null}
         </div>
       </section>
     </div>

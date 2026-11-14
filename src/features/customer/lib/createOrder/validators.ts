@@ -1,5 +1,5 @@
 import type { FormErrors, FormState, Step } from './types'
-import { isInsideHcmcServiceArea } from '../../../../shared/lib/serviceArea'
+import { isInsideHcmcServiceArea, isCoverageInsideHcmcServiceArea } from '../../../../shared/lib/serviceArea'
 import { todayPlus } from './format'
 import { isValidCoverageArea } from './coverageGeometry'
 
@@ -105,6 +105,8 @@ export function validateStep(
     }
     if (!form.coverageAreaShape || !isValidCoverageArea(form.coverageArea)) {
       errors.coverageArea = msg.coverageArea
+    } else if (!isCoverageInsideHcmcServiceArea(form.coverageArea)) {
+      errors.coverageArea = msg.outsideZone
     }
   }
   if (targetStep >= 4) {

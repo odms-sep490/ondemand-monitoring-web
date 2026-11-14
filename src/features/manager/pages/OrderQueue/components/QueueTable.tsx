@@ -32,9 +32,7 @@ export function QueueTable({
   rows,
   total,
   mode,
-  isInProgress,
   depositStatusByOrder = {},
-  missionPaymentDueByOrder = {},
 }: Props) {
   const { t, locale, lang } = useI18n(orderQueuePageMessages)
   const labels = lang === 'en' ? orderStatusLabelEn : orderStatusLabel
@@ -79,17 +77,11 @@ export function QueueTable({
       title: t.columns.status,
       key: 'status',
       render: (_, row) => {
-        const running = row.orderStatus === 'APPROVED' && isInProgress?.(row)
-        const missionPaymentDue = missionPaymentDueByOrder[row.id]
         return (
           <StatusTag
-            tone={missionPaymentDue ? 'warning' : orderStatusTone[row.orderStatus] ?? 'gray'}
+            tone={orderStatusTone[row.orderStatus] ?? 'gray'}
           >
-            {missionPaymentDue
-              ? t.missionPaymentDue
-              : running
-                ? t.filters.IN_PROGRESS
-                : (labels[row.orderStatus] ?? row.orderStatus)}
+            {labels[row.orderStatus] ?? row.orderStatus}
           </StatusTag>
         )
       },
