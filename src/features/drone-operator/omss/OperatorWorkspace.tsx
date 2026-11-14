@@ -28,6 +28,8 @@ import ManualUpload from './screens/ManualUpload'
 import SimulationZones from '../pages/SimulationZones/SimulationZonesPage'
 
 type BackendMission = {
+  inspectionCorrectionId?: string | null
+  inspectionSourceMissionId?: string | null
   id: string
   orderId?: string
   orderTitle?: string
@@ -217,6 +219,8 @@ function adaptBackendMission(mission: BackendMission): Mission {
     id: mission.missionCode ?? mission.id,
     backendId: mission.id,
     purpose: mission.purpose ?? 'ORIGINAL',
+    inspectionCorrectionId: mission.inspectionCorrectionId ?? null,
+    inspectionSourceMissionId: mission.inspectionSourceMissionId ?? null,
     resultRevisionCaseId: mission.resultRevisionCaseId ?? null,
     failureRequestedAt: mission.failureRequestedAt ?? null,
     failureReason: mission.failureReason ?? null,

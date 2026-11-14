@@ -1,3 +1,4 @@
+import { InspectionCorrectionPanel } from '../../../mission/inspection/InspectionCorrectionPanel'
 // MNG-08: Mission detail & result page (opened from the mission list).
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
@@ -27,6 +28,7 @@ import { OverviewTab } from './components/OverviewTab'
 import './components/missionOrderLayout.css'
 import { MissionChecksPanel } from './components/MissionChecksPanel'
 import { authSession } from '../../../auth/api/authApi'
+import { MissionFinanceTab } from './components/MissionFinanceTab'
 import {
   staffRejectionEventKeys,
   useManagerNotificationReadState,
@@ -56,6 +58,7 @@ const missionDetailTabs: readonly MissionDetailTab[] = [
   'plan',
   'resources',
   'checks',
+  'finance',
 ]
 
 function readMissionDetailTab(hash: string): MissionDetailTab {
@@ -275,6 +278,14 @@ function MissionDetail({
           aria-labelledby={`mission-detail-tab-${activeTab}`}
           tabIndex={0}
         >
+          {!isCompleted && activeTab === 'result' && (
+            <InspectionCorrectionPanel
+              missionId={missionId}
+              manager
+              orderId={mission.orderId}
+              refresh={refreshDetail}
+            />
+          )}
           <div
             className="mgr-md-overview"
             hidden={
@@ -312,6 +323,10 @@ function MissionDetail({
               preflight={preflight}
               postcheck={postcheck}
             />
+          ) : null}
+
+          {activeTab === 'finance' ? (
+            <MissionFinanceTab missionId={mission.id} purpose={mission.purpose ?? 'ORIGINAL'} />
           ) : null}
 
           {isCompleted && resultApproved ? (

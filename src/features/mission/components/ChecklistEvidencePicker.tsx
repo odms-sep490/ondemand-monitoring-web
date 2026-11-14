@@ -1,3 +1,6 @@
+import { ImagePreview } from '../../../shared/components/media/ImagePreview'
+import { evidenceQueueFeedback } from '../../media/i18n/evidenceQueueFeedback'
+import { MediaInspectionAction } from '../../media/components/MediaInspectionAction'
 import { evidenceCandidatePage } from '../lib/evidenceCandidatePage'
 import { VideoPoster } from '../../../shared/components/media/VideoThumbnail'
 import { useEffect, useRef, useState } from 'react'
@@ -29,7 +32,7 @@ export function ChecklistEvidencePicker({
   onSelect: (items: EvidenceCandidate[]) => Promise<void>
   allowManualBackup?: boolean
 }) {
-  const { t } = useI18n(checklistEvidencePickerMessages)
+  const { t, lang } = useI18n(checklistEvidencePickerMessages)
   const [page, setPage] = useState(0)
   const [items, setItems] = useState<EvidenceCandidate[]>([])
   const [selected, setSelected] = useState<Record<string, EvidenceCandidate>>(
@@ -39,6 +42,7 @@ export function ChecklistEvidencePicker({
   const [type, setType] = useState('ALL')
   const [busy, setBusy] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [attachmentCode, setAttachmentCode] = useState<string | undefined>()
   const [error, setError] = useState<'load' | 'attach' | null>(null)
   const [unavailableSources, setUnavailableSources] = useState<EvidenceCandidatePage['unavailableSources']>([])
   const [hasMore, setHasMore] = useState(false)
@@ -58,6 +62,7 @@ export function ChecklistEvidencePicker({
     setUnavailableSources([])
     setHasMore(false)
     setError(null)
+    setAttachmentCode(undefined)
     const request = loader.current
       ? loader.current(page, abort.signal)
       : checklistEvidenceApi.candidates(missionId, page, abort.signal)
@@ -107,11 +112,13 @@ export function ChecklistEvidencePicker({
   async function add() {
     setBusy(true)
     setError(null)
+    setAttachmentCode(undefined)
     try {
       await onSelect(Object.values(selected))
       setSelected({})
       onClose()
-    } catch {
+    } catch (cause) {
+      setAttachmentCode(cause && typeof cause === 'object' && 'code' in cause ? String(cause.code) : undefined)
       setError('attach')
     } finally {
       setBusy(false)
@@ -186,7 +193,7 @@ export function ChecklistEvidencePicker({
           <Button disabled={loading || busy} onClick={() => setRevision((value) => value + 1)}>{t.retry}</Button>
         </div>
       )}
-      {error === 'attach' && <p role="alert">{t.attachError}</p>}
+      {error === 'attach' && <p role="alert">{attachmentCode ? evidenceQueueFeedback(attachmentCode, lang) : t.attachError}</p>}
       {loading ? (
         <Spin tip={t.loading}>
           <div style={{ minHeight: 100 }} />
@@ -195,7 +202,7 @@ export function ChecklistEvidencePicker({
         <div className="checklist-evidence-picker">
           {!filtered.length && error !== 'load' && <p>{t.empty}</p>}
           {filtered.map((item) => (
-            <label key={item.mediaId} className="checklist-evidence-picker-row">
+            <div key={item.mediaId} className="checklist-evidence-picker-row">
               <Checkbox
                 checked={!!selected[item.mediaId]}
                 disabled={!eligible(item) || busy}
@@ -220,7 +227,10 @@ export function ChecklistEvidencePicker({
                 {item.fileName}
                 <small>{item.mediaType === 'VIDEO' ? t.video : t.image}</small>
               </span>
-            </label>
+              <MediaInspectionAction missionId={missionId}
+                mediaId={item.mediaId.startsWith('local:') ? undefined : item.mediaId}
+                mediaType={item.mediaType} fileName={item.fileName} localUrl={item.localPreviewUrl} />
+            </div>
           ))}
         </div>
       )}
@@ -252,6 +262,7 @@ function EvidenceImagePreview({
   const sources = [...new Set([candidate.localPreviewUrl, candidate.thumbnailUrl, candidate.previewUrl])]
     .filter((source): source is string => Boolean(source))
   const [failedSources, setFailedSources] = useState<string[]>([])
+  const [visible, setVisible] = useState(false)
   const currentSource = sources.find((source) => !failedSources.includes(source))
 
   if (!currentSource) {
@@ -263,16 +274,30 @@ function EvidenceImagePreview({
   }
 
   return (
-    <img
-      src={currentSource}
-      alt={candidate.fileName}
-      loading="lazy"
-      decoding="async"
-      onError={() =>
-        setFailedSources((failed) =>
-          failed.includes(currentSource) ? failed : [...failed, currentSource],
-        )
-      }
-    />
+    <span>
+      <button
+        type="button"
+        className="shared-image-preview shared-image-preview--attachment"
+        aria-label={candidate.fileName}
+        onClick={() => setVisible(true)}
+      >
+        <img
+          src={currentSource}
+          alt={candidate.fileName}
+          loading="lazy"
+          decoding="async"
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          onError={() => setFailedSources((failed) => [...failed, currentSource])}
+        />
+      </button>
+      <ImagePreview
+        src={currentSource}
+        previewSrc={sources.find((source) => !failedSources.includes(source) && source !== candidate.thumbnailUrl) ?? currentSource}
+        fileName={candidate.fileName}
+        viewerOnly
+        visible={visible}
+        onVisibleChange={setVisible}
+      />
+    </span>
   )
 }

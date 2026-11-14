@@ -221,7 +221,7 @@ it.each(['IN_PROGRESS', 'COMPLETED'] as const)(
       customer: { fullName: 'Customer' },
     } as OrderDetail)
     const create = vi
-      .spyOn(deliveryApi, 'managerCreateReworkMission')
+      .spyOn(missionsApi, 'createReworkMission')
       .mockImplementation(async () => {
         missions.push(reworkMission())
         assignments['rework-1'] = ['A', 'B']
@@ -286,12 +286,11 @@ it('finalizes the complete rework plan and automatically opens flight permits', 
   missions.push(reworkMission())
   assignments['rework-1'] = ['A', 'B']
   const finalize = vi
-    .spyOn(deliveryApi, 'managerFinalizeReworkPlan')
+    .spyOn(planningApi, 'finalizeExecutionPlan')
     .mockImplementation(async () => {
       missions[1].status = 'PENDING_CONFIRMATION'
     })
   const confirm = vi.spyOn(missionsApi, 'confirmMissionPlanning')
-  const finalizeOriginal = vi.spyOn(planningApi, 'finalizeExecutionPlan')
   render(<ReworkPlanningPage orderId="order" caseId="case" />)
   const card = await screen.findByRole('article', { name: 'MS-REWORK' })
   expect(within(card).getByText('Công việc A')).toBeInTheDocument()
@@ -305,7 +304,7 @@ it('finalizes the complete rework plan and automatically opens flight permits', 
   fireEvent.click(screen.getByRole('button', { name: 'Chốt kế hoạch' }))
   const dialog = await screen.findByRole('dialog', { name: 'Chốt kế hoạch?' })
   fireEvent.click(within(dialog).getByRole('button', { name: 'Chốt kế hoạch' }))
-  await waitFor(() => expect(finalize).toHaveBeenCalledWith('case', 4))
+  await waitFor(() => expect(finalize).toHaveBeenCalledWith('order', 4, 'case'))
   await waitFor(() =>
     expect(screen.getByRole('tab', { name: 'Giấy phép bay' })).toHaveAttribute(
       'aria-selected',
@@ -313,7 +312,6 @@ it('finalizes the complete rework plan and automatically opens flight permits', 
     ),
   )
   expect(confirm).not.toHaveBeenCalled()
-  expect(finalizeOriginal).not.toHaveBeenCalled()
 })
 
 it('reopens finalized rework directly on flight permits', async () => {
@@ -347,7 +345,7 @@ it('cannot finalize while checklist items remain unassigned', async () => {
 it('keeps planning open after finalization fails', async () => {
   missions.push(reworkMission())
   assignments['rework-1'] = ['A', 'B']
-  vi.spyOn(deliveryApi, 'managerFinalizeReworkPlan').mockRejectedValue(
+  vi.spyOn(planningApi, 'finalizeExecutionPlan').mockRejectedValue(
     new Error('Missing crew'),
   )
   render(<ReworkPlanningPage orderId="order" caseId="case" />)
@@ -355,7 +353,11 @@ it('keeps planning open after finalization fails', async () => {
   const dialog = await screen.findByRole('dialog', { name: 'Chốt kế hoạch?' })
   fireEvent.click(within(dialog).getByRole('button', { name: 'Chốt kế hoạch' }))
   await waitFor(() =>
-    expect(deliveryApi.managerFinalizeReworkPlan).toHaveBeenCalled(),
+    expect(planningApi.finalizeExecutionPlan).toHaveBeenCalledWith(
+      'order',
+      4,
+      'case',
+    ),
   )
   expect(screen.getByRole('tab', { name: 'Giấy phép bay' })).toHaveAttribute(
     'aria-disabled',

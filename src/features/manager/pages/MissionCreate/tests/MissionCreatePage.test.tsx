@@ -112,7 +112,7 @@ describe('CreateMissionPage', () => {
       ticketId: 'ticket-1', ticketCode: 'TKT-1', orderId: brief.id, reviewRoundId: 'round-1',
       roundNumber: 1, roundVersion: 1, publishedAt: '', submittedAt: '', generalNote: null, items: [],
     })
-    const create = vi.spyOn(deliveryApi, 'managerCreateReworkMission').mockResolvedValue({
+    const create = vi.spyOn(missionsApi, 'createReworkMission').mockResolvedValue({
       caseId: 'case-1', missionId: 'rework-1', missionCode: 'MS-REWORK', status: 'PLANNING', checklistCount: 1,
     })
     const original = vi.spyOn(missionsApi, 'createMission')

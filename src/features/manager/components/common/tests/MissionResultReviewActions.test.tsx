@@ -1,76 +1,46 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { afterEach, expect, it, vi } from 'vitest'
+import { render, screen } from '@testing-library/react'
 import { missionsApi } from '../../../api/missionsApi'
 import { MissionResultReviewActions } from '../MissionResultReviewActions'
-
-afterEach(() => vi.restoreAllMocks())
-describe('MissionResultReviewActions', () => {
-  it.each(['DRAFT', 'REJECTED', 'APPROVED'] as const)(
-    'never offers review for %s',
-    (status) => {
-      render(
-        <MissionResultReviewActions
-          resultId="r"
-          status={status}
-          ready
-          onReviewed={vi.fn()}
-        />,
-      )
-      expect(screen.queryByRole('button', { name: 'Duyệt kết quả' })).toBeNull()
-      expect(
-        screen.queryByRole('button', { name: 'Từ chối kết quả' }),
-      ).toBeNull()
-    },
-  )
-  it('approves only the pending result then refreshes', async () => {
-    const approve = vi
-      .spyOn(missionsApi, 'approveMissionResult')
-      .mockResolvedValue({} as never)
-    const refresh = vi.fn()
+import { setLanguage } from '../../../../../shared/i18n'
+afterEach(() => {
+  vi.restoreAllMocks()
+  setLanguage('vi')
+})
+it.each(['DRAFT', 'REJECTED', 'APPROVED', 'PENDING_MANAGER_APPROVAL'] as const)(
+  'keeps %s read-only even if checklist readiness is true',
+  (status) => {
+    const approve = vi.spyOn(missionsApi, 'approveMissionResult')
+    const reject = vi.spyOn(missionsApi, 'rejectMissionResult')
     render(
       <MissionResultReviewActions
         resultId="r"
-        status="PENDING_MANAGER_APPROVAL"
+        status={status}
         ready
-        onReviewed={refresh}
-      />,
-    )
-    fireEvent.click(screen.getByText('Duyệt kết quả'))
-    await waitFor(() => expect(refresh).toHaveBeenCalledOnce())
-    expect(approve).toHaveBeenCalledWith('r', '')
-  })
-  it('rejects using the optional backend note and refreshes', async () => {
-    const reject = vi
-      .spyOn(missionsApi, 'rejectMissionResult')
-      .mockResolvedValue({} as never)
-    const refresh = vi.fn()
-    render(
-      <MissionResultReviewActions
-        resultId="r"
-        status="PENDING_MANAGER_APPROVAL"
-        ready
-        onReviewed={refresh}
-      />,
-    )
-    fireEvent.change(screen.getByLabelText('Ghi chú / lý do'), {
-      target: { value: 'Cần kiểm tra lại' },
-    })
-    fireEvent.click(screen.getByText('Từ chối kết quả'))
-    await waitFor(() =>
-      expect(reject).toHaveBeenCalledWith('r', 'Cần kiểm tra lại'),
-    )
-    expect(refresh).toHaveBeenCalledOnce()
-  })
-  it('disables approve when readiness is unknown/false but allows rejecting', () => {
-    render(
-      <MissionResultReviewActions
-        resultId="r"
-        status="PENDING_MANAGER_APPROVAL"
-        ready={false}
         onReviewed={vi.fn()}
       />,
     )
-    expect(screen.getByText('Duyệt kết quả')).toBeDisabled()
-    expect(screen.getByText('Từ chối kết quả')).not.toBeDisabled()
-  })
+    expect(screen.queryByRole('button')).toBeNull()
+    expect(screen.queryByRole('textbox')).toBeNull()
+    expect(
+      screen.getByText('Inspector phụ trách nghiệm thu'),
+    ).toBeInTheDocument()
+    expect(approve).not.toHaveBeenCalled()
+    expect(reject).not.toHaveBeenCalled()
+  },
+)
+it('explains responsibility in English without mixing interface copy', () => {
+  setLanguage('en')
+  render(
+    <MissionResultReviewActions
+      resultId="r"
+      status="PENDING_MANAGER_APPROVAL"
+      ready={false}
+      onReviewed={vi.fn()}
+    />,
+  )
+  expect(
+    screen.getByText('The Inspector owns result acceptance'),
+  ).toBeInTheDocument()
+  expect(screen.queryByText('Inspector phụ trách nghiệm thu')).toBeNull()
 })

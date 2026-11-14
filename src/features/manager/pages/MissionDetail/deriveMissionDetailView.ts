@@ -156,6 +156,7 @@ export function deriveMissionDetailView({
     { id: 'route', label: t.tabs.route },
     { id: 'plan', label: t.tabs.plan },
     { id: 'checks', label: t.tabs.checks },
+    { id: 'finance', label: t.tabs.finance },
   ]
   const waypoints = [...(plan?.waypoints ?? [])].sort(
     (a, b) => a.sequence - b.sequence,

@@ -34,7 +34,18 @@ export function MissionDetailHeader({
       description={headline ?? undefined}
       actions={
         <>
-          {canSetup ? (
+          {mission.purpose === 'REWORK' && mission.resultRevisionCaseId ? (
+            <Button href={managerHref({
+              screen: 'missionCreate',
+              orderId: mission.orderId,
+              reworkCaseId: mission.resultRevisionCaseId,
+            })}>
+              {t.viewOrderPlan}
+            </Button>
+          ) : null}
+          {canSetup ||
+          (mission.inspectionCorrectionId &&
+            !['COMPLETED', 'FAILED', 'CANCELLED'].includes(mission.status)) ? (
             <Button
               type="primary"
               href={managerHref({

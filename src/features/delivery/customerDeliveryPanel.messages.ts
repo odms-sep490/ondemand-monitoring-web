@@ -27,7 +27,8 @@ export const customerDeliveryPanelMessages = defineMessages({
     noEvidence:
       'Chưa có ảnh hoặc video được công bố cho hạng mục này. Bạn vẫn có thể gửi yêu cầu nếu thiếu bằng chứng.',
     previewNote: 'Bản xem trước · chưa thể tải bản gốc',
-    previewPending: 'Bản xem trước đang được tạo. Vui lòng tải lại sau giây lát.',
+    previewPending:
+      'Bản xem trước đang được tạo. Vui lòng tải lại sau giây lát.',
     managerNote: 'Ghi chú từ quản lý',
     previewReady: 'Bản xem trước đã sẵn sàng',
     previewReadyText:
@@ -58,7 +59,18 @@ export const customerDeliveryPanelMessages = defineMessages({
     revisionSentText:
       'Quản lý sẽ cập nhật và gửi lại bản xem trước mới cho bạn.',
     resultsAcceptedTitle: 'Đã chấp nhận kết quả',
-    resultsAcceptedText: 'Tệp gốc sẽ sẵn sàng để tải xuống khi bạn thanh toán đủ và mọi yêu cầu chỉnh sửa đã được xử lý.',
+    resultsAcceptedText:
+      'Bản gốc của nhiệm vụ này sẽ mở tải sau khi thanh toán được xác nhận và các yêu cầu chỉnh sửa của nhiệm vụ đã được xử lý.',
+    acceptedAwaitingPayment: 'Đã duyệt · chờ thanh toán nhiệm vụ',
+    awaitingMissionPaymentTitle: 'Kết quả đã được chấp nhận',
+    awaitingMissionPaymentText:
+      'Bạn đang xem bản xem trước. Thanh toán nhiệm vụ này để mở tải ảnh/video gốc.',
+    deliveredAssets: 'Ảnh/video đã bàn giao',
+    originalsPartial: (available: number, total: number) =>
+      `${available}/${total} tệp gốc có thể tải xuống`,
+    partialOriginalsTitle: 'Một phần dữ liệu gốc đã sẵn sàng',
+    partialOriginalsText: (available: number, total: number) =>
+      `${available}/${total} tệp đã mở tải. Các tệp còn lại chưa được phép tải bản gốc.`,
     deliveredTitle: 'Bàn giao hoàn tất',
     deliveredText: (n: number) => `${n} tệp gốc đã sẵn sàng để tải xuống.`,
     unknownSize: 'Không rõ dung lượng',
@@ -91,7 +103,8 @@ export const customerDeliveryPanelMessages = defineMessages({
     acceptAll: 'Chấp nhận toàn bộ kết quả',
     acceptMission: 'Chấp nhận kết quả nhiệm vụ này',
     acceptMissionTitle: 'Chấp nhận kết quả nhiệm vụ này?',
-    acceptMissionBody: 'Bạn xác nhận kết quả trong đợt này của nhiệm vụ đang xem. Các nhiệm vụ khác được duyệt riêng.',
+    acceptMissionBody:
+      'Bạn xác nhận kết quả trong đợt này của nhiệm vụ đang xem. Các nhiệm vụ khác được duyệt riêng.',
     acceptAllConfirmTitle: 'Xác nhận chấp nhận toàn bộ?',
     acceptAllConfirmBody:
       'Hành động này xác nhận bạn chấp nhận tất cả kết quả trong đợt này.',
@@ -108,7 +121,8 @@ export const customerDeliveryPanelMessages = defineMessages({
     viewSubmittedTicket: (code: string) => 'Xem phiếu ' + code,
     changedInRound: 'Nội dung được cập nhật trong đợt này',
     unchangedInRound: 'Kết quả đã gửi ở đợt trước',
-    revisionNotAvailable: 'Bạn chỉ có thể yêu cầu chỉnh sửa phần đang được xử lý trong đợt này.',
+    revisionNotAvailable:
+      'Bạn chỉ có thể yêu cầu chỉnh sửa phần đang được xử lý trong đợt này.',
     resultHistory: 'Lịch sử các đợt bàn giao',
     historyStatus: (status: string) => `Trạng thái: ${status}`,
   },
@@ -168,7 +182,17 @@ export const customerDeliveryPanelMessages = defineMessages({
       'The manager will update the results and send a new preview.',
     resultsAcceptedTitle: 'Results accepted',
     resultsAcceptedText:
-      'Original files become available to download after full payment and resolution of all revision items.',
+      'Originals for this mission become downloadable after its payment is confirmed and its revision requests are resolved.',
+    acceptedAwaitingPayment: 'Accepted · mission payment pending',
+    awaitingMissionPaymentTitle: 'Results accepted',
+    awaitingMissionPaymentText:
+      'You are viewing previews. Pay for this mission to unlock its original files.',
+    deliveredAssets: 'Delivered images and videos',
+    originalsPartial: (available: number, total: number) =>
+      `${available}/${total} originals available to download`,
+    partialOriginalsTitle: 'Some original files are ready',
+    partialOriginalsText: (available: number, total: number) =>
+      `${available} of ${total} files are available. The remaining originals are still locked.`,
     deliveredTitle: 'Delivery complete',
     deliveredText: (n: number) => `${n} original files are ready to download.`,
     unknownSize: 'Unknown size',
@@ -201,7 +225,8 @@ export const customerDeliveryPanelMessages = defineMessages({
     acceptAll: 'Accept all results',
     acceptMission: 'Accept this mission’s results',
     acceptMissionTitle: 'Accept this mission’s results?',
-    acceptMissionBody: 'This accepts the current round for this mission. Other missions are reviewed separately.',
+    acceptMissionBody:
+      'This accepts the current round for this mission. Other missions are reviewed separately.',
     acceptAllConfirmTitle: 'Accept all results?',
     acceptAllConfirmBody:
       'This confirms that you accept every result in this round.',
@@ -218,7 +243,8 @@ export const customerDeliveryPanelMessages = defineMessages({
     viewSubmittedTicket: (code: string) => 'View ticket ' + code,
     changedInRound: 'Updated in this round',
     unchangedInRound: 'Previously published result',
-    revisionNotAvailable: 'You can request changes only for items being handled in this round.',
+    revisionNotAvailable:
+      'You can request changes only for items being handled in this round.',
     resultHistory: 'Delivery round history',
     historyStatus: (status: string) => `Status: ${status}`,
   },

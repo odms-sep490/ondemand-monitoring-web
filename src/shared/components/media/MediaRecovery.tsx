@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { Button, Modal } from 'antd'
+import { Button } from 'antd'
+import { VideoPreview } from './VideoPreview'
 import { ExpandOutlined, PlayCircleOutlined } from '@ant-design/icons'
 import { useI18n, defineMessages } from '../../i18n'
 import { useMediaRecovery, type MediaRecoveryProps } from './useMediaRecovery'
@@ -166,7 +167,7 @@ function VideoSurface(
           poster={posterFailed ? undefined : (props.poster ?? undefined)}
           controls
           controlsList="nodownload"
-          preload={props.poster && !posterFailed ? 'none' : 'metadata'}
+          preload={!props.expanded && props.poster && !posterFailed ? 'none' : 'metadata'}
           playsInline
           aria-label={props.fileName}
           onError={recovery.onError}
@@ -229,14 +230,10 @@ function VideoSurface(
           {t.expandVideo}
         </Button>
       )}
-      <Modal
-        title={props.fileName}
+      <VideoPreview
+        fileName={props.fileName}
         open={open}
-        onCancel={() => setOpen(false)}
-        footer={null}
-        centered
-        width={960}
-        destroyOnHidden
+        onClose={() => setOpen(false)}
       >
         {open && (
           <MediaSurface
@@ -246,7 +243,7 @@ function VideoSurface(
             expanded
           />
         )}
-      </Modal>
+      </VideoPreview>
     </div>
   )
 }

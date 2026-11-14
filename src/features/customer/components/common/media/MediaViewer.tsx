@@ -1,3 +1,4 @@
+import { ImagePreview } from '../../../../../shared/components/media/ImagePreview'
 import { ResilientMedia } from '../../../../../shared/components/media/MediaRecovery'
 import { Icon } from '../../../../../shared/components/Icon'
 import { useI18n } from '../../../../../shared/i18n'
@@ -26,8 +27,7 @@ export function MediaViewer({ item }: { item: MediaItem }) {
   return (
     <div className="md-viewer">
       {item.kind === 'image' && (
-        <ResilientMedia
-          kind="image"
+        <ImagePreview
           src={item.previewUrl}
           mediaId={item.id}
           fileName={item.fileName}

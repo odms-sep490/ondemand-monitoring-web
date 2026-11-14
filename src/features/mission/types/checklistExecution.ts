@@ -6,6 +6,8 @@ export type ChecklistAssessmentStatus =
   'NOT_ASSESSED' | 'COMPLIANT' | 'NON_COMPLIANT'
 
 export type MissionChecklistExecution = {
+  fulfilledByMissionId?: string | null
+  fulfilledByMissionCode?: string | null
   id: string
   orderChecklistItemId: string
   content: string
@@ -88,6 +90,9 @@ export type EvidenceEligibility = {
   ineligibilityReason: EvidenceBlockingReason | null
 }
 export type MissionChecklistEvidence = EvidenceEligibility & {
+  /** Staff presentation only; not persisted or used to determine eligibility. */
+  localPreviewUrl?: string | null
+  localThumbnailUrl?: string | null
   selectedForCustomer?: boolean
   selectedBy?: string | null
   selectedAt?: string | null

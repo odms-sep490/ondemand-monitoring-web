@@ -6,6 +6,7 @@ export type MissionDetailTab =
   | 'plan'
   | 'resources'
   | 'checks'
+  | 'finance'
 
 export type NextStep = {
   tone: 'wait' | 'go' | 'done' | 'bad'

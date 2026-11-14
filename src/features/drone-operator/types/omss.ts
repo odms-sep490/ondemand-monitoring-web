@@ -61,6 +61,8 @@ export interface Drone {
 }
 
 export interface Mission {
+  inspectionCorrectionId?: string | null
+  inspectionSourceMissionId?: string | null
   id: string
   backendId?: string
   purpose?: 'ORIGINAL' | 'REWORK' | string

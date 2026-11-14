@@ -45,10 +45,29 @@ export function OrderResultsPage({ orderId }: { orderId: string }) {
   )
 
   if (query.loading && !query.data) {
-    return <div className="mgr-view mgr-order-results">{backLink}<CardComponent><Skeleton active paragraph={{ rows: 6 }} /></CardComponent></div>
+    return (
+      <div className="mgr-view mgr-order-results">
+        {backLink}
+        <CardComponent>
+          <Skeleton active paragraph={{ rows: 6 }} />
+        </CardComponent>
+      </div>
+    )
   }
   if (query.error || !query.data) {
-    return <div className="mgr-view mgr-order-results">{backLink}<ErrorState title={t.loadError} action={<Button icon={<ReloadOutlined />} onClick={query.reload}>{t.retry}</Button>} /></div>
+    return (
+      <div className="mgr-view mgr-order-results">
+        {backLink}
+        <ErrorState
+          title={t.loadError}
+          action={
+            <Button icon={<ReloadOutlined />} onClick={query.reload}>
+              {t.retry}
+            </Button>
+          }
+        />
+      </div>
+    )
   }
 
   const { order, results } = query.data
@@ -80,7 +99,13 @@ export function OrderResultsPage({ orderId }: { orderId: string }) {
       {Boolean(order.attachments?.length) && <OrderAttachmentsCard order={order} t={reviewText} />}
 
       {results.length === 0 ? (
-        <CardComponent><EmptyState icon={<FileSearchOutlined />} title={t.emptyTitle} description={t.emptyDescription} /></CardComponent>
+        <CardComponent>
+          <EmptyState
+            icon={<FileSearchOutlined />}
+            title={t.emptyTitle}
+            description={t.emptyDescription}
+          />
+        </CardComponent>
       ) : (
         <div className="mgr-order-results__list">
           {results.map(({ mission }) => (

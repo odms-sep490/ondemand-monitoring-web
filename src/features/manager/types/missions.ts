@@ -209,6 +209,8 @@ export type PlanWaypointResponse = {
 }
 
 export type MissionResponse = {
+  inspectionCorrectionId?: string | null
+  inspectionSourceMissionId?: string | null
   purpose?: 'ORIGINAL' | 'REWORK'
   resultRevisionCaseId?: string | null
   replacesMissionId?: string | null

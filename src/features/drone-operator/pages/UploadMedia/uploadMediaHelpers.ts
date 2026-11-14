@@ -26,9 +26,9 @@ export const mediaTypeLabel: Record<string, string> = {
 }
 
 export const mediaSourceLabel: Record<string, string> = {
-  DRONE_CAMERA: 'Camera drone',
+  DRONE_CAMERA: 'Máy ảnh trên drone',
   SATELLITE_SNAPSHOT: 'Ảnh vệ tinh',
-  MANUAL_UPLOAD: 'Upload thủ công',
+  MANUAL_UPLOAD: 'Tải lên thủ công',
   MAPILLARY_REFERENCE: 'Ảnh tham chiếu Mapillary',
 }
 
@@ -74,4 +74,31 @@ const mediaStatusLabelEn: Record<string, string> = {
 }
 export const getUploadMediaStatusLabel = (status: string, lang: 'vi' | 'en') =>
   (lang === 'en' ? mediaStatusLabelEn[status] : mediaStatusLabel[status]) ??
-  status
+  (lang === 'vi' ? 'Chưa xác định' : 'Unknown status')
+
+export function getUploadMediaTypeLabel(type: string, lang: 'vi' | 'en') {
+  return (
+    (lang === 'vi'
+      ? mediaTypeLabel[type]
+      : ({ IMAGE: 'Image', VIDEO: 'Video' } as Record<string, string>)[type]) ??
+    (lang === 'vi' ? 'Tệp khác' : 'Other file')
+  )
+}
+export function getUploadMediaSourceLabel(
+  source: string | null | undefined,
+  lang: 'vi' | 'en',
+) {
+  return (
+    (lang === 'vi'
+      ? mediaSourceLabel[source ?? '']
+      : (
+          {
+            DRONE_CAMERA: 'Drone camera',
+            SATELLITE_SNAPSHOT: 'Satellite image',
+            MANUAL_UPLOAD: 'Manual upload',
+            MAPILLARY_REFERENCE: 'Mapillary reference image',
+          } as Record<string, string>
+        )[source ?? '']) ??
+    (lang === 'vi' ? 'Nguồn chưa xác định' : 'Unknown source')
+  )
+}

@@ -279,7 +279,7 @@ describe('MonitoringChecklistSection', () => {
         expect(screen.queryByRole('button', { name: 'Đánh giá' })).toBeNull()
         expect(
           screen.queryByRole('button', {
-            name: /Thêm media|Thêm bằng chứng từ media Mission/,
+            name: /Thêm ảnh\/video|Thêm bằng chứng từ ảnh\/video Nhiệm vụ/,
           }),
         ).toBeNull()
         expect(screen.queryByLabelText('Đánh giá nghiệm thu')).toBeNull()
@@ -699,7 +699,7 @@ describe('MonitoringChecklistSection', () => {
         />,
       )
       expect(
-        screen.getByText('Không có mục checklist giám sát.'),
+        screen.getByText('Không có mục danh sách kiểm tra giám sát.'),
       ).toBeInTheDocument()
       expect(screen.getByText('Chưa sẵn sàng nghiệm thu')).toBeInTheDocument()
     },
@@ -723,7 +723,7 @@ describe('MonitoringChecklistSection', () => {
       />,
     )
     expect(screen.getByRole('alert')).toHaveTextContent('không có quyền')
-    fireEvent.click(screen.getByText('Thử lại checklist'))
+    fireEvent.click(screen.getByText('Thử lại danh sách kiểm tra'))
     expect(refresh).toHaveBeenCalledOnce()
   })
 })
