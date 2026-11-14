@@ -250,11 +250,9 @@ describe('Order-centric workspace', () => {
     expect(remove).toHaveLength(3)
     fireEvent.click(remove[2])
     await waitFor(() =>
-      expect(planningApi.updateMissionChecklistAssignments).toHaveBeenCalledWith(
-        'm1',
-        2,
-        ['A', 'C'],
-      ),
+      expect(
+        planningApi.updateMissionChecklistAssignments,
+      ).toHaveBeenCalledWith('m1', 2, ['A', 'C']),
     )
     await waitFor(() => expect(selected.m1).toEqual(['A', 'C']))
     expect(selected.m2).toEqual(['B', 'D', 'E'])
@@ -277,7 +275,11 @@ describe('Order-centric workspace', () => {
       within(dialog).getByRole('button', { name: 'Chốt kế hoạch' }),
     )
     await waitFor(() =>
-      expect(planningApi.finalizeExecutionPlan).toHaveBeenCalledWith('o', 2),
+      expect(planningApi.finalizeExecutionPlan).toHaveBeenCalledWith(
+        'o',
+        2,
+        undefined,
+      ),
     )
     // A finalized plan is no longer editable: the finalize action goes away
     // and each Mission can now be confirmed.
@@ -300,10 +302,7 @@ describe('Order-centric workspace', () => {
     const m1 = await screen.findByRole('article', { name: 'M1' })
     expect(
       within(m1).getByRole('link', { name: /Phân công trong Văn phòng 3D/ }),
-    ).toHaveAttribute(
-      'href',
-      expect.stringContaining('assignmentMissionId=m1'),
-    )
+    ).toHaveAttribute('href', expect.stringContaining('assignmentMissionId=m1'))
     expect(
       within(m1).queryByLabelText('Chọn nhân sự cho Phi công'),
     ).not.toBeInTheDocument()
@@ -316,16 +315,12 @@ describe('Order-centric workspace', () => {
     const sidebar = screen.getByRole('complementary', {
       name: 'Danh sách nhiệm vụ',
     })
-    expect(
-      within(sidebar).getByText('Đã phân công (5/5)'),
-    ).toBeInTheDocument()
+    expect(within(sidebar).getByText('Đã phân công (5/5)')).toBeInTheDocument()
     expect(
       within(sidebar).getByText('Tất cả nhiệm vụ đã được phân công đầy đủ'),
     ).toBeInTheDocument()
     expect(screen.queryByText(/công việc chưa được phân công/)).toBeNull()
-    expect(
-      screen.getByRole('button', { name: 'Chốt kế hoạch' }),
-    ).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'Chốt kế hoạch' })).toBeEnabled()
   })
   it('creates two Missions inline without leaving the Order route', async () => {
     missions = []

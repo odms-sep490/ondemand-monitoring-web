@@ -1,3 +1,4 @@
+import { contractApi } from '../../../../contract/contractApi'
 import {
   fireEvent,
   render,
@@ -100,6 +101,49 @@ describe('Manager multi-Mission planning', () => {
     expect(
       screen.queryByRole('button', { name: 'Chốt kế hoạch' }),
     ).not.toBeInTheDocument()
+  })
+
+  it('keeps contract verification reachable after the deposit is paid', async () => {
+    vi.mocked(financeApi.getManagerInvoice).mockResolvedValue({
+      id: 'invoice',
+      status: 'PARTIALLY_PAID',
+      paidAmount: 500,
+      depositAmount: 500,
+      remainingAmount: 500,
+      contractRequired: true,
+      contractSubmittedAt: '2026-11-14T04:00:00Z',
+      contractConfirmedAt: null,
+    } as Invoice)
+    vi.spyOn(contractApi, 'get').mockResolvedValue({
+      required: true,
+      id: 'contract',
+      version: 1,
+      invoiceId: 'invoice',
+      status: 'PENDING_VERIFICATION',
+      document: null,
+      submissions: [
+        {
+          id: 'signed',
+          status: 'PENDING',
+          submissionNumber: 1,
+          submittedAt: '2026-11-14T04:00:00Z',
+          document: {
+            fileName: 'signed.pdf',
+            byteSize: 100,
+            sha256: 'a'.repeat(64),
+          },
+        },
+      ],
+    } as never)
+    vi.spyOn(contractApi, 'cancellation').mockResolvedValue(null)
+    render(<OrderMissionPlanningSection orderId="o" />)
+    expect(
+      await screen.findByRole('button', { name: 'Xác nhận hợp đồng' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Tạo thêm nhiệm vụ' }),
+    ).toBeNull()
+    expect(screen.getByText('Chờ xác nhận hợp đồng')).toBeInTheDocument()
   })
 
   it('shows the per-Mission payment milestones after the plan is finalized', async () => {
@@ -208,7 +252,9 @@ describe('Manager multi-Mission planning', () => {
       screen.queryByRole('button', { name: 'Thêm mới nhiệm vụ' }),
     ).not.toBeInTheDocument()
     expect(
-      within(card).queryByRole('link', { name: /Phân công trong Văn phòng 3D/ }),
+      within(card).queryByRole('link', {
+        name: /Phân công trong Văn phòng 3D/,
+      }),
     ).not.toBeInTheDocument()
     expect(
       within(card).getByRole('link', { name: /Xem trong Văn phòng 3D/ }),
@@ -251,9 +297,7 @@ describe('Manager multi-Mission planning', () => {
     expect(
       screen.getByRole('button', { name: 'Thêm mới nhiệm vụ' }),
     ).toBeInTheDocument()
-    expect(
-      screen.getByRole('button', { name: 'Chốt kế hoạch' }),
-    ).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'Chốt kế hoạch' })).toBeEnabled()
   })
   it('keeps the plan unfinalizable while checklist items are uncovered', async () => {
     vi.mocked(planningApi.getExecutionPlan).mockResolvedValue({
@@ -356,7 +400,11 @@ describe('Manager multi-Mission planning', () => {
       }),
     )
     await waitFor(() =>
-      expect(planningApi.finalizeExecutionPlan).toHaveBeenCalledWith('o', 7),
+      expect(planningApi.finalizeExecutionPlan).toHaveBeenCalledWith(
+        'o',
+        7,
+        undefined,
+      ),
     )
     // The finalize action disappears once the refreshed plan is FINALIZED.
     await waitFor(() =>

@@ -2,6 +2,11 @@ import { defineMessages } from '../../../shared/i18n'
 
 export const customerFinanceSectionsMessages = defineMessages({
   vi: {
+    awaitingDepositContractBody:
+      'Nhiệm vụ chỉ được lập kế hoạch sau khi đủ cọc và hợp đồng được xác nhận.',
+    contractVerificationPending: 'Đã nhận cọc · Chờ xác minh hợp đồng',
+    contractVerificationPendingBody:
+      'Bạn không cần thanh toán lại. Nhiệm vụ chỉ được triển khai sau khi hợp đồng được xác nhận.',
     estimated: 'Chi phí dự kiến',
     additional: 'Dịch vụ bổ sung',
     orderTotal: 'Tổng đơn hàng',
@@ -74,6 +79,12 @@ export const customerFinanceSectionsMessages = defineMessages({
     } as Record<string, string>,
   },
   en: {
+    awaitingDepositContractBody:
+      'Mission planning requires both sufficient deposit and contract confirmation.',
+    contractVerificationPending:
+      'Deposit received · Contract verification pending',
+    contractVerificationPendingBody:
+      'No repeat payment is needed. Execution unlocks after the contract is confirmed.',
     estimated: 'Estimated cost',
     additional: 'Additional services',
     orderTotal: 'Order total',

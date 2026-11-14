@@ -1,4 +1,6 @@
 import { Button } from 'antd'
+import { QuoteContractPreparation } from '../../contract/QuoteContractPreparation'
+import type { Quote } from '../types'
 import { ChecklistGuidanceEditor } from './components/ChecklistGuidanceEditor'
 import { guidanceMessages } from './guidance.messages'
 import { needsGuidance } from './guidanceHelpers'
@@ -61,11 +63,15 @@ export function ManagerPricingPanel({
   const [message, setMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [approvalSucceeded, setApprovalSucceeded] = useState(false)
+  const [preparedQuote, setPreparedQuote] = useState<Quote | null>(null)
+  const [editingQuote, setEditingQuote] = useState(false)
   const dirtyPriceIds = useRef(new Set<string>())
   const initializedQuoteKey = useRef<string | null>(null)
 
   useEffect(() => {
     setApprovalSucceeded(false)
+    setPreparedQuote(null)
+    setEditingQuote(false)
     setGuidanceItem(null)
     dirtyPriceIds.current.clear()
     initializedQuoteKey.current = null
@@ -195,7 +201,7 @@ export function ManagerPricingPanel({
   const missingGuidance = (query.data?.checklistItems ?? []).filter(
     needsGuidance,
   )
-  async function approve() {
+  async function prepareQuote() {
     if (!query.data) return
     if (missingGuidance.length) {
       setError(g.pending)
@@ -241,11 +247,8 @@ export function ManagerPricingPanel({
         expectedChecklistRevision: query.data.checklistRevision ?? null,
       })
       dirtyPriceIds.current.clear()
-      await financeApi.approveQuote(orderId, quote.id)
-      setApprovalSucceeded(true)
-      onApproved?.()
-      setMessage(t.approveSuccess)
-      toast.success(fb.quoteApproved)
+      setPreparedQuote(quote)
+      setEditingQuote(false)
       query.reload()
     } catch (cause) {
       setError(errorMessage(cause))
@@ -272,6 +275,35 @@ export function ManagerPricingPanel({
 
   if (query.loading && !query.data) return <PricingLoading />
   if (!query.data) return <PricingLoadError query={query} />
+  const preparationQuote = preparedQuote ?? query.data.currentQuote
+  if (
+    !editingQuote &&
+    preparationQuote &&
+    ['DRAFT', 'APPROVED'].includes(preparationQuote.status)
+  ) {
+    return (
+      <QuoteContractPreparation
+        key={preparationQuote.id}
+        orderId={orderId}
+        quote={preparationQuote}
+        blockedReason={
+          missingGuidance.length ? g.pending : approveBlockedReason
+        }
+        onEdit={() => {
+          setEditingQuote(true)
+          setPreparedQuote(null)
+        }}
+        onSent={() => {
+          setPreparedQuote({ ...preparationQuote, status: 'APPROVED' })
+          setApprovalSucceeded(true)
+          setMessage(t.approveSuccess)
+          toast.success(fb.quoteApproved)
+          onApproved?.()
+          query.reload()
+        }}
+      />
+    )
+  }
   const approved =
     approvalSucceeded || query.data.currentQuote?.status === 'APPROVED'
   const accepted = query.data.currentQuote?.status === 'ACCEPTED_BY_CUSTOMER'
@@ -381,7 +413,7 @@ export function ManagerPricingPanel({
           approveBlockedReason={
             missingGuidance.length ? g.pending : approveBlockedReason
           }
-          approve={approve}
+          approve={prepareQuote}
           data={query.data}
         />
       </div>

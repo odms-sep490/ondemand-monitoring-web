@@ -62,7 +62,7 @@ export const pricingMessages = defineMessages({
       'Phân loại các yêu cầu bổ sung trước khi duyệt báo giá',
     approveTitleOutOfRange: 'Có giá duyệt ngoài khoảng cho phép',
     approved: 'Đã duyệt thành công',
-    approve: 'Duyệt báo giá',
+    approve: 'Tiếp tục chuẩn bị hợp đồng',
 
     reviewTitle: 'Xem xét yêu cầu và báo giá',
     reviewSubtitle: 'Phân loại yêu cầu để chốt báo giá.',
@@ -165,7 +165,7 @@ export const pricingMessages = defineMessages({
       'Classify the additional requests before approving the quote',
     approveTitleOutOfRange: 'An approved price is outside the allowed range',
     approved: 'Approved successfully',
-    approve: 'Approve quote',
+    approve: 'Continue to contract',
 
     reviewTitle: 'Review requests and quote',
     reviewSubtitle: 'Classify requests to finalize the quote.',

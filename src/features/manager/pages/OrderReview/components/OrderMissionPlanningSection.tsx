@@ -1,3 +1,4 @@
+import { CancelledOrderContractPanel } from '../../../../contract/CancelledOrderContractPanel'
 import { useEffect, useRef, useState } from 'react'
 import { ShowMoreList } from '../../../../../shared/components/antd'
 import type { OrderDetail } from '../../../types/orders'
@@ -49,6 +50,7 @@ export function OrderMissionPlanningSection({
   orderId,
   initialOrder,
   onWorkflowInfo,
+  onOrderUpdated,
   activeTab = 'planning',
   onBackToPlanning,
 }: {
@@ -57,6 +59,7 @@ export function OrderMissionPlanningSection({
   initialOrder?: OrderDetail
   onAssignResources?: (missionId: string) => void
   onWorkflowInfo?: (info: PlanningWorkflowInfo) => void
+  onOrderUpdated?: () => void
   activeTab?: 'planning' | 'permit' | 'execution'
   onBackToPlanning?: () => void
 }) {
@@ -67,6 +70,7 @@ export function OrderMissionPlanningSection({
       orderId={orderId}
       initialOrder={initialOrder}
       onWorkflowInfo={onWorkflowInfo}
+      onOrderUpdated={onOrderUpdated}
       activeTab={activeTab}
       onBackToPlanning={onBackToPlanning}
     />
@@ -78,6 +82,7 @@ function OrderPlanningWorkspace({
   orderId,
   initialOrder,
   onWorkflowInfo,
+  onOrderUpdated,
   activeTab = 'planning',
   onBackToPlanning,
 }: {
@@ -85,6 +90,7 @@ function OrderPlanningWorkspace({
   orderId: string
   initialOrder?: OrderDetail
   onWorkflowInfo?: (info: PlanningWorkflowInfo) => void
+  onOrderUpdated?: () => void
   activeTab?: 'planning' | 'permit' | 'execution'
   onBackToPlanning?: () => void
 }) {
@@ -97,18 +103,21 @@ function OrderPlanningWorkspace({
 
   const query = useApiQuery(
     async (signal) => {
-      const [plan, missions, order, invoice, revisionCase, paymentAllocation] = await Promise.all([
-        planningApi.getExecutionPlan(orderId, signal),
-        planningApi.getOrderMissions(orderId, signal),
-        initialOrderRef.current ?? ordersApi.getOrder(orderId, signal),
-        financeApi.getManagerInvoice(orderId, signal).catch(() => null),
-        reworkCaseId
-          ? deliveryApi.managerGetRevisionCase(orderId, signal)
-          : Promise.resolve(null),
-        reworkCaseId
-          ? Promise.resolve(null)
-          : financeApi.getManagerMissionPaymentAllocations(orderId, signal).catch(() => null),
-      ])
+      const [plan, missions, order, invoice, revisionCase, paymentAllocation] =
+        await Promise.all([
+          planningApi.getExecutionPlan(orderId, signal),
+          planningApi.getOrderMissions(orderId, signal),
+          initialOrderRef.current ?? ordersApi.getOrder(orderId, signal),
+          financeApi.getManagerInvoice(orderId, signal).catch(() => null),
+          reworkCaseId
+            ? deliveryApi.managerGetRevisionCase(orderId, signal)
+            : Promise.resolve(null),
+          reworkCaseId
+            ? Promise.resolve(null)
+            : financeApi
+                .getManagerMissionPaymentAllocations(orderId, signal)
+                .catch(() => null),
+        ])
       if (!signal.aborted) initialOrderRef.current = undefined
       if (reworkCaseId) {
         if (
@@ -140,7 +149,14 @@ function OrderPlanningWorkspace({
           paymentAllocation,
         }
       }
-      return { plan, missions, order, invoice, revisionCase: null, paymentAllocation }
+      return {
+        plan,
+        missions,
+        order,
+        invoice,
+        revisionCase: null,
+        paymentAllocation,
+      }
     },
     [orderId, reworkCaseId],
   )
@@ -186,6 +202,8 @@ function OrderPlanningWorkspace({
   const depositPaid = Boolean(
     data?.invoice &&
     !['CANCELLED', 'REFUNDED', 'OVERDUE'].includes(data.invoice.status) &&
+    (!data.invoice.contractRequired ||
+      Boolean(data.invoice.contractConfirmedAt)) &&
     (data.invoice.depositStatus === 'DEPOSIT_PAID' ||
       data.invoice.paidAmount >= data.invoice.depositAmount),
   )
@@ -383,11 +401,21 @@ function OrderPlanningWorkspace({
         <>
           {!reworkCaseId && !depositPaid && data.order.status === 'APPROVED' ? (
             <PlanningPaymentGate
+              onContractUpdated={() => {
+                query.reload()
+                onOrderUpdated?.()
+              }}
               checkingPayment={checkingPayment}
               checkPayment={checkPayment}
               data={data}
             />
           ) : null}
+          {data.order.status === 'CANCELLED' && (
+            <CancelledOrderContractPanel
+              orderId={orderId}
+              onUpdated={query.reload}
+            />
+          )}
           {/* Create Mission Modal Popup */}
           {creating && (
             <PlanningFormModal
@@ -449,9 +477,9 @@ function OrderPlanningWorkspace({
                       }
                       refundEligible={Boolean(
                         data.order.status === 'APPROVED' &&
-                          data.order.legalReviewStatus === 'REJECTED' &&
-                          mission.flightPermitStatus === 'REJECTED' &&
-                          depositPaid,
+                        data.order.legalReviewStatus === 'REJECTED' &&
+                        mission.flightPermitStatus === 'REJECTED' &&
+                        depositPaid,
                       )}
                     />
                   ),
@@ -485,9 +513,9 @@ function OrderPlanningWorkspace({
                       }
                       refundEligible={Boolean(
                         data.order.status === 'APPROVED' &&
-                          data.order.legalReviewStatus === 'REJECTED' &&
-                          mission.flightPermitStatus === 'REJECTED' &&
-                          depositPaid,
+                        data.order.legalReviewStatus === 'REJECTED' &&
+                        mission.flightPermitStatus === 'REJECTED' &&
+                        depositPaid,
                       )}
                     />
                   ))}

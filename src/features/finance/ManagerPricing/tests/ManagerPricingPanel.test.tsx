@@ -1,11 +1,41 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { ApiError } from '../../../../shared/api/httpClient'
+import { contractApi } from '../../../contract/contractApi'
 import { financeApi } from '../../api'
 import { ManagerPricingPanel } from '../ManagerPricingPanel'
 
+beforeEach(() => {
+  vi.spyOn(contractApi, 'get').mockResolvedValue({
+    required: true,
+    id: 'contract',
+    version: 0,
+    invoiceId: null,
+    quoteId: 'quote-1',
+    quoteVersion: 1,
+    contractNumber: 'CTR-01',
+    status: 'AWAITING_SIGNATURE',
+    issuedAt: null,
+    issuedBy: null,
+    confirmedAt: null,
+    confirmedBy: null,
+    document: {
+      fileName: 'official.pdf',
+      byteSize: 100,
+      sha256: 'a'.repeat(64),
+    },
+    submissions: [],
+  })
+})
 afterEach(() => vi.restoreAllMocks())
+async function sendPreparedQuote() {
+  const send = await screen.findByRole('button', {
+    name: 'Gửi báo giá kèm hợp đồng',
+  })
+  await waitFor(() => expect(send).toBeEnabled())
+  fireEvent.click(send)
+}
 
 function reviewWith(amount: number) {
   return {
@@ -70,7 +100,7 @@ describe('ManagerPricingPanel', () => {
     const save = vi.spyOn(financeApi, 'saveDraft')
     render(<ManagerPricingPanel orderId="order-1" />)
     expect(
-      await screen.findByRole('button', { name: 'Duyệt báo giá' }),
+      await screen.findByRole('button', { name: 'Tiếp tục chuẩn bị hợp đồng' }),
     ).toBeDisabled()
     expect(screen.getByText('Bản nháp')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Extra requirement' }))
@@ -95,7 +125,7 @@ describe('ManagerPricingPanel', () => {
     })
     render(<ManagerPricingPanel orderId="order-1" />)
     expect(
-      await screen.findByRole('button', { name: 'Duyệt báo giá' }),
+      await screen.findByRole('button', { name: 'Tiếp tục chuẩn bị hợp đồng' }),
     ).toBeEnabled()
     expect(screen.queryByRole('button', { name: 'Soạn hướng dẫn' })).toBeNull()
   })
@@ -370,7 +400,9 @@ describe('ManagerPricingPanel', () => {
 
     render(<ManagerPricingPanel orderId="order-1" />)
     await screen.findAllByText('Extra requirement')
-    expect(screen.getByRole('button', { name: 'Duyệt báo giá' })).toBeEnabled()
+    expect(
+      screen.getByRole('button', { name: 'Tiếp tục chuẩn bị hợp đồng' }),
+    ).toBeEnabled()
     expect(screen.queryByLabelText('Giá gói (VND)')).not.toBeInTheDocument()
     expect(
       screen.queryByRole('heading', { name: 'Đánh giá công việc tùy chỉnh' }),
@@ -399,7 +431,9 @@ describe('ManagerPricingPanel', () => {
     render(<ManagerPricingPanel orderId="order-1" />)
     await screen.findAllByText('Extra requirement')
     expect(screen.getByLabelText('Giá duyệt (VND)')).toHaveValue('427570')
-    fireEvent.click(screen.getByRole('button', { name: 'Duyệt báo giá' }))
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Tiếp tục chuẩn bị hợp đồng' }),
+    )
 
     expect(
       await screen.findByText(
@@ -434,7 +468,9 @@ describe('ManagerPricingPanel', () => {
     )
     render(<ManagerPricingPanel orderId="order-1" />)
     await screen.findAllByText('Extra requirement')
-    fireEvent.click(screen.getByRole('button', { name: 'Duyệt báo giá' }))
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Tiếp tục chuẩn bị hợp đồng' }),
+    )
     expect(
       await screen.findByText(
         /Đơn chưa đủ điều kiện duyệt: Missing: Legal check/,
@@ -463,7 +499,9 @@ describe('ManagerPricingPanel', () => {
     expect(
       await screen.findByText(/Ngoài khoảng cho phép: .*300\.000.*500\.000/),
     ).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Duyệt báo giá' })).toBeDisabled()
+    expect(
+      screen.getByRole('button', { name: 'Tiếp tục chuẩn bị hợp đồng' }),
+    ).toBeDisabled()
     expect(save).not.toHaveBeenCalled()
 
     fireEvent.change(screen.getByLabelText('Giá duyệt (VND)'), {
@@ -518,7 +556,9 @@ describe('ManagerPricingPanel', () => {
 
     await screen.findByText('Requirement awaiting review')
     expect(screen.getByText('0/1 nội dung đã xem xét')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Duyệt báo giá' })).toBeDisabled()
+    expect(
+      screen.getByRole('button', { name: 'Tiếp tục chuẩn bị hợp đồng' }),
+    ).toBeDisabled()
     expect(screen.queryByRole('button', { name: 'Lưu nháp' })).toBeNull()
     expect(approve).not.toHaveBeenCalled()
   })
@@ -583,11 +623,14 @@ describe('ManagerPricingPanel', () => {
 
     render(<ManagerPricingPanel orderId="order-1" />)
     await screen.findByText('Package requirement')
-    const button = screen.getByRole('button', { name: 'Duyệt báo giá' })
+    const button = screen.getByRole('button', {
+      name: 'Tiếp tục chuẩn bị hợp đồng',
+    })
     expect(button).toBeEnabled()
     fireEvent.click(button)
-
-    await screen.findByText(/Duyệt báo giá thành công/)
+    expect(approve).not.toHaveBeenCalled()
+    await sendPreparedQuote()
+    await screen.findByText(/Đã gửi báo giá và hợp đồng/)
     expect(reviewItem).not.toHaveBeenCalled()
     expect(approve).toHaveBeenCalledTimes(1)
   })
@@ -640,19 +683,17 @@ describe('ManagerPricingPanel', () => {
 
     render(<ManagerPricingPanel orderId="order-1" />)
     await screen.findByText('Default requirement')
-    fireEvent.click(screen.getByRole('button', { name: 'Duyệt báo giá' }))
-
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Tiếp tục chuẩn bị hợp đồng' }),
+    )
+    expect(approve).not.toHaveBeenCalled()
+    await sendPreparedQuote()
     expect(
-      await screen.findByText(
-        'Duyệt báo giá thành công. Báo giá đã sẵn sàng để khách hàng chấp nhận.',
-      ),
+      await screen.findByText(/Đã gửi báo giá và hợp đồng/),
     ).toBeInTheDocument()
-    const approvedButton = screen.getByRole('button', {
-      name: 'Đã duyệt thành công',
-    })
-    expect(approvedButton).toBeDisabled()
-
-    fireEvent.click(approvedButton)
+    expect(
+      screen.queryByRole('button', { name: 'Gửi báo giá kèm hợp đồng' }),
+    ).toBeNull()
     expect(approve).toHaveBeenCalledTimes(1)
   })
 })

@@ -11,10 +11,12 @@ import { planningPaymentGateMessages } from './PlanningPaymentGate.messages'
 export function PlanningPaymentGate({
   checkingPayment,
   checkPayment,
+  onContractUpdated,
   data,
 }: {
   checkingPayment: boolean
   checkPayment: () => Promise<void>
+  onContractUpdated?: () => void
   data: {
     plan: ExecutionPlan
     missions: MissionResponse[]
@@ -31,13 +33,23 @@ export function PlanningPaymentGate({
         <OrderContractPanel
           orderId={data.order.id}
           mode="manager"
-          onConfirmed={waitingContract ? () => void checkPayment() : undefined}
+          onUpdated={onContractUpdated ?? (() => void checkPayment())}
         />
       )}
       <div className="mgr-banner mgr-plan-gate" role="status">
         <div className="mgr-plan-gate-text">
-          <strong>{waitingContract ? t.waitingContract : t.waiting}</strong>
-          {waitingContract && <span>{t.contractNote}</span>}
+          <strong>
+            {!data.invoice
+              ? t.waitingCustomer
+              : waitingContract
+                ? t.waitingContract
+                : t.waiting}
+          </strong>
+          {!data.invoice ? (
+            <span>{t.customerNote}</span>
+          ) : (
+            waitingContract && <span>{t.contractNote}</span>
+          )}
           {data.invoice ? (
             <>
               <progress
@@ -63,7 +75,11 @@ export function PlanningPaymentGate({
           disabled={checkingPayment}
           onClick={() => void checkPayment()}
         >
-          {checkingPayment ? t.checking : t.checkPayment}
+          {checkingPayment
+            ? t.checking
+            : !data.invoice
+              ? t.refreshStatus
+              : t.checkPayment}
         </Button>
       </div>
     </>

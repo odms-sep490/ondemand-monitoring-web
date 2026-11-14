@@ -1,22 +1,42 @@
 import { defineMessages } from '../../shared/i18n'
 export const contractMessages = defineMessages({
   vi: {
+    dropHint: 'Kéo thả một tệp PDF vào đây hoặc chọn từ máy tính.',
+    changeFile: 'Đổi tệp',
+    readyToSend: 'Đã lưu hợp đồng. Hồ sơ sẵn sàng gửi khách hàng.',
+    saveBeforeSend: 'Lưu hợp đồng PDF trước khi gửi hồ sơ.',
     title: 'Hợp đồng dịch vụ',
+    preparedStatus: 'Hợp đồng đã chuẩn bị',
+    managerSubtitle: 'Lưu bản PDF chính thức để khách hàng đọc, ký và gửi lại.',
+    preAcceptSubtitle:
+      'Đọc hợp đồng cùng báo giá trước khi chấp nhận. Sau đó gửi bản PDF đã ký tại đây.',
     subtitle: 'Ký bên ngoài hệ thống · Gửi bản PDF đã ký để quản lý xác nhận.',
     status: {
       NOT_REQUIRED: 'Áp dụng luồng trước đây',
-      NOT_ISSUED: 'Chờ phát hành hợp đồng',
+      NOT_ISSUED: 'Chưa có tệp PDF',
       AWAITING_SIGNATURE: 'Chờ bản hợp đồng đã ký',
       PENDING_VERIFICATION: 'Chờ quản lý xác nhận',
       CHANGES_REQUESTED: 'Cần bổ sung hợp đồng',
       CONFIRMED: 'Hợp đồng đã được xác nhận',
+      CANCELLED: 'Quy trình hợp đồng đã hủy',
     },
     loading: 'Đang tải hợp đồng…',
     refresh: 'Làm mới',
+    acceptFirst:
+      'Bạn có thể đọc và tải hợp đồng ngay. Chấp nhận báo giá để tiếp tục gửi bản đã ký.',
+    prepareQuote: 'Gửi báo giá và hợp đồng',
+    sendTogether: 'Gửi báo giá kèm hợp đồng',
+    editQuote: 'Chỉnh sửa báo giá',
+    preparedHint: 'Thêm hợp đồng PDF để gửi cùng báo giá cho khách hàng.',
+    sentHint:
+      'Đã gửi báo giá và hợp đồng. Chờ khách hàng chấp nhận và gửi bản đã ký.',
+    sending: 'Đang gửi…',
+    sent: 'Báo giá và hợp đồng đã được gửi.',
+    quoteAmount: 'Giá trị báo giá',
     waitingIssue:
-      'Quản lý sẽ phát hành hợp đồng theo báo giá bạn đã chấp nhận. Bạn chưa cần thanh toán cọc ở bước này.',
+      'Quản lý đang chuẩn bị hợp đồng tương ứng với báo giá. Bạn chưa cần thanh toán cọc ở bước này.',
     managerIssue:
-      'Tải lên PDF chính thức đã kiểm tra, đúng phạm vi và giá trị của báo giá đã được khách chấp nhận. Bản phát hành được giữ nguyên trong lịch sử.',
+      'Tải lên PDF chính thức đã kiểm tra, đúng phạm vi và giá trị của phiên bản báo giá này. Bản phát hành được giữ nguyên trong lịch sử.',
     quote: (version: number) => `Gắn với báo giá phiên bản ${version}`,
     number: 'Số hợp đồng',
     file: 'Chọn PDF hợp đồng',
@@ -24,12 +44,12 @@ export const contractMessages = defineMessages({
     chooseFile: 'Chọn tệp PDF',
     noFile: 'Chưa chọn tệp',
     limit: 'PDF · Tối đa 10 MB · Không đặt mật khẩu',
-    issue: 'Phát hành hợp đồng',
+    issue: 'Lưu hợp đồng PDF',
     submit: 'Gửi hợp đồng đã ký',
     download: 'Tải hợp đồng chính thức',
     signedDownload: 'Tải bản đã ký',
     pending:
-      'Đã nhận bản hợp đồng của bạn. Vui lòng chờ quản lý kiểm tra; chưa thể thanh toán cọc.',
+      'Đã nhận bản đã ký. Bạn có thể thanh toán cọc trong khi chờ quản lý xác minh. Nhiệm vụ chưa được triển khai ở bước này.',
     declaration:
       'Tôi xác nhận tệp này là bản hợp đồng đã ký mà tôi muốn gửi để kiểm tra.',
     checked:
@@ -38,7 +58,7 @@ export const contractMessages = defineMessages({
     changes: 'Yêu cầu bổ sung',
     reason: 'Lý do cần bổ sung',
     confirmed:
-      'Hợp đồng đã được quản lý xác nhận. Bạn có thể tiếp tục thanh toán cọc trong thời hạn hiển thị.',
+      'Hợp đồng đã được xác nhận. Khi đã đủ cọc, hệ thống có thể tiếp tục lập kế hoạch nhiệm vụ.',
     history: 'Lịch sử gửi và kiểm tra',
     submission: (n: number) => `Lần gửi ${n}`,
     submitted: 'Gửi lúc',
@@ -53,8 +73,10 @@ export const contractMessages = defineMessages({
       'Số hợp đồng cần 3–80 ký tự: chữ, số, dấu gạch ngang, gạch dưới hoặc dấu /.',
     failed: 'Không thể xử lý hợp đồng. Hãy làm mới và thử lại.',
     loadFailed:
-      'Không thể tải hợp đồng. Thanh toán cọc vẫn bị khóa cho đến khi có xác nhận hợp lệ.',
+      'Không thể tải thông tin hợp đồng. Hãy làm mới trước khi tiếp tục.',
     errors: {
+      CONTRACT_NOT_FOUND:
+        'Cần chuẩn bị hợp đồng PDF đúng phiên bản báo giá trước khi gửi hoặc chấp nhận.',
       CONTRACT_VERSION_CONFLICT:
         'Dữ liệu đã thay đổi. Hãy làm mới và kiểm tra lại trước khi tiếp tục.',
       CONTRACT_STATE_CONFLICT:
@@ -65,11 +87,20 @@ export const contractMessages = defineMessages({
         'Chưa thể truy cập kho lưu trữ hợp đồng. Hãy thử lại sau.',
       ACCESS_DENIED: 'Bạn không có quyền thực hiện thao tác với hợp đồng này.',
       CONTRACT_NOT_CONFIRMED:
-        'Cần quản lý xác nhận hợp đồng trước khi thanh toán cọc.',
+        'Cần gửi bản hợp đồng đã ký trước khi thanh toán cọc.',
     } as Record<string, string>,
   },
   en: {
+    dropHint: 'Drop one PDF here or choose a file from your computer.',
+    changeFile: 'Change file',
+    readyToSend: 'Contract saved. Ready to send to the customer.',
+    saveBeforeSend: 'Save the PDF contract before sending.',
     title: 'Service contract',
+    preparedStatus: 'Contract prepared',
+    managerSubtitle:
+      'Save the official PDF for the customer to read, sign and return.',
+    preAcceptSubtitle:
+      'Review the contract with the quote before accepting, then submit your signed PDF here.',
     subtitle:
       'Sign outside the system · Submit the signed PDF for manager verification.',
     status: {
@@ -79,13 +110,25 @@ export const contractMessages = defineMessages({
       PENDING_VERIFICATION: 'Awaiting manager verification',
       CHANGES_REQUESTED: 'Changes requested',
       CONFIRMED: 'Contract confirmed',
+      CANCELLED: 'Contract process cancelled',
     },
     loading: 'Loading contract…',
     refresh: 'Refresh',
+    acceptFirst:
+      'Read or download the contract now. Accept the quote to continue with the signed document.',
+    prepareQuote: 'Send quote and contract',
+    sendTogether: 'Send quote with contract',
+    editQuote: 'Edit quote',
+    preparedHint: 'Add the PDF contract to send with the customer’s quote.',
+    sentHint:
+      'Quote and contract sent. Awaiting customer acceptance and their signed document.',
+    sending: 'Sending…',
+    sent: 'The quote and contract have been sent.',
+    quoteAmount: 'Quote total',
     waitingIssue:
-      'The manager will issue a contract for your accepted quote. No deposit is due at this step.',
+      'The manager is preparing the contract for this quote. No deposit is due at this step.',
     managerIssue:
-      'Upload the verified official PDF matching the accepted quote scope and value. The issued document will remain in the history.',
+      'Upload the verified official PDF matching this quote version, scope and value. The issued document will remain in the history.',
     quote: (version: number) => `Bound to quote version ${version}`,
     number: 'Contract number',
     file: 'Select contract PDF',
@@ -93,12 +136,12 @@ export const contractMessages = defineMessages({
     chooseFile: 'Choose PDF file',
     noFile: 'No file selected',
     limit: 'PDF · Up to 10 MB · No password',
-    issue: 'Issue contract',
+    issue: 'Save contract PDF',
     submit: 'Submit signed contract',
     download: 'Download official contract',
     signedDownload: 'Download signed copy',
     pending:
-      'Your signed contract was received. Please wait for manager verification; the deposit is not available yet.',
+      'Your signed contract was received. You can pay the deposit while the manager verifies it. Mission planning remains locked until verification is complete.',
     declaration:
       'I confirm this file is the signed contract I wish to submit for review.',
     checked:
@@ -107,7 +150,7 @@ export const contractMessages = defineMessages({
     changes: 'Request changes',
     reason: 'Reason for changes',
     confirmed:
-      'The manager has confirmed the contract. You may now pay the deposit within the displayed deadline.',
+      'The contract is confirmed. Planning can proceed once the deposit is paid.',
     history: 'Submission and review history',
     submission: (n: number) => `Submission ${n}`,
     submitted: 'Submitted at',
@@ -122,8 +165,10 @@ export const contractMessages = defineMessages({
       'Use 3–80 characters: letters, numbers, hyphens, underscores or /.',
     failed: 'Unable to process the contract. Refresh and try again.',
     loadFailed:
-      'Unable to load the contract. The deposit remains locked until verification is confirmed.',
+      'Unable to load contract information. Refresh before continuing.',
     errors: {
+      CONTRACT_NOT_FOUND:
+        'Prepare the PDF contract for this quote version before sending or accepting it.',
       CONTRACT_VERSION_CONFLICT:
         'The contract changed. Refresh and review it before continuing.',
       CONTRACT_STATE_CONFLICT:
@@ -134,7 +179,7 @@ export const contractMessages = defineMessages({
         'Contract storage is unavailable. Please try again later.',
       ACCESS_DENIED: 'You are not authorized to access this contract.',
       CONTRACT_NOT_CONFIRMED:
-        'The manager must confirm the contract before the deposit can be paid.',
+        'Submit the signed contract before paying the deposit.',
     } as Record<string, string>,
   },
 })

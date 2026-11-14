@@ -91,7 +91,9 @@ export function InvoiceSection({
   )
   const deadlineKey = `${invoice.id}:${invoice.depositExpiresAt ?? ''}`
   const depositIssuedAt = Date.parse(
-    invoice.contractConfirmedAt ?? invoice.issuedAt,
+    invoice.contractSubmittedAt ??
+      invoice.contractConfirmedAt ??
+      invoice.issuedAt,
   )
   const depositExpiresAt = invoice.depositExpiresAt
     ? Date.parse(invoice.depositExpiresAt)
@@ -104,7 +106,18 @@ export function InvoiceSection({
     invoice.status === 'OVERDUE' ||
     depositReachedDeadline ||
     expiredDeadlineKey === deadlineKey
-  if (invoice.contractRequired && !invoice.contractConfirmedAt) return null
+  if (
+    invoice.status === 'CANCELLED' ||
+    invoice.status === 'REFUNDED' ||
+    invoice.orderCancellationReason?.startsWith('CONTRACT_')
+  )
+    return null
+  if (
+    invoice.contractRequired &&
+    !invoice.contractConfirmedAt &&
+    !invoice.contractSubmittedAt
+  )
+    return null
   return (
     <div className="customer-invoice customer-invoice-actions">
       {invoice.depositExpiresAt &&
@@ -116,7 +129,9 @@ export function InvoiceSection({
             deadline={invoice.depositExpiresAt}
             startAt={
               Number.isFinite(depositIssuedAt)
-                ? (invoice.contractConfirmedAt ?? invoice.issuedAt)
+                ? (invoice.contractSubmittedAt ??
+                  invoice.contractConfirmedAt ??
+                  invoice.issuedAt)
                 : null
             }
             deadlineLabel={t.depositDeadlineAt(
@@ -146,10 +161,21 @@ export function InvoiceSection({
           <b>{t.orderCancelledPaymentTimeout}</b>
         </div>
       ) : null}
-      {invoice.paidAmount < invoice.depositAmount ? (
+      {invoice.contractRequired &&
+      !invoice.contractConfirmedAt &&
+      invoice.paidAmount >= invoice.depositAmount ? (
+        <div className="customer-deposit-notice">
+          <b>{t.contractVerificationPending}</b>
+          <span>{t.contractVerificationPendingBody}</span>
+        </div>
+      ) : invoice.paidAmount < invoice.depositAmount ? (
         <div className="customer-deposit-notice">
           <b>{t.awaitingDeposit}</b>
-          <span>{t.awaitingDepositBody}</span>
+          <span>
+            {invoice.contractRequired
+              ? t.awaitingDepositContractBody
+              : t.awaitingDepositBody}
+          </span>
         </div>
       ) : invoice.status === 'PAID' ? (
         <div className="customer-deposit-notice is-ready">
@@ -165,8 +191,7 @@ export function InvoiceSection({
       <div className="finance-actions customer-payment-actions">
         {invoice.paidAmount < invoice.depositAmount &&
         legalReady &&
-        !depositExpired &&
-        invoice.status !== 'CANCELLED' ? (
+        !depositExpired ? (
           <>
             <Button
               type="primary"

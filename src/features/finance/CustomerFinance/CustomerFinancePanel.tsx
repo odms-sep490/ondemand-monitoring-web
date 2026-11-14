@@ -48,34 +48,38 @@ export function CustomerFinancePanel({
   const [quote, setQuote] = useState<CustomerQuote | null>(null)
   const [invoice, setInvoice] = useState<Invoice | null>(null)
   const [refund, setRefund] = useState<RefundResponse | null>(null)
-  const [missionPayments, setMissionPayments] = useState<MissionPaymentAllocation | null>(null)
+  const [missionPayments, setMissionPayments] =
+    useState<MissionPaymentAllocation | null>(null)
   const [missionPaymentsLoading, setMissionPaymentsLoading] = useState(false)
-  const [missionPaymentsError, setMissionPaymentsError] = useState<string | null>(null)
+  const [missionPaymentsError, setMissionPaymentsError] = useState<
+    string | null
+  >(null)
   const [refundLoading, setRefundLoading] = useState(true)
   const [refundError, setRefundError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const refreshMissionPayments = useCallback(async (signal?: AbortSignal) => {
-    try {
-      const allocation = await financeApi.getCustomerMissionPaymentAllocations(
-        orderId,
-        signal,
-      )
-      if (signal?.aborted) return
-      setMissionPayments(allocation)
-      setMissionPaymentsError(null)
-    } catch (cause) {
-      if (signal?.aborted) return
-      if (isNotFound(cause)) {
-        setMissionPayments(null)
+  const refreshMissionPayments = useCallback(
+    async (signal?: AbortSignal) => {
+      try {
+        const allocation =
+          await financeApi.getCustomerMissionPaymentAllocations(orderId, signal)
+        if (signal?.aborted) return
+        setMissionPayments(allocation)
         setMissionPaymentsError(null)
-      } else {
-        setMissionPaymentsError(messageOf(cause, t))
+      } catch (cause) {
+        if (signal?.aborted) return
+        if (isNotFound(cause)) {
+          setMissionPayments(null)
+          setMissionPaymentsError(null)
+        } else {
+          setMissionPaymentsError(messageOf(cause, t))
+        }
       }
-    }
-  }, [orderId, t])
+    },
+    [orderId, t],
+  )
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -83,11 +87,13 @@ export function CustomerFinancePanel({
     setError(null)
     setRefundLoading(true)
     setRefundError(null)
-    const [quoteResult, invoiceResult, refundResult] = await Promise.allSettled([
-      financeApi.getQuote(orderId),
-      financeApi.getInvoice(orderId),
-      refundApi.getCustomerOrderRefund(orderId),
-    ])
+    const [quoteResult, invoiceResult, refundResult] = await Promise.allSettled(
+      [
+        financeApi.getQuote(orderId),
+        financeApi.getInvoice(orderId),
+        refundApi.getCustomerOrderRefund(orderId),
+      ],
+    )
     if (quoteResult.status === 'fulfilled') setQuote(quoteResult.value)
     else if (isNotFound(quoteResult.reason)) setQuote(null)
     else {
@@ -101,7 +107,9 @@ export function CustomerFinancePanel({
       setMissionPaymentsLoading(true)
       setMissionPaymentsError(null)
       try {
-        setMissionPayments(await financeApi.getCustomerMissionPaymentAllocations(orderId))
+        setMissionPayments(
+          await financeApi.getCustomerMissionPaymentAllocations(orderId),
+        )
       } catch (cause) {
         if (isNotFound(cause)) setMissionPayments(null)
         else {
@@ -175,7 +183,13 @@ export function CustomerFinancePanel({
   // The payment type is part of InvoiceSection's onPay contract; only deposits exist today.
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async function pay(_type: 'deposit') {
-    if (!invoice || (invoice.contractRequired && !invoice.contractConfirmedAt)) return
+    if (
+      !invoice ||
+      (invoice.contractRequired &&
+        !invoice.contractConfirmedAt &&
+        !invoice.contractSubmittedAt)
+    )
+      return
     setBusy(true)
     setError(null)
     try {
@@ -189,7 +203,13 @@ export function CustomerFinancePanel({
   }
 
   async function completeTestPayment() {
-    if (!invoice || (invoice.contractRequired && !invoice.contractConfirmedAt)) return
+    if (
+      !invoice ||
+      (invoice.contractRequired &&
+        !invoice.contractConfirmedAt &&
+        !invoice.contractSubmittedAt)
+    )
+      return
     setBusy(true)
     setError(null)
     try {
@@ -247,125 +267,158 @@ export function CustomerFinancePanel({
 
   const invoiceContent = invoice ? (
     <>
-      {invoice.contractRequired && (
-        <OrderContractPanel
-          orderId={orderId}
-          mode="customer"
-          onConfirmed={invoice.contractConfirmedAt ? undefined : () => void load()}
-        />
-      )}
-    <InvoiceSection
-      invoice={invoice}
-      legalReady={legalReady}
-      busy={busy}
-      pay={pay}
-      completeTestDeposit={completeTestPayment}
-      testPaymentLabel={t.testPayment}
-      refreshExpired={() => void load()}
-    />
+      <InvoiceSection
+        invoice={invoice}
+        legalReady={legalReady}
+        busy={busy}
+        pay={pay}
+        completeTestDeposit={completeTestPayment}
+        testPaymentLabel={t.testPayment}
+        refreshExpired={() => void load()}
+      />
     </>
   ) : null
 
   if (loading && !quote && !invoice)
     return (
       <>
-      <RefundStatusSection refund={refund} loading={refundLoading} error={refundError} />
-      <CardComponent
-        className="customer-finance-card"
-        title={t.title}
-        icon={<OrderIcon name="tag" size={16} />}
-      >
-        <div className="customer-finance-skeleton" role="status" aria-busy="true">
-          <p className="customer-finance-desc">{t.loading}</p>
-          <Skeleton active title={{ width: '40%' }} paragraph={{ rows: 4 }} />
-        </div>
-      </CardComponent>
+        <RefundStatusSection
+          refund={refund}
+          loading={refundLoading}
+          error={refundError}
+        />
+        <CardComponent
+          className="customer-finance-card"
+          title={t.title}
+          icon={<OrderIcon name="tag" size={16} />}
+        >
+          <div
+            className="customer-finance-skeleton"
+            role="status"
+            aria-busy="true"
+          >
+            <p className="customer-finance-desc">{t.loading}</p>
+            <Skeleton active title={{ width: '40%' }} paragraph={{ rows: 4 }} />
+          </div>
+        </CardComponent>
       </>
     )
   if (!quote && !invoice && !error)
     return (
       <>
-      <RefundStatusSection refund={refund} loading={refundLoading} error={refundError} />
-      <CardComponent
-        className="customer-finance-card"
-        title={t.title}
-        icon={<OrderIcon name="tag" size={16} />}
-      >
-        <EmptyState
-          icon={<OrderIcon name="tag" size={20} />}
-          title={t.noFinancialData}
-          description={t.noFinancialDataHint}
+        <RefundStatusSection
+          refund={refund}
+          loading={refundLoading}
+          error={refundError}
         />
-      </CardComponent>
+        <CardComponent
+          className="customer-finance-card"
+          title={t.title}
+          icon={<OrderIcon name="tag" size={16} />}
+        >
+          <EmptyState
+            icon={<OrderIcon name="tag" size={20} />}
+            title={t.noFinancialData}
+            description={t.noFinancialDataHint}
+          />
+        </CardComponent>
       </>
     )
 
   return (
     <>
-    <RefundStatusSection refund={refund} loading={refundLoading} error={refundError} />
-    <CardComponent
-      className="customer-finance-card"
-      title={t.title}
-      icon={<OrderIcon name="tag" size={16} />}
-      extra={
-        quote ? (
-          <span className="finance-status">
-            {t.quoteVersion(quote.version)}
-          </span>
-        ) : null
-      }
-    >
-      <p className="customer-finance-desc">{t.description}</p>
-
-      {quote ? (
-        <QuoteSection
-          quote={quote}
-          legalReady={legalReady}
-          legalStatus={legalStatus}
-          invoice={invoice}
-          busy={busy || quoteStale}
-          accept={accept}
-          refreshExpired={() => void load()}
-          paymentContent={invoiceContent}
-          paymentSummaryContent={invoiceSummaryContent}
-        />
-      ) : null}
-
-      {!quote && invoice ? (
-        <div className="customer-invoice-standalone">
-          {invoiceSummaryContent}
-          {invoiceContent}
-        </div>
-      ) : null}
-      {quoteStale ? (
-        <Button disabled={busy || loading} onClick={() => void load()}>
-          {g.reload}
-        </Button>
-      ) : null}
-      {error ? (
-        <Alert
-          className="finance-alert-box"
-          type="error"
-          showIcon
-          message={error}
-          action={
-            <Button size="small" disabled={busy || loading} onClick={() => void load()}>
-              {t.retry}
-            </Button>
-          }
-        />
-      ) : null}
-    </CardComponent>
-    {invoice ? (
-      <MissionPaymentMilestonesSection
-        allocation={missionPayments}
-        loading={missionPaymentsLoading}
-        error={missionPaymentsError}
-        busy={busy}
-        onPay={(milestoneId) => void payMission(milestoneId)}
-        onTestPay={(milestoneId) => void completeTestMission(milestoneId)}
+      <RefundStatusSection
+        refund={refund}
+        loading={refundLoading}
+        error={refundError}
       />
-    ) : null}
+      <CardComponent
+        className="customer-finance-card"
+        title={t.title}
+        icon={<OrderIcon name="tag" size={16} />}
+        extra={
+          quote ? (
+            <span className="finance-status">
+              {t.quoteVersion(quote.version)}
+            </span>
+          ) : null
+        }
+      >
+        <p className="customer-finance-desc">{t.description}</p>
+
+        {quote ? (
+          <QuoteSection
+            quote={quote}
+            legalReady={legalReady}
+            legalStatus={legalStatus}
+            invoice={invoice}
+            busy={busy || quoteStale}
+            accept={accept}
+            refreshExpired={() => void load()}
+            paymentContent={
+              <>
+                {(quote.status === 'APPROVED' || invoice?.contractRequired) && (
+                  <OrderContractPanel
+                    orderId={orderId}
+                    quoteId={quote.id}
+                    mode="customer"
+                    refreshKey={invoice?.id}
+                    onUpdated={() => void load()}
+                  />
+                )}
+                {invoiceContent}
+              </>
+            }
+            paymentSummaryContent={invoiceSummaryContent}
+          />
+        ) : null}
+
+        {!quote && invoice ? (
+          <div className="customer-invoice-standalone">
+            {invoiceSummaryContent}
+            {invoice.contractRequired && (
+              <OrderContractPanel
+                orderId={orderId}
+                mode="customer"
+                onUpdated={() => void load()}
+              />
+            )}
+            {invoiceContent}
+          </div>
+        ) : null}
+        {quoteStale ? (
+          <Button disabled={busy || loading} onClick={() => void load()}>
+            {g.reload}
+          </Button>
+        ) : null}
+        {error ? (
+          <Alert
+            className="finance-alert-box"
+            type="error"
+            showIcon
+            message={error}
+            action={
+              <Button
+                size="small"
+                disabled={busy || loading}
+                onClick={() => void load()}
+              >
+                {t.retry}
+              </Button>
+            }
+          />
+        ) : null}
+      </CardComponent>
+      {invoice ? (
+        <MissionPaymentMilestonesSection
+          allocation={missionPayments}
+          loading={missionPaymentsLoading}
+          error={missionPaymentsError}
+          busy={busy}
+          onPay={(milestoneId) => void payMission(milestoneId)}
+          onTestPay={(milestoneId) => void completeTestMission(milestoneId)}
+        />
+      ) : null}
     </>
   )
 }
