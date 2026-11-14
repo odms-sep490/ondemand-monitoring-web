@@ -243,6 +243,13 @@ function MissionDetail({
           type="error"
           showIcon
           message={t.fields.failure}
+          action={
+            mission.orderId ? (
+              <Button href={managerHref({ screen: 'orderReview', orderId: mission.orderId })}>
+                {t.replanMission}
+              </Button>
+            ) : undefined
+          }
           description={
             <div style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>
               {mission.failureReason?.trim() ||
