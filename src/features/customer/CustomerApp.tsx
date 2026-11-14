@@ -10,9 +10,6 @@ import { customerHref, parseCustomerRoute, type CustomerRoute } from './routes'
 const CreateOrderPage = lazy(() =>
   import('./pages/CreateOrder').then((m) => ({ default: m.CreateOrderPage })),
 )
-const DashboardPage = lazy(() =>
-  import('./pages/Dashboard').then((m) => ({ default: m.DashboardPage })),
-)
 const LivePage = lazy(() =>
   import('./pages/Live').then((m) => ({ default: m.LivePage })),
 )
@@ -74,7 +71,7 @@ function renderScreen(
         missionId={route.missionId}
       />
     )
-  if (route.screen === 'dashboard') return <DashboardPage />
+  if (route.screen === 'dashboard') return <OrdersPage />
   if (route.screen === 'orders') return <OrdersPage />
   if (route.screen === 'createOrder') return <CreateOrderPage />
   if (route.screen === 'orderDetail')
@@ -93,7 +90,7 @@ function renderScreen(
       title={t.notFoundTitle}
       description={t.notFoundDescription}
       action={
-        <Button type="primary" href={customerHref({ screen: 'dashboard' })}>
+        <Button type="primary" href={customerHref({ screen: 'orders' })}>
           {t.backToDashboard}
         </Button>
       }

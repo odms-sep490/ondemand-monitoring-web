@@ -4,7 +4,7 @@ import { missionApi } from '../../../../mission/api/missionApi'
 import { useMissionMonitoring } from '../../../../mission/hooks/useMissionMonitoring'
 import { MonitoringChecklistSection } from '../../../../mission/components/MonitoringChecklistSection'
 import { missionResultActions, staffResultError } from '../../../components/common/MissionResultActions'
-import type { FlightControlStatus } from '../../../api/flightControlApi'
+import type { ManualPostflightReadings } from '../manualInspection'
 import { FlightStepHeader } from '../../../components/common/FlightStepper'
 import { operatorHref } from '../../../routes'
 import { useI18n } from '../../../../../shared/i18n'
@@ -37,7 +37,7 @@ export function PostflightCompletedView({
   deviceId: string
   inspectionResults: Record<string, 'PASS' | 'FAIL'> | null
   notes: string
-  telemetrySnapshot: FlightControlStatus | null
+  telemetrySnapshot: ManualPostflightReadings | null
 }) {
   const { t, lang } = useI18n(postflightPageMessages)
   const review = usePostflightReviewData(missionId)
@@ -682,9 +682,8 @@ export function PostflightCompletedView({
                   {telemetrySnapshot && (
                     <div className="postflight-review-telemetry">
                       <WeatherMetric label={t.landingBattery} value={formatMetric(telemetrySnapshot.batteryPercent, '%', 1)} />
-                      <WeatherMetric label={t.altitude} value={formatMetric(telemetrySnapshot.altitudeM, ' m', 1)} />
-                      <WeatherMetric label={t.speed} value={formatMetric(telemetrySnapshot.speedMps, ' m/s', 1)} />
-                      <WeatherMetric label={t.heading} value={formatMetric(telemetrySnapshot.headingDeg, '°', 0)} />
+
+
                     </div>
                   )}
                   <p className="postflight-review-notes">{notes.trim() || t.reviewNoNotes}</p>

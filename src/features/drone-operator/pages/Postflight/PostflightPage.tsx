@@ -10,7 +10,7 @@ import { useActiveMission } from '../../api/useActiveMission'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { missionApi } from '../../../mission/api/missionApi'
 import { operatorHref } from '../../routes'
-import { type FlightControlStatus } from '../../api/flightControlApi'
+import type { ManualPostflightReadings } from './manualInspection'
 import { postflightSummary } from '../../lib/postflightSummary'
 import type { PostflightItem, PreflightItemResult } from '../../types/mission'
 import { postflightPageMessages } from './PostflightPage.messages'
@@ -19,15 +19,13 @@ import { type ResultsState } from './postflightTypes'
 import {
   postflightCategories,
   ALL_KEYS,
-  readPostflightTelemetry,
 } from './postflightHelpers'
-import { usePostflightTelemetry } from './usePostflightTelemetry'
+import { InputNumber } from 'antd'
 import { usePostflightAssessment } from './usePostflightAssessment'
 import { fetchLatestPostflightCheck } from '../MissionDetail/checkData'
 import { PostflightCompletedView, type DevicePostflightResult } from './components/PostflightCompletedView'
 import { PostflightHeader } from './components/PostflightHeader'
 import { PostflightErrorBanner } from './components/PostflightErrorBanner'
-import { TelemetrySummary } from './components/TelemetrySummary'
 import { AssessmentProgress } from './components/AssessmentProgress'
 import { InspectionCategory } from './components/InspectionCategory'
 import { PostflightNotes } from './components/PostflightNotes'
@@ -133,8 +131,7 @@ function PostflightDevicePage({ missionId, selectedDeviceId, selectedDeviceLabel
   const [showTicketDialog, setShowTicketDialog] = useState(false)
   const [ticketSubmitting, setTicketSubmitting] = useState(false)
   const [ticketCreated, setTicketCreated] = useState(false)
-  const [liveTelemetrySnapshot, setLiveTelemetrySnapshot] =
-    useState<FlightControlStatus | null>(null)
+  const [landingBattery, setLandingBattery] = useState<number | null>(null)
   const [completed, setCompleted] = useState<{
     overallOk: boolean
     ticketCreated: boolean
@@ -161,17 +158,9 @@ function PostflightDevicePage({ missionId, selectedDeviceId, selectedDeviceLabel
   )
 
   const summary = postflightSummary(items, ALL_KEYS.length)
-  const storedTelemetrySnapshot = useMemo(
-    () => readPostflightTelemetry(effectiveMissionId),
-    [effectiveMissionId],
-  )
-  const telemetrySnapshot = liveTelemetrySnapshot ?? storedTelemetrySnapshot
-
-  usePostflightTelemetry({
-    effectiveMissionId,
-    deviceId,
-    setLiveTelemetrySnapshot,
-  })
+  // Only the operator-entered battery value is submitted; no controller reads.
+  const telemetrySnapshot: ManualPostflightReadings | null = landingBattery === null
+    ? null : { batteryPercent: landingBattery }
   const failItems = useMemo(
     () => ALL_KEYS.filter((k) => results[k] === 'fail'),
     [results],
@@ -200,7 +189,7 @@ function PostflightDevicePage({ missionId, selectedDeviceId, selectedDeviceLabel
       setResults,
       effectiveMissionId,
       setError,
-      allAssessed,
+      allAssessed: allAssessed && landingBattery !== null,
       setSaving,
       activeData,
       results,
@@ -309,9 +298,13 @@ function PostflightDevicePage({ missionId, selectedDeviceId, selectedDeviceLabel
 
           <div className="postflight-selected-device"><strong>{deviceLabel}</strong><span>Thiết bị đang kiểm tra</span></div>
           <div className="postflight-overview">
-            {deviceId === activeData?.deviceId && telemetrySnapshot && (
-              <TelemetrySummary telemetrySnapshot={telemetrySnapshot} />
-            )}
+            <div className="postflight-manual-battery">
+              <label htmlFor="postflight-landing-battery">{t.landingBattery} (%) <span aria-hidden="true">*</span></label>
+              <InputNumber id="postflight-landing-battery" min={0} max={100} precision={1}
+                value={landingBattery} onChange={setLandingBattery} placeholder="0–100"
+                addonAfter="%" aria-required="true" style={{ width: 180 }} />
+              <small>Nhập mức pin thực tế của thiết bị sau khi bay.</small>
+            </div>
             <AssessmentProgress
               failItems={failItems}
               summary={summary}
