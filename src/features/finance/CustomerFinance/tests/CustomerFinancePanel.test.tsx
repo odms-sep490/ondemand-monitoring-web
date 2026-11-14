@@ -62,7 +62,10 @@ const noMissionPayments = {
 }
 
 beforeEach(() => {
-  vi.spyOn(financeApi, 'getCustomerMissionPaymentAllocations').mockResolvedValue(noMissionPayments)
+  vi.spyOn(
+    financeApi,
+    'getCustomerMissionPaymentAllocations',
+  ).mockResolvedValue(noMissionPayments)
 })
 
 afterEach(() => {
@@ -131,7 +134,27 @@ describe('CustomerFinancePanel', () => {
         'Các khoản thanh toán theo nhiệm vụ sẽ xuất hiện riêng sau khi từng nhiệm vụ được bàn giao.',
       ),
     ).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: /thanh toán phần còn lại/i })).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: /thanh toán phần còn lại/i }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('hides Mission payments before deposit even when an incomplete allocation exists', async () => {
+    vi.spyOn(financeApi, 'getQuote').mockResolvedValue(quote)
+    vi.spyOn(financeApi, 'getInvoice').mockResolvedValue(invoice)
+    render(<CustomerFinancePanel orderId="order-1" />)
+    await screen.findByRole('button', { name: 'Thanh toán đặt cọc' })
+    await waitFor(() =>
+      expect(
+        financeApi.getCustomerMissionPaymentAllocations,
+      ).toHaveBeenCalled(),
+    )
+    expect(
+      screen.queryByRole('heading', { name: 'Thanh toán theo nhiệm vụ' }),
+    ).toBeNull()
+    expect(
+      screen.queryByText('Tổng phân bổ thanh toán chưa khớp số dư hóa đơn.'),
+    ).toBeNull()
   })
 
   it('shows a handed-over Mission amount, payment history, and an independent retry action', async () => {
@@ -142,47 +165,60 @@ describe('CustomerFinancePanel', () => {
       remainingAmount: 3_500_000,
       status: 'PARTIALLY_PAID',
     })
-    vi.spyOn(financeApi, 'getCustomerMissionPaymentAllocations').mockResolvedValue({
+    vi.spyOn(
+      financeApi,
+      'getCustomerMissionPaymentAllocations',
+    ).mockResolvedValue({
       invoiceId: 'invoice-1',
       allocationTargetAmount: 3_500_000,
       allocatedAmount: 3_500_000,
       allocationComplete: true,
-      milestones: [{
-        id: 'milestone-1',
-        missionId: 'mission-1',
-        missionCode: 'MS-101',
-        scopeLabel: 'Khu vực nhà xưởng',
-        amount: 1_000_000,
-        currency: 'VND',
-        status: 'UNPAID',
-        handedOverAt: '2026-11-11T08:00:00Z',
-        paymentExpiresAt: null,
-        payments: [{
-          ...pendingDeposit,
-          id: 'payment-failed',
-          type: 'MISSION_PAYMENT',
-          missionPaymentMilestoneId: 'milestone-1',
+      milestones: [
+        {
+          id: 'milestone-1',
+          missionId: 'mission-1',
+          missionCode: 'MS-101',
+          scopeLabel: 'Khu vực nhà xưởng',
           amount: 1_000_000,
-          status: 'FAILED',
-          transactionReference: 'MISSION-RETRY-1',
-        }],
-      }],
+          currency: 'VND',
+          status: 'UNPAID',
+          handedOverAt: '2026-11-11T08:00:00Z',
+          paymentExpiresAt: null,
+          payments: [
+            {
+              ...pendingDeposit,
+              id: 'payment-failed',
+              type: 'MISSION_PAYMENT',
+              missionPaymentMilestoneId: 'milestone-1',
+              amount: 1_000_000,
+              status: 'FAILED',
+              transactionReference: 'MISSION-RETRY-1',
+            },
+          ],
+        },
+      ],
     })
-    const createPayment = vi.spyOn(financeApi, 'createMissionPayment').mockResolvedValue({
-      ...pendingDeposit,
-      type: 'MISSION_PAYMENT',
-      missionPaymentMilestoneId: 'milestone-1',
-      paymentUrl: null,
-    })
+    const createPayment = vi
+      .spyOn(financeApi, 'createMissionPayment')
+      .mockResolvedValue({
+        ...pendingDeposit,
+        type: 'MISSION_PAYMENT',
+        missionPaymentMilestoneId: 'milestone-1',
+        paymentUrl: null,
+      })
 
     render(<CustomerFinancePanel orderId="order-1" />)
 
     expect(await screen.findByText('Khu vực nhà xưởng')).toBeInTheDocument()
     expect(screen.getByText('MS-101')).toBeInTheDocument()
     expect(screen.getByText('MISSION-RETRY-1')).toBeInTheDocument()
-    const retry = await screen.findByRole('button', { name: 'Thử thanh toán lại' })
+    const retry = await screen.findByRole('button', {
+      name: 'Thử thanh toán lại',
+    })
     fireEvent.click(retry)
-    await waitFor(() => expect(createPayment).toHaveBeenCalledWith('milestone-1'))
+    await waitFor(() =>
+      expect(createPayment).toHaveBeenCalledWith('milestone-1'),
+    )
   })
 
   it('explains when the order has no quote or payment records yet', async () => {

@@ -3,14 +3,17 @@ import { defineMessages } from '../../../../shared/i18n'
 export const missionPaymentMilestoneMessages = defineMessages({
   vi: {
     title: 'Thanh toán theo nhiệm vụ',
-    description: 'Mỗi khoản được thanh toán riêng sau khi nhiệm vụ được bàn giao.',
+    paymentProgress: 'Đã thanh toán / Tổng tiền các nhiệm vụ đã bàn giao',
+    description:
+      'Mỗi khoản được thanh toán riêng sau khi nhiệm vụ được bàn giao.',
     empty: 'Quản lý chưa cấu hình các khoản thanh toán theo nhiệm vụ.',
     allocationIncomplete: 'Tổng phân bổ thanh toán chưa khớp số dư hóa đơn.',
     missionFallback: 'Nhiệm vụ',
     handedOver: 'Bàn giao',
     notHandedOver: 'Chưa bàn giao',
     paymentDeadline: 'Hạn thanh toán',
-    expiredMessage: 'Đã hết hạn thanh toán. Vui lòng liên hệ quản lý để được hỗ trợ.',
+    expiredMessage:
+      'Đã hết hạn thanh toán. Vui lòng liên hệ quản lý để được hỗ trợ.',
     amount: 'Số tiền',
     paymentHistory: 'Lịch sử thanh toán',
     noAttempts: 'Chưa có giao dịch thanh toán.',
@@ -39,14 +42,18 @@ export const missionPaymentMilestoneMessages = defineMessages({
   },
   en: {
     title: 'Mission payments',
-    description: 'Each amount is paid separately after its Mission is handed over.',
+    paymentProgress: 'Paid / Total for handed-over Missions',
+    description:
+      'Each amount is paid separately after its Mission is handed over.',
     empty: 'The Manager has not configured Mission payment amounts yet.',
-    allocationIncomplete: 'Mission payment allocations do not match the Invoice balance.',
+    allocationIncomplete:
+      'Mission payment allocations do not match the Invoice balance.',
     missionFallback: 'Mission',
     handedOver: 'Handed over',
     notHandedOver: 'Not handed over',
     paymentDeadline: 'Payment deadline',
-    expiredMessage: 'The payment deadline has passed. Contact the Manager for help.',
+    expiredMessage:
+      'The payment deadline has passed. Contact the Manager for help.',
     amount: 'Amount',
     paymentHistory: 'Payment history',
     noAttempts: 'No payment attempts yet.',
