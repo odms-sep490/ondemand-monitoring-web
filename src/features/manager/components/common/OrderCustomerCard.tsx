@@ -2,8 +2,8 @@ import type { OrderDetail } from '../../types/orders'
 import type { OrderReviewMessages } from '../../pages/OrderReview/OrderReviewPage.messages'
 import { OrderIcon, type OrderIconName } from './OrderIcon'
 
-function initialsOf(fullName: string): string {
-  const letters = fullName
+function initialsOf(fullName?: string | null): string {
+  const letters = (fullName ?? '')
     .trim()
     .split(/\s+/)
     .filter(Boolean)
@@ -24,6 +24,7 @@ export function OrderCustomerCard({
   hideEmpty?: boolean
 }) {
   const { customer } = order
+  if (!customer) return null
   const hasCompany = Boolean(customer.companyName?.trim())
   const rows: Array<{
     icon: OrderIconName

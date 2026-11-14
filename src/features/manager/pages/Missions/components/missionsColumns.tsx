@@ -130,6 +130,7 @@ export function missionsColumns({
             <Button
               size="small"
               type="primary"
+              style={{ color: '#fff' }}
               href={managerHref({ screen: 'missionSetup', missionId: m.id })}
               onClick={stop}
             >

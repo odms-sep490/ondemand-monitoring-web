@@ -157,6 +157,8 @@ export const missionDetailPageMessages = defineMessages({
         missionAmount: 'Giá checklist của nhiệm vụ',
         missionTotal: 'Tổng giá trị nhiệm vụ',
         afterDeposit: 'Còn phải thanh toán sau cọc',
+        paidAfterDeposit: 'Đã thanh toán sau cọc',
+        netMissionAmount: 'Khoản thanh toán sau cọc',
         calculationTitle: 'Cách tính khoản thanh toán nhiệm vụ',
         calculationNote:
           'Phân bổ theo tỷ lệ giá checklist của nhiệm vụ trong đơn hàng.',
@@ -405,6 +407,8 @@ export const missionDetailPageMessages = defineMessages({
         missionAmount: 'Mission checklist value',
         missionTotal: 'Mission total',
         afterDeposit: 'Payable after deposit',
+        paidAfterDeposit: 'Paid after deposit',
+        netMissionAmount: 'Payment after deposit',
         calculationTitle: 'Mission payment calculation',
         calculationNote:
           'Allocated proportionally by this Mission’s checklist value in the Order.',

@@ -50,39 +50,16 @@
 .mgr-order-result__summary p { margin: 0; max-width: 72ch; font-size: 16px; line-height: 1.85; white-space: pre-line; overflow-wrap: anywhere; color: var(--ui-text, #111827); }
 .mgr-order-result__empty { margin: 24px 0 0; color: var(--ui-text-2, #4b5563); font-size: 16px; }
 @media (max-width: 900px) {
-  .mgr-order-result__facts {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+  .mgr-order-result__body { grid-template-columns: 1fr; gap: 24px; }
+  .mgr-order-result dl { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .mgr-order-result__summary { border-left: 0; border-top: 1px solid var(--ui-border, #e5e7eb); padding: 20px 0 0; }
 }
-
 @media (max-width: 640px) {
-  .mgr-order-results__header {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-  .mgr-order-result > header {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-  .mgr-order-result__actions {
-    width: 100%;
-    justify-content: space-between;
-  }
-  .mgr-order-result__summary-list {
-    grid-template-columns: 1fr;
-  }
-  .mgr-order-result__media dl {
-    grid-template-columns: 1fr;
-  }
-  .mgr-order-result__summary-list > div:first-child {
-    grid-column: auto;
-  }
-  .mgr-order-result__summary {
-    padding: 16px;
-  }
-  .mgr-order-result__media {
-    padding: 16px;
-  }
+  .mgr-order-results__header { align-items: flex-start; flex-direction: column; }
+  .mgr-order-result > header { align-items: flex-start; flex-direction: column; }
+  .mgr-order-result__actions { width: 100%; justify-content: space-between; }
+  .mgr-order-result dl { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .mgr-order-result dl > div:first-child { grid-column: 1 / -1; }
 }
 
 /* Match the mission detail sky banner. */

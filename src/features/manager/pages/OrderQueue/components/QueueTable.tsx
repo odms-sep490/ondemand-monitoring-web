@@ -16,7 +16,7 @@ import type { DepositStatus } from '../../../../finance/types'
 import type { OrderCreateResponse } from '../../../types/orders'
 import { orderQueuePageMessages } from '../OrderQueuePage.messages'
 
-export type QueueTableMode = 'pending' | 'ready' | 'all'
+export type QueueTableMode = 'pending' | 'approved' | 'completed' | 'ready' | 'all'
 
 type Props = {
   rows: OrderCreateResponse[]

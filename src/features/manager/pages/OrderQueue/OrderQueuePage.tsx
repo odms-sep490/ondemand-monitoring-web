@@ -96,7 +96,7 @@ export function OrderQueuePage() {
           }),
       )
     ).filter((order): order is OrderCreateResponse => order !== null)
-    return { pending, paid, depositStatusByOrder, missionPaymentDueByOrder }
+    return { pending, approved, paid, depositStatusByOrder, missionPaymentDueByOrder }
   }, [])
 
   // Every order, newest first, so an order never "disappears" once it leaves the review queue.
@@ -129,9 +129,11 @@ export function OrderQueuePage() {
   }, [query.reload])
 
   const pendingOrders = query.data?.pending ?? []
+  const approvedOrders = query.data?.approved ?? []
   const paidOrders = query.data?.paid ?? []
   const depositStatusByOrder = query.data?.depositStatusByOrder ?? {}
   const allOrders = allQuery.data?.orders
+  const completedOrders = allOrders?.filter((order) => order.orderStatus === 'COMPLETED')
   const started = allQuery.data?.started
 
   const groupOf = (order: OrderCreateResponse) =>
@@ -168,7 +170,7 @@ export function OrderQueuePage() {
       : paidOrders.length > 0
         ? 'ready'
         : (kpiExtras.waitingDeposit ?? 0) > 0
-          ? 'all'
+          ? 'approved'
           : 'pending')
 
   const filteredAll = (allOrders ?? []).filter((order) =>
@@ -176,8 +178,14 @@ export function OrderQueuePage() {
       ? true
       : groupOf(order) === filter,
   )
-  const source =
-    activeTab === 'pending' ? pendingOrders : activeTab === 'ready' ? paidOrders : filteredAll
+  const source = {
+    pending: pendingOrders,
+    approved: approvedOrders,
+    completed: completedOrders ?? [],
+    ready: paidOrders,
+    all: filteredAll,
+  }[activeTab]
+  const usesAllOrders = activeTab === 'all' || activeTab === 'completed'
   const total = activeTab === 'all' ? (allOrders ?? []).length : source.length
   const rows = source.filter((order) => matchesSearch(order, search))
 
@@ -188,13 +196,13 @@ export function OrderQueuePage() {
   )
 
   let body
-  if (activeTab === 'all' && allQuery.loading) {
+  if (usesAllOrders && allQuery.loading) {
     body = (
       <CardComponent>
         <Skeleton active paragraph={{ rows: 5 }} />
       </CardComponent>
     )
-  } else if (activeTab === 'all' && allQuery.error) {
+  } else if (usesAllOrders && allQuery.error) {
     body = <ErrorState title={t.allLoadError} error={allQuery.error} onRetry={allQuery.reload} />
   } else if (rows.length === 0) {
     const empty =
@@ -263,6 +271,8 @@ export function OrderQueuePage() {
             onChange={setTab}
             options={[
               { value: 'pending', label: t.tabs.pending, count: pendingOrders.length },
+              { value: 'approved', label: t.filters.APPROVED, count: approvedOrders.length },
+              { value: 'completed', label: t.tabs.completed, count: completedOrders?.length },
               { value: 'ready', label: t.tabs.ready, count: paidOrders.length },
               { value: 'all', label: t.tabs.all, count: allOrders?.length },
             ]}

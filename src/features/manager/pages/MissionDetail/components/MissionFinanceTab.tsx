@@ -127,6 +127,10 @@ export function MissionFinanceTab({
   const depositPayments = summary.depositPayments ?? []
   const missionPayment = summary.missionPayment
   const breakdown = summary.priceBreakdown
+  const missionTotal = breakdown?.missionTotalAmount ?? summary.missionGrossChecklistAmount
+  const paymentLabel = missionPayment?.status === 'PAID'
+    ? copy.paidAfterDeposit
+    : copy.afterDeposit
 
   return (
     <div className="mission-finance-tab">
@@ -149,19 +153,14 @@ export function MissionFinanceTab({
         <div className="mission-finance-tab__amount">
           <span>{breakdown ? copy.missionTotal : copy.missionAmount}</span>
           <strong>
-            {summary.missionGrossChecklistAmount == null
-              ? '—'
-              : formatVnd(
-                  breakdown?.missionTotalAmount ??
-                    summary.missionGrossChecklistAmount,
-                )}
+            {missionTotal == null ? '—' : formatVnd(missionTotal)}
           </strong>
-          {summary.missionGrossChecklistAmount == null && (
+          {missionTotal == null && (
             <small>{copy.amountUnavailable}</small>
           )}
         </div>
         <div className="mission-finance-tab__amount mission-finance-tab__amount--primary">
-          <span>{copy.afterDeposit}</span>
+          <span>{paymentLabel}</span>
           <strong>
             {missionPayment ? formatVnd(missionPayment.amount) : '—'}
           </strong>
@@ -183,66 +182,68 @@ export function MissionFinanceTab({
         )}
       </section>
 
-      <section
-        className="mission-finance-tab__calculation"
-        aria-label={copy.calculationTitle}
-      >
-        <div>
-          <h4>{copy.calculationTitle}</h4>
-          <p>{copy.calculationNote}</p>
-        </div>
-        {breakdown ? (
-          <div>
-            <dl className="mission-finance-tab__equation">
-              <div>
-                <dt>{copy.missionAmount}</dt>
-                <dd>{formatVnd(breakdown.checklistAmount)}</dd>
-              </div>
-              <div>
-                <dt>{copy.adjustment}</dt>
-                <dd>
-                  {breakdown.allocatedAdjustment >= 0 ? '+ ' : '− '}
-                  {formatVnd(Math.abs(breakdown.allocatedAdjustment))}
-                </dd>
-              </div>
-              <div className="is-subtotal">
-                <dt>{copy.missionTotal}</dt>
-                <dd>{formatVnd(breakdown.missionTotalAmount)}</dd>
-              </div>
-              <div>
-                <dt>{copy.allocatedDeposit}</dt>
-                <dd>− {formatVnd(breakdown.allocatedDeposit)}</dd>
-              </div>
-              <div className="is-total">
-                <dt>{copy.afterDeposit}</dt>
-                <dd>{formatVnd(breakdown.milestoneAmount)}</dd>
-              </div>
-            </dl>
-            <p className="mission-finance-tab__calculation-note">
-              {copy.depositIncluded}
-            </p>
-          </div>
-        ) : (
-          <Typography.Text type="secondary">
-            {copy.calculationUnavailable}
-          </Typography.Text>
-        )}
-      </section>
-
       <div className="mission-finance-tab__details-grid">
+        <div className="mission-finance-tab__mission-details">
+          <section
+            className="mission-finance-tab__calculation"
+            aria-label={copy.calculationTitle}
+          >
+            <div>
+              <h4>{copy.calculationTitle}</h4>
+              <p>{copy.calculationNote}</p>
+            </div>
+            {breakdown ? (
+              <div>
+                <dl className="mission-finance-tab__equation">
+                  <div>
+                    <dt>{copy.missionAmount}</dt>
+                    <dd>{formatVnd(breakdown.checklistAmount)}</dd>
+                  </div>
+                  <div>
+                    <dt>{copy.adjustment}</dt>
+                    <dd>
+                      {breakdown.allocatedAdjustment >= 0 ? '+ ' : '− '}
+                      {formatVnd(Math.abs(breakdown.allocatedAdjustment))}
+                    </dd>
+                  </div>
+                  <div className="is-subtotal">
+                    <dt>{copy.missionTotal}</dt>
+                    <dd>{formatVnd(breakdown.missionTotalAmount)}</dd>
+                  </div>
+                  <div>
+                    <dt>{copy.allocatedDeposit}</dt>
+                    <dd>− {formatVnd(breakdown.allocatedDeposit)}</dd>
+                  </div>
+                  <div className="is-total">
+                    <dt>{copy.netMissionAmount}</dt>
+                    <dd>{formatVnd(breakdown.milestoneAmount)}</dd>
+                  </div>
+                </dl>
+                <p className="mission-finance-tab__calculation-note">
+                  {copy.depositIncluded}
+                </p>
+              </div>
+            ) : (
+              <Typography.Text type="secondary">
+                {copy.calculationUnavailable}
+              </Typography.Text>
+            )}
+          </section>
+
+          <section
+            className="mission-finance-tab__panel"
+            aria-label={copy.paymentHistory}
+          >
+            <PaymentHistory
+              title={copy.paymentHistory}
+              payments={missionPayment?.payments ?? []}
+              locale={locale}
+              copy={copy}
+            />
+          </section>
+        </div>
         <section
-          className="mission-finance-tab__panel"
-          aria-label={copy.paymentHistory}
-        >
-          <PaymentHistory
-            title={copy.paymentHistory}
-            payments={missionPayment?.payments ?? []}
-            locale={locale}
-            copy={copy}
-          />
-        </section>
-        <section
-          className="mission-finance-tab__panel"
+          className="mission-finance-tab__panel mission-finance-tab__order-deposit"
           aria-label={copy.orderDeposit}
         >
           <header className="mission-finance-tab__panel-heading">
