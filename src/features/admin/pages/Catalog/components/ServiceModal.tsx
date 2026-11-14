@@ -1,3 +1,4 @@
+import { ImagePreview } from '../../../../../shared/components/media/ImagePreview'
 import { useEffect, useState, type FormEvent } from 'react'
 
 import { useI18n } from '../../../../../shared/i18n'
@@ -208,7 +209,7 @@ function ServiceForm({ service, onClose, onSaved }: Props) {
         </FormField>
         <FormField id="adm-svc-image" label={t.image} error={errors.image}>
           <div className="adm-service-image">
-            {preview && <img src={preview} alt={t.image} />}
+            {preview && <ImagePreview src={preview} fileName={t.image} />}
             <input
               id="adm-svc-image"
               type="file"

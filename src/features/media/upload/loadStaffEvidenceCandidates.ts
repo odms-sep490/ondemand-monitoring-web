@@ -141,7 +141,7 @@ export async function loadStaffEvidenceCandidates({
   return {
     items: [
       ...localCandidates,
-      ...withStaffLocalPreviews(remote, captures, missionId),
+      ...withStaffLocalPreviews(remote, captures, missionId, missionAliases),
     ],
     unavailableSources,
     // Local captures do not manufacture backend pages when there are 50+ files.

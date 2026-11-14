@@ -277,8 +277,8 @@ describe('Manager Mission Detail monitoring review', () => {
     expect(screen.getAllByText(/Không có góc nhìn/).length).toBeGreaterThan(0)
     expect(screen.getByText(/Có cây che/)).toBeInTheDocument()
     expect(screen.queryByText('Cập nhật mục')).toBeNull()
-    expect(screen.getByText('Duyệt kết quả')).toBeEnabled()
-    expect(screen.getByText('Từ chối kết quả')).toBeEnabled()
+    expect(screen.queryByText('Duyệt kết quả')).toBeNull()
+    expect(screen.queryByText('Từ chối kết quả')).toBeNull()
   })
   it('uses the satellite mission map on result review', async () => {
     render(<MissionDetailPage missionId="m" />)
@@ -359,26 +359,14 @@ describe('Manager Mission Detail monitoring review', () => {
       ).toBeNull()
     },
   )
-  it('refreshes mission/result/checklist after rejection', async () => {
-    vi.spyOn(missionsApi, 'rejectMissionResult').mockImplementation(
-      async () => {
-        vi.mocked(missionsApi.getMissionResult).mockResolvedValue({
-          ...result,
-          approvalStatus: 'REJECTED',
-        })
-        return { ...result, approvalStatus: 'REJECTED' }
-      },
-    )
+  it('keeps pending result read-only for Manager and explains Inspector ownership', async () => {
+    const reject = vi.spyOn(missionsApi, 'rejectMissionResult')
     render(<MissionDetailPage missionId="m" />)
-    fireEvent.click(await screen.findByText('Từ chối kết quả'))
-    await screen.findByText(
-      'Kết quả đã bị từ chối. Nhân sự thực hiện cần chỉnh sửa và gửi lại.',
-    )
-    await waitFor(() =>
-      expect(missionsApi.getMissionResponse).toHaveBeenCalledTimes(2),
-    )
     expect(
-      checklistExecutionApi.getMissionChecklistExecutions,
-    ).toHaveBeenCalledTimes(2)
+      await screen.findByText('Inspector phụ trách nghiệm thu'),
+    ).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Duyệt kết quả' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Từ chối kết quả' })).toBeNull()
+    expect(reject).not.toHaveBeenCalled()
   })
 })

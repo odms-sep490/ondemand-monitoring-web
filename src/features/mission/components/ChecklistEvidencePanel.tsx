@@ -1,9 +1,12 @@
+import { ImagePreview } from '../../../shared/components/media/ImagePreview'
+import { MediaInspectionAction } from '../../media/components/MediaInspectionAction'
 import { evidenceCandidatePage } from '../lib/evidenceCandidatePage'
 import { VideoThumbnail } from '../../../shared/components/media/VideoThumbnail'
 import { getUploadMediaStatusLabel } from '../../drone-operator/pages/UploadMedia/uploadMediaHelpers'
 import { CustomerEvidenceSelection } from './CustomerEvidenceSelection'
 import { ChecklistEvidencePicker } from './ChecklistEvidencePicker'
-import { useLanguage } from '../../../shared/i18n'
+import { getLanguage, useI18n } from '../../../shared/i18n'
+import { checklistEvidencePanelMessages } from './ChecklistEvidencePanel.messages'
 import { useEffect, useRef, useState } from 'react'
 import {
   evidenceCountLabel,
@@ -22,22 +25,10 @@ import type {
 } from '../types/checklistExecution'
 import './ChecklistEvidencePanel.css'
 
-export const evidenceReason: Record<EvidenceBlockingReason, string> = {
-  EVIDENCE_SOURCE_NOT_ELIGIBLE:
-    'Nguồn media không hợp lệ. Bằng chứng hỗ trợ camera drone và ảnh vệ tinh của hệ thống.',
-  EVIDENCE_TYPE_NOT_ELIGIBLE:
-    'Loại media không phù hợp yêu cầu. Hãy chọn ảnh/video đúng loại.',
-  MEDIA_REJECTED: 'Media đã bị từ chối.',
-  MEDIA_NOT_VALIDATED: 'Media chưa xác thực thành công.',
-  MEDIA_APPROVAL_REQUIRED: 'Cần duyệt media trước khi duyệt kết quả.',
-  INSUFFICIENT_EVIDENCE: 'Chưa đủ bằng chứng hợp lệ.',
-  ASSESSMENT_REQUIRED: 'Cần đánh giá mục checklist trước khi gửi kết quả.',
-  EXECUTION_NOT_COMPLETED: 'Cần hoàn tất mục checklist trước khi gửi kết quả.',
-  EXECUTION_NOT_TERMINAL:
-    'Cần chọn trạng thái cuối cùng cho mục checklist trước khi gửi kết quả.',
-  UNABLE_REASON_REQUIRED: 'Cần lý do không thể xác minh.',
-  CHECKLIST_INTEGRITY_INVALID: 'Checklist không khớp snapshot đơn hàng.',
-}
+export const getEvidenceReason = (
+  reason: EvidenceBlockingReason,
+  lang = getLanguage(),
+) => checklistEvidencePanelMessages[lang].reasons[reason]
 function matchesEvidenceType(
   required: MissionChecklistExecution['requiredEvidenceType'],
   mediaType: string,
@@ -55,30 +46,27 @@ function matchesEvidenceType(
 const evidenceTypeLabel = (
   type?: MissionChecklistExecution['requiredEvidenceType'],
 ) => {
+  const t = checklistEvidencePanelMessages[getLanguage()]
   switch (type ?? 'IMAGE_OR_VIDEO') {
     case 'IMAGE':
-      return 'Chỉ ảnh'
+      return t.imageOnly
     case 'VIDEO':
-      return 'Chỉ video'
+      return t.videoOnly
     case 'IMAGE_AND_VIDEO':
-      return 'Ảnh và video'
+      return t.imageAndVideo
     default:
-      return 'Ảnh hoặc video (cũ)'
+      return t.imageOrVideo
   }
-}
-const sourceLabel: Record<string, string> = {
-  DRONE_CAMERA: 'Camera drone',
-  SATELLITE_SNAPSHOT: 'Ảnh vệ tinh',
-  MANUAL_UPLOAD: 'Upload thủ công',
 }
 
 function evidenceFileLabel(fileName: string, mediaType: string) {
+  const t = checklistEvidencePanelMessages[getLanguage()]
   const generatedName =
     /^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{8,12}(?:\.[\da-z]+)?$/i.test(
       fileName,
     )
   if (!generatedName) return fileName
-  return mediaType === 'VIDEO' ? 'Video bằng chứng' : 'Ảnh bằng chứng'
+  return mediaType === 'VIDEO' ? t.evidenceVideo : t.evidenceImage
 }
 
 export function ChecklistEvidencePanel(
@@ -126,14 +114,16 @@ function MissionEvidencePanel({
   /** Flat list layout for narrow side panels: no nested cards, one status per row. */
   compact?: boolean
 }) {
-  const { lang } = useLanguage()
+  const { lang, t } = useI18n(checklistEvidencePanelMessages)
+  const evidenceReason = t.reasons
+  const sourceLabel = t.sources as Record<string, string>
   async function detachEvidence(
     link: NonNullable<MissionChecklistExecution['evidence']>[number],
   ) {
     if (
       !window.confirm(
         lang === 'vi'
-          ? 'Gỡ bằng chứng khỏi mục này? Hệ thống chỉ dọn file trên S3 khi không còn được sử dụng và không thuộc hồ sơ nghiệm thu cần giữ.'
+          ? t.detachConfirm
           : 'Remove this attachment? S3 cleanup only applies to unused draft files that are not retained in a result.',
       )
     )
@@ -153,7 +143,7 @@ function MissionEvidencePanel({
   const [page, setPage] = useState(0)
   const [query, setQuery] = useState('')
   const [busy, setBusy] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<'ineligible' | 'updateFailed' | null>(null)
   const [pickerOpen, setPickerOpen] = useState(false)
   const [mediaLoading, setMediaLoading] = useState(false)
   const [mediaError, setMediaError] = useState<unknown>(null)
@@ -184,8 +174,8 @@ function MissionEvidencePanel({
     } catch (cause) {
       setError(
         cause instanceof ApiError && cause.code === 'EVIDENCE_NOT_ELIGIBLE'
-          ? 'Media không phù hợp. Chọn đúng loại ảnh/video và nguồn bằng chứng được hỗ trợ.'
-          : 'Không thể cập nhật bằng chứng. Vui lòng làm mới checklist và thử lại.',
+          ? 'ineligible'
+          : 'updateFailed',
       )
       refresh()
     } finally {
@@ -247,8 +237,8 @@ function MissionEvidencePanel({
   const remaining = evidenceShortfall(item)
   const links = item.evidence ?? []
   const unableExplanation = item.unableToVerifyReason
-    ? `Quy trình ngoại lệ: Miễn nộp bằng chứng do không thể xác minh (Lý do: "${item.unableToVerifyReason}").`
-    : 'Quy trình ngoại lệ: Không thể xác minh được miễn đính kèm bằng chứng (bắt buộc phải có lý do giải trình).'
+    ? t.unableWithReason(item.unableToVerifyReason)
+    : t.unableDefault
   const renderBlockingReasons = () =>
     item.blockingReasons
       ?.filter(
@@ -266,12 +256,9 @@ function MissionEvidencePanel({
         if (assessmentOutOfSync) {
           return (
             <div key={reason} className="ce-blocker is-sync" role="status">
-              <span>
-                Đánh giá đã được lưu nhưng checklist chưa đồng bộ. Tải lại để
-                cập nhật.
-              </span>
+              <span>{t.assessmentOutOfSync} </span>
               <button type="button" onClick={refresh} disabled={busy}>
-                Tải lại
+                {t.reload}{' '}
               </button>
             </div>
           )
@@ -287,7 +274,7 @@ function MissionEvidencePanel({
       {!canSelectForCustomer && (
         <div className="ce-head">
           <div className="ce-title-row">
-            <span className="ce-heading">Bằng chứng</span>
+            <span className="ce-heading">{t.evidence}</span>
             <span className="ce-type">
               {evidenceTypeLabel(item.requiredEvidenceType)}
             </span>
@@ -298,7 +285,9 @@ function MissionEvidencePanel({
       {unableToVerify ? (
         <p className="ce-unable-note">{unableExplanation}</p>
       ) : remaining > 0 ? (
-        <p className="ce-remaining">Còn thiếu {remaining} bằng chứng hợp lệ</p>
+        <p className="ce-remaining">
+          {t.remaining(remaining)}
+        </p>
       ) : null}
       {renderBlockingReasons()}
       {!canSelectForCustomer && links.length > 0 && (
@@ -312,18 +301,19 @@ function MissionEvidencePanel({
             return (
               <li key={link.evidenceId} className="ce-row">
                 <div className="ce-thumb">
-                  {link.previewUrl &&
+                  {(link.localPreviewUrl ?? link.previewUrl) &&
                     (link.mediaType === 'VIDEO' ? (
                       <VideoThumbnail
-                        src={link.previewUrl}
-                        poster={link.thumbnailUrl}
+                        src={(link.localPreviewUrl ?? link.previewUrl)!}
+                        poster={link.localPreviewUrl ? link.localThumbnailUrl : link.thumbnailUrl}
                         fileName={link.fileName}
                       />
                     ) : (
-                      <img
-                        src={link.thumbnailUrl ?? link.previewUrl}
-                        alt={link.fileName}
-                        loading="lazy"
+                      <ImagePreview
+                        src={(link.localPreviewUrl ?? link.thumbnailUrl ?? link.previewUrl)!}
+                        previewSrc={(link.localPreviewUrl ?? link.previewUrl)!}
+                        fileName={link.fileName}
+                        fallbackUrl={link.thumbnailUrl}
                       />
                     ))}
                 </div>
@@ -332,38 +322,36 @@ function MissionEvidencePanel({
                     {evidenceFileLabel(link.fileName, link.mediaType)}
                   </span>
                   <span className="ce-meta">
-                    {link.mediaType === 'VIDEO' ? 'Video' : 'Ảnh'} •{' '}
-                    {sourceLabel[link.sourceType ?? ''] ??
-                      link.sourceType ??
-                      'Unknown/Legacy'}
+                    {link.mediaType === 'VIDEO' ? t.video : t.image} •{' '}
+                    {sourceLabel[link.sourceType ?? ''] ?? t.unknownSource}
                   </span>
                   <span
                     title={status}
                     className={`ce-status${link.eligibleForOperationalReadiness ? '' : ' is-warn'}`}
                   >
                     {link.ineligibilityReason === 'MEDIA_NOT_VALIDATED'
-                      ? 'Chưa xác thực'
+                      ? t.notValidated
                       : link.ineligibilityReason === 'MEDIA_APPROVAL_REQUIRED'
-                        ? 'Chờ duyệt'
+                        ? t.awaitingReview
                         : link.ineligibilityReason === 'MEDIA_REJECTED'
-                          ? 'Bị từ chối'
+                          ? t.rejected
                           : status}
                   </span>
                 </div>
                 <div className="ce-actions">
-                  {link.previewUrl && (
-                    <a
-                      className="ce-view"
-                      href={link.previewUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      Xem
-                    </a>
-                  )}
+                  <MediaInspectionAction
+                    buttonLabel={t.view}
+                    className="ce-inspect"
+                    missionId={missionId}
+                    mediaId={link.mediaId}
+                    mediaType={link.mediaType}
+                    fileName={link.fileName}
+                    localUrl={link.localPreviewUrl}
+                    originalReady={Boolean(link.validatedAt && ['AVAILABLE', 'PENDING_MANAGER_APPROVAL', 'REJECTED'].includes(link.mediaStatus ?? ''))}
+                  />
                   {hasMenu && (
                     <details className="ce-more">
-                      <summary aria-label="Thêm thao tác">⋮</summary>
+                      <summary aria-label={t.moreActions}>⋮</summary>
                       <div className="ce-menu">
                         {canDetach && (
                           <button
@@ -371,7 +359,7 @@ function MissionEvidencePanel({
                             disabled={busy}
                             onClick={() => void detachEvidence(link)}
                           >
-                            Gỡ bằng chứng
+                            {t.detach}{' '}
                           </button>
                         )}
                       </div>
@@ -386,29 +374,27 @@ function MissionEvidencePanel({
       {!canSelectForCustomer &&
         !unableToVerify &&
         configuredRequired > 0 &&
-        have >= configuredRequired && (
-          <p className="ce-ok">✓ Đã đủ bằng chứng</p>
-        )}
+        have >= configuredRequired && <p className="ce-ok">{t.enough}</p>}
       {canAttach && (
         <button
           type="button"
           className="ce-add"
-          title="Chọn media của mission làm bằng chứng"
+          title={t.pickHint}
           disabled={busy}
           onClick={() => void load(0)}
         >
           <span className="ce-add-icon" aria-hidden="true">
             +
           </span>
-          Thêm media
+          {t.addMedia}{' '}
         </button>
       )}
     </>
   )
   return (
     <section
-      className={`checklist-evidence${compact ? ' is-compact' : ''}`}
-      aria-label={`Bằng chứng: ${item.content}`}
+      className={`checklist-evidence${compact ? ' is-compact' : ''}${canSelectForCustomer ? ' is-customer-selection' : ''}`}
+      aria-label={t.evidenceFor(item.content)}
     >
       {canSelectForCustomer && (
         <CustomerEvidenceSelection
@@ -427,7 +413,7 @@ function MissionEvidencePanel({
           {!canSelectForCustomer &&
             (have !== 0 || configuredRequired !== 0) && (
               <strong>
-                Bằng chứng hợp lệ: {have} / {configuredRequired} ·{' '}
+                {t.validEvidence} {have} / {configuredRequired} ·{' '}
                 {evidenceTypeLabel(item.requiredEvidenceType)}
               </strong>
             )}
@@ -436,14 +422,14 @@ function MissionEvidencePanel({
           )}
           {!unableToVerify && remaining > 0 && (
             <p className="ce-remaining">
-              Còn thiếu {remaining} bằng chứng hợp lệ
+              {t.remaining(remaining)}
             </p>
           )}
           {!canSelectForCustomer &&
             !unableToVerify &&
             configuredRequired > 0 &&
             have >= configuredRequired && (
-              <p className="ce-ok">✓ Đã đủ bằng chứng hợp lệ</p>
+              <p className="ce-ok">{t.enoughValid}</p>
             )}
           {renderBlockingReasons()}
           {!canSelectForCustomer && (
@@ -451,28 +437,33 @@ function MissionEvidencePanel({
               {item.evidence?.map((link) => (
                 <article key={link.evidenceId}>
                   <div className="checklist-evidence-thumb">
-                    {link.previewUrl &&
+                    {(link.localPreviewUrl ?? link.previewUrl) &&
                       (link.mediaType === 'VIDEO' ? (
                         <VideoThumbnail
-                          src={link.previewUrl}
-                          poster={link.thumbnailUrl}
+                          src={(link.localPreviewUrl ?? link.previewUrl)!}
+                          poster={link.localPreviewUrl ? link.localThumbnailUrl : link.thumbnailUrl}
                           fileName={link.fileName}
                         />
                       ) : (
-                        <a
-                          href={link.previewUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          <img
-                            src={link.previewUrl}
-                            alt={link.fileName}
-                            loading="lazy"
-                          />
-                        </a>
+                        <ImagePreview
+                          src={(link.localPreviewUrl ?? link.thumbnailUrl ?? link.previewUrl)!}
+                          previewSrc={(link.localPreviewUrl ?? link.previewUrl)!}
+                          fileName={link.fileName}
+                          fallbackUrl={link.thumbnailUrl}
+                        />
                       ))}
                   </div>
                   <div className="checklist-evidence-main">
+                    <MediaInspectionAction
+                    buttonLabel={t.view}
+                    className="ce-inspect"
+                      missionId={missionId}
+                      mediaId={link.mediaId}
+                      mediaType={link.mediaType}
+                      fileName={link.fileName}
+                    localUrl={link.localPreviewUrl}
+                    originalReady={Boolean(link.validatedAt && ['AVAILABLE', 'PENDING_MANAGER_APPROVAL', 'REJECTED'].includes(link.mediaStatus ?? ''))}
+                    />
                     <div
                       className="checklist-evidence-name"
                       title={link.fileName}
@@ -481,8 +472,7 @@ function MissionEvidencePanel({
                     </div>
                     <div className="checklist-candidate-meta">
                       <span>
-                        {sourceLabel[link.sourceType ?? ''] ??
-                          'Nguồn chưa xác định'}
+                        {sourceLabel[link.sourceType ?? ''] ?? t.unknownSource}
                       </span>
                       <span className="checklist-candidate-status">
                         {getUploadMediaStatusLabel(
@@ -500,10 +490,10 @@ function MissionEvidencePanel({
                       className={`checklist-evidence-note${link.eligibleForOperationalReadiness ? ' is-ok' : ''}`}
                     >
                       {link.eligibleForOperationalReadiness
-                        ? 'Đủ điều kiện vận hành'
+                        ? t.operationallyReady
                         : link.ineligibilityReason
                           ? evidenceReason[link.ineligibilityReason]
-                          : 'Chưa hợp lệ'}
+                          : t.notEligible}
                     </p>
                     <div className="checklist-evidence-actions">
                       {canDetach && (
@@ -513,7 +503,7 @@ function MissionEvidencePanel({
                           disabled={busy}
                           onClick={() => void detachEvidence(link)}
                         >
-                          Gỡ bằng chứng
+                          {t.detach}{' '}
                         </button>
                       )}
                     </div>
@@ -532,7 +522,7 @@ function MissionEvidencePanel({
                 void load(0)
               }}
             >
-              Thêm bằng chứng từ media Mission
+              {t.addEvidence}{' '}
             </button>
           )}
         </>
@@ -560,7 +550,7 @@ function MissionEvidencePanel({
             className="checklist-picker"
             role="dialog"
             aria-modal="true"
-            aria-label="Chọn media làm bằng chứng"
+            aria-label={t.pick}
             onKeyDown={(event) => {
               if (event.key === 'Escape' && !busy) closePicker()
             }}
@@ -574,15 +564,15 @@ function MissionEvidencePanel({
             <div className="checklist-picker-panel">
               <header className="checklist-picker-head">
                 <div>
-                  <strong>Chọn media làm bằng chứng</strong>
+                  <strong>{t.pick}</strong>
                   <span>
-                    {item.content} · Trang {page + 1}
+                    {item.content} · {t.page(page + 1)}
                   </span>
                 </div>
                 <button
                   type="button"
                   className="checklist-picker-close"
-                  aria-label="Đóng"
+                  aria-label={t.close}
                   disabled={busy}
                   onClick={closePicker}
                 >
@@ -592,38 +582,36 @@ function MissionEvidencePanel({
               <input
                 type="search"
                 className="checklist-picker-search"
-                aria-label="Tìm media"
-                placeholder="Tìm theo tên file..."
+                aria-label={t.searchLabel}
+                placeholder={t.searchPlaceholder}
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
               />
               <div className="checklist-picker-body">
-                {mediaLoading && <p role="status">Đang tải media...</p>}
+                {mediaLoading && <p role="status">{t.loading}</p>}
                 {mediaError != null && (
                   <div role="alert">
-                    <p>Không thể tải media của Mission.</p>
+                    <p>{t.loadFailed}</p>
                     <button
                       className="odm-btn"
                       type="button"
                       onClick={() => void load(page)}
                     >
-                      Thử lại
+                      {t.retry}{' '}
                     </button>
                   </div>
                 )}
                 {!mediaLoading && mediaError == null && shown.length === 0 && (
                   <p className="checklist-candidates-empty">
                     {needle ? (
-                      'Không tìm thấy media phù hợp.'
+                      t.noMatches
                     ) : (
                       <>
-                        Mission này chưa có media nào được upload lên hệ thống.
-                        Ảnh/video đang nằm trên thiết bị chỉ hiện ở màn hình
-                        nghiệm thu: hãy{' '}
+                        {t.emptyBeforeLink}{' '}
                         <a href={operatorHref({ screen: 'upload', missionId })}>
-                          mở media nghiệm thu
+                          {t.openInspection}{' '}
                         </a>{' '}
-                        để upload (hoặc gắn trực tiếp từ đó), rồi quay lại.
+                        {t.emptyAfterLink}{' '}
                       </>
                     )}
                   </p>
@@ -633,9 +621,7 @@ function MissionEvidencePanel({
                   allAttached &&
                   shown.length > 0 && (
                     <p className="checklist-candidates-empty">
-                      {hasNext || page > 0
-                        ? 'Media phù hợp ở trang này đã được gắn vào checklist này.'
-                        : 'Tất cả media phù hợp đã được gắn vào checklist này.'}
+                      {hasNext || page > 0 ? t.pageAttached : t.allAttached}
                     </p>
                   )}
                 <ul className="checklist-candidate-list">
@@ -650,10 +636,11 @@ function MissionEvidencePanel({
                               fileName={media.fileName}
                             />
                           ) : (
-                            <img
-                              src={media.thumbnailUrl ?? media.previewUrl}
-                              alt={`Xem trước ${media.fileName}`}
-                              loading="lazy"
+                            <ImagePreview
+                              src={media.localPreviewUrl ?? media.thumbnailUrl ?? media.previewUrl}
+                              previewSrc={media.localPreviewUrl ?? media.previewUrl}
+                              fileName={media.fileName}
+                              fallbackUrl={media.thumbnailUrl}
                             />
                           )
                         ) : (
@@ -672,7 +659,7 @@ function MissionEvidencePanel({
                         <span className="checklist-candidate-meta">
                           <span>
                             {sourceLabel[media.sourceType ?? ''] ??
-                              'Nguồn chưa xác định'}
+                              t.unknownSource}
                           </span>
                           <span className="checklist-candidate-status">
                             {getUploadMediaStatusLabel(
@@ -682,7 +669,7 @@ function MissionEvidencePanel({
                           </span>
                         </span>
                         <small>
-                          {media.mediaType === 'VIDEO' ? 'Video' : 'Ảnh'}
+                          {media.mediaType === 'VIDEO' ? t.video : t.image}
                         </small>
                         <small className="checklist-candidate-time">
                           {new Date(media.capturedAt).toLocaleString(
@@ -694,7 +681,7 @@ function MissionEvidencePanel({
                           media.mediaType,
                         ) && (
                           <small>
-                            Loại media không phù hợp yêu cầu (
+                            {t.typeMismatchPrefix}{' '}
                             {evidenceTypeLabel(item.requiredEvidenceType)}).
                           </small>
                         )}
@@ -703,7 +690,7 @@ function MissionEvidencePanel({
                           <small>
                             {media.ineligibilityReason
                               ? evidenceReason[media.ineligibilityReason]
-                              : 'Không thể gắn'}
+                              : t.cannotAttach}
                           </small>
                         )}
                       </div>
@@ -735,7 +722,7 @@ function MissionEvidencePanel({
                           })
                         }
                       >
-                        {attached(media) ? 'Đã gắn' : 'Gắn media'}
+                        {attached(media) ? t.attached : t.attach}
                       </button>
                     </li>
                   ))}
@@ -750,7 +737,7 @@ function MissionEvidencePanel({
                       disabled={busy || mediaLoading || page === 0}
                       onClick={() => void load(page - 1)}
                     >
-                      Trang trước
+                      {t.previous}{' '}
                     </button>
                     <button
                       type="button"
@@ -758,7 +745,7 @@ function MissionEvidencePanel({
                       disabled={busy || mediaLoading || !hasNext}
                       onClick={() => void load(page + 1)}
                     >
-                      Trang sau
+                      {t.next}{' '}
                     </button>
                   </>
                 )}
@@ -768,15 +755,15 @@ function MissionEvidencePanel({
                   disabled={busy}
                   onClick={closePicker}
                 >
-                  Đóng chọn media
+                  {t.closePicker}{' '}
                 </button>
               </footer>
-              {error && <p role="alert">{error}</p>}
+              {error && <p role="alert">{t[error]}</p>}
             </div>
           </div>,
           document.body,
         )}
-      {error && <p role="alert">{error}</p>}
+      {error && <p role="alert">{t[error]}</p>}
     </section>
   )
 }

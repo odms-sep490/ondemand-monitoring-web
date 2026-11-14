@@ -2,6 +2,7 @@ import { defineMessages } from '../../../../shared/i18n'
 
 export const postflightPageMessages = defineMessages({
   vi: {
+    backToInspectionSource: 'Trở về nghiệm thu Mission gốc',
     categories: {
       structure: {
         title: 'Cấu trúc & Khung vỏ',
@@ -149,7 +150,7 @@ export const postflightPageMessages = defineMessages({
       'Đã xác nhận nhiệm vụ thất bại sau khi hoàn tất kiểm tra sau bay.',
     reviewFailureDefaultReason:
       'Nhiệm vụ được xác nhận thất bại sau kiểm tra sau bay.',
-    reviewSendManager: 'Xác nhận nghiệm thu',
+    reviewConfirmInspection: 'Nghiệm thu và công bố',
     reviewSending: 'Đang xác nhận…',
     reviewWaitingPermission:
       'Chờ nghiệm thu viên được giao.',
@@ -158,8 +159,8 @@ export const postflightPageMessages = defineMessages({
       'Đánh giá đủ checklist và chọn media gửi khách.',
     reviewRestorePostflight: 'Lưu lại kết quả kiểm tra sau bay hiện có',
     reviewRestoringPostflight: 'Đang lưu lại kết quả kiểm tra sau bay…',
-    reviewSent: 'Đã xác nhận nghiệm thu · đang chờ duyệt',
-    reviewApproved: 'Đã xác nhận nghiệm thu',
+    reviewSent: 'Chờ Inspector xác nhận nghiệm thu',
+    reviewApproved: 'Inspector đã nghiệm thu',
     reviewStepComplete: 'Đã hoàn tất',
     reviewService: 'Dịch vụ',
     reviewLocation: 'Địa điểm',
@@ -202,6 +203,7 @@ export const postflightPageMessages = defineMessages({
       `Mục không đạt kiểm tra sau bay: ${items}`,
   },
   en: {
+    backToInspectionSource: 'Return to the original mission inspection',
     categories: {
       structure: {
         title: 'Structure & Airframe',
@@ -349,7 +351,7 @@ export const postflightPageMessages = defineMessages({
       'Mission failure confirmed after postflight inspection.',
     reviewFailureDefaultReason:
       'Mission failure confirmed after postflight inspection.',
-    reviewSendManager: 'Confirm inspection',
+    reviewConfirmInspection: 'Confirm and publish',
     reviewSending: 'Confirming inspection…',
     reviewWaitingPermission:
       'Waiting for the assigned inspector.',

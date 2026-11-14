@@ -1,3 +1,5 @@
+import { useStaffLocalEvidence } from '../../../../media/upload/useStaffLocalEvidence'
+import { evidenceQueueFeedback } from '../../../../media/i18n/evidenceQueueFeedback'
 import { loadStaffEvidenceCandidates } from '../../../../media/upload/loadStaffEvidenceCandidates'
 import { useCallback, useEffect, useMemo } from 'react'
 import type { Mission } from '../../../types/omss'
@@ -21,16 +23,6 @@ const evidenceQueueStageLabel: Record<string, string> = {
   TRANSFERRING: 'Đang tải media lên',
   ATTACHING: 'Đang gắn vào checklist',
   VALIDATING: 'Đang xác thực media',
-}
-
-function evidenceQueueErrorMessage(errorCode?: string) {
-  if (errorCode === 'MANUAL_UPLOAD_REQUIRED')
-    return 'Media cần tải lên thủ công trước khi gắn.'
-  if (errorCode === 'LOCAL_MEDIA_UNAVAILABLE')
-    return 'Không tìm thấy tệp gốc trên thiết bị.'
-  if (errorCode === 'MEDIA_UPLOAD_NOT_ALLOWED')
-    return 'Tài khoản hiện không có quyền tải media lên.'
-  return 'Không thể tải hoặc gắn media. Hãy thử lại.'
 }
 
 function formatScheduledAt(value: string | undefined, locale: string) {
@@ -60,6 +52,7 @@ export function MissionChecklistPanel({
     [mission.id, missionId],
   )
   const monitoring = useMissionMonitoring(missionId)
+  const localEvidence = useStaffLocalEvidence(missionId, missionAliases, monitoring.error ? undefined : monitoring.data?.checklist)
   const canUploadMedia =
     !monitoring.error && monitoring.data?.checklist.missionId === missionId &&
     monitoring.data.permissions.canUploadMedia === true
@@ -201,8 +194,8 @@ export function MissionChecklistPanel({
       >
         <MonitoringChecklistSection
           missionId={missionId}
-          data={monitoring.data?.checklist}
-          loading={monitoring.loading}
+          data={localEvidence.data}
+          loading={monitoring.loading || localEvidence.loading}
           error={monitoring.error}
           canExecute={
             monitoring.data?.permissions.canExecuteMonitoringChecklist === true
@@ -237,7 +230,7 @@ export function MissionChecklistPanel({
                 <span>
                   <strong>{job.payload.candidate.fileName}</strong>
                   {job.stage === 'FAILED'
-                    ? ` · ${evidenceQueueErrorMessage(job.errorCode)}`
+                    ? ` · ${evidenceQueueFeedback(job.errorCode, locale.startsWith('vi') ? 'vi' : 'en')}`
                     : ` · ${evidenceQueueStageLabel[job.stage] ?? 'Đang xử lý'}`}
                 </span>
                 {job.stage === 'FAILED' && (
@@ -251,7 +244,7 @@ export function MissionChecklistPanel({
                         )
                       }
                     >
-                      Thử lại
+                      {locale.startsWith('vi') ? 'Thử lại' : 'Retry'}
                     </button>
                     {job.errorCode === 'MANUAL_UPLOAD_REQUIRED' && (
                       <a

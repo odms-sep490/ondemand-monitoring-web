@@ -1,3 +1,4 @@
+import { ImagePreview } from '../../../../../shared/components/media/ImagePreview'
 import { RocketOutlined } from '@ant-design/icons'
 import { Button } from 'antd'
 
@@ -22,10 +23,9 @@ export function DroneCard({ drone, onChangeStatus }: Props) {
       <div className="mgr-drone-card-top">
         <span
           className="mgr-tile mgr-tone-blue mgr-drone-card-photo"
-          aria-hidden="true"
         >
           {drone.imageUrl ? (
-            <img src={drone.imageUrl} alt="" />
+            <ImagePreview src={drone.imageUrl} fileName={drone.name || drone.serialNumber} />
           ) : (
             <RocketOutlined />
           )}

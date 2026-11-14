@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Modal } from 'antd'
+import { VideoPreview } from './VideoPreview'
 import { PlayCircleOutlined } from '@ant-design/icons'
 import { defineMessages, useI18n } from '../../i18n'
 import { ResilientMedia } from './MediaRecovery'
@@ -61,11 +61,12 @@ type Props = Omit<MediaRecoveryProps, 'src'> & {
   poster?: string | null
   fallbackPoster?: string | null
   fileName: string
+  appearance?: 'cockpit'
 }
 export function VideoThumbnail(props: Props) {
   const { t } = useI18n(messages)
   const [open, setOpen] = useState(false)
-  const { fallbackPoster, ...mediaProps } = props
+  const { fallbackPoster, appearance, ...mediaProps } = props
   return (
     <div className="media-video-thumbnail">
       <button
@@ -81,19 +82,16 @@ export function VideoThumbnail(props: Props) {
       >
         <VideoPoster poster={props.poster} fallbackPoster={fallbackPoster} fileName={props.fileName} />
       </button>
-      <Modal
-        title={props.fileName}
+      <VideoPreview
+        fileName={props.fileName}
         open={open}
-        onCancel={() => setOpen(false)}
-        footer={null}
-        centered
-        width={960}
-        destroyOnHidden
+        onClose={() => setOpen(false)}
+        appearance={appearance}
       >
         {open && props.src && (
           <ResilientMedia {...mediaProps} src={props.src} kind="video" expanded />
         )}
-      </Modal>
+      </VideoPreview>
     </div>
   )
 }

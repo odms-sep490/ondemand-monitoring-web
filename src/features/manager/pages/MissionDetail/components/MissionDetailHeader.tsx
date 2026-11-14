@@ -48,7 +48,7 @@ export function MissionDetailHeader({
             {t.viewOrderPlan}
             <RightOutlined aria-hidden="true" />
           </Button>
-          {canSetup ? (
+          {canSetup || (mission.inspectionCorrectionId && !['COMPLETED','FAILED','CANCELLED'].includes(mission.status)) ? (
             <Button
               type="primary"
               href={managerHref({

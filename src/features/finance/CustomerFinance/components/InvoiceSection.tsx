@@ -90,7 +90,9 @@ export function InvoiceSection({
     null,
   )
   const deadlineKey = `${invoice.id}:${invoice.depositExpiresAt ?? ''}`
-  const depositIssuedAt = Date.parse(invoice.issuedAt)
+  const depositIssuedAt = Date.parse(
+    invoice.contractConfirmedAt ?? invoice.issuedAt,
+  )
   const depositExpiresAt = invoice.depositExpiresAt
     ? Date.parse(invoice.depositExpiresAt)
     : Number.NaN
@@ -102,6 +104,7 @@ export function InvoiceSection({
     invoice.status === 'OVERDUE' ||
     depositReachedDeadline ||
     expiredDeadlineKey === deadlineKey
+  if (invoice.contractRequired && !invoice.contractConfirmedAt) return null
   return (
     <div className="customer-invoice customer-invoice-actions">
       {invoice.depositExpiresAt &&
@@ -111,7 +114,11 @@ export function InvoiceSection({
             expired={depositExpired}
             label={depositExpired ? t.depositExpired : t.depositCountdownLabel}
             deadline={invoice.depositExpiresAt}
-            startAt={Number.isFinite(depositIssuedAt) ? invoice.issuedAt : null}
+            startAt={
+              Number.isFinite(depositIssuedAt)
+                ? (invoice.contractConfirmedAt ?? invoice.issuedAt)
+                : null
+            }
             deadlineLabel={t.depositDeadlineAt(
               new Date(invoice.depositExpiresAt).toLocaleString(locale, {
                 dateStyle: 'short',

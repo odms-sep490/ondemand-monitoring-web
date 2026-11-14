@@ -799,7 +799,7 @@
   min-width: 0;
   max-width: 240px;
 }
-.delivery-feedback-evidence-card .delivery-image-preview,
+.delivery-feedback-evidence-card .shared-image-preview,
 .delivery-feedback-evidence-card .media-video-thumbnail {
   width: 100%;
 }

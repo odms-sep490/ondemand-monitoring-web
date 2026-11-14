@@ -384,35 +384,6 @@ export const deliveryApi = {
       `/api/manager/result-revision-cases/${enc(caseId)}/items/${enc(caseItemId)}/notify-out-of-scope`,
       { method: 'POST', body },
     ),
-  managerFinalizeReworkPlan: (caseId: string, expectedPlanRevision: number) =>
-    apiRequest<void>(
-      `/api/manager/result-revision-cases/${enc(caseId)}/rework-plan/finalize`,
-      {
-        method: 'POST',
-        body: { expectedPlanRevision, decompositionConfirmed: true },
-      },
-    ),
-  managerCreateReworkMission: (
-    caseId: string,
-    body: {
-      expectedCaseVersion: number
-      clientRequestId: string
-      scopeLabel: string
-      scheduledStartAt: string
-      scheduledEndAt: string
-      caseItemIds: string[]
-    },
-  ) =>
-    apiRequest<{
-      caseId: string
-      missionId: string
-      missionCode: string
-      status: string
-      checklistCount: number
-    }>(`/api/manager/result-revision-cases/${enc(caseId)}/rework-missions`, {
-      method: 'POST',
-      body,
-    }),
   releasePreview: (orderId: string, mediaAssetIds: string[], notes: string) =>
     apiRequest<Delivery>(
       `/api/manager/orders/${enc(orderId)}/delivery/release-preview`,

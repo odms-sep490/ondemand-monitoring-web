@@ -4,18 +4,18 @@ export const mediaChecklistAttachmentMessages = defineMessages({
   vi: {
     wrongType: 'Không phù hợp loại bằng chứng',
     autoPending:
-      'Xác nhận để tự tải file lên và gắn vào các mục đã chọn. File đã tải sẽ không được tải lại.',
+      'Xác nhận để tự tải tệp lên và gắn vào các mục đã chọn. Tệp đã tải sẽ không được tải lại.',
     queued: 'Đã thêm vào hàng đợi gắn bằng chứng.',
     remove: 'Gỡ khỏi mục này',
     removeConfirm:
-      'Gỡ bằng chứng khỏi mục này? File chỉ được dọn trên S3 khi không còn được sử dụng và chưa thuộc hồ sơ nghiệm thu cần giữ.',
-    removed: 'Đã gỡ liên kết. Hệ thống tự dọn file nếu không còn được sử dụng.',
-    attach: 'Gắn vào checklist',
-    edit: 'Chọn mục checklist',
-    title: 'Gắn media vào checklist',
+      'Gỡ bằng chứng khỏi mục này? Tệp chỉ được dọn trên S3 khi không còn được sử dụng và chưa thuộc hồ sơ nghiệm thu cần giữ.',
+    removed: 'Đã gỡ liên kết. Hệ thống tự dọn tệp nếu không còn được sử dụng.',
+    attach: 'Gắn vào danh sách kiểm tra',
+    edit: 'Chọn mục danh sách kiểm tra',
+    title: 'Gắn ảnh/video vào danh sách kiểm tra',
     description:
-      'Một ảnh hoặc video có thể làm bằng chứng cho nhiều mục. Chọn những mục phù hợp với nội dung file.',
-    search: 'Tìm theo tên hoặc nội dung checklist…',
+      'Một ảnh hoặc video có thể làm bằng chứng cho nhiều mục. Chọn những mục phù hợp với nội dung tệp.',
+    search: 'Tìm theo tên hoặc nội dung danh sách kiểm tra…',
     selected: (n: number) => `Đã chọn ${n} mục`,
     attached: (n: number) => `Đã gắn ${n} mục`,
     alreadyAttached: 'Đã gắn',
@@ -30,15 +30,15 @@ export const mediaChecklistAttachmentMessages = defineMessages({
     selectVisible: 'Chọn các mục đang hiển thị',
     clear: 'Bỏ lựa chọn',
     noResults: 'Không tìm thấy mục phù hợp.',
-    empty: 'Mission chưa có mục checklist.',
+    empty: 'Nhiệm vụ chưa có mục danh sách kiểm tra.',
     pending:
-      'File chưa tải lên. Các mục bạn chọn sẽ được gắn khi tải file lên thành công.',
+      'Tệp chưa tải lên. Các mục bạn chọn sẽ được gắn khi tải tệp lên thành công.',
     existing:
       'Các mục đã gắn được giữ nguyên. Việc chọn thêm ở đây không gỡ hoặc xóa bằng chứng hiện có.',
     failed:
       'Chưa gắn được bằng chứng. Lựa chọn của bạn được giữ lại; hãy thử lại.',
-    saved: 'Đã lưu lựa chọn checklist.',
-    attachedSuccess: 'Đã gắn bằng chứng vào checklist.',
+    saved: 'Đã lưu lựa chọn danh sách kiểm tra.',
+    attachedSuccess: 'Đã gắn bằng chứng vào danh sách kiểm tra.',
     more: (n: number) => `+${n} mục khác`,
   },
   en: {

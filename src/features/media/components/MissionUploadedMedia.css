@@ -16,9 +16,7 @@
 .mission-media__state,
 .mission-media__meta span,
 .mission-media__card time,
-.mission-media__pager,
-.mission-media__dialog-header,
-.mission-media__dialog-footer {
+.mission-media__pager {
   display: flex;
   align-items: center;
 }
@@ -295,8 +293,8 @@
 .mission-media__card-body {
   display: flex;
   flex-direction: column;
-  gap: 9px;
-  padding: 14px 15px 16px;
+  gap: 6px;
+  padding: 10px 12px;
 }
 
 .mission-media__card-body h4 {
@@ -351,73 +349,6 @@
   font-size: 13px;
 }
 
-.mission-media__dialog {
-  width: min(960px, calc(100vw - 32px));
-  max-width: none;
-  max-height: calc(100vh - 32px);
-  padding: 0;
-  overflow: hidden;
-  border: 1px solid var(--bd, #e0e4ea);
-  border-radius: 16px;
-  background: var(--sf, #fff);
-  color: var(--tx, #11151c);
-  box-shadow: 0 28px 80px rgb(10 18 32 / 30%);
-}
-
-.mission-media__dialog::backdrop {
-  background: rgb(10 18 32 / 65%);
-  backdrop-filter: blur(4px);
-}
-
-.mission-media__dialog-header {
-  justify-content: space-between;
-  gap: 18px;
-  padding: 16px 18px;
-  border-bottom: 1px solid var(--bd, #e0e4ea);
-}
-
-.mission-media__dialog-header span {
-  color: var(--ink, #1565e8);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.mission-media__dialog-header h3 {
-  max-width: 75vw;
-  margin: 3px 0 0;
-  overflow: hidden;
-  font-size: 15px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.mission-media__dialog-stage {
-  display: grid;
-  min-height: 340px;
-  max-height: 70vh;
-  padding: 16px;
-  place-items: center;
-  overflow: auto;
-  background: #0b1220;
-}
-
-.mission-media__dialog-stage img,
-.mission-media__dialog-stage video {
-  max-width: 100%;
-  max-height: calc(70vh - 32px);
-  object-fit: contain;
-}
-
-.mission-media__dialog-footer {
-  justify-content: space-between;
-  gap: 16px;
-  padding: 14px 18px;
-  color: var(--tx3, #5b6577);
-  font-size: 12px;
-}
-
 @media (max-width: 640px) {
   .mission-media__body {
     padding: 16px;
@@ -434,10 +365,6 @@
   .mission-media__open-label {
     opacity: 1;
     transform: none;
-  }
-  .mission-media__dialog-footer {
-    align-items: flex-start;
-    flex-direction: column;
   }
 }
 

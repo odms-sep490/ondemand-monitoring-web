@@ -116,7 +116,7 @@ describe('Cockpit manual upload', () => {
     fireEvent.click(await screen.findByText('Tải ảnh/video từ drone'))
     fireEvent.click(screen.getByRole('button', { name: 'Chọn file drone' }))
     expect(await screen.findByRole('alert')).toHaveTextContent(
-      'drone.jpg: Mất kết nối',
+      'drone.jpg: Không thể kết nối. Kiểm tra mạng rồi thử lại.',
     )
     expect(uploadStaffMediaBatch).toHaveBeenCalledOnce()
   })

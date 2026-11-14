@@ -20,6 +20,8 @@ export const customerFinancePanelMessages = defineMessages({
     testPaymentFailed: 'Thanh toán test thất bại',
     quoteVersion: (version: number) => `Báo giá v${version}`,
     apiErrors: {
+      CONTRACT_NOT_CONFIRMED:
+        'Cần quản lý xác nhận hợp đồng trước khi thanh toán cọc.',
       INVOICE_ALREADY_PAID: 'Hóa đơn này đã được thanh toán đầy đủ.',
       INVOICE_NOT_PAYABLE: 'Hóa đơn hiện không thể thanh toán.',
       DEPOSIT_ALREADY_SATISFIED: 'Khoản đặt cọc đã được thanh toán.',
@@ -47,6 +49,8 @@ export const customerFinancePanelMessages = defineMessages({
     testPaymentFailed: 'Test payment failed',
     quoteVersion: (version: number) => `Quote v${version}`,
     apiErrors: {
+      CONTRACT_NOT_CONFIRMED:
+        'The manager must confirm the contract before the deposit can be paid.',
       INVOICE_ALREADY_PAID: 'This invoice has already been paid in full.',
       INVOICE_NOT_PAYABLE: 'This invoice cannot be paid right now.',
       DEPOSIT_ALREADY_SATISFIED: 'The deposit has already been paid.',

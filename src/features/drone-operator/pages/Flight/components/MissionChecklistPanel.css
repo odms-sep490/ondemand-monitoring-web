@@ -631,3 +631,15 @@
     transition: none;
   }
 }
+
+.mission-checklist-surface .ce-actions .ce-inspect.ant-btn {
+  border-color: #294866;
+  background: #10243a;
+  color: #bae6fd;
+  white-space: nowrap;
+}
+.mission-checklist-surface .ce-actions .ce-inspect.ant-btn:hover:not(:disabled) {
+  border-color: #38bdf8;
+  background: #17344e;
+  color: #e0f2fe;
+}

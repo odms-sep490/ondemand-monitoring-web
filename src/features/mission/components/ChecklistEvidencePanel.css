@@ -353,8 +353,16 @@
   border-radius: 0;
   background: transparent;
 }
+.ce-title-row {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+}
 .ce-head {
   display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
   align-items: baseline;
   justify-content: space-between;
   font-size: 13px;
@@ -429,6 +437,7 @@
 }
 .ce-row {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
   padding: 8px 0;
@@ -453,7 +462,7 @@
   object-fit: cover;
 }
 .ce-info {
-  flex: 1;
+  flex: 1 1 calc(100% - 66px);
   min-width: 0;
   display: flex;
   flex-direction: column;
@@ -480,7 +489,9 @@
   color: #b45309;
 }
 .ce-actions {
-  flex: none;
+  flex: 1 0 100%;
+  justify-content: flex-end;
+  flex-wrap: wrap;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -622,7 +633,6 @@
 .checklist-evidence.is-compact > button.ce-add:hover:not(:disabled) {
   color: #2563eb;
 }
-
 
 /* ---------- Multi-select Ant Design evidence picker (ChecklistEvidencePicker) ---------- */
 .checklist-evidence-picker {
@@ -902,17 +912,23 @@
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
-.checklist-evidence-picker-modal .checklist-evidence-picker-row:has(.ant-checkbox-checked) {
+.checklist-evidence-picker-modal
+  .checklist-evidence-picker-row:has(.ant-checkbox-checked) {
   border-color: #3b82f6 !important;
   background: #10233b !important;
   box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.2);
 }
 
-.checklist-evidence-picker-modal .checklist-evidence-picker-row > span:last-child {
+.checklist-evidence-picker-modal
+  .checklist-evidence-picker-row
+  > span:last-child {
   color: #e5edf8 !important;
 }
 
-.checklist-evidence-picker-modal .checklist-evidence-picker-row > span:last-child small {
+.checklist-evidence-picker-modal
+  .checklist-evidence-picker-row
+  > span:last-child
+  small {
   color: #94a7be !important;
 }
 
@@ -940,4 +956,23 @@
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     gap: 8px;
   }
+}
+
+.ce-actions .ce-inspect.ant-btn,
+.checklist-evidence-main .ce-inspect.ant-btn {
+  height: auto;
+  min-height: 30px;
+  padding: 4px 10px;
+  border: 1px solid var(--odm-border, #dbe4f0);
+  border-radius: 7px;
+  background: var(--odm-surface, #fff);
+  color: var(--odm-primary, #2563eb);
+  box-shadow: none;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.ce-inspect.ant-btn:disabled {
+  opacity: .5;
 }

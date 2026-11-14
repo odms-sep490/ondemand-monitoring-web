@@ -3,7 +3,7 @@
   padding: 24px;
   color: var(--tx, #172033);
 }
-.monitoring-checklist header,
+.monitoring-checklist > header,
 .monitoring-summary,
 .monitoring-meta,
 .monitoring-actions {
@@ -12,7 +12,7 @@
   align-items: center;
   gap: 12px;
 }
-.monitoring-checklist header {
+.monitoring-checklist > header {
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 16px;
@@ -29,11 +29,11 @@
   font-size: 18px;
   font-weight: 700;
 }
-.monitoring-checklist header p {
+.monitoring-checklist > header p {
   margin: 4px 0 0;
   font-size: 13px;
 }
-.monitoring-checklist header p,
+.monitoring-checklist > header p,
 .monitoring-checklist small {
   color: var(--tx3, #64748b);
 }
@@ -287,7 +287,7 @@
   padding: 18px 16px;
   border-radius: 14px;
 }
-.monitoring-checklist.is-compact header {
+.monitoring-checklist.is-compact > header {
   flex-wrap: nowrap;
   align-items: center;
   margin-bottom: 10px;
@@ -769,4 +769,41 @@
 }
 .mc-list--expanded {
   margin-top: 16px;
+}
+
+/* Inspection and delivery selection are separate sections of the same checklist. */
+.mc-item-body.is-assessment-review {
+  padding: 16px;
+  margin-bottom: 4px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--sf2, #f4f7fb);
+}
+.mc-assessment-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.mc-assessment-heading h4 { margin: 0 0 5px; font-size: 15px; font-weight: 650; }
+.mc-assessment-heading p { margin: 0; color: var(--tx3, #64748b); font-size: 13px; line-height: 1.5; }
+.mc-assessment-state { padding: 4px 9px; border-radius: 6px; font-size: 12px; font-weight: 600; background: #e8eef7; color: #475569; }
+.mc-assessment-state.is-compliant { background: #dcfce7; color: #166534; }
+.mc-assessment-state.is-non_compliant { background: #fee2e2; color: #991b1b; }
+.mc-item-body.is-assessment-review .mc-fields:empty { display: none; }
+.mc-item-body.is-assessment-review .mc-edit { margin-top: 0; min-height: 34px; }
+
+.mc-detail.is-inspection-review { padding: 16px; gap: 14px; }
+.mc-detail .monitoring-item.is-assessment-review { align-items: stretch; gap: 0; }
+.mc-assessment-heading { display: grid; grid-template-columns: minmax(0, 1fr) auto; width: auto; align-self: stretch; }
+.mc-assessment-heading > div { min-width: 0; }
+.mc-assessment-state { flex: none; white-space: nowrap; }
+.mc-detail .checklist-evidence.is-customer-selection { padding: 0; border: 0; background: transparent; }
+@media (max-width: 600px) {
+  .mc-detail.is-inspection-review { padding: 12px; }
+  .mc-item-body.is-assessment-review { padding: 12px; }
+  .mc-assessment-heading { grid-template-columns: minmax(0, 1fr); }
+  .mc-assessment-state { justify-self: start; }
 }

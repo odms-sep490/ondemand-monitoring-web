@@ -1,3 +1,4 @@
+import { ImagePreview } from '../../../../../shared/components/media/ImagePreview'
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
 import { Alert, Button, Empty, Input, Skeleton } from 'antd'
 import {
@@ -317,12 +318,8 @@ export function DroneFleetRoom({
             <h3 id="mgr-drone-room-details-title">{copy.details}</h3>
             <div className="mgr-drone-room-selected-device">
               {selectedDrone.imageUrl ? (
-                <img
-                  className="mgr-drone-room-selected-image"
-                  src={selectedDrone.imageUrl}
-                  alt={copy.deviceImageAlt}
-                  loading="lazy"
-                />
+                <ImagePreview className="mgr-drone-room-selected-image"
+                  src={selectedDrone.imageUrl} fileName={copy.deviceImageAlt} />
               ) : (
                 <span className="mgr-drone-room-selected-mark" aria-hidden="true">
                   <SendOutlined />

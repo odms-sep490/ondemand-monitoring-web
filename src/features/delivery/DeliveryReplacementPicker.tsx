@@ -5,7 +5,7 @@ import { SwapOutlined } from '@ant-design/icons'
 import type { ChecklistDeliveryAsset } from './api'
 import { useI18n } from '../../shared/i18n'
 import { managerDeliveryPanelMessages } from './managerDeliveryPanel.messages'
-import { DeliveryImagePreview } from './DeliveryImagePreview'
+import { ImagePreview } from '../../shared/components/media/ImagePreview'
 import './DeliveryReplacementPicker.css'
 
 function Preview({ asset }: { asset: ChecklistDeliveryAsset }) {
@@ -17,11 +17,11 @@ function Preview({ asset }: { asset: ChecklistDeliveryAsset }) {
       </div>
     )
   return asset.type.toUpperCase().includes('VIDEO') ? (
-    <VideoThumbnail src={asset.previewUrl} poster={asset.thumbnailUrl} fallbackUrl={asset.url} fileName={asset.fileName} fileSize={asset.size} original={asset.previewStatus !== 'READY'} />
+    <VideoThumbnail src={asset.previewUrl} poster={asset.thumbnailUrl} fallbackUrl={null} fileName={asset.fileName} fileSize={asset.size} original={asset.previewStatus !== 'READY'} />
   ) : (
-    <DeliveryImagePreview
+    <ImagePreview
       src={asset.thumbnailUrl ?? asset.previewUrl}
-      fallbackUrl={asset.url}
+      fallbackUrl={null}
       fileSize={asset.size}
       original={asset.previewStatus !== 'READY'}
       previewSrc={asset.previewUrl}

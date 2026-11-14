@@ -42,7 +42,7 @@ describe('multi-select evidence picker', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Trang sau' }))
     fireEvent.click(await screen.findByRole('checkbox', { name: 'second.jpg' }))
     expect(onSelect).not.toHaveBeenCalled()
-    fireEvent.click(screen.getByRole('button', { name: 'Gắn 2 file' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Gắn 2 tệp' }))
     await waitFor(() => expect(onSelect).toHaveBeenCalledWith([first[0], next]))
   }, 15000)
   it('prevents wrong media type and keeps selection after an attach failure', async () => {
@@ -66,7 +66,7 @@ describe('multi-select evidence picker', () => {
       await screen.findByRole('checkbox', { name: 'video.mp4' }),
     ).toBeDisabled()
     fireEvent.click(screen.getByRole('checkbox', { name: 'image.jpg' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Gắn 1 file' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Gắn 1 tệp' }))
     await screen.findByRole('alert')
     expect(screen.getByRole('checkbox', { name: 'image.jpg' })).toBeChecked()
   })
@@ -104,15 +104,15 @@ it('shows local files and a retryable source warning when uploaded media is unav
   const select = vi.fn().mockResolvedValue(undefined)
   render(<ChecklistEvidencePicker missionId="mission" open onClose={vi.fn()} onSelect={select} loadCandidates={load} />)
   const checkbox = await screen.findByRole('checkbox', { name: 'captured.jpg' })
-  expect(screen.getByText(/Chưa tải được media từ hệ thống/)).toBeInTheDocument()
+  expect(screen.getByText(/Chưa tải được ảnh\/video từ hệ thống/)).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Trang sau' })).toBeDisabled()
   expect(select).not.toHaveBeenCalled()
   fireEvent.click(checkbox)
   fireEvent.click(screen.getByRole('button', { name: 'Thử lại' }))
   await screen.findByRole('checkbox', { name: 'uploaded-manual.jpg' })
-  expect(screen.queryByText(/Chưa tải được media từ hệ thống/)).toBeNull()
+  expect(screen.queryByText(/Chưa tải được ảnh\/video từ hệ thống/)).toBeNull()
   expect(screen.getByRole('checkbox', { name: 'captured.jpg' })).toBeChecked()
-  fireEvent.click(screen.getByRole('button', { name: 'Gắn 1 file' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Gắn 1 tệp' }))
   await waitFor(() => expect(select).toHaveBeenCalledWith([local]))
 })
 
@@ -121,7 +121,7 @@ it('keeps uploaded files selectable when only the FC library is unavailable', as
   render(<ChecklistEvidencePicker missionId="mission" open onClose={vi.fn()} onSelect={vi.fn()}
     loadCandidates={async () => ({ items: [uploaded], unavailableSources: ['local'], hasMore: false })} />)
   expect(await screen.findByRole('checkbox', { name: 'manual.jpg' })).toBeEnabled()
-  expect(screen.getByText(/Chưa kết nối được thư viện Flight Controller/)).toBeInTheDocument()
+  expect(screen.getByText(/Chưa kết nối được thư viện Bộ điều khiển bay/)).toBeInTheDocument()
 })
 
 it('clears stale candidates and selection when a retry is denied', async () => {
@@ -132,8 +132,8 @@ it('clears stale candidates and selection when a retry is denied', async () => {
   fireEvent.click(screen.getByRole('button', { name: 'Thử lại' }))
   await screen.findByRole('alert')
   expect(screen.queryByRole('checkbox')).toBeNull()
-  expect(screen.getByRole('button', { name: 'Gắn 0 file' })).toBeDisabled()
-  expect(screen.queryByText('Không có media phù hợp.')).toBeNull()
+  expect(screen.getByRole('button', { name: 'Gắn 0 tệp' })).toBeDisabled()
+  expect(screen.queryByText('Không có ảnh/video phù hợp.')).toBeNull()
 })
 
 it('does not expose selection from the previous Mission while the next one loads', async () => {
@@ -144,5 +144,18 @@ it('does not expose selection from the previous Mission while the next one loads
   rerender(<ChecklistEvidencePicker missionId="new" open onClose={vi.fn()} onSelect={vi.fn()} loadCandidates={next} />)
   await screen.findByRole('checkbox', { name: 'new.jpg' })
   expect(screen.queryByRole('checkbox', { name: 'old.jpg' })).toBeNull()
-  expect(screen.getByRole('button', { name: 'Gắn 0 file' })).toBeDisabled()
+  expect(screen.getByRole('button', { name: 'Gắn 0 tệp' })).toBeDisabled()
+})
+
+it('shows capture-age rejection while keeping the selected file available for review', async () => {
+  const onClose = vi.fn()
+  render(<ChecklistEvidencePicker missionId="m" open onClose={onClose}
+    loadCandidates={async () => [candidate('expired')]}
+    onSelect={vi.fn().mockRejectedValue(Object.assign(new Error('internal detail'), { code: 'MEDIA_CAPTURE_TOO_OLD' }))} />)
+  fireEvent.click(await screen.findByRole('checkbox', { name: 'expired.jpg' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Gắn 1 tệp' }))
+  expect(await screen.findByRole('alert')).toHaveTextContent('Thời điểm chụp/quay đã vượt giới hạn')
+  expect(screen.getByRole('checkbox', { name: 'expired.jpg' })).toBeChecked()
+  expect(screen.queryByText('internal detail')).toBeNull()
+  expect(onClose).not.toHaveBeenCalled()
 })

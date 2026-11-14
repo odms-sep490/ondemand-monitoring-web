@@ -1,3 +1,4 @@
+import { ImagePreview } from '../../../../../shared/components/media/ImagePreview'
 import { useState } from 'react'
 
 import { Icon } from '../../../../../shared/components/Icon'
@@ -100,7 +101,7 @@ export function AttachmentsField({ attachments, update }: Props) {
         <ul className="co-attach-list">
           {attachments.map((attachment) => (
             <li key={attachment.id} className="co-attach-item">
-              <img src={attachment.dataUrl} alt={attachment.fileName} />
+              <ImagePreview className="shared-image-preview--attachment" src={attachment.dataUrl} fileName={attachment.fileName} />
               <span className="co-attach-name" title={attachment.fileName}>
                 {attachment.fileName}
               </span>
