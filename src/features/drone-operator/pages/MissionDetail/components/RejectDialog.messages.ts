@@ -10,10 +10,6 @@ export const rejectDialogMessages = defineMessages({
     reasonLabel: 'Vì sao bạn không thể nhận nhiệm vụ?',
     reasons: [
       'Không thể tham gia vào thời gian được phân công',
-      'Chưa đáp ứng yêu cầu chuyên môn hoặc chứng chỉ',
-      'Không thể di chuyển đến địa điểm nhiệm vụ',
-      'Thời tiết hoặc điều kiện hiện trường không bảo đảm an toàn',
-      'Thiết bị được giao không đáp ứng yêu cầu nhiệm vụ',
       'Sức khỏe hoặc việc đột xuất',
       'Lý do khác',
     ],
@@ -31,10 +27,6 @@ export const rejectDialogMessages = defineMessages({
     reasonLabel: 'Why can’t you accept this mission?',
     reasons: [
       'Unavailable at the assigned time',
-      'Do not meet the required qualifications or certification',
-      'Unable to travel to the mission location',
-      'Weather or on-site conditions are unsafe',
-      'Assigned equipment does not meet mission requirements',
       'Health issue or unexpected personal matter',
       'Other reason',
     ],

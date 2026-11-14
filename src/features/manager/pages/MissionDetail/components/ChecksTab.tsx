@@ -77,9 +77,13 @@ export function ChecksTab({
                     value={formatNumber(preflight.progressPercent, '%')}
                   />
                 </div>
+                <div className="mgr-check-times">
+                  <MetricTile label={t.checkStartedAt} value={formatDateTime(preflight.startedAt, locale)} />
+                  <MetricTile label={t.checkCompletedAt} value={formatDateTime(preflight.completedAt, locale)} />
+                </div>
                 <details className="mgr-check-items-disclosure" key={preflight.id} open={preflight.failedChecks > 0}>
                   <summary>{t.checkItemsDetails(preflight.items.length)}</summary>
-                  <CheckItemsList items={preflight.items} />
+                  <CheckItemsList items={preflight.items} showCheckedAt />
                 </details>
               </div>
             ) : (
@@ -97,25 +101,24 @@ export function ChecksTab({
             {postcheck ? (
               <div className="odm-or-detail-stack">
                 <div className="odm-or-detail-grid mgr-check-compact-metrics">
-                  <MetricTile label={t.device} value={postcheck.deviceCode} />
-                  <MetricTile
-                    label={t.batteryLeft}
-                    value={formatNumber(postcheck.landingBatteryPercent, '%')}
-                  />
-                  <MetricTile
-                    label={t.batteryState}
-                    value={batteryStateLabel}
-                  />
-                  <MetricTile
-                    label={t.checkedAt}
-                    value={formatDateTime(postcheck.checkedAt, locale)}
-                  />
+                  <MetricTile label={t.totalChecks} value={postcheck.totalChecks} />
                   <MetricTile label={t.passed} value={postcheck.passedChecks} />
                   <MetricTile label={t.failed} value={postcheck.failedChecks} />
+                  <MetricTile label={t.progress} value={formatNumber(postcheck.progressPercent, '%')} />
+                </div>
+                <div className="mgr-check-times">
+                  <MetricTile label={t.checkStartedAt} value={formatDateTime(postcheck.startedAt, locale)} />
+                  <MetricTile label={t.checkCompletedAt} value={formatDateTime(postcheck.completedAt, locale)} />
+                </div>
+                <div className="mgr-check-device-metrics">
+                  <MetricTile label={t.device} value={postcheck.deviceCode} />
+                  <MetricTile label={t.batteryLeft} value={formatNumber(postcheck.landingBatteryPercent, '%')} />
+                  <MetricTile label={t.batteryState} value={batteryStateLabel} />
+                  <MetricTile label={t.checkedAt} value={formatDateTime(postcheck.checkedAt, locale)} />
                 </div>
                 <details className="mgr-check-items-disclosure" key={postcheck.id} open={postcheck.failedChecks > 0}>
                   <summary>{t.checkItemsDetails(postcheck.items.length)}</summary>
-                  <CheckItemsList items={postcheck.items} />
+                  <CheckItemsList items={postcheck.items} showCheckedAt />
                 </details>
               </div>
             ) : (

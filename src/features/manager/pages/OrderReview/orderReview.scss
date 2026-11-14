@@ -225,14 +225,21 @@
 
 :root .mgr-layout .odm-or-review-page .odm-or-location-overview {
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  min-height: 0;
+  height: auto;
 
   .odm-or-card-head {
     min-height: 52px;
+    flex-shrink: 0;
   }
 
   .odm-or-location-overview-grid {
     display: grid;
-    grid-template-columns: minmax(180px, 0.9fr) minmax(220px, 1.2fr) minmax(160px, 0.8fr);
+    flex: 1;
+    grid-template-columns: minmax(180px, 1fr) minmax(240px, 1.5fr) minmax(180px, 1fr);
     align-items: stretch;
     gap: 12px;
     padding: 14px;
@@ -244,6 +251,9 @@
     min-width: 0;
     margin: 0;
     gap: 8px;
+    align-self: stretch;
+    align-content: stretch;
+    grid-auto-rows: minmax(0, 1fr);
   }
 
   .odm-or-location-fact,
@@ -292,18 +302,24 @@
   }
 
   .odm-or-location-metrics {
-    grid-template-rows: repeat(3, minmax(0, 1fr));
+    grid-auto-rows: minmax(0, 1fr);
   }
 
   .odm-or-location-metric {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 0;
     padding: 9px 12px;
   }
 
   .odm-or-overview-map {
     position: relative;
     min-width: 0;
-    min-height: 172px;
+    min-height: 320px;
+    isolation: isolate;
+    contain: paint;
     overflow: hidden;
     border: 1px solid var(--mgr-border);
     border-radius: 12px;
@@ -311,9 +327,11 @@
   }
 
   .odm-or-overview-map .odm-or-real-map-canvas {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
-    min-height: 172px;
+    min-height: 0;
   }
 
   .odm-or-overview-map .odm-or-gps-badge {
@@ -342,7 +360,7 @@
 
     .odm-or-location-metrics {
       grid-column: 1 / -1;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
       grid-template-rows: auto;
     }
   }
@@ -370,7 +388,7 @@
     }
 
     .odm-or-overview-map .odm-or-real-map-canvas {
-      min-height: 190px;
+      min-height: 0;
     }
   }
 }
@@ -852,15 +870,17 @@
 
 /* ---------- Request details, area heading, copy button, disabled primary ---------- */
 :root .mgr-layout {
-  /* flat sections inside the request card (no card-in-card); odd last one spans the row */
+  /* Give each request topic a distinct, equally spaced panel. */
   .odm-or-req-section {
-    padding: 14px 0 0;
-    border: 0;
-    border-top: 1px solid var(--mgr-border);
-    border-radius: 0;
-    background: transparent;
+    padding: 18px 20px;
+    border: 1px solid var(--mgr-border);
+    border-radius: 12px;
+    background: var(--mgr-card);
 
     h4 {
+      margin: 0 0 8px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--mgr-border);
       font-size: 15px;
     }
 
@@ -870,7 +890,22 @@
   }
 
   .odm-or-req-section-grid {
-    gap: 4px 28px;
+    gap: 16px;
+    align-items: stretch;
+    padding: 16px;
+    border-radius: 16px;
+    background: var(--mgr-card-2);
+  }
+
+  @media (max-width: 520px) {
+    .odm-or-req-section-grid {
+      gap: 12px;
+      padding: 10px;
+    }
+
+    .odm-or-req-section {
+      padding: 14px;
+    }
   }
 
   .odm-or-svc-tile {

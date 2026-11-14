@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react'
 import { MissionSatelliteMap } from './MissionSatelliteMap'
-import { formatNumber } from '../../../components/common/missionDetailHelpers'
-import { waypointReasonLabel } from './MissionRouteMap'
 import { MissionResultReviewCard } from '../../../components/common/MissionResultReviewCard'
 import { ChecklistEmptyNote } from './ChecklistEmptyNote'
 import { MonitoringChecklistSection } from '../../../../mission/components/MonitoringChecklistSection'
@@ -24,8 +22,6 @@ export function ActiveMissionOverview({
   activeTab,
   onTabChange,
   mission,
-  waypoints,
-  plan,
   detail,
   checklist,
   loading,
@@ -76,36 +72,6 @@ export function ActiveMissionOverview({
           {detail.order?.addressText && (
             <p className="odm-or-detail-note">{detail.order.addressText}</p>
           )}
-          <dl className="odm-or-kv">
-            <div>
-              <dt>{t.map.waypoint}</dt>
-              <dd>{waypoints.length}</dd>
-            </div>
-            <div>
-              <dt>{t.map.distance}</dt>
-              <dd>{formatNumber(plan?.plannedDistanceM, ' m')}</dd>
-            </div>
-            <div>
-              <dt>{t.map.altitude}</dt>
-              <dd>{formatNumber(plan?.maxPlannedAltitudeM, ' m')}</dd>
-            </div>
-          </dl>
-          <p className="odm-rm-caption">
-            {waypoints.length > 0
-              ? t.map.routeReferenceNote
-              : t.map.noRouteData}
-          </p>
-          {waypoints.length > 0 ? (
-            <ul className="odm-rm-wps mgr-scroll-list">
-              {waypoints.map((point) => (
-                <li key={point.id}>
-                  <b>{point.sequence}</b>
-                  <strong>{waypointReasonLabel(point.reason)}</strong>
-                  <span>{formatNumber(point.altitudeM, ' m')}</span>
-                </li>
-              ))}
-            </ul>
-          ) : null}
         </div>
       </section>
 

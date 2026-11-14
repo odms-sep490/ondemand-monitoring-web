@@ -1,5 +1,5 @@
 import { Button } from 'antd'
-import { ArrowLeftOutlined, RightOutlined } from '@ant-design/icons'
+import { ArrowLeftOutlined } from '@ant-design/icons'
 
 import { MissionStatusTag } from '../../../components/common/MissionStatusTag'
 import { PageHeader } from '../../../components/common/PageHeader'
@@ -34,21 +34,18 @@ export function MissionDetailHeader({
       description={headline ?? undefined}
       actions={
         <>
-          <Button
-            href={managerHref(
-              mission.purpose === 'REWORK' && mission.resultRevisionCaseId
-                ? {
-                    screen: 'missionCreate',
-                    orderId: mission.orderId,
-                    reworkCaseId: mission.resultRevisionCaseId,
-                  }
-                : { screen: 'orderReview', orderId: mission.orderId },
-            )}
-          >
-            {t.viewOrderPlan}
-            <RightOutlined aria-hidden="true" />
-          </Button>
-          {canSetup || (mission.inspectionCorrectionId && !['COMPLETED','FAILED','CANCELLED'].includes(mission.status)) ? (
+          {mission.purpose === 'REWORK' && mission.resultRevisionCaseId ? (
+            <Button href={managerHref({
+              screen: 'missionCreate',
+              orderId: mission.orderId,
+              reworkCaseId: mission.resultRevisionCaseId,
+            })}>
+              {t.viewOrderPlan}
+            </Button>
+          ) : null}
+          {canSetup ||
+          (mission.inspectionCorrectionId &&
+            !['COMPLETED', 'FAILED', 'CANCELLED'].includes(mission.status)) ? (
             <Button
               type="primary"
               href={managerHref({

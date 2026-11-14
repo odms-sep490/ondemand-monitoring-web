@@ -133,7 +133,8 @@ export function MissionTabs({
         <MissionListTable
           missions={tabItems}
           now={now}
-          showSubmission={tab === 'history'}
+          showSubmission={false}
+          showDeadline={tab !== 'history'}
         />
       </div>
       <UpcomingRail missions={allMissions} now={now} />

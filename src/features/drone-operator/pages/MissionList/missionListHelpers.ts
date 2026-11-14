@@ -27,6 +27,7 @@ export function isRailMission(
   start: Date,
   now: Date,
 ) {
+  if (mission.status === 'REJECTED') return false
   const status = latestMissionStatus(mission)
   if (ACTIVE_RAIL_STATUSES.has(status)) return true
   if (status === 'COMPLETED' || mission.status === 'COMPLETED') return false

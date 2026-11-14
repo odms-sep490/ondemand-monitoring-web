@@ -1679,3 +1679,131 @@
 @media (max-width: 700px) { .od-order-banner > * { padding: 18px 16px; min-height: 140px; } }
 [data-theme='dark'] .od-order-banner { background: linear-gradient(90deg, rgba(11,25,46,.9), rgba(11,25,46,.5)), url('/images/order-banner.png') center / cover no-repeat, #10243d; border-color: #28405d; }
 [data-theme='dark'] .od-order-banner h1 { color: #e6ecfa; }
+
+/* Align the request groups in pairs and give long notes the full content width. */
+.od-page .od-order-panel .od-info-sections {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 16px;
+}
+.od-page .od-order-panel .od-info-section {
+  min-width: 0;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 18px;
+  border: 1px solid var(--ui-border);
+  border-radius: 12px;
+  background: var(--ui-surface);
+}
+.od-page .od-order-panel .od-info-section.is-wide { grid-column: 1 / -1; }
+.od-page .od-order-panel .od-info-section-heading {
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.od-page .od-order-panel .od-info-section-title { margin: 0; font-size: 14px; }
+.od-page .od-order-panel .od-info-list .od-field { padding: 10px 0; }
+.od-page .od-order-panel .od-info-list .od-field:last-child { border-bottom: 0; padding-bottom: 0; }
+.od-page .od-order-panel .od-info-list .od-field-body {
+  display: grid;
+  grid-template-columns: minmax(120px, .85fr) minmax(0, 1.35fr);
+  gap: 8px 16px;
+  align-items: baseline;
+}
+.od-page .od-order-panel .od-info-section.is-wide .od-desc-text {
+  margin: 4px 0 0;
+  padding: 12px 14px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 1100px) {
+  .od-page .od-order-panel .od-info-list .od-field-body { grid-template-columns: 1fr; gap: 4px; }
+}
+@media (max-width: 700px) {
+  .od-page .od-order-panel .od-info-sections { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .od-page .od-order-panel .od-info-section { padding: 16px; }
+}
+
+/* The field owns the label/value columns; its body must not create a nested grid. */
+.od-page .od-order-panel .od-info-list .od-field {
+  display: grid;
+  grid-template-columns: minmax(115px, .8fr) minmax(0, 1.3fr);
+  align-items: baseline;
+  gap: 8px 16px;
+  width: 100%;
+}
+.od-page .od-order-panel .od-info-list .od-field-body {
+  display: contents;
+}
+.od-page .od-order-panel .od-info-list .od-field dd {
+  display: block;
+  width: auto;
+  min-width: 0;
+  margin: 0;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+@media (max-width: 1100px) {
+  .od-page .od-order-panel .od-info-list .od-field {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+  }
+}
+
+/* Keep progress at its natural height instead of stretching each step. */
+@media (min-width: 901px) {
+  .od-page .od-order-panel .cus-main-grid { align-items: start; }
+  .od-page .od-order-panel .cus-side {
+    position: static;
+    top: auto;
+    align-self: start;
+    display: flex;
+    flex-direction: column;
+  }
+  .od-page .od-order-panel .od-timeline-card {
+    display: flex;
+    flex-direction: column;
+    flex: none;
+    min-height: 0;
+    width: 100%;
+  }
+  .od-page .od-order-panel .od-timeline-card > .ant-card-body {
+    display: flex;
+    flex-direction: column;
+    flex: none;
+  }
+  .od-page .od-order-panel .od-timeline-card .od-steps {
+    display: flex;
+    flex-direction: column;
+    flex: none;
+  }
+  .od-page .od-order-panel .od-timeline-card .od-step { flex: none; padding-bottom: 24px; }
+  .od-page .od-order-panel .od-timeline-card .od-step:last-child { flex: none; padding-bottom: 0; }
+}
+.od-page .od-balanced-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(320px, 1fr);
+  gap: 20px;
+  align-items: stretch;
+}
+.od-page .od-balanced-layout > * { min-width: 0; }
+.od-page .od-balanced-layout > .ant-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.od-page .od-balanced-layout > .ant-card > .ant-card-body { flex: 1; }
+.od-page .od-balanced-layout > .ant-card:first-child > .ant-card-body {
+  display: flex;
+  flex-direction: column;
+}
+.od-page .od-balanced-layout > .ant-card:first-child .od-info-sections { margin-top: auto; }
+.od-page .od-order-panel .od-balanced-layout .od-timeline-card .od-step { padding-bottom: 16px; }
+.od-page .od-order-panel .od-balanced-layout .od-timeline-card .od-step:last-child { padding-bottom: 0; }
+.od-page .od-balanced-details { grid-column: 1 / -1; }
+@media (max-width: 900px) {
+  .od-page .od-balanced-layout { grid-template-columns: minmax(0, 1fr); }
+}
+

@@ -4,22 +4,16 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import type { MissionChecklistResponse } from '../../../mission/types/checklistExecution'
 import { checklistExecutionApi } from '../../../mission/api/checklistExecutionApi'
-import { Skeleton } from 'antd'
+import { Alert, Button, Skeleton } from 'antd'
 import { ArrowLeftOutlined } from '@ant-design/icons'
 import { CardComponent } from '../../../../shared/components/antd'
 import { ErrorState } from '../../components/common/ErrorState'
-import { EmptyState as MgrEmptyState } from '../../components/common/EmptyState'
 import { useI18n } from '../../../../shared/i18n'
-import { OrderAttachmentsCard } from '../../components/common/OrderAttachmentsCard'
-import { OrderCustomerCard } from '../../components/common/OrderCustomerCard'
-import { OrderCustomerRequestDetails } from '../../components/common/OrderCustomerRequestDetails'
-import { OrderServiceInfo } from '../../components/common/OrderServiceInfo'
 import { type DetailData } from '../../components/common/missionDetailTypes'
 import { managerHref } from '../../routes'
 import { ManagerDeliveryPanel } from '../../../delivery/ManagerDeliveryPanel'
 import '../../components/layout/mgrLayout.css'
 import { missionDetailPageMessages } from './MissionDetailPage.messages'
-import { orderReviewPageMessages } from '../OrderReview/OrderReviewPage.messages'
 import '../../manager.css'
 import '../../components/common/missionPages.css'
 import './missionDetail.scss'
@@ -27,12 +21,12 @@ import { type MissionDetailTab } from './missionDetailTypes'
 import { useMissionDetailLoad } from './useMissionDetailLoad'
 import { deriveMissionDetailView } from './deriveMissionDetailView'
 import { MissionDetailHeader } from './components/MissionDetailHeader'
+import { MissionPlanPanel } from './components/MissionPlanPanel'
 import { MissionNextStep } from './components/MissionNextStep'
 import { MissionDetailTabs } from './components/MissionDetailTabs'
 import { OverviewTab } from './components/OverviewTab'
 import './components/missionOrderLayout.css'
 import { MissionChecksPanel } from './components/MissionChecksPanel'
-import { MissionCrewCard } from './components/MissionCrewCard'
 import { authSession } from '../../../auth/api/authApi'
 import { MissionFinanceTab } from './components/MissionFinanceTab'
 import {
@@ -61,7 +55,7 @@ const missionDetailTabs: readonly MissionDetailTab[] = [
   'media',
   'checklist',
   'route',
-  'order',
+  'plan',
   'resources',
   'checks',
   'finance',
@@ -83,7 +77,6 @@ function MissionDetail({
   resourceAlertKeys?: string[]
 }) {
   const { t, locale } = useI18n(missionDetailPageMessages)
-  const { t: orderT } = useI18n(orderReviewPageMessages)
   const managerId = authSession.getUser()?.id ?? 'manager'
   const { readState, markRead } = useManagerNotificationReadState(managerId)
   const [detail, setDetail] = useState<DetailData | null>(null)
@@ -148,7 +141,7 @@ function MissionDetail({
   ).length
 
   useEffect(() => {
-    if (tab === 'resources' && allResourceEventKeys.length > 0)
+    if ((tab === 'plan' || tab === 'resources') && allResourceEventKeys.length > 0)
       markRead('resources', allResourceEventKeys)
   }, [allResourceEventKeys, markRead, tab])
 
@@ -196,10 +189,7 @@ function MissionDetail({
     plan,
     preflight,
     postcheck,
-    staff,
     canSetup,
-    deviceCode,
-    deviceLabel,
     nextStep,
     isCompleted,
     resultApproved,
@@ -219,6 +209,16 @@ function MissionDetail({
     tab,
   })
 
+  const needsResourceReplacement =
+    ['PENDING_CONFIRMATION', 'READY'].includes(mission.status) && (
+      (mission.staffAssignments ?? []).some(
+        assignment => assignment.isCurrent !== false && assignment.responseStatus === 'REJECTED',
+      ) ||
+      (mission.deviceAssignments ?? []).some(
+        assignment => assignment.replacementRequestedAt && !assignment.replacementCompleted,
+      )
+    )
+
   return (
     <div className="odm-or mgr-view mgr-md">
       <MissionDetailHeader
@@ -226,10 +226,42 @@ function MissionDetail({
         headline={headline}
         canSetup={canSetup}
       />
-
-      {nextStep && mission.status !== 'FAILED' ? (
+      {needsResourceReplacement ? (
+        <Alert
+          type="warning"
+          showIcon
+          message={t.replacementRequiredTitle}
+          action={
+            <Button type="primary" style={{ color: '#fff' }} onClick={() => selectTab('plan')}>
+              {t.manageResources}
+            </Button>
+          }
+        />
+      ) : nextStep && !['FAILED', 'COMPLETED'].includes(mission.status) ? (
         <MissionNextStep nextStep={nextStep} />
       ) : null}
+
+      {mission.status === 'FAILED' && (
+        <Alert
+          type="error"
+          showIcon
+          message={t.fields.failure}
+          action={
+            mission.orderId ? (
+              <Button href={managerHref({ screen: 'orderReview', orderId: mission.orderId })}>
+                {t.replanMission}
+              </Button>
+            ) : undefined
+          }
+          description={
+            <div style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>
+              {mission.failureReason?.trim() ||
+                mission.rejectionReason?.trim() ||
+                t.fields.failureNotRecorded}
+            </div>
+          }
+        />
+      )}
 
       <div className="mgr-md-workbench">
         <MissionDetailTabs
@@ -281,42 +313,7 @@ function MissionDetail({
             />
           </div>
 
-          {activeTab === 'order' ? (
-            detail.order ? (
-              <div className="mgr-md-order-layout">
-                <OrderServiceInfo order={detail.order} t={orderT} />
-                <div className="mgr-md-order-grid mgr-md-plan-grid">
-                  <OrderCustomerRequestDetails order={detail.order} t={orderT} />
-                  <OrderCustomerCard order={detail.order} t={orderT} />
-                </div>
-                <OrderAttachmentsCard order={detail.order} t={orderT} />
-              </div>
-            ) : (
-              <CardComponent>
-                <MgrEmptyState title={t.loadError} />
-              </CardComponent>
-            )
-          ) : null}
-
-          {activeTab === 'resources' ? (
-            <MissionCrewCard
-              staff={staff}
-              deviceCode={deviceCode}
-              deviceLabel={deviceLabel}
-              deviceAssignments={mission.deviceAssignments}
-              permitStatus={mission.flightPermitStatus ?? 'NOT_REQUESTED'}
-              permitNote={mission.flightPermitNote}
-              missionId={mission.id}
-              canReplaceStaff={
-                !['PLANNING', 'CANCELLED', 'FAILED'].includes(mission.status) &&
-                staff.some(
-                  (assignment) =>
-                    assignment.responseStatus === 'REJECTED' &&
-                    assignment.isCurrent !== false,
-                )
-              }
-            />
-          ) : null}
+          {activeTab === 'plan' && <MissionPlanPanel mission={mission} onUpdated={refreshDetail} />}
 
           {activeTab === 'checks' ? (
             <MissionChecksPanel

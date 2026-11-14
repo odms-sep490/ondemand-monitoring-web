@@ -7,7 +7,7 @@ import { CopyButton } from './CopyButton'
 import { OrderActions } from './OrderActions'
 import { orderHeaderMessages } from './OrderHeader.messages'
 
-export function OrderHeader({ order }: { order: OrderDetailView }) {
+export function OrderHeader({ order, onUpdated }: { order: OrderDetailView; onUpdated?: () => void }) {
   const { t } = useI18n(orderHeaderMessages)
   const title = getDisplayTitle(order, t.orderTitleFallback)
   return (
@@ -19,7 +19,7 @@ export function OrderHeader({ order }: { order: OrderDetailView }) {
         </a>
       }
       title={title}
-      actions={<OrderActions order={order} />}
+      actions={<OrderActions order={order} onUpdated={onUpdated} />}
       subtitle={
         <span className="od-meta">
           <OrderStatusBadge

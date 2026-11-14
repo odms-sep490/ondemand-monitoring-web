@@ -33,7 +33,7 @@ export function deriveMissionDetailView({
   const plan = mission.plan ?? null
   const { preflight, postcheck } = detail
   const staff = mission.staffAssignments ?? []
-  const staffGroups = groupStaffAssignments(staff)
+  const staffGroups = groupStaffAssignments(staff.filter(assignment => assignment.isCurrent !== false))
   const accepted = staff.filter((s) => s.responseStatus === 'ACCEPTED').length
   const acceptedPeople = staffGroups.filter(
     (group) => group.responseStatus === 'ACCEPTED',
@@ -105,7 +105,7 @@ export function deriveMissionDetailView({
     detail.result?.mediaFiles?.length ??
     (detail.media.length > 0 ? detail.media.length : null)
   /** What the manager can do about this Mission right now. */
-  const nextStep = missionNextStep(mission.status, accepted, staff.length)
+  const nextStep = missionNextStep(mission.status, acceptedPeople, staffGroups.length)
   const isCompleted = mission.status === 'COMPLETED'
   const resultApproved = detail.result?.approvalStatus === 'APPROVED'
   const meaningfulText = (value: string | null | undefined) =>
@@ -148,14 +148,13 @@ export function deriveMissionDetailView({
           : '—',
     },
   ]
-  const activeTab: MissionDetailTab = tab
+  const activeTab: MissionDetailTab = tab === 'resources' ? 'plan' : tab
   const tabs: Array<{ id: MissionDetailTab; label: string }> = [
     { id: 'result', label: t.tabs.result },
     { id: 'media', label: t.tabs.media },
     { id: 'checklist', label: t.tabs.checklist },
     { id: 'route', label: t.tabs.route },
-    { id: 'order', label: t.tabs.order },
-    { id: 'resources', label: t.tabs.resources },
+    { id: 'plan', label: t.tabs.plan },
     { id: 'checks', label: t.tabs.checks },
     { id: 'finance', label: t.tabs.finance },
   ]

@@ -665,6 +665,8 @@
 }
 
 .mds-map-viewport {
+  isolation: isolate;
+  z-index: 0;
   position: relative;
   height: clamp(360px, 27vw, 420px);
   overflow: hidden;

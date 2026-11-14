@@ -232,8 +232,6 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
 
   const orderContent = (
     <div className="od-order-panel">
-      <div className="cus-main-grid">
-        <div className="cus-stack">
           <OrderInfoCard
             order={order}
             canEdit={
@@ -246,17 +244,8 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
                 !finance.invoice)
             }
             onUpdated={detail.reload}
+            progress={<OrderTimeline status={order.status} events={order.timeline} finance={finance} missions={missions} />}
           />
-        </div>
-        <div className="cus-side">
-          <OrderTimeline
-            status={order.status}
-            events={order.timeline}
-            finance={finance}
-            missions={missions}
-          />
-        </div>
-      </div>
     </div>
   )
   const monitoringContent = (
@@ -322,7 +311,7 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
 
   return (
     <div className="cus-page od-page">
-      <OrderHeader order={order} />
+      <OrderHeader order={order} onUpdated={detail.reload} />
       <ReviewNotice order={order} onInformationSubmitted={detail.reload} />
 
       {hasResults ? (

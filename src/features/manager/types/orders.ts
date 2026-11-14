@@ -126,7 +126,6 @@ export type OrderDetail = {
   deliveryMethods?: string[] | null
   dataRetentionDays?: number | null
   termsAcceptedAt?: string | null
-  termsVersion?: string | null
   deliverables?: OrderDeliverableResponse[] | null
   legalReviewStatus?: LegalReviewStatus | null
   flightAreaReviewReason?: string | null
@@ -264,7 +263,6 @@ export type OrderCreateResponse = {
   deliveryMethods?: string[] | null
   dataRetentionDays?: number | null
   termsAcceptedAt?: string | null
-  termsVersion?: string | null
   orderStatus: OrderStatus
   rejectReason: string | null
   reviewById: string | null

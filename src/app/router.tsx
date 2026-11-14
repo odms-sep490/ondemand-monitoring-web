@@ -309,6 +309,12 @@ function Routes() {
   const currentRole = user?.role
   const [hash, setHash] = useState(() => window.location.hash)
   const [pathname, setPathname] = useState(() => window.location.pathname)
+  const adminOutsidePortal = status === 'authenticated' && currentRole === 'ADMIN' &&
+    hash !== '#portal/admin' && !hash.startsWith('#portal/admin/')
+
+  useEffect(() => {
+    if (adminOutsidePortal) redirectHash('#portal/admin/accounts')
+  }, [adminOutsidePortal, hash])
 
   useEffect(() => {
     const handleHashChange = () => setHash(window.location.hash)
@@ -326,6 +332,8 @@ function Routes() {
       redirectToRoleHome(currentRole)
     }
   }, [hash, status, currentRole])
+
+  if (adminOutsidePortal) return null
 
   if (hash.startsWith('#help/tickets/')) {
     const ticketId = hash.replace('#help/tickets/', '')
@@ -417,7 +425,7 @@ function Routes() {
     )
   if (hash === '#portal/manager' || hash.startsWith('#portal/manager/'))
     return (
-      <RoleRoute role={['MANAGER', 'ADMIN']}>
+      <RoleRoute role="MANAGER">
         <RouteContent>
           <ManagerApp />
         </RouteContent>

@@ -1,4 +1,5 @@
 import { Button } from 'antd'
+import { OrderTermsLink } from '../../../components/common/OrderTermsLink'
 import { Children, useState, type ReactNode } from 'react'
 
 import { Card } from '../../../components/common/ui'
@@ -25,7 +26,7 @@ function Field({
 }: {
   icon: OrderIconName
   label: string
-  value: string
+  value: ReactNode
   num?: boolean
   wide?: boolean
 }) {
@@ -84,10 +85,12 @@ export function OrderInfoCard({
   order,
   canEdit,
   onUpdated,
+  progress,
 }: {
   order: OrderDetailView
   canEdit?: boolean
   onUpdated?: () => void
+  progress?: ReactNode
 }) {
   const [editing, setEditing] = useState<EditableOrderSection | null>(null)
   const { t, locale, lang } = useI18n(orderInfoCardMessages)
@@ -108,6 +111,7 @@ export function OrderInfoCard({
   const editable = canEdit ?? ['PENDING', 'NEEDS_INFO', 'APPROVED'].includes(order.status)
 
   return (
+    <div className="od-balanced-layout">
     <Card title={<CardTitle icon="doc">{t.title}</CardTitle>}>
       <p className="od-info-subtitle">{t.subtitle}</p>
       <section className="od-order-summary" aria-label={t.summary}>
@@ -154,6 +158,12 @@ export function OrderInfoCard({
           {order.resultDeadline && <Field icon="clock" label={t.resultDeadline} value={fmtDate(order.resultDeadline, locale)} />}
           {order.address && <Field icon="pin" label={t.address} value={order.address} />}
         </Section>
+      </div>
+    </Card>
+    {progress}
+    <div className="od-balanced-details">
+    <Card>
+      <div className="od-info-sections">
         <Section icon="drone" title={t.sectionScope} onSupplement={editable ? () => setEditing('scope') : undefined} editor={editing === 'scope' ? <OrderSectionEditor section="scope" order={order} onCancel={() => setEditing(null)} onSaved={() => { setEditing(null); onUpdated?.() }} /> : undefined}>
           {order.flightPurpose && <Field icon="target" label={t.flightPurpose} value={label(order.flightPurpose)} />}
           {coordinates !== DASH && <Field icon="locate" label={t.coordinates} value={coordinates} num />}
@@ -180,14 +190,16 @@ export function OrderInfoCard({
           {order.resultFormats.length > 0 && <Field icon="media" label={t.resultFormats} value={join(order.resultFormats)} />}
           {order.deliveryMethods.length > 0 && <Field icon="download" label={t.deliveryMethods} value={join(order.deliveryMethods)} />}
           {order.dataRetentionDays != null && <Field icon="clock" label={t.retention} value={t.days(order.dataRetentionDays)} />}
-          {order.termsAcceptedAt && <Field icon="check" label={t.terms} value={`${fmtDateTime(order.termsAcceptedAt, locale)}${order.termsVersion ? ` · ${t.termsVersion(order.termsVersion)}` : ''}`} />}
+          {order.termsAcceptedAt && <Field icon="check" label={t.terms} value={<span style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '4px 12px' }}><span>{fmtDateTime(order.termsAcceptedAt, locale)}</span><OrderTermsLink /></span>} />}
         </Section>
         {order.description && (
-          <Section icon="file" title={t.description} onSupplement={editable ? () => setEditing('description') : undefined} editor={editing === 'description' ? <OrderSectionEditor section="description" order={order} onCancel={() => setEditing(null)} onSaved={() => { setEditing(null); onUpdated?.() }} /> : undefined}>
+          <Section wide icon="file" title={t.description} onSupplement={editable ? () => setEditing('description') : undefined} editor={editing === 'description' ? <OrderSectionEditor section="description" order={order} onCancel={() => setEditing(null)} onSaved={() => { setEditing(null); onUpdated?.() }} /> : undefined}>
             <p className="od-desc-text">{order.description}</p>
           </Section>
         )}
       </div>
     </Card>
+    </div>
+    </div>
   )
 }

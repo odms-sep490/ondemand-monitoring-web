@@ -1,3 +1,4 @@
+import { managerHref } from '../../../routes'
 import { useEffect, useRef, useState } from 'react'
 import { ShowMoreList } from '../../../../../shared/components/antd'
 import type { OrderDetail } from '../../../types/orders'
@@ -12,7 +13,6 @@ import { MissionGridCard } from '../../../components/common/MissionGridCard'
 import { MissionUpdatePanel } from '../../../components/common/MissionUpdatePanel'
 import { ReasonModal } from '../../../components/common/ReasonModal'
 import { FlightPermitCard } from '../../../components/common/FlightPermitCard'
-import { MissionExecutionPanel } from './MissionExecutionPanel'
 import { MissionCreatePage } from '../../MissionCreate/MissionCreatePage'
 import '../../../components/common/planning.css'
 import { usePlanningConfirmation } from '../../../components/common/usePlanningConfirmation'
@@ -57,7 +57,7 @@ export function OrderMissionPlanningSection({
   initialOrder?: OrderDetail
   onAssignResources?: (missionId: string) => void
   onWorkflowInfo?: (info: PlanningWorkflowInfo) => void
-  activeTab?: 'planning' | 'permit' | 'execution'
+  activeTab?: 'planning' | 'permit'
   onBackToPlanning?: () => void
 }) {
   return (
@@ -85,7 +85,7 @@ function OrderPlanningWorkspace({
   orderId: string
   initialOrder?: OrderDetail
   onWorkflowInfo?: (info: PlanningWorkflowInfo) => void
-  activeTab?: 'planning' | 'permit' | 'execution'
+  activeTab?: 'planning' | 'permit'
   onBackToPlanning?: () => void
 }) {
   const { t: ts } = useI18n(orderMissionPlanningSectionMessages)
@@ -431,34 +431,7 @@ function OrderPlanningWorkspace({
               }}
             />
           )}
-          {activeTab === 'execution' ? (
-            <div className="odm-flight-permits-container">
-              <ShowMoreList>
-                {effective.map((mission) =>
-                  mission.flightPermitStatus === 'APPROVED' &&
-                  data.order.legalReviewStatus !== 'REJECTED' ? (
-                    <MissionExecutionPanel key={mission.id} mission={mission} />
-                  ) : (
-                    <FlightPermitCard
-                      key={mission.id}
-                      mission={mission}
-                      onChanged={query.reload}
-                      depositPaid={depositPaid}
-                      orderPermitRejected={
-                        data.order.legalReviewStatus === 'REJECTED'
-                      }
-                      refundEligible={Boolean(
-                        data.order.status === 'APPROVED' &&
-                          data.order.legalReviewStatus === 'REJECTED' &&
-                          mission.flightPermitStatus === 'REJECTED' &&
-                          depositPaid,
-                      )}
-                    />
-                  ),
-                )}
-              </ShowMoreList>
-            </div>
-          ) : activeTab === 'permit' ? (
+          {activeTab === 'permit' ? (
             <div className="odm-flight-permits-container">
               {effective.length === 0 ? (
                 <div className="odm-plan-empty">
@@ -510,6 +483,19 @@ function OrderPlanningWorkspace({
 
               {/* Right 70%: Missions Workspace */}
               <div className="odm-missions-workspace-panel">
+                {!reworkCaseId && isFinalized && effective.length > 0 && (
+                  <div className="odm-or-order-page-actions">
+                    {effective.map((mission) => (
+                      <a
+                        key={mission.id}
+                        className="odm-btn odm-btn-p"
+                        href={managerHref({ screen: 'missionDetail', missionId: mission.id }) + '?tab=plan'}
+                      >
+                        {ts.openMissionPermit} · {mission.missionCode}
+                      </a>
+                    ))}
+                  </div>
+                )}
                 <PlanningWorkspaceBar
                   sidebarCollapsed={sidebarCollapsed}
                   onOpenSidebar={() => setSidebarCollapsed(false)}

@@ -45,6 +45,7 @@ export const missionListPageMessages = defineMessages({
     accepted: 'Đã nhận',
     statusLabel: {
       PLANNING: 'Đang chuẩn bị trước bay',
+      PENDING_CONFIRMATION: 'Chờ đội bay xác nhận',
       READY: 'Sẵn sàng chờ nghiệm thu',
       ACCEPTED: 'Đã nhận',
       SCHEDULED: 'Đang chuẩn bị trước bay',
@@ -119,6 +120,7 @@ export const missionListPageMessages = defineMessages({
     accepted: 'Accepted',
     statusLabel: {
       PLANNING: 'Preparing for preflight',
+      PENDING_CONFIRMATION: 'Awaiting flight crew confirmation',
       READY: 'Ready for inspector start',
       ACCEPTED: 'Accepted',
       SCHEDULED: 'Preflight preparation',

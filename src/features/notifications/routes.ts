@@ -43,6 +43,10 @@ export function notificationHref(
       : notificationsHref(role)
   }
   if (role === 'MANAGER' || role === 'ADMIN') {
+    if (role === 'MANAGER' &&
+        ['MISSION_STAFF_REPLACEMENT_REQUIRED', 'MISSION_DRONE_REPLACEMENT_REQUIRED'].includes(notification.type)) {
+      return managerHref({ screen: 'missionDetail', missionId: notification.entityId }) + '?tab=plan'
+    }
     return managerHref({
       screen: 'missionDetail',
       missionId: notification.entityId,

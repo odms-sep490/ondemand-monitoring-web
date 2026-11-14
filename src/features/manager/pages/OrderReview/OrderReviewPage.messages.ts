@@ -149,7 +149,6 @@ export const orderReviewPageMessages = defineMessages({
     deliveryMethods: 'Cách bàn giao',
     dataRetention: 'Lưu trữ dữ liệu',
     termsAcceptedAt: 'Thời điểm đồng ý điều khoản',
-    termsVersion: 'Phiên bản điều khoản',
     droneLabel: 'Drone',
     noAttachments: 'Chưa có tệp đính kèm cho đơn hàng này.',
     actionHintNext:
@@ -321,7 +320,6 @@ export const orderReviewPageMessages = defineMessages({
     deliveryMethods: 'Delivery methods',
     dataRetention: 'Data retention',
     termsAcceptedAt: 'Terms accepted at',
-    termsVersion: 'Terms version',
     droneLabel: 'Drones',
     noAttachments: 'No attachments for this order yet.',
     actionHintNext:

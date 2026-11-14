@@ -228,11 +228,11 @@ describe('Manager Mission Detail monitoring review', () => {
     window.history.replaceState(
       null,
       '',
-      '#portal/manager/missions/m/detail?tab=order',
+      '#portal/manager/missions/m/detail?tab=resources',
     )
     render(<MissionDetailPage missionId="m" />)
     expect(
-      await screen.findByRole('tab', { name: 'Thông tin đơn hàng' }),
+      await screen.findByRole('tab', { name: 'Thông tin nguồn lực' }),
     ).toHaveAttribute('aria-selected', 'true')
     expect(missionsApi.getMissionMedia).not.toHaveBeenCalled()
 
@@ -313,14 +313,19 @@ describe('Manager Mission Detail monitoring review', () => {
     expect(container.querySelector('.odm-rm-leaflet')).toBeNull()
     expect(screen.queryByText(/HOME →/)).toBeNull()
   })
-  it('shows the complete source order in a dedicated tab', async () => {
+  it('falls back to results when opening the removed order tab', async () => {
+    window.history.replaceState(
+      null,
+      '',
+      '#portal/manager/missions/m/detail?tab=order',
+    )
     render(<MissionDetailPage missionId="m" />)
 
-    fireEvent.click(
-      await screen.findByRole('tab', { name: 'Thông tin đơn hàng' }),
-    )
-    expect(await screen.findByText('Kiểm tra nhà xưởng')).toBeInTheDocument()
-    expect(screen.getByText('customer@example.com')).toBeInTheDocument()
+    expect(
+      await screen.findByRole('tab', { name: 'Kết quả nhiệm vụ' }),
+    ).toHaveAttribute('aria-selected', 'true')
+    expect(screen.queryByRole('tab', { name: 'Thông tin đơn hàng' })).toBeNull()
+    expect(screen.queryByText('customer@example.com')).toBeNull()
   })
   it('hides the flight plan tab after mission completion', async () => {
     render(<MissionDetailPage missionId="m" />)

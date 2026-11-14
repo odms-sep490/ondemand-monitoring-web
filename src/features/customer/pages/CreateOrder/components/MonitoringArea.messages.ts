@@ -62,6 +62,7 @@ export const monitoringAreaMessages = defineMessages({
     deleteArea: 'Xóa vùng',
     vertexHint: 'Chạm đỉnh để chọn, kéo để chỉnh sửa.',
     locationError: 'Chọn và xác nhận vị trí trước khi tiếp tục.',
+    locationOutsideArea: 'Vùng khoanh phải bao quanh điểm giám sát đã chọn. Hãy di chuyển hoặc vẽ lại vùng.',
     areaError:
       'Tạo vùng khép kín hợp lệ, tối thiểu 3 đỉnh và không tự giao nhau.',
     geolocationUnavailable: 'Thiết bị này không hỗ trợ xác định vị trí.',
@@ -130,6 +131,7 @@ export const monitoringAreaMessages = defineMessages({
     deleteArea: 'Delete area',
     vertexHint: 'Select a vertex to move or remove it.',
     locationError: 'Choose and confirm a location before continuing.',
+    locationOutsideArea: 'The drawn area must contain the selected monitoring point. Move or redraw the area.',
     areaError:
       'Draw a closed area with at least 3 vertices and no self-intersections.',
     geolocationUnavailable: 'This device does not support location services.',

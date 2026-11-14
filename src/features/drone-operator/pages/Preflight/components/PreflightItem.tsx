@@ -31,8 +31,8 @@ export function preflightGroups(
           'battery_health',
           text('Pin máy bay', 'Aircraft battery'),
           text(
-            'Nhập mức pin trên thiết bị; hệ thống sẽ đối chiếu ngưỡng tối thiểu của model (0–100%)',
-            'Enter the battery level shown on the device; the system checks the model minimum (0–100%)',
+            'Nhập mức pin từ 0 đến 100%. Pin phải trên 90% và đáp ứng ngưỡng của thiết bị.',
+            'Enter a battery level from 0 to 100%. It must be above 90% and meet the device minimum.',
           ),
         ),
         item(
