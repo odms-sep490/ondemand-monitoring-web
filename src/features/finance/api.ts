@@ -9,9 +9,15 @@ import type {
   Quote,
   CustomerQuote,
   MissionPaymentAllocation,
+  MissionFinancialSummary,
 } from './types'
 
 export const financeApi = {
+  getManagerMissionFinancialSummary: (missionId: string, signal?: AbortSignal) =>
+    apiRequest<MissionFinancialSummary>(
+      `/api/manager/missions/${encodeURIComponent(missionId)}/financial-summary`,
+      { signal },
+    ),
   getPricingReview: (orderId: string, signal?: AbortSignal) =>
     apiRequest<PricingReview>(
       `/api/manager/orders/${encodeURIComponent(orderId)}/pricing`,

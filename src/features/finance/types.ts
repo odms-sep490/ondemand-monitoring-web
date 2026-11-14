@@ -175,6 +175,8 @@ export type PricingBreakdown = {
 export type DepositStatus = 'WAITING_DEPOSIT' | 'DEPOSIT_PAID'
 
 export type Invoice = {
+  contractRequired?: boolean
+  contractConfirmedAt?: string | null
   id: string
   invoiceNumber: string
   orderId: string
@@ -242,6 +244,51 @@ export type MissionPaymentAllocation = {
   allocationComplete: boolean
   milestones: MissionPaymentMilestone[]
 }
+
+export type MissionFinancialPaymentHistoryEntry = {
+  id: string
+  type: 'DEPOSIT' | 'MISSION_PAYMENT'
+  amount: number
+  status: string
+  provider: string
+  transactionReferenceMasked: string | null
+  paidAt: string | null
+}
+
+export type MissionFinancialSummary =
+  | { missionId: string; purpose: 'REWORK' }
+  | {
+      missionId: string
+      purpose: 'ORIGINAL'
+      currency: 'VND'
+      missionGrossChecklistAmount: number | null
+      priceBreakdown?: {
+        checklistAmount: number
+        allocatedAdjustment: number
+        missionTotalAmount: number
+        allocatedDeposit: number
+        milestoneAmount: number
+      } | null
+      invoice: {
+        invoiceId: string
+        totalAmount: number
+        depositAmount: number
+        paidAmount: number
+        remainingAmount: number
+        depositStatus: DepositStatus
+        issuedAt: string
+        depositExpiresAt: string | null
+      } | null
+      depositPayments: MissionFinancialPaymentHistoryEntry[]
+      missionPayment: {
+        milestoneId: string
+        amount: number
+        status: MissionPaymentMilestoneStatus
+        handedOverAt: string | null
+        paymentExpiresAt: string | null
+        payments: MissionFinancialPaymentHistoryEntry[]
+      } | null
+    }
 
 export type PricingReview = {
   orderId: string
