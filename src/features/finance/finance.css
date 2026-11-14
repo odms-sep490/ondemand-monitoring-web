@@ -3189,3 +3189,131 @@
     text-align: left;
   }
 }
+
+/* ==========================================================================
+   Customer payment moment, leftovers: status tags, alerts and the countdown
+   clock face use theme tokens so dark mode keeps a visible background.
+   ========================================================================== */
+:root .mgr-layout
+  :is(.customer-invoice-summary-statuses, .mission-payment-item__title, .mission-payment-item__history li)
+  .mgr-status-tag {
+  --tag-fg: var(--mgr-muted);
+  --tag-bg: var(--mgr-card-2);
+  border: 1px solid color-mix(in srgb, var(--tag-fg) 35%, transparent);
+  background: var(--tag-bg);
+  color: var(--tag-fg);
+  filter: none;
+  white-space: nowrap;
+}
+:root .mgr-layout :is(.customer-invoice-summary-statuses, .mission-payment-item__title, .mission-payment-item__history li) .mgr-status-tag.ant-tag-success {
+  --tag-fg: var(--ui-success-text);
+  --tag-bg: var(--ui-success-soft);
+}
+:root .mgr-layout :is(.customer-invoice-summary-statuses, .mission-payment-item__title, .mission-payment-item__history li) .mgr-status-tag.ant-tag-warning {
+  --tag-fg: var(--ui-warning-text);
+  --tag-bg: var(--ui-warning-soft);
+}
+:root .mgr-layout :is(.customer-invoice-summary-statuses, .mission-payment-item__title, .mission-payment-item__history li) .mgr-status-tag.ant-tag-error {
+  --tag-fg: var(--ui-danger-text);
+  --tag-bg: var(--ui-danger-soft);
+}
+:root .mgr-layout :is(.customer-invoice-summary-statuses, .mission-payment-item__title, .mission-payment-item__history li) .mgr-status-tag.ant-tag-processing {
+  --tag-fg: var(--ui-primary-text);
+  --tag-bg: var(--ui-primary-soft);
+}
+:root .mgr-layout .mission-payment-item__history li {
+  flex-wrap: wrap;
+  align-items: center;
+  font-variant-numeric: tabular-nums;
+}
+:root .mgr-layout .mission-payment-item__history li > span:first-child {
+  color: var(--mgr-text);
+  font-weight: 700;
+}
+
+/* antd alerts inside the customer finance cards follow the token palette */
+:root .mgr-layout :is(.mission-payment-card, .customer-finance-card) .ant-alert-warning {
+  border-color: color-mix(in srgb, var(--ui-warning) 55%, transparent);
+  background: var(--ui-warning-soft);
+}
+:root .mgr-layout :is(.mission-payment-card, .customer-finance-card) .ant-alert-error {
+  border-color: color-mix(in srgb, var(--ui-danger) 55%, transparent);
+  background: var(--ui-danger-soft);
+}
+:root .mgr-layout :is(.mission-payment-card, .customer-finance-card) .ant-alert-info {
+  border-color: color-mix(in srgb, var(--ui-primary) 45%, transparent);
+  background: var(--ui-primary-soft);
+}
+:root .mgr-layout :is(.mission-payment-card, .customer-finance-card) .ant-alert-warning :is(.ant-alert-message, .ant-alert-description) {
+  color: var(--ui-warning-text);
+}
+:root .mgr-layout :is(.mission-payment-card, .customer-finance-card) .ant-alert-error :is(.ant-alert-message, .ant-alert-description) {
+  color: var(--ui-danger-text);
+}
+:root .mgr-layout :is(.mission-payment-card, .customer-finance-card) .ant-alert-info :is(.ant-alert-message, .ant-alert-description) {
+  color: var(--ui-primary-text);
+}
+
+/* countdown clock face: CSS fill beats the inline gradient attribute */
+:root[data-theme='dark'] .customer-deadline-clock-face {
+  fill: var(--mgr-card-2);
+  stroke: var(--mgr-border);
+}
+:root[data-theme='dark'] .customer-deadline-ring-track {
+  stroke: color-mix(in srgb, var(--ui-primary) 25%, var(--mgr-card));
+}
+:root[data-theme='dark'] .customer-deadline-ring-progress {
+  stroke: var(--ui-primary);
+}
+:root[data-theme='dark'] .customer-deadline-clock-tick {
+  stroke: color-mix(in srgb, var(--ui-primary) 60%, var(--mgr-card-2));
+}
+:root[data-theme='dark'] .customer-deadline-clock-tick.is-major {
+  stroke: var(--ui-primary);
+}
+:root[data-theme='dark'] .customer-deadline-clock-numerals {
+  fill: var(--mgr-text);
+}
+:root[data-theme='dark'] .customer-deadline-clock-hand.is-hour {
+  stroke: var(--mgr-text);
+}
+:root[data-theme='dark'] .customer-deadline-clock-hand.is-minute {
+  stroke: var(--ui-primary-text);
+}
+:root[data-theme='dark'] .customer-deadline-clock-hand.is-second {
+  stroke: var(--ui-primary);
+}
+:root[data-theme='dark'] .customer-deadline-clock-pin {
+  fill: var(--ui-primary);
+  stroke: var(--mgr-card-2);
+}
+:root[data-theme='dark'] .customer-deadline-countdown.is-expired .customer-deadline-clock-tick,
+:root[data-theme='dark'] .customer-deadline-countdown.is-expired .customer-deadline-clock-hand {
+  stroke: var(--ui-danger);
+}
+:root[data-theme='dark'] .customer-deadline-countdown.is-expired .customer-deadline-clock-pin {
+  fill: var(--ui-danger);
+}
+
+/* Quote lines: one fixed money column so amounts line up with the header and
+   with rows that have no "price details" link (the static video row). */
+@media (min-width: 561px) {
+  .mgr-layout .customer-quote-table-head,
+  .mgr-layout .customer-quote-group > summary,
+  .mgr-layout .customer-quote-group-summary {
+    grid-template-columns: minmax(0, 1fr) 112px 96px;
+  }
+  .mgr-layout .customer-quote-table-head span:nth-child(2) {
+    min-width: 0;
+  }
+  .mgr-layout .customer-quote-group > summary b,
+  .mgr-layout .customer-quote-group-summary b {
+    grid-column: 2;
+    min-width: 0;
+    text-align: right;
+  }
+  .mgr-layout .customer-quote-group > summary .customer-quote-detail-label {
+    grid-column: 3;
+    text-align: right;
+  }
+}

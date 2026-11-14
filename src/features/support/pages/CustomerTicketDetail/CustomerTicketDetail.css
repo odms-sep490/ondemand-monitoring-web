@@ -20,7 +20,7 @@
   margin: 0;
   font-size: 20px;
   font-weight: 800;
-  color: var(--ui-text);
+  color: var(--mgr-text, var(--ui-text));
   overflow-wrap: anywhere;
 }
 
@@ -139,4 +139,22 @@
 .td-reply-row .sp-input {
   flex: 1 1 260px;
   width: auto;
+}
+
+@media (max-width: 575px) {
+  .td-bubble {
+    max-width: 92%;
+  }
+
+  .td-reply-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .td-reply-row .sp-input,
+  .td-reply-row .ant-input,
+  .td-reply-row .ant-btn {
+    flex: 1 1 auto;
+    width: 100%;
+  }
 }
