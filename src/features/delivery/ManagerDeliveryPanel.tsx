@@ -32,7 +32,7 @@ import type { Delivery } from './types'
 import { DeliveryProgress, DeliveryStatusPill } from './DeliveryProgress'
 import type { DeliveryAsset } from './types'
 import { DeliveryReplacementPicker } from './DeliveryReplacementPicker'
-import { DeliveryImagePreview } from './DeliveryImagePreview'
+import { ImagePreview } from '../../shared/components/media/ImagePreview'
 import './delivery.css'
 import { MissionDeliveryTabs } from './MissionDeliveryTabs'
 
@@ -1683,7 +1683,7 @@ function MediaPreview({ asset }: { asset: DeliveryAsset }) {
       original={asset.previewStatus !== 'READY'}
     />
   ) : (
-    <DeliveryImagePreview
+    <ImagePreview
       src={asset.thumbnailUrl ?? asset.previewUrl}
       fallbackUrl={null}
       fileSize={asset.size}

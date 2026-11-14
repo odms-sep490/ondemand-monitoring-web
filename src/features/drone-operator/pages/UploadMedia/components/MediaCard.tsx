@@ -1,3 +1,4 @@
+import { ImagePreview } from '../../../../../shared/components/media/ImagePreview'
 import { mediaFeedback } from '../../../../media/i18n/mediaFeedback'
 import { useState } from 'react'
 import { staffMediaSources } from '../../../../media/upload/staffMediaSources'
@@ -81,6 +82,7 @@ export function MediaCard({
 }) {
   const { t, lang } = useI18n(uploadMediaPageMessages)
   const [failedSources, setFailedSources] = useState<string[]>([])
+  const [previewVisible, setPreviewVisible] = useState(false)
   const sources = staffMediaSources(item, remotePreviewUrl, remoteThumbnailUrl)
   const imageSource = sources.images.find((url) => !failedSources.includes(url))
   const videoSource = sources.videos[0]
@@ -91,8 +93,21 @@ export function MediaCard({
     >
       <div className="upload-media-thumb">
         {item.mediaType === 'IMAGE' ? (
-          imageSource ? <img src={imageSource} alt={item.fileName} className="upload-media-preview"
-            onError={() => setFailedSources((previous) => [...previous, imageSource])} />
+          imageSource ? (
+            <span onErrorCapture={(event) => {
+              const failed = (event.target as HTMLImageElement).getAttribute('src')
+              if (failed) setFailedSources((previous) => previous.includes(failed) ? previous : [...previous, failed])
+            }}>
+              <ImagePreview
+                src={imageSource}
+                previewSrc={sources.viewImages.find((url) => !failedSources.includes(url)) ?? imageSource}
+                fileName={item.fileName}
+                className="upload-media-preview"
+                visible={previewVisible}
+                onVisibleChange={setPreviewVisible}
+              />
+            </span>
+          )
             : <p className="upload-media-unavailable">{t.previewPending}</p>
         ) : (
           <VideoThumbnail src={videoSource} poster={sources.poster} fallbackPoster={sources.fallbackPoster}

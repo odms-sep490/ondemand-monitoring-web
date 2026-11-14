@@ -52,6 +52,19 @@ const page = (items: UploadedMissionMedia[]) => ({
 })
 
 describe('uploaded mission media gallery', () => {
+  it('offers original inspection on the card while the image opens the shared preview', async () => {
+    vi.mocked(operatorMissionMediaApi.list).mockResolvedValue(page([image]))
+    vi.mocked(operatorMissionMediaApi.get).mockResolvedValue(image)
+    render(<MissionUploadedMedia missionId="mission" reviewStatus="APPROVED" />)
+    await screen.findByText('capture.jpg')
+    expect(screen.getByRole('button', { name: 'Kiểm tra bản gốc' })).toBeEnabled()
+    expect(screen.getAllByText('Đã nghiệm thu')).toHaveLength(1)
+    expect(screen.queryByText(image.deviceId)).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: 'Xem capture.jpg' }))
+    await waitFor(() =>
+      expect(document.querySelector('.ant-image-preview-img')).toHaveAttribute('src', image.previewUrl),
+    )
+  })
   it('keeps metadata visible and offers explicit internal inspection when preview is unavailable', async () => {
     vi.mocked(operatorMissionMediaApi.list).mockResolvedValue(
       page([
@@ -146,7 +159,7 @@ describe('uploaded mission media gallery', () => {
     expect(screen.getByText('Drone camera')).toBeInTheDocument()
     expect(
       screen.getAllByText('Draft result — not sent to manager'),
-    ).toHaveLength(2)
+    ).toHaveLength(1)
     expect(screen.getByText(/Sep 27, 2026/)).toBeInTheDocument()
   })
   beforeEach(() => {
@@ -169,7 +182,7 @@ describe('uploaded mission media gallery', () => {
       downloadUrl: 'https://example.test/original',
       previewUrl: 'https://example.test/fresh',
     })
-    const { container } = render(<MissionUploadedMedia missionId="mission" />)
+    render(<MissionUploadedMedia missionId="mission" />)
     await screen.findByText('capture.jpg')
     expect(operatorMissionMediaApi.list).toHaveBeenCalledWith(
       'mission',
@@ -178,7 +191,7 @@ describe('uploaded mission media gallery', () => {
     )
     fireEvent.click(screen.getByRole('button', { name: 'Xem clip.mp4' }))
     await waitFor(() =>
-      expect(container.querySelector('video')?.getAttribute('src')).toBe(
+      expect(document.querySelector('video')?.getAttribute('src')).toBe(
         'https://example.test/fresh',
       ),
     )

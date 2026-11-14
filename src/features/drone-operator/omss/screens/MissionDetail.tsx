@@ -539,7 +539,7 @@ export default function MissionDetail({
               {mission.title}
             </h1>
             <PriorityBadge priority={mission.priority} />
-            {mission.purpose === 'REWORK' && (
+            {mission.purpose === 'REWORK' && !mission.inspectionCorrectionId && (
               <span
                 style={{
                   borderRadius: 999,

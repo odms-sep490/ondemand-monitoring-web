@@ -312,7 +312,7 @@ function CapturedMediaCard({
             onError={() => setFailedSources((previous) => [...previous, previewUrl!])}
           />
         ) : (
-          <VideoThumbnail
+          <VideoThumbnail appearance="cockpit"
             src={previewUrl}
             fileName={`${videoLabel}: ${item.fileName}`}
             fileSize={item.fileSize}

@@ -19,7 +19,7 @@ import { useI18n } from '../../shared/i18n'
 import { deliveryApi } from './api'
 import { customerDeliveryPanelMessages } from './customerDeliveryPanel.messages'
 import { CustomerResultReview } from './CustomerResultReview'
-import { DeliveryImagePreview } from './DeliveryImagePreview'
+import { ImagePreview } from '../../shared/components/media/ImagePreview'
 import { DeliveryProgress, DeliveryStatusPill } from './DeliveryProgress'
 import type { Delivery, DeliveryPanelLoadState } from './types'
 import './delivery.css'
@@ -379,7 +379,7 @@ function ScopedCustomerDeliveryPanel({
                         original={asset.previewStatus !== 'READY'}
                       />
                     ) : (
-                      <DeliveryImagePreview
+                      <ImagePreview
                         src={asset.thumbnailUrl ?? asset.previewUrl}
                         mediaId={asset.id}
                         fileSize={asset.size}

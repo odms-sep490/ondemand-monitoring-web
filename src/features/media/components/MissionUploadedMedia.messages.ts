@@ -48,8 +48,6 @@ export const missionUploadedMediaMessages = defineMessages({
     page: (current: number, total: number) => `Trang ${current} / ${total}`,
     dialogLabel: 'Xem ảnh/video',
     close: 'Đóng',
-    expiredLink: 'Nếu liên kết hết hạn, hãy lấy liên kết mới.',
-    reloadLink: 'Tải lại liên kết',
     resultStatus: {
       DRAFT: 'Kết quả nháp — chưa gửi quản lý',
       PENDING_MANAGER_APPROVAL: 'Chờ quản lý nghiệm thu',
@@ -103,8 +101,6 @@ export const missionUploadedMediaMessages = defineMessages({
     page: (current: number, total: number) => `Page ${current} / ${total}`,
     dialogLabel: 'Media preview',
     close: 'Close',
-    expiredLink: 'If the link has expired, request a fresh link.',
-    reloadLink: 'Reload link',
     resultStatus: {
       DRAFT: 'Draft result — not sent to manager',
       PENDING_MANAGER_APPROVAL: 'Waiting for manager review',

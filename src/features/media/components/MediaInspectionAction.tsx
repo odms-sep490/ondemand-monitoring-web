@@ -10,6 +10,7 @@ import {
 import './MediaInspectionAction.css'
 import { apiRequest } from '../../../shared/api/httpClient'
 import { defineMessages, useI18n } from '../../../shared/i18n'
+import { ImagePreview } from '../../../shared/components/media/ImagePreview'
 
 const messages = defineMessages({
   vi: {
@@ -235,7 +236,18 @@ function Inspection({
           </div>
         </Modal>
       )}
-      {open && mediaType !== 'VIDEO' && (
+      {open && mediaType !== 'VIDEO' && appearance !== 'cockpit' && (
+        <ImagePreview
+          src={url ?? ''}
+          fileName={fileName}
+          viewerOnly
+          visible
+          statusContent={statusContent}
+          onError={() => setFailed(true)}
+          onVisibleChange={(visible) => { if (!visible) close() }}
+        />
+      )}
+      {open && mediaType !== 'VIDEO' && appearance === 'cockpit' && (
         <Image
           src={url ?? undefined}
           alt={fileName}

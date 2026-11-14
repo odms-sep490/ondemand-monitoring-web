@@ -1,16 +1,10 @@
-import { cloneElement, useEffect, useRef, useState } from 'react'
-import type { ImgHTMLAttributes, ReactElement } from 'react'
-import { Button, Image, Modal, Spin } from 'antd'
+import { useEffect, useRef, useState } from 'react'
+import { Button, Modal, Spin } from 'antd'
+import { ImagePreview } from '../../../shared/components/media/ImagePreview'
 import {
   CloseOutlined,
   PictureOutlined,
   VideoCameraOutlined,
-  ZoomInOutlined,
-  ZoomOutOutlined,
-  RotateLeftOutlined,
-  RotateRightOutlined,
-  SwapOutlined,
-  CompressOutlined,
 } from '@ant-design/icons'
 import { useLanguage } from '../../../shared/i18n'
 import { ApiError } from '../../../shared/api/httpClient'
@@ -195,101 +189,22 @@ export function InspectorEvidencePreview({
     </div>
   )
   return image ? (
-    <Image
-      src={source ?? undefined}
-      alt={link.fileName}
-      wrapperStyle={{ display: 'none' }}
-      onError={onError}
-      preview={{
-        visible: true,
-        rootClassName: `media-inspection-image inspector-evidence-preview${thumbnail ? ' is-thumbnail' : ''}`,
-        closeIcon: null,
-        onVisibleChange: (visible) => {
-          if (!visible) onClose()
-        },
-        toolbarRender: (_, { actions, transform }) =>
-          notice ? null : (
-            <div
-              className="inspector-viewer__toolbar"
-              role="toolbar"
-              aria-label={vi ? 'Công cụ xem ảnh' : 'Image controls'}
-            >
-              <Button
-                type="text"
-                icon={<ZoomOutOutlined />}
-                aria-label={vi ? 'Thu nhỏ' : 'Zoom out'}
-                title={vi ? 'Thu nhỏ' : 'Zoom out'}
-                onClick={actions.onZoomOut}
-                disabled={transform.scale <= 1}
-              />
-              <span className="inspector-viewer__scale">
-                {Math.round(transform.scale * 100)}%
-              </span>
-              <Button
-                type="text"
-                icon={<ZoomInOutlined />}
-                aria-label={vi ? 'Phóng to' : 'Zoom in'}
-                title={vi ? 'Phóng to' : 'Zoom in'}
-                onClick={actions.onZoomIn}
-              />
-              <span className="inspector-viewer__divider" />
-              <Button
-                type="text"
-                icon={<RotateLeftOutlined />}
-                aria-label={vi ? 'Xoay trái' : 'Rotate left'}
-                title={vi ? 'Xoay trái' : 'Rotate left'}
-                onClick={actions.onRotateLeft}
-              />
-              <Button
-                type="text"
-                icon={<RotateRightOutlined />}
-                aria-label={vi ? 'Xoay phải' : 'Rotate right'}
-                title={vi ? 'Xoay phải' : 'Rotate right'}
-                onClick={actions.onRotateRight}
-              />
-              <Button
-                type="text"
-                icon={<SwapOutlined />}
-                aria-label={vi ? 'Lật ngang' : 'Flip horizontally'}
-                title={vi ? 'Lật ngang' : 'Flip horizontally'}
-                onClick={actions.onFlipX}
-              />
-              <Button
-                type="text"
-                icon={<SwapOutlined rotate={90} />}
-                aria-label={vi ? 'Lật dọc' : 'Flip vertically'}
-                title={vi ? 'Lật dọc' : 'Flip vertically'}
-                onClick={actions.onFlipY}
-              />
-              <span className="inspector-viewer__divider" />
-              <Button
-                type="text"
-                icon={<CompressOutlined />}
-                aria-label={vi ? 'Vừa khung' : 'Fit to view'}
-                title={vi ? 'Vừa khung' : 'Fit to view'}
-                onClick={actions.onReset}
-              />
-            </div>
-          ),
-        imageRender: (node) => (
-          <>
-            {viewerHeader}
-            {notice ??
-              cloneElement(
-                node as ReactElement<ImgHTMLAttributes<HTMLImageElement>>,
-                { onError },
-              )}
-            {thumbnailNotice}
-            {!notice && (
-              <span className="inspector-viewer__hint">
-                {vi
-                  ? 'Cuộn để thu/phóng · Kéo ảnh để di chuyển'
-                  : 'Scroll to zoom · Drag to move'}
-              </span>
-            )}
-          </>
-        ),
+    <ImagePreview
+      src={source ?? ''}
+      fileName={link.fileName}
+      viewerOnly
+      visible
+      onVisibleChange={(visible) => {
+        if (!visible) onClose()
       }}
+      onError={onError}
+      statusContent={notice}
+      toolbarExtra={
+        <>
+          <span title={link.fileName}>{link.fileName}</span>
+          {thumbnailNotice}
+        </>
+      }
     />
   ) : (
     <Modal

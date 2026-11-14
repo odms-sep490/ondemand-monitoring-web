@@ -1,10 +1,10 @@
+import { ImagePreview } from '../../../../../shared/components/media/ImagePreview'
 import { VideoThumbnail } from '../../../../../shared/components/media/VideoThumbnail'
 import {
   Alert,
   Button,
   Card,
   Collapse,
-  Image,
   Space,
   Spin,
   Tag,
@@ -45,10 +45,10 @@ function EvidencePreview({
       {isVideo && evidence.previewUrl ? (
         <VideoThumbnail src={evidence.previewUrl} poster={evidence.thumbnailUrl} fileName={evidence.fileName} fallbackUrl={evidence.url} />
       ) : !isVideo && evidence.previewUrl ? (
-        <Image
+        <ImagePreview
           src={evidence.thumbnailUrl ?? evidence.previewUrl}
-          alt={evidence.fileName}
-          preview={{ src: evidence.previewUrl, mask: t.viewEvidence }}
+          previewSrc={evidence.previewUrl}
+          fileName={evidence.fileName}
         />
       ) : (
         <div className="rework-context-evidence__unavailable">
@@ -109,7 +109,6 @@ export function ReworkMissionContextPanel({
         }
       >
         <p className="rework-context-intro">{t.description}</p>
-        <Image.PreviewGroup>
           <Collapse
             key={missionId}
             className="rework-context-checklists"
@@ -188,7 +187,6 @@ export function ReworkMissionContextPanel({
               ),
             }))}
           />
-        </Image.PreviewGroup>
       </Card>
     </section>
   )

@@ -93,7 +93,6 @@ function UploadMediaContent({
   )
   const [preview, setPreview] = useState<LocalMedia | null>(null)
   const [selectedMediaId, setSelectedMediaId] = useState<string | null>(null)
-  const previewDialog = useRef<HTMLDialogElement>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   // Reference images (Mapillary) are stored by the backend directly, so they are already "uploaded".
@@ -114,9 +113,6 @@ function UploadMediaContent({
     itemsRef.current = []
     uploadedMediaIds.current = {}
   }, [missionId])
-  useEffect(() => {
-    if (preview) previewDialog.current?.showModal()
-  }, [preview])
 
   useEffect(() => {
     if (!missionId) return
@@ -410,7 +406,7 @@ function UploadMediaContent({
           backup={queue.retryBackup}
           onRefresh={refreshWorkspace}
         />
-        {missionId && activeMission.data?.purpose === 'REWORK' && (
+        {missionId && activeMission.data?.purpose === 'REWORK' && !activeMission.data?.inspectionCorrectionId && (
           <ReworkMissionContextPanel missionId={missionId} />
         )}
         {Boolean(resultError) && (
@@ -620,7 +616,6 @@ function UploadMediaContent({
       </div>
       {preview && (
         <PreviewLightbox
-          previewDialog={previewDialog}
           setPreview={setPreview}
           preview={preview}
         />

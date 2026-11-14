@@ -1,3 +1,4 @@
+import { ImagePreview } from '../../../shared/components/media/ImagePreview'
 import { MediaInspectionAction } from '../../media/components/MediaInspectionAction'
 import { evidenceCandidatePage } from '../lib/evidenceCandidatePage'
 import { VideoThumbnail } from '../../../shared/components/media/VideoThumbnail'
@@ -308,10 +309,11 @@ function MissionEvidencePanel({
                         fileName={link.fileName}
                       />
                     ) : (
-                      <img
-                        src={link.localPreviewUrl ?? link.thumbnailUrl ?? link.previewUrl ?? undefined}
-                        alt={link.fileName}
-                        loading="lazy"
+                      <ImagePreview
+                        src={(link.localPreviewUrl ?? link.thumbnailUrl ?? link.previewUrl)!}
+                        previewSrc={(link.localPreviewUrl ?? link.previewUrl)!}
+                        fileName={link.fileName}
+                        fallbackUrl={link.thumbnailUrl}
                       />
                     ))}
                 </div>
@@ -443,17 +445,12 @@ function MissionEvidencePanel({
                           fileName={link.fileName}
                         />
                       ) : (
-                        <a
-                          href={link.localPreviewUrl ?? link.previewUrl ?? undefined}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          <img
-                            src={link.localPreviewUrl ?? link.thumbnailUrl ?? link.previewUrl ?? undefined}
-                            alt={link.fileName}
-                            loading="lazy"
-                          />
-                        </a>
+                        <ImagePreview
+                          src={(link.localPreviewUrl ?? link.thumbnailUrl ?? link.previewUrl)!}
+                          previewSrc={(link.localPreviewUrl ?? link.previewUrl)!}
+                          fileName={link.fileName}
+                          fallbackUrl={link.thumbnailUrl}
+                        />
                       ))}
                   </div>
                   <div className="checklist-evidence-main">
@@ -639,10 +636,11 @@ function MissionEvidencePanel({
                               fileName={media.fileName}
                             />
                           ) : (
-                            <img
-                              src={media.thumbnailUrl ?? media.previewUrl}
-                              alt={t.previewFile(media.fileName)}
-                              loading="lazy"
+                            <ImagePreview
+                              src={media.localPreviewUrl ?? media.thumbnailUrl ?? media.previewUrl}
+                              previewSrc={media.localPreviewUrl ?? media.previewUrl}
+                              fileName={media.fileName}
+                              fallbackUrl={media.thumbnailUrl}
                             />
                           )
                         ) : (

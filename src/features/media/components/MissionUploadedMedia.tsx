@@ -1,3 +1,5 @@
+import { VideoPreview } from '../../../shared/components/media/VideoPreview'
+import { ImagePreview } from '../../../shared/components/media/ImagePreview'
 import { MediaInspectionAction } from './MediaInspectionAction'
 import { ResilientMedia } from '../../../shared/components/media/MediaRecovery'
 import { VideoPoster } from '../../../shared/components/media/VideoThumbnail'
@@ -115,7 +117,6 @@ function Gallery({
   const [selected, setSelected] = useState<UploadedMissionMedia | null>(null)
   const [opening, setOpening] = useState(false)
   const previewRequest = useRef<AbortController | null>(null)
-  const dialog = useRef<HTMLDialogElement>(null)
   const beforeFlight = [
     'PLANNING',
     'CREATED',
@@ -156,9 +157,6 @@ function Gallery({
   }, [missionId, page, revision, reader, refreshKey, t.loadError])
 
   useEffect(() => () => previewRequest.current?.abort(), [])
-  useEffect(() => {
-    if (selected) dialog.current?.showModal()
-  }, [selected])
 
   async function open(item: UploadedMissionMedia) {
     previewRequest.current?.abort()
@@ -182,7 +180,6 @@ function Gallery({
   function close() {
     previewRequest.current?.abort()
     setOpening(false)
-    dialog.current?.close()
     setSelected(null)
   }
 
@@ -303,9 +300,9 @@ function Gallery({
                     </span>
                   </button>
                   <div className="mission-media__card-body">
-                    <h4 title={item.fileName}>{item.fileName}</h4>
                     <MediaInspectionAction missionId={missionId} mediaId={item.mediaId}
                       mediaType={item.mediaType} fileName={item.fileName} />
+                    <h4 title={item.fileName}>{item.fileName}</h4>
                     {approveMedia &&
                     (!item.status ||
                       item.status === 'PENDING_MANAGER_APPROVAL') ? (
@@ -330,23 +327,7 @@ function Gallery({
                         {t.approved}
                       </span>
                     ) : null}
-                    {reviewStatus ? (
-                      <ReviewStatusBadge
-                        status={reviewStatus}
-                        compact
-                        labels={t}
-                      />
-                    ) : null}
                     <div className="mission-media__meta">
-                      <span title={item.deviceId}>
-                        <Icon
-                          name="cpu"
-                          width={14}
-                          height={14}
-                          aria-hidden="true"
-                        />
-                        {item.deviceId}
-                      </span>
                       <span>{formatFileSize(item.fileSize)}</span>
                     </div>
                     {isReference(item) ? (
@@ -410,36 +391,25 @@ function Gallery({
             ) : null}
           </>
         ) : null}
-        <dialog
-          ref={dialog}
-          onCancel={close}
-          onClose={() => setSelected(null)}
-          aria-label={t.dialogLabel}
-          className="mission-media__dialog"
+        {selected?.previewUrl && selected.mediaType === 'IMAGE' && (
+          <ImagePreview
+            src={selected.thumbnailUrl ?? selected.previewUrl}
+            previewSrc={selected.previewUrl}
+            fileName={selected.fileName}
+            fallbackUrl={null}
+            visible
+            viewerOnly
+            onVisibleChange={(visible) => { if (!visible) close() }}
+          />
+        )}
+        <VideoPreview
+          open={Boolean(selected && selected.mediaType === 'VIDEO')}
+          onClose={close}
+          fileName={selected?.fileName ?? ''}
         >
           {selected?.previewUrl ? (
             <>
-              <header className="mission-media__dialog-header">
-                <div>
-                  <span>
-                    {selected.mediaType === 'IMAGE' ? t.image : t.video}
-                  </span>
-                  <h3>{selected.fileName}</h3>
-                </div>
-                <button
-                  type="button"
-                  className="odm-btn"
-                  onClick={close}
-                  aria-label={t.close}
-                >
-                  <Icon name="x" width={18} height={18} aria-hidden="true" />
-                </button>
-              </header>
               {error ? <p role="alert">{error ? t[error] : null}</p> : null}
-              <div className="mission-media__dialog-stage">
-                {selected.mediaType === 'IMAGE' ? (
-                  <img src={selected.previewUrl} alt={selected.fileName} />
-                ) : (
                   <ResilientMedia
                     kind="video"
                     expanded
@@ -448,22 +418,9 @@ function Gallery({
                     fileName={selected.fileName}
                     fallbackUrl={null}
                   />
-                )}
-              </div>
-              <footer className="mission-media__dialog-footer">
-                <span>{t.expiredLink}</span>
-                <button
-                  type="button"
-                  className="odm-btn"
-                  disabled={opening}
-                  onClick={() => void open(selected)}
-                >
-                  {t.reloadLink}
-                </button>
-              </footer>
             </>
           ) : null}
-        </dialog>
+        </VideoPreview>
       </div>
     </section>
   )

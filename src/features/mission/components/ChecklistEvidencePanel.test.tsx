@@ -333,7 +333,7 @@ describe('Evidence picker Mission-scoped loading', () => {
       render(<ChecklistEvidencePanel {...props} item={emptyItem} />)
       open()
       expect(
-        await screen.findByAltText('Xem trước capture.jpg'),
+        await screen.findByAltText('capture.jpg'),
       ).toHaveAttribute('src', candidate.previewUrl)
       expect(
         within(screen.getByRole('dialog')).getByText('Gắn ảnh/video'),
