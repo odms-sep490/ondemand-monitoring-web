@@ -17,11 +17,11 @@ function Preview({ asset }: { asset: ChecklistDeliveryAsset }) {
       </div>
     )
   return asset.type.toUpperCase().includes('VIDEO') ? (
-    <VideoThumbnail src={asset.previewUrl} poster={asset.thumbnailUrl} fallbackUrl={asset.url} fileName={asset.fileName} fileSize={asset.size} original={asset.previewStatus !== 'READY'} />
+    <VideoThumbnail src={asset.previewUrl} poster={asset.thumbnailUrl} fallbackUrl={null} fileName={asset.fileName} fileSize={asset.size} original={asset.previewStatus !== 'READY'} />
   ) : (
     <DeliveryImagePreview
       src={asset.thumbnailUrl ?? asset.previewUrl}
-      fallbackUrl={asset.url}
+      fallbackUrl={null}
       fileSize={asset.size}
       original={asset.previewStatus !== 'READY'}
       previewSrc={asset.previewUrl}

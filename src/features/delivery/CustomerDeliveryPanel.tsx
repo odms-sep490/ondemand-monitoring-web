@@ -261,6 +261,17 @@ function ScopedCustomerDeliveryPanel({
   }
 
   const canReview = delivery.deliveryStatus === 'CUSTOMER_REVIEW'
+  const downloadableCount = delivery.assets.filter(
+    (asset) => asset.downloadable,
+  ).length
+  const hasAssets = delivery.assets.length > 0
+  const isDelivered = delivery.deliveryStatus === 'DELIVERED'
+  const allOriginalsAvailable =
+    isDelivered && hasAssets && downloadableCount === delivery.assets.length
+  const hasSomeOriginalsAvailable = isDelivered && downloadableCount > 0
+  const acceptedAwaitingPayment = isDelivered && !hasSomeOriginalsAvailable
+  const partiallyDownloadable =
+    isDelivered && hasSomeOriginalsAvailable && !allOriginalsAvailable
   return (
     <section
       id="customer-delivery-panel"
@@ -277,10 +288,30 @@ function ScopedCustomerDeliveryPanel({
           <p>{t.subtitle}</p>
         </div>
         <span role="status" aria-live="polite">
-          <DeliveryStatusPill status={delivery.deliveryStatus} />
+          <DeliveryStatusPill
+            status={delivery.deliveryStatus}
+            label={
+              acceptedAwaitingPayment
+                ? t.acceptedAwaitingPayment
+                : partiallyDownloadable
+                  ? t.originalsPartial(
+                      downloadableCount,
+                      delivery.assets.length,
+                    )
+                  : undefined
+            }
+            tone={
+              acceptedAwaitingPayment || partiallyDownloadable
+                ? 'warning'
+                : undefined
+            }
+          />
         </span>
       </header>
-      <DeliveryProgress status={delivery.deliveryStatus} />
+      <DeliveryProgress
+        status={delivery.deliveryStatus}
+        originalsAvailable={allOriginalsAvailable}
+      />
       <div className="delivery-content">
         {delivery.deliveryStatus === 'AWAITING_MISSION_PAYMENT' ||
         delivery.deliveryStatus === 'FINAL_PAYMENT_PENDING' ||
@@ -302,24 +333,36 @@ function ScopedCustomerDeliveryPanel({
             <div className="delivery-section__head">
               <div>
                 <h3 id="customer-assets-title">
-                  {delivery.deliveryStatus === 'DELIVERED'
+                  {allOriginalsAvailable
                     ? t.originals
-                    : t.previews}
+                    : partiallyDownloadable
+                      ? t.deliveredAssets
+                      : t.previews}
                 </h3>
                 <p>
-                  {delivery.deliveryStatus === 'DELIVERED'
+                  {allOriginalsAvailable
                     ? t.filesReady(delivery.assets.length)
-                    : canReview
-                      ? t.filesCheck(delivery.assets.length)
-                      : t.previewCount(delivery.assets.length)}
+                    : partiallyDownloadable
+                      ? t.originalsPartial(
+                          downloadableCount,
+                          delivery.assets.length,
+                        )
+                      : canReview
+                        ? t.filesCheck(delivery.assets.length)
+                        : t.previewCount(delivery.assets.length)}
                 </p>
               </div>
               <span
-                className={`delivery-access-badge${delivery.deliveryStatus === 'DELIVERED' ? ' is-original' : ''}`}
+                className={`delivery-access-badge${hasSomeOriginalsAvailable ? ' is-original' : ''}`}
               >
-                {delivery.deliveryStatus === 'DELIVERED'
+                {allOriginalsAvailable
                   ? t.badgeOriginal
-                  : t.badgePreview}
+                  : partiallyDownloadable
+                    ? t.originalsPartial(
+                        downloadableCount,
+                        delivery.assets.length,
+                      )
+                    : t.badgePreview}
               </span>
             </div>
             <div className="delivery-grid">
@@ -438,12 +481,29 @@ function ScopedCustomerDeliveryPanel({
             )}
           </div>
         ) : null}
-        {delivery.deliveryStatus === 'DELIVERED' ? (
-          <StatusBanner
-            tone="success"
-            title={t.deliveredTitle}
-            text={t.deliveredText(delivery.assets.length)}
-          />
+        {isDelivered ? (
+          allOriginalsAvailable ? (
+            <StatusBanner
+              tone="success"
+              title={t.deliveredTitle}
+              text={t.deliveredText(delivery.assets.length)}
+            />
+          ) : partiallyDownloadable ? (
+            <StatusBanner
+              tone="warning"
+              title={t.partialOriginalsTitle}
+              text={t.partialOriginalsText(
+                downloadableCount,
+                delivery.assets.length,
+              )}
+            />
+          ) : (
+            <StatusBanner
+              tone="warning"
+              title={t.awaitingMissionPaymentTitle}
+              text={t.awaitingMissionPaymentText}
+            />
+          )
         ) : null}
         {error ? (
           <Alert

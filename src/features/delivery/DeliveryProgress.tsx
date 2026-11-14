@@ -22,19 +22,36 @@ function getStatusMeta(status: DeliveryStatus): DeliveryStatusMeta {
   return STATUS_META[status] ?? FALLBACK_STATUS_META
 }
 
-export function DeliveryStatusPill({ status }: { status: DeliveryStatus }) {
+export function DeliveryStatusPill({
+  status,
+  label,
+  tone,
+}: {
+  status: DeliveryStatus
+  label?: string
+  tone?: string
+}) {
   const { t } = useI18n(deliveryProgressMessages)
   const meta = getStatusMeta(status)
   return (
-    <span className={`delivery-status delivery-status--${meta.tone}`}>
-      {t.status[status] ?? t.unknownStatus}
+    <span className={`delivery-status delivery-status--${tone ?? meta.tone}`}>
+      {label ?? t.status[status] ?? t.unknownStatus}
     </span>
   )
 }
 
-export function DeliveryProgress({ status }: { status: DeliveryStatus }) {
+export function DeliveryProgress({
+  status,
+  originalsAvailable,
+}: {
+  status: DeliveryStatus
+  originalsAvailable?: boolean
+}) {
   const { t } = useI18n(deliveryProgressMessages)
-  const currentStep = getStatusMeta(status).step
+  const currentStep =
+    status === 'DELIVERED' && originalsAvailable === false
+      ? 2
+      : getStatusMeta(status).step
   return (
     <ol className="delivery-progress" aria-label={t.ariaLabel}>
       {t.steps.map((step, index) => {
