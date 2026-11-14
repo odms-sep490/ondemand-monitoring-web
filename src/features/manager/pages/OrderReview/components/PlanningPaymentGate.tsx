@@ -26,7 +26,6 @@ export function PlanningPaymentGate({
     <div className="mgr-banner mgr-plan-gate" role="status">
       <div className="mgr-plan-gate-text">
         <strong>{t.waiting}</strong>
-        <span>{t.unlockNote}</span>
         {data.invoice ? (
           <>
             <progress
@@ -45,9 +44,7 @@ export function PlanningPaymentGate({
               )}
             </span>
           </>
-        ) : (
-          <span>{t.notAccepted}</span>
-        )}
+        ) : null}
       </div>
       <Button
         type="button"
