@@ -4,6 +4,8 @@ import type { MissionDeviceAssignmentStatus } from '../../mission/types/mission'
 import type { GeoJsonPolygon } from '../../../shared/types/geo'
 
 export type BackendMission = {
+  inspectionCorrectionId?: string | null
+  inspectionSourceMissionId?: string | null
   id: string
   missionCode?: string | null
   orderId?: string | null

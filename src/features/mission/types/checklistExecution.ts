@@ -6,6 +6,8 @@ export type ChecklistAssessmentStatus =
   'NOT_ASSESSED' | 'COMPLIANT' | 'NON_COMPLIANT'
 
 export type MissionChecklistExecution = {
+  fulfilledByMissionId?: string | null
+  fulfilledByMissionCode?: string | null
   id: string
   orderChecklistItemId: string
   content: string

@@ -1,7 +1,8 @@
 import { monitoringChecklistMessages } from './MonitoringChecklistSection.messages'
 import type { EvidenceCandidateLoader } from '../types/checklistExecution'
 import { checklistReadyForInspection } from '../lib/customerEvidenceSelection'
-import { useState } from 'react'
+import { useState, type ComponentProps } from 'react'
+import { InspectionCorrectionPanel } from '../inspection/InspectionCorrectionPanel'
 import { getLanguage, useI18n } from '../../../shared/i18n'
 import {
   evidenceCountLabel,
@@ -152,7 +153,10 @@ export function monitoringErrorMessage(error: unknown) {
   return t.failed
 }
 
-export function MonitoringChecklistSection({
+export function MonitoringChecklistSection(props: ComponentProps<typeof MonitoringChecklistContent>) {
+ return <>{!props.preview && props.resultKnown!==false && props.data && (props.canAssess || props.canAttach || props.canExecute) && <InspectionCorrectionPanel missionId={props.missionId} rows={props.data.executions} canRequest={props.canAssess && props.resultStatus!=='APPROVED'} canRespond={props.canAttach || props.canExecute} refresh={props.refresh}/>}<MonitoringChecklistContent {...props}/></>
+}
+function MonitoringChecklistContent({
   missionId,
   data,
   loading,
@@ -243,17 +247,13 @@ export function MonitoringChecklistSection({
   const rows = [...(data?.executions ?? [])].sort(
     (a, b) => a.displayOrder - b.displayOrder || a.id.localeCompare(b.id),
   )
-  const firstTodo = rows.find((row) =>
-    assessmentOnly
-      ? row.assessmentStatus === 'NOT_ASSESSED'
-      : !terminal(row.executionStatus),
-  )
+  const firstTodo = rows.find((row) => !row.fulfilledByMissionId && (assessmentOnly ? row.assessmentStatus === 'NOT_ASSESSED' : !terminal(row.executionStatus)))
   const assessed = rows.filter(
-    (row) => row.assessmentStatus !== 'NOT_ASSESSED',
+    (row) => Boolean(row.fulfilledByMissionId) || row.assessmentStatus !== 'NOT_ASSESSED',
   ).length
   const done = assessmentOnly
     ? assessed
-    : rows.filter((row) => terminal(row.executionStatus)).length
+    : rows.filter((row) => Boolean(row.fulfilledByMissionId) || terminal(row.executionStatus)).length
   const attachedEvidence = new Set(
     rows.flatMap((row) => (row.evidence ?? []).map((item) => item.evidenceId)),
   ).size
@@ -347,7 +347,7 @@ export function MonitoringChecklistSection({
                 ? staffNamesById?.[item.lastModifiedBy]
                 : undefined
               const finished = terminal(item.executionStatus)
-              const tone = assessmentOnly
+              const tone = item.fulfilledByMissionId ? 'is-done' : assessmentOnly
                 ? item.assessmentStatus === 'COMPLIANT'
                   ? 'is-done'
                   : item.assessmentStatus === 'NON_COMPLIANT'
@@ -369,7 +369,7 @@ export function MonitoringChecklistSection({
                     ? { label: t.nonCompliant, className: 'is-danger' }
                     : null
                 : executionBadge(item.executionStatus)
-              const evidenceSummary = checklistEvidenceSummary(item)
+              const evidenceSummary = item.fulfilledByMissionId ? null : checklistEvidenceSummary(item)
               return (
                 <li
                   key={`evidence:${missionId}:${item.id}`}
@@ -390,12 +390,13 @@ export function MonitoringChecklistSection({
                     </span>
                     <span className="mc-text">
                       <span className="mc-title">{item.content}</span>
+                      {item.fulfilledByMissionId && <small className="mc-sub">{lang === 'vi' ? 'Đã nghiệm thu qua Mission bổ sung' : 'Accepted through supplemental mission'} · {item.fulfilledByMissionCode}</small>}
                       <span className="mc-sub">
                         {assessmentOnly
                           ? assessments[item.assessmentStatus]
                           : statusLabel(item.executionStatus)}
                         {evidenceSummary ? ` · ${evidenceSummary}` : null}
-                        {item.executionStatus !== 'UNABLE_TO_VERIFY' &&
+                        {!item.fulfilledByMissionId && item.executionStatus !== 'UNABLE_TO_VERIFY' &&
                           evidenceShortfall(item) > 0 && (
                             <>
                               {t.missingPrefix} {evidenceShortfall(item)}
@@ -430,8 +431,8 @@ export function MonitoringChecklistSection({
                         key={`${missionId}:${item.id}`}
                         item={item}
                         missionId={missionId}
-                        canExecute={canEditExecution}
-                        canAssess={canEditAssessment}
+                        canExecute={canEditExecution && !item.fulfilledByMissionId}
+                        canAssess={canEditAssessment && !item.fulfilledByMissionId}
                         hideAssessment={hideAssessment}
                         completionOnly={completionOnly}
                         assessmentOnly={assessmentOnly}
@@ -634,7 +635,7 @@ export function MonitoringChecklistSection({
           {rows.map((item, index) => {
             const open = item.id === openId
             const finished = terminal(item.executionStatus)
-            const tone = assessmentOnly
+            const tone = item.fulfilledByMissionId ? 'is-done' : assessmentOnly
               ? item.assessmentStatus === 'COMPLIANT'
                 ? 'is-done'
                 : item.assessmentStatus === 'NON_COMPLIANT'
@@ -656,7 +657,7 @@ export function MonitoringChecklistSection({
                   ? { label: t.nonCompliant, className: 'is-danger' }
                   : null
               : executionBadge(item.executionStatus)
-            const evidenceSummary = checklistEvidenceSummary(item)
+            const evidenceSummary = item.fulfilledByMissionId ? null : checklistEvidenceSummary(item)
             return (
               <li
                 key={`evidence:${missionId}:${item.id}`}
@@ -677,12 +678,13 @@ export function MonitoringChecklistSection({
                   </span>
                   <span className="mc-text">
                     <span className="mc-title">{item.content}</span>
+                      {item.fulfilledByMissionId && <small className="mc-sub">{lang === 'vi' ? 'Đã nghiệm thu qua Mission bổ sung' : 'Accepted through supplemental mission'} · {item.fulfilledByMissionCode}</small>}
                     <span className="mc-sub">
                       {assessmentOnly
                         ? assessments[item.assessmentStatus]
                         : statusLabel(item.executionStatus)}
                       {evidenceSummary ? ` · ${evidenceSummary}` : null}
-                      {item.executionStatus !== 'UNABLE_TO_VERIFY' &&
+                      {!item.fulfilledByMissionId && item.executionStatus !== 'UNABLE_TO_VERIFY' &&
                         evidenceShortfall(item) > 0 &&
                         t.missing(evidenceShortfall(item))}
                     </span>
@@ -700,8 +702,8 @@ export function MonitoringChecklistSection({
                       key={`${missionId}:${item.id}`}
                       item={item}
                       missionId={missionId}
-                      canExecute={canEditExecution}
-                      canAssess={canEditAssessment}
+                      canExecute={canEditExecution && !item.fulfilledByMissionId}
+                      canAssess={canEditAssessment && !item.fulfilledByMissionId}
                       hideAssessment={hideAssessment}
                       completionOnly={completionOnly}
                       assessmentOnly={assessmentOnly}
