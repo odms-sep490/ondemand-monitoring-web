@@ -54,7 +54,9 @@ function ContractContent({
   const manager = mode === 'manager'
   const [file, setFile] = useState<File | null>(null)
   const [reason, setReason] = useState('')
-  const [checked, setChecked] = useState(false)
+  const [checkedVersion, setCheckedVersion] = useState<number | null>(null)
+  const checked = checkedVersion !== null && checkedVersion === data?.version
+  const [replaceOpen, setReplaceOpen] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const confirmed = useRef<string | null>(null)
@@ -97,7 +99,8 @@ function ContractContent({
     }
   }, [data?.required, data?.status, query.reload])
   useEffect(() => {
-    setChecked(false)
+    setCheckedVersion(null)
+    setReplaceOpen(false)
     setReason('')
   }, [data?.version])
   function message(cause: unknown) {
@@ -143,11 +146,17 @@ function ContractContent({
       anchor.click()
     } catch (cause) {
       setError(message(cause))
+      if (
+        cause instanceof ApiError &&
+        cause.code === 'CONTRACT_SUBMISSION_REPLACED'
+      )
+        query.reload()
     } finally {
       setBusy(false)
     }
   }
   function selectFile(value: File | undefined) {
+    setCheckedVersion(null)
     setFile(null)
     setError(null)
     if (!value) return
@@ -185,7 +194,15 @@ function ContractContent({
   const canSubmit =
     !manager &&
     Boolean(data.invoiceId) &&
-    ['AWAITING_SIGNATURE', 'CHANGES_REQUESTED'].includes(data.status)
+    [
+      'AWAITING_SIGNATURE',
+      'CHANGES_REQUESTED',
+      'PENDING_VERIFICATION',
+    ].includes(data.status)
+  const replacing =
+    !manager &&
+    data.status === 'PENDING_VERIFICATION' &&
+    latest?.status === 'PENDING'
   const canReview =
     manager &&
     data.status === 'PENDING_VERIFICATION' &&
@@ -269,7 +286,24 @@ function ContractContent({
       {data.status === 'CHANGES_REQUESTED' && latest?.reviewNote && (
         <Alert type="warning" showIcon message={latest.reviewNote} />
       )}
-      {(canIssue || canSubmit) && (
+      {replacing && (
+        <div className="order-contract-panel__document">
+          <FilePdfOutlined aria-hidden />
+          <span className="order-contract-panel__document-copy">
+            <strong>{latest.document.fileName}</strong>
+            <small>{t.currentSigned}</small>
+          </span>
+          <Button disabled={disabled} onClick={() => void download(latest.id)}>
+            {t.signedDownload}
+          </Button>
+          {!replaceOpen && (
+            <Button disabled={disabled} onClick={() => setReplaceOpen(true)}>
+              {t.replaceOpen}
+            </Button>
+          )}
+        </div>
+      )}
+      {(canIssue || (canSubmit && (!replacing || replaceOpen))) && (
         <div className="order-contract-panel__upload">
           <div
             className={`order-contract-panel__file${file ? ' has-file' : ''}`}
@@ -320,7 +354,7 @@ function ContractContent({
               checked={checked}
               disabled={disabled}
               onChange={(e) =>
-                setChecked(e.target.checked)
+                setCheckedVersion(e.target.checked ? data.version : null)
               }
             >
               {t.declaration}
@@ -332,8 +366,26 @@ function ContractContent({
             loading={busy}
             onClick={upload}
           >
-            {canIssue ? t.issue : t.submit}
+            {canIssue
+              ? t.issue
+              : data.status === 'PENDING_VERIFICATION'
+                ? t.replace
+                : t.submit}
           </Button>
+          {replacing && (
+            <Button
+              type="text"
+              disabled={busy}
+              onClick={() => {
+                setReplaceOpen(false)
+                setFile(null)
+                setCheckedVersion(null)
+                if (input.current) input.current.value = ''
+              }}
+            >
+              {t.cancelReplacement}
+            </Button>
+          )}
         </div>
       )}
       {canReview && (
@@ -350,7 +402,7 @@ function ContractContent({
             checked={checked}
             disabled={disabled}
             onChange={(e) =>
-              setChecked(e.target.checked)
+              setCheckedVersion(e.target.checked ? data.version : null)
             }
           >
             {t.checked}
@@ -430,6 +482,9 @@ function ContractContent({
                   : ''}
               </p>
               {row.reviewNote && <p>{row.reviewNote}</p>}
+              {row.status === 'SUPERSEDED' ? (
+                <p className="order-contract-panel__hint">{t.supersededFile}</p>
+              ) : (
                 <Button
                   size="small"
                   disabled={disabled}
@@ -437,6 +492,7 @@ function ContractContent({
                 >
                   {t.signedDownload}
                 </Button>
+              )}
             </article>
           ))}
         </details>

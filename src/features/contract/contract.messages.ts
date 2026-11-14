@@ -46,10 +46,15 @@ export const contractMessages = defineMessages({
     limit: 'PDF · Tối đa 10 MB · Không đặt mật khẩu',
     issue: 'Lưu hợp đồng PDF',
     submit: 'Gửi hợp đồng đã ký',
+    replace: 'Thay bản hợp đồng đã ký',
+    replaceOpen: 'Thay tệp đã gửi',
+    currentSigned: 'Bản đã ký đang chờ xác nhận',
+    cancelReplacement: 'Hủy thay tệp',
+    supersededFile: 'Bản này đã được thay thế và không còn tải xuống được.',
     download: 'Tải hợp đồng chính thức',
     signedDownload: 'Tải bản đã ký',
     pending:
-      'Đã nhận bản đã ký. Bạn có thể thanh toán cọc trong khi chờ quản lý xác minh. Nhiệm vụ chưa được triển khai ở bước này.',
+      'Đã nhận bản đã ký. Nếu gửi nhầm, bạn có thể thay bản mới trước khi quản lý xác nhận. Bạn vẫn có thể thanh toán cọc trong khi chờ xác minh.',
     declaration:
       'Tôi xác nhận tệp này là bản hợp đồng đã ký mà tôi muốn gửi để kiểm tra.',
     checked:
@@ -65,6 +70,7 @@ export const contractMessages = defineMessages({
     reviewed: 'Kiểm tra lúc',
     submissionStatus: {
       PENDING: 'Chờ kiểm tra',
+      SUPERSEDED: 'Đã được thay thế',
       CHANGES_REQUESTED: 'Cần bổ sung',
       CONFIRMED: 'Đã xác nhận',
     },
@@ -77,6 +83,8 @@ export const contractMessages = defineMessages({
     errors: {
       CONTRACT_NOT_FOUND:
         'Cần chuẩn bị hợp đồng PDF đúng phiên bản báo giá trước khi gửi hoặc chấp nhận.',
+      CONTRACT_SUBMISSION_REPLACED:
+        'Bản đã ký này vừa được thay thế. Hãy kiểm tra bản mới nhất trước khi xác nhận.',
       CONTRACT_VERSION_CONFLICT:
         'Dữ liệu đã thay đổi. Hãy làm mới và kiểm tra lại trước khi tiếp tục.',
       CONTRACT_STATE_CONFLICT:
@@ -138,10 +146,16 @@ export const contractMessages = defineMessages({
     limit: 'PDF · Up to 10 MB · No password',
     issue: 'Save contract PDF',
     submit: 'Submit signed contract',
+    replace: 'Replace signed contract',
+    replaceOpen: 'Replace uploaded file',
+    currentSigned: 'Signed copy awaiting verification',
+    cancelReplacement: 'Cancel replacement',
+    supersededFile:
+      'This copy was replaced and is no longer available for download.',
     download: 'Download official contract',
     signedDownload: 'Download signed copy',
     pending:
-      'Your signed contract was received. You can pay the deposit while the manager verifies it. Mission planning remains locked until verification is complete.',
+      'Your signed contract was received. You may replace it before manager confirmation and pay the deposit while verification is pending. Mission planning remains locked.',
     declaration:
       'I confirm this file is the signed contract I wish to submit for review.',
     checked:
@@ -157,6 +171,7 @@ export const contractMessages = defineMessages({
     reviewed: 'Reviewed at',
     submissionStatus: {
       PENDING: 'Pending review',
+      SUPERSEDED: 'Replaced',
       CHANGES_REQUESTED: 'Changes requested',
       CONFIRMED: 'Confirmed',
     },
@@ -169,6 +184,8 @@ export const contractMessages = defineMessages({
     errors: {
       CONTRACT_NOT_FOUND:
         'Prepare the PDF contract for this quote version before sending or accepting it.',
+      CONTRACT_SUBMISSION_REPLACED:
+        'This signed copy was replaced. Review the latest copy before confirming.',
       CONTRACT_VERSION_CONFLICT:
         'The contract changed. Refresh and review it before continuing.',
       CONTRACT_STATE_CONFLICT:

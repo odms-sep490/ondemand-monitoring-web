@@ -53,12 +53,43 @@ it('requires an explicit signed-file submission with the current version', async
     expect(submit).toHaveBeenCalledExactlyOnceWith('order', 4, pdf),
   )
 })
-it('does not let a customer confirm or upload over a pending submission', async () => {
-  vi.spyOn(contractApi, 'get').mockResolvedValue({...base,status:'PENDING_VERIFICATION'})
+it('allows replacing the pending signed copy with a new versioned upload', async () => {
+  vi.spyOn(contractApi, 'get').mockResolvedValue({
+    ...base,
+    status: 'PENDING_VERIFICATION',
+    submissions: [
+      {
+        id: 'signed',
+        submissionNumber: 1,
+        status: 'PENDING',
+        submittedAt: '2026-11-14T04:00:00Z',
+        submittedBy: 'customer',
+        reviewedAt: null,
+        reviewedBy: null,
+        reviewNote: null,
+        document: base.document!,
+      },
+    ],
+  })
+  const submit = vi
+    .spyOn(contractApi, 'submit')
+    .mockResolvedValue({ ...base, version: 5, status: 'PENDING_VERIFICATION' })
   render(<OrderContractPanel orderId="order" mode="customer" />)
-  await screen.findByText(/Đã nhận bản đã ký/)
-  expect(screen.queryByRole('button', {name:'Xác nhận hợp đồng'})).toBeNull()
-  expect(screen.queryByLabelText('Chọn bản PDF đã ký')).toBeNull()
+  fireEvent.click(
+    await screen.findByRole('button', { name: 'Thay tệp đã gửi' }),
+  )
+  const button = screen.getByRole('button', { name: 'Thay bản hợp đồng đã ký' })
+  expect(button).toBeDisabled()
+  const pdf = file()
+  fireEvent.change(screen.getByLabelText('Chọn bản PDF đã ký'), {
+    target: { files: [pdf] },
+  })
+  fireEvent.click(
+    screen.getByRole('checkbox', { name: /Tôi xác nhận tệp này/ }),
+  )
+  fireEvent.click(button)
+  await waitFor(() => expect(submit).toHaveBeenCalledWith('order', 4, pdf))
+  expect(screen.queryByRole('button', { name: 'Xác nhận hợp đồng' })).toBeNull()
 })
 
 it('manager issues the official PDF for the accepted quote', async () => {
@@ -292,6 +323,59 @@ it('refreshes invoice eligibility after a signed submission without pretending i
   await waitFor(() => expect(updated).toHaveBeenCalledTimes(1))
   expect(confirmed).not.toHaveBeenCalled()
   expect(
-    await screen.findByText(/Bạn có thể thanh toán cọc trong khi chờ/),
+    await screen.findByText(/Bạn vẫn có thể thanh toán cọc trong khi chờ/),
   ).toBeInTheDocument()
+})
+
+it('keeps replacement disabled after confirmation and hides download for superseded history', async () => {
+  vi.spyOn(contractApi, 'get').mockResolvedValue({
+    ...base,
+    status: 'CONFIRMED',
+    submissions: [
+      {
+        id: 'old',
+        submissionNumber: 1,
+        status: 'SUPERSEDED',
+        submittedAt: '2026-11-14T04:00:00Z',
+        submittedBy: 'customer',
+        reviewedAt: null,
+        reviewedBy: null,
+        reviewNote: null,
+        document: base.document!,
+      },
+    ],
+  })
+  render(<OrderContractPanel orderId="order" mode="customer" />)
+  expect(await screen.findByText('Đã được thay thế')).toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Thay tệp đã gửi' })).toBeNull()
+  expect(screen.queryByRole('button', { name: 'Tải bản đã ký' })).toBeNull()
+  expect(screen.getByText(/Bản này đã được thay thế/)).toBeInTheDocument()
+})
+
+it('requires Manager to acknowledge the new file again after a Customer replacement', async () => {
+  const get = vi.spyOn(contractApi, 'get').mockResolvedValue({
+    ...base,
+    status: 'PENDING_VERIFICATION',
+    submissions: [submission],
+  })
+  render(<OrderContractPanel orderId="order" mode="manager" />)
+  const button = await screen.findByRole('button', {
+    name: 'Xác nhận hợp đồng',
+  })
+  fireEvent.click(screen.getByRole('checkbox', { name: /Tôi đã đối chiếu/ }))
+  expect(button).toBeEnabled()
+  get.mockResolvedValue({
+    ...base,
+    version: 5,
+    status: 'PENDING_VERIFICATION',
+    submissions: [{ ...submission, id: 'replacement', submissionNumber: 2 }],
+  })
+  fireEvent(window, new Event('focus'))
+  await waitFor(() => expect(screen.getByText('Lần gửi 2')).toBeInTheDocument())
+  expect(
+    screen.getByRole('button', { name: 'Xác nhận hợp đồng' }),
+  ).toBeDisabled()
+  expect(
+    screen.getByRole('checkbox', { name: /Tôi đã đối chiếu/ }),
+  ).not.toBeChecked()
 })

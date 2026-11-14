@@ -14,7 +14,7 @@ export type ContractDocument = {
 export type ContractSubmission = {
   id: string
   submissionNumber: number
-  status: 'PENDING' | 'CHANGES_REQUESTED' | 'CONFIRMED'
+  status: 'PENDING' | 'SUPERSEDED' | 'CHANGES_REQUESTED' | 'CONFIRMED'
   submittedAt: string
   submittedBy: string
   reviewedAt: string | null
