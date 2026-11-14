@@ -267,12 +267,11 @@ function OrderPlanningWorkspace({
     setMessage('')
     setCoverageWarning('')
     try {
-      if (reworkCaseId)
-        await deliveryApi.managerFinalizeReworkPlan(
-          reworkCaseId,
-          data.plan.revision,
-        )
-      else await planningApi.finalizeExecutionPlan(orderId, data.plan.revision)
+      await planningApi.finalizeExecutionPlan(
+        orderId,
+        data.plan.revision,
+        reworkCaseId,
+      )
       setSidebarCollapsed(true)
     } catch (error) {
       setCoverageWarning(finalizeError(error))
