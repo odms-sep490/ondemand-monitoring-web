@@ -1,3 +1,4 @@
+import './ConfirmSubmitModal.css'
 import { Button } from 'antd'
 import { Modal } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
@@ -70,7 +71,7 @@ export function ConfirmSubmitModal(p: Props) {
       subtitle={t.subtitle}
       icon="check"
       tone="primary"
-      width={640}
+      width={600}
       onClose={p.onClose}
       footer={footer}
     >
@@ -84,7 +85,7 @@ export function ConfirmSubmitModal(p: Props) {
           <span className="co-confirm-request__label">{t.requestName}</span>
           <strong className="co-confirm-request__value">{form.title || '—'}</strong>
         </div>
-        <dl className="co-rows co-mt">
+        <dl className="co-confirm-primary">
           <dt>{t.service}</dt>
           <dd>{p.service ? localizeServiceName(p.service.id, lang, p.service.name) : '—'}</dd>
           {p.checklistCount !== undefined && (
@@ -106,6 +107,10 @@ export function ConfirmSubmitModal(p: Props) {
           )}
           <dt>{t.location}</dt>
           <dd>{form.address || '—'}</dd>
+        </dl>
+        <details className="co-confirm-more">
+          <summary>{lang === 'vi' ? 'Thông tin hiện trường & bàn giao' : 'Site & delivery details'}</summary>
+          <dl className="co-confirm-secondary">
           <dt>{t.area}</dt>
           <dd>{t.areaValue(form.radiusM, calcArea(form.radiusM))}</dd>
           <dt>{t.altitude}</dt>
@@ -132,7 +137,8 @@ export function ConfirmSubmitModal(p: Props) {
           <dd>{form.deliveryMethods.map((method) => d.methods[method]).join(', ') || '—'}</dd>
           <dt>{t.retention}</dt>
           <dd>{t.retentionDays(form.dataRetentionDays)}</dd>
-        </dl>
+          </dl>
+        </details>
         <div className="co-confirm-total co-row-between">
           <span>{t.total}</span>
           <span>
@@ -142,7 +148,7 @@ export function ConfirmSubmitModal(p: Props) {
         <p className="co-hint co-mt">
           {p.pricingEstimate?.quotePending ? t.priceNotePending : t.priceNote}
         </p>
-        <p className="co-hint">{t.note}</p>
+
         {p.error && <div className="co-notice is-danger co-mt" role="alert">{p.error}</div>}
       </div>
     </Modal>

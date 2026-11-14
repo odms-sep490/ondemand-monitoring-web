@@ -1,3 +1,4 @@
+import './CreatedSuccess.css'
 import { Button } from 'antd'
 import { Icon } from '../../../../../shared/components/Icon'
 import { useI18n } from '../../../../../shared/i18n'
@@ -11,20 +12,18 @@ export function CreatedSuccess({
   orderId: string
   orderCode?: string | null
 }) {
-  const { t } = useI18n(createdSuccessMessages)
+  const { t, lang } = useI18n(createdSuccessMessages)
   return (
-    <div className="co-success">
+    <div className="co-success-page"><section className="co-success co-success-card" role="status">
       <div className="co-success-icon" aria-hidden="true">
         <Icon name="check" width={28} height={28} />
       </div>
       <h2>{t.title}</h2>
       <p className="co-hint">{t.description}</p>
-      <p className="co-hint">
-        {t.orderCode}: <span className="co-mono">{orderCode ?? orderId}</span>
-      </p>
-      <Button href={customerHref({ screen: 'orders' })} type="primary">
-        {t.viewMyOrders}
+      <div className="co-success-reference"><span>{t.orderCode}</span><strong>{orderCode ?? orderId}</strong></div>
+      <Button href={customerHref({ screen: 'orderDetail', orderId })} type="primary">
+        {lang === 'vi' ? 'Xem yêu cầu vừa tạo' : 'View your request'}
       </Button>
-    </div>
+    </section></div>
   )
 }
