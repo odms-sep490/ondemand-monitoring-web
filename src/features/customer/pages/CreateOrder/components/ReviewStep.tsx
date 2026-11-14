@@ -11,6 +11,7 @@ import type {
   UpdateField,
 } from '../../../lib/createOrder/types'
 import type { ChecklistRow } from '../../../lib/checklist/types'
+import './ReviewStep.css'
 import { AgreementSection } from './AgreementSection'
 import { PricingEstimateCard } from './PricingEstimateCard'
 import { RequestSummaryCard } from './RequestSummaryCard'
@@ -38,9 +39,11 @@ type Props = {
 /** Step 6: review the request and submit. */
 export function ReviewStep(p: Props) {
   return (
-    <div className="co-grid is-review co-review-layout">
+    <div className="co-confirm-layout">
+      <section className="co-confirm-details">
       <RequestSummaryCard
         variant="review"
+        mediaTotals={p.mediaTotals}
         form={p.form}
         service={p.service}
         time={p.time}
@@ -52,6 +55,8 @@ export function ReviewStep(p: Props) {
         }}
         onEdit={p.onEdit}
       />
+      </section>
+      <aside className="co-confirm-sidebar">
       <PricingEstimateCard
         variant="review"
         estimate={p.pricingEstimate}
@@ -65,6 +70,8 @@ export function ReviewStep(p: Props) {
         errors={p.errors}
         update={p.update}
       />
+
+      </aside>
     </div>
   )
 }

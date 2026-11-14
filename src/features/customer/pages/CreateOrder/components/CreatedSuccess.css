@@ -1,0 +1,10 @@
+.co-success-page { min-height:calc(100dvh - 180px); display:grid; place-items:center; padding:32px 20px; }
+.co-success-page .co-success-card { width:100%; max-width:540px; margin:0; padding:36px; text-align:center; background:#fff; border:1px solid #e1e8f2; border-radius:20px; box-shadow:0 12px 32px #193a6210; }
+.co-success-card .co-success-icon { display:grid; place-items:center; width:64px; height:64px; margin:0 auto 20px; color:#11834b; background:#e4f7ec; border-radius:50%; }
+.co-success-card h2 { margin:0 0 10px; color:#112a49; font-size:25px; }
+.co-success-card > .co-hint { max-width:400px; margin:0 auto; font-size:14px; line-height:1.7; color:#61718a; }
+.co-success-reference { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:15px 16px; margin:24px 0; border:1px solid #e2e9f3; border-radius:10px; background:#f7f9fd; text-align:left; }
+.co-success-reference > span { color:#61718a; font-size:13px; white-space:nowrap; }
+.co-success-reference strong { color:#203c61; font-size:14px; overflow-wrap:anywhere; }
+.co-success-card > .ant-btn { width:100%; height:44px; font-weight:600; }
+@media(max-width:540px) { .co-success-page {padding:24px 12px;} .co-success-page .co-success-card {padding:28px 20px;} .co-success-reference {flex-direction:column;align-items:flex-start;gap:5px;} }

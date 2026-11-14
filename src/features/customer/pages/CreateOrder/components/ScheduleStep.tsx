@@ -1,21 +1,20 @@
-import { FileTextOutlined } from '@ant-design/icons'
+import { CalendarOutlined, ClockCircleOutlined } from '@ant-design/icons'
 import { Card } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import type {
   PreferredTimeOption,
   ServiceOption,
 } from '../../../api/customerApi'
-import { calcArea } from '../../../lib/createOrder/payload'
 import type {
   FormErrors,
   FormState,
   UpdateField,
 } from '../../../lib/createOrder/types'
-import { localizeServiceName } from '../../../lib/i18n/serviceNames'
 import { localizeTimeslot } from '../../../lib/i18n/timeslots'
 import { ScheduleCard } from './ScheduleCard'
 import { ScheduleOptionsCard } from './ScheduleOptionsCard'
 import { scheduleStepMessages } from './ScheduleStep.messages'
+import './ScheduleStep.css'
 
 type Props = {
   form: FormState
@@ -58,8 +57,8 @@ export function ScheduleStep(p: Props) {
 
   return (
     <>
-      <div className="co-grid is-service is-schedule">
-        <div className="co-stack">
+      <div className="co-schedule-layout">
+        <div className="co-schedule-form">
           <ScheduleCard
             form={form}
             errors={p.errors}
@@ -72,92 +71,27 @@ export function ScheduleStep(p: Props) {
             update={p.update}
           />
         </div>
-        <aside className="co-stack co-summary is-tall">
-          <Card icon={<FileTextOutlined />} title={t.summaryTitle}>
-            <dl className="co-sum-list">
-              <div className="co-sum-item">
-                <span className="co-sum-icon" aria-hidden="true" />
-                <div className="co-sum-body">
-                  <dt>{t.service}</dt>
-                  <dd>
-                    {p.service
-                      ? localizeServiceName(p.service.id, lang, p.service.name)
-                      : t.notSelected}
-                  </dd>
-                </div>
-              </div>
-              <div className="co-sum-item">
-                <span className="co-sum-icon" aria-hidden="true" />
-                <div className="co-sum-body">
-                  <dt>{t.location}</dt>
-                  <dd className="is-clamp" title={form.address || undefined}>
-                    {form.address || t.noAddress}
-                  </dd>
-                  <dd className="is-sub">
-                    {t.radius(form.radiusM, calcArea(form.radiusM))}
-                  </dd>
-                </div>
-              </div>
-              <div className="co-sum-item">
-                <span className="co-sum-icon" aria-hidden="true" />
-                <div className="co-sum-body">
-                  <dt>{t.altitude}</dt>
-                  <dd>
-                    {Number.isFinite(form.altitudeM)
-                      ? `${form.altitudeM} m`
-                      : t.notSelected}
-                  </dd>
-                </div>
-              </div>
-              <div className="co-sum-item">
-                <span className="co-sum-icon" aria-hidden="true" />
-                <div className="co-sum-body">
-                  <dt>{t.dates}</dt>
-                  <dd>{dates}</dd>
-                  {days !== null && <dd className="is-sub">{t.days(days)}</dd>}
-                </div>
-              </div>
-              <div className="co-sum-item">
-                <span className="co-sum-icon" aria-hidden="true" />
-                <div className="co-sum-body">
-                  <dt>{t.timeWindow}</dt>
-                  <dd>
-                    {p.time ? localizeTimeslot(p.time, lang) : t.notSelected}
-                  </dd>
-                </div>
-              </div>
-              <div className="co-sum-item">
-                <span className="co-sum-icon" aria-hidden="true" />
-                <div className="co-sum-body">
-                  <dt>{t.repeat}</dt>
-                  <dd>
-                    {form.recurrenceType === 'WEEKLY'
-                      ? t.repeatWeekly(form.recurrenceOccurrences)
-                      : form.recurrenceType === 'MONTHLY'
-                        ? t.repeatMonthly(form.recurrenceOccurrences)
-                        : t.repeatNone}
-                  </dd>
-                </div>
-              </div>
-              <div className="co-sum-item">
-                <span className="co-sum-icon" aria-hidden="true" />
-                <div className="co-sum-body">
-                  <dt>{t.weather}</dt>
-                  <dd>{t.weatherValues[form.weatherFallback]}</dd>
-                </div>
-              </div>
-              <div className="co-sum-item">
-                <span className="co-sum-icon" aria-hidden="true" />
-                <div className="co-sum-body">
-                  <dt>{t.deadline}</dt>
-                  <dd>
-                    {form.resultDeadline
-                      ? formatDate(form.resultDeadline, lang)
-                      : t.noDeadline}
-                  </dd>
-                </div>
-              </div>
-            </dl>
+        <aside className="co-schedule-summary">
+          <Card icon={<CalendarOutlined />} title={t.summaryTitle}>
+            <div className="co-schedule-calendar" aria-hidden="true"><CalendarOutlined /><span>{lang === 'vi' ? 'Lịch dự kiến' : 'Planned schedule'}</span></div>
+            <div className="co-schedule-date">
+              <span>{t.dates}</span>
+              <strong>{dates}</strong>
+              {form.preferredDateFrom && <small>{new Date(`${form.preferredDateFrom}T12:00:00`).toLocaleDateString(lang === 'vi' ? 'vi-VN' : 'en-US', { weekday: 'long' })}</small>}
+              {days !== null && days > 1 && <small>{t.days(days)}</small>}
+            </div>
+            <div className={`co-schedule-time${p.time ? '' : ' is-pending'}`}>
+              <ClockCircleOutlined aria-hidden="true" />
+              <div><span>{t.timeWindow}</span><strong>{p.time ? localizeTimeslot(p.time, lang) : t.notSelected}</strong></div>
+            </div>
+            {(form.recurrenceType === 'WEEKLY' || form.recurrenceType === 'MONTHLY' || form.resultDeadline) && <dl className="co-schedule-extras">
+              {form.recurrenceType !== 'NONE' && <div><dt>{t.repeat}</dt><dd>{form.recurrenceType === 'WEEKLY' ? t.repeatWeekly(form.recurrenceOccurrences) : t.repeatMonthly(form.recurrenceOccurrences)}</dd></div>}
+              {form.resultDeadline && <div><dt>{t.deadline}</dt><dd>{formatDate(form.resultDeadline, lang)}</dd></div>}
+            </dl>}
+            <div className="co-schedule-next">
+              <strong>{lang === 'vi' ? 'Lịch bay được xác nhận thế nào?' : 'How is the schedule confirmed?'}</strong>
+              <ol><li>{lang === 'vi' ? 'Bạn chọn ngày và khung giờ phù hợp.' : 'Choose your preferred dates and time.'}</li><li>{lang === 'vi' ? 'Đội vận hành kiểm tra và sắp xếp lịch.' : 'Our operations team reviews availability.'}</li><li>{lang === 'vi' ? 'Bạn nhận thông báo khi lịch được xác nhận.' : 'Receive a notification once confirmed.'}</li></ol>
+            </div>
           </Card>
         </aside>
       </div>
