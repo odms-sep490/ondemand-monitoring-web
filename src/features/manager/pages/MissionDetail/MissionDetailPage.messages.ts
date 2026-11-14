@@ -147,6 +147,15 @@ export const missionDetailPageMessages = defineMessages({
         depositWaiting: 'Chờ thanh toán cọc',
         depositPaid: 'Đã thanh toán cọc',
         missionAmount: 'Giá checklist của nhiệm vụ',
+        missionTotal: 'Tổng giá trị nhiệm vụ',
+        afterDeposit: 'Còn phải thanh toán sau cọc',
+        calculationTitle: 'Cách tính khoản thanh toán nhiệm vụ',
+        calculationNote:
+          'Phân bổ theo tỷ lệ giá checklist của nhiệm vụ trong đơn hàng.',
+        adjustment: 'Điều chỉnh phân bổ',
+        allocatedDeposit: 'Tiền cọc phân bổ',
+        depositIncluded: 'Đã trừ phần tiền cọc phân bổ cho nhiệm vụ này.',
+        calculationUnavailable: 'Chưa có chi tiết phân bổ cho nhiệm vụ này.',
         missionPayment: 'Khoản thanh toán nhiệm vụ',
         milestoneStatus: 'Trạng thái thanh toán',
         handedOverAt: 'Thời điểm bàn giao',
@@ -380,6 +389,17 @@ export const missionDetailPageMessages = defineMessages({
         depositWaiting: 'Awaiting deposit',
         depositPaid: 'Deposit paid',
         missionAmount: 'Mission checklist value',
+        missionTotal: 'Mission total',
+        afterDeposit: 'Payable after deposit',
+        calculationTitle: 'Mission payment calculation',
+        calculationNote:
+          'Allocated proportionally by this Mission’s checklist value in the Order.',
+        adjustment: 'Allocated adjustment',
+        allocatedDeposit: 'Allocated deposit',
+        depositIncluded:
+          'Includes the deposit portion allocated to this Mission.',
+        calculationUnavailable:
+          'Calculation details are not available for this Mission.',
         missionPayment: 'Mission payment',
         milestoneStatus: 'Payment status',
         handedOverAt: 'Handed over at',
