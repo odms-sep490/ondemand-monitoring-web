@@ -1,4 +1,5 @@
-import { operatorMediaApi } from '../../../../media/api/operatorMediaApi'
+import { staffMediaSources } from '../../../../media/upload/staffMediaSources'
+import { useState } from 'react'
 import { uploadMediaPageMessages } from '../UploadMediaPage.messages'
 import { useI18n } from '../../../../../shared/i18n'
 import type { RefObject, Dispatch, SetStateAction } from 'react'
@@ -14,6 +15,8 @@ export function PreviewLightbox({
   preview: LocalMedia
 }) {
   const { t } = useI18n(uploadMediaPageMessages)
+  const [failed, setFailed] = useState<string[]>([])
+  const source = staffMediaSources(preview).viewImages.find((url) => !failed.includes(url))
   return (
     <dialog
       ref={previewDialog}
@@ -29,7 +32,8 @@ export function PreviewLightbox({
         {t.closePreview}
       </button>
       <img
-        src={operatorMediaApi.previewUrl(preview.localMediaId)}
+        src={source}
+        onError={() => { if (source) setFailed((previous) => [...previous, source]) }}
         alt={preview.fileName}
       />
     </dialog>

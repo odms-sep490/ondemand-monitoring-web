@@ -1,3 +1,4 @@
+import { MediaInspectionAction } from './MediaInspectionAction'
 import { ResilientMedia } from '../../../shared/components/media/MediaRecovery'
 import { VideoPoster } from '../../../shared/components/media/VideoThumbnail'
 import { useEffect, useRef, useState } from 'react'
@@ -100,7 +101,7 @@ function Gallery({
       await approveMedia(mediaId)
       setApproved((ids) => [...ids, mediaId])
     } catch {
-      setError(t.approveError)
+      setError('approveError')
     } finally {
       setApproving(null)
       onChanged?.()
@@ -110,7 +111,7 @@ function Gallery({
   const [revision, setRevision] = useState(0)
   const [data, setData] = useState<UploadedMissionMediaPage | null>(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<'approveError' | 'loadError' | 'previewPending' | 'previewError' | null>(null)
   const [selected, setSelected] = useState<UploadedMissionMedia | null>(null)
   const [opening, setOpening] = useState(false)
   const previewRequest = useRef<AbortController | null>(null)
@@ -146,7 +147,7 @@ function Gallery({
       })
       .catch(() => {
         if (abort.signal.aborted) return
-        setError(t.loadError)
+        setError('loadError')
       })
       .finally(() => {
         if (!abort.signal.aborted) setLoading(false)
@@ -169,10 +170,10 @@ function Gallery({
       const fresh = await reader.get(missionId, item.mediaId, abort.signal)
       if (!abort.signal.aborted) {
         if (fresh.previewUrl) setSelected(fresh)
-        else setError(t.previewPending)
+        else setError('previewPending')
       }
     } catch {
-      if (!abort.signal.aborted) setError(t.previewError)
+      if (!abort.signal.aborted) setError('previewError')
     } finally {
       if (!abort.signal.aborted) setOpening(false)
     }
@@ -225,7 +226,7 @@ function Gallery({
             className="mission-media__state mission-media__state--error"
             role="alert"
           >
-            <span>{error}</span>
+            <span>{error ? t[error] : null}</span>
             <button
               type="button"
               className="odm-btn"
@@ -273,7 +274,7 @@ function Gallery({
                   >
                     {!item.previewUrl ? (
                       <span className="mission-media__video-placeholder">
-                        {t.originalNotHandedOver}
+                        {t.previewPreparing}
                       </span>
                     ) : item.mediaType === 'IMAGE' ? (
                       <img
@@ -303,6 +304,8 @@ function Gallery({
                   </button>
                   <div className="mission-media__card-body">
                     <h4 title={item.fileName}>{item.fileName}</h4>
+                    <MediaInspectionAction missionId={missionId} mediaId={item.mediaId}
+                      mediaType={item.mediaType} fileName={item.fileName} />
                     {approveMedia &&
                     (!item.status ||
                       item.status === 'PENDING_MANAGER_APPROVAL') ? (
@@ -432,7 +435,7 @@ function Gallery({
                   <Icon name="x" width={18} height={18} aria-hidden="true" />
                 </button>
               </header>
-              {error ? <p role="alert">{error}</p> : null}
+              {error ? <p role="alert">{error ? t[error] : null}</p> : null}
               <div className="mission-media__dialog-stage">
                 {selected.mediaType === 'IMAGE' ? (
                   <img src={selected.previewUrl} alt={selected.fileName} />
@@ -443,7 +446,7 @@ function Gallery({
                     src={selected.previewUrl}
                     poster={selected.thumbnailUrl}
                     fileName={selected.fileName}
-                    fallbackUrl={selected.downloadUrl}
+                    fallbackUrl={null}
                   />
                 )}
               </div>

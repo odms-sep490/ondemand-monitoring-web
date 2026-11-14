@@ -1,3 +1,4 @@
+import { MediaInspectionAction } from '../media/components/MediaInspectionAction'
 import { VideoThumbnail } from '../../shared/components/media/VideoThumbnail'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
@@ -1367,7 +1368,11 @@ function ChecklistEditor({
               )
               return (
                 <article className="delivery-asset" key={evidenceId}>
-                  <MediaPreview asset={toDeliveryAsset(asset)} />
+                  <>
+                    <MediaPreview asset={toDeliveryAsset(asset)} />
+                    {asset.missionId && <MediaInspectionAction missionId={asset.missionId} mediaId={asset.mediaAssetId}
+                      mediaType={asset.type} fileName={asset.fileName} />}
+                  </>
                   <div className="delivery-asset__meta">
                     <strong title={asset.fileName}>{asset.fileName}</strong>
                     <small>
@@ -1453,7 +1458,11 @@ function ChecklistEditor({
                         )
                       }
                     />
+                    <>
                     <MediaPreview asset={toDeliveryAsset(asset)} />
+                    {asset.missionId && <MediaInspectionAction missionId={asset.missionId} mediaId={asset.mediaAssetId}
+                      mediaType={asset.type} fileName={asset.fileName} />}
+                  </>
                     <span className="delivery-asset__meta">
                       <strong title={asset.fileName}>{asset.fileName}</strong>
                       <small>
@@ -1668,7 +1677,7 @@ function MediaPreview({ asset }: { asset: DeliveryAsset }) {
     <VideoThumbnail
       src={asset.previewUrl}
       poster={asset.thumbnailUrl}
-      fallbackUrl={asset.url}
+      fallbackUrl={null}
       fileName={asset.fileName}
       fileSize={asset.size}
       original={asset.previewStatus !== 'READY'}
@@ -1676,7 +1685,7 @@ function MediaPreview({ asset }: { asset: DeliveryAsset }) {
   ) : (
     <DeliveryImagePreview
       src={asset.thumbnailUrl ?? asset.previewUrl}
-      fallbackUrl={asset.url}
+      fallbackUrl={null}
       fileSize={asset.size}
       original={asset.previewStatus !== 'READY'}
       previewSrc={asset.previewUrl}

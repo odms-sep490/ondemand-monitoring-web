@@ -760,31 +760,11 @@
   background: var(--mgr-card);
 }
 
+/* Selection owns its responsive gallery; avoid shrinking it back into compact table rows. */
 .postflight-acceptance .customer-evidence-selection {
-  padding: 12px;
-  border-radius: 10px;
-}
-
-.postflight-acceptance .customer-evidence-selection__list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 310px), 1fr));
-  gap: 8px;
-}
-
-.postflight-acceptance .customer-evidence-selection__row {
-  min-width: 0;
-  padding: 8px;
-}
-
-.postflight-acceptance .customer-evidence-selection__file {
-  min-width: 0;
-}
-
-.postflight-acceptance .customer-evidence-selection__file > label {
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
 }
 
 .postflight-acceptance .postflight-review-actions {

@@ -1,3 +1,4 @@
+import * as http from '../../../shared/api/httpClient'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   fireEvent,
@@ -88,7 +89,7 @@ describe('Checklist evidence', () => {
   it('shows per-item preview, source, status and backend readiness', () => {
     render(<ChecklistEvidencePanel {...props} />)
     expect(screen.getByAltText('capture.jpg')).toBeInTheDocument()
-    expect(screen.getByText(/Camera drone/)).toBeInTheDocument()
+    expect(screen.getByText(/Máy ảnh trên drone/)).toBeInTheDocument()
     expect(screen.getByText(/Bằng chứng hợp lệ: 1 \/ 1/)).toBeInTheDocument()
     expect(screen.getByText('Chờ nghiệm thu duyệt')).toBeInTheDocument()
     expect(screen.queryByText(/Duyệt media bắt buộc/)).toBeNull()
@@ -101,8 +102,8 @@ describe('Checklist evidence', () => {
     render(
       <ChecklistEvidencePanel {...props} item={{ ...item, evidence: [] }} />,
     )
-    fireEvent.click(screen.getByText('Thêm bằng chứng từ media Mission'))
-    fireEvent.click(await screen.findByText('Gắn media'))
+    fireEvent.click(screen.getByText('Thêm bằng chứng từ ảnh/video Nhiệm vụ'))
+    fireEvent.click(await screen.findByText('Gắn ảnh/video'))
     await waitFor(() =>
       expect(attach).toHaveBeenCalledWith('m', 'e', 'backend-media', 4),
     )
@@ -128,25 +129,25 @@ describe('Checklist evidence', () => {
       },
     ])
     render(<ChecklistEvidencePanel {...props} />)
-    fireEvent.click(screen.getByText('Thêm bằng chứng từ media Mission'))
+    fireEvent.click(screen.getByText('Thêm bằng chứng từ ảnh/video Nhiệm vụ'))
     const dialog = within(await screen.findByRole('dialog'))
     expect(
-      await dialog.findByText(/Nguồn media không hợp lệ/),
+      await dialog.findByText(/Nguồn ảnh\/video không hợp lệ/),
     ).toBeInTheDocument()
     expect(
-      dialog.getByRole('button', { name: /Gắn media|Đã gắn/ }),
+      dialog.getByRole('button', { name: /Gắn ảnh\/video|Đã gắn/ }),
     ).toBeDisabled()
   })
   it('explains an empty Mission and links to the upload screen', async () => {
     vi.spyOn(checklistEvidenceApi, 'candidates').mockResolvedValue([])
     render(<ChecklistEvidencePanel {...props} />)
-    fireEvent.click(screen.getByText('Thêm bằng chứng từ media Mission'))
+    fireEvent.click(screen.getByText('Thêm bằng chứng từ ảnh/video Nhiệm vụ'))
     const dialog = within(await screen.findByRole('dialog'))
     expect(
-      await dialog.findByText(/chưa có media nào được upload/),
+      await dialog.findByText(/chưa có ảnh\/video nào được tải lên/),
     ).toBeInTheDocument()
     expect(
-      dialog.getByRole('link', { name: 'mở media nghiệm thu' }),
+      dialog.getByRole('link', { name: 'mở ảnh/video nghiệm thu' }),
     ).toHaveAttribute('href', expect.stringContaining('upload'))
   })
   it('shows backend eligible count, type, and remaining count; UNABLE_TO_VERIFY remains exempt', () => {
@@ -175,7 +176,7 @@ describe('Checklist evidence', () => {
       ),
     ).toBeInTheDocument()
     expect(
-      screen.getByText(/Loại media không phù hợp yêu cầu/),
+      screen.getByText(/Loại ảnh\/video không phù hợp yêu cầu/),
     ).toBeInTheDocument()
     expect(screen.getByText('Chưa đủ bằng chứng hợp lệ.')).toBeInTheDocument()
     const unableView = render(
@@ -225,16 +226,16 @@ describe('Checklist evidence', () => {
         item={{ ...item, evidence: [], requiredEvidenceType: 'VIDEO' }}
       />,
     )
-    fireEvent.click(screen.getByText('Thêm bằng chứng từ media Mission'))
+    fireEvent.click(screen.getByText('Thêm bằng chứng từ ảnh/video Nhiệm vụ'))
     expect(await screen.findByText('capture.mp4')).toBeInTheDocument()
     const wrongTypeRow = within(screen.getByRole('dialog'))
-      .getAllByRole('button', { name: 'Gắn media' })
+      .getAllByRole('button', { name: 'Gắn ảnh/video' })
       .find((button) =>
         button.closest('li')?.textContent?.includes('capture.jpg'),
       )
     expect(wrongTypeRow).toBeDisabled()
     expect(wrongTypeRow?.closest('li')).toHaveTextContent(
-      'Loại media không phù hợp yêu cầu',
+      'Loại ảnh/video không phù hợp yêu cầu',
     )
   })
   it('retains rejected evidence with blocker and supports video', async () => {
@@ -258,7 +259,7 @@ describe('Checklist evidence', () => {
       />,
     )
     expect(screen.getByText(/Bằng chứng hợp lệ: 0 \/ 1/)).toBeInTheDocument()
-    expect(screen.getByText('Media đã bị từ chối.')).toBeInTheDocument()
+    expect(screen.getByText('Ảnh/video đã bị từ chối.')).toBeInTheDocument()
     expect(document.querySelector('video')).toBeNull()
     fireEvent.click(screen.getByRole('button', { name: `Xem video ${link.fileName}` }))
     expect(await screen.findByLabelText(link.fileName, { selector: 'video' })).toHaveAttribute('src', link.previewUrl)
@@ -283,7 +284,7 @@ describe('Checklist evidence', () => {
     )
     expect(screen.queryByText('Cập nhật mục')).toBeNull()
     fireEvent.click(screen.getByRole('button', { name: /Historical fence/ }))
-    expect(screen.getByText('Thêm bằng chứng từ media Mission')).toBeEnabled()
+    expect(screen.getByText('Thêm bằng chứng từ ảnh/video Nhiệm vụ')).toBeEnabled()
   })
   it.each(['PENDING_MANAGER_APPROVAL', 'APPROVED'] as const)(
     'locks evidence controls for result %s',
@@ -305,7 +306,7 @@ describe('Checklist evidence', () => {
         />,
       )
       expect(screen.queryByText('Gỡ bằng chứng')).toBeNull()
-      expect(screen.queryByText('Thêm bằng chứng từ media Mission')).toBeNull()
+      expect(screen.queryByText('Thêm bằng chứng từ ảnh/video Nhiệm vụ')).toBeNull()
     },
   )
   it('does not expose per-media manager approval', () => {
@@ -321,7 +322,7 @@ describe('Checklist evidence', () => {
 describe('Evidence picker Mission-scoped loading', () => {
   const emptyItem = { ...item, evidence: [] }
   function open() {
-    fireEvent.click(screen.getByText('Thêm bằng chứng từ media Mission'))
+    fireEvent.click(screen.getByText('Thêm bằng chứng từ ảnh/video Nhiệm vụ'))
   }
   it.each(['DRONE_CAMERA', 'SATELLITE_SNAPSHOT'])(
     'shows pending approval %s media with a thumbnail, regardless of final approval readiness',
@@ -335,7 +336,7 @@ describe('Evidence picker Mission-scoped loading', () => {
         await screen.findByAltText('Xem trước capture.jpg'),
       ).toHaveAttribute('src', candidate.previewUrl)
       expect(
-        within(screen.getByRole('dialog')).getByText('Gắn media'),
+        within(screen.getByRole('dialog')).getByText('Gắn ảnh/video'),
       ).toBeEnabled()
       expect(screen.getByText('Chờ nghiệm thu duyệt')).toBeInTheDocument()
       expect(screen.queryByText('Trang sau')).not.toBeInTheDocument()
@@ -349,7 +350,7 @@ describe('Evidence picker Mission-scoped loading', () => {
     open()
     expect(await screen.findByText('Đã gắn')).toBeDisabled()
     expect(
-      screen.getByText('Tất cả media phù hợp đã được gắn vào checklist này.'),
+      screen.getByText('Tất cả ảnh/video phù hợp đã được gắn vào danh sách kiểm tra này.'),
     ).toBeInTheDocument()
     expect(
       screen.queryByText('Không có media nào để gắn.'),
@@ -361,7 +362,7 @@ describe('Evidence picker Mission-scoped loading', () => {
     ])
     render(<ChecklistEvidencePanel {...props} item={emptyItem} />)
     open()
-    expect(await screen.findByText('Gắn media')).toBeEnabled()
+    expect(await screen.findByText('Gắn ảnh/video')).toBeEnabled()
   })
   it('opens loading immediately without showing an empty result', async () => {
     let resolve!: (value: EvidenceCandidate[]) => void
@@ -373,14 +374,14 @@ describe('Evidence picker Mission-scoped loading', () => {
     render(<ChecklistEvidencePanel {...props} item={emptyItem} />)
     open()
     expect(screen.getByRole('dialog')).toBeInTheDocument()
-    expect(screen.getByRole('status')).toHaveTextContent('Đang tải media...')
+    expect(screen.getByRole('status')).toHaveTextContent('Đang tải ảnh/video...')
     expect(
       screen.queryByText(
         'Mission này chưa có media phù hợp để làm bằng chứng.',
       ),
     ).not.toBeInTheDocument()
     await act(async () => resolve([candidate]))
-    expect(screen.getByText('Gắn media')).toBeEnabled()
+    expect(screen.getByText('Gắn ảnh/video')).toBeEnabled()
   })
   it('shows localized API failure inside the modal, retries, and never presents it as empty', async () => {
     const fetch = vi
@@ -390,11 +391,11 @@ describe('Evidence picker Mission-scoped loading', () => {
     render(<ChecklistEvidencePanel {...props} item={emptyItem} />)
     open()
     expect(
-      await screen.findByText('Không thể tải media của Mission.'),
+      await screen.findByText('Không thể tải ảnh/video của Nhiệm vụ.'),
     ).toBeInTheDocument()
     const dialog = within(screen.getByRole('dialog'))
     expect(dialog.getByRole('alert')).toHaveTextContent(
-      'Không thể tải media của Mission.',
+      'Không thể tải ảnh/video của Nhiệm vụ.',
     )
     expect(screen.queryByText('INTERNAL_SERVER_ERROR')).not.toBeInTheDocument()
     expect(
@@ -403,7 +404,7 @@ describe('Evidence picker Mission-scoped loading', () => {
       ),
     ).not.toBeInTheDocument()
     fireEvent.click(dialog.getByText('Thử lại'))
-    await screen.findByText('Gắn media')
+    await screen.findByText('Gắn ảnh/video')
     expect(fetch).toHaveBeenCalledTimes(2)
   })
   it('rejects malformed response contracts instead of producing a false empty', async () => {
@@ -413,19 +414,19 @@ describe('Evidence picker Mission-scoped loading', () => {
     render(<ChecklistEvidencePanel {...props} item={emptyItem} />)
     open()
     expect(
-      await screen.findByText('Không thể tải media của Mission.'),
+      await screen.findByText('Không thể tải ảnh/video của Nhiệm vụ.'),
     ).toBeInTheDocument()
   })
   it('distinguishes no eligible media from filename search returning no matches', async () => {
     vi.spyOn(checklistEvidenceApi, 'candidates').mockResolvedValue([candidate])
     render(<ChecklistEvidencePanel {...props} item={emptyItem} />)
     open()
-    await screen.findByText('Gắn media')
+    await screen.findByText('Gắn ảnh/video')
     fireEvent.change(screen.getByRole('searchbox'), {
       target: { value: 'not-present' },
     })
     expect(
-      screen.getByText('Không tìm thấy media phù hợp.'),
+      screen.getByText('Không tìm thấy ảnh/video phù hợp.'),
     ).toBeInTheDocument()
     expect(
       screen.queryByText(
@@ -445,9 +446,9 @@ describe('Evidence picker Mission-scoped loading', () => {
     ])
     render(<ChecklistEvidencePanel {...props} item={emptyItem} />)
     open()
-    expect(await screen.findByText('Gắn media')).toBeEnabled()
+    expect(await screen.findByText('Gắn ảnh/video')).toBeEnabled()
     expect(
-      screen.getByText('Media chưa xác thực thành công.'),
+      screen.getByText('Ảnh/video chưa xác thực thành công.'),
     ).toBeInTheDocument()
   })
   it('excludes rejected media only when backend denies attachment', async () => {
@@ -462,8 +463,8 @@ describe('Evidence picker Mission-scoped loading', () => {
     render(<ChecklistEvidencePanel {...props} item={emptyItem} />)
     open()
     const dialog = within(await screen.findByRole('dialog'))
-    expect(await dialog.findByText('Media đã bị từ chối.')).toBeInTheDocument()
-    expect(dialog.getByRole('button', { name: 'Gắn media' })).toBeDisabled()
+    expect(await dialog.findByText('Ảnh/video đã bị từ chối.')).toBeInTheDocument()
+    expect(dialog.getByRole('button', { name: 'Gắn ảnh/video' })).toBeDisabled()
   })
   it('resets on Mission changes, aborts M1 and cannot display a late M1 response in M2', async () => {
     let resolve!: (value: EvidenceCandidate[]) => void
@@ -526,4 +527,33 @@ describe('Evidence picker Mission-scoped loading', () => {
     fireEvent.click(await screen.findByRole('button', { name: 'Xem video capture.jpg' }))
     expect(await screen.findByLabelText('capture.jpg', { selector: 'video' })).toHaveAttribute('src', candidate.previewUrl)
   })
+})
+
+it.each([false, true])('prefers the local Staff photo before validation in compact=%s', async compact => {
+  const api = vi.spyOn(http, 'apiRequest')
+  render(<ChecklistEvidencePanel missionId="m" item={{ ...item, evidence: [{ ...link,
+    validatedAt: null, mediaStatus: 'VALIDATING', localPreviewUrl: '/fc/photo.jpg',
+    previewUrl: 'https://remote.test/preview.jpg', thumbnailUrl: 'https://remote.test/thumb.jpg',
+  }] }} canAttach={false} canDetach={false} refresh={vi.fn()} compact={compact} />)
+  expect(screen.getByRole('img', { name: 'capture.jpg' })).toHaveAttribute('src', '/fc/photo.jpg')
+  fireEvent.click(screen.getByRole('button', { name: 'Xem' }))
+  await waitFor(() => expect(document.querySelector('.ant-image-preview-img')).toHaveAttribute('src', '/fc/photo.jpg'))
+  expect(screen.queryByRole('link', { name: 'Xem' })).toBeNull()
+  expect(screen.getAllByRole('button', { name: 'Xem' })).toHaveLength(1)
+  expect(api).not.toHaveBeenCalled()
+})
+
+it('uses the FC poster and plays local video while backend evidence is still validating', async () => {
+  const api = vi.spyOn(http, 'apiRequest')
+  render(<ChecklistEvidencePanel missionId="m" item={{ ...item, requiredEvidenceType: 'VIDEO', evidence: [{ ...link,
+    mediaType: 'VIDEO', fileName: 'drone.mp4', validatedAt: null, mediaStatus: 'VALIDATING',
+    localPreviewUrl: '/fc/video.mp4', localThumbnailUrl: '/fc/poster.jpg',
+    previewUrl: 'https://remote.test/preview.mp4', thumbnailUrl: 'https://remote.test/poster.jpg',
+  }] }} canAttach={false} canDetach={false} refresh={vi.fn()} compact />)
+  expect(screen.getByRole('img', { name: 'drone.mp4' })).toHaveAttribute('src', '/fc/poster.jpg')
+  fireEvent.click(screen.getByRole('button', { name: 'Xem' }))
+  await waitFor(() => expect(document.querySelector('video')).toHaveAttribute('src', '/fc/video.mp4'))
+  expect(screen.queryByRole('link', { name: 'Xem' })).toBeNull()
+  expect(screen.getAllByRole('button', { name: 'Xem' })).toHaveLength(1)
+  expect(api).not.toHaveBeenCalled()
 })

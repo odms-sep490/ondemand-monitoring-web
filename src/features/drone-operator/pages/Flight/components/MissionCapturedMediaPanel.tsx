@@ -1,3 +1,6 @@
+import { staffMediaSources } from '../../../../media/upload/staffMediaSources'
+import { MediaInspectionAction } from '../../../../media/components/MediaInspectionAction'
+import { LocalMediaDiscardAction } from '../../../../media/components/LocalMediaDiscardAction'
 import { MediaRemovalAction } from '../../../../media/components/MediaRemovalAction'
 import { useApiQuery } from '../../../../../shared/hooks/useApiQuery'
 import { missionApi } from '../../../../mission/api/missionApi'
@@ -50,7 +53,7 @@ function MissionCapturedMediaContent({ mission }: { mission: Mission }) {
   const [items, setItems] = useState<LocalMedia[]>([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState(false)
   const [reloadKey, setReloadKey] = useState(0)
   const [requestedMediaType, setRequestedMediaType] = useState<
     'IMAGE' | 'VIDEO' | null
@@ -81,12 +84,10 @@ function MissionCapturedMediaContent({ mission }: { mission: Mission }) {
                 new Date(a.capturedAt).getTime(),
             ),
         )
-        setError(null)
-      } catch (cause) {
+        setError(false)
+      } catch {
         if (requestGeneration.current !== generation) return
-        setError(
-          cause instanceof Error ? cause.message : t.mediaPanel.loadFailed,
-        )
+        setError(true)
       } finally {
         requestPending = false
         if (requestGeneration.current === generation) {
@@ -97,7 +98,7 @@ function MissionCapturedMediaContent({ mission }: { mission: Mission }) {
     }
 
     setLoading(true)
-    setError(null)
+    setError(false)
     void refresh()
     const timer = window.setInterval(() => void refresh(), 5000)
 
@@ -204,7 +205,6 @@ function MissionCapturedMediaContent({ mission }: { mission: Mission }) {
       ) : error && items.length === 0 ? (
         <div className="captured-media__empty" role="alert">
           <strong>{t.mediaPanel.loadFailed}</strong>
-          <span>{error}</span>
         </div>
       ) : items.length === 0 ? (
         <div className="captured-media__empty">
@@ -250,7 +250,7 @@ function MissionCapturedMediaContent({ mission }: { mission: Mission }) {
 
       {error && items.length > 0 && (
         <p className="captured-media__stale-note" role="status">
-          {error}
+          {error ? t.mediaPanel.loadFailed : null}
         </p>
       )}
     </aside>
@@ -276,15 +276,9 @@ function CapturedMediaCard({
 }) {
   const [failedSources, setFailedSources] = useState<string[]>([])
   const isImage = item.mediaType === 'IMAGE'
-  const hasLocal = item.localAvailable !== false && item.uploadChannel !== 'STAFF_FILE'
-  const localPreview = hasLocal
-    ? item.localPreviewUrl ?? operatorMediaApi.previewUrl(item.localMediaId) : undefined
-  const imageSources = [localPreview, item.thumbnailUrl, item.previewUrl]
-  const previewUrl = isImage
-    ? imageSources.find((url) => url && !failedSources.includes(url))
-    : localPreview ?? item.previewUrl ?? undefined
-  const poster = !isImage && hasLocal
-    ? item.localThumbnailUrl ?? operatorMediaApi.thumbnailUrl(item.localMediaId) : item.thumbnailUrl
+  const sources = staffMediaSources(item)
+  const previewUrl = (isImage ? sources.images : sources.videos).find((url) => !failedSources.includes(url))
+  const poster = sources.poster
 
   const isVietnamese = locale.startsWith('vi')
   const uploadLabel = {
@@ -329,24 +323,26 @@ function CapturedMediaCard({
         )}
       </div>
       <div className="captured-media__details">
-        <span className="captured-media__type">
-          {isImage ? imageLabel : videoLabel}
-        </span>
-        {item.uploadChannel === 'STAFF_FILE' && (
-          <span className="captured-media__source">
-            {isVietnamese ? 'Thủ công' : 'Manual'}
-          </span>
-        )}
+        <div className="captured-media__badges">
+          <span className="captured-media__type">{isImage ? imageLabel : videoLabel}</span>
+          {item.uploadChannel === 'STAFF_FILE' && (
+            <span className="captured-media__source">{isVietnamese ? 'Thủ công' : 'Manual'}</span>
+          )}
+        </div>
         <strong className="captured-media__filename" title={item.fileName}>
           {item.fileName}
         </strong>
-        <span className="captured-media__meta">
-          {formatCapturedAt(item.capturedAt, locale)} ·{' '}
-          {formatFileSize(item.fileSize)}
-        </span>
-        {uploadLabel && (
-          <span className="captured-media__state">{uploadLabel}</span>
-        )}
+        <div className="captured-media__meta">
+          <time dateTime={item.capturedAt}>{formatCapturedAt(item.capturedAt, locale)}</time>
+          <span>{formatFileSize(item.fileSize)}</span>
+        </div>
+        {uploadLabel && <span className="captured-media__state" data-status={item.status}>{uploadLabel}</span>}
+      </div>
+      <div className="captured-media__actions">
+        <MediaInspectionAction missionId={item.missionId} mediaId={item.backendMediaId}
+          mediaType={item.mediaType} fileName={item.fileName} localUrl={sources.localPreview}
+          compact appearance="cockpit" className="captured-media__inspect" />
+        <LocalMediaDiscardAction key={`${item.missionId}:${item.localMediaId}`} item={item} canDiscard={canRemove} onDiscarded={onRemoved} />
         <MediaRemovalAction item={item} canRemove={canRemove} onRemoved={onRemoved} theme="dark" />
       </div>
     </article>

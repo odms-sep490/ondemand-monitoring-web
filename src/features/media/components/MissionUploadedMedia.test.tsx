@@ -52,7 +52,7 @@ const page = (items: UploadedMissionMedia[]) => ({
 })
 
 describe('uploaded mission media gallery', () => {
-  it('keeps AVAILABLE metadata visible without exposing an unreleased original', async () => {
+  it('keeps metadata visible and offers explicit internal inspection when preview is unavailable', async () => {
     vi.mocked(operatorMissionMediaApi.list).mockResolvedValue(
       page([
         {
@@ -66,7 +66,8 @@ describe('uploaded mission media gallery', () => {
     )
     render(<MissionUploadedMedia missionId="mission" />)
     await screen.findByText('capture.jpg')
-    expect(screen.getByText('Bản gốc chưa được bàn giao')).toBeInTheDocument()
+    expect(screen.getAllByText('Đang tạo bản xem').length).toBeGreaterThan(0)
+    expect(screen.getByRole('button', { name: 'Kiểm tra bản gốc' })).toBeEnabled()
     const preview = screen.getByRole('button', { name: 'Xem capture.jpg' })
     expect(preview).toBeDisabled()
     fireEvent.click(preview)
@@ -107,12 +108,12 @@ describe('uploaded mission media gallery', () => {
     render(
       <MissionUploadedMedia missionId="mission" approveMedia={approveMedia} />,
     )
-    fireEvent.click(await screen.findByText('Duyệt media cho khách hàng'))
+    fireEvent.click(await screen.findByText('Duyệt ảnh/video cho khách hàng'))
     await waitFor(() =>
       expect(approveMedia).toHaveBeenCalledWith(image.mediaId),
     )
     expect(
-      await screen.findByText('Đã duyệt media trong phiên này'),
+      await screen.findByText('Đã duyệt ảnh/video trong phiên này'),
     ).toBeDisabled()
   })
   it('distinguishes satellite media and draft result without claiming camera capture or manager submission', async () => {
@@ -121,12 +122,12 @@ describe('uploaded mission media gallery', () => {
     )
     render(<MissionUploadedMedia missionId="mission" reviewStatus="DRAFT" />)
     expect(
-      await screen.findByText('Ảnh vệ tinh · Browser snapshot'),
+      await screen.findByText('Ảnh vệ tinh · Ảnh chụp từ trình duyệt'),
     ).toBeTruthy()
     expect(
-      screen.getAllByText('Kết quả nháp — chưa gửi manager').length,
+      screen.getAllByText('Kết quả nháp — chưa gửi quản lý').length,
     ).toBeGreaterThan(0)
-    expect(screen.queryByText('Camera drone')).toBeNull()
+    expect(screen.queryByText('Máy ảnh trên drone')).toBeNull()
   })
   it('localizes gallery labels, review status and capture time in English', async () => {
     setLanguage('en')

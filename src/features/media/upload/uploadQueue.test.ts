@@ -80,3 +80,12 @@ describe('mission upload queue', () => {
     expect(resolveUploadState('UPLOAD_FAILED', 'AVAILABLE')).toBe('AVAILABLE')
   })
 })
+
+it('preserves the backend capture-age code as a failed job without automatic retry', async () => {
+  const queue = new UploadQueue<string>(crypto.randomUUID())
+  const perform = vi.fn().mockRejectedValue(Object.assign(new Error('capture exceeds planned duration'), { code: 'MEDIA_CAPTURE_TOO_OLD' }))
+  queue.bind(perform, () => true)
+  await queue.enqueue('photo', 'photo.jpg')
+  await waitFor(() => expect(queue.getSnapshot()[0]).toMatchObject({ stage: 'FAILED', errorCode: 'MEDIA_CAPTURE_TOO_OLD' }))
+  expect(perform).toHaveBeenCalledTimes(1)
+})

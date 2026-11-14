@@ -17,7 +17,7 @@ export interface UploadedMissionMedia {
   fileSize: number
   capturedAt: string | null
   availableAt: string | null
-  /** Original URL is withheld until payment and delivery are complete. */
+  /** Internal original URL; Customer download permissions are enforced by the Customer API. */
   downloadUrl: string | null
   thumbnailUrl?: string | null
   previewUrl?: string | null

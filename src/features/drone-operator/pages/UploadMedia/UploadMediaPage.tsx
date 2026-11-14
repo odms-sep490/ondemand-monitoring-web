@@ -1,3 +1,5 @@
+import { withStaffLocalEvidence } from '../../../media/upload/staffEvidencePresentation'
+import { mediaFeedback } from '../../../media/i18n/mediaFeedback'
 import { StaffMediaImportPanel } from './components/StaffMediaImportPanel'
 import { useEffect, useRef, useState } from 'react'
 
@@ -61,7 +63,7 @@ function UploadMediaContent({
   missionId?: string
   mode: 'checklist' | 'media'
 }) {
-  const { t } = useI18n(uploadMediaPageMessages)
+  const { t, lang } = useI18n(uploadMediaPageMessages)
   const [fallbackMissionId] = useState(() => getActiveMissionId())
   const missionId = routeMissionId ?? fallbackMissionId
   const activeMission = useActiveMission(missionId ?? undefined)
@@ -332,8 +334,8 @@ function UploadMediaContent({
   const checklist = missionId ? (
     <MonitoringChecklistSection
       missionId={missionId}
-      data={monitoring.data?.checklist}
-      loading={monitoring.loading && !monitoring.data}
+      data={loading ? undefined : withStaffLocalEvidence(monitoring.data?.checklist, items, missionId)}
+      loading={loading || (monitoring.loading && !monitoring.data)}
       error={monitoring.error}
       resultKnown={actions.known}
       resultStatus={monitoring.data?.result?.approvalStatus}
@@ -418,10 +420,10 @@ function UploadMediaContent({
         )}
         {error && (
           <p role="alert" className="upload-media-notice is-danger">
-            {error}
+            {mediaFeedback(error, lang)}
           </p>
         )}
-        {uploadInfo && <p role="status">{uploadInfo}</p>}
+        {uploadInfo && <p role="status">{mediaFeedback(uploadInfo, lang, 'info')}</p>}
         {mode === 'checklist' ? (
           checklist
         ) : (
@@ -508,7 +510,7 @@ function UploadMediaContent({
                   setPreview={setPreview}
                   onOpenPreview={(selectedItem) => {
                     setSelectedMediaId(selectedItem.localMediaId)
-                    setPreview(selectedItem)
+                    setPreview({ ...selectedItem, previewUrl: remote, thumbnailUrl: thumbnail })
                   }}
                   isSelected={selectedMediaId === item.localMediaId}
                   status={effectiveStatus(item)}
