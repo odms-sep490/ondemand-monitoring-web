@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import {
   resetHttpTransport,
@@ -149,4 +149,9 @@ describe('ordersApi (mock mode)', () => {
     await expect(ordersApi.getOrderForMission('completed-order', undefined, 'REWORK'))
       .resolves.toMatchObject({ id: 'completed-order', code: 'ORD-DONE' })
   })
+})
+
+it.each(['IN_PROGRESS','COMPLETED'])('prefills Customer rework planning while Order is %s',async status=>{
+ const get=vi.spyOn(ordersApi,'getOrder').mockResolvedValue({id:'order',status,customer:{fullName:'Customer'},checklistItems:[]} as never)
+ try {expect((await ordersApi.getOrderForMission('order',undefined,'REWORK')).id).toBe('order')}finally{get.mockRestore()}
 })

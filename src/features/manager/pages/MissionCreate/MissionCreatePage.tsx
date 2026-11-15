@@ -1,3 +1,4 @@
+import type { InternalCorrectionCreation } from '../../../mission/inspection/inspectionCorrectionApi'
 import { useState } from 'react'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { ordersApi } from '../../api/ordersApi'
@@ -25,12 +26,14 @@ export function MissionCreatePage({
   now: nowProp,
   onCreated,
   reworkCaseId,
+  internalCorrection,
 }: {
   orderId: string
   initialBrief?: OrderMissionBrief
   now?: Date
   onCreated?: (missionId: string) => void
   reworkCaseId?: string
+  internalCorrection?: InternalCorrectionCreation
 }) {
   const { t } = useI18n(missionCreatePageMessages)
   const [now] = useState(() => nowProp ?? new Date())
@@ -69,6 +72,7 @@ export function MissionCreatePage({
       key={orderId}
       orderId={orderId}
       brief={briefQuery.data.brief}
+      internalCorrection={internalCorrection}
       reworkCase={briefQuery.data.reworkCase ?? undefined}
       now={now}
       onCreated={onCreated}

@@ -161,7 +161,7 @@ function toOrderDetail(order: OrderCreateResponse): OrderDetail {
   }
 }
 
-function toOrderMissionBrief(order: OrderDetail): OrderMissionBrief {
+export function toOrderMissionBrief(order: OrderDetail): OrderMissionBrief {
   return {
     executionPlanRevision: order.executionPlanRevision,
     checklistItems: order.checklistItems,
@@ -302,7 +302,7 @@ export const ordersApi = {
   ): Promise<OrderMissionBrief> {
     return this.getOrder(id, signal)
       .then((order) => {
-        if (purpose === 'REWORK' ? order.status !== 'COMPLETED' : order.status !== 'APPROVED' && order.status !== 'IN_PROGRESS') {
+        if (purpose === 'REWORK' ? !['IN_PROGRESS', 'COMPLETED'].includes(order.status) : order.status !== 'APPROVED' && order.status !== 'IN_PROGRESS') {
           throw new ApiError('Đơn không còn ở trạng thái đã duyệt.', {
             status: 409,
             code: 'MISSION_ORDER_STATUS_INVALID',

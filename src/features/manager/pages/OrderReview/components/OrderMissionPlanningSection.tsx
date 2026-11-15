@@ -1,3 +1,8 @@
+import {
+  inspectionCorrectionApi,
+  type InternalCorrectionPlanningContext,
+} from '../../../../mission/inspection/inspectionCorrectionApi'
+import { scopedMissionPlanningWorkspace } from '../../../lib/scopedMissionPlanningWorkspace'
 import { CancelledOrderContractPanel } from '../../../../contract/CancelledOrderContractPanel'
 import { useEffect, useRef, useState } from 'react'
 import { ShowMoreList } from '../../../../../shared/components/antd'
@@ -5,7 +10,7 @@ import type { OrderDetail } from '../../../types/orders'
 import type { MissionResponse } from '../../../types/missions'
 import type { MissionStatus } from '../../../../../shared/types/domain'
 import { useApiQuery } from '../../../../../shared/hooks/useApiQuery'
-import { ordersApi } from '../../../api/ordersApi'
+import { ordersApi, toOrderMissionBrief } from '../../../api/ordersApi'
 import { planningApi } from '../../../api/planningApi'
 import { planningError, finalizeError } from '../../../lib/planningErrors'
 import { MasterChecklistSidebar } from '../../../components/common/MasterChecklistSidebar'
@@ -47,6 +52,7 @@ export type PlanningWorkflowInfo = {
 
 export function OrderMissionPlanningSection({
   reworkCaseId,
+  inspectionContext,
   orderId,
   initialOrder,
   onWorkflowInfo,
@@ -55,6 +61,7 @@ export function OrderMissionPlanningSection({
   onBackToPlanning,
 }: {
   reworkCaseId?: string
+  inspectionContext?: InternalCorrectionPlanningContext
   orderId: string
   initialOrder?: OrderDetail
   onAssignResources?: (missionId: string) => void
@@ -65,8 +72,9 @@ export function OrderMissionPlanningSection({
 }) {
   return (
     <OrderPlanningWorkspace
-      key={`${orderId}:${reworkCaseId ?? 'original'}`}
+      key={`${orderId}:${reworkCaseId ?? inspectionContext?.correctionId ?? 'original'}`}
       reworkCaseId={reworkCaseId}
+      inspectionContext={inspectionContext}
       orderId={orderId}
       initialOrder={initialOrder}
       onWorkflowInfo={onWorkflowInfo}
@@ -79,6 +87,7 @@ export function OrderMissionPlanningSection({
 
 function OrderPlanningWorkspace({
   reworkCaseId,
+  inspectionContext,
   orderId,
   initialOrder,
   onWorkflowInfo,
@@ -87,6 +96,7 @@ function OrderPlanningWorkspace({
   onBackToPlanning,
 }: {
   reworkCaseId?: string
+  inspectionContext?: InternalCorrectionPlanningContext
   orderId: string
   initialOrder?: OrderDetail
   onWorkflowInfo?: (info: PlanningWorkflowInfo) => void
@@ -112,13 +122,61 @@ function OrderPlanningWorkspace({
           reworkCaseId
             ? deliveryApi.managerGetRevisionCase(orderId, signal)
             : Promise.resolve(null),
-          reworkCaseId
+          reworkCaseId || inspectionContext
             ? Promise.resolve(null)
             : financeApi
                 .getManagerMissionPaymentAllocations(orderId, signal)
                 .catch(() => null),
         ])
       if (!signal.aborted) initialOrderRef.current = undefined
+      if (inspectionContext) {
+        const correction = (
+          await inspectionCorrectionApi.list(
+            inspectionContext.sourceMissionId,
+            signal,
+          )
+        ).find((row) => row.id === inspectionContext.correctionId)
+        if (
+          !correction ||
+          correction.missionId !== inspectionContext.sourceMissionId ||
+          !missions.some(
+            (m) =>
+              m.id === inspectionContext.sourceMissionId &&
+              m.orderId === orderId,
+          ) ||
+          !correction.items.length ||
+          correction.items.some((item) => !item.orderChecklistItemId)
+        )
+          throw new Error(reworkT.internalUnavailable)
+        const related = missions.filter(
+          (m) =>
+            m.orderId === orderId &&
+            m.inspectionCorrectionId === correction.id &&
+            m.inspectionSourceMissionId === inspectionContext.sourceMissionId,
+        )
+        const selections = await Promise.all(
+          related.map((m) => planningApi.getAssignments(m.id, signal)),
+        )
+        const ids = new Set(
+          correction.items.map((item) => item.orderChecklistItemId!),
+        )
+        const workspace = scopedMissionPlanningWorkspace(
+          order,
+          plan,
+          related,
+          ids,
+          selections,
+        )
+        if (workspace.order.checklistItems.length !== ids.size)
+          throw new Error(reworkT.internalUnavailable)
+        return {
+          ...workspace,
+          invoice,
+          revisionCase: null,
+          paymentAllocation: null,
+          inspectionCorrection: correction,
+        }
+      }
       if (reworkCaseId) {
         if (
           !revisionCase ||
@@ -146,6 +204,7 @@ function OrderPlanningWorkspace({
           ),
           invoice,
           revisionCase,
+          inspectionCorrection: null,
           paymentAllocation,
         }
       }
@@ -155,10 +214,16 @@ function OrderPlanningWorkspace({
         order,
         invoice,
         revisionCase: null,
+        inspectionCorrection: null,
         paymentAllocation,
       }
     },
-    [orderId, reworkCaseId],
+    [
+      orderId,
+      reworkCaseId,
+      inspectionContext?.sourceMissionId,
+      inspectionContext?.correctionId,
+    ],
   )
 
   const [busy, setBusy] = useState(false)
@@ -235,13 +300,17 @@ function OrderPlanningWorkspace({
     !query.error &&
     Boolean(
       data &&
-      (reworkCaseId
-        ? ['IN_PROGRESS', 'COMPLETED'].includes(data.order.status) &&
-          data.revisionCase?.active &&
-          data.revisionCase.status === 'OPEN' &&
+      (inspectionContext
+        ? ['APPROVED', 'IN_PROGRESS'].includes(data.order.status) &&
+          data.inspectionCorrection?.status === 'OPEN' &&
           depositPaid
-        : depositPaid &&
-          ['APPROVED', 'IN_PROGRESS'].includes(data.order.status)),
+        : reworkCaseId
+          ? ['IN_PROGRESS', 'COMPLETED'].includes(data.order.status) &&
+            data.revisionCase?.active &&
+            data.revisionCase.status === 'OPEN' &&
+            depositPaid
+          : depositPaid &&
+            ['APPROVED', 'IN_PROGRESS'].includes(data.order.status)),
     )
 
   const canConfirmPlan = Boolean(
@@ -257,7 +326,10 @@ function OrderPlanningWorkspace({
   )
   const canCreateMission =
     canAddMission &&
-    (!reworkCaseId || Boolean(data?.revisionCase?.items.some(canCreateRework)))
+    (inspectionContext
+      ? !data?.missions.some((m) => m.status !== 'CANCELLED')
+      : !reworkCaseId ||
+        Boolean(data?.revisionCase?.items.some(canCreateRework)))
 
   async function confirmClose(title: string, close: () => void) {
     if (
@@ -285,11 +357,19 @@ function OrderPlanningWorkspace({
     setMessage('')
     setCoverageWarning('')
     try {
-      await planningApi.finalizeExecutionPlan(
-        orderId,
-        data.plan.revision,
-        reworkCaseId,
-      )
+      if (inspectionContext && data.inspectionCorrection) {
+        await inspectionCorrectionApi.finalize(
+          inspectionContext.sourceMissionId,
+          data.inspectionCorrection,
+          data.plan.revision,
+        )
+      } else {
+        await planningApi.finalizeExecutionPlan(
+          orderId,
+          data.plan.revision,
+          reworkCaseId,
+        )
+      }
       setSidebarCollapsed(true)
     } catch (error) {
       setCoverageWarning(finalizeError(error))
@@ -334,6 +414,22 @@ function OrderPlanningWorkspace({
   return (
     <section className="odm-planning mgr-plan" aria-label={ts.sectionAria}>
       {confirmation.dialog}
+      {inspectionContext && (
+        <Alert
+          type="info"
+          showIcon
+          message={reworkT.internalScope}
+          description={
+            <ul>
+              {data?.inspectionCorrection?.items.map((item) => (
+                <li key={item.executionId}>
+                  <strong>{item.content}</strong> — {item.reason}
+                </li>
+              ))}
+            </ul>
+          }
+        />
+      )}
       {data?.revisionCase && (
         <>
           <Alert
@@ -421,9 +517,19 @@ function OrderPlanningWorkspace({
             <PlanningFormModal
               kind="create"
               ariaLabel={
-                reworkCaseId ? reworkT.reworkTitle : ts.createDialogAria
+                inspectionContext
+                  ? reworkT.internalCreate
+                  : reworkCaseId
+                    ? reworkT.reworkTitle
+                    : ts.createDialogAria
               }
-              heading={reworkCaseId ? reworkT.reworkTitle : ts.createHeading}
+              heading={
+                inspectionContext
+                  ? reworkT.internalCreate
+                  : reworkCaseId
+                    ? reworkT.reworkTitle
+                    : ts.createHeading
+              }
               subtitle={ts.createSubtitle}
               closeAria={ts.closeCreateAria}
               closeTitle={ts.closeFormLabel}
@@ -434,6 +540,19 @@ function OrderPlanningWorkspace({
               <MissionCreatePage
                 orderId={orderId}
                 reworkCaseId={reworkCaseId}
+                initialBrief={
+                  inspectionContext
+                    ? toOrderMissionBrief(data.order)
+                    : undefined
+                }
+                internalCorrection={
+                  inspectionContext && data.inspectionCorrection
+                    ? {
+                        sourceMissionId: inspectionContext.sourceMissionId,
+                        correction: data.inspectionCorrection,
+                      }
+                    : undefined
+                }
                 onCreated={() => {
                   setCreating(false)
                   onBackToPlanning?.()
@@ -500,7 +619,7 @@ function OrderPlanningWorkspace({
                       key={mission.id}
                       mission={mission}
                       readOnly={Boolean(
-                        reworkCaseId &&
+                        (reworkCaseId || inspectionContext) &&
                         (!writable ||
                           ['COMPLETED', 'FAILED', 'CANCELLED'].includes(
                             mission.status,
@@ -572,7 +691,8 @@ function OrderPlanningWorkspace({
                             busy ||
                             !writable ||
                             Boolean(
-                              reworkCaseId && mission.status !== 'PLANNING',
+                              (reworkCaseId || inspectionContext) &&
+                              mission.status !== 'PLANNING',
                             )
                           }
                           onPlanChanged={query.reload}
@@ -587,6 +707,7 @@ function OrderPlanningWorkspace({
             </div>
           )}
           {!reworkCaseId &&
+          !inspectionContext &&
           activeTab === 'planning' &&
           data.invoice &&
           data.plan.planStatus === 'FINALIZED' ? (

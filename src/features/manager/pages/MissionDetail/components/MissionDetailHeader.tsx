@@ -36,7 +36,9 @@ export function MissionDetailHeader({
         <>
           <Button
             href={managerHref(
-              mission.purpose === 'REWORK' && mission.resultRevisionCaseId
+              mission.inspectionCorrectionId && mission.inspectionSourceMissionId
+                ? {screen:'inspectionPlanning',orderId:mission.orderId,sourceMissionId:mission.inspectionSourceMissionId,correctionId:mission.inspectionCorrectionId}
+                : mission.purpose === 'REWORK' && mission.resultRevisionCaseId
                 ? {
                     screen: 'missionCreate',
                     orderId: mission.orderId,

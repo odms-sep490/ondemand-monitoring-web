@@ -17,6 +17,7 @@ const MissionCreatePage = lazy(() =>
     default: m.MissionCreatePage,
   })),
 )
+const InternalCorrectionPlanningPage = lazy(() => import('./pages/MissionCreate/InternalCorrectionPlanningPage').then(m => ({default:m.InternalCorrectionPlanningPage})))
 const ReworkPlanningPage = lazy(() =>
   import('./pages/MissionCreate/ReworkPlanningPage').then((m) => ({
     default: m.ReworkPlanningPage,
@@ -86,6 +87,7 @@ const breadcrumbKey: Record<
   orderReview: 'orders',
   orderResults: 'orders',
   missionCreate: 'orders',
+  inspectionPlanning: 'missions',
   missionDispatch: 'missions',
   missionSetup: 'missionSetup',
   missionDetail: 'missionDetail',
@@ -150,6 +152,7 @@ function renderScreen(
     return <OrderReviewPage key={route.orderId} orderId={route.orderId} />
   if (route.screen === 'orderResults')
     return <OrderResultsPage key={route.orderId} orderId={route.orderId} />
+  if (route.screen === 'inspectionPlanning') return <InternalCorrectionPlanningPage key={`${route.sourceMissionId}:${route.correctionId}`} orderId={route.orderId} sourceMissionId={route.sourceMissionId} correctionId={route.correctionId}/>
   if (route.screen === 'missionCreate')
     return route.reworkCaseId ? (
       <ReworkPlanningPage

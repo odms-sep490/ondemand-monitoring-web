@@ -20,6 +20,8 @@ export function PlanningContextCard({
   setScopeLabel,
   submit,
   isRework = false,
+  title,
+  description,
 }: {
   onCreated: ((missionId: string) => void) | undefined
   planQuery: UseApiQueryState<ExecutionPlan>
@@ -29,6 +31,8 @@ export function PlanningContextCard({
   setScopeLabel: Dispatch<SetStateAction<string>>
   submit: SubmitState
   isRework?: boolean
+  title?: string
+  description?: string
 }) {
   const { t: planningT } = useI18n(planningPresentationMessages)
   const { t } = useI18n(missionCreatePageMessages)
@@ -48,7 +52,10 @@ export function PlanningContextCard({
         {!onCreated && (
           <a
             className="odm-plan-back"
-            href={managerHref({ screen: isRework ? 'orderResults' : 'orderReview', orderId })}
+            href={managerHref({
+              screen: isRework ? 'orderResults' : 'orderReview',
+              orderId,
+            })}
           >
             <OrderIcon name="chevron-right" size={16} />
             {isRework ? t.backToResults : planningT.back}
@@ -67,9 +74,12 @@ export function PlanningContextCard({
         )}
         <div className="odm-plan-create-grid">
           <div className="odm-plan-form">
-            <h3>{isRework ? t.reworkTitle : planningT.createTitle}</h3>
+            <h3>
+              {title ?? (isRework ? t.reworkTitle : planningT.createTitle)}
+            </h3>
             <p className="odm-plan-description">
-              {isRework ? t.reworkDescription : planningT.createDescription}
+              {description ??
+                (isRework ? t.reworkDescription : planningT.createDescription)}
             </p>
             <label className="odm-or-field" htmlFor="mission-work-scope">
               <span className="odm-or-field-label">

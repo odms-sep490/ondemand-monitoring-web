@@ -1,3 +1,8 @@
+import { InternalCorrectionPlanningPage } from '../InternalCorrectionPlanningPage'
+import {
+  inspectionCorrectionApi,
+  type InspectionCorrection,
+} from '../../../../mission/inspection/inspectionCorrectionApi'
 import {
   fireEvent,
   render,
@@ -424,4 +429,168 @@ it('does not open a foreign revision case or display the original missions', asy
   )
   expect(screen.queryByRole('complementary')).not.toBeInTheDocument()
   expect(screen.queryByText('MS-ORIGINAL')).not.toBeInTheDocument()
+})
+
+function internalRequest(): InspectionCorrection {
+  return {
+    id: 'correction',
+    missionId: 'original',
+    version: 2,
+    status: 'OPEN',
+    reviewToken: 'token',
+    requestedBy: 'inspector',
+    requestedAt: '2026-11-15T00:00:00Z',
+    resolvedAt: null,
+    supplementalMissionId: null,
+    supplementalMissionCode: null,
+    supplementalMissionStatus: null,
+    items: [
+      {
+        executionId: 'execution-A',
+        orderChecklistItemId: 'A',
+        content: 'Công việc A',
+        requestedExecutionVersion: 1,
+        reason: 'Ảnh mờ',
+        mediaIds: [],
+      },
+    ],
+    events: [],
+  }
+}
+it('creates internal corrections from the main Mission form with a fixed failed checklist scope', async () => {
+  vi.mocked(ordersApi.getOrder).mockResolvedValue({
+    id: 'order',
+    status: 'IN_PROGRESS',
+    code: 'ORD-1', serviceName:'Monitoring', preferredDate:'2099-11-11', preferredTimeName:'Morning', center:null,
+    checklistItems,
+    customer: { fullName: 'Customer' },
+  } as OrderDetail)
+  const correction = internalRequest()
+  vi.spyOn(inspectionCorrectionApi, 'list').mockImplementation(async () =>
+    structuredClone([correction]),
+  )
+  const create = vi
+    .spyOn(inspectionCorrectionApi, 'createMission')
+    .mockImplementation(async () => {
+      const child = {
+        ...reworkMission(),
+        id: 'internal-1',
+        missionCode: 'MS-INTERNAL',
+        resultRevisionCaseId: null,
+        inspectionCorrectionId: 'correction',
+        inspectionSourceMissionId: 'original',
+      }
+      missions.push(child)
+      assignments['internal-1'] = ['A']
+      correction.supplementalMissionId = 'internal-1'
+      correction.supplementalMissionStatus = 'PLANNING'
+      return child
+    })
+  const createRework = vi.spyOn(missionsApi, 'createReworkMission')
+  const createOriginal = vi.spyOn(missionsApi, 'createMission')
+  render(
+    <InternalCorrectionPlanningPage
+      orderId="order"
+      sourceMissionId="original"
+      correctionId="correction"
+    />,
+  )
+  const sidebar = await screen.findByRole('complementary')
+  expect(within(sidebar).getByText('Công việc A')).toBeInTheDocument()
+  expect(within(sidebar).queryByText('Công việc B')).toBeNull()
+  expect(screen.queryByText('MS-ORIGINAL')).toBeNull()
+  fireEvent.click(screen.getByRole('button', { name: /Thêm mới nhiệm vụ/ }))
+  const dialog = await screen.findByRole('dialog', {
+    name: 'Tạo Mission bổ sung',
+  })
+  expect(await within(dialog).findByText('Công việc A')).toBeInTheDocument()
+  expect(within(dialog).queryByText('Công việc B')).toBeNull()
+  expect(within(dialog).getByRole('checkbox')).toBeChecked()
+  expect(within(dialog).getByRole('checkbox')).toBeDisabled()
+  fireEvent.change(within(dialog).getByLabelText('Giờ cất cánh'), {
+    target: { value: '2099-11-11T10:00' },
+  })
+  fireEvent.change(within(dialog).getByLabelText('Giờ kết thúc dự kiến'), {
+    target: { value: '2099-11-11T11:00' },
+  })
+  fireEvent.click(
+    within(dialog).getByRole('button', { name: 'Tạo Mission bổ sung' }),
+  )
+  await screen.findByRole('article', { name: 'MS-INTERNAL' })
+  expect(create).toHaveBeenCalledWith(
+    'original',
+    expect.objectContaining({ id: 'correction' }),
+    expect.objectContaining({
+      scopeLabel: expect.any(String),
+      clientRequestId: expect.any(String),
+    }),
+  )
+  expect(createOriginal).not.toHaveBeenCalled()
+  expect(createRework).not.toHaveBeenCalled()
+  expect(deliveryApi.managerGetRevisionCase).not.toHaveBeenCalled()
+  expect(screen.queryByRole('button', { name: /Thêm mới nhiệm vụ/ })).toBeNull()
+})
+it('finalizes internal scope through its own endpoint then waits for Staff acceptance before permit actions', async () => {
+  vi.mocked(ordersApi.getOrder).mockResolvedValue({
+    id: 'order',
+    status: 'IN_PROGRESS',
+    code: 'ORD-1', serviceName:'Monitoring', preferredDate:'2099-11-11', preferredTimeName:'Morning', center:null,
+    checklistItems,
+    customer: { fullName: 'Customer' },
+  } as OrderDetail)
+  const correction = {
+    ...internalRequest(),
+    supplementalMissionId: 'internal-1',
+    supplementalMissionStatus: 'PLANNING',
+  }
+  missions.push({
+    ...reworkMission(),
+    id: 'internal-1',
+    missionCode: 'MS-INTERNAL',
+    resultRevisionCaseId: null,
+    inspectionCorrectionId: 'correction',
+    inspectionSourceMissionId: 'original',
+  })
+  assignments['internal-1'] = ['A']
+  vi.spyOn(inspectionCorrectionApi, 'list').mockImplementation(async () =>
+    structuredClone([correction]),
+  )
+  const finalize = vi
+    .spyOn(inspectionCorrectionApi, 'finalize')
+    .mockImplementation(async () => {
+      missions[1].status = 'PENDING_CONFIRMATION'
+      correction.supplementalMissionStatus = 'PENDING_CONFIRMATION'
+      return missions[1]
+    })
+  const finalizeOriginal = vi.spyOn(planningApi, 'finalizeExecutionPlan')
+  render(
+    <InternalCorrectionPlanningPage
+      orderId="order"
+      sourceMissionId="original"
+      correctionId="correction"
+    />,
+  )
+  fireEvent.click(await screen.findByRole('button', { name: 'Chốt kế hoạch' }))
+  const dialog = await screen.findByRole('dialog', { name: 'Chốt kế hoạch?' })
+  fireEvent.click(within(dialog).getByRole('button', { name: 'Chốt kế hoạch' }))
+  await waitFor(() =>
+    expect(finalize).toHaveBeenCalledWith(
+      'original',
+      expect.objectContaining({ id: 'correction' }),
+      4,
+    ),
+  )
+  await waitFor(() =>
+    expect(
+      screen.getByRole('tab', { name: 'Giấy phép bay' }),
+    ).not.toHaveAttribute('aria-disabled', 'true'),
+  )
+  fireEvent.click(screen.getByRole('tab', { name: 'Giấy phép bay' }))
+  expect(
+    await screen.findByText('Chưa có nhân sự được phân công. Hãy phân công nhân sự trước khi xác nhận giấy phép bay.'),
+  ).toBeInTheDocument()
+  expect(
+    screen.queryByRole('button', { name: 'Xác nhận đã được cấp phép' }),
+  ).toBeNull()
+  expect(finalizeOriginal).not.toHaveBeenCalled()
 })

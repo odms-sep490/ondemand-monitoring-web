@@ -1,3 +1,7 @@
+import {
+  inspectionCorrectionApi,
+  type InternalCorrectionCreation,
+} from '../../../mission/inspection/inspectionCorrectionApi'
 import { planningPresentationMessages } from '../../components/common/planningPresentation.messages'
 import { missionCreatePageMessages } from './MissionCreatePage.messages'
 import { missionsApi } from '../../api/missionsApi'
@@ -32,6 +36,7 @@ export function useCreateMissionSubmit({
   setNavigateTo,
   setPlanRevision,
   reworkCase,
+  internalCorrection,
 }: {
   submit: SubmitState
   planQuery: UseApiQueryState<ExecutionPlan>
@@ -49,6 +54,7 @@ export function useCreateMissionSubmit({
   setNavigateTo: Dispatch<SetStateAction<string | null>>
   setPlanRevision: Dispatch<SetStateAction<number>>
   reworkCase?: ResultRevisionCase
+  internalCorrection?: InternalCorrectionCreation
 }) {
   const { t: fb } = useI18n(managerFeedbackMessages)
   const toast = useToast()
@@ -85,7 +91,7 @@ export function useCreateMissionSubmit({
       })
       return
     }
-    if (reworkCase && startDate <= new Date()) {
+    if ((reworkCase || internalCorrection) && startDate <= new Date()) {
       setSubmit({ kind: 'validationFailed', message: t.reworkFutureRequired })
       return
     }
@@ -118,7 +124,25 @@ export function useCreateMissionSubmit({
         checklistIds: selectedChecklistIds,
       }
       let mission: { id: string }
-      if (reworkCase && reworkItems) {
+      if (internalCorrection) {
+        const body = {
+          expectedVersion: internalCorrection.correction.version,
+          scopeLabel: intent.scopeLabel,
+          scheduledStartAt: intent.scheduledStart,
+          scheduledEndAt: intent.scheduledEnd,
+        }
+        const fingerprint = JSON.stringify([
+          internalCorrection.correction.id,
+          body,
+        ])
+        if (reworkRequest.current?.fingerprint !== fingerprint)
+          reworkRequest.current = { fingerprint, id: crypto.randomUUID() }
+        mission = await inspectionCorrectionApi.createMission(
+          internalCorrection.sourceMissionId,
+          internalCorrection.correction,
+          { ...body, clientRequestId: reworkRequest.current.id },
+        )
+      } else if (reworkCase && reworkItems) {
         const body = {
           expectedCaseVersion: reworkCase.version,
           scopeLabel: intent.scopeLabel,

@@ -1,9 +1,51 @@
-import {render,screen} from '@testing-library/react'
-import {afterEach,expect,it,vi} from 'vitest'
-import {financeApi} from '../../../../finance/api'
-import {InternalCorrectionMissionSetup} from './InternalCorrectionMissionSetup'
-vi.mock('../../../components/common/FlightPermitCard',()=>({FlightPermitCard:({depositPaid}:{depositPaid:boolean})=><div>{depositPaid?'Permit actions available':'Permit payment gate closed'}</div>}))
-vi.mock('../../../components/common/LiveDispatchPage',()=>({LiveDispatchPage:()=><div>Existing resource wizard</div>}))
-afterEach(()=>vi.restoreAllMocks())
-it('opens the existing permit workflow after internal mission planning, using the real invoice contract',async()=>{vi.spyOn(financeApi,'getInvoice').mockResolvedValue({status:'ISSUED',depositStatus:'DEPOSIT_PAID',paidAmount:300,depositAmount:300,contractRequired:true,contractConfirmedAt:'2026-11-14T00:00:00Z'} as never);render(<InternalCorrectionMissionSetup mission={{id:'child',orderId:'order',status:'PENDING_CONFIRMATION'} as never} onChanged={()=>{}}/>);expect(await screen.findByText('Permit actions available')).toBeInTheDocument()})
-it('does not invent a paid deposit when the contract is unconfirmed',async()=>{vi.spyOn(financeApi,'getInvoice').mockResolvedValue({status:'ISSUED',depositStatus:'DEPOSIT_PAID',paidAmount:300,depositAmount:300,contractRequired:true,contractConfirmedAt:null} as never);render(<InternalCorrectionMissionSetup mission={{id:'child',orderId:'order',status:'PENDING_CONFIRMATION'} as never} onChanged={()=>{}}/>);expect(await screen.findByText('Permit payment gate closed')).toBeInTheDocument()})
+import { render, screen } from '@testing-library/react'
+import { expect, it, vi } from 'vitest'
+import { InternalCorrectionMissionSetup } from './InternalCorrectionMissionSetup'
+vi.mock('../../MissionCreate/InternalCorrectionPlanningPage', () => ({
+  InternalCorrectionPlanningPage: ({
+    orderId,
+    sourceMissionId,
+    correctionId,
+  }: {
+    orderId: string
+    sourceMissionId: string
+    correctionId: string
+  }) => (
+    <div>
+      Shared planning {orderId}/{sourceMissionId}/{correctionId}
+    </div>
+  ),
+}))
+it.each(['PLANNING', 'PENDING_CONFIRMATION', 'READY'])(
+  'keeps internal %s Missions in the shared planning workspace',
+  (status) => {
+    render(
+      <InternalCorrectionMissionSetup
+        mission={
+          {
+            id: 'child',
+            orderId: 'order',
+            status,
+            inspectionCorrectionId: 'correction',
+            inspectionSourceMissionId: 'parent',
+          } as never
+        }
+        onChanged={() => {}}
+      />,
+    )
+    expect(
+      screen.getByText('Shared planning order/parent/correction'),
+    ).toBeInTheDocument()
+  },
+)
+it('fails closed without its internal origin', () => {
+  render(
+    <InternalCorrectionMissionSetup
+      mission={{ id: 'child', orderId: 'order' } as never}
+      onChanged={() => {}}
+    />,
+  )
+  expect(
+    screen.getByText('Không thể tải nhiệm vụ để tiếp tục phân công.'),
+  ).toBeInTheDocument()
+})

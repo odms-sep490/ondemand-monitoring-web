@@ -13,12 +13,14 @@ export function MissionCreateActionBar({
   planQuery,
   reworkOrderId,
   blocked = false,
+  label,
 }: {
   handleSubmit: () => Promise<void>
   submitting: boolean
   planQuery: UseApiQueryState<ExecutionPlan>
   reworkOrderId?: string
   blocked?: boolean
+  label?: string
 }) {
   const { t } = useI18n(missionCreatePageMessages)
   return (
@@ -53,9 +55,11 @@ export function MissionCreateActionBar({
         >
           {submitting
             ? t.creating
-            : reworkOrderId
-              ? t.reworkTitle
-              : t.createMission}
+            : label
+              ? label
+              : reworkOrderId
+                ? t.reworkTitle
+                : t.createMission}
           <RightOutlined aria-hidden="true" />
         </Button>
       </div>
