@@ -88,7 +88,7 @@ export function CustomerMissionCard({
           {t.replacedBy} <a href={link(m)}>{m.missionCode}</a>
         </p>
       ))}
-      {showLink && !mission.reportAvailable && (
+      {!mission.reportAvailable && (
         <p className="cr-mission-unavailable">{t.unavailable}</p>
       )}
       {showLink && (

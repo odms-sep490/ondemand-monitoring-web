@@ -12,7 +12,12 @@ import { notificationsMessages } from './notifications.messages'
 import type { AppNotification } from './types'
 
 const iconByType = {
+  ORDER_CONTRACT_ISSUED: FileTextOutlined,
+  ORDER_CONTRACT_SUBMITTED: FileTextOutlined,
+  ORDER_CONTRACT_CHANGES_REQUESTED: AlertOutlined,
+  ORDER_CONTRACT_CONFIRMED: CheckCircleOutlined,
   ORDER_CREATED: CalendarOutlined,
+  ORDER_INFORMATION_SUBMITTED: FileTextOutlined,
   ORDER_UNDER_REVIEW: FileTextOutlined,
   ORDER_NEEDS_INFO: AlertOutlined,
   ORDER_APPROVED: CheckCircleOutlined,
@@ -40,7 +45,12 @@ export function notificationCopy(
 ) {
   const reference = notification.reference || notification.entityId
   const copy = {
+    ORDER_CONTRACT_ISSUED: [t.contractIssuedTitle, t.contractIssuedDescription],
+    ORDER_CONTRACT_SUBMITTED: [t.contractSubmittedTitle, t.contractSubmittedDescription],
+    ORDER_CONTRACT_CHANGES_REQUESTED: [t.contractChangesTitle, t.contractChangesDescription],
+    ORDER_CONTRACT_CONFIRMED: [t.contractConfirmedTitle, t.contractConfirmedDescription],
     ORDER_CREATED: [t.orderTitle, t.orderDescription],
+    ORDER_INFORMATION_SUBMITTED: [t.informationSubmittedTitle, t.informationSubmittedDescription],
     ORDER_UNDER_REVIEW: [t.orderReviewTitle, t.orderReviewDescription],
     ORDER_NEEDS_INFO: [t.orderInfoTitle, t.orderInfoDescription],
     ORDER_APPROVED: [t.orderApprovedTitle, t.orderApprovedDescription],

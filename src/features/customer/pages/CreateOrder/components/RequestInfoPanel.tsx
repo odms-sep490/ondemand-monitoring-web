@@ -31,23 +31,6 @@ export function RequestInfoPanel({ form, errors, update }: Props) {
 
   return (
     <Card icon={<FormOutlined />} title={t.cardTitle}>
-      <FormField
-        id="co-title"
-        label={t.titleLabel}
-        required
-        error={errors.title}
-      >
-        <input
-          id="co-title"
-          className="co-input"
-          required
-          aria-invalid={Boolean(errors.title)}
-          aria-describedby={errors.title ? 'co-title-error' : undefined}
-          value={form.title}
-          placeholder={t.titlePlaceholder}
-          onChange={(e) => update('title', e.target.value)}
-        />
-      </FormField>
       <div className="co-mt">
         <FormField
           id="co-flight-purpose"

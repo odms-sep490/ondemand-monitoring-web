@@ -1,6 +1,7 @@
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { customerApi } from '../../../api/customerApi'
+import { ApiError } from '../../../../../shared/api/httpClient'
 import {
   checklistPricingApi,
   type ServicePricePreview,
@@ -82,6 +83,35 @@ afterEach(() => {
 })
 
 describe('area availability in the customer wizard', () => {
+  it('reloads a removed service and returns to service selection while preserving the draft', async () => {
+    localStorage.setItem(CREATE_ORDER_DRAFT_STORAGE_KEY, JSON.stringify({
+      step: 3,
+      form: {
+        ...createDefaultForm(),
+        serviceId: 'construction',
+        title: 'Giám sát công trình đang nhập',
+        address: 'Địa điểm đang nhập',
+        ...circleArea(5),
+      },
+    }))
+    vi.mocked(customerApi.listServices)
+      .mockResolvedValueOnce([{ id: 'construction', name: 'Giám sát công trình', basePrice: 0 }])
+      .mockResolvedValue([{ id: 'replacement-service', name: 'Giám sát công trình', basePrice: 0 }])
+    vi.mocked(checklistPricingApi.customerQuote).mockRejectedValueOnce(
+      new ApiError('Service not found', { code: 'SERVICE_NOT_FOUND', status: 404, method: 'POST', path: '/api/pricing/checklist-quote' }),
+    )
+
+    const { result } = renderHook(useCreateOrderWizard)
+
+    await waitFor(() => expect(result.current.f.step).toBe(1))
+    await waitFor(() => expect(result.current.f.form.serviceId).toBe('replacement-service'))
+    expect(result.current.f.form.title).toBe('Giám sát công trình đang nhập')
+    expect(result.current.f.form.address).toBe('Địa điểm đang nhập')
+    expect(result.current.f.form.coverageArea).toEqual(circleArea(5).coverageArea)
+    expect(customerApi.listServices).toHaveBeenCalledTimes(2)
+    await waitFor(() => expect(result.current.checklist.quote.error).toBeNull())
+  })
+
   it('omits the default area, applies confirmed area only at content, and invalidates changed or cleared quotes', async () => {
     const requests = vi.mocked(checklistPricingApi.customerQuote)
     const { result } = renderHook(useCreateOrderWizard)

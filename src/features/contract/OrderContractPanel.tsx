@@ -9,6 +9,7 @@ import {
 import { ApiError } from '../../shared/api/httpClient'
 import { useApiQuery } from '../../shared/hooks/useApiQuery'
 import { useI18n } from '../../shared/i18n'
+import { subscribeNotificationRefresh } from '../notifications/notificationRealtime'
 import { contractApi } from './contractApi'
 import { contractMessages } from './contract.messages'
 import type { OrderContract } from './types'
@@ -18,16 +19,20 @@ type Props = {
   orderId: string
   mode: 'customer' | 'manager'
   onConfirmed?: () => void
+  onProceedToPayment?: () => void
 }
 export function OrderContractPanel(props: Props) {
   return <ContractContent key={`${props.orderId}:${props.mode}`} {...props} />
 }
-function ContractContent({ orderId, mode, onConfirmed }: Props) {
+function ContractContent({ orderId, mode, onConfirmed, onProceedToPayment }: Props) {
   const { t, locale } = useI18n(contractMessages)
   const query = useApiQuery(
     (signal) => contractApi.get(orderId, signal),
     [orderId],
   )
+  useEffect(() => subscribeNotificationRefresh((_notification, replay) => {
+    if (!replay) query.reload()
+  }), [query.reload])
   const data = query.data
   const manager = mode === 'manager'
   const [file, setFile] = useState<File | null>(null)
@@ -328,7 +333,16 @@ function ContractContent({ orderId, mode, onConfirmed }: Props) {
         </div>
       )}
       {data.status === 'CONFIRMED' && (
-        <Alert type="success" showIcon message={t.confirmed} />
+        <Alert
+          type="success"
+          showIcon
+          message={t.confirmed}
+          action={!manager && onProceedToPayment ? (
+            <Button type="primary" style={{ color: '#fff' }} onClick={onProceedToPayment}>
+              {t.proceedToPayment}
+            </Button>
+          ) : undefined}
+        />
       )}
       {error && <Alert type="error" showIcon message={errorText(error)} />}
       {data.submissions.length > 0 && (

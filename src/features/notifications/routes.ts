@@ -21,7 +21,7 @@ export function notificationHref(
       return customerHref({
         screen: 'orderDetail',
         orderId: notification.entityId,
-      })
+      }) + (notification.type.startsWith('ORDER_CONTRACT_') ? '?tab=contract' : '')
     if (role === 'MANAGER' || role === 'ADMIN')
       return managerHref({
         screen: 'orderReview',

@@ -39,10 +39,11 @@ export function InvoiceSummary({ invoice }: { invoice: Invoice }) {
         <h3>{t.invoice(invoice.invoiceNumber)}</h3>
         <div className="customer-invoice-summary-statuses">
           <StatusTag tone={INVOICE_TONE[invoice.status] ?? 'neutral'}>
-            {t.invoiceStatusLabel}:{' '}
-            {t.invoiceStatus[invoice.status] ?? pricingLabel(invoice.status)}
+            {invoice.status === 'PAID'
+              ? t.paymentCompleted
+              : t.invoiceStatus[invoice.status] ?? pricingLabel(invoice.status)}
           </StatusTag>
-          {invoice.status !== 'CANCELLED' && invoice.status !== 'REFUNDED' ? (
+          {!['PAID', 'CANCELLED', 'REFUNDED'].includes(invoice.status) ? (
             <StatusTag
               tone={depositStatus === 'DEPOSIT_PAID' ? 'success' : 'warning'}
             >
@@ -52,6 +53,7 @@ export function InvoiceSummary({ invoice }: { invoice: Invoice }) {
         </div>
       </div>
       <div className="customer-payment-stats">
+        <PaymentStat label={t.remaining} value={invoice.remainingAmount} />
         <PaymentStat label={t.total} value={invoice.totalAmount} />
         <PaymentStat
           label={t.paid}
@@ -62,7 +64,6 @@ export function InvoiceSummary({ invoice }: { invoice: Invoice }) {
               : t.depositAwaitingPayment(formatVnd(invoice.depositAmount))
           }
         />
-        <PaymentStat label={t.remaining} value={invoice.remainingAmount} />
       </div>
     </section>
   )
@@ -105,6 +106,7 @@ export function InvoiceSection({
     depositReachedDeadline ||
     expiredDeadlineKey === deadlineKey
   if (invoice.contractRequired && !invoice.contractConfirmedAt) return null
+  if (invoice.status === 'PAID') return null
   return (
     <div className="customer-invoice customer-invoice-actions">
       {invoice.depositExpiresAt &&
@@ -150,11 +152,6 @@ export function InvoiceSection({
         <div className="customer-deposit-notice">
           <b>{t.awaitingDeposit}</b>
           <span>{t.awaitingDepositBody}</span>
-        </div>
-      ) : invoice.status === 'PAID' ? (
-        <div className="customer-deposit-notice is-ready">
-          <b>{t.paymentCompleted}</b>
-          <span>{t.awaitingResourceConfirmation}</span>
         </div>
       ) : (
         <div className="customer-deposit-notice">

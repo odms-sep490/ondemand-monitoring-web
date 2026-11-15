@@ -2333,3 +2333,35 @@
     justify-content: center;
   }
 }
+
+.odm-mission-grid-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 20px 24px;
+}
+.odm-mission-grid-card > * { min-width: 0; grid-column: 1 / -1; }
+.odm-mission-grid-card > .odm-mcard-section--schedule { grid-column: 1; }
+.odm-mission-grid-card > .odm-mcard-section--work { grid-column: 2; }
+.odm-mission-grid-card > .odm-mcard-section--staff { grid-column: 1; }
+.odm-mission-grid-card > .odm-mcard-section--devices { grid-column: 2; }
+.odm-mission-grid-card .odm-mcard-header { margin: 0; padding-bottom: 16px; }
+.odm-mission-grid-card .odm-mcard-section { margin: 0; }
+.odm-mission-grid-card .odm-mcard-sec-head {
+  font-size: 13px;
+  text-transform: none;
+  letter-spacing: normal;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.odm-mission-grid-card .odm-mcard-staff-actions { max-width: 100%; }
+.odm-mission-grid-card .odm-mcard-office-link { white-space: normal; }
+.odm-mission-grid-card .odm-mcard-section--staff,
+.odm-mission-grid-card .odm-mcard-section--devices {
+  border-top: 1px solid var(--ui-border, #e2e8f0);
+  padding-top: 20px;
+}
+@media (max-width: 1000px) {
+  .odm-mission-grid-card { grid-template-columns: minmax(0, 1fr); }
+  .odm-mission-grid-card > .odm-mcard-section { grid-column: 1; }
+}

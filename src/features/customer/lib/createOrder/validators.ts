@@ -79,7 +79,6 @@ export function validateStep(
 
   if (targetStep >= 1) {
     if (!form.serviceId) errors.serviceId = msg.serviceId
-    if (!form.title.trim()) errors.title = msg.title
     if (!form.flightPurpose) errors.flightPurpose = msg.flightPurpose
     if (form.flightPurpose === 'OTHER' && !form.otherFlightPurpose.trim()) {
       errors.otherFlightPurpose = msg.otherFlightPurpose

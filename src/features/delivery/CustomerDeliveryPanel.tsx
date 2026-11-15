@@ -9,7 +9,7 @@ import {
   Typography,
   notification,
 } from 'antd'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, type ReactNode } from 'react'
 import { ApiError } from '../../shared/api/httpClient'
 import {
   requestOriginalMediaDownload,
@@ -28,6 +28,7 @@ import { MissionDeliveryTabs } from './MissionDeliveryTabs'
 type CustomerDeliveryPanelProps = {
   orderId: string
   initialDelivery?: Delivery | null
+  onOpenPayment?: () => void
   initialMissionId?: string
   onStateChange?: (
     delivery: Delivery | null,
@@ -56,11 +57,13 @@ function ScopedCustomerDeliveryPanel({
   orderId,
   initialDelivery = null,
   onStateChange,
+  onOpenPayment,
   missionId,
 }: {
   orderId: string
   missionId?: string
   initialDelivery?: Delivery | null
+  onOpenPayment?: () => void
   onStateChange?: (
     delivery: Delivery | null,
     state: DeliveryPanelLoadState,
@@ -502,6 +505,11 @@ function ScopedCustomerDeliveryPanel({
               tone="warning"
               title={t.awaitingMissionPaymentTitle}
               text={t.awaitingMissionPaymentText}
+              action={onOpenPayment ? (
+                <Button type="primary" style={{ color: '#fff' }} onClick={onOpenPayment}>
+                  {t.openPayment}
+                </Button>
+              ) : undefined}
             />
           )
         ) : null}
@@ -530,12 +538,14 @@ function StatusBanner({
   title,
   text,
   tone = 'info',
+  action,
 }: {
   title: string
   text: string
   tone?: 'info' | 'warning' | 'success'
+  action?: ReactNode
 }) {
-  return <Alert type={tone} showIcon message={title} description={text} />
+  return <Alert type={tone} showIcon message={title} description={text} action={action} />
 }
 
 function formatBytes(bytes: number, unknown: string) {

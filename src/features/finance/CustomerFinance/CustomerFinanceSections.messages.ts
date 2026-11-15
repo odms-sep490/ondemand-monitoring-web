@@ -35,7 +35,7 @@ export const customerFinanceSectionsMessages = defineMessages({
     invoice: (number: string) => `Hóa đơn ${number}`,
     total: 'Tổng đơn hàng',
     paid: 'Đã thanh toán',
-    paidIncludesDeposit: (amount: string) => `Đã gồm tiền cọc 30%: ${amount}`,
+    paidIncludesDeposit: (amount: string) => `Trong đó tiền cọc: ${amount}`,
     depositAwaitingPayment: (amount: string) =>
       `Tiền cọc 30% cần thanh toán: ${amount}`,
     remaining: 'Còn phải thanh toán',
@@ -110,7 +110,7 @@ export const customerFinanceSectionsMessages = defineMessages({
     total: 'Order total',
     paid: 'Paid',
     paidIncludesDeposit: (amount: string) =>
-      `Includes the 30% deposit: ${amount}`,
+      `Includes deposit: ${amount}`,
     depositAwaitingPayment: (amount: string) => `30% deposit due: ${amount}`,
     remaining: 'Still due',
     awaitingDeposit: 'Deposit pending',

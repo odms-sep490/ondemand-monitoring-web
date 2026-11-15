@@ -81,10 +81,6 @@ export function ConfirmSubmitModal(p: Props) {
         aria-label={t.requestDetails}
         tabIndex={0}
       >
-        <div className="co-confirm-request">
-          <span className="co-confirm-request__label">{t.requestName}</span>
-          <strong className="co-confirm-request__value">{form.title || '—'}</strong>
-        </div>
         <dl className="co-confirm-primary">
           <dt>{t.service}</dt>
           <dd>{p.service ? localizeServiceName(p.service.id, lang, p.service.name) : '—'}</dd>

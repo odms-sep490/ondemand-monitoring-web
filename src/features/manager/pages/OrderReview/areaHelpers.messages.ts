@@ -7,10 +7,6 @@ export const areaHelpersMessages = defineMessages({
         label: 'Khu vực phù hợp sơ bộ',
         hint: 'Có thể tiếp tục duyệt đơn và phân nguồn lực. Hồ sơ xin phép bay được thực hiện ở bước sau.',
       },
-      changeLocation: {
-        label: 'Yêu cầu khách đổi khu vực',
-        hint: 'Trả đơn về cho khách chọn lại vị trí giám sát.',
-      },
       rejected: {
         label: 'Khu vực không khả thi',
         hint: 'Khu vực hiện tại không thể triển khai theo yêu cầu.',
@@ -45,10 +41,6 @@ export const areaHelpersMessages = defineMessages({
       notRequired: {
         label: 'Area preliminarily suitable',
         hint: 'You can continue reviewing the order and assigning resources. The flight permit application is handled in a later step.',
-      },
-      changeLocation: {
-        label: 'Ask the customer to change the area',
-        hint: 'Send the order back to the customer to pick a new monitoring location.',
       },
       rejected: {
         label: 'Area not feasible',

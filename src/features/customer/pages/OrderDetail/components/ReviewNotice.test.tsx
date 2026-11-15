@@ -127,7 +127,11 @@ describe('ReviewNotice', () => {
     )
   })
 
-  it('shows only the requested location correction fields', async () => {
+  it('resubmits the stored polygon without replacing it with a circle', async () => {
+    const coverageArea = {
+      type: 'Polygon',
+      coordinates: [[[106.689, 10.639], [106.691, 10.639], [106.69, 10.641], [106.689, 10.639]]],
+    }
     render(
       <ReviewNotice
         order={{
@@ -137,19 +141,21 @@ describe('ReviewNotice', () => {
           latitude: 10.64,
           longitude: 106.69,
           radiusM: 300,
+          coverageArea,
         }}
       />,
     )
 
     expect(screen.getByText('Cập nhật khu vực giám sát')).toBeInTheDocument()
-    expect(screen.getByDisplayValue('Vị trí cũ')).toBeInTheDocument()
+    expect(await screen.findByDisplayValue('Vị trí cũ')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Tự vẽ vùng' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Đa giác' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Chữ nhật' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Hình tròn' })).toBeInTheDocument()
     expect(
       screen.queryByText('Người liên hệ hiện trường'),
     ).not.toBeInTheDocument()
 
-    fireEvent.change(screen.getByLabelText('Vĩ độ'), {
-      target: { value: '10.65' },
-    })
     fireEvent.click(
       screen.getByRole('button', { name: 'Cập nhật khu vực và gửi lại' }),
     )
@@ -159,9 +165,10 @@ describe('ReviewNotice', () => {
         method: 'PATCH',
         body: expect.objectContaining({
           address: 'Vị trí cũ',
-          latitude: 10.65,
+          latitude: 10.64,
           longitude: 106.69,
           radiusM: 300,
+          coverageArea,
         }),
       }),
     )

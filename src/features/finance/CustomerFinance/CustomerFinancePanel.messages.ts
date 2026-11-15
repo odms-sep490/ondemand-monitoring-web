@@ -2,6 +2,16 @@ import { defineMessages } from '../../../shared/i18n'
 
 export const customerFinancePanelMessages = defineMessages({
   vi: {
+    quoteTitle: 'Duyệt & báo giá',
+    contractTitle: 'Hợp đồng',
+    contractRequiredForPayment: 'Hoàn tất xác nhận hợp đồng để thanh toán tiền cọc.',
+    openContract: 'Xem hợp đồng',
+    contractPending: 'Hợp đồng sẽ hiển thị sau khi bạn chấp nhận báo giá.',
+    contractNotRequired: 'Đơn hàng này không yêu cầu hợp đồng.',
+    paymentTitle: 'Thanh toán',
+    paymentPending: 'Chưa có thông tin thanh toán',
+    paymentDescription:
+      'Chấp nhận báo giá, hoàn tất hợp đồng và thanh toán cọc trước khi lập kế hoạch.',
     title: 'Báo giá và thanh toán',
     description: 'Giá do quản lý xác nhận theo nội dung đơn hàng.',
     loading: 'Đang tải báo giá...',
@@ -31,6 +41,16 @@ export const customerFinancePanelMessages = defineMessages({
     } as Record<string, string>,
   },
   en: {
+    quoteTitle: 'Quote',
+    contractTitle: 'Contract',
+    contractRequiredForPayment: 'Complete contract confirmation before paying the deposit.',
+    openContract: 'View contract',
+    contractPending: 'The contract will appear after you accept the quote.',
+    contractNotRequired: 'This order does not require a contract.',
+    paymentTitle: 'Payment',
+    paymentPending: 'No payment information yet',
+    paymentDescription:
+      'Accept the quote, complete the contract and pay the deposit before planning begins.',
     title: 'Quote and payment',
     description: 'Pricing is confirmed for the items in this order.',
     loading: 'Loading quote…',

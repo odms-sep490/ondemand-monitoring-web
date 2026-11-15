@@ -53,15 +53,6 @@ export const REVIEW_OPTIONS: Array<{
     },
   },
   {
-    status: 'CHANGE_LOCATION',
-    get label() {
-      return am().options.changeLocation.label
-    },
-    get hint() {
-      return am().options.changeLocation.hint
-    },
-  },
-  {
     status: 'REJECTED',
     get label() {
       return am().options.rejected.label

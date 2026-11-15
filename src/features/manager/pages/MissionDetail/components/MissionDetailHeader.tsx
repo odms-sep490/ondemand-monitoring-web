@@ -7,15 +7,19 @@ import { managerHref } from '../../../routes'
 import { missionDetailPageMessages } from '../MissionDetailPage.messages'
 import { useI18n } from '../../../../../shared/i18n'
 import type { MissionResponse } from '../../../types/missions'
+import type { OrderDetail } from '../../../types/orders'
+import { OrderDetailsDrawer } from '../../../components/common/OrderDetailsDrawer'
 
 export function MissionDetailHeader({
   mission,
   headline,
   canSetup,
+  order,
 }: {
   mission: MissionResponse
   headline: string | null
   canSetup: boolean
+  order: OrderDetail | null
 }) {
   const { t } = useI18n(missionDetailPageMessages)
   return (
@@ -34,6 +38,11 @@ export function MissionDetailHeader({
       description={headline ?? undefined}
       actions={
         <>
+          {order ? (
+            <OrderDetailsDrawer order={order} />
+          ) : mission.orderId ? (
+            <Button disabled>{t.viewOrder}</Button>
+          ) : null}
           {mission.purpose === 'REWORK' && mission.resultRevisionCaseId ? (
             <Button href={managerHref({
               screen: 'missionCreate',
