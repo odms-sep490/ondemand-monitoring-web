@@ -88,18 +88,32 @@ describe('Manager multi-Mission planning', () => {
       finalPaymentAllowed: false,
     } as Invoice)
 
-    render(<OrderMissionPlanningSection orderId="o" />)
+    const { container } = render(<OrderMissionPlanningSection orderId="o" />)
 
     expect(
       await screen.findByText('Đang chờ khách hàng thanh toán đặt cọc'),
     ).toBeInTheDocument()
     expect(screen.getByText(/Đã thanh toán\s+0\s*\/\s*500/)).toBeInTheDocument()
+    expect(container.querySelector('.odm-planning-split-layout')).toBeNull()
+
     expect(
       screen.queryByRole('button', { name: 'Tạo thêm nhiệm vụ' }),
     ).not.toBeInTheDocument()
     expect(
       screen.queryByRole('button', { name: 'Chốt kế hoạch' }),
     ).not.toBeInTheDocument()
+    vi.spyOn(financeApi, 'refreshOrderPayments').mockResolvedValue({} as Invoice)
+    vi.mocked(financeApi.getManagerInvoice).mockResolvedValue({
+      id: 'invoice-paid',
+      paidAmount: 500,
+      depositAmount: 500,
+      status: 'PAID',
+    } as Invoice)
+    fireEvent.click(screen.getByRole('button', { name: 'Kiểm tra thanh toán' }))
+    await waitFor(() =>
+      expect(container.querySelector('.odm-planning-split-layout')).not.toBeNull(),
+    )
+    expect(container.querySelector('.mgr-plan-gate')).toBeNull()
   })
 
   it('shows the per-Mission payment milestones after the plan is finalized', async () => {

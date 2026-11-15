@@ -115,28 +115,9 @@ describe('OrderDetailPage', () => {
     expect(
       screen.queryByRole('region', { name: 'Tổng quan dịch vụ và vị trí' }),
     ).not.toBeInTheDocument()
-    expect(screen.getByText('Hoàn thành')).toBeInTheDocument()
-    expect(screen.getByText('Chưa có dữ liệu thanh toán')).toBeInTheDocument()
-  })
-
-  it('moves focus to the results section when the primary CTA is activated', async () => {
-    render(<OrderDetailPage orderId="cus-ord-006" />)
-    const overviewTab = await screen.findByRole('tab', {
-      name: 'Thông tin đơn',
-    })
-    fireEvent.click(overviewTab)
-    const resultsCta = await screen.findByRole('button', {
-      name: /Xem tiến trình bàn giao/,
-    })
-    fireEvent.click(resultsCta)
     expect(
-      await screen.findByRole('tab', { name: 'Kết quả bàn giao' }),
-    ).toHaveAttribute('aria-selected', 'true')
-    await waitFor(() =>
-      expect(document.activeElement).toBe(
-        document.getElementById('customer-delivery-panel'),
-      ),
-    )
+      screen.queryByRole('heading', { name: 'Trạng thái và bước tiếp theo' }),
+    ).not.toBeInTheDocument()
   })
 
   it('shows the rejection reason from the BE for a rejected order', async () => {
@@ -155,6 +136,31 @@ describe('OrderDetailPage', () => {
     ).not.toBeInTheDocument()
   })
 
+  it('separates quote review from contract and deposit payment', async () => {
+    vi.spyOn(financeApi, 'getQuote').mockResolvedValue(payableQuote)
+    vi.spyOn(financeApi, 'getInvoice').mockResolvedValue(payableInvoice)
+    render(<OrderDetailPage orderId="cus-ord-003" />)
+    fireEvent.click(await screen.findByRole('tab', { name: 'Duyệt & báo giá' }))
+    await waitFor(() =>
+      expect(
+        document.querySelector('.customer-quote-body'),
+      ).toBeVisible(),
+    )
+    expect(document.querySelector('.customer-quote-payment-content')).toBeNull()
+    fireEvent.click(screen.getByRole('tab', { name: 'Hợp đồng' }))
+    expect(await screen.findByText('Đơn hàng này không yêu cầu hợp đồng.')).toBeVisible()
+    expect(document.querySelector('.customer-invoice-summary')).toBeNull()
+    expect(document.querySelector('.customer-quote-body')).toBeNull()
+    fireEvent.click(screen.getByRole('tab', { name: 'Thanh toán' }))
+    await waitFor(() =>
+      expect(
+        document.querySelector('.customer-invoice-standalone'),
+      ).toBeVisible(),
+    )
+    expect(document.querySelector('.customer-quote-body')).toBeNull()
+    expect(document.querySelector('.customer-invoice-summary')).toBeNull()
+  })
+
   it('shows a red finance-tab dot until the customer opens the newly approved quote', async () => {
     // The final-payment dot was removed (payments are now per mission); the quote-approval dot remains.
     vi.spyOn(financeApi, 'getQuote').mockResolvedValue({
@@ -166,7 +172,7 @@ describe('OrderDetailPage', () => {
     render(<OrderDetailPage orderId="cus-ord-003" />)
 
     const financeTab = await screen.findByRole('tab', {
-      name: 'Báo giá & thanh toán',
+      name: 'Duyệt & báo giá',
     })
     await waitFor(() =>
       expect(financeTab.querySelector('.ant-badge-dot')).toBeInTheDocument(),

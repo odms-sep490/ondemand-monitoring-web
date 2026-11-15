@@ -4,6 +4,8 @@ export type MissionDetailTab =
   | 'checklist'
   | 'route'
   | 'plan'
+  | 'permit'
+  | 'contract'
   | 'resources'
   | 'checks'
   | 'finance'

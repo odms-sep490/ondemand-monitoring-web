@@ -109,11 +109,10 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
     order.status,
   )
 
-  // Until the planning data arrives assume the deposit is paid, so the header
-  // never flashes "waiting for deposit" for an order that is already funded.
+  // Keep planning locked until the invoice and contract have been checked.
   const stepperProgress = orderProgress({
     status: order.status,
-    depositPaid: planning ? planning.depositPaid : true,
+    depositPaid: planning?.depositPaid ?? false,
     reviewStep,
     planFinalized: planning?.isFinalized,
   })
@@ -173,6 +172,7 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
     readiness?.criteria.filter(
       (c) =>
         c.code !== 'CAPABILITY' &&
+        c.code !== 'REQUESTED_SCOPE_FEASIBLE' &&
         c.type === 'MANUAL' &&
         c.required &&
         c.result === 'PENDING',

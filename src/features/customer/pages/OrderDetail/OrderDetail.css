@@ -20,81 +20,6 @@
   max-width: 100%;
 }
 
-.od-next-step {
-  display: grid;
-  gap: 16px;
-  min-width: 0;
-  padding: 20px 22px;
-  border: 1px solid var(--ui-border);
-  border-radius: var(--ui-radius-lg);
-  background: var(--ui-surface);
-  box-shadow: var(--ui-shadow-1);
-}
-
-.od-next-step__header h2 {
-  margin: 0;
-  color: var(--ui-text);
-  font-size: 18px;
-  line-height: 1.35;
-}
-
-.od-next-step__header p {
-  margin: 4px 0 0;
-  color: var(--ui-text-3);
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.od-next-step__grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-  margin: 0;
-}
-
-.od-next-step__item {
-  display: grid;
-  align-content: start;
-  gap: 6px;
-  min-width: 0;
-  padding: 12px 14px;
-  border: 1px solid var(--ui-border);
-  border-radius: var(--ui-radius-md);
-  background: var(--ui-surface-2);
-}
-
-.od-next-step__item dt {
-  color: var(--ui-text-3);
-  font-size: 12px;
-  font-weight: 650;
-}
-
-.od-next-step__item dd {
-  min-width: 0;
-  margin: 0;
-  color: var(--ui-text);
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 1.45;
-  overflow-wrap: anywhere;
-}
-
-.od-next-step__result {
-  color: var(--ui-text-2);
-  font-weight: 600;
-}
-
-.od-next-step__action {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.od-next-step__action .ant-btn {
-  min-height: 44px;
-  gap: 8px;
-  white-space: normal;
-}
-
 .od-tabs {
   min-width: 0;
   margin: 0;
@@ -624,10 +549,6 @@
 
 /* Responsive (kept after the base rules they override) */
 @media (max-width: 900px) {
-  .od-next-step__grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   .od-overview-visual {
     grid-template-columns: 1fr;
   }
@@ -646,24 +567,6 @@
 }
 
 @media (max-width: 640px) {
-  .od-next-step {
-    padding: 16px;
-  }
-
-  .od-next-step__grid {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 8px;
-  }
-
-  .od-next-step__action,
-  .od-next-step__action .ant-btn {
-    width: 100%;
-  }
-
-  .od-next-step__action .ant-btn {
-    justify-content: center;
-  }
-
   .od-cancel {
     margin-left: 0;
   }
@@ -1752,58 +1655,33 @@
   }
 }
 
-/* Keep progress at its natural height instead of stretching each step. */
-@media (min-width: 901px) {
-  .od-page .od-order-panel .cus-main-grid { align-items: start; }
-  .od-page .od-order-panel .cus-side {
-    position: static;
-    top: auto;
-    align-self: start;
-    display: flex;
-    flex-direction: column;
-  }
-  .od-page .od-order-panel .od-timeline-card {
-    display: flex;
-    flex-direction: column;
-    flex: none;
-    min-height: 0;
-    width: 100%;
-  }
-  .od-page .od-order-panel .od-timeline-card > .ant-card-body {
-    display: flex;
-    flex-direction: column;
-    flex: none;
-  }
-  .od-page .od-order-panel .od-timeline-card .od-steps {
-    display: flex;
-    flex-direction: column;
-    flex: none;
-  }
-  .od-page .od-order-panel .od-timeline-card .od-step { flex: none; padding-bottom: 24px; }
-  .od-page .od-order-panel .od-timeline-card .od-step:last-child { flex: none; padding-bottom: 0; }
-}
-.od-page .od-balanced-layout {
+.od-detail-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.6fr) minmax(320px, 1fr);
-  gap: 20px;
-  align-items: stretch;
-}
-.od-page .od-balanced-layout > * { min-width: 0; }
-.od-page .od-balanced-layout > .ant-card {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-.od-page .od-balanced-layout > .ant-card > .ant-card-body { flex: 1; }
-.od-page .od-balanced-layout > .ant-card:first-child > .ant-card-body {
-  display: flex;
-  flex-direction: column;
-}
-.od-page .od-balanced-layout > .ant-card:first-child .od-info-sections { margin-top: auto; }
-.od-page .od-order-panel .od-balanced-layout .od-timeline-card .od-step { padding-bottom: 16px; }
-.od-page .od-order-panel .od-balanced-layout .od-timeline-card .od-step:last-child { padding-bottom: 0; }
-.od-page .od-balanced-details { grid-column: 1 / -1; }
-@media (max-width: 900px) {
-  .od-page .od-balanced-layout { grid-template-columns: minmax(0, 1fr); }
+  grid-template-columns: minmax(0, 1fr) clamp(260px, 24%, 340px);
+  align-items: start;
+  gap: 16px;
+  min-width: 0;
 }
 
+.od-detail-main,
+.od-detail-progress {
+  min-width: 0;
+}
+
+.od-info-stack {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+@media (min-width: 1101px) {
+  .od-detail-progress .od-step:not(:last-child) {
+    padding-bottom: 30px;
+  }
+}
+
+@media (max-width: 1100px) {
+  .od-detail-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

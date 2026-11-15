@@ -13,7 +13,10 @@ export const workflowStepperMessages = defineMessages({
         hint: 'Khu vực và điều kiện duyệt',
       },
       decision: { label: 'Quyết định', hint: 'Báo giá, duyệt hoặc từ chối' },
-      deposit: { label: 'Đặt cọc', hint: 'Khách thanh toán' },
+      deposit: {
+        label: 'Hợp đồng & đặt cọc',
+        hint: 'Phát hành, xác nhận hợp đồng và thanh toán cọc',
+      },
       planning: { label: 'Lập kế hoạch', hint: 'Tạo và chốt nhiệm vụ' },
     },
     missionStages: {
@@ -50,7 +53,10 @@ export const workflowStepperMessages = defineMessages({
         hint: 'Area and approval criteria',
       },
       decision: { label: 'Decision', hint: 'Quote, approve or reject' },
-      deposit: { label: 'Deposit', hint: 'Customer payment' },
+      deposit: {
+        label: 'Contract & deposit',
+        hint: 'Issue and verify contract, then pay deposit',
+      },
       planning: { label: 'Planning', hint: 'Create and finalize Missions' },
     },
     missionStages: {

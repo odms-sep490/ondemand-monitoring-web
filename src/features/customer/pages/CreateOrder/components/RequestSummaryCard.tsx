@@ -425,10 +425,6 @@ export function RequestSummaryCard(p: Props) {
       title={t.cardTitle}
     >
       {p.variant !== 'review' && <p className="co-hint">{t.cardSubtitle}</p>}
-      <div className="co-sum-request-title">
-        <span>{t.requestTitle}</span>
-        <p title={form.title || undefined}>{form.title.trim() || t.noTitle}</p>
-      </div>
       {p.variant === 'review' ? (
         <div className="co-review-rows">
           {reviewRows.map((row) => (

@@ -85,12 +85,10 @@ export function OrderInfoCard({
   order,
   canEdit,
   onUpdated,
-  progress,
 }: {
   order: OrderDetailView
   canEdit?: boolean
   onUpdated?: () => void
-  progress?: ReactNode
 }) {
   const [editing, setEditing] = useState<EditableOrderSection | null>(null)
   const { t, locale, lang } = useI18n(orderInfoCardMessages)
@@ -111,7 +109,7 @@ export function OrderInfoCard({
   const editable = canEdit ?? ['PENDING', 'NEEDS_INFO', 'APPROVED'].includes(order.status)
 
   return (
-    <div className="od-balanced-layout">
+    <div className="od-info-stack">
     <Card title={<CardTitle icon="doc">{t.title}</CardTitle>}>
       <p className="od-info-subtitle">{t.subtitle}</p>
       <section className="od-order-summary" aria-label={t.summary}>
@@ -160,7 +158,6 @@ export function OrderInfoCard({
         </Section>
       </div>
     </Card>
-    {progress}
     <div className="od-balanced-details">
     <Card>
       <div className="od-info-sections">

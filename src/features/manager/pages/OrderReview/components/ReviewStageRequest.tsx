@@ -26,8 +26,12 @@ export function ReviewStageRequest({
   return (
     <div className="odm-or-review-stage" aria-label={tr.orderInfo}>
       <ReadOnlyScope on={readOnly}>
-        <OrderLocationCard order={order} t={t} overview />
-        <OrderCustomerRequestDetails order={order} t={t} />
+        <div className="mgr-intake-location">
+          <OrderLocationCard order={order} t={t} overview />
+        </div>
+        <div className="mgr-intake-request">
+          <OrderCustomerRequestDetails order={order} t={t} />
+        </div>
       </ReadOnlyScope>
       <ReviewStageActions
         step={1}

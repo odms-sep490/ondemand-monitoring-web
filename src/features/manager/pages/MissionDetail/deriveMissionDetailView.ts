@@ -155,6 +155,7 @@ export function deriveMissionDetailView({
     { id: 'checklist', label: t.tabs.checklist },
     { id: 'route', label: t.tabs.route },
     { id: 'plan', label: t.tabs.plan },
+    { id: 'contract', label: t.tabs.contract },
     { id: 'checks', label: t.tabs.checks },
     { id: 'finance', label: t.tabs.finance },
   ]

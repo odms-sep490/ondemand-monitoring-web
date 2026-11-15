@@ -133,6 +133,7 @@ export function OrderQueuePage() {
   const paidOrders = query.data?.paid ?? []
   const depositStatusByOrder = query.data?.depositStatusByOrder ?? {}
   const allOrders = allQuery.data?.orders
+  const needsInfoOrders = allOrders?.filter((order) => order.orderStatus === 'NEEDS_INFO')
   const completedOrders = allOrders?.filter((order) => order.orderStatus === 'COMPLETED')
   const started = allQuery.data?.started
 
@@ -180,12 +181,13 @@ export function OrderQueuePage() {
   )
   const source = {
     pending: pendingOrders,
+    needsInfo: needsInfoOrders ?? [],
     approved: approvedOrders,
     completed: completedOrders ?? [],
     ready: paidOrders,
     all: filteredAll,
   }[activeTab]
-  const usesAllOrders = activeTab === 'all' || activeTab === 'completed'
+  const usesAllOrders = activeTab === 'all' || activeTab === 'completed' || activeTab === 'needsInfo'
   const total = activeTab === 'all' ? (allOrders ?? []).length : source.length
   const rows = source.filter((order) => matchesSearch(order, search))
 
@@ -271,6 +273,7 @@ export function OrderQueuePage() {
             onChange={setTab}
             options={[
               { value: 'pending', label: t.tabs.pending, count: pendingOrders.length },
+              { value: 'needsInfo', label: t.tabs.needsInfo, count: needsInfoOrders?.length },
               { value: 'approved', label: t.filters.APPROVED, count: approvedOrders.length },
               { value: 'completed', label: t.tabs.completed, count: completedOrders?.length },
               { value: 'ready', label: t.tabs.ready, count: paidOrders.length },

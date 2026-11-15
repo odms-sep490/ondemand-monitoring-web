@@ -1,3 +1,4 @@
+import { OrderContractPanel } from '../../../contract/OrderContractPanel'
 import { InspectionCorrectionPanel } from '../../../mission/inspection/InspectionCorrectionPanel'
 // MNG-08: Mission detail & result page (opened from the mission list).
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -5,6 +6,7 @@ import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import type { MissionChecklistResponse } from '../../../mission/types/checklistExecution'
 import { checklistExecutionApi } from '../../../mission/api/checklistExecutionApi'
 import { Alert, Button, Skeleton } from 'antd'
+import { ManagerMissionProgress } from './components/ManagerMissionProgress'
 import { ArrowLeftOutlined } from '@ant-design/icons'
 import { CardComponent } from '../../../../shared/components/antd'
 import { ErrorState } from '../../components/common/ErrorState'
@@ -21,8 +23,8 @@ import { type MissionDetailTab } from './missionDetailTypes'
 import { useMissionDetailLoad } from './useMissionDetailLoad'
 import { deriveMissionDetailView } from './deriveMissionDetailView'
 import { MissionDetailHeader } from './components/MissionDetailHeader'
+import { MissionPermitPanel } from './components/MissionPermitPanel'
 import { MissionPlanPanel } from './components/MissionPlanPanel'
-import { MissionNextStep } from './components/MissionNextStep'
 import { MissionDetailTabs } from './components/MissionDetailTabs'
 import { OverviewTab } from './components/OverviewTab'
 import './components/missionOrderLayout.css'
@@ -56,6 +58,8 @@ const missionDetailTabs: readonly MissionDetailTab[] = [
   'checklist',
   'route',
   'plan',
+  'permit',
+  'contract',
   'resources',
   'checks',
   'finance',
@@ -190,7 +194,6 @@ function MissionDetail({
     preflight,
     postcheck,
     canSetup,
-    nextStep,
     isCompleted,
     resultApproved,
     headline,
@@ -225,6 +228,7 @@ function MissionDetail({
         mission={mission}
         headline={headline}
         canSetup={canSetup}
+        order={detail.order}
       />
       {needsResourceReplacement ? (
         <Alert
@@ -237,8 +241,6 @@ function MissionDetail({
             </Button>
           }
         />
-      ) : nextStep && !['FAILED', 'COMPLETED'].includes(mission.status) ? (
-        <MissionNextStep nextStep={nextStep} />
       ) : null}
 
       {mission.status === 'FAILED' && (
@@ -263,85 +265,97 @@ function MissionDetail({
         />
       )}
 
-      <div className="mgr-md-workbench">
-        <MissionDetailTabs
-          tabs={tabs}
-          activeTab={activeTab}
-          setTab={selectTab}
-          resourceUnreadCount={resourceUnreadCount}
-        />
+      <div className="mgr-md-content-layout">
+        <ManagerMissionProgress mission={mission} />
+        <div className="mgr-md-workbench">
+          <MissionDetailTabs
+            tabs={tabs}
+            activeTab={activeTab}
+            setTab={selectTab}
+            resourceUnreadCount={resourceUnreadCount}
+          />
 
-        <div
-          className="mgr-md-tabpanel"
-          role="tabpanel"
-          id="mission-detail-panel"
-          aria-labelledby={`mission-detail-tab-${activeTab}`}
-          tabIndex={0}
-        >
-          {!isCompleted && activeTab === 'result' && (
-            <InspectionCorrectionPanel
-              missionId={missionId}
-              manager
-              orderId={mission.orderId}
-              refresh={refreshDetail}
-            />
-          )}
           <div
-            className="mgr-md-overview"
-            hidden={
-              !(
-                ['result', 'media', 'checklist', 'route'] as MissionDetailTab[]
-              ).includes(activeTab)
-            }
+            className="mgr-md-tabpanel"
+            role="tabpanel"
+            id="mission-detail-panel"
+            aria-labelledby={`mission-detail-tab-${activeTab}`}
+            tabIndex={0}
           >
-            <OverviewTab
-              activeTab={activeTab}
-              onTabChange={selectTab}
-              isCompleted={isCompleted}
-              mission={mission}
-              detail={detail}
-              checklist={checklist}
-              loading={loading}
-              refreshDetail={refreshDetail}
-              mediaLibrary={mediaLibrary}
-              resultApproved={resultApproved}
-              checklistExecutions={checklistExecutions}
-              compliantCount={compliantCount}
-              missionId={missionId}
-              waypoints={waypoints}
-              plan={plan}
-            />
-          </div>
-
-          {activeTab === 'plan' && <MissionPlanPanel mission={mission} onUpdated={refreshDetail} />}
-
-          {activeTab === 'checks' ? (
-            <MissionChecksPanel
-              key={mission.id}
-              mission={mission}
-              weather={detail.weather}
-              preflight={preflight}
-              postcheck={postcheck}
-            />
-          ) : null}
-
-          {activeTab === 'finance' ? (
-            <MissionFinanceTab missionId={mission.id} purpose={mission.purpose ?? 'ORIGINAL'} />
-          ) : null}
-
-          {isCompleted && resultApproved ? (
-            <div className="mgr-md-delivery" hidden={activeTab !== 'result'}>
-              <ManagerDeliveryPanel
-                allowLegacyPublication={
-                  detail.result?.approvalStatus === 'APPROVED' &&
-                  detail.result.inspectorConfirmed !== true
-                }
+            {!isCompleted && activeTab === 'result' && (
+              <InspectionCorrectionPanel
+                missionId={missionId}
+                manager
                 orderId={mission.orderId}
-                refreshKey={revision}
-                initialMissionId={mission.id}
+                refresh={refreshDetail}
+              />
+            )}
+            <div
+              className="mgr-md-overview"
+              hidden={
+                !(
+                  ['result', 'media', 'checklist', 'route'] as MissionDetailTab[]
+                ).includes(activeTab)
+              }
+            >
+              <OverviewTab
+                activeTab={activeTab}
+                onTabChange={selectTab}
+                isCompleted={isCompleted}
+                mission={mission}
+                detail={detail}
+                checklist={checklist}
+                loading={loading}
+                refreshDetail={refreshDetail}
+                mediaLibrary={mediaLibrary}
+                resultApproved={resultApproved}
+                checklistExecutions={checklistExecutions}
+                compliantCount={compliantCount}
+                missionId={missionId}
+                waypoints={waypoints}
+                plan={plan}
               />
             </div>
-          ) : null}
+
+            {activeTab === 'plan' && (
+              <MissionPlanPanel mission={mission} onUpdated={refreshDetail} />
+            )}
+
+            {(activeTab === 'contract' || activeTab === 'permit') && (
+              <div className="mgr-mission-documents">
+                <OrderContractPanel orderId={mission.orderId} mode="manager" onConfirmed={refreshDetail} />
+                <MissionPermitPanel mission={mission} onUpdated={refreshDetail} />
+              </div>
+            )}
+
+            {activeTab === 'checks' ? (
+              <MissionChecksPanel
+                key={mission.id}
+                mission={mission}
+                weather={detail.weather}
+                preflight={preflight}
+                postcheck={postcheck}
+              />
+            ) : null}
+
+            {activeTab === 'finance' ? (
+              <MissionFinanceTab missionId={mission.id} purpose={mission.purpose ?? 'ORIGINAL'} />
+            ) : null}
+
+            {isCompleted && resultApproved ? (
+              <div className="mgr-md-delivery" hidden={activeTab !== 'result'}>
+                <ManagerDeliveryPanel
+                  allowLegacyPublication={
+                    detail.result?.approvalStatus === 'APPROVED' &&
+                    detail.result.inspectorConfirmed !== true
+                  }
+                  orderId={mission.orderId}
+                  refreshKey={revision}
+                  initialMissionId={mission.id}
+                />
+              </div>
+            ) : null}
+          </div>
         </div>
       </div>
     </div>

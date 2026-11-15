@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 
 import { useI18n } from '../../../../../shared/i18n'
 import { readStoredDraft } from '../../../lib/createOrder/draftStorage'
@@ -63,6 +63,18 @@ export function useCreateOrderWizard() {
   })
   const meta = useCreateOrderMeta(form.serviceId, f.setForm)
   const service = meta.services.find((s) => s.id === form.serviceId)
+  const quoteErrorCode = checklist.quote.error?.code
+  const { setForm, setStep, setSubmitError } = f
+  const reloadCatalog = meta.reload
+
+  useEffect(() => {
+    if (quoteErrorCode !== 'SERVICE_NOT_FOUND' && quoteErrorCode !== 'SERVICE_INACTIVE') return
+    // A running page may retain service IDs from before a catalog/database refresh.
+    setForm(current => ({ ...current, serviceId: '', deliverableTypeId: '' }))
+    setStep(1)
+    setSubmitError(t.serviceChanged)
+    reloadCatalog()
+  }, [quoteErrorCode, reloadCatalog, setForm, setStep, setSubmitError, t.serviceChanged])
 
   const wizard = useWizard({
     step,

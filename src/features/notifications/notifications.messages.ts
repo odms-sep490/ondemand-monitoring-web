@@ -2,6 +2,15 @@ import { defineMessages } from '../../shared/i18n'
 
 export const notificationsMessages = defineMessages({
   vi: {
+    contractIssuedTitle: 'Hợp đồng đã được phát hành',
+    contractIssuedDescription: 'Đơn {reference} đã có hợp đồng. Vui lòng tải, ký và gửi lại bản PDF.',
+    contractSubmittedTitle: 'Khách hàng đã gửi hợp đồng ký',
+    contractSubmittedDescription: 'Đơn {reference} có bản hợp đồng ký mới cần kiểm tra.',
+    contractChangesTitle: 'Hợp đồng cần chỉnh sửa',
+    contractChangesDescription: 'Quản lý yêu cầu sửa hợp đồng đơn {reference}. Vui lòng xem lý do và gửi lại.',
+    contractConfirmedTitle: 'Hợp đồng đã được xác nhận',
+    contractConfirmedDescription: 'Hợp đồng đơn {reference} đã được xác nhận. Bạn có thể thanh toán cọc trong thời hạn quy định.',
+
     title: 'Thông báo',
     markAllRead: 'Đánh dấu tất cả đã đọc',
     viewAll: 'Xem tất cả thông báo',
@@ -14,6 +23,8 @@ export const notificationsMessages = defineMessages({
     orderDescription: 'Có yêu cầu giám sát mới · {reference}',
     orderReviewTitle: 'Đang xem xét yêu cầu',
     orderReviewDescription: 'Yêu cầu {reference} đang được quản lý xem xét.',
+    informationSubmittedTitle: 'Khách hàng đã bổ sung thông tin',
+    informationSubmittedDescription: 'Đơn {reference} đã được cập nhật và gửi lại để duyệt.',
     orderInfoTitle: 'Yêu cầu cần bổ sung',
     orderInfoDescription: 'Quản lý cần bạn cập nhật yêu cầu {reference}.',
     orderApprovedTitle: 'Yêu cầu đã được duyệt',
@@ -57,6 +68,15 @@ export const notificationsMessages = defineMessages({
     pageDescription: 'Cập nhật liên quan đến đơn hàng và nhiệm vụ của bạn.',
   },
   en: {
+    contractIssuedTitle: 'Contract issued',
+    contractIssuedDescription: 'Order {reference} has a contract. Download, sign and submit the PDF.',
+    contractSubmittedTitle: 'Signed contract submitted',
+    contractSubmittedDescription: 'Order {reference} has a new signed contract awaiting verification.',
+    contractChangesTitle: 'Contract changes requested',
+    contractChangesDescription: 'The contract for order {reference} needs changes. Review the reason and resubmit.',
+    contractConfirmedTitle: 'Contract confirmed',
+    contractConfirmedDescription: 'The contract for order {reference} is confirmed. Pay the deposit before the deadline.',
+
     title: 'Notifications',
     markAllRead: 'Mark all as read',
     viewAll: 'See all notifications',
@@ -70,6 +90,8 @@ export const notificationsMessages = defineMessages({
     orderReviewTitle: 'Request under review',
     orderReviewDescription:
       'Request {reference} is being reviewed by a manager.',
+    informationSubmittedTitle: 'Customer resubmitted information',
+    informationSubmittedDescription: 'Order {reference} was updated and resubmitted for review.',
     orderInfoTitle: 'Request needs more information',
     orderInfoDescription: 'A manager asked you to update request {reference}.',
     orderApprovedTitle: 'Request approved',
