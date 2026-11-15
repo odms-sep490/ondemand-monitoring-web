@@ -60,14 +60,15 @@ export const managerLibMessages = defineMessages({
         PROPELLER_REPLACE: 'Thay cánh quạt',
         BATTERY_SWELL: 'Pin phồng',
         BATTERY_DEGRADED: 'Pin suy giảm',
-        GIMBAL_CALIBRATION: 'Hiệu chuẩn gimbal',
-        CAMERA_GIMBAL: 'Camera / gimbal',
+        GIMBAL_CALIBRATION: 'Hiệu chuẩn bộ chống rung',
+        CAMERA_GIMBAL: 'Camera / bộ chống rung',
         CAMERA_LENS_SCRATCH: 'Xước kính camera',
         IMU_DRIFT: 'Lệch cảm biến IMU',
         SIGNAL_LOSS: 'Mất tín hiệu',
         PHYSICAL_DAMAGE: 'Hư hỏng vật lý',
         OTHER: 'Khác',
       } as Record<string, string>,
+      unknownIssue: 'Sự cố khác',
       statusWords: {
         MAINTENANCE: 'bảo trì',
         OUT_OF_SERVICE: 'ngừng hoạt động',
@@ -85,6 +86,7 @@ export const managerLibMessages = defineMessages({
         e4: 'Pin hạ cánh',
         d1: 'Liên lạc',
       } as Record<string, string>,
+      unknownInspection: (key: string) => `Hạng mục ${key.toUpperCase()}`,
       title: (device: string) => `Bảo trì sau bay – ${device}`,
       deviceNeeds: (device: string) =>
         `Thiết bị ${device} cần được bảo trì sau chuyến bay.`,
@@ -208,6 +210,7 @@ export const managerLibMessages = defineMessages({
         PHYSICAL_DAMAGE: 'Physical damage',
         OTHER: 'Other',
       } as Record<string, string>,
+      unknownIssue: 'Other issue',
       statusWords: {
         MAINTENANCE: 'maintenance',
         OUT_OF_SERVICE: 'out of service',
@@ -224,7 +227,8 @@ export const managerLibMessages = defineMessages({
         e3: 'GPS',
         e4: 'Landing battery',
         d1: 'Communication',
-      },
+      } as Record<string, string>,
+      unknownInspection: (key: string) => `Item ${key.toUpperCase()}`,
       title: (device: string) => `Post-flight maintenance – ${device}`,
       deviceNeeds: (device: string) =>
         `Device ${device} needs post-flight maintenance.`,
