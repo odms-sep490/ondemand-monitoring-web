@@ -32,6 +32,7 @@ export function ReviewStageReadiness({
     readiness?.criteria.some(
       (criterion) =>
         criterion.code !== 'CAPABILITY' &&
+        criterion.code !== 'REQUESTED_SCOPE_FEASIBLE' &&
         criterion.required &&
         (criterion.result === 'FAIL' || criterion.result === 'PENDING'),
     ) ?? true
@@ -45,6 +46,7 @@ export function ReviewStageReadiness({
     readiness?.criteria.filter(
       (criterion) =>
         criterion.code !== 'CAPABILITY' &&
+        criterion.code !== 'REQUESTED_SCOPE_FEASIBLE' &&
         criterion.required &&
         criterion.result === 'FAIL',
     ).length ?? 0

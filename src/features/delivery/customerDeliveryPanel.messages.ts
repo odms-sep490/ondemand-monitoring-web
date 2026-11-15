@@ -62,6 +62,7 @@ export const customerDeliveryPanelMessages = defineMessages({
     resultsAcceptedText:
       'Bản gốc của nhiệm vụ này sẽ mở tải sau khi thanh toán được xác nhận và các yêu cầu chỉnh sửa của nhiệm vụ đã được xử lý.',
     acceptedAwaitingPayment: 'Đã duyệt · chờ thanh toán nhiệm vụ',
+    openPayment: 'Đi tới thanh toán',
     awaitingMissionPaymentTitle: 'Kết quả đã được chấp nhận',
     awaitingMissionPaymentText:
       'Bạn đang xem bản xem trước. Thanh toán nhiệm vụ này để mở tải ảnh/video gốc.',
@@ -219,6 +220,7 @@ export const customerDeliveryPanelMessages = defineMessages({
     resultsAcceptedText:
       'Originals for this mission become downloadable after its payment is confirmed and its revision requests are resolved.',
     acceptedAwaitingPayment: 'Accepted · mission payment pending',
+    openPayment: 'Go to payment',
     awaitingMissionPaymentTitle: 'Results accepted',
     awaitingMissionPaymentText:
       'You are viewing previews. Pay for this mission to unlock its original files.',

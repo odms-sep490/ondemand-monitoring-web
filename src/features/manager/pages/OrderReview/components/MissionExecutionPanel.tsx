@@ -6,8 +6,10 @@ import { MissionExecutionContext } from './MissionExecutionContext'
 /** Compact manager view for tracking execution progress and assigned resources. */
 export function MissionExecutionPanel({
   mission,
+  showMissionLink = true,
 }: {
   mission: MissionResponse
+  showMissionLink?: boolean
 }) {
   const { t } = useI18n(missionExecutionPanelMessages)
 
@@ -16,7 +18,7 @@ export function MissionExecutionPanel({
       className="odm-mission-execution"
       aria-label={t.execution(mission.missionCode)}
     >
-      <MissionExecutionContext mission={mission} />
+      <MissionExecutionContext mission={mission} showMissionLink={showMissionLink} />
     </section>
   )
 }

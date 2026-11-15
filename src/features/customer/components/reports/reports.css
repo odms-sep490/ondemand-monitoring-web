@@ -27,12 +27,6 @@
 .cr-missions .cr-mission {
   margin: 0;
 }
-.cr-metrics {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  padding: 16px 0;
-}
 .cr-note {
   color: var(--tx3, var(--ui-text-3));
   font-size: 14px;
@@ -318,7 +312,7 @@
 /* Order detail: missions summary card */
 .od-page .cr-section {
   margin: 0;
-  padding: 20px 24px 24px;
+  padding: 0;
   border: 1px solid var(--ui-border);
   border-radius: 16px;
   background: var(--ui-surface);
@@ -340,30 +334,6 @@
 .od-page .cr-refresh:hover:not(:disabled) {
   background: var(--ui-surface-2);
   color: var(--ui-primary);
-}
-.cr-metrics {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-  margin: 16px 0 12px;
-  padding: 0;
-}
-.cr-metric {
-  padding: 14px 16px;
-  border-radius: 12px;
-  background: var(--ui-surface-2);
-}
-.cr-metric dt {
-  font-size: 13px;
-  color: var(--ui-text-3);
-}
-.cr-metric dd {
-  margin: 4px 0 0;
-  font-size: 24px;
-  font-weight: 700;
-  line-height: 1.2;
-  font-variant-numeric: tabular-nums;
-  color: var(--ui-text);
 }
 .od-page .cr-note {
   margin: 0 0 16px;
@@ -403,15 +373,6 @@
     align-items: center;
     gap: 4px;
     padding: 8px 12px;
-  }
-  .od-page .cr-section {
-    padding: 16px;
-  }
-  .cr-metrics {
-    gap: 8px;
-  }
-  .cr-metric {
-    padding: 12px;
   }
 }
 
@@ -463,11 +424,6 @@
 .cr-status--waiting { background: var(--ui-warning-soft); color: var(--ui-warning-text); }
 .cr-status--failed,
 .cr-status--cancelled { background: var(--ui-danger-soft); color: var(--ui-danger-text); }
-.cr-metrics {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 12px;
-}
 
 /* Manager-style surfaces (tokens only). */
 .mgr-layout .cr-mission {
@@ -480,10 +436,6 @@
 .mgr-layout .cr-mission h3 {
   font-size: 15px;
   font-weight: 700;
-}
-.mgr-layout .cr-metric {
-  border-radius: 12px;
-  background: var(--mgr-card-2);
 }
 .mgr-layout .cr-report-identity {
   color: var(--mgr-muted);
@@ -522,4 +474,41 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
+}
+
+.cr-section > .ant-card-body > .cr-missions {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.cr-inline-report {
+  display: grid;
+  gap: 12px;
+}
+
+.cr-inline-report .cr-embedded-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+
+.cr-inline-report .cr-embedded-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.cr-inline-report .cr-embedded-refresh {
+  margin-inline-start: auto;
+}
+
+.cr-inline-report .cr-summary-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 155px), 1fr));
+  gap: 10px 16px;
+  align-items: start;
+}
+
+.cr-inline-report .cr-actual-period dd {
+  color: var(--ui-primary-text);
+  font-weight: 700;
 }

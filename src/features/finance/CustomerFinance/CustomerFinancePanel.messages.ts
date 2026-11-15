@@ -2,6 +2,17 @@ import { defineMessages } from '../../../shared/i18n'
 
 export const customerFinancePanelMessages = defineMessages({
   vi: {
+    quoteTitle: 'Duyệt & báo giá',
+    contractTitle: 'Hợp đồng',
+    contractRequiredForPayment:
+      'Hoàn tất xác nhận hợp đồng để thanh toán tiền cọc.',
+    openContract: 'Xem hợp đồng',
+    contractPending: 'Hợp đồng sẽ hiển thị sau khi bạn chấp nhận báo giá.',
+    contractNotRequired: 'Đơn hàng này không yêu cầu hợp đồng.',
+    paymentTitle: 'Thanh toán',
+    paymentPending: 'Chưa có thông tin thanh toán',
+    paymentDescription:
+      'Chấp nhận báo giá, hoàn tất hợp đồng và thanh toán cọc trước khi lập kế hoạch.',
     title: 'Báo giá và thanh toán',
     description: 'Giá do quản lý xác nhận theo nội dung đơn hàng.',
     loading: 'Đang tải báo giá...',
@@ -21,7 +32,7 @@ export const customerFinancePanelMessages = defineMessages({
     quoteVersion: (version: number) => `Báo giá v${version}`,
     apiErrors: {
       CONTRACT_NOT_CONFIRMED:
-        'Cần gửi bản hợp đồng đã ký trước khi thanh toán cọc.',
+        'Cần quản lý xác nhận hợp đồng trước khi thanh toán cọc.',
       INVOICE_ALREADY_PAID: 'Hóa đơn này đã được thanh toán đầy đủ.',
       INVOICE_NOT_PAYABLE: 'Hóa đơn hiện không thể thanh toán.',
       DEPOSIT_ALREADY_SATISFIED: 'Khoản đặt cọc đã được thanh toán.',
@@ -31,6 +42,17 @@ export const customerFinancePanelMessages = defineMessages({
     } as Record<string, string>,
   },
   en: {
+    quoteTitle: 'Quote',
+    contractTitle: 'Contract',
+    contractRequiredForPayment:
+      'Complete contract confirmation before paying the deposit.',
+    openContract: 'View contract',
+    contractPending: 'The contract will appear after you accept the quote.',
+    contractNotRequired: 'This order does not require a contract.',
+    paymentTitle: 'Payment',
+    paymentPending: 'No payment information yet',
+    paymentDescription:
+      'Accept the quote, complete the contract and pay the deposit before planning begins.',
     title: 'Quote and payment',
     description: 'Pricing is confirmed for the items in this order.',
     loading: 'Loading quote…',
@@ -50,7 +72,7 @@ export const customerFinancePanelMessages = defineMessages({
     quoteVersion: (version: number) => `Quote v${version}`,
     apiErrors: {
       CONTRACT_NOT_CONFIRMED:
-        'Submit the signed contract before paying the deposit.',
+        'The manager must confirm the contract before the deposit can be paid.',
       INVOICE_ALREADY_PAID: 'This invoice has already been paid in full.',
       INVOICE_NOT_PAYABLE: 'This invoice cannot be paid right now.',
       DEPOSIT_ALREADY_SATISFIED: 'The deposit has already been paid.',

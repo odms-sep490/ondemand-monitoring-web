@@ -3,6 +3,7 @@ import { Button } from 'antd'
 import { useApiQuery } from '../../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../../shared/i18n'
 import { missionsApi } from '../../../api/missionsApi'
+import { dronesApi } from '../../../api/dronesApi'
 import { WeatherResultDetail } from '../../../components/common/WeatherResultDetail'
 import type { MissionResponse, PersistedPreflightCheckResponse, PersistedPostDeviceCheckResponse, WeatherPreflightCheckResponse } from '../../../types/missions'
 import { missionDetailPageMessages } from '../MissionDetailPage.messages'
@@ -19,6 +20,12 @@ export function MissionChecksPanel({ mission, weather, preflight, postcheck }: {
   const devices = [...new Map((mission.deviceAssignments ?? []).map((item) => [item.deviceId, item])).values()]
   const [selected, setSelected] = useState(devices[0]?.deviceId ?? '')
   const deviceId = devices.some((item) => item.deviceId === selected) ? selected : devices[0]?.deviceId ?? ''
+  const images = useApiQuery(async (signal) => Object.fromEntries(
+    await Promise.all(devices.map(async ({ deviceId: id }) => {
+      const drone = await dronesApi.getDrone(id, signal).catch(() => null)
+      return [id, drone?.imageUrl] as const
+    })),
+  ), [mission.id, JSON.stringify(devices.map((device) => device.deviceId))])
   const query = useApiQuery(async (signal) => {
     if (!deviceId) return { deviceId, preflight, postcheck }
     const checks = await Promise.allSettled([
@@ -48,8 +55,16 @@ export function MissionChecksPanel({ mission, weather, preflight, postcheck }: {
       <div className={`mgr-check-workspace${devices.length === 0 ? ' is-no-devices' : ''}`}>
       {devices.length > 0 && <div className="mgr-check-device-picker" role="group" aria-label={t.selectDevice}>
         {devices.map((device) => <button type="button" key={device.deviceId} aria-pressed={deviceId === device.deviceId} onClick={() => setSelected(device.deviceId)}>
-          <strong>{device.deviceCode || device.deviceSerialNumber}</strong>
-          <span>{device.deviceName}</span>
+          <img className="mgr-check-device-avatar" src={images.data?.[device.deviceId] || '/images/auth-hero-drone.png'} alt=""
+            onError={(event) => {
+              if (!event.currentTarget.src.endsWith('/images/auth-hero-drone.png')) {
+                event.currentTarget.src = '/images/auth-hero-drone.png'
+              }
+            }} />
+          <span className="mgr-check-device-name">
+            <strong>{device.deviceCode || device.deviceSerialNumber}</strong>
+            <span>{device.deviceName}</span>
+          </span>
         </button>)}
       </div>}
       <div className="mgr-check-device-results" aria-live="polite">

@@ -74,8 +74,10 @@ function checkStatusTone(status: DeviceSummary['checkupStatus']): StatusTone {
 
 export function MissionExecutionContext({
   mission,
+  showMissionLink = true,
 }: {
   mission: MissionResponse
+  showMissionLink?: boolean
 }) {
   const { t } = useI18n(missionExecutionPanelMessages)
   const { t: permit } = useI18n(flightPermitCardMessages)
@@ -101,12 +103,14 @@ export function MissionExecutionContext({
         </div>
         <div className="odm-execution-status__actions">
           <MissionStatusTag mission={mission} />
-          <a
-            className="odm-execution-status__link"
-            href={managerHref({ screen: 'missionDetail', missionId: mission.id })}
-          >
-            {t.openMission}
-          </a>
+          {showMissionLink && (
+            <a
+              className="odm-execution-status__link"
+              href={managerHref({ screen: 'missionDetail', missionId: mission.id })}
+            >
+              {t.openMission}
+            </a>
+          )}
         </div>
       </header>
 

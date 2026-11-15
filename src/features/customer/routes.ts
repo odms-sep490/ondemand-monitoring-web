@@ -23,7 +23,7 @@ export function parseCustomerRoute(hash: string): CustomerRoute {
     return { screen: 'notFound' }
   }
 
-  const rest = hash.slice(CUSTOMER_ROOT.length)
+  const rest = hash.split('?')[0].slice(CUSTOMER_ROOT.length)
   const segments = rest.split('/').filter(Boolean).map(decodeURIComponent)
 
   if (segments.length === 0) return { screen: 'orders' }

@@ -1,3 +1,4 @@
+import './ordersBanner.css'
 import { PlusOutlined } from '@ant-design/icons'
 import { Button } from 'antd'
 
@@ -6,7 +7,6 @@ import { useI18n } from '../../../../shared/i18n'
 import { ErrorState, LoadingState } from '../../components/common/StateView'
 import { customerHref } from '../../routes'
 import { OrdersEmpty } from './components/OrdersEmpty'
-import { OrdersStats } from './components/OrdersStats'
 import { OrdersTable } from './components/OrdersTable'
 import { OrdersToolbar } from './components/OrdersToolbar'
 import { useOrdersList } from './hooks/useOrdersList'
@@ -29,7 +29,6 @@ export function OrdersPage() {
           </Button>
         }
       />
-      {list.stats && <OrdersStats stats={list.stats} />}
       <OrdersToolbar
         status={list.status}
         query={list.query}

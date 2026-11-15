@@ -1,3 +1,4 @@
+import { subscribeNotificationRefresh } from '../../notifications/notificationRealtime'
 import { OrderContractPanel } from '../../contract/OrderContractPanel'
 import { Alert, Button, Skeleton } from 'antd'
 import { ApiError } from '../../../shared/api/httpClient'
@@ -25,6 +26,7 @@ export type CustomerFinanceState = {
   quote: CustomerQuote | null
   invoice: Invoice | null
   loading: boolean
+  missionPayments?: MissionPaymentAllocation | null
 }
 
 export function CustomerFinancePanel({
@@ -33,8 +35,16 @@ export function CustomerFinancePanel({
   active = false,
   onStateChange,
   refreshKey,
+  section = 'all',
+  onQuoteAccepted,
+  onOpenContract,
+  onOpenPayment,
 }: {
   orderId: string
+  section?: 'all' | 'quote' | 'payment' | 'contract'
+  onQuoteAccepted?: (invoice: Invoice) => void
+  onOpenContract?: () => void
+  onOpenPayment?: () => void
   legalStatus?:
     'NOT_REVIEWED' | 'NOT_REQUIRED' | 'PENDING_PERMIT' | 'APPROVED' | 'REJECTED'
   active?: boolean
@@ -142,6 +152,10 @@ export function CustomerFinancePanel({
     void load()
   }, [load])
 
+  useEffect(() => subscribeNotificationRefresh((_notification, replay) => {
+    if (!replay) void load()
+  }), [load])
+
   useEffect(() => {
     if (!active || !invoice) return
 
@@ -149,6 +163,13 @@ export function CustomerFinancePanel({
     const refreshWhenVisible = () => {
       if (document.visibilityState === 'visible') {
         void refreshMissionPayments(controller.signal)
+        void financeApi.getInvoice(orderId, controller.signal)
+          .then((updated) => {
+            if (!controller.signal.aborted) setInvoice(updated)
+          })
+          .catch(() => {
+            // Keep the last invoice visible until the next refresh succeeds.
+          })
       }
     }
 
@@ -163,19 +184,21 @@ export function CustomerFinancePanel({
       window.removeEventListener('focus', refreshWhenVisible)
       document.removeEventListener('visibilitychange', refreshWhenVisible)
     }
-  }, [active, invoice, refreshMissionPayments])
+  }, [active, invoice?.id, orderId, refreshMissionPayments])
 
   useEffect(() => {
-    onStateChange?.({ quote, invoice, loading })
-  }, [invoice, loading, onStateChange, quote])
+    onStateChange?.({ quote, invoice, loading, missionPayments })
+  }, [invoice, loading, missionPayments, onStateChange, quote])
 
   async function accept() {
     if (!quote || quoteStale) return
     setBusy(true)
     setError(null)
     try {
-      setInvoice(await financeApi.acceptQuote(orderId, quote.id))
+      const acceptedInvoice = await financeApi.acceptQuote(orderId, quote.id)
+      setInvoice(acceptedInvoice)
       await load()
+      onQuoteAccepted?.(acceptedInvoice)
     } catch (cause) {
       setError(messageOf(cause, t))
       if (cause instanceof ApiError && cause.status === 409) setQuoteStale(true)
@@ -187,12 +210,7 @@ export function CustomerFinancePanel({
   // The payment type is part of InvoiceSection's onPay contract; only deposits exist today.
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async function pay(_type: 'deposit') {
-    if (
-      !invoice ||
-      (invoice.contractRequired &&
-        !invoice.contractConfirmedAt &&
-        !invoice.contractSubmittedAt)
-    )
+    if (!invoice || (invoice.contractRequired && !invoice.contractConfirmedAt))
       return
     setBusy(true)
     setError(null)
@@ -207,12 +225,7 @@ export function CustomerFinancePanel({
   }
 
   async function completeTestPayment() {
-    if (
-      !invoice ||
-      (invoice.contractRequired &&
-        !invoice.contractConfirmedAt &&
-        !invoice.contractSubmittedAt)
-    )
+    if (!invoice || (invoice.contractRequired && !invoice.contractConfirmedAt))
       return
     setBusy(true)
     setError(null)
@@ -265,16 +278,25 @@ export function CustomerFinancePanel({
     return messageOf(cause, t)
   }
 
+  const showQuote = section !== 'payment'
+  const showPayment = section !== 'quote'
   const handedOverMilestones = getHandedOverMissionMilestones(missionPayments)
   const unpaidHandedOverCount =
     getActionableHandedOverMilestones(missionPayments).length
-
   const invoiceSummaryContent = invoice ? (
     <InvoiceSummary invoice={invoice} />
   ) : null
 
   const invoiceContent = invoice ? (
     <>
+      {invoice.contractRequired && !invoice.contractConfirmedAt && onOpenContract ? (
+        <Alert
+          type="info"
+          showIcon
+          message={t.contractRequiredForPayment}
+          action={<Button onClick={onOpenContract}>{t.openContract}</Button>}
+        />
+      ) : null}
       <InvoiceSection
         invoice={invoice}
         legalReady={legalReady}
@@ -289,17 +311,45 @@ export function CustomerFinancePanel({
     </>
   ) : null
 
+  if (section === 'contract') {
+    return (
+      <CardComponent title={t.contractTitle}>
+        {loading && !invoice ? <Skeleton active paragraph={{ rows: 3 }} /> : (
+          invoice?.contractRequired ? (
+            <OrderContractPanel
+              orderId={orderId}
+              mode="customer"
+              onProceedToPayment={onOpenPayment}
+              onConfirmed={invoice.contractConfirmedAt ? undefined : () => void load()}
+            />
+          ) : (
+            <EmptyState title={invoice ? t.contractNotRequired : t.contractPending} />
+          )
+        )}
+        {error ? <Alert type="error" showIcon message={error} action={<Button onClick={() => void load()}>{t.retry}</Button>} /> : null}
+      </CardComponent>
+    )
+  }
+
   if (loading && !quote && !invoice)
     return (
       <>
-        <RefundStatusSection
-          refund={refund}
-          loading={refundLoading}
-          error={refundError}
-        />
+        {showPayment && (
+          <RefundStatusSection
+            refund={refund}
+            loading={refundLoading}
+            error={refundError}
+          />
+        )}
         <CardComponent
           className="customer-finance-card"
-          title={t.title}
+          title={
+            section === 'quote'
+              ? t.quoteTitle
+              : section === 'payment'
+                ? t.paymentTitle
+                : t.title
+          }
           icon={<OrderIcon name="tag" size={16} />}
         >
           <div
@@ -316,14 +366,22 @@ export function CustomerFinancePanel({
   if (!quote && !invoice && !error)
     return (
       <>
-        <RefundStatusSection
-          refund={refund}
-          loading={refundLoading}
-          error={refundError}
-        />
+        {showPayment && (
+          <RefundStatusSection
+            refund={refund}
+            loading={refundLoading}
+            error={refundError}
+          />
+        )}
         <CardComponent
           className="customer-finance-card"
-          title={t.title}
+          title={
+            section === 'quote'
+              ? t.quoteTitle
+              : section === 'payment'
+                ? t.paymentTitle
+                : t.title
+          }
           icon={<OrderIcon name="tag" size={16} />}
         >
           <EmptyState
@@ -337,14 +395,22 @@ export function CustomerFinancePanel({
 
   return (
     <>
-      <RefundStatusSection
-        refund={refund}
-        loading={refundLoading}
-        error={refundError}
-      />
+      {showPayment && (
+        <RefundStatusSection
+          refund={refund}
+          loading={refundLoading}
+          error={refundError}
+        />
+      )}
       <CardComponent
         className="customer-finance-card"
-        title={t.title}
+        title={
+          section === 'quote'
+            ? t.quoteTitle
+            : section === 'payment'
+              ? t.paymentTitle
+              : t.title
+        }
         icon={<OrderIcon name="tag" size={16} />}
         extra={
           quote ? (
@@ -354,9 +420,22 @@ export function CustomerFinancePanel({
           ) : null
         }
       >
-        <p className="customer-finance-desc">{t.description}</p>
+        {invoice?.status !== 'PAID' && (
+          <p className="customer-finance-desc">
+            {section === 'payment' ? t.paymentDescription : t.description}
+          </p>
+        )}
+        {section === 'payment' && invoice && invoice.paidAmount > 0 ? (
+          <InvoiceSummary invoice={invoice} />
+        ) : null}
+        {section === 'payment' && !invoice ? (
+          <EmptyState
+            title={t.paymentPending}
+            description={t.paymentDescription}
+          />
+        ) : null}
 
-        {quote ? (
+        {showQuote && quote ? (
           <QuoteSection
             quote={quote}
             legalReady={legalReady}
@@ -365,34 +444,16 @@ export function CustomerFinancePanel({
             busy={busy || quoteStale}
             accept={accept}
             refreshExpired={() => void load()}
-            paymentContent={
-              <>
-                {(quote.status === 'APPROVED' || invoice?.contractRequired) && (
-                  <OrderContractPanel
-                    orderId={orderId}
-                    quoteId={quote.id}
-                    mode="customer"
-                    refreshKey={invoice?.id}
-                    onUpdated={() => void load()}
-                  />
-                )}
-                {invoiceContent}
-              </>
+            paymentContent={showPayment ? invoiceContent : null}
+            paymentSummaryContent={
+              section === 'all' ? invoiceSummaryContent : null
             }
-            paymentSummaryContent={invoiceSummaryContent}
           />
         ) : null}
 
-        {!quote && invoice ? (
+        {showPayment && (!showQuote || !quote) && invoice ? (
           <div className="customer-invoice-standalone">
-            {invoiceSummaryContent}
-            {invoice.contractRequired && (
-              <OrderContractPanel
-                orderId={orderId}
-                mode="customer"
-                onUpdated={() => void load()}
-              />
-            )}
+            {section === 'all' && !quote ? invoiceSummaryContent : null}
             {invoiceContent}
           </div>
         ) : null}
@@ -419,8 +480,17 @@ export function CustomerFinancePanel({
           />
         ) : null}
       </CardComponent>
-      {invoice ? (
+      {showPayment && invoice ? (
         <MissionPaymentMilestonesSection
+          key={invoice.id}
+          invoiceId={invoice.id}
+          paidAmount={invoice.paidAmount}
+          depositAmount={invoice.depositAmount}
+          depositPaid={
+            invoice.depositStatus != null
+              ? invoice.depositStatus === 'DEPOSIT_PAID'
+              : invoice.paidAmount >= invoice.depositAmount
+          }
           allocation={missionPayments}
           loading={missionPaymentsLoading}
           error={missionPaymentsError}

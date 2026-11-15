@@ -1,3 +1,4 @@
+import { dashboardPageMessages } from './DashboardPage.messages'
 import { getLanguage } from '../../../../shared/i18n'
 import type { ActionItem, ManagerDashboardData } from '../../types/dashboard'
 import type { ManagerRoute } from '../../routes'
@@ -12,7 +13,8 @@ export function actionItemRoute(item: ActionItem): ManagerRoute {
 }
 
 export function statusLabel(status: string): string {
-  return status.replaceAll('_', ' ')
+  const labels = dashboardPageMessages[getLanguage()].analytics.statusLabels
+  return labels[status] ?? status.replaceAll('_', ' ')
 }
 
 export function formatDashboardDate(value: string): string {
@@ -106,4 +108,13 @@ export function groupActionItems(items: ActionItem[]): { type: string; items: Ac
     else groups.set(item.type, [item])
   }
   return [...groups].map(([type, list]) => ({ type, items: list }))
+}
+
+/** Translate machine status tokens in activity descriptions without altering order identifiers. */
+export function dashboardActivityLabel(description: string): string {
+ if (getLanguage() !== 'vi') return description
+ return description.replace(/\bMission\b/g, 'Nhiệm vụ').replace(/\b[A-Z]+(?:_[A-Z]+)*\b/g, token => {
+  const labels = dashboardPageMessages.vi.analytics.statusLabels
+  return labels[token] ?? token
+ })
 }

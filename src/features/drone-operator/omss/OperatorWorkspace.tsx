@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { authSession } from '../../auth/api/authApi'
-import { useI18n } from '../../../shared/i18n'
+import { getLanguage, useI18n } from '../../../shared/i18n'
 import type { Screen, Mission, Drone, NavId } from '../types/omss'
 import { missionApi } from '../../mission/api/missionApi'
 import type { MissionPermissions } from '../../mission/types/permissions'
@@ -650,12 +650,12 @@ export default function OperatorWorkspace() {
     }
   }
 
-  async function handleLanded() {
+  async function handleLanded(readTelemetry = true) {
     if (!mission) return
     try {
-      const telemetrySnapshot = await flightControlApi
-        .status()
-        .catch(() => null)
+      const telemetrySnapshot = readTelemetry
+        ? await flightControlApi.status().catch(() => null)
+        : null
       setPostflightTelemetry(telemetrySnapshot)
       const updated = await missionApi.startPostflight(
         mission.backendId ?? mission.id,
@@ -670,10 +670,14 @@ export default function OperatorWorkspace() {
   }
 
   async function handleFailureLanded() {
-    if (!mission) return
+    if (!mission || !window.confirm(
+      getLanguage() === 'vi'
+        ? 'Xác nhận drone chưa cất cánh hoặc đã hạ cánh và dừng động cơ?'
+        : 'Confirm the drone never took off or has landed and stopped its motors?',
+    )) return
     try {
       await missionApi.markReturning(mission.backendId ?? mission.id)
-      await handleLanded()
+      await handleLanded(false)
     } catch (cause) {
       setMissionsError(
         cause instanceof Error ? cause.message : t.errors.rtbUpdateFailed,

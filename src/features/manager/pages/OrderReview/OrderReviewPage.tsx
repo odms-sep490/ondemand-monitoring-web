@@ -58,10 +58,6 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
   // A completed Order stage reopened read-only; null = the live (current) screen.
   const [viewStage, setViewStage] = useState<OrderStage | null>(null)
   const [planning, setPlanning] = useState<PlanningWorkflowInfo | null>(null)
-  // Track the active planning, permit, or execution stage.
-  const [activeWorkflowTab, setActiveWorkflowTab] = useState<
-    'planning' | 'permit' | 'execution'
-  >('planning')
   const pageRef = useRef<HTMLDivElement>(null)
   const [assigningMissionId, setAssigningMissionId] = useState<string | null>(
     null,
@@ -78,18 +74,6 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
     }
   }, [orderQuery.data?.status])
 
-  const hasApprovedPermit = Boolean(
-    planning?.missions.some(
-      (mission) => mission.flightPermitStatus === 'APPROVED',
-    ),
-  )
-
-  // Once any mission's permit is approved, open the execution flow.
-  useEffect(() => {
-    if (planning?.isFinalized) {
-      setActiveWorkflowTab(hasApprovedPermit ? 'execution' : 'permit')
-    }
-  }, [planning?.isFinalized, hasApprovedPermit])
   if (navigateHome) {
     window.location.hash = managerHref({ screen: 'orderQueue' })
     return null
@@ -126,11 +110,10 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
     order.status,
   )
 
-  // Until the planning data arrives assume the deposit is paid, so the header
-  // never flashes "waiting for deposit" for an order that is already funded.
+  // Keep planning locked until the invoice and contract have been checked.
   const stepperProgress = orderProgress({
     status: order.status,
-    depositPaid: planning ? planning.depositPaid : true,
+    depositPaid: planning?.depositPaid ?? false,
     reviewStep,
     planFinalized: planning?.isFinalized,
   })
@@ -142,7 +125,6 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
     if (stage !== 'planning' && planning?.depositPaid) return
     if (stage === 'planning') {
       setViewStage(null)
-      setActiveWorkflowTab('planning')
       pageRef.current?.scrollIntoView?.({ block: 'start' })
       return
     }
@@ -193,6 +175,7 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
     readiness?.criteria.filter(
       (c) =>
         c.code !== 'CAPABILITY' &&
+        c.code !== 'REQUESTED_SCOPE_FEASIBLE' &&
         c.type === 'MANUAL' &&
         c.required &&
         c.result === 'PENDING',
@@ -204,23 +187,9 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
         showExecutionPlan={showExecutionPlan}
         stepperProgress={stepperProgress}
         order={order}
-        viewStage={
-          viewStage ??
-          (planning?.isFinalized && activeWorkflowTab === 'planning'
-            ? 'planning'
-            : null)
-        }
+        viewStage={viewStage}
         openStage={openStage}
         goToStep={goToStep}
-        planning={planning}
-        viewMissionStage={activeWorkflowTab === 'permit' ? 'permit' : null}
-        onSelectMissionStage={(stage) => {
-          if (stage === 'permit' || stage === 'execute') {
-            setViewStage(null)
-            setActiveWorkflowTab(stage === 'permit' ? 'permit' : 'execution')
-            pageRef.current?.scrollIntoView?.({ block: 'start' })
-          }
-        }}
       />
       {order.status === 'CANCELLED' && (
         <CancelledOrderContractPanel
@@ -252,8 +221,6 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
             onAssignResources={setAssigningMissionId}
             onWorkflowInfo={setPlanning}
             onOrderUpdated={orderQuery.reload}
-            activeTab={activeWorkflowTab}
-            onBackToPlanning={() => setActiveWorkflowTab('planning')}
           />
         </div>
       )}

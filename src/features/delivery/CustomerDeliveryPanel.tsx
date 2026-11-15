@@ -9,7 +9,7 @@ import {
   Typography,
   notification,
 } from 'antd'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, type ReactNode } from 'react'
 import { ApiError } from '../../shared/api/httpClient'
 import {
   requestOriginalMediaDownload,
@@ -32,6 +32,7 @@ import { MissionDeliveryTabs } from './MissionDeliveryTabs'
 type CustomerDeliveryPanelProps = {
   orderId: string
   initialDelivery?: Delivery | null
+  onOpenPayment?: () => void
   initialMissionId?: string
   onStateChange?: (
     delivery: Delivery | null,
@@ -64,11 +65,13 @@ function ScopedCustomerDeliveryPanel({
   onStateChange,
   onOpenFinance,
   onPaymentCompleted,
+  onOpenPayment,
   missionId,
 }: {
   orderId: string
   missionId?: string
   initialDelivery?: Delivery | null
+  onOpenPayment?: () => void
   onStateChange?: (
     delivery: Delivery | null,
     state: DeliveryPanelLoadState,
@@ -441,7 +444,7 @@ function ScopedCustomerDeliveryPanel({
               error={paymentError}
               onPay={(id) => void handlePayMission(id)}
               onTestPay={(id) => void handleTestPayMission(id)}
-              onOpenFinance={onOpenFinance}
+              onOpenFinance={onOpenFinance ?? onOpenPayment}
             />
           </div>
         ) : delivery.deliveryStatus === 'FINAL_PAYMENT_PENDING' ||
@@ -643,12 +646,14 @@ function StatusBanner({
   title,
   text,
   tone = 'info',
+  action,
 }: {
   title: string
   text: string
   tone?: 'info' | 'warning' | 'success'
+  action?: ReactNode
 }) {
-  return <Alert type={tone} showIcon message={title} description={text} />
+  return <Alert type={tone} showIcon message={title} description={text} action={action} />
 }
 
 function formatBytes(bytes: number, unknown: string) {

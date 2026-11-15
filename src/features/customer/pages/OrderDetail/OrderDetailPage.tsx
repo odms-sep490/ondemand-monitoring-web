@@ -7,19 +7,17 @@ import { useI18n } from '../../../../shared/i18n'
 import { ContextAwareHelpWidget } from '../../../support/components/ContextAwareHelpWidget'
 import { deliveryProgressMessages } from '../../../delivery/deliveryProgress.messages'
 import { CustomerDeliveryPanel } from '../../../delivery/CustomerDeliveryPanel'
-import type { Delivery, DeliveryPanelLoadState } from '../../../delivery/types'
+import type { Delivery } from '../../../delivery/types'
 import {
   CustomerFinancePanel,
   type CustomerFinanceState,
 } from '../../../finance/CustomerFinance'
 import { customerMissionReportApi } from '../../api/customerMissionReportApi'
-import { CustomerOrderMissionsView } from '../../components/reports/CustomerOrderMissionsSection'
 import { checklistMessages } from '../../lib/checklist/messages'
 import { getOrderStatusMeta } from '../../lib/orderStatus'
 import { ChecklistSnapshotCard } from '../../components/checklist/ChecklistSnapshotCard'
 import { OrderHeader } from './components/OrderHeader'
 import { OrderInfoCard } from './components/OrderInfoCard'
-import { OrderNextStepSummary } from './components/OrderNextStepSummary'
 import { OrderOverviewVisualCard } from './components/OrderOverviewVisualCard'
 import { OrderTimeline } from './components/OrderTimeline'
 import { ReviewNotice } from './components/ReviewNotice'
@@ -31,11 +29,11 @@ import { authSession } from '../../../auth/api/authApi'
 import { env } from '../../../../config/env'
 import './OrderDetail.css'
 
-type DetailTab = 'order' | 'monitoring' | 'finance' | 'support' | 'results'
+type DetailTab =
+  'order' | 'monitoring' | 'finance' | 'contract' | 'payment' | 'support' | 'results'
 type CachedDeliveryState = {
   orderId: string
   delivery: Delivery | null
-  state: DeliveryPanelLoadState
 }
 
 type CustomerOrderEvent = {
@@ -90,29 +88,43 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
     orderId: string
     tab: DetailTab
   } | null>(null)
+  useEffect(() => {
+    const openLinkedTab = () => {
+      const tab = new URLSearchParams(window.location.hash.split('?')[1]).get('tab')
+      if (tab === 'contract') setSelectedTab({ orderId, tab })
+    }
+    openLinkedTab()
+    window.addEventListener('hashchange', openLinkedTab)
+    return () => window.removeEventListener('hashchange', openLinkedTab)
+  }, [orderId])
   const [deliveryState, setDeliveryState] =
     useState<CachedDeliveryState | null>(null)
-  const [focusResultsOrderId, setFocusResultsOrderId] = useState<string | null>(
-    null,
-  )
   const currentMissionData =
     order && missionQuery.data?.orderId === order.id
       ? missionQuery.data
       : undefined
   const missions = currentMissionData?.missions ?? []
-  const currentMissionQuery = currentMissionData
-    ? {
-        data: currentMissionData.missions,
-        error: missionQuery.error,
-        loading: missionQuery.loading,
-        reload: missionQuery.reload,
-      }
-    : {
-        data: undefined,
-        error: undefined,
-        loading: true,
-        reload: missionQuery.reload,
-      }
+  const reportStarts = useApiQuery(async (signal) => {
+    if (!currentMissionData) return undefined
+    const starts = await Promise.allSettled(
+      currentMissionData.missions
+        .filter((mission) => !mission.actualStartAt && mission.reportAvailable)
+        .map(async (mission) => {
+          const report = await customerMissionReportApi.report(orderId, mission.missionId, signal)
+          return [mission.missionId, report.result?.startedAt] as const
+        }),
+    )
+    return {
+      missionData: currentMissionData,
+      byMission: new Map(starts.flatMap((result) => result.status === 'fulfilled' ? [result.value] : [])),
+    }
+  }, [orderId, currentMissionData])
+  const timelineMissions = reportStarts.data && reportStarts.data.missionData === currentMissionData
+    ? missions.map((mission) => ({
+        ...mission,
+        actualStartAt: mission.actualStartAt ?? reportStarts.data?.byMission.get(mission.missionId),
+      }))
+    : missions
   const updateFinance = useCallback((state: CustomerFinanceState) => {
     setFinance(state)
   }, [])
@@ -152,7 +164,6 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
           detail.reload()
           return
         }
-
       })
     }
 
@@ -183,17 +194,13 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
     [acknowledgeQuote, orderId],
   )
   const updateDelivery = useCallback(
-    (delivery: Delivery | null, state: DeliveryPanelLoadState) => {
-      setDeliveryState({ orderId, delivery, state })
+    (delivery: Delivery | null) => {
+      setDeliveryState({ orderId, delivery })
     },
     [orderId],
   )
   const cachedDelivery =
     deliveryState?.orderId === order?.id ? deliveryState : null
-  const onPrimaryAction = useCallback(() => {
-    setSelectedTab({ orderId, tab: 'results' })
-    setFocusResultsOrderId(orderId)
-  }, [orderId])
 
   const hasResults = Boolean(
     order && ['IN_PROGRESS', 'COMPLETED'].includes(order.status),
@@ -206,18 +213,6 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
     requestedTab && (requestedTab !== 'results' || hasResults)
       ? requestedTab
       : defaultTab
-
-  useEffect(() => {
-    if (!order || focusResultsOrderId !== order.id || activeTab !== 'results')
-      return
-    const frame = window.requestAnimationFrame(() => {
-      const panel = document.getElementById('customer-delivery-panel')
-      panel?.scrollIntoView?.({ behavior: 'smooth', block: 'start' })
-      panel?.focus({ preventScroll: true })
-      setFocusResultsOrderId(null)
-    })
-    return () => window.cancelAnimationFrame(frame)
-  }, [activeTab, focusResultsOrderId, order])
 
   if (detail.loading && !order) return <LoadingState />
   if (!order || detail.error) {
@@ -232,36 +227,21 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
 
   const orderContent = (
     <div className="od-order-panel">
-      <div className="cus-main-grid">
-        <div className="cus-stack">
-          <OrderInfoCard
-            order={order}
-            canEdit={
-              (['PENDING', 'NEEDS_INFO'].includes(order.status) &&
-                !(
-                  order.status === 'NEEDS_INFO' && order.requestedUpdateScope
-                )) ||
-              (order.status === 'APPROVED' &&
-                finance.quote?.status !== 'ACCEPTED_BY_CUSTOMER' &&
-                !finance.invoice)
-            }
-            onUpdated={detail.reload}
-          />
-        </div>
-        <div className="cus-side">
-          <OrderTimeline
-            status={order.status}
-            events={order.timeline}
-            finance={finance}
-            missions={missions}
-          />
-        </div>
-      </div>
+      <OrderInfoCard
+        order={order}
+        canEdit={
+          (['PENDING', 'NEEDS_INFO'].includes(order.status) &&
+            !(order.status === 'NEEDS_INFO' && order.requestedUpdateScope)) ||
+          (order.status === 'APPROVED' &&
+            finance.quote?.status !== 'ACCEPTED_BY_CUSTOMER' &&
+            !finance.invoice)
+        }
+        onUpdated={detail.reload}
+      />
     </div>
   )
   const monitoringContent = (
     <div className="od-monitoring-panel cus-stack">
-      <CustomerOrderMissionsView key={order.id} query={currentMissionQuery} />
       <ChecklistSnapshotCard
         title={<CardTitle icon="drone">{checklistT.title}</CardTitle>}
         items={order.checklistItems}
@@ -296,7 +276,11 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
       <CustomerFinancePanel
         orderId={order.id}
         legalStatus={order.legalReviewStatus}
-        active={activeTab === 'finance'}
+        active={activeTab === 'finance' || activeTab === 'payment'}
+        section={activeTab === 'contract' ? 'contract' : activeTab === 'payment' ? 'payment' : 'quote'}
+        onQuoteAccepted={(invoice) => setSelectedTab({ orderId, tab: invoice.contractRequired && !invoice.contractConfirmedAt ? 'contract' : 'payment' })}
+        onOpenContract={() => setSelectedTab({ orderId, tab: 'contract' })}
+        onOpenPayment={() => setSelectedTab({ orderId, tab: 'payment' })}
         onStateChange={updateFinance}
         refreshKey={`${order.status}:${order.checklistRevision}:${financeRefreshVersion}`}
       />
@@ -310,8 +294,8 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
         status={order.status}
         statusLabel={
           cachedDelivery?.delivery
-            ? deliveryT.status[cachedDelivery.delivery.deliveryStatus] ??
-              deliveryT.unknownStatus
+            ? (deliveryT.status[cachedDelivery.delivery.deliveryStatus] ??
+              deliveryT.unknownStatus)
             : getOrderStatusMeta(order.status, lang).label
         }
         deliveryStatus={cachedDelivery?.delivery?.deliveryStatus}
@@ -322,87 +306,99 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
 
   return (
     <div className="cus-page od-page">
-      <OrderHeader order={order} />
+      <OrderHeader order={order} onUpdated={detail.reload} />
       <ReviewNotice order={order} onInformationSubmitted={detail.reload} />
 
-      {hasResults ? (
-        <OrderNextStepSummary
-          delivery={cachedDelivery?.delivery ?? null}
-          deliveryState={cachedDelivery?.state ?? 'loading'}
-          missions={missions}
-          missionLoading={currentMissionQuery.loading}
-          missionError={Boolean(currentMissionQuery.error)}
-          onPrimaryAction={onPrimaryAction}
-        />
-      ) : null}
-
-      <Tabs
-        id="customer-order-tabs"
-        className="od-tabs"
-        activeKey={activeTab}
-        aria-label={t.pageTabs}
-        onChange={handleTabChange}
-        onTabClick={(key) => {
-          if (key === 'finance') acknowledgeQuote()
-        }}
-        items={[
-          ...(hasResults
-            ? [
-                {
-                  key: 'results',
-                  label: t.tabResults,
-                  forceRender: true,
-                  children: (
-                    <div className="od-results-panel">
-                      <CustomerDeliveryPanel
-                        key={order.id}
-                        orderId={order.id}
-                        initialDelivery={cachedDelivery?.delivery ?? null}
-                        onStateChange={updateDelivery}
-                        onOpenFinance={() => handleTabChange('finance')}
-                        onPaymentCompleted={() => {
-                          setFinanceRefreshVersion((version) => version + 1)
-                          detail.reload()
-                        }}
-                      />
-                    </div>
-                  ),
-                },
-              ]
-            : []),
-          {
-            key: 'order',
-            label: t.tabOverview,
-            children: activeTab === 'order' ? orderContent : null,
-          },
-          {
-            key: 'monitoring',
-            label: t.tabMonitoring,
-            children: activeTab === 'monitoring' ? monitoringContent : null,
-          },
-          {
-            key: 'finance',
-            label: (
-              <span className="od-finance-tab-label">
-                {t.tabFinance}
-                {unreadQuoteId ? (
-                  <Badge
-                    dot
-                    title={t.newQuoteApproval}
-                  />
-                ) : null}
-              </span>
-            ),
-            forceRender: true,
-            children: financeContent,
-          },
-          {
-            key: 'support',
-            label: t.tabSupport,
-            children: activeTab === 'support' ? supportContent : null,
-          },
-        ]}
-      />
+      <div className="od-detail-layout">
+        <div className="od-detail-main">
+          <Tabs
+            id="customer-order-tabs"
+            className="od-tabs"
+            activeKey={activeTab}
+            aria-label={t.pageTabs}
+            onChange={handleTabChange}
+            onTabClick={(key) => {
+              if (key === 'finance') acknowledgeQuote()
+            }}
+            items={[
+              ...(hasResults
+                ? [
+                    {
+                      key: 'results',
+                      label: t.tabResults,
+                      forceRender: true,
+                      children: (
+                        <div className="od-results-panel">
+                          <CustomerDeliveryPanel
+                            key={order.id}
+                            orderId={order.id}
+                            initialDelivery={cachedDelivery?.delivery ?? null}
+                            onStateChange={updateDelivery}
+                            onOpenPayment={() => setSelectedTab({ orderId, tab: 'payment' })}
+                            onOpenFinance={() => handleTabChange('payment')}
+                            onPaymentCompleted={() => {
+                              setFinanceRefreshVersion((version) => version + 1)
+                              detail.reload()
+                            }}
+                          />
+                        </div>
+                      ),
+                    },
+                  ]
+                : []),
+              {
+                key: 'order',
+                label: t.tabOverview,
+                children: activeTab === 'order' ? orderContent : null,
+              },
+              {
+                key: 'monitoring',
+                label: t.tabMonitoring,
+                children: activeTab === 'monitoring' ? monitoringContent : null,
+              },
+              {
+                key: 'finance',
+                label: (
+                  <span className="od-finance-tab-label">
+                    {t.tabFinance}
+                    {unreadQuoteId ? (
+                      <Badge dot title={t.newQuoteApproval} />
+                    ) : null}
+                  </span>
+                ),
+                forceRender: true,
+                children: null,
+              },
+              {
+                key: 'contract',
+                label: t.tabContract,
+                children: null,
+              },
+              {
+                key: 'payment',
+                label: t.tabPayment,
+                children: null,
+              },
+              {
+                key: 'support',
+                label: t.tabSupport,
+                children: activeTab === 'support' ? supportContent : null,
+              },
+            ]}
+          />
+          <div hidden={activeTab !== 'finance' && activeTab !== 'payment' && activeTab !== 'contract'}>
+            {financeContent}
+          </div>
+        </div>
+        <aside className="od-detail-progress">
+          <OrderTimeline
+            status={order.status}
+            events={order.timeline}
+            finance={finance}
+            missions={timelineMissions}
+          />
+        </aside>
+      </div>
     </div>
   )
 }

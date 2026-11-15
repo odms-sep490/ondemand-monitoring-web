@@ -453,9 +453,10 @@ export function MonitoringAreaMap(props: Props) {
     const ring = props.area?.coordinates[0] ?? []
     const closed = isClosed(ring)
     const vertices = uniqueVertices(props.area)
+    let areaLayer: L.Polygon | null = null
     if (ring.length >= 2) {
       if (closed && vertices.length >= 3) {
-        L.polygon(toLatLngs(ring), polygonStyle).addTo(overlays)
+        areaLayer = L.polygon(toLatLngs(ring), polygonStyle).addTo(overlays)
       } else {
         L.polyline(toLatLngs(ring), { ...polygonStyle, fill: false }).addTo(
           overlays,
@@ -484,6 +485,13 @@ export function MonitoringAreaMap(props: Props) {
           propsRef.current.onSelectVertex(index)
         })
         if (closed) {
+          handle.on('drag', () => {
+            const point = handle.getLatLng()
+            const updated = vertices.map((entry, pointIndex) =>
+              pointIndex === index ? ([point.lng, point.lat] as GeoPosition) : entry,
+            )
+            areaLayer?.setLatLngs(toLatLngs(updated))
+          })
           handle.on('dragend', () => {
             const point = handle.getLatLng()
             const updated = vertices.map((entry, pointIndex) =>
@@ -510,6 +518,15 @@ export function MonitoringAreaMap(props: Props) {
         zIndexOffset: 1000,
       }).addTo(overlays)
       centerHandle.on('click', stopMapEvent)
+      const cornerHandles: L.Marker[] = []
+      centerHandle.on('drag', () => {
+        const moved = centerHandle.getLatLng()
+        const dx = moved.lng - center.lng
+        const dy = moved.lat - center.lat
+        const next = vertices.map(([x, y]) => [x + dx, y + dy] as GeoPosition)
+        areaLayer?.setLatLngs(toLatLngs(next))
+        cornerHandles.forEach((handle, index) => handle.setLatLng([next[index][1], next[index][0]]))
+      })
       centerHandle.on('dragend', () => {
         const moved = centerHandle.getLatLng()
         const dx = moved.lng - center.lng
@@ -525,22 +542,30 @@ export function MonitoringAreaMap(props: Props) {
           title: `Resize rectangle corner ${index + 1}`,
           zIndexOffset: 900,
         }).addTo(overlays)
+        cornerHandles.push(handle)
         handle.on('click', stopMapEvent)
         handle.on('click', () => propsRef.current.onSelectVertex(index))
-        handle.on('dragend', () => {
+        const resizedArea = () => {
           const point = handle.getLatLng()
-          const next = vertices.map((entry, pointIndex) =>
-            pointIndex === index
-              ? ([point.lng, point.lat] as GeoPosition)
-              : entry,
-          )
-          const west = Math.min(...next.map((entry) => entry[0]))
-          const east = Math.max(...next.map((entry) => entry[0]))
-          const south = Math.min(...next.map((entry) => entry[1]))
-          const north = Math.max(...next.map((entry) => entry[1]))
-          propsRef.current.onAreaChange(
-            rectangleCoverageArea([west, south], [east, north]),
-          )
+          return rectangleCoverageArea(vertices[(index + 2) % vertices.length], [point.lng, point.lat])
+        }
+        handle.on('drag', () => {
+          const next = resizedArea()
+          areaLayer?.setLatLngs(toLatLngs(next.coordinates[0]))
+          centerHandle.setLatLng(L.latLngBounds(toLatLngs(next.coordinates[0])).getCenter())
+          // Adjacent handles stay aligned with the rectangle while dragging.
+          const point = handle.getLatLng()
+          cornerHandles.forEach((corner, cornerIndex) => {
+            if (cornerIndex === index) return
+            const original = vertices[cornerIndex]
+            corner.setLatLng([
+              original[1] === vertices[index][1] ? point.lat : original[1],
+              original[0] === vertices[index][0] ? point.lng : original[0],
+            ])
+          })
+        })
+        handle.on('dragend', () => {
+          propsRef.current.onAreaChange(resizedArea())
         })
       })
     }
@@ -557,6 +582,10 @@ export function MonitoringAreaMap(props: Props) {
         centerHandle.on('click', (event) => {
           stopMapEvent(event)
           propsRef.current.onSelectVertex(0)
+        })
+        centerHandle.on('drag', () => {
+          const moved = centerHandle.getLatLng()
+          areaLayer?.setLatLngs(toLatLngs(circleCoverageArea([moved.lng, moved.lat], propsRef.current.radiusM).coordinates[0]))
         })
         centerHandle.on('dragend', () => {
           const moved = centerHandle.getLatLng()

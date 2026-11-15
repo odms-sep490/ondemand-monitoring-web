@@ -287,7 +287,7 @@ export function PreflightChecklistPanel({
         .map((item) => item.label)
         .join(', ')
         .slice(0, 500)
-      await missionApi.requestDeviceReplacement(missionId, reason)
+      await missionApi.requestDeviceReplacement(missionId, reason, deviceAssignmentId)
       setReplacementRequestState({ assignmentKey, requested: true })
     } catch (cause) {
       setReplacementRequestErrorState({

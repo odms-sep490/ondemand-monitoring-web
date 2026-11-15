@@ -9,7 +9,8 @@ import { dashboardPageMessages } from '../DashboardPage.messages'
 import { statusLabel } from '../dashboardHelpers'
 import { BarChartCard } from './charts/BarChartCard'
 import { DonutChart } from './charts/DonutChart'
-import { TrendLineChart } from './charts/TrendLineChart'
+import { AreaTrendChart } from './charts/AreaTrendChart'
+import { RadarStatusChart } from './charts/RadarStatusChart'
 
 export function MissionTrendCard({
   data,
@@ -40,7 +41,7 @@ export function MissionTrendCard({
           {analytics.trendEmpty}
         </p>
       ) : (
-        <TrendLineChart
+        <AreaTrendChart
           points={points}
           completedLabel={analytics.trendCompleted}
           failedLabel={analytics.trendFailed}
@@ -56,9 +57,11 @@ export function MissionTrendCard({
 export function AnalyticsCharts({
   data,
   available,
+  scope,
 }: {
   data: ManagerDashboardData
   available: boolean
+  scope?: 'orders'
 }) {
   const { t } = useI18n(dashboardPageMessages)
   const c = t.analytics
@@ -147,14 +150,25 @@ export function AnalyticsCharts({
     )
   }
 
-  if (missionStatusPoints.some((point) => point.value > 0)) {
+  if (
+    scope !== 'orders' &&
+    missionStatusPoints.some((point) => point.value > 0)
+  ) {
     charts.push(
       <CardComponent key="mission-status" title={c.missionStatusTitle}>
-        <DonutChart
-          points={missionStatusPoints}
-          empty={c.missionStatusEmpty}
-          ariaLabel={c.totalAria}
-        />
+        {missionStatusPoints.filter((point) => point.value > 0).length >= 3 ? (
+          <RadarStatusChart
+            points={missionStatusPoints}
+            empty={c.missionStatusEmpty}
+            ariaLabel={c.missionStatusTitle}
+          />
+        ) : (
+          <DonutChart
+            points={missionStatusPoints}
+            empty={c.missionStatusEmpty}
+            ariaLabel={c.totalAria}
+          />
+        )}
       </CardComponent>,
     )
   }

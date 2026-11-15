@@ -1,3 +1,4 @@
+import { FlightCalendarPage } from './pages/Schedule/FlightCalendarPage'
 import { lazy, Suspense, useEffect, useState } from 'react'
 
 import { FileSearchOutlined } from '@ant-design/icons'
@@ -189,6 +190,7 @@ function renderScreen(
         }
       />
     )
+  if (route.screen === 'schedule' && route.calendar) return <FlightCalendarPage />
   if (route.screen === 'schedule')
     return (
       <SchedulePage

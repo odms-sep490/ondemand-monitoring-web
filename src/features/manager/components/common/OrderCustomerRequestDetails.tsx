@@ -1,3 +1,6 @@
+import { useState } from 'react'
+import { Button, Modal } from 'antd'
+import { deliveryOptionsCardMessages } from '../../../customer/pages/CreateOrder/components/DeliveryOptionsCard.messages'
 import type { OrderReviewMessages } from '../../pages/OrderReview/OrderReviewPage.messages'
 import type { OrderDetail } from '../../types/orders'
 import { useI18n } from '../../../../shared/i18n'
@@ -25,6 +28,8 @@ export function OrderCustomerRequestDetails({
   t: OrderReviewMessages
 }) {
   const { t: m } = useI18n(orderCustomerRequestDetailsMessages)
+  const { t: terms } = useI18n(deliveryOptionsCardMessages)
+  const [termsOpen, setTermsOpen] = useState(false)
   const contact =
     [order.siteContactName, order.siteContactPhone]
       .filter(Boolean)
@@ -197,7 +202,6 @@ export function OrderCustomerRequestDetails({
       label: m.termsAcceptedAt,
       value: dateTime(order.termsAcceptedAt),
     },
-    { label: m.termsVersion, value: order.termsVersion },
   ]
 
   const hasSummary = Boolean(order.title || order.description)
@@ -223,6 +227,21 @@ export function OrderCustomerRequestDetails({
           {t.customerRequestDetails}
         </span>
       </header>
+      <Modal
+        title={terms.termsHeading}
+        open={termsOpen}
+        onCancel={() => setTermsOpen(false)}
+        footer={<Button onClick={() => setTermsOpen(false)}>{m.closeTerms}</Button>}
+        width={720}
+      >
+        <p>{terms.termsLabel}</p>
+        <p>{terms.termsPrivacyNotice}</p>
+        <ul style={{ paddingInlineStart: 20, lineHeight: 1.7 }}>
+          {[terms.commitmentUse, terms.commitmentRetention, terms.commitmentResponsibility, terms.commitmentPermit, terms.commitmentPrivacy].map((content) => (
+            <li key={content} style={{ marginBottom: 12 }}>{content}</li>
+          ))}
+        </ul>
+      </Modal>
       <div className="odm-or-card-body odm-or-req-body">
         {hasSummary ? (
           <div className="odm-or-req-hero">
@@ -267,7 +286,13 @@ export function OrderCustomerRequestDetails({
             title={m.termsSection}
             icon="check"
             items={termsFacts}
-          />
+          >
+            {order.termsAcceptedAt ? (
+              <Button type="link" style={{ paddingInline: 0 }} onClick={() => setTermsOpen(true)}>
+                {m.viewTerms}
+              </Button>
+            ) : null}
+          </FactSection>
         </div>
 
         {weatherFallback ? (

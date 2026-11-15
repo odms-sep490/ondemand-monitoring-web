@@ -3,7 +3,6 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useI18n } from '../../../../shared/i18n'
 import { Button, Modal } from '../../../../shared/components/ui'
 import { missionApi } from '../../../mission/api/missionApi'
-import { flightControlApi } from '../../api/flightControlApi'
 import type { MissionPermissions } from '../../../mission/types/permissions'
 import {
   getActiveMissionId,
@@ -40,7 +39,6 @@ export function FlightPage({
   const [landingConfirmError, setLandingConfirmError] = useState('')
   const loadedMissionIdRef = useRef<string | null>(null)
   const failureRequestedRef = useRef(false)
-  const failureWasAirborneRef = useRef(false)
   const manualLandingConfirmedRef = useRef(false)
   const postflightStartedRef = useRef(false)
   const pageActiveRef = useRef(true)
@@ -183,10 +181,9 @@ export function FlightPage({
             missionId: mission.id,
           })
         }}
-        onFailureRequested={async (reason, wasAirborne) => {
+        onFailureRequested={async (reason) => {
           const updated = await missionApi.requestMissionFailure(mission.id, reason)
           failureRequestedRef.current = true
-          failureWasAirborneRef.current = wasAirborne
           setMission((current) =>
             current
               ? { ...current, ...(updated as unknown as BackendMission) }
@@ -197,34 +194,8 @@ export function FlightPage({
         onRTB={async () => {
           try {
             await missionApi.markReturning(mission.id)
-            let failureLandingDetected = false
-            if (failureRequestedRef.current) {
-              while (
-                pageActiveRef.current &&
-                !manualLandingConfirmedRef.current &&
-                !postflightStartedRef.current
-              ) {
-                const status = await flightControlApi.status().catch(() => null)
-                const controllerMatches =
-                  !status?.missionId || status.missionId === mission.id
-                if (status?.online && controllerMatches && status.inAir === true)
-                  failureWasAirborneRef.current = true
-                if (
-                  failureWasAirborneRef.current &&
-                  status?.online &&
-                  controllerMatches &&
-                  status.inAir === false
-                ) {
-                  failureLandingDetected = true
-                  break
-                }
-                await new Promise<void>((resolve) =>
-                  window.setTimeout(resolve, 1200),
-                )
-              }
-            }
             if (!pageActiveRef.current) return
-            if (failureRequestedRef.current && failureLandingDetected) {
+            if (failureRequestedRef.current) {
               handleFailureLanded()
               return
             }

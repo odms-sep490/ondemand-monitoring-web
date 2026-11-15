@@ -38,6 +38,10 @@ function panel(milestones: MissionPaymentMilestone[], extra = {}) {
   const pay = vi.fn()
   render(
     <MissionPaymentMilestonesSection
+      invoiceId="invoice"
+      paidAmount={0}
+      depositAmount={500000}
+      depositPaid={false}
       allocation={allocation}
       loading={false}
       error={null}

@@ -7,7 +7,7 @@ import { Button } from '../../../../../shared/components/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import { planningPaymentGateMessages } from './PlanningPaymentGate.messages'
 
-/** Deposit gate shown as a clear banner above the mission cards. */
+/** Order contract and deposit screen, before the mission planning workspace. */
 export function PlanningPaymentGate({
   checkingPayment,
   checkPayment,
@@ -48,7 +48,10 @@ export function PlanningPaymentGate({
           {!data.invoice ? (
             <span>{t.customerNote}</span>
           ) : (
-            waitingContract && <span>{t.contractNote}</span>
+            <>
+              <span>{t.unlockNote}</span>
+              {waitingContract && <span>{t.contractNote}</span>}
+            </>
           )}
           {data.invoice ? (
             <>

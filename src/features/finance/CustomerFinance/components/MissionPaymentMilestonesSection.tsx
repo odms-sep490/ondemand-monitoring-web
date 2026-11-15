@@ -5,12 +5,15 @@ import { formatVnd } from '../../../../shared/lib/formatVnd'
 import type {
   MissionPaymentAllocation,
   MissionPaymentMilestone,
+  Payment,
 } from '../../types'
 import {
   canPayMissionMilestone,
   getHandedOverMissionMilestones,
   hasActiveMissionCheckout,
 } from '../../missionMilestoneUtils'
+import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
+import { financeApi } from '../../api'
 import { env } from '../../../../config/env'
 import { missionPaymentMilestoneMessages } from './MissionPaymentMilestonesSection.messages'
 
@@ -27,6 +30,10 @@ const tone: Record<
 }
 
 export function MissionPaymentMilestonesSection({
+  invoiceId,
+  paidAmount,
+  depositAmount,
+  depositPaid,
   allocation,
   loading,
   error,
@@ -34,6 +41,10 @@ export function MissionPaymentMilestonesSection({
   onPay,
   onTestPay,
 }: {
+  invoiceId: string
+  paidAmount: number
+  depositAmount: number
+  depositPaid: boolean
   allocation: MissionPaymentAllocation | null
   loading: boolean
   error: string | null
@@ -45,11 +56,19 @@ export function MissionPaymentMilestonesSection({
 
   // Allocation is Manager planning data, not evidence of a Customer handover.
   const handedOver = getHandedOverMissionMilestones(allocation)
-  if (handedOver.length === 0) return null
-  const total = handedOver.reduce((sum, milestone) => sum + milestone.amount, 0)
-  const paid = handedOver
-    .filter((milestone) => milestone.status === 'PAID')
-    .reduce((sum, milestone) => sum + milestone.amount, 0)
+  const totalHandedOver = handedOver.reduce((sum, item) => sum + item.amount, 0)
+  const paidTotal = handedOver.reduce(
+    (sum, item) => (item.status === 'PAID' ? sum + item.amount : sum),
+    0,
+  )
+  const deposit = useApiQuery(
+    async (signal) =>
+      (await financeApi.getInvoicePayments(invoiceId, signal)).filter(
+        (payment) => payment.type === 'DEPOSIT',
+      ),
+    [invoiceId, paidAmount],
+  )
+  if (!depositPaid && handedOver.length === 0) return null
   return (
     <section
       className="mission-payment-card"
@@ -60,20 +79,60 @@ export function MissionPaymentMilestonesSection({
           <h3 id="mission-payment-title">{t.title}</h3>
           <p>{t.description}</p>
         </div>
-        <strong
-          className="mission-payment-card__total"
-          aria-label={t.paymentProgress}
-        >
-          {formatVnd(paid)} / {formatVnd(total)}
-        </strong>
+        {handedOver.length > 0 ? (
+          <strong
+            className="mission-payment-card__total"
+            aria-label={t.paymentProgress}
+          >
+            {formatVnd(paidTotal)} / {formatVnd(totalHandedOver)}
+          </strong>
+        ) : allocation ? (
+          <strong className="mission-payment-card__total">
+            {t.afterDepositTotal(formatVnd(allocation.allocationTargetAmount))}
+          </strong>
+        ) : null}
       </header>
-      {loading ? (
-        <div role="status" aria-busy="true">
-          <Skeleton active paragraph={{ rows: 2 }} />
-        </div>
-      ) : null}
-      {error ? <Alert type="error" showIcon message={error} /> : null}
       <div className="mission-payment-list">
+        <article className="mission-payment-item">
+          <div className="mission-payment-item__main">
+            <div className="mission-payment-item__title">
+              <div>
+                <strong>{t.depositTitle}</strong>
+              </div>
+              {depositPaid && <StatusTag tone="success">{t.status.PAID}</StatusTag>}
+            </div>
+            <dl className="mission-payment-item__facts">
+              <div>
+                <dt>{t.amount}</dt>
+                <dd className="is-money">{formatVnd(depositAmount)}</dd>
+              </div>
+            </dl>
+          </div>
+          <div className="mission-payment-item__history">
+            <strong>{t.paymentHistory}</strong>
+            {deposit.loading ? (
+              <Skeleton active paragraph={false} />
+            ) : deposit.error ? (
+              <Alert
+                type="error"
+                message={t.depositHistoryError}
+                action={
+                  <Button size="small" onClick={deposit.reload}>
+                    {t.retryHistory}
+                  </Button>
+                }
+              />
+            ) : (
+              <PaymentHistory payments={deposit.data ?? []} locale={locale} />
+            )}
+          </div>
+        </article>
+        {loading ? (
+          <div role="status" aria-busy="true">
+            <Skeleton active paragraph={{ rows: 2 }} />
+          </div>
+        ) : null}
+        {error ? <Alert type="error" showIcon message={error} /> : null}
         {handedOver.map((milestone) => (
           <MissionPaymentItem
             key={milestone.id}
@@ -156,61 +215,63 @@ function MissionPaymentItem({
           message={t.expiredMessage}
         />
       ) : null}
-      <div className="mission-payment-item__actions">
-        {canPay ? (
-          <Button
-            type="primary"
-            disabled={busy}
-            onClick={() => onPay(milestone.id)}
-          >
+      {canPay ? (
+        <div className="mission-payment-item__actions">
+          <Button type="primary" disabled={busy} onClick={() => onPay(milestone.id)}>
             {hasActiveCheckout
               ? t.continuePayment
               : latest?.status === 'FAILED'
                 ? t.retry
                 : t.payNow}
           </Button>
-        ) : null}
-        {env.testPaymentsEnabled && canPay ? (
-          <Button disabled={busy} onClick={() => onTestPay(milestone.id)}>
-            {t.testPayment}
-          </Button>
-        ) : null}
-      </div>
+          {env.testPaymentsEnabled ? (
+            <Button disabled={busy} onClick={() => onTestPay(milestone.id)}>
+              {t.testPayment}
+            </Button>
+          ) : null}
+        </div>
+      ) : null}
       <div className="mission-payment-item__history">
         <strong>{t.paymentHistory}</strong>
-        {milestone.payments.length ? (
-          <ul>
-            {milestone.payments.map((payment) => (
-              <li key={payment.id}>
-                <span>{formatVnd(payment.amount)}</span>
-                <StatusTag
-                  tone={
-                    payment.status === 'SUCCESS'
-                      ? 'success'
-                      : payment.status === 'FAILED' ||
-                          payment.status === 'CANCELLED'
-                        ? 'danger'
-                        : payment.status === 'PENDING' ||
-                            payment.status === 'PROCESSING'
-                          ? 'info'
-                          : 'neutral'
-                  }
-                >
-                  {t.paymentStatus[payment.status] ?? payment.status}
-                </StatusTag>
-                {payment.paidAt ? (
-                  <time dateTime={payment.paidAt}>
-                    {new Date(payment.paidAt).toLocaleString(locale)}
-                  </time>
-                ) : null}
-                <small>{payment.transactionReference}</small>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>{t.noAttempts}</p>
-        )}
+        <PaymentHistory payments={milestone.payments} locale={locale} />
       </div>
     </article>
+  )
+}
+
+function PaymentHistory({ payments, locale }: { payments: Payment[]; locale: string }) {
+  const { t } = useI18n(missionPaymentMilestoneMessages)
+  return payments.length ? (
+    <ul>
+      {payments.map((payment) => (
+        <li key={payment.id}>
+          <span>{formatVnd(payment.amount)}</span>
+          {payment.status !== 'SUCCESS' && <StatusTag
+            tone={
+              payment.status === 'FAILED' || payment.status === 'CANCELLED'
+                  ? 'danger'
+                  : payment.status === 'PENDING' || payment.status === 'PROCESSING'
+                    ? 'info'
+                    : 'neutral'
+            }
+          >
+            {t.paymentStatus[payment.status] ?? payment.status}
+          </StatusTag>}
+        {payment.paidAt ? (
+          <time dateTime={payment.paidAt}>
+            {t.paymentDate(new Date(payment.paidAt).toLocaleString(locale))}
+          </time>
+        ) : null}
+        {payment.transactionReference ? (
+          <small>
+            {t.transactionReferenceLabel}{' '}
+            <span>{payment.transactionReference}</span>
+          </small>
+        ) : null}
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <p>{t.noAttempts}</p>
   )
 }

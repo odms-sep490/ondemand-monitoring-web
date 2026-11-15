@@ -2,6 +2,9 @@ import { defineMessages } from '../../../../shared/i18n'
 
 export const missionDetailPageMessages = defineMessages({
   vi: {
+    declinedHistoryBadge: 'Đã từ chối',
+    declinedHistoryTitle: 'Bạn đã từ chối nhiệm vụ này',
+    declinedHistoryDescription: 'Phản hồi của bạn được lưu trong Lịch sử nhiệm vụ.',
     errorTitle: 'Không tải được mission',
     errorDescription: 'Mission có thể không tồn tại hoặc đã bị xoá.',
     backToList: 'Về danh sách',
@@ -86,6 +89,9 @@ export const missionDetailPageMessages = defineMessages({
     workflowTerminal: 'Quy trình đã kết thúc.',
   },
   en: {
+    declinedHistoryBadge: 'Declined',
+    declinedHistoryTitle: 'You declined this mission',
+    declinedHistoryDescription: 'Your response is saved in your mission history.',
     errorTitle: 'Could not load the mission',
     errorDescription: 'The mission may not exist or has been deleted.',
     backToList: 'Back to list',

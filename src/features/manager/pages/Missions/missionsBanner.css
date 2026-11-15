@@ -1,0 +1,31 @@
+/* Illustrated heading for the manager mission list. */
+:root .mgr-layout .mgr-missions > .mgr-page-head.app-page-banner {
+ background: linear-gradient(90deg,rgba(240,247,255,.96),rgba(240,247,255,.58) 55%,rgba(240,247,255,.12)),url('/images/order-banner.png') center / cover no-repeat,#eaf3ff;
+ border: 1px solid #d6e6fb;
+ border-radius: 16px;
+ padding: 26px 28px;
+ min-height: 155px;
+ margin-bottom: 20px;
+ display: flex;
+ align-items: center;
+}
+:root .mgr-layout .mgr-missions > .mgr-page-head .mgr-page-head-title { color: #0f2747; }
+:root .mgr-layout .mgr-missions > .mgr-page-head .mgr-page-head-desc { color: #405774; margin-top: 6px; }
+[data-theme='dark'] .mgr-layout .mgr-missions > .mgr-page-head.app-page-banner {
+ background: linear-gradient(90deg,rgba(11,25,46,.96),rgba(11,25,46,.7)),url('/images/order-banner.png') center / cover no-repeat,#10243d;
+ border-color: #28405d;
+}
+[data-theme='dark'] .mgr-layout .mgr-missions > .mgr-page-head .mgr-page-head-title { color: #e6ecfa; }
+[data-theme='dark'] .mgr-layout .mgr-missions > .mgr-page-head .mgr-page-head-desc { color: #b6c8de; }
+@media(max-width:700px) { :root .mgr-layout .mgr-missions > .mgr-page-head.app-page-banner { min-height: 130px; padding: 20px; } }
+
+:root .mgr-layout .mgr-missions > .mgr-page-head.app-page-banner { justify-content: space-between; gap: 28px; min-height: 180px; }
+.mgr-mission-banner-title { display: inline-flex; gap: 12px; align-items: center; }
+.mgr-mission-banner-title > .anticon { display: inline-flex; align-items: center; justify-content: center; width: 42px; height: 42px; border-radius: 12px; background: #1565e8; color: #fff; font-size: 23px; }
+.mgr-mission-banner-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-top: 16px; color: #405774; font-size: 12px; }
+.mgr-mission-banner-meta > span:first-child { background: rgba(255,255,255,.8); padding: 5px 10px; border-radius: 7px; font-weight: 600; color: #1565e8; }
+:root .mgr-layout .mgr-missions > .mgr-page-head .mgr-page-head-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+:root .mgr-layout .mgr-missions > .mgr-page-head .ant-btn-primary { color: #fff; }
+[data-theme='dark'] .mgr-mission-banner-meta { color: #b6c8de; }
+[data-theme='dark'] .mgr-mission-banner-meta > span:first-child { background: #183750; color: #9bc8ff; }
+@media(max-width:950px) { :root .mgr-layout .mgr-missions > .mgr-page-head.app-page-banner { flex-direction: column; align-items: flex-start; gap: 18px; } }

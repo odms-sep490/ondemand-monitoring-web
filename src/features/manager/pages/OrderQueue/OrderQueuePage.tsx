@@ -1,3 +1,4 @@
+import './orderQueueBanner.css'
 import { useEffect, useMemo, useState } from 'react'
 
 import { Alert, Button, Skeleton } from 'antd'
@@ -17,7 +18,6 @@ import { FilterBar, FilterSegments } from '../../components/common/FilterBar'
 import { PageHeader } from '../../components/common/PageHeader'
 import { managerHref } from '../../routes'
 import type { OrderCreateResponse } from '../../types/orders'
-import { QueueKpis } from './components/QueueKpis'
 import { QueueSkeleton } from './components/QueueSkeleton'
 import { QueueTable, type QueueTableMode } from './components/QueueTable'
 import { orderQueuePageMessages } from './OrderQueuePage.messages'
@@ -96,7 +96,7 @@ export function OrderQueuePage() {
           }),
       )
     ).filter((order): order is OrderCreateResponse => order !== null)
-    return { pending, paid, depositStatusByOrder, missionPaymentDueByOrder }
+    return { pending, approved, paid, depositStatusByOrder, missionPaymentDueByOrder }
   }, [])
 
   // Every order, newest first, so an order never "disappears" once it leaves the review queue.
@@ -129,14 +129,18 @@ export function OrderQueuePage() {
   }, [query.reload])
 
   const pendingOrders = query.data?.pending ?? []
+  const approvedOrders = query.data?.approved ?? []
   const paidOrders = query.data?.paid ?? []
   const depositStatusByOrder = query.data?.depositStatusByOrder ?? {}
-  const missionPaymentDueByOrder = query.data?.missionPaymentDueByOrder ?? {}
   const allOrders = allQuery.data?.orders
+  const needsInfoOrders = allOrders?.filter((order) => order.orderStatus === 'NEEDS_INFO')
+  const completedOrders = allOrders?.filter((order) => order.orderStatus === 'COMPLETED')
   const started = allQuery.data?.started
 
   const groupOf = (order: OrderCreateResponse) =>
-    order.orderStatus === 'APPROVED' && started?.has(order.id) ? 'IN_PROGRESS' : order.orderStatus
+    ['DRAFT', 'SUBMITTED', 'PENDING', 'UNDER_REVIEW'].includes(order.orderStatus)
+      ? 'PENDING'
+      : order.orderStatus
 
   const kpiExtras = useMemo(() => {
     if (!allOrders || !started || !query.data) return { needsInfo: null, waitingDeposit: null }
@@ -167,18 +171,23 @@ export function OrderQueuePage() {
       : paidOrders.length > 0
         ? 'ready'
         : (kpiExtras.waitingDeposit ?? 0) > 0
-          ? 'all'
+          ? 'approved'
           : 'pending')
 
   const filteredAll = (allOrders ?? []).filter((order) =>
     filter === 'ALL'
       ? true
-      : filter === 'WAITING_DEPOSIT' || filter === 'DEPOSIT_PAID'
-        ? depositStatusByOrder[order.id] === filter
-        : groupOf(order) === filter,
+      : groupOf(order) === filter,
   )
-  const source =
-    activeTab === 'pending' ? pendingOrders : activeTab === 'ready' ? paidOrders : filteredAll
+  const source = {
+    pending: pendingOrders,
+    needsInfo: needsInfoOrders ?? [],
+    approved: approvedOrders,
+    completed: completedOrders ?? [],
+    ready: paidOrders,
+    all: filteredAll,
+  }[activeTab]
+  const usesAllOrders = activeTab === 'all' || activeTab === 'completed' || activeTab === 'needsInfo'
   const total = activeTab === 'all' ? (allOrders ?? []).length : source.length
   const rows = source.filter((order) => matchesSearch(order, search))
 
@@ -189,13 +198,13 @@ export function OrderQueuePage() {
   )
 
   let body
-  if (activeTab === 'all' && allQuery.loading) {
+  if (usesAllOrders && allQuery.loading) {
     body = (
       <CardComponent>
         <Skeleton active paragraph={{ rows: 5 }} />
       </CardComponent>
     )
-  } else if (activeTab === 'all' && allQuery.error) {
+  } else if (usesAllOrders && allQuery.error) {
     body = <ErrorState title={t.allLoadError} error={allQuery.error} onRetry={allQuery.reload} />
   } else if (rows.length === 0) {
     const empty =
@@ -218,8 +227,6 @@ export function OrderQueuePage() {
         total={total}
         mode={activeTab}
         depositStatusByOrder={depositStatusByOrder}
-        missionPaymentDueByOrder={missionPaymentDueByOrder}
-        isInProgress={(order) => groupOf(order) === 'IN_PROGRESS'}
       />
     )
   }
@@ -251,12 +258,6 @@ export function OrderQueuePage() {
         <Alert type="warning" showIcon message={t.refreshError} />
       ) : null}
 
-      <QueueKpis
-        pending={pendingOrders.length}
-        ready={paidOrders.length}
-        needsInfo={kpiExtras.needsInfo}
-        waitingDeposit={kpiExtras.waitingDeposit}
-      />
 
       <FilterBar
         start={
@@ -266,6 +267,9 @@ export function OrderQueuePage() {
             onChange={setTab}
             options={[
               { value: 'pending', label: t.tabs.pending, count: pendingOrders.length },
+              { value: 'needsInfo', label: t.tabs.needsInfo, count: needsInfoOrders?.length },
+              { value: 'approved', label: t.filters.APPROVED, count: approvedOrders.length },
+              { value: 'completed', label: t.tabs.completed, count: completedOrders?.length },
               { value: 'ready', label: t.tabs.ready, count: paidOrders.length },
               { value: 'all', label: t.tabs.all, count: allOrders?.length },
             ]}

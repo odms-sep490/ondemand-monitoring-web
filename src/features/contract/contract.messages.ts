@@ -62,6 +62,7 @@ export const contractMessages = defineMessages({
     confirm: 'Xác nhận hợp đồng',
     changes: 'Yêu cầu bổ sung',
     reason: 'Lý do cần bổ sung',
+    proceedToPayment: 'Đi tới thanh toán',
     confirmed:
       'Hợp đồng đã được xác nhận. Khi đã đủ cọc, hệ thống có thể tiếp tục lập kế hoạch nhiệm vụ.',
     history: 'Lịch sử gửi và kiểm tra',
@@ -163,6 +164,7 @@ export const contractMessages = defineMessages({
     confirm: 'Confirm contract',
     changes: 'Request changes',
     reason: 'Reason for changes',
+    proceedToPayment: 'Go to payment',
     confirmed:
       'The contract is confirmed. Planning can proceed once the deposit is paid.',
     history: 'Submission and review history',

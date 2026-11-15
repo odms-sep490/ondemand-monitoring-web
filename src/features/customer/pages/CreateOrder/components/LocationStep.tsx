@@ -19,6 +19,7 @@ import {
   HCMC_SERVICE_CENTER,
   hcmcServicePolygonLatLngs,
   isInsideHcmcServiceArea,
+  isLocationInsideCoverageArea,
 } from '../../../../../shared/lib/serviceArea'
 import type {
   CoverageAreaGeometry,
@@ -358,6 +359,8 @@ export function LocationStep({ form, errors, update }: Props) {
     (locationSelected ? `${t.coordinatesLabel}: ${coordinateLabel}` : '')
   const metrics = coverageAreaMetrics(form.coverageArea)
   const areaValid = isValidCoverageArea(form.coverageArea)
+  const locationOutsideArea = areaValid && validCoordinates && locationSelected &&
+    !isLocationInsideCoverageArea({ latitude, longitude }, form.coverageArea)
   const hasClosedArea = (() => {
     const ring = form.coverageArea?.coordinates[0]
     const first = ring?.[0]
@@ -1111,7 +1114,10 @@ export function LocationStep({ form, errors, update }: Props) {
               </div>
             </>
           )}
-          {errors.coverageArea && (
+          {locationOutsideArea && (
+            <p className="co-area-inline-status is-error" role="alert">{t.locationOutsideArea}</p>
+          )}
+          {errors.coverageArea && !locationOutsideArea && (
             <p className="co-area-inline-status is-error" role="alert">
               {errors.coverageArea === 'INVALID_COVERAGE_AREA'
                 ? t.areaError

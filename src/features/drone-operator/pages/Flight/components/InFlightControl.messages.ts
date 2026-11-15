@@ -220,8 +220,9 @@ export const inFlightControlMessages = defineMessages({
       preflightCompleted: 'Đã hoàn thành kiểm tra trước bay',
       finishingFlight: 'Đang cập nhật hoàn thành bay...',
       flightFinished: 'Đã xác nhận chuyến bay hoàn tất · chờ kiểm tra sau bay',
-      failurePending:
-        'Đã gửi lệnh quay về điểm cất cánh. Giữ buồng lái mở; xác nhận hạ cánh sẽ khả dụng khi hệ thống ghi nhận drone đã chạm đất.',
+      failurePending: 'Đã ghi nhận lý do dừng nhiệm vụ.',
+      failureWaitingForLanding: 'Drone vẫn đang bay',
+      failureConfirmStop: 'Xác nhận dừng bay và kiểm tra',
     },
     header: {
       live: 'TRỰC TIẾP',
@@ -517,8 +518,9 @@ export const inFlightControlMessages = defineMessages({
       preflightCompleted: 'Preflight completed',
       finishingFlight: 'Updating flight completion...',
       flightFinished: 'Flight finished - waiting for maintainer postcheck',
-      failurePending:
-        'Return-to-launch command sent. Keep the cockpit open; landing confirmation will be available when telemetry reports the drone has landed.',
+      failurePending: 'Mission stop reason recorded.',
+      failureWaitingForLanding: 'Drone is still airborne',
+      failureConfirmStop: 'Confirm flight stopped and inspect',
     },
     header: {
       live: 'LIVE',

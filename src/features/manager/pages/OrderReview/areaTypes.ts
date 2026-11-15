@@ -9,7 +9,7 @@ export type SavedAreaReview = {
   reviewedAt: string | null
 }
 
-export type AreaReviewChoice = LegalReviewStatus | 'CHANGE_LOCATION'
+export type AreaReviewChoice = LegalReviewStatus
 
 /**
  * The part of `GET /api/flight-area-assessment` the backend actually returns

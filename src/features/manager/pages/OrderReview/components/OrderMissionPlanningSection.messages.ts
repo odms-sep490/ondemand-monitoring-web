@@ -2,6 +2,7 @@ import { defineMessages } from '../../../../../shared/i18n'
 
 export const orderMissionPlanningSectionMessages = defineMessages({
   vi: {
+    openMissionPermit: 'Mở nhiệm vụ',
     backToPlanning: '← Quay lại lập kế hoạch',
     sectionAria: 'Kế hoạch nhiệm vụ của đơn hàng',
     reloadPlan: 'Tải lại kế hoạch',
@@ -51,6 +52,7 @@ export const orderMissionPlanningSectionMessages = defineMessages({
     uncoveredNote: (n: number) => `Còn ${n} công việc chưa được phân công`,
   },
   en: {
+    openMissionPermit: 'Open mission',
     backToPlanning: '← Back to planning',
     sectionAria: 'Order mission planning',
     reloadPlan: 'Reload plan',

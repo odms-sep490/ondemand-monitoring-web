@@ -379,3 +379,24 @@ it('requires Manager to acknowledge the new file again after a Customer replacem
     screen.getByRole('checkbox', { name: /Tôi đã đối chiếu/ }),
   ).not.toBeChecked()
 })
+
+it('opens payment from the confirmed customer contract', async () => {
+  vi.spyOn(contractApi, 'get').mockResolvedValue({
+    ...base,
+    status: 'CONFIRMED',
+    confirmedAt: '2026-11-15T00:00:00Z',
+    confirmedBy: 'manager',
+  })
+  const openPayment = vi.fn()
+  render(
+    <OrderContractPanel
+      orderId="order"
+      mode="customer"
+      onProceedToPayment={openPayment}
+    />,
+  )
+  fireEvent.click(
+    await screen.findByRole('button', { name: 'Đi tới thanh toán' }),
+  )
+  expect(openPayment).toHaveBeenCalledOnce()
+})

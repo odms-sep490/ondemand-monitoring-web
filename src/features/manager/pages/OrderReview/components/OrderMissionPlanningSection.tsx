@@ -1,3 +1,4 @@
+import { managerHref } from '../../../routes'
 import {
   inspectionCorrectionApi,
   type InternalCorrectionPlanningContext,
@@ -18,7 +19,6 @@ import { MissionGridCard } from '../../../components/common/MissionGridCard'
 import { MissionUpdatePanel } from '../../../components/common/MissionUpdatePanel'
 import { ReasonModal } from '../../../components/common/ReasonModal'
 import { FlightPermitCard } from '../../../components/common/FlightPermitCard'
-import { MissionExecutionPanel } from './MissionExecutionPanel'
 import { MissionCreatePage } from '../../MissionCreate/MissionCreatePage'
 import '../../../components/common/planning.css'
 import { usePlanningConfirmation } from '../../../components/common/usePlanningConfirmation'
@@ -67,7 +67,7 @@ export function OrderMissionPlanningSection({
   onAssignResources?: (missionId: string) => void
   onWorkflowInfo?: (info: PlanningWorkflowInfo) => void
   onOrderUpdated?: () => void
-  activeTab?: 'planning' | 'permit' | 'execution'
+  activeTab?: 'planning' | 'permit'
   onBackToPlanning?: () => void
 }) {
   return (
@@ -101,7 +101,7 @@ function OrderPlanningWorkspace({
   initialOrder?: OrderDetail
   onWorkflowInfo?: (info: PlanningWorkflowInfo) => void
   onOrderUpdated?: () => void
-  activeTab?: 'planning' | 'permit' | 'execution'
+  activeTab?: 'planning' | 'permit'
   onBackToPlanning?: () => void
 }) {
   const { t: ts } = useI18n(orderMissionPlanningSectionMessages)
@@ -287,6 +287,27 @@ function OrderPlanningWorkspace({
       })),
     })
   }, [data, depositPaid, isFinalized])
+
+  // Keep the separate contract/deposit stage in sync with customer payments.
+  useEffect(() => {
+    if (reworkCaseId || inspectionContext || depositPaid || !data?.invoice)
+      return
+    const refresh = () => {
+      if (document.visibilityState === 'visible') query.reload()
+    }
+    const interval = window.setInterval(refresh, 15_000)
+    window.addEventListener('focus', refresh)
+    return () => {
+      window.clearInterval(interval)
+      window.removeEventListener('focus', refresh)
+    }
+  }, [
+    reworkCaseId,
+    inspectionContext,
+    depositPaid,
+    data?.invoice?.id,
+    query.reload,
+  ])
 
   // Automatically collapse sidebar when plan is finalized/ready
   useEffect(() => {
@@ -495,7 +516,13 @@ function OrderPlanningWorkspace({
 
       {data && !query.error && (
         <>
-          {!reworkCaseId && !depositPaid && data.order.status === 'APPROVED' ? (
+          {data.order.status === 'CANCELLED' && (
+            <CancelledOrderContractPanel
+              orderId={orderId}
+              onUpdated={query.reload}
+            />
+          )}
+          {!reworkCaseId && !inspectionContext && !depositPaid ? (
             <PlanningPaymentGate
               onContractUpdated={() => {
                 query.reload()
@@ -505,14 +532,9 @@ function OrderPlanningWorkspace({
               checkPayment={checkPayment}
               data={data}
             />
-          ) : null}
-          {data.order.status === 'CANCELLED' && (
-            <CancelledOrderContractPanel
-              orderId={orderId}
-              onUpdated={query.reload}
-            />
-          )}
-          {/* Create Mission Modal Popup */}
+          ) : (
+            <>
+              {/* Create Mission Modal Popup */}
           {creating && (
             <PlanningFormModal
               kind="create"
@@ -578,34 +600,7 @@ function OrderPlanningWorkspace({
               }}
             />
           )}
-          {activeTab === 'execution' ? (
-            <div className="odm-flight-permits-container">
-              <ShowMoreList>
-                {effective.map((mission) =>
-                  mission.flightPermitStatus === 'APPROVED' &&
-                  data.order.legalReviewStatus !== 'REJECTED' ? (
-                    <MissionExecutionPanel key={mission.id} mission={mission} />
-                  ) : (
-                    <FlightPermitCard
-                      key={mission.id}
-                      mission={mission}
-                      onChanged={query.reload}
-                      depositPaid={depositPaid}
-                      orderPermitRejected={
-                        data.order.legalReviewStatus === 'REJECTED'
-                      }
-                      refundEligible={Boolean(
-                        data.order.status === 'APPROVED' &&
-                        data.order.legalReviewStatus === 'REJECTED' &&
-                        mission.flightPermitStatus === 'REJECTED' &&
-                        depositPaid,
-                      )}
-                    />
-                  ),
-                )}
-              </ShowMoreList>
-            </div>
-          ) : activeTab === 'permit' ? (
+          {activeTab === 'permit' ? (
             <div className="odm-flight-permits-container">
               {effective.length === 0 ? (
                 <div className="odm-plan-empty">
@@ -657,6 +652,27 @@ function OrderPlanningWorkspace({
 
               {/* Right 70%: Missions Workspace */}
               <div className="odm-missions-workspace-panel">
+                {!reworkCaseId &&
+                  !inspectionContext &&
+                  isFinalized &&
+                  effective.length > 0 && (
+                    <div className="odm-or-order-page-actions">
+                      {effective.map((mission) => (
+                        <a
+                          key={mission.id}
+                          className="odm-btn odm-btn-p"
+                          href={
+                            managerHref({
+                              screen: 'missionDetail',
+                              missionId: mission.id,
+                            }) + '?tab=plan'
+                          }
+                        >
+                          {ts.openMissionPermit} · {mission.missionCode}
+                        </a>
+                      ))}
+                    </div>
+                  )}
                 <PlanningWorkspaceBar
                   sidebarCollapsed={sidebarCollapsed}
                   onOpenSidebar={() => setSidebarCollapsed(false)}
@@ -717,6 +733,8 @@ function OrderPlanningWorkspace({
               allocation={data.paymentAllocation}
             />
           ) : null}
+            </>
+          )}
         </>
       )}
     </section>

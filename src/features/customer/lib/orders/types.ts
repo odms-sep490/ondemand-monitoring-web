@@ -111,7 +111,6 @@ export type OrderDetailView = OrderRow & {
   deliveryMethods: string[]
   dataRetentionDays: number | null
   termsAcceptedAt: string | null
-  termsVersion: string | null
   executionPlanRevision: number | null
   executionPlanStatus: string | null
   latitude: number | null

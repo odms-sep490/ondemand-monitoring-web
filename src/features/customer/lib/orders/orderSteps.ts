@@ -1,4 +1,5 @@
 import type { MissionStatus, OrderStatus } from '../../../../shared/types/domain'
+import type { MissionPaymentAllocation } from '../../../finance/types'
 import type { OrderStep, OrderStepKey, OrderStepState, OrderTimelineEvent } from './types'
 
 const HAPPY_PATH: OrderStepKey[] = [
@@ -14,6 +15,7 @@ const HAPPY_PATH: OrderStepKey[] = [
 
 export type OrderFinanceProgress = {
   loading?: boolean
+  missionPayments?: Pick<MissionPaymentAllocation, 'milestones'> | null
   quote?: { status: string; approvedAt: string | null; acceptedAt: string | null } | null
   invoice?: {
     depositAmount: number
@@ -27,6 +29,7 @@ export type OrderFinanceProgress = {
 export type OrderMissionProgress = {
   status: MissionStatus
   scheduledStartAt: string | null
+  actualStartAt?: string | null
 }
 
 const PLANNING_COMPLETED_STATUSES = new Set<MissionStatus>([
@@ -87,7 +90,23 @@ function step(
         .map((mission) => mission.scheduledStartAt!)
         .sort()[0] ?? null
     : null
-  return { key, state, at: event?.at ?? financialDate ?? planningDate, actor: event?.actor ?? null, note: event?.note ?? null }
+  const missionPaidAt = key === 'finalPayment'
+    ? finance?.missionPayments?.milestones
+        .flatMap((milestone) => milestone.payments)
+        .flatMap((payment) => payment.status === 'SUCCESS' && payment.paidAt ? [payment.paidAt] : [])
+        .sort((a, b) => Date.parse(b) - Date.parse(a))[0]
+    : null
+  const startedAt = key === 'inProgress'
+    ? missions.flatMap((mission) => mission.actualStartAt ? [mission.actualStartAt] : [])
+        .sort((a, b) => Date.parse(a) - Date.parse(b))[0]
+    : null
+
+  return {
+    key, state,
+    at: startedAt ?? event?.at ?? financialDate ?? planningDate ?? missionPaidAt ?? null,
+    actor: event?.actor ?? null,
+    note: event?.note ?? null,
+  }
 }
 
 /**

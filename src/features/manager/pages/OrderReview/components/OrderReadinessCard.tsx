@@ -91,7 +91,9 @@ export function OrderReadinessCard({
 
   const activeCriteria = readiness.criteria.filter(
     (criterion) =>
-      criterion.code !== 'CAPABILITY' && criterion.code !== 'RISK_LEVEL',
+      criterion.code !== 'CAPABILITY' &&
+      criterion.code !== 'REQUESTED_SCOPE_FEASIBLE' &&
+      criterion.code !== 'RISK_LEVEL',
   )
   const auto = activeCriteria.filter(
     (c) =>
