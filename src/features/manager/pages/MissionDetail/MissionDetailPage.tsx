@@ -266,7 +266,12 @@ function MissionDetail({
       )}
 
       <div className="mgr-md-content-layout">
-        <ManagerMissionProgress mission={mission} />
+        <ManagerMissionProgress
+          mission={mission}
+          preflight={preflight}
+          postcheck={postcheck}
+          result={detail.result}
+        />
         <div className="mgr-md-workbench">
           <MissionDetailTabs
             tabs={tabs}

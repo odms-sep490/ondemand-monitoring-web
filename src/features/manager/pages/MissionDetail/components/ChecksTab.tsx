@@ -24,12 +24,6 @@ export function ChecksTab({
   missionStatus: MissionStatus
 }) {
   const { t, locale } = useI18n(missionDetailPageMessages)
-  const batteryState = postcheck?.landingBatteryState?.trim()
-  const batteryStateLabel = batteryState
-    ? (t.batteryStates[
-        batteryState.toLowerCase() as keyof typeof t.batteryStates
-      ] ?? batteryState)
-    : '—'
   const preflightHasStarted = [
     'CONNECTED',
     'PREFLIGHT_CHECKING',
@@ -109,12 +103,6 @@ export function ChecksTab({
                 <div className="mgr-check-times">
                   <MetricTile label={t.checkStartedAt} value={formatDateTime(postcheck.startedAt, locale)} />
                   <MetricTile label={t.checkCompletedAt} value={formatDateTime(postcheck.completedAt, locale)} />
-                </div>
-                <div className="mgr-check-device-metrics">
-                  <MetricTile label={t.device} value={postcheck.deviceCode} />
-                  <MetricTile label={t.batteryLeft} value={formatNumber(postcheck.landingBatteryPercent, '%')} />
-                  <MetricTile label={t.batteryState} value={batteryStateLabel} />
-                  <MetricTile label={t.checkedAt} value={formatDateTime(postcheck.checkedAt, locale)} />
                 </div>
                 <details className="mgr-check-items-disclosure" key={postcheck.id} open={postcheck.failedChecks > 0}>
                   <summary>{t.checkItemsDetails(postcheck.items.length)}</summary>

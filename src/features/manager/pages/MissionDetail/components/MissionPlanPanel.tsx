@@ -26,9 +26,19 @@ export function MissionPlanPanel({ mission, onUpdated }: { mission: MissionRespo
           </Button>
         </div>
       ) : null}
+      {(mission.scheduledStartAt || mission.scheduledEndAt) && (
+        <dl className="mgr-mission-plan-times">
+          <div>
+            <dt>{t.fields.scheduledStart}</dt>
+            <dd>{formatDateTime(mission.scheduledStartAt, locale)}</dd>
+          </div>
+          <div>
+            <dt>{t.fields.scheduledEnd}</dt>
+            <dd>{formatDateTime(mission.scheduledEndAt, locale)}</dd>
+          </div>
+        </dl>
+      )}
       <Descriptions bordered size="small" column={{ xs: 1, sm: 2 }} items={[
-        ...(mission.scheduledStartAt ? [{ key: 'start', label: t.fields.scheduledStart, children: formatDateTime(mission.scheduledStartAt, locale) }] : []),
-        ...(mission.scheduledEndAt ? [{ key: 'end', label: t.fields.scheduledEnd, children: formatDateTime(mission.scheduledEndAt, locale) }] : []),
         ...(plan?.plannedDistanceM != null && Number.isFinite(plan.plannedDistanceM) ? [{ key: 'distance', label: t.map.distance, children: formatNumber(plan.plannedDistanceM, ' m') }] : []),
         ...(plan?.maxPlannedAltitudeM != null && Number.isFinite(plan.maxPlannedAltitudeM) ? [{ key: 'altitude', label: t.map.altitude, children: formatNumber(plan.maxPlannedAltitudeM, ' m') }] : []),
         ...(plan?.plannedDurationSec != null && Number.isFinite(plan.plannedDurationSec) ? [{ key: 'duration', label: t.kpi.plannedDuration, children: formatDuration(plan.plannedDurationSec) }] : []),

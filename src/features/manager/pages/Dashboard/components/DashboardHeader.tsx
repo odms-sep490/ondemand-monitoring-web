@@ -30,13 +30,6 @@ export function DashboardHeader({ subtitle, range, pendingCount, pendingCountAva
 
   return (
     <header className="mgr-dash-header">
-      <img
-        className="mgr-dash-banner-art"
-        src="/images/manager-order-banner.png"
-        alt=""
-        aria-hidden="true"
-        draggable={false}
-      />
       <div className="mgr-dash-heading">
         <p className="mgr-dash-date">{today}</p>
         <h1 className="mgr-hero-title">{t.title}</h1>

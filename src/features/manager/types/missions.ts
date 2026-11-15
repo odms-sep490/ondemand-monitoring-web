@@ -267,6 +267,7 @@ export type MissionResponse = {
   startedAt: string | null
   completedAt: string | null
   actualStartAt?: string | null
+  controlHandoverAt?: string | null
   actualEndAt?: string | null
   description: string | null
   failureReason: string | null

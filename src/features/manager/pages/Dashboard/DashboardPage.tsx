@@ -11,6 +11,7 @@ import {
   type DashboardRange,
 } from './components/DashboardHeader'
 import { DashboardSkeleton } from './components/DashboardSkeleton'
+import { DashboardFinancePanel } from './components/DashboardFinancePanel'
 import { KpiRow } from './components/KpiRow'
 import type { DashboardKpiAvailability } from './components/KpiRow'
 import { ActionListCard } from './components/ActionListCard'
@@ -136,6 +137,7 @@ export function DashboardPage() {
       />
 
       <KpiRow data={data} availability={availability} />
+      <DashboardFinancePanel finance={response.finance} />
 
       <div className="mgr-dash-columns">
         <ActionListCard

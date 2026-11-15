@@ -8,8 +8,10 @@ export function FlightStepper({
   completed = false,
   completedLabel,
   failed = false,
+  stepTimes,
 }: {
   active: number
+  stepTimes?: ReadonlyArray<{ dateTime: string; label: string } | null>
   completed?: boolean
   completedLabel?: string
   failed?: boolean
@@ -37,6 +39,7 @@ export function FlightStepper({
               : current
                 ? t.current
                 : t.upcoming
+          const time = stepTimes?.[index]
           const accessibleName = `${step.label} — ${state} (${index + 1}/${steps.length})`
 
           return (
@@ -44,7 +47,7 @@ export function FlightStepper({
               key={step.key}
               className={`odm-flight-step${done ? ' is-complete' : ''}${current ? ' is-current' : ''}${failedStep ? ' is-failed' : ''}`}
               aria-current={current ? 'step' : undefined}
-              aria-label={accessibleName}
+              aria-label={time ? accessibleName + ' · ' + time.label : accessibleName}
               title={accessibleName}
             >
               <span className="odm-flight-step-chip" aria-hidden="true">
@@ -66,6 +69,7 @@ export function FlightStepper({
               <span className="odm-flight-step-copy">
                 <span className="odm-flight-step-label">{step.label}</span>
                 <span className="odm-flight-step-state">{state}</span>
+                {time && <time className="odm-flight-step-time" dateTime={time.dateTime}>{time.label}</time>}
               </span>
               {index < steps.length - 1 && (
                 <span className="odm-flight-step-connector" aria-hidden="true" />

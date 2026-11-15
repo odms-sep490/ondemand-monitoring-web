@@ -1,6 +1,8 @@
 import { FlightStepper } from '../../../../drone-operator/components/common/FlightStepper'
 import { useI18n } from '../../../../../shared/i18n'
 import { missionDetailPageMessages } from '../MissionDetailPage.messages'
+import { formatDateTime } from '../../../components/common/missionDetailHelpers'
+import type { DetailData } from '../../../components/common/missionDetailTypes'
 import type { MissionResponse } from '../../../types/missions'
 
 const statusStep: Record<string, number> = {
@@ -13,8 +15,13 @@ const statusStep: Record<string, number> = {
   AWAITING_REVIEW: 6, PENDING_REVIEW: 6, PENDING_APPROVAL: 6, COMPLETED: 6,
 }
 
-export function ManagerMissionProgress({ mission }: { mission: MissionResponse }) {
-  const { t } = useI18n(missionDetailPageMessages)
+export function ManagerMissionProgress({
+  mission,
+  preflight,
+  postcheck,
+  result,
+}: { mission: MissionResponse } & Pick<DetailData, 'preflight' | 'postcheck' | 'result'>) {
+  const { t, locale } = useI18n(missionDetailPageMessages)
   const crew = (mission.staffAssignments ?? []).filter((item) => item.isCurrent !== false)
   const crewAccepted = crew.length > 0 && crew.every((item) => item.responseStatus === 'ACCEPTED')
   const active = mission.status === 'PENDING_CONFIRMATION' && crewAccepted
@@ -23,11 +30,31 @@ export function ManagerMissionProgress({ mission }: { mission: MissionResponse }
 
   if (active == null) return null
 
+  const acceptedAt = crewAccepted
+    ? crew.map(({ respondedAt }) => respondedAt).filter((at) => at != null)
+        .sort((a, b) => Date.parse(b) - Date.parse(a))
+    : []
+  const timestamps = [
+    acceptedAt.length === crew.length ? acceptedAt[0] : null,
+    null,
+    preflight?.completedAt ?? mission.preflightCheckedAt ?? preflight?.startedAt,
+    mission.controlHandoverAt,
+    mission.actualStartAt ?? mission.startedAt ?? result?.startedAt,
+    postcheck?.completedAt ?? postcheck?.checkedAt ?? postcheck?.startedAt,
+    result?.approvedAt ?? mission.completedAt ?? result?.submittedAt,
+  ]
+  const stepTimes = timestamps.map((dateTime) =>
+    dateTime && Number.isFinite(Date.parse(dateTime))
+      ? { dateTime, label: formatDateTime(dateTime, locale) }
+      : null,
+  )
+
   return (
     <section className="mgr-mission-progress" aria-label={t.workflowTitle}>
       <h2>{t.workflowTitle}</h2>
       <FlightStepper
         active={active}
+        stepTimes={stepTimes}
         completed={mission.status === 'COMPLETED'}
         failed={mission.status === 'FAILED_PREFLIGHT'}
       />

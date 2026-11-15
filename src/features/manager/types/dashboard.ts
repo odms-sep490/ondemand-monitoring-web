@@ -118,7 +118,20 @@ export type ManagerDashboardData = {
   generatedAt: string
 }
 
+export type DashboardFinance = {
+  cashFlow: { date: string; received: number; refunded: number }[]
+  recentTransactions: {
+    id: string
+    orderId: string
+    orderCode: string | null
+    type: 'DEPOSIT' | 'MISSION_PAYMENT' | 'FINAL_PAYMENT' | 'REFUND'
+    amount: number
+    occurredAt: string
+  }[]
+}
+
 export type ManagerDashboardResponse = Partial<ManagerDashboardData> & {
+  finance?: DashboardFinance | null
   kpis?: {
     pendingOrders: { count: number; detail: string }
     missionsToday: { count: number; detail: string }
