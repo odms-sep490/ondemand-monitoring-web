@@ -2,7 +2,7 @@ import { getLanguage } from '../../../../shared/i18n'
 import { liveDispatchHelpersMessages } from './liveDispatchHelpers.messages'
 import { liveDispatchPageMessages } from './LiveDispatchPage.messages'
 import type { AvailableOperator } from '../../../staff/api/operatorApi'
-import { localizeTimeslot } from '../../../lib/viLabels'
+import { localizeTimeslot } from '../../lib/viLabels'
 
 const localeNow = () => (getLanguage() === 'en' ? 'en-US' : 'vi-VN')
 
