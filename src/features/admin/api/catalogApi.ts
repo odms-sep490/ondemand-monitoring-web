@@ -28,6 +28,7 @@ export const PREFERRED_TIME_CODES = [
   'AFTERNOON',
   'EVENING',
   'NIGHT',
+  'ANY_TIME',
 ] as const
 
 export type PreferredTimeCode = (typeof PREFERRED_TIME_CODES)[number]

@@ -2,6 +2,7 @@ import { getLanguage } from '../../../../shared/i18n'
 import { liveDispatchHelpersMessages } from './liveDispatchHelpers.messages'
 import { liveDispatchPageMessages } from './LiveDispatchPage.messages'
 import type { AvailableOperator } from '../../../staff/api/operatorApi'
+import { localizeTimeslot } from '../../../lib/viLabels'
 
 const localeNow = () => (getLanguage() === 'en' ? 'en-US' : 'vi-VN')
 
@@ -26,10 +27,11 @@ export function fmtDateTime(value?: string | null) {
 }
 
 export function preferredTimeLabel(value?: string | null) {
-  const key = value?.trim().toUpperCase()
+  const normalized = value?.trim()
+  const key = normalized?.toUpperCase()
   if (!key) return ''
   const labels = liveDispatchHelpersMessages[getLanguage()].preferredTimes
-  return labels[key] ?? value?.trim() ?? ''
+  return labels[key] ?? labels[key.replace(/\s+/g, '_')] ?? localizeTimeslot(normalized)
 }
 
 export function missionStatusLabel(
