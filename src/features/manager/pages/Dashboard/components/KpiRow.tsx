@@ -28,6 +28,16 @@ function KpiLink({
     <a
       className="mgr-dash-kpi"
       href={managerHref(route)}
+      onPointerMove={(event) => {
+        if (event.pointerType !== 'mouse' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+        const bounds = event.currentTarget.getBoundingClientRect()
+        event.currentTarget.style.setProperty('--tilt-x', `${-(event.clientY-bounds.top-bounds.height/2)/bounds.height*7}deg`)
+        event.currentTarget.style.setProperty('--tilt-y', `${(event.clientX-bounds.left-bounds.width/2)/bounds.width*7}deg`)
+      }}
+      onPointerLeave={(event) => {
+        event.currentTarget.style.setProperty('--tilt-x', '0deg')
+        event.currentTarget.style.setProperty('--tilt-y', '0deg')
+      }}
       aria-label={`${title}: ${available ? value.toLocaleString() : unavailableLabel}`}
     >
       <span className="mgr-kpi-copy">

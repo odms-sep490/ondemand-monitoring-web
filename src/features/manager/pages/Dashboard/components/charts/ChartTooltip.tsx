@@ -1,7 +1,11 @@
 import type { TooltipContentProps } from 'recharts'
 
 /** Card-style tooltip shared by every dashboard chart. */
-export function ChartTooltip({ active, payload, label }: Partial<TooltipContentProps<number, string>>) {
+type ChartTooltipProps = Partial<TooltipContentProps<number, string>> & {
+  valueFormatter?: (value: unknown) => string
+}
+
+export function ChartTooltip({ active, payload, label, valueFormatter }: ChartTooltipProps) {
   if (!active || !payload?.length) return null
   return (
     <div className="mgr-tooltip">
@@ -10,7 +14,7 @@ export function ChartTooltip({ active, payload, label }: Partial<TooltipContentP
         <div key={String(item.dataKey ?? item.name)} className="mgr-tooltip-row">
           <span className="mgr-tooltip-dot" style={{ background: item.color ?? (item.payload as { fill?: string })?.fill }} />
           <span>{item.name}</span>
-          <strong>{item.value}</strong>
+          <strong>{valueFormatter ? valueFormatter(item.value) : item.value}</strong>
         </div>
       ))}
     </div>

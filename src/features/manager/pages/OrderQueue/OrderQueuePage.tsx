@@ -1,3 +1,4 @@
+import './orderQueueBanner.css'
 import { useEffect, useMemo, useState } from 'react'
 
 import { Alert, Button, Skeleton } from 'antd'
@@ -17,7 +18,6 @@ import { FilterBar, FilterSegments } from '../../components/common/FilterBar'
 import { PageHeader } from '../../components/common/PageHeader'
 import { managerHref } from '../../routes'
 import type { OrderCreateResponse } from '../../types/orders'
-import { QueueKpis } from './components/QueueKpis'
 import { QueueSkeleton } from './components/QueueSkeleton'
 import { QueueTable, type QueueTableMode } from './components/QueueTable'
 import { orderQueuePageMessages } from './OrderQueuePage.messages'
@@ -258,12 +258,6 @@ export function OrderQueuePage() {
         <Alert type="warning" showIcon message={t.refreshError} />
       ) : null}
 
-      <QueueKpis
-        pending={pendingOrders.length}
-        ready={paidOrders.length}
-        needsInfo={kpiExtras.needsInfo}
-        waitingDeposit={kpiExtras.waitingDeposit}
-      />
 
       <FilterBar
         start={
