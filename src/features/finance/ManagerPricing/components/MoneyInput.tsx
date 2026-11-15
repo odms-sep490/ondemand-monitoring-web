@@ -1,4 +1,7 @@
-import { digits } from '../pricingHelpers'
+import { useId, useRef } from 'react'
+import { digits, roundPriceToNearestThousand } from '../pricingHelpers'
+import { useI18n } from '../../../../shared/i18n'
+import { pricingMessages } from '../pricing.messages'
 
 export function MoneyInput({
   label,
@@ -11,6 +14,9 @@ export function MoneyInput({
   onChange: (value: string) => void
   disabled: boolean
 }) {
+  const { t } = useI18n(pricingMessages)
+  const roundingHintId = useId()
+  const changed = useRef(false)
   return (
     <label>
       <span>{label} (VND)</span>
@@ -18,8 +24,21 @@ export function MoneyInput({
         inputMode="numeric"
         value={value}
         disabled={disabled}
-        onChange={(event) => onChange(digits(event.target.value))}
+        aria-label={`${label} (VND)`}
+        aria-describedby={roundingHintId}
+        onChange={(event) => {
+          changed.current = true
+          onChange(digits(event.target.value))
+        }}
+        onBlur={() => {
+          if (!changed.current) return
+          changed.current = false
+          onChange(String(roundPriceToNearestThousand(Number(value))))
+        }}
       />
+      <small id={roundingHintId} className="finance-rounding-hint">
+        {t.moneyRoundingHint}
+      </small>
     </label>
   )
 }

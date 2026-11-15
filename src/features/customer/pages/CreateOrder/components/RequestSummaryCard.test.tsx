@@ -18,7 +18,7 @@ describe('RequestSummaryCard', () => {
         service={{
           id: 'service-1',
           name: 'Giám sát công trình',
-          basePrice: 3_500_000,
+          defaultPrice: 3_500_000,
         }}
         mediaTotals={{ images: 70, videos: 5 }}
         checklistCounts={{
@@ -62,7 +62,7 @@ describe('RequestSummaryCard', () => {
         service={{
           id: 'service-1',
           name: 'Giám sát công trình',
-          basePrice: 3_500_000,
+          defaultPrice: 3_500_000,
         }}
         deliverable={{
           id: 'deliverable-1',
