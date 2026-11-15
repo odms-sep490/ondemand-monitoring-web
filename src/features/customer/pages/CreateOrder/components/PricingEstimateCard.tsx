@@ -60,11 +60,13 @@ export function PricingEstimateCard({
   else if (loading && !estimate) body = <p className="co-hint">{t.loading}</p>
   else if (!estimate) body = <p className="co-hint">{t.unavailable}</p>
   else if (checklistOnly) {
+    const contextualFees = estimate.additionalRequirements.filter((item) => item.type.startsWith('CONTEXT_'))
     const outputFees = estimate.additionalRequirements.filter((item) => item.type.startsWith('OUTPUT_'))
-    const checklistSubtotal = estimate.servicePrice + outputFees.reduce((sum, fee) => sum + fee.additionalPrice, 0)
+    const checklistSubtotal = estimate.servicePrice + contextualFees.reduce((sum, fee) => sum + fee.additionalPrice, 0) + outputFees.reduce((sum, fee) => sum + fee.additionalPrice, 0)
     body = <div className="co-checklist-cost">
       <p className="co-hint">{lang === 'vi' ? 'Chi phí các nội dung giám sát đã chọn.' : 'Cost of your selected monitoring items.'}</p>
       <div className="co-money-row"><span>{t.servicePrice}</span><strong>{formatMoney(estimate.servicePrice, locale)}</strong></div>
+      {contextualFees.map((fee) => <div className="co-money-row" key={fee.type}><span>{contextualFeeLabel(fee.type, t)}</span><strong>+{formatMoney(fee.additionalPrice, locale)}</strong></div>)}
       {outputFees.map((fee) => <div className="co-money-row" key={fee.type}><span>{fee.description}</span><strong>+{formatMoney(fee.additionalPrice, locale)}</strong></div>)}
       {additionalChecklists.length > 0 && <div className="co-money-row"><span>{t.additionalServiceRow}</span><strong>{t.additionalPending(additionalChecklists.length)}</strong></div>}
       <div className="co-money-row co-money-total"><span>{lang === 'vi' ? 'Tạm tính checklist' : 'Checklist subtotal'}</span><strong>{formatMoney(checklistSubtotal, locale)}</strong></div>

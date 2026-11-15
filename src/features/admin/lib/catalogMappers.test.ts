@@ -14,12 +14,13 @@ import {
 
 describe('catalogMappers', () => {
   it('maps a service dto and fills optional fields', () => {
-    const s = mapService({ id: '1', name: 'A', basePrice: 2_000_000, isActive: false })
+    const s = mapService({ id: '1', name: 'A', defaultPrice: 2_000_000, priceSource: 'CHECKLISTS', isActive: false })
     expect(s).toEqual({
       id: '1',
       name: 'A',
       description: '',
-      basePrice: 2_000_000,
+      defaultPrice: 2_000_000,
+      priceSource: 'CHECKLISTS',
       imageUrl: null,
       isActive: false,
       createdAt: null,
@@ -29,14 +30,14 @@ describe('catalogMappers', () => {
 
   it('builds a trimmed service request from the form', () => {
     expect(
-      toServiceRequest({ name: ' X ', description: ' d ', basePrice: 2_000_000, isActive: true }),
-    ).toEqual({ name: 'X', description: 'd', basePrice: 2_000_000, isActive: true })
+      toServiceRequest({ name: ' X ', description: ' d ', isActive: true }),
+    ).toEqual({ name: 'X', description: 'd', isActive: true })
     expect(emptyServiceForm().isActive).toBe(true)
     expect(
       serviceToForm(
-        mapService({ id: '1', name: 'A', description: 'd', basePrice: 2_000_000, isActive: true }),
+        mapService({ id: '1', name: 'A', description: 'd', defaultPrice: 2_000_000, isActive: true }),
       ),
-    ).toEqual({ name: 'A', description: 'd', basePrice: 2_000_000, isActive: true })
+    ).toEqual({ name: 'A', description: 'd', isActive: true })
   })
 
   it('trims seconds from times', () => {

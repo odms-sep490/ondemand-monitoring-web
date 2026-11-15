@@ -38,6 +38,7 @@ export type Draft = {
     'DISCOUNT' | 'PROMOTION' | 'COMPENSATION' | 'GOODWILL' | 'CORRECTION'
   approvalNote: string
   prices: Record<string, string>
+  priceReasons: Record<string, string>
 }
 
 export const emptyDraft: Draft = {
@@ -49,9 +50,16 @@ export const emptyDraft: Draft = {
   adjustmentType: 'CORRECTION',
   approvalNote: '',
   prices: {},
+  priceReasons: {},
 }
 
-/** Same bounds the server enforces: the policy's maximum discount and markup on this item's system price. */
+export const VND_ROUNDING_UNIT = 1_000
+
+export function roundPriceToNearestThousand(value: number) {
+  return Math.floor((value + VND_ROUNDING_UNIT / 2) / VND_ROUNDING_UNIT) * VND_ROUNDING_UNIT
+}
+
+/** Rounded prices that remain inside the policy's suggested bounds. */
 export function priceLimits(
   system: number,
   maxDiscountPercent: number | null | undefined,
@@ -59,10 +67,24 @@ export function priceLimits(
 ) {
   if (system <= 0 || maxDiscountPercent == null || maxMarkupPercent == null)
     return null
+  const rawMin = Math.ceil((system * (100 - maxDiscountPercent)) / 100)
+  const rawMax = Math.floor((system * (100 + maxMarkupPercent)) / 100)
   return {
-    min: Math.ceil((system * (100 - maxDiscountPercent)) / 100),
-    max: Math.floor((system * (100 + maxMarkupPercent)) / 100),
+    min: Math.ceil(rawMin / VND_ROUNDING_UNIT) * VND_ROUNDING_UNIT,
+    max: Math.floor(rawMax / VND_ROUNDING_UNIT) * VND_ROUNDING_UNIT,
   }
+}
+
+export function isOutsidePriceRange(
+  proposed: number,
+  system: number,
+  range: { min: number; max: number } | null,
+) {
+  return (
+    range !== null &&
+    proposed !== system &&
+    (proposed < range.min || proposed > range.max)
+  )
 }
 
 export function amount(value: string | undefined) {
@@ -86,6 +108,19 @@ export function liveSystemPrice(
   return mine.reduce((sum, line) => sum + line.amount, 0)
 }
 
+/** Use a newly calculated system price when the saved approval merely mirrored its older system price. */
+export function initialManagerPrice(item: PricingChecklistItem, currentSystemPrice: number) {
+  const savedPrice = item.managerApprovedAmount ?? item.managerQuotedPrice
+  if (savedPrice == null) return currentSystemPrice
+  if (
+    item.systemCalculatedPrice != null &&
+    savedPrice === item.systemCalculatedPrice
+  ) {
+    return currentSystemPrice
+  }
+  return savedPrice
+}
+
 export function approvedPrices(
   items: PricingChecklistItem[],
   draft: Draft,
@@ -98,15 +133,17 @@ export function approvedPrices(
       .map((item) => [
         item.id,
         draft.prices[item.id] == null
-          ? (item.managerApprovedAmount ??
-            item.managerQuotedPrice ??
-            liveSystemPrice(item, lines))
+          ? initialManagerPrice(item, liveSystemPrice(item, lines))
           : amount(draft.prices[item.id]),
       ]),
   )
 }
 
 export function isManagerPriced(item: PricingChecklistItem) {
+  // New catalog snapshots already carry the Admin-configured area-scaled price.
+  if (item.pricingSnapshotVersion != null && item.pricingSnapshotVersion >= 2 && item.sourceChecklistId) {
+    return false
+  }
   return (
     item.sourceType !== 'SERVICE_TEMPLATE' &&
     item.reviewStatus !== 'REJECTED' &&

@@ -8,7 +8,8 @@ import { MockDataBadge } from '../../../../shared/components/ui'
 import { PageHeader } from '../../../../shared/components/ui'
 import { NoFlyZonesTab } from './components/NoFlyZonesTab'
 import { PolicyTab } from './components/PolicyTab'
-import { PricingPolicyTab } from './components/PricingPolicyTab'
+import { BaseChecklistPricingTab } from './components/BaseChecklistPricingTab'
+import { baseChecklistPricingApi } from '../../api/baseChecklistPricingApi'
 import { operatingConfigPageMessages } from './OperatingConfigPage.messages'
 
 type Tab = 'policy' | 'pricing' | 'nfz' | 'criteria'
@@ -30,7 +31,7 @@ export function OperatingConfigPage() {
   )
 
   const { data: pricingData } = useApiQuery(
-    (signal) => adminApi.listPricingPolicies(signal),
+    (signal) => baseChecklistPricingApi.list(signal),
     [],
   )
 
@@ -73,7 +74,7 @@ export function OperatingConfigPage() {
       </div>
       {tab === 'criteria' && <OrderCriteriaTab />}
       {tab === 'policy' && <PolicyTab />}
-      {tab === 'pricing' && <PricingPolicyTab />}
+      {tab === 'pricing' && <BaseChecklistPricingTab />}
       {tab === 'nfz' && <NoFlyZonesTab />}
     </div>
   )

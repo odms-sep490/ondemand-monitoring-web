@@ -17,7 +17,6 @@ import { adminHref } from '../../routes'
 import { checklistMessages } from './checklists.messages'
 import { checklistError } from './checklistError'
 import { Icon } from '../../../../shared/components/Icon'
-import { formatVnd } from '../../../../shared/lib/formatVnd'
 import { ChecklistPagination, ChecklistLoadError } from './ChecklistUi'
 import { ChecklistConfigModal } from './ChecklistConfigModal'
 
@@ -125,7 +124,7 @@ export function ChecklistCatalogPage() {
                   <tr>
                     <th>{t.content}</th>
                     <th>{t.filter}</th>
-                    <th className="adm-text-right">{t.priceColumn}</th>
+                    <th>{t.evidenceColumn}</th>
                     <th>{t.usage}</th>
                     <th>{t.updated}</th>
                     <th>{t.actions}</th>
@@ -144,12 +143,9 @@ export function ChecklistCatalogPage() {
                           {row.isActive ? t.active : t.inactive}
                         </StatusBadge>
                       </td>
-                      <td className="adm-cell-mono adm-money-cell">
-                        {formatVnd(row.basePrice ?? 0)}
-                        <br />
+                      <td className="adm-cell-mono">
                         {row.includedImageCount ?? 0} {t.imagesShort} ·{' '}
                         {row.includedVideoCount ?? 0} {t.videosShort}
-                        {row.pricingProfile ? ` · ${row.pricingProfile}` : ''}
                       </td>
                       <td>
                         <button

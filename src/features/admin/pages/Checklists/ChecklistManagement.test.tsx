@@ -82,7 +82,7 @@ beforeEach(() => {
   })
   vi.spyOn(checklistsApi, 'removeMissionTemplate').mockResolvedValue(undefined)
   vi.spyOn(catalogApi, 'listServices').mockResolvedValue([
-    { id: 's', name: 'Dịch vụ test', basePrice: 3_200_000, isActive: true },
+    { id: 's', name: 'Dịch vụ test', defaultPrice: 3_200_000, isActive: true },
   ])
 })
 afterEach(() => {
@@ -140,7 +140,6 @@ describe('Admin checklist catalog', () => {
     await waitFor(() =>
       expect(checklistsApi.create).toHaveBeenCalledWith(
         'Kiểm tra mái',
-        'BASIC',
         expect.objectContaining({
           description: 'Phạm vi kiểm tra mái',
           executionSteps: ['Bay lưới song song', 'Chụp cận'],
@@ -175,21 +174,13 @@ describe('Admin checklist catalog', () => {
     await waitFor(() =>
       expect(checklistsApi.create).toHaveBeenCalledWith(
         'New checklist',
-        'BASIC',
         {
           description: '',
           executionSteps: [],
           inputRequirements: [],
           expectedOutputs: [],
-          altitudePricingEnabled: false,
-          areaPricingEnabled: false,
-          basePrice: 0,
-          includedAltitudeM: 0,
-          includedAreaHa: 0,
           includedImageCount: 0,
-          includedLengthKm: 0,
           includedVideoCount: 0,
-          lengthPricingEnabled: false,
         },
       ),
     )
@@ -238,21 +229,13 @@ describe('Admin checklist catalog', () => {
       expect(checklistsApi.update).toHaveBeenCalledWith(
         'a',
         'Edited',
-        'BASIC',
         {
           description: '',
           executionSteps: [],
           inputRequirements: [],
           expectedOutputs: [],
-          altitudePricingEnabled: false,
-          areaPricingEnabled: false,
-          basePrice: 0,
-          includedAltitudeM: 0,
-          includedAreaHa: 0,
           includedImageCount: 0,
-          includedLengthKm: 0,
           includedVideoCount: 0,
-          lengthPricingEnabled: false,
         },
       ),
     )
@@ -521,7 +504,7 @@ describe('Admin service template', () => {
   })
   it('disables assignment to an inactive service', async () => {
     vi.mocked(catalogApi.listServices).mockResolvedValue([
-      { id: 's', name: 'Dịch vụ test', basePrice: 3_200_000, isActive: false },
+      { id: 's', name: 'Dịch vụ test', defaultPrice: 3_200_000, isActive: false },
     ])
     render(<ServiceChecklistPage serviceId="s" />)
     expect(
@@ -542,8 +525,8 @@ describe('Admin service template', () => {
   })
   it('routes the selector to the chosen service', async () => {
     vi.mocked(catalogApi.listServices).mockResolvedValue([
-      { id: 's', name: 'First', basePrice: 3_200_000, isActive: true },
-      { id: 'second', name: 'Second', basePrice: 4_000_000, isActive: true },
+      { id: 's', name: 'First', defaultPrice: 3_200_000, isActive: true },
+      { id: 'second', name: 'Second', defaultPrice: 4_000_000, isActive: true },
     ])
     render(<ServiceChecklistPage serviceId="s" />)
     await screen.findByText(definition.content)

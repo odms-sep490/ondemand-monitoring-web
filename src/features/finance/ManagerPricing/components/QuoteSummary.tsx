@@ -23,6 +23,7 @@ export function QuoteSummary({
   approved,
   pendingCustomCount,
   outOfRangeCount,
+  adjustmentReasonRequired,
   approveBlockedReason,
   approve,
   data,
@@ -41,26 +42,18 @@ export function QuoteSummary({
   approved: boolean
   pendingCustomCount: number
   outOfRangeCount: number
+  adjustmentReasonRequired: boolean
   approveBlockedReason: string | null | undefined
   approve: () => Promise<void>
   data: PricingReview
 }) {
   const { t } = useI18n(pricingMessages)
-  const policyVersion =
-    data.systemCalculation?.policyVersion ??
-    data.currentQuote?.pricingPolicyVersion ??
-    null
   return (
     <aside className="odm-or-card finance-quote" aria-label={t.summaryAria}>
       <header className="finance-heading finance-quote-heading">
         <h2>{t.summaryTitle}</h2>
-        {policyVersion != null ? (
-          <span className="finance-policy-pill">
-            {t.policyVersion}
-            {policyVersion}
-          </span>
-        ) : null}
       </header>
+      <p className="finance-block-hint">{t.systemPriceSourceHint}</p>
       <div className="finance-quote-body">
         <div className="finance-quote-content">
           <QuoteBreakdown
@@ -88,18 +81,22 @@ export function QuoteSummary({
               {t.remainingToReview(pendingReviewCount)}
             </p>
           )}
-          {checklistAdjustment !== 0 || draft.adjustmentReason ? (
+          {adjustmentReasonRequired || draft.adjustmentReason ? (
             <label className="finance-quote-note">
               <span>
-                {t.adjustmentReasonLabel}{' '}
-                <em>{t.adjustmentReasonHint(MIN_REASON_LENGTH)}</em>
+                {t.adjustmentReasonLabel}
+                <em>
+                  {adjustmentReasonRequired
+                    ? t.adjustmentReasonHint(MIN_REASON_LENGTH)
+                    : t.adjustmentReasonOptionalHint}
+                </em>
               </span>
               <textarea
                 rows={3}
                 value={draft.adjustmentReason}
                 disabled={accepted}
                 aria-invalid={
-                  checklistAdjustment !== 0 &&
+                  adjustmentReasonRequired &&
                   draft.adjustmentReason.trim().length < MIN_REASON_LENGTH
                 }
                 onChange={(event) =>

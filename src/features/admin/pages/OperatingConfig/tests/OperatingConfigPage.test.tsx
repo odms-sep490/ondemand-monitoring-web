@@ -5,6 +5,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { setLanguage } from '../../../../../shared/i18n'
 import { OperatingConfigPage } from '../OperatingConfigPage'
 import { adminApi } from '../../../api/adminApi'
+import { baseChecklistPricingApi } from '../../../api/baseChecklistPricingApi'
 import { useMockTransport } from './helpers'
 
 useMockTransport()
@@ -31,14 +32,14 @@ describe('OperatingConfigPage', () => {
   })
 
   it('keeps pricing inside operational configuration', async () => {
-    vi.spyOn(adminApi, 'listPricingPolicies').mockResolvedValue([])
+    vi.spyOn(baseChecklistPricingApi, 'list').mockResolvedValue([])
     render(<OperatingConfigPage />)
 
     fireEvent.click(screen.getByRole('tab', { name: /Định giá/ }))
 
     expect(
       await screen.findByRole('heading', {
-        name: 'Chính sách giá mặc định',
+        name: 'Giá Base Checklist',
       }),
     ).toBeInTheDocument()
   })
