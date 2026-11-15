@@ -8,13 +8,16 @@ const SLOT_KEYS: Record<string, string> = {
   afternoon: 'AFTERNOON',
   evening: 'EVENING',
   night: 'NIGHT',
+  'any time': 'ANY_TIME',
+  'bất kỳ lúc nào': 'ANY_TIME',
+  'bất kỳ thời điểm nào': 'ANY_TIME',
   sáng: 'MORNING',
   chiều: 'AFTERNOON',
   tối: 'EVENING',
   đêm: 'NIGHT',
 }
 const SLOT_RE =
-  /(?<![\p{L}\d])(?:(?:buổi|ban)\s+)?(morning|afternoon|evening|night|sáng|chiều|tối|đêm)(?![\p{L}\d])/giu
+  /(?<![\p{L}\d])(?:(?:buổi|ban)\s+)?(any time|bất kỳ lúc nào|bất kỳ thời điểm nào|morning|afternoon|evening|night|sáng|chiều|tối|đêm)(?![\p{L}\d])/giu
 
 /**
  * `Morning` / `Sáng` / `Buổi chiều 13:00–17:00` → localized slot word

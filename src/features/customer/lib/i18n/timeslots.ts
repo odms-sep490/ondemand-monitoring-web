@@ -1,11 +1,23 @@
 import type { Language } from '../../../../shared/i18n'
 import { normalizeKey } from './normalize'
 
-export type TimeslotCode = 'MORNING' | 'AFTERNOON' | 'EVENING' | 'NIGHT'
+export type TimeslotCode = 'MORNING' | 'AFTERNOON' | 'EVENING' | 'NIGHT' | 'ANY_TIME'
 
 export const TIMESLOT_LABELS: Record<Language, Record<TimeslotCode, string>> = {
-  vi: { MORNING: 'Buổi sáng', AFTERNOON: 'Buổi chiều', EVENING: 'Buổi tối', NIGHT: 'Ban đêm' },
-  en: { MORNING: 'Morning', AFTERNOON: 'Afternoon', EVENING: 'Evening', NIGHT: 'Night' },
+  vi: {
+    MORNING: 'Buổi sáng',
+    AFTERNOON: 'Buổi chiều',
+    EVENING: 'Buổi tối',
+    NIGHT: 'Ban đêm',
+    ANY_TIME: 'Bất kỳ lúc nào',
+  },
+  en: {
+    MORNING: 'Morning',
+    AFTERNOON: 'Afternoon',
+    EVENING: 'Evening',
+    NIGHT: 'Night',
+    ANY_TIME: 'Any time',
+  },
 }
 
 /** Minimal shape of a BE `/api/preferred-times` item. */
@@ -27,6 +39,7 @@ const asCode = (value: string | null | undefined): TimeslotCode | null => {
 export function timeslotCodeFromName(name: string | null | undefined): TimeslotCode | null {
   if (!name) return null
   const key = normalizeKey(name).replace(/^buoi /, '')
+  if (/^(any time|bat ky luc nao|bat ky thoi diem nao)\b/.test(key)) return 'ANY_TIME'
   if (/^morning\b/.test(key)) return 'MORNING'
   if (/^afternoon\b/.test(key)) return 'AFTERNOON'
   if (/^evening\b/.test(key)) return 'EVENING'
@@ -70,6 +83,7 @@ export function localizeTimeslot(
 
   if (code) {
     const label = TIMESLOT_LABELS[lang][code]
+    if (code === 'ANY_TIME') return label
     return range ? `${label} ${range.replace(/\s+/g, '').replace('-', '–')}` : label
   }
   if (!name) return code ? [TIMESLOT_LABELS[lang][code], range].filter(Boolean).join(' ') : range

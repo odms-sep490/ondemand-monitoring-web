@@ -31,6 +31,7 @@ const shared: ChecklistDefinition = {
   includedVideoCount: 1,
   usedByServiceCount: 3,
   usedByOrderCount: 12,
+  deviceTypes: [{ id: 't1', code: 'DRONE', name: 'Drone' }],
 }
 const link = (patch: Partial<ServiceChecklist> = {}): ServiceChecklist => ({
   id: 'link',
@@ -89,6 +90,46 @@ beforeEach(() => {
     first: true,
     last: true,
   })
+  vi.spyOn(checklistsApi, 'deviceTypes').mockResolvedValue({
+    items: [
+      { id: 't1', code: 'DRONE', name: 'Drone' },
+      { id: 't2', code: 'THERMAL', name: 'Thermal camera' },
+    ],
+    page: 0,
+    totalItems: 2,
+    totalPages: 1,
+    first: true,
+    last: true,
+  })
+  vi.spyOn(checklistsApi, 'addDeviceType').mockResolvedValue({
+    id: 'r2',
+    checklistId: 'a',
+    deviceType: { id: 't2', code: 'THERMAL', name: 'Thermal camera' },
+    createdAt: '2026-10-06T00:00:00Z',
+    updatedAt: null,
+    version: 0,
+  })
+  vi.spyOn(checklistsApi, 'removeDeviceType').mockResolvedValue(undefined)
+  vi.spyOn(checklistsApi, 'missionTemplates').mockResolvedValue([])
+  vi.spyOn(checklistsApi, 'createMissionTemplate').mockResolvedValue({
+    id: 'mt1',
+    serviceId: 's',
+    scopeLabel: 'North area',
+    checklistIds: [],
+    createdAt: '2026-10-06T00:00:00Z',
+    updatedAt: null,
+    version: 0,
+  })
+  vi.spyOn(checklistsApi, 'updateMissionTemplate').mockResolvedValue({
+    id: 'mt1',
+    serviceId: 's',
+    scopeLabel: 'North area',
+    checklistIds: [],
+    createdAt: '2026-10-06T00:00:00Z',
+    updatedAt: null,
+    version: 1,
+  })
+  vi.spyOn(checklistsApi, 'removeMissionTemplate').mockResolvedValue(undefined)
   vi.spyOn(catalogApi, 'listServices').mockResolvedValue([
     { id: 's', name: 'Dịch vụ test', basePrice: 3_200_000, isActive: true },
   ])
@@ -102,6 +143,36 @@ afterEach(() => {
 })
 
 describe('Library page', () => {
+  it('adds and removes device types through independent endpoints', async () => {
+    render(<ChecklistCatalogPage />)
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Sửa checklist' }),
+    )
+    const dialog = await screen.findByRole('dialog')
+    expect(within(dialog).getByText('Drone')).toBeInTheDocument()
+
+    fireEvent.change(
+      await within(dialog).findByLabelText('Chọn loại thiết bị'),
+      { target: { value: 't2' } },
+    )
+    fireEvent.click(
+      within(dialog).getByRole('button', { name: 'Thêm loại thiết bị' }),
+    )
+    await waitFor(() =>
+      expect(checklistsApi.addDeviceType).toHaveBeenCalledWith('a', 't2'),
+    )
+    expect(
+      await within(dialog).findByText('Thermal camera'),
+    ).toBeInTheDocument()
+
+    fireEvent.click(
+      within(dialog).getByRole('button', { name: 'Xóa loại thiết bị Drone' }),
+    )
+    await waitFor(() =>
+      expect(checklistsApi.removeDeviceType).toHaveBeenCalledWith('a', 't1'),
+    )
+  })
+
   it('shows how many services and orders use each checklist', async () => {
     render(<ChecklistCatalogPage />)
     expect(
