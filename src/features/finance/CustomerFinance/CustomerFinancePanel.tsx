@@ -16,6 +16,10 @@ import { InvoiceSection, InvoiceSummary } from './components/InvoiceSection'
 import { RefundStatusSection } from './components/RefundStatusSection'
 import { refundApi, type RefundResponse } from '../refundApi'
 import { MissionPaymentMilestonesSection } from './components/MissionPaymentMilestonesSection'
+import {
+  getActionableHandedOverMilestones,
+  getHandedOverMissionMilestones,
+} from '../missionMilestoneUtils'
 
 export type CustomerFinanceState = {
   quote: CustomerQuote | null
@@ -261,6 +265,10 @@ export function CustomerFinancePanel({
     return messageOf(cause, t)
   }
 
+  const handedOverMilestones = getHandedOverMissionMilestones(missionPayments)
+  const unpaidHandedOverCount =
+    getActionableHandedOverMilestones(missionPayments).length
+
   const invoiceSummaryContent = invoice ? (
     <InvoiceSummary invoice={invoice} />
   ) : null
@@ -275,6 +283,8 @@ export function CustomerFinancePanel({
         completeTestDeposit={completeTestPayment}
         testPaymentLabel={t.testPayment}
         refreshExpired={() => void load()}
+        handedOverCount={handedOverMilestones.length}
+        unpaidHandedOverCount={unpaidHandedOverCount}
       />
     </>
   ) : null

@@ -359,6 +359,11 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
                         orderId={order.id}
                         initialDelivery={cachedDelivery?.delivery ?? null}
                         onStateChange={updateDelivery}
+                        onOpenFinance={() => handleTabChange('finance')}
+                        onPaymentCompleted={() => {
+                          setFinanceRefreshVersion((version) => version + 1)
+                          detail.reload()
+                        }}
                       />
                     </div>
                   ),

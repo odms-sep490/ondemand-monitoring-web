@@ -6,6 +6,11 @@ import type {
   MissionPaymentAllocation,
   MissionPaymentMilestone,
 } from '../../types'
+import {
+  canPayMissionMilestone,
+  getHandedOverMissionMilestones,
+  hasActiveMissionCheckout,
+} from '../../missionMilestoneUtils'
 import { env } from '../../../../config/env'
 import { missionPaymentMilestoneMessages } from './MissionPaymentMilestonesSection.messages'
 
@@ -39,13 +44,7 @@ export function MissionPaymentMilestonesSection({
   const { t, locale } = useI18n(missionPaymentMilestoneMessages)
 
   // Allocation is Manager planning data, not evidence of a Customer handover.
-  const handedOver =
-    allocation?.milestones.filter(
-      (milestone) =>
-        milestone.handedOverAt != null &&
-        Number.isFinite(Date.parse(milestone.handedOverAt)) &&
-        milestone.status !== 'NOT_YET_DUE',
-    ) ?? []
+  const handedOver = getHandedOverMissionMilestones(allocation)
   if (handedOver.length === 0) return null
   const total = handedOver.reduce((sum, milestone) => sum + milestone.amount, 0)
   const paid = handedOver
@@ -105,15 +104,8 @@ function MissionPaymentItem({
 }) {
   const { t } = useI18n(missionPaymentMilestoneMessages)
   const latest = milestone.payments[0]
-  const hasActiveCheckout = Boolean(
-    milestone.status === 'PENDING' &&
-    milestone.payments.some(
-      (payment) =>
-        (payment.status === 'PENDING' || payment.status === 'PROCESSING') &&
-        Boolean(payment.paymentUrl),
-    ),
-  )
-  const canPay = milestone.status === 'UNPAID' || hasActiveCheckout
+  const hasActiveCheckout = hasActiveMissionCheckout(milestone)
+  const canPay = canPayMissionMilestone(milestone)
   const date = milestone.handedOverAt
     ? new Date(milestone.handedOverAt).toLocaleString(locale)
     : null

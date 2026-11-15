@@ -212,6 +212,10 @@ describe('CustomerFinancePanel', () => {
     expect(await screen.findByText('Khu vực nhà xưởng')).toBeInTheDocument()
     expect(screen.getByText('MS-101')).toBeInTheDocument()
     expect(screen.getByText('MISSION-RETRY-1')).toBeInTheDocument()
+    expect(
+      screen.getByText('Đã có khoản thanh toán nhiệm vụ'),
+    ).toBeInTheDocument()
+    expect(screen.queryByText('Đang chuẩn bị nhiệm vụ')).toBeNull()
     const retry = await screen.findByRole('button', {
       name: 'Thử thanh toán lại',
     })

@@ -76,6 +76,8 @@ export function InvoiceSection({
   completeTestDeposit,
   testPaymentLabel,
   refreshExpired,
+  handedOverCount = 0,
+  unpaidHandedOverCount = 0,
 }: {
   invoice: Invoice
   legalReady: boolean
@@ -84,6 +86,8 @@ export function InvoiceSection({
   completeTestDeposit: () => Promise<void>
   testPaymentLabel: string
   refreshExpired?: () => void
+  handedOverCount?: number
+  unpaidHandedOverCount?: number
 }) {
   const { t, locale } = useI18n(customerFinanceSectionsMessages)
   const [expiredDeadlineKey, setExpiredDeadlineKey] = useState<string | null>(
@@ -181,6 +185,21 @@ export function InvoiceSection({
         <div className="customer-deposit-notice is-ready">
           <b>{t.paymentCompleted}</b>
           <span>{t.awaitingResourceConfirmation}</span>
+        </div>
+      ) : handedOverCount > 0 ? (
+        <div
+          className={`customer-deposit-notice${unpaidHandedOverCount === 0 ? ' is-ready' : ''}`}
+        >
+          <b>
+            {unpaidHandedOverCount > 0
+              ? t.missionPaymentsReady
+              : t.missionPaymentsHandedOverPaid}
+          </b>
+          <span>
+            {unpaidHandedOverCount > 0
+              ? t.missionPaymentsReadyBody
+              : t.missionPaymentsHandedOverPaidBody}
+          </span>
         </div>
       ) : (
         <div className="customer-deposit-notice">

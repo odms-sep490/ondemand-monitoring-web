@@ -50,6 +50,12 @@ export const customerFinanceSectionsMessages = defineMessages({
     missionPreparation: 'Đang chuẩn bị nhiệm vụ',
     missionPreparationBody:
       'Các khoản thanh toán theo nhiệm vụ sẽ xuất hiện riêng sau khi từng nhiệm vụ được bàn giao.',
+    missionPaymentsReady: 'Đã có khoản thanh toán nhiệm vụ',
+    missionPaymentsReadyBody:
+      'Vui lòng thanh toán các nhiệm vụ đã bàn giao ở mục "Thanh toán theo nhiệm vụ" bên dưới.',
+    missionPaymentsHandedOverPaid: 'Các nhiệm vụ đã bàn giao đều đã thanh toán',
+    missionPaymentsHandedOverPaidBody:
+      'Các nhiệm vụ tiếp theo sẽ xuất hiện riêng bên dưới sau khi được bàn giao.',
     paymentCompleted: 'Đã hoàn tất thanh toán',
     awaitingResourceConfirmation:
       'Đang chờ nhân sự được phân công xác nhận tài nguyên.',
@@ -130,6 +136,12 @@ export const customerFinanceSectionsMessages = defineMessages({
     missionPreparation: 'Mission preparation in progress',
     missionPreparationBody:
       'Mission payment items will appear separately after each Mission is handed over.',
+    missionPaymentsReady: 'Mission payment available',
+    missionPaymentsReadyBody:
+      'Pay the handed-over missions in the "Mission payments" section below to unlock originals.',
+    missionPaymentsHandedOverPaid: 'Handed-over missions paid',
+    missionPaymentsHandedOverPaidBody:
+      'Any remaining missions will appear separately below after handover.',
     paymentCompleted: 'Payment completed',
     awaitingResourceConfirmation:
       'Your missions are awaiting confirmation from the assigned staff.',
