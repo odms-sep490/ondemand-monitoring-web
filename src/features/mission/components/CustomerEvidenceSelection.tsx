@@ -19,12 +19,14 @@ export function CustomerEvidenceSelection({
   item,
   refresh,
   mutationBusy = false,
+  readOnly = false,
   onDetach,
 }: {
   missionId: string
   item: MissionChecklistExecution
   refresh: () => void
   mutationBusy?: boolean
+  readOnly?: boolean
   onDetach?: (link: MissionChecklistEvidence) => Promise<void>
 }) {
   const selectionId = useId()
@@ -49,6 +51,7 @@ export function CustomerEvidenceSelection({
   const progress = customerSelectionProgress(item, ids)
   async function save() {
     if (
+      readOnly ||
       busy ||
       mutationBusy ||
       conflict ||
@@ -85,14 +88,16 @@ export function CustomerEvidenceSelection({
     }
   }
   const links = item.evidence ?? []
-  const selected = links.filter((link) => ids.includes(link.evidenceId))
+  const selected = readOnly
+    ? links
+    : links.filter((link) => ids.includes(link.evidenceId))
   const imageCount = selected.filter(
     (link) => link.mediaType === 'IMAGE',
   ).length
   const videoCount = selected.filter(
     (link) => link.mediaType === 'VIDEO',
   ).length
-  const locked = busy || mutationBusy || conflict || saved
+  const locked = readOnly || busy || mutationBusy || conflict || saved
   const typeLabel = (video: boolean) => (video ? 'Video' : vi ? 'Ảnh' : 'Image')
   const minimum =
     item.evidencePolicyVersion === 3
@@ -104,39 +109,69 @@ export function CustomerEvidenceSelection({
         : `Minimum ${item.minimumEvidenceCount ?? 0} ${item.requiredEvidenceType === 'IMAGE' ? 'images' : item.requiredEvidenceType === 'VIDEO' ? 'videos' : item.requiredEvidenceType === 'IMAGE_AND_VIDEO' ? 'files, including images and videos' : 'images or videos'}`
   return (
     <section
-      className="customer-evidence-selection"
-      aria-label={vi ? 'Chọn media gửi khách hàng' : 'Select customer media'}
+      className={`customer-evidence-selection${readOnly ? ' is-read-only' : ''}`}
+      aria-label={
+        readOnly
+          ? vi
+            ? 'Ảnh/video bằng chứng'
+            : 'Evidence images and videos'
+          : vi
+            ? 'Chọn media gửi khách hàng'
+            : 'Select customer media'
+      }
     >
       <header className="customer-evidence-selection__header">
         <div>
           <h4>
             <SendOutlined aria-hidden="true" />{' '}
-            {vi
-              ? 'Chọn ảnh/video gửi khách hàng'
-              : 'Select customer images and videos'}
+            {readOnly
+              ? vi
+                ? 'Ảnh/video bằng chứng'
+                : 'Evidence images and videos'
+              : vi
+                ? 'Chọn ảnh/video gửi khách hàng'
+                : 'Select customer images and videos'}
           </h4>
           <p>
-            {vi
-              ? 'Chọn các tệp đã duyệt để bàn giao. Tệp không chọn vẫn được giữ dự phòng.'
-              : 'Select approved files for delivery. Unselected files stay in reserve.'}
+            {readOnly
+              ? vi
+                ? 'Xem ảnh/video để nghiệm thu. Chỉ chọn tệp gửi khách khi checklist đã đạt và được phép bàn giao.'
+                : 'Review the evidence. Delivery selection is available only for accepted checklists when permitted.'
+              : vi
+                ? 'Chọn các tệp đã duyệt để bàn giao. Tệp không chọn vẫn được giữ dự phòng.'
+                : 'Select approved files for delivery. Unselected files stay in reserve.'}
           </p>
         </div>
-        <Tag color={changed ? 'gold' : ids.length ? 'blue' : undefined}>
-          {saved
+        <Tag
+          color={
+            readOnly
+              ? undefined
+              : changed
+                ? 'gold'
+                : ids.length
+                  ? 'blue'
+                  : undefined
+          }
+        >
+          {readOnly
             ? vi
-              ? 'Đã lưu'
-              : 'Saved'
-            : changed
+              ? 'Chỉ xem'
+              : 'View only'
+            : saved
               ? vi
-                ? 'Chưa lưu'
-                : 'Unsaved changes'
-              : ids.length
+                ? 'Đã lưu'
+                : 'Saved'
+              : changed
                 ? vi
-                  ? 'Đã lưu'
-                  : 'Saved'
-                : vi
-                  ? 'Chưa chọn tệp'
-                  : 'No files selected'}
+                  ? 'Chưa lưu'
+                  : 'Unsaved changes'
+                : ids.length
+                  ? vi
+                    ? 'Đã lưu'
+                    : 'Saved'
+                  : vi
+                    ? 'Chưa chọn tệp'
+                    : 'No files selected'}
         </Tag>
       </header>
       <div
@@ -146,13 +181,25 @@ export function CustomerEvidenceSelection({
       >
         <div>
           <span className="customer-evidence-selection__metric-label">
-            {vi ? 'Yêu cầu bàn giao' : 'Delivery requirement'}
+            {readOnly
+              ? vi
+                ? 'Yêu cầu bằng chứng'
+                : 'Evidence requirement'
+              : vi
+                ? 'Yêu cầu bàn giao'
+                : 'Delivery requirement'}
           </span>
           <strong>{minimum}</strong>
         </div>
         <div>
           <span className="customer-evidence-selection__metric-label">
-            {vi ? 'Đang chọn gửi khách' : 'Selected for delivery'}
+            {readOnly
+              ? vi
+                ? 'Đã gắn vào checklist'
+                : 'Attached to checklist'
+              : vi
+                ? 'Đang chọn gửi khách'
+                : 'Selected for delivery'}
           </span>
           <strong>
             {vi
@@ -177,7 +224,7 @@ export function CustomerEvidenceSelection({
       </details>
       <ul className="customer-evidence-selection__list">
         {links.map((link) => {
-          const checked = ids.includes(link.evidenceId)
+          const checked = !readOnly && ids.includes(link.evidenceId)
           const disabled =
             locked || (!link.eligibleForFinalApproval && !checked)
           const state = checked
@@ -197,27 +244,31 @@ export function CustomerEvidenceSelection({
               className={`customer-evidence-selection__row${checked ? ' is-selected' : ''}`}
             >
               <div className="customer-evidence-selection__choice">
-                <Checkbox
-                  id={`${selectionId}-${link.evidenceId}`}
-                  aria-label={`${link.fileName} · ${state}`}
-                  checked={checked}
-                  disabled={disabled}
-                  onChange={(event) =>
-                    setIds((current) =>
-                      event.target.checked
-                        ? [...current, link.evidenceId]
-                        : current.filter((id) => id !== link.evidenceId),
-                    )
-                  }
-                />
+                {!readOnly && (
+                  <Checkbox
+                    id={`${selectionId}-${link.evidenceId}`}
+                    aria-label={`${link.fileName} · ${state}`}
+                    checked={checked}
+                    disabled={disabled}
+                    onChange={(event) =>
+                      setIds((current) =>
+                        event.target.checked
+                          ? [...current, link.evidenceId]
+                          : current.filter((id) => id !== link.evidenceId),
+                      )
+                    }
+                  />
+                )}
                 <span>
-                  {checked
-                    ? vi
-                      ? 'Đã chọn'
-                      : 'Selected'
-                    : vi
-                      ? 'Chọn gửi khách'
-                      : 'Select for delivery'}
+                  {readOnly
+                    ? typeLabel(link.mediaType === 'VIDEO')
+                    : checked
+                      ? vi
+                        ? 'Đã chọn'
+                        : 'Selected'
+                      : vi
+                        ? 'Chọn gửi khách'
+                        : 'Select for delivery'}
                 </span>
               </div>
               <button
@@ -233,7 +284,9 @@ export function CustomerEvidenceSelection({
               </button>
               <div className="customer-evidence-selection__file">
                 <label
-                  htmlFor={`${selectionId}-${link.evidenceId}`}
+                  htmlFor={
+                    readOnly ? undefined : `${selectionId}-${link.evidenceId}`
+                  }
                   title={link.fileName}
                 >
                   {link.fileName}
@@ -264,21 +317,23 @@ export function CustomerEvidenceSelection({
                 </span>
               </div>
               <div className="customer-evidence-selection__state">
-                <Tag
-                  color={
-                    checked
-                      ? 'blue'
-                      : !link.eligibleForFinalApproval
-                        ? 'orange'
-                        : undefined
-                  }
-                  icon={
-                    checked ? <CheckOutlined aria-hidden="true" /> : undefined
-                  }
-                >
-                  {state}
-                </Tag>
-                {onDetach && (
+                {!readOnly && (
+                  <Tag
+                    color={
+                      checked
+                        ? 'blue'
+                        : !link.eligibleForFinalApproval
+                          ? 'orange'
+                          : undefined
+                    }
+                    icon={
+                      checked ? <CheckOutlined aria-hidden="true" /> : undefined
+                    }
+                  >
+                    {state}
+                  </Tag>
+                )}
+                {!readOnly && onDetach && (
                   <Button
                     size="small"
                     type="text"
@@ -320,46 +375,48 @@ export function CustomerEvidenceSelection({
           }
         />
       )}
-      <footer className="customer-evidence-selection__footer">
-        <div className="customer-evidence-selection__feedback">
-          {saved ? (
-            <span role="status">
-              {vi
-                ? 'Đã lưu lựa chọn. Đang tải checklist mới.'
-                : 'Selection saved. Reloading the checklist.'}
-            </span>
-          ) : !progress.valid && links.length > 0 ? (
-            <span className="customer-evidence-selection__warning">
-              {vi
-                ? 'Chọn đủ số lượng ảnh/video tối thiểu trước khi lưu.'
-                : 'Select the minimum required images/videos before saving.'}
-            </span>
-          ) : (
-            <span>
-              {vi
-                ? 'Lựa chọn được áp dụng khi xác nhận nghiệm thu.'
-                : 'Selection applies when the inspection is confirmed.'}
-            </span>
-          )}
-        </div>
-        <div className="customer-evidence-selection__actions">
-          {(conflict || saved) && (
-            <Button size="small" onClick={refresh}>
-              {vi ? 'Tải lại checklist' : 'Reload checklist'}
+      {!readOnly && (
+        <footer className="customer-evidence-selection__footer">
+          <div className="customer-evidence-selection__feedback">
+            {saved ? (
+              <span role="status">
+                {vi
+                  ? 'Đã lưu lựa chọn. Đang tải checklist mới.'
+                  : 'Selection saved. Reloading the checklist.'}
+              </span>
+            ) : !progress.valid && links.length > 0 ? (
+              <span className="customer-evidence-selection__warning">
+                {vi
+                  ? 'Chọn đủ số lượng ảnh/video tối thiểu trước khi lưu.'
+                  : 'Select the minimum required images/videos before saving.'}
+              </span>
+            ) : (
+              <span>
+                {vi
+                  ? 'Lựa chọn được áp dụng khi xác nhận nghiệm thu.'
+                  : 'Selection applies when the inspection is confirmed.'}
+              </span>
+            )}
+          </div>
+          <div className="customer-evidence-selection__actions">
+            {(conflict || saved) && (
+              <Button size="small" onClick={refresh}>
+                {vi ? 'Tải lại checklist' : 'Reload checklist'}
+              </Button>
+            )}
+            <Button
+              type="primary"
+              size="small"
+              icon={<CheckOutlined aria-hidden="true" />}
+              loading={busy}
+              disabled={locked || !changed || !progress.valid}
+              onClick={() => void save()}
+            >
+              {vi ? 'Lưu lựa chọn gửi khách hàng' : 'Save customer selection'}
             </Button>
-          )}
-          <Button
-            type="primary"
-            size="small"
-            icon={<CheckOutlined aria-hidden="true" />}
-            loading={busy}
-            disabled={locked || !changed || !progress.valid}
-            onClick={() => void save()}
-          >
-            {vi ? 'Lưu lựa chọn gửi khách hàng' : 'Save customer selection'}
-          </Button>
-        </div>
-      </footer>
+          </div>
+        </footer>
+      )}
       {preview && (
         <InspectorEvidencePreview
           key={`${missionId}:${preview.evidenceId}:${preview.mediaId}`}

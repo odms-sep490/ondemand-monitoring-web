@@ -216,6 +216,7 @@ export function ChecklistEvidencePicker({
                 }
                 aria-label={item.fileName}
               />
+              <div className="checklist-evidence-picker-thumbnail">
               {item.mediaType === 'IMAGE' && (
                 <EvidenceImagePreview
                   candidate={item}
@@ -223,8 +224,9 @@ export function ChecklistEvidencePicker({
                 />
               )}
               {item.mediaType === 'VIDEO' && <VideoPoster poster={item.localThumbnailUrl ?? item.thumbnailUrl} fallbackPoster={item.thumbnailUrl} fileName={item.fileName} />}
-              <span>
-                {item.fileName}
+              </div>
+              <span className="checklist-evidence-picker-info">
+                <span title={item.fileName}>{item.fileName}</span>
                 <small>{item.mediaType === 'VIDEO' ? t.video : t.image}</small>
               </span>
               <MediaInspectionAction missionId={missionId}
@@ -277,7 +279,7 @@ function EvidenceImagePreview({
     <span>
       <button
         type="button"
-        className="shared-image-preview shared-image-preview--attachment"
+        className="shared-image-preview checklist-evidence-picker-image"
         aria-label={candidate.fileName}
         onClick={() => setVisible(true)}
       >

@@ -968,3 +968,117 @@
   .delivery-manager .delivery-content { padding: 16px; }
   .delivery-manager .delivery-review-item-heading { align-items: flex-start; flex-direction: column; }
 }
+
+/* Inline Mission payment CTA shown right after result acceptance. */
+.delivery-mission-pay-card {
+  display: grid;
+  gap: 14px;
+  padding: 18px 20px;
+  border: 1px solid color-mix(in srgb, var(--ui-warning) 55%, var(--d-border));
+  border-radius: 14px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ui-warning-soft) 72%, var(--d-surface)) 0%,
+    var(--d-surface) 100%
+  );
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--ui-text) 5%, transparent);
+}
+.delivery-mission-pay-card.is-expired {
+  border-color: color-mix(in srgb, var(--ui-danger) 55%, var(--d-border));
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ui-danger-soft) 55%, var(--d-surface)) 0%,
+    var(--d-surface) 100%
+  );
+}
+.delivery-mission-pay-card__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.delivery-mission-pay-card__meta {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  flex: 1 1 320px;
+}
+.delivery-mission-pay-card__tags {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.delivery-mission-pay-card__eyebrow {
+  color: var(--ui-warning-text);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.delivery-mission-pay-card.is-expired .delivery-mission-pay-card__eyebrow {
+  color: var(--ui-danger-text);
+}
+.delivery-mission-pay-card__code {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--d-muted-surface);
+  color: var(--d-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+.delivery-mission-pay-card__meta h3 {
+  margin: 0;
+  color: var(--d-text);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+.delivery-mission-pay-card__meta p {
+  margin: 0;
+  color: var(--d-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.delivery-mission-pay-card__summary {
+  display: grid;
+  gap: 3px;
+  justify-items: end;
+  text-align: right;
+  padding: 10px 14px;
+  border: 1px solid var(--d-border);
+  border-radius: 12px;
+  background: var(--d-surface);
+}
+.delivery-mission-pay-card__summary strong {
+  color: var(--d-blue);
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+.delivery-mission-pay-card__summary small,
+.delivery-mission-pay-card__summary time {
+  color: var(--d-muted);
+  font-size: 12px;
+}
+.delivery-mission-pay-card__actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+@media (max-width: 640px) {
+  .delivery-mission-pay-card {
+    padding: 16px;
+  }
+  .delivery-mission-pay-card__summary {
+    width: 100%;
+    justify-items: start;
+    text-align: left;
+  }
+  .delivery-mission-pay-card__actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

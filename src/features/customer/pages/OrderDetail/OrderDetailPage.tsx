@@ -335,6 +335,11 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
                             initialDelivery={cachedDelivery?.delivery ?? null}
                             onStateChange={updateDelivery}
                             onOpenPayment={() => setSelectedTab({ orderId, tab: 'payment' })}
+                            onOpenFinance={() => handleTabChange('payment')}
+                            onPaymentCompleted={() => {
+                              setFinanceRefreshVersion((version) => version + 1)
+                              detail.reload()
+                            }}
                           />
                         </div>
                       ),

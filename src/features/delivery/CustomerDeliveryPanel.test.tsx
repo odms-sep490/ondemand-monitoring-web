@@ -8,6 +8,8 @@ import {
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { setLanguage } from '../../shared/i18n'
 import { deliveryApi } from './api'
+import { financeApi } from '../finance/api'
+import { env } from '../../config/env'
 import { CustomerDeliveryPanel } from './CustomerDeliveryPanel'
 import type { Delivery } from './types'
 
@@ -348,5 +350,216 @@ describe('CustomerDeliveryPanel', () => {
       await screen.findByText('Chưa có tệp kết quả được gửi ở bước này.'),
     ).toBeInTheDocument()
     expect(getDelivery).toHaveBeenCalledTimes(2)
+  })
+
+  it('shows an inline mission payment card when accepted results are locked and opens checkout directly', async () => {
+    setLanguage('vi')
+    const lockedDelivery: Delivery = {
+      ...pending,
+      deliveryStatus: 'DELIVERED',
+      assets: [
+        {
+          id: 'asset-1',
+          type: 'IMAGE',
+          fileName: 'site-1.jpg',
+          size: 54_000,
+          url: null,
+          urlExpiresAt: null,
+          previewUrl: 'https://cdn.example.com/site-1-preview.jpg',
+          thumbnailUrl: 'https://cdn.example.com/site-1-thumb.jpg',
+          previewStatus: 'READY',
+          downloadable: false,
+        },
+      ],
+    }
+    vi.mocked(deliveryApi.get).mockResolvedValue(lockedDelivery)
+    vi.spyOn(deliveryApi, 'originals').mockResolvedValue(lockedDelivery)
+    vi.spyOn(
+      financeApi,
+      'getCustomerMissionPaymentAllocations',
+    ).mockResolvedValue({
+      invoiceId: 'inv-1',
+      allocationTargetAmount: 1_785_000,
+      allocatedAmount: 1_785_000,
+      allocationComplete: true,
+      milestones: [
+        {
+          id: 'milestone-1',
+          missionId: 'mission-1',
+          missionCode: 'MS-86576',
+          scopeLabel: 'Toàn bộ phạm vi đơn hàng',
+          amount: 1_785_000,
+          currency: 'VND',
+          status: 'UNPAID',
+          handedOverAt: '2026-11-15T09:50:09Z',
+          paymentExpiresAt: '2026-11-16T09:50:09Z',
+          payments: [],
+        },
+      ],
+    })
+    const createMissionPayment = vi
+      .spyOn(financeApi, 'createMissionPayment')
+      .mockResolvedValue({
+        id: 'pay-1',
+        invoiceId: 'inv-1',
+        paymentCode: 1001,
+        missionPaymentMilestoneId: 'milestone-1',
+        type: 'MISSION_PAYMENT',
+        amount: 1_785_000,
+        currency: 'VND',
+        provider: 'VNPAY',
+        status: 'PENDING',
+        transactionReference: 'REF-1',
+        providerTransactionId: null,
+        paymentUrl: null,
+        paidAt: null,
+      })
+    const onOpenFinance = vi.fn()
+
+    render(
+      <CustomerDeliveryPanel orderId="o1" onOpenFinance={onOpenFinance} />,
+    )
+
+    expect(
+      await screen.findByText('Đã duyệt kết quả — thanh toán để tải bản gốc'),
+    ).toBeInTheDocument()
+    expect(screen.getByText('MS-86576')).toBeInTheDocument()
+
+    const payButton = screen.getByRole('button', {
+      name: /Thanh toán 1\.785\.000/i,
+    })
+    fireEvent.click(payButton)
+    await waitFor(() =>
+      expect(createMissionPayment).toHaveBeenCalledWith('milestone-1'),
+    )
+
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Xem hóa đơn & lịch sử' }),
+    )
+    expect(onOpenFinance).toHaveBeenCalledTimes(1)
+  })
+
+  it('unlocks original downloads in-place after quick mission payment succeeds', async () => {
+    setLanguage('vi')
+    vi.spyOn(env, 'testPaymentsEnabled', 'get').mockReturnValue(true)
+    const lockedDelivery: Delivery = {
+      ...pending,
+      deliveryStatus: 'DELIVERED',
+      assets: [
+        {
+          id: 'asset-1',
+          type: 'IMAGE',
+          fileName: 'site-1.jpg',
+          size: 54_000,
+          url: null,
+          urlExpiresAt: null,
+          previewUrl: 'https://cdn.example.com/site-1-preview.jpg',
+          thumbnailUrl: 'https://cdn.example.com/site-1-thumb.jpg',
+          previewStatus: 'READY',
+          downloadable: false,
+        },
+      ],
+    }
+    const unlockedDelivery: Delivery = {
+      ...lockedDelivery,
+      invoiceStatus: 'PAID',
+      paidAmount: 1000,
+      remainingAmount: 0,
+      assets: [
+        {
+          ...lockedDelivery.assets[0],
+          url: 'https://cdn.example.com/site-1-original.jpg',
+          downloadable: true,
+        },
+      ],
+    }
+    vi.mocked(deliveryApi.get).mockResolvedValue(lockedDelivery)
+    const originalsMock = vi
+      .spyOn(deliveryApi, 'originals')
+      .mockResolvedValue(lockedDelivery)
+    const allocationsMock = vi
+      .spyOn(financeApi, 'getCustomerMissionPaymentAllocations')
+      .mockResolvedValue({
+        invoiceId: 'inv-1',
+        allocationTargetAmount: 1_785_000,
+        allocatedAmount: 1_785_000,
+        allocationComplete: true,
+        milestones: [
+          {
+            id: 'milestone-1',
+            missionId: 'mission-1',
+            missionCode: 'MS-86576',
+            scopeLabel: 'Toàn bộ phạm vi đơn hàng',
+            amount: 1_785_000,
+            currency: 'VND',
+            status: 'UNPAID',
+            handedOverAt: '2026-11-15T09:50:09Z',
+            paymentExpiresAt: null,
+            payments: [],
+          },
+        ],
+      })
+    const completeTestMissionPayment = vi
+      .spyOn(financeApi, 'completeTestMissionPayment')
+      .mockImplementation(async () => {
+        vi.mocked(deliveryApi.get).mockResolvedValue(unlockedDelivery)
+        originalsMock.mockResolvedValue(unlockedDelivery)
+        allocationsMock.mockResolvedValue({
+          invoiceId: 'inv-1',
+          allocationTargetAmount: 1_785_000,
+          allocatedAmount: 1_785_000,
+          allocationComplete: true,
+          milestones: [
+            {
+              id: 'milestone-1',
+              missionId: 'mission-1',
+              missionCode: 'MS-86576',
+              scopeLabel: 'Toàn bộ phạm vi đơn hàng',
+              amount: 1_785_000,
+              currency: 'VND',
+              status: 'PAID',
+              handedOverAt: '2026-11-15T09:50:09Z',
+              paymentExpiresAt: null,
+              payments: [],
+            },
+          ],
+        })
+        return {
+          id: 'pay-test-1',
+          invoiceId: 'inv-1',
+          paymentCode: 1002,
+          missionPaymentMilestoneId: 'milestone-1',
+          type: 'MISSION_PAYMENT',
+          amount: 1_785_000,
+          currency: 'VND',
+          provider: 'VNPAY',
+          status: 'SUCCESS',
+          transactionReference: 'TEST-1',
+          providerTransactionId: null,
+          paymentUrl: null,
+          paidAt: '2026-11-15T09:52:00Z',
+        }
+      })
+    const onPaymentCompleted = vi.fn()
+
+    render(
+      <CustomerDeliveryPanel
+        orderId="o1"
+        onPaymentCompleted={onPaymentCompleted}
+      />,
+    )
+
+    const quickPay = await screen.findByRole('button', {
+      name: 'Thanh toán nhanh (Test)',
+    })
+    fireEvent.click(quickPay)
+
+    await waitFor(() =>
+      expect(completeTestMissionPayment).toHaveBeenCalledWith('milestone-1'),
+    )
+    expect(
+      await screen.findByRole('button', { name: 'Tải bản gốc' }),
+    ).toBeInTheDocument()
+    expect(onPaymentCompleted).toHaveBeenCalledTimes(1)
   })
 })

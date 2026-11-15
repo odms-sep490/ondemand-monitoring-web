@@ -17,6 +17,10 @@ import { InvoiceSection, InvoiceSummary } from './components/InvoiceSection'
 import { RefundStatusSection } from './components/RefundStatusSection'
 import { refundApi, type RefundResponse } from '../refundApi'
 import { MissionPaymentMilestonesSection } from './components/MissionPaymentMilestonesSection'
+import {
+  getActionableHandedOverMilestones,
+  getHandedOverMissionMilestones,
+} from '../missionMilestoneUtils'
 
 export type CustomerFinanceState = {
   quote: CustomerQuote | null
@@ -276,6 +280,12 @@ export function CustomerFinancePanel({
 
   const showQuote = section !== 'payment'
   const showPayment = section !== 'quote'
+  const handedOverMilestones = getHandedOverMissionMilestones(missionPayments)
+  const unpaidHandedOverCount =
+    getActionableHandedOverMilestones(missionPayments).length
+  const invoiceSummaryContent = invoice ? (
+    <InvoiceSummary invoice={invoice} />
+  ) : null
 
   const invoiceContent = invoice ? (
     <>
@@ -295,6 +305,8 @@ export function CustomerFinancePanel({
         completeTestDeposit={completeTestPayment}
         testPaymentLabel={t.testPayment}
         refreshExpired={() => void load()}
+        handedOverCount={handedOverMilestones.length}
+        unpaidHandedOverCount={unpaidHandedOverCount}
       />
     </>
   ) : null
@@ -408,10 +420,12 @@ export function CustomerFinancePanel({
           ) : null
         }
       >
-        {invoice?.status !== 'PAID' && <p className="customer-finance-desc">
-          {section === 'payment' ? t.paymentDescription : t.description}
-        </p>}
-        {showPayment && invoice && invoice.paidAmount > 0 ? (
+        {invoice?.status !== 'PAID' && (
+          <p className="customer-finance-desc">
+            {section === 'payment' ? t.paymentDescription : t.description}
+          </p>
+        )}
+        {section === 'payment' && invoice && invoice.paidAmount > 0 ? (
           <InvoiceSummary invoice={invoice} />
         ) : null}
         {section === 'payment' && !invoice ? (
@@ -431,11 +445,15 @@ export function CustomerFinancePanel({
             accept={accept}
             refreshExpired={() => void load()}
             paymentContent={showPayment ? invoiceContent : null}
+            paymentSummaryContent={
+              section === 'all' ? invoiceSummaryContent : null
+            }
           />
         ) : null}
 
         {showPayment && (!showQuote || !quote) && invoice ? (
           <div className="customer-invoice-standalone">
+            {section === 'all' && !quote ? invoiceSummaryContent : null}
             {invoiceContent}
           </div>
         ) : null}
@@ -468,9 +486,11 @@ export function CustomerFinancePanel({
           invoiceId={invoice.id}
           paidAmount={invoice.paidAmount}
           depositAmount={invoice.depositAmount}
-          depositPaid={invoice.depositStatus != null
-            ? invoice.depositStatus === 'DEPOSIT_PAID'
-            : invoice.paidAmount >= invoice.depositAmount}
+          depositPaid={
+            invoice.depositStatus != null
+              ? invoice.depositStatus === 'DEPOSIT_PAID'
+              : invoice.paidAmount >= invoice.depositAmount
+          }
           allocation={missionPayments}
           loading={missionPaymentsLoading}
           error={missionPaymentsError}

@@ -2,14 +2,25 @@ import { Alert, Button, Skeleton } from 'antd'
 import { StatusTag } from '../../../../shared/components/antd'
 import { useI18n } from '../../../../shared/i18n'
 import { formatVnd } from '../../../../shared/lib/formatVnd'
-import type { MissionPaymentAllocation, MissionPaymentMilestone } from '../../types'
+import type {
+  MissionPaymentAllocation,
+  MissionPaymentMilestone,
+  Payment,
+} from '../../types'
+import {
+  canPayMissionMilestone,
+  getHandedOverMissionMilestones,
+  hasActiveMissionCheckout,
+} from '../../missionMilestoneUtils'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { financeApi } from '../../api'
-import type { Payment } from '../../types'
 import { env } from '../../../../config/env'
 import { missionPaymentMilestoneMessages } from './MissionPaymentMilestonesSection.messages'
 
-const tone: Record<string, 'success' | 'warning' | 'danger' | 'info' | 'neutral'> = {
+const tone: Record<
+  string,
+  'success' | 'warning' | 'danger' | 'info' | 'neutral'
+> = {
   NOT_YET_DUE: 'neutral',
   UNPAID: 'warning',
   PENDING: 'info',
@@ -43,19 +54,39 @@ export function MissionPaymentMilestonesSection({
 }) {
   const { t, locale } = useI18n(missionPaymentMilestoneMessages)
 
+  // Allocation is Manager planning data, not evidence of a Customer handover.
+  const handedOver = getHandedOverMissionMilestones(allocation)
+  const totalHandedOver = handedOver.reduce((sum, item) => sum + item.amount, 0)
+  const paidTotal = handedOver.reduce(
+    (sum, item) => (item.status === 'PAID' ? sum + item.amount : sum),
+    0,
+  )
   const deposit = useApiQuery(
-    async (signal) => (await financeApi.getInvoicePayments(invoiceId, signal))
-      .filter((payment) => payment.type === 'DEPOSIT'),
+    async (signal) =>
+      (await financeApi.getInvoicePayments(invoiceId, signal)).filter(
+        (payment) => payment.type === 'DEPOSIT',
+      ),
     [invoiceId, paidAmount],
   )
+  if (!depositPaid && handedOver.length === 0) return null
   return (
-    <section className="mission-payment-card" aria-labelledby="mission-payment-title">
+    <section
+      className="mission-payment-card"
+      aria-labelledby="mission-payment-title"
+    >
       <header className="mission-payment-card__heading">
         <div>
           <h3 id="mission-payment-title">{t.title}</h3>
           <p>{t.description}</p>
         </div>
-        {allocation ? (
+        {handedOver.length > 0 ? (
+          <strong
+            className="mission-payment-card__total"
+            aria-label={t.paymentProgress}
+          >
+            {formatVnd(paidTotal)} / {formatVnd(totalHandedOver)}
+          </strong>
+        ) : allocation ? (
           <strong className="mission-payment-card__total">
             {t.afterDepositTotal(formatVnd(allocation.allocationTargetAmount))}
           </strong>
@@ -65,8 +96,10 @@ export function MissionPaymentMilestonesSection({
         <article className="mission-payment-item">
           <div className="mission-payment-item__main">
             <div className="mission-payment-item__title">
-              <div><strong>{t.depositTitle}</strong></div>
-            {depositPaid && <StatusTag tone="success">{t.status.PAID}</StatusTag>}
+              <div>
+                <strong>{t.depositTitle}</strong>
+              </div>
+              {depositPaid && <StatusTag tone="success">{t.status.PAID}</StatusTag>}
             </div>
             <dl className="mission-payment-item__facts">
               <div>
@@ -77,11 +110,21 @@ export function MissionPaymentMilestonesSection({
           </div>
           <div className="mission-payment-item__history">
             <strong>{t.paymentHistory}</strong>
-            {deposit.loading ? <Skeleton active paragraph={false} /> : deposit.error ? (
-              <Alert type="error" message={t.depositHistoryError} action={
-                <Button size="small" onClick={deposit.reload}>{t.retryHistory}</Button>
-              } />
-            ) : <PaymentHistory payments={deposit.data ?? []} locale={locale} />}
+            {deposit.loading ? (
+              <Skeleton active paragraph={false} />
+            ) : deposit.error ? (
+              <Alert
+                type="error"
+                message={t.depositHistoryError}
+                action={
+                  <Button size="small" onClick={deposit.reload}>
+                    {t.retryHistory}
+                  </Button>
+                }
+              />
+            ) : (
+              <PaymentHistory payments={deposit.data ?? []} locale={locale} />
+            )}
           </div>
         </article>
         {loading ? (
@@ -90,11 +133,7 @@ export function MissionPaymentMilestonesSection({
           </div>
         ) : null}
         {error ? <Alert type="error" showIcon message={error} /> : null}
-        {allocation && !allocation.allocationComplete ? (
-          <Alert type="warning" showIcon message={t.allocationIncomplete} />
-        ) : null}
-        {allocation?.milestones.length === 0 ? <p className="mission-payment-card__empty">{t.empty}</p> : null}
-        {allocation?.milestones.map((milestone) => (
+        {handedOver.map((milestone) => (
           <MissionPaymentItem
             key={milestone.id}
             milestone={milestone}
@@ -124,28 +163,27 @@ function MissionPaymentItem({
 }) {
   const { t } = useI18n(missionPaymentMilestoneMessages)
   const latest = milestone.payments[0]
-  const hasActiveCheckout = Boolean(
-    milestone.status === 'PENDING' &&
-      milestone.payments.some(
-        (payment) =>
-          (payment.status === 'PENDING' || payment.status === 'PROCESSING') &&
-          Boolean(payment.paymentUrl),
-      ),
-  )
-  const canPay = milestone.status === 'UNPAID' || hasActiveCheckout
+  const hasActiveCheckout = hasActiveMissionCheckout(milestone)
+  const canPay = canPayMissionMilestone(milestone)
   const date = milestone.handedOverAt
     ? new Date(milestone.handedOverAt).toLocaleString(locale)
     : null
-  const deadline = milestone.paymentExpiresAt && Number.isFinite(Date.parse(milestone.paymentExpiresAt))
-    ? new Date(milestone.paymentExpiresAt).toLocaleString(locale)
-    : null
+  const deadline =
+    milestone.paymentExpiresAt &&
+    Number.isFinite(Date.parse(milestone.paymentExpiresAt))
+      ? new Date(milestone.paymentExpiresAt).toLocaleString(locale)
+      : null
 
   return (
     <article className="mission-payment-item">
       <div className="mission-payment-item__main">
         <div className="mission-payment-item__title">
           <div>
-            <strong>{milestone.scopeLabel?.trim() || milestone.missionCode || t.missionFallback}</strong>
+            <strong>
+              {milestone.scopeLabel?.trim() ||
+                milestone.missionCode ||
+                t.missionFallback}
+            </strong>
             <span>{milestone.missionCode}</span>
           </div>
           <StatusTag tone={tone[milestone.status] ?? 'neutral'}>
@@ -170,12 +208,21 @@ function MissionPaymentItem({
         </dl>
       </div>
       {milestone.status === 'EXPIRED' ? (
-        <Alert className="mission-payment-item__expired" type="warning" showIcon message={t.expiredMessage} />
+        <Alert
+          className="mission-payment-item__expired"
+          type="warning"
+          showIcon
+          message={t.expiredMessage}
+        />
       ) : null}
       {canPay ? (
         <div className="mission-payment-item__actions">
           <Button type="primary" disabled={busy} onClick={() => onPay(milestone.id)}>
-            {hasActiveCheckout ? t.continuePayment : latest?.status === 'FAILED' ? t.retry : t.payNow}
+            {hasActiveCheckout
+              ? t.continuePayment
+              : latest?.status === 'FAILED'
+                ? t.retry
+                : t.payNow}
           </Button>
           {env.testPaymentsEnabled ? (
             <Button disabled={busy} onClick={() => onTestPay(milestone.id)}>
@@ -216,7 +263,10 @@ function PaymentHistory({ payments, locale }: { payments: Payment[]; locale: str
           </time>
         ) : null}
         {payment.transactionReference ? (
-          <small>{t.transactionReference(payment.transactionReference)}</small>
+          <small>
+            {t.transactionReferenceLabel}{' '}
+            <span>{payment.transactionReference}</span>
+          </small>
         ) : null}
         </li>
       ))}

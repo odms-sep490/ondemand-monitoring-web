@@ -14,6 +14,7 @@ export type InspectionCorrection = {
   supplementalMissionStatus: string | null
   items: {
     executionId: string
+    orderChecklistItemId?: string
     content: string
     requestedExecutionVersion: number
     reason: string
@@ -86,4 +87,13 @@ export const inspectionCorrectionApi = {
       `${path(id)}/${encodeURIComponent(row.id)}/finalize-plan`,
       { method: 'POST', body: { expectedPlanRevision } },
     ),
+}
+
+export type InternalCorrectionPlanningContext = {
+  sourceMissionId: string
+  correctionId: string
+}
+export type InternalCorrectionCreation = {
+  sourceMissionId: string
+  correction: InspectionCorrection
 }
