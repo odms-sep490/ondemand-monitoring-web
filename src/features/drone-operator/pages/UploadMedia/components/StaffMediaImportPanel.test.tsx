@@ -27,7 +27,7 @@ describe('Staff per-file capture confirmation', () => {
     const upload = vi.fn().mockResolvedValue(undefined)
     render(<StaffMediaImportPanel disabled={false} {...window} onUpload={upload} />)
     fireEvent.change(screen.getByLabelText('Thêm ảnh/video từ thẻ nhớ drone'), { target: { files: [new File(['x'], 'x.jpg')] } })
-    fireEvent.click(await screen.findByLabelText('Staff xác nhận thủ công thời gian này: x.jpg'))
+    fireEvent.click(await screen.findByLabelText('Nhân viên xác nhận thủ công thời gian này: x.jpg'))
     const submit = screen.getByRole('button', { name: 'Tải lên các tệp đã xác nhận' })
     expect(submit).toBeDisabled()
     fireEvent.change(screen.getByLabelText('Lý do xác nhận hoặc điều chỉnh thời gian: x.jpg'), { target: { value: 'Xác nhận từ log drone' } })

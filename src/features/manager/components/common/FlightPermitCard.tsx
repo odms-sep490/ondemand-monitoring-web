@@ -22,6 +22,7 @@ export function FlightPermitCard({
   depositPaid = false,
   orderPermitRejected = false,
   refundEligible,
+  showResources = true,
 }: {
   mission: MissionResponse
   onChanged: () => void
@@ -29,12 +30,14 @@ export function FlightPermitCard({
   depositPaid?: boolean
   orderPermitRejected?: boolean
   refundEligible?: boolean
+  showResources?: boolean
 }) {
   const { t } = useI18n(flightPermitCardMessages)
   const { t: fb } = useI18n(managerFeedbackMessages)
   const toast = useToast()
   const status = mission.flightPermitStatus ?? 'NOT_REQUESTED'
-  const canRequestDepositRefund = refundEligible ??
+  const canRequestDepositRefund =
+    refundEligible ??
     ((status === 'REJECTED' || orderPermitRejected) && depositPaid)
   const assignedStaff = groupStaffAssignments(
     (mission.staffAssignments ?? []).filter(
@@ -122,7 +125,7 @@ export function FlightPermitCard({
 
   async function save(nextStatus: FlightPermitStatus) {
     setError('')
-    if (nextStatus === 'APPROVED' && !allStaffAccepted) {
+    if (!allStaffAccepted || mission.status === 'PLANNING') {
       setError(t.staffAcceptanceGate(acceptedStaffCount, assignedStaff.length))
       return
     }
@@ -265,14 +268,17 @@ export function FlightPermitCard({
   }
 
   return (() => {
-    const refundHold = refund != null &&
+    const refundHold =
+      refund != null &&
       ['REQUESTED', 'PROCESSING', 'COMPLETED'].includes(refund.status)
     const canEditPermitFile =
       !readOnly &&
       !cancelled &&
       !refundHold &&
       (status !== 'APPROVED' || !hasSavedPermitFile) &&
-      depositPaid
+      depositPaid &&
+      allStaffAccepted &&
+      mission.status !== 'PLANNING'
 
     return (
       <section
@@ -347,7 +353,7 @@ export function FlightPermitCard({
               </strong>
             </div>
           ) : null}
-          <FlightPermitResources mission={mission} />
+          {showResources && <FlightPermitResources mission={mission} />}
           <div className="odm-flight-permit__details-grid">
             <details className="odm-flight-permit__disclosure">
               <summary>
@@ -374,7 +380,7 @@ export function FlightPermitCard({
                     value={note}
                     maxLength={1000}
                     rows={3}
-                    disabled={busy || cancelled || !depositPaid}
+                    disabled={busy || cancelled || !depositPaid || !allStaffAccepted || mission.status === 'PLANNING'}
                     readOnly={readOnly}
                     onChange={(event) => setNote(event.target.value)}
                     placeholder={t.notePlaceholder}
@@ -397,7 +403,7 @@ export function FlightPermitCard({
                   <span className="when-closed">
                     {mission.flightPermitFileName
                       ? t.openPermitFile
-                      : t.uploadPermitFile}
+                      : canEditPermitFile ? t.uploadPermitFile : t.permitFileMissing}
                   </span>
                   <span className="when-open">{t.closePermitFile}</span>
                   <span className="odm-disclosure-chevron" aria-hidden="true" />
@@ -482,7 +488,11 @@ export function FlightPermitCard({
               {error}
             </p>
           ) : null}
-          {!cancelled && !refundHold && !readOnly ? (
+          {!cancelled &&
+          !refundHold &&
+          !readOnly &&
+          allStaffAccepted &&
+          mission.status !== 'PLANNING' ? (
             <div className="odm-flight-permit__actions">
               {status === 'REJECTED' ? (
                 <>
@@ -504,7 +514,10 @@ export function FlightPermitCard({
                   </Button>
                 </>
               ) : null}
-              {!refund && canRequestDepositRefund && refundLoaded && !refundLoadError ? (
+              {!refund &&
+              canRequestDepositRefund &&
+              refundLoaded &&
+              !refundLoadError ? (
                 <Button
                   className="odm-flight-permit__reject"
                   disabled={busy}
@@ -730,7 +743,11 @@ export function FlightPermitCard({
               </div>
             </div>
           ) : null}
-          {!cancelled && !refundHold && !refund && !readOnly && action === 'refund' ? (
+          {!cancelled &&
+          !refundHold &&
+          !refund &&
+          !readOnly &&
+          action === 'refund' ? (
             <div className="odm-flight-permit__remediation odm-flight-permit__remediation--danger">
               <div
                 role="dialog"

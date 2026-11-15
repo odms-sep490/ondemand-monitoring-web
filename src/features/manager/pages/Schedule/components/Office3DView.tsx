@@ -1,3 +1,4 @@
+import {missionPlanningReturnHref} from '../../../lib/missionPlanningReturn'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import {
@@ -27,7 +28,6 @@ import type { AvailableOperator } from '../../../../staff/api/operatorApi'
 import { getMissionStatusLabel } from '../../../../../shared/lib/statusTone'
 import type { MissionCalendarItem } from '../../../types/missions'
 import type { MissionStatus } from '../../../../../shared/types/domain'
-import { managerHref } from '../../../routes'
 import { getVisibleMissionStaffAssignments } from '../../../lib/missionStaffAssignments'
 import { StaffMissionActivity } from './StaffMissionActivity'
 import { OfficeMissionAssignmentPanel } from './OfficeMissionAssignmentPanel'
@@ -2065,19 +2065,7 @@ export function Office3DView({
               loading={assignmentLoading}
               canEdit={assignmentCanEdit}
               replacementStaffId={assignmentReplaceStaffId}
-              returnToHref={
-                assignmentReturnOrderId
-                  ? managerHref({
-                      screen: 'orderReview',
-                      orderId: assignmentReturnOrderId,
-                    })
-                  : assignmentMissionId
-                    ? managerHref({
-                        screen: 'missionDetail',
-                        missionId: assignmentMissionId,
-                      })
-                    : undefined
-              }
+              returnToHref={missionPlanningReturnHref(assignmentMission, assignmentMissionId, assignmentReturnOrderId)}
               lang={lang}
               selectedStaffId={assignmentSelectedStaffId}
               onSelectedStaffChange={setAssignmentSelectedStaffId}

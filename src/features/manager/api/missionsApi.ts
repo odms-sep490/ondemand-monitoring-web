@@ -104,6 +104,36 @@ export const missionsApi = {
     )
   },
 
+  /** Creates a rework Mission from the selected items of an active result revision case. */
+  createReworkMission(
+    caseId: string,
+    request: {
+      expectedCaseVersion: number
+      clientRequestId: string
+      scopeLabel: string
+      scheduledStartAt: string
+      scheduledEndAt: string
+      caseItemIds: string[]
+    },
+  ): Promise<{
+    caseId: string
+    missionId: string
+    missionCode: string
+    status: string
+    checklistCount: number
+  }> {
+    return apiRequest<{
+      caseId: string
+      missionId: string
+      missionCode: string
+      status: string
+      checklistCount: number
+    }>(
+      `/api/manager/result-revision-cases/${encodeURIComponent(caseId)}/rework-missions`,
+      { method: 'POST', body: request },
+    )
+  },
+
   /** `POST /api/missions/{missionId}/confirm-planning`. */
   confirmMissionPlanning(missionId: string): Promise<MissionResponse> {
     return apiRequest<MissionResponse>(

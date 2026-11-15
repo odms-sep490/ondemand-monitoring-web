@@ -23,10 +23,10 @@ export function parseCustomerRoute(hash: string): CustomerRoute {
     return { screen: 'notFound' }
   }
 
-  const rest = hash.slice(CUSTOMER_ROOT.length)
+  const rest = hash.split('?')[0].slice(CUSTOMER_ROOT.length)
   const segments = rest.split('/').filter(Boolean).map(decodeURIComponent)
 
-  if (segments.length === 0) return { screen: 'dashboard' }
+  if (segments.length === 0) return { screen: 'orders' }
 
   const [head, ...tail] = segments
 
@@ -68,7 +68,7 @@ export function customerHref(route: CustomerRoute): string {
     case 'missionHistoryDetail':
       return `${CUSTOMER_ROOT}/mission-history/${encodeURIComponent(route.missionId)}`
     case 'dashboard':
-      return CUSTOMER_ROOT
+      return `${CUSTOMER_ROOT}/orders`
     case 'orders':
       return `${CUSTOMER_ROOT}/orders`
     case 'createOrder':

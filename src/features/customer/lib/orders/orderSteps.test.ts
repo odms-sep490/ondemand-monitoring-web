@@ -62,6 +62,15 @@ describe('buildOrderSteps', () => {
     ])
   })
 
+  it('uses the first actual mission start for a completed order', () => {
+    const steps = buildOrderSteps('COMPLETED', [status('COMPLETED', '2026-10-21T05:00:00Z')], undefined, [
+      { status: 'COMPLETED', scheduledStartAt: '2026-10-21T03:00:00Z', actualStartAt: '2026-10-21T04:00:00Z' },
+      { status: 'COMPLETED', scheduledStartAt: '2026-10-21T01:00:00Z', actualStartAt: '2026-10-21T02:00:00Z' },
+    ])
+
+    expect(steps.find((step) => step.key === 'inProgress')?.at).toBe('2026-10-21T02:00:00Z')
+  })
+
   it('IN_PROGRESS: in progress is current and takes its date from the status event', () => {
     const steps = buildOrderSteps('IN_PROGRESS', [created, approved, status('IN_PROGRESS', '2026-09-30T01:00:00Z')])
     expect(states(steps)).toEqual(['submitted:done', 'approved:done', 'quote:done', 'deposit:done', 'planning:done', 'finalPayment:done', 'inProgress:current', 'completed:upcoming'])

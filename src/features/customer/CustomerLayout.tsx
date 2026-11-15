@@ -92,7 +92,7 @@ export function CustomerLayout({
               className={`mgr-sider ${overlayOpen ? 'is-overlay' : ''} ${rail ? 'is-rail' : ''}`}
             >
               <RoleSidebar
-                brandHref={customerHref({ screen: 'dashboard' })}
+                brandHref={customerHref({ screen: 'orders' })}
                 ariaLabel={t.nav}
                 groups={NAV_GROUPS.map((group) => ({
                   key: group.key,

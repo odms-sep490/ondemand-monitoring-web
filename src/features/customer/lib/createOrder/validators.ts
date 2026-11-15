@@ -1,5 +1,5 @@
 import type { FormErrors, FormState, Step } from './types'
-import { isInsideHcmcServiceArea } from '../../../../shared/lib/serviceArea'
+import { isInsideHcmcServiceArea, isCoverageInsideHcmcServiceArea, isLocationInsideCoverageArea } from '../../../../shared/lib/serviceArea'
 import { todayPlus } from './format'
 import { isValidCoverageArea } from './coverageGeometry'
 
@@ -13,6 +13,7 @@ export type ValidationMessages = {
   latitude: string
   longitude: string
   coverageArea: string
+  locationOutsideCoverage?: string
   locationUnconfirmed: string
   outsideZone: string
   blockedZone: (zoneNames: string) => string
@@ -78,7 +79,6 @@ export function validateStep(
 
   if (targetStep >= 1) {
     if (!form.serviceId) errors.serviceId = msg.serviceId
-    if (!form.title.trim()) errors.title = msg.title
     if (!form.flightPurpose) errors.flightPurpose = msg.flightPurpose
     if (form.flightPurpose === 'OTHER' && !form.otherFlightPurpose.trim()) {
       errors.otherFlightPurpose = msg.otherFlightPurpose
@@ -105,6 +105,10 @@ export function validateStep(
     }
     if (!form.coverageAreaShape || !isValidCoverageArea(form.coverageArea)) {
       errors.coverageArea = msg.coverageArea
+    } else if (!isCoverageInsideHcmcServiceArea(form.coverageArea)) {
+      errors.coverageArea = msg.outsideZone
+    } else if (validLatitude && validLongitude && !isLocationInsideCoverageArea({ latitude, longitude }, form.coverageArea)) {
+      errors.coverageArea = msg.locationOutsideCoverage ?? msg.coverageArea
     }
   }
   if (targetStep >= 4) {

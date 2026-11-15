@@ -7,12 +7,11 @@ import type {
 import type { ResultsState } from './postflightTypes'
 import { ALL_KEYS, clearCompletedMissionState } from './postflightHelpers'
 import { missionApi } from '../../../mission/api/missionApi'
-import { flightControlApi } from '../../api/flightControlApi'
 import { postflightPageMessages } from './PostflightPage.messages'
 import { useI18n } from '../../../../shared/i18n'
 import type { Dispatch, SetStateAction } from 'react'
 import type { BackendMission } from '../../api/liveMission'
-import type { FlightControlStatus } from '../../api/flightControlApi'
+import type { ManualPostflightReadings } from './manualInspection'
 
 export function usePostflightAssessment({
   onSaved,
@@ -47,7 +46,7 @@ export function usePostflightAssessment({
   failItems: PostflightItemKey[]
   deviceId: string
   notes: string
-  telemetrySnapshot: FlightControlStatus | null
+  telemetrySnapshot: ManualPostflightReadings | null
   missionLabel: string
   setCompleted: Dispatch<
     SetStateAction<{
@@ -81,6 +80,11 @@ export function usePostflightAssessment({
   async function handleComplete() {
     if (!effectiveMissionId) {
       setError(t.noMissionId)
+      return
+    }
+    if (telemetrySnapshot?.batteryPercent == null || !Number.isFinite(telemetrySnapshot.batteryPercent)
+      || telemetrySnapshot.batteryPercent < 0 || telemetrySnapshot.batteryPercent > 100) {
+      setError('Vui lòng nhập mức pin sau bay từ 0 đến 100%.')
       return
     }
     if (!allAssessed) {
@@ -128,14 +132,11 @@ export function usePostflightAssessment({
         targetDroneStatus,
         notes,
         inspectionResults,
-        deviceId === activeData?.deviceId ? telemetrySnapshot : null,
+        telemetrySnapshot,
       )
 
       if (onSaved && !(await onSaved())) return
 
-      await flightControlApi.releaseSession(effectiveMissionId).catch(() => {
-        // Controller may be offline after landing; local cleanup still allows the operator flow to reset.
-      })
       clearCompletedMissionState(effectiveMissionId, missionLabel, deviceId)
 
       setCompleted({

@@ -1,17 +1,7 @@
 import type { ComponentProps } from 'react'
-import {
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-  within,
-} from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { ApiError } from '../../../../../shared/api/httpClient'
-import type {
-  EvidenceBlockingReason,
-  MissionChecklistResponse,
-} from '../../../../mission/types/checklistExecution'
+import type { MissionChecklistResponse } from '../../../../mission/types/checklistExecution'
 import { missionsApi } from '../../../api/missionsApi'
 import type { MissionResultResponse } from '../../../types/missions'
 import { MissionResultReviewCard } from '../MissionResultReviewCard'
@@ -62,199 +52,81 @@ function card(
   )
 }
 
-describe('Mission result review card', () => {
-  it('groups summary, readiness and actions with localized status and enabled approval', () => {
+describe('Manager result monitoring is read-only', () => {
+  it.each([
+    'DRAFT',
+    'PENDING_MANAGER_APPROVAL',
+    'APPROVED',
+    'REJECTED',
+  ] as const)(
+    'never offers Manager approval or rejection for %s',
+    (approvalStatus) => {
+      const approve = vi.spyOn(missionsApi, 'approveMissionResult')
+      const reject = vi.spyOn(missionsApi, 'rejectMissionResult')
+      card({ result: { ...result, approvalStatus } })
+      expect(screen.queryByRole('button', { name: 'Duyệt kết quả' })).toBeNull()
+      expect(
+        screen.queryByRole('button', { name: 'Từ chối kết quả' }),
+      ).toBeNull()
+      expect(screen.queryByRole('textbox')).toBeNull()
+      expect(
+        screen.queryByText(/PENDING_MANAGER_APPROVAL|APPROVED|REJECTED/),
+      ).toBeNull()
+      expect(approve).not.toHaveBeenCalled()
+      expect(reject).not.toHaveBeenCalled()
+    },
+  )
+  it('explains Inspector publication and Manager customer-feedback responsibility', () => {
     card()
+    expect(
+      screen.getByText('Inspector phụ trách nghiệm thu'),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(/Manager xử lý phản hồi và yêu cầu làm lại/),
+    ).toBeInTheDocument()
+    expect(screen.getByText('Chờ Inspector nghiệm thu')).toBeInTheDocument()
+  })
+  it('still shows actual readiness and lets Manager inspect the media library', () => {
+    const view = vi.fn()
+    card({ onViewMedia: view })
     const review = screen.getByRole('region', { name: 'Kết quả nhiệm vụ' })
     expect(within(review).getByText('Hoàn thành')).toBeInTheDocument()
-    expect(within(review).getByText('Chờ duyệt')).toBeInTheDocument()
-    // The duration/media/summary disclosure was removed from the review card.
-    expect(within(review).queryByText('30 phút')).toBeNull()
-    expect(within(review).queryByText(result.summary!)).toBeNull()
-    expect(
-      within(review).getByText('Nhiệm vụ đã hoàn thành'),
-    ).toBeInTheDocument()
-    expect(
-      within(review).getByText('Danh mục kiểm tra đủ điều kiện gửi kết quả'),
-    ).toBeInTheDocument()
     expect(within(review).getByText('Có ảnh/video')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Duyệt kết quả' })).toBeEnabled()
-    expect(screen.queryByText(/COMPLETED|PENDING_MANAGER_APPROVAL/)).toBeNull()
-    expect(
-      screen
-        .getAllByRole('button')
-        .slice(-2)
-        .map((button) => button.textContent),
-    ).toEqual(['Từ chối kết quả', 'Duyệt kết quả'])
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Xem thư viện ảnh/video' }),
+    )
+    expect(view).toHaveBeenCalledOnce()
   })
-
-  it('blocks known pending evidence media without making an approval request', () => {
-    const approve = vi.spyOn(missionsApi, 'approveMissionResult')
+  it('preserves a historical rejection reason as read-only content', () => {
     card({
+      result: {
+        ...result,
+        approvalStatus: 'REJECTED',
+        reviewNote: 'Ảnh bị mờ',
+      },
+    })
+    expect(screen.getByText('Ảnh bị mờ')).toBeInTheDocument()
+    expect(screen.queryByRole('textbox')).toBeNull()
+  })
+  it('does not show a sibling mission result', () => {
+    card({ result: { ...result, missionId: 'sibling' } })
+    expect(
+      screen.getByText('Chưa có kết quả nhiệm vụ được gửi.'),
+    ).toBeInTheDocument()
+    expect(screen.queryByText('Chờ Inspector nghiệm thu')).toBeNull()
+  })
+  it('does not grant approval when evidence is pending or readiness is unknown', () => {
+    card({
+      checklistFailed: true,
       checklist: {
         ...checklist,
         readyForFinalApproval: false,
         blockingReasons: ['MEDIA_APPROVAL_REQUIRED'],
       },
     })
-    const button = screen.getByRole('button', { name: 'Duyệt kết quả' })
-    expect(button).toBeDisabled()
-    expect(button).toHaveAccessibleDescription(
-      'Cần duyệt toàn bộ ảnh/video trước khi duyệt kết quả.',
-    )
-    expect(screen.getByText('Còn ảnh/video chưa được duyệt')).toBeInTheDocument()
-    expect(screen.getByText('Danh mục kiểm tra đủ điều kiện gửi kết quả')).toBeInTheDocument()
-    expect(
-      screen.getByRole('button', { name: 'Từ chối kết quả' }),
-    ).toBeEnabled()
-    fireEvent.click(button)
-    expect(approve).not.toHaveBeenCalled()
-    expect(screen.queryByText(/MEDIA_APPROVAL_REQUIRED/)).toBeNull()
-  })
-
-  it.each([
-    ['EXECUTION_NOT_TERMINAL', 'Cần đánh giá các mục'],
-    ['INSUFFICIENT_EVIDENCE', 'Danh mục kiểm tra chưa đủ bằng chứng.'],
-    ['UNABLE_REASON_REQUIRED', 'Cần bổ sung lý do'],
-    ['MEDIA_REJECTED', 'Ảnh/video bị từ chối.'],
-    ['MEDIA_NOT_VALIDATED', 'Ảnh/video đang được kiểm tra.'],
-    ['EVIDENCE_SOURCE_NOT_ELIGIBLE', 'Bằng chứng chưa phù hợp.'],
-    ['CHECKLIST_INTEGRITY_INVALID', 'Không thể xác nhận danh mục kiểm tra.'],
-  ] as Array<[EvidenceBlockingReason, string]>)(
-    'presents a human-readable reason for %s',
-    (reason, copy) => {
-      card({
-        checklist: {
-          ...checklist,
-          readyForSubmission: false,
-          readyForFinalApproval: false,
-          blockingReasons: [],
-          executions: [
-            { blockingReasons: [reason] },
-          ] as MissionChecklistResponse['executions'],
-        },
-      })
-      expect(
-        screen.getByRole('button', { name: 'Duyệt kết quả' }),
-      ).toBeDisabled()
-      expect(screen.getByRole('status')).toHaveTextContent(copy)
-      expect(screen.queryByText(reason)).toBeNull()
-    },
-  )
-
-  it('blocks missing readiness without leaking sibling checklist state', () => {
-    card({ checklist: { ...checklist, missionId: 'm2' } })
-    expect(screen.getByRole('button', { name: 'Duyệt kết quả' })).toBeDisabled()
-    expect(screen.getByRole('status')).toHaveTextContent(
-      'Chưa xác nhận được điều kiện duyệt.',
-    )
-  })
-  it.each([
-    { checklistLoading: true },
-    { checklistFailed: true },
-    { refreshing: true },
-  ])('fails closed during load/error/refresh: %j', (state) => {
-    card(state)
-    expect(screen.getByRole('button', { name: 'Duyệt kết quả' })).toBeDisabled()
-  })
-  it('requires the existing completed-Mission approval condition', () => {
-    card({ mission: { id: 'm1', status: 'IN_PROGRESS' } })
-    expect(screen.getByRole('button', { name: 'Duyệt kết quả' })).toBeDisabled()
-    expect(screen.getByRole('status')).toHaveTextContent(
-      'Nhiệm vụ chưa hoàn thành.',
-    )
-  })
-  it('does not introduce a media-count requirement for an empty ready checklist', () => {
-    card({ result: { ...result, mediaCount: 0 } })
-    expect(screen.getByText('Chưa có ảnh/video')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Duyệt kết quả' })).toBeEnabled()
-  })
-  it('does not override canonical readiness using optional media blocking hints', () => {
-    card({
-      checklist: { ...checklist, blockingReasons: ['MEDIA_APPROVAL_REQUIRED'] },
-    })
-    expect(screen.getByRole('button', { name: 'Duyệt kết quả' })).toBeEnabled()
-    expect(screen.queryByText('Còn ảnh/video chưa được duyệt')).toBeNull()
-  })
-  it('approves the exact result', async () => {
-    const approve = vi
-      .spyOn(missionsApi, 'approveMissionResult')
-      .mockResolvedValue(result)
-    const refresh = vi.fn()
-    card({ onReviewed: refresh })
-    fireEvent.click(screen.getByRole('button', { name: 'Duyệt kết quả' }))
-    await waitFor(() => expect(refresh).toHaveBeenCalledOnce())
-    expect(approve).toHaveBeenCalledWith('result-1', '')
-  })
-  it('renders the full-width optional rejection note and keeps rejection unchanged', async () => {
-    const reject = vi
-      .spyOn(missionsApi, 'rejectMissionResult')
-      .mockResolvedValue(result)
-    const refresh = vi.fn()
-    card({ onReviewed: refresh })
-    const note = screen.getByRole('textbox', { name: 'Ghi chú / lý do' })
-    expect(note).toHaveAttribute('rows', '3')
-    fireEvent.change(note, {
-      target: { value: 'Cần chụp lại khu vực phía Bắc.' },
-    })
-    fireEvent.click(screen.getByRole('button', { name: 'Từ chối kết quả' }))
-    await waitFor(() =>
-      expect(reject).toHaveBeenCalledWith(
-        'result-1',
-        'Cần chụp lại khu vực phía Bắc.',
-      ),
-    )
-    expect(refresh).toHaveBeenCalledOnce()
-    expect(note).toHaveValue('')
-  })
-  it('shows the compact media helper and invokes in-page navigation without touching review APIs', () => {
-    const viewMedia = vi.fn(),
-      approve = vi.spyOn(missionsApi, 'approveMissionResult')
-    card({ onViewMedia: viewMedia })
-    expect(
-      screen.getByText('Duyệt ảnh/video riêng trước khi duyệt kết quả.'),
-    ).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: 'Xem thư viện ảnh/video' }))
-    expect(viewMedia).toHaveBeenCalledOnce()
-    expect(approve).not.toHaveBeenCalled()
-    expect(screen.queryByText(/Duyệt kết quả không tự động/)).toBeNull()
-  })
-  it.each([
-    new ApiError('ORDER_NOT_APPROVED', {
-      code: 'ORDER_NOT_APPROVED',
-      status: 409,
-      method: 'POST',
-      path: '/api/mission-results/r/approve',
-    }),
-    new Error('TypeError: unexpected server failure'),
-  ])('never exposes raw API/JS errors in the primary UI', async (error) => {
-    vi.spyOn(missionsApi, 'approveMissionResult').mockRejectedValue(error)
-    card()
-    fireEvent.click(screen.getByRole('button', { name: 'Duyệt kết quả' }))
-    expect(await screen.findByRole('alert')).toHaveTextContent(
-      'Không thể duyệt hoặc từ chối kết quả. Vui lòng thử lại.',
-    )
-    expect(screen.queryByText(error.message)).toBeNull()
-  })
-  it('keeps recorded rejection reasons read-only', () => {
-    card({
-      result: {
-        ...result,
-        approvalStatus: 'REJECTED',
-        reviewNote: 'Ảnh chưa rõ.',
-      },
-    })
-    expect(screen.getByText('Lý do từ chối')).toBeInTheDocument()
-    expect(screen.getByText('Ảnh chưa rõ.')).toBeInTheDocument()
-    expect(screen.queryByRole('textbox')).toBeNull()
     expect(screen.queryByRole('button', { name: 'Duyệt kết quả' })).toBeNull()
-  })
-  it('never displays or reviews a sibling result', () => {
-    card({ result: { ...result, missionId: 'm2', summary: 'Sibling summary' } })
     expect(
-      screen.getByText('Chưa có kết quả nhiệm vụ được gửi.'),
+      screen.getByText('Inspector phụ trách nghiệm thu'),
     ).toBeInTheDocument()
-    expect(screen.queryByText('Sibling summary')).toBeNull()
-    expect(screen.queryByRole('button', { name: 'Duyệt kết quả' })).toBeNull()
   })
 })

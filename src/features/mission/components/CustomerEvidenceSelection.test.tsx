@@ -154,7 +154,7 @@ describe('inspector customer selection', () => {
         />,
       )
       expect(
-        screen.getByRole('heading', { name: 'Media của checklist' }),
+        screen.getByRole('heading', { name: 'Chọn ảnh/video gửi khách hàng' }),
       ).toBeInTheDocument()
       expect(screen.getAllByText('one.jpg')).toHaveLength(1)
       expect(screen.getAllByText('two.jpg')).toHaveLength(1)
@@ -163,7 +163,7 @@ describe('inspector customer selection', () => {
       ).toBeEnabled()
       expect(
         screen.getByRole('button', {
-          name: compact ? /Thêm media/ : /Thêm bằng chứng/,
+          name: compact ? /Thêm ảnh\/video/ : /Thêm bằng chứng/,
         }),
       ).toBeEnabled()
       expect(document.querySelector('.ce-list')).toBeNull()
@@ -399,4 +399,69 @@ describe('inspector customer selection', () => {
       screen.getByRole('checkbox', { name: 'one.jpg · Reserve' }),
     ).toBeEnabled()
   })
+})
+
+it('uses the same inspection gallery for failed checklists without delivery controls and keeps video preview', async () => {
+  const select = vi.spyOn(checklistEvidenceApi, 'selectForCustomer')
+  render(
+    <ChecklistEvidencePanel
+      missionId="m"
+      item={{
+        ...item,
+        assessmentStatus: 'NON_COMPLIANT',
+        evidence: [
+          {
+            ...evidence('clip'),
+            mediaType: 'VIDEO',
+            fileName: 'clip.mp4',
+            thumbnailUrl: '/poster.jpg',
+            previewUrl: '/clip.mp4',
+            selectedForCustomer: true,
+          },
+        ],
+      }}
+      canAttach={false}
+      canDetach={false}
+      canSelectForCustomer={false}
+      inspectionView
+      refresh={vi.fn()}
+      compact
+    />,
+  )
+  expect(
+    screen.getByRole('heading', { name: 'Ảnh/video bằng chứng' }),
+  ).toBeInTheDocument()
+  expect(
+    document.querySelector('.customer-evidence-selection__list'),
+  ).toBeInTheDocument()
+  expect(document.querySelector('.ce-list')).toBeNull()
+  expect(document.querySelector('.is-selected')).toBeNull()
+  expect(screen.queryByRole('checkbox')).toBeNull()
+  expect(
+    screen.queryByRole('button', { name: 'Lưu lựa chọn gửi khách hàng' }),
+  ).toBeNull()
+  fireEvent.click(screen.getByRole('button', { name: 'Xem clip.mp4' }))
+  expect(
+    (await screen.findByRole('dialog')).querySelector('video'),
+  ).toBeInTheDocument()
+  expect(select).not.toHaveBeenCalled()
+})
+it('localizes the read-only gallery in English without delivery controls', () => {
+  setLanguage('en')
+  render(
+    <CustomerEvidenceSelection
+      missionId="m"
+      item={{ ...item, assessmentStatus: 'NON_COMPLIANT' }}
+      refresh={vi.fn()}
+      readOnly
+    />,
+  )
+  expect(
+    screen.getByRole('heading', { name: 'Evidence images and videos' }),
+  ).toBeInTheDocument()
+  expect(screen.getByText('View only')).toBeInTheDocument()
+  expect(screen.queryByRole('checkbox')).toBeNull()
+  expect(
+    screen.queryByRole('button', { name: 'Save customer selection' }),
+  ).toBeNull()
 })

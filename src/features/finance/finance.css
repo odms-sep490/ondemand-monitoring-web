@@ -3317,3 +3317,237 @@
     text-align: right;
   }
 }
+
+
+/* Manager request review */
+.mgr-layout .finance-workspace .finance-requirement {
+  align-items: start;
+  padding-block: 14px;
+}
+
+.finance-workspace .finance-requirement-main {
+  overflow-wrap: anywhere;
+}
+
+.finance-workspace .finance-guidance-status {
+  flex-wrap: wrap;
+  white-space: normal !important;
+}
+
+.finance-workspace .finance-status-select {
+  display: grid;
+  gap: 5px;
+}
+
+.finance-workspace .finance-classify-label,
+.finance-workspace .finance-note small {
+  color: var(--mgr-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.finance-workspace .finance-status-select select {
+  width: 100%;
+  min-width: 0;
+}
+
+.finance-workspace .finance-requirement.is-note-open .finance-note {
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px;
+  background: var(--mgr-card-2);
+  border: 1px solid var(--mgr-border);
+  border-radius: 10px;
+}
+
+.finance-workspace .finance-note label {
+  font-weight: 650;
+}
+
+.mgr-layout .finance-workspace .finance-item-price > small {
+  line-height: 1.4;
+  overflow-wrap: normal;
+}
+
+:root .mgr-layout .finance-workspace .finance-quote .finance-summary .is-total {
+  display: grid;
+  gap: 4px;
+}
+
+:root .mgr-layout .finance-workspace .finance-quote .finance-summary .is-total dd {
+  text-align: start;
+  overflow-wrap: anywhere;
+  font-size: clamp(20px, 2vw, 28px);
+}
+
+
+.finance-workspace .is-customer-custom .finance-guidance-status {
+  justify-content: space-between;
+  gap: 8px;
+  margin-block: 8px 6px;
+  padding: 8px 12px;
+  border: 1px solid var(--mgr-border);
+  border-radius: 10px;
+  background: var(--mgr-card-2);
+}
+
+.finance-workspace .is-customer-custom .finance-guidance-status .ant-btn {
+  min-height: 32px;
+}
+
+.finance-workspace .finance-system-price {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 2px 6px;
+}
+
+.finance-workspace .finance-system-price strong {
+  white-space: nowrap;
+}
+
+:root .mgr-layout .finance-workspace .is-customer-custom .finance-item-price {
+  text-align: start;
+}
+
+.finance-workspace .is-customer-custom .finance-item-price input {
+  min-height: 40px;
+}
+
+@container (min-width: 901px) {
+  .finance-workspace .finance-table-head,
+  .finance-workspace .finance-requirement {
+    grid-template-columns: 44px minmax(0, 1fr) minmax(130px, 0.48fr)
+      minmax(170px, 0.5fr) minmax(92px, 0.23fr) 40px;
+  }
+}
+
+.mission-payment-card {
+  padding: 24px;
+  border-radius: 16px;
+}
+.mission-payment-card__heading {
+  gap: 16px;
+  align-items: flex-start;
+  padding-bottom: 18px;
+}
+.mission-payment-card__total {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  font-size: 18px;
+}
+.mission-payment-item {
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 20px 24px;
+  padding: 20px;
+  border-radius: 12px;
+  background: var(--ui-surface, #fff);
+  border: 1px solid var(--ui-border, #e2e8f0);
+}
+.mission-payment-item__title { gap: 16px; margin-bottom: 20px; }
+.mission-payment-item__title > div > strong { font-size: 16px; }
+.mission-payment-item__title > div > span {
+  margin-top: 5px;
+  font-size: 12px;
+  color: var(--ui-text-2, #64748b);
+}
+.mission-payment-item__facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px 24px;
+  margin: 0;
+}
+.mission-payment-item__facts dt { margin-bottom: 6px; font-size: 12px; }
+.mission-payment-item__facts dd { margin: 0; font-size: 14px; line-height: 1.6; }
+.mission-payment-item__facts dd.is-money { color: var(--ui-primary, #1565e8); font-size: 22px; font-weight: 750; }
+.mission-payment-item__actions {
+  align-self: center;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  min-width: 180px;
+}
+.mission-payment-item__actions .ant-btn { min-height: 42px; border-radius: 9px; }
+.mission-payment-item__history {
+  grid-column: 1 / -1;
+  padding-top: 14px;
+  border-top: 1px solid var(--ui-border, #e2e8f0);
+}
+.mission-payment-item__history > strong { font-size: 13px; }
+.mission-payment-item__history p { margin: 6px 0 0; font-size: 13px; }
+@media (max-width: 760px) {
+  .mission-payment-card { padding: 16px; }
+  .mission-payment-card__heading { flex-wrap: wrap; }
+  .mission-payment-item { grid-template-columns: minmax(0, 1fr); padding: 16px; }
+  .mission-payment-item__facts { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .mission-payment-item__actions { min-width: 0; width: 100%; }
+  .mission-payment-item__title { flex-wrap: wrap; }
+}
+
+/* Shared customer billing rhythm and surfaces. */
+:root .od-page .customer-invoice-summary,
+:root .od-page .mission-payment-card {
+  padding: 20px;
+  border: 1px solid var(--ui-border, #e2e8f0);
+  border-radius: 14px;
+  background: var(--ui-surface, #fff);
+}
+:root .od-page .customer-invoice-summary-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+:root .od-page .customer-invoice-summary-title h3,
+:root .od-page .mission-payment-card__heading h3 { margin: 0; font-size: 17px; font-weight: 700; }
+:root .od-page .customer-invoice-summary .customer-payment-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+:root .od-page .customer-invoice-summary .customer-payment-stats > div {
+  padding: 16px;
+  border: 1px solid var(--ui-border, #e2e8f0);
+  border-radius: 10px;
+  background: var(--ui-surface-2, #f6f8fc);
+  min-width: 0;
+}
+:root .od-page .customer-invoice-summary .customer-payment-stats strong {
+  font-size: 22px;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+}
+:root .od-page .customer-payment-stat-detail { font-size: 12px; line-height: 1.6; }
+:root .od-page .customer-deposit-notice.is-ready {
+  padding: 14px 16px;
+  border: 1px solid var(--ant-color-success-border, #b7e4c7);
+  border-radius: 10px;
+  background: var(--ant-color-success-bg, #edf9f0);
+  color: var(--ant-color-success-text, #166534);
+  font-size: 13px;
+  line-height: 1.6;
+}
+:root .od-page .mission-payment-item {
+  padding: 20px;
+  background: var(--ui-surface-2, #f6f8fc);
+  border-color: var(--ui-border, #e2e8f0);
+  border-radius: 10px;
+}
+:root .od-page .mission-payment-item__facts .is-money { font-size: 22px; color: var(--ui-text, #0f172a); }
+:root .od-page .mission-payment-item:not(:has(> .mission-payment-item__actions)) {
+  grid-template-columns: minmax(0, 1fr);
+}
+:root .od-page .mission-payment-card__total {
+  font-size: 15px;
+  white-space: normal;
+}
+:root .od-page .customer-payment-actions:empty { display: none; }
+:root .od-page .mission-payment-item__history li { flex-wrap: wrap; gap: 8px 12px; }
+@media (max-width: 640px) {
+  :root .od-page .customer-invoice-summary .customer-payment-stats { grid-template-columns: 1fr; }
+  :root .od-page .customer-invoice-summary,
+  :root .od-page .mission-payment-card,
+  :root .od-page .mission-payment-item { padding: 16px; }
+}

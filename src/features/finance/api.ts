@@ -9,9 +9,15 @@ import type {
   Quote,
   CustomerQuote,
   MissionPaymentAllocation,
+  MissionFinancialSummary,
 } from './types'
 
 export const financeApi = {
+  getManagerMissionFinancialSummary: (missionId: string, signal?: AbortSignal) =>
+    apiRequest<MissionFinancialSummary>(
+      `/api/manager/missions/${encodeURIComponent(missionId)}/financial-summary`,
+      { signal },
+    ),
   getPricingReview: (orderId: string, signal?: AbortSignal) =>
     apiRequest<PricingReview>(
       `/api/manager/orders/${encodeURIComponent(orderId)}/pricing`,
@@ -79,6 +85,8 @@ export const financeApi = {
       `/api/orders/${encodeURIComponent(orderId)}/quotes/${encodeURIComponent(quoteId)}/accept`,
       { method: 'POST' },
     ),
+  getInvoicePayments: (invoiceId: string, signal?: AbortSignal) =>
+    apiRequest<Payment[]>(`/api/invoices/${encodeURIComponent(invoiceId)}/payments`, { signal }),
   getInvoice: (orderId: string, signal?: AbortSignal) =>
     apiRequest<Invoice>(`/api/orders/${encodeURIComponent(orderId)}/invoice`, {
       signal,

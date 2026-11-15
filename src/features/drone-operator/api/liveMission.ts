@@ -4,6 +4,8 @@ import type { MissionDeviceAssignmentStatus } from '../../mission/types/mission'
 import type { GeoJsonPolygon } from '../../../shared/types/geo'
 
 export type BackendMission = {
+  inspectionCorrectionId?: string | null
+  inspectionSourceMissionId?: string | null
   id: string
   missionCode?: string | null
   orderId?: string | null
@@ -34,6 +36,7 @@ export type BackendMission = {
   devicePayload?: string | null
   droneCode?: string | null
   droneName?: string | null
+  declinedAssignmentHistory?: boolean
   staffAssignments?: Array<{
     staffId?: string | null
     staffName?: string | null
@@ -239,7 +242,9 @@ export function toOperatorMission(
         ).toISOString()
       : null)
   const end = localDateAndTime(endSource)
-  const myResponseStatus = currentUserId
+  const myResponseStatus = source.declinedAssignmentHistory
+    ? 'REJECTED'
+    : currentUserId
     ? source.staffAssignments?.find(
         (assignment) => assignment.staffId === currentUserId,
       )?.responseStatus

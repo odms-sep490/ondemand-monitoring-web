@@ -43,6 +43,11 @@ export function useMissionDetailLoad({
         }
         // Executions and results do not exist until planning is confirmed.
         if (fullMission.status === 'PLANNING') {
+          if (fullMission.inspectionCorrectionId) {
+            openingPlanning = true
+            window.location.replace(managerHref({screen:'missionDispatch',missionId}))
+            return
+          }
           if (
             fullMission.purpose === 'REWORK' &&
             !fullMission.resultRevisionCaseId

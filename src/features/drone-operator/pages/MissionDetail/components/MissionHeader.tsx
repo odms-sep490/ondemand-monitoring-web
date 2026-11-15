@@ -95,7 +95,9 @@ export function MissionHeader({
       access?.canSubmitMissionResult === true ||
       access?.canUploadMedia === true)
   const responseStatusLabel =
-    backendStatus === 'READY' && mission.flightPermitStatus !== 'APPROVED'
+    mission.myResponseStatus === 'REJECTED'
+      ? t.declinedHistoryBadge
+      : backendStatus === 'READY' && mission.flightPermitStatus !== 'APPROVED'
       ? mission.flightPermitStatus === 'REJECTED'
         ? t.flightPermitRejected
         : t.flightPermitPending

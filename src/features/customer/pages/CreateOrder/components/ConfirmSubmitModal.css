@@ -1,0 +1,14 @@
+.co-confirm-body { max-height:min(65vh,620px); overflow-y:auto; padding-right:4px; scrollbar-width:thin; }
+.co-confirm-body .co-confirm-request { padding:14px 16px; margin-bottom:16px; background:#f4f7fb; border-radius:10px; display:flex; flex-direction:column; gap:4px; }
+.co-confirm-body .co-confirm-request__label { font-size:12px; color:#64748b; }
+.co-confirm-body .co-confirm-request__value { font-size:17px; line-height:1.4; color:#172d4c; overflow-wrap:anywhere; }
+.co-confirm-primary,.co-confirm-secondary { display:grid; grid-template-columns:140px minmax(0,1fr); gap:12px 18px; margin:0; font-size:13px; line-height:1.6; }
+.co-confirm-primary dt,.co-confirm-secondary dt { color:#627188; }
+.co-confirm-primary dd,.co-confirm-secondary dd { margin:0; color:#1c304d; font-weight:600; overflow-wrap:anywhere; }
+.co-confirm-more { margin:18px 0; border:1px solid #e1e7f0; border-radius:10px; padding:12px 14px; }
+.co-confirm-more summary { cursor:pointer; color:#245a9e; font-size:13px; font-weight:600; }
+.co-confirm-more[open] summary { margin-bottom:14px; }
+.co-confirm-body .co-confirm-total { margin-top:18px; padding:15px 16px; background:#eaf2ff; border-radius:10px; color:#174e9c; font-weight:600; }
+.co-confirm-body .co-confirm-total > span:last-child { font-size:22px; font-weight:700; white-space:nowrap; }
+.co-confirm-body > .co-hint { font-size:12px; line-height:1.6; margin:10px 0 0; }
+@media(max-width:520px) { .co-confirm-primary,.co-confirm-secondary {grid-template-columns:105px minmax(0,1fr);gap:10px;} .co-confirm-body .co-confirm-total > span:last-child {font-size:19px;} }

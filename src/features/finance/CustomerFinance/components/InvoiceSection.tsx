@@ -39,10 +39,11 @@ export function InvoiceSummary({ invoice }: { invoice: Invoice }) {
         <h3>{t.invoice(invoice.invoiceNumber)}</h3>
         <div className="customer-invoice-summary-statuses">
           <StatusTag tone={INVOICE_TONE[invoice.status] ?? 'neutral'}>
-            {t.invoiceStatusLabel}:{' '}
-            {t.invoiceStatus[invoice.status] ?? pricingLabel(invoice.status)}
+            {invoice.status === 'PAID'
+              ? t.paymentCompleted
+              : t.invoiceStatus[invoice.status] ?? pricingLabel(invoice.status)}
           </StatusTag>
-          {invoice.status !== 'CANCELLED' && invoice.status !== 'REFUNDED' ? (
+          {!['PAID', 'CANCELLED', 'REFUNDED'].includes(invoice.status) ? (
             <StatusTag
               tone={depositStatus === 'DEPOSIT_PAID' ? 'success' : 'warning'}
             >
@@ -52,6 +53,7 @@ export function InvoiceSummary({ invoice }: { invoice: Invoice }) {
         </div>
       </div>
       <div className="customer-payment-stats">
+        <PaymentStat label={t.remaining} value={invoice.remainingAmount} />
         <PaymentStat label={t.total} value={invoice.totalAmount} />
         <PaymentStat
           label={t.paid}
@@ -62,7 +64,6 @@ export function InvoiceSummary({ invoice }: { invoice: Invoice }) {
               : t.depositAwaitingPayment(formatVnd(invoice.depositAmount))
           }
         />
-        <PaymentStat label={t.remaining} value={invoice.remainingAmount} />
       </div>
     </section>
   )
@@ -76,6 +77,8 @@ export function InvoiceSection({
   completeTestDeposit,
   testPaymentLabel,
   refreshExpired,
+  handedOverCount = 0,
+  unpaidHandedOverCount = 0,
 }: {
   invoice: Invoice
   legalReady: boolean
@@ -84,13 +87,19 @@ export function InvoiceSection({
   completeTestDeposit: () => Promise<void>
   testPaymentLabel: string
   refreshExpired?: () => void
+  handedOverCount?: number
+  unpaidHandedOverCount?: number
 }) {
   const { t, locale } = useI18n(customerFinanceSectionsMessages)
   const [expiredDeadlineKey, setExpiredDeadlineKey] = useState<string | null>(
     null,
   )
   const deadlineKey = `${invoice.id}:${invoice.depositExpiresAt ?? ''}`
-  const depositIssuedAt = Date.parse(invoice.issuedAt)
+  const depositIssuedAt = Date.parse(
+    invoice.contractSubmittedAt ??
+      invoice.contractConfirmedAt ??
+      invoice.issuedAt,
+  )
   const depositExpiresAt = invoice.depositExpiresAt
     ? Date.parse(invoice.depositExpiresAt)
     : Number.NaN
@@ -102,6 +111,14 @@ export function InvoiceSection({
     invoice.status === 'OVERDUE' ||
     depositReachedDeadline ||
     expiredDeadlineKey === deadlineKey
+  if (
+    invoice.status === 'CANCELLED' ||
+    invoice.status === 'REFUNDED' ||
+    invoice.orderCancellationReason?.startsWith('CONTRACT_')
+  )
+    return null
+  if (invoice.contractRequired && !invoice.contractConfirmedAt) return null
+  if (invoice.status === 'PAID') return null
   return (
     <div className="customer-invoice customer-invoice-actions">
       {invoice.depositExpiresAt &&
@@ -111,7 +128,13 @@ export function InvoiceSection({
             expired={depositExpired}
             label={depositExpired ? t.depositExpired : t.depositCountdownLabel}
             deadline={invoice.depositExpiresAt}
-            startAt={Number.isFinite(depositIssuedAt) ? invoice.issuedAt : null}
+            startAt={
+              Number.isFinite(depositIssuedAt)
+                ? (invoice.contractSubmittedAt ??
+                  invoice.contractConfirmedAt ??
+                  invoice.issuedAt)
+                : null
+            }
             deadlineLabel={t.depositDeadlineAt(
               new Date(invoice.depositExpiresAt).toLocaleString(locale, {
                 dateStyle: 'short',
@@ -139,15 +162,36 @@ export function InvoiceSection({
           <b>{t.orderCancelledPaymentTimeout}</b>
         </div>
       ) : null}
-      {invoice.paidAmount < invoice.depositAmount ? (
+      {invoice.contractRequired &&
+      !invoice.contractConfirmedAt &&
+      invoice.paidAmount >= invoice.depositAmount ? (
+        <div className="customer-deposit-notice">
+          <b>{t.contractVerificationPending}</b>
+          <span>{t.contractVerificationPendingBody}</span>
+        </div>
+      ) : invoice.paidAmount < invoice.depositAmount ? (
         <div className="customer-deposit-notice">
           <b>{t.awaitingDeposit}</b>
-          <span>{t.awaitingDepositBody}</span>
+          <span>
+            {invoice.contractRequired
+              ? t.awaitingDepositContractBody
+              : t.awaitingDepositBody}
+          </span>
         </div>
-      ) : invoice.status === 'PAID' ? (
-        <div className="customer-deposit-notice is-ready">
-          <b>{t.paymentCompleted}</b>
-          <span>{t.awaitingResourceConfirmation}</span>
+      ) : handedOverCount > 0 ? (
+        <div
+          className={`customer-deposit-notice${unpaidHandedOverCount === 0 ? ' is-ready' : ''}`}
+        >
+          <b>
+            {unpaidHandedOverCount > 0
+              ? t.missionPaymentsReady
+              : t.missionPaymentsHandedOverPaid}
+          </b>
+          <span>
+            {unpaidHandedOverCount > 0
+              ? t.missionPaymentsReadyBody
+              : t.missionPaymentsHandedOverPaidBody}
+          </span>
         </div>
       ) : (
         <div className="customer-deposit-notice">
@@ -158,8 +202,7 @@ export function InvoiceSection({
       <div className="finance-actions customer-payment-actions">
         {invoice.paidAmount < invoice.depositAmount &&
         legalReady &&
-        !depositExpired &&
-        invoice.status !== 'CANCELLED' ? (
+        !depositExpired ? (
           <>
             <Button
               type="primary"

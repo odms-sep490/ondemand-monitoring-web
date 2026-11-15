@@ -209,6 +209,8 @@ export type PlanWaypointResponse = {
 }
 
 export type MissionResponse = {
+  inspectionCorrectionId?: string | null
+  inspectionSourceMissionId?: string | null
   purpose?: 'ORIGINAL' | 'REWORK'
   resultRevisionCaseId?: string | null
   replacesMissionId?: string | null
@@ -265,6 +267,7 @@ export type MissionResponse = {
   startedAt: string | null
   completedAt: string | null
   actualStartAt?: string | null
+  controlHandoverAt?: string | null
   actualEndAt?: string | null
   description: string | null
   failureReason: string | null
@@ -306,6 +309,7 @@ export type MissionDeviceAssignmentResponse = {
   replacementRequestedAt?: string | null
   replacementRequestReason?: string | null
   replacementRequestedBy?: string | null
+  replacementCompleted?: boolean
 }
 
 export type MissionResourcePrepareStatus =

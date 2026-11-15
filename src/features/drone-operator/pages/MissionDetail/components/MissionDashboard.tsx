@@ -150,6 +150,22 @@ export function MissionDashboard({
     return () => controller.abort()
   }, [deviceId, mission.id])
 
+  if (mission.myResponseStatus === 'REJECTED') {
+    return (
+      <div className="mds-dashboard">
+        <MissionHeader mission={mission} />
+        <section className="mds-action-bar" aria-labelledby="declined-mission-heading">
+          <div className="mds-action-bar-text">
+            <h2 id="declined-mission-heading" className="mds-card-heading">
+              {t.declinedHistoryTitle}
+            </h2>
+            <p>{t.declinedHistoryDescription}</p>
+          </div>
+        </section>
+      </div>
+    )
+  }
+
   if (isAwaitingResponse(mission)) {
     return (
       <div className="mds-dashboard mds-pending">

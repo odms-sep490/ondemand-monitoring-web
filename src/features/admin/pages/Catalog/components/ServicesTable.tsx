@@ -1,3 +1,4 @@
+import { ImagePreview } from '../../../../../shared/components/media/ImagePreview'
 import { useI18n } from '../../../../../shared/i18n'
 import { StatusBadge } from '../../../../../shared/components/ui'
 import { fmtDateTime } from '../../../lib/accountStatus'
@@ -32,12 +33,7 @@ export function ServicesTable({
           <tr key={s.id}>
             <td>
               {s.imageUrl && (
-                <img
-                  className="adm-service-thumbnail"
-                  src={s.imageUrl}
-                  alt=""
-                  loading="lazy"
-                />
+                <ImagePreview className="adm-service-thumbnail" src={s.imageUrl} fileName={s.name} />
               )}
               <div className="adm-wrap adm-strong">{s.name}</div>
               {s.description && (

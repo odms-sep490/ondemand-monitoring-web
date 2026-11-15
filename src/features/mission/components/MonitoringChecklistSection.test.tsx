@@ -244,12 +244,13 @@ describe('MonitoringChecklistSection', () => {
   describe.each([false, true])(
     'customer selection capability, compact=%s',
     (compact) => {
+      const acceptedItem = { ...item, assessmentStatus: 'COMPLIANT' as const }
       const selectionButton = () =>
         screen.queryByRole('button', { name: 'Lưu lựa chọn gửi khách hàng' })
       it('allows reserve correction on an approved unpublished result without unlocking assessment or staff fields', () => {
         render(
           <MonitoringChecklistSection
-            {...props}
+            {...{ ...props, data: { ...data, executions: [acceptedItem] } }}
             compact={compact}
             resultStatus="APPROVED"
             canAssess
@@ -260,7 +261,7 @@ describe('MonitoringChecklistSection', () => {
               ...data,
               executions: [
                 {
-                  ...item,
+                  ...acceptedItem,
                   customerSelectionEditable: true,
                   evidencePolicyVersion: 3,
                   minimumImageCount: 1,
@@ -279,7 +280,7 @@ describe('MonitoringChecklistSection', () => {
         expect(screen.queryByRole('button', { name: 'Đánh giá' })).toBeNull()
         expect(
           screen.queryByRole('button', {
-            name: /Thêm media|Thêm bằng chứng từ media Mission/,
+            name: /Thêm ảnh\/video|Thêm bằng chứng từ ảnh\/video Nhiệm vụ/,
           }),
         ).toBeNull()
         expect(screen.queryByLabelText('Đánh giá nghiệm thu')).toBeNull()
@@ -288,14 +289,16 @@ describe('MonitoringChecklistSection', () => {
       it('trusts the assigned-inspector item capability even when result-level editing permissions are locked', () => {
         render(
           <MonitoringChecklistSection
-            {...props}
+            {...{ ...props, data: { ...data, executions: [acceptedItem] } }}
             compact={compact}
             resultStatus="APPROVED"
             canAssess={false}
             canSelectForCustomer={false}
             data={{
               ...data,
-              executions: [{ ...item, customerSelectionEditable: true }],
+              executions: [
+                { ...acceptedItem, customerSelectionEditable: true },
+              ],
             }}
           />,
         )
@@ -307,14 +310,16 @@ describe('MonitoringChecklistSection', () => {
         (resultStatus) => {
           render(
             <MonitoringChecklistSection
-              {...props}
+              {...{ ...props, data: { ...data, executions: [acceptedItem] } }}
               compact={compact}
               resultStatus={resultStatus}
               canAssess
               canSelectForCustomer
               data={{
                 ...data,
-                executions: [{ ...item, customerSelectionEditable: false }],
+                executions: [
+                  { ...acceptedItem, customerSelectionEditable: false },
+                ],
               }}
             />,
           )
@@ -324,7 +329,7 @@ describe('MonitoringChecklistSection', () => {
       it('uses the normal unlocked inspector fallback only when the item capability is absent', () => {
         const view = render(
           <MonitoringChecklistSection
-            {...props}
+            {...{ ...props, data: { ...data, executions: [acceptedItem] } }}
             compact={compact}
             canAssess
             canSelectForCustomer
@@ -333,7 +338,7 @@ describe('MonitoringChecklistSection', () => {
         expect(selectionButton()).toBeInTheDocument()
         view.rerender(
           <MonitoringChecklistSection
-            {...props}
+            {...{ ...props, data: { ...data, executions: [acceptedItem] } }}
             compact={compact}
             resultStatus="APPROVED"
             canAssess
@@ -351,7 +356,7 @@ describe('MonitoringChecklistSection', () => {
         (state) => {
           render(
             <MonitoringChecklistSection
-              {...props}
+              {...{ ...props, data: { ...data, executions: [acceptedItem] } }}
               {...state}
               compact={compact}
               resultStatus="APPROVED"
@@ -359,7 +364,9 @@ describe('MonitoringChecklistSection', () => {
               canSelectForCustomer
               data={{
                 ...data,
-                executions: [{ ...item, customerSelectionEditable: true }],
+                executions: [
+                  { ...acceptedItem, customerSelectionEditable: true },
+                ],
               }}
             />,
           )
@@ -380,7 +387,7 @@ describe('MonitoringChecklistSection', () => {
       const save = vi
         .spyOn(checklistExecutionApi, 'updateMissionChecklistExecution')
         .mockResolvedValue({ ...staffItem, version: 8 })
-      render(
+      const view = render(
         <MonitoringChecklistSection
           {...props}
           compact={compact}
@@ -419,6 +426,28 @@ describe('MonitoringChecklistSection', () => {
             expectedVersion: 7,
           }),
         ),
+      )
+      expect(
+        screen.queryByRole('button', { name: 'Lưu lựa chọn gửi khách hàng' }),
+      ).toBeNull()
+      view.rerender(
+        <MonitoringChecklistSection
+          {...props}
+          compact={compact}
+          canAssess
+          canSelectForCustomer
+          data={{
+            ...data,
+            executions: [
+              {
+                ...staffItem,
+                assessmentStatus: 'COMPLIANT',
+                executionStatus: 'COMPLETED',
+                version: 8,
+              },
+            ],
+          }}
+        />,
       )
       expect(
         screen.getByRole('button', { name: 'Lưu lựa chọn gửi khách hàng' }),
@@ -699,7 +728,7 @@ describe('MonitoringChecklistSection', () => {
         />,
       )
       expect(
-        screen.getByText('Không có mục checklist giám sát.'),
+        screen.getByText('Không có mục danh sách kiểm tra giám sát.'),
       ).toBeInTheDocument()
       expect(screen.getByText('Chưa sẵn sàng nghiệm thu')).toBeInTheDocument()
     },
@@ -723,7 +752,30 @@ describe('MonitoringChecklistSection', () => {
       />,
     )
     expect(screen.getByRole('alert')).toHaveTextContent('không có quyền')
-    fireEvent.click(screen.getByText('Thử lại checklist'))
+    fireEvent.click(screen.getByText('Thử lại danh sách kiểm tra'))
     expect(refresh).toHaveBeenCalledOnce()
   })
 })
+
+it.each(['NON_COMPLIANT', 'NOT_ASSESSED'] as const)(
+  'never offers customer selection for %s despite a stale editable capability',
+  (assessmentStatus) => {
+    render(
+      <MonitoringChecklistSection
+        {...props}
+        compact
+        canAssess
+        canSelectForCustomer
+        data={{
+          ...data,
+          executions: [
+            { ...item, assessmentStatus, customerSelectionEditable: true },
+          ],
+        }}
+      />,
+    )
+    expect(
+      screen.queryByRole('button', { name: 'Lưu lựa chọn gửi khách hàng' }),
+    ).toBeNull()
+  },
+)

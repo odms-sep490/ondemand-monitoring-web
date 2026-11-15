@@ -15,7 +15,7 @@ import {
 import { useI18n, defineMessages } from '../../../shared/i18n'
 import { supportApi } from '../api/supportApi'
 import { ChecklistGuidance } from '../../../shared/components/ChecklistGuidance'
-import { DeliveryImagePreview } from '../../delivery/DeliveryImagePreview'
+import { ImagePreview } from '../../../shared/components/media/ImagePreview'
 import './TicketResultReviewCard.css'
 import type { TicketResultReviewResponse } from '../api/supportApi'
 
@@ -234,7 +234,7 @@ export function TicketResultReviewCard({ ticketId }: { ticketId: string }) {
                                 fallbackUrl={e.url}
                               />
                             ) : e.previewUrl ? (
-                              <DeliveryImagePreview
+                              <ImagePreview
                                 src={e.thumbnailUrl ?? e.previewUrl}
                                 previewSrc={e.previewUrl}
                                 fileName={e.fileName}

@@ -32,7 +32,7 @@ export function toMediaItem(dto: CustomerMediaResponse): MediaItem {
     fileSize: dto.fileSize ?? null,
     capturedAt: dto.capturedAt ?? null,
     availableAt: dto.availableAt ?? null,
-    // Viewing URLs may fall back to originals. Official download URLs are requested separately.
+    // Display URLs contain derivatives only. Original downloads use a separate authorized action.
     url: null,
     thumbnailUrl: dto.thumbnailUrl ?? null,
     previewUrl: dto.previewUrl ?? null,

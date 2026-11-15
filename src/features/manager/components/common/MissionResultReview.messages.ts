@@ -11,12 +11,12 @@ export const missionResultReviewMessages = defineMessages({
     },
     approvalLabels: {
       DRAFT: 'Nháp',
-      PENDING_MANAGER_APPROVAL: 'Chờ duyệt',
-      APPROVED: 'Đã duyệt',
+      PENDING_MANAGER_APPROVAL: 'Chờ Inspector nghiệm thu',
+      APPROVED: 'Đã nghiệm thu',
       REJECTED: 'Đã từ chối',
     },
     missionStatusCaption: 'Tiến độ',
-    approvalStatusCaption: 'Phê duyệt',
+    approvalStatusCaption: 'Nghiệm thu',
     unknown: 'Chưa xác định',
     missionDone: 'Nhiệm vụ đã hoàn thành',
     missionNotDone: 'Nhiệm vụ chưa hoàn thành',
@@ -36,10 +36,14 @@ export const missionResultReviewMessages = defineMessages({
     fullSummary: 'Chi tiết kết quả',
     noResult: 'Chưa có kết quả nhiệm vụ được gửi.',
     readinessAria: 'Điều kiện duyệt kết quả',
-    readinessTitle: 'Điều kiện duyệt',
-    reviewMediaSeparately: 'Duyệt ảnh/video riêng trước khi duyệt kết quả.',
+    readinessTitle: 'Tiến độ nghiệm thu',
+    reviewMediaSeparately:
+      'Inspector kiểm tra ảnh/video và công bố kết quả cho khách hàng.',
     viewMediaLibrary: 'Xem thư viện ảnh/video',
     rejectReason: 'Lý do từ chối',
+    inspectorOwnership: 'Inspector phụ trách nghiệm thu',
+    inspectorPublication:
+      'Kết quả được công bố trực tiếp sau khi Inspector xác nhận. Manager xử lý phản hồi và yêu cầu làm lại của khách hàng.',
     // Actions
     draftNotice: 'Kết quả nháp — chưa được gửi để duyệt.',
     rejectedNotice:
@@ -48,7 +52,8 @@ export const missionResultReviewMessages = defineMessages({
     noteHint: 'Cần khi từ chối, hoặc khi duyệt dù thiếu ảnh/video so với đơn',
     notePlaceholder:
       'Nhập lý do (ít nhất 10 ký tự) nếu từ chối hoặc duyệt khi còn thiếu ảnh/video…',
-    checklistNotReadyToApprove: 'Danh mục kiểm tra chưa sẵn sàng để duyệt kết quả.',
+    checklistNotReadyToApprove:
+      'Danh mục kiểm tra chưa sẵn sàng để duyệt kết quả.',
     rejectResult: 'Từ chối kết quả',
     approveResult: 'Duyệt kết quả',
   },
@@ -62,8 +67,8 @@ export const missionResultReviewMessages = defineMessages({
     },
     approvalLabels: {
       DRAFT: 'Draft',
-      PENDING_MANAGER_APPROVAL: 'Pending approval',
-      APPROVED: 'Approved',
+      PENDING_MANAGER_APPROVAL: 'Awaiting Inspector confirmation',
+      APPROVED: 'Inspection confirmed',
       REJECTED: 'Rejected',
     },
     missionStatusCaption: 'Progress',
@@ -87,11 +92,14 @@ export const missionResultReviewMessages = defineMessages({
     fullSummary: 'Result details',
     noResult: 'No mission result has been submitted yet.',
     readinessAria: 'Result approval conditions',
-    readinessTitle: 'Approval conditions',
+    readinessTitle: 'Inspection progress',
     reviewMediaSeparately:
-      'Review media separately before approving the result.',
+      'The Inspector reviews media and publishes results to the customer.',
     viewMediaLibrary: 'View media library',
     rejectReason: 'Rejection reason',
+    inspectorOwnership: 'The Inspector owns result acceptance',
+    inspectorPublication:
+      'Results are published directly after Inspector confirmation. The Manager handles customer feedback and rework requests.',
     // Actions
     draftNotice: 'Draft result — not yet submitted for review.',
     rejectedNotice:

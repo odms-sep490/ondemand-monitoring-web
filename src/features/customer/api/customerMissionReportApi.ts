@@ -9,6 +9,7 @@ export type CustomerMissionSummary = {
   status: MissionStatus
   scheduledStartAt: string | null
   scheduledEndAt: string | null
+  actualStartAt?: string | null
   replacesMissionId: string | null
   reportAvailable: boolean
 }

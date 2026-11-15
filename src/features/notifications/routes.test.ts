@@ -24,6 +24,20 @@ const missionNotification: AppNotification = {
 }
 
 describe('notification routes', () => {
+  it.each(['ORDER_CONTRACT_ISSUED', 'ORDER_CONTRACT_SUBMITTED', 'ORDER_CONTRACT_CHANGES_REQUESTED', 'ORDER_CONTRACT_CONFIRMED'] as const)(
+    'opens the contract tab for %s', (type) => {
+      const href = notificationHref({ ...orderNotification, type }, 'CUSTOMER')!
+      expect(href).toBe('#portal/customer/orders/order-1?tab=contract')
+      expect(parseCustomerRoute(href)).toEqual({ screen: 'orderDetail', orderId: 'order-1' })
+    },
+  )
+  it.each(['MISSION_STAFF_REPLACEMENT_REQUIRED', 'MISSION_DRONE_REPLACEMENT_REQUIRED'] as const)(
+    'opens the saved plan for %s', (type) => {
+      const href = notificationHref({ ...missionNotification, type }, 'MANAGER')!
+      expect(href).toBe('#portal/manager/missions/mission-1/detail?tab=plan')
+      expect(parseManagerRoute(href)).toEqual({ screen: 'missionDetail', missionId: 'mission-1' })
+    },
+  )
   it('maps order notifications to existing customer and manager order details', () => {
     expect(
       parseCustomerRoute(notificationHref(orderNotification, 'CUSTOMER')!),
@@ -41,6 +55,7 @@ describe('notification routes', () => {
 
   it.each([
     'ORDER_CREATED',
+    'ORDER_INFORMATION_SUBMITTED',
     'ORDER_UNDER_REVIEW',
     'ORDER_NEEDS_INFO',
     'ORDER_APPROVED',

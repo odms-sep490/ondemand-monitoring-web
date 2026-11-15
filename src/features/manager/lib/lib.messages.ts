@@ -45,6 +45,7 @@ export const managerLibMessages = defineMessages({
       AFTERNOON: 'Buổi chiều',
       EVENING: 'Buổi tối',
       NIGHT: 'Ban đêm',
+      ANY_TIME: 'Bất kỳ lúc nào',
     } as Record<string, string>,
     mediaTypes: {
       IMAGE: 'Ảnh',
@@ -187,6 +188,7 @@ export const managerLibMessages = defineMessages({
       AFTERNOON: 'Afternoon',
       EVENING: 'Evening',
       NIGHT: 'Night',
+      ANY_TIME: 'Any time',
     },
     mediaTypes: {
       IMAGE: 'Image',

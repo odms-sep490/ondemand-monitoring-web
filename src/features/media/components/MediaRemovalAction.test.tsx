@@ -7,7 +7,7 @@ vi.mock('../api/operatorMediaApi', () => ({ operatorMediaApi: { removeStaffMedia
 const item: LocalMedia = { missionId: 'exact-mission', backendMediaId: 'media-1', localMediaId: 'staff-file', deviceId: 'device-1', fileName: 'drone.jpg', mediaType: 'IMAGE', contentType: 'image/jpeg', checksumSha256: '', fileSize: 100, capturedAt: '2026-11-10T01:00:00Z', status: 'AVAILABLE', staffCreated: true, version: 7 }
 const error = (code: string) => new ApiError(code, { code, status: 409, method: 'POST', path: '/removal' })
 beforeEach(() => { vi.clearAllMocks(); vi.mocked(operatorMediaApi.removeStaffMedia).mockResolvedValue({ mediaId: 'media-1', removed: true, cleanupScheduled: true }) })
-function open() {fireEvent.click(screen.getByRole('button', { name: 'Gỡ media: drone.jpg' }))}
+function open() {fireEvent.click(screen.getByRole('button', { name: 'Gỡ ảnh/video: drone.jpg' }))}
 describe('Remove mistaken Staff upload', () => {
   it('requires a reason and submits exact Mission, media, displayed version and trimmed reason', async () => {
     const changed=vi.fn();render(<MediaRemovalAction item={item} canRemove onRemoved={changed} />);open()
@@ -26,7 +26,7 @@ describe('Remove mistaken Staff upload', () => {
     vi.mocked(operatorMediaApi.removeStaffMedia).mockRejectedValue(error('MEDIA_EVIDENCE_PROTECTED'))
     const changed=vi.fn();render(<MediaRemovalAction item={item} canRemove onRemoved={changed} />);open()
     fireEvent.change(screen.getByLabelText('Lý do gỡ'),{target:{value:'Nhầm'}});fireEvent.click(screen.getByRole('button',{name:'Xác nhận gỡ'}))
-    expect(await screen.findByRole('alert')).toHaveTextContent('Chưa thể gỡ media này')
+    expect(await screen.findByRole('alert')).toHaveTextContent('Chưa thể gỡ ảnh/video này')
     expect(screen.getByRole('alert')).not.toHaveTextContent('MEDIA_EVIDENCE_PROTECTED');expect(changed).not.toHaveBeenCalled();expect(operatorMediaApi.removeStaffMedia).toHaveBeenCalledOnce()
   })
   it('holds the version seen on opening the dialog and blocks stale-version resubmission', async () => {
@@ -34,7 +34,7 @@ describe('Remove mistaken Staff upload', () => {
     const {rerender}=render(<MediaRemovalAction item={item} canRemove onRemoved={vi.fn()} />);open()
     rerender(<MediaRemovalAction item={{...item,version:8}} canRemove onRemoved={vi.fn()} />)
     fireEvent.change(screen.getByLabelText('Lý do gỡ'),{target:{value:'Nhầm'}});fireEvent.click(screen.getByRole('button',{name:'Xác nhận gỡ'}))
-    expect(await screen.findByRole('alert')).toHaveTextContent('Media đã thay đổi')
+    expect(await screen.findByRole('alert')).toHaveTextContent('Ảnh/video đã thay đổi')
     expect(operatorMediaApi.removeStaffMedia).toHaveBeenCalledWith('exact-mission','media-1',7,'Nhầm')
     expect(screen.getByRole('button',{name:'Xác nhận gỡ'})).toBeDisabled()
   })

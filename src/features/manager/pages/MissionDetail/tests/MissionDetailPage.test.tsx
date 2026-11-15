@@ -228,11 +228,11 @@ describe('Manager Mission Detail monitoring review', () => {
     window.history.replaceState(
       null,
       '',
-      '#portal/manager/missions/m/detail?tab=order',
+      '#portal/manager/missions/m/detail?tab=resources',
     )
     render(<MissionDetailPage missionId="m" />)
     expect(
-      await screen.findByRole('tab', { name: 'Thông tin đơn hàng' }),
+      await screen.findByRole('tab', { name: 'Thông tin nguồn lực' }),
     ).toHaveAttribute('aria-selected', 'true')
     expect(missionsApi.getMissionMedia).not.toHaveBeenCalled()
 
@@ -277,8 +277,8 @@ describe('Manager Mission Detail monitoring review', () => {
     expect(screen.getAllByText(/Không có góc nhìn/).length).toBeGreaterThan(0)
     expect(screen.getByText(/Có cây che/)).toBeInTheDocument()
     expect(screen.queryByText('Cập nhật mục')).toBeNull()
-    expect(screen.getByText('Duyệt kết quả')).toBeEnabled()
-    expect(screen.getByText('Từ chối kết quả')).toBeEnabled()
+    expect(screen.queryByText('Duyệt kết quả')).toBeNull()
+    expect(screen.queryByText('Từ chối kết quả')).toBeNull()
   })
   it('uses the satellite mission map on result review', async () => {
     render(<MissionDetailPage missionId="m" />)
@@ -313,14 +313,19 @@ describe('Manager Mission Detail monitoring review', () => {
     expect(container.querySelector('.odm-rm-leaflet')).toBeNull()
     expect(screen.queryByText(/HOME →/)).toBeNull()
   })
-  it('shows the complete source order in a dedicated tab', async () => {
+  it('falls back to results when opening the removed order tab', async () => {
+    window.history.replaceState(
+      null,
+      '',
+      '#portal/manager/missions/m/detail?tab=order',
+    )
     render(<MissionDetailPage missionId="m" />)
 
-    fireEvent.click(
-      await screen.findByRole('tab', { name: 'Thông tin đơn hàng' }),
-    )
-    expect(await screen.findByText('Kiểm tra nhà xưởng')).toBeInTheDocument()
-    expect(screen.getByText('customer@example.com')).toBeInTheDocument()
+    expect(
+      await screen.findByRole('tab', { name: 'Kết quả nhiệm vụ' }),
+    ).toHaveAttribute('aria-selected', 'true')
+    expect(screen.queryByRole('tab', { name: 'Thông tin đơn hàng' })).toBeNull()
+    expect(screen.queryByText('customer@example.com')).toBeNull()
   })
   it('hides the flight plan tab after mission completion', async () => {
     render(<MissionDetailPage missionId="m" />)
@@ -359,26 +364,14 @@ describe('Manager Mission Detail monitoring review', () => {
       ).toBeNull()
     },
   )
-  it('refreshes mission/result/checklist after rejection', async () => {
-    vi.spyOn(missionsApi, 'rejectMissionResult').mockImplementation(
-      async () => {
-        vi.mocked(missionsApi.getMissionResult).mockResolvedValue({
-          ...result,
-          approvalStatus: 'REJECTED',
-        })
-        return { ...result, approvalStatus: 'REJECTED' }
-      },
-    )
+  it('keeps pending result read-only for Manager and explains Inspector ownership', async () => {
+    const reject = vi.spyOn(missionsApi, 'rejectMissionResult')
     render(<MissionDetailPage missionId="m" />)
-    fireEvent.click(await screen.findByText('Từ chối kết quả'))
-    await screen.findByText(
-      'Kết quả đã bị từ chối. Nhân sự thực hiện cần chỉnh sửa và gửi lại.',
-    )
-    await waitFor(() =>
-      expect(missionsApi.getMissionResponse).toHaveBeenCalledTimes(2),
-    )
     expect(
-      checklistExecutionApi.getMissionChecklistExecutions,
-    ).toHaveBeenCalledTimes(2)
+      await screen.findByText('Inspector phụ trách nghiệm thu'),
+    ).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Duyệt kết quả' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Từ chối kết quả' })).toBeNull()
+    expect(reject).not.toHaveBeenCalled()
   })
 })

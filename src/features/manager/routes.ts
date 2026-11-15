@@ -16,12 +16,14 @@ export type ManagerRoute =
   | { screen: 'orderQueue' }
   | { screen: 'orderReview'; orderId: string }
   | { screen: 'missionCreate'; orderId: string; replacesMissionId?: string; reworkCaseId?: string }
+  | { screen: 'inspectionPlanning'; orderId: string; sourceMissionId: string; correctionId: string }
   | { screen: 'orderResults'; orderId: string }
   | { screen: 'missionDispatch'; missionId: string }
   | { screen: 'missionSetup'; missionId: string }
   | { screen: 'missionDetail'; missionId: string }
   | {
       screen: 'schedule'
+      calendar?: boolean
       assignmentMissionId?: string
       assignmentCanEdit?: boolean
       assignmentReplaceStaffId?: string
@@ -57,6 +59,8 @@ export function parseManagerRoute(hash: string): ManagerRoute {
 
   switch (head) {
     case 'orders': {
+      if (tail.length === 4 && tail[1] === 'inspection')
+        return { screen: 'inspectionPlanning', orderId: tail[0], sourceMissionId: tail[2], correctionId: tail[3] }
       if (tail.length === 2 && tail[1] === 'results')
         return { screen: 'orderResults', orderId: tail[0] }
       if (tail.length === 1) return { screen: 'orderReview', orderId: tail[0] }
@@ -101,7 +105,7 @@ export function parseManagerRoute(hash: string): ManagerRoute {
               ...(assignmentReplaceStaffId ? { assignmentReplaceStaffId } : {}),
               ...(assignmentReturnOrderId ? { assignmentReturnOrderId } : {}),
             }
-          : { screen: 'schedule' }
+          : { screen: 'schedule', ...(searchParams.get('view') === 'calendar' ? { calendar: true } : {}) }
       }
     case 'drones': {
       const assignmentMissionId =
@@ -147,6 +151,8 @@ export function managerHref(route: ManagerRoute): string {
       return `${MANAGER_ROOT}/orders/${route.orderId}`
     case 'orderResults':
       return `${MANAGER_ROOT}/orders/${route.orderId}/results`
+    case 'inspectionPlanning':
+      return `${MANAGER_ROOT}/orders/${encodeURIComponent(route.orderId)}/inspection/${encodeURIComponent(route.sourceMissionId)}/${encodeURIComponent(route.correctionId)}`
     case 'missionCreate':
       if (route.reworkCaseId)
         return `${MANAGER_ROOT}/orders/${encodeURIComponent(route.orderId)}/rework/${encodeURIComponent(route.reworkCaseId)}`
@@ -160,7 +166,7 @@ export function managerHref(route: ManagerRoute): string {
     case 'missionDetail':
       return `${MANAGER_ROOT}/missions/${route.missionId}/detail`
     case 'schedule': {
-      if (!route.assignmentMissionId) return `${MANAGER_ROOT}/schedule`
+      if (!route.assignmentMissionId) return `${MANAGER_ROOT}/schedule${route.calendar ? '?view=calendar' : ''}`
       const params = new URLSearchParams({
         assignmentMissionId: route.assignmentMissionId,
         assignmentCanEdit: route.assignmentCanEdit ? '1' : '0',

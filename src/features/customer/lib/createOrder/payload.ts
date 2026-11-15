@@ -3,7 +3,7 @@ import type {
   GeoJsonPolygon,
   ServiceDeliverableOption,
 } from '../../api/customerApi'
-import { toNumber, truncateText } from './format'
+import { toNumber } from './format'
 import type { ReadinessScore, FormState } from './types'
 import { resultFormatsFromMediaTotals } from '../checklist/types'
 import { coverageAreaMetrics } from './coverageGeometry'
@@ -129,7 +129,7 @@ export function buildOrderPayload(input: {
     detail,
   })
   return {
-    title: truncateText(form.title, ORDER_TITLE_MAX_LENGTH),
+    title: "",
     description: form.description.trim() || undefined,
     serviceId: form.serviceId,
     flightPurpose: form.flightPurpose,

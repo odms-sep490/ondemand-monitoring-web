@@ -1,7 +1,6 @@
 import {
   CameraOutlined,
   FileTextOutlined,
-  HomeOutlined,
   PlusCircleOutlined,
   QuestionCircleOutlined,
   ShoppingOutlined,
@@ -29,11 +28,6 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     key: 'monitoring',
     items: [
-      {
-        key: 'dashboard',
-        icon: <HomeOutlined />,
-        route: { screen: 'dashboard' },
-      },
       {
         key: 'orders',
         icon: <ShoppingOutlined />,
@@ -65,7 +59,7 @@ export const activeNavKey: Record<CustomerScreen, CustomerNavItemKey | null> = {
   missionHistory: 'missionHistory',
   missionHistoryDetail: 'missionHistory',
   missionReport: 'orders',
-  dashboard: 'dashboard',
+  dashboard: 'orders',
   orders: 'orders',
   createOrder: 'createOrder',
   orderDetail: 'orders',

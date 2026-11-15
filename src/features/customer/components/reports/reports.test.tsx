@@ -185,23 +185,17 @@ describe('Customer aggregate/report publication', () => {
       screen.queryByRole('button', { name: 'Retry' }),
     ).not.toBeInTheDocument()
   })
-  it('renders three exact Mission links and uses public availability', async () => {
+  it('renders published reports inline and summaries for unpublished missions', async () => {
     vi.mocked(customerMissionReportApi.list).mockResolvedValue([
       mission('m1', true),
       mission('m2'),
       mission('m3'),
     ])
+    vi.mocked(customerMissionReportApi.report).mockResolvedValue(report('m1'))
     render(<CustomerOrderMissionsSection orderId="o" />)
-    expect(
-      await screen.findByRole('link', { name: 'View report M1' }),
-    ).toHaveAttribute('href', '#portal/customer/orders/o/missions/m1/report')
-    expect(
-      screen.getByRole('link', { name: 'View monitoring session M2' }),
-    ).toHaveAttribute('href', '#portal/customer/orders/o/missions/m2/report')
-    expect(
-      screen.getByRole('link', { name: 'View monitoring session M3' }),
-    ).toBeInTheDocument()
-    expect(screen.getAllByRole('article')).toHaveLength(3)
+    expect(await screen.findByText('Monitoring results')).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'View report M1' })).not.toBeInTheDocument()
+    expect(screen.getAllByRole('article')).toHaveLength(2)
     expect(
       screen.queryByText(
         /PENDING_MANAGER_APPROVAL|REJECTED|revision/i,
@@ -209,7 +203,7 @@ describe('Customer aggregate/report publication', () => {
     ).not.toBeInTheDocument()
   })
   it.each(['IN_PROGRESS', 'COMPLETED'] as const)(
-    'keeps canonical Order %s with separate reports',
+    'keeps canonical Order %s and shows the monitoring time',
     async (status) => {
       vi.spyOn(customerApi, 'getOrderById').mockResolvedValue({
         id: 'o',
@@ -222,18 +216,22 @@ describe('Customer aggregate/report publication', () => {
         mission('m1', true),
         mission('m2', status === 'COMPLETED'),
       ])
+      vi.mocked(customerMissionReportApi.report).mockImplementation(async (_orderId, id) => {
+        const data = report(id)
+        return {
+          ...data,
+          result: data.result && { ...data.result, startedAt: '2026-11-15T00:12:00Z' },
+        }
+      })
       render(<OrderDetailPage orderId="o" />)
-      if (status === 'COMPLETED') {
-        expect(
-          await screen.findByText('Completed', {
-            selector: '.od-next-step__item dd',
-          }),
-        ).toBeInTheDocument()
-      }
+      await screen.findByRole('tab', { name: 'Monitoring details' })
+      expect(screen.queryByRole('tab', { name: 'Mission reports' })).not.toBeInTheDocument()
+      expect(screen.queryByRole('heading', { name: 'Status and next step' })).not.toBeInTheDocument()
+      expect(await within(screen.getByRole('complementary')).findByText(/07:12|7:12/)).toBeInTheDocument()
       fireEvent.click(
         await screen.findByRole('tab', { name: 'Monitoring details' }),
       )
-      await screen.findByRole('link', { name: 'View report M1' })
+      expect(screen.queryByRole('link', { name: 'View report M1' })).not.toBeInTheDocument()
       const header = document.querySelector('.od-header') ?? document.body
       expect(
         within(header as HTMLElement).getByText(

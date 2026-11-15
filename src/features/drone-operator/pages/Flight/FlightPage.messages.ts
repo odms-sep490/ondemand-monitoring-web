@@ -8,14 +8,14 @@ export const flightPageMessages = defineMessages({
     loadMissionFailed: 'Không tải được nhiệm vụ',
     cockpitOpenFailed: 'Không mở được buồng lái',
     backToMission: 'Quay lại nhiệm vụ',
-    noDroneTitle: 'Nhiệm vụ chưa có thiết bị',
+    noDroneTitle: 'nhiệm vụ chưa có thiết bị',
     noDroneMessage:
-      'Nhiệm vụ này chưa được gán thiết bị nên chưa thể mở buồng lái. Hãy quay lại danh sách nhiệm vụ hoặc yêu cầu quản lý gán thiết bị trước.',
+      'nhiệm vụ này chưa được gán thiết bị nên chưa thể mở buồng lái. Hãy quay lại danh sách nhiệm vụ hoặc yêu cầu quản lý gán thiết bị trước.',
     rtbFailed: 'Không chuyển được nhiệm vụ sang trạng thái Đang trở về',
-    landingConfirmTitle: 'Xác nhận đã hạ cánh',
+    landingConfirmTitle: 'Xác nhận dừng bay',
     landingConfirm:
-      'Thiết bị đã hạ cánh và động cơ đã dừng?',
-    landingConfirmSubmit: 'Xác nhận hạ cánh',
+      'Xác nhận thiết bị chưa cất cánh hoặc đã hạ cánh và dừng động cơ để sang bước kiểm tra thiết bị.',
+    landingConfirmSubmit: 'Xác nhận và kiểm tra',
     landingConfirmSaving: 'Đang xác nhận…',
     landingConfirmError: 'Không thể xác nhận hạ cánh. Vui lòng thử lại.',
     emergencyPrompt: 'Lý do kết thúc khẩn cấp',
@@ -32,10 +32,10 @@ export const flightPageMessages = defineMessages({
     noDroneMessage:
       'This mission has no device assigned yet, so the cockpit cannot open. Go back to the mission list or ask a manager to assign a device first.',
     rtbFailed: 'Could not move the mission to RETURNING',
-    landingConfirmTitle: 'Confirm landing',
+    landingConfirmTitle: 'Confirm flight stopped',
     landingConfirm:
-      'Has the drone landed and stopped its motors?',
-    landingConfirmSubmit: 'Confirm landed',
+      'Confirm that the drone never took off or has landed and stopped its motors before starting inspection.',
+    landingConfirmSubmit: 'Confirm and inspect',
     landingConfirmSaving: 'Confirming…',
     landingConfirmError: 'Could not confirm landing. Please try again.',
     emergencyPrompt: 'Reason for emergency termination',

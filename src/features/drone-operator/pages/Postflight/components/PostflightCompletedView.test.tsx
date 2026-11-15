@@ -134,7 +134,7 @@ describe('PostflightCompletedView', () => {
       }),
     ).toHaveAttribute('aria-current', 'step')
 
-    fireEvent.click(screen.getByRole('button', { name: 'Xác nhận nghiệm thu' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Nghiệm thu và công bố' }))
 
     await waitFor(() => {
       const acceptanceStep = screen.getByRole('listitem', {
@@ -145,10 +145,24 @@ describe('PostflightCompletedView', () => {
     })
     expect(testState.submitMissionResult).toHaveBeenCalledTimes(1)
     expect(
-      screen.getByText('Đã xác nhận nghiệm thu · đang chờ duyệt', {
+      screen.getByText('Inspector đã nghiệm thu', {
         selector: '.postflight-review-manager-status',
       }),
     ).toBeTruthy()
     expect(screen.getByText('Đã hoàn tất')).toBeTruthy()
   })
+  it('does not treat a legacy pending result as Inspector acceptance', () => {
+    testState.monitoringData = {
+      ...(testState.monitoringData as Record<string, unknown>),
+      result: { missionId: 'mission-1', approvalStatus: 'PENDING_MANAGER_APPROVAL' },
+    }
+    render(<PostflightCompletedView missionId="mission-1" missionLabel="MS-96811"
+      completed={{ overallOk: true, ticketCreated: false, droneStatus: 'AVAILABLE' }}
+      deviceId="DRN-001" inspectionResults={null} notes="" telemetrySnapshot={null} />)
+    expect(screen.getByRole('listitem', { name: 'Nghiệm thu — Đang thực hiện (7/7)' })).not.toHaveClass('is-complete')
+    expect(screen.getByText('Chờ Inspector xác nhận nghiệm thu', { selector: '.postflight-review-manager-status' })).toBeInTheDocument()
+    expect(screen.queryByText('Inspector đã nghiệm thu')).toBeNull()
+    expect(testState.submitMissionResult).not.toHaveBeenCalled()
+  })
+
 })

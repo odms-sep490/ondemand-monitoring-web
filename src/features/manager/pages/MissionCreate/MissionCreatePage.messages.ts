@@ -2,6 +2,15 @@ import { defineMessages } from '../../../../shared/i18n'
 
 export const missionCreatePageMessages = defineMessages({
   vi: {
+    internalTitle: 'Kế hoạch bổ sung kết quả',
+    internalCreate: 'Tạo Mission bổ sung',
+    internalDescription:
+      'Lập lịch, phân công và chốt kế hoạch. Staff chấp nhận nhiệm vụ trước khi xử lý giấy phép bay và thực hiện.',
+    internalScope: 'Bổ sung theo yêu cầu nghiệm thu',
+    internalUnavailable:
+      'Yêu cầu bổ sung không còn hợp lệ. Hãy tải lại nhiệm vụ gốc.',
+    backToSource: 'Về nhiệm vụ gốc',
+
     reworkTitle: 'Tạo nhiệm vụ thực hiện lại',
     reworkWorkspaceTitle: 'Kế hoạch thực hiện lại',
     reworkPaymentRequired: 'Cần xác nhận đã thanh toán tiền cọc của đơn hàng gốc để lập kế hoạch thực hiện lại. Không phát sinh khoản thanh toán mới.',
@@ -102,6 +111,15 @@ export const missionCreatePageMessages = defineMessages({
     weatherCheckTime: 'Giờ muốn kiểm tra',
   },
   en: {
+    internalTitle: 'Result correction planning',
+    internalCreate: 'Create supplemental Mission',
+    internalDescription:
+      'Schedule, assign resources and finalize the plan. Staff must accept before flight permit processing and execution.',
+    internalScope: 'Inspector correction scope',
+    internalUnavailable:
+      'The correction request is no longer available. Reload the original Mission.',
+    backToSource: 'Back to original Mission',
+
     reworkTitle: 'Create rework mission',
     reworkWorkspaceTitle: 'Rework planning',
     reworkPaymentRequired: 'The original order Deposit must be confirmed before rework planning. No new payment is required.',

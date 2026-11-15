@@ -2,20 +2,21 @@ import { defineMessages } from '../../../../shared/i18n'
 
 export const uploadMediaPageMessages = defineMessages({
   vi: {
+    attachFailure: (reason: string) => `Tệp được giữ lại. Chưa gắn được bằng chứng: ${reason} Chọn “Gắn bằng chứng” để thử lại; không cần tải tệp lên lần nữa.`,
     stepTitle: 'Tải ảnh/video lên',
     approveEvidence: 'Duyệt bằng chứng',
     evidenceApproved: 'Đã duyệt bằng chứng.',
     reviewFailed: 'Không duyệt được bằng chứng.',
     localUnavailable:
-      'Tệp chưa có trên S3 và không còn bản local. Cần khôi phục bản sao hợp lệ trước khi gắn.',
+      'Tệp chưa có trên S3 và không còn bản trên thiết bị. Cần khôi phục bản sao hợp lệ trước khi gắn.',
     previewPending: 'Bản xem trước đang được tạo từ ảnh/video đã tải lên.',
-    checklistTitle: 'Danh mục kiểm tra thực hiện',
+    checklistTitle: 'Danh sách kiểm tra thực hiện',
     mediaTitle: 'Danh sách ảnh/video',
     workspaceNav: 'Bằng chứng của nhiệm vụ',
-    missingChecklistItem: 'Mục danh mục kiểm tra không còn thuộc nhiệm vụ này.',
+    missingChecklistItem: 'Mục danh sách kiểm tra không còn thuộc nhiệm vụ này.',
     autoAttachHint:
-      'Chọn “Gắn vào danh mục kiểm tra” trên ảnh/video. Hệ thống tự tải và gắn bằng chứng sau khi xác nhận.',
-    mediaLibraryFailed: 'Không tải được thư viện media. ',
+      'Chọn “Gắn vào danh sách kiểm tra” trên ảnh/video. Hệ thống tự tải và gắn bằng chứng sau khi xác nhận.',
+    mediaLibraryFailed: 'Không tải được thư viện ảnh/video. ',
     transferDetails: 'Trạng thái tải lên và khôi phục',
     queueHint:
       'Tệp chưa xác thực không tính là đủ bằng chứng. Tác vụ được khôi phục khi mở lại; hãy thử lại để tiếp tục.',
@@ -28,11 +29,11 @@ export const uploadMediaPageMessages = defineMessages({
     queueStages: {
       QUEUED: 'Đang chờ',
       PREPARING: 'Đang chuẩn bị',
-      ATTACHING: 'Đang gắn danh mục kiểm tra',
+      ATTACHING: 'Đang gắn danh sách kiểm tra',
       TRANSFERRING: 'Đang tải tệp',
       VALIDATING: 'Đang chờ xác thực',
       FAILED: 'Cần thử lại',
-      DONE: 'Đã chuyển tệp; kiểm tra trạng thái xác thực trong danh mục kiểm tra',
+      DONE: 'Đã chuyển tệp; kiểm tra trạng thái xác thực trong danh sách kiểm tra',
     } as Record<string, string>,
     uploadPermissionNote: 'Bạn không có quyền tải ảnh/video lên cho nhiệm vụ này.',
     enlargePreview: 'Xem ảnh lớn',
@@ -46,7 +47,7 @@ export const uploadMediaPageMessages = defineMessages({
     ) =>
       `${uploaded}/${total} tệp đã lên${uploading ? ` · ${uploading} đang lên` : ''}${manual ? ` · ${manual} cần xử lý thủ công` : ''}`,
     summaryNote:
-      'Bản cục bộ vẫn được giữ trên Bộ điều khiển bay đến khi bạn xóa.',
+      'Bản trên thiết bị vẫn được giữ trên Bộ điều khiển bay đến khi bạn xóa.',
     mediaLoaded: 'ảnh/video đã tải lên',
     pendingChip: (n: number) => `${n} chờ tải lên`,
     uploadingChip: (n: number) => `${n} đang xử lý`,
@@ -55,7 +56,7 @@ export const uploadMediaPageMessages = defineMessages({
     mediaProgress: (uploaded: number, total: number) =>
       total ? `Đã tải lên ${uploaded} trên ${total} ảnh/video` : 'Chưa có ảnh/video',
     sendBlocked:
-      'Hoàn tất danh mục kiểm tra và tải đủ bằng chứng lên trước khi xác nhận nghiệm thu.',
+      'Hoàn tất danh sách kiểm tra và tải đủ bằng chứng lên trước khi xác nhận nghiệm thu.',
     mediaList: 'Danh sách ảnh/video',
     fileCount: (n: number) => `${n} tệp`,
     sortNewest: 'Mới nhất',
@@ -89,26 +90,27 @@ export const uploadMediaPageMessages = defineMessages({
     refresh: 'Làm mới',
     uploadAll: 'Tải tất cả lên',
     missingChecklistEvidence:
-      'Danh mục kiểm tra chưa đủ bằng chứng hợp lệ. Tải ảnh/video lên trước khi xác nhận nghiệm thu.',
+      'Danh sách kiểm tra chưa đủ bằng chứng hợp lệ. Tải ảnh/video lên trước khi xác nhận nghiệm thu.',
     viewOnly: 'Chỉ xem ảnh/video',
     loadingMedia: 'Đang tải ảnh/video…',
     confirmDiscard: (fileName: string) =>
-      `Xóa bản cục bộ ${fileName} trên Bộ điều khiển bay?`,
+      `Xóa bản trên thiết bị ${fileName} trên Bộ điều khiển bay?`,
     processing: 'Đang xử lý…',
     approveUpload: 'Tải ảnh lên',
     metadataCaptureTime: 'Thời gian từ siêu dữ liệu',
-    staffCaptureTime: 'Thời gian Nhân sự xác nhận',
+    staffCaptureTime: 'Thời gian Nhân viên xác nhận',
     addDroneFiles: 'Thêm ảnh/video từ thẻ nhớ thiết bị',
     flightControllerChannel: 'Bộ điều khiển bay',
     staffFileChannel: 'Nhân viên tải từ tệp',
     staffUploadFailure: (reason?: string | null) => reason ? `Tải tệp thất bại: ${reason}` : 'Tải tệp thất bại. Hãy kiểm tra tệp và thử lại thủ công.',
-    deleteLocal: 'Xóa bản cục bộ',
+    deleteLocal: 'Xóa bản trên thiết bị',
     discard: 'Xóa ảnh/video',
     loadMediaFailed: 'Không tải được ảnh/video trên Bộ điều khiển bay',
     uploadFailed: 'Tải lên thất bại',
     deleteFailed: 'Không xóa được ảnh/video',
   },
   en: {
+    attachFailure: (reason: string) => `The file is retained. Evidence could not be attached: ${reason} Choose “Attach evidence” to retry without uploading again.`,
     stepTitle: 'Upload media',
     approveEvidence: 'Approve evidence',
     evidenceApproved: 'Evidence approved.',

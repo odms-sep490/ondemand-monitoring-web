@@ -2,7 +2,7 @@ import { defineMessages } from '../../../../shared/i18n'
 
 export const customerReportMessages = defineMessages({
   vi: {
-    title: 'Các phiên giám sát và báo cáo',
+    title: 'Báo cáo nhiệm vụ',
     report: 'Báo cáo phiên giám sát',
     overview: 'Tổng quan',
     monitoringResult: 'Kết quả giám sát',
@@ -15,7 +15,7 @@ export const customerReportMessages = defineMessages({
       'Bạn có thể xem đầy đủ kết quả và media của nhiệm vụ.',
     publicationPendingNote:
       'Kết quả nhiệm vụ đang chờ hoàn tất quy trình phê duyệt.',
-    actualPeriod: 'Thời gian giám sát',
+    actualPeriod: 'Giám sát thực tế',
     duration: 'Thời lượng',
     minutes: (n: number) => `${n} phút`,
     executionLabel: 'Trạng thái',
@@ -27,6 +27,7 @@ export const customerReportMessages = defineMessages({
       'Không thể tải thông tin. Vui lòng kiểm tra quyền truy cập hoặc thử lại.',
     retry: 'Thử lại',
     refresh: 'Làm mới báo cáo',
+    refreshShort: 'Làm mới',
     empty: 'Chưa lên lịch giám sát.',
     emptyHint: 'Bạn sẽ nhận thông báo khi có lịch đầu tiên.',
     unavailable: 'Báo cáo chưa được công bố.',
@@ -36,11 +37,6 @@ export const customerReportMessages = defineMessages({
     scope: 'Phạm vi',
     schedule: 'Lịch giám sát',
     unscheduled: 'Chưa có lịch',
-    total: 'Tổng số phiên',
-    finished: 'Phiên đã hoàn thành',
-    published: 'Báo cáo đã công bố',
-    progressNote:
-      'Tiến độ phiên giám sát chỉ để tham khảo; trạng thái đơn hàng do hệ thống xác nhận.',
     replaces: 'Thay thế phiên',
     replacedBy: 'Được thay thế bởi',
     independent: 'Mỗi phiên có báo cáo và dữ liệu riêng.',
@@ -74,7 +70,7 @@ export const customerReportMessages = defineMessages({
     },
   },
   en: {
-    title: 'Monitoring sessions and reports',
+    title: 'Mission reports',
     report: 'Monitoring session report',
     overview: 'Overview',
     monitoringResult: 'Monitoring results',
@@ -98,6 +94,7 @@ export const customerReportMessages = defineMessages({
     error: 'Unable to load this information. Check your access or try again.',
     retry: 'Retry',
     refresh: 'Refresh report',
+    refreshShort: 'Refresh',
     empty: 'Monitoring has not been scheduled yet.',
     emptyHint: 'We’ll notify you when the first session is scheduled.',
     unavailable: 'Report is not available yet.',
@@ -107,11 +104,6 @@ export const customerReportMessages = defineMessages({
     scope: 'Scope',
     schedule: 'Schedule',
     unscheduled: 'Not scheduled',
-    total: 'Total sessions',
-    finished: 'Completed sessions',
-    published: 'Published reports',
-    progressNote:
-      'Session counts are informational; the system confirms the overall Order status.',
     replaces: 'Replacement for',
     replacedBy: 'Replaced by',
     independent: 'Each session has its own report and data.',

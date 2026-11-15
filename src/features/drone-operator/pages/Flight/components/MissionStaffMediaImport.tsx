@@ -1,3 +1,4 @@
+import { mediaFeedback } from '../../../../media/i18n/mediaFeedback'
 import { useRef, useState } from 'react'
 import { useApiQuery } from '../../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../../shared/i18n'
@@ -10,11 +11,11 @@ import { uploadStaffMediaBatch } from '../../../../media/upload/uploadStaffMedia
 const messages = {
   vi: {
     title: 'Tải ảnh/video từ drone',
-    hint: 'Bổ sung file từ thẻ nhớ vào Mission này',
+    hint: 'Bổ sung tệp từ thẻ nhớ vào Nhiệm vụ này',
     uploading: 'Đang tải tệp lên…',
     submitted: (n: number) => `${n} tệp đã được gửi để xác thực.`,
-    checking: 'Đang kiểm tra quyền upload…',
-    unavailable: 'Chưa thể kiểm tra quyền upload.',
+    checking: 'Đang kiểm tra quyền tải lên…',
+    unavailable: 'Chưa thể kiểm tra quyền tải lên.',
     retry: 'Thử lại',
   },
   en: {
@@ -38,7 +39,7 @@ export function MissionStaffMediaImport({
   missionStatus: string
   onUploaded: () => void
 }) {
-  const { t } = useI18n(messages)
+  const { t, lang } = useI18n(messages)
   const context = useApiQuery(
     async (signal) => {
       const [permissions, detail] = await Promise.all([
@@ -126,12 +127,12 @@ export function MissionStaffMediaImport({
       )}
       {error && (
         <p className="captured-media__import-note is-error" role="alert">
-          {error}
+          {mediaFeedback(error, lang)}
         </p>
       )}
       {info && (
         <p className="captured-media__import-note" role="status">
-          {info}
+          {mediaFeedback(info, lang, 'info')}
         </p>
       )}
     </details>

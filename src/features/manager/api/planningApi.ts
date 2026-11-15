@@ -12,7 +12,23 @@ export const planningApi = {
   updateMissionChecklistAssignments: (id: string, expectedPlanRevision: number, itemIds: string[]) => apiRequest<ChecklistAssignmentSelection>(`${missionPath(id)}/checklist-assignments`, {
     method: 'PUT', body: { expectedPlanRevision, items: itemIds.map(orderChecklistItemId => ({ orderChecklistItemId })) },
   }),
-  finalizeExecutionPlan: (id: string, expectedPlanRevision: number) => apiRequest<ExecutionPlan>(`${orderPath(id)}/execution-plan/finalize`, { method: 'POST', body: { expectedPlanRevision, decompositionConfirmed: true } }),
+  finalizeExecutionPlan: (
+    id: string,
+    expectedPlanRevision: number,
+    reworkCaseId?: string,
+  ) =>
+    reworkCaseId
+      ? apiRequest<void>(
+          `/api/manager/result-revision-cases/${encodeURIComponent(reworkCaseId)}/rework-plan/finalize`,
+          {
+            method: 'POST',
+            body: { expectedPlanRevision, decompositionConfirmed: true },
+          },
+        )
+      : apiRequest<ExecutionPlan>(`${orderPath(id)}/execution-plan/finalize`, {
+          method: 'POST',
+          body: { expectedPlanRevision, decompositionConfirmed: true },
+        }),
   amendExecutionPlan: (id: string, request: RevisionReasonRequest) => apiRequest<{ orderId: string; executionPlanStatus: 'DRAFT'; executionPlanRevision: number; amendedAt: string; amendmentReason: string }>(`${orderPath(id)}/execution-plan/amend`, { method: 'POST', body: request }),
   cancelMission: (id: string, request: RevisionReasonRequest) => apiRequest<MissionCancellationResponse>(`${missionPath(id)}/cancel`, { method: 'POST', body: request }),
 }

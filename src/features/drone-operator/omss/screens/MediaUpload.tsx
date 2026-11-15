@@ -191,7 +191,7 @@ export default function MediaUpload({ mission, onDone, onManual }: Props) {
                     }}
                   />
                 ) : (
-                  <VideoThumbnail src={operatorMediaApi.previewUrl(item.localMediaId)} fileName={item.fileName} fileSize={item.fileSize} fallbackUrl={operatorMediaApi.previewUrl(item.localMediaId)} />
+                  <VideoThumbnail appearance="cockpit" src={operatorMediaApi.previewUrl(item.localMediaId)} fileName={item.fileName} fileSize={item.fileSize} fallbackUrl={operatorMediaApi.previewUrl(item.localMediaId)} />
                 )}
                 <div style={{ padding: 16 }}>
                   <strong style={{ overflowWrap: 'anywhere' }}>

@@ -7,21 +7,21 @@ import './MediaRemovalAction.css'
 
 const messages = {
   vi: {
-    remove: 'Gỡ media',
-    title: 'Gỡ media upload nhầm?',
+    remove: 'Gỡ ảnh/video',
+    title: 'Gỡ ảnh/video tải lên nhầm?',
     reason: 'Lý do gỡ',
     cancel: 'Hủy',
     confirm: 'Xác nhận gỡ',
     busy: 'Đang gỡ…',
     warning:
-      'Media sẽ được gỡ khỏi thư viện Mission. Lịch sử được giữ lại; file lưu trữ sẽ được dọn sau. Thao tác này không thể hoàn tác tại đây.',
+      'Ảnh/video sẽ được gỡ khỏi thư viện Nhiệm vụ. Lịch sử được giữ lại; tệp lưu trữ sẽ được dọn sau. Thao tác này không thể hoàn tác tại đây.',
     protected:
-      'Chưa thể gỡ media này. Media đang gắn checklist hoặc nằm trong kết quả/bàn giao được bảo vệ. Hãy gỡ liên kết nếu được phép trước.',
+      'Chưa thể gỡ ảnh/video này. Ảnh/video đang gắn danh sách kiểm tra hoặc nằm trong kết quả/bàn giao được bảo vệ. Hãy gỡ liên kết nếu được phép trước.',
     stale:
-      'Media đã thay đổi. Hãy đóng cửa sổ, làm mới thư viện và kiểm tra lại trước khi gỡ.',
-    denied: 'Bạn không có quyền gỡ media của Mission này.',
-    missing: 'Media không còn khả dụng. Hãy làm mới thư viện.',
-    failed: 'Không thể gỡ media. Kiểm tra kết nối rồi thử lại.',
+      'Ảnh/video đã thay đổi. Hãy đóng cửa sổ, làm mới thư viện và kiểm tra lại trước khi gỡ.',
+    denied: 'Bạn không có quyền gỡ ảnh/video của Nhiệm vụ này.',
+    missing: 'Ảnh/video không còn khả dụng. Hãy làm mới thư viện.',
+    failed: 'Không thể gỡ ảnh/video. Kiểm tra kết nối rồi thử lại.',
   },
   en: {
     remove: 'Remove media',
@@ -61,7 +61,7 @@ export function MediaRemovalAction({
   const [version, setVersion] = useState<number | undefined>()
   const [busy, setBusy] = useState(false)
   const [stale, setStale] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<'stale' | 'protected' | 'denied' | 'missing' | 'failed' | null>(null)
   const submitting = useRef(false)
   if (
     !canRemove ||
@@ -101,14 +101,14 @@ export function MediaRemovalAction({
       setStale(code === 'CONCURRENT_UPDATE')
       setError(
         code === 'CONCURRENT_UPDATE'
-          ? t.stale
+          ? 'stale'
           : code === 'MEDIA_EVIDENCE_PROTECTED'
-            ? t.protected
+            ? 'protected'
             : code === 'ACCESS_DENIED' || code === 'UNAUTHORIZED'
-              ? t.denied
+              ? 'denied'
               : code === 'MEDIA_NOT_FOUND'
-                ? t.missing
-                : t.failed,
+                ? 'missing'
+                : 'failed',
       )
     } finally {
       submitting.current = false
@@ -172,7 +172,7 @@ export function MediaRemovalAction({
               />
             </label>
             <small>{reason.length}/500</small>
-            {error && <p role="alert">{error}</p>}
+            {error && <p role="alert">{t[error]}</p>}
           </div>
         </Modal>
       )}

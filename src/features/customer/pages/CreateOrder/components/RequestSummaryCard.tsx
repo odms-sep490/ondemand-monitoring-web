@@ -1,5 +1,4 @@
 import { FileSearchOutlined } from '@ant-design/icons'
-import { InnerCollapse } from '../../../components/common/InnerCollapse'
 import { Icon, type IconName } from '../../../../../shared/components/Icon'
 import { Card } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
@@ -426,10 +425,6 @@ export function RequestSummaryCard(p: Props) {
       title={t.cardTitle}
     >
       {p.variant !== 'review' && <p className="co-hint">{t.cardSubtitle}</p>}
-      <div className="co-sum-request-title">
-        <span>{t.requestTitle}</span>
-        <p title={form.title || undefined}>{form.title.trim() || t.noTitle}</p>
-      </div>
       {p.variant === 'review' ? (
         <div className="co-review-rows">
           {reviewRows.map((row) => (
@@ -520,16 +515,7 @@ export function RequestSummaryCard(p: Props) {
           })}
         </div>
       )}
-      <InnerCollapse className="co-sum-tech" title={t.technical}>
-        <div className="co-sum-tech-row">
-          <span>{t.coordinates}</span>
-          <span className="co-mono">
-            {form.latitude && form.longitude
-              ? `${form.latitude}, ${form.longitude}`
-              : '—'}
-          </span>
-        </div>
-      </InnerCollapse>
+
     </Card>
   )
 }

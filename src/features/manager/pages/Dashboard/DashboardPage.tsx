@@ -1,3 +1,4 @@
+import { Tabs } from 'antd'
 import { useState } from 'react'
 import { StateView } from '../../../../shared/components/odm/StateView'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
@@ -11,16 +12,15 @@ import {
   type DashboardRange,
 } from './components/DashboardHeader'
 import { DashboardSkeleton } from './components/DashboardSkeleton'
+import { DashboardFinancePanel } from './components/DashboardFinancePanel'
+import { OperationsSnapshot } from './components/OperationsSnapshot'
 import { KpiRow } from './components/KpiRow'
 import type { DashboardKpiAvailability } from './components/KpiRow'
 import { ActionListCard } from './components/ActionListCard'
 import { RecentOrdersCard } from './components/RecentOrdersCard'
-import {
-  MissionStatusCard,
-  PipelineCard,
-  RecentActivityCard,
-} from './components/SideCards'
-import { AnalyticsCharts, MissionTrendCard } from './components/AnalyticsCharts'
+import { PipelineCard, RecentActivityCard } from './components/SideCards'
+import { AnalyticsCharts } from './components/AnalyticsCharts'
+import { ReferenceMissionPanel } from './components/ReferenceMissionPanel'
 import { formatDashboardDate } from './dashboardHelpers'
 import type {
   ManagerDashboardData,
@@ -90,7 +90,7 @@ function normalizeDashboard(
 }
 
 export function DashboardPage() {
-  const { t } = useI18n(dashboardPageMessages)
+  const { t, lang } = useI18n(dashboardPageMessages)
   const [range, setRange] = useState<DashboardRange>('30D')
   const query = useApiQuery(
     (signal) => managerApi.getDashboard(range, signal),
@@ -114,7 +114,8 @@ export function DashboardPage() {
   const data = normalizeDashboard(response)
   const availability: DashboardKpiAvailability = {
     pendingReview:
-      response.summary !== undefined || response.kpis?.pendingOrders !== undefined,
+      response.summary !== undefined ||
+      response.kpis?.pendingOrders !== undefined,
     waitingQuote: response.pricingPipeline !== undefined,
     waitingDeposit:
       response.summary !== undefined || response.pricingPipeline !== undefined,
@@ -136,48 +137,89 @@ export function DashboardPage() {
       />
 
       <KpiRow data={data} availability={availability} />
-
-      <div className="mgr-dash-columns">
-        <ActionListCard
-          items={data.actionItems}
-          itemsAvailable={response.actionItems !== undefined}
-          generatedAt={data.generatedAt}
-        />
-        <MissionStatusCard
-          overview={data.missionOverview}
-          overviewAvailable={response.missionOverview !== undefined}
-          missions={data.activeMissions}
-          missionsAvailable={response.activeMissions !== undefined}
-        />
-        <MissionTrendCard
-          data={data}
-          available={response.missionTrend !== undefined}
-        />
-        <RecentOrdersCard
-          className="mgr-recent-orders-card"
-          orders={data.recentOrders}
-          ordersAvailable={response.recentOrders !== undefined}
-        />
-        <PipelineCard
-          pipeline={data.pricingPipeline}
-          available={response.pricingPipeline !== undefined}
-        />
-        <RecentActivityCard
-          className="mgr-activity-card"
-          activities={data.recentActivities}
-          activitiesAvailable={response.recentActivities !== undefined}
-        />
-        <AnalyticsCharts
-          data={data}
-          available={
-            response.orderStatusDistribution !== undefined ||
-            response.serviceDistribution !== undefined ||
-            response.additionalServiceDistribution !== undefined ||
-            response.priceAdjustmentSummary !== undefined ||
-            response.missionStatusDistribution !== undefined
-          }
-        />
-      </div>
+      <Tabs
+        className="mgr-dashboard-groups"
+        defaultActiveKey="operations"
+        items={[
+          {
+            key: 'operations',
+            label: lang === 'vi' ? 'Điều hành nhiệm vụ' : 'Mission operations',
+            children: (
+              <section className="mgr-dashboard-group">
+                <div className="mgr-group-grid">
+                  <ReferenceMissionPanel missions={response.activeMissions} />
+                  <ActionListCard
+                    items={data.actionItems.filter(
+                      (item) => item.type === 'ORDER_PENDING',
+                    )}
+                    itemsAvailable={response.actionItems !== undefined}
+                    generatedAt={data.generatedAt}
+                  />
+                </div>
+                <OperationsSnapshot data={response} />
+              </section>
+            ),
+          },
+          {
+            key: 'finance',
+            label:
+              lang === 'vi'
+                ? 'Tài chính & giao dịch'
+                : 'Finance & transactions',
+            children: (
+              <section className="mgr-dashboard-group">
+                <DashboardFinancePanel
+                  finance={response.finance}
+                  days={Number(range.replace('D', ''))}
+                  onDaysChange={(days) =>
+                    setRange(`${days}D` as DashboardRange)
+                  }
+                  generatedAt={data.generatedAt}
+                />
+              </section>
+            ),
+          },
+          {
+            key: 'orders',
+            label: lang === 'vi' ? 'Đơn hàng & báo giá' : 'Orders & quotes',
+            children: (
+              <section className="mgr-dashboard-group">
+                <div className="mgr-group-grid mgr-group-orders">
+                  <RecentOrdersCard
+                    className="mgr-recent-orders-card"
+                    orders={data.recentOrders}
+                    ordersAvailable={response.recentOrders !== undefined}
+                  />
+                  <PipelineCard
+                    pipeline={data.pricingPipeline}
+                    available={response.pricingPipeline !== undefined}
+                  />
+                </div>
+                <AnalyticsCharts
+                  data={data}
+                  scope="orders"
+                  available={
+                    response.orderStatusDistribution !== undefined ||
+                    response.serviceDistribution !== undefined ||
+                    response.priceAdjustmentSummary !== undefined
+                  }
+                />
+              </section>
+            ),
+          },
+          {
+            key: 'activity',
+            label: lang === 'vi' ? 'Hoạt động gần đây' : 'Recent activity',
+            children: (
+              <RecentActivityCard
+                className="mgr-activity-card"
+                activities={data.recentActivities}
+                activitiesAvailable={response.recentActivities !== undefined}
+              />
+            ),
+          },
+        ]}
+      />
     </div>
   )
 }

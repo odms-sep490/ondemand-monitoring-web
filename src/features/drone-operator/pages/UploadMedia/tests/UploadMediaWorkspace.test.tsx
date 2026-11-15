@@ -166,13 +166,12 @@ describe('Upload media and monitoring workspace', () => {
         '2026-10-05T00:00:00.000Z',
         expect.any(Function),
         expect.objectContaining({ captureTimeSource: 'STAFF_CONFIRMED' }),
-        // Idempotency key generated per selected file (uploadIntentId).
         expect.any(String),
       ),
     )
   })
 
-  it('retains the server video poster when the uploaded file is still local', async () => {
+  it('prefers local video and falls back to the server poster when local poster fails', async () => {
     vi.mocked(missionApi.getPermissions).mockResolvedValue({
       ...permissions,
       canUploadMedia: true,
@@ -219,13 +218,15 @@ describe('Upload media and monitoring workspace', () => {
     })
     expect(open.querySelector('img')).toHaveAttribute(
       'src',
-      'https://example.test/poster.jpg',
+      operatorMediaApi.thumbnailUrl('local'),
     )
+    fireEvent.error(open.querySelector('img')!)
+    expect(open.querySelector('img')).toHaveAttribute('src', 'https://example.test/poster.jpg')
     expect(document.querySelector('video')).toBeNull()
     fireEvent.click(open)
     expect(
       await screen.findByLabelText('clip.mp4', { selector: 'video' }),
-    ).toHaveAttribute('src', 'https://example.test/preview.mp4')
+    ).toHaveAttribute('src', operatorMediaApi.previewUrl('local'))
   })
   it('keeps readonly acceptance free of the removed contact notice', async () => {
     vi.mocked(missionApi.getPermissions).mockResolvedValue({
@@ -333,13 +334,13 @@ describe('Upload media and monitoring workspace', () => {
     expect(await screen.findAllByText('Bị từ chối')).toHaveLength(2)
     expect(
       screen.getByText(
-        'Media đã bị từ chối. Liên hệ nghiệm thu viên để biết thêm.',
+        'Ảnh/video đã bị từ chối. Liên hệ nghiệm thu viên để biết thêm.',
       ),
     ).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Tải ảnh lên' })).toBeNull()
-    expect(screen.queryByText('Gắn vào checklist')).toBeNull()
+    expect(screen.queryByText('Gắn vào danh sách kiểm tra')).toBeNull()
     expect(
-      screen.queryByRole('progressbar', { name: 'media đã tải lên' }),
+      screen.queryByRole('progressbar', { name: 'ảnh/video đã tải lên' }),
     ).not.toBeInTheDocument()
   })
   it('allows one capture to target multiple historical checklist executions', async () => {
@@ -374,7 +375,7 @@ describe('Upload media and monitoring workspace', () => {
     const attach = vi.spyOn(checklistEvidenceApi, 'batch').mockResolvedValue([])
     render(<UploadMediaPage missionId="m" />)
     fireEvent.click(
-      await screen.findByRole('button', { name: 'Gắn vào checklist' }),
+      await screen.findByRole('button', { name: 'Gắn vào danh sách kiểm tra' }),
     )
     fireEvent.click(
       await screen.findByRole('checkbox', { name: /Quan sát hàng rào/ }),
@@ -410,7 +411,7 @@ describe('Upload media and monitoring workspace', () => {
       .mockResolvedValue([])
     render(<UploadMediaPage missionId="m" />)
     fireEvent.click(
-      await screen.findByRole('button', { name: 'Gắn vào checklist' }),
+      await screen.findByRole('button', { name: 'Gắn vào danh sách kiểm tra' }),
     )
     fireEvent.click(
       await screen.findByRole('checkbox', { name: /Quan sát hàng rào/ }),
@@ -439,7 +440,7 @@ describe('Upload media and monitoring workspace', () => {
     )
     expect(await screen.findByText('Cập nhật mục')).toBeInTheDocument()
     expect(
-      screen.getByRole('link', { name: 'Danh sách media' }),
+      screen.getByRole('link', { name: 'Danh sách ảnh/video' }),
     ).toHaveAttribute('href', '#portal/staff/upload/m')
     if (!screen.queryByText('Cập nhật mục'))
       fireEvent.click(
@@ -519,7 +520,7 @@ describe('Upload media and monitoring workspace', () => {
     await screen.findByAltText('capture.jpg')
     expect(screen.queryByText('Chỉnh sửa')).not.toBeInTheDocument()
     expect(
-      screen.getByRole('link', { name: 'Checklist thực hiện' }),
+      screen.getByRole('link', { name: 'Danh sách kiểm tra thực hiện' }),
     ).toHaveAttribute('href', '#portal/staff/checklist/m')
     expect(screen.queryByText('Upload ảnh')).not.toBeInTheDocument()
   })
@@ -535,7 +536,7 @@ describe('Upload media and monitoring workspace', () => {
     await screen.findByAltText('capture.jpg')
     fireEvent.click(await screen.findByText('Tải tất cả lên'))
     expect(await screen.findByRole('alert')).toHaveTextContent(
-      'S3 upload failed',
+      'Không thể tải tệp lên kho lưu trữ. Kiểm tra kết nối rồi thử lại.',
     )
     expect(screen.queryByText(/Đã gửi các tệp chờ tải/)).toBeNull()
   })
@@ -676,7 +677,7 @@ describe('Upload media and monitoring workspace', () => {
     await screen.findByRole('button', { name: 'Tải tất cả lên' })
     vi.mocked(missionApi.getPermissions).mockRejectedValue(new Error('denied'))
     fireEvent.click(screen.getAllByRole('button', { name: 'Làm mới' })[0])
-    await screen.findByText('Chỉ xem media')
+    await screen.findByText('Chỉ xem ảnh/video')
     expect(screen.queryByRole('button', { name: 'Tải tất cả lên' })).toBeNull()
     expect(screen.queryByText('Tải ảnh lên')).toBeNull()
   })

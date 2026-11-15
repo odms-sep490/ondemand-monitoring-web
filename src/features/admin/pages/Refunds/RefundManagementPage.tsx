@@ -3,6 +3,7 @@ import { EyeOutlined, FileImageOutlined } from '@ant-design/icons'
 
 import { Button, Modal, PageHeader } from '../../../../shared/components/ui'
 import { useI18n } from '../../../../shared/i18n'
+import { ImagePreview } from '../../../../shared/components/media/ImagePreview'
 import {
   refundApi,
   type RefundExecutionChannel,
@@ -55,6 +56,10 @@ export function RefundManagementPage() {
   const [files, setFiles] = useState<File[]>([])
   const receiptInputRef = useRef<HTMLInputElement>(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
+  const [receiptPreview, setReceiptPreview] = useState<{
+    url: string
+    fileName: string
+  } | null>(null)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -305,23 +310,27 @@ export function RefundManagementPage() {
   }
 
   async function openReceipt(refundId: string, receiptId: string) {
-    const tab = window.open('about:blank', '_blank')
     try {
       const access = await refundApi.getReceiptAccess(refundId, receiptId)
-      if (tab) {
-        tab.opener = null
-        tab.location.replace(access.url)
-      } else {
-        window.location.assign(access.url)
-      }
+      setReceiptPreview({ url: access.url, fileName: access.fileName })
     } catch (error) {
-      tab?.close()
       setActionError(error instanceof Error ? error.message : t.actionError)
     }
   }
 
   return (
     <div className="adm-refunds">
+      {receiptPreview && (
+        <ImagePreview
+          src={receiptPreview.url}
+          fileName={receiptPreview.fileName}
+          visible
+          viewerOnly
+          onVisibleChange={(visible) => {
+            if (!visible) setReceiptPreview(null)
+          }}
+        />
+      )}
       <PageHeader
         title={t.title}
         subtitle={t.subtitle}
@@ -934,7 +943,10 @@ export function RefundManagementPage() {
                       >
                         {files.map((file, index) => (
                           <figure key={`${file.name}-${file.lastModified}`}>
-                            <img src={previewUrls[index]} alt={file.name} />
+                            <ImagePreview
+                              src={previewUrls[index]}
+                              fileName={file.name}
+                            />
                             <figcaption>{file.name}</figcaption>
                           </figure>
                         ))}

@@ -1,5 +1,5 @@
 import { Button } from 'antd'
-import { ArrowLeftOutlined, RightOutlined } from '@ant-design/icons'
+import { ArrowLeftOutlined } from '@ant-design/icons'
 
 import { MissionStatusTag } from '../../../components/common/MissionStatusTag'
 import { PageHeader } from '../../../components/common/PageHeader'
@@ -7,15 +7,19 @@ import { managerHref } from '../../../routes'
 import { missionDetailPageMessages } from '../MissionDetailPage.messages'
 import { useI18n } from '../../../../../shared/i18n'
 import type { MissionResponse } from '../../../types/missions'
+import type { OrderDetail } from '../../../types/orders'
+import { OrderDetailsDrawer } from '../../../components/common/OrderDetailsDrawer'
 
 export function MissionDetailHeader({
   mission,
   headline,
   canSetup,
+  order,
 }: {
   mission: MissionResponse
   headline: string | null
   canSetup: boolean
+  order: OrderDetail | null
 }) {
   const { t } = useI18n(missionDetailPageMessages)
   return (
@@ -34,21 +38,35 @@ export function MissionDetailHeader({
       description={headline ?? undefined}
       actions={
         <>
+          {order ? (
+            <OrderDetailsDrawer order={order} />
+          ) : mission.orderId ? (
+            <Button disabled>{t.viewOrder}</Button>
+          ) : null}
           <Button
             href={managerHref(
-              mission.purpose === 'REWORK' && mission.resultRevisionCaseId
+              mission.inspectionCorrectionId &&
+                mission.inspectionSourceMissionId
                 ? {
-                    screen: 'missionCreate',
+                    screen: 'inspectionPlanning',
                     orderId: mission.orderId,
-                    reworkCaseId: mission.resultRevisionCaseId,
+                    sourceMissionId: mission.inspectionSourceMissionId,
+                    correctionId: mission.inspectionCorrectionId,
                   }
-                : { screen: 'orderReview', orderId: mission.orderId },
+                : mission.purpose === 'REWORK' && mission.resultRevisionCaseId
+                  ? {
+                      screen: 'missionCreate',
+                      orderId: mission.orderId,
+                      reworkCaseId: mission.resultRevisionCaseId,
+                    }
+                  : { screen: 'orderReview', orderId: mission.orderId },
             )}
           >
             {t.viewOrderPlan}
-            <RightOutlined aria-hidden="true" />
           </Button>
-          {canSetup ? (
+          {canSetup ||
+          (mission.inspectionCorrectionId &&
+            !['COMPLETED', 'FAILED', 'CANCELLED'].includes(mission.status)) ? (
             <Button
               type="primary"
               href={managerHref({

@@ -1,3 +1,4 @@
+import { InternalCorrectionMissionSetup } from './InternalCorrectionMissionSetup'
 import { useApiQuery } from '../../../../../shared/hooks/useApiQuery'
 import { missionsApi } from '../../../api/missionsApi'
 import { OrderResourceAssignmentWizard } from '../../../components/common/OrderResourceAssignmentWizard'
@@ -38,7 +39,7 @@ export function MissionScopedAssignmentPage({
     query.error ||
     query.data?.id !== missionId ||
     !query.data.orderId ||
-    (query.data.purpose === 'REWORK' && !query.data.resultRevisionCaseId)
+    (query.data.purpose === 'REWORK' && !query.data.resultRevisionCaseId && !query.data.inspectionCorrectionId)
   )
     return (
       <div className="ui-table-card mgr-page">
@@ -53,6 +54,8 @@ export function MissionScopedAssignmentPage({
         />
       </div>
     )
+  if (query.data.inspectionCorrectionId && query.data.inspectionSourceMissionId)
+    return <><Button onClick={() => { window.location.hash = managerHref({screen:'missionDetail',missionId:query.data!.inspectionSourceMissionId!}) }}>{t.backToSource}</Button><InternalCorrectionMissionSetup mission={query.data} onChanged={query.reload}/></>
   if (query.data.purpose === 'REWORK' && query.data.resultRevisionCaseId)
     return (
       <ReworkPlanningPage

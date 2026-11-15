@@ -103,7 +103,14 @@ export type Quote = {
   checklistRevision?: number
   checklistGuidanceSnapshot?: ChecklistGuidanceSnapshot | null
   items: QuoteItem[]
-  orderCancellationReason?: 'QUOTATION_EXPIRED' | 'DEPOSIT_PAYMENT_EXPIRED' | 'PERMIT_REJECTED' | null
+  orderCancellationReason?:
+    | 'QUOTATION_EXPIRED'
+    | 'DEPOSIT_PAYMENT_EXPIRED'
+    | 'PERMIT_REJECTED'
+    | 'CONTRACT_REVIEW_REQUIRED'
+    | 'CONTRACT_SYSTEM_RESPONSIBILITY'
+    | 'CONTRACT_CUSTOMER_RESPONSIBILITY'
+    | null
   pricingPolicyId?: string
   pricingPolicyVersion?: number
   systemCalculatedAmount?: number
@@ -150,7 +157,14 @@ export type CustomerQuote = {
   checklistRevision?: number
   checklistGuidanceSnapshot?: ChecklistGuidanceSnapshot | null
   items: QuoteItem[]
-  orderCancellationReason?: 'QUOTATION_EXPIRED' | 'DEPOSIT_PAYMENT_EXPIRED' | 'PERMIT_REJECTED' | null
+  orderCancellationReason?:
+    | 'QUOTATION_EXPIRED'
+    | 'DEPOSIT_PAYMENT_EXPIRED'
+    | 'PERMIT_REJECTED'
+    | 'CONTRACT_REVIEW_REQUIRED'
+    | 'CONTRACT_SYSTEM_RESPONSIBILITY'
+    | 'CONTRACT_CUSTOMER_RESPONSIBILITY'
+    | null
 }
 
 export type PricingBreakdownItem = {
@@ -175,6 +189,9 @@ export type PricingBreakdown = {
 export type DepositStatus = 'WAITING_DEPOSIT' | 'DEPOSIT_PAID'
 
 export type Invoice = {
+  contractRequired?: boolean
+  contractConfirmedAt?: string | null
+  contractSubmittedAt?: string | null
   id: string
   invoiceNumber: string
   orderId: string
@@ -194,7 +211,14 @@ export type Invoice = {
   finalPaymentExpiresAt?: string | null
   /** @deprecated Legacy response field retained for stored response compatibility. */
   finalPaymentStartedAt?: string | null
-  orderCancellationReason?: 'QUOTATION_EXPIRED' | 'DEPOSIT_PAYMENT_EXPIRED' | 'PERMIT_REJECTED' | null
+  orderCancellationReason?:
+    | 'QUOTATION_EXPIRED'
+    | 'DEPOSIT_PAYMENT_EXPIRED'
+    | 'PERMIT_REJECTED'
+    | 'CONTRACT_REVIEW_REQUIRED'
+    | 'CONTRACT_SYSTEM_RESPONSIBILITY'
+    | 'CONTRACT_CUSTOMER_RESPONSIBILITY'
+    | null
 }
 
 export type Payment = {
@@ -206,7 +230,13 @@ export type Payment = {
   amount: number
   currency: 'VND'
   status:
-    'PENDING' | 'PROCESSING' | 'SUCCESS' | 'FAILED' | 'CANCELLED' | 'REFUNDED' | 'REQUIRES_REVIEW'
+    | 'PENDING'
+    | 'PROCESSING'
+    | 'SUCCESS'
+    | 'FAILED'
+    | 'CANCELLED'
+    | 'REFUNDED'
+    | 'REQUIRES_REVIEW'
   provider: 'VNPAY' | 'PAYOS'
   paymentUrl: string | null
   transactionReference: string
@@ -215,12 +245,7 @@ export type Payment = {
 }
 
 export type MissionPaymentMilestoneStatus =
-  | 'NOT_YET_DUE'
-  | 'UNPAID'
-  | 'PENDING'
-  | 'EXPIRED'
-  | 'PAID'
-  | 'CANCELLED'
+  'NOT_YET_DUE' | 'UNPAID' | 'PENDING' | 'EXPIRED' | 'PAID' | 'CANCELLED'
 
 export type MissionPaymentMilestone = {
   id: string
@@ -242,6 +267,51 @@ export type MissionPaymentAllocation = {
   allocationComplete: boolean
   milestones: MissionPaymentMilestone[]
 }
+
+export type MissionFinancialPaymentHistoryEntry = {
+  id: string
+  type: 'DEPOSIT' | 'MISSION_PAYMENT'
+  amount: number
+  status: string
+  provider: string
+  transactionReferenceMasked: string | null
+  paidAt: string | null
+}
+
+export type MissionFinancialSummary =
+  | { missionId: string; purpose: 'REWORK' }
+  | {
+      missionId: string
+      purpose: 'ORIGINAL'
+      currency: 'VND'
+      missionGrossChecklistAmount: number | null
+      priceBreakdown?: {
+        checklistAmount: number
+        allocatedAdjustment: number
+        missionTotalAmount: number
+        allocatedDeposit: number
+        milestoneAmount: number
+      } | null
+      invoice: {
+        invoiceId: string
+        totalAmount: number
+        depositAmount: number
+        paidAmount: number
+        remainingAmount: number
+        depositStatus: DepositStatus
+        issuedAt: string
+        depositExpiresAt: string | null
+      } | null
+      depositPayments: MissionFinancialPaymentHistoryEntry[]
+      missionPayment: {
+        milestoneId: string
+        amount: number
+        status: MissionPaymentMilestoneStatus
+        handedOverAt: string | null
+        paymentExpiresAt: string | null
+        payments: MissionFinancialPaymentHistoryEntry[]
+      } | null
+    }
 
 export type PricingReview = {
   orderId: string

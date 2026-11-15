@@ -458,30 +458,3 @@
 .cus-overview-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 @media (max-width: 640px) { .cus-overview-actions { width: 100%; } .cus-overview-actions > a { flex: 1 1 150px; } }
 
-/* Interactive Blender overview */
-.mgr-layout .cus-dash .overview-experience { display:grid; grid-template-columns:minmax(0, 1fr) 320px; gap:18px; margin-bottom:20px; }
-.overview-scene-wrap { position:relative; min-width:0; height:470px; border-radius:20px; overflow:hidden; background:#eaf2ef; border:1px solid #dce6e1; }
-.overview-scene { position:absolute; inset:0; touch-action:none; }
-.overview-scene canvas { display:block; }
-.overview-scene-label { position:absolute; top:18px; left:18px; background:#ffffffed; border:1px solid #d6e2df; padding:7px 12px; border-radius:20px; font-size:12px; color:#334a46; }
-.overview-scene-bottom { position:absolute; left:18px; right:18px; bottom:40px; display:flex; align-items:center; justify-content:space-between; gap:12px; pointer-events:none; }
-.overview-scene-bottom > div { padding:12px 16px; background:#132f3ae8; color:white; border-radius:12px; }
-.overview-scene-bottom strong,.overview-scene-bottom span { display:block; }
-.overview-scene-bottom strong { font-size:16px; }
-.overview-scene-bottom span { font-size:12px; margin-top:3px; color:#d2e8ed; }
-.overview-scene-bottom button { pointer-events:auto; background:white; border:1px solid #bacdc9; color:#183a42; border-radius:9px; padding:9px 12px; cursor:pointer; }
-.overview-scene-bottom button:focus-visible { outline:3px solid #168bff; outline-offset:3px; }
-.overview-scene-hint { position:absolute; bottom:12px; left:20px; font-size:11px; color:#3e5952; }
-.overview-scene-state { position:absolute; inset:0; display:grid; place-items:center; padding:24px; background:#eaf2eef2; color:#254637; text-align:center; }
-.overview-mission { padding:24px; border:1px solid #e0e7f1; border-radius:20px; background:var(--card-bg,#fff); display:flex; flex-direction:column; align-items:flex-start; }
-.overview-mission > div:first-child { color:#52657f; font-size:13px; }
-.overview-live-dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:#1977ed; margin-right:8px; }
-.overview-mission h2 { font-size:23px; line-height:1.3; margin:14px 0; color:#122744; overflow-wrap:anywhere; }
-.overview-mission dl { width:100%; margin:14px 0 20px; }
-.overview-mission dl > div { display:flex; justify-content:space-between; gap:14px; padding:12px 0; border-bottom:1px solid #e9edf4; font-size:13px; }
-.overview-mission dt { color:#53657e; flex-shrink:0; }
-.overview-mission dd { margin:0; text-align:right; color:#142c4b; font-weight:600; overflow-wrap:anywhere; }
-.overview-mission small { color:#62738a; font-size:11px; margin-top:auto; padding-top:18px; }
-@media(max-width:1100px) { .mgr-layout .cus-dash .overview-experience { grid-template-columns:minmax(0,1fr) 280px; } .overview-scene-wrap {height:440px;} .overview-mission {padding:18px;} }
-@media(max-width:800px) { .mgr-layout .cus-dash .overview-experience {grid-template-columns:1fr;} .overview-scene-wrap {height:380px;} .overview-mission dl {display:grid; grid-template-columns:1fr 1fr; gap:0 20px;} }
-@media(max-width:480px) { .overview-scene-wrap {height:330px;} .overview-scene-bottom {left:10px;right:10px;} .overview-scene-bottom strong {font-size:13px;} .overview-mission dl {grid-template-columns:1fr;} }

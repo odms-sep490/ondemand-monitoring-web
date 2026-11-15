@@ -278,7 +278,7 @@ describe('MissionDetailScreen', () => {
     vi.mocked(missionApi.getMissionResult).mockResolvedValue(result)
     render(<MissionDetailPage missionId="m" />)
     fireEvent.click(await screen.findByRole('tab', { name: 'Checklist' }))
-    await screen.findByText('Không có mục checklist giám sát.')
+    await screen.findByText('Không có mục danh sách kiểm tra giám sát.')
     const resultCalls = vi.mocked(missionApi.getMissionResult).mock.calls.length
     vi.mocked(missionApi.getMissionResult).mockResolvedValue({
       ...result,

@@ -445,7 +445,7 @@ export function MissionGridCard({
       )}
 
       {/* Schedule Section */}
-      <div className="odm-mcard-section">
+      <div className="odm-mcard-section odm-mcard-section--schedule">
         <div className="odm-mcard-sec-head">
           <span>{t.schedule}</span>
         </div>
@@ -458,7 +458,7 @@ export function MissionGridCard({
       </div>
 
       {/* Work items Section */}
-      <div className="odm-mcard-section">
+      <div className="odm-mcard-section odm-mcard-section--work">
         <div className="odm-mcard-sec-head">
           <span>{t.work(assignedChecklists.length)}</span>
         </div>
@@ -488,15 +488,7 @@ export function MissionGridCard({
       </div>
 
       {/* Staff Section */}
-      <div className="odm-mcard-section">
-        <div className="odm-mcard-sec-head">
-          <span>{t.resourcePreparation}</span>
-          <StatusBadge
-            tone={toUiTone(missionStatusTone[mission.status] ?? 'gray')}
-          >
-            {missionStatusLabel[mission.status] ?? mission.status}
-          </StatusBadge>
-        </div>
+      <div className="odm-mcard-section odm-mcard-section--staff">
         <div className="odm-mcard-sec-head odm-mcard-staff-head">
           <span>{t.staffHead(assignedStaffCount, maxStaff)}</span>
           <div className="odm-mcard-staff-actions">
@@ -530,7 +522,7 @@ export function MissionGridCard({
       </div>
 
       {/* Device Section */}
-      <div className="odm-mcard-section">
+      <div className="odm-mcard-section odm-mcard-section--devices">
         <div className="odm-mcard-sec-head odm-mcard-staff-head">
           <span>{t.deviceHead(currentDevices.length, maxDevices)}</span>
           <div className="odm-mcard-staff-actions">

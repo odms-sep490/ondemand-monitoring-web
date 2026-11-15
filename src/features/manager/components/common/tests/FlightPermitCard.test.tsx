@@ -12,6 +12,15 @@ const rejectedMission = {
   orderId: 'order-1',
   missionCode: 'MS-001',
   status: 'READY',
+  staffAssignments: [
+    {
+      id: 'pilot-row',
+      staffId: 'pilot',
+      assignedRole: 'PILOT',
+      isCurrent: true,
+      responseStatus: 'ACCEPTED',
+    },
+  ],
   flightPermitStatus: 'REJECTED',
   flightPermitNote: 'Thiếu tài liệu khu vực bay',
   flightPermitResourceHoldUntil: '2026-10-30T01:00:00Z',
@@ -252,7 +261,9 @@ it('reschedules both Order and Mission when the new time is outside the current 
     screen.getByRole('radio', { name: /Dời lịch đơn hàng và nhiệm vụ/ }),
   )
   expect(
-    await screen.findByText('Bước 1 · Cập nhật lịch mong muốn mới của đơn hàng'),
+    await screen.findByText(
+      'Bước 1 · Cập nhật lịch mong muốn mới của đơn hàng',
+    ),
   ).toBeInTheDocument()
   expect(screen.getByRole('option', { name: /Buổi sáng/ })).toBeInTheDocument()
   expect(
@@ -322,3 +333,34 @@ it('blocks permit changes until the Deposit is confirmed', () => {
   for (const button of screen.getAllByRole('button'))
     expect(button).toBeDisabled()
 })
+
+it.each(['PLANNING', 'PENDING', 'REJECTED'])(
+  'blocks every permit mutation while crew response is %s',
+  async (responseStatus) => {
+    const update = vi.spyOn(missionsApi, 'updateFlightPermit')
+    render(
+      <FlightPermitCard
+        mission={{
+          ...rejectedMission,
+          status: 'PENDING_CONFIRMATION',
+          staffAssignments: [
+            {
+              id: 'row',
+              staffId: 'pilot',
+              assignedRole: 'PILOT',
+              isCurrent: true,
+              responseStatus,
+            },
+          ] as MissionResponse['staffAssignments'],
+        }}
+        depositPaid
+        onChanged={vi.fn()}
+      />,
+    )
+    expect(
+      screen.queryByRole('button', { name: 'Bổ sung & gửi duyệt lại' }),
+    ).not.toBeInTheDocument()
+    expect(document.querySelector('textarea')).toBeDisabled()
+    expect(update).not.toHaveBeenCalled()
+  },
+)

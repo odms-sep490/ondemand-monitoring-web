@@ -358,6 +358,25 @@ export default function InFlightControl({
     </div>
   ) : null
 
+  const droneStillAirborne = isOnline && controlStatus?.inAir === true
+  const failureNotice = missionFailureRequested ? (
+    <div role="status" aria-live="polite" style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', padding: 12 }}>
+      {t.status.failurePending}
+      {onFailureLanded && (
+        <button
+          type="button"
+          className="odm-btn odm-btn-rd"
+          disabled={droneStillAirborne}
+          onClick={onFailureLanded}
+        >
+          {droneStillAirborne
+            ? t.status.failureWaitingForLanding
+            : t.status.failureConfirmStop}
+        </button>
+      )}
+    </div>
+  ) : null
+
   if (import.meta.env.VITE_FLIGHT_MAP_ONLY === 'true') {
     return (
       <>
@@ -388,6 +407,7 @@ export default function InFlightControl({
           drone={drone}
           handlePreflightReady={handlePreflightReady}
         />
+        {failureNotice}
         {failureDialog}
       </>
     )
@@ -486,56 +506,7 @@ export default function InFlightControl({
             gap: 8,
           }}
         >
-          {missionFailureRequested && (
-            <div
-              role="status"
-              aria-live="polite"
-              style={{
-                border: '1px solid rgba(248,113,113,.65)',
-                borderRadius: 10,
-                padding: '8px 12px',
-                background: 'rgba(127,29,29,.48)',
-                color: '#fee2e2',
-                fontSize: 12,
-                fontWeight: 700,
-                lineHeight: 1.45,
-              }}
-            >
-              {t.status.failurePending}
-                {onFailureLanded && (
-                  <button
-                    type="button"
-                    disabled={controlStatus?.inAir !== false}
-                    onClick={onFailureLanded}
-                    style={{
-                      marginLeft: 12,
-                      minHeight: 30,
-                      border: '1px solid rgba(254,226,226,.65)',
-                      borderRadius: 7,
-                      padding: '4px 10px',
-                      background: 'rgba(127,29,29,.8)',
-                      color: '#fff1f2',
-                      fontWeight: 800,
-                      cursor:
-                        controlStatus?.inAir === false ? 'pointer' : 'not-allowed',
-                      opacity: controlStatus?.inAir === false ? 1 : 0.72,
-                    }}
-                  >
-                    {controlStatus?.inAir === false
-                      ? getLanguage() === 'en'
-                        ? 'Confirm landed'
-                        : 'Xác nhận đã hạ cánh'
-                      : controlStatus?.inAir === true
-                        ? getLanguage() === 'en'
-                          ? 'Waiting for landing…'
-                          : 'Đang chờ drone hạ cánh…'
-                        : getLanguage() === 'en'
-                          ? 'Waiting for landing status…'
-                          : 'Đang chờ trạng thái hạ cánh…'}
-                  </button>
-                )}
-            </div>
-          )}
+          {failureNotice}
           <FlightControls
             canFly={normalFlightAllowed && preflightReady}
             busyCommand={busyCommand}

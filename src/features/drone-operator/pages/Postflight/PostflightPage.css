@@ -625,3 +625,6 @@
   .postflight-workspace .postflight-progress { align-items: flex-start; }
   .postflight-workspace .postflight-page > .odm-flight-step-header { padding-inline: 16px; }
 }
+.postflight-manual-battery { display:flex; align-items:center; flex-wrap:wrap; gap:12px; padding:16px 20px; border:1px solid #d8e3f4; border-radius:12px; background:#f6f9ff; margin-bottom:16px; }
+.postflight-manual-battery label { font-weight:600; color:#163254; }
+.postflight-manual-battery small { color:#536780; }

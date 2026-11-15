@@ -3,7 +3,6 @@ import { ArrowLeftOutlined } from '@ant-design/icons'
 import { WorkflowStepper } from '../../../components/common/WorkflowStepper'
 import { getOrderStatusLabel } from '../../../../../shared/lib/statusTone'
 import { orderStageToReviewStep } from '../../../components/common/workflowModel'
-import { missionLayer } from '../reviewHelpers'
 import { PageHeader } from '../../../components/common/PageHeader'
 import { StatusTag } from '../../../components/common/StatusTag'
 import { orderStatusTone } from '../../../../../shared/lib/statusTone'
@@ -15,7 +14,6 @@ import { OrderDetailsDrawer } from '../../../components/common/OrderDetailsDrawe
 import type { OrderProgress } from '../../../components/common/workflowModel'
 import type { OrderDetail } from '../../../types/orders'
 import type { ReviewStep } from '../reviewTypes'
-import type { PlanningWorkflowInfo } from './OrderMissionPlanningSection'
 
 function OrderStatusBadge({
   order,
@@ -42,9 +40,6 @@ export function ReviewTop({
   viewStage,
   openStage,
   goToStep,
-  planning,
-  onSelectMissionStage,
-  viewMissionStage,
 }: {
   showExecutionPlan: boolean
   stepperProgress: OrderProgress
@@ -54,12 +49,6 @@ export function ReviewTop({
     stage: 'intake' | 'criteria' | 'decision' | 'deposit' | 'planning',
   ) => void
   goToStep: (step: ReviewStep) => void
-  planning: PlanningWorkflowInfo | null
-  onSelectMissionStage?: (
-    stage: import('../../../components/common/workflowModel').MissionStage,
-  ) => void
-  viewMissionStage?:
-    import('../../../components/common/workflowModel').MissionStage | null
 }) {
   const { t, lang } = useI18n(orderReviewPageMessages)
 
@@ -102,7 +91,6 @@ export function ReviewTop({
         }
       />
       <WorkflowStepper
-        combineMissionSteps={showExecutionPlan}
         order={{
           progress: stepperProgress,
           viewing: viewStage,
@@ -113,35 +101,6 @@ export function ReviewTop({
           // Navigate with the actions below.
           selectable: () => false,
         }}
-        mission={
-          showExecutionPlan && planning?.depositPaid && planning.missions.length
-            ? missionLayer(
-                planning,
-                planning.missions.find(
-                    (mission) => mission.flightPermitStatus === 'APPROVED',
-                  )?.id ??
-                  planning.selectedMissionId ??
-                  planning.missions[0]?.id ??
-                  null,
-                lang,
-                undefined,
-                {
-                  onSelect: onSelectMissionStage,
-                  viewing: viewMissionStage,
-                  selectable: (stage, state) => {
-                    if (stage === 'permit')
-                      return Boolean(onSelectMissionStage)
-                    if (stage === 'execute')
-                      return (
-                        Boolean(onSelectMissionStage) &&
-                        (state === 'current' || state === 'done')
-                      )
-                    return state === 'done'
-                  },
-                },
-              )
-            : undefined
-        }
       />
     </div>
   )

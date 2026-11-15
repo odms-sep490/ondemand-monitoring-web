@@ -25,7 +25,7 @@ import {
   type RevisionRequestBody,
 } from './api'
 import { customerDeliveryPanelMessages } from './customerDeliveryPanel.messages'
-import { DeliveryImagePreview } from './DeliveryImagePreview'
+import { ImagePreview } from '../../shared/components/media/ImagePreview'
 import { ChecklistGuidance } from '../../shared/components/ChecklistGuidance'
 
 type Props = {
@@ -318,7 +318,7 @@ export function CustomerResultReview({
                             original={evidence.previewStatus !== 'READY'}
                           />
                         ) : (
-                          <DeliveryImagePreview
+                          <ImagePreview
                             src={evidence.thumbnailUrl ?? evidence.previewUrl}
                             mediaId={evidence.mediaAssetId}
                             fileSize={evidence.size}
@@ -482,7 +482,7 @@ export function CustomerResultReview({
                                     }
                                   />
                                 ) : (
-                                  <DeliveryImagePreview
+                                  <ImagePreview
                                     src={
                                       evidence.thumbnailUrl ??
                                       evidence.previewUrl

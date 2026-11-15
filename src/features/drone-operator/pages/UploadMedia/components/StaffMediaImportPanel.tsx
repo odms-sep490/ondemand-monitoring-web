@@ -12,8 +12,8 @@ import { useI18n } from '../../../../../shared/i18n'
 
 const messages = {
   vi: {
-    title: 'Upload thủ công',
-    formats: 'JPG, PNG hoặc MP4 · File gốc từ drone',
+    title: 'Tải lên thủ công',
+    formats: 'JPG, PNG hoặc MP4 · Tệp gốc từ drone',
     selected: (n: number) => `${n} tệp đã chọn`,
     ready: 'Sẵn sàng',
     review: 'Cần kiểm tra',
@@ -21,15 +21,15 @@ const messages = {
     reading: 'Đang đọc thời gian chụp/quay…',
     time: 'Thời gian chụp/quay — giờ Việt Nam (UTC+7)',
     missing: 'Không đọc được thời gian chụp/quay. Vui lòng bổ sung và ghi lý do.',
-    metadata: 'Tự đọc từ metadata',
-    assumed: 'Metadata thiếu múi giờ; áp dụng UTC+7.',
+    metadata: 'Tự đọc từ siêu dữ liệu',
+    assumed: 'Siêu dữ liệu thiếu múi giờ; áp dụng UTC+7.',
     invalid:
-      'Thời gian ngoài cửa sổ bay hoặc trong tương lai. Hãy kiểm tra file và Mission.',
-    confirm: 'Staff xác nhận thủ công thời gian này',
+      'Thời gian ngoài cửa sổ bay hoặc trong tương lai. Hãy kiểm tra tệp và Nhiệm vụ.',
+    confirm: 'Nhân viên xác nhận thủ công thời gian này',
     reason: 'Lý do xác nhận hoặc điều chỉnh thời gian',
     upload: 'Tải lên các tệp đã xác nhận',
     clear: 'Bỏ danh sách',
-    hint: 'Mỗi file có thời gian riêng. File thiếu hoặc cần sửa thời gian phải có lý do xác nhận.',
+    hint: 'Mỗi tệp có thời gian riêng. Tệp thiếu hoặc cần sửa thời gian phải có lý do xác nhận.',
     error: 'Không thể chuẩn bị danh sách tệp.',
   },
   en: {

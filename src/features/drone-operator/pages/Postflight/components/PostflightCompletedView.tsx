@@ -1,10 +1,11 @@
+import { ImagePreview } from '../../../../../shared/components/media/ImagePreview'
 import { VideoThumbnail } from '../../../../../shared/components/media/VideoThumbnail'
 import { useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
 import { missionApi } from '../../../../mission/api/missionApi'
 import { useMissionMonitoring } from '../../../../mission/hooks/useMissionMonitoring'
 import { MonitoringChecklistSection } from '../../../../mission/components/MonitoringChecklistSection'
 import { missionResultActions, staffResultError } from '../../../components/common/MissionResultActions'
-import type { FlightControlStatus } from '../../../api/flightControlApi'
+import type { ManualPostflightReadings } from '../manualInspection'
 import { FlightStepHeader } from '../../../components/common/FlightStepper'
 import { operatorHref } from '../../../routes'
 import { useI18n } from '../../../../../shared/i18n'
@@ -37,7 +38,7 @@ export function PostflightCompletedView({
   deviceId: string
   inspectionResults: Record<string, 'PASS' | 'FAIL'> | null
   notes: string
-  telemetrySnapshot: FlightControlStatus | null
+  telemetrySnapshot: ManualPostflightReadings | null
 }) {
   const { t, lang } = useI18n(postflightPageMessages)
   const review = usePostflightReviewData(missionId)
@@ -65,14 +66,14 @@ export function PostflightCompletedView({
     missionStatus,
     monitoring,
   )
-  const managerApproved =
+  const inspectorApproved =
     monitoring.data?.result?.approvalStatus === 'APPROVED'
   const isSubmitted =
     submittedLocally ||
     resultState.submitted ||
     monitoring.data?.result?.approvalStatus === 'PENDING_MANAGER_APPROVAL'
   const acceptanceConfirmed =
-    !failureConfirmed && (isSubmitted || managerApproved)
+    !failureConfirmed && (submittedLocally || inspectorApproved)
   const acceptanceProgressLabel = acceptanceConfirmed
     ? t.reviewStepComplete
     : undefined
@@ -85,13 +86,13 @@ export function PostflightCompletedView({
 
   const checklistRows = monitoring.data?.checklist.executions ?? []
   const checklistPassed = checklistRows.filter(
-    (row) => row.assessmentStatus === 'COMPLIANT',
+    (row) => Boolean(row.fulfilledByMissionId) || row.assessmentStatus === 'COMPLIANT',
   ).length
   const checklistAssessed = checklistRows.filter(
-    (row) => row.assessmentStatus !== 'NOT_ASSESSED',
+    (row) => Boolean(row.fulfilledByMissionId) || row.assessmentStatus !== 'NOT_ASSESSED',
   ).length
   const checklistAssessmentsComplete = checklistRows.every(
-    (row) => row.assessmentStatus === 'COMPLIANT',
+    (row) => Boolean(row.fulfilledByMissionId) || row.assessmentStatus === 'COMPLIANT',
   )
   const preflightItems = review.data?.preflight?.items ?? []
   const preflightPassed = preflightItems.filter(
@@ -178,7 +179,7 @@ export function PostflightCompletedView({
     }
   }
 
-  async function handleSendToManager() {
+  async function handleConfirmInspection() {
     if (
       !mission ||
       !isMissionCompleted ||
@@ -313,7 +314,8 @@ export function PostflightCompletedView({
   if (reviewLoading && !review.data && !monitoring.data) {
     return (
       <div className="odm-card postflight-page postflight-acceptance">
-        <FlightStepHeader
+        {mission?.inspectionSourceMissionId && <a className="postflight-review-secondary" href={operatorHref({screen:'postflight',missionId:mission.inspectionSourceMissionId})}>{t.backToInspectionSource}</a>}
+      <FlightStepHeader
           title={t.completedStepTitle}
           missionId={missionLabel}
           active={6}
@@ -447,7 +449,7 @@ export function PostflightCompletedView({
             ))}
             {isSubmitted && (
               <span className="postflight-review-manager-status" role="status">
-                {managerApproved ? t.reviewApproved : t.reviewSent}
+                {inspectorApproved || submittedLocally ? t.reviewApproved : t.reviewSent}
               </span>
             )}
           </div>
@@ -682,9 +684,8 @@ export function PostflightCompletedView({
                   {telemetrySnapshot && (
                     <div className="postflight-review-telemetry">
                       <WeatherMetric label={t.landingBattery} value={formatMetric(telemetrySnapshot.batteryPercent, '%', 1)} />
-                      <WeatherMetric label={t.altitude} value={formatMetric(telemetrySnapshot.altitudeM, ' m', 1)} />
-                      <WeatherMetric label={t.speed} value={formatMetric(telemetrySnapshot.speedMps, ' m/s', 1)} />
-                      <WeatherMetric label={t.heading} value={formatMetric(telemetrySnapshot.headingDeg, '°', 0)} />
+
+
                     </div>
                   )}
                   <p className="postflight-review-notes">{notes.trim() || t.reviewNoNotes}</p>
@@ -720,7 +721,7 @@ export function PostflightCompletedView({
                       <span className="postflight-review-file-placeholder">{t.reviewPreviewPending}</span>
                     ) : item.contentType?.startsWith('image/') || item.type?.toUpperCase() === 'IMAGE' ? (
                       item.thumbnailUrl || previewUrl ? (
-                        <img src={item.thumbnailUrl ?? previewUrl!} alt={`${missionLabel} ${mediaLabel}`} loading="lazy" />
+                        <ImagePreview src={item.thumbnailUrl ?? previewUrl!} previewSrc={previewUrl ?? undefined} fileName={`${missionLabel} ${mediaLabel}`} />
                       ) : (
                         <span className="postflight-review-file-placeholder">{t.reviewPreviewPending}</span>
                       )
@@ -729,9 +730,7 @@ export function PostflightCompletedView({
                     )
                     return (
                       <article className="postflight-review-media-card" key={item.id}>
-                        {previewUrl && !isVideo ? (
-                          <a href={previewUrl} target="_blank" rel="noreferrer">{mediaPreview}</a>
-                        ) : mediaPreview}
+                        {mediaPreview}
                         <div className="postflight-review-media-caption">
                           <strong>{mediaLabel}</strong>
                           <span>{t.reviewMediaStatus}: {item.status ?? t.reviewPending}</span>
@@ -780,7 +779,7 @@ export function PostflightCompletedView({
                 </>
               ) : (
                 <>
-                  <strong>{t.reviewSendManager}</strong>
+                  <strong>{t.reviewConfirmInspection}</strong>
                   {!sendReady && (
                     <span>
                       {resultState.submitReady
@@ -821,9 +820,9 @@ export function PostflightCompletedView({
               type="button"
               className="postflight-review-primary"
               disabled={!sendReady || busyAction !== null || reviewLoading}
-              onClick={handleSendToManager}
+              onClick={handleConfirmInspection}
             >
-              {busyAction === 'send' ? t.reviewSending : t.reviewSendManager}
+              {busyAction === 'send' ? t.reviewSending : t.reviewConfirmInspection}
             </button>
           )}
           <a className="postflight-review-secondary" href={operatorHref({ screen: 'missions' })}>

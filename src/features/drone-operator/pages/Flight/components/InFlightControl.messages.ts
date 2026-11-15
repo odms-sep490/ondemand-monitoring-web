@@ -4,7 +4,7 @@ export const inFlightControlMessages = defineMessages({
   vi: {
     controls: {
       takeoff: 'Cất cánh',
-      autoPlan: 'Tự động danh mục kiểm tra',
+      autoPlan: 'Bay tự động',
       land: 'Hạ cánh',
       eStop: 'Dừng khẩn',
       ascend: 'Lên',
@@ -21,7 +21,7 @@ export const inFlightControlMessages = defineMessages({
       photo: 'Ảnh',
       video: 'Video',
       lidar: 'LiDAR',
-      telemetry: 'Dữ liệu bay',
+      telemetry: 'Telemetry',
       safety: 'An toàn',
     },
     weather: {
@@ -38,9 +38,9 @@ export const inFlightControlMessages = defineMessages({
       offlineBody:
         'Bảng điều khiển vẫn mở. Kết nối camera hoặc bộ điều khiển bay để xem hình trực tiếp.',
     },
-    missionProgress: 'Tiến độ nhiệm vụ',
+    missionProgress: 'Tiến độ Nhiệm vụ',
     map: {
-      title: 'Bản đồ nhiệm vụ',
+      title: 'Bản đồ Nhiệm vụ',
       zoomOut: 'Thu nhỏ',
       zoomIn: 'Phóng to',
       order: 'ĐƠN HÀNG',
@@ -48,7 +48,7 @@ export const inFlightControlMessages = defineMessages({
       north: 'B',
     },
     telemetry: {
-      title: 'Dữ liệu bay trực tiếp',
+      title: 'Telemetry trực tiếp',
       offline: 'Ngoại tuyến',
       live: 'MAVLink trực tiếp',
       altitude: 'Độ cao',
@@ -96,7 +96,7 @@ export const inFlightControlMessages = defineMessages({
       noObstacle: 'Không có vật cản trong ngưỡng an toàn',
       holdPosition: 'Giữ vị trí hoặc tránh ngay lập tức.',
       proceedCaution: 'Di chuyển thận trọng.',
-      displayOnlyNote: 'Chỉ hiển thị khoảng cách; bay danh mục kiểm tra không né vật cản.',
+      displayOnlyNote: 'Chỉ hiển thị khoảng cách; bay danh sách kiểm tra không né vật cản.',
       sectorsClear: 'Các hướng đều an toàn hoặc ngoài phạm vi cảnh báo.',
     },
     lidarDetail: {
@@ -147,7 +147,7 @@ export const inFlightControlMessages = defineMessages({
       minutes: (value: number) => `${value} phút`,
       maxAltitude: 'Độ cao tối đa',
       progress: 'Tiến độ',
-      checklist: 'Danh mục kiểm tra cần thực hiện',
+      checklist: 'Danh sách kiểm tra cần thực hiện',
     },
     planReason: {
       start: 'Bắt đầu',
@@ -163,7 +163,7 @@ export const inFlightControlMessages = defineMessages({
       thermal: 'Nhiệt',
       downward: 'Hướng xuống',
       fpv: 'FPV',
-      gimbal: 'Bộ chống rung',
+      gimbal: 'Gimbal',
       heatMap: 'Bản đồ nhiệt',
       pitch: (deg: number) => `Góc nghiêng ${deg}°`,
       camera: 'Camera',
@@ -203,7 +203,7 @@ export const inFlightControlMessages = defineMessages({
       waitingController: 'Đang chờ bộ điều khiển',
       preflightRequired: 'Cần hoàn thành kiểm tra trước bay',
       controllerNotBound:
-        'Bộ điều khiển bay chưa gắn với nhiệm vụ này. Kết nối lại GCS trước khi chụp media.',
+        'Bộ điều khiển bay chưa gắn với nhiệm vụ này. Kết nối lại GCS trước khi chụp ảnh/video.',
       noWaypoints: 'Không có điểm bay trong kế hoạch nhiệm vụ',
       autoPlanStarted: (count: number) =>
         `Đã bắt đầu kế hoạch tự động (${count} điểm)`,
@@ -220,8 +220,9 @@ export const inFlightControlMessages = defineMessages({
       preflightCompleted: 'Đã hoàn thành kiểm tra trước bay',
       finishingFlight: 'Đang cập nhật hoàn thành bay...',
       flightFinished: 'Đã xác nhận chuyến bay hoàn tất · chờ kiểm tra sau bay',
-      failurePending:
-        'Đã gửi lệnh quay về điểm cất cánh. Giữ buồng lái mở; xác nhận hạ cánh sẽ khả dụng khi hệ thống ghi nhận thiết bị đã chạm đất.',
+      failurePending: 'Đã ghi nhận lý do dừng nhiệm vụ.',
+      failureWaitingForLanding: 'Thiết bị vẫn đang bay',
+      failureConfirmStop: 'Xác nhận dừng bay và kiểm tra',
     },
     header: {
       live: 'TRỰC TIẾP',
@@ -274,21 +275,21 @@ export const inFlightControlMessages = defineMessages({
       backLabel: '← Quay lại',
       overview: 'Tổng quan',
       missions: 'Nhiệm vụ',
-      checklist: 'Danh mục kiểm tra',
+      checklist: 'Danh sách kiểm tra',
       media: 'Ảnh / Video',
-      minimap: 'Bản đồ thu nhỏ',
+      minimap: 'Minimap',
       detail: 'Chi tiết',
       gcsConnect: 'Kết nối GCS',
       inFlight: 'Đang bay',
     },
     mediaPanel: {
-      eyebrow: 'THƯ VIỆN MISSION',
+      eyebrow: 'THƯ VIỆN Nhiệm vụ',
       title: 'Ảnh và video đã ghi',
       count: (images: number, videos: number) => `${images} ảnh · ${videos} video`,
       refresh: 'Làm mới danh sách ảnh/video',
       loading: 'Đang tải ảnh và video…',
       empty: 'Chưa có ảnh hoặc video nào được ghi nhận cho nhiệm vụ này.',
-      loadFailed: 'Không tải được danh sách media.',
+      loadFailed: 'Không tải được danh sách ảnh/video.',
       image: 'Ảnh',
       video: 'Video',
       filterGroup: 'Lọc thư viện theo loại',
@@ -302,7 +303,7 @@ export const inFlightControlMessages = defineMessages({
   en: {
     controls: {
       takeoff: 'Take off',
-      autoPlan: 'Checklist auto',
+      autoPlan: 'Auto flight',
       land: 'Land',
       eStop: 'E-Stop',
       ascend: 'Ascend',
@@ -517,8 +518,9 @@ export const inFlightControlMessages = defineMessages({
       preflightCompleted: 'Preflight completed',
       finishingFlight: 'Updating flight completion...',
       flightFinished: 'Flight finished - waiting for maintainer postcheck',
-      failurePending:
-        'Return-to-launch command sent. Keep the cockpit open; landing confirmation will be available when telemetry reports the drone has landed.',
+      failurePending: 'Mission stop reason recorded.',
+      failureWaitingForLanding: 'Drone is still airborne',
+      failureConfirmStop: 'Confirm flight stopped and inspect',
     },
     header: {
       live: 'LIVE',
