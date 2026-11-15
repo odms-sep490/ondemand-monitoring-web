@@ -4,6 +4,7 @@ import { AUDIT_ACTIONS, auditActionMessages } from '../auditActions'
 import { auditFiltersMessages } from './AuditFilters.messages'
 
 export type AuditFilterState = {
+  actorQuery: string
   action: AuditAction | ''
   entityType: string
   from: string
@@ -11,6 +12,7 @@ export type AuditFilterState = {
 }
 
 export const EMPTY_AUDIT_FILTERS: AuditFilterState = {
+  actorQuery: '',
   action: '',
   entityType: '',
   from: '',
@@ -27,6 +29,13 @@ export function AuditFilters({ value, onChange }: Props) {
   const { t: actions } = useI18n(auditActionMessages)
   return (
     <div className="odm-adm-account-filters">
+      <input
+        className="odm-inp odm-adm-account-select"
+        aria-label={t.actorAria}
+        placeholder={t.actorPlaceholder}
+        value={value.actorQuery}
+        onChange={(e) => onChange({ ...value, actorQuery: e.target.value })}
+      />
       <select
         className="odm-inp odm-adm-account-select"
         aria-label={t.actionAria}

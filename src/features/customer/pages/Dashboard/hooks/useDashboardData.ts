@@ -1,18 +1,46 @@
+import { deliveryApi } from '../../../../delivery/api'
 import { useMemo } from 'react'
 
 import { useApiQuery } from '../../../../../shared/hooks/useApiQuery'
 import { customerApi } from '../../../api/customerApi'
-import { customerMissionHistoryApi } from '../../../api/customerMissionHistoryApi'
-import { loadFinalPaymentState } from '../../../lib/orders/loadFinalPaymentState'
+import {
+  customerMissionReportApi,
+  type CustomerMissionSummary,
+} from '../../../api/customerMissionReportApi'
+import { loadMissionPaymentState } from '../../../lib/orders/loadMissionPaymentState'
 import { toOrderRow } from '../../../lib/orders/mapOrder'
+import type { OrderRow } from '../../../lib/orders/types'
 import { computeOrderStats, recentOrders } from '../../../lib/orders/orderStats'
 
 export const RECENT_LIMIT = 5
+export const MISSION_ORDER_LIMIT = 5
+
+export type DashboardMissionItem = {
+  order: OrderRow
+  mission: CustomerMissionSummary
+}
+
+export type DashboardMissionData = {
+  items: DashboardMissionItem[]
+  orderIds: string[]
+  reviewOrders?: OrderRow[]
+  unavailableOrderCount: number
+}
+
+function missionOrders(orders: OrderRow[] | undefined) {
+  return recentOrders(
+    (orders ?? []).filter((order) =>
+      ['APPROVED', 'SCHEDULED', 'IN_PROGRESS', 'COMPLETED'].includes(
+        order.status,
+      ),
+    ),
+    MISSION_ORDER_LIMIT,
+  )
+}
 
 /**
  * The BE has no customer dashboard endpoint: KPIs come from
- * `GET /api/orders/mine`, recent missions from `GET /api/customer/mission-history`.
- * Each source loads and fails on its own.
+ * `GET /api/orders/mine`.
  */
 export function useDashboardData() {
   const orders = useApiQuery(
@@ -21,23 +49,62 @@ export function useDashboardData() {
       const recentIds = new Set(
         recentOrders(rows, RECENT_LIMIT).map((order) => order.id),
       )
-      return loadFinalPaymentState(rows, signal, recentIds)
+      return loadMissionPaymentState(rows, signal, recentIds)
     },
     [],
   )
-  const missions = useApiQuery(
-    (signal) =>
-      customerMissionHistoryApi
-        .list(0, signal)
-        .then((page) => page.items.slice(0, RECENT_LIMIT)),
-    [],
+  const stats = useMemo(
+    () => computeOrderStats(orders.data ?? []),
+    [orders.data],
   )
-
-  const stats = useMemo(() => computeOrderStats(orders.data ?? []), [orders.data])
   const recent = useMemo(
     () => recentOrders(orders.data ?? [], RECENT_LIMIT),
     [orders.data],
   )
+  const eligibleMissionOrders = useMemo(
+    () => missionOrders(orders.data),
+    [orders.data],
+  )
+  const missionData = useApiQuery<DashboardMissionData>(
+    async (signal) => {
+      const results = await Promise.allSettled(
+        eligibleMissionOrders.map(async (order) => ({
+          order,
+          missions: await customerMissionReportApi.list(order.id, signal),
+        })),
+      )
 
-  return { orders, missions, stats, recent }
+      const deliveries = await Promise.allSettled(
+        eligibleMissionOrders.map(async (order) => ({
+          order,
+          delivery: await deliveryApi.get(order.id, signal),
+        })),
+      )
+      return {
+        reviewOrders: deliveries.flatMap((result) =>
+          result.status === 'fulfilled' && result.value.delivery.deliveryStatus === 'CUSTOMER_REVIEW'
+            ? [result.value.order] : [],
+        ),
+        orderIds: eligibleMissionOrders.map((order) => order.id),
+        items: results.flatMap((result) =>
+          result.status === 'fulfilled'
+            ? result.value.missions.map((mission) => ({
+                order: result.value.order,
+                mission,
+              }))
+            : [],
+        ),
+        unavailableOrderCount: results.filter(
+          (result) => result.status === 'rejected',
+        ).length,
+      }
+    },
+    [eligibleMissionOrders],
+  )
+  const missionDataLoading =
+    missionData.loading ||
+    missionData.data?.orderIds.join('|') !==
+      eligibleMissionOrders.map((order) => order.id).join('|')
+
+  return { orders, stats, recent, missionData, missionDataLoading }
 }

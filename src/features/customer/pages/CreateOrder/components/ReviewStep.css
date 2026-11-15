@@ -1,0 +1,82 @@
+.co-confirm-layout { display:grid; grid-template-columns:minmax(0,1.5fr) minmax(330px,1fr); gap:24px; align-items:start; }
+.co-confirm-details,.co-confirm-sidebar { min-width:0; }
+.co-confirm-sidebar { display:flex; flex-direction:column; gap:16px; }
+.co-confirm-layout .ant-card { border-radius:14px; overflow:hidden; box-shadow:none; }
+.co-confirm-layout .ant-card-head { min-height:60px; padding-inline:22px; border-bottom:1px solid #e5eaf2; }
+.co-confirm-layout .ant-card-head-title { font-size:18px; }
+.co-confirm-details .ant-card-body { padding:8px 22px; }
+.co-confirm-details .co-review-rows { display:flex; flex-direction:column; gap:0; }
+.co-confirm-details .co-review-row { display:grid; grid-template-columns:36px 120px minmax(0,1fr) auto; align-items:start; gap:12px; padding:20px 0; border-bottom:1px solid #e8edf4; }
+.co-confirm-details .co-review-row:last-child { border-bottom:0; }
+.co-confirm-details .co-review-row-divider { display:none; }
+.co-confirm-details .co-review-row-label { font-size:13px; color:#5c6d84; padding-top:4px; }
+.co-confirm-details .co-review-row-value { min-width:0; overflow-wrap:anywhere; }
+.co-confirm-details .co-review-row-value > strong { font-size:15px; line-height:1.5; }
+.co-confirm-details .co-review-row-value > span { font-size:13px; line-height:1.6; }
+.co-confirm-sidebar .co-pricing-estimate-card.is-review { width:100%; margin:0; }
+.co-confirm-sidebar .co-pricing-estimate-card .ant-card-body { padding:20px 22px; }
+.co-confirm-sidebar .co-money-total { background:#edf4ff; padding:16px; margin-top:18px; border-radius:10px; border:0; }
+.co-confirm-sidebar .co-money-total > span:last-child { color:#155dc3; font-size:23px; font-weight:700; }
+.co-confirm-sidebar .co-review-agreement { margin:0; padding:18px 20px; border-radius:14px; }
+.co-confirm-sidebar .co-terms-title { font-size:16px; }
+.co-confirm-sidebar .co-terms-check-copy strong { font-size:14px; line-height:1.5; }
+@media(max-width:1000px) { .co-confirm-layout {grid-template-columns:1fr;} .co-confirm-details .co-review-row {grid-template-columns:36px 120px minmax(0,1fr) auto;} }
+@media(max-width:600px) { .co-confirm-details .ant-card-body {padding:6px 16px;} .co-confirm-details .co-review-row {grid-template-columns:30px minmax(0,1fr) auto;gap:8px;} .co-confirm-details .co-review-row-label {grid-column:2;} .co-confirm-details .co-review-row-value {grid-column:2;grid-row:2;} .co-confirm-details .co-sum-edit {grid-column:3;grid-row:1/3;} }
+
+.co-confirm-layout { align-items:stretch; }
+.co-confirm-details { display:flex; }
+.co-confirm-details > .ant-card { flex:1; }
+.co-confirm-next { margin-top:auto; padding:20px 22px; background:#edf4fc; border:1px solid #d8e5f5; border-radius:14px; }
+.co-confirm-next h3 { margin:0 0 18px; font-size:15px; color:#173a64; }
+.co-confirm-next ol { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:18px; }
+.co-confirm-next li { display:flex; align-items:flex-start; gap:12px; }
+.co-confirm-next li > .anticon { display:grid; place-items:center; flex-shrink:0; width:34px; height:34px; border-radius:10px; background:#dceaff; color:#1b63c6; font-size:17px; }
+.co-confirm-next li > div { display:flex; flex-direction:column; gap:4px; }
+.co-confirm-next strong { color:#1b3b61; font-size:13px; }
+.co-confirm-next li span:not(.anticon) { color:#536984; font-size:12px; line-height:1.6; }
+@media(max-width:1000px) { .co-confirm-next {margin-top:0;} }
+/* Natural heights prevent the old full-height pricing card from overflowing its column. */
+.co-confirm-layout { align-items:start; min-height:0; height:auto; }
+.co-confirm-details { display:block; }
+.co-confirm-sidebar { height:auto; min-height:0; }
+.co-confirm-sidebar .co-pricing-estimate-card.is-review { min-height:0; height:auto; flex:none; }
+.co-confirm-sidebar .co-pricing-estimate-card.is-review .ant-card-body,
+.co-confirm-sidebar .co-pricing-estimate-card.is-review .co-money { flex:none; }
+.co-confirm-sidebar .co-pricing-estimate-card.is-review .co-money-total { margin-top:18px; padding:14px 16px; }
+.co-confirm-next { margin-top:0; }
+.co-page.is-review-step { display:flex; flex-direction:column; height:auto; min-height:0; }
+.co-page.is-review-step > .co-confirm-layout { flex:none; width:100%; }
+.co-page.is-review-step > .co-action-dock { position:relative; inset:auto; transform:none; flex:none; order:10; margin-top:24px; width:100%; }
+/* Equal column bounds, without stretching individual sidebar cards. */
+@media(min-width:1001px) {
+  .co-confirm-layout { align-items:stretch; }
+  .co-confirm-details { display:flex; flex-direction:column; }
+  .co-confirm-details > .ant-card { flex:1; min-height:0; }
+  .co-confirm-details > .ant-card > .ant-card-body { display:flex; flex-direction:column; }
+  .co-confirm-details .co-review-rows { flex:1; }
+  .co-confirm-sidebar { align-self:stretch; }
+  .co-confirm-sidebar > * { flex-shrink:0; }
+  .co-confirm-sidebar > .co-confirm-next { margin-top:auto; }
+}
+
+.co-confirm-layout { align-items:start; }
+.co-confirm-details { display:block; }
+.co-confirm-details > .ant-card { flex:none; }
+.co-confirm-details > .ant-card > .ant-card-body { display:block; }
+
+@media(min-width:1001px) {
+  .co-confirm-layout { align-items:stretch; }
+  .co-confirm-details { display:flex; }
+  .co-confirm-details > .ant-card { flex:1; }
+  .co-confirm-details > .ant-card > .ant-card-body { display:flex; flex-direction:column; }
+  .co-confirm-details .co-review-rows { flex:1; justify-content:space-between; }
+  .co-confirm-sidebar { display:flex; align-self:stretch; }
+  .co-confirm-sidebar > .co-review-agreement { margin-top:auto; }
+}
+@media(min-width:1001px) {
+  .co-confirm-sidebar > .co-pricing-estimate-card.is-review { flex:1 0 auto; min-height:0; }
+  .co-confirm-sidebar > .co-pricing-estimate-card.is-review .ant-card-body { flex:1; display:flex; flex-direction:column; }
+  .co-confirm-sidebar > .co-pricing-estimate-card.is-review .co-money { flex:1; }
+  .co-confirm-sidebar > .co-pricing-estimate-card.is-review .co-money-total { margin-top:auto; }
+  .co-confirm-sidebar > .co-review-agreement { margin-top:0; }
+}

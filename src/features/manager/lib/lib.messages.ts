@@ -98,8 +98,7 @@ export const managerLibMessages = defineMessages({
         ORDER_NOT_APPROVED: 'Đơn hàng chưa ở trạng thái cho phép chốt kế hoạch.',
         INVOICE_NOT_PAYABLE:
           'Khách hàng cần chấp nhận báo giá trước khi tạo nhiệm vụ.',
-        FINAL_PAYMENT_REQUIRED:
-          'Khách hàng cần thanh toán đủ trước khi nhận bản gốc.',
+        MISSION_PAYMENT_REQUIRED: 'Mỗi khoản thanh toán nhiệm vụ cần được xác nhận trước khi bàn giao dữ liệu gốc.',
         DELIVERABLE_NOT_RELEASED: 'Bản gốc chưa được bàn giao cho khách hàng.',
         NO_EFFECTIVE_MISSIONS:
           'Thêm ít nhất một nhiệm vụ vào kế hoạch trước khi chốt.',
@@ -121,6 +120,8 @@ export const managerLibMessages = defineMessages({
           'Kết quả đã được duyệt; không thể hủy lịch sử nhiệm vụ này.',
         RESOURCE_TIME_CONFLICT:
           'Tài nguyên bị trùng lịch. Chọn tài nguyên hoặc thời gian khác và tải lại danh sách khả dụng.',
+        STAFF_BUSY_IN_SLOT:
+          'Nhân sự đã đăng ký bận trong khung giờ của nhiệm vụ. Tải lại danh sách khả dụng và chọn nhân sự khác.',
         RESOURCE_ALREADY_RESERVED:
           'Tài nguyên đã được giữ. Tải lại danh sách khả dụng và chọn tài nguyên khác.',
         SCHEDULE_CONFLICT:
@@ -237,8 +238,7 @@ export const managerLibMessages = defineMessages({
         ORDER_NOT_APPROVED: 'The order is not in a state that allows finalizing the plan.',
         INVOICE_NOT_PAYABLE:
           'The customer must accept the quote before a Mission can be created.',
-        FINAL_PAYMENT_REQUIRED:
-          'The customer must pay in full before receiving the original files.',
+        MISSION_PAYMENT_REQUIRED: 'Each Mission payment must be confirmed before the original files are handed over.',
         DELIVERABLE_NOT_RELEASED:
           'The original files have not been handed over to the customer.',
         NO_EFFECTIVE_MISSIONS:
@@ -260,6 +260,8 @@ export const managerLibMessages = defineMessages({
           'The result has already been approved; this Mission history cannot be cancelled.',
         RESOURCE_TIME_CONFLICT:
           'The resource has a scheduling conflict. Choose another resource or time and reload the available list.',
+        STAFF_BUSY_IN_SLOT:
+          'This staff member registered as busy during the mission window. Reload the available list and choose someone else.',
         RESOURCE_ALREADY_RESERVED:
           'The resource is already reserved. Reload the available list and choose another resource.',
         SCHEDULE_CONFLICT:

@@ -2,32 +2,26 @@ import { defineMessages } from '../../../../../shared/i18n'
 
 export const orderExpirationSettingsMessages = defineMessages({
   vi: {
-    title: 'Thời hạn thanh toán và báo giá',
+    title: 'Thời hạn báo giá và thanh toán',
     formTitle: 'Thiết lập thời hạn',
-    description:
-      'Cấu hình thời gian chấp nhận báo giá, thanh toán đặt cọc và thanh toán phần còn lại.',
+    description: 'Cấu hình thời gian chấp nhận báo giá, thanh toán đặt cọc và thanh toán theo nhiệm vụ.',
     independentBadge: 'Ba mốc thời gian độc lập',
     quotation: 'Thời hạn khách hàng chấp nhận báo giá',
-    quotationHint:
-      'Báo giá sẽ hết hiệu lực nếu khách hàng chưa phản hồi trong khoảng thời gian này.',
+    quotationHint: 'Báo giá sẽ hết hiệu lực nếu khách hàng chưa phản hồi trong khoảng thời gian này.',
     deposit: 'Thời hạn thanh toán tiền đặt cọc',
-    depositHint:
-      'Khách hàng cần hoàn tất thanh toán đặt cọc trước khi thời hạn này kết thúc.',
-    finalPayment: 'Thời hạn thanh toán phần còn lại',
-    finalPaymentHint:
-      'Bắt đầu khi nhiệm vụ đã được phân công tài nguyên và khoản còn lại được mở để thanh toán.',
+    depositHint: 'Khách hàng cần hoàn tất thanh toán đặt cọc trước khi thời hạn này kết thúc.',
+    missionPayment: 'Thời hạn thanh toán theo nhiệm vụ',
+    missionPaymentHint: 'Bắt đầu khi nhiệm vụ được bàn giao; mỗi nhiệm vụ có một hạn thanh toán riêng.',
     requiredHours: 'Vui lòng nhập thời hạn.',
     integerHours: 'Thời hạn phải là số giờ nguyên.',
     positiveHours: 'Thời hạn phải lớn hơn 0.',
     maxHours: 'Thời hạn không được vượt quá 8.760 giờ.',
-    snapshotNote:
-      'Thay đổi chỉ áp dụng cho thời hạn được cấp mới; thời hạn đã lưu không thay đổi.',
+    snapshotNote: 'Thay đổi chỉ áp dụng cho thời hạn được cấp mới; thời hạn đã lưu không thay đổi.',
     save: 'Lưu thời hạn',
     saving: 'Đang lưu…',
-    noPendingChanges:
-      'Chưa có thay đổi mới — lịch sử chỉ ghi khi giá trị thay đổi.',
+    noPendingChanges: 'Chưa có thay đổi mới — lịch sử chỉ ghi khi giá trị thay đổi.',
     unsavedChanges: 'Bạn có thay đổi chưa được lưu.',
-    saved: 'Đã cập nhật thời hạn hết hạn.',
+    saved: 'Đã cập nhật thời hạn.',
     saveError: 'Không thể cập nhật thời hạn. Vui lòng thử lại.',
     auditTitle: 'Lịch sử thay đổi thời hạn',
     auditDescription: 'Theo dõi các lần cập nhật cấu hình gần đây.',
@@ -45,28 +39,22 @@ export const orderExpirationSettingsMessages = defineMessages({
   en: {
     title: 'Quotation and payment timeouts',
     formTitle: 'Configure timeouts',
-    description:
-      'Configure quote acceptance, deposit payment, and final balance payment deadlines.',
+    description: 'Configure quote acceptance, deposit payment, and mission payment deadlines.',
     independentBadge: 'Three independent timers',
     quotation: 'Customer quote-acceptance timeout',
-    quotationHint:
-      'The quote expires if the customer has not responded within this period.',
+    quotationHint: 'The quote expires if the customer has not responded within this period.',
     deposit: 'Deposit-payment timeout',
-    depositHint:
-      'The customer must complete the deposit payment before this period ends.',
-    finalPayment: 'Final balance payment timeout',
-    finalPaymentHint:
-      'Starts when mission resources are assigned and the remaining balance becomes payable.',
+    depositHint: 'The customer must complete the deposit payment before this period ends.',
+    missionPayment: 'Mission payment timeout',
+    missionPaymentHint: 'Starts when a mission is handed over; each mission has its own deadline.',
     requiredHours: 'Enter a timeout duration.',
     integerHours: 'The timeout must be a whole number of hours.',
     positiveHours: 'The timeout must be greater than zero.',
     maxHours: 'The timeout cannot exceed 8,760 hours.',
-    snapshotNote:
-      'Changes apply only to newly assigned deadlines; saved deadlines are unchanged.',
+    snapshotNote: 'Changes apply only to newly assigned deadlines; saved deadlines are unchanged.',
     save: 'Save timeouts',
     saving: 'Saving…',
-    noPendingChanges:
-      'No new changes — history is recorded when values change.',
+    noPendingChanges: 'No new changes — history is recorded when values change.',
     unsavedChanges: 'You have unsaved changes.',
     saved: 'Expiration timeouts updated.',
     saveError: 'Could not update expiration timeouts. Please try again.',

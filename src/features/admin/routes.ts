@@ -13,7 +13,9 @@ export type AdminRoute =
   | { screen: 'checklists' }
   | { screen: 'serviceChecklists'; serviceId?: string }
   | { screen: 'operatingConfig' }
+  | { screen: 'orderCriteria' }
   | { screen: 'auditLog' }
+  | { screen: 'refunds' }
   | { screen: 'notFound' }
 
 export type AdminScreen = AdminRoute['screen']
@@ -53,8 +55,12 @@ export function parseAdminRoute(hash: string): AdminRoute {
       return { screen: 'notFound' }
     case 'operating-config':
       return { screen: 'operatingConfig' }
+    case 'order-criteria':
+      return { screen: 'orderCriteria' }
     case 'audit-log':
       return { screen: 'auditLog' }
+    case 'refunds':
+      return { screen: 'refunds' }
     default:
       return { screen: 'notFound' }
   }
@@ -82,8 +88,12 @@ export function adminHref(route: AdminRoute): string {
         : `${ADMIN_ROOT}/services`
     case 'operatingConfig':
       return `${ADMIN_ROOT}/operating-config`
+    case 'orderCriteria':
+      return `${ADMIN_ROOT}/order-criteria`
     case 'auditLog':
       return `${ADMIN_ROOT}/audit-log`
+    case 'refunds':
+      return `${ADMIN_ROOT}/refunds`
     case 'notFound':
       return ADMIN_ROOT
   }

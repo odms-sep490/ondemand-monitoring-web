@@ -15,6 +15,9 @@ export function RequestBasicsCard({ form, errors, update }: Props) {
         <input
           id="co-title"
           className="co-input"
+          required
+          aria-invalid={Boolean(errors.title)}
+          aria-describedby={errors.title ? 'co-title-error' : undefined}
           value={form.title}
           maxLength={255}
           placeholder={t.titlePlaceholder}

@@ -1206,3 +1206,45 @@
     padding: 0 12px 12px 60px;
   }
 }
+
+/* Pricing polish: theme text, right-aligned money, emphasised total. */
+.checklist-quote-details {
+  border-radius: 12px;
+  color: var(--ui-text);
+  box-shadow: var(--ui-shadow-1);
+  font-variant-numeric: tabular-nums;
+}
+.checklist-quote-details > summary {
+  min-height: 44px;
+}
+.checklist-quote-details > summary > :last-child,
+.checklist-quote-line header > :last-child,
+.checklist-quote-line li > :last-child,
+.checklist-quote-sum > :last-child {
+  flex: none;
+  text-align: right;
+  white-space: nowrap;
+}
+.checklist-quote-line {
+  border-top-color: var(--ui-border);
+}
+.checklist-quote-sum {
+  color: var(--ui-text-2);
+}
+.checklist-quote-sum.is-total {
+  margin-top: 4px;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--ui-primary) 28%, var(--ui-border));
+  border-radius: 10px;
+  background: var(--ui-primary-soft);
+  color: var(--ui-primary-text);
+  font-size: 16px;
+  font-weight: 800;
+}
+.checklist-row-price {
+  color: var(--ui-text);
+}
+.checklist-snapshot-price {
+  font-variant-numeric: tabular-nums;
+  color: var(--ui-text-2);
+}

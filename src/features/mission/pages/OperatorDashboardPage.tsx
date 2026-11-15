@@ -18,7 +18,6 @@ import { useI18n } from '../../../shared/i18n'
 import { operatorDashboardPageMessages } from './OperatorDashboardPage.messages'
 import type { MissionPermissions } from '../types/permissions'
 import { operatorHref } from '../../drone-operator/routes'
-import { flightControlApi } from '../../drone-operator/api/flightControlApi'
 
 const STEP_BY_STATUS: Record<string, number> = {
   READY: 1,
@@ -117,9 +116,8 @@ export function OperatorDashboardPage() {
   const [preflightCheck, setPreflightCheck] = useState<PreflightCheck | null>(
     null,
   )
-  const [isGcsConnected, setIsGcsConnected] = useState(false)
   const [isAccepting, setIsAccepting] = useState(false)
-  const [isConnecting, setIsConnecting] = useState(false)
+  const [isChecking, setIsChecking] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [rejectReason, setRejectReason] = useState('')
   const [showRejectModal, setShowRejectModal] = useState(false)
@@ -254,14 +252,8 @@ export function OperatorDashboardPage() {
     'RETURNING',
     'POSTFLIGHT_CHECKING',
   ].includes(deviceAssignmentStatus ?? '')
-  const deviceConnected = [
-    'CONNECTED',
-    'CONNECTION_LOST',
-    'PREFLIGHT_CHECKING',
-    'READY_TO_FLY',
-    'FAILED',
-  ].includes(deviceAssignmentStatus ?? '')
   const currentStep = [
+    'ASSIGNED',
     'CONNECTED',
     'PREFLIGHT_CHECKING',
     'READY_TO_FLY',
@@ -285,9 +277,6 @@ export function OperatorDashboardPage() {
     mission.status === 'READY' &&
     deviceReadyToFly &&
     permissions?.canStartMission === true
-  const gcsConnected =
-    deviceAssignmentStatus !== 'CONNECTION_LOST' &&
-    (isGcsConnected || deviceConnected)
 
   // ---------------------------------------------------------------------------
   // Flow 3 Pure Backend API Handlers (No Demo Fallbacks)
@@ -325,28 +314,15 @@ export function OperatorDashboardPage() {
     }
   }
 
-  const handleConnectGcs = async () => {
-    setIsConnecting(true)
-    try {
-      if (!mission.deviceId) throw new Error(t.noDroneAssigned)
-      await flightControlApi.bindSession(mission.id, mission.deviceId)
-      const updated = await missionApi.connectGcs(mission.id)
-      setMission(updated)
-      setIsGcsConnected(true)
-      setDeviceStatus('PREFLIGHT')
-    } catch (err) {
-      alert(`${t.apiConnectGcsError} ${(err as Error).message}`)
-    } finally {
-      setIsConnecting(false)
-    }
-  }
-
   const handleRunPreflight = async () => {
-    setIsConnecting(true)
+    const assignedDeviceId = mainDeviceAssignment?.deviceId
+    if (!assignedDeviceId) return
+
+    setIsChecking(true)
     try {
       const check = await missionApi.runPreflightCheck(
         mission.id,
-        mission.deviceId || mission.droneId || 'DRONE-01',
+        assignedDeviceId,
       )
       setPreflightCheck(check)
 
@@ -360,7 +336,7 @@ export function OperatorDashboardPage() {
     } catch (err) {
       alert(`${t.apiPreflightError} ${(err as Error).message}`)
     } finally {
-      setIsConnecting(false)
+      setIsChecking(false)
     }
   }
 
@@ -819,7 +795,7 @@ export function OperatorDashboardPage() {
         )}
 
         {/* ------------------------------------------------------------------ */}
-        {/* PHASE 2 & 3: GCS CONNECT & PREFLIGHT DIAGNOSTICS (F3.2) */}
+        {/* PHASE 2 & 3: PREFLIGHT DIAGNOSTICS (F3.2) */}
         {/* ------------------------------------------------------------------ */}
         {(canEnterPreflight || canHandoverControl || canStartMission) && (
           <div style={{ marginBottom: '32px' }}>
@@ -828,10 +804,9 @@ export function OperatorDashboardPage() {
                 check={preflightCheck}
                 batteryLevel={batteryLevel}
                 gpsSatellites={gpsSatellites}
-                isConnecting={isConnecting}
+                isChecking={isChecking}
                 onRunPreflight={handleRunPreflight}
-                onConnectGcs={handleConnectGcs}
-                isGcsConnected={gcsConnected}
+                hasAssignedDevice={Boolean(mainDeviceAssignment?.deviceId)}
               />
             )}
 

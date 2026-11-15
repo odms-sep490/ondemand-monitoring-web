@@ -1,9 +1,8 @@
 import { CloseOutlined } from '@ant-design/icons'
 import type { OrderDetail, LegalReviewStatus } from '../../../types/orders'
 import type { SavedAreaReview, AreaReviewChoice } from '../areaTypes'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { ordersApi } from '../../../api/ordersApi'
-import { managerHref } from '../../../routes'
 import { REVIEW_OPTIONS, UNSUITABLE_REASONS } from '../areaHelpers'
 import { Button, useToast } from '../../../../../shared/components/ui'
 import { useI18n } from '../../../../../shared/i18n'
@@ -32,32 +31,28 @@ export function AreaReviewDialog({
   const [reason, setReason] = useState(initial?.reason ?? '')
   const [note, setNote] = useState(initial?.note ?? '')
   const [saving, setSaving] = useState(false)
+  const savingRef = useRef(false)
   const [error, setError] = useState('')
-  const reasonRequired = status === 'REJECTED' || status === 'CHANGE_LOCATION'
+  const reasonRequired = status === 'REJECTED'
 
   async function save() {
+    if (savingRef.current) return
     if (!status) return setError(t.chooseResult)
     if (reasonRequired && !reason.trim()) return setError(t.chooseReason)
+    savingRef.current = true
     setSaving(true)
     setError('')
     try {
-      const savedStatus: LegalReviewStatus =
-        status === 'CHANGE_LOCATION' ? 'REJECTED' : status
+      const currentOrder = await ordersApi.getOrder(order.id)
+      if (currentOrder.status === 'PENDING') {
+        await ordersApi.startReview(order.id)
+      }
+      const savedStatus: LegalReviewStatus = status
       const result = await ordersApi.saveFlightAreaReview(order.id, {
         status: savedStatus,
         reason: reason.trim() || null,
         note: note.trim() || null,
       })
-      if (status === 'CHANGE_LOCATION') {
-        await ordersApi.submitApproval(order.id, {
-          decision: 'NEED_INFO',
-          reason: [reason.trim(), note.trim()].filter(Boolean).join(' — '),
-          requestedUpdateScope: 'LOCATION',
-        })
-        toast.success(fb.infoRequested)
-        window.location.hash = managerHref({ screen: 'orderQueue' })
-        return
-      }
       toast.success(fb.areaReviewSaved)
       onSaved({
         status: result.legalReviewStatus ?? savedStatus,
@@ -67,10 +62,12 @@ export function AreaReviewDialog({
         reviewer: result.flightAreaReviewedByName ?? 'Manager',
         reviewedAt: result.flightAreaReviewedAt ?? new Date().toISOString(),
       })
-    } catch {
-      setError(t.saveFailed)
-      toast.error(t.saveFailed)
+    } catch (cause) {
+      setError(cause instanceof Error && cause.message
+        ? cause.message
+        : t.saveFailed)
     } finally {
+      savingRef.current = false
       setSaving(false)
     }
   }

@@ -4,8 +4,6 @@ export const preflightDiagnosticCardMessages = defineMessages({
   vi: {
     eyebrow: 'KIỂM TRA THIẾT BỊ TRƯỚC BAY',
     cardTitle: 'Kiểm tra kỹ thuật thiết bị',
-    gcsConnected: 'GCS Connected (PX4)',
-    connectGcs: 'Kết nối GCS App',
     batteryLevelLabel: 'MỨC PIN DRONE',
     batteryOk: '✓ Đạt ngưỡng (≥80%)',
     batteryLow: '✕ Quá thấp (<80%)',
@@ -25,8 +23,6 @@ export const preflightDiagnosticCardMessages = defineMessages({
   en: {
     eyebrow: 'DIGITAL PRE-FLIGHT DIAGNOSTICS',
     cardTitle: 'Pre-flight Diagnostic Center',
-    gcsConnected: 'GCS Connected (PX4)',
-    connectGcs: 'Connect GCS App',
     batteryLevelLabel: 'DRONE BATTERY LEVEL',
     batteryOk: '✓ Above threshold (≥80%)',
     batteryLow: '✕ Too low (<80%)',

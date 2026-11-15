@@ -133,7 +133,6 @@ export const orderReviewPageMessages = defineMessages({
     customerEnteredInfo: 'Chi tiết yêu cầu',
     orderTitle: 'Tiêu đề',
     requestDescription: 'Mô tả / ghi chú',
-    usagePurpose: 'Mục đích sử dụng',
     flightPurpose: 'Mục đích bay',
     flightAltitude: 'Độ cao giám sát mong muốn',
     estimatedLength: 'Độ dài tuyến',
@@ -150,7 +149,6 @@ export const orderReviewPageMessages = defineMessages({
     deliveryMethods: 'Cách bàn giao',
     dataRetention: 'Lưu trữ dữ liệu',
     termsAcceptedAt: 'Thời điểm đồng ý điều khoản',
-    termsVersion: 'Phiên bản điều khoản',
     droneLabel: 'Drone',
     noAttachments: 'Chưa có tệp đính kèm cho đơn hàng này.',
     actionHintNext:
@@ -306,7 +304,6 @@ export const orderReviewPageMessages = defineMessages({
     customerEnteredInfo: 'Request details',
     orderTitle: 'Title',
     requestDescription: 'Description / notes',
-    usagePurpose: 'Usage purpose',
     flightPurpose: 'Flight purpose',
     flightAltitude: 'Flight altitude',
     estimatedLength: 'Estimated route length',
@@ -323,7 +320,6 @@ export const orderReviewPageMessages = defineMessages({
     deliveryMethods: 'Delivery methods',
     dataRetention: 'Data retention',
     termsAcceptedAt: 'Terms accepted at',
-    termsVersion: 'Terms version',
     droneLabel: 'Drones',
     noAttachments: 'No attachments for this order yet.',
     actionHintNext:

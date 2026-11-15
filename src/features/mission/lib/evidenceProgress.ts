@@ -1,3 +1,4 @@
+import { getLanguage, type Language } from '../../../shared/i18n'
 import type { MissionChecklistExecution } from '../types/checklistExecution'
 
 type Progress = Pick<
@@ -35,7 +36,7 @@ export function evidenceShortfall(item: Progress): number {
 }
 
 /** Count shown next to a checklist; omit media types with no count and no requirement. */
-export function evidenceCountLabel(item: Progress): string {
+export function evidenceCountLabel(item: Progress, lang: Language = getLanguage()): string {
   if (isPerTypeEvidence(item)) {
     const imageCount = item.eligibleImageCount ?? 0
     const minimumImages = item.minimumImageCount ?? 0
@@ -43,7 +44,7 @@ export function evidenceCountLabel(item: Progress): string {
     const minimumVideos = item.minimumVideoCount ?? 0
     const counts = [
       imageCount !== 0 || minimumImages !== 0
-        ? `ảnh ${imageCount}/${minimumImages}`
+        ? `${lang === 'vi' ? 'ảnh' : 'images'} ${imageCount}/${minimumImages}`
         : '',
       videoCount !== 0 || minimumVideos !== 0
         ? `video ${videoCount}/${minimumVideos}`

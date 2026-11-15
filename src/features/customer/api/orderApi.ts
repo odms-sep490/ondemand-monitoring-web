@@ -93,7 +93,6 @@ export type OrderCreateResponse = {
   serviceId?: string
   serviceName?: string
   description?: string
-  usagePurpose?: string
   flightPurpose?: string
   altitudeM?: number
   estimatedLengthM?: number
@@ -113,7 +112,7 @@ export type OrderCreateResponse = {
   longitude?: number
   latitude?: number
   radiusM?: number
-  coverageArea?: Record<string, unknown>
+  coverageArea?: Record<string, unknown> | null
   preferredDateFrom?: string
   preferredDateTo?: string
   preferredTimeId?: string
@@ -126,7 +125,6 @@ export type OrderCreateResponse = {
   deliveryMethods?: string[]
   dataRetentionDays?: number
   termsAcceptedAt?: string
-  termsVersion?: string
   executionPlanRevision?: number
   executionPlanStatus?: string
   orderStatus?: string

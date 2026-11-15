@@ -73,8 +73,8 @@ export function OrdersTable({ rows }: { rows: OrderRow[] }) {
       render: (_, row) => (
         <span className="mgr-cell-stack">
           <OrderStatusBadge status={row.status} />
-          {row.finalPaymentState === 'ACTION_REQUIRED' ? (
-            <span className="cus-deposit">{t.finalPaymentRequired}</span>
+          {row.missionPaymentState === 'ACTION_REQUIRED' ? (
+            <span className="cus-deposit">{t.missionPaymentRequired}</span>
           ) : row.depositState === 'ACTION_REQUIRED' ? (
             <span className="cus-deposit">{t.paymentRequired}</span>
           ) : row.depositState === 'PAID_IN_FULL' ? (

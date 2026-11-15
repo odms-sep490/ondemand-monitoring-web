@@ -47,7 +47,8 @@
 .odm-flight-stepper {
   display: grid;
   min-width: 0;
-  grid-template-columns: repeat(8, minmax(0, 1fr));
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -123,23 +124,23 @@
 }
 
 .odm-flight-step.is-complete .odm-flight-step-chip {
-  border-color: var(--green-solid, #12b76a);
-  background: var(--green-solid, #12b76a);
+  border-color: var(--green-solid, var(--ui-success));
+  background: var(--green-solid, var(--ui-success));
   color: var(--green-on, #fff);
 }
 
 .odm-flight-step.is-complete .odm-flight-step-label {
-  color: var(--green-fg, #087443);
+  color: var(--green-fg, var(--ui-success-text));
 }
 
 .odm-flight-step.is-complete .odm-flight-step-state {
-  color: var(--green-fg, #087443);
+  color: var(--green-fg, var(--ui-success-text));
 }
 
 .odm-flight-step.is-current .odm-flight-step-chip {
   border-color: var(--accent);
   background: var(--accent);
-  color: #fff;
+  color: var(--ui-on-primary);
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 14%, transparent);
 }
 
@@ -149,6 +150,21 @@
 }
 
 .odm-flight-step.is-current .odm-flight-step-label {
+  font-weight: 750;
+}
+
+.odm-flight-step.is-failed .odm-flight-step-chip {
+  border-color: var(--red-solid, var(--ui-danger));
+  background: var(--red-solid, var(--ui-danger));
+  color: var(--red-on, #fff);
+}
+
+.odm-flight-step.is-failed .odm-flight-step-label,
+.odm-flight-step.is-failed .odm-flight-step-state {
+  color: var(--red-fg, var(--ui-danger-text));
+}
+
+.odm-flight-step.is-failed .odm-flight-step-label {
   font-weight: 750;
 }
 
@@ -164,7 +180,7 @@
 }
 
 .odm-flight-step.is-complete .odm-flight-step-connector {
-  background: var(--green-solid, #12b76a);
+  background: var(--green-solid, var(--ui-success));
 }
 
 .odm-flight-stepper-summary {

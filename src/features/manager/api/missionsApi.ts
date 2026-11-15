@@ -104,6 +104,36 @@ export const missionsApi = {
     )
   },
 
+  /** Creates a rework Mission from the selected items of an active result revision case. */
+  createReworkMission(
+    caseId: string,
+    request: {
+      expectedCaseVersion: number
+      clientRequestId: string
+      scopeLabel: string
+      scheduledStartAt: string
+      scheduledEndAt: string
+      caseItemIds: string[]
+    },
+  ): Promise<{
+    caseId: string
+    missionId: string
+    missionCode: string
+    status: string
+    checklistCount: number
+  }> {
+    return apiRequest<{
+      caseId: string
+      missionId: string
+      missionCode: string
+      status: string
+      checklistCount: number
+    }>(
+      `/api/manager/result-revision-cases/${encodeURIComponent(caseId)}/rework-missions`,
+      { method: 'POST', body: request },
+    )
+  },
+
   /** `POST /api/missions/{missionId}/confirm-planning`. */
   confirmMissionPlanning(missionId: string): Promise<MissionResponse> {
     return apiRequest<MissionResponse>(
@@ -176,6 +206,17 @@ export const missionsApi = {
     return apiRequest<MissionResponse>(
       `/api/missions/${encodeURIComponent(missionId)}/device-assignments/${encodeURIComponent(assignmentId)}/resource`,
       { method: 'PUT', body: { deviceId, reason } },
+    )
+  },
+
+  /** `DELETE /api/missions/{id}/device-replacement-requests/{assignmentId}` [BE]. */
+  cancelDeviceReplacementRequest(
+    missionId: string,
+    assignmentId: string,
+  ): Promise<MissionResponse> {
+    return apiRequest<MissionResponse>(
+      `/api/missions/${encodeURIComponent(missionId)}/device-replacement-requests/${encodeURIComponent(assignmentId)}`,
+      { method: 'DELETE' },
     )
   },
 
@@ -399,9 +440,10 @@ export const missionsApi = {
   getCurrentPreflight(
     missionId: string,
     signal?: AbortSignal,
+    deviceId?: string,
   ): Promise<PersistedPreflightCheckResponse> {
     return apiRequest<PersistedPreflightCheckResponse>(
-      `/api/missions/${missionId}/pre-device-checks/current`,
+      `/api/missions/${missionId}/pre-device-checks/current${deviceId ? `?deviceId=${encodeURIComponent(deviceId)}` : ''}`,
       { signal },
     )
   },
@@ -410,9 +452,10 @@ export const missionsApi = {
   getCurrentPostDeviceCheck(
     missionId: string,
     signal?: AbortSignal,
+    deviceId?: string,
   ): Promise<PersistedPostDeviceCheckResponse> {
     return apiRequest<PersistedPostDeviceCheckResponse>(
-      `/api/missions/${missionId}/post-device-checks/current`,
+      `/api/missions/${missionId}/post-device-checks/current${deviceId ? `?deviceId=${encodeURIComponent(deviceId)}` : ''}`,
       { signal },
     )
   },

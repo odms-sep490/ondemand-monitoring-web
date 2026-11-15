@@ -20,7 +20,7 @@ export const missionResultActionsMessages = defineMessages({
     waiting: 'Kiểm tra sau bay đã hoàn tất, nhiệm vụ đang chờ nghiệm thu.',
     confirmed: 'Kết quả đã được xác nhận nghiệm thu.',
     automaticPublication:
-      'Hệ thống tự gửi kết quả khi tất cả nhiệm vụ của đơn hàng sẵn sàng.',
+      'Hệ thống tự gửi kết quả của nhiệm vụ này ngay sau khi bạn xác nhận nghiệm thu.',
     approved: 'Đã nghiệm thu',
     pending: 'Chờ nghiệm thu',
     complete: 'Xác nhận hoàn thành Mission',
@@ -48,7 +48,7 @@ export const missionResultActionsMessages = defineMessages({
     waiting: 'Postcheck is complete. The mission is awaiting inspection.',
     confirmed: 'Inspection confirmed for this mission.',
     automaticPublication:
-      'Results are sent automatically when every mission in the order is ready.',
+      'Results are sent automatically after this mission is confirmed by the inspector.',
     approved: 'Inspection confirmed',
     pending: 'Awaiting inspection',
     complete: 'Confirm mission completion',

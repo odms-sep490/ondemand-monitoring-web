@@ -2,6 +2,7 @@ import { defineMessages } from '../../../../shared/i18n'
 
 export const postflightPageMessages = defineMessages({
   vi: {
+    backToInspectionSource: 'Trở về nghiệm thu Mission gốc',
     categories: {
       structure: {
         title: 'Cấu trúc & Khung vỏ',
@@ -17,7 +18,7 @@ export const postflightPageMessages = defineMessages({
         title: 'Hệ thống động lực & Nguồn',
         items: {
           motor_ok: {
-            label: 'Động cơ & Esc',
+            label: 'Động cơ và bộ điều tốc',
             detail: 'Âm thanh quay đều, không quá nhiệt, không kẹt vật thể',
           },
           battery_ok: {
@@ -27,7 +28,7 @@ export const postflightPageMessages = defineMessages({
         },
       },
       sensors: {
-        title: 'Cảm biến & Payload',
+        title: 'Cảm biến và thiết bị ghi hình',
         items: {
           camera_ok: {
             label: 'Camera & Cảm biến giám sát',
@@ -61,7 +62,7 @@ export const postflightPageMessages = defineMessages({
     missionNotFoundDesc: 'Vui lòng chọn nhiệm vụ cần kiểm tra sau bay.',
     missionFailedTitle: 'Nhiệm vụ đã thất bại',
     missionFailedDescription: 'Rủi ro đã được ghi nhận sau khi drone hạ cánh và hoàn tất kiểm tra sau bay. Toàn bộ checklist của mission này đã được đánh dấu không thể xác minh; ảnh và video hiện có vẫn được giữ trong lịch sử.',
-    completedStepTitle: 'Hoàn tất kiểm tra sau bay',
+    completedStepTitle: 'Nghiệm thu',
     defaultMissionLabel: 'Nhiệm vụ',
     successTitle: 'Đã hoàn tất kiểm tra sau bay',
     ticketCreatedTitle: 'Đã hoàn tất kiểm tra sau bay và tạo yêu cầu bảo trì',
@@ -79,24 +80,28 @@ export const postflightPageMessages = defineMessages({
     maintenanceTicketLabel: 'Ticket Bảo trì Backend',
     maintenanceTicketValue: 'TKT-POSTFLIGHT-XXXX (Đã tạo thành công)',
     backToMissionList: 'Về danh sách nhiệm vụ',
-    reviewTitle: 'Rà soát kết quả nhiệm vụ',
+    reviewTitle: 'Kết quả nhiệm vụ',
     reviewTabsLabel: 'Các phần cần rà soát',
     reviewInspectorOnlyTitle: 'Chỉ nghiệm thu viên được truy cập',
     reviewInspectorOnlyDescription:
       'Trang rà soát kết quả chỉ dành cho nhân sự được giao vai trò nghiệm thu của mission này.',
-    reviewSubtitle:
-      'Rà soát danh mục công trình, kiểm tra trước bay, thời tiết, kiểm tra sau bay và ảnh/video trước khi xác nhận nghiệm thu.',
+    reviewSubtitle: 'Đánh giá công trình và rà soát bằng chứng trước khi gửi.',
     reviewMissionChecklist: 'Danh mục công trình',
+    reviewTabChecklist: 'Công trình',
     reviewMissionInfo: 'Thông tin nhiệm vụ',
     reviewPreflight: 'Kiểm tra trước bay',
+    reviewTabPreflight: 'Trước bay',
     reviewWeather: 'Thời tiết',
     reviewPostflight: 'Kiểm tra sau bay',
+    reviewTabPostflight: 'Sau bay',
     reviewMedia: 'Ảnh & video',
     reviewTabLoading: 'Đang tải',
     reviewTabNoItems: 'Chưa có mục',
     reviewTabNoData: 'Chưa có dữ liệu',
     reviewTabChecklistCount: (assessed: number, total: number) =>
-      `${assessed}/${total} mục đã đánh giá`,
+      `${assessed}/${total} đánh giá`,
+    reviewTabPassedCount: (passed: number, total: number) =>
+      `${passed}/${total} đạt`,
     reviewTabMediaCount: (count: number) => `${count} tệp`,
     reviewLoading: 'Đang tải kết quả nhiệm vụ…',
     reviewLoadFailed: 'Không tải được một số kết quả bắt buộc của nhiệm vụ.',
@@ -107,7 +112,7 @@ export const postflightPageMessages = defineMessages({
     reviewPostflightLoadFailed: 'Không thể tải kết quả kiểm tra sau bay.',
     reviewMediaLoadFailed: 'Không thể tải ảnh/video nhiệm vụ.',
     reviewAllDataRequired:
-      'Cần tải đủ kết quả kiểm tra trước bay, thời tiết và kiểm tra sau bay trước khi xác nhận nghiệm thu.',
+      'Thiếu dữ liệu kiểm tra bắt buộc.',
     reviewRetry: 'Tải lại kết quả',
     reviewNoChecklist: 'Nhiệm vụ chưa có danh mục công trình.',
     reviewNoPreflight: 'Không tìm thấy kết quả kiểm tra trước bay đã lưu.',
@@ -132,19 +137,31 @@ export const postflightPageMessages = defineMessages({
     reviewNonCompliant: 'Cần khắc phục',
     reviewUnable: 'Không thể xác minh',
     reviewNotAssessed: 'Chưa đánh giá',
-    reviewMissionComplete: 'Xác nhận hoàn thành nhiệm vụ',
+    reviewMissionComplete: 'Hoàn thành nhiệm vụ',
     reviewCompleting: 'Đang xác nhận…',
-    reviewSendManager: 'Xác nhận nghiệm thu',
+    reviewMissionFailed: 'Xác nhận nhiệm vụ thất bại',
+    reviewFailureWaitingConfirmation:
+      'Postcheck đã xong. Vui lòng xác nhận nhiệm vụ thất bại để hoàn tất nghiệm thu.',
+    reviewFailureWaitingPermission:
+      'Chờ nghiệm thu viên được giao xác nhận nhiệm vụ thất bại.',
+    reviewFailureConfirmButton: 'Xác nhận nhiệm vụ thất bại',
+    reviewFailureConfirming: 'Đang xác nhận thất bại…',
+    reviewFailureConfirmed:
+      'Đã xác nhận nhiệm vụ thất bại sau khi hoàn tất kiểm tra sau bay.',
+    reviewFailureDefaultReason:
+      'Nhiệm vụ được xác nhận thất bại sau kiểm tra sau bay.',
+    reviewConfirmInspection: 'Nghiệm thu và công bố',
     reviewSending: 'Đang xác nhận…',
     reviewWaitingPermission:
-      'Chờ nghiệm thu viên được giao xác nhận hoàn thành nhiệm vụ.',
-    reviewWaitingChecklist: 'Hoàn tất checklist và bằng chứng trước khi gửi.',
+      'Chờ nghiệm thu viên được giao.',
+    reviewWaitingChecklist: 'Hoàn tất checklist và bằng chứng.',
     reviewWaitingAssessment:
-      'Nghiệm thu công việc đạt yêu cầu cho tất cả hạng mục và chọn đủ media gửi khách hàng. Mục không đạt cần khắc phục.',
+      'Đánh giá đủ checklist và chọn media gửi khách.',
     reviewRestorePostflight: 'Lưu lại kết quả kiểm tra sau bay hiện có',
     reviewRestoringPostflight: 'Đang lưu lại kết quả kiểm tra sau bay…',
-    reviewSent: 'Đã xác nhận nghiệm thu · đang chờ duyệt',
-    reviewApproved: 'Đã xác nhận nghiệm thu',
+    reviewSent: 'Chờ Inspector xác nhận nghiệm thu',
+    reviewApproved: 'Inspector đã nghiệm thu',
+    reviewStepComplete: 'Đã hoàn tất',
     reviewService: 'Dịch vụ',
     reviewLocation: 'Địa điểm',
     reviewNotes: 'Ghi chú sau bay',
@@ -156,15 +173,15 @@ export const postflightPageMessages = defineMessages({
     landingBattery: 'Pin hạ cánh',
     altitude: 'Độ cao',
     speed: 'Tốc độ',
-    heading: 'Heading',
+    heading: 'Hướng bay',
     assessmentProgress: 'Tiến độ đánh giá',
     itemsAssessed: (count: number, total: number) =>
       `${count} / ${total} mục đã kiểm tra`,
     someFailed: (count: number) => `${count} KHÔNG ĐẠT`,
     allPassed: '100% ĐẠT',
-    passAll: '✓ Đánh giá tất cả ĐẠT',
-    pass: '✓ ĐẠT',
-    fail: '✕ KHÔNG ĐẠT',
+    passAll: 'Đánh dấu tất cả đạt',
+    pass: 'Đạt',
+    fail: 'Không đạt',
     notesLabel: '5. Ghi chú kiểm tra sau bay (Notes)',
     notesPlaceholder:
       'Ghi chú thêm về hiện trạng thiết bị, điều kiện môi trường hoặc phát sinh trong chuyến bay...',
@@ -181,11 +198,12 @@ export const postflightPageMessages = defineMessages({
     allPassNoteSuffix: 'cho chuyến bay tiếp theo.',
     submitting: 'Đang gửi báo cáo...',
     submitAndCreateTicket: 'Gửi báo cáo & Tạo Ticket Bảo trì',
-    completeFlight: 'Hoàn tất kiểm tra sau bay',
+    completeFlight: 'Lưu kiểm tra thiết bị',
     failedItemsDescription: (items: string) =>
       `Mục không đạt kiểm tra sau bay: ${items}`,
   },
   en: {
+    backToInspectionSource: 'Return to the original mission inspection',
     categories: {
       structure: {
         title: 'Structure & Airframe',
@@ -246,7 +264,7 @@ export const postflightPageMessages = defineMessages({
     missionNotFoundDesc: 'Please select the mission to run the postcheck for.',
     missionFailedTitle: 'Mission failed',
     missionFailedDescription: 'The risk was recorded after the drone landed and postflight checks were completed. The entire mission checklist is marked unable to verify; captured photos and videos remain in the mission history.',
-    completedStepTitle: 'Postflight check completed',
+    completedStepTitle: 'Mission acceptance',
     defaultMissionLabel: 'Mission',
     successTitle: 'Postcheck completed',
     ticketCreatedTitle: 'Postcheck completed & maintenance request created',
@@ -263,24 +281,28 @@ export const postflightPageMessages = defineMessages({
     maintenanceTicketLabel: 'Backend maintenance ticket',
     maintenanceTicketValue: 'TKT-POSTFLIGHT-XXXX (Created successfully)',
     backToMissionList: 'Back to mission list',
-    reviewTitle: 'Review mission results',
+    reviewTitle: 'Mission results',
     reviewTabsLabel: 'Result review sections',
     reviewInspectorOnlyTitle: 'Inspector access only',
     reviewInspectorOnlyDescription:
       'The result review page is available only to the staff member assigned as inspector for this mission.',
-    reviewSubtitle:
-      'Review the checklist, preflight, weather, postflight, and photos/videos before confirming inspection.',
+    reviewSubtitle: 'Assess the site and review evidence before submitting.',
     reviewMissionChecklist: 'Work acceptance checklist',
+    reviewTabChecklist: 'Site checklist',
     reviewMissionInfo: 'Mission details',
     reviewPreflight: 'Device precheck',
+    reviewTabPreflight: 'Preflight',
     reviewWeather: 'Preflight weather',
     reviewPostflight: 'Device postcheck',
+    reviewTabPostflight: 'Postflight',
     reviewMedia: 'Mission photos and videos',
     reviewTabLoading: 'Loading',
     reviewTabNoItems: 'No items',
     reviewTabNoData: 'No data',
     reviewTabChecklistCount: (assessed: number, total: number) =>
       `${assessed}/${total} assessed`,
+    reviewTabPassedCount: (passed: number, total: number) =>
+      `${passed}/${total} passed`,
     reviewTabMediaCount: (count: number) => `${count} files`,
     reviewLoading: 'Loading mission results…',
     reviewLoadFailed: 'Some required mission results could not be loaded.',
@@ -291,7 +313,7 @@ export const postflightPageMessages = defineMessages({
     reviewPostflightLoadFailed: 'Could not load the postcheck result.',
     reviewMediaLoadFailed: 'Could not load mission photos/videos.',
     reviewAllDataRequired:
-      'Precheck, weather, and postcheck results must be available before confirming inspection.',
+      'Required inspection data is missing.',
     reviewRetry: 'Reload results',
     reviewNoChecklist: 'This mission has no site checklist.',
     reviewNoPreflight: 'No saved precheck result was found.',
@@ -316,19 +338,31 @@ export const postflightPageMessages = defineMessages({
     reviewNonCompliant: 'Non-compliant',
     reviewUnable: 'Unable to verify',
     reviewNotAssessed: 'Not assessed',
-    reviewMissionComplete: 'Confirm mission completion',
+    reviewMissionComplete: 'Complete mission',
     reviewCompleting: 'Confirming…',
-    reviewSendManager: 'Confirm inspection',
+    reviewMissionFailed: 'Confirm mission failure',
+    reviewFailureWaitingConfirmation:
+      'Postcheck is complete. Confirm the mission failure to finish acceptance.',
+    reviewFailureWaitingPermission:
+      'Waiting for the assigned inspector to confirm the mission failure.',
+    reviewFailureConfirmButton: 'Confirm mission failure',
+    reviewFailureConfirming: 'Confirming failure…',
+    reviewFailureConfirmed:
+      'Mission failure confirmed after postflight inspection.',
+    reviewFailureDefaultReason:
+      'Mission failure confirmed after postflight inspection.',
+    reviewConfirmInspection: 'Confirm and publish',
     reviewSending: 'Confirming inspection…',
     reviewWaitingPermission:
-      'Waiting for the assigned inspector to confirm mission completion.',
-    reviewWaitingChecklist: 'Complete the checklist and evidence before sending.',
+      'Waiting for the assigned inspector.',
+    reviewWaitingChecklist: 'Complete the checklist and evidence.',
     reviewWaitingAssessment:
-      'Accept compliant work for every checklist item and select the required customer media. Non-compliant work needs fixes.',
+      'Assess all checklist items and select customer media.',
     reviewRestorePostflight: 'Save the existing postcheck results again',
     reviewRestoringPostflight: 'Saving postcheck results again…',
     reviewSent: 'Awaiting inspection confirmation',
     reviewApproved: 'Inspection confirmed',
+    reviewStepComplete: 'Complete',
     reviewService: 'Service',
     reviewLocation: 'Location',
     reviewNotes: 'Postflight notes',
@@ -365,7 +399,7 @@ export const postflightPageMessages = defineMessages({
     allPassNoteSuffix: 'status for the next mission.',
     submitting: 'Submitting report...',
     submitAndCreateTicket: 'Submit report & create maintenance ticket',
-    completeFlight: 'Complete postcheck',
+    completeFlight: 'Save device inspection',
     failedItemsDescription: (items: string) =>
       `Failed post-flight check items: ${items}`,
   },

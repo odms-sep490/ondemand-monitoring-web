@@ -1,6 +1,7 @@
 import type { FormErrors, FormState, Step } from './types'
-import { isInsideHcmcServiceArea } from '../../../../shared/lib/serviceArea'
+import { isInsideHcmcServiceArea, isCoverageInsideHcmcServiceArea, isLocationInsideCoverageArea } from '../../../../shared/lib/serviceArea'
 import { todayPlus } from './format'
+import { isValidCoverageArea } from './coverageGeometry'
 
 export const ALTITUDE_MIN = 10
 export const ALTITUDE_MAX = 120
@@ -11,12 +12,14 @@ export type ValidationMessages = {
   address: string
   latitude: string
   longitude: string
+  coverageArea: string
+  locationOutsideCoverage?: string
   locationUnconfirmed: string
   outsideZone: string
   blockedZone: (zoneNames: string) => string
   serviceId: string
   title: string
-  usagePurpose: string
+  flightPurpose: string
   preferredDateFrom: string
   preferredDateTooSoon: string
   preferredDateTo: string
@@ -41,7 +44,6 @@ export type ValidationMessages = {
   permitExpired: string
   monitoringRelationship: string
   otherFlightPurpose: string
-  otherUsagePurpose: string
   otherMonitoringRelationship: string
   monitoringAuthorizationConfirmed: string
   monitoringAuthorizationDocuments: string
@@ -77,19 +79,15 @@ export function validateStep(
 
   if (targetStep >= 1) {
     if (!form.serviceId) errors.serviceId = msg.serviceId
-    if (!form.title.trim()) errors.title = msg.title
-    if (!form.usagePurpose) errors.usagePurpose = msg.usagePurpose
+    if (!form.flightPurpose) errors.flightPurpose = msg.flightPurpose
     if (form.flightPurpose === 'OTHER' && !form.otherFlightPurpose.trim()) {
       errors.otherFlightPurpose = msg.otherFlightPurpose
     }
-    if (form.usagePurpose === 'OTHER' && !form.otherUsagePurpose.trim()) {
-      errors.otherUsagePurpose = msg.otherUsagePurpose
-    }
   }
   if (targetStep >= 2) {
-    if (!form.address.trim()) errors.address = msg.address
-    else if (form.locationStatus !== 'confirmed')
+    if (form.locationStatus !== 'confirmed' || !form.locationConfirmedAt) {
       errors.address = msg.locationUnconfirmed
+    }
     if (!validLatitude) errors.latitude = msg.latitude
     if (!validLongitude) {
       errors.longitude = msg.longitude
@@ -104,6 +102,13 @@ export function validateStep(
     if (!location.monitoringValid) errors.address = msg.locationUnconfirmed
     if (location.blockedZoneNames.length > 0) {
       errors.address = msg.blockedZone(location.blockedZoneNames.join(', '))
+    }
+    if (!form.coverageAreaShape || !isValidCoverageArea(form.coverageArea)) {
+      errors.coverageArea = msg.coverageArea
+    } else if (!isCoverageInsideHcmcServiceArea(form.coverageArea)) {
+      errors.coverageArea = msg.outsideZone
+    } else if (validLatitude && validLongitude && !isLocationInsideCoverageArea({ latitude, longitude }, form.coverageArea)) {
+      errors.coverageArea = msg.locationOutsideCoverage ?? msg.coverageArea
     }
   }
   if (targetStep >= 4) {
@@ -203,10 +208,6 @@ export function validateStep(
     if (!form.deliverableTypeId) {
       errors.deliverableTypeId = msg.deliverableTypeId
     }
-    if (form.resultFormats.length === 0)
-      errors.resultFormats = msg.resultFormats
-    if (form.deliveryMethods.length === 0)
-      errors.deliveryMethods = msg.deliveryMethods
     if (!form.termsAccepted) errors.termsAccepted = msg.termsAccepted
   }
   return errors

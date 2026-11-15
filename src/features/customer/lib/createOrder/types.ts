@@ -2,6 +2,13 @@ export type Step = 1 | 2 | 3 | 4 | 5 | 6
 export const STEPS: readonly Step[] = [1, 2, 3, 4, 5, 6]
 
 export type MapPoint = { x: number; y: number }
+export type CoverageAreaShape =
+  'POLYGON' | 'FREEHAND' | 'RECTANGLE' | 'CIRCLE' | ''
+export type GeoPosition = [longitude: number, latitude: number]
+export type CoverageAreaGeometry = {
+  type: 'Polygon'
+  coordinates: GeoPosition[][]
+}
 
 export type LocationStatus =
   'unconfirmed' | 'resolving' | 'confirmed' | 'stale' | 'error'
@@ -44,8 +51,6 @@ export type SimulationZone = {
   coordinates: [number, number][]
 }
 
-export type UsagePurpose =
-  '' | 'INTERNAL' | 'LEGAL' | 'PARTNER_REPORT' | 'OTHER'
 /** Flight purpose per Decree 288/2025/ND-CP, Article 4.3 — only the classes this service sells. */
 export const FLIGHT_PURPOSES = [
   'SURVEY_MONITORING',
@@ -95,13 +100,10 @@ export type RetentionDays = (typeof RETENTION_DAYS)[number]
 
 export type FormState = {
   title: string
-  usagePurpose: UsagePurpose
   /** Printed as the flight purpose on the flight-permit application. */
-  flightPurpose: FlightPurpose
+  flightPurpose: FlightPurpose | ''
   /** Free-text detail required when `flightPurpose` is OTHER. */
   otherFlightPurpose: string
-  /** Free-text detail required when `usagePurpose` is OTHER. */
-  otherUsagePurpose: string
   description: string
   address: string
   normalizedAddress: string
@@ -111,6 +113,10 @@ export type FormState = {
   locationSource: LocationSource
   locationConfirmedAt: string
   radiusM: number
+  coverageAreaShape: CoverageAreaShape
+  coverageArea: CoverageAreaGeometry | null
+  /** WGS84 [longitude, latitude], used to resize or move a circle. */
+  coverageAreaCenter: GeoPosition | null
   monitoringRelationship: MonitoringRelationship | ''
   /** Free-text detail required when `monitoringRelationship` is OTHER. */
   otherMonitoringRelationship: string

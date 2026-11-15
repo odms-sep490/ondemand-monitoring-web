@@ -1,27 +1,21 @@
+import { useStaffLocalEvidence } from '../../../../media/upload/useStaffLocalEvidence'
+import { evidenceQueueFeedback } from '../../../../media/i18n/evidenceQueueFeedback'
+import { loadStaffEvidenceCandidates } from '../../../../media/upload/loadStaffEvidenceCandidates'
 import { useCallback, useEffect, useMemo } from 'react'
 import type { Mission } from '../../../types/omss'
 import { useI18n } from '../../../../../shared/i18n'
 import { useMissionMonitoring } from '../../../../mission/hooks/useMissionMonitoring'
 import { MonitoringChecklistSection } from '../../../../mission/components/MonitoringChecklistSection'
 import { useMissionEvidenceQueue } from '../../../../mission/hooks/useMissionEvidenceQueue'
-import { checklistEvidenceApi } from '../../../../mission/api/checklistEvidenceApi'
 import { operatorMediaApi } from '../../../../media/api/operatorMediaApi'
 import type {
   EvidenceCandidate,
-  EvidenceMediaStatus,
+  EvidenceCandidateLoader,
 } from '../../../../mission/types/checklistExecution'
 import { operatorHref } from '../../../routes'
 import { inFlightControlMessages } from './InFlightControl.messages'
 import { GlassPanel } from './GlassPanel'
 import './MissionChecklistPanel.css'
-
-const evidenceUploadStatus = (
-  status: string,
-): EvidenceMediaStatus => {
-  if (status === 'REVIEW_PENDING') return 'UPLOAD_PENDING'
-  if (status === 'UPLOAD_FAILED') return 'RETRY_REQUIRED'
-  return status as EvidenceMediaStatus
-}
 
 const evidenceQueueStageLabel: Record<string, string> = {
   QUEUED: 'Đang chờ tải lên',
@@ -29,16 +23,6 @@ const evidenceQueueStageLabel: Record<string, string> = {
   TRANSFERRING: 'Đang tải media lên',
   ATTACHING: 'Đang gắn vào checklist',
   VALIDATING: 'Đang xác thực media',
-}
-
-function evidenceQueueErrorMessage(errorCode?: string) {
-  if (errorCode === 'MANUAL_UPLOAD_REQUIRED')
-    return 'Media cần tải lên thủ công trước khi gắn.'
-  if (errorCode === 'LOCAL_MEDIA_UNAVAILABLE')
-    return 'Không tìm thấy tệp gốc trên thiết bị.'
-  if (errorCode === 'MEDIA_UPLOAD_NOT_ALLOWED')
-    return 'Tài khoản hiện không có quyền tải media lên.'
-  return 'Không thể tải hoặc gắn media. Hãy thử lại.'
 }
 
 function formatScheduledAt(value: string | undefined, locale: string) {
@@ -68,8 +52,10 @@ export function MissionChecklistPanel({
     [mission.id, missionId],
   )
   const monitoring = useMissionMonitoring(missionId)
+  const localEvidence = useStaffLocalEvidence(missionId, missionAliases, monitoring.error ? undefined : monitoring.data?.checklist)
   const canUploadMedia =
-    monitoring.data?.permissions.canUploadMedia === true
+    !monitoring.error && monitoring.data?.checklist.missionId === missionId &&
+    monitoring.data.permissions.canUploadMedia === true
   const transferLocalEvidence = useCallback(
     async (
       candidate: EvidenceCandidate,
@@ -92,81 +78,11 @@ export function MissionChecklistPanel({
     missionId,
     canUploadMedia ? transferLocalEvidence : undefined,
   )
-  const loadEvidenceCandidates = useCallback(
-    async (page: number): Promise<EvidenceCandidate[]> => {
-      const [uploadedCandidates, localMedia] = await Promise.all([
-        checklistEvidenceApi.candidates(missionId, page),
-        page === 0
-          ? operatorMediaApi
-              .list(missionId, missionAliases)
-              .catch(() => [])
-          : Promise.resolve([]),
-      ])
-      if (page > 0) return uploadedCandidates
-
-      const uploadedIds = new Set(
-        uploadedCandidates.map((candidate) => candidate.mediaId),
-      )
-      const localCandidates = localMedia
-        .filter(
-          (media) =>
-            !media.backendMediaId || !uploadedIds.has(media.backendMediaId),
-        )
-        .sort(
-          (a, b) =>
-            new Date(b.capturedAt).getTime() -
-            new Date(a.capturedAt).getTime(),
-        )
-        .map((media): EvidenceCandidate => {
-          const sourceEligible =
-            media.sourceType === 'DRONE_CAMERA' ||
-            media.sourceType === 'SATELLITE_SNAPSHOT' ||
-            media.sourceType === 'MANUAL_UPLOAD'
-          const attachable =
-            canUploadMedia &&
-            sourceEligible &&
-            media.status !== 'REJECTED' &&
-            media.localAvailable !== false
-          const backendCandidate = uploadedCandidates.find(
-            (candidate) => candidate.mediaId === media.backendMediaId,
-          )
-          const alreadyAttachedExecutionIds =
-            backendCandidate?.alreadyAttachedExecutionIds ??
-            (monitoring.data?.checklist.executions ?? [])
-              .filter((execution) =>
-                execution.evidence?.some(
-                  (evidence) => evidence.mediaId === media.backendMediaId,
-                ),
-              )
-              .map((execution) => execution.id)
-          return {
-            mediaId: `local:${media.localMediaId}`,
-            fileName: media.fileName,
-            mediaType: media.mediaType,
-            contentType: media.contentType,
-            status: evidenceUploadStatus(media.status),
-            sourceType: media.sourceType ?? null,
-            capturedAt: media.capturedAt,
-            validatedAt: null,
-            attachable,
-            eligibleForOperationalReadiness: false,
-            eligibleForFinalApproval: false,
-            ineligibilityReason:
-              media.status === 'REJECTED'
-                ? 'MEDIA_REJECTED'
-                : attachable
-                  ? null
-                  : 'EVIDENCE_SOURCE_NOT_ELIGIBLE',
-            previewUrl:
-              media.localAvailable === false
-                ? null
-                : operatorMediaApi.previewUrl(media.localMediaId),
-            urlExpiresAt: null,
-            alreadyAttachedExecutionIds,
-          }
-        })
-      return [...localCandidates, ...uploadedCandidates]
-    },
+  const loadEvidenceCandidates = useCallback<EvidenceCandidateLoader>(
+    (page, signal) => loadStaffEvidenceCandidates({
+      missionId, missionAliases, page, signal, canUploadMedia,
+      executions: monitoring.data?.checklist.executions ?? [],
+    }),
     [canUploadMedia, missionAliases, missionId, monitoring.data?.checklist],
   )
   const finishedEvidenceJobs = evidenceQueue.jobs
@@ -278,8 +194,8 @@ export function MissionChecklistPanel({
       >
         <MonitoringChecklistSection
           missionId={missionId}
-          data={monitoring.data?.checklist}
-          loading={monitoring.loading}
+          data={localEvidence.data}
+          loading={monitoring.loading || localEvidence.loading}
           error={monitoring.error}
           canExecute={
             monitoring.data?.permissions.canExecuteMonitoringChecklist === true
@@ -314,7 +230,7 @@ export function MissionChecklistPanel({
                 <span>
                   <strong>{job.payload.candidate.fileName}</strong>
                   {job.stage === 'FAILED'
-                    ? ` · ${evidenceQueueErrorMessage(job.errorCode)}`
+                    ? ` · ${evidenceQueueFeedback(job.errorCode, locale.startsWith('vi') ? 'vi' : 'en')}`
                     : ` · ${evidenceQueueStageLabel[job.stage] ?? 'Đang xử lý'}`}
                 </span>
                 {job.stage === 'FAILED' && (
@@ -328,7 +244,7 @@ export function MissionChecklistPanel({
                         )
                       }
                     >
-                      Thử lại
+                      {locale.startsWith('vi') ? 'Thử lại' : 'Retry'}
                     </button>
                     {job.errorCode === 'MANUAL_UPLOAD_REQUIRED' && (
                       <a

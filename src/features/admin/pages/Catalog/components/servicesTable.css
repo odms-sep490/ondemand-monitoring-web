@@ -56,3 +56,48 @@
     max-width: 360px;
   }
 }
+
+/* ---- polish: money / status columns stay on one line, tabular figures ---- */
+.adm-money-cell {
+  text-align: right;
+  white-space: nowrap;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ui-text);
+}
+.adm-services-table td:nth-child(3) {
+  white-space: nowrap;
+}
+.adm-services-table tbody tr:hover,
+.adm-services-table tbody tr:hover td {
+  background: var(--ui-surface-2);
+}
+.adm-service-thumbnail {
+  border-radius: 10px;
+}
+@media (max-width: 720px) {
+  .service-row-actions {
+    min-width: 0;
+  }
+}
+
+/* specificity bump so money/status cells beat the generic .adm-cell-mono / anywhere-wrapping */
+.odm-adm .odm-adm-table td.adm-money-cell {
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ui-text);
+  text-align: right;
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+.odm-adm .adm-services-table td:nth-child(n + 2) {
+  overflow-wrap: normal;
+}
+.odm-adm .adm-services-table td:nth-child(n + 3) {
+  white-space: nowrap;
+}
+.adm-services-table {
+  min-width: 780px;
+}

@@ -21,7 +21,6 @@ export function useCreateRequest() {
     areaHa: pricingAreaHa(form),
     lengthKm: Number(form.estimatedLengthM || 0) / 1000,
     altitudeM: Number.isFinite(form.altitudeM) ? form.altitudeM : 0,
-    resultFormats: form.resultFormats,
     permitStatus: form.permitStatus,
   })
 

@@ -10,6 +10,7 @@ const pending: Payment = {
   invoiceId: 'invoice-1',
   paymentCode: 123456,
   type: 'DEPOSIT',
+  missionPaymentMilestoneId: null,
   amount: 300_000,
   currency: 'VND',
   status: 'PENDING',

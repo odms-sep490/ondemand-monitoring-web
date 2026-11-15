@@ -46,7 +46,11 @@ const backendMessageTranslations: Record<string, string> = {
 
 export function translateBackendError(error: unknown): string {
   if (resourceAssignmentConflict(error))
-    return planningBlocker('RESOURCE_TIME_CONFLICT')
+    return planningBlocker(
+      error instanceof ApiError && error.code === 'STAFF_BUSY_IN_SLOT'
+        ? 'STAFF_BUSY_IN_SLOT'
+        : 'RESOURCE_TIME_CONFLICT',
+    )
   if (!(error instanceof ApiError)) {
     if (error instanceof Error) return error.message
     return 'Không thể kết nối. Giữ nguyên dữ liệu và thử lại sau.'
@@ -136,6 +140,7 @@ export function resourceAssignmentConflict(error: unknown): boolean {
     (error instanceof ApiError &&
       [
         'RESOURCE_TIME_CONFLICT',
+        'STAFF_BUSY_IN_SLOT',
         'RESOURCE_ALREADY_RESERVED',
         'SCHEDULE_CONFLICT',
       ].includes(error.code ?? '')) ||

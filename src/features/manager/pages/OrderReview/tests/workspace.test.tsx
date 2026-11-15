@@ -281,9 +281,10 @@ describe('Order-centric workspace', () => {
     )
     // A finalized plan is no longer editable: the finalize action goes away
     // and each Mission can now be confirmed.
-    const confirmM1 = within(
+    // Wait for the reloaded (finalized) card; the stale card may still be shown.
+    const confirmM1 = await within(
       await screen.findByRole('article', { name: 'M1' }),
-    ).getByRole('button', { name: 'Xác nhận' })
+    ).findByRole('button', { name: 'Xác nhận' })
     expect(
       screen.queryByRole('button', { name: 'Chốt kế hoạch' }),
     ).not.toBeInTheDocument()

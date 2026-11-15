@@ -10,8 +10,8 @@
   gap: 12px;
   padding: 16px 18px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #eff6ff, #f8fafc);
-  border: 1px solid #bfdbfe;
+  background: linear-gradient(135deg, var(--ui-primary-soft), var(--ui-surface-2));
+  border: 1px solid color-mix(in srgb, var(--ui-primary) 35%, var(--ui-border));
 }
 .psum-hero-label {
   display: block;
@@ -19,14 +19,14 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #475569;
+  color: var(--ui-text-2);
 }
 .psum-hero-value {
   display: block;
   margin-top: 2px;
   font-size: 28px;
   line-height: 1.15;
-  color: #1d4ed8;
+  color: var(--ui-primary-text);
   font-variant-numeric: tabular-nums;
 }
 .psum-chips {
@@ -37,14 +37,14 @@
 .psum-chip {
   padding: 2px 10px;
   border-radius: 999px;
-  border: 1px solid #cbd5e1;
-  background: #fff;
+  border: 1px solid var(--ui-border-strong);
+  background: var(--ui-surface);
   font-size: 12px;
-  color: #475569;
+  color: var(--ui-text-2);
 }
 .psum-chip.is-soft {
   margin-left: 6px;
-  background: #f1f5f9;
+  background: var(--ui-surface-2);
 }
 .psum-notice {
   margin: 0;
@@ -53,9 +53,9 @@
   font-size: 13px;
 }
 .psum-notice.is-warn {
-  background: #fff7df;
-  border: 1px solid #f0c36a;
-  color: #805100;
+  background: var(--ui-warning-soft);
+  border: 1px solid var(--ui-warning);
+  color: var(--ui-warning-text);
 }
 .psum-notice ul {
   margin: 6px 0 0;
@@ -65,10 +65,10 @@
 .psum-note {
   margin: 0;
   font-size: 12px;
-  color: #64748b;
+  color: var(--ui-text-3);
 }
 .psum-table {
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--ui-border);
   border-radius: 12px;
   overflow: hidden;
 }
@@ -84,15 +84,15 @@
   text-align: right;
 }
 .psum-row.is-head {
-  background: #f8fafc;
+  background: var(--ui-surface-2);
   font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #64748b;
+  color: var(--ui-text-3);
 }
 .psum-item {
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid var(--ui-border);
 }
 .psum-item > summary {
   cursor: pointer;
@@ -102,10 +102,10 @@
   display: none;
 }
 .psum-item > summary:hover {
-  background: #f8fafc;
+  background: var(--ui-surface-2);
 }
 .psum-item[open] > summary {
-  background: #f1f5f9;
+  background: var(--ui-surface-2);
 }
 .psum-name {
   display: grid;
@@ -113,28 +113,28 @@
   min-width: 0;
 }
 .psum-name small {
-  color: #64748b;
+  color: var(--ui-text-3);
 }
 .psum-extra {
-  color: #b45309;
+  color: var(--ui-warning-text);
   font-weight: 600;
 }
 .psum-wide {
   grid-column: span 3;
   text-align: right;
-  color: #b45309;
+  color: var(--ui-warning-text);
 }
 .psum-detail {
   display: grid;
   gap: 8px;
   padding: 10px 16px 14px;
-  background: #f8fafc;
-  border-top: 1px dashed #cbd5e1;
+  background: var(--ui-surface-2);
+  border-top: 1px dashed var(--ui-border-strong);
 }
 .psum-detail-title {
   font-size: 12px;
   font-weight: 600;
-  color: #64748b;
+  color: var(--ui-text-3);
 }
 .psum-detail table {
   width: 100%;
@@ -152,7 +152,7 @@
 }
 .psum-detail th {
   font-weight: 600;
-  color: #64748b;
+  color: var(--ui-text-3);
 }
 .psum-totals {
   display: grid;
@@ -168,7 +168,7 @@
   align-items: baseline;
 }
 .psum-totals dt {
-  color: #475569;
+  color: var(--ui-text-2);
 }
 .psum-totals dd {
   margin: 0;
@@ -178,12 +178,12 @@
 .psum-totals .is-total {
   margin-top: 4px;
   padding-top: 10px;
-  border-top: 1px solid #cbd5e1;
+  border-top: 1px solid var(--ui-border-strong);
   font-size: 16px;
 }
 .psum-totals .is-total dt,
 .psum-totals .is-total dd {
-  color: #0f172a;
+  color: var(--ui-text);
   font-weight: 700;
 }
 @media (max-width: 720px) {
@@ -204,9 +204,52 @@
   content: '▸';
   display: inline-block;
   width: 14px;
-  color: #94a3b8;
+  color: var(--ui-border-strong);
   transition: transform 0.15s;
 }
 .psum-item[open] .psum-name strong::before {
   transform: rotate(90deg);
+}
+
+/* ---- polish: card tokens, shadow, dark-safe hero ---- */
+.psum-hero {
+  background: linear-gradient(
+    135deg,
+    var(--ui-primary-soft),
+    var(--ui-surface)
+  );
+  border-radius: 16px;
+  box-shadow: var(--mgr-shadow, none);
+}
+.psum-hero-value {
+  font-weight: 800;
+  text-align: right;
+}
+.psum-table {
+  border-radius: 16px;
+  background: var(--ui-surface);
+  overflow-x: auto;
+}
+.psum-row.is-head {
+  letter-spacing: 0.03em;
+}
+.psum-totals dd {
+  text-align: right;
+}
+.psum-totals .is-total dd {
+  font-size: 20px;
+}
+.psum-chip {
+  background: var(--ui-surface);
+}
+@media (max-width: 560px) {
+  .psum-hero-value {
+    font-size: 24px;
+  }
+  .psum-totals {
+    max-width: none;
+  }
+  .psum-detail {
+    overflow-x: auto;
+  }
 }

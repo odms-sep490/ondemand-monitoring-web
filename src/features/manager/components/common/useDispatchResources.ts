@@ -1,7 +1,7 @@
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { missionApi } from '../../../mission/api/missionApi'
 import { droneApi } from '../../../staff/api/droneApi'
-import { operatorApi } from '../../../staff/api/operatorApi'
+import { loadDispatchStaff } from './dispatchUnavailableStaff'
 import type { OrderDispatchContext } from './liveDispatchTypes'
 
 export function useDispatchResources({
@@ -25,11 +25,16 @@ export function useDispatchResources({
   )
   const availability = useApiQuery(async () => {
     if (!validWindow) return null
-    const [devices, people] = await Promise.all([
+    const [devices, staff] = await Promise.all([
       droneApi.getAvailable(missionId),
-      operatorApi.getAvailable(missionId),
+      loadDispatchStaff(missionId, { start: start!, end: end! }),
     ])
-    return { scope, devices, people }
+    return {
+      scope,
+      devices,
+      people: staff.people,
+      unavailable: staff.unavailable,
+    }
   }, [scope, validWindow])
   const resourcesReady =
     !mission.loading &&
@@ -44,6 +49,7 @@ export function useDispatchResources({
   }
   const operators = {
     data: resourcesReady ? availability.data?.people : undefined,
+    unavailable: resourcesReady ? availability.data?.unavailable : undefined,
     reload: availability.reload,
   }
   return {

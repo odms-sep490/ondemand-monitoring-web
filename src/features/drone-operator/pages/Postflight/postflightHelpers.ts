@@ -2,7 +2,6 @@ import type { Language } from '../../../../shared/i18n/languageStore'
 import type { PostflightCategoryDef } from './postflightTypes'
 import { postflightPageMessages } from './PostflightPage.messages'
 import type { PostflightItemKey } from '../../types/mission'
-import type { FlightControlStatus } from '../../api/flightControlApi'
 
 /** Bilingual postflight categories. `key`/`backendKeys`/`icon` stay stable across languages. */
 export function postflightCategories(lang: Language): PostflightCategoryDef[] {
@@ -62,44 +61,14 @@ export const ALL_KEYS: PostflightItemKey[] = [
   'communication_ok',
 ]
 
-export const postflightTelemetryKey = (missionId: string) =>
-  `fieldwise.operator.postflightTelemetry.${missionId}`
-
-export function readPostflightTelemetry(
-  missionId: string,
-): FlightControlStatus | null {
-  if (!missionId) return null
-  try {
-    const raw = window.sessionStorage.getItem(postflightTelemetryKey(missionId))
-    if (!raw) return null
-    return JSON.parse(raw) as FlightControlStatus
-  } catch {
-    return null
-  }
-}
-
-export function isUsablePostflightTelemetry(
-  status: FlightControlStatus,
-  missionId: string,
-) {
-  const matchesMission = !status.missionId || status.missionId === missionId
-  return (
-    matchesMission &&
-    typeof status.batteryPercent === 'number' &&
-    Number.isFinite(status.batteryPercent)
-  )
-}
-
 export function clearCompletedMissionState(
   missionId: string,
   missionLabel: string,
   deviceId: string,
 ) {
-  window.sessionStorage.removeItem(postflightTelemetryKey(missionId))
   window.sessionStorage.removeItem(
     `fieldwise.operator.handoverAcknowledged.${missionId}`,
   )
-  window.sessionStorage.removeItem('odm.operator.autoStartSimulation')
   window.localStorage.removeItem(
     `omss.droneOperator.preflightReady.${missionLabel}.${deviceId}`,
   )

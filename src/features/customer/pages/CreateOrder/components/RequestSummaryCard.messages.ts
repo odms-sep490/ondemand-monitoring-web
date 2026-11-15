@@ -50,6 +50,7 @@ export const requestSummaryCardMessages = defineMessages({
     technical: 'Thông tin kỹ thuật',
     coordinates: 'Tọa độ khu vực',
     radius: 'Bán kính',
+    perimeter: 'Chu vi',
     IMAGE: 'Ảnh',
     VIDEO: 'Video',
     quantityUnit: (type: 'IMAGE' | 'VIDEO', count: number) =>
@@ -109,6 +110,7 @@ export const requestSummaryCardMessages = defineMessages({
     technical: 'Technical details',
     coordinates: 'Area coordinates',
     radius: 'Radius',
+    perimeter: 'Perimeter',
     IMAGE: 'Photo',
     VIDEO: 'Video',
     quantityUnit: (type: 'IMAGE' | 'VIDEO', count: number) =>

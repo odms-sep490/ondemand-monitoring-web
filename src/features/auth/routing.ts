@@ -19,5 +19,15 @@ export function getRoleHomeUrl(
 }
 
 export function redirectToRoleHome(role?: UserRole) {
-  window.location.hash = getRoleHomePath(role)
+  const saved = window.sessionStorage.getItem('auth:return-to')
+  window.sessionStorage.removeItem('auth:return-to')
+  const home = getRoleHomePath(role)
+  if (!saved && window.location.hash.startsWith(`${home}/`)) return
+  window.location.hash = saved?.startsWith(`${home}/`) ? saved : home
+}
+
+export function rememberProtectedRoute(hash: string) {
+  if (hash.startsWith('#portal/')) {
+    window.sessionStorage.setItem('auth:return-to', hash)
+  }
 }

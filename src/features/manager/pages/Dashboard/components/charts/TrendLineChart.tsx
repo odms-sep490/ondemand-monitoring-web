@@ -23,9 +23,26 @@ type Props = {
 export function TrendLineChart({ points, completedLabel, failedLabel, empty, locale, ariaLabel }: Props) {
   if (!points.length) return <p className="mgr-empty-line">{empty}</p>
   const data = points.map((p) => ({ ...p, label: dateLabel(p.x, locale) }))
+  const activePoints = data.filter((point) => point.completed > 0 || point.failed > 0)
+  if (!activePoints.length) return <p className="mgr-empty-line">{empty}</p>
+  const chartHeight = data.length >= 14 ? 220 : data.length >= 7 ? 200 : 180
+  if (activePoints.length === 1) {
+    const point = activePoints[0]
+    return (
+      <div
+        className="mgr-single-trend"
+        role="img"
+        aria-label={`${ariaLabel}. ${point.label}: ${completedLabel} ${point.completed}; ${failedLabel} ${point.failed}`}
+      >
+        <time dateTime={point.x}>{point.label}</time>
+        <span>{completedLabel}<strong>{point.completed}</strong></span>
+        <span>{failedLabel}<strong>{point.failed}</strong></span>
+      </div>
+    )
+  }
   return (
     <div role="img" aria-label={ariaLabel}>
-      <ResponsiveContainer width="100%" height={220}>
+      <ResponsiveContainer width="100%" height={chartHeight}>
         <LineChart data={data} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
           <CartesianGrid stroke={GRID_STROKE} strokeDasharray="4 6" vertical={false} />
           <XAxis dataKey="label" tick={AXIS_TICK} axisLine={false} tickLine={false} minTickGap={24} />

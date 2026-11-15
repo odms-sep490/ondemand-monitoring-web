@@ -210,11 +210,6 @@ export function WorkflowStepper({
             )
           })}
         </ol>
-        {progress.waiting ? (
-          <p className="odm-wf-note is-waiting" role="status">
-            {t.waitingDepositNote}
-          </p>
-        ) : null}
         {combined ? mission?.detail : null}
       </section>
 

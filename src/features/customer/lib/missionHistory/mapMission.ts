@@ -9,7 +9,6 @@ const KNOWN: readonly MissionStatus[] = [
   'PLANNING',
   'CREATED',
   'WAITING_DEPOSIT',
-  'PENDING_PAYMENT',
   'PENDING_CONFIRMATION',
   'RESOURCE_ASSIGNING',
   'READY',

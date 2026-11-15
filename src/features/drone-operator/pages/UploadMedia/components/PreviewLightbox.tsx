@@ -1,37 +1,31 @@
-import { operatorMediaApi } from '../../../../media/api/operatorMediaApi'
-import { uploadMediaPageMessages } from '../UploadMediaPage.messages'
-import { useI18n } from '../../../../../shared/i18n'
-import type { RefObject, Dispatch, SetStateAction } from 'react'
+import { staffMediaSources } from '../../../../media/upload/staffMediaSources'
+import { ImagePreview } from '../../../../../shared/components/media/ImagePreview'
+import { useState } from 'react'
+import type { Dispatch, SetStateAction } from 'react'
 import type { LocalMedia } from '../../../../media/api/operatorMediaApi'
 
 export function PreviewLightbox({
-  previewDialog,
   setPreview,
   preview,
 }: {
-  previewDialog: RefObject<HTMLDialogElement | null>
   setPreview: Dispatch<SetStateAction<LocalMedia | null>>
   preview: LocalMedia
 }) {
-  const { t } = useI18n(uploadMediaPageMessages)
+  const [failed, setFailed] = useState<string[]>([])
+  const sources = staffMediaSources(preview).viewImages
+  const source = sources.find((url) => !failed.includes(url))
   return (
-    <dialog
-      ref={previewDialog}
-      className="upload-media-lightbox"
-      aria-label={t.enlargePreview}
-      onClose={() => setPreview(null)}
-    >
-      <button
-        type="button"
-        className="odm-btn"
-        onClick={() => previewDialog.current?.close()}
-      >
-        {t.closePreview}
-      </button>
-      <img
-        src={operatorMediaApi.previewUrl(preview.localMediaId)}
-        alt={preview.fileName}
-      />
-    </dialog>
+    <ImagePreview
+      src={source ?? ''}
+      fileName={preview.fileName}
+      viewerOnly
+      visible
+      onVisibleChange={(visible) => {
+        if (!visible) setPreview(null)
+      }}
+      onError={() => {
+        if (source) setFailed((previous) => [...previous, source])
+      }}
+    />
   )
 }

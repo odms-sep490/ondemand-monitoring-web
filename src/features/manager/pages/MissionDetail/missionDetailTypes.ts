@@ -3,9 +3,12 @@ export type MissionDetailTab =
   | 'media'
   | 'checklist'
   | 'route'
-  | 'order'
+  | 'plan'
+  | 'permit'
+  | 'contract'
   | 'resources'
   | 'checks'
+  | 'finance'
 
 export type NextStep = {
   tone: 'wait' | 'go' | 'done' | 'bad'

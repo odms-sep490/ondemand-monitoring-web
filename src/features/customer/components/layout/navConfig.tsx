@@ -1,8 +1,6 @@
 import {
   CameraOutlined,
   FileTextOutlined,
-  HistoryOutlined,
-  HomeOutlined,
   PlusCircleOutlined,
   QuestionCircleOutlined,
   ShoppingOutlined,
@@ -31,11 +29,6 @@ export const NAV_GROUPS: NavGroup[] = [
     key: 'monitoring',
     items: [
       {
-        key: 'dashboard',
-        icon: <HomeOutlined />,
-        route: { screen: 'dashboard' },
-      },
-      {
         key: 'orders',
         icon: <ShoppingOutlined />,
         route: { screen: 'orders' },
@@ -44,11 +37,6 @@ export const NAV_GROUPS: NavGroup[] = [
         key: 'createOrder',
         icon: <PlusCircleOutlined />,
         route: { screen: 'createOrder' },
-      },
-      {
-        key: 'missionHistory',
-        icon: <HistoryOutlined />,
-        route: { screen: 'missionHistory' },
       },
       {
         key: 'mediaLibrary',
@@ -71,7 +59,7 @@ export const activeNavKey: Record<CustomerScreen, CustomerNavItemKey | null> = {
   missionHistory: 'missionHistory',
   missionHistoryDetail: 'missionHistory',
   missionReport: 'orders',
-  dashboard: 'dashboard',
+  dashboard: 'orders',
   orders: 'orders',
   createOrder: 'createOrder',
   orderDetail: 'orders',
@@ -80,5 +68,6 @@ export const activeNavKey: Record<CustomerScreen, CustomerNavItemKey | null> = {
   media: 'mediaLibrary',
   mediaLibrary: 'mediaLibrary',
   mediaDetail: 'mediaLibrary',
+  notifications: null,
   notFound: null,
 }

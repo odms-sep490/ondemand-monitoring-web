@@ -3,6 +3,7 @@ import { useRef, useEffect } from 'react'
 import L from 'leaflet'
 import { missionTargetGps, routeMarkerIcon } from './missionGeo'
 import type { GpsPoint } from './types'
+import { coverageAreaToLatLngRings } from '../../../../shared/lib/coverageArea'
 import { HCMC_SERVICE_CENTER } from '../../../../shared/lib/serviceArea'
 
 export function useOperatorMissionMap(
@@ -12,6 +13,7 @@ export function useOperatorMissionMap(
   const container = useRef<HTMLDivElement>(null)
   const map = useRef<L.Map | null>(null)
   const circle = useRef<L.Circle | null>(null)
+  const polygon = useRef<L.Polygon | null>(null)
   const homeMarker = useRef<L.Marker | null>(null)
   const targetMarker = useRef<L.Marker | null>(null)
   const routeLine = useRef<L.Polyline | null>(null)
@@ -65,6 +67,7 @@ export function useOperatorMissionMap(
       instance.remove()
       map.current = null
       circle.current = null
+      polygon.current = null
       homeMarker.current = null
       targetMarker.current = null
       routeLine.current = null
@@ -129,27 +132,50 @@ export function useOperatorMissionMap(
 
     targetMarker.current.addTo(map.current)
 
-    if (mission.radiusMeters && mission.radiusMeters > 0) {
+    const areaRings = coverageAreaToLatLngRings(mission.coverageArea)
+    if (areaRings) {
       if (circle.current) {
-        circle.current.setLatLng(point).setRadius(mission.radiusMeters)
+        circle.current.remove()
+        circle.current = null
+      }
+      if (polygon.current) {
+        polygon.current.setLatLngs(areaRings)
       } else {
-        circle.current = L.circle(point, {
-          radius: mission.radiusMeters,
+        polygon.current = L.polygon(areaRings, {
           color: '#16a34a',
           fillColor: '#22c55e',
           fillOpacity: 0.16,
           weight: 2,
         }).addTo(map.current)
       }
-    } else if (circle.current) {
-      circle.current.remove()
-      circle.current = null
+    } else {
+      if (polygon.current) {
+        polygon.current.remove()
+        polygon.current = null
+      }
+      if (mission.radiusMeters && mission.radiusMeters > 0) {
+        if (circle.current) {
+          circle.current.setLatLng(point).setRadius(mission.radiusMeters)
+        } else {
+          circle.current = L.circle(point, {
+            radius: mission.radiusMeters,
+            color: '#16a34a',
+            fillColor: '#22c55e',
+            fillOpacity: 0.16,
+            weight: 2,
+          }).addTo(map.current)
+        }
+      } else if (circle.current) {
+        circle.current.remove()
+        circle.current = null
+      }
     }
 
     if (viewMode === 'route') {
       homeMarker.current.addTo(map.current)
       routeLine.current.addTo(map.current)
       const routeBounds = L.latLngBounds([home, point])
+      if (polygon.current) routeBounds.extend(polygon.current.getBounds())
       if (circle.current) routeBounds.extend(circle.current.getBounds())
       map.current.fitBounds(routeBounds, {
         paddingTopLeft: [40, 40],
@@ -159,8 +185,9 @@ export function useOperatorMissionMap(
     } else {
       homeMarker.current.remove()
       routeLine.current.remove()
-      if (circle.current) {
-        map.current.fitBounds(circle.current.getBounds(), {
+      const areaBounds = polygon.current?.getBounds() ?? circle.current?.getBounds()
+      if (areaBounds?.isValid()) {
+        map.current.fitBounds(areaBounds, {
           padding: [52, 52],
           maxZoom: 16,
         })
@@ -168,7 +195,13 @@ export function useOperatorMissionMap(
         map.current.setView(point, 16)
       }
     }
-  }, [targetLat, targetLon, mission.radiusMeters, viewMode])
+  }, [
+    targetLat,
+    targetLon,
+    mission.radiusMeters,
+    mission.coverageArea,
+    viewMode,
+  ])
 
   return { container, target }
 }

@@ -72,7 +72,7 @@ export function deliveryLabel(status: DeliveryStatus, t: PageMessages) {
   if (status === 'CUSTOMER_REVIEW') return t.deliveryStatus.customerReview
   if (status === 'REVISION_REQUESTED') return t.deliveryStatus.revisionRequested
   if (status === 'FINAL_PAYMENT_PENDING')
-    return t.deliveryStatus.finalPaymentPending
+    return t.deliveryStatus.missionPaymentPending
   if (status === 'PAYMENT_CONFIRMED' || status === 'READY_FOR_DELIVERY')
     return t.deliveryStatus.readyForDelivery
   if (status === 'DELIVERED') return t.deliveryStatus.delivered
@@ -88,7 +88,6 @@ const GROUPS: Record<MissionGroup, readonly MissionStatus[]> = {
     'PLANNING',
     'CREATED',
     'WAITING_DEPOSIT',
-    'PENDING_PAYMENT',
     'PENDING_CONFIRMATION',
     'RESOURCE_ASSIGNING',
     'WAITING_OPERATOR_ACCEPTANCE',

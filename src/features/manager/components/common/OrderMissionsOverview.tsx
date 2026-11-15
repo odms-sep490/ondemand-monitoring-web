@@ -49,24 +49,29 @@ export function OrderMissionsOverview({
   mode?: 'preparation' | 'permit'
 }) {
   const { t } = useI18n(orderMissionsOverviewMessages)
-  const [invoicePaid, setInvoicePaid] = useState(false)
+  const [depositPaid, setDepositPaid] = useState(false)
   useEffect(() => {
     if (mode !== 'permit' || !order?.id) {
-      setInvoicePaid(false)
+      setDepositPaid(false)
       return
     }
     const controller = new AbortController()
-    setInvoicePaid(false)
+    setDepositPaid(false)
     financeApi
       .getManagerInvoice(order.id, controller.signal)
       .then((invoice) => {
-        if (!controller.signal.aborted)
-          setInvoicePaid(
-            invoice.status === 'PAID' && invoice.remainingAmount <= 0,
+        if (!controller.signal.aborted) {
+          setDepositPaid(
+            !['CANCELLED', 'REFUNDED', 'OVERDUE'].includes(invoice.status) &&
+              (invoice.depositStatus === 'DEPOSIT_PAID' ||
+                invoice.paidAmount >= invoice.depositAmount),
           )
+        }
       })
       .catch(() => {
-        if (!controller.signal.aborted) setInvoicePaid(false)
+        if (!controller.signal.aborted) {
+          setDepositPaid(false)
+        }
       })
     return () => controller.abort()
   }, [mode, order?.id])
@@ -222,7 +227,14 @@ export function OrderMissionsOverview({
                 key={mission.id}
                 mission={mission}
                 onChanged={onReload}
-                paymentComplete={invoicePaid}
+                depositPaid={depositPaid}
+                orderPermitRejected={order?.legalReviewStatus === 'REJECTED'}
+                refundEligible={Boolean(
+                  order?.status === 'APPROVED' &&
+                    order.legalReviewStatus === 'REJECTED' &&
+                    mission.flightPermitStatus === 'REJECTED' &&
+                    depositPaid,
+                )}
               />
             ))
         : null}

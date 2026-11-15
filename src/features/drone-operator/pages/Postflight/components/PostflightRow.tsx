@@ -7,10 +7,10 @@ export function Row({ label, value }: { label: string; value: string }) {
         fontSize: 13.5,
       }}
     >
-      <span style={{ color: 'var(--tx3, #64748b)', fontWeight: 500 }}>
+      <span style={{ color: 'var(--tx3, var(--mgr-muted))', fontWeight: 500 }}>
         {label}:
       </span>
-      <span style={{ fontWeight: 700, color: 'var(--tx, #0f172a)' }}>
+      <span style={{ fontWeight: 700, color: 'var(--tx, var(--mgr-text))' }}>
         {value}
       </span>
     </div>

@@ -81,6 +81,7 @@ const delivery: Delivery = {
 }
 
 beforeEach(() => {
+  vi.spyOn(deliveryApi, 'missionDeliveries').mockResolvedValue([])
   setLanguage('vi')
   vi.spyOn(deliveryApi, 'get').mockResolvedValue(pending)
   vi.spyOn(deliveryApi, 'previews').mockResolvedValue(pending)
@@ -92,6 +93,35 @@ afterEach(() => {
 })
 
 describe('Customer delivery payment placement', () => {
+  it('keeps the order summary independent from the Mission selected for review', async () => {
+    vi.mocked(deliveryApi.missionDeliveries).mockResolvedValue([
+      {
+        missionId: 'mission-a',
+        missionCode: 'MS-A',
+        status: 'FINAL_PAYMENT_PENDING',
+      },
+      { missionId: 'mission-b', missionCode: 'MS-B', status: 'PROCESSING' },
+    ])
+    vi.mocked(deliveryApi.get).mockImplementation(
+      async (_orderId, _signal, missionId) => (missionId ? pending : delivery),
+    )
+    const onStateChange = vi.fn()
+    render(<CustomerDeliveryPanel orderId="o1" onStateChange={onStateChange} />)
+    await waitFor(() =>
+      expect(onStateChange).toHaveBeenCalledWith(delivery, 'ready'),
+    )
+    expect(deliveryApi.get).toHaveBeenCalledWith('o1', undefined, 'mission-a')
+    expect(onStateChange).not.toHaveBeenCalledWith(pending, 'ready')
+    fireEvent.click(screen.getByRole('tab', { name: 'MS-B' }))
+    await waitFor(() =>
+      expect(deliveryApi.get).toHaveBeenCalledWith(
+        'o1',
+        undefined,
+        'mission-b',
+      ),
+    )
+  })
+
   it('keeps result acceptance available without a payment prompt', async () => {
     const review = { ...pending, deliveryStatus: 'CUSTOMER_REVIEW' as const }
     vi.mocked(deliveryApi.get).mockResolvedValue(review)
@@ -212,7 +242,9 @@ describe('CustomerDeliveryPanel', () => {
     fireEvent.click(
       await screen.findByRole('button', { name: 'Confirm and send' }),
     )
-    await waitFor(() => expect(originals).toHaveBeenCalledWith('o1'))
+    await waitFor(() =>
+      expect(originals).toHaveBeenCalledWith('o1', undefined, undefined),
+    )
     expect(
       await screen.findByRole('button', { name: /Download/ }),
     ).toBeEnabled()

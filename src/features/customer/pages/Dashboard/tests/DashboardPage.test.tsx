@@ -56,12 +56,12 @@ describe('DashboardPage', () => {
     expect(within(breakdown).getAllByRole('listitem')).toHaveLength(7)
   })
 
-  it('lists recent missions from the mission history', async () => {
+  it('does not show or load mission history on the customer dashboard', async () => {
+    const listMissions = vi.spyOn(customerMissionHistoryApi, 'list')
     render(<DashboardPage />)
-    await screen.findByText('Nhiệm vụ gần đây')
-    const missions = card('Nhiệm vụ gần đây')
-    expect(await within(missions).findByText('MSN-2609-0131-1', { exact: false })).toBeInTheDocument()
-    expect(tableRows(missions)).toHaveLength(3)
+    await screen.findByText('Đơn hàng gần đây')
+    expect(screen.queryByText('Nhiệm vụ gần đây')).not.toBeInTheDocument()
+    expect(listMissions).not.toHaveBeenCalled()
   })
 
   it('shows the empty state when there are no orders', async () => {
@@ -79,13 +79,4 @@ describe('DashboardPage', () => {
     expect(await screen.findByText('Tổng số đơn')).toBeInTheDocument()
   })
 
-  it('keeps the orders visible when only the missions fail, with its own retry', async () => {
-    vi.spyOn(customerMissionHistoryApi, 'list').mockRejectedValueOnce(new Error('boom'))
-    render(<DashboardPage />)
-    // Wait for orders first: the missions card remounts into the main grid once they load.
-    expect(await screen.findByText('Tổng số đơn')).toBeInTheDocument()
-    expect(await screen.findByText('Không tải được nhiệm vụ gần đây')).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: 'Thử lại' }))
-    expect(await screen.findByText('MSN-2609-0131-1', { exact: false })).toBeInTheDocument()
-  })
 })

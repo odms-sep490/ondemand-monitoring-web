@@ -43,7 +43,8 @@ export default defineConfig({
     env: {
       VITE_USE_MOCK_API: 'true',
       VITE_API_BASE_URL: ORIGIN,
-      VITE_REAL_API_ROUTES: 'GET /api/weather/forecast,POST /api/orders',
+      VITE_REAL_API_ROUTES:
+        'GET /api/weather/forecast,POST /api/orders,GET /api/orders/cus-ord-006/mission-deliveries,GET /api/orders/cus-ord-006/delivery',
     },
   },
 })

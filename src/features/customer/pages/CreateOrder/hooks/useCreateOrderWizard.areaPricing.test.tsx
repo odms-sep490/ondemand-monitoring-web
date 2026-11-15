@@ -1,6 +1,7 @@
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { customerApi } from '../../../api/customerApi'
+import { ApiError } from '../../../../../shared/api/httpClient'
 import {
   checklistPricingApi,
   type ServicePricePreview,
@@ -10,6 +11,7 @@ import {
   createDefaultForm,
 } from '../../../lib/createOrder/draftStorage'
 import { pricingAreaHa } from '../../../lib/createOrder/payload'
+import { circleCoverageArea } from '../../../lib/createOrder/coverageGeometry'
 import { useCreateOrderWizard } from './useCreateOrderWizard'
 
 function quote(areaHa?: number): ServicePricePreview {
@@ -31,6 +33,17 @@ function quote(areaHa?: number): ServicePricePreview {
     warnings: [],
     quotePending: false,
     addOns: [],
+  }
+}
+
+function circleArea(areaHa: number) {
+  const radiusM = Math.sqrt((areaHa * 10_000) / Math.PI)
+  const center: [number, number] = [106.6912, 10.6402]
+  return {
+    radiusM,
+    coverageAreaShape: 'CIRCLE' as const,
+    coverageAreaCenter: center,
+    coverageArea: circleCoverageArea(center, radiusM),
   }
 }
 
@@ -70,6 +83,35 @@ afterEach(() => {
 })
 
 describe('area availability in the customer wizard', () => {
+  it('reloads a removed service and returns to service selection while preserving the draft', async () => {
+    localStorage.setItem(CREATE_ORDER_DRAFT_STORAGE_KEY, JSON.stringify({
+      step: 3,
+      form: {
+        ...createDefaultForm(),
+        serviceId: 'construction',
+        title: 'Giám sát công trình đang nhập',
+        address: 'Địa điểm đang nhập',
+        ...circleArea(5),
+      },
+    }))
+    vi.mocked(customerApi.listServices)
+      .mockResolvedValueOnce([{ id: 'construction', name: 'Giám sát công trình', basePrice: 0 }])
+      .mockResolvedValue([{ id: 'replacement-service', name: 'Giám sát công trình', basePrice: 0 }])
+    vi.mocked(checklistPricingApi.customerQuote).mockRejectedValueOnce(
+      new ApiError('Service not found', { code: 'SERVICE_NOT_FOUND', status: 404, method: 'POST', path: '/api/pricing/checklist-quote' }),
+    )
+
+    const { result } = renderHook(useCreateOrderWizard)
+
+    await waitFor(() => expect(result.current.f.step).toBe(1))
+    await waitFor(() => expect(result.current.f.form.serviceId).toBe('replacement-service'))
+    expect(result.current.f.form.title).toBe('Giám sát công trình đang nhập')
+    expect(result.current.f.form.address).toBe('Địa điểm đang nhập')
+    expect(result.current.f.form.coverageArea).toEqual(circleArea(5).coverageArea)
+    expect(customerApi.listServices).toHaveBeenCalledTimes(2)
+    await waitFor(() => expect(result.current.checklist.quote.error).toBeNull())
+  })
+
   it('omits the default area, applies confirmed area only at content, and invalidates changed or cleared quotes', async () => {
     const requests = vi.mocked(checklistPricingApi.customerQuote)
     const { result } = renderHook(useCreateOrderWizard)
@@ -85,7 +127,7 @@ describe('area availability in the customer wizard', () => {
         locationStatus: 'confirmed',
         locationConfirmedAt: '2026-10-24T00:00:00Z',
         normalizedAddress: 'Confirmed site',
-        radiusM: Math.sqrt((30 * 10000) / Math.PI),
+        ...circleArea(30),
       }))
     })
     expect(result.current.checklist.quote.preview?.total).toBe(3_500_000)
@@ -96,7 +138,7 @@ describe('area availability in the customer wizard', () => {
     await waitFor(() =>
       expect(result.current.checklist.quote.preview?.total).toBe(3_700_000),
     )
-    expect(requests.mock.lastCall?.[3]?.areaHa).toBe(30)
+    expect(requests.mock.lastCall?.[3]?.areaHa).toBeCloseTo(30, 0)
 
     act(() => result.current.f.setStep(2))
     expect(result.current.checklist.quote.preview).toBeNull()
@@ -104,7 +146,10 @@ describe('area availability in the customer wizard', () => {
       expect(result.current.checklist.quote.preview?.total).toBe(3_500_000),
     )
     act(() =>
-      result.current.f.update('radiusM', Math.sqrt((50 * 10000) / Math.PI)),
+      result.current.f.setForm((current) => ({
+        ...current,
+        ...circleArea(50),
+      })),
     )
     expect(requests.mock.lastCall?.[3]).not.toHaveProperty('areaHa')
     act(() => result.current.f.setStep(3))
@@ -112,7 +157,7 @@ describe('area availability in the customer wizard', () => {
     await waitFor(() =>
       expect(result.current.checklist.quote.preview?.total).toBe(3_900_000),
     )
-    expect(requests.mock.lastCall?.[3]?.areaHa).toBe(50)
+    expect(requests.mock.lastCall?.[3]?.areaHa).toBeCloseTo(50, 0)
 
     act(() => result.current.f.update('locationStatus', 'unconfirmed'))
     expect(result.current.checklist.quote.preview).toBeNull()

@@ -58,7 +58,7 @@ describe('DeliveryOptionsCard review variant', () => {
     expect(
       screen.queryByText(/Ảnh và video tự động theo checklist/),
     ).not.toBeInTheDocument()
-    expect(screen.getByLabelText('Thời hạn lưu trữ dữ liệu')).toHaveValue('90')
+    expect(screen.getByLabelText('Thời hạn lưu trữ dữ liệu')).toHaveValue('30')
     expect(
       screen.queryByText('Điều khoản và cam kết bảo mật'),
     ).not.toBeInTheDocument()

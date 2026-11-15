@@ -1,9 +1,14 @@
+import { ImagePreview } from '../../../../../shared/components/media/ImagePreview'
+import { mediaFeedback } from '../../../../media/i18n/mediaFeedback'
+import { useState } from 'react'
+import { staffMediaSources } from '../../../../media/upload/staffMediaSources'
+import { MediaInspectionAction } from '../../../../media/components/MediaInspectionAction'
+import { MediaRemovalAction } from '../../../../media/components/MediaRemovalAction'
 import { VideoThumbnail } from '../../../../../shared/components/media/VideoThumbnail'
 import { MediaChecklistAttachment } from './MediaChecklistAttachment'
-import { operatorMediaApi } from '../../../../media/api/operatorMediaApi'
 import {
-  mediaTypeLabel,
-  mediaSourceLabel,
+  getUploadMediaTypeLabel,
+  getUploadMediaSourceLabel,
   statusTone,
   getUploadMediaStatusLabel,
   successfullyUploadedStatuses,
@@ -42,7 +47,11 @@ export function MediaCard({
   remotePreviewUrl,
   remoteThumbnailUrl,
   reviewMedia,
+  onMediaRemoved,
+  canRemoveMedia = false,
 }: {
+  onMediaRemoved?: (mediaId: string) => void
+  canRemoveMedia?: boolean
   item: LocalMedia
   setPreview?: (item: LocalMedia) => void
   onOpenPreview?: (item: LocalMedia) => void
@@ -72,26 +81,37 @@ export function MediaCard({
   reviewMedia?: (mediaId: string) => Promise<void>
 }) {
   const { t, lang } = useI18n(uploadMediaPageMessages)
+  const [failedSources, setFailedSources] = useState<string[]>([])
+  const [previewVisible, setPreviewVisible] = useState(false)
+  const sources = staffMediaSources(item, remotePreviewUrl, remoteThumbnailUrl)
+  const imageSource = sources.images.find((url) => !failedSources.includes(url))
+  const videoSource = sources.videos[0]
   return (
     <article
       className={`upload-media-card${isSelected ? ' is-selected' : ''}`}
       aria-current={isSelected ? 'true' : undefined}
     >
       <div className="upload-media-thumb">
-        {item.backendMediaId && !remotePreviewUrl ? (
-          <p className="upload-media-unavailable">{t.previewPending}</p>
-        ) : item.localAvailable === false && !remotePreviewUrl ? (
-          <p className="upload-media-unavailable">{t.localUnavailable}</p>
-        ) : item.mediaType === 'IMAGE' ? (
-          <img
-            src={
-              remoteThumbnailUrl ?? remotePreviewUrl ?? operatorMediaApi.previewUrl(item.localMediaId)
-            }
-            alt={item.fileName}
-            className="upload-media-preview"
-          />
+        {item.mediaType === 'IMAGE' ? (
+          imageSource ? (
+            <span onErrorCapture={(event) => {
+              const failed = (event.target as HTMLImageElement).getAttribute('src')
+              if (failed) setFailedSources((previous) => previous.includes(failed) ? previous : [...previous, failed])
+            }}>
+              <ImagePreview
+                src={imageSource}
+                previewSrc={sources.viewImages.find((url) => !failedSources.includes(url)) ?? imageSource}
+                fileName={item.fileName}
+                className="upload-media-preview"
+                visible={previewVisible}
+                onVisibleChange={setPreviewVisible}
+              />
+            </span>
+          )
+            : <p className="upload-media-unavailable">{t.previewPending}</p>
         ) : (
-          <VideoThumbnail src={remotePreviewUrl ?? operatorMediaApi.previewUrl(item.localMediaId)} poster={remoteThumbnailUrl} fileName={item.fileName} fileSize={item.fileSize} fallbackUrl={remotePreviewUrl ?? operatorMediaApi.previewUrl(item.localMediaId)} />
+          <VideoThumbnail src={videoSource} poster={sources.poster} fallbackPoster={sources.fallbackPoster}
+            fileName={item.fileName} fileSize={item.fileSize} fallbackUrl={sources.videos[1]} />
         )}
       </div>
       <div className="upload-media-card-body">
@@ -99,14 +119,20 @@ export function MediaCard({
           {item.fileName}
         </div>
         <div className="upload-media-meta">
-          <span>{mediaTypeLabel[item.mediaType] ?? item.mediaType}</span>
+          <span>{getUploadMediaTypeLabel(item.mediaType, lang)}</span>
           <span aria-hidden="true">•</span>
           <span>{(item.fileSize / 1_000_000).toFixed(2)} MB</span>
+          {item.uploadChannel && (
+            <>
+              <span aria-hidden="true">•</span>
+              <span>{item.uploadChannel === 'STAFF_FILE' ? t.staffFileChannel : t.flightControllerChannel}</span>
+            </>
+          )}
           {item.sourceType && (
             <>
               <span aria-hidden="true">•</span>
               <span>
-                {mediaSourceLabel[item.sourceType] ?? item.sourceType}
+                {getUploadMediaSourceLabel(item.sourceType, lang)}
               </span>
             </>
           )}
@@ -125,12 +151,24 @@ export function MediaCard({
             {t.managerRejected(item.reason)}
           </p>
         )}
+        {item.captureTimeSource && <p className="upload-media-state-note">
+          {new Intl.DateTimeFormat(lang === 'vi' ? 'vi-VN' : 'en-GB', { timeZone: 'Asia/Ho_Chi_Minh', dateStyle: 'short', timeStyle: 'medium' }).format(new Date(item.capturedAt))} · UTC+7
+          {' · '}{item.captureTimeSource === 'METADATA' ? t.metadataCaptureTime : t.staffCaptureTime}
+        </p>}
         {item.previewError && (
           <p role="alert" className="upload-media-notice is-danger">
-            {item.previewError}
+            {mediaFeedback(item.previewError, lang)}
+          </p>
+        )}
+        {['MANUAL_UPLOAD_REQUIRED', 'RETRY_REQUIRED'].includes(status) && item.failureMessage && (
+          <p role="status" className="upload-media-state-note is-danger">
+            {t.staffUploadFailure(mediaFeedback(item.failureMessage, lang))}
           </p>
         )}
         <div className="upload-media-actions">
+          <MediaInspectionAction missionId={item.missionId} mediaId={item.backendMediaId}
+            mediaType={item.mediaType} fileName={item.fileName} localUrl={sources.localPreview} />
+          {onMediaRemoved && <MediaRemovalAction item={item} canRemove={canRemoveMedia} disabled={isBusy} onRemoved={onMediaRemoved} />}
           {reviewMedia &&
             item.backendMediaId &&
             status === 'PENDING_MANAGER_APPROVAL' && (
@@ -143,7 +181,7 @@ export function MediaCard({
                 {t.approveEvidence}
               </button>
             )}
-          {canManageMedia && status === 'MANUAL_UPLOAD_REQUIRED' && (
+          {canManageMedia && item.uploadChannel !== 'STAFF_FILE' && status === 'MANUAL_UPLOAD_REQUIRED' && (
             <button
               type="button"
               className="odm-btn odm-btn-p"
@@ -153,7 +191,7 @@ export function MediaCard({
               {t.manualUpload}
             </button>
           )}
-          {canManageMedia &&
+          {canManageMedia && item.uploadChannel !== 'STAFF_FILE' &&
             (!automaticAttach ||
               ['UPLOAD_FAILED', 'RETRY_REQUIRED'].includes(status)) && (
               <button
@@ -172,26 +210,18 @@ export function MediaCard({
               </button>
             )}
           {item.mediaType === 'IMAGE' &&
-            (item.localAvailable !== false || remotePreviewUrl) && (
+            sources.images.length > 0 && (
               <button
                 type="button"
                 className="odm-btn"
                 aria-label={t.openMediaPreview(item.fileName)}
-                onClick={() =>
-                  remotePreviewUrl
-                    ? window.open(
-                        remotePreviewUrl,
-                        '_blank',
-                        'noopener,noreferrer',
-                      )
-                    : (onOpenPreview ?? setPreview)?.(item)
-                }
+                onClick={() => (onOpenPreview ?? setPreview)?.(item)}
               >
                 <span aria-hidden="true">{t.viewShort}</span>
                 <span className="upload-media-sr">{t.enlargePreview}</span>
               </button>
             )}
-          {canManageMedia && (
+          {canManageMedia && item.uploadChannel !== 'STAFF_FILE' && (
             <details className="upload-media-more">
               <summary aria-label={t.moreActions} title={t.moreActions}>
                 ⋮
@@ -243,9 +273,7 @@ export function MediaCard({
           )}
         {attachFailures[item.localMediaId] && (
           <p role="alert" className="upload-media-notice is-danger">
-            Media đã được giữ. Gắn bằng chứng chưa thành công:{' '}
-            {attachFailures[item.localMediaId]}. Chọn “Gắn bằng chứng” để thử
-            lại, không upload lại.
+            {t.attachFailure(mediaFeedback(attachFailures[item.localMediaId], lang))}
           </p>
         )}
         {canManageMedia &&

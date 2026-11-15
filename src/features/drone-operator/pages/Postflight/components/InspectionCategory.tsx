@@ -7,7 +7,6 @@ import type {
 } from '../../../types/mission'
 
 export function InspectionCategory({
-  index,
   cat,
   results,
   handleSetResult,
@@ -22,7 +21,7 @@ export function InspectionCategory({
     <section className="postflight-category">
       <h2 className="postflight-category-heading">
         <span>
-          {index}. {cat.title}
+          {cat.title}
         </span>
       </h2>
 

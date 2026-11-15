@@ -2,7 +2,7 @@ import { defineMessages } from '../../../../../shared/i18n'
 
 export const attachmentsFieldMessages = defineMessages({
   vi: {
-    label: 'Tệp đính kèm (tùy chọn)',
+    label: 'Chọn tệp ảnh tham khảo',
     drop: 'Kéo thả tệp hoặc',
     choose: 'chọn tệp',
     meta: 'Hỗ trợ: ảnh PNG, JPG. Chọn được nhiều ảnh.',
@@ -12,7 +12,7 @@ export const attachmentsFieldMessages = defineMessages({
     invalidImage: 'Chỉ nhận file hình ảnh.',
   },
   en: {
-    label: 'Attachments (optional)',
+    label: 'Choose reference images',
     drop: 'Drag and drop files or',
     choose: 'choose files',
     meta: 'Supported: PNG, JPG images. Multiple images allowed.',

@@ -163,9 +163,9 @@ export function actionFor(mission: OperatorMission, t: Messages) {
           mission.deviceAssignmentStatus === 'CONNECTION_LOST')
       ) {
         return {
-          label: t.action.start,
+          label: t.action.preflight,
           cls: 'odm-btn-ok',
-          href: operatorHref({ screen: 'connect', missionId: mission.id }),
+          href: operatorHref({ screen: 'preflight', missionId: mission.id }),
         }
       }
     }

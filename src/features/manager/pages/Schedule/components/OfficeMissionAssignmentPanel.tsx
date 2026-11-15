@@ -344,12 +344,11 @@ export function OfficeMissionAssignmentPanel({
         ? replacementRoles
         : new Set(selectedRoles)
       const savedRoles = new Set(
-        updatedMission.staffAssignments
-          ?.filter(
-            (assignment) =>
-              assignment.staffId === selectedStaffId &&
-              assignment.isCurrent !== false,
-          )
+        getVisibleMissionStaffAssignments(
+          updatedMission.status,
+          updatedMission.staffAssignments,
+        )
+          .filter((assignment) => assignment.staffId === selectedStaffId)
           .map((assignment) => assignment.assignedRole) ?? [],
       )
       if (

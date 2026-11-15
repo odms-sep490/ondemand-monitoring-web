@@ -98,7 +98,7 @@ export function MaintenancePage() {
   }
 
   return (
-    <div style={{ padding: '24px 28px', maxWidth: 1100, margin: '0 auto' }}>
+    <div className="odm-opr-page">
       {/* Header Banner */}
       <MaintenanceHeader myOpenCount={myOpenCount} allTickets={allTickets} />
 

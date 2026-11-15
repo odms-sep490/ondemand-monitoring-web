@@ -13,7 +13,7 @@ import { useToast } from '../../../../shared/components/ui'
 import { useI18n } from '../../../../shared/i18n'
 import { managerFeedbackMessages } from '../../feedback.messages'
 import { useRef } from 'react'
-import { deliveryApi, type ResultRevisionCase } from '../../../delivery/api'
+import type { ResultRevisionCase } from '../../../delivery/api'
 import { canCreateRework } from '../../../delivery/reworkPolicy'
 
 export function useCreateMissionSubmit({
@@ -129,7 +129,7 @@ export function useCreateMissionSubmit({
         const fingerprint = JSON.stringify([reworkCase.caseId, body])
         if (reworkRequest.current?.fingerprint !== fingerprint)
           reworkRequest.current = { fingerprint, id: crypto.randomUUID() }
-        const created = await deliveryApi.managerCreateReworkMission(
+        const created = await missionsApi.createReworkMission(
           reworkCase.caseId,
           {
             ...body,

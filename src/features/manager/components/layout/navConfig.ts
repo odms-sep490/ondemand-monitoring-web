@@ -77,5 +77,6 @@ export const activeNavLabel: Record<ManagerScreen, SidebarKey | ''> = {
   drones: 'drones',
   maintenance: 'maintenance',
   support: 'support',
+  notifications: '',
   notFound: '',
 }

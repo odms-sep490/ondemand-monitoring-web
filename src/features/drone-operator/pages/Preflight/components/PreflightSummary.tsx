@@ -12,6 +12,7 @@ export function PreflightSummary({
   hasTriggered,
   triggering,
   handleTriggerCheck,
+  readyActionLabel,
   onReady,
   missionId,
   backendPreflightMessage,
@@ -31,6 +32,7 @@ export function PreflightSummary({
   hasTriggered: boolean
   triggering: boolean
   handleTriggerCheck: () => Promise<void>
+  readyActionLabel?: string
   onReady: (() => void) | undefined
   missionId: string
   backendPreflightMessage: string | null
@@ -52,6 +54,7 @@ export function PreflightSummary({
       hasTriggered={hasTriggered}
       triggering={triggering}
       onTrigger={handleTriggerCheck}
+      readyActionLabel={readyActionLabel}
       onReady={onReady}
       missionId={missionId}
       backendPreflightMessage={backendPreflightMessage}

@@ -8,7 +8,6 @@ import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
 import { adminApi } from '../../api/adminApi'
 import { EmptyState } from '../../../../shared/components/ui'
-import { MockDataBadge } from '../../../../shared/components/ui'
 import { PageHeader } from '../../../../shared/components/ui'
 import { TableCard } from '../../../../shared/components/ui'
 import type { AuditEntry } from '../../types/auditLog'
@@ -29,12 +28,12 @@ export function AuditLogPage() {
   const [filters, setFilters] = useState<AuditFilterState>(EMPTY_AUDIT_FILTERS)
   const [page, setPage] = useState(1)
   const [selected, setSelected] = useState<AuditEntry | null>(null)
-  const [exported, setExported] = useState(false)
 
   const { data, loading, error, reload } = useApiQuery(
     (signal) =>
       adminApi.listAuditLog(
         {
+          actorQuery: filters.actorQuery.trim() || undefined,
           action: filters.action || undefined,
           entityType: filters.entityType || undefined,
           from: filters.from || undefined,
@@ -55,24 +54,25 @@ export function AuditLogPage() {
         title={t.title}
         subtitle={
           <>
-            {t.subtitle} <MockDataBadge />
+            {t.subtitle}
+            {data && (
+              <>
+                {' · '}{t.totalRecords}: <strong>{data.total}</strong>
+              </>
+            )}
           </>
         }
         actions={
           <button
             type="button"
             className="odm-btn"
-            onClick={() => setExported(true)}
+            onClick={reload}
+            disabled={loading}
           >
-            {t.exportCsv}
+            {loading ? t.refreshing : t.refresh}
           </button>
         }
       />
-      {exported && (
-        <div role="status" className="adm-alert is-success">
-          {t.exportSuccess}
-        </div>
-      )}
       <AuditFilters
         value={filters}
         onChange={(next) => {

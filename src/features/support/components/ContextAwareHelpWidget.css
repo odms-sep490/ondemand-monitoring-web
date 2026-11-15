@@ -104,3 +104,9 @@
 .hw-card .mgr-card-title {
   line-height: 1.35;
 }
+
+@media (max-width: 575px) {
+  .hw-foot .ant-btn {
+    width: 100%;
+  }
+}

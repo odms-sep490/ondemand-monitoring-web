@@ -1,13 +1,13 @@
 /* ===== Flight cockpit ===== */
 .fc-root {
-  --fc-bg: #050b16;
-  --fc-panel: #0a1424;
-  --fc-panel-2: #0d1a2e;
-  --fc-line: rgba(96, 165, 250, .18);
-  --fc-line-2: rgba(148, 163, 184, .16);
+  --fc-bg: #0b1226; /* customer dark layout surface */
+  --fc-panel: #111b36;
+  --fc-panel-2: #16213f;
+  --fc-line: #1f2c4d;
+  --fc-line-2: #1f2c4d;
   --fc-tx: #e2e8f0;
   --fc-tx2: #8ea0b8;
-  --fc-blue: #38bdf8;
+  --fc-blue: #5aa0ff;
   --fc-green: #4ade80;
   --fc-amber: #fbbf24;
   --fc-red: #f87171;
@@ -18,10 +18,8 @@
   min-height: 560px;
   overflow: hidden;
   color: var(--fc-tx);
-  background:
-    radial-gradient(circle at 20% 0%, rgba(37, 99, 235, .14), transparent 40%),
-    var(--fc-bg);
-  font-family: Inter, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  background: var(--fc-bg);
+  font-family: 'Be Vietnam Pro', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
   color-scheme: dark;
 }
 
@@ -34,7 +32,7 @@
   gap: 12px;
   padding: 6px 12px;
   border-bottom: 1px solid var(--fc-line);
-  background: linear-gradient(180deg, #0a1628, #071122);
+  background: var(--fc-panel);
   min-width: 0;
 }
 
@@ -99,8 +97,8 @@
 
 .fc-panel {
   display: flex; flex-direction: column; min-height: 0; overflow: hidden;
-  border: 1px solid var(--fc-line); border-radius: 14px;
-  background: linear-gradient(180deg, var(--fc-panel-2), var(--fc-panel));
+  border: 1px solid var(--fc-line); border-radius: 16px;
+  background: var(--fc-panel);
   box-shadow: 0 14px 34px rgba(0, 0, 0, .3), inset 0 1px 0 rgba(255, 255, 255, .03);
 }
 .fc-panel__head {

@@ -51,16 +51,19 @@ export function ChecklistRow({
 }) {
   const { t } = useI18n(pricingMessages)
   const { t: g } = useI18n(guidanceMessages)
+  const isCustom = item.sourceType === 'CUSTOMER_CUSTOM'
+  const noteOpen = openNote === item.id
+  const pending = item.reviewStatus === 'PENDING'
   return (
     <div
-      className={`finance-requirement is-${item.reviewStatus.toLowerCase()}`}
+      className={`finance-requirement is-${item.reviewStatus.toLowerCase()}${noteOpen ? ' is-note-open' : ''}${isCustom ? ' is-customer-custom' : ''}`}
     >
       <span className="finance-index">
         {String(data!.checklistItems.indexOf(item) + 1).padStart(2, '0')}
       </span>
       <div className="finance-requirement-main">
         <strong>{item.content}</strong>
-        {item.sourceType === 'CUSTOMER_CUSTOM' ? (
+        {isCustom ? (
           <div className="finance-guidance-status">
             <span role="status">
               {item.guidanceReady
@@ -96,7 +99,7 @@ export function ChecklistRow({
         <div className="finance-zero">{t.includedInPackage}</div>
       ) : (
         <label className="finance-status-select">
-          <span className="finance-sr">{t.classify}</span>
+          <span className="finance-classify-label">{t.classify}</span>
           <select
             value={item.reviewStatus}
             disabled={accepted}
@@ -119,9 +122,9 @@ export function ChecklistRow({
         </label>
       )}
       <div className="finance-item-price">
-        <small>
-          {t.systemPriceInline}
-          {formatVnd(liveSystemPrice(item, data?.systemCalculation?.items))}
+        <small className="finance-system-price">
+          <span>{t.systemPriceInline}</span>
+          <strong>{formatVnd(liveSystemPrice(item, data?.systemCalculation?.items))}</strong>
         </small>
         {isManagerPriced(item) ? (
           <MoneyInput
@@ -180,27 +183,33 @@ export function ChecklistRow({
         type="button"
         className="finance-chevron"
         aria-label={t.noteAria(item.content)}
-        aria-expanded={openNote === item.id}
+        aria-expanded={noteOpen}
         onClick={() => setOpenNote(openNote === item.id ? null : item.id)}
       >
         <span aria-hidden="true">⌄</span>
       </button>
-      {openNote === item.id ? (
-        <label className="finance-note">
-          <span>{t.managerNote}</span>
-          <input
-            defaultValue={item.managerNote ?? ''}
-            disabled={accepted || item.reviewStatus === 'PENDING'}
-            placeholder={
-              item.reviewStatus === 'PENDING'
-                ? t.notePlaceholderPending
-                : t.notePlaceholderReason
-            }
-            onBlur={(event) =>
-              void updateReview(item, item.reviewStatus, event.target.value)
-            }
-          />
-        </label>
+      {noteOpen ? (
+        <div className="finance-note">
+          {pending ? (
+            <>
+              <strong>{t.managerNote}</strong>
+              <small>{item.managerNote || t.notePlaceholderPending}</small>
+            </>
+          ) : (
+            <>
+              <label htmlFor={`finance-note-${item.id}`}>{t.managerNote}</label>
+              <input
+                id={`finance-note-${item.id}`}
+                defaultValue={item.managerNote ?? ''}
+                disabled={accepted}
+                placeholder={t.notePlaceholderReason}
+                onBlur={(event) =>
+                  void updateReview(item, item.reviewStatus, event.target.value)
+                }
+              />
+            </>
+          )}
+        </div>
       ) : null}
     </div>
   )

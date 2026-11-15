@@ -85,8 +85,8 @@ export function MissionActionGuard({
         : undefined) ??
       (pilotOnOperatorStep
         ? lang === 'vi'
-          ? 'Bước này dành cho nhân viên vận hành kết nối thiết bị, kiểm tra trước bay và bàn giao. Phi công tiếp tục ở buồng lái sau khi nhận bàn giao.'
-          : 'This step is for the operator to connect the device, run preflight, and hand over. The pilot continues in the cockpit after handover.'
+          ? 'Bước này dành cho nhân viên vận hành kiểm tra trước bay và bàn giao. Phi công tiếp tục ở buồng lái sau khi nhận bàn giao.'
+          : 'This step is for the operator to run preflight checks and hand over. The pilot continues in the cockpit after handover.'
         : lang === 'vi'
           ? 'Bạn chưa được phân công hoặc chưa có quyền thực hiện thao tác này.'
           : 'Your accepted mission assignment does not permit this action.')
@@ -144,18 +144,18 @@ function GuardStateCard({
   const color =
     tone === 'amber'
       ? {
-          bg: '#fff7ed',
-          border: '#fed7aa',
-          strong: '#9a3412',
-          soft: '#c2410c',
-          chipBg: '#ffedd5',
+          bg: 'var(--ui-warning-soft)',
+          border: 'color-mix(in srgb, var(--ui-warning) 35%, var(--mgr-border))',
+          strong: 'var(--ui-warning-text)',
+          soft: 'var(--ui-warning-text)',
+          chipBg: 'var(--ui-warning-soft)',
         }
       : {
-          bg: '#eff6ff',
-          border: '#bfdbfe',
-          strong: '#1d4ed8',
-          soft: '#2563eb',
-          chipBg: '#dbeafe',
+          bg: 'var(--ui-primary-soft)',
+          border: 'color-mix(in srgb, var(--ui-primary) 30%, var(--mgr-border))',
+          strong: 'var(--ui-primary-text)',
+          soft: 'var(--ui-primary)',
+          chipBg: 'var(--ui-primary-soft)',
         }
 
   return (
@@ -173,8 +173,8 @@ function GuardStateCard({
           width: 'min(560px, 100%)',
           borderRadius: 14,
           border: `1px solid ${color.border}`,
-          background: '#fff',
-          boxShadow: '0 18px 50px rgba(15, 23, 42, .08)',
+          background: 'var(--mgr-card)',
+          boxShadow: 'var(--mgr-shadow)',
           overflow: 'hidden',
         }}
       >

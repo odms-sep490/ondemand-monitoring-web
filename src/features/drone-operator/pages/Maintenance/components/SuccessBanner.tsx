@@ -16,9 +16,9 @@ export function SuccessBanner({
       style={{
         padding: '12px 16px',
         borderRadius: 10,
-        background: '#f0fdf4',
-        border: '1px solid #bbf7d0',
-        color: '#166534',
+        background: 'var(--ui-success-soft)',
+        border: '1px solid color-mix(in srgb, var(--ui-success) 35%, var(--mgr-border))',
+        color: 'var(--ui-success-text)',
         fontSize: 13.5,
         fontWeight: 600,
         marginBottom: 20,

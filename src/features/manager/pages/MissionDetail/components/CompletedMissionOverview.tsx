@@ -1,11 +1,10 @@
+import { useEffect, useState } from 'react'
 import { MissionResultReviewCard } from '../../../components/common/MissionResultReviewCard'
 import { MissionUploadedMedia } from '../../../../media/components/MissionUploadedMedia'
 import { staffMissionMediaReader } from '../../../api/missionMediaReader'
 import { ChecklistEmptyNote } from './ChecklistEmptyNote'
 import { MonitoringChecklistSection } from '../../../../mission/components/MonitoringChecklistSection'
 import { MissionSatelliteMap } from './MissionSatelliteMap'
-import { formatNumber } from '../../../components/common/missionDetailHelpers'
-import { waypointReasonLabel } from './MissionRouteMap'
 import { missionDetailPageMessages } from '../MissionDetailPage.messages'
 import { useI18n } from '../../../../../shared/i18n'
 import type {
@@ -36,8 +35,6 @@ export function CompletedMissionOverview({
   checklistExecutions,
   compliantCount,
   missionId,
-  waypoints,
-  plan,
 }: {
   activeTab: MissionDetailTab
   onTabChange: (tab: MissionDetailTab) => void
@@ -56,6 +53,14 @@ export function CompletedMissionOverview({
   plan: MissionPlanResponse | null
 }) {
   const { t, locale } = useI18n(missionDetailPageMessages)
+  const [mediaVisited, setMediaVisited] = useState(activeTab === 'media')
+  useEffect(() => {
+    if (activeTab === 'media') setMediaVisited(true)
+  }, [activeTab])
+  const mediaCount =
+    detail.result?.mediaCount ??
+    detail.result?.mediaFiles?.length ??
+    detail.media.length
   return (
     <div className={`odm-md-sections is-${activeTab}`}>
       <div className="odm-md-panel is-result" hidden={activeTab !== 'result'}>
@@ -66,27 +71,29 @@ export function CompletedMissionOverview({
           checklistLoading={checklist.loading}
           checklistFailed={!!checklist.error}
           refreshing={loading}
-          mediaCount={detail.media.length}
+          mediaCount={mediaCount}
           locale={locale}
           onReviewed={refreshDetail}
           onViewMedia={() => onTabChange('media')}
         />
       </div>
 
-      <section
-        ref={mediaLibrary}
-        tabIndex={-1}
-        className="odm-md-panel is-media"
-        hidden={activeTab !== 'media'}
-        aria-label={t.extra.mediaLibrary}
-      >
-        <MissionUploadedMedia
-          missionId={mission.id}
-          missionStatus={mission.status}
-          reader={staffMissionMediaReader}
-          reviewStatus={detail.result?.approvalStatus ?? null}
-        />
-      </section>
+      {mediaVisited ? (
+        <section
+          ref={mediaLibrary}
+          tabIndex={-1}
+          className="odm-md-panel is-media"
+          hidden={activeTab !== 'media'}
+          aria-label={t.extra.mediaLibrary}
+        >
+          <MissionUploadedMedia
+            missionId={mission.id}
+            missionStatus={mission.status}
+            reader={staffMissionMediaReader}
+            reviewStatus={detail.result?.approvalStatus ?? null}
+          />
+        </section>
+      ) : null}
       {isCompleted && resultApproved ? (
         <details
           className="odm-or-card odm-md-collapse odm-md-panel is-checklist"
@@ -180,62 +187,19 @@ export function CompletedMissionOverview({
         <div className="odm-rm-stage">
           <MissionSatelliteMap
             missionId={mission.id}
+            order={detail.order}
             latitude={mission.latitude}
             longitude={mission.longitude}
+            radiusMeters={mission.radiusM}
+            coverageArea={mission.coverageArea}
             visible={activeTab === 'route'}
           />
         </div>
         <div className="odm-rm-side">
           <h3>{t.map.title}</h3>
-          <dl className="odm-or-kv">
-            <div>
-              <dt>{t.map.waypoint}</dt>
-              <dd>{waypoints.length}</dd>
-            </div>
-            <div>
-              <dt>{t.map.distance}</dt>
-              <dd>{formatNumber(plan?.plannedDistanceM, ' m')}</dd>
-            </div>
-            <div>
-              <dt>{t.map.altitude}</dt>
-              <dd>{formatNumber(plan?.maxPlannedAltitudeM, ' m')}</dd>
-            </div>
-          </dl>
-          <ul className="odm-rm-key">
-            <li>
-              <i className="is-home" />
-              {t.map.home}
-            </li>
-            <li>
-              <i className="is-line" />
-              {t.map.route}
-            </li>
-            <li>
-              <i className="is-wp" />
-              {t.map.waypoint}
-            </li>
-            <li>
-              <i className="is-target" />
-              {t.map.target}
-            </li>
-          </ul>
-          {waypoints.length > 0 ? (
-            <ul className="odm-rm-wps mgr-scroll-list">
-              {waypoints.map((point, index) => (
-                <li key={point.id}>
-                  <b>
-                    {index === 0
-                      ? 'H'
-                      : index === waypoints.length - 1
-                        ? 'T'
-                        : point.sequence}
-                  </b>
-                  <strong>{waypointReasonLabel(point.reason)}</strong>
-                  <span>{formatNumber(point.altitudeM, ' m')}</span>
-                </li>
-              ))}
-            </ul>
-          ) : null}
+          {detail.order?.addressText && (
+            <p className="odm-or-detail-note">{detail.order.addressText}</p>
+          )}
         </div>
       </section>
     </div>

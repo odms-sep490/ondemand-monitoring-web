@@ -1,3 +1,4 @@
+import { deviceRoleLabel } from '../../lib/deviceLabel'
 import { useMemo, useState } from 'react'
 
 import {
@@ -9,8 +10,7 @@ import { useActiveMission } from '../../api/useActiveMission'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { missionApi } from '../../../mission/api/missionApi'
 import { operatorHref } from '../../routes'
-import { type FlightControlStatus } from '../../api/flightControlApi'
-import { formatDeviceLabel } from '../../lib/deviceLabel'
+import type { ManualPostflightReadings } from './manualInspection'
 import { postflightSummary } from '../../lib/postflightSummary'
 import type { PostflightItem, PreflightItemResult } from '../../types/mission'
 import { postflightPageMessages } from './PostflightPage.messages'
@@ -19,24 +19,87 @@ import { type ResultsState } from './postflightTypes'
 import {
   postflightCategories,
   ALL_KEYS,
-  readPostflightTelemetry,
 } from './postflightHelpers'
-import { usePostflightTelemetry } from './usePostflightTelemetry'
+import { InputNumber } from 'antd'
 import { usePostflightAssessment } from './usePostflightAssessment'
 import { fetchLatestPostflightCheck } from '../MissionDetail/checkData'
-import { PostflightCompletedView } from './components/PostflightCompletedView'
+import { PostflightCompletedView, type DevicePostflightResult } from './components/PostflightCompletedView'
 import { PostflightHeader } from './components/PostflightHeader'
 import { PostflightErrorBanner } from './components/PostflightErrorBanner'
-import { TelemetrySummary } from './components/TelemetrySummary'
 import { AssessmentProgress } from './components/AssessmentProgress'
 import { InspectionCategory } from './components/InspectionCategory'
 import { PostflightNotes } from './components/PostflightNotes'
 import { MaintenanceBanner } from './components/MaintenanceBanner'
 import { TicketCreatedBanner } from './components/TicketCreatedBanner'
 import { PostflightSubmitButton } from './components/PostflightSubmitButton'
+import '../Preflight/components/PreflightChecklist.css'
 import './PostflightPage.css'
 
 export function PostflightPage({ missionId }: { missionId?: string }) {
+  const mission = useActiveMission(missionId)
+  const [selected, setSelected] = useState<string | null>(null)
+  const [revision, setRevision] = useState(0)
+  const assignments = (mission.data?.deviceAssignments ?? []).filter(a => a.deviceId)
+  const id = mission.data?.id ?? mission.missionId ?? ''
+  const checks = useApiQuery(async (signal) => Promise.all(assignments.map(async a => ({
+    deviceId: a.deviceId!, check: await fetchLatestPostflightCheck(id, signal, a.deviceId!),
+  }))), [id, assignments.map(a => a.deviceId).join(':'), revision])
+  const isDone = (deviceId: string) => checks.data?.some(c => c.deviceId === deviceId && c.check?.completedAt)
+  const active = assignments.find(a => a.deviceId === selected) ?? assignments.find(a => !isDone(a.deviceId!)) ?? assignments[0]
+  const allDone = assignments.length > 0 && assignments.every(a => isDone(a.deviceId!))
+  async function onSaved() {
+    const latest = await Promise.all(assignments.map(async a => ({ deviceId: a.deviceId!, check: await fetchLatestPostflightCheck(id, undefined, a.deviceId!) })))
+    const pending = latest.find(c => !c.check?.completedAt)
+    setRevision(v => v + 1)
+    mission.reload()
+    if (pending) { setSelected(pending.deviceId); return false }
+    return true
+  }
+  const devicePicker = (
+    <section className="preflight-device-picker" aria-label="Thiết bị kiểm tra sau bay">
+      <div className="preflight-device-picker__heading">
+        <div><h1>Kiểm tra sau bay</h1><p>Kiểm tra từng thiết bị và ghi nhận tình trạng sau chuyến bay trước khi nghiệm thu.</p></div>
+        <div className={`preflight-fleet-progress${allDone ? ' is-complete' : ''}`} role="status">
+          <strong>{assignments.filter(a => isDone(a.deviceId!)).length}<span> / {assignments.length}</span></strong>
+          <span>thiết bị đã kiểm tra</span>
+        </div>
+      </div>
+      <div className="preflight-fleet-track" role="progressbar" aria-label="Tiến độ kiểm tra sau bay"
+        aria-valuemin={0} aria-valuemax={assignments.length || 1} aria-valuenow={assignments.filter(a => isDone(a.deviceId!)).length}>
+        <span style={{ width: `${assignments.length ? assignments.filter(a => isDone(a.deviceId!)).length / assignments.length * 100 : 0}%` }} />
+      </div>
+      <nav className="preflight-device-list" aria-label="Chọn thiết bị kiểm tra sau bay">
+        {assignments.map((a, index) => <button type="button" key={a.deviceId}
+          className={`preflight-device-option${a.deviceId === active?.deviceId ? ' is-selected' : ''}${isDone(a.deviceId!) ? ' is-passed' : ''}`}
+          aria-pressed={a.deviceId === active?.deviceId} onClick={() => setSelected(a.deviceId!)}>
+          <span className="preflight-device-option__number">{index + 1}</span>
+          <span className="preflight-device-option__copy">
+            <strong>{a.deviceCode ?? a.deviceSerialNumber ?? a.deviceId}</strong>
+            <span>{deviceRoleLabel(a.deviceRole)}{a.deviceId === active?.deviceId ? ' · Đang chọn' : ''}</span>
+          </span>
+          <span className="preflight-device-option__status">{isDone(a.deviceId!) ? 'Đã kiểm tra' : 'Cần kiểm tra'}</span>
+        </button>)}
+      </nav>
+      {checks.error ? <p role="alert">Không tải được kết quả kiểm tra. <button type="button" className="odm-btn" onClick={() => setRevision(v => v + 1)}>Thử lại</button></p> : null}
+    </section>
+  )
+  return <div className="postflight-workspace">
+    {!allDone && devicePicker}
+    <PostflightDevicePage key={`${id}:${active?.deviceId ?? ''}`} missionId={missionId}
+      selectedDeviceId={active?.deviceId ?? undefined} selectedDeviceLabel={active?.deviceCode ?? active?.deviceSerialNumber ?? undefined}
+      deviceChecks={assignments.map(a => ({
+        id: a.deviceId!,
+        label: a.deviceCode ?? a.deviceSerialNumber ?? a.deviceId!,
+        check: checks.data?.find(c => c.deviceId === a.deviceId)?.check,
+      }))}
+      allDevicesDone={allDone} onSaved={onSaved} />
+  </div>
+}
+
+function PostflightDevicePage({ missionId, selectedDeviceId, selectedDeviceLabel, deviceChecks, allDevicesDone, onSaved }: {
+  deviceChecks: DevicePostflightResult[]
+  missionId?: string; selectedDeviceId?: string; selectedDeviceLabel?: string; allDevicesDone: boolean; onSaved: () => Promise<boolean>
+}) {
   const { t, lang } = useI18n(postflightPageMessages)
   const {
     data: activeData,
@@ -51,16 +114,14 @@ export function PostflightPage({ missionId }: { missionId?: string }) {
   const persistedPostflightQuery = useApiQuery(
     (signal) =>
       effectiveMissionId
-        ? fetchLatestPostflightCheck(effectiveMissionId, signal)
+        ? fetchLatestPostflightCheck(effectiveMissionId, signal, selectedDeviceId)
         : Promise.resolve(null),
-    [effectiveMissionId],
+    [effectiveMissionId, selectedDeviceId],
   )
   const missionLabel =
     activeData?.missionCode || effectiveMissionId || t.defaultMissionLabel
-  const deviceId = activeData?.deviceId ?? 'DEVICE'
-  const deviceLabel = activeData
-    ? (formatDeviceLabel(activeData) ?? deviceId)
-    : deviceId
+  const deviceId = selectedDeviceId ?? activeData?.deviceId ?? 'DEVICE'
+  const deviceLabel = selectedDeviceLabel ?? deviceId
   const categories = useMemo(() => postflightCategories(lang), [lang])
 
   const [error, setError] = useState<string | null>(null)
@@ -70,8 +131,7 @@ export function PostflightPage({ missionId }: { missionId?: string }) {
   const [showTicketDialog, setShowTicketDialog] = useState(false)
   const [ticketSubmitting, setTicketSubmitting] = useState(false)
   const [ticketCreated, setTicketCreated] = useState(false)
-  const [liveTelemetrySnapshot, setLiveTelemetrySnapshot] =
-    useState<FlightControlStatus | null>(null)
+  const [landingBattery, setLandingBattery] = useState<number | null>(null)
   const [completed, setCompleted] = useState<{
     overallOk: boolean
     ticketCreated: boolean
@@ -98,17 +158,9 @@ export function PostflightPage({ missionId }: { missionId?: string }) {
   )
 
   const summary = postflightSummary(items, ALL_KEYS.length)
-  const storedTelemetrySnapshot = useMemo(
-    () => readPostflightTelemetry(effectiveMissionId),
-    [effectiveMissionId],
-  )
-  const telemetrySnapshot = liveTelemetrySnapshot ?? storedTelemetrySnapshot
-
-  usePostflightTelemetry({
-    effectiveMissionId,
-    deviceId,
-    setLiveTelemetrySnapshot,
-  })
+  // Only the operator-entered battery value is submitted; no controller reads.
+  const telemetrySnapshot: ManualPostflightReadings | null = landingBattery === null
+    ? null : { batteryPercent: landingBattery }
   const failItems = useMemo(
     () => ALL_KEYS.filter((k) => results[k] === 'fail'),
     [results],
@@ -133,10 +185,11 @@ export function PostflightPage({ missionId }: { missionId?: string }) {
 
   const { handleSetResult, handlePassAll, handleComplete, handleCreateTicket } =
     usePostflightAssessment({
+      onSaved,
       setResults,
       effectiveMissionId,
       setError,
-      allAssessed,
+      allAssessed: allAssessed && landingBattery !== null,
       setSaving,
       activeData,
       results,
@@ -182,6 +235,9 @@ export function PostflightPage({ missionId }: { missionId?: string }) {
     )
   }
 
+  if (completedSummary && !allDevicesDone) {
+    return <div className="odm-card" role="status">Thiết bị {deviceLabel} đã được kiểm tra sau bay. Chọn thiết bị còn lại để tiếp tục.</div>
+  }
   if (completedSummary) {
     if (completedSummary.failed || activeData?.status === 'FAILED') {
       return (
@@ -202,7 +258,8 @@ export function PostflightPage({ missionId }: { missionId?: string }) {
     if (permissionsQuery.loading) return <LoadingState />
     if (
       permissionsQuery.error ||
-      permissionsQuery.data?.canAssessMonitoringChecklist !== true
+      (permissionsQuery.data?.canAssessMonitoringChecklist !== true &&
+        permissionsQuery.data?.canConfirmMissionFailure !== true)
     ) {
       return (
         <EmptyState
@@ -217,6 +274,7 @@ export function PostflightPage({ missionId }: { missionId?: string }) {
         missionId={effectiveMissionId}
         missionLabel={missionLabel}
         completed={completedSummary}
+        deviceChecks={deviceChecks}
         deviceId={deviceId}
         inspectionResults={inspectionResults}
         notes={notes}
@@ -238,10 +296,15 @@ export function PostflightPage({ missionId }: { missionId?: string }) {
         <div className="postflight-stack">
           {error && <PostflightErrorBanner error={error} />}
 
+          <div className="postflight-selected-device"><strong>{deviceLabel}</strong><span>Thiết bị đang kiểm tra</span></div>
           <div className="postflight-overview">
-            {telemetrySnapshot && (
-              <TelemetrySummary telemetrySnapshot={telemetrySnapshot} />
-            )}
+            <div className="postflight-manual-battery">
+              <label htmlFor="postflight-landing-battery">{t.landingBattery} (%) <span aria-hidden="true">*</span></label>
+              <InputNumber id="postflight-landing-battery" min={0} max={100} precision={1}
+                value={landingBattery} onChange={setLandingBattery} placeholder="0–100"
+                addonAfter="%" aria-required="true" style={{ width: 180 }} />
+              <small>Nhập mức pin thực tế của thiết bị sau khi bay.</small>
+            </div>
             <AssessmentProgress
               failItems={failItems}
               summary={summary}

@@ -1,8 +1,11 @@
 import type { Drone, Mission } from '../types/omss'
 import type { OperatorMission, OperatorMissionStatus } from '../types/mission'
 import type { MissionDeviceAssignmentStatus } from '../../mission/types/mission'
+import type { GeoJsonPolygon } from '../../../shared/types/geo'
 
 export type BackendMission = {
+  inspectionCorrectionId?: string | null
+  inspectionSourceMissionId?: string | null
   id: string
   missionCode?: string | null
   orderId?: string | null
@@ -33,6 +36,7 @@ export type BackendMission = {
   devicePayload?: string | null
   droneCode?: string | null
   droneName?: string | null
+  declinedAssignmentHistory?: boolean
   staffAssignments?: Array<{
     staffId?: string | null
     staffName?: string | null
@@ -45,6 +49,10 @@ export type BackendMission = {
   deviceAssignments?: Array<{
     id?: string | null
     deviceId?: string | null
+    deviceCode?: string | null
+    deviceName?: string | null
+    deviceSerialNumber?: string | null
+    deviceStatus?: string | null
     deviceRole?: string | null
     status?: MissionDeviceAssignmentStatus | null
     checkupStatus?: string | null
@@ -58,6 +66,7 @@ export type BackendMission = {
   longitude?: number | null
   radiusM?: number | null
   radiusMeters?: number | null
+  coverageArea?: GeoJsonPolygon | null
   altitudeM?: number | null
   address?: string | null
   scheduledStartAt?: string | null
@@ -166,7 +175,6 @@ function operatorStatus(status: string): OperatorMissionStatus {
     'PLANNING',
     'CREATED',
     'WAITING_DEPOSIT',
-    'PENDING_PAYMENT',
     'PENDING_CONFIRMATION',
     'READY',
     'RESOURCE_ASSIGNING',
@@ -206,7 +214,6 @@ function operatorStatusForCrewResponse(
 ): OperatorMissionStatus {
   const awaitingCrew = new Set([
     'PLANNING',
-    'PENDING_PAYMENT',
     'PENDING_CONFIRMATION',
     'READY',
     'WAITING_OPERATOR_ACCEPTANCE',
@@ -235,7 +242,9 @@ export function toOperatorMission(
         ).toISOString()
       : null)
   const end = localDateAndTime(endSource)
-  const myResponseStatus = currentUserId
+  const myResponseStatus = source.declinedAssignmentHistory
+    ? 'REJECTED'
+    : currentUserId
     ? source.staffAssignments?.find(
         (assignment) => assignment.staffId === currentUserId,
       )?.responseStatus
@@ -267,6 +276,17 @@ export function toOperatorMission(
     managerName: source.managerName ?? undefined,
     managerEmail: source.managerEmail ?? undefined,
     managerPhone: source.managerPhone ?? undefined,
+    deviceAssignments: source.deviceAssignments?.map((assignment) => ({
+      id: assignment.id,
+      deviceId: assignment.deviceId,
+      deviceCode: assignment.deviceCode,
+      deviceName: assignment.deviceName,
+      deviceSerialNumber: assignment.deviceSerialNumber,
+      deviceStatus: assignment.deviceStatus,
+      deviceRole: assignment.deviceRole,
+      status: assignment.status,
+      checkupStatus: assignment.checkupStatus,
+    })),
     deviceId: source.deviceId ?? source.droneId ?? null,
     deviceCode: source.deviceCode ?? null,
     deviceSerialNumber: source.deviceSerialNumber ?? null,
@@ -295,6 +315,7 @@ export function toOperatorMission(
     assignedStaffCount: staffAssignments?.length,
     rejectReason: source.rejectionReason ?? undefined,
     radiusMeters: source.radiusM ?? source.radiusMeters ?? undefined,
+    coverageArea: source.coverageArea ?? null,
     ceilingMeters: source.plan?.maxPlannedAltitudeM ?? undefined,
     latitude: source.latitude,
     longitude: source.longitude,

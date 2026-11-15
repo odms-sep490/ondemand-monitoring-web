@@ -2242,3 +2242,1312 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+.customer-refund-card {
+  margin: 0 0 16px;
+  padding: 18px 20px;
+  border: 1px solid var(--line, #dce3eb);
+  border-radius: 14px;
+  background: var(--surface, #fff);
+  color: var(--tx, #17212f);
+}
+
+.mission-payment-card,
+.mission-allocation-card {
+  margin: 16px 0;
+  padding: 18px 20px;
+  border: 1px solid var(--ui-border, #dce3eb);
+  border-radius: 14px;
+  background: var(--ui-surface, #fff);
+  color: var(--ui-text, #172033);
+}
+
+.mission-payment-card__heading,
+.mission-allocation-card > header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px 20px;
+  margin-bottom: 12px;
+}
+
+.mission-payment-card__heading h3,
+.mission-allocation-card h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.mission-payment-card__heading p,
+.mission-allocation-card header p {
+  max-width: 720px;
+  margin: 5px 0 0;
+  color: var(--ui-text-3, #667085);
+  font-size: 13px;
+}
+
+.mission-payment-card__total,
+.mission-allocation-card__totals {
+  color: var(--ui-text-2, #42536c);
+  font-variant-numeric: tabular-nums;
+}
+
+.mission-allocation-card__totals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+}
+
+.mission-allocation-card__totals span {
+  display: grid;
+  gap: 4px;
+  color: var(--ui-text-3, #667085);
+  font-size: 12px;
+}
+
+.mission-allocation-card__totals strong {
+  color: var(--ui-text, #172033);
+  font-size: 14px;
+}
+
+.mission-payment-card__empty {
+  margin: 0;
+  color: var(--ui-text-3, #667085);
+}
+
+.mission-payment-list,
+.mission-allocation-list {
+  display: grid;
+  gap: 10px;
+}
+
+.mission-payment-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px 18px;
+  padding: 14px;
+  border: 1px solid var(--ui-border, #e3e9f2);
+  border-radius: 11px;
+  background: var(--ui-surface-subtle, #f8faff);
+}
+
+.mission-payment-item__title,
+.mission-payment-item__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.mission-payment-item__title > div,
+.mission-allocation-row__mission {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.mission-payment-item__title span,
+.mission-allocation-row__mission span {
+  color: var(--ui-text-3, #667085);
+  font-size: 12px;
+}
+
+.mission-payment-item__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 28px;
+  margin: 10px 0 0;
+}
+
+.mission-payment-item__facts div {
+  display: grid;
+  gap: 3px;
+}
+
+.mission-payment-item__facts dt {
+  color: var(--ui-text-3, #667085);
+  font-size: 11px;
+}
+
+.mission-payment-item__facts dd {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.mission-payment-item__history {
+  grid-column: 1 / -1;
+  padding-top: 10px;
+  border-top: 1px solid var(--ui-border, #e3e9f2);
+}
+
+.mission-payment-item__history > strong {
+  font-size: 12px;
+}
+
+.mission-payment-item__history ul {
+  display: grid;
+  gap: 6px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mission-payment-item__history li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px 10px;
+  color: var(--ui-text-2, #42536c);
+  font-size: 12px;
+}
+
+.mission-payment-item__history li > span {
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.mission-payment-item__history li small {
+  overflow-wrap: anywhere;
+  color: var(--ui-text-3, #667085);
+}
+
+.mission-payment-item__history p {
+  margin: 6px 0 0;
+  color: var(--ui-text-3, #667085);
+  font-size: 12px;
+}
+
+.mission-allocation-card {
+  margin-top: 18px;
+}
+
+.mission-allocation-row {
+  display: grid;
+  grid-template-columns: minmax(160px, 1fr) auto minmax(180px, 240px);
+  align-items: center;
+  gap: 12px 18px;
+  padding: 12px;
+  border: 1px solid var(--ui-border, #e3e9f2);
+  border-radius: 10px;
+  background: var(--ui-surface, #fff);
+}
+
+.mission-allocation-row__amount {
+  display: grid;
+  gap: 5px;
+  justify-items: end;
+  color: var(--ui-text-2, #42536c);
+  font-size: 12px;
+}
+
+.mission-allocation-row__amount strong {
+  color: var(--ui-text, #172033);
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+
+.mission-allocation-card__loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ui-text-3, #667085);
+}
+
+@media (max-width: 640px) {
+  .mission-payment-card,
+  .mission-allocation-card {
+    padding: 14px;
+  }
+
+  .mission-payment-item {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mission-payment-item__actions {
+    justify-content: flex-start;
+  }
+
+  .mission-allocation-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .mission-allocation-row__amount {
+    grid-column: 1 / -1;
+    justify-items: start;
+  }
+}
+
+.customer-refund-card__heading,
+.customer-refund-card__attempt {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.customer-refund-card__eyebrow {
+  color: var(--tx3, #687589);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.customer-refund-card h3,
+.customer-refund-card h4 {
+  margin: 4px 0 10px;
+}
+
+.customer-refund-card__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin: 12px 0;
+}
+
+.customer-refund-card__facts div,
+.customer-refund-card__attempt > div:first-child {
+  display: grid;
+  gap: 4px;
+}
+
+.customer-refund-card__facts dt {
+  color: var(--tx3, #687589);
+  font-size: 12px;
+}
+
+.customer-refund-card__facts dd {
+  margin: 0;
+  font-weight: 650;
+}
+
+.customer-refund-card__reason {
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--surface-subtle, #f5f7fa);
+}
+
+.customer-refund-card__attempts {
+  margin-top: 16px;
+}
+
+.customer-refund-card__attempt {
+  padding: 12px 0;
+  border-top: 1px solid var(--line, #dce3eb);
+}
+
+.customer-refund-card__attempt span {
+  color: var(--tx2, #4e5a6b);
+  font-size: 13px;
+}
+
+.customer-refund-card__receipts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+@media (max-width: 640px) {
+  .customer-refund-card__attempt {
+    flex-direction: column;
+  }
+}
+
+/* ==========================================================================
+   Customer portal polish: theme-aware surfaces (light + dark) for the
+   customer quote / payment / refund / mission-payment views and the VNPAY
+   result page. Colours come from the --mgr-* / --ui-* tokens only, so the
+   hard-coded light palette above no longer leaks into dark mode.
+   ========================================================================== */
+.mgr-layout .customer-finance-card:has(.customer-quote-layout),
+.mgr-layout .customer-finance-card {
+  border: 1px solid var(--mgr-border);
+  border-radius: var(--mgr-radius, 16px);
+  background: var(--mgr-card);
+  box-shadow: var(--mgr-shadow);
+}
+.mgr-layout .customer-finance-card:has(.customer-quote-layout) > .ant-card-head {
+  min-height: 68px;
+  border-bottom-color: var(--mgr-border);
+  background: var(--mgr-card-2);
+}
+.mgr-layout
+  .customer-finance-card:has(.customer-quote-layout)
+  > .ant-card-head
+  .ant-card-head-title {
+  color: var(--mgr-text);
+}
+.mgr-layout .customer-finance-desc {
+  color: var(--mgr-muted);
+}
+.mgr-layout .customer-finance-skeleton {
+  padding-bottom: 20px;
+}
+.mgr-layout .customer-finance-skeleton .ant-skeleton {
+  padding: 16px 22px 0;
+}
+.mgr-layout .customer-finance-card .mgr-empty {
+  padding: 36px 20px;
+}
+
+/* quote lines */
+.mgr-layout .customer-quote-services {
+  border-color: var(--mgr-border);
+  background: var(--mgr-card);
+}
+.mgr-layout .customer-quote-table-head {
+  background: var(--mgr-card-2);
+  color: var(--mgr-text);
+}
+.mgr-layout .customer-quote-group {
+  border-bottom-color: var(--mgr-border);
+}
+.mgr-layout .customer-quote-group > summary,
+.mgr-layout .customer-quote-group-summary {
+  color: var(--mgr-text);
+}
+.mgr-layout .customer-quote-group > summary b,
+.mgr-layout .customer-quote-group-summary b,
+.mgr-layout .customer-quote-group > ul li span:last-child {
+  min-width: 96px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.mgr-layout .customer-quote-group > summary .customer-quote-detail-label {
+  color: var(--ui-primary-text);
+}
+.mgr-layout .customer-quote-group[open] > summary {
+  color: var(--ui-primary-text);
+}
+.mgr-layout .customer-quote-group > ul {
+  border-top-color: var(--mgr-border);
+}
+.mgr-layout .customer-quote-group > ul li {
+  color: var(--mgr-muted);
+}
+
+/* action rail */
+.mgr-layout .customer-quote-actions {
+  border-color: var(--mgr-border);
+  background: var(--mgr-card-2);
+  box-shadow: var(--mgr-shadow);
+}
+.mgr-layout .customer-quote-payment-content {
+  border-top-color: var(--mgr-border);
+}
+.mgr-layout .customer-quote-progress-visual {
+  background: var(--mgr-card);
+}
+.mgr-layout .customer-quote-progress-visual::after {
+  background: linear-gradient(
+    90deg,
+    var(--mgr-card) 0%,
+    color-mix(in srgb, var(--mgr-card) 92%, transparent) 34%,
+    transparent 100%
+  );
+}
+.mgr-layout .customer-quote-progress-title {
+  color: var(--mgr-text);
+}
+.mgr-layout .customer-quote-actions > .ant-btn,
+.mgr-layout .customer-quote-actions .customer-payment-actions > .ant-btn-primary {
+  min-height: 48px;
+  font-size: 15px;
+  font-weight: 700;
+}
+.mgr-layout .customer-quote-actions .customer-payment-actions > .ant-btn:not(.ant-btn-primary) {
+  min-height: 40px;
+}
+
+/* state / notices (tokens instead of fixed pastel hex) */
+.mgr-layout .customer-quote-state {
+  border-color: var(--mgr-border);
+  background: var(--mgr-card);
+  color: var(--mgr-muted);
+}
+.mgr-layout .customer-quote-state strong {
+  color: var(--mgr-text);
+}
+.mgr-layout .customer-quote-actions .customer-quote-state.is-accepted,
+.mgr-layout .customer-quote-state.is-accepted {
+  border-color: var(--ui-success);
+  background: var(--ui-success-soft);
+  color: var(--ui-success-text);
+}
+.mgr-layout .customer-quote-state.is-accepted strong,
+.mgr-layout .customer-quote-state.is-accepted strong svg {
+  color: var(--ui-success-text);
+}
+.mgr-layout .customer-deposit-notice {
+  border-color: color-mix(in srgb, var(--ui-warning) 55%, transparent);
+  background: var(--ui-warning-soft);
+  color: var(--ui-warning-text);
+}
+.mgr-layout .customer-deposit-notice b {
+  font-weight: 700;
+}
+.mgr-layout .customer-deposit-notice.is-ready {
+  border-color: var(--ui-success);
+  background: var(--ui-success-soft);
+  color: var(--ui-success-text);
+}
+.mgr-layout .finance-alert-box.ant-alert {
+  margin: 12px 20px 16px;
+}
+
+/* deadline countdown: clear, high contrast, urgent when expired */
+.mgr-layout .customer-deadline-countdown {
+  border-color: var(--mgr-border);
+  background: var(--mgr-card);
+  color: var(--mgr-text);
+}
+.mgr-layout .customer-deadline-countdown-label {
+  color: var(--mgr-text);
+  font-weight: 700;
+}
+.mgr-layout .customer-deadline-unit {
+  border-color: var(--mgr-border);
+  background: var(--mgr-card-2);
+}
+.mgr-layout .customer-deadline-unit strong {
+  color: var(--ui-primary-text);
+  font-variant-numeric: tabular-nums;
+}
+.mgr-layout .customer-deadline-unit span,
+.mgr-layout .customer-deadline-date {
+  color: var(--mgr-muted);
+}
+.mgr-layout .customer-deadline-countdown.is-expired {
+  border-color: var(--ui-danger);
+  background: var(--ui-danger-soft);
+  color: var(--ui-danger-text);
+}
+.mgr-layout .customer-deadline-countdown.is-expired .customer-deadline-countdown-label,
+.mgr-layout .customer-deadline-countdown.is-expired .customer-deadline-unit strong {
+  color: var(--ui-danger-text);
+}
+.mgr-layout .customer-deadline-countdown.is-expired .customer-deadline-unit {
+  background: var(--mgr-card);
+}
+
+/* cost summary + total emphasis */
+.mgr-layout .customer-quote-summary-section {
+  border-top-color: var(--mgr-border);
+}
+.mgr-layout .customer-quote-summary-section h3 {
+  color: var(--mgr-text);
+}
+.mgr-layout .customer-quote-summary-section h3 svg {
+  color: var(--ui-primary);
+}
+.mgr-layout .customer-summary > div:not(.is-total) {
+  border-bottom-color: var(--mgr-border);
+  color: var(--mgr-muted);
+}
+.mgr-layout .customer-summary dd,
+.mgr-layout .finance-summary dd {
+  margin: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.mgr-layout .customer-summary > div:not(.is-total) dd {
+  color: var(--mgr-text);
+  font-weight: 600;
+}
+.mgr-layout .customer-summary .is-total {
+  background: var(--ui-primary-soft);
+  color: var(--ui-primary-text);
+}
+.mgr-layout .customer-summary .is-total dt {
+  color: var(--ui-primary-text);
+}
+.mgr-layout .customer-summary .is-total dd {
+  color: var(--ui-primary-text);
+  font-size: clamp(22px, 2.4vw, 28px);
+  font-weight: 800;
+}
+
+/* invoice summary: total / paid / remaining */
+.mgr-layout .customer-invoice-summary {
+  border-color: var(--mgr-border);
+  background: var(--mgr-card);
+}
+.mgr-layout .customer-invoice-summary-title h3 {
+  color: var(--mgr-text);
+}
+.mgr-layout .customer-invoice-summary .customer-payment-stats > div {
+  align-items: flex-start;
+  border-color: transparent;
+}
+.mgr-layout .customer-invoice-summary .customer-payment-stats > div:nth-child(1) {
+  background: color-mix(in srgb, var(--ui-primary) 12%, var(--mgr-card));
+}
+.mgr-layout .customer-invoice-summary .customer-payment-stats > div:nth-child(2) {
+  background: color-mix(in srgb, var(--ui-success) 13%, var(--mgr-card));
+}
+.mgr-layout .customer-invoice-summary .customer-payment-stats > div:nth-child(3) {
+  background: color-mix(in srgb, var(--ui-warning) 14%, var(--mgr-card));
+}
+.mgr-layout .customer-invoice-summary .customer-payment-stats span,
+.mgr-layout .customer-invoice-summary .customer-payment-stat-detail {
+  color: var(--mgr-muted);
+}
+.mgr-layout .customer-invoice-summary .customer-payment-stats strong {
+  color: var(--mgr-text);
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+}
+.mgr-layout .customer-invoice-standalone .customer-invoice {
+  border-color: var(--mgr-border);
+}
+
+/* refund + mission payment cards share the customer card look */
+.mgr-layout .customer-refund-card,
+.mgr-layout .mission-payment-card {
+  border: 1px solid var(--mgr-border);
+  border-radius: var(--mgr-radius, 16px);
+  background: var(--mgr-card);
+  box-shadow: var(--mgr-shadow);
+  color: var(--mgr-text);
+}
+.mgr-layout .customer-refund-card .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.mgr-layout .customer-refund-card__eyebrow,
+.mgr-layout .customer-refund-card__facts dt,
+.mgr-layout .mission-payment-card__heading p,
+.mgr-layout .mission-payment-item__title span,
+.mgr-layout .mission-payment-item__facts dt,
+.mgr-layout .mission-payment-item__history li small,
+.mgr-layout .mission-payment-item__history p,
+.mgr-layout .mission-payment-card__empty {
+  color: var(--mgr-muted);
+}
+.mgr-layout .customer-refund-card__facts dd.is-money {
+  color: var(--ui-primary-text);
+  font-size: 20px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.mgr-layout .customer-refund-card__reason {
+  background: var(--mgr-card-2);
+  color: var(--mgr-text);
+}
+.mgr-layout .customer-refund-card__attempt {
+  border-top-color: var(--mgr-border);
+}
+.mgr-layout .customer-refund-card__attempt span {
+  color: var(--mgr-muted);
+}
+.mgr-layout .mission-payment-card__total {
+  color: var(--ui-primary-text);
+  font-size: 18px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.mgr-layout .mission-payment-item {
+  border-color: var(--mgr-border);
+  background: var(--mgr-card-2);
+}
+.mgr-layout .mission-payment-item__facts dd.is-money {
+  color: var(--mgr-text);
+  font-size: 16px;
+  font-weight: 800;
+}
+.mgr-layout .mission-payment-item__history {
+  border-top-color: var(--mgr-border);
+}
+.mgr-layout .mission-payment-item__history li {
+  color: var(--mgr-muted);
+}
+.mgr-layout .mission-payment-item__actions .ant-btn-primary {
+  min-height: 40px;
+  font-weight: 700;
+}
+.mgr-layout .mission-payment-item__expired {
+  grid-column: 1 / -1;
+}
+.mgr-layout .mission-payment-card .ant-skeleton {
+  margin-bottom: 8px;
+}
+
+/* VNPAY result page */
+.payment-result-page {
+  background: var(--ui-bg);
+  font-family: 'Be Vietnam Pro', 'Inter', system-ui, sans-serif;
+}
+.payment-result-card {
+  width: min(480px, 100%);
+  padding: 32px 28px 28px;
+  border-radius: 16px;
+  box-shadow: var(--ui-shadow-2, 0 10px 30px rgb(15 23 42 / 8%));
+}
+.payment-result-icon {
+  width: 72px;
+  height: 72px;
+  margin-bottom: 18px;
+  font-size: 34px;
+  background: var(--ui-primary-soft);
+  color: var(--ui-primary);
+}
+.payment-result-icon.is-success {
+  background: var(--ui-success-soft);
+  color: var(--ui-success);
+}
+.payment-result-icon.is-cancelled {
+  background: var(--ui-danger-soft);
+  color: var(--ui-danger, #dc2626);
+}
+.payment-result-icon.is-pending {
+  background: var(--ui-warning-soft);
+  color: var(--ui-warning);
+}
+.payment-result-card h1 {
+  font-size: 22px;
+  font-weight: 800;
+}
+.payment-result-card > p {
+  margin: 8px 0 0;
+}
+.payment-result-detail {
+  margin: 22px 0 8px;
+  padding: 4px 16px;
+  border: 1px solid var(--ui-border);
+  border-radius: 12px;
+  background: var(--ui-surface-2);
+}
+.payment-result-detail > div:last-child {
+  border-bottom: 0;
+}
+.payment-result-detail dt {
+  color: var(--ui-text-3);
+  font-size: 13px;
+}
+.payment-result-detail dd.is-ref {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  text-align: right;
+  font-size: 13px;
+}
+.payment-result-detail dd.is-amount {
+  color: var(--ui-primary-text);
+  font-size: 20px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.payment-result-card .finance-alert {
+  margin: 12px 0 0;
+  text-align: left;
+}
+.payment-result-actions {
+  margin-top: 20px;
+}
+.payment-result-actions .ant-btn {
+  min-height: 44px;
+  font-weight: 700;
+}
+@media (max-width: 480px) {
+  .payment-result-page {
+    padding: 16px;
+    align-items: start;
+  }
+  .payment-result-card {
+    padding: 24px 18px 20px;
+  }
+  .payment-result-actions {
+    flex-direction: column-reverse;
+  }
+  .payment-result-actions .ant-btn {
+    width: 100%;
+  }
+}
+
+/* mobile: full-width money actions, scrollable wide content stays in-card */
+@media (max-width: 560px) {
+  .mgr-layout .mission-payment-item__actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .mgr-layout .mission-payment-item__actions .ant-btn {
+    width: 100%;
+    min-height: 44px;
+  }
+  .mgr-layout .customer-payment-actions .ant-btn {
+    width: 100%;
+  }
+  .mgr-layout .customer-refund-card,
+  .mgr-layout .mission-payment-card {
+    padding: 14px;
+  }
+  .mgr-layout .customer-refund-card__facts {
+    gap: 12px 20px;
+  }
+  .mgr-layout .customer-quote-group > summary b,
+  .mgr-layout .customer-quote-group-summary b {
+    min-width: 0;
+  }
+}
+
+/* invoice title: number never breaks mid-token; statuses wrap under it */
+.mgr-layout .customer-invoice-summary-title {
+  grid-template-columns: minmax(0, 1fr);
+}
+.mgr-layout .customer-invoice-summary-title h3 {
+  overflow-wrap: normal;
+  word-break: keep-all;
+}
+.mgr-layout .customer-invoice-summary-statuses {
+  justify-content: flex-start;
+}
+@media (max-width: 560px) {
+  .mgr-layout .customer-summary .is-total dt {
+    font-size: 15px;
+  }
+  .mgr-layout .customer-summary .is-total dd {
+    font-size: 22px;
+  }
+  .payment-result-detail > div {
+    flex-wrap: wrap;
+  }
+  .payment-result-detail dd.is-ref {
+    flex: 1 1 100%;
+    text-align: left;
+  }
+}
+
+/* ==========================================================================
+   Manager pricing polish: same 16px card + shadow language as the customer
+   portal, tokens only (readable in dark mode), right-aligned tabular money,
+   emphasised totals, one-line statuses and full-width actions on phones.
+   ========================================================================== */
+:root .mgr-layout .finance-workspace :is(.finance-panel, .finance-quote, .finance-guidance-missing) {
+  border: 1px solid var(--mgr-border);
+  border-radius: var(--mgr-radius, 16px);
+  background: var(--mgr-card);
+  box-shadow: var(--mgr-shadow);
+  color: var(--mgr-text);
+}
+:root .mgr-layout .finance-workspace .finance-heading {
+  border-bottom: 1px solid var(--mgr-border);
+  background: var(--mgr-card-2);
+}
+:root .mgr-layout .finance-workspace .finance-heading h2 {
+  color: var(--mgr-text);
+}
+:root .mgr-layout .finance-workspace .finance-guidance-missing {
+  padding: 16px 18px;
+  border-color: color-mix(in srgb, var(--fin-amber-fg) 40%, var(--mgr-border));
+  background: var(--fin-amber-bg);
+  color: var(--fin-amber-fg);
+}
+:root .mgr-layout .finance-workspace .finance-requirement {
+  border-bottom-color: var(--mgr-border);
+}
+:root .mgr-layout .finance-workspace .finance-requirement-main strong {
+  color: var(--mgr-text);
+}
+:root .mgr-layout .finance-workspace .finance-requirement-main span,
+:root .mgr-layout .finance-workspace .finance-zero {
+  color: var(--mgr-muted);
+}
+:root .mgr-layout .finance-workspace .finance-item-price {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+:root .mgr-layout .finance-workspace .finance-item-price :is(input, output, strong, span) {
+  font-variant-numeric: tabular-nums;
+}
+:root .mgr-layout .finance-workspace .finance-item-price input {
+  text-align: right;
+}
+:root .mgr-layout .finance-workspace :is(.finance-status, .finance-review-badge, .finance-policy-pill, .finance-guidance-status) {
+  white-space: nowrap;
+}
+
+/* Quote summary: label left, money right, total as its own highlighted block */
+:root .mgr-layout .finance-workspace .finance-quote .finance-summary > div {
+  align-items: baseline;
+  gap: 12px;
+}
+:root .mgr-layout .finance-workspace .finance-quote .finance-summary dt {
+  color: var(--mgr-muted);
+}
+:root .mgr-layout .finance-workspace .finance-quote .finance-summary dd {
+  margin: 0;
+  color: var(--mgr-text);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 650;
+}
+:root .mgr-layout .finance-workspace .finance-quote .finance-summary .is-total {
+  margin-top: 10px;
+  padding: 12px 14px;
+  border: 1px solid color-mix(in srgb, var(--fin-blue-fg) 30%, var(--mgr-border));
+  border-radius: 12px;
+  background: var(--fin-blue-bg);
+}
+:root .mgr-layout .finance-workspace .finance-quote .finance-summary .is-total dt {
+  color: var(--mgr-text);
+  font-weight: 700;
+}
+:root .mgr-layout .finance-workspace .finance-quote .finance-summary .is-total dd {
+  color: var(--fin-blue-fg);
+  font-weight: 800;
+}
+:root .mgr-layout .finance-workspace .finance-breakdown-group li {
+  font-variant-numeric: tabular-nums;
+}
+:root .mgr-layout .finance-workspace .finance-breakdown-group li span:last-child,
+:root .mgr-layout .finance-workspace .finance-breakdown-group > header b {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+:root .mgr-layout .finance-workspace .finance-breakdown-group {
+  border-radius: 12px;
+}
+
+/* Mission payment allocation (manager order review) */
+:root .mgr-layout .mission-allocation-card {
+  border: 1px solid var(--mgr-border);
+  border-radius: var(--mgr-radius, 16px);
+  background: var(--mgr-card);
+  box-shadow: var(--mgr-shadow);
+  color: var(--mgr-text);
+}
+:root .mgr-layout .mission-allocation-card header p,
+:root .mgr-layout .mission-allocation-card__loading,
+:root .mgr-layout .mission-allocation-row__mission span,
+:root .mgr-layout .mission-allocation-card__totals span {
+  color: var(--mgr-muted);
+}
+:root .mgr-layout .mission-allocation-card > header {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--mgr-border);
+}
+:root .mgr-layout .mission-allocation-card__totals {
+  justify-content: flex-end;
+  text-align: right;
+}
+:root .mgr-layout .mission-allocation-card__totals span {
+  justify-items: end;
+}
+:root .mgr-layout .mission-allocation-card__totals strong {
+  color: var(--mgr-text);
+  font-size: 18px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+:root .mgr-layout .mission-allocation-row {
+  border-color: var(--mgr-border);
+  border-radius: 12px;
+  background: var(--mgr-card-2);
+}
+:root .mgr-layout .mission-allocation-row__mission strong {
+  color: var(--mgr-text);
+}
+:root .mgr-layout .mission-allocation-row__amount {
+  color: var(--mgr-muted);
+  text-align: right;
+}
+:root .mgr-layout .mission-allocation-row__amount strong {
+  color: var(--mgr-text);
+  font-size: 16px;
+  font-weight: 800;
+}
+:root .mgr-layout .mission-allocation-row .ant-tag {
+  margin-inline-end: 0;
+  white-space: nowrap;
+}
+
+@media (max-width: 560px) {
+  :root .mgr-layout .finance-workspace .finance-quote .finance-actions > *,
+  :root .mgr-layout .finance-workspace .finance-quote .finance-actions :is(.odm-btn, .ui-btn) {
+    width: 100%;
+    min-height: 44px;
+  }
+  :root .mgr-layout .mission-allocation-card {
+    padding: 14px;
+  }
+  :root .mgr-layout .mission-allocation-card__totals {
+    justify-content: flex-start;
+    text-align: left;
+  }
+  :root .mgr-layout .mission-allocation-card__totals span {
+    justify-items: start;
+  }
+  :root .mgr-layout .mission-allocation-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  :root .mgr-layout .mission-allocation-row__amount {
+    justify-items: start;
+    text-align: left;
+  }
+}
+
+/* ==========================================================================
+   Customer payment moment, leftovers: status tags, alerts and the countdown
+   clock face use theme tokens so dark mode keeps a visible background.
+   ========================================================================== */
+:root .mgr-layout
+  :is(.customer-invoice-summary-statuses, .mission-payment-item__title, .mission-payment-item__history li)
+  .mgr-status-tag {
+  --tag-fg: var(--mgr-muted);
+  --tag-bg: var(--mgr-card-2);
+  border: 1px solid color-mix(in srgb, var(--tag-fg) 35%, transparent);
+  background: var(--tag-bg);
+  color: var(--tag-fg);
+  filter: none;
+  white-space: nowrap;
+}
+:root .mgr-layout :is(.customer-invoice-summary-statuses, .mission-payment-item__title, .mission-payment-item__history li) .mgr-status-tag.ant-tag-success {
+  --tag-fg: var(--ui-success-text);
+  --tag-bg: var(--ui-success-soft);
+}
+:root .mgr-layout :is(.customer-invoice-summary-statuses, .mission-payment-item__title, .mission-payment-item__history li) .mgr-status-tag.ant-tag-warning {
+  --tag-fg: var(--ui-warning-text);
+  --tag-bg: var(--ui-warning-soft);
+}
+:root .mgr-layout :is(.customer-invoice-summary-statuses, .mission-payment-item__title, .mission-payment-item__history li) .mgr-status-tag.ant-tag-error {
+  --tag-fg: var(--ui-danger-text);
+  --tag-bg: var(--ui-danger-soft);
+}
+:root .mgr-layout :is(.customer-invoice-summary-statuses, .mission-payment-item__title, .mission-payment-item__history li) .mgr-status-tag.ant-tag-processing {
+  --tag-fg: var(--ui-primary-text);
+  --tag-bg: var(--ui-primary-soft);
+}
+:root .mgr-layout .mission-payment-item__history li {
+  flex-wrap: wrap;
+  align-items: center;
+  font-variant-numeric: tabular-nums;
+}
+:root .mgr-layout .mission-payment-item__history li > span:first-child {
+  color: var(--mgr-text);
+  font-weight: 700;
+}
+
+/* antd alerts inside the customer finance cards follow the token palette */
+:root .mgr-layout :is(.mission-payment-card, .customer-finance-card) .ant-alert-warning {
+  border-color: color-mix(in srgb, var(--ui-warning) 55%, transparent);
+  background: var(--ui-warning-soft);
+}
+:root .mgr-layout :is(.mission-payment-card, .customer-finance-card) .ant-alert-error {
+  border-color: color-mix(in srgb, var(--ui-danger) 55%, transparent);
+  background: var(--ui-danger-soft);
+}
+:root .mgr-layout :is(.mission-payment-card, .customer-finance-card) .ant-alert-info {
+  border-color: color-mix(in srgb, var(--ui-primary) 45%, transparent);
+  background: var(--ui-primary-soft);
+}
+:root .mgr-layout :is(.mission-payment-card, .customer-finance-card) .ant-alert-warning :is(.ant-alert-message, .ant-alert-description) {
+  color: var(--ui-warning-text);
+}
+:root .mgr-layout :is(.mission-payment-card, .customer-finance-card) .ant-alert-error :is(.ant-alert-message, .ant-alert-description) {
+  color: var(--ui-danger-text);
+}
+:root .mgr-layout :is(.mission-payment-card, .customer-finance-card) .ant-alert-info :is(.ant-alert-message, .ant-alert-description) {
+  color: var(--ui-primary-text);
+}
+
+/* countdown clock face: CSS fill beats the inline gradient attribute */
+:root[data-theme='dark'] .customer-deadline-clock-face {
+  fill: var(--mgr-card-2);
+  stroke: var(--mgr-border);
+}
+:root[data-theme='dark'] .customer-deadline-ring-track {
+  stroke: color-mix(in srgb, var(--ui-primary) 25%, var(--mgr-card));
+}
+:root[data-theme='dark'] .customer-deadline-ring-progress {
+  stroke: var(--ui-primary);
+}
+:root[data-theme='dark'] .customer-deadline-clock-tick {
+  stroke: color-mix(in srgb, var(--ui-primary) 60%, var(--mgr-card-2));
+}
+:root[data-theme='dark'] .customer-deadline-clock-tick.is-major {
+  stroke: var(--ui-primary);
+}
+:root[data-theme='dark'] .customer-deadline-clock-numerals {
+  fill: var(--mgr-text);
+}
+:root[data-theme='dark'] .customer-deadline-clock-hand.is-hour {
+  stroke: var(--mgr-text);
+}
+:root[data-theme='dark'] .customer-deadline-clock-hand.is-minute {
+  stroke: var(--ui-primary-text);
+}
+:root[data-theme='dark'] .customer-deadline-clock-hand.is-second {
+  stroke: var(--ui-primary);
+}
+:root[data-theme='dark'] .customer-deadline-clock-pin {
+  fill: var(--ui-primary);
+  stroke: var(--mgr-card-2);
+}
+:root[data-theme='dark'] .customer-deadline-countdown.is-expired .customer-deadline-clock-tick,
+:root[data-theme='dark'] .customer-deadline-countdown.is-expired .customer-deadline-clock-hand {
+  stroke: var(--ui-danger);
+}
+:root[data-theme='dark'] .customer-deadline-countdown.is-expired .customer-deadline-clock-pin {
+  fill: var(--ui-danger);
+}
+
+/* Quote lines: one fixed money column so amounts line up with the header and
+   with rows that have no "price details" link (the static video row). */
+@media (min-width: 561px) {
+  .mgr-layout .customer-quote-table-head,
+  .mgr-layout .customer-quote-group > summary,
+  .mgr-layout .customer-quote-group-summary {
+    grid-template-columns: minmax(0, 1fr) 112px 96px;
+  }
+  .mgr-layout .customer-quote-table-head span:nth-child(2) {
+    min-width: 0;
+  }
+  .mgr-layout .customer-quote-group > summary b,
+  .mgr-layout .customer-quote-group-summary b {
+    grid-column: 2;
+    min-width: 0;
+    text-align: right;
+  }
+  .mgr-layout .customer-quote-group > summary .customer-quote-detail-label {
+    grid-column: 3;
+    text-align: right;
+  }
+}
+
+
+/* Manager request review */
+.mgr-layout .finance-workspace .finance-requirement {
+  align-items: start;
+  padding-block: 14px;
+}
+
+.finance-workspace .finance-requirement-main {
+  overflow-wrap: anywhere;
+}
+
+.finance-workspace .finance-guidance-status {
+  flex-wrap: wrap;
+  white-space: normal !important;
+}
+
+.finance-workspace .finance-status-select {
+  display: grid;
+  gap: 5px;
+}
+
+.finance-workspace .finance-classify-label,
+.finance-workspace .finance-note small {
+  color: var(--mgr-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.finance-workspace .finance-status-select select {
+  width: 100%;
+  min-width: 0;
+}
+
+.finance-workspace .finance-requirement.is-note-open .finance-note {
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px;
+  background: var(--mgr-card-2);
+  border: 1px solid var(--mgr-border);
+  border-radius: 10px;
+}
+
+.finance-workspace .finance-note label {
+  font-weight: 650;
+}
+
+.mgr-layout .finance-workspace .finance-item-price > small {
+  line-height: 1.4;
+  overflow-wrap: normal;
+}
+
+:root .mgr-layout .finance-workspace .finance-quote .finance-summary .is-total {
+  display: grid;
+  gap: 4px;
+}
+
+:root .mgr-layout .finance-workspace .finance-quote .finance-summary .is-total dd {
+  text-align: start;
+  overflow-wrap: anywhere;
+  font-size: clamp(20px, 2vw, 28px);
+}
+
+
+.finance-workspace .is-customer-custom .finance-guidance-status {
+  justify-content: space-between;
+  gap: 8px;
+  margin-block: 8px 6px;
+  padding: 8px 12px;
+  border: 1px solid var(--mgr-border);
+  border-radius: 10px;
+  background: var(--mgr-card-2);
+}
+
+.finance-workspace .is-customer-custom .finance-guidance-status .ant-btn {
+  min-height: 32px;
+}
+
+.finance-workspace .finance-system-price {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 2px 6px;
+}
+
+.finance-workspace .finance-system-price strong {
+  white-space: nowrap;
+}
+
+:root .mgr-layout .finance-workspace .is-customer-custom .finance-item-price {
+  text-align: start;
+}
+
+.finance-workspace .is-customer-custom .finance-item-price input {
+  min-height: 40px;
+}
+
+@container (min-width: 901px) {
+  .finance-workspace .finance-table-head,
+  .finance-workspace .finance-requirement {
+    grid-template-columns: 44px minmax(0, 1fr) minmax(130px, 0.48fr)
+      minmax(170px, 0.5fr) minmax(92px, 0.23fr) 40px;
+  }
+}
+
+.mission-payment-card {
+  padding: 24px;
+  border-radius: 16px;
+}
+.mission-payment-card__heading {
+  gap: 16px;
+  align-items: flex-start;
+  padding-bottom: 18px;
+}
+.mission-payment-card__total {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  font-size: 18px;
+}
+.mission-payment-item {
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 20px 24px;
+  padding: 20px;
+  border-radius: 12px;
+  background: var(--ui-surface, #fff);
+  border: 1px solid var(--ui-border, #e2e8f0);
+}
+.mission-payment-item__title { gap: 16px; margin-bottom: 20px; }
+.mission-payment-item__title > div > strong { font-size: 16px; }
+.mission-payment-item__title > div > span {
+  margin-top: 5px;
+  font-size: 12px;
+  color: var(--ui-text-2, #64748b);
+}
+.mission-payment-item__facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px 24px;
+  margin: 0;
+}
+.mission-payment-item__facts dt { margin-bottom: 6px; font-size: 12px; }
+.mission-payment-item__facts dd { margin: 0; font-size: 14px; line-height: 1.6; }
+.mission-payment-item__facts dd.is-money { color: var(--ui-primary, #1565e8); font-size: 22px; font-weight: 750; }
+.mission-payment-item__actions {
+  align-self: center;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  min-width: 180px;
+}
+.mission-payment-item__actions .ant-btn { min-height: 42px; border-radius: 9px; }
+.mission-payment-item__history {
+  grid-column: 1 / -1;
+  padding-top: 14px;
+  border-top: 1px solid var(--ui-border, #e2e8f0);
+}
+.mission-payment-item__history > strong { font-size: 13px; }
+.mission-payment-item__history p { margin: 6px 0 0; font-size: 13px; }
+@media (max-width: 760px) {
+  .mission-payment-card { padding: 16px; }
+  .mission-payment-card__heading { flex-wrap: wrap; }
+  .mission-payment-item { grid-template-columns: minmax(0, 1fr); padding: 16px; }
+  .mission-payment-item__facts { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .mission-payment-item__actions { min-width: 0; width: 100%; }
+  .mission-payment-item__title { flex-wrap: wrap; }
+}
+
+/* Shared customer billing rhythm and surfaces. */
+:root .od-page .customer-invoice-summary,
+:root .od-page .mission-payment-card {
+  padding: 20px;
+  border: 1px solid var(--ui-border, #e2e8f0);
+  border-radius: 14px;
+  background: var(--ui-surface, #fff);
+}
+:root .od-page .customer-invoice-summary-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+:root .od-page .customer-invoice-summary-title h3,
+:root .od-page .mission-payment-card__heading h3 { margin: 0; font-size: 17px; font-weight: 700; }
+:root .od-page .customer-invoice-summary .customer-payment-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+:root .od-page .customer-invoice-summary .customer-payment-stats > div {
+  padding: 16px;
+  border: 1px solid var(--ui-border, #e2e8f0);
+  border-radius: 10px;
+  background: var(--ui-surface-2, #f6f8fc);
+  min-width: 0;
+}
+:root .od-page .customer-invoice-summary .customer-payment-stats strong {
+  font-size: 22px;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+}
+:root .od-page .customer-payment-stat-detail { font-size: 12px; line-height: 1.6; }
+:root .od-page .customer-deposit-notice.is-ready {
+  padding: 14px 16px;
+  border: 1px solid var(--ant-color-success-border, #b7e4c7);
+  border-radius: 10px;
+  background: var(--ant-color-success-bg, #edf9f0);
+  color: var(--ant-color-success-text, #166534);
+  font-size: 13px;
+  line-height: 1.6;
+}
+:root .od-page .mission-payment-item {
+  padding: 20px;
+  background: var(--ui-surface-2, #f6f8fc);
+  border-color: var(--ui-border, #e2e8f0);
+  border-radius: 10px;
+}
+:root .od-page .mission-payment-item__facts .is-money { font-size: 22px; color: var(--ui-text, #0f172a); }
+:root .od-page .mission-payment-item:not(:has(> .mission-payment-item__actions)) {
+  grid-template-columns: minmax(0, 1fr);
+}
+:root .od-page .mission-payment-card__total {
+  font-size: 15px;
+  white-space: normal;
+}
+:root .od-page .customer-payment-actions:empty { display: none; }
+:root .od-page .mission-payment-item__history li { flex-wrap: wrap; gap: 8px 12px; }
+@media (max-width: 640px) {
+  :root .od-page .customer-invoice-summary .customer-payment-stats { grid-template-columns: 1fr; }
+  :root .od-page .customer-invoice-summary,
+  :root .od-page .mission-payment-card,
+  :root .od-page .mission-payment-item { padding: 16px; }
+}

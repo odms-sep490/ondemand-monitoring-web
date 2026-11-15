@@ -40,7 +40,7 @@ describe('Media checklist attachment picker', () => {
         onSave={save}
       />,
     )
-    fireEvent.click(screen.getByRole('button', { name: 'Gắn vào checklist' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Gắn vào danh sách kiểm tra' }))
     const dialog = await screen.findByRole('dialog')
     fireEvent.click(
       within(dialog).getByRole('checkbox', { name: /Ghi nhận toàn cảnh/ }),
@@ -59,7 +59,7 @@ describe('Media checklist attachment picker', () => {
       expect(save).toHaveBeenCalledExactlyOnceWith(['a', 'b']),
     )
     expect(await screen.findByRole('status')).toHaveTextContent(
-      'Đã gắn bằng chứng vào checklist.',
+      'Đã gắn bằng chứng vào danh sách kiểm tra.',
     )
   })
 
@@ -74,7 +74,7 @@ describe('Media checklist attachment picker', () => {
         onSave={save}
       />,
     )
-    fireEvent.click(screen.getByRole('button', { name: 'Chọn mục checklist' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Chọn mục danh sách kiểm tra' }))
     const dialog = await screen.findByRole('dialog')
     fireEvent.click(
       within(dialog).getByRole('checkbox', { name: /Kiểm tra mái/ }),
@@ -103,7 +103,7 @@ describe('Media checklist attachment picker', () => {
         onSave={save}
       />,
     )
-    fireEvent.click(screen.getByRole('button', { name: 'Chọn mục checklist' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Chọn mục danh sách kiểm tra' }))
     const dialog = await screen.findByRole('dialog')
     expect(
       within(dialog).getByRole('checkbox', { name: /Ghi nhận toàn cảnh/ }),
@@ -140,7 +140,7 @@ describe('Media checklist attachment picker', () => {
         onSave={save}
       />,
     )
-    fireEvent.click(screen.getByRole('button', { name: 'Gắn vào checklist' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Gắn vào danh sách kiểm tra' }))
     const dialog = await screen.findByRole('dialog')
     expect(
       within(dialog).getByRole('checkbox', { name: /Kiểm tra mái/ }),

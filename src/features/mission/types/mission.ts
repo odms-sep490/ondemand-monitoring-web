@@ -1,8 +1,9 @@
+import type { GeoJsonPolygon } from '../../../shared/types/geo'
+
 export type MissionStatus =
   | 'PLANNING'
   | 'CREATED'
   | 'WAITING_DEPOSIT'
-  | 'PENDING_PAYMENT'
   | 'PENDING_CONFIRMATION'
   | 'READY'
   | 'SCHEDULED'
@@ -169,6 +170,7 @@ export interface Mission {
   latitude?: number
   longitude?: number
   radiusM?: number | null
+  coverageArea?: GeoJsonPolygon | null
   address?: string
   scheduledStartAt?: string
   scheduledEndAt?: string

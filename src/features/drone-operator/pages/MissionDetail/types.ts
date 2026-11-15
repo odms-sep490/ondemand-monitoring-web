@@ -55,7 +55,7 @@ export type StoredWeatherStatus = {
 export type PostflightCheckStatus = {
   id: string
   missionId?: string | null
-  deviceConnectionId?: string | null
+  deviceAssignmentId?: string | null
   deviceCode?: string | null
   deviceName?: string | null
   droneCode?: string | null

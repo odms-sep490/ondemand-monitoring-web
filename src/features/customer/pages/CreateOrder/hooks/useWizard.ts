@@ -25,10 +25,10 @@ type Options = {
 const errorFieldIds: Partial<Record<keyof FormErrors, string>> = {
   serviceId: 'co-service',
   title: 'co-title',
-  usagePurpose: 'co-purpose',
+  flightPurpose: 'co-flight-purpose',
   otherFlightPurpose: 'co-other-flight-purpose',
-  otherUsagePurpose: 'co-other-usage-purpose',
   address: 'co-address',
+  coverageArea: 'co-area-region-title',
   preferredDateFrom: 'co-from',
   preferredDateTo: 'co-to',
   preferredTimeId: 'co-time',
@@ -60,6 +60,7 @@ function revealFirstError(errors: FormErrors) {
 
 const stepTwoErrors: Array<keyof FormErrors> = [
   'address',
+  'coverageArea',
   'latitude',
   'longitude',
 ]
@@ -83,9 +84,8 @@ function firstInvalidStep(errors: FormErrors): Step {
   if (
     errors.serviceId ||
     errors.title ||
-    errors.usagePurpose ||
-    errors.otherFlightPurpose ||
-    errors.otherUsagePurpose
+    errors.flightPurpose ||
+    errors.otherFlightPurpose
   )
     return 1
   if (stepTwoErrors.some((key) => Boolean(errors[key]))) return 2

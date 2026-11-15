@@ -16,7 +16,7 @@
 
 .tl-filter .sp-input {
   width: auto;
-  min-height: 36px;
+  min-height: 38px;
 }
 
 .tl-list {
@@ -34,14 +34,21 @@
   justify-content: space-between;
   gap: var(--ui-space-4);
   flex-wrap: wrap;
-  padding: var(--ui-space-4);
-  border: 1px solid var(--ui-border);
-  border-radius: var(--ui-radius-lg);
-  background: var(--ui-surface);
-  box-shadow: var(--ui-shadow);
+  padding: var(--ui-space-4) 20px;
+  border: 1px solid var(--mgr-border, var(--ui-border));
+  border-radius: var(--mgr-radius, 16px);
+  background: var(--mgr-card, var(--ui-surface));
+  box-shadow: var(--mgr-shadow, var(--ui-shadow));
 }
 
+.tl-row:hover {
+  box-shadow: var(--mgr-shadow-hover, var(--mgr-shadow, var(--ui-shadow)));
+}
 
+.tl-head .ant-tag {
+  margin: 0;
+  border-radius: 999px;
+}
 
 .tl-main {
   display: flex;
@@ -60,7 +67,7 @@
 .tl-subject {
   font-size: 15px;
   font-weight: 700;
-  color: var(--ui-text);
+  color: var(--mgr-text, var(--ui-text));
   text-decoration: none;
   overflow-wrap: anywhere;
 }
@@ -92,4 +99,25 @@
 
 .tl-view:hover {
   text-decoration: underline;
+}
+
+@media (max-width: 575px) {
+  .tl-filter {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .tl-filter .sp-input {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+
+  .tl-row {
+    padding: var(--ui-space-4);
+  }
+
+  .tl-side {
+    width: 100%;
+    text-align: left;
+  }
 }

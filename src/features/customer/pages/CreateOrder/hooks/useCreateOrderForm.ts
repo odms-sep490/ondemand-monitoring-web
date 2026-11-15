@@ -18,6 +18,8 @@ export function useCreateOrderForm(stored: StoredCreateOrderDraft | null) {
   const [form, setForm] = useState<FormState>(() => ({
     ...createDefaultForm(),
     ...(stored?.form ?? {}),
+    // New wizard requests must explicitly choose a purpose; saved drafts retain theirs.
+    flightPurpose: stored?.form?.flightPurpose ?? '',
   }))
   const [errors, setErrors] = useState<FormErrors>({})
   const [mapPoint, setMapPoint] = useState<MapPoint>(

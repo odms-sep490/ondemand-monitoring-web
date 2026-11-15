@@ -2,7 +2,7 @@ import * as http from '../../shared/api/httpClient'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, expect, it, vi } from 'vitest'
 import { setLanguage } from '../../shared/i18n'
-import { DeliveryImagePreview } from './DeliveryImagePreview'
+import { ImagePreview as DeliveryImagePreview } from '../../shared/components/media/ImagePreview'
 
 afterEach(() => {
   setLanguage('vi')

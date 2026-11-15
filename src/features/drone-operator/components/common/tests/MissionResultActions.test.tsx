@@ -157,6 +157,29 @@ describe('Exact Mission result actions', () => {
     ).toBeNull()
     expect(screen.getByText('Chờ nghiệm thu')).toBeInTheDocument()
   })
+  it('reports a localized incomplete-checklist count and blocks submit', () => {
+    const monitoring = query(false, true)
+    monitoring.data!.checklist.executions = [
+      { id: 'e', executionStatus: 'PENDING' } as never,
+    ]
+    monitoring.data!.checklist.readyForSubmission = false
+    monitoring.data!.checklist.readyForFinalApproval = false
+    const state = missionResultActions('m1', 'COMPLETED', monitoring)
+    expect(state.submitReady).toBe(false)
+    expect(state.readinessReason).toBe('Còn 1 mục checklist chưa hoàn tất.')
+  })
+  it('localizes a stale generic checklist-not-ready submit error', () => {
+    expect(
+      staffResultError(
+        new ApiError('Monitoring checklist is not ready for result submission', {
+          code: 'CHECKLIST_NOT_READY',
+          status: 409,
+          method: 'POST',
+          path: '/result',
+        }),
+      ),
+    ).toBe('Checklist chưa hoàn tất hoặc chưa đủ bằng chứng hợp lệ.')
+  })
   it('explains wrong evidence type and insufficient evidence from backend blockers', () => {
     expect(
       staffResultError(

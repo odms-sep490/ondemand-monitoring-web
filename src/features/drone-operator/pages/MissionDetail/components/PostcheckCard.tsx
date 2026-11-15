@@ -117,7 +117,7 @@ export function PostcheckCard({
                           idx < itemChecks.length - 1
                             ? '1px solid var(--bd)'
                             : 'none',
-                        background: isFail ? 'var(--red-bg)' : '#fff',
+                        background: isFail ? 'var(--red-bg)' : 'var(--sf)',
                         fontSize: 14,
                       }}
                     >

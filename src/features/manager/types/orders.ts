@@ -96,13 +96,13 @@ export type OrderDetail = {
   addressText: string | null
   center: { lat: number; lon: number } | null
   radiusM: number | null
+  coverageArea?: Record<string, unknown> | null
   nearestBase?: string | null
   mediaRequirements: OrderMediaRequirement[] | null
   purpose: string | null
   attachments: OrderAttachment[] | null
   title?: string | null
   description?: string | null
-  usagePurpose?: string | null
   flightPurpose?: string | null
   altitudeM?: number | null
   estimatedLengthM?: number | null
@@ -126,7 +126,6 @@ export type OrderDetail = {
   deliveryMethods?: string[] | null
   dataRetentionDays?: number | null
   termsAcceptedAt?: string | null
-  termsVersion?: string | null
   deliverables?: OrderDeliverableResponse[] | null
   legalReviewStatus?: LegalReviewStatus | null
   flightAreaReviewReason?: string | null
@@ -189,6 +188,7 @@ export type OrderMissionBrief = {
   addressText: string | null
   center: { lat: number; lon: number } | null
   radiusM: number | null
+  coverageArea?: Record<string, unknown> | null
   nearestBase?: string | null
   mediaRequirements: OrderMediaRequirement[] | null
 }
@@ -231,7 +231,6 @@ export type OrderCreateResponse = {
   serviceName: string
   serviceDescription?: string | null
   description: string
-  usagePurpose?: string | null
   flightPurpose?: string | null
   altitudeM?: number | null
   estimatedLengthM?: number | null
@@ -264,7 +263,6 @@ export type OrderCreateResponse = {
   deliveryMethods?: string[] | null
   dataRetentionDays?: number | null
   termsAcceptedAt?: string | null
-  termsVersion?: string | null
   orderStatus: OrderStatus
   rejectReason: string | null
   reviewById: string | null

@@ -59,6 +59,7 @@ function backend() {
           contentType: 'image/jpeg',
           sourceType: 'SATELLITE_SNAPSHOT',
           url: preview,
+          previewUrl: preview,
           capturedAt: candidate.capturedAt,
         },
       ]
@@ -105,17 +106,17 @@ it('acceptance gallery and picker see the same eligible pending satellite MediaA
   await waitFor(() =>
     expect(
       screen
-        .getByRole('region', { name: 'Media đã upload của mission' })
+        .getByRole('region', { name: 'Ảnh/video đã tải lên của nhiệm vụ' })
         .querySelector('img'),
     ).toHaveAttribute('src', preview),
   )
-  fireEvent.click(screen.getByText('Thêm bằng chứng từ media Mission'))
+  fireEvent.click(screen.getByText('Thêm bằng chứng từ ảnh/video Nhiệm vụ'))
   const dialog = within(screen.getByRole('dialog'))
   expect(await dialog.findByAltText('Xem trước satellite.jpg')).toHaveAttribute(
     'src',
     preview,
   )
-  expect(dialog.getByText('Gắn media')).toBeEnabled()
+  expect(dialog.getByText('Gắn ảnh/video')).toBeEnabled()
   const candidateRequest = transport.mock.calls.find(([url]) =>
     url.includes('/checklist-evidence/candidates'),
   )!
@@ -124,7 +125,7 @@ it('acceptance gallery and picker see the same eligible pending satellite MediaA
   )
   expect(new URL(candidateRequest[0]).searchParams.get('page')).toBe('0')
   expect(new URL(candidateRequest[0]).searchParams.get('size')).toBe('50')
-  fireEvent.click(dialog.getByText('Gắn media'))
+  fireEvent.click(dialog.getByText('Gắn ảnh/video'))
   await waitFor(() =>
     expect(
       transport.mock.calls.some(

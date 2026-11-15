@@ -416,6 +416,15 @@ $tones: (
   filter: brightness(1.45) saturate(1.2);
 }
 
+/* Light mode: warning / success text on their pale fills was under 3:1 (orange on yellow); darker text keeps the same hue. */
+:root:not([data-theme='dark']) .mgr-layout .mgr-status-tag.ant-tag-warning {
+  color: #92560a;
+}
+
+:root:not([data-theme='dark']) .mgr-layout .mgr-status-tag.ant-tag-success {
+  color: #15803d;
+}
+
 @media (max-width: 640px) {
   .mgr-layout {
     .mgr-stat {

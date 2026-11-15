@@ -48,7 +48,7 @@ export function MaintenanceTicketDialog({
       style={{
         position: 'fixed',
         inset: 0,
-        background: 'rgba(15, 20, 25, 0.5)',
+        background: 'var(--ui-overlay)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',

@@ -22,6 +22,7 @@ export type ManagerRoute =
   | { screen: 'missionDetail'; missionId: string }
   | {
       screen: 'schedule'
+      calendar?: boolean
       assignmentMissionId?: string
       assignmentCanEdit?: boolean
       assignmentReplaceStaffId?: string
@@ -30,6 +31,7 @@ export type ManagerRoute =
   | { screen: 'missions'; missionId?: string }
   | { screen: 'drones'; droneId?: string; assignmentMissionId?: string }
   | { screen: 'maintenance' }
+  | { screen: 'notifications' }
   | { screen: 'support'; ticketId?: string }
   | { screen: 'notFound' }
 
@@ -100,7 +102,7 @@ export function parseManagerRoute(hash: string): ManagerRoute {
               ...(assignmentReplaceStaffId ? { assignmentReplaceStaffId } : {}),
               ...(assignmentReturnOrderId ? { assignmentReturnOrderId } : {}),
             }
-          : { screen: 'schedule' }
+          : { screen: 'schedule', ...(searchParams.get('view') === 'calendar' ? { calendar: true } : {}) }
       }
     case 'drones': {
       const assignmentMissionId =
@@ -120,6 +122,10 @@ export function parseManagerRoute(hash: string): ManagerRoute {
     case 'maintenance':
       return tail.length === 0
         ? { screen: 'maintenance' }
+        : { screen: 'notFound' }
+    case 'notifications':
+      return tail.length === 0
+        ? { screen: 'notifications' }
         : { screen: 'notFound' }
     case 'support':
       if (tail.length === 0) return { screen: 'support' }
@@ -155,7 +161,7 @@ export function managerHref(route: ManagerRoute): string {
     case 'missionDetail':
       return `${MANAGER_ROOT}/missions/${route.missionId}/detail`
     case 'schedule': {
-      if (!route.assignmentMissionId) return `${MANAGER_ROOT}/schedule`
+      if (!route.assignmentMissionId) return `${MANAGER_ROOT}/schedule${route.calendar ? '?view=calendar' : ''}`
       const params = new URLSearchParams({
         assignmentMissionId: route.assignmentMissionId,
         assignmentCanEdit: route.assignmentCanEdit ? '1' : '0',
@@ -184,6 +190,8 @@ export function managerHref(route: ManagerRoute): string {
     }
     case 'maintenance':
       return `${MANAGER_ROOT}/maintenance`
+    case 'notifications':
+      return `${MANAGER_ROOT}/notifications`
     case 'support':
       return route.ticketId
         ? `${MANAGER_ROOT}/support/tickets/${encodeURIComponent(route.ticketId)}`

@@ -32,7 +32,7 @@ export const deliveryOptionsCardMessages = defineMessages({
     commitmentUse:
       'Dữ liệu giám sát chỉ được sử dụng để thực hiện và bàn giao dịch vụ theo yêu cầu đã thống nhất.',
     commitmentRetention:
-      'Dữ liệu kết quả được lưu trữ tối đa 90 ngày kể từ khi bàn giao, sau đó được xử lý theo chính sách lưu trữ và xóa dữ liệu của ODMS.',
+      'Dữ liệu kết quả được lưu trữ tối đa 30 ngày kể từ khi bàn giao, sau đó được xử lý theo chính sách lưu trữ và xóa dữ liệu của ODMS.',
     commitmentResponsibility:
       'Khách hàng cam kết có quyền yêu cầu giám sát tại khu vực đã chọn và cung cấp giấy chấp thuận của chủ sở hữu hoặc đơn vị quản lý khi cần thiết.',
     commitmentPermit:
@@ -72,7 +72,7 @@ export const deliveryOptionsCardMessages = defineMessages({
     commitmentUse:
       'Monitoring data is used only to perform and deliver the service in accordance with the agreed request.',
     commitmentRetention:
-      'Result data is retained for up to 90 days after delivery and is then handled in accordance with ODMS data retention and deletion policies.',
+      'Result data is retained for up to 30 days after delivery and is then handled in accordance with ODMS data retention and deletion policies.',
     commitmentResponsibility:
       'The customer confirms that they have the right to request monitoring in the selected area and will provide consent from the owner or managing entity when required.',
     commitmentPermit:

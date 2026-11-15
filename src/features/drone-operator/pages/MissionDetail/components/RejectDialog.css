@@ -12,12 +12,12 @@
   gap: 12px;
   min-width: 0;
   padding-bottom: 12px;
-  border-bottom: 1px solid var(--bd, #e6ecf5);
+  border-bottom: 1px solid var(--bd, var(--mgr-border));
 }
 
 .odm-reject-code-label {
   flex: none;
-  color: var(--tx2, #64748b);
+  color: var(--tx2, var(--mgr-muted));
   font-size: 13px;
   font-weight: 500;
 }
@@ -27,7 +27,7 @@
   padding: 5px 10px;
   border-radius: 8px;
   background: var(--accent-bg, rgb(21 101 232 / 9%));
-  color: var(--accent, #1565e8);
+  color: var(--accent, var(--ui-primary));
   font-size: 13px;
   font-weight: 700;
   line-height: 1.35;
@@ -45,7 +45,7 @@
 .odm-reject-reasons legend {
   margin-bottom: 8px;
   padding: 0;
-  color: var(--tx, #0f1b3d);
+  color: var(--tx, var(--mgr-text));
   font-size: 14px;
   font-weight: 600;
   line-height: 1.45;
@@ -64,7 +64,7 @@
   min-height: 40px;
   padding: 8px 10px;
   border-radius: 8px;
-  color: var(--tx, #0f1b3d);
+  color: var(--tx, var(--mgr-text));
   font-size: 14px;
   line-height: 1.45;
   cursor: pointer;
@@ -72,17 +72,17 @@
 }
 
 .odm-reject-option:hover {
-  background: var(--sf2, #f6f8fd);
+  background: var(--sf2, var(--mgr-card-2));
 }
 
 .odm-reject-option.is-selected {
   background: var(--accent-bg, rgb(21 101 232 / 9%));
-  color: var(--accent, #1565e8);
+  color: var(--accent, var(--ui-primary));
   font-weight: 600;
 }
 
 .odm-reject-option:focus-within {
-  outline: 2px solid var(--accent, #1565e8);
+  outline: 2px solid var(--accent, var(--ui-primary));
   outline-offset: 1px;
 }
 
@@ -91,7 +91,7 @@
   width: 18px;
   height: 18px;
   margin: 0;
-  accent-color: var(--accent, #1565e8);
+  accent-color: var(--accent, var(--ui-primary));
 }
 
 .odm-reject-reasons:disabled .odm-reject-option {
@@ -106,7 +106,7 @@
 }
 
 .odm-reject-notes-field .ui-label {
-  color: var(--tx, #0f1b3d);
+  color: var(--tx, var(--mgr-text));
   font-size: 14px;
   font-weight: 600;
 }
@@ -115,10 +115,10 @@
   width: 100%;
   min-height: 92px;
   padding: 10px 12px;
-  border: 1px solid var(--bd, #e6ecf5);
+  border: 1px solid var(--bd, var(--mgr-border));
   border-radius: 10px;
-  background: var(--sf, #fff);
-  color: var(--tx, #0f1b3d);
+  background: var(--sf, var(--mgr-card));
+  color: var(--tx, var(--mgr-text));
   font: inherit;
   font-size: 13px;
   line-height: 1.5;
@@ -127,11 +127,11 @@
 }
 
 .odm-reject-notes::placeholder {
-  color: var(--tx3, #64748b);
+  color: var(--tx3, var(--mgr-muted));
 }
 
 .odm-reject-notes:focus-visible {
-  border-color: var(--accent, #1565e8);
+  border-color: var(--accent, var(--ui-primary));
   outline: none;
   box-shadow: 0 0 0 3px var(--accent-bg, rgb(21 101 232 / 9%));
 }

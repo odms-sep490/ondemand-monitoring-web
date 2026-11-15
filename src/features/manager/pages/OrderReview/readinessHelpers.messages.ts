@@ -15,12 +15,6 @@ export const readinessHelpersMessages = defineMessages({
       APPROVE_WITH_NOTES: 'Có thể duyệt, nhưng cần liên hệ xác minh',
       APPROVE: 'Đủ điều kiện duyệt',
     },
-    riskLevel: { PASS: 'Thấp', WARN: 'Trung bình', FAIL: 'Cao' },
-    siteAccess: {
-      PASS: 'Đã liên hệ, đồng ý',
-      WARN: 'Đã liên hệ, đồng ý',
-      FAIL: 'Chưa liên hệ được / không đồng ý',
-    },
     siteAccessFailNote:
       'Lý do (bắt buộc): vd. đã gọi nhiều lần không liên lạc được, hoặc chủ đất từ chối',
   },
@@ -37,12 +31,6 @@ export const readinessHelpersMessages = defineMessages({
         'A mandatory criterion failed: request more information or reject',
       APPROVE_WITH_NOTES: 'Can be approved, but verification contact is needed',
       APPROVE: 'Eligible for approval',
-    },
-    riskLevel: { PASS: 'Low', WARN: 'Medium', FAIL: 'High' },
-    siteAccess: {
-      PASS: 'Contacted, agreed',
-      WARN: 'Contacted, agreed',
-      FAIL: 'Could not reach / did not agree',
     },
     siteAccessFailNote:
       'Reason (required): e.g. called several times with no answer, or the landowner refused',

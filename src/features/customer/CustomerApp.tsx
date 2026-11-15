@@ -1,23 +1,42 @@
 import { Button } from 'antd'
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 
-import { EmptyState } from './components/common/StateView'
+import { EmptyState, LoadingState } from './components/common/StateView'
 import { useI18n } from '../../shared/i18n'
 import { customerAppMessages } from './CustomerApp.messages'
 import { CustomerLayout } from './CustomerLayout'
-import { CreateOrderPage } from './pages/CreateOrder'
-import { DashboardPage } from './pages/Dashboard'
-import { LivePage } from './pages/Live'
-import { LiveHubPage } from './pages/LiveHub'
-import { MediaDetailPage } from './pages/MediaDetail'
-import { MediaLibraryPage } from './pages/MediaLibrary'
-import { MediaPage } from './pages/Media'
-import { OrderDetailPage } from './pages/OrderDetail'
-import { OrdersPage } from './pages/Orders'
-import { MissionHistoryPage } from './pages/MissionHistory'
-import { MissionHistoryDetailPage } from './pages/MissionHistoryDetail'
-import { CustomerMissionReportPage } from './components/reports/CustomerMissionReportPage'
 import { customerHref, parseCustomerRoute, type CustomerRoute } from './routes'
+
+const CreateOrderPage = lazy(() =>
+  import('./pages/CreateOrder').then((m) => ({ default: m.CreateOrderPage })),
+)
+const LivePage = lazy(() =>
+  import('./pages/Live').then((m) => ({ default: m.LivePage })),
+)
+const LiveHubPage = lazy(() =>
+  import('./pages/LiveHub').then((m) => ({ default: m.LiveHubPage })),
+)
+const MediaDetailPage = lazy(() =>
+  import('./pages/MediaDetail').then((m) => ({ default: m.MediaDetailPage })),
+)
+const MediaLibraryPage = lazy(() =>
+  import('./pages/MediaLibrary').then((m) => ({ default: m.MediaLibraryPage })),
+)
+const MediaPage = lazy(() =>
+  import('./pages/Media').then((m) => ({ default: m.MediaPage })),
+)
+const OrderDetailPage = lazy(() =>
+  import('./pages/OrderDetail').then((m) => ({ default: m.OrderDetailPage })),
+)
+const OrdersPage = lazy(() =>
+  import('./pages/Orders').then((m) => ({ default: m.OrdersPage })),
+)
+const CustomerMissionReportPage = lazy(() =>
+  import('./components/reports/CustomerMissionReportPage').then((m) => ({ default: m.CustomerMissionReportPage })),
+)
+const NotificationsPage = lazy(() =>
+  import('../notifications/NotificationsPage').then((m) => ({ default: m.NotificationsPage })),
+)
 
 function useHash(): string {
   const [hash, setHash] = useState(() => window.location.hash)
@@ -36,7 +55,7 @@ export function CustomerApp() {
 
   return (
     <CustomerLayout route={route} breadcrumb={t.breadcrumb[route.screen]}>
-      {renderScreen(route, t)}
+      <Suspense fallback={<LoadingState />}>{renderScreen(route, t)}</Suspense>
     </CustomerLayout>
   )
 }
@@ -45,7 +64,6 @@ function renderScreen(
   route: CustomerRoute,
   t: (typeof customerAppMessages)['vi'],
 ) {
-  if (route.screen === 'missionHistory') return <MissionHistoryPage />
   if (route.screen === 'missionReport')
     return (
       <CustomerMissionReportPage
@@ -53,9 +71,7 @@ function renderScreen(
         missionId={route.missionId}
       />
     )
-  if (route.screen === 'missionHistoryDetail')
-    return <MissionHistoryDetailPage missionId={route.missionId} />
-  if (route.screen === 'dashboard') return <DashboardPage />
+  if (route.screen === 'dashboard') return <OrdersPage />
   if (route.screen === 'orders') return <OrdersPage />
   if (route.screen === 'createOrder') return <CreateOrderPage />
   if (route.screen === 'orderDetail')
@@ -66,13 +82,15 @@ function renderScreen(
   if (route.screen === 'mediaLibrary') return <MediaLibraryPage />
   if (route.screen === 'mediaDetail')
     return <MediaDetailPage mediaId={route.mediaId} />
+  if (route.screen === 'notifications')
+    return <NotificationsPage role="CUSTOMER" />
 
   return (
     <EmptyState
       title={t.notFoundTitle}
       description={t.notFoundDescription}
       action={
-        <Button type="primary" href={customerHref({ screen: 'dashboard' })}>
+        <Button type="primary" href={customerHref({ screen: 'orders' })}>
           {t.backToDashboard}
         </Button>
       }

@@ -1,14 +1,10 @@
 import { VideoPoster } from '../../../shared/components/media/VideoThumbnail'
 import { useId, useState } from 'react'
-import { Alert, Button, Checkbox, Empty, Image, Modal, Tag } from 'antd'
-import {
-  CheckOutlined,
-  PictureOutlined,
-  SendOutlined,
-} from '@ant-design/icons'
+import { Alert, Button, Checkbox, Empty, Tag } from 'antd'
+import { CheckOutlined, PictureOutlined, SendOutlined } from '@ant-design/icons'
 import { useLanguage } from '../../../shared/i18n'
 import { ApiError } from '../../../shared/api/httpClient'
-import { ResilientMedia } from '../../../shared/components/media/MediaRecovery'
+import { InspectorEvidencePreview } from './InspectorEvidencePreview'
 import { checklistEvidenceApi } from '../api/checklistEvidenceApi'
 import { getUploadMediaStatusLabel } from '../../drone-operator/pages/UploadMedia/uploadMediaHelpers'
 import { customerSelectionProgress } from '../lib/customerEvidenceSelection'
@@ -40,7 +36,7 @@ export function CustomerEvidenceSelection({
       .map((link) => link.evidenceId),
   )
   const [busy, setBusy] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState(false)
   const [conflict, setConflict] = useState(false)
   const [saved, setSaved] = useState(false)
   const [preview, setPreview] = useState<MissionChecklistEvidence | null>(null)
@@ -71,7 +67,7 @@ export function CustomerEvidenceSelection({
     )
       return
     setBusy(true)
-    setError(null)
+    setError(false)
     try {
       await checklistEvidenceApi.selectForCustomer(missionId, item.id, {
         expectedVersion: item.version,
@@ -82,11 +78,7 @@ export function CustomerEvidenceSelection({
       refresh()
     } catch (cause) {
       setConflict(cause instanceof ApiError && cause.status === 409)
-      setError(
-        vi
-          ? 'Không thể lưu lựa chọn. Tải lại checklist và kiểm tra dữ liệu mới trước khi thử lại.'
-          : 'Unable to save the selection. Reload the checklist and review the latest data before retrying.',
-      )
+      setError(true)
       refresh()
     } finally {
       setBusy(false)
@@ -119,41 +111,70 @@ export function CustomerEvidenceSelection({
         <div>
           <h4>
             <SendOutlined aria-hidden="true" />{' '}
-            {vi ? 'Media của checklist' : 'Checklist media'}
+            {vi
+              ? 'Chọn ảnh/video gửi khách hàng'
+              : 'Select customer images and videos'}
           </h4>
           <p>
             {vi
-              ? 'Chọn ảnh/video đã duyệt. Các tệp còn lại được giữ dự phòng.'
-              : 'Select approved images/videos. Other files stay in reserve.'}
+              ? 'Chọn các tệp đã duyệt để bàn giao. Tệp không chọn vẫn được giữ dự phòng.'
+              : 'Select approved files for delivery. Unselected files stay in reserve.'}
           </p>
         </div>
-        <Tag color={ids.length ? 'blue' : undefined}>
-          {vi
-            ? `Đã chọn ${ids.length}/${links.length}`
-            : `${ids.length}/${links.length} selected`}
+        <Tag color={changed ? 'gold' : ids.length ? 'blue' : undefined}>
+          {saved
+            ? vi
+              ? 'Đã lưu'
+              : 'Saved'
+            : changed
+              ? vi
+                ? 'Chưa lưu'
+                : 'Unsaved changes'
+              : ids.length
+                ? vi
+                  ? 'Đã lưu'
+                  : 'Saved'
+                : vi
+                  ? 'Chưa chọn tệp'
+                  : 'No files selected'}
         </Tag>
       </header>
-      <div className="customer-evidence-selection__evidence-count">
-        {vi
-          ? item.evidencePolicyVersion === 3
-            ? `Bằng chứng hợp lệ: ảnh ${item.eligibleImageCount ?? 0}/${item.minimumImageCount ?? 0} · video ${item.eligibleVideoCount ?? 0}/${item.minimumVideoCount ?? 0}`
-            : `Bằng chứng hợp lệ: ${item.eligibleEvidenceCount ?? 0}/${item.minimumEvidenceCount ?? 0}`
-          : item.evidencePolicyVersion === 3
-            ? `Eligible evidence: images ${item.eligibleImageCount ?? 0}/${item.minimumImageCount ?? 0} · videos ${item.eligibleVideoCount ?? 0}/${item.minimumVideoCount ?? 0}`
-            : `Eligible evidence: ${item.eligibleEvidenceCount ?? 0}/${item.minimumEvidenceCount ?? 0}`}
-      </div>
       <div
         className="customer-evidence-selection__summary"
         role="status"
         aria-atomic="true"
       >
-        <span>
-          {vi
-            ? `Chọn gửi khách: ${imageCount} ảnh · ${videoCount} video`
-            : `Customer selection: ${imageCount} images · ${videoCount} videos`}
-        </span>
-        <span className="customer-evidence-selection__minimum">{minimum}</span>
+        <div>
+          <span className="customer-evidence-selection__metric-label">
+            {vi ? 'Yêu cầu bàn giao' : 'Delivery requirement'}
+          </span>
+          <strong>{minimum}</strong>
+        </div>
+        <div>
+          <span className="customer-evidence-selection__metric-label">
+            {vi ? 'Đang chọn gửi khách' : 'Selected for delivery'}
+          </span>
+          <strong>
+            {vi
+              ? `${imageCount} ảnh · ${videoCount} video`
+              : `${imageCount} images · ${videoCount} videos`}
+          </strong>
+        </div>
       </div>
+      <details className="customer-evidence-selection__details">
+        <summary>
+          {vi ? 'Thông tin bằng chứng hợp lệ' : 'Eligible evidence details'}
+        </summary>
+        <div className="customer-evidence-selection__evidence-count">
+          {vi
+            ? item.evidencePolicyVersion === 3
+              ? `Bằng chứng hợp lệ: ảnh ${item.eligibleImageCount ?? 0}/${item.minimumImageCount ?? 0} · video ${item.eligibleVideoCount ?? 0}/${item.minimumVideoCount ?? 0}`
+              : `Bằng chứng hợp lệ: ${item.eligibleEvidenceCount ?? 0}/${item.minimumEvidenceCount ?? 0}`
+            : item.evidencePolicyVersion === 3
+              ? `Eligible evidence: images ${item.eligibleImageCount ?? 0}/${item.minimumImageCount ?? 0} · videos ${item.eligibleVideoCount ?? 0}/${item.minimumVideoCount ?? 0}`
+              : `Eligible evidence: ${item.eligibleEvidenceCount ?? 0}/${item.minimumEvidenceCount ?? 0}`}
+        </div>
+      </details>
       <ul className="customer-evidence-selection__list">
         {links.map((link) => {
           const checked = ids.includes(link.evidenceId)
@@ -175,19 +196,30 @@ export function CustomerEvidenceSelection({
               key={link.evidenceId}
               className={`customer-evidence-selection__row${checked ? ' is-selected' : ''}`}
             >
-              <Checkbox
-                id={`${selectionId}-${link.evidenceId}`}
-                aria-label={`${link.fileName} · ${state}`}
-                checked={checked}
-                disabled={disabled}
-                onChange={(event) =>
-                  setIds((current) =>
-                    event.target.checked
-                      ? [...current, link.evidenceId]
-                      : current.filter((id) => id !== link.evidenceId),
-                  )
-                }
-              />
+              <div className="customer-evidence-selection__choice">
+                <Checkbox
+                  id={`${selectionId}-${link.evidenceId}`}
+                  aria-label={`${link.fileName} · ${state}`}
+                  checked={checked}
+                  disabled={disabled}
+                  onChange={(event) =>
+                    setIds((current) =>
+                      event.target.checked
+                        ? [...current, link.evidenceId]
+                        : current.filter((id) => id !== link.evidenceId),
+                    )
+                  }
+                />
+                <span>
+                  {checked
+                    ? vi
+                      ? 'Đã chọn'
+                      : 'Selected'
+                    : vi
+                      ? 'Chọn gửi khách'
+                      : 'Select for delivery'}
+                </span>
+              </div>
               <button
                 type="button"
                 className="customer-evidence-selection__thumbnail"
@@ -277,7 +309,17 @@ export function CustomerEvidenceSelection({
           }
         />
       )}
-      {error && <Alert type="error" showIcon message={error} />}
+      {error && (
+        <Alert
+          type="error"
+          showIcon
+          message={
+            vi
+              ? 'Không thể lưu lựa chọn. Tải lại danh sách kiểm tra và kiểm tra dữ liệu mới trước khi thử lại.'
+              : 'Unable to save the selection. Reload the checklist and review the latest data before retrying.'
+          }
+        />
+      )}
       <footer className="customer-evidence-selection__footer">
         <div className="customer-evidence-selection__feedback">
           {saved ? (
@@ -318,41 +360,23 @@ export function CustomerEvidenceSelection({
           </Button>
         </div>
       </footer>
-      <Modal
-        className="customer-evidence-selection-preview"
-        open={preview !== null}
-        title={preview?.fileName}
-        footer={null}
-        width={860}
-        onCancel={() => setPreview(null)}
-        destroyOnHidden
-      >
-        {preview?.previewUrl &&
-          (preview.mediaType === 'VIDEO' ? (
-            <ResilientMedia
-              kind="video"
-              expanded
-              src={preview.previewUrl}
-              poster={preview.thumbnailUrl}
-              fileName={preview.fileName}
-              fallbackUrl={preview.previewUrl}
-            />
-          ) : (
-            <Image
-              src={preview.previewUrl}
-              alt={preview.fileName}
-              width="100%"
-              preview={{ mask: vi ? 'Phóng to ảnh' : 'Zoom image' }}
-            />
-          ))}
-      </Modal>
+      {preview && (
+        <InspectorEvidencePreview
+          key={`${missionId}:${preview.evidenceId}:${preview.mediaId}`}
+          missionId={missionId}
+          executionId={item.id}
+          link={preview}
+          onClose={() => setPreview(null)}
+        />
+      )}
     </section>
   )
 }
 
 function EvidenceThumbnail({ link }: { link: MissionChecklistEvidence }) {
   const [failedUrl, setFailedUrl] = useState<string | null>(null)
-  if (link.mediaType === 'VIDEO') return <VideoPoster poster={link.thumbnailUrl} />
+  if (link.mediaType === 'VIDEO')
+    return <VideoPoster poster={link.thumbnailUrl} />
   const src = link.thumbnailUrl ?? link.previewUrl
   if (src && src !== failedUrl)
     return (

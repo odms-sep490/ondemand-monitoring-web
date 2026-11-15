@@ -1,8 +1,42 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 
 import { useApiQuery } from '../../shared/hooks/useApiQuery'
 import { useI18n } from '../../shared/i18n'
 import { adminAppMessages } from './AdminApp.messages'
+
+const AdminDashboardPage = lazy(() =>
+  import('./pages/Dashboard').then((m) => ({ default: m.AdminDashboardPage })),
+)
+const AccountsPage = lazy(() =>
+  import('./pages/Accounts').then((m) => ({ default: m.AccountsPage })),
+)
+const AccountDetailPage = lazy(() =>
+  import('./pages/AccountDetail').then((m) => ({ default: m.AccountDetailPage })),
+)
+const RolesPage = lazy(() =>
+  import('./pages/Roles').then((m) => ({ default: m.RolesPage })),
+)
+const CatalogPage = lazy(() =>
+  import('./pages/Catalog').then((m) => ({ default: m.CatalogPage })),
+)
+const ChecklistCatalogPage = lazy(() =>
+  import('./pages/Checklists/ChecklistCatalogPage').then((m) => ({ default: m.ChecklistCatalogPage })),
+)
+const ServiceChecklistPage = lazy(() =>
+  import('./pages/Checklists/ServiceChecklistPage').then((m) => ({ default: m.ServiceChecklistPage })),
+)
+const OperatingConfigPage = lazy(() =>
+  import('./pages/OperatingConfig').then((m) => ({ default: m.OperatingConfigPage })),
+)
+const OrderCriteriaPage = lazy(() =>
+  import('./pages/OperatingConfig/components/OrderCriteriaTab').then((m) => ({ default: m.OrderCriteriaTab })),
+)
+const AuditLogPage = lazy(() =>
+  import('./pages/AuditLog').then((m) => ({ default: m.AuditLogPage })),
+)
+const RefundManagementPage = lazy(() =>
+  import('./pages/Refunds').then((m) => ({ default: m.RefundManagementPage })),
+)
 
 function useHash(): string {
   const [hash, setHash] = useState(() => window.location.hash)
@@ -16,15 +50,6 @@ function useHash(): string {
 import { adminApi } from './api/adminApi'
 import { AdminLayout } from './AdminLayout'
 import { parseAdminRoute } from './routes'
-import { AdminDashboardPage } from './pages/Dashboard'
-import { AccountsPage } from './pages/Accounts'
-import { AccountDetailPage } from './pages/AccountDetail'
-import { RolesPage } from './pages/Roles'
-import { CatalogPage } from './pages/Catalog'
-import { ChecklistCatalogPage } from './pages/Checklists/ChecklistCatalogPage'
-import { ServiceChecklistPage } from './pages/Checklists/ServiceChecklistPage'
-import { OperatingConfigPage } from './pages/OperatingConfig'
-import { AuditLogPage } from './pages/AuditLog'
 import type { AdminRoute } from './routes'
 
 function renderScreen(route: AdminRoute, notFoundText: string) {
@@ -47,8 +72,12 @@ function renderScreen(route: AdminRoute, notFoundText: string) {
       return <ServiceChecklistPage serviceId={route.serviceId} />
     case 'operatingConfig':
       return <OperatingConfigPage />
+    case 'orderCriteria':
+      return <OrderCriteriaPage />
     case 'auditLog':
       return <AuditLogPage />
+    case 'refunds':
+      return <RefundManagementPage />
     default:
       return (
         <div style={{ padding: 40, textAlign: 'center', color: 'var(--tx3)' }}>
@@ -72,7 +101,9 @@ export function AdminApp() {
       breadcrumb={t.breadcrumb[route.screen]}
       pendingCount={pendingCount}
     >
-      {renderScreen(route, t.notFoundPage)}
+      <Suspense fallback={null}>
+        {renderScreen(route, t.notFoundPage)}
+      </Suspense>
     </AdminLayout>
   )
 }

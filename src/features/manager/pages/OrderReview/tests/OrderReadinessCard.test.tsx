@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { readinessApi } from '../../../api/readinessApi'
@@ -17,7 +17,7 @@ const readiness: OrderReadiness = {
   orderId: 'o1',
   canApprove: false,
   recommendation: 'COMPLETE_REVIEW',
-  blockingReasons: ['Năng lực thực hiện: manager chưa xác nhận'],
+  blockingReasons: ['Quyền truy cập hiện trường: manager chưa xác nhận'],
   criteria: [
     {
       code: 'SERVICE_AREA',
@@ -44,10 +44,10 @@ const readiness: OrderReadiness = {
       decidedAt: null,
     },
     {
-      code: 'CAPABILITY',
+      code: 'SITE_ACCESS',
       type: 'MANUAL',
-      title: 'Năng lực thực hiện',
-      description: 'Công ty đủ thiết bị',
+      title: 'Quyền truy cập hiện trường',
+      description: 'Khách hàng có quyền sử dụng khu vực',
       required: true,
       result: 'PENDING',
       reason: null,
@@ -93,7 +93,7 @@ describe('OrderReadinessCard', () => {
     expect(
       screen.getByText('Vị trí nằm trong vùng phục vụ'),
     ).toBeInTheDocument()
-    expect(screen.getByText('Năng lực thực hiện')).toBeInTheDocument()
+    expect(screen.getByText('Quyền truy cập hiện trường')).toBeInTheDocument()
     expect(screen.queryByText('Thời gian thực hiện')).not.toBeInTheDocument()
     expect(
       screen.queryByText('Hạn nhận kết quả rất sát ngày thực hiện'),
@@ -103,9 +103,44 @@ describe('OrderReadinessCard', () => {
     )
   })
 
+  it('hides the operational risk criterion from manager confirmation', () => {
+    renderCard(true, undefined, {
+      ...readiness,
+      canApprove: true,
+      blockingReasons: [],
+      recommendation: 'APPROVE_WITH_NOTES',
+      criteria: [
+        ...readiness.criteria.filter(
+          (criterion) => criterion.code !== 'SITE_ACCESS',
+        ),
+        {
+          code: 'RISK_LEVEL',
+          type: 'MANUAL',
+          title: 'Mức rủi ro vận hành',
+          description: 'Đánh giá mức rủi ro tổng thể',
+          required: false,
+          result: 'FAIL',
+          reason: null,
+          note: null,
+          decidedByName: null,
+          decidedAt: null,
+        },
+      ],
+    })
+
+    expect(screen.queryByText('Mức rủi ro vận hành')).not.toBeInTheDocument()
+    expect(screen.getByText('0/0 đã xác nhận')).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Từ chối đơn' }),
+    ).not.toBeInTheDocument()
+  })
+
   it('saves a passing answer immediately and reloads', async () => {
     const query = renderCard()
-    const passButton = screen.getByRole('button', {
+    const siteAccess = within(
+      screen.getByRole('group', { name: 'Quyền truy cập hiện trường' }),
+    )
+    const passButton = siteAccess.getByRole('button', {
       name: 'Đạt',
       pressed: false,
     })
@@ -114,7 +149,7 @@ describe('OrderReadinessCard', () => {
       screen.getByRole('button', { name: 'Đang lưu…', pressed: true }),
     ).toBeDisabled()
     await waitFor(() =>
-      expect(readinessApi.answer).toHaveBeenCalledWith('o1', 'CAPABILITY', {
+      expect(readinessApi.answer).toHaveBeenCalledWith('o1', 'SITE_ACCESS', {
         result: 'PASS',
         note: null,
       }),
@@ -125,7 +160,11 @@ describe('OrderReadinessCard', () => {
   it('requires a reason before saving a failing answer', async () => {
     const onLocalBlockChange = vi.fn()
     renderCard(true, onLocalBlockChange)
-    fireEvent.click(screen.getByRole('button', { name: 'Không đạt' }))
+    fireEvent.click(
+      within(
+        screen.getByRole('group', { name: 'Quyền truy cập hiện trường' }),
+      ).getByRole('button', { name: 'Không đạt' }),
+    )
     await waitFor(() =>
       expect(onLocalBlockChange).toHaveBeenLastCalledWith(true),
     )
@@ -136,20 +175,23 @@ describe('OrderReadinessCard', () => {
     expect(screen.queryByRole('radio')).not.toBeInTheDocument()
     const reject = screen.getByRole('button', { name: 'Từ chối đơn' })
     expect(
-      screen.queryByRole('button', { name: 'Yêu cầu bổ sung' }),
-    ).not.toBeInTheDocument()
+      screen.getByRole('button', { name: 'Yêu cầu bổ sung' }),
+    ).toBeInTheDocument()
     expect(reject).toBeEnabled()
     const save = screen.getByRole('button', { name: 'Lưu' })
     expect(save).toBeDisabled()
-    fireEvent.change(screen.getByLabelText('Ghi chú: Năng lực thực hiện'), {
-      target: { value: 'Không có drone ảnh nhiệt' },
-    })
+    fireEvent.change(
+      screen.getByLabelText('Ghi chú: Quyền truy cập hiện trường'),
+      {
+        target: { value: 'Chưa xác nhận quyền truy cập hiện trường' },
+      },
+    )
     expect(save).toBeEnabled()
     fireEvent.click(save)
     await waitFor(() =>
-      expect(readinessApi.answer).toHaveBeenCalledWith('o1', 'CAPABILITY', {
+      expect(readinessApi.answer).toHaveBeenCalledWith('o1', 'SITE_ACCESS', {
         result: 'FAIL',
-        note: 'Không có drone ảnh nhiệt',
+        note: 'Chưa xác nhận quyền truy cập hiện trường',
       }),
     )
     expect(ordersApi.submitApproval).not.toHaveBeenCalled()
@@ -159,21 +201,12 @@ describe('OrderReadinessCard', () => {
     renderCard(true, undefined, {
       ...readiness,
       blockingReasons: ['Quyền truy cập hiện trường: manager chưa xác nhận'],
-      criteria: readiness.criteria.map((criterion) =>
-        criterion.code === 'CAPABILITY'
-          ? {
-              ...criterion,
-              code: 'SITE_ACCESS',
-              title: 'Quyền truy cập hiện trường',
-              description: 'Khách hàng có quyền sử dụng khu vực',
-            }
-          : criterion,
-      ),
+      criteria: readiness.criteria,
     })
     fireEvent.click(
-      screen.getByRole('button', {
-        name: 'Chưa liên hệ được / không đồng ý',
-      }),
+      within(
+        screen.getByRole('group', { name: 'Quyền truy cập hiện trường' }),
+      ).getByRole('button', { name: 'Không đạt' }),
     )
     fireEvent.change(
       screen.getByLabelText('Ghi chú: Quyền truy cập hiện trường'),
@@ -250,13 +283,21 @@ describe('OrderReadinessCard', () => {
       recommendation: 'APPROVE',
     })
 
-    fireEvent.click(screen.getByRole('button', { name: 'Không đạt' }))
+    fireEvent.click(
+      within(
+        screen.getByRole('group', { name: 'Quyền truy cập hiện trường' }),
+      ).getByRole('button', { name: 'Không đạt' }),
+    )
 
     expect(screen.getByRole('button', { name: 'Từ chối đơn' })).toBeVisible()
   })
 
   it('is read-only once the order is no longer pending', () => {
     renderCard(false)
-    expect(screen.getByRole('button', { name: 'Đạt' })).toBeDisabled()
+    expect(
+      within(
+        screen.getByRole('group', { name: 'Quyền truy cập hiện trường' }),
+      ).getByRole('button', { name: 'Đạt' }),
+    ).toBeDisabled()
   })
 })

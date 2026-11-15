@@ -20,7 +20,7 @@ export function PostflightHeader({
     <FlightStepHeader
       title={t.stepTitle}
       missionId={missionLabel}
-      active={6}
+      active={5}
       right={
         <div className="postflight-header-actions">
           {postflightMissions.length > 0 && (
@@ -34,8 +34,8 @@ export function PostflightHeader({
               >
                 {postflightMissions.map((m) => (
                   <option key={m.id} value={m.id}>
-                    🎯 {m.missionCode || m.id} (
-                    {formatDeviceLabel(m) || 'DEVICE'}) — {m.status}
+                    {m.missionCode || m.id} (
+                    {formatDeviceLabel(m) || 'Thiết bị'})
                   </option>
                 ))}
               </select>

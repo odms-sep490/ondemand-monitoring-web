@@ -175,7 +175,6 @@ describe('commercial deadline presentation', () => {
         busy={false}
         pay={vi.fn()}
         completeTestDeposit={vi.fn()}
-        completeTestFinal={vi.fn()}
         testPaymentLabel="Thanh toán nhanh"
       />,
     )
@@ -218,7 +217,6 @@ describe('commercial deadline presentation', () => {
         busy={false}
         pay={vi.fn()}
         completeTestDeposit={vi.fn()}
-        completeTestFinal={vi.fn()}
         testPaymentLabel="Thanh toán nhanh"
       />,
     )

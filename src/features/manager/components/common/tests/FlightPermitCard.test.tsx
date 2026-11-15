@@ -1,7 +1,9 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, expect, it, vi } from 'vitest'
+import { setLanguage } from '../../../../../shared/i18n'
 import { missionsApi } from '../../../api/missionsApi'
-import { ordersApi } from '../../../api/ordersApi'
+import { ApiError } from '../../../../../shared/api/httpClient'
+import { refundApi, type RefundResponse } from '../../../../finance/refundApi'
 import type { MissionResponse } from '../../../types/missions'
 import { FlightPermitCard } from '../FlightPermitCard'
 
@@ -23,19 +25,27 @@ const rejectedMission = {
   orderPreferredTimeEnd: '11:00:00',
 } as MissionResponse
 
-afterEach(() => vi.restoreAllMocks())
+afterEach(() => {
+  vi.restoreAllMocks()
+  setLanguage('vi')
+})
 
 it('keeps a rejected permit separate from order rejection and exposes remediation actions', () => {
-  render(<FlightPermitCard mission={rejectedMission} onChanged={vi.fn()} />)
+  render(
+    <FlightPermitCard
+      mission={rejectedMission}
+      onChanged={vi.fn()}
+      depositPaid
+    />,
+  )
 
-  expect(screen.getByText('Mission đang bị khóa thực thi')).toBeInTheDocument()
+  expect(screen.getByText('Nhiệm vụ đang bị khóa thực thi')).toBeInTheDocument()
   expect(
     screen.getByRole('button', { name: 'Bổ sung & gửi duyệt lại' }),
   ).toBeInTheDocument()
   expect(
     screen.getByRole('button', { name: 'Đề nghị dời lịch' }),
   ).toBeInTheDocument()
-  expect(screen.getByRole('button', { name: 'Hủy Order' })).toBeInTheDocument()
   expect(
     screen.queryByRole('button', { name: 'Xác nhận đã được cấp phép' }),
   ).not.toBeInTheDocument()
@@ -61,7 +71,13 @@ it('resubmits only after the manager changes the remediation note or document', 
   const update = vi
     .spyOn(missionsApi, 'updateFlightPermit')
     .mockResolvedValue(rejectedMission)
-  render(<FlightPermitCard mission={rejectedMission} onChanged={vi.fn()} />)
+  render(
+    <FlightPermitCard
+      mission={rejectedMission}
+      onChanged={vi.fn()}
+      depositPaid
+    />,
+  )
 
   fireEvent.click(
     screen.getByRole('button', { name: 'Bổ sung & gửi duyệt lại' }),
@@ -95,7 +111,13 @@ it('saving an uploaded permit sends it for review instead of approving it', asyn
   const update = vi
     .spyOn(missionsApi, 'updateFlightPermit')
     .mockResolvedValue(pendingMission)
-  render(<FlightPermitCard mission={pendingMission} onChanged={vi.fn()} />)
+  render(
+    <FlightPermitCard
+      mission={pendingMission}
+      onChanged={vi.fn()}
+      depositPaid
+    />,
+  )
 
   expect(screen.queryByText('Chưa chọn tệp')).not.toBeInTheDocument()
   expect(screen.getByText('Thay tệp')).toBeInTheDocument()
@@ -118,45 +140,91 @@ it('saving an uploaded permit sends it for review instead of approving it', asyn
   )
 })
 
-it('cancels the Order after an unrecoverable permit rejection', async () => {
-  const propose = vi
-    .spyOn(ordersApi, 'cancelAfterPermitRejection')
-    .mockResolvedValue({} as never)
-  render(<FlightPermitCard mission={rejectedMission} onChanged={vi.fn()} />)
+it('requires a reason and submits a refund request for a paid Deposit', async () => {
+  setLanguage('en')
+  vi.spyOn(refundApi, 'getManagerOrderRefund').mockRejectedValue(
+    new ApiError('Not found', { status: 404, method: 'GET', path: '/refund' }),
+  )
+  const request = vi.spyOn(refundApi, 'requestForOrder').mockResolvedValue({
+    id: 'refund-1',
+    status: 'REQUESTED',
+    refundableAmount: 500000,
+    refundedAmount: 0,
+  } as RefundResponse)
+  render(
+    <FlightPermitCard
+      mission={rejectedMission}
+      onChanged={vi.fn()}
+      depositPaid
+    />,
+  )
 
-  fireEvent.click(screen.getByRole('button', { name: 'Hủy Order' }))
-  fireEvent.change(screen.getByRole('textbox', { name: 'Lý do hủy Order' }), {
-    target: {
-      value: 'Khu vực không thể được cấp phép và khách không đồng ý dời lịch',
+  fireEvent.click(
+    await screen.findByRole('button', { name: 'Request Deposit Refund' }),
+  )
+  const submit = screen.getByRole('button', { name: 'Submit refund request' })
+  expect(submit).toBeDisabled()
+  fireEvent.change(
+    screen.getByRole('textbox', { name: 'Reason for the refund request' }),
+    {
+      target: { value: 'Permit could not be obtained' },
     },
-  })
-  fireEvent.click(screen.getByRole('button', { name: 'Xác nhận hủy Order' }))
+  )
+  fireEvent.click(submit)
 
   await waitFor(() =>
-    expect(propose).toHaveBeenCalledWith(
+    expect(request).toHaveBeenCalledWith(
       'order-1',
-      'Khu vực không thể được cấp phép và khách không đồng ý dời lịch',
+      'Permit could not be obtained',
     ),
   )
+  expect(
+    await screen.findByText('Deposit refund requested'),
+  ).toBeInTheDocument()
+})
+
+it('offers the refund action for an Order-level permit rejection', async () => {
+  setLanguage('en')
+  vi.spyOn(refundApi, 'getManagerOrderRefund').mockRejectedValue(
+    new ApiError('Not found', { status: 404, method: 'GET', path: '/refund' }),
+  )
+  render(
+    <FlightPermitCard
+      mission={{ ...rejectedMission, flightPermitStatus: 'PENDING' }}
+      onChanged={vi.fn()}
+      depositPaid
+      orderPermitRejected
+    />,
+  )
+
+  expect(
+    await screen.findByRole('button', { name: 'Request Deposit Refund' }),
+  ).toBeInTheDocument()
 })
 
 it('shows the order preferred schedule before rescheduling', () => {
-  render(<FlightPermitCard mission={rejectedMission} onChanged={vi.fn()} />)
+  render(
+    <FlightPermitCard
+      mission={rejectedMission}
+      onChanged={vi.fn()}
+      depositPaid
+    />,
+  )
   fireEvent.click(screen.getByRole('button', { name: 'Đề nghị dời lịch' }))
 
   expect(screen.getByText('Lịch khách hàng mong muốn')).toBeInTheDocument()
-  expect(screen.getByText('Lịch Mission hiện tại')).toBeInTheDocument()
+  expect(screen.getByText('Lịch nhiệm vụ hiện tại')).toBeInTheDocument()
   expect(screen.getByText('10/11/2026 – 12/11/2026')).toBeInTheDocument()
   expect(screen.getByText('Buổi sáng (08:00 – 11:00)')).toBeInTheDocument()
-  expect(screen.getByRole('radio', { name: /Chỉ dời Mission/ })).toBeChecked()
+  expect(screen.getByRole('radio', { name: /Chỉ dời nhiệm vụ/ })).toBeChecked()
   expect(
-    screen.getByText('Cập nhật lịch thực hiện mới của Mission'),
+    screen.getByText('Cập nhật lịch thực hiện mới của nhiệm vụ'),
   ).toBeInTheDocument()
   expect(
-    screen.queryByText('Bước 2 · Cập nhật lịch thực hiện mới của Mission'),
+    screen.queryByText('Bước 2 · Cập nhật lịch thực hiện mới của nhiệm vụ'),
   ).not.toBeInTheDocument()
   expect(
-    screen.getByRole('radio', { name: /Dời lịch Order và Mission/ }),
+    screen.getByRole('radio', { name: /Dời lịch đơn hàng và nhiệm vụ/ }),
   ).toBeInTheDocument()
 })
 
@@ -172,22 +240,28 @@ it('reschedules both Order and Mission when the new time is outside the current 
   const patchSchedule = vi
     .spyOn(missionsApi, 'patchSchedule')
     .mockResolvedValue({} as never)
-  render(<FlightPermitCard mission={rejectedMission} onChanged={vi.fn()} />)
+  render(
+    <FlightPermitCard
+      mission={rejectedMission}
+      onChanged={vi.fn()}
+      depositPaid
+    />,
+  )
   fireEvent.click(screen.getByRole('button', { name: 'Đề nghị dời lịch' }))
   fireEvent.click(
-    screen.getByRole('radio', { name: /Dời lịch Order và Mission/ }),
+    screen.getByRole('radio', { name: /Dời lịch đơn hàng và nhiệm vụ/ }),
   )
   expect(
-    await screen.findByText('Bước 1 · Cập nhật lịch mong muốn mới của Order'),
+    await screen.findByText('Bước 1 · Cập nhật lịch mong muốn mới của đơn hàng'),
   ).toBeInTheDocument()
   expect(screen.getByRole('option', { name: /Buổi sáng/ })).toBeInTheDocument()
   expect(
-    screen.getByText('Bước 2 · Cập nhật lịch thực hiện mới của Mission'),
+    screen.getByText('Bước 2 · Cập nhật lịch thực hiện mới của nhiệm vụ'),
   ).toBeInTheDocument()
-  fireEvent.change(screen.getByLabelText('Order mong muốn từ ngày'), {
+  fireEvent.change(screen.getByLabelText('Đơn hàng mong muốn từ ngày'), {
     target: { value: '2026-11-15' },
   })
-  fireEvent.change(screen.getByLabelText('Order mong muốn đến ngày'), {
+  fireEvent.change(screen.getByLabelText('Đơn hàng mong muốn đến ngày'), {
     target: { value: '2026-11-20' },
   })
   fireEvent.change(screen.getByLabelText('Khung giờ mong muốn mới'), {
@@ -203,7 +277,7 @@ it('reschedules both Order and Mission when the new time is outside the current 
     screen.getByRole('checkbox', { name: /khách hàng đồng ý lịch mới/ }),
   )
   fireEvent.click(
-    screen.getByRole('button', { name: 'Xác nhận dời Order & Mission' }),
+    screen.getByRole('button', { name: 'Xác nhận dời đơn hàng & nhiệm vụ' }),
   )
 
   await waitFor(() =>
@@ -225,7 +299,7 @@ it('preserves read-only access even after full payment', () => {
       mission={rejectedMission}
       onChanged={vi.fn()}
       readOnly
-      paymentComplete
+      depositPaid
     />,
   )
   expect(screen.getByRole('textbox', { name: 'Ghi chú' })).toHaveAttribute(
@@ -235,12 +309,12 @@ it('preserves read-only access even after full payment', () => {
   expect(screen.queryByLabelText('Chọn tệp giấy phép')).not.toBeInTheDocument()
 })
 
-it('blocks permit changes until full payment is confirmed', () => {
+it('blocks permit changes until the Deposit is confirmed', () => {
   render(
     <FlightPermitCard
       mission={rejectedMission}
       onChanged={vi.fn()}
-      paymentComplete={false}
+      depositPaid={false}
     />,
   )
   expect(screen.getByRole('textbox', { name: 'Ghi chú' })).toBeDisabled()

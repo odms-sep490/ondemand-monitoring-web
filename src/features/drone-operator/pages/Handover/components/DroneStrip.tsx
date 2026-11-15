@@ -19,11 +19,11 @@ export function DroneStrip({
         <div className="handover-drone-strip__title">
           {droneLabel} · {missionLabel}
         </div>
-        <div className="handover-drone-strip__detail">{t.connectedAt}</div>
+        <div className="handover-drone-strip__detail">{t.assignedToMission}</div>
       </div>
       <span className="odm-badge odm-badge-green odm-badge-lg handover-drone-strip__status">
         <span className="odm-badge-dot" aria-hidden="true" />
-        {t.connected}
+        {t.assigned}
       </span>
     </div>
   )

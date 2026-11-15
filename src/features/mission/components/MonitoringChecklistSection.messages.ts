@@ -1,0 +1,201 @@
+import { defineMessages } from '../../../shared/i18n'
+
+export const monitoringChecklistMessages = defineMessages({
+  vi: {
+    evidenceCount: (count: number | string) => `${count} bằng chứng`,
+    missing: (count: number) => ` · thiếu ${count}`,
+    permissionsUnavailable:
+      'Chưa xác minh được quyền thao tác. Vui lòng làm mới hoặc đăng nhập lại.',
+    parentMismatch:
+      'Mục danh sách kiểm tra không thuộc nhiệm vụ này. Vui lòng tải lại đúng nhiệm vụ.',
+    concurrentUpdate:
+      'Dữ liệu đã thay đổi. Chỉnh sửa của bạn chưa được lưu. Tải dữ liệu mới và kiểm tra lại trước khi lưu.',
+    sessionExpired: 'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.',
+    denied: 'Bạn không có quyền thực hiện thao tác này.',
+    notFound:
+      'Không tìm thấy nhiệm vụ hoặc mục danh sách kiểm tra. Vui lòng tải lại.',
+    locked:
+      'Danh sách kiểm tra đã khóa để duyệt kết quả. Vui lòng tải lại trạng thái.',
+    transitionInvalid:
+      'Chuyển trạng thái không hợp lệ. Vui lòng tải lại dữ liệu.',
+    missionChanged: 'Trạng thái nhiệm vụ đã thay đổi. Vui lòng tải lại.',
+    typeMismatch:
+      'Một hoặc nhiều mục cần loại ảnh/video khác. Chọn và gắn đúng loại ảnh/video theo yêu cầu từng mục, sau đó thử lại.',
+    insufficientEvidence:
+      'Chưa đủ bằng chứng hợp lệ. Kiểm tra số lượng hiện tại và yêu cầu từng mục, sau đó bổ sung phần còn thiếu.',
+    notReady:
+      'Danh sách kiểm tra chưa sẵn sàng gửi kết quả. Vui lòng kiểm tra các mục còn lại.',
+    conflict:
+      'Dữ liệu đã thay đổi hoặc thao tác chưa đủ điều kiện. Vui lòng tải lại.',
+    failed: 'Không thể tải hoặc lưu danh sách kiểm tra. Vui lòng thử lại.',
+    inspectionChecklist: 'Danh sách kiểm tra nghiệm thu',
+    assessmentProgress: 'Tiến độ đánh giá danh sách kiểm tra',
+    executionProgress: 'Tiến độ hoàn tất danh sách kiểm tra',
+    assessedItems: 'mục đã đánh giá',
+    completedItems: 'mục hoàn tất',
+    attachedEvidence: 'bằng chứng đã gắn',
+    loading: 'Đang tải danh sách kiểm tra…',
+    retry: 'Thử lại danh sách kiểm tra',
+    resultRejected: 'Kết quả bị từ chối',
+    legacy:
+      'Nhiệm vụ cũ — không có bản chụp dữ liệu danh sách kiểm tra giám sát lịch sử.',
+    empty: 'Không có mục danh sách kiểm tra giám sát.',
+    readOnlyLocked: 'Chỉ đọc — kết quả đang chờ duyệt hoặc đã được duyệt.',
+    readOnlyDenied:
+      'Chỉ đọc — bạn không có quyền cập nhật hoặc trạng thái chưa được xác minh.',
+    serverNotReady:
+      'Dữ liệu danh sách kiểm tra chưa đủ điều kiện theo backend. Hãy làm mới; nếu vẫn chưa sẵn sàng, liên hệ quản trị viên.',
+    needsAssessment: 'Cần đánh giá',
+    nonCompliant: 'Không đạt yêu cầu',
+    missingPrefix: '· thiếu',
+    wrongMediaType: '· sai loại ảnh/video',
+    updatedBy: 'Cập nhật bởi',
+    updated: 'Cập nhật',
+    results: 'Kết quả danh sách kiểm tra',
+    previewLocked: '🔒 Danh sách kiểm tra chưa thể cập nhật',
+    previewHint:
+      'Bạn đang xem trước nội dung. Sau khi chấp nhận nhiệm vụ, bạn có thể cập nhật tiến độ và bằng chứng.',
+    minimumEvidence: 'Bằng chứng tối thiểu:',
+    description: 'Các mục cần thực hiện và bằng chứng cho nhiệm vụ này.',
+    reloadHint: 'Lấy dữ liệu danh sách kiểm tra mới nhất',
+    reload: 'Tải lại',
+    loadingResult: 'Đang tải danh sách kiểm tra và trạng thái kết quả…',
+    ready: 'Sẵn sàng nghiệm thu',
+    notReadyForInspection: 'Chưa sẵn sàng nghiệm thu',
+    terminalItems: 'mục ở trạng thái kết thúc ·',
+    remainingItems: 'mục chưa hoàn tất',
+    resultStatus: 'Trạng thái kết quả:',
+    draft: 'Nháp — chưa nghiệm thu',
+    awaitingInspection: 'Chờ nghiệm thu',
+    approved: 'Đã duyệt',
+    rejectedEditable: 'Bị từ chối — có thể chỉnh sửa và gửi lại khi có quyền',
+    managerNote: 'Nhận xét của quản lý:',
+    legacyFull:
+      'Nhiệm vụ cũ — không có bản chụp dữ liệu danh sách kiểm tra giám sát lịch sử. Không suy diễn yêu cầu từ dịch vụ hiện tại.',
+    editable: 'Bạn có thể cập nhật danh sách kiểm tra.',
+    notStartedHint:
+      '🔒 Danh sách kiểm tra chưa thể cập nhật. Bạn có thể cập nhật tiến độ và bằng chứng khi nhiệm vụ bước vào giai đoạn thực hiện.',
+    assessmentHelp:
+      'Nghiệm thu công việc thực hiện, không đánh giá tình trạng công trình. Không đạt yêu cầu nghĩa là cần khắc phục trước khi xác nhận nghiệm thu.',
+    inspectionNote: 'Ghi chú nghiệm thu',
+    inspectionNoteLabel: 'Ghi chú nghiệm thu:',
+    reasonRequired: 'Vui lòng nhập lý do không thể xác minh.',
+    maxLength: 'Ghi nhận tối đa 2000 ký tự; lý do tối đa 1000 ký tự.',
+    status: 'Trạng thái',
+    assessment: 'Đánh giá',
+    note: 'Ghi chú',
+    unableReason: 'Lý do không thể xác minh',
+    updateStatus: 'Cập nhật trạng thái',
+    edit: 'Chỉnh sửa',
+    executionStatus: 'Trạng thái thực hiện',
+    inspectionAssessment: 'Đánh giá nghiệm thu',
+    observation: 'Ghi nhận thực hiện',
+    observationPlaceholder: 'Thêm ghi chú nếu cần...',
+    loadLatest: 'Dùng dữ liệu mới (bỏ chỉnh sửa chưa lưu)',
+    cancel: 'Hủy',
+    save: 'Lưu',
+    observationLabel: 'Ghi nhận:',
+    unableReasonLabel: 'Lý do không thể xác minh:',
+    updateItem: 'Cập nhật mục',
+    saveItem: 'Lưu mục',
+    cancelEditing: 'Hủy chỉnh sửa',
+  },
+  en: {
+    evidenceCount: (count: number | string) => `${count} evidence files`,
+    missing: (count: number) => ` · missing ${count}`,
+    permissionsUnavailable:
+      'Permissions could not be verified. Refresh or sign in again.',
+    parentMismatch:
+      'This checklist item does not belong to this mission. Reload the correct mission.',
+    concurrentUpdate:
+      'The data changed. Your edits were not saved. Load the latest data and review it before saving.',
+    sessionExpired: 'Your session expired. Sign in again.',
+    denied: 'You do not have permission to perform this action.',
+    notFound: 'Mission or checklist item not found. Reload the page.',
+    locked: 'The checklist is locked for result review. Reload its status.',
+    transitionInvalid:
+      'This status transition is not allowed. Reload the data.',
+    missionChanged: 'The mission status changed. Reload the page.',
+    typeMismatch:
+      'One or more items require a different media type. Attach the required images or videos to each item, then retry.',
+    insufficientEvidence:
+      'There is not enough valid evidence. Check each item and add the missing files.',
+    notReady:
+      'The checklist is not ready for submission. Review the remaining items.',
+    conflict:
+      'The data changed or this action is not currently allowed. Reload the page.',
+    failed: 'Could not load or save the checklist. Please try again.',
+    inspectionChecklist: 'Inspection checklist',
+    assessmentProgress: 'Checklist assessment progress',
+    executionProgress: 'Checklist completion progress',
+    assessedItems: 'items assessed',
+    completedItems: 'items completed',
+    attachedEvidence: 'evidence files attached',
+    loading: 'Loading checklist…',
+    retry: 'Retry checklist',
+    resultRejected: 'Result rejected',
+    legacy: 'Legacy mission — no historical monitoring checklist is available.',
+    empty: 'No monitoring checklist items.',
+    readOnlyLocked:
+      'Read-only — the result is awaiting review or has been approved.',
+    readOnlyDenied:
+      'Read-only — update permission or current status could not be verified.',
+    serverNotReady:
+      'Checklist requirements are not met. Refresh; if the issue persists, contact an administrator.',
+    needsAssessment: 'Needs assessment',
+    nonCompliant: 'Needs fixes',
+    missingPrefix: '· missing',
+    wrongMediaType: '· wrong media type',
+    updatedBy: 'Updated by',
+    updated: 'Updated',
+    results: 'Checklist results',
+    previewLocked: '🔒 Checklist updates are not available yet',
+    previewHint:
+      'You are previewing the checklist. After accepting the mission, you can update progress and evidence.',
+    minimumEvidence: 'Minimum evidence:',
+    description: 'Required work and evidence for this mission.',
+    reloadHint: 'Load the latest checklist',
+    reload: 'Reload',
+    loadingResult: 'Loading checklist and result status…',
+    ready: 'Ready for inspection',
+    notReadyForInspection: 'Not ready for inspection',
+    terminalItems: 'items in a final state ·',
+    remainingItems: 'items incomplete',
+    resultStatus: 'Result status:',
+    draft: 'Draft — not inspected',
+    awaitingInspection: 'Awaiting inspection',
+    approved: 'Approved',
+    rejectedEditable: 'Rejected — authorized staff may edit and resubmit',
+    managerNote: 'Manager comments:',
+    legacyFull:
+      'Legacy mission — no historical monitoring checklist is available. Current service requirements are not applied retroactively.',
+    editable: 'You can update the checklist.',
+    notStartedHint:
+      '🔒 Checklist updates are not available yet. Update progress and evidence once mission execution begins.',
+    assessmentHelp:
+      'Review the work performed, rather than the condition of the facility. Work that does not meet requirements needs correction before acceptance.',
+    inspectionNote: 'Inspection note',
+    inspectionNoteLabel: 'Inspection note:',
+    reasonRequired: 'Enter a reason why verification is not possible.',
+    maxLength:
+      'Observations and inspection notes allow up to 2000 characters; reasons allow up to 1000.',
+    status: 'Status',
+    assessment: 'Assessment',
+    note: 'Note',
+    unableReason: 'Reason verification is not possible',
+    updateStatus: 'Update status',
+    edit: 'Edit',
+    executionStatus: 'Execution status',
+    inspectionAssessment: 'Inspection assessment',
+    observation: 'Work observations',
+    observationPlaceholder: 'Add notes if needed...',
+    loadLatest: 'Load latest data (discard unsaved edits)',
+    cancel: 'Cancel',
+    save: 'Save',
+    observationLabel: 'Observations:',
+    unableReasonLabel: 'Reason verification is not possible:',
+    updateItem: 'Update item',
+    saveItem: 'Save item',
+    cancelEditing: 'Cancel editing',
+  },
+})

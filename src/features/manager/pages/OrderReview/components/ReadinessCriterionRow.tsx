@@ -2,7 +2,6 @@ import {
   criterionTitleOverrides,
   criterionDescriptionOverrides,
   failNotePlaceholders,
-  contextualAnswerLabels,
   resultLabel,
 } from '../readinessHelpers'
 import type { Answer } from '../readinessTypes'
@@ -110,8 +109,7 @@ export function ReadinessCriterionRow({
           >
             {savingCode === c.code && current === option
               ? t.saving
-              : (contextualAnswerLabels[c.code]?.[option] ??
-                resultLabel[option])}
+              : resultLabel[option]}
           </button>
         ))}
       </div>

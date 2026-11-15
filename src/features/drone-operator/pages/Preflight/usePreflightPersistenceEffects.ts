@@ -19,6 +19,7 @@ import type {
 import type { Dispatch, SetStateAction, RefObject } from 'react'
 
 export function usePreflightPersistenceEffects({
+  manualOnly = false,
   runtimeItemsReady,
   persistedPreflightId,
   persistedPreflightStatus,
@@ -41,6 +42,7 @@ export function usePreflightPersistenceEffects({
   setBackendPreflightRegistering,
   setBackendPreflightMessage,
 }: {
+  manualOnly?: boolean
   runtimeItemsReady: boolean
   persistedPreflightId: string | null
   persistedPreflightStatus: PersistedPreflightStatus | null
@@ -70,6 +72,7 @@ export function usePreflightPersistenceEffects({
 }) {
   const { t } = useI18n(preflightPageMessages)
   useEffect(() => {
+    if (manualOnly) return
     if (
       !runtimeItemsReady ||
       !persistedPreflightId ||
@@ -121,11 +124,13 @@ export function usePreflightPersistenceEffects({
   }, [
     persistedPreflightId,
     persistedPreflightStatus,
+    manualOnly,
     runtimeItemsReady,
     runtimeStatus,
   ])
 
   useEffect(() => {
+    if (manualOnly) return
     if (
       validatedStoredCheckRef.current ||
       checkId ||
@@ -164,6 +169,7 @@ export function usePreflightPersistenceEffects({
   }, [
     checkId,
     missionId,
+    manualOnly,
     runtimeSessionId,
     runtimeStatus,
     persistedPreflightId,
@@ -173,6 +179,7 @@ export function usePreflightPersistenceEffects({
 
   useEffect(() => {
     if (
+      manualOnly ||
       !canContinueToHandover ||
       isAlreadyInFlight ||
       backendPreflightRegisteredRef.current ||
@@ -213,5 +220,5 @@ export function usePreflightPersistenceEffects({
     return () => {
       alive = false
     }
-  }, [canContinueToHandover, deviceId, isAlreadyInFlight, missionId])
+  }, [canContinueToHandover, deviceId, isAlreadyInFlight, manualOnly, missionId])
 }

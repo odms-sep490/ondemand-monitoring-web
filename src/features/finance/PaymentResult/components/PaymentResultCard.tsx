@@ -1,4 +1,10 @@
 import { Button } from 'antd'
+import {
+  CheckCircleFilled,
+  ClockCircleFilled,
+  CloseCircleFilled,
+  LoadingOutlined,
+} from '@ant-design/icons'
 import { formatVnd } from '../../../../shared/lib/formatVnd'
 import type { Payment } from '../../types'
 
@@ -19,13 +25,28 @@ export function PaymentResultCard({
   check: () => Promise<void>
   retryPayment: () => Promise<void>
 }) {
+  const canRetry = Boolean(
+    cancelled &&
+      payment &&
+      !success &&
+      (payment.type === 'DEPOSIT' || payment.type === 'MISSION_PAYMENT') &&
+      (payment.status === 'FAILED' || payment.status === 'CANCELLED'),
+  )
   return (
     <section className="payment-result-card" aria-live="polite">
       <div
-        className={`payment-result-icon ${success ? 'is-success' : cancelled ? 'is-cancelled' : ''}`}
+        className={`payment-result-icon ${success ? 'is-success' : cancelled ? 'is-cancelled' : checking ? 'is-checking' : 'is-pending'}`}
         aria-hidden="true"
       >
-        {success ? '✓' : cancelled ? '×' : '…'}
+        {success ? (
+          <CheckCircleFilled />
+        ) : cancelled ? (
+          <CloseCircleFilled />
+        ) : checking ? (
+          <LoadingOutlined spin />
+        ) : (
+          <ClockCircleFilled />
+        )}
       </div>
       <h1>
         {success
@@ -40,7 +61,9 @@ export function PaymentResultCard({
         {success
           ? payment?.type === 'DEPOSIT'
             ? 'Tiền đặt cọc đã được ghi nhận. Kế hoạch thực hiện đang được chuẩn bị.'
-            : 'Thanh toán đã hoàn tất. Đang chờ quản lý bàn giao dữ liệu.'
+            : payment?.type === 'MISSION_PAYMENT'
+              ? 'Khoản thanh toán Mission đã được ghi nhận. Các Mission còn lại vẫn thanh toán riêng theo tiến độ bàn giao.'
+              : 'Thanh toán đã hoàn tất. Đang chờ quản lý bàn giao dữ liệu.'
           : cancelled
             ? 'Chưa có khoản thu nào được xác nhận từ lần quay lại này.'
             : 'Hệ thống đang xác minh trạng thái giao dịch với VNPAY.'}
@@ -49,11 +72,11 @@ export function PaymentResultCard({
         <dl className="payment-result-detail">
           <div>
             <dt>Mã thanh toán</dt>
-            <dd>{payment.transactionReference}</dd>
+            <dd className="is-ref">{payment.transactionReference}</dd>
           </div>
           <div>
             <dt>Số tiền</dt>
-            <dd>{formatVnd(payment.amount)}</dd>
+            <dd className="is-amount">{formatVnd(payment.amount)}</dd>
           </div>
         </dl>
       ) : null}
@@ -64,14 +87,21 @@ export function PaymentResultCard({
       ) : null}
       <div className="payment-result-actions">
         {!success && !checking ? (
-          <Button type="primary" onClick={() => void check()}>
+          <Button type={canRetry ? 'default' : 'primary'} onClick={() => void check()}>
             Làm mới trạng thái
           </Button>
         ) : null}
-        {cancelled && payment && !success ? (
-          <Button onClick={() => void retryPayment()}>Thử lại</Button>
+        {canRetry ? (
+          <Button type="primary" onClick={() => void retryPayment()}>
+            Thử lại
+          </Button>
         ) : null}
-        <Button href="#portal/customer/orders">Về danh sách đơn</Button>
+        <Button
+          type={success ? 'primary' : 'default'}
+          href="#portal/customer/orders"
+        >
+          Về danh sách đơn
+        </Button>
       </div>
     </section>
   )

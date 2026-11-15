@@ -2,30 +2,56 @@ import { useI18n } from '../../shared/i18n'
 import { deliveryProgressMessages } from './deliveryProgress.messages'
 import type { DeliveryStatus } from './types'
 
-const STATUS_META: Record<DeliveryStatus, { tone: string; step: number }> = {
+type DeliveryStatusMeta = { tone: string; step: number }
+
+const FALLBACK_STATUS_META: DeliveryStatusMeta = { tone: 'neutral', step: -1 }
+
+const STATUS_META: Record<DeliveryStatus, DeliveryStatusMeta> = {
   PROCESSING: { tone: 'neutral', step: 0 },
   READY_FOR_MANAGER_REVIEW: { tone: 'warning', step: 0 },
   CUSTOMER_REVIEW: { tone: 'info', step: 1 },
   REVISION_REQUESTED: { tone: 'warning', step: 1 },
+  AWAITING_MISSION_PAYMENT: { tone: 'warning', step: 2 },
   FINAL_PAYMENT_PENDING: { tone: 'success', step: 2 },
   PAYMENT_CONFIRMED: { tone: 'success', step: 2 },
   READY_FOR_DELIVERY: { tone: 'info', step: 2 },
   DELIVERED: { tone: 'success', step: 3 },
 }
 
-export function DeliveryStatusPill({ status }: { status: DeliveryStatus }) {
+function getStatusMeta(status: DeliveryStatus): DeliveryStatusMeta {
+  return STATUS_META[status] ?? FALLBACK_STATUS_META
+}
+
+export function DeliveryStatusPill({
+  status,
+  label,
+  tone,
+}: {
+  status: DeliveryStatus
+  label?: string
+  tone?: string
+}) {
   const { t } = useI18n(deliveryProgressMessages)
-  const meta = STATUS_META[status]
+  const meta = getStatusMeta(status)
   return (
-    <span className={`delivery-status delivery-status--${meta.tone}`}>
-      {t.status[status]}
+    <span className={`delivery-status delivery-status--${tone ?? meta.tone}`}>
+      {label ?? t.status[status] ?? t.unknownStatus}
     </span>
   )
 }
 
-export function DeliveryProgress({ status }: { status: DeliveryStatus }) {
+export function DeliveryProgress({
+  status,
+  originalsAvailable,
+}: {
+  status: DeliveryStatus
+  originalsAvailable?: boolean
+}) {
   const { t } = useI18n(deliveryProgressMessages)
-  const currentStep = STATUS_META[status].step
+  const currentStep =
+    status === 'DELIVERED' && originalsAvailable === false
+      ? 2
+      : getStatusMeta(status).step
   return (
     <ol className="delivery-progress" aria-label={t.ariaLabel}>
       {t.steps.map((step, index) => {

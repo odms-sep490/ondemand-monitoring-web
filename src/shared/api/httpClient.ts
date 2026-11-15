@@ -1,5 +1,8 @@
 import { env } from '../../config/env'
-import { authenticatedFetch } from '../../features/auth/api/authApi'
+import {
+  authSession,
+  authenticatedFetch,
+} from '../../features/auth/api/authApi'
 
 import { getLanguage } from '../i18n'
 import { matchesRealApiRoute } from './realApiRoutes'
@@ -95,6 +98,15 @@ async function defaultTransport(
   if (env.useMockApi) {
     const method = init?.method ?? 'GET'
     const { pathname } = new URL(input, env.apiBaseUrl)
+    const accessToken = authSession.getAccessToken()
+    const isMockNotificationSession =
+      method === 'GET' &&
+      pathname === '/api/notifications' &&
+      accessToken?.split('.').length !== 3
+    if (isMockNotificationSession) {
+      const { mockFetch } = await import('../../mocks')
+      return mockFetch(input, init)
+    }
     // The Manager dashboard is an operational surface: never serve seed KPIs
     // in interactive hybrid mode. Its aggregate endpoint must remain real.
     if (

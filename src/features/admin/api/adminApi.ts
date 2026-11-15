@@ -137,6 +137,7 @@ export const adminApi = {
   listAuditLog: (filters: AuditLogFilters = {}, signal?: AbortSignal) => {
     const qs = new URLSearchParams()
     if (filters.actorId) qs.set('actorId', filters.actorId)
+    if (filters.actorQuery) qs.set('actorQuery', filters.actorQuery)
     if (filters.action) qs.set('action', filters.action)
     if (filters.entityType) qs.set('entityType', filters.entityType)
     if (filters.from) qs.set('from', filters.from)

@@ -120,7 +120,6 @@ export const missionDetailPageMessages = defineMessages({
     accept: 'Chấp nhận',
     missionAccepted: (backendStatus: string) =>
       `Mission đã được nhận · ${backendStatus}`,
-    connectGcs: 'Kết nối GCS',
     reviewMedia: 'Review media',
     openCockpit: 'Mở buồng lái',
   },
@@ -244,7 +243,6 @@ export const missionDetailPageMessages = defineMessages({
     accept: 'Accept',
     missionAccepted: (backendStatus: string) =>
       `Mission accepted · ${backendStatus}`,
-    connectGcs: 'Connect GCS',
     reviewMedia: 'Review media',
     openCockpit: 'Open cockpit',
   },

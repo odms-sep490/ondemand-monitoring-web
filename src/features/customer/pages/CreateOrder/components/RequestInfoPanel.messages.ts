@@ -7,8 +7,10 @@ export const requestInfoPanelMessages = defineMessages({
     titlePlaceholder: 'VD: Giám sát tiến độ khu công trình phía Đông',
     descriptionLabel: 'Ghi chú tổng quan',
     descriptionPlaceholder: 'Bối cảnh, lưu ý hoặc yêu cầu bổ sung nếu cần...',
-    optionalDetails: 'Ghi chú và tệp đính kèm (không bắt buộc)',
+    attachmentsTitle: 'Tệp đính kèm (không bắt buộc)',
+    attachmentsCount: (count: number) => `${count} tệp`,
     flightPurposeLabel: 'Mục đích chuyến bay',
+    flightPurposePlaceholder: 'Chọn mục đích chuyến bay',
     otherFlightPurposeLabel: 'Mô tả mục đích chuyến bay khác',
     otherFlightPurposePlaceholder: 'Nhập mục đích chuyến bay cụ thể',
     flightPurposes: {
@@ -20,16 +22,6 @@ export const requestInfoPanelMessages = defineMessages({
       FOREST_MONITORING: 'Giám sát tài nguyên rừng',
       OTHER: 'Mục đích khác',
     },
-    purposeLabel: 'Kết quả sẽ được dùng để làm gì?',
-    purposePlaceholder: 'Chọn cách sử dụng kết quả',
-    otherUsagePurposeLabel: 'Mô tả mục đích sử dụng khác',
-    otherUsagePurposePlaceholder: 'Nhập cách bạn sẽ sử dụng kết quả',
-    purposes: {
-      INTERNAL: 'Nội bộ',
-      LEGAL: 'Pháp lý',
-      PARTNER_REPORT: 'Báo cáo cho đối tác',
-      OTHER: 'Khác',
-    },
   },
   en: {
     cardTitle: 'Request information',
@@ -38,8 +30,11 @@ export const requestInfoPanelMessages = defineMessages({
     descriptionLabel: 'General notes',
     descriptionPlaceholder:
       'Context, caveats or extra requirements if needed...',
-    optionalDetails: 'Notes and attachments (optional)',
+    attachmentsTitle: 'Attachments (optional)',
+    attachmentsCount: (count: number) =>
+      `${count} ${count === 1 ? 'file' : 'files'}`,
     flightPurposeLabel: 'Purpose of the flight',
+    flightPurposePlaceholder: 'Select a flight purpose',
     otherFlightPurposeLabel: 'Describe the other flight purpose',
     otherFlightPurposePlaceholder: 'Enter the specific flight purpose',
     flightPurposes: {
@@ -50,16 +45,6 @@ export const requestInfoPanelMessages = defineMessages({
       AREA_MONITORING: 'Area monitoring',
       FOREST_MONITORING: 'Forest resource monitoring',
       OTHER: 'Other purpose',
-    },
-    purposeLabel: 'How will the results be used?',
-    purposePlaceholder: 'Select how the results will be used',
-    otherUsagePurposeLabel: 'Describe the other usage purpose',
-    otherUsagePurposePlaceholder: 'Enter how you will use the results',
-    purposes: {
-      INTERNAL: 'Internal',
-      LEGAL: 'Legal',
-      PARTNER_REPORT: 'Partner report',
-      OTHER: 'Other',
     },
   },
 })

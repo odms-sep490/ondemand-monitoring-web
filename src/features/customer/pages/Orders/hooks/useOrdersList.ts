@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react'
 import { useApiQuery } from '../../../../../shared/hooks/useApiQuery'
 import type { OrderStatus } from '../../../../../shared/types/domain'
 import { customerApi } from '../../../api/customerApi'
-import { loadFinalPaymentState } from '../../../lib/orders/loadFinalPaymentState'
+import { loadMissionPaymentState } from '../../../lib/orders/loadMissionPaymentState'
 import {
   paginate,
   searchOrders,
@@ -28,7 +28,7 @@ export function useOrdersList() {
       customerApi
         .listMyOrders({ status: status || undefined, signal })
         .then((rows) => rows.map(toOrderRow))
-        .then((rows) => loadFinalPaymentState(rows, signal))
+        .then((rows) => loadMissionPaymentState(rows, signal))
         .then(sortNewestFirst),
     [status],
   )

@@ -19,11 +19,11 @@ import { preflightPageMessages } from '../PreflightPage.messages'
 import { PreflightHeader } from './PreflightHeader'
 import { PreflightSummary } from './PreflightSummary'
 import { PreflightGroupList } from './PreflightGroupList'
-import { controlBaseUrl } from '../preflightConstants'
+import { NO_DRONE_SENTINEL, NO_MISSION_SENTINEL } from '../preflightConstants'
 import {
+  fetchCurrentPersistedPreflight,
   fetchPersistedPreflight,
   runtimeStatusFromPersisted,
-  recheckPersistedPreflightItem,
   updatePersistedPreflightItem,
 } from '../preflightApi'
 
@@ -36,8 +36,11 @@ export function PreflightChecklistPanel({
   deviceLabel,
   missionStatus,
   replacementRequestPending = false,
+  onStatusChange,
+  readyActionLabel,
   onReady,
   embedded = false,
+  manualOnly = false,
 }: {
   missionId: string
   missionLabel?: string
@@ -47,8 +50,11 @@ export function PreflightChecklistPanel({
   deviceLabel?: string
   missionStatus?: string | null
   replacementRequestPending?: boolean
+  onStatusChange?: (passed: boolean) => void
+  readyActionLabel?: string
   onReady?: () => void
   embedded?: boolean
+  manualOnly?: boolean
 }) {
   const { t } = useI18n(preflightPageMessages)
   const { RUNTIME_GROUPS, ALL_ITEMS, storageKey } = usePreflightGroups({
@@ -59,7 +65,7 @@ export function PreflightChecklistPanel({
   const [checkId, setCheckId] = useState<string | null>(null)
   const [runtimeStatus, setRuntimeStatus] =
     useState<RuntimePreflightStatus | null>(() =>
-      readStoredPreflightState(storageKey),
+      manualOnly ? null : readStoredPreflightState(storageKey),
     )
   const [error, setError] = useState<string | null>(null)
   const [backendPreflightMessage, setBackendPreflightMessage] = useState<
@@ -105,13 +111,16 @@ export function PreflightChecklistPanel({
   const [controllerOnline, setControllerOnline] = useState(false)
   const [, setConnectedDeviceId] = useState<string | null>(null)
   const [runtimeSessionId, setRuntimeSessionId] = useState<string | null>(() =>
-    readStoredPreflightSession(storageKey),
+    manualOnly ? null : readStoredPreflightSession(storageKey),
   )
   const [persistedPreflightId, setPersistedPreflightId] = useState<
     string | null
   >(null)
   const [persistedPreflightStatus, setPersistedPreflightStatus] =
     useState<PersistedPreflightStatus | null>(null)
+  useEffect(() => {
+    if (persistedPreflightStatus) onStatusChange?.(persistedPreflightStatus === 'PASSED')
+  }, [persistedPreflightStatus, onStatusChange])
   const [updatingItem, setUpdatingItem] = useState<string | null>(null)
   const syncedPersistedItemsRef = useRef<Record<string, string>>({})
   const syncingPersistedItemsRef = useRef(false)
@@ -125,8 +134,53 @@ export function PreflightChecklistPanel({
     syncingPersistedItemsRef.current = false
     setPersistedPreflightId(null)
     setPersistedPreflightStatus(null)
-    setRuntimeSessionId(readStoredPreflightSession(storageKey))
-  }, [missionId, deviceId, storageKey])
+    setRuntimeSessionId(
+      manualOnly ? null : readStoredPreflightSession(storageKey),
+    )
+  }, [deviceId, manualOnly, missionId, storageKey])
+
+  useEffect(() => {
+    if (
+      !manualOnly ||
+      missionId === NO_MISSION_SENTINEL ||
+      deviceId === NO_DRONE_SENTINEL
+    ) {
+      return
+    }
+    let alive = true
+    const controller = new AbortController()
+    const assignmentTime = Date.parse(deviceAssignedAt ?? '')
+
+    void fetchCurrentPersistedPreflight(missionId, controller.signal, deviceId)
+      .then((persisted) => {
+        if (!alive || !persisted) return
+        if (persisted.deviceId && persisted.deviceId !== deviceId) return
+        if (
+          persisted.deviceAssignmentId &&
+          deviceAssignmentId &&
+          persisted.deviceAssignmentId !== deviceAssignmentId
+        ) {
+          return
+        }
+        const startedAt = Date.parse(persisted.startedAt ?? '')
+        if (
+          Number.isFinite(assignmentTime) &&
+          Number.isFinite(startedAt) &&
+          startedAt < assignmentTime
+        ) {
+          return
+        }
+        setPersistedPreflightId(persisted.id)
+        setPersistedPreflightStatus(persisted.status)
+        setRuntimeStatus(runtimeStatusFromPersisted(persisted))
+      })
+      .catch(() => undefined)
+
+    return () => {
+      alive = false
+      controller.abort()
+    }
+  }, [deviceAssignedAt, deviceAssignmentId, deviceId, manualOnly, missionId])
 
   useEffect(() => {
     setReplacementRequestState((current) => {
@@ -202,6 +256,7 @@ export function PreflightChecklistPanel({
   })
 
   const { handleTriggerCheck } = usePreflightActions({
+    deviceId,
     setTriggering,
     setError,
     setCheckId,
@@ -232,7 +287,7 @@ export function PreflightChecklistPanel({
         .map((item) => item.label)
         .join(', ')
         .slice(0, 500)
-      await missionApi.requestDeviceReplacement(missionId, reason)
+      await missionApi.requestDeviceReplacement(missionId, reason, deviceAssignmentId)
       setReplacementRequestState({ assignmentKey, requested: true })
     } catch (cause) {
       setReplacementRequestErrorState({
@@ -262,60 +317,14 @@ export function PreflightChecklistPanel({
     }
   }, [canContinueToHandover, replacementAssignmentKey])
 
-  async function handleRecheckItem(checkType: string) {
-    if (!persistedPreflightId || checkType !== 'battery_health') {
-      setError('Hãy bắt đầu kiểm tra preflight trước.')
-      return
-    }
-    setUpdatingItem(checkType)
-    setError(null)
-    try {
-      const controllerResponse = await fetch(
-        `${controlBaseUrl}/api/control/status`,
-        { cache: 'no-store' },
-      ).catch(() => null)
-      const controllerStatus = controllerResponse?.ok
-        ? await controllerResponse.json().catch(() => null)
-        : null
-      const batteryPercent = Number(controllerStatus?.batteryPercent)
-      const persisted = Number.isFinite(batteryPercent)
-        ? await updatePersistedPreflightItem(
-            persistedPreflightId,
-            'battery_health',
-            {
-              status: 'CHECKING',
-              message: 'Hệ thống tự động đọc pin từ Gazebo',
-              measuredValue: String(batteryPercent),
-            },
-          )
-        : await recheckPersistedPreflightItem(
-            persistedPreflightId,
-            'battery_health',
-          )
-      setPersistedPreflightStatus(persisted.status)
-      setRuntimeStatus(runtimeStatusFromPersisted(persisted))
-      if (!Number.isFinite(batteryPercent)) {
-        setError('Gazebo chưa trả về dữ liệu pin hiện tại.')
-      }
-    } catch (cause) {
-      setError(
-        cause instanceof Error
-          ? cause.message
-          : 'Không thể lấy pin hiện tại từ Gazebo.',
-      )
-      throw cause
-    } finally {
-      setUpdatingItem(null)
-    }
-  }
-
   async function handleUpdateItem(
     checkType: string,
     status: 'PASSED' | 'FAILED',
     message: string,
+    measuredValue?: string,
   ) {
     if (!persistedPreflightId) {
-      setError('Hãy bắt đầu kiểm tra preflight trước.')
+      setError(t.precheckNotStarted)
       return
     }
     setUpdatingItem(checkType)
@@ -324,7 +333,7 @@ export function PreflightChecklistPanel({
       const persisted = await updatePersistedPreflightItem(
         persistedPreflightId,
         checkType,
-        { status, message },
+        { status, message, measuredValue },
       )
       setPersistedPreflightStatus(persisted.status)
       setRuntimeStatus(runtimeStatusFromPersisted(persisted))
@@ -341,6 +350,7 @@ export function PreflightChecklistPanel({
   }
 
   usePreflightRuntimeEffects({
+    enabled: !manualOnly,
     missionId,
     missionLabel,
     deviceId,
@@ -368,6 +378,7 @@ export function PreflightChecklistPanel({
   })
 
   usePreflightPersistenceEffects({
+    manualOnly,
     runtimeItemsReady,
     persistedPreflightId,
     persistedPreflightStatus,
@@ -427,6 +438,7 @@ export function PreflightChecklistPanel({
             hasTriggered={hasTriggered}
             triggering={triggering}
             handleTriggerCheck={handleTriggerCheck}
+            readyActionLabel={readyActionLabel}
             onReady={onReady}
             missionId={missionId}
             backendPreflightMessage={backendPreflightMessage}
@@ -440,7 +452,6 @@ export function PreflightChecklistPanel({
             RUNTIME_GROUPS={RUNTIME_GROUPS}
             itemStates={itemStates}
             onUpdateItem={handleUpdateItem}
-            onRecheckItem={handleRecheckItem}
             updatingItem={updatingItem}
           />
         </div>

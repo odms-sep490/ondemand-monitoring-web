@@ -11,6 +11,7 @@ import { operatorSidebarMessages } from './OperatorSidebar.messages'
 import { operatorApi } from './api/operatorApi'
 import { missionsByTab } from './lib/filterMissions'
 import { demoNow } from './lib/demoNow'
+import { OperatorFlightFrame } from './OperatorFlightFrame'
 import { OperatorLayout } from './OperatorLayout'
 import SimulationZonesScreen from './pages/SimulationZones'
 import { FlightPage } from './pages/Flight'
@@ -18,7 +19,6 @@ import { MissionDetailPage } from './pages/MissionDetail'
 import { MissionListPage } from './pages/MissionList'
 import { PlaceholderPage } from './components/common/PlaceholderPage'
 import { AvailabilityPage } from './pages/Availability'
-import { ConnectDronePage } from './pages/ConnectDrone'
 import { HandoverPage } from './pages/Handover'
 import { PostflightPage } from './pages/Postflight'
 import { PreflightPage } from './pages/Preflight'
@@ -37,6 +37,8 @@ import {
   markActiveMissionFlowStep,
   setActiveMissionId,
 } from './api/liveMission'
+import { NotificationsPage } from '../notifications/NotificationsPage'
+import { useNotifications } from '../notifications/useNotifications'
 
 function useHash(): string {
   const [hash, setHash] = useState(() => window.location.hash)
@@ -76,19 +78,22 @@ export function DroneOperatorApp() {
     'pending',
     now,
   ).length
+  const notificationFeed = useNotifications()
 
   if (guardedRoute) return null
 
   // Buồng lái renders full-screen without the shell, same as OMSS.
   if (route.screen === 'flight') {
     return (
-      <MissionActionGuard
-        key={`${route.missionId}:${route.screen}`}
-        missionId={route.missionId}
-        action="flight"
-      >
-        <FlightPage missionId={route.missionId} />
-      </MissionActionGuard>
+      <OperatorFlightFrame>
+        <MissionActionGuard
+          key={`${route.missionId}:${route.screen}`}
+          missionId={route.missionId}
+          action="flight"
+        >
+          <FlightPage missionId={route.missionId} />
+        </MissionActionGuard>
+      </OperatorFlightFrame>
     )
   }
 
@@ -96,7 +101,7 @@ export function DroneOperatorApp() {
     <OperatorLayout
       route={route}
       pendingCount={pendingCount}
-      notificationCount={2}
+      notificationCount={notificationFeed.unreadCount}
       searchQuery={searchQuery}
       onSearchChange={setSearchQuery}
       fillContent={route.screen === 'zoneMap'}
@@ -116,14 +121,14 @@ function renderScreen(
   if (route.screen === 'missionDetail')
     return <MissionDetailPage missionId={route.missionId} />
   if (route.screen === 'availability') return <AvailabilityPage />
-  if (route.screen === 'connect')
+  if (route.screen === 'connect' || route.screen === 'preflight')
     return (
       <MissionActionGuard
         key={`${route.missionId}:${route.screen}`}
         missionId={route.missionId}
-        action="connect"
+        action="preflight"
       >
-        <ConnectDronePage missionId={route.missionId} />
+        <PreflightPage missionId={route.missionId} />
       </MissionActionGuard>
     )
   if (route.screen === 'handover')
@@ -134,16 +139,6 @@ function renderScreen(
         action="handover"
       >
         <HandoverPage missionId={route.missionId} />
-      </MissionActionGuard>
-    )
-  if (route.screen === 'preflight')
-    return (
-      <MissionActionGuard
-        key={`${route.missionId}:${route.screen}`}
-        missionId={route.missionId}
-        action="preflight"
-      >
-        <PreflightPage missionId={route.missionId} />
       </MissionActionGuard>
     )
   if (route.screen === 'upload' || route.screen === 'checklist')
@@ -175,6 +170,8 @@ function renderScreen(
   if (route.screen === 'devices') return <SystemOperatorDevicesScreen />
   if (route.screen === 'maintenance') return <MaintenancePage />
   if (route.screen === 'zoneMap') return <SimulationZonesScreen />
+  if (route.screen === 'notifications')
+    return <NotificationsPage role="STAFF" />
   return (
     <PlaceholderPage
       title={

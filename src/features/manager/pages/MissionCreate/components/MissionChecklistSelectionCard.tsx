@@ -3,6 +3,7 @@ import type { ExecutionPlan } from '../../../types/planning'
 import { OrderIcon } from '../../../components/common/OrderIcon'
 import { useI18n } from '../../../../../shared/i18n'
 import { missionChecklistSelectionMessages } from './MissionChecklistSelectionCard.messages'
+import { localizePlanningScopeLabel } from '../../OrderReview/components/planningScopeLabel'
 
 interface MissionChecklistSelectionCardProps {
   items: OrderChecklistSnapshot[]
@@ -27,7 +28,7 @@ export function MissionChecklistSelectionCard({
   error,
   disabled = false,
 }: MissionChecklistSelectionCardProps) {
-  const { t } = useI18n(missionChecklistSelectionMessages)
+  const { t, lang } = useI18n(missionChecklistSelectionMessages)
   const uncoveredItemIds = plan?.coverage.uncoveredItemIds ?? []
   const hasUncovered = items.some((item) => uncoveredItemIds.includes(item.id))
   const showRepeatHint = Boolean(
@@ -99,6 +100,9 @@ export function MissionChecklistSelectionCard({
               const assignedMission = plan?.missions.find((m) =>
                 m.checklistItemIds?.includes(item.id),
               )
+              const assignedScopeLabel = assignedMission?.scopeLabel
+                ? localizePlanningScopeLabel(assignedMission.scopeLabel, lang)
+                : t.otherMission
 
               return (
                 <label
@@ -127,7 +131,7 @@ export function MissionChecklistSelectionCard({
                         ) : (
                           <span className="odm-badge odm-badge-assigned">
                             {t.assigned(
-                              assignedMission?.scopeLabel || t.otherMission,
+                              assignedScopeLabel,
                             )}
                           </span>
                         )}

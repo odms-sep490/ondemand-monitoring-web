@@ -49,20 +49,18 @@ export function ReadinessBlockingNotice({
   const [selected, setSelected] = useState<string[]>([])
   const availableOptions = useMemo(() => {
     const supplementOptions = buildSupplementOptions(t)
-    return failedRequired
-      .filter((criterion) => criterion.code !== 'CAPABILITY')
-      .flatMap((criterion) => {
-        const options = supplementOptions[criterion.code] ?? [
-          {
-            label: t.clarify(criterion.title),
-            scope: 'ADDITIONAL_INFORMATION' as const,
-          },
-        ]
-        return options.map((option, index) => ({
-          ...option,
-          id: `${criterion.code}-${index}`,
-        }))
-      })
+    return failedRequired.flatMap((criterion) => {
+      const options = supplementOptions[criterion.code] ?? [
+        {
+          label: t.clarify(criterion.title),
+          scope: 'ADDITIONAL_INFORMATION' as const,
+        },
+      ]
+      return options.map((option, index) => ({
+        ...option,
+        id: `${criterion.code}-${index}`,
+      }))
+    })
   }, [failedRequired, t])
   const selectedRequests = availableOptions.filter((option) =>
     selected.includes(option.id),

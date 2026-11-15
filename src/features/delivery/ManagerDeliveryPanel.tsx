@@ -1,3 +1,4 @@
+import { MediaInspectionAction } from '../media/components/MediaInspectionAction'
 import { VideoThumbnail } from '../../shared/components/media/VideoThumbnail'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
@@ -31,20 +32,43 @@ import type { Delivery } from './types'
 import { DeliveryProgress, DeliveryStatusPill } from './DeliveryProgress'
 import type { DeliveryAsset } from './types'
 import { DeliveryReplacementPicker } from './DeliveryReplacementPicker'
-import { DeliveryImagePreview } from './DeliveryImagePreview'
+import { ImagePreview } from '../../shared/components/media/ImagePreview'
 import './delivery.css'
+import { MissionDeliveryTabs } from './MissionDeliveryTabs'
 
 type ReplacementSelection = Record<string, string>
 type DeliveryDraftStatus =
   'idle' | 'saving' | 'saved' | 'error' | 'stale' | 'conflict'
 
-export function ManagerDeliveryPanel({
+type ManagerDeliveryPanelProps = {
+  orderId: string
+  refreshKey?: number
+  allowLegacyPublication?: boolean
+  initialMissionId?: string
+}
+export function ManagerDeliveryPanel(props: ManagerDeliveryPanelProps) {
+  return (
+    <MissionDeliveryTabs
+      orderId={props.orderId}
+      manager
+      initialMissionId={props.initialMissionId}
+    >
+      {(missionId) => (
+        <ScopedManagerDeliveryPanel {...props} missionId={missionId} />
+      )}
+    </MissionDeliveryTabs>
+  )
+}
+
+function ScopedManagerDeliveryPanel({
   orderId,
   refreshKey = 0,
   allowLegacyPublication = false,
+  missionId,
 }: {
   orderId: string
   refreshKey?: number
+  missionId?: string
   allowLegacyPublication?: boolean
 }) {
   const { t: fb } = useI18n(managerDeliveryFeedbackMessages)
@@ -101,10 +125,10 @@ export function ManagerDeliveryPanel({
     setError(null)
     const [deliveryResult, checklistResult, caseResult, draftResult] =
       await Promise.allSettled([
-        deliveryApi.managerGet(orderId),
-        deliveryApi.managerGetChecklists(orderId),
+        deliveryApi.managerGet(orderId, undefined, missionId),
+        deliveryApi.managerGetChecklists(orderId, undefined, missionId),
         deliveryApi.managerGetRevisionCase(orderId),
-        deliveryApi.managerGetChecklistDraft(orderId),
+        deliveryApi.managerGetChecklistDraft(orderId, undefined, missionId),
       ])
     let loadError: string | null = null
     if (deliveryResult.status === 'fulfilled') setDelivery(deliveryResult.value)
@@ -227,7 +251,7 @@ export function ManagerDeliveryPanel({
           : t.loadFailed
     }
     setError(loadError)
-  }, [orderId, refreshKey, t.loadFailed])
+  }, [orderId, missionId, refreshKey, t.loadFailed])
 
   useEffect(() => {
     void load()
@@ -262,14 +286,18 @@ export function ManagerDeliveryPanel({
         .catch(() => undefined)
         .then(async () => {
           try {
-            const saved = await deliveryApi.managerSaveChecklistDraft(orderId, {
-              expectedDraftVersion: draftVersionRef.current,
-              caseId: revisionCase?.caseId ?? null,
-              baseReviewRoundId: checklistDelivery.currentReviewRoundId,
-              expectedDeliveryVersion: checklistDelivery.deliveryVersion,
-              notes,
-              checklists: operations,
-            })
+            const saved = await deliveryApi.managerSaveChecklistDraft(
+              orderId,
+              {
+                expectedDraftVersion: draftVersionRef.current,
+                caseId: revisionCase?.caseId ?? null,
+                baseReviewRoundId: checklistDelivery.currentReviewRoundId,
+                expectedDeliveryVersion: checklistDelivery.deliveryVersion,
+                notes,
+                checklists: operations,
+              },
+              missionId,
+            )
             draftVersionRef.current = saved.version
             setDeliveryDraft(saved)
             if (draftChangeRevisionRef.current === changeRevision) {
@@ -326,6 +354,16 @@ export function ManagerDeliveryPanel({
     ['READY_FOR_MANAGER_REVIEW', 'REVISION_REQUESTED'].includes(
       delivery?.deliveryStatus ?? '',
     )
+  const scopedCaseItems = useMemo(() => {
+    if (!missionId) return revisionCase?.items ?? []
+    const checklistIds = new Set(
+      checklistDelivery?.checklists.map((item) => item.orderChecklistItemId),
+    )
+    return (revisionCase?.items ?? []).filter((item) =>
+      checklistIds.has(item.orderChecklistItemId),
+    )
+  }, [missionId, revisionCase, checklistDelivery])
+
   const checklistItems = useMemo(
     () =>
       (checklistDelivery?.checklists ?? []).map((item) => ({
@@ -429,7 +467,11 @@ export function ManagerDeliveryPanel({
     setBusy(true)
     setError(null)
     try {
-      const result = await deliveryApi.managerPublishChecklists(orderId, body)
+      const result = await deliveryApi.managerPublishChecklists(
+        orderId,
+        body,
+        missionId,
+      )
       if (draftTimerRef.current) clearTimeout(draftTimerRef.current)
       setDelivery(result)
       setDeliveryDraft(null)
@@ -550,6 +592,7 @@ export function ManagerDeliveryPanel({
       await deliveryApi.managerClearChecklistDraft(
         orderId,
         deliveryDraft?.version ?? draftVersionRef.current,
+        missionId,
       )
       setDeliveryDraft(null)
       draftVersionRef.current = 0
@@ -605,15 +648,15 @@ export function ManagerDeliveryPanel({
       className="odm-or-card delivery-shell delivery-manager"
       aria-labelledby="manager-delivery-title"
     >
+      <div className="delivery-manager-overview">
       <header className="delivery-hero">
         <div className="delivery-hero__copy">
-          <span className="delivery-eyebrow">{t.eyebrow}</span>
           <h2 id="manager-delivery-title">{t.title}</h2>
-          <p>{t.intro}</p>
         </div>
         <DeliveryStatusPill status={delivery.deliveryStatus} />
       </header>
       <DeliveryProgress status={delivery.deliveryStatus} />
+      </div>
       <div className="delivery-content">
         {!canReleasePreview &&
           !allowLegacyPublication &&
@@ -703,6 +746,11 @@ export function ManagerDeliveryPanel({
               const caseItem = revisionCase?.items.find(
                 (row) => row.orderChecklistItemId === item.orderChecklistItemId,
               )
+              const customerFeedback = caseItem?.feedback ?? []
+              const flaggedMediaCount = customerFeedback.reduce(
+                (count, feedback) => count + (feedback.evidence?.length ?? 0),
+                0,
+              )
               const blockedByCase =
                 !!revisionCase &&
                 (!caseItem ||
@@ -741,6 +789,11 @@ export function ManagerDeliveryPanel({
                               counts.videos,
                             )}
                       </Tag>
+                      {customerFeedback.length > 0 ? (
+                        <Tag color={flaggedMediaCount > 0 ? 'orange' : 'default'}>
+                          {t.customerFlaggedCount(flaggedMediaCount)}
+                        </Tag>
+                      ) : null}
                       <Tag color={valid ? 'green' : 'warning'}>
                         {t.minRequirement(
                           item.minimumImageCount,
@@ -753,46 +806,58 @@ export function ManagerDeliveryPanel({
                   </div>
                 ),
                 children: (
-                  <ChecklistEditor
-                    item={item}
-                    editable={editable}
-                    additions={additions[item.orderChecklistItemId] ?? []}
-                    removed={removed[item.orderChecklistItemId] ?? []}
-                    replacements={replacements[item.orderChecklistItemId] ?? {}}
-                    disabled={
-                      !canReleasePreview ||
-                      busy ||
-                      blockedByCase ||
-                      draftStatus === 'stale' ||
-                      draftStatus === 'conflict'
-                    }
-                    onAdd={(ids) => {
-                      markDraftChanged()
-                      setAdditions((value) => ({
-                        ...value,
-                        [item.orderChecklistItemId]: ids,
-                      }))
-                    }}
-                    onRemove={(ids) => {
-                      markDraftChanged()
-                      setRemoved((value) => ({
-                        ...value,
-                        [item.orderChecklistItemId]: ids,
-                      }))
-                    }}
-                    onReplace={(value) => {
-                      markDraftChanged()
-                      setReplacements((current) => ({
-                        ...current,
-                        [item.orderChecklistItemId]: value,
-                      }))
-                    }}
-                    rework={
-                      caseItem?.strategy === 'REWORK' &&
-                      caseItem.status === 'IN_PROGRESS'
-                    }
-                    messages={t}
-                  />
+                  <div className="delivery-checklist-editor">
+                    <CustomerReviewEvidence
+                      feedback={customerFeedback}
+                      title={t.flaggedMedia}
+                      noEvidence={t.noFlaggedMedia}
+                      unavailable={t.flaggedMediaExpired}
+                      previewUnavailable={t.replacementPreviewUnavailable}
+                      roundLabel={t.feedbackRound}
+                      reasonLabel={t.reasonCode}
+                      reasonCodes={reviewLabels.reasonCodes}
+                    />
+                    <ChecklistEditor
+                      item={item}
+                      editable={editable}
+                      additions={additions[item.orderChecklistItemId] ?? []}
+                      removed={removed[item.orderChecklistItemId] ?? []}
+                      replacements={replacements[item.orderChecklistItemId] ?? {}}
+                      disabled={
+                        !canReleasePreview ||
+                        busy ||
+                        blockedByCase ||
+                        draftStatus === 'stale' ||
+                        draftStatus === 'conflict'
+                      }
+                      onAdd={(ids) => {
+                        markDraftChanged()
+                        setAdditions((value) => ({
+                          ...value,
+                          [item.orderChecklistItemId]: ids,
+                        }))
+                      }}
+                      onRemove={(ids) => {
+                        markDraftChanged()
+                        setRemoved((value) => ({
+                          ...value,
+                          [item.orderChecklistItemId]: ids,
+                        }))
+                      }}
+                      onReplace={(value) => {
+                        markDraftChanged()
+                        setReplacements((current) => ({
+                          ...current,
+                          [item.orderChecklistItemId]: value,
+                        }))
+                      }}
+                      rework={
+                        caseItem?.strategy === 'REWORK' &&
+                        caseItem.status === 'IN_PROGRESS'
+                      }
+                      messages={t}
+                    />
+                  </div>
                 ),
               }
             })}
@@ -881,7 +946,7 @@ export function ManagerDeliveryPanel({
             </div>
             <Collapse
               className="delivery-review-collapse"
-              items={revisionCase.items.map((item, index) => {
+              items={scopedCaseItems.map((item, index) => {
                 const draft = decisionDrafts[item.caseItemId] ?? {
                   scope: 'IN_SCOPE' as const,
                   strategy: 'UNDECIDED' as const,
@@ -926,6 +991,7 @@ export function ManagerDeliveryPanel({
                       <div className="delivery-case-feedback">
                         {item.feedback.map((feedback) => (
                           <article key={feedback.requestId}>
+                            <Tag>{t.feedbackRound(feedback.roundNumber)}</Tag>
                             <Tag>
                               {t.reasonCode} ·{' '}
                               {reviewLabels.reasonCodes[feedback.reasonCode]}
@@ -934,6 +1000,48 @@ export function ManagerDeliveryPanel({
                             <small>
                               {new Date(feedback.submittedAt).toLocaleString()}
                             </small>
+                            <div className="delivery-feedback-evidence">
+                              <Typography.Text strong>
+                                {t.flaggedMedia}
+                              </Typography.Text>
+                              {(feedback.evidence ?? []).length > 0 ? (
+                                <div className="delivery-feedback-evidence-grid">
+                                  {(feedback.evidence ?? []).map((evidence) => (
+                                    <div
+                                      className="delivery-feedback-evidence-card"
+                                      key={evidence.roundEvidenceId}
+                                    >
+                                      {evidence.accessReason ? (
+                                        <Typography.Text type="secondary">
+                                          {evidence.accessReason ===
+                                          'RETENTION_EXPIRED'
+                                            ? t.flaggedMediaExpired
+                                            : t.replacementPreviewUnavailable}
+                                        </Typography.Text>
+                                      ) : (
+                                        <MediaPreview
+                                          asset={{
+                                            ...evidence,
+                                            id: evidence.mediaAssetId,
+                                          }}
+                                        />
+                                      )}
+                                      <Typography.Text
+                                        ellipsis={{
+                                          tooltip: evidence.fileName,
+                                        }}
+                                      >
+                                        {evidence.fileName}
+                                      </Typography.Text>
+                                    </div>
+                                  ))}
+                                </div>
+                              ) : (
+                                <Typography.Text type="secondary">
+                                  {t.noFlaggedMedia}
+                                </Typography.Text>
+                              )}
+                            </div>
                           </article>
                         ))}
                       </div>
@@ -1104,7 +1212,7 @@ export function ManagerDeliveryPanel({
                 }
               })}
             />
-            {revisionCase.items.some(canCreateRework) ? (
+            {scopedCaseItems.some(canCreateRework) ? (
               <div className="delivery-rework-create">
                 <Typography.Title level={5}>{t.reworkMission}</Typography.Title>
                 <Typography.Paragraph type="secondary">
@@ -1129,7 +1237,8 @@ export function ManagerDeliveryPanel({
         {delivery.deliveryStatus === 'CUSTOMER_REVIEW' ? (
           <StatusBanner title={t.sentTitle} text={t.sentText} />
         ) : null}
-        {delivery.deliveryStatus === 'FINAL_PAYMENT_PENDING' ? (
+        {delivery.deliveryStatus === 'AWAITING_MISSION_PAYMENT' ||
+        delivery.deliveryStatus === 'FINAL_PAYMENT_PENDING' ? (
           <StatusBanner
             tone="warning"
             title={t.acceptedTitle}
@@ -1162,7 +1271,7 @@ export function ManagerDeliveryPanel({
                 })
                 if (ok)
                   await runAction(
-                    () => deliveryApi.releaseOriginals(orderId),
+                    () => deliveryApi.releaseOriginals(orderId, missionId),
                     fb.originalsReleased,
                     setDelivery,
                     setError,
@@ -1259,7 +1368,11 @@ function ChecklistEditor({
               )
               return (
                 <article className="delivery-asset" key={evidenceId}>
-                  <MediaPreview asset={toDeliveryAsset(asset)} />
+                  <>
+                    <MediaPreview asset={toDeliveryAsset(asset)} />
+                    {asset.missionId && <MediaInspectionAction missionId={asset.missionId} mediaId={asset.mediaAssetId}
+                      mediaType={asset.type} fileName={asset.fileName} />}
+                  </>
                   <div className="delivery-asset__meta">
                     <strong title={asset.fileName}>{asset.fileName}</strong>
                     <small>
@@ -1345,7 +1458,11 @@ function ChecklistEditor({
                         )
                       }
                     />
+                    <>
                     <MediaPreview asset={toDeliveryAsset(asset)} />
+                    {asset.missionId && <MediaInspectionAction missionId={asset.missionId} mediaId={asset.mediaAssetId}
+                      mediaType={asset.type} fileName={asset.fileName} />}
+                  </>
                     <span className="delivery-asset__meta">
                       <strong title={asset.fileName}>{asset.fileName}</strong>
                       <small>
@@ -1550,19 +1667,96 @@ async function runAction(
 function MediaPreview({ asset }: { asset: DeliveryAsset }) {
   const { t } = useI18n(managerDeliveryPanelMessages)
   if (!asset.previewUrl) {
-    return <span className="delivery-replacement-unavailable">{t.replacementPreviewUnavailable}</span>
+    return (
+      <span className="delivery-replacement-unavailable">
+        {t.replacementPreviewUnavailable}
+      </span>
+    )
   }
   return asset.type.toUpperCase().includes('VIDEO') ? (
-    <VideoThumbnail src={asset.previewUrl} poster={asset.thumbnailUrl} fallbackUrl={asset.url} fileName={asset.fileName} fileSize={asset.size} original={asset.previewStatus !== 'READY'} />
+    <VideoThumbnail
+      src={asset.previewUrl}
+      poster={asset.thumbnailUrl}
+      fallbackUrl={null}
+      fileName={asset.fileName}
+      fileSize={asset.size}
+      original={asset.previewStatus !== 'READY'}
+    />
   ) : (
-    <DeliveryImagePreview
+    <ImagePreview
       src={asset.thumbnailUrl ?? asset.previewUrl}
-      fallbackUrl={asset.url}
+      fallbackUrl={null}
       fileSize={asset.size}
       original={asset.previewStatus !== 'READY'}
       previewSrc={asset.previewUrl}
       fileName={asset.fileName}
     />
+  )
+}
+
+function CustomerReviewEvidence({
+  feedback,
+  title,
+  noEvidence,
+  unavailable,
+  previewUnavailable,
+  roundLabel,
+  reasonLabel,
+  reasonCodes,
+}: {
+  feedback: ResultRevisionCase['items'][number]['feedback']
+  title: string
+  noEvidence: string
+  unavailable: string
+  previewUnavailable: string
+  roundLabel: (round: number) => string
+  reasonLabel: string
+  reasonCodes: Record<string, string>
+}) {
+  if (!feedback.length) return null
+
+  return (
+    <section className="delivery-checklist-customer-review">
+      <Typography.Text strong>{title}</Typography.Text>
+      {feedback.map((entry) => (
+        <article key={entry.requestId}>
+          <Space wrap>
+            <Tag>{roundLabel(entry.roundNumber)}</Tag>
+            <Tag>
+              {reasonLabel} · {reasonCodes[entry.reasonCode] ?? entry.reasonCode}
+            </Tag>
+          </Space>
+          {entry.customerNote ? <p>{entry.customerNote}</p> : null}
+          {(entry.evidence ?? []).length > 0 ? (
+            <div className="delivery-feedback-evidence-grid">
+              {(entry.evidence ?? []).map((evidence) => (
+                <div
+                  className="delivery-feedback-evidence-card"
+                  key={evidence.roundEvidenceId}
+                >
+                  {evidence.accessReason ? (
+                    <Typography.Text type="secondary">
+                      {evidence.accessReason === 'RETENTION_EXPIRED'
+                        ? unavailable
+                        : previewUnavailable}
+                    </Typography.Text>
+                  ) : (
+                    <MediaPreview
+                      asset={{ ...evidence, id: evidence.mediaAssetId }}
+                    />
+                  )}
+                  <Typography.Text ellipsis={{ tooltip: evidence.fileName }}>
+                    {evidence.fileName}
+                  </Typography.Text>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <Typography.Text type="secondary">{noEvidence}</Typography.Text>
+          )}
+        </article>
+      ))}
+    </section>
   )
 }
 

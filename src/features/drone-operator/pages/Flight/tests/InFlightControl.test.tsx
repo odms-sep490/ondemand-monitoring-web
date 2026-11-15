@@ -1,7 +1,9 @@
-import { act, fireEvent, render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { setLanguage } from '../../../../../shared/i18n'
+import { missionApi } from '../../../../mission/api/missionApi'
+import { checklistExecutionApi } from '../../../../mission/api/checklistExecutionApi'
 import InFlightControl from '../components/InFlightControl'
 import type { Drone, Mission } from '../../../types/omss'
 
@@ -63,6 +65,7 @@ describe('InFlightControl', () => {
   })
 
   afterEach(() => {
+    vi.restoreAllMocks()
     vi.unstubAllGlobals()
     vi.unstubAllEnvs()
     setLanguage('vi')
@@ -137,8 +140,21 @@ describe('InFlightControl', () => {
     expect(window.location.hash).not.toContain('MS-1')
   })
 
-  it('preserves normal flight and finish actions after preflight is ready', () => {
+  it('preserves normal flight and finish actions after preflight is ready', async () => {
     vi.stubEnv('VITE_FLIGHT_MAP_ONLY', 'false')
+    // Finishing the flight is gated on an assigned checklist that backend
+    // reports as ready for submission.
+    vi.spyOn(
+      checklistExecutionApi,
+      'getMissionChecklistExecutions',
+    ).mockResolvedValue({
+      missionId: mission.id,
+      legacySnapshot: false,
+      readyForSubmission: true,
+      executions: [{ id: 'e1' } as never],
+    })
+    vi.spyOn(missionApi, 'getMissionResult').mockResolvedValue(null)
+    vi.spyOn(missionApi, 'getPermissions').mockResolvedValue({} as never)
     render(
       <InFlightControl
         mission={mission}
@@ -151,7 +167,11 @@ describe('InFlightControl', () => {
       />,
     )
     expect(screen.getByRole('button', { name: 'Cất cánh' })).toBeEnabled()
-    expect(screen.getByRole('button', { name: 'Hoàn thành bay' })).toBeEnabled()
+    await waitFor(() =>
+      expect(
+        screen.getByRole('button', { name: 'Hoàn thành bay' }),
+      ).toBeEnabled(),
+    )
   })
 
   it('starts a ready mission from the cockpit', async () => {

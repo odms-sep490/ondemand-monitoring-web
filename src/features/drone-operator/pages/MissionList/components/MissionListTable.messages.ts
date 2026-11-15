@@ -4,8 +4,7 @@ export const missionListTableMessages = defineMessages({
   vi: {
     statusLabel: {
       PENDING: 'Chờ phản hồi',
-      PENDING_PAYMENT: 'Chờ thanh toán phần còn lại',
-      PENDING_CONFIRMATION: 'Chuẩn bị',
+      PENDING_CONFIRMATION: 'Chờ xác nhận',
       PLANNING: 'Đang chuẩn bị trước bay',
       READY: 'Sẵn sàng chờ nghiệm thu',
       ACCEPTED: 'Đã nhận',
@@ -21,7 +20,7 @@ export const missionListTableMessages = defineMessages({
       AWAITING_REVIEW: 'Chờ xác nhận nghiệm thu',
       PENDING_REVIEW: 'Chờ xác nhận nghiệm thu',
       COMPLETED: 'Hoàn thành',
-      REJECTED: 'Bị từ chối',
+      REJECTED: 'Đã từ chối',
       FAILED: 'Không hoàn thành',
     },
     replacementCompleted: 'Đã đổi drone',
@@ -42,6 +41,7 @@ export const missionListTableMessages = defineMessages({
       NEEDS_SUBMIT: 'Cần xác nhận nghiệm thu',
       PENDING_MANAGER: 'Chờ nghiệm thu',
       SENT_TO_CUSTOMER: 'Đã gửi',
+      FAILED: 'Đã xác nhận thất bại',
     },
     unscheduled: 'Chưa lên lịch',
     today: (date: string) => `Hôm nay ${date}`,
@@ -71,8 +71,7 @@ export const missionListTableMessages = defineMessages({
   en: {
     statusLabel: {
       PENDING: 'Awaiting reply',
-      PENDING_PAYMENT: 'Awaiting final payment',
-      PENDING_CONFIRMATION: 'Preparing',
+      PENDING_CONFIRMATION: 'Awaiting confirmation',
       PLANNING: 'Preparing for preflight',
       READY: 'Ready for inspector start',
       ACCEPTED: 'Accepted',
@@ -88,7 +87,7 @@ export const missionListTableMessages = defineMessages({
       AWAITING_REVIEW: 'Awaiting inspection',
       PENDING_REVIEW: 'Awaiting inspection',
       COMPLETED: 'Completed',
-      REJECTED: 'Rejected',
+      REJECTED: 'Declined',
       FAILED: 'Not completed',
     },
     replacementCompleted: 'Drone replaced',
@@ -109,6 +108,7 @@ export const missionListTableMessages = defineMessages({
       NEEDS_SUBMIT: 'Needs inspection',
       PENDING_MANAGER: 'Awaiting inspection',
       SENT_TO_CUSTOMER: 'Sent',
+      FAILED: 'Failure confirmed',
     },
     unscheduled: 'Not scheduled',
     today: (date: string) => `Today ${date}`,

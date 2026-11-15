@@ -15,10 +15,9 @@ export const operatorWorkspaceMessages = defineMessages({
       cannotLoadMissionDetails: 'Không thể tải chi tiết nhiệm vụ',
       missionAcceptanceFailed: 'Nhận nhiệm vụ thất bại',
       missionRejectionFailed: 'Từ chối nhiệm vụ thất bại',
-      gcsConnectionFailed: 'Ghi nhận kết nối GCS thất bại',
       missionStartFailed: 'Bắt đầu nhiệm vụ thất bại',
       missionDroneChanged:
-        'Drone của nhiệm vụ đã thay đổi. Kết nối lại GCS trước khi kiểm tra trước bay.',
+        'Drone được phân công đã thay đổi. Tải lại nhiệm vụ trước khi kiểm tra trước bay.',
       telemetryTimeout:
         'Chờ dữ liệu telemetry mới từ drone quá thời gian. Kiểm tra Telemetry Sender và thử lại.',
       backendPreflightFailed: 'Kiểm tra trước bay ở backend không đạt',
@@ -45,10 +44,9 @@ export const operatorWorkspaceMessages = defineMessages({
       cannotLoadMissionDetails: 'Cannot load mission details',
       missionAcceptanceFailed: 'Mission acceptance failed',
       missionRejectionFailed: 'Mission rejection failed',
-      gcsConnectionFailed: 'GCS connection registration failed',
       missionStartFailed: 'Mission start failed',
       missionDroneChanged:
-        'Mission drone assignment changed. Reconnect GCS before preflight.',
+        'Mission drone assignment changed. Reload the mission before preflight.',
       telemetryTimeout:
         'Waiting for fresh drone telemetry timed out. Check Telemetry Sender and retry preflight.',
       backendPreflightFailed: 'Backend preflight did not pass',

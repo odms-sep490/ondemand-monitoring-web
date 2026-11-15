@@ -312,10 +312,13 @@ it.each([
   },
 )
 it('scoped submit returns to its origin and never mutates Order/Mission completion', async () => {
-  // The permit file can only be chosen once the Order invoice is fully paid.
+  // The permit file can be added once the customer has paid the Deposit.
   vi.spyOn(financeApi, 'getManagerInvoice').mockResolvedValue({
-    status: 'PAID',
-    remainingAmount: 0,
+    status: 'PARTIALLY_PAID',
+    depositStatus: 'DEPOSIT_PAID',
+    depositAmount: 300,
+    paidAmount: 300,
+    remainingAmount: 700,
   } as Awaited<ReturnType<typeof financeApi.getManagerInvoice>>)
   const close = vi.fn()
   render(

@@ -16,3 +16,10 @@ export function formatDeviceLabel(
   const name = mission.droneName?.trim()
   return name && name !== code ? `${code} ${name}` : code
 }
+
+export function deviceRoleLabel(role?: string | null) {
+  if (role === 'MAIN') return 'Thiết bị chính'
+  if (role === 'SUPPORT') return 'Thiết bị hỗ trợ'
+  if (role === 'BACKUP') return 'Thiết bị dự phòng'
+  return 'Thiết bị được gán'
+}

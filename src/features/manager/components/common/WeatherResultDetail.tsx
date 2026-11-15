@@ -29,11 +29,11 @@ export function WeatherResultDetail({
         >
           {weather.safeToFly ? t.safeToFly : t.caution}
         </span>
-        <span
-          className={`odm-or-pill odm-or-pill-${checkTone(weather.status)}`}
-        >
-          {checkLabel(weather.status)}
-        </span>
+        {weather.status !== 'WARN' && (
+          <span className={`odm-or-pill odm-or-pill-${checkTone(weather.status)}`}>
+            {checkLabel(weather.status)}
+          </span>
+        )}
       </div>
       <dl className="odm-or-kv compact">
         <div>

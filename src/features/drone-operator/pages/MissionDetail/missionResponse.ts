@@ -6,7 +6,8 @@ import { monitoringErrorMessage } from '../../../mission/components/MonitoringCh
 export function isAwaitingResponse(mission: OperatorMission) {
   return (
     mission.status === 'PENDING' &&
-    mission.myResponseStatus !== 'ACCEPTED'
+    mission.myResponseStatus !== 'ACCEPTED' &&
+    mission.myResponseStatus !== 'REJECTED'
   )
 }
 

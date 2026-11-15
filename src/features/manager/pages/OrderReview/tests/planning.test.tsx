@@ -88,21 +88,35 @@ describe('Manager multi-Mission planning', () => {
       finalPaymentAllowed: false,
     } as Invoice)
 
-    render(<OrderMissionPlanningSection orderId="o" />)
+    const { container } = render(<OrderMissionPlanningSection orderId="o" />)
 
     expect(
       await screen.findByText('Đang chờ khách hàng thanh toán đặt cọc'),
     ).toBeInTheDocument()
     expect(screen.getByText(/Đã thanh toán\s+0\s*\/\s*500/)).toBeInTheDocument()
+    expect(container.querySelector('.odm-planning-split-layout')).toBeNull()
+
     expect(
       screen.queryByRole('button', { name: 'Tạo thêm nhiệm vụ' }),
     ).not.toBeInTheDocument()
     expect(
       screen.queryByRole('button', { name: 'Chốt kế hoạch' }),
     ).not.toBeInTheDocument()
+    vi.spyOn(financeApi, 'refreshOrderPayments').mockResolvedValue({} as Invoice)
+    vi.mocked(financeApi.getManagerInvoice).mockResolvedValue({
+      id: 'invoice-paid',
+      paidAmount: 500,
+      depositAmount: 500,
+      status: 'PAID',
+    } as Invoice)
+    fireEvent.click(screen.getByRole('button', { name: 'Kiểm tra thanh toán' }))
+    await waitFor(() =>
+      expect(container.querySelector('.odm-planning-split-layout')).not.toBeNull(),
+    )
+    expect(container.querySelector('.mgr-plan-gate')).toBeNull()
   })
 
-  it('shows that the Order is awaiting final payment after resource assignment', async () => {
+  it('shows the per-Mission payment milestones after the plan is finalized', async () => {
     vi.mocked(planningApi.getExecutionPlan).mockResolvedValue({
       ...plan,
       planStatus: 'FINALIZED',
@@ -114,23 +128,53 @@ describe('Manager multi-Mission planning', () => {
             id,
             orderId: 'o',
             missionCode: id.toUpperCase(),
-            status: 'PENDING_PAYMENT',
+            status: 'PENDING_CONFIRMATION',
             staffAssignments: [],
           }) as unknown as MissionResponse,
       ),
     )
     vi.mocked(financeApi.getManagerInvoice).mockResolvedValue({
       id: 'invoice-awaiting-final-payment',
+      totalAmount: 1000,
       paidAmount: 500,
       depositAmount: 500,
       remainingAmount: 500,
       finalPaymentAllowed: true,
     } as Invoice)
+    // The old "awaiting final payment" banner was replaced by the auto-calculated
+    // per-Mission payment panel.
+    vi.spyOn(
+      financeApi,
+      'calculateManagerMissionPaymentAllocations',
+    ).mockResolvedValue({
+      invoiceId: 'invoice-awaiting-final-payment',
+      allocationTargetAmount: 500,
+      allocatedAmount: 500,
+      allocationComplete: true,
+      milestones: [
+        {
+          id: 'ms-1',
+          missionId: 'm1',
+          missionCode: 'M1',
+          scopeLabel: null,
+          amount: 500,
+          currency: 'VND',
+          status: 'NOT_YET_DUE',
+          handedOverAt: null,
+          paymentExpiresAt: null,
+          payments: [],
+        },
+      ],
+    })
 
     render(<OrderMissionPlanningSection orderId="o" />)
 
-    expect(await screen.findByText('Đang chờ khách hàng thanh toán phần còn lại'))
-      .toBeInTheDocument()
+    expect(
+      await screen.findByRole('heading', {
+        name: 'Khoản thanh toán theo nhiệm vụ',
+      }),
+    ).toBeInTheDocument()
+    expect(await screen.findByText('Chưa bàn giao')).toBeInTheDocument()
   })
 
   it('keeps a completed Order Mission card historical with no operational actions', async () => {

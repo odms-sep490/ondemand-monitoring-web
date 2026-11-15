@@ -9,8 +9,8 @@ export function FlightOpeningShell() {
         minHeight: '100vh',
         display: 'grid',
         placeItems: 'center',
-        background: '#020617',
-        color: '#dbeafe',
+        background: 'var(--mgr-bg)',
+        color: 'var(--mgr-muted)',
       }}
     >
       <div style={{ textAlign: 'center', fontWeight: 800 }}>{t.opening}</div>

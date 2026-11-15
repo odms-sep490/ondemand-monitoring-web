@@ -2,6 +2,8 @@ import { defineMessages } from '../../../../../shared/i18n'
 
 export const planningPaymentGateMessages = defineMessages({
   vi: {
+    waitingContract: 'Chờ xác nhận hợp đồng',
+    contractNote: 'Xác nhận bản hợp đồng đã ký trước khi yêu cầu khách thanh toán cọc.',
     waiting: 'Đang chờ khách hàng thanh toán đặt cọc',
     checking: 'Đang kiểm tra…',
     checkPayment: 'Kiểm tra thanh toán',
@@ -13,6 +15,8 @@ export const planningPaymentGateMessages = defineMessages({
       'Khách hàng chưa chấp nhận báo giá hoặc chưa phát hành hóa đơn.',
   },
   en: {
+    waitingContract: 'Awaiting contract verification',
+    contractNote: 'Confirm the signed contract before requesting the deposit.',
     waiting: 'Waiting for the customer to pay the deposit',
     checking: 'Checking…',
     checkPayment: 'Check payment',

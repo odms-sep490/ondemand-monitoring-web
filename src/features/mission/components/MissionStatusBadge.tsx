@@ -27,13 +27,6 @@ export function MissionStatusBadge({ status }: MissionStatusBadgeProps) {
           label: t.mission.WAITING_DEPOSIT,
           icon: 'lock' as const,
         }
-      case 'PENDING_PAYMENT':
-        return {
-          bg: '#fff7ed',
-          color: '#9a3412',
-          label: t.mission.PENDING_PAYMENT,
-          icon: 'lock' as const,
-        }
       case 'PENDING_CONFIRMATION':
         return {
           bg: '#eff6ff',

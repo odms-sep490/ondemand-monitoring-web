@@ -3,7 +3,9 @@ import { defineMessages } from '../../../../shared/i18n'
 export const orderResultsPageMessages = defineMessages({
   vi: {
     back: 'Quay lại danh sách đơn hàng',
-    eyebrow: 'Kết quả đơn hàng',
+    eyebrow: 'Chi tiết đơn hàng',
+    completedTitle: 'Đơn hàng đã hoàn thành',
+    completedBody: 'Xem lại thông tin đơn bên dưới. Kết quả và bằng chứng nằm trong chi tiết từng nhiệm vụ.',
     title: (code: string) => `Kết quả toàn bộ · ${code}`,
     subtitle: 'Tổng hợp kết quả của tất cả nhiệm vụ thuộc đơn hàng này.',
     missionCount: (count: number) => `${count} nhiệm vụ`,
@@ -29,7 +31,9 @@ export const orderResultsPageMessages = defineMessages({
   },
   en: {
     back: 'Back to orders',
-    eyebrow: 'Order results',
+    eyebrow: 'Order details',
+    completedTitle: 'Order completed',
+    completedBody: 'Review the order information below. Results and evidence are available in each mission’s details.',
     title: (code: string) => `All results · ${code}`,
     subtitle: 'Combined results from every mission in this order.',
     missionCount: (count: number) => `${count} missions`,

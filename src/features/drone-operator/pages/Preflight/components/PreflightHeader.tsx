@@ -21,7 +21,7 @@ export function PreflightHeader({
     <FlightStepHeader
       title={t.stepTitle}
       missionId={missionLabel ?? missionId}
-      active={isAlreadyInFlight ? 5 : 3}
+      active={isAlreadyInFlight ? 4 : 2}
       right={
         <span
           style={{

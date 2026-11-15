@@ -6,7 +6,7 @@ import { useI18n } from '../../../../shared/i18n'
 import { ConfirmSubmitModal } from '../CreateOrder/components/ConfirmSubmitModal'
 import { CreatedSuccess } from '../CreateOrder/components/CreatedSuccess'
 import { DeliverablesCard } from '../CreateOrder/components/DeliverablesCard'
-import { DeliveryOptionsCard } from '../CreateOrder/components/DeliveryOptionsCard'
+import { AgreementSection } from '../CreateOrder/components/AgreementSection'
 import { LocationStep } from '../CreateOrder/components/LocationStep'
 import { PricingEstimateCard } from '../CreateOrder/components/PricingEstimateCard'
 import { RequestSummaryCard } from '../CreateOrder/components/RequestSummaryCard'
@@ -97,8 +97,7 @@ export function CustomerCreateRequestPage() {
                 onRetry={meta.reloadDeliverables}
                 mediaTotals={r.checklist.mediaTotals}
               />
-              <DeliveryOptionsCard
-                mediaTotals={r.checklist.mediaTotals}
+              <AgreementSection
                 form={form}
                 errors={errors}
                 update={update}

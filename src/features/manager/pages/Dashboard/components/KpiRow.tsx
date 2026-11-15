@@ -3,40 +3,64 @@ import { managerHref, type ManagerRoute } from '../../../routes'
 import type { ManagerDashboardData } from '../../../types/dashboard'
 import { dashboardPageMessages } from '../DashboardPage.messages'
 
-type MetricTone = 'warning' | 'info' | 'success' | 'danger'
+export type DashboardKpiAvailability = {
+  pendingReview: boolean
+  waitingQuote: boolean
+  waitingDeposit: boolean
+  activeMissions: boolean
+  completed: boolean
+}
 
 function KpiLink({
   route,
   title,
   value,
-  tone = 'info',
-  hint,
+  available,
+  unavailableLabel,
 }: {
   route: ManagerRoute
   title: string
   value: number
-  tone?: MetricTone
-  hint?: string
+  available: boolean
+  unavailableLabel: string
 }) {
   return (
     <a
-      className={`mgr-dash-kpi mgr-kpi-${tone}`}
+      className="mgr-dash-kpi"
       href={managerHref(route)}
-      aria-label={`${title}: ${value}`}
+      onPointerMove={(event) => {
+        if (event.pointerType !== 'mouse' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+        const bounds = event.currentTarget.getBoundingClientRect()
+        event.currentTarget.style.setProperty('--tilt-x', `${-(event.clientY-bounds.top-bounds.height/2)/bounds.height*7}deg`)
+        event.currentTarget.style.setProperty('--tilt-y', `${(event.clientX-bounds.left-bounds.width/2)/bounds.width*7}deg`)
+      }}
+      onPointerLeave={(event) => {
+        event.currentTarget.style.setProperty('--tilt-x', '0deg')
+        event.currentTarget.style.setProperty('--tilt-y', '0deg')
+      }}
+      aria-label={`${title}: ${available ? value.toLocaleString() : unavailableLabel}`}
     >
-      <span className="mgr-kpi-label">{title}</span>
-      <strong className="mgr-kpi-value" aria-hidden="true">{value.toLocaleString()}</strong>
-      {hint ? <span className="mgr-kpi-hint">{hint}</span> : null}
+      <span className="mgr-kpi-copy">
+        <span className="mgr-kpi-label">{title}</span>
+        <strong className="mgr-kpi-value" aria-hidden="true">
+          {available ? value.toLocaleString() : '—'}
+        </strong>
+      </span>
     </a>
   )
 }
 
-export function KpiRow({ data }: { data: ManagerDashboardData }) {
+export function KpiRow({
+  data,
+  availability,
+}: {
+  data: ManagerDashboardData
+  availability: DashboardKpiAvailability
+}) {
   const { t } = useI18n(dashboardPageMessages)
   const s = data.summary
   const p = data.pricingPipeline
   const completed = data.missionTrend.reduce((sum, point) => sum + point.completed, 0)
-  const failed = data.missionTrend.reduce((sum, point) => sum + point.failed, 0)
   const queue: ManagerRoute = { screen: 'orderQueue' }
   const missions: ManagerRoute = { screen: 'missions' }
 
@@ -46,33 +70,36 @@ export function KpiRow({ data }: { data: ManagerDashboardData }) {
         route={queue}
         title={t.kpi.pendingReview}
         value={s.pendingOrderCount}
-        tone={s.pendingOrderCount > 0 ? 'warning' : 'info'}
+        available={availability.pendingReview}
+        unavailableLabel={t.kpi.unavailable}
       />
       <KpiLink
         route={queue}
         title={t.kpi.waitingQuote}
         value={p.pricingReviewCount + p.quoteReadyCount}
+        available={availability.waitingQuote}
+        unavailableLabel={t.kpi.unavailable}
       />
       <KpiLink
         route={queue}
         title={t.kpi.waitingDeposit}
         value={s.waitingDepositCount}
-        hint={p.depositPaidCount > 0 ? t.kpi.waitingDepositHint(p.depositPaidCount) : undefined}
-        tone={s.waitingDepositCount > 0 ? 'warning' : 'info'}
+        available={availability.waitingDeposit}
+        unavailableLabel={t.kpi.unavailable}
       />
       <KpiLink
         route={missions}
         title={t.kpi.activeMissions}
         value={s.activeMissionCount}
-        hint={s.attentionRequiredCount > 0 ? t.kpi.attentionHint(s.attentionRequiredCount) : undefined}
-        tone={s.attentionRequiredCount > 0 ? 'danger' : 'success'}
+        available={availability.activeMissions}
+        unavailableLabel={t.kpi.unavailable}
       />
       <KpiLink
         route={missions}
         title={t.kpi.completed}
         value={completed}
-        hint={failed > 0 ? t.kpi.completedHint(failed) : undefined}
-        tone="success"
+        available={availability.completed}
+        unavailableLabel={t.kpi.unavailable}
       />
     </section>
   )

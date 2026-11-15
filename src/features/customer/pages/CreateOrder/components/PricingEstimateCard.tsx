@@ -7,6 +7,7 @@ import { usesMedia, type ChecklistRow } from '../../../lib/checklist/types'
 import { pricingEstimateMessages } from './PricingEstimateCard.messages'
 
 type Props = {
+  checklistOnly?: boolean
   variant?: 'default' | 'review'
   estimate: ServicePricingEstimate | null
   loading: boolean
@@ -45,18 +46,31 @@ function contextualFeeLabel(
 
 /** Pricing estimate from `GET /api/services/pricing-estimate`. */
 export function PricingEstimateCard({
+  checklistOnly = false,
   variant = 'default',
   estimate,
   loading,
   hasService,
   additionalChecklists = [],
 }: Props) {
-  const { t, locale } = useI18n(pricingEstimateMessages)
+  const { t, locale, lang } = useI18n(pricingEstimateMessages)
 
   let body
   if (!hasService) body = <p className="co-hint">{t.pickService}</p>
   else if (loading && !estimate) body = <p className="co-hint">{t.loading}</p>
   else if (!estimate) body = <p className="co-hint">{t.unavailable}</p>
+  else if (checklistOnly) {
+    const outputFees = estimate.additionalRequirements.filter((item) => item.type.startsWith('OUTPUT_'))
+    const checklistSubtotal = estimate.servicePrice + outputFees.reduce((sum, fee) => sum + fee.additionalPrice, 0)
+    body = <div className="co-checklist-cost">
+      <p className="co-hint">{lang === 'vi' ? 'Chi phí các nội dung giám sát đã chọn.' : 'Cost of your selected monitoring items.'}</p>
+      <div className="co-money-row"><span>{t.servicePrice}</span><strong>{formatMoney(estimate.servicePrice, locale)}</strong></div>
+      {outputFees.map((fee) => <div className="co-money-row" key={fee.type}><span>{fee.description}</span><strong>+{formatMoney(fee.additionalPrice, locale)}</strong></div>)}
+      {additionalChecklists.length > 0 && <div className="co-money-row"><span>{t.additionalServiceRow}</span><strong>{t.additionalPending(additionalChecklists.length)}</strong></div>}
+      <div className="co-money-row co-money-total"><span>{lang === 'vi' ? 'Tạm tính checklist' : 'Checklist subtotal'}</span><strong>{formatMoney(checklistSubtotal, locale)}</strong></div>
+      <p className="co-estimate-notice">{lang === 'vi' ? 'Gồm nội dung giám sát và sản phẩm bàn giao. Quản lý sẽ xác nhận báo giá chính thức.' : 'Includes monitoring items and deliverables. The manager will confirm the final quote.'}</p>
+    </div>
+  }
   else {
     const deliverableFees = estimate.additionalRequirements.filter((item) =>
       item.type.startsWith('OUTPUT_'),
@@ -137,7 +151,7 @@ export function PricingEstimateCard({
     <Card
       className={`co-pricing-estimate-card${variant === 'review' ? ' is-review' : ''}`}
       icon={<DollarOutlined />}
-      title={t.title}
+      title={checklistOnly ? (lang === 'vi' ? 'Chi phí checklist' : 'Checklist cost') : t.title}
     >
       {body}
     </Card>

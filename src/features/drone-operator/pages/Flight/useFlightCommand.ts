@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useRef } from 'react'
 import type { FlightCommand } from './inFlightTypes'
 import { missionApi } from '../../../mission/api/missionApi'
 import { getLanguage, useI18n } from '../../../../shared/i18n'
@@ -46,11 +46,9 @@ export function useFlightCommand({
   onEmergency: () => void
 }) {
   const { t } = useI18n(inFlightControlMessages)
-  const sendCommand = useCallback(
-    async (
-      command: FlightCommand,
-      options?: { emergencyReturn?: boolean },
-    ) => {
+  const photoInFlight = useRef(false)
+  const executeCommand = useCallback(
+    async (command: FlightCommand, options?: { emergencyReturn?: boolean }) => {
       if (!normalFlightAllowed) {
         setLastCommand('Chưa có quyền vận hành Mission. Làm mới trạng thái.')
         return
@@ -165,6 +163,9 @@ export function useFlightCommand({
           Number.isFinite(currentAltitudeM)
             ? Math.max(8, Math.min(50, currentAltitudeM))
             : 25
+        if (command === 'photo') {
+          setLastCommand(getLanguage() === 'en' ? 'Capturing photo...' : 'Đang chụp ảnh...')
+        }
         const response = await fetch(`${controlBaseUrl}/api/control/command`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -210,11 +211,26 @@ export function useFlightCommand({
         if (!response.ok) {
           const payload = (await response.json().catch(() => null)) as {
             error?: string
+            code?: string
           } | null
+          if (payload?.code === 'CAMERA_FRAME_TIMEOUT') {
+            throw new Error(getLanguage() === 'en'
+              ? 'Camera has not provided a new frame. Please try again.'
+              : 'Camera chưa cập nhật hình ảnh. Vui lòng thử chụp lại.')
+          }
+          if (payload?.code === 'CAMERA_CAPTURE_FAILED') {
+            throw new Error(getLanguage() === 'en'
+              ? 'Unable to save the photo. Please try again.'
+              : 'Không lưu được ảnh chụp. Vui lòng thử lại.')
+          }
           throw new Error(payload?.error ?? `HTTP ${response.status}`)
         }
         setLastCommand(
-          command === 'auto_plan_start'
+          command === 'photo' && response.status === 201
+            ? getLanguage() === 'en'
+              ? 'Photo saved to the local library'
+              : 'Đã lưu ảnh vào thư viện local'
+            : command === 'auto_plan_start'
             ? constructionChecklist
               ? getLanguage() === 'en'
                 ? `Construction checklist automation started at ${constructionAltitudeM.toFixed(0)} m`
@@ -226,7 +242,11 @@ export function useFlightCommand({
                 : 'Đã bắt đầu bay tới mục tiêu GPS'
               : command === 'camera_front'
                 ? t.status.cameraReset
-                : t.status.commandSent(command.replaceAll('_', ' ')),
+                : command === 'return_to_base'
+                  ? getLanguage() === 'en'
+                    ? 'Returning to the launch point'
+                    : 'Đang quay về điểm cất cánh'
+                  : t.status.commandSent(command.replaceAll('_', ' ')),
         )
         setIsOnline(true)
 
@@ -266,5 +286,15 @@ export function useFlightCommand({
       t,
     ],
   )
+  const sendCommand = useCallback(async (...args: Parameters<typeof executeCommand>) => {
+    if (args[0] !== 'photo') return executeCommand(...args)
+    if (photoInFlight.current) return
+    photoInFlight.current = true
+    try {
+      await executeCommand(...args)
+    } finally {
+      photoInFlight.current = false
+    }
+  }, [executeCommand])
   return { sendCommand }
 }

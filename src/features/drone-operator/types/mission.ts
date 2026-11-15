@@ -3,8 +3,21 @@ import type {
   MissionDeviceAssignmentStatus,
   MissionDeviceCheckStatus,
 } from '../../mission/types/mission'
+import type { GeoJsonPolygon } from '../../../shared/types/geo'
 export type OperatorMissionStatus =
   MissionStatus | 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'UNKNOWN'
+
+export type OperatorMissionDeviceAssignment = {
+  id?: string | null
+  deviceId?: string | null
+  deviceCode?: string | null
+  deviceName?: string | null
+  deviceSerialNumber?: string | null
+  deviceStatus?: string | null
+  deviceRole?: 'MAIN' | 'SUPPORT' | string | null
+  status?: MissionDeviceAssignmentStatus | null
+  checkupStatus?: MissionDeviceCheckStatus | string | null
+}
 
 export type OperatorMission = {
   id: string
@@ -21,6 +34,7 @@ export type OperatorMission = {
   startTime: string
   endTime: string
   serviceLabel: string
+  deviceAssignments?: OperatorMissionDeviceAssignment[]
   deviceId?: string | null
   deviceCode?: string | null
   deviceSerialNumber?: string | null
@@ -49,6 +63,7 @@ export type OperatorMission = {
   managerPhone?: string
   respondBy?: string
   radiusMeters?: number
+  coverageArea?: GeoJsonPolygon | null
   ceilingMeters?: number
   latitude?: number | null
   longitude?: number | null
@@ -72,6 +87,7 @@ export type OperatorMissionPermissions = {
   canAttachChecklistEvidence?: boolean
   canDetachChecklistEvidence?: boolean
   canCompleteMission?: boolean
+  canConfirmMissionFailure?: boolean
   canSubmitMissionResult?: boolean
   canExecuteMonitoringChecklist?: boolean
   canAssessMonitoringChecklist?: boolean

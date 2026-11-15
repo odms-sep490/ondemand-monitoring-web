@@ -33,7 +33,7 @@ export function MediaChecklistAttachment({
   const [draft, setDraft] = useState<string[]>([])
   const [saving, setSaving] = useState(false)
   const [failed, setFailed] = useState(false)
-  const [notice, setNotice] = useState('')
+  const [notice, setNotice] = useState<'queued' | 'attachedSuccess' | 'saved' | 'removed' | 'failed' | null>(null)
   const attachedIds = new Set(
     executions
       .filter(
@@ -70,7 +70,7 @@ export function MediaChecklistAttachment({
         return
       }
       setOpen(false)
-      setNotice(autoUpload ? t.queued : mediaId ? t.attachedSuccess : t.saved)
+      setNotice(autoUpload ? 'queued' : mediaId ? 'attachedSuccess' : 'saved')
     } catch {
       setFailed(true)
     } finally {
@@ -88,7 +88,7 @@ export function MediaChecklistAttachment({
           setDraft(selectedIds.filter((id) => !attachedIds.has(id)))
           setSearch('')
           setFailed(false)
-          setNotice('')
+          setNotice(null)
           setOpen(true)
         }}
       >
@@ -111,7 +111,7 @@ export function MediaChecklistAttachment({
         </div>
       )}
       <span className="media-checklist-attachment__notice" role="status">
-        {notice}
+        {notice ? t[notice] : null}
       </span>
       {onDetach &&
         executions
@@ -127,9 +127,9 @@ export function MediaChecklistAttachment({
                   setSaving(true)
                   try {
                     await onDetach(row.id)
-                    setNotice(t.removed)
+                    setNotice('removed')
                   } catch {
-                    setNotice(t.failed)
+                    setNotice('failed')
                   } finally {
                     setSaving(false)
                   }

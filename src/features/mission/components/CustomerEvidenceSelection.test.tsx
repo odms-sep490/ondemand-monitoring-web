@@ -154,7 +154,7 @@ describe('inspector customer selection', () => {
         />,
       )
       expect(
-        screen.getByRole('heading', { name: 'Media của checklist' }),
+        screen.getByRole('heading', { name: 'Chọn ảnh/video gửi khách hàng' }),
       ).toBeInTheDocument()
       expect(screen.getAllByText('one.jpg')).toHaveLength(1)
       expect(screen.getAllByText('two.jpg')).toHaveLength(1)
@@ -163,7 +163,7 @@ describe('inspector customer selection', () => {
       ).toBeEnabled()
       expect(
         screen.getByRole('button', {
-          name: compact ? /Thêm media/ : /Thêm bằng chứng/,
+          name: compact ? /Thêm ảnh\/video/ : /Thêm bằng chứng/,
         }),
       ).toBeEnabled()
       expect(document.querySelector('.ce-list')).toBeNull()

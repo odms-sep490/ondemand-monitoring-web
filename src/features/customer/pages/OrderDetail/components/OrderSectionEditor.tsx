@@ -40,7 +40,6 @@ export function OrderSectionEditor({
     preferredDateTo: order.dateTo ?? '',
     resultDeadline: order.resultDeadline ?? '',
     flightPurpose: order.flightPurpose ?? 'SURVEY_MONITORING',
-    usagePurpose: order.usagePurpose ?? '',
     altitudeM: order.altitudeM?.toString() ?? '',
     estimatedLengthM: order.estimatedLengthM?.toString() ?? '',
     recurrenceType: order.recurrenceType ?? 'NONE',
@@ -78,7 +77,6 @@ export function OrderSectionEditor({
       ],
       scope: [
         'flightPurpose',
-        'usagePurpose',
         'altitudeM',
         'estimatedLengthM',
         'recurrenceType',
@@ -108,7 +106,6 @@ export function OrderSectionEditor({
     ])
     const arrays = new Set(['resultFormats', 'deliveryMethods'])
     const omitWhenBlank = new Set([
-      'usagePurpose',
       'monitoringRelationship',
       'permitStatus',
       'permitExpiresOn',
@@ -191,20 +188,6 @@ export function OrderSectionEditor({
                 { value: 'AGRICULTURE', label: t.optAgri },
                 { value: 'CONSTRUCTION_MONITORING', label: t.optConstruction },
                 { value: 'INDUSTRIAL_INSPECTION', label: t.optIndustrial },
-              ]}
-            />
-          </Field>
-          <Field label={t.usagePurpose}>
-            <Select
-              className="od-inline-select"
-              value={text('usagePurpose')}
-              onChange={(value) => set('usagePurpose', value)}
-              options={[
-                { value: '', label: '—' },
-                { value: 'INTERNAL', label: t.optInternal },
-                { value: 'LEGAL', label: t.optLegal },
-                { value: 'PARTNER_REPORT', label: t.optPartner },
-                { value: 'OTHER', label: t.optOther },
               ]}
             />
           </Field>

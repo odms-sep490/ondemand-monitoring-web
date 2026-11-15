@@ -112,7 +112,7 @@ describe('CreateMissionPage', () => {
       ticketId: 'ticket-1', ticketCode: 'TKT-1', orderId: brief.id, reviewRoundId: 'round-1',
       roundNumber: 1, roundVersion: 1, publishedAt: '', submittedAt: '', generalNote: null, items: [],
     })
-    const create = vi.spyOn(deliveryApi, 'managerCreateReworkMission').mockResolvedValue({
+    const create = vi.spyOn(missionsApi, 'createReworkMission').mockResolvedValue({
       caseId: 'case-1', missionId: 'rework-1', missionCode: 'MS-REWORK', status: 'PLANNING', checklistCount: 1,
     })
     const original = vi.spyOn(missionsApi, 'createMission')
@@ -189,7 +189,7 @@ describe('CreateMissionPage', () => {
         screen.getByRole('heading', { name: 'Order execution plan' }),
       ).toBeInTheDocument()
       expect(screen.getByLabelText(/Mission name \/ work scope/)).toHaveValue(
-        'Entire Order scope',
+        'Entire order scope',
       )
     } finally {
       setLanguage('vi')
@@ -424,7 +424,7 @@ describe('CreateMissionPage', () => {
       expect(missionsApi.createMission).toHaveBeenCalledWith(
         'ord-2609-0153',
         expect.objectContaining({
-          scopeLabel: 'Whole Order scope',
+          scopeLabel: 'Toàn bộ phạm vi đơn hàng',
           scheduledStart: '2026-09-24T01:00:00.000Z',
           scheduledEnd: '2026-09-24T02:30:00.000Z',
         }),

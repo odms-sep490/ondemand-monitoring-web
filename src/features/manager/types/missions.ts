@@ -3,6 +3,7 @@
 // `flight_plan` / `flight_waypoint` / `mission_drone_assignment` /
 // `mission_operator_assignment` tables [BRIEF §A6] where they overlap.
 import type { DroneStatus, MissionStatus } from '../../../shared/types/domain'
+import type { GeoJsonPolygon } from '../../../shared/types/geo'
 import type { WaypointAction } from '../lib/waypoints'
 
 // Re-exported for consumers of BE-aligned mission types that also need
@@ -208,6 +209,8 @@ export type PlanWaypointResponse = {
 }
 
 export type MissionResponse = {
+  inspectionCorrectionId?: string | null
+  inspectionSourceMissionId?: string | null
   purpose?: 'ORIGINAL' | 'REWORK'
   resultRevisionCaseId?: string | null
   replacesMissionId?: string | null
@@ -252,6 +255,8 @@ export type MissionResponse = {
   devicePayload?: string | null
   latitude: number | null
   longitude: number | null
+  radiusM?: number | null
+  coverageArea?: GeoJsonPolygon | null
   address: string | null
   scheduledStartAt: string | null
   scheduledEndAt?: string | null
@@ -262,6 +267,7 @@ export type MissionResponse = {
   startedAt: string | null
   completedAt: string | null
   actualStartAt?: string | null
+  controlHandoverAt?: string | null
   actualEndAt?: string | null
   description: string | null
   failureReason: string | null
@@ -303,6 +309,7 @@ export type MissionDeviceAssignmentResponse = {
   replacementRequestedAt?: string | null
   replacementRequestReason?: string | null
   replacementRequestedBy?: string | null
+  replacementCompleted?: boolean
 }
 
 export type MissionResourcePrepareStatus =
@@ -358,7 +365,7 @@ export type PostDeviceCheckItem = {
 export type PersistedPostDeviceCheckResponse = {
   id: string
   missionId: string
-  deviceConnectionId: string | null
+  deviceAssignmentId: string | null
   deviceId: string | null
   deviceCode: string | null
   deviceName: string | null

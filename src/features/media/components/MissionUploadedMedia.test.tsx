@@ -7,6 +7,7 @@ import {
   waitFor,
 } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { setLanguage } from '../../../shared/i18n'
 import {
   operatorMissionMediaApi,
   type UploadedMissionMedia,
@@ -51,13 +52,35 @@ const page = (items: UploadedMissionMedia[]) => ({
 })
 
 describe('uploaded mission media gallery', () => {
-  it('keeps AVAILABLE metadata visible without exposing an unreleased original', async () => {
+  it('offers original inspection on the card while the image opens the shared preview', async () => {
+    vi.mocked(operatorMissionMediaApi.list).mockResolvedValue(page([image]))
+    vi.mocked(operatorMissionMediaApi.get).mockResolvedValue(image)
+    render(<MissionUploadedMedia missionId="mission" reviewStatus="APPROVED" />)
+    await screen.findByText('capture.jpg')
+    expect(screen.getByRole('button', { name: 'Kiểm tra bản gốc' })).toBeEnabled()
+    expect(screen.getAllByText('Đã nghiệm thu')).toHaveLength(1)
+    expect(screen.queryByText(image.deviceId)).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: 'Xem capture.jpg' }))
+    await waitFor(() =>
+      expect(document.querySelector('.ant-image-preview-img')).toHaveAttribute('src', image.previewUrl),
+    )
+  })
+  it('keeps metadata visible and offers explicit internal inspection when preview is unavailable', async () => {
     vi.mocked(operatorMissionMediaApi.list).mockResolvedValue(
-      page([{ ...image, status: 'AVAILABLE', downloadUrl: null, thumbnailUrl: null, previewUrl: null }]),
+      page([
+        {
+          ...image,
+          status: 'AVAILABLE',
+          downloadUrl: null,
+          thumbnailUrl: null,
+          previewUrl: null,
+        },
+      ]),
     )
     render(<MissionUploadedMedia missionId="mission" />)
     await screen.findByText('capture.jpg')
-    expect(screen.getByText('Bản gốc chưa được bàn giao')).toBeInTheDocument()
+    expect(screen.getAllByText('Đang tạo bản xem').length).toBeGreaterThan(0)
+    expect(screen.getByRole('button', { name: 'Kiểm tra bản gốc' })).toBeEnabled()
     const preview = screen.getByRole('button', { name: 'Xem capture.jpg' })
     expect(preview).toBeDisabled()
     fireEvent.click(preview)
@@ -98,12 +121,12 @@ describe('uploaded mission media gallery', () => {
     render(
       <MissionUploadedMedia missionId="mission" approveMedia={approveMedia} />,
     )
-    fireEvent.click(await screen.findByText('Duyệt media cho khách hàng'))
+    fireEvent.click(await screen.findByText('Duyệt ảnh/video cho khách hàng'))
     await waitFor(() =>
       expect(approveMedia).toHaveBeenCalledWith(image.mediaId),
     )
     expect(
-      await screen.findByText('Đã duyệt media trong phiên này'),
+      await screen.findByText('Đã duyệt ảnh/video trong phiên này'),
     ).toBeDisabled()
   })
   it('distinguishes satellite media and draft result without claiming camera capture or manager submission', async () => {
@@ -112,19 +135,43 @@ describe('uploaded mission media gallery', () => {
     )
     render(<MissionUploadedMedia missionId="mission" reviewStatus="DRAFT" />)
     expect(
-      await screen.findByText('Ảnh vệ tinh · Browser snapshot'),
+      await screen.findByText('Ảnh vệ tinh · Ảnh chụp từ trình duyệt'),
     ).toBeTruthy()
     expect(
-      screen.getAllByText('Kết quả nháp — chưa gửi manager').length,
+      screen.getAllByText('Kết quả nháp — chưa gửi quản lý').length,
     ).toBeGreaterThan(0)
-    expect(screen.queryByText('Camera drone')).toBeNull()
+    expect(screen.queryByText('Máy ảnh trên drone')).toBeNull()
+  })
+  it('localizes gallery labels, review status and capture time in English', async () => {
+    setLanguage('en')
+    vi.mocked(operatorMissionMediaApi.list).mockResolvedValue(
+      page([{ ...image, sourceType: 'DRONE_CAMERA' }]),
+    )
+    render(<MissionUploadedMedia missionId="mission" reviewStatus="DRAFT" />)
+
+    expect(
+      await screen.findByRole('region', { name: 'Uploaded mission media' }),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Refresh' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'View capture.jpg' }),
+    ).toBeInTheDocument()
+    expect(screen.getByText('Drone camera')).toBeInTheDocument()
+    expect(
+      screen.getAllByText('Draft result — not sent to manager'),
+    ).toHaveLength(1)
+    expect(screen.getByText(/Sep 27, 2026/)).toBeInTheDocument()
   })
   beforeEach(() => {
     vi.clearAllMocks()
+    setLanguage('vi')
     HTMLDialogElement.prototype.showModal = vi.fn()
     HTMLDialogElement.prototype.close = vi.fn()
   })
-  afterEach(cleanup)
+  afterEach(() => {
+    cleanup()
+    setLanguage('vi')
+  })
 
   it('loads the selected mission and requests a fresh scoped video URL before playback', async () => {
     vi.mocked(operatorMissionMediaApi.list).mockResolvedValue(
@@ -135,7 +182,7 @@ describe('uploaded mission media gallery', () => {
       downloadUrl: 'https://example.test/original',
       previewUrl: 'https://example.test/fresh',
     })
-    const { container } = render(<MissionUploadedMedia missionId="mission" />)
+    render(<MissionUploadedMedia missionId="mission" />)
     await screen.findByText('capture.jpg')
     expect(operatorMissionMediaApi.list).toHaveBeenCalledWith(
       'mission',
@@ -144,7 +191,7 @@ describe('uploaded mission media gallery', () => {
     )
     fireEvent.click(screen.getByRole('button', { name: 'Xem clip.mp4' }))
     await waitFor(() =>
-      expect(container.querySelector('video')?.getAttribute('src')).toBe(
+      expect(document.querySelector('video')?.getAttribute('src')).toBe(
         'https://example.test/fresh',
       ),
     )

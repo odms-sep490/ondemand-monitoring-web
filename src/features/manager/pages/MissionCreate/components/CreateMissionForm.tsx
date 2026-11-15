@@ -70,9 +70,7 @@ export function CreateMissionForm({
     brief.executionPlanRevision ?? 0,
   )
   const [scopeLabel, setScopeLabel] = useState(() =>
-    reworkCase
-      ? t.reworkScopeLabel(reworkCase.ticketCode)
-      : 'Whole Order scope',
+    reworkCase ? t.reworkScopeLabel(reworkCase.ticketCode) : t.wholeOrderScope,
   )
   const planQuery = useApiQuery(
     (signal) => planningApi.getExecutionPlan(orderId, signal),

@@ -1,3 +1,4 @@
+import { ImagePreview } from '../../../../../shared/components/media/ImagePreview'
 import { useState } from 'react'
 
 import { Icon } from '../../../../../shared/components/Icon'
@@ -150,7 +151,7 @@ export function AreaFilesField({ files, onChange, onParsed }: Props) {
           {files.map((file) => (
             <li key={file.id} className="co-attach-item">
               {file.contentType.startsWith('image/') ? (
-                <img src={file.dataUrl} alt={file.fileName} />
+                <ImagePreview className="shared-image-preview--attachment" src={file.dataUrl} fileName={file.fileName} />
               ) : null}
               <span className="co-attach-name" title={file.fileName}>
                 {file.fileName}

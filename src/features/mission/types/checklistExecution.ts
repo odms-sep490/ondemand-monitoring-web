@@ -6,6 +6,8 @@ export type ChecklistAssessmentStatus =
   'NOT_ASSESSED' | 'COMPLIANT' | 'NON_COMPLIANT'
 
 export type MissionChecklistExecution = {
+  fulfilledByMissionId?: string | null
+  fulfilledByMissionCode?: string | null
   id: string
   orderChecklistItemId: string
   content: string
@@ -88,6 +90,9 @@ export type EvidenceEligibility = {
   ineligibilityReason: EvidenceBlockingReason | null
 }
 export type MissionChecklistEvidence = EvidenceEligibility & {
+  /** Staff presentation only; not persisted or used to determine eligibility. */
+  localPreviewUrl?: string | null
+  localThumbnailUrl?: string | null
   selectedForCustomer?: boolean
   selectedBy?: string | null
   selectedAt?: string | null
@@ -122,9 +127,20 @@ export type EvidenceCandidate = EvidenceEligibility & {
   attachable: boolean
   previewUrl?: string | null
   thumbnailUrl?: string | null
+  /** Staff-only presentation sources; never used as evidence identity. */
+  localPreviewUrl?: string | null
+  localThumbnailUrl?: string | null
   urlExpiresAt: string | null
   alreadyAttachedExecutionIds: string[]
 }
+
+export type EvidenceCandidatePage = {
+  items: EvidenceCandidate[]
+  unavailableSources: Array<'local' | 'uploaded'>
+  hasMore: boolean
+}
+export type EvidenceCandidateLoadResult = EvidenceCandidate[] | EvidenceCandidatePage
+export type EvidenceCandidateLoader = (page: number, signal?: AbortSignal) => Promise<EvidenceCandidateLoadResult>
 
 export type CustomerEvidenceSelectionRequest = {
   expectedVersion: number

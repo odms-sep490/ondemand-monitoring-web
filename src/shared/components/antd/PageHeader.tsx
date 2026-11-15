@@ -1,3 +1,4 @@
+import '../pageBanner.css'
 import type { ReactNode } from 'react'
 
 type Props = {
@@ -16,7 +17,7 @@ type Props = {
 /** White banner card that opens every Manager page (same look as the Dashboard hero). */
 export function PageHeader({ title, description, crumb, actions, children, as: Heading = 'h1' }: Props) {
   return (
-    <header className="mgr-page-head">
+    <header className="mgr-page-head app-page-banner">
       <div className="mgr-page-head-main">
         {crumb ? <p className="mgr-page-head-crumb">{crumb}</p> : null}
         <Heading className="mgr-page-head-title">{title}</Heading>

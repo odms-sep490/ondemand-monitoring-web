@@ -32,7 +32,7 @@ type ReplacementTarget = {
   targetId: string
 }
 
-function ResourceReplacementForm({
+export function ResourceReplacementForm({
   title,
   t,
   options,
@@ -61,8 +61,8 @@ function ResourceReplacementForm({
         <div className="odm-resource-replacement-loading" role="status">
           <Spin size="small" />
         </div>
-      ) : error ? null : options.length === 0 ? (
-        <Alert className="odm-resource-replacement-alert" type="info" showIcon message={t.replacementEmpty} />
+      ) : options.length === 0 ? (
+        error ? null : <Alert className="odm-resource-replacement-alert" type="info" showIcon message={t.replacementEmpty} />
       ) : (
         <Form form={form} layout="vertical" onFinish={onSubmit}>
           <Form.Item
@@ -94,7 +94,7 @@ function ResourceReplacementForm({
               disabled={busy}
             />
           </Form.Item>
-          <div className="odm-resource-replacement-actions">
+          <div className="odm-resource-replacement-actions" style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
             <Button onClick={onCancel} disabled={busy}>{t.replacementCancel}</Button>
             <Button type="primary" htmlType="submit" loading={busy}>
               {t.replacementSave}
@@ -102,8 +102,8 @@ function ResourceReplacementForm({
           </div>
         </Form>
       )}
-      {loading || error || options.length === 0 ? (
-        <div className="odm-resource-replacement-actions">
+      {loading || options.length === 0 ? (
+        <div className="odm-resource-replacement-actions" style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
           <Button onClick={onCancel} disabled={busy}>{t.replacementCancel}</Button>
         </div>
       ) : null}
@@ -129,6 +129,8 @@ export function DetailPanel({ mission, onClose, t, locale, onResourceChanged }: 
   const [replacementLoading, setReplacementLoading] = useState(false)
   const [replacementBusy, setReplacementBusy] = useState(false)
   const [replacementError, setReplacementError] = useState('')
+  const [cancelingReplacementRequestId, setCancelingReplacementRequestId] =
+    useState<string | null>(null)
   const rows: Array<{ label: string; value: string }> = []
   if (mission.orderCode) rows.push({ label: t.fields.order, value: formatOrderCode(mission.orderCode) })
   if (mission.serviceLabel) rows.push({ label: t.fields.service, value: mission.serviceLabel })
@@ -145,7 +147,9 @@ export function DetailPanel({ mission, onClose, t, locale, onResourceChanged }: 
   const hasAssignedResources = Boolean(mission.droneCode) || deviceAssignments.length > 0 || staffAssignments.length > 0
   const accepted = staffGroups.filter((item) => item.responseStatus === 'ACCEPTED').length
   const canReplaceResources =
-    ['PENDING_PAYMENT', 'PENDING_CONFIRMATION', 'READY'].includes(mission.status)
+    ['PENDING_CONFIRMATION', 'READY'].includes(mission.status)
+  const canCancelReplacementRequest =
+    ['PENDING_CONFIRMATION', 'READY'].includes(mission.status)
 
   async function openDeviceReplacement(assignment: MissionDeviceAssignmentResponse) {
     setReplacementTarget({ kind: 'DEVICE', targetId: assignment.id })
@@ -218,6 +222,23 @@ export function DetailPanel({ mission, onClose, t, locale, onResourceChanged }: 
       setReplacementError(error instanceof Error ? error.message : t.assignments.replacementError)
     } finally {
       setReplacementBusy(false)
+    }
+  }
+
+  async function cancelDeviceReplacementRequest(assignmentId: string) {
+    setCancelingReplacementRequestId(assignmentId)
+    try {
+      await missionsApi.cancelDeviceReplacementRequest(mission.id, assignmentId)
+      message.success(t.assignments.replacementRequestCancelled)
+      onResourceChanged()
+    } catch (error) {
+      message.error(
+        error instanceof Error
+          ? error.message
+          : t.assignments.replacementRequestCancelError,
+      )
+    } finally {
+      setCancelingReplacementRequestId(null)
     }
   }
 
@@ -311,7 +332,7 @@ export function DetailPanel({ mission, onClose, t, locale, onResourceChanged }: 
                     <span className="odm-or-crew-role">{assignment.deviceRole === 'SUPPORT' ? t.assignments.deviceSupport : t.assignments.deviceMain}</span>
                     <strong>{assignment.deviceName ?? assignment.deviceCode ?? assignment.deviceSerialNumber ?? t.assignments.device}</strong>
                   </span>
-                  {canReplaceResources && assignment.id ? (
+                  {canReplaceResources && assignment.id && assignment.replacementRequestedAt && !assignment.replacementCompleted ? (
                     <Button
                       type="link"
                       size="small"
@@ -324,7 +345,7 @@ export function DetailPanel({ mission, onClose, t, locale, onResourceChanged }: 
                     </Button>
                   ) : null}
                 </li>
-                {assignment.replacementRequestedAt ? (
+                {assignment.replacementRequestedAt && !assignment.replacementCompleted ? (
                   <li className="odm-or-crew-item" style={{ display: 'block' }}>
                     <Alert
                       type="warning"
@@ -342,12 +363,27 @@ export function DetailPanel({ mission, onClose, t, locale, onResourceChanged }: 
                                 ?? assignment.replacementRequestedBy
                               : t.assignments.replacementRequesterFallback}
                           </div>
+                        <div>{t.assignments.replacementRequestNote}</div>
+                        {canCancelReplacementRequest ? (
+                          <Button
+                            type="link"
+                            size="small"
+                            danger
+                            loading={cancelingReplacementRequestId === assignment.id}
+                            disabled={replacementBusy || Boolean(cancelingReplacementRequestId)}
+                            onClick={() => void cancelDeviceReplacementRequest(assignment.id)}
+                          >
+                            {t.assignments.cancelReplacementRequest}
+                          </Button>
+                        ) : null}
                         </div>
                       )}
                     />
                   </li>
                 ) : null}
-                {renderReplacementForm(assignment.id, t.assignments.replaceDevice)}
+                {assignment.replacementRequestedAt && !assignment.replacementCompleted
+                  ? renderReplacementForm(assignment.id, t.assignments.replaceDevice)
+                  : null}
               </Fragment>
             )) : mission.droneCode ? (
               <li className="odm-or-crew-item">

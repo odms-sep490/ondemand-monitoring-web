@@ -17,6 +17,7 @@ import type {
 } from './preflightTypes'
 
 export function usePreflightRuntimeEffects({
+  enabled = true,
   missionId,
   missionLabel,
   deviceId,
@@ -42,6 +43,7 @@ export function usePreflightRuntimeEffects({
   persistedPreflightId,
   setError,
 }: {
+  enabled?: boolean
   missionId: string
   missionLabel: string | undefined
   deviceId: string
@@ -74,6 +76,7 @@ export function usePreflightRuntimeEffects({
 }) {
   const { t } = useI18n(preflightPageMessages)
   useEffect(() => {
+    if (!enabled) return
     let alive = true
 
     async function checkControllerOnline() {
@@ -146,9 +149,10 @@ export function usePreflightRuntimeEffects({
       alive = false
       window.clearInterval(timer)
     }
-  }, [deviceId, missionId, missionLabel, storageKey])
+  }, [deviceId, enabled, missionId, missionLabel, storageKey])
 
   useEffect(() => {
+    if (!enabled) return
     if (!controllerOnline) return
     if (!missionId || missionId === NO_MISSION_SENTINEL) return
     let alive = true
@@ -189,9 +193,10 @@ export function usePreflightRuntimeEffects({
       alive = false
       controller.abort()
     }
-  }, [controllerOnline, deviceAssignedAt, deviceId, missionId, runtimeSessionId, storageKey])
+  }, [controllerOnline, deviceAssignedAt, deviceId, enabled, missionId, runtimeSessionId, storageKey])
 
   useEffect(() => {
+    if (!enabled) return
     if (!checkId) return
     let alive = true
 
@@ -223,5 +228,5 @@ export function usePreflightRuntimeEffects({
       alive = false
       window.clearInterval(timer)
     }
-  }, [checkId, persistedPreflightId, runtimeSessionId, storageKey])
+  }, [checkId, enabled, persistedPreflightId, runtimeSessionId, storageKey])
 }

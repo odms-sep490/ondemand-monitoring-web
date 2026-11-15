@@ -25,9 +25,9 @@ export const handoverPageMessages = defineMessages({
     confirmHandover: 'Xác nhận bàn giao',
     confirmLockedNote:
       'Thiết bị phải đạt kiểm tra trước bay và bạn cần xác nhận đủ 4 cam kết. Sau khi bàn giao, nhân sự nghiệm thu sẽ bắt đầu nhiệm vụ.',
-    connectedAt:
-      'Đã kết nối GCS DJI-RC-PLUS-7A31 lúc 13:26:41 · telemetry hoạt động',
-    connected: 'Đã kết nối',
+    assignedToMission:
+      'Thiết bị được gán cho mission và đã hoàn tất precheck.',
+    assigned: 'Đã phân công',
   },
   en: {
     commitments: [
@@ -54,8 +54,8 @@ export const handoverPageMessages = defineMessages({
     confirmHandover: 'Confirm handover',
     confirmLockedNote:
       'Preflight must pass and all 4 commitments must be checked. The inspector starts the Mission after handover.',
-    connectedAt:
-      'Connected to GCS DJI-RC-PLUS-7A31 at 13:26:41 · telemetry active',
-    connected: 'Connected',
+    assignedToMission:
+      'The device is assigned to the mission and has passed preflight.',
+    assigned: 'Assigned',
   },
 })

@@ -6,10 +6,10 @@
   gap: 5px;
   margin-top: 10px;
   font-size: 12px;
-  color: var(--tx3, #64748b);
+  color: var(--tx3, var(--mgr-muted));
 }
 .media-checklist-attachment__summary b {
-  color: var(--tx, #172b4d);
+  color: var(--tx, var(--ui-primary-text));
   font-weight: 600;
 }
 .media-checklist-attachment__summary span {
@@ -17,7 +17,7 @@
 }
 .media-checklist-attachment__notice {
   display: block;
-  color: var(--tx3, #64748b);
+  color: var(--tx3, var(--mgr-muted));
   font-size: 12px;
 }
 .media-checklist-picker {
@@ -27,7 +27,7 @@
 }
 .media-checklist-picker > p {
   margin: 0;
-  color: var(--tx3, #64748b);
+  color: var(--tx3, var(--mgr-muted));
   line-height: 1.6;
 }
 .media-checklist-picker__file {
@@ -36,7 +36,7 @@
   gap: 8px;
   padding: 10px 12px;
   border-radius: 8px;
-  background: var(--sf2, #f4f7fb);
+  background: var(--sf2, var(--ui-primary-soft));
 }
 .media-checklist-picker__file > span:last-child {
   overflow: hidden;
@@ -70,9 +70,9 @@
   margin: 0;
   padding: 14px;
   min-height: 76px;
-  border: 1px solid var(--bd, #dbe3ef);
+  border: 1px solid var(--bd, var(--mgr-border));
   border-radius: 10px;
-  background: var(--sf, #fff);
+  background: var(--sf, var(--mgr-card));
 }
 .media-checklist-picker__item .ant-checkbox {
   margin-top: 4px;
@@ -85,8 +85,8 @@
   padding-inline-start: 12px;
 }
 .media-checklist-picker__item.is-selected {
-  border-color: var(--ui-primary, #1677ff);
-  background: var(--ui-primary-soft, #eff6ff);
+  border-color: var(--ui-primary, var(--ui-primary));
+  background: var(--ui-primary-soft, var(--ui-primary-soft));
 }
 .media-checklist-picker__heading {
   display: flex;
@@ -97,7 +97,7 @@
 .media-checklist-picker__heading strong {
   line-height: 1.5;
   overflow-wrap: anywhere;
-  color: var(--tx, #172b4d);
+  color: var(--tx, var(--ui-primary-text));
 }
 .media-checklist-picker__heading .ant-tag {
   flex-shrink: 0;
@@ -105,7 +105,7 @@
 }
 .media-checklist-picker__description,
 .media-checklist-picker__progress {
-  color: var(--tx3, #64748b);
+  color: var(--tx3, var(--mgr-muted));
   font-size: 12px;
   line-height: 1.5;
 }
@@ -115,10 +115,10 @@
 .media-checklist-picker__footer {
   margin-top: 18px;
   padding-top: 14px;
-  border-top: 1px solid var(--bd, #dbe3ef);
+  border-top: 1px solid var(--bd, var(--mgr-border));
 }
 .media-checklist-picker__footer > span {
-  color: var(--tx3, #64748b);
+  color: var(--tx3, var(--mgr-muted));
   font-size: 13px;
 }
 @media (max-width: 480px) {

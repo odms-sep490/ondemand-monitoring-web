@@ -1,3 +1,4 @@
+import { evidenceQueueFeedback } from '../../../../media/i18n/evidenceQueueFeedback'
 import { Button } from 'antd'
 import { useI18n } from '../../../../../shared/i18n'
 import { uploadMediaPageMessages } from '../UploadMediaPage.messages'
@@ -21,7 +22,7 @@ export function QueueStatusPanel({
   backup: (id: string, file: File) => Promise<void>
   onRefresh: () => void
 }) {
-  const { t } = useI18n(uploadMediaPageMessages)
+  const { t, lang } = useI18n(uploadMediaPageMessages)
   if (!jobs.length) return null
   const failed = jobs.filter((job) => job.stage === 'FAILED').length
   return (
@@ -41,7 +42,7 @@ export function QueueStatusPanel({
         <div className="mission-evidence-queue__row" key={job.id}>
           <span>
             <b>{job.payload.candidate.fileName}</b>
-            <small>{t.queueStages[job.stage] ?? t.processing}</small>
+            <small>{job.stage === 'FAILED' ? evidenceQueueFeedback(job.errorCode, lang) : t.queueStages[job.stage] ?? t.processing}</small>
           </span>
           {job.stage === 'FAILED' && (
             <Button onClick={() => void retry(job.id).catch(onRefresh)}>

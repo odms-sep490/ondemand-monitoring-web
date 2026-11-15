@@ -1,11 +1,11 @@
 import { act } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
+  within,
   fireEvent,
   render,
   screen,
   waitFor,
-  within,
 } from '@testing-library/react'
 
 import { resetMockDb } from '../../../../../mocks/db'
@@ -81,24 +81,24 @@ describe('MediaLibraryPage', () => {
     render(<MediaLibraryPage />)
     await waitFor(() => expect(cards()).toHaveLength(12))
     fireEvent.click(cards()[0])
-    const dialog = await screen.findByRole('dialog')
+    await screen.findByRole('dialog')
     await waitFor(() =>
       expect(
-        within(dialog).getByRole('button', { name: 'Tải xuống' }),
+        screen.getByRole('button', { name: 'Tải xuống' }),
       ).toBeInTheDocument(),
     )
     expect(fresh).toHaveBeenCalledTimes(1)
     expect(
-      within(dialog)
+      screen
         .getByRole('link', { name: 'Xem chi tiết' })
         .getAttribute('href'),
     ).toMatch(/#portal\/customer\/media\//)
     expect(
-      within(dialog).getByRole('button', { name: '← Trước' }),
+      screen.getByRole('button', { name: '← Trước' }),
     ).toBeDisabled()
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Sau →' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Sau →' }))
     await waitFor(() => expect(fresh).toHaveBeenCalledTimes(2))
-    fireEvent.keyDown(screen.getByRole('dialog'), {
+    fireEvent.keyDown(await screen.findByRole('dialog'), {
       key: 'Escape',
       keyCode: 27,
     })

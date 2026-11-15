@@ -1,10 +1,24 @@
-import type { ReactElement } from 'react'
+import { cloneElement, type CSSProperties, type ReactElement } from 'react'
 import { toolbarGroupStyle, buttonStyle } from './flightControlStyles'
 import { flightControls } from './flightControlItems'
 import { Icon } from './Icon'
 import { inFlightControlMessages } from './InFlightControl.messages'
 import { useI18n } from '../../../../../shared/i18n'
 import type { FlightCommand, IconName } from '../inFlightTypes'
+
+const quickButtonLayout: CSSProperties = {
+  boxSizing: 'border-box',
+  width: '100%',
+  minWidth: 0,
+  height: 'auto',
+  minHeight: 58,
+  padding: '6px 4px',
+  fontSize: 10,
+  lineHeight: 1.2,
+  whiteSpace: 'normal',
+  overflowWrap: 'normal',
+  gap: 4,
+}
 
 export function FlightControlsHeader({
   controlButton,
@@ -56,18 +70,26 @@ export function FlightControlsHeader({
       </div>
       <div
         style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          justifyContent: 'center',
-          gap: 4,
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
+          width: '100%',
+          gap: 6,
         }}
       >
-        {flightControls.map(controlButton)}
+        {flightControls.map((item) => {
+          const button = controlButton(item) as ReactElement<{
+            style?: CSSProperties
+          }>
+          return cloneElement(button, {
+            style: { ...button.props.style, ...quickButtonLayout },
+          })
+        })}
         <button
           onClick={() => onCommand('stop')}
           disabled={commandDisabled('stop')}
           style={{
             ...buttonStyle(),
+            ...quickButtonLayout,
             background: 'rgba(20,83,45,.82)',
             color: '#86efac',
           }}

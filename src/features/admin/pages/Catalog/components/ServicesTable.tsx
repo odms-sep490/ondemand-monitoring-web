@@ -1,3 +1,4 @@
+import { ImagePreview } from '../../../../../shared/components/media/ImagePreview'
 import { useI18n } from '../../../../../shared/i18n'
 import { StatusBadge } from '../../../../../shared/components/ui'
 import { fmtDateTime } from '../../../lib/accountStatus'
@@ -21,7 +22,7 @@ export function ServicesTable({
       <thead>
         <tr>
           <th>{t.service}</th>
-          <th>{t.basePrice}</th>
+          <th className="adm-text-right">{t.basePrice}</th>
           <th>{t.status}</th>
           <th>{t.updated}</th>
           <th className="adm-text-right">{t.actions}</th>
@@ -32,12 +33,7 @@ export function ServicesTable({
           <tr key={s.id}>
             <td>
               {s.imageUrl && (
-                <img
-                  className="adm-service-thumbnail"
-                  src={s.imageUrl}
-                  alt=""
-                  loading="lazy"
-                />
+                <ImagePreview className="adm-service-thumbnail" src={s.imageUrl} fileName={s.name} />
               )}
               <div className="adm-wrap adm-strong">{s.name}</div>
               {s.description && (
@@ -46,7 +42,7 @@ export function ServicesTable({
                 </div>
               )}
             </td>
-            <td className="adm-cell-mono adm-strong">{s.priceSource === 'UNPRICED' ? t.unpriced : formatVnd(s.defaultPrice ?? s.basePrice)}</td>
+            <td className="adm-cell-mono adm-strong adm-money-cell">{s.priceSource === 'UNPRICED' ? t.unpriced : formatVnd(s.defaultPrice ?? s.basePrice)}</td>
             <td>
               <StatusBadge tone={s.isActive ? 'success' : 'neutral'}>
                 {s.isActive ? t.active : t.inactive}

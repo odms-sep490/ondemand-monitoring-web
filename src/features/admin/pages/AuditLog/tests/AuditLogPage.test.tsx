@@ -9,16 +9,15 @@ import { useMockTransport } from './helpers'
 useMockTransport()
 
 describe('AuditLogPage', () => {
-  it('renders the vietnamese title with the sample-data badge', () => {
+  it('renders the vietnamese title', () => {
     render(<AuditLogPage />)
-    expect(screen.getByText('Nhật ký hệ thống')).toBeTruthy()
-    expect(screen.getByText('Dữ liệu mẫu')).toBeTruthy()
+    expect(screen.getByText('Nhật ký hoạt động')).toBeTruthy()
   })
 
   it('renders the english title when language is switched', () => {
     render(<AuditLogPage />)
     act(() => setLanguage('en'))
-    expect(screen.getByText('Audit log')).toBeTruthy()
+    expect(screen.getByText('Activity log')).toBeTruthy()
     act(() => setLanguage('vi'))
   })
 
@@ -27,7 +26,7 @@ describe('AuditLogPage', () => {
     const view = (await screen.findAllByLabelText(/^Xem diff /))[0]
     fireEvent.click(view)
     expect(screen.getByRole('dialog')).toBeTruthy()
-    expect(screen.getByText('Chi tiết thay đổi')).toBeTruthy()
+    expect(screen.getByText('Chi tiết hoạt động')).toBeTruthy()
     fireEvent.click(screen.getAllByRole('button', { name: 'Đóng' }).at(-1)!)
     expect(screen.queryByRole('dialog')).toBeNull()
   })
@@ -38,7 +37,7 @@ describe('AuditLogPage', () => {
     fireEvent.change(screen.getByLabelText('Lọc theo loại thực thể'), {
       target: { value: 'zzz-no-such-entity' },
     })
-    expect(await screen.findByText('Không có bản ghi nào')).toBeTruthy()
+    expect(await screen.findByText('Chưa có hoạt động nào')).toBeTruthy()
   })
 
   it('pages forward when there is more than one page', async () => {
@@ -49,12 +48,6 @@ describe('AuditLogPage', () => {
       fireEvent.click(next)
       await waitFor(() => expect(screen.getByText(/^2 \//)).toBeTruthy())
     }
-  })
-
-  it('shows an inline notice instead of an alert when exporting', async () => {
-    render(<AuditLogPage />)
-    fireEvent.click(screen.getByText('Xuất CSV'))
-    expect(screen.getByRole('status')).toBeTruthy()
   })
 
   it('shows an error state when the request fails', async () => {

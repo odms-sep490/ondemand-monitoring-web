@@ -13,6 +13,7 @@ export type CustomerRoute =
   | { screen: 'mediaLibrary' }
   | { screen: 'mediaDetail'; mediaId: string }
   | { screen: 'media'; orderId: string }
+  | { screen: 'notifications' }
   | { screen: 'notFound' }
 
 export type CustomerScreen = CustomerRoute['screen']
@@ -22,18 +23,15 @@ export function parseCustomerRoute(hash: string): CustomerRoute {
     return { screen: 'notFound' }
   }
 
-  const rest = hash.slice(CUSTOMER_ROOT.length)
+  const rest = hash.split('?')[0].slice(CUSTOMER_ROOT.length)
   const segments = rest.split('/').filter(Boolean).map(decodeURIComponent)
 
-  if (segments.length === 0) return { screen: 'dashboard' }
+  if (segments.length === 0) return { screen: 'orders' }
 
   const [head, ...tail] = segments
 
   switch (head) {
     case 'mission-history':
-      if (tail.length === 0) return { screen: 'missionHistory' }
-      if (tail.length === 1)
-        return { screen: 'missionHistoryDetail', missionId: tail[0] }
       return { screen: 'notFound' }
     case 'orders': {
       if (tail.length === 0) return { screen: 'orders' }
@@ -56,7 +54,7 @@ export function parseCustomerRoute(hash: string): CustomerRoute {
     }
     case 'notifications':
       return tail.length === 0
-        ? { screen: 'mediaLibrary' }
+        ? { screen: 'notifications' }
         : { screen: 'notFound' }
     default:
       return { screen: 'notFound' }
@@ -70,7 +68,7 @@ export function customerHref(route: CustomerRoute): string {
     case 'missionHistoryDetail':
       return `${CUSTOMER_ROOT}/mission-history/${encodeURIComponent(route.missionId)}`
     case 'dashboard':
-      return CUSTOMER_ROOT
+      return `${CUSTOMER_ROOT}/orders`
     case 'orders':
       return `${CUSTOMER_ROOT}/orders`
     case 'createOrder':
@@ -89,6 +87,8 @@ export function customerHref(route: CustomerRoute): string {
       return `${CUSTOMER_ROOT}/media/${route.mediaId}`
     case 'media':
       return `${CUSTOMER_ROOT}/orders/${route.orderId}/media`
+    case 'notifications':
+      return `${CUSTOMER_ROOT}/notifications`
     case 'notFound':
       return CUSTOMER_ROOT
   }

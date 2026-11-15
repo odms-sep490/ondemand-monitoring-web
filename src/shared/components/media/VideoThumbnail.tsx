@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Modal } from 'antd'
+import { VideoPreview } from './VideoPreview'
 import { PlayCircleOutlined } from '@ant-design/icons'
 import { defineMessages, useI18n } from '../../i18n'
 import { ResilientMedia } from './MediaRecovery'
@@ -23,22 +23,25 @@ const messages = defineMessages({
 export function VideoPoster({
   poster,
   fileName = '',
+  fallbackPoster,
 }: {
   poster?: string | null
+  fallbackPoster?: string | null
   fileName?: string
 }) {
   const { t } = useI18n(messages)
-  const [failed, setFailed] = useState<string | null>(null)
+  const [failed, setFailed] = useState<string[]>([])
+  const current = [poster, fallbackPoster].find((source) => source && !failed.includes(source))
   return (
     <span className="media-video-poster">
-      {poster && poster !== failed ? (
+      {current ? (
         <img
           className="media-video-poster__image"
-          src={poster}
+          src={current}
           alt={fileName}
           loading="lazy"
           decoding="async"
-          onError={() => setFailed(poster)}
+          onError={() => setFailed((previous) => [...previous, current])}
         />
       ) : (
         <span className="media-video-poster__empty" aria-hidden="true">
@@ -56,11 +59,14 @@ export function VideoPoster({
 type Props = Omit<MediaRecoveryProps, 'src'> & {
   src?: string | null
   poster?: string | null
+  fallbackPoster?: string | null
   fileName: string
+  appearance?: 'cockpit'
 }
 export function VideoThumbnail(props: Props) {
   const { t } = useI18n(messages)
   const [open, setOpen] = useState(false)
+  const { fallbackPoster, appearance, ...mediaProps } = props
   return (
     <div className="media-video-thumbnail">
       <button
@@ -74,21 +80,18 @@ export function VideoThumbnail(props: Props) {
           setOpen(true)
         }}
       >
-        <VideoPoster poster={props.poster} />
+        <VideoPoster poster={props.poster} fallbackPoster={fallbackPoster} fileName={props.fileName} />
       </button>
-      <Modal
-        title={props.fileName}
+      <VideoPreview
+        fileName={props.fileName}
         open={open}
-        onCancel={() => setOpen(false)}
-        footer={null}
-        centered
-        width={960}
-        destroyOnHidden
+        onClose={() => setOpen(false)}
+        appearance={appearance}
       >
         {open && props.src && (
-          <ResilientMedia {...props} src={props.src} kind="video" expanded />
+          <ResilientMedia {...mediaProps} src={props.src} kind="video" expanded />
         )}
-      </Modal>
+      </VideoPreview>
     </div>
   )
 }

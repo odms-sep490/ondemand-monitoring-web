@@ -12,6 +12,7 @@ import { ApiError } from '../../../../../shared/api/httpClient'
 import { setLanguage } from '../../../../../shared/i18n'
 import { ordersApi } from '../../../api/ordersApi'
 import { planningApi } from '../../../api/planningApi'
+import { readinessApi } from '../../../api/readinessApi'
 import {
   customerApi,
   type FlightAreaAssessment,
@@ -19,6 +20,7 @@ import {
 import { financeApi } from '../../../../finance/api'
 import type { Quote } from '../../../../finance/types'
 import type { OrderDetail } from '../../../types/orders'
+import type { OrderReadiness } from '../../../types/readiness'
 import { OrderReviewPage } from '../OrderReviewPage'
 
 const order: OrderDetail = {
@@ -42,6 +44,7 @@ const order: OrderDetail = {
   mediaRequirements: [{ label: 'VIDEO × 2 · 300 giây · 1080p' }],
   purpose: 'Tuần tra bãi container ngoài giờ',
   attachments: [],
+  legalReviewStatus: 'NOT_REQUIRED',
 }
 
 // Order without design-sourced detail content (e.g. ORD-2609-0149) — every
@@ -67,6 +70,7 @@ const unsourcedOrder: OrderDetail = {
   mediaRequirements: null,
   purpose: null,
   attachments: null,
+  legalReviewStatus: 'NOT_REQUIRED',
 }
 
 const quote: Quote = {
@@ -99,8 +103,21 @@ function mockPricing() {
   vi.spyOn(financeApi, 'saveDraft').mockResolvedValue(quote)
 }
 
+const approvableReadiness: OrderReadiness = {
+  orderId: order.id,
+  canApprove: true,
+  recommendation: 'APPROVE',
+  blockingReasons: [],
+  criteria: [],
+}
+
+function mockReadiness() {
+  vi.spyOn(readinessApi, 'get').mockResolvedValue(approvableReadiness)
+}
+
 function mockHappyPath() {
   mockPricing()
+  mockReadiness()
   vi.spyOn(ordersApi, 'getOrder').mockResolvedValue(order)
   // Leaving the intake step of a PENDING Order starts the review first.
   vi.spyOn(ordersApi, 'startReview').mockResolvedValue(undefined as never)
@@ -129,8 +146,25 @@ function mockApprovedPlanning() {
   })
 }
 
+/** Moves Request -> Area check. Starting the review is async, so wait for it. */
+async function openAreaStep() {
+  fireEvent.click(
+    await screen.findByRole('button', { name: 'Tiếp: Điều kiện duyệt' }),
+  )
+  await screen.findByRole('heading', { name: 'Kiểm tra vùng giám sát' })
+}
+
+/** The stepper only reopens finished steps, so walk Request -> Area -> Criteria -> Quote with the Next buttons. */
 async function openPricingStep() {
-  fireEvent.click(await screen.findByText('Quyết định'))
+  await openAreaStep()
+  fireEvent.click(
+    await screen.findByRole('button', { name: 'Tiếp: Điều kiện duyệt' }),
+  )
+  const next = await screen.findByRole('button', {
+    name: 'Tiếp: Danh mục kiểm tra & báo giá',
+  })
+  await waitFor(() => expect(next).toBeEnabled())
+  fireEvent.click(next)
 }
 
 afterEach(() => {
@@ -245,10 +279,10 @@ describe('OrderReviewPage', () => {
     render(<OrderReviewPage orderId="ord-2609-0157" />)
 
     expect(screen.queryByText('Địa chỉ khu vực')).not.toBeInTheDocument()
-    fireEvent.click(await screen.findByText('Kiểm tra điều kiện'))
+    await openAreaStep()
 
     // The review is started (async) before the area step opens.
-    expect(await screen.findByText('Địa chỉ khu vực')).toBeInTheDocument()
+    expect(screen.getByText('Địa chỉ khu vực')).toBeInTheDocument()
     expect(ordersApi.startReview).toHaveBeenCalledWith(order.id)
     expect(
       within(
@@ -278,7 +312,9 @@ describe('OrderReviewPage', () => {
     } as unknown as FlightAreaAssessment)
 
     render(<OrderReviewPage orderId="ord-2609-0157" />)
-    fireEvent.click(await screen.findByText('Kiểm tra điều kiện'))
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Tiếp: Điều kiện duyệt' }),
+    )
 
     expect(
       await screen.findByText('Kết quả kiểm tra khu vực'),
@@ -318,10 +354,15 @@ describe('OrderReviewPage', () => {
       } as unknown as FlightAreaAssessment)
     render(<OrderReviewPage orderId="ord-2609-0157" />)
 
-    fireEvent.click(await screen.findByText('Kiểm tra điều kiện'))
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Tiếp: Điều kiện duyệt' }),
+    )
     await screen.findByText('Không giao với vùng cấm bay')
-    fireEvent.click(screen.getByText('Tiếp nhận'))
-    fireEvent.click(screen.getByText('Kiểm tra điều kiện'))
+    // The stepper is display-only; use the Back button to return to the request.
+    fireEvent.click(screen.getByRole('button', { name: 'Quay lại' }))
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Tiếp: Điều kiện duyệt' }),
+    )
     await screen.findByText('Không giao với vùng cấm bay')
 
     expect(assessmentSpy).toHaveBeenCalledTimes(1)
@@ -339,7 +380,9 @@ describe('OrderReviewPage', () => {
     } as unknown as FlightAreaAssessment)
     render(<OrderReviewPage orderId="ord-2609-0157" />)
 
-    fireEvent.click(await screen.findByText('Kiểm tra điều kiện'))
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Tiếp: Điều kiện duyệt' }),
+    )
     expect(
       await screen.findByText('Cần đối chiếu vùng cấm bay'),
     ).toBeInTheDocument()
@@ -501,7 +544,9 @@ describe('OrderReviewPage', () => {
 
   it('renders an order without detail source without crashing and hides absent optional details', async () => {
     mockPricing()
+    mockReadiness()
     vi.spyOn(ordersApi, 'getOrder').mockResolvedValue(unsourcedOrder)
+    vi.spyOn(ordersApi, 'startReview').mockResolvedValue(undefined as never)
 
     render(<OrderReviewPage orderId="ord-2609-0149" />)
 

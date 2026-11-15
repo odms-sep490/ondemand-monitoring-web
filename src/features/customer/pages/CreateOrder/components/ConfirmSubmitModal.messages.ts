@@ -4,6 +4,8 @@ export const confirmSubmitModalMessages = defineMessages({
   vi: {
     title: 'Gửi yêu cầu giám sát?',
     subtitle: 'Yêu cầu sẽ được chuyển cho bộ phận vận hành để xem xét và duyệt.',
+    requestName: 'Tên yêu cầu',
+    requestDetails: 'Thông tin yêu cầu',
     groupContent: 'Nội dung giám sát',
     checklists: 'Nội dung đã chọn',
     checklistCount: (n: number) => `${n} nội dung`,
@@ -39,6 +41,8 @@ export const confirmSubmitModalMessages = defineMessages({
   en: {
     title: 'Submit this monitoring request?',
     subtitle: 'The request goes to operations for review and approval.',
+    requestName: 'Request name',
+    requestDetails: 'Request details',
     groupContent: 'Monitoring content',
     checklists: 'Selected content',
     checklistCount: (n: number) => `${n} item${n === 1 ? '' : 's'}`,

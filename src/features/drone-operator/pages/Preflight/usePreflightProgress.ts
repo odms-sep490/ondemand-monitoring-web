@@ -45,12 +45,13 @@ export function usePreflightProgress({
     (persistedPreflightStatus === 'PASSED' ||
       (persistedPreflightStatus === 'FAILED' && !hasActivePreflightFailure))
   const progress = runtimeStatus?.progress ?? 0
-  // A persisted run is loaded into runtimeStatus when the page opens. It is
-  // only a snapshot, not an actively running controller check. Treating every
-  // loaded snapshot as "triggered" leaves the trigger button disabled forever
-  // when an earlier run was interrupted in CHECKING state.
+  // Local runtime snapshots can be stale, but an active persisted checklist is
+  // the manual inspection the operator must finish before starting another one.
   const hasTriggered =
-    checkId !== null || triggering || runtimeStatus?.checkId === 'triggering'
+    checkId !== null ||
+    triggering ||
+    runtimeStatus?.checkId === 'triggering' ||
+    persistedPreflightStatus === 'CHECKING'
   const canContinueToHandover = isReady
   const isAlreadyInFlight = isMissionInFlight(missionStatus)
   const isFailed = hasActivePreflightFailure

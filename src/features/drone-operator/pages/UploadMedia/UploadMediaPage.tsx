@@ -1,3 +1,6 @@
+import { withStaffLocalEvidence } from '../../../media/upload/staffEvidencePresentation'
+import { mediaFeedback } from '../../../media/i18n/mediaFeedback'
+import { StaffMediaImportPanel } from './components/StaffMediaImportPanel'
 import { useEffect, useRef, useState } from 'react'
 
 import { useI18n } from '../../../../shared/i18n'
@@ -60,7 +63,7 @@ function UploadMediaContent({
   missionId?: string
   mode: 'checklist' | 'media'
 }) {
-  const { t } = useI18n(uploadMediaPageMessages)
+  const { t, lang } = useI18n(uploadMediaPageMessages)
   const [fallbackMissionId] = useState(() => getActiveMissionId())
   const missionId = routeMissionId ?? fallbackMissionId
   const activeMission = useActiveMission(missionId ?? undefined)
@@ -90,7 +93,6 @@ function UploadMediaContent({
   )
   const [preview, setPreview] = useState<LocalMedia | null>(null)
   const [selectedMediaId, setSelectedMediaId] = useState<string | null>(null)
-  const previewDialog = useRef<HTMLDialogElement>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   // Reference images (Mapillary) are stored by the backend directly, so they are already "uploaded".
@@ -111,9 +113,6 @@ function UploadMediaContent({
     itemsRef.current = []
     uploadedMediaIds.current = {}
   }, [missionId])
-  useEffect(() => {
-    if (preview) previewDialog.current?.showModal()
-  }, [preview])
 
   useEffect(() => {
     if (!missionId) return
@@ -146,6 +145,7 @@ function UploadMediaContent({
     loadEvidenceCandidates,
     discard,
     uploadPc,
+    uploadStaffFiles,
     effectiveStatus,
     approvable,
     files,
@@ -173,6 +173,7 @@ function UploadMediaContent({
     monitoring,
     refresh,
     batchUploading,
+    setBatchUploading,
     statuses,
     items,
     attemptNumbers,
@@ -329,8 +330,8 @@ function UploadMediaContent({
   const checklist = missionId ? (
     <MonitoringChecklistSection
       missionId={missionId}
-      data={monitoring.data?.checklist}
-      loading={monitoring.loading && !monitoring.data}
+      data={loading ? undefined : withStaffLocalEvidence(monitoring.data?.checklist, items, missionId)}
+      loading={loading || (monitoring.loading && !monitoring.data)}
       error={monitoring.error}
       resultKnown={actions.known}
       resultStatus={monitoring.data?.result?.approvalStatus}
@@ -368,7 +369,7 @@ function UploadMediaContent({
         title={mode === 'checklist' ? t.checklistTitle : t.mediaTitle}
         missionId={missionLabel}
         idTitle={missionId ?? undefined}
-        active={7}
+        active={6}
         right={
           <span className="upload-media-device">{deviceLabel ?? '—'}</span>
         }
@@ -405,7 +406,7 @@ function UploadMediaContent({
           backup={queue.retryBackup}
           onRefresh={refreshWorkspace}
         />
-        {missionId && activeMission.data?.purpose === 'REWORK' && (
+        {missionId && activeMission.data?.purpose === 'REWORK' && !activeMission.data?.inspectionCorrectionId && (
           <ReworkMissionContextPanel missionId={missionId} />
         )}
         {Boolean(resultError) && (
@@ -415,10 +416,10 @@ function UploadMediaContent({
         )}
         {error && (
           <p role="alert" className="upload-media-notice is-danger">
-            {error}
+            {mediaFeedback(error, lang)}
           </p>
         )}
-        {uploadInfo && <p role="status">{uploadInfo}</p>}
+        {uploadInfo && <p role="status">{mediaFeedback(uploadInfo, lang, 'info')}</p>}
         {mode === 'checklist' ? (
           checklist
         ) : (
@@ -433,6 +434,12 @@ function UploadMediaContent({
               view={view}
               setView={setView}
             />
+            {canManageMedia && activeMission.data?.deviceId && (
+              <StaffMediaImportPanel disabled={isBusy || queue.busy}
+                flightStart={activeMission.data.actualStartAt ?? activeMission.data.scheduledStartAt}
+                flightEnd={activeMission.data.actualEndAt ?? activeMission.data.scheduledEndAt}
+                onUpload={uploadStaffFiles} />
+            )}
             {loading && <p role="status">{t.loadingMedia}</p>}
             {Boolean(backend.error) && (
               <p role="alert">
@@ -456,7 +463,11 @@ function UploadMediaContent({
                 ...visibleItems.map((item) => {
                   const id = item.backendMediaId ?? uploadedMediaIds.current[item.localMediaId]
                   const remote = (backend.data?.items ?? []).find((media) => media.mediaId === id)
-                  return { item, remote: remote?.previewUrl ?? undefined, thumbnail: remote?.thumbnailUrl ?? undefined }
+                  return {
+                    item,
+                    remote: remote?.previewUrl ?? item.previewUrl ?? undefined,
+                    thumbnail: remote?.thumbnailUrl ?? item.thumbnailUrl ?? undefined,
+                  }
                 }),
                 ...remoteItems.map((remote) => ({
                   item: {
@@ -481,12 +492,21 @@ function UploadMediaContent({
                 <MediaCard
                   key={item.localMediaId}
                   item={item}
+                  canRemoveMedia={canManageMedia}
+                  onMediaRemoved={(mediaId) => {
+                    const remaining = itemsRef.current.filter(entry => entry.backendMediaId !== mediaId)
+                    itemsRef.current = remaining
+                    setItems(remaining)
+                    setPreview(null)
+                    refreshWorkspace()
+                    backend.reload()
+                  }}
                   remotePreviewUrl={remote}
                   remoteThumbnailUrl={thumbnail}
                   setPreview={setPreview}
                   onOpenPreview={(selectedItem) => {
                     setSelectedMediaId(selectedItem.localMediaId)
-                    setPreview(selectedItem)
+                    setPreview({ ...selectedItem, previewUrl: remote, thumbnailUrl: thumbnail })
                   }}
                   isSelected={selectedMediaId === item.localMediaId}
                   status={effectiveStatus(item)}
@@ -596,7 +616,6 @@ function UploadMediaContent({
       </div>
       {preview && (
         <PreviewLightbox
-          previewDialog={previewDialog}
           setPreview={setPreview}
           preview={preview}
         />

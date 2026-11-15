@@ -1,12 +1,16 @@
+import './missionsBanner.css'
 // MNG-08: Mission list + detail panel
-import { useEffect, useMemo, useState } from 'react'
-import { Skeleton } from 'antd'
+import { useMemo, useState } from 'react'
+import { Button, Skeleton } from 'antd'
+import {
+  ReloadOutlined,
+  RocketOutlined,
+} from '@ant-design/icons'
 import { CardComponent } from '../../../../shared/components/antd'
 import { EmptyState } from '../../components/common/EmptyState'
 import { ErrorState } from '../../components/common/ErrorState'
 import { FilterBar, FilterSegments } from '../../components/common/FilterBar'
 import { PageHeader } from '../../components/common/PageHeader'
-import type { MissionCalendarItem } from '../../types/missions'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
 import { missionsApi } from '../../api/missionsApi'
@@ -17,14 +21,15 @@ import '../../manager.css'
 import './missions.scss'
 import '../../components/common/missionPages.css'
 import { type StatusChip } from './missionsTypes'
-import { MissionsKpis } from './components/MissionsKpis'
 import { MissionsTable } from './components/MissionsTable'
-import { groupCounts, matchesMissionSearch } from './missionsHelpers'
+import { matchesMissionSearch } from './missionsHelpers'
 
 type MissionsListPageProps = { missionId?: string }
 
+// missionId is accepted for route compatibility but the list page does not use it yet.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function MissionsPage(_props: MissionsListPageProps = {}) {
-  const { t, locale } = useI18n(missionsPageMessages)
+  const { t, lang } = useI18n(missionsPageMessages)
   const [statusFilter, setStatusFilter] = useState<StatusChip>('ALL')
 
   const statusChips: Array<{ value: StatusChip; label: string }> = [
@@ -48,17 +53,8 @@ export function MissionsPage(_props: MissionsListPageProps = {}) {
     () => dedupeById(query.data?.items ?? []),
     [query.data?.items],
   )
-  // KPI counts always describe the whole list, even while a status filter is applied.
-  const [snapshot, setSnapshot] = useState<MissionCalendarItem[] | null>(null)
-  useEffect(() => {
-    if (statusFilter === 'ALL' && query.data) setSnapshot(dedupeById(query.data.items))
-  }, [statusFilter, query.data])
   const [search, setSearch] = useState('')
 
-  const snapshotCounts = useMemo(
-    () => groupCounts(snapshot ?? missions),
-    [snapshot, missions],
-  )
   const visible = useMemo(
     () => missions.filter((mission) => matchesMissionSearch(mission, search)),
     [missions, search],
@@ -68,11 +64,45 @@ export function MissionsPage(_props: MissionsListPageProps = {}) {
   return (
     <div className="mgr-view mgr-missions">
       <PageHeader
-        title={t.title}
-        description={ready ? t.missionCount(missions.length) : undefined}
-      />
+        title={
+          <span className="mgr-mission-banner-title">
+            <RocketOutlined aria-hidden="true" />
+            {t.title}
+          </span>
+        }
+        description={
+          lang === 'vi'
+            ? 'Quản lý lịch bay, đội ngũ và kết quả nhiệm vụ tại một nơi.'
+            : 'Manage flight schedules, crews and mission results in one place.'
+        }
+        actions={
+          <>
 
-      <MissionsKpis counts={snapshotCounts} />
+            <Button
+              icon={<ReloadOutlined />}
+              loading={query.loading}
+              onClick={query.reload}
+            >
+              {lang === 'vi' ? 'Làm mới' : 'Refresh'}
+            </Button>
+          </>
+        }
+      >
+        <div className="mgr-mission-banner-meta">
+          <span>
+            {ready
+              ? t.missionCount(missions.length)
+              : lang === 'vi'
+                ? 'Đang tải danh sách…'
+                : 'Loading missions…'}
+          </span>
+          <span>
+            {lang === 'vi'
+              ? 'Lập kế hoạch · Triển khai · Bàn giao kết quả'
+              : 'Plan · Execute · Deliver results'}
+          </span>
+        </div>
+      </PageHeader>
 
       <FilterBar
         start={
@@ -100,23 +130,26 @@ export function MissionsPage(_props: MissionsListPageProps = {}) {
           )}
 
           {!query.loading && !!query.error && (
-            <ErrorState title={t.loadError} description={t.loadErrorDetail} onRetry={query.reload} />
+            <ErrorState
+              title={t.loadError}
+              description={t.loadErrorDetail}
+              onRetry={query.reload}
+            />
           )}
 
           {ready && visible.length === 0 && (
             <CardComponent>
               <EmptyState
                 title={missions.length === 0 ? t.emptyTitle : t.emptySearch}
-                description={missions.length === 0 ? t.emptyDescription : undefined}
+                description={
+                  missions.length === 0 ? t.emptyDescription : undefined
+                }
               />
             </CardComponent>
           )}
 
           {ready && visible.length > 0 && (
-            <MissionsTable
-              missions={visible}
-              total={missions.length}
-            />
+            <MissionsTable missions={visible} total={missions.length} />
           )}
         </div>
       </div>

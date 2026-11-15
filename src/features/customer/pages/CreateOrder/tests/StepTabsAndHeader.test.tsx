@@ -84,23 +84,20 @@ describe('CreateOrderPage header', () => {
     ).toHaveLength(1)
   })
 
-  it('keeps Cancel as a link to the orders page', async () => {
+  it('opens a leave confirmation instead of leaving immediately when Cancel is clicked', async () => {
     render(<CreateOrderPage />)
     await screen.findByText('Tạo yêu cầu giám sát')
-    const cancel = screen.getByRole('link', { name: 'Hủy' })
-    expect(cancel.getAttribute('href')).toContain('orders')
-    expect(cancel.className).toContain('ant-btn')
+    expect(screen.queryByText('Rời trang tạo yêu cầu?')).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: 'Hủy' }))
+    expect(screen.getByText('Rời trang tạo yêu cầu?')).toBeTruthy()
   })
 
-  it('still asks for confirmation before leaving', async () => {
-    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false)
+  it('stays on the page when the leave confirmation is dismissed', async () => {
     render(<CreateOrderPage />)
     await screen.findByText('Tạo yêu cầu giám sát')
-    const click = new MouseEvent('click', { bubbles: true, cancelable: true })
-    screen.getByRole('link', { name: 'Hủy' }).dispatchEvent(click)
-    expect(confirm).toHaveBeenCalled()
-    expect(click.defaultPrevented).toBe(true)
-    confirm.mockRestore()
+    fireEvent.click(screen.getByRole('button', { name: 'Hủy' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Tiếp tục tạo yêu cầu' }))
+    expect(screen.queryByText('Rời trang tạo yêu cầu?')).toBeNull()
   })
 })
 

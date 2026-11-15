@@ -14,13 +14,15 @@ export type OrderRow = {
   timeName: string | null
   serviceId: string | null
   serviceName: string | null
+  recurrenceType?: 'NONE' | 'WEEKLY' | 'MONTHLY' | null
+  recurrenceOccurrences?: number | null
   status: OrderStatus
   radiusM: number | null
   createdAt: string | null
   /** Customer-facing finance state, loaded separately for approved orders. */
   depositState?: 'ACTION_REQUIRED' | 'PAID' | 'PAID_IN_FULL'
-  /** Final balance is payable after the mission plan is finalized. */
-  finalPaymentState?: 'ACTION_REQUIRED'
+  /** At least one handed-over Mission payment remains unpaid or needs attention. */
+  missionPaymentState?: 'ACTION_REQUIRED'
 }
 
 export type DeliverableView = {
@@ -75,7 +77,6 @@ export type OrderDetailView = OrderRow & {
   checklistEditBlockedReason: string | null
   coverageArea: Record<string, unknown> | null
   description: string | null
-  usagePurpose: string | null
   flightPurpose: string | null
   altitudeM: number | null
   estimatedLengthM: number | null
@@ -110,7 +111,6 @@ export type OrderDetailView = OrderRow & {
   deliveryMethods: string[]
   dataRetentionDays: number | null
   termsAcceptedAt: string | null
-  termsVersion: string | null
   executionPlanRevision: number | null
   executionPlanStatus: string | null
   latitude: number | null

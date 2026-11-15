@@ -1,3 +1,5 @@
+import { uploadStaffMediaBatch } from '../../../media/upload/uploadStaffMediaBatch'
+import type { StaffFileSelection } from '../../../media/capture/captureTime'
 import {
   type LocalMedia,
   operatorMediaApi,
@@ -39,6 +41,7 @@ export function useMediaWorkspace({
   monitoring,
   refresh,
   batchUploading,
+  setBatchUploading,
   statuses,
   items,
   attemptNumbers,
@@ -71,6 +74,7 @@ export function useMediaWorkspace({
     options?: { background?: boolean | undefined } | undefined,
   ) => Promise<void>
   batchUploading: boolean
+  setBatchUploading: Dispatch<SetStateAction<boolean>>
   statuses: Record<string, string>
   items: LocalMedia[]
   attemptNumbers: Record<string, number>
@@ -261,7 +265,7 @@ export function useMediaWorkspace({
   }
 
   async function discard(item: LocalMedia) {
-    if (!canManageMedia || batchUploading) return
+    if (!canManageMedia || batchUploading || item.uploadChannel === 'STAFF_FILE') return
     if (!window.confirm(t.confirmDiscard(item.fileName))) return
     setBusyId(item.localMediaId)
     try {
@@ -352,6 +356,35 @@ export function useMediaWorkspace({
       )
     } finally {
       setBusyId(null)
+    }
+  }
+
+  async function uploadStaffFiles(selectedFiles: StaffFileSelection[]) {
+    const deviceId = activeMission.data?.deviceId
+    if (!canManageMedia || !missionId || !deviceId || selectedFiles.length === 0) return
+    setError(null)
+    setBatchUploading(true)
+    try {
+      const { failures } = await uploadStaffMediaBatch({ missionId, deviceId, files: selectedFiles,
+        onFileStart: index => setBusyId(`staff-file-${index}`),
+        onPrepared: async (mediaId, item) => {
+          uploadedMediaIds.current[item.localMediaId] = mediaId
+          const next = [...itemsRef.current]
+          const currentIndex = next.findIndex(entry => entry.localMediaId === item.localMediaId)
+          const prepared = { ...item, backendMediaId: mediaId }
+          if (currentIndex >= 0) next[currentIndex] = { ...next[currentIndex], ...prepared }
+          else next.unshift(prepared)
+          itemsRef.current = next
+          setItems(next)
+          setStatuses(previous => ({ ...previous, [mediaId]: item.status }))
+        },
+      })
+      if (failures.length) setError(failures.join('\n'))
+      else setUploadInfo(`${selectedFiles.length} tệp đã được gửi vào luồng xác thực.`)
+    } finally {
+      setBusyId(null)
+      setBatchUploading(false)
+      refreshWorkspace()
     }
   }
 
@@ -490,6 +523,7 @@ export function useMediaWorkspace({
     loadEvidenceCandidates,
     discard,
     uploadPc,
+    uploadStaffFiles,
     effectiveStatus,
     approvable,
     files,

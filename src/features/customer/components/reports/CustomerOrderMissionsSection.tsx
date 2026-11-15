@@ -10,6 +10,7 @@ import { customerMissionReportApi } from '../../api/customerMissionReportApi'
 import type { CustomerMissionSummary } from '../../api/customerMissionReportApi'
 import { CardTitle } from '../../pages/OrderDetail/components/CardTitle'
 import { CustomerMissionCard } from './CustomerMissionCard'
+import { CustomerMissionReportContent } from './CustomerMissionReportPage'
 import { customerReportMessages } from './messages'
 import './reports.css'
 
@@ -54,41 +55,23 @@ export function CustomerOrderMissionsView({
       ) : (
         query.data && (
           <>
-            {query.data.length > 0 && (
-              <>
-                <dl className="cr-metrics">
-                  <div className="cr-metric">
-                    <dt>{t.total}</dt>
-                    <dd>{query.data.length}</dd>
-                  </div>
-                  <div className="cr-metric">
-                    <dt>{t.finished}</dt>
-                    <dd>
-                      {
-                        query.data.filter((m) => m.status === 'COMPLETED')
-                          .length
-                      }
-                    </dd>
-                  </div>
-                  <div className="cr-metric">
-                    <dt>{t.published}</dt>
-                    <dd>
-                      {query.data.filter((m) => m.reportAvailable).length}
-                    </dd>
-                  </div>
-                </dl>
-                <p className="cr-note">{t.progressNote}</p>
-              </>
-            )}
             {query.data.length === 0 ? (
               <EmptyState title={t.empty} description={t.emptyHint} />
             ) : (
               <div className="cr-missions">
                 {query.data.map((m) => (
-                  <CustomerMissionCard
+                  m.reportAvailable ? (
+                    <CustomerMissionReportContent
+                      key={m.missionId}
+                      orderId={m.orderId}
+                      missionId={m.missionId}
+                      inline
+                    />
+                  ) : <CustomerMissionCard
                     key={m.missionId}
                     mission={m}
                     siblings={query.data}
+                    showLink={false}
                   />
                 ))}
               </div>

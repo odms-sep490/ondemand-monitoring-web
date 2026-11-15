@@ -15,6 +15,9 @@ import { operatorTopbarMessages } from './OperatorTopbar.messages'
 import type { OperatorRoute } from './routes'
 import './opr.css'
 import '../../shared/styles/app-shell/layout.scss'
+import '../../shared/styles/app-shell/popups.scss'
+import '../../shared/styles/app-shell/topbar-shell.css'
+import '../../shared/styles/app-shell/legacy-kit.scss'
 
 const { Sider } = Layout
 
@@ -53,69 +56,74 @@ export function OperatorLayout({
 
   return (
     <ConfigProvider theme={themeConfig} getPopupContainer={mgrPopupContainer}>
-      <div className="odm odm-opr mgr-layout">
+      <div className="odm odm-opr odm-cus mgr-layout">
         {route.screen === 'missionDetail' ? (
           <a className="odm-opr-skip-link" href="#mission-detail-main">
             Bỏ qua đến nội dung chính
           </a>
         ) : null}
-        <Layout hasSider className="mgr-shell odm-opr-shell">
-          <Sider
-            id="operator-navigation"
-            width={APP_SIDER_WIDTH}
-            collapsedWidth={broken ? 0 : APP_SIDER_RAIL_WIDTH}
-            breakpoint="lg"
-            trigger={null}
-            collapsible
+        <Layout className="mgr-shell cus-shell odm-opr-shell">
+          <OperatorTopbar
+            breadcrumb={operatorActiveLabel(route.screen, lang)}
             collapsed={collapsed}
-            style={broken && collapsed ? { transition: 'none' } : undefined}
-            onBreakpoint={(isBroken) => {
-              setBroken(isBroken)
-              setCollapsed(isBroken)
-            }}
-            theme={dark ? 'dark' : 'light'}
-            className={`mgr-sider ${overlayOpen ? 'is-overlay' : ''} ${rail ? 'is-rail' : ''}`}
-          >
-            <OperatorSidebar
-              route={route}
-              pendingCount={pendingCount}
-              notificationCount={notificationCount}
-              collapsed={rail}
-              onNavigate={() => broken && setCollapsed(true)}
-            />
-          </Sider>
-
-          {overlayOpen ? (
-            <button
-              type="button"
-              className="mgr-scrim"
-              aria-label={topbarText.closeMenu}
-              onClick={() => setCollapsed(true)}
-            />
-          ) : null}
-
-          <Layout className="mgr-main odm-opr-main">
-            <OperatorTopbar
-              breadcrumb={operatorActiveLabel(route.screen, lang)}
+            dark={dark}
+            onToggleNavigation={() => setCollapsed((value) => !value)}
+            onToggleDark={() => setDark((value) => !value)}
+            searchQuery={searchQuery}
+            onSearchChange={onSearchChange}
+          />
+          <Layout hasSider className="cus-shell-body">
+            <Sider
+              id="operator-navigation"
+              width={APP_SIDER_WIDTH}
+              collapsedWidth={broken ? 0 : APP_SIDER_RAIL_WIDTH}
+              breakpoint="lg"
+              trigger={null}
+              collapsible
               collapsed={collapsed}
-              dark={dark}
-              notificationCount={notificationCount}
-              onToggleNavigation={() => setCollapsed((value) => !value)}
-              onToggleDark={() => setDark((value) => !value)}
-              searchQuery={searchQuery}
-              onSearchChange={onSearchChange}
-            />
-            <main
-              id={
-                route.screen === 'missionDetail'
-                  ? 'mission-detail-main'
-                  : undefined
-              }
-              tabIndex={route.screen === 'missionDetail' ? -1 : undefined}
-              className={`mgr-content odm-opr-content${fillContent ? ' odm-opr-content--fill' : ''}`}
+              style={broken && collapsed ? { transition: 'none' } : undefined}
+              onBreakpoint={(isBroken) => {
+                setBroken(isBroken)
+                setCollapsed(isBroken)
+              }}
+              theme={dark ? 'dark' : 'light'}
+              className={`mgr-sider ${overlayOpen ? 'is-overlay' : ''} ${rail ? 'is-rail' : ''}`}
             >
-              {children}
-            </main>
+              <OperatorSidebar
+                route={route}
+                pendingCount={pendingCount}
+                notificationCount={notificationCount}
+                collapsed={rail}
+                onNavigate={() => broken && setCollapsed(true)}
+              />
+            </Sider>
+
+            {overlayOpen ? (
+              <button
+                type="button"
+                className="mgr-scrim"
+                aria-label={topbarText.closeMenu}
+                onClick={() => setCollapsed(true)}
+              />
+            ) : null}
+
+            <Layout className="mgr-main odm-opr-main">
+              <main
+                id={
+                  route.screen === 'missionDetail'
+                    ? 'mission-detail-main'
+                    : undefined
+                }
+                tabIndex={route.screen === 'missionDetail' ? -1 : undefined}
+                className={`mgr-content odm-opr-content${fillContent ? ' odm-opr-content--fill' : ''}`}
+              >
+                <div
+                  className={`odm-opr-content-inner${fillContent ? ' odm-opr-content-inner--fill' : ''}`}
+                >
+                  {children}
+                </div>
+              </main>
+            </Layout>
           </Layout>
         </Layout>
       </div>

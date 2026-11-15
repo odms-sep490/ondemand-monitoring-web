@@ -44,6 +44,7 @@ export const managerLayoutMessages = defineMessages({
       drones: 'Đội drone',
       maintenance: 'Bảo trì',
       support: 'Trung tâm Hỗ trợ',
+      notifications: 'Thông báo',
       notFound: 'Không tìm thấy',
     },
     notFound: {
@@ -95,6 +96,7 @@ export const managerLayoutMessages = defineMessages({
       drones: 'Drone fleet',
       maintenance: 'Maintenance',
       support: 'Support Center',
+      notifications: 'Notifications',
       notFound: 'Not found',
     },
     notFound: {

@@ -7,11 +7,11 @@
 
   > .mgr-page-head {
     align-items: center;
-    padding: 0 2px 18px;
-    border: 0;
-    border-bottom: 1px solid var(--mgr-border);
-    border-radius: 0;
-    background: transparent;
+    padding: 24px;
+    min-height: 150px;
+    border: 1px solid #d6e6fb;
+    border-radius: 16px;
+    background: linear-gradient(90deg, rgba(240,247,255,.92), rgba(240,247,255,.55) 52%, rgba(240,247,255,.1)), url('/images/order-banner.png') center / cover no-repeat, #eaf3ff;
     box-shadow: none;
   }
 
@@ -38,8 +38,7 @@
     }
   }
 
-  .cus-orders-card .ant-card-body,
-  .cus-missions-card .ant-card-body {
+  .cus-orders-card .ant-card-body {
     padding: 0;
   }
 
@@ -89,19 +88,115 @@
     min-width: 0;
   }
 
+  .cus-highlights {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 16px;
+    min-width: 0;
+  }
+
+  .cus-highlight-card {
+    min-width: 0;
+
+    .ant-card-head {
+      padding-inline: 16px;
+    }
+
+    .ant-card-body {
+      padding: 6px 16px;
+    }
+
+    .mgr-empty {
+      min-height: 90px;
+      padding: 15px 8px;
+    }
+
+    .mgr-empty-title {
+      font-size: 13px;
+    }
+  }
+
+  .cus-highlight-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      min-height: 64px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--mgr-border);
+
+      &:last-child {
+        border-bottom: 0;
+      }
+    }
+
+    .ant-tag {
+      flex: none;
+      margin: 0;
+      max-width: 45%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .ant-btn-link {
+      flex: none;
+      padding-inline: 0;
+      white-space: normal;
+      text-align: right;
+    }
+  }
+
+  .cus-highlight-copy {
+    display: grid;
+    min-width: 0;
+    gap: 3px;
+
+    a,
+    span {
+      overflow-wrap: anywhere;
+    }
+
+    a {
+      color: var(--ui-primary);
+      font-weight: 650;
+
+      &:hover,
+      &:focus-visible {
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+    }
+
+    span {
+      color: var(--mgr-muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+  }
+
+  .cus-highlight-note {
+    margin: 8px 0 2px;
+    color: var(--mgr-muted);
+    font-size: 12px;
+  }
+
+  .cus-highlight-loading {
+    min-height: 100px;
+    padding: 12px 0;
+  }
+
   .cus-main-column,
   .cus-content-fallback {
     display: grid;
     align-content: start;
     gap: 18px;
     min-width: 0;
-  }
-
-  .cus-missions-empty {
-    padding: 13px 18px;
-    color: var(--mgr-muted);
-    font-size: 13px;
-    line-height: 1.5;
   }
 
   .mgr-empty {
@@ -146,6 +241,25 @@
     display: none;
   }
 
+  .cus-order-next-step {
+    color: var(--mgr-muted);
+    font-size: 12px;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+
+    &.is-action {
+      color: var(--ui-warning-text);
+      font-weight: 650;
+    }
+  }
+
+  .cus-order-action.ant-btn-link {
+    align-self: flex-start;
+    min-height: 32px;
+    padding-inline: 0;
+    font-weight: 650;
+  }
+
   .cus-breakdown {
     list-style: none;
     margin: 0;
@@ -184,6 +298,14 @@
 
 @media (max-width: 1100px) {
   .mgr-layout .cus-dash {
+    .cus-highlights {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .cus-highlight-card:first-child {
+      grid-column: 1 / -1;
+    }
+
     .cus-content-grid {
       grid-template-columns: minmax(0, 1fr);
     }
@@ -206,7 +328,8 @@
     > .mgr-page-head {
       align-items: flex-start;
       gap: 12px;
-      padding-bottom: 14px;
+      padding: 18px 16px;
+      min-height: 130px;
     }
 
     .mgr-page-head-main {
@@ -225,6 +348,15 @@
     .cus-kpi-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
       padding: 5px 2px;
+    }
+
+    .cus-highlights {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 12px;
+    }
+
+    .cus-highlight-card:first-child {
+      grid-column: auto;
     }
 
     .cus-kpi {
@@ -252,8 +384,7 @@
       padding-inline: 15px;
     }
 
-    .cus-orders-card .ant-card-body,
-    .cus-missions-card .ant-card-body {
+    .cus-orders-card .ant-card-body {
       padding-inline: 0;
     }
   }
@@ -276,3 +407,54 @@
     }
   }
 }
+
+[data-theme='dark'] .mgr-layout .cus-dash > .mgr-page-head {
+  background: linear-gradient(90deg, rgba(11,25,46,.94), rgba(11,25,46,.65)), url('/images/order-banner.png') center / cover no-repeat, #10243d;
+  border-color: #28405d;
+}
+
+
+/* One order workspace with a compact next-step rail. */
+.mgr-layout .cus-dash {
+  gap: 20px;
+  .cus-main-column { display: grid; gap: 16px; min-width: 0; }
+  .cus-highlights { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .cus-highlight-card { min-height: 0; height: auto; grid-column: auto; }
+  .cus-highlight-card .ant-card-head { min-height: 48px; padding-inline: 16px; }
+  .cus-highlight-card .ant-card-head-title { font-size: 14px; }
+  .cus-highlight-card .ant-card-body { padding: 10px 16px; }
+  .cus-highlight-empty { margin: 0; padding: 8px 0; color: var(--mgr-text-2, #52637b); font-size: 13px; font-weight: 400; line-height: 1.6; }
+  .cus-highlight-list li { display: flex; flex-wrap: wrap; gap: 6px 12px; padding: 10px 0; }
+  .cus-highlight-copy { flex: 1 1 160px; min-width: 0; }
+  .cus-highlight-copy > span { font-size: 12px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .cus-kpi-grid { border-radius: 12px; overflow: hidden; }
+  .cus-kpi { min-height: 88px; padding: 16px 20px; }
+  .cus-kpi dt { font-size: 13px; color: var(--mgr-text-2, #52637b); }
+  .cus-kpi dd { margin-top: 8px; font-size: 28px; line-height: 1.2; font-variant-numeric: tabular-nums; }
+  .cus-orders-card .ant-table-thead > tr > th { font-size: 12px; font-weight: 600; }
+  .cus-orders-card .ant-table-tbody > tr > td { padding: 16px; vertical-align: top; }
+  .cus-order-title { font-size: 14px; font-weight: 650; }
+  .cus-order-status .ant-tag { width: fit-content; }
+  .cus-order-next-step { max-width: 240px; font-size: 12px; line-height: 1.5; }
+  .cus-status-card .cus-breakdown { display: flex; flex-wrap: wrap; gap: 8px 24px; }
+  .cus-status-card .cus-breakdown li { display: flex; align-items: center; gap: 16px; padding: 4px 0; border: 0; }
+  .cus-status-card .ant-card-head { min-height: 44px; }
+  .cus-status-card .ant-card-body { padding: 10px 18px; }
+}
+@media (max-width: 1150px) {
+  .mgr-layout .cus-dash .cus-highlights { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 750px) {
+  .mgr-layout .cus-dash .cus-highlights { grid-template-columns: minmax(0, 1fr); }
+  .mgr-layout .cus-dash .cus-kpi { padding: 14px; }
+  .mgr-layout .cus-dash .cus-kpi dd { font-size: 24px; }
+}
+
+/* Overview focuses on next actions, flights and results. Orders live in My Orders. */
+.mgr-layout .cus-dash > .cus-highlights { grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; }
+@media (max-width: 1000px) { .mgr-layout .cus-dash > .cus-highlights { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 650px) { .mgr-layout .cus-dash > .cus-highlights { grid-template-columns: minmax(0, 1fr); } }
+
+.cus-overview-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+@media (max-width: 640px) { .cus-overview-actions { width: 100%; } .cus-overview-actions > a { flex: 1 1 150px; } }
+

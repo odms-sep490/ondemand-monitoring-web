@@ -15,11 +15,7 @@ import {
   type FailureAction,
   type SupplementRequest,
 } from '../readinessTypes'
-import {
-  recommendationText,
-  riskLevelOptions,
-  answerOptions,
-} from '../readinessHelpers'
+import { recommendationText, answerOptions } from '../readinessHelpers'
 import { ReadinessSummary } from './ReadinessSummary'
 import { ReadinessCriterionRow } from './ReadinessCriterionRow'
 import { ReadinessBlockingNotice } from './ReadinessBlockingNotice'
@@ -93,13 +89,19 @@ export function OrderReadinessCard({
     )
   }
 
-  const auto = readiness.criteria.filter(
+  const activeCriteria = readiness.criteria.filter(
+    (criterion) =>
+      criterion.code !== 'CAPABILITY' &&
+      criterion.code !== 'REQUESTED_SCOPE_FEASIBLE' &&
+      criterion.code !== 'RISK_LEVEL',
+  )
+  const auto = activeCriteria.filter(
     (c) =>
       c.type === 'AUTO' &&
       c.code !== 'CHECKLIST_REVIEWED' &&
       c.code !== 'SCHEDULE_DATE',
   )
-  const manual = readiness.criteria.filter(
+  const manual = activeCriteria.filter(
     (c) =>
       c.type === 'MANUAL' &&
       c.code !== 'SURVEY_NEEDED' &&
@@ -147,7 +149,7 @@ export function OrderReadinessCard({
     }
   }
 
-  const failedRequired = readiness.criteria.filter((criterion) => {
+  const failedRequired = activeCriteria.filter((criterion) => {
     const effectiveResult =
       drafts[criterion.code]?.result ??
       selectedResults[criterion.code] ??
@@ -268,8 +270,6 @@ export function OrderReadinessCard({
           </h3>
           <ul className="odm-or-readiness-list">
             {manual.map((c) => {
-              const options =
-                c.code === 'RISK_LEVEL' ? riskLevelOptions : answerOptions
               const draft = drafts[c.code]
               const current =
                 draft?.result ??
@@ -289,7 +289,7 @@ export function OrderReadinessCard({
                   setDrafts={setDrafts}
                   savingCode={savingCode}
                   save={save}
-                  options={options}
+                  options={answerOptions}
                   choose={choose}
                 />
               )

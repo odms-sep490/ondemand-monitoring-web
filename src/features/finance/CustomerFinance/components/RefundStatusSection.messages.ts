@@ -1,0 +1,53 @@
+import { defineMessages } from '../../../../shared/i18n'
+
+export const refundStatusSectionMessages = defineMessages({
+  vi: {
+    loading: 'Đang tải trạng thái hoàn tiền…',
+    label: 'Hoàn tiền đặt cọc',
+    eyebrow: 'Tài chính đơn hàng',
+    title: 'Hoàn tiền đặt cọc',
+    status: {
+      REQUESTED: 'Đã yêu cầu hoàn tiền',
+      PROCESSING: 'Đang xử lý hoàn tiền',
+      COMPLETED: 'Đã hoàn tiền',
+      REJECTED: 'Yêu cầu bị từ chối',
+      CANCELLED: 'Đã hủy xử lý',
+    },
+    amount: 'Số tiền hoàn',
+    requested: 'Thời điểm yêu cầu',
+    completed: 'Hoàn tất lúc',
+    closed: 'Lý do / thời điểm',
+    history: 'Lịch sử chuyển khoản',
+    attempt: (number: number, result: string) => `Lần ${number} · ${result}`,
+    successful: 'Thành công',
+    failed: 'Thất bại',
+    reference: (value: string) => `Mã tham chiếu: ${value}`,
+    viewReceipt: (name: string) => `Xem biên nhận · ${name}`,
+    receiptError: 'Không thể mở biên nhận.',
+  },
+  en: {
+    loading: 'Loading refund status…',
+    label: 'Deposit refund',
+    eyebrow: 'Order finance',
+    title: 'Deposit refund',
+    status: {
+      REQUESTED: 'Refund requested',
+      PROCESSING: 'Refund processing',
+      COMPLETED: 'Refund completed',
+      REJECTED: 'Refund request rejected',
+      CANCELLED: 'Refund processing cancelled',
+    },
+    amount: 'Refund amount',
+    requested: 'Requested',
+    completed: 'Completed',
+    closed: 'Reason / time',
+    history: 'Transfer history',
+    attempt: (number: number, result: string) =>
+      `Attempt ${number} · ${result}`,
+    successful: 'Successful',
+    failed: 'Failed',
+    reference: (value: string) => `Reference: ${value}`,
+    viewReceipt: (name: string) => `View receipt · ${name}`,
+    receiptError: 'Unable to open the receipt.',
+  },
+})
