@@ -52,6 +52,7 @@ export const dashboardPageMessages = defineMessages({
       VIEW_MISSION: 'Xem nhiệm vụ',
       types: {
         ORDER_PENDING: 'Đơn chờ duyệt',
+        QUOTE_READY: 'Sẵn sàng báo giá',
         MISSION_UNASSIGNED: 'Nhiệm vụ chưa phân công',
         MEDIA_ACTION: 'Tư liệu cần xử lý',
         MISSION_FLYING: 'Nhiệm vụ đang bay',
@@ -132,6 +133,7 @@ export const dashboardPageMessages = defineMessages({
       total: 'Tổng',
       barAria: 'Biểu đồ thanh',
       statusLabels: {
+        QUOTE_READY: 'Sẵn sàng báo giá',
         PENDING: 'Chờ duyệt',
         UNDER_REVIEW: 'Đang duyệt',
         NEEDS_INFO: 'Cần bổ sung',
@@ -147,7 +149,7 @@ export const dashboardPageMessages = defineMessages({
         BLOCKED_BY_POLICY: 'Bị chặn bởi chính sách',
         CREATED: 'Khởi tạo',
         WAITING_DEPOSIT: 'Chờ cọc',
-        PENDING_CONFIRMATION: 'Chờ staff & kiểm tra drone',
+        PENDING_CONFIRMATION: 'Chờ nhân sự và kiểm tra thiết bị',
         RESOURCE_ASSIGNING: 'Phân công nguồn lực',
         WAITING_CREW_CONFIRMATION: 'Chờ tổ bay',
         WAITING_OPERATOR_ACCEPTANCE: 'Chờ người vận hành',
@@ -160,8 +162,8 @@ export const dashboardPageMessages = defineMessages({
         IN_FLIGHT: 'Đang bay',
         RETURNING: 'Đang trở về',
         POSTFLIGHT_CHECKING: 'Kiểm tra sau bay',
-        AWAITING_REVIEW: 'Đã gửi Manager, chờ duyệt',
-        PENDING_REVIEW: 'Đã gửi Manager, chờ duyệt',
+        AWAITING_REVIEW: 'Đã gửi quản lý, chờ duyệt',
+        PENDING_REVIEW: 'Đã gửi quản lý, chờ duyệt',
         FAILED: 'Thất bại',
         PLANNING: 'Đang chuẩn bị trước bay',
         READY: 'Sẵn sàng chờ nghiệm thu',
@@ -220,6 +222,7 @@ export const dashboardPageMessages = defineMessages({
       VIEW_MISSION: 'View mission',
       types: {
         ORDER_PENDING: 'Orders pending review',
+        QUOTE_READY: 'Ready to quote',
         MISSION_UNASSIGNED: 'Unassigned missions',
         MEDIA_ACTION: 'Media needing action',
         MISSION_FLYING: 'Missions in flight',
@@ -300,6 +303,7 @@ export const dashboardPageMessages = defineMessages({
       total: 'Total',
       barAria: 'Bar chart',
       statusLabels: {
+        QUOTE_READY: 'Ready to quote',
         PENDING: 'Pending review',
         UNDER_REVIEW: 'Under review',
         NEEDS_INFO: 'Needs more info',

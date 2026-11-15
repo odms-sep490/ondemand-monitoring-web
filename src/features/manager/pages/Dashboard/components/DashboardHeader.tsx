@@ -4,6 +4,7 @@ import { Button, Space } from 'antd'
 import { useI18n } from '../../../../../shared/i18n'
 import { managerHref } from '../../../routes'
 import { dashboardPageMessages } from '../DashboardPage.messages'
+import '../../../../../shared/components/pageBanner.css'
 
 export type DashboardRange = '7D' | '30D' | '90D'
 const RANGES: DashboardRange[] = ['7D', '30D', '90D']
@@ -29,7 +30,7 @@ export function DashboardHeader({ subtitle, range, pendingCount, pendingCountAva
   }).format(now)
 
   return (
-    <header className="mgr-dash-header">
+    <header className="mgr-dash-header app-page-banner">
       <div className="mgr-dash-heading">
         <p className="mgr-dash-date">{today}</p>
         <h1 className="mgr-hero-title">{t.title}</h1>
@@ -45,34 +46,37 @@ export function DashboardHeader({ subtitle, range, pendingCount, pendingCountAva
           >
             {t.hero.reviewOrders}
           </Button>
-          <Button href={managerHref({ screen: 'missions' })}>
+          <Button ghost href={managerHref({ screen: 'missions' })}>
             {t.hero.viewMissions}
           </Button>
-          <Button href={managerHref({ screen: 'schedule' })}>
+          <Button ghost href={managerHref({ screen: 'schedule' })}>
             {t.hero.viewSchedule}
           </Button>
         </nav>
       </div>
 
       <div className="mgr-dash-controls">
-        <div role="group" aria-label={t.rangeLabel} className="mgr-hero-range">
-          <Space.Compact>
-            {RANGES.map((value) => (
-              <Button
-                key={value}
-                type={range === value ? 'primary' : 'default'}
-                aria-pressed={range === value}
-                onClick={() => onRangeChange(value)}
-              >
-                {t.ranges[value]}
-              </Button>
-            ))}
-          </Space.Compact>
+        <div className="mgr-dash-control-row">
+          <div role="group" aria-label={t.rangeLabel} className="mgr-hero-range">
+            <Space.Compact>
+              {RANGES.map((value) => (
+                <Button
+                  key={value}
+                  type={range === value ? 'primary' : 'default'}
+                  aria-pressed={range === value}
+                  onClick={() => onRangeChange(value)}
+                >
+                  {t.ranges[value]}
+                </Button>
+              ))}
+            </Space.Compact>
+          </div>
+          <Button icon={<ReloadOutlined aria-hidden="true" />} onClick={onRefresh}>
+            {t.refresh}
+          </Button>
         </div>
-        <Button icon={<ReloadOutlined aria-hidden="true" />} onClick={onRefresh}>
-          {t.refresh}
-        </Button>
         <p className="mgr-hero-updated">{subtitle}</p>
+
       </div>
     </header>
   )

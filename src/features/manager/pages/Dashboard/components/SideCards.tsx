@@ -1,5 +1,3 @@
-import { Progress } from 'antd'
-
 import { CardComponent } from '../../../../../shared/components/antd'
 import { useI18n } from '../../../../../shared/i18n'
 import { managerHref } from '../../../routes'
@@ -10,8 +8,8 @@ import type {
   PricingPipeline,
 } from '../../../types/dashboard'
 import { dashboardPageMessages } from '../DashboardPage.messages'
-import { formatDashboardDate, statusLabel } from '../dashboardHelpers'
-import { MANAGER_COLORS } from '../../../theme/managerTheme'
+import { dashboardActivityLabel, formatDashboardDate, statusLabel } from '../dashboardHelpers'
+import { FunnelPipelineChart } from './charts/FunnelPipelineChart'
 
 const MAX_MISSIONS = 2
 const MAX_ACTIVITIES = 8
@@ -129,35 +127,14 @@ export function PipelineCard({
     { label: p.waitingDeposit, value: pipeline.waitingDepositCount },
     { label: p.depositPaid, value: pipeline.depositPaidCount },
   ]
-  const max = Math.max(...stages.map((stage) => stage.value))
-
   return (
     <CardComponent className="mgr-pipeline-card" title={p.title}>
       {!available ? (
         <p className="mgr-data-unavailable" role="status">
           {p.unavailable}
         </p>
-      ) : max === 0 ? (
-        <p className="mgr-pipeline-empty" role="status">
-          {p.empty}
-        </p>
       ) : (
-        <ol className="mgr-pipeline-list">
-          {stages.map((stage) => (
-            <li className="mgr-pipeline-stage" key={stage.label}>
-              <div className="mgr-pipe-row">
-                <span>{stage.label}</span>
-                <strong>{stage.value.toLocaleString()}</strong>
-              </div>
-              <Progress
-                percent={(stage.value / max) * 100}
-                showInfo={false}
-                size={['100%', 8]}
-                strokeColor={MANAGER_COLORS.primary}
-              />
-            </li>
-          ))}
-        </ol>
+        <FunnelPipelineChart stages={stages} empty={p.empty} ariaLabel={p.title} />
       )}
     </CardComponent>
   )
@@ -190,7 +167,7 @@ export function RecentActivityCard({
               <time className="mgr-time" dateTime={activity.occurredAt}>
                 {formatDashboardDate(activity.occurredAt)}
               </time>
-              <span className="mgr-timeline-text">{activity.description}</span>
+              <span className="mgr-timeline-text">{dashboardActivityLabel(activity.description)}</span>
             </li>
           ))}
         </ol>
