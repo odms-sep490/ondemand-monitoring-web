@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Alert, Button, Checkbox, Input, Tag } from 'antd'
+import { Alert, Button, Input, Tag } from 'antd'
 import {
   CheckCircleOutlined,
   SafetyCertificateOutlined,
@@ -11,10 +11,10 @@ import { useI18n } from '../../../shared/i18n'
 import type { MissionChecklistExecution } from '../types/checklistExecution'
 import { operatorHref } from '../../drone-operator/routes'
 import { managerHref } from '../../manager/routes'
-import { planningApi } from '../../manager/api/planningApi'
 import { inspectionCorrectionApi } from './inspectionCorrectionApi'
 import { inspectionCorrectionMessages } from './inspectionCorrection.messages'
 import './InspectionCorrectionPanel.css'
+import { CorrectionEvidenceGallery } from './CorrectionEvidenceGallery'
 type Props = {
   missionId: string
   rows?: MissionChecklistExecution[]
@@ -41,20 +41,21 @@ function CorrectionContent({
     (signal) => inspectionCorrectionApi.list(missionId, signal),
     [missionId],
   )
-  const [editing, setEditing] = useState(false),
-    [reasons, setReasons] = useState<Record<string, string>>({}),
-    [selected, setSelected] = useState<string[]>([]),
+  const [reasons, setReasons] = useState<Record<string, string>>({}),
     [media, setMedia] = useState<Record<string, string[]>>({})
   const [note, setNote] = useState(''),
     [busy, setBusy] = useState(false),
     [error, setError] = useState<string | null>(null)
-  const [scope, setScope] = useState(''),
-    [start, setStart] = useState(''),
-    [end, setEnd] = useState(''),
-    [checked, setChecked] = useState(false)
-  const command = useRef(crypto.randomUUID()),
-    missionCommand = useRef(crypto.randomUUID())
+  const command = useRef(crypto.randomUUID())
   const active = query.data?.find((row) => row.status !== 'RESOLVED')
+  const failedRows = rows.filter(
+    (row) =>
+      !row.fulfilledByMissionId && row.assessmentStatus === 'NON_COMPLIANT',
+  )
+  const selected = failedRows.map((row) => row.id)
+  const reasonFor = (row: MissionChecklistExecution) =>
+    reasons[`${row.id}:${row.version}`] ?? row.assessmentNote ?? ''
+
   useEffect(() => {
     const timer = setInterval(() => {
       if (!document.hidden) query.reload()
@@ -67,10 +68,9 @@ function CorrectionContent({
     setError(null)
     try {
       await operation()
-      setEditing(false)
       setNote('')
-      setSelected([])
       setReasons({})
+      setMedia({})
       command.current = crypto.randomUUID()
       query.reload()
       refresh?.()
@@ -99,6 +99,14 @@ function CorrectionContent({
     t.action[action as keyof typeof t.action] ?? t.history
   // Manager sees only an actionable planning request, never the inspection workspace.
   if (manager && !query.error && active?.status !== 'OPEN') return null
+  if (
+    !manager &&
+    !query.error &&
+    !query.loading &&
+    !query.data?.length &&
+    !failedRows.length
+  )
+    return null
   const panelTitle = manager ? t.create : t.title
   if (query.loading && !query.data) return <p role="status">{t.loading}</p>
   return (
@@ -134,7 +142,11 @@ function CorrectionContent({
         <>
           {!manager && (
             <p className="inspection-corrections__guide">
-              {canRequest ? t.inspectorGuide : t.staffGuide}
+              {canRequest
+                ? canRespond
+                  ? t.dualRoleGuide
+                  : t.inspectorGuide
+                : t.staffGuide}
             </p>
           )}
           {!manager && active && (
@@ -159,7 +171,9 @@ function CorrectionContent({
               )}
             </div>
           )}
-          {!query.data?.length && <p>{t.empty}</p>}
+          {!query.data?.length && !(canRequest && failedRows.length > 0) && (
+            <p>{t.empty}</p>
+          )}
           {query.data
             ?.filter((row) => !manager || row.id === active?.id)
             .map((row, index) => (
@@ -285,97 +299,61 @@ function CorrectionContent({
                 </div>
               </div>
             )}
-          {canRequest && !active && !editing && (
-            <Button
-              disabled={disabled || !rows.length}
-              onClick={() => setEditing(true)}
-            >
-              {t.newRequest}
-            </Button>
-          )}
-          {canRequest && !active && editing && (
+          {canRequest && !active && failedRows.length > 0 && (
             <div className="inspection-corrections__form">
               <div className="inspection-corrections__meta">
                 <h4>{t.choose}</h4>
-                <Button
-                  type="text"
-                  onClick={() => setEditing(false)}
-                  disabled={busy}
-                >
-                  {t.cancel}
-                </Button>
               </div>
               <p>{t.findings}</p>
-              {rows
-                .filter((r) => !r.fulfilledByMissionId)
-                .map((row) => (
-                  <div
-                    key={row.id}
-                    className={`inspection-corrections__choice ${selected.includes(row.id) ? 'is-selected' : ''}`}
-                  >
-                    <Checkbox
-                      checked={selected.includes(row.id)}
-                      onChange={(e) =>
-                        setSelected(
-                          e.target.checked
-                            ? [...selected, row.id]
-                            : selected.filter((id) => id !== row.id),
-                        )
-                      }
-                    >
-                      {row.content}
-                    </Checkbox>
-                    {selected.includes(row.id) && (
-                      <>
-                        <label>
-                          {t.reason}
-                          <Input.TextArea
-                            aria-label={`${t.reason}: ${row.content}`}
-                            value={reasons[row.id] ?? ''}
-                            maxLength={2000}
-                            onChange={(e) =>
-                              setReasons({
-                                ...reasons,
-                                [row.id]: e.target.value,
-                              })
-                            }
-                          />
-                        </label>
-                        {!!row.evidence?.length && (
-                          <fieldset>
-                            <legend>{t.media}</legend>
-                            {row.evidence.map((link) => (
-                              <Checkbox
-                                key={link.evidenceId}
-                                checked={
-                                  media[row.id]?.includes(link.mediaId) ?? false
-                                }
-                                onChange={(e) =>
-                                  setMedia({
-                                    ...media,
-                                    [row.id]: e.target.checked
-                                      ? [...(media[row.id] ?? []), link.mediaId]
-                                      : (media[row.id] ?? []).filter(
-                                          (id) => id !== link.mediaId,
-                                        ),
-                                  })
-                                }
-                              >
-                                {link.fileName ?? link.mediaId}
-                              </Checkbox>
-                            ))}
-                          </fieldset>
-                        )}
-                      </>
-                    )}
-                  </div>
-                ))}
+              {failedRows.map((row) => (
+                <div
+                  key={row.id}
+                  className={`inspection-corrections__choice ${selected.includes(row.id) ? 'is-selected' : ''}`}
+                >
+                  <strong>{row.content}</strong>
+                  {selected.includes(row.id) && (
+                    <>
+                      <label>
+                        {t.reason}
+                        <Input.TextArea
+                          aria-label={`${t.reason}: ${row.content}`}
+                          value={reasonFor(row)}
+                          maxLength={2000}
+                          placeholder={t.reasonHint}
+                          disabled={disabled}
+                          onChange={(e) =>
+                            setReasons({
+                              ...reasons,
+                              [`${row.id}:${row.version}`]: e.target.value,
+                            })
+                          }
+                        />
+                      </label>
+                      {!!row.evidence?.length && (
+                        <CorrectionEvidenceGallery
+                          missionId={missionId}
+                          executionId={row.id}
+                          links={row.evidence}
+                          selected={media[row.id] ?? []}
+                          disabled={disabled}
+                          onChange={(ids) =>
+                            setMedia((current) => ({
+                              ...current,
+                              [row.id]: ids,
+                            }))
+                          }
+                        />
+                      )}
+                    </>
+                  )}
+                </div>
+              ))}
               <Button
                 type="primary"
                 disabled={
                   disabled ||
                   !selected.length ||
-                  selected.some((id) => !reasons[id]?.trim())
+                  failedRows.some((row) => !reasonFor(row).trim())
                 }
                 onClick={() =>
                   void act(() =>
@@ -386,7 +364,9 @@ function CorrectionContent({
                         executionId: id,
                         expectedVersion: rows.find((row) => row.id === id)!
                           .version,
-                        reason: reasons[id].trim(),
+                        reason: reasonFor(
+                          rows.find((row) => row.id === id)!,
+                        ).trim(),
                         mediaIds: media[id] ?? [],
                       })),
                     ),
@@ -403,97 +383,21 @@ function CorrectionContent({
                 <summary>{t.supplement}</summary>
                 <p>{t.fieldNote}</p>
               </details>
-              {!active.supplementalMissionId ||
-              active.supplementalMissionStatus === 'CANCELLED' ? (
-                <>
-                  <label>
-                    {t.scope}
-                    <Input
-                      value={scope}
-                      maxLength={255}
-                      onChange={(e) => setScope(e.target.value)}
-                    />
-                  </label>
-                  <div className="inspection-corrections__schedule">
-                    <label>
-                      {t.start}
-                      <input
-                        type="datetime-local"
-                        value={start}
-                        onChange={(e) => setStart(e.target.value)}
-                      />
-                    </label>
-                    <label>
-                      {t.end}
-                      <input
-                        type="datetime-local"
-                        value={end}
-                        onChange={(e) => setEnd(e.target.value)}
-                      />
-                    </label>
-                  </div>
-                  <Button
-                    disabled={disabled || !scope.trim() || !start || !end}
-                    onClick={() =>
-                      void act(() =>
-                        inspectionCorrectionApi.createMission(
-                          missionId,
-                          active,
-                          {
-                            clientRequestId: missionCommand.current,
-                            scopeLabel: scope.trim(),
-                            scheduledStartAt: new Date(
-                              start + ':00+07:00',
-                            ).toISOString(),
-                            scheduledEndAt: new Date(
-                              end + ':00+07:00',
-                            ).toISOString(),
-                          },
-                        ),
-                      )
-                    }
-                  >
-                    {t.plan}
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <a
-                    href={managerHref({
-                      screen: 'missionDispatch',
-                      missionId: active.supplementalMissionId,
-                    })}
-                  >
-                    {t.configure}
-                  </a>
-                  <Checkbox
-                    checked={checked}
-                    onChange={(e) => setChecked(e.target.checked)}
-                  >
-                    {t.confirmPlan}
-                  </Checkbox>
-                  <Button
-                    type="primary"
-                    disabled={
-                      disabled ||
-                      !checked ||
-                      active.supplementalMissionStatus !== 'PLANNING'
-                    }
-                    onClick={() =>
-                      void act(async () => {
-                        const plan = await planningApi.getExecutionPlan(orderId)
-                        await inspectionCorrectionApi.finalize(
-                          missionId,
-                          active,
-                          plan.revision,
-                        )
-                      })
-                    }
-                  >
-                    {t.finalize}
-                  </Button>
-                </>
-              )}
+              <Button
+                type="primary"
+                href={managerHref({
+                  screen: 'inspectionPlanning',
+                  orderId,
+                  sourceMissionId: missionId,
+                  correctionId: active.id,
+                })}
+                disabled={disabled}
+              >
+                {active.supplementalMissionId &&
+                active.supplementalMissionStatus !== 'CANCELLED'
+                  ? t.openPlanning
+                  : t.plan}
+              </Button>
             </div>
           )}
         </>
