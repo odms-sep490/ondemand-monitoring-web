@@ -49,7 +49,7 @@ export function DashboardHeader({ subtitle, range, pendingCount, pendingCountAva
           <Button ghost href={managerHref({ screen: 'missions' })}>
             {t.hero.viewMissions}
           </Button>
-          <Button ghost href={managerHref({ screen: 'schedule' })}>
+          <Button ghost href={managerHref({ screen: 'schedule', calendar: true })}>
             {t.hero.viewSchedule}
           </Button>
         </nav>

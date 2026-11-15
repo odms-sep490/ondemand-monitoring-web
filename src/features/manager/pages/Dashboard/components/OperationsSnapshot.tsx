@@ -79,7 +79,7 @@ export function OperationsSnapshot({
       <CardComponent
         title={vi ? 'Lịch bay sắp tới' : 'Upcoming flights'}
         extra={
-          <a href={managerHref({ screen: 'schedule' })}>
+          <a href={managerHref({ screen: 'schedule', calendar: true })}>
             {vi ? 'Mở lịch bay' : 'Open schedule'}
           </a>
         }

@@ -1,0 +1,64 @@
+/* Order queue uses the shared illustrated portal banner. */
+:root .mgr-layout .mgr-order-queue > .mgr-page-head.app-page-banner {
+ background: linear-gradient(90deg,rgba(240,247,255,.96),rgba(240,247,255,.6) 55%,rgba(240,247,255,.15)),url('/images/order-banner.png') center / cover no-repeat,#eaf3ff;
+ border: 1px solid #d6e6fb;
+ border-radius: 16px;
+ padding: 26px 28px;
+ min-height: 155px;
+ margin-bottom: 24px;
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ gap: 24px;
+}
+:root .mgr-layout .mgr-order-queue > .mgr-page-head .mgr-page-head-title { color: #0f2747; }
+:root .mgr-layout .mgr-order-queue > .mgr-page-head .mgr-page-head-desc { color: #405774; }
+[data-theme='dark'] .mgr-layout .mgr-order-queue > .mgr-page-head.app-page-banner {
+ background: linear-gradient(90deg,rgba(11,25,46,.96),rgba(11,25,46,.7)),url('/images/order-banner.png') center / cover no-repeat,#10243d;
+ border-color: #28405d;
+}
+[data-theme='dark'] .mgr-layout .mgr-order-queue > .mgr-page-head .mgr-page-head-title { color: #e6ecfa; }
+[data-theme='dark'] .mgr-layout .mgr-order-queue > .mgr-page-head .mgr-page-head-desc { color: #b6c8de; }
+@media(max-width:850px) {
+ :root .mgr-layout .mgr-order-queue > .mgr-page-head.app-page-banner { flex-direction: column; align-items: flex-start; padding: 20px; gap: 16px; }
+ .mgr-order-queue > .mgr-page-head .mgr-page-head-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+}
+
+/* Large single-row queue filters; overflow stays within the toolbar. */
+:root .mgr-layout .mgr-order-queue > .mgr-filter-bar {
+ display: flex;
+ flex-wrap: nowrap;
+ align-items: center;
+ gap: 16px;
+ min-height: 94px;
+ padding: 18px 20px;
+ overflow-x: auto;
+ overflow-y: hidden;
+ scrollbar-width: thin;
+ scrollbar-color: var(--mgr-border) transparent;
+}
+:root .mgr-layout .mgr-order-queue > .mgr-filter-bar > .mgr-filter-bar-seg { flex: 0 0 auto; width: auto; max-width: none; overflow: visible; }
+:root .mgr-layout .mgr-order-queue > .mgr-filter-bar .ant-space-compact { display: flex; flex-wrap: nowrap; gap: 8px; width: max-content; }
+:root .mgr-layout .mgr-order-queue > .mgr-filter-bar .ant-space-compact > .ant-btn {
+ height: 54px;
+ padding-inline: 18px;
+ font-size: 16px;
+ font-weight: 650;
+ border-radius: 11px;
+ white-space: nowrap;
+ flex: 0 0 auto;
+ margin-inline-start: 0;
+}
+:root .mgr-layout .mgr-order-queue > .mgr-filter-bar .mgr-seg-count { min-width: 28px; height: 28px; font-size: 14px; margin-left: 7px; }
+:root .mgr-layout .mgr-order-queue > .mgr-filter-bar > .mgr-filter-bar-search {
+ flex: 1 0 300px;
+ width: 340px;
+ min-width: 300px;
+ max-width: none;
+ height: 52px;
+ border-radius: 12px;
+ font-size: 15px;
+}
+:root .mgr-layout .mgr-order-queue > .mgr-filter-bar .mgr-filter-bar-search input { font-size: 15px; }
+:root .mgr-layout .mgr-order-queue > .mgr-filter-bar > .mgr-filter-bar-end:empty { display: none; }
+:root .mgr-layout .mgr-order-queue > .mgr-filter-bar > .mgr-filter-bar-end:not(:empty) { flex: 0 0 auto; width: auto; margin: 0; }

@@ -22,6 +22,7 @@ export type ManagerRoute =
   | { screen: 'missionDetail'; missionId: string }
   | {
       screen: 'schedule'
+      calendar?: boolean
       assignmentMissionId?: string
       assignmentCanEdit?: boolean
       assignmentReplaceStaffId?: string
@@ -101,7 +102,7 @@ export function parseManagerRoute(hash: string): ManagerRoute {
               ...(assignmentReplaceStaffId ? { assignmentReplaceStaffId } : {}),
               ...(assignmentReturnOrderId ? { assignmentReturnOrderId } : {}),
             }
-          : { screen: 'schedule' }
+          : { screen: 'schedule', ...(searchParams.get('view') === 'calendar' ? { calendar: true } : {}) }
       }
     case 'drones': {
       const assignmentMissionId =
@@ -160,7 +161,7 @@ export function managerHref(route: ManagerRoute): string {
     case 'missionDetail':
       return `${MANAGER_ROOT}/missions/${route.missionId}/detail`
     case 'schedule': {
-      if (!route.assignmentMissionId) return `${MANAGER_ROOT}/schedule`
+      if (!route.assignmentMissionId) return `${MANAGER_ROOT}/schedule${route.calendar ? '?view=calendar' : ''}`
       const params = new URLSearchParams({
         assignmentMissionId: route.assignmentMissionId,
         assignmentCanEdit: route.assignmentCanEdit ? '1' : '0',
