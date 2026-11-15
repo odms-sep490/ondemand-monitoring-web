@@ -247,7 +247,7 @@ function PostflightDevicePage({ missionId, selectedDeviceId, selectedDeviceLabel
   }
 
   if (completedSummary && !allDevicesDone) {
-    return <div className="odm-card" role="status">Thiết bị {deviceLabel} đã được kiểm tra sau bay. Chọn thiết bị còn lại để tiếp tục.</div>
+    return <div className="odm-card" role="status">{t.deviceCheckedNotice(deviceLabel)}</div>
   }
   if (completedSummary) {
     if (completedSummary.failed || activeData?.status === 'FAILED') {
@@ -307,7 +307,7 @@ function PostflightDevicePage({ missionId, selectedDeviceId, selectedDeviceLabel
         <div className="postflight-stack">
           {error && <PostflightErrorBanner error={error} />}
 
-          <div className="postflight-selected-device"><strong>{deviceLabel}</strong><span>Thiết bị đang kiểm tra</span></div>
+          <div className="postflight-selected-device"><strong>{deviceLabel}</strong><span>{t.deviceInspecting}</span></div>
           <div className="postflight-overview">
             {deviceId === activeData?.deviceId && telemetrySnapshot && (
               <TelemetrySummary telemetrySnapshot={telemetrySnapshot} />
@@ -363,7 +363,16 @@ function PostflightDevicePage({ missionId, selectedDeviceId, selectedDeviceLabel
           droneCode={deviceLabel}
           missionId={missionLabel}
           defaultIssueType="PHYSICAL_DAMAGE"
-          defaultDescription={t.failedItemsDescription(failItems.join(', '))}
+          defaultDescription={t.failedItemsDescription(
+            failItems
+              .map(
+                (key) =>
+                  categories
+                    .flatMap((c) => c.items)
+                    .find((item) => item.key === key)?.label ?? key,
+              )
+              .join(', '),
+          )}
           submitting={ticketSubmitting}
           onCancel={() => setShowTicketDialog(false)}
           onConfirm={handleCreateTicket}

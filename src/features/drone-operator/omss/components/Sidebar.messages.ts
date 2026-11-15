@@ -2,9 +2,9 @@ import { defineMessages } from '../../../../shared/i18n'
 
 export const sidebarMessages = defineMessages({
   vi: {
-    nav: 'Điều hướng phi công drone',
+    nav: 'Điều hướng phi công thiết bị',
     roleLabel: {
-      operator: 'Vận hành drone',
+      operator: 'Vận hành thiết bị',
       customer: 'Không gian khách hàng',
       manager: 'Bảng điều hành vận hành',
       sysop: 'Vận hành hệ thống',
@@ -12,10 +12,10 @@ export const sidebarMessages = defineMessages({
     },
     operatorNav: {
       dashboard: 'Tổng quan',
-      myMissions: 'Mission của tôi',
-      missionControl: 'Điều khiển mission',
-      media: 'Media',
-      history: 'Lịch sử mission',
+      myMissions: 'Nhiệm vụ của tôi',
+      missionControl: 'Điều khiển nhiệm vụ',
+      media: 'Ảnh/video',
+      history: 'Lịch sử nhiệm vụ',
       zoneMap: 'Bản đồ vùng bay',
     },
     customerNav: {
@@ -29,12 +29,12 @@ export const sidebarMessages = defineMessages({
       dashboard: 'Tổng quan',
       team: 'Đội ngũ',
       approvals: 'Phê duyệt',
-      fleet: 'Đội drone',
+      fleet: 'Đội thiết bị',
       reports: 'Báo cáo',
     },
     sysopNav: {
       dashboard: 'Tổng quan',
-      fleetHealth: 'Tình trạng đội drone',
+      fleetHealth: 'Tình trạng đội thiết bị',
       maintenance: 'Bảo trì',
       systems: 'Hệ thống',
       alerts: 'Cảnh báo',

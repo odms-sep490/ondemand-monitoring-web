@@ -2,13 +2,13 @@ import { defineMessages } from '../../../../shared/i18n'
 
 export const manualUploadMessages = defineMessages({
   vi: {
-    title: 'Tải thủ công tệp media',
+    title: 'Tải thủ công tệp ảnh/video',
     description:
-      'Các tệp này cần khôi phục thủ công. Thử lại bản gốc trên Flight Controller hoặc chọn đúng bản sao lưu từ PC.',
+      'Các tệp này cần khôi phục thủ công. Thử lại bản gốc trên Bộ điều khiển bay hoặc chọn đúng bản sao lưu từ PC.',
     refresh: 'Làm mới',
     backToReview: 'Quay lại duyệt',
-    backToMissions: 'Về danh sách mission',
-    empty: 'Mission này không có tác vụ tải thủ công.',
+    backToMissions: 'Về danh sách nhiệm vụ',
+    empty: 'Nhiệm vụ này không có tác vụ tải thủ công.',
     localId: 'ID cục bộ',
     uploading: 'Đang tải lên…',
     startRetry: 'Bắt đầu thử lại thủ công',

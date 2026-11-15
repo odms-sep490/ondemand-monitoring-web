@@ -2,14 +2,14 @@ import { defineMessages } from '../../../../../shared/i18n'
 
 export const cancelMissionDialogMessages = defineMessages({
   vi: {
-    title: (code: string) => `Hủy Mission ${code}?`,
-    description: 'Mission sẽ bị hủy và không thể Start lại.',
+    title: (code: string) => `Hủy nhiệm vụ ${code}?`,
+    description: 'Nhiệm vụ sẽ bị hủy và không thể bắt đầu lại.',
     reasonLabel: 'Lý do hủy (bắt buộc)',
-    reasonPlaceholder: 'Nhập lý do hủy mission.',
+    reasonPlaceholder: 'Nhập lý do hủy nhiệm vụ.',
     reasonRequired: 'Vui lòng nhập lý do hủy.',
     keepMission: 'Quay lại',
-    confirmCancel: 'Hủy Mission',
-    cancelFailed: 'Không thể hủy Mission. Vui lòng thử lại.',
+    confirmCancel: 'Hủy nhiệm vụ',
+    cancelFailed: 'Không thể hủy nhiệm vụ. Vui lòng thử lại.',
   },
   en: {
     title: (code: string) => `Cancel Mission ${code}?`,

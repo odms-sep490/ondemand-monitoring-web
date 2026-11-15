@@ -545,7 +545,7 @@ describe('Upload media and monitoring workspace', () => {
   // in MissionResultActions.test.tsx).
   const resultControls = () => [
     screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
-    screen.queryByRole('button', { name: 'Xác nhận hoàn thành Mission' }),
+    screen.queryByRole('button', { name: 'Xác nhận hoàn thành nhiệm vụ' }),
   ]
 
   it('does not offer completion or submission to a multi-role actor', async () => {

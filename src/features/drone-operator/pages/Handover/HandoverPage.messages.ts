@@ -3,18 +3,18 @@ import { defineMessages } from '../../../../shared/i18n'
 export const handoverPageMessages = defineMessages({
   vi: {
     commitments: [
-      'Tôi đã kiểm tra khu vực bay, không có người và phương tiện trong vùng an toàn, và tuân thủ mọi vùng cấm bay được cảnh báo trong mission.',
+      'Tôi đã kiểm tra khu vực bay, không có người và phương tiện trong vùng an toàn, và tuân thủ mọi vùng cấm bay được cảnh báo trong nhiệm vụ.',
       'Tôi giữ thiết bị trong tầm nhìn khi có thể, không bay quá độ cao 120 m và không vượt bán kính vùng giám sát 500 m.',
-      'Tôi sẵn sàng bấm RTL hoặc LAND ngay khi có cảnh báo pin thấp, mất telemetry hoặc thời tiết xấu.',
+      'Tôi sẵn sàng bấm RTL hoặc LAND ngay khi có cảnh báo pin thấp, mất dữ liệu bay hoặc thời tiết xấu.',
       'Tôi chịu trách nhiệm an toàn vận hành từ lúc xác nhận cho tới khi thiết bị hạ cánh và tắt động cơ.',
     ],
-    noMissionSelected: 'Chưa chọn mission',
+    noMissionSelected: 'Chưa chọn nhiệm vụ',
     noDroneAssigned: 'Chưa gán thiết bị',
-    noDroneAssignedError: 'Chọn mission đã gán thiết bị trước khi tiếp tục',
+    noDroneAssignedError: 'Chọn nhiệm vụ đã gán thiết bị trước khi tiếp tục',
     precheckRequiredError:
       'Vui lòng hoàn tất kiểm tra thiết bị trước bay trước khi bàn giao.',
     crewAcceptanceRequired:
-      'Mission chỉ sẵn sàng bàn giao sau khi toàn bộ staff đã chấp nhận.',
+      'Nhiệm vụ chỉ sẵn sàng bàn giao sau khi toàn bộ nhân sự đã chấp nhận.',
     confirmFailed: 'Không xác nhận được cam kết',
     stepTitle: 'Bàn giao quyền điều khiển',
     commitmentTitle: 'Xác nhận bàn giao sau khi kiểm tra trước bay',
@@ -26,7 +26,7 @@ export const handoverPageMessages = defineMessages({
     confirmLockedNote:
       'Thiết bị phải đạt kiểm tra trước bay và bạn cần xác nhận đủ 4 cam kết. Sau khi bàn giao, nhân sự nghiệm thu sẽ bắt đầu nhiệm vụ.',
     assignedToMission:
-      'Thiết bị được gán cho mission và đã hoàn tất precheck.',
+      'Thiết bị được gán cho nhiệm vụ và đã hoàn tất precheck.',
     assigned: 'Đã phân công',
   },
   en: {

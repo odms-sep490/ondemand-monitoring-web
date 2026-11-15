@@ -10,7 +10,7 @@ describe('ConnectStatusPanel', () => {
     render(<ConnectStatusPanel state="default" error={null} />)
     expect(screen.getByText('Trạng thái kết nối')).toBeTruthy()
     expect(screen.getByText('Chưa kết nối')).toBeTruthy()
-    expect(screen.getByText('Quay lại mission')).toBeTruthy()
+    expect(screen.getByText('Quay lại nhiệm vụ')).toBeTruthy()
   })
 
   it('renders english status text when language is switched', () => {

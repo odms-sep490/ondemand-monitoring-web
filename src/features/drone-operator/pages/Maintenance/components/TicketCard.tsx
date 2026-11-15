@@ -1,7 +1,9 @@
-import { formatTicketTitle } from '../../../../manager/lib/ticketText'
+import { formatIssueType, formatTicketTitle } from '../../../../manager/lib/ticketText'
 import { maintenanceDeviceLabel } from '../maintenanceHelpers'
 import { maintenancePageMessages } from '../MaintenancePage.messages'
 import { useI18n } from '../../../../../shared/i18n'
+import { getTicketSeverityLabel } from '../../../../../shared/lib/statusTone'
+import type { TicketSeverity } from '../../../../../shared/types/domain'
 import type { MaintenanceTicketDto } from '../../../api/maintenanceTicketApi'
 import type { Dispatch, SetStateAction } from 'react'
 
@@ -14,7 +16,7 @@ export function TicketCard({
   setSelectedTicket: Dispatch<SetStateAction<MaintenanceTicketDto | null>>
   setError: Dispatch<SetStateAction<string | null>>
 }) {
-  const { t, locale } = useI18n(maintenancePageMessages)
+  const { t, locale, lang } = useI18n(maintenancePageMessages)
   return (
     <div
       className="odm-card"
@@ -69,7 +71,10 @@ export function TicketCard({
               border: `1px solid ${ticket.severity === 'HIGH' || ticket.severity === 'CRITICAL' ? 'var(--ui-danger)' : 'var(--ui-warning)'}`,
             }}
           >
-            {ticket.severity || 'MEDIUM'}
+            {getTicketSeverityLabel(
+              (ticket.severity || 'MEDIUM') as TicketSeverity,
+              lang,
+            ) ?? t.severityUnknown}
           </span>
         </div>
 
@@ -82,7 +87,8 @@ export function TicketCard({
           }}
         >
           {formatTicketTitle(
-            ticket.description || ticket.issueType || t.defaultIssue,
+            ticket.description || formatIssueType(ticket.issueType ?? '') || t.defaultIssue,
+            maintenanceDeviceLabel(ticket),
           )}
         </h3>
 

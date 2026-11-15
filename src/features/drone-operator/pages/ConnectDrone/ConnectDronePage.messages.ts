@@ -2,20 +2,20 @@ import { defineMessages } from '../../../../shared/i18n'
 
 export const connectDronePageMessages = defineMessages({
   vi: {
-    gcsOptions: ['Flight Controller hiện tại'],
-    noMissionAssigned: 'Mission chưa được gán thiết bị',
-    connectFailed: 'Không kết nối được Flight Controller',
+    gcsOptions: ['Bộ điều khiển bay hiện tại'],
+    noMissionAssigned: 'Nhiệm vụ chưa được gán thiết bị',
+    connectFailed: 'Không kết nối được Bộ điều khiển bay',
     stepTitle: 'Kết nối thiết bị',
-    noMissionSelected: 'Chưa chọn mission',
+    noMissionSelected: 'Chưa chọn nhiệm vụ',
     noDroneAssigned: 'Chưa gán thiết bị',
-    connectionTitle: 'Kết nối Flight Controller',
+    connectionTitle: 'Kết nối Bộ điều khiển bay',
     gcsAriaLabel: 'GCS',
     connected: 'Đã kết nối',
     connecting: 'Đang kết nối...',
     retry: 'Thử lại',
     connect: 'Kết nối',
     sessionNote:
-      'Phiên điều khiển được xác thực bằng tài khoản operator và thiết bị đã gán cho mission.',
+      'Phiên điều khiển được xác thực bằng tài khoản người vận hành và thiết bị đã gán cho nhiệm vụ.',
   },
   en: {
     gcsOptions: ['Current Flight Controller'],
