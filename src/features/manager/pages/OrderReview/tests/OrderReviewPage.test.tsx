@@ -17,6 +17,7 @@ import {
   customerApi,
   type FlightAreaAssessment,
 } from '../../../../customer/api/customerApi'
+import { contractApi } from '../../../../contract/contractApi'
 import { financeApi } from '../../../../finance/api'
 import type { Quote } from '../../../../finance/types'
 import type { OrderDetail } from '../../../types/orders'
@@ -101,6 +102,26 @@ function mockPricing() {
     quoteHistory: [],
   })
   vi.spyOn(financeApi, 'saveDraft').mockResolvedValue(quote)
+  vi.spyOn(contractApi, 'get').mockResolvedValue({
+    required: true,
+    id: 'contract',
+    version: 0,
+    invoiceId: null,
+    quoteId: quote.id,
+    quoteVersion: quote.version,
+    contractNumber: 'CTR-01',
+    status: 'AWAITING_SIGNATURE',
+    issuedAt: null,
+    issuedBy: null,
+    confirmedAt: null,
+    confirmedBy: null,
+    document: {
+      fileName: 'official.pdf',
+      byteSize: 100,
+      sha256: 'a'.repeat(64),
+    },
+    submissions: [],
+  })
 }
 
 const approvableReadiness: OrderReadiness = {
@@ -173,6 +194,56 @@ afterEach(() => {
 })
 
 describe('OrderReviewPage', () => {
+  it('keeps an unresolved contract cancellation actionable after a full page reload', async () => {
+    mockHappyPath()
+    mockPricing()
+    vi.mocked(ordersApi.getOrder).mockResolvedValue({
+      ...order,
+      status: 'CANCELLED',
+    })
+    vi.spyOn(contractApi, 'cancellation').mockResolvedValue({
+      id: 'case',
+      version: 2,
+      status: 'REVIEW_REQUIRED',
+      responsibility: 'UNRESOLVED',
+      reason: 'The parties cannot proceed',
+      basis: null,
+      depositPaid: 300000,
+      refundId: null,
+      requestedAt: '2026-11-14T04:00:00Z',
+      requestedBy: 'manager',
+      decidedAt: null,
+      decidedBy: null,
+    })
+    vi.mocked(contractApi.get).mockResolvedValue({
+      required: true,
+      id: 'contract',
+      version: 2,
+      invoiceId: 'invoice',
+      quoteId: 'quote',
+      quoteVersion: 1,
+      contractNumber: 'CTR-01',
+      status: 'CANCELLED',
+      issuedAt: '2026-11-14T03:00:00Z',
+      issuedBy: 'manager',
+      confirmedAt: null,
+      confirmedBy: null,
+      document: {
+        fileName: 'official.pdf',
+        byteSize: 100,
+        sha256: 'a'.repeat(64),
+      },
+      submissions: [],
+    })
+    render(<OrderReviewPage orderId={order.id} />)
+    expect(
+      await screen.findByRole('button', { name: 'Ghi nhận quyết định' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Tạo thêm nhiệm vụ' }),
+    ).toBeNull()
+  })
+
   it('reuses the initial exact Order read when the planning workspace mounts', async () => {
     mockHappyPath()
     mockApprovedPlanning()
@@ -214,8 +285,13 @@ describe('OrderReviewPage', () => {
     render(<OrderReviewPage orderId={order.id} />)
     await openPricingStep()
     fireEvent.click(
-      await screen.findByRole('button', { name: 'Duyệt báo giá' }),
+      await screen.findByRole('button', { name: 'Tiếp tục chuẩn bị hợp đồng' }),
     )
+    const send = await screen.findByRole('button', {
+      name: 'Gửi báo giá kèm hợp đồng',
+    })
+    await waitFor(() => expect(send).toBeEnabled())
+    fireEvent.click(send)
     await screen.findByRole('heading', { name: /ORD-2609-0157/, level: 2 })
     expect(window.location.hash).toBe('#portal/manager/orders/' + order.id)
     expect(
@@ -477,8 +553,13 @@ describe('OrderReviewPage', () => {
     await openPricingStep()
 
     fireEvent.click(
-      await screen.findByRole('button', { name: 'Duyệt báo giá' }),
+      await screen.findByRole('button', { name: 'Tiếp tục chuẩn bị hợp đồng' }),
     )
+    const send = await screen.findByRole('button', {
+      name: 'Gửi báo giá kèm hợp đồng',
+    })
+    await waitFor(() => expect(send).toBeEnabled())
+    fireEvent.click(send)
 
     expect(
       await screen.findByRole('heading', {
@@ -505,8 +586,13 @@ describe('OrderReviewPage', () => {
     )
     await openPricingStep()
     fireEvent.click(
-      await screen.findByRole('button', { name: 'Duyệt báo giá' }),
+      await screen.findByRole('button', { name: 'Tiếp tục chuẩn bị hợp đồng' }),
     )
+    const send = await screen.findByRole('button', {
+      name: 'Gửi báo giá kèm hợp đồng',
+    })
+    await waitFor(() => expect(send).toBeEnabled())
+    fireEvent.click(send)
     expect(
       await screen.findByRole('heading', {
         name: /ORD-2609-0157/,
@@ -560,9 +646,9 @@ describe('OrderReviewPage', () => {
     expect(screen.queryByText('Tình trạng nguồn lực')).not.toBeInTheDocument()
     expect(screen.queryByText('Không có email')).not.toBeInTheDocument()
     await openPricingStep()
-    // Action bar still renders — the page didn't crash on null fields.
+    // Action bar still renders without optional detail data.
     expect(
-      await screen.findByRole('button', { name: 'Duyệt báo giá' }),
+      await screen.findByRole('button', { name: 'Tiếp tục chuẩn bị hợp đồng' }),
     ).toBeInTheDocument()
   })
 

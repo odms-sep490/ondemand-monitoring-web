@@ -14,21 +14,44 @@ import { contractApi } from './contractApi'
 import { contractMessages } from './contract.messages'
 import type { OrderContract } from './types'
 import './OrderContractPanel.css'
+import { ContractCancellationPanel } from './ContractCancellationPanel'
 
 type Props = {
   orderId: string
   mode: 'customer' | 'manager'
   onConfirmed?: () => void
+  onUpdated?: () => void
+  quoteId?: string
+  pricingRevision?: number
+  refreshKey?: string
+  onPrepared?: () => void
+  embedded?: boolean
   onProceedToPayment?: () => void
 }
 export function OrderContractPanel(props: Props) {
-  return <ContractContent key={`${props.orderId}:${props.mode}`} {...props} />
+  return (
+    <ContractContent
+      key={`${props.orderId}:${props.mode}:${props.quoteId ?? 'current'}`}
+      {...props}
+    />
+  )
 }
-function ContractContent({ orderId, mode, onConfirmed, onProceedToPayment }: Props) {
+function ContractContent({
+  orderId,
+  mode,
+  onConfirmed,
+  onUpdated,
+  quoteId,
+  refreshKey,
+  pricingRevision,
+  onPrepared,
+  embedded = false,
+  onProceedToPayment,
+}: Props) {
   const { t, locale } = useI18n(contractMessages)
   const query = useApiQuery(
-    (signal) => contractApi.get(orderId, signal),
-    [orderId],
+    (signal) => contractApi.get(orderId, signal, quoteId),
+    [orderId, quoteId, refreshKey],
   )
   useEffect(() => subscribeNotificationRefresh((_notification, replay) => {
     if (!replay) query.reload()
@@ -36,13 +59,33 @@ function ContractContent({ orderId, mode, onConfirmed, onProceedToPayment }: Pro
   const data = query.data
   const manager = mode === 'manager'
   const [file, setFile] = useState<File | null>(null)
-  const [number, setNumber] = useState('')
   const [reason, setReason] = useState('')
-  const [checked, setChecked] = useState(false)
+  const [checkedVersion, setCheckedVersion] = useState<number | null>(null)
+  const checked = checkedVersion !== null && checkedVersion === data?.version
+  const [replaceOpen, setReplaceOpen] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const confirmed = useRef<string | null>(null)
+  const observed = useRef<string | null>(null)
+  useEffect(() => {
+    if (!data) return
+    const key = `${data.id}:${data.version}:${data.status}`
+    if (observed.current && observed.current !== key) onUpdated?.()
+    observed.current = key
+  }, [data, onUpdated])
   const input = useRef<HTMLInputElement>(null)
+  const prepared = useRef<string | null>(null)
+  useEffect(() => {
+    if (
+      data?.document &&
+      data.id &&
+      (!quoteId || data.quoteId === quoteId) &&
+      data.id !== prepared.current
+    ) {
+      prepared.current = data.id
+      onPrepared?.()
+    }
+  }, [data?.id, data?.document, data?.quoteId, quoteId, onPrepared])
   useEffect(() => {
     if (data?.status === 'CONFIRMED' && data.id !== confirmed.current) {
       confirmed.current = data.id
@@ -62,7 +105,8 @@ function ContractContent({ orderId, mode, onConfirmed, onProceedToPayment }: Pro
     }
   }, [data?.required, data?.status, query.reload])
   useEffect(() => {
-    setChecked(false)
+    setCheckedVersion(null)
+    setReplaceOpen(false)
     setReason('')
   }, [data?.version])
   function message(cause: unknown) {
@@ -74,7 +118,6 @@ function ContractContent({ orderId, mode, onConfirmed, onProceedToPayment }: Pro
   }
   function errorText(code: string) {
     if (code === 'fileInvalid') return t.fileInvalid
-    if (code === 'numberInvalid') return t.numberInvalid
     return t.errors[code] ?? t.failed
   }
   async function act(operation: () => Promise<OrderContract>) {
@@ -98,7 +141,7 @@ function ContractContent({ orderId, mode, onConfirmed, onProceedToPayment }: Pro
     setBusy(true)
     setError(null)
     try {
-      const result = await contractApi.download(orderId, submissionId)
+      const result = await contractApi.download(orderId, submissionId, quoteId)
       const url = new URL(result.url, window.location.origin)
       if (!['https:', 'http:'].includes(url.protocol))
         throw new Error('Invalid download link')
@@ -109,11 +152,17 @@ function ContractContent({ orderId, mode, onConfirmed, onProceedToPayment }: Pro
       anchor.click()
     } catch (cause) {
       setError(message(cause))
+      if (
+        cause instanceof ApiError &&
+        cause.code === 'CONTRACT_SUBMISSION_REPLACED'
+      )
+        query.reload()
     } finally {
       setBusy(false)
     }
   }
   function selectFile(value: File | undefined) {
+    setCheckedVersion(null)
     setFile(null)
     setError(null)
     if (!value) return
@@ -133,7 +182,7 @@ function ContractContent({ orderId, mode, onConfirmed, onProceedToPayment }: Pro
       timeStyle: 'short',
       timeZone: 'Asia/Ho_Chi_Minh',
     }).format(new Date(value))
-  if (query.error)
+  if (query.error || (data && quoteId && data.quoteId !== quoteId))
     return (
       <section className="order-contract-panel">
         <Alert
@@ -150,7 +199,16 @@ function ContractContent({ orderId, mode, onConfirmed, onProceedToPayment }: Pro
   const canIssue = manager && data.status === 'NOT_ISSUED'
   const canSubmit =
     !manager &&
-    ['AWAITING_SIGNATURE', 'CHANGES_REQUESTED'].includes(data.status)
+    Boolean(data.invoiceId) &&
+    [
+      'AWAITING_SIGNATURE',
+      'CHANGES_REQUESTED',
+      'PENDING_VERIFICATION',
+    ].includes(data.status)
+  const replacing =
+    !manager &&
+    data.status === 'PENDING_VERIFICATION' &&
+    latest?.status === 'PENDING'
   const canReview =
     manager &&
     data.status === 'PENDING_VERIFICATION' &&
@@ -159,27 +217,30 @@ function ContractContent({ orderId, mode, onConfirmed, onProceedToPayment }: Pro
   const upload = () => {
     if (!file) return
     if (canIssue) {
-      if (!/^[A-Za-z0-9][A-Za-z0-9/_-]{2,79}$/.test(number.trim())) {
-        setError('numberInvalid')
-        return
-      }
       void act(() =>
-        contractApi.issue(orderId, data.quoteId, number.trim(), file),
+        pricingRevision == null
+          ? contractApi.issue(orderId, data.quoteId, undefined, file)
+          : contractApi.issue(
+              orderId,
+              data.quoteId,
+              undefined,
+              file,
+              pricingRevision,
+            ),
       )
     } else if (canSubmit)
       void act(() => contractApi.submit(orderId, data.version, file))
   }
   return (
-    <section className="order-contract-panel" aria-label={t.title}>
+    <section
+      className={`order-contract-panel${embedded ? ' is-embedded' : ''}`}
+      aria-label={t.title}
+    >
       <header>
         <div className="order-contract-panel__heading">
           <FilePdfOutlined aria-hidden />
           <div>
             <h3>{t.title}</h3>
-            <p>
-              {t.quote(data.quoteVersion)}
-              {data.contractNumber ? ` · ${data.contractNumber}` : ''}
-            </p>
           </div>
         </div>
         <Tag
@@ -191,11 +252,24 @@ function ContractContent({ orderId, mode, onConfirmed, onProceedToPayment }: Pro
                 : 'blue'
           }
         >
-          {t.status[data.status]}
+          {!data.invoiceId && data.document
+            ? t.preparedStatus
+            : t.status[data.status]}
         </Tag>
       </header>
-      <p className="order-contract-panel__hint">{t.subtitle}</p>
+      {!embedded && (
+        <p className="order-contract-panel__hint">
+          {manager
+            ? t.managerSubtitle
+            : !data.invoiceId
+              ? t.preAcceptSubtitle
+              : t.subtitle}
+        </p>
+      )}
       {data.status === 'NOT_ISSUED' && !manager && <p>{t.waitingIssue}</p>}
+      {!manager && !data.invoiceId && data.document && (
+        <Alert type="info" showIcon message={t.acceptFirst} />
+      )}
       {data.document && (
         <div className="order-contract-panel__document">
           <FilePdfOutlined aria-hidden />
@@ -218,25 +292,56 @@ function ContractContent({ orderId, mode, onConfirmed, onProceedToPayment }: Pro
       {data.status === 'CHANGES_REQUESTED' && latest?.reviewNote && (
         <Alert type="warning" showIcon message={latest.reviewNote} />
       )}
-      {(canIssue || canSubmit) && (
-        <div className="order-contract-panel__upload">
-          {canIssue && (
-            <>
-              <p>{t.managerIssue}</p>
-              <label>
-                {t.number}
-                <Input
-                  value={number}
-                  maxLength={80}
-                  disabled={disabled}
-                  onChange={(e) => setNumber(e.target.value)}
-                />
-              </label>
-            </>
+      {replacing && (
+        <div className="order-contract-panel__document">
+          <FilePdfOutlined aria-hidden />
+          <span className="order-contract-panel__document-copy">
+            <strong>{latest.document.fileName}</strong>
+            <small>{t.currentSigned}</small>
+          </span>
+          <Button disabled={disabled} onClick={() => void download(latest.id)}>
+            {t.signedDownload}
+          </Button>
+          {!replaceOpen && (
+            <Button disabled={disabled} onClick={() => setReplaceOpen(true)}>
+              {t.replaceOpen}
+            </Button>
           )}
-          <div className="order-contract-panel__file">
-            <UploadOutlined aria-hidden />
-            <strong>{canIssue ? t.file : t.signedFile}</strong>
+        </div>
+      )}
+      {(canIssue || (canSubmit && (!replacing || replaceOpen))) && (
+        <div className="order-contract-panel__upload">
+          <div
+            className={`order-contract-panel__file${file ? ' has-file' : ''}`}
+            onDragOver={(e) => {
+              e.preventDefault()
+            }}
+            onDrop={(e) => {
+              e.preventDefault()
+              if (disabled) return
+              if (e.dataTransfer.files.length !== 1) {
+                setFile(null)
+                setError('fileInvalid')
+                return
+              }
+              selectFile(e.dataTransfer.files[0])
+            }}
+          >
+            <span
+              className="order-contract-panel__upload-icon"
+              aria-hidden="true"
+            >
+              {file ? <FilePdfOutlined /> : <UploadOutlined />}
+            </span>
+            <div className="order-contract-panel__file-copy">
+              <strong>
+                {file?.name ?? (canIssue ? t.file : t.signedFile)}
+              </strong>
+              <small>
+                {file ? `${Math.ceil(file.size / 1024)} KB · PDF` : t.dropHint}
+              </small>
+              <small>{t.limit}</small>
+            </div>
             <input
               ref={input}
               type="file"
@@ -247,30 +352,46 @@ function ContractContent({ orderId, mode, onConfirmed, onProceedToPayment }: Pro
               onChange={(e) => selectFile(e.target.files?.[0])}
             />
             <Button disabled={disabled} onClick={() => input.current?.click()}>
-              {t.chooseFile}
+              {file ? t.changeFile : t.chooseFile}
             </Button>
-            <span className="order-contract-panel__filename">
-              {file?.name ?? t.noFile}
-            </span>
-            <small>{t.limit}</small>
           </div>
           {canSubmit && (
             <Checkbox
               checked={checked}
               disabled={disabled}
-              onChange={(e) => setChecked(e.target.checked)}
+              onChange={(e) =>
+                setCheckedVersion(e.target.checked ? data.version : null)
+              }
             >
               {t.declaration}
             </Checkbox>
           )}
           <Button
-            type="primary"
+            type={canIssue ? 'default' : 'primary'}
             disabled={disabled || !file || (!manager && !checked)}
             loading={busy}
             onClick={upload}
           >
-            {canIssue ? t.issue : t.submit}
+            {canIssue
+              ? t.issue
+              : data.status === 'PENDING_VERIFICATION'
+                ? t.replace
+                : t.submit}
           </Button>
+          {replacing && (
+            <Button
+              type="text"
+              disabled={busy}
+              onClick={() => {
+                setReplaceOpen(false)
+                setFile(null)
+                setCheckedVersion(null)
+                if (input.current) input.current.value = ''
+              }}
+            >
+              {t.cancelReplacement}
+            </Button>
+          )}
         </div>
       )}
       {canReview && (
@@ -286,7 +407,9 @@ function ContractContent({ orderId, mode, onConfirmed, onProceedToPayment }: Pro
           <Checkbox
             checked={checked}
             disabled={disabled}
-            onChange={(e) => setChecked(e.target.checked)}
+            onChange={(e) =>
+              setCheckedVersion(e.target.checked ? data.version : null)
+            }
           >
             {t.checked}
           </Checkbox>
@@ -345,6 +468,17 @@ function ContractContent({ orderId, mode, onConfirmed, onProceedToPayment }: Pro
         />
       )}
       {error && <Alert type="error" showIcon message={errorText(error)} />}
+      {data.invoiceId && (
+        <ContractCancellationPanel
+          orderId={orderId}
+          contract={data}
+          manager={manager}
+          onChanged={() => {
+            query.reload()
+            onUpdated?.()
+          }}
+        />
+      )}
       {data.submissions.length > 0 && (
         <details className="order-contract-panel__history">
           <summary>
@@ -363,13 +497,17 @@ function ContractContent({ orderId, mode, onConfirmed, onProceedToPayment }: Pro
                   : ''}
               </p>
               {row.reviewNote && <p>{row.reviewNote}</p>}
-              <Button
-                size="small"
-                disabled={disabled}
-                onClick={() => void download(row.id)}
-              >
-                {t.signedDownload}
-              </Button>
+              {row.status === 'SUPERSEDED' ? (
+                <p className="order-contract-panel__hint">{t.supersededFile}</p>
+              ) : (
+                <Button
+                  size="small"
+                  disabled={disabled}
+                  onClick={() => void download(row.id)}
+                >
+                  {t.signedDownload}
+                </Button>
+              )}
             </article>
           ))}
         </details>

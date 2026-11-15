@@ -1,3 +1,4 @@
+import type { InternalCorrectionCreation } from '../../../../mission/inspection/inspectionCorrectionApi'
 import type { OrderMissionBrief } from '../../../types/orders'
 import { useI18n } from '../../../../../shared/i18n'
 import { missionCreatePageMessages } from '../MissionCreatePage.messages'
@@ -42,24 +43,27 @@ export function CreateMissionForm({
   now,
   onCreated,
   reworkCase,
+  internalCorrection,
 }: {
   orderId: string
   brief: OrderMissionBrief
   now: Date
   onCreated?: (missionId: string) => void
   reworkCase?: ResultRevisionCase
+  internalCorrection?: InternalCorrectionCreation
 }) {
   const { t } = useI18n(missionCreatePageMessages)
   const { t: reviewT } = useI18n(orderReviewPageMessages)
   const { t: planningT } = useI18n(planningPresentationMessages)
   const localizeMediaLabel = (label: string) =>
     humanizeMediaRequirement(label, reviewT)
+  const correctionMode = Boolean(reworkCase || internalCorrection)
   void now
 
   const [scheduledStart, setScheduledStart] = useState('')
   const [scheduledEnd, setScheduledEnd] = useState('')
   const [weatherCheckDate, setWeatherCheckDate] = useState(() =>
-    reworkCase
+    correctionMode
       ? toLocalInput(now).slice(0, 10)
       : (dateRangeFromBrief(brief)[0] ?? ''),
   )
@@ -70,7 +74,11 @@ export function CreateMissionForm({
     brief.executionPlanRevision ?? 0,
   )
   const [scopeLabel, setScopeLabel] = useState(() =>
-    reworkCase ? t.reworkScopeLabel(reworkCase.ticketCode) : t.wholeOrderScope,
+    internalCorrection
+      ? t.internalScope
+      : reworkCase
+        ? t.reworkScopeLabel(reworkCase.ticketCode)
+        : t.wholeOrderScope,
   )
   const planQuery = useApiQuery(
     (signal) => planningApi.getExecutionPlan(orderId, signal),
@@ -84,13 +92,17 @@ export function CreateMissionForm({
     () =>
       (brief.checklistItems ?? []).filter(
         (item) =>
-          !reworkCase ||
-          reworkCase.items.some(
-            (row) =>
-              row.orderChecklistItemId === item.id && canCreateRework(row),
-          ),
+          (!internalCorrection ||
+            internalCorrection.correction.items.some(
+              (row) => row.orderChecklistItemId === item.id,
+            )) &&
+          (!reworkCase ||
+            reworkCase.items.some(
+              (row) =>
+                row.orderChecklistItemId === item.id && canCreateRework(row),
+            )),
       ),
-    [brief.checklistItems, reworkCase],
+    [brief.checklistItems, reworkCase, internalCorrection],
   )
   const uncoveredIds = useMemo(() => {
     if (!planQuery.data) return []
@@ -98,11 +110,10 @@ export function CreateMissionForm({
   }, [planQuery.data])
 
   const [selectedChecklistIds, setSelectedChecklistIds] = useState<string[]>(
-    () => (reworkCase ? checklistItems.map((item) => item.id) : []),
+    () => (correctionMode ? checklistItems.map((item) => item.id) : []),
   )
-  const [hasInitializedChecklist, setHasInitializedChecklist] = useState(
-    Boolean(reworkCase),
-  )
+  const [hasInitializedChecklist, setHasInitializedChecklist] =
+    useState(correctionMode)
 
   // Start with uncovered items only; already assigned checks require an explicit repeat selection.
   useEffect(() => {
@@ -160,15 +171,17 @@ export function CreateMissionForm({
 
   const forecastDates = useMemo(
     () =>
-      onCreated || reworkCase
+      onCreated || correctionMode
         ? weatherCheckDate
           ? [weatherCheckDate]
           : []
         : dateRangeFromBrief(brief),
-    [brief, onCreated, reworkCase, weatherCheckDate],
+    [brief, onCreated, correctionMode, weatherCheckDate],
   )
   const forecastTime =
-    onCreated || reworkCase ? weatherCheckTime : forecastTimeFromBrief(brief)
+    onCreated || correctionMode
+      ? weatherCheckTime
+      : forecastTimeFromBrief(brief)
   const [forecastRows, setForecastRows] = useState<ForecastRow[]>(() =>
     forecastDates.map((date) => ({
       date,
@@ -231,6 +244,7 @@ export function CreateMissionForm({
     setNavigateTo,
     setPlanRevision,
     reworkCase,
+    internalCorrection,
   })
 
   if (navigateTo) {
@@ -270,7 +284,9 @@ export function CreateMissionForm({
         />
       )}
 
-      {!onCreated && !reworkCase && <OrderWorkflowStepper currentStep={5} />}
+      {!onCreated && !correctionMode && (
+        <OrderWorkflowStepper currentStep={5} />
+      )}
       {reworkCase && checklistItems.length === 0 && (
         <Alert type="warning" showIcon message={t.reworkUnavailable} />
       )}
@@ -283,12 +299,14 @@ export function CreateMissionForm({
         scopeLabel={scopeLabel}
         setScopeLabel={setScopeLabel}
         submit={submit}
-        isRework={Boolean(reworkCase)}
+        isRework={correctionMode}
+        title={internalCorrection ? t.internalCreate : undefined}
+        description={internalCorrection ? t.internalDescription : undefined}
       />
 
       <div className="odm-or-grid">
         <div className="odm-or-col">
-          {!reworkCase && <CustomerTimeWindowCard brief={brief} />}
+          {!correctionMode && <CustomerTimeWindowCard brief={brief} />}
           {reworkCase && (
             <section className="odm-or-card odm-plan-window">
               <header className="odm-or-card-head">
@@ -304,7 +322,7 @@ export function CreateMissionForm({
           )}
 
           <WeatherForecastCard
-            customSchedule={Boolean(reworkCase)}
+            customSchedule={correctionMode}
             onCreated={onCreated}
             forecastTime={forecastTime}
             weatherCheckDate={weatherCheckDate}
@@ -318,7 +336,7 @@ export function CreateMissionForm({
           <FlightScheduleCard
             durationText={durationText}
             canFillFromCustomer={
-              !reworkCase && Boolean(dateRangeFromBrief(brief)[0])
+              !correctionMode && Boolean(dateRangeFromBrief(brief)[0])
             }
             fillFromCustomer={fillFromCustomer}
             scheduledStart={scheduledStart}
@@ -331,7 +349,8 @@ export function CreateMissionForm({
 
           <MissionChecklistSelectionCard
             items={checklistItems}
-            plan={reworkCase ? null : (planQuery.data ?? null)}
+            plan={correctionMode ? null : (planQuery.data ?? null)}
+            disabled={Boolean(internalCorrection)}
             selectedIds={selectedChecklistIds}
             onToggle={handleToggleChecklist}
             onSelectAll={handleSelectAllChecklist}
@@ -378,7 +397,8 @@ export function CreateMissionForm({
         submitting={submitting}
         planQuery={planQuery}
         reworkOrderId={reworkCase ? orderId : undefined}
-        blocked={Boolean(reworkCase) && checklistItems.length === 0}
+        blocked={correctionMode && checklistItems.length === 0}
+        label={internalCorrection ? t.internalCreate : undefined}
       />
     </div>
   )

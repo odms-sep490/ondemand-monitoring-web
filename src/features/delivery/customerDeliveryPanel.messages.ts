@@ -126,6 +126,41 @@ export const customerDeliveryPanelMessages = defineMessages({
       'Bạn chỉ có thể yêu cầu chỉnh sửa phần đang được xử lý trong đợt này.',
     resultHistory: 'Lịch sử các đợt bàn giao',
     historyStatus: (status: string) => `Trạng thái: ${status}`,
+    missionPaymentEyebrow: 'Thanh toán để mở bản gốc',
+    missionPaymentTitle: 'Đã duyệt kết quả — thanh toán để tải bản gốc',
+    missionPaymentBody:
+      'Thanh toán khoản phí nhiệm vụ ngay tại đây. Sau khi hoàn tất, các nút Tải bản gốc sẽ mở trực tiếp bên dưới.',
+    missionPaymentPartialBody: (available: number, total: number) =>
+      `${available}/${total} tệp đã mở tải. Hoàn tất thanh toán để mở toàn bộ ảnh/video gốc.`,
+    missionPaymentExpiredTitle: 'Đã hết hạn thanh toán nhiệm vụ',
+    missionPaymentExpiredText:
+      'Đã quá hạn thanh toán cho nhiệm vụ này. Vui lòng liên hệ quản lý để được hỗ trợ.',
+    missionPaymentPendingText:
+      'Đang chờ xác nhận giao dịch thanh toán. Trang sẽ tự động mở tải bản gốc sau khi xác nhận.',
+    missionPayNow: (amount: string) => `Thanh toán ${amount}`,
+    missionContinuePayment: (amount: string) =>
+      `Tiếp tục thanh toán · ${amount}`,
+    missionRetryPayment: (amount: string) => `Thử thanh toán lại · ${amount}`,
+    missionTestPayment: 'Thanh toán nhanh (Test)',
+    missionDeadlineLabel: (value: string) => `Hạn thanh toán: ${value}`,
+    viewInvoiceDetails: 'Xem hóa đơn & lịch sử',
+    goToFinanceTab: 'Mở mục Thanh toán',
+    missionScopeFallback: 'Nhiệm vụ đã bàn giao',
+    missionPaymentLoading: 'Đang tải thông tin thanh toán nhiệm vụ…',
+    missionPaymentMissingUrl:
+      'Chưa nhận được liên kết thanh toán. Vui lòng thử lại.',
+    missionPaymentError:
+      'Không thể khởi tạo thanh toán nhiệm vụ. Vui lòng thử lại.',
+    missionTestPaymentDisabled:
+      'Chế độ thanh toán thử nghiệm đang tắt trên máy chủ.',
+    missionPaymentStatus: {
+      NOT_YET_DUE: 'Chưa bàn giao',
+      UNPAID: 'Chờ thanh toán',
+      PENDING: 'Đang thanh toán',
+      EXPIRED: 'Đã hết hạn',
+      PAID: 'Đã thanh toán',
+      CANCELLED: 'Đã hủy',
+    } as Record<string, string>,
   },
   en: {
     eyebrow: 'Mission results',
@@ -249,5 +284,36 @@ export const customerDeliveryPanelMessages = defineMessages({
       'You can request changes only for items being handled in this round.',
     resultHistory: 'Delivery round history',
     historyStatus: (status: string) => `Status: ${status}`,
+    missionPaymentEyebrow: 'Unlock original files',
+    missionPaymentTitle: 'Results accepted — pay to download originals',
+    missionPaymentBody:
+      'Complete this mission payment right here to unlock Download original buttons directly below.',
+    missionPaymentPartialBody: (available: number, total: number) =>
+      `${available} of ${total} files are downloadable. Complete payment to unlock the remaining originals.`,
+    missionPaymentExpiredTitle: 'Mission payment deadline expired',
+    missionPaymentExpiredText:
+      'The payment deadline for this mission has passed. Contact the Manager for help.',
+    missionPaymentPendingText:
+      'Waiting for payment confirmation. Original downloads unlock automatically here once confirmed.',
+    missionPayNow: (amount: string) => `Pay ${amount}`,
+    missionContinuePayment: (amount: string) => `Continue payment · ${amount}`,
+    missionRetryPayment: (amount: string) => `Retry payment · ${amount}`,
+    missionTestPayment: 'Quick payment (Test)',
+    missionDeadlineLabel: (value: string) => `Pay by: ${value}`,
+    viewInvoiceDetails: 'View invoice & history',
+    goToFinanceTab: 'Open Payment tab',
+    missionScopeFallback: 'Handed-over mission',
+    missionPaymentLoading: 'Loading mission payment details…',
+    missionPaymentMissingUrl: 'Payment redirect URL is missing. Please try again.',
+    missionPaymentError: 'Unable to start mission payment. Please try again.',
+    missionTestPaymentDisabled: 'Test payment mode is disabled on the server.',
+    missionPaymentStatus: {
+      NOT_YET_DUE: 'Not handed over',
+      UNPAID: 'Unpaid',
+      PENDING: 'Payment pending',
+      EXPIRED: 'Expired',
+      PAID: 'Paid',
+      CANCELLED: 'Cancelled',
+    } as Record<string, string>,
   },
 })

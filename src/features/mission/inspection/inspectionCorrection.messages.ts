@@ -5,10 +5,14 @@ export const inspectionCorrectionMessages = defineMessages({
     subtitle:
       'Inspector nghiệm thu và công bố kết quả trực tiếp cho khách hàng.',
     inspectorRole: 'Nghiệm thu kết quả',
+    dualRoleGuide:
+      'Bạn có quyền thực hiện cả bổ sung và nghiệm thu trong nhiệm vụ này. Ghi nhận yêu cầu, bổ sung dữ liệu rồi gửi lại để kiểm tra; mỗi bước vẫn được lưu riêng.',
+    reasonHint:
+      'Mô tả phần còn thiếu, góc chụp cần bổ sung hoặc nội dung cần làm lại.',
     staffRole: 'Bổ sung kết quả',
     managerRole: 'Điều phối thực hiện',
     inspectorGuide:
-      'Kiểm tra các mục và bằng chứng đã bổ sung. Khi đạt, xác nhận xử lý yêu cầu rồi hoàn tất nghiệm thu để công bố cho khách hàng.',
+      'Ghi nhận các mục cần bổ sung. Khi dữ liệu được cập nhật, kiểm tra lại và xác nhận đạt trước khi công bố cho khách hàng.',
     staffGuide:
       'Bổ sung ảnh/video và cập nhật đúng các mục bên dưới, sau đó gửi lại cho Inspector kiểm tra.',
     managerGuide:
@@ -37,10 +41,10 @@ export const inspectionCorrectionMessages = defineMessages({
     pending: 'Cần xử lý yêu cầu bổ sung trước khi xác nhận và công bố kết quả.',
     empty: 'Chưa có yêu cầu bổ sung.',
     newRequest: 'Tạo yêu cầu bổ sung',
-    choose: 'Chọn checklist cần bổ sung',
+    choose: 'Các checklist không đạt cần bổ sung',
     reason: 'Nội dung cần bổ sung',
     media: 'Media liên quan (không bắt buộc)',
-    send: 'Gửi yêu cầu cho Staff',
+    send: 'Ghi nhận yêu cầu bổ sung',
     note: 'Ghi chú xử lý',
     resubmit: 'Gửi lại để nghiệm thu',
     resolve: 'Xác nhận đã bổ sung đạt',
@@ -51,6 +55,7 @@ export const inspectionCorrectionMessages = defineMessages({
     start: 'Bắt đầu — giờ Việt Nam',
     end: 'Kết thúc — giờ Việt Nam',
     plan: 'Tạo Mission bổ sung',
+    openPlanning: 'Mở kế hoạch Mission bổ sung',
     configure: 'Phân công thiết bị và nhân sự',
     finalize: 'Chốt kế hoạch Mission bổ sung',
     supplement: 'Mission bổ sung',
@@ -58,7 +63,7 @@ export const inspectionCorrectionMessages = defineMessages({
       'Chỉ thực hiện lại các checklist trong yêu cầu. Mission gốc giữ nguyên lịch sử; Mission bổ sung có lịch bay và phân công riêng.',
     confirmPlan: 'Tôi đã kiểm tra checklist, lịch bay, thiết bị và nhân sự.',
     status: {
-      OPEN: 'Chờ Staff bổ sung',
+      OPEN: 'Chờ bổ sung dữ liệu',
       SUBMITTED: 'Chờ Inspector kiểm tra lại',
       RESOLVED: 'Đã xử lý',
     },
@@ -66,12 +71,12 @@ export const inspectionCorrectionMessages = defineMessages({
       INTERNAL_MISSION_CREATED: 'Manager đã tạo Mission bổ sung',
       INTERNAL_PLAN_FINALIZED: 'Manager đã chốt kế hoạch bổ sung',
       REQUESTED: 'Inspector yêu cầu bổ sung',
-      RESUBMITTED: 'Staff đã gửi lại',
+      RESUBMITTED: 'Đã gửi lại dữ liệu bổ sung',
       RETURNED: 'Inspector yêu cầu sửa tiếp',
       RESOLVED: 'Inspector xác nhận đạt',
     },
     findings:
-      'Kết quả quan sát không tuân thủ được ghi trong nội dung quan sát; yêu cầu bổ sung dùng cho chất lượng hoặc sự đầy đủ của công việc.',
+      'Tất cả checklist không đạt được tổng hợp bên dưới. Kiểm tra nội dung và ghi nhận yêu cầu để bắt đầu bổ sung.',
     completedBy: 'Được bổ sung và nghiệm thu bởi Mission',
     number: 'Yêu cầu',
   },
@@ -80,6 +85,10 @@ export const inspectionCorrectionMessages = defineMessages({
     subtitle:
       'The Inspector confirms and publishes results directly to the customer.',
     inspectorRole: 'Result inspection',
+    dualRoleGuide:
+      'You can both correct and inspect this Mission. Record the request, update the evidence, then submit it for review. Each step is recorded separately.',
+    reasonHint:
+      'Describe missing evidence, required camera angles or work that needs to be repeated.',
     staffRole: 'Result corrections',
     managerRole: 'Execution coordination',
     inspectorGuide:
@@ -115,10 +124,10 @@ export const inspectionCorrectionMessages = defineMessages({
       'Resolve the correction request before confirming and publishing the result.',
     empty: 'No correction requests.',
     newRequest: 'Request corrections',
-    choose: 'Select checklist items to correct',
+    choose: 'Failed checklists requiring correction',
     reason: 'Required correction',
     media: 'Related media (optional)',
-    send: 'Send request to staff',
+    send: 'Record correction request',
     note: 'Remediation note',
     resubmit: 'Resubmit for inspection',
     resolve: 'Accept the corrections',
@@ -129,6 +138,7 @@ export const inspectionCorrectionMessages = defineMessages({
     start: 'Start — Vietnam time',
     end: 'End — Vietnam time',
     plan: 'Create supplemental mission',
+    openPlanning: 'Open supplemental Mission plan',
     configure: 'Assign equipment and crew',
     finalize: 'Finalize supplemental mission plan',
     supplement: 'Supplemental mission',
@@ -136,7 +146,7 @@ export const inspectionCorrectionMessages = defineMessages({
       'Repeat only the requested checklist scope. The original history is retained; the supplemental mission has its own schedule and crew.',
     confirmPlan: 'I have reviewed the checklist, schedule, equipment and crew.',
     status: {
-      OPEN: 'Awaiting staff corrections',
+      OPEN: 'Awaiting corrections',
       SUBMITTED: 'Awaiting inspector review',
       RESOLVED: 'Resolved',
     },
@@ -144,12 +154,12 @@ export const inspectionCorrectionMessages = defineMessages({
       INTERNAL_MISSION_CREATED: 'Manager created a supplemental mission',
       INTERNAL_PLAN_FINALIZED: 'Manager finalized the supplemental plan',
       REQUESTED: 'Inspector requested corrections',
-      RESUBMITTED: 'Staff resubmitted',
+      RESUBMITTED: 'Corrections resubmitted',
       RETURNED: 'Inspector requested further corrections',
       RESOLVED: 'Inspector accepted corrections',
     },
     findings:
-      'Record adverse site findings in observations; use correction requests for work quality or completeness.',
+      'All failed checklists are included below. Review and record the request to begin corrections.',
     completedBy: 'Corrected and inspected by mission',
     number: 'Request',
   },

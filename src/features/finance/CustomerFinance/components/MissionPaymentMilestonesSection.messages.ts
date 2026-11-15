@@ -2,8 +2,9 @@ import { defineMessages } from '../../../../shared/i18n'
 
 export const missionPaymentMilestoneMessages = defineMessages({
   vi: {
-    title: 'Chi tiết thanh toán theo nhiệm vụ',
-    description: 'Xem tiền cọc của đơn và các khoản thanh toán sau cọc theo từng nhiệm vụ.',
+    title: 'Thanh toán theo nhiệm vụ',
+    paymentProgress: 'Đã thanh toán / Tổng tiền các nhiệm vụ đã bàn giao',
+    description: 'Xem tiền cọc của đơn và các khoản thanh toán sau cọc theo từng nhiệm vụ đã bàn giao.',
     retryHistory: 'Thử lại',
     afterDepositTotal: (amount: string) => `Tổng sau khi trừ cọc: ${amount}`,
     empty: 'Quản lý chưa cấu hình các khoản thanh toán theo nhiệm vụ.',
@@ -12,7 +13,8 @@ export const missionPaymentMilestoneMessages = defineMessages({
     handedOver: 'Bàn giao',
     notHandedOver: 'Chưa bàn giao',
     paymentDeadline: 'Hạn thanh toán',
-    expiredMessage: 'Đã hết hạn thanh toán. Vui lòng liên hệ quản lý để được hỗ trợ.',
+    expiredMessage:
+      'Đã hết hạn thanh toán. Vui lòng liên hệ quản lý để được hỗ trợ.',
     amount: 'Số tiền',
     paymentHistory: 'Lịch sử thanh toán',
     depositTitle: 'Đặt cọc đơn hàng',
@@ -40,20 +42,24 @@ export const missionPaymentMilestoneMessages = defineMessages({
       REFUNDED: 'Đã hoàn tiền',
     } as Record<string, string>,
     paymentDate: (value: string) => `Ngày giao dịch: ${value}`,
+    transactionReferenceLabel: 'Mã giao dịch:',
     transactionReference: (value: string) => `Mã giao dịch: ${value}`,
   },
   en: {
-    title: 'Mission payment details',
-    description: 'View the order deposit and the payments for each mission after the deposit.',
+    title: 'Mission payments',
+    paymentProgress: 'Paid / Total for handed-over Missions',
+    description: 'View the order deposit and the payments for each handed-over mission after the deposit.',
     retryHistory: 'Retry',
     afterDepositTotal: (amount: string) => `Total after deposit: ${amount}`,
     empty: 'The Manager has not configured Mission payment amounts yet.',
-    allocationIncomplete: 'Mission payment allocations do not match the Invoice balance.',
+    allocationIncomplete:
+      'Mission payment allocations do not match the Invoice balance.',
     missionFallback: 'Mission',
     handedOver: 'Handed over',
     notHandedOver: 'Not handed over',
     paymentDeadline: 'Payment deadline',
-    expiredMessage: 'The payment deadline has passed. Contact the Manager for help.',
+    expiredMessage:
+      'The payment deadline has passed. Contact the Manager for help.',
     amount: 'Amount',
     paymentHistory: 'Payment history',
     depositTitle: 'Order deposit',
@@ -81,6 +87,7 @@ export const missionPaymentMilestoneMessages = defineMessages({
       REFUNDED: 'Refunded',
     } as Record<string, string>,
     paymentDate: (value: string) => `Transaction date: ${value}`,
+    transactionReferenceLabel: 'Transaction reference:',
     transactionReference: (value: string) => `Transaction reference: ${value}`,
   },
 })

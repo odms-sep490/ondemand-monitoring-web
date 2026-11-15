@@ -69,6 +69,7 @@ export const activeNavLabel: Record<ManagerScreen, SidebarKey | ''> = {
   orderReview: 'orders',
   orderResults: 'orders',
   missionCreate: 'orders',
+  inspectionPlanning: 'missions',
   missionDispatch: 'missions',
   missionSetup: 'missions',
   missionDetail: 'missions',

@@ -4,7 +4,8 @@ export const customerFinancePanelMessages = defineMessages({
   vi: {
     quoteTitle: 'Duyệt & báo giá',
     contractTitle: 'Hợp đồng',
-    contractRequiredForPayment: 'Hoàn tất xác nhận hợp đồng để thanh toán tiền cọc.',
+    contractRequiredForPayment:
+      'Hoàn tất xác nhận hợp đồng để thanh toán tiền cọc.',
     openContract: 'Xem hợp đồng',
     contractPending: 'Hợp đồng sẽ hiển thị sau khi bạn chấp nhận báo giá.',
     contractNotRequired: 'Đơn hàng này không yêu cầu hợp đồng.',
@@ -43,7 +44,8 @@ export const customerFinancePanelMessages = defineMessages({
   en: {
     quoteTitle: 'Quote',
     contractTitle: 'Contract',
-    contractRequiredForPayment: 'Complete contract confirmation before paying the deposit.',
+    contractRequiredForPayment:
+      'Complete contract confirmation before paying the deposit.',
     openContract: 'View contract',
     contractPending: 'The contract will appear after you accept the quote.',
     contractNotRequired: 'This order does not require a contract.',

@@ -9,8 +9,20 @@ import {
 } from './inspectionCorrectionApi'
 import type { MissionChecklistExecution } from '../types/checklistExecution'
 const rows = [
-  { id: 'bad', content: 'Inspect fence', version: 3, evidence: [] },
-  { id: 'good', content: 'Inspect exit', version: 2, evidence: [] },
+  {
+    id: 'bad',
+    content: 'Inspect fence',
+    version: 3,
+    assessmentStatus: 'NON_COMPLIANT',
+    evidence: [],
+  },
+  {
+    id: 'good',
+    content: 'Inspect exit',
+    version: 2,
+    assessmentStatus: 'COMPLIANT',
+    evidence: [],
+  },
 ] as unknown as MissionChecklistExecution[]
 const batch: InspectionCorrection = {
   id: 'c',
@@ -53,15 +65,14 @@ it('requests only the selected checklist scope and preserves unselected work', a
     .spyOn(inspectionCorrectionApi, 'request')
     .mockResolvedValue(batch)
   render(<InspectionCorrectionPanel missionId="m1" rows={rows} canRequest />)
-  fireEvent.click(
-    await screen.findByRole('button', { name: 'Tạo yêu cầu bổ sung' }),
-  )
-  fireEvent.click(screen.getByRole('checkbox', { name: 'Inspect fence' }))
+  await screen.findByLabelText('Nội dung cần bổ sung: Inspect fence')
   fireEvent.change(
     screen.getByLabelText('Nội dung cần bổ sung: Inspect fence'),
     { target: { value: 'Image is blurred' } },
   )
-  fireEvent.click(screen.getByRole('button', { name: 'Gửi yêu cầu cho Staff' }))
+  fireEvent.click(
+    screen.getByRole('button', { name: 'Ghi nhận yêu cầu bổ sung' }),
+  )
   await waitFor(() =>
     expect(request).toHaveBeenCalledWith('m1', expect.any(String), [
       {
@@ -76,12 +87,9 @@ it('requests only the selected checklist scope and preserves unselected work', a
 it('requires a reason for every selected checklist', async () => {
   vi.spyOn(inspectionCorrectionApi, 'list').mockResolvedValue([])
   render(<InspectionCorrectionPanel missionId="m1" rows={rows} canRequest />)
-  fireEvent.click(
-    await screen.findByRole('button', { name: 'Tạo yêu cầu bổ sung' }),
-  )
-  fireEvent.click(screen.getByRole('checkbox', { name: 'Inspect fence' }))
+  await screen.findByLabelText('Nội dung cần bổ sung: Inspect fence')
   expect(
-    screen.getByRole('button', { name: 'Gửi yêu cầu cho Staff' }),
+    screen.getByRole('button', { name: 'Ghi nhận yêu cầu bổ sung' }),
   ).toBeDisabled()
 })
 it('staff resubmits using the exact mission, correction version and review snapshot', async () => {
@@ -177,16 +185,13 @@ it('switching missions clears unsent correction form and never mixes targets', a
   const { rerender } = render(
     <InspectionCorrectionPanel missionId="m1" rows={rows} canRequest />,
   )
-  fireEvent.click(
-    await screen.findByRole('button', { name: 'Tạo yêu cầu bổ sung' }),
-  )
-  fireEvent.click(screen.getByRole('checkbox', { name: 'Inspect fence' }))
+  await screen.findByLabelText('Nội dung cần bổ sung: Inspect fence')
   fireEvent.change(
     screen.getByLabelText('Nội dung cần bổ sung: Inspect fence'),
     { target: { value: 'Local draft' } },
   )
   rerender(<InspectionCorrectionPanel missionId="m2" rows={rows} canRequest />)
-  await screen.findByRole('button', { name: 'Tạo yêu cầu bổ sung' })
+  await screen.findByLabelText('Nội dung cần bổ sung: Inspect fence')
   expect(screen.queryByDisplayValue('Local draft')).not.toBeInTheDocument()
 })
 it('staff supplemental links stay in the staff portal', async () => {
@@ -204,30 +209,15 @@ it('staff supplemental links stay in the staff portal', async () => {
     expect.stringContaining('#portal/staff/'),
   )
 })
-it('manager creates an internal mission with Vietnam UTC+7 schedule', async () => {
+it('manager opens the shared planning workspace instead of creating from the result panel', async () => {
   vi.spyOn(inspectionCorrectionApi, 'list').mockResolvedValue([batch])
-  const create = vi
-    .spyOn(inspectionCorrectionApi, 'createMission')
-    .mockResolvedValue({ id: 'child' } as never)
+  const create = vi.spyOn(inspectionCorrectionApi, 'createMission')
   render(<InspectionCorrectionPanel missionId="m1" manager orderId="order" />)
-  fireEvent.change(await screen.findByLabelText('Phạm vi Mission bổ sung'), {
-    target: { value: 'Recapture fence' },
-  })
-  fireEvent.change(screen.getByLabelText('Bắt đầu — giờ Việt Nam'), {
-    target: { value: '2026-11-15T08:00' },
-  })
-  fireEvent.change(screen.getByLabelText('Kết thúc — giờ Việt Nam'), {
-    target: { value: '2026-11-15T09:00' },
-  })
-  fireEvent.click(screen.getByRole('button', { name: 'Tạo Mission bổ sung' }))
-  await waitFor(() =>
-    expect(create).toHaveBeenCalledWith('m1', batch, {
-      clientRequestId: expect.any(String),
-      scopeLabel: 'Recapture fence',
-      scheduledStartAt: '2026-11-15T01:00:00.000Z',
-      scheduledEndAt: '2026-11-15T02:00:00.000Z',
-    }),
-  )
+  expect(
+    await screen.findByRole('link', { name: 'Tạo Mission bổ sung' }),
+  ).toHaveAttribute('href', '#portal/manager/orders/order/inspection/m1/c')
+  expect(screen.queryByLabelText('Phạm vi Mission bổ sung')).toBeNull()
+  expect(create).not.toHaveBeenCalled()
 })
 
 it('Manager coordinates but cannot accept or return Inspector corrections', async () => {
@@ -302,5 +292,84 @@ it('Manager sees only supplemental planning when a request is open', async () =>
       'Inspector nghiệm thu và công bố kết quả trực tiếp cho khách hàng.',
     ),
   ).toBeNull()
-  expect(screen.getByLabelText('Phạm vi Mission bổ sung')).toBeInTheDocument()
+  expect(screen.getByRole('link',{name:'Tạo Mission bổ sung'})).toHaveAttribute('href','#portal/manager/orders/order/inspection/m1/c')
+})
+
+it('automatically includes every failed checklist with its assessment note and excludes compliant work', async () => {
+  vi.spyOn(inspectionCorrectionApi, 'list').mockResolvedValue([])
+  const request = vi
+    .spyOn(inspectionCorrectionApi, 'request')
+    .mockResolvedValue(batch)
+  render(
+    <InspectionCorrectionPanel
+      missionId="m1"
+      canRequest
+      rows={[
+        { ...rows[0], assessmentNote: 'Image is blurred' },
+        {
+          ...rows[0],
+          id: 'bad2',
+          content: 'Inspect roof',
+          version: 4,
+          assessmentNote: 'Coverage missing',
+        },
+        rows[1],
+      ]}
+    />,
+  )
+  expect(
+    await screen.findByDisplayValue('Image is blurred'),
+  ).toBeInTheDocument()
+  expect(screen.getByDisplayValue('Coverage missing')).toBeInTheDocument()
+  expect(screen.queryByText('Inspect exit')).toBeNull()
+  expect(screen.queryByRole('checkbox', { name: 'Inspect fence' })).toBeNull()
+  fireEvent.click(
+    screen.getByRole('button', { name: 'Ghi nhận yêu cầu bổ sung' }),
+  )
+  await waitFor(() =>
+    expect(request).toHaveBeenCalledWith('m1', expect.any(String), [
+      {
+        executionId: 'bad',
+        expectedVersion: 3,
+        reason: 'Image is blurred',
+        mediaIds: [],
+      },
+      {
+        executionId: 'bad2',
+        expectedVersion: 4,
+        reason: 'Coverage missing',
+        mediaIds: [],
+      },
+    ]),
+  )
+})
+it('hides the correction panel when no checklist has failed and no history exists', async () => {
+  const list = vi.spyOn(inspectionCorrectionApi, 'list').mockResolvedValue([])
+  render(
+    <InspectionCorrectionPanel missionId="m1" rows={[rows[1]]} canRequest />,
+  )
+  await waitFor(() => expect(list).toHaveBeenCalled())
+  await waitFor(() => expect(screen.queryByRole('region')).toBeNull())
+})
+
+it('explains combined correction and inspection responsibilities without sending to another Staff', async () => {
+  vi.spyOn(inspectionCorrectionApi, 'list').mockResolvedValue([])
+  render(
+    <InspectionCorrectionPanel
+      missionId="m1"
+      rows={rows}
+      canRequest
+      canRespond
+    />,
+  )
+  expect(
+    await screen.findByText(/Bạn có quyền thực hiện cả bổ sung và nghiệm thu/),
+  ).toBeInTheDocument()
+  expect(
+    screen.queryByRole('button', { name: 'Gửi yêu cầu cho Staff' }),
+  ).toBeNull()
+  expect(
+    screen.getByRole('button', { name: 'Ghi nhận yêu cầu bổ sung' }),
+  ).toBeInTheDocument()
+  expect(screen.queryByText('Chưa có yêu cầu bổ sung.')).toBeNull()
 })

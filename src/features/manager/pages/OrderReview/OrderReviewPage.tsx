@@ -1,3 +1,4 @@
+import { CancelledOrderContractPanel } from '../../../contract/CancelledOrderContractPanel'
 import { useEffect, useRef, useState } from 'react'
 
 import { ApiError } from '../../../../shared/api/httpClient'
@@ -144,7 +145,9 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
         orderQuery.reload()
       } catch (error) {
         setStartReviewError(
-          error instanceof Error ? error.message : 'Không thể bắt đầu duyệt đơn.',
+          error instanceof Error
+            ? error.message
+            : 'Không thể bắt đầu duyệt đơn.',
         )
         return
       } finally {
@@ -188,8 +191,18 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
         openStage={openStage}
         goToStep={goToStep}
       />
+      {order.status === 'CANCELLED' && (
+        <CancelledOrderContractPanel
+          orderId={order.id}
+          onUpdated={orderQuery.reload}
+        />
+      )}
       {waitingForCustomerInfo ? (
-        <div className="odm-or-customer-info-lock" role="status" aria-live="polite">
+        <div
+          className="odm-or-customer-info-lock"
+          role="status"
+          aria-live="polite"
+        >
           <span className="odm-or-customer-info-lock-icon" aria-hidden="true">
             <OrderIcon name="lock" size={18} />
           </span>
@@ -207,6 +220,7 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
             initialOrder={order}
             onAssignResources={setAssigningMissionId}
             onWorkflowInfo={setPlanning}
+            onOrderUpdated={orderQuery.reload}
           />
         </div>
       )}

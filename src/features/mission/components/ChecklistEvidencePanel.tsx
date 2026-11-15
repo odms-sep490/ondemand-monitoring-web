@@ -87,6 +87,7 @@ function MissionEvidencePanel({
   canDetach,
   hideAssessmentRequirement = false,
   canSelectForCustomer = false,
+  inspectionView = false,
   refresh,
   loadCandidates,
   attachCandidate,
@@ -100,6 +101,7 @@ function MissionEvidencePanel({
   canDetach: boolean
   hideAssessmentRequirement?: boolean
   canSelectForCustomer?: boolean
+  inspectionView?: boolean
   refresh: () => void
   loadCandidates?: EvidenceCandidateLoader
   attachCandidate?: (
@@ -114,6 +116,7 @@ function MissionEvidencePanel({
   /** Flat list layout for narrow side panels: no nested cards, one status per row. */
   compact?: boolean
 }) {
+  const showInspectionGallery = inspectionView || canSelectForCustomer
   const { lang, t } = useI18n(checklistEvidencePanelMessages)
   const evidenceReason = t.reasons
   const sourceLabel = t.sources as Record<string, string>
@@ -271,7 +274,7 @@ function MissionEvidencePanel({
       })
   const compactBody = (
     <>
-      {!canSelectForCustomer && (
+      {!showInspectionGallery && (
         <div className="ce-head">
           <div className="ce-title-row">
             <span className="ce-heading">{t.evidence}</span>
@@ -290,7 +293,7 @@ function MissionEvidencePanel({
         </p>
       ) : null}
       {renderBlockingReasons()}
-      {!canSelectForCustomer && links.length > 0 && (
+      {!showInspectionGallery && links.length > 0 && (
         <ul className="ce-list">
           {links.map((link) => {
             const status =
@@ -371,7 +374,7 @@ function MissionEvidencePanel({
           })}
         </ul>
       )}
-      {!canSelectForCustomer &&
+      {!showInspectionGallery &&
         !unableToVerify &&
         configuredRequired > 0 &&
         have >= configuredRequired && <p className="ce-ok">{t.enough}</p>}
@@ -393,11 +396,12 @@ function MissionEvidencePanel({
   )
   return (
     <section
-      className={`checklist-evidence${compact ? ' is-compact' : ''}${canSelectForCustomer ? ' is-customer-selection' : ''}`}
+      className={`checklist-evidence${compact ? ' is-compact' : ''}${showInspectionGallery ? ' is-customer-selection' : ''}`}
       aria-label={t.evidenceFor(item.content)}
     >
-      {canSelectForCustomer && (
+      {showInspectionGallery && (
         <CustomerEvidenceSelection
+          readOnly={!canSelectForCustomer}
           key={`${item.id}:${item.version}`}
           missionId={missionId}
           item={item}
@@ -410,7 +414,7 @@ function MissionEvidencePanel({
         compactBody
       ) : (
         <>
-          {!canSelectForCustomer &&
+          {!showInspectionGallery &&
             (have !== 0 || configuredRequired !== 0) && (
               <strong>
                 {t.validEvidence} {have} / {configuredRequired} ·{' '}
@@ -425,14 +429,14 @@ function MissionEvidencePanel({
               {t.remaining(remaining)}
             </p>
           )}
-          {!canSelectForCustomer &&
+          {!showInspectionGallery &&
             !unableToVerify &&
             configuredRequired > 0 &&
             have >= configuredRequired && (
               <p className="ce-ok">{t.enoughValid}</p>
             )}
           {renderBlockingReasons()}
-          {!canSelectForCustomer && (
+          {!showInspectionGallery && (
             <div className="checklist-evidence-grid">
               {item.evidence?.map((link) => (
                 <article key={link.evidenceId}>

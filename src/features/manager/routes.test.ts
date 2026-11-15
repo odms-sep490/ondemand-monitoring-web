@@ -189,3 +189,16 @@ describe('managerHref', () => {
     }
   })
 })
+
+it('round-trips internal inspection planning without using legacy dispatch', () => {
+  const route: ManagerRoute = {
+    screen: 'inspectionPlanning',
+    orderId: 'order',
+    sourceMissionId: 'parent',
+    correctionId: 'correction',
+  }
+  expect(parseManagerRoute(managerHref(route))).toEqual(route)
+  expect(managerHref(route)).toBe(
+    '#portal/manager/orders/order/inspection/parent/correction',
+  )
+})

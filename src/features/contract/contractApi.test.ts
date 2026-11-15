@@ -41,3 +41,72 @@ it('review is an explicit versioned manager operation on the exact submission', 
     },
   )
 })
+
+it('preparation uploads the pricing revision shown to Manager', async () => {
+  const request = vi.spyOn(http, 'apiRequest').mockResolvedValue({})
+  await contractApi.issue(
+    'order',
+    'quote',
+    'CTR-02',
+    new File(['pdf'], 'contract.pdf'),
+    7,
+  )
+  expect(
+    (request.mock.calls[0][1]?.body as FormData).get('expectedPricingRevision'),
+  ).toBe('7')
+})
+it('reads and downloads the exact quote contract even before an invoice exists', async () => {
+  const request = vi.spyOn(http, 'apiRequest').mockResolvedValue({})
+  await contractApi.get('order', undefined, 'quote')
+  expect(request).toHaveBeenLastCalledWith('/api/orders/order/contract', {
+    signal: undefined,
+    query: { quoteId: 'quote' },
+  })
+  await contractApi.download('order', undefined, 'quote')
+  expect(request).toHaveBeenLastCalledWith(
+    '/api/orders/order/contract/download',
+    { method: 'POST', query: { submissionId: undefined, quoteId: 'quote' } },
+  )
+})
+
+it('upload-only preparation does not send a user-entered contract number', async () => {
+  const request = vi.spyOn(http, 'apiRequest').mockResolvedValue({})
+  await contractApi.issue(
+    'order',
+    'quote',
+    undefined,
+    new File(['pdf'], 'contract.pdf'),
+    7,
+  )
+  const body = request.mock.calls[0][1]?.body as FormData
+  expect(body.has('contractNumber')).toBe(false)
+  expect(body.get('expectedPricingRevision')).toBe('7')
+})
+
+it('cancellation sends an explicit idempotent command and a versioned decision', async () => {
+  const request = vi.spyOn(http, 'apiRequest').mockResolvedValue(null)
+  const body = {
+    clientRequestId: '13520c90-a98c-4a2e-a6ca-4b20ab36f027',
+    expectedVersion: 4,
+    responsibility: 'UNRESOLVED' as const,
+    reason: 'The parties cannot proceed',
+    basis: null,
+    customerLiabilityAcknowledged: false,
+  }
+  await contractApi.cancel('order/id', body)
+  expect(request).toHaveBeenLastCalledWith(
+    '/api/orders/order%2Fid/contract/cancellation',
+    { method: 'POST', body },
+  )
+  const decision = {
+    expectedVersion: 2,
+    responsibility: 'SYSTEM' as const,
+    basis: 'Provider cannot deliver the signed agreement',
+    customerLiabilityAcknowledged: false,
+  }
+  await contractApi.decideCancellation('order/id', decision)
+  expect(request).toHaveBeenLastCalledWith(
+    '/api/orders/order%2Fid/contract/cancellation/decision',
+    { method: 'POST', body: decision },
+  )
+})

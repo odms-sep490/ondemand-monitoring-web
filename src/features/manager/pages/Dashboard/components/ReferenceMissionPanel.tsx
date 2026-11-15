@@ -189,7 +189,7 @@ export function ReferenceMissionPanel({
           )}
         </div>
       )}
-      {recent.error && !active && (
+      {Boolean(recent.error) && !active && (
         <p role="status">
           {vi
             ? 'Không tải được nhiệm vụ gần nhất.'

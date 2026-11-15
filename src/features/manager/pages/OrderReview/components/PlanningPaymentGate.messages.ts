@@ -2,8 +2,13 @@ import { defineMessages } from '../../../../../shared/i18n'
 
 export const planningPaymentGateMessages = defineMessages({
   vi: {
+    waitingCustomer: 'Chờ khách hàng chấp nhận báo giá và ký hợp đồng',
+    customerNote:
+      'Báo giá và PDF hợp đồng đã được gửi cùng nhau. Khách hàng có thể xem và ký trong cùng luồng.',
+    refreshStatus: 'Cập nhật trạng thái',
     waitingContract: 'Chờ xác nhận hợp đồng',
-    contractNote: 'Xác nhận bản hợp đồng đã ký trước khi yêu cầu khách thanh toán cọc.',
+    contractNote:
+      'Khách hàng có thể đặt cọc sau khi gửi bản ký. Chỉ mở kế hoạch khi hợp đồng được xác nhận và cọc đã đủ.',
     waiting: 'Đang chờ khách hàng thanh toán đặt cọc',
     checking: 'Đang kiểm tra…',
     checkPayment: 'Kiểm tra thanh toán',
@@ -15,8 +20,13 @@ export const planningPaymentGateMessages = defineMessages({
       'Khách hàng chưa chấp nhận báo giá hoặc chưa phát hành hóa đơn.',
   },
   en: {
+    waitingCustomer: 'Awaiting quote acceptance and signed contract',
+    customerNote:
+      'The quote and PDF contract were sent together. The customer can review and sign in the same flow.',
+    refreshStatus: 'Refresh status',
     waitingContract: 'Awaiting contract verification',
-    contractNote: 'Confirm the signed contract before requesting the deposit.',
+    contractNote:
+      'The customer may pay after submitting the signed contract. Planning requires both contract confirmation and sufficient deposit.',
     waiting: 'Waiting for the customer to pay the deposit',
     checking: 'Checking…',
     checkPayment: 'Check payment',

@@ -2,6 +2,11 @@ import { defineMessages } from '../../../shared/i18n'
 
 export const customerFinanceSectionsMessages = defineMessages({
   vi: {
+    awaitingDepositContractBody:
+      'Nhiệm vụ chỉ được lập kế hoạch sau khi đủ cọc và hợp đồng được xác nhận.',
+    contractVerificationPending: 'Đã nhận cọc · Chờ xác minh hợp đồng',
+    contractVerificationPendingBody:
+      'Bạn không cần thanh toán lại. Nhiệm vụ chỉ được triển khai sau khi hợp đồng được xác nhận.',
     estimated: 'Chi phí dự kiến',
     additional: 'Dịch vụ bổ sung',
     orderTotal: 'Tổng đơn hàng',
@@ -45,6 +50,12 @@ export const customerFinanceSectionsMessages = defineMessages({
     missionPreparation: 'Đang chuẩn bị nhiệm vụ',
     missionPreparationBody:
       'Các khoản thanh toán theo nhiệm vụ sẽ xuất hiện riêng sau khi từng nhiệm vụ được bàn giao.',
+    missionPaymentsReady: 'Đã có khoản thanh toán nhiệm vụ',
+    missionPaymentsReadyBody:
+      'Vui lòng thanh toán các nhiệm vụ đã bàn giao ở mục "Thanh toán theo nhiệm vụ" bên dưới.',
+    missionPaymentsHandedOverPaid: 'Các nhiệm vụ đã bàn giao đều đã thanh toán',
+    missionPaymentsHandedOverPaidBody:
+      'Các nhiệm vụ tiếp theo sẽ xuất hiện riêng bên dưới sau khi được bàn giao.',
     paymentCompleted: 'Đã hoàn tất thanh toán',
     awaitingResourceConfirmation:
       'Đang chờ nhân sự được phân công xác nhận tài nguyên.',
@@ -74,6 +85,12 @@ export const customerFinanceSectionsMessages = defineMessages({
     } as Record<string, string>,
   },
   en: {
+    awaitingDepositContractBody:
+      'Mission planning requires both sufficient deposit and contract confirmation.',
+    contractVerificationPending:
+      'Deposit received · Contract verification pending',
+    contractVerificationPendingBody:
+      'No repeat payment is needed. Execution unlocks after the contract is confirmed.',
     estimated: 'Estimated cost',
     additional: 'Additional services',
     orderTotal: 'Order total',
@@ -119,6 +136,12 @@ export const customerFinanceSectionsMessages = defineMessages({
     missionPreparation: 'Mission preparation in progress',
     missionPreparationBody:
       'Mission payment items will appear separately after each Mission is handed over.',
+    missionPaymentsReady: 'Mission payment available',
+    missionPaymentsReadyBody:
+      'Pay the handed-over missions in the "Mission payments" section below to unlock originals.',
+    missionPaymentsHandedOverPaid: 'Handed-over missions paid',
+    missionPaymentsHandedOverPaidBody:
+      'Any remaining missions will appear separately below after handover.',
     paymentCompleted: 'Payment completed',
     awaitingResourceConfirmation:
       'Your missions are awaiting confirmation from the assigned staff.',

@@ -22,6 +22,10 @@ import { CustomerResultReview } from './CustomerResultReview'
 import { ImagePreview } from '../../shared/components/media/ImagePreview'
 import { DeliveryProgress, DeliveryStatusPill } from './DeliveryProgress'
 import type { Delivery, DeliveryPanelLoadState } from './types'
+import { financeApi } from '../finance/api'
+import { getActionableHandedOverMilestones } from '../finance/missionMilestoneUtils'
+import type { MissionPaymentAllocation } from '../finance/types'
+import { DeliveryMissionPaymentCard } from './DeliveryMissionPaymentCard'
 import './delivery.css'
 import { MissionDeliveryTabs } from './MissionDeliveryTabs'
 
@@ -34,6 +38,8 @@ type CustomerDeliveryPanelProps = {
     delivery: Delivery | null,
     state: DeliveryPanelLoadState,
   ) => void
+  onOpenFinance?: () => void
+  onPaymentCompleted?: () => void
 }
 
 export function CustomerDeliveryPanel(props: CustomerDeliveryPanelProps) {
@@ -57,6 +63,8 @@ function ScopedCustomerDeliveryPanel({
   orderId,
   initialDelivery = null,
   onStateChange,
+  onOpenFinance,
+  onPaymentCompleted,
   onOpenPayment,
   missionId,
 }: {
@@ -68,6 +76,8 @@ function ScopedCustomerDeliveryPanel({
     delivery: Delivery | null,
     state: DeliveryPanelLoadState,
   ) => void
+  onOpenFinance?: () => void
+  onPaymentCompleted?: () => void
 }) {
   const { t } = useI18n(customerDeliveryPanelMessages)
   const [notificationApi, notificationHolder] = notification.useNotification()
@@ -84,6 +94,13 @@ function ScopedCustomerDeliveryPanel({
   const [downloadingMediaId, setDownloadingMediaId] = useState<string | null>(
     null,
   )
+  const [missionPayments, setMissionPayments] =
+    useState<MissionPaymentAllocation | null>(null)
+  const [missionPaymentsLoading, setMissionPaymentsLoading] = useState(false)
+  const [payingMilestoneId, setPayingMilestoneId] = useState<string | null>(
+    null,
+  )
+  const [paymentError, setPaymentError] = useState<string | null>(null)
 
   const currentTicket =
     submittedTicket?.orderId === orderId ? submittedTicket : null
@@ -186,17 +203,110 @@ function ScopedCustomerDeliveryPanel({
     [orderId, missionId],
   )
 
+  const isDeliveredStatus = delivery?.deliveryStatus === 'DELIVERED'
+  const deliveryAssetCount = delivery?.assets.length ?? 0
+  const deliveryDownloadableCount =
+    delivery?.assets.filter((asset) => asset.downloadable).length ?? 0
+  const needsMissionPayment = Boolean(
+    delivery &&
+      (delivery.deliveryStatus === 'AWAITING_MISSION_PAYMENT' ||
+        (isDeliveredStatus &&
+          (deliveryAssetCount === 0 ||
+            deliveryDownloadableCount < deliveryAssetCount))),
+  )
+
+  const loadMissionPayments = useCallback(
+    async (signal?: AbortSignal) => {
+      if (!needsMissionPayment) {
+        setMissionPayments(null)
+        setMissionPaymentsLoading(false)
+        return
+      }
+      setMissionPaymentsLoading(true)
+      try {
+        const allocation = await financeApi.getCustomerMissionPaymentAllocations(
+          orderId,
+          signal,
+        )
+        if (!signal?.aborted) setMissionPayments(allocation)
+      } catch {
+        if (!signal?.aborted) setMissionPayments(null)
+      } finally {
+        if (!signal?.aborted) setMissionPaymentsLoading(false)
+      }
+    },
+    [orderId, needsMissionPayment],
+  )
+
+  useEffect(() => {
+    if (!needsMissionPayment) {
+      setMissionPayments(null)
+      setMissionPaymentsLoading(false)
+      return
+    }
+    const controller = new AbortController()
+    void loadMissionPayments(controller.signal)
+    return () => controller.abort()
+  }, [loadMissionPayments, needsMissionPayment])
+
+  async function handlePayMission(milestoneId: string) {
+    setPayingMilestoneId(milestoneId)
+    setPaymentError(null)
+    try {
+      const payment = await financeApi.createMissionPayment(milestoneId)
+      if (!payment.paymentUrl) {
+        throw new Error(t.missionPaymentMissingUrl)
+      }
+      window.location.assign(payment.paymentUrl)
+    } catch (cause) {
+      setPaymentError(
+        cause instanceof Error ? cause.message : t.missionPaymentError,
+      )
+      setPayingMilestoneId(null)
+    }
+  }
+
+  async function handleTestPayMission(milestoneId: string) {
+    setPayingMilestoneId(milestoneId)
+    setPaymentError(null)
+    try {
+      await financeApi.completeTestMissionPayment(milestoneId)
+      await Promise.all([load(false), loadMissionPayments()])
+      onPaymentCompleted?.()
+    } catch (cause) {
+      if (
+        cause instanceof ApiError &&
+        cause.code === 'INVALID_REQUEST' &&
+        cause.message.toLowerCase().includes('test payment is disabled')
+      ) {
+        setPaymentError(t.missionTestPaymentDisabled)
+      } else {
+        setPaymentError(
+          cause instanceof Error ? cause.message : t.missionPaymentError,
+        )
+      }
+    } finally {
+      setPayingMilestoneId(null)
+    }
+  }
+
   useEffect(() => {
     void load()
-    const interval = window.setInterval(() => void load(), 15_000)
-    const refreshWhenVisible = () =>
-      document.visibilityState === 'visible' && void load()
-    document.addEventListener('visibilitychange', refreshWhenVisible)
+    const refreshVisibleState = () => {
+      if (document.visibilityState !== 'visible') return
+      void load()
+      if (needsMissionPayment) void loadMissionPayments()
+    }
+    const interval = window.setInterval(() => {
+      void load()
+      if (needsMissionPayment) void loadMissionPayments()
+    }, 15_000)
+    document.addEventListener('visibilitychange', refreshVisibleState)
     return () => {
       window.clearInterval(interval)
-      document.removeEventListener('visibilitychange', refreshWhenVisible)
+      document.removeEventListener('visibilitychange', refreshVisibleState)
     }
-  }, [load])
+  }, [load, loadMissionPayments, needsMissionPayment])
 
   useEffect(() => {
     if (!onStateChange) return
@@ -275,6 +385,9 @@ function ScopedCustomerDeliveryPanel({
   const acceptedAwaitingPayment = isDelivered && !hasSomeOriginalsAvailable
   const partiallyDownloadable =
     isDelivered && hasSomeOriginalsAvailable && !allOriginalsAvailable
+  const actionableMilestone = needsMissionPayment
+    ? (getActionableHandedOverMilestones(missionPayments, missionId)[0] ?? null)
+    : null
   return (
     <section
       id="customer-delivery-panel"
@@ -316,10 +429,27 @@ function ScopedCustomerDeliveryPanel({
         originalsAvailable={allOriginalsAvailable}
       />
       <div className="delivery-content">
-        {delivery.deliveryStatus === 'AWAITING_MISSION_PAYMENT' ||
-        delivery.deliveryStatus === 'FINAL_PAYMENT_PENDING' ||
-        delivery.deliveryStatus === 'READY_FOR_DELIVERY' ||
-        delivery.deliveryStatus === 'PAYMENT_CONFIRMED' ? (
+        {needsMissionPayment ? (
+          <div className="delivery-status-first">
+            <DeliveryMissionPaymentCard
+              milestone={actionableMilestone}
+              loading={missionPaymentsLoading}
+              isAwaitingConfirmation={
+                delivery.deliveryStatus === 'AWAITING_MISSION_PAYMENT'
+              }
+              partiallyDownloadable={partiallyDownloadable}
+              downloadableCount={downloadableCount}
+              totalAssets={delivery.assets.length}
+              paying={payingMilestoneId !== null}
+              error={paymentError}
+              onPay={(id) => void handlePayMission(id)}
+              onTestPay={(id) => void handleTestPayMission(id)}
+              onOpenFinance={onOpenFinance ?? onOpenPayment}
+            />
+          </div>
+        ) : delivery.deliveryStatus === 'FINAL_PAYMENT_PENDING' ||
+          delivery.deliveryStatus === 'READY_FOR_DELIVERY' ||
+          delivery.deliveryStatus === 'PAYMENT_CONFIRMED' ? (
           <div className="delivery-status-first">
             <StatusBanner
               tone="success"
@@ -484,34 +614,12 @@ function ScopedCustomerDeliveryPanel({
             )}
           </div>
         ) : null}
-        {isDelivered ? (
-          allOriginalsAvailable ? (
-            <StatusBanner
-              tone="success"
-              title={t.deliveredTitle}
-              text={t.deliveredText(delivery.assets.length)}
-            />
-          ) : partiallyDownloadable ? (
-            <StatusBanner
-              tone="warning"
-              title={t.partialOriginalsTitle}
-              text={t.partialOriginalsText(
-                downloadableCount,
-                delivery.assets.length,
-              )}
-            />
-          ) : (
-            <StatusBanner
-              tone="warning"
-              title={t.awaitingMissionPaymentTitle}
-              text={t.awaitingMissionPaymentText}
-              action={onOpenPayment ? (
-                <Button type="primary" style={{ color: '#fff' }} onClick={onOpenPayment}>
-                  {t.openPayment}
-                </Button>
-              ) : undefined}
-            />
-          )
+        {isDelivered && allOriginalsAvailable ? (
+          <StatusBanner
+            tone="success"
+            title={t.deliveredTitle}
+            text={t.deliveredText(delivery.assets.length)}
+          />
         ) : null}
         {error ? (
           <Alert

@@ -5,7 +5,7 @@ import { InvoiceSection } from '../finance/CustomerFinance/components/InvoiceSec
 import type { Invoice } from '../finance/types'
 
 afterEach(() => setLanguage('vi'))
-it('keeps deposit actions hidden until the required contract is confirmed', () => {
+it('allows deposit after signed submission while the contract remains unconfirmed', () => {
   const invoice: Invoice = {
     id: 'invoice',
     invoiceNumber: 'INV-1',
@@ -37,7 +37,7 @@ it('keeps deposit actions hidden until the required contract is confirmed', () =
   rerender(
     <InvoiceSection
       {...props}
-      invoice={{ ...invoice, contractConfirmedAt: '2026-11-14T05:00:00Z' }}
+      invoice={{ ...invoice, contractSubmittedAt: '2026-11-14T05:00:00Z' }}
     />,
   )
   fireEvent.click(screen.getByRole('button', { name: /Thanh to.n .*c.c/i }))

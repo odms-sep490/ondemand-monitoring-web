@@ -238,6 +238,7 @@ function MonitoringChecklistContent({
   const canEditAssessment =
     canAssess && !hideAssessment && resultKnown && !locked && !loading && !error
   const canEditCustomerSelection = (item: MissionChecklistExecution) =>
+    item.assessmentStatus === 'COMPLIANT' &&
     resultKnown &&
     !loading &&
     !error &&
@@ -444,6 +445,7 @@ function MonitoringChecklistContent({
                         compact
                       />
                       <ChecklistEvidencePanel
+                        inspectionView={assessmentOnly || canAssess || canSelectForCustomer}
                         canSelectForCustomer={canEditCustomerSelection(item)}
                         missionId={missionId}
                         item={item}
@@ -712,7 +714,8 @@ function MonitoringChecklistContent({
                       refresh={refresh}
                     />
                     <ChecklistEvidencePanel
-                      canSelectForCustomer={canEditCustomerSelection(item)}
+                      inspectionView={assessmentOnly || canAssess || canSelectForCustomer}
+                        canSelectForCustomer={canEditCustomerSelection(item)}
                       missionId={missionId}
                       item={item}
                       canAttach={

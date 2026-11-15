@@ -43,15 +43,27 @@ export function MissionDetailHeader({
           ) : mission.orderId ? (
             <Button disabled>{t.viewOrder}</Button>
           ) : null}
-          {mission.purpose === 'REWORK' && mission.resultRevisionCaseId ? (
-            <Button href={managerHref({
-              screen: 'missionCreate',
-              orderId: mission.orderId,
-              reworkCaseId: mission.resultRevisionCaseId,
-            })}>
-              {t.viewOrderPlan}
-            </Button>
-          ) : null}
+          <Button
+            href={managerHref(
+              mission.inspectionCorrectionId &&
+                mission.inspectionSourceMissionId
+                ? {
+                    screen: 'inspectionPlanning',
+                    orderId: mission.orderId,
+                    sourceMissionId: mission.inspectionSourceMissionId,
+                    correctionId: mission.inspectionCorrectionId,
+                  }
+                : mission.purpose === 'REWORK' && mission.resultRevisionCaseId
+                  ? {
+                      screen: 'missionCreate',
+                      orderId: mission.orderId,
+                      reworkCaseId: mission.resultRevisionCaseId,
+                    }
+                  : { screen: 'orderReview', orderId: mission.orderId },
+            )}
+          >
+            {t.viewOrderPlan}
+          </Button>
           {canSetup ||
           (mission.inspectionCorrectionId &&
             !['COMPLETED', 'FAILED', 'CANCELLED'].includes(mission.status)) ? (

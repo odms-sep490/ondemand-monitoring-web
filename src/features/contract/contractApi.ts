@@ -1,19 +1,59 @@
 import { apiRequest } from '../../shared/api/httpClient'
-import type { OrderContract } from './types'
+import type {
+  OrderContract,
+  ContractCancellation,
+  CancellationResponsibility,
+} from './types'
 const path = (orderId: string) =>
   `/api/orders/${encodeURIComponent(orderId)}/contract`
 export const contractApi = {
-  get: (orderId: string, signal?: AbortSignal) =>
-    apiRequest<OrderContract>(path(orderId), { signal }),
+  cancellation: (orderId: string, signal?: AbortSignal) =>
+    apiRequest<ContractCancellation | null>(`${path(orderId)}/cancellation`, {
+      signal,
+    }),
+  cancel: (
+    orderId: string,
+    body: {
+      clientRequestId: string
+      expectedVersion: number
+      responsibility: CancellationResponsibility
+      reason: string
+      basis: string | null
+      customerLiabilityAcknowledged: boolean
+    },
+  ) =>
+    apiRequest<ContractCancellation>(`${path(orderId)}/cancellation`, {
+      method: 'POST',
+      body,
+    }),
+  decideCancellation: (
+    orderId: string,
+    body: {
+      expectedVersion: number
+      responsibility: CancellationResponsibility
+      basis: string
+      customerLiabilityAcknowledged: boolean
+    },
+  ) =>
+    apiRequest<ContractCancellation>(`${path(orderId)}/cancellation/decision`, {
+      method: 'POST',
+      body,
+    }),
+  get: (orderId: string, signal?: AbortSignal, quoteId?: string) =>
+    apiRequest<OrderContract>(path(orderId), { signal, query: { quoteId } }),
   issue: (
     orderId: string,
     quoteId: string,
-    contractNumber: string,
+    contractNumber: string | undefined,
     file: File,
+    expectedPricingRevision?: number,
   ) => {
     const body = new FormData()
     body.set('quoteId', quoteId)
-    body.set('contractNumber', contractNumber)
+    if (expectedPricingRevision != null)
+      body.set('expectedPricingRevision', String(expectedPricingRevision))
+    if (contractNumber?.trim())
+      body.set('contractNumber', contractNumber.trim())
     body.set('file', file)
     return apiRequest<OrderContract>(`${path(orderId)}/issue`, {
       method: 'POST',
@@ -44,9 +84,9 @@ export const contractApi = {
       method: 'POST',
       body: { expectedVersion, submissionId, reason },
     }),
-  download: (orderId: string, submissionId?: string) =>
+  download: (orderId: string, submissionId?: string, quoteId?: string) =>
     apiRequest<{ url: string; expiresAt: string; fileName: string }>(
       `${path(orderId)}/download`,
-      { method: 'POST', query: { submissionId } },
+      { method: 'POST', query: { submissionId, quoteId } },
     ),
 }
