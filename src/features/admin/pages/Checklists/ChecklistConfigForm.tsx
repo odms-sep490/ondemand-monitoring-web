@@ -1,4 +1,5 @@
 import { useState, type FormEvent, type ReactNode } from 'react'
+import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
 import { FormField } from '../../../../shared/components/ui'
 import { PriceBreakdownView } from '../../../../shared/components/odm/PriceBreakdownView'
@@ -108,6 +109,29 @@ export function ChecklistConfigForm({
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [preview, setPreview] = useState<ServicePricePreview | null>(null)
+  const [assignedDeviceTypes, setAssignedDeviceTypes] = useState(
+    row?.deviceTypes ?? [],
+  )
+  const [selectedDeviceTypeId, setSelectedDeviceTypeId] = useState('')
+  const [deviceTypeBusy, setDeviceTypeBusy] = useState<string | null>(null)
+  const [deviceTypeError, setDeviceTypeError] = useState<string | null>(null)
+  const deviceTypeQuery = useApiQuery(
+    (signal) =>
+      row
+        ? checklistsApi.deviceTypes(signal)
+        : Promise.resolve({
+            items: [],
+            page: 0,
+            totalItems: 0,
+            totalPages: 0,
+            first: true,
+            last: true,
+          }),
+    [row?.id],
+  )
+  const availableDeviceTypes = (deviceTypeQuery.data?.items ?? []).filter(
+    (type) => !assignedDeviceTypes.some((assigned) => assigned.id === type.id),
+  )
 
   const sharedBy = row?.usedByServiceCount ?? 0
   const shared = sharedBy > 1
@@ -212,6 +236,44 @@ export function ChecklistConfigForm({
       setError(checklistError(cause, t))
     } finally {
       setBusy(false)
+    }
+  }
+
+  async function addDeviceType() {
+    if (!row || !selectedDeviceTypeId || deviceTypeBusy) return
+    setDeviceTypeBusy(selectedDeviceTypeId)
+    setDeviceTypeError(null)
+    try {
+      const requirement = await checklistsApi.addDeviceType(
+        row.id,
+        selectedDeviceTypeId,
+      )
+      setAssignedDeviceTypes((current) =>
+        [...current, requirement.deviceType].sort((left, right) =>
+          left.name.localeCompare(right.name),
+        ),
+      )
+      setSelectedDeviceTypeId('')
+    } catch (cause) {
+      setDeviceTypeError(checklistError(cause, t))
+    } finally {
+      setDeviceTypeBusy(null)
+    }
+  }
+
+  async function removeDeviceType(deviceTypeId: string) {
+    if (!row || deviceTypeBusy) return
+    setDeviceTypeBusy(deviceTypeId)
+    setDeviceTypeError(null)
+    try {
+      await checklistsApi.removeDeviceType(row.id, deviceTypeId)
+      setAssignedDeviceTypes((current) =>
+        current.filter((type) => type.id !== deviceTypeId),
+      )
+    } catch (cause) {
+      setDeviceTypeError(checklistError(cause, t))
+    } finally {
+      setDeviceTypeBusy(null)
     }
   }
 
@@ -389,6 +451,75 @@ export function ChecklistConfigForm({
             </div>
           ))}
         </fieldset>
+        {row && (
+          <section
+            className="checklist-device-types"
+            aria-labelledby="checklist-device-types-title"
+          >
+            <div>
+              <h3 id="checklist-device-types-title">{t.deviceTypesTitle}</h3>
+              <p>{t.deviceTypesHint}</p>
+            </div>
+            {assignedDeviceTypes.length > 0 ? (
+              <ul className="checklist-device-type-list">
+                {assignedDeviceTypes.map((type) => (
+                  <li key={type.id}>
+                    <span>
+                      <strong>{type.name}</strong>
+                      <small>{type.code}</small>
+                    </span>
+                    <button
+                      type="button"
+                      className="odm-btn odm-btn-gh odm-btn-sm"
+                      disabled={deviceTypeBusy !== null}
+                      aria-label={t.removeDeviceType(type.name)}
+                      onClick={() => void removeDeviceType(type.id)}
+                    >
+                      {t.removeDeviceTypeShort}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="checklist-field-meta is-block">
+                {t.deviceTypesEmpty}
+              </p>
+            )}
+            <div className="checklist-device-type-add">
+              <select
+                className="odm-inp"
+                aria-label={t.deviceTypeSelect}
+                value={selectedDeviceTypeId}
+                disabled={deviceTypeQuery.loading || deviceTypeBusy !== null}
+                onChange={(event) =>
+                  setSelectedDeviceTypeId(event.target.value)
+                }
+              >
+                <option value="">{t.deviceTypeSelectPlaceholder}</option>
+                {availableDeviceTypes.map((type) => (
+                  <option key={type.id} value={type.id}>
+                    {type.name} ({type.code})
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                className="odm-btn"
+                disabled={!selectedDeviceTypeId || deviceTypeBusy !== null}
+                onClick={() => void addDeviceType()}
+              >
+                {deviceTypeBusy === selectedDeviceTypeId
+                  ? t.deviceTypeAdding
+                  : t.deviceTypeAdd}
+              </button>
+            </div>
+            {(deviceTypeQuery.error !== undefined || deviceTypeError) && (
+              <p className="checklist-banner is-error" role="alert">
+                {deviceTypeError ?? t.deviceTypesLoadError}
+              </p>
+            )}
+          </section>
+        )}
       </div>
 
       <div

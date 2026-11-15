@@ -1,5 +1,15 @@
 import { apiRequest } from '../../../shared/api/httpClient'
 
+export type DeviceType = {
+  id: string
+  code: string
+  name: string
+  description?: string | null
+  createdAt?: string
+  updatedAt?: string | null
+  version?: number
+}
+
 export type ChecklistDefinition = {
   id: string
   content: string
@@ -28,6 +38,7 @@ export type ChecklistDefinition = {
   includedAreaHa?: number
   includedLengthKm?: number
   includedAltitudeM?: number
+  deviceTypes?: DeviceType[]
 }
 /** Description and work guidance sent with create/edit; omitted keeps the stored value, empty clears it. */
 export type ChecklistGuidanceInput = {
@@ -90,6 +101,32 @@ export type ServiceChecklist = {
   checklistIncludedImageCount?: number
   checklistIncludedVideoCount?: number
   checklistPricingProfile?: string | null
+  deviceTypes?: DeviceType[]
+}
+export type DeviceTypePage = {
+  items: DeviceType[]
+  page: number
+  totalItems: number
+  totalPages: number
+  first: boolean
+  last: boolean
+}
+export type ChecklistDeviceRequirement = {
+  id: string
+  checklistId: string
+  deviceType: DeviceType
+  createdAt: string
+  updatedAt: string | null
+  version: number
+}
+export type MissionTemplate = {
+  id: string
+  serviceId: string
+  scopeLabel: string
+  checklistIds: string[]
+  createdAt: string
+  updatedAt: string | null
+  version: number
 }
 /** Replaces the per-service overrides; null inherits the checklist definition. */
 export type ServiceChecklistPricingInput = {
@@ -138,6 +175,8 @@ export type ChecklistAuditPage = {
 const enc = encodeURIComponent
 const catalog = '/api/admin/checklists'
 const template = (id: string) => `/api/admin/services/${enc(id)}/checklists`
+const missionTemplates = (id: string) =>
+  `/api/admin/services/${enc(id)}/mission-templates`
 export const checklistsApi = {
   get(id: string, signal?: AbortSignal) {
     return apiRequest<ChecklistDefinition>(`${catalog}/${enc(id)}`, { signal })
@@ -208,6 +247,56 @@ export const checklistsApi = {
       method: 'PATCH',
       body: { active },
     })
+  },
+  deviceTypes(signal?: AbortSignal) {
+    return apiRequest<DeviceTypePage>('/api/device-types', {
+      query: { page: 0, size: 100, sort: 'name,asc' },
+      signal,
+    })
+  },
+  addDeviceType(checklistId: string, deviceTypeId: string) {
+    return apiRequest<ChecklistDeviceRequirement>(
+      `${catalog}/${enc(checklistId)}/device-types/${enc(deviceTypeId)}`,
+      { method: 'POST' },
+    )
+  },
+  removeDeviceType(checklistId: string, deviceTypeId: string) {
+    return apiRequest<void>(
+      `${catalog}/${enc(checklistId)}/device-types/${enc(deviceTypeId)}`,
+      { method: 'DELETE' },
+    )
+  },
+  missionTemplates(serviceId: string, signal?: AbortSignal) {
+    return apiRequest<MissionTemplate[]>(missionTemplates(serviceId), {
+      signal,
+    })
+  },
+  createMissionTemplate(
+    serviceId: string,
+    scopeLabel: string,
+    checklistIds: string[],
+  ) {
+    return apiRequest<MissionTemplate>(missionTemplates(serviceId), {
+      method: 'POST',
+      body: { scopeLabel, checklistIds },
+    })
+  },
+  updateMissionTemplate(
+    serviceId: string,
+    templateId: string,
+    scopeLabel: string,
+    checklistIds: string[],
+  ) {
+    return apiRequest<MissionTemplate>(
+      `${missionTemplates(serviceId)}/${enc(templateId)}`,
+      { method: 'PUT', body: { scopeLabel, checklistIds } },
+    )
+  },
+  removeMissionTemplate(serviceId: string, templateId: string) {
+    return apiRequest<void>(
+      `${missionTemplates(serviceId)}/${enc(templateId)}`,
+      { method: 'DELETE' },
+    )
   },
   services(id: string, signal?: AbortSignal) {
     return apiRequest<ServiceChecklist[]>(`${catalog}/${enc(id)}/services`, {
