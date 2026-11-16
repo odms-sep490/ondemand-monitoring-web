@@ -31,6 +31,9 @@ const OperatingConfigPage = lazy(() =>
 const OrderCriteriaPage = lazy(() =>
   import('./pages/OperatingConfig/components/OrderCriteriaTab').then((m) => ({ default: m.OrderCriteriaTab })),
 )
+const DeviceCheckCriteriaPage = lazy(() =>
+  import('./pages/DeviceCheckCriteria').then((m) => ({ default: m.DeviceCheckCriteriaPage })),
+)
 const AuditLogPage = lazy(() =>
   import('./pages/AuditLog').then((m) => ({ default: m.AuditLogPage })),
 )
@@ -74,6 +77,8 @@ function renderScreen(route: AdminRoute, notFoundText: string) {
       return <OperatingConfigPage />
     case 'orderCriteria':
       return <OrderCriteriaPage />
+    case 'deviceCheckCriteria':
+      return <DeviceCheckCriteriaPage />
     case 'auditLog':
       return <AuditLogPage />
     case 'refunds':
