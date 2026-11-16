@@ -179,7 +179,9 @@ export function ServicePicker({
               </span>
               <strong>
                 <TagOutlined aria-hidden="true" />
-                {formatMoney(service.defaultPrice ?? service.basePrice, locale)}
+                {service.priceSource === 'UNPRICED' || service.defaultPrice == null
+                  ? t.unpriced
+                  : formatMoney(service.defaultPrice, locale)}
               </strong>
             </button>
           )

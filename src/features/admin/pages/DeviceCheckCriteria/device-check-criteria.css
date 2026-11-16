@@ -1,0 +1,290 @@
+/* Device check criteria board, styled after the manager maintenance ticket board (lanes + square ticket cards). */
+.mgr-layout .adm-crit {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.mgr-layout .adm-crit-tabs {
+  align-self: flex-start;
+}
+
+.mgr-layout .adm-crit-kpis {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.mgr-layout .adm-crit-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 20px;
+}
+
+.mgr-layout .adm-crit-filters .ant-input-search {
+  max-width: 320px;
+}
+
+.mgr-layout .adm-crit-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--mgr-muted);
+  cursor: pointer;
+}
+
+/* One lane per category; lanes wrap and each scrolls on its own. */
+.mgr-layout .adm-crit-board {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 12px;
+  align-items: start;
+  min-width: 0;
+}
+
+.mgr-layout .adm-crit-lane {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  padding: 10px;
+  border-radius: var(--mgr-radius, 12px);
+  background: color-mix(in srgb, var(--mgr-muted) 10%, transparent);
+}
+
+.mgr-layout .adm-crit-lane-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.mgr-layout .adm-crit-lane-name {
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--mgr-text);
+}
+
+.mgr-layout .adm-crit-lane-count {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--mgr-card);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--mgr-muted);
+}
+
+.mgr-layout .adm-crit-lane-list {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+  margin: -2px;
+  padding: 2px;
+  overflow-y: auto;
+}
+
+/* Ticket card */
+.mgr-layout .adm-crit-card {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 120px;
+  padding: 16px;
+  border: 1px solid var(--mgr-border);
+  border-radius: 10px;
+  background: var(--mgr-card);
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+}
+
+.mgr-layout .adm-crit-card:hover {
+  border-color: var(--pl-blue-ac);
+  box-shadow: var(--mgr-shadow-hover);
+}
+
+.mgr-layout .adm-crit-card:focus-visible {
+  outline: 2px solid var(--pl-blue-ac);
+  outline-offset: 2px;
+}
+
+.mgr-layout .adm-crit-card.is-selected {
+  border-color: var(--pl-blue-ac);
+  box-shadow: 0 0 0 1px var(--pl-blue-ac);
+}
+
+.mgr-layout .adm-crit-card.is-inactive {
+  opacity: 0.6;
+  border-style: dashed;
+}
+
+.mgr-layout .adm-crit-card-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 2px 8px;
+}
+
+.mgr-layout .adm-crit-card-code,
+.mgr-layout .adm-crit-mono {
+  font-family: var(--mgr-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--mgr-text);
+}
+
+.mgr-layout .adm-crit-card-system {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--pl-amber, #b7791f);
+}
+
+.mgr-layout .adm-crit-card-title {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  font-size: 15.5px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--mgr-text);
+}
+
+.mgr-layout .adm-crit-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.mgr-layout .adm-crit-card-desc {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--mgr-muted);
+}
+
+.mgr-layout .adm-crit-card-desc.is-empty {
+  font-style: italic;
+}
+
+.mgr-layout .adm-crit-card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 6px;
+  border-top: 1px solid var(--mgr-border);
+  font-size: 12px;
+  color: var(--mgr-muted);
+}
+
+.mgr-layout .adm-crit-card-order b {
+  color: var(--mgr-text);
+}
+
+.mgr-layout .adm-crit-card-moves {
+  display: inline-flex;
+  gap: 2px;
+}
+
+/* Side panel form */
+.adm-crit-panel .adm-crit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.adm-crit-panel .adm-crit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.adm-crit-panel .adm-crit-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--mgr-text);
+}
+
+.adm-crit-panel .adm-crit-static {
+  font-size: 13px;
+  color: var(--mgr-muted);
+}
+
+.adm-crit-panel .adm-crit-hint {
+  display: block;
+  font-size: 12px;
+  color: var(--mgr-muted);
+}
+
+.adm-crit-panel .adm-crit-error {
+  font-size: 12px;
+  color: var(--pl-red, #d4380d);
+}
+
+.adm-crit-panel .adm-crit-note {
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--pl-amber, #b7791f) 14%, transparent);
+  font-size: 12.5px;
+  color: var(--mgr-text);
+}
+
+.adm-crit-panel .adm-crit-switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.adm-crit-panel-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.adm-crit-panel-actions {
+  display: inline-flex;
+  gap: 8px;
+}
+
+.adm-crit-warning {
+  color: var(--pl-red, #d4380d);
+}
+
+@media (max-width: 760px) {
+  .mgr-layout .adm-crit-board {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mgr-layout .adm-crit-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.mgr-layout .adm-crit-lane-pager {
+  flex: none;
+  display: flex;
+  justify-content: center;
+}

@@ -29,13 +29,11 @@ describe('/api/services (BE shape)', () => {
   it('creates, updates and deletes a service', async () => {
     const created = await call('POST', '/api/services', {
       name: 'Mới',
-      basePrice: 1_000_000,
     })
     expect(created.status).toBe(201)
     const id = created.payload.data.id
     const put = await call('PUT', `/api/services/${id}`, {
       name: 'Sửa',
-      basePrice: 1_200_000,
       isActive: false,
     })
     expect(put.payload.data).toMatchObject({ name: 'Sửa', isActive: false })

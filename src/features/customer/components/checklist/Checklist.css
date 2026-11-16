@@ -11,6 +11,32 @@
   font-size: 13px;
   line-height: 1.55;
 }
+.checklist-quote-calculation {
+  display: grid;
+  gap: 6px;
+  margin: 10px 0 0;
+  font-size: 13px;
+}
+.checklist-quote-calculation > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+.checklist-quote-calculation dt {
+  color: var(--ui-text-3);
+}
+.checklist-quote-calculation dd {
+  margin: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.checklist-quote-calculation .is-calculation {
+  flex-direction: column;
+  gap: 2px;
+}
+.checklist-quote-calculation .is-calculation dd {
+  text-align: left;
+}
 .checklist-pricing-notice {
   margin: 10px 0 14px;
   padding: 10px 12px;

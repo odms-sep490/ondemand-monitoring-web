@@ -27,7 +27,11 @@ export function postflightCategories(lang: Language): PostflightCategoryDef[] {
           ...t.power.items.motor_ok,
           backendKeys: ['p1', 'p2'],
         },
-        { key: 'battery_ok', ...t.power.items.battery_ok, backendKeys: ['e1'] },
+        {
+          key: 'battery_ok',
+          ...t.power.items.battery_ok,
+          backendKeys: ['e1', 'e4'],
+        },
       ],
     },
     {
@@ -50,6 +54,74 @@ export function postflightCategories(lang: Language): PostflightCategoryDef[] {
       ],
     },
   ]
+}
+
+type RunItem = {
+  checkType?: string | null
+  checkName?: string | null
+  description?: string | null
+  category?: string | null
+}
+
+/**
+ * Builds categories from the backend run's items (admin-configured criteria),
+ * in the order returned. Built-in codes reuse the localized labels; others use
+ * the backend name/description. Falls back to the hardcoded list when empty.
+ */
+export function postflightCategoriesFromRun(
+  lang: Language,
+  runItems: RunItem[] | null | undefined,
+): PostflightCategoryDef[] {
+  const items = (runItems ?? []).filter((item) => item.checkType)
+  const fallback = postflightCategories(lang)
+  if (items.length === 0) return fallback
+
+  const builtIn = new Map<string, PostflightCategoryDef['items'][number]>()
+  for (const cat of fallback) {
+    for (const item of cat.items) {
+      for (const code of item.backendKeys) builtIn.set(code.toLowerCase(), item)
+    }
+  }
+  const usedBuiltIn = new Set<string>()
+  const otherTitle = postflightPageMessages[lang].otherCategory
+  const groups = new Map<string, PostflightCategoryDef>()
+  for (const run of items) {
+    const code = String(run.checkType)
+    const local = builtIn.get(code.toLowerCase())
+    const useLocal = local && !usedBuiltIn.has(local.key)
+    if (local) usedBuiltIn.add(local.key)
+    const title = run.category?.trim() || otherTitle
+    let group = groups.get(title)
+    if (!group) {
+      group = { title, icon: '📋', items: [] }
+      groups.set(title, group)
+    }
+    group.items.push({
+      key: code,
+      label: useLocal ? local.label : (run.checkName?.trim() || code),
+      detail: useLocal ? local.detail : (run.description?.trim() ?? ''),
+      backendKeys: [code],
+    })
+  }
+  return [...groups.values()]
+}
+
+export function categoryKeys(categories: PostflightCategoryDef[]) {
+  return categories.flatMap((cat) => cat.items.map((item) => item.key))
+}
+
+/** Maps per-item results onto the backend codes the postflight API expects. */
+export function buildInspectionResults(
+  categories: PostflightCategoryDef[],
+  results: Partial<Record<string, 'ok' | 'fail'>>,
+): Record<string, 'PASS' | 'FAIL'> {
+  const out: Record<string, 'PASS' | 'FAIL'> = {}
+  for (const item of categories.flatMap((cat) => cat.items)) {
+    for (const code of item.backendKeys) {
+      out[code] = results[item.key] === 'ok' ? 'PASS' : 'FAIL'
+    }
+  }
+  return out
 }
 
 export const ALL_KEYS: PostflightItemKey[] = [

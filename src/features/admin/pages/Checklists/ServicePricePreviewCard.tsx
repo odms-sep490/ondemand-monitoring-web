@@ -8,7 +8,7 @@ import { checklistMessages } from './checklists.messages'
 import { ChecklistLoadError } from './ChecklistUi'
 
 /**
- * Default price of a service, computed by the backend from its default checklists and the active pricing policy.
+ * Default price of a service, computed by the backend from its default Base Checklists.
  * `refreshKey` changes whenever the checklist set or an override is saved, so the figure never goes stale.
  */
 export function ServicePricePreviewCard({

@@ -9,7 +9,7 @@ export const contextAwareHelpWidgetMessages = defineMessages({
     orderRef: (id: string) => `Đơn hàng #${id}`,
     missionRef: (id: string) => `Nhiệm vụ #${id}`,
     preflightFailedBanner:
-      'Lần bay này không thể khởi hành do drone không vượt qua kiểm tra an toàn tự động trước chuyến bay.',
+      'Lần bay này không thể khởi hành do thiết bị không vượt qua kiểm tra an toàn tự động trước chuyến bay.',
     suggestedFor: (status: string) =>
       `Câu hỏi thường gặp gợi ý cho trạng thái (${status}):`,
     noSuggestedQuestions:
@@ -17,8 +17,8 @@ export const contextAwareHelpWidgetMessages = defineMessages({
     thisOrder: 'Đơn hàng này',
     thisMission: 'Nhiệm vụ này',
     needHelpFor: 'Cần hỗ trợ riêng cho',
-    autoAttach: 'Tạo ticket đính kèm tự động:',
-    createTicketFor: (label: string) => `Tạo ticket cho ${label}`,
+    autoAttach: 'Tạo yêu cầu hỗ trợ kèm thông tin tự động:',
+    createTicketFor: (label: string) => `Tạo yêu cầu hỗ trợ cho ${label}`,
     subject: (isOrder: boolean, label: string) =>
       `Cần hỗ trợ cho ${isOrder ? 'đơn hàng' : 'nhiệm vụ'} ${label}`,
   },
@@ -38,8 +38,8 @@ export const contextAwareHelpWidgetMessages = defineMessages({
     thisOrder: 'this order',
     thisMission: 'this mission',
     needHelpFor: 'Need one-to-one help with',
-    autoAttach: 'Create a ticket with the details attached automatically:',
-    createTicketFor: (label: string) => `Create a ticket for ${label}`,
+    autoAttach: 'Create a support request with the details attached automatically:',
+    createTicketFor: (label: string) => `Create a support request for ${label}`,
     subject: (isOrder: boolean, label: string) =>
       `Need help with ${isOrder ? 'order' : 'mission'} ${label}`,
   },

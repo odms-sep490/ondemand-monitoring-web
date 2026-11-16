@@ -253,3 +253,20 @@
     overflow-x: auto;
   }
 }
+.psum-simple-list {
+  display: grid;
+  gap: 0;
+  margin: 12px 0;
+}
+
+.psum-simple-item {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--ui-border);
+}
+
+.psum-simple-item small {
+  display: block;
+  margin-top: 4px;
+  color: var(--ui-text-3);
+  font-variant-numeric: tabular-nums;
+}

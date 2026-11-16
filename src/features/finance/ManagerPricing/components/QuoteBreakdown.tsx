@@ -30,7 +30,7 @@ export function QuoteBreakdown({
   }
   if (items.length === 0) return null
   return (
-    <details className="finance-breakdown" aria-label={t.breakdownAria}>
+    <details className="finance-breakdown" aria-label={t.breakdownAria} open>
       <summary>{t.breakdownTitle(items.length)}</summary>
       <div className="finance-breakdown-content">
         {[...groups.entries()].map(([id, lines]) => {

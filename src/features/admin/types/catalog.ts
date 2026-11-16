@@ -4,9 +4,7 @@ export type AdminService = {
   id: string
   name: string
   description: string
-  /** Legacy catalog price; only the price while no default checklist is priced. */
-  basePrice: number
-  /** Sum of the default checklists (or the legacy price while none is priced). */
+  /** Sum of the active Base Checklists, or zero when no configured checklist applies. */
   defaultPrice?: number
   priceSource?: 'CHECKLISTS' | 'UNPRICED'
   imageUrl?: string | null

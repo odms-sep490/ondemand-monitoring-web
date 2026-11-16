@@ -1,5 +1,9 @@
+import {
+  StatusTag,
+  type StatusTagTone,
+} from '../../../components/common/StatusTag'
 import { useCallback, useEffect, useState } from 'react'
-import { Alert, Button, Descriptions, Skeleton, Tag, Typography } from 'antd'
+import { Alert, Button, Descriptions, Skeleton, Typography } from 'antd'
 import { ReloadOutlined } from '@ant-design/icons'
 import { financeApi } from '../../../../finance/api'
 import type {
@@ -11,23 +15,23 @@ import { useI18n } from '../../../../../shared/i18n'
 import { formatVnd } from '../../../../../shared/lib/formatVnd'
 import { missionDetailPageMessages } from '../MissionDetailPage.messages'
 
-const milestoneTagColor: Record<string, string> = {
-  NOT_YET_DUE: 'default',
-  UNPAID: 'orange',
-  PENDING: 'blue',
-  EXPIRED: 'red',
-  PAID: 'green',
-  CANCELLED: 'default',
+const milestoneTagColor: Record<string, StatusTagTone> = {
+  NOT_YET_DUE: 'neutral',
+  UNPAID: 'warning',
+  PENDING: 'info',
+  EXPIRED: 'danger',
+  PAID: 'success',
+  CANCELLED: 'neutral',
 }
 
-const paymentTagColor: Record<string, string> = {
-  SUCCESS: 'green',
-  PROCESSING: 'blue',
-  PENDING: 'blue',
-  FAILED: 'red',
-  CANCELLED: 'default',
-  REFUNDED: 'purple',
-  REQUIRES_REVIEW: 'orange',
+const paymentTagColor: Record<string, StatusTagTone> = {
+  SUCCESS: 'success',
+  PROCESSING: 'info',
+  PENDING: 'info',
+  FAILED: 'danger',
+  CANCELLED: 'neutral',
+  REFUNDED: 'info',
+  REQUIRES_REVIEW: 'warning',
 }
 
 export function MissionFinanceTab({
@@ -125,12 +129,26 @@ export function MissionFinanceTab({
   if (!summary || summary.purpose === 'REWORK') return null
 
   const depositPayments = summary.depositPayments ?? []
+  const successfulDepositPayments = depositPayments.filter(
+    (payment) => payment.status === 'SUCCESS',
+  )
+  const depositPaidAmount = successfulDepositPayments.length
+    ? successfulDepositPayments.reduce(
+        (sum, payment) => sum + Number(payment.amount),
+        0,
+      )
+    : summary.invoice?.depositStatus === 'DEPOSIT_PAID'
+      ? Number(summary.invoice.depositAmount)
+      : 0
+  const depositRemainingAmount = Math.max(
+    0,
+    Number(summary.invoice?.depositAmount ?? 0) - depositPaidAmount,
+  )
+
   const missionPayment = summary.missionPayment
   const breakdown = summary.priceBreakdown
-  const missionTotal = breakdown?.missionTotalAmount ?? summary.missionGrossChecklistAmount
-  const paymentLabel = missionPayment?.status === 'PAID'
-    ? copy.paidAfterDeposit
-    : copy.afterDeposit
+  const missionTotal =
+    breakdown?.missionTotalAmount ?? summary.missionGrossChecklistAmount
 
   return (
     <div className="mission-finance-tab">
@@ -140,9 +158,11 @@ export function MissionFinanceTab({
           <Typography.Text type="secondary">{copy.description}</Typography.Text>
         </div>
         {missionPayment && (
-          <Tag color={milestoneTagColor[missionPayment.status] ?? 'default'}>
+          <StatusTag
+            tone={milestoneTagColor[missionPayment.status] ?? 'neutral'}
+          >
             {statusLabel(missionPayment.status)}
-          </Tag>
+          </StatusTag>
         )}
       </header>
 
@@ -155,31 +175,26 @@ export function MissionFinanceTab({
           <strong>
             {missionTotal == null ? '—' : formatVnd(missionTotal)}
           </strong>
-          {missionTotal == null && (
-            <small>{copy.amountUnavailable}</small>
-          )}
+          {missionTotal == null && <small>{copy.amountUnavailable}</small>}
+        </div>
+        <div className="mission-finance-tab__amount mission-finance-tab__amount--deposit">
+          <span>{copy.allocatedDeposit}</span>
+          <strong>
+            {breakdown ? formatVnd(breakdown.allocatedDeposit) : '—'}
+          </strong>
+          {!breakdown && <small>{copy.amountUnavailable}</small>}
         </div>
         <div className="mission-finance-tab__amount mission-finance-tab__amount--primary">
-          <span>{paymentLabel}</span>
+          <span>{copy.afterDeposit}</span>
           <strong>
-            {missionPayment ? formatVnd(missionPayment.amount) : '—'}
+            {breakdown
+              ? formatVnd(breakdown.milestoneAmount)
+              : missionPayment
+                ? formatVnd(missionPayment.amount)
+                : '—'}
           </strong>
           {!missionPayment && <small>{copy.noMissionPayment}</small>}
         </div>
-        {missionPayment && (
-          <dl className="mission-finance-tab__dates">
-            <div>
-              <dt>{copy.handedOverAt}</dt>
-              <dd>{formatDate(missionPayment.handedOverAt)}</dd>
-            </div>
-            {missionPayment.paymentExpiresAt && (
-              <div>
-                <dt>{copy.paymentDeadline}</dt>
-                <dd>{formatDate(missionPayment.paymentExpiresAt)}</dd>
-              </div>
-            )}
-          </dl>
-        )}
       </section>
 
       <div className="mission-finance-tab__details-grid">
@@ -219,27 +234,33 @@ export function MissionFinanceTab({
                     <dd>{formatVnd(breakdown.milestoneAmount)}</dd>
                   </div>
                 </dl>
-                <p className="mission-finance-tab__calculation-note">
-                  {copy.depositIncluded}
-                </p>
               </div>
             ) : (
               <Typography.Text type="secondary">
                 {copy.calculationUnavailable}
               </Typography.Text>
             )}
-          </section>
-
-          <section
-            className="mission-finance-tab__panel"
-            aria-label={copy.paymentHistory}
-          >
-            <PaymentHistory
-              title={copy.paymentHistory}
-              payments={missionPayment?.payments ?? []}
-              locale={locale}
-              copy={copy}
-            />
+            <Descriptions
+              className="mission-finance-tab__timing"
+              size="small"
+              column={1}
+              colon={false}
+            >
+              <Descriptions.Item label={copy.handedOverAt}>
+                {formatDate(missionPayment?.handedOverAt)}
+              </Descriptions.Item>
+              <Descriptions.Item label={copy.paymentDeadline}>
+                {formatDate(missionPayment?.paymentExpiresAt)}
+              </Descriptions.Item>
+            </Descriptions>
+            <div className="mission-finance-tab__deposit-history">
+              <PaymentHistory
+                title={copy.paymentHistory}
+                payments={missionPayment?.payments ?? []}
+                locale={locale}
+                copy={copy}
+              />
+            </div>
           </section>
         </div>
         <section
@@ -251,48 +272,49 @@ export function MissionFinanceTab({
               <h4>{copy.orderDeposit}</h4>
               <p>{copy.orderScope}</p>
             </div>
-            {summary.invoice && (
-              <Tag
-                color={
-                  summary.invoice.depositStatus === 'DEPOSIT_PAID'
-                    ? 'green'
-                    : 'orange'
-                }
-              >
-                {summary.invoice.depositStatus === 'DEPOSIT_PAID'
-                  ? copy.depositPaid
-                  : copy.depositWaiting}
-              </Tag>
-            )}
           </header>
           {summary.invoice ? (
             <>
-              <div className="mission-finance-tab__deposit">
-                <span>{copy.depositAmount}</span>
-                <strong>{formatVnd(summary.invoice.depositAmount)}</strong>
-              </div>
-              <Descriptions size="small" column={1} colon={false}>
-                <Descriptions.Item label={copy.invoiceTotal}>
-                  {formatVnd(summary.invoice.totalAmount)}
-                </Descriptions.Item>
-                <Descriptions.Item label={copy.orderPaid}>
-                  {formatVnd(summary.invoice.paidAmount)}
-                </Descriptions.Item>
-                <Descriptions.Item label={copy.orderRemaining}>
-                  {formatVnd(summary.invoice.remainingAmount)}
-                </Descriptions.Item>
+              <dl className="mission-finance-tab__equation">
+                <div>
+                  <dt>{copy.depositAmount}</dt>
+                  <dd>{formatVnd(summary.invoice.depositAmount)}</dd>
+                </div>
+                <div className="mission-finance-tab__order-paid">
+                  <dt>{copy.depositPaidAmount}</dt>
+                  <dd>{formatVnd(depositPaidAmount)}</dd>
+                </div>
+                <div
+                  className={
+                    depositRemainingAmount > 0
+                      ? 'mission-finance-tab__balance-due'
+                      : 'mission-finance-tab__balance-clear'
+                  }
+                >
+                  <dt>{copy.depositRemainingAmount}</dt>
+                  <dd>{formatVnd(depositRemainingAmount)}</dd>
+                </div>
+                <div className="is-total">
+                  <dt>{copy.depositPaymentAmount}</dt>
+                  <dd>{formatVnd(summary.invoice.depositAmount)}</dd>
+                </div>
+              </dl>
+              <Descriptions
+                className="mission-finance-tab__timing mission-finance-tab__deposit-timing"
+                size="small"
+                column={1}
+                colon={false}
+              >
                 <Descriptions.Item label={copy.depositIssuedAt}>
                   {formatDate(summary.invoice.issuedAt)}
                 </Descriptions.Item>
-                {summary.invoice.depositExpiresAt && (
-                  <Descriptions.Item label={copy.depositDeadline}>
-                    {formatDate(summary.invoice.depositExpiresAt)}
-                  </Descriptions.Item>
-                )}
+                <Descriptions.Item label={copy.depositDeadline}>
+                  {formatDate(summary.invoice.depositExpiresAt)}
+                </Descriptions.Item>
               </Descriptions>
               <div className="mission-finance-tab__deposit-history">
                 <PaymentHistory
-                  title={copy.paymentType.DEPOSIT}
+                  title={copy.paymentHistory}
                   payments={depositPayments}
                   locale={locale}
                   copy={copy}
@@ -329,21 +351,36 @@ function PaymentHistory({
           {payments.map((payment) => (
             <div className="mission-finance-tab__payment" key={payment.id}>
               <div>
-                <strong>{formatVnd(payment.amount)}</strong>
+                <strong
+                  className={
+                    payment.status === 'SUCCESS'
+                      ? 'mission-finance-tab__paid-amount'
+                      : undefined
+                  }
+                >
+                  {formatVnd(payment.amount)}
+                </strong>
                 <div className="mission-finance-tab__payment-meta">
-                  {payment.provider} ·{' '}
-                  {payment.paidAt
-                    ? new Date(payment.paidAt).toLocaleString(locale)
-                    : '—'}
+                  <span>
+                    {copy.provider}: {payment.provider}
+                  </span>
+                  <span>
+                    {copy.paidAt}:{' '}
+                    {payment.paidAt
+                      ? new Date(payment.paidAt).toLocaleString(locale)
+                      : '—'}
+                  </span>
                 </div>
               </div>
               <div className="mission-finance-tab__payment-end">
-                <Tag color={paymentTagColor[payment.status] ?? 'default'}>
-                  {copy.status[payment.status] ?? payment.status}
-                </Tag>
+                <StatusTag tone={paymentTagColor[payment.status] ?? 'neutral'}>
+                  {payment.status === 'SUCCESS'
+                    ? copy.status.PAID
+                    : (copy.status[payment.status] ?? payment.status)}
+                </StatusTag>
                 {payment.transactionReferenceMasked ? (
                   <Typography.Text type="secondary" copyable={false}>
-                    {payment.transactionReferenceMasked}
+                    {copy.reference}: {payment.transactionReferenceMasked}
                   </Typography.Text>
                 ) : null}
               </div>

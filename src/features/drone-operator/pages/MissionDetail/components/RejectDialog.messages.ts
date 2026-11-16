@@ -4,7 +4,7 @@ export const rejectDialogMessages = defineMessages({
   vi: {
     title: 'Từ chối nhiệm vụ',
     description:
-      'Vui lòng cho biết lý do để Manager có thể điều phối lại nhiệm vụ.',
+      'Vui lòng cho biết lý do để Quản lý có thể điều phối lại nhiệm vụ.',
     missionCodeLabel: 'Mã nhiệm vụ',
     missionCodeUnavailable: 'Chưa có mã nhiệm vụ',
     reasonLabel: 'Vì sao bạn không thể nhận nhiệm vụ?',
@@ -14,7 +14,7 @@ export const rejectDialogMessages = defineMessages({
       'Lý do khác',
     ],
     notesLabel: 'Ghi chú (tuỳ chọn)',
-    notesPlaceholder: 'Bổ sung thông tin để Manager sắp xếp nhân sự thay thế...',
+    notesPlaceholder: 'Bổ sung thông tin để Quản lý sắp xếp nhân sự thay thế...',
     cancel: 'Huỷ',
     submitting: 'Đang gửi...',
     submit: 'Xác nhận từ chối',

@@ -85,6 +85,11 @@ export const checklistMessages = defineMessages({
     mandatory: 'Bắt buộc',
     mandatoryHint: 'Nội dung bắt buộc của dịch vụ, không thể bỏ khỏi đơn.',
     quoteTitle: 'Chi phí nội dung giám sát',
+    basePriceLabel: 'Giá gốc',
+    standardAreaLabel: 'Diện tích tiêu chuẩn',
+    actualAreaLabel: 'Diện tích công trình',
+    calculationLabel: 'Cách tính',
+    excessAreaLabel: 'Giá cơ bản và phụ phí diện tích vượt',
     quoteHint:
       'Giá do hệ thống tính từ cấu hình hiện hành; quản lý vẫn xem xét và gửi báo giá cuối cùng.',
     quoteLoading: 'Đang tính giá…',
@@ -95,7 +100,7 @@ export const checklistMessages = defineMessages({
     quoteAddOns: 'Dịch vụ bổ sung',
     quoteAwaiting: 'Chờ quản lý báo giá',
     quoteNote:
-      'Chưa gồm các yếu tố theo từng đơn như quãng đường và diện tích.',
+      'Giá dự toán dùng diện tích thực tế và cấu hình Base Checklist hiện hành; quản lý sẽ xác nhận báo giá cuối cùng.',
     quoteFailed: 'Không thể tính chi phí lúc này.',
     limit: 'Chỉ được chọn tối đa 100 nội dung.',
     loadFailed:
@@ -234,6 +239,11 @@ export const checklistMessages = defineMessages({
     mandatory: 'Required',
     mandatoryHint: 'A required item of this service; it cannot be removed.',
     quoteTitle: 'Monitoring requirements cost',
+    basePriceLabel: 'Base price',
+    standardAreaLabel: 'Standard area',
+    actualAreaLabel: 'Project area',
+    calculationLabel: 'Calculation',
+    excessAreaLabel: 'Base price and excess-area charge',
     quoteHint:
       'The price is calculated by the system from the current configuration; a manager still reviews it and sends the final quote.',
     quoteLoading: 'Calculating price…',
@@ -243,7 +253,8 @@ export const checklistMessages = defineMessages({
       `Prices already cover ${n} scheduled visits.`,
     quoteAddOns: 'Add-ons',
     quoteAwaiting: 'Awaiting manager quote',
-    quoteNote: 'Excludes order-specific factors such as distance and area.',
+    quoteNote:
+      'This estimate uses the actual area and current Base Checklist settings; the manager confirms the final quote.',
     quoteFailed: 'Unable to calculate the cost right now.',
     invalidEvidenceType: 'Select a valid evidence type.',
     limit: 'Select at most 100 requirements.',

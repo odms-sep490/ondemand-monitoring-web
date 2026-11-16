@@ -73,7 +73,7 @@ export const uploadMediaPageMessages = defineMessages({
     moreActions: 'Thêm thao tác',
     emptyMedia: 'Chưa có ảnh/video trên thiết bị.',
     emptyMediaHelp:
-      'Kết nối Bộ điều khiển bay hoặc tạo ảnh/video trong Nhiệm vụ, rồi làm mới danh sách.',
+      'Kết nối Bộ điều khiển bay hoặc tạo ảnh/video trong nhiệm vụ, rồi làm mới danh sách.',
     emptyFilteredMedia: 'Không có ảnh/video phù hợp với bộ lọc này.',
     showAllMedia: 'Hiện tất cả',
     managerReviewPending: 'Ảnh/video đã tải lên và đang chờ nghiệm thu duyệt.',
@@ -99,7 +99,7 @@ export const uploadMediaPageMessages = defineMessages({
     approveUpload: 'Tải ảnh lên',
     metadataCaptureTime: 'Thời gian từ siêu dữ liệu',
     staffCaptureTime: 'Thời gian Nhân viên xác nhận',
-    addDroneFiles: 'Thêm ảnh/video từ thẻ nhớ drone',
+    addDroneFiles: 'Thêm ảnh/video từ thẻ nhớ thiết bị',
     flightControllerChannel: 'Bộ điều khiển bay',
     staffFileChannel: 'Nhân viên tải từ tệp',
     staffUploadFailure: (reason?: string | null) => reason ? `Tải tệp thất bại: ${reason}` : 'Tải tệp thất bại. Hãy kiểm tra tệp và thử lại thủ công.',

@@ -6,6 +6,7 @@ import { useI18n } from '../../../../../shared/i18n'
 import { formatIssueType, formatTicketDescription, formatTicketTitle } from '../../../lib/ticketText'
 import type { MaintenanceTicket } from '../../../types/maintenance'
 import { mgrPopupContainer } from '../../../components/common/mgrPopupContainer'
+import { formatStamp } from '../maintenanceHelpers'
 import { maintenancePageMessages } from '../MaintenancePage.messages'
 import { TicketSeverityTag, TicketStatusTag } from './TicketTags'
 
@@ -44,6 +45,8 @@ export function TicketDetailContent({
         <TicketSeverityTag severity={ticket.priority} />
       </div>
 
+      <section className="mgr-ticket-section">
+      {!preview && <h3 className="mgr-ticket-section-title">{t.detail.overview}</h3>}
       <dl className="mgr-ticket-facts">
         <dt className="mgr-ticket-key">{t.detail.device}</dt>
         <dd>
@@ -70,36 +73,37 @@ export function TicketDetailContent({
           )}
         </dd>
       </dl>
+      </section>
 
       {ticket.description && (
-        <div>
-          <div className="mgr-ticket-key is-block">{t.detail.description}</div>
+        <section className="mgr-ticket-section">
+          <h3 className="mgr-ticket-section-title">{t.detail.description}</h3>
           <div className="mgr-ticket-text">{formatTicketDescription(ticket.description)}</div>
-        </div>
+        </section>
       )}
 
       {!preview && ticket.resolutionNotes && (
-        <div className="mgr-ticket-resolution">
-          <span className="mgr-ticket-resolution-title">{t.detail.resolutionReport}</span>
+        <section className="mgr-ticket-resolution">
+          <h3 className="mgr-ticket-resolution-title">{t.detail.resolutionReport}</h3>
           <span className="mgr-ticket-resolution-text">{ticket.resolutionNotes}</span>
-        </div>
+        </section>
       )}
 
       {!preview && actions}
 
-      <div className="mgr-ticket-history">
-        {!preview && <div className="mgr-ticket-history-title">{t.detail.history}</div>}
+      <section className="mgr-ticket-history">
+        {!preview && <h3 className="mgr-ticket-section-title">{t.detail.history}</h3>}
         <div className="mgr-ticket-history-row">
           <span className="mgr-ticket-key">{t.detail.createdAt}</span>
-          <span>{new Date(ticket.openedAt).toLocaleString(locale)}</span>
+          <span>{formatStamp(ticket.openedAt, locale)}</span>
         </div>
         {!preview && ticket.resolvedAt && (
           <div className="mgr-ticket-history-row">
             <span className="mgr-ticket-key">{t.detail.resolvedAt}</span>
-            <span>{new Date(ticket.resolvedAt).toLocaleString(locale)}</span>
+            <span>{formatStamp(ticket.resolvedAt, locale)}</span>
           </div>
         )}
-      </div>
+      </section>
     </div>
   )
 }

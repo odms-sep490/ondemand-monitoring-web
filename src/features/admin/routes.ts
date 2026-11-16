@@ -14,6 +14,7 @@ export type AdminRoute =
   | { screen: 'serviceChecklists'; serviceId?: string }
   | { screen: 'operatingConfig' }
   | { screen: 'orderCriteria' }
+  | { screen: 'deviceCheckCriteria' }
   | { screen: 'auditLog' }
   | { screen: 'refunds' }
   | { screen: 'notFound' }
@@ -57,6 +58,10 @@ export function parseAdminRoute(hash: string): AdminRoute {
       return { screen: 'operatingConfig' }
     case 'order-criteria':
       return { screen: 'orderCriteria' }
+    case 'device-check-criteria':
+      return tail.length === 0
+        ? { screen: 'deviceCheckCriteria' }
+        : { screen: 'notFound' }
     case 'audit-log':
       return { screen: 'auditLog' }
     case 'refunds':
@@ -90,6 +95,8 @@ export function adminHref(route: AdminRoute): string {
       return `${ADMIN_ROOT}/operating-config`
     case 'orderCriteria':
       return `${ADMIN_ROOT}/order-criteria`
+    case 'deviceCheckCriteria':
+      return `${ADMIN_ROOT}/device-check-criteria`
     case 'auditLog':
       return `${ADMIN_ROOT}/audit-log`
     case 'refunds':

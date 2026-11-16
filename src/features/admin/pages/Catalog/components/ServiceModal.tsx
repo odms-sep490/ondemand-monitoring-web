@@ -16,12 +16,12 @@ import { EditLoader } from './EditLoader'
 import { FormField } from '../../../../../shared/components/ui'
 import { FormFooter } from '../../../../../shared/components/ui'
 import { serviceModalMessages } from './ServiceModal.messages'
-import { PriceBreakdownView } from '../../../../../shared/components/odm/PriceBreakdownView'
 import {
   checklistPricingApi,
   type ServicePricePreview,
 } from '../../../../../shared/api/checklistPricingApi'
 import { adminHref } from '../../../routes'
+import { ServicePriceSummary } from '../../Checklists/ServicePriceSummary'
 
 type Props = {
   /** Existing service (edit) or undefined (create). */
@@ -57,15 +57,13 @@ function ServiceForm({ service, onClose, onSaved }: Props) {
     return () => URL.revokeObjectURL(url)
   }, [image, removeImage, service?.imageUrl])
 
-  /** The stored default checklists priced by the active policy; nothing is saved. */
+  /** The stored default Base Checklist prices; nothing is saved. */
   async function checkPrice() {
     if (!service?.id) return
     setPriceCheckError(null)
     try {
       setPriceCheck(
-        await checklistPricingApi.adminPreview({
-          serviceId: service.id,
-        }),
+        await checklistPricingApi.defaultPrice(service.id),
       )
     } catch {
       setPriceCheck(null)
@@ -75,17 +73,8 @@ function ServiceForm({ service, onClose, onSaved }: Props) {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    if (
-      !values.name.trim() ||
-      !Number.isSafeInteger(values.basePrice) ||
-      values.basePrice <= 0
-    ) {
-      setErrors({
-        ...(!values.name.trim() ? { name: t.required } : {}),
-        ...(!Number.isSafeInteger(values.basePrice) || values.basePrice <= 0
-          ? { basePrice: t.invalidPrice }
-          : {}),
-      })
+    if (!values.name.trim()) {
+      setErrors({ name: t.required })
       return
     }
     setBusy(true)
@@ -138,27 +127,6 @@ function ServiceForm({ service, onClose, onSaved }: Props) {
             onChange={(e) => setValues({ ...values, name: e.target.value })}
           />
         </FormField>
-        <FormField
-          id="adm-svc-price"
-          label={t.basePrice}
-          required
-          error={errors.basePrice}
-        >
-          <input
-            id="adm-svc-price"
-            className="odm-inp"
-            type="number"
-            min={1}
-            step={1000}
-            inputMode="numeric"
-            value={values.basePrice}
-            aria-invalid={!!errors.basePrice}
-            onChange={(e) =>
-              setValues({ ...values, basePrice: Number(e.target.value) })
-            }
-          />
-          <small>{t.basePriceHint}</small>
-        </FormField>
         <section
           aria-label={t.previewTitle}
           className="adm-service-price-check"
@@ -186,7 +154,7 @@ function ServiceForm({ service, onClose, onSaved }: Props) {
                 </a>
               </div>
               {priceCheckError && <p role="alert">{priceCheckError}</p>}
-              {priceCheck && <PriceBreakdownView preview={priceCheck} />}
+              {priceCheck && <ServicePriceSummary preview={priceCheck} />}
             </>
           ) : (
             <small>{t.previewSaveFirst}</small>

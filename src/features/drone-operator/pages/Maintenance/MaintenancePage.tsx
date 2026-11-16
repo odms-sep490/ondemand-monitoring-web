@@ -2,6 +2,8 @@ import { useMemo, useState } from 'react'
 
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
+import { getDroneStatusLabel } from '../../../../shared/lib/statusTone'
+import type { DroneStatus } from '../../../../shared/types/domain'
 import { authSession } from '../../../auth/api/authApi'
 import {
   maintenanceTicketApi,
@@ -17,7 +19,7 @@ import { TicketCard } from './components/TicketCard'
 import { ResolveModal } from './components/ResolveModal'
 
 export function MaintenancePage() {
-  const { t } = useI18n(maintenancePageMessages)
+  const { t, lang } = useI18n(maintenancePageMessages)
   const user = authSession.getUser()
   const [activeTab, setActiveTab] = useState<
     'MY_TICKETS' | 'ALL_ACTIVE' | 'RESOLVED'
@@ -84,7 +86,8 @@ export function MaintenancePage() {
         t.resolveSuccess(
           selectedTicket.ticketCode,
           maintenanceDeviceLabel(selectedTicket),
-          targetDroneStatus,
+          getDroneStatusLabel(targetDroneStatus as DroneStatus, lang) ??
+            targetDroneStatus,
         ),
       )
       setSelectedTicket(null)
