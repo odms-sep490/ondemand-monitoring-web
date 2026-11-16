@@ -4,12 +4,20 @@ import {
   SafetyOutlined,
   ThunderboltOutlined,
 } from '@ant-design/icons'
-import { Button, Input, Segmented, Switch } from 'antd'
+import { Button, Input, Pagination, Segmented, Switch } from 'antd'
 import { useMemo, useState } from 'react'
 
 import { StatisticComponent } from '../../../../shared/components/antd'
-import { ErrorState, LoadingState } from '../../../../shared/components/odm/StateView'
-import { EmptyState, PageHeader, useConfirm, useToast } from '../../../../shared/components/ui'
+import {
+  ErrorState,
+  LoadingState,
+} from '../../../../shared/components/odm/StateView'
+import {
+  EmptyState,
+  PageHeader,
+  useConfirm,
+  useToast,
+} from '../../../../shared/components/ui'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
 import {
@@ -25,7 +33,10 @@ import { CriterionPanel } from './components/CriterionPanel'
 import { deviceCheckCriteriaMessages } from './DeviceCheckCriteriaPage.messages'
 import './device-check-criteria.css'
 
-type PanelState = { open: false } | { open: true; criterion: DeviceCheckCriterion | null }
+const LANE_PAGE_SIZE = 5
+
+type PanelState =
+  { open: false } | { open: true; criterion: DeviceCheckCriterion | null }
 
 export function DeviceCheckCriteriaPage() {
   const { t } = useI18n(deviceCheckCriteriaMessages)
@@ -37,6 +48,9 @@ export function DeviceCheckCriteriaPage() {
   const [panel, setPanel] = useState<PanelState>({ open: false })
   const [saving, setSaving] = useState(false)
   const [reordering, setReordering] = useState(false)
+  const [lanePages, setLanePages] = useState<Record<string, number>>({})
+  // Id of the last moved card: its lane jumps to the page that contains it.
+  const [followId, setFollowId] = useState<string | null>(null)
 
   const { data, loading, error, reload } = useApiQuery(
     (signal) => deviceCheckCriteriaApi.list(phase, signal),
@@ -44,18 +58,45 @@ export function DeviceCheckCriteriaPage() {
   )
   const criteria = useMemo(() => data ?? [], [data])
 
-  const ordered = useMemo(() => [...criteria].sort((a, b) => a.sortOrder - b.sortOrder), [criteria])
+  const ordered = useMemo(
+    () => [...criteria].sort((a, b) => a.sortOrder - b.sortOrder),
+    [criteria],
+  )
   const visible = useMemo(() => {
     const q = search.trim().toLowerCase()
     return ordered.filter(
       (c) =>
         (showInactive || c.active) &&
-        (!q || c.name.toLowerCase().includes(q) || c.code.toLowerCase().includes(q)),
+        (!q ||
+          c.name.toLowerCase().includes(q) ||
+          c.code.toLowerCase().includes(q)),
     )
   }, [ordered, search, showInactive])
   const lanes = useMemo(() => groupByCategory(visible), [visible])
-  const categories = useMemo(() => [...new Set(criteria.map((c) => c.category))], [criteria])
+  const categories = useMemo(
+    () => [...new Set(criteria.map((c) => c.category))],
+    [criteria],
+  )
   const selectedId = panel.open ? panel.criterion?.id : undefined
+
+  function resetPages() {
+    setLanePages({})
+    setFollowId(null)
+  }
+
+  function lanePage(lane: { category: string; items: DeviceCheckCriterion[] }) {
+    const followIndex = followId
+      ? lane.items.findIndex((c) => c.id === followId)
+      : -1
+    const wanted =
+      followIndex >= 0
+        ? Math.floor(followIndex / LANE_PAGE_SIZE) + 1
+        : (lanePages[lane.category] ?? 1)
+    return Math.min(
+      wanted,
+      Math.max(1, Math.ceil(lane.items.length / LANE_PAGE_SIZE)),
+    )
+  }
 
   function errorText(err: unknown) {
     return err instanceof Error ? err.message : String(err)
@@ -87,7 +128,9 @@ export function DeviceCheckCriteriaPage() {
       description: (
         <>
           <p>{t.confirmDelete.description}</p>
-          {criterion.systemLogic && <p className="adm-crit-warning">{t.confirmDelete.systemWarning}</p>}
+          {criterion.systemLogic && (
+            <p className="adm-crit-warning">{t.confirmDelete.systemWarning}</p>
+          )}
         </>
       ),
       confirmLabel: t.confirmDelete.confirm,
@@ -108,9 +151,13 @@ export function DeviceCheckCriteriaPage() {
   }
 
   async function move(criterion: DeviceCheckCriterion, delta: -1 | 1) {
+    setFollowId(criterion.id)
     setReordering(true)
     try {
-      await deviceCheckCriteriaApi.reorder(phase, moveCriterion(ordered, criterion.id, delta))
+      await deviceCheckCriteriaApi.reorder(
+        phase,
+        moveCriterion(ordered, criterion.id, delta),
+      )
       reload()
     } catch (err) {
       toast.error(errorText(err))
@@ -127,7 +174,10 @@ export function DeviceCheckCriteriaPage() {
         title={t.title}
         subtitle={t.subtitle}
         actions={
-          <Button type="primary" onClick={() => setPanel({ open: true, criterion: null })}>
+          <Button
+            type="primary"
+            onClick={() => setPanel({ open: true, criterion: null })}
+          >
             + {t.add}
           </Button>
         }
@@ -138,6 +188,7 @@ export function DeviceCheckCriteriaPage() {
         value={phase}
         onChange={(value) => {
           setPhase(value as DeviceCheckPhase)
+          resetPages()
           setPanel({ open: false })
         }}
         options={[
@@ -147,13 +198,34 @@ export function DeviceCheckCriteriaPage() {
       />
 
       <div className="mgr-kpi-strip adm-crit-kpis">
-        <StatisticComponent index={0} tone="blue" icon={<AppstoreOutlined />} title={t.stats.total} value={criteria.length} />
-        <StatisticComponent index={1} tone="red" icon={<SafetyOutlined />} title={t.stats.required}
-          value={criteria.filter((c) => c.required && c.active).length} />
-        <StatisticComponent index={2} tone="amber" icon={<ThunderboltOutlined />} title={t.stats.system}
-          value={criteria.filter((c) => c.systemLogic).length} />
-        <StatisticComponent index={3} tone="green" icon={<EyeInvisibleOutlined />} title={t.stats.inactive}
-          value={criteria.filter((c) => !c.active).length} />
+        <StatisticComponent
+          index={0}
+          tone="blue"
+          icon={<AppstoreOutlined />}
+          title={t.stats.total}
+          value={criteria.length}
+        />
+        <StatisticComponent
+          index={1}
+          tone="red"
+          icon={<SafetyOutlined />}
+          title={t.stats.required}
+          value={criteria.filter((c) => c.required && c.active).length}
+        />
+        <StatisticComponent
+          index={2}
+          tone="amber"
+          icon={<ThunderboltOutlined />}
+          title={t.stats.system}
+          value={criteria.filter((c) => c.systemLogic).length}
+        />
+        <StatisticComponent
+          index={3}
+          tone="green"
+          icon={<EyeInvisibleOutlined />}
+          title={t.stats.inactive}
+          value={criteria.filter((c) => !c.active).length}
+        />
       </div>
 
       <div className="adm-crit-filters">
@@ -162,10 +234,21 @@ export function DeviceCheckCriteriaPage() {
           value={search}
           placeholder={t.searchPlaceholder}
           aria-label={t.searchPlaceholder}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => {
+            setSearch(e.target.value)
+            resetPages()
+          }}
         />
         <label className="adm-crit-toggle">
-          <Switch size="small" checked={showInactive} onChange={setShowInactive} aria-label={t.showInactive} />
+          <Switch
+            size="small"
+            checked={showInactive}
+            onChange={(checked) => {
+              setShowInactive(checked)
+              resetPages()
+            }}
+            aria-label={t.showInactive}
+          />
           {t.showInactive}
         </label>
       </div>
@@ -178,31 +261,58 @@ export function DeviceCheckCriteriaPage() {
         <EmptyState title={t.empty} />
       ) : (
         <div className="adm-crit-board">
-          {lanes.map((lane) => (
-            <section key={lane.category} className="adm-crit-lane" aria-label={lane.category}>
-              <div className="adm-crit-lane-head">
-                <span className="adm-crit-lane-name">{lane.category}</span>
-                <span className="adm-crit-lane-count">{lane.items.length}</span>
-              </div>
-              <div className="adm-crit-lane-list">
-                {lane.items.map((criterion) => {
-                  const index = position(criterion.id)
-                  return (
-                    <CriterionCard
-                      key={criterion.id}
-                      criterion={criterion}
-                      selected={selectedId === criterion.id}
-                      canMoveUp={index > 0}
-                      canMoveDown={index < ordered.length - 1}
-                      busy={reordering}
-                      onSelect={(c) => setPanel({ open: true, criterion: c })}
-                      onMove={move}
-                    />
-                  )
-                })}
-              </div>
-            </section>
-          ))}
+          {lanes.map((lane) => {
+            const page = lanePage(lane)
+            const pageItems = lane.items.slice(
+              (page - 1) * LANE_PAGE_SIZE,
+              page * LANE_PAGE_SIZE,
+            )
+            return (
+              <section
+                key={lane.category}
+                className="adm-crit-lane"
+                aria-label={lane.category}
+              >
+                <div className="adm-crit-lane-head">
+                  <span className="adm-crit-lane-name">{lane.category}</span>
+                  <span className="adm-crit-lane-count">
+                    {lane.items.length}
+                  </span>
+                </div>
+                <div className="adm-crit-lane-list">
+                  {pageItems.map((criterion) => {
+                    const index = position(criterion.id)
+                    return (
+                      <CriterionCard
+                        key={criterion.id}
+                        criterion={criterion}
+                        selected={selectedId === criterion.id}
+                        canMoveUp={index > 0}
+                        canMoveDown={index < ordered.length - 1}
+                        busy={reordering}
+                        onSelect={(c) => setPanel({ open: true, criterion: c })}
+                        onMove={move}
+                      />
+                    )
+                  })}
+                </div>
+                <Pagination
+                  className="adm-crit-lane-pager"
+                  size="small"
+                  simple
+                  hideOnSinglePage
+                  current={page}
+                  pageSize={LANE_PAGE_SIZE}
+                  total={lane.items.length}
+                  showSizeChanger={false}
+                  onChange={(next) => {
+                    setFollowId(null)
+                    setLanePages((prev) => ({ ...prev, [lane.category]: next }))
+                  }}
+                />
+              </section>
+            )
+          })}
         </div>
       )}
 

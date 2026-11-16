@@ -186,6 +186,7 @@ export type MediaFile = {
   validationPending?: boolean
 }
 
+/** Legacy built-in keys or a backend criterion code (admin-configured). */
 export type PostflightItemKey =
   | 'battery_ok'
   | 'motor_ok'
@@ -193,6 +194,7 @@ export type PostflightItemKey =
   | 'gps_ok'
   | 'communication_ok'
   | 'physical_condition_ok'
+  | (string & Record<never, never>)
 
 export type PostflightItem = {
   key: PostflightItemKey

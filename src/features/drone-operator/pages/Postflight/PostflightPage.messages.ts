@@ -3,6 +3,7 @@ import { defineMessages } from '../../../../shared/i18n'
 export const postflightPageMessages = defineMessages({
   vi: {
     backToInspectionSource: 'Trở về nghiệm thu Mission gốc',
+    otherCategory: 'Hạng mục khác',
     categories: {
       structure: {
         title: 'Cấu trúc & Khung vỏ',
@@ -207,6 +208,7 @@ export const postflightPageMessages = defineMessages({
   },
   en: {
     backToInspectionSource: 'Return to the original mission inspection',
+    otherCategory: 'Other items',
     categories: {
       structure: {
         title: 'Structure & Airframe',
