@@ -9,6 +9,7 @@ import { orderReviewPageMessages } from '../../pages/OrderReview/OrderReviewPage
 import { formatOrderCode } from './format'
 import { mgrPopupContainer } from './mgrPopupContainer'
 import { OrderAttachmentsCard } from './OrderAttachmentsCard'
+import { OrderChecklistDetailsCard } from './OrderChecklistDetailsCard'
 import { OrderCustomerCard } from './OrderCustomerCard'
 import { OrderCustomerRequestDetails } from './OrderCustomerRequestDetails'
 import { OrderServiceInfo } from './OrderServiceInfo'
@@ -49,6 +50,7 @@ export function OrderDetailsDrawer({ order }: { order: OrderDetail }) {
         <div className="odm-or mgr-order-detail-drawer-content">
           <OrderServiceInfo order={order} t={t} hideEmpty />
           <OrderCustomerRequestDetails order={order} t={t} />
+          <OrderChecklistDetailsCard order={order} open={open} />
           <OrderCustomerCard order={order} t={t} hideEmpty />
           {order.attachments?.length ? (
             <OrderAttachmentsCard order={order} t={t} />
