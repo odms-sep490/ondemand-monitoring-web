@@ -18,10 +18,17 @@ export function notificationHref(
 ): string | undefined {
   if (notification.type.startsWith('ORDER_')) {
     if (role === 'CUSTOMER')
-      return customerHref({
-        screen: 'orderDetail',
-        orderId: notification.entityId,
-      }) + (notification.type.startsWith('ORDER_CONTRACT_') ? '?tab=contract' : '')
+      return (
+        customerHref({
+          screen: 'orderDetail',
+          orderId: notification.entityId,
+        }) +
+        (notification.type.startsWith('ORDER_CONTRACT_')
+          ? '?tab=contract'
+          : notification.type === 'ORDER_DEPOSIT_REQUIRED'
+            ? '?tab=payment'
+            : '')
+      )
     if (role === 'MANAGER' || role === 'ADMIN')
       return managerHref({
         screen: 'orderReview',
@@ -43,9 +50,19 @@ export function notificationHref(
       : notificationsHref(role)
   }
   if (role === 'MANAGER' || role === 'ADMIN') {
-    if (role === 'MANAGER' &&
-        ['MISSION_STAFF_REPLACEMENT_REQUIRED', 'MISSION_DRONE_REPLACEMENT_REQUIRED'].includes(notification.type)) {
-      return managerHref({ screen: 'missionDetail', missionId: notification.entityId }) + '?tab=plan'
+    if (
+      role === 'MANAGER' &&
+      [
+        'MISSION_STAFF_REPLACEMENT_REQUIRED',
+        'MISSION_DRONE_REPLACEMENT_REQUIRED',
+      ].includes(notification.type)
+    ) {
+      return (
+        managerHref({
+          screen: 'missionDetail',
+          missionId: notification.entityId,
+        }) + '?tab=plan'
+      )
     }
     return managerHref({
       screen: 'missionDetail',

@@ -15,6 +15,7 @@ export type NotificationType =
   | 'ORDER_COMPLETED'
   | 'ORDER_CANCELLED'
   | 'ORDER_DEPOSIT_PAID'
+  | 'ORDER_DEPOSIT_REQUIRED'
   | 'ORDER_QUOTE_APPROVED'
   | 'ORDER_FINAL_PAYMENT_REQUIRED'
   | 'MISSION_ASSIGNED'
@@ -35,6 +36,7 @@ export type AppNotification = {
   reference: string
   createdAt: string
   actorName?: string | null
+  amount?: number | null
 }
 
 export type NotificationFeed = { items: AppNotification[] }

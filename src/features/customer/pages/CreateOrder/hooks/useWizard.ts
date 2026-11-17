@@ -32,7 +32,6 @@ const errorFieldIds: Partial<Record<keyof FormErrors, string>> = {
   preferredDateFrom: 'co-from',
   preferredDateTo: 'co-to',
   preferredTimeId: 'co-time',
-  resultDeadline: 'co-deadline',
   deliverableTypeId: 'co-deliv',
 }
 

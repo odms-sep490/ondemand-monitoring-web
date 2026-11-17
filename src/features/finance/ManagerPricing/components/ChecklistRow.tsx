@@ -95,7 +95,6 @@ export function ChecklistRow({
             )}
           </div>
         ) : null}
-        <ChecklistGuidance guidance={item} />
         {item.sourceType !== 'SERVICE_TEMPLATE' ? (
           <span>{t.sourceCustom}</span>
         ) : null}
@@ -220,6 +219,11 @@ export function ChecklistRow({
       >
         <span aria-hidden="true">⌄</span>
       </button>
+      {hasChecklistGuidance(item) && (
+        <div className="finance-requirement-guidance">
+          <ChecklistGuidance guidance={item} />
+        </div>
+      )}
       {noteOpen ? (
         <div className="finance-note">
           {pending ? (

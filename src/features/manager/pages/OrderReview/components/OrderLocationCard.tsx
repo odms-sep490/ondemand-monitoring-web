@@ -16,7 +16,6 @@ import { Button } from '../../../../../shared/components/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import { orderLocationCardMessages } from './OrderLocationCard.messages'
 import { preferredRangeLabel } from '../../../lib/viLabels'
-import { text } from '../../../components/common/requestDetailHelpers'
 
 function useLeafletOrderMap(order: OrderDetail, showServiceArea: boolean) {
   const container = useRef<HTMLDivElement>(null)
@@ -61,7 +60,15 @@ function useLeafletOrderMap(order: OrderDetail, showServiceArea: boolean) {
 
     map.current = instance
     const resizeTimer = window.setTimeout(() => instance.invalidateSize(), 0)
+    let resizeFrame = 0
+    const observer = new ResizeObserver(() => {
+      window.cancelAnimationFrame(resizeFrame)
+      resizeFrame = window.requestAnimationFrame(() => instance.invalidateSize({ pan: false }))
+    })
+    observer.observe(container.current)
     return () => {
+      observer.disconnect()
+      window.cancelAnimationFrame(resizeFrame)
       window.clearTimeout(resizeTimer)
       instance.remove()
       map.current = null
@@ -250,18 +257,6 @@ export function OrderLocationCard({
               <div className="odm-or-location-metric">
                 <dt>{t.service}</dt>
                 <dd>{order.serviceName}</dd>
-              </div>
-            ) : null}
-            {order.flightPurpose ? (
-              <div className="odm-or-location-metric">
-                <dt>{t.flightPurpose}</dt>
-                <dd>{text(order.flightPurpose)}</dd>
-              </div>
-            ) : null}
-            {order.altitudeM != null ? (
-              <div className="odm-or-location-metric">
-                <dt>{t.flightAltitude}</dt>
-                <dd>{order.altitudeM} m</dd>
               </div>
             ) : null}
             <div className="odm-or-location-metric">

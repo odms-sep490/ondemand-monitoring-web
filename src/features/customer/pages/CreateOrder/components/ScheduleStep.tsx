@@ -67,7 +67,6 @@ export function ScheduleStep(p: Props) {
           />
           <ScheduleOptionsCard
             form={form}
-            errors={p.errors}
             update={p.update}
           />
         </div>
@@ -84,10 +83,6 @@ export function ScheduleStep(p: Props) {
               <ClockCircleOutlined aria-hidden="true" />
               <div><span>{t.timeWindow}</span><strong>{p.time ? localizeTimeslot(p.time, lang) : t.notSelected}</strong></div>
             </div>
-            {(form.recurrenceType === 'WEEKLY' || form.recurrenceType === 'MONTHLY' || form.resultDeadline) && <dl className="co-schedule-extras">
-              {form.recurrenceType !== 'NONE' && <div><dt>{t.repeat}</dt><dd>{form.recurrenceType === 'WEEKLY' ? t.repeatWeekly(form.recurrenceOccurrences) : t.repeatMonthly(form.recurrenceOccurrences)}</dd></div>}
-              {form.resultDeadline && <div><dt>{t.deadline}</dt><dd>{formatDate(form.resultDeadline, lang)}</dd></div>}
-            </dl>}
             <div className="co-schedule-next">
               <strong>{lang === 'vi' ? 'Lịch bay được xác nhận thế nào?' : 'How is the schedule confirmed?'}</strong>
               <ol><li>{lang === 'vi' ? 'Bạn chọn ngày và khung giờ phù hợp.' : 'Choose your preferred dates and time.'}</li><li>{lang === 'vi' ? 'Đội vận hành kiểm tra và sắp xếp lịch.' : 'Our operations team reviews availability.'}</li><li>{lang === 'vi' ? 'Bạn nhận thông báo khi lịch được xác nhận.' : 'Receive a notification once confirmed.'}</li></ol>
