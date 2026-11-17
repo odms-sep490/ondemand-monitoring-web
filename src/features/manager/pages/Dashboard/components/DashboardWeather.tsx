@@ -47,14 +47,16 @@ export function DashboardWeather({ locale }: { locale: string }) {
   return (
     <span
       className="mgr-dashboard-weather"
-      aria-label={isVietnamese
-        ? `Nhiệt độ hiện tại tại ${city}: ${value} độ C`
-        : `Current temperature in ${city}: ${value} degrees Celsius`}
+      aria-label={temperature === null
+        ? (isVietnamese ? `Chưa có nhiệt độ tại ${city}` : `Temperature unavailable in ${city}`)
+        : (isVietnamese
+          ? `Nhiệt độ hiện tại tại ${city}: ${value} độ C`
+          : `Current temperature in ${city}: ${value} degrees Celsius`)}
       title={temperature === null
         ? (isVietnamese ? 'Chưa tải được thời tiết' : 'Weather unavailable')
         : undefined}
     >
-      <span aria-hidden="true">☀</span>
+      <span aria-hidden="true">🌡</span>
       <span>{city} · {value}°C</span>
     </span>
   )
