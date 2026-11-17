@@ -1,3 +1,4 @@
+import { hasMissionFlightEnded } from '../../lib/missionFlightLifecycle'
 import { missionStatusTone } from '../../../../shared/lib/statusTone'
 import { missionListTableMessages } from './components/MissionListTable.messages'
 import type { OperatorMission } from '../../types/mission'
@@ -25,6 +26,7 @@ export type Messages = (typeof missionListTableMessages)['vi']
 
 export function actionFor(mission: OperatorMission, t: Messages) {
   const backendStatus = mission.backendStatus
+  if (mission.actualEndAt || mission.completedAt) return { label: t.action.viewResult, cls: '', href: operatorHref({ screen: 'missionDetail', missionId: mission.id }) }
   const permissions = mission.permissions
   if (
     backendStatus === 'AWAITING_REVIEW' ||
@@ -108,7 +110,7 @@ export function actionFor(mission: OperatorMission, t: Messages) {
       }
     }
     if (
-      permissions.canControlFlight &&
+      permissions.canControlFlight && !hasMissionFlightEnded(mission) &&
       (backendStatus === 'READY_TO_FLY' ||
         backendStatus === 'IN_FLIGHT' ||
         backendStatus === 'IN_PROGRESS' ||

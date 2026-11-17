@@ -1,3 +1,4 @@
+import { hasMissionFlightEnded } from '../../lib/missionFlightLifecycle'
 import type { OperatorMission } from '../../types/mission'
 import type { Messages } from './missionListTypes'
 import { operatorHref } from '../../routes'
@@ -67,6 +68,10 @@ export function railStatusTone(status: string) {
 export function railActionFor(mission: OperatorMission, t: Messages) {
   const status = latestMissionStatus(mission)
   const permissions = mission.permissions
+  if (mission.actualEndAt || mission.completedAt) return {
+    label: t.viewResult,
+    href: operatorHref({ screen: 'missionDetail', missionId: mission.id }),
+  }
   if (
     status === 'AWAITING_REVIEW' ||
     status === 'PENDING_REVIEW' ||
@@ -119,7 +124,7 @@ export function railActionFor(mission: OperatorMission, t: Messages) {
     }
   }
   if (
-    permissions?.canControlFlight &&
+    permissions?.canControlFlight && !hasMissionFlightEnded(mission) &&
     (status === 'IN_FLIGHT' ||
       status === 'IN_PROGRESS' ||
       status === 'RETURNING')
