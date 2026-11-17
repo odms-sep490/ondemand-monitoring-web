@@ -3551,3 +3551,27 @@
   :root .od-page .mission-payment-card,
   :root .od-page .mission-payment-item { padding: 16px; }
 }
+
+.finance-workspace .finance-requirement-guidance {
+  grid-column: 2 / -1;
+  min-width: 0;
+}
+
+.finance-workspace .finance-requirement-guidance .odm-cg {
+  margin-top: 0;
+}
+
+.finance-workspace .finance-requirement-guidance .odm-cg-section {
+  padding: 10px 12px;
+}
+
+.finance-workspace .finance-requirement-guidance .odm-cg-section h4 {
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+@container (max-width: 680px) {
+  .finance-workspace .finance-requirement-guidance {
+    grid-column: 1 / -1;
+  }
+}

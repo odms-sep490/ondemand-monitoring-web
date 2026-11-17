@@ -1,3 +1,4 @@
+import { formatVnd } from '../../shared/lib/formatVnd'
 import {
   AlertOutlined,
   CalendarOutlined,
@@ -26,6 +27,7 @@ const iconByType = {
   ORDER_COMPLETED: CheckCircleOutlined,
   ORDER_CANCELLED: AlertOutlined,
   ORDER_DEPOSIT_PAID: DollarCircleOutlined,
+  ORDER_DEPOSIT_REQUIRED: DollarCircleOutlined,
   ORDER_QUOTE_APPROVED: CheckCircleOutlined,
   ORDER_FINAL_PAYMENT_REQUIRED: AlertOutlined,
   MISSION_ASSIGNED: TeamOutlined,
@@ -46,11 +48,23 @@ export function notificationCopy(
   const reference = notification.reference || notification.entityId
   const copy = {
     ORDER_CONTRACT_ISSUED: [t.contractIssuedTitle, t.contractIssuedDescription],
-    ORDER_CONTRACT_SUBMITTED: [t.contractSubmittedTitle, t.contractSubmittedDescription],
-    ORDER_CONTRACT_CHANGES_REQUESTED: [t.contractChangesTitle, t.contractChangesDescription],
-    ORDER_CONTRACT_CONFIRMED: [t.contractConfirmedTitle, t.contractConfirmedDescription],
+    ORDER_CONTRACT_SUBMITTED: [
+      t.contractSubmittedTitle,
+      t.contractSubmittedDescription,
+    ],
+    ORDER_CONTRACT_CHANGES_REQUESTED: [
+      t.contractChangesTitle,
+      t.contractChangesDescription,
+    ],
+    ORDER_CONTRACT_CONFIRMED: [
+      t.contractConfirmedTitle,
+      t.contractConfirmedDescription,
+    ],
     ORDER_CREATED: [t.orderTitle, t.orderDescription],
-    ORDER_INFORMATION_SUBMITTED: [t.informationSubmittedTitle, t.informationSubmittedDescription],
+    ORDER_INFORMATION_SUBMITTED: [
+      t.informationSubmittedTitle,
+      t.informationSubmittedDescription,
+    ],
     ORDER_UNDER_REVIEW: [t.orderReviewTitle, t.orderReviewDescription],
     ORDER_NEEDS_INFO: [t.orderInfoTitle, t.orderInfoDescription],
     ORDER_APPROVED: [t.orderApprovedTitle, t.orderApprovedDescription],
@@ -59,6 +73,10 @@ export function notificationCopy(
     ORDER_COMPLETED: [t.orderCompletedTitle, t.orderCompletedDescription],
     ORDER_CANCELLED: [t.orderCancelledTitle, t.orderCancelledDescription],
     ORDER_DEPOSIT_PAID: [t.depositPaidTitle, t.depositPaidDescription],
+    ORDER_DEPOSIT_REQUIRED: [
+      t.depositRequiredTitle,
+      t.depositRequiredDescription,
+    ],
     ORDER_QUOTE_APPROVED: [t.quoteApprovedTitle, t.quoteApprovedDescription],
     ORDER_FINAL_PAYMENT_REQUIRED: [
       t.finalPaymentTitle,
@@ -66,12 +84,15 @@ export function notificationCopy(
     ],
     MISSION_DRONE_REPLACED: [t.droneReplacedTitle, t.droneReplacedDescription],
     MISSION_ASSIGNED: [t.assignedTitle, t.assignedDescription],
-    MISSION_STAFF_REPLACEMENT_REQUIRED: [t.staffReplacementTitle, t.staffReplacementDescription],
-    MISSION_DRONE_REPLACEMENT_REQUIRED: [t.droneReplacementTitle, t.droneReplacementDescription],
-    MISSION_STAFF_ACCEPTED: [
-      t.staffAcceptedTitle,
-      t.staffAcceptedDescription,
+    MISSION_STAFF_REPLACEMENT_REQUIRED: [
+      t.staffReplacementTitle,
+      t.staffReplacementDescription,
     ],
+    MISSION_DRONE_REPLACEMENT_REQUIRED: [
+      t.droneReplacementTitle,
+      t.droneReplacementDescription,
+    ],
+    MISSION_STAFF_ACCEPTED: [t.staffAcceptedTitle, t.staffAcceptedDescription],
     MISSION_COMPLETED: [t.completedTitle, t.completedDescription],
     MISSION_REVIEW_REQUIRED: [t.reviewTitle, t.reviewDescription],
     MISSION_WARNING: [t.warningTitle, t.warningDescription],
@@ -81,6 +102,10 @@ export function notificationCopy(
     title: copy[0],
     description: copy[1]
       .replace('{reference}', reference)
+      .replace(
+        '{amount}',
+        notification.amount != null ? formatVnd(notification.amount) : '',
+      )
       .replace('{actor}', notification.actorName || t.staffFallback),
   }
 }

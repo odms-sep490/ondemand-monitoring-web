@@ -359,3 +359,49 @@
     padding: 12px;
   }
 }
+
+.order-contract-panel.is-reviewing {
+  padding: 18px 20px;
+  gap: 12px;
+}
+.order-contract-panel.is-reviewing .order-contract-panel__document {
+  padding: 12px 14px;
+}
+.order-contract-panel.is-reviewing .order-contract-panel__review {
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px 16px;
+  align-items: end;
+}
+.order-contract-panel__review-file {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--ui-border);
+}
+.order-contract-panel__review-file > div {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+}
+.order-contract-panel.is-reviewing .ant-checkbox-wrapper {
+  grid-column: 1 / -1;
+}
+.order-contract-panel.is-reviewing .order-contract-panel__actions {
+  padding-bottom: 1px;
+}
+.order-contract-panel.is-reviewing .order-contract-panel__history {
+  padding-top: 12px;
+}
+@media (max-width: 760px) {
+  .order-contract-panel.is-reviewing .order-contract-panel__review {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .order-contract-panel__review-file {
+    flex-wrap: wrap;
+  }
+}

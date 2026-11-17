@@ -13,13 +13,16 @@ import {
 } from './components/DashboardHeader'
 import { DashboardSkeleton } from './components/DashboardSkeleton'
 import { DashboardFinancePanel } from './components/DashboardFinancePanel'
-import { OperationsSnapshot } from './components/OperationsSnapshot'
 import { KpiRow } from './components/KpiRow'
 import type { DashboardKpiAvailability } from './components/KpiRow'
 import { ActionListCard } from './components/ActionListCard'
 import { RecentOrdersCard } from './components/RecentOrdersCard'
 import { PipelineCard, RecentActivityCard } from './components/SideCards'
-import { AnalyticsCharts } from './components/AnalyticsCharts'
+import {
+  AnalyticsCharts,
+  MissionTrendCard,
+  OrderStatusCard,
+} from './components/AnalyticsCharts'
 import { ReferenceMissionPanel } from './components/ReferenceMissionPanel'
 import { formatDashboardDate } from './dashboardHelpers'
 import type {
@@ -150,13 +153,22 @@ export function DashboardPage() {
                   <ReferenceMissionPanel missions={response.activeMissions} />
                   <ActionListCard
                     items={data.actionItems.filter(
-                      (item) => item.type === 'ORDER_PENDING',
+                      (item) => item.type !== 'QUOTE_READY',
                     )}
                     itemsAvailable={response.actionItems !== undefined}
                     generatedAt={data.generatedAt}
                   />
                 </div>
-                <OperationsSnapshot data={response} />
+                <div className="mgr-dashboard-overview-charts">
+                  <OrderStatusCard
+                    data={data}
+                    available={response.orderStatusDistribution !== undefined}
+                  />
+                  <MissionTrendCard
+                    data={data}
+                    available={availability.completed}
+                  />
+                </div>
               </section>
             ),
           },

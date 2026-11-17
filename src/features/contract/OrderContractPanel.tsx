@@ -233,7 +233,7 @@ function ContractContent({
   }
   return (
     <section
-      className={`order-contract-panel${embedded ? ' is-embedded' : ''}`}
+      className={`order-contract-panel${embedded ? ' is-embedded' : ''}${canReview ? ' is-reviewing' : ''}`}
       aria-label={t.title}
     >
       <header>
@@ -257,7 +257,7 @@ function ContractContent({
             : t.status[data.status]}
         </Tag>
       </header>
-      {!embedded && (
+      {!embedded && !canReview && (
         <p className="order-contract-panel__hint">
           {manager
             ? t.managerSubtitle
@@ -396,7 +396,11 @@ function ContractContent({
       )}
       {canReview && (
         <div className="order-contract-panel__review">
-          <h4>{t.status.PENDING_VERIFICATION}</h4>
+          <div className="order-contract-panel__review-file">
+            <div>
+              <strong>{latest.document.fileName}</strong>
+              <small>{t.submitted}: {time(latest.submittedAt)}</small>
+            </div>
           <Button
             icon={<DownloadOutlined aria-hidden />}
             disabled={disabled}
@@ -404,6 +408,7 @@ function ContractContent({
           >
             {t.signedDownload}
           </Button>
+          </div>
           <Checkbox
             checked={checked}
             disabled={disabled}
@@ -418,7 +423,7 @@ function ContractContent({
             <Input.TextArea
               value={reason}
               maxLength={2000}
-              rows={3}
+              autoSize={{ minRows: 2, maxRows: 4 }}
               disabled={disabled}
               onChange={(e) => setReason(e.target.value)}
             />

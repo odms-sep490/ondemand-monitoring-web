@@ -70,10 +70,7 @@ export function ActionListCard({
         </div>
       ) : items.length === 0 ? (
         <div className="mgr-empty-fill">
-          <EmptyState
-            title={a.empty}
-            description={a.emptyDescription}
-          />
+          <EmptyState title={a.empty} description={a.emptyDescription} />
         </div>
       ) : (
         <>
@@ -155,7 +152,17 @@ export function ActionListCard({
                         size="small"
                         href={managerHref(actionItemRoute(item))}
                       >
-                        {item.actionType ? a[item.actionType] : a.view}
+                        {[
+                          'ORDER_PLANNING',
+                          'MISSION_PLANNING',
+                          'CONTRACT_REVIEW',
+                          'RESULT_REVIEW',
+                          'RESOURCE_MISSING',
+                        ].includes(item.type)
+                          ? typeLabel(item.type)
+                          : item.actionType
+                            ? a[item.actionType]
+                            : a.view}
                       </Button>
                     </li>
                   ))}

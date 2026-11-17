@@ -2,6 +2,8 @@ import { defineMessages } from '../../shared/i18n'
 
 export const notificationsMessages = defineMessages({
   vi: {
+    depositRequiredTitle: 'Yêu cầu thanh toán cọc',
+    depositRequiredDescription: 'Vui lòng thanh toán cọc {amount} cho đơn {reference} để tiếp tục lập kế hoạch.',
     contractIssuedTitle: 'Hợp đồng đã được phát hành',
     contractIssuedDescription: 'Đơn {reference} đã có hợp đồng. Vui lòng tải, ký và gửi lại bản PDF.',
     contractSubmittedTitle: 'Khách hàng đã gửi hợp đồng ký',
@@ -68,6 +70,8 @@ export const notificationsMessages = defineMessages({
     pageDescription: 'Cập nhật liên quan đến đơn hàng và nhiệm vụ của bạn.',
   },
   en: {
+    depositRequiredTitle: 'Deposit payment required',
+    depositRequiredDescription: 'Please pay the {amount} deposit for order {reference} to continue planning.',
     contractIssuedTitle: 'Contract issued',
     contractIssuedDescription: 'Order {reference} has a contract. Download, sign and submit the PDF.',
     contractSubmittedTitle: 'Signed contract submitted',
