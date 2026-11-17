@@ -72,6 +72,11 @@ export function OrderResourceAssignmentWizard({
     setBusy(saving)
   }, [])
   const data = query.data
+  useEffect(() => {
+    if (initialMissionId && data && !query.loading && !query.error && data.plan.planStatus !== 'FINALIZED') {
+      window.location.hash = `#portal/manager/orders/${encodeURIComponent(orderId)}/mission`
+    }
+  }, [initialMissionId, data, query.loading, query.error, orderId])
   const effective =
     data?.missions.filter((mission) => mission.status !== 'CANCELLED') ?? []
   const allAssigned =

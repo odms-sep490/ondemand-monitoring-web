@@ -14,6 +14,7 @@ import { PageHeader } from '../../components/common/PageHeader'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
 import { missionsApi } from '../../api/missionsApi'
+import { planningApi } from '../../api/planningApi'
 import { dedupeById } from '../../lib/dedupeById'
 import { missionsPageMessages } from './MissionsPage.messages'
 import '../../components/layout/mgrLayout.css'
@@ -42,11 +43,23 @@ export function MissionsPage(_props: MissionsListPageProps = {}) {
   ]
 
   const query = useApiQuery(
-    (signal) =>
-      missionsApi.listMissions({
+    async (signal) => {
+      const result = await missionsApi.listMissions({
         status: statusFilter === 'ALL' ? undefined : statusFilter,
         signal,
-      }),
+      })
+      const orderIds = [...new Set(result.items
+        .filter((mission) => mission.status === 'PLANNING' && mission.orderId)
+        .map((mission) => mission.orderId))]
+      const plans = await Promise.all(orderIds.map(async (id) => {
+        const plan = await planningApi.getExecutionPlan(id, signal)
+        return [id, plan.planStatus === 'FINALIZED'] as const
+      }))
+      const finalized = new Map(plans)
+      return { ...result, items: result.items.filter((mission) =>
+        mission.status !== 'PLANNING' || finalized.get(mission.orderId) === true,
+      ) }
+    },
     [statusFilter],
   )
   const missions = useMemo(

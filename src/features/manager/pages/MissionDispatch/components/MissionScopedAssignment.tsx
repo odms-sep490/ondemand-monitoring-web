@@ -1,4 +1,5 @@
 import { InternalCorrectionMissionSetup } from './InternalCorrectionMissionSetup'
+import { useEffect } from 'react'
 import { useApiQuery } from '../../../../../shared/hooks/useApiQuery'
 import { missionsApi } from '../../../api/missionsApi'
 import { OrderResourceAssignmentWizard } from '../../../components/common/OrderResourceAssignmentWizard'
@@ -24,10 +25,24 @@ export function MissionScopedAssignmentPage({
     (signal) => missionsApi.getMissionResponse(missionId, signal),
     [missionId],
   )
+  const planningOrderId =
+    !query.loading && !query.error && query.data?.id === missionId &&
+    query.data.status === 'PLANNING' &&
+    query.data.purpose !== 'REWORK' && !query.data.inspectionCorrectionId
+      ? query.data.orderId
+      : undefined
+  useEffect(() => {
+    if (planningOrderId) {
+      window.location.hash = managerHref({
+        screen: 'missionCreate',
+        orderId: planningOrderId,
+      })
+    }
+  }, [planningOrderId])
   const close = () => {
     window.location.hash = managerHref({ screen: 'missions' })
   }
-  if (query.loading)
+  if (query.loading || planningOrderId)
     return (
       <div className="mgr-page" role="status" aria-busy="true">
         <span className="odm-visually-hidden">{t.loading}</span>

@@ -131,7 +131,7 @@ export function missionsColumns({
               size="small"
               type="primary"
               style={{ color: '#fff' }}
-              href={managerHref({ screen: 'missionSetup', missionId: m.id })}
+              href={managerHref({ screen: 'missionCreate', orderId: m.orderId })}
               onClick={stop}
             >
               {t.continueSetup}
