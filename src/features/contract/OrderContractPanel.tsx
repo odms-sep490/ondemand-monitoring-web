@@ -60,6 +60,7 @@ function ContractContent({
   const manager = mode === 'manager'
   const [file, setFile] = useState<File | null>(null)
   const [reason, setReason] = useState('')
+  const [reasonOpen, setReasonOpen] = useState(false)
   const [checkedVersion, setCheckedVersion] = useState<number | null>(null)
   const checked = checkedVersion !== null && checkedVersion === data?.version
   const [replaceOpen, setReplaceOpen] = useState(false)
@@ -108,6 +109,7 @@ function ContractContent({
     setCheckedVersion(null)
     setReplaceOpen(false)
     setReason('')
+    setReasonOpen(false)
   }, [data?.version])
   function message(cause: unknown) {
     return cause instanceof ApiError
@@ -418,21 +420,27 @@ function ContractContent({
           >
             {t.checked}
           </Checkbox>
-          <label>
+          {reasonOpen && <label>
             {t.reason}
             <Input.TextArea
+              autoFocus
               value={reason}
               maxLength={2000}
               autoSize={{ minRows: 2, maxRows: 4 }}
               disabled={disabled}
               onChange={(e) => setReason(e.target.value)}
             />
-          </label>
+          </label>}
           <div className="order-contract-panel__actions">
             <Button
               danger
-              disabled={disabled || !reason.trim()}
-              onClick={() =>
+              disabled={disabled || (reasonOpen && !reason.trim())}
+              aria-expanded={reasonOpen}
+              onClick={() => {
+                if (!reasonOpen) {
+                  setReasonOpen(true)
+                  return
+                }
                 void act(() =>
                   contractApi.requestChanges(
                     orderId,
@@ -441,7 +449,7 @@ function ContractContent({
                     reason.trim(),
                   ),
                 )
-              }
+              }}
             >
               {t.changes}
             </Button>
