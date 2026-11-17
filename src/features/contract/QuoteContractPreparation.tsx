@@ -15,14 +15,16 @@ export function QuoteContractPreparation({
   blockedReason,
   onSent,
   onEdit,
+  hideEditAction = false,
 }: {
   orderId: string
   quote: Quote
   blockedReason?: string | null
   onSent: () => void
   onEdit: () => void
+  hideEditAction?: boolean
 }) {
-  const { t, locale } = useI18n(contractMessages)
+  const { t } = useI18n(contractMessages)
   const [prepared, setPrepared] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<unknown>(null)
@@ -42,21 +44,6 @@ export function QuoteContractPreparation({
   }
   return (
     <section className="order-contract-preparation">
-      <header className="order-contract-preparation__header">
-        <div>
-          <h2>{t.prepareQuote}</h2>
-          <p>{sent ? t.sentHint : t.preparedHint}</p>
-        </div>
-        <div className="order-contract-preparation__amount">
-          <span>{t.quoteAmount}</span>
-          <strong>
-            {new Intl.NumberFormat(locale, {
-              style: 'currency',
-              currency: 'VND',
-            }).format(quote.totalAmount)}
-          </strong>
-        </div>
-      </header>
       <OrderContractPanel
         embedded
         orderId={orderId}
@@ -84,9 +71,9 @@ export function QuoteContractPreparation({
           {sent ? t.sent : prepared ? t.readyToSend : t.saveBeforeSend}
         </p>
         <div className="order-contract-preparation__buttons">
-          <Button disabled={busy} onClick={onEdit}>
+          {!hideEditAction && <Button disabled={busy} onClick={onEdit}>
             {t.editQuote}
-          </Button>
+          </Button>}
           {!sent && (
             <Button
               type="primary"

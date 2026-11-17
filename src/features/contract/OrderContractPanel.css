@@ -405,3 +405,15 @@
     flex-wrap: wrap;
   }
 }
+
+/* Compact preparation panel in the manager review flow. */
+.odm-or-pricing-stage .order-contract-preparation__header { padding: 16px 20px; gap: 16px; }
+.odm-or-pricing-stage .order-contract-panel.is-embedded { padding: 18px 20px; gap: 12px; }
+.odm-or-pricing-stage .order-contract-panel__file { padding: 18px; gap: 14px; }
+.odm-or-pricing-stage .order-contract-panel__upload { gap: 12px; }
+.odm-or-pricing-stage .order-contract-preparation footer { padding: 14px 20px; gap: 12px; }
+@media (max-width: 600px) {
+  .odm-or-pricing-stage .order-contract-preparation__header,
+  .odm-or-pricing-stage .order-contract-panel.is-embedded,
+  .odm-or-pricing-stage .order-contract-preparation footer { padding: 14px; }
+}

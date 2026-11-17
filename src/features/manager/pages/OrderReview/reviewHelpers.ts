@@ -2,7 +2,7 @@ import type { PlanningWorkflowInfo } from './components/OrderMissionPlanningSect
 import { missionProgress } from '../../components/common/workflowModel'
 import { getMissionStatusLabel } from '../../../../shared/lib/statusTone'
 
-export const REVIEW_PAGE_COUNT = 4
+export const REVIEW_PAGE_COUNT = 5
 
 /** Mission row of the workflow header: which Mission, its business status, and where it is. */
 export function missionLayer(

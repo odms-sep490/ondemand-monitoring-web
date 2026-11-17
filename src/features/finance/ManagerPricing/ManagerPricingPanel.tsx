@@ -37,11 +37,15 @@ export function ManagerPricingPanel({
   orderId,
   onApproved,
   onChecklistReviewChanged,
+  onPreparationChange,
+  editRequest = 0,
   approveBlockedReason,
 }: {
   orderId: string
   onApproved?: () => void
   onChecklistReviewChanged?: () => void
+  onPreparationChange?: (preparing: boolean) => void
+  editRequest?: number
   /** Why approving is not allowed yet (approval criteria not met); null/undefined = allowed. */
   approveBlockedReason?: string | null
 }) {
@@ -67,6 +71,19 @@ export function ManagerPricingPanel({
   const [approvalSucceeded, setApprovalSucceeded] = useState(false)
   const [preparedQuote, setPreparedQuote] = useState<Quote | null>(null)
   const [editingQuote, setEditingQuote] = useState(false)
+  useEffect(() => {
+    if (editRequest > 0) {
+      setEditingQuote(true)
+      setPreparedQuote(null)
+    }
+  }, [editRequest])
+  const activeQuote = preparedQuote ?? query.data?.currentQuote
+  const preparingContract = Boolean(
+    !editingQuote && activeQuote && ['DRAFT', 'APPROVED'].includes(activeQuote.status),
+  )
+  useEffect(() => {
+    onPreparationChange?.(preparingContract)
+  }, [onPreparationChange, preparingContract])
   const dirtyPriceIds = useRef(new Set<string>())
   const dirtyPriceReasonIds = useRef(new Set<string>())
   const initializedQuoteKey = useRef<string | null>(null)
@@ -310,6 +327,7 @@ export function ManagerPricingPanel({
   ) {
     return (
       <QuoteContractPreparation
+        hideEditAction={Boolean(onPreparationChange)}
         key={preparationQuote.id}
         orderId={orderId}
         quote={preparationQuote}

@@ -1552,6 +1552,7 @@
 }
 .odm-or-req-hero-text {
   min-width: 0;
+  width: 100%;
 }
 .odm-or-req-hero-text h3 {
   margin: 0;
@@ -1566,6 +1567,8 @@
   overflow-wrap: anywhere;
 }
 .odm-or-req-customer-note {
+  box-sizing: border-box;
+  width: 100%;
   margin-top: 12px;
   padding: 11px 14px;
   border-left: 3px solid var(--or-primary);

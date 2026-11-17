@@ -57,6 +57,8 @@ export function parseCustomerOrderNotification(
     const type =
       event.eventType === 'QUOTE_APPROVED'
         ? 'ORDER_QUOTE_APPROVED'
+        : event.eventType === 'ORDER_APPROVED'
+          ? 'ORDER_APPROVED'
         : event.eventType === 'FINAL_PAYMENT_REQUIRED'
           ? 'ORDER_FINAL_PAYMENT_REQUIRED'
           : undefined

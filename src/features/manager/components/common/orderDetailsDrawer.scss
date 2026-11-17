@@ -129,3 +129,42 @@
   justify-content: flex-end;
   gap: 10px;
 }
+
+/* Give the order summary a clear reading order inside the narrow drawer. */
+.mgr-order-details-drawer .mgr-order-detail-drawer-content {
+  .odm-or-svc-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .odm-or-svc-time {
+    min-height: 88px;
+    padding: 16px 18px;
+  }
+
+  .odm-or-svc-tiles {
+    gap: 10px;
+  }
+
+  .odm-or-svc-tile {
+    min-height: 78px;
+    align-items: flex-start;
+    padding: 14px 16px;
+  }
+
+  .odm-or-svc-tile:nth-child(2) {
+    order: -1;
+    grid-column: 1 / -1;
+    min-height: 72px;
+  }
+
+  .odm-or-svc-tile dd {
+    line-height: 1.4;
+  }
+
+  @media (max-width: 520px) {
+    .odm-or-svc-tiles {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}

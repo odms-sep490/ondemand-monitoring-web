@@ -27,6 +27,8 @@ export function notificationHref(
           ? '?tab=contract'
           : notification.type === 'ORDER_DEPOSIT_REQUIRED'
             ? '?tab=payment'
+            : ['ORDER_APPROVED', 'ORDER_QUOTE_APPROVED'].includes(notification.type)
+              ? '?tab=finance'
             : '')
       )
     if (role === 'MANAGER' || role === 'ADMIN')

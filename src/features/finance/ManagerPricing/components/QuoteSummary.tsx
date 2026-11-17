@@ -7,6 +7,7 @@ import type { PricingReview } from '../../types'
 import { Button } from '../../../../shared/components/ui'
 import { useI18n } from '../../../../shared/i18n'
 import { pricingMessages } from '../pricing.messages'
+import { OrderIcon } from '../../../manager/components/common/OrderIcon'
 
 export function QuoteSummary({
   systemPrice,
@@ -51,16 +52,20 @@ export function QuoteSummary({
   return (
     <aside className="odm-or-card finance-quote" aria-label={t.summaryAria}>
       <header className="finance-heading finance-quote-heading">
-        <h2>{t.summaryTitle}</h2>
+        <div className="finance-heading-title">
+          <span className="finance-heading-icon">
+            <OrderIcon name="doc" size={18} />
+          </span>
+          <h2>{t.summaryTitle}</h2>
+        </div>
       </header>
-      <p className="finance-block-hint">{t.systemPriceSourceHint}</p>
       <div className="finance-quote-body">
         <div className="finance-quote-content">
           <QuoteBreakdown
             items={data.systemCalculation?.items ?? []}
             checklistItems={data.checklistItems}
           />
-          <dl className="finance-summary">
+          <dl className="finance-summary" title={t.systemPriceSourceHint}>
             <SummaryRow label={t.systemPrice} value={systemPrice} />
             <SummaryRow
               label={t.adjustment}

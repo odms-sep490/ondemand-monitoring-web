@@ -2,6 +2,7 @@ import { defineMessages } from '../../../shared/i18n'
 
 export const pricingMessages = defineMessages({
   vi: {
+    workDetails: 'Hướng dẫn',
     statusAdditional: 'Tính phí bổ sung',
     statusDuplicate: 'Trùng lặp',
     statusRejected: 'Từ chối',
@@ -111,6 +112,7 @@ export const pricingMessages = defineMessages({
     notePlaceholderReason: 'Lý do hoặc phạm vi xử lý',
   },
   en: {
+    workDetails: 'Guidance',
     statusAdditional: 'Charge as extra',
     statusDuplicate: 'Duplicate',
     statusRejected: 'Rejected',

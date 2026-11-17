@@ -197,19 +197,19 @@ export function ChecklistRow({
           </label>
         ) : null}
       </div>
-      <span
-        className={`finance-review-badge is-${item.reviewStatus.toLowerCase()}`}
-      >
-        {item.sourceType === 'SERVICE_TEMPLATE'
-          ? t.badgeAuto
-          : item.reviewStatus === 'PENDING'
+      {item.sourceType !== 'SERVICE_TEMPLATE' ? (
+        <span
+          className={`finance-review-badge is-${item.reviewStatus.toLowerCase()}`}
+        >
+          {item.reviewStatus === 'PENDING'
             ? t.pending
             : isManagerPriced(item) &&
                 item.managerApprovedAmount == null &&
                 item.managerQuotedPrice == null
               ? t.badgeAwaitingPrice
               : t.badgeReviewed}
-      </span>
+        </span>
+      ) : null}
       <button
         type="button"
         className="finance-chevron"
@@ -221,7 +221,7 @@ export function ChecklistRow({
       </button>
       {hasChecklistGuidance(item) && (
         <div className="finance-requirement-guidance">
-          <ChecklistGuidance guidance={item} />
+          <ChecklistGuidance guidance={item} summaryLabel={t.workDetails} />
         </div>
       )}
       {noteOpen ? (

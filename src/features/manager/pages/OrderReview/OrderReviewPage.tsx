@@ -35,6 +35,43 @@ import { ReviewLayout } from './components/ReviewLayout'
 import { OrderIcon } from '../../components/common/OrderIcon'
 import '../../components/layout/mgrLayout.css'
 
+const REVIEW_STEP_STORAGE_PREFIX = 'odm.manager.order-review-step.'
+
+function readSavedReviewStep(orderId: string): ReviewStep {
+  try {
+    const value = window.localStorage.getItem(
+      `${REVIEW_STEP_STORAGE_PREFIX}${encodeURIComponent(orderId)}`,
+    )
+    if (value === '2' || value === '3' || value === '4') {
+      return Number(value) as ReviewStep
+    }
+  } catch {
+    // Keep the review page usable when browser storage is unavailable.
+  }
+  return 1
+}
+
+function saveReviewStep(orderId: string, step: ReviewStep) {
+  try {
+    window.localStorage.setItem(
+      `${REVIEW_STEP_STORAGE_PREFIX}${encodeURIComponent(orderId)}`,
+      String(step),
+    )
+  } catch {
+    // The step still works in memory if browser storage is unavailable.
+  }
+}
+
+function clearSavedReviewStep(orderId: string) {
+  try {
+    window.localStorage.removeItem(
+      `${REVIEW_STEP_STORAGE_PREFIX}${encodeURIComponent(orderId)}`,
+    )
+  } catch {
+    // Clearing saved UI state must not block order approval.
+  }
+}
+
 export function OrderReviewPage({ orderId }: { orderId: string }) {
   const { t } = useI18n(orderReviewPageMessages)
   const { t: pm } = useI18n(orderPlanningMessages)
@@ -49,7 +86,13 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
 
   const [navigateHome, setNavigateHome] = useState(false)
   const [assignStep, setAssignStep] = useState<6 | 7 | 8 | 9>(6)
-  const [reviewStep, setReviewStep] = useState<ReviewStep>(1)
+  const [reviewStep, setReviewStepState] = useState<ReviewStep>(() =>
+    readSavedReviewStep(orderId),
+  )
+  const updateReviewStep = (step: ReviewStep) => {
+    setReviewStepState(step)
+    saveReviewStep(orderId, step)
+  }
   const [startingReview, setStartingReview] = useState(false)
   const [startReviewError, setStartReviewError] = useState<string | null>(null)
   const [reviewStartedLocally, setReviewStartedLocally] = useState(false)
@@ -130,7 +173,7 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
     }
     const step = orderStageToReviewStep(stage)
     if (!step) return
-    setReviewStep(step)
+    updateReviewStep(step)
     setViewStage(stage)
     pageRef.current?.scrollIntoView?.({ block: 'start' })
   }
@@ -154,12 +197,13 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
         setStartingReview(false)
       }
     }
-    setReviewStep(step)
+    updateReviewStep(step)
     // Each step is a long page; start the next one from the top.
     pageRef.current?.scrollIntoView?.({ block: 'start' })
   }
 
   const handleApproved = () => {
+    clearSavedReviewStep(order.id)
     // Approval enters Order planning. A legacy missionId must not skip checklist/finalization.
     orderQuery.reload()
     readinessQuery.reload()
