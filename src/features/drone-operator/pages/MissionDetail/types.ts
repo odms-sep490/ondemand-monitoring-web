@@ -87,6 +87,9 @@ export type PostflightCheckStatus = {
     id?: string | null
     checkType?: string | null
     checkName?: string | null
+    description?: string | null
+    category?: string | null
+    required?: boolean | null
     status?:
       'PASS' | 'WARN' | 'FAIL' | 'PASSED' | 'FAILED' | 'PENDING' | string | null
     checkLevel?: string | null

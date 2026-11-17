@@ -27,6 +27,58 @@ export type FlightPermitUpdateRequest = {
   dataUrl?: string | null
 }
 
+/** Normalized AI resource estimate returned for one mission. */
+export type AiResourceEstimateResponse = {
+  orderId: string
+  missionId: string
+  model: string
+  generatedAt: string
+  estimatedStaffCount: number | null
+  staffByRole: { role: string; count: number | null; reason: string | null }[]
+  estimatedDeviceCount: number | null
+  devicesByType: {
+    deviceTypeCode: string
+    count: number | null
+    reason: string | null
+  }[]
+  summary: string | null
+  assumptions: string[]
+}
+
+export type MissionRecommendationRisk = 'LOW' | 'MEDIUM' | 'HIGH'
+export type MissionRecommendationsResponse = {
+  missionId: string
+  searchWindow: { from: string; to: string }
+  fixedTimeWindow: { start: string; end: string; timezone: string }
+  aiEstimation: {
+    minimumSuggestedDevices: number
+    recommendedDevices: number
+    reason: string | null
+    assumptions: string[]
+    warnings: string[]
+    model: string
+    generatedAt: string
+  }
+  recommendations: MissionRecommendationOption[]
+}
+export type MissionRecommendationOption = {
+  id: string
+  date: string
+  availableDeviceCount: number
+  capabilityCompatibleDeviceCount: number
+  availableStaffCount: number
+  recommendedDeviceCount: number
+  deviceShortageCount: number
+  staffShortageCount: number
+  deviceAvailabilityRatio: number
+  staffAvailabilityRatio: number
+  effectiveAvailabilityRatio: number
+  riskLevel: MissionRecommendationRisk
+  requiredCapabilities: string[]
+  deviceCandidates: { id: string; code: string | null; name: string; capabilityCodes: string[] }[]
+  warnings: string[]
+}
+
 export type MissionWaypoint = {
   seq: number
   action: WaypointAction

@@ -1,4 +1,5 @@
 import { todayPlus } from './format'
+import { DEFAULT_ORDER_RADIUS_M } from '../../../../shared/lib/orderAreaDefaults'
 import {
   RESULT_FORMATS,
   type FormState,
@@ -22,7 +23,7 @@ export function createDefaultForm(): FormState {
     locationStatus: 'unconfirmed',
     locationSource: '',
     locationConfirmedAt: '',
-    radiusM: 300,
+    radiusM: DEFAULT_ORDER_RADIUS_M,
     coverageAreaShape: '',
     coverageArea: null,
     coverageAreaCenter: null,

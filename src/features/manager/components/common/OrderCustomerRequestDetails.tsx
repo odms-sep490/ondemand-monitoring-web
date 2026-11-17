@@ -242,7 +242,12 @@ export function OrderCustomerRequestDetails({
           <div className="odm-or-req-hero">
             <div className="odm-or-req-hero-text">
               {order.title ? <h3>{order.title}</h3> : null}
-              {order.description ? <p>{order.description}</p> : null}
+              {order.description ? (
+                <div className="odm-or-req-customer-note">
+                  <strong>{m.customerNote}</strong>
+                  <p>{order.description}</p>
+                </div>
+              ) : null}
             </div>
           </div>
         ) : null}

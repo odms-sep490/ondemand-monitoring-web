@@ -21,6 +21,7 @@ export function ChecklistReview({
   draft,
   setDraft,
   dirtyPriceIds,
+  dirtyPriceReasonIds,
   priceRange,
   openNote,
   setOpenNote,
@@ -58,6 +59,7 @@ export function ChecklistReview({
   draft: Draft
   setDraft: Dispatch<SetStateAction<Draft>>
   dirtyPriceIds: RefObject<Set<string>>
+  dirtyPriceReasonIds: RefObject<Set<string>>
   priceRange: (system: number) => { min: number; max: number } | null
   openNote: string | null
   setOpenNote: Dispatch<SetStateAction<string | null>>
@@ -135,6 +137,7 @@ export function ChecklistReview({
             draft={draft}
             setDraft={setDraft}
             dirtyPriceIds={dirtyPriceIds}
+            dirtyPriceReasonIds={dirtyPriceReasonIds}
             priceRange={priceRange}
             openNote={openNote}
             setOpenNote={setOpenNote}

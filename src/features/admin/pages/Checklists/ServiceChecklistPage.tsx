@@ -16,7 +16,6 @@ import {
   type MissionTemplate,
   type ServiceChecklist,
 } from '../../api/checklistsApi'
-import { formatVnd } from '../../../../shared/lib/formatVnd'
 import { adminHref } from '../../routes'
 import { ServicePricePreviewCard } from './ServicePricePreviewCard'
 import { ChecklistConfigModal } from './ChecklistConfigModal'
@@ -665,7 +664,7 @@ function MissionTemplateModal({
   )
 }
 
-/** Effective price and allowance of a row; marks which values are service overrides. */
+/** Evidence allowances remain service-scoped; the Base Checklist price is shared globally. */
 function PricingChips({ row }: { row: ServiceChecklist }) {
   const { t } = useI18n(checklistMessages)
   const chip = (text: string, override: boolean) => (
@@ -679,19 +678,8 @@ function PricingChips({ row }: { row: ServiceChecklist }) {
   )
   return (
     <div className="checklist-actions" style={{ justifyContent: 'flex-start' }}>
-      {chip(formatVnd(row.basePrice ?? 0), row.basePriceOverride != null)}
-      {chip(
-        `${row.includedImageCount ?? 0} ${t.imagesShort}`,
-        row.includedImageCountOverride != null,
-      )}
-      {chip(
-        `${row.includedVideoCount ?? 0} ${t.videosShort}`,
-        row.includedVideoCountOverride != null,
-      )}
-      {chip(
-        row.pricingProfile ?? 'DEFAULT',
-        row.pricingProfileOverride != null,
-      )}
+      {chip(`${row.includedImageCount ?? 0} ${t.imagesShort}`, row.includedImageCountOverride != null)}
+      {chip(`${row.includedVideoCount ?? 0} ${t.videosShort}`, row.includedVideoCountOverride != null)}
     </div>
   )
 }

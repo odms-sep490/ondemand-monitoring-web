@@ -33,8 +33,8 @@ export const pricingMessages = defineMessages({
     reasonMissing: 'Vui lòng nhập lý do điều chỉnh giá.',
     reasonTooShort: (min: number, length: number) =>
       `Lý do điều chỉnh cần ít nhất ${min} ký tự (hiện có ${length}).`,
-    outOfRange: (n: number) =>
-      `Còn ${n} mục có giá duyệt ngoài khoảng cho phép. Sửa các mục báo đỏ rồi duyệt lại.`,
+    outOfRangeReasonMissing: (n: number) =>
+      `Còn ${n} mục có giá ngoài khoảng đề nghị chưa có lý do đủ rõ.`,
     pendingCustom: (n: number) =>
       `Còn ${n} yêu cầu bổ sung của khách hàng chưa được phân loại.`,
     approveSuccess:
@@ -46,6 +46,7 @@ export const pricingMessages = defineMessages({
 
     summaryAria: 'Tóm tắt báo giá',
     summaryTitle: 'Tóm tắt báo giá',
+    systemPriceSourceHint: 'Giá Base Checklist được Backend tính từ giá gốc và diện tích tiêu chuẩn do ADMIN cấu hình.',
     policyVersion: 'Chính sách giá v',
     systemPrice: 'Giá hệ thống',
     adjustment: 'Điều chỉnh',
@@ -54,13 +55,14 @@ export const pricingMessages = defineMessages({
       `Còn ${n} nội dung cần xem xét trước khi duyệt.`,
     adjustmentReasonLabel: 'Lý do điều chỉnh giá',
     adjustmentReasonHint: (min: number) => `(bắt buộc, ít nhất ${min} ký tự)`,
+    adjustmentReasonOptionalHint: ' (không bắt buộc)',
     reasonCounter: (length: number, min: number) =>
       `${length}/${min} ký tự tối thiểu`,
     quoteNoteLabel: 'Ghi chú báo giá (tùy chọn)',
     quoteNotePlaceholder: 'Thêm ghi chú cho báo giá...',
     approveTitlePending:
       'Phân loại các yêu cầu bổ sung trước khi duyệt báo giá',
-    approveTitleOutOfRange: 'Có giá duyệt ngoài khoảng cho phép',
+    approveTitleOutOfRange: 'Ghi lý do cho giá ngoài khoảng đề nghị',
     approved: 'Đã duyệt thành công',
     approve: 'Tiếp tục chuẩn bị hợp đồng',
 
@@ -76,8 +78,8 @@ export const pricingMessages = defineMessages({
     colNote: 'Ghi chú',
 
     differenceLabel: 'Chênh lệch: ',
-    outsideRange: 'Ngoài khoảng cho phép: ',
-    allowedRange: 'Được duyệt: ',
+    outsideRange: 'Ngoài khoảng đề nghị: ',
+    allowedRange: 'Khoảng đề nghị: ',
 
     loadingPricing: 'Đang tải thông tin giá...',
     loadingQuote: 'Đang tải báo giá...',
@@ -95,6 +97,11 @@ export const pricingMessages = defineMessages({
     pending: 'Chưa xem xét',
     systemPriceInline: 'Giá hệ thống: ',
     approvedPriceLabel: 'Giá duyệt',
+    moneyRoundingHint: 'Giá nhập hoặc chỉnh sửa sẽ làm tròn đến 1.000 VND.',
+    priceRangeReasonLabel: (min: number) =>
+      `Lý do không theo khoảng giá hệ thống đề nghị (ít nhất ${min} ký tự)`,
+    priceRangeReasonPlaceholder:
+      'Giải thích vì sao giá này cần nằm ngoài khoảng hệ thống đề nghị…',
     badgeAuto: 'Tự tính',
     badgeAwaitingPrice: 'Chờ duyệt giá',
     badgeReviewed: 'Đã xem xét',
@@ -135,8 +142,8 @@ export const pricingMessages = defineMessages({
     reasonMissing: 'Please enter the price adjustment reason.',
     reasonTooShort: (min: number, length: number) =>
       `The adjustment reason must be at least ${min} characters (currently ${length}).`,
-    outOfRange: (n: number) =>
-      `${n} item(s) have an approved price outside the allowed range. Fix the items marked in red and approve again.`,
+    outOfRangeReasonMissing: (n: number) =>
+      `${n} item(s) outside the suggested range still need a reason.`,
     pendingCustom: (n: number) =>
       `${n} additional customer request(s) have not been classified yet.`,
     approveSuccess:
@@ -148,6 +155,7 @@ export const pricingMessages = defineMessages({
 
     summaryAria: 'Quote summary',
     summaryTitle: 'Quote summary',
+    systemPriceSourceHint: 'System prices use the Base Checklist price and standard area configured by ADMIN.',
     policyVersion: 'Pricing policy v',
     systemPrice: 'System price',
     adjustment: 'Adjustment',
@@ -157,13 +165,14 @@ export const pricingMessages = defineMessages({
     adjustmentReasonLabel: 'Price adjustment reason',
     adjustmentReasonHint: (min: number) =>
       `(required, at least ${min} characters)`,
+    adjustmentReasonOptionalHint: ' (optional)',
     reasonCounter: (length: number, min: number) =>
       `${length}/${min} minimum characters`,
     quoteNoteLabel: 'Quote note (optional)',
     quoteNotePlaceholder: 'Add a note to the quote...',
     approveTitlePending:
       'Classify the additional requests before approving the quote',
-    approveTitleOutOfRange: 'An approved price is outside the allowed range',
+    approveTitleOutOfRange: 'Explain prices outside the suggested range',
     approved: 'Approved successfully',
     approve: 'Continue to contract',
 
@@ -179,8 +188,8 @@ export const pricingMessages = defineMessages({
     colNote: 'Note',
 
     differenceLabel: 'Difference: ',
-    outsideRange: 'Outside allowed range: ',
-    allowedRange: 'Allowed: ',
+    outsideRange: 'Outside suggested range: ',
+    allowedRange: 'Suggested range: ',
 
     loadingPricing: 'Loading pricing information...',
     loadingQuote: 'Loading quote...',
@@ -198,6 +207,11 @@ export const pricingMessages = defineMessages({
     pending: 'Not reviewed',
     systemPriceInline: 'System price: ',
     approvedPriceLabel: 'Approved price',
+    moneyRoundingHint: 'Entered or edited prices round to the nearest 1,000 VND.',
+    priceRangeReasonLabel: (min: number) =>
+      `Reason for going outside the system range (at least ${min} characters)`,
+    priceRangeReasonPlaceholder:
+      'Explain why this price needs to be outside the system suggested range…',
     badgeAuto: 'Auto',
     badgeAwaitingPrice: 'Awaiting price approval',
     badgeReviewed: 'Reviewed',

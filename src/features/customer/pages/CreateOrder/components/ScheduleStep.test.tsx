@@ -31,7 +31,7 @@ describe('ScheduleStep', () => {
         service={{
           id: 'service-1',
           name: 'Giám sát công trình',
-          basePrice: 3_500_000,
+          defaultPrice: 3_500_000,
         }}
         time={{
           id: 'morning',
@@ -85,7 +85,7 @@ describe('ScheduleStep', () => {
         service={{
           id: 'service-1',
           name: 'Giám sát công trình',
-          basePrice: 3_500_000,
+          defaultPrice: 3_500_000,
         }}
         time={{
           id: 'morning',

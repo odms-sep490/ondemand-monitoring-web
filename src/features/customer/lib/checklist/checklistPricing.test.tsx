@@ -466,7 +466,7 @@ describe('ChecklistSnapshotCard', () => {
 })
 
 describe('Cost shown where the customer chooses', () => {
-  it('puts the price on each selected row and folds the explanation away', async () => {
+  it('puts the price on each selected row and shows the exact explanation', async () => {
     vi.spyOn(customerApi, 'getServiceChecklist').mockResolvedValue(template())
     vi.spyOn(checklistPricingApi, 'customerQuote').mockResolvedValue(preview)
     function Harness() {
@@ -479,9 +479,9 @@ describe('Cost shown where the customer chooses', () => {
       '.checklist-row',
     )!
     await waitFor(() => expect(row).toHaveTextContent('540.000'))
-    // The explanation is a folded section, free of internal pricing terms.
+    // The exact customer-facing formula is visible with the selected row.
     const details = container.querySelector('details.checklist-quote-details')!
-    expect(details).not.toHaveAttribute('open')
+    expect(details).toHaveAttribute('open')
     expect(details).not.toHaveTextContent('STANDARD')
     expect(details).not.toHaveTextContent('Hồ sơ giá')
     expect(details).not.toHaveTextContent('Đơn giá')

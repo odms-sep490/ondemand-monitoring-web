@@ -3,6 +3,7 @@ import { env } from '../../../config/env'
 import { toISODate } from '../lib/calendarWeek'
 import type {
   CancelMissionRequest,
+  AiResourceEstimateResponse,
   CreateMissionRequest,
   FlightPermitUpdateRequest,
   MediaAssetResponse,
@@ -10,6 +11,7 @@ import type {
   Mission,
   MissionCalendarItem,
   MissionResponse,
+  MissionRecommendationsResponse,
   MissionResultResponse,
   PatchScheduleRequest,
   PreferredTimeOption,
@@ -138,6 +140,23 @@ export const missionsApi = {
   confirmMissionPlanning(missionId: string): Promise<MissionResponse> {
     return apiRequest<MissionResponse>(
       `/api/missions/${encodeURIComponent(missionId)}/confirm-planning`,
+      { method: 'POST' },
+    )
+  },
+
+  /** `POST /api/manager/missions/{missionId}/ai/resource-estimate`. */
+  estimateResources(missionId: string): Promise<AiResourceEstimateResponse> {
+    return apiRequest<AiResourceEstimateResponse>(
+      `/api/manager/missions/${encodeURIComponent(missionId)}/ai/resource-estimate`,
+      { method: 'POST' },
+    )
+  },
+
+  generateRecommendations(
+    missionId: string,
+  ): Promise<MissionRecommendationsResponse> {
+    return apiRequest<MissionRecommendationsResponse>(
+      `/api/missions/${encodeURIComponent(missionId)}/recommendations`,
       { method: 'POST' },
     )
   },

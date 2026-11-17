@@ -3,6 +3,7 @@ import { EnvironmentOutlined } from '@ant-design/icons'
 import { InnerCollapse } from '../../../components/common/InnerCollapse'
 import { Card, FormField } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
+import { DEFAULT_ORDER_RADIUS_M } from '../../../../../shared/lib/orderAreaDefaults'
 import { calcArea } from '../../../lib/createOrder/payload'
 import type {
   FormErrors,
@@ -13,7 +14,7 @@ import { locationPanelMessages } from './LocationPanel.messages'
 
 const RADIUS_MIN = 100
 const RADIUS_MAX = 1500
-const RADIUS_DEFAULT = 300
+const RADIUS_DEFAULT = DEFAULT_ORDER_RADIUS_M
 const RADIUS_PRESETS = [100, 300, 500, 1000]
 
 type Props = {

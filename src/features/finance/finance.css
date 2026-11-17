@@ -201,12 +201,34 @@
   min-width: 0;
   font-size: 11px;
 }
+.finance-item-price .finance-rounding-hint {
+  color: var(--or-tx2, #667085);
+  font-size: 10px;
+  font-weight: 400;
+}
 .finance-item-price input {
   box-sizing: border-box;
   width: 100%;
   min-width: 0;
   height: 36px;
   padding: 4px 7px;
+}
+.finance-item-price .finance-price-range-reason textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 64px;
+  padding: 7px 8px;
+  border: 1px solid #d7a25f;
+  border-radius: 7px;
+  resize: vertical;
+  font: inherit;
+}
+.finance-item-price .finance-price-range-reason textarea[aria-invalid='true'] {
+  border-color: #d92d20;
+}
+.finance-item-price .finance-price-range-reason small {
+  text-align: end;
 }
 .finance-review-badge {
   display: inline-flex;

@@ -50,8 +50,8 @@ function circleArea(areaHa: number) {
 beforeEach(() => {
   localStorage.removeItem(CREATE_ORDER_DRAFT_STORAGE_KEY)
   vi.spyOn(customerApi, 'listServices').mockResolvedValue([
-    { id: 'construction', name: 'Giám sát công trình', basePrice: 3_500_000 },
-    { id: 'other-service', name: 'Other service', basePrice: 3_500_000 },
+    { id: 'construction', name: 'Giám sát công trình', defaultPrice: 3_500_000 },
+    { id: 'other-service', name: 'Other service', defaultPrice: 3_500_000 },
   ])
   vi.spyOn(customerApi, 'listPreferredTimes').mockResolvedValue([])
   vi.spyOn(customerApi, 'listServiceDeliverables').mockResolvedValue([])
@@ -95,8 +95,8 @@ describe('area availability in the customer wizard', () => {
       },
     }))
     vi.mocked(customerApi.listServices)
-      .mockResolvedValueOnce([{ id: 'construction', name: 'Giám sát công trình', basePrice: 0 }])
-      .mockResolvedValue([{ id: 'replacement-service', name: 'Giám sát công trình', basePrice: 0 }])
+      .mockResolvedValueOnce([{ id: 'construction', name: 'Giám sát công trình', defaultPrice: 0 }])
+      .mockResolvedValue([{ id: 'replacement-service', name: 'Giám sát công trình', defaultPrice: 0 }])
     vi.mocked(checklistPricingApi.customerQuote).mockRejectedValueOnce(
       new ApiError('Service not found', { code: 'SERVICE_NOT_FOUND', status: 404, method: 'POST', path: '/api/pricing/checklist-quote' }),
     )
