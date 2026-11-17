@@ -46,7 +46,9 @@ const path = (id: string) =>
   `/api/missions/${encodeURIComponent(id)}/inspection-corrections`
 export const inspectionCorrectionApi = {
   reconcileChecklistReview: (id: string) =>
-    apiRequest<boolean>(`${path(id)}/reconcile-checklist-review`, { method: 'POST' }),
+    apiRequest<boolean>(`${path(id)}/reconcile-checklist-review`, {
+      method: 'POST',
+    }),
   list: (id: string, signal?: AbortSignal) =>
     apiRequest<InspectionCorrection[]>(path(id), { signal }),
   request: (
@@ -60,9 +62,15 @@ export const inspectionCorrectionApi = {
       body: { clientRequestId, items, mode },
     }),
   supplementResult: (id: string, correctionId: string, signal?: AbortSignal) =>
-    apiRequest<SupplementInspectionResult>(`${path(id)}/${encodeURIComponent(correctionId)}/supplement-result`, { signal }),
+    apiRequest<SupplementInspectionResult>(
+      `${path(id)}/${encodeURIComponent(correctionId)}/supplement-result`,
+      { signal },
+    ),
   synchronizeSupplement: (id: string, correctionId: string) =>
-    apiRequest<InspectionCorrection>(`${path(id)}/${encodeURIComponent(correctionId)}/synchronize-supplement`, { method: 'POST' }),
+    apiRequest<InspectionCorrection>(
+      `${path(id)}/${encodeURIComponent(correctionId)}/synchronize-supplement`,
+      { method: 'POST' },
+    ),
   decide: (
     id: string,
     row: InspectionCorrection,
@@ -93,6 +101,16 @@ export const inspectionCorrectionApi = {
     apiRequest<MissionResponse>(
       `${path(id)}/${encodeURIComponent(row.id)}/missions`,
       { method: 'POST', body: { ...body, expectedVersion: row.version } },
+    ),
+  ensureDraft: (
+    id: string,
+    correctionId: string,
+    signal?: AbortSignal,
+    replaceTerminal = false,
+  ) =>
+    apiRequest<MissionResponse>(
+      `${path(id)}/${encodeURIComponent(correctionId)}/ensure-draft?replaceTerminal=${replaceTerminal}`,
+      { method: 'POST', signal },
     ),
   finalize: (
     id: string,

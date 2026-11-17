@@ -159,7 +159,7 @@ it('manager opens the shared planning workspace instead of creating from the res
   const create = vi.spyOn(inspectionCorrectionApi, 'createMission')
   render(<InspectionCorrectionPanel missionId="m1" manager orderId="order" />)
   expect(
-    await screen.findByRole('link', { name: 'Tạo nhiệm vụ bổ sung' }),
+    await screen.findByRole('link', { name: 'Lập kế hoạch bổ sung' }),
   ).toHaveAttribute('href', '#portal/manager/orders/order/inspection/m1/c')
   expect(screen.queryByLabelText('Phạm vi nhiệm vụ bổ sung')).toBeNull()
   expect(create).not.toHaveBeenCalled()
@@ -198,7 +198,7 @@ it('Manager sees only supplemental planning when a request is open', async () =>
     ),
   ).toBeNull()
   expect(
-    screen.getByRole('link', { name: 'Tạo nhiệm vụ bổ sung' }),
+    screen.getByRole('link', { name: 'Lập kế hoạch bổ sung' }),
   ).toHaveAttribute('href', '#portal/manager/orders/order/inspection/m1/c')
 })
 
@@ -292,7 +292,7 @@ it('offers creating a replacement for a failed internal Mission while preserving
   ])
   render(<InspectionCorrectionPanel missionId="m1" manager orderId="order" />)
   expect(
-    await screen.findByRole('link', { name: 'Tạo nhiệm vụ bổ sung' }),
+    await screen.findByRole('link', { name: 'Lập kế hoạch bổ sung' }),
   ).toHaveAttribute('href', '#portal/manager/orders/order/inspection/m1/c')
   expect(screen.getByRole('link', { name: 'MS-FAILED' })).toBeInTheDocument()
 })

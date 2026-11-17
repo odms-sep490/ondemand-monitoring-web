@@ -2,22 +2,28 @@ import { defineMessages } from '../../../shared/i18n'
 export const inspectionCorrectionMessages = defineMessages({
   vi: {
     reviewTitle: 'Kiểm tra kết quả bổ sung',
-    reviewHint: 'Đối chiếu yêu cầu với bằng chứng mới, sau đó ghi nhận kết luận.',
+    reviewHint:
+      'Đối chiếu yêu cầu với bằng chứng mới, sau đó ghi nhận kết luận.',
     reviewDecision: 'Kết luận kiểm tra',
     receiveSupplement: 'Đồng bộ kết quả đã nghiệm thu',
-    acceptedSupplementHint: 'Inspector nhiệm vụ bổ sung đã nghiệm thu. Đồng bộ để ghi nhận yêu cầu đã xử lý và công bố khi đủ điều kiện bàn giao.',
+    acceptedSupplementHint:
+      'Inspector nhiệm vụ bổ sung đã nghiệm thu. Đồng bộ để ghi nhận yêu cầu đã xử lý và công bố khi đủ điều kiện bàn giao.',
 
     workflowOpen: 'Mở bổ sung hồ sơ',
     workflowReview: 'Kiểm tra lại hồ sơ',
-    workflowStaffHint: 'Xem yêu cầu, bổ sung tệp nếu cần, chỉnh bằng chứng rồi gửi lại trong workspace riêng.',
-    workflowReviewHint: 'Hồ sơ đã gửi lại. Kiểm tra các mục đã bổ sung trước khi tiếp tục nghiệm thu nhiệm vụ.',
+    workflowStaffHint:
+      'Xem yêu cầu, bổ sung tệp nếu cần, chỉnh bằng chứng rồi gửi lại trong workspace riêng.',
+    workflowReviewHint:
+      'Hồ sơ đã gửi lại. Kiểm tra các mục đã bổ sung trước khi tiếp tục nghiệm thu nhiệm vụ.',
 
     strategy: 'Hướng xử lý yêu cầu',
     requireFlight: 'Dữ liệu không đủ — yêu cầu bay bổ sung',
     dossier: 'Điều chỉnh hồ sơ bằng dữ liệu đã có',
     flight: 'Cần thực hiện chuyến bay bổ sung',
-    dossierHint: 'Chọn lại bằng chứng hoặc tải tệp gốc của chuyến bay này, cập nhật danh sách kiểm tra rồi gửi lại để nghiệm thu.',
-    flightHint: 'Quản lý lập kế hoạch nhiệm vụ bổ sung, phân công và chốt kế hoạch. Chỉ gửi lại sau khi nhiệm vụ bổ sung đã được nghiệm thu.',
+    dossierHint:
+      'Chọn lại bằng chứng hoặc tải tệp gốc của chuyến bay này, cập nhật danh sách kiểm tra rồi gửi lại để nghiệm thu.',
+    flightHint:
+      'Hệ thống tạo nhiệm vụ nháp cho các mục chưa đạt. Quản lý bổ sung lịch bay, phân công và chốt kế hoạch.',
     openMedia: 'Bổ sung ảnh/video',
     openChecklist: 'Điều chỉnh bằng chứng',
     title: 'Yêu cầu bổ sung kết quả',
@@ -73,7 +79,7 @@ export const inspectionCorrectionMessages = defineMessages({
     scope: 'Phạm vi nhiệm vụ bổ sung',
     start: 'Bắt đầu — giờ Việt Nam',
     end: 'Kết thúc — giờ Việt Nam',
-    plan: 'Tạo nhiệm vụ bổ sung',
+    plan: 'Lập kế hoạch bổ sung',
     openPlanning: 'Mở kế hoạch nhiệm vụ bổ sung',
     configure: 'Phân công thiết bị và nhân sự',
     finalize: 'Chốt kế hoạch nhiệm vụ bổ sung',
@@ -103,22 +109,28 @@ export const inspectionCorrectionMessages = defineMessages({
   },
   en: {
     reviewTitle: 'Review supplemental results',
-    reviewHint: 'Compare the requested corrections with the new evidence, then record your decision.',
+    reviewHint:
+      'Compare the requested corrections with the new evidence, then record your decision.',
     reviewDecision: 'Review decision',
     receiveSupplement: 'Synchronize accepted results',
-    acceptedSupplementHint: 'The supplemental Inspector has accepted these results. Synchronize them to resolve the request and publish when delivery requirements are met.',
+    acceptedSupplementHint:
+      'The supplemental Inspector has accepted these results. Synchronize them to resolve the request and publish when delivery requirements are met.',
 
     workflowOpen: 'Open correction workspace',
     workflowReview: 'Review corrected dossier',
-    workflowStaffHint: 'Review the request, add files if needed, update evidence, then resubmit in the dedicated workspace.',
-    workflowReviewHint: 'The corrected dossier has been submitted. Review the updated items before continuing Mission inspection.',
+    workflowStaffHint:
+      'Review the request, add files if needed, update evidence, then resubmit in the dedicated workspace.',
+    workflowReviewHint:
+      'The corrected dossier has been submitted. Review the updated items before continuing Mission inspection.',
 
     strategy: 'Correction strategy',
     requireFlight: 'Insufficient data — request a supplemental flight',
     dossier: 'Adjust the dossier using existing data',
     flight: 'Supplemental flight required',
-    dossierHint: 'Select other evidence or upload original files from this flight, update the checklist, then resubmit for inspection.',
-    flightHint: 'The Manager plans, assigns and finalizes a supplemental mission. Resubmit once that mission has passed inspection.',
+    dossierHint:
+      'Select other evidence or upload original files from this flight, update the checklist, then resubmit for inspection.',
+    flightHint:
+      'A draft mission is created for the failed items. The Manager sets its schedule, assigns resources and finalizes the plan.',
     openMedia: 'Add media',
     openChecklist: 'Adjust evidence',
     title: 'Result correction requests',
@@ -177,7 +189,7 @@ export const inspectionCorrectionMessages = defineMessages({
     scope: 'Supplemental mission scope',
     start: 'Start — Vietnam time',
     end: 'End — Vietnam time',
-    plan: 'Create supplemental mission',
+    plan: 'Plan supplemental mission',
     openPlanning: 'Open supplemental Mission plan',
     configure: 'Assign equipment and crew',
     finalize: 'Finalize supplemental mission plan',
@@ -194,7 +206,8 @@ export const inspectionCorrectionMessages = defineMessages({
       SUPPLEMENT_ACCEPTED: 'Supplemental results received',
       INTERNAL_MISSION_CREATED: 'Manager created a supplemental mission',
       INTERNAL_PLAN_FINALIZED: 'Manager finalized the supplemental plan',
-      FLIGHT_REQUIRED: 'Flight crew confirmed a supplemental flight is required',
+      FLIGHT_REQUIRED:
+        'Flight crew confirmed a supplemental flight is required',
       REQUESTED: 'Inspector requested corrections',
       RESUBMITTED: 'Corrections resubmitted',
       RETURNED: 'Inspector requested further corrections',
