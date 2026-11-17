@@ -161,8 +161,7 @@ export function ReschedulePanel({
       >
         <div className="mgr-badge-row">
           <MissionStatusTag mission={mission} />
-          {(mission.status === 'CREATED' ||
-            mission.status === 'RESOURCE_ASSIGNING') && (
+          {(mission.status === 'PLANNING') && (
             <Button
               type="primary"
               size="small"

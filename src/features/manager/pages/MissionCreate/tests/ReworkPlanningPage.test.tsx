@@ -461,7 +461,11 @@ it('creates internal corrections from the main Mission form with a fixed failed 
   vi.mocked(ordersApi.getOrder).mockResolvedValue({
     id: 'order',
     status: 'IN_PROGRESS',
-    code: 'ORD-1', serviceName:'Monitoring', preferredDate:'2099-11-11', preferredTimeName:'Morning', center:null,
+    code: 'ORD-1',
+    serviceName: 'Monitoring',
+    preferredDate: '2099-11-11',
+    preferredTimeName: 'Morning',
+    center: null,
     checklistItems,
     customer: { fullName: 'Customer' },
   } as OrderDetail)
@@ -501,7 +505,7 @@ it('creates internal corrections from the main Mission form with a fixed failed 
   expect(screen.queryByText('MS-ORIGINAL')).toBeNull()
   fireEvent.click(screen.getByRole('button', { name: /Thêm mới nhiệm vụ/ }))
   const dialog = await screen.findByRole('dialog', {
-    name: 'Tạo Mission bổ sung',
+    name: 'Tạo nhiệm vụ bổ sung',
   })
   expect(await within(dialog).findByText('Công việc A')).toBeInTheDocument()
   expect(within(dialog).queryByText('Công việc B')).toBeNull()
@@ -514,7 +518,7 @@ it('creates internal corrections from the main Mission form with a fixed failed 
     target: { value: '2099-11-11T11:00' },
   })
   fireEvent.click(
-    within(dialog).getByRole('button', { name: 'Tạo Mission bổ sung' }),
+    within(dialog).getByRole('button', { name: 'Tạo nhiệm vụ bổ sung' }),
   )
   await screen.findByRole('article', { name: 'MS-INTERNAL' })
   expect(create).toHaveBeenCalledWith(
@@ -534,7 +538,11 @@ it('finalizes internal scope through its own endpoint then waits for Staff accep
   vi.mocked(ordersApi.getOrder).mockResolvedValue({
     id: 'order',
     status: 'IN_PROGRESS',
-    code: 'ORD-1', serviceName:'Monitoring', preferredDate:'2099-11-11', preferredTimeName:'Morning', center:null,
+    code: 'ORD-1',
+    serviceName: 'Monitoring',
+    preferredDate: '2099-11-11',
+    preferredTimeName: 'Morning',
+    center: null,
     checklistItems,
     customer: { fullName: 'Customer' },
   } as OrderDetail)
@@ -587,10 +595,123 @@ it('finalizes internal scope through its own endpoint then waits for Staff accep
   )
   fireEvent.click(screen.getByRole('tab', { name: 'Giấy phép bay' }))
   expect(
-    await screen.findByText('Chưa có nhân sự được phân công. Hãy phân công nhân sự trước khi xác nhận giấy phép bay.'),
+    await screen.findByText(
+      'Chưa có nhân sự được phân công. Hãy phân công nhân sự trước khi xác nhận giấy phép bay.',
+    ),
   ).toBeInTheDocument()
   expect(
     screen.queryByRole('button', { name: 'Xác nhận đã được cấp phép' }),
   ).toBeNull()
   expect(finalizeOriginal).not.toHaveBeenCalled()
+})
+
+it('shows derived Missions with shared cards while keeping edits inside their scoped planning workflow', async () => {
+  vi.mocked(ordersApi.getOrder).mockResolvedValue({
+    id: 'order',
+    status: 'IN_PROGRESS',
+    checklistItems,
+    customer: { fullName: 'Customer' },
+  } as OrderDetail)
+  missions.push(reworkMission(), {
+    ...reworkMission(),
+    id: 'internal',
+    missionCode: 'MS-INTERNAL',
+    resultRevisionCaseId: null,
+    inspectionCorrectionId: 'correction',
+    inspectionSourceMissionId: 'original',
+  })
+  render(<OrderMissionPlanningSection orderId="order" />)
+  expect(
+    await screen.findByRole('article', { name: 'MS-ORIGINAL' }),
+  ).toBeInTheDocument()
+  expect(screen.getByRole('article', { name: 'MS-REWORK' })).toBeInTheDocument()
+  expect(screen.getByRole('article', { name: 'MS-INTERNAL' })).toBeInTheDocument()
+  for (const code of ['MS-REWORK', 'MS-INTERNAL']) {
+    const card = within(screen.getByRole('article', { name: code }))
+    expect(card.queryByRole('button', { name: 'Chỉnh sửa' })).toBeNull()
+    expect(card.getByText('Giấy phép bay')).toBeInTheDocument()
+    expect(card.getByRole('link', { name: 'Xem chi tiết nhiệm vụ' })).toBeInTheDocument()
+  }
+  const links = screen
+    .getAllByRole('link', { name: 'Mở lập kế hoạch' })
+    .map((a) => a.getAttribute('href'))
+  expect(links).toEqual(
+    expect.arrayContaining([
+      '#portal/manager/orders/order/rework/case',
+      '#portal/manager/orders/order/inspection/original/correction',
+    ]),
+  )
+})
+it('allows a replacement plan after an internal supplemental Mission failed', async () => {
+  vi.mocked(ordersApi.getOrder).mockResolvedValue({
+    id: 'order',
+    status: 'IN_PROGRESS',
+    checklistItems,
+    customer: { fullName: 'Customer' },
+  } as OrderDetail)
+  missions.push({
+    ...reworkMission(),
+    id: 'failed-internal',
+    status: 'FAILED',
+    resultRevisionCaseId: null,
+    inspectionCorrectionId: 'correction',
+    inspectionSourceMissionId: 'original',
+  })
+  assignments['failed-internal'] = ['A']
+  vi.spyOn(inspectionCorrectionApi, 'list').mockResolvedValue([
+    {
+      ...internalRequest(),
+      supplementalMissionId: 'failed-internal',
+      supplementalMissionStatus: 'FAILED',
+    },
+  ])
+  render(
+    <InternalCorrectionPlanningPage
+      orderId="order"
+      sourceMissionId="original"
+      correctionId="correction"
+    />,
+  )
+  expect(
+    await screen.findByRole('button', { name: /Thêm mới nhiệm vụ/ }),
+  ).toBeEnabled()
+})
+it('explains why a resolved internal correction is read-only', async () => {
+  vi.mocked(ordersApi.getOrder).mockResolvedValue({
+    id: 'order',
+    status: 'IN_PROGRESS',
+    checklistItems,
+    customer: { fullName: 'Customer' },
+  } as OrderDetail)
+  vi.spyOn(inspectionCorrectionApi, 'list').mockResolvedValue([
+    { ...internalRequest(), status: 'RESOLVED' },
+  ])
+  render(
+    <InternalCorrectionPlanningPage
+      orderId="order"
+      sourceMissionId="original"
+      correctionId="correction"
+    />,
+  )
+  expect(
+    await screen.findByText(
+      'Yêu cầu bổ sung hoặc đơn hàng không còn cho phép lập kế hoạch. Nội dung được hiển thị để tra cứu.',
+    ),
+  ).toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: /Thêm mới nhiệm vụ/ })).toBeNull()
+})
+
+
+it('uses each derived Mission assignment scope without changing original coverage', async () => {
+  vi.mocked(ordersApi.getOrder).mockResolvedValue({ id: 'order', status: 'IN_PROGRESS', checklistItems, customer: { fullName: 'Customer' } } as OrderDetail)
+  missions.push(reworkMission())
+  assignments['rework-1'] = ['B']
+  render(<OrderMissionPlanningSection orderId="order" />)
+  const card = within(await screen.findByRole('article', { name: 'MS-REWORK' }))
+  expect(card.getByText('Công việc (1)')).toBeInTheDocument()
+  expect(card.getByText('Công việc B')).toBeInTheDocument()
+  expect(card.queryByText('Công việc A')).toBeNull()
+  const main = within(screen.getByRole('article', { name: 'MS-ORIGINAL' }))
+  expect(main.getByText('Công việc (3)')).toBeInTheDocument()
+  expect(planningApi.getAssignments).toHaveBeenCalledWith('rework-1', expect.any(AbortSignal))
 })

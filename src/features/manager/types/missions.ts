@@ -61,6 +61,8 @@ export type MissionMediaRequirement =
  * the backend DTO we read.
  */
 export type Mission = {
+  inspectionCorrectionId?: string | null
+  inspectionSourceMissionId?: string | null
   purpose?: 'ORIGINAL' | 'REWORK'
   resultRevisionCaseId?: string | null
   id: string
@@ -68,6 +70,8 @@ export type Mission = {
   orderCode: string | null
   missionCode: string
   status: MissionStatus
+  flightPermitReusedFromMissionId?: string | null
+  flightPermitReplacementRequired?: boolean
   flightPermitStatus?: FlightPermitStatus | null
   flightPermitNote?: string | null
   flightPermitFileName?: string | null
@@ -232,6 +236,8 @@ export type MissionResponse = {
   customerName: string
   missionCode: string
   status: MissionStatus
+  flightPermitReusedFromMissionId?: string | null
+  flightPermitReplacementRequired?: boolean
   flightPermitStatus?: FlightPermitStatus | null
   flightPermitNote?: string | null
   flightPermitFileName?: string | null

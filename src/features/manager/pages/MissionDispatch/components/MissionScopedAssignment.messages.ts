@@ -2,7 +2,7 @@ import { defineMessages } from '../../../../../shared/i18n'
 
 export const missionScopedAssignmentMessages = defineMessages({
   vi: {
-    backToSource: 'Trở về Mission gốc',
+    backToSource: 'Trở về nhiệm vụ gốc',
     loading: 'Đang tải phân công…',
     loadError: 'Không thể tải nhiệm vụ để tiếp tục phân công.',
     retry: 'Thử lại',

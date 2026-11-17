@@ -315,3 +315,18 @@ describe('MissionGridCard drone assignment animation', () => {
     expect(await screen.findByText('Gán drone thành công.')).toBeInTheDocument()
   })
 })
+
+
+it('distinguishes internal supplementation from customer rework using the shared card', () => {
+  render(<MissionGridCard mission={{ ...mission, purpose: 'REWORK', inspectionCorrectionId: 'correction', inspectionSourceMissionId: 'original', flightPermitStatus: 'APPROVED' }}
+    order={{ id: 'order-1' } as OrderDetail} plan={plan} orderChecklistItems={[]} disabled
+    sourceMission={{ id: 'original', code: 'MS-ORIGINAL' }}
+    planningHref="#portal/manager/orders/order-1/inspection/original/correction"
+    onPlanChanged={vi.fn()} onRequestReason={vi.fn()} />)
+  const card = within(screen.getByRole('article', { name: 'MS-001' }))
+  expect(card.getByText('Bổ sung sau nghiệm thu')).toBeInTheDocument()
+  expect(card.getByRole('link', { name: 'MS-ORIGINAL' })).toHaveAttribute('href', '#portal/manager/missions/original/detail')
+  expect(card.getByText('Đã được cấp phép')).toBeInTheDocument()
+  expect(card.getByRole('link', { name: 'Mở lập kế hoạch' })).toHaveAttribute('href', '#portal/manager/orders/order-1/inspection/original/correction')
+  expect(card.queryByRole('button', { name: 'Chỉnh sửa' })).toBeNull()
+})

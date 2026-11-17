@@ -35,6 +35,9 @@ import './MissionGridCard.css'
 import './MissionGridDroneAssignment.css'
 
 interface MissionGridCardProps {
+  planningHref?: string
+  sourceMission?: { id: string; code?: string }
+
   mission: MissionResponse
   order: OrderDetail
   plan: ExecutionPlan
@@ -58,6 +61,8 @@ export function MissionGridCard({
   onPlanChanged,
   onRequestReason,
   onEditMission,
+  planningHref,
+  sourceMission,
 }: MissionGridCardProps) {
   const { t } = useI18n(missionGridCardMessages)
   const isPlanning = mission.status === 'PLANNING'
@@ -388,12 +393,12 @@ export function MissionGridCard({
               {mission.missionCode || t.mission}
             </a>
           </strong>
-          <span>{mission.orderTitle || t.orderScope}</span>
+          <span>{mission.scopeLabel || mission.orderTitle || t.orderScope}</span>
         </div>
         <div className="odm-mcard-inline">
-          {mission.purpose === 'REWORK' && (
-            <StatusBadge tone="warning">{t.rework}</StatusBadge>
-          )}
+          <StatusBadge tone={mission.purpose === 'REWORK' ? 'warning' : 'info'}>
+            {mission.inspectionCorrectionId ? t.internalSupplement : mission.purpose === 'REWORK' ? t.customerRework : t.originalMission}
+          </StatusBadge>
           <StatusBadge
             tone={toUiTone(missionStatusTone[mission.status] ?? 'gray')}
           >
@@ -437,6 +442,17 @@ export function MissionGridCard({
             ))}
         </div>
       </div>
+
+      {(sourceMission || mission.inspectionSourceMissionId || mission.resultRevisionCaseId) && (
+        <div className="odm-mcard-origin">
+          <span>{t.originLabel}</span>
+          {sourceMission || mission.inspectionSourceMissionId ? (
+            <a href={managerHref({ screen: 'missionDetail', missionId: sourceMission?.id ?? mission.inspectionSourceMissionId! })}>
+              {sourceMission?.code ?? t.viewSourceMission}
+            </a>
+          ) : <span>{t.customerRequest}</span>}
+        </div>
+      )}
 
       {errorMsg && (
         <div className="odm-mcard-error" role="alert">
@@ -628,6 +644,19 @@ export function MissionGridCard({
                         ? t.deviceAssignRollback
                         : errorMsg || t.errAssignDevice}
         </p>
+      </div>
+
+      <div className="odm-mcard-navigation">
+        <div className="odm-mcard-permit">
+          <span>{t.permitLabel}</span>
+          <StatusBadge tone={mission.flightPermitStatus === 'APPROVED' ? 'success' : mission.flightPermitStatus === 'REJECTED' ? 'danger' : 'warning'}>
+            {mission.flightPermitStatus === 'APPROVED' ? t.permitApproved : mission.flightPermitStatus === 'REJECTED' ? t.permitRejected : t.permitPending}
+          </StatusBadge>
+        </div>
+        <div className="odm-mcard-navigation-actions">
+          <a className="odm-btn odm-btn-sm" href={managerHref({ screen: 'missionDetail', missionId: mission.id })}>{t.viewMission}</a>
+          {planningHref && <a className="odm-btn odm-btn-sm odm-btn-p" href={planningHref}>{t.openPlanning}</a>}
+        </div>
       </div>
 
       <MissionGridFlyingDrone overlayRef={animation.overlayRef} />
