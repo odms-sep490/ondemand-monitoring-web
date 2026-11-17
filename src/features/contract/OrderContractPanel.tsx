@@ -287,7 +287,7 @@ function ContractContent({
         </div>
       )}
       {data.status === 'PENDING_VERIFICATION' && !manager && (
-        <Alert type="info" showIcon message={t.pending} />
+        <Alert type="info" showIcon message={t.pending} action={onProceedToPayment && latest?.status === 'PENDING' ? <Button type="primary" onClick={onProceedToPayment}>{t.proceedToPayment}</Button> : undefined} />
       )}
       {data.status === 'CHANGES_REQUESTED' && latest?.reviewNote && (
         <Alert type="warning" showIcon message={latest.reviewNote} />
