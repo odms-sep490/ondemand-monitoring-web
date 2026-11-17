@@ -1,21 +1,9 @@
 import { act } from 'react'
 import { fireEvent, render, screen } from '@testing-library/react'
-import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import { setLanguage } from '../../../shared/i18n'
 import { LandingPage } from './LandingPage'
-
-vi.mock('lottie-react', () => ({
-  Lottie: () => <div data-testid="drone-lottie" />,
-}))
-
-// jsdom does not implement SVG geometry; the flight scene measures its path.
-beforeAll(() => {
-  Object.defineProperty(window.SVGElement.prototype, 'getTotalLength', {
-    configurable: true,
-    value: () => 100,
-  })
-})
 
 function saveSession(role: 'CUSTOMER' | 'MANAGER') {
   localStorage.setItem('fieldwise.accessToken', 'token.value-123')
@@ -45,85 +33,116 @@ describe('LandingPage', () => {
     sessionStorage.clear()
   })
 
-  it('renders one scroll-driven flight scene with mission chapters', () => {
+  it('renders the four-band editorial structure with services grid, workflow showcase, and structured footer', () => {
     render(<LandingPage />)
 
     expect(
       screen.getByRole('heading', {
         level: 1,
-        name: 'Kiểm tra an toàn hơn. Nắm rõ kết quả.',
+        name: 'Giám sát bằng drone, bàn giao đúng chuẩn.',
       }),
     ).toBeInTheDocument()
-    expect(screen.getByTestId('flight-mission-experience')).toBeInTheDocument()
-    expect(screen.getByTestId('drone-lottie')).toBeInTheDocument()
-    expect(document.querySelector('.lp-journey-hud')).not.toBeInTheDocument()
-    expect(document.querySelector('.lp-flight-dock')).not.toBeInTheDocument()
+
     expect(
       screen.getByRole('heading', {
-        name: 'Quét toàn cảnh từng dãy pin.',
+        level: 2,
+        name: 'Kiểm tra chính xác. Quy trình minh bạch.',
       }),
     ).toBeInTheDocument()
+    expect(screen.getByText('Tiếp nhận & lập kế hoạch bay')).toBeInTheDocument()
+    expect(screen.getByText('Nghiệm thu & mở khóa bản gốc')).toBeInTheDocument()
+    expect(screen.getByText('04')).toBeInTheDocument()
+
     expect(
       screen.getByRole('heading', {
-        name: 'Hạ cánh an toàn. Sẵn sàng cho lần bay tiếp.',
+        level: 2,
+        name: 'Công nghệ hỗ trợ. Con người kiểm chứng.',
       }),
     ).toBeInTheDocument()
-    expect(screen.queryByRole('contentinfo')).not.toBeInTheDocument()
+
+    expect(screen.getByRole('contentinfo')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Trung tâm trợ giúp' })).toHaveAttribute(
+      'href',
+      '#help',
+    )
+    expect(screen.getByRole('link', { name: 'support@odms.vn' })).toHaveAttribute(
+      'href',
+      'mailto:support@odms.vn',
+    )
   })
 
-  it('sends a guest to login from the create-request CTA', () => {
+  it('shows Đăng nhập and Tạo yêu cầu giám sát in the header and routes guests to auth/login', () => {
     render(<LandingPage />)
-    const links = screen.getAllByRole('link', { name: 'Tạo yêu cầu giám sát' })
-    expect(links.length).toBeGreaterThan(0)
-    for (const link of links) {
+
+    const signInLinks = screen.getAllByRole('link', { name: 'Đăng nhập' })
+    expect(signInLinks.length).toBeGreaterThanOrEqual(2)
+    for (const link of signInLinks) {
+      expect(link).toHaveAttribute('href', '#auth/login')
+    }
+
+    const requestLinks = screen.getAllByRole('link', {
+      name: 'Tạo yêu cầu giám sát',
+    })
+    expect(requestLinks.length).toBeGreaterThanOrEqual(4)
+    for (const link of requestLinks) {
       expect(link).toHaveAttribute('href', '#auth/login')
     }
   })
 
-  it('sends a logged-in CUSTOMER straight to the create-request screen', () => {
+  it('keeps Đăng nhập and sends a logged-in CUSTOMER straight to the create-request screen', () => {
     saveSession('CUSTOMER')
     render(<LandingPage />)
-    const links = screen.getAllByRole('link', { name: 'Tạo yêu cầu giám sát' })
-    for (const link of links) {
+
+    expect(screen.getAllByRole('link', { name: 'Đăng nhập' }).length).toBeGreaterThanOrEqual(1)
+    expect(screen.queryByRole('link', { name: 'Vào cổng làm việc' })).not.toBeInTheDocument()
+
+    const requestLinks = screen.getAllByRole('link', {
+      name: 'Tạo yêu cầu giám sát',
+    })
+    for (const link of requestLinks) {
       expect(link).toHaveAttribute('href', '#portal/customer/request')
     }
   })
 
-  it('sends a logged-in MANAGER user to their own role home', () => {
+  it('sends a logged-in MANAGER user to their own role home from Tạo yêu cầu giám sát', () => {
     saveSession('MANAGER')
     render(<LandingPage />)
-    const links = screen.getAllByRole('link', { name: 'Tạo yêu cầu giám sát' })
-    for (const link of links) {
+
+    expect(screen.getAllByRole('link', { name: 'Đăng nhập' }).length).toBeGreaterThanOrEqual(1)
+    const requestLinks = screen.getAllByRole('link', {
+      name: 'Tạo yêu cầu giám sát',
+    })
+    for (const link of requestLinks) {
       expect(link).toHaveAttribute('href', '#portal/manager')
     }
   })
 
-  it('does not show a separate login link in the main navigation', () => {
+  it('switches copy, page title, and html lang when toggling language to English', () => {
     render(<LandingPage />)
-    expect(
-      screen.queryByRole('link', { name: 'Đăng nhập' }),
-    ).not.toBeInTheDocument()
-  })
 
-  it('keeps the mobile navigation open while changing language', () => {
-    render(<LandingPage />)
-    fireEvent.click(screen.getByRole('button', { name: 'Mở menu' }))
-    act(() => setLanguage('en'))
-    expect(screen.getByRole('button', { name: 'Close menu' })).toHaveAttribute(
-      'aria-expanded',
-      'true',
-    )
+    fireEvent.click(screen.getByRole('button', { name: 'English' }))
+
     expect(
       screen.getByRole('heading', {
         level: 1,
-        name: 'Inspect with confidence. See every result.',
+        name: 'Inspection by drone, delivered on record.',
       }),
     ).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', {
+        level: 2,
+        name: 'Precise field checks. Transparent workflow.',
+      }),
+    ).toBeInTheDocument()
+    expect(screen.getAllByRole('link', { name: 'Sign in' }).length).toBeGreaterThanOrEqual(1)
+    expect(
+      screen.getAllByRole('link', { name: 'Create monitoring request' }).length,
+    ).toBeGreaterThanOrEqual(4)
     expect(document.documentElement).toHaveAttribute('lang', 'en')
-    expect(document.title).toContain('Track missions from request to result')
+    expect(document.title).toContain('Drone inspection, delivered on record')
   })
 
-  it('keeps the assistant available alongside the scroll journey', () => {
+  it('keeps the support assistant available', () => {
     render(<LandingPage />)
     expect(
       screen.getByRole('button', { name: 'Trợ lý OnDemand Monitor' }),

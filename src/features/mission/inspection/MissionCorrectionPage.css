@@ -1,0 +1,221 @@
+.mission-correction-workspace {
+  display: grid;
+  gap: 20px;
+  max-width: 1400px;
+  margin: auto;
+  color: var(--ui-text, #14294a);
+}
+.mcw-header,
+.mcw-context,
+.mcw-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.mcw-header h1 {
+  margin: 12px 0 8px;
+  font-size: clamp(22px, 3vw, 30px);
+}
+.mcw-header p,
+.mcw-section > p {
+  color: var(--ui-text-2, #64748b);
+  line-height: 1.6;
+}
+.mcw-header a {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+.mcw-context {
+  justify-content: flex-start;
+  font-size: 13px;
+}
+.mcw-context > span:last-child {
+  margin-left: auto;
+  color: var(--ui-text-2, #64748b);
+}
+.mcw-steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+.mcw-steps button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--ui-border, #dce4ef);
+  border-radius: 12px;
+  background: var(--ui-surface, #fff);
+  color: inherit;
+  cursor: pointer;
+}
+.mcw-steps button > span {
+  display: grid;
+  place-items: center;
+  min-width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #edf3ff;
+  color: #1665e7;
+}
+.mcw-steps small {
+  display: block;
+  margin-top: 4px;
+  font-weight: 400;
+  color: var(--ui-text-2, #64748b);
+}
+.mcw-steps [aria-current] {
+  border-color: #1677ff;
+  box-shadow: 0 0 0 1px #1677ff;
+}
+.mcw-steps button:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+.mcw-section {
+  display: grid;
+  gap: 16px;
+  padding: clamp(16px, 3vw, 28px);
+  border: 1px solid var(--ui-border, #dce4ef);
+  border-radius: 16px;
+  background: var(--ui-surface, #fff);
+  min-width: 0;
+}
+.mcw-section h2,
+.mcw-section p {
+  margin: 0;
+}
+.mcw-section h2 {
+  font-size: 19px;
+}
+.mcw-findings {
+  display: grid;
+  gap: 16px;
+  padding: 0;
+  list-style: none;
+  margin: 0;
+}
+.mcw-findings > li {
+  border-left: 3px solid #f1b44c;
+  padding: 4px 0 4px 18px;
+}
+.mcw-findings h3 {
+  margin: 0 0 12px;
+  font-size: 16px;
+}
+.mcw-findings small {
+  color: var(--ui-text-2, #64748b);
+}
+.mcw-findings p {
+  margin: 6px 0 12px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.mcw-actions {
+  justify-content: flex-end;
+  border-top: 1px solid var(--ui-border, #e9eef7);
+  padding-top: 18px;
+}
+.mcw-actions .ant-btn {
+  height: auto;
+  min-height: 36px;
+  white-space: normal;
+}
+.mcw-section > details p {
+  margin: 14px 0;
+}
+.mcw-section summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.mcw-success {
+  text-align: center;
+  justify-items: center;
+  padding: 40px;
+}
+.mcw-success > .anticon {
+  color: #16a05d;
+  font-size: 40px;
+}
+.mcw-section .upload-media-page {
+  border: 0;
+  box-shadow: none;
+}
+@media (max-width: 700px) {
+  .mcw-steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .mcw-steps button {
+    padding: 12px;
+    gap: 8px;
+  }
+  .mcw-actions {
+    align-items: stretch;
+  }
+  .mcw-actions .ant-btn {
+    flex: 1 1 100%;
+  }
+  .mcw-context > span:last-child {
+    width: 100%;
+    margin-left: 0;
+  }
+}
+
+.mcw-validation {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.mcw-validation li {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 12px;
+  background: var(--ui-surface-soft, #f5f8ff);
+  border-radius: 10px;
+}
+.mcw-validation li strong {
+  flex: 1 1 200px;
+}
+
+.mcw-section fieldset.inspection-corrections__related {
+  border: 0;
+  min-width: 0;
+  margin: 12px 0 0;
+  padding: 0;
+}
+.mcw-section .inspection-corrections__related legend {
+  margin-bottom: 10px;
+  padding: 0;
+  font-size: 12px;
+  color: var(--ui-text-2, #64748b);
+}
+
+.mcw-section .upload-media-page.is-embedded .upload-media-body {
+  padding: 0;
+}
+.mcw-section > summary {
+  font-size: 16px;
+}
+
+.mcw-existing-files {
+  margin-block: 12px;
+  padding: 12px 16px;
+  border: 1px solid var(--ui-border, #dce4ef);
+  border-radius: 10px;
+}
+.mcw-existing-files > summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.mcw-existing-files[open] > summary {
+  margin-bottom: 12px;
+}

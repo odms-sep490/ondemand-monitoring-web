@@ -355,6 +355,15 @@ export const deliveryApi = {
       ),
       { method: 'POST', body },
     ),
+  managerEnsureReworkDrafts: (
+    caseId: string,
+    signal?: AbortSignal,
+    replaceTerminal = false,
+  ) =>
+    apiRequest<void>(
+      `/api/manager/result-revision-cases/${enc(caseId)}/ensure-drafts?replaceTerminal=${replaceTerminal}`,
+      { method: 'POST', signal },
+    ),
   managerGetRevisionCase: (orderId: string, signal?: AbortSignal) =>
     apiRequest<ResultRevisionCase>(
       `/api/manager/orders/${enc(orderId)}/result-revision-case`,

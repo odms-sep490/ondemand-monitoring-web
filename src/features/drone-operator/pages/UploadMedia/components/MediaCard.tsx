@@ -43,6 +43,7 @@ export function MediaCard({
   uploadPc,
   attachTargets,
   detachTarget,
+  showChecklistAttachment = true,
   automaticAttach = false,
   remotePreviewUrl,
   remoteThumbnailUrl,
@@ -75,6 +76,7 @@ export function MediaCard({
   uploadPc: (item: LocalMedia, file: File) => Promise<void>
   attachTargets?: (item: LocalMedia, ids: string[]) => Promise<void>
   detachTarget?: (executionId: string, mediaId: string) => Promise<void>
+  showChecklistAttachment?: boolean
   automaticAttach?: boolean
   remotePreviewUrl?: string
   remoteThumbnailUrl?: string
@@ -241,7 +243,7 @@ export function MediaCard({
             </details>
           )}
         </div>
-        {status !== 'REJECTED' &&
+        {showChecklistAttachment && status !== 'REJECTED' &&
           monitoring.data?.permissions.canAttachChecklistEvidence === true &&
           !monitoring.loading &&
           !monitoring.error && (

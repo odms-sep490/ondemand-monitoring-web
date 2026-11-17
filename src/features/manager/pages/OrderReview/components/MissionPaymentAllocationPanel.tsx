@@ -72,7 +72,7 @@ export function MissionPaymentAllocationPanel({
         </div>
       </header>
 
-      {calculating ? <p className="mission-allocation-card__loading" role="status"><Spin size="small" /> {t.calculating}</p> : null}
+      {calculating ? <div className="mission-allocation-card__loading" role="status"><Spin size="small" /> {t.calculating}</div> : null}
       {error ? <Alert type="error" showIcon message={error} /> : null}
       {calculatedAllocation && !calculatedAllocation.allocationComplete ? (
         <Alert type="warning" showIcon message={t.allocationIncomplete} />

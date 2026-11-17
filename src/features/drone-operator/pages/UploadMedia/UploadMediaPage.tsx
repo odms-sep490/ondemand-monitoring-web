@@ -1,3 +1,5 @@
+import { EmptyState, LoadingState } from '../../../../shared/components/odm/StateView'
+import { hasInspectionWorkspaceAccess } from '../../../mission/types/permissions'
 import { withStaffLocalEvidence } from '../../../media/upload/staffEvidencePresentation'
 import { mediaFeedback } from '../../../media/i18n/mediaFeedback'
 import { StaffMediaImportPanel } from './components/StaffMediaImportPanel'
@@ -40,18 +42,22 @@ import { MediaFileTable } from './components/MediaFileTable'
 import { PreviewLightbox } from './components/PreviewLightbox'
 import { ReworkMissionContextPanel } from './components/ReworkMissionContextPanel'
 
+type WorkspaceOptions = { embedded?: boolean; correctionStage?: 'evidence' | 'review'; executionIds?: string[]; onBusyChange?: (busy: boolean) => void; onEvidenceChanged?: () => void }
+
 export function UploadMediaPage({
   missionId,
   mode = 'media',
+  ...workspaceOptions
 }: {
   missionId?: string
   mode?: 'checklist' | 'media'
-}) {
+} & WorkspaceOptions) {
   return (
     <UploadMediaContent
       key={missionId ?? 'active'}
       missionId={missionId}
       mode={mode}
+      {...workspaceOptions}
     />
   )
 }
@@ -59,10 +65,15 @@ export function UploadMediaPage({
 function UploadMediaContent({
   missionId: routeMissionId,
   mode,
+  embedded = false,
+  correctionStage,
+  executionIds,
+  onBusyChange,
+  onEvidenceChanged,
 }: {
   missionId?: string
   mode: 'checklist' | 'media'
-}) {
+} & WorkspaceOptions) {
   const { t, lang } = useI18n(uploadMediaPageMessages)
   const [fallbackMissionId] = useState(() => getActiveMissionId())
   const missionId = routeMissionId ?? fallbackMissionId
@@ -204,6 +215,10 @@ function UploadMediaContent({
     permissions.data?.canUploadMedia ? transferEvidenceCandidate : undefined,
     permissions.data?.canUploadMedia ? transferEvidenceBackup : undefined,
   )
+  useEffect(() => {
+    onBusyChange?.(isBusy || queue.busy)
+    return () => onBusyChange?.(false)
+  }, [isBusy, queue.busy, onBusyChange])
   const preparedIdentities = queue.jobs
     .map(
       (job) => `${job.payload.candidate.mediaId}:${job.payload.mediaId ?? ''}`,
@@ -265,6 +280,7 @@ function UploadMediaContent({
           : !successfullyUploadedStatuses.has(remote.status ?? 'UNKNOWN')),
     )
   async function attachTargets(item: LocalMedia, ids: string[]) {
+    if (executionIds && ids.some(id => !executionIds.includes(id))) throw new Error(t.missingChecklistItem)
     if (
       permissions.data?.canUploadMedia !== true &&
       (!item.backendMediaId ||
@@ -321,36 +337,69 @@ function UploadMediaContent({
     refreshWorkspace()
   }
   const canReviewMedia =
+    correctionStage !== 'evidence' &&
     actions.known &&
     monitoring.data?.permissions.canAssessMonitoringChecklist === true &&
     !(
       monitoring.data?.result?.approvalStatus === 'APPROVED' &&
       monitoring.data.result.inspectorConfirmed === true
     )
+  const scopedChecklist = monitoring.data?.checklist ? {
+    ...monitoring.data.checklist,
+    executions: monitoring.data.checklist.executions.filter(row => !executionIds || executionIds.includes(row.id)),
+  } : undefined
+  const previousEvidenceVersion = useRef<string | undefined>(undefined)
+  const evidenceVersion = scopedChecklist?.executions.map(row => `${row.id}:${row.version}`).join('|')
+  useEffect(() => {
+    if (evidenceVersion === undefined) return
+    const changed = previousEvidenceVersion.current !== undefined && previousEvidenceVersion.current !== evidenceVersion
+    previousEvidenceVersion.current = evidenceVersion
+    if (changed) onEvidenceChanged?.()
+  }, [evidenceVersion, onEvidenceChanged])
+  const addingCorrectionFiles = correctionStage === 'evidence' && mode === 'media'
+  const Library = addingCorrectionFiles ? 'details' : 'div'
+  const retiredDossierRoute = !embedded && mode === 'checklist'
+    && Boolean(activeMission.data?.actualEndAt || activeMission.data?.completedAt)
+  const replacementRoute = hasInspectionWorkspaceAccess(permissions.data) ? 'inspection' : 'missionDetail'
+  useEffect(() => {
+    if (retiredDossierRoute && missionId && !permissions.loading && !permissions.error && permissions.data)
+      window.location.hash = operatorHref({ screen: replacementRoute, missionId })
+  }, [retiredDossierRoute, missionId, permissions.loading, permissions.error, permissions.data, replacementRoute])
+  if (retiredDossierRoute && permissions.error) return <EmptyState title={t.permissionsLoadFailed}
+    action={<button type="button" className="odm-btn" onClick={permissions.reload}>{t.retryTask}</button>} />
+  if (retiredDossierRoute) return <LoadingState />
+
   const checklist = missionId ? (
     <MonitoringChecklistSection
+      canReviewCorrections={monitoring.data?.permissions.canAccessMissionInspection}
+      showInspectionCorrections={!embedded}
+      hideWorkflowPanels={embedded}
+      compact={embedded}
+      hideImplementationHints={embedded}
+      hideAssessment={embedded && !canReviewMedia}
+      assessmentOnly={embedded && canReviewMedia === true}
       missionId={missionId}
-      data={loading ? undefined : withStaffLocalEvidence(monitoring.data?.checklist, items, missionId)}
+      data={loading ? undefined : withStaffLocalEvidence(scopedChecklist, items, missionId)}
       loading={loading || (monitoring.loading && !monitoring.data)}
       error={monitoring.error}
       resultKnown={actions.known}
       resultStatus={monitoring.data?.result?.approvalStatus}
       resultNote={monitoring.data?.result?.reviewNote}
       canExecute={
-        monitoring.data?.permissions.canExecuteMonitoringChecklist &&
+        correctionStage !== 'review' && monitoring.data?.permissions.canExecuteMonitoringChecklist &&
         !queue.busy
       }
       canSelectForCustomer={
-        monitoring.data?.permissions.canAssessMonitoringChecklist === true &&
+        correctionStage !== 'evidence' && monitoring.data?.permissions.canAssessMonitoringChecklist === true &&
         !queue.busy
       }
       canAssess={
-        monitoring.data?.permissions.canAssessMonitoringChecklist === true &&
+        correctionStage !== 'evidence' && monitoring.data?.permissions.canAssessMonitoringChecklist === true &&
         !queue.busy
       }
-      canAttach={monitoring.data?.permissions.canAttachChecklistEvidence}
+      canAttach={correctionStage !== 'review' && monitoring.data?.permissions.canAttachChecklistEvidence}
       canDetach={
-        monitoring.data?.permissions.canDetachChecklistEvidence && !queue.busy
+        correctionStage !== 'review' && monitoring.data?.permissions.canDetachChecklistEvidence && !queue.busy
       }
       refresh={refreshWorkspace}
       loadEvidenceCandidates={loadEvidenceCandidates}
@@ -364,8 +413,8 @@ function UploadMediaContent({
     />
   ) : null
   return (
-    <div className="odm-card upload-media-page" style={{ marginBottom: 0 }}>
-      <FlightStepHeader
+    <div className={`odm-card upload-media-page${embedded ? ' is-embedded' : ''}`} style={{ marginBottom: 0 }}>
+      {!embedded && <FlightStepHeader
         title={mode === 'checklist' ? t.checklistTitle : t.mediaTitle}
         missionId={missionLabel}
         idTitle={missionId ?? undefined}
@@ -373,9 +422,9 @@ function UploadMediaContent({
         right={
           <span className="upload-media-device">{deviceLabel ?? '—'}</span>
         }
-      />
+      />}
       <div className="upload-media-body">
-        <nav className="mission-evidence-nav" aria-label={t.workspaceNav}>
+        {!embedded && <nav className="mission-evidence-nav" aria-label={t.workspaceNav}>
           <div>
             <a
               className={mode === 'checklist' ? 'is-active' : ''}
@@ -398,7 +447,7 @@ function UploadMediaContent({
               {t.mediaTitle}
             </a>
           </div>
-        </nav>
+        </nav>}
         <QueueStatusPanel
           jobs={queue.jobs}
           retry={queue.retry}
@@ -424,7 +473,15 @@ function UploadMediaContent({
           checklist
         ) : (
           <section className="upload-media-panel" aria-label={t.mediaTitle}>
-            <p className="upload-media-help">{t.autoAttachHint}</p>
+            {!addingCorrectionFiles && <p className="upload-media-help">{t.autoAttachHint}</p>}
+            {canManageMedia && activeMission.data?.deviceId && (
+              <StaffMediaImportPanel disabled={isBusy || queue.busy}
+                flightStart={activeMission.data.actualStartAt ?? activeMission.data.scheduledStartAt}
+                flightEnd={activeMission.data.actualEndAt ?? activeMission.data.scheduledEndAt}
+                onUpload={uploadStaffFiles} />
+            )}
+            <Library className={addingCorrectionFiles ? 'mcw-existing-files' : undefined}>
+              {addingCorrectionFiles && <summary>{t.mediaTitle}</summary>}
             <MediaToolbar
               items={items}
               filter={filter}
@@ -434,12 +491,6 @@ function UploadMediaContent({
               view={view}
               setView={setView}
             />
-            {canManageMedia && activeMission.data?.deviceId && (
-              <StaffMediaImportPanel disabled={isBusy || queue.busy}
-                flightStart={activeMission.data.actualStartAt ?? activeMission.data.scheduledStartAt}
-                flightEnd={activeMission.data.actualEndAt ?? activeMission.data.scheduledEndAt}
-                onUpload={uploadStaffFiles} />
-            )}
             {loading && <p role="status">{t.loadingMedia}</p>}
             {Boolean(backend.error) && (
               <p role="alert">
@@ -522,7 +573,7 @@ function UploadMediaContent({
                     successfullyUploadedStatuses.has(effectiveStatus(item))
                   }
                   discard={discard}
-                  monitoring={monitoring}
+                  monitoring={scopedChecklist && monitoring.data ? { ...monitoring, data: { ...monitoring.data, checklist: scopedChecklist } } : monitoring}
                   selectedTargets={selectedTargets}
                   setSelectedTargets={setSelectedTargets}
                   attachTargets={attachTargets}
@@ -533,6 +584,7 @@ function UploadMediaContent({
                   }
                   attachFailures={attachFailures}
                   uploadPc={uploadPc}
+                  showChecklistAttachment={!addingCorrectionFiles}
                   automaticAttach
                   reviewMedia={
                     canReviewMedia
@@ -582,9 +634,10 @@ function UploadMediaContent({
                 </button>
               </div>
             )}
+            </Library>
           </section>
         )}
-        <details className="upload-media-transfer">
+        {(!embedded || mode === 'media') && <details className="upload-media-transfer">
           <summary>{t.transferDetails}</summary>
           <UploadMediaBar
             loadedMedia={loadedMedia}
@@ -612,7 +665,7 @@ function UploadMediaContent({
               effectiveStatus={effectiveStatus}
             />
           )}
-        </details>
+        </details>}
       </div>
       {preview && (
         <PreviewLightbox

@@ -134,3 +134,10 @@ describe('DroneRoomAssignmentControl', () => {
     )
   })
 })
+
+it('returns from the drone room to the internal correction workspace',async()=>{
+ vi.mocked(missionsApi.listMissions).mockResolvedValue({items:[{...mission,purpose:'REWORK',orderId:'order',inspectionCorrectionId:'correction',inspectionSourceMissionId:'parent'}]})
+ render(<DroneRoomAssignmentControl drone={selectedDrone} lang="vi" assignmentMissionId="mission-1"/>)
+ await screen.findByRole('option',{name:/MS-1/})
+ await waitFor(()=>{for(const link of screen.getAllByRole('link',{name:'Về nhiệm vụ'}))expect(link).toHaveAttribute('href','#portal/manager/orders/order/inspection/parent/correction')})
+})

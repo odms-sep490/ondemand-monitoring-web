@@ -1,5 +1,6 @@
+import { hasInspectionWorkspaceAccess } from '../../../mission/types/permissions'
 import { deviceRoleLabel } from '../../lib/deviceLabel'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import {
   EmptyState,
@@ -36,7 +37,8 @@ import { PostflightSubmitButton } from './components/PostflightSubmitButton'
 import '../Preflight/components/PreflightChecklist.css'
 import './PostflightPage.css'
 
-export function PostflightPage({ missionId }: { missionId?: string }) {
+export function PostflightPage({ missionId, inspectionOnly = false }: { missionId?: string; inspectionOnly?: boolean }) {
+  const { t } = useI18n(postflightPageMessages)
   const mission = useActiveMission(missionId)
   const [selected, setSelected] = useState<string | null>(null)
   const [revision, setRevision] = useState(0)
@@ -56,48 +58,58 @@ export function PostflightPage({ missionId }: { missionId?: string }) {
     if (pending) { setSelected(pending.deviceId); return false }
     return true
   }
+  const reloadFleet = () => { mission.reload(); checks.reload() }
+  if ((mission.loading && !mission.data) || (assignments.length > 0 && checks.loading && !checks.data)) return <LoadingState />
+  if (!id) return <EmptyState title={t.missionNotFoundTitle} description={t.missionNotFoundDesc} />
+  if (mission.error || checks.error) return <EmptyState title={t.fleetLoadFailed} description={t.fleetLoadFailedHint}
+    action={<button type="button" className="odm-btn" onClick={reloadFleet}>{t.fleetRetry}</button>} />
+  if (!assignments.length) return <EmptyState title={t.fleetNoDevices} description={t.fleetNoDevicesHint}
+    action={<button type="button" className="odm-btn" onClick={reloadFleet}>{t.fleetRetry}</button>} />
+  const labelFor = (a: typeof assignments[number]) => a.deviceCode ?? a.deviceSerialNumber ?? a.deviceName ?? t.fleetDevice(assignments.indexOf(a) + 1)
   const devicePicker = (
-    <section className="preflight-device-picker" aria-label="Thiết bị kiểm tra sau bay">
+    <section className="preflight-device-picker" aria-label={t.fleetTitle}>
       <div className="preflight-device-picker__heading">
-        <div><h1>Kiểm tra sau bay</h1><p>Kiểm tra từng thiết bị và ghi nhận tình trạng sau chuyến bay trước khi nghiệm thu.</p></div>
+        <div><h1>{t.fleetTitle}</h1><p>{t.fleetHint}</p></div>
         <div className={`preflight-fleet-progress${allDone ? ' is-complete' : ''}`} role="status">
           <strong>{assignments.filter(a => isDone(a.deviceId!)).length}<span> / {assignments.length}</span></strong>
-          <span>thiết bị đã kiểm tra</span>
+          <span>{t.fleetCounter}</span>
         </div>
       </div>
-      <div className="preflight-fleet-track" role="progressbar" aria-label="Tiến độ kiểm tra sau bay"
+      <div className="preflight-fleet-track" role="progressbar" aria-label={t.fleetProgress}
         aria-valuemin={0} aria-valuemax={assignments.length || 1} aria-valuenow={assignments.filter(a => isDone(a.deviceId!)).length}>
         <span style={{ width: `${assignments.length ? assignments.filter(a => isDone(a.deviceId!)).length / assignments.length * 100 : 0}%` }} />
       </div>
-      <nav className="preflight-device-list" aria-label="Chọn thiết bị kiểm tra sau bay">
+      <nav className="preflight-device-list" aria-label={t.fleetSelect}>
         {assignments.map((a, index) => <button type="button" key={a.deviceId}
           className={`preflight-device-option${a.deviceId === active?.deviceId ? ' is-selected' : ''}${isDone(a.deviceId!) ? ' is-passed' : ''}`}
           aria-pressed={a.deviceId === active?.deviceId} onClick={() => setSelected(a.deviceId!)}>
           <span className="preflight-device-option__number">{index + 1}</span>
           <span className="preflight-device-option__copy">
-            <strong>{a.deviceCode ?? a.deviceSerialNumber ?? a.deviceId}</strong>
-            <span>{deviceRoleLabel(a.deviceRole)}{a.deviceId === active?.deviceId ? ' · Đang chọn' : ''}</span>
+            <strong>{labelFor(a)}</strong>
+            <span>{deviceRoleLabel(a.deviceRole)}{a.deviceId === active?.deviceId ? ` · ${t.fleetSelected}` : ''}</span>
           </span>
-          <span className="preflight-device-option__status">{isDone(a.deviceId!) ? 'Đã kiểm tra' : 'Cần kiểm tra'}</span>
+          <span className="preflight-device-option__status">{isDone(a.deviceId!) ? t.fleetChecked : t.fleetNeedsCheck}</span>
         </button>)}
       </nav>
-      {checks.error ? <p role="alert">Không tải được kết quả kiểm tra. <button type="button" className="odm-btn" onClick={() => setRevision(v => v + 1)}>Thử lại</button></p> : null}
+
     </section>
   )
   return <div className="postflight-workspace">
-    {!allDone && devicePicker}
+    {!inspectionOnly && !allDone && devicePicker}
     <PostflightDevicePage key={`${id}:${active?.deviceId ?? ''}`} missionId={missionId}
-      selectedDeviceId={active?.deviceId ?? undefined} selectedDeviceLabel={active?.deviceCode ?? active?.deviceSerialNumber ?? undefined}
+      inspectionOnly={inspectionOnly}
+      selectedDeviceId={active?.deviceId ?? undefined} selectedDeviceLabel={active ? labelFor(active) : undefined}
       deviceChecks={assignments.map(a => ({
         id: a.deviceId!,
-        label: a.deviceCode ?? a.deviceSerialNumber ?? a.deviceId!,
+        label: labelFor(a),
         check: checks.data?.find(c => c.deviceId === a.deviceId)?.check,
       }))}
       allDevicesDone={allDone} onSaved={onSaved} />
   </div>
 }
 
-function PostflightDevicePage({ missionId, selectedDeviceId, selectedDeviceLabel, deviceChecks, allDevicesDone, onSaved }: {
+function PostflightDevicePage({ inspectionOnly, missionId, selectedDeviceId, selectedDeviceLabel, deviceChecks, allDevicesDone, onSaved }: {
+  inspectionOnly?: boolean
   deviceChecks: DevicePostflightResult[]
   missionId?: string; selectedDeviceId?: string; selectedDeviceLabel?: string; allDevicesDone: boolean; onSaved: () => Promise<boolean>
 }) {
@@ -145,13 +157,14 @@ function PostflightDevicePage({ missionId, selectedDeviceId, selectedDeviceLabel
     failed?: boolean
   } | null>(null)
   const permissionsQuery = useApiQuery(
-    () =>
-      effectiveMissionId
-        ? missionApi.getPermissions(effectiveMissionId)
-        : Promise.resolve(null),
+    async () => ({
+      missionId: effectiveMissionId,
+      fleetComplete: allDevicesDone,
+      permissions: effectiveMissionId ? await missionApi.getPermissions(effectiveMissionId) : null,
+    }),
     // The inspector permission becomes available after postflight persists
     // actualEndAt, so re-fetch it when this page completes the postflight.
-    [effectiveMissionId, Boolean(completed)],
+    [effectiveMissionId, Boolean(completed), allDevicesDone],
   )
 
   const items: PostflightItem[] = useMemo(
@@ -213,6 +226,20 @@ function PostflightDevicePage({ missionId, selectedDeviceId, selectedDeviceLabel
         }
       : null)
 
+  const permissionsReady = !permissionsQuery.loading && !permissionsQuery.error
+    && permissionsQuery.data?.missionId === effectiveMissionId
+    && permissionsQuery.data?.fleetComplete === allDevicesDone
+  const permissions = permissionsReady ? permissionsQuery.data?.permissions : null
+  const nextScreen = !inspectionOnly && allDevicesDone && completedSummary
+    && !completedSummary.failed && activeData?.status !== 'FAILED' && !activeData?.failureRequestedAt
+    && permissions
+      ? hasInspectionWorkspaceAccess(permissions) ? 'inspection'
+        : permissions.canAttachChecklistEvidence || permissions.canExecuteMonitoringChecklist ? 'missionDetail' : null
+      : null
+  useEffect(() => {
+    if (nextScreen) window.location.hash = operatorHref({ screen: nextScreen, missionId: effectiveMissionId })
+  }, [nextScreen, effectiveMissionId])
+
   if (
     loading ||
     (!completedSummary &&
@@ -231,7 +258,8 @@ function PostflightDevicePage({ missionId, selectedDeviceId, selectedDeviceLabel
   }
 
   if (completedSummary && !allDevicesDone) {
-    return <div className="odm-card" role="status">{t.deviceCheckedNotice(deviceLabel)}</div>
+    if (inspectionOnly) return <EmptyState title={t.inspectionAwaitingPostflight} description={t.inspectionAwaitingPostflightHint} action={<a className="odm-btn" href={operatorHref({ screen: 'postflight', missionId: effectiveMissionId })}>{t.inspectionOpenPostflight}</a>} />
+    return <EmptyState title={t.fleetDeviceDone} description={t.fleetChooseRemaining(deviceLabel)} />
   }
   if (completedSummary) {
     if (completedSummary.failed || activeData?.status === 'FAILED') {
@@ -250,18 +278,15 @@ function PostflightDevicePage({ missionId, selectedDeviceId, selectedDeviceLabel
         />
       )
     }
-    if (permissionsQuery.loading) return <LoadingState />
-    if (
-      permissionsQuery.error ||
-      (permissionsQuery.data?.canAssessMonitoringChecklist !== true &&
-        permissionsQuery.data?.canConfirmMissionFailure !== true)
-    ) {
-      return (
-        <EmptyState
-          title={t.reviewInspectorOnlyTitle}
-          description={t.reviewInspectorOnlyDescription}
-        />
-      )
+    if (permissionsQuery.loading || nextScreen) return <LoadingState />
+    if (permissionsQuery.error || !permissions) {
+      return <EmptyState title={t.reviewPermissionsFailedTitle} description={t.reviewPermissionsFailedDescription}
+        action={<button type="button" className="odm-btn" onClick={permissionsQuery.reload}>{t.reviewPermissionsRetry}</button>} />
+    }
+    const canOpenInspection = hasInspectionWorkspaceAccess(permissions)
+    if (!canOpenInspection) {
+      return <EmptyState title={t.reviewInspectorOnlyTitle} description={t.reviewInspectorOnlyDescription}
+        action={<a className="odm-btn" href={operatorHref({ screen: 'missionDetail', missionId: effectiveMissionId })}>{t.reviewMissionInfo}</a>} />
     }
     return (
       <PostflightCompletedView
@@ -269,6 +294,7 @@ function PostflightDevicePage({ missionId, selectedDeviceId, selectedDeviceLabel
         missionId={effectiveMissionId}
         missionLabel={missionLabel}
         completed={completedSummary}
+        inspectionOnly={inspectionOnly}
         deviceChecks={deviceChecks}
         deviceId={deviceId}
         inspectionResults={inspectionResults}
@@ -277,6 +303,10 @@ function PostflightDevicePage({ missionId, selectedDeviceId, selectedDeviceLabel
       />
     )
   }
+
+  if (inspectionOnly) return <EmptyState title={t.inspectionAwaitingPostflight}
+    description={t.inspectionAwaitingPostflightHint}
+    action={<a className="odm-btn" href={operatorHref({ screen: 'postflight', missionId: effectiveMissionId })}>{t.inspectionOpenPostflight}</a>} />
 
   return (
     <div className="odm-card postflight-page">

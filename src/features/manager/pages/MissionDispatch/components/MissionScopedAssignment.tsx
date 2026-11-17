@@ -55,7 +55,7 @@ export function MissionScopedAssignmentPage({
       </div>
     )
   if (query.data.inspectionCorrectionId && query.data.inspectionSourceMissionId)
-    return <><Button onClick={() => { window.location.hash = managerHref({screen:'missionDetail',missionId:query.data!.inspectionSourceMissionId!}) }}>{t.backToSource}</Button><InternalCorrectionMissionSetup mission={query.data} onChanged={query.reload}/></>
+    return <InternalCorrectionMissionSetup mission={query.data} onChanged={query.reload}/>
   if (query.data.purpose === 'REWORK' && query.data.resultRevisionCaseId)
     return (
       <ReworkPlanningPage

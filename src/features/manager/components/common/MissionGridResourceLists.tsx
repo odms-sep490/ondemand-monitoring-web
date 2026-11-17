@@ -40,7 +40,13 @@ export function MissionGridStaffList({
             className="odm-mcard-res-item odm-mcard-res-staff-group"
           >
             <div className="odm-mcard-res-staff-main">
-              <strong>{group.staffName || t.staffUnnamed}</strong>
+              <div className="odm-mcard-staff-identity">
+                <strong>{group.staffName || t.staffUnnamed}</strong>
+                <span className="odm-mcard-staff-response">
+                  {group.assignments.every(a => a.responseStatus === 'ACCEPTED') ? t.staffAccepted
+                    : group.assignments.some(a => a.responseStatus === 'REJECTED') ? t.staffDeclined : t.staffPending}
+                </span>
+              </div>
               <div className="odm-mcard-res-role-list">
                 {group.assignments.map((item) => {
                   const roleName =

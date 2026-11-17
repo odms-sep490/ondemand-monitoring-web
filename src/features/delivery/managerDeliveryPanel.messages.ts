@@ -8,8 +8,7 @@ export const managerDeliveryPanelMessages = defineMessages({
     actionFailed: 'Thao tác thất bại.',
     eyebrow: 'Quy trình bàn giao',
     title: 'Bàn giao kết quả',
-    intro:
-      'Khách xem kết quả, xác nhận và thanh toán để nhận tệp gốc.',
+    intro: 'Khách xem kết quả, xác nhận và thanh toán để nhận tệp gốc.',
     revisionTitle: 'khách hàng yêu cầu chỉnh sửa',
     processingTitle: 'Chưa thể gửi bản xem trước',
     processingText:
@@ -111,17 +110,18 @@ export const managerDeliveryPanelMessages = defineMessages({
     waitingForScopeAcknowledgement:
       'Đang chờ khách hàng xác nhận đã nhận phản hồi.',
     scopeAcknowledged: 'Khách hàng đã xác nhận phản hồi ngoài phạm vi.',
-    reworkMission: 'Tạo nhiệm vụ thực hiện lại',
+    reworkMission: 'Kế hoạch thực hiện lại',
     reworkWorkspace: 'Lập kế hoạch thực hiện lại',
     openReworkMission: 'Mở nhiệm vụ thực hiện lại',
     reworkScheduleHelp:
-      'Thống nhất lịch thực hiện lại với khách hàng trước khi tạo nhiệm vụ. Chọn thời gian trong tương lai, bắt đầu và kết thúc trong cùng ngày. Lịch này độc lập với ngày và khung giờ mong muốn của đơn hàng ban đầu.',
+      'Nhiệm vụ nháp được tạo từ các mục đã chọn thực hiện lại. Thống nhất lịch mới với khách hàng, bổ sung lịch bay và nguồn lực trước khi chốt kế hoạch.',
     noRevisionCase: 'Không có yêu cầu chỉnh sửa đang mở.',
     feedbackNote: 'Ghi chú khách hàng',
     feedbackRound: (round: number) => `Đợt kết quả ${round}`,
     flaggedMedia: 'Ảnh/video khách hàng đã đánh dấu',
     customerFlaggedCount: (count: number) => `Khách đánh dấu ${count} media`,
-    noFlaggedMedia: 'Khách hàng phản ánh hạng mục, không đánh dấu ảnh/video cụ thể.',
+    noFlaggedMedia:
+      'Khách hàng phản ánh hạng mục, không đánh dấu ảnh/video cụ thể.',
     flaggedMediaExpired: 'Ảnh/video đã hết thời hạn lưu trữ.',
     reasonCode: 'Lý do',
     loadCaseFailed: 'Không tải được thông tin yêu cầu chỉnh sửa.',
@@ -247,18 +247,21 @@ export const managerDeliveryPanelMessages = defineMessages({
     waitingForScopeAcknowledgement:
       'Waiting for the customer to acknowledge the response.',
     scopeAcknowledged: 'The customer acknowledged the out-of-scope response.',
-    reworkMission: 'Create rework mission',
+    reworkMission: 'Rework planning',
     reworkWorkspace: 'Plan rework',
     openReworkMission: 'Open rework mission',
     reworkScheduleHelp:
-      'Agree on a new schedule with the customer before creating the mission. Choose a future start and end on the same day. This schedule is independent of the original order’s preferred dates and time slot.',
+      'Draft missions are created from the items approved for rework. Agree on a new schedule with the customer, then set flight times and resources before finalizing the plan.',
     noRevisionCase: 'There is no open revision request.',
     feedbackNote: 'Customer note',
     feedbackRound: (round: number) => `Result round ${round}`,
     flaggedMedia: 'Media flagged by the customer',
-    customerFlaggedCount: (count: number) => `Customer flagged ${count} file(s)`,
-    noFlaggedMedia: 'The customer reported this checklist without flagging specific media.',
-    flaggedMediaExpired: 'This media has reached the end of its retention period.',
+    customerFlaggedCount: (count: number) =>
+      `Customer flagged ${count} file(s)`,
+    noFlaggedMedia:
+      'The customer reported this checklist without flagging specific media.',
+    flaggedMediaExpired:
+      'This media has reached the end of its retention period.',
     reasonCode: 'Reason',
     loadCaseFailed: 'Could not load revision request details.',
     draftSaving: 'Saving delivery draft…',

@@ -1,4 +1,6 @@
+import { hasMissionFlightEnded } from '../../../lib/missionFlightLifecycle'
 import type { OperatorMission } from '../../../types/mission'
+import { hasInspectionWorkspaceAccess } from '../../../../mission/types/permissions'
 import type { MissionPermissions } from '../../../../mission/types/permissions'
 import type { MissionResultApprovalStatus } from '../../../../mission/types/mission'
 import { missionStatusLabel } from '../missionFormat'
@@ -88,12 +90,8 @@ export function MissionHeader({
       backendStatus === 'RETURNING' ||
       backendStatus === 'POSTFLIGHT_CHECKING') &&
       (deviceState === 'COMPLETED' || Boolean(mission.actualEndAt)))
-  const canOpenAcceptanceData =
-    acceptanceStepReached &&
-    (access?.canInspectDevice === true ||
-      access?.canCompleteMission === true ||
-      access?.canSubmitMissionResult === true ||
-      access?.canUploadMedia === true)
+  const inspectionAccess = hasInspectionWorkspaceAccess(access)
+  const canOpenAcceptanceData = acceptanceStepReached && inspectionAccess
   const responseStatusLabel =
     mission.myResponseStatus === 'REJECTED'
       ? t.declinedHistoryBadge
@@ -182,9 +180,9 @@ export function MissionHeader({
         {canOpenAcceptanceData && (
           <a
             className="odm-btn"
-            href={operatorHref({ screen: 'checklist', missionId: mission.id })}
+            href={operatorHref({ screen: 'inspection', missionId: mission.id })}
           >
-            Mở dữ liệu nghiệm thu
+            {t.openInspectionWorkspace}
           </a>
         )}
         {/* Action permissions come from the backend assignment policy. */}
@@ -209,7 +207,7 @@ export function MissionHeader({
         ) : backendStatus === 'IN_PROGRESS' ||
           mission.status === 'IN_FLIGHT' ? (
           <>
-            {access?.canControlFlight && (
+            {access?.canControlFlight && !hasMissionFlightEnded(mission) && (
               <a
                 className="odm-btn odm-btn-p"
                 href={operatorHref({ screen: 'flight', missionId: mission.id })}

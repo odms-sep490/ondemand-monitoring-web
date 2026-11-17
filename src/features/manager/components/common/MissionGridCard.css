@@ -374,3 +374,36 @@
   background: var(--pl-green-bg);
   color: var(--pl-green-fg);
 }
+
+
+.odm-mcard-origin,
+.odm-mcard-navigation,
+.odm-mcard-navigation-actions,
+.odm-mcard-permit,
+.odm-mcard-staff-identity {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.odm-mcard-origin {
+  padding: 10px 0;
+  color: var(--mgr-muted, #64748b);
+  font-size: 13px;
+}
+.odm-mcard-navigation {
+  justify-content: space-between;
+  padding-top: 14px;
+  border-top: 1px solid var(--mgr-border, #e2e8f0);
+}
+.odm-mcard-staff-identity { justify-content: space-between; }
+.odm-mcard-staff-response { font-size: 12px; color: var(--mgr-muted, #64748b); }
+@media (max-width: 640px) {
+  .odm-mcard-navigation-actions { width: 100%; }
+  .odm-mcard-navigation-actions > a { flex: 1; text-align: center; }
+}
+
+.odm-mission-grid-card .odm-mcard-header { flex-wrap: wrap; }
+.odm-mission-grid-card .odm-mcard-inline { flex-wrap: wrap; }
+.odm-mission-grid-card .odm-mcard-title-group { min-width: 0; overflow-wrap: anywhere; }
+.odm-workspace-grid.odm-unified-mission-list { grid-template-columns: minmax(0, 1fr); }

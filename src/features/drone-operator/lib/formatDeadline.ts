@@ -1,3 +1,4 @@
+import { hasMissionFlightEnded } from './missionFlightLifecycle'
 import type { Language } from '../../../shared/i18n/languageStore'
 import type { OperatorMission } from '../types/mission'
 
@@ -31,6 +32,10 @@ export function formatDeadline(
   now: Date,
   lang: Language = 'vi',
 ): string {
+  if (hasMissionFlightEnded(mission)
+    && !['COMPLETED', 'FAILED', 'REJECTED', 'CANCELLED'].includes(mission.status)
+    && !['COMPLETED', 'FAILED', 'CANCELLED'].includes(mission.backendStatus ?? ''))
+    return lang === 'en' ? 'Flight ended' : 'Đã kết thúc bay'
   const start = new Date(`${mission.date}T${mission.startTime}:00+07:00`)
   if (!mission.date || !mission.startTime || Number.isNaN(start.getTime())) {
     if (lang === 'en') {

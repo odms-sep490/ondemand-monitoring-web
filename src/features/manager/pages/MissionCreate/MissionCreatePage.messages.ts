@@ -2,10 +2,11 @@ import { defineMessages } from '../../../../shared/i18n'
 
 export const missionCreatePageMessages = defineMessages({
   vi: {
+    internalReadOnly: 'Yêu cầu bổ sung hoặc đơn hàng không còn cho phép lập kế hoạch. Nội dung được hiển thị để tra cứu.',
     internalTitle: 'Kế hoạch bổ sung kết quả',
-    internalCreate: 'Tạo Mission bổ sung',
+    internalCreate: 'Tạo nhiệm vụ bổ sung',
     internalDescription:
-      'Lập lịch, phân công và chốt kế hoạch. Staff chấp nhận nhiệm vụ trước khi xử lý giấy phép bay và thực hiện.',
+      'Lập lịch, phân công và chốt kế hoạch. Nhân sự chấp nhận nhiệm vụ trước khi xử lý giấy phép bay và thực hiện.',
     internalScope: 'Bổ sung theo yêu cầu nghiệm thu',
     internalUnavailable:
       'Yêu cầu bổ sung không còn hợp lệ. Hãy tải lại nhiệm vụ gốc.',
@@ -111,6 +112,7 @@ export const missionCreatePageMessages = defineMessages({
     weatherCheckTime: 'Giờ muốn kiểm tra',
   },
   en: {
+    internalReadOnly: 'This correction request or Order no longer allows planning. The plan is available for reference.',
     internalTitle: 'Result correction planning',
     internalCreate: 'Create supplemental Mission',
     internalDescription:
@@ -202,7 +204,7 @@ export const missionCreatePageMessages = defineMessages({
       'Choose the concrete mission flight time. The system does not copy the order time automatically.',
     start: 'Takeoff time',
     end: 'Estimated finish time',
-    flightPlan: 'Kế hoạch bay',
+    flightPlan: 'Flight plan',
     planTypeLabel: 'Flight pattern',
     radius: 'Radius (m)',
     altitude: 'Altitude (m)',
