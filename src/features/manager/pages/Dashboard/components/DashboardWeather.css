@@ -1,0 +1,19 @@
+.mgr-dashboard-weather {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border: 1px solid rgb(23 96 218 / 16%);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 70%);
+  color: #174b88;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.25;
+  text-transform: none;
+  white-space: nowrap;
+}
+
+.mgr-dashboard-weather span[aria-hidden] {
+  font-size: 13px;
+}
