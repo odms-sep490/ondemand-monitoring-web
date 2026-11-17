@@ -4,6 +4,7 @@ import { Button, Space } from 'antd'
 import { useI18n } from '../../../../../shared/i18n'
 import { managerHref } from '../../../routes'
 import { dashboardPageMessages } from '../DashboardPage.messages'
+import { DashboardWeather } from './DashboardWeather'
 import '../../../../../shared/components/pageBanner.css'
 
 export type DashboardRange = '7D' | '30D' | '90D'
@@ -32,7 +33,7 @@ export function DashboardHeader({ subtitle, range, pendingCount, pendingCountAva
   return (
     <header className="mgr-dash-header app-page-banner">
       <div className="mgr-dash-heading">
-        <p className="mgr-dash-date">{today}</p>
+        <p className="mgr-dash-date">{today}<DashboardWeather locale={locale} /></p>
         <h1 className="mgr-hero-title">{t.title}</h1>
         <p className="mgr-hero-greet">
           {pendingCountAvailable
