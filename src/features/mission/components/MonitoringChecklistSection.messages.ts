@@ -79,6 +79,7 @@ export const monitoringChecklistMessages = defineMessages({
       'Nghiệm thu công việc thực hiện, không đánh giá tình trạng công trình. Không đạt yêu cầu nghĩa là cần khắc phục trước khi xác nhận nghiệm thu.',
     inspectionNote: 'Ghi chú nghiệm thu',
     inspectionNoteLabel: 'Ghi chú nghiệm thu:',
+    assessmentReasonRequired: 'Vui lòng ghi rõ nội dung chưa đạt để người thực hiện bổ sung.',
     reasonRequired: 'Vui lòng nhập lý do không thể xác minh.',
     maxLength: 'Ghi nhận tối đa 2000 ký tự; lý do tối đa 1000 ký tự.',
     status: 'Trạng thái',
@@ -176,6 +177,7 @@ export const monitoringChecklistMessages = defineMessages({
       'Review the work performed, rather than the condition of the facility. Work that does not meet requirements needs correction before acceptance.',
     inspectionNote: 'Inspection note',
     inspectionNoteLabel: 'Inspection note:',
+    assessmentReasonRequired: 'Explain what needs correction so the assigned Staff can address it.',
     reasonRequired: 'Enter a reason why verification is not possible.',
     maxLength:
       'Observations and inspection notes allow up to 2000 characters; reasons allow up to 1000.',

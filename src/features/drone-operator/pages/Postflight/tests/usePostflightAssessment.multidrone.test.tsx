@@ -17,12 +17,12 @@ describe('postflight for multiple drones', () => {
       allAssessed: true, setSaving: noop,
       activeData: { id: 'mission-1', deviceId: 'main', status: 'IN_PROGRESS', deviceAssignments: [] },
       results: Object.fromEntries(ALL_KEYS.map(k => [k, 'ok'])), failItems: [],
-      deviceId: 'support', notes: '', telemetrySnapshot: null, missionLabel: 'MS-1',
+      deviceId: 'support', notes: '', telemetrySnapshot: { batteryPercent: 42 }, missionLabel: 'MS-1',
       setCompleted, setTicketSubmitting: noop, setNotes: noop,
       setShowTicketDialog: noop, setTicketCreated: noop, onSaved,
     }))
     await act(async () => { await result.current.handleComplete() })
-    expect(mocks.save).toHaveBeenCalledWith('mission-1', 'support', 'AVAILABLE', '', expect.any(Object), null)
+    expect(mocks.save).toHaveBeenCalledWith('mission-1', 'support', 'AVAILABLE', '', expect.any(Object), { batteryPercent: 42 })
     expect(onSaved).toHaveBeenCalledOnce()
     expect(mocks.release).not.toHaveBeenCalled()
     expect(setCompleted).not.toHaveBeenCalled()

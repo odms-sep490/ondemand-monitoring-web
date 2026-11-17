@@ -1,6 +1,25 @@
 import { defineMessages } from '../../../shared/i18n'
 export const inspectionCorrectionMessages = defineMessages({
   vi: {
+    reviewTitle: 'Kiểm tra kết quả bổ sung',
+    reviewHint: 'Đối chiếu yêu cầu với bằng chứng mới, sau đó ghi nhận kết luận.',
+    reviewDecision: 'Kết luận kiểm tra',
+    receiveSupplement: 'Đồng bộ kết quả đã nghiệm thu',
+    acceptedSupplementHint: 'Inspector nhiệm vụ bổ sung đã nghiệm thu. Đồng bộ để ghi nhận yêu cầu đã xử lý và công bố khi đủ điều kiện bàn giao.',
+
+    workflowOpen: 'Mở bổ sung hồ sơ',
+    workflowReview: 'Kiểm tra lại hồ sơ',
+    workflowStaffHint: 'Xem yêu cầu, bổ sung tệp nếu cần, chỉnh bằng chứng rồi gửi lại trong workspace riêng.',
+    workflowReviewHint: 'Hồ sơ đã gửi lại. Kiểm tra các mục đã bổ sung trước khi tiếp tục nghiệm thu nhiệm vụ.',
+
+    strategy: 'Hướng xử lý yêu cầu',
+    requireFlight: 'Dữ liệu không đủ — yêu cầu bay bổ sung',
+    dossier: 'Điều chỉnh hồ sơ bằng dữ liệu đã có',
+    flight: 'Cần thực hiện chuyến bay bổ sung',
+    dossierHint: 'Chọn lại bằng chứng hoặc tải tệp gốc của chuyến bay này, cập nhật danh sách kiểm tra rồi gửi lại để nghiệm thu.',
+    flightHint: 'Quản lý lập kế hoạch nhiệm vụ bổ sung, phân công và chốt kế hoạch. Chỉ gửi lại sau khi nhiệm vụ bổ sung đã được nghiệm thu.',
+    openMedia: 'Bổ sung ảnh/video',
+    openChecklist: 'Điều chỉnh bằng chứng',
     title: 'Yêu cầu bổ sung kết quả',
     subtitle:
       'Inspector nghiệm thu và công bố kết quả trực tiếp cho khách hàng.',
@@ -32,7 +51,7 @@ export const inspectionCorrectionMessages = defineMessages({
     loadFailed:
       'Không tải được yêu cầu bổ sung. Hãy thử lại trước khi xác nhận kết quả.',
     failed: 'Không thể thực hiện thao tác. Hãy làm mới và thử lại.',
-    notReady: 'Checklist hoặc Mission bổ sung chưa được nghiệm thu đầy đủ.',
+    notReady: 'Checklist hoặc nhiệm vụ bổ sung chưa được nghiệm thu đầy đủ.',
     forbidden: 'Bạn không có quyền thực hiện thao tác này.',
     resourceConflict:
       'Thiết bị hoặc nhân sự chưa sẵn sàng hoặc đang trùng lịch. Hãy kiểm tra lại phân công.',
@@ -50,17 +69,17 @@ export const inspectionCorrectionMessages = defineMessages({
     resolve: 'Xác nhận đã bổ sung đạt',
     return: 'Yêu cầu sửa tiếp',
     history: 'Lịch sử xử lý',
-    create: 'Lập Mission bổ sung nội bộ',
-    scope: 'Phạm vi Mission bổ sung',
+    create: 'Lập nhiệm vụ bổ sung nội bộ',
+    scope: 'Phạm vi nhiệm vụ bổ sung',
     start: 'Bắt đầu — giờ Việt Nam',
     end: 'Kết thúc — giờ Việt Nam',
-    plan: 'Tạo Mission bổ sung',
-    openPlanning: 'Mở kế hoạch Mission bổ sung',
+    plan: 'Tạo nhiệm vụ bổ sung',
+    openPlanning: 'Mở kế hoạch nhiệm vụ bổ sung',
     configure: 'Phân công thiết bị và nhân sự',
-    finalize: 'Chốt kế hoạch Mission bổ sung',
-    supplement: 'Mission bổ sung',
+    finalize: 'Chốt kế hoạch nhiệm vụ bổ sung',
+    supplement: 'nhiệm vụ bổ sung',
     fieldNote:
-      'Chỉ thực hiện lại các checklist trong yêu cầu. Mission gốc giữ nguyên lịch sử; Mission bổ sung có lịch bay và phân công riêng.',
+      'Chỉ thực hiện lại các checklist trong yêu cầu. nhiệm vụ gốc giữ nguyên lịch sử; nhiệm vụ bổ sung có lịch bay và phân công riêng.',
     confirmPlan: 'Tôi đã kiểm tra checklist, lịch bay, thiết bị và nhân sự.',
     status: {
       OPEN: 'Chờ bổ sung dữ liệu',
@@ -68,8 +87,10 @@ export const inspectionCorrectionMessages = defineMessages({
       RESOLVED: 'Đã xử lý',
     },
     action: {
-      INTERNAL_MISSION_CREATED: 'Manager đã tạo Mission bổ sung',
+      SUPPLEMENT_ACCEPTED: 'Đã nhận kết quả nhiệm vụ bổ sung',
+      INTERNAL_MISSION_CREATED: 'Manager đã tạo nhiệm vụ bổ sung',
       INTERNAL_PLAN_FINALIZED: 'Manager đã chốt kế hoạch bổ sung',
+      FLIGHT_REQUIRED: 'Người thực hiện xác nhận cần bay bổ sung',
       REQUESTED: 'Inspector yêu cầu bổ sung',
       RESUBMITTED: 'Đã gửi lại dữ liệu bổ sung',
       RETURNED: 'Inspector yêu cầu sửa tiếp',
@@ -77,10 +98,29 @@ export const inspectionCorrectionMessages = defineMessages({
     },
     findings:
       'Tất cả checklist không đạt được tổng hợp bên dưới. Kiểm tra nội dung và ghi nhận yêu cầu để bắt đầu bổ sung.',
-    completedBy: 'Được bổ sung và nghiệm thu bởi Mission',
+    completedBy: 'Được bổ sung và nghiệm thu bởi nhiệm vụ',
     number: 'Yêu cầu',
   },
   en: {
+    reviewTitle: 'Review supplemental results',
+    reviewHint: 'Compare the requested corrections with the new evidence, then record your decision.',
+    reviewDecision: 'Review decision',
+    receiveSupplement: 'Synchronize accepted results',
+    acceptedSupplementHint: 'The supplemental Inspector has accepted these results. Synchronize them to resolve the request and publish when delivery requirements are met.',
+
+    workflowOpen: 'Open correction workspace',
+    workflowReview: 'Review corrected dossier',
+    workflowStaffHint: 'Review the request, add files if needed, update evidence, then resubmit in the dedicated workspace.',
+    workflowReviewHint: 'The corrected dossier has been submitted. Review the updated items before continuing Mission inspection.',
+
+    strategy: 'Correction strategy',
+    requireFlight: 'Insufficient data — request a supplemental flight',
+    dossier: 'Adjust the dossier using existing data',
+    flight: 'Supplemental flight required',
+    dossierHint: 'Select other evidence or upload original files from this flight, update the checklist, then resubmit for inspection.',
+    flightHint: 'The Manager plans, assigns and finalizes a supplemental mission. Resubmit once that mission has passed inspection.',
+    openMedia: 'Add media',
+    openChecklist: 'Adjust evidence',
     title: 'Result correction requests',
     subtitle:
       'The Inspector confirms and publishes results directly to the customer.',
@@ -151,8 +191,10 @@ export const inspectionCorrectionMessages = defineMessages({
       RESOLVED: 'Resolved',
     },
     action: {
+      SUPPLEMENT_ACCEPTED: 'Supplemental results received',
       INTERNAL_MISSION_CREATED: 'Manager created a supplemental mission',
       INTERNAL_PLAN_FINALIZED: 'Manager finalized the supplemental plan',
+      FLIGHT_REQUIRED: 'Flight crew confirmed a supplemental flight is required',
       REQUESTED: 'Inspector requested corrections',
       RESUBMITTED: 'Corrections resubmitted',
       RETURNED: 'Inspector requested further corrections',

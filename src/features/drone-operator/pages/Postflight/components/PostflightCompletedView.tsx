@@ -1,3 +1,4 @@
+import { SafetyCertificateOutlined, ArrowLeftOutlined, FileTextOutlined } from '@ant-design/icons'
 import { ImagePreview } from '../../../../../shared/components/media/ImagePreview'
 import { VideoThumbnail } from '../../../../../shared/components/media/VideoThumbnail'
 import { useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
@@ -23,6 +24,7 @@ export type DevicePostflightResult = {
 
 export function PostflightCompletedView({
   missionId,
+  inspectionOnly = false,
   missionLabel,
   completed,
   deviceChecks = [],
@@ -32,6 +34,7 @@ export function PostflightCompletedView({
   telemetrySnapshot,
 }: {
   missionId: string
+  inspectionOnly?: boolean
   missionLabel: string
   completed: { overallOk: boolean; ticketCreated: boolean; droneStatus: string }
   deviceChecks?: DevicePostflightResult[]
@@ -138,8 +141,8 @@ export function PostflightCompletedView({
   async function handleCompleteMission() {
     if (
       !resultState.completeReady ||
-      monitoring.data?.checklist.readyForSubmission !== true ||
       !checklistAssessmentsComplete ||
+      monitoring.data?.checklist.readyForFinalApproval !== true ||
       !reviewDataReady ||
       busyAction
     )
@@ -311,16 +314,35 @@ export function PostflightCompletedView({
     monitoring.reload()
   }
 
+  const inspectionHeading = <header className="inspection-workspace__header">
+    <div className="inspection-workspace__identity">
+      <span className="inspection-workspace__icon" aria-hidden="true"><SafetyCertificateOutlined /></span>
+      <div><p className="inspection-workspace__eyebrow">{t.inspectionRole}</p><h1>{t.inspectionPageTitle}</h1><span className="inspection-workspace__code">{missionLabel}</span></div>
+    </div>
+    <a className="odm-btn" href={operatorHref({ screen: 'missionDetail', missionId })}><FileTextOutlined aria-hidden="true" /> {t.reviewMissionInfo}</a>
+  </header>
+
+  if (!inspectionOnly && isMissionCompleted && !failureConfirmed && !awaitingFailureAcceptance) {
+    const permissions = monitoring.data?.permissions
+    return <section className="odm-card postflight-review-state" style={{ padding: 32 }}>
+      <h1>{t.postflightFinishedTitle}</h1><p>{missionLabel}</p><p>{t.postflightFinishedHint}</p>
+      <div className="postflight-review-actions">
+        {permissions?.canAccessMissionInspection && <a className="odm-btn" href={operatorHref({ screen: 'inspection', missionId })}>{t.postflightOpenInspection}</a>}
+        <a className="postflight-review-secondary" href={operatorHref({ screen: 'missionDetail', missionId })}>{t.reviewMissionInfo}</a>
+      </div>
+    </section>
+  }
+
   if (reviewLoading && !review.data && !monitoring.data) {
     return (
-      <div className="odm-card postflight-page postflight-acceptance">
-        {mission?.inspectionSourceMissionId && <a className="postflight-review-secondary" href={operatorHref({screen:'postflight',missionId:mission.inspectionSourceMissionId})}>{t.backToInspectionSource}</a>}
-      <FlightStepHeader
+      <div className={`odm-card postflight-page postflight-acceptance${inspectionOnly ? ' inspection-workspace' : ''}`}>
+        {mission?.inspectionSourceMissionId && <a className="postflight-review-secondary" href={operatorHref({screen:'inspection',missionId:mission.inspectionSourceMissionId})}>{t.backToInspectionSource}</a>}
+      {inspectionOnly ? inspectionHeading : <FlightStepHeader
           title={t.completedStepTitle}
           missionId={missionLabel}
           active={6}
           failed={failureConfirmed}
-        />
+        />}
         <div className="postflight-review-state" role="status" aria-live="polite">
           <span className="postflight-review-spinner" aria-hidden="true" />
           <span>{t.reviewLoading}</span>
@@ -333,8 +355,8 @@ export function PostflightCompletedView({
     resultState.canComplete && !isMissionCompleted && !awaitingFailureAcceptance
   const completionReady =
     resultState.completeReady &&
-    monitoring.data?.checklist.readyForSubmission === true &&
     checklistAssessmentsComplete &&
+    monitoring.data?.checklist.readyForFinalApproval === true &&
     reviewDataReady &&
     !reviewError
   const canSend =
@@ -421,16 +443,20 @@ export function PostflightCompletedView({
   }
 
   return (
-    <div className="odm-card postflight-page postflight-acceptance">
-      <FlightStepHeader
+    <div className={`odm-card postflight-page postflight-acceptance${inspectionOnly ? ' inspection-workspace' : ''}`}>
+      {inspectionOnly ? inspectionHeading : <FlightStepHeader
         title={t.completedStepTitle}
         missionId={missionLabel}
         active={6}
         failed={failureConfirmed}
         completed={acceptanceConfirmed}
         completedLabel={acceptanceProgressLabel}
-      />
+      />}
 
+      {mission?.inspectionSourceMissionId && <aside className="inspection-workspace__context" role="status">
+        <div><strong>{t.supplementContextTitle}</strong><p>{t.supplementDeliveryHint}</p></div>
+        <a className="odm-btn odm-btn-p" href={operatorHref({ screen: 'inspection', missionId: mission.inspectionSourceMissionId })}><ArrowLeftOutlined aria-hidden="true" /> {t.backToInspectionSource}</a>
+      </aside>}
       <div className="postflight-content postflight-review-content">
         <section className="postflight-review-hero">
           <div className="postflight-review-hero-copy">
@@ -496,6 +522,8 @@ export function PostflightCompletedView({
             hidden={activeReviewTab !== 'checklist'}
           >
             <MonitoringChecklistSection
+              canReviewCorrections={monitoring.data?.permissions.canAccessMissionInspection}
+              showInspectionCorrections
               missionId={missionId}
               data={monitoring.data?.checklist}
               loading={monitoring.loading}
@@ -771,15 +799,15 @@ export function PostflightCompletedView({
                         ? !checklistAssessmentsComplete
                           ? t.reviewWaitingAssessment
                           : !reviewDataReady || reviewError
-                            ? t.reviewAllDataRequired
-                            : resultState.readinessReason || t.reviewWaitingChecklist
+                          ? t.reviewAllDataRequired
+                          : resultState.readinessReason || t.reviewWaitingChecklist
                         : t.reviewWaitingPermission}
                     </span>
                   )}
                 </>
               ) : (
                 <>
-                  <strong>{t.reviewConfirmInspection}</strong>
+                  <strong>{mission?.inspectionSourceMissionId ? t.confirmSupplement : t.reviewConfirmInspection}</strong>
                   {!sendReady && (
                     <span>
                       {resultState.submitReady
@@ -822,7 +850,7 @@ export function PostflightCompletedView({
               disabled={!sendReady || busyAction !== null || reviewLoading}
               onClick={handleConfirmInspection}
             >
-              {busyAction === 'send' ? t.reviewSending : t.reviewConfirmInspection}
+              {busyAction === 'send' ? t.reviewSending : mission?.inspectionSourceMissionId ? t.confirmSupplement : t.reviewConfirmInspection}
             </button>
           )}
           <a className="postflight-review-secondary" href={operatorHref({ screen: 'missions' })}>

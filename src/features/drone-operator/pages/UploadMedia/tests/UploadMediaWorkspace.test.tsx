@@ -27,13 +27,14 @@ const render = (ui: ReactNode) =>
     <ConfigProvider theme={{ token: { motion: false } }}>{ui}</ConfigProvider>,
   )
 
-const active = vi.hoisted(() => ({ status: 'PENDING_REVIEW', reload: vi.fn() }))
+const active = vi.hoisted(() => ({ status: 'PENDING_REVIEW', actualEndAt: null as string | null, reload: vi.fn() }))
 vi.mock('../../../api/useActiveMission', () => ({
   useActiveMission: () => ({
     data: {
       id: 'm',
       missionCode: 'MS-1',
       status: active.status,
+      actualEndAt: active.actualEndAt,
       deviceId: 'd',
       managerName: 'Seed Manager 1',
       managerEmail: 'seed.manager@odms.local',
@@ -79,6 +80,8 @@ beforeEach(() => {
   } as never)
   vi.spyOn(authSession, 'isLoggedOut').mockReturnValue(false)
   active.status = 'PENDING_REVIEW'
+  active.actualEndAt = null
+  window.location.hash = ''
   active.reload.mockClear()
   HTMLDialogElement.prototype.showModal = vi.fn()
   HTMLDialogElement.prototype.close = vi.fn()
@@ -681,4 +684,31 @@ describe('Upload media and monitoring workspace', () => {
     expect(screen.queryByRole('button', { name: 'Tải tất cả lên' })).toBeNull()
     expect(screen.queryByText('Tải ảnh lên')).toBeNull()
   })
+})
+
+it('embeds only requested checklist items without duplicating the handoff/correction panels', async () => {
+  const baseline = await checklistExecutionApi.getMissionChecklistExecutions('m')
+  vi.mocked(checklistExecutionApi.getMissionChecklistExecutions).mockResolvedValue({ ...baseline,
+    executions: [...baseline.executions, { ...baseline.executions[0], id: 'unrelated', orderChecklistItemId: 'other', content: 'Không thuộc phạm vi bổ sung' }],
+  })
+  render(<UploadMediaPage missionId="m" mode="checklist" embedded executionIds={['e']} />)
+  expect(await screen.findByText('Quan sát hàng rào')).toBeInTheDocument()
+  expect(screen.queryByText('Không thuộc phạm vi bổ sung')).toBeNull()
+  expect(screen.queryByRole('region', { name: 'Hồ sơ nghiệm thu' })).toBeNull()
+  expect(screen.queryByRole('region', { name: 'Yêu cầu bổ sung kết quả' })).toBeNull()
+})
+
+
+it('redirects an old postflight dossier link to the main Inspector screen', async () => {
+  active.actualEndAt = '2026-11-16T12:00:00Z'
+  vi.mocked(missionApi.getPermissions).mockResolvedValue({ ...permissions, canAccessMissionInspection: true })
+  render(<UploadMediaPage missionId="m" mode="checklist" />)
+  await waitFor(() => expect(window.location.hash).toBe('#portal/staff/inspection/m'))
+  expect(screen.queryByRole('heading', { name: 'Danh sách kiểm tra' })).toBeNull()
+})
+
+it('redirects reporting Staff away from the retired dossier screen', async () => {
+  active.actualEndAt = '2026-11-16T12:00:00Z'
+  render(<UploadMediaPage missionId="m" mode="checklist" />)
+  await waitFor(() => expect(window.location.hash).toBe('#portal/staff/missions/m'))
 })

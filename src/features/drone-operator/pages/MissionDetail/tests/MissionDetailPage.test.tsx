@@ -219,7 +219,7 @@ describe('MissionDetailScreen', () => {
       expect(screen.queryByText('Cập nhật mục')).toBeNull()
       if (canCompleteMission) {
         expect(
-          await screen.findByText('Mở dữ liệu nghiệm thu'),
+          await screen.findByText('Mở nghiệm thu nhiệm vụ'),
         ).toBeInTheDocument()
         expect(screen.queryByText('Xác nhận hoàn thành Mission')).toBeNull()
       }
@@ -251,7 +251,7 @@ describe('MissionDetailScreen', () => {
     // Mission detail no longer hosts result actions; it links to the acceptance
     // workspace instead.
     expect(
-      await screen.findByRole('link', { name: 'Mở dữ liệu nghiệm thu' }),
+      await screen.findByRole('link', { name: 'Mở nghiệm thu nhiệm vụ' }),
     ).toBeInTheDocument()
     expect(
       screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
@@ -319,7 +319,7 @@ describe('MissionDetailScreen', () => {
       .spyOn(missionApi, 'submitMissionResult')
       .mockResolvedValue({} as never)
     render(<MissionDetailPage missionId="m" />)
-    expect(await screen.findByText('Mở dữ liệu nghiệm thu')).toBeInTheDocument()
+    expect(await screen.findByText('Mở nghiệm thu nhiệm vụ')).toBeInTheDocument()
     expect(screen.queryByText('Xác nhận hoàn thành Mission')).toBeNull()
     expect(complete).not.toHaveBeenCalled()
     expect(submit).not.toHaveBeenCalled()
@@ -366,7 +366,7 @@ describe('MissionDetailScreen', () => {
       .mockResolvedValue({} as never)
 
     render(<MissionDetailPage missionId="m" />)
-    expect(await screen.findByText('Mở dữ liệu nghiệm thu')).toBeInTheDocument()
+    expect(await screen.findByText('Mở nghiệm thu nhiệm vụ')).toBeInTheDocument()
     expect(
       screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
     ).toBeNull()
@@ -427,7 +427,7 @@ describe('MissionDetailScreen', () => {
     expect(
       await screen.findByRole('link', { name: 'Kiểm tra trước bay' }),
     ).toBeInTheDocument()
-    expect(screen.queryByText('Mở dữ liệu nghiệm thu')).not.toBeInTheDocument()
+    expect(screen.queryByText('Mở nghiệm thu nhiệm vụ')).not.toBeInTheDocument()
   })
 
   it('keeps an accepted mission READY and waits for the flight permit before Start', async () => {
@@ -455,7 +455,7 @@ describe('MissionDetailScreen', () => {
     ).not.toBeInTheDocument()
     expect(screen.queryByText('Đã chấp nhận')).not.toBeInTheDocument()
     expect(screen.queryByText('Sẵn sàng phân công')).not.toBeInTheDocument()
-    expect(screen.queryByText('Mở dữ liệu nghiệm thu')).not.toBeInTheDocument()
+    expect(screen.queryByText('Mở nghiệm thu nhiệm vụ')).not.toBeInTheDocument()
   })
 
   it('does not show the removed completion button before evidence readiness', async () => {
@@ -479,7 +479,7 @@ describe('MissionDetailScreen', () => {
       .spyOn(missionApi, 'completeMission')
       .mockResolvedValue({} as never)
     render(<MissionDetailPage missionId="m" />)
-    expect(await screen.findByText('Mở dữ liệu nghiệm thu')).toBeInTheDocument()
+    expect(await screen.findByText('Mở nghiệm thu nhiệm vụ')).toBeInTheDocument()
     expect(screen.queryByText('Xác nhận hoàn thành Mission')).toBeNull()
     expect(complete).not.toHaveBeenCalled()
   })
@@ -505,7 +505,7 @@ describe('MissionDetailScreen', () => {
         .spyOn(missionApi, 'submitMissionResult')
         .mockResolvedValue({} as never)
       render(<MissionDetailPage missionId="m" />)
-      await screen.findByRole('link', { name: 'Mở dữ liệu nghiệm thu' })
+      await screen.findByRole('link', { name: 'Mở nghiệm thu nhiệm vụ' })
       expect(
         screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
       ).toBeNull()
@@ -529,7 +529,8 @@ describe('MissionDetailScreen', () => {
       canUploadMedia: true,
     })
     render(<MissionDetailPage missionId="m" />)
-    await screen.findByRole('link', { name: 'Mở dữ liệu nghiệm thu' })
+    await screen.findByRole('tab', { name: 'Ảnh & video' })
+    expect(screen.queryByRole('link', { name: 'Chuẩn bị hồ sơ nghiệm thu' })).toBeNull()
     expect(
       screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
     ).toBeNull()
@@ -551,7 +552,7 @@ describe('MissionDetailScreen', () => {
     expect(
       await screen.findByRole('tab', { name: 'Ảnh & video' }),
     ).toBeInTheDocument()
-    expect(screen.queryByText('Mở dữ liệu nghiệm thu')).not.toBeInTheDocument()
+    expect(screen.queryByText('Mở nghiệm thu nhiệm vụ')).not.toBeInTheDocument()
     expect(
       screen.queryByRole('button', { name: 'Xác nhận hoàn thành Mission' }),
     ).toBeNull()
@@ -592,7 +593,7 @@ describe('MissionDetailScreen', () => {
         return {}
       })
     const view = render(<MissionDetailPage missionId="m1" />)
-    await screen.findByRole('link', { name: 'Mở dữ liệu nghiệm thu' })
+    await screen.findByRole('link', { name: 'Mở nghiệm thu nhiệm vụ' })
     expect(
       screen.queryByRole('button', { name: 'Xác nhận nghiệm thu' }),
     ).toBeNull()

@@ -23,6 +23,8 @@ export type OperatorMission = {
   id: string
   missionCode?: string
   backendStatus?: string
+  flightPermitReusedFromMissionId?: string | null
+  flightPermitReplacementRequired?: boolean
   flightPermitStatus?: 'PENDING' | 'APPROVED' | 'REJECTED' | null
   flightPermitUpdatedAt?: string | null
   status: OperatorMissionStatus

@@ -22,6 +22,7 @@ import { AvailabilityPage } from './pages/Availability'
 import { HandoverPage } from './pages/Handover'
 import { PostflightPage } from './pages/Postflight'
 import { PreflightPage } from './pages/Preflight'
+import { MissionCorrectionPage } from '../mission/inspection/MissionCorrectionPage'
 import { UploadMediaPage } from './pages/UploadMedia'
 import { MaintenancePage } from './pages/Maintenance'
 import { operatorActiveLabel } from './OperatorSidebar'
@@ -154,6 +155,8 @@ function renderScreen(
         />
       </MissionActionGuard>
     )
+  if (route.screen === 'corrections') return <MissionCorrectionPage missionId={route.missionId} />
+  if (route.screen === 'inspection') return <MissionActionGuard missionId={route.missionId} action="postflight"><PostflightPage missionId={route.missionId} inspectionOnly /></MissionActionGuard>
   if (route.screen === 'postflight')
     return (
       <MissionActionGuard

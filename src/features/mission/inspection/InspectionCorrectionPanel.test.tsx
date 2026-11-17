@@ -1,6 +1,5 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
-import { ApiError } from '../../../shared/api/httpClient'
 import { setLanguage } from '../../../shared/i18n'
 import { InspectionCorrectionPanel } from './InspectionCorrectionPanel'
 import {
@@ -81,7 +80,7 @@ it('requests only the selected checklist scope and preserves unselected work', a
         reason: 'Image is blurred',
         mediaIds: [],
       },
-    ]),
+    ], 'SUPPLEMENTAL_FLIGHT'),
   )
 })
 it('requires a reason for every selected checklist', async () => {
@@ -92,51 +91,15 @@ it('requires a reason for every selected checklist', async () => {
     screen.getByRole('button', { name: 'Ghi nhận yêu cầu bổ sung' }),
   ).toBeDisabled()
 })
-it('staff resubmits using the exact mission, correction version and review snapshot', async () => {
-  vi.spyOn(inspectionCorrectionApi, 'list').mockResolvedValue([batch])
-  const decide = vi
-    .spyOn(inspectionCorrectionApi, 'decide')
-    .mockResolvedValue({ ...batch, status: 'SUBMITTED' })
+it('routes Staff to the staged dossier workspace instead of offering an inline resubmit', async () => {
+  vi.spyOn(inspectionCorrectionApi, 'list').mockResolvedValue([{ ...batch, mode: 'DOSSIER_ADJUSTMENT' }])
+  const decide = vi.spyOn(inspectionCorrectionApi, 'decide')
   render(<InspectionCorrectionPanel missionId="m1" canRespond />)
-  fireEvent.change(await screen.findByLabelText('Ghi chú xử lý'), {
-    target: { value: 'Uploaded corrected image' },
-  })
-  fireEvent.click(screen.getByRole('button', { name: 'Gửi lại để nghiệm thu' }))
-  await waitFor(() =>
-    expect(decide).toHaveBeenCalledWith(
-      'm1',
-      batch,
-      'resubmit',
-      'Uploaded corrected image',
-    ),
-  )
-  expect(
-    screen.queryByRole('button', { name: 'Xác nhận đã bổ sung đạt' }),
-  ).not.toBeInTheDocument()
+  expect(await screen.findByRole('link', { name: 'Mở bổ sung hồ sơ' })).toHaveAttribute('href', '#portal/staff/corrections/m1')
+  expect(screen.queryByLabelText('Ghi chú xử lý')).toBeNull()
+  expect(decide).not.toHaveBeenCalled()
 })
-it('inspector rechecks submitted work and may return it with a reason', async () => {
-  const submitted = { ...batch, status: 'SUBMITTED' as const }
-  vi.spyOn(inspectionCorrectionApi, 'list').mockResolvedValue([submitted])
-  const decide = vi
-    .spyOn(inspectionCorrectionApi, 'decide')
-    .mockResolvedValue(batch)
-  render(<InspectionCorrectionPanel missionId="m1" canRequest />)
-  expect(
-    await screen.findByRole('button', { name: 'Xác nhận đã bổ sung đạt' }),
-  ).toBeDisabled()
-  fireEvent.change(screen.getByLabelText('Ghi chú xử lý'), {
-    target: { value: 'Still blurred' },
-  })
-  fireEvent.click(screen.getByRole('button', { name: 'Yêu cầu sửa tiếp' }))
-  await waitFor(() =>
-    expect(decide).toHaveBeenCalledWith(
-      'm1',
-      submitted,
-      'return',
-      'Still blurred',
-    ),
-  )
-})
+
 it('never shows an accept action on an open or already resolved request', async () => {
   vi.spyOn(inspectionCorrectionApi, 'list').mockResolvedValue([batch])
   render(<InspectionCorrectionPanel missionId="m1" canRequest />)
@@ -161,24 +124,6 @@ it('read failures show a localized fail-closed notice', async () => {
   expect(
     screen.getByText(/Unable to load correction requests/),
   ).toBeInTheDocument()
-})
-it('shows concurrency errors without exposing raw backend messages', async () => {
-  vi.spyOn(inspectionCorrectionApi, 'list').mockResolvedValue([batch])
-  vi.spyOn(inspectionCorrectionApi, 'decide').mockRejectedValue(
-    new ApiError('SQL conflict', {
-      code: 'CONCURRENT_UPDATE',
-      status: 409,
-      method: 'POST',
-      path: '/',
-    }),
-  )
-  render(<InspectionCorrectionPanel missionId="m1" canRespond />)
-  fireEvent.change(await screen.findByLabelText('Ghi chú xử lý'), {
-    target: { value: 'Ready' },
-  })
-  fireEvent.click(screen.getByRole('button', { name: 'Gửi lại để nghiệm thu' }))
-  expect(await screen.findByText(/Dữ liệu đã thay đổi/)).toBeInTheDocument()
-  expect(screen.queryByText('SQL conflict')).not.toBeInTheDocument()
 })
 it('switching missions clears unsent correction form and never mixes targets', async () => {
   vi.spyOn(inspectionCorrectionApi, 'list').mockResolvedValue([])
@@ -214,9 +159,9 @@ it('manager opens the shared planning workspace instead of creating from the res
   const create = vi.spyOn(inspectionCorrectionApi, 'createMission')
   render(<InspectionCorrectionPanel missionId="m1" manager orderId="order" />)
   expect(
-    await screen.findByRole('link', { name: 'Tạo Mission bổ sung' }),
+    await screen.findByRole('link', { name: 'Tạo nhiệm vụ bổ sung' }),
   ).toHaveAttribute('href', '#portal/manager/orders/order/inspection/m1/c')
-  expect(screen.queryByLabelText('Phạm vi Mission bổ sung')).toBeNull()
+  expect(screen.queryByLabelText('Phạm vi nhiệm vụ bổ sung')).toBeNull()
   expect(create).not.toHaveBeenCalled()
 })
 
@@ -238,51 +183,11 @@ it('Manager coordinates but cannot accept or return Inspector corrections', asyn
   expect(screen.queryByRole('button', { name: 'Yêu cầu sửa tiếp' })).toBeNull()
   expect(screen.queryByLabelText('Ghi chú xử lý')).toBeNull()
 })
-it('Inspector can accept a submitted request without a Manager step', async () => {
-  const submitted = { ...batch, status: 'SUBMITTED' as const }
-  vi.spyOn(inspectionCorrectionApi, 'list').mockResolvedValue([submitted])
-  const decide = vi
-    .spyOn(inspectionCorrectionApi, 'decide')
-    .mockResolvedValue({ ...submitted, status: 'RESOLVED' })
-  render(<InspectionCorrectionPanel missionId="m1" canRequest />)
-  fireEvent.change(await screen.findByLabelText('Ghi chú xử lý'), {
-    target: { value: 'Ảnh rõ nét, đủ phạm vi' },
-  })
-  fireEvent.click(
-    screen.getByRole('button', { name: 'Xác nhận đã bổ sung đạt' }),
-  )
-  await waitFor(() =>
-    expect(decide).toHaveBeenCalledWith(
-      'm1',
-      submitted,
-      'resolve',
-      'Ảnh rõ nét, đủ phạm vi',
-    ),
-  )
-  expect(
-    screen.queryByRole('button', { name: 'Tạo Mission bổ sung' }),
-  ).toBeNull()
-})
-
-it.each(['empty', 'resolved'] as const)(
-  'does not show the Inspector panel to Manager for %s requests',
-  async (state) => {
-    const list = vi
-      .spyOn(inspectionCorrectionApi, 'list')
-      .mockResolvedValue(
-        state === 'empty' ? [] : [{ ...batch, status: 'RESOLVED' }],
-      )
-    render(<InspectionCorrectionPanel missionId="m1" manager orderId="order" />)
-    await waitFor(() => expect(list).toHaveBeenCalled())
-    expect(screen.queryByRole('region')).toBeNull()
-    expect(screen.queryByText('Yêu cầu bổ sung kết quả')).toBeNull()
-  },
-)
 it('Manager sees only supplemental planning when a request is open', async () => {
   vi.spyOn(inspectionCorrectionApi, 'list').mockResolvedValue([batch])
   render(<InspectionCorrectionPanel missionId="m1" manager orderId="order" />)
   expect(
-    await screen.findByRole('heading', { name: 'Lập Mission bổ sung nội bộ' }),
+    await screen.findByRole('heading', { name: 'Lập nhiệm vụ bổ sung nội bộ' }),
   ).toBeInTheDocument()
   expect(
     screen.queryByRole('heading', { name: 'Yêu cầu bổ sung kết quả' }),
@@ -292,7 +197,9 @@ it('Manager sees only supplemental planning when a request is open', async () =>
       'Inspector nghiệm thu và công bố kết quả trực tiếp cho khách hàng.',
     ),
   ).toBeNull()
-  expect(screen.getByRole('link',{name:'Tạo Mission bổ sung'})).toHaveAttribute('href','#portal/manager/orders/order/inspection/m1/c')
+  expect(
+    screen.getByRole('link', { name: 'Tạo nhiệm vụ bổ sung' }),
+  ).toHaveAttribute('href', '#portal/manager/orders/order/inspection/m1/c')
 })
 
 it('automatically includes every failed checklist with its assessment note and excludes compliant work', async () => {
@@ -340,7 +247,7 @@ it('automatically includes every failed checklist with its assessment note and e
         reason: 'Coverage missing',
         mediaIds: [],
       },
-    ]),
+    ], 'SUPPLEMENTAL_FLIGHT'),
   )
 })
 it('hides the correction panel when no checklist has failed and no history exists', async () => {
@@ -372,4 +279,65 @@ it('explains combined correction and inspection responsibilities without sending
     screen.getByRole('button', { name: 'Ghi nhận yêu cầu bổ sung' }),
   ).toBeInTheDocument()
   expect(screen.queryByText('Chưa có yêu cầu bổ sung.')).toBeNull()
+})
+
+it('offers creating a replacement for a failed internal Mission while preserving its history', async () => {
+  vi.spyOn(inspectionCorrectionApi, 'list').mockResolvedValue([
+    {
+      ...batch,
+      supplementalMissionId: 'failed',
+      supplementalMissionCode: 'MS-FAILED',
+      supplementalMissionStatus: 'FAILED',
+    },
+  ])
+  render(<InspectionCorrectionPanel missionId="m1" manager orderId="order" />)
+  expect(
+    await screen.findByRole('link', { name: 'Tạo nhiệm vụ bổ sung' }),
+  ).toHaveAttribute('href', '#portal/manager/orders/order/inspection/m1/c')
+  expect(screen.getByRole('link', { name: 'MS-FAILED' })).toBeInTheDocument()
+})
+
+it('keeps dossier adjustments out of Manager flight planning', async () => {
+  vi.spyOn(inspectionCorrectionApi, 'list').mockResolvedValue([{ ...batch, mode: 'DOSSIER_ADJUSTMENT' }])
+  const { container } = render(<InspectionCorrectionPanel missionId="m1" manager orderId="order" />)
+  await waitFor(() => expect(container).toBeEmptyDOMElement())
+})
+it('routes the Inspector to the same workspace for reinspection', async () => {
+  vi.spyOn(inspectionCorrectionApi, 'list').mockResolvedValue([{ ...batch, mode: 'DOSSIER_ADJUSTMENT', status: 'SUBMITTED' }])
+  render(<InspectionCorrectionPanel missionId="m1" canRequest />)
+  expect(await screen.findByRole('link', { name: 'Kiểm tra lại hồ sơ' })).toHaveAttribute('href', '#portal/staff/inspection/m1')
+  expect(screen.queryByRole('button', { name: 'Xác nhận đã bổ sung đạt' })).toBeNull()
+})
+
+
+it('lets the original Inspector recover results from an already accepted supplemental Mission', async () => {
+  const opened = { ...batch, mode: 'SUPPLEMENTAL_FLIGHT' as const, supplementalMissionId: 'child', supplementalMissionCode: 'MS-CHILD', supplementalMissionStatus: 'COMPLETED' }
+  vi.spyOn(inspectionCorrectionApi, 'list').mockResolvedValue(opened ? [opened] : [])
+  const receive = vi.spyOn(inspectionCorrectionApi, 'synchronizeSupplement').mockResolvedValue({ ...opened, status: 'SUBMITTED' })
+  const refresh = vi.fn()
+  render(<InspectionCorrectionPanel missionId="m1" rows={rows} canRequest refresh={refresh} />)
+  fireEvent.click(await screen.findByRole('button', { name: 'Đồng bộ kết quả đã nghiệm thu' }))
+  await waitFor(() => expect(receive).toHaveBeenCalledWith('m1', 'c'))
+  await waitFor(() => expect(refresh).toHaveBeenCalled())
+})
+
+it('supplemental acceptance never exposes a second source Inspector decision', async () => {
+  const decide = vi.spyOn(inspectionCorrectionApi, 'decide')
+  vi.spyOn(inspectionCorrectionApi, 'list').mockResolvedValue([{ ...batch, status: 'SUBMITTED', mode: 'SUPPLEMENTAL_FLIGHT', supplementalMissionId: 'child', supplementalMissionStatus: 'COMPLETED' }])
+  vi.spyOn(inspectionCorrectionApi, 'supplementResult').mockResolvedValue({ missionId: 'child', missionCode: 'MS-12345', completedAt: null, executions: [] })
+  render(<InspectionCorrectionPanel missionId="m1" canRequest />)
+  await screen.findByText('MS-12345')
+  expect(screen.queryByRole('button', {name: 'Yêu cầu sửa tiếp'})).toBeNull()
+  expect(screen.queryByRole('button', {name: 'Xác nhận đã bổ sung đạt'})).toBeNull()
+  expect(decide).not.toHaveBeenCalled()
+})
+
+it('closes a submitted dossier from checklist acceptance and selected evidence without a second decision', async () => {
+  vi.spyOn(inspectionCorrectionApi, 'list').mockResolvedValue([{ ...batch, mode: 'DOSSIER_ADJUSTMENT', status: 'SUBMITTED' }])
+  const reconcile = vi.spyOn(inspectionCorrectionApi, 'reconcileChecklistReview').mockResolvedValue(true)
+  render(<InspectionCorrectionPanel missionId="m1" rows={[
+    { ...rows[0], assessmentStatus: 'COMPLIANT', readyForFinalApproval: true },
+  ]} canRequest />)
+  await waitFor(() => expect(reconcile).toHaveBeenCalledTimes(1))
+  expect(screen.queryByRole('button', { name: 'Xác nhận đã bổ sung đạt' })).toBeNull()
 })

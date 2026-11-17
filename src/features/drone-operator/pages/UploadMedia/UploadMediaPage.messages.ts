@@ -2,6 +2,7 @@ import { defineMessages } from '../../../../shared/i18n'
 
 export const uploadMediaPageMessages = defineMessages({
   vi: {
+    permissionsLoadFailed: 'Chưa tải được quyền truy cập nhiệm vụ.',
     attachFailure: (reason: string) => `Tệp được giữ lại. Chưa gắn được bằng chứng: ${reason} Chọn “Gắn bằng chứng” để thử lại; không cần tải tệp lên lần nữa.`,
     stepTitle: 'Tải ảnh/video lên',
     approveEvidence: 'Duyệt bằng chứng',
@@ -110,6 +111,7 @@ export const uploadMediaPageMessages = defineMessages({
     deleteFailed: 'Không xóa được ảnh/video',
   },
   en: {
+    permissionsLoadFailed: 'Unable to load mission permissions.',
     attachFailure: (reason: string) => `The file is retained. Evidence could not be attached: ${reason} Choose “Attach evidence” to retry without uploading again.`,
     stepTitle: 'Upload media',
     approveEvidence: 'Approve evidence',

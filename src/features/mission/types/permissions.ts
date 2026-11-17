@@ -13,6 +13,7 @@ export type MissionPermissions = {
   canConfirmMissionFailure?: boolean
   canSubmitMissionResult?: boolean
   canExecuteMonitoringChecklist?: boolean
+  canAccessMissionInspection?: boolean
   canAssessMonitoringChecklist?: boolean
 }
 
@@ -26,16 +27,27 @@ export function mayPerformMissionAction(
   if (!permissions) return false
   if (action === 'connect' || action === 'preflight' || action === 'handover')
     return permissions.canOperatePayload === true
-  if (action === 'postflight') return permissions.canMaintainDevice === true
+  if (action === 'postflight')
+    return permissions.canMaintainDevice === true || permissions.canAccessMissionInspection === true
   if (action === 'upload')
     return (
       permissions.canUploadMedia === true ||
       permissions.canInspectDevice === true ||
       permissions.canControlFlight === true ||
       permissions.canExecuteMonitoringChecklist === true ||
-      permissions.canSubmitMissionResult === true
+      permissions.canSubmitMissionResult === true ||
+      permissions.canAccessMissionInspection === true
     )
   return (
     permissions.canControlFlight === true
+  )
+}
+
+/** Workspace access is independent of whether checklist assessment is currently unlocked. */
+export function hasInspectionWorkspaceAccess(permissions: MissionPermissions | null | undefined): boolean {
+  if (!permissions) return false
+  return permissions.canAccessMissionInspection ?? (
+    permissions.canAssessMonitoringChecklist === true || permissions.canCompleteMission === true ||
+    permissions.canConfirmMissionFailure === true || permissions.canSubmitMissionResult === true
   )
 }
