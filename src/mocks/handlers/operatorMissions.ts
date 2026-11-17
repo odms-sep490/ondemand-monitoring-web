@@ -225,6 +225,47 @@ registerMockRoutes([
     },
   },
   {
+    method: 'GET',
+    path: '/api/missions/:id/post-device-checks/current',
+    handler: ({ params }) => {
+      const startedAt = new Date().toISOString()
+      const item = (
+        checkType: string,
+        checkName: string,
+        category: string,
+        description: string,
+      ) => ({
+        checkType,
+        checkName,
+        description,
+        category,
+        required: true,
+        status: 'PENDING',
+        checkLevel: 'CRITICAL',
+        message: null,
+        checkedAt: null,
+      })
+      return ok({
+        id: `mock-post-check-${params.id}`,
+        missionId: params.id,
+        status: 'CHECKING',
+        totalChecks: 4,
+        passedChecks: 0,
+        failedChecks: 0,
+        startedAt,
+        completedAt: null,
+        overallOk: false,
+        progressPercent: 0,
+        items: [
+          item('a1', 'Tình trạng khung vỏ', 'Cấu trúc', 'Cánh quạt, chân đáp, thân máy không nứt gãy'),
+          item('p1', 'Động cơ', 'Động lực', 'Quay đều, không quá nhiệt'),
+          item('e1', 'Pin', 'Động lực', 'Không phồng rộp, tiếp điểm sạch'),
+          item('custom_lens', 'Ống kính camera', 'Cảm biến', 'Ống kính sạch, không xước'),
+        ],
+      })
+    },
+  },
+  {
     method: 'POST',
     path: '/api/operator/missions/:id/postflight',
     handler: ({ params, body }) => {

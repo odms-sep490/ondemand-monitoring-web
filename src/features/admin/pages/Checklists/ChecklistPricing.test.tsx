@@ -21,11 +21,9 @@ const priced: ChecklistDefinition = {
   version: 3,
   createdAt: '2026-10-05T00:00:00Z',
   updatedAt: null,
-  basePrice: 200_000,
   includedImageCount: 10,
   includedVideoCount: 1,
   standardVideoDurationSeconds: 30,
-  pricingProfile: 'STANDARD',
 }
 const page = (items = [priced]) => ({
   items,
@@ -46,14 +44,10 @@ const row = (patch: Partial<ServiceChecklist> = {}): ServiceChecklist => ({
   displayOrder: 0,
   version: 4,
   checklistVersion: 3,
-  basePrice: 200_000,
   includedImageCount: 10,
   includedVideoCount: 1,
-  pricingProfile: 'STANDARD',
-  checklistBasePrice: 200_000,
   checklistIncludedImageCount: 10,
   checklistIncludedVideoCount: 1,
-  checklistPricingProfile: 'STANDARD',
   ...patch,
 })
 const preview = (total = 370_000): ServicePricePreview => ({
@@ -74,7 +68,6 @@ const preview = (total = 370_000): ServicePricePreview => ({
     {
       checklistId: 'a',
       content: priced.content,
-      pricingProfile: 'STANDARD',
       custom: false,
       includedImageCount: 10,
       includedVideoCount: 1,
@@ -83,33 +76,12 @@ const preview = (total = 370_000): ServicePricePreview => ({
       extraImageCount: 0,
       extraVideoCount: 0,
       standardVideoDurationSeconds: 30,
+      basePrice: 200_000,
+      standardAreaM2: 100,
+      actualAreaM2: total / 2_000,
+      calculationDisplay: `200000 × (${total / 2_000} / 100) = ${total} VNĐ`,
       subtotal: total,
-      lines: [
-        {
-          component: 'BASE',
-          category: 'CHECKLIST',
-          description: 'Giá cơ bản checklist',
-          quantity: 1,
-          unitPrice: 200_000,
-          amount: 200_000,
-          tierFrom: null,
-          tierTo: null,
-          blockSize: null,
-          rounding: null,
-        },
-        {
-          component: 'INCLUDED_IMAGE',
-          category: 'MEDIA',
-          description: 'Đã bao gồm 10 ảnh',
-          quantity: 1,
-          unitPrice: 50_000,
-          amount: 50_000,
-          tierFrom: null,
-          tierTo: null,
-          blockSize: null,
-          rounding: null,
-        },
-      ],
+      lines: [],
       quotePending: false,
     },
   ],
@@ -121,49 +93,43 @@ beforeEach(() => {
   vi.spyOn(checklistsApi, 'update').mockResolvedValue(priced)
   vi.spyOn(checklistsApi, 'get').mockResolvedValue(priced)
   vi.spyOn(checklistsApi, 'template').mockResolvedValue([row()])
-  vi.spyOn(checklistsApi, 'updatePricing').mockResolvedValue(row())
+  vi.spyOn(checklistsApi, 'updateRequirements').mockResolvedValue(row())
   vi.spyOn(checklistsApi, 'remove').mockResolvedValue(undefined)
   vi.spyOn(catalogApi, 'listServices').mockResolvedValue([
-    { id: 's', name: 'Dịch vụ test', basePrice: 1_000_000, isActive: true },
+    { id: 's', name: 'Dịch vụ test', defaultPrice: 1_000_000, isActive: true },
   ])
   vi.spyOn(checklistPricingApi, 'defaultPrice').mockResolvedValue(preview())
-  vi.spyOn(checklistPricingApi, 'adminPreview').mockResolvedValue(
-    preview(420_000),
-  )
 })
 afterEach(() => {
   vi.restoreAllMocks()
   window.location.hash = ''
 })
 
-describe('Checklist create/edit with media pricing', () => {
-  it('shows the stored price and allowance in the catalog table', async () => {
+describe('Checklist evidence configuration', () => {
+  it('shows included evidence counts in the catalog table without pricing profiles', async () => {
     render(<ChecklistCatalogPage />)
     await screen.findByText(priced.content)
-    expect(screen.getByText(/10 ảnh · 1 video · STANDARD/)).toBeInTheDocument()
+    expect(screen.getByText(/10 ảnh.*1 video/)).toBeInTheDocument()
+    expect(screen.queryByText('STANDARD')).toBeNull()
   })
 
-  it('prefills the pricing configuration when editing', async () => {
+  it('prefills evidence requirements without showing price or profile fields', async () => {
     render(<ChecklistCatalogPage />)
     fireEvent.click(
       await screen.findByRole('button', { name: 'Sửa checklist' }),
     )
-    expect(screen.getByLabelText(/Giá công việc kiểm tra/)).toHaveValue(200_000)
+    expect(screen.queryByLabelText(/Giá công việc kiểm tra/)).toBeNull()
     expect(screen.getByLabelText(/Số ảnh đã bao gồm/)).toHaveValue(10)
     expect(screen.getByLabelText(/Số video đã bao gồm/)).toHaveValue(1)
     expect(screen.getByLabelText(/Thời lượng video tiêu chuẩn/)).toHaveValue(30)
-    // The pricing profile is not shown at all.
     expect(screen.queryByLabelText(/Hồ sơ giá/)).toBeNull()
   })
 
-  it('sends the configured price and allowance without touching the pricing profile', async () => {
+  it('sends evidence requirements and guidance while leaving Base Checklist price untouched', async () => {
     render(<ChecklistCatalogPage />)
     fireEvent.click(screen.getByRole('button', { name: 'Thêm checklist' }))
     fireEvent.change(screen.getByRole('textbox', { name: /Nội dung/ }), {
       target: { value: 'Kiểm tra cột' },
-    })
-    fireEvent.change(screen.getByLabelText(/Giá công việc kiểm tra/), {
-      target: { value: '150000' },
     })
     fireEvent.change(screen.getByLabelText(/Số ảnh đã bao gồm/), {
       target: { value: '20' },
@@ -178,29 +144,20 @@ describe('Checklist create/edit with media pricing', () => {
     await waitFor(() =>
       expect(checklistsApi.create).toHaveBeenCalledWith(
         'Kiểm tra cột',
-        'BASIC',
         {
           description: '',
           executionSteps: [],
           inputRequirements: [],
           expectedOutputs: [],
-          basePrice: 150_000,
           includedImageCount: 20,
           includedVideoCount: 2,
           standardVideoDurationSeconds: 45,
-          areaPricingEnabled: false,
-          lengthPricingEnabled: false,
-          altitudePricingEnabled: false,
-          includedAreaHa: 0,
-          includedLengthKm: 0,
-          includedAltitudeM: 0,
         },
       ),
     )
   })
 
   it.each([
-    ['Giá công việc kiểm tra', '-1'],
     ['Số ảnh đã bao gồm', '501'],
     ['Số video đã bao gồm', '1.5'],
     ['Thời lượng video tiêu chuẩn', '7201'],
@@ -231,8 +188,9 @@ describe('Service default checklists and price', () => {
         expect.any(AbortSignal),
       ),
     )
-    expect(await screen.findByText('Giá cơ bản checklist')).toBeInTheDocument()
-    expect(screen.getByText('Đã bao gồm 10 ảnh')).toBeInTheDocument()
+    expect(
+      await screen.findByText('200000 × (185 / 100) = 370000 VNĐ'),
+    ).toBeInTheDocument()
     expect(screen.getAllByText(/370\.000/).length).toBeGreaterThan(0)
     // price comes only from the checklists: no legacy package row is shown
     expect(screen.queryByText(/Giá gói cũ/)).toBeNull()
@@ -240,7 +198,7 @@ describe('Service default checklists and price', () => {
 
   it('recalculates the price after a default checklist is removed', async () => {
     render(<ServiceChecklistPage serviceId="s" />)
-    await screen.findByText('Giá cơ bản checklist')
+    await screen.findByText('200000 × (185 / 100) = 370000 VNĐ')
     const before = vi.mocked(checklistPricingApi.defaultPrice).mock.calls.length
     fireEvent.click(
       await screen.findByRole('button', { name: /Gỡ checklist:/ }),
@@ -255,12 +213,12 @@ describe('Service default checklists and price', () => {
     )
   })
 
-  it('marks which values are service overrides and which are inherited', async () => {
+  it('marks evidence allowances that are service overrides', async () => {
     vi.mocked(checklistsApi.template).mockResolvedValue([
-      row({ basePrice: 260_000, basePriceOverride: 260_000, required: true }),
+      row({ includedImageCount: 26, includedImageCountOverride: 26, required: true }),
     ])
     render(<ServiceChecklistPage serviceId="s" />)
-    expect(await screen.findByTitle('Ghi đè')).toHaveTextContent('260.000')
+    expect(await screen.findByTitle('Ghi đè')).toHaveTextContent('26 ảnh')
     expect(screen.getAllByTitle('Kế thừa').length).toBeGreaterThan(0)
     expect(screen.getByText('Bắt buộc')).toBeInTheDocument()
   })
@@ -275,40 +233,15 @@ describe('Service default checklists and price', () => {
     fireEvent.click(screen.getByLabelText(/Bắt buộc/))
     fireEvent.click(screen.getByRole('button', { name: 'Lưu' }))
     await waitFor(() =>
-      expect(checklistsApi.updatePricing).toHaveBeenCalledWith('s', 'a', {
-        basePriceOverride: null,
+      expect(checklistsApi.updateRequirements).toHaveBeenCalledWith('s', 'a', {
         includedImageCountOverride: 20,
         includedVideoCountOverride: null,
-        pricingProfileOverride: null,
         required: true,
         expectedVersion: 4,
       }),
     )
     // Only this service changed: the shared checklist is not rewritten.
     expect(checklistsApi.update).not.toHaveBeenCalled()
-  })
-
-  it('previews an unsaved override without saving it', async () => {
-    render(<ServiceChecklistPage serviceId="s" />)
-    fireEvent.click(await screen.findByRole('button', { name: 'Cấu hình' }))
-    fireEvent.change(
-      await screen.findByLabelText(
-        'Riêng cho dịch vụ này: Giá công việc kiểm tra (VND)',
-      ),
-      { target: { value: '250000' } },
-    )
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Xem thử giá với cấu hình chưa lưu' }),
-    )
-    await waitFor(() =>
-      expect(checklistPricingApi.adminPreview).toHaveBeenCalledWith({
-        serviceId: 's',
-        items: [
-          expect.objectContaining({ checklistId: 'a', basePrice: 250_000 }),
-        ],
-      }),
-    )
-    expect(checklistsApi.updatePricing).not.toHaveBeenCalled()
   })
 
   it('does not send an invalid override', async () => {
@@ -322,43 +255,43 @@ describe('Service default checklists and price', () => {
     )
     fireEvent.click(screen.getByRole('button', { name: 'Lưu' }))
     expect(await screen.findByRole('alert')).toBeInTheDocument()
-    expect(checklistsApi.updatePricing).not.toHaveBeenCalled()
+    expect(checklistsApi.updateRequirements).not.toHaveBeenCalled()
   })
 
-  it('keeps the stored pricing profile when the admin never touched it', async () => {
+  it('does not send legacy pricing fields when updating evidence requirements', async () => {
     render(<ChecklistCatalogPage />)
     fireEvent.click(
       await screen.findByRole('button', { name: 'Sửa checklist' }),
     )
-    fireEvent.change(await screen.findByLabelText(/Giá công việc kiểm tra/), {
-      target: { value: '210000' },
+    fireEvent.change(await screen.findByLabelText(/Số ảnh đã bao gồm/), {
+      target: { value: '12' },
     })
     fireEvent.click(screen.getByRole('button', { name: 'Lưu' }))
     await waitFor(() => expect(checklistsApi.update).toHaveBeenCalledTimes(1))
-    const sent = vi.mocked(checklistsApi.update).mock.calls[0][3]
-    // Left out of the request, so the backend keeps "STANDARD" instead of clearing it.
+    const sent = vi.mocked(checklistsApi.update).mock.calls[0][2]
+    expect(sent).not.toHaveProperty('basePrice')
     expect(sent).not.toHaveProperty('pricingProfile')
-    expect(sent).toMatchObject({ basePrice: 210_000 })
+    expect(sent).not.toHaveProperty('areaPricingEnabled')
+    expect(sent).toMatchObject({ includedImageCount: 12 })
   })
 
-  it('does not show a pricing profile column for the service and keeps its stored override', async () => {
+  it('does not show or resend a legacy service pricing profile', async () => {
     vi.spyOn(checklistsApi, 'template').mockResolvedValue([
-      row({ pricingProfileOverride: 'PREMIUM_2' }),
+      row(),
     ])
     render(<ServiceChecklistPage serviceId="s" />)
     fireEvent.click(await screen.findByRole('button', { name: 'Cấu hình' }))
     await screen.findByLabelText('Riêng cho dịch vụ này: Số ảnh đã bao gồm')
-    expect(
-      screen.queryByLabelText(/Riêng cho dịch vụ này: Hồ sơ giá/),
-    ).toBeNull()
+    expect(screen.queryByLabelText(/Hồ sơ giá/)).toBeNull()
     fireEvent.click(screen.getByLabelText(/Bắt buộc/))
     fireEvent.click(screen.getByRole('button', { name: 'Lưu' }))
     await waitFor(() =>
-      expect(checklistsApi.updatePricing).toHaveBeenCalledWith(
-        's',
-        'a',
-        expect.objectContaining({ pricingProfileOverride: 'PREMIUM_2' }),
-      ),
+      expect(checklistsApi.updateRequirements).toHaveBeenCalledWith('s', 'a', {
+        includedImageCountOverride: null,
+        includedVideoCountOverride: null,
+        required: true,
+        expectedVersion: 4,
+      }),
     )
   })
 
@@ -372,7 +305,7 @@ describe('Service default checklists and price', () => {
     fireEvent.click(screen.getByLabelText(/Bắt buộc/))
     fireEvent.click(screen.getByRole('button', { name: 'Lưu' }))
     await waitFor(() =>
-      expect(checklistsApi.updatePricing).toHaveBeenCalledWith(
+      expect(checklistsApi.updateRequirements).toHaveBeenCalledWith(
         's',
         'a',
         expect.objectContaining({ includedImageCountOverride: null }),
@@ -383,28 +316,22 @@ describe('Service default checklists and price', () => {
 
 describe('parseOverrides', () => {
   const form = {
-    basePrice: '',
     images: '',
     videos: '',
-    profile: '',
     required: false,
   }
   it('treats blank fields as inherit', () => {
     expect(parseOverrides(form)).toEqual({
       ok: true,
       value: {
-        basePriceOverride: null,
         includedImageCountOverride: null,
         includedVideoCountOverride: null,
-        pricingProfileOverride: null,
         required: false,
       },
     })
   })
-  it('rejects negatives, fractions, excess and bad profiles', () => {
-    expect(parseOverrides({ ...form, basePrice: '-1' }).ok).toBe(false)
+  it('rejects negative, fractional and excess evidence counts', () => {
     expect(parseOverrides({ ...form, images: '1.5' }).ok).toBe(false)
     expect(parseOverrides({ ...form, videos: '501' }).ok).toBe(false)
-    expect(parseOverrides({ ...form, profile: 'a b' }).ok).toBe(false)
   })
 })

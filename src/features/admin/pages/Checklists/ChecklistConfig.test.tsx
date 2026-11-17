@@ -26,11 +26,11 @@ const shared: ChecklistDefinition = {
   version: 3,
   createdAt: '2026-10-05T00:00:00Z',
   updatedAt: null,
-  basePrice: 200_000,
   includedImageCount: 10,
   includedVideoCount: 1,
   usedByServiceCount: 3,
   usedByOrderCount: 12,
+  deviceTypes: [{ id: 't1', code: 'DRONE', name: 'Drone' }],
 }
 const link = (patch: Partial<ServiceChecklist> = {}): ServiceChecklist => ({
   id: 'link',
@@ -43,10 +43,8 @@ const link = (patch: Partial<ServiceChecklist> = {}): ServiceChecklist => ({
   displayOrder: 0,
   version: 4,
   checklistVersion: 3,
-  basePrice: 200_000,
   includedImageCount: 10,
   includedVideoCount: 1,
-  checklistBasePrice: 200_000,
   checklistIncludedImageCount: 10,
   checklistIncludedVideoCount: 1,
   usedByServiceCount: 3,
@@ -78,7 +76,7 @@ beforeEach(() => {
   vi.spyOn(checklistsApi, 'list').mockResolvedValue(page())
   vi.spyOn(checklistsApi, 'get').mockResolvedValue(shared)
   vi.spyOn(checklistsApi, 'update').mockResolvedValue(shared)
-  vi.spyOn(checklistsApi, 'updatePricing').mockResolvedValue(link())
+  vi.spyOn(checklistsApi, 'updateRequirements').mockResolvedValue(link())
   vi.spyOn(checklistsApi, 'template').mockResolvedValue([link()])
   vi.spyOn(checklistsApi, 'fork').mockResolvedValue(link({ checklistId: 'a2' }))
   vi.spyOn(checklistsApi, 'audits').mockResolvedValue({
@@ -89,8 +87,48 @@ beforeEach(() => {
     first: true,
     last: true,
   })
+  vi.spyOn(checklistsApi, 'deviceTypes').mockResolvedValue({
+    items: [
+      { id: 't1', code: 'DRONE', name: 'Drone' },
+      { id: 't2', code: 'THERMAL', name: 'Thermal camera' },
+    ],
+    page: 0,
+    totalItems: 2,
+    totalPages: 1,
+    first: true,
+    last: true,
+  })
+  vi.spyOn(checklistsApi, 'addDeviceType').mockResolvedValue({
+    id: 'r2',
+    checklistId: 'a',
+    deviceType: { id: 't2', code: 'THERMAL', name: 'Thermal camera' },
+    createdAt: '2026-10-06T00:00:00Z',
+    updatedAt: null,
+    version: 0,
+  })
+  vi.spyOn(checklistsApi, 'removeDeviceType').mockResolvedValue(undefined)
+  vi.spyOn(checklistsApi, 'missionTemplates').mockResolvedValue([])
+  vi.spyOn(checklistsApi, 'createMissionTemplate').mockResolvedValue({
+    id: 'mt1',
+    serviceId: 's',
+    scopeLabel: 'North area',
+    checklistIds: [],
+    createdAt: '2026-10-06T00:00:00Z',
+    updatedAt: null,
+    version: 0,
+  })
+  vi.spyOn(checklistsApi, 'updateMissionTemplate').mockResolvedValue({
+    id: 'mt1',
+    serviceId: 's',
+    scopeLabel: 'North area',
+    checklistIds: [],
+    createdAt: '2026-10-06T00:00:00Z',
+    updatedAt: null,
+    version: 1,
+  })
+  vi.spyOn(checklistsApi, 'removeMissionTemplate').mockResolvedValue(undefined)
   vi.spyOn(catalogApi, 'listServices').mockResolvedValue([
-    { id: 's', name: 'Dịch vụ test', basePrice: 3_200_000, isActive: true },
+    { id: 's', name: 'Dịch vụ test', defaultPrice: 3_200_000, isActive: true },
   ])
   vi.spyOn(checklistPricingApi, 'defaultPrice').mockRejectedValue(
     new Error('n/a'),
@@ -102,6 +140,36 @@ afterEach(() => {
 })
 
 describe('Library page', () => {
+  it('adds and removes device types through independent endpoints', async () => {
+    render(<ChecklistCatalogPage />)
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Sửa checklist' }),
+    )
+    const dialog = await screen.findByRole('dialog')
+    expect(within(dialog).getByText('Drone')).toBeInTheDocument()
+
+    fireEvent.change(
+      await within(dialog).findByLabelText('Chọn loại thiết bị'),
+      { target: { value: 't2' } },
+    )
+    fireEvent.click(
+      within(dialog).getByRole('button', { name: 'Thêm loại thiết bị' }),
+    )
+    await waitFor(() =>
+      expect(checklistsApi.addDeviceType).toHaveBeenCalledWith('a', 't2'),
+    )
+    expect(
+      await within(dialog).findByText('Thermal camera'),
+    ).toBeInTheDocument()
+
+    fireEvent.click(
+      within(dialog).getByRole('button', { name: 'Xóa loại thiết bị Drone' }),
+    )
+    await waitFor(() =>
+      expect(checklistsApi.removeDeviceType).toHaveBeenCalledWith('a', 't1'),
+    )
+  })
+
   it('shows how many services and orders use each checklist', async () => {
     render(<ChecklistCatalogPage />)
     expect(
@@ -163,7 +231,7 @@ describe('Library page', () => {
       await screen.findByText('Sửa nội dung dùng chung'),
     ).toBeInTheDocument()
     expect(screen.getByText(/bởi Admin An/)).toBeInTheDocument()
-    expect(screen.getByText('Giá công việc')).toBeInTheDocument()
+    expect(screen.getByText('Giá Base Checklist')).toBeInTheDocument()
     expect(screen.getByText('200000')).toBeInTheDocument()
     expect(screen.getByText('250000')).toBeInTheDocument()
     expect(checklistsApi.audits).toHaveBeenCalledWith(
@@ -200,7 +268,7 @@ describe('Service configuration page', () => {
     expect(await screen.findByText('Dùng ở 3 dịch vụ')).toBeInTheDocument()
   })
 
-  it('splits the form into a content page and a price page instead of one long scroll', async () => {
+  it('splits the form into content and evidence pages instead of one long scroll', async () => {
     render(<ServiceChecklistPage serviceId="s" />)
     fireEvent.click(await screen.findByRole('button', { name: 'Cấu hình' }))
     const dialog = await screen.findByRole('dialog')
@@ -214,24 +282,16 @@ describe('Service configuration page', () => {
     expect(within(dialog).getByLabelText(/Mô tả chi tiết/)).toHaveValue(
       'Phạm vi kiểm tra mái',
     )
-    // The price page is not on screen until it is opened.
-    expect(
-      within(dialog).getByLabelText('Giá công việc kiểm tra (VND)'),
-    ).not.toBeVisible()
+    // Evidence settings are not on screen until their tab is opened.
+    expect(within(dialog).getByLabelText('Số ảnh đã bao gồm')).not.toBeVisible()
     fireEvent.click(
-      within(dialog).getByRole('tab', { name: 'Giá và định mức' }),
+      within(dialog).getByRole('tab', { name: 'Yêu cầu minh chứng' }),
     )
-    // Both scopes of the same price sit side by side, with labels that tell them apart.
     expect(
-      within(dialog).getByLabelText('Giá công việc kiểm tra (VND)'),
+      within(dialog).getByLabelText('Số ảnh đã bao gồm'),
     ).toBeVisible()
     expect(
-      within(dialog).getByLabelText('Giá công việc kiểm tra (VND)'),
-    ).toHaveValue(200_000)
-    expect(
-      within(dialog).getByLabelText(
-        'Riêng cho dịch vụ này: Giá công việc kiểm tra (VND)',
-      ),
+      within(dialog).getByLabelText('Riêng cho dịch vụ này: Số ảnh đã bao gồm'),
     ).toHaveValue(null)
     expect(within(dialog).getByLabelText(/Mô tả chi tiết/)).not.toBeVisible()
     expect(checklistsApi.get).toHaveBeenCalledWith('a', expect.anything())
@@ -240,7 +300,7 @@ describe('Service configuration page', () => {
   it('takes the admin to the page that has the problem', async () => {
     render(<ServiceChecklistPage serviceId="s" />)
     fireEvent.click(await screen.findByRole('button', { name: 'Cấu hình' }))
-    fireEvent.click(await screen.findByRole('tab', { name: 'Giá và định mức' }))
+    fireEvent.click(await screen.findByRole('tab', { name: 'Yêu cầu minh chứng' }))
     fireEvent.change(
       screen.getByLabelText('Riêng cho dịch vụ này: Số ảnh đã bao gồm'),
       {
@@ -250,14 +310,14 @@ describe('Service configuration page', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Lưu' }))
     expect(await screen.findByRole('alert')).toBeInTheDocument()
     expect(
-      screen.getByRole('tab', { name: 'Giá và định mức', selected: true }),
+      screen.getByRole('tab', { name: 'Yêu cầu minh chứng', selected: true }),
     ).toBeInTheDocument()
     // An empty content jumps back to the content page.
     fireEvent.click(screen.getByRole('tab', { name: 'Nội dung' }))
     fireEvent.change(screen.getByRole('textbox', { name: /^Nội dung/ }), {
       target: { value: '' },
     })
-    fireEvent.click(screen.getByRole('tab', { name: 'Giá và định mức' }))
+    fireEvent.click(screen.getByRole('tab', { name: 'Yêu cầu minh chứng' }))
     // The content change touches a shared checklist, so it has to be acknowledged before saving.
     fireEvent.click(
       screen.getByLabelText('Tôi hiểu thay đổi này áp dụng cho 3 dịch vụ'),
@@ -274,16 +334,14 @@ describe('Service configuration page', () => {
     render(<ServiceChecklistPage serviceId="s" />)
     fireEvent.click(await screen.findByRole('button', { name: 'Cấu hình' }))
     fireEvent.change(
-      await screen.findByLabelText(
-        'Riêng cho dịch vụ này: Giá công việc kiểm tra (VND)',
-      ),
-      { target: { value: '700000' } },
+      await screen.findByLabelText('Riêng cho dịch vụ này: Số ảnh đã bao gồm'),
+      { target: { value: '20' } },
     )
     const save = screen.getByRole('button', { name: 'Lưu' })
     expect(save).toBeEnabled()
     fireEvent.click(save)
     await waitFor(() =>
-      expect(checklistsApi.updatePricing).toHaveBeenCalledTimes(1),
+      expect(checklistsApi.updateRequirements).toHaveBeenCalledTimes(1),
     )
     expect(checklistsApi.update).not.toHaveBeenCalled()
   })
@@ -291,12 +349,9 @@ describe('Service configuration page', () => {
   it('asks for acknowledgement before a shared change and saves both parts in order', async () => {
     render(<ServiceChecklistPage serviceId="s" />)
     fireEvent.click(await screen.findByRole('button', { name: 'Cấu hình' }))
-    fireEvent.change(
-      await screen.findByLabelText('Giá công việc kiểm tra (VND)'),
-      {
-        target: { value: '900000' },
-      },
-    )
+    fireEvent.change(await screen.findByLabelText('Số video đã bao gồm'), {
+      target: { value: '5' },
+    })
     fireEvent.change(
       screen.getByLabelText('Riêng cho dịch vụ này: Số ảnh đã bao gồm'),
       { target: { value: '20' } },
@@ -308,18 +363,17 @@ describe('Service configuration page', () => {
     )
     fireEvent.click(save)
     await waitFor(() =>
-      expect(checklistsApi.updatePricing).toHaveBeenCalledTimes(1),
+      expect(checklistsApi.updateRequirements).toHaveBeenCalledTimes(1),
     )
     expect(checklistsApi.update).toHaveBeenCalledWith(
       'a',
       'Kiểm tra mái nhà',
-      'BASIC',
-      expect.objectContaining({ basePrice: 900_000 }),
+      expect.objectContaining({ includedVideoCount: 5 }),
     )
     expect(
       vi.mocked(checklistsApi.update).mock.invocationCallOrder[0],
     ).toBeLessThan(
-      vi.mocked(checklistsApi.updatePricing).mock.invocationCallOrder[0],
+      vi.mocked(checklistsApi.updateRequirements).mock.invocationCallOrder[0],
     )
   })
 

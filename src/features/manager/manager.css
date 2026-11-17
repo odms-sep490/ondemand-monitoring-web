@@ -1552,6 +1552,7 @@
 }
 .odm-or-req-hero-text {
   min-width: 0;
+  width: 100%;
 }
 .odm-or-req-hero-text h3 {
   margin: 0;
@@ -1564,6 +1565,25 @@
   font-size: 14px;
   line-height: 1.5;
   overflow-wrap: anywhere;
+}
+.odm-or-req-customer-note {
+  box-sizing: border-box;
+  width: 100%;
+  margin-top: 12px;
+  padding: 11px 14px;
+  border-left: 3px solid var(--or-primary);
+  border-radius: 0 10px 10px 0;
+  background: var(--or-primary-soft);
+}
+.odm-or-req-customer-note strong {
+  color: var(--or-tx2);
+  font-size: 12px;
+  font-weight: 700;
+}
+.odm-or-req-customer-note p {
+  margin-top: 4px;
+  color: var(--or-tx);
+  white-space: pre-wrap;
 }
 .odm-or-req-facts {
   display: grid;

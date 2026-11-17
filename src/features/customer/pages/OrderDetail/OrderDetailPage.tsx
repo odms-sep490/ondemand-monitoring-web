@@ -91,7 +91,9 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
   useEffect(() => {
     const openLinkedTab = () => {
       const tab = new URLSearchParams(window.location.hash.split('?')[1]).get('tab')
-      if (tab === 'contract') setSelectedTab({ orderId, tab })
+      if (tab === 'contract' || tab === 'finance' || tab === 'payment') {
+        setSelectedTab({ orderId, tab })
+      }
     }
     openLinkedTab()
     window.addEventListener('hashchange', openLinkedTab)

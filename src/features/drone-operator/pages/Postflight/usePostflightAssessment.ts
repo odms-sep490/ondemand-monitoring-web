@@ -4,8 +4,14 @@ import type {
   FaultType,
   MaintenanceSeverity,
 } from '../../types/mission'
-import type { ResultsState } from './postflightTypes'
-import { ALL_KEYS, clearCompletedMissionState } from './postflightHelpers'
+import type { PostflightCategoryDef, ResultsState } from './postflightTypes'
+import {
+  ALL_KEYS,
+  buildInspectionResults,
+  categoryKeys,
+  clearCompletedMissionState,
+  postflightCategories,
+} from './postflightHelpers'
 import { missionApi } from '../../../mission/api/missionApi'
 import { postflightPageMessages } from './PostflightPage.messages'
 import { useI18n } from '../../../../shared/i18n'
@@ -32,6 +38,7 @@ export function usePostflightAssessment({
   setNotes,
   setShowTicketDialog,
   setTicketCreated,
+  categories,
 }: {
   onSaved?: () => Promise<boolean>
   setResults: Dispatch<
@@ -60,8 +67,12 @@ export function usePostflightAssessment({
   setNotes: Dispatch<SetStateAction<string>>
   setShowTicketDialog: Dispatch<SetStateAction<boolean>>
   setTicketCreated: Dispatch<SetStateAction<boolean>>
+  /** Backend-driven categories; defaults to the built-in list. */
+  categories?: PostflightCategoryDef[]
 }) {
-  const { t } = useI18n(postflightPageMessages)
+  const { t, lang } = useI18n(postflightPageMessages)
+  const activeCategories = categories ?? postflightCategories(lang)
+  const activeKeys = categories ? categoryKeys(categories) : ALL_KEYS
   function handleSetResult(
     key: PostflightItemKey,
     result: PreflightItemResult,
@@ -71,7 +82,7 @@ export function usePostflightAssessment({
 
   function handlePassAll() {
     const next: ResultsState = {}
-    for (const key of ALL_KEYS) {
+    for (const key of activeKeys) {
       next[key] = 'ok'
     }
     setResults(next)
@@ -88,7 +99,7 @@ export function usePostflightAssessment({
       return
     }
     if (!allAssessed) {
-      setError(t.assessAllRequired(ALL_KEYS.length))
+      setError(t.assessAllRequired(activeKeys.length))
       return
     }
 
@@ -106,20 +117,10 @@ export function usePostflightAssessment({
         await missionApi.startPostflight(effectiveMissionId)
       }
 
-      const getResult = (key: PostflightItemKey): 'PASS' | 'FAIL' =>
-        results[key] === 'ok' ? 'PASS' : 'FAIL'
-
-      const inspectionResults: Record<string, 'PASS' | 'FAIL'> = {
-        a1: getResult('physical_condition_ok'),
-        a2: getResult('physical_condition_ok'),
-        p1: getResult('motor_ok'),
-        p2: getResult('motor_ok'),
-        e1: getResult('battery_ok'),
-        e4: getResult('battery_ok'),
-        e2: getResult('camera_ok'),
-        e3: getResult('gps_ok'),
-        d1: getResult('communication_ok'),
-      }
+      const inspectionResults = buildInspectionResults(
+        activeCategories,
+        results,
+      )
 
       const hasFailures = failItems.length > 0
       const targetDroneStatus = hasFailures ? 'MAINTENANCE' : 'AVAILABLE'

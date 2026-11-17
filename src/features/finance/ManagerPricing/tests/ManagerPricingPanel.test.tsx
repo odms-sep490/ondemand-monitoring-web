@@ -480,7 +480,7 @@ describe('ManagerPricingPanel', () => {
     ).toBeInTheDocument()
   })
 
-  it('shows the allowed price range on the item and blocks approval while the price is outside it', async () => {
+  it('shows the suggested range, rounds entered prices, and requires a reason for an out-of-range price', async () => {
     vi.spyOn(financeApi, 'getPricingReview').mockResolvedValue({
       ...reviewWith(400_000),
       managerMaxDiscountPercent: 25,
@@ -490,24 +490,38 @@ describe('ManagerPricingPanel', () => {
     render(<ManagerPricingPanel orderId="order-1" />)
     await screen.findAllByText('Extra requirement')
     expect(
-      screen.getByText(/Được duyệt: .*300\.000.*500\.000/),
+      screen.getByText(/Khoảng đề nghị: .*300\.000.*500\.000/),
     ).toBeInTheDocument()
 
-    fireEvent.change(screen.getByLabelText('Giá duyệt (VND)'), {
-      target: { value: '200000' },
-    })
+    const priceInput = screen.getByLabelText('Giá duyệt (VND)')
+    fireEvent.change(priceInput, { target: { value: '200499' } })
+    fireEvent.blur(priceInput)
+    expect(priceInput).toHaveValue('200000')
     expect(
-      await screen.findByText(/Ngoài khoảng cho phép: .*300\.000.*500\.000/),
+      await screen.findByText(/Ngoài khoảng đề nghị: .*300\.000.*500\.000/),
     ).toBeInTheDocument()
     expect(
       screen.getByRole('button', { name: 'Tiếp tục chuẩn bị hợp đồng' }),
     ).toBeDisabled()
     expect(save).not.toHaveBeenCalled()
 
-    fireEvent.change(screen.getByLabelText('Giá duyệt (VND)'), {
-      target: { value: '350000' },
+    const itemReason = screen
+      .getAllByRole('textbox')
+      .find(
+        (element) =>
+          element.tagName === 'TEXTAREA' &&
+          element.getAttribute('maxlength') === '1000',
+      )
+    expect(itemReason).toBeDefined()
+    fireEvent.change(itemReason!, {
+      target: { value: 'Customer needs a wider inspection scope' },
     })
-    expect(screen.queryByText(/Ngoài khoảng cho phép/)).not.toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Tiếp tục chuẩn bị hợp đồng' }),
+    ).toBeEnabled()
+
+    fireEvent.change(priceInput, { target: { value: '350000' } })
+    expect(screen.queryByText(/Ngoài khoảng đề nghị/)).not.toBeInTheDocument()
   })
 
   it('removes draft saving and blocks approval while a custom item is pending', async () => {

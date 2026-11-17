@@ -23,8 +23,8 @@ export const missionListTableMessages = defineMessages({
       REJECTED: 'Đã từ chối',
       FAILED: 'Không hoàn thành',
     },
-    replacementCompleted: 'Đã đổi drone',
-    replacementRequestPending: 'Yêu cầu đổi drone',
+    replacementCompleted: 'Đã đổi thiết bị',
+    replacementRequestPending: 'Yêu cầu đổi thiết bị',
     action: {
       openCockpit: 'Mở buồng lái',
       handover: 'Bàn giao',
@@ -34,7 +34,7 @@ export const missionListTableMessages = defineMessages({
       viewResult: 'Xem kết quả',
       respond: 'Phản hồi',
       start: 'Bắt đầu',
-      startMission: 'Bắt đầu Mission',
+      startMission: 'Bắt đầu nhiệm vụ',
       details: 'Chi tiết',
     },
     managerSubmissionLabel: {
@@ -54,10 +54,10 @@ export const missionListTableMessages = defineMessages({
       'Thứ Sáu',
       'Thứ Bảy',
     ],
-    emptyTitle: 'Không có mission',
-    emptyBody: 'Không tìm thấy mission phù hợp.',
+    emptyTitle: 'Không có nhiệm vụ',
+    emptyBody: 'Không tìm thấy nhiệm vụ phù hợp.',
     columns: {
-      code: 'Mã mission',
+      code: 'Mã nhiệm vụ',
       job: 'Công việc',
       time: 'Thời gian',
       service: 'Dịch vụ',

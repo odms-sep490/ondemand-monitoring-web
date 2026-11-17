@@ -7,6 +7,7 @@ import type { PricingReview } from '../../types'
 import { Button } from '../../../../shared/components/ui'
 import { useI18n } from '../../../../shared/i18n'
 import { pricingMessages } from '../pricing.messages'
+import { OrderIcon } from '../../../manager/components/common/OrderIcon'
 
 export function QuoteSummary({
   systemPrice,
@@ -23,6 +24,7 @@ export function QuoteSummary({
   approved,
   pendingCustomCount,
   outOfRangeCount,
+  adjustmentReasonRequired,
   approveBlockedReason,
   approve,
   data,
@@ -41,25 +43,21 @@ export function QuoteSummary({
   approved: boolean
   pendingCustomCount: number
   outOfRangeCount: number
+  adjustmentReasonRequired: boolean
   approveBlockedReason: string | null | undefined
   approve: () => Promise<void>
   data: PricingReview
 }) {
   const { t } = useI18n(pricingMessages)
-  const policyVersion =
-    data.systemCalculation?.policyVersion ??
-    data.currentQuote?.pricingPolicyVersion ??
-    null
   return (
     <aside className="odm-or-card finance-quote" aria-label={t.summaryAria}>
       <header className="finance-heading finance-quote-heading">
-        <h2>{t.summaryTitle}</h2>
-        {policyVersion != null ? (
-          <span className="finance-policy-pill">
-            {t.policyVersion}
-            {policyVersion}
+        <div className="finance-heading-title">
+          <span className="finance-heading-icon">
+            <OrderIcon name="doc" size={18} />
           </span>
-        ) : null}
+          <h2>{t.summaryTitle}</h2>
+        </div>
       </header>
       <div className="finance-quote-body">
         <div className="finance-quote-content">
@@ -67,7 +65,7 @@ export function QuoteSummary({
             items={data.systemCalculation?.items ?? []}
             checklistItems={data.checklistItems}
           />
-          <dl className="finance-summary">
+          <dl className="finance-summary" title={t.systemPriceSourceHint}>
             <SummaryRow label={t.systemPrice} value={systemPrice} />
             <SummaryRow
               label={t.adjustment}
@@ -88,18 +86,22 @@ export function QuoteSummary({
               {t.remainingToReview(pendingReviewCount)}
             </p>
           )}
-          {checklistAdjustment !== 0 || draft.adjustmentReason ? (
+          {adjustmentReasonRequired || draft.adjustmentReason ? (
             <label className="finance-quote-note">
               <span>
-                {t.adjustmentReasonLabel}{' '}
-                <em>{t.adjustmentReasonHint(MIN_REASON_LENGTH)}</em>
+                {t.adjustmentReasonLabel}
+                <em>
+                  {adjustmentReasonRequired
+                    ? t.adjustmentReasonHint(MIN_REASON_LENGTH)
+                    : t.adjustmentReasonOptionalHint}
+                </em>
               </span>
               <textarea
                 rows={3}
                 value={draft.adjustmentReason}
                 disabled={accepted}
                 aria-invalid={
-                  checklistAdjustment !== 0 &&
+                  adjustmentReasonRequired &&
                   draft.adjustmentReason.trim().length < MIN_REASON_LENGTH
                 }
                 onChange={(event) =>

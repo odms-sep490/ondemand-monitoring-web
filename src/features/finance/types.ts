@@ -38,6 +38,7 @@ export type PricingChecklistItem = ChecklistGuidanceData & {
   reviewStatus: ChecklistReviewStatus
   managerNote: string | null
   managerQuoteRequired: boolean
+  pricingSnapshotVersion?: number
   managerQuotedPrice: number | null
   systemCalculatedPrice?: number | null
   managerPriceAdjustmentReason?: string | null

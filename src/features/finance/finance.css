@@ -132,6 +132,9 @@
 .finance-workspace .finance-requirement > * {
   min-width: 0;
 }
+.finance-workspace .finance-requirement > .finance-chevron {
+  grid-column: 6;
+}
 .finance-workspace .finance-requirement:hover {
   background: #f8faff;
 }
@@ -201,12 +204,34 @@
   min-width: 0;
   font-size: 11px;
 }
+.finance-item-price .finance-rounding-hint {
+  color: var(--or-tx2, #667085);
+  font-size: 10px;
+  font-weight: 400;
+}
 .finance-item-price input {
   box-sizing: border-box;
   width: 100%;
   min-width: 0;
   height: 36px;
   padding: 4px 7px;
+}
+.finance-item-price .finance-price-range-reason textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 64px;
+  padding: 7px 8px;
+  border: 1px solid #d7a25f;
+  border-radius: 7px;
+  resize: vertical;
+  font: inherit;
+}
+.finance-item-price .finance-price-range-reason textarea[aria-invalid='true'] {
+  border-color: #d92d20;
+}
+.finance-item-price .finance-price-range-reason small {
+  text-align: end;
 }
 .finance-review-badge {
   display: inline-flex;
@@ -3550,4 +3575,44 @@
   :root .od-page .customer-invoice-summary,
   :root .od-page .mission-payment-card,
   :root .od-page .mission-payment-item { padding: 16px; }
+}
+
+.finance-workspace .finance-requirement-guidance {
+  grid-column: 2 / -1;
+  min-width: 0;
+}
+
+.finance-workspace .finance-requirement-guidance .odm-cg {
+  margin-top: 0;
+}
+
+.finance-workspace .finance-requirement-guidance .odm-cg-section {
+  padding: 10px 12px;
+}
+
+.finance-workspace .finance-requirement-guidance .odm-cg-section h4 {
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.finance-workspace .finance-requirement-guidance .odm-cg:not([open]) {
+  width: fit-content;
+  max-width: 100%;
+}
+
+.finance-workspace .finance-requirement-guidance .odm-cg > summary {
+  min-height: 34px;
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+.finance-workspace .finance-requirement > .finance-zero {
+  width: fit-content;
+  justify-self: start;
+}
+
+@container (max-width: 680px) {
+  .finance-workspace .finance-requirement-guidance {
+    grid-column: 1 / -1;
+  }
 }

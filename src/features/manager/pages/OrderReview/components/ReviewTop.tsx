@@ -11,6 +11,7 @@ import { managerHref } from '../../../routes'
 import { orderReviewPageMessages } from '../OrderReviewPage.messages'
 import { useI18n } from '../../../../../shared/i18n'
 import { OrderDetailsDrawer } from '../../../components/common/OrderDetailsDrawer'
+import { OrderIcon } from '../../../components/common/OrderIcon'
 import type { OrderProgress } from '../../../components/common/workflowModel'
 import type { OrderDetail } from '../../../types/orders'
 import type { ReviewStep } from '../reviewTypes'
@@ -68,28 +69,34 @@ export function ReviewTop({
               <OrderStatusBadge order={order} lang={lang} />
             </span>
           ) : (
-            t.pageTitle
+            <span className="odm-or-hero-title">
+              <span className="odm-or-hero-icon">
+                <OrderIcon name="doc" size={26} />
+              </span>
+              <span>{t.orderManagementTitle}</span>
+            </span>
           )
         }
         description={
           showExecutionPlan ? (
             `${t.pageTitle} · ${order.serviceName}`
           ) : (
-            <>
-              <span className="mgr-code">{formatOrderCode(order.code)}</span> ·{' '}
-              {order.serviceName}
-            </>
+            t.orderManagementSubtitle
           )
         }
         actions={
           <div className="odm-or-order-page-actions">
-            {!showExecutionPlan ? (
-              <OrderStatusBadge order={order} lang={lang} />
-            ) : null}
             <OrderDetailsDrawer order={order} />
           </div>
         }
-      />
+      >
+        {!showExecutionPlan ? (
+          <div className="odm-or-hero-meta">
+            <OrderStatusBadge order={order} lang={lang} />
+            <span className="odm-mono">{formatOrderCode(order.code)}</span>
+          </div>
+        ) : null}
+      </PageHeader>
       <WorkflowStepper
         order={{
           progress: stepperProgress,

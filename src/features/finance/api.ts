@@ -53,6 +53,7 @@ export const financeApi = {
       adjustmentAmount: number
       managerNote: string | null
       additionalUnitPrices: Record<string, number>
+      additionalUnitPriceReasons?: Record<string, string>
       adjustmentReason?: string | null
       adjustmentType?:
         'DISCOUNT' | 'PROMOTION' | 'COMPENSATION' | 'GOODWILL' | 'CORRECTION'

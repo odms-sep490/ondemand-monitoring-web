@@ -1,23 +1,17 @@
 import { useState, type FormEvent, type ReactNode } from 'react'
+import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
 import { FormField } from '../../../../shared/components/ui'
-import { PriceBreakdownView } from '../../../../shared/components/odm/PriceBreakdownView'
-import {
-  checklistPricingApi,
-  type AdminPreviewItem,
-  type ServicePricePreview,
-} from '../../../../shared/api/checklistPricingApi'
 import {
   checklistsApi,
   type ChecklistDefinition,
   type ServiceChecklist,
 } from '../../api/checklistsApi'
-import { adminHref } from '../../routes'
 import {
-  pricingToForm,
-  validatePricingForm,
-  type ChecklistPricingErrors,
-  type ChecklistPricingForm,
+  evidenceToForm,
+  validateEvidenceForm,
+  type ChecklistEvidenceErrors,
+  type ChecklistEvidenceForm,
 } from '../../lib/checklistPricing'
 import {
   inheritWhenUnchanged,
@@ -48,20 +42,18 @@ type Content = {
   steps: string
   inputs: string
   outputs: string
-  difficulty: NonNullable<ChecklistDefinition['difficulty']>
 }
 
-type PriceRow = {
-  key: 'basePrice' | 'images' | 'videos'
-  field: 'basePrice' | 'includedImageCount' | 'includedVideoCount'
+type EvidenceRow = {
+  key: 'images' | 'videos'
+  field: 'includedImageCount' | 'includedVideoCount'
   label: string
   step: number
 }
 
 /**
- * The single form for a checklist. Everything that can be configured is on this one screen:
- * what the work is, what it costs (the checklist's own value and, when opened from a service, this service's own),
- * and whether the customer may drop it. A column per scope keeps "for everyone" and "for this service" side by side.
+ * The checklist editor manages its work description and evidence requirements. Base price settings live in the
+ * Operating Config pricing tab; service templates can only vary evidence allowances and whether the item is required.
  */
 export function ChecklistConfigForm({
   row,
@@ -87,35 +79,54 @@ export function ChecklistConfigForm({
     steps: (row?.executionSteps ?? []).join('\n'),
     inputs: (row?.inputRequirements ?? []).join('\n'),
     outputs: (row?.expectedOutputs ?? []).join('\n'),
-    difficulty: row?.difficulty ?? 'BASIC',
   })
-  const [pricing, setPricing] = useState<ChecklistPricingForm>(
-    pricingToForm(row ?? {}),
+  const [evidence, setEvidence] = useState<ChecklistEvidenceForm>(
+    evidenceToForm(row ?? {}),
   )
   const [overrides, setOverrides] = useState<OverrideForm>({
-    basePrice: link?.basePriceOverride?.toString() ?? '',
     images: link?.includedImageCountOverride?.toString() ?? '',
     videos: link?.includedVideoCountOverride?.toString() ?? '',
-    profile: link?.pricingProfileOverride ?? '',
     required: link?.required === true,
   })
   // What the form looked like when it opened, to tell a shared change from a change for this service only.
-  const [initialShared] = useState(() => JSON.stringify([content, pricing]))
+  const [initialShared] = useState(() => JSON.stringify([content, evidence]))
   const [initialOverrides] = useState(() => JSON.stringify(overrides))
-  const [pricingErrors, setPricingErrors] = useState<ChecklistPricingErrors>({})
+  const [evidenceErrors, setEvidenceErrors] = useState<ChecklistEvidenceErrors>({})
   const [acknowledged, setAcknowledged] = useState(false)
-  const [page, setPage] = useState<'content' | 'pricing'>('content')
+  const [page, setPage] = useState<'content' | 'evidence'>('content')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [preview, setPreview] = useState<ServicePricePreview | null>(null)
+  const [assignedDeviceTypes, setAssignedDeviceTypes] = useState(
+    row?.deviceTypes ?? [],
+  )
+  const [selectedDeviceTypeId, setSelectedDeviceTypeId] = useState('')
+  const [deviceTypeBusy, setDeviceTypeBusy] = useState<string | null>(null)
+  const [deviceTypeError, setDeviceTypeError] = useState<string | null>(null)
+  const deviceTypeQuery = useApiQuery(
+    (signal) =>
+      row
+        ? checklistsApi.deviceTypes(signal)
+        : Promise.resolve({
+            items: [],
+            page: 0,
+            totalItems: 0,
+            totalPages: 0,
+            first: true,
+            last: true,
+          }),
+    [row?.id],
+  )
+  const availableDeviceTypes = (deviceTypeQuery.data?.items ?? []).filter(
+    (type) => !assignedDeviceTypes.some((assigned) => assigned.id === type.id),
+  )
 
   const sharedBy = row?.usedByServiceCount ?? 0
   const shared = sharedBy > 1
-  const sharedDirty = JSON.stringify([content, pricing]) !== initialShared
+  const sharedDirty = JSON.stringify([content, evidence]) !== initialShared
   const overridesDirty = JSON.stringify(overrides) !== initialOverrides
   const needsAck = shared && sharedDirty && !acknowledged
 
-  /** Validates everything and returns what to send, or null after showing the problem. */
+  /** Validates the checklist content and evidence settings before building the request. */
   function collect() {
     const text = content.content.trim()
     if (!text || text.length > 500) {
@@ -123,16 +134,14 @@ export function ChecklistConfigForm({
       setError(t.required)
       return null
     }
-    const checked =
-      // The profile is not editable here, so it must not be able to block a save.
-      validatePricingForm({ ...pricing, pricingProfile: '' })
+    const checked = validateEvidenceForm(evidence)
     if (!checked.ok) {
-      setPricingErrors(checked.errors)
-      setPage('pricing')
+      setEvidenceErrors(checked.errors)
+      setPage('evidence')
       setError(t.invalidPricing)
       return null
     }
-    setPricingErrors({})
+    setEvidenceErrors({})
     const guidance = {
       description: content.description.trim(),
       executionSteps: toLines(content.steps),
@@ -157,22 +166,25 @@ export function ChecklistConfigForm({
     if (service) {
       const parsed = parseOverrides(overrides)
       if (!parsed.ok) {
-        setPage('pricing')
+        setPage('evidence')
         setError(t.invalidPricing)
         return null
       }
       override = inheritWhenUnchanged(parsed.value, {
-        basePrice: checked.value.basePrice ?? 0,
         includedImageCount: checked.value.includedImageCount ?? 0,
         includedVideoCount: checked.value.includedVideoCount ?? 0,
       })
     }
     setError(null)
-    // The pricing profile is not edited on this screen. It is left out of the request so the backend keeps the stored
-    // value (sending an empty one would clear it).
-    const { pricingProfile: _keptByBackend, ...rest } = checked.value
-    void _keptByBackend
-    const definition = { ...rest, ...guidance }
+    // Base price is edited in the single Base Checklist pricing screen. This form only edits evidence requirements.
+    const definition = {
+      includedImageCount: checked.value.includedImageCount,
+      includedVideoCount: checked.value.includedVideoCount,
+      ...(checked.value.standardVideoDurationSeconds == null
+        ? {}
+        : { standardVideoDurationSeconds: checked.value.standardVideoDurationSeconds }),
+      ...guidance,
+    }
     return { text, definition, override }
   }
 
@@ -190,19 +202,17 @@ export function ChecklistConfigForm({
       if (!row) {
         await checklistsApi.create(
           data.text,
-          content.difficulty,
           data.definition,
         )
       } else if (!service || sharedDirty) {
         await checklistsApi.update(
           row.id,
           data.text,
-          content.difficulty,
           data.definition,
         )
       }
       if (service && link && data.override && overridesDirty) {
-        await checklistsApi.updatePricing(service.id, link.checklistId, {
+        await checklistsApi.updateRequirements(service.id, link.checklistId, {
           ...data.override,
           expectedVersion: link.version,
         })
@@ -215,46 +225,45 @@ export function ChecklistConfigForm({
     }
   }
 
-  /** The price of the whole service as it would be with the unsaved values, without saving anything. */
-  async function check() {
-    if (busy || !service || !link) return
-    const data = collect()
-    if (!data) return
-    setBusy(true)
+  async function addDeviceType() {
+    if (!row || !selectedDeviceTypeId || deviceTypeBusy) return
+    setDeviceTypeBusy(selectedDeviceTypeId)
+    setDeviceTypeError(null)
     try {
-      const items: AdminPreviewItem[] = service.rows.map((other) =>
-        other.checklistId === link.checklistId
-          ? {
-              checklistId: other.checklistId,
-              basePrice:
-                data.override?.basePriceOverride ?? data.definition.basePrice,
-              includedImageCount:
-                data.override?.includedImageCountOverride ??
-                data.definition.includedImageCount,
-              includedVideoCount:
-                data.override?.includedVideoCountOverride ??
-                data.definition.includedVideoCount,
-              pricingProfile:
-                data.override?.pricingProfileOverride ??
-                (pricing.pricingProfile.trim().toUpperCase() || undefined),
-            }
-          : { checklistId: other.checklistId },
+      const requirement = await checklistsApi.addDeviceType(
+        row.id,
+        selectedDeviceTypeId,
       )
-      setPreview(
-        await checklistPricingApi.adminPreview({
-          serviceId: service.id,
-          items,
-        }),
+      setAssignedDeviceTypes((current) =>
+        [...current, requirement.deviceType].sort((left, right) =>
+          left.name.localeCompare(right.name),
+        ),
       )
+      setSelectedDeviceTypeId('')
     } catch (cause) {
-      setError(checklistError(cause, t))
+      setDeviceTypeError(checklistError(cause, t))
     } finally {
-      setBusy(false)
+      setDeviceTypeBusy(null)
     }
   }
 
-  const priceRows: PriceRow[] = [
-    { key: 'basePrice', field: 'basePrice', label: t.basePrice, step: 1000 },
+  async function removeDeviceType(deviceTypeId: string) {
+    if (!row || deviceTypeBusy) return
+    setDeviceTypeBusy(deviceTypeId)
+    setDeviceTypeError(null)
+    try {
+      await checklistsApi.removeDeviceType(row.id, deviceTypeId)
+      setAssignedDeviceTypes((current) =>
+        current.filter((type) => type.id !== deviceTypeId),
+      )
+    } catch (cause) {
+      setDeviceTypeError(checklistError(cause, t))
+    } finally {
+      setDeviceTypeBusy(null)
+    }
+  }
+
+  const evidenceRows: EvidenceRow[] = [
     {
       key: 'images',
       field: 'includedImageCount',
@@ -298,7 +307,7 @@ export function ChecklistConfigForm({
         {(
           [
             ['content', t.sectionContent],
-            ['pricing', t.sectionPricing],
+            ['evidence', t.sectionEvidence],
           ] as const
         ).map(([id, label]) => (
           <button
@@ -389,26 +398,92 @@ export function ChecklistConfigForm({
             </div>
           ))}
         </fieldset>
+        {row && (
+          <section
+            className="checklist-device-types"
+            aria-labelledby="checklist-device-types-title"
+          >
+            <div>
+              <h3 id="checklist-device-types-title">{t.deviceTypesTitle}</h3>
+              <p>{t.deviceTypesHint}</p>
+            </div>
+            {assignedDeviceTypes.length > 0 ? (
+              <ul className="checklist-device-type-list">
+                {assignedDeviceTypes.map((type) => (
+                  <li key={type.id}>
+                    <span>
+                      <strong>{type.name}</strong>
+                      <small>{type.code}</small>
+                    </span>
+                    <button
+                      type="button"
+                      className="odm-btn odm-btn-gh odm-btn-sm"
+                      disabled={deviceTypeBusy !== null}
+                      aria-label={t.removeDeviceType(type.name)}
+                      onClick={() => void removeDeviceType(type.id)}
+                    >
+                      {t.removeDeviceTypeShort}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="checklist-field-meta is-block">
+                {t.deviceTypesEmpty}
+              </p>
+            )}
+            <div className="checklist-device-type-add">
+              <select
+                className="odm-inp"
+                aria-label={t.deviceTypeSelect}
+                value={selectedDeviceTypeId}
+                disabled={deviceTypeQuery.loading || deviceTypeBusy !== null}
+                onChange={(event) =>
+                  setSelectedDeviceTypeId(event.target.value)
+                }
+              >
+                <option value="">{t.deviceTypeSelectPlaceholder}</option>
+                {availableDeviceTypes.map((type) => (
+                  <option key={type.id} value={type.id}>
+                    {type.name} ({type.code})
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                className="odm-btn"
+                disabled={!selectedDeviceTypeId || deviceTypeBusy !== null}
+                onClick={() => void addDeviceType()}
+              >
+                {deviceTypeBusy === selectedDeviceTypeId
+                  ? t.deviceTypeAdding
+                  : t.deviceTypeAdd}
+              </button>
+            </div>
+            {(deviceTypeQuery.error !== undefined || deviceTypeError) && (
+              <p className="checklist-banner is-error" role="alert">
+                {deviceTypeError ?? t.deviceTypesLoadError}
+              </p>
+            )}
+          </section>
+        )}
       </div>
 
       <div
-        id="checklist-page-pricing"
+        id="checklist-page-evidence"
         role="tabpanel"
-        aria-labelledby="checklist-tab-pricing"
-        hidden={page !== 'pricing'}
+        aria-labelledby="checklist-tab-evidence"
+        hidden={page !== 'evidence'}
       >
         <fieldset className="checklist-section">
-          <legend>{t.sectionPricing}</legend>
+          <legend>{t.sectionEvidence}</legend>
           <p className="checklist-field-meta is-block">
-            {service ? t.pricingScopeHint : t.pricingHint}{' '}
-            <a href={adminHref({ screen: 'operatingConfig' })}>
-              {t.openPricingPolicy}
-            </a>
+            {t.evidenceConfigHint}
           </p>
           <div
             className={'checklist-price-grid' + (service ? ' has-service' : '')}
             role="group"
-            aria-label={t.sectionPricing}
+            aria-label={t.sectionEvidence}
           >
             <span aria-hidden="true" />
             <strong className="checklist-price-head">
@@ -420,16 +495,16 @@ export function ChecklistConfigForm({
                 {t.columnService}
               </strong>
             )}
-            {priceRows.map((item) => (
+            {evidenceRows.map((item) => (
               <PriceLine
                 key={item.key}
                 id={`checklist-${item.key}`}
                 label={item.label}
                 step={item.step}
-                base={pricing[item.field]}
-                invalid={pricingErrors[item.field] !== undefined}
+                base={evidence[item.field]}
+                invalid={evidenceErrors[item.field] !== undefined}
                 onBase={(value) =>
-                  setPricing({ ...pricing, [item.field]: value })
+                  setEvidence({ ...evidence, [item.field]: value })
                 }
                 service={service !== undefined}
                 override={overrides[item.key]}
@@ -452,103 +527,29 @@ export function ChecklistConfigForm({
             </label>
           )}
         </fieldset>
-
-        <details className="checklist-section checklist-advanced">
-          <summary>{t.sectionAdvanced}</summary>
-          <FormField id="checklist-difficulty" label="Độ khó tính giá" required>
-            <select
-              id="checklist-difficulty"
-              className="odm-inp"
-              value={content.difficulty}
-              onChange={(event) =>
-                setContent({
-                  ...content,
-                  difficulty: event.target.value as Content['difficulty'],
-                })
-              }
-            >
-              <option value="BASIC">Cơ bản</option>
-              <option value="MEDIUM">Trung bình</option>
-              <option value="HARD">Khó</option>
-              <option value="VERY_HARD">Rất khó</option>
-            </select>
-          </FormField>
-          <FormField
+        <FormField
+          id="checklist-video-duration"
+          label={t.videoDuration}
+          error={
+            evidenceErrors.standardVideoDurationSeconds
+              ? t.invalidPricing
+              : undefined
+          }
+        >
+          <input
             id="checklist-video-duration"
-            label={t.videoDuration}
-            error={
-              pricingErrors.standardVideoDurationSeconds
-                ? t.invalidPricing
-                : undefined
+            className="odm-inp"
+            type="number"
+            min={0}
+            inputMode="numeric"
+            value={evidence.standardVideoDurationSeconds}
+            onChange={(event) =>
+              setEvidence({ ...evidence, standardVideoDurationSeconds: event.target.value })
             }
-          >
-            <input
-              id="checklist-video-duration"
-              className="odm-inp"
-              type="number"
-              min={0}
-              inputMode="numeric"
-              value={pricing.standardVideoDurationSeconds}
-              onChange={(event) =>
-                setPricing({
-                  ...pricing,
-                  standardVideoDurationSeconds: event.target.value,
-                })
-              }
-            />
-          </FormField>
-          <div className="checklist-field-meta">
-            Chỉ bật chiều đo thực sự ảnh hưởng đến checklist này.
-          </div>
-          {(
-            [
-              ['areaPricingEnabled', 'Tính theo diện tích'],
-              ['lengthPricingEnabled', 'Tính theo chiều dài'],
-              ['altitudePricingEnabled', 'Tính theo độ cao'],
-            ] as const
-          ).map(([field, label]) => (
-            <label key={field} className="checklist-field-meta">
-              <input
-                type="checkbox"
-                checked={pricing[field] ?? false}
-                onChange={(event) =>
-                  setPricing({ ...pricing, [field]: event.target.checked })
-                }
-              />{' '}
-              {label}
-            </label>
-          ))}
-          {(
-            [
-              ['includedAreaHa', 'Diện tích đã bao gồm (ha)', 0.001],
-              ['includedLengthKm', 'Chiều dài đã bao gồm (km)', 0.001],
-              ['includedAltitudeM', 'Độ cao đã bao gồm (m)', 0.01],
-            ] as const
-          ).map(([field, label, step]) => (
-            <FormField
-              key={field}
-              id={`checklist-${field}`}
-              label={label}
-              error={pricingErrors[field] ? t.invalidPricing : undefined}
-            >
-              <input
-                id={`checklist-${field}`}
-                className="odm-inp"
-                type="number"
-                min={0}
-                step={step}
-                inputMode="numeric"
-                value={pricing[field] ?? '0'}
-                onChange={(event) =>
-                  setPricing({ ...pricing, [field]: event.target.value })
-                }
-              />
-            </FormField>
-          ))}
-        </details>
+          />
+        </FormField>
       </div>
 
-      {preview && <PriceBreakdownView preview={preview} />}
       {error && (
         <p className="checklist-banner is-error" role="alert">
           {error}
@@ -563,16 +564,6 @@ export function ChecklistConfigForm({
         >
           {t.cancel}
         </button>
-        {service && (
-          <button
-            type="button"
-            className="odm-btn"
-            disabled={busy}
-            onClick={() => void check()}
-          >
-            {t.whatIf}
-          </button>
-        )}
         <button
           type="submit"
           className="odm-btn odm-btn-p"

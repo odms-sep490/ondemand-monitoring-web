@@ -1,0 +1,24 @@
+.mgr-dashboard-weather {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border: 1px solid rgb(23 96 218 / 22%);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 82%);
+  color: #174b88;
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.35;
+  text-transform: none;
+  white-space: nowrap;
+}
+
+.mgr-dashboard-weather-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 17px;
+  font-size: 16px;
+  line-height: 1;
+}

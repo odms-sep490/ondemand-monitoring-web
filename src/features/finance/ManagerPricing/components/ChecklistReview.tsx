@@ -6,6 +6,7 @@ import type { Draft } from '../pricingHelpers'
 import { ChecklistRow } from './ChecklistRow'
 import { useI18n } from '../../../../shared/i18n'
 import { pricingMessages } from '../pricing.messages'
+import { OrderIcon } from '../../../manager/components/common/OrderIcon'
 
 export function ChecklistReview({
   onEditGuidance,
@@ -21,6 +22,7 @@ export function ChecklistReview({
   draft,
   setDraft,
   dirtyPriceIds,
+  dirtyPriceReasonIds,
   priceRange,
   openNote,
   setOpenNote,
@@ -58,6 +60,7 @@ export function ChecklistReview({
   draft: Draft
   setDraft: Dispatch<SetStateAction<Draft>>
   dirtyPriceIds: RefObject<Set<string>>
+  dirtyPriceReasonIds: RefObject<Set<string>>
   priceRange: (system: number) => { min: number; max: number } | null
   openNote: string | null
   setOpenNote: Dispatch<SetStateAction<string | null>>
@@ -70,9 +73,14 @@ export function ChecklistReview({
       aria-labelledby="manager-pricing-title"
     >
       <header className="finance-heading">
-        <div>
-          <h2 id="manager-pricing-title">{t.reviewTitle}</h2>
-          <p>{t.reviewSubtitle}</p>
+        <div className="finance-heading-title">
+          <span className="finance-heading-icon">
+            <OrderIcon name="stack" size={20} />
+          </span>
+          <div>
+            <h2 id="manager-pricing-title">{t.reviewTitle}</h2>
+            <p>{t.reviewSubtitle}</p>
+          </div>
         </div>
         {data.currentQuote ? (
           <span
@@ -135,6 +143,7 @@ export function ChecklistReview({
             draft={draft}
             setDraft={setDraft}
             dirtyPriceIds={dirtyPriceIds}
+            dirtyPriceReasonIds={dirtyPriceReasonIds}
             priceRange={priceRange}
             openNote={openNote}
             setOpenNote={setOpenNote}

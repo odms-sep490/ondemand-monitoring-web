@@ -60,6 +60,7 @@ function ContractContent({
   const manager = mode === 'manager'
   const [file, setFile] = useState<File | null>(null)
   const [reason, setReason] = useState('')
+  const [reasonOpen, setReasonOpen] = useState(false)
   const [checkedVersion, setCheckedVersion] = useState<number | null>(null)
   const checked = checkedVersion !== null && checkedVersion === data?.version
   const [replaceOpen, setReplaceOpen] = useState(false)
@@ -108,6 +109,7 @@ function ContractContent({
     setCheckedVersion(null)
     setReplaceOpen(false)
     setReason('')
+    setReasonOpen(false)
   }, [data?.version])
   function message(cause: unknown) {
     return cause instanceof ApiError
@@ -233,7 +235,7 @@ function ContractContent({
   }
   return (
     <section
-      className={`order-contract-panel${embedded ? ' is-embedded' : ''}`}
+      className={`order-contract-panel${embedded ? ' is-embedded' : ''}${canReview ? ' is-reviewing' : ''}`}
       aria-label={t.title}
     >
       <header>
@@ -257,7 +259,7 @@ function ContractContent({
             : t.status[data.status]}
         </Tag>
       </header>
-      {!embedded && (
+      {!embedded && !canReview && (
         <p className="order-contract-panel__hint">
           {manager
             ? t.managerSubtitle
@@ -396,7 +398,11 @@ function ContractContent({
       )}
       {canReview && (
         <div className="order-contract-panel__review">
-          <h4>{t.status.PENDING_VERIFICATION}</h4>
+          <div className="order-contract-panel__review-file">
+            <div>
+              <strong>{latest.document.fileName}</strong>
+              <small>{t.submitted}: {time(latest.submittedAt)}</small>
+            </div>
           <Button
             icon={<DownloadOutlined aria-hidden />}
             disabled={disabled}
@@ -404,6 +410,7 @@ function ContractContent({
           >
             {t.signedDownload}
           </Button>
+          </div>
           <Checkbox
             checked={checked}
             disabled={disabled}
@@ -413,21 +420,27 @@ function ContractContent({
           >
             {t.checked}
           </Checkbox>
-          <label>
+          {reasonOpen && <label>
             {t.reason}
             <Input.TextArea
+              autoFocus
               value={reason}
               maxLength={2000}
-              rows={3}
+              autoSize={{ minRows: 2, maxRows: 4 }}
               disabled={disabled}
               onChange={(e) => setReason(e.target.value)}
             />
-          </label>
+          </label>}
           <div className="order-contract-panel__actions">
             <Button
               danger
-              disabled={disabled || !reason.trim()}
-              onClick={() =>
+              disabled={disabled || (reasonOpen && !reason.trim())}
+              aria-expanded={reasonOpen}
+              onClick={() => {
+                if (!reasonOpen) {
+                  setReasonOpen(true)
+                  return
+                }
                 void act(() =>
                   contractApi.requestChanges(
                     orderId,
@@ -436,7 +449,7 @@ function ContractContent({
                     reason.trim(),
                   ),
                 )
-              }
+              }}
             >
               {t.changes}
             </Button>

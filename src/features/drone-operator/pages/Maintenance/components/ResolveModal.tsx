@@ -97,7 +97,10 @@ export function ResolveModal({
           <div
             style={{ color: 'var(--mgr-muted)', marginTop: 2, whiteSpace: 'pre-line' }}
           >
-            {formatTicketDescription(selectedTicket.description ?? '')}
+            {formatTicketDescription(
+              selectedTicket.description ?? '',
+              maintenanceDeviceLabel(selectedTicket),
+            )}
           </div>
         </div>
 

@@ -4,13 +4,13 @@ export const handoverBannersMessages = defineMessages({
   vi: {
     revokedTitle: 'Quyền điều khiển đã bị thu hồi.',
     revokedBody:
-      'Quản lý đã thu hồi bàn giao lúc 13:29 (control_handover.status = REVOKED). Bạn phải xác nhận lại trước khi tiếp tục.',
+      'Quản lý đã thu hồi bàn giao lúc 13:29. Bạn phải xác nhận lại trước khi tiếp tục.',
     statusTitle: 'Trạng thái bàn giao',
     revokedNote: 'Không được phép cất cánh khi chưa xác nhận lại.',
     revokedBadge: 'Đã thu hồi',
     reconfirm: 'Xác nhận lại',
     confirmedText:
-      'Bạn đã xác nhận bàn giao quyền điều khiển · control_handover.status = CONFIRMED',
+      'Bạn đã xác nhận bàn giao quyền điều khiển',
     continueToCockpit: 'Tiếp tục tới buồng lái',
   },
   en: {

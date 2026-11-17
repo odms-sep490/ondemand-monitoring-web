@@ -22,7 +22,7 @@ export function ReviewStageActions({
   compact = false,
   decisionHostRef,
 }: {
-  step: ReviewStep
+  step: ReviewStep | 5
   onBack?: () => void
   onNext?: () => void
   nextLabel?: string
@@ -38,7 +38,7 @@ export function ReviewStageActions({
   const body = (
     <>
       <span className="odm-or-review-stage-progress">
-        {step === 4 ? t.pricingStep : t.step(step, REVIEW_PAGE_COUNT)}
+        {t.step(step, REVIEW_PAGE_COUNT)}
       </span>
       {hint ? (
         <span className="odm-or-review-stage-hint" role="status">

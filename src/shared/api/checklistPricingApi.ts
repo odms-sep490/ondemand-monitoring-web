@@ -18,7 +18,7 @@ export type ChecklistPriceLine = {
 export type ChecklistPriceBreakdown = {
   checklistId: string | null
   content: string
-  pricingProfile: string
+  pricingProfile?: string | null
   custom: boolean
   includedImageCount: number
   includedVideoCount: number
@@ -27,6 +27,11 @@ export type ChecklistPriceBreakdown = {
   extraImageCount: number
   extraVideoCount: number
   standardVideoDurationSeconds: number | null
+  /** Present for catalog Base Checklists priced by area; all values are returned by the backend. */
+  basePrice?: number | null
+  standardAreaM2?: number | null
+  actualAreaM2?: number | null
+  calculationDisplay?: string | null
   lines: ChecklistPriceLine[]
   subtotal: number
   quotePending: boolean
@@ -39,7 +44,7 @@ export type ServicePricePreview = {
   serviceId: string
   serviceName: string
   currency: string
-  policyId: string
+  policyId: string | null
   policyVersion: number
   draftPolicy: boolean
   /** CHECKLISTS: the price is the sum of the checklists. UNPRICED: no default checklist carries a price yet. */
@@ -55,24 +60,6 @@ export type ServicePricePreview = {
   addOns?: PriceAddOn[]
   /** How many times the work is carried out; every figure already includes it. Absent or 1 for a single visit. */
   occurrences?: number
-}
-
-export type AdminPreviewItem = {
-  checklistId: string
-  basePrice?: number
-  includedImageCount?: number
-  includedVideoCount?: number
-  pricingProfile?: string
-  requestedImageCount?: number
-  requestedVideoCount?: number
-}
-export type AdminPreviewRequest = {
-  serviceId: string
-  policyId?: string
-  items?: AdminPreviewItem[]
-  areaHa?: number
-  lengthKm?: number
-  altitudeM?: number
 }
 
 /** Customer input is choices and quantities only; the backend owns every price. */
@@ -101,12 +88,6 @@ export const checklistPricingApi = {
       `/api/admin/pricing/services/${encodeURIComponent(serviceId)}/default-price`,
       { signal },
     ),
-  adminPreview: (body: AdminPreviewRequest, signal?: AbortSignal) =>
-    apiRequest<ServicePricePreview>('/api/admin/pricing/service-preview', {
-      method: 'POST',
-      body,
-      signal,
-    }),
   customerQuote: (
     serviceId: string,
     items: CustomerQuoteItem[],

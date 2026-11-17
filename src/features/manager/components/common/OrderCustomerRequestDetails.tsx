@@ -34,10 +34,6 @@ export function OrderCustomerRequestDetails({
     [order.siteContactName, order.siteContactPhone]
       .filter(Boolean)
       .join(' · ') || null
-  const recurrence =
-    order.recurrenceType && order.recurrenceOccurrences
-      ? `${text(order.recurrenceType)} · ${m.times(order.recurrenceOccurrences)}`
-      : text(order.recurrenceType)
   const permit = [
     text(order.permitStatus),
     order.permitNumber,
@@ -84,7 +80,6 @@ export function OrderCustomerRequestDetails({
       value:
         order.estimatedLengthM != null ? `${order.estimatedLengthM} m` : null,
     },
-    { label: t.recurrence, value: recurrence },
   ]
 
   const siteFacts: DetailItem[] = [
@@ -247,7 +242,12 @@ export function OrderCustomerRequestDetails({
           <div className="odm-or-req-hero">
             <div className="odm-or-req-hero-text">
               {order.title ? <h3>{order.title}</h3> : null}
-              {order.description ? <p>{order.description}</p> : null}
+              {order.description ? (
+                <div className="odm-or-req-customer-note">
+                  <strong>{m.customerNote}</strong>
+                  <p>{order.description}</p>
+                </div>
+              ) : null}
             </div>
           </div>
         ) : null}

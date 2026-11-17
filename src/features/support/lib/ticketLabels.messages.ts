@@ -18,7 +18,7 @@ export const ticketLabelsMessages = defineMessages({
       ORDERS: 'Đơn hàng & Yêu cầu',
       MISSIONS: 'Nhiệm vụ bay & Lịch bay',
       RESULTS: 'Kết quả giám sát & Dữ liệu',
-      MEDIA: 'Livestream & Telemetry',
+      MEDIA: 'Phát trực tiếp & dữ liệu bay',
       SCHEDULING: 'Lên lịch & Đổi lịch bay',
       ACCOUNT: 'Tài khoản & Quyền truy cập',
     },

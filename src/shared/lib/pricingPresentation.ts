@@ -27,6 +27,7 @@ const descriptions: Record<string, string> = {
   'Thermal output': 'Dữ liệu ảnh nhiệt',
   'Multispectral output': 'Dữ liệu đa phổ',
   'Base custom operation assessment': 'Chi phí cơ sở cho công việc tùy chỉnh',
+  'Round checklist total to nearest 1,000 VND': 'Làm tròn tổng giá checklist đến 1.000 VND',
   'Custom work assessment': 'Đánh giá công việc tùy chỉnh',
   'Pilot resource': 'Nhân sự điều khiển',
   'Drone resource': 'Thiết bị bay',
@@ -125,6 +126,7 @@ export function pricingLabel(value: string | null | undefined) {
 /** English display text for engine descriptions; unknown English text passes through. */
 const descriptionsEn: Record<string, string> = {
   'Video theo yêu cầu': 'Requested video output',
+  'Làm tròn tổng giá checklist đến 1.000 VND': 'Round checklist total to nearest 1,000 VND',
 }
 
 export function pricingDescription(value: string | null | undefined) {

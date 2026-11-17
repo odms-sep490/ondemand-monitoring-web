@@ -168,11 +168,15 @@
   }
 
   .odm-or-review-top > .mgr-page-head {
-    min-height: 126px;
+    min-height: 144px;
     padding: 20px 24px;
+    align-items: center;
+    gap: 24px;
     border-radius: 16px;
     background-color: #eaf3ff;
-    background-image: url('/images/manager-order-banner.png');
+    background-image:
+      linear-gradient(90deg, rgba(235, 245, 255, 0.96), rgba(235, 245, 255, 0.72) 54%, rgba(235, 245, 255, 0.22)),
+      url('/images/manager-order-banner.png');
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover;
@@ -185,9 +189,220 @@
     color: #10264f;
   }
 
+  .odm-or-review-top .mgr-page-head-main {
+    flex: 1 1 450px;
+  }
+
+  .odm-or-review-top .mgr-page-head-title {
+    margin: 0;
+    font-size: clamp(24px, 2.2vw, 30px);
+    line-height: 1.2;
+  }
+
+  .odm-or-hero-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .odm-or-hero-icon {
+    display: inline-grid;
+    width: 48px;
+    height: 48px;
+    flex: none;
+    place-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.86);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.76);
+    color: #1565e8;
+    box-shadow: 0 8px 20px -12px rgba(21, 101, 232, 0.62);
+  }
+
+  .odm-or-hero-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    margin-top: 10px;
+    color: #405774;
+    font-size: 12px;
+  }
+
+  .odm-or-review-highlights {
+    display: flex;
+    flex: 0 1 560px;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .odm-or-review-highlights > span {
+    display: inline-flex;
+    min-height: 38px;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.82);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.72);
+    color: #164a90;
+    font-size: 11.5px;
+    font-weight: 650;
+    white-space: nowrap;
+  }
+
+  .odm-or-review-highlights svg {
+    width: 16px;
+    height: 16px;
+    color: #1565e8;
+  }
+
+  .odm-or-review-top .mgr-page-head-actions {
+    flex: 0 1 600px;
+    justify-content: flex-end;
+  }
+
   /* Order summary rows + action bar */
   .odm-or-review-stage-actions {
     box-shadow: var(--mgr-shadow);
+  }
+}
+
+:root .mgr-layout .mgr-or .finance-heading-title {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 12px;
+}
+
+:root .mgr-layout .mgr-or .finance-heading-icon {
+  display: inline-grid;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, #1565e8 18%, var(--mgr-border));
+  border-radius: 12px;
+  background: color-mix(in srgb, #1565e8 10%, var(--mgr-card));
+  color: #1565e8;
+}
+
+:root .mgr-layout .mgr-or .finance-heading-title > div {
+  min-width: 0;
+}
+
+@container (min-width: 681px) {
+  :root .mgr-layout .mgr-or .finance-workspace .finance-checklist {
+    padding: 0 14px 14px;
+  }
+
+  :root .mgr-layout .mgr-or .finance-workspace .finance-requirement {
+    grid-template-columns: 38px minmax(0, 1.35fr) minmax(110px, 0.6fr) minmax(120px, 0.65fr) minmax(72px, 0.4fr) 34px;
+    align-items: start;
+    gap: 10px;
+    min-height: 0;
+    margin: 8px 0;
+    padding: 12px;
+    border: 1px solid var(--mgr-border);
+    border-radius: 14px;
+    background: var(--mgr-card);
+    box-shadow: 0 6px 16px -14px rgba(25, 68, 126, 0.55);
+  }
+
+  :root .mgr-layout .mgr-or .finance-workspace .finance-requirement-main {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  :root .mgr-layout .mgr-or .finance-workspace .finance-status-select,
+  :root .mgr-layout .mgr-or .finance-workspace .finance-requirement > .finance-zero {
+    grid-column: 3;
+    grid-row: 1;
+    justify-self: start;
+  }
+
+  :root .mgr-layout .mgr-or .finance-workspace .finance-item-price {
+    grid-column: 4;
+    grid-row: 1;
+  }
+
+  :root .mgr-layout .mgr-or .finance-workspace .finance-review-badge {
+    grid-column: 5;
+    grid-row: 1;
+  }
+
+  :root .mgr-layout .mgr-or .finance-workspace .finance-requirement > .finance-chevron {
+    grid-column: 6;
+    grid-row: 1;
+  }
+
+  :root .mgr-layout .mgr-or .finance-workspace .finance-requirement-guidance {
+    grid-column: 2 / 6;
+    grid-row: 2;
+  }
+
+  :root .mgr-layout .mgr-or .finance-workspace .finance-note {
+    grid-column: 2 / 6;
+    grid-row: 3;
+  }
+}
+
+:root .mgr-layout .mgr-or .finance-workspace .finance-requirement-guidance .odm-cg:not([open]) > :not(summary) {
+  display: none;
+}
+
+:root .mgr-layout .mgr-or .finance-workspace .finance-requirement-guidance .odm-cg:not([open]) {
+  width: min(100%, 160px);
+}
+
+:root[data-theme='dark'] .mgr-layout .mgr-or .odm-or-review-top > .mgr-page-head {
+  background-image:
+    linear-gradient(90deg, rgba(11, 25, 46, 0.94), rgba(11, 25, 46, 0.72) 54%, rgba(11, 25, 46, 0.42)),
+    url('/images/manager-order-banner.png');
+  border-color: #28405d;
+}
+
+:root[data-theme='dark'] .mgr-layout .mgr-or .odm-or-review-highlights > span {
+  border-color: rgba(125, 169, 220, 0.3);
+  background: rgba(15, 39, 68, 0.76);
+  color: #cfe2ff;
+}
+
+:root[data-theme='dark'] .mgr-layout .mgr-or .odm-or-hero-meta {
+  color: #b6c8de;
+}
+
+@media (max-width: 1000px) {
+  :root .mgr-layout .mgr-or .odm-or-review-top > .mgr-page-head {
+    align-items: flex-start;
+  }
+
+  :root .mgr-layout .mgr-or .odm-or-review-highlights,
+  :root .mgr-layout .mgr-or .odm-or-review-top .mgr-page-head-actions {
+    flex-basis: 100%;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 640px) {
+  :root .mgr-layout .mgr-or .odm-or-review-top > .mgr-page-head {
+    gap: 14px;
+  }
+
+  :root .mgr-layout .mgr-or .odm-or-hero-title {
+    gap: 10px;
+  }
+
+  :root .mgr-layout .mgr-or .odm-or-hero-icon {
+    width: 42px;
+    height: 42px;
+  }
+
+  :root .mgr-layout .mgr-or .odm-or-review-highlights > span {
+    min-height: 34px;
+    padding: 6px 9px;
+    font-size: 11px;
   }
 }
 
@@ -546,19 +761,23 @@
   padding: 4px 18px 14px;
 }
 
-:root .mgr-layout .mgr-detail-grid.is-wide .mgr-actions-slot {
+:root .mgr-layout .mgr-detail-grid.is-wide .mgr-actions-slot,
+:root .mgr-layout .mgr-detail-grid.is-review-step-1 > .mgr-actions-slot {
   display: block;
   width: 100%;
   min-width: 0;
 }
 
-:root .mgr-layout .mgr-detail-grid.is-wide .mgr-stage-actions:not(.is-compact) {
+:root .mgr-layout .mgr-detail-grid.is-wide .mgr-stage-actions:not(.is-compact),
+:root .mgr-layout .mgr-detail-grid.is-review-step-1 > .mgr-actions-slot .mgr-stage-actions:not(.is-compact) {
   width: 100%;
   min-width: 0;
 }
 
 :root .mgr-layout .mgr-detail-grid.is-wide .mgr-stage-actions:not(.is-compact) .ant-card-body,
-:root .mgr-layout .mgr-detail-grid.is-wide .mgr-stage-actions:not(.is-compact) .ui-card-body {
+:root .mgr-layout .mgr-detail-grid.is-wide .mgr-stage-actions:not(.is-compact) .ui-card-body,
+:root .mgr-layout .mgr-detail-grid.is-review-step-1 > .mgr-actions-slot .mgr-stage-actions:not(.is-compact) .ant-card-body,
+:root .mgr-layout .mgr-detail-grid.is-review-step-1 > .mgr-actions-slot .mgr-stage-actions:not(.is-compact) .ui-card-body {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -566,7 +785,8 @@
   gap: 12px 16px;
 }
 
-:root .mgr-layout .mgr-detail-grid.is-wide .mgr-stage-actions:not(.is-compact) .mgr-actions {
+:root .mgr-layout .mgr-detail-grid.is-wide .mgr-stage-actions:not(.is-compact) .mgr-actions,
+:root .mgr-layout .mgr-detail-grid.is-review-step-1 > .mgr-actions-slot .mgr-stage-actions:not(.is-compact) .mgr-actions {
   flex-direction: row;
   align-items: center;
   gap: 8px;
@@ -574,15 +794,18 @@
   margin-left: auto;
 }
 
-:root .mgr-layout .mgr-detail-grid.is-wide .mgr-stage-actions:not(.is-compact) .mgr-actions > * {
+:root .mgr-layout .mgr-detail-grid.is-wide .mgr-stage-actions:not(.is-compact) .mgr-actions > *,
+:root .mgr-layout .mgr-detail-grid.is-review-step-1 > .mgr-actions-slot .mgr-stage-actions:not(.is-compact) .mgr-actions > * {
   width: auto;
 }
 
-:root .mgr-layout .mgr-detail-grid.is-wide .mgr-stage-actions:not(.is-compact) .odm-or-review-stage-hint {
+:root .mgr-layout .mgr-detail-grid.is-wide .mgr-stage-actions:not(.is-compact) .odm-or-review-stage-hint,
+:root .mgr-layout .mgr-detail-grid.is-review-step-1 > .mgr-actions-slot .mgr-stage-actions:not(.is-compact) .odm-or-review-stage-hint {
   flex: 1 1 240px;
 }
 
-:root .mgr-layout .mgr-detail-grid.is-wide .mgr-stage-actions:not(.is-compact) .mgr-decision-host {
+:root .mgr-layout .mgr-detail-grid.is-wide .mgr-stage-actions:not(.is-compact) .mgr-decision-host,
+:root .mgr-layout .mgr-detail-grid.is-review-step-1 > .mgr-actions-slot .mgr-stage-actions:not(.is-compact) .mgr-decision-host {
   flex: 1 1 auto;
   min-width: 0;
 }
@@ -680,7 +903,8 @@
 }
 
 @media (max-width: 640px) {
-  :root .mgr-layout .mgr-detail-grid.is-wide .mgr-stage-actions:not(.is-compact) .mgr-actions {
+  :root .mgr-layout .mgr-detail-grid.is-wide .mgr-stage-actions:not(.is-compact) .mgr-actions,
+  :root .mgr-layout .mgr-detail-grid.is-review-step-1 > .mgr-actions-slot .mgr-stage-actions:not(.is-compact) .mgr-actions {
     width: 100%;
     justify-content: flex-end;
   }
@@ -1009,6 +1233,8 @@
     grid-column: 1;
     grid-row: 1;
     min-width: 0;
+    min-height: 0;
+    align-self: stretch;
     display: flex;
     > .odm-or-card { flex: 1; }
   }
@@ -1019,13 +1245,21 @@
     position: static;
     top: auto;
     align-self: stretch;
-    > .odm-or-card { flex: 1; }
+    min-height: 0;
+    > .odm-or-card { flex: none; }
   }
 
   .mgr-intake-request {
     grid-column: 1 / -1;
     grid-row: 2;
     min-width: 0;
+  }
+
+  > .mgr-actions-slot {
+    grid-column: 1 / -1;
+    width: 100%;
+    max-width: none;
+    justify-self: stretch;
   }
 
   > .mgr-detail-main > .odm-or-card {
@@ -1040,6 +1274,12 @@
     .mgr-intake-request {
       grid-column: 1;
       grid-row: auto;
+    }
+
+    > .mgr-actions-slot {
+      grid-column: 1;
+      max-width: none;
+      justify-self: stretch;
     }
   }
 }
@@ -1057,7 +1297,7 @@
   .odm-or-overview-map {
     grid-column: 1;
     grid-row: 1 / 3;
-    min-height: 320px;
+    min-height: 200px;
     align-self: stretch;
   }
 
@@ -1075,7 +1315,7 @@
   .odm-or-location-fact,
   .odm-or-location-fact.is-emphasized,
   .odm-or-location-metric {
-    padding: 16px 0;
+    padding: 8px 0;
     border-radius: 0;
     border-bottom: 1px solid var(--mgr-border);
     background: transparent;
@@ -1102,4 +1342,147 @@
     .odm-or-location-facts { grid-column: 1; grid-row: 1; }
     .odm-or-location-metrics { grid-column: 1; grid-row: 3; }
   }
+}
+
+:root .mgr-layout .mgr-detail-grid.is-review-step-1 > .mgr-detail-side > .odm-or-card {
+  flex: none;
+  height: auto;
+}
+:root .mgr-layout .mgr-detail-grid.is-review-step-1 .mgr-intake-location .odm-or-location-overview-grid {
+  grid-template-rows: auto 1fr;
+  align-content: stretch;
+}
+:root .mgr-layout .mgr-detail-grid.is-review-step-1 .mgr-intake-location .odm-or-location-facts,
+:root .mgr-layout .mgr-detail-grid.is-review-step-1 .mgr-intake-location .odm-or-location-metrics {
+  grid-auto-rows: auto;
+  align-content: start;
+}
+:root .mgr-layout .mgr-detail-grid.is-review-step-1 > .mgr-detail-side .odm-or-card-body {
+  padding-bottom: 22px;
+}
+
+/* Align package service facts without changing custom pricing controls. */
+:root .mgr-layout .mgr-or .finance-workspace .finance-requirement:has(> .finance-zero) {
+  grid-template-columns: 36px minmax(0, 1fr) 100px minmax(190px, auto) 40px;
+  align-items: start;
+  gap: 10px 16px;
+  padding: 16px;
+  margin-block: 8px;
+}
+:root .mgr-layout .mgr-or .finance-workspace .finance-requirement:has(> .finance-zero) > .finance-index { grid-column: 1; grid-row: 1; margin-top: 2px; }
+:root .mgr-layout .mgr-or .finance-workspace .finance-requirement:has(> .finance-zero) > .finance-requirement-main { grid-column: 2; grid-row: 1; }
+:root .mgr-layout .mgr-or .finance-workspace .finance-requirement:has(> .finance-zero) > .finance-zero { grid-column: 3; grid-row: 1; padding-top: 2px; white-space: nowrap; }
+:root .mgr-layout .mgr-or .finance-workspace .finance-requirement:has(> .finance-zero) > .finance-item-price { grid-column: 4; grid-row: 1; padding-top: 2px; }
+:root .mgr-layout .mgr-or .finance-workspace .finance-requirement:has(> .finance-zero) .finance-system-price { display: flex; flex-wrap: nowrap; justify-content: flex-end; gap: 8px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+:root .mgr-layout .mgr-or .finance-workspace .finance-requirement:has(> .finance-zero) > .finance-chevron { grid-column: 5; grid-row: 1; min-height: 40px; }
+:root .mgr-layout .mgr-or .finance-workspace .finance-requirement:has(> .finance-zero) > .finance-requirement-guidance { grid-column: 2 / -1; grid-row: 2; }
+:root .mgr-layout .mgr-or .finance-workspace .finance-requirement:has(> .finance-zero) > .finance-note { grid-column: 2 / -1; grid-row: 3; }
+:root .mgr-layout .mgr-or .finance-workspace .finance-requirement-main strong { display: block; overflow: visible; -webkit-line-clamp: unset; line-height: 1.45; overflow-wrap: anywhere; }
+:root .mgr-layout .mgr-or .finance-workspace .finance-requirement-main > span { margin-top: 4px; line-height: 1.4; }
+:root .mgr-layout .mgr-or .finance-workspace .finance-requirement-guidance .odm-cg:not([open]) { width: 180px; max-width: 100%; }
+:root .mgr-layout .mgr-or .finance-workspace .finance-requirement-guidance .odm-cg > summary { min-height: 40px; padding: 8px 12px; font-size: 13px; }
+@container (max-width: 760px) {
+  :root .mgr-layout .mgr-or .finance-workspace .finance-requirement:has(> .finance-zero) { grid-template-columns: 32px minmax(0, 1fr) 40px; gap: 8px 12px; padding: 12px; }
+  :root .mgr-layout .mgr-or .finance-workspace .finance-requirement:has(> .finance-zero) > .finance-chevron { grid-column: 3; }
+  :root .mgr-layout .mgr-or .finance-workspace .finance-requirement:has(> .finance-zero) > .finance-zero { grid-column: 2; grid-row: 2; }
+  :root .mgr-layout .mgr-or .finance-workspace .finance-requirement:has(> .finance-zero) > .finance-item-price { grid-column: 2 / -1; grid-row: 3; }
+  :root .mgr-layout .mgr-or .finance-workspace .finance-requirement:has(> .finance-zero) .finance-system-price { justify-content: flex-start; flex-wrap: wrap; }
+  :root .mgr-layout .mgr-or .finance-workspace .finance-requirement:has(> .finance-zero) > .finance-requirement-guidance { grid-column: 2 / -1; grid-row: 4; }
+  :root .mgr-layout .mgr-or .finance-workspace .finance-requirement:has(> .finance-zero) > .finance-note { grid-column: 1 / -1; grid-row: 5; }
+}
+
+/* Compact service list with a quieter secondary guidance action. */
+:root .mgr-layout .mgr-or .finance-workspace .finance-requirement:has(> .finance-zero) {
+  grid-template-columns: 36px minmax(0, 1fr) auto minmax(180px, auto) 36px;
+  gap: 6px 16px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  box-shadow: none;
+  border-color: var(--mgr-border);
+  border-left: 3px solid color-mix(in srgb, #1565e8 45%, var(--mgr-border));
+}
+:root .mgr-layout .mgr-or .finance-workspace .finance-requirement:has(> .finance-zero) > .finance-zero {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, #1565e8 7%, var(--mgr-card));
+  color: var(--mgr-muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+:root .mgr-layout .mgr-or .finance-workspace .finance-requirement:has(> .finance-zero) .finance-system-price {
+  display: grid;
+  justify-content: end;
+  gap: 3px;
+  text-align: right;
+}
+:root .mgr-layout .mgr-or .finance-workspace .finance-requirement:has(> .finance-zero) .finance-system-price > span { font-size: 11px; }
+:root .mgr-layout .mgr-or .finance-workspace .finance-requirement:has(> .finance-zero) .finance-system-price > strong { font-size: 15px; color: var(--mgr-text); }
+:root .mgr-layout .mgr-or .finance-workspace .finance-requirement-guidance .odm-cg:not([open]) {
+  width: fit-content;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+}
+:root .mgr-layout .mgr-or .finance-workspace .finance-requirement-guidance .odm-cg > summary {
+  justify-content: flex-start;
+  gap: 10px;
+  min-height: 32px;
+  padding: 4px 0;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 600;
+}
+:root .mgr-layout .mgr-or .finance-workspace .finance-requirement-guidance .odm-cg > summary::after { width: 6px; height: 6px; flex-basis: 6px; }
+:root .mgr-layout .mgr-or .finance-workspace .finance-requirement-guidance .odm-cg[open] > summary { padding-inline: 12px; }
+@container (max-width: 760px) {
+  :root .mgr-layout .mgr-or .finance-workspace .finance-requirement:has(> .finance-zero) { grid-template-columns: 32px minmax(0, 1fr) 36px; gap: 6px 10px; padding: 12px; }
+  :root .mgr-layout .mgr-or .finance-workspace .finance-requirement:has(> .finance-zero) > .finance-zero { justify-self: start; }
+  :root .mgr-layout .mgr-or .finance-workspace .finance-requirement:has(> .finance-zero) .finance-system-price { display: flex; flex-wrap: wrap; justify-content: flex-start; align-items: baseline; gap: 8px; text-align: left; }
+}
+
+/* Dense service rows. */
+:root .mgr-layout .mgr-or .finance-workspace .finance-requirement:has(> .finance-zero) {
+  padding: 10px 12px;
+  gap: 2px 12px;
+  margin-block: 6px;
+  grid-template-columns: 30px minmax(0, 1fr) auto minmax(170px, auto) 32px;
+}
+:root .mgr-layout .mgr-or .finance-workspace .finance-requirement:has(> .finance-zero) > .finance-index { width: 28px; height: 28px; font-size: 12px; border-radius: 8px; }
+:root .mgr-layout .mgr-or .finance-workspace .finance-requirement:has(> .finance-zero) .finance-requirement-main strong { font-size: 13px; line-height: 1.35; }
+:root .mgr-layout .mgr-or .finance-workspace .finance-requirement:has(> .finance-zero) .finance-requirement-main > span { margin-top: 2px; font-size: 11px; }
+:root .mgr-layout .mgr-or .finance-workspace .finance-requirement:has(> .finance-zero) > .finance-chevron { min-height: 32px; width: 32px; height: 32px; }
+:root .mgr-layout .mgr-or .finance-workspace .finance-requirement:has(> .finance-zero) .finance-system-price { display: flex; align-items: baseline; gap: 6px; }
+:root .mgr-layout .mgr-or .finance-workspace .finance-requirement:has(> .finance-zero) .finance-system-price > strong { font-size: 13px; }
+:root .mgr-layout .mgr-or .finance-workspace .finance-requirement-guidance .odm-cg > summary { min-height: 28px; padding-block: 3px; font-size: 12px; }
+@container (max-width: 760px) {
+  :root .mgr-layout .mgr-or .finance-workspace .finance-requirement:has(> .finance-zero) { grid-template-columns: 28px minmax(0, 1fr) 32px; gap: 4px 8px; }
+}
+
+/* Service bars size to their contents; guidance keeps its visible button. */
+:root .mgr-layout .mgr-or .finance-workspace .finance-checklist { align-content: start; grid-auto-rows: max-content; }
+:root .mgr-layout .mgr-or .finance-workspace .finance-requirement:has(> .finance-zero) {
+  height: auto;
+  min-height: 0;
+  align-self: start;
+  align-content: start;
+  grid-auto-rows: max-content;
+  padding-block: 10px;
+}
+:root .mgr-layout .mgr-or .finance-workspace .finance-requirement-guidance { min-height: 0; height: auto; margin: 0; }
+:root .mgr-layout .mgr-or .finance-workspace .finance-requirement-guidance .odm-cg:not([open]) {
+  display: block;
+  height: auto;
+  min-height: 0;
+  width: 150px;
+  max-width: 100%;
+  border: 1px solid color-mix(in srgb, #1565e8 25%, var(--mgr-border));
+  border-radius: 8px;
+  background: color-mix(in srgb, #1565e8 6%, var(--mgr-card));
+}
+:root .mgr-layout .mgr-or .finance-workspace .finance-requirement-guidance .odm-cg > summary {
+  display: flex;
+  min-height: 32px;
+  justify-content: space-between;
+  padding: 5px 10px;
+  font-size: 12px;
 }

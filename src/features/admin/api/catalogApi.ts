@@ -5,7 +5,6 @@ export type ServiceResponse = {
   id: string
   name: string
   description?: string
-  basePrice: number
   defaultPrice?: number
   priceSource?: 'CHECKLISTS' | 'UNPRICED'
   imageUrl?: string | null
@@ -19,7 +18,6 @@ export type ServiceResponse = {
 export type ServiceRequest = {
   name: string
   description?: string
-  basePrice: number
   isActive?: boolean
 }
 
@@ -28,6 +26,7 @@ export const PREFERRED_TIME_CODES = [
   'AFTERNOON',
   'EVENING',
   'NIGHT',
+  'ANY_TIME',
 ] as const
 
 export type PreferredTimeCode = (typeof PREFERRED_TIME_CODES)[number]

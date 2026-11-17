@@ -1,5 +1,15 @@
 import { apiRequest } from '../../../shared/api/httpClient'
 
+export type DeviceType = {
+  id: string
+  code: string
+  name: string
+  description?: string | null
+  createdAt?: string
+  updatedAt?: string | null
+  version?: number
+}
+
 export type ChecklistDefinition = {
   id: string
   content: string
@@ -15,19 +25,10 @@ export type ChecklistDefinition = {
   createdAt: string
   updatedAt: string | null
   version: number
-  difficulty?: 'BASIC' | 'MEDIUM' | 'HARD' | 'VERY_HARD'
-  /** Price of the inspection work itself (whole VND). Media is priced by the pricing profile. */
-  basePrice?: number
   includedImageCount?: number
   includedVideoCount?: number
   standardVideoDurationSeconds?: number | null
-  pricingProfile?: string | null
-  areaPricingEnabled?: boolean
-  lengthPricingEnabled?: boolean
-  altitudePricingEnabled?: boolean
-  includedAreaHa?: number
-  includedLengthKm?: number
-  includedAltitudeM?: number
+  deviceTypes?: DeviceType[]
 }
 /** Description and work guidance sent with create/edit; omitted keeps the stored value, empty clears it. */
 export type ChecklistGuidanceInput = {
@@ -36,19 +37,11 @@ export type ChecklistGuidanceInput = {
   inputRequirements?: string[]
   expectedOutputs?: string[]
 }
-/** Pricing configuration sent with create/edit; omitted fields keep the stored value. */
-export type ChecklistPricingInput = {
-  basePrice?: number
+/** Evidence requirements sent with create/edit; Base Checklist prices are managed separately. */
+export type ChecklistEvidenceInput = {
   includedImageCount?: number
   includedVideoCount?: number
   standardVideoDurationSeconds?: number | null
-  pricingProfile?: string | null
-  areaPricingEnabled?: boolean
-  lengthPricingEnabled?: boolean
-  altitudePricingEnabled?: boolean
-  includedAreaHa?: number
-  includedLengthKm?: number
-  includedAltitudeM?: number
 }
 export type ChecklistPage = {
   items: ChecklistDefinition[]
@@ -76,27 +69,44 @@ export type ServiceChecklist = {
   required?: boolean
   /** How many services include this checklist (this one included). */
   usedByServiceCount?: number
-  /** Effective values: the association override, else inherited from the checklist. */
-  basePrice?: number
   includedImageCount?: number
   includedVideoCount?: number
-  pricingProfile?: string | null
   standardVideoDurationSeconds?: number | null
-  basePriceOverride?: number | null
   includedImageCountOverride?: number | null
   includedVideoCountOverride?: number | null
-  pricingProfileOverride?: string | null
-  checklistBasePrice?: number
   checklistIncludedImageCount?: number
   checklistIncludedVideoCount?: number
-  checklistPricingProfile?: string | null
+  deviceTypes?: DeviceType[]
 }
-/** Replaces the per-service overrides; null inherits the checklist definition. */
-export type ServiceChecklistPricingInput = {
-  basePriceOverride: number | null
+export type DeviceTypePage = {
+  items: DeviceType[]
+  page: number
+  totalItems: number
+  totalPages: number
+  first: boolean
+  last: boolean
+}
+export type ChecklistDeviceRequirement = {
+  id: string
+  checklistId: string
+  deviceType: DeviceType
+  createdAt: string
+  updatedAt: string | null
+  version: number
+}
+export type MissionTemplate = {
+  id: string
+  serviceId: string
+  scopeLabel: string
+  checklistIds: string[]
+  createdAt: string
+  updatedAt: string | null
+  version: number
+}
+/** Evidence requirements may vary by service; prices are configured globally. */
+export type ServiceChecklistRequirementsInput = {
   includedImageCountOverride: number | null
   includedVideoCountOverride: number | null
-  pricingProfileOverride: string | null
   required: boolean
   expectedVersion?: number
 }
@@ -138,6 +148,8 @@ export type ChecklistAuditPage = {
 const enc = encodeURIComponent
 const catalog = '/api/admin/checklists'
 const template = (id: string) => `/api/admin/services/${enc(id)}/checklists`
+const missionTemplates = (id: string) =>
+  `/api/admin/services/${enc(id)}/mission-templates`
 export const checklistsApi = {
   get(id: string, signal?: AbortSignal) {
     return apiRequest<ChecklistDefinition>(`${catalog}/${enc(id)}`, { signal })
@@ -184,23 +196,21 @@ export const checklistsApi = {
   },
   create(
     content: string,
-    difficulty?: ChecklistDefinition['difficulty'],
-    pricing?: ChecklistPricingInput & ChecklistGuidanceInput,
+    evidence?: ChecklistEvidenceInput & ChecklistGuidanceInput,
   ) {
     return apiRequest<ChecklistDefinition>(catalog, {
       method: 'POST',
-      body: { content, ...(difficulty ? { difficulty } : {}), ...pricing },
+      body: { content, ...evidence },
     })
   },
   update(
     id: string,
     content: string,
-    difficulty?: ChecklistDefinition['difficulty'],
-    pricing?: ChecklistPricingInput & ChecklistGuidanceInput,
+    evidence?: ChecklistEvidenceInput & ChecklistGuidanceInput,
   ) {
     return apiRequest<ChecklistDefinition>(`${catalog}/${enc(id)}`, {
       method: 'PUT',
-      body: { content, ...(difficulty ? { difficulty } : {}), ...pricing },
+      body: { content, ...evidence },
     })
   },
   status(id: string, active: boolean) {
@@ -208,6 +218,56 @@ export const checklistsApi = {
       method: 'PATCH',
       body: { active },
     })
+  },
+  deviceTypes(signal?: AbortSignal) {
+    return apiRequest<DeviceTypePage>('/api/device-types', {
+      query: { page: 0, size: 100, sort: 'name,asc' },
+      signal,
+    })
+  },
+  addDeviceType(checklistId: string, deviceTypeId: string) {
+    return apiRequest<ChecklistDeviceRequirement>(
+      `${catalog}/${enc(checklistId)}/device-types/${enc(deviceTypeId)}`,
+      { method: 'POST' },
+    )
+  },
+  removeDeviceType(checklistId: string, deviceTypeId: string) {
+    return apiRequest<void>(
+      `${catalog}/${enc(checklistId)}/device-types/${enc(deviceTypeId)}`,
+      { method: 'DELETE' },
+    )
+  },
+  missionTemplates(serviceId: string, signal?: AbortSignal) {
+    return apiRequest<MissionTemplate[]>(missionTemplates(serviceId), {
+      signal,
+    })
+  },
+  createMissionTemplate(
+    serviceId: string,
+    scopeLabel: string,
+    checklistIds: string[],
+  ) {
+    return apiRequest<MissionTemplate>(missionTemplates(serviceId), {
+      method: 'POST',
+      body: { scopeLabel, checklistIds },
+    })
+  },
+  updateMissionTemplate(
+    serviceId: string,
+    templateId: string,
+    scopeLabel: string,
+    checklistIds: string[],
+  ) {
+    return apiRequest<MissionTemplate>(
+      `${missionTemplates(serviceId)}/${enc(templateId)}`,
+      { method: 'PUT', body: { scopeLabel, checklistIds } },
+    )
+  },
+  removeMissionTemplate(serviceId: string, templateId: string) {
+    return apiRequest<void>(
+      `${missionTemplates(serviceId)}/${enc(templateId)}`,
+      { method: 'DELETE' },
+    )
   },
   services(id: string, signal?: AbortSignal) {
     return apiRequest<ServiceChecklist[]>(`${catalog}/${enc(id)}/services`, {
@@ -223,13 +283,13 @@ export const checklistsApi = {
       body: { checklistId, displayOrder },
     })
   },
-  updatePricing(
+  updateRequirements(
     serviceId: string,
     checklistId: string,
-    input: ServiceChecklistPricingInput,
+    input: ServiceChecklistRequirementsInput,
   ) {
     return apiRequest<ServiceChecklist>(
-      `${template(serviceId)}/${enc(checklistId)}/pricing`,
+      `${template(serviceId)}/${enc(checklistId)}/requirements`,
       { method: 'PUT', body: input },
     )
   },

@@ -9,7 +9,7 @@ export function PriceDifference({
 }: {
   system: number
   proposed: number
-  /** Prices the Manager may approve; null when the policy limits are unknown. */
+  /** Suggested price bounds; null when the policy limits are unknown. */
   range: { min: number; max: number } | null
 }) {
   const { t, locale } = useI18n(pricingMessages)

@@ -969,3 +969,47 @@
   }
   @media (max-width: 560px) { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* Consistent payment statuses and alignment in finance panels. */
+.mgr-layout .mission-finance-tab .mgr-status-tag { display: inline-flex; align-items: center; gap: 6px; margin: 0; padding: 4px 10px; font-size: 12px; font-weight: 600; line-height: 20px; border-radius: 999px; white-space: nowrap; }
+.mgr-layout .mission-finance-tab__payment-end { display: grid; justify-items: end; gap: 8px; }
+.mgr-layout .mission-finance-tab__payment { align-items: center; gap: 16px; }
+.mgr-layout .mission-finance-tab__panel-heading { align-items: flex-start; gap: 16px; }
+.mgr-layout .mission-finance-tab__paid-amount { color: var(--ant-color-success-text, #09834b); }
+
+.mgr-layout .mission-finance-tab__overview { grid-template-columns: repeat(3,minmax(0,1fr)); }
+.mgr-layout .mission-finance-tab__amount--deposit { border-left: 1px solid var(--ant-color-border-secondary, #e5eaf2); }
+.mgr-layout .mission-finance-tab__amount--deposit > strong { color: var(--ant-color-success-text, #09834b); }
+@media(max-width:700px) {
+ .mgr-layout .mission-finance-tab__overview { grid-template-columns: minmax(0,1fr); }
+ .mgr-layout .mission-finance-tab__amount--deposit { border-left: 0; border-top: 1px solid var(--ant-color-border-secondary, #e5eaf2); }
+}
+
+/* Both payment columns use the same information rhythm and history rows. */
+.mgr-layout .mission-finance-tab__details-grid { grid-template-columns: repeat(2,minmax(0,1fr)); align-items: stretch; }
+.mgr-layout .mission-finance-tab__mission-details { display: flex; min-width: 0; }
+.mgr-layout .mission-finance-tab__calculation { width: 100%; box-sizing: border-box; }
+.mgr-layout .mission-finance-tab__timing { margin-top: 18px; }
+.mgr-layout .mission-finance-tab__deposit-history { border-top: 1px solid var(--mgr-border, #e5eaf2); padding-top: 18px; margin-top: 18px; }
+.mgr-layout .mission-finance-tab__payment-meta { display: grid; gap: 4px; margin-top: 6px; font-size: 12px; }
+.mgr-layout .mission-finance-tab__payment-end .ant-typography { font-size: 12px; overflow-wrap: anywhere; }
+@media(max-width:850px) { .mgr-layout .mission-finance-tab__details-grid { grid-template-columns: minmax(0,1fr); } }
+
+/* Align deposit and mission transaction histories at the bottom of equal panels. */
+.mgr-layout .mission-finance-tab__mission-details > .mission-finance-tab__calculation,
+.mgr-layout .mission-finance-tab__order-deposit { display: flex; flex-direction: column; gap: 0; }
+.mgr-layout .mission-finance-tab__calculation > .mission-finance-tab__deposit-history,
+.mgr-layout .mission-finance-tab__order-deposit > .mission-finance-tab__deposit-history { margin-top: auto; padding-top: 18px; }
+.mgr-layout .mission-finance-tab__calculation > .mission-finance-tab__timing { margin-bottom: 18px; }
+.mgr-layout .mission-finance-tab__order-deposit > .ant-descriptions { margin-top: 18px; margin-bottom: 18px; }
+.mgr-layout .mission-finance-tab__order-deposit .mission-finance-tab__payment,
+.mgr-layout .mission-finance-tab__calculation .mission-finance-tab__payment { padding-block: 12px; }
+
+.mgr-layout .mission-finance-tab__order-deposit > .mission-finance-tab__equation { margin-top: 18px; }
+.mgr-layout .mission-finance-tab__order-deposit > .mission-finance-tab__deposit-timing { margin-top: auto; margin-bottom: 18px; padding-top: 24px; }
+.mgr-layout .mission-finance-tab__order-deposit > .mission-finance-tab__deposit-timing + .mission-finance-tab__deposit-history { margin-top: 0; }
+.mgr-layout .mission-finance-tab__order-deposit .mission-finance-tab__equation .is-total { color: var(--ant-color-primary, #1764e8); font-weight: 700; }
+
+.mgr-layout .mission-finance-tab__equation .mission-finance-tab__order-paid dd { color: var(--ant-color-success-text, #09834b); }
+.mgr-layout .mission-finance-tab__equation .mission-finance-tab__balance-due dd { color: var(--ant-color-warning-text, #b45309); font-weight: 650; }
+.mgr-layout .mission-finance-tab__equation .mission-finance-tab__balance-clear dd { color: var(--ant-color-text-secondary, #64748b); }

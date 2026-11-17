@@ -1,4 +1,5 @@
 import { ReadOnlyScope } from './ReadOnlyScope'
+import { useState } from 'react'
 import { ManagerPricingPanel } from '../../../../finance/ManagerPricing'
 import { ReviewStageActions } from './ReviewStageActions'
 import type { OrderDetail } from '../../../types/orders'
@@ -24,6 +25,8 @@ export function ReviewStagePricing({
   goToStep: (step: ReviewStep) => void
 }) {
   const { t } = useI18n(reviewStagePricingMessages)
+  const [preparingContract, setPreparingContract] = useState(false)
+  const [editRequest, setEditRequest] = useState(0)
   return (
     <div
       className="odm-or-review-stage odm-or-pricing-stage"
@@ -33,13 +36,18 @@ export function ReviewStagePricing({
         <section className="odm-or-review-section">
           <ManagerPricingPanel
             orderId={order.id}
+            onPreparationChange={setPreparingContract}
+            editRequest={editRequest}
             onApproved={handleApproved}
             onChecklistReviewChanged={readinessQuery.reload}
             approveBlockedReason={approveBlockedReason}
           />
         </section>
       </ReadOnlyScope>
-      <ReviewStageActions step={4} onBack={() => goToStep(3)} compact />
+      <ReviewStageActions
+        step={preparingContract ? 5 : 4}
+        onBack={() => preparingContract ? setEditRequest((value) => value + 1) : goToStep(3)}
+      />
     </div>
   )
 }

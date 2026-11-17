@@ -9,11 +9,13 @@ export function AssessmentProgress({
   summary,
   allAssessed,
   handlePassAll,
+  total = ALL_KEYS.length,
 }: {
   failItems: PostflightItemKey[]
   summary: PostflightSummary
   allAssessed: boolean
   handlePassAll: () => void
+  total?: number
 }) {
   const { t } = useI18n(postflightPageMessages)
   return (
@@ -24,7 +26,7 @@ export function AssessmentProgress({
         </div>
         <div className="postflight-progress-count">
           <span>
-            {t.itemsAssessed(summary.nOk + failItems.length, ALL_KEYS.length)}
+            {t.itemsAssessed(summary.nOk + failItems.length, total)}
           </span>
           {allAssessed && (
             <span

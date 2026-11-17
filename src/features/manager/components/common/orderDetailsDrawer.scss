@@ -28,6 +28,97 @@
     .odm-or-svc-grid.has-no-time {
       grid-template-columns: minmax(0, 1fr);
     }
+
+    .mgr-order-checklist-details {
+      .odm-or-card-title {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+      }
+    }
+
+    .mgr-order-checklist-count,
+    .mgr-order-checklist-meta > span {
+      border-radius: 999px;
+      padding: 3px 9px;
+      color: var(--or-tx2);
+      background: var(--or-primary-soft);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .mgr-order-checklist-list {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .mgr-order-checklist-item {
+      min-width: 0;
+      padding: 14px;
+      border: 1px solid var(--or-border);
+      border-radius: 12px;
+      background: var(--or-card);
+    }
+
+    .mgr-order-checklist-item-head {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .mgr-order-checklist-index {
+      flex: 0 0 auto;
+      color: var(--or-primary);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .mgr-order-checklist-identity {
+      display: grid;
+      min-width: 0;
+      gap: 7px;
+
+      > strong {
+        overflow-wrap: anywhere;
+      }
+    }
+
+    .mgr-order-checklist-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .mgr-order-checklist-note {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-left: 3px solid var(--or-primary);
+      border-radius: 0 9px 9px 0;
+      background: var(--or-primary-soft);
+
+      strong {
+        color: var(--or-tx2);
+        font-size: 12px;
+      }
+
+      p {
+        margin: 4px 0 0;
+        color: var(--or-tx);
+        font-size: 13px;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
+        white-space: pre-wrap;
+      }
+
+      &.is-pricing {
+        border-left-color: var(--or-warning, #d97706);
+        background: var(--or-warning-soft, #fff7e6);
+      }
+    }
   }
 }
 
@@ -37,4 +128,43 @@
   align-items: center;
   justify-content: flex-end;
   gap: 10px;
+}
+
+/* Give the order summary a clear reading order inside the narrow drawer. */
+.mgr-order-details-drawer .mgr-order-detail-drawer-content {
+  .odm-or-svc-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .odm-or-svc-time {
+    min-height: 88px;
+    padding: 16px 18px;
+  }
+
+  .odm-or-svc-tiles {
+    gap: 10px;
+  }
+
+  .odm-or-svc-tile {
+    min-height: 78px;
+    align-items: flex-start;
+    padding: 14px 16px;
+  }
+
+  .odm-or-svc-tile:nth-child(2) {
+    order: -1;
+    grid-column: 1 / -1;
+    min-height: 72px;
+  }
+
+  .odm-or-svc-tile dd {
+    line-height: 1.4;
+  }
+
+  @media (max-width: 520px) {
+    .odm-or-svc-tiles {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
 }

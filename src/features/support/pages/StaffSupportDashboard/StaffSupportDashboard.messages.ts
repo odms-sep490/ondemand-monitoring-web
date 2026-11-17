@@ -33,8 +33,8 @@ export const staffSupportMessages = defineMessages({
         `Cam kết SLA: ${pct}% phiếu được phản hồi trong 30 phút`,
       sourceTitle: 'Phân loại nguồn sự cố',
       sourceOrders: 'Đơn hàng & đánh giá khả thi AI',
-      sourceMissions: 'Nhiệm vụ & drone',
-      sourceMedia: 'Media & telemetry',
+      sourceMissions: 'Nhiệm vụ & thiết bị',
+      sourceMedia: 'Ảnh/video & dữ liệu bay',
     },
     filter: {
       searchPlaceholder:
@@ -64,7 +64,7 @@ export const staffSupportMessages = defineMessages({
       ORDERS: 'Đơn hàng',
       MISSIONS: 'Nhiệm vụ bay',
       RESULTS: 'Kết quả giám sát',
-      MEDIA: 'Media & livestream',
+      MEDIA: 'Ảnh/video & phát trực tiếp',
       SCHEDULING: 'Lịch bay',
       ACCOUNT: 'Tài khoản',
       TECHNICAL: 'Kỹ thuật',
@@ -116,7 +116,7 @@ export const staffSupportMessages = defineMessages({
       none: 'Không có',
       missionStatus: 'Trạng thái nhiệm vụ',
       missionStatusValue: 'Chờ người vận hành chấp nhận',
-      assignedDrone: 'Drone được phân công',
+      assignedDrone: 'Thiết bị được phân công',
       controls: 'Điều khiển phiếu hỗ trợ',
       assignStaff: 'Phân công nhân viên',
       unassignedOption: '— Chưa phân công —',

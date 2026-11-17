@@ -10,8 +10,9 @@ import type { ReviewStep } from '../reviewTypes'
 import { ReviewActionsSlot } from './ReviewActionsSlot'
 
 /**
- * Detail layout of the review stages. Intake keeps customer information and
- * actions in a sidebar; later stages use the full workspace with actions below.
+ * Detail layout of the review stages. Intake keeps customer information in the
+ * sidebar and places actions after the request details; later stages use the
+ * full workspace with actions below.
  */
 export function ReviewLayout({
   order,
@@ -27,6 +28,7 @@ export function ReviewLayout({
   const { t } = useI18n(orderReviewPageMessages)
   const [slot, setSlot] = useState<HTMLDivElement | null>(null)
   const actionTarget = <div ref={setSlot} className="mgr-actions-slot" />
+  const actionsBelowContent = !wide && reviewStep === 1
   const showCustomerInSidebar = !wide && reviewStep === 1
   const showCustomerInMain =
     !wide && !showCustomerInSidebar && reviewStep !== 2 && reviewStep !== 3
@@ -38,7 +40,7 @@ export function ReviewLayout({
       {showCustomerInSidebar ? (
         <OrderCustomerCard order={order} t={t} hideEmpty />
       ) : null}
-      {!wide ? actionTarget : null}
+      {!wide && !actionsBelowContent ? actionTarget : null}
     </aside>
   )
   const main = (
@@ -81,6 +83,7 @@ export function ReviewLayout({
           <>
             {main}
             {sidebar}
+            {actionsBelowContent ? actionTarget : null}
           </>
         )}
       </div>

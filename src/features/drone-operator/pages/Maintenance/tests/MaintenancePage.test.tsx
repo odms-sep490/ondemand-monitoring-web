@@ -23,7 +23,7 @@ describe('OperatorMaintenanceScreen', () => {
     render(<MaintenancePage />)
     await screen.findByText('Bảo trì & Khôi phục thiết bị')
     act(() => setLanguage('en'))
-    expect(await screen.findByText('Maintenance & Device Recovery')).toBeTruthy()
+    expect(await screen.findByText('Maintenance & device recovery')).toBeTruthy()
     expect(screen.getByText(/Assigned to me/)).toBeTruthy()
   })
 })

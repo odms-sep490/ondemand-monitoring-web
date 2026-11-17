@@ -1,12 +1,14 @@
 import {
   ApartmentOutlined,
   ArrowRightOutlined,
+  BulbOutlined,
   CloseOutlined,
+  LoadingOutlined,
   SendOutlined,
 } from '@ant-design/icons'
 import { useEffect, useRef, useState } from 'react'
 import type { OrderChecklistSnapshot, OrderDetail } from '../../types/orders'
-import type { MissionResponse } from '../../types/missions'
+import type { MissionRecommendationsResponse, MissionResponse } from '../../types/missions'
 import type { ExecutionPlan } from '../../types/planning'
 import { StatusBadge, toUiTone } from '../../../../shared/components/ui'
 import {
@@ -74,12 +76,16 @@ export function MissionGridCard({
   const animation = useDroneAssignmentAnimation(cardRef)
   const sourceRefs = useRef(new Map<string, HTMLDivElement>())
   const assignmentAttemptRef = useRef(0)
+  const recommendationAttemptRef = useRef(0)
   const deviceLoadAttemptRef = useRef(0)
   const assignmentInProgressRef = useRef(false)
   const revealTimerRef = useRef<number | null>(null)
 
   const [busy, setBusy] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
+  const [recommendationData, setRecommendationData] = useState<MissionRecommendationsResponse | null>(null)
+  const [recommendationError, setRecommendationError] = useState('')
+  const [generatingRecommendations, setGeneratingRecommendations] = useState(false)
   const [activeDeviceId, setActiveDeviceId] = useState('')
   const [revealedDeviceId, setRevealedDeviceId] = useState<string | null>(null)
 
@@ -92,6 +98,7 @@ export function MissionGridCard({
   useEffect(() => {
     return () => {
       assignmentAttemptRef.current += 1
+      recommendationAttemptRef.current += 1
       deviceLoadAttemptRef.current += 1
       assignmentInProgressRef.current = false
       animation.cancel()
@@ -105,6 +112,11 @@ export function MissionGridCard({
   useEffect(() => {
     animation.reset()
   }, [animation.reset, mission.id])
+
+  useEffect(() => {
+    setRecommendationData(null)
+    setRecommendationError('')
+  }, [mission.id])
 
   useEffect(() => {
     if (animation.phase !== 'SUCCESS') return
@@ -368,6 +380,36 @@ export function MissionGridCard({
     }
   }
 
+  async function handleGenerateRecommendations() {
+    if (generatingRecommendations) return
+    const missionId = mission.id
+    const requestId = ++recommendationAttemptRef.current
+    setGeneratingRecommendations(true)
+    setRecommendationError('')
+    setRecommendationData(null)
+    try {
+      const result = await missionsApi.generateRecommendations(missionId)
+      if (
+        requestId !== recommendationAttemptRef.current ||
+        missionId !== missionIdRef.current
+      ) return
+      setRecommendationData(result)
+    } catch (err: unknown) {
+      if (
+        requestId !== recommendationAttemptRef.current ||
+        missionId !== missionIdRef.current
+      ) return
+      setRecommendationError(err instanceof Error ? err.message : t.recommendationError)
+    } finally {
+      if (
+        requestId === recommendationAttemptRef.current &&
+        missionId === missionIdRef.current
+      ) {
+        setGeneratingRecommendations(false)
+      }
+    }
+  }
+
   const cardStatusClass = isCancelled
     ? 'is-cancelled'
     : isReady
@@ -404,6 +446,20 @@ export function MissionGridCard({
           >
             {missionStatusLabel[mission.status] ?? mission.status}
           </StatusBadge>
+          <button
+            type="button"
+            className="odm-btn odm-btn-sm odm-mcard-ai-estimate"
+            onClick={() => void handleGenerateRecommendations()}
+            disabled={disabled || !isPlanning || generatingRecommendations}
+            title={t.recommendationTitle}
+          >
+            {generatingRecommendations ? (
+              <LoadingOutlined spin aria-hidden="true" />
+            ) : (
+              <BulbOutlined aria-hidden="true" />
+            )}
+            <span>{generatingRecommendations ? t.recommendationGenerating : t.recommendationButton}</span>
+          </button>
           {isPlanning &&
             mission.purpose !== 'REWORK' &&
             plan.planStatus === 'FINALIZED' &&
@@ -458,6 +514,62 @@ export function MissionGridCard({
         <div className="odm-mcard-error" role="alert">
           {errorMsg}
         </div>
+      )}
+
+      {recommendationError && <p className="odm-mcard-error" role="alert">{recommendationError}</p>}
+      {recommendationData && (
+        <section className="odm-mcard-ai-estimate-result odm-mcard-recommendations">
+          <div className="odm-mcard-recommendations-heading">
+            <span>{t.recommendationTitle}</span>
+            <small>{recommendationData.aiEstimation.model}</small>
+          </div>
+          <div className="odm-mcard-recommendation-results">
+            <p>{t.recommendationSearchWindow(recommendationData.searchWindow.from, recommendationData.searchWindow.to)}</p>
+            <p>{t.recommendationWindow(
+              recommendationData.fixedTimeWindow.start,
+              recommendationData.fixedTimeWindow.end,
+              recommendationData.fixedTimeWindow.timezone,
+            )}</p>
+            <div className="odm-mcard-recommendation-ai">
+              <strong>{t.recommendationEstimate(
+                recommendationData.aiEstimation.minimumSuggestedDevices,
+                recommendationData.aiEstimation.recommendedDevices,
+              )}</strong>
+              {recommendationData.aiEstimation.reason && <p>{recommendationData.aiEstimation.reason}</p>}
+              {recommendationData.aiEstimation.assumptions.length > 0 && (
+                <ul>{recommendationData.aiEstimation.assumptions.map((item, index) => <li key={`${index}-${item}`}>{item}</li>)}</ul>
+              )}
+              {recommendationData.aiEstimation.warnings.length > 0 && (
+                <div><b>{t.recommendationWarnings}</b><ul>{recommendationData.aiEstimation.warnings.map((item, index) => <li key={`${index}-${item}`}>{item}</li>)}</ul></div>
+              )}
+            </div>
+            {recommendationData.recommendations.length === 0 ? (
+              <p>{t.recommendationEmpty}</p>
+            ) : recommendationData.recommendations.map((option) => (
+              <article className="odm-mcard-recommendation-option" key={option.id}>
+                <div className="odm-mcard-recommendation-option-head">
+                  <strong>{new Date(`${option.date}T12:00:00`).toLocaleDateString()}</strong>
+                  <span className={`is-${option.riskLevel.toLowerCase()}`}>{t.risk[option.riskLevel]}</span>
+                </div>
+                <p>{t.recommendationAvailability(option.availableDeviceCount, option.availableStaffCount)}</p>
+                <p>{t.recommendationDeviceCandidates(option.capabilityCompatibleDeviceCount, option.recommendedDeviceCount, option.deviceShortageCount)}</p>
+                <p>{t.recommendationStaffShortage(option.staffShortageCount)}</p>
+                <p>{t.recommendationRatios}: {Math.round(option.effectiveAvailabilityRatio * 100)}%</p>
+                {option.requiredCapabilities.length > 0 && <p>{t.recommendationCovered}: {option.requiredCapabilities.join(', ')}</p>}
+                <ul className="odm-mcard-recommendation-pairs">
+                  {option.deviceCandidates.map((device) => (
+                    <li key={device.id}>
+                      <span>{device.name || device.code || device.id}</span>
+                      {device.code && <small>{device.code}</small>}
+                      {device.capabilityCodes.length > 0 && <small>{device.capabilityCodes.join(', ')}</small>}
+                    </li>
+                  ))}
+                </ul>
+                {option.warnings.length > 0 && <ul className="odm-mcard-recommendation-warnings">{option.warnings.map((warning, index) => <li key={`${index}-${warning}`}>{warning}</li>)}</ul>}
+              </article>
+            ))}
+          </div>
+        </section>
       )}
 
       {/* Schedule Section */}

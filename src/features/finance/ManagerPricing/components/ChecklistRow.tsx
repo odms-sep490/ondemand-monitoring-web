@@ -8,8 +8,11 @@ import type { ChecklistReviewStatus } from '../../types'
 import {
   statuses,
   liveSystemPrice,
+  initialManagerPrice,
   isManagerPriced,
   amount,
+  isOutsidePriceRange,
+  MIN_REASON_LENGTH,
 } from '../pricingHelpers'
 import { formatVnd } from '../../../../shared/lib/formatVnd'
 import { MoneyInput } from './MoneyInput'
@@ -29,6 +32,7 @@ export function ChecklistRow({
   draft,
   setDraft,
   dirtyPriceIds,
+  dirtyPriceReasonIds,
   priceRange,
   openNote,
   setOpenNote,
@@ -45,6 +49,7 @@ export function ChecklistRow({
   draft: Draft
   setDraft: Dispatch<SetStateAction<Draft>>
   dirtyPriceIds: RefObject<Set<string>>
+  dirtyPriceReasonIds: RefObject<Set<string>>
   priceRange: (system: number) => { min: number; max: number } | null
   openNote: string | null
   setOpenNote: Dispatch<SetStateAction<string | null>>
@@ -54,6 +59,15 @@ export function ChecklistRow({
   const isCustom = item.sourceType === 'CUSTOMER_CUSTOM'
   const noteOpen = openNote === item.id
   const pending = item.reviewStatus === 'PENDING'
+  const system = liveSystemPrice(item, data?.systemCalculation?.items)
+  const initialPrice = initialManagerPrice(item, system)
+  const range = priceRange(system)
+  const proposed = amount(
+    draft.prices[item.id] ?? String(initialPrice),
+  )
+  const outsideRange = isOutsidePriceRange(proposed, system, range)
+  const priceReason =
+    draft.priceReasons[item.id] ?? item.managerPriceAdjustmentReason ?? ''
   return (
     <div
       className={`finance-requirement is-${item.reviewStatus.toLowerCase()}${noteOpen ? ' is-note-open' : ''}${isCustom ? ' is-customer-custom' : ''}`}
@@ -81,7 +95,6 @@ export function ChecklistRow({
             )}
           </div>
         ) : null}
-        <ChecklistGuidance guidance={item} />
         {item.sourceType !== 'SERVICE_TEMPLATE' ? (
           <span>{t.sourceCustom}</span>
         ) : null}
@@ -130,19 +143,20 @@ export function ChecklistRow({
           <MoneyInput
             label={t.approvedPriceLabel}
             value={
-              draft.prices[item.id] ??
-              String(
-                item.managerApprovedAmount ??
-                  item.managerQuotedPrice ??
-                  liveSystemPrice(item, data?.systemCalculation?.items),
-              )
+              draft.prices[item.id] ?? String(initialPrice)
             }
             onChange={(value) =>
               setDraft((state) => {
                 dirtyPriceIds.current.add(item.id)
+                const priceReasons = { ...state.priceReasons }
+                if ((state.prices[item.id] ?? String(system)) !== value) {
+                  priceReasons[item.id] = ''
+                  dirtyPriceReasonIds.current.add(item.id)
+                }
                 return {
                   ...state,
                   prices: { ...state.prices, [item.id]: value },
+                  priceReasons,
                 }
               })
             }
@@ -151,34 +165,51 @@ export function ChecklistRow({
         ) : null}
         {isManagerPriced(item) ? (
           <PriceDifference
-            system={liveSystemPrice(item, data?.systemCalculation?.items)}
-            range={priceRange(
-              liveSystemPrice(item, data?.systemCalculation?.items),
-            )}
-            proposed={amount(
-              draft.prices[item.id] ??
-                String(
-                  item.managerApprovedAmount ??
-                    item.managerQuotedPrice ??
-                    liveSystemPrice(item, data?.systemCalculation?.items),
-                ),
-            )}
+            system={system}
+            range={range}
+            proposed={proposed}
           />
         ) : null}
+        {isManagerPriced(item) && outsideRange ? (
+          <label className="finance-price-range-reason">
+            <span>{t.priceRangeReasonLabel(MIN_REASON_LENGTH)}</span>
+            <textarea
+              rows={2}
+              maxLength={1000}
+              value={priceReason}
+              disabled={accepted}
+              aria-invalid={priceReason.trim().length < MIN_REASON_LENGTH}
+              placeholder={t.priceRangeReasonPlaceholder}
+              onChange={(event) => {
+                dirtyPriceReasonIds.current.add(item.id)
+                setDraft((state) => ({
+                  ...state,
+                  priceReasons: {
+                    ...state.priceReasons,
+                    [item.id]: event.target.value,
+                  },
+                }))
+              }}
+            />
+            <small>
+              {t.reasonCounter(priceReason.trim().length, MIN_REASON_LENGTH)}
+            </small>
+          </label>
+        ) : null}
       </div>
-      <span
-        className={`finance-review-badge is-${item.reviewStatus.toLowerCase()}`}
-      >
-        {item.sourceType === 'SERVICE_TEMPLATE'
-          ? t.badgeAuto
-          : item.reviewStatus === 'PENDING'
+      {item.sourceType !== 'SERVICE_TEMPLATE' ? (
+        <span
+          className={`finance-review-badge is-${item.reviewStatus.toLowerCase()}`}
+        >
+          {item.reviewStatus === 'PENDING'
             ? t.pending
             : isManagerPriced(item) &&
                 item.managerApprovedAmount == null &&
                 item.managerQuotedPrice == null
               ? t.badgeAwaitingPrice
               : t.badgeReviewed}
-      </span>
+        </span>
+      ) : null}
       <button
         type="button"
         className="finance-chevron"
@@ -188,6 +219,11 @@ export function ChecklistRow({
       >
         <span aria-hidden="true">⌄</span>
       </button>
+      {hasChecklistGuidance(item) && (
+        <div className="finance-requirement-guidance">
+          <ChecklistGuidance guidance={item} summaryLabel={t.workDetails} />
+        </div>
+      )}
       {noteOpen ? (
         <div className="finance-note">
           {pending ? (

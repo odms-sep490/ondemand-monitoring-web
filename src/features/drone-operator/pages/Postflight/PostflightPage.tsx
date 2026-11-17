@@ -18,8 +18,9 @@ import { postflightPageMessages } from './PostflightPage.messages'
 import { MaintenanceTicketDialog } from './components/MaintenanceTicketDialog'
 import { type ResultsState } from './postflightTypes'
 import {
-  postflightCategories,
-  ALL_KEYS,
+  buildInspectionResults,
+  categoryKeys,
+  postflightCategoriesFromRun,
 } from './postflightHelpers'
 import { InputNumber } from 'antd'
 import { usePostflightAssessment } from './usePostflightAssessment'
@@ -134,7 +135,12 @@ function PostflightDevicePage({ inspectionOnly, missionId, selectedDeviceId, sel
     activeData?.missionCode || effectiveMissionId || t.defaultMissionLabel
   const deviceId = selectedDeviceId ?? activeData?.deviceId ?? 'DEVICE'
   const deviceLabel = selectedDeviceLabel ?? deviceId
-  const categories = useMemo(() => postflightCategories(lang), [lang])
+  const runItems = persistedPostflightQuery.data?.items
+  const categories = useMemo(
+    () => postflightCategoriesFromRun(lang, runItems),
+    [lang, runItems],
+  )
+  const allKeys = useMemo(() => categoryKeys(categories), [categories])
 
   const [error, setError] = useState<string | null>(null)
   const [results, setResults] = useState<ResultsState>({})
@@ -163,38 +169,26 @@ function PostflightDevicePage({ inspectionOnly, missionId, selectedDeviceId, sel
 
   const items: PostflightItem[] = useMemo(
     () =>
-      ALL_KEYS.filter((k) => results[k]).map((k) => ({
+      allKeys.filter((k) => results[k]).map((k) => ({
         key: k,
         result: results[k] as PreflightItemResult,
       })),
-    [results],
+    [allKeys, results],
   )
 
-  const summary = postflightSummary(items, ALL_KEYS.length)
+  const summary = postflightSummary(items, allKeys.length)
   // Only the operator-entered battery value is submitted; no controller reads.
   const telemetrySnapshot: ManualPostflightReadings | null = landingBattery === null
     ? null : { batteryPercent: landingBattery }
   const failItems = useMemo(
-    () => ALL_KEYS.filter((k) => results[k] === 'fail'),
-    [results],
+    () => allKeys.filter((k) => results[k] === 'fail'),
+    [allKeys, results],
   )
-  const allAssessed = items.length === ALL_KEYS.length
+  const allAssessed = items.length === allKeys.length
   const inspectionResults = useMemo(() => {
     if (!allAssessed) return null
-    const getResult = (key: (typeof ALL_KEYS)[number]): 'PASS' | 'FAIL' =>
-      results[key] === 'ok' ? 'PASS' : 'FAIL'
-    return {
-      a1: getResult('physical_condition_ok'),
-      a2: getResult('physical_condition_ok'),
-      p1: getResult('motor_ok'),
-      p2: getResult('motor_ok'),
-      e1: getResult('battery_ok'),
-      e4: getResult('battery_ok'),
-      e2: getResult('camera_ok'),
-      e3: getResult('gps_ok'),
-      d1: getResult('communication_ok'),
-    }
-  }, [allAssessed, results])
+    return buildInspectionResults(categories, results)
+  }, [allAssessed, categories, results])
 
   const { handleSetResult, handlePassAll, handleComplete, handleCreateTicket } =
     usePostflightAssessment({
@@ -216,6 +210,7 @@ function PostflightDevicePage({ inspectionOnly, missionId, selectedDeviceId, sel
       setNotes,
       setShowTicketDialog,
       setTicketCreated,
+      categories,
     })
 
   const completedSummary =
@@ -326,7 +321,7 @@ function PostflightDevicePage({ inspectionOnly, missionId, selectedDeviceId, sel
         <div className="postflight-stack">
           {error && <PostflightErrorBanner error={error} />}
 
-          <div className="postflight-selected-device"><strong>{deviceLabel}</strong><span>Thiết bị đang kiểm tra</span></div>
+          <div className="postflight-selected-device"><strong>{deviceLabel}</strong><span>{t.deviceInspecting}</span></div>
           <div className="postflight-overview">
             <div className="postflight-manual-battery">
               <label htmlFor="postflight-landing-battery">{t.landingBattery} (%) <span aria-hidden="true">*</span></label>
@@ -338,6 +333,7 @@ function PostflightDevicePage({ inspectionOnly, missionId, selectedDeviceId, sel
             <AssessmentProgress
               failItems={failItems}
               summary={summary}
+              total={allKeys.length}
               allAssessed={allAssessed}
               handlePassAll={handlePassAll}
             />
@@ -386,7 +382,16 @@ function PostflightDevicePage({ inspectionOnly, missionId, selectedDeviceId, sel
           droneCode={deviceLabel}
           missionId={missionLabel}
           defaultIssueType="PHYSICAL_DAMAGE"
-          defaultDescription={t.failedItemsDescription(failItems.join(', '))}
+          defaultDescription={t.failedItemsDescription(
+            failItems
+              .map(
+                (key) =>
+                  categories
+                    .flatMap((c) => c.items)
+                    .find((item) => item.key === key)?.label ?? key,
+              )
+              .join(', '),
+          )}
           submitting={ticketSubmitting}
           onCancel={() => setShowTicketDialog(false)}
           onConfirm={handleCreateTicket}

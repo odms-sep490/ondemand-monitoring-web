@@ -29,3 +29,8 @@ export const SEVERITIES: TicketSeverity[] = [
   'HIGH',
   'CRITICAL',
 ]
+
+/** Locale-aware date and time, e.g. "13 thg 9, 2026 16:05" / "Sep 13, 2026, 4:05 PM". */
+export function formatStamp(iso: string, locale: string): string {
+  return new Date(iso).toLocaleString(locale, { dateStyle: 'medium', timeStyle: 'short' })
+}

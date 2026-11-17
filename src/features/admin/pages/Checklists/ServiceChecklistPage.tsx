@@ -11,8 +11,11 @@ import {
   EmptyState,
 } from '../../../../shared/components/ui'
 import { catalogApi, type ServiceResponse } from '../../api/catalogApi'
-import { checklistsApi, type ServiceChecklist } from '../../api/checklistsApi'
-import { formatVnd } from '../../../../shared/lib/formatVnd'
+import {
+  checklistsApi,
+  type MissionTemplate,
+  type ServiceChecklist,
+} from '../../api/checklistsApi'
 import { adminHref } from '../../routes'
 import { ServicePricePreviewCard } from './ServicePricePreviewCard'
 import { ChecklistConfigModal } from './ChecklistConfigModal'
@@ -288,6 +291,7 @@ function ServiceTemplateEditor({
             </ol>
           ))}
       </Card>
+      <MissionTemplatesPanel serviceId={serviceId} rows={rows} />
       <ServicePricePreviewCard
         serviceId={serviceId}
         refreshKey={priceRevision}
@@ -366,7 +370,301 @@ function ServiceTemplateEditor({
   )
 }
 
-/** Effective price and allowance of a row; marks which values are service overrides. */
+function MissionTemplatesPanel({
+  serviceId,
+  rows,
+}: {
+  serviceId: string
+  rows: ServiceChecklist[]
+}) {
+  const { t } = useI18n(checklistMessages)
+  const query = useApiQuery(
+    (signal) => checklistsApi.missionTemplates(serviceId, signal),
+    [serviceId],
+  )
+  const [editing, setEditing] = useState<MissionTemplate | 'new' | null>(null)
+  const [removing, setRemoving] = useState<MissionTemplate | null>(null)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const templates = query.data ?? []
+  const editingTemplateId =
+    editing && editing !== 'new' ? editing.id : undefined
+  const unavailableChecklistIds = new Set(
+    templates
+      .filter((template) => template.id !== editingTemplateId)
+      .flatMap((template) => template.checklistIds),
+  )
+
+  async function remove() {
+    if (!removing || busy) return
+    setBusy(true)
+    setError(null)
+    try {
+      await checklistsApi.removeMissionTemplate(serviceId, removing.id)
+      setRemoving(null)
+      query.reload()
+    } catch (cause) {
+      setError(checklistError(cause, t))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <Card flush>
+      <div className="checklist-section-head">
+        <div>
+          <h2>{t.missionTemplatesTitle}</h2>
+          <p>{t.missionTemplatesHint}</p>
+        </div>
+        <button
+          type="button"
+          className="odm-btn odm-btn-p"
+          disabled={query.loading || query.error !== undefined}
+          onClick={() => setEditing('new')}
+        >
+          <Icon name="plus" width={16} height={16} aria-hidden="true" />
+          {t.missionTemplateAdd}
+        </button>
+      </div>
+      {query.loading && <LoadingState />}
+      {query.error !== undefined && (
+        <ChecklistLoadError
+          title={t.missionTemplatesLoadError}
+          error={query.error}
+          retry={query.reload}
+        />
+      )}
+      {!query.loading &&
+        query.error === undefined &&
+        templates.length === 0 && (
+          <EmptyState title={t.missionTemplatesEmpty} />
+        )}
+      {!query.loading && query.error === undefined && templates.length > 0 && (
+        <ul className="mission-template-list">
+          {templates.map((template) => {
+            const selected = new Set(template.checklistIds)
+            const labels = rows
+              .filter((row) => selected.has(row.checklistId))
+              .map((row) => row.content)
+            const unresolved = template.checklistIds.filter(
+              (id) => !rows.some((row) => row.checklistId === id),
+            )
+            return (
+              <li key={template.id}>
+                <div>
+                  <strong>{template.scopeLabel}</strong>
+                  <p>
+                    {[...labels, ...unresolved].join(', ') ||
+                      t.missionTemplateNoChecklist}
+                  </p>
+                </div>
+                <div className="checklist-actions">
+                  <button
+                    type="button"
+                    className="odm-btn odm-btn-gh"
+                    onClick={() => setEditing(template)}
+                  >
+                    {t.edit}
+                  </button>
+                  <button
+                    type="button"
+                    className="odm-btn odm-btn-gh checklist-danger"
+                    onClick={() => setRemoving(template)}
+                  >
+                    {t.removeMissionTemplate}
+                  </button>
+                </div>
+              </li>
+            )
+          })}
+        </ul>
+      )}
+      {editing && (
+        <MissionTemplateModal
+          serviceId={serviceId}
+          template={editing === 'new' ? undefined : editing}
+          rows={rows}
+          unavailableChecklistIds={unavailableChecklistIds}
+          close={() => setEditing(null)}
+          saved={() => {
+            setEditing(null)
+            query.reload()
+          }}
+        />
+      )}
+      {removing && (
+        <Modal
+          title={t.removeMissionTemplate}
+          icon="trash"
+          tone="danger"
+          onClose={() => !busy && setRemoving(null)}
+          footer={
+            <>
+              <button
+                type="button"
+                className="odm-btn odm-btn-gh"
+                disabled={busy}
+                onClick={() => setRemoving(null)}
+              >
+                {t.cancel}
+              </button>
+              <button
+                type="button"
+                className="odm-btn odm-btn-rd"
+                disabled={busy}
+                onClick={() => void remove()}
+              >
+                {busy ? t.saving : t.removeMissionTemplate}
+              </button>
+            </>
+          }
+        >
+          <p>{t.removeMissionTemplateConfirm}</p>
+          {error && <p role="alert">{error}</p>}
+        </Modal>
+      )}
+    </Card>
+  )
+}
+
+function MissionTemplateModal({
+  serviceId,
+  template,
+  rows,
+  unavailableChecklistIds,
+  close,
+  saved,
+}: {
+  serviceId: string
+  template?: MissionTemplate
+  rows: ServiceChecklist[]
+  unavailableChecklistIds: ReadonlySet<string>
+  close: () => void
+  saved: () => void
+}) {
+  const { t } = useI18n(checklistMessages)
+  const [selected, setSelected] = useState(
+    () => new Set(template?.checklistIds ?? []),
+  )
+  const [scopeLabel, setScopeLabel] = useState(template?.scopeLabel ?? '')
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  function toggle(checklistId: string) {
+    setSelected((current) => {
+      const next = new Set(current)
+      if (next.has(checklistId)) next.delete(checklistId)
+      else next.add(checklistId)
+      return next
+    })
+  }
+
+  async function submit() {
+    if (busy) return
+    setBusy(true)
+    setError(null)
+    const checklistIds = rows
+      .filter((row) => selected.has(row.checklistId))
+      .map((row) => row.checklistId)
+    try {
+      if (template) {
+        await checklistsApi.updateMissionTemplate(
+          serviceId,
+          template.id,
+          scopeLabel.trim(),
+          checklistIds,
+        )
+      } else {
+        await checklistsApi.createMissionTemplate(
+          serviceId,
+          scopeLabel.trim(),
+          checklistIds,
+        )
+      }
+      saved()
+    } catch (cause) {
+      setError(checklistError(cause, t))
+      setBusy(false)
+    }
+  }
+
+  return (
+    <Modal
+      title={template ? t.editMissionTemplate : t.missionTemplateAdd}
+      icon="clipboard"
+      onClose={() => !busy && close()}
+      footer={
+        <>
+          <button
+            type="button"
+            className="odm-btn odm-btn-gh"
+            disabled={busy}
+            onClick={close}
+          >
+            {t.cancel}
+          </button>
+          <button
+            type="button"
+            className="odm-btn odm-btn-p"
+            disabled={busy || !scopeLabel.trim()}
+            onClick={() => void submit()}
+          >
+            {busy ? t.saving : t.save}
+          </button>
+        </>
+      }
+    >
+      <div className="checklist-dialog">
+        <label className="checklist-field">
+          <span className="ui-label">{t.missionTemplateScopeLabel}</span>
+          <input
+            className="odm-inp"
+            value={scopeLabel}
+            maxLength={255}
+            disabled={busy}
+            placeholder={t.missionTemplateScopePlaceholder}
+            aria-label={t.missionTemplateScopeLabel}
+            onChange={(event) => setScopeLabel(event.target.value)}
+          />
+        </label>
+        <p>{t.missionTemplateSelectHint}</p>
+        {rows.length === 0 ? (
+          <EmptyState title={t.emptyTemplate} />
+        ) : (
+          <ul className="mission-template-options">
+            {rows.map((row) => {
+              const unavailable = unavailableChecklistIds.has(row.checklistId)
+              return (
+                <li key={row.checklistId}>
+                  <label className={unavailable ? 'is-unavailable' : undefined}>
+                    <input
+                      type="checkbox"
+                      checked={selected.has(row.checklistId)}
+                      disabled={busy || unavailable}
+                      onChange={() => toggle(row.checklistId)}
+                    />
+                    <span>{row.content}</span>
+                    {unavailable && (
+                      <small>{t.missionTemplateChecklistUsed}</small>
+                    )}
+                  </label>
+                </li>
+              )
+            })}
+          </ul>
+        )}
+        {error && (
+          <p className="checklist-banner is-error" role="alert">
+            {error}
+          </p>
+        )}
+      </div>
+    </Modal>
+  )
+}
+
+/** Evidence allowances remain service-scoped; the Base Checklist price is shared globally. */
 function PricingChips({ row }: { row: ServiceChecklist }) {
   const { t } = useI18n(checklistMessages)
   const chip = (text: string, override: boolean) => (
@@ -380,19 +678,8 @@ function PricingChips({ row }: { row: ServiceChecklist }) {
   )
   return (
     <div className="checklist-actions" style={{ justifyContent: 'flex-start' }}>
-      {chip(formatVnd(row.basePrice ?? 0), row.basePriceOverride != null)}
-      {chip(
-        `${row.includedImageCount ?? 0} ${t.imagesShort}`,
-        row.includedImageCountOverride != null,
-      )}
-      {chip(
-        `${row.includedVideoCount ?? 0} ${t.videosShort}`,
-        row.includedVideoCountOverride != null,
-      )}
-      {chip(
-        row.pricingProfile ?? 'DEFAULT',
-        row.pricingProfileOverride != null,
-      )}
+      {chip(`${row.includedImageCount ?? 0} ${t.imagesShort}`, row.includedImageCountOverride != null)}
+      {chip(`${row.includedVideoCount ?? 0} ${t.videosShort}`, row.includedVideoCountOverride != null)}
     </div>
   )
 }

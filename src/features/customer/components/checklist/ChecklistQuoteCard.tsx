@@ -7,8 +7,7 @@ import type { ChecklistQuoteState } from '../../lib/checklist/useChecklistQuote'
 /**
  * How the price of the current selection adds up, folded away by default: each row already shows its own price and the
  * summary panel shows the total. Always computed by the backend; the client only sends which checklists it wants and
- * how many images/videos, so it has no way to send a price. Pricing profiles, quantities and unit prices are not shown
- * to the customer.
+ * how many images/videos, so it has no way to send a price. Customers see the Base Checklist formula and area inputs.
  */
 export function ChecklistQuoteCard({
   quote,
@@ -49,7 +48,7 @@ function QuoteDetails({
 }) {
   const { t } = useI18n(checklistMessages)
   return (
-    <details className="checklist-quote-details">
+    <details className="checklist-quote-details" open>
       <summary>
         <span>{t.quoteTitle}</span>
         {showSummaryTotal && <strong>{formatVnd(preview.total)}</strong>}
@@ -83,16 +82,62 @@ function QuoteDetails({
               </span>
             </header>
             {!row.quotePending && (
-              <ul>
-                {row.lines
-                  .filter((line) => line.amount !== 0)
-                  .map((line, lineIndex) => (
-                    <li key={`${line.component}-${lineIndex}`}>
-                      <span>{line.description}</span>
-                      <span>{formatVnd(line.amount)}</span>
-                    </li>
-                  ))}
-              </ul>
+              row.calculationDisplay != null ? (
+                <>
+                  <dl className="checklist-quote-calculation">
+                    <div>
+                      <dt>{t.basePriceLabel}</dt>
+                      <dd>{formatVnd(row.basePrice ?? 0)}</dd>
+                    </div>
+                    <div>
+                      <dt>{t.standardAreaLabel}</dt>
+                      <dd>{formatArea(row.standardAreaM2)} m²</dd>
+                    </div>
+                    <div>
+                      <dt>{t.actualAreaLabel}</dt>
+                      <dd>{formatArea(row.actualAreaM2)} m²</dd>
+                    </div>
+                    <div className="is-calculation">
+                      <dt>
+                        {row.actualAreaM2 != null &&
+                        row.standardAreaM2 != null &&
+                        row.actualAreaM2 > row.standardAreaM2
+                          ? t.excessAreaLabel
+                          : t.calculationLabel}
+                      </dt>
+                      <dd>{row.calculationDisplay}</dd>
+                    </div>
+                  </dl>
+                  {row.lines.some(
+                    (line) => line.amount !== 0 && line.category === 'MEDIA',
+                  ) && (
+                    <ul>
+                      {row.lines
+                        .filter(
+                          (line) =>
+                            line.amount !== 0 && line.category === 'MEDIA',
+                        )
+                        .map((line, lineIndex) => (
+                          <li key={`${line.component}-${lineIndex}`}>
+                            <span>{line.description}</span>
+                            <span>{formatVnd(line.amount)}</span>
+                          </li>
+                        ))}
+                    </ul>
+                  )}
+                </>
+              ) : (
+                <ul>
+                  {row.lines
+                    .filter((line) => line.amount !== 0)
+                    .map((line, lineIndex) => (
+                      <li key={`${line.component}-${lineIndex}`}>
+                        <span>{line.description}</span>
+                        <span>{formatVnd(line.amount)}</span>
+                      </li>
+                    ))}
+                </ul>
+              )
             )}
             {(row.extraImageCount > 0 || row.extraVideoCount > 0) && (
               <small className="checklist-hint">
@@ -117,4 +162,10 @@ function QuoteDetails({
       </div>
     </details>
   )
+}
+
+function formatArea(value?: number | null) {
+  return value == null
+    ? '—'
+    : new Intl.NumberFormat(undefined, { maximumFractionDigits: 3 }).format(value)
 }

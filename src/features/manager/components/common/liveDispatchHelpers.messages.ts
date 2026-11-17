@@ -7,6 +7,7 @@ export const liveDispatchHelpersMessages = defineMessages({
       AFTERNOON: 'Buổi chiều',
       EVENING: 'Buổi tối',
       NIGHT: 'Buổi đêm',
+      ANY_TIME: 'Bất kỳ lúc nào',
     } as Record<string, string>,
   },
   en: {
@@ -15,6 +16,7 @@ export const liveDispatchHelpersMessages = defineMessages({
       AFTERNOON: 'Afternoon',
       EVENING: 'Evening',
       NIGHT: 'Night',
+      ANY_TIME: 'Any time',
     } as Record<string, string>,
   },
 })

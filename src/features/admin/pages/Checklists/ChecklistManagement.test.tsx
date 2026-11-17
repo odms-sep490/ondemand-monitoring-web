@@ -61,8 +61,28 @@ beforeEach(() => {
   vi.spyOn(checklistsApi, 'assign').mockResolvedValue(rows[0])
   vi.spyOn(checklistsApi, 'remove').mockResolvedValue(undefined)
   vi.spyOn(checklistsApi, 'reorder').mockResolvedValue([...rows].reverse())
+  vi.spyOn(checklistsApi, 'missionTemplates').mockResolvedValue([])
+  vi.spyOn(checklistsApi, 'createMissionTemplate').mockResolvedValue({
+    id: 'mt2',
+    serviceId: 's',
+    scopeLabel: 'North area',
+    checklistIds: ['a'],
+    createdAt: '2026-10-05T00:00:00Z',
+    updatedAt: null,
+    version: 0,
+  })
+  vi.spyOn(checklistsApi, 'updateMissionTemplate').mockResolvedValue({
+    id: 'mt1',
+    serviceId: 's',
+    scopeLabel: 'North area',
+    checklistIds: ['a', 'b'],
+    createdAt: '2026-10-05T00:00:00Z',
+    updatedAt: '2026-10-06T00:00:00Z',
+    version: 1,
+  })
+  vi.spyOn(checklistsApi, 'removeMissionTemplate').mockResolvedValue(undefined)
   vi.spyOn(catalogApi, 'listServices').mockResolvedValue([
-    { id: 's', name: 'Dịch vụ test', basePrice: 3_200_000, isActive: true },
+    { id: 's', name: 'Dịch vụ test', defaultPrice: 3_200_000, isActive: true },
   ])
 })
 afterEach(() => {
@@ -120,7 +140,6 @@ describe('Admin checklist catalog', () => {
     await waitFor(() =>
       expect(checklistsApi.create).toHaveBeenCalledWith(
         'Kiểm tra mái',
-        'BASIC',
         expect.objectContaining({
           description: 'Phạm vi kiểm tra mái',
           executionSteps: ['Bay lưới song song', 'Chụp cận'],
@@ -155,21 +174,13 @@ describe('Admin checklist catalog', () => {
     await waitFor(() =>
       expect(checklistsApi.create).toHaveBeenCalledWith(
         'New checklist',
-        'BASIC',
         {
           description: '',
           executionSteps: [],
           inputRequirements: [],
           expectedOutputs: [],
-          altitudePricingEnabled: false,
-          areaPricingEnabled: false,
-          basePrice: 0,
-          includedAltitudeM: 0,
-          includedAreaHa: 0,
           includedImageCount: 0,
-          includedLengthKm: 0,
           includedVideoCount: 0,
-          lengthPricingEnabled: false,
         },
       ),
     )
@@ -218,21 +229,13 @@ describe('Admin checklist catalog', () => {
       expect(checklistsApi.update).toHaveBeenCalledWith(
         'a',
         'Edited',
-        'BASIC',
         {
           description: '',
           executionSteps: [],
           inputRequirements: [],
           expectedOutputs: [],
-          altitudePricingEnabled: false,
-          areaPricingEnabled: false,
-          basePrice: 0,
-          includedAltitudeM: 0,
-          includedAreaHa: 0,
           includedImageCount: 0,
-          includedLengthKm: 0,
           includedVideoCount: 0,
-          lengthPricingEnabled: false,
         },
       ),
     )
@@ -287,6 +290,109 @@ describe('Admin checklist catalog', () => {
 })
 
 describe('Admin service template', () => {
+  it('creates a mission template by grouping service checklists', async () => {
+    render(<ServiceChecklistPage serviceId="s" />)
+    await screen.findByText(definition.content)
+    const add = screen.getByRole('button', { name: 'Thêm mission template' })
+    await waitFor(() => expect(add).toBeEnabled())
+    fireEvent.click(add)
+    const modal = screen.getByRole('dialog')
+    fireEvent.click(
+      within(modal).getByRole('checkbox', { name: definition.content }),
+    )
+    fireEvent.change(
+      within(modal).getByRole('textbox', { name: 'Phạm vi mission' }),
+      { target: { value: ' North area ' } },
+    )
+    fireEvent.click(within(modal).getByRole('button', { name: 'Lưu' }))
+    await waitFor(() =>
+      expect(checklistsApi.createMissionTemplate).toHaveBeenCalledWith(
+        's',
+        'North area',
+        ['a'],
+      ),
+    )
+  })
+
+  it('updates and removes a mission template independently', async () => {
+    vi.mocked(checklistsApi.missionTemplates).mockResolvedValue([
+      {
+        id: 'mt1',
+        serviceId: 's',
+        scopeLabel: 'North area',
+        checklistIds: ['a'],
+        createdAt: '2026-10-05T00:00:00Z',
+        updatedAt: null,
+        version: 0,
+      },
+    ])
+    render(<ServiceChecklistPage serviceId="s" />)
+    await screen.findByText('North area')
+    const missionSection = screen
+      .getByRole('heading', { name: 'Mission template' })
+      .closest('.ui-card') as HTMLElement
+    fireEvent.click(
+      within(missionSection).getByRole('button', { name: 'Sửa checklist' }),
+    )
+    const edit = screen.getByRole('dialog')
+    fireEvent.click(within(edit).getByRole('checkbox', { name: other.content }))
+    fireEvent.click(within(edit).getByRole('button', { name: 'Lưu' }))
+    await waitFor(() =>
+      expect(checklistsApi.updateMissionTemplate).toHaveBeenCalledWith(
+        's',
+        'mt1',
+        'North area',
+        ['a', 'b'],
+      ),
+    )
+
+    fireEvent.click(
+      within(missionSection).getByRole('button', {
+        name: 'Xóa mission template',
+      }),
+    )
+    const remove = screen.getByRole('dialog')
+    fireEvent.click(
+      within(remove).getByRole('button', { name: 'Xóa mission template' }),
+    )
+    await waitFor(() =>
+      expect(checklistsApi.removeMissionTemplate).toHaveBeenCalledWith(
+        's',
+        'mt1',
+      ),
+    )
+  })
+
+  it('prevents selecting a checklist used by another mission template', async () => {
+    vi.mocked(checklistsApi.missionTemplates).mockResolvedValue([
+      {
+        id: 'mt1',
+        serviceId: 's',
+        scopeLabel: 'North area',
+        checklistIds: ['a'],
+        createdAt: '2026-10-05T00:00:00Z',
+        updatedAt: null,
+        version: 0,
+      },
+    ])
+    render(<ServiceChecklistPage serviceId="s" />)
+    await screen.findByText('2 checklist')
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Thêm mission template' }),
+    )
+    const modal = screen.getByRole('dialog')
+    const usedOption = within(modal)
+      .getByText(definition.content)
+      .closest('label') as HTMLElement
+    expect(within(usedOption).getByRole('checkbox')).toBeDisabled()
+    expect(
+      within(modal).getByRole('checkbox', { name: other.content }),
+    ).toBeEnabled()
+    expect(
+      within(modal).getByText('Đã thuộc mission template khác'),
+    ).toBeInTheDocument()
+  })
+
   it('renders ordered template and excludes assigned/inactive picker items', async () => {
     vi.mocked(checklistsApi.template).mockResolvedValue([rows[0]])
     vi.mocked(checklistsApi.list).mockResolvedValue(
@@ -398,7 +504,7 @@ describe('Admin service template', () => {
   })
   it('disables assignment to an inactive service', async () => {
     vi.mocked(catalogApi.listServices).mockResolvedValue([
-      { id: 's', name: 'Dịch vụ test', basePrice: 3_200_000, isActive: false },
+      { id: 's', name: 'Dịch vụ test', defaultPrice: 3_200_000, isActive: false },
     ])
     render(<ServiceChecklistPage serviceId="s" />)
     expect(
@@ -419,8 +525,8 @@ describe('Admin service template', () => {
   })
   it('routes the selector to the chosen service', async () => {
     vi.mocked(catalogApi.listServices).mockResolvedValue([
-      { id: 's', name: 'First', basePrice: 3_200_000, isActive: true },
-      { id: 'second', name: 'Second', basePrice: 4_000_000, isActive: true },
+      { id: 's', name: 'First', defaultPrice: 3_200_000, isActive: true },
+      { id: 'second', name: 'Second', defaultPrice: 4_000_000, isActive: true },
     ])
     render(<ServiceChecklistPage serviceId="s" />)
     await screen.findByText(definition.content)

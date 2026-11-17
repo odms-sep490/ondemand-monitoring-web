@@ -19,9 +19,11 @@ import {
   type Draft,
   emptyDraft,
   liveSystemPrice,
+  initialManagerPrice,
   amount,
   approvedPrices,
   priceLimits,
+  isOutsidePriceRange,
   isManagerPriced,
   errorMessage,
   MIN_REASON_LENGTH,
@@ -35,11 +37,15 @@ export function ManagerPricingPanel({
   orderId,
   onApproved,
   onChecklistReviewChanged,
+  onPreparationChange,
+  editRequest = 0,
   approveBlockedReason,
 }: {
   orderId: string
   onApproved?: () => void
   onChecklistReviewChanged?: () => void
+  onPreparationChange?: (preparing: boolean) => void
+  editRequest?: number
   /** Why approving is not allowed yet (approval criteria not met); null/undefined = allowed. */
   approveBlockedReason?: string | null
 }) {
@@ -65,7 +71,21 @@ export function ManagerPricingPanel({
   const [approvalSucceeded, setApprovalSucceeded] = useState(false)
   const [preparedQuote, setPreparedQuote] = useState<Quote | null>(null)
   const [editingQuote, setEditingQuote] = useState(false)
+  useEffect(() => {
+    if (editRequest > 0) {
+      setEditingQuote(true)
+      setPreparedQuote(null)
+    }
+  }, [editRequest])
+  const activeQuote = preparedQuote ?? query.data?.currentQuote
+  const preparingContract = Boolean(
+    !editingQuote && activeQuote && ['DRAFT', 'APPROVED'].includes(activeQuote.status),
+  )
+  useEffect(() => {
+    onPreparationChange?.(preparingContract)
+  }, [onPreparationChange, preparingContract])
   const dirtyPriceIds = useRef(new Set<string>())
+  const dirtyPriceReasonIds = useRef(new Set<string>())
   const initializedQuoteKey = useRef<string | null>(null)
 
   useEffect(() => {
@@ -74,6 +94,7 @@ export function ManagerPricingPanel({
     setEditingQuote(false)
     setGuidanceItem(null)
     dirtyPriceIds.current.clear()
+    dirtyPriceReasonIds.current.clear()
     initializedQuoteKey.current = null
     setDraft(emptyDraft)
   }, [orderId])
@@ -86,18 +107,23 @@ export function ManagerPricingPanel({
       : `new:${orderId}`
     setDraft((state) => {
       const prices = { ...state.prices }
+      const priceReasons = { ...state.priceReasons }
       for (const item of query.data!.checklistItems) {
+        if (!dirtyPriceReasonIds.current.has(item.id)) {
+          priceReasons[item.id] = item.managerPriceAdjustmentReason ?? ''
+        }
         if (item.sourceType === 'SERVICE_TEMPLATE') continue
         if (dirtyPriceIds.current.has(item.id)) continue
         prices[item.id] = String(
-          item.managerApprovedAmount ??
-            item.managerQuotedPrice ??
+          initialManagerPrice(
+            item,
             liveSystemPrice(item, query.data!.systemCalculation?.items),
+          ),
         )
       }
       const firstLoad = initializedQuoteKey.current !== quoteKey
       initializedQuoteKey.current = quoteKey
-      if (!firstLoad) return { ...state, prices }
+      if (!firstLoad) return { ...state, prices, priceReasons }
       return {
         ...state,
         packagePrice: String(
@@ -112,6 +138,7 @@ export function ManagerPricingPanel({
         adjustmentType: quote?.adjustmentType ?? 'CORRECTION',
         approvalNote: '',
         prices,
+        priceReasons,
       }
     })
   }, [orderId, query.data])
@@ -144,17 +171,29 @@ export function ManagerPricingPanel({
       query.data?.managerMaxDiscountPercent,
       query.data?.managerMaxMarkupPercent,
     )
-  const outOfRangeCount = (query.data?.checklistItems ?? []).filter((item) => {
+  const outOfRangeItems = (query.data?.checklistItems ?? []).filter((item) => {
     if (!isManagerPriced(item)) return false
     const system = liveSystemPrice(item, query.data?.systemCalculation?.items)
     const range = priceRange(system)
     const price = startingPrices[item.id]
-    return (
-      range !== null &&
-      price !== system &&
-      (price < range.min || price > range.max)
-    )
-  }).length
+    return isOutsidePriceRange(price, system, range)
+  })
+  const outOfRangeMissingReasonCount = outOfRangeItems.filter(
+    (item) =>
+      (draft.priceReasons[item.id] ?? item.managerPriceAdjustmentReason ?? '')
+        .trim().length < MIN_REASON_LENGTH,
+  ).length
+  const requiresGlobalAdjustmentReason =
+    amount(draft.adjustmentAmount) !== 0 ||
+    (query.data?.checklistItems ?? []).some((item) => {
+      if (!isManagerPriced(item)) return false
+      const system = liveSystemPrice(item, query.data?.systemCalculation?.items)
+      const proposed = startingPrices[item.id]
+      return (
+        proposed !== system &&
+        !isOutsidePriceRange(proposed, system, priceRange(system))
+      )
+    })
   const checklistAdjustment = (query.data?.checklistItems ?? [])
     .filter(isManagerPriced)
     .reduce(
@@ -189,8 +228,7 @@ export function ManagerPricingPanel({
 
   /** The backend wants a meaningful reason (at least 10 characters) whenever the total differs from the system price. */
   function reasonProblem() {
-    const adjusted =
-      checklistAdjustment !== 0 || amount(draft.adjustmentAmount) !== 0
+    const adjusted = requiresGlobalAdjustmentReason
     const length = draft.adjustmentReason.trim().length
     if (!adjusted || length >= MIN_REASON_LENGTH) return null
     return length === 0
@@ -213,9 +251,9 @@ export function ManagerPricingPanel({
       setError(problem)
       return
     }
-    if (outOfRangeCount > 0) {
+    if (outOfRangeMissingReasonCount > 0) {
       setMessage(null)
-      setError(t.outOfRange(outOfRangeCount))
+      setError(t.outOfRangeReasonMissing(outOfRangeMissingReasonCount))
       return
     }
     if (pendingCustomCount > 0) {
@@ -237,6 +275,11 @@ export function ManagerPricingPanel({
           draft,
           query.data.systemCalculation?.items,
         ),
+        additionalUnitPriceReasons: Object.fromEntries(
+          Object.entries(draft.priceReasons)
+            .map(([id, reason]) => [id, reason.trim()] as const)
+            .filter(([, reason]) => reason.length > 0),
+        ),
         adjustmentReason: draft.adjustmentReason.trim() || null,
         adjustmentType: draft.adjustmentType,
         expectedPricingRevision:
@@ -247,6 +290,7 @@ export function ManagerPricingPanel({
         expectedChecklistRevision: query.data.checklistRevision ?? null,
       })
       dirtyPriceIds.current.clear()
+      dirtyPriceReasonIds.current.clear()
       setPreparedQuote(quote)
       setEditingQuote(false)
       query.reload()
@@ -283,6 +327,7 @@ export function ManagerPricingPanel({
   ) {
     return (
       <QuoteContractPreparation
+        hideEditAction={Boolean(onPreparationChange)}
         key={preparationQuote.id}
         orderId={orderId}
         quote={preparationQuote}
@@ -371,6 +416,7 @@ export function ManagerPricingPanel({
         draft={draft}
         setDraft={setDraft}
         dirtyPriceIds={dirtyPriceIds}
+        dirtyPriceReasonIds={dirtyPriceReasonIds}
         priceRange={priceRange}
         openNote={openNote}
         setOpenNote={setOpenNote}
@@ -409,7 +455,8 @@ export function ManagerPricingPanel({
           busy={busy}
           approved={approved}
           pendingCustomCount={pendingCustomCount}
-          outOfRangeCount={outOfRangeCount}
+          outOfRangeCount={outOfRangeMissingReasonCount}
+          adjustmentReasonRequired={requiresGlobalAdjustmentReason}
           approveBlockedReason={
             missingGuidance.length ? g.pending : approveBlockedReason
           }

@@ -1,16 +1,18 @@
 import { useState } from 'react'
 
 import { useI18n } from '../../../../../shared/i18n'
+import { getTicketSeverityLabel } from '../../../../../shared/lib/statusTone'
+import { formatIssueType } from '../../../../manager/lib/ticketText'
 import type { FaultType, MaintenanceSeverity } from '../../../types/mission'
 import { maintenanceTicketDialogMessages } from './MaintenanceTicketDialog.messages'
 
-const FAULT_TYPES: { value: FaultType; label: string }[] = [
-  { value: 'MOTOR_VIBRATION', label: 'MOTOR_VIBRATION' },
-  { value: 'SIGNAL_LOSS', label: 'SIGNAL_LOSS' },
-  { value: 'BATTERY_DEGRADED', label: 'BATTERY_DEGRADED' },
-  { value: 'CAMERA_GIMBAL', label: 'CAMERA_GIMBAL' },
-  { value: 'PHYSICAL_DAMAGE', label: 'PHYSICAL_DAMAGE' },
-  { value: 'OTHER', label: 'OTHER' },
+const FAULT_TYPES: FaultType[] = [
+  'MOTOR_VIBRATION',
+  'SIGNAL_LOSS',
+  'BATTERY_DEGRADED',
+  'CAMERA_GIMBAL',
+  'PHYSICAL_DAMAGE',
+  'OTHER',
 ]
 
 const SEVERITIES: MaintenanceSeverity[] = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']
@@ -39,7 +41,7 @@ export function MaintenanceTicketDialog({
   const [issueType, setIssueType] = useState<FaultType>(defaultIssueType)
   const [severity, setSeverity] = useState<MaintenanceSeverity>('MEDIUM')
   const [description, setDescription] = useState(defaultDescription)
-  const { t } = useI18n(maintenanceTicketDialogMessages)
+  const { t, lang } = useI18n(maintenanceTicketDialogMessages)
 
   return (
     <div
@@ -75,7 +77,7 @@ export function MaintenanceTicketDialog({
               marginTop: 14,
             }}
           >
-            <Field label="device_id">
+            <Field label={t.deviceId}>
               <input
                 className="odm-input"
                 value={droneCode}
@@ -83,7 +85,7 @@ export function MaintenanceTicketDialog({
                 style={{ width: '100%' }}
               />
             </Field>
-            <Field label="mission_id">
+            <Field label={t.missionId}>
               <input
                 className="odm-input"
                 value={missionId}
@@ -91,7 +93,7 @@ export function MaintenanceTicketDialog({
                 style={{ width: '100%' }}
               />
             </Field>
-            <Field label="issue_type">
+            <Field label={t.issueType}>
               <select
                 className="odm-input"
                 style={{ width: '100%' }}
@@ -99,13 +101,13 @@ export function MaintenanceTicketDialog({
                 onChange={(e) => setIssueType(e.target.value as FaultType)}
               >
                 {FAULT_TYPES.map((f) => (
-                  <option key={f.value} value={f.value}>
-                    {f.label}
+                  <option key={f} value={f}>
+                    {formatIssueType(f)}
                   </option>
                 ))}
               </select>
             </Field>
-            <Field label="severity">
+            <Field label={t.severity}>
               <select
                 className="odm-input"
                 style={{ width: '100%' }}
@@ -116,12 +118,12 @@ export function MaintenanceTicketDialog({
               >
                 {SEVERITIES.map((s) => (
                   <option key={s} value={s}>
-                    {s}
+                    {getTicketSeverityLabel(s, lang)}
                   </option>
                 ))}
               </select>
             </Field>
-            <Field label="description">
+            <Field label={t.description}>
               <textarea
                 className="odm-input"
                 rows={3}
@@ -173,9 +175,9 @@ function Field({
   return (
     <label style={{ display: 'block' }}>
       <span
-        className="odm-mono"
         style={{
-          fontSize: 11.5,
+          fontSize: 12,
+          fontWeight: 600,
           color: 'var(--tx3)',
           display: 'block',
           marginBottom: 4,

@@ -33,7 +33,7 @@ export const inFlightControlMessages = defineMessages({
       heavy: 'Mưa to',
     },
     cameraFeed: {
-      alt: 'Camera trực tiếp của drone',
+      alt: 'Camera trực tiếp của thiết bị',
       offlineTitle: 'Camera trực tiếp chưa kết nối',
       offlineBody:
         'Bảng điều khiển vẫn mở. Kết nối camera hoặc bộ điều khiển bay để xem hình trực tiếp.',
@@ -123,7 +123,7 @@ export const inFlightControlMessages = defineMessages({
       actionContinue: 'TIẾP TỤC',
     },
     missionInfo: {
-      title: 'Thông tin Nhiệm vụ',
+      title: 'Thông tin nhiệm vụ',
       mission: 'Nhiệm vụ',
       order: 'Đơn hàng',
       progress: 'Tiến độ',
@@ -137,7 +137,7 @@ export const inFlightControlMessages = defineMessages({
         `WP ${current}/${total}`,
     },
     missionPanel: {
-      title: 'Chi tiết Nhiệm vụ',
+      title: 'Chi tiết nhiệm vụ',
       mission: 'Nhiệm vụ',
       order: 'Đơn hàng',
       service: 'Dịch vụ',
@@ -158,7 +158,7 @@ export const inFlightControlMessages = defineMessages({
       cruise: 'Hành trình',
     },
     hold: 'Giữ',
-    flightPlanGuide: 'Hướng dẫn waypoint',
+    flightPlanGuide: 'Hướng dẫn điểm bay',
     cameraStatus: {
       thermal: 'Nhiệt',
       downward: 'Hướng xuống',
@@ -181,10 +181,10 @@ export const inFlightControlMessages = defineMessages({
       finishFlight: 'Hoàn thành bay',
       finishFlightTitle: 'Xác nhận đã bay xong và chuyển sang kiểm tra sau bay',
       failureAction: 'Không thể tiếp tục',
-      failureTitle: 'Ghi nhận rủi ro và yêu cầu drone quay về',
+      failureTitle: 'Ghi nhận rủi ro và yêu cầu thiết bị quay về',
       failureRequested: 'Đã ghi nhận rủi ro',
       failureConfirm:
-        'Drone sẽ tự quay về điểm cất cánh. Sau khi hạ cánh và động cơ dừng, xác nhận để mở kiểm tra sau bay.',
+        'Thiết bị sẽ tự quay về điểm cất cánh. Sau khi hạ cánh và động cơ dừng, xác nhận để mở kiểm tra sau bay.',
       failureReasonLabel: 'Lý do không thể tiếp tục',
       failureReasonPlaceholder: 'Mô tả sự cố hoặc rủi ro đang gặp phải...',
       failureReasonRequired: 'Vui lòng nhập lý do trước khi gửi yêu cầu.',
@@ -204,7 +204,7 @@ export const inFlightControlMessages = defineMessages({
       preflightRequired: 'Cần hoàn thành kiểm tra trước bay',
       controllerNotBound:
         'Bộ điều khiển bay chưa gắn với nhiệm vụ này. Kết nối lại GCS trước khi chụp ảnh/video.',
-      noWaypoints: 'Không có waypoint trong kế hoạch nhiệm vụ',
+      noWaypoints: 'Không có điểm bay trong kế hoạch nhiệm vụ',
       autoPlanStarted: (count: number) =>
         `Đã bắt đầu kế hoạch tự động (${count} điểm)`,
       cameraReset: 'Camera đã đặt lại về 0° FPV',
@@ -221,13 +221,13 @@ export const inFlightControlMessages = defineMessages({
       finishingFlight: 'Đang cập nhật hoàn thành bay...',
       flightFinished: 'Đã xác nhận chuyến bay hoàn tất · chờ kiểm tra sau bay',
       failurePending: 'Đã ghi nhận lý do dừng nhiệm vụ.',
-      failureWaitingForLanding: 'Drone vẫn đang bay',
+      failureWaitingForLanding: 'Thiết bị vẫn đang bay',
       failureConfirmStop: 'Xác nhận dừng bay và kiểm tra',
     },
     header: {
       live: 'TRỰC TIẾP',
       offline: 'NGOẠI TUYẾN',
-      droneOperator: 'Phi công drone',
+      droneOperator: 'Phi công thiết bị',
       settings: 'Cài đặt',
     },
     thermalPanel: {

@@ -18,7 +18,8 @@ const services = createCollection<ServiceResponse[]>([
     name: 'Giám sát công trình',
     description:
       'Chụp ảnh và video hiện trạng công trình, hỗ trợ theo dõi và đối chiếu tiến độ thi công theo từng thời điểm.',
-    basePrice: 3_500_000,
+    defaultPrice: 0,
+    priceSource: 'UNPRICED',
     isActive: true,
     createdAt: '2026-01-10T08:00:00Z',
     updatedAt: '2026-02-01T08:00:00Z',
@@ -28,7 +29,8 @@ const services = createCollection<ServiceResponse[]>([
     name: 'Kiểm tra nhà xưởng',
     description:
       'Quan sát mái, bề mặt và các khu vực khó tiếp cận của nhà xưởng bằng hình ảnh và video từ drone.',
-    basePrice: 3_000_000,
+    defaultPrice: 0,
+    priceSource: 'UNPRICED',
     isActive: true,
     createdAt: '2026-01-11T08:00:00Z',
     updatedAt: '2026-02-01T08:00:00Z',
@@ -38,7 +40,8 @@ const services = createCollection<ServiceResponse[]>([
     name: 'Giám sát khu vực',
     description:
       'Chụp ảnh và video tổng quan một khu vực theo vị trí và phạm vi giám sát do khách hàng yêu cầu.',
-    basePrice: 2_500_000,
+    defaultPrice: 0,
+    priceSource: 'UNPRICED',
     isActive: true,
     createdAt: '2026-01-12T08:00:00Z',
     updatedAt: '2026-02-01T08:00:00Z',
@@ -48,7 +51,8 @@ const services = createCollection<ServiceResponse[]>([
     name: 'Giám sát rừng',
     description:
       'Chụp ảnh và video khu vực rừng, ghi nhận hiện trạng và hỗ trợ quan sát các khu vực có dấu hiệu bất thường.',
-    basePrice: 4_000_000,
+    defaultPrice: 0,
+    priceSource: 'UNPRICED',
     isActive: true,
     createdAt: '2026-01-13T08:00:00Z',
     updatedAt: '2026-02-01T08:00:00Z',
@@ -85,7 +89,6 @@ const notFound = (what: string) => fail(404, 'NOT_FOUND', `${what} not found`)
 type ServiceBody = {
   name?: string
   description?: string
-  basePrice?: number
   isActive?: boolean
 }
 type TimeBody = {
@@ -98,9 +101,6 @@ type TimeBody = {
 function validateService(b: ServiceBody) {
   const errors: Record<string, string> = {}
   if (!b.name?.trim()) errors.name = 'Name is required'
-  if (!Number.isSafeInteger(b.basePrice) || Number(b.basePrice) <= 0) {
-    errors.basePrice = 'Base price must be a positive whole VND amount'
-  }
   return Object.keys(errors).length
     ? fail(400, 'VALIDATION_ERROR', 'Validation failed', errors)
     : null
@@ -178,7 +178,8 @@ registerMockRoutes([
         id: `svc-${++seq}`,
         name: b.name!.trim(),
         description: b.description ?? '',
-        basePrice: b.basePrice!,
+        defaultPrice: 0,
+        priceSource: 'UNPRICED',
         isActive: b.isActive ?? true,
         createdAt: now,
         updatedAt: now,
@@ -206,7 +207,6 @@ registerMockRoutes([
       if (invalid) return invalid
       svc.name = b.name!.trim()
       svc.description = b.description ?? ''
-      svc.basePrice = b.basePrice!
       svc.isActive = b.isActive ?? svc.isActive
       svc.updatedAt = new Date().toISOString()
       return ok(svc)

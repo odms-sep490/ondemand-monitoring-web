@@ -1,40 +1,31 @@
 import { Radio } from 'antd'
 import { ClockCircleOutlined } from '@ant-design/icons'
 import { useState } from 'react'
-import { Card, FormField } from '../../../components/common/ui'
+import { Card } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import type {
-  FormErrors,
   FormState,
-  RecurrenceType,
   UpdateField,
   WeatherFallback,
 } from '../../../lib/createOrder/types'
-import { DateEcho } from './DateEcho'
 import { scheduleOptionsCardMessages } from './ScheduleOptionsCard.messages'
 
 type Props = {
   form: FormState
-  errors: FormErrors
   update: UpdateField
 }
 
-const RECURRENCE: RecurrenceType[] = ['NONE', 'WEEKLY', 'MONTHLY']
 const WEATHER: WeatherFallback[] = [
   'AUTO_RESCHEDULE',
   'CONTACT_CUSTOMER',
   'CANCEL_ORDER',
 ]
 
-/** Recurrence, flight-incident fallback and result deadline for the schedule. */
-export function ScheduleOptionsCard({ form, errors, update }: Props) {
+/** Flight-incident fallback options for the schedule. */
+export function ScheduleOptionsCard({ form, update }: Props) {
   const { t } = useI18n(scheduleOptionsCardMessages)
-  const repeating = form.recurrenceType !== 'NONE'
-  const needsAttention = Boolean(
-    errors.resultDeadline || errors.recurrenceOccurrences,
-  )
   const [expanded, setExpanded] = useState(false)
-  const open = expanded || needsAttention
+  const open = expanded
 
   return (
     <section className="co-schedule-options">
@@ -60,47 +51,6 @@ export function ScheduleOptionsCard({ form, errors, update }: Props) {
       >
         <Card icon={<ClockCircleOutlined />} title={t.cardTitle}>
           <fieldset className="co-opt-group">
-            <legend>{t.repeatLegend}</legend>
-            <Radio.Group
-              className="co-recurrence"
-              optionType="button"
-              value={form.recurrenceType}
-              onChange={(event) => update('recurrenceType', event.target.value)}
-              options={RECURRENCE.map((value) => ({
-                value,
-                label: t.repeat[value],
-              }))}
-            />
-            {repeating && (
-              <div className="co-mt">
-                <FormField
-                  id="co-occurrences"
-                  label={t.occurrences}
-                  error={errors.recurrenceOccurrences}
-                >
-                  <input
-                    id="co-occurrences"
-                    type="number"
-                    min={2}
-                    max={52}
-                    className="co-input co-input-narrow"
-                    value={form.recurrenceOccurrences}
-                    onChange={(e) =>
-                      update('recurrenceOccurrences', Number(e.target.value))
-                    }
-                  />
-                </FormField>
-                <p className="co-hint">
-                  {t.occurrencesHint(
-                    form.recurrenceType as 'WEEKLY' | 'MONTHLY',
-                    form.recurrenceOccurrences || 0,
-                  )}
-                </p>
-              </div>
-            )}
-          </fieldset>
-
-          <fieldset className="co-opt-group">
             <legend>{t.weatherLegend}</legend>
             <p className="co-help">{t.weatherHint}</p>
             <div className="co-choice-list">
@@ -121,25 +71,6 @@ export function ScheduleOptionsCard({ form, errors, update }: Props) {
               ))}
             </div>
           </fieldset>
-
-          <div className="co-opt-group">
-            <FormField
-              id="co-deadline"
-              label={`${t.deadline} ${t.deadlineOptional}`}
-              error={errors.resultDeadline}
-            >
-              <input
-                id="co-deadline"
-                type="date"
-                className="co-input co-input-narrow"
-                min={form.preferredDateTo || undefined}
-                value={form.resultDeadline}
-                onChange={(e) => update('resultDeadline', e.target.value)}
-              />
-              {form.resultDeadline && <DateEcho value={form.resultDeadline} />}
-            </FormField>
-            <p className="co-hint">{t.deadlineHint}</p>
-          </div>
         </Card>
       </div>
     </section>
