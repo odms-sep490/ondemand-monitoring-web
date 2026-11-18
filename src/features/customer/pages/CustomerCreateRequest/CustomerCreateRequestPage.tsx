@@ -122,6 +122,7 @@ export function CustomerCreateRequestPage() {
               estimate={estimate}
               loading={r.checklist.quote.loading}
               hasService={Boolean(r.service)}
+              serviceFallbackPrice={r.service?.defaultPrice}
               additionalChecklists={additionalChecklists}
             />
           </div>

@@ -44,6 +44,7 @@ export function ServiceStep(p: Props) {
           estimate={p.pricingEstimate}
           loading={p.pricingLoading}
           hasService={Boolean(selected)}
+          serviceFallbackPrice={selected?.defaultPrice}
           additionalChecklists={p.additionalChecklists}
         />
       </aside>

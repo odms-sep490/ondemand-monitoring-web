@@ -12,6 +12,7 @@ type Props = {
   estimate: ServicePricingEstimate | null
   loading: boolean
   hasService: boolean
+  serviceFallbackPrice?: number
   additionalChecklists?: ChecklistRow[]
 }
 
@@ -51,12 +52,21 @@ export function PricingEstimateCard({
   estimate,
   loading,
   hasService,
+  serviceFallbackPrice,
   additionalChecklists = [],
 }: Props) {
   const { t, locale, lang } = useI18n(pricingEstimateMessages)
 
   let body
   if (!hasService) body = <p className="co-hint">{t.pickService}</p>
+  else if (!estimate && serviceFallbackPrice != null) body = (
+    <div className="co-money">
+      <div className="co-money-row">
+        <span>{t.servicePrice}</span>
+        <strong>{formatMoney(serviceFallbackPrice, locale)}</strong>
+      </div>
+    </div>
+  )
   else if (loading && !estimate) body = <p className="co-hint">{t.loading}</p>
   else if (!estimate) body = <p className="co-hint">{t.unavailable}</p>
   else if (checklistOnly) {
