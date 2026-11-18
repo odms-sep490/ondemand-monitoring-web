@@ -15,15 +15,18 @@
   --fc-border-color: var(--cal-border);
   --fc-page-bg-color: var(--cal-card);
   --fc-neutral-bg-color: var(--cal-card-2);
-  --fc-today-bg-color: color-mix(in srgb, var(--cal-primary) 10%, transparent);
+  --fc-today-bg-color: transparent;
+  --fc-event-text-color: var(--cal-text);
+  --fc-event-bg-color: transparent;
+  --fc-event-border-color: transparent;
   --fc-now-indicator-color: #dc2626;
 
   width: 100%;
   min-width: 0;
   overflow-x: auto;
-  padding: 8px 12px 12px;
+  padding: 0;
   border: 1px solid var(--cal-border);
-  border-radius: 14px;
+  border-radius: 12px;
   background: var(--cal-card);
   color: var(--cal-text);
 
@@ -86,27 +89,30 @@
 
   .fc .fc-event-main {
     min-width: 0;
+    padding: 0;
+    color: var(--cal-text);
+    container-type: inline-size;
   }
 
-  /* Events: soft tinted card with a status accent on the left edge. */
+  /* Events: tinted card, solid 3px accent on the left, 1px accent border. */
   .fc-event {
     --ev-accent: var(--st-scheduled, #d97706);
 
-    padding: 3px 6px 3px 8px;
-    border: 1px solid color-mix(in srgb, var(--ev-accent) 35%, var(--cal-card));
-    border-left: 4px solid var(--ev-accent);
+    margin: 0 2px;
+    padding: 4px 6px;
+    border: 1px solid color-mix(in srgb, var(--ev-accent) 35%, transparent);
+    border-left: 3px solid var(--ev-accent);
     border-radius: 6px;
-    background-color: color-mix(in srgb, var(--ev-accent) 14%, var(--cal-card));
+    background-color: color-mix(in srgb, var(--ev-accent) 16%, var(--cal-card));
     color: var(--cal-text);
-    font-size: 0.8rem;
-    box-shadow: 0 1px 2px rgb(15 27 61 / 8%);
+    box-shadow: none;
     cursor: pointer;
-    transition: box-shadow 0.15s ease, transform 0.15s ease;
+    transition: background-color 0.15s ease;
   }
 
   .fc-event:hover {
     z-index: 5;
-    box-shadow: 0 4px 12px rgb(15 27 61 / 18%);
+    background-color: color-mix(in srgb, var(--ev-accent) 24%, var(--cal-card));
   }
 
   .fc-event.cal-st-scheduled { --ev-accent: var(--st-scheduled, #d97706); }
@@ -117,16 +123,17 @@
   .fc-event.cal-st-cancelled {
     --ev-accent: var(--st-cancelled, #64748b);
 
-    opacity: 0.8;
+    background-color: color-mix(in srgb, var(--ev-accent) 10%, var(--cal-card));
   }
 
   .fc-event.is-selected {
-    box-shadow: 0 0 0 2px var(--cal-card), 0 0 0 4px var(--cal-primary);
+    outline: 2px solid var(--cal-primary);
+    outline-offset: 0;
   }
 
   .fc-event:focus-visible {
     outline: 2px solid var(--cal-primary);
-    outline-offset: 2px;
+    outline-offset: 1px;
   }
 
   .cal-ev {
@@ -135,14 +142,16 @@
     gap: 1px;
     min-width: 0;
     overflow: hidden;
-    line-height: 1.25;
+    color: var(--cal-text);
+    line-height: 1.3;
   }
 
   .cal-ev-code {
     overflow: hidden;
+    color: color-mix(in srgb, var(--ev-accent) 70%, var(--cal-text));
     font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-    font-size: 0.76rem;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 600;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
@@ -151,20 +160,44 @@
   .cal-ev-time {
     overflow: hidden;
     color: var(--cal-muted);
-    font-size: 0.7rem;
+    font-size: 11px;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
   .cal-ev-time {
+    color: var(--cal-text);
     font-variant-numeric: tabular-nums;
+  }
+
+  .cal-ev-time-short {
+    display: none;
+  }
+
+  /* Compact variant: short events or narrow columns show code + time only. */
+  .cal-ev--short .cal-ev-meta {
+    display: none;
+  }
+
+  @container (max-width: 96px) {
+    .cal-ev-meta {
+      display: none;
+    }
+
+    .cal-ev-time-full {
+      display: none;
+    }
+
+    .cal-ev-time-short {
+      display: inline;
+    }
   }
 
   /* ── Grid ─────────────────────────────────────────── */
   .fc .fc-timegrid-slot {
-    height: 56px;
+    height: 48px;
     background-color: transparent;
-    border-color: color-mix(in srgb, var(--cal-border) 70%, transparent);
+    border-color: color-mix(in srgb, var(--cal-border) 45%, transparent);
   }
 
   .fc .fc-timegrid-slot-minor {
@@ -173,6 +206,9 @@
 
   .fc .fc-timegrid-slot-label-cushion {
     padding: 0 8px;
+    font-size: 11px;
+    font-weight: 500;
+    text-align: right;
     font-variant-numeric: tabular-nums;
   }
 
@@ -195,16 +231,22 @@
 
   .fc .fc-day-sat:not(.fc-col-header-cell),
   .fc .fc-day-sun:not(.fc-col-header-cell) {
-    background: color-mix(in srgb, var(--cal-muted) 7%, transparent);
+    background: color-mix(in srgb, var(--cal-muted) 2.5%, transparent);
   }
 
   .fc .fc-day-today:not(.fc-col-header-cell) {
-    background: color-mix(in srgb, var(--cal-primary) 8%, transparent);
+    background: color-mix(in srgb, var(--cal-primary) 4%, transparent);
   }
 
   .fc .fc-day-today.fc-col-header-cell {
-    background: color-mix(in srgb, var(--cal-primary) 12%, var(--cal-card));
-    box-shadow: inset 0 -2px 0 var(--cal-primary);
+    background: var(--cal-card);
+  }
+
+  .fc .fc-day-today.fc-col-header-cell .fc-col-header-cell-cushion {
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: var(--cal-primary);
+    color: #fff;
   }
 
   /* Now line: today's column only, with a dot at the gutter edge. */
@@ -228,18 +270,29 @@
     display: none;
   }
 
-  /* "+N" overflow pill and its popover. */
+  /* "+N" overflow chip: small, pinned to the top of its slot. */
   .fc .fc-timegrid-more-link {
+    top: 2px !important;
+    right: 4px !important;
+    bottom: auto !important;
+    left: auto !important;
+    z-index: 6;
+    width: auto;
+    height: 20px;
+    padding: 0 8px;
+    border: 1px solid color-mix(in srgb, var(--cal-primary) 35%, transparent);
     border-radius: 999px;
-    border: 1px solid var(--cal-border);
-    background: var(--cal-card);
-    color: var(--cal-primary);
-    box-shadow: 0 1px 3px rgb(15 27 61 / 15%);
+    background: color-mix(in srgb, var(--cal-primary) 14%, var(--cal-card));
+    color: var(--cal-text);
+    box-shadow: none;
+  }
+
+  .fc .fc-timegrid-more-link-inner {
+    line-height: 18px;
   }
 
   .fc .fc-more-link {
-    padding: 1px 8px;
-    font-size: 0.72rem;
+    font-size: 11px;
     font-weight: 700;
     line-height: 1.4;
   }
@@ -267,6 +320,7 @@
   /* Narrow screens: scroll inside the card, never the page. */
   .fc {
     min-width: 760px;
+    padding: 0 8px 8px;
     min-height: 520px;
   }
 
@@ -294,7 +348,7 @@
 
 @media (max-width: 640px) {
   .calendar {
-    padding: 8px;
+    padding: 0;
 
     .fc-toolbar-title {
       font-size: 1.1rem;
