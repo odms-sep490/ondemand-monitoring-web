@@ -40,9 +40,9 @@ describe('MissionEventBlock hover card', () => {
       />,
     )
     const block = await screen.findByRole('button', { name: /MSN-HOVER-1/ })
-    expect(screen.queryByText('DRN-42')).toBeNull()
+    expect(screen.queryByText('Nguyễn Phi Công')).toBeNull()
     fireEvent.mouseEnter(block)
-    expect(await screen.findByText('DRN-42')).toBeTruthy()
+    expect(await screen.findByText('Nguyễn Phi Công')).toBeTruthy()
     expect(screen.getByText('Nguyễn Phi Công')).toBeTruthy()
     expect(screen.getByText('ORD-77')).toBeTruthy()
     fireEvent.click(screen.getByRole('button', { name: 'Xem chi tiết' }))

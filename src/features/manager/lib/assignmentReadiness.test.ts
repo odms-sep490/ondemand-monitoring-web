@@ -64,6 +64,6 @@ it('preserves the detailed API validation message when finalizing a plan', () =>
   })
 
   expect(finalizeError(error)).toBe(
-    'Mission m-123 requires PILOT, OPERATOR, MAINTAINER and INSPECTOR',
+    'Nhiệm vụ m-123 cần phân công đủ nhân sự: phi công, điều phối viên, kỹ thuật viên bảo trì, giám sát viên.',
   )
 })

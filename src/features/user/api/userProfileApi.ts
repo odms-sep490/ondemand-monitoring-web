@@ -8,11 +8,27 @@ export type CurrentUserProfile = {
   role: UserRole
   linkedProviders: AuthProvider[]
   avatarUrl?: string
+  phoneNumber?: string
+  emailVerified?: boolean
+  active?: boolean
+  createdAt?: string
+  lastLoginAt?: string
   customerProfile?: {
     phoneNumber?: string
     address?: string
     companyName?: string
+    citizenIdentificationNumber?: string
+    companyTaxCode?: string
   }
+}
+
+export type UserProfileUpdateRequest = {
+  fullName?: string
+  phoneNumber?: string
+  address?: string
+  companyName?: string
+  citizenIdentificationNumber?: string
+  companyTaxCode?: string
 }
 
 export function canSetLocalPassword(profile?: CurrentUserProfile): boolean {
@@ -25,4 +41,6 @@ export function canSetLocalPassword(profile?: CurrentUserProfile): boolean {
 export const userProfileApi = {
   getCurrent: (signal?: AbortSignal) =>
     apiRequest<CurrentUserProfile>('/api/users/me', { signal }),
+  update: (body: UserProfileUpdateRequest) =>
+    apiRequest<CurrentUserProfile>('/api/users/me', { method: 'PATCH', body }),
 }

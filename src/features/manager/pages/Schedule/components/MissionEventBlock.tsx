@@ -117,7 +117,17 @@ export function MissionEventBlock({
         <span className="cal-ev-code" title={m.missionCode}>
           {m.missionCode}
         </span>
-        <span className="cal-ev-time">{formatTime(start)}</span>
+        <span className="cal-ev-time">{timeRange}</span>
+        {m.serviceLabel ? (
+          <span className="cal-ev-meta" title={m.serviceLabel}>
+            {m.serviceLabel}
+          </span>
+        ) : null}
+        {drone ? <span className="cal-ev-meta">{drone}</span> : null}
+        <span className="cal-ev-status">
+          <i className="cal-card-dot" />
+          {statusLabel}
+        </span>
       </div>
     </Popover>
   )

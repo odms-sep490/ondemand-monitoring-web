@@ -32,9 +32,9 @@ describe('profile local password setup', () => {
       },
     })
     render(<UserProfilePage />)
-    await screen.findByText('0901234567')
-    expect(screen.getByText('Công ty thử nghiệm')).toBeTruthy()
-    expect(screen.getByText('Thành phố Hồ Chí Minh')).toBeTruthy()
+    await screen.findAllByText('0901234567')
+    expect(screen.getAllByText('Công ty thử nghiệm')[0]).toBeTruthy()
+    expect(screen.getAllByText('Thành phố Hồ Chí Minh')[0]).toBeTruthy()
     expect(screen.queryByText('CUSTOMER')).toBeNull()
     expect(screen.queryByText('LOCAL')).toBeNull()
     expect(screen.queryByLabelText('Mật khẩu mới')).toBeNull()
@@ -46,8 +46,51 @@ describe('profile local password setup', () => {
       role: 'CUSTOMER',
     })
     render(<UserProfilePage />)
-    await screen.findByText('Test User')
-    expect(screen.getAllByText('Chưa cập nhật')).toHaveLength(3)
+    await screen.findAllByText('Test User')
+    expect(screen.getAllByText('Chưa cập nhật').length).toBeGreaterThanOrEqual(6)
+    expect(screen.getByText('Độ hoàn thiện hồ sơ')).toBeTruthy()
+    expect(screen.getByText('17%')).toBeTruthy()
+  })
+
+  it('validates and saves customer profile edits', async () => {
+    vi.spyOn(userProfileApi, 'getCurrent').mockResolvedValue({
+      ...user,
+      role: 'CUSTOMER',
+      customerProfile: {},
+    })
+    const update = vi.spyOn(userProfileApi, 'update').mockResolvedValue({
+      ...user,
+      role: 'CUSTOMER',
+    })
+    render(<UserProfilePage />)
+    fireEvent.click(await screen.findByRole('button', { name: /Chỉnh sửa hồ sơ/ }))
+    fireEvent.change(screen.getByLabelText('Số CCCD'), { target: { value: '123' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Lưu thay đổi' }))
+    expect(await screen.findByText('Số CCCD gồm đúng 12 chữ số.')).toBeTruthy()
+    expect(update).not.toHaveBeenCalled()
+    fireEvent.change(screen.getByLabelText('Số CCCD'), {
+      target: { value: '012345678901' },
+    })
+    fireEvent.change(screen.getByLabelText('Họ và tên'), {
+      target: { value: 'New Name' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Lưu thay đổi' }))
+    await waitFor(() => expect(update).toHaveBeenCalled())
+    expect(update.mock.calls[0][0]).toMatchObject({
+      fullName: 'New Name',
+      citizenIdentificationNumber: '012345678901',
+    })
+    await waitFor(() => expect(screen.queryByRole('button', { name: 'Lưu thay đổi' })).toBeNull())
+  })
+
+  it('shows only the name field to non-customers and surfaces BE errors', async () => {
+    vi.spyOn(userProfileApi, 'getCurrent').mockResolvedValue(user)
+    vi.spyOn(userProfileApi, 'update').mockRejectedValue(new Error('Server says no'))
+    render(<UserProfilePage />)
+    fireEvent.click(await screen.findByRole('button', { name: /Chỉnh sửa hồ sơ/ }))
+    expect(screen.queryByLabelText('Số CCCD')).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: 'Lưu thay đổi' }))
+    expect(await screen.findByText('Server says no')).toBeTruthy()
   })
 
   it.each([
@@ -61,7 +104,7 @@ describe('profile local password setup', () => {
         linkedProviders: providers,
       })
       render(<UserProfilePage />)
-      await screen.findByText('Test User')
+      await screen.findAllByText('Test User')
       expect(screen.queryByLabelText('Mật khẩu mới')).toBeNull()
       expect(screen.queryByRole('button', { name: 'Đặt mật khẩu' })).toBeNull()
     },

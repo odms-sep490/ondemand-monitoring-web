@@ -145,7 +145,66 @@ const authRoutes: MockRoute[] = [
 
 // The frontend calls `/api/auth/*` (current BE contract); `/api/v1/auth/*` is
 // the legacy prefix these handlers were first written for. Serve both.
+type ProfileOverride = {
+  fullName?: string
+  customerProfile: Record<string, string>
+}
+const profileOverrides = new Map<string, ProfileOverride>()
+
+function buildMockProfile(user: MockUser) {
+  const o = profileOverrides.get(user.id)
+  return {
+    id: user.id,
+    email: user.email,
+    fullName: o?.fullName ?? user.fullName,
+    role: user.role,
+    linkedProviders: ['LOCAL'],
+    active: true,
+    emailVerified: true,
+    createdAt: '2026-01-15T08:00:00Z',
+    lastLoginAt: '2026-11-17T01:30:00Z',
+    ...(user.role === 'CUSTOMER'
+      ? { customerProfile: { ...(o?.customerProfile ?? {}) } }
+      : {}),
+  }
+}
+
 registerMockRoutes([
+  {
+    method: 'PATCH',
+    path: '/api/users/me',
+    handler: ({ headers, body }) => {
+      const token = bearerToken(headers)
+      const user = token ? findUserByToken(token) : undefined
+      if (!user) return passThrough()
+      const b = (body ?? {}) as Record<string, string | undefined>
+      if (b.fullName !== undefined && !b.fullName.trim())
+        return fail(400, 'VALIDATION_ERROR', 'Họ tên là bắt buộc.', {
+          fullName: 'Bắt buộc',
+        })
+      const customerKeys = [
+        'phoneNumber',
+        'address',
+        'companyName',
+        'citizenIdentificationNumber',
+        'companyTaxCode',
+      ]
+      const o = profileOverrides.get(user.id) ?? { customerProfile: {} }
+      if (b.fullName !== undefined) o.fullName = b.fullName.trim()
+      if (customerKeys.some((k) => b[k] !== undefined)) {
+        if (user.role !== 'CUSTOMER')
+          return fail(
+            400,
+            'INVALID_REQUEST',
+            'Customer profile fields are only available to customers',
+          )
+        for (const k of customerKeys)
+          if (b[k] !== undefined) o.customerProfile[k] = b[k]!.trim()
+      }
+      profileOverrides.set(user.id, o)
+      return ok(buildMockProfile(user))
+    },
+  },
   {
     method: 'GET',
     path: '/api/users/me',
@@ -153,13 +212,7 @@ registerMockRoutes([
       const token = bearerToken(headers)
       const user = token ? findUserByToken(token) : undefined
       if (!user) return passThrough()
-      return ok({
-        id: user.id,
-        email: user.email,
-        fullName: user.fullName,
-        role: user.role,
-        linkedProviders: ['LOCAL'],
-      })
+      return ok(buildMockProfile(user))
     },
   },
   ...authRoutes,

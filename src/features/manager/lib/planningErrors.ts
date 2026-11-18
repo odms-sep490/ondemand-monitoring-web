@@ -110,6 +110,35 @@ export function translateBackendError(error: unknown): string {
   return raw || 'Thông tin chưa hợp lệ. Vui lòng kiểm tra và thử lại.'
 }
 
+const ROLE_VI: Record<string, string> = {
+  PILOT: 'phi công',
+  OPERATOR: 'điều phối viên',
+  MAINTAINER: 'kỹ thuật viên bảo trì',
+  INSPECTOR: 'giám sát viên',
+}
+
+function localizeFinalizeDetail(raw: string, error: ApiError): string {
+  if (getLanguage() !== 'vi') return raw
+  const short = (id: string) => id.slice(0, 8)
+  const roles = raw.match(/^Mission (\S+) requires ((?:PILOT|OPERATOR|MAINTAINER|INSPECTOR)(?:, | and )?)+$/)
+  if (roles) {
+    const list = raw
+      .replace(/^Mission \S+ requires /, '')
+      .split(/, | and /)
+      .map((r) => ROLE_VI[r] ?? r)
+      .join(', ')
+    return `Nhiệm vụ ${short(roles[1])} cần phân công đủ nhân sự: ${list}.`
+  }
+  const device = raw.match(/^Mission (\S+) requires at least one current MAIN device$/)
+  if (device)
+    return `Nhiệm vụ ${short(device[1])} cần ít nhất một thiết bị chính (MAIN).`
+  if (/^Order requires at least one Mission$/.test(raw))
+    return 'Đơn hàng cần ít nhất một nhiệm vụ.'
+  if (/^Every Mission requires checklist items$/.test(raw))
+    return 'Mỗi nhiệm vụ cần có hạng mục checklist.'
+  return translateBackendError(error)
+}
+
 export function finalizeError(error: unknown): string {
   if (error instanceof ApiError) {
     const raw = error.message?.trim()
@@ -124,7 +153,8 @@ export function finalizeError(error: unknown): string {
     // Finalize validation often returns INVALID_REQUEST with a useful detail
     // (for example, which required staff role or MAIN device is missing).
     // Keep that detail instead of collapsing every failure into one blocker.
-    if (raw && raw !== error.code && !genericMessages.has(raw)) return raw
+    if (raw && raw !== error.code && !genericMessages.has(raw))
+      return localizeFinalizeDetail(raw, error)
     if (error.code) return planningBlocker(error.code)
     if (raw) return translateBackendError(error)
   }
