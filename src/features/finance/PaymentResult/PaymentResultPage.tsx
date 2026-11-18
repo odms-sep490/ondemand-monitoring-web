@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { CreditCardOutlined, GlobalOutlined } from '@ant-design/icons'
+import { PortalUserMenu } from '../../../shared/components/portal/PortalUserMenu'
 import { financeApi } from '../api'
 import type { Payment } from '../types'
 import '../finance.css'
+import './payment-result.css'
 import { PaymentResultCard } from './components/PaymentResultCard'
 
 export function PaymentResultPage({
@@ -26,7 +29,8 @@ export function PaymentResultPage({
     try {
       // The refresh endpoint performs a signed server-to-server QueryDR call.
       // Browser return parameters are never used as proof of payment.
-      const current = await financeApi.refreshPaymentByReference(transactionReference)
+      const current =
+        await financeApi.refreshPaymentByReference(transactionReference)
       setPayment(current)
       const stillProcessing =
         current.status === 'PENDING' || current.status === 'PROCESSING'
@@ -54,18 +58,29 @@ export function PaymentResultPage({
     setChecking(true)
     setError(null)
     try {
-      const next = payment.type === 'MISSION_PAYMENT'
-        ? payment.missionPaymentMilestoneId
-          ? await financeApi.createMissionPayment(payment.missionPaymentMilestoneId)
-          : null
-        : payment.type === 'DEPOSIT'
-          ? await financeApi.createDeposit(payment.invoiceId)
-          : null
+      const next =
+        payment.type === 'MISSION_PAYMENT'
+          ? payment.missionPaymentMilestoneId
+            ? await financeApi.createMissionPayment(
+                payment.missionPaymentMilestoneId,
+              )
+            : null
+          : payment.type === 'DEPOSIT'
+            ? await financeApi.createDeposit(payment.invoiceId)
+            : null
       if (payment.type !== 'DEPOSIT' && payment.type !== 'MISSION_PAYMENT') {
-        throw new Error('This legacy payment cannot be retried. Contact the Manager for help.')
+        throw new Error(
+          'This legacy payment cannot be retried. Contact the Manager for help.',
+        )
       }
-      if (!next) throw new Error('Không tìm thấy khoản thanh toán Mission để thử lại.')
-      if (next.paymentUrl) window.location.assign(next.paymentUrl)
+      if (!next)
+        throw new Error('Không tìm thấy khoản thanh toán Mission để thử lại.')
+      if (!next.paymentUrl) {
+        throw new Error(
+          'Không thể tạo liên kết thanh toán mới. Vui lòng thử lại sau.',
+        )
+      }
+      window.location.assign(next.paymentUrl)
     } catch (cause) {
       setChecking(false)
       setError(
@@ -78,17 +93,49 @@ export function PaymentResultPage({
 
   const success = payment?.status === 'SUCCESS'
   return (
-    <main className="payment-result-page">
-      <PaymentResultCard
-        success={success}
-        cancelled={cancelled}
-        checking={checking}
-        payment={payment}
-        error={error}
-        check={check}
-        retryPayment={retryPayment}
-      />
-    </main>
+    <div className="payment-result-page">
+      <header className="payment-result-header">
+        <a className="payment-result-brand" href="#portal/customer/orders">
+          <img src="/images/logo-new.png" alt="" />
+          <span>
+            OnDemand
+            <br />
+            Monitor
+          </span>
+        </a>
+        <div className="payment-result-header__context">
+          <CreditCardOutlined aria-hidden="true" />
+          <span>Thanh toán</span>
+        </div>
+        <div
+          className="payment-result-header__tools"
+          aria-label="Ngôn ngữ và tài khoản"
+        >
+          <span className="payment-result-language">
+            <GlobalOutlined aria-hidden="true" /> VI
+          </span>
+          <PortalUserMenu fallbackName="Seed Admin" />
+        </div>
+      </header>
+      <main className="payment-result-main">
+        <PaymentResultCard
+          success={success}
+          cancelled={cancelled}
+          checking={checking}
+          payment={payment}
+          error={error}
+          check={check}
+          retryPayment={retryPayment}
+        />
+      </main>
+      <footer className="payment-result-footer">
+        <span />
+        <p>
+          OnDemand Monitor <b>•</b> Reliable Monitoring. Better Operations.
+        </p>
+        <span />
+      </footer>
+    </div>
   )
 }
 

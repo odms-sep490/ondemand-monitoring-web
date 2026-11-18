@@ -13,6 +13,8 @@ dist-ssr
 .codegraph/
 test-results/
 .agents/
+# Local-only Codex skills; keep them out of GitHub.
+/.agents/skills/
 .taste-skill/
 *.local
 .env
