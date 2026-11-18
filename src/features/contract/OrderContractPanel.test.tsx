@@ -400,3 +400,11 @@ it('opens payment from the confirmed customer contract', async () => {
   )
   expect(openPayment).toHaveBeenCalledOnce()
 })
+
+it('offers checkout while a submitted signed contract is still pending manager verification', async () => {
+  vi.spyOn(contractApi, 'get').mockResolvedValue({ ...base, status: 'PENDING_VERIFICATION', submissions: [{ id: 'signed', submissionNumber: 1, status: 'PENDING', submittedAt: '2026-11-16T00:00:00Z', submittedBy: 'customer', reviewedAt: null, reviewedBy: null, reviewNote: null, document: base.document! }] })
+  const proceed = vi.fn()
+  render(<OrderContractPanel orderId="order" mode="customer" onProceedToPayment={proceed} />)
+  fireEvent.click(await screen.findByRole('button', { name: 'Đi tới thanh toán' }))
+  expect(proceed).toHaveBeenCalledOnce()
+})

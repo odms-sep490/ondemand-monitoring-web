@@ -154,7 +154,17 @@ export function monitoringErrorMessage(error: unknown) {
 }
 
 export function MonitoringChecklistSection(props: ComponentProps<typeof MonitoringChecklistContent>) {
- return <>{!props.preview && props.resultKnown!==false && props.data && (props.canAssess || props.canAttach || props.canExecute) && <InspectionCorrectionPanel missionId={props.missionId} rows={props.data.executions} canRequest={props.canAssess && props.resultStatus!=='APPROVED'} canRespond={props.canAttach || props.canExecute} refresh={props.refresh}/>}<MonitoringChecklistContent {...props}/></>
+  const known = !props.preview && props.resultKnown !== false
+  return <>
+    {known && !props.hideWorkflowPanels && props.data && (props.showInspectionCorrections || props.canAssess || props.canAttach || props.canExecute) && <InspectionCorrectionPanel
+      missionId={props.missionId}
+      rows={props.data.executions}
+      canRequest={(props.canReviewCorrections ?? props.canAssess) && props.resultStatus !== 'APPROVED'}
+      canRespond={props.canAttach || props.canExecute}
+      refresh={props.refresh}
+    />}
+    <MonitoringChecklistContent {...props} />
+  </>
 }
 function MonitoringChecklistContent({
   missionId,
@@ -184,6 +194,9 @@ function MonitoringChecklistContent({
   preview = false,
 }: {
   missionId: string
+  hideWorkflowPanels?: boolean
+  canReviewCorrections?: boolean
+  showInspectionCorrections?: boolean
   hideImplementationHints?: boolean
   data?: MissionChecklistResponse
   loading: boolean
@@ -238,6 +251,7 @@ function MonitoringChecklistContent({
   const canEditAssessment =
     canAssess && !hideAssessment && resultKnown && !locked && !loading && !error
   const canEditCustomerSelection = (item: MissionChecklistExecution) =>
+    !hideAssessment &&
     item.assessmentStatus === 'COMPLIANT' &&
     resultKnown &&
     !loading &&
@@ -789,7 +803,7 @@ function ChecklistExecutionItem({
   const [reason, setReason] = useState(item.unableToVerifyReason ?? '')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<
-    'reasonRequired' | 'maxLength' | { cause: unknown } | null
+    'reasonRequired' | 'assessmentReasonRequired' | 'maxLength' | { cause: unknown } | null
   >(null)
   const [conflict, setConflict] = useState(false)
   const statusOptions = allowedExecutionStatuses(base.executionStatus, rejected)
@@ -832,6 +846,10 @@ function ChecklistExecutionItem({
   }
   async function save() {
     if (!editable || busy || conflict) return
+    if (canAssess && assessment === 'NON_COMPLIANT' && !assessmentNote.trim()) {
+      setError('assessmentReasonRequired')
+      return
+    }
     if (canExecute && status === 'UNABLE_TO_VERIFY' && !reason.trim()) {
       setError('reasonRequired')
       return

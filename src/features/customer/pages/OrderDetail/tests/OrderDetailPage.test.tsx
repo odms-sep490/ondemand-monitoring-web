@@ -63,7 +63,7 @@ describe('OrderDetailPage', () => {
     render(<OrderDetailPage orderId="cus-ord-003" />)
     expect(await screen.findByText('Chi tiết đơn hàng')).toBeInTheDocument()
     expect(
-      screen.getByText('Tuần tra an ninh công trường Sala Riverside'),
+      screen.getByRole('heading', { level: 1, name: /Tuần tra an ninh khu vực.*Sala/ }),
     ).toBeInTheDocument()
   })
 
@@ -158,7 +158,7 @@ describe('OrderDetailPage', () => {
       ).toBeVisible(),
     )
     expect(document.querySelector('.customer-quote-body')).toBeNull()
-    expect(document.querySelector('.customer-invoice-summary')).toBeNull()
+    expect(screen.getByRole('region', { name: 'Hóa đơn INV-LIVE' })).toBeVisible()
   })
 
   it('shows a red finance-tab dot until the customer opens the newly approved quote', async () => {

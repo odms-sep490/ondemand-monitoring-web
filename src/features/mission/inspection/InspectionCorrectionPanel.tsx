@@ -1,5 +1,6 @@
+import { SupplementInspectionResult } from './SupplementInspectionResult'
 import { useEffect, useRef, useState } from 'react'
-import { Alert, Button, Input, Tag } from 'antd'
+import { Alert, Button, Input, Tag, Radio } from 'antd'
 import {
   CheckCircleOutlined,
   SafetyCertificateOutlined,
@@ -11,7 +12,7 @@ import { useI18n } from '../../../shared/i18n'
 import type { MissionChecklistExecution } from '../types/checklistExecution'
 import { operatorHref } from '../../drone-operator/routes'
 import { managerHref } from '../../manager/routes'
-import { inspectionCorrectionApi } from './inspectionCorrectionApi'
+import { inspectionCorrectionApi, type CorrectionMode } from './inspectionCorrectionApi'
 import { inspectionCorrectionMessages } from './inspectionCorrection.messages'
 import './InspectionCorrectionPanel.css'
 import { CorrectionEvidenceGallery } from './CorrectionEvidenceGallery'
@@ -43,11 +44,30 @@ function CorrectionContent({
   )
   const [reasons, setReasons] = useState<Record<string, string>>({}),
     [media, setMedia] = useState<Record<string, string[]>>({})
-  const [note, setNote] = useState(''),
-    [busy, setBusy] = useState(false),
+  const [busy, setBusy] = useState(false),
     [error, setError] = useState<string | null>(null)
+  const [resultRefresh, setResultRefresh] = useState(0)
+  const [mode, setMode] = useState<CorrectionMode>('SUPPLEMENTAL_FLIGHT')
+  const refreshRef = useRef(refresh)
+  refreshRef.current = refresh
   const command = useRef(crypto.randomUUID())
   const active = query.data?.find((row) => row.status !== 'RESOLVED')
+  const reviewAttempt = useRef('')
+  const reviewSignature = rows.map(row => `${row.id}:${row.version}`).join('|')
+  useEffect(() => {
+    if (busy || query.loading || !canRequest || active?.mode !== 'DOSSIER_ADJUSTMENT' || active.status !== 'SUBMITTED') return
+    const requested = rows.filter(row => active.items.some(item => item.executionId === row.id))
+    if (requested.length !== active.items.length || !requested.length
+      || requested.some(row => row.assessmentStatus === 'NOT_ASSESSED')) return
+    const failed = requested.filter(row => row.assessmentStatus === 'NON_COMPLIANT')
+    if (failed.length ? failed.some(row => !row.assessmentNote?.trim())
+      : requested.some(row => !row.readyForFinalApproval)) return
+    const key = `${active.id}:${active.version}:${reviewSignature}`
+    if (reviewAttempt.current === key) return
+    reviewAttempt.current = key
+    void act(() => inspectionCorrectionApi.reconcileChecklistReview(missionId))
+  }, [active, canRequest, reviewSignature, rows, missionId, busy, query.loading])
+  const displaySupplement = active ?? query.data?.find(row => row.supplementalMissionStatus === 'COMPLETED')
   const failedRows = rows.filter(
     (row) =>
       !row.fulfilledByMissionId && row.assessmentStatus === 'NON_COMPLIANT',
@@ -58,7 +78,7 @@ function CorrectionContent({
 
   useEffect(() => {
     const timer = setInterval(() => {
-      if (!document.hidden) query.reload()
+      if (!document.hidden) { query.reload(); refreshRef.current?.() }
     }, 15000)
     return () => clearInterval(timer)
   }, [query.reload])
@@ -68,7 +88,6 @@ function CorrectionContent({
     setError(null)
     try {
       await operation()
-      setNote('')
       setReasons({})
       setMedia({})
       command.current = crypto.randomUUID()
@@ -82,12 +101,6 @@ function CorrectionContent({
       setBusy(false)
     }
   }
-  function decide(action: 'resubmit' | 'resolve' | 'return') {
-    if (active)
-      void act(() =>
-        inspectionCorrectionApi.decide(missionId, active, action, note.trim()),
-      )
-  }
   const disabled = busy || query.loading || Boolean(query.error)
   const format = (value: string) =>
     new Date(value).toLocaleString(locale, {
@@ -98,7 +111,7 @@ function CorrectionContent({
   const actionName = (action: string) =>
     t.action[action as keyof typeof t.action] ?? t.history
   // Manager sees only an actionable planning request, never the inspection workspace.
-  if (manager && !query.error && active?.status !== 'OPEN') return null
+  if (manager && !query.error && (active?.status !== 'OPEN' || active.mode === 'DOSSIER_ADJUSTMENT')) return null
   if (
     !manager &&
     !query.error &&
@@ -107,10 +120,12 @@ function CorrectionContent({
     !failedRows.length
   )
     return null
+  const reviewingSupplement = !manager && canRequest && Boolean(active?.supplementalMissionId) && active?.supplementalMissionStatus === 'COMPLETED'
+  const creatingRequest = canRequest && !active && failedRows.length > 0
   const panelTitle = manager ? t.create : t.title
   if (query.loading && !query.data) return <p role="status">{t.loading}</p>
   return (
-    <section className="inspection-corrections" aria-label={panelTitle}>
+    <section className={`inspection-corrections${reviewingSupplement ? ' inspection-corrections--review' : ''}`} aria-label={panelTitle}>
       <header>
         <div className="inspection-corrections__heading">
           <span className="inspection-corrections__icon" aria-hidden="true">
@@ -124,13 +139,13 @@ function CorrectionContent({
                   ? t.inspectorRole
                   : t.staffRole}
             </span>
-            <h3>{panelTitle}</h3>
-            <p>{manager ? t.planHint : t.subtitle}</p>
+            <h3>{reviewingSupplement ? t.reviewTitle : panelTitle}</h3>
+            <p>{reviewingSupplement ? t.reviewHint : manager ? t.planHint : t.subtitle}</p>
           </div>
         </div>
         <Button
           icon={<ReloadOutlined />}
-          onClick={query.reload}
+          onClick={() => { reviewAttempt.current = ''; query.reload(); setResultRefresh(value => value + 1); refresh?.() }}
           disabled={busy}
         >
           {t.refresh}
@@ -140,7 +155,7 @@ function CorrectionContent({
         <Alert type="error" showIcon message={t.loadFailed} />
       ) : (
         <>
-          {!manager && (
+          {!manager && !reviewingSupplement && (!creatingRequest || canRespond) && (
             <p className="inspection-corrections__guide">
               {canRequest
                 ? canRespond
@@ -174,6 +189,8 @@ function CorrectionContent({
           {!query.data?.length && !(canRequest && failedRows.length > 0) && (
             <p>{t.empty}</p>
           )}
+          {Boolean(query.data?.length) && <div className="inspection-corrections__review-layout">
+          <div className="inspection-corrections__context">
           {query.data
             ?.filter((row) => !manager || row.id === active?.id)
             .map((row, index) => (
@@ -181,6 +198,7 @@ function CorrectionContent({
                 key={row.id}
                 className={`inspection-corrections__request ${row.status === 'RESOLVED' ? 'is-resolved' : ''}`}
               >
+                <p><Tag color="blue">{row.mode === 'DOSSIER_ADJUSTMENT' ? t.dossier : t.flight}</Tag></p>
                 <div className="inspection-corrections__meta">
                   <strong>
                     {t.number} {query.data!.length - index}
@@ -249,68 +267,37 @@ function CorrectionContent({
                 </details>
               </article>
             ))}
-          {active &&
-            ((canRespond && active.status === 'OPEN') ||
-              (canRequest && active.status === 'SUBMITTED')) && (
-              <div className="inspection-corrections__actions">
-                <h4>
-                  {active.status === 'SUBMITTED'
-                    ? t.waitingInspector
-                    : t.waitingStaff}
-                </h4>
-                <label>
-                  {t.note}
-                  <Input.TextArea
-                    aria-label={t.note}
-                    value={note}
-                    maxLength={2000}
-                    onChange={(e) => setNote(e.target.value)}
-                    disabled={disabled}
-                  />
-                </label>
-                <div>
-                  {canRespond && active.status === 'OPEN' && (
-                    <Button
-                      type="primary"
-                      disabled={disabled || !note.trim()}
-                      onClick={() => decide('resubmit')}
-                    >
-                      {t.resubmit}
-                    </Button>
-                  )}
-                  {canRequest && active.status === 'SUBMITTED' && (
-                    <>
-                      <Button
-                        danger
-                        disabled={disabled || !note.trim()}
-                        onClick={() => decide('return')}
-                      >
-                        {t.return}
-                      </Button>
-                      <Button
-                        type="primary"
-                        disabled={disabled || !note.trim()}
-                        onClick={() => decide('resolve')}
-                      >
-                        {t.resolve}
-                      </Button>
-                    </>
-                  )}
-                </div>
-              </div>
-            )}
-          {canRequest && !active && failedRows.length > 0 && (
-            <div className="inspection-corrections__form">
+          </div>
+          <div className="inspection-corrections__review-main">
+          {!manager && canRequest && displaySupplement?.supplementalMissionId && displaySupplement.supplementalMissionStatus === 'COMPLETED' && (
+            <SupplementInspectionResult missionId={missionId} correctionId={displaySupplement.id} version={displaySupplement.version} refreshToken={resultRefresh} />
+          )}
+          {canRequest && active?.mode === 'SUPPLEMENTAL_FLIGHT' && active.status !== 'RESOLVED' && active.supplementalMissionStatus === 'COMPLETED' && (
+            <div className="inspection-corrections__actions">
+              <p>{t.acceptedSupplementHint}</p>
+              <Button type="primary" disabled={disabled} onClick={() => void act(() => inspectionCorrectionApi.synchronizeSupplement(missionId, active.id))}>{t.receiveSupplement}</Button>
+            </div>
+          )}
+          {active?.mode === 'DOSSIER_ADJUSTMENT' && <div className="inspection-corrections__actions"><p>{active.status === 'OPEN' ? t.workflowStaffHint : t.workflowReviewHint}</p><Button type="primary" href={operatorHref({ screen: canRequest && active.status === 'SUBMITTED' ? 'inspection' : 'corrections', missionId })}>{canRequest && active.status === 'SUBMITTED' ? t.workflowReview : t.workflowOpen}</Button></div>}
+          </div>
+          </div>}
+          {creatingRequest && (
+            <div className="inspection-corrections__form inspection-corrections__composer">
               <div className="inspection-corrections__meta">
-                <h4>{t.choose}</h4>
+                <h4>{t.strategy}</h4>
               </div>
-              <p>{t.findings}</p>
+              <Radio.Group className="inspection-corrections__strategy" aria-label={t.strategy} value={mode} onChange={e => setMode(e.target.value)} disabled={disabled}>
+                <Radio value="DOSSIER_ADJUSTMENT">{t.dossier}</Radio>
+                <Radio value="SUPPLEMENTAL_FLIGHT">{t.flight}</Radio>
+              </Radio.Group>
+              <p>{mode === 'DOSSIER_ADJUSTMENT' ? t.dossierHint : t.flightHint}</p>
+              <h4>{t.choose} ({failedRows.length})</h4>
               {failedRows.map((row) => (
                 <div
                   key={row.id}
-                  className={`inspection-corrections__choice ${selected.includes(row.id) ? 'is-selected' : ''}`}
+                  className="inspection-corrections__choice"
                 >
-                  <strong>{row.content}</strong>
+                  <strong className="inspection-corrections__finding-title">{row.content}</strong>
                   {selected.includes(row.id) && (
                     <>
                       <label>
@@ -369,6 +356,7 @@ function CorrectionContent({
                         ).trim(),
                         mediaIds: media[id] ?? [],
                       })),
+                      mode,
                     ),
                   )
                 }
@@ -377,7 +365,7 @@ function CorrectionContent({
               </Button>
             </div>
           )}
-          {manager && active?.status === 'OPEN' && orderId && (
+          {manager && active?.status === 'OPEN' && active.mode !== 'DOSSIER_ADJUSTMENT' && orderId && (
             <div className="inspection-corrections__form">
               <details>
                 <summary>{t.supplement}</summary>
@@ -394,7 +382,7 @@ function CorrectionContent({
                 disabled={disabled}
               >
                 {active.supplementalMissionId &&
-                active.supplementalMissionStatus !== 'CANCELLED'
+                !['CANCELLED','FAILED'].includes(active.supplementalMissionStatus ?? '')
                   ? t.openPlanning
                   : t.plan}
               </Button>

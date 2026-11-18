@@ -9,6 +9,7 @@ import type { MissionChecklistEvidence } from '../types/checklistExecution'
 
 const messages = defineMessages({
   vi: {
+    referenceTitle: 'Tệp được đánh dấu trong yêu cầu',
     title: 'Ảnh/video liên quan (không bắt buộc)',
     hint: 'Chọn tệp minh họa vấn đề cần bổ sung. Các tệp này không phải lựa chọn bàn giao cho khách hàng.',
     selected: (count: number) => `Đã chọn ${count} tệp`,
@@ -20,6 +21,7 @@ const messages = defineMessages({
     noThumbnail: 'Chưa có ảnh thu nhỏ',
   },
   en: {
+    referenceTitle: 'Files referenced in the request',
     title: 'Related images/videos (optional)',
     hint: 'Select files that illustrate the required corrections. This does not select files for customer delivery.',
     selected: (count: number) => `${count} files selected`,
@@ -38,12 +40,20 @@ export function CorrectionEvidenceGallery({
   selected,
   disabled,
   onChange,
+  readOnly = false,
+  title,
+  selectedLabel,
+  loadChecklist,
 }: {
   missionId: string
   executionId: string
   links: MissionChecklistEvidence[]
   selected: string[]
   disabled: boolean
+  selectedLabel?: string
+  title?: string
+  loadChecklist?: React.ComponentProps<typeof InspectorEvidencePreview>['loadChecklist']
+  readOnly?: boolean
   onChange: (ids: string[]) => void
 }) {
   const { t, lang } = useI18n(messages)
@@ -54,9 +64,9 @@ export function CorrectionEvidenceGallery({
   return (
     <fieldset className="inspection-corrections__related">
       <legend>
-        {t.title} <Tag>{t.selected(selectedCount)}</Tag>
+        {readOnly ? (title ?? t.referenceTitle) : <>{t.title} <Tag>{t.selected(selectedCount)}</Tag></>}
       </legend>
-      <p className="inspection-corrections__media-hint">{t.hint}</p>
+      {!readOnly && <p className="inspection-corrections__media-hint">{t.hint}</p>}
       <div className="inspection-corrections__media-grid">
         {links.map((link) => {
           const chosen = selected.includes(link.mediaId)
@@ -66,7 +76,7 @@ export function CorrectionEvidenceGallery({
               key={link.evidenceId}
               className={`inspection-corrections__media-card${chosen ? ' is-selected' : ''}`}
             >
-              <div className="inspection-corrections__media-choice">
+              {!readOnly && <div className="inspection-corrections__media-choice">
                 <Checkbox
                   aria-label={t.select(name)}
                   checked={chosen}
@@ -81,7 +91,7 @@ export function CorrectionEvidenceGallery({
                 >
                   {link.mediaType === 'VIDEO' ? t.video : t.image}
                 </Checkbox>
-              </div>
+              </div>}
               <button
                 type="button"
                 className="inspection-corrections__media-preview"
@@ -95,6 +105,7 @@ export function CorrectionEvidenceGallery({
               </button>
               <div className="inspection-corrections__media-info">
                 <strong title={name}>{name}</strong>
+                {readOnly && chosen && selectedLabel && <Tag color="blue">{selectedLabel}</Tag>}
                 {link.mediaStatus && (
                   <small>
                     {getUploadMediaStatusLabel(link.mediaStatus, lang)}
@@ -111,6 +122,7 @@ export function CorrectionEvidenceGallery({
           missionId={missionId}
           executionId={executionId}
           link={preview}
+          loadChecklist={loadChecklist}
           onClose={() => setPreview(null)}
         />
       )}

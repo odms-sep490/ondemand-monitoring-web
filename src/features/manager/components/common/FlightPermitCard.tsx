@@ -35,7 +35,9 @@ export function FlightPermitCard({
   const { t } = useI18n(flightPermitCardMessages)
   const { t: fb } = useI18n(managerFeedbackMessages)
   const toast = useToast()
-  const status = mission.flightPermitStatus ?? 'NOT_REQUESTED'
+  const executionStarted = Boolean(mission.actualStartAt) || ['IN_PROGRESS', 'AWAITING_REVIEW', 'PENDING_REVIEW', 'COMPLETED', 'FAILED', 'CANCELLED'].includes(mission.status)
+  const inheritedPermitNeedsUpload = Boolean(mission.flightPermitReusedFromMissionId) && !executionStarted
+  const status = inheritedPermitNeedsUpload ? 'PENDING' : mission.flightPermitStatus ?? 'NOT_REQUESTED'
   const canRequestDepositRefund =
     refundEligible ??
     ((status === 'REJECTED' || orderPermitRejected) && depositPaid)
@@ -131,6 +133,10 @@ export function FlightPermitCard({
     }
     if (!depositPaid) {
       setError(t.permitDepositRequired)
+      return
+    }
+    if (nextStatus === 'APPROVED' && (mission.flightPermitReplacementRequired || inheritedPermitNeedsUpload) && !file) {
+      setError(inheritedPermitNeedsUpload ? t.missionPermitRequired : t.replacementRequired)
       return
     }
     if (nextStatus === 'APPROVED' && !file && !hasSavedPermitFile) {
@@ -273,6 +279,7 @@ export function FlightPermitCard({
       ['REQUESTED', 'PROCESSING', 'COMPLETED'].includes(refund.status)
     const canEditPermitFile =
       !readOnly &&
+      !executionStarted &&
       !cancelled &&
       !refundHold &&
       (status !== 'APPROVED' || !hasSavedPermitFile) &&
@@ -297,6 +304,13 @@ export function FlightPermitCard({
         </header>
         <div className="odm-or-card-body odm-flight-permit__body">
           <p className="odm-or-muted odm-flight-permit__intro">{t.intro}</p>
+          {inheritedPermitNeedsUpload ? (
+            <div className="odm-flight-permit__blocked" role="status"><strong>{t.missionPermitRequired}</strong></div>
+          ) : mission.flightPermitReplacementRequired && !executionStarted ? (
+            <div className="odm-flight-permit__blocked" role="status"><strong>{t.replacementRequired}</strong></div>
+          ) : !executionStarted ? (
+            <p className="odm-or-muted">{t.missionPermitHint}</p>
+          ) : null}
           {cancelled ? (
             <div className="odm-flight-permit__blocked" role="status">
               <strong>{t.cancelledNotice}</strong>
@@ -380,7 +394,7 @@ export function FlightPermitCard({
                     value={note}
                     maxLength={1000}
                     rows={3}
-                    disabled={busy || cancelled || !depositPaid || !allStaffAccepted || mission.status === 'PLANNING'}
+                    disabled={busy || cancelled || executionStarted || !depositPaid || !allStaffAccepted || mission.status === 'PLANNING'}
                     readOnly={readOnly}
                     onChange={(event) => setNote(event.target.value)}
                     placeholder={t.notePlaceholder}
@@ -491,6 +505,7 @@ export function FlightPermitCard({
           {!cancelled &&
           !refundHold &&
           !readOnly &&
+          !executionStarted &&
           allStaffAccepted &&
           mission.status !== 'PLANNING' ? (
             <div className="odm-flight-permit__actions">

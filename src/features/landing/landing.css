@@ -1,598 +1,824 @@
-.odm-landing.lp-immersive {
-  --lp-blue: #3178ff;
-  --lp-blue-light: #76a7ff;
-  --lp-ink: #08111f;
-  --lp-muted: #d4dce8;
-  --lp-line: rgb(255 255 255 / 22%);
+/* Editorial industrial landing styles scoped to .lp-editorial */
+
+.lp-editorial {
+  --lp-bg-dark: #050605;
+  --lp-bg-light: #f5f5f3;
+  --lp-ink-dark: #111310;
+  --lp-ink-dark-muted: #565a54;
+  --lp-ink-dark-subtle: #6e726b;
+  --lp-ink-light: #f5f5f3;
+  --lp-ink-light-muted: rgb(245 245 243 / 74%);
+  --lp-ink-light-subtle: #8b8f88;
+  --lp-mint: #65dfba;
+  --lp-mint-hover: #7de7c7;
+  --lp-mint-ink: #071006;
+  --lp-mint-soft: #e2f1ec;
+  --lp-mint-deep: #13755a;
+  --lp-rule-light: #d9dbd6;
+  --lp-rule-dark: #252724;
+  --lp-font-sans: 'Inter', 'Be Vietnam Pro', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --lp-font-mono: 'IBM Plex Mono', 'DM Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
   position: relative;
   min-height: 100vh;
-  overflow: clip;
-  background: #07101d;
-  color: #fff;
-  isolation: isolate;
+  overflow-x: clip;
+  background: var(--lp-bg-dark);
+  color: var(--lp-ink-light);
+  font-family: var(--lp-font-sans);
+  -webkit-font-smoothing: antialiased;
 }
 
-.odm-landing.lp-immersive,
-.odm-landing.lp-immersive * {
+.lp-editorial *,
+.lp-editorial *::before,
+.lp-editorial *::after {
   box-sizing: border-box;
 }
 
-.odm-landing.lp-immersive a {
-  color: inherit;
-}
-
-.lp-sr-only,
-.lp-immersive .lp-sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-.lp-immersive .lp-skip-link {
-  position: fixed;
-  z-index: 100;
-  top: 12px;
-  left: 12px;
-  padding: 11px 15px;
-  transform: translateY(-160%);
-  border-radius: 8px;
-  background: #fff;
-  color: #08111f;
-  font-weight: 700;
-}
-
-.lp-immersive .lp-skip-link:focus {
-  transform: translateY(0);
-}
-
-.lp-immersive .lpx-container {
-  width: min(100% - 56px, 1536px);
-  margin-inline: auto;
-}
-
-.lp-immersive .lpx-header {
-  position: fixed;
-  z-index: 40;
-  inset: 0 0 auto;
-  min-height: 76px;
-  border-bottom: 1px solid rgb(255 255 255 / 12%);
-  background: linear-gradient(180deg, rgb(5 11 20 / 78%), rgb(5 11 20 / 52%));
-  color: #fff;
-  -webkit-backdrop-filter: blur(16px);
-  backdrop-filter: blur(16px);
-}
-
-.lp-immersive .lpx-header-inner {
-  display: flex;
-  min-height: 76px;
-  align-items: center;
-  justify-content: space-between;
-  gap: 28px;
-}
-
-.lp-immersive .lpx-logo {
-  display: inline-flex;
-  flex: 0 0 auto;
-  align-items: center;
-  gap: 10px;
-  text-decoration: none;
-}
-
-.lp-immersive .lpx-logo img {
-  display: block;
-  width: 42px;
-  height: 42px;
-  object-fit: contain;
-}
-
-.lp-immersive .lpx-logo > span {
-  display: grid;
-  color: #fff;
-  font-size: 16px;
-  font-weight: 800;
-  letter-spacing: -0.035em;
-  line-height: 0.98;
-}
-
-.lp-immersive .lpx-logo > span b:last-child {
-  color: #78aaff;
-}
-
-.lp-immersive .lpx-nav {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: clamp(18px, 2.2vw, 38px);
-  margin-left: auto;
-}
-
-.lp-immersive .lpx-nav > a:not(.lpx-button) {
-  color: rgb(255 255 255 / 82%);
-  font-size: 14px;
-  font-weight: 600;
-  text-decoration: none;
-  transition: color 160ms ease;
-}
-
-.lp-immersive .lpx-nav > a:not(.lpx-button):hover,
-.lp-immersive .lpx-nav > a:not(.lpx-button):focus-visible {
-  color: #fff;
-}
-
-.lp-immersive .lpx-header-tools {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.lp-immersive .lpx-language button,
-.lp-immersive .lpx-language [role='button'] {
-  color: #e9eff8;
-}
-
-.lp-immersive .lpx-menu-button {
-  display: none;
-  width: 42px;
-  height: 42px;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid rgb(255 255 255 / 28%);
-  border-radius: 50%;
-  background: rgb(255 255 255 / 8%);
-  color: #fff;
-  cursor: pointer;
-}
-
-.lp-immersive .lpx-menu-button svg {
-  width: 19px;
-  height: 19px;
-}
-
-.lp-immersive .lpx-button {
-  display: inline-flex;
-  min-height: 48px;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 0 20px;
-  border: 1px solid transparent;
-  border-radius: 999px;
-  font-size: 14px;
-  font-weight: 750;
-  line-height: 1;
-  text-decoration: none;
-  transition:
-    transform 180ms ease,
-    background-color 180ms ease,
-    border-color 180ms ease;
-}
-
-.lp-immersive .lpx-button:hover {
-  transform: translateY(-2px);
-}
-
-.lp-immersive .lpx-button--primary {
-  background: var(--lp-blue);
-  box-shadow: 0 9px 28px rgb(25 92 231 / 28%);
-  color: #fff;
-}
-
-.lp-immersive .lpx-button--primary:hover {
-  background: #1f68ef;
-}
-
-.lp-immersive .lp-scroll-journey {
-  position: relative;
-  z-index: 1;
-  overflow: clip;
-  background: #07101d;
-  color: #fff;
-}
-
-.lp-immersive .lp-journey-stage {
-  position: sticky;
-  z-index: 0;
-  top: 0;
-  height: 100vh;
-  height: 100svh;
-  min-height: 560px;
-  overflow: hidden;
-  background: #111b28;
-  isolation: isolate;
-}
-
-.lp-immersive .lp-journey-backdrops,
-.lp-immersive .lp-journey-backdrop {
-  position: absolute;
-  inset: 0;
-}
-
-.lp-immersive .lp-journey-backdrop {
-  overflow: hidden;
-  opacity: 0;
-  transition: opacity 700ms cubic-bezier(0.2, 0.65, 0.25, 1);
-}
-
-.lp-immersive .lp-journey-backdrop.is-active {
-  opacity: 1;
-}
-
-.lp-immersive .lp-journey-backdrop img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  transform: scale(1.035);
-  transition: transform 1.2s ease;
-}
-
-.lp-immersive .lp-journey-backdrop.is-active img {
-  transform: scale(1);
-}
-
-.lp-immersive .lp-cinematic-sequence {
-  position: absolute;
-  z-index: 1;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 450ms ease;
-}
-
-.lp-immersive .lp-cinematic-sequence.is-active {
-  opacity: 1;
-}
-
-.lp-immersive .lp-cinematic-sequence video {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-}
-
-.lp-immersive .lp-journey-stage.has-cinematic-video .lp-journey-backdrop {
-  transition: none;
-}
-
-.lp-immersive .lp-journey-stage.has-cinematic-video .lp-journey-backdrop img {
-  transition: none;
-}
-
-.lp-immersive .lp-journey-stage.has-cinematic-video .lp-flight-route {
-  visibility: hidden;
-  opacity: 0;
-}
-
-.lp-immersive .lp-journey-atmosphere {
-  position: absolute;
-  z-index: 2;
-  inset: 0;
-  pointer-events: none;
-  background:
-    linear-gradient(
-      90deg,
-      rgb(4 9 16 / 66%) 0%,
-      rgb(5 11 19 / 34%) 42%,
-      transparent 78%
-    ),
-    linear-gradient(
-      0deg,
-      rgb(4 9 16 / 78%) 0%,
-      transparent 30%,
-      rgb(4 9 16 / 24%) 100%
-    );
-}
-
-.lp-immersive .lp-flight-scene-stage {
-  position: absolute;
-  z-index: 3;
-  inset: 5% 0 0;
-  pointer-events: none;
-}
-
-.lp-immersive .lp-flight-scene-canvas {
-  display: block;
-  width: 100%;
-  height: 100%;
-  outline: 0;
-}
-
-.lp-immersive .lp-flight-scene-fallback {
-  position: absolute;
-  top: 50%;
-  left: 54%;
-  width: min(48vw, 720px);
-  height: auto;
-  transform: translate(-50%, -50%);
-  object-fit: contain;
-  transition: opacity 220ms ease;
-}
-
-.lp-scroll-journey[data-active-chapter='0'] .lp-flight-scene-fallback,
-.lp-scroll-journey[data-active-chapter='1'] .lp-flight-scene-fallback {
-  visibility: hidden;
-  opacity: 0;
-}
-
-.lp-immersive .lp-journey-credit {
-  position: absolute;
-  z-index: 5;
-  right: clamp(24px, 5.1vw, 88px);
-  bottom: 44px;
-  max-width: min(42vw, 520px);
-  padding: 5px 8px;
-  border: 1px solid rgb(255 255 255 / 18%);
-  border-radius: 6px;
-  background: rgb(8 17 31 / 62%);
-  color: rgb(255 255 255 / 78%);
-  font-size: 9px;
-  line-height: 1.45;
-  text-align: right;
-  text-decoration: none;
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
-}
-
-.lp-immersive .lp-journey-credit:hover,
-.lp-immersive .lp-journey-credit:focus-visible {
-  color: #fff;
-  outline: 2px solid var(--lp-blue-light);
-  outline-offset: 2px;
-}
-
-.lp-immersive .lp-journey-status {
-  position: absolute;
-  z-index: 5;
-  top: 104px;
-  display: inline-flex;
-  min-height: 36px;
-  align-items: center;
-  gap: 10px;
-  padding: 0 13px;
-  border: 1px solid rgb(255 255 255 / 22%);
-  border-radius: 7px;
-  background: rgb(8 17 31 / 45%);
-  color: rgb(255 255 255 / 88%);
-  font-size: 10px;
-  font-weight: 750;
-  letter-spacing: 0.12em;
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
-}
-
-.lp-immersive .lp-journey-status {
-  right: clamp(24px, 5.1vw, 88px);
-  color: #fff;
-  letter-spacing: 0.09em;
-}
-
-.lp-immersive .lp-journey-status-light {
-  width: 7px;
-  height: 7px;
-  flex: 0 0 auto;
-  border-radius: 50%;
-  background: #4fdfa4;
-  box-shadow: 0 0 12px rgb(79 223 164 / 72%);
-}
-
-.lp-immersive .lp-journey-chapters {
-  position: relative;
-  z-index: 4;
-  margin-top: -100vh;
-  margin-top: -100svh;
-  pointer-events: none;
-}
-
-.lp-immersive .lp-journey-chapter {
-  position: relative;
-  display: grid;
-  min-height: 100vh;
-  min-height: 100svh;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  align-items: center;
-  padding: 112px clamp(28px, 7vw, 120px) 94px;
-  scroll-margin-top: 90px;
-}
-
-.lp-immersive .lp-journey-chapter--intro {
-  align-items: center;
-  padding-top: 132px;
-}
-
-.lp-immersive .lp-journey-copy {
-  position: sticky;
-  top: clamp(150px, 25vh, 250px);
-  align-self: start;
-  z-index: 1;
-  width: min(100%, 660px);
-  grid-column: 1;
-  pointer-events: auto;
-  text-shadow: 0 2px 24px rgb(0 0 0 / 30%);
-}
-
-.lp-immersive .lp-journey-chapter--intro .lp-journey-copy {
-  width: min(100%, 740px);
-  align-self: center;
-}
-
-.lp-immersive .lp-journey-chapter:nth-child(even) .lp-journey-copy {
-  grid-column: 2;
-  justify-self: end;
-}
-
-.lp-immersive .lp-journey-kicker {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 0 0 25px;
-  color: #e1e9f5;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.15em;
-  line-height: 1.45;
-  text-transform: uppercase;
-}
-
-.lp-immersive .lp-journey-kicker-dot {
-  width: 8px;
-  height: 8px;
-  flex: 0 0 auto;
-  border-radius: 50%;
-  background: var(--lp-blue-light);
-  box-shadow: 0 0 14px rgb(118 167 255 / 70%);
-}
-
-.lp-immersive .lp-journey-kicker-index {
-  display: inline-grid;
-  width: 30px;
-  height: 30px;
-  flex: 0 0 auto;
-  place-items: center;
-  border: 1px solid rgb(255 255 255 / 55%);
-  border-radius: 50%;
-  color: #fff;
-  font-size: 11px;
-  letter-spacing: 0;
-}
-
-.lp-immersive .lp-journey-copy h1,
-.lp-immersive .lp-journey-copy h2 {
-  max-width: 12ch;
-  margin: 0;
-  color: #fff;
-  font-size: clamp(3rem, 7.2vw, 7.1rem);
-  font-weight: 850;
-  letter-spacing: -0.075em;
-  line-height: 0.92;
-  text-wrap: balance;
-}
-
-.lp-immersive .lp-journey-chapter--intro .lp-journey-copy h1 {
-  max-width: 100%;
-  font-size: clamp(4rem, 5vw, 5.2rem);
-}
-
-.lp-immersive .lp-journey-copy h1 span,
-.lp-immersive .lp-journey-copy h2 span {
-  display: block;
-}
-
-.lp-immersive .lp-journey-copy h1 span + span {
-  color: #72a4ff;
-}
-
-.lp-immersive .lp-journey-copy h1 span:first-child {
-  color: #fff;
-}
-
-.lp-immersive .lp-journey-copy h2 {
-  max-width: 13ch;
-  font-size: clamp(2.8rem, 6vw, 5.7rem);
-}
-
-.lp-immersive .lp-journey-lede {
-  max-width: 54ch;
-  margin: 25px 0 0;
-  color: rgb(246 249 255 / 86%);
-  font-size: clamp(16px, 1.23vw, 19px);
-  font-weight: 480;
-  line-height: 1.65;
-}
-
-.lp-immersive .lp-journey-attribution {
-  max-width: 54ch;
-  margin: 10px 0 0;
-  color: rgb(246 249 255 / 66%);
-  font-size: 10px;
-  line-height: 1.5;
-}
-
-.lp-immersive .lp-journey-attribution a {
-  color: inherit;
-  text-decoration: underline;
-  text-decoration-color: rgb(246 249 255 / 52%);
-  text-underline-offset: 2px;
-}
-
-.lp-immersive .lp-journey-attribution a:focus-visible {
-  border-radius: 2px;
-  outline: 2px solid var(--lp-blue-light);
+.lp-editorial :focus-visible {
+  outline: 2px solid var(--lp-mint);
   outline-offset: 3px;
 }
 
-.lp-immersive .lp-journey-scroll-cue {
-  display: inline-flex;
-  align-items: center;
-  gap: 13px;
-  margin-top: 28px;
-  color: #fff;
+.lp-editorial .lp-skip-link {
+  position: fixed;
+  z-index: 80;
+  top: 12px;
+  left: 12px;
+  padding: 10px 16px;
+  background: var(--lp-mint);
+  color: var(--lp-mint-ink);
   font-size: 13px;
-  font-weight: 750;
-  text-decoration: none;
-}
-
-.lp-immersive .lp-journey-scroll-cue svg {
-  width: 17px;
-  height: 17px;
-  color: var(--lp-blue-light);
-  animation: lp-cue-bob 1.7s ease-in-out infinite;
-}
-
-.lp-immersive .lp-journey-cta {
-  display: inline-flex;
-  min-height: 52px;
-  align-items: center;
-  gap: 18px;
-  margin-top: 30px;
-  padding: 0 21px;
-  border: 1px solid rgb(255 255 255 / 28%);
-  border-radius: 999px;
-  background: var(--lp-blue);
-  box-shadow: 0 12px 32px rgb(19 77 197 / 36%);
-  color: #fff;
-  font-size: 14px;
-  font-weight: 750;
-  text-decoration: none;
-  transition:
-    transform 160ms ease,
-    background-color 160ms ease;
-}
-
-.lp-immersive .lp-journey-cta:hover {
-  transform: translateY(-2px);
-  background: #1d67ef;
-}
-
-.lp-immersive .lp-journey-cta svg {
-  width: 17px;
-  height: 17px;
-}
-
-.lp-immersive .lp-journey-chapter-index {
-  position: absolute;
-  right: clamp(28px, 7vw, 120px);
-  bottom: 54px;
-  color: rgb(255 255 255 / 72%);
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.14em;
+  text-decoration: none;
+  transform: translateY(-180%);
+  transition: transform 160ms ease;
 }
 
-.lp-immersive :focus-visible {
-  outline: 3px solid #9dc0ff;
-  outline-offset: 4px;
+.lp-editorial .lp-skip-link:focus {
+  transform: translateY(0);
 }
 
+.lp-editorial .lpx-container {
+  width: min(1320px, calc(100% - 96px));
+  margin: 0 auto;
+}
+
+/* Header overlaid transparently on hero */
+.lp-editorial .lpx-header {
+  position: absolute;
+  z-index: 20;
+  inset: 0 0 auto;
+  padding: 22px 0;
+}
+
+.lp-editorial .lpx-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.lp-editorial .lpx-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  color: var(--lp-ink-light);
+  text-decoration: none;
+}
+
+.lp-editorial .lpx-logo img {
+  display: block;
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
+.lp-editorial .lpx-logo-text {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  font-size: 15px;
+  letter-spacing: -0.025em;
+  white-space: nowrap;
+}
+
+.lp-editorial .lpx-logo-text b {
+  font-weight: 700;
+}
+
+.lp-editorial .lpx-logo-text span {
+  color: rgb(245 245 243 / 78%);
+  font-weight: 500;
+}
+
+.lp-editorial .lpx-nav {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.lp-editorial .lpx-nav a {
+  position: relative;
+  padding: 4px 0;
+  color: rgb(255 255 255 / 72%);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 180ms ease;
+}
+
+.lp-editorial .lpx-nav a::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 1px;
+  background: var(--lp-mint);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.lp-editorial .lpx-nav a:hover,
+.lp-editorial .lpx-nav a:focus-visible {
+  color: #fff;
+}
+
+.lp-editorial .lpx-nav a:hover::after,
+.lp-editorial .lpx-nav a:focus-visible::after {
+  transform: scaleX(1);
+}
+
+.lp-editorial .lpx-header-tools {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.lp-editorial .lpx-language.odm-lang-toggle {
+  border-color: rgb(255 255 255 / 18%);
+  background: rgb(5 6 5 / 45%);
+  backdrop-filter: blur(8px);
+}
+
+.lp-editorial .lpx-language.odm-lang-toggle button {
+  padding: 5px 9px;
+  color: rgb(255 255 255 / 70%);
+  font-family: var(--lp-font-mono);
+}
+
+.lp-editorial .lpx-language.odm-lang-toggle button[aria-pressed='true'] {
+  background: rgb(255 255 255 / 18%);
+  color: #fff;
+}
+
+.lp-editorial .lpx-language.odm-lang-toggle button:hover:not([aria-pressed='true']) {
+  color: #fff;
+}
+
+.lp-editorial .lpx-nav-signin {
+  color: rgb(255 255 255 / 84%);
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 150ms ease;
+}
+
+.lp-editorial .lpx-nav-signin:hover {
+  color: #fff;
+}
+
+.lp-editorial .lpx-header-cta {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 18px;
+  border-radius: 6px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 22%);
+  color: #0c1110;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background-color 150ms ease,
+    transform 150ms ease;
+}
+
+.lp-editorial .lpx-header-cta:hover {
+  background: #eef1ef;
+  transform: translateY(-1px);
+}
+
+/* Primary sharp-corner mint CTA */
+.lp-editorial .lpx-cta-mint {
+  display: inline-flex;
+  min-height: 46px;
+  align-items: center;
+  gap: 12px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 0;
+  background: var(--lp-mint);
+  color: var(--lp-mint-ink);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background-color 160ms ease,
+    transform 160ms ease;
+}
+
+.lp-editorial .lpx-cta-mint:hover {
+  background: var(--lp-mint-hover);
+  transform: translateY(-2px);
+}
+
+.lp-editorial .lpx-cta-icon {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.lp-editorial .lpx-cta-mint:hover .lpx-cta-icon,
+.lp-editorial .lpx-cta-mint:focus-visible .lpx-cta-icon {
+  transform: translate(2.5px, -2.5px);
+}
+
+/* Keyframes (GPU-only transform + opacity) */
+@keyframes lpx-fade-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes lpx-hero-settle {
+  from {
+    transform: scale(1.05);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes lpx-scan-beam {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -100%, 0);
+  }
+  18% {
+    opacity: 1;
+  }
+  82% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(0, 380%, 0);
+  }
+}
+
+@keyframes lpx-dot-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgb(101 223 186 / 65%);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgb(101 223 186 / 0%);
+  }
+}
+
+/* Band 1: Full-bleed Hero */
+.lp-editorial .lpx-hero {
+  position: relative;
+  display: flex;
+  min-height: min(92svh, 820px);
+  align-items: flex-end;
+  overflow: hidden;
+  padding: 136px 0 88px;
+  background: var(--lp-bg-dark);
+}
+
+.lp-editorial .lpx-hero-media {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 62% 52%;
+  animation: lpx-hero-settle 1.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.lp-editorial .lpx-hero-scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg,
+      rgb(5 6 5 / 90%) 0%,
+      rgb(5 6 5 / 72%) 42%,
+      rgb(5 6 5 / 26%) 100%),
+    linear-gradient(180deg,
+      rgb(5 6 5 / 56%) 0%,
+      rgb(5 6 5 / 12%) 36%,
+      rgb(5 6 5 / 86%) 100%);
+}
+
+.lp-editorial .lpx-hero-inner {
+  position: relative;
+  z-index: 2;
+}
+
+.lp-editorial .lpx-hero-content {
+  max-width: 920px;
+}
+
+.lp-editorial .lpx-hero-title {
+  max-width: none;
+  margin: 0;
+  color: var(--lp-ink-light);
+  font-family: var(--lp-font-sans);
+  font-size: clamp(42px, 5.8vw, 80px);
+  font-weight: 500;
+  letter-spacing: -0.045em;
+  line-height: 1.04;
+  animation: lpx-fade-up 620ms cubic-bezier(0.22, 1, 0.36, 1) 60ms both;
+}
+
+.lp-editorial .lpx-hero-title span {
+  display: block;
+  color: inherit;
+}
+
+.lp-editorial .lpx-hero-subtitle {
+  max-width: 540px;
+  margin: 26px 0 0;
+  color: var(--lp-ink-light-muted);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.7;
+  animation: lpx-fade-up 620ms cubic-bezier(0.22, 1, 0.36, 1) 150ms both;
+}
+
+.lp-editorial .lpx-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 28px;
+  margin-top: 34px;
+  animation: lpx-fade-up 620ms cubic-bezier(0.22, 1, 0.36, 1) 240ms both;
+}
+
+.lp-editorial .lpx-text-link {
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--lp-mint);
+  color: var(--lp-ink-light);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: opacity 150ms ease;
+}
+
+.lp-editorial .lpx-text-link:hover {
+  opacity: 0.82;
+}
+
+/* Shared Section Eyebrow & Display Title */
+.lp-editorial .lpx-section-eyebrow {
+  padding-bottom: 16px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.lp-editorial .lpx-section-eyebrow--light {
+  border-bottom: 1px solid var(--lp-rule-light);
+  color: var(--lp-ink-dark-subtle);
+}
+
+.lp-editorial .lpx-section-eyebrow--dark {
+  border-bottom: 1px solid var(--lp-rule-dark);
+  color: var(--lp-ink-light-subtle);
+}
+
+.lp-editorial .lpx-section-title {
+  max-width: none;
+  margin: 0;
+  font-family: var(--lp-font-sans);
+  font-size: clamp(32px, 4vw, 52px);
+  font-weight: 500;
+  letter-spacing: -0.042em;
+  line-height: 1.08;
+}
+
+.lp-editorial .lpx-section-title--dark {
+  max-width: 420px;
+  color: var(--lp-ink-dark);
+}
+
+.lp-editorial .lpx-section-title--light {
+  color: var(--lp-ink-light);
+}
+
+.lp-editorial .lpx-section-title--light span {
+  display: block;
+  color: inherit;
+}
+
+.lp-editorial .lpx-section-action {
+  margin-top: 32px;
+}
+
+/* Band 2: Light 2x2 Swiss Hairline Services Grid */
+.lp-editorial .lpx-services {
+  padding: 96px 0 112px;
+  background: var(--lp-bg-light);
+  color: var(--lp-ink-dark);
+}
+
+.lp-editorial .lpx-services-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+  gap: 64px;
+  align-items: start;
+  margin-top: 56px;
+}
+
+.lp-editorial .lpx-services-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.lp-editorial .lpx-service-cell {
+  padding: 0 32px 40px 0;
+  border-bottom: 1px solid var(--lp-rule-light);
+  transition: background-color 220ms ease;
+}
+
+.lp-editorial .lpx-service-cell:nth-child(2n) {
+  padding-right: 0;
+  padding-left: 36px;
+  border-left: 1px solid var(--lp-rule-light);
+}
+
+.lp-editorial .lpx-service-cell:nth-child(n + 3) {
+  padding-top: 40px;
+  padding-bottom: 8px;
+  border-bottom: 0;
+}
+
+.lp-editorial .lpx-service-cell-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 22px;
+}
+
+.lp-editorial .lpx-service-icon {
+  display: inline-flex;
+  width: 38px;
+  height: 38px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: var(--lp-mint-soft);
+  color: var(--lp-mint-deep);
+  transition:
+    transform 240ms cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 220ms ease;
+}
+
+.lp-editorial .lpx-service-cell:hover .lpx-service-icon {
+  background: #cfece2;
+  transform: scale(1.07);
+}
+
+.lp-editorial .lpx-service-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.lp-editorial .lpx-service-index {
+  color: var(--lp-ink-dark-subtle);
+  font-family: var(--lp-font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  transition: color 220ms ease;
+}
+
+.lp-editorial .lpx-service-cell:hover .lpx-service-index {
+  color: var(--lp-mint-deep);
+}
+
+/* Scroll-triggered reveal transitions (only active when .lpx-reveal-ready is attached) */
+.lp-editorial .lpx-services.lpx-reveal-ready .lpx-services-intro,
+.lp-editorial .lpx-services.lpx-reveal-ready .lpx-service-cell,
+.lp-editorial .lpx-about.lpx-reveal-ready .lpx-about-media-wrap,
+.lp-editorial .lpx-about.lpx-reveal-ready .lpx-about-copy {
+  opacity: 0;
+  transform: translate3d(0, 20px, 0);
+  transition:
+    opacity 560ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 560ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.lp-editorial .lpx-services.lpx-reveal-ready.is-visible .lpx-services-intro,
+.lp-editorial .lpx-services.lpx-reveal-ready.is-visible .lpx-service-cell,
+.lp-editorial .lpx-about.lpx-reveal-ready.is-visible .lpx-about-media-wrap,
+.lp-editorial .lpx-about.lpx-reveal-ready.is-visible .lpx-about-copy {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+.lp-editorial .lpx-services.lpx-reveal-ready.is-visible .lpx-service-cell:nth-child(1) {
+  transition-delay: 80ms;
+}
+
+.lp-editorial .lpx-services.lpx-reveal-ready.is-visible .lpx-service-cell:nth-child(2) {
+  transition-delay: 150ms;
+}
+
+.lp-editorial .lpx-services.lpx-reveal-ready.is-visible .lpx-service-cell:nth-child(3) {
+  transition-delay: 220ms;
+}
+
+.lp-editorial .lpx-services.lpx-reveal-ready.is-visible .lpx-service-cell:nth-child(4) {
+  transition-delay: 290ms;
+}
+
+.lp-editorial .lpx-about.lpx-reveal-ready.is-visible .lpx-about-copy {
+  transition-delay: 110ms;
+}
+
+.lp-editorial .lpx-service-title {
+  margin: 0;
+  color: var(--lp-ink-dark);
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.25;
+}
+
+.lp-editorial .lpx-service-desc {
+  max-width: 320px;
+  margin: 12px 0 0;
+  color: var(--lp-ink-dark-muted);
+  font-size: 13.5px;
+  line-height: 1.65;
+}
+
+/* Band 3: Dark Proof / Workflow Showcase */
+.lp-editorial .lpx-about {
+  padding: 96px 0 112px;
+  background: var(--lp-bg-dark);
+  color: var(--lp-ink-light);
+}
+
+.lp-editorial .lpx-about-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.02fr) minmax(0, 0.98fr);
+  gap: 64px;
+  align-items: center;
+  margin-top: 56px;
+}
+
+.lp-editorial .lpx-about-media-wrap {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--lp-rule-dark);
+  background: #0d100e;
+  aspect-ratio: 16 / 11;
+}
+
+.lp-editorial .lpx-about-media {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: contrast(1.04) brightness(0.86);
+}
+
+.lp-editorial .lpx-reticle-box {
+  position: absolute;
+  top: 12%;
+  right: 5%;
+  width: 28%;
+  height: 48%;
+  border: 1px solid rgb(101 223 186 / 78%);
+  background: rgb(101 223 186 / 6%);
+  pointer-events: none;
+}
+
+.lp-editorial .lpx-reticle-scan {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.lp-editorial .lpx-reticle-scan::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 28%;
+  border-bottom: 1.5px solid rgb(101 223 186 / 85%);
+  background: linear-gradient(
+    180deg,
+    rgb(101 223 186 / 0%) 0%,
+    rgb(101 223 186 / 22%) 100%
+  );
+  animation: lpx-scan-beam 3.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+.lp-editorial .lpx-reticle-tag {
+  position: absolute;
+  top: -22px;
+  left: -1px;
+  padding: 3px 8px;
+  background: var(--lp-mint);
+  color: var(--lp-mint-ink);
+  font-family: var(--lp-font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.lp-editorial .lpx-media-caption {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  left: 16px;
+  display: flex;
+  width: fit-content;
+  max-width: calc(100% - 32px);
+  align-items: center;
+  gap: 8px;
+  padding: 7px 11px;
+  border: 1px solid rgb(255 255 255 / 14%);
+  background: rgb(5 6 5 / 80%);
+  backdrop-filter: blur(6px);
+  color: rgb(245 245 243 / 86%);
+  font-family: var(--lp-font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.lp-editorial .lpx-media-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--lp-mint);
+  flex-shrink: 0;
+  animation: lpx-dot-pulse 2.4s ease-in-out infinite;
+}
+
+.lp-editorial .lpx-about-body {
+  max-width: 520px;
+  margin: 24px 0 0;
+  color: var(--lp-ink-light-muted);
+  font-size: 15px;
+  line-height: 1.75;
+}
+
+.lp-editorial .lpx-workflow-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 32px 0 0;
+  padding: 20px 0;
+  border-top: 1px solid var(--lp-rule-dark);
+  border-bottom: 1px solid var(--lp-rule-dark);
+  list-style: none;
+}
+
+.lp-editorial .lpx-workflow-step {
+  display: grid;
+  gap: 6px;
+}
+
+.lp-editorial .lpx-workflow-code {
+  color: var(--lp-mint);
+  font-family: var(--lp-font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.lp-editorial .lpx-workflow-label {
+  color: var(--lp-ink-light);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* Band 4: Structured Editorial Footer */
+.lp-editorial .lpx-footer {
+  padding: 72px 0 40px;
+  border-top: 1px solid #2b2f2b;
+  background: #0b0e0c;
+  color: var(--lp-ink-light);
+}
+
+.lp-editorial .lpx-footer-inner {
+  display: grid;
+  gap: 44px;
+}
+
+.lp-editorial .lpx-footer-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) repeat(3, minmax(0, 1fr));
+  gap: 40px;
+  align-items: start;
+}
+
+.lp-editorial .lpx-footer-brand {
+  display: grid;
+  gap: 16px;
+}
+
+.lp-editorial .lpx-footer-tagline {
+  max-width: 340px;
+  margin: 0;
+  color: #9ba099;
+  font-size: 13.5px;
+  line-height: 1.65;
+}
+
+.lp-editorial .lpx-footer-col {
+  display: grid;
+  gap: 14px;
+}
+
+.lp-editorial .lpx-footer-heading {
+  margin: 0;
+  color: #777c75;
+  font-family: var(--lp-font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.lp-editorial .lpx-footer-col ul {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lp-editorial .lpx-footer-col a {
+  color: rgb(245 245 243 / 82%);
+  font-size: 13.5px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 150ms ease;
+}
+
+.lp-editorial .lpx-footer-col a:hover {
+  color: var(--lp-mint);
+}
+
+.lp-editorial .lpx-footer-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 24px;
+  border-top: 1px solid rgb(255 255 255 / 9%);
+  color: #7b8079;
+  font-size: 12px;
+}
+
+.lp-editorial .lpx-footer-bottom p {
+  margin: 0;
+}
+
+/* Chatbot Widget (preserved classes for ChatbotWidget.tsx) */
 .lp-immersive .lp-bot {
   position: fixed;
   z-index: 60;
@@ -604,15 +830,20 @@
 .lp-immersive .lp-bot-fab {
   position: relative;
   display: grid;
-  width: 58px;
-  height: 58px;
+  width: 56px;
+  height: 56px;
   place-items: center;
-  padding: 5px;
-  border: 4px solid #fff;
+  padding: 6px;
+  border: 2px solid var(--lp-mint);
   border-radius: 50%;
-  background: var(--lp-blue);
-  box-shadow: 0 12px 35px rgb(0 0 0 / 30%);
+  background: #0c1714;
+  box-shadow: 0 12px 32px rgb(0 0 0 / 38%);
   cursor: pointer;
+  transition: transform 160ms ease;
+}
+
+.lp-immersive .lp-bot-fab:hover {
+  transform: translateY(-2px);
 }
 
 .lp-immersive .lp-bot-fab img {
@@ -629,9 +860,9 @@
   bottom: 0;
   width: 12px;
   height: 12px;
-  border: 2px solid #fff;
+  border: 2px solid #0c1714;
   border-radius: 50%;
-  background: #3bd49a;
+  background: var(--lp-mint);
 }
 
 .lp-immersive .lp-bot-hint {
@@ -640,13 +871,13 @@
   bottom: 12px;
   width: max-content;
   max-width: 220px;
-  padding: 9px 12px;
-  border: 1px solid rgb(255 255 255 / 24%);
-  border-radius: 10px;
-  background: rgb(8 17 31 / 88%);
-  color: #fff;
+  padding: 8px 12px;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 8px;
+  background: #0b110e;
+  color: var(--lp-ink-light);
   font-size: 12px;
-  font-weight: 650;
+  font-weight: 600;
   opacity: 0;
   pointer-events: none;
   transform: translateX(5px);
@@ -664,52 +895,52 @@
 .lp-immersive .lp-bot-win {
   position: absolute;
   right: 0;
-  bottom: 72px;
+  bottom: 70px;
   display: flex;
   width: min(370px, calc(100vw - 32px));
-  height: min(520px, calc(100svh - 120px));
+  height: min(510px, calc(100svh - 120px));
   flex-direction: column;
   overflow: hidden;
-  border: 1px solid #dbe4f0;
-  border-radius: 18px;
+  border: 1px solid var(--lp-rule-light);
+  border-radius: 14px;
   background: #fff;
-  box-shadow: 0 22px 70px rgb(0 0 0 / 35%);
+  box-shadow: 0 22px 64px rgb(0 0 0 / 36%);
 }
 
 .lp-immersive .lp-bot-header {
   display: flex;
-  min-height: 66px;
+  min-height: 64px;
   align-items: center;
   gap: 11px;
   padding: 10px 14px;
-  background: #f5f8fd;
-  border-bottom: 1px solid #e5ebf4;
+  background: #f5f5f3;
+  border-bottom: 1px solid var(--lp-rule-light);
 }
 
 .lp-immersive .lp-bot-header-avatar {
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   object-fit: contain;
 }
 
 .lp-immersive .lp-bot-header div {
   display: grid;
-  gap: 3px;
+  gap: 2px;
 }
 
 .lp-immersive .lp-bot-header small {
-  color: #5a718f;
+  color: var(--lp-mint-deep);
 }
 
 .lp-immersive .lp-bot-close {
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   margin-left: auto;
   border: 0;
   border-radius: 50%;
-  background: #e8eef8;
-  color: #19304e;
-  font-size: 23px;
+  background: #e5e8e4;
+  color: var(--lp-ink-dark);
+  font-size: 20px;
   cursor: pointer;
 }
 
@@ -725,17 +956,17 @@
 .lp-immersive .lp-bot-msg {
   max-width: 88%;
   padding: 10px 12px;
-  border-radius: 13px;
-  background: #eef3fa;
-  color: #233852;
+  border-radius: 12px;
+  background: #f1f3f0;
+  color: var(--lp-ink-dark);
   font-size: 13px;
   line-height: 1.5;
 }
 
 .lp-immersive .lp-bot-msg--user {
   align-self: flex-end;
-  background: #e5efff;
-  color: #1248a9;
+  background: var(--lp-mint-soft);
+  color: var(--lp-mint-ink);
 }
 
 .lp-immersive .lp-bot-chips {
@@ -746,270 +977,192 @@
 }
 
 .lp-immersive .lp-bot-chips button {
-  padding: 7px 10px;
-  border: 1px solid #d7e2f1;
+  padding: 6px 10px;
+  border: 1px solid var(--lp-rule-light);
   border-radius: 999px;
   background: #fff;
-  color: #24405f;
+  color: var(--lp-ink-dark);
   font-size: 11px;
   cursor: pointer;
+}
+
+.lp-immersive .lp-bot-chips button:hover {
+  border-color: var(--lp-mint-deep);
 }
 
 .lp-immersive .lp-bot-form {
   display: flex;
   gap: 8px;
   padding: 12px;
-  border-top: 1px solid #e5ebf4;
+  border-top: 1px solid var(--lp-rule-light);
 }
 
 .lp-immersive .lp-bot-form input {
   min-width: 0;
   flex: 1;
   padding: 10px 12px;
-  border: 1px solid #ccd8e8;
-  border-radius: 9px;
-  color: #10223b;
+  border: 1px solid #cbd0c9;
+  border-radius: 8px;
+  color: var(--lp-ink-dark);
 }
 
 .lp-immersive .lp-bot-form button {
-  padding: 0 13px;
+  padding: 0 14px;
   border: 0;
-  border-radius: 9px;
-  background: var(--lp-blue);
+  border-radius: 8px;
+  background: var(--lp-mint-deep);
   color: #fff;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
 }
 
-@keyframes lp-cue-bob {
-  0%,
-  100% {
-    transform: translateY(0);
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .lp-editorial .lpx-container {
+    width: min(1320px, calc(100% - 56px));
   }
-  50% {
-    transform: translateY(5px);
+
+  .lp-editorial .lpx-services-layout,
+  .lp-editorial .lpx-about-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 44px;
+  }
+
+  .lp-editorial .lpx-footer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 32px;
+  }
+
+  .lp-editorial .lpx-section-title--dark {
+    max-width: 560px;
   }
 }
 
 @media (max-width: 900px) {
-  .lp-immersive .lpx-container {
-    width: min(100% - 36px, 760px);
-  }
-
-  .lp-immersive .lpx-header-inner {
-    gap: 14px;
-  }
-
-  .lp-immersive .lpx-nav {
-    gap: 17px;
-  }
-
-  .lp-immersive .lpx-nav > a:not(.lpx-button) {
-    font-size: 12px;
-  }
-
-  .lp-immersive .lpx-nav-cta {
-    min-height: 42px;
-    padding-inline: 14px;
-    font-size: 12px;
-  }
-
-  .lp-immersive .lp-journey-chapter {
-    padding-inline: 5vw;
-  }
-
-  .lp-immersive .lp-journey-copy h1 {
-    font-size: clamp(3.4rem, 8vw, 5.8rem);
-  }
-
-  .lp-immersive .lp-journey-copy h2 {
-    font-size: clamp(2.7rem, 6.4vw, 4.8rem);
+  .lp-editorial .lpx-nav {
+    display: none;
   }
 }
 
-@media (max-width: 700px) {
-  .lp-immersive .lpx-container {
-    width: calc(100% - 32px);
+@media (max-width: 720px) {
+  .lp-editorial .lpx-container {
+    width: calc(100% - 28px);
   }
 
-  .lp-immersive .lpx-header,
-  .lp-immersive .lpx-header-inner {
-    min-height: 66px;
+  .lp-editorial .lpx-header {
+    padding: 16px 0;
   }
 
-  .lp-immersive .lpx-logo img {
-    width: 37px;
-    height: 37px;
+  .lp-editorial .lpx-header-inner {
+    gap: 8px;
   }
 
-  .lp-immersive .lpx-logo > span {
-    font-size: 14px;
+  .lp-editorial .lpx-logo img {
+    width: 28px;
+    height: 28px;
   }
 
-  .lp-immersive .lpx-menu-button {
-    display: inline-flex;
+  .lp-editorial .lpx-logo {
+    gap: 6px;
   }
 
-  .lp-immersive .lpx-nav {
-    position: absolute;
-    top: calc(100% + 8px);
-    right: 16px;
-    left: 16px;
+  .lp-editorial .lpx-logo-text {
+    font-size: 13px;
+  }
+
+  .lp-editorial .lpx-logo-text span {
     display: none;
-    align-items: stretch;
-    gap: 4px;
-    padding: 10px;
-    border: 1px solid rgb(255 255 255 / 15%);
-    border-radius: 14px;
-    background: rgb(7 16 29 / 96%);
-    box-shadow: 0 18px 44px rgb(0 0 0 / 34%);
   }
 
-  .lp-immersive .lpx-nav.lpx-nav--open {
-    display: grid;
+  .lp-editorial .lpx-header-tools {
+    gap: 8px;
   }
 
-  .lp-immersive .lpx-nav > a:not(.lpx-button) {
-    padding: 12px 10px;
-    border-radius: 8px;
-    font-size: 14px;
+  .lp-editorial .lpx-language.odm-lang-toggle button {
+    padding: 4px 6px;
+    font-size: 10px;
   }
 
-  .lp-immersive .lpx-nav > a:not(.lpx-button):hover {
-    background: rgb(255 255 255 / 8%);
+  .lp-editorial .lpx-nav-signin {
+    font-size: 11px;
   }
 
-  .lp-immersive .lpx-nav-cta {
-    margin-top: 5px;
+  .lp-editorial .lpx-header-cta {
+    min-height: 32px;
+    padding: 0 10px;
+    font-size: 11px;
   }
 
-  .lp-immersive .lp-journey-stage {
-    min-height: 620px;
+  .lp-editorial .lpx-footer {
+    padding: 52px 0 36px;
   }
 
-  .lp-immersive .lp-journey-backdrop img {
-    object-position: 54% center;
-  }
-
-  .lp-immersive .lp-journey-atmosphere {
-    background:
-      linear-gradient(
-        0deg,
-        rgb(4 9 16 / 90%) 0%,
-        rgb(4 9 16 / 60%) 31%,
-        rgb(4 9 16 / 15%) 68%,
-        rgb(4 9 16 / 38%) 100%
-      ),
-      linear-gradient(90deg, rgb(4 9 16 / 30%), transparent 85%);
-  }
-
-  .lp-immersive .lp-flight-scene-stage {
-    inset: 0 -12% 46%;
-  }
-
-  .lp-immersive .lp-journey-copy {
-    top: clamp(170px, 25vh, 220px);
-  }
-
-  .lp-immersive .lp-flight-scene-fallback {
-    left: 50%;
-    width: min(95vw, 560px);
-  }
-
-  .lp-immersive .lp-journey-credit {
-    right: 16px;
-    bottom: 38px;
-    left: 16px;
-    max-width: none;
-    font-size: 8px;
-  }
-
-  .lp-immersive .lp-journey-status {
-    top: 83px;
-    right: 16px;
-    left: auto;
-    width: max-content;
-    max-width: calc(100% - 88px);
-    min-height: 31px;
-    padding-inline: 10px;
-    overflow: hidden;
-    font-size: 9px;
-    letter-spacing: 0.08em;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .lp-immersive .lp-journey-chapters {
-    margin-top: -100svh;
-  }
-
-  .lp-immersive .lp-journey-chapter {
-    min-height: 100svh;
+  .lp-editorial .lpx-footer-grid {
     grid-template-columns: minmax(0, 1fr);
-    align-items: end;
-    padding: 132px 22px 70px;
+    gap: 28px;
   }
 
-  .lp-immersive .lp-journey-chapter--intro {
-    align-items: end;
-    padding-top: 160px;
-    padding-bottom: 76px;
+  .lp-editorial .lpx-hero {
+    min-height: 580px;
+    padding: 124px 0 64px;
   }
 
-  .lp-immersive .lp-journey-copy,
-  .lp-immersive .lp-journey-chapter--intro .lp-journey-copy,
-  .lp-immersive .lp-journey-chapter:nth-child(even) .lp-journey-copy {
-    width: 100%;
-    max-width: 520px;
-    grid-column: 1;
-    justify-self: start;
-    margin: 0;
+  .lp-editorial .lpx-hero-subtitle {
+    font-size: 14.5px;
   }
 
-  .lp-immersive .lp-journey-kicker {
-    gap: 9px;
-    margin-bottom: 17px;
-    font-size: 9px;
-    letter-spacing: 0.12em;
+  .lp-editorial .lpx-hero-actions {
+    gap: 20px;
   }
 
-  .lp-immersive .lp-journey-copy h1 {
-    max-width: 10ch;
-    font-size: clamp(3.15rem, 13.5vw, 5rem);
-    line-height: 0.92;
+  .lp-editorial .lpx-services,
+  .lp-editorial .lpx-about {
+    padding: 68px 0 76px;
   }
 
-  .lp-immersive .lp-journey-copy h2 {
-    max-width: 11ch;
-    font-size: clamp(2.65rem, 11.2vw, 4.2rem);
+  .lp-editorial .lpx-services-layout,
+  .lp-editorial .lpx-about-layout {
+    margin-top: 36px;
   }
 
-  .lp-immersive .lp-journey-lede {
-    max-width: 42ch;
-    margin-top: 16px;
-    font-size: 15px;
-    line-height: 1.55;
+  .lp-editorial .lpx-services-grid {
+    grid-template-columns: minmax(0, 1fr);
   }
 
-  .lp-immersive .lp-journey-scroll-cue {
-    margin-top: 21px;
+  .lp-editorial .lpx-service-cell,
+  .lp-editorial .lpx-service-cell:nth-child(2n),
+  .lp-editorial .lpx-service-cell:nth-child(n + 3) {
+    padding: 28px 0;
+    border-left: 0;
+    border-bottom: 1px solid var(--lp-rule-light);
   }
 
-  .lp-immersive .lp-journey-chapter-index {
-    right: 22px;
-    bottom: 45px;
-    font-size: 9px;
+  .lp-editorial .lpx-service-cell:first-child {
+    padding-top: 0;
+  }
+
+  .lp-editorial .lpx-service-cell:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
+
+  .lp-editorial .lpx-workflow-strip {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .lp-editorial .lpx-reticle-box {
+    display: none;
   }
 
   .lp-immersive .lp-bot {
-    right: 13px;
-    bottom: 13px;
+    right: 14px;
+    bottom: 14px;
   }
 
   .lp-immersive .lp-bot-fab {
     width: 48px;
     height: 48px;
-    border-width: 3px;
   }
 
   .lp-immersive .lp-bot-hint {
@@ -1020,2001 +1173,43 @@
     right: -2px;
     bottom: 62px;
     width: min(370px, calc(100vw - 26px));
-    height: min(520px, calc(100svh - 96px));
-  }
-}
-
-@media (max-width: 390px) {
-  .lp-immersive .lpx-container {
-    width: calc(100% - 24px);
-  }
-
-  .lp-immersive .lpx-header-tools {
-    gap: 6px;
-  }
-
-  .lp-immersive .lp-journey-chapter {
-    padding-inline: 17px;
-  }
-
-  .lp-immersive .lp-journey-copy h1 {
-    font-size: clamp(2.9rem, 14vw, 3.4rem);
-  }
-
-  .lp-immersive .lp-journey-copy h2 {
-    font-size: clamp(2.45rem, 11.5vw, 2.9rem);
+    height: min(500px, calc(100svh - 96px));
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .lp-immersive *,
-  .lp-immersive *::before,
-  .lp-immersive *::after {
-    scroll-behavior: auto !important;
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-/* Landing page v2: mission dossier, flight radius, and a readable workflow. */
-.odm-landing.lp-immersive.lpx-page {
-  --lp-blue: #1766e8;
-  --lp-blue-light: #8ab5ff;
-  --lp-ink: #10233e;
-  --lp-muted: #526680;
-  --lp-line: #d9e3f0;
-  --lp-paper: #f5f8fc;
-  --lp-surface: #fff;
-  position: relative;
-  min-height: 100vh;
-  overflow: clip;
-  background: var(--lp-paper);
-  color: var(--lp-ink);
-  font-family:
-    Inter,
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    sans-serif;
-  isolation: isolate;
-}
-
-.lp-immersive.lpx-page,
-.lp-immersive.lpx-page * {
-  box-sizing: border-box;
-}
-
-.lp-immersive.lpx-page :focus-visible {
-  outline: 3px solid #80adff;
-  outline-offset: 4px;
-}
-
-.lp-immersive .lpx-container {
-  width: min(1280px, calc(100% - 64px));
-  margin-inline: auto;
-}
-
-.lp-immersive .lpx-header {
-  position: sticky;
-  z-index: 40;
-  top: 0;
-  border-bottom: 1px solid rgb(205 218 236 / 78%);
-  background: rgb(255 255 255 / 88%);
-  color: var(--lp-ink);
-  backdrop-filter: blur(16px);
-}
-
-.lp-immersive .lpx-header-inner {
-  display: flex;
-  min-height: 78px;
-  align-items: center;
-  justify-content: space-between;
-  gap: 28px;
-}
-
-.lp-immersive .lpx-logo {
-  display: inline-flex;
-  min-width: max-content;
-  align-items: center;
-  gap: 10px;
-  color: var(--lp-ink);
-  text-decoration: none;
-}
-
-.lp-immersive .lpx-logo img {
-  display: block;
-  width: 44px;
-  height: 44px;
-  object-fit: contain;
-}
-
-.lp-immersive .lpx-logo > span {
-  display: grid;
-  font-size: 15px;
-  font-weight: 800;
-  letter-spacing: -0.035em;
-  line-height: 0.98;
-}
-
-.lp-immersive .lpx-logo > span b:last-child {
-  color: var(--lp-blue);
-}
-
-.lp-immersive .lpx-nav {
-  display: flex;
-  align-items: center;
-  gap: clamp(18px, 2.5vw, 36px);
-}
-
-.lp-immersive .lpx-nav > a:not(.lpx-button) {
-  color: #415671;
-  font-size: 14px;
-  font-weight: 650;
-  text-decoration: none;
-  transition: color 160ms ease;
-}
-
-.lp-immersive .lpx-nav > a:not(.lpx-button):hover {
-  color: var(--lp-blue);
-}
-
-.lp-immersive .lpx-header-tools {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.lp-immersive .lpx-language {
-  padding: 3px;
-  border: 1px solid var(--lp-line);
-  border-radius: 999px;
-  background: #f7f9fc;
-}
-
-.lp-immersive .lpx-language button {
-  min-width: 34px;
-  min-height: 30px;
-  border: 0;
-  border-radius: 999px;
-  background: transparent;
-  color: #526680;
-  font-size: 11px;
-  font-weight: 750;
-  cursor: pointer;
-}
-
-.lp-immersive .lpx-language button[aria-pressed='true'] {
-  background: var(--lp-blue);
-  color: #fff;
-}
-
-.lp-immersive .lpx-menu-button {
-  display: none;
-  width: 42px;
-  height: 42px;
-  place-items: center;
-  border: 1px solid var(--lp-line);
-  border-radius: 12px;
-  background: #fff;
-  color: var(--lp-ink);
-  cursor: pointer;
-}
-
-.lp-immersive .lpx-button {
-  display: inline-flex;
-  min-height: 48px;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 0 19px;
-  border: 1px solid transparent;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 750;
-  line-height: 1.2;
-  text-align: center;
-  text-decoration: none;
-  transition:
-    transform 180ms ease,
-    background-color 180ms ease,
-    box-shadow 180ms ease;
-}
-
-.lp-immersive .lpx-button:hover {
-  transform: translateY(-2px);
-}
-
-.lp-immersive .lpx-button--primary {
-  background: var(--lp-blue);
-  color: #fff;
-  box-shadow: 0 8px 20px rgb(23 102 232 / 20%);
-}
-
-.lp-immersive .lpx-button--primary:hover {
-  background: #0d55cb;
-  box-shadow: 0 12px 26px rgb(23 102 232 / 28%);
-}
-
-.lp-immersive .lpx-button--quiet {
-  border-color: var(--lp-line);
-  background: rgb(255 255 255 / 68%);
-  color: var(--lp-ink);
-}
-
-.lp-immersive .lpx-button--quiet:hover {
-  background: #fff;
-}
-
-.lp-immersive .lpx-hero {
-  position: relative;
-  overflow: hidden;
-  padding: clamp(48px, 7vw, 96px) 0 22px;
-  background:
-    radial-gradient(
-      ellipse at 76% 40%,
-      rgb(129 177 255 / 22%),
-      transparent 37%
-    ),
-    linear-gradient(135deg, #f8fbff 0%, #f2f7ff 58%, #edf4ff 100%);
-}
-
-.lp-immersive .lpx-hero::before {
-  position: absolute;
-  top: 7%;
-  right: -13%;
-  width: min(60vw, 820px);
-  aspect-ratio: 1;
-  border: 1px solid rgb(58 119 224 / 10%);
-  border-radius: 50%;
-  content: '';
-  pointer-events: none;
-}
-
-.lp-immersive .lpx-hero-grid {
-  position: relative;
-  display: grid;
-  min-height: min(680px, calc(100svh - 100px));
-  align-items: center;
-  grid-template-columns: minmax(0, 0.9fr) minmax(440px, 1.1fr);
-  gap: clamp(44px, 7vw, 104px);
-}
-
-.lp-immersive .lpx-hero-copy {
-  position: relative;
-  z-index: 2;
-  max-width: 620px;
-  padding-block: 30px;
-}
-
-.lp-immersive .lpx-eyebrow,
-.lp-immersive .lpx-section-label {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 0 0 20px;
-  color: var(--lp-blue);
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.13em;
-  line-height: 1.4;
-  text-transform: uppercase;
-}
-
-.lp-immersive .lpx-eyebrow > span {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #21b47a;
-  box-shadow: 0 0 0 5px rgb(33 180 122 / 12%);
-}
-
-.lp-immersive .lpx-hero h1 {
-  max-width: 680px;
-  margin: 0;
-  color: var(--lp-ink);
-  font-size: clamp(48px, 6vw, 82px);
-  font-weight: 760;
-  letter-spacing: -0.065em;
-  line-height: 0.99;
-  text-wrap: balance;
-}
-
-.lp-immersive .lpx-hero-lead {
-  max-width: 570px;
-  margin: 26px 0 0;
-  color: #405874;
-  font-size: clamp(17px, 1.6vw, 20px);
-  line-height: 1.65;
-}
-
-.lp-immersive .lpx-hero-supporting {
-  max-width: 500px;
-  margin: 14px 0 0;
-  color: var(--lp-muted);
-  font-size: 14px;
-  line-height: 1.6;
-}
-
-.lp-immersive .lpx-hero-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 32px;
-}
-
-.lp-immersive .lpx-hero-art {
-  position: relative;
-  display: grid;
-  min-height: 580px;
-  place-items: center;
-  isolation: isolate;
-}
-
-.lp-immersive .lpx-flight-grid {
-  position: absolute;
-  z-index: -2;
-  inset: 7% 1% 5% 2%;
-  background-image: radial-gradient(
-    rgb(51 111 201 / 22%) 0.8px,
-    transparent 0.8px
-  );
-  background-position: center;
-  background-size: 22px 22px;
-  mask-image: radial-gradient(ellipse at center, #000 18%, transparent 74%);
-}
-
-.lp-immersive .lpx-flight-orbit {
-  position: absolute;
-  z-index: -1;
-  left: 50%;
-  top: 49%;
-  aspect-ratio: 1;
-  border: 1px solid rgb(33 111 227 / 26%);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-}
-
-.lp-immersive .lpx-flight-orbit--outer {
-  width: min(92%, 510px);
-}
-
-.lp-immersive .lpx-flight-orbit--inner {
-  width: min(70%, 390px);
-  border-style: dashed;
-  border-color: rgb(33 111 227 / 25%);
-}
-
-.lp-immersive .lpx-flight-point {
-  position: absolute;
-  top: 18%;
-  right: 18%;
-  width: 10px;
-  height: 10px;
-  border: 2px solid #fff;
-  border-radius: 50%;
-  background: var(--lp-blue);
-  box-shadow: 0 0 0 6px rgb(23 102 232 / 16%);
-}
-
-.lp-immersive .lpx-mission-preview {
-  position: relative;
-  z-index: 1;
-  width: min(100%, 500px);
-  overflow: hidden;
-  border: 1px solid rgb(207 221 242 / 90%);
-  border-radius: 24px;
-  background: rgb(255 255 255 / 92%);
-  box-shadow:
-    0 36px 90px rgb(32 67 119 / 14%),
-    0 4px 14px rgb(32 67 119 / 6%);
-  backdrop-filter: blur(14px);
-}
-
-.lp-immersive .lpx-preview-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 24px 16px;
-  border-bottom: 1px solid #e6edf7;
-}
-
-.lp-immersive .lpx-preview-kicker {
-  color: #6a7e98;
-  font-size: 10px;
-  font-weight: 750;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.lp-immersive .lpx-preview-header h2 {
-  margin: 5px 0 0;
-  color: var(--lp-ink);
-  font-size: 18px;
-  letter-spacing: -0.03em;
-}
-
-.lp-immersive .lpx-preview-mark {
-  display: grid;
-  width: 36px;
-  height: 36px;
-  place-items: center;
-  border: 1px solid #dce8f9;
-  border-radius: 11px;
-  background: #f4f8ff;
-  color: var(--lp-blue);
-  font-size: 18px;
-}
-
-.lp-immersive .lpx-drone-stage {
-  position: relative;
-  display: grid;
-  min-height: 250px;
-  place-items: center;
-  overflow: hidden;
-  background:
-    radial-gradient(ellipse at center, rgb(89 151 248 / 15%), transparent 58%),
-    linear-gradient(180deg, #f8fbff, #f1f6fd);
-}
-
-.lp-immersive .lpx-drone-stage::before,
-.lp-immersive .lpx-drone-stage::after {
-  position: absolute;
-  left: 50%;
-  top: 53%;
-  width: 190px;
-  aspect-ratio: 1;
-  border: 1px solid rgb(36 113 230 / 20%);
-  border-radius: 50%;
-  content: '';
-  transform: translate(-50%, -50%);
-}
-
-.lp-immersive .lpx-drone-stage::after {
-  width: 128px;
-  border-style: dashed;
-  border-color: rgb(36 113 230 / 22%);
-}
-
-.lp-immersive .lpx-flight-route-map {
-  position: relative;
-  z-index: 1;
-  width: min(82%, 430px);
-  overflow: visible;
-}
-
-.lp-immersive .lpx-flight-route-line {
-  stroke: rgb(36 113 230 / 52%);
-  stroke-width: 3;
-  stroke-linecap: round;
-  stroke-dasharray: 7 10;
-}
-
-.lp-immersive .lpx-flight-route-start,
-.lp-immersive .lpx-flight-route-waypoint {
-  fill: #fff;
-  stroke: var(--lp-blue);
-  stroke-width: 4;
-}
-
-.lp-immersive .lpx-flight-route-target {
-  fill: rgb(23 102 232 / 12%);
-  stroke: var(--lp-blue);
-  stroke-width: 2;
-}
-
-.lp-immersive .lpx-flight-route-target-cross {
-  stroke: var(--lp-blue);
-  stroke-width: 2;
-  stroke-linecap: round;
-}
-
-.lp-immersive .lpx-preview-stages {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
-  margin: 0;
-  padding: 16px 20px 12px;
-  list-style: none;
-}
-
-.lp-immersive .lpx-preview-stages li {
-  display: grid;
-  align-content: start;
-  gap: 7px;
-  color: #586d87;
-  font-size: 10px;
-  font-weight: 650;
-  line-height: 1.35;
-}
-
-.lp-immersive .lpx-preview-stages li > span {
-  color: #8191a8;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 10px;
-}
-
-.lp-immersive .lpx-preview-stages li.is-current,
-.lp-immersive .lpx-preview-stages li.is-current > span {
-  color: var(--lp-blue);
-}
-
-.lp-immersive .lpx-preview-note {
-  margin: 0;
-  padding: 0 20px 18px;
-  color: #77879c;
-  font-size: 10px;
-  line-height: 1.45;
-}
-
-.lp-immersive .lpx-art-coordinate {
-  position: absolute;
-  color: #637b9a;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-}
-
-.lp-immersive .lpx-art-coordinate--top {
-  top: 5%;
-  left: 3%;
-}
-
-.lp-immersive .lpx-art-coordinate--bottom {
-  right: 2%;
-  bottom: 7%;
-}
-
-.lp-immersive .lpx-hero-bottom {
-  display: flex;
-  min-height: 54px;
-  align-items: center;
-  justify-content: space-between;
-  border-top: 1px solid rgb(185 204 230 / 60%);
-  color: #6a7e98;
-  font-size: 12px;
-}
-
-.lp-immersive .lpx-hero-bottom a {
-  display: grid;
-  width: 34px;
-  height: 34px;
-  place-items: center;
-  border: 1px solid #d0def1;
-  border-radius: 50%;
-  color: var(--lp-blue);
-  text-decoration: none;
-}
-
-.lp-immersive .lpx-journey {
-  padding-block: clamp(84px, 10vw, 140px);
-  scroll-margin-top: 92px;
-}
-
-.lp-immersive .lpx-section-intro {
-  max-width: 760px;
-  margin-bottom: 56px;
-}
-
-.lp-immersive .lpx-section-label {
-  margin-bottom: 14px;
-}
-
-.lp-immersive .lpx-section-intro h2,
-.lp-immersive .lpx-capabilities-heading h2,
-.lp-immersive .lpx-faq-heading h2 {
-  margin: 0;
-  color: var(--lp-ink);
-  font-size: clamp(36px, 4.2vw, 58px);
-  font-weight: 740;
-  letter-spacing: -0.055em;
-  line-height: 1.03;
-  text-wrap: balance;
-}
-
-.lp-immersive .lpx-section-intro > p:last-child,
-.lp-immersive .lpx-capabilities-heading > p:last-child {
-  max-width: 620px;
-  margin: 18px 0 0;
-  color: var(--lp-muted);
-  font-size: 16px;
-  line-height: 1.7;
-}
-
-.lp-immersive .lpx-journey-grid {
-  display: grid;
-  align-items: start;
-  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
-  gap: clamp(34px, 7vw, 94px);
-}
-
-.lp-immersive .lpx-story-visual {
-  position: sticky;
-  top: 112px;
-  align-self: start;
-  padding-bottom: 30px;
-}
-
-.lp-immersive .lpx-story-photo {
-  position: relative;
-  aspect-ratio: 1.16 / 1;
-  overflow: hidden;
-  border: 1px solid #d2dfee;
-  border-radius: 22px;
-  background: #dce8f5;
-  box-shadow: 0 22px 60px rgb(27 58 100 / 12%);
-  isolation: isolate;
-}
-
-.lp-immersive .lpx-story-photo::after {
-  position: absolute;
-  z-index: 0;
-  inset: 35% 0 0;
-  background: linear-gradient(180deg, transparent, rgb(11 31 57 / 30%));
-  content: '';
-  pointer-events: none;
-}
-
-.lp-immersive .lpx-story-image {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0;
-  transform: scale(1.04);
-  transition:
-    opacity 500ms ease,
-    transform 900ms cubic-bezier(0.2, 0.65, 0.2, 1);
-}
-
-.lp-immersive .lpx-story-image.is-active {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.lp-immersive .lpx-orbit-ring {
-  position: absolute;
-  z-index: 1;
-  left: 50%;
-  top: 48%;
-  aspect-ratio: 1;
-  border: 1px solid rgb(125 206 255 / 76%);
-  border-radius: 50%;
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-}
-
-.lp-immersive .lpx-orbit-ring--outer {
-  width: 70%;
-  box-shadow: 0 0 36px rgb(24 110 230 / 14%);
-}
-
-.lp-immersive .lpx-orbit-ring--inner {
-  width: 42%;
-  border-style: dashed;
-  border-color: rgb(230 246 255 / 90%);
-}
-
-.lp-immersive .lpx-orbit-point {
-  position: absolute;
-  z-index: 2;
-  top: 48%;
-  left: 50%;
-  width: 12px;
-  height: 12px;
-  border: 3px solid #fff;
-  border-radius: 50%;
-  background: var(--lp-blue);
-  box-shadow: 0 0 0 6px rgb(23 102 232 / 35%);
-  transform: translate(-50%, -50%);
-}
-
-.lp-immersive .lpx-journey-drone {
-  position: absolute;
-  z-index: 3;
-  top: 38%;
-  left: 50%;
-  width: clamp(96px, 27%, 190px);
-  aspect-ratio: 1;
-  pointer-events: none;
-  opacity: 0;
-  animation: lpx-drone-flight-entry 2.2s cubic-bezier(0.2, 0.72, 0.25, 1)
-    forwards;
-}
-
-.lp-immersive .lpx-journey-drone .lpx-drone-animation {
-  width: 100%;
-  height: 100%;
-}
-
-@keyframes lpx-drone-flight-entry {
-  0% {
-    opacity: 0;
-    transform: translate3d(-310%, 115%, 0) scale(0.55) rotate(12deg);
-  }
-
-  42% {
-    opacity: 1;
-    transform: translate3d(-180%, 30%, 0) scale(0.78) rotate(5deg);
-  }
-
-  100% {
-    opacity: 1;
-    transform: translate3d(-18%, -14%, 0) scale(0.92) rotate(0);
-  }
-}
-
-.lp-immersive .lpx-story-card {
-  position: relative;
-  z-index: 3;
-  width: min(88%, 400px);
-  margin: -84px 18px 0 auto;
-  padding: 20px;
-  border: 1px solid rgb(216 228 244 / 90%);
-  border-radius: 18px;
-  background: rgb(255 255 255 / 96%);
-  box-shadow: 0 16px 38px rgb(21 52 91 / 15%);
-}
-
-.lp-immersive .lpx-preview-label {
-  margin: 0 0 8px;
-  color: var(--lp-blue);
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.lp-immersive .lpx-story-card h3 {
-  margin: 0;
-  color: var(--lp-ink);
-  font-size: 21px;
-  letter-spacing: -0.035em;
-}
-
-.lp-immersive .lpx-story-card > p:not(.lpx-preview-label) {
-  margin: 6px 0 15px;
-  color: var(--lp-muted);
-  font-size: 13px;
-}
-
-.lp-immersive .lpx-story-card ol {
-  display: grid;
-  gap: 9px;
-  margin: 0;
-  padding: 13px 0 0;
-  border-top: 1px solid #e7edf5;
-  list-style: none;
-}
-
-.lp-immersive .lpx-story-card li {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  color: #63758c;
-  font-size: 11px;
-  line-height: 1.35;
-}
-
-.lp-immersive .lpx-story-card li > span {
-  width: 7px;
-  height: 7px;
-  flex: 0 0 7px;
-  border-radius: 50%;
-  background: #b6c3d3;
-}
-
-.lp-immersive .lpx-story-card li.is-current {
-  color: var(--lp-blue);
-  font-weight: 750;
-}
-
-.lp-immersive .lpx-story-card li.is-current > span {
-  background: #20af78;
-  box-shadow: 0 0 0 4px rgb(32 175 120 / 13%);
-}
-
-.lp-immersive .lpx-story-note {
-  max-width: 400px;
-  margin: 12px 0 0 auto;
-  color: #74849a;
-  font-size: 11px;
-  line-height: 1.5;
-  text-align: right;
-}
-
-.lp-immersive .lpx-story-chapters {
-  display: grid;
-  gap: 34px;
-}
-
-.lp-immersive .lpx-story-chapter {
-  position: relative;
-  display: grid;
-  min-height: 66vh;
-  align-content: center;
-  grid-template-columns: 124px minmax(0, 1fr);
-  column-gap: 23px;
-  padding: 28px 0;
-  border-top: 1px solid var(--lp-line);
-  scroll-margin-top: 130px;
-}
-
-.lp-immersive .lpx-story-thumbnail {
-  width: 124px;
-  height: 100px;
-  grid-row: 1 / span 3;
-  border-radius: 14px;
-  object-fit: cover;
-}
-
-.lp-immersive .lpx-story-step {
-  margin: 2px 0 10px;
-  color: var(--lp-blue);
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.lp-immersive .lpx-story-chapter h3 {
-  max-width: 390px;
-  margin: 0;
-  color: var(--lp-ink);
-  font-size: clamp(24px, 2.5vw, 34px);
-  font-weight: 700;
-  letter-spacing: -0.045em;
-  line-height: 1.12;
-  text-wrap: balance;
-}
-
-.lp-immersive .lpx-story-chapter > p:last-child {
-  max-width: 430px;
-  margin: 14px 0 0;
-  color: var(--lp-muted);
-  font-size: 15px;
-  line-height: 1.7;
-}
-
-.lp-immersive .lpx-capabilities {
-  display: grid;
-  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
-  gap: clamp(48px, 10vw, 150px);
-  padding-block: clamp(78px, 9vw, 126px);
-  border-top: 1px solid var(--lp-line);
-  scroll-margin-top: 95px;
-}
-
-.lp-immersive .lpx-capabilities-heading {
-  position: sticky;
-  top: 120px;
-  align-self: start;
-}
-
-.lp-immersive .lpx-capability-list {
-  border-top: 1px solid var(--lp-line);
-}
-
-.lp-immersive .lpx-capability {
-  display: grid;
-  align-items: start;
-  grid-template-columns: 48px minmax(0, 1fr) 24px;
-  gap: 16px;
-  padding: 26px 0;
-  border-bottom: 1px solid var(--lp-line);
-}
-
-.lp-immersive .lpx-capability-index {
-  padding-top: 3px;
-  color: var(--lp-blue);
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.lp-immersive .lpx-capability h3 {
-  margin: 0;
-  color: var(--lp-ink);
-  font-size: 19px;
-  letter-spacing: -0.025em;
-}
-
-.lp-immersive .lpx-capability p {
-  max-width: 490px;
-  margin: 8px 0 0;
-  color: var(--lp-muted);
-  font-size: 14px;
-  line-height: 1.65;
-}
-
-.lp-immersive .lpx-capability-arrow {
-  color: #8aa2bf;
-  font-size: 17px;
-}
-
-.lp-immersive .lpx-faq {
-  display: grid;
-  grid-template-columns: minmax(240px, 0.7fr) minmax(0, 1.3fr);
-  gap: clamp(45px, 10vw, 150px);
-  padding-block: clamp(78px, 9vw, 126px);
-  border-top: 1px solid var(--lp-line);
-}
-
-.lp-immersive .lpx-faq-heading {
-  position: sticky;
-  top: 120px;
-  align-self: start;
-}
-
-.lp-immersive .lpx-faq-item {
-  border-top: 1px solid var(--lp-line);
-}
-
-.lp-immersive .lpx-faq-item:last-child {
-  border-bottom: 1px solid var(--lp-line);
-}
-
-.lp-immersive .lpx-faq-item summary {
-  display: grid;
-  min-height: 82px;
-  align-items: center;
-  grid-template-columns: 45px minmax(0, 1fr) 30px;
-  gap: 14px;
-  color: var(--lp-ink);
-  font-size: 16px;
-  font-weight: 680;
-  line-height: 1.4;
-  list-style: none;
-  cursor: pointer;
-}
-
-.lp-immersive .lpx-faq-item summary::-webkit-details-marker {
-  display: none;
-}
-
-.lp-immersive .lpx-faq-index {
-  color: var(--lp-blue);
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 11px;
-}
-
-.lp-immersive .lpx-faq-toggle {
-  display: grid;
-  width: 28px;
-  height: 28px;
-  place-items: center;
-  border: 1px solid var(--lp-line);
-  border-radius: 50%;
-  color: var(--lp-blue);
-  font-size: 18px;
-  font-weight: 400;
-  transition: transform 180ms ease;
-}
-
-.lp-immersive .lpx-faq-item[open] .lpx-faq-toggle {
-  transform: rotate(45deg);
-}
-
-.lp-immersive .lpx-faq-item > p {
-  max-width: 690px;
-  margin: -4px 44px 24px 59px;
-  color: var(--lp-muted);
-  font-size: 14px;
-  line-height: 1.75;
-}
-
-.lp-immersive .lpx-footer {
-  padding: 24px 0 0;
-  background: #102642;
-  color: #fff;
-}
-
-.lp-immersive .lpx-footer-cta {
-  position: relative;
-  overflow: hidden;
-  padding: clamp(40px, 7vw, 86px);
-  border: 1px solid rgb(180 211 255 / 20%);
-  border-radius: 26px;
-  background:
-    radial-gradient(circle at 82% 40%, rgb(48 126 236 / 31%), transparent 33%),
-    linear-gradient(120deg, #183a66, #153158 58%, #102642);
-}
-
-.lp-immersive .lpx-footer-cta::after {
-  position: absolute;
-  right: -70px;
-  bottom: -230px;
-  width: 470px;
-  aspect-ratio: 1;
-  border: 1px solid rgb(178 211 255 / 24%);
-  border-radius: 50%;
-  box-shadow:
-    0 0 0 42px rgb(178 211 255 / 4%),
-    0 0 0 96px rgb(178 211 255 / 4%);
-  content: '';
-  pointer-events: none;
-}
-
-.lp-immersive .lpx-footer-cta .lpx-section-label {
-  color: #8eb9ff;
-}
-
-.lp-immersive .lpx-footer-cta h2 {
-  position: relative;
-  z-index: 1;
-  max-width: 780px;
-  margin: 0;
-  color: #fff;
-  font-size: clamp(38px, 5.5vw, 70px);
-  letter-spacing: -0.06em;
-  line-height: 1.02;
-  text-wrap: balance;
-}
-
-.lp-immersive .lpx-footer-cta > p:not(.lpx-section-label) {
-  position: relative;
-  z-index: 1;
-  max-width: 560px;
-  margin: 18px 0 26px;
-  color: #c5d5e9;
-  font-size: 16px;
-  line-height: 1.65;
-}
-
-.lp-immersive .lpx-button--light {
-  position: relative;
-  z-index: 1;
-  background: #fff;
-  color: #15345b;
-}
-
-.lp-immersive .lpx-button--light:hover {
-  background: #eaf2ff;
-}
-
-.lp-immersive .lpx-footer-bottom {
-  display: flex;
-  min-height: 100px;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  padding-block: 20px;
-  color: #aebed2;
-}
-
-.lp-immersive .lpx-footer-bottom .lpx-logo {
-  color: #fff;
-}
-
-.lp-immersive .lpx-footer-bottom .lpx-logo > span b:last-child {
-  color: #8eb9ff;
-}
-
-.lp-immersive .lpx-footer-bottom > p {
-  margin: 0;
-  font-size: 12px;
-}
-
-.lp-immersive .lpx-credits {
-  position: relative;
-  font-size: 12px;
-}
-
-.lp-immersive .lpx-credits summary {
-  color: #d5e2f1;
-  cursor: pointer;
-}
-
-.lp-immersive .lpx-credits ul {
-  position: absolute;
-  z-index: 2;
-  right: 0;
-  bottom: calc(100% + 12px);
-  display: grid;
-  min-width: 270px;
-  gap: 9px;
-  margin: 0;
-  padding: 15px 18px;
-  border: 1px solid #d7e3f2;
-  border-radius: 12px;
-  background: #fff;
-  box-shadow: 0 14px 40px rgb(0 0 0 / 18%);
-  list-style: none;
-}
-
-.lp-immersive .lpx-credits a {
-  color: #235690;
-  text-decoration: none;
-}
-
-.lp-immersive .lpx-credits a:hover {
-  text-decoration: underline;
-}
-
-.lp-immersive .lp-bot-hint {
-  border-color: #d7e3f2;
-  background: rgb(16 35 62 / 94%);
-  box-shadow: 0 8px 25px rgb(16 35 62 / 18%);
-}
-
-@media (max-width: 1050px) {
-  .lp-immersive .lpx-hero-grid {
-    grid-template-columns: minmax(0, 0.95fr) minmax(350px, 1.05fr);
-    gap: 35px;
-  }
-
-  .lp-immersive .lpx-hero h1 {
-    font-size: clamp(46px, 6.1vw, 68px);
-  }
-
-  .lp-immersive .lpx-story-chapter {
-    min-height: 58vh;
-    grid-template-columns: 96px minmax(0, 1fr);
-    column-gap: 18px;
-  }
-
-  .lp-immersive .lpx-story-thumbnail {
-    width: 96px;
-    height: 88px;
-  }
-}
-
-@media (max-width: 800px) {
-  .lp-immersive .lpx-container {
-    width: min(100% - 40px, 620px);
-  }
-
-  .lp-immersive .lpx-header-inner {
-    min-height: 70px;
-  }
-
-  .lp-immersive .lpx-menu-button {
-    display: grid;
-  }
-
-  .lp-immersive .lpx-nav {
-    position: absolute;
-    top: calc(100% + 1px);
-    right: 20px;
-    left: 20px;
-    display: none;
-    align-items: stretch;
-    gap: 0;
-    padding: 10px;
-    border: 1px solid var(--lp-line);
-    border-radius: 0 0 16px 16px;
-    background: #fff;
-    box-shadow: 0 20px 34px rgb(16 35 62 / 12%);
-  }
-
-  .lp-immersive .lpx-nav.lpx-nav--open {
-    display: grid;
-  }
-
-  .lp-immersive .lpx-nav > a:not(.lpx-button) {
-    padding: 13px 12px;
-  }
-
-  .lp-immersive .lpx-nav-cta {
-    margin-top: 6px;
-  }
-
-  .lp-immersive .lpx-hero {
-    padding-top: 52px;
-  }
-
-  .lp-immersive .lpx-hero-grid {
-    min-height: 0;
-    grid-template-columns: 1fr;
-    gap: 26px;
-  }
-
-  .lp-immersive .lpx-hero-copy {
-    padding-block: 8px 0;
-  }
-
-  .lp-immersive .lpx-hero h1 {
-    max-width: 620px;
-    font-size: clamp(44px, 10vw, 68px);
-  }
-
-  .lp-immersive .lpx-hero-art {
-    min-height: 500px;
-  }
-
-  .lp-immersive .lpx-hero-bottom > span {
-    max-width: 85%;
-  }
-
-  .lp-immersive .lpx-journey-grid,
-  .lp-immersive .lpx-capabilities,
-  .lp-immersive .lpx-faq {
-    grid-template-columns: 1fr;
-    gap: 38px;
-  }
-
-  .lp-immersive .lpx-journey {
-    padding-block: 82px;
-  }
-
-  .lp-immersive .lpx-section-intro {
-    margin-bottom: 34px;
-  }
-
-  .lp-immersive .lpx-story-visual,
-  .lp-immersive .lpx-capabilities-heading,
-  .lp-immersive .lpx-faq-heading {
-    position: relative;
-    top: auto;
-  }
-
-  .lp-immersive .lpx-story-visual {
-    padding-bottom: 0;
-  }
-
-  .lp-immersive .lpx-story-chapters {
-    gap: 0;
-  }
-
-  .lp-immersive .lpx-story-chapter {
-    min-height: 0;
-    padding-block: 24px;
-  }
-
-  .lp-immersive .lpx-capabilities,
-  .lp-immersive .lpx-faq {
-    padding-block: 78px;
-  }
-}
-
-@media (max-width: 520px) {
-  .lp-immersive .lpx-container {
-    width: calc(100% - 32px);
-  }
-
-  .lp-immersive .lpx-header-tools {
-    gap: 7px;
-  }
-
-  .lp-immersive .lpx-logo img {
-    width: 39px;
-    height: 39px;
-  }
-
-  .lp-immersive .lpx-logo > span {
-    font-size: 13px;
-  }
-
-  .lp-immersive .lpx-hero {
-    padding-top: 38px;
-  }
-
-  .lp-immersive .lpx-eyebrow {
-    font-size: 9px;
-  }
-
-  .lp-immersive .lpx-hero h1 {
-    font-size: clamp(40px, 12.4vw, 58px);
-  }
-
-  .lp-immersive .lpx-hero-lead {
-    margin-top: 19px;
-    font-size: 16px;
-  }
-
-  .lp-immersive .lpx-hero-actions {
-    display: grid;
-    grid-template-columns: 1fr;
-    margin-top: 24px;
-  }
-
-  .lp-immersive .lpx-button {
-    min-height: 48px;
-  }
-
-  .lp-immersive .lpx-hero-art {
-    min-height: 410px;
-    margin-inline: -8px;
-  }
-
-  .lp-immersive .lpx-mission-preview {
-    width: min(100%, 420px);
-    border-radius: 18px;
-  }
-
-  .lp-immersive .lpx-preview-header {
-    padding: 15px 16px 13px;
-  }
-
-  .lp-immersive .lpx-drone-stage {
-    min-height: 190px;
-  }
-
-  .lp-immersive .lpx-preview-stages {
-    gap: 5px;
-    padding: 12px 13px 9px;
-  }
-
-  .lp-immersive .lpx-preview-stages li {
-    font-size: 9px;
-  }
-
-  .lp-immersive .lpx-preview-note {
-    padding-inline: 13px;
-  }
-
-  .lp-immersive .lpx-art-coordinate {
-    font-size: 7px;
-  }
-
-  .lp-immersive .lpx-story-photo {
-    aspect-ratio: 1.05 / 1;
-  }
-
-  .lp-immersive .lpx-story-card {
-    width: 92%;
-    margin-top: -58px;
-    margin-inline: auto;
-    padding: 16px;
-  }
-
-  .lp-immersive .lpx-story-chapter {
-    grid-template-columns: 68px minmax(0, 1fr);
-    column-gap: 13px;
-  }
-
-  .lp-immersive .lpx-story-thumbnail {
-    width: 68px;
-    height: 68px;
-    grid-row: 1 / span 3;
-    border-radius: 10px;
-  }
-
-  .lp-immersive .lpx-story-chapter h3 {
-    font-size: 23px;
-  }
-
-  .lp-immersive .lpx-story-chapter > p:last-child {
-    font-size: 14px;
-  }
-
-  .lp-immersive .lpx-capability {
-    grid-template-columns: 34px minmax(0, 1fr) 18px;
-    gap: 10px;
-  }
-
-  .lp-immersive .lpx-faq-item summary {
-    min-height: 76px;
-    grid-template-columns: 28px minmax(0, 1fr) 28px;
-    gap: 10px;
-    font-size: 14px;
-  }
-
-  .lp-immersive .lpx-faq-item > p {
-    margin-left: 38px;
-    font-size: 13px;
-  }
-
-  .lp-immersive .lpx-footer-cta {
-    padding: 32px 23px;
-    border-radius: 20px;
-  }
-
-  .lp-immersive .lpx-footer-cta h2 {
-    font-size: 40px;
-  }
-
-  .lp-immersive .lpx-footer-bottom {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 16px;
-    padding-block: 23px;
-  }
-
-  .lp-immersive .lpx-credits ul {
-    right: auto;
-    left: 0;
-  }
-
-  .lp-immersive .lp-bot {
-    right: 14px;
-    bottom: 14px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .lp-immersive .lpx-story-image,
-  .lp-immersive .lpx-button,
-  .lp-immersive .lpx-faq-toggle {
+  .lp-editorial .lp-skip-link,
+  .lp-editorial .lpx-header-cta,
+  .lp-editorial .lpx-cta-mint,
+  .lp-editorial .lpx-cta-icon,
+  .lp-editorial .lpx-nav a,
+  .lp-editorial .lpx-nav a::after,
+  .lp-editorial .lpx-service-icon,
+  .lp-editorial .lpx-service-index,
+  .lp-editorial .lpx-services.lpx-reveal-ready .lpx-services-intro,
+  .lp-editorial .lpx-services.lpx-reveal-ready .lpx-service-cell,
+  .lp-editorial .lpx-about.lpx-reveal-ready .lpx-about-media-wrap,
+  .lp-editorial .lpx-about.lpx-reveal-ready .lpx-about-copy,
+  .lp-editorial .lpx-text-link,
+  .lp-immersive .lp-bot-fab,
+  .lp-immersive .lp-bot-hint {
     transition: none;
   }
 
-  .lp-immersive .lpx-journey-drone {
-    opacity: 1;
+  .lp-editorial .lpx-hero-media,
+  .lp-editorial .lpx-hero-title,
+  .lp-editorial .lpx-hero-subtitle,
+  .lp-editorial .lpx-hero-actions,
+  .lp-editorial .lpx-reticle-scan::after,
+  .lp-editorial .lpx-media-dot {
     animation: none;
-    transform: translate3d(-18%, -14%, 0) scale(0.92);
-  }
-}
-
-/* Cinematic drone flight: one pinned scene evolves as the story scrolls. */
-.odm-landing.lp-immersive.lpx-page {
-  overflow: clip;
-  background: #07101d;
-}
-
-.lp-immersive .lpx-header {
-  position: fixed;
-  inset: 0 0 auto;
-  border-color: rgb(255 255 255 / 12%);
-  background: linear-gradient(180deg, rgb(5 11 20 / 82%), rgb(5 11 20 / 38%));
-  color: #fff;
-}
-
-.lp-immersive .lpx-logo,
-.lp-immersive .lpx-nav > a:not(.lpx-button),
-.lp-immersive .lpx-language button {
-  color: #fff;
-}
-
-.lp-immersive .lpx-language {
-  border-color: rgb(255 255 255 / 25%);
-  background: rgb(255 255 255 / 8%);
-}
-
-.lp-immersive .lpx-menu-button {
-  border-color: rgb(255 255 255 / 30%);
-  background: rgb(255 255 255 / 10%);
-  color: #fff;
-}
-
-.lp-immersive .lp-flight-scene-stage {
-  inset: 0;
-  perspective: 1200px;
-  perspective-origin: 64% 53%;
-  transform-style: preserve-3d;
-}
-
-.lp-immersive .lp-flight-route {
-  position: absolute;
-  z-index: 2;
-  top: 4%;
-  left: 35%;
-  width: 62%;
-  height: 88%;
-  overflow: visible;
-  filter: drop-shadow(0 0 8px rgb(115 171 255 / 85%));
-  transform: translateZ(40px);
-}
-
-.lp-immersive .lp-flight-route path {
-  fill: none;
-  stroke: rgb(128 180 255 / 88%);
-  stroke-linecap: round;
-  stroke-width: 3;
-}
-
-.lp-immersive .lp-flight-drone {
-  position: absolute;
-  z-index: 4;
-  top: 0;
-  left: 0;
-  width: clamp(196px, 18vw, 310px);
-  aspect-ratio: 1;
-  filter: drop-shadow(0 22px 24px rgb(0 0 0 / 58%));
-  transform: translate3d(-50%, -50%, 40px);
-  transform-style: preserve-3d;
-  will-change: transform;
-  visibility: visible;
-  opacity: 1;
-}
-
-.lp-immersive .lp-flight-drone-follow {
-  width: 100%;
-  height: 100%;
-  transform-style: preserve-3d;
-  will-change: transform;
-}
-
-.lp-immersive .lp-flight-drone > div,
-.lp-immersive .lp-flight-drone-follow > div,
-.lp-immersive .lp-flight-drone canvas,
-.lp-immersive .lp-flight-drone svg {
-  display: block;
-  width: 100% !important;
-  height: 100% !important;
-}
-
-.lp-immersive .lp-journey-copy,
-.lp-immersive .lp-journey-chapter--intro .lp-journey-copy,
-.lp-immersive .lp-journey-chapter:nth-child(even) .lp-journey-copy {
-  top: clamp(190px, 25vh, 245px);
-  width: min(54vw, 900px);
-  grid-column: 1;
-  justify-self: start;
-  margin: 0;
-  opacity: 0;
-  pointer-events: none;
-  transition: none;
-}
-
-.lp-immersive .lp-journey-chapter[aria-current='step'] .lp-journey-copy {
-  opacity: 1;
-  pointer-events: auto;
-  transition:
-    opacity 320ms ease,
-    transform 420ms cubic-bezier(0.2, 0.7, 0.2, 1);
-}
-
-.lp-immersive .lp-journey-copy {
-  transform: translate3d(0, 18px, 0);
-}
-
-.lp-immersive .lp-journey-chapter[aria-current='step'] .lp-journey-copy {
-  transform: translate3d(0, 0, 0);
-}
-
-.lp-immersive .lp-journey-chapter {
-  grid-template-columns: minmax(0, 0.58fr) minmax(0, 0.42fr);
-}
-
-.lp-immersive .lp-journey-copy h1,
-.lp-immersive .lp-journey-chapter--intro .lp-journey-copy h1 {
-  max-width: 100%;
-  font-size: clamp(3.6rem, 5.2vw, 5.3rem);
-  line-height: 1.08;
-}
-
-.lp-immersive .lp-journey-copy h2 {
-  max-width: 10.5ch;
-  color: #fff;
-  font-size: clamp(3.2rem, 5vw, 5rem);
-  line-height: 1.08;
-}
-
-.lp-immersive .lp-journey-copy h2 span {
-  color: #fff;
-}
-
-.lp-immersive .lp-journey-disclosure {
-  max-width: 52ch;
-  margin: 12px 0 0;
-  color: rgb(255 255 255 / 70%);
-  font-size: 11px;
-  line-height: 1.5;
-  text-shadow: 0 1px 12px rgb(0 0 0 / 42%);
-}
-
-.lp-immersive .lp-journey-chapter-index {
-  z-index: 6;
-}
-
-@media (max-width: 700px) {
-  .lp-immersive .lp-cinematic-sequence {
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    height: 100%;
   }
 
-  .lp-immersive .lp-flight-scene-stage {
-    perspective-origin: 58% 38%;
-  }
-
-  .lp-immersive .lp-flight-route {
-    top: 8%;
-    left: 6%;
-    width: 78%;
-    height: 49%;
-  }
-
-  .lp-immersive .lp-flight-drone {
-    width: clamp(142px, 40vw, 215px);
-  }
-
-  .lp-immersive .lp-journey-copy,
-  .lp-immersive .lp-journey-chapter--intro .lp-journey-copy,
-  .lp-immersive .lp-journey-chapter:nth-child(even) .lp-journey-copy {
-    position: relative;
-    top: auto;
-    align-self: end;
-    width: 100%;
-    max-width: 540px;
-  }
-
-  .lp-immersive .lp-journey-chapter--intro .lp-journey-copy h1 {
-    max-width: 13ch;
-    font-size: clamp(2.2rem, 10.5vw, 3.35rem);
-    line-height: 1.08;
-  }
-
-  .lp-immersive .lp-journey-copy h2 {
-    max-width: 12ch;
-    font-size: clamp(2.35rem, 10vw, 3.4rem);
-    line-height: 1.08;
-  }
-
-  .lp-immersive .lp-journey-chapter-index {
-    bottom: 35px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .lp-immersive .lp-cinematic-sequence {
-    transition: none;
-  }
-
-  .lp-immersive .lp-journey-backdrop,
-  .lp-immersive .lp-journey-backdrop img {
-    transition: none;
-  }
-
-  .lp-immersive .lp-flight-drone,
-  .lp-immersive .lp-flight-drone-follow {
-    transition: none;
-    will-change: auto;
-  }
-
-}
-
-@media (max-width: 390px) {
-  .lp-immersive .lp-journey-chapter--intro .lp-journey-copy h1 {
-    font-size: clamp(2.05rem, 10vw, 2.55rem);
-  }
-}
-
-@media (max-width: 700px) {
-  .lp-immersive .lp-journey-copy,
-  .lp-immersive .lp-journey-chapter--intro .lp-journey-copy,
-  .lp-immersive .lp-journey-chapter:nth-child(even) .lp-journey-copy {
-    top: auto;
-  }
-
-
-}
-
-/* Landing header refresh */
-.lp-immersive .lpx-header {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: auto;
-  left: 0;
-  width: 100%;
-  min-height: 136px;
-  overflow: visible;
-  border: 0;
-  border-radius: 0;
-  background: linear-gradient(180deg, rgb(5 11 20 / 46%), transparent);
-  color: #fff;
-  box-shadow: none;
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
-  transform: none;
-}
-
-.lp-immersive .lpx-header-inner {
-  position: relative;
-  z-index: 2;
-  width: min(calc(100% - clamp(48px, 10vw, 192px)), 1680px);
-  max-width: none;
-  min-height: 136px;
-  margin-inline: auto;
-  padding-inline: 0;
-  gap: clamp(16px, 2.5vw, 42px);
-}
-
-.lp-immersive .lpx-header::after {
-  display: none;
-}
-
-.lp-immersive .lpx-logo {
-  gap: 12px;
-}
-
-.lp-immersive .lpx-logo img {
-  width: 62px;
-  height: 62px;
-}
-
-.lp-immersive .lpx-logo > span {
-  font-size: 18px;
-  line-height: 1.02;
-}
-
-.lp-immersive .lpx-nav {
-  flex: 1;
-  justify-content: flex-end;
-  gap: clamp(22px, 2.5vw, 44px);
-  margin-left: auto;
-}
-
-.lp-immersive .lpx-nav > a:not(.lpx-button) {
-  position: relative;
-  display: inline-flex;
-  min-height: 48px;
-  align-items: center;
-  color: #fff;
-  font-size: 16px;
-  font-weight: 650;
-  letter-spacing: -0.01em;
-}
-
-.lp-immersive .lpx-nav > a:not(.lpx-button)::after {
-  position: absolute;
-  right: 0;
-  bottom: 5px;
-  left: 0;
-  height: 2px;
-  background: #4f8fff;
-  content: '';
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 180ms ease;
-}
-
-.lp-immersive .lpx-nav > a:not(.lpx-button):hover,
-.lp-immersive .lpx-nav > a:not(.lpx-button):focus-visible {
-  color: #fff;
-}
-
-.lp-immersive .lpx-nav > a:not(.lpx-button):hover::after,
-.lp-immersive .lpx-nav > a:not(.lpx-button):focus-visible::after {
-  transform: scaleX(1);
-}
-
-.lp-immersive .lpx-nav-cta {
-  min-height: 58px;
-  padding-inline: 28px;
-  border-radius: 999px;
-  border-color: rgb(255 255 255 / 14%);
-  background: #0878f5;
-  box-shadow: none;
-  font-size: 15px;
-}
-
-.lp-immersive .lpx-nav-cta:hover {
-  background: #2188ff;
-}
-
-.lp-immersive .lpx-nav-cta-arrow {
-  display: inline-block;
-  font-size: 19px;
-  font-weight: 500;
-  line-height: 1;
-  transition: transform 160ms ease;
-}
-
-.lp-immersive .lpx-nav-cta:hover .lpx-nav-cta-arrow {
-  transform: translateX(3px);
-}
-
-.lp-immersive .lpx-header-tools {
-  gap: 14px;
-}
-
-.lp-immersive .lpx-language {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-}
-
-.lp-immersive .lpx-language button {
-  position: relative;
-  min-width: 42px;
-  min-height: 44px;
-  padding-inline: 4px;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  color: #b9c6d7;
-  font-size: 14px;
-  font-weight: 700;
-  transition: color 160ms ease;
-}
-
-.lp-immersive .lpx-language button:hover,
-.lp-immersive .lpx-language button[aria-pressed='true'] {
-  background: transparent;
-  color: #fff;
-}
-
-.lp-immersive .lpx-language button[aria-pressed='true']::after {
-  position: absolute;
-  right: 12px;
-  bottom: 4px;
-  left: 12px;
-  height: 2px;
-  background: #4f8fff;
-  content: '';
-}
-
-.lp-immersive .lpx-language button:last-child::before {
-  position: absolute;
-  top: 15px;
-  bottom: 15px;
-  left: 0;
-  width: 1px;
-  background: rgb(255 255 255 / 25%);
-  content: '';
-}
-
-.lp-immersive .lpx-menu-button {
-  width: 44px;
-  height: 44px;
-  border-color: rgb(255 255 255 / 22%);
-  border-radius: 8px;
-  background: transparent;
-  color: #fff;
-}
-
-.lp-immersive .lpx-menu-button:hover {
-  background: rgb(255 255 255 / 8%);
-}
-
-@media (max-width: 800px) {
-  .lp-immersive .lpx-header {
-    top: 0;
-    width: 100%;
-    min-height: 84px;
-    border-radius: 0;
-  }
-
-  .lp-immersive .lpx-header-inner {
-    width: calc(100% - 40px);
-    min-height: 84px;
-    padding-inline: 0;
-    gap: 14px;
-  }
-
-  .lp-immersive .lpx-nav {
-    top: calc(100% + 8px);
-    right: 0;
-    left: 0;
-    padding: 12px;
-    border: 1px solid rgb(255 255 255 / 22%);
-    border-radius: 14px;
-    background: rgb(20 30 44 / 94%);
-    -webkit-backdrop-filter: blur(16px);
-    backdrop-filter: blur(16px);
-    box-shadow: 0 18px 36px rgb(0 0 0 / 30%);
-  }
-
-  .lp-immersive .lpx-nav {
-    gap: 4px;
-  }
-
-  .lp-immersive .lpx-nav > a:not(.lpx-button) {
-    min-height: 46px;
-    padding: 0 12px;
-    border-radius: 5px;
-    color: #e1e8f1;
-    font-size: 15px;
-  }
-
-  .lp-immersive .lpx-nav > a:not(.lpx-button)::after {
-    display: none;
-  }
-
-  .lp-immersive .lpx-nav > a:not(.lpx-button):hover,
-  .lp-immersive .lpx-nav > a:not(.lpx-button):focus-visible {
-    background: rgb(255 255 255 / 8%);
-  }
-
-  .lp-immersive .lpx-nav-cta {
-    width: 100%;
-    margin-top: 6px;
-  }
-}
-
-@media (min-width: 801px) and (max-width: 1050px) {
-  .lp-immersive .lpx-header-inner {
-    gap: 16px;
-  }
-
-  .lp-immersive .lpx-logo img {
-    width: 48px;
-    height: 48px;
-  }
-
-  .lp-immersive .lpx-logo > span {
-    font-size: 16px;
-  }
-
-  .lp-immersive .lpx-nav {
-    gap: 14px;
-  }
-
-  .lp-immersive .lpx-nav > a:not(.lpx-button) {
-    font-size: 14px;
-  }
-
-  .lp-immersive .lpx-nav-cta {
-    padding-inline: 16px;
-  }
-
-  .lp-immersive .lpx-header-tools {
-    gap: 8px;
-  }
-}
-
-@media (max-width: 520px) {
-  .lp-immersive .lpx-header {
-    top: 0;
-    width: 100%;
-    min-height: 74px;
-    border-radius: 0;
-  }
-
-  .lp-immersive .lpx-header-inner {
-    width: calc(100% - 32px);
-    min-height: 74px;
-    padding-inline: 0;
-    gap: 10px;
-  }
-
-  .lp-immersive .lpx-logo {
-    gap: 8px;
-  }
-
-  .lp-immersive .lpx-logo img {
-    width: 40px;
-    height: 40px;
-  }
-
-  .lp-immersive .lpx-logo > span {
-    font-size: 14px;
-  }
-
-  .lp-immersive .lpx-header-tools {
-    gap: 5px;
-  }
-
-  .lp-immersive .lpx-language button {
-    min-width: 36px;
-    min-height: 44px;
-    padding-inline: 2px;
-    font-size: 12px;
-  }
-
-  .lp-immersive .lpx-language button[aria-pressed='true']::after {
-    right: 9px;
-    left: 9px;
-  }
-
-  .lp-immersive .lpx-menu-button {
-    width: 42px;
-    height: 42px;
-  }
-}
-
-@media (prefers-reduced-transparency: reduce) {
-  .lp-immersive .lpx-header,
-  .lp-immersive .lpx-nav {
-    background: #1a2636;
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-  }
-}
-
-@media (min-width: 801px) {
-  .lp-immersive .lp-journey-status {
-    top: clamp(148px, 9.2vw, 160px);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .lp-immersive .lpx-nav > a:not(.lpx-button)::after,
-  .lp-immersive .lpx-language button,
-  .lp-immersive .lpx-nav-cta-arrow {
-    transition: none;
+  .lp-editorial .lpx-services.lpx-reveal-ready .lpx-services-intro,
+  .lp-editorial .lpx-services.lpx-reveal-ready .lpx-service-cell,
+  .lp-editorial .lpx-about.lpx-reveal-ready .lpx-about-media-wrap,
+  .lp-editorial .lpx-about.lpx-reveal-ready .lpx-about-copy {
+    opacity: 1;
+    transform: none;
   }
 }

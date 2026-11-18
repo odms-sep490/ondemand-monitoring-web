@@ -189,6 +189,8 @@ function MissionDetailContent({ missionId }: { missionId: string }) {
         }
         monitoringSection={
           <MonitoringChecklistSection
+              canReviewCorrections={monitoring.data?.permissions.canAccessMissionInspection}
+      showInspectionCorrections
             missionId={mission.id}
             data={monitoring.data?.checklist}
             loading={monitoring.loading && !monitoring.data}

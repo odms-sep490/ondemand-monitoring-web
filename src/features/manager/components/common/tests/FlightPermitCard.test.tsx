@@ -364,3 +364,35 @@ it.each(['PLANNING', 'PENDING', 'REJECTED'])(
     expect(update).not.toHaveBeenCalled()
   },
 )
+
+
+it('requires a Manager upload for a previously inherited permit', async () => {
+  const update = vi.spyOn(missionsApi, 'updateFlightPermit').mockResolvedValue(rejectedMission)
+  render(<FlightPermitCard mission={{ ...rejectedMission, flightPermitStatus: 'APPROVED', flightPermitReusedFromMissionId: 'original', flightPermitDataUrl: 'data:application/pdf;base64,AA==' }} onChanged={vi.fn()} depositPaid />)
+  expect(screen.getByText(/Cần tải lên giấy phép riêng/)).toBeInTheDocument()
+  fireEvent.click(screen.getByRole('button', { name: 'Xác nhận đã được cấp phép' }))
+  expect(await screen.findByRole('alert')).toHaveTextContent('Cần tải lên giấy phép riêng')
+  expect(update).not.toHaveBeenCalled()
+})
+
+it('explains mission-specific permits for supplemental missions in English', () => {
+  setLanguage('en')
+  render(<FlightPermitCard mission={{ ...rejectedMission, purpose: 'REWORK', flightPermitStatus: 'PENDING' }} onChanged={vi.fn()} depositPaid />)
+  expect(screen.getByText(/Manager must upload and confirm a permit for each mission/)).toBeInTheDocument()
+  expect(screen.queryByText(/reuse.*automatically/i)).not.toBeInTheDocument()
+})
+
+it('requires a new document after the Pilot changes even when the old file remains in history', async () => {
+  const update = vi.spyOn(missionsApi, 'updateFlightPermit').mockResolvedValue(rejectedMission)
+  render(<FlightPermitCard mission={{ ...rejectedMission, flightPermitStatus: 'PENDING', flightPermitReplacementRequired: true, flightPermitDataUrl: 'data:application/pdf;base64,AA==', flightPermitFileName: 'old.pdf' }} onChanged={vi.fn()} depositPaid />)
+  fireEvent.click(screen.getByRole('button', { name: 'Xác nhận đã được cấp phép' }))
+  expect(await screen.findByRole('alert')).toHaveTextContent('Phi công đã thay đổi')
+  expect(update).not.toHaveBeenCalled()
+})
+
+it('keeps an inherited historical flight read-only without requesting a replacement', () => {
+  render(<FlightPermitCard mission={{ ...rejectedMission, status: 'COMPLETED', flightPermitStatus: 'APPROVED', flightPermitReusedFromMissionId: 'original', flightPermitDataUrl: 'data:application/pdf;base64,AA==' }} onChanged={vi.fn()} depositPaid />)
+  expect(screen.queryByText(/Cần tải lên giấy phép riêng/)).not.toBeInTheDocument()
+  expect(screen.queryByRole('button', {name: 'Xác nhận đã được cấp phép'})).not.toBeInTheDocument()
+  expect(document.querySelector('textarea')).toBeDisabled()
+})

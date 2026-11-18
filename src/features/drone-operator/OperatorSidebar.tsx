@@ -126,6 +126,8 @@ const activeNavScreen: Record<OperatorScreen, OperatorScreen | null> = {
   upload: null,
   checklist: null,
   postflight: null,
+  inspection: 'missions',
+  corrections: 'missions',
   technical: 'technical',
   devices: 'devices',
   support: 'support',

@@ -11,6 +11,8 @@ export type OperatorRoute =
   | { screen: 'upload'; missionId?: string }
   | { screen: 'checklist'; missionId?: string }
   | { screen: 'postflight'; missionId?: string }
+  | { screen: 'inspection'; missionId: string }
+  | { screen: 'corrections'; missionId: string }
   | { screen: 'technical' }
   | { screen: 'devices' }
   | { screen: 'support' }
@@ -100,6 +102,10 @@ export function parseOperatorRoute(hash: string): OperatorRoute {
       return { screen: 'upload', missionId: tail[0] }
     case 'checklist':
       return { screen: 'checklist', missionId: tail[0] }
+    case 'inspection':
+      return tail[0] ? { screen: 'inspection', missionId: tail[0] } : { screen: 'missions' }
+    case 'corrections':
+      return tail[0] ? { screen: 'corrections', missionId: tail[0] } : { screen: 'missions' }
     case 'postflight':
       return { screen: 'postflight', missionId: tail[0] }
     case 'support':
@@ -155,6 +161,9 @@ export function operatorHref(route: OperatorRoute): string {
       return route.missionId
         ? `${OPERATOR_ROOT}/upload/${encodeURIComponent(route.missionId)}`
         : `${OPERATOR_ROOT}/upload`
+    case 'inspection':
+    case 'corrections':
+      return `${OPERATOR_ROOT}/${route.screen}/${encodeURIComponent(route.missionId)}`
     case 'postflight':
       return route.missionId
         ? `${OPERATOR_ROOT}/postflight/${encodeURIComponent(route.missionId)}`

@@ -59,6 +59,12 @@ function reworkMission(): MissionResponse {
 }
 
 beforeEach(() => {
+  vi.spyOn(deliveryApi, 'managerEnsureReworkDrafts').mockResolvedValue(
+    undefined,
+  )
+  vi.spyOn(inspectionCorrectionApi, 'ensureDraft').mockResolvedValue(
+    {} as MissionResponse,
+  )
   setLanguage('vi')
   window.location.hash = '#portal/manager/orders/order/rework/case'
   missions = [original]
@@ -217,7 +223,7 @@ it('preserves original planning after the deposit without requiring the final ba
 })
 
 it.each(['IN_PROGRESS', 'COMPLETED'] as const)(
-  'creates rework in the shared workspace while the Order is %s',
+  'opens automatically prepared rework drafts while the Order is %s',
   async (status) => {
     vi.mocked(ordersApi.getOrder).mockResolvedValue({
       id: 'order',
@@ -225,65 +231,34 @@ it.each(['IN_PROGRESS', 'COMPLETED'] as const)(
       checklistItems,
       customer: { fullName: 'Customer' },
     } as OrderDetail)
-    const create = vi
-      .spyOn(missionsApi, 'createReworkMission')
-      .mockImplementation(async () => {
-        missions.push(reworkMission())
-        assignments['rework-1'] = ['A', 'B']
-        revisionCase.items
-          .filter((item) => item.strategy === 'REWORK')
-          .forEach((item) => {
-            item.assignedReworkMissionId = 'rework-1'
-            item.assignedReworkMissionStatus = 'PLANNING'
+    vi.mocked(deliveryApi.managerEnsureReworkDrafts).mockImplementation(
+      async () => {
+        if (!missions.some((mission) => mission.id === 'rework-1')) {
+          missions.push({
+            ...reworkMission(),
+            scheduledStartAt: null,
+            scheduledEndAt: null,
           })
-        return {
-          caseId: 'case',
-          missionId: 'rework-1',
-          missionCode: 'MS-REWORK',
-          status: 'PLANNING',
-          checklistCount: 2,
+          assignments['rework-1'] = ['A', 'B']
         }
-      })
-    const finalizeOriginal = vi.spyOn(planningApi, 'finalizeExecutionPlan')
-    const createOriginal = vi.spyOn(missionsApi, 'createMission')
+      },
+    )
+    const manual = vi.spyOn(missionsApi, 'createReworkMission')
+    const originalCreate = vi.spyOn(missionsApi, 'createMission')
     render(<ReworkPlanningPage orderId="order" caseId="case" />)
-    const sidebar = await screen.findByRole('complementary')
-    expect(within(sidebar).getByText('Công việc A')).toBeInTheDocument()
-    expect(within(sidebar).getByText('Công việc B')).toBeInTheDocument()
-    expect(within(sidebar).queryByText('Công việc C')).not.toBeInTheDocument()
-    expect(screen.queryByText('MS-ORIGINAL')).not.toBeInTheDocument()
-    expect(
-      screen.queryByText(/Đang chờ khách hàng thanh toán đặt cọc/),
-    ).not.toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: /Thêm mới nhiệm vụ/ }))
-    const dialog = await screen.findByRole('dialog', {
-      name: 'Tạo nhiệm vụ thực hiện lại',
-    })
-    await waitFor(() =>
-      expect(dialog.querySelector('.odm-plan-page')).toHaveClass('is-embedded'),
-    )
-    fireEvent.change(within(dialog).getByLabelText('Giờ cất cánh'), {
-      target: { value: '2099-11-11T10:00' },
-    })
-    fireEvent.change(within(dialog).getByLabelText('Giờ kết thúc dự kiến'), {
-      target: { value: '2099-11-11T11:00' },
-    })
-    fireEvent.click(
-      within(dialog).getByRole('button', {
-        name: 'Tạo nhiệm vụ thực hiện lại',
-      }),
-    )
-    await screen.findByRole('article', { name: 'MS-REWORK' })
-    expect(create).toHaveBeenCalledWith(
+    const card = await screen.findByRole('article', { name: 'MS-REWORK' })
+    expect(within(card).getByText('Công việc A')).toBeInTheDocument()
+    expect(within(card).getByText('Công việc B')).toBeInTheDocument()
+    expect(within(card).queryByText('Công việc C')).toBeNull()
+    expect(deliveryApi.managerEnsureReworkDrafts).toHaveBeenCalledWith(
       'case',
-      expect.objectContaining({ caseItemIds: ['case-A', 'case-B'] }),
+      expect.any(AbortSignal),
     )
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-    expect(window.location.hash).toBe(
-      '#portal/manager/orders/order/rework/case',
-    )
-    expect(finalizeOriginal).not.toHaveBeenCalled()
-    expect(createOriginal).not.toHaveBeenCalled()
+    expect(
+      screen.queryByRole('button', { name: /Thêm mới nhiệm vụ/ }),
+    ).toBeNull()
+    expect(manual).not.toHaveBeenCalled()
+    expect(originalCreate).not.toHaveBeenCalled()
   },
 )
 
@@ -457,11 +432,15 @@ function internalRequest(): InspectionCorrection {
     events: [],
   }
 }
-it('creates internal corrections from the main Mission form with a fixed failed checklist scope', async () => {
+it('opens the automatically created internal draft with its fixed failed checklist scope', async () => {
   vi.mocked(ordersApi.getOrder).mockResolvedValue({
     id: 'order',
     status: 'IN_PROGRESS',
-    code: 'ORD-1', serviceName:'Monitoring', preferredDate:'2099-11-11', preferredTimeName:'Morning', center:null,
+    code: 'ORD-1',
+    serviceName: 'Monitoring',
+    preferredDate: '2099-11-11',
+    preferredTimeName: 'Morning',
+    center: null,
     checklistItems,
     customer: { fullName: 'Customer' },
   } as OrderDetail)
@@ -470,10 +449,12 @@ it('creates internal corrections from the main Mission form with a fixed failed 
     structuredClone([correction]),
   )
   const create = vi
-    .spyOn(inspectionCorrectionApi, 'createMission')
+    .mocked(inspectionCorrectionApi.ensureDraft)
     .mockImplementation(async () => {
       const child = {
         ...reworkMission(),
+        scheduledStartAt: null,
+        scheduledEndAt: null,
         id: 'internal-1',
         missionCode: 'MS-INTERNAL',
         resultRevisionCaseId: null,
@@ -499,32 +480,13 @@ it('creates internal corrections from the main Mission form with a fixed failed 
   expect(within(sidebar).getByText('Công việc A')).toBeInTheDocument()
   expect(within(sidebar).queryByText('Công việc B')).toBeNull()
   expect(screen.queryByText('MS-ORIGINAL')).toBeNull()
-  fireEvent.click(screen.getByRole('button', { name: /Thêm mới nhiệm vụ/ }))
-  const dialog = await screen.findByRole('dialog', {
-    name: 'Tạo Mission bổ sung',
-  })
-  expect(await within(dialog).findByText('Công việc A')).toBeInTheDocument()
-  expect(within(dialog).queryByText('Công việc B')).toBeNull()
-  expect(within(dialog).getByRole('checkbox')).toBeChecked()
-  expect(within(dialog).getByRole('checkbox')).toBeDisabled()
-  fireEvent.change(within(dialog).getByLabelText('Giờ cất cánh'), {
-    target: { value: '2099-11-11T10:00' },
-  })
-  fireEvent.change(within(dialog).getByLabelText('Giờ kết thúc dự kiến'), {
-    target: { value: '2099-11-11T11:00' },
-  })
-  fireEvent.click(
-    within(dialog).getByRole('button', { name: 'Tạo Mission bổ sung' }),
-  )
   await screen.findByRole('article', { name: 'MS-INTERNAL' })
   expect(create).toHaveBeenCalledWith(
     'original',
-    expect.objectContaining({ id: 'correction' }),
-    expect.objectContaining({
-      scopeLabel: expect.any(String),
-      clientRequestId: expect.any(String),
-    }),
+    'correction',
+    expect.any(AbortSignal),
   )
+  expect(screen.queryByRole('button', { name: /Thêm mới nhiệm vụ/ })).toBeNull()
   expect(createOriginal).not.toHaveBeenCalled()
   expect(createRework).not.toHaveBeenCalled()
   expect(deliveryApi.managerGetRevisionCase).not.toHaveBeenCalled()
@@ -534,7 +496,11 @@ it('finalizes internal scope through its own endpoint then waits for Staff accep
   vi.mocked(ordersApi.getOrder).mockResolvedValue({
     id: 'order',
     status: 'IN_PROGRESS',
-    code: 'ORD-1', serviceName:'Monitoring', preferredDate:'2099-11-11', preferredTimeName:'Morning', center:null,
+    code: 'ORD-1',
+    serviceName: 'Monitoring',
+    preferredDate: '2099-11-11',
+    preferredTimeName: 'Morning',
+    center: null,
     checklistItems,
     customer: { fullName: 'Customer' },
   } as OrderDetail)
@@ -587,10 +553,155 @@ it('finalizes internal scope through its own endpoint then waits for Staff accep
   )
   fireEvent.click(screen.getByRole('tab', { name: 'Giấy phép bay' }))
   expect(
-    await screen.findByText('Chưa có nhân sự được phân công. Hãy phân công nhân sự trước khi xác nhận giấy phép bay.'),
+    await screen.findByText(
+      'Chưa có nhân sự được phân công. Hãy phân công nhân sự trước khi xác nhận giấy phép bay.',
+    ),
   ).toBeInTheDocument()
   expect(
     screen.queryByRole('button', { name: 'Xác nhận đã được cấp phép' }),
   ).toBeNull()
   expect(finalizeOriginal).not.toHaveBeenCalled()
+})
+
+it('shows derived Missions with shared cards while keeping edits inside their scoped planning workflow', async () => {
+  vi.mocked(ordersApi.getOrder).mockResolvedValue({
+    id: 'order',
+    status: 'IN_PROGRESS',
+    checklistItems,
+    customer: { fullName: 'Customer' },
+  } as OrderDetail)
+  missions.push(reworkMission(), {
+    ...reworkMission(),
+    id: 'internal',
+    missionCode: 'MS-INTERNAL',
+    resultRevisionCaseId: null,
+    inspectionCorrectionId: 'correction',
+    inspectionSourceMissionId: 'original',
+  })
+  render(<OrderMissionPlanningSection orderId="order" />)
+  expect(
+    await screen.findByRole('article', { name: 'MS-ORIGINAL' }),
+  ).toBeInTheDocument()
+  expect(screen.getByRole('article', { name: 'MS-REWORK' })).toBeInTheDocument()
+  expect(
+    screen.getByRole('article', { name: 'MS-INTERNAL' }),
+  ).toBeInTheDocument()
+  for (const code of ['MS-REWORK', 'MS-INTERNAL']) {
+    const card = within(screen.getByRole('article', { name: code }))
+    expect(card.queryByRole('button', { name: 'Chỉnh sửa' })).toBeNull()
+    expect(card.getByText('Giấy phép bay')).toBeInTheDocument()
+    expect(
+      card.getByRole('link', { name: 'Xem chi tiết nhiệm vụ' }),
+    ).toBeInTheDocument()
+  }
+  const links = screen
+    .getAllByRole('link', { name: 'Mở lập kế hoạch' })
+    .map((a) => a.getAttribute('href'))
+  expect(links).toEqual(
+    expect.arrayContaining([
+      '#portal/manager/orders/order/rework/case',
+      '#portal/manager/orders/order/inspection/original/correction',
+    ]),
+  )
+})
+it('allows a replacement plan after an internal supplemental Mission failed', async () => {
+  vi.mocked(ordersApi.getOrder).mockResolvedValue({
+    id: 'order',
+    status: 'IN_PROGRESS',
+    checklistItems,
+    customer: { fullName: 'Customer' },
+  } as OrderDetail)
+  missions.push({
+    ...reworkMission(),
+    id: 'failed-internal',
+    status: 'FAILED',
+    resultRevisionCaseId: null,
+    inspectionCorrectionId: 'correction',
+    inspectionSourceMissionId: 'original',
+  })
+  assignments['failed-internal'] = ['A']
+  vi.spyOn(inspectionCorrectionApi, 'list').mockResolvedValue([
+    {
+      ...internalRequest(),
+      supplementalMissionId: 'failed-internal',
+      supplementalMissionStatus: 'FAILED',
+    },
+  ])
+  render(
+    <InternalCorrectionPlanningPage
+      orderId="order"
+      sourceMissionId="original"
+      correctionId="correction"
+    />,
+  )
+  const recreate = await screen.findByRole('button', {
+    name: 'Tạo lại bản nháp',
+  })
+  expect(recreate).toBeEnabled()
+  expect(inspectionCorrectionApi.ensureDraft).toHaveBeenCalledWith(
+    'original',
+    'correction',
+    expect.any(AbortSignal),
+  )
+  fireEvent.click(recreate)
+  await waitFor(() =>
+    expect(inspectionCorrectionApi.ensureDraft).toHaveBeenCalledWith(
+      'original',
+      'correction',
+      undefined,
+      true,
+    ),
+  )
+  expect(
+    missions.some(
+      (mission) =>
+        mission.id === 'failed-internal' && mission.status === 'FAILED',
+    ),
+  ).toBe(true)
+})
+it('explains why a resolved internal correction is read-only', async () => {
+  vi.mocked(ordersApi.getOrder).mockResolvedValue({
+    id: 'order',
+    status: 'IN_PROGRESS',
+    checklistItems,
+    customer: { fullName: 'Customer' },
+  } as OrderDetail)
+  vi.spyOn(inspectionCorrectionApi, 'list').mockResolvedValue([
+    { ...internalRequest(), status: 'RESOLVED' },
+  ])
+  render(
+    <InternalCorrectionPlanningPage
+      orderId="order"
+      sourceMissionId="original"
+      correctionId="correction"
+    />,
+  )
+  expect(
+    await screen.findByText(
+      'Yêu cầu bổ sung hoặc đơn hàng không còn cho phép lập kế hoạch. Nội dung được hiển thị để tra cứu.',
+    ),
+  ).toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: /Thêm mới nhiệm vụ/ })).toBeNull()
+})
+
+it('uses each derived Mission assignment scope without changing original coverage', async () => {
+  vi.mocked(ordersApi.getOrder).mockResolvedValue({
+    id: 'order',
+    status: 'IN_PROGRESS',
+    checklistItems,
+    customer: { fullName: 'Customer' },
+  } as OrderDetail)
+  missions.push(reworkMission())
+  assignments['rework-1'] = ['B']
+  render(<OrderMissionPlanningSection orderId="order" />)
+  const card = within(await screen.findByRole('article', { name: 'MS-REWORK' }))
+  expect(card.getByText('Công việc (1)')).toBeInTheDocument()
+  expect(card.getByText('Công việc B')).toBeInTheDocument()
+  expect(card.queryByText('Công việc A')).toBeNull()
+  const main = within(screen.getByRole('article', { name: 'MS-ORIGINAL' }))
+  expect(main.getByText('Công việc (3)')).toBeInTheDocument()
+  expect(planningApi.getAssignments).toHaveBeenCalledWith(
+    'rework-1',
+    expect.any(AbortSignal),
+  )
 })

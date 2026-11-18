@@ -606,6 +606,12 @@ describe('MonitoringChecklistSection', () => {
       target: { value: 'NON_COMPLIANT' },
     })
     fireEvent.click(screen.getByText('Lưu mục'))
+    expect(save).not.toHaveBeenCalled()
+    expect(screen.getByText('Vui lòng ghi rõ nội dung chưa đạt để người thực hiện bổ sung.')).toBeInTheDocument()
+    fireEvent.change(screen.getByLabelText('Ghi chú nghiệm thu'), {
+      target: { value: 'The overview image is blurred' },
+    })
+    fireEvent.click(screen.getByText('Lưu mục'))
     await waitFor(() =>
       expect(save).toHaveBeenCalledWith(
         'm',

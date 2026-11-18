@@ -19,11 +19,13 @@ export function InspectorEvidencePreview({
   executionId,
   link,
   onClose,
+  loadChecklist,
 }: {
   missionId: string
   executionId: string
   link: MissionChecklistEvidence
   onClose: () => void
+  loadChecklist?: (signal: AbortSignal) => Promise<{ missionId: string; executions: import('../types/checklistExecution').MissionChecklistExecution[] }>
 }) {
   const { lang } = useLanguage()
   const vi = lang === 'vi'
@@ -61,10 +63,9 @@ export function InspectorEvidencePreview({
     setSource(null)
     try {
       const checklist =
-        await checklistExecutionApi.getMissionChecklistExecutions(
-          missionId,
-          abort.signal,
-        )
+        await (loadChecklist
+          ? loadChecklist(abort.signal)
+          : checklistExecutionApi.getMissionChecklistExecutions(missionId, abort.signal))
       const fresh =
         checklist.missionId === missionId
           ? checklist.executions

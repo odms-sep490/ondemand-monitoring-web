@@ -1,3 +1,4 @@
+import { isContractDepositReady } from '../contractPaymentEligibility'
 import { subscribeNotificationRefresh } from '../../notifications/notificationRealtime'
 import { OrderContractPanel } from '../../contract/OrderContractPanel'
 import { Alert, Button, Skeleton } from 'antd'
@@ -210,7 +211,7 @@ export function CustomerFinancePanel({
   // The payment type is part of InvoiceSection's onPay contract; only deposits exist today.
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async function pay(_type: 'deposit') {
-    if (!invoice || (invoice.contractRequired && !invoice.contractConfirmedAt))
+    if (!invoice || !isContractDepositReady(invoice))
       return
     setBusy(true)
     setError(null)
@@ -225,7 +226,7 @@ export function CustomerFinancePanel({
   }
 
   async function completeTestPayment() {
-    if (!invoice || (invoice.contractRequired && !invoice.contractConfirmedAt))
+    if (!invoice || !isContractDepositReady(invoice))
       return
     setBusy(true)
     setError(null)
@@ -289,7 +290,7 @@ export function CustomerFinancePanel({
 
   const invoiceContent = invoice ? (
     <>
-      {invoice.contractRequired && !invoice.contractConfirmedAt && onOpenContract ? (
+      {!isContractDepositReady(invoice) && onOpenContract ? (
         <Alert
           type="info"
           showIcon
@@ -319,7 +320,8 @@ export function CustomerFinancePanel({
             <OrderContractPanel
               orderId={orderId}
               mode="customer"
-              onProceedToPayment={onOpenPayment}
+              onProceedToPayment={onOpenPayment ? () => { void load(); onOpenPayment() } : undefined}
+              onUpdated={() => void load()}
               onConfirmed={invoice.contractConfirmedAt ? undefined : () => void load()}
             />
           ) : (

@@ -43,3 +43,11 @@ describe('drone operator routes', () => {
     })
   })
 })
+
+it.each(['corrections', 'inspection'] as const)('keeps %s outside the physical flight stepper', screen => {
+  const route = { screen, missionId: 'mission A' }
+  const url = operatorHref(route)
+  expect(url).toBe(`#portal/staff/${screen}/mission%20A`)
+  expect(parseOperatorRoute(url)).toEqual(route)
+  expect(operatorFlowStep(screen)).toBeNull()
+})

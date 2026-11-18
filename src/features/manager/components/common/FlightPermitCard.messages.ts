@@ -2,6 +2,10 @@ import { defineMessages } from '../../../../shared/i18n'
 
 export const flightPermitCardMessages = defineMessages({
   vi: {
+    missionPermitRequired: 'Cần tải lên giấy phép riêng cho nhiệm vụ này. Giấy phép được kế thừa trước đây không còn được dùng để xác nhận chuyến bay.',
+    missionPermitHint: 'Mỗi nhiệm vụ cần giấy phép riêng do Quản lý tải lên và xác nhận, kể cả nhiệm vụ làm lại hoặc bổ sung cùng phi công.',
+    replacementRequired: 'Phi công đã thay đổi. Cần tải lên giấy phép phù hợp với người điều khiển mới trước khi xác nhận.',
+
     statuses: {
       NOT_REQUESTED: 'Chưa xin phép',
       PENDING: 'Đang chờ cấp phép',
@@ -184,6 +188,10 @@ export const flightPermitCardMessages = defineMessages({
       'Cần xác nhận đã thống nhất lịch mới với khách hàng.',
   },
   en: {
+    missionPermitRequired: 'Upload a permit for this mission. Previously inherited permits cannot be used to approve this flight.',
+    missionPermitHint: 'Manager must upload and confirm a permit for each mission, including rework or supplemental missions with the same Pilot.',
+    replacementRequired: 'The Pilot has changed. Upload a permit for the new Pilot before confirming approval.',
+
     statuses: {
       NOT_REQUESTED: 'Permit not requested',
       PENDING: 'Awaiting permit',

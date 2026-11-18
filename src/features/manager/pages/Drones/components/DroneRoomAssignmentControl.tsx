@@ -1,8 +1,8 @@
+import { missionPlanningReturnHref } from '../../../lib/missionPlanningReturn'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { useApiQuery } from '../../../../../shared/hooks/useApiQuery'
 import { droneApi } from '../../../../staff/api/droneApi'
-import { managerHref } from '../../../routes'
 import { missionsApi, toMissionCalendarItem } from '../../../api/missionsApi'
 import { canAssignMissionDrone } from '../../../lib/missionDroneAssignments'
 import type {
@@ -147,7 +147,8 @@ export function DroneRoomAssignmentControl({
   const [selectedMissionId, setSelectedMissionId] = useState(
     assignmentMissionId ?? '',
   )
-  const missionReturnId = selectedMissionId || returnMissionId || assignmentMissionId
+  const missionReturnId =
+    selectedMissionId || returnMissionId || assignmentMissionId
   const [missionSnapshot, setMissionSnapshot] =
     useState<MissionCalendarItem | null>(null)
   const [role, setRole] = useState<DroneRole>('MAIN')
@@ -295,10 +296,10 @@ export function DroneRoomAssignmentControl({
         <h4 id={`drone-assignment-title-${drone.id}`}>{copy.title}</h4>
         {missionReturnId ? (
           <a
-            href={managerHref({
-              screen: 'missionDetail',
-              missionId: missionReturnId,
-            })}
+            href={missionPlanningReturnHref(
+              selectedMission ?? null,
+              missionReturnId,
+            )}
           >
             {copy.backToMission}
           </a>
@@ -426,10 +427,10 @@ export function DroneRoomAssignmentControl({
               {selectedMission ? (
                 <a
                   className="mgr-drone-room-return-button"
-                  href={managerHref({
-                    screen: 'missionDetail',
-                    missionId: selectedMission.id,
-                  })}
+                  href={missionPlanningReturnHref(
+                    selectedMission,
+                    selectedMission.id,
+                  )}
                 >
                   {copy.backToMission}
                 </a>

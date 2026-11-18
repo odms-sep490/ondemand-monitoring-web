@@ -2,6 +2,41 @@ import { defineMessages } from '../../../../shared/i18n'
 
 export const postflightPageMessages = defineMessages({
   vi: {
+    inspectionRole: 'Kiểm tra và bàn giao kết quả',
+    supplementContextTitle: 'Kết quả bổ sung cho nhiệm vụ gốc',
+    confirmSupplement: 'Xác nhận đạt và gửi kết quả về nhiệm vụ gốc',
+    supplementDeliveryHint: 'Khi xác nhận đạt, hệ thống ghi nhận kết quả bổ sung và tự công bố bộ kết quả tổng hợp khi toàn bộ nhiệm vụ gốc đủ điều kiện bàn giao.',
+
+    fleetTitle: 'Kiểm tra sau bay',
+    fleetHint: 'Kiểm tra từng thiết bị và ghi nhận tình trạng sau chuyến bay trước khi nghiệm thu.',
+    fleetCounter: 'thiết bị đã kiểm tra',
+    fleetProgress: 'Tiến độ kiểm tra sau bay',
+    fleetSelect: 'Chọn thiết bị kiểm tra sau bay',
+    fleetSelected: 'Đang chọn',
+    fleetChecked: 'Đã kiểm tra',
+    fleetNeedsCheck: 'Cần kiểm tra',
+    fleetDevice: (n: number) => `Thiết bị ${n}`,
+    fleetDeviceDone: 'Thiết bị đã được kiểm tra sau bay',
+    fleetChooseRemaining: (label: string) => `${label} đã được kiểm tra. Chọn thiết bị chưa hoàn tất trong danh sách phía trên để tiếp tục.`,
+    fleetLoadFailed: 'Chưa tải được dữ liệu kiểm tra sau bay',
+    fleetLoadFailedHint: 'Hãy tải lại danh sách thiết bị và kết quả kiểm tra trước khi tiếp tục.',
+    fleetNoDevices: 'Chưa có thông tin thiết bị của nhiệm vụ',
+    fleetNoDevicesHint: 'Không thể xác định danh sách thiết bị cần kiểm tra. Hãy tải lại dữ liệu nhiệm vụ.',
+    fleetRetry: 'Tải lại dữ liệu',
+
+    postflightFinishedTitle: 'Đã hoàn tất kiểm tra sau bay',
+    postflightFinishedHint: 'Chuyển sang nghiệm thu nhiệm vụ. Người được phân công nghiệm thu sẽ đánh giá checklist và chọn media bàn giao.',
+    postflightOpenInspection: 'Mở nghiệm thu nhiệm vụ',
+
+    inspectionPageTitle: 'Nghiệm thu nhiệm vụ',
+    inspectionAwaitingPostflight: 'Chưa hoàn tất kiểm tra sau bay',
+    inspectionAwaitingPostflightHint: 'Hoàn tất kiểm tra thiết bị sau bay trước khi chuyển sang nghiệm thu hồ sơ.',
+    inspectionOpenPostflight: 'Mở kiểm tra sau bay',
+
+    reviewPermissionsRetry: 'Thử lại',
+    reviewPermissionsFailedTitle: 'Chưa tải được quyền truy cập',
+    reviewPermissionsFailedDescription: 'Không thể kiểm tra quyền của bạn. Hãy tải lại trước khi tiếp tục.',
+
     backToInspectionSource: 'Trở về nghiệm thu Mission gốc',
     otherCategory: 'Hạng mục khác',
     categories: {
@@ -138,7 +173,7 @@ export const postflightPageMessages = defineMessages({
     reviewNonCompliant: 'Cần khắc phục',
     reviewUnable: 'Không thể xác minh',
     reviewNotAssessed: 'Chưa đánh giá',
-    reviewMissionComplete: 'Hoàn thành nhiệm vụ',
+    reviewMissionComplete: 'Hoàn tất nghiệm thu',
     reviewCompleting: 'Đang xác nhận…',
     reviewMissionFailed: 'Xác nhận nhiệm vụ thất bại',
     reviewFailureWaitingConfirmation:
@@ -207,6 +242,41 @@ export const postflightPageMessages = defineMessages({
     deviceInspecting: 'Thiết bị đang kiểm tra',
   },
   en: {
+    inspectionRole: 'Result inspection and delivery',
+    supplementContextTitle: 'Supplemental results for the original mission',
+    confirmSupplement: 'Accept and send results to the original mission',
+    supplementDeliveryHint: 'On acceptance, the system records these results and automatically publishes the combined results when the original mission is ready for delivery.',
+
+    fleetTitle: 'Postflight checks',
+    fleetHint: 'Check each device and record its condition after the flight before Mission inspection.',
+    fleetCounter: 'devices checked',
+    fleetProgress: 'Postflight check progress',
+    fleetSelect: 'Select a device for postflight checks',
+    fleetSelected: 'Selected',
+    fleetChecked: 'Checked',
+    fleetNeedsCheck: 'Needs checking',
+    fleetDevice: (n: number) => `Device ${n}`,
+    fleetDeviceDone: 'Device postflight check completed',
+    fleetChooseRemaining: (label: string) => `${label} has been checked. Select an unfinished device from the list above to continue.`,
+    fleetLoadFailed: 'Unable to load postflight data',
+    fleetLoadFailedHint: 'Reload the device list and check results before continuing.',
+    fleetNoDevices: 'Mission device information is unavailable',
+    fleetNoDevicesHint: 'The devices requiring checks could not be identified. Reload the Mission data.',
+    fleetRetry: 'Reload data',
+
+    postflightFinishedTitle: 'Postflight checks completed',
+    postflightFinishedHint: 'Continue to Mission inspection. The assigned Inspector reviews the checklist and selects delivery media.',
+    postflightOpenInspection: 'Open Mission inspection',
+
+    inspectionPageTitle: 'Mission inspection',
+    inspectionAwaitingPostflight: 'Postflight checks are not complete',
+    inspectionAwaitingPostflightHint: 'Complete the postflight equipment checks before inspecting the evidence dossier.',
+    inspectionOpenPostflight: 'Open postflight checks',
+
+    reviewPermissionsRetry: 'Retry',
+    reviewPermissionsFailedTitle: 'Unable to load access permissions',
+    reviewPermissionsFailedDescription: 'Your permissions could not be verified. Retry before continuing.',
+
     backToInspectionSource: 'Return to the original mission inspection',
     otherCategory: 'Other items',
     categories: {
@@ -343,7 +413,7 @@ export const postflightPageMessages = defineMessages({
     reviewNonCompliant: 'Non-compliant',
     reviewUnable: 'Unable to verify',
     reviewNotAssessed: 'Not assessed',
-    reviewMissionComplete: 'Complete mission',
+    reviewMissionComplete: 'Complete inspection',
     reviewCompleting: 'Confirming…',
     reviewMissionFailed: 'Confirm mission failure',
     reviewFailureWaitingConfirmation:

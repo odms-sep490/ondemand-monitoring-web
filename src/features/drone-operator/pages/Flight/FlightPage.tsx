@@ -1,3 +1,5 @@
+import { hasMissionFlightEnded } from '../../lib/missionFlightLifecycle'
+import { hasInspectionWorkspaceAccess } from '../../../mission/types/permissions'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { useI18n } from '../../../../shared/i18n'
@@ -135,6 +137,20 @@ export function FlightPage({
     }
   }, [missionId, landingConfirmBusy, startPostflight, t.landingConfirmError])
 
+  const flightClosed = mission && hasMissionFlightEnded({
+    actualEndAt: mission.actualEndAt,
+    completedAt: mission.completedAt,
+    deviceAssignmentStatus: mission.deviceAssignments?.find(a => a.deviceRole === 'MAIN')?.status,
+  })
+  useEffect(() => {
+    if (!flightClosed || !missionId || !mission || !permissions) return
+    const screen = mission.actualEndAt || mission.completedAt
+      ? hasInspectionWorkspaceAccess(permissions) ? 'inspection' : 'missionDetail'
+      : 'postflight'
+    window.location.hash = operatorHref({ screen, missionId })
+  }, [flightClosed, missionId, mission, permissions])
+
+  if (flightClosed) return <FlightOpeningShell />
   if (!missionId) {
     return <FlightOpeningShell />
   }

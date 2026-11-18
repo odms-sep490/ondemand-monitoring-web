@@ -2,6 +2,7 @@ import { defineMessages } from '../../../../shared/i18n'
 
 export const missionDetailPageMessages = defineMessages({
   vi: {
+    openInspectionWorkspace: 'Mở nghiệm thu nhiệm vụ',
     declinedHistoryBadge: 'Đã từ chối',
     declinedHistoryTitle: 'Bạn đã từ chối nhiệm vụ này',
     declinedHistoryDescription: 'Phản hồi của bạn được lưu trong Lịch sử nhiệm vụ.',
@@ -89,6 +90,7 @@ export const missionDetailPageMessages = defineMessages({
     workflowTerminal: 'Quy trình đã kết thúc.',
   },
   en: {
+    openInspectionWorkspace: 'Open Mission inspection',
     declinedHistoryBadge: 'Declined',
     declinedHistoryTitle: 'You declined this mission',
     declinedHistoryDescription: 'Your response is saved in your mission history.',

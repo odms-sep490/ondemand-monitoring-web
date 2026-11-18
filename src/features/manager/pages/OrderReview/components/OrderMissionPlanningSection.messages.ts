@@ -2,6 +2,14 @@ import { defineMessages } from '../../../../../shared/i18n'
 
 export const orderMissionPlanningSectionMessages = defineMessages({
   vi: {
+    restoreDraft: 'Tạo lại bản nháp',
+    automaticDraftHint:
+      'Nhiệm vụ nháp được tạo từ các mục cần thực hiện lại. Bổ sung lịch bay, phân công nhân sự và thiết bị trước khi chốt kế hoạch.',
+    originalMissions: 'Nhiệm vụ gốc',
+    derivedMissions: 'Nhiệm vụ phát sinh',
+    derivedHint:
+      'Theo dõi lịch, công việc và nguồn lực của từng nhiệm vụ. Mở lập kế hoạch để điều chỉnh đúng phạm vi yêu cầu.',
+    openDerived: 'Mở kế hoạch riêng',
     openMissionPermit: 'Mở nhiệm vụ',
     backToPlanning: '← Quay lại lập kế hoạch',
     sectionAria: 'Kế hoạch nhiệm vụ của đơn hàng',
@@ -52,6 +60,14 @@ export const orderMissionPlanningSectionMessages = defineMessages({
     uncoveredNote: (n: number) => `Còn ${n} công việc chưa được phân công`,
   },
   en: {
+    restoreDraft: 'Recreate draft',
+    automaticDraftHint:
+      'Draft missions are created from the items requiring another flight. Set the flight schedule and assign staff and equipment before finalizing the plan.',
+    originalMissions: 'Original missions',
+    derivedMissions: 'Follow-up missions',
+    derivedHint:
+      'Review each mission schedule, scope and resources. Open planning to edit within its request scope.',
+    openDerived: 'Open scoped plan',
     openMissionPermit: 'Open mission',
     backToPlanning: '← Back to planning',
     sectionAria: 'Order mission planning',

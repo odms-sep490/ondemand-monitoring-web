@@ -1,3 +1,4 @@
+import { isContractDepositReady } from '../../contractPaymentEligibility'
 import { useState } from 'react'
 import { Button } from 'antd'
 import { useI18n } from '../../../../shared/i18n'
@@ -117,7 +118,7 @@ export function InvoiceSection({
     invoice.orderCancellationReason?.startsWith('CONTRACT_')
   )
     return null
-  if (invoice.contractRequired && !invoice.contractConfirmedAt) return null
+  if (!isContractDepositReady(invoice)) return null
   if (invoice.status === 'PAID') return null
   return (
     <div className="customer-invoice customer-invoice-actions">

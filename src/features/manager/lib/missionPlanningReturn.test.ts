@@ -20,3 +20,29 @@ it('preserves the normal mission return without an Order context', () =>
   expect(missionPlanningReturnHref({ id: 'mission' }, 'mission')).toBe(
     '#portal/manager/missions/mission/detail',
   ))
+
+it('returns internal corrections to their canonical planning route', () =>
+  expect(
+    missionPlanningReturnHref(
+      {
+        id: 'child',
+        orderId: 'order',
+        purpose: 'REWORK',
+        inspectionCorrectionId: 'correction',
+        inspectionSourceMissionId: 'parent',
+      },
+      'child',
+    ),
+  ).toBe('#portal/manager/orders/order/inspection/parent/correction'))
+it('returns Customer rework to its canonical case plan', () =>
+  expect(
+    missionPlanningReturnHref(
+      {
+        id: 'child',
+        orderId: 'order',
+        purpose: 'REWORK',
+        resultRevisionCaseId: 'case',
+      },
+      'child',
+    ),
+  ).toBe('#portal/manager/orders/order/rework/case'))

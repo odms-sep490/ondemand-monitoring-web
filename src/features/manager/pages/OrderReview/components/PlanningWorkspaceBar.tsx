@@ -10,6 +10,7 @@ export function PlanningWorkspaceBar({
   uncovered,
   canEdit,
   canAddMission,
+  addMissionLabel,
   creating,
   busy,
   canConfirmPlan,
@@ -25,6 +26,7 @@ export function PlanningWorkspaceBar({
   canEdit: boolean
   /** True while a new Mission may be created on a draft or finalized Order. */
   canAddMission: boolean
+  addMissionLabel?: string
   creating: boolean
   busy: boolean
   canConfirmPlan: boolean
@@ -54,7 +56,8 @@ export function PlanningWorkspaceBar({
             disabled={busy || creating}
             onClick={onAddMission}
           >
-            <PlusOutlined aria-hidden="true" /> {t.addMission}
+            <PlusOutlined aria-hidden="true" />{' '}
+            {addMissionLabel ?? t.addMission}
           </button>
         ) : null}
       </div>
@@ -68,7 +71,9 @@ export function PlanningWorkspaceBar({
           <ReloadOutlined aria-hidden="true" /> {t.reloadPlan}
         </button>
         {uncovered > 0 ? (
-          <span className="odm-workspace-uncovered">{t.uncoveredNote(uncovered)}</span>
+          <span className="odm-workspace-uncovered">
+            {t.uncoveredNote(uncovered)}
+          </span>
         ) : null}
         {canEdit ? (
           <button

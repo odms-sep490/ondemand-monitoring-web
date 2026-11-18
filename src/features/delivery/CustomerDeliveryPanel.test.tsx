@@ -178,7 +178,7 @@ describe('Customer delivery payment placement', () => {
 
     expect(
       await screen.findByText(
-        'Original files become available to download after full payment and resolution of all revision items.',
+        'Originals for this mission become downloadable after its payment is confirmed and its revision requests are resolved.',
       ),
     ).toBeInTheDocument()
     expect(
@@ -194,7 +194,7 @@ describe('Customer delivery payment placement', () => {
     render(<CustomerDeliveryPanel orderId="o1" />)
     expect(
       await screen.findByText(
-        'Original files become available to download after full payment and resolution of all revision items.',
+        'Originals for this mission become downloadable after its payment is confirmed and its revision requests are resolved.',
       ),
     ).toBeInTheDocument()
     expect(

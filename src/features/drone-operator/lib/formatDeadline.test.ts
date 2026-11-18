@@ -96,3 +96,11 @@ describe('formatDeadline', () => {
     expect(formatDeadline(mission, now, 'en')).toBe('2d 2h left')
   })
 })
+
+
+it('stops the flight timer after postflight even while business status stays IN_PROGRESS', () => {
+  const mission = { ...base, status: 'IN_FLIGHT', backendStatus: 'IN_PROGRESS', flightStartedAt: '2026-11-16T10:00:00Z', actualEndAt: '2026-11-16T10:20:00Z' } as OperatorMission
+  expect(formatDeadline(mission, new Date('2026-11-16T12:15:00Z'), 'vi')).toBe('Đã kết thúc bay')
+  expect(formatDeadline(mission, new Date('2026-11-17T12:15:00Z'), 'vi')).toBe('Đã kết thúc bay')
+  expect(formatDeadline(mission, new Date('2026-11-17T12:15:00Z'), 'en')).toBe('Flight ended')
+})
