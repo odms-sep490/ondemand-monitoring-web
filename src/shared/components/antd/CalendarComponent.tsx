@@ -102,14 +102,15 @@ export function CalendarComponent({
         slotMinTime={slotMinTime}
         slotMaxTime={slotMaxTime}
         slotDuration={slotDuration}
+        slotLabelFormat={{ hour: '2-digit', minute: '2-digit', hour12: false }}
         height={height}
         expandRows
         nowIndicator
         events={events}
         eventOverlap={false}
         slotEventOverlap={false}
-        eventMaxStack={view === 'dayGridMonth' ? 5 : 3}
-        eventMinWidth={view === 'timeGridWeek' ? 92 : 120}
+        eventMaxStack={view === 'dayGridMonth' ? 5 : view === 'timeGridWeek' ? 2 : 3}
+        eventMinWidth={view === 'timeGridWeek' ? 72 : 120}
         moreLinkContent={(arg) => `+${arg.num}`}
         dayHeaderFormat={
           view === 'timeGridDay'

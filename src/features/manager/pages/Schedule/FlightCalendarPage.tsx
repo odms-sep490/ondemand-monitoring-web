@@ -1,10 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Button, DatePicker, Segmented, Spin, Alert } from 'antd'
-import {
-  LeftOutlined,
-  ReloadOutlined,
-  RightOutlined,
-} from '@ant-design/icons'
+import { LeftOutlined, ReloadOutlined, RightOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import { PageHeader } from '../../components/common/PageHeader'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
@@ -99,77 +95,82 @@ export function FlightCalendarPage() {
           )}
         </div>
       </PageHeader>
-      <div className="mgr-fc-toolbar">
-        <div className="mgr-fc-nav">
-          <Button
-            icon={<LeftOutlined />}
-            onClick={() => move(-1)}
-            aria-label={lang === 'vi' ? 'Trước' : 'Previous'}
+      <div className="mgr-fc-card">
+        <div className="mgr-fc-toolbar">
+          <div className="mgr-fc-nav">
+            <Button
+              icon={<LeftOutlined />}
+              onClick={() => move(-1)}
+              aria-label={lang === 'vi' ? 'Trước' : 'Previous'}
+            />
+            <Button onClick={() => setDate(new Date())}>
+              {lang === 'vi' ? 'Hôm nay' : 'Today'}
+            </Button>
+            <Button
+              icon={<RightOutlined />}
+              onClick={() => move(1)}
+              aria-label={lang === 'vi' ? 'Tiếp' : 'Next'}
+            />
+          </div>
+          <DatePicker
+            value={dayjs(date)}
+            allowClear={false}
+            onChange={(value) => value && setDate(value.toDate())}
+            format="DD/MM/YYYY"
           />
-          <Button onClick={() => setDate(new Date())}>
-            {lang === 'vi' ? 'Hôm nay' : 'Today'}
-          </Button>
-          <Button
-            icon={<RightOutlined />}
-            onClick={() => move(1)}
-            aria-label={lang === 'vi' ? 'Tiếp' : 'Next'}
+          <span className="mgr-fc-range">{rangeLabel}</span>
+          <ul className="mgr-fc-legend" aria-label={t.legendTitle}>
+            {MISSION_STATUS_GROUPS.map((group) => (
+              <li
+                key={group}
+                className={`mgr-fc-legend-item mgr-fc-chip--${group}`}
+              >
+                <i className="mgr-fc-dot" />
+                {t.calendarLegend[group]}
+              </li>
+            ))}
+          </ul>
+          <Segmented
+            className="mgr-fc-view"
+            value={view}
+            onChange={(value) => setView(value as 'week' | 'day')}
+            options={[
+              { value: 'week', label: lang === 'vi' ? 'Tuần' : 'Week' },
+              { value: 'day', label: lang === 'vi' ? 'Ngày' : 'Day' },
+            ]}
           />
         </div>
-        <DatePicker
-          value={dayjs(date)}
-          allowClear={false}
-          onChange={(value) => value && setDate(value.toDate())}
-          format="DD/MM/YYYY"
-        />
-        <span className="mgr-fc-range">{rangeLabel}</span>
-        <Segmented
-          className="mgr-fc-view"
-          value={view}
-          onChange={(value) => setView(value as 'week' | 'day')}
-          options={[
-            { value: 'week', label: lang === 'vi' ? 'Tuần' : 'Week' },
-            { value: 'day', label: lang === 'vi' ? 'Ngày' : 'Day' },
-          ]}
-        />
-        <ul className="mgr-fc-legend" aria-label={t.legendTitle}>
-          {MISSION_STATUS_GROUPS.map((group) => (
-            <li key={group} className={`mgr-fc-legend-item mgr-fc-chip--${group}`}>
-              <i className="mgr-fc-dot" />
-              {t.calendarLegend[group]}
-            </li>
-          ))}
-        </ul>
-      </div>
-      {query.error ? (
-        <Alert
-          type="error"
-          message={
-            lang === 'vi'
-              ? 'Không tải được lịch bay. Vui lòng thử lại.'
-              : 'Could not load the flight calendar.'
-          }
-        />
-      ) : (
-        <Spin spinning={query.loading}>
-          <ScheduleCalendar
-            missions={missions}
-            date={date}
-            view={view}
-            selectedId={null}
-            onSelect={(mission) => {
-              window.location.hash = managerHref({
-                screen: 'missionDetail',
-                missionId: mission.id,
-              })
-            }}
-            t={t}
-            lang={lang}
-            getMissionStatusLabel={(status) =>
-              getMissionStatusLabel(status, lang)
+        {query.error ? (
+          <Alert
+            type="error"
+            message={
+              lang === 'vi'
+                ? 'Không tải được lịch bay. Vui lòng thử lại.'
+                : 'Could not load the flight calendar.'
             }
           />
-        </Spin>
-      )}
+        ) : (
+          <Spin spinning={query.loading}>
+            <ScheduleCalendar
+              missions={missions}
+              date={date}
+              view={view}
+              selectedId={null}
+              onSelect={(mission) => {
+                window.location.hash = managerHref({
+                  screen: 'missionDetail',
+                  missionId: mission.id,
+                })
+              }}
+              t={t}
+              lang={lang}
+              getMissionStatusLabel={(status) =>
+                getMissionStatusLabel(status, lang)
+              }
+            />
+          </Spin>
+        )}
+      </div>
     </div>
   )
 }

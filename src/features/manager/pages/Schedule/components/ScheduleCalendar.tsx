@@ -79,6 +79,11 @@ export function ScheduleCalendar({
   const renderEvent = (info: EventContentArg) => {
     const m = info.event.extendedProps.mission as MissionCalendarItem
     const statusLabel = getMissionStatusLabel(m.status)
+    const shortMs = 60 * 60_000
+    const isShort =
+      !!info.event.start &&
+      !!info.event.end &&
+      info.event.end.getTime() - info.event.start.getTime() <= shortMs
     const timeRange = `${formatTime(info.event.start)} – ${formatTime(info.event.end)}`
     const drone = m.droneCode ?? m.droneName
     const meta = [drone, m.operatorName].filter(Boolean).join(' · ')
@@ -103,7 +108,7 @@ export function ScheduleCalendar({
     return (
       <Tooltip title={tooltip} mouseEnterDelay={0.25} placement="right">
         <div
-          className="cal-ev"
+          className={`cal-ev${isShort ? ' cal-ev--short' : ''}`}
           role="button"
           tabIndex={0}
           aria-pressed={selectedId === m.id}
@@ -119,7 +124,12 @@ export function ScheduleCalendar({
             {m.missionCode}
           </span>
           {meta ? <span className="cal-ev-meta">{meta}</span> : null}
-          <span className="cal-ev-time">{timeRange}</span>
+          <span className="cal-ev-time">
+            <span className="cal-ev-time-full">{timeRange}</span>
+            <span className="cal-ev-time-short">
+              {formatTime(info.event.start)}
+            </span>
+          </span>
         </div>
       </Tooltip>
     )
