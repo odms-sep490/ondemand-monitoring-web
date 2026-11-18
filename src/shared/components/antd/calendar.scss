@@ -107,7 +107,9 @@
     color: var(--cal-text);
     box-shadow: none;
     cursor: pointer;
-    transition: background-color 0.15s ease;
+    transition:
+      background-color 0.12s ease,
+      box-shadow 0.12s ease;
   }
 
   .fc-event:hover {
@@ -139,7 +141,7 @@
   .cal-ev {
     display: flex;
     flex-direction: column;
-    gap: 1px;
+    gap: 0;
     min-width: 0;
     overflow: hidden;
     color: var(--cal-text);
@@ -148,49 +150,37 @@
 
   .cal-ev-code {
     overflow: hidden;
-    color: color-mix(in srgb, var(--ev-accent) 70%, var(--cal-text));
-    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    color: var(--cal-text);
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 700;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  .cal-ev-meta,
   .cal-ev-time {
     overflow: hidden;
     color: var(--cal-muted);
     font-size: 11px;
+    font-variant-numeric: tabular-nums;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  .cal-ev-time {
-    color: var(--cal-text);
-    font-variant-numeric: tabular-nums;
+  /* Hover / focus: the block lifts above its neighbours and may grow over
+     the adjacent lanes to its natural width (Google Calendar style). */
+  .fc-timegrid-event-harness {
+    transition: inset-inline-end 0.12s ease;
   }
 
-  .cal-ev-time-short {
-    display: none;
+  .fc-timegrid-event-harness:has(.fc-event:hover, .fc-event:focus-within) {
+    z-index: 30 !important;
+    inset-inline-end: 0 !important;
   }
 
-  /* Compact variant: short events or narrow columns show code + time only. */
-  .cal-ev--short .cal-ev-meta {
-    display: none;
-  }
-
-  @container (max-width: 96px) {
-    .cal-ev-meta {
-      display: none;
-    }
-
-    .cal-ev-time-full {
-      display: none;
-    }
-
-    .cal-ev-time-short {
-      display: inline;
-    }
+  .fc-event:hover,
+  .fc-event:focus-within {
+    z-index: 30;
+    box-shadow: 0 4px 14px rgb(15 27 61 / 22%);
   }
 
   /* ── Grid ─────────────────────────────────────────── */
@@ -329,16 +319,81 @@
   }
 }
 
-.cal-tip {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  font-size: 0.8rem;
-  line-height: 1.4;
+/* Detail card (popover content; mounted in .mgr-layout so tokens apply). */
+.cal-card-pop {
+  z-index: 1100;
+
+  .ant-popover-inner {
+    padding: 0;
+    border: 1px solid var(--mgr-border, #e6ecf5);
+    border-radius: 12px;
+    background: var(--mgr-card, #fff);
+    box-shadow: 0 12px 32px rgb(15 27 61 / 22%);
+  }
 }
 
-.cal-tip-code {
-  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+.cal-card {
+  --ev-accent: var(--st-scheduled, #d97706);
+
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 280px;
+  max-width: calc(100vw - 32px);
+  padding: 14px 16px;
+  color: var(--mgr-text, #0f1b3d);
+  font-size: 0.8rem;
+  line-height: 1.4;
+
+  &.cal-st-ready { --ev-accent: var(--st-ready, #0891b2); }
+  &.cal-st-inProgress { --ev-accent: var(--st-inProgress, #1565e8); }
+  &.cal-st-completed { --ev-accent: var(--st-completed, #15803d); }
+  &.cal-st-failed { --ev-accent: var(--st-failed, #dc2626); }
+  &.cal-st-cancelled { --ev-accent: var(--st-cancelled, #64748b); }
+}
+
+.cal-card-status {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  color: var(--mgr-muted, #64748b);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.cal-card-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--ev-accent);
+}
+
+.cal-card-code {
+  font-size: 1.15rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.cal-card-service {
+  color: var(--mgr-muted, #64748b);
+}
+
+.cal-card-rows {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  margin: 4px 0 6px;
+
+  dt {
+    color: var(--mgr-muted, #64748b);
+  }
+
+  dd {
+    margin: 0;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    font-variant-numeric: tabular-nums;
+  }
 }
 
 .selected-date {
