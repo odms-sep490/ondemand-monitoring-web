@@ -48,7 +48,7 @@ function QuoteDetails({
 }) {
   const { t } = useI18n(checklistMessages)
   return (
-    <details className="checklist-quote-details" open>
+    <details className="checklist-quote-details">
       <summary>
         <span>{t.quoteTitle}</span>
         {showSummaryTotal && <strong>{formatVnd(preview.total)}</strong>}
