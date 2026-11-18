@@ -1,5 +1,4 @@
 import { useMemo } from 'react'
-import { Tooltip } from 'antd'
 import type { EventContentArg, EventInput } from '@fullcalendar/core'
 
 import {
@@ -7,6 +6,7 @@ import {
   type CalendarView,
 } from '../../../../../shared/components/antd'
 import type { MissionCalendarItem } from '../../../types/missions'
+import { MissionEventBlock } from './MissionEventBlock'
 import type { PageMessages } from '../scheduleTypes'
 import {
   DEFAULT_MISSION_MINUTES,
@@ -71,67 +71,25 @@ export function ScheduleCalendar({
     [missions, selectedId],
   )
 
-  const formatTime = (value: Date | null) =>
-    value
-      ? value.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
-      : ''
+  const isTouch = () =>
+    typeof window !== 'undefined' &&
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(hover: none)').matches
 
   const renderEvent = (info: EventContentArg) => {
     const m = info.event.extendedProps.mission as MissionCalendarItem
-    const statusLabel = getMissionStatusLabel(m.status)
-    const shortMs = 60 * 60_000
-    const isShort =
-      !!info.event.start &&
-      !!info.event.end &&
-      info.event.end.getTime() - info.event.start.getTime() <= shortMs
-    const timeRange = `${formatTime(info.event.start)} – ${formatTime(info.event.end)}`
-    const drone = m.droneCode ?? m.droneName
-    const meta = [drone, m.operatorName].filter(Boolean).join(' · ')
-    const tooltip = (
-      <div className="cal-tip">
-        <strong className="cal-tip-code">{m.missionCode}</strong>
-        {m.serviceLabel ? <div>{m.serviceLabel}</div> : null}
-        <div>
-          {t.calendarStatus}: {statusLabel}
-        </div>
-        <div>
-          {t.calendarTime}: {timeRange}
-        </div>
-        <div>
-          {t.calendarDrone}: {drone ?? t.calendarNoDrone}
-        </div>
-        <div>
-          {t.calendarPilot}: {m.operatorName ?? t.calendarNoPilot}
-        </div>
-      </div>
-    )
     return (
-      <Tooltip title={tooltip} mouseEnterDelay={0.25} placement="right">
-        <div
-          className={`cal-ev${isShort ? ' cal-ev--short' : ''}`}
-          role="button"
-          tabIndex={0}
-          aria-pressed={selectedId === m.id}
-          aria-label={`${m.missionCode} ${statusLabel}`}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault()
-              onSelect(m)
-            }
-          }}
-        >
-          <span className="cal-ev-code" title={m.missionCode}>
-            {m.missionCode}
-          </span>
-          {meta ? <span className="cal-ev-meta">{meta}</span> : null}
-          <span className="cal-ev-time">
-            <span className="cal-ev-time-full">{timeRange}</span>
-            <span className="cal-ev-time-short">
-              {formatTime(info.event.start)}
-            </span>
-          </span>
-        </div>
-      </Tooltip>
+      <MissionEventBlock
+        mission={m}
+        start={info.event.start}
+        end={info.event.end}
+        selected={selectedId === m.id}
+        statusLabel={getMissionStatusLabel(m.status)}
+        touch={isTouch()}
+        lang={lang}
+        t={t}
+        onSelect={onSelect}
+      />
     )
   }
 
@@ -149,9 +107,11 @@ export function ScheduleCalendar({
       slotDuration="01:00:00"
       locale={lang === 'en' ? 'en' : 'vi'}
       eventContentRenderer={renderEvent}
-      eventClick={(arg) =>
+      eventClick={(arg) => {
+        // Touch: the tap opens the detail card; its button navigates.
+        if (isTouch()) return
         onSelect(arg.event.extendedProps.mission as MissionCalendarItem)
-      }
+      }}
     />
   )
 }
