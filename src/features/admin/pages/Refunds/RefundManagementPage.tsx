@@ -1,7 +1,22 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { EyeOutlined, FileImageOutlined } from '@ant-design/icons'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import {
+  CalendarOutlined,
+  CreditCardOutlined,
+  DatabaseOutlined,
+  EyeOutlined,
+  FileImageOutlined,
+  FileTextOutlined,
+  FilterOutlined,
+  MessageOutlined,
+  ReloadOutlined,
+  SafetyCertificateOutlined,
+  SearchOutlined,
+  ThunderboltOutlined,
+  UnorderedListOutlined,
+  UserOutlined,
+} from '@ant-design/icons'
 
-import { Button, Modal, PageHeader } from '../../../../shared/components/ui'
+import { Button, Modal } from '../../../../shared/components/ui'
 import { useI18n } from '../../../../shared/i18n'
 import { ImagePreview } from '../../../../shared/components/media/ImagePreview'
 import {
@@ -25,9 +40,14 @@ const statuses: RefundStatus[] = [
 const activeStatuses: RefundStatus[] = ['REQUESTED', 'PROCESSING']
 
 export function RefundManagementPage() {
-  const { t } = useI18n(refundManagementMessages)
+  const { t, locale } = useI18n(refundManagementMessages)
   const [status, setStatus] = useState<RefundStatus | 'ACTIVE' | ''>('ACTIVE')
   const [search, setSearch] = useState('')
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
+  const [amountMin, setAmountMin] = useState('')
+  const [amountMax, setAmountMax] = useState('')
+  const [advancedFiltersOpen, setAdvancedFiltersOpen] = useState(false)
   const [reloadKey, setReloadKey] = useState(0)
   const [refunds, setRefunds] = useState<RefundResponse[]>([])
   const [selectedId, setSelectedId] = useState('')
@@ -60,6 +80,7 @@ export function RefundManagementPage() {
     url: string
     fileName: string
   } | null>(null)
+  const advancedFiltersButtonRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -99,19 +120,52 @@ export function RefundManagementPage() {
       status === 'ACTIVE'
         ? refunds.filter((refund) => activeStatuses.includes(refund.status))
         : refunds
-    if (!query) return statusFiltered
-    return statusFiltered.filter((refund) =>
-      [
-        refund.orderCode,
-        refund.orderTitle,
-        refund.customerName,
-        refund.customerEmail,
-      ]
-        .filter(Boolean)
-        .some((value) => value!.toLowerCase().includes(query)),
-    )
-  }, [refunds, search, status])
-  const selected = refunds.find((refund) => refund.id === selectedId) ?? null
+    const fromTime = dateFrom
+      ? new Date(`${dateFrom}T00:00:00`).getTime()
+      : null
+    const toTime = dateTo ? new Date(`${dateTo}T23:59:59.999`).getTime() : null
+    const parsedMin = amountMin === '' ? null : Number(amountMin)
+    const parsedMax = amountMax === '' ? null : Number(amountMax)
+    const min =
+      parsedMin !== null && Number.isFinite(parsedMin) ? parsedMin : null
+    const max =
+      parsedMax !== null && Number.isFinite(parsedMax) ? parsedMax : null
+
+    return statusFiltered.filter((refund) => {
+      const matchesQuery =
+        !query ||
+        [
+          refund.orderCode,
+          refund.orderTitle,
+          refund.customerName,
+          refund.customerEmail,
+        ]
+          .filter(Boolean)
+          .some((value) => value!.toLowerCase().includes(query))
+      const requestedAt = new Date(refund.requestedAt).getTime()
+      const matchesDate =
+        (fromTime === null || requestedAt >= fromTime) &&
+        (toTime === null || requestedAt <= toTime)
+      const matchesAmount =
+        (min === null || refund.refundableAmount >= min) &&
+        (max === null || refund.refundableAmount <= max)
+      return matchesQuery && matchesDate && matchesAmount
+    })
+  }, [amountMax, amountMin, dateFrom, dateTo, refunds, search, status])
+  const selected =
+    refunds.find((refund) => refund.id === selectedId) ??
+    visibleRefunds[0] ??
+    null
+  const advancedFilterCount =
+    Number(amountMin !== '') + Number(amountMax !== '')
+  const hasFilters = Boolean(
+    search ||
+    dateFrom ||
+    dateTo ||
+    amountMin !== '' ||
+    amountMax !== '' ||
+    status !== 'ACTIVE',
+  )
   const successfulAttempt = selected?.attempts.find(
     (attempt) => attempt.outcome === 'SUCCESSFUL',
   )
@@ -331,25 +385,39 @@ export function RefundManagementPage() {
           }}
         />
       )}
-      <PageHeader
-        title={t.title}
-        subtitle={t.subtitle}
-        actions={
-          <Button onClick={() => setReloadKey((value) => value + 1)}>
-            {t.reload}
-          </Button>
-        }
-      />
-      <div className="adm-refunds__filters">
-        <label>
+      <header className="adm-refunds__hero">
+        <div className="adm-refunds__hero-icon" aria-hidden="true">
+          <DatabaseOutlined />
+        </div>
+        <div className="adm-refunds__hero-copy">
+          <h1>{t.title}</h1>
+          <p>{t.subtitle}</p>
+        </div>
+        <Button
+          className="adm-refunds__reload"
+          disabled={loading}
+          onClick={() => setReloadKey((value) => value + 1)}
+        >
+          <ReloadOutlined aria-hidden="true" />
+          {t.reload}
+        </Button>
+      </header>
+      <section className="adm-refunds__filters" aria-label={t.filtersLabel}>
+        <label className="adm-refunds__filter-field adm-refunds__search-field">
           <span>{t.search}</span>
-          <input
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder={t.search}
-          />
+          <span className="adm-refunds__input-shell">
+            <SearchOutlined aria-hidden="true" />
+            <input
+              value={search}
+              onChange={(event) => {
+                setSelectedId('')
+                setSearch(event.target.value)
+              }}
+              placeholder={t.search}
+            />
+          </span>
         </label>
-        <label>
+        <label className="adm-refunds__filter-field">
           <span>{t.statusFilter}</span>
           <select
             value={status}
@@ -366,10 +434,122 @@ export function RefundManagementPage() {
             ))}
           </select>
         </label>
-      </div>
+        <label className="adm-refunds__filter-field adm-refunds__date-field">
+          <span>
+            <CalendarOutlined aria-hidden="true" /> {t.createdRange}
+          </span>
+          <span className="adm-refunds__date-range">
+            <input
+              type="date"
+              value={dateFrom}
+              max={dateTo || undefined}
+              aria-label={t.fromDate}
+              onChange={(event) => {
+                setSelectedId('')
+                setDateFrom(event.target.value)
+              }}
+            />
+            <span aria-hidden="true">—</span>
+            <input
+              type="date"
+              value={dateTo}
+              min={dateFrom || undefined}
+              aria-label={t.toDate}
+              onChange={(event) => {
+                setSelectedId('')
+                setDateTo(event.target.value)
+              }}
+            />
+          </span>
+        </label>
+        <div className="adm-refunds__filter-actions">
+          <button
+            ref={advancedFiltersButtonRef}
+            type="button"
+            className="adm-refunds__advanced-toggle"
+            aria-expanded={advancedFiltersOpen}
+            aria-controls="refund-advanced-filters"
+            onClick={() => setAdvancedFiltersOpen((open) => !open)}
+          >
+            <FilterOutlined aria-hidden="true" />
+            {t.advancedFilters}
+            {advancedFilterCount > 0 ? (
+              <span className="adm-refunds__filter-count">
+                {advancedFilterCount}
+              </span>
+            ) : null}
+          </button>
+          {hasFilters ? (
+            <button
+              type="button"
+              className="adm-refunds__clear-filters"
+              onClick={() => {
+                advancedFiltersButtonRef.current?.focus()
+                setSelectedId('')
+                setSearch('')
+                setStatus('ACTIVE')
+                setDateFrom('')
+                setDateTo('')
+                setAmountMin('')
+                setAmountMax('')
+                setAdvancedFiltersOpen(false)
+              }}
+            >
+              {t.clearFilters}
+            </button>
+          ) : null}
+        </div>
+        <div
+          className="adm-refunds__advanced-panel"
+          id="refund-advanced-filters"
+          hidden={!advancedFiltersOpen}
+        >
+          <label className="adm-refunds__filter-field">
+            <span>{t.minimumAmount}</span>
+            <input
+              type="number"
+              min="0"
+              max={amountMax || undefined}
+              inputMode="numeric"
+              value={amountMin}
+              onChange={(event) => {
+                setSelectedId('')
+                setAmountMin(event.target.value)
+              }}
+            />
+          </label>
+          <label className="adm-refunds__filter-field">
+            <span>{t.maximumAmount}</span>
+            <input
+              type="number"
+              min={amountMin || '0'}
+              inputMode="numeric"
+              value={amountMax}
+              onChange={(event) => {
+                setSelectedId('')
+                setAmountMax(event.target.value)
+              }}
+            />
+          </label>
+        </div>
+      </section>
+
+      <span
+        className="odm-visually-hidden"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        {t.resultsCount.replace('{count}', String(visibleRefunds.length))}
+      </span>
 
       {loading ? (
-        <div className="adm-refunds__state" aria-busy="true">
+        <div
+          className="adm-refunds__state"
+          role="status"
+          aria-live="polite"
+          aria-busy="true"
+        >
           {t.loading}
         </div>
       ) : null}
@@ -385,16 +565,18 @@ export function RefundManagementPage() {
         <div className="adm-refunds__layout">
           <section className="adm-refunds__list" aria-label={t.listTitle}>
             <header>
-              <h2>{t.listTitle}</h2>
-              <span>{visibleRefunds.length}</span>
+              <h2>
+                <UnorderedListOutlined aria-hidden="true" /> {t.listTitle}
+              </h2>
+              <span aria-hidden="true">{visibleRefunds.length}</span>
             </header>
             {visibleRefunds.length === 0 ? (
               <div className="adm-refunds__empty-state">
                 <span className="adm-refunds__empty-icon" aria-hidden="true">
-                  ✓
+                  {hasFilters ? <SearchOutlined /> : '✓'}
                 </span>
                 <strong>
-                  {status === 'ACTIVE' && !search.trim()
+                  {status === 'ACTIVE' && !hasFilters
                     ? t.activeEmptyTitle
                     : t.emptyTitle}
                 </strong>
@@ -406,7 +588,8 @@ export function RefundManagementPage() {
                 <button
                   type="button"
                   key={refund.id}
-                  className={`adm-refunds__row ${refund.id === selectedId ? 'is-selected' : ''}`}
+                  className={`adm-refunds__row ${refund.id === selected?.id ? 'is-selected' : ''}`}
+                  aria-pressed={refund.id === selected?.id}
                   onClick={() => {
                     setSelectedId(refund.id)
                     setActionError('')
@@ -427,7 +610,7 @@ export function RefundManagementPage() {
                   </span>
                   <span className="adm-refunds__row-bottom">
                     <strong>{money(refund.refundableAmount)}</strong>
-                    <time>{dateTime(refund.requestedAt)}</time>
+                    <time>{dateTime(refund.requestedAt, locale)}</time>
                   </span>
                 </button>
               ))}
@@ -438,8 +621,10 @@ export function RefundManagementPage() {
             <section className="adm-refunds__detail" aria-label={t.selected}>
               <header className="adm-refunds__detail-head">
                 <div>
-                  <p className="adm-refunds__eyebrow">{t.selected}</p>
-                  <h2>{selected.orderCode || selected.orderTitle}</h2>
+                  <h2>
+                    <FileTextOutlined aria-hidden="true" /> {t.selected}
+                  </h2>
+                  <strong>{selected.orderCode || selected.orderTitle}</strong>
                   <p>{selected.orderTitle}</p>
                 </div>
                 <em data-status={selected.status}>
@@ -447,13 +632,37 @@ export function RefundManagementPage() {
                 </em>
               </header>
               <div className="adm-refunds__amount-panel">
-                <div>
-                  <span>{t.amount}</span>
-                  <small>{t.refundAmountHint}</small>
+                <div className="adm-refunds__amount-metric">
+                  <span className="adm-refunds__amount-icon" aria-hidden="true">
+                    <DatabaseOutlined />
+                  </span>
+                  <div>
+                    <span>{t.amount}</span>
+                    <strong>{money(selected.refundableAmount)}</strong>
+                  </div>
                 </div>
-                <strong>{money(selected.refundableAmount)}</strong>
+                <div className="adm-refunds__amount-metric">
+                  <span className="adm-refunds__amount-icon" aria-hidden="true">
+                    <ThunderboltOutlined />
+                  </span>
+                  <div>
+                    <span>{t.refundAmountHint}</span>
+                    <strong>{money(selected.refundableAmount)}</strong>
+                  </div>
+                </div>
               </div>
-              <RefundProgress status={selected.status} labels={t.progress} />
+              <RefundProgress
+                status={selected.status}
+                labels={t.progress}
+                label={t.progressLabel}
+                locale={locale}
+                dates={[
+                  selected.requestedAt,
+                  selected.attempts.at(-1)?.transferredAt ??
+                    selected.processingAt,
+                  selected.completedAt,
+                ]}
+              />
               {actionError ? (
                 <div className="adm-refunds__alert is-error" role="alert">
                   {actionError}
@@ -468,20 +677,35 @@ export function RefundManagementPage() {
               <div className="adm-refunds__facts">
                 <Fact
                   label={t.customer}
-                  value={`${selected.customerName} · ${selected.customerEmail}`}
+                  value={
+                    <>
+                      <span>{selected.customerName}</span>
+                      <small>{selected.customerEmail}</small>
+                    </>
+                  }
+                  icon={<UserOutlined />}
                 />
                 <Fact
                   label={t.amount}
                   value={money(selected.refundableAmount)}
+                  icon={<DatabaseOutlined />}
                 />
-                <Fact label={t.invoice} value={selected.invoiceNumber} />
+                <Fact
+                  label={t.invoice}
+                  value={selected.invoiceNumber}
+                  icon={<FileTextOutlined />}
+                />
                 <Fact
                   label={t.manager}
-                  value={`${selected.requestedByName} · ${dateTime(selected.requestedAt)}`}
+                  value={`${selected.requestedByName} · ${dateTime(selected.requestedAt, locale)}`}
+                  icon={<SafetyCertificateOutlined />}
                 />
               </div>
               <div className="adm-refunds__reason">
-                <strong>{t.reason}</strong>
+                <div className="adm-refunds__reason-heading">
+                  <MessageOutlined aria-hidden="true" />
+                  <strong>{t.reason}</strong>
+                </div>
                 <p>{selected.reason}</p>
               </div>
               {selected.status === 'REJECTED' ? (
@@ -489,7 +713,9 @@ export function RefundManagementPage() {
                   <strong>{t.decisionAudit}</strong>
                   <p>
                     {selected.rejectedByName} ·{' '}
-                    {selected.rejectedAt ? dateTime(selected.rejectedAt) : '—'}
+                    {selected.rejectedAt
+                      ? dateTime(selected.rejectedAt, locale)
+                      : '—'}
                   </p>
                   <p>{selected.rejectionReason}</p>
                 </div>
@@ -500,7 +726,7 @@ export function RefundManagementPage() {
                   <p>
                     {selected.cancelledByName} ·{' '}
                     {selected.cancelledAt
-                      ? dateTime(selected.cancelledAt)
+                      ? dateTime(selected.cancelledAt, locale)
                       : '—'}
                   </p>
                   <p>{selected.cancellationReason}</p>
@@ -515,19 +741,26 @@ export function RefundManagementPage() {
                       className="adm-refunds__payment"
                       key={payment.paymentId}
                     >
-                      <strong>
-                        {money(payment.amount)} {payment.currency}
-                      </strong>
-                      <span>
-                        {t.provider}: {payment.provider}
-                      </span>
-                      <span>
-                        {t.reference}: {payment.transactionReference || '—'}
-                      </span>
-                      <time>
-                        {t.paidAt}:{' '}
-                        {payment.paidAt ? dateTime(payment.paidAt) : '—'}
-                      </time>
+                      <div className="adm-refunds__payment-summary">
+                        <CreditCardOutlined aria-hidden="true" />
+                        <strong>
+                          {money(payment.amount)} {payment.currency}
+                        </strong>
+                      </div>
+                      <div className="adm-refunds__payment-meta">
+                        <span>
+                          {t.provider}: {payment.provider}
+                        </span>
+                        <span>
+                          {t.reference}: {payment.transactionReference || '—'}
+                        </span>
+                        <time>
+                          {t.paidAt}:{' '}
+                          {payment.paidAt
+                            ? dateTime(payment.paidAt, locale)
+                            : '—'}
+                        </time>
+                      </div>
                     </article>
                   ))
                 ) : (
@@ -587,7 +820,7 @@ export function RefundManagementPage() {
                         />
                         <Fact
                           label={t.transferDate}
-                          value={dateTime(attempt.transferredAt)}
+                          value={dateTime(attempt.transferredAt, locale)}
                         />
                       </div>
                       {attempt.note ? <p>{attempt.note}</p> : null}
@@ -604,6 +837,7 @@ export function RefundManagementPage() {
                               refundId={selected.id}
                               receipt={receipt}
                               index={index}
+                              locale={locale}
                               labels={{
                                 image: t.receiptImage,
                                 uploaded: t.receiptUploadedAt,
@@ -625,7 +859,10 @@ export function RefundManagementPage() {
 
               {selected.status === 'REQUESTED' ? (
                 <div className="adm-refunds__action-box">
-                  <p>{t.beginHint}</p>
+                  <div className="adm-refunds__action-guidance">
+                    <ThunderboltOutlined aria-hidden="true" />
+                    <p>{t.beginHint}</p>
+                  </div>
                   <div className="adm-refunds__action-row">
                     <Button
                       variant="primary"
@@ -1082,11 +1319,26 @@ export function RefundManagementPage() {
   )
 }
 
-function Fact({ label, value }: { label: string; value: string }) {
+function Fact({
+  label,
+  value,
+  icon,
+}: {
+  label: string
+  value: ReactNode
+  icon?: ReactNode
+}) {
   return (
-    <div className="adm-refunds__fact">
-      <span>{label}</span>
-      <strong>{value || '—'}</strong>
+    <div className={`adm-refunds__fact ${icon ? 'has-icon' : 'is-plain'}`}>
+      {icon ? (
+        <span className="adm-refunds__fact-icon" aria-hidden="true">
+          {icon}
+        </span>
+      ) : null}
+      <div className="adm-refunds__fact-copy">
+        <span>{label}</span>
+        <strong>{value || '—'}</strong>
+      </div>
     </div>
   )
 }
@@ -1094,9 +1346,15 @@ function Fact({ label, value }: { label: string; value: string }) {
 function RefundProgress({
   status,
   labels,
+  label,
+  locale,
+  dates,
 }: {
   status: RefundStatus
   labels: { requested: string; processing: string; completed: string }
+  label: string
+  locale: 'vi-VN' | 'en-US'
+  dates: Array<string | null>
 }) {
   if (status === 'REJECTED' || status === 'CANCELLED') return null
   const activeIndex =
@@ -1104,7 +1362,7 @@ function RefundProgress({
   const steps = [labels.requested, labels.processing, labels.completed]
 
   return (
-    <ol className="adm-refunds__progress" aria-label={labels.processing}>
+    <ol className="adm-refunds__progress" aria-label={label}>
       {steps.map((label, index) => (
         <li
           key={label}
@@ -1119,6 +1377,7 @@ function RefundProgress({
         >
           <span>{index < activeIndex ? '✓' : index + 1}</span>
           <strong>{label}</strong>
+          <small>{dates[index] ? dateTime(dates[index]!, locale) : '—'}</small>
         </li>
       ))}
     </ol>
@@ -1155,6 +1414,7 @@ type RefundReceiptCardProps = {
   refundId: string
   receipt: RefundReceipt
   index: number
+  locale: 'vi-VN' | 'en-US'
   labels: {
     image: string
     uploaded: string
@@ -1169,6 +1429,7 @@ function RefundReceiptCard({
   refundId,
   receipt,
   index,
+  locale,
   labels,
   onOpen,
 }: RefundReceiptCardProps) {
@@ -1193,7 +1454,9 @@ function RefundReceiptCard({
   const fileType = receipt.contentType.toLowerCase().includes('png')
     ? labels.png
     : labels.jpeg
-  const uploadedAt = receipt.uploadedAt ? dateTime(receipt.uploadedAt) : null
+  const uploadedAt = receipt.uploadedAt
+    ? dateTime(receipt.uploadedAt, locale)
+    : null
 
   return (
     <button
@@ -1221,7 +1484,7 @@ function RefundReceiptCard({
         </strong>
         <span>
           {fileType} <span aria-hidden="true">·</span>{' '}
-          {formatFileSize(receipt.byteSize)}
+          {formatFileSize(receipt.byteSize, locale)}
         </span>
         {uploadedAt ? (
           <small>
@@ -1244,15 +1507,15 @@ function money(value: number) {
   }).format(value)
 }
 
-function formatFileSize(byteSize: number) {
+function formatFileSize(byteSize: number, locale: 'vi-VN' | 'en-US') {
   if (byteSize < 1024) return `${byteSize} B`
-  return `${new Intl.NumberFormat(undefined, {
+  return `${new Intl.NumberFormat(locale, {
     maximumFractionDigits: 1,
   }).format(byteSize / 1024)} KB`
 }
 
-function dateTime(value: string) {
-  return new Intl.DateTimeFormat(undefined, {
+function dateTime(value: string, locale: 'vi-VN' | 'en-US') {
+  return new Intl.DateTimeFormat(locale, {
     dateStyle: 'medium',
     timeStyle: 'short',
   }).format(new Date(value))
