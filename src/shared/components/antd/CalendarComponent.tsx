@@ -109,6 +109,13 @@ export function CalendarComponent({
         eventOverlap={false}
         slotEventOverlap={false}
         eventMaxStack={view === 'dayGridMonth' ? 5 : 3}
+        eventMinWidth={view === 'timeGridWeek' ? 92 : 120}
+        moreLinkContent={(arg) => `+${arg.num}`}
+        dayHeaderFormat={
+          view === 'timeGridDay'
+            ? { weekday: 'long', day: 'numeric', month: 'numeric' }
+            : { weekday: 'short', day: 'numeric', month: 'numeric' }
+        }
         eventClick={eventClick}
         eventContent={(info) =>
           eventContentRenderer ? eventContentRenderer(info) : undefined

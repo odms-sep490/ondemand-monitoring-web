@@ -1,3 +1,5 @@
+import type { MissionStatus } from '../../../../shared/types/domain'
+
 export function formatWeekLabel(start: Date, end: Date): string {
   const fmt = (d: Date) =>
     `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`
@@ -22,3 +24,47 @@ export function addDays(d: Date, n: number): Date {
 }
 
 export { dedupeById } from '../../lib/dedupeById'
+
+export type MissionStatusGroup =
+  | 'scheduled'
+  | 'ready'
+  | 'inProgress'
+  | 'completed'
+  | 'failed'
+  | 'cancelled'
+
+export const MISSION_STATUS_GROUPS: MissionStatusGroup[] = [
+  'scheduled',
+  'ready',
+  'inProgress',
+  'completed',
+  'failed',
+  'cancelled',
+]
+
+/** Collapses the many mission statuses into six calendar colour groups. */
+export function getMissionStatusGroup(status: MissionStatus): MissionStatusGroup {
+  switch (status) {
+    case 'READY':
+    case 'READY_TO_FLY':
+    case 'CONNECTED':
+    case 'PREFLIGHT_CHECKING':
+      return 'ready'
+    case 'IN_PROGRESS':
+    case 'IN_FLIGHT':
+    case 'RETURNING':
+    case 'POSTFLIGHT_CHECKING':
+    case 'AWAITING_REVIEW':
+    case 'PENDING_REVIEW':
+      return 'inProgress'
+    case 'COMPLETED':
+      return 'completed'
+    case 'FAILED':
+    case 'FAILED_PREFLIGHT':
+      return 'failed'
+    case 'CANCELLED':
+      return 'cancelled'
+    default:
+      return 'scheduled'
+  }
+}

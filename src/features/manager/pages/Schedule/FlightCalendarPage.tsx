@@ -1,5 +1,10 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Button, DatePicker, Segmented, Spin, Alert } from 'antd'
+import {
+  LeftOutlined,
+  ReloadOutlined,
+  RightOutlined,
+} from '@ant-design/icons'
 import dayjs from 'dayjs'
 import { PageHeader } from '../../components/common/PageHeader'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
@@ -9,7 +14,16 @@ import { missionsApi } from '../../api/missionsApi'
 import { managerHref } from '../../routes'
 import { ScheduleCalendar } from './components/ScheduleCalendar'
 import { schedulePageMessages } from './SchedulePage.messages'
+import {
+  MISSION_STATUS_GROUPS,
+  addDays,
+  formatDayLabel,
+  formatWeekLabel,
+  getMissionStatusGroup,
+  type MissionStatusGroup,
+} from './scheduleHelpers'
 import './schedule.scss'
+import './flightCalendar.scss'
 
 export function FlightCalendarPage() {
   const { t, lang } = useI18n(schedulePageMessages)
@@ -25,6 +39,32 @@ export function FlightCalendarPage() {
       next.setDate(next.getDate() + direction * (view === 'week' ? 7 : 1))
       return next
     })
+  const missions = useMemo(() => query.data?.items ?? [], [query.data])
+  const range = useMemo(() => {
+    const day = new Date(date)
+    day.setHours(0, 0, 0, 0)
+    if (view === 'day') return { start: day, end: addDays(day, 1) }
+    const start = addDays(day, -((day.getDay() + 6) % 7))
+    return { start, end: addDays(start, 7) }
+  }, [date, view])
+  const counts = useMemo(() => {
+    const result = Object.fromEntries(
+      MISSION_STATUS_GROUPS.map((group) => [group, 0]),
+    ) as Record<MissionStatusGroup, number>
+    let total = 0
+    for (const mission of missions) {
+      if (!mission.scheduledStartAt) continue
+      const startsAt = new Date(mission.scheduledStartAt)
+      if (startsAt < range.start || startsAt >= range.end) continue
+      result[getMissionStatusGroup(mission.status)] += 1
+      total += 1
+    }
+    return { result, total }
+  }, [missions, range])
+  const rangeLabel =
+    view === 'day'
+      ? formatDayLabel(range.start)
+      : formatWeekLabel(range.start, addDays(range.end, -1))
   return (
     <div className="mgr-view mgr-flight-calendar">
       <PageHeader
@@ -35,42 +75,55 @@ export function FlightCalendarPage() {
             : 'View mission schedules by day or week.'
         }
         actions={
-          <Button loading={query.loading} onClick={query.reload}>
+          <Button
+            icon={<ReloadOutlined />}
+            loading={query.loading}
+            onClick={query.reload}
+          >
             {lang === 'vi' ? 'Làm mới' : 'Refresh'}
           </Button>
         }
-      />
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: 10,
-          alignItems: 'center',
-          margin: '16px 0',
-        }}
       >
-        <Button
-          onClick={() => move(-1)}
-          aria-label={lang === 'vi' ? 'Trước' : 'Previous'}
-        >
-          ←
-        </Button>
-        <Button onClick={() => setDate(new Date())}>
-          {lang === 'vi' ? 'Hôm nay' : 'Today'}
-        </Button>
-        <Button
-          onClick={() => move(1)}
-          aria-label={lang === 'vi' ? 'Tiếp' : 'Next'}
-        >
-          →
-        </Button>
+        <div className="mgr-fc-summary">
+          <span className="mgr-fc-chip mgr-fc-chip--total">
+            {t.calendarSummaryTotal(counts.total)}
+          </span>
+          {MISSION_STATUS_GROUPS.filter((g) => counts.result[g] > 0).map(
+            (group) => (
+              <span key={group} className={`mgr-fc-chip mgr-fc-chip--${group}`}>
+                <i className="mgr-fc-dot" />
+                {t.calendarLegend[group]}
+                <b>{counts.result[group]}</b>
+              </span>
+            ),
+          )}
+        </div>
+      </PageHeader>
+      <div className="mgr-fc-toolbar">
+        <div className="mgr-fc-nav">
+          <Button
+            icon={<LeftOutlined />}
+            onClick={() => move(-1)}
+            aria-label={lang === 'vi' ? 'Trước' : 'Previous'}
+          />
+          <Button onClick={() => setDate(new Date())}>
+            {lang === 'vi' ? 'Hôm nay' : 'Today'}
+          </Button>
+          <Button
+            icon={<RightOutlined />}
+            onClick={() => move(1)}
+            aria-label={lang === 'vi' ? 'Tiếp' : 'Next'}
+          />
+        </div>
         <DatePicker
           value={dayjs(date)}
           allowClear={false}
           onChange={(value) => value && setDate(value.toDate())}
           format="DD/MM/YYYY"
         />
+        <span className="mgr-fc-range">{rangeLabel}</span>
         <Segmented
+          className="mgr-fc-view"
           value={view}
           onChange={(value) => setView(value as 'week' | 'day')}
           options={[
@@ -78,6 +131,14 @@ export function FlightCalendarPage() {
             { value: 'day', label: lang === 'vi' ? 'Ngày' : 'Day' },
           ]}
         />
+        <ul className="mgr-fc-legend" aria-label={t.legendTitle}>
+          {MISSION_STATUS_GROUPS.map((group) => (
+            <li key={group} className={`mgr-fc-legend-item mgr-fc-chip--${group}`}>
+              <i className="mgr-fc-dot" />
+              {t.calendarLegend[group]}
+            </li>
+          ))}
+        </ul>
       </div>
       {query.error ? (
         <Alert
@@ -91,7 +152,7 @@ export function FlightCalendarPage() {
       ) : (
         <Spin spinning={query.loading}>
           <ScheduleCalendar
-            missions={query.data?.items ?? []}
+            missions={missions}
             date={date}
             view={view}
             selectedId={null}
