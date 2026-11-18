@@ -1,16 +1,16 @@
 import { useMemo } from 'react'
+import { Tooltip } from 'antd'
 import type { EventContentArg, EventInput } from '@fullcalendar/core'
 
 import {
   CalendarComponent,
   type CalendarView,
 } from '../../../../../shared/components/antd'
-import { toStatusTagTone } from '../../../components/common/StatusTag'
-import { missionStatusTone } from '../../../../../shared/lib/statusTone'
 import type { MissionCalendarItem } from '../../../types/missions'
 import type { PageMessages } from '../scheduleTypes'
 import {
   DEFAULT_MISSION_MINUTES,
+  getMissionStatusGroup,
   SLOT_MAX_TIME,
   SLOT_MIN_TIME,
 } from '../scheduleHelpers'
@@ -49,7 +49,7 @@ export function ScheduleCalendar({
       missions
         .filter((m) => m.scheduledStartAt)
         .map((m) => {
-          const tone = toStatusTagTone(missionStatusTone[m.status] ?? 'gray')
+          const group = getMissionStatusGroup(m.status)
           const start = m.scheduledStartAt!
           const end =
             m.scheduledEndAt ??
@@ -62,7 +62,7 @@ export function ScheduleCalendar({
             start,
             end,
             classNames: [
-              `cal-tone-${tone}`,
+              `cal-st-${group}`,
               ...(selectedId === m.id ? ['is-selected'] : []),
             ],
             extendedProps: { mission: m },
@@ -71,30 +71,57 @@ export function ScheduleCalendar({
     [missions, selectedId],
   )
 
+  const formatTime = (value: Date | null) =>
+    value
+      ? value.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+      : ''
+
   const renderEvent = (info: EventContentArg) => {
     const m = info.event.extendedProps.mission as MissionCalendarItem
-    return (
-      <div
-        className="cal-ev"
-        role="button"
-        tabIndex={0}
-        aria-pressed={selectedId === m.id}
-        aria-label={`${m.missionCode} ${getMissionStatusLabel(m.status)}`}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            onSelect(m)
-          }
-        }}
-      >
-        <span className="cal-ev-code">{m.missionCode.slice(-6)}</span>
-        {m.droneCode && (
-          <span className="cal-ev-meta">
-            {m.droneCode}
-            {m.operatorName ? ` · ${m.operatorName.split(' ').at(-1)}` : ''}
-          </span>
-        )}
+    const statusLabel = getMissionStatusLabel(m.status)
+    const timeRange = `${formatTime(info.event.start)} – ${formatTime(info.event.end)}`
+    const drone = m.droneCode ?? m.droneName
+    const meta = [drone, m.operatorName].filter(Boolean).join(' · ')
+    const tooltip = (
+      <div className="cal-tip">
+        <strong className="cal-tip-code">{m.missionCode}</strong>
+        {m.serviceLabel ? <div>{m.serviceLabel}</div> : null}
+        <div>
+          {t.calendarStatus}: {statusLabel}
+        </div>
+        <div>
+          {t.calendarTime}: {timeRange}
+        </div>
+        <div>
+          {t.calendarDrone}: {drone ?? t.calendarNoDrone}
+        </div>
+        <div>
+          {t.calendarPilot}: {m.operatorName ?? t.calendarNoPilot}
+        </div>
       </div>
+    )
+    return (
+      <Tooltip title={tooltip} mouseEnterDelay={0.25} placement="right">
+        <div
+          className="cal-ev"
+          role="button"
+          tabIndex={0}
+          aria-pressed={selectedId === m.id}
+          aria-label={`${m.missionCode} ${statusLabel}`}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault()
+              onSelect(m)
+            }
+          }}
+        >
+          <span className="cal-ev-code" title={m.missionCode}>
+            {m.missionCode}
+          </span>
+          {meta ? <span className="cal-ev-meta">{meta}</span> : null}
+          <span className="cal-ev-time">{timeRange}</span>
+        </div>
+      </Tooltip>
     )
   }
 
@@ -105,7 +132,8 @@ export function ScheduleCalendar({
       date={date}
       headerToolbar={false}
       events={events}
-      height={720}
+      height="calc(100vh - 340px)"
+      className={`cal-${view}`}
       slotMinTime={SLOT_MIN_TIME}
       slotMaxTime={SLOT_MAX_TIME}
       slotDuration="01:00:00"
