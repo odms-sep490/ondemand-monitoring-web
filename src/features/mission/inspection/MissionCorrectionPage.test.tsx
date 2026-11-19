@@ -375,3 +375,23 @@ it('refreshes the correction snapshot after editing evidence before resubmission
     'resubmit', 'Replaced evidence',
   ))
 })
+
+it('links the back button to mission detail for Flight Crew and to inspection workspace for Inspector', async () => {
+  const { rerender } = render(<MissionCorrectionPage missionId="m" />)
+  expect(
+    await screen.findByRole('link', { name: /Chi tiết nhiệm vụ/ }),
+  ).toHaveAttribute('href', '#portal/staff/missions/m')
+
+  permissions.canAttachChecklistEvidence = false
+  permissions.canExecuteMonitoringChecklist = false
+  permissions.canAssessMonitoringChecklist = true
+  state.data = {
+    permissions: { ...permissions },
+    checklist,
+    result: null,
+  }
+  rerender(<MissionCorrectionPage missionId="m" />)
+  expect(
+    await screen.findByRole('link', { name: /Nghiệm thu nhiệm vụ/ }),
+  ).toHaveAttribute('href', '#portal/staff/inspection/m')
+})

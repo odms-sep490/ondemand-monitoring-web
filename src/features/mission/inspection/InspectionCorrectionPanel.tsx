@@ -10,6 +10,7 @@ import { ApiError } from '../../../shared/api/httpClient'
 import { useApiQuery } from '../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../shared/i18n'
 import type { MissionChecklistExecution } from '../types/checklistExecution'
+import { customerSelectionProgress } from '../lib/customerEvidenceSelection'
 import { operatorHref } from '../../drone-operator/routes'
 import { managerHref } from '../../manager/routes'
 import { inspectionCorrectionApi, type CorrectionMode } from './inspectionCorrectionApi'
@@ -47,7 +48,7 @@ function CorrectionContent({
   const [busy, setBusy] = useState(false),
     [error, setError] = useState<string | null>(null)
   const [resultRefresh, setResultRefresh] = useState(0)
-  const [mode, setMode] = useState<CorrectionMode>('SUPPLEMENTAL_FLIGHT')
+  const [mode, setMode] = useState<CorrectionMode>('DOSSIER_ADJUSTMENT')
   const refreshRef = useRef(refresh)
   refreshRef.current = refresh
   const command = useRef(crypto.randomUUID())
@@ -68,6 +69,30 @@ function CorrectionContent({
     void act(() => inspectionCorrectionApi.reconcileChecklistReview(missionId))
   }, [active, canRequest, reviewSignature, rows, missionId, busy, query.loading])
   const displaySupplement = active ?? query.data?.find(row => row.supplementalMissionStatus === 'COMPLETED')
+  const supplementedExecutionIds = new Set(
+    (query.data ?? [])
+      .filter(
+        (correction) =>
+          correction.status === 'RESOLVED' &&
+          correction.supplementalMissionStatus === 'COMPLETED',
+      )
+      .flatMap((correction) => correction.items.map((item) => item.executionId)),
+  )
+  const pendingSourceRows = rows.filter((row) => {
+    if (row.fulfilledByMissionId || supplementedExecutionIds.has(row.id)) {
+      return false
+    }
+    if (row.assessmentStatus !== 'COMPLIANT') return true
+    if (typeof row.readyForFinalApproval === 'boolean') {
+      return !row.readyForFinalApproval
+    }
+    return !customerSelectionProgress(
+      row,
+      (row.evidence ?? [])
+        .filter((link) => link.selectedForCustomer)
+        .map((link) => link.evidenceId),
+    ).valid
+  })
   const failedRows = rows.filter(
     (row) =>
       !row.fulfilledByMissionId && row.assessmentStatus === 'NON_COMPLIANT',
@@ -271,6 +296,15 @@ function CorrectionContent({
           <div className="inspection-corrections__review-main">
           {!manager && canRequest && displaySupplement?.supplementalMissionId && displaySupplement.supplementalMissionStatus === 'COMPLETED' && (
             <SupplementInspectionResult missionId={missionId} correctionId={displaySupplement.id} version={displaySupplement.version} refreshToken={resultRefresh} />
+          )}
+          {!manager && canRequest && !active && displaySupplement?.status === 'RESOLVED' && displaySupplement.supplementalMissionStatus === 'COMPLETED' && pendingSourceRows.length > 0 && (
+            <Alert
+              type="warning"
+              showIcon
+              className="inspection-corrections__next-step"
+              message={t.sourceRemainingTitle}
+              description={t.sourceRemainingHint(pendingSourceRows.length)}
+            />
           )}
           {canRequest && active?.mode === 'SUPPLEMENTAL_FLIGHT' && active.status !== 'RESOLVED' && active.supplementalMissionStatus === 'COMPLETED' && (
             <div className="inspection-corrections__actions">

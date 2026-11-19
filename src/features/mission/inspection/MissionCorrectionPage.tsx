@@ -137,12 +137,22 @@ function CorrectionWorkspace({ missionId }: { missionId: string }) {
     { id: 'evidence', label: t.evidence },
     { id: 'submit', label: t.submit },
   ]
+  const returnToInspection =
+    canReview ||
+    permissions?.canAssessMonitoringChecklist === true ||
+    (!canRespond && permissions?.canAccessMissionInspection === true)
   return (
     <main className="mission-correction-workspace">
       <header className="mcw-header">
         <div>
-          <a href={operatorHref({ screen: 'missionDetail', missionId })}>
-            <ArrowLeftOutlined /> {t.back}
+          <a
+            href={operatorHref({
+              screen: returnToInspection ? 'inspection' : 'missionDetail',
+              missionId,
+            })}
+          >
+            <ArrowLeftOutlined />{' '}
+            {returnToInspection ? t.backToInspection : t.back}
           </a>
           <h1>{canReview ? t.inspectorTitle : t.title}</h1>
           <p>{canReview ? t.reviewHint : t.guide}</p>
