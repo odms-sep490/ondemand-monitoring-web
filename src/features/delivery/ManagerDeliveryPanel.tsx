@@ -33,6 +33,7 @@ import { DeliveryProgress, DeliveryStatusPill } from './DeliveryProgress'
 import type { DeliveryAsset } from './types'
 import { DeliveryReplacementPicker } from './DeliveryReplacementPicker'
 import { ImagePreview } from '../../shared/components/media/ImagePreview'
+import type { MediaRecoveryResult } from '../../shared/components/media/useMediaRecovery'
 import './delivery.css'
 import { MissionDeliveryTabs } from './MissionDeliveryTabs'
 
@@ -257,6 +258,161 @@ function ScopedManagerDeliveryPanel({
     void load()
   }, [load])
 
+  const [activeChecklistKeys, setActiveChecklistKeys] = useState<string[]>([])
+  const lastFocusRefreshAt = useRef(0)
+
+  useEffect(() => {
+    function handleWindowResume() {
+      if (document.visibilityState === 'hidden') return
+      if (
+        busy ||
+        draftDirty ||
+        draftStatus === 'saving' ||
+        draftStatus === 'stale' ||
+        draftStatus === 'conflict'
+      ) {
+        return
+      }
+      const now = Date.now()
+      if (now - lastFocusRefreshAt.current < 500) return
+      lastFocusRefreshAt.current = now
+      void load()
+    }
+    window.addEventListener('focus', handleWindowResume)
+    document.addEventListener('visibilitychange', handleWindowResume)
+    return () => {
+      window.removeEventListener('focus', handleWindowResume)
+      document.removeEventListener('visibilitychange', handleWindowResume)
+    }
+  }, [busy, draftDirty, draftStatus, load])
+
+  const focusChecklistEditor = useCallback((orderChecklistItemId: string) => {
+    setActiveChecklistKeys((prev) =>
+      prev.includes(orderChecklistItemId)
+        ? prev
+        : [...prev, orderChecklistItemId],
+    )
+    window.setTimeout(() => {
+      const container = document.getElementById(
+        `delivery-checklist-editor-${orderChecklistItemId}`,
+      )
+      if (!container) return
+      container.scrollIntoView?.({ behavior: 'smooth', block: 'nearest' })
+      const focusable = container.querySelector<HTMLElement>(
+        'input:not(:disabled), button:not(:disabled), [tabindex]:not([tabindex="-1"])',
+      )
+      ;(focusable ?? container).focus()
+    }, 0)
+  }, [])
+
+  const mediaRefreshRef = useRef<{
+    promise: Promise<{
+      checklists: ManagerChecklistDelivery | null
+      revision: ResultRevisionCase | null
+    }>
+    controller: AbortController
+    subscribers: Set<AbortSignal>
+  } | null>(null)
+
+  useEffect(() => {
+    return () => {
+      mediaRefreshRef.current?.controller.abort()
+      mediaRefreshRef.current = null
+    }
+  }, [orderId, missionId])
+
+  const refreshManagerMedia = useCallback(
+    async (
+      mediaAssetId: string,
+      signal: AbortSignal,
+    ): Promise<MediaRecoveryResult | null> => {
+      if (signal.aborted) return null
+      let batch = mediaRefreshRef.current
+      if (!batch) {
+        const controller = new AbortController()
+        const subscribers = new Set<AbortSignal>()
+        const promise = (async () => {
+          const [freshChecklists, freshCase] = await Promise.all([
+            deliveryApi
+              .managerGetChecklists(orderId, controller.signal, missionId)
+              .catch(() => null),
+            deliveryApi
+              .managerGetRevisionCase(orderId, controller.signal)
+              .catch(() => null),
+          ])
+          if (!controller.signal.aborted) {
+            if (freshChecklists) setChecklistDelivery(freshChecklists)
+            if (freshCase) setRevisionCase(freshCase)
+          }
+          return { checklists: freshChecklists, revision: freshCase }
+        })()
+        const currentBatch = { promise, controller, subscribers }
+        mediaRefreshRef.current = currentBatch
+        void promise.finally(() => {
+          if (mediaRefreshRef.current === currentBatch) {
+            mediaRefreshRef.current = null
+          }
+        })
+        batch = currentBatch
+      }
+      const activeBatch = batch
+      activeBatch.subscribers.add(signal)
+      const onCallerAbort = () => {
+        activeBatch.subscribers.delete(signal)
+        if (activeBatch.subscribers.size === 0) {
+          activeBatch.controller.abort()
+        }
+      }
+      signal.addEventListener('abort', onCallerAbort, { once: true })
+      let freshChecklists: ManagerChecklistDelivery | null
+      let freshCase: ResultRevisionCase | null
+      try {
+        ;({ checklists: freshChecklists, revision: freshCase } =
+          await activeBatch.promise)
+      } finally {
+        signal.removeEventListener('abort', onCallerAbort)
+        activeBatch.subscribers.delete(signal)
+      }
+      if (signal.aborted) return null
+      for (const item of freshChecklists?.checklists ?? []) {
+        for (const candidate of [...item.currentBundle, ...item.eligibleMedia]) {
+          if (candidate.mediaAssetId === mediaAssetId) {
+            if (candidate.accessReason) return null
+            const viewUrl =
+              candidate.previewUrl ?? candidate.thumbnailUrl ?? candidate.url
+            if (!viewUrl) return null
+            return {
+              viewUrl,
+              previewUrl: candidate.previewUrl ?? candidate.url,
+              thumbnailUrl: candidate.thumbnailUrl ?? candidate.previewUrl,
+              fileSize: candidate.size,
+            }
+          }
+        }
+      }
+      for (const item of freshCase?.items ?? []) {
+        for (const entry of item.feedback ?? []) {
+          for (const evidence of entry.evidence ?? []) {
+            if (evidence.mediaAssetId === mediaAssetId) {
+              if (evidence.accessReason) return null
+              const viewUrl =
+                evidence.previewUrl ?? evidence.thumbnailUrl ?? evidence.url
+              if (!viewUrl) return null
+              return {
+                viewUrl,
+                previewUrl: evidence.previewUrl ?? evidence.url,
+                thumbnailUrl: evidence.thumbnailUrl ?? evidence.previewUrl,
+                fileSize: evidence.size,
+              }
+            }
+          }
+        }
+      }
+      return null
+    },
+    [orderId, missionId],
+  )
+
   useEffect(() => {
     if (
       !draftDirty ||
@@ -366,17 +522,17 @@ function ScopedManagerDeliveryPanel({
 
   const checklistItems = useMemo(
     () =>
-      (checklistDelivery?.checklists ?? []).map((item) => ({
-        ...item,
-        eligibleMedia: item.eligibleMedia.filter((asset) =>
-          canUseDeliveryMedia(
-            revisionCase?.items.find(
-              (row) => row.orderChecklistItemId === item.orderChecklistItemId,
-            ),
-            asset,
+      (checklistDelivery?.checklists ?? []).map((item) => {
+        const caseItem = revisionCase?.items.find(
+          (row) => row.orderChecklistItemId === item.orderChecklistItemId,
+        )
+        return {
+          ...item,
+          eligibleMedia: item.eligibleMedia.filter((asset) =>
+            canUseDeliveryMedia(caseItem, asset, item.eligibleMedia),
           ),
-        ),
-      })),
+        }
+      }),
     [checklistDelivery, revisionCase],
   )
   const selection = useMemo(
@@ -431,6 +587,7 @@ function ScopedManagerDeliveryPanel({
                 (row) => row.orderChecklistItemId === item.orderChecklistItemId,
               ),
               asset,
+              item.eligibleMedia,
             ),
         )),
   )
@@ -547,6 +704,15 @@ function ScopedManagerDeliveryPanel({
         ),
       )
       toast.success(t.decisionSaved)
+      const decidedItem = result.items.find(
+        (row) => row.caseItemId === item.caseItemId,
+      )
+      if (
+        decidedItem?.scopeDecision === 'IN_SCOPE' &&
+        decidedItem.strategy === 'RESERVE_MEDIA'
+      ) {
+        focusChecklistEditor(decidedItem.orderChecklistItemId)
+      }
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : t.actionFailed)
     } finally {
@@ -742,6 +908,12 @@ function ScopedManagerDeliveryPanel({
           </div>
           <Collapse
             className="delivery-review-collapse"
+            activeKey={activeChecklistKeys}
+            onChange={(keys) =>
+              setActiveChecklistKeys(
+                Array.isArray(keys) ? keys.map(String) : [String(keys)],
+              )
+            }
             items={selection.map(({ item, selectedAssets }, index) => {
               const caseItem = revisionCase?.items.find(
                 (row) => row.orderChecklistItemId === item.orderChecklistItemId,
@@ -794,6 +966,20 @@ function ScopedManagerDeliveryPanel({
                           {t.customerFlaggedCount(flaggedMediaCount)}
                         </Tag>
                       ) : null}
+                      {caseItem?.scopeDecision === 'IN_SCOPE' &&
+                      caseItem.strategy !== 'UNDECIDED' ? (
+                        <Tag
+                          color={
+                            caseItem.strategy === 'RESERVE_MEDIA'
+                              ? 'blue'
+                              : 'orange'
+                          }
+                        >
+                          {caseItem.strategy === 'RESERVE_MEDIA'
+                            ? t.reserveStrategy
+                            : t.reworkStrategy}
+                        </Tag>
+                      ) : null}
                       <Tag color={valid ? 'green' : 'warning'}>
                         {t.minRequirement(
                           item.minimumImageCount,
@@ -806,7 +992,11 @@ function ScopedManagerDeliveryPanel({
                   </div>
                 ),
                 children: (
-                  <div className="delivery-checklist-editor">
+                  <div
+                    id={`delivery-checklist-editor-${item.orderChecklistItemId}`}
+                    tabIndex={-1}
+                    className="delivery-checklist-editor"
+                  >
                     <CustomerReviewEvidence
                       feedback={customerFeedback}
                       title={t.flaggedMedia}
@@ -816,6 +1006,7 @@ function ScopedManagerDeliveryPanel({
                       roundLabel={t.feedbackRound}
                       reasonLabel={t.reasonCode}
                       reasonCodes={reviewLabels.reasonCodes}
+                      onRefreshMedia={refreshManagerMedia}
                     />
                     <ChecklistEditor
                       item={item}
@@ -856,6 +1047,7 @@ function ScopedManagerDeliveryPanel({
                         caseItem.status === 'IN_PROGRESS'
                       }
                       messages={t}
+                      onRefreshMedia={refreshManagerMedia}
                     />
                   </div>
                 ),
@@ -1024,6 +1216,7 @@ function ScopedManagerDeliveryPanel({
                                             ...evidence,
                                             id: evidence.mediaAssetId,
                                           }}
+                                          onRefreshMedia={refreshManagerMedia}
                                         />
                                       )}
                                       <Typography.Text
@@ -1194,6 +1387,18 @@ function ScopedManagerDeliveryPanel({
                             >
                               {t.decide}
                             </AntButton>
+                            {item.scopeDecision === 'IN_SCOPE' &&
+                            item.strategy === 'RESERVE_MEDIA' &&
+                            item.status === 'IN_PROGRESS' ? (
+                              <AntButton
+                                disabled={busy}
+                                onClick={() =>
+                                  focusChecklistEditor(item.orderChecklistItemId)
+                                }
+                              >
+                                {t.openReserveMediaEditor}
+                              </AntButton>
+                            ) : null}
                             {item.scopeDecision === 'OUT_OF_SCOPE' &&
                             item.status !== 'OUT_OF_SCOPE_RESPONDED' &&
                             item.status !== 'OUT_OF_SCOPE_ACKNOWLEDGED' ? (
@@ -1315,6 +1520,7 @@ function ChecklistEditor({
   onReplace,
   rework,
   messages,
+  onRefreshMedia,
 }: {
   item: ManagerChecklistDelivery['checklists'][number]
   editable: boolean
@@ -1327,6 +1533,10 @@ function ChecklistEditor({
   onRemove: (ids: string[]) => void
   onReplace: (value: ReplacementSelection) => void
   messages: typeof managerDeliveryPanelMessages.vi
+  onRefreshMedia?: (
+    mediaAssetId: string,
+    signal: AbortSignal,
+  ) => Promise<MediaRecoveryResult | null>
 }) {
   const removedSet = new Set(removed)
   const replacementSources = new Set(Object.keys(replacements))
@@ -1369,7 +1579,10 @@ function ChecklistEditor({
               return (
                 <article className="delivery-asset" key={evidenceId}>
                   <>
-                    <MediaPreview asset={toDeliveryAsset(asset)} />
+                    <MediaPreview
+                      asset={toDeliveryAsset(asset)}
+                      onRefreshMedia={onRefreshMedia}
+                    />
                     {asset.missionId && <MediaInspectionAction missionId={asset.missionId} mediaId={asset.mediaAssetId}
                       mediaType={asset.type} fileName={asset.fileName} />}
                   </>
@@ -1403,6 +1616,7 @@ function ChecklistEditor({
                         selectedId={replacementId || undefined}
                         disabled={disabled || removedSet.has(evidenceId)}
                         rework={rework}
+                        onRefreshMedia={onRefreshMedia}
                         onChange={(value) => {
                           const next = { ...replacements }
                           if (value) next[evidenceId] = value
@@ -1459,7 +1673,10 @@ function ChecklistEditor({
                       }
                     />
                     <>
-                    <MediaPreview asset={toDeliveryAsset(asset)} />
+                    <MediaPreview
+                      asset={toDeliveryAsset(asset)}
+                      onRefreshMedia={onRefreshMedia}
+                    />
                     {asset.missionId && <MediaInspectionAction missionId={asset.missionId} mediaId={asset.mediaAssetId}
                       mediaType={asset.type} fileName={asset.fileName} />}
                   </>
@@ -1664,7 +1881,16 @@ async function runAction(
   }
 }
 
-function MediaPreview({ asset }: { asset: DeliveryAsset }) {
+function MediaPreview({
+  asset,
+  onRefreshMedia,
+}: {
+  asset: DeliveryAsset
+  onRefreshMedia?: (
+    mediaAssetId: string,
+    signal: AbortSignal,
+  ) => Promise<MediaRecoveryResult | null>
+}) {
   const { t } = useI18n(managerDeliveryPanelMessages)
   if (!asset.previewUrl) {
     return (
@@ -1673,6 +1899,9 @@ function MediaPreview({ asset }: { asset: DeliveryAsset }) {
       </span>
     )
   }
+  const refresh = onRefreshMedia
+    ? (signal: AbortSignal) => onRefreshMedia(asset.id, signal)
+    : undefined
   return asset.type.toUpperCase().includes('VIDEO') ? (
     <VideoThumbnail
       src={asset.previewUrl}
@@ -1681,6 +1910,7 @@ function MediaPreview({ asset }: { asset: DeliveryAsset }) {
       fileName={asset.fileName}
       fileSize={asset.size}
       original={asset.previewStatus !== 'READY'}
+      onRefreshMedia={refresh}
     />
   ) : (
     <ImagePreview
@@ -1690,6 +1920,7 @@ function MediaPreview({ asset }: { asset: DeliveryAsset }) {
       original={asset.previewStatus !== 'READY'}
       previewSrc={asset.previewUrl}
       fileName={asset.fileName}
+      onRefreshMedia={refresh}
     />
   )
 }
@@ -1703,6 +1934,7 @@ function CustomerReviewEvidence({
   roundLabel,
   reasonLabel,
   reasonCodes,
+  onRefreshMedia,
 }: {
   feedback: ResultRevisionCase['items'][number]['feedback']
   title: string
@@ -1712,6 +1944,10 @@ function CustomerReviewEvidence({
   roundLabel: (round: number) => string
   reasonLabel: string
   reasonCodes: Record<string, string>
+  onRefreshMedia?: (
+    mediaAssetId: string,
+    signal: AbortSignal,
+  ) => Promise<MediaRecoveryResult | null>
 }) {
   if (!feedback.length) return null
 
@@ -1743,6 +1979,7 @@ function CustomerReviewEvidence({
                   ) : (
                     <MediaPreview
                       asset={{ ...evidence, id: evidence.mediaAssetId }}
+                      onRefreshMedia={onRefreshMedia}
                     />
                   )}
                   <Typography.Text ellipsis={{ tooltip: evidence.fileName }}>

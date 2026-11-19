@@ -9,7 +9,7 @@ export const managerDeliveryPanelMessages = defineMessages({
     eyebrow: 'Quy trình bàn giao',
     title: 'Bàn giao kết quả',
     intro: 'Khách xem kết quả, xác nhận và thanh toán để nhận tệp gốc.',
-    revisionTitle: 'khách hàng yêu cầu chỉnh sửa',
+    revisionTitle: 'Khách hàng yêu cầu chỉnh sửa',
     processingTitle: 'Chưa thể gửi bản xem trước',
     processingText:
       'Hãy duyệt toàn bộ kết quả nhiệm vụ trước khi gửi cho khách hàng.',
@@ -33,7 +33,7 @@ export const managerDeliveryPanelMessages = defineMessages({
     sendResults: (n: number) => `Gửi kết quả cho khách hàng (${n})`,
     sentTitle: 'Đã gửi kết quả cho khách hàng',
     sentText: 'Đang chờ khách hàng xem và phản hồi kết quả.',
-    acceptedTitle: 'khách hàng đã chấp nhận kết quả',
+    acceptedTitle: 'Khách hàng đã chấp nhận kết quả',
     acceptedText: 'Kiểm tra trạng thái hóa đơn trước khi bàn giao tệp gốc.',
     paymentConfirmed: 'Sẵn sàng bàn giao',
     originalsReady:
@@ -104,6 +104,7 @@ export const managerDeliveryPanelMessages = defineMessages({
     scopeReason: 'Lý do và căn cứ xử lý',
     managerInstructions: 'Hướng dẫn cho đội thực hiện',
     decide: 'Lưu quyết định',
+    openReserveMediaEditor: 'Chọn media dự phòng cho hạng mục này',
     notifyCustomer: 'Thông báo khách hàng ngoài phạm vi',
     decisionSaved: 'Đã lưu quyết định xử lý.',
     outOfScopeNotified: 'Đã gửi thông báo cho khách hàng.',
@@ -241,6 +242,7 @@ export const managerDeliveryPanelMessages = defineMessages({
     scopeReason: 'Reason and scope basis',
     managerInstructions: 'Instructions for the crew',
     decide: 'Save decision',
+    openReserveMediaEditor: 'Select reserve media for this item',
     notifyCustomer: 'Notify customer about out-of-scope item',
     decisionSaved: 'Handling decision saved.',
     outOfScopeNotified: 'The customer has been notified.',

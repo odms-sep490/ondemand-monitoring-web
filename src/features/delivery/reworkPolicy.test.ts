@@ -7,19 +7,37 @@ const item = {
   assignedReworkMissionId: 'rework-current',
   assignedReworkMissionStatus: 'COMPLETED',
 } as ResultRevisionCase['items'][number]
-const media = (missionId: string) => ({ missionId }) as ChecklistDeliveryAsset
+const media = (missionId: string, mediaAssetId = `${missionId}-asset`) =>
+  ({ missionId, mediaAssetId }) as ChecklistDeliveryAsset
 
 describe('rework delivery sources', () => {
-  it('allows only the completed assigned rework mission', () => {
+  it('allows only the completed assigned rework mission or backend-verified rework supplement', () => {
     expect(canUseDeliveryMedia(item, media('rework-current'))).toBe(true)
     expect(canUseDeliveryMedia(item, media('original'))).toBe(false)
     expect(canUseDeliveryMedia(item, media('rework-previous'))).toBe(false)
+
+    const supplementAsset = media('rework-supplement', 'supp-1')
+    const eligibleFromBackend = [supplementAsset]
+    expect(
+      canUseDeliveryMedia(item, supplementAsset, eligibleFromBackend),
+    ).toBe(true)
+    expect(
+      canUseDeliveryMedia(item, media('original', 'old-1'), eligibleFromBackend),
+    ).toBe(false)
   })
   it('blocks delivery before rework completion or without an assigned mission', () => {
+    const supplementAsset = media('rework-supplement', 'supp-1')
     expect(
       canUseDeliveryMedia(
         { ...item, assignedReworkMissionStatus: 'IN_PROGRESS' },
         media('rework-current'),
+      ),
+    ).toBe(false)
+    expect(
+      canUseDeliveryMedia(
+        { ...item, assignedReworkMissionStatus: 'IN_PROGRESS' },
+        supplementAsset,
+        [supplementAsset],
       ),
     ).toBe(false)
     expect(
