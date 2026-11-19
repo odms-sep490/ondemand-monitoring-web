@@ -51,6 +51,8 @@ export const missionCreatePageMessages = defineMessages({
     manualWaypointEntry: 'Nhập điểm bay thủ công',
     validationRequired: 'Thời gian bắt đầu/kết thúc là bắt buộc.',
     validationInvalidRange: 'Giờ kết thúc phải sau giờ cất cánh.',
+    validationChecklistRequired:
+      'Vui lòng chọn ít nhất một hạng mục checklist cho Mission.',
     planGenerationFailed:
       'Dịch vụ tạo đường bay báo lỗi cho khu vực này. Vui lòng thử lại hoặc liên hệ quản trị hệ thống.',
     createFailed: 'Tạo nhiệm vụ thất bại, vui lòng thử lại.',
@@ -161,6 +163,8 @@ export const missionCreatePageMessages = defineMessages({
     manualWaypointEntry: 'Enter waypoints manually',
     validationRequired: 'Start/end time is required.',
     validationInvalidRange: 'Finish time must be after takeoff time.',
+    validationChecklistRequired:
+      'Please select at least one checklist item for the Mission.',
     planGenerationFailed:
       'The flight-path service returned an error for this area. You can enter waypoints manually.',
     createFailed: 'Could not create the mission, try again.',

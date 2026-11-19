@@ -211,7 +211,9 @@ function MissionDetailContent({ missionId }: { missionId: string }) {
             resultKnown={monitoringKnown}
             refresh={refreshWorkspace}
             compact={!checklistPreview}
-            compactTitle={checklistPreview ? undefined : 'Đánh giá checklist'}
+            compactTitle={
+              checklistPreview ? undefined : t.checklistAssessmentTitle
+            }
             assessmentOnly={!checklistPreview}
             preview={checklistPreview}
           />
