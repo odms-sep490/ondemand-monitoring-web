@@ -375,6 +375,26 @@
   color: var(--pl-green-fg);
 }
 
+.odm-mcard-sec-badge.is-warn {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--pl-amber-bg, #fef3c7);
+  color: var(--pl-amber-fg, #b45309);
+  border: 1px solid var(--pl-amber-bd, #fde68a);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.odm-mcard-schedule.is-schedule-missing {
+  border: 1px dashed var(--pl-amber-bd, #f59e0b);
+  background: var(--pl-amber-bg, #fffbeb);
+  color: var(--pl-amber-fg, #b45309);
+  border-radius: 8px;
+  padding: 6px 10px;
+}
+
 
 .odm-mcard-origin,
 .odm-mcard-navigation,

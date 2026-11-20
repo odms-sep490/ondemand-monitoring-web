@@ -7,6 +7,7 @@ import {
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { missionsApi } from '../../api/missionsApi'
+import { ApiError } from '../../../../shared/api/httpClient'
 import { droneApi } from '../../../staff/api/droneApi'
 import type { MissionResponse } from '../../types/missions'
 import type { OrderDetail } from '../../types/orders'
@@ -25,6 +26,12 @@ const mission = {
   droneId: null,
   scheduledStartAt: null,
   scheduledEndAt: null,
+} as unknown as MissionResponse
+
+const scheduledMission = {
+  ...mission,
+  scheduledStartAt: '2026-11-07T08:00:00Z',
+  scheduledEndAt: '2026-11-07T09:00:00Z',
 } as unknown as MissionResponse
 
 const plan: ExecutionPlan = {
@@ -101,11 +108,7 @@ afterEach(() => vi.restoreAllMocks())
 
 describe('MissionGridCard navigation', () => {
   it('opens Drone Team with the mission selected when the mission has a flight window', () => {
-    renderMissionCard({
-      ...mission,
-      scheduledStartAt: '2026-11-07T08:00:00Z',
-      scheduledEndAt: '2026-11-07T09:00:00Z',
-    })
+    renderMissionCard(scheduledMission)
 
     expect(
       screen.getByRole('link', { name: 'Gán trong Đội drone' }),
@@ -115,20 +118,45 @@ describe('MissionGridCard navigation', () => {
     )
   })
 
-  it('does not show the Drone Team route when the mission is not yet eligible', () => {
-    renderMissionCard()
+  it('requires a flight schedule before exposing staff or device assignment actions', () => {
+    const onEditMission = vi.fn()
+    render(
+      <MissionGridCard
+        mission={mission}
+        order={{} as OrderDetail}
+        plan={plan}
+        orderChecklistItems={[]}
+        disabled={false}
+        onPlanChanged={vi.fn()}
+        onRequestReason={vi.fn()}
+        onEditMission={onEditMission}
+      />,
+    )
 
+    expect(
+      screen.queryByRole('link', { name: /Phân công trong Văn phòng 3D/ }),
+    ).not.toBeInTheDocument()
     expect(
       screen.queryByRole('link', { name: 'Gán trong Đội drone' }),
     ).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /^Thêm$/ })).not.toBeInTheDocument()
+    expect(
+      screen.getByText('Vui lòng cập nhật lịch bay trước khi phân công nhân sự.'),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText('Vui lòng cập nhật lịch bay trước khi phân công thiết bị.'),
+    ).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Cập nhật lịch' }))
+    expect(onEditMission).toHaveBeenCalledWith(mission)
   })
 })
 
 describe('MissionGridCard staff assignment', () => {
   // Staff assignment moved out of the card into the 3D office workspace; the
-  // card now only hands off to it and lists who is already assigned.
+  // card now only hands off to it once a schedule exists and lists who is assigned.
   it('hands staff assignment off to the 3D office with the mission and order context', () => {
-    renderMissionCard()
+    renderMissionCard(scheduledMission)
 
     const link = screen.getByRole('link', {
       name: /Phân công trong Văn phòng 3D/,
@@ -207,7 +235,7 @@ describe('MissionGridCard drone assignment animation', () => {
       .mockResolvedValue({} as never)
     render(
       <MissionGridCard
-        mission={mission}
+        mission={scheduledMission}
         order={{} as OrderDetail}
         plan={plan}
         orderChecklistItems={[]}
@@ -240,7 +268,7 @@ describe('MissionGridCard drone assignment animation', () => {
     const assign = vi
       .spyOn(missionsApi, 'assignDevice')
       .mockRejectedValue(new Error('Drone không còn khả dụng'))
-    renderMissionCard()
+    renderMissionCard(scheduledMission)
 
     const form = await openDevicePicker()
     fireEvent.click(
@@ -270,7 +298,7 @@ describe('MissionGridCard drone assignment animation', () => {
         resolveAssignment = resolve
       }),
     )
-    renderMissionCard()
+    renderMissionCard(scheduledMission)
 
     const form = await openDevicePicker()
     const button = within(form).getByRole('button', {
@@ -293,7 +321,7 @@ describe('MissionGridCard drone assignment animation', () => {
         resolveAssignment = resolve
       }),
     )
-    renderMissionCard()
+    renderMissionCard(scheduledMission)
 
     const form = await openDevicePicker()
     fireEvent.click(
@@ -329,4 +357,33 @@ it('distinguishes internal supplementation from customer rework using the shared
   expect(card.getByText('Đã được cấp phép')).toBeInTheDocument()
   expect(card.getByRole('link', { name: 'Mở lập kế hoạch' })).toHaveAttribute('href', '#portal/manager/orders/order-1/inspection/original/correction')
   expect(card.queryByRole('button', { name: 'Chỉnh sửa' })).toBeNull()
+})
+
+it('translates English backend schedule errors to Vietnamese when loading devices fails', async () => {
+  vi.spyOn(droneApi, 'getAvailable').mockRejectedValue(
+    new ApiError('Mission schedule is required for availability', {
+      status: 400,
+      code: 'INVALID_REQUEST',
+      method: 'GET',
+      path: '/manager/drones/available',
+    }),
+  )
+  renderMissionCard(scheduledMission)
+
+  fireEvent.click(screen.getByRole('button', { name: /^Thêm$/ }))
+  expect(await screen.findByRole('alert')).toHaveTextContent(
+    'Vui lòng cập nhật lịch bay (giờ bắt đầu và kết thúc) trước khi phân công nhân sự hoặc thiết bị.',
+  )
+})
+
+it('translates plain Error schedule messages from recommendations API to Vietnamese', async () => {
+  vi.spyOn(missionsApi, 'generateRecommendations').mockRejectedValue(
+    new Error('Mission schedule is required for availability'),
+  )
+  renderMissionCard(mission)
+
+  fireEvent.click(screen.getByRole('button', { name: /Gợi ý lịch & nguồn lực/ }))
+  expect(await screen.findByRole('alert')).toHaveTextContent(
+    'Vui lòng cập nhật lịch bay (giờ bắt đầu và kết thúc) trước khi phân công nhân sự hoặc thiết bị.',
+  )
 })
