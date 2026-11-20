@@ -102,25 +102,6 @@ export function QuoteSection({
         </div>
 
         <aside className="customer-quote-actions" aria-label={t.actionsLabel}>
-          <section
-            className="customer-quote-progress"
-            aria-label={t.orderProgress}
-          >
-            <div className="customer-quote-progress-visual">
-              <img
-                src="/images/auth-hero-drone.png"
-                alt=""
-                aria-hidden="true"
-              />
-              <div className="customer-quote-progress-title">
-                <span className="customer-quote-progress-icon">
-                  <OrderIcon name="drone" size={19} />
-                </span>
-                <h3>{t.orderProgress}</h3>
-              </div>
-            </div>
-          </section>
-
           {quote.expiresAt &&
           hasValidExpiry &&
           (acceptancePending || quote.status === 'EXPIRED') ? (

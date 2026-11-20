@@ -15,7 +15,7 @@ import { siteDetailsPanelMessages } from './SiteDetailsPanel.messages'
 
 const ACCESS_NOTES_MAX = 1000
 
-/** Optional group that stays closed until needed (or when it already has data). */
+/** Starts open for existing values and expands automatically when validation fails. */
 function Fold({
   title,
   hint,
@@ -125,7 +125,11 @@ export function SiteDetailsPanel({ form, errors, update }: Props) {
       <Fold
         title={t.contactSection}
         hint={t.contactHint}
-        filled
+        filled={Boolean(
+          form.siteContactName.trim() ||
+          form.siteContactPhone.trim() ||
+          form.accessNotes.trim(),
+        )}
         hasError={Boolean(
           errors.siteContactName ||
           errors.siteContactPhone ||

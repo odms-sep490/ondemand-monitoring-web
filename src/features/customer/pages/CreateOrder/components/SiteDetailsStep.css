@@ -10,6 +10,38 @@
 .co-page .co-site-details-step > .mgr-card {
   min-width: 0;
   height: 100%;
+  min-height: 0;
+}
+
+.co-site-details-step > .co-site-authorization-card {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+}
+
+.co-site-details-step > .co-site-authorization-card > .ant-card-body {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+}
+
+.co-site-details-step
+  .co-site-authorization-card
+  > .ant-card-body
+  > *:not(.co-action-dock) {
+  flex: 0 0 auto;
+}
+
+.co-site-details-step .co-site-authorization-card .co-action-dock {
+  width: 100%;
+  margin: auto 0 0;
+  padding: 12px 0 0;
+  border: 0;
+  border-top: 1px solid var(--ui-border);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .co-site-details-step .co-two {
@@ -114,4 +146,13 @@
   .co-site-details-step .co-authz-docs-head .ant-btn {
     white-space: nowrap;
   }
+}
+
+/* Step 4 uses the authorization card's unused lower space for navigation. */
+.co-page .co-site-details-step > .mgr-card .ant-card-head {
+  padding: 12px 16px 0;
+}
+
+.co-page .co-site-details-step > .mgr-card .ant-card-body {
+  padding: 12px 16px 16px;
 }

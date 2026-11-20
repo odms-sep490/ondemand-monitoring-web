@@ -213,7 +213,12 @@ export function CreateOrderPage() {
         />
       )}
       {step === 4 && (
-        <SiteDetailsStep form={form} errors={f.errors} update={f.update} />
+        <SiteDetailsStep
+          form={form}
+          errors={f.errors}
+          update={f.update}
+          footer={footer}
+        />
       )}
       {step === 5 && (
         <ScheduleStep
@@ -252,7 +257,7 @@ export function CreateOrderPage() {
         </div>
       )}
 
-      {footer}
+      {step !== 4 && footer}
 
       {submit.confirmOpen && (
         <ConfirmSubmitModal

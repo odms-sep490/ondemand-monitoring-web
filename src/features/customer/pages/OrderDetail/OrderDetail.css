@@ -1657,14 +1657,13 @@
 
 .od-detail-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) clamp(260px, 24%, 340px);
+  grid-template-columns: minmax(0, 1fr);
   align-items: start;
   gap: 16px;
   min-width: 0;
 }
 
-.od-detail-main,
-.od-detail-progress {
+.od-detail-main {
   min-width: 0;
 }
 
@@ -1672,12 +1671,6 @@
   display: grid;
   gap: 16px;
   min-width: 0;
-}
-
-@media (min-width: 1101px) {
-  .od-detail-progress .od-step:not(:last-child) {
-    padding-bottom: 30px;
-  }
 }
 
 @media (max-width: 1100px) {
