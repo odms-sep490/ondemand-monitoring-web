@@ -105,6 +105,40 @@ test('Inspection & Rework screens pass desktop/narrow layout and VI/EN checks in
   )
 
   // =========================================================================
+  // 1b. SCREEN 1b: Checklist FIRST, Correction Composer BELOW
+  // =========================================================================
+  await page.setViewportSize({ width: 1280, height: 800 })
+  await page.getByText('1b. Checklist & Composer').click()
+  const checklistCard = page.locator('.monitoring-checklist')
+  const composingCard = page.locator('.inspection-corrections.is-composing')
+  await expect(checklistCard).toBeVisible()
+  await expect(composingCard).toBeVisible()
+  const checklistBox = await checklistCard.boundingBox()
+  const composingBox = await composingCard.boundingBox()
+  expect(checklistBox).not.toBeNull()
+  expect(composingBox).not.toBeNull()
+  expect(checklistBox!.y).toBeLessThan(composingBox!.y)
+  await expect(composingCard.getByText('Ảnh #1', { exact: true })).toBeVisible()
+  await expect(composingCard.getByText('1 mục không đạt · Điều chỉnh hồ sơ bằng dữ liệu đã có')).toBeVisible()
+  await page.screenshot({
+    path: testInfo.outputPath('redesign-composing-desktop.png'),
+    fullPage: true,
+  })
+  const composingDesktopOverflow = await collectOverflowReport(
+    page,
+    'composing-desktop-vi',
+  )
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.screenshot({
+    path: testInfo.outputPath('redesign-composing-narrow.png'),
+    fullPage: true,
+  })
+  const composingNarrowOverflow = await collectOverflowReport(
+    page,
+    'composing-narrow-vi',
+  )
+
+  // =========================================================================
   // 2. SCREEN 2: MissionCorrectionPage (Staff & Inspector Workspace)
   // =========================================================================
   await page.setViewportSize({ width: 1280, height: 800 })
@@ -176,6 +210,17 @@ test('Inspection & Rework screens pass desktop/narrow layout and VI/EN checks in
     'href',
     '#portal/manager/missions/mission-root-01/detail',
   )
+
+  // Revision case (Step 1) should render above checklist groups (Step 2) when active
+  const revisionSectionBox = await page
+    .locator('.delivery-revision-case')
+    .boundingBox()
+  const checklistGroupBox = await page
+    .locator('.delivery-checklist-groups')
+    .boundingBox()
+  expect(revisionSectionBox).not.toBeNull()
+  expect(checklistGroupBox).not.toBeNull()
+  expect(revisionSectionBox!.y).toBeLessThan(checklistGroupBox!.y)
 
   // Expand the revision case item first (AntD Collapse inside .delivery-revision-case)
   const revisionHeader = page
@@ -270,6 +315,8 @@ test('Inspection & Rework screens pass desktop/narrow layout and VI/EN checks in
   const reports = [
     panelDesktopViOverflow,
     panelNarrowViOverflow,
+    composingDesktopOverflow,
+    composingNarrowOverflow,
     workspaceDesktopViOverflow,
     workspaceNarrowViOverflow,
     deliveryDesktopViOverflow,

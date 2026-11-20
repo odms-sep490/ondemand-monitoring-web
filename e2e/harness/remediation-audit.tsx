@@ -9,6 +9,7 @@ import { setHttpTransport } from '../../src/shared/api/httpClient'
 import { useLanguage } from '../../src/shared/i18n'
 import { authSession } from '../../src/features/auth/api/authSession'
 import { InspectionCorrectionPanel } from '../../src/features/mission/inspection/InspectionCorrectionPanel'
+import { MonitoringChecklistSection } from '../../src/features/mission/components/MonitoringChecklistSection'
 import { MissionCorrectionPage } from '../../src/features/mission/inspection/MissionCorrectionPage'
 import { ManagerDeliveryPanel } from '../../src/features/delivery/ManagerDeliveryPanel'
 import { MissionDetailHeader } from '../../src/features/manager/pages/MissionDetail/components/MissionDetailHeader'
@@ -24,6 +25,10 @@ let inspectorRoleMode: 'inspector' | 'crew' = 'crew'
 
 function jsonData(urlString: string): { status: number; body: unknown } | null {
   const path = new URL(urlString, window.location.origin).pathname
+
+  if (path.endsWith('/missions/mission-composing-audit/inspection-corrections')) {
+    return { status: 200, body: { success: true, data: [] } }
+  }
 
   if (path.endsWith('/missions/mission-panel-audit/inspection-corrections')) {
     return {
@@ -620,10 +625,78 @@ const supplementalMissionForManagerHeader: MissionResponse = {
   inspectionCorrectionId: 'corr-resolved-1',
 }
 
+const composingChecklistData = {
+  missionId: 'mission-composing-audit',
+  legacySnapshot: false,
+  readyForSubmission: false,
+  readyForFinalApproval: false,
+  executions: [
+    {
+      id: 'comp-exec-1',
+      orderChecklistItemId: 'comp-oci-1',
+      content: 'Kiểm tra mái nhà xưởng A',
+      displayOrder: 1,
+      sourceType: 'SERVICE_TEMPLATE' as const,
+      executionStatus: 'COMPLETED' as const,
+      assessmentStatus: 'COMPLIANT' as const,
+      observation: null,
+      unableToVerifyReason: null,
+      startedAt: null,
+      completedAt: null,
+      lastModifiedBy: null,
+      createdAt: '2026-11-20T06:00:00Z',
+      updatedAt: null,
+      version: 1,
+      minimumImageCount: 1,
+      minimumVideoCount: 0,
+      eligibleImageCount: 1,
+      eligibleVideoCount: 0,
+      evidence: [],
+    },
+    {
+      id: 'comp-exec-2',
+      orderChecklistItemId: 'comp-oci-2',
+      content: 'Chụp ảnh tổng quan công trình',
+      displayOrder: 2,
+      sourceType: 'SERVICE_TEMPLATE' as const,
+      executionStatus: 'COMPLETED' as const,
+      assessmentStatus: 'NON_COMPLIANT' as const,
+      assessmentNote: 'ko dat',
+      observation: null,
+      unableToVerifyReason: null,
+      startedAt: null,
+      completedAt: null,
+      lastModifiedBy: null,
+      createdAt: '2026-11-20T06:00:00Z',
+      updatedAt: null,
+      version: 1,
+      minimumImageCount: 1,
+      minimumVideoCount: 0,
+      eligibleImageCount: 1,
+      eligibleVideoCount: 0,
+      evidence: [
+        {
+          evidenceId: 'comp-ev-1',
+          mediaId: '7601f9d9-47d2-4a8e-9b1c-1234567890ab',
+          fileName: '7601f9d9-47d2-4a8e-9b1c-1234567890ab',
+          mediaType: 'IMAGE' as const,
+          mediaStatus: 'AVAILABLE' as const,
+          eligibleForOperationalReadiness: true,
+          eligibleForFinalApproval: true,
+          ineligibilityReason: null,
+          selectedForCustomer: false,
+          previewUrl: ONE_PIXEL_PNG,
+          thumbnailUrl: ONE_PIXEL_PNG,
+        },
+      ],
+    },
+  ],
+}
+
 function AuditHarnessInner() {
   const { lang, setLang } = useLanguage()
   const [screen, setScreen] = useState<
-    'panel' | 'workspace' | 'delivery' | 'omss'
+    'panel' | 'composing' | 'workspace' | 'delivery' | 'omss'
   >('panel')
   const [roleKey, setRoleKey] = useState<'crew' | 'inspector'>('crew')
 
@@ -648,10 +721,18 @@ function AuditHarnessInner() {
           <Segmented
             value={screen}
             onChange={(val) =>
-              setScreen(val as 'panel' | 'workspace' | 'delivery' | 'omss')
+              setScreen(
+                val as
+                  | 'panel'
+                  | 'composing'
+                  | 'workspace'
+                  | 'delivery'
+                  | 'omss',
+              )
             }
             options={[
               { label: '1. Inspector Panel', value: 'panel' },
+              { label: '1b. Checklist & Composer', value: 'composing' },
               { label: '2. Correction Workspace', value: 'workspace' },
               { label: '3. Manager Rework & Header', value: 'delivery' },
               { label: '4. Unscheduled Mission', value: 'omss' },
@@ -698,6 +779,23 @@ function AuditHarnessInner() {
             canRequest={true}
             canRespond={false}
             orderId="order-audit-1"
+          />
+        ) : null}
+
+        {screen === 'composing' ? (
+          <MonitoringChecklistSection
+            missionId="mission-composing-audit"
+            data={composingChecklistData}
+            loading={false}
+            canAssess={true}
+            canSelectForCustomer={true}
+            showInspectionCorrections={true}
+            canReviewCorrections={true}
+            compact={true}
+            compactTitle="Danh mục công trình"
+            assessmentOnly={true}
+            hideImplementationHints={true}
+            refresh={() => undefined}
           />
         ) : null}
 
