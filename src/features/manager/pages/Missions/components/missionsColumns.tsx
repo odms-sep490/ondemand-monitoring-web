@@ -4,6 +4,7 @@ import type { ColumnsType } from 'antd/es/table'
 import { formatOrderCode } from '../../../components/common/format'
 import { MissionStatusTag } from '../../../components/common/MissionStatusTag'
 import { assignmentReadiness } from '../../../lib/assignmentReadiness'
+import { missionPlanningReturnHref } from '../../../lib/missionPlanningReturn'
 import { managerHref } from '../../../routes'
 import type { MissionCalendarItem } from '../../../types/missions'
 import { formatScheduled, formatStaffSummary } from '../missionsHelpers'
@@ -30,7 +31,10 @@ export function missionsColumns({
           {m.purpose === 'REWORK' && <Tag color="orange">{t.reworkBadge}</Tag>}
           <a
             className="mgr-cell-sub mgr-order-link"
-            href={managerHref({ screen: 'orderReview', orderId: m.orderId })}
+            href={
+              missionPlanningReturnHref(m, m.id, m.orderId) ??
+              managerHref({ screen: 'orderReview', orderId: m.orderId })
+            }
             onClick={stop}
             aria-label={t.openOrderPlanOf(m.missionCode)}
           >
@@ -131,7 +135,7 @@ export function missionsColumns({
               size="small"
               type="primary"
               style={{ color: '#fff' }}
-              href={managerHref({ screen: 'missionCreate', orderId: m.orderId })}
+              href={managerHref({ screen: 'missionSetup', missionId: m.id })}
               onClick={stop}
             >
               {t.continueSetup}

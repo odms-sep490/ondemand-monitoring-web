@@ -9,6 +9,7 @@ import {
 } from '@ant-design/icons'
 
 import { missionsApi, toMissionCalendarItem } from '../../../api/missionsApi'
+import { planningError } from '../../../lib/planningErrors'
 import type { MissionCalendarItem, MissionDeviceAssignmentResponse } from '../../../types/missions'
 import { droneApi, type AvailableDrone } from '../../../../staff/api/droneApi'
 import { useApiQuery } from '../../../../../shared/hooks/useApiQuery'
@@ -188,7 +189,7 @@ export function DroneAssignmentPanel({
       onAssignmentChanged(updatedMission)
       droneQuery.reload()
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : copy.assignError)
+      setError(planningError(cause))
     } finally {
       inFlight.current = false
       setSaving(false)

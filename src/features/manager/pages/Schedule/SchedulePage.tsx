@@ -155,9 +155,16 @@ export function SchedulePage({
     }
   }, [reloadStaff])
 
+  const missingScheduleForAssignment = Boolean(
+    assignmentMissionId &&
+    assignmentMission &&
+    !(assignmentMission.scheduledStartAt && assignmentMission.scheduledEndAt),
+  )
   const hasError = Boolean(
     staffQuery.error ||
-    (assignmentMissionId && assignmentCandidatesQuery.error) ||
+    (assignmentMissionId &&
+      !missingScheduleForAssignment &&
+      assignmentCandidatesQuery.error) ||
     missionQuery.error ||
     assignmentMissionQuery.error,
   )

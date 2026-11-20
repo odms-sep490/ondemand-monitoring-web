@@ -5,8 +5,8 @@ import type { ManagerRoute } from '../../routes'
 
 export function actionItemRoute(item: ActionItem): ManagerRoute {
   if (item.type === 'ORDER_PLANNING' && item.orderId) return { screen: 'missionCreate', orderId: item.orderId }
-  if (item.type === 'MISSION_PLANNING' && item.orderId) return { screen: 'missionCreate', orderId: item.orderId }
   if (item.type === 'MISSION_PLANNING' && item.missionId) return { screen: 'missionSetup', missionId: item.missionId }
+  if (item.type === 'MISSION_PLANNING' && item.orderId) return { screen: 'orderReview', orderId: item.orderId }
   if (item.actionType === 'VIEW_MISSION' && item.missionId) {
     return { screen: 'missionDetail', missionId: item.missionId }
   }

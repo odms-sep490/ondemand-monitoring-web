@@ -288,7 +288,7 @@ export function DetailPanel({ mission, onClose, t, locale, onResourceChanged }: 
             <Button
               type="primary"
               size="small"
-              href={managerHref({ screen: 'missionCreate', orderId: mission.orderId })}
+              href={managerHref({ screen: 'missionSetup', missionId: mission.id })}
             >
               {t.dispatch}
             </Button>

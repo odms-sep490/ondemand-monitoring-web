@@ -2,10 +2,20 @@ import { render, screen, within } from '@testing-library/react'
 import { afterEach, expect, it, vi } from 'vitest'
 import { MissionsPage } from '../MissionsPage'
 import { missionsApi } from '../../../api/missionsApi'
+import { planningApi } from '../../../api/planningApi'
 import type { MissionCalendarItem } from '../../../types/missions'
+import type { ExecutionPlan } from '../../../types/planning'
 
 afterEach(() => vi.restoreAllMocks())
 it('Mission menu has exact resume links and Order context but no duplicate planning block', async () => {
+  vi.spyOn(planningApi, 'getExecutionPlan').mockResolvedValue({
+    orderId: 'o',
+    planStatus: 'FINALIZED',
+    revision: 1,
+    missions: [],
+    coverage: { total: 0, covered: 0, uncovered: 0, repeated: 0, coverageReady: true, uncoveredItemIds: [] },
+    blockers: [],
+  } as ExecutionPlan)
   const crew = ['PILOT', 'OPERATOR', 'MAINTAINER', 'INSPECTOR'].map(
     (assignedRole) => ({
       staffId: assignedRole,
@@ -34,11 +44,36 @@ it('Mission menu has exact resume links and Order context but no duplicate plann
         staffAssignments: crew,
         droneId: 'd2',
       },
+      {
+        id: 'm-rework',
+        orderId: 'o',
+        missionCode: 'M-RWK',
+        orderCode: 'ORD-1',
+        status: 'PLANNING',
+        purpose: 'REWORK',
+        resultRevisionCaseId: 'case-1',
+        staffAssignments: [],
+        droneId: null,
+      },
+      {
+        id: 'm-internal',
+        orderId: 'o',
+        missionCode: 'M-INT',
+        orderCode: 'ORD-1',
+        status: 'PLANNING',
+        purpose: 'REWORK',
+        inspectionCorrectionId: 'corr-1',
+        inspectionSourceMissionId: 'm0',
+        staffAssignments: [],
+        droneId: null,
+      },
     ] as MissionCalendarItem[],
   })
   render(<MissionsPage />)
   const row1 = (await screen.findByText('M1')).closest('tr')!
   const row2 = screen.getByText('M2').closest('tr')!
+  const reworkRow = screen.getByText('M-RWK').closest('tr')!
+  const internalRow = screen.getByText('M-INT').closest('tr')!
   expect(
     within(row1).getByRole('link', { name: 'Tiếp tục thiết lập' }),
   ).toHaveAttribute('href', '#portal/manager/missions/m1/setup')
@@ -50,6 +85,28 @@ it('Mission menu has exact resume links and Order context but no duplicate plann
   expect(
     within(row1).getByRole('link', { name: 'Mở kế hoạch đơn hàng của M1' }),
   ).toHaveAttribute('href', '#portal/manager/orders/o')
+  expect(
+    within(reworkRow).getByRole('link', { name: 'Tiếp tục thiết lập' }),
+  ).toHaveAttribute('href', '#portal/manager/missions/m-rework/setup')
+  expect(
+    within(reworkRow).getByRole('link', {
+      name: 'Mở kế hoạch đơn hàng của M-RWK',
+    }),
+  ).toHaveAttribute(
+    'href',
+    '#portal/manager/orders/o/rework/case-1',
+  )
+  expect(
+    within(internalRow).getByRole('link', { name: 'Tiếp tục thiết lập' }),
+  ).toHaveAttribute('href', '#portal/manager/missions/m-internal/setup')
+  expect(
+    within(internalRow).getByRole('link', {
+      name: 'Mở kế hoạch đơn hàng của M-INT',
+    }),
+  ).toHaveAttribute(
+    'href',
+    '#portal/manager/orders/o/inspection/m0/corr-1',
+  )
   expect(
     screen.queryByText('Đơn đã duyệt — kế hoạch Mission'),
   ).not.toBeInTheDocument()

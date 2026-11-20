@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { normalizeDashboard } from '../dashboardHelpers'
+import { actionItemRoute, normalizeDashboard } from '../dashboardHelpers'
 
 describe('normalizeDashboard', () => {
   it('defaults null and omitted fields without crashing', () => {
@@ -24,5 +24,19 @@ describe('normalizeDashboard', () => {
 
   it('handles an empty object', () => {
     expect(normalizeDashboard({}).missionTrend).toEqual([])
+  })
+
+  it('routes MISSION_PLANNING items with a missionId to missionSetup', () => {
+    expect(
+      actionItemRoute({
+        id: 'item-1',
+        type: 'MISSION_PLANNING',
+        orderId: 'order-1',
+        missionId: 'mission-1',
+        title: 'Continue planning',
+        severity: 'MEDIUM',
+        actionType: 'OPEN_PLANNING',
+      } as never),
+    ).toEqual({ screen: 'missionSetup', missionId: 'mission-1' })
   })
 })
