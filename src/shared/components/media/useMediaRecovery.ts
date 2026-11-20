@@ -1,6 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { apiRequest } from '../../api/httpClient'
 
+export type MediaRecoveryResult = {
+  viewUrl: string
+  previewUrl?: string | null
+  thumbnailUrl?: string | null
+  fileSize?: number | null
+}
+
 export type MediaRecoveryProps = {
   src: string
   alternateSrc?: string
@@ -8,6 +15,9 @@ export type MediaRecoveryProps = {
   fallbackUrl?: string | null
   fileSize?: number | null
   original?: boolean
+  onRefreshMedia?: (
+    signal: AbortSignal,
+  ) => Promise<MediaRecoveryResult | null>
 }
 const LARGE_FILE = 20 * 1024 * 1024
 
@@ -66,18 +76,23 @@ export function useMediaRecovery(props: MediaRecoveryProps) {
     setFailed(false)
     setProcessing(false)
     try {
-      const response = props.mediaId
-        ? await apiRequest<{ viewUrl: string; fileSize: number }>(
-            `/api/customer/media/${encodeURIComponent(props.mediaId)}/view-url`,
-            { method: 'POST', signal: controller.signal },
-          )
-        : props.fallbackUrl
-          ? { viewUrl: props.fallbackUrl, fileSize: props.fileSize ?? 0 }
-          : null
+      const response = props.onRefreshMedia
+        ? await props.onRefreshMedia(controller.signal)
+        : props.mediaId
+          ? await apiRequest<{ viewUrl: string; fileSize: number }>(
+              `/api/customer/media/${encodeURIComponent(props.mediaId)}/view-url`,
+              { method: 'POST', signal: controller.signal },
+            )
+          : props.fallbackUrl
+            ? { viewUrl: props.fallbackUrl, fileSize: props.fileSize ?? 0 }
+            : null
       if (token !== generation.current) return
       if (!response?.viewUrl) throw new Error('No viewing fallback')
       setSource(response.viewUrl)
-      setPaused(response.fileSize > LARGE_FILE && !approved.current)
+      setPaused(
+        (response.fileSize ?? props.fileSize ?? 0) > LARGE_FILE &&
+          !approved.current,
+      )
     } catch (error) {
       if (token === generation.current) {
         setFailed(true)

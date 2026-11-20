@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useApiQuery } from '../../../../../shared/hooks/useApiQuery'
 import { droneApi } from '../../../../staff/api/droneApi'
 import { missionsApi, toMissionCalendarItem } from '../../../api/missionsApi'
+import { planningError } from '../../../lib/planningErrors'
 import { canAssignMissionDrone } from '../../../lib/missionDroneAssignments'
 import type {
   MissionCalendarItem,
@@ -263,7 +264,7 @@ export function DroneRoomAssignmentControl({
       missionQuery.reload()
       availabilityQuery.reload()
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : copy.assignError)
+      setError(planningError(cause))
     } finally {
       inFlight.current = false
       setSaving(false)

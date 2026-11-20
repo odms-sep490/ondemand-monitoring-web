@@ -139,8 +139,8 @@ export function MissionHeader({
           href={operatorHref({ screen: 'missions' })}
           className="odm-btn odm-btn-sm odm-btn-ic1"
           style={{ flexShrink: 0, fontSize: 16, minWidth: 44, minHeight: 44 }}
-          title="Về danh sách"
-          aria-label="Về danh sách nhiệm vụ"
+          title={t.backToList}
+          aria-label={t.backToListAria}
         >
           <span aria-hidden="true">←</span>
         </a>
@@ -160,7 +160,7 @@ export function MissionHeader({
             className="odm-btn"
             href={operatorHref({ screen: 'preflight', missionId: mission.id })}
           >
-            Kiểm tra trước bay
+            {t.preflightCheckAction}
           </a>
         )}
         {access?.canMaintainDevice &&
@@ -174,7 +174,7 @@ export function MissionHeader({
                 missionId: mission.id,
               })}
             >
-              Kiểm tra sau bay
+              {t.postflightCheckAction}
             </a>
           )}
         {canOpenAcceptanceData && (
@@ -194,7 +194,7 @@ export function MissionHeader({
               disabled={submitting || weatherLoading}
               onClick={onStartWorkflow}
             >
-              {submitting ? 'Đang bắt đầu Mission...' : t.startMission}
+              {submitting ? t.startingMissionAction : t.startMission}
             </button>
           ) : null
         ) : mission.status === 'PENDING' ? null : canHandover ? (
@@ -202,7 +202,7 @@ export function MissionHeader({
             className="odm-btn odm-btn-ok"
             href={operatorHref({ screen: 'handover', missionId: mission.id })}
           >
-            Bàn giao quyền điều khiển
+            {t.handoverControlAction}
           </a>
         ) : backendStatus === 'IN_PROGRESS' ||
           mission.status === 'IN_FLIGHT' ? (
@@ -212,7 +212,7 @@ export function MissionHeader({
                 className="odm-btn odm-btn-p"
                 href={operatorHref({ screen: 'flight', missionId: mission.id })}
               >
-                Mở buồng lái
+                {t.openCockpitAction}
               </a>
             )}
           </>

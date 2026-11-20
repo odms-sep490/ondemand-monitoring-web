@@ -65,6 +65,12 @@ it('requests only the selected checklist scope and preserves unselected work', a
     .mockResolvedValue(batch)
   render(<InspectionCorrectionPanel missionId="m1" rows={rows} canRequest />)
   await screen.findByLabelText('Nội dung cần bổ sung: Inspect fence')
+  expect(
+    screen.getByRole('radio', { name: 'Điều chỉnh hồ sơ bằng dữ liệu đã có' }),
+  ).toBeChecked()
+  fireEvent.click(
+    screen.getByRole('radio', { name: 'Cần thực hiện chuyến bay bổ sung' }),
+  )
   fireEvent.change(
     screen.getByLabelText('Nội dung cần bổ sung: Inspect fence'),
     { target: { value: 'Image is blurred' } },
@@ -247,7 +253,7 @@ it('automatically includes every failed checklist with its assessment note and e
         reason: 'Coverage missing',
         mediaIds: [],
       },
-    ], 'SUPPLEMENTAL_FLIGHT'),
+    ], 'DOSSIER_ADJUSTMENT'),
   )
 })
 it('hides the correction panel when no checklist has failed and no history exists', async () => {
@@ -302,11 +308,49 @@ it('keeps dossier adjustments out of Manager flight planning', async () => {
   const { container } = render(<InspectionCorrectionPanel missionId="m1" manager orderId="order" />)
   await waitFor(() => expect(container).toBeEmptyDOMElement())
 })
+it('shows waiting guidance to a pure Inspector when a dossier adjustment is still open', async () => {
+  vi.spyOn(inspectionCorrectionApi, 'list').mockResolvedValue([
+    { ...batch, mode: 'DOSSIER_ADJUSTMENT', status: 'OPEN' },
+  ])
+  render(<InspectionCorrectionPanel missionId="m1" canRequest />)
+  expect(
+    await screen.findByText(/Yêu cầu đã gửi tới đội thực hiện/),
+  ).toBeInTheDocument()
+  expect(
+    screen.getByRole('link', { name: 'Xem tiến độ xử lý' }),
+  ).toHaveAttribute('href', '#portal/staff/corrections/m1')
+  expect(
+    screen.queryByRole('link', { name: 'Mở bổ sung hồ sơ' }),
+  ).toBeNull()
+})
+
 it('routes the Inspector to the same workspace for reinspection', async () => {
+  window.location.hash = '#portal/staff/missions/m1'
   vi.spyOn(inspectionCorrectionApi, 'list').mockResolvedValue([{ ...batch, mode: 'DOSSIER_ADJUSTMENT', status: 'SUBMITTED' }])
   render(<InspectionCorrectionPanel missionId="m1" canRequest />)
   expect(await screen.findByRole('link', { name: 'Kiểm tra lại hồ sơ' })).toHaveAttribute('href', '#portal/staff/inspection/m1')
   expect(screen.queryByRole('button', { name: 'Xác nhận đã bổ sung đạt' })).toBeNull()
+})
+
+it('opens the requested checklist item in place when already on the inspection page', async () => {
+  window.location.hash = '#portal/staff/inspection/m1'
+  const onReviewChecklist = vi.fn()
+  vi.spyOn(inspectionCorrectionApi, 'list').mockResolvedValue([
+    { ...batch, mode: 'DOSSIER_ADJUSTMENT', status: 'SUBMITTED' },
+  ])
+  render(
+    <InspectionCorrectionPanel
+      missionId="m1"
+      rows={rows}
+      canRequest
+      onReviewChecklist={onReviewChecklist}
+    />,
+  )
+  fireEvent.click(
+    await screen.findByRole('button', { name: 'Kiểm tra lại hồ sơ' }),
+  )
+  expect(onReviewChecklist).toHaveBeenCalledWith('bad')
+  window.location.hash = ''
 })
 
 
@@ -341,3 +385,72 @@ it('closes a submitted dossier from checklist acceptance and selected evidence w
   await waitFor(() => expect(reconcile).toHaveBeenCalledTimes(1))
   expect(screen.queryByRole('button', { name: 'Xác nhận đã bổ sung đạt' })).toBeNull()
 })
+
+it('shows next-step guidance on the original mission only when remaining checklist items still need assessment or customer evidence selection', async () => {
+  const resolvedSupplement = {
+    ...batch,
+    status: 'RESOLVED' as const,
+    mode: 'SUPPLEMENTAL_FLIGHT' as const,
+    supplementalMissionId: 'child',
+    supplementalMissionCode: 'MS-CHILD',
+    supplementalMissionStatus: 'COMPLETED',
+  }
+  vi.spyOn(inspectionCorrectionApi, 'list').mockResolvedValue([resolvedSupplement])
+  vi.spyOn(inspectionCorrectionApi, 'supplementResult').mockResolvedValue({
+    missionId: 'child',
+    missionCode: 'MS-CHILD',
+    completedAt: null,
+    executions: [],
+  })
+
+  const { rerender } = render(
+    <InspectionCorrectionPanel
+      missionId="m1"
+      canRequest
+      rows={[
+        { ...rows[0], fulfilledByMissionId: 'child', fulfilledByMissionCode: 'MS-CHILD' },
+        { ...rows[1], assessmentStatus: 'COMPLIANT', readyForFinalApproval: false },
+      ]}
+    />,
+  )
+
+  expect(
+    await screen.findByText('Cần hoàn tất các hạng mục còn lại của nhiệm vụ gốc'),
+  ).toBeInTheDocument()
+  expect(
+    screen.getByText(/Nhiệm vụ gốc còn 1 hạng mục cần đánh giá đạt và chọn đủ bằng chứng gửi khách/),
+  ).toBeInTheDocument()
+
+  // Once the remaining item is ready for final approval, the guidance disappears
+  rerender(
+    <InspectionCorrectionPanel
+      missionId="m1"
+      canRequest
+      rows={[
+        { ...rows[0], fulfilledByMissionId: 'child', fulfilledByMissionCode: 'MS-CHILD' },
+        { ...rows[1], assessmentStatus: 'COMPLIANT', readyForFinalApproval: true },
+      ]}
+    />,
+  )
+  await waitFor(() =>
+    expect(
+      screen.queryByText('Cần hoàn tất các hạng mục còn lại của nhiệm vụ gốc'),
+    ).toBeNull(),
+  )
+
+  // If the original mission is already completed (canRequest=false), the guidance is never shown
+  rerender(
+    <InspectionCorrectionPanel
+      missionId="m1"
+      canRequest={false}
+      rows={[
+        { ...rows[0], fulfilledByMissionId: 'child', fulfilledByMissionCode: 'MS-CHILD' },
+        { ...rows[1], assessmentStatus: 'COMPLIANT', readyForFinalApproval: false },
+      ]}
+    />,
+  )
+  expect(
+    screen.queryByText('Cần hoàn tất các hạng mục còn lại của nhiệm vụ gốc'),
+  ).toBeNull()
+})
+

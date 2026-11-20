@@ -342,6 +342,59 @@ describe('inspector customer selection', () => {
     expect(screen.getByRole('checkbox', { name: /two.jpg/ })).toBeEnabled()
     expect(save).not.toHaveBeenCalled()
   })
+  it('stays locked while refresh is unconfirmed and unlocks subsequent edits once refreshed data confirms the saved selection even with the same version', async () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+    const save = vi
+      .spyOn(checklistEvidenceApi, 'selectForCustomer')
+      .mockResolvedValue([])
+    const refresh = vi.fn()
+    const view = render(
+      <CustomerEvidenceSelection missionId="m" item={item} refresh={refresh} />,
+    )
+    fireEvent.click(screen.getByRole('checkbox', { name: /one.jpg/ }))
+    fireEvent.click(
+      screen.getByRole('button', { name: /Lưu lựa chọn gửi khách hàng/ }),
+    )
+    await waitFor(() => expect(save).toHaveBeenCalledTimes(1))
+    expect(refresh).toHaveBeenCalledTimes(1)
+
+    // While refresh has not updated item.evidence (or if refresh failed), checkboxes remain locked to prevent duplicate stale-version submits
+    expect(screen.getByRole('checkbox', { name: /one.jpg/ })).toBeDisabled()
+    expect(
+      screen.getByRole('button', { name: 'Tải lại checklist' }),
+    ).toBeInTheDocument()
+
+    // Once refreshed data arrives confirming the selection (even with the same item.version = 7), checkboxes unlock for further edits
+    view.rerender(
+      <CustomerEvidenceSelection
+        missionId="m"
+        item={{
+          ...item,
+          version: 7,
+          evidence: [
+            { ...evidence('one'), selectedForCustomer: true },
+            evidence('two'),
+            {
+              ...evidence('pending'),
+              mediaStatus: 'VALIDATING',
+              eligibleForFinalApproval: false,
+            },
+          ],
+        }}
+        refresh={refresh}
+      />,
+    )
+    await waitFor(() =>
+      expect(screen.getByRole('checkbox', { name: /two.jpg/ })).toBeEnabled(),
+    )
+    expect(
+      screen.getByRole('button', { name: /Lưu lựa chọn gửi khách hàng/ }),
+    ).toBeDisabled()
+    fireEvent.click(screen.getByRole('checkbox', { name: /two.jpg/ }))
+    expect(
+      screen.getByRole('button', { name: /Lưu lựa chọn gửi khách hàng/ }),
+    ).toBeEnabled()
+  })
   it('opens an image preview without changing the customer selection', async () => {
     const save = vi.spyOn(checklistEvidenceApi, 'selectForCustomer')
     render(

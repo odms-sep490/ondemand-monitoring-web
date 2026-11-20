@@ -820,6 +820,7 @@
 .inspection-workspace .inspection-corrections { margin: 0 0 18px; padding: 20px; box-shadow: none; }
 .inspection-workspace .inspection-corrections__request { border: 1px solid var(--ui-border, #dce4ef); background: var(--ui-surface-2, #f6f8fc); }
 .inspection-workspace .inspection-corrections__actions { padding: 16px; border: 1px solid var(--ui-border, #dce4ef); border-radius: 12px; background: var(--ui-surface, #fff); }
+.inspection-workspace .inspection-corrections__actions--bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px 20px; padding: 14px 18px; background: var(--ui-primary-soft, #eff6ff); }
 .inspection-workspace .inspection-corrections__actions > .ant-btn { justify-self: end; width: auto; max-width: 100%; height: auto; min-height: 38px; white-space: normal; }
 .inspection-workspace.postflight-acceptance .postflight-review-actions { position: static; bottom: auto; z-index: auto; margin: 0; padding: 18px 20px; gap: 12px; border-radius: 12px; }
 .inspection-workspace .postflight-review-action-copy { gap: 5px; }

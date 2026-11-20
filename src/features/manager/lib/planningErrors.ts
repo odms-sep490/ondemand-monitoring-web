@@ -12,6 +12,16 @@ export function planningBlocker(code: string): string {
 }
 
 const backendMessageTranslations: Record<string, string> = {
+  'Mission schedule is required for availability':
+    'Vui lòng cập nhật lịch bay (giờ bắt đầu và kết thúc) trước khi phân công nhân sự hoặc thiết bị.',
+  'Mission schedule is required':
+    'Vui lòng cập nhật lịch bay cho nhiệm vụ trước khi thực hiện thao tác này.',
+  'Order must contain a valid fixed time window':
+    'Đơn hàng chưa có khung giờ bay hợp lệ để hệ thống gợi ý lịch và nguồn lực.',
+  'Recommendations require a PLANNING mission':
+    'Chỉ tạo được gợi ý lịch và nguồn lực khi nhiệm vụ đang ở trạng thái Đang lập kế hoạch.',
+  'This correction requires dossier adjustments, not a new flight':
+    'Yêu cầu này cần điều chỉnh hồ sơ từ dữ liệu hiện có, không tạo chuyến bay mới.',
   'A Mission must have at least one checklist item':
     'Mỗi nhiệm vụ (Mission) phải được gán ít nhất một hạng mục checklist.',
   'Scheduled start time and scheduled end time must be specified':
@@ -44,19 +54,13 @@ const backendMessageTranslations: Record<string, string> = {
     'Dữ liệu checklist của đơn hàng không hợp lệ.',
 }
 
-export function translateBackendError(error: unknown): string {
-  if (resourceAssignmentConflict(error))
-    return planningBlocker(
-      error instanceof ApiError && error.code === 'STAFF_BUSY_IN_SLOT'
-        ? 'STAFF_BUSY_IN_SLOT'
-        : 'RESOURCE_TIME_CONFLICT',
-    )
-  if (!(error instanceof ApiError)) {
-    if (error instanceof Error) return error.message
-    return 'Không thể kết nối. Giữ nguyên dữ liệu và thử lại sau.'
-  }
+const backendEnglishOverrides: Record<string, string> = {
+  'Mission schedule is required for availability':
+    'Please set the mission flight schedule (start and end time) before assigning staff or devices.',
+}
 
-  const raw = error.message?.trim() || ''
+function translateRawPlanningMessage(raw: string): string | null {
+  if (!raw) return null
 
   // 1. Time slot pattern
   if (/within customer preferred time slot/i.test(raw)) {
@@ -90,11 +94,41 @@ export function translateBackendError(error: unknown): string {
   }
 
   // 4. Direct or partial match with dictionary
-  for (const [en, vi] of Object.entries(backendMessageTranslations)) {
-    if (raw.toLowerCase().includes(en.toLowerCase())) {
-      return vi
+  if (getLanguage() === 'en') {
+    for (const [key, msg] of Object.entries(backendEnglishOverrides)) {
+      if (raw.toLowerCase().includes(key.toLowerCase())) {
+        return msg
+      }
+    }
+  } else {
+    for (const [en, vi] of Object.entries(backendMessageTranslations)) {
+      if (raw.toLowerCase().includes(en.toLowerCase())) {
+        return vi
+      }
     }
   }
+
+  return null
+}
+
+export function translateBackendError(error: unknown): string {
+  if (resourceAssignmentConflict(error))
+    return planningBlocker(
+      error instanceof ApiError && error.code === 'STAFF_BUSY_IN_SLOT'
+        ? 'STAFF_BUSY_IN_SLOT'
+        : 'RESOURCE_TIME_CONFLICT',
+    )
+  if (!(error instanceof ApiError)) {
+    if (error instanceof Error) {
+      const raw = error.message?.trim() || ''
+      return translateRawPlanningMessage(raw) ?? error.message
+    }
+    return 'Không thể kết nối. Giữ nguyên dữ liệu và thử lại sau.'
+  }
+
+  const raw = error.message?.trim() || ''
+  const translated = translateRawPlanningMessage(raw)
+  if (translated) return translated
 
   // 5. Fallback to code if message is empty or generic
   if (error.code) {

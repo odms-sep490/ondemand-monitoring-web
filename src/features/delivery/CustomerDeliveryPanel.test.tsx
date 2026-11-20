@@ -562,4 +562,56 @@ describe('CustomerDeliveryPanel', () => {
     ).toBeInTheDocument()
     expect(onPaymentCompleted).toHaveBeenCalledTimes(1)
   })
+
+  it('shows the completion banner with bulk download when multiple originals are ready', async () => {
+    setLanguage('vi')
+    const deliveredMultiple: Delivery = {
+      ...pending,
+      deliveryStatus: 'DELIVERED',
+      invoiceStatus: 'PAID',
+      paidAmount: 1000,
+      remainingAmount: 0,
+      assets: [
+        {
+          id: 'asset-img',
+          type: 'IMAGE',
+          fileName: 'efe7631b-f53c-4545-bb0f-4123456789ab.jpg',
+          size: 44_000,
+          url: 'https://cdn.example.com/orig-1.jpg',
+          previewUrl: 'https://cdn.example.com/prev-1.jpg',
+          thumbnailUrl: 'https://cdn.example.com/thumb-1.jpg',
+          previewStatus: 'READY',
+          urlExpiresAt: null,
+          downloadable: true,
+        },
+        {
+          id: 'asset-vid',
+          type: 'VIDEO',
+          fileName: 'af44930e-ccd6-43f4-9cba-4123456789ab.mp4',
+          size: 241_000,
+          url: 'https://cdn.example.com/orig-2.mp4',
+          previewUrl: 'https://cdn.example.com/prev-2.mp4',
+          thumbnailUrl: 'https://cdn.example.com/thumb-2.jpg',
+          previewStatus: 'READY',
+          urlExpiresAt: null,
+          downloadable: true,
+        },
+      ],
+    }
+    vi.mocked(deliveryApi.get).mockResolvedValue(deliveredMultiple)
+    vi.spyOn(deliveryApi, 'originals').mockResolvedValue(deliveredMultiple)
+
+    render(<CustomerDeliveryPanel orderId="o1" />)
+
+    expect(await screen.findByText('Bàn giao hoàn tất')).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Tải tất cả (2 tệp)' }),
+    ).toBeInTheDocument()
+    expect(screen.getAllByRole('button', { name: 'Tải bản gốc' })).toHaveLength(
+      2,
+    )
+    expect(
+      document.querySelector('.delivery-status-first .delivery-complete-card'),
+    ).not.toBeNull()
+  })
 })

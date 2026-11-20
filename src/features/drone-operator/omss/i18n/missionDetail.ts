@@ -25,6 +25,7 @@ export const missionDetailMessages = defineMessages({
     },
     waypointsReady: (count: number) => `${count} waypoint đã sẵn sàng`,
     noPlan: 'Chưa có kế hoạch',
+    unscheduled: 'Chưa đặt lịch',
     missionPlanning: 'Kế hoạch nhiệm vụ',
     plan: {
       algorithm: 'Thuật toán',
@@ -80,6 +81,7 @@ export const missionDetailMessages = defineMessages({
     },
     waypointsReady: (count: number) => `${count} waypoints ready`,
     noPlan: 'No plan',
+    unscheduled: 'Unscheduled',
     missionPlanning: 'Mission Planning',
     plan: {
       algorithm: 'Algorithm',

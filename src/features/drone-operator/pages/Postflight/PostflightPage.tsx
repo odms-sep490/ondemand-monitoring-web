@@ -328,7 +328,7 @@ function PostflightDevicePage({ inspectionOnly, missionId, selectedDeviceId, sel
               <InputNumber id="postflight-landing-battery" min={0} max={100} precision={1}
                 value={landingBattery} onChange={setLandingBattery} placeholder="0–100"
                 addonAfter="%" aria-required="true" style={{ width: 180 }} />
-              <small>Nhập mức pin thực tế của thiết bị sau khi bay.</small>
+              <small>{t.landingBatteryHint}</small>
             </div>
             <AssessmentProgress
               failItems={failItems}

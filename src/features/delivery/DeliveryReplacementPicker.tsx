@@ -5,10 +5,22 @@ import { SwapOutlined } from '@ant-design/icons'
 import type { ChecklistDeliveryAsset } from './api'
 import { useI18n } from '../../shared/i18n'
 import { managerDeliveryPanelMessages } from './managerDeliveryPanel.messages'
-import { ImagePreview } from '../../shared/components/media/ImagePreview'
+import {
+  ImagePreview,
+} from '../../shared/components/media/ImagePreview'
+import type { MediaRecoveryResult } from '../../shared/components/media/useMediaRecovery'
 import './DeliveryReplacementPicker.css'
 
-function Preview({ asset }: { asset: ChecklistDeliveryAsset }) {
+function Preview({
+  asset,
+  onRefreshMedia,
+}: {
+  asset: ChecklistDeliveryAsset
+  onRefreshMedia?: (
+    mediaAssetId: string,
+    signal: AbortSignal,
+  ) => Promise<MediaRecoveryResult | null>
+}) {
   const { t } = useI18n(managerDeliveryPanelMessages)
   if (!asset.previewUrl)
     return (
@@ -16,8 +28,19 @@ function Preview({ asset }: { asset: ChecklistDeliveryAsset }) {
         {t.replacementPreviewUnavailable}
       </div>
     )
+  const refresh = onRefreshMedia
+    ? (signal: AbortSignal) => onRefreshMedia(asset.mediaAssetId, signal)
+    : undefined
   return asset.type.toUpperCase().includes('VIDEO') ? (
-    <VideoThumbnail src={asset.previewUrl} poster={asset.thumbnailUrl} fallbackUrl={null} fileName={asset.fileName} fileSize={asset.size} original={asset.previewStatus !== 'READY'} />
+    <VideoThumbnail
+      src={asset.previewUrl}
+      poster={asset.thumbnailUrl}
+      fallbackUrl={null}
+      fileName={asset.fileName}
+      fileSize={asset.size}
+      original={asset.previewStatus !== 'READY'}
+      onRefreshMedia={refresh}
+    />
   ) : (
     <ImagePreview
       src={asset.thumbnailUrl ?? asset.previewUrl}
@@ -26,6 +49,7 @@ function Preview({ asset }: { asset: ChecklistDeliveryAsset }) {
       original={asset.previewStatus !== 'READY'}
       previewSrc={asset.previewUrl}
       fileName={asset.fileName}
+      onRefreshMedia={refresh}
     />
   )
 }
@@ -37,6 +61,7 @@ export function DeliveryReplacementPicker({
   disabled,
   rework,
   onChange,
+  onRefreshMedia,
 }: {
   source: ChecklistDeliveryAsset
   options: ChecklistDeliveryAsset[]
@@ -44,6 +69,10 @@ export function DeliveryReplacementPicker({
   disabled: boolean
   rework?: boolean
   onChange: (mediaId: string | undefined) => void
+  onRefreshMedia?: (
+    mediaAssetId: string,
+    signal: AbortSignal,
+  ) => Promise<MediaRecoveryResult | null>
 }) {
   const { t } = useI18n(managerDeliveryPanelMessages)
   const [open, setOpen] = useState(false)
@@ -59,7 +88,7 @@ export function DeliveryReplacementPicker({
             {t.replacementSelected}
           </span>
           <div className="delivery-replacement-selection-body">
-            <Preview asset={selected} />
+            <Preview asset={selected} onRefreshMedia={onRefreshMedia} />
             <div className="delivery-replacement-meta">
               <strong title={selected.fileName}>{selected.fileName}</strong>
               <small>{selected.missionCode}</small>
@@ -110,7 +139,7 @@ export function DeliveryReplacementPicker({
           {rework ? t.reworkMediaHelp : t.replacementHelp}
         </p>
         <div className="delivery-replacement-source">
-          <Preview asset={source} />
+          <Preview asset={source} onRefreshMedia={onRefreshMedia} />
           <div className="delivery-replacement-meta">
             <span className="delivery-replacement-caption">
               {t.replacementSource}
@@ -130,7 +159,7 @@ export function DeliveryReplacementPicker({
               className={`delivery-replacement-option${asset.mediaAssetId === draftId ? ' is-selected' : ''}`}
               key={asset.mediaAssetId}
             >
-              <Preview asset={asset} />
+              <Preview asset={asset} onRefreshMedia={onRefreshMedia} />
               <div className="delivery-replacement-meta">
                 <Typography.Text ellipsis={{ tooltip: asset.fileName }}>
                   {asset.fileName}

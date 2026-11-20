@@ -10,6 +10,7 @@ import { ApiError } from '../../../shared/api/httpClient'
 import { useApiQuery } from '../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../shared/i18n'
 import type { MissionChecklistExecution } from '../types/checklistExecution'
+import { customerSelectionProgress } from '../lib/customerEvidenceSelection'
 import { operatorHref } from '../../drone-operator/routes'
 import { managerHref } from '../../manager/routes'
 import { inspectionCorrectionApi, type CorrectionMode } from './inspectionCorrectionApi'
@@ -24,6 +25,7 @@ type Props = {
   manager?: boolean
   orderId?: string
   refresh?: () => void
+  onReviewChecklist?: (executionId?: string) => void
 }
 export function InspectionCorrectionPanel(props: Props) {
   return <CorrectionContent key={props.missionId} {...props} />
@@ -36,6 +38,7 @@ function CorrectionContent({
   manager = false,
   orderId,
   refresh,
+  onReviewChecklist,
 }: Props) {
   const { t, locale } = useI18n(inspectionCorrectionMessages)
   const query = useApiQuery(
@@ -47,7 +50,7 @@ function CorrectionContent({
   const [busy, setBusy] = useState(false),
     [error, setError] = useState<string | null>(null)
   const [resultRefresh, setResultRefresh] = useState(0)
-  const [mode, setMode] = useState<CorrectionMode>('SUPPLEMENTAL_FLIGHT')
+  const [mode, setMode] = useState<CorrectionMode>('DOSSIER_ADJUSTMENT')
   const refreshRef = useRef(refresh)
   refreshRef.current = refresh
   const command = useRef(crypto.randomUUID())
@@ -68,6 +71,30 @@ function CorrectionContent({
     void act(() => inspectionCorrectionApi.reconcileChecklistReview(missionId))
   }, [active, canRequest, reviewSignature, rows, missionId, busy, query.loading])
   const displaySupplement = active ?? query.data?.find(row => row.supplementalMissionStatus === 'COMPLETED')
+  const supplementedExecutionIds = new Set(
+    (query.data ?? [])
+      .filter(
+        (correction) =>
+          correction.status === 'RESOLVED' &&
+          correction.supplementalMissionStatus === 'COMPLETED',
+      )
+      .flatMap((correction) => correction.items.map((item) => item.executionId)),
+  )
+  const pendingSourceRows = rows.filter((row) => {
+    if (row.fulfilledByMissionId || supplementedExecutionIds.has(row.id)) {
+      return false
+    }
+    if (row.assessmentStatus !== 'COMPLIANT') return true
+    if (typeof row.readyForFinalApproval === 'boolean') {
+      return !row.readyForFinalApproval
+    }
+    return !customerSelectionProgress(
+      row,
+      (row.evidence ?? [])
+        .filter((link) => link.selectedForCustomer)
+        .map((link) => link.evidenceId),
+    ).valid
+  })
   const failedRows = rows.filter(
     (row) =>
       !row.fulfilledByMissionId && row.assessmentStatus === 'NON_COMPLIANT',
@@ -122,10 +149,14 @@ function CorrectionContent({
     return null
   const reviewingSupplement = !manager && canRequest && Boolean(active?.supplementalMissionId) && active?.supplementalMissionStatus === 'COMPLETED'
   const creatingRequest = canRequest && !active && failedRows.length > 0
+  const composingBelowChecklist = creatingRequest && !(query.data?.length)
   const panelTitle = manager ? t.create : t.title
   if (query.loading && !query.data) return <p role="status">{t.loading}</p>
   return (
-    <section className={`inspection-corrections${reviewingSupplement ? ' inspection-corrections--review' : ''}`} aria-label={panelTitle}>
+    <section
+      className={`inspection-corrections${reviewingSupplement ? ' inspection-corrections--review' : ''}${composingBelowChecklist ? ' is-composing' : ''}`}
+      aria-label={panelTitle}
+    >
       <header>
         <div className="inspection-corrections__heading">
           <span className="inspection-corrections__icon" aria-hidden="true">
@@ -140,7 +171,19 @@ function CorrectionContent({
                   : t.staffRole}
             </span>
             <h3>{reviewingSupplement ? t.reviewTitle : panelTitle}</h3>
-            <p>{reviewingSupplement ? t.reviewHint : manager ? t.planHint : t.subtitle}</p>
+            <p>
+              {reviewingSupplement
+                ? t.reviewHint
+                : manager
+                  ? t.planHint
+                  : composingBelowChecklist
+                    ? t.composerSubtitle
+                    : active && !canRespond
+                      ? active.status === 'SUBMITTED'
+                        ? t.activeSubmittedSubtitle
+                        : t.activeOpenSubtitle
+                      : t.subtitle}
+            </p>
           </div>
         </div>
         <Button
@@ -155,7 +198,7 @@ function CorrectionContent({
         <Alert type="error" showIcon message={t.loadFailed} />
       ) : (
         <>
-          {!manager && !reviewingSupplement && (!creatingRequest || canRespond) && (
+          {!manager && !reviewingSupplement && (!creatingRequest || canRespond) && !(active && !canRespond) && (
             <p className="inspection-corrections__guide">
               {canRequest
                 ? canRespond
@@ -170,19 +213,24 @@ function CorrectionContent({
               aria-label={t.pending}
             >
               {[t.requestedStep, t.submittedStep, t.resolvedStep].map(
-                (label, index) => (
-                  <div
-                    key={label}
-                    className={
-                      index === (active.status === 'OPEN' ? 0 : 1)
-                        ? 'is-current'
-                        : ''
-                    }
-                  >
-                    <span>{index + 1}</span>
-                    {label}
-                  </div>
-                ),
+                (label, index) => {
+                  const currentStep = active.status === 'OPEN' ? 0 : 1
+                  return (
+                    <div
+                      key={label}
+                      className={
+                        index === currentStep
+                          ? 'is-current'
+                          : index < currentStep
+                            ? 'is-done'
+                            : ''
+                      }
+                    >
+                      <span>{index + 1}</span>
+                      {label}
+                    </div>
+                  )
+                },
               )}
             </div>
           )}
@@ -198,8 +246,10 @@ function CorrectionContent({
                 key={row.id}
                 className={`inspection-corrections__request ${row.status === 'RESOLVED' ? 'is-resolved' : ''}`}
               >
-                <p><Tag color="blue">{row.mode === 'DOSSIER_ADJUSTMENT' ? t.dossier : t.flight}</Tag></p>
                 <div className="inspection-corrections__meta">
+                  <Tag color="blue">
+                    {row.mode === 'DOSSIER_ADJUSTMENT' ? t.dossier : t.flight}
+                  </Tag>
                   <strong>
                     {t.number} {query.data!.length - index}
                   </strong>
@@ -272,13 +322,72 @@ function CorrectionContent({
           {!manager && canRequest && displaySupplement?.supplementalMissionId && displaySupplement.supplementalMissionStatus === 'COMPLETED' && (
             <SupplementInspectionResult missionId={missionId} correctionId={displaySupplement.id} version={displaySupplement.version} refreshToken={resultRefresh} />
           )}
+          {!manager && canRequest && !active && displaySupplement?.status === 'RESOLVED' && displaySupplement.supplementalMissionStatus === 'COMPLETED' && pendingSourceRows.length > 0 && (
+            <Alert
+              type="warning"
+              showIcon
+              className="inspection-corrections__next-step"
+              message={t.sourceRemainingTitle}
+              description={t.sourceRemainingHint(pendingSourceRows.length)}
+            />
+          )}
           {canRequest && active?.mode === 'SUPPLEMENTAL_FLIGHT' && active.status !== 'RESOLVED' && active.supplementalMissionStatus === 'COMPLETED' && (
-            <div className="inspection-corrections__actions">
+            <div className="inspection-corrections__actions inspection-corrections__actions--bar">
               <p>{t.acceptedSupplementHint}</p>
               <Button type="primary" disabled={disabled} onClick={() => void act(() => inspectionCorrectionApi.synchronizeSupplement(missionId, active.id))}>{t.receiveSupplement}</Button>
             </div>
           )}
-          {active?.mode === 'DOSSIER_ADJUSTMENT' && <div className="inspection-corrections__actions"><p>{active.status === 'OPEN' ? t.workflowStaffHint : t.workflowReviewHint}</p><Button type="primary" href={operatorHref({ screen: canRequest && active.status === 'SUBMITTED' ? 'inspection' : 'corrections', missionId })}>{canRequest && active.status === 'SUBMITTED' ? t.workflowReview : t.workflowOpen}</Button></div>}
+          {active?.mode === 'DOSSIER_ADJUSTMENT' && (() => {
+            const isReview = Boolean(canRequest && active.status === 'SUBMITTED')
+            const isCrewStep = Boolean(canRespond && !isReview)
+            const inspectionHash = operatorHref({ screen: 'inspection', missionId })
+            const alreadyOnInspection =
+              typeof window !== 'undefined' &&
+              window.location.hash.startsWith(inspectionHash)
+            const handleReviewInPlace =
+              isReview && onReviewChecklist && alreadyOnInspection
+                ? () => {
+                    const targetExecution =
+                      active.items.find((item) => {
+                        const row = rows.find((r) => r.id === item.executionId)
+                        return !row || row.assessmentStatus !== 'COMPLIANT' || !row.readyForFinalApproval
+                      }) ?? active.items[0]
+                    onReviewChecklist(targetExecution?.executionId)
+                  }
+                : undefined
+            return (
+              <div className="inspection-corrections__actions inspection-corrections__actions--bar">
+                <p>
+                  {isReview
+                    ? handleReviewInPlace
+                      ? t.workflowReviewHereHint
+                      : t.workflowReviewHint
+                    : isCrewStep
+                      ? t.workflowStaffHint
+                      : t.workflowWaitingHint}
+                </p>
+                {handleReviewInPlace ? (
+                  <Button type="primary" onClick={handleReviewInPlace}>
+                    {t.workflowReview}
+                  </Button>
+                ) : (
+                  <Button
+                    type={isReview || isCrewStep ? 'primary' : 'default'}
+                    href={operatorHref({
+                      screen: isReview ? 'inspection' : 'corrections',
+                      missionId,
+                    })}
+                  >
+                    {isReview
+                      ? t.workflowReview
+                      : isCrewStep
+                        ? t.workflowOpen
+                        : t.workflowTrack}
+                  </Button>
+                )}
+              </div>
+            )
+          })()}
           </div>
           </div>}
           {creatingRequest && (
@@ -287,17 +396,32 @@ function CorrectionContent({
                 <h4>{t.strategy}</h4>
               </div>
               <Radio.Group className="inspection-corrections__strategy" aria-label={t.strategy} value={mode} onChange={e => setMode(e.target.value)} disabled={disabled}>
-                <Radio value="DOSSIER_ADJUSTMENT">{t.dossier}</Radio>
-                <Radio value="SUPPLEMENTAL_FLIGHT">{t.flight}</Radio>
+                <Radio value="DOSSIER_ADJUSTMENT" aria-label={t.dossier}>
+                  <span className="inspection-corrections__strategy-copy">
+                    <strong className="inspection-corrections__strategy-title">{t.dossier}</strong>
+                    <span className="inspection-corrections__strategy-desc">{t.dossierHint}</span>
+                  </span>
+                </Radio>
+                <Radio value="SUPPLEMENTAL_FLIGHT" aria-label={t.flight}>
+                  <span className="inspection-corrections__strategy-copy">
+                    <strong className="inspection-corrections__strategy-title">{t.flight}</strong>
+                    <span className="inspection-corrections__strategy-desc">{t.flightHint}</span>
+                  </span>
+                </Radio>
               </Radio.Group>
-              <p>{mode === 'DOSSIER_ADJUSTMENT' ? t.dossierHint : t.flightHint}</p>
               <h4>{t.choose} ({failedRows.length})</h4>
-              {failedRows.map((row) => (
+              {failedRows.map((row, index) => (
                 <div
                   key={row.id}
                   className="inspection-corrections__choice"
                 >
-                  <strong className="inspection-corrections__finding-title">{row.content}</strong>
+                  <div className="inspection-corrections__finding-title">
+                    <div className="inspection-corrections__finding-heading">
+                      <span className="inspection-corrections__item-number">{index + 1}</span>
+                      <strong>{row.content}</strong>
+                    </div>
+                    <Tag color="red">{t.failedBadge}</Tag>
+                  </div>
                   {selected.includes(row.id) && (
                     <>
                       <label>
@@ -335,34 +459,42 @@ function CorrectionContent({
                   )}
                 </div>
               ))}
-              <Button
-                type="primary"
-                disabled={
-                  disabled ||
-                  !selected.length ||
-                  failedRows.some((row) => !reasonFor(row).trim())
-                }
-                onClick={() =>
-                  void act(() =>
-                    inspectionCorrectionApi.request(
-                      missionId,
-                      command.current,
-                      selected.map((id) => ({
-                        executionId: id,
-                        expectedVersion: rows.find((row) => row.id === id)!
-                          .version,
-                        reason: reasonFor(
-                          rows.find((row) => row.id === id)!,
-                        ).trim(),
-                        mediaIds: media[id] ?? [],
-                      })),
-                      mode,
-                    ),
-                  )
-                }
-              >
-                {t.send}
-              </Button>
+              <div className="inspection-corrections__submit-bar">
+                <span className="inspection-corrections__submit-summary">
+                  {t.composeSummary(
+                    selected.length,
+                    mode === 'DOSSIER_ADJUSTMENT' ? t.dossier : t.flight,
+                  )}
+                </span>
+                <Button
+                  type="primary"
+                  disabled={
+                    disabled ||
+                    !selected.length ||
+                    failedRows.some((row) => !reasonFor(row).trim())
+                  }
+                  onClick={() =>
+                    void act(() =>
+                      inspectionCorrectionApi.request(
+                        missionId,
+                        command.current,
+                        selected.map((id) => ({
+                          executionId: id,
+                          expectedVersion: rows.find((row) => row.id === id)!
+                            .version,
+                          reason: reasonFor(
+                            rows.find((row) => row.id === id)!,
+                          ).trim(),
+                          mediaIds: media[id] ?? [],
+                        })),
+                        mode,
+                      ),
+                    )
+                  }
+                >
+                  {t.send}
+                </Button>
+              </div>
             </div>
           )}
           {manager && active?.status === 'OPEN' && active.mode !== 'DOSSIER_ADJUSTMENT' && orderId && (

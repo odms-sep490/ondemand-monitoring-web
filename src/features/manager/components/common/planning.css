@@ -657,10 +657,11 @@
   box-shadow: none;
 }
 .odm-plan-page.is-embedded .odm-plan-create-body {
-  padding: 22px;
+  padding: 18px 20px 14px;
 }
 .odm-plan-page.is-embedded .odm-plan-create-grid {
   grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
   padding: 0;
   border: 0;
 }
@@ -673,7 +674,7 @@
   font-weight: 700;
 }
 .odm-plan-page.is-embedded .odm-plan-form .odm-or-input {
-  height: 50px;
+  height: 46px;
   border-radius: 11px;
   background: var(--sf);
   font-size: 15px;
@@ -687,9 +688,10 @@
 }
 .odm-plan-page.is-embedded .odm-plan-geography {
   display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 12px 14px;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  padding: 11px 14px;
   border: 1px solid var(--pl-blue-bd);
   background: var(--pl-blue-bg);
 }
@@ -708,8 +710,19 @@
   font-size: 13px;
   line-height: 1.45;
 }
-.odm-plan-page.is-embedded .odm-plan-geography li:not(:first-child) {
+.odm-plan-page.is-embedded
+  .odm-plan-geography:not(.is-summary)
+  li:not(:first-child) {
   display: none;
+}
+.odm-plan-page.is-embedded .odm-plan-geography.is-summary ul {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 20px;
+}
+.odm-plan-page.is-embedded .odm-plan-geography.is-summary li + li {
+  margin-top: 0;
 }
 .odm-plan-page.is-embedded > .odm-or-grid {
   display: block;
@@ -718,9 +731,9 @@
 }
 .odm-plan-page.is-embedded > .odm-or-grid > .odm-or-col:first-child {
   display: grid;
-  grid-template-columns: minmax(320px, 0.85fr) minmax(420px, 1.15fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr);
   gap: 16px;
-  align-items: start;
+  align-items: stretch;
 }
 .odm-plan-page.is-embedded > .odm-or-grid > .odm-or-col:last-child {
   display: none;
@@ -734,6 +747,13 @@
   order: 0;
   background: var(--blue-bg, #eff6ff);
   border-color: var(--blue-bd, #bfdbfe);
+}
+.odm-plan-page.is-embedded
+  > .odm-or-grid
+  > .odm-or-col:first-child
+  > .odm-plan-window
+  > .odm-or-card-head {
+  border-bottom: 1px solid var(--blue-bd, #bfdbfe);
 }
 .odm-plan-page.is-embedded
   > .odm-or-grid
@@ -757,12 +777,23 @@
   > .odm-or-col:first-child
   > .odm-plan-weather {
   order: 2;
+  display: flex;
+  flex-direction: column;
 }
 .odm-plan-page.is-embedded
   > .odm-or-grid
   > .odm-or-col:first-child
   > .odm-plan-schedule {
   order: 1;
+  display: flex;
+  flex-direction: column;
+}
+.odm-plan-page.is-embedded .odm-plan-schedule .odm-or-form-row {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+}
+.odm-plan-page.is-embedded .odm-plan-submit-error {
+  margin: 12px 20px 0;
 }
 .odm-plan-page.is-embedded
   > .odm-or-grid
@@ -2065,7 +2096,8 @@
   gap: 12px;
 }
 
-.odm-checklist-count-badge {
+.odm-checklist-count-badge,
+.odm-checklist-locked-badge {
   display: inline-flex;
   align-items: center;
   padding: 2px 10px;
@@ -2074,6 +2106,10 @@
   color: var(--mgr-muted);
   font-size: 12px;
   font-weight: 600;
+}
+
+.odm-checklist-locked-badge {
+  border: 1px solid var(--bd, #e2e8f0);
 }
 
 .odm-checklist-quick-actions {

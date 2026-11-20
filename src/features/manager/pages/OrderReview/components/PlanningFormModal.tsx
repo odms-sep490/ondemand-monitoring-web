@@ -1,8 +1,8 @@
-import { CloseOutlined, PlusOutlined, RedoOutlined } from '@ant-design/icons'
+import { CloseOutlined, EditOutlined, PlusOutlined, RedoOutlined } from '@ant-design/icons'
 import { useEffect, useId, useRef } from 'react'
 import type { ReactNode } from 'react'
 
-/** Overlay dialog that hosts the mission creation form (new or replacement). */
+/** Overlay dialog that hosts the mission creation or editing form. */
 export function PlanningFormModal({
   kind,
   ariaLabel,
@@ -13,7 +13,7 @@ export function PlanningFormModal({
   onRequestClose,
   children,
 }: {
-  kind: 'create' | 'replace'
+  kind: 'create' | 'replace' | 'edit'
   ariaLabel: string
   heading: string
   subtitle: string
@@ -109,7 +109,13 @@ export function PlanningFormModal({
       >
         <header className="odm-planning-create-head">
           <span className="odm-planning-create-icon" aria-hidden="true">
-            {kind === 'create' ? <PlusOutlined /> : <RedoOutlined />}
+            {kind === 'create' ? (
+              <PlusOutlined />
+            ) : kind === 'edit' ? (
+              <EditOutlined />
+            ) : (
+              <RedoOutlined />
+            )}
           </span>
           <div>
             <h3 id={titleId}>{heading}</h3>

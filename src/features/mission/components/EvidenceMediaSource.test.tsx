@@ -112,7 +112,10 @@ it('acceptance gallery and picker see the same eligible pending satellite MediaA
   )
   fireEvent.click(screen.getByText('Thêm bằng chứng từ ảnh/video Nhiệm vụ'))
   const dialog = within(screen.getByRole('dialog'))
-  expect(await dialog.findByAltText('Xem trước satellite.jpg')).toHaveAttribute(
+  expect(
+    await dialog.findByRole('button', { name: 'Phóng to ảnh satellite.jpg' }),
+  ).toBeEnabled()
+  expect(await dialog.findByAltText('satellite.jpg')).toHaveAttribute(
     'src',
     preview,
   )

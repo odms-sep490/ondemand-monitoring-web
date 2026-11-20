@@ -47,39 +47,40 @@ export function MissionChecklistSelectionCard({
             {t.selectedCount(selectedIds.length, items.length)}
           </span>
         </div>
-        <div className="odm-checklist-quick-actions">
-          <button
-            type="button"
-            className="odm-btn odm-btn-sm"
-            onClick={onSelectAll}
-            disabled={disabled}
-            title={t.selectAllTitle}
-          >
-            {t.selectAll}
-          </button>
-          {hasUncovered && (
-            <button
-              type="button"
-              className="odm-btn odm-btn-sm odm-btn-highlight"
-              onClick={onSelectUncovered}
-              disabled={disabled}
-              title={t.selectUncoveredTitle}
-            >
-              {t.selectUncovered}
-            </button>
-          )}
-          {selectedIds.length > 0 && (
+        {disabled ? (
+          <span className="odm-checklist-locked-badge">{t.lockedScope}</span>
+        ) : (
+          <div className="odm-checklist-quick-actions">
             <button
               type="button"
               className="odm-btn odm-btn-sm"
-              onClick={onDeselectAll}
-              disabled={disabled}
-              title={t.deselectTitle}
+              onClick={onSelectAll}
+              title={t.selectAllTitle}
             >
-              {t.deselect}
+              {t.selectAll}
             </button>
-          )}
-        </div>
+            {hasUncovered && (
+              <button
+                type="button"
+                className="odm-btn odm-btn-sm odm-btn-highlight"
+                onClick={onSelectUncovered}
+                title={t.selectUncoveredTitle}
+              >
+                {t.selectUncovered}
+              </button>
+            )}
+            {selectedIds.length > 0 && (
+              <button
+                type="button"
+                className="odm-btn odm-btn-sm"
+                onClick={onDeselectAll}
+                title={t.deselectTitle}
+              >
+                {t.deselect}
+              </button>
+            )}
+          </div>
+        )}
       </header>
 
       <div className="odm-or-card-body odm-checklist-selection-body">

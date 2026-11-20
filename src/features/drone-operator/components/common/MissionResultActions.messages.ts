@@ -28,6 +28,19 @@ export const missionResultActionsMessages = defineMessages({
     busy: 'Đang xử lý…',
     section: 'Nghiệm thu kết quả',
     completeFirst: 'Cần hoàn thành nhiệm vụ trước khi xác nhận nghiệm thu.',
+    error401: 'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.',
+    error403: 'Bạn không có quyền thực hiện thao tác này.',
+    errorStatusInvalid:
+      'Trạng thái Mission đã thay đổi. Dữ liệu mới đang được cập nhật.',
+    errorLocked:
+      'Kết quả đã được gửi hoặc duyệt. Dữ liệu mới đang được cập nhật.',
+    errorWrongType:
+      'Một hoặc nhiều mục có media sai loại. Thay bằng đúng loại ảnh/video theo yêu cầu của từng mục.',
+    errorInsufficient:
+      'Chưa đủ bằng chứng hợp lệ theo số lượng yêu cầu. Kiểm tra tiến độ từng mục và bổ sung phần còn thiếu.',
+    errorNotReady: 'Checklist chưa hoàn tất hoặc chưa đủ bằng chứng hợp lệ.',
+    errorFallback:
+      'Không thể thực hiện thao tác. Dữ liệu mới đang được cập nhật; vui lòng kiểm tra và thử lại.',
   },
   en: {
     verifying: 'Checking checklist data and permissions.',
@@ -56,5 +69,19 @@ export const missionResultActionsMessages = defineMessages({
     busy: 'Processing…',
     section: 'Result inspection',
     completeFirst: 'Complete the mission before confirming inspection.',
+    error401: 'Your session has expired. Please sign in again.',
+    error403: 'You do not have permission to perform this action.',
+    errorStatusInvalid:
+      'The Mission status changed. Latest data is being refreshed.',
+    errorLocked:
+      'The result has already been submitted or approved. Latest data is being refreshed.',
+    errorWrongType:
+      'One or more items have media of the wrong type. Replace them with the required image/video type.',
+    errorInsufficient:
+      'Insufficient valid evidence for the required quantity. Check each item and add the missing evidence.',
+    errorNotReady:
+      'The checklist is incomplete or does not have enough valid evidence.',
+    errorFallback:
+      'Unable to complete this action. Latest data is being refreshed; please review and try again.',
   },
 })

@@ -43,6 +43,16 @@ export function MissionDetailHeader({
           ) : mission.orderId ? (
             <Button disabled>{t.viewOrder}</Button>
           ) : null}
+          {mission.inspectionSourceMissionId ? (
+            <Button
+              href={managerHref({
+                screen: 'missionDetail',
+                missionId: mission.inspectionSourceMissionId,
+              })}
+            >
+              {t.viewSourceMission}
+            </Button>
+          ) : null}
           <Button
             href={managerHref(
               mission.inspectionCorrectionId &&

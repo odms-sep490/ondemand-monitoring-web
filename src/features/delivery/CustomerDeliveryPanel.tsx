@@ -1,4 +1,5 @@
 import { VideoThumbnail } from '../../shared/components/media/VideoThumbnail'
+import { CheckCircleFilled, DownloadOutlined } from '@ant-design/icons'
 import {
   Alert,
   Button,
@@ -19,6 +20,7 @@ import { useI18n } from '../../shared/i18n'
 import { deliveryApi } from './api'
 import { customerDeliveryPanelMessages } from './customerDeliveryPanel.messages'
 import { CustomerResultReview } from './CustomerResultReview'
+import { formatDeliveryMediaLabel } from './formatDeliveryMediaLabel'
 import { ImagePreview } from '../../shared/components/media/ImagePreview'
 import { DeliveryProgress, DeliveryStatusPill } from './DeliveryProgress'
 import type { Delivery, DeliveryPanelLoadState } from './types'
@@ -94,6 +96,7 @@ function ScopedCustomerDeliveryPanel({
   const [downloadingMediaId, setDownloadingMediaId] = useState<string | null>(
     null,
   )
+  const [downloadingAll, setDownloadingAll] = useState(false)
   const [missionPayments, setMissionPayments] =
     useState<MissionPaymentAllocation | null>(null)
   const [missionPaymentsLoading, setMissionPaymentsLoading] = useState(false)
@@ -135,6 +138,28 @@ function ScopedCustomerDeliveryPanel({
       })
     } finally {
       setDownloadingMediaId(null)
+    }
+  }
+
+  async function downloadAllOriginals() {
+    if (!delivery) return
+    const downloadableAssets = delivery.assets.filter(
+      (asset) => asset.downloadable,
+    )
+    if (downloadableAssets.length === 0) return
+    setDownloadingAll(true)
+    try {
+      for (const asset of downloadableAssets) {
+        const response = await requestOriginalMediaDownload(asset.id)
+        startOriginalMediaDownload(response.downloadUrl)
+      }
+    } catch {
+      notificationApi.error({
+        placement: 'topRight',
+        message: t.downloadFailed,
+      })
+    } finally {
+      setDownloadingAll(false)
     }
   }
 
@@ -457,6 +482,39 @@ function ScopedCustomerDeliveryPanel({
               text={t.resultsAcceptedText}
             />
           </div>
+        ) : isDelivered && allOriginalsAvailable ? (
+          <div className="delivery-status-first">
+            <div className="delivery-complete-card" role="status">
+              <div className="delivery-complete-card__main">
+                <span
+                  className="delivery-complete-card__icon"
+                  aria-hidden="true"
+                >
+                  <CheckCircleFilled />
+                </span>
+                <div className="delivery-complete-card__copy">
+                  <span className="delivery-complete-card__eyebrow">
+                    {t.deliveredEyebrow}
+                  </span>
+                  <strong>{t.deliveredTitle}</strong>
+                  <p>{t.deliveredText(delivery.assets.length)}</p>
+                </div>
+              </div>
+              {downloadableCount > 1 ? (
+                <Button
+                  type="primary"
+                  icon={<DownloadOutlined aria-hidden="true" />}
+                  loading={downloadingAll}
+                  disabled={downloadingMediaId !== null}
+                  onClick={() => void downloadAllOriginals()}
+                >
+                  {downloadingAll
+                    ? t.downloadingAll
+                    : t.downloadAll(downloadableCount)}
+                </Button>
+              ) : null}
+            </div>
+          </div>
         ) : null}
         {delivery.assets.length > 0 ? (
           <section
@@ -499,15 +557,23 @@ function ScopedCustomerDeliveryPanel({
               </span>
             </div>
             <div className="delivery-grid">
-              {delivery.assets.map((asset) => (
+              {delivery.assets.map((asset, index) => {
+                const isVideo = asset.type.toUpperCase().includes('VIDEO')
+                const label = formatDeliveryMediaLabel(
+                  asset.fileName,
+                  index + 1,
+                  isVideo,
+                  t,
+                )
+                return (
                 <article key={asset.id} className="delivery-asset">
                   {asset.previewUrl ? (
-                    asset.type.toUpperCase().includes('VIDEO') ? (
+                    isVideo ? (
                       <VideoThumbnail
                         poster={asset.thumbnailUrl}
                         src={asset.previewUrl}
                         mediaId={asset.id}
-                        fileName={asset.fileName}
+                        fileName={label}
                         fileSize={asset.size}
                         original={asset.previewStatus !== 'READY'}
                       />
@@ -518,7 +584,7 @@ function ScopedCustomerDeliveryPanel({
                         fileSize={asset.size}
                         original={asset.previewStatus !== 'READY'}
                         previewSrc={asset.previewUrl}
-                        fileName={asset.fileName}
+                        fileName={label}
                       />
                     )
                   ) : (
@@ -531,21 +597,21 @@ function ScopedCustomerDeliveryPanel({
                     </span>
                   )}
                   <div className="delivery-asset__meta">
-                    <strong title={asset.fileName}>{asset.fileName}</strong>
+                    <strong title={label}>{label}</strong>
                     <small>
-                      {asset.type.toUpperCase().includes('VIDEO')
-                        ? t.video
-                        : t.image}{' '}
-                      · {formatBytes(asset.size, t.unknownSize)}
+                      {isVideo ? t.video : t.image} ·{' '}
+                      {formatBytes(asset.size, t.unknownSize)}
                     </small>
                   </div>
                   {asset.downloadable ? (
                     <Button
                       className="delivery-download"
+                      icon={<DownloadOutlined aria-hidden="true" />}
                       loading={downloadingMediaId === asset.id}
                       disabled={
-                        downloadingMediaId !== null &&
-                        downloadingMediaId !== asset.id
+                        downloadingAll ||
+                        (downloadingMediaId !== null &&
+                          downloadingMediaId !== asset.id)
                       }
                       onClick={() => void downloadOriginal(asset.id)}
                     >
@@ -557,7 +623,8 @@ function ScopedCustomerDeliveryPanel({
                     </span>
                   )}
                 </article>
-              ))}
+                )
+              })}
             </div>
           </section>
         ) : null}
@@ -613,13 +680,6 @@ function ScopedCustomerDeliveryPanel({
               </Button>
             )}
           </div>
-        ) : null}
-        {isDelivered && allOriginalsAvailable ? (
-          <StatusBanner
-            tone="success"
-            title={t.deliveredTitle}
-            text={t.deliveredText(delivery.assets.length)}
-          />
         ) : null}
         {error ? (
           <Alert
