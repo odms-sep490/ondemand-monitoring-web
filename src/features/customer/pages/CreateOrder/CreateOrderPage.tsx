@@ -3,7 +3,7 @@ import { BorderOutlined, EnvironmentOutlined } from '@ant-design/icons'
 import { useEffect, useRef, useState } from 'react'
 
 import { ErrorState, LoadingState } from '../../components/common/StateView'
-import { Modal, PageHeader } from '../../components/common/ui'
+import { Modal } from '../../components/common/ui'
 import { useI18n } from '../../../../shared/i18n'
 import { customerHref } from '../../routes'
 import { ConfirmSubmitModal } from './components/ConfirmSubmitModal'
@@ -14,7 +14,6 @@ import { ReviewStep } from './components/ReviewStep'
 import { ScheduleStep } from './components/ScheduleStep'
 import { ServiceStep } from './components/ServiceStep'
 import { SiteDetailsStep } from './components/SiteDetailsStep'
-import { StepTabs } from './components/StepTabs'
 import { WizardFooter } from './components/WizardFooter'
 import { createOrderPageMessages } from './CreateOrderPage.messages'
 import './CreateOrder.css'
@@ -148,6 +147,9 @@ export function CreateOrderPage() {
               : null
         }
         summary={stepTwoSummary}
+        cancelLabel={t.cancel}
+        cancelDisabled={submit.submitting}
+        onCancel={openLeaveConfirmation}
         onBack={wizard.back}
         onNext={wizard.next}
         onSubmit={openSubmitConfirmation}
@@ -158,28 +160,11 @@ export function CreateOrderPage() {
   return (
     <div
       ref={pageRef}
-      className={`cus-page co-page${step === 6 ? ' is-review-step' : ''}`}
+      className={`cus-page co-page${step === 1 ? ' is-service-selection' : ''}${step === 6 ? ' is-review-step' : ''}`}
     >
-      <div className="co-create-hero">
-        <PageHeader
-          title={step === 6 ? t.reviewTitle : t.pageTitle}
-          subtitle={step === 6 ? t.reviewSubtitle : t.pageSubtitle}
-          actions={
-            <Button
-              disabled={submit.submitting}
-              onClick={openLeaveConfirmation}
-            >
-              {t.cancel}
-            </Button>
-          }
-        />
-      </div>
-      <StepTabs
-        step={step}
-        reached={wizard.reached}
-        labels={t.stepLabels}
-        onSelect={wizard.goTo}
-      />
+      <h1 className="odm-visually-hidden">
+        {step === 6 ? t.reviewTitle : t.pageTitle}
+      </h1>
 
       {meta.loading && !meta.services.length && <LoadingState />}
       {Boolean(meta.error) && (
@@ -211,6 +196,7 @@ export function CreateOrderPage() {
           selectedCount={checklist.selectedCount}
           packageSelectedCount={packageSelectedCount}
           packageCount={packageChecklists.length}
+          mediaTotals={checklist.mediaTotals}
           additionalChecklists={additionalChecklists}
           valid={checklist.valid}
           pricingEstimate={estimate}
@@ -227,7 +213,12 @@ export function CreateOrderPage() {
         />
       )}
       {step === 4 && (
-        <SiteDetailsStep form={form} errors={f.errors} update={f.update} />
+        <SiteDetailsStep
+          form={form}
+          errors={f.errors}
+          update={f.update}
+          footer={footer}
+        />
       )}
       {step === 5 && (
         <ScheduleStep
@@ -266,7 +257,7 @@ export function CreateOrderPage() {
         </div>
       )}
 
-      {footer}
+      {step !== 4 && footer}
 
       {submit.confirmOpen && (
         <ConfirmSubmitModal

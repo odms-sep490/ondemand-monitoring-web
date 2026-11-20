@@ -1,8 +1,10 @@
 import { expect, test, type Page, type TestInfo } from '@playwright/test'
 
 const VIEWPORTS = [
+  { width: 1920, height: 1080 },
+  { width: 1600, height: 900 },
   { width: 1440, height: 900 },
-  { width: 1024, height: 900 },
+  { width: 1366, height: 768 },
   { width: 768, height: 1024 },
   { width: 390, height: 844 },
 ]
@@ -64,16 +66,37 @@ async function inspectResponsiveState(
             !field.getAttribute('aria-labelledby'),
         )
         .map((field) => field.outerHTML.slice(0, 120))
-      const activeStep = document.querySelector('.co-tab[aria-current="step"]')
+      const serviceCards = [
+        ...document.querySelectorAll<HTMLElement>('.co-service'),
+      ]
+      const serviceCardsInViewport = serviceCards.filter((element) => {
+        const rect = element.getBoundingClientRect()
+        return rect.top >= 0 && rect.bottom <= window.innerHeight
+      }).length
       const dock = document.querySelector<HTMLElement>('.co-action-dock')
       const rect = dock?.getBoundingClientRect()
+      const continueButton = dock?.querySelector<HTMLElement>(
+        '.co-footer-actions .ant-btn-primary',
+      )
+      const continueRect = continueButton?.getBoundingClientRect()
       return {
         viewportWidth: document.documentElement.clientWidth,
         documentWidth: document.documentElement.scrollWidth,
         documentHeight: document.documentElement.scrollHeight,
         bodyHeight: document.body.scrollHeight,
         scrollY: window.scrollY,
-        activeStep: activeStep?.getAttribute('aria-label') ?? null,
+        isServiceSelection: Boolean(
+          document.querySelector('.co-page.is-service-selection'),
+        ),
+        heroVisible: Boolean(document.querySelector('.co-create-hero')),
+        tabsVisible: Boolean(document.querySelector('.co-tabs')),
+        serviceCardCount: serviceCards.length,
+        serviceCardsInViewport,
+        continueInViewport: Boolean(
+          continueRect &&
+          continueRect.top >= 0 &&
+          continueRect.bottom <= window.innerHeight,
+        ),
         dockPosition: dock ? getComputedStyle(dock).position : null,
         dockRect: rect ? { top: rect.top, bottom: rect.bottom } : null,
         undersized,
@@ -88,8 +111,9 @@ async function inspectResponsiveState(
       layout.documentWidth,
       `horizontal overflow in step ${step} at ${viewport.width}px (${state})`,
     ).toBeLessThanOrEqual(viewport.width)
-    expect(layout.activeStep, `active step at ${viewport.width}px`).toContain(
-      `— đang thực hiện`,
+    expect(layout.heroVisible, 'the request-flow hero is removed').toBe(false)
+    expect(layout.tabsVisible, 'the request-flow step bar is removed').toBe(
+      false,
     )
     expect(layout.dockPosition, `action dock at ${viewport.width}px`).toBe(
       'static',
@@ -98,6 +122,15 @@ async function inspectResponsiveState(
       layout.undersized,
       `controls below 24×24 in step ${step} at ${viewport.width}px`,
     ).toEqual([])
+    if (
+      layout.isServiceSelection &&
+      viewport.width >= 1440 &&
+      viewport.height >= 900
+    ) {
+      expect(layout.serviceCardCount).toBe(4)
+      expect(layout.serviceCardsInViewport).toBe(4)
+      expect(layout.continueInViewport).toBe(true)
+    }
     expect(
       layout.unlabeledFields,
       `unlabeled form fields in step ${step} at ${viewport.width}px`,
@@ -111,6 +144,37 @@ async function inspectResponsiveState(
 
   await page.setViewportSize(VIEWPORTS[0])
 }
+
+test('service selection fits desktop viewports and keeps wizard actions working', async ({
+  page,
+}, testInfo) => {
+  await openWizard(page)
+  await expect(page.locator('.co-page.is-service-selection')).toBeVisible()
+  await expect(page.locator('.co-service')).toHaveCount(4)
+  await inspectResponsiveState(page, 1, 'service-selection', testInfo)
+
+  const secondService = page.locator('.co-service').nth(1)
+  await secondService.click()
+  await expect(secondService).toHaveAttribute('aria-pressed', 'true')
+  await page
+    .locator('#co-flight-purpose')
+    .selectOption('CONSTRUCTION_MONITORING')
+  await page
+    .getByRole('button', { name: /Tiếp tục: Vị trí & vùng giám sát/ })
+    .click()
+  await expect(page.locator('.co-page.is-service-selection')).toHaveCount(0)
+  await expect(page.locator('.co-create-hero')).toHaveCount(0)
+  await expect(page.locator('.co-tabs')).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Quay lại' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Hủy' })).toBeVisible()
+  await page.getByRole('button', { name: 'Hủy' }).click()
+  await expect(page.getByText('Rời trang tạo yêu cầu?')).toBeVisible()
+  await page.getByRole('button', { name: 'Tiếp tục tạo yêu cầu' }).click()
+  await expect(page.getByText('Rời trang tạo yêu cầu?')).toBeHidden()
+
+  await page.getByRole('button', { name: 'Quay lại' }).click()
+  await expect(page.locator('.co-page.is-service-selection')).toBeVisible()
+})
 
 async function openWizard(page: Page) {
   await page.addInitScript(() => {
@@ -164,24 +228,17 @@ test('CreateOrder six-step flow recovers validation and stays responsive', async
   )
   await openWizard(page)
 
-  // Step 1: required fields are identified beside their inputs.
-  await page
-    .getByRole('button', { name: /Tiếp tục: Vị trí & vùng giám sát/ })
-    .click()
-  await expect(page.getByText('Nhập tiêu đề yêu cầu.')).toBeVisible()
-  await inspectResponsiveState(page, 1, 'validation', testInfo)
-  await page.getByLabel(/Tiêu đề/).fill('Nghiệm thu giao diện sáu bước')
-  await page.getByLabel(/Tiêu đề/).focus()
-  await page.keyboard.press('Tab')
-  await expect(page.locator('#co-flight-purpose')).toBeFocused()
+  // Step 1: select a service and purpose before moving into location.
+  await page.locator('.co-service').first().click()
   await page
     .locator('#co-flight-purpose')
     .selectOption('CONSTRUCTION_MONITORING')
-
-  // Step 2: missing location blocks progress; offline tiles show the fallback notice.
+  await inspectResponsiveState(page, 1, 'service-selection', testInfo)
   await page
     .getByRole('button', { name: /Tiếp tục: Vị trí & vùng giám sát/ })
     .click()
+
+  // Step 2: missing location blocks progress; offline tiles show the fallback notice.
   await page
     .getByRole('button', { name: /Tiếp tục: Nội dung giám sát/ })
     .click()
@@ -339,7 +396,6 @@ test('CreateOrder six-step flow recovers validation and stays responsive', async
   await expect(
     page.getByRole('heading', { name: 'Rà soát yêu cầu' }),
   ).toBeVisible()
-  await expect(page.getByText('Nghiệm thu giao diện sáu bước')).toBeVisible()
   await expect(page.getByText('10.6402000, 106.6912000').first()).toBeVisible()
   await expect(page.getByText('Cao 60 m')).toBeVisible()
   await expect(page.getByRole('button', { name: /Gửi yêu cầu/ })).toBeEnabled()
@@ -357,34 +413,23 @@ test('CreateOrder six-step flow recovers validation and stays responsive', async
 
   // Edit a previous step and verify downstream summary state updates.
   await page.getByRole('button', { name: 'Sửa: Hiện trường' }).click()
-  await expect(
-    page.locator('.co-tab[aria-current="step"]'),
-  ).toHaveAccessibleName(/Chi tiết & quyền giám sát/)
+  await expect(page.getByLabel(/Độ cao giám sát/)).toHaveValue('60')
   await page.getByLabel(/Độ cao giám sát/).fill('70')
   await page.getByRole('button', { name: /Tiếp tục: Thời gian/ }).click()
-  await expect(page.getByText('70 m')).toBeVisible()
+  await expect(page.getByLabel(/Ngày sớm nhất/)).toBeVisible()
   await page
     .getByRole('button', { name: /Tiếp tục: Kết quả bàn giao & xác nhận/ })
     .click()
   await expect(page.getByText('Cao 70 m')).toBeVisible()
 
-  // Keyboard navigation to a completed step preserves the selected schedule.
-  const scheduleTab = page.getByRole('button', {
-    name: /Thời gian — đã hoàn tất/,
-  })
-  await scheduleTab.focus()
-  await page.keyboard.press('Enter')
+  // Sequential footer navigation preserves the selected schedule and earlier choices.
+  await page.getByRole('button', { name: 'Quay lại' }).click()
   await expect(page.getByLabel(/Ngày sớm nhất/)).toHaveValue(earliest!)
   await expect(page.getByLabel(/Khung giờ/)).toHaveValue(selectedTime!)
   await page.getByRole('button', { name: 'Quay lại' }).click()
-  await expect(
-    page.locator('.co-tab[aria-current="step"]'),
-  ).toHaveAccessibleName(/Chi tiết & quyền giám sát/)
+  await expect(page.getByLabel(/Độ cao giám sát/)).toBeVisible()
   await expect(page.getByLabel(/Độ cao giám sát/)).toHaveValue('70')
   await page.getByRole('button', { name: 'Quay lại' }).click()
-  await expect(
-    page.locator('.co-tab[aria-current="step"]'),
-  ).toHaveAccessibleName(/Nội dung giám sát/)
   await expect(page.getByLabel(/^Chọn tất cả/)).toBeChecked()
   await page
     .getByRole('button', { name: /Tiếp tục: Chi tiết & quyền giám sát/ })

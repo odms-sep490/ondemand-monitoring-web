@@ -1,6 +1,6 @@
 import { Button, Checkbox, Radio } from 'antd'
 import { SafetyOutlined } from '@ant-design/icons'
-import { useRef, useState } from 'react'
+import { useRef, useState, type ReactNode } from 'react'
 
 import { Card } from '../../../components/common/ui'
 
@@ -47,10 +47,12 @@ export function MonitoringAuthorizationSection({
   form,
   errors,
   update,
+  footer,
 }: {
   form: FormState
   errors: FormErrors
   update: UpdateField
+  footer?: ReactNode
 }) {
   const { t } = useI18n(monitoringAuthorizationMessages)
   const [uploadErrors, setUploadErrors] = useState<Record<string, string>>({})
@@ -316,6 +318,7 @@ export function MonitoringAuthorizationSection({
         </div>
       ) : null}
       <p className="co-authz-note">{t.note}</p>
+      {footer}
     </Card>
   )
 }

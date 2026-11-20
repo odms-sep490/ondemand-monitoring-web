@@ -19,7 +19,6 @@ import { ChecklistSnapshotCard } from '../../components/checklist/ChecklistSnaps
 import { OrderHeader } from './components/OrderHeader'
 import { OrderInfoCard } from './components/OrderInfoCard'
 import { OrderOverviewVisualCard } from './components/OrderOverviewVisualCard'
-import { OrderTimeline } from './components/OrderTimeline'
 import { ReviewNotice } from './components/ReviewNotice'
 import { CardTitle } from './components/CardTitle'
 import { useOrderDetail } from './hooks/useOrderDetail'
@@ -106,27 +105,6 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
       ? missionQuery.data
       : undefined
   const missions = currentMissionData?.missions ?? []
-  const reportStarts = useApiQuery(async (signal) => {
-    if (!currentMissionData) return undefined
-    const starts = await Promise.allSettled(
-      currentMissionData.missions
-        .filter((mission) => !mission.actualStartAt && mission.reportAvailable)
-        .map(async (mission) => {
-          const report = await customerMissionReportApi.report(orderId, mission.missionId, signal)
-          return [mission.missionId, report.result?.startedAt] as const
-        }),
-    )
-    return {
-      missionData: currentMissionData,
-      byMission: new Map(starts.flatMap((result) => result.status === 'fulfilled' ? [result.value] : [])),
-    }
-  }, [orderId, currentMissionData])
-  const timelineMissions = reportStarts.data && reportStarts.data.missionData === currentMissionData
-    ? missions.map((mission) => ({
-        ...mission,
-        actualStartAt: mission.actualStartAt ?? reportStarts.data?.byMission.get(mission.missionId),
-      }))
-    : missions
   const updateFinance = useCallback((state: CustomerFinanceState) => {
     setFinance(state)
   }, [])
@@ -392,14 +370,6 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
             {financeContent}
           </div>
         </div>
-        <aside className="od-detail-progress">
-          <OrderTimeline
-            status={order.status}
-            events={order.timeline}
-            finance={finance}
-            missions={timelineMissions}
-          />
-        </aside>
       </div>
     </div>
   )

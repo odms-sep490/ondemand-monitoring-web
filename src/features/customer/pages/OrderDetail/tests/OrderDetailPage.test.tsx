@@ -222,49 +222,10 @@ describe('OrderDetailPage', () => {
     expect(hint).toHaveTextContent(/\(.+\)/)
   })
 
-  it('shows the full progress flow for a pending order with the approval step as current', async () => {
+  it('keeps the removed order progress panel off the detail page', async () => {
     render(<OrderDetailPage orderId="cus-ord-003" />)
-    const heading = await screen.findByText('Tiến trình đơn hàng')
-    const list = within(
-      heading.closest('section, .ant-card') as HTMLElement,
-    ).getByRole('list')
-    const steps = within(list).getAllByRole('listitem')
-    expect(steps).toHaveLength(8)
-    expect(within(steps[0]).getByText('Gửi yêu cầu')).toBeInTheDocument()
-    expect(within(steps[1]).getByText('Duyệt đơn')).toBeInTheDocument()
-    expect(steps[1]).toHaveAttribute('aria-current', 'step')
-    expect(within(steps[1]).getByText('Đang chờ duyệt')).toBeInTheDocument()
-    expect(
-      steps.filter((step) => step.hasAttribute('aria-current')),
-    ).toHaveLength(1)
-    expect(within(steps[2]).getByText('Xác nhận báo giá')).toBeInTheDocument()
-    expect(
-      within(steps[3]).getByText('Thanh toán tiền cọc'),
-    ).toBeInTheDocument()
-    expect(
-      within(steps[4]).getByText('Lên lịch & phân công'),
-    ).toBeInTheDocument()
-    expect(
-      within(steps[5]).getByText('Thanh toán theo nhiệm vụ'),
-    ).toBeInTheDocument()
-    expect(steps[7]).toHaveClass('is-upcoming')
-  })
-
-  it('ends a rejected order at a failed step with no upcoming steps', async () => {
-    render(<OrderDetailPage orderId="cus-ord-007" />)
-    const heading = await screen.findByText('Tiến trình đơn hàng')
-    const steps = within(
-      within(heading.closest('section, .ant-card') as HTMLElement).getByRole(
-        'list',
-      ),
-    ).getAllByRole('listitem')
-    expect(steps).toHaveLength(2)
-    expect(steps[1]).toHaveClass('is-failed')
-    expect(within(steps[1]).getByText('Bị từ chối')).toBeInTheDocument()
-    expect(steps.some((step) => step.classList.contains('is-upcoming'))).toBe(
-      false,
-    )
-    expect(steps.some((step) => step.hasAttribute('aria-current'))).toBe(false)
+    await screen.findByText('Chi tiết đơn hàng')
+    expect(screen.queryByText('Tiến trình đơn hàng')).not.toBeInTheDocument()
   })
 
   it('shows an error with retry when the order is missing', async () => {

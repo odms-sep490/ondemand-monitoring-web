@@ -9,6 +9,7 @@ function renderStep(valid = true) {
       selectedCount={3}
       packageSelectedCount={2}
       packageCount={4}
+      mediaTotals={{ images: 12, videos: 2 }}
       additionalChecklists={[]}
       valid={valid}
       pricingEstimate={null}
@@ -31,6 +32,10 @@ describe('ContentStep', () => {
       }),
     ).toBeInTheDocument()
     expect(screen.getByText('2 / 4')).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: /tóm tắt lựa chọn|selection overview/i }),
+    ).toBeInTheDocument()
+    expect(screen.getByText('12')).toBeInTheDocument()
 
     expect(
       screen.queryByRole('navigation', { name: /request step navigation/i }),

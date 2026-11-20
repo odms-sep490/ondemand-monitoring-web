@@ -27,7 +27,14 @@ $primary: #1565e8;
   position: fixed;
   inset: 0;
   overflow: hidden;
-  font-family: 'Be Vietnam Pro', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-family:
+    'Be Vietnam Pro',
+    'Inter',
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
   color: var(--mgr-text);
 
   .mgr-shell {
@@ -514,7 +521,8 @@ $primary: #1565e8;
   --mgr-hero-bg: #14213f;
   --mgr-wash: none;
   --mgr-shadow: 0 1px 2px rgb(0 0 0 / 30%), 0 10px 28px -10px rgb(0 0 0 / 55%);
-  --mgr-shadow-hover: 0 2px 4px rgb(0 0 0 / 40%), 0 18px 36px -12px rgb(59 130 246 / 40%);
+  --mgr-shadow-hover:
+    0 2px 4px rgb(0 0 0 / 40%), 0 18px 36px -12px rgb(59 130 246 / 40%);
 
   .mgr-menu .ant-menu-item {
     color: #cbd5e1;
@@ -551,6 +559,27 @@ $primary: #1565e8;
 
 @media (max-width: 640px) {
   .mgr-layout {
+    .mgr-header-left {
+      flex: 1;
+    }
+
+    .mgr-header-left .ant-breadcrumb {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .mgr-header-left .ant-breadcrumb li:last-child {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .mgr-header-left .ant-breadcrumb li:last-child .ant-breadcrumb-link {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
     .mgr-support-label {
       display: none;
     }

@@ -14,6 +14,9 @@ type Props = {
   /** Why the primary button is disabled; shown right next to it. */
   blockedReason?: string | null
   summary?: ReactNode
+  cancelLabel?: string
+  cancelDisabled?: boolean
+  onCancel?: () => void
   onBack: () => void
   onNext: () => void
   onSubmit: () => void
@@ -27,6 +30,9 @@ export function WizardFooter({
   nextDisabled = false,
   blockedReason = null,
   summary,
+  cancelLabel,
+  cancelDisabled = false,
+  onCancel,
   onBack,
   onNext,
   onSubmit,
@@ -35,6 +41,15 @@ export function WizardFooter({
   return (
     <div className="co-footer">
       <div className="co-footer-meta">
+        {cancelLabel && onCancel && (
+          <Button
+            className="co-footer-cancel"
+            disabled={cancelDisabled}
+            onClick={onCancel}
+          >
+            {cancelLabel}
+          </Button>
+        )}
         {summary}
         <span className="co-draft-note">{t.draftNote}</span>
         {blockedReason && (
