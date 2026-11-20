@@ -1533,7 +1533,7 @@
 }
 
 .od-results-panel .delivery-grid {
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 210px), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr));
 }
 
 .od-results-panel .delivery-asset {

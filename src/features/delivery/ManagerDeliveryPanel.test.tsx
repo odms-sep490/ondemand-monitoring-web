@@ -616,4 +616,29 @@ describe('manager publication boundaries', () => {
       expect(getChecklistsSpy.mock.calls.length).toBe(callsBeforeFocus + 1),
     )
   })
+
+  it('places active revision triage above checklist delivery and explains pending triage', async () => {
+    vi.mocked(deliveryApi.managerGet).mockResolvedValue({
+      ...delivery,
+      deliveryStatus: 'REVISION_REQUESTED',
+    })
+    vi.mocked(deliveryApi.managerGetChecklists).mockResolvedValue({
+      ...checklists,
+      deliveryStatus: 'REVISION_REQUESTED',
+      currentReviewRoundId: 'round-1',
+      currentReviewRoundVersion: 1,
+    })
+    vi.mocked(deliveryApi.managerGetRevisionCase).mockResolvedValue(
+      reviewCase([flagged]),
+    )
+    const { container } = render(<ManagerDeliveryPanel orderId="o" />)
+    expect(
+      await screen.findByText(
+        /Resolve the revision items and select replacement or new media/,
+      ),
+    ).toBeInTheDocument()
+    expect(
+      container.querySelector('.delivery-content--revision-active'),
+    ).not.toBeNull()
+  })
 })

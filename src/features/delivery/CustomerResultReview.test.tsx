@@ -218,4 +218,57 @@ describe('CustomerResultReview', () => {
       screen.getByLabelText('Note for this checklist item (required)'),
     ).toHaveValue('Please capture again.')
   })
+
+  it('translates history status and replaces uuid filenames with friendly Vietnamese labels', async () => {
+    setLanguage('vi')
+    const uuidFilename = 'efe7631b-f53c-4545-bb0f-4123456789ab.jpg'
+    vi.spyOn(deliveryApi, 'getResultReview').mockResolvedValue({
+      ...result,
+      items: [
+        {
+          ...result.items[0],
+          title: 'Chụp ảnh tổng quan công trình',
+          evidence: [
+            {
+              ...result.items[0].evidence[0],
+              fileName: uuidFilename,
+            },
+          ],
+        },
+      ],
+    })
+    vi.spyOn(deliveryApi, 'getResultReviewHistory').mockResolvedValue({
+      page: 0,
+      size: 50,
+      totalItems: 1,
+      rounds: [
+        {
+          reviewRoundId: 'round-history-1',
+          roundNumber: 1,
+          roundVersion: 3,
+          publishedAt: '2026-10-28T03:00:00Z',
+          status: 'REVISION_REQUESTED',
+          items: result.items,
+        },
+      ],
+    })
+    render(
+      <CustomerResultReview
+        orderId="order-1"
+        onComplete={() => undefined}
+        onSubmitted={() => undefined}
+      />,
+    )
+
+    expect(
+      await screen.findByText('Trạng thái: Đã yêu cầu chỉnh sửa'),
+    ).toBeInTheDocument()
+    expect(screen.queryByText(/REVISION_REQUESTED/)).not.toBeInTheDocument()
+
+    fireEvent.click(
+      screen.getByRole('tab', { name: /Chụp ảnh tổng quan công trình/ }),
+    )
+    expect(await screen.findByText('Ảnh kết quả #1')).toBeInTheDocument()
+    expect(screen.queryByText(uuidFilename)).not.toBeInTheDocument()
+  })
 })

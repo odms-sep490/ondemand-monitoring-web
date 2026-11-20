@@ -90,6 +90,10 @@ export const managerDeliveryPanelMessages = defineMessages({
       'Một hoặc nhiều checklist có nhiều ảnh/video hơn số lượng tối thiểu. Xác nhận để gửi đúng lựa chọn hiện tại.',
     surplusRequired: 'Xác nhận media dư trước khi gửi.',
     revisionCase: 'Xử lý yêu cầu chỉnh sửa',
+    revisionCaseHelp:
+      'Bước 1: Mở từng hạng mục để xem phản hồi khách hàng, xác định phạm vi và chọn cách xử lý trước khi cập nhật kết quả bên dưới.',
+    pendingRevisionChangesHint:
+      'Hãy xử lý yêu cầu chỉnh sửa và chọn media thay thế/bổ sung ở các mục trên trước khi gửi lại.',
     caseOpen: 'Đang xử lý',
     caseClosed: 'Đã hoàn tất',
     ticket: (code: string) => `Phiếu ${code}`,
@@ -228,6 +232,10 @@ export const managerDeliveryPanelMessages = defineMessages({
       'One or more checklists include more media than the minimum. Confirm to publish this exact selection.',
     surplusRequired: 'Confirm surplus media before publishing.',
     revisionCase: 'Handle revision request',
+    revisionCaseHelp:
+      'Step 1: Expand each reported item to review customer feedback, decide scope, and choose a strategy before updating results below.',
+    pendingRevisionChangesHint:
+      'Resolve the revision items and select replacement or new media above before re-sending results.',
     caseOpen: 'In progress',
     caseClosed: 'Completed',
     ticket: (code: string) => `Ticket ${code}`,

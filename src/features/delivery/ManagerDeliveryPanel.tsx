@@ -823,7 +823,13 @@ function ScopedManagerDeliveryPanel({
       </header>
       <DeliveryProgress status={delivery.deliveryStatus} />
       </div>
-      <div className="delivery-content">
+      <div
+        className={`delivery-content${
+          revisionCase && revisionCase.status === 'OPEN'
+            ? ' delivery-content--revision-active'
+            : ''
+        }`}
+      >
         {!canReleasePreview &&
           !allowLegacyPublication &&
           !revisionCase &&
@@ -1089,7 +1095,11 @@ function ScopedManagerDeliveryPanel({
                       ),
                     )}
                   </b>
-                  <span>{t.willBeSentAsPreview}</span>
+                  <span>
+                    {!hasChanges && revisionCase?.status === 'OPEN'
+                      ? t.pendingRevisionChangesHint
+                      : t.willBeSentAsPreview}
+                  </span>
                 </div>
                 <Button
                   type="button"
@@ -1121,8 +1131,10 @@ function ScopedManagerDeliveryPanel({
             <div className="delivery-section__head">
               <div>
                 <h3 id="delivery-revision-case-title">{t.revisionCase}</h3>
-                <p>
+                <p>{t.revisionCaseHelp}</p>
+                <p className="delivery-revision-ticket-row">
                   <a
+                    className="delivery-ticket-link"
                     href={managerHref({
                       screen: 'support',
                       ticketId: revisionCase.ticketId,
@@ -1161,21 +1173,37 @@ function ScopedManagerDeliveryPanel({
                         </span>
                         <Typography.Text strong>{item.title}</Typography.Text>
                       </Space>
-                      <Tag
-                        color={
-                          item.scopeDecision === 'OUT_OF_SCOPE'
-                            ? 'orange'
+                      <Space wrap>
+                        <Tag
+                          color={
+                            item.scopeDecision === 'OUT_OF_SCOPE'
+                              ? 'orange'
+                              : item.scopeDecision === 'IN_SCOPE'
+                                ? 'blue'
+                                : 'warning'
+                          }
+                        >
+                          {item.scopeDecision === 'OUT_OF_SCOPE'
+                            ? t.outOfScope
                             : item.scopeDecision === 'IN_SCOPE'
-                              ? 'blue'
-                              : 'default'
-                        }
-                      >
-                        {item.scopeDecision === 'OUT_OF_SCOPE'
-                          ? t.outOfScope
-                          : item.scopeDecision === 'IN_SCOPE'
-                            ? t.inScope
-                            : t.scopePending}
-                      </Tag>
+                              ? t.inScope
+                              : t.scopePending}
+                        </Tag>
+                        {item.scopeDecision === 'IN_SCOPE' &&
+                        item.strategy !== 'UNDECIDED' ? (
+                          <Tag
+                            color={
+                              item.strategy === 'RESERVE_MEDIA'
+                                ? 'cyan'
+                                : 'purple'
+                            }
+                          >
+                            {item.strategy === 'RESERVE_MEDIA'
+                              ? t.reserveStrategy
+                              : t.reworkStrategy}
+                          </Tag>
+                        ) : null}
+                      </Space>
                     </div>
                   ),
                   children: (

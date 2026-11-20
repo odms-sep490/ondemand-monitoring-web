@@ -25,6 +25,7 @@ import {
   type RevisionRequestBody,
 } from './api'
 import { customerDeliveryPanelMessages } from './customerDeliveryPanel.messages'
+import { formatDeliveryMediaLabel } from './formatDeliveryMediaLabel'
 import { ImagePreview } from '../../shared/components/media/ImagePreview'
 import { ChecklistGuidance } from '../../shared/components/ChecklistGuidance'
 
@@ -290,7 +291,17 @@ export function CustomerResultReview({
                       {t.noEvidence}
                     </p>
                   ) : (
-                    item.evidence.map((evidence) => (
+                    item.evidence.map((evidence, evIndex) => {
+                      const isVideo = evidence.type
+                        .toUpperCase()
+                        .includes('VIDEO')
+                      const label = formatDeliveryMediaLabel(
+                        evidence.fileName,
+                        evIndex + 1,
+                        isVideo,
+                        t,
+                      )
+                      return (
                       <article
                         className="delivery-review-evidence-card"
                         key={evidence.roundEvidenceId}
@@ -308,12 +319,12 @@ export function CustomerResultReview({
                                     ? t.previewPending
                                     : t.mediaUnavailable}
                           </span>
-                        ) : evidence.type.toUpperCase().includes('VIDEO') ? (
+                        ) : isVideo ? (
                           <VideoThumbnail
                             poster={evidence.thumbnailUrl}
                             src={evidence.previewUrl}
                             mediaId={evidence.mediaAssetId}
-                            fileName={evidence.fileName}
+                            fileName={label}
                             fileSize={evidence.size}
                             original={evidence.previewStatus !== 'READY'}
                           />
@@ -324,7 +335,7 @@ export function CustomerResultReview({
                             fileSize={evidence.size}
                             original={evidence.previewStatus !== 'READY'}
                             previewSrc={evidence.previewUrl}
-                            fileName={evidence.fileName}
+                            fileName={label}
                           />
                         )}
                         <Checkbox
@@ -347,16 +358,17 @@ export function CustomerResultReview({
                         >
                           <Typography.Text
                             className="delivery-review-file-name"
-                            ellipsis={{ tooltip: evidence.fileName }}
+                            ellipsis={{ tooltip: label }}
                           >
-                            {evidence.fileName}
+                            {label}
                           </Typography.Text>
                         </Checkbox>
                         <Typography.Text type="secondary">
                           {formatSize(evidence.size)}
                         </Typography.Text>
                       </article>
-                    ))
+                      )
+                    })
                   )}
                 </div>
                 {selected && (
@@ -421,19 +433,32 @@ export function CustomerResultReview({
           className="delivery-result-history"
           aria-label={t.resultHistory}
         >
-          <Typography.Title level={4}>{t.resultHistory}</Typography.Title>
+          <h4 className="delivery-history-title">{t.resultHistory}</h4>
           <Collapse
             className="delivery-review-collapse"
             items={history.rounds
               .filter((round) => round.reviewRoundId !== review.reviewRoundId)
-              .map((round) => ({
+              .map((round) => {
+                const localizedStatus =
+                  t.historyStatuses[round.status] ?? round.status
+                const statusColor =
+                  round.status === 'REVISION_REQUESTED'
+                    ? 'orange'
+                    : round.status === 'ACCEPTED'
+                      ? 'green'
+                      : ['PUBLISHED', 'CUSTOMER_REVIEW'].includes(round.status)
+                        ? 'blue'
+                        : 'default'
+                return {
                 key: round.reviewRoundId,
                 label: (
-                  <Space>
+                  <Space size={[8, 4]} wrap>
                     <Typography.Text strong>
                       {t.reviewRound(round.roundNumber)}
                     </Typography.Text>
-                    <Tag>{t.historyStatus(round.status)}</Tag>
+                    <Tag color={statusColor}>
+                      {t.historyStatus(localizedStatus)}
+                    </Tag>
                     <Typography.Text type="secondary">
                       {t.publishedAt(
                         new Date(round.publishedAt).toLocaleString(locale),
@@ -459,7 +484,17 @@ export function CustomerResultReview({
                             collapsible={false}
                           />
                           <div className="delivery-review-evidence">
-                            {item.evidence.map((evidence) => (
+                            {item.evidence.map((evidence, evIndex) => {
+                              const isVideo = evidence.type
+                                .toUpperCase()
+                                .includes('VIDEO')
+                              const label = formatDeliveryMediaLabel(
+                                evidence.fileName,
+                                evIndex + 1,
+                                isVideo,
+                                t,
+                              )
+                              return (
                               <article
                                 className="delivery-review-evidence-card"
                                 key={evidence.roundEvidenceId}
@@ -468,14 +503,12 @@ export function CustomerResultReview({
                                   <span className="delivery-review-media-unavailable">
                                     {t.mediaUnavailable}
                                   </span>
-                                ) : evidence.type
-                                    .toUpperCase()
-                                    .includes('VIDEO') ? (
+                                ) : isVideo ? (
                                   <VideoThumbnail
                                     poster={evidence.thumbnailUrl}
                                     src={evidence.previewUrl}
                                     mediaId={evidence.mediaAssetId}
-                                    fileName={evidence.fileName}
+                                    fileName={label}
                                     fileSize={evidence.size}
                                     original={
                                       evidence.previewStatus !== 'READY'
@@ -493,61 +526,76 @@ export function CustomerResultReview({
                                       evidence.previewStatus !== 'READY'
                                     }
                                     previewSrc={evidence.previewUrl}
-                                    fileName={evidence.fileName}
+                                    fileName={label}
                                   />
                                 )}
                                 <Typography.Text
                                   className="delivery-review-file-name"
-                                  ellipsis={{ tooltip: evidence.fileName }}
+                                  ellipsis={{ tooltip: label }}
                                 >
-                                  {evidence.fileName}
+                                  {label}
                                 </Typography.Text>
                               </article>
-                            ))}
+                              )
+                            })}
                           </div>
                         </div>
                       ),
                     }))}
                   />
                 ),
-              }))}
+                }
+              })}
           />
         </section>
       ) : null}
       {review.canSubmitRevision &&
         !review.existingRequest &&
         selectedItems.length > 0 && (
-          <>
-            <label className="delivery-feedback-label">
-              {t.generalNote}
-              <Input.TextArea
-                disabled={revisionLocked}
-                rows={2}
-                maxLength={2000}
-                value={generalNote}
-                onChange={(event) => setGeneralNote(event.target.value)}
-              />
-            </label>
-            {selectedItems.length > 0 && (
+          <label className="delivery-feedback-label">
+            {t.generalNote}
+            <Input.TextArea
+              disabled={revisionLocked}
+              rows={2}
+              maxLength={2000}
+              value={generalNote}
+              onChange={(event) => setGeneralNote(event.target.value)}
+            />
+          </label>
+        )}
+      {((review.canSubmitRevision && !review.existingRequest) ||
+        (review.canAcceptResult && !review.existingRequest)) && (
+        <footer className="delivery-review-actions">
+          <span className="delivery-review-actions__hint">
+            {selectedItems.length > 0
+              ? t.selectedItemsForRevision(selectedItems.length)
+              : t.reviewDecisionHint}
+          </span>
+          <div className="delivery-actions">
+            {review.canSubmitRevision &&
+              !review.existingRequest &&
+              selectedItems.length > 0 && (
+                <Button
+                  onClick={() => setConfirm('revision')}
+                  disabled={
+                    busy ||
+                    selectedItems.some((id) => !feedback[id]?.note.trim())
+                  }
+                >
+                  {revisionLocked ? t.retrySubmission : t.sendStructuredRequest}
+                </Button>
+              )}
+            {review.canAcceptResult && !review.existingRequest && (
               <Button
-                onClick={() => setConfirm('revision')}
-                disabled={
-                  busy || selectedItems.some((id) => !feedback[id]?.note.trim())
-                }
+                type="primary"
+                onClick={() => setConfirm('accept')}
+                disabled={busy || revisionLocked}
               >
-                {revisionLocked ? t.retrySubmission : t.sendStructuredRequest}
+                {missionId ? t.acceptMission : t.acceptAll}
               </Button>
             )}
-          </>
-        )}
-      {review.canAcceptResult && !review.existingRequest && (
-        <Button
-          type="primary"
-          onClick={() => setConfirm('accept')}
-          disabled={busy || revisionLocked}
-        >
-          {missionId ? t.acceptMission : t.acceptAll}
-        </Button>
+          </div>
+        </footer>
       )}
       {confirm && (
         <div
