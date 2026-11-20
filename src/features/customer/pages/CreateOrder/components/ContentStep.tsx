@@ -1,5 +1,12 @@
+import {
+  CheckCircleFilled,
+  PictureOutlined,
+  UnorderedListOutlined,
+  VideoCameraOutlined,
+} from '@ant-design/icons'
 import type { ReactNode } from 'react'
 
+import { Card } from '../../../components/common/ui'
 import { useI18n } from '../../../../../shared/i18n'
 import type {
   ServiceOption,
@@ -16,6 +23,7 @@ type Props = {
   selectedCount: number
   packageSelectedCount: number
   packageCount: number
+  mediaTotals: { images: number; videos: number }
   additionalChecklists: ChecklistRow[]
   valid: boolean
   pricingEstimate: ServicePricingEstimate | null
@@ -25,6 +33,9 @@ type Props = {
 /** Edit requirements while summary and navigation remain available on all screens. */
 export function ContentStep(p: Props) {
   const { t } = useI18n(contentStepMessages)
+  const packageProgress = p.packageCount
+    ? Math.min(100, Math.round((p.packageSelectedCount / p.packageCount) * 100))
+    : 0
 
   return (
     <div className="co-content-shell">
@@ -45,6 +56,69 @@ export function ContentStep(p: Props) {
               additionalChecklists={p.additionalChecklists}
             />
           </aside>
+          <Card
+            className="co-content-overview-card"
+            icon={<UnorderedListOutlined aria-hidden="true" />}
+            title={t.overviewTitle}
+          >
+            <div className="co-content-overview-lead">
+              <span className="co-content-overview-count" aria-hidden="true">
+                {String(p.selectedCount).padStart(2, '0')}
+              </span>
+              <div className="co-content-overview-copy">
+                <strong>{t.selectedItems}</strong>
+                <span>{t.overviewHint}</span>
+              </div>
+              <span
+                className={`co-content-overview-status${p.valid ? ' is-ready' : ''}`}
+              >
+                {p.valid && <CheckCircleFilled aria-hidden="true" />}
+                {p.valid ? t.ready : t.needsReview}
+              </span>
+            </div>
+
+            <div className="co-content-overview-package">
+              <div className="co-content-overview-package-label">
+                <span>{t.packageContent}</span>
+                <strong>{t.count(p.packageSelectedCount, p.packageCount)}</strong>
+              </div>
+              <div
+                className="co-content-overview-progress"
+                role="progressbar"
+                aria-label={t.packageContent}
+                aria-valuemin={0}
+                aria-valuemax={Math.max(1, p.packageCount)}
+                aria-valuenow={p.packageSelectedCount}
+              >
+                <span style={{ width: `${packageProgress}%` }} />
+              </div>
+              {p.additionalChecklists.length > 0 && (
+                <div className="co-content-overview-added">
+                  <span>{t.additionalContent}</span>
+                  <strong>{p.additionalChecklists.length}</strong>
+                </div>
+              )}
+            </div>
+
+            <div className="co-content-overview-media">
+              <div className="co-content-overview-media-item">
+                <PictureOutlined aria-hidden="true" />
+                <strong>{p.mediaTotals.images}</strong>
+                <span>{t.imageFiles}</span>
+              </div>
+              <div className="co-content-overview-media-item">
+                <VideoCameraOutlined aria-hidden="true" />
+                <strong>{p.mediaTotals.videos}</strong>
+                <span>{t.videoFiles}</span>
+              </div>
+            </div>
+            <p className="co-content-overview-footnote">{t.mediaHint}</p>
+            {!p.valid && (
+              <p className="co-content-overview-warning" role="alert">
+                {t.invalid}
+              </p>
+            )}
+          </Card>
         </div>
       </div>
     </div>

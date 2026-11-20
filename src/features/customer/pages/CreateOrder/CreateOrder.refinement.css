@@ -2044,3 +2044,237 @@
     font-size: 20px;
   }
 }
+
+/* Step 1: keep service choices and the request summary in one compact view. */
+.co-page.is-service-selection {
+  gap: clamp(10px, 1.2vh, 14px);
+  padding: 0 clamp(10px, 1.25vw, 20px) 8px;
+}
+
+.co-page.is-service-selection .co-grid.is-service:not(.is-schedule) {
+  grid-template-columns: minmax(0, 1.68fr) minmax(320px, 0.94fr);
+  align-items: stretch;
+  gap: clamp(12px, 1.3vw, 20px);
+}
+
+.co-page.is-service-selection
+  .co-grid.is-service:not(.is-schedule)
+  > .co-stack:first-child
+  > .co-service-card {
+  height: 100%;
+}
+
+.co-page.is-service-selection .co-service-card .ant-card-head,
+.co-page.is-service-selection .co-summary .ant-card-head {
+  min-height: 44px;
+  padding-inline: 14px;
+}
+
+.co-page.is-service-selection .co-service-card .ant-card-head-title,
+.co-page.is-service-selection .co-summary .ant-card-head-title {
+  padding-block: 10px;
+  font-size: 15px;
+}
+
+.co-page.is-service-selection .co-service-card .ant-card-body {
+  padding: 9px 12px 11px;
+}
+
+.co-page.is-service-selection .co-service-lead {
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.co-page.is-service-selection .co-row-between.co-mt,
+.co-page.is-service-selection .co-service-grid.co-mt {
+  margin-top: 8px;
+}
+
+.co-page.is-service-selection .co-service-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  align-items: stretch;
+}
+
+.co-page.is-service-selection .co-service-grid .co-service,
+.co-page.is-service-selection .co-service-grid .co-service.is-active {
+  min-height: 0;
+  gap: 5px;
+  padding: 8px;
+  border-radius: 11px;
+  box-shadow: none;
+}
+
+.co-page.is-service-selection .co-service-grid .co-service.is-active {
+  border-color: var(--ui-primary);
+  background: color-mix(in srgb, var(--ui-primary) 4%, var(--ui-surface));
+  box-shadow: inset 0 0 0 1px var(--ui-primary);
+}
+
+.co-page.is-service-selection .co-service-illustration,
+.co-page.is-service-selection .co-service-grid .co-service-illustration {
+  height: clamp(84px, 11vh, 108px);
+  flex: none;
+  border-radius: 9px;
+}
+
+.co-page.is-service-selection .co-service-grid .co-service-name {
+  margin-top: 0;
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.25;
+}
+
+.co-page.is-service-selection .co-service-grid .co-service-desc {
+  display: -webkit-box;
+  min-height: 2.7em;
+  margin-top: 0;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-size: 12px;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+}
+
+.co-page.is-service-selection .co-service-grid .co-service > strong {
+  min-height: 34px;
+  gap: 6px;
+  margin-top: auto;
+  padding: 5px 9px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.co-page.is-service-selection .co-service-grid .co-service > strong .anticon {
+  font-size: 14px;
+}
+
+.co-page.is-service-selection .co-service-card .co-service-search {
+  width: min(190px, 45vw);
+  min-height: 34px;
+}
+
+.co-page.is-service-selection .co-grid.is-service > .co-summary.is-tall {
+  position: static;
+  top: auto;
+  height: 100%;
+  min-height: 0;
+  align-self: stretch;
+  gap: 8px;
+  overflow: visible;
+}
+
+.co-page.is-service-selection .co-summary .ant-card-body {
+  padding: 9px 13px 11px;
+}
+
+.co-page.is-service-selection .co-summary .co-mt {
+  margin-top: 8px;
+}
+
+.co-page.is-service-selection .co-summary textarea.co-input {
+  min-height: 68px;
+  padding-block: 7px;
+}
+
+.co-page.is-service-selection .co-attachment-details {
+  margin-top: 8px;
+}
+
+.co-page.is-service-selection
+  .co-pricing-estimate-card:not(.is-review)
+  .co-money-row {
+  padding-block: 5px;
+}
+
+.co-page.is-service-selection
+  .co-pricing-estimate-card:not(.is-review)
+  .co-money-total {
+  margin-top: 6px;
+  padding: 8px 10px;
+  font-size: 13px;
+}
+
+.co-page.is-service-selection
+  .co-pricing-estimate-card:not(.is-review)
+  .co-money-total
+  > span:last-child {
+  font-size: 18px;
+}
+
+.co-page.is-service-selection .co-action-dock {
+  padding: 7px 12px;
+}
+
+.co-page.is-service-selection .co-action-dock .ant-btn {
+  min-height: 38px;
+  padding: 6px 14px;
+}
+
+.co-page.is-service-selection .co-footer-cancel.ant-btn {
+  min-height: 34px;
+  padding: 5px 12px;
+}
+
+@media (min-width: 1200px) and (max-height: 800px) {
+  .co-page.is-service-selection {
+    gap: 8px;
+    padding-bottom: 4px;
+  }
+
+  .co-page.is-service-selection .co-service-card .ant-card-head,
+  .co-page.is-service-selection .co-summary .ant-card-head {
+    min-height: 40px;
+  }
+
+  .co-page.is-service-selection .co-service-grid {
+    gap: 8px;
+  }
+
+  .co-page.is-service-selection .co-service-illustration,
+  .co-page.is-service-selection .co-service-grid .co-service-illustration {
+    height: clamp(76px, 10vh, 84px);
+  }
+
+  .co-page.is-service-selection .co-service-grid .co-service,
+  .co-page.is-service-selection .co-service-grid .co-service.is-active {
+    gap: 4px;
+    padding: 7px;
+  }
+
+  .co-page.is-service-selection .co-summary .ant-card-body {
+    padding-block: 7px 9px;
+  }
+
+  .co-page.is-service-selection .co-action-dock {
+    padding-block: 5px;
+  }
+}
+
+@media (max-width: 1000px) {
+  .co-page.is-service-selection .co-grid.is-service:not(.is-schedule) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .co-page.is-service-selection .co-grid.is-service > .co-summary.is-tall {
+    height: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .co-page.is-service-selection {
+    gap: 12px;
+    padding-inline: 12px;
+  }
+
+  .co-page.is-service-selection .co-service-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .co-page.is-service-selection .co-service-illustration,
+  .co-page.is-service-selection .co-service-grid .co-service-illustration {
+    height: clamp(150px, 42vw, 190px);
+  }
+}
