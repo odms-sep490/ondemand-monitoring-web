@@ -308,11 +308,49 @@ it('keeps dossier adjustments out of Manager flight planning', async () => {
   const { container } = render(<InspectionCorrectionPanel missionId="m1" manager orderId="order" />)
   await waitFor(() => expect(container).toBeEmptyDOMElement())
 })
+it('shows waiting guidance to a pure Inspector when a dossier adjustment is still open', async () => {
+  vi.spyOn(inspectionCorrectionApi, 'list').mockResolvedValue([
+    { ...batch, mode: 'DOSSIER_ADJUSTMENT', status: 'OPEN' },
+  ])
+  render(<InspectionCorrectionPanel missionId="m1" canRequest />)
+  expect(
+    await screen.findByText(/Yêu cầu đã gửi tới đội thực hiện/),
+  ).toBeInTheDocument()
+  expect(
+    screen.getByRole('link', { name: 'Xem tiến độ xử lý' }),
+  ).toHaveAttribute('href', '#portal/staff/corrections/m1')
+  expect(
+    screen.queryByRole('link', { name: 'Mở bổ sung hồ sơ' }),
+  ).toBeNull()
+})
+
 it('routes the Inspector to the same workspace for reinspection', async () => {
+  window.location.hash = '#portal/staff/missions/m1'
   vi.spyOn(inspectionCorrectionApi, 'list').mockResolvedValue([{ ...batch, mode: 'DOSSIER_ADJUSTMENT', status: 'SUBMITTED' }])
   render(<InspectionCorrectionPanel missionId="m1" canRequest />)
   expect(await screen.findByRole('link', { name: 'Kiểm tra lại hồ sơ' })).toHaveAttribute('href', '#portal/staff/inspection/m1')
   expect(screen.queryByRole('button', { name: 'Xác nhận đã bổ sung đạt' })).toBeNull()
+})
+
+it('opens the requested checklist item in place when already on the inspection page', async () => {
+  window.location.hash = '#portal/staff/inspection/m1'
+  const onReviewChecklist = vi.fn()
+  vi.spyOn(inspectionCorrectionApi, 'list').mockResolvedValue([
+    { ...batch, mode: 'DOSSIER_ADJUSTMENT', status: 'SUBMITTED' },
+  ])
+  render(
+    <InspectionCorrectionPanel
+      missionId="m1"
+      rows={rows}
+      canRequest
+      onReviewChecklist={onReviewChecklist}
+    />,
+  )
+  fireEvent.click(
+    await screen.findByRole('button', { name: 'Kiểm tra lại hồ sơ' }),
+  )
+  expect(onReviewChecklist).toHaveBeenCalledWith('bad')
+  window.location.hash = ''
 })
 
 

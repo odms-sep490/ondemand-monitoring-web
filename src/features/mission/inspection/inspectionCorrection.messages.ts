@@ -14,10 +14,17 @@ export const inspectionCorrectionMessages = defineMessages({
 
     workflowOpen: 'Mở bổ sung hồ sơ',
     workflowReview: 'Kiểm tra lại hồ sơ',
+    workflowTrack: 'Xem tiến độ xử lý',
     workflowStaffHint:
-      'Xem yêu cầu, bổ sung tệp nếu cần, chỉnh bằng chứng rồi gửi lại trong workspace riêng.',
+      'Xem yêu cầu, bổ sung tệp nếu cần và cập nhật bằng chứng trong không gian bổ sung hồ sơ.',
+    workflowWaitingHint:
+      'Yêu cầu đã gửi tới đội thực hiện. Bạn sẽ nhận lại hồ sơ để kiểm tra ngay khi đội thực hiện gửi lại.',
     workflowReviewHint:
       'Hồ sơ đã gửi lại. Kiểm tra các mục đã bổ sung trước khi tiếp tục nghiệm thu nhiệm vụ.',
+    workflowReviewHereHint:
+      'Hồ sơ đã gửi lại. Đánh giá lại các mục được bổ sung trong Danh mục công trình bên dưới.',
+    activeOpenSubtitle: 'Đang chờ đội thực hiện cập nhật hồ sơ theo các mục đã yêu cầu.',
+    activeSubmittedSubtitle: 'Hồ sơ bổ sung đã gửi lại và sẵn sàng để kiểm tra.',
 
     strategy: 'Hướng xử lý yêu cầu',
     requireFlight: 'Dữ liệu không đủ — yêu cầu bay bổ sung',
@@ -32,6 +39,11 @@ export const inspectionCorrectionMessages = defineMessages({
     title: 'Yêu cầu bổ sung kết quả',
     subtitle:
       'Inspector nghiệm thu và công bố kết quả trực tiếp cho khách hàng.',
+    composerSubtitle:
+      'Chọn hướng xử lý và ghi rõ nội dung cần khắc phục cho các mục không đạt trước khi gửi.',
+    failedBadge: 'Không đạt',
+    composeSummary: (count: number, modeLabel: string) =>
+      `${count} mục không đạt · ${modeLabel}`,
     inspectorRole: 'Nghiệm thu kết quả',
     dualRoleGuide:
       'Bạn có quyền thực hiện cả bổ sung và nghiệm thu trong nhiệm vụ này. Ghi nhận yêu cầu, bổ sung dữ liệu rồi gửi lại để kiểm tra; mỗi bước vẫn được lưu riêng.',
@@ -124,10 +136,17 @@ export const inspectionCorrectionMessages = defineMessages({
 
     workflowOpen: 'Open correction workspace',
     workflowReview: 'Review corrected dossier',
+    workflowTrack: 'View correction status',
     workflowStaffHint:
       'Review the request, add files if needed, update evidence, then resubmit in the dedicated workspace.',
+    workflowWaitingHint:
+      'Corrections have been requested from the crew. You can reinspect once the updated dossier is submitted.',
     workflowReviewHint:
       'The corrected dossier has been submitted. Review the updated items before continuing Mission inspection.',
+    workflowReviewHereHint:
+      'The corrected dossier has been submitted. Re-assess the updated items in the checklist section below.',
+    activeOpenSubtitle: 'Waiting for the crew to update and resubmit the requested items.',
+    activeSubmittedSubtitle: 'The updated dossier is ready for reinspection.',
 
     strategy: 'Correction strategy',
     requireFlight: 'Insufficient data — request a supplemental flight',
@@ -142,6 +161,11 @@ export const inspectionCorrectionMessages = defineMessages({
     title: 'Result correction requests',
     subtitle:
       'The Inspector confirms and publishes results directly to the customer.',
+    composerSubtitle:
+      'Select a handling option and confirm the required fixes for failed checklist items before sending.',
+    failedBadge: 'Failed',
+    composeSummary: (count: number, modeLabel: string) =>
+      `${count} failed ${count === 1 ? 'item' : 'items'} · ${modeLabel}`,
     inspectorRole: 'Result inspection',
     dualRoleGuide:
       'You can both correct and inspect this Mission. Record the request, update the evidence, then submit it for review. Each step is recorded separately.',

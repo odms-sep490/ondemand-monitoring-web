@@ -801,6 +801,23 @@
 .mc-assessment-heading > div { min-width: 0; }
 .mc-assessment-state { flex: none; white-space: nowrap; }
 .mc-detail .checklist-evidence.is-customer-selection { padding: 0; border: 0; background: transparent; }
+.monitoring-inspection-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.monitoring-inspection-stack > .inspection-corrections {
+  order: 1;
+  margin: 0;
+}
+.monitoring-inspection-stack > .monitoring-checklist {
+  order: 2;
+  margin: 0;
+}
+.monitoring-inspection-stack > .inspection-corrections.is-composing {
+  order: 3;
+}
+
 @media (max-width: 600px) {
   .mc-detail.is-inspection-review { padding: 12px; }
   .mc-item-body.is-assessment-review { padding: 12px; }

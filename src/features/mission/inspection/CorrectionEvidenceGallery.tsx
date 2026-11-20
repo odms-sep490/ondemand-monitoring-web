@@ -33,6 +33,21 @@ const messages = defineMessages({
     noThumbnail: 'Thumbnail unavailable',
   },
 })
+const UUID_ONLY_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(\.[a-z0-9]+)?$/i
+
+function displayFileName(
+  rawName: string | null | undefined,
+  index: number,
+  mediaType: string | undefined,
+  t: { image: string; video: string },
+) {
+  if (!rawName || UUID_ONLY_PATTERN.test(rawName.trim())) {
+    return `${mediaType === 'VIDEO' ? t.video : t.image} #${index + 1}`
+  }
+  return rawName
+}
+
 export function CorrectionEvidenceGallery({
   missionId,
   executionId,
@@ -68,49 +83,60 @@ export function CorrectionEvidenceGallery({
       </legend>
       {!readOnly && <p className="inspection-corrections__media-hint">{t.hint}</p>}
       <div className="inspection-corrections__media-grid">
-        {links.map((link) => {
+        {links.map((link, index) => {
           const chosen = selected.includes(link.mediaId)
           const name = link.fileName ?? link.mediaId
+          const visibleName = displayFileName(
+            link.fileName,
+            index,
+            link.mediaType,
+            t,
+          )
           return (
             <article
               key={link.evidenceId}
               className={`inspection-corrections__media-card${chosen ? ' is-selected' : ''}`}
             >
-              {!readOnly && <div className="inspection-corrections__media-choice">
-                <Checkbox
-                  aria-label={t.select(name)}
-                  checked={chosen}
-                  disabled={disabled}
-                  onChange={(event) =>
-                    onChange(
-                      event.target.checked
-                        ? [...new Set([...selected, link.mediaId])]
-                        : selected.filter((id) => id !== link.mediaId),
-                    )
-                  }
+              <div className="inspection-corrections__media-frame">
+                <button
+                  type="button"
+                  className="inspection-corrections__media-preview"
+                  aria-label={t.view(name)}
+                  onClick={() => setPreview(link)}
                 >
-                  {link.mediaType === 'VIDEO' ? t.video : t.image}
-                </Checkbox>
-              </div>}
-              <button
-                type="button"
-                className="inspection-corrections__media-preview"
-                aria-label={t.view(name)}
-                onClick={() => setPreview(link)}
-              >
-                <CorrectionThumbnail link={link} fallback={t.noThumbnail} />
-                <span className="inspection-corrections__media-view">
-                  {t.preview}
-                </span>
-              </button>
-              <div className="inspection-corrections__media-info">
-                <strong title={name}>{name}</strong>
-                {readOnly && chosen && selectedLabel && <Tag color="blue">{selectedLabel}</Tag>}
-                {link.mediaStatus && (
-                  <small>
-                    {getUploadMediaStatusLabel(link.mediaStatus, lang)}
-                  </small>
+                  <CorrectionThumbnail link={link} fallback={t.noThumbnail} />
+                  <span className="inspection-corrections__media-view">
+                    {t.preview}
+                  </span>
+                </button>
+                {!readOnly && (
+                  <label className="inspection-corrections__media-badge">
+                    <Checkbox
+                      aria-label={t.select(name)}
+                      checked={chosen}
+                      disabled={disabled}
+                      onChange={(event) =>
+                        onChange(
+                          event.target.checked
+                            ? [...new Set([...selected, link.mediaId])]
+                            : selected.filter((id) => id !== link.mediaId),
+                        )
+                      }
+                    />
+                  </label>
                 )}
+              </div>
+              <div className="inspection-corrections__media-info">
+                <strong title={name}>{visibleName}</strong>
+                <div className="inspection-corrections__media-meta">
+                  <span>{link.mediaType === 'VIDEO' ? t.video : t.image}</span>
+                  {link.mediaStatus && (
+                    <small>
+                      {getUploadMediaStatusLabel(link.mediaStatus, lang)}
+                    </small>
+                  )}
+                </div>
+                {readOnly && chosen && selectedLabel && <Tag color="blue">{selectedLabel}</Tag>}
               </div>
             </article>
           )
