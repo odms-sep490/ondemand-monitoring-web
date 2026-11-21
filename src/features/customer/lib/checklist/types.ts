@@ -274,7 +274,8 @@ export function serializeChecklistUpdate(
         return {
           existingItemId: row.existingItemId,
           ...evidenceRequirements,
-          ...(content !== normalizeContent(row.originalContent)
+          ...((!row.sourceChecklistId || row.packageItem === false) &&
+          content !== normalizeContent(row.originalContent)
             ? { contentOverride: content }
             : {}),
         }
@@ -286,7 +287,8 @@ export function serializeChecklistUpdate(
         sourceChecklistId: row.sourceChecklistId,
         expectedChecklistVersion: row.version ?? 0,
         ...evidenceRequirements,
-        ...(content !== normalizeContent(row.originalContent)
+        ...((!row.sourceChecklistId || row.packageItem === false) &&
+        content !== normalizeContent(row.originalContent)
           ? { contentOverride: content }
           : {}),
       }
@@ -313,7 +315,8 @@ export function serializeChecklist(rows: ChecklistRow[]): ChecklistInput[] {
         sourceChecklistId: row.sourceChecklistId,
         expectedChecklistVersion: row.version!,
         ...evidenceRequirements,
-        ...(content !== normalizeContent(row.originalContent)
+        ...((!row.sourceChecklistId || row.packageItem === false) &&
+        content !== normalizeContent(row.originalContent)
           ? { contentOverride: content }
           : {}),
       }

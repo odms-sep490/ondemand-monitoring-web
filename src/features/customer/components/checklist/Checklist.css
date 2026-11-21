@@ -1274,3 +1274,5 @@
   font-variant-numeric: tabular-nums;
   color: var(--ui-text-2);
 }
+
+.checklist-default-content { margin: 0 0 12px; padding: 10px 12px; font-weight: 600; line-height: 1.5; overflow-wrap: anywhere; }

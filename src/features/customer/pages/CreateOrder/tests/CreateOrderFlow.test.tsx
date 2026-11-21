@@ -157,9 +157,7 @@ describe('CreateOrderPage wizard', () => {
           return
         }
         fireEvent.click(screen.getByLabelText('Sửa: Edit'))
-        fireEvent.change(screen.getByLabelText('Nội dung giám sát 2'), {
-          target: { value: 'Edited requirement' },
-        })
+        expect(screen.getByLabelText('Nội dung giám sát 2')).toHaveAttribute('aria-readonly', 'true')
         fireEvent.click(screen.getByLabelText('Chọn Remove'))
         fireEvent.click(screen.getByRole('button', { name: '+ Thêm nội dung' }))
         fireEvent.change(screen.getByLabelText('Nội dung giám sát 4'), {
@@ -197,7 +195,6 @@ describe('CreateOrderPage wizard', () => {
           expectedChecklistVersion: 11,
           minimumEvidenceCount: 1,
           requiredEvidenceType: 'IMAGE',
-          contentOverride: 'Edited requirement',
         },
         {
           contentOverride: 'Custom requirement',

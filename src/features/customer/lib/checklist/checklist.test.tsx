@@ -186,7 +186,7 @@ describe('Order checklist state and editor', () => {
     expect(result.current.valid).toBe(false)
   })
 
-  it('preserves edited sources and custom content but rejects removing every item', async () => {
+  it('omits service default content overrides while preserving custom content', async () => {
     vi.spyOn(customerApi, 'getServiceChecklist').mockResolvedValue(template())
     const { result } = renderHook(() => useOrderChecklist('A'))
     await waitFor(() => expect(result.current.valid).toBe(true))
@@ -203,7 +203,6 @@ describe('Order checklist state and editor', () => {
         expectedChecklistVersion: 3,
         minimumEvidenceCount: 1,
         requiredEvidenceType: 'IMAGE',
-        contentOverride: 'Edited first',
       },
       {
         contentOverride: 'My requirement',
@@ -330,18 +329,16 @@ describe('Order checklist state and editor', () => {
       )
     }
     render(<Editor />)
-    const first = await screen.findByLabelText('Nội dung giám sát 1')
-    fireEvent.change(first, { target: { value: 'Edited' } })
+    await screen.findByLabelText('Nội dung giám sát 1')
+    fireEvent.click(screen.getByRole('button', { name: '+ Thêm nội dung' }))
+    const custom = screen.getByLabelText('Nội dung giám sát 3')
+    fireEvent.change(custom, { target: { value: 'Edited custom' } })
     fireEvent.click(screen.getByRole('button', { name: 'Stale' }))
-    expect(first).toHaveValue('Edited')
+    expect(custom).toHaveValue('Edited custom')
     expect(screen.getByText(/Tải lại sẽ bỏ toàn bộ/)).toBeInTheDocument()
     expect(load).toHaveBeenCalledTimes(1)
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Tải lại danh sách (bỏ chỉnh sửa)' }),
-    )
-    await waitFor(() =>
-      expect(screen.getByLabelText('Nội dung giám sát 1')).toHaveValue('First'),
-    )
+    fireEvent.click(screen.getByRole('button', { name: 'Tải lại danh sách (bỏ chỉnh sửa)' }))
+    await waitFor(() => expect(screen.queryByLabelText('Nội dung giám sát 3')).toBeNull())
     expect(load).toHaveBeenCalledTimes(2)
   })
 
@@ -358,14 +355,14 @@ describe('Order checklist state and editor', () => {
       ),
     ).toBeInTheDocument()
     expect(screen.getAllByText(/Mặc định của dịch vụ/)).toHaveLength(2)
-    expect(screen.getByLabelText('Nội dung giám sát 1')).toHaveValue('First')
+    expect(screen.getByLabelText('Nội dung giám sát 1')).toHaveTextContent('First')
     fireEvent.click(
       screen.getAllByRole('button', { name: 'Bỏ khỏi yêu cầu' })[0],
     )
-    expect(screen.getByLabelText('Nội dung giám sát 1')).toBeDisabled()
-    expect(screen.getByLabelText('Nội dung giám sát 1')).toHaveValue('First')
+    expect(screen.getByLabelText('Nội dung giám sát 1')).toHaveAttribute('aria-readonly', 'true')
+    expect(screen.getByLabelText('Nội dung giám sát 1')).toHaveTextContent('First')
     fireEvent.click(screen.getByRole('button', { name: 'Thêm lại' }))
-    expect(screen.getByLabelText('Nội dung giám sát 1')).toBeEnabled()
+    expect(screen.getByLabelText('Nội dung giám sát 1')).toHaveAttribute('aria-readonly', 'true')
     fireEvent.click(screen.getByRole('button', { name: '+ Thêm nội dung' }))
     fireEvent.change(screen.getByLabelText('Nội dung giám sát 3'), {
       target: { value: 'Custom' },
@@ -414,29 +411,27 @@ describe('Order checklist state and editor', () => {
     fireEvent.click(edit)
     const content = screen.getByLabelText('Nội dung giám sát 1')
     expect(content).toHaveFocus()
-    fireEvent.change(content, {
-      target: { value: 'Updated monitoring content' },
-    })
+    expect(content).toHaveAttribute('aria-readonly', 'true')
     fireEvent.click(screen.getByRole('button', { name: 'Xong' }))
 
     expect(
-      screen.getByRole('button', { name: 'Sửa: Updated monitoring content' }),
+      screen.getByRole('button', { name: 'Sửa: First' }),
     ).toHaveFocus()
     fireEvent.click(screen.getByRole('button', { name: 'Dạng nhóm' }))
-    expect(screen.getByText('Updated monitoring content')).toBeInTheDocument()
+    expect(screen.getByText('First')).toBeInTheDocument()
     expect(
       screen.getByRole('checkbox', {
-        name: 'Chọn Updated monitoring content',
+        name: 'Chọn First',
       }),
     ).toBeChecked()
 
     fireEvent.change(
       screen.getByRole('searchbox', { name: 'Tìm nội dung giám sát' }),
       {
-        target: { value: 'Updated' },
+        target: { value: 'First' },
       },
     )
-    expect(screen.getByText('Updated monitoring content')).toBeInTheDocument()
+    expect(screen.getByText('First')).toBeInTheDocument()
     expect(screen.queryByText('Second')).not.toBeInTheDocument()
   })
 
