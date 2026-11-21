@@ -1,3 +1,5 @@
+import { useState } from 'react'
+import { ChangeAnalysisDialog } from './ChangeAnalysisDialog'
 import { ReloadOutlined } from '@ant-design/icons'
 import { Button } from 'antd'
 
@@ -19,6 +21,7 @@ import { mediaLibraryPageMessages } from './MediaLibraryPage.messages'
 export function MediaLibraryPage() {
   const { t } = useI18n(mediaLibraryPageMessages)
   const lib = useMediaLibrary()
+  const [analysisOpen, setAnalysisOpen] = useState(false)
 
   if (lib.media.loading && !lib.loaded) return <LoadingState />
   if (!lib.loaded) {
@@ -37,14 +40,18 @@ export function MediaLibraryPage() {
         title={t.title}
         subtitle={t.subtitle}
         actions={
+          <>
+          <Button type="primary" onClick={() => setAnalysisOpen(true)}>AI phân tích thay đổi</Button>
           <Button
             icon={<ReloadOutlined aria-hidden="true" aria-label={undefined} />}
             onClick={lib.reload}
           >
             {t.refresh}
           </Button>
+          </>
         }
       />
+      {analysisOpen && <ChangeAnalysisDialog onClose={() => setAnalysisOpen(false)} />}
       <div className="ml-layout">
         <MissionSidebar
           groups={lib.groups}

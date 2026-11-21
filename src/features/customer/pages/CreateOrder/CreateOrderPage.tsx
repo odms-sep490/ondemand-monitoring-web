@@ -217,7 +217,6 @@ export function CreateOrderPage() {
           form={form}
           errors={f.errors}
           update={f.update}
-          footer={footer}
         />
       )}
       {step === 5 && (
@@ -257,7 +256,7 @@ export function CreateOrderPage() {
         </div>
       )}
 
-      {step !== 4 && footer}
+      {footer}
 
       {submit.confirmOpen && (
         <ConfirmSubmitModal

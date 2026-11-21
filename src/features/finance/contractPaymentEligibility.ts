@@ -1,6 +1,6 @@
 import type { Invoice } from './types'
 
-/** Paying a deposit needs a signed submission; Mission deployment still needs confirmation. */
+/** A required contract must be confirmed by the manager before deposit checkout. */
 export function isContractDepositReady(
   invoice:
     | Pick<
@@ -13,7 +13,6 @@ export function isContractDepositReady(
   return Boolean(
     invoice &&
     (!invoice.contractRequired ||
-      invoice.contractSubmittedAt ||
       invoice.contractConfirmedAt),
   )
 }

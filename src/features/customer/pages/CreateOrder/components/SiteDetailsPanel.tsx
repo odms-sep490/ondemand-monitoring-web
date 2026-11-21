@@ -20,16 +20,18 @@ function Fold({
   title,
   hint,
   filled,
+  defaultOpen = false,
   hasError,
   children,
 }: {
   title: string
   hint?: string
   filled: boolean
+  defaultOpen?: boolean
   hasError?: boolean
   children: ReactNode
 }) {
-  const [manualOpen, setOpen] = useState(filled)
+  const [manualOpen, setOpen] = useState(defaultOpen || filled)
   const open = manualOpen || Boolean(hasError)
   return (
     <div className={`co-fold${open ? ' is-open' : ''}`}>
@@ -124,6 +126,7 @@ export function SiteDetailsPanel({ form, errors, update }: Props) {
       </div>
       <Fold
         title={t.contactSection}
+        defaultOpen
         hint={t.contactHint}
         filled={Boolean(
           form.siteContactName.trim() ||
