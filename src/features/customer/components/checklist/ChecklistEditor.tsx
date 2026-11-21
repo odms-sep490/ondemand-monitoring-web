@@ -416,22 +416,30 @@ export function ChecklistEditor({
               </button>
             )}
           </div>
-          <label
+          <span
             className="checklist-content-label"
-            htmlFor={`requirement-${row.key}`}
+            id={`requirement-label-${row.key}`}
           >
             {t.content(index + 1)}
-          </label>
-          <textarea
-            id={`requirement-${row.key}`}
-            rows={2}
-            value={row.content}
-            disabled={!row.selected}
-            aria-invalid={row.selected && Boolean(checklist.validation)}
-            onChange={(event) =>
-              checklist.change(row.key, { content: event.target.value })
-            }
-          />
+          </span>
+          {row.sourceChecklistId && row.packageItem !== false ? (
+            <p id={`requirement-${row.key}`} className="checklist-default-content"
+              role="textbox" aria-readonly="true" aria-labelledby={`requirement-label-${row.key}`} tabIndex={0}>
+              {row.originalContent}
+            </p>
+          ) : (
+            <textarea
+              id={`requirement-${row.key}`}
+              aria-labelledby={`requirement-label-${row.key}`}
+              rows={2}
+              value={row.content}
+              disabled={!row.selected}
+              aria-invalid={row.selected && Boolean(checklist.validation)}
+              onChange={(event) =>
+                checklist.change(row.key, { content: event.target.value })
+              }
+            />
+          )}
           {evidenceRequirements}
           <span className={`checklist-length${lengthState}`}>
             {length} / 500
