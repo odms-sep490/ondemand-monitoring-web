@@ -535,6 +535,7 @@ export function MissionGridCard({
                 recommendationData.aiEstimation.minimumSuggestedDevices,
                 recommendationData.aiEstimation.recommendedDevices,
               )}</strong>
+              <details className="odm-recommendation-details"><summary>{t.recommendationReason}</summary>
               {recommendationData.aiEstimation.reason && <p>{recommendationData.aiEstimation.reason}</p>}
               {recommendationData.aiEstimation.assumptions.length > 0 && (
                 <ul>{recommendationData.aiEstimation.assumptions.map((item, index) => <li key={`${index}-${item}`}>{item}</li>)}</ul>
@@ -542,6 +543,7 @@ export function MissionGridCard({
               {recommendationData.aiEstimation.warnings.length > 0 && (
                 <div><b>{t.recommendationWarnings}</b><ul>{recommendationData.aiEstimation.warnings.map((item, index) => <li key={`${index}-${item}`}>{item}</li>)}</ul></div>
               )}
+              </details>
             </div>
             {recommendationData.recommendations.length === 0 ? (
               <p>{t.recommendationEmpty}</p>
@@ -556,6 +558,7 @@ export function MissionGridCard({
                 <p>{t.recommendationStaffShortage(option.staffShortageCount)}</p>
                 <p>{t.recommendationRatios}: {Math.round(option.effectiveAvailabilityRatio * 100)}%</p>
                 {option.requiredCapabilities.length > 0 && <p>{t.recommendationCovered}: {option.requiredCapabilities.join(', ')}</p>}
+                <details className="odm-recommendation-details"><summary>{t.recommendationDevices(option.deviceCandidates.length)}</summary>
                 <ul className="odm-mcard-recommendation-pairs">
                   {option.deviceCandidates.map((device) => (
                     <li key={device.id}>
@@ -565,6 +568,7 @@ export function MissionGridCard({
                     </li>
                   ))}
                 </ul>
+                </details>
                 {option.warnings.length > 0 && <ul className="odm-mcard-recommendation-warnings">{option.warnings.map((warning, index) => <li key={`${index}-${warning}`}>{warning}</li>)}</ul>}
               </article>
             ))}

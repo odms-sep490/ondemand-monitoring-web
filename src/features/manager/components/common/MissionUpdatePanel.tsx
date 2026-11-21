@@ -10,6 +10,7 @@ import { humanizeMediaRequirement } from './format'
 import { OrderIcon } from './OrderIcon'
 import { missionUpdatePanelMessages } from './MissionUpdatePanel.messages'
 import './MissionGridCard.css'
+import { Button } from 'antd'
 import {
   dateRangeFromBrief,
   forecastTimeFromBrief,
@@ -504,23 +505,22 @@ export function MissionUpdatePanel({
                     </span>
                   </div>
                   <div className="odm-or-actionbar-actions">
-                    <button
-                      type="button"
-                      className="odm-or-btn odm-or-btn-ghost"
+                    <Button
+                      size="large"
                       disabled={submitting}
                       onClick={closeForm}
                     >
                       {tu.cancel}
-                    </button>
-                    <button
-                      type="button"
-                      className="odm-or-btn odm-or-btn-primary"
-                      disabled={submitting}
+                    </Button>
+                    <Button
+                      size="large"
+                      type="primary"
+                      loading={submitting}
                       onClick={() => void handleSubmit()}
                     >
                       {submitting ? tu.saving : tu.save}
                       <OrderIcon name="chevron-right" size={16} />
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>

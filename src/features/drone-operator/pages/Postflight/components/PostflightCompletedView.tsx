@@ -15,6 +15,7 @@ import { usePostflightReviewData } from '../usePostflightReviewData'
 import type { PostflightCheckStatus } from '../../MissionDetail/types'
 import { formatMetric } from '../postflightHelpers'
 import './PostflightCompletedView.css'
+import { MissionQualityPanel } from '../../../../media/components/MissionQualityPanel'
 
 export type DevicePostflightResult = {
   id: string
@@ -493,6 +494,7 @@ export function PostflightCompletedView({
         {actionError && <div className="postflight-error" role="alert">{actionError}</div>}
 
         <div className="postflight-review-workspace">
+          <MissionQualityPanel missionId={missionId} />
           <div className="postflight-review-tabs" role="tablist" aria-label={t.reviewTabsLabel}>
             {reviewTabs.map((tab, index) => (
               <button
